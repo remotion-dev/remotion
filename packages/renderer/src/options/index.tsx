@@ -28,6 +28,7 @@ import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {envFileOption} from './env-file';
 import {everyNthFrameOption} from './every-nth-frame';
+import {experimentalKeepAudioContextAliveOption} from './experimental-keep-audio-context-alive';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -163,6 +164,7 @@ export const allOptions = {
 	keyboardShortcutsOption,
 	framesOption,
 	forceNewStudioOption,
+	experimentalKeepAudioContextAliveOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	stillImageFormatOption,

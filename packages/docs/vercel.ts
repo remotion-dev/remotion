@@ -48,6 +48,16 @@ export const config: VercelConfig = {
 	],
 	redirects: [
 		routes.redirect(
+			'/elements/overlays/lower-third',
+			'/elements/overlays/name-lower-third',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/overlays/lower-third.md',
+			'/elements/overlays/name-lower-third.md',
+			{permanent: true},
+		),
+		routes.redirect(
 			'/changelog',
 			'https://github.com/remotion-dev/remotion/releases',
 			{permanent: false},
@@ -345,6 +355,11 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect(
+			'/elements/data/product-offer',
+			'/elements/commerce/product-offer',
+			{permanent: true},
+		),
+		routes.redirect(
 			'/docs/miscellaneous/snippets/adding-animations',
 			'/docs/animation-math',
 			{permanent: false},
@@ -410,6 +425,13 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/license/telemetry', '/docs/telemetry', {
 			permanent: true,
 		}),
+		routes.redirect(
+			'/docs/client-side-rendering/telemetry',
+			'/docs/telemetry',
+			{
+				permanent: true,
+			},
+		),
 		routes.redirect('/docs/license/dpa', '/docs/dpa', {permanent: true}),
 		routes.redirect('/docs/license/dpia', '/docs/dpia', {permanent: true}),
 		routes.redirect(

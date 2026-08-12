@@ -81,6 +81,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	) => SelectedOutlineTarget | undefined;
 	readonly getOutlineTargets: () => readonly SelectedOutlineLayoutTarget[];
 	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction?: TimelineSelectionInteraction,
@@ -97,6 +98,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	getLatestOutlineTargetByKey,
 	getOutlineTargets,
 	onDraggingChange,
+	onContextMenuOpenChange,
 	onSelect,
 	scale,
 	sequences,
@@ -205,13 +207,37 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const targetsByKey = useMemo(() => {
 		return new Map(renderState.targets.map((target) => [target.key, target]));
 	}, [renderState.targets]);
+	// Reordering a captured SVG target can cancel the active pointer session.
+	const outlineRenderingOrderRef = useRef<readonly string[]>([]);
 	const outlinesForRendering = useMemo(() => {
-		return orderOutlinesForRendering({
-			outlines: renderState.outlines,
-			sequences,
-			targetsByKey,
+		if (!dragging || outlineRenderingOrderRef.current.length === 0) {
+			const orderedOutlines = orderOutlinesForRendering({
+				outlines: renderState.outlines,
+				sequences,
+				targetsByKey,
+			});
+			outlineRenderingOrderRef.current = orderedOutlines.map(
+				(outline) => outline.key,
+			);
+			return orderedOutlines;
+		}
+
+		const currentOutlinesByKey = new Map(
+			renderState.outlines.map((outline) => [outline.key, outline]),
+		);
+		const frozenKeys = new Set(outlineRenderingOrderRef.current);
+		const newOutlines = renderState.outlines.filter(
+			(outline) => !frozenKeys.has(outline.key),
+		);
+		outlineRenderingOrderRef.current = [
+			...outlineRenderingOrderRef.current,
+			...newOutlines.map((outline) => outline.key),
+		];
+		return outlineRenderingOrderRef.current.flatMap((key) => {
+			const outline = currentOutlinesByKey.get(key);
+			return outline === undefined ? [] : [outline];
 		});
-	}, [renderState.outlines, sequences, targetsByKey]);
+	}, [dragging, renderState.outlines, sequences, targetsByKey]);
 	const outlinesByKey = useMemo(() => {
 		return new Map(
 			renderState.outlines.map((outline) => [outline.key, outline]),
@@ -306,19 +332,10 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					getLatestTargetByKey={getLatestOutlineTargetByKey}
 					outline={outline}
 					onDraggingChange={onDraggingChange}
+					onContextMenuOpenChange={onContextMenuOpenChange}
 					onSnapPointsChange={onSnapPointsChange}
 					onSelect={onSelect}
 					scale={scale}
-					layoutTarget={targetsByKey.get(outline.key)}
-				/>
-			))}
-			{/* Keep transform-origin handles above every transparent outline polygon so SVG hit-testing reaches the selected knob first. */}
-			{outlinesForRendering.map((outline) => (
-				<SelectedOutlineTransformOriginHandle
-					key={`${outline.key}-transform-origin`}
-					outline={outline}
-					onDraggingChange={onDraggingChange}
-					getLatestTargetByKey={getLatestOutlineTargetByKey}
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
@@ -336,6 +353,16 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					onDraggingChange={onDraggingChange}
 					onSelect={onSelect}
 					outline={outline}
+					layoutTarget={targetsByKey.get(outline.key)}
+				/>
+			))}
+			{/* Keep transform-origin handles above the canvas rotation surface so the knob stays visible in rotation mode and hit-testable while editing the origin. */}
+			{outlinesForRendering.map((outline) => (
+				<SelectedOutlineTransformOriginHandle
+					key={`${outline.key}-transform-origin`}
+					outline={outline}
+					onDraggingChange={onDraggingChange}
+					getLatestTargetByKey={getLatestOutlineTargetByKey}
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}

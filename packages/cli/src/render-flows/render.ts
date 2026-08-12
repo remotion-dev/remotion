@@ -255,13 +255,23 @@ export const renderVideoFlow = async ({
 		logLevel,
 		quiet: quietFlagProvided(),
 	});
-	await RenderInternals.internalEnsureBrowser({
-		browserExecutable,
-		indent,
-		logLevel,
-		onBrowserDownload,
-		chromeMode,
-	});
+	try {
+		await RenderInternals.internalEnsureBrowser({
+			browserExecutable,
+			indent,
+			logLevel,
+			onBrowserDownload,
+			chromeMode,
+		});
+	} catch (err) {
+		updateBrowserProgress({
+			progress: browserState.progress,
+			doneIn: null,
+			alreadyAvailable: false,
+			error: true,
+		});
+		throw err;
+	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
@@ -300,7 +310,9 @@ export const renderVideoFlow = async ({
 		};
 
 		onProgress({
-			message: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
+			message: progress.error
+				? `Failed to download ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'}`
+				: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
 			value: 0,
 			...aggregateRenderProgress,
 		});

@@ -151,7 +151,7 @@ export const DefaultEditorSettings: React.FC = () => {
 				keyHint: null,
 				label: (
 					<span style={appLabel}>
-						<CodingAgentIcon iconDataUrl={codingAgent.iconDataUrl} />
+						<CodingAgentIcon codingAgentId={codingAgent.id} size={18} />
 						<span style={appName}>{codingAgent.name}</span>
 					</span>
 				),
@@ -169,7 +169,6 @@ export const DefaultEditorSettings: React.FC = () => {
 
 		return [noPreference, ...installedCodingAgents];
 	}, [codingAgentInfo?.installedCodingAgents, selectedCodingAgent]);
-
 	useEffect(() => {
 		if (editorInfo === null || codingAgentInfo === null) {
 			return;

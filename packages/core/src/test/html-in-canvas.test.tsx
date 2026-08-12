@@ -212,6 +212,7 @@ const SequenceTestWrapper: React.FC<{
 		() => ({
 			clearDragOverrides: () => undefined,
 			clearEffectDragOverrides: () => undefined,
+			remapPropStatuses: () => undefined,
 			setPropStatuses: () => undefined,
 			setDragOverrides: () => undefined,
 			setEffectDragOverrides: () => undefined,

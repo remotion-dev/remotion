@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.506",
+	"version": "4.0.508",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -104,6 +104,11 @@
 			"module": "./dist/esm/evolve.mjs",
 			"import": "./dist/esm/evolve.mjs"
 		},
+		"./exposure": {
+			"types": "./dist/exposure.d.ts",
+			"module": "./dist/esm/exposure.mjs",
+			"import": "./dist/esm/exposure.mjs"
+		},
 		"./fisheye": {
 			"types": "./dist/fisheye.d.ts",
 			"module": "./dist/esm/fisheye.mjs",
@@ -189,6 +194,11 @@
 			"module": "./dist/esm/linear-progressive-pixelate.mjs",
 			"import": "./dist/esm/linear-progressive-pixelate.mjs"
 		},
+		"./levels": {
+			"types": "./dist/levels.d.ts",
+			"module": "./dist/esm/levels.mjs",
+			"import": "./dist/esm/levels.mjs"
+		},
 		"./light-leak": {
 			"types": "./dist/light-leak.d.ts",
 			"module": "./dist/esm/light-leak.mjs",
@@ -269,6 +279,11 @@
 			"module": "./dist/esm/scale.mjs",
 			"import": "./dist/esm/scale.mjs"
 		},
+		"./shadows-highlights": {
+			"types": "./dist/shadows-highlights.d.ts",
+			"module": "./dist/esm/shadows-highlights.mjs",
+			"import": "./dist/esm/shadows-highlights.mjs"
+		},
 		"./shine": {
 			"types": "./dist/shine.d.ts",
 			"module": "./dist/esm/shine.mjs",
@@ -319,6 +334,11 @@
 			"module": "./dist/esm/venetian-blinds.mjs",
 			"import": "./dist/esm/venetian-blinds.mjs"
 		},
+		"./vibrance": {
+			"types": "./dist/vibrance.d.ts",
+			"module": "./dist/esm/vibrance.mjs",
+			"import": "./dist/esm/vibrance.mjs"
+		},
 		"./vignette": {
 			"types": "./dist/vignette.d.ts",
 			"module": "./dist/esm/vignette.mjs",
@@ -333,6 +353,11 @@
 			"types": "./dist/waves.d.ts",
 			"module": "./dist/esm/waves.mjs",
 			"import": "./dist/esm/waves.mjs"
+		},
+		"./white-balance": {
+			"types": "./dist/white-balance.d.ts",
+			"module": "./dist/esm/white-balance.mjs",
+			"import": "./dist/esm/white-balance.mjs"
 		},
 		"./white-noise": {
 			"types": "./dist/white-noise.d.ts",
@@ -395,6 +420,9 @@
 			"evolve": [
 				"dist/evolve.d.ts"
 			],
+			"exposure": [
+				"dist/exposure.d.ts"
+			],
 			"fisheye": [
 				"dist/fisheye.d.ts"
 			],
@@ -446,6 +474,9 @@
 			"linear-progressive-pixelate": [
 				"dist/linear-progressive-pixelate.d.ts"
 			],
+			"levels": [
+				"dist/levels.d.ts"
+			],
 			"light-leak": [
 				"dist/light-leak.d.ts"
 			],
@@ -494,6 +525,9 @@
 			"scale": [
 				"dist/scale.d.ts"
 			],
+			"shadows-highlights": [
+				"dist/shadows-highlights.d.ts"
+			],
 			"shine": [
 				"dist/shine.d.ts"
 			],
@@ -524,6 +558,9 @@
 			"venetian-blinds": [
 				"dist/venetian-blinds.d.ts"
 			],
+			"vibrance": [
+				"dist/vibrance.d.ts"
+			],
 			"vignette": [
 				"dist/vignette.d.ts"
 			],
@@ -535,6 +572,9 @@
 			],
 			"zigzag": [
 				"dist/zigzag.d.ts"
+			],
+			"white-balance": [
+				"dist/white-balance.d.ts"
 			],
 			"white-noise": [
 				"dist/white-noise.d.ts"

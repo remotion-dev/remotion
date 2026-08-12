@@ -17,16 +17,16 @@ Update from the canonical `remotion-dev/remotion` repository while preserving lo
    git remote -v
    ```
 
-   Stop and report the state if the current checkout is detached or an operation such as a merge or rebase is already in progress.
+   Stop and report the state if an operation such as a merge or rebase is already in progress. A detached checkout is supported and must not prevent the update.
 
-   If the working tree contains staged, unstaged, or untracked changes, stash them automatically before continuing:
+   If the working tree contains staged, unstaged, or untracked changes, stash them automatically and continue:
 
    ```bash
    git stash push --include-untracked --message "update-from-upstream-main: preserve local changes"
    git rev-parse stash@{0}
    ```
 
-   Record the created stash's commit ID so the same entry can be restored later. Verify that the working tree is clean before fetching. If stashing fails or leaves changes behind, stop without starting the update. Do not include ignored files unless the user explicitly asks.
+   Record the created stash's commit ID so the same entry can be restored later. Do not treat uncommitted changes as a reason to stop. Do not include ignored files unless the user explicitly asks.
 
 2. Select the canonical remote whose URL points to `remotion-dev/remotion`. Prefer `upstream` when it exists; otherwise use `origin`. If neither remote points to the canonical repository, stop and ask before adding or changing a remote.
 
@@ -43,13 +43,13 @@ Update from the canonical `remotion-dev/remotion` repository while preserving lo
      git merge --ff-only <canonical-remote>/main
      ```
 
-   - On a feature branch, merge main without opening an editor:
+   - On a feature branch or detached checkout, merge main without opening an editor:
 
      ```bash
      git merge --no-edit <canonical-remote>/main
      ```
 
-   Do not rebase, reset, or force-push. A merge keeps published branch history intact and can be pushed normally.
+   Do not rebase, reset, or force-push. A merge keeps published branch history intact and can be pushed normally; on a detached checkout, report that the resulting commit is still detached.
 
 5. If the merge conflicts, resolve each file deliberately and preserve both the feature intent and upstream changes. Do not accept `ours` or `theirs` across the entire merge. Check every resolved file for leftover conflict markers before staging:
 
@@ -86,4 +86,4 @@ Update from the canonical `remotion-dev/remotion` repository while preserving lo
 
    Never force-push.
 
-9. Report the previous and new commit, whether the update was a fast-forward or merge, whether local changes were stashed and successfully reapplied, any conflicts resolved, validation performed, and whether the branch was pushed.
+9. Report the previous and new commit, whether the checkout is detached, whether the update was a fast-forward or merge, whether local changes were stashed and successfully reapplied, any conflicts resolved, validation performed, and whether the branch was pushed.

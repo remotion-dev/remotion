@@ -12,6 +12,7 @@
 		"build": "turbo run make --no-update-notifier",
 		"build-docs": "TURBO_TELEMETRY_DISABLED=1 turbo run build-docs --no-update-notifier",
 		"testssr": "turbo run testssr --no-update-notifier",
+		"testmonorepo": "turbo run testmonorepo --no-update-notifier",
 		"testtemplates": "turbo run testtemplates --no-update-notifier",
 		"teste2e": "turbo run teste2e --no-update-notifier",
 		"testwebcodecs": "turbo run testwebcodecs --no-update-notifier",

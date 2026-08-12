@@ -18,6 +18,11 @@ export const visualControlsFile = path.join(
 	'VisualControls',
 	'index.tsx',
 );
+export const visualMode3DFile = path.join(
+	exampleDir,
+	'src',
+	'VisualMode3D.tsx',
+);
 export const effectKeyframeE2eFile = path.join(
 	exampleDir,
 	'src',
@@ -60,6 +65,10 @@ export const ORIGINAL_CONTENT_FILE = path.join(
 export const ORIGINAL_VISUAL_CONTROLS_FILE = path.join(
 	os.tmpdir(),
 	'remotion-e2e-original-visual-controls.tsx',
+);
+export const ORIGINAL_VISUAL_MODE_3D_FILE = path.join(
+	os.tmpdir(),
+	'remotion-e2e-original-visual-mode-3d.tsx',
 );
 export const ORIGINAL_EFFECT_KEYFRAME_E2E_FILE = path.join(
 	os.tmpdir(),

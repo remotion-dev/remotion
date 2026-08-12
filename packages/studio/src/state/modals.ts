@@ -11,7 +11,11 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {PackageManager, RenderDefaults} from '@remotion/studio-shared';
+import type {
+	CanvasCaptureData,
+	PackageManager,
+	RenderDefaults,
+} from '@remotion/studio-shared';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
@@ -135,12 +139,21 @@ export type AddEffectModalState = {
 	clientId: string;
 };
 
+export type CanvasCaptureImport = {
+	readonly data: CanvasCaptureData;
+	readonly durationInSeconds: number;
+	readonly file: File;
+	readonly height: number;
+	readonly width: number;
+};
+
 export type ModalState =
 	| {
 			type: 'new-comp';
 			folderName: string | null;
 			parentName: string | null;
 			stack: string | null;
+			canvasCapture: CanvasCaptureImport | null;
 	  }
 	| {
 			type: 'new-folder';

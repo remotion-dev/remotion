@@ -9,7 +9,11 @@ import {Combobox} from '../../NewComposition/ComboBox';
 import {createZodValues} from './create-zod-values';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
-import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
+import {
+	zodSafeParse,
+	type AnyZodSchema,
+	getUserFacingDescription,
+} from './zod-schema-type';
 import {
 	getDiscriminatedOption,
 	getDiscriminatedOptionKeys,
@@ -86,6 +90,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 							jsonPath={[...jsonPath, discriminator]}
 							onRemove={onRemove}
 							suffix={null}
+							description={getUserFacingDescription(schema)}
 							valid={zodValidation.success}
 						/>
 						<Combobox
@@ -103,6 +108,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			mayPad,
 			onRemove,
 			discriminator,
+			schema,
 			value,
 			zodValidation.success,
 		]);

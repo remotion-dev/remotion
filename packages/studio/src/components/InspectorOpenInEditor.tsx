@@ -1,6 +1,6 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -11,6 +11,7 @@ import {
 } from '../helpers/colors';
 import {
 	openInCodingAgent,
+	openInTerminal,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
@@ -22,6 +23,7 @@ import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
+import {openInFileExplorer} from './RenderQueue/actions';
 import {
 	canUseEditorPicker,
 	getPreferredEditorId,
@@ -62,12 +64,14 @@ export const InspectorOpenInEditor: React.FC<{
 	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
 	readonly label?: React.ReactNode;
-}> = ({contextForAgents = null, label, location}) => {
+	readonly locationType: 'file' | 'folder' | null;
+}> = ({contextForAgents = null, label, location, locationType}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();
 	const [hovered, setHovered] = useState(false);
 	const [dropdownOpened, setDropdownOpened] = useState(false);
+	const ignorePointerEnter = useRef(false);
 	const editorPickerAvailable = canUseEditorPicker(
 		previewServerState.type === 'connected',
 	);
@@ -116,6 +120,13 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[openWithEditor],
 	);
+	const onDropdownOpenChange = useCallback((open: boolean) => {
+		setDropdownOpened(open);
+		if (!open) {
+			ignorePointerEnter.current = true;
+			setHovered(false);
+		}
+	}, []);
 	const mainHovered = hovered && !dropdownOpened;
 	const mainButtonStyle = useMemo((): React.CSSProperties => {
 		return {
@@ -151,6 +162,8 @@ export const InspectorOpenInEditor: React.FC<{
 			editorInfo,
 			excludeCodingAgentId: null,
 			excludeEditorId: preferredEditorId,
+			fileManagerDisabled: !location?.source,
+			folder: locationType === 'folder',
 			onConfigureApps: () => {
 				setSelectedModal({
 					type: 'settings',
@@ -167,11 +180,39 @@ export const InspectorOpenInEditor: React.FC<{
 			onOpenInEditor: (editorId) => {
 				openWithEditor(editorId).catch(() => undefined);
 			},
+			onOpenInFileExplorer: () => {
+				if (!location?.source) {
+					return;
+				}
+
+				openInFileExplorer({directory: location.source}).catch((err) => {
+					showNotification(`Could not open file: ${err.message}`, 2000);
+				});
+			},
+			onOpenInTerminal: (terminalId) => {
+				if (!location?.source || locationType !== 'folder') {
+					return;
+				}
+
+				openInTerminal(terminalId, location.source)
+					.then((response) => {
+						if (!response.success) {
+							showNotification('Could not open terminal', 2000);
+						}
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not open terminal: ${(err as Error).message}`,
+							2000,
+						);
+					});
+			},
 		});
 	}, [
 		codingAgentInfo,
 		editorInfo,
 		location,
+		locationType,
 		openWithCodingAgent,
 		openWithEditor,
 		preferredEditorId,
@@ -185,8 +226,15 @@ export const InspectorOpenInEditor: React.FC<{
 	return (
 		<div
 			style={splitButton}
-			onPointerEnter={() => setHovered(true)}
-			onPointerLeave={() => setHovered(false)}
+			onPointerEnter={() => {
+				if (!ignorePointerEnter.current) {
+					setHovered(true);
+				}
+			}}
+			onPointerLeave={() => {
+				ignorePointerEnter.current = false;
+				setHovered(false);
+			}}
 		>
 			<button
 				aria-label={`Open in ${editorName}`}
@@ -201,7 +249,7 @@ export const InspectorOpenInEditor: React.FC<{
 				<EditorIcon editorId={preferredEditorId} size={editorButtonIconSize} />
 			</button>
 			<InlineDropdown
-				onOpenChange={setDropdownOpened}
+				onOpenChange={onDropdownOpenChange}
 				renderAction={renderDropdownAction}
 				style={dropdownStyle}
 				title="Open in another app"

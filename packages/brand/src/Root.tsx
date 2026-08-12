@@ -4,6 +4,7 @@ import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
 import {AnimatedMaster} from './animated-logo/AnimatedMaster';
 import {ExplodingLogo} from './animated-logo/ExplodingLogo';
+import {AppIcons} from './AppIcons';
 import {
 	ApplicationRenderButton,
 	ApplicationSimpleApp,
@@ -13,11 +14,7 @@ import {
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
-import {
-	CanvasCapturePreview,
-	calculateCanvasCapturePreviewMetadata,
-	canvasCapturePreviewSchema,
-} from './CanvasCapturePreview';
+import {CanvasCaptureComposition} from './CanvasCapturePreview';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -140,6 +137,14 @@ import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="app-icons"
+				component={AppIcons}
+				durationInFrames={1}
+				fps={30}
+				width={2048}
+				height={720}
+			/>
 			<Composition
 				id="preview-toolbar-icons"
 				component={PreviewToolbarIcons}
@@ -426,23 +431,7 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={htmlInCanvasAllEffectsDefaultProps}
 					calculateMetadata={calculateHtmlInCanvasAllEffectsMetadata}
 				/>
-				<Composition
-					id="canvas-capture-promo"
-					component={CanvasCapturePreview}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={120}
-					defaultProps={{
-						videoFile: staticFile('remotion-studio-canvas-recording.webm'),
-						cursorScale: 2.5,
-						hidden: null,
-						width: null,
-						height: null,
-					}}
-					schema={canvasCapturePreviewSchema}
-					calculateMetadata={calculateCanvasCapturePreviewMetadata}
-				/>
+				<CanvasCaptureComposition />
 				<Composition
 					id="canvas-capture-new-sticker"
 					component={NewSticker}

@@ -1,5 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import type {TSequence} from 'remotion';
+import {getOpenInMenuItems} from '../components/get-open-in-menu-items';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
 import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-context-menu-items';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
@@ -35,11 +36,15 @@ afterEach(() => {
 const installTestWindow = () => {
 	const testWindow: Pick<
 		Window,
-		'open' | 'remotion_cwd' | 'remotion_editorName'
+		| 'open'
+		| 'remotion_cwd'
+		| 'remotion_editorName'
+		| 'remotion_fileSystemPlatform'
 	> = {
 		open: () => null,
 		remotion_cwd: '/project',
 		remotion_editorName: null,
+		remotion_fileSystemPlatform: 'darwin',
 	};
 
 	Object.defineProperty(globalThis, 'window', {
@@ -62,6 +67,37 @@ const renameSequenceItem: ComboboxValue = {
 };
 
 const noop = () => undefined;
+
+test('the file manager entry is only shown on macOS', () => {
+	installTestWindow();
+	const getItems = () =>
+		getOpenInMenuItems({
+			codingAgentInfo: null,
+			editorDisabled: false,
+			editorInfo: null,
+			excludeCodingAgentId: null,
+			excludeEditorId: null,
+			fileManagerDisabled: false,
+			folder: false,
+			onConfigureApps: noop,
+			onOpenInCodingAgent: noop,
+			onOpenInEditor: noop,
+			onOpenInFileExplorer: noop,
+			onOpenInTerminal: null,
+		});
+
+	expect(getItems().some((item) => item.id === 'open-in-file-explorer')).toBe(
+		true,
+	);
+	window.remotion_fileSystemPlatform = 'win32';
+	expect(getItems().some((item) => item.id === 'open-in-file-explorer')).toBe(
+		false,
+	);
+	window.remotion_fileSystemPlatform = 'linux';
+	expect(getItems().some((item) => item.id === 'open-in-file-explorer')).toBe(
+		false,
+	);
+});
 
 const expectNoExtraDividers = (items: ComboboxValue[]) => {
 	expect(items[0]?.type).not.toBe('divider');
@@ -134,15 +170,14 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 					id: 'cursor',
 					name: 'Cursor',
 					nameWithType: 'Cursor Agent',
-					iconDataUrl: null,
 				},
 				{
 					id: 'claude-code',
 					name: 'Claude Code',
 					nameWithType: 'Claude Code',
-					iconDataUrl: null,
 				},
 			],
+			installedTerminals: [],
 		},
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
@@ -200,9 +235,12 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 	const submenuIds = openIn.subMenu.items.map((item) => item.id);
 	expect(submenuIds).toContain('open-in-vscode');
 	expect(submenuIds).toContain('open-in-coding-agent-claude-code');
+	expect(submenuIds).toContain('open-in-file-explorer');
 	expect(submenuIds).toContain('change-default-apps');
 	expect(submenuIds).not.toContain('open-in-cursor');
 	expect(submenuIds).not.toContain('open-in-coding-agent-cursor');
+	const finderIndex = submenuIds.indexOf('open-in-file-explorer');
+	expect(openIn.subMenu.items[finderIndex - 1]?.type).toBe('divider');
 
 	const defaultAgent = items.find(
 		(item) => item.id === 'open-in-default-coding-agent',

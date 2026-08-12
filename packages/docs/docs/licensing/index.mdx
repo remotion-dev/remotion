@@ -19,7 +19,7 @@ Not directly - pass the `licenseKey` option in the renderer package you use.
 - [`@remotion/lambda`](/docs/lambda): Pass `licenseKey` to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey) to trigger an event.
 - [`@remotion/vercel`](/docs/vercel/api): Pass `licenseKey` to [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#licensekey) to trigger an event.
 - [`@remotion/renderer`](/docs/renderer): Pass `licenseKey` to [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey) to trigger an event.
-- [`@remotion/web-renderer`](/docs/client-side-rendering/telemetry): An event is always sent. Pass a real `licenseKey`, or declare eligibility for the free license with `licenseKey: "free-license"`. See [Telemetry in client-side rendering](/docs/client-side-rendering/telemetry#setting-a-license-key).
+- [`@remotion/web-renderer`](/docs/web-renderer): An event is always sent. Pass a real `licenseKey`, or declare eligibility for the free license with `licenseKey: "free-license"`. See [Telemetry](/docs/telemetry#setting-a-license-key).
 
 <details>
   <summary>Deprecated packages</summary>
@@ -34,7 +34,7 @@ On your Company License dashboard on [remotion.pro](https://remotion.pro), you c
 ### Do I need to use this package?
 
 For all versions below Remotion 5.0, it is **voluntary** to use this package.  
-An exception is [`@remotion/web-renderer`](/docs/client-side-rendering/telemetry), which will always send telemetry events.
+An exception is [`@remotion/web-renderer`](/docs/web-renderer), which will always send telemetry events.
 
 If you are not eligible for the Free License, you need to get a Company License and are required to keep your allowance up to date.
 
@@ -60,14 +60,16 @@ However, the plan is to introduce a system that automatically bills you based on
 When a telemetry event is triggered, the following information is sent to Remotion's servers:
 
 - License key
-- Host domain (`window.location.origin`) — only for [`@remotion/web-renderer`](/docs/client-side-rendering/telemetry)
+- Host domain (`window.location.origin`) — only for [`@remotion/web-renderer`](/docs/web-renderer)
 - Event type (e.g. `cloud-render`, `web-render`)
 - Whether the render succeeded or failed
 - Whether it is a production or development render
 
 No information about the rendered media content, metadata, or any user data is collected.
 
-For client-side rendering using [`@remotion/web-renderer`](/docs/client-side-rendering/telemetry), the IP address is also recorded.
+For client-side rendering using [`@remotion/web-renderer`](/docs/web-renderer), the IP address is also recorded.
+
+See [Telemetry](/docs/telemetry) for the source of truth on telemetry.
 
 ### Data retention and sharing
 

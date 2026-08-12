@@ -35,6 +35,7 @@ import {
 } from '../../helpers/use-runtime-values';
 import {SetSelectedModalContext} from '../../state/modals';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
+import {Transform3DModeStateContext} from '../../state/transform-3d-mode';
 import {callApi} from '../call-api';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -55,6 +56,7 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {
 	canEditSelectedOutlineCrop,
 	cropFieldKeys,
+	rotateFieldKey,
 } from '../selected-outline-types';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
@@ -74,6 +76,7 @@ import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	getTimelineColor,
+	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
@@ -924,6 +927,8 @@ const TimelineSequenceItemInner: React.FC<{
 			});
 		},
 	});
+	const canRotate = nodePathInfo !== null;
+	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 
 	const onAddEffect = useCallback(() => {
 		if (
@@ -968,6 +973,27 @@ const TimelineSequenceItemInner: React.FC<{
 			{reveal: true},
 		);
 	}, [canCrop, nodePathInfo, selectItem]);
+
+	const onRotate = useCallback(() => {
+		if (!canRotate || !nodePathInfo) {
+			return;
+		}
+
+		setManuallyEnabled(getTimelineSequenceSelectionKey(nodePathInfo), true);
+		selectItem(
+			{
+				type: 'sequence-prop',
+				nodePathInfo: {
+					...nodePathInfo,
+					auxiliaryKeys: ['controls', rotateFieldKey],
+				},
+				key: rotateFieldKey,
+			},
+			undefined,
+			undefined,
+			{reveal: true},
+		);
+	}, [canRotate, nodePathInfo, selectItem, setManuallyEnabled]);
 
 	const getContextMenuItems = useCallback(() => {
 		if (selectable) {
@@ -1048,9 +1074,31 @@ const TimelineSequenceItemInner: React.FC<{
 										subMenu: null,
 										value: 'crop',
 									},
+								]
+							: []),
+						...(canRotate
+							? [
+									{
+										type: 'item' as const,
+										id: 'rotate',
+										keyHint: null,
+										label: isProgrammaticallyDuplicated
+											? 'Rotate all'
+											: 'Rotate',
+										leftItem: null,
+										disabled: false,
+										onClick: onRotate,
+										quickSwitcherLabel: null,
+										subMenu: null,
+										value: 'rotate',
+									},
+								]
+							: []),
+						...(canCrop || canRotate
+							? [
 									{
 										type: 'divider' as const,
-										id: 'crop-divider',
+										id: 'transform-controls-divider',
 									},
 								]
 							: []),
@@ -1075,6 +1123,7 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [
 		canAddEffect,
 		canCrop,
+		canRotate,
 		canConfigureApps,
 		canOpenInEditor,
 		canRenameThisSequence,
@@ -1089,6 +1138,7 @@ const TimelineSequenceItemInner: React.FC<{
 		nodePathInfo?.supportsEffects,
 		onAddEffect,
 		onCrop,
+		onRotate,
 		onDeleteSequenceFromSource,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,

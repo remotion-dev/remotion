@@ -2,6 +2,7 @@ import React, {
 	createContext,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
@@ -27,7 +28,7 @@ const EscapeHook: React.FC<{
 }> = ({onEscape}) => {
 	const keybindings = useKeybinding();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const escape = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'Escape',
@@ -64,6 +65,7 @@ export const HigherZIndex: React.FC<{
 }) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
+	const {registerZIndex, unregisterZIndex} = highestContext;
 	const containerRef = useRef<HTMLDivElement>(null);
 	const stackedIndex = useRef<number | null>(null);
 
@@ -78,14 +80,14 @@ export const HigherZIndex: React.FC<{
 		? context.currentIndex
 		: (stackedIndex.current ?? context.currentIndex + 1);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (disabled) {
 			return;
 		}
 
-		highestContext.registerZIndex(currentIndex);
-		return () => highestContext.unregisterZIndex(currentIndex);
-	}, [currentIndex, highestContext, disabled]);
+		registerZIndex(currentIndex);
+		return () => unregisterZIndex(currentIndex);
+	}, [currentIndex, disabled, registerZIndex, unregisterZIndex]);
 
 	useEffect(() => {
 		if (disabled) {
@@ -130,14 +132,11 @@ export const HigherZIndex: React.FC<{
 			});
 		};
 
-		// If a menu is opened, then this component will also still receive the pointerdown event.
-		// However we may not interpret it as a outside click, so we need to wait for the next tick
-		requestAnimationFrame(() => {
-			// The third argument `true` registers a capture-phase listener. Some Studio
-			// elements stop pointerdown propagation while still being outside the menu,
-			// so bubbling listeners would miss those clicks and keep the menu open.
-			window.addEventListener('pointerdown', listener, true);
-		});
+		// The capture phase for the pointerdown that opened this layer has already
+		// passed, so installing the listener immediately cannot dismiss the new layer.
+		// Waiting for the next animation frame would leave a window in which a fast
+		// outside click is missed.
+		window.addEventListener('pointerdown', listener, true);
 		return () => {
 			endPointerSession?.();
 			endPointerSession = null;

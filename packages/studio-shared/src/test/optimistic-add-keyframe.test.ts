@@ -220,6 +220,57 @@ test('optimisticAddSequenceKeyframe ignores enum fields', () => {
 	expect(updated).toEqual(previous);
 });
 
+test('optimisticAddSequenceKeyframe uses hold easing for enabled enum fields', () => {
+	const schema = {
+		cursor: {
+			type: 'enum',
+			default: 'default',
+			keyframable: true,
+			variants: {
+				default: {},
+				'ne-resize': {},
+			},
+		},
+	} satisfies InteractivitySchema;
+	const initial: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			cursor: {status: 'static', codeValue: 'default'},
+		},
+		effects: [],
+	};
+	const withFirstKeyframe = optimisticAddSequenceKeyframe({
+		previous: initial,
+		fieldKey: 'cursor',
+		frame: 0,
+		value: 'default',
+		schema,
+	});
+	const withSecondKeyframe = optimisticAddSequenceKeyframe({
+		previous: withFirstKeyframe,
+		fieldKey: 'cursor',
+		frame: 100,
+		value: 'ne-resize',
+		schema,
+	});
+
+	if (!withSecondKeyframe.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = withSecondKeyframe.props.cursor;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.interpolationFunction).toBe('interpolate');
+	expect(status.keyframes).toEqual([
+		{frame: 0, value: 'default'},
+		{frame: 100, value: 'ne-resize'},
+	]);
+	expect(status.easing).toEqual([{type: 'step1'}]);
+});
+
 test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolation', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,

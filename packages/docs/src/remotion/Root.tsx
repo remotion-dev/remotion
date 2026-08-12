@@ -17,6 +17,7 @@ import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-sh
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../../components/effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
+import {EffectsExposurePreview} from '../../components/effects/effects-exposure-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../../components/effects/effects-flannel-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
@@ -26,6 +27,7 @@ import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/eff
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
+import {EffectsLevelsPreview} from '../../components/effects/effects-levels-preview';
 import {EffectsLightLeakPreview} from '../../components/effects/effects-light-leak-preview';
 import {
 	EffectsLightTrailPreview,
@@ -73,6 +75,7 @@ import {
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
+import {EffectsShadowsHighlightsPreview} from '../../components/effects/effects-shadows-highlights-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -92,9 +95,11 @@ import {
 } from '../../components/effects/effects-translate-preview';
 import {EffectsTvSignalOffPreview} from '../../components/effects/effects-tv-signal-off-preview';
 import {EffectsVenetianBlindsPreview} from '../../components/effects/effects-venetian-blinds-preview';
+import {EffectsVibrancePreview} from '../../components/effects/effects-vibrance-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
+import {EffectsWhiteBalancePreview} from '../../components/effects/effects-white-balance-preview';
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
 import {EffectsZoomBlurPreview} from '../../components/effects/effects-zoom-blur-preview';
@@ -280,6 +285,41 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'left',
 						feather: 0.18,
 					}}
+				/>
+				<Still
+					id="effects-exposure-preview"
+					component={EffectsExposurePreview}
+					width={1280}
+					height={720}
+					defaultProps={{stops: 1}}
+				/>
+				<Still
+					id="effects-levels-preview"
+					component={EffectsLevelsPreview}
+					width={1280}
+					height={720}
+					defaultProps={{blackPoint: 0.1, whitePoint: 0.9, gamma: 1.4}}
+				/>
+				<Still
+					id="effects-shadows-highlights-preview"
+					component={EffectsShadowsHighlightsPreview}
+					width={1280}
+					height={720}
+					defaultProps={{shadows: 0.8, highlights: -0.5}}
+				/>
+				<Still
+					id="effects-white-balance-preview"
+					component={EffectsWhiteBalancePreview}
+					width={1280}
+					height={720}
+					defaultProps={{temperature: 0.8, tint: 0.2}}
+				/>
+				<Still
+					id="effects-vibrance-preview"
+					component={EffectsVibrancePreview}
+					width={1280}
+					height={720}
+					defaultProps={{amount: 0.8}}
 				/>
 				<Still
 					id="effects-venetian-blinds-preview"

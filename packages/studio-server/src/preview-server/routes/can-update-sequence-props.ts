@@ -757,7 +757,7 @@ const getPropsStatus = (
 	return props;
 };
 
-const getNodePathForRecastPath = (
+export const getNodePathForRecastPath = (
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	recastPath: any,
 	ast: File,
@@ -991,7 +991,7 @@ const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
 
 const isSupportedTranslateValue = (value: string): boolean => {
 	const parts = value.split(/\s+/);
-	if (parts.length === 1 || parts.length === 2) {
+	if (parts.length >= 1 && parts.length <= 3) {
 		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
 	}
 

@@ -114,6 +114,32 @@ test('makeKeyframedDragOverride uses linear easing outside the keyframe range', 
 	});
 });
 
+test('makeKeyframedDragOverride can use hold easing outside the keyframe range', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		...makeKeyframedStatus(),
+		keyframes: [{frame: 0, value: 'default'}],
+		easing: [],
+	};
+	const override = makeKeyframedDragOverride({
+		status,
+		frame: 60,
+		value: 'ne-resize',
+		defaultEasing: {type: 'step1'},
+	});
+
+	expect(override).toEqual({
+		type: 'keyframed',
+		status: {
+			...status,
+			keyframes: [
+				{frame: 0, value: 'default'},
+				{frame: 60, value: 'ne-resize'},
+			],
+			easing: [{type: 'step1'}],
+		},
+	});
+});
+
 test('makeKeyframedDragOverride replaces an existing keyframe without changing easing length', () => {
 	const override = makeKeyframedDragOverride({
 		status: makeKeyframedStatus(),

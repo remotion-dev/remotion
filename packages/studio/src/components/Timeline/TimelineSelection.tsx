@@ -56,6 +56,7 @@ import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
 import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
 import {getTimelineEasingSegments} from './get-timeline-easing-segments';
 import {getCurrentFrame} from './imperative-state';
+import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -1034,6 +1035,50 @@ export const TimelineSelectAllKeybindings: React.FC<{
 	return null;
 };
 
+const fieldsSelectingSequenceOnEscape = new Set([
+	'cropLeft',
+	'cropRight',
+	'cropTop',
+	'cropBottom',
+	'style.rotate',
+]);
+
+export const getTimelineSequenceSelectionForEscape = (
+	selectedItems: readonly TimelineSelection[],
+): Extract<TimelineSelection, {type: 'sequence'}> | null => {
+	if (selectedItems.length !== 1) {
+		return null;
+	}
+
+	const [selectedItem] = selectedItems;
+	let fieldKey: string | null = null;
+	if (selectedItem.type === 'sequence-prop') {
+		fieldKey = selectedItem.key;
+	} else if (
+		selectedItem.type === 'keyframe' ||
+		selectedItem.type === 'easing'
+	) {
+		const field = parseKeyframeFieldFromNodePath(
+			selectedItem.nodePathInfo.auxiliaryKeys,
+		);
+		fieldKey = field?.type === 'sequence' ? field.fieldKey : null;
+	} else {
+		return null;
+	}
+
+	if (!fieldsSelectingSequenceOnEscape.has(fieldKey ?? '')) {
+		return null;
+	}
+
+	return {
+		type: 'sequence',
+		nodePathInfo: {
+			...selectedItem.nodePathInfo,
+			auxiliaryKeys: [],
+		},
+	};
+};
+
 const TimelineEscapeKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -1043,8 +1088,17 @@ const TimelineEscapeKeybindings: React.FC = () => {
 			event: 'keydown',
 			key: 'Escape',
 			callback: (event) => {
-				const {selectedItems, clearSelection} = currentSelection.current;
+				const {selectedItems, clearSelection, selectItems} =
+					currentSelection.current;
 				if (selectedItems.length === 0) {
+					return;
+				}
+
+				const sequenceSelection =
+					getTimelineSequenceSelectionForEscape(selectedItems);
+				if (sequenceSelection) {
+					selectItems([sequenceSelection]);
+					event.preventDefault();
 					return;
 				}
 

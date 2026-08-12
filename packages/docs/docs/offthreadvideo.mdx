@@ -366,13 +366,9 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
-
   return {
     durationInSeconds,
     dimensions,
-    fps,
   };
 };
 

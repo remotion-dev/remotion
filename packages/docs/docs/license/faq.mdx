@@ -10,14 +10,14 @@ description: Frequently asked questions about Remotion licensing, pricing, rende
 
 Remotion is a React-based technology for programmatic video creation. It lets you build videos with code, AI agents, or manual edits; preview and refine them in the browser; and render them locally, client-side, or in the cloud. If you want to learn about Remotion itself first, start with [The Fundamentals](/docs/the-fundamentals).
 
-### Who is eligible for the free license?
+### Who is eligible for the Free License?
 
 You are eligible to use Remotion for free if you are:
 
-- an individual
-- a for-profit organisation with up to 3 employees
-- a non-profit or not-for-profit organisation
-- evaluating whether Remotion is a good fit, and are not yet using it in a commercial way
+- an individual, whether for personal or commercial use
+- an organization or team of individuals with up to 3 people
+- a non-profit or not-for-profit organization
+- evaluating whether the Remotion Software is a good fit, and are not yet using it in a commercial way
 
 [Contact us](/contact) in case you need confirmation if your use case is acceptable.
 
@@ -62,6 +62,29 @@ When both options are activated at the same time, a combined Minimum Spend of $1
 
 See the [Terms and Conditions](/docs/terms) for the full definitions.
 
+### What is telemetry and is it mandatory?
+
+Telemetry is a reporting mechanism that sends a small, anonymized event to Remotion each time a render is performed. It is implemented through the [`@remotion/licensing`](/docs/licensing) package and is described in detail on the [Telemetry](/docs/telemetry) page.
+
+Telemetry never throttles, blocks, or fails renders - even if the telemetry request itself fails, renders still complete successfully. 
+
+Telemetry is used to ensure accountability, and to provide you with insights into your own rendering activity in the Remotion Dashboard.
+
+The information collected is limited to:
+
+- IP address of the machine triggering the render
+- Domain name (for [client-side rendering](/docs/client-side-rendering) only)
+- Whether the render was in production or development
+- Whether the render was a video or a still image
+
+No content, metadata, or user data from the rendered media is ever collected. See the [Telemetry](/docs/telemetry#sent-information) and [Terms](/docs/terms#Telemetry) pages for the full details, and the [DPA Statement](/docs/dpa) for Remotion's role as an independent controller.
+
+**Who telemetry is mandatory for:** Starting with the Remotion 5.0 release, telemetry becomes mandatory for Company License Users and Enterprise License Users under the "Remotion for Automators" option. These users must obtain a license key from [remotion.pro](https://www.remotion.pro/dashboard) and include it in their rendering configuration so that each render is reported. Telemetry is also mandatory for everyone using [client-side rendering](/docs/client-side-rendering): a telemetry event is always sent for every render, even without a `licenseKey`, regardless of license type or whether the render is part of an [automation process](#what-is-considered-an-automation). The event is solely used to verify that Remotion is being used; no content, metadata, or user data from the rendered media is collected.
+
+**Who telemetry is voluntary for:** Telemetry is voluntary for Free License Users and for companies under the "Remotion for Creators" option. For server-side rendering, these users control whether telemetry is sent: a telemetry event is only sent when a `licenseKey` is set, so omitting it means no telemetry is sent. Free License Users can pass `"free-license"` to the `licenseKey` option to declare their eligibility for the Free License and disable a console warning.
+
+If you are unable to activate telemetry due to firewall restrictions, corporate policies, or other technical limitations, you must provide Remotion with a monthly verifiable report of your rendering activity as an alternative. Please [contact us](/contact) as this requires an Enterprise License and a custom agreement.
+
 ### What is considered an automation?
 
 An automation is defined as owning code that programmatically calls one of the following APIs or commands:
@@ -85,8 +108,6 @@ An automation is defined as owning code that programmatically calls one of the f
 - [`npx remotion cloudrun still`](/docs/cloudrun/cli/still)
 - [`<Player>`](/docs/player/player)
 
-Building an automation makes the use case fall under the Remotion for Automators option.
-
 ### How is 1 Render defined?
 
 1 Render is the successful generation of a video, audio, GIF, PDF or still image.
@@ -95,7 +116,9 @@ Previews in the [Remotion Studio](/docs/studio) or [Remotion Player](/docs/playe
 
 ### When do I need to purchase Renders?
 
-If you don't qualify for the Free License and are setting up an automation to render videos programmatically, you need to purchase Renders.
+If you require a Company License and are building an automation, your use case falls under Remotion for Automators and requires you to purchase Renders.
+
+If you qualify for the Free License and are building an automation, then you do not have to purchase Renders.
 
 Low-volume video production, such as rendering locally or one-off renders on a server, fall under the Remotion for Creators option and do not require purchasing Renders.
 

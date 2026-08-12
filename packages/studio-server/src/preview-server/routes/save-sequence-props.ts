@@ -558,7 +558,10 @@ export const saveSequencePropsHandler: ApiHandler<
 			shouldSuppressHmrForSequencePropEdits(edits);
 
 		pushTransactionToUndoStack({
-			snapshots,
+			snapshots: snapshots.map((snapshot) => ({
+				...snapshot,
+				nodePathRemappings: null,
+			})),
 			logLevel,
 			remotionRoot,
 			description: {undoMessage, redoMessage},
@@ -572,7 +575,12 @@ export const saveSequencePropsHandler: ApiHandler<
 				suppressBundlerUpdateForFile(absolutePath);
 			}
 
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: clientId,
+				metadata: null,
+			});
 		}
 
 		for (const {edits: groupEdits, fileRelativeToRoot} of editGroups.values()) {

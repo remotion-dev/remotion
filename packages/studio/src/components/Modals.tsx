@@ -58,6 +58,7 @@ export const Modals: React.FC<{
 					folderName={modalContextType.folderName}
 					parentName={modalContextType.parentName}
 					stack={modalContextType.stack}
+					canvasCapture={modalContextType.canvasCapture}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'new-folder' && (

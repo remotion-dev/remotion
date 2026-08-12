@@ -444,17 +444,21 @@ const RenderButtonInner: React.FC<{
 		}
 
 		return [
-			{
-				type: 'item' as const,
-				id: 'server-render',
-				label: 'Server-side render',
-				value: 'server-render',
-				onClick: () => handleRenderTypeChange('server-render'),
-				keyHint: null,
-				leftItem: null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-			},
+			...(canServerRender
+				? [
+						{
+							type: 'item' as const,
+							id: 'server-render',
+							label: 'Server-side render',
+							value: 'server-render',
+							onClick: () => handleRenderTypeChange('server-render'),
+							keyHint: null,
+							leftItem: null,
+							subMenu: null,
+							quickSwitcherLabel: null,
+						},
+					]
+				: []),
 			{
 				type: 'item' as const,
 				id: 'client-render',
@@ -467,7 +471,7 @@ const RenderButtonInner: React.FC<{
 				quickSwitcherLabel: null,
 			},
 		];
-	}, [handleRenderTypeChange, readOnlyStudio]);
+	}, [canServerRender, handleRenderTypeChange, readOnlyStudio]);
 
 	const spaceToBottom = useMemo(() => {
 		const margin = 10;

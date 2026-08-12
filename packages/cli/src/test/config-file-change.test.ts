@@ -49,6 +49,16 @@ test('classifies changes that require a page reload', () => {
 			prepare('import_config.Config.setAudioLatencyHint("interactive");'),
 		),
 	).toBe('reload');
+	expect(
+		classify(
+			prepare(
+				'import_config.Config.setExperimentalKeepAudioContextAlive(false);',
+			),
+			prepare(
+				'import_config.Config.setExperimentalKeepAudioContextAlive(true);',
+			),
+		),
+	).toBe('reload');
 });
 
 test('classifies changes that require a Studio restart', () => {

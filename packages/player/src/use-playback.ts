@@ -162,6 +162,32 @@ export const usePlayback = ({
 			return;
 		}
 
+		if (
+			sharedAudioContext?._experimentalKeepAudioContextAlive &&
+			sharedAudioContext.audioContext &&
+			!muted
+		) {
+			// With _experimentalKeepAudioContextAlive, the context clock keeps
+			// running while frames are not advancing (pauses, buffering, muted playback), so
+			// the anchor is stale by the length of the stall. Without this mode,
+			// the 'statechange' listener above re-anchors on the
+			// suspended-to-running transition, but that transition never happens
+			// here. Re-anchor from the current frame instead, and tell the audio
+			// iterators so they drop the nodes they queued against the old
+			// anchor and reschedule.
+			const changed = setGlobalTimeAnchor({
+				audioContext: sharedAudioContext.audioContext,
+				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+				absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+				globalPlaybackRate: playbackRate,
+				logLevel,
+				force: true,
+			});
+			if (changed) {
+				sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+			}
+		}
+
 		let hasBeenStopped = false;
 		let audioContextFailed = false;
 		let reqAnimFrameCall:

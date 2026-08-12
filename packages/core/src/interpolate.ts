@@ -1,3 +1,4 @@
+import {Easing} from './easing.js';
 import {normalizeNumber} from './normalize-number.js';
 
 // Taken from https://github.com/facebook/react-native/blob/0b9ea60b4fee8cacc36e7160e31b91fc114dbc0d/Libraries/Animated/src/nodes/AnimatedInterpolation.js
@@ -33,9 +34,10 @@ type StringInterpolationKind = 'scale' | 'translate' | 'rotate';
 
 type ParsedStringInterpolationValue = {
 	kind: StringInterpolationKind;
-	values: [number, number, number];
-	units: [string | null, string | null, string | null];
+	values: [number, number, number, number];
+	units: [string | null, string | null, string | null, string | null];
 	dimensions: number;
+	axisRotation: boolean;
 };
 
 type TransformOriginAxis = 'x' | 'y';
@@ -355,9 +357,58 @@ const parseTransformOriginValue = (
 
 	return {
 		kind: 'translate',
-		values: [x.value, y.value, z.value],
-		units: [x.unit, y.unit, z.unit],
+		values: [x.value, y.value, z.value, 0],
+		units: [x.unit, y.unit, z.unit, null],
 		dimensions: parts[2] === undefined ? 2 : 3,
+		axisRotation: false,
+	};
+};
+
+const parseAxisRotationValue = (
+	output: string,
+): ParsedStringInterpolationValue | null => {
+	const parts = output.trim().split(/\s+/);
+	const keywordAxis = parts.length === 2 ? parts[0].toLowerCase() : null;
+	if (keywordAxis === 'x' || keywordAxis === 'y' || keywordAxis === 'z') {
+		const keywordAngle = parseStringInterpolationComponent(parts[1], output);
+		if (keywordAngle.kind !== 'rotate') {
+			return null;
+		}
+
+		return {
+			kind: 'rotate',
+			values:
+				keywordAxis === 'x'
+					? [1, 0, 0, keywordAngle.value]
+					: keywordAxis === 'y'
+						? [0, 1, 0, keywordAngle.value]
+						: [0, 0, 1, keywordAngle.value],
+			units: [null, null, null, keywordAngle.unit],
+			dimensions: 4,
+			axisRotation: true,
+		};
+	}
+
+	if (parts.length !== 4) {
+		return null;
+	}
+
+	const axis = parts.slice(0, 3).map(Number);
+	if (!axis.every(Number.isFinite)) {
+		return null;
+	}
+
+	const vectorAngle = parseStringInterpolationComponent(parts[3], output);
+	if (vectorAngle.kind !== 'rotate') {
+		return null;
+	}
+
+	return {
+		kind: 'rotate',
+		values: [axis[0], axis[1], axis[2], vectorAngle.value],
+		units: [null, null, null, vectorAngle.unit],
+		dimensions: 4,
+		axisRotation: true,
 	};
 };
 
@@ -373,10 +424,16 @@ const parseStringInterpolationValue = (
 
 		return {
 			kind: 'scale',
-			values: [output, output, 1],
-			units: [null, null, null],
+			values: [output, output, 1, 0],
+			units: [null, null, null, null],
 			dimensions: 1,
+			axisRotation: false,
 		};
+	}
+
+	const axisRotation = parseAxisRotationValue(output);
+	if (axisRotation !== null) {
+		return axisRotation;
 	}
 
 	const parts = output.trim().split(/\s+/);
@@ -408,17 +465,24 @@ const parseStringInterpolationValue = (
 		const z = parsed[2]?.value ?? 1;
 		return {
 			kind,
-			values: [x, y, z],
-			units: [null, null, null],
+			values: [x, y, z, 0],
+			units: [null, null, null, null],
 			dimensions: parsed.length,
+			axisRotation: false,
 		};
 	}
 
 	return {
 		kind,
-		values: [parsed[0].value, parsed[1]?.value ?? 0, parsed[2]?.value ?? 0],
-		units: [parsed[0].unit, parsed[1]?.unit ?? null, parsed[2]?.unit ?? null],
+		values: [parsed[0].value, parsed[1]?.value ?? 0, parsed[2]?.value ?? 0, 0],
+		units: [
+			parsed[0].unit,
+			parsed[1]?.unit ?? null,
+			parsed[2]?.unit ?? null,
+			null,
+		],
 		dimensions: parsed.length,
+		axisRotation: false,
 	};
 };
 
@@ -427,7 +491,12 @@ const serializeStringInterpolationValue = ({
 	values,
 	units,
 	dimensions,
+	axisRotation,
 }: ParsedStringInterpolationValue): string => {
+	if (axisRotation) {
+		return `${stringifyNumber(values[0])} ${stringifyNumber(values[1])} ${stringifyNumber(values[2])} ${stringifyNumber(values[3])}${units[3]}`;
+	}
+
 	if (kind === 'scale') {
 		return values
 			.slice(0, dimensions)
@@ -683,7 +752,47 @@ const interpolateString = ({
 	outputRange: readonly (string | number)[];
 	options: InterpolateOptions | undefined;
 }): string => {
-	const parsedOutputRange = outputRange.map(parseStringInterpolationValue);
+	const initiallyParsedOutputRange = outputRange.map(
+		parseStringInterpolationValue,
+	);
+	const hasAxisRotation = initiallyParsedOutputRange.some(
+		(parsed) => parsed.axisRotation,
+	);
+	const parsedOutputRange = hasAxisRotation
+		? initiallyParsedOutputRange.map((parsed) => {
+				if (parsed.kind !== 'rotate') {
+					return parsed;
+				}
+
+				if (parsed.axisRotation) {
+					return parsed;
+				}
+
+				if (parsed.dimensions !== 1) {
+					throw new TypeError(
+						'Cannot interpolate a multi-angle rotate value with an axis rotation',
+					);
+				}
+
+				return {
+					kind: 'rotate' as const,
+					values: [0, 0, 1, parsed.values[0]] as [
+						number,
+						number,
+						number,
+						number,
+					],
+					units: [null, null, null, parsed.units[0]] as [
+						null,
+						null,
+						null,
+						string | null,
+					],
+					dimensions: 4,
+					axisRotation: true,
+				};
+			})
+		: initiallyParsedOutputRange;
 	const kind = parsedOutputRange[0]?.kind;
 	if (kind === undefined) {
 		throw new Error('outputRange must have at least 1 element');
@@ -700,7 +809,8 @@ const interpolateString = ({
 	const dimensions = Math.max(
 		...parsedOutputRange.map((parsed) => parsed.dimensions),
 	);
-	const units: [string | null, string | null, string | null] = [
+	const units: [string | null, string | null, string | null, string | null] = [
+		null,
 		null,
 		null,
 		null,
@@ -708,6 +818,10 @@ const interpolateString = ({
 
 	if (kind !== 'scale') {
 		for (let axis = 0; axis < dimensions; axis++) {
+			if (hasAxisRotation && axis < 3) {
+				continue;
+			}
+
 			for (const parsed of parsedOutputRange) {
 				const unit = parsed.units[axis];
 				if (unit === null) {
@@ -734,7 +848,7 @@ const interpolateString = ({
 		}
 	}
 
-	const values: [number, number, number] = [0, 0, 0];
+	const values: [number, number, number, number] = [0, 0, 0, 0];
 	for (let axis = 0; axis < dimensions; axis++) {
 		values[axis] = interpolateNumber({
 			input,
@@ -749,7 +863,88 @@ const interpolateString = ({
 		values,
 		units,
 		dimensions,
+		axisRotation: hasAxisRotation,
 	});
+};
+
+const interpolateDiscreteString = ({
+	input,
+	inputRange,
+	outputRange,
+	options,
+}: {
+	input: number;
+	inputRange: readonly number[];
+	outputRange: readonly string[];
+	options: InterpolateOptions | undefined;
+}): string => {
+	if (inputRange.length === 1) {
+		return outputRange[0];
+	}
+
+	for (
+		let segmentIndex = 0;
+		segmentIndex < inputRange.length - 1;
+		segmentIndex++
+	) {
+		if (
+			resolveEasingForSegment({
+				easing: options?.easing,
+				segmentIndex,
+			}) !== Easing.step1
+		) {
+			throw new TypeError(
+				'Non-numeric strings can only be interpolated using Easing.step1',
+			);
+		}
+	}
+
+	const posterizedInput =
+		options?.posterize === undefined
+			? input
+			: Math.floor(input / options.posterize) * options.posterize;
+	const inputMin = inputRange[0];
+	const inputMax = inputRange[inputRange.length - 1];
+	let resolvedInput = posterizedInput;
+
+	if (resolvedInput < inputMin) {
+		if (options?.extrapolateLeft === 'identity') {
+			throw new TypeError(
+				'extrapolateLeft: "identity" is not supported for non-numeric strings',
+			);
+		}
+
+		if (options?.extrapolateLeft === 'wrap') {
+			const wrapRange = inputMax - inputMin;
+			resolvedInput =
+				((((resolvedInput - inputMin) % wrapRange) + wrapRange) % wrapRange) +
+				inputMin;
+		} else {
+			return outputRange[0];
+		}
+	}
+
+	if (resolvedInput > inputMax) {
+		if (options?.extrapolateRight === 'identity') {
+			throw new TypeError(
+				'extrapolateRight: "identity" is not supported for non-numeric strings',
+			);
+		}
+
+		if (options?.extrapolateRight === 'wrap') {
+			const wrapRange = inputMax - inputMin;
+			resolvedInput =
+				((((resolvedInput - inputMin) % wrapRange) + wrapRange) % wrapRange) +
+				inputMin;
+		} else {
+			return outputRange[outputRange.length - 1];
+		}
+	}
+
+	const range = findRange(resolvedInput, inputRange);
+	return resolvedInput >= inputRange[range + 1]
+		? outputRange[range + 1]
+		: outputRange[range];
 };
 
 const validateTupleOutputRange = (
@@ -990,7 +1185,37 @@ export function interpolate(
 			);
 		}
 
-		return interpolateString({input, inputRange, outputRange, options});
+		try {
+			return interpolateString({input, inputRange, outputRange, options});
+		} catch (error) {
+			if (!outputRange.every((output) => typeof output === 'string')) {
+				throw error;
+			}
+
+			const hasNonNumericString = outputRange.some((output) => {
+				try {
+					parseStringInterpolationValue(output);
+					return false;
+				} catch (parseError) {
+					return (
+						parseError instanceof TypeError &&
+						parseError.message.includes(
+							'not a supported scale, translate, or rotate value',
+						)
+					);
+				}
+			});
+			if (!hasNonNumericString) {
+				throw error;
+			}
+
+			return interpolateDiscreteString({
+				input,
+				inputRange,
+				outputRange,
+				options,
+			});
+		}
 	}
 
 	if (outputRange.every((output) => Array.isArray(output))) {

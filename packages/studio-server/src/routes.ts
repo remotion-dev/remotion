@@ -30,6 +30,7 @@ import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallba
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
+import {handleAppIcon} from './preview-server/routes/app-icon';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
 import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
@@ -85,6 +86,7 @@ const handleFallback = async ({
 	getRenderDefaults,
 	getNumberOfAudioTags,
 	getAudioLatencyHint,
+	getExperimentalKeepAudioContextAlive,
 	getPreviewSampleRate,
 	gitSource,
 	logLevel,
@@ -103,6 +105,7 @@ const handleFallback = async ({
 	getRenderDefaults: () => RenderDefaults;
 	getNumberOfAudioTags: () => number;
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
 	getPreviewSampleRate: () => number | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
@@ -187,6 +190,7 @@ const handleFallback = async ({
 			logLevel,
 			mode: 'dev',
 			audioLatencyHint: getAudioLatencyHint() ?? 'playback',
+			experimentalKeepAudioContextAlive: getExperimentalKeepAudioContextAlive(),
 			sampleRate: getPreviewSampleRate(),
 			studioRuntimeConfig: getStudioRuntimeConfig(),
 		}),
@@ -380,6 +384,7 @@ export const handleRoutes = ({
 	gitSource,
 	binariesDirectory,
 	getAudioLatencyHint,
+	getExperimentalKeepAudioContextAlive,
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
@@ -407,6 +412,7 @@ export const handleRoutes = ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
@@ -441,6 +447,14 @@ export const handleRoutes = ({
 			res: response,
 			search: url.search,
 			remotionRoot,
+		});
+	}
+
+	if (url.pathname.startsWith('/api/app-icon/')) {
+		return handleAppIcon({
+			pathname: url.pathname,
+			request,
+			response,
 		});
 	}
 
@@ -580,6 +594,7 @@ export const handleRoutes = ({
 		gitSource,
 		logLevel,
 		getAudioLatencyHint,
+		getExperimentalKeepAudioContextAlive,
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,

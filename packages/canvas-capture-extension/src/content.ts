@@ -1,28 +1,29 @@
-import {type CaptureCrop, ElementCapture} from './capture';
+import {type CaptureCrop, getCapturePreflight, PageCapture} from './capture';
 import {openCaptureInConvert} from './handoff';
-import {isHtmlInCanvasAvailable} from './recorder';
 import {
-	findLowestElementContainingRectangle,
-	makeSelectionRectangle,
-	type SelectionRectangle,
-} from './selection';
+	isCaptureControllerRequest,
+	type CaptureFormat,
+	type CaptureControllerRequest,
+	type CaptureControllerState,
+} from './messages';
+import {canEncodeCapture, isHtmlInCanvasAvailable} from './recorder';
+import {makeSelectionRectangle, type SelectionRectangle} from './selection';
 
 type ExtensionController = {
-	readonly togglePanel: () => void;
+	readonly handleRequest: (
+		request: CaptureControllerRequest,
+	) => Promise<CaptureControllerState>;
 };
 
 type ExtensionWindow = Window & {
 	__remotionCanvasCapture?: ExtensionController;
 };
 
-const extensionWindow = window as ExtensionWindow;
+type SelectedTarget =
+	| {readonly type: 'whole-page'}
+	| {readonly type: 'page-crop'; readonly crop: CaptureCrop};
 
-const createButton = (label: string) => {
-	const button = document.createElement('button');
-	button.type = 'button';
-	button.textContent = label;
-	return button;
-};
+const extensionWindow = window as ExtensionWindow;
 
 const downloadFile = (file: File) => {
 	const url = URL.createObjectURL(file);
@@ -35,14 +36,11 @@ const downloadFile = (file: File) => {
 	URL.revokeObjectURL(url);
 };
 
-const describeElement = (element: Element) => {
-	const id = element.id ? `#${element.id}` : '';
-	const className =
-		element.classList.length > 0
-			? `.${[...element.classList].slice(0, 2).join('.')}`
-			: '';
-	return `${element.tagName.toLowerCase()}${id}${className}`;
-};
+const getContainerLabel = (format: CaptureFormat) =>
+	format === 'mp4' ? 'MP4' : 'WebM';
+
+const getFormatLabel = (format: CaptureFormat) =>
+	format === 'mp4' ? 'H.264 MP4' : 'VP9 WebM';
 
 const getCropRelativeTo = (
 	selection: SelectionRectangle,
@@ -68,65 +66,6 @@ const createController = (): ExtensionController => {
 	style.textContent = `
 		:host { all: initial; }
 		* { box-sizing: border-box; }
-		.panel {
-			position: fixed;
-			top: 16px;
-			right: 16px;
-			display: none;
-			flex-direction: column;
-			gap: 10px;
-			width: 292px;
-			padding: 14px;
-			border: 1px solid rgba(255,255,255,.16);
-			border-radius: 12px;
-			background: #151515;
-			box-shadow: 0 12px 40px rgba(0,0,0,.35);
-			color: #f5f5f5;
-			font: 13px/1.4 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
-			pointer-events: auto;
-		}
-		.header { display: flex; align-items: center; justify-content: space-between; }
-		.title { font-size: 14px; font-weight: 650; }
-		.close {
-			width: 26px;
-			height: 26px;
-			padding: 0;
-			border: 0;
-			background: transparent;
-			color: #aaa;
-			font-size: 20px;
-			cursor: pointer;
-		}
-		.row { display: flex; gap: 8px; }
-		label { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-		input {
-			width: 88px;
-			padding: 7px 8px;
-			border: 1px solid #454545;
-			border-radius: 7px;
-			background: #242424;
-			color: white;
-			font: inherit;
-		}
-		button {
-			min-height: 34px;
-			padding: 7px 10px;
-			border: 1px solid #454545;
-			border-radius: 7px;
-			background: #292929;
-			color: #f5f5f5;
-			font: inherit;
-			font-weight: 550;
-			cursor: pointer;
-		}
-		button:hover:not(:disabled) { background: #363636; }
-		button:disabled { cursor: default; opacity: .45; }
-		.row button { flex: 1; }
-		.record { border-color: #ff4d61; background: #db2339; }
-		.record:hover:not(:disabled) { background: #ef3349; }
-		.record.recording { background: #fafafa; border-color: #fafafa; color: #be1830; }
-		.status { min-height: 18px; color: #aaa; overflow-wrap: anywhere; }
-		.status.error { color: #ff7b8b; }
 		.selection-layer {
 			position: fixed;
 			inset: 0;
@@ -151,50 +90,6 @@ const createController = (): ExtensionController => {
 		}
 	`;
 
-	const panel = document.createElement('div');
-	panel.className = 'panel';
-	panel.style.display = 'none';
-	const header = document.createElement('div');
-	header.className = 'header';
-	const title = document.createElement('div');
-	title.className = 'title';
-	title.textContent = 'Remotion Canvas Capture';
-	const closeButton = createButton('×');
-	closeButton.className = 'close';
-	closeButton.title = 'Close';
-	header.append(title, closeButton);
-
-	const scaleLabel = document.createElement('label');
-	scaleLabel.textContent = 'Scale';
-	const scaleInput = document.createElement('input');
-	scaleInput.type = 'number';
-	scaleInput.min = '0.1';
-	scaleInput.step = '0.1';
-	scaleInput.value = String(Math.max(1, window.devicePixelRatio));
-	scaleLabel.appendChild(scaleInput);
-
-	const targetRow = document.createElement('div');
-	targetRow.className = 'row';
-	const selectButton = createButton('Select area');
-	const wholePageButton = createButton('Whole page');
-	targetRow.append(selectButton, wholePageButton);
-
-	const recordButton = createButton('Record');
-	recordButton.className = 'record';
-	const downloadButton = createButton('Stop and download WebM');
-	downloadButton.style.display = 'none';
-	const status = document.createElement('div');
-	status.className = 'status';
-
-	panel.append(
-		header,
-		scaleLabel,
-		targetRow,
-		recordButton,
-		downloadButton,
-		status,
-	);
-
 	const selectionLayer = document.createElement('div');
 	selectionLayer.className = 'selection-layer';
 	const selectionBox = document.createElement('div');
@@ -202,46 +97,143 @@ const createController = (): ExtensionController => {
 	selectionLayer.appendChild(selectionBox);
 	const highlight = document.createElement('div');
 	highlight.className = 'highlight';
-	shadow.append(style, panel, highlight, selectionLayer);
+	shadow.append(style, highlight, selectionLayer);
 
-	let selectedElement: Element | null = null;
-	let selectedCrop: CaptureCrop | null = null;
-	let wholePage = false;
-	let capture: ElementCapture | null = null;
+	let selectedTarget: SelectedTarget | null = null;
+	let capture: PageCapture | null = null;
 	let finalizing = false;
-	const isSupported = isHtmlInCanvasAvailable();
+	let selecting = false;
+	let scale = Math.max(1, window.devicePixelRatio);
+	let format: CaptureFormat = 'mp4';
+	let encoderSupport: CaptureControllerState['encoderSupport'] = 'unavailable';
+	let outputSize: CaptureControllerState['outputSize'] = null;
+	let encoderSupportCheckId = 0;
+	let encoderSupportKey: string | null = null;
+	const supported = isHtmlInCanvasAvailable();
+	let status = supported
+		? 'Choose an area or the whole page.'
+		: 'Canvas capture is unavailable because the experimental HTML-in-canvas API is disabled. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.';
+	let statusIsError = !supported;
 	let selectionStart: {readonly x: number; readonly y: number} | null = null;
 
 	const setStatus = (message: string, error = false) => {
-		status.textContent = message;
-		status.classList.toggle('error', error);
+		status = message;
+		statusIsError = error;
+	};
+
+	const getTargetLabel = () => {
+		if (!selectedTarget) {
+			return null;
+		}
+
+		if (selectedTarget.type === 'whole-page') {
+			return 'Whole page';
+		}
+
+		return `Page crop (${Math.round(selectedTarget.crop.width)}×${Math.round(selectedTarget.crop.height)})`;
+	};
+
+	const resolveCaptureTarget = () => {
+		if (!selectedTarget) {
+			return null;
+		}
+
+		if (selectedTarget.type === 'whole-page') {
+			return {crop: null};
+		}
+
+		return {crop: selectedTarget.crop};
+	};
+
+	const refreshEncoderSupport = async () => {
+		const checkId = ++encoderSupportCheckId;
+		if (!supported || !selectedTarget || capture || finalizing || selecting) {
+			if (!selectedTarget) {
+				encoderSupport = 'unavailable';
+				encoderSupportKey = null;
+				outputSize = null;
+			}
+
+			return;
+		}
+
+		const target = resolveCaptureTarget();
+		if (!target) {
+			encoderSupport = 'unavailable';
+			encoderSupportKey = null;
+			outputSize = null;
+			return;
+		}
+
+		try {
+			const preflight = getCapturePreflight({
+				scale,
+				crop: target.crop,
+			});
+			if (checkId !== encoderSupportCheckId) {
+				return;
+			}
+
+			const supportKey = `${format}:${preflight.outputSize.width}x${preflight.outputSize.height}`;
+			outputSize = preflight.outputSize;
+			if (
+				encoderSupportKey === supportKey &&
+				(encoderSupport === 'supported' || encoderSupport === 'unsupported')
+			) {
+				return;
+			}
+
+			encoderSupport = 'checking';
+			setStatus(
+				`Checking ${getFormatLabel(format)} support at ${outputSize.width}×${outputSize.height}…`,
+			);
+			const canEncode = await canEncodeCapture(format, outputSize);
+			if (checkId !== encoderSupportCheckId) {
+				return;
+			}
+
+			if (canEncode) {
+				encoderSupport = 'supported';
+				encoderSupportKey = supportKey;
+				setStatus(
+					`Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`,
+				);
+			} else {
+				encoderSupport = 'unsupported';
+				encoderSupportKey = supportKey;
+				setStatus(
+					`${getFormatLabel(format)} encoding is not supported at ${outputSize.width}×${outputSize.height} in this browser. Reduce the scale or select a smaller area.`,
+					true,
+				);
+			}
+		} catch (error) {
+			if (checkId !== encoderSupportCheckId) {
+				return;
+			}
+
+			encoderSupport = 'unsupported';
+			encoderSupportKey = null;
+			outputSize = null;
+			setStatus(error instanceof Error ? error.message : String(error), true);
+		}
 	};
 
 	const updateHighlight = () => {
-		if (capture) {
+		if (capture || selecting) {
 			highlight.style.display = 'none';
 			return;
 		}
 
+		const target = resolveCaptureTarget();
 		let rect: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'> | null = null;
-		if (wholePage && selectedCrop) {
+		if (target?.crop) {
 			const pageRect = document.body.getBoundingClientRect();
 			rect = {
-				left: pageRect.left + selectedCrop.left,
-				top: pageRect.top + selectedCrop.top,
-				width: selectedCrop.width,
-				height: selectedCrop.height,
+				left: pageRect.left + target.crop.left,
+				top: pageRect.top + target.crop.top,
+				width: target.crop.width,
+				height: target.crop.height,
 			};
-		} else if (selectedElement?.isConnected) {
-			const elementRect = selectedElement.getBoundingClientRect();
-			rect = selectedCrop
-				? {
-						left: elementRect.left + selectedCrop.left,
-						top: elementRect.top + selectedCrop.top,
-						width: selectedCrop.width,
-						height: selectedCrop.height,
-					}
-				: elementRect;
 		}
 
 		if (!rect) {
@@ -256,29 +248,38 @@ const createController = (): ExtensionController => {
 		highlight.style.height = `${rect.height}px`;
 	};
 
-	const updateControls = () => {
-		const isRecording = capture !== null;
-		scaleInput.disabled = isRecording || finalizing;
-		selectButton.disabled = isRecording || finalizing;
-		wholePageButton.disabled = isRecording || finalizing;
-		closeButton.disabled = finalizing;
-		recordButton.disabled =
-			!isSupported || finalizing || (!selectedElement && !wholePage);
-		recordButton.textContent = isRecording
-			? 'Stop and open in Convert'
-			: 'Record';
-		recordButton.classList.toggle('recording', isRecording);
-		downloadButton.style.display = isRecording ? 'block' : 'none';
-		downloadButton.disabled = finalizing;
-		updateHighlight();
-	};
+	const getState = (): CaptureControllerState => ({
+		supported,
+		selecting,
+		hasTarget: selectedTarget !== null,
+		targetLabel: getTargetLabel(),
+		encoderSupport,
+		outputSize,
+		recording: capture !== null,
+		finalizing,
+		scale,
+		format,
+		status,
+		error: statusIsError,
+	});
 
-	const selectWholePage = () => {
-		selectedElement = null;
-		selectedCrop = null;
-		wholePage = true;
-		setStatus('Target: whole page');
-		updateControls();
+	const cancelSelection = () => {
+		selectionStart = null;
+		selecting = false;
+		selectionLayer.style.display = 'none';
+		selectionBox.style.display = 'none';
+		if (selectedTarget) {
+			encoderSupportKey = null;
+			refreshEncoderSupport().catch(() => undefined);
+		} else {
+			encoderSupportCheckId++;
+			encoderSupport = 'unavailable';
+			encoderSupportKey = null;
+			outputSize = null;
+			setStatus('Choose an area or the whole page.');
+		}
+
+		updateHighlight();
 	};
 
 	const finishSelection = (event: PointerEvent) => {
@@ -293,48 +294,20 @@ const createController = (): ExtensionController => {
 			event.clientY,
 		);
 		selectionStart = null;
+		selecting = false;
 		selectionLayer.style.display = 'none';
 		selectionBox.style.display = 'none';
-		panel.style.display = 'flex';
 
-		const target = findLowestElementContainingRectangle({
+		const crop = getCropRelativeTo(
 			selection,
-			excludedElement: host,
-		});
-		if (!target) {
-			setStatus('No element encompasses that rectangle.', true);
-			return;
-		}
-
-		if (target === document.body || target === document.documentElement) {
-			selectedElement = null;
-			wholePage = true;
-			selectedCrop = getCropRelativeTo(
-				selection,
-				document.body.getBoundingClientRect(),
-			);
-			setStatus(
-				`Target: page crop (${Math.round(selectedCrop.width)}×${Math.round(selectedCrop.height)})`,
-			);
-			updateControls();
-			return;
-		}
-
-		selectedElement = target;
-		selectedCrop = getCropRelativeTo(selection, target.getBoundingClientRect());
-		wholePage = false;
-		setStatus(
-			`Target: ${describeElement(target)} crop (${Math.round(selectedCrop.width)}×${Math.round(selectedCrop.height)})`,
+			document.body.getBoundingClientRect(),
 		);
-		updateControls();
-	};
+		selectedTarget = {type: 'page-crop', crop};
 
-	selectButton.addEventListener('click', () => {
-		panel.style.display = 'none';
-		highlight.style.display = 'none';
-		selectionLayer.style.display = 'block';
-		setStatus('Drag over the area to capture.');
-	});
+		encoderSupportKey = null;
+		refreshEncoderSupport().catch(() => undefined);
+		updateHighlight();
+	};
 
 	selectionLayer.addEventListener('pointerdown', (event) => {
 		selectionStart = {x: event.clientX, y: event.clientY};
@@ -360,16 +333,55 @@ const createController = (): ExtensionController => {
 	});
 
 	selectionLayer.addEventListener('pointerup', finishSelection);
-	wholePageButton.addEventListener('click', selectWholePage);
+	selectionLayer.addEventListener('pointercancel', cancelSelection);
+	window.addEventListener('scroll', updateHighlight, true);
+	window.addEventListener('resize', () => {
+		updateHighlight();
+		refreshEncoderSupport().catch(() => undefined);
+	});
+	window.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && selecting) {
+			cancelSelection();
+		}
+	});
+
+	const setOptions = (nextScale: number, nextFormat: CaptureFormat) => {
+		if (!Number.isFinite(nextScale) || nextScale <= 0) {
+			encoderSupportCheckId++;
+			encoderSupport = 'unsupported';
+			encoderSupportKey = null;
+			outputSize = null;
+			setStatus('Scale must be a number greater than 0.', true);
+			return false;
+		}
+
+		if (nextFormat !== 'mp4' && nextFormat !== 'webm') {
+			encoderSupportCheckId++;
+			encoderSupport = 'unsupported';
+			encoderSupportKey = null;
+			outputSize = null;
+			setStatus('Choose MP4 or WebM as the recording format.', true);
+			return false;
+		}
+
+		if (scale !== nextScale || format !== nextFormat) {
+			encoderSupportKey = null;
+		}
+
+		scale = nextScale;
+		format = nextFormat;
+		updateHighlight();
+		return true;
+	};
 
 	const finishRecording = async (destination: 'convert' | 'download') => {
-		if (!capture) {
+		if (!capture || finalizing) {
 			return;
 		}
 
 		finalizing = true;
-		setStatus('Finalizing WebM…');
-		updateControls();
+		const recordingFormat = format;
+		setStatus(`Finalizing ${getContainerLabel(recordingFormat)}…`);
 		const currentCapture = capture;
 		try {
 			const file = await currentCapture.stop();
@@ -379,103 +391,118 @@ const createController = (): ExtensionController => {
 				setStatus('Recording opened. Ready to record again.');
 			} else {
 				downloadFile(file);
-				setStatus('WebM downloaded. Ready to record again.');
+				setStatus(
+					`${getContainerLabel(recordingFormat)} downloaded. Ready to record again.`,
+				);
 			}
 		} catch (error) {
 			setStatus(error instanceof Error ? error.message : String(error), true);
 		} finally {
 			capture = null;
 			finalizing = false;
-			updateControls();
+			updateHighlight();
 		}
 	};
 
-	recordButton.addEventListener('click', () => {
-		const toggle = async () => {
-			if (capture) {
-				await finishRecording('convert');
-				return;
-			}
-
-			const scale = scaleInput.valueAsNumber;
-			if (!Number.isFinite(scale) || scale <= 0) {
-				setStatus('Scale must be a number greater than 0.', true);
-				return;
-			}
-
-			if (!wholePage && (!selectedElement || !selectedElement.isConnected)) {
-				selectedElement = null;
-				setStatus(
-					'Select an element again; the previous target was removed.',
-					true,
-				);
-				updateControls();
-				return;
-			}
-
-			try {
-				capture = new ElementCapture({
-					element: selectedElement,
-					wholePage,
-					scale,
-					crop: selectedCrop,
-				});
-				await capture.start();
-				setStatus(`Recording at ${scale}× scale…`);
-			} catch (error) {
-				capture?.restore();
-				capture = null;
-				setStatus(error instanceof Error ? error.message : String(error), true);
-			}
-
-			updateControls();
-		};
-
-		toggle().catch((error) => {
-			setStatus(error instanceof Error ? error.message : String(error), true);
-		});
-	});
-
-	downloadButton.addEventListener('click', () => {
-		finishRecording('download').catch((error) => {
-			setStatus(error instanceof Error ? error.message : String(error), true);
-		});
-	});
-
-	closeButton.addEventListener('click', () => {
-		panel.style.display = 'none';
-		highlight.style.display = 'none';
-	});
-
-	window.addEventListener('scroll', updateHighlight, true);
-	window.addEventListener('resize', updateHighlight);
-	window.addEventListener('keydown', (event) => {
-		if (event.key !== 'Escape' || selectionLayer.style.display === 'none') {
-			return;
-		}
-
-		selectionStart = null;
-		selectionLayer.style.display = 'none';
-		selectionBox.style.display = 'none';
-		panel.style.display = 'flex';
-		updateHighlight();
-	});
-
-	if (!isSupported) {
-		setStatus('Enable chrome://flags/#canvas-draw-element, then reload.', true);
-	}
-
-	updateControls();
-
 	return {
-		togglePanel: () => {
-			const shouldOpen = panel.style.display === 'none';
-			panel.style.display = shouldOpen ? 'flex' : 'none';
-			if (!shouldOpen) {
-				highlight.style.display = 'none';
-			} else {
-				updateHighlight();
+		handleRequest: async (request) => {
+			if (request.command === 'get-state') {
+				await refreshEncoderSupport();
+				return getState();
 			}
+
+			if (request.command === 'set-options') {
+				if (!capture && !finalizing) {
+					if (setOptions(request.scale, request.format)) {
+						await refreshEncoderSupport();
+					}
+				}
+
+				return getState();
+			}
+
+			if (request.command === 'select-area') {
+				if (!capture && !finalizing) {
+					encoderSupportCheckId++;
+					encoderSupportKey = null;
+					selecting = true;
+					selectionStart = null;
+					selectionBox.style.display = 'none';
+					selectionLayer.style.display = 'block';
+					highlight.style.display = 'none';
+					setStatus('Drag over the area to capture. Press Escape to cancel.');
+				}
+
+				return getState();
+			}
+
+			if (request.command === 'cancel-selection') {
+				if (selecting) {
+					cancelSelection();
+					await refreshEncoderSupport();
+				}
+
+				return getState();
+			}
+
+			if (request.command === 'select-whole-page') {
+				if (!capture && !finalizing) {
+					if (selecting) {
+						cancelSelection();
+					}
+
+					selectedTarget = {type: 'whole-page'};
+					encoderSupportKey = null;
+					updateHighlight();
+					await refreshEncoderSupport();
+				}
+
+				return getState();
+			}
+
+			if (request.command === 'start-recording') {
+				if (capture || finalizing || selecting) {
+					return getState();
+				}
+
+				if (!setOptions(request.scale, request.format)) {
+					return getState();
+				}
+
+				await refreshEncoderSupport();
+				if (encoderSupport !== 'supported') {
+					return getState();
+				}
+
+				const target = resolveCaptureTarget();
+				if (!target) {
+					setStatus('Choose an area or the whole page first.', true);
+					return getState();
+				}
+
+				try {
+					capture = new PageCapture({
+						scale,
+						format,
+						crop: target.crop,
+					});
+					await capture.start();
+					setStatus(`Recording ${getFormatLabel(format)} at ${scale}× scale…`);
+				} catch (error) {
+					capture?.restore();
+					capture = null;
+					setStatus(
+						error instanceof Error ? error.message : String(error),
+						true,
+					);
+				}
+
+				updateHighlight();
+				return getState();
+			}
+
+			await finishRecording(request.destination);
+			return getState();
 		},
 	};
 };
@@ -485,12 +512,15 @@ if (!extensionWindow.__remotionCanvasCapture) {
 }
 
 chrome.runtime.onMessage.addListener((message) => {
-	if (
-		typeof message === 'object' &&
-		message !== null &&
-		'type' in message &&
-		message.type === 'remotion-canvas-capture-toggle'
-	) {
-		extensionWindow.__remotionCanvasCapture?.togglePanel();
+	if (!isCaptureControllerRequest(message)) {
+		return;
 	}
+
+	return extensionWindow.__remotionCanvasCapture
+		?.handleRequest(message)
+		.catch((error) => {
+			return {
+				message: error instanceof Error ? error.message : String(error),
+			};
+		});
 });

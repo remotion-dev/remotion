@@ -14,11 +14,11 @@ import {
 	compensateTranslateForTransformOrigin,
 	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
-	parseCssRotationToRadians,
 	snapSelectedOutlineTransformOriginUv,
 	uvsEqual,
 } from './selected-outline-drag';
 import type {SelectedOutline} from './selected-outline-geometry';
+import {getSelectedOutlineRotationPivot} from './selected-outline-measurement';
 import {
 	transformOriginFieldKey,
 	translateFieldKey,
@@ -31,6 +31,7 @@ import {
 } from './selected-outline-uv';
 import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {parseCssRotation} from './Timeline/timeline-rotation-utils';
 import {
 	parseTranslate,
 	serializeTranslate,
@@ -53,19 +54,26 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
-	const target = layoutTarget?.selectedForTransformOrigin
-		? getLatestTargetByKey(layoutTarget.key)
-		: undefined;
+	const target =
+		layoutTarget?.selectedForTransformOrigin ||
+		layoutTarget?.selectedForRotation
+			? getLatestTargetByKey(layoutTarget.key)
+			: undefined;
 	const transformOriginDrag = target?.transformOriginDrag ?? null;
+	const transformOriginValue =
+		transformOriginDrag?.originValue ??
+		(layoutTarget?.selectedForRotation
+			? layoutTarget.transformOriginValue
+			: null);
 	const crop = target?.crop;
 	const transformOriginPoints = outline.uncroppedPoints ?? outline.points;
 
 	const parsed = useMemo(
 		() =>
-			transformOriginDrag === null
+			transformOriginValue === null
 				? null
-				: parseTransformOrigin(transformOriginDrag.originValue),
-		[transformOriginDrag],
+				: parseTransformOrigin(transformOriginValue),
+		[transformOriginValue],
 	);
 	const uv = useMemo(() => {
 		if (parsed === null || outline.dimensions === null) {
@@ -78,10 +86,23 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			height: outline.dimensions.height,
 		});
 	}, [outline.dimensions, parsed]);
-	const position = useMemo(
-		() => (uv === null ? null : getUvHandlePosition(transformOriginPoints, uv)),
-		[transformOriginPoints, uv],
-	);
+	const position = useMemo(() => {
+		if (layoutTarget?.selectedForRotation) {
+			return getSelectedOutlineRotationPivot({
+				dimensions: outline.dimensions,
+				points: transformOriginPoints,
+				transformOriginValue: layoutTarget.transformOriginValue,
+			});
+		}
+
+		return uv === null ? null : getUvHandlePosition(transformOriginPoints, uv);
+	}, [
+		layoutTarget?.selectedForRotation,
+		layoutTarget?.transformOriginValue,
+		outline.dimensions,
+		transformOriginPoints,
+		uv,
+	]);
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGGElement>) => {
@@ -103,9 +124,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				return;
 			}
 
-			const rotation = parseCssRotationToRadians(
-				transformOriginDrag.rotateValue,
-			);
+			const rotation = parseCssRotation(transformOriginDrag.rotateValue);
 			if (rotation === null) {
 				return;
 			}
@@ -115,7 +134,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				return;
 			}
 
-			const [scaleX, scaleY] = NoReactInternals.parseScaleValue(
+			const scale = NoReactInternals.parseScaleValue(
 				transformOriginDrag.scaleValue,
 			);
 			const startTranslate = parseTranslate(transformOriginDrag.translateValue);
@@ -174,16 +193,20 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				] as const;
 				const [nextTranslateX, nextTranslateY] =
 					compensateTranslateForTransformOrigin({
-						startTranslate,
+						startTranslate: [startTranslate[0], startTranslate[1]],
 						deltaOrigin,
-						rotate: rotation,
-						scale: [scaleX, scaleY],
+						rotation,
+						scale,
 					});
 				const origin = serializeTransformOrigin({
 					uv: nextUv,
 					z: parsed.z,
 				});
-				const translate = serializeTranslate(nextTranslateX, nextTranslateY);
+				const translate = serializeTranslate([
+					nextTranslateX,
+					nextTranslateY,
+					startTranslate[2],
+				]);
 				last = {uv: nextUv, origin, translate};
 
 				setDragOverrides(
@@ -219,14 +242,15 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 													);
 													return {
 														...keyframe,
-														value: serializeTranslate(
+														value: serializeTranslate([
 															keyframeTranslate[0] +
 																nextTranslateX -
 																startTranslate[0],
 															keyframeTranslate[1] +
 																nextTranslateY -
 																startTranslate[1],
-														),
+															keyframeTranslate[2],
+														]),
 													};
 												},
 											),
@@ -339,19 +363,15 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		],
 	);
 
-	if (
-		transformOriginDrag === null ||
-		parsed === null ||
-		uv === null ||
-		position === null
-	) {
+	if (position === null) {
 		return null;
 	}
 
 	return (
 		<g
-			pointerEvents="all"
-			cursor="crosshair"
+			data-remotion-studio-transform-origin-handle
+			pointerEvents={transformOriginDrag === null ? 'none' : 'all'}
+			cursor={transformOriginDrag === null ? undefined : 'crosshair'}
 			onPointerDown={onPointerDown}
 			aria-hidden="true"
 			style={{

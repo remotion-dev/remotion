@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/convert",
-	"version": "4.0.506",
+	"version": "4.0.508",
 	"private": true,
 	"type": "module",
 	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
@@ -34,6 +34,7 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/design": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
+		"@remotion/mac-cursors": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
@@ -53,7 +54,6 @@
 		"react-dom": "catalog:",
 		"react-hot-toast": "2.6.0",
 		"remotion": "workspace:*",
-		"shikiji": "0.6.13",
 		"tailwind-merge": "2.5.2",
 		"tailwindcss-animate": "1.0.7"
 	},

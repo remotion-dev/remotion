@@ -29,9 +29,13 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		},
 	});
 	const events: EventSourceEvent[] = [];
-	const unsubscribe = operations.subscribeToEvent((event) =>
-		events.push(event),
-	);
+	const contentsAtMutation: string[] = [];
+	const unsubscribe = operations.subscribeToEvent((event) => {
+		events.push(event);
+		if (event.type === 'sequence-node-paths-remapped') {
+			contentsAtMutation.push(project.files['/project/src/Composition.tsx']);
+		}
+	});
 
 	expect(events.slice(0, 2).map((event) => event.type)).toEqual([
 		'init',
@@ -57,17 +61,45 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		},
 		from: null,
 	});
-	expect(insertResult).toEqual({success: true});
+	if (!insertResult.success) {
+		throw new Error(insertResult.reason);
+	}
+
+	expect(
+		events.findLast((event) => event.type === 'sequence-node-paths-remapped'),
+	).toEqual({
+		type: 'sequence-node-paths-remapped',
+		mutation: insertResult.nodePathMutation,
+	});
+	expect(contentsAtMutation).toEqual([
+		initialProject.files['/project/src/Composition.tsx'],
+	]);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'<Solid width={1280}',
 	);
 
 	const {redo, undo} = operations;
-	expect(await undo()).toEqual({success: true});
+	const undoResult = await undo();
+	expect(undoResult.success).toBe(true);
+	if (!undoResult.success || undoResult.nodePathMutation === null) {
+		throw new Error('Expected undo to remap node paths');
+	}
+
+	expect(undoResult.nodePathMutation.files).toEqual(
+		insertResult.nodePathMutation.files,
+	);
 	expect(project.files['/project/src/Composition.tsx']).toBe(
 		initialProject.files['/project/src/Composition.tsx'],
 	);
-	expect(await redo()).toEqual({success: true});
+	const redoResult = await redo();
+	expect(redoResult.success).toBe(true);
+	if (!redoResult.success || redoResult.nodePathMutation === null) {
+		throw new Error('Expected redo to remap node paths');
+	}
+
+	expect(redoResult.nodePathMutation.files).toEqual(
+		insertResult.nodePathMutation.files,
+	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'<Solid width={1280}',
 	);
@@ -112,11 +144,11 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	});
 	expect(project.publicFiles?.['renamed.bin']).toBeUndefined();
 
-	expect(await undo()).toEqual({success: true});
+	expect(await undo()).toEqual({success: true, nodePathMutation: null});
 	expect(project.publicFiles?.['renamed.bin']).toEqual(
 		new Uint8Array([0, 127, 128, 255]),
 	);
-	expect(await undo()).toEqual({success: true});
+	expect(await undo()).toEqual({success: true, nodePathMutation: null});
 	expect(project.publicFiles?.['nested/upload.bin']).toEqual(
 		new Uint8Array([0, 127, 128, 255]),
 	);

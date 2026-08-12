@@ -40,6 +40,7 @@ test('reset config options restores defaults before reloading config', async () 
 	Config.setDefaultCodingAgent('codex');
 	Config.setDefaultEditor('cursor');
 	Config.setBufferStateDelayInMilliseconds(200);
+	Config.setExperimentalKeepAudioContextAlive(true);
 	Config.overrideBundlerConfig((config, {bundler}) => ({
 		...config,
 		name: `shared-${bundler}`,
@@ -72,6 +73,11 @@ test('reset config options restores defaults before reloading config', async () 
 			.value,
 	).toBe('cursor');
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBe(200);
+	expect(
+		BrowserSafeApis.options.experimentalKeepAudioContextAliveOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBe(true);
 	const sharedWebpackConfig = await ConfigInternals.getBundlerOverrideFn()(
 		{mode: 'development'},
 		{bundler: 'webpack'},
@@ -118,6 +124,11 @@ test('reset config options restores defaults before reloading config', async () 
 	).toBeNull();
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBeNull();
 	expect(
+		BrowserSafeApis.options.experimentalKeepAudioContextAliveOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBe(false);
+	expect(
 		await ConfigInternals.getBundlerOverrideFn()(
 			{mode: 'development'},
 			{bundler: 'webpack'},
@@ -153,7 +164,13 @@ test('CLI app flags take precedence over the configured defaults', () => {
 		executable: '/opt/acme/editor',
 		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
 	});
+	Config.setExperimentalKeepAudioContextAlive(false);
 
+	expect(
+		BrowserSafeApis.options.experimentalKeepAudioContextAliveOption.getValue({
+			commandLine: {'experimental-keep-audio-context-alive': true},
+		}),
+	).toEqual({source: 'cli', value: true});
 	expect(
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
 			commandLine: {'coding-agent': 'cursor'},

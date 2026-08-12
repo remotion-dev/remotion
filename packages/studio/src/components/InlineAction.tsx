@@ -17,6 +17,7 @@ export type InlineActionProps = Omit<
 > & {
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly renderAction: RenderInlineAction;
+	readonly hoveredColor?: string;
 	readonly unhoveredColor?: string;
 	readonly variant: 'compact' | null;
 	readonly style?: React.CSSProperties;
@@ -27,6 +28,7 @@ export const InlineAction = ({
 	onClick,
 	disabled,
 	title,
+	hoveredColor = WHITE,
 	unhoveredColor = LIGHT_TEXT,
 	variant,
 	style: customStyle,
@@ -53,11 +55,11 @@ export const InlineAction = ({
 					? TRANSPARENT
 					: getBackgroundFromHoverState({hovered: true, selected: false}),
 				idleColor: unhoveredColor,
-				hoverColor: disabled ? unhoveredColor : WHITE,
+				hoverColor: disabled ? unhoveredColor : hoveredColor,
 			}),
 			...customStyle,
 		};
-	}, [customStyle, disabled, unhoveredColor, variant]);
+	}, [customStyle, disabled, hoveredColor, unhoveredColor, variant]);
 
 	return (
 		<button

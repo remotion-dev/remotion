@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import variants from '../variants.json';
-import {getCategoryLabel} from './agents';
-import './index.css';
+import {getCategoryLabel} from './llms';
 
 const CopyLink = ({href}: {readonly href: string}) => {
 	const [copied, setCopied] = React.useState(false);
@@ -15,12 +14,13 @@ const CopyLink = ({href}: {readonly href: string}) => {
 	};
 
 	return (
-		<span
+		<button
+			type="button"
 			onClick={handleCopy}
-			className=" text-sm hover:text-blue-500 cursor-pointer"
+			className="text-sm hover:text-blue-500 cursor-pointer"
 		>
 			{copied ? 'Copied' : 'Copy link'}
-		</span>
+		</button>
 	);
 };
 
@@ -30,7 +30,7 @@ const VideoVariant = ({
 	readonly variant: (typeof variants)[number];
 }) => {
 	return (
-		<div className="bg-white p-2 mb-2 border-2 border-b-4 rounded-md">
+		<article className="bg-white p-2 mb-2 border-2 border-b-4 rounded-md">
 			<a
 				href={`/${variant.fileNames[0]}`}
 				className="leading-tight hover:text-blue-500"
@@ -85,7 +85,7 @@ const VideoVariant = ({
 					))}
 				</div>
 			)}
-		</div>
+		</article>
 	);
 };
 
@@ -97,14 +97,14 @@ const CategoryGroup = ({
 	readonly variants: (typeof variants)[number][];
 }) => {
 	return (
-		<div id={`category-${category}`} className="scroll-mt-4">
-			<h3 className="text-lg font-bold mt-5 mb-4 font-brand">
+		<section id={`category-${category}`} className="scroll-mt-4">
+			<h2 className="text-lg font-bold mt-5 mb-4 font-brand">
 				{getCategoryLabel(category)}
-			</h3>
+			</h2>
 			{v.map((variant) => (
 				<VideoVariant key={variant.fileNames[0]} variant={variant} />
 			))}
-		</div>
+		</section>
 	);
 };
 
@@ -211,25 +211,28 @@ export function App() {
 	}, []);
 
 	return (
-		<div className="max-w-[960px] w-full m-auto mt-4 px-4 mb-20">
-			<h2 className="text-2xl font-bold mt-10 mb-2 font-brand">
-				Audio and video files for testing
-			</h2>
-			<p className="text-neutral-500 font-brand mt-1 mb-8">
-				All files are available on{' '}
-				<code className="font-brand text-brand">remotion.media/[filename]</code>
-				.
-				<br />
-				Hosted on Cloudflare R2 Free Tier, allowing for theoretically unlimited
-				bandwidth. <br />
-				Files may be used royalty-free and without attribution.
-				<br />
-				For agents, use{' '}
-				<a href="/AGENTS.md" className="font-brand text-brand hover:underline">
-					AGENTS.md
-				</a>
-				.
-			</p>
+		<main className="max-w-[960px] w-full m-auto mt-4 px-4 mb-20">
+			<h1 className="text-2xl font-bold mt-10 mb-2 font-brand">
+				Free audio and video files for testing
+			</h1>
+			<div className="text-neutral-500 font-brand mt-1 mb-8">
+				<p className="mb-3">
+					remotion.media is a CORS-enabled catalog of sample media files. Use
+					them to test media players, parsers, WebCodecs, transcoding, and
+					upload pipelines.
+				</p>
+				<p>
+					Browse {variants.length} fixtures across codecs, containers,
+					resolutions, frame rates, durations, sample rates, sound effects, and
+					HLS. Every file is available at{' '}
+					<code className="font-brand text-brand">
+						remotion.media/[filename]
+					</code>
+					. Files may be used royalty-free and without attribution. You can also
+					pass this website to an AI agent to receive a Markdown version of the
+					catalog.
+				</p>
+			</div>
 			<div className="flex gap-8 items-start">
 				<Sidebar
 					activeCategory={activeCategory}
@@ -245,7 +248,7 @@ export function App() {
 					))}
 				</div>
 			</div>
-		</div>
+		</main>
 	);
 }
 

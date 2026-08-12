@@ -15,6 +15,7 @@ import {
 	useIsTimelineSequenceHovered,
 	useSetTimelineSequenceHover,
 } from '../state/timeline-sequence-hover';
+import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {useSelectComposition} from './InitialCompositionLoader';
@@ -23,12 +24,14 @@ import type {SelectedOutline} from './selected-outline-geometry';
 import {type SelectedOutlineSnapPoint} from './selected-outline-snap';
 import {
 	cropFieldKeys,
+	rotateFieldKey,
 	type SelectedOutlineDragTarget,
 	type SelectedOutlineLayoutTarget,
 	type SelectedOutlineRotationDragTarget,
 	type SelectedOutlineScaleDragTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
+import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlineCropControls} from './SelectedOutlineCropControls';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
 import {SelectedOutlineRotationCornerHandle} from './SelectedOutlineRotationCornerHandle';
@@ -37,9 +40,10 @@ import {disableSequenceInteractivity} from './Timeline/disable-sequence-interact
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
-import type {
-	TimelineSelection,
-	TimelineSelectionInteraction,
+import {
+	getTimelineSequenceSelectionKey,
+	type TimelineSelection,
+	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {
@@ -62,6 +66,7 @@ type SelectedOutlineElementProps = {
 	readonly layoutTarget: SelectedOutlineLayoutTarget | undefined;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onSnapPointsChange: (
 		snapPoints: readonly SelectedOutlineSnapPoint[],
 	) => void;
@@ -86,6 +91,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	layoutTarget,
 	outline,
 	onDraggingChange,
+	onContextMenuOpenChange,
 	onSnapPointsChange,
 	onSelect,
 	scale,
@@ -105,6 +111,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const setHoveredSequence = useSetTimelineSequenceHover();
 	const targetRef = useRef(layoutTarget);
 	useLayoutEffect(() => {
@@ -267,6 +274,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
+		const canRotate = !sourceEditDisabled;
 
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
@@ -436,8 +444,42 @@ const SelectedOutlineElementUnmemoized: React.FC<
 							value: 'crop',
 						},
 						{
+							type: 'item' as const,
+							id: 'rotate',
+							keyHint: null,
+							label: isProgrammaticallyDuplicated ? 'Rotate all' : 'Rotate',
+							leftItem: null,
+							disabled: !canRotate,
+							onClick: () => {
+								if (!canRotate) {
+									return;
+								}
+
+								setManuallyEnabled(
+									getTimelineSequenceSelectionKey(
+										contextMenuTarget.nodePathInfo,
+									),
+									true,
+								);
+								onSelect(
+									{
+										type: 'sequence-prop',
+										nodePathInfo: {
+											...contextMenuTarget.nodePathInfo,
+											auxiliaryKeys: ['controls', rotateFieldKey],
+										},
+										key: rotateFieldKey,
+									},
+									{shiftKey: false, toggleKey: false},
+								);
+							},
+							quickSwitcherLabel: null,
+							subMenu: null,
+							value: 'rotate',
+						},
+						{
 							type: 'divider' as const,
-							id: 'crop-divider',
+							id: 'rotate-divider',
 						},
 					]
 				: [],
@@ -451,6 +493,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		onSelect,
 		previewServerState,
 		resolveOriginalLocation,
+		setManuallyEnabled,
 		selectAsset,
 		setSelectedModal,
 		setPropStatuses,
@@ -470,6 +513,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				hovered={hovered}
 				outline={outline}
 				onContextMenuOpen={onContextMenuOpen}
+				onContextMenuOpenChange={onContextMenuOpenChange}
 				onDraggingChange={onDraggingChange}
 				onHoverChange={onHoverChange}
 				onSnapPointsChange={onSnapPointsChange}
@@ -478,6 +522,14 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				scale={scale}
 				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
 			/>
+			{layoutTarget?.selectedForRotation && controlTarget?.rotationDrag ? (
+				<SelectedOutlineCanvasRotation
+					getLatestTargetByKey={getLatestTargetByKey}
+					layoutTarget={layoutTarget}
+					onDraggingChange={onDraggingChange}
+					outline={outline}
+				/>
+			) : null}
 			<SelectedOutlineCropControls
 				outline={outline}
 				onDraggingChange={onDraggingChange}
@@ -493,6 +545,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 							edge={edge}
 							outline={outline}
 							onContextMenuOpen={onContextMenuOpen}
+							onContextMenuOpenChange={onContextMenuOpenChange}
 							onDraggingChange={onDraggingChange}
 							onHoverChange={onHoverChange}
 							onSelect={onSelect}
@@ -512,6 +565,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 							dragging={dragging}
 							outline={outline}
 							onContextMenuOpen={onContextMenuOpen}
+							onContextMenuOpenChange={onContextMenuOpenChange}
 							onDraggingChange={onDraggingChange}
 							onHoverChange={onHoverChange}
 							onSelect={onSelect}

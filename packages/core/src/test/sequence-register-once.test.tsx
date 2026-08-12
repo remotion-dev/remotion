@@ -144,6 +144,7 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 			clearDragOverrides: () => undefined,
 			setEffectDragOverrides: () => undefined,
 			clearEffectDragOverrides: () => undefined,
+			remapPropStatuses: () => undefined,
 			setPropStatuses: () => undefined,
 		}),
 		[],

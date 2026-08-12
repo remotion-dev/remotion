@@ -33,7 +33,7 @@ export const Pricing: React.FC<{
 				marginBottom: 40,
 			}}
 		>
-			<FreePricing />
+			<FreePricing termsHref={termsHref} />
 			<CompanyPricing />
 			<EnterpriseLicense />
 			<div
@@ -48,11 +48,7 @@ export const Pricing: React.FC<{
 					}}
 				>
 					See our{' '}
-					<a
-						target={licenseLinkTarget}
-						className="bluelink"
-						href={licenseHref}
-					>
+					<a target={licenseLinkTarget} className="bluelink" href={licenseHref}>
 						LICENSE.md
 					</a>
 					{', '}

@@ -28,6 +28,7 @@ const WrapPreviewContext: React.FC<{
 					audioEnabled={false}
 					audioLatencyHint="playback"
 					previewSampleRate={null}
+					_experimentalKeepAudioContextAlive={false}
 				>
 					{children}
 				</SharedAudioContextProvider>

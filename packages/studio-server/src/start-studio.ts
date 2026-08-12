@@ -60,6 +60,7 @@ export const startStudio = async ({
 	binariesDirectory,
 	forceIPv4,
 	getAudioLatencyHint,
+	getExperimentalKeepAudioContextAlive,
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	forceNew,
@@ -87,6 +88,7 @@ export const startStudio = async ({
 	getRenderQueue: () => RenderJob[];
 	getNumberOfAudioTags: () => number;
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	queueMethods: QueueMethods;
@@ -173,6 +175,7 @@ export const startStudio = async ({
 		binariesDirectory,
 		forceIPv4,
 		getAudioLatencyHint,
+		getExperimentalKeepAudioContextAlive,
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		forceNew,

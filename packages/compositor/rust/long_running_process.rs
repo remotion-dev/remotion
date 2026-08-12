@@ -30,6 +30,7 @@ pub struct LongRunningProcess {
 
 impl LongRunningProcess {
     pub fn new(threads: usize, max_cache_size: u64) -> Self {
+        let threads = threads.max(1);
         let send_to_thread_handles = vec![];
         let receive_video_stats_in_main_thread_handles: Vec<mpsc::Receiver<OpenVideoStats>> =
             vec![];

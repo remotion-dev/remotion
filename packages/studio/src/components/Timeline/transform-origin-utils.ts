@@ -17,7 +17,7 @@ export type ParsedTransformOrigin = {
 };
 
 const cssNumberWithUnit = /^([+-]?(?:\d+\.?\d*|\.\d+))(px|%)$/i;
-const cssLength = /^([+-]?(?:\d+\.?\d*|\.\d+))[a-zA-Z]+$/;
+const cssLength = /^([+-]?(?:\d+\.?\d*|\.\d+))([a-zA-Z]+)$/;
 const keywords = new Set(['left', 'center', 'right', 'top', 'bottom']);
 
 const center: TransformOriginAxisValue = {value: 50, unit: '%'};
@@ -174,12 +174,20 @@ const parseXY = (
 	return keywordIsFirst ? [center, length] : [length, center];
 };
 
-const isSupportedZ = (token: string): boolean => {
+export const parseTransformOriginZ = (
+	token: string,
+): {readonly value: number; readonly unit: string} | null => {
 	if (token.includes('%')) {
-		return false;
+		return null;
 	}
 
-	return cssLength.test(token);
+	const match = cssLength.exec(token);
+	if (!match) {
+		return null;
+	}
+
+	const value = Number(match[1]);
+	return Number.isFinite(value) ? {value, unit: match[2]} : null;
 };
 
 export const parseTransformOrigin = (
@@ -200,7 +208,7 @@ export const parseTransformOrigin = (
 	}
 
 	const z = parts[2] ?? null;
-	if (z !== null && !isSupportedZ(z)) {
+	if (z !== null && parseTransformOriginZ(z) === null) {
 		return null;
 	}
 

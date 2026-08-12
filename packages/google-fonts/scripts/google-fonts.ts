@@ -18164,33 +18164,33 @@ export const googleFonts: Font[] = [
 		family: 'Karla Tamil Inclined',
 		variants: ['regular', '700'],
 		subsets: ['tamil'],
-		version: 'v2',
-		lastModified: '2024-10-29',
+		version: 'v3',
+		lastModified: '2026-08-10',
 		files: {
 			'700':
-				'https://fonts.gstatic.com/s/karlatamilinclined/v2/vm8mdQ3vXFXZ1aPd8dNzR82AFh2TibkaVo-nkrf8Iy7YGkI1.woff2',
+				'https://fonts.gstatic.com/s/karlatamilinclined/v3/vm8mdQ3vXFXZ1aPd8dNzR82AFh2TibkaVo-nkrf8Iy7YGkI1.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/karlatamilinclined/v2/vm8pdQ3vXFXZ1aPd8dNzR82AFh2TibkaVrcevZPxCDLR.woff2',
+				'https://fonts.gstatic.com/s/karlatamilinclined/v3/vm8pdQ3vXFXZ1aPd8dNzR82AFh2TibkaVrcevZPxCDLR.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/karlatamilinclined/v2/vm8pdQ3vXFXZ1aPd8dNzR82AFh2TibkaVocat5I.woff2',
+		menu: 'https://fonts.gstatic.com/s/karlatamilinclined/v3/vm8pdQ3vXFXZ1aPd8dNzR82AFh2TibkaVocat5I.woff2',
 	},
 	{
 		family: 'Karla Tamil Upright',
 		variants: ['regular', '700'],
 		subsets: ['tamil'],
-		version: 'v2',
-		lastModified: '2024-10-29',
+		version: 'v3',
+		lastModified: '2026-08-10',
 		files: {
 			'700':
-				'https://fonts.gstatic.com/s/karlatamilupright/v2/IFS1HfVMk95HnY0u6SeQ_cHoozW_3U5XmK5SoKIPLKclE4o.woff2',
+				'https://fonts.gstatic.com/s/karlatamilupright/v3/IFS1HfVMk95HnY0u6SeQ_cHoozW_3U5XmK5SoKIPLKclE4o.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/karlatamilupright/v2/IFS4HfVMk95HnY0u6SeQ_cHoozW_3U5XoBd9hK8kMK4.woff2',
+				'https://fonts.gstatic.com/s/karlatamilupright/v3/IFS4HfVMk95HnY0u6SeQ_cHoozW_3U5XoBd9hK8kMK4.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/karlatamilupright/v2/IFS4HfVMk95HnY0u6SeQ_cHoozW_3U5XkBN3hQ.woff2',
+		menu: 'https://fonts.gstatic.com/s/karlatamilupright/v3/IFS4HfVMk95HnY0u6SeQ_cHoozW_3U5XkBN3hQ.woff2',
 	},
 	{
 		family: 'Karma',
@@ -24548,15 +24548,15 @@ export const googleFonts: Font[] = [
 		family: 'Noto Color Emoji',
 		variants: ['regular'],
 		subsets: ['emoji'],
-		version: 'v39',
-		lastModified: '2026-02-17',
+		version: 'v40',
+		lastModified: '2026-08-10',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/notocoloremoji/v39/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabts79iz64w.woff2',
+				'https://fonts.gstatic.com/s/notocoloremoji/v40/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabts79iz64w.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/notocoloremoji/v39/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFWb9m7g.woff2',
+		menu: 'https://fonts.gstatic.com/s/notocoloremoji/v40/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFWb9m7g.woff2',
 		colorCapabilities: ['COLRv1', 'SVG'],
 	},
 	{
@@ -38632,16 +38632,16 @@ export const googleFonts: Font[] = [
 	{
 		family: 'Single Day',
 		variants: ['regular'],
-		subsets: ['korean'],
-		version: 'v19',
-		lastModified: '2025-09-08',
+		subsets: ['korean', 'latin'],
+		version: 'v20',
+		lastModified: '2026-08-10',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/singleday/v19/LYjHdGDjlEgoAcF95EI5jV8FUNfeQJU.woff2',
+				'https://fonts.gstatic.com/s/singleday/v20/LYjHdGDjlEgoAcF95EI5jV8FUNfeQJU.woff2',
 		},
 		category: 'display',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/singleday/v19/LYjHdGDjlEgoAcF95EI5vVsPUQ.woff2',
+		menu: 'https://fonts.gstatic.com/s/singleday/v20/LYjHdGDjlEgoAcF95EI5vVsPUQ.woff2',
 	},
 	{
 		family: 'Sintony',
@@ -39300,16 +39300,16 @@ export const googleFonts: Font[] = [
 	{
 		family: 'Song Myung',
 		variants: ['regular'],
-		subsets: ['korean'],
-		version: 'v22',
-		lastModified: '2025-09-08',
+		subsets: ['korean', 'latin'],
+		version: 'v23',
+		lastModified: '2026-08-10',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/songmyung/v22/1cX2aUDWAJH5-EIC7DIhr1SqhcitzeM.woff2',
+				'https://fonts.gstatic.com/s/songmyung/v23/1cX2aUDWAJH5-EIC7DIhr1SqhcitzeM.woff2',
 		},
 		category: 'serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/songmyung/v22/1cX2aUDWAJH5-EIC7DIhn1CghA.woff2',
+		menu: 'https://fonts.gstatic.com/s/songmyung/v23/1cX2aUDWAJH5-EIC7DIhn1CghA.woff2',
 	},
 	{
 		family: 'Sono',
@@ -40358,16 +40358,16 @@ export const googleFonts: Font[] = [
 	{
 		family: 'Stylish',
 		variants: ['regular'],
-		subsets: ['korean'],
-		version: 'v25',
-		lastModified: '2025-06-25',
+		subsets: ['korean', 'latin'],
+		version: 'v26',
+		lastModified: '2026-08-10',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/stylish/v25/m8JSjfhPYriQkk7-foj5dLxEdmo.woff2',
+				'https://fonts.gstatic.com/s/stylish/v26/m8JSjfhPYriQkk7-foj5dLxEdmo.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/stylish/v25/m8JSjfhPYriQkk7-TozzdQ.woff2',
+		menu: 'https://fonts.gstatic.com/s/stylish/v26/m8JSjfhPYriQkk7-TozzdQ.woff2',
 	},
 	{
 		family: 'Sue Ellen Francisco',
@@ -40434,20 +40434,20 @@ export const googleFonts: Font[] = [
 	{
 		family: 'Sunflower',
 		variants: ['300', '500', '700'],
-		subsets: ['korean'],
-		version: 'v18',
-		lastModified: '2025-09-16',
+		subsets: ['korean', 'latin'],
+		version: 'v19',
+		lastModified: '2026-08-10',
 		files: {
 			'300':
-				'https://fonts.gstatic.com/s/sunflower/v18/RWmPoKeF8fUjqIj7Vc-06MfirIsGBGBzCw.woff2',
+				'https://fonts.gstatic.com/s/sunflower/v19/RWmPoKeF8fUjqIj7Vc-06MfirIsGBGBzCw.woff2',
 			'500':
-				'https://fonts.gstatic.com/s/sunflower/v18/RWmPoKeF8fUjqIj7Vc-0sMbirIsGBGBzCw.woff2',
+				'https://fonts.gstatic.com/s/sunflower/v19/RWmPoKeF8fUjqIj7Vc-0sMbirIsGBGBzCw.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/sunflower/v18/RWmPoKeF8fUjqIj7Vc-0-MDirIsGBGBzCw.woff2',
+				'https://fonts.gstatic.com/s/sunflower/v19/RWmPoKeF8fUjqIj7Vc-0-MDirIsGBGBzCw.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/sunflower/v18/RWmPoKeF8fUjqIj7Vc-06MfSqIEH.woff2',
+		menu: 'https://fonts.gstatic.com/s/sunflower/v19/RWmPoKeF8fUjqIj7Vc-06MfSqIEH.woff2',
 	},
 	{
 		family: 'Sunshiney',

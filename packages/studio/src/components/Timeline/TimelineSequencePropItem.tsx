@@ -1,4 +1,7 @@
-import {isSchemaFieldKeyframable} from '@remotion/studio-shared';
+import {
+	isSchemaFieldHoldOnly,
+	isSchemaFieldKeyframable,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
@@ -23,6 +26,7 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {saveSequenceProps} from './save-sequence-prop';
+import {isTimelineFieldStacked} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldRowContent} from './TimelineFieldRowContent';
 import {
@@ -38,6 +42,7 @@ import {
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
 import {useTimelineRowSelection} from './TimelineSelection';
+import {Transform3DModeContext} from './Transform3DModeContext';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -344,10 +349,16 @@ const TimelineSequenceKeyframedValueUnmemoized: React.FC<
 					status: propStatus,
 					frame: sourceFrame,
 					value,
+					defaultEasing: isSchemaFieldHoldOnly({
+						schema,
+						key: field.key,
+					})
+						? {type: 'step1'}
+						: undefined,
 				}),
 			);
 		},
-		[propStatus, field.key, nodePath, setDragOverrides],
+		[propStatus, field.key, nodePath, schema, setDragOverrides],
 	);
 
 	const onKeyframedDragEnd = useCallback(() => {
@@ -409,6 +420,7 @@ export const TimelineSequencePropItem: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const transform3DMode = useContext(Transform3DModeContext);
 	const propStatusesForOverride = Internals.getPropStatusesCtx(
 		visualModePropStatuses,
 		nodePath,
@@ -448,10 +460,10 @@ export const TimelineSequencePropItem: React.FC<{
 		) : null;
 
 	const style = useMemo((): React.CSSProperties => {
-		return field.typeName === 'text-content'
+		return isTimelineFieldStacked({field, transform3DMode})
 			? fieldRowBase
 			: {...fieldRowBase, height: field.rowHeight};
-	}, [field.rowHeight, field.typeName]);
+	}, [field, transform3DMode]);
 
 	const canResetToDefault = useMemo(() => {
 		if (!propStatus || propStatus.status === 'computed') {

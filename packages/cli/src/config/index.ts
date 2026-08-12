@@ -129,6 +129,7 @@ const {
 	interactivityOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
+	experimentalKeepAudioContextAliveOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -238,6 +239,12 @@ declare global {
 		 * @default 0
 		 */
 		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
+		/**
+		 * Keep the shared AudioContext running while the Remotion Studio is paused.
+		 * @param enabled Whether to keep the AudioContext alive.
+		 * @default false
+		 */
+		readonly setExperimentalKeepAudioContextAlive: (enabled: boolean) => void;
 		/**
 		 * Enable Webpack polling instead of file system listeners for hot reloading in the Studio.
 		 * This is useful if you are using a remote directory or a virtual machine.
@@ -626,7 +633,6 @@ type FlatConfig = RemotionConfigObject &
 		 * Set the coding agent used by Remotion Studio.
 		 */
 		setDefaultCodingAgent: (codingAgent: DefaultCodingAgent) => void;
-
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
 		 * Set whether S3 buckets should be allowed to expire.
@@ -757,6 +763,8 @@ export const Config: FlatConfig = {
 	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
+	setExperimentalKeepAudioContextAlive:
+		experimentalKeepAudioContextAliveOption.setConfig,
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
 	setShouldOpenBrowser: noOpenOption.setConfig,
 	setBufferStateDelayInMilliseconds,

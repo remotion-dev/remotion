@@ -1,9 +1,15 @@
 import {parse} from '@babel/parser';
+import type {JSXOpeningElement} from '@babel/types';
 import type {
 	CanUpdateDefaultPropsResponse,
 	CompositionComponentInfoRequest,
 	InsertJsxElementRequest,
+	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
+import * as recast from 'recast';
+import type {SequenceNodePath} from 'remotion';
+import {getNodePathForRecastPath} from './sequence-props';
+import {parseAst} from './sequence-props/parse-ast';
 
 export {findSearchPosition} from './find-search-position';
 export {
@@ -982,31 +988,42 @@ const replaceNullRoot = ({
 	};
 };
 
-const replaceSelfClosingRoot = ({
+const replaceJsxElementRoot = ({
 	element,
 	root,
 	sequenceLocalName,
 	source,
 	unit,
+	wrapRootInSequence,
 }: {
 	element: string;
 	root: AstNode;
-	sequenceLocalName: string;
+	sequenceLocalName: string | null;
 	source: string;
 	unit: string;
+	wrapRootInSequence: boolean;
 }): TextEdit => {
 	const start = getPosition(root, 'start');
 	const indent = lineIndentAt(source, start);
 	const original = source.slice(start, getPosition(root, 'end'));
+	if (wrapRootInSequence && sequenceLocalName === null) {
+		throw new Error('Expected a Sequence import for a self-closing root');
+	}
+
+	const existingRoot = wrapRootInSequence
+		? [
+				`${indent}${unit}<${sequenceLocalName}>`,
+				`${indent}${unit}${unit}${original}`,
+				`${indent}${unit}</${sequenceLocalName}>`,
+			]
+		: [`${indent}${unit}${original}`];
 
 	return {
 		start,
 		end: getPosition(root, 'end'),
 		text: [
 			'<>',
-			`${indent}${unit}<${sequenceLocalName}>`,
-			`${indent}${unit}${unit}${original}`,
-			`${indent}${unit}</${sequenceLocalName}>`,
+			...existingRoot,
 			`${indent}${unit}${element}`,
 			`${indent}</>`,
 		].join('\n'),
@@ -1102,13 +1119,14 @@ export const insertSolidIntoSource = ({
 					source,
 					unit,
 				})
-			: isSelfClosing && sequenceImport
-				? replaceSelfClosingRoot({
+			: root.type === 'JSXElement'
+				? replaceJsxElementRoot({
 						element,
 						root,
-						sequenceLocalName: sequenceImport.localName,
+						sequenceLocalName: sequenceImport?.localName ?? null,
 						source,
 						unit,
+						wrapRootInSequence: isSelfClosing,
 					})
 				: appendToJsxRoot({
 						element,
@@ -1126,13 +1144,19 @@ export const insertSolidIntoSource = ({
 	};
 };
 
-export const insertSolidIntoProject = <Project extends CodemodProject>({
+export const insertSolidIntoProjectWithNodePathRemappings = <
+	Project extends CodemodProject,
+>({
 	project,
 	request,
 }: {
 	project: Project;
 	request: InsertJsxElementRequest;
-}): Project => {
+}): {
+	project: Project;
+	filePath: string;
+	nodePathRemappings: SequenceNodePathRemapping[];
+} => {
 	if (request.element.type !== 'solid') {
 		throw new Error('This codemod only supports adding <Solid>');
 	}
@@ -1173,14 +1197,78 @@ export const insertSolidIntoProject = <Project extends CodemodProject>({
 		source: resolved.source,
 		width: request.element.width,
 	});
+	const astBefore = parseAst(resolved.source);
+	const astAfter = parseAst(output);
+	const before: Array<{
+		nodePath: SequenceNodePath;
+		signature: string;
+	}> = [];
+	const after: Array<{
+		nodePath: SequenceNodePath;
+		signature: string;
+	}> = [];
+	recast.visit(astBefore, {
+		visitJSXOpeningElement(path) {
+			before.push({
+				nodePath: getNodePathForRecastPath(path, astBefore),
+				signature: recast.print(path.node as JSXOpeningElement).code,
+			});
+			return this.traverse(path);
+		},
+	});
+	recast.visit(astAfter, {
+		visitJSXOpeningElement(path) {
+			after.push({
+				nodePath: getNodePathForRecastPath(path, astAfter),
+				signature: recast.print(path.node as JSXOpeningElement).code,
+			});
+			return this.traverse(path);
+		},
+	});
+
+	let nextAfterIndex = 0;
+	const nodePathRemappings = before.flatMap(
+		({nodePath, signature}): SequenceNodePathRemapping[] => {
+			const matchedIndex = after.findIndex(
+				(item, index) =>
+					index >= nextAfterIndex && item.signature === signature,
+			);
+			if (matchedIndex === -1) {
+				throw new Error('Could not map JSX node paths after inserting <Solid>');
+			}
+
+			nextAfterIndex = matchedIndex + 1;
+			const newNodePath = after[matchedIndex].nodePath;
+			if (JSON.stringify(nodePath) === JSON.stringify(newNodePath)) {
+				return [];
+			}
+
+			return [{oldNodePath: nodePath, newNodePath}];
+		},
+	);
 
 	return {
-		...project,
-		files: {
-			...project.files,
-			[resolved.filePath]: output,
+		filePath: resolved.filePath,
+		nodePathRemappings,
+		project: {
+			...project,
+			files: {
+				...project.files,
+				[resolved.filePath]: output,
+			},
 		},
 	};
+};
+
+export const insertSolidIntoProject = <Project extends CodemodProject>({
+	project,
+	request,
+}: {
+	project: Project;
+	request: InsertJsxElementRequest;
+}): Project => {
+	return insertSolidIntoProjectWithNodePathRemappings({project, request})
+		.project;
 };
 
 const relativeToRoot = (filePath: string, rootDir: string) => {

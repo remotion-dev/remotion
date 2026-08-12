@@ -2,8 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import {expect, test, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {STUDIO_URL, effectKeyframeE2eFile, exampleDir} from './constants.mts';
-import {navigateToSchemaTest} from './helpers.mts';
+import {
+	STUDIO_URL,
+	effectKeyframeE2eFile,
+	exampleDir,
+	lostNodePathE2eFile,
+} from './constants.mts';
+import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const dropAssetOnCanvas = async ({
@@ -87,6 +92,85 @@ test.describe('visual mode', () => {
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
 	});
 
+	test('should preserve the sequence inspector scroll position when adding an effect', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
+		const addEffectButton = page.getByTitle('Add effect', {exact: true});
+		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
+
+		await expect(async () => {
+			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await expect(addEffectButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		const inspector = page
+			.locator('.__remotion-vertical-scrollbar')
+			.filter({has: addEffectButton});
+		await expect(inspector).toHaveCount(1);
+		await inspector.evaluate((element) => {
+			element.scrollTop = element.scrollHeight;
+		});
+		await addEffectButton.click();
+
+		const scrollTopBefore = await inspector.evaluate(
+			(element) => element.scrollTop,
+		);
+		expect(scrollTopBefore).toBeGreaterThan(0);
+		const effectPicker = page.getByRole('dialog');
+		await effectPicker.getByPlaceholder('Search effects...').fill('blur');
+		await effectPicker.getByText('blur()', {exact: true}).click();
+
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toContain("import {blur} from '@remotion/effects/blur';");
+		await expect(page.getByText('blur()', {exact: true})).toBeVisible();
+		const scrollTopAfter = await inspector.evaluate(
+			(element) => element.scrollTop,
+		);
+		expect(scrollTopAfter).toBeGreaterThan(0);
+	});
+
+	test('should keep canvas item context menus open', async ({page}) => {
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+		await expect(
+			page.getByRole('button', {name: '0', exact: true}),
+		).toBeVisible({timeout: 15_000});
+		await page.locator('[data-timeline-scrubber]').click();
+		await expect(
+			page.getByRole('button', {name: '90', exact: true}),
+		).toBeVisible();
+
+		const canvasItem = page.getByText('Performance overview', {exact: true});
+		const canvasItemBox = await canvasItem.boundingBox();
+		if (canvasItemBox === null) {
+			throw new Error('Canvas item has no bounding box');
+		}
+
+		const canvasItemCenter = {
+			x: canvasItemBox.x + canvasItemBox.width / 2,
+			y: canvasItemBox.y + canvasItemBox.height / 2,
+		};
+		await page.mouse.move(canvasItemCenter.x, canvasItemCenter.y);
+		await page.waitForTimeout(100);
+		await page.mouse.click(canvasItemCenter.x, canvasItemCenter.y, {
+			button: 'right',
+		});
+		await page.mouse.move(10, 10);
+		// Portals do not reliably trigger pointerleave in headless Chromium.
+		await page
+			.locator('.remotion-studio-composition-container')
+			.dispatchEvent('pointerleave');
+
+		const duplicateButton = page.getByRole('button', {
+			name: 'Duplicate',
+			exact: true,
+		});
+		await expect(duplicateButton).toBeVisible();
+	});
+
 	test('should compensate DOM measurements with useCurrentScale() on direct load', async ({
 		page,
 	}) => {
@@ -101,6 +185,47 @@ test.describe('visual mode', () => {
 		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
 			timeout: 15_000,
 		});
+	});
+
+	test('should navigate to a newly created composition', async ({page}) => {
+		const compositionId = 'NewlyCreatedComposition';
+		const compositionFile = path.join(
+			exampleDir,
+			'src',
+			`${compositionId}.tsx`,
+		);
+
+		try {
+			await page.goto(`${STUDIO_URL}/schema-test`);
+			await expect(page).toHaveTitle(/schema-test/, {timeout: 15_000});
+
+			await page.getByRole('button', {name: 'File', exact: true}).click();
+			await page
+				.getByRole('button', {name: 'New composition...', exact: true})
+				.click();
+			await page
+				.getByRole('textbox', {name: 'Composition ID'})
+				.fill(compositionId);
+
+			const createButton = page.getByRole('button', {
+				name: /Add to .*/,
+			});
+			await expect(createButton).toBeEnabled();
+			await createButton.click();
+
+			await expect(page).toHaveURL(`${STUDIO_URL}/${compositionId}`, {
+				timeout: 5_000,
+			});
+			await expect(page).toHaveTitle(new RegExp(compositionId), {
+				timeout: 5_000,
+			});
+		} finally {
+			const undoButton = page.getByRole('button', {name: /^Undo/});
+			if (await undoButton.isEnabled()) {
+				await undoButton.click();
+				await expect.poll(() => fs.existsSync(compositionFile)).toBe(false);
+			}
+		}
 	});
 
 	test('untoggling the free license removes it from the config', async ({
@@ -185,11 +310,11 @@ test.describe('visual mode', () => {
 						installedCodingAgents: [
 							{
 								id: 'codex',
-								iconDataUrl: null,
 								name: 'Codex',
 								nameWithType: 'Codex',
 							},
 						],
+						installedTerminals: [{id: 'ghostty', name: 'Ghostty'}],
 					},
 				},
 			});
@@ -281,6 +406,203 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
+	test('should keep selected canvas outlines visible outside the canvas', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+
+		const firstGridline = page.getByText('0% gridline', {exact: true});
+		await expect(firstGridline).toBeVisible({timeout: 15_000});
+
+		const canvas = page.locator('.remotion-studio-composition-container');
+		const visibleOutlines = page.locator(
+			'.remotion-studio-composition-container > svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
+		);
+		await canvas.hover();
+		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await visibleOutlines.first().click({force: true});
+		await page.mouse.move(0, 0);
+		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+	});
+
+	test('should preserve following interactive elements after deleting a sibling', async ({
+		context,
+		page,
+	}) => {
+		await navigateToLostNodePathE2e(page);
+		const otherPage = await context.newPage();
+		await navigateToLostNodePathE2e(otherPage);
+		const canvas = page.locator('.remotion-studio-composition-container');
+		const otherCanvas = otherPage.locator(
+			'.remotion-studio-composition-container',
+		);
+		await expect(
+			canvas.getByText('Performance overview', {exact: true}),
+		).toBeVisible();
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		const gridline = page.getByText('0% gridline', {exact: true});
+		const gridlineVisibilityToggle = gridline
+			.locator('..')
+			.locator('..')
+			.locator('[data-timeline-layer-eye]');
+		const otherGridlineVisibilityToggle = otherPage
+			.getByText('0% gridline', {exact: true})
+			.locator('..')
+			.locator('..')
+			.locator('[data-timeline-layer-eye]');
+		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
+		await page.evaluate(() => {
+			const state = window as typeof window & {
+				sequenceRemappingBadFrames: string[] | null;
+			};
+			state.sequenceRemappingBadFrames = [];
+			const sample = () => {
+				const container = document.querySelector(
+					'.remotion-studio-composition-container',
+				);
+				if (!container) {
+					requestAnimationFrame(sample);
+					return;
+				}
+
+				const regionalGrowthElements = [
+					...container.querySelectorAll('*'),
+				].filter((element) =>
+					[...element.childNodes].some(
+						(child) =>
+							child.nodeType === Node.TEXT_NODE &&
+							child.textContent?.trim() === 'Regional growth',
+					),
+				);
+				if (regionalGrowthElements.length > 1) {
+					state.sequenceRemappingBadFrames?.push('duplicate-title');
+				}
+
+				if (
+					regionalGrowthElements.some(
+						(element) =>
+							getComputedStyle(element).textTransform === 'uppercase',
+					)
+				) {
+					state.sequenceRemappingBadFrames?.push('uppercase-title');
+				}
+
+				const gridline = [...document.querySelectorAll('div')].find(
+					(element) =>
+						element.childNodes.length === 1 &&
+						element.textContent === '0% gridline',
+				);
+				const gridlineRow = gridline?.parentElement?.parentElement;
+				if (
+					gridlineRow &&
+					!gridlineRow.querySelector('[data-timeline-layer-eye]')
+				) {
+					state.sequenceRemappingBadFrames?.push(
+						'missing-gridline-visibility-toggle',
+					);
+				}
+
+				requestAnimationFrame(sample);
+			};
+			requestAnimationFrame(sample);
+		});
+
+		const eyebrow = page.locator(
+			'[data-timeline-marquee-item][title="Eyebrow"]',
+		);
+		await eyebrow.click();
+		await page.keyboard.press('Delete');
+
+		await expect
+			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
+			.not.toContain('name="Eyebrow"');
+		await expect(eyebrow).toHaveCount(0, {timeout: 30_000});
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Title"]'),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Chart"]'),
+		).toBeVisible();
+		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
+
+		await page.getByRole('button', {name: /^Undo/}).click();
+		await expect
+			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
+			.toContain('name="Eyebrow"');
+		await expect(eyebrow).toBeVisible({timeout: 30_000});
+		await expect(
+			canvas.getByText('Performance overview', {exact: true}),
+		).toBeVisible();
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Performance overview', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
+
+		await page.getByRole('button', {name: /^Redo/}).click();
+		await expect
+			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
+			.not.toContain('name="Eyebrow"');
+		await expect(eyebrow).toHaveCount(0, {timeout: 30_000});
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
+		expect(
+			await page.evaluate(
+				() =>
+					(
+						window as typeof window & {
+							sequenceRemappingBadFrames: string[] | null;
+						}
+					).sequenceRemappingBadFrames ?? [],
+			),
+		).toEqual([]);
+	});
 	test('should use standalone and contextual app names in portaled context menus', async ({
 		context,
 		page,
@@ -317,16 +639,19 @@ test.describe('visual mode', () => {
 						installedCodingAgents: [
 							{
 								id: 'cursor',
-								iconDataUrl: null,
 								name: 'Cursor',
 								nameWithType: 'Cursor Agent',
 							},
 							{
 								id: 'codex',
-								iconDataUrl: null,
 								name: 'Codex',
 								nameWithType: 'Codex',
 							},
+						],
+						installedTerminals: [
+							{id: 'terminal', name: 'Terminal'},
+							{id: 'iterm2', name: 'iTerm2'},
+							{id: 'windows-terminal', name: 'Windows Terminal'},
 						],
 					},
 				},
@@ -336,8 +661,18 @@ test.describe('visual mode', () => {
 			readonly codingAgentId: string;
 			readonly prompt: string | null;
 		}> = [];
+		const terminalLaunchRequests: Array<{
+			readonly directory: string;
+			readonly terminalId: string;
+		}> = [];
 		await page.route('**/api/open-in-coding-agent', async (route) => {
 			launchRequests.push(route.request().postDataJSON());
+			await route.fulfill({
+				json: {success: true, data: {success: true}},
+			});
+		});
+		await page.route('**/api/open-in-terminal', async (route) => {
+			terminalLaunchRequests.push(route.request().postDataJSON());
 			await route.fulfill({
 				json: {success: true, data: {success: true}},
 			});
@@ -347,6 +682,74 @@ test.describe('visual mode', () => {
 			await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 			const firstGridline = page.getByText('0% gridline', {exact: true});
 			await expect(firstGridline).toBeVisible({timeout: 15_000});
+			const projectOpenInAnotherApp = page
+				.getByTitle(exampleDir)
+				.getByRole('button', {name: 'Open in another app'});
+			await projectOpenInAnotherApp.click();
+			const terminalButton = page.getByRole('button', {
+				name: 'Terminal',
+				exact: true,
+			});
+			const iTermButton = page.getByRole('button', {
+				name: 'iTerm2',
+				exact: true,
+			});
+			const windowsTerminalButton = page.getByRole('button', {
+				name: 'Windows Terminal',
+				exact: true,
+			});
+			await expect(page.getByText('Editor', {exact: true})).toBeVisible();
+			await expect(page.getByText('Agent', {exact: true})).toBeVisible();
+			await expect(page.getByText('Terminal', {exact: true})).toHaveCount(2);
+			await expect(iTermButton).toBeVisible();
+			await expect(windowsTerminalButton).toBeVisible();
+			await expect(page.getByText('Editors', {exact: true})).toHaveCount(0);
+			await expect(page.getByText('Agents', {exact: true})).toHaveCount(0);
+			const terminalIcon = terminalButton.locator(
+				'img[data-terminal-icon="terminal"]',
+			);
+			await expect(terminalIcon).toHaveAttribute(
+				'src',
+				'/api/app-icon/terminal/terminal.png',
+			);
+			await expect
+				.poll(() =>
+					terminalIcon.evaluate(
+						(image) => (image as HTMLImageElement).naturalWidth,
+					),
+				)
+				.toBe(72);
+			await terminalButton.click();
+			await expect
+				.poll(() => terminalLaunchRequests)
+				.toEqual([{directory: exampleDir, terminalId: 'terminal'}]);
+
+			await projectOpenInAnotherApp.click();
+			await expect(
+				iTermButton.locator('img[data-terminal-icon="iterm2"]'),
+			).toBeVisible();
+			await iTermButton.click();
+			await expect
+				.poll(() => terminalLaunchRequests)
+				.toEqual([
+					{directory: exampleDir, terminalId: 'terminal'},
+					{directory: exampleDir, terminalId: 'iterm2'},
+				]);
+
+			await projectOpenInAnotherApp.click();
+			await expect(
+				windowsTerminalButton.locator(
+					'img[data-terminal-icon="windows-terminal"]',
+				),
+			).toBeVisible();
+			await windowsTerminalButton.click();
+			await expect
+				.poll(() => terminalLaunchRequests)
+				.toEqual([
+					{directory: exampleDir, terminalId: 'terminal'},
+					{directory: exampleDir, terminalId: 'iterm2'},
+					{directory: exampleDir, terminalId: 'windows-terminal'},
+				]);
 
 			fs.writeFileSync(
 				configFile,
@@ -371,12 +774,14 @@ test.describe('visual mode', () => {
 			await expect(
 				page.getByText('Open in Cursor Agent', {exact: true}),
 			).toBeVisible();
+			const cursorAgentButton = page.getByRole('button', {
+				name: 'Open in Cursor Agent',
+				exact: true,
+			});
 			await expect(
 				page.getByRole('button', {name: 'Open component docs', exact: true}),
 			).toHaveCount(0);
-			await page
-				.getByRole('button', {name: 'Open in Cursor Agent', exact: true})
-				.click();
+			await cursorAgentButton.click();
 			await expect.poll(() => launchRequests.length).toBe(1);
 			expect(launchRequests[0]?.codingAgentId).toBe('cursor');
 			expect(launchRequests[0]?.prompt).toMatch(
@@ -409,8 +814,39 @@ test.describe('visual mode', () => {
 				page.getByText('Open in Codex', {exact: true}),
 			).toBeVisible();
 			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
-			await expect(page.getByText('Editors', {exact: true})).toBeVisible();
-			await expect(page.getByText('Agents', {exact: true})).toBeVisible();
+			const cursorAgentIcon = page.locator(
+				'img[data-coding-agent-icon="cursor"]',
+			);
+			await expect(cursorAgentIcon).toHaveAttribute(
+				'src',
+				'/api/app-icon/coding-agent/cursor.png',
+			);
+			await expect
+				.poll(() =>
+					cursorAgentIcon.evaluate(
+						(image) => (image as HTMLImageElement).naturalWidth,
+					),
+				)
+				.toBe(64);
+			const finderIcon = page.locator('img[data-file-manager-icon="finder"]');
+			await expect(finderIcon).toHaveAttribute(
+				'src',
+				'/api/app-icon/file-manager/finder.png',
+			);
+			await expect
+				.poll(() =>
+					finderIcon.evaluate(
+						(image) => (image as HTMLImageElement).naturalWidth,
+					),
+				)
+				.toBe(36);
+			await expect(
+				page.getByRole('button', {name: 'Terminal', exact: true}),
+			).toHaveCount(0);
+			await expect(page.getByText('Editor', {exact: true})).toBeVisible();
+			await expect(page.getByText('Agent', {exact: true})).toBeVisible();
+			await expect(page.getByText('Editors', {exact: true})).toHaveCount(0);
+			await expect(page.getByText('Agents', {exact: true})).toHaveCount(0);
 			await expect(
 				page.getByRole('button', {name: 'Cursor', exact: true}),
 			).toHaveCount(2);
@@ -434,10 +870,17 @@ test.describe('visual mode', () => {
 			timeout: 15_000,
 		});
 
+		await page.evaluate(() => {
+			// Keep the menu tree in the interval before the next animation frame to
+			// exercise a fast user's outside click deterministically.
+			window.requestAnimationFrame = () => 0;
+		});
 		await page.getByRole('button', {name: 'More actions'}).click();
-		await page
-			.getByRole('button', {name: 'Playback Rate', exact: true})
-			.click();
+		const playbackRate = page.getByRole('button', {
+			name: 'Playback Rate',
+			exact: true,
+		});
+		await playbackRate.click();
 		await expect(
 			page.getByRole('button', {name: '1x', exact: true}),
 		).toBeVisible();
@@ -464,17 +907,16 @@ test.describe('visual mode', () => {
 						installedCodingAgents: [
 							{
 								id: 'codex',
-								iconDataUrl: null,
 								name: 'Codex',
 								nameWithType: 'Codex',
 							},
 							{
 								id: 'copilot',
-								iconDataUrl: null,
 								name: 'GitHub Copilot',
 								nameWithType: 'GitHub Copilot',
 							},
 						],
+						installedTerminals: [],
 					},
 				},
 			});
@@ -524,6 +966,32 @@ test.describe('visual mode', () => {
 			codingAgentId: 'copilot',
 			prompt: null,
 		});
+	});
+
+	test('should clear the open-in-editor hover state when closing the menu', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/schema-test`);
+		const openInAnotherApp = page
+			.getByTitle(exampleDir)
+			.getByRole('button', {name: 'Open in another app'});
+		const changeDefaultApps = page.getByRole('button', {
+			name: 'Change default apps...',
+		});
+
+		await openInAnotherApp.click();
+		await expect(changeDefaultApps).toBeVisible();
+		// The menu overlay intercepts pointerleave; clicking it closes the menu
+		// through the same outside-click path a user would take. Retry the click
+		// until the new layer has registered as the highest z-index context.
+		await expect(async () => {
+			await page.mouse.click(10, 100);
+			await expect(changeDefaultApps).toBeHidden({timeout: 1_000});
+		}).toPass({timeout: 10_000});
+		await expect(openInAnotherApp).toHaveCSS(
+			'background-color',
+			'rgba(0, 0, 0, 0)',
+		);
 	});
 
 	test('should open submenus toward the side with more space', async ({

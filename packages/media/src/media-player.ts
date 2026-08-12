@@ -171,6 +171,7 @@ export class MediaPlayer {
 			src: this.src,
 			credentials,
 			requestInit,
+			logLevel,
 		});
 		this.input = input;
 		this.inputCacheKey = cacheKey;
@@ -181,7 +182,6 @@ export class MediaPlayer {
 		if (canvas) {
 			const context = canvas.getContext('2d', {
 				alpha: true,
-				desynchronized: true,
 			}) as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
 
 			if (!context) {

@@ -47,11 +47,15 @@ import {
 } from './Timeline/timeline-field-utils';
 import {
 	parseCssRotationToDegrees,
+	parseCssRotationToEuler,
 	serializeCssRotation,
+	serializeCssRotationFromEuler,
+	type ParsedCssRotation,
 } from './Timeline/timeline-rotation-utils';
 import {
 	parseTranslate,
 	serializeTranslate,
+	type ParsedTranslate,
 } from './Timeline/timeline-translate-utils';
 import {getLinkedScale} from './Timeline/TimelineScaleField';
 import {
@@ -106,7 +110,7 @@ export const getSelectedOutlineDragStates = ({
 			frame: sourceFrame,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
-		const [startX, startY] = parseTranslate(
+		const [startX, startY, startZ] = parseTranslate(
 			String(effectiveValue ?? '0px 0px'),
 		);
 
@@ -119,6 +123,7 @@ export const getSelectedOutlineDragStates = ({
 			sourceFrame,
 			startX,
 			startY,
+			startZ,
 			target,
 		};
 	});
@@ -136,7 +141,11 @@ export const getSelectedOutlineDragValues = ({
 	return new Map(
 		dragStates.map((dragState) => [
 			dragState.key,
-			serializeTranslate(dragState.startX + deltaX, dragState.startY + deltaY),
+			serializeTranslate([
+				dragState.startX + deltaX,
+				dragState.startY + deltaY,
+				dragState.startZ,
+			]),
 		]),
 	);
 };
@@ -206,7 +215,11 @@ export const getSelectedOutlineDragChanges = ({
 		}
 
 		if (dragState.target.propStatus.status === 'keyframed') {
-			const startValue = serializeTranslate(dragState.startX, dragState.startY);
+			const startValue = serializeTranslate([
+				dragState.startX,
+				dragState.startY,
+				dragState.startZ,
+			]);
 			if (value === startValue) {
 				continue;
 			}
@@ -728,6 +741,7 @@ export const getSelectedOutlineRotationDragStates = ({
 			frame: sourceFrame,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
+		const startValue = String(effectiveValue ?? '0deg');
 
 		return {
 			defaultValue:
@@ -736,10 +750,47 @@ export const getSelectedOutlineRotationDragStates = ({
 					: null,
 			key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
 			sourceFrame,
-			startDegrees: parseCssRotationToDegrees(String(effectiveValue ?? '0deg')),
+			startDegrees: parseCssRotationToDegrees(startValue),
+			startRotation: parseCssRotationToEuler(startValue),
+			startValue,
 			target,
 		};
 	});
+};
+
+export const getSelectedOutline3DRotationDragValues = ({
+	dragStates,
+	rotationXDeltaDegrees,
+	rotationYDeltaDegrees,
+}: {
+	readonly dragStates: readonly SelectedOutlineRotationDragState[];
+	readonly rotationXDeltaDegrees: number;
+	readonly rotationYDeltaDegrees: number;
+}): Map<string, string> => {
+	return new Map(
+		dragStates.map((dragState) => {
+			const decimalPlaces = Math.max(
+				6,
+				getTimelineDisplayDecimalPlaces({
+					defaultDecimalPlaces: 1,
+					step: dragState.target.fieldSchema.step,
+				}),
+			);
+			const {startRotation} = dragState;
+
+			return [
+				dragState.key,
+				serializeCssRotationFromEuler({
+					rotation: [
+						startRotation[0] + rotationXDeltaDegrees,
+						startRotation[1] + rotationYDeltaDegrees,
+						startRotation[2],
+					],
+					decimalPlaces,
+				}),
+			];
+		}),
+	);
 };
 
 export const getSelectedOutlineRotationDragValues = ({
@@ -755,6 +806,20 @@ export const getSelectedOutlineRotationDragValues = ({
 				defaultDecimalPlaces: 1,
 				step: dragState.target.fieldSchema.step,
 			});
+			const {startRotation} = dragState;
+			if (dragState.target.transform3DMode) {
+				return [
+					dragState.key,
+					serializeCssRotationFromEuler({
+						rotation: [
+							startRotation[0],
+							startRotation[1],
+							startRotation[2] + rotationDeltaDegrees,
+						],
+						decimalPlaces: Math.max(6, decimalPlaces),
+					}),
+				];
+			}
 
 			return [
 				dragState.key,
@@ -781,13 +846,14 @@ export const snapSelectedOutlineRotationDeltaDegrees = ({
 		return rotationDeltaDegrees;
 	}
 
+	const startDegrees = anchor.startRotation[2];
 	return (
 		Math.round(
-			(anchor.startDegrees + rotationDeltaDegrees) /
+			(startDegrees + rotationDeltaDegrees) /
 				selectedOutlineRotationSnapStepDegrees,
 		) *
 			selectedOutlineRotationSnapStepDegrees -
-		anchor.startDegrees
+		startDegrees
 	);
 };
 
@@ -807,14 +873,7 @@ export const getSelectedOutlineRotationDragChanges = ({
 		}
 
 		if (dragState.target.propStatus.status === 'keyframed') {
-			const decimalPlaces = getTimelineDisplayDecimalPlaces({
-				defaultDecimalPlaces: 1,
-				step: dragState.target.fieldSchema.step,
-			});
-			const startValue = serializeCssRotation(
-				dragState.startDegrees,
-				decimalPlaces,
-			);
+			const {startValue} = dragState;
 			if (value === startValue) {
 				continue;
 			}
@@ -916,51 +975,37 @@ export const clearSelectedOutlineRotationDragOverrides = ({
 	}
 };
 
-export const parseCssRotationToRadians = (value: string): number | null => {
-	const match = value
-		.trim()
-		.match(/^([+-]?(?:\d+\.?\d*|\.\d+))(deg|rad|turn|grad)$/);
-	if (!match) {
-		return null;
-	}
-
-	const number = Number(match[1]);
-	if (!Number.isFinite(number)) {
-		return null;
-	}
-
-	if (match[2] === 'rad') {
-		return number;
-	}
-
-	if (match[2] === 'turn') {
-		return number * Math.PI * 2;
-	}
-
-	if (match[2] === 'grad') {
-		return (number / 400) * Math.PI * 2;
-	}
-
-	return (number / 180) * Math.PI;
-};
-
 export const compensateTranslateForTransformOrigin = ({
 	startTranslate,
 	deltaOrigin,
-	rotate,
+	rotation,
 	scale,
 }: {
 	readonly startTranslate: readonly [number, number];
 	readonly deltaOrigin: readonly [number, number];
-	readonly rotate: number;
-	readonly scale: readonly [number, number];
+	readonly rotation: ParsedCssRotation;
+	readonly scale: readonly [number, number, number];
 }): readonly [number, number] => {
-	const cos = Math.cos(rotate);
-	const sin = Math.sin(rotate);
-	const matrixA = cos * scale[0];
-	const matrixB = sin * scale[0];
-	const matrixC = -sin * scale[1];
-	const matrixD = cos * scale[1];
+	const [rawAxisX, rawAxisY, rawAxisZ] = rotation.axis;
+	const axisLength = Math.hypot(rawAxisX, rawAxisY, rawAxisZ);
+	if (axisLength === 0) {
+		return [
+			startTranslate[0] + deltaOrigin[0] * (scale[0] - 1),
+			startTranslate[1] + deltaOrigin[1] * (scale[1] - 1),
+		];
+	}
+
+	const axisX = rawAxisX / axisLength;
+	const axisY = rawAxisY / axisLength;
+	const axisZ = rawAxisZ / axisLength;
+	const radians = (rotation.degrees * Math.PI) / 180;
+	const cos = Math.cos(radians);
+	const sin = Math.sin(radians);
+	const oneMinusCos = 1 - cos;
+	const matrixA = (cos + axisX * axisX * oneMinusCos) * scale[0];
+	const matrixB = (axisY * axisX * oneMinusCos + axisZ * sin) * scale[0];
+	const matrixC = (axisX * axisY * oneMinusCos - axisZ * sin) * scale[1];
+	const matrixD = (cos + axisY * axisY * oneMinusCos) * scale[1];
 	const transformedDeltaX = matrixA * deltaOrigin[0] + matrixC * deltaOrigin[1];
 	const transformedDeltaY = matrixB * deltaOrigin[0] + matrixD * deltaOrigin[1];
 	const compensationX = deltaOrigin[0] - transformedDeltaX;
@@ -976,7 +1021,7 @@ export const getSelectedOutlineTransformOriginDragChanges = ({
 	translate,
 }: {
 	readonly target: SelectedOutlineTransformOriginDragTarget;
-	readonly startTranslate: readonly [number, number];
+	readonly startTranslate: ParsedTranslate;
 	readonly origin: string;
 	readonly translate: string;
 }): {
@@ -1054,10 +1099,11 @@ export const getSelectedOutlineTransformOriginDragChanges = ({
 			nodePath: target.nodePath,
 			fieldKey: translateFieldKey,
 			sourceFrame: keyframe.frame,
-			value: serializeTranslate(
+			value: serializeTranslate([
 				keyframeTranslate[0] + deltaTranslateX,
 				keyframeTranslate[1] + deltaTranslateY,
-			),
+				keyframeTranslate[2],
+			]),
 			schema: target.schema,
 		});
 	}

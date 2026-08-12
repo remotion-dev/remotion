@@ -5,6 +5,17 @@ import {renderTimestampRange} from '../render-timestamp-range';
 import {makeSerializedQueue} from '../serialized-queue';
 import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 
+// A bank that was returned within the last N requests for the same src is
+// treated as belonging to another active playhead (a second <Video> of the
+// same src, mounted at a different timeline position) and is exempt from
+// timestamp-based clearing. Without this, the layer furthest ahead in the
+// file deletes the other layers' banks on every request, forcing each of
+// them to re-seek and re-decode from the previous keyframe for every frame.
+// Memory is still bounded: banks that age out of the window are cleared
+// here as before, and `ensureToStayUnderMaxCacheSize()` evicts
+// least-recently-used banks whenever the cache exceeds its budget.
+const RECENTLY_USED_REQUEST_COUNT = 50;
+
 export const makeKeyframeManager = ({
 	getTotalCacheStats,
 }: {
@@ -12,6 +23,12 @@ export const makeKeyframeManager = ({
 }) => {
 	let sources: Record<string, KeyframeBank[]> = {};
 	let disposed = false;
+
+	// How many times a bank has been requested for a given src, and at which
+	// request each bank was last handed out. Used to detect banks that other
+	// concurrently-mounted components are actively reading from.
+	let requestCountForSrc: Record<string, number> = {};
+	const lastRequestForBank = new WeakMap<KeyframeBank, number>();
 
 	const addKeyframeBank = ({
 		src,
@@ -84,6 +101,11 @@ export const makeKeyframeManager = ({
 
 		for (const src in sources) {
 			for (const bank of sources[src]) {
+				numberOfBanks++;
+				if (bank.isBusy()) {
+					continue;
+				}
+
 				const index = sources[src].indexOf(bank);
 
 				const lastUsed = bank.getLastUsed();
@@ -91,45 +113,36 @@ export const makeKeyframeManager = ({
 					mostInThePast = lastUsed;
 					mostInThePastBank = {src, bank, index};
 				}
-
-				numberOfBanks++;
 			}
 		}
 
 		if (!mostInThePastBank) {
-			throw new Error('No keyframe bank found');
+			return {mostInThePastBank: null, numberOfBanks};
 		}
 
 		return {mostInThePastBank, numberOfBanks};
 	};
 
 	const deleteOldestKeyframeBank = (logLevel: LogLevel): {finish: boolean} => {
-		const {
-			mostInThePastBank: {
-				bank: mostInThePastBank,
-				src: mostInThePastSrc,
-				index: mostInThePastIndex,
-			},
-			numberOfBanks,
-		} = getTheKeyframeBankMostInThePast();
+		const {mostInThePastBank, numberOfBanks} =
+			getTheKeyframeBankMostInThePast();
 
-		if (numberOfBanks < 2) {
+		if (numberOfBanks < 2 || mostInThePastBank === null) {
 			return {finish: true};
 		}
 
-		if (mostInThePastBank) {
-			const range = mostInThePastBank.getRangeOfTimestamps();
-			const {framesDeleted} = mostInThePastBank.prepareForDeletion(
-				logLevel,
-				'deleted oldest keyframe bank to stay under max cache size',
+		const {bank, src, index} = mostInThePastBank;
+		const range = bank.getRangeOfTimestamps();
+		const {framesDeleted} = bank.prepareForDeletion(
+			logLevel,
+			'deleted oldest keyframe bank to stay under max cache size',
+		);
+		sources[src].splice(index, 1);
+		if (range) {
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				`Deleted ${framesDeleted} frames for src ${src} from ${range?.firstTimestamp}sec to ${range?.lastTimestamp}sec to free up memory.`,
 			);
-			sources[mostInThePastSrc].splice(mostInThePastIndex, 1);
-			if (range) {
-				Internals.Log.verbose(
-					{logLevel, tag: '@remotion/media'},
-					`Deleted ${framesDeleted} frames for src ${mostInThePastSrc} from ${range?.firstTimestamp}sec to ${range?.lastTimestamp}sec to free up memory.`,
-				);
-			}
 		}
 
 		return {finish: false};
@@ -187,10 +200,28 @@ export const makeKeyframeManager = ({
 		}
 
 		const banks = sources[src];
+		const currentRequest = requestCountForSrc[src] ?? 0;
 
 		for (const bank of banks) {
+			// Decoding happens after the manager hands out a bank and therefore
+			// outside the manager queue. Deleting a busy bank would close frames and
+			// its sample iterator while that operation is still using them.
+			if (bank.isBusy()) {
+				continue;
+			}
+
 			const range = bank.getRangeOfTimestamps();
 			if (!range) {
+				continue;
+			}
+
+			// Don't clear (or trim) a bank another playhead is actively reading
+			// from, even if it lies behind this request's timestamp.
+			const lastRequest = lastRequestForBank.get(bank);
+			if (
+				lastRequest !== undefined &&
+				currentRequest - lastRequest < RECENTLY_USED_REQUEST_COUNT
+			) {
 				continue;
 			}
 
@@ -310,6 +341,8 @@ export const makeKeyframeManager = ({
 			return null;
 		}
 
+		requestCountForSrc[src] = (requestCountForSrc[src] ?? 0) + 1;
+
 		ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
 
 		clearKeyframeBanksBeforeTime({
@@ -325,6 +358,10 @@ export const makeKeyframeManager = ({
 			src,
 			logLevel,
 		});
+
+		if (keyframeBank) {
+			lastRequestForBank.set(keyframeBank, requestCountForSrc[src]);
+		}
 
 		return keyframeBank;
 	};
@@ -342,6 +379,7 @@ export const makeKeyframeManager = ({
 		}
 
 		sources = {};
+		requestCountForSrc = {};
 	};
 
 	const dispose = (logLevel: LogLevel) => {

@@ -5,12 +5,18 @@
  * It is included in `src/index.html`.
  */
 
-import {createRoot} from 'react-dom/client';
+import {createRoot, hydrateRoot} from 'react-dom/client';
 import {App} from './App';
+import './index.css';
 
 function start() {
-	const root = createRoot(document.getElementById('root')!);
-	root.render(<App />);
+	const rootElement = document.getElementById('root')!;
+	if (rootElement.hasChildNodes()) {
+		hydrateRoot(rootElement, <App />);
+		return;
+	}
+
+	createRoot(rootElement).render(<App />);
 }
 
 if (document.readyState === 'loading') {

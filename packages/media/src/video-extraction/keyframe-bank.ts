@@ -34,6 +34,7 @@ export type KeyframeBank = {
 		timestamps: number[];
 	};
 	getLastUsed: () => number;
+	isBusy: () => boolean;
 	canSatisfyTimestamp: (timestamp: number) => boolean;
 	getRangeOfTimestamps: () => {
 		firstTimestamp: number;
@@ -65,6 +66,7 @@ export const makeKeyframeBank = async ({
 
 	let lastUsed = Date.now();
 	let allocationSize = 0;
+	let pendingOperations = 0;
 
 	const getMeasuredDurationOfFrame = (timestamp: number) => {
 		const index = frameTimestamps.indexOf(timestamp);
@@ -385,17 +387,26 @@ export const makeKeyframeBank = async ({
 
 	const keyframeBank: KeyframeBank = {
 		getFrameFromTimestamp: (timestamp: number, fps: number) => {
-			return enqueue(() => getFrameFromTimestamp(timestamp, fps));
+			pendingOperations++;
+			return enqueue(() => getFrameFromTimestamp(timestamp, fps)).finally(
+				() => {
+					pendingOperations--;
+				},
+			);
 		},
 		prepareForDeletion,
 		hasTimestampInSecond: (timestamp: number, fps: number) => {
-			return enqueue(() => hasTimestampInSecond(timestamp, fps));
+			pendingOperations++;
+			return enqueue(() => hasTimestampInSecond(timestamp, fps)).finally(() => {
+				pendingOperations--;
+			});
 		},
 		addFrame,
 		deleteFramesBeforeTimestamp,
 		src,
 		getOpenFrameCount,
 		getLastUsed,
+		isBusy: () => pendingOperations > 0,
 		canSatisfyTimestamp,
 		getRangeOfTimestamps,
 	};

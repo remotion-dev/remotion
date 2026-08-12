@@ -347,11 +347,12 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('only caption Elements use a component-owned Sequence', () => {
+	test('only Elements with one interactive timeline item own their Sequence', () => {
 		const componentOwnedSequenceSlugs = new Set([
 			'captions/moving-pill-captions',
 			'captions/popping-word-captions',
 			'captions/word-highlight-captions',
+			'maps/map-flyover',
 		]);
 
 		for (const definition of elementDefinitionList) {
@@ -436,11 +437,11 @@ describe('Element preview definitions', () => {
 			width: 1920,
 		});
 
-		const fixedDefinition = elementDefinitions['overlays/lower-third'];
-		expect(getElementDimensionsLabel(fixedDefinition)).toBe('680 × 138px');
+		const fixedDefinition = elementDefinitions['overlays/name-lower-third'];
+		expect(getElementDimensionsLabel(fixedDefinition)).toBe('534 × 132px');
 		expect(getElementPreviewDimensions(fixedDefinition)).toEqual({
-			height: 738,
-			width: 1280,
+			height: 732,
+			width: 1134,
 		});
 	});
 

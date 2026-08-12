@@ -29,10 +29,12 @@ import {
 	useSetTimelineSequenceHover,
 	useTimelineSequenceHoverState,
 } from '../state/timeline-sequence-hover';
+import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {getSelectedOutlineActiveSchema} from './selected-outline-drag';
 import {
 	getSelectedCropInfo,
 	getSelectedEffectFieldsBySequenceKey,
+	getSelectedRotationInfo,
 	getSelectedSequenceKeys,
 	getSelectedTransformOriginInfo,
 	getSequenceKeysContainingSelection,
@@ -58,6 +60,7 @@ import {
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
+import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 
 export {orderOutlinesForRendering};
 
@@ -65,6 +68,7 @@ export {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
+	getSelectedOutline3DRotationDragValues,
 	getSelectedOutlineActiveSchema,
 	getSelectedOutlineCropDragChanges,
 	getSelectedOutlineCropDragValues,
@@ -203,6 +207,7 @@ const calculateOutlineTargets = ({
 	getDragOverrides,
 	getScaleLockState,
 	isFullscreen,
+	manuallyEnabled3DTransformSequenceKeys,
 	mode,
 	previewSelectionAvailable,
 	propStatuses,
@@ -210,6 +215,7 @@ const calculateOutlineTargets = ({
 	selectableOutlines,
 	selectedCropInfo,
 	selectedEffectsBySequenceKey,
+	selectedRotationInfo,
 	selectedSequenceKeys,
 	selectedTransformOriginInfo,
 	sequenceKeysContainingSelection,
@@ -226,6 +232,7 @@ const calculateOutlineTargets = ({
 		typeof ScaleLockContext
 	>['getScaleLockState'];
 	readonly isFullscreen: boolean;
+	readonly manuallyEnabled3DTransformSequenceKeys: ReadonlySet<string>;
 	readonly previewSelectionAvailable: boolean;
 	readonly propStatuses: React.ContextType<
 		typeof Internals.VisualModePropStatusesContext
@@ -234,6 +241,7 @@ const calculateOutlineTargets = ({
 	readonly selectedEffectsBySequenceKey: ReturnType<
 		typeof getSelectedEffectFieldsBySequenceKey
 	>;
+	readonly selectedRotationInfo: ReturnType<typeof getSelectedRotationInfo>;
 	readonly selectedSequenceKeys: ReadonlySet<string>;
 	readonly selectedTransformOriginInfo: ReturnType<
 		typeof getSelectedTransformOriginInfo
@@ -350,34 +358,8 @@ const calculateOutlineTargets = ({
 		const selectedForTransformOrigin =
 			selectedTransformOriginInfo?.sequenceKey === key;
 		const selectedForCrop = selectedCropInfo?.sequenceKey === key;
+		const selectedForRotation = selectedRotationInfo?.sequenceKey === key;
 		const selectedForUvHandles = selectedEffectsBySequenceKey.has(key);
-		const layoutTarget: SelectedOutlineLayoutTarget = {
-			key,
-			containsSelection,
-			crop,
-			keyframeDisplayOffset,
-			nodePathInfo,
-			ref: sequence.refForOutline,
-			selected,
-			selectedForCrop,
-			selectedForTransformOrigin,
-			selectedForUvHandles,
-			showSelectedOutline,
-			selection: {
-				type: 'sequence',
-				nodePathInfo: selectionNodePathInfo,
-			},
-			sequence,
-		};
-		if (mode === 'layout') {
-			return [layoutTarget];
-		}
-
-		const cropFields = getCropDragFields({
-			activeSchema,
-			cropValues,
-			propStatuses: nodePropStatuses,
-		});
 		const fieldSchema = activeSchema?.[translateFieldKey];
 		const propStatus = nodePropStatuses?.[translateFieldKey];
 		const scaleFieldSchema = activeSchema?.[scaleFieldKey];
@@ -401,6 +383,35 @@ const calculateOutlineTargets = ({
 						}) ?? transformOriginFieldSchema.default,
 					)
 				: '50% 50%';
+		const layoutTarget: SelectedOutlineLayoutTarget = {
+			key,
+			containsSelection,
+			crop,
+			keyframeDisplayOffset,
+			nodePathInfo,
+			ref: sequence.refForOutline,
+			selected,
+			selectedForCrop,
+			selectedForRotation,
+			selectedForTransformOrigin,
+			selectedForUvHandles,
+			showSelectedOutline,
+			transformOriginValue: transformOriginValueForRotation,
+			selection: {
+				type: 'sequence',
+				nodePathInfo: selectionNodePathInfo,
+			},
+			sequence,
+		};
+		if (mode === 'layout') {
+			return [layoutTarget];
+		}
+
+		const cropFields = getCropDragFields({
+			activeSchema,
+			cropValues,
+			propStatuses: nodePropStatuses,
+		});
 		const canDragStatus =
 			propStatus?.status === 'static' ||
 			(propStatus?.status === 'keyframed' &&
@@ -428,6 +439,20 @@ const calculateOutlineTargets = ({
 			controls !== null &&
 			rotationFieldSchema?.type === 'rotation-css' &&
 			canRotationDragStatus;
+		const transform3DMode =
+			manuallyEnabled3DTransformSequenceKeys.has(key) ||
+			[
+				'style.translate',
+				'style.scale',
+				'style.rotate',
+				'style.transformOrigin',
+			].some((fieldKey) =>
+				propStatusHas3DTransformValue({
+					fieldKey,
+					propStatus: nodePropStatuses?.[fieldKey],
+					runtimeValue: runtimeValues[fieldKey],
+				}),
+			);
 		const transformOriginSourceFrame =
 			selectedTransformOriginInfo?.displayFrame === null ||
 			selectedTransformOriginInfo?.displayFrame === undefined
@@ -443,7 +468,7 @@ const calculateOutlineTargets = ({
 				propStatus.interpolationFunction === 'interpolate');
 		const canTransformOriginDrag =
 			previewInteractive &&
-			selectedForTransformOrigin &&
+			(selectedForTransformOrigin || selectedForRotation) &&
 			controls !== null &&
 			transformOriginFieldSchema?.type === 'transform-origin' &&
 			fieldSchema?.type === 'translate' &&
@@ -527,6 +552,7 @@ const calculateOutlineTargets = ({
 							keyframeDisplayOffset,
 							nodePath,
 							schema: controls.schema,
+							transform3DMode,
 							transformOriginValue: transformOriginValueForRotation,
 						}
 					: null,
@@ -625,6 +651,7 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 		timelinePosition: number,
 	) => ReturnType<typeof getSequencesWithSelectableOutlines>;
 	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction?: TimelineSelectionInteraction,
@@ -646,6 +673,7 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 	getLatestOutlineTargetByKey,
 	getSelectableOutlines,
 	onDraggingChange,
+	onContextMenuOpenChange,
 	onSelect,
 	scale,
 	selectedSequenceKeys,
@@ -721,6 +749,7 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
 			getOutlineTargets={getOutlineTargets}
 			onDraggingChange={onDraggingChange}
+			onContextMenuOpenChange={onContextMenuOpenChange}
 			onSelect={onSelect}
 			scale={scale}
 			sequences={sequences}
@@ -755,12 +784,14 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {getScaleLockState} = useContext(ScaleLockContext);
+	const {manuallyEnabledSequenceKeys} = useContext(Transform3DModeStateContext);
 	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
 	const setHoveredSequence = useSetTimelineSequenceHover();
 	const hoveredSequence = useTimelineSequenceHoverState();
 	const isFullscreen = useIsFullscreen();
 	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
 	const [draggingOutline, setDraggingOutline] = useState(false);
+	const [canvasContextMenuOpen, setCanvasContextMenuOpen] = useState(false);
 	const previewSelectionAvailable =
 		previewServerState.type === 'connected' || window.remotion_isReadOnlyStudio;
 	const selectedSequenceKeys = useMemo(
@@ -777,6 +808,10 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	);
 	const selectedTransformOriginInfo = useMemo(
 		() => getSelectedTransformOriginInfo(selectedItems),
+		[selectedItems],
+	);
+	const selectedRotationInfo = useMemo(
+		() => getSelectedRotationInfo(selectedItems),
 		[selectedItems],
 	);
 	const selectedCropInfo = useMemo(
@@ -824,10 +859,12 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					getDragOverrides,
 					getScaleLockState,
 					isFullscreen,
+					manuallyEnabled3DTransformSequenceKeys: manuallyEnabledSequenceKeys,
 					previewSelectionAvailable,
 					propStatuses,
 					selectedCropInfo,
 					selectedEffectsBySequenceKey,
+					selectedRotationInfo,
 					selectedSequenceKeys,
 					selectedTransformOriginInfo,
 					sequenceKeysContainingSelection,
@@ -838,11 +875,13 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 				getDragOverrides,
 				getScaleLockState,
 				isFullscreen,
+				manuallyEnabledSequenceKeys,
 				previewSelectionAvailable,
 				previewServerState,
 				propStatuses,
 				selectedCropInfo,
 				selectedEffectsBySequenceKey,
+				selectedRotationInfo,
 				selectedSequenceKeys,
 				selectedTransformOriginInfo,
 				sequenceKeysContainingSelection,
@@ -921,7 +960,11 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		[selectItem],
 	);
 	const measurementActive =
-		canvasHovered || draggingOutline || hoveredSequence?.source === 'timeline';
+		canvasHovered ||
+		draggingOutline ||
+		canvasContextMenuOpen ||
+		sequenceKeysContainingSelection.size > 0 ||
+		hoveredSequence?.source === 'timeline';
 	useLayoutEffect(() => {
 		if (measurementActive) {
 			return;
@@ -949,6 +992,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
 					getSelectableOutlines={getSelectableOutlines}
 					onDraggingChange={onDraggingChange}
+					onContextMenuOpenChange={setCanvasContextMenuOpen}
 					onSelect={selectOutlineItem}
 					scale={scale}
 					selectedSequenceKeys={selectedSequenceKeys}

@@ -5,7 +5,11 @@ import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaArrayItemSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
+import {
+	zodSafeParse,
+	type AnyZodSchema,
+	getUserFacingDescription,
+} from './zod-schema-type';
 import {getArrayElement} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
@@ -74,6 +78,7 @@ export const ZodMatrixEditor: React.FC<{
 				jsonPath={jsonPath}
 				onRemove={onRemove}
 				suffix={suffix}
+				description={getUserFacingDescription(schema)}
 				valid={zodValidation.success}
 				handleClick={() => setExpanded(!expanded)}
 			/>

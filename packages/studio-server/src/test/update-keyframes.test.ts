@@ -993,6 +993,104 @@ test('updateSequenceKeyframes rejects enum fields', async () => {
 	).rejects.toThrow(/not keyframable/);
 });
 
+test('updateSequenceKeyframes authors enabled enum fields with hold easing', async () => {
+	const input = `import React from 'react';
+import {MacOSCursor} from '@remotion/mac-cursors';
+
+export const Example: React.FC = () => {
+	return <MacOSCursor cursor="default" />;
+};
+`;
+	const schema = {
+		cursor: {
+			type: 'enum',
+			default: 'default',
+			keyframable: true,
+			variants: {
+				default: {},
+				'ne-resize': {},
+			},
+		},
+	} satisfies InteractivitySchema;
+	const first = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'MacOSCursor cursor')),
+		schema,
+		updates: [
+			{
+				key: 'cursor',
+				operation: {type: 'add', frame: 0, value: 'default'},
+			},
+		],
+	});
+	const second = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input: first.output,
+		nodePath: first.updatedNodePath,
+		schema,
+		updates: [
+			{
+				key: 'cursor',
+				operation: {type: 'add', frame: 100, value: 'ne-resize'},
+			},
+		],
+	});
+
+	expect(second.output).toContain(
+		"cursor={interpolate(frame, [0, 100], ['default', 'ne-resize'], {",
+	);
+	expect(second.output).toContain('easing: [Easing.step1]');
+	expect(second.output).toContain('Easing');
+	expect(second.output).toContain('interpolate');
+	expect(second.output).toContain('useCurrentFrame');
+
+	await expect(
+		updateSequenceKeyframes({
+			videoConfigValues: null,
+			input: second.output,
+			nodePath: second.updatedNodePath,
+			schema,
+			updates: [
+				{
+					key: 'cursor',
+					operation: {
+						type: 'easing',
+						segmentIndex: 0,
+						easing: {type: 'linear'},
+					},
+				},
+			],
+		}),
+	).rejects.toThrow(/only supports Easing\.step1/);
+
+	const singleKeyframeInput = `import React from 'react';
+import {MacOSCursor} from '@remotion/mac-cursors';
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return <MacOSCursor cursor={interpolate(frame, [0], ['default'])} />;
+};
+`;
+	const fromSingleKeyframe = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input: singleKeyframeInput,
+		nodePath: lineColumnToNodePath(
+			singleKeyframeInput,
+			getLine(singleKeyframeInput, 'MacOSCursor cursor'),
+		),
+		schema,
+		updates: [
+			{
+				key: 'cursor',
+				operation: {type: 'add', frame: 100, value: 'ne-resize'},
+			},
+		],
+	});
+	expect(fromSingleKeyframe.output).toContain('easing: [Easing.step1]');
+});
+
 test('updateSequenceKeyframes converts a static value to a single-keyframe interpolation at frame 0', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		videoConfigValues: null,

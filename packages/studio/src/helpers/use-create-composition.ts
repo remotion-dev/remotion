@@ -1,4 +1,5 @@
 import type {
+	CanvasCaptureData,
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
@@ -28,22 +29,6 @@ const toPascalCase = (value: string) => {
 	return candidate;
 };
 
-const waitForComposition = (compositionId: string) => {
-	return new Promise<void>((resolve) => {
-		const started = Date.now();
-		const interval = window.setInterval(() => {
-			const compositionNames = window.remotion_getCompositionNames?.() ?? [];
-			if (
-				compositionNames.includes(compositionId) ||
-				Date.now() - started > 10000
-			) {
-				window.clearInterval(interval);
-				resolve();
-			}
-		}, 100);
-	});
-};
-
 export const getUniqueCompositionName = (
 	compositions: _InternalTypes['AnyComposition'][],
 ) => {
@@ -68,6 +53,7 @@ export const useCreateComposition = ({
 	parentName,
 	selectedFrameRate,
 	size,
+	canvasCapture,
 }: {
 	compositions: _InternalTypes['AnyComposition'][];
 	durationInFrames: number;
@@ -79,6 +65,10 @@ export const useCreateComposition = ({
 		width: number;
 		height: number;
 	};
+	canvasCapture: {
+		readonly data: CanvasCaptureData;
+		readonly videoFileName: string;
+	} | null;
 }) => {
 	const selectComposition = useSelectComposition();
 	const componentName = useMemo(() => toPascalCase(newId), [newId]);
@@ -107,8 +97,17 @@ export const useCreateComposition = ({
 			componentImportPath: `./${componentName}`,
 			folderName,
 			parentName,
+			canvasCapture:
+				canvasCapture === null
+					? null
+					: {
+							data: canvasCapture.data,
+							keyframeFps: Number(selectedFrameRate),
+							videoFileName: canvasCapture.videoFileName,
+						},
 		};
 	}, [
+		canvasCapture,
 		componentName,
 		durationInFrames,
 		folderName,
@@ -140,7 +139,6 @@ export const useCreateComposition = ({
 			});
 
 			if (result.success) {
-				await waitForComposition(newId);
 				selectComposition(
 					{
 						id: newId,

@@ -9,6 +9,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -35,10 +36,15 @@ export const duplicateJsxNodeHandler: ApiHandler<
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
 
-			const {output, formatted, nodeLabel, logLine} = await duplicateJsxNode({
-				input: fileContents,
-				nodePath,
-			});
+			const {output, formatted, nodeLabel, logLine, nodePathRemappings} =
+				await duplicateJsxNode({input: fileContents, nodePath});
+			const nodePathMutation = broadcastSequenceNodePathMutation([
+				{
+					absolutePath,
+					remappings: nodePathRemappings,
+					restoredNodePaths: [],
+				},
+			]);
 
 			pushToUndoStack({
 				filePath: absolutePath,
@@ -53,9 +59,15 @@ export const duplicateJsxNodeHandler: ApiHandler<
 				},
 				entryType: 'duplicate-jsx-node',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: undefined,
+				metadata: {skipSequencePropsUpdate: true},
+			});
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -79,6 +91,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {

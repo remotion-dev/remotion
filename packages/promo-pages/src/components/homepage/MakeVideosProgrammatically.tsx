@@ -37,7 +37,7 @@ export const MakeVideosProgrammatically: React.FC<{
 						playsInline
 						loop
 						preload="metadata"
-						className="relative max-h-full max-w-full cursor-default! object-contain lg:mb-0 lg:mt-0"
+						className="relative max-h-full max-w-full cursor-default! object-contain min-[900px]:mb-0 min-[900px]:mt-0"
 					/>
 				) : null}
 			</div>

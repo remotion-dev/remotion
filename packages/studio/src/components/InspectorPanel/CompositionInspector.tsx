@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import type {_InternalTypes} from 'remotion';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {PicIcon} from '../../icons/frame';
@@ -297,6 +298,8 @@ export const CompositionInspector: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 }> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+
 	return (
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={inspectorOverviewSection}>
@@ -304,7 +307,7 @@ export const CompositionInspector: React.FC<{
 				<InspectorSectionDivider />
 				<CompositionMetadata
 					compositionId={composition.id}
-					disabled={readOnlyStudio}
+					disabled={readOnlyStudio || previewServerState.type !== 'connected'}
 					stack={composition.stack}
 				/>
 			</div>

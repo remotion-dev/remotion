@@ -18,7 +18,10 @@ import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-cha
 export const useOpenSequenceInApps = (sequence: TSequence) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
+	const {resolvedLocation: originalLocation} = useResolveStackAndReactToChange(
+		sequence.getStack,
+		sequence.controls?.overrideId ?? sequence.id,
+	);
 	const editorPickerAvailable = canUseEditorPicker(previewConnected);
 	const editorInfo = useDefaultEditorInfo(editorPickerAvailable);
 	const codingAgentInfo = useDefaultCodingAgentInfo(editorPickerAvailable);

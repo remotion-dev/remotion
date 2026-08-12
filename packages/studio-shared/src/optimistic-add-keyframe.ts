@@ -4,9 +4,13 @@ import {
 	type InteractivitySchema,
 	type InteractivitySchemaField,
 } from 'remotion';
-import {LINEAR_KEYFRAME_EASING} from './keyframe-easing-presets';
+import {
+	HOLD_KEYFRAME_EASING,
+	LINEAR_KEYFRAME_EASING,
+} from './keyframe-easing-presets';
 import {
 	getKeyframeInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 } from './keyframe-interpolation-function';
 
@@ -43,6 +47,12 @@ const addKeyframeToPropStatus = ({
 	schema: InteractivitySchema | null;
 }): CanUpdateSequencePropStatus => {
 	if (status.status === 'keyframed') {
+		const defaultEasing = isSchemaFieldHoldOnly({
+			schema,
+			key: fieldKey,
+		})
+			? HOLD_KEYFRAME_EASING
+			: LINEAR_KEYFRAME_EASING;
 		const existingIndex = status.keyframes.findIndex(
 			(kf) => kf.frame === frame,
 		);
@@ -71,11 +81,11 @@ const addKeyframeToPropStatus = ({
 		});
 		const easingToDuplicate =
 			easingIndexToDuplicate === null
-				? LINEAR_KEYFRAME_EASING
+				? defaultEasing
 				: easing[easingIndexToDuplicate];
 		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
 		while (easing.length < keyframes.length - 1) {
-			easing.push(LINEAR_KEYFRAME_EASING);
+			easing.push(defaultEasing);
 		}
 
 		return {

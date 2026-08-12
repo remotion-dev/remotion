@@ -1,4 +1,5 @@
 export {splitAnsi, stripAnsi} from './ansi';
+export type {TerminalId} from './terminal';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
@@ -80,6 +81,8 @@ export {
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
+	OpenInTerminalRequest,
+	OpenInTerminalResponse,
 	PackageInstallSpec,
 	PasteEffectsRequest,
 	PasteEffectsResponse,
@@ -144,8 +147,22 @@ export {
 	type KeyframeSettings,
 } from './api-requests';
 export type {BrowserStudioOperations} from './browser-studio-operations';
+export type {
+	CanvasCaptureData,
+	CanvasCaptureMouseMovement,
+	CanvasCapturePointerClick,
+} from './canvas-capture';
+export {
+	CANVAS_CAPTURE_METADATA_TAG,
+	parseCanvasCaptureData,
+} from './canvas-capture';
+export type {
+	SequenceNodePathMutation,
+	SequenceNodePathRemapping,
+} from './sequence-node-path-mutation';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
+export {REACT_REFRESH_FINISHED_EVENT} from './react-refresh-event';
 export {
 	getConfigFileChangeMessage,
 	type ConfigFileChangeType,
@@ -235,6 +252,7 @@ export {
 export {
 	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	getKeyframeInterpolationFunctionForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,

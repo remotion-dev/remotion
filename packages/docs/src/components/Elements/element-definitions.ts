@@ -10,11 +10,13 @@ import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburs
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
+import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
-import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
+import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
-import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
+import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
+import {YouTubeEndCard} from '../../../elements/overlays/social-endcard/social-endcard';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
@@ -75,6 +77,32 @@ export const elementDefinitions = {
 		previewPadding: 0,
 		slug: 'backgrounds/liquid-contours',
 		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'maps/map-flyover': {
+		category: 'maps',
+		component: MapFlyover,
+		contributors: [],
+		description:
+			'An animated map flyover from point A to point B, with editable coordinates, location labels, and a camera that follows the route.',
+		dependencies: [
+			{name: '@turf/turf', version: '7.3.2'},
+			{name: 'maplibre-gl', version: '5.24.0'},
+		],
+		displayName: 'A-to-B Map Flyover',
+		durationInFrames: 285,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 240,
+		preview: {
+			posterUrl: 'https://remotion.media/elements/maps-map-flyover-preview.png',
+			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
+		},
+		previewPadding: 0,
+		slug: 'maps/map-flyover',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	'backgrounds/notebook-paper': {
@@ -174,7 +202,7 @@ export const elementDefinitions = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
-	'overlays/lower-third': {
+	'overlays/name-lower-third': {
 		category: 'overlays',
 		component: NameLowerThird,
 		contributors: [],
@@ -183,19 +211,44 @@ export const elementDefinitions = {
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		displayName: 'Name Lower Third',
 		durationInFrames: 120,
-		elementHeight: 138,
-		elementWidth: 680,
+		elementHeight: 132,
+		elementWidth: 534,
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/overlays-lower-third-preview.png',
+				'https://remotion.media/elements/overlays-name-lower-third-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/overlays-lower-third-preview.mp4',
+				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
 		previewPadding: 300,
-		slug: 'overlays/lower-third',
+		slug: 'overlays/name-lower-third',
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'overlays/social-endcard': {
+		category: 'overlays',
+		component: YouTubeEndCard,
+		contributors: [],
+		description:
+			'A clean YouTube endcard with social links and space for recommended videos.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		displayName: 'YouTube End Card',
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/overlays-social-endcard-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
+		},
+		previewPadding: 0,
+		slug: 'overlays/social-endcard',
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -254,8 +307,8 @@ export const elementDefinitions = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
-	'data/product-offer': {
-		category: 'data',
+	'commerce/product-offer': {
+		category: 'commerce',
 		component: ProductOffer,
 		contributors: [],
 		description:
@@ -270,12 +323,12 @@ export const elementDefinitions = {
 		posterFrame: 75,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/data-product-offer-preview.png',
+				'https://remotion.media/elements/commerce-product-offer-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/data-product-offer-preview.mp4',
+				'https://remotion.media/elements/commerce-product-offer-preview.mp4',
 		},
 		previewPadding: 90,
-		slug: 'data/product-offer',
+		slug: 'commerce/product-offer',
 		installationMode: 'wrapped',
 		width: 1080,
 	},
@@ -334,7 +387,7 @@ export const elementDefinitions = {
 		width: 1920,
 	},
 	'text/news-article-headline-highlight': {
-		category: 'text',
+		category: 'storytelling',
 		component: NewsArticleHeadlineHighlight,
 		contributors: [],
 		description:
