@@ -1,3 +1,5 @@
+import {browser} from 'wxt/browser';
+
 const STORAGE_PREFIX = 'remotion-canvas-capture:';
 const CHUNK_SIZE = 1024 * 1024;
 
@@ -39,7 +41,7 @@ export const openCaptureInConvert = async (file: File) => {
 					.slice(index * CHUNK_SIZE, (index + 1) * CHUNK_SIZE)
 					.arrayBuffer(),
 			);
-			await chrome.storage.local.set({[key]: toBase64(bytes)});
+			await browser.storage.local.set({[key]: toBase64(bytes)});
 			storedKeys.push(key);
 		}
 
@@ -49,15 +51,15 @@ export const openCaptureInConvert = async (file: File) => {
 			chunks: chunkCount,
 		};
 		const metadataKey = getMetadataKey(captureId);
-		await chrome.storage.local.set({[metadataKey]: metadata});
+		await browser.storage.local.set({[metadataKey]: metadata});
 		storedKeys.push(metadataKey);
 
-		await chrome.runtime.sendMessage({
+		await browser.runtime.sendMessage({
 			type: 'remotion-canvas-capture-open-convert',
 			captureId,
 		});
 	} catch (error) {
-		await chrome.storage.local.remove(storedKeys).catch(() => undefined);
+		await browser.storage.local.remove(storedKeys).catch(() => undefined);
 		throw error;
 	}
 };

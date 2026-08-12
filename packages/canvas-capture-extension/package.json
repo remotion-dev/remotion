@@ -4,17 +4,27 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"formatting": "oxfmt src bundle.ts --check",
-		"format": "oxfmt src bundle.ts",
-		"lint": "eslint src && tsgo --noEmit",
-		"make": "bun bundle.ts"
+		"dev": "wxt",
+		"formatting": "oxfmt src wxt.config.ts --check",
+		"format": "oxfmt src wxt.config.ts",
+		"lint": "eslint src wxt.config.ts && wxt prepare && tsgo --noEmit",
+		"make": "wxt build"
 	},
 	"dependencies": {
-		"mediabunny": "catalog:"
+		"mediabunny": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@typescript/native-preview": "catalog:",
-		"eslint": "catalog:"
+		"@types/node": "catalog:",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"@vitejs/plugin-react": "5.2.0",
+		"eslint": "catalog:",
+		"vite": "7.3.6",
+		"web-ext": "10.6.0",
+		"wxt": "0.21.4"
 	}
 }
