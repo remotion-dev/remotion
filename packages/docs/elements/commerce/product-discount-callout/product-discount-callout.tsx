@@ -106,7 +106,6 @@ export const ProductDiscountCallout = () => {
 				}}
 			>
 				<svg
-					height={discountCallout.height}
 					style={{
 						filter: 'drop-shadow(0px 9px 8px rgba(22, 23, 20, 0.16))',
 						height: '100%',
@@ -115,7 +114,6 @@ export const ProductDiscountCallout = () => {
 						width: '100%',
 					}}
 					viewBox={`0 0 ${discountCallout.width} ${discountCallout.height}`}
-					width={discountCallout.width}
 					xmlns="http://www.w3.org/2000/svg"
 				>
 					<path d={discountCallout.path} fill="#d8ff52" />
