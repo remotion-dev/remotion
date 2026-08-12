@@ -68,6 +68,8 @@ export const useCreateComposition = ({
 	canvasCapture: {
 		readonly data: CanvasCaptureData;
 		readonly videoFileName: string;
+		readonly videoHeight: number;
+		readonly videoWidth: number;
 	} | null;
 }) => {
 	const selectComposition = useSelectComposition();
@@ -104,6 +106,8 @@ export const useCreateComposition = ({
 							data: canvasCapture.data,
 							keyframeFps: Number(selectedFrameRate),
 							videoFileName: canvasCapture.videoFileName,
+							videoHeight: canvasCapture.videoHeight,
+							videoWidth: canvasCapture.videoWidth,
 						},
 		};
 	}, [

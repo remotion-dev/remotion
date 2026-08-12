@@ -53,19 +53,10 @@ const NewCompositionLoaded: React.FC<{
 		resolvedComposition?.type === 'success-and-refreshing'
 			? resolvedComposition.result
 			: null;
-	const defaults = getNewCompositionDefaults(initialComposition);
-	const initialDimensions =
-		canvasCapture === null
-			? defaults
-			: {
-					durationInFrames: Math.max(
-						1,
-						Math.ceil(canvasCapture.durationInSeconds * 30),
-					),
-					fps: 30,
-					height: canvasCapture.height,
-					width: canvasCapture.width,
-				};
+	const initialDimensions = getNewCompositionDefaults(
+		initialComposition,
+		canvasCapture?.durationInSeconds ?? null,
+	);
 	const [newId, setName] = useState(() =>
 		getUniqueCompositionName(compositions),
 	);
@@ -155,7 +146,12 @@ const NewCompositionLoaded: React.FC<{
 		canvasCapture:
 			canvasCapture === null
 				? null
-				: {data: canvasCapture.data, videoFileName: canvasCapture.file.name},
+				: {
+						data: canvasCapture.data,
+						videoFileName: canvasCapture.file.name,
+						videoHeight: canvasCapture.height,
+						videoWidth: canvasCapture.width,
+					},
 	});
 
 	const createCanvasCaptureComposition = useCallback(
@@ -201,7 +197,11 @@ const NewCompositionLoaded: React.FC<{
 
 	return (
 		<>
-			<ModalHeader title="New composition" />
+			<ModalHeader
+				title={
+					canvasCapture === null ? 'New composition' : 'Import Canvas Capture'
+				}
+			/>
 			<form onSubmit={onSubmit}>
 				<div style={content}>
 					{folderPath ? (

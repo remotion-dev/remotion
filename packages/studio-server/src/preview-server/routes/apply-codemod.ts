@@ -38,6 +38,8 @@ const formatNewCompositionFile = (
 			height: codemod.newHeight,
 			keyframeFps: codemod.canvasCapture.keyframeFps,
 			videoFileName: codemod.canvasCapture.videoFileName,
+			videoHeight: codemod.canvasCapture.videoHeight,
+			videoWidth: codemod.canvasCapture.videoWidth,
 			width: codemod.newWidth,
 		});
 	}

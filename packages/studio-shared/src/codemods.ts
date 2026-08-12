@@ -27,6 +27,8 @@ export type RecastCodemod =
 			newDurationInFrames: number;
 			canvasCapture: {
 				readonly videoFileName: string;
+				readonly videoHeight: number;
+				readonly videoWidth: number;
 				readonly keyframeFps: number;
 				readonly data: CanvasCaptureData;
 			} | null;

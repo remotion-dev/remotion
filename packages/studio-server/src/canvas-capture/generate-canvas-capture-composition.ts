@@ -55,6 +55,8 @@ export const generateCanvasCaptureComposition = ({
 	height,
 	keyframeFps,
 	videoFileName,
+	videoHeight,
+	videoWidth,
 	width,
 }: {
 	readonly componentName: string;
@@ -65,6 +67,8 @@ export const generateCanvasCaptureComposition = ({
 	readonly height: number;
 	readonly keyframeFps: number;
 	readonly videoFileName: string;
+	readonly videoHeight: number;
+	readonly videoWidth: number;
 	readonly width: number;
 }) => {
 	const movements = collapseMouseMovementsByFrame({data, keyframeFps});
@@ -185,7 +189,12 @@ export const ${previewComponentName} = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill
+			style={{
+				width: ${videoWidth},
+				height: ${videoHeight},
+			}}
+		>
 			<Video
 				src={staticFile(${serialize(videoFileName)})}
 				style={{
