@@ -197,7 +197,11 @@ const NewCompositionLoaded: React.FC<{
 
 	return (
 		<>
-			<ModalHeader title="New composition" />
+			<ModalHeader
+				title={
+					canvasCapture === null ? 'New composition' : 'Import Canvas Capture'
+				}
+			/>
 			<form onSubmit={onSubmit}>
 				<div style={content}>
 					{folderPath ? (
