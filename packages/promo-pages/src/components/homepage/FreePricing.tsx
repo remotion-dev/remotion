@@ -1,4 +1,4 @@
-import {Switch} from '@remotion/design';
+import {Slider, Switch} from '@remotion/design';
 import React, {useCallback, useMemo} from 'react';
 import {cn} from '../../cn';
 import {useMobileLayout} from './layout/use-mobile-layout';
@@ -62,69 +62,6 @@ const PriceTag: React.FC<{
 const icon: React.CSSProperties = {
 	height: 16,
 	marginLeft: 4,
-};
-
-const PricingSlider: React.FC<{
-	readonly value: number;
-	readonly onChange: (value: number) => void;
-	readonly min: number;
-	readonly max: number;
-	readonly step?: number;
-	readonly 'aria-label'?: string;
-}> = ({value, onChange, min, max, step = 1, 'aria-label': ariaLabel}) => {
-	const percentage = ((value - min) / (max - min)) * 100;
-
-	return (
-		<>
-			<style>
-				{`
-					.pricing-slider {
-						-webkit-appearance: none;
-						appearance: none;
-						height: 12px;
-						border-radius: 8px;
-						border: 2px solid black;
-						cursor: pointer;
-					}
-				.pricing-slider::-webkit-slider-thumb {
-					-webkit-appearance: none;
-					appearance: none;
-					width: 24px;
-					height: 24px;
-					border-radius: 50%;
-					background: white;
-					border: 2px solid black;
-					border-bottom-width: 4px;
-					cursor: pointer;
-					scale: 1.2;
-				}
-				.pricing-slider::-moz-range-thumb {
-					width: 24px;
-					height: 24px;
-					border-radius: 50%;
-					background: white;
-					border: 2px solid black;
-					border-bottom-width: 4px;
-					scale: 1.2;
-					cursor: pointer;
-				}
-				`}
-			</style>
-			<input
-				type="range"
-				min={min}
-				max={max}
-				step={step}
-				value={value}
-				onChange={(e) => onChange(Number(e.target.value))}
-				aria-label={ariaLabel}
-				className="pricing-slider w-full"
-				style={{
-					background: `linear-gradient(to right, var(--color-brand) 0%, var(--color-brand) ${percentage}%, var(--background) ${percentage}%, var(--background) 100%)`,
-				}}
-			/>
-		</>
-	);
 };
 
 const textUnitWrapper: React.CSSProperties = {
@@ -428,12 +365,13 @@ export const CompanyPricing: React.FC = () => {
 					</p>
 					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
 						<div className="flex-1 min-w-0">
-							<PricingSlider
+							<Slider
 								value={cloudRenders}
 								onChange={setCloudRenders}
 								min={1000}
 								max={100000}
 								step={1000}
+								unfilledColor="var(--background)"
 								aria-label="Number of renders"
 							/>
 						</div>
@@ -489,11 +427,12 @@ export const CompanyPricing: React.FC = () => {
 					</p>
 					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
 						<div className="flex-1 min-w-0">
-							<PricingSlider
+							<Slider
 								value={devSeatCount}
 								onChange={setDevSeatCount}
 								min={1}
 								max={50}
+								unfilledColor="var(--background)"
 								aria-label="Number of seats"
 							/>
 						</div>
