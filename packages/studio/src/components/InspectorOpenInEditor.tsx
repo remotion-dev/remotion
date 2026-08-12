@@ -94,6 +94,9 @@ export const InspectorOpenInEditor: React.FC<{
 	);
 
 	const preferredEditorId = getPreferredEditorId(editorInfo);
+	const preferredEditor = editorInfo?.installedEditors.find(
+		(editor) => editor.id === preferredEditorId,
+	);
 	const openWithCodingAgent = useCallback(
 		async (codingAgentId: DefaultCodingAgent, codingAgentName: string) => {
 			try {
@@ -110,15 +113,21 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[contextForAgents],
 	);
-	const editorName = window.remotion_editorName ?? 'default editor';
+	const editorName =
+		window.remotion_editorName ??
+		preferredEditor?.nameWithType ??
+		'default editor';
 	const canOpenDefault =
-		location !== null && window.remotion_editorName !== null;
+		location !== null &&
+		(window.remotion_editorName !== null || preferredEditorId !== null);
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
-			openWithEditor(null).catch(() => undefined);
+			openWithEditor(
+				window.remotion_editorName === null ? preferredEditorId : null,
+			).catch(() => undefined);
 		},
-		[openWithEditor],
+		[openWithEditor, preferredEditorId],
 	);
 	const onDropdownOpenChange = useCallback((open: boolean) => {
 		setDropdownOpened(open);

@@ -603,6 +603,92 @@ test.describe('visual mode', () => {
 			),
 		).toEqual([]);
 	});
+
+	test('should fall back to the preferred installed editor if no editor is running', async ({
+		page,
+	}) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(window, 'remotion_editorName', {
+				configurable: true,
+				get: () => null,
+				set: () => undefined,
+			});
+		});
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultEditor: null,
+						installedEditors: [
+							{
+								id: 'cursor',
+								name: 'Cursor',
+								nameWithType: 'Cursor Editor',
+							},
+							{id: 'vscode', name: 'Code', nameWithType: 'Code'},
+							{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
+						],
+					},
+				},
+			});
+		});
+		await page.route('**/api/default-coding-agent-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultCodingAgent: null,
+						installedCodingAgents: [],
+						installedTerminals: [],
+					},
+				},
+			});
+		});
+		const openInEditorRequests: unknown[] = [];
+		await page.route('**/api/open-in-editor', async (route) => {
+			openInEditorRequests.push(route.request().postDataJSON());
+			await route.fulfill({
+				json: {success: true, data: {success: true}},
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+		const projectLocation = page.getByTitle(exampleDir);
+		const primaryOpenInZed = projectLocation.getByRole('button', {
+			name: 'Open in Zed',
+			exact: true,
+		});
+		await expect(primaryOpenInZed).toBeVisible({timeout: 15_000});
+		await expect(primaryOpenInZed).toBeEnabled();
+
+		await projectLocation
+			.getByRole('button', {name: 'Open in another app', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Cursor', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Code', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Zed', exact: true}),
+		).toHaveCount(0);
+
+		await page.keyboard.press('Escape');
+		await expect(
+			page.getByRole('button', {name: 'Cursor', exact: true}),
+		).toBeHidden();
+		await primaryOpenInZed.click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+			]);
+	});
+
 	test('should use standalone and contextual app names in portaled context menus', async ({
 		context,
 		page,
