@@ -12,6 +12,7 @@ import {PoppingWordCaptions} from '../../../elements/captions/popping-word-capti
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
+import {LineChart} from '../../../elements/data/line-chart/line-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
@@ -274,6 +275,28 @@ export const elementDefinitions = {
 		},
 		previewPadding: 56,
 		slug: 'data/horizontal-bar-chart',
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'data/line-chart': {
+		category: 'data',
+		component: LineChart,
+		contributors: [],
+		description: 'A bold animated line chart with a directly labeled trend.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		displayName: 'Line Chart',
+		durationInFrames: 120,
+		elementHeight: 864,
+		elementWidth: 1560,
+		fps: 30,
+		height: 1080,
+		posterFrame: 70,
+		preview: {
+			posterUrl: '/elements/data-line-chart-preview.png',
+			videoUrl: '/elements/data-line-chart-preview.mp4',
+		},
+		previewPadding: 56,
+		slug: 'data/line-chart',
 		installationMode: 'wrapped',
 		width: 1920,
 	},
