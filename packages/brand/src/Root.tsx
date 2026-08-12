@@ -4,6 +4,7 @@ import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
 import {AnimatedMaster} from './animated-logo/AnimatedMaster';
 import {ExplodingLogo} from './animated-logo/ExplodingLogo';
+import {ThreeDCheck} from './3DCheck';
 import {AppIcons} from './AppIcons';
 import {
 	ApplicationRenderButton,
@@ -786,6 +787,14 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="brand-assets">
+				<Composition
+					id="3DCheck"
+					component={ThreeDCheck}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={1000}
+				/>
 				<Composition
 					id="logo-horn"
 					component={LogoHorn}
