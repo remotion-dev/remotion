@@ -31,6 +31,10 @@ const elementCategories = Array.from(
 ).sort(compareStrings) as ElementCategory[];
 
 export const getElementCategoryLabel = (category: ElementCategory) => {
+	if (category === 'youtube') {
+		return 'YouTube';
+	}
+
 	return category
 		.split('-')
 		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))

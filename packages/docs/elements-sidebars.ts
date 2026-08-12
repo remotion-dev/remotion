@@ -64,7 +64,6 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'overlays/location-lower-third/index',
 				'overlays/name-lower-third/index',
-				'overlays/social-endcard/index',
 			],
 		},
 		{
@@ -85,6 +84,13 @@ const sidebars: SidebarsConfig = {
 				'text/strike-through/index',
 				'text/text-marker/index',
 			],
+		},
+		{
+			type: 'category',
+			label: 'YouTube',
+			link: {type: 'doc', id: 'youtube/index'},
+			collapsed: false,
+			items: ['youtube/youtube-end-card/index'],
 		},
 	],
 };

@@ -58,6 +58,16 @@ export const config: VercelConfig = {
 			{permanent: true},
 		),
 		routes.redirect(
+			'/elements/overlays/social-endcard',
+			'/elements/youtube/youtube-end-card',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/overlays/social-endcard.md',
+			'/elements/youtube/youtube-end-card.md',
+			{permanent: true},
+		),
+		routes.redirect(
 			'/changelog',
 			'https://github.com/remotion-dev/remotion/releases',
 			{permanent: false},
