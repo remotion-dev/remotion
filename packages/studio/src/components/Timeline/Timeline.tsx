@@ -1,11 +1,25 @@
 import type {InsertJsxElementRequest} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from 'react';
 import {Internals} from 'remotion';
+import {FastRefreshContext} from '../../fast-refresh-context';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {
+	clearInsertedElementSelection,
+	getInsertedElementSelection,
+	subscribeToInsertedElementSelection,
+} from '../../helpers/inserted-element-selection';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
@@ -38,6 +52,7 @@ import {TimelineScrollable} from './TimelineScrollable';
 import {
 	TimelineSelectableItemsProvider,
 	TimelineSelectAllKeybindings,
+	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSlider} from './TimelineSlider';
 import {
@@ -244,7 +259,9 @@ const TimelineContextMenuArea: React.FC<{
 
 const TimelineInner: React.FC = () => {
 	const {sequences} = useContext(Internals.SequenceManager);
-	const {compositions} = useContext(Internals.CompositionManager);
+	const {canvasContent, compositions} = useContext(
+		Internals.CompositionManager,
+	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const isStill = useIsStill();
 	const {overrideIdToNodePathMappings} = useContext(
@@ -273,6 +290,83 @@ const TimelineInner: React.FC = () => {
 		videoConfigIsNull,
 		overrideIdToNodePathMappings,
 		compositions,
+	]);
+	const pendingInsertedElementSelection = useSyncExternalStore(
+		subscribeToInsertedElementSelection,
+		getInsertedElementSelection,
+		getInsertedElementSelection,
+	);
+	const {fastRefreshes} = useContext(FastRefreshContext);
+	const pendingSelectionStart = useRef<{
+		selection: NonNullable<typeof pendingInsertedElementSelection>;
+		fastRefreshes: number;
+		existingSequenceIds: Set<string>;
+	} | null>(null);
+	const {selectItems} = useTimelineSelection();
+	useEffect(() => {
+		if (pendingInsertedElementSelection === null) {
+			pendingSelectionStart.current = null;
+			return;
+		}
+
+		const matchesInsertedNodePath = (track: TimelineTrackData) =>
+			track.nodePathInfo !== null &&
+			track.nodePathInfo.sequenceSubscriptionKey.absolutePath ===
+				pendingInsertedElementSelection.nodePath.absolutePath &&
+			JSON.stringify(track.nodePathInfo.sequenceSubscriptionKey.nodePath) ===
+				JSON.stringify(pendingInsertedElementSelection.nodePath.nodePath);
+
+		if (
+			pendingSelectionStart.current?.selection !==
+			pendingInsertedElementSelection
+		) {
+			pendingSelectionStart.current = {
+				selection: pendingInsertedElementSelection,
+				fastRefreshes,
+				existingSequenceIds: new Set(
+					timeline
+						.filter(matchesInsertedNodePath)
+						.map((track) => track.sequence.id),
+				),
+			};
+			return;
+		}
+
+		if (pendingSelectionStart.current.fastRefreshes === fastRefreshes) {
+			return;
+		}
+
+		if (
+			canvasContent?.type === 'composition' &&
+			canvasContent.compositionId !==
+				pendingInsertedElementSelection.compositionId
+		) {
+			clearInsertedElementSelection(pendingInsertedElementSelection);
+			return;
+		}
+
+		const insertedTrack = timeline.find(
+			(track) =>
+				matchesInsertedNodePath(track) &&
+				!pendingSelectionStart.current?.existingSequenceIds.has(
+					track.sequence.id,
+				),
+		);
+		if (!insertedTrack || insertedTrack.nodePathInfo === null) {
+			return;
+		}
+
+		selectItems(
+			[{type: 'sequence', nodePathInfo: insertedTrack.nodePathInfo}],
+			{reveal: true},
+		);
+		clearInsertedElementSelection(pendingInsertedElementSelection);
+	}, [
+		canvasContent,
+		fastRefreshes,
+		pendingInsertedElementSelection,
+		selectItems,
+		timeline,
 	]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;

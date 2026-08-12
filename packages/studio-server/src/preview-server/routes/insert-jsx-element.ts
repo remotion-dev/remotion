@@ -246,6 +246,7 @@ export const insertJsxElementHandler: ApiHandler<
 				oldContents,
 				output,
 				formatted,
+				insertedNodePath,
 				logLine,
 				nodePathRemappings,
 			} = await insertJsxElementIntoComposition({
@@ -309,6 +310,7 @@ export const insertJsxElementHandler: ApiHandler<
 
 			return {
 				success: true,
+				insertedNodePath: {absolutePath: fileName, nodePath: insertedNodePath},
 				nodePathMutation,
 			};
 		} catch (err) {

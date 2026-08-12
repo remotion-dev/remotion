@@ -461,7 +461,7 @@ export const splitJsxSequence = async ({
 		input: finalFile,
 		prettierConfigOverride,
 	});
-	const nodePathRemappings = getNodePathRemappings({
+	const {nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
 		output,

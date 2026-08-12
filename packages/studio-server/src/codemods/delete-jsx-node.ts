@@ -465,7 +465,7 @@ export const deleteJsxNodes = async ({
 		input: finalFile,
 		prettierConfigOverride,
 	});
-	const nodePathRemappings = getNodePathRemappings({
+	const {nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
 		output,
