@@ -987,6 +987,28 @@ test.describe('visual mode', () => {
 			await expect(
 				page.getByRole('button', {name: 'Cursor', exact: true}),
 			).toHaveCount(2);
+			const gitHubButton = page.getByRole('button', {
+				name: 'GitHub.com',
+				exact: true,
+			});
+			await expect(gitHubButton).toBeVisible();
+			await expect(gitHubButton.locator('[data-github-icon]')).toBeVisible();
+			await page.evaluate(() => {
+				document.body.dataset.openedUrl = '';
+				window.open = (url) => {
+					document.body.dataset.openedUrl = String(url);
+					return null;
+				};
+			});
+			await gitHubButton.click();
+			await expect
+				.poll(() => page.evaluate(() => document.body.dataset.openedUrl ?? ''))
+				.toMatch(
+					/^https:\/\/github\.com\/remotion-dev\/remotion\/blob\/.+\/packages\/example\/src\/BarChart\.tsx#L\d+$/,
+				);
+
+			await timelineGridline.click({button: 'right'});
+			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
 			await page
 				.getByRole('button', {name: 'Change default apps...', exact: true})
 				.click();
