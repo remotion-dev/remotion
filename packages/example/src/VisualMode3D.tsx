@@ -32,7 +32,7 @@ export const VisualMode3D: React.FC = () => {
 					height: 8,
 					rotate: '0deg',
 					scale: 1,
-					translate: '100px 100px',
+					translate: '450px 450px',
 					width: 8,
 				}}
 			>
