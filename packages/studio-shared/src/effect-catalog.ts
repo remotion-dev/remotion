@@ -84,6 +84,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-color-correction',
+		category: 'Color',
+		label: 'colorCorrection()',
+		description: 'Combined primary color adjustments',
+		effect: {
+			name: 'colorCorrection',
+			importPath: '@remotion/effects/color-correction',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-color-key',
 		category: 'Color',
 		label: 'colorKey()',

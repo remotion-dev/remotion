@@ -1,10 +1,13 @@
 import {expect, test} from 'vitest';
 import {blur} from '../blur.js';
+import {colorCorrection} from '../color-correction.js';
+import {contrast} from '../contrast.js';
 import {evolve} from '../evolve.js';
 import {exposure} from '../exposure.js';
 import {levels} from '../levels.js';
 import {noise} from '../noise.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
+import {saturation} from '../saturation.js';
 import {shadowsHighlights} from '../shadows-highlights.js';
 import {vibrance} from '../vibrance.js';
 import {vignette} from '../vignette.js';
@@ -260,6 +263,188 @@ test('shadowsHighlights() targets dark and bright tones smoothly', async () => {
 	expect(pixels[3]).toBe(128);
 	expect(pixels[7]).toBe(128);
 	expect(pixels[11]).toBe(128);
+});
+
+test('colorCorrection() is neutral by default and matches standalone adjustments', async () => {
+	const source = document.createElement('canvas');
+	source.width = 3;
+	source.height = 1;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	const sourcePixels = new Uint8ClampedArray([
+		64, 96, 128, 255, 128, 128, 128, 255, 192, 128, 64, 255,
+	]);
+	sourceContext.putImageData(new ImageData(sourcePixels, 3, 1), 0, 0);
+
+	const neutralCanvas = await renderEffectChainToCanvas({
+		source,
+		width: 3,
+		height: 1,
+		effects: descriptorsToMemoizedEffects([colorCorrection()]),
+	});
+	const neutralContext = neutralCanvas.getContext('2d');
+	if (!neutralContext) {
+		throw new Error('Could not get neutral output context');
+	}
+
+	expect([...neutralContext.getImageData(0, 0, 3, 1).data]).toEqual([
+		...sourcePixels,
+	]);
+
+	const comparisons = [
+		{
+			combined: colorCorrection({exposure: 0.75}),
+			standalone: exposure({stops: 0.75}),
+		},
+		{
+			combined: colorCorrection({temperature: 0.6, tint: -0.3}),
+			standalone: whiteBalance({temperature: 0.6, tint: -0.3}),
+		},
+		{
+			combined: colorCorrection({shadows: 0.7, highlights: -0.4}),
+			standalone: shadowsHighlights({shadows: 0.7, highlights: -0.4}),
+		},
+		{
+			combined: colorCorrection({contrast: 1.4, pivot: 128 / 255}),
+			standalone: contrast({amount: 1.4}),
+		},
+		{
+			combined: colorCorrection({saturation: 0.4}),
+			standalone: saturation({amount: 0.4}),
+		},
+		{
+			combined: colorCorrection({vibrance: 0.5}),
+			standalone: vibrance({amount: 0.5}),
+		},
+	];
+
+	for (const {combined, standalone} of comparisons) {
+		const combinedCanvas = await renderEffectChainToCanvas({
+			source,
+			width: 3,
+			height: 1,
+			effects: descriptorsToMemoizedEffects([combined]),
+		});
+		const standaloneCanvas = await renderEffectChainToCanvas({
+			source,
+			width: 3,
+			height: 1,
+			effects: descriptorsToMemoizedEffects([standalone]),
+		});
+		const combinedContext = combinedCanvas.getContext('2d');
+		const standaloneContext = standaloneCanvas.getContext('2d');
+		if (!combinedContext || !standaloneContext) {
+			throw new Error('Could not get comparison output context');
+		}
+
+		const combinedPixels = combinedContext.getImageData(0, 0, 3, 1).data;
+		const standalonePixels = standaloneContext.getImageData(0, 0, 3, 1).data;
+		for (let index = 0; index < combinedPixels.length; index++) {
+			expect(
+				Math.abs(combinedPixels[index] - standalonePixels[index]),
+			).toBeLessThanOrEqual(2);
+		}
+	}
+});
+
+test('colorCorrection() applies endpoint and combined adjustments in one pass', async () => {
+	const source = document.createElement('canvas');
+	source.width = 3;
+	source.height = 1;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.putImageData(
+		new ImageData(
+			new Uint8ClampedArray([
+				32, 32, 32, 128, 128, 96, 64, 128, 224, 224, 224, 128,
+			]),
+			3,
+			1,
+		),
+		0,
+		0,
+	);
+
+	const endpointCanvas = await renderEffectChainToCanvas({
+		source,
+		width: 3,
+		height: 1,
+		effects: descriptorsToMemoizedEffects([
+			colorCorrection({blacks: 1, whites: -1}),
+		]),
+	});
+	const endpointContext = endpointCanvas.getContext('2d');
+	if (!endpointContext) {
+		throw new Error('Could not get endpoint output context');
+	}
+
+	const endpointPixels = endpointContext.getImageData(0, 0, 3, 1).data;
+	expect(endpointPixels[0]).toBeGreaterThan(32);
+	expect(endpointPixels[8]).toBeLessThan(224);
+
+	const towardEndpointCanvas = await renderEffectChainToCanvas({
+		source,
+		width: 3,
+		height: 1,
+		effects: descriptorsToMemoizedEffects([
+			colorCorrection({blacks: -1, whites: 1}),
+		]),
+	});
+	const towardEndpointContext = towardEndpointCanvas.getContext('2d');
+	if (!towardEndpointContext) {
+		throw new Error('Could not get toward-endpoint output context');
+	}
+
+	const towardEndpointPixels = towardEndpointContext.getImageData(
+		0,
+		0,
+		3,
+		1,
+	).data;
+	expect(towardEndpointPixels[0]).toBeLessThan(32);
+	expect(towardEndpointPixels[8]).toBeGreaterThan(224);
+	expect(towardEndpointPixels[3]).toBe(128);
+	expect(towardEndpointPixels[7]).toBe(128);
+	expect(towardEndpointPixels[11]).toBe(128);
+
+	const combinedCanvas = await renderEffectChainToCanvas({
+		source,
+		width: 3,
+		height: 1,
+		effects: descriptorsToMemoizedEffects([
+			colorCorrection({
+				exposure: 0.25,
+				contrast: 1.15,
+				pivot: 0.45,
+				shadows: 0.3,
+				highlights: -0.2,
+				whites: 0.25,
+				blacks: 0.15,
+				temperature: 0.2,
+				tint: -0.1,
+				saturation: 0.9,
+				vibrance: 0.25,
+			}),
+		]),
+	});
+	const combinedContext = combinedCanvas.getContext('2d');
+	if (!combinedContext) {
+		throw new Error('Could not get combined output context');
+	}
+
+	const combinedPixels = combinedContext.getImageData(0, 0, 3, 1).data;
+	expect([...combinedPixels]).not.toEqual([
+		32, 32, 32, 128, 128, 96, 64, 128, 224, 224, 224, 128,
+	]);
+	expect(combinedPixels[3]).toBe(128);
+	expect(combinedPixels[7]).toBe(128);
+	expect(combinedPixels[11]).toBe(128);
 });
 
 test('vignette() color mode works on transparent sources', async () => {

@@ -1,6 +1,10 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
+	COLOR_SPACE_GLSL,
+	SHADOWS_HIGHLIGHTS_GLSL,
+} from './color-correction-shader-utils.js';
+import {
 	assertOptionalFiniteNumber,
 	validateSignedUnitInterval,
 } from './color-utils.js';
@@ -97,18 +101,8 @@ uniform sampler2D uSource;
 uniform float uShadows;
 uniform float uHighlights;
 
-vec3 srgbToLinear(vec3 color) {
-	vec3 lower = color / 12.92;
-	vec3 upper = pow((color + 0.055) / 1.055, vec3(2.4));
-	return mix(lower, upper, step(vec3(0.04045), color));
-}
-
-vec3 linearToSrgb(vec3 color) {
-	vec3 nonNegative = max(color, vec3(0.0));
-	vec3 lower = nonNegative * 12.92;
-	vec3 upper = 1.055 * pow(nonNegative, vec3(1.0 / 2.4)) - 0.055;
-	return mix(lower, upper, step(vec3(0.0031308), nonNegative));
-}
+${COLOR_SPACE_GLSL}
+${SHADOWS_HIGHLIGHTS_GLSL}
 
 void main() {
 	vec4 sourceColor = texture(uSource, vUv);
@@ -120,13 +114,7 @@ void main() {
 	}
 
 	vec3 color = sourceColor.rgb / alpha;
-	float luminance = dot(color, vec3(0.2126, 0.7152, 0.0722));
-	float shadowWeight = 1.0 - smoothstep(0.0, 0.6, luminance);
-	float highlightWeight = smoothstep(0.4, 1.0, luminance);
-	shadowWeight *= shadowWeight;
-	highlightWeight *= highlightWeight;
-
-	float stops = uShadows * shadowWeight + uHighlights * highlightWeight;
+	float stops = getShadowsHighlightsStops(color, uShadows, uHighlights);
 	vec3 linear = srgbToLinear(color);
 	vec3 adjusted = linear * exp2(stops);
 	vec3 corrected = linearToSrgb(adjusted);
