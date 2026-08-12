@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useState} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
 import {BACKGROUND, BORDER_BLACK_ALPHA_50} from '../helpers/colors';
+import {PREVIEW_TOOLBAR_CLASS_NAME} from '../helpers/inject-css';
 import {
 	useIsStill,
 	useIsVideoComposition,
@@ -111,7 +112,10 @@ export const PreviewToolbar: React.FC<{
 	);
 
 	return (
-		<div style={container} className="css-reset">
+		<div
+			style={container}
+			className={`css-reset ${PREVIEW_TOOLBAR_CLASS_NAME}`}
+		>
 			<div style={sideContainer}>
 				<div style={padding} />
 				{isMobileLayout ? null : (
