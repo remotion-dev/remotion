@@ -158,16 +158,18 @@ test.describe('visual mode', () => {
 		await page.mouse.click(canvasItemCenter.x, canvasItemCenter.y, {
 			button: 'right',
 		});
-		await page.mouse.move(10, 10);
-		// Portals do not reliably trigger pointerleave in headless Chromium.
-		await page
-			.locator('.remotion-studio-composition-container')
-			.dispatchEvent('pointerleave');
 
 		const duplicateButton = page.getByRole('button', {
 			name: 'Duplicate',
 			exact: true,
 		});
+		await expect(duplicateButton).toBeVisible();
+
+		await page.mouse.move(10, 10);
+		// Portals do not reliably trigger pointerleave in headless Chromium.
+		await page
+			.locator('.remotion-studio-composition-container')
+			.dispatchEvent('pointerleave');
 		await expect(duplicateButton).toBeVisible();
 	});
 
