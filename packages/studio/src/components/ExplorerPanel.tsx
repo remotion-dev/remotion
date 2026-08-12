@@ -1,5 +1,6 @@
 import {useCallback, useImperativeHandle, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
+import {isAssetUploadDragEvent} from '../helpers/use-asset-drag-events';
 import {AssetSelector} from './AssetSelector';
 import {CompositionSelector} from './CompositionSelector';
 import {CompSelectorRef} from './CompSelectorRef';
@@ -52,6 +53,14 @@ export const ExplorerPanel: React.FC<{
 		setPanel('assets');
 		persistSelectedOptionsSidebarPanel('assets');
 	}, []);
+	const onAssetDragEnter = useCallback(
+		(event: React.DragEvent<HTMLDivElement>) => {
+			if (isAssetUploadDragEvent(event)) {
+				onAssetsSelected();
+			}
+		},
+		[onAssetsSelected],
+	);
 
 	useImperativeHandle(explorerSidebarTabs, () => {
 		return {
@@ -87,7 +96,11 @@ export const ExplorerPanel: React.FC<{
 						>
 							Compositions
 						</Tab>
-						<Tab selected={panel === 'assets'} onClick={onAssetsSelected}>
+						<Tab
+							selected={panel === 'assets'}
+							onClick={onAssetsSelected}
+							onDragEnter={onAssetDragEnter}
+						>
 							Assets
 						</Tab>
 					</Tabs>
