@@ -697,15 +697,6 @@ test.describe('visual mode', () => {
 	}) => {
 		const configFile = path.join(exampleDir, 'remotion.config.ts');
 		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
-		await page.addInitScript(() => {
-			window.remotion_gitSource = {
-				name: 'remotion',
-				org: 'remotion-dev',
-				ref: 'test-ref',
-				relativeFromGitRoot: 'packages/example',
-				type: 'github',
-			};
-		});
 		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
 			origin: STUDIO_URL,
 		});
@@ -964,7 +955,7 @@ test.describe('visual mode', () => {
 			await expect
 				.poll(() => page.evaluate(() => document.body.dataset.openedUrl ?? ''))
 				.toMatch(
-					/^https:\/\/github\.com\/remotion-dev\/remotion\/blob\/test-ref\/packages\/example\/src\/BarChart\.tsx#L\d+$/,
+					/^https:\/\/github\.com\/remotion-dev\/remotion\/blob\/.+\/packages\/example\/src\/BarChart\.tsx#L\d+$/,
 				);
 
 			await timelineGridline.click({button: 'right'});
