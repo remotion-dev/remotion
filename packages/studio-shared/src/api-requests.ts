@@ -356,10 +356,15 @@ export type GoogleFontSourceEdit = {
 	subsets: string[];
 };
 
-export type SaveSequencePropSourceEdit = {
-	type: 'google-font';
-	font: GoogleFontSourceEdit;
-};
+export type SaveSequencePropSourceEdit =
+	| {
+			type: 'google-font';
+			font: GoogleFontSourceEdit;
+	  }
+	| {
+			type: 'clipboard-param';
+			param: EffectClipboardParam;
+	  };
 
 export type SaveSequencePropEdit = {
 	fileName: string;
