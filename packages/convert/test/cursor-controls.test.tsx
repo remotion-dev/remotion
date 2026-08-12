@@ -38,9 +38,9 @@ test('only offers enabled cursor controls for canvas captures', () => {
 		name: 'Pressed cursor scale',
 	});
 	expect(rendered.getByText('0.80×')).not.toBeNull();
-	fireEvent.keyDown(cursorScale, {key: 'ArrowRight'});
+	fireEvent.change(cursorScale, {target: {value: '1.05'}});
 	expect(rendered.getByText('1.05×')).not.toBeNull();
-	fireEvent.keyDown(cursorPressedScale, {key: 'ArrowRight'});
+	fireEvent.change(cursorPressedScale, {target: {value: '0.85'}});
 	expect(rendered.getByText('0.85×')).not.toBeNull();
 
 	fireEvent.click(showCursor);

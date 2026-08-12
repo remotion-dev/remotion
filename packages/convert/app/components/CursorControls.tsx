@@ -1,6 +1,6 @@
+import {Slider} from '@remotion/design';
 import React from 'react';
 import {ConvertUiSection} from './ConvertUiSection';
-import {Slider} from './ui/slider';
 
 export const CursorControls: React.FC<{
 	readonly available: boolean;
@@ -35,8 +35,8 @@ export const CursorControls: React.FC<{
 						min={0.25}
 						max={3}
 						step={0.05}
-						value={[cursorScale]}
-						onValueChange={(value) => setCursorScale(value[0])}
+						value={cursorScale}
+						onChange={setCursorScale}
 					/>
 					<div className="flex flex-row text-sm text-gray-700 pt-2">
 						<div className="flex-1">Cursor scale</div>
@@ -48,8 +48,8 @@ export const CursorControls: React.FC<{
 						min={0.25}
 						max={1}
 						step={0.05}
-						value={[cursorPressedScale]}
-						onValueChange={(value) => setCursorPressedScale(value[0])}
+						value={cursorPressedScale}
+						onChange={setCursorPressedScale}
 					/>
 					<div className="flex flex-row text-sm text-gray-700 pt-2">
 						<div className="flex-1">Pressed cursor scale</div>
