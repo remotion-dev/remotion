@@ -117,6 +117,7 @@ export const getSequenceContextMenuItems = ({
 				excludeEditorId: defaultEditorId,
 				fileManagerDisabled: !originalLocation?.source,
 				folder: false,
+				location: originalLocation,
 				onConfigureApps,
 				onOpenInCodingAgent: openInCodingAgentWithContext,
 				onOpenInEditor: openInEditor,

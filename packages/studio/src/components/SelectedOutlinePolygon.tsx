@@ -7,7 +7,7 @@ import {
 	TRANSPARENT,
 } from '../helpers/colors';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
-import {startPointerSession} from '../helpers/pointer-session';
+import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -374,9 +374,9 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 					});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});

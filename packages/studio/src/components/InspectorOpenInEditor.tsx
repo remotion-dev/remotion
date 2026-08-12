@@ -173,6 +173,7 @@ export const InspectorOpenInEditor: React.FC<{
 			excludeEditorId: preferredEditorId,
 			fileManagerDisabled: !location?.source,
 			folder: locationType === 'folder',
+			location,
 			onConfigureApps: () => {
 				setSelectedModal({
 					type: 'settings',

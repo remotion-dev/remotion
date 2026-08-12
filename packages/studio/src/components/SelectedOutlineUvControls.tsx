@@ -3,7 +3,7 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, SELECTED_OUTLINE_UV_DROP_SHADOW, WHITE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
-import {startPointerSession} from '../helpers/pointer-session';
+import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {
 	forceSpecificCursor,
@@ -398,9 +398,9 @@ const SelectedUvEllipseStartHandle: React.FC<{
 				});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
@@ -544,9 +544,9 @@ const SelectedUvEllipseResizeHandle: React.FC<{
 				});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
@@ -763,9 +763,9 @@ const SelectedUvEllipseRotationHandle: React.FC<{
 				});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
@@ -1002,9 +1002,9 @@ const SelectedUvHandleCircle: React.FC<{
 				});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});

@@ -6,9 +6,16 @@ import type {
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
 import React from 'react';
+import {NoReactInternals} from 'remotion/no-react';
+import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
+import {
+	getGitRefUrl,
+	getGitSourceBranchUrl,
+} from '../helpers/get-git-menu-item';
 import {EditorIcon} from '../icons/editor';
 import {FinderIcon} from '../icons/finder';
+import {GitHubIcon} from '../icons/github';
 import {TerminalIcon} from '../icons/terminal';
 import {CodingAgentIcon} from './CodingAgentIcon';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -28,6 +35,7 @@ export const getOpenInMenuItems = ({
 	excludeEditorId,
 	fileManagerDisabled,
 	folder,
+	location,
 	onConfigureApps,
 	onOpenInCodingAgent,
 	onOpenInEditor,
@@ -41,6 +49,7 @@ export const getOpenInMenuItems = ({
 	readonly excludeEditorId: EditorPickerId | null;
 	readonly fileManagerDisabled: boolean;
 	readonly folder: boolean;
+	readonly location: OriginalPosition | null;
 	readonly onConfigureApps: () => void;
 	readonly onOpenInCodingAgent: (
 		codingAgentId: DefaultCodingAgent,
@@ -89,7 +98,54 @@ export const getOpenInMenuItems = ({
 			value: `coding-agent-${codingAgent.id}`,
 		}));
 	const terminals = folder ? (codingAgentInfo?.installedTerminals ?? []) : [];
-	const showSystemApps = showFinder || terminals.length > 0;
+	const gitHubItem: ComboboxValue | null = window.remotion_gitSource
+		? {
+				id: 'open-in-github',
+				keyHint: null,
+				label: <span style={menuLabel}>GitHub.com</span>,
+				leftItem: <GitHubIcon size={18} />,
+				onClick: () => {
+					const gitSource = window.remotion_gitSource;
+					if (!gitSource) {
+						return;
+					}
+
+					window.open(
+						folder || !location
+							? getGitSourceBranchUrl(gitSource)
+							: getGitRefUrl(gitSource, location, window.remotion_cwd),
+						'_blank',
+					);
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item' as const,
+				value: 'github',
+			}
+		: null;
+	const systemApps: ComboboxValue[] = [
+		gitHubItem,
+		showFinder
+			? {
+					disabled: fileManagerDisabled,
+					id: 'open-in-file-explorer',
+					keyHint: null,
+					label: <span style={menuLabel}>{fileManagerName}</span>,
+					leftItem: <FinderIcon size={18} />,
+					onClick: () => {
+						if (!fileManagerDisabled) {
+							onOpenInFileExplorer();
+						}
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item' as const,
+					value: 'file-explorer',
+				}
+			: null,
+	].filter(NoReactInternals.truthy);
+	const hasCategorizedApps =
+		editors.length > 0 || codingAgents.length > 0 || terminals.length > 0;
 
 	return [
 		...(editors.length > 0
@@ -112,61 +168,40 @@ export const getOpenInMenuItems = ({
 					...codingAgents,
 				]
 			: []),
-		...(showSystemApps
+		...(terminals.length > 0
 			? [
-					...(terminals.length > 0
-						? [
-								{
-									type: 'section-header' as const,
-									id: 'terminal-header',
-									label: 'Terminal',
-								},
-								...terminals.map((terminal) => ({
-									id: `open-in-terminal-${terminal.id}`,
-									keyHint: null,
-									label: <span style={menuLabel}>{terminal.name}</span>,
-									leftItem: <TerminalIcon terminalId={terminal.id} size={18} />,
-									onClick: () => onOpenInTerminal?.(terminal.id),
-									quickSwitcherLabel: null,
-									subMenu: null,
-									type: 'item' as const,
-									value: `terminal-${terminal.id}`,
-								})),
-							]
-						: []),
-					...(showFinder
-						? [
-								...(editors.length > 0 ||
-								codingAgents.length > 0 ||
-								terminals.length > 0
-									? [
-											{
-												type: 'divider' as const,
-												id: 'open-in-file-explorer-divider',
-											},
-										]
-									: []),
-								{
-									disabled: fileManagerDisabled,
-									id: 'open-in-file-explorer',
-									keyHint: null,
-									label: <span style={menuLabel}>{fileManagerName}</span>,
-									leftItem: <FinderIcon size={18} />,
-									onClick: () => {
-										if (!fileManagerDisabled) {
-											onOpenInFileExplorer();
-										}
-									},
-									quickSwitcherLabel: null,
-									subMenu: null,
-									type: 'item' as const,
-									value: 'file-explorer',
-								},
-							]
-						: []),
+					{
+						type: 'section-header' as const,
+						id: 'terminal-header',
+						label: 'Terminal',
+					},
+					...terminals.map((terminal) => ({
+						id: `open-in-terminal-${terminal.id}`,
+						keyHint: null,
+						label: <span style={menuLabel}>{terminal.name}</span>,
+						leftItem: <TerminalIcon terminalId={terminal.id} size={18} />,
+						onClick: () => onOpenInTerminal?.(terminal.id),
+						quickSwitcherLabel: null,
+						subMenu: null,
+						type: 'item' as const,
+						value: `terminal-${terminal.id}`,
+					})),
 				]
 			: []),
-		...(editors.length > 0 || codingAgents.length > 0 || showSystemApps
+		...(systemApps.length > 0
+			? [
+					...(hasCategorizedApps
+						? [
+								{
+									type: 'divider' as const,
+									id: 'open-in-system-apps-divider',
+								},
+							]
+						: []),
+					...systemApps,
+				]
+			: []),
+		...(hasCategorizedApps || systemApps.length > 0
 			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
 			: []),
 		{

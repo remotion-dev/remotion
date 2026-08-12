@@ -79,6 +79,7 @@ test('the file manager entry is only shown on macOS', () => {
 			excludeEditorId: null,
 			fileManagerDisabled: false,
 			folder: false,
+			location: null,
 			onConfigureApps: noop,
 			onOpenInCodingAgent: noop,
 			onOpenInEditor: noop,

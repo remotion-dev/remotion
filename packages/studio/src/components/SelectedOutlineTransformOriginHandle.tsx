@@ -2,7 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {BLUE, SELECTED_OUTLINE_DROP_SHADOW} from '../helpers/colors';
-import {startPointerSession} from '../helpers/pointer-session';
+import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {
 	forceSpecificCursor,
@@ -339,9 +339,9 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});

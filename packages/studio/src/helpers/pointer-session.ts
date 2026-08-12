@@ -25,14 +25,14 @@ const getButtonMask = (button: number) => {
 	return 1 << button;
 };
 
-export const startPointerSession = ({
+const startPointerSession = ({
 	event,
-	target,
+	captureTarget,
 	onMove,
 	onEnd,
 }: {
 	event: PointerSessionEvent;
-	target: Element;
+	captureTarget: Element | null;
 	onMove?: (event: PointerEvent) => void;
 	onEnd: (reason: PointerSessionEndReason, event: PointerEvent | null) => void;
 }): (() => void) => {
@@ -46,11 +46,14 @@ export const startPointerSession = ({
 		window.removeEventListener('pointercancel', handleCancel);
 		window.removeEventListener('blur', handleBlur);
 		document.removeEventListener('visibilitychange', handleVisibilityChange);
-		target.removeEventListener('lostpointercapture', handleLostPointerCapture);
+		captureTarget?.removeEventListener(
+			'lostpointercapture',
+			handleLostPointerCapture,
+		);
 
-		if (target.hasPointerCapture?.(pointerId)) {
+		if (captureTarget?.hasPointerCapture?.(pointerId)) {
 			try {
-				target.releasePointerCapture(pointerId);
+				captureTarget.releasePointerCapture(pointerId);
 			} catch {
 				// The browser may already have released capture.
 			}
@@ -112,10 +115,17 @@ export const startPointerSession = ({
 		}
 	}
 
-	try {
-		target.setPointerCapture?.(pointerId);
-	} catch {
-		// Capture is best-effort for detached or browser-owned targets.
+	if (captureTarget) {
+		try {
+			captureTarget.setPointerCapture?.(pointerId);
+		} catch {
+			// Capture is best-effort for detached targets.
+		}
+
+		captureTarget.addEventListener(
+			'lostpointercapture',
+			handleLostPointerCapture,
+		);
 	}
 
 	window.addEventListener('pointermove', handleMove);
@@ -123,7 +133,38 @@ export const startPointerSession = ({
 	window.addEventListener('pointercancel', handleCancel);
 	window.addEventListener('blur', handleBlur);
 	document.addEventListener('visibilitychange', handleVisibilityChange);
-	target.addEventListener('lostpointercapture', handleLostPointerCapture);
 
 	return () => end('manual', null);
+};
+
+// Use for a gesture owned by a Studio control, such as a slider or resize
+// handle. `captureTarget` is normally the pointerdown handler's currentTarget.
+export const startCapturedPointerSession = ({
+	event,
+	captureTarget,
+	onMove,
+	onEnd,
+}: {
+	event: PointerSessionEvent;
+	captureTarget: Element;
+	onMove?: (event: PointerEvent) => void;
+	onEnd: (reason: PointerSessionEndReason, event: PointerEvent | null) => void;
+}) => {
+	return startPointerSession({event, captureTarget, onMove, onEnd});
+};
+
+// Use when observing a gesture that started elsewhere. This deliberately does
+// not capture the pointer from the element under it.
+export const observePointerRelease = ({
+	event,
+	onEnd,
+}: {
+	event: PointerSessionEvent;
+	onEnd: (reason: PointerSessionEndReason, event: PointerEvent | null) => void;
+}) => {
+	return startPointerSession({
+		event,
+		captureTarget: null,
+		onEnd,
+	});
 };

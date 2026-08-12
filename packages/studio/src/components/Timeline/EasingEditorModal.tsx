@@ -26,7 +26,7 @@ import {
 	WHITE_ALPHA_35,
 	WHITE_ALPHA_72,
 } from '../../helpers/colors';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {Checkbox} from '../Checkbox';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -1088,9 +1088,9 @@ export const EasingEditor: React.FC<{
 			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
 			setActiveHandle(handle);
 			updateHandleFromPointer(handle, event);
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: (moveEvent) => {
 					updateHandleFromPointer(handle, moveEvent);
 				},

@@ -405,6 +405,11 @@ test.describe('visual mode', () => {
 				codingAgentInfoRequests: 1,
 				editorInfoRequests: 1,
 			});
+			await page.mouse.move(10, 100);
+			await page.mouse.down();
+			await page.mouse.move(13, 101);
+			await page.mouse.up();
+			await expect(dialog).toBeHidden();
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);
 		}
@@ -987,6 +992,28 @@ test.describe('visual mode', () => {
 			await expect(
 				page.getByRole('button', {name: 'Cursor', exact: true}),
 			).toHaveCount(2);
+			const gitHubButton = page.getByRole('button', {
+				name: 'GitHub.com',
+				exact: true,
+			});
+			await expect(gitHubButton).toBeVisible();
+			await expect(gitHubButton.locator('[data-github-icon]')).toBeVisible();
+			await page.evaluate(() => {
+				document.body.dataset.openedUrl = '';
+				window.open = (url) => {
+					document.body.dataset.openedUrl = String(url);
+					return null;
+				};
+			});
+			await gitHubButton.click();
+			await expect
+				.poll(() => page.evaluate(() => document.body.dataset.openedUrl ?? ''))
+				.toMatch(
+					/^https:\/\/github\.com\/remotion-dev\/remotion\/blob\/.+\/packages\/example\/src\/BarChart\.tsx#L\d+$/,
+				);
+
+			await timelineGridline.click({button: 'right'});
+			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
 			await page
 				.getByRole('button', {name: 'Change default apps...', exact: true})
 				.click();
@@ -1119,12 +1146,9 @@ test.describe('visual mode', () => {
 		await openInAnotherApp.click();
 		await expect(changeDefaultApps).toBeVisible();
 		// The menu overlay intercepts pointerleave; clicking it closes the menu
-		// through the same outside-click path a user would take. Retry the click
-		// until the new layer has registered as the highest z-index context.
-		await expect(async () => {
-			await page.mouse.click(10, 100);
-			await expect(changeDefaultApps).toBeHidden({timeout: 1_000});
-		}).toPass({timeout: 10_000});
+		// through the same outside-click path a user would take.
+		await page.mouse.click(10, 100);
+		await expect(changeDefaultApps).toBeHidden();
 		await expect(openInAnotherApp).toHaveCSS(
 			'background-color',
 			'rgba(0, 0, 0, 0)',

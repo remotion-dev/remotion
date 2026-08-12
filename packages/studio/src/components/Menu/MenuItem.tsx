@@ -8,7 +8,7 @@ import {
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
 import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
@@ -119,9 +119,9 @@ export const MenuItem: React.FC<{
 
 				onItemSelected(id);
 
-				startPointerSession({
+				startCapturedPointerSession({
 					event: e.nativeEvent,
-					target: e.currentTarget,
+					captureTarget: e.currentTarget,
 					onEnd: (reason, evt) => {
 						if (
 							(reason === 'pointerup' || reason === 'buttons-released') &&
