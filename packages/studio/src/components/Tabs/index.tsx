@@ -48,10 +48,11 @@ const selectorButton: React.CSSProperties = {
 export const Tab: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onDragEnter?: React.DragEventHandler<HTMLDivElement>;
+	readonly onDragLeave?: React.DragEventHandler<HTMLDivElement>;
 	readonly onClick: React.MouseEventHandler<HTMLDivElement>;
 	readonly style?: React.CSSProperties;
 	readonly selected: boolean;
-}> = ({children, onClick, onDragEnter, style, selected}) => {
+}> = ({children, onClick, onDragEnter, onDragLeave, style, selected}) => {
 	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
 
@@ -85,6 +86,7 @@ export const Tab: React.FC<{
 			role="button"
 			onClick={onClick}
 			onDragEnter={onDragEnter}
+			onDragLeave={onDragLeave}
 			tabIndex={tabIndex}
 			onPointerLeave={onPointerLeave}
 			onPointerEnter={onPointerEnter}

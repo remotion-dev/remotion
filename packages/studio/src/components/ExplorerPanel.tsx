@@ -1,4 +1,4 @@
-import {useCallback, useImperativeHandle, useState} from 'react';
+import {useCallback, useImperativeHandle, useRef, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {isAssetUploadDragEvent} from '../helpers/use-asset-drag-events';
 import {AssetSelector} from './AssetSelector';
@@ -44,6 +44,7 @@ export const ExplorerPanel: React.FC<{
 	const [panel, setPanel] = useState<ExplorerSidebarPanel>(() =>
 		getSelectedPanel(),
 	);
+	const assetTabFocusTimer = useRef<number | null>(null);
 	const onCompositionsSelected = useCallback(() => {
 		setPanel('compositions');
 		persistSelectedOptionsSidebarPanel('compositions');
@@ -55,11 +56,29 @@ export const ExplorerPanel: React.FC<{
 	}, []);
 	const onAssetDragEnter = useCallback(
 		(event: React.DragEvent<HTMLDivElement>) => {
-			if (isAssetUploadDragEvent(event)) {
-				onAssetsSelected();
+			if (
+				isAssetUploadDragEvent(event) &&
+				assetTabFocusTimer.current === null
+			) {
+				assetTabFocusTimer.current = window.setTimeout(() => {
+					onAssetsSelected();
+					assetTabFocusTimer.current = null;
+				}, 500);
 			}
 		},
 		[onAssetsSelected],
+	);
+	const onAssetDragLeave = useCallback(
+		(event: React.DragEvent<HTMLDivElement>) => {
+			if (
+				isAssetUploadDragEvent(event) &&
+				assetTabFocusTimer.current !== null
+			) {
+				window.clearTimeout(assetTabFocusTimer.current);
+				assetTabFocusTimer.current = null;
+			}
+		},
+		[],
 	);
 
 	useImperativeHandle(explorerSidebarTabs, () => {
@@ -100,6 +119,7 @@ export const ExplorerPanel: React.FC<{
 							selected={panel === 'assets'}
 							onClick={onAssetsSelected}
 							onDragEnter={onAssetDragEnter}
+							onDragLeave={onAssetDragLeave}
 						>
 							Assets
 						</Tab>
