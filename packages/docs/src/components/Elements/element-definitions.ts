@@ -16,12 +16,12 @@ import {NumberCounter} from '../../../elements/data/number-counter/number-counte
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
-import {YouTubeEndCard} from '../../../elements/overlays/social-endcard/social-endcard';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
+import {YouTubeEndCard} from '../../../elements/youtube/youtube-end-card/youtube-end-card';
 import type {Contributor} from '../Credits';
 
 export type ElementPreviewMetadata = {
@@ -227,8 +227,8 @@ export const elementDefinitions = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
-	'overlays/social-endcard': {
-		category: 'overlays',
+	'youtube/youtube-end-card': {
+		category: 'youtube',
 		component: YouTubeEndCard,
 		contributors: [],
 		description:
@@ -248,7 +248,7 @@ export const elementDefinitions = {
 				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
 		},
 		previewPadding: 0,
-		slug: 'overlays/social-endcard',
+		slug: 'youtube/youtube-end-card',
 		installationMode: 'wrapped',
 		width: 1920,
 	},

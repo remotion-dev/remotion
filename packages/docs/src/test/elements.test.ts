@@ -232,6 +232,7 @@ describe('Element library', () => {
 		}
 
 		expect(overviewMarkup).not.toContain('.mp4');
+		expect(overviewMarkup).toContain('>YouTube</h2>');
 
 		for (const section of sections) {
 			const categoryMarkup = renderToStaticMarkup(
@@ -472,7 +473,11 @@ describe('Element preview definitions', () => {
 		expect(new Set(compositionIds).size).toBe(compositionIds.length);
 
 		for (const definition of elementDefinitionList) {
-			const assetSlug = definition.slug.replaceAll('/', '-');
+			// Preserve preview URLs published before an Element slug changes.
+			const assetSlug =
+				definition.slug === 'youtube/youtube-end-card'
+					? 'overlays-social-endcard'
+					: definition.slug.replaceAll('/', '-');
 			const localPosterUrl = `/elements/${assetSlug}-preview.png`;
 			const localVideoUrl = `/elements/${assetSlug}-preview.mp4`;
 			const publicPosterUrl = `https://remotion.media${localPosterUrl}`;
