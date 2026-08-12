@@ -13,6 +13,7 @@ import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-c
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
+import {VerticalBarChart} from '../../../elements/data/vertical-bar-chart/vertical-bar-chart';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
@@ -304,6 +305,29 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'data/number-counter',
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'data/vertical-bar-chart': {
+		category: 'data',
+		component: VerticalBarChart,
+		contributors: [],
+		description:
+			'A bold vertical bar chart with three directly labeled data points.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		displayName: 'Vertical Bar Chart',
+		durationInFrames: 120,
+		elementHeight: 864,
+		elementWidth: 1560,
+		fps: 30,
+		height: 1080,
+		posterFrame: 70,
+		preview: {
+			posterUrl: '/elements/data-vertical-bar-chart-preview.png',
+			videoUrl: '/elements/data-vertical-bar-chart-preview.mp4',
+		},
+		previewPadding: 56,
+		slug: 'data/vertical-bar-chart',
 		installationMode: 'wrapped',
 		width: 1920,
 	},
