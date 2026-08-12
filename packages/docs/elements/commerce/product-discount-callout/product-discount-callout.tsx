@@ -83,7 +83,6 @@ export const ProductDiscountCallout = () => {
 				}}
 				width={800}
 			/>
-
 			<Interactive.Div
 				name="Discount callout"
 				style={{
@@ -121,7 +120,8 @@ export const ProductDiscountCallout = () => {
 				>
 					<path d={discountCallout.path} fill="#d8ff52" />
 				</svg>
-				<div
+				<Interactive.Div
+					name="Discount text"
 					style={{
 						alignItems: 'center',
 						display: 'flex',
@@ -135,9 +135,8 @@ export const ProductDiscountCallout = () => {
 					}}
 				>
 					20% OFF
-				</div>
+				</Interactive.Div>
 			</Interactive.Div>
-
 			<Interactive.Div
 				name="Current price"
 				style={{
@@ -177,7 +176,6 @@ export const ProductDiscountCallout = () => {
 			>
 				$99
 			</Interactive.Div>
-
 			<div
 				style={{
 					backgroundColor: '#c9cdc4',
@@ -188,8 +186,7 @@ export const ProductDiscountCallout = () => {
 					width: 2,
 				}}
 			/>
-			<Interactive.Div
-				name="Product description"
+			<div
 				style={{
 					left: 474,
 					maxWidth: 400,
@@ -198,7 +195,8 @@ export const ProductDiscountCallout = () => {
 					top: 492,
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Product name"
 					style={{
 						fontSize: 38,
 						fontWeight: 700,
@@ -207,8 +205,9 @@ export const ProductDiscountCallout = () => {
 					}}
 				>
 					Everyday Runner
-				</div>
-				<div
+				</Interactive.Div>
+				<Interactive.Div
+					name="Product description"
 					style={{
 						color: '#5e6259',
 						fontSize: 23,
@@ -218,8 +217,8 @@ export const ProductDiscountCallout = () => {
 					}}
 				>
 					Lightweight comfort for daily miles.
-				</div>
-			</Interactive.Div>
+				</Interactive.Div>
+			</div>
 		</Interactive.Div>
 	);
 };
