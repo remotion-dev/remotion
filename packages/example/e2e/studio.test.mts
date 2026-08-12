@@ -92,6 +92,65 @@ test.describe('visual mode', () => {
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
 	});
 
+	test('should commit a color drag before the picker closes', async ({
+		page,
+	}) => {
+		const barChartFile = path.join(exampleDir, 'src', 'BarChart.tsx');
+		const originalSource = fs.readFileSync(barChartFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+			await expect(page).toHaveURL(/AnimatedBarChart/, {timeout: 15_000});
+
+			if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+				await page.locator('[data-sidebar-toggle="right"]').click();
+			}
+
+			await page
+				.locator('[data-timeline-marquee-item][title="North bar"]')
+				.click();
+			await page
+				.getByRole('button', {name: '#000', exact: true})
+				.first()
+				.click();
+
+			const hexInput = page.getByRole('textbox', {name: 'Hex'});
+			await expect(hexInput).toBeVisible();
+			const saturationValueArea = page.locator(
+				'div[style*="cursor: crosshair"]',
+			);
+			const box = await saturationValueArea.boundingBox();
+			if (box === null) {
+				throw new Error('Color picker saturation area has no bounding box');
+			}
+
+			await page.mouse.move(
+				box.x + box.width * 0.25,
+				box.y + box.height * 0.75,
+			);
+			await page.mouse.down();
+			await page.mouse.move(
+				box.x + box.width * 0.75,
+				box.y + box.height * 0.25,
+			);
+			await page.mouse.up();
+
+			await expect(hexInput).toBeVisible();
+			await expect
+				.poll(() => fs.readFileSync(barChartFile, 'utf-8'))
+				.toMatch(/position: 'relative',\n\s+color: '#[0-9a-f]{6}',/);
+			await expect(page.getByRole('button', {name: /^Undo/})).toBeEnabled();
+			await page.keyboard.press('ControlOrMeta+z');
+
+			await expect
+				.poll(() => fs.readFileSync(barChartFile, 'utf-8'))
+				.toBe(originalSource);
+			await expect(hexInput).toHaveValue('#000000');
+		} finally {
+			fs.writeFileSync(barChartFile, originalSource);
+		}
+	});
+
 	test('should preserve the sequence inspector scroll position when adding an effect', async ({
 		page,
 	}) => {
