@@ -15,6 +15,13 @@ const data = [
 
 const maxValue = Math.max(...data.map(({value}) => value));
 
+const growthEasing = Easing.spring({
+	damping: 14.5,
+	mass: 0.8,
+	overshootClamping: false,
+	stiffness: 100,
+});
+
 const Bar: React.FC<{
 	readonly animationDelay: number;
 	readonly highlighted: boolean;
@@ -24,7 +31,15 @@ const Bar: React.FC<{
 	const frame = useCurrentFrame();
 	const barAnimationStart = 22 + animationDelay;
 	const barAnimationEnd =
-		barAnimationStart + 42 + Math.round((value / maxValue) * 18);
+		barAnimationStart + 16 + Math.round((value / maxValue) * 8);
+	const growthProgress =
+		frame >= barAnimationEnd
+			? 1
+			: interpolate(frame, [barAnimationStart, barAnimationEnd], [0, 1], {
+					easing: [growthEasing],
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				});
 
 	return (
 		<div
@@ -51,79 +66,65 @@ const Bar: React.FC<{
 						width: '100%',
 					}}
 				>
-					<Interactive.Div
-						name="Value"
+					<div
 						style={{
-							color: '#111827',
-							fontSize: 48,
-							fontWeight: 800,
+							bottom: `calc(${growthProgress * 100}% + 12px)`,
 							left: 0,
-							letterSpacing: -1.6,
-							lineHeight: 1,
-							opacity: interpolate(frame, [68, 84], [0, 1], {
-								easing: [Easing.bezier(0.45, 0, 0.55, 1)],
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
+							overflow: frame < barAnimationEnd ? 'hidden' : 'visible',
 							position: 'absolute',
-							textAlign: 'center',
-							top: -60,
-							whiteSpace: 'nowrap',
 							width: '100%',
 						}}
 					>
-						{value}
-					</Interactive.Div>
+						<Interactive.Div
+							name="Value"
+							style={{
+								color: '#111827',
+								fontSize: 48,
+								fontWeight: 800,
+								letterSpacing: -1.6,
+								lineHeight: 1,
+								textAlign: 'center',
+								transform: `translateY(${(1 - growthProgress) * 100}%)`,
+								whiteSpace: 'nowrap',
+								width: '100%',
+							}}
+						>
+							{value}
+						</Interactive.Div>
+					</div>
 					<Interactive.Div
-						cropTop={Math.max(
-							0,
-							interpolate(frame, [barAnimationStart, barAnimationEnd], [1, 0], {
-								easing: [
-									Easing.spring({
-										allowTail: true,
-										damping: 9,
-										durationRestThreshold: 0.02,
-										mass: 0.8,
-										overshootClamping: false,
-										stiffness: 80,
-									}),
-								],
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-						)}
 						name="Bar"
 						style={{
 							backgroundColor: highlighted ? '#2858e8' : '#d1d5db',
 							borderRadius: '12px 12px 0 0',
-							height: '100%',
+							bottom: 0,
+							height: `${growthProgress * 100}%`,
+							position: 'absolute',
 							width: '100%',
 						}}
 					/>
 				</div>
 			</div>
-			<Interactive.Div
-				name="Label"
+			<div
 				style={{
-					color: '#111827',
-					fontSize: 40,
-					fontWeight: 700,
-					lineHeight: 1,
-					opacity: interpolate(
-						frame,
-						[34 + animationDelay, 40 + animationDelay],
-						[0, 1],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-					textAlign: 'center',
-					whiteSpace: 'nowrap',
+					overflow: frame < barAnimationEnd ? 'hidden' : 'visible',
 				}}
 			>
-				{label}
-			</Interactive.Div>
+				<Interactive.Div
+					name="Label"
+					style={{
+						color: '#111827',
+						fontSize: 40,
+						fontWeight: 700,
+						lineHeight: 1,
+						textAlign: 'center',
+						transform: `translateY(${(1 - growthProgress) * 100}%)`,
+						whiteSpace: 'nowrap',
+					}}
+				>
+					{label}
+				</Interactive.Div>
+			</div>
 		</div>
 	);
 };
@@ -186,7 +187,7 @@ export const VerticalBarChart: React.FC = () => {
 						}}
 					>
 						<Bar
-							animationDelay={index * 6}
+							animationDelay={index * 24}
 							highlighted={highlighted}
 							label={label}
 							value={value}
