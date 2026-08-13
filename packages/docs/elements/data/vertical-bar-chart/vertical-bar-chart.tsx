@@ -40,6 +40,18 @@ const Bar: React.FC<{
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
 				});
+	const valueAnimationStart = barAnimationEnd - 8;
+	const valueAnimationEnd = barAnimationEnd + 2;
+	const valueProgress = interpolate(
+		frame,
+		[valueAnimationStart, valueAnimationEnd],
+		[0, 1],
+		{
+			easing: growthEasing,
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
 
 	return (
 		<div
@@ -70,15 +82,16 @@ const Bar: React.FC<{
 						style={{
 							bottom: `calc(${growthProgress * 100}% + 12px)`,
 							left: 0,
-							overflow: frame < barAnimationEnd ? 'hidden' : 'visible',
+							overflow: frame < valueAnimationEnd ? 'hidden' : 'visible',
 							position: 'absolute',
+							visibility: frame <= valueAnimationStart ? 'hidden' : 'visible',
 							width: '100%',
 						}}
 					>
 						<div
 							style={{
 								transform: 'perspective(100px)',
-								translate: `0 ${(1 - growthProgress) * 100}%`,
+								translate: `0 ${(1 - valueProgress) * 100}%`,
 								willChange: 'transform',
 							}}
 						>
@@ -110,7 +123,7 @@ const Bar: React.FC<{
 						<Interactive.Div
 							name="Bar"
 							style={{
-								backgroundColor: highlighted ? '#2858e8' : '#d1d5db',
+								backgroundColor: highlighted ? '#2858e8' : '#b9c0ca',
 								borderRadius: '12px 12px 0 0',
 								height: '100%',
 								width: '100%',
@@ -137,7 +150,7 @@ const Bar: React.FC<{
 							color: '#111827',
 							fontSize: 40,
 							fontWeight: 700,
-							lineHeight: 1,
+							lineHeight: 1.2,
 							textAlign: 'center',
 							whiteSpace: 'nowrap',
 						}}
@@ -179,24 +192,25 @@ export const VerticalBarChart: React.FC = () => {
 			</Interactive.H1>
 			<div
 				style={{
+					alignSelf: 'center',
 					display: 'flex',
 					flex: 1,
-					gap: 80,
-					justifyContent: 'center',
+					justifyContent: 'space-between',
 					minHeight: 0,
 					position: 'relative',
+					width: 1080,
 				}}
 			>
 				<Interactive.Div
 					name="Baseline"
 					style={{
 						backgroundColor: '#c5cad2',
-						bottom: 60,
+						bottom: 68,
 						height: 3,
 						left: '50%',
 						position: 'absolute',
 						translate: '-50% 50%',
-						width: 1000,
+						width: '100%',
 						zIndex: 1,
 					}}
 				/>
