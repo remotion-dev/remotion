@@ -60,7 +60,7 @@ const Bar: React.FC<{
 							left: 0,
 							letterSpacing: -1.6,
 							lineHeight: 1,
-							opacity: interpolate(frame, [67, 76], [0, 1], {
+							opacity: interpolate(frame, [70, 90], [0, 1], {
 								easing: [Easing.bezier(0.45, 0, 0.55, 1)],
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
