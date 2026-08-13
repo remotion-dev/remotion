@@ -4,11 +4,11 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "wxt",
+		"dev": "bunx --bun wxt",
 		"formatting": "oxfmt src wxt.config.ts --check",
 		"format": "oxfmt src wxt.config.ts",
-		"lint": "eslint src wxt.config.ts && wxt prepare && tsgo --noEmit",
-		"make": "wxt build"
+		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && tsgo --noEmit",
+		"make": "bunx --bun wxt build"
 	},
 	"dependencies": {
 		"mediabunny": "catalog:",
