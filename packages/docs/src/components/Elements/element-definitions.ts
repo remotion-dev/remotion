@@ -348,8 +348,10 @@ export const elementDefinitions = {
 		height: 1080,
 		posterFrame: 70,
 		preview: {
-			posterUrl: '/elements/data-vertical-bar-chart-preview.png',
-			videoUrl: '/elements/data-vertical-bar-chart-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/data-vertical-bar-chart-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/data-vertical-bar-chart-preview.mp4',
 		},
 		previewPadding: 56,
 		slug: 'data/vertical-bar-chart',
