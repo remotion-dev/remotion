@@ -720,7 +720,8 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 										timeInSeconds: 0,
 										canvasX: 10,
 										canvasY: 20,
-										cursor: 'default',
+										cursor:
+											'url("data:image/svg+xml,%3Csvg%20width%3D%2224%22%2F%3E") 6 7, alias',
 									},
 									{
 										timeInSeconds: 1,
@@ -767,6 +768,10 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 		const componentContents = readFileSync(componentFile, 'utf-8');
 		expect(componentContents).toContain(
 			"import {MacOSCursor} from '@remotion/mac-cursors'",
+		);
+		expect(componentContents).toContain('customCursor={');
+		expect(componentContents).toContain(
+			'url("data:image/svg+xml,%3Csvg%20width%3D%2224%22%2F%3E") 6 7, alias',
 		);
 		expect(componentContents).toContain("src={staticFile('capture.mp4')}");
 		expect(componentContents).toContain('width: 1920');

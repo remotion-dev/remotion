@@ -19,6 +19,7 @@ import {CanvasCaptureComposition} from './CanvasCapturePreview';
 import {Checker} from './Checker';
 import {CloseUp1} from './CloseUp1';
 import {CloseUp2} from './CloseUp2';
+import {CloseUp3} from './CloseUp3';
 import {CloseUp4} from './CloseUp4';
 import {CloseUp5} from './CloseUp5';
 import {CloseUp6} from './CloseUp6';
@@ -877,6 +878,7 @@ export const RemotionRoot: React.FC = () => {
 			<Folder name="CloseUps">
 				<CloseUp1 />
 				<CloseUp2 />
+				<CloseUp3 />
 				<CloseUp4 />
 				<CloseUp5 />
 				<CloseUp6 />

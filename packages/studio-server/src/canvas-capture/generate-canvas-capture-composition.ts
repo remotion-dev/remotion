@@ -203,7 +203,7 @@ export const ${previewComponentName} = () => {
 			/>
 			<MacOSCursor
 				${cursorProp}
-${customCursor === undefined ? '' : `\t\t\t\tcustomCursor=${serialize(customCursor)}\n`}				style={{
+${customCursor === undefined ? '' : `\t\t\t\tcustomCursor={${serialize(customCursor)}}\n`}				style={{
 					position: 'absolute',
 					left: 0,
 					top: 0,
