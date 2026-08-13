@@ -20,6 +20,7 @@ import {Checker} from './Checker';
 import {CloseUp1} from './CloseUp1';
 import {CloseUp2} from './CloseUp2';
 import {CloseUp4} from './CloseUp4';
+import {CloseUp5} from './CloseUp5';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -876,6 +877,7 @@ export const RemotionRoot: React.FC = () => {
 				<CloseUp1 />
 				<CloseUp2 />
 				<CloseUp4 />
+				<CloseUp5 />
 			</Folder>
 		</>
 	);
