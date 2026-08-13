@@ -55,7 +55,10 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 
 	internalParams.Muted = options.Muted
 	internalParams.PreferLossless = options.PreferLossless
-	internalParams.Overwrite = options.Overwrite
+	internalParams.Overwrite = true
+	if options.Overwrite != nil {
+		internalParams.Overwrite = *options.Overwrite
+	}
 
 	if options.RendererFunctionName == "" {
 		internalParams.RendererFunctionName = nil

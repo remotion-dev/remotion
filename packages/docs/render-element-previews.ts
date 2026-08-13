@@ -119,6 +119,7 @@ for (const definition of definitionsToRender) {
 	await renderMedia({
 		chromiumOptions: {gl: 'angle'},
 		codec: 'h264',
+		licenseKey: null,
 		composition,
 		crf: 23,
 		imageFormat: 'png',
