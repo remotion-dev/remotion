@@ -40,14 +40,21 @@ const sidebars: SidebarsConfig = {
 			label: 'Commerce',
 			link: {type: 'doc', id: 'commerce/index'},
 			collapsed: false,
-			items: ['commerce/product-offer/index'],
+			items: [
+				'commerce/product-discount-callout/index',
+				'commerce/product-offer/index',
+			],
 		},
 		{
 			type: 'category',
 			label: 'Data',
 			link: {type: 'doc', id: 'data/index'},
 			collapsed: false,
-			items: ['data/horizontal-bar-chart/index', 'data/number-counter/index'],
+			items: [
+				'data/horizontal-bar-chart/index',
+				'data/number-counter/index',
+				'data/pie-chart/index',
+			],
 		},
 		{
 			type: 'category',
@@ -64,7 +71,6 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'overlays/location-lower-third/index',
 				'overlays/name-lower-third/index',
-				'overlays/social-endcard/index',
 			],
 		},
 		{
@@ -85,6 +91,13 @@ const sidebars: SidebarsConfig = {
 				'text/strike-through/index',
 				'text/text-marker/index',
 			],
+		},
+		{
+			type: 'category',
+			label: 'YouTube',
+			link: {type: 'doc', id: 'youtube/index'},
+			collapsed: false,
+			items: ['youtube/youtube-end-card/index'],
 		},
 	],
 };

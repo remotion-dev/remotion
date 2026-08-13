@@ -90,6 +90,10 @@ import {
 	type PasteKeyframeTarget,
 } from '../components/Timeline/keyframe-clipboard';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
+import {
+	getPasteSequencePropTarget,
+	getSequencePropClipboardDataFromSelection,
+} from '../components/Timeline/sequence-prop-clipboard';
 import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
 import {parseCssRotationToEuler} from '../components/Timeline/timeline-rotation-utils';
 import {
@@ -999,6 +1003,90 @@ test('pasting keyframes onto a sequence targets the copied property', () => {
 			{sourceFrame: 50, value: '0px 0px'},
 			{sourceFrame: 70, value: '100px 0px'},
 		],
+	});
+});
+
+test('copies a keyframed sequence prop between components with matching schemas', () => {
+	const sourceNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.rotate'],
+	);
+	const targetNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const sourceNodePath = sourceNodePathInfo.sequenceSubscriptionKey;
+	const targetNodePath = targetNodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		'style.rotate': {
+			type: 'rotation-css',
+			default: '0deg',
+		},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(sourceNodePath)]: {
+			canUpdate: true,
+			props: {
+				'style.rotate': {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: '0deg'},
+						{frame: 30, value: '90deg'},
+					],
+					easing: [{type: 'linear'}],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		},
+		[Internals.makeSequencePropsSubscriptionKey(targetNodePath)]: {
+			canUpdate: true,
+			props: {
+				'style.rotate': {status: 'static', codeValue: undefined},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+	const sequences = [
+		makeTimelineSequence({schema, overrideId: 'video'}),
+		makeTimelineSequence({schema, overrideId: 'absolute-fill'}),
+	];
+	const overrideIdsToNodePaths = {
+		video: sourceNodePath,
+		'absolute-fill': targetNodePath,
+	};
+	const payload = getSequencePropClipboardDataFromSelection({
+		selection: {
+			type: 'sequence-prop',
+			nodePathInfo: sourceNodePathInfo,
+			key: 'style.rotate',
+		},
+		propStatuses,
+		sequences,
+		overrideIdsToNodePaths,
+	});
+
+	expect(payload).toMatchObject({
+		type: 'sequence-prop',
+		key: 'style.rotate',
+		fieldType: 'rotation-css',
+		param: {type: 'keyframed'},
+	});
+	if (payload === null) {
+		throw new Error('Expected a sequence prop clipboard payload');
+	}
+
+	expect(
+		getPasteSequencePropTarget({
+			selectedItems: [{type: 'sequence', nodePathInfo: targetNodePathInfo}],
+			payload,
+			propStatuses,
+			sequences,
+			overrideIdsToNodePaths,
+		}),
+	).toMatchObject({
+		type: 'valid',
+		targets: [{nodePath: targetNodePath, fieldKey: 'style.rotate'}],
 	});
 });
 

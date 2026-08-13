@@ -5,6 +5,10 @@ import {brightness} from '../brightness.js';
 import {burlap} from '../burlap.js';
 import {checkerboard} from '../checkerboard.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
+import {
+	colorCorrection,
+	type ColorCorrectionParams,
+} from '../color-correction.js';
 import {colorKey} from '../color-key.js';
 import {contourLines} from '../contour-lines.js';
 import {contrast} from '../contrast.js';
@@ -109,6 +113,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(colorKey().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/color-key',
+	);
+	expect(colorCorrection().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/color-correction',
 	);
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
@@ -312,6 +319,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(blur({radius: 1}).definition.label).toBe('blur()');
 	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
 	expect(colorKey().definition.label).toBe('colorKey()');
+	expect(colorCorrection().definition.label).toBe('colorCorrection()');
 	expect(brightness().definition.label).toBe('brightness()');
 	expect(burlap().definition.label).toBe('burlap()');
 	expect(checkerboard().definition.label).toBe('checkerboard()');
@@ -1134,6 +1142,70 @@ test('shadowsHighlights() parameters produce distinct effect keys', () => {
 			recoveredHighlights.effectKey,
 		]).size,
 	).toBe(3);
+});
+
+test('colorCorrection() accepts neutral defaults', () => {
+	expect(() => colorCorrection()).not.toThrow();
+});
+
+test('colorCorrection() validates exposure, contrast, pivot, and saturation', () => {
+	expect(() => colorCorrection({exposure: Number.NaN})).toThrow(
+		'"exposure" must be a finite number',
+	);
+	expect(() => colorCorrection({exposure: -5.1})).toThrow(
+		'"exposure" must be >= -5',
+	);
+	expect(() => colorCorrection({exposure: 5.1})).toThrow(
+		'"exposure" must be <= 5',
+	);
+	expect(() => colorCorrection({contrast: -0.1})).toThrow(
+		'"contrast" must be >= 0',
+	);
+	expect(() => colorCorrection({pivot: 1.1})).toThrow('"pivot" must be <= 1');
+	expect(() => colorCorrection({saturation: -0.1})).toThrow(
+		'"saturation" must be >= 0',
+	);
+});
+
+test('colorCorrection() validates signed adjustments', () => {
+	const names = [
+		'shadows',
+		'highlights',
+		'whites',
+		'blacks',
+		'temperature',
+		'tint',
+		'vibrance',
+	] as const satisfies readonly (keyof ColorCorrectionParams)[];
+
+	for (const name of names) {
+		expect(() => colorCorrection({[name]: -1.1})).toThrow(
+			`"${name}" must be >= -1`,
+		);
+		expect(() => colorCorrection({[name]: 1.1})).toThrow(
+			`"${name}" must be <= 1`,
+		);
+	}
+});
+
+test('colorCorrection() parameters produce distinct effect keys', () => {
+	const effects = [
+		colorCorrection(),
+		colorCorrection({exposure: 1}),
+		colorCorrection({contrast: 1.2}),
+		colorCorrection({pivot: 0.4}),
+		colorCorrection({shadows: 0.2}),
+		colorCorrection({highlights: -0.2}),
+		colorCorrection({whites: 0.2}),
+		colorCorrection({blacks: -0.2}),
+		colorCorrection({temperature: 0.2}),
+		colorCorrection({tint: -0.2}),
+		colorCorrection({saturation: 1.2}),
+		colorCorrection({vibrance: 0.2}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
+		effects.length,
+	);
 });
 
 test('contrast() accepts default params', () => {

@@ -39,7 +39,7 @@ test('effect picker search preserves table-of-contents order for empty queries',
 			items: EFFECT_CATALOG,
 			query: '',
 		})
-			.slice(0, 3)
+			.slice(0, 4)
 			.map((item) => item.label),
-	).toEqual(['brightness()', 'contrast()', 'colorKey()']);
+	).toEqual(['brightness()', 'contrast()', 'colorCorrection()', 'colorKey()']);
 });

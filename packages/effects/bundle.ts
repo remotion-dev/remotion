@@ -12,6 +12,7 @@ const effectEntrypoints = [
 	'src/burlap.ts',
 	'src/checkerboard.ts',
 	'src/chromatic-aberration.ts',
+	'src/color-correction.ts',
 	'src/color-key.ts',
 	'src/brightness.ts',
 	'src/contrast.ts',

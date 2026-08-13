@@ -1,7 +1,8 @@
 import {expect, test} from 'bun:test';
 import {
+	observePointerRelease,
 	type PointerSessionEndReason,
-	startPointerSession,
+	startCapturedPointerSession,
 } from '../helpers/pointer-session';
 
 class CaptureTarget extends EventTarget {
@@ -63,9 +64,9 @@ test('pointer sessions filter their pointer and clean up every termination path'
 		const target = new CaptureTarget();
 		const moves: number[] = [];
 		const endings: PointerSessionEndReason[] = [];
-		startPointerSession({
+		startCapturedPointerSession({
 			event: {button: 0, pointerId: 4},
-			target: target as unknown as Element,
+			captureTarget: target as unknown as Element,
 			onMove: (event) => moves.push(event.pointerId),
 			onEnd: (reason) => endings.push(reason),
 		});
@@ -137,9 +138,9 @@ test('pointer sessions filter their pointer and clean up every termination path'
 			const sessionTarget = new CaptureTarget();
 			const reasons: PointerSessionEndReason[] = [];
 			const pointerId = index + 10;
-			startPointerSession({
+			startCapturedPointerSession({
 				event: {button: 0, pointerId},
-				target: sessionTarget as unknown as Element,
+				captureTarget: sessionTarget as unknown as Element,
 				onEnd: (reason) => reasons.push(reason),
 			});
 			terminationCase.trigger(sessionTarget, pointerId);
@@ -147,6 +148,61 @@ test('pointer sessions filter their pointer and clean up every termination path'
 			expect(reasons).toEqual([terminationCase.reason]);
 			expect(sessionTarget.releasedPointers).toEqual([pointerId]);
 		}
+	} finally {
+		Object.defineProperty(globalThis, 'window', {
+			configurable: true,
+			value: originalWindow,
+		});
+		Object.defineProperty(globalThis, 'document', {
+			configurable: true,
+			value: originalDocument,
+		});
+	}
+});
+
+test('release observers do not capture the element under the pointer', () => {
+	const originalWindow = globalThis.window;
+	const originalDocument = globalThis.document;
+	const fakeWindow = new EventTarget() as Window & typeof globalThis;
+	const fakeDocument = new FakeDocument();
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: fakeWindow,
+	});
+	Object.defineProperty(globalThis, 'document', {
+		configurable: true,
+		value: fakeDocument,
+	});
+
+	try {
+		const elementUnderPointer = new CaptureTarget();
+		const endings: PointerSessionEndReason[] = [];
+		const pointerDownEvent = {
+			button: 0,
+			pointerId: 20,
+			target: elementUnderPointer,
+		} as unknown as PointerEvent;
+		observePointerRelease({
+			event: pointerDownEvent,
+			onEnd: (reason) => endings.push(reason),
+		});
+
+		elementUnderPointer.dispatchEvent(
+			makePointerEvent('lostpointercapture', {
+				pointerId: 20,
+				buttons: 0,
+			}),
+		);
+		fakeWindow.dispatchEvent(
+			makePointerEvent('pointermove', {pointerId: 20, buttons: 1}),
+		);
+		expect(endings).toEqual([]);
+		expect(elementUnderPointer.releasedPointers).toEqual([]);
+
+		fakeWindow.dispatchEvent(
+			makePointerEvent('pointerup', {pointerId: 20, buttons: 0}),
+		);
+		expect(endings).toEqual(['pointerup']);
 	} finally {
 		Object.defineProperty(globalThis, 'window', {
 			configurable: true,

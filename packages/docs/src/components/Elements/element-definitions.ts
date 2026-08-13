@@ -10,19 +10,21 @@ import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburs
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
+import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {LineChart} from '../../../elements/data/line-chart/line-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
+import {PieChart} from '../../../elements/data/pie-chart/pie-chart';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
-import {YouTubeEndCard} from '../../../elements/overlays/social-endcard/social-endcard';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
+import {YouTubeEndCard} from '../../../elements/youtube/youtube-end-card/youtube-end-card';
 import type {Contributor} from '../Credits';
 
 export type ElementPreviewMetadata = {
@@ -228,8 +230,8 @@ export const elementDefinitions = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
-	'overlays/social-endcard': {
-		category: 'overlays',
+	'youtube/youtube-end-card': {
+		category: 'youtube',
 		component: YouTubeEndCard,
 		contributors: [],
 		description:
@@ -249,7 +251,7 @@ export const elementDefinitions = {
 				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
 		},
 		previewPadding: 0,
-		slug: 'overlays/social-endcard',
+		slug: 'youtube/youtube-end-card',
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -300,6 +302,29 @@ export const elementDefinitions = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
+	'data/pie-chart': {
+		category: 'data',
+		component: PieChart,
+		contributors: [],
+		description:
+			'A bold animated pie chart with four directly labeled data points.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		displayName: 'Pie Chart',
+		durationInFrames: 120,
+		elementHeight: 864,
+		elementWidth: 1560,
+		fps: 30,
+		height: 1080,
+		posterFrame: 70,
+		preview: {
+			posterUrl: 'https://remotion.media/elements/data-pie-chart-preview.png',
+			videoUrl: 'https://remotion.media/elements/data-pie-chart-preview.mp4',
+		},
+		previewPadding: 56,
+		slug: 'data/pie-chart',
+		installationMode: 'wrapped',
+		width: 1920,
+	},
 	'data/number-counter': {
 		category: 'data',
 		component: NumberCounter,
@@ -329,6 +354,34 @@ export const elementDefinitions = {
 		slug: 'data/number-counter',
 		installationMode: 'wrapped',
 		width: 1920,
+	},
+	'commerce/product-discount-callout': {
+		category: 'commerce',
+		component: ProductDiscountCallout,
+		contributors: [],
+		description:
+			'An animated product cutout with pricing and a hinged discount callout.',
+		dependencies: [
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/shapes', version: null},
+		],
+		displayName: 'Product Discount Callout',
+		durationInFrames: 120,
+		elementHeight: 650,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 57,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/commerce-product-discount-callout-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/commerce-product-discount-callout-preview.mp4',
+		},
+		previewPadding: 90,
+		slug: 'commerce/product-discount-callout',
+		installationMode: 'wrapped',
+		width: 1080,
 	},
 	'commerce/product-offer': {
 		category: 'commerce',

@@ -1,12 +1,26 @@
 import {wave} from '@remotion/effects/wave';
+import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, interpolate, Solid, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	interpolate,
+	Solid,
+	staticFile,
+	useCurrentFrame,
+} from 'remotion';
 
 export const EffectKeyframeE2e: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill>
+			<Video
+				name="Copy rotation source"
+				src={staticFile('framer.webm')}
+				durationInFrames={90}
+				style={{rotate: interpolate(frame, [0, 30], ['0deg', '90deg'])}}
+			/>
+			<AbsoluteFill name="Copy rotation target" style={{rotate: '0deg'}} />
 			<Solid
 				name="Scale precision"
 				width={1080}

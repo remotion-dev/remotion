@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {COLOR_SPACE_GLSL} from './color-correction-shader-utils.js';
 import {assertOptionalFiniteNumber} from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 
@@ -84,18 +85,7 @@ out vec4 fragColor;
 uniform sampler2D uSource;
 uniform float uStops;
 
-vec3 srgbToLinear(vec3 color) {
-	vec3 lower = color / 12.92;
-	vec3 upper = pow((color + 0.055) / 1.055, vec3(2.4));
-	return mix(lower, upper, step(vec3(0.04045), color));
-}
-
-vec3 linearToSrgb(vec3 color) {
-	vec3 nonNegative = max(color, vec3(0.0));
-	vec3 lower = nonNegative * 12.92;
-	vec3 upper = 1.055 * pow(nonNegative, vec3(1.0 / 2.4)) - 0.055;
-	return mix(lower, upper, step(vec3(0.0031308), nonNegative));
-}
+${COLOR_SPACE_GLSL}
 
 void main() {
 	vec4 sourceColor = texture(uSource, vUv);

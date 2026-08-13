@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import {TRANSPARENT} from '../helpers/colors';
-import {startPointerSession} from '../helpers/pointer-session';
+import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {canvasRotationCursor} from './canvas-rotation-cursor';
 import {
@@ -251,9 +251,9 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 
 			// The polygon gates pointer-down, while the stable overlay keeps the
 			// session alive after the pointer leaves the selected item.
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: svg,
+				captureTarget: svg,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});

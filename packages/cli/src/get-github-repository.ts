@@ -1,5 +1,5 @@
-import {execSync} from 'child_process';
-import {existsSync, readFileSync} from 'fs';
+import {execFileSync} from 'child_process';
+import {existsSync, readFileSync, statSync} from 'fs';
 import path from 'path';
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
@@ -39,16 +39,37 @@ const getGitRemotes = (lines: string[]) => {
 	});
 };
 
+const getGitRoot = (remotionRoot: string) => {
+	return BundlerInternals.findClosestFolderWithItem(remotionRoot, '.git');
+};
+
 export const getGitConfig = (remotionRoot: string) => {
-	const gitFolder = BundlerInternals.findClosestFolderWithItem(
-		remotionRoot,
-		'.git',
-	);
-	if (!gitFolder) {
+	const gitRoot = getGitRoot(remotionRoot);
+	if (!gitRoot) {
 		return null;
 	}
 
-	const gitConfig = path.join(gitFolder, '.git', 'config');
+	const dotGit = path.join(gitRoot, '.git');
+	let gitDirectory = dotGit;
+	if (!statSync(dotGit).isDirectory()) {
+		const match = readFileSync(dotGit, 'utf-8')
+			.trim()
+			.match(/^gitdir:\s*(.+)$/);
+		if (!match?.[1]) {
+			return null;
+		}
+
+		gitDirectory = path.resolve(gitRoot, match[1]);
+		const commonDirectoryFile = path.join(gitDirectory, 'commondir');
+		if (existsSync(commonDirectoryFile)) {
+			gitDirectory = path.resolve(
+				gitDirectory,
+				readFileSync(commonDirectoryFile, 'utf-8').trim(),
+			);
+		}
+	}
+
+	const gitConfig = path.join(gitDirectory, 'config');
 	if (!existsSync(gitConfig)) {
 		return null;
 	}
@@ -98,14 +119,29 @@ export const normalizeGitRemoteUrl = (url: string): ParsedGitRemote | null => {
 	return null;
 };
 
-export const getGifRef = (logLevel: LogLevel): string | null => {
+export const getGifRef = (
+	logLevel: LogLevel,
+	remotionRoot = process.cwd(),
+): string | null => {
 	try {
-		const ret = execSync('git rev-parse --abbrev-ref HEAD', {
+		const branch = execFileSync(
+			'git',
+			['-C', remotionRoot, 'rev-parse', '--abbrev-ref', 'HEAD'],
+			{
+				stdio: ['ignore', 'pipe', 'ignore'],
+			},
+		)
+			.toString('utf-8')
+			.trim();
+		if (branch !== 'HEAD') {
+			return branch;
+		}
+
+		return execFileSync('git', ['-C', remotionRoot, 'rev-parse', 'HEAD'], {
 			stdio: ['ignore', 'pipe', 'ignore'],
 		})
 			.toString('utf-8')
 			.trim();
-		return ret;
 	} catch (err) {
 		Log.verbose({logLevel, indent: false}, 'Could not get git ref', err);
 		return null;
@@ -126,9 +162,8 @@ const getFromEnvVariables = (remotionRoot: string): GitSource | null => {
 		VERCEL_GIT_PROVIDER === 'github'
 	) {
 		let relativeFromGitRoot = '';
-		const gitConfig = getGitConfig(remotionRoot);
-		if (gitConfig) {
-			const gitRoot = path.dirname(path.dirname(gitConfig));
+		const gitRoot = getGitRoot(remotionRoot);
+		if (gitRoot) {
 			relativeFromGitRoot = path.relative(gitRoot, remotionRoot);
 		}
 
@@ -162,7 +197,7 @@ export const getGitSource = ({
 		return fromEnv;
 	}
 
-	const ref = getGifRef(logLevel);
+	const ref = getGifRef(logLevel, remotionRoot);
 	if (!ref) {
 		return null;
 	}
@@ -182,7 +217,11 @@ export const getGitSource = ({
 		return null;
 	}
 
-	const gitRoot = path.dirname(path.dirname(gitConfig));
+	const gitRoot = getGitRoot(remotionRoot);
+	if (!gitRoot) {
+		return null;
+	}
+
 	const relativeFromGitRoot = path.relative(gitRoot, remotionRoot);
 
 	return {

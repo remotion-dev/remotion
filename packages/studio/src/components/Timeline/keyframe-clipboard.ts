@@ -344,7 +344,7 @@ export type PasteKeyframeTarget =
 			readonly type: 'none' | 'multiple' | 'uncopyable' | 'incompatible';
 	  };
 
-const isKeyframeValueCompatible = ({
+export const isKeyframeValueCompatible = ({
 	value,
 	fieldType,
 }: {

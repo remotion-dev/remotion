@@ -8,6 +8,7 @@ import {EffectsBrightnessPreview} from '../../components/effects/effects-brightn
 import {EffectsBurlapPreview} from '../../components/effects/effects-burlap-preview';
 import {EffectsCheckerboardPreview} from '../../components/effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../../components/effects/effects-chromatic-aberration-preview';
+import {EffectsColorCorrectionPreview} from '../../components/effects/effects-color-correction-preview';
 import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
@@ -243,6 +244,25 @@ export const RemotionRoot: React.FC = () => {
 						angle: 0,
 						lightAngle: 135,
 						offset: 0,
+					}}
+				/>
+				<Still
+					id="effects-color-correction-preview"
+					component={EffectsColorCorrectionPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						exposure: 0.35,
+						contrast: 1.2,
+						pivot: 0.45,
+						shadows: 0.4,
+						highlights: -0.3,
+						whites: 0.2,
+						blacks: -0.1,
+						temperature: 0.15,
+						tint: 0.05,
+						saturation: 1.1,
+						vibrance: 0.35,
 					}}
 				/>
 				<Still

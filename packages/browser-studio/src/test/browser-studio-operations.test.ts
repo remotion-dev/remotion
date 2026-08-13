@@ -492,6 +492,47 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	});
 	expect(currentProject.files[fileName]).toContain('from={15}');
 
+	await operations.saveSequenceProps({
+		edits: [
+			{
+				fileName: request.fileName,
+				nodePath: subscription.nodePath,
+				key: 'style.rotate',
+				value: {type: 'undefined'},
+				defaultValue: JSON.stringify('0deg'),
+				schema: {
+					'style.rotate': {type: 'rotation-css', default: '0deg'},
+				},
+				sourceEdit: {
+					type: 'clipboard-param',
+					param: {
+						type: 'keyframed',
+						interpolationFunction: 'interpolate',
+						keyframes: [
+							{frame: 0, value: '0deg'},
+							{frame: 30, value: '90deg'},
+						],
+						easing: [{type: 'linear'}],
+						clamping: {left: 'extend', right: 'extend'},
+					},
+				},
+			},
+		],
+		addedKeyframes: null,
+		movedKeyframes: null,
+		clientId: request.clientId,
+		undoLabel: 'Paste property',
+		redoLabel: 'Reapply property paste',
+	});
+	expect(currentProject.files[fileName]).toContain(
+		'rotate: interpolate(frame, [0, 30], ["0deg", "90deg"])',
+	);
+	expect(await operations.undo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+	});
+	expect(currentProject.files[fileName]).not.toContain('style={{rotate:');
+
 	currentProject = {
 		...currentProject,
 		files: {

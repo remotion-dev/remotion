@@ -92,6 +92,68 @@ test.describe('visual mode', () => {
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
 	});
 
+	test('should commit a color drag before the picker closes', async ({
+		page,
+	}) => {
+		const barChartFile = path.join(exampleDir, 'src', 'BarChart.tsx');
+		const originalSource = fs.readFileSync(barChartFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+			await expect(page).toHaveURL(/AnimatedBarChart/, {timeout: 15_000});
+
+			if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+				await page.locator('[data-sidebar-toggle="right"]').click();
+			}
+
+			const colorButton = page
+				.getByRole('button', {name: '#000', exact: true})
+				.first();
+			await expect(async () => {
+				await page
+					.locator('[data-timeline-marquee-item][title="North bar"]')
+					.click();
+				await expect(colorButton).toBeVisible({timeout: 1_000});
+			}).toPass({timeout: 15_000});
+			await colorButton.click();
+
+			const hexInput = page.getByRole('textbox', {name: 'Hex'});
+			await expect(hexInput).toBeVisible();
+			const saturationValueArea = page.locator(
+				'div[style*="cursor: crosshair"]',
+			);
+			const box = await saturationValueArea.boundingBox();
+			if (box === null) {
+				throw new Error('Color picker saturation area has no bounding box');
+			}
+
+			await page.mouse.move(
+				box.x + box.width * 0.25,
+				box.y + box.height * 0.75,
+			);
+			await page.mouse.down();
+			await page.mouse.move(
+				box.x + box.width * 0.75,
+				box.y + box.height * 0.25,
+			);
+			await page.mouse.up();
+
+			await expect(hexInput).toBeVisible();
+			await expect
+				.poll(() => fs.readFileSync(barChartFile, 'utf-8'))
+				.toMatch(/position: 'relative',\n\s+color: '#[0-9a-f]{6}',/);
+			await expect(page.getByRole('button', {name: /^Undo/})).toBeEnabled();
+			await page.keyboard.press('ControlOrMeta+z');
+
+			await expect
+				.poll(() => fs.readFileSync(barChartFile, 'utf-8'))
+				.toBe(originalSource);
+			await expect(hexInput).toHaveValue('#000000');
+		} finally {
+			fs.writeFileSync(barChartFile, originalSource);
+		}
+	});
+
 	test('should preserve the sequence inspector scroll position when adding an effect', async ({
 		page,
 	}) => {
@@ -131,6 +193,55 @@ test.describe('visual mode', () => {
 			(element) => element.scrollTop,
 		);
 		expect(scrollTopAfter).toBeGreaterThan(0);
+	});
+
+	test('should copy a keyframed property between component types', async ({
+		context,
+		page,
+	}) => {
+		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+			origin: STUDIO_URL,
+		});
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await page.bringToFront();
+		await page.evaluate(() => navigator.clipboard.writeText(''));
+		const sourceRow = page.locator(
+			'[data-timeline-marquee-item][title="Copy rotation source"]',
+		);
+		const targetRow = page.locator(
+			'[data-timeline-marquee-item][title="Copy rotation target"]',
+		);
+		await expect(sourceRow).toBeVisible({timeout: 15_000});
+		await page
+			.getByTitle('Copy rotation source', {exact: true})
+			.first()
+			.click({button: 'right'});
+		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await page.keyboard.press('ControlOrMeta+c');
+
+		await page
+			.getByTitle('Copy rotation target', {exact: true})
+			.first()
+			.click({button: 'right'});
+		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await page.keyboard.press('ControlOrMeta+v');
+
+		await expect
+			.poll(() => {
+				const source = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+				const targetNameIndex = source.indexOf('name="Copy rotation target"');
+				const tagStart = source.lastIndexOf('<AbsoluteFill', targetNameIndex);
+				const tagEnd = source.indexOf('/>', targetNameIndex);
+				return source.slice(tagStart, tagEnd + 2);
+			})
+			.toContain("rotate: interpolate(frame, [0, 30], ['0deg', '90deg'])");
+
+		await page.getByRole('button', {name: /^Undo/}).click();
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toContain(
+				'<AbsoluteFill name="Copy rotation target" style={{rotate: \'0deg\'}} />',
+			);
 	});
 
 	test('should keep canvas item context menus open', async ({page}) => {
@@ -356,6 +467,11 @@ test.describe('visual mode', () => {
 				codingAgentInfoRequests: 1,
 				editorInfoRequests: 1,
 			});
+			await page.mouse.move(10, 100);
+			await page.mouse.down();
+			await page.mouse.move(13, 101);
+			await page.mouse.up();
+			await expect(dialog).toBeHidden();
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);
 		}
@@ -938,6 +1054,28 @@ test.describe('visual mode', () => {
 			await expect(
 				page.getByRole('button', {name: 'Cursor', exact: true}),
 			).toHaveCount(2);
+			const gitHubButton = page.getByRole('button', {
+				name: 'GitHub.com',
+				exact: true,
+			});
+			await expect(gitHubButton).toBeVisible();
+			await expect(gitHubButton.locator('[data-github-icon]')).toBeVisible();
+			await page.evaluate(() => {
+				document.body.dataset.openedUrl = '';
+				window.open = (url) => {
+					document.body.dataset.openedUrl = String(url);
+					return null;
+				};
+			});
+			await gitHubButton.click();
+			await expect
+				.poll(() => page.evaluate(() => document.body.dataset.openedUrl ?? ''))
+				.toMatch(
+					/^https:\/\/github\.com\/remotion-dev\/remotion\/blob\/.+\/packages\/example\/src\/BarChart\.tsx#L\d+$/,
+				);
+
+			await timelineGridline.click({button: 'right'});
+			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
 			await page
 				.getByRole('button', {name: 'Change default apps...', exact: true})
 				.click();
@@ -1070,12 +1208,9 @@ test.describe('visual mode', () => {
 		await openInAnotherApp.click();
 		await expect(changeDefaultApps).toBeVisible();
 		// The menu overlay intercepts pointerleave; clicking it closes the menu
-		// through the same outside-click path a user would take. Retry the click
-		// until the new layer has registered as the highest z-index context.
-		await expect(async () => {
-			await page.mouse.click(10, 100);
-			await expect(changeDefaultApps).toBeHidden({timeout: 1_000});
-		}).toPass({timeout: 10_000});
+		// through the same outside-click path a user would take.
+		await page.mouse.click(10, 100);
+		await expect(changeDefaultApps).toBeHidden();
 		await expect(openInAnotherApp).toHaveCSS(
 			'background-color',
 			'rgba(0, 0, 0, 0)',
