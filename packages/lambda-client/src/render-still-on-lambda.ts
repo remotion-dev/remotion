@@ -81,52 +81,75 @@ const innerRenderStillOnLambda = async (
 	const {functionName, region, onInit} = input;
 	try {
 		const payload = await makeLambdaRenderStillPayload(input);
-		const res = await new Promise<
-			RenderStillFunctionResponsePayload<AwsProvider>
-		>((resolve, reject) => {
-			awsImplementation
-				.callFunctionStreaming<ServerlessRoutines.still>({
+		const res = payload.streamed
+			? await new Promise<RenderStillFunctionResponsePayload<AwsProvider>>(
+					(resolve, reject) => {
+						awsImplementation
+							.callFunctionStreaming<ServerlessRoutines.still>({
+								functionName,
+								type: ServerlessRoutines.still,
+								payload,
+								region,
+								receivedStreamingPayload: ({message}) => {
+									if (message.type === 'render-id-determined') {
+										onInit?.({
+											renderId: message.payload.renderId,
+											cloudWatchLogs: getCloudwatchMethodUrl({
+												functionName,
+												method: ServerlessRoutines.still,
+												region,
+												rendererFunctionName: null,
+												renderId: message.payload.renderId,
+											}),
+											lambdaInsightsUrl: getLambdaInsightsUrl({
+												functionName,
+												region,
+											}),
+										});
+									}
+
+									if (message.type === 'error-occurred') {
+										reject(new Error(message.payload.error));
+									}
+
+									if (message.type === 'still-rendered') {
+										resolve(message.payload);
+									}
+								},
+								timeoutInTest: 120000,
+								retriesRemaining: input.maxRetries,
+								requestHandler: input.requestHandler,
+							})
+							.then(() => {
+								reject(new Error('Expected response to be streamed'));
+							})
+							.catch((err) => {
+								reject(err);
+							});
+					},
+				)
+			: ((await awsImplementation.callFunctionSync<ServerlessRoutines.still>({
 					functionName,
 					type: ServerlessRoutines.still,
 					payload,
 					region,
-					receivedStreamingPayload: ({message}) => {
-						if (message.type === 'render-id-determined') {
-							onInit?.({
-								renderId: message.payload.renderId,
-								cloudWatchLogs: getCloudwatchMethodUrl({
-									functionName,
-									method: ServerlessRoutines.still,
-									region,
-									rendererFunctionName: null,
-									renderId: message.payload.renderId,
-								}),
-								lambdaInsightsUrl: getLambdaInsightsUrl({
-									functionName,
-									region,
-								}),
-							});
-						}
-
-						if (message.type === 'error-occurred') {
-							reject(new Error(message.payload.error));
-						}
-
-						if (message.type === 'still-rendered') {
-							resolve(message.payload);
-						}
-					},
 					timeoutInTest: 120000,
-					retriesRemaining: input.maxRetries,
 					requestHandler: input.requestHandler,
-				})
-				.then(() => {
-					reject(new Error('Expected response to be streamed'));
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		});
+				})) as unknown as RenderStillFunctionResponsePayload<AwsProvider>);
+
+		if (!payload.streamed) {
+			onInit?.({
+				renderId: res.renderId,
+				cloudWatchLogs: getCloudwatchMethodUrl({
+					functionName,
+					method: ServerlessRoutines.still,
+					region,
+					rendererFunctionName: null,
+					renderId: res.renderId,
+				}),
+				lambdaInsightsUrl: getLambdaInsightsUrl({functionName, region}),
+			});
+		}
 
 		return {
 			estimatedPrice: res.estimatedPrice,

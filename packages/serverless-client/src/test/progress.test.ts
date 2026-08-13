@@ -117,6 +117,7 @@ const makeProviderSpecifics = ({
 		getChromiumPath: () => null,
 		getEphemeralStorageForPriceCalculation: () => 512,
 		getBillingCurrency: () => billingCurrency,
+		getRendererFunctionTransport: () => 'response-streaming',
 		getServiceDnsSuffix: () => 'example.com',
 		getFunctions: () => Promise.resolve([]),
 		getLoggingUrlForMethod: () => 'logs',

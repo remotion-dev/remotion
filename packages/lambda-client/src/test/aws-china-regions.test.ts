@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {ServerlessRoutines} from '@remotion/serverless-client';
+import {awsImplementation} from '../aws-provider';
 import {getAwsRegionMetadata} from '../aws-region-metadata';
 import {convertToServeUrlImplementation} from '../convert-to-serve-url';
 import {
@@ -11,6 +12,7 @@ import {
 	getS3RenderUrl,
 } from '../get-aws-urls';
 import {getOutputUrlFromMetadata} from '../get-output-url-from-metadata';
+import {makeLambdaRenderStillPayload} from '../make-lambda-payload';
 import {makeS3ServeUrl} from '../make-s3-url';
 import {AWS_REGIONS, DEFAULT_AWS_REGIONS} from '../regions';
 
@@ -33,6 +35,63 @@ test('AWS region metadata is exhaustive for China without changing defaults', ()
 	expect(AWS_REGIONS).toContain('cn-north-1');
 	expect(AWS_REGIONS).toContain('cn-northwest-1');
 	expect(DEFAULT_AWS_REGIONS).not.toContain('cn-north-1' as never);
+	expect(awsImplementation.getRendererFunctionTransport('cn-north-1')).toBe(
+		's3',
+	);
+	expect(awsImplementation.getRendererFunctionTransport('cn-northwest-1')).toBe(
+		's3',
+	);
+	expect(awsImplementation.getRendererFunctionTransport('us-east-1')).toBe(
+		'response-streaming',
+	);
+});
+
+test('China still payload uses buffered invocation', async () => {
+	const base = {
+		functionName: 'function',
+		serveUrl: 'https://example.com',
+		composition: 'composition',
+		inputProps: {},
+		imageFormat: 'png',
+		privacy: 'private',
+		maxRetries: 1,
+		envVariables: {},
+		frame: 0,
+		outName: null,
+		chromiumOptions: {},
+		downloadBehavior: {type: 'play-in-browser'},
+		forceWidth: null,
+		forceHeight: null,
+		forceFps: null,
+		forceDurationInFrames: null,
+		forceBucketName: null,
+		onInit: () => undefined,
+		indent: false,
+		forcePathStyle: false,
+		storageClass: null,
+		requestHandler: null,
+		isProduction: null,
+		jpegQuality: 80,
+		logLevel: 'info',
+		offthreadVideoCacheSizeInBytes: null,
+		scale: 1,
+		timeoutInMilliseconds: 30000,
+		licenseKey: null,
+		offthreadVideoThreads: null,
+		mediaCacheSizeInBytes: null,
+		deleteAfter: null,
+	} as const;
+	const china = await makeLambdaRenderStillPayload({
+		...base,
+		region: 'cn-north-1',
+	});
+	const standard = await makeLambdaRenderStillPayload({
+		...base,
+		region: 'us-east-1',
+	});
+
+	expect(china.streamed).toBe(false);
+	expect(standard.streamed).toBe(true);
 });
 
 test('AWS service and Console URLs use the region partition metadata', () => {

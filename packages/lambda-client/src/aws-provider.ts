@@ -126,6 +126,10 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	},
 	estimatePrice,
 	getBillingCurrency: (region) => getAwsRegionMetadata(region).billingCurrency,
+	getRendererFunctionTransport: (region) =>
+		getAwsRegionMetadata(region).partition === 'aws-cn'
+			? 's3'
+			: 'response-streaming',
 	getServiceDnsSuffix: (region) => getAwsRegionMetadata(region).dnsSuffix,
 	getLoggingUrlForMethod: getCloudwatchMethodUrl,
 	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,

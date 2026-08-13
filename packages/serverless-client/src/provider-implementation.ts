@@ -4,6 +4,7 @@ import type {DownloadBehavior} from 'remotion';
 import type {CustomCredentials, Privacy, ServerlessRoutines} from './constants';
 import type {BillingCurrency} from './format-costs-info';
 import type {RenderMetadata} from './render-metadata';
+import type {RendererFunctionTransport} from './renderer-transport';
 import type {ServerlessReturnValues} from './return-values';
 import type {OnMessage} from './streaming/streaming';
 import type {CallFunctionOptions, CloudProvider} from './types';
@@ -258,6 +259,9 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getLoggingUrlForMethod: GetLoggingUrlForMethod<Provider>;
 	getEphemeralStorageForPriceCalculation: () => number;
 	getBillingCurrency: (region: Provider['region']) => BillingCurrency;
+	getRendererFunctionTransport: (
+		region: Provider['region'],
+	) => RendererFunctionTransport;
 	getServiceDnsSuffix: (region: Provider['region']) => string;
 	getOutputUrl: GetOutputUrl<Provider>;
 	isFlakyError: (err: Error) => boolean;

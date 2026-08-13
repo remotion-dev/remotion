@@ -23,6 +23,7 @@ import {getWarm, setWarm} from './is-warm';
 import {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 import {printLoggingGrepHelper} from './print-logging-grep-helper';
 import type {InsideFunctionSpecifics} from './provider-implementation';
+import {makeS3RendererOutput} from './s3-renderer-output';
 import type {ResponseStreamWriter} from './streaming/stream-writer';
 
 export const innerHandler = async <Provider extends CloudProvider>({
@@ -265,6 +266,19 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			);
 		}
 
+		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
+		const transport = providerSpecifics.getRendererFunctionTransport(region);
+		const s3Output =
+			transport === 's3'
+				? makeS3RendererOutput({
+						params,
+						expectedBucketOwner: currentUserId,
+						region,
+						providerSpecifics,
+					})
+				: null;
+		await s3Output?.initialize();
+
 		await new Promise((resolve, reject) => {
 			rendererHandler({
 				params,
@@ -272,24 +286,27 @@ export const innerHandler = async <Provider extends CloudProvider>({
 					expectedBucketOwner: currentUserId,
 					isWarm,
 				},
-				onStream: (payload) => {
-					const message = makeStreamPayload({
-						message: payload,
-					});
-
-					const writeProm = responseWriter.write(message);
-
-					return new Promise<void>((innerResolve, innerReject) => {
-						writeProm
-							.then(() => {
-								innerResolve();
-							})
-							.catch((err) => {
-								reject(err);
-								innerReject(err);
+				onStream: s3Output
+					? s3Output.onStream
+					: (payload) => {
+							const message = makeStreamPayload({
+								message: payload,
 							});
-					});
-				},
+
+							const writeProm = responseWriter.write(message);
+
+							return new Promise<void>((innerResolve, innerReject) => {
+								writeProm
+									.then(() => {
+										innerResolve();
+									})
+									.catch((err) => {
+										reject(err);
+										innerReject(err);
+									});
+							});
+						},
+				onMediaFiles: s3Output?.uploadMediaAndComplete ?? null,
 				requestContext: context,
 				providerSpecifics,
 				insideFunctionSpecifics,

@@ -37,6 +37,10 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		LambdaClientInternals.MAX_EPHEMERAL_STORAGE_IN_MB,
 	getBillingCurrency: (region) =>
 		LambdaClientInternals.getAwsRegionMetadata(region).billingCurrency,
+	getRendererFunctionTransport: (region) =>
+		LambdaClientInternals.getAwsRegionMetadata(region).partition === 'aws-cn'
+			? 's3'
+			: 'response-streaming',
 	getServiceDnsSuffix: (region) =>
 		LambdaClientInternals.getAwsRegionMetadata(region).dnsSuffix,
 	getLoggingUrlForMethod: LambdaClientInternals.getCloudwatchMethodUrl,
