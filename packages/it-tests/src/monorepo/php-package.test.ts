@@ -154,6 +154,7 @@ class Semantic
 				licenseKey: null,
 				storageClass: null,
 				requestHandler: null,
+				invokeRequestHandler: null,
 				mediaCacheSizeInBytes: null,
 				isProduction: null,
 				sampleRate: 48000,

@@ -141,6 +141,7 @@ test('Render Media payload', async () => {
 			licenseKey: null,
 			storageClass: null,
 			requestHandler: null,
+			invokeRequestHandler: null,
 			mediaCacheSizeInBytes: null,
 			isProduction: null,
 			sampleRate: 48000,

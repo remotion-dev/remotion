@@ -443,6 +443,7 @@ export const renderCommand = async ({
 			parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag] ?? null,
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
 		requestHandler: null,
+		invokeRequestHandler: null,
 		isProduction:
 			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
 			true,

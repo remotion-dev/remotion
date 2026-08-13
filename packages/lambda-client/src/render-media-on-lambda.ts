@@ -76,6 +76,7 @@ export type RenderMediaOnLambdaInput = {
 	metadata?: Record<string, string> | null;
 	storageClass?: StorageClass | null;
 	requestHandler?: RequestHandler;
+	invokeRequestHandler?: RequestHandler;
 	isProduction?: boolean;
 } & {
 	/**
@@ -110,7 +111,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
 			timeoutInTest: 120000,
-			requestHandler: input.requestHandler,
+			requestHandler: input.invokeRequestHandler ?? input.requestHandler,
 		});
 
 		return {
@@ -214,6 +215,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		licenseKey: options.licenseKey ?? options.apiKey ?? null,
 		storageClass: options.storageClass ?? null,
 		requestHandler: options.requestHandler ?? null,
+		invokeRequestHandler: options.invokeRequestHandler ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 		isProduction: options.isProduction ?? null,
 		sampleRate: options.sampleRate ?? 48000,

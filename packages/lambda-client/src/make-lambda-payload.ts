@@ -90,6 +90,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	metadata: Record<string, string> | null;
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null;
+	invokeRequestHandler: RequestHandler | null;
 	isProduction: boolean | null;
 } & ToOptions<
 	Omit<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda, 'apiKey'>

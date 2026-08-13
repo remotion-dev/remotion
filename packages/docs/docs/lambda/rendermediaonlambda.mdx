@@ -376,6 +376,12 @@ _default `true`_
 
 <Options id="is-production" />
 
+### `invokeRequestHandler?`<AvailableFrom v="4.0.510"/>
+
+A custom AWS SDK [request handler](/docs/lambda/proxy) that is used only for the Lambda invocation that starts the render.
+
+The invocation is a long-running `RequestResponse` call, so you may want different socket or request timeouts for it than for the other AWS API calls this function makes. If not provided, `requestHandler` is used for all calls.
+
 ### ~~`apiKey?`<AvailableFrom v="4.0.253"/>~~
 
 :::info Deprecated

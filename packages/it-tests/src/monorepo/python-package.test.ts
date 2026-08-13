@@ -50,6 +50,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderMediaPayload({
 			requestHandler: null,
+			invokeRequestHandler: null,
 			region: 'us-east-1',
 			composition: 'react-svg',
 			functionName: 'remotion-render',
