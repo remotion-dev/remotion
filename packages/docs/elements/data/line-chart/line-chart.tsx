@@ -72,58 +72,54 @@ export const LineChart: React.FC = () => {
 			>
 				Monthly active users
 			</Interactive.H1>
-			<div
+			<Interactive.Div
+				name="Plot area"
 				style={{
-					height: CHART_HEIGHT,
+					height: 520,
 					marginBottom: 64,
 					position: 'relative',
 				}}
 			>
-				{[80, 40, 0].map((value) => (
-					<div
-						key={value}
-						style={{
-							left: `${((PLOT_PADDING - POINT_OUTER_RADIUS) / CHART_WIDTH) * 100}%`,
-							position: 'absolute',
-							right: `${((PLOT_PADDING - POINT_OUTER_RADIUS) / CHART_WIDTH) * 100}%`,
-							top: `${((MAX_VALUE - value) / MAX_VALUE) * 100}%`,
-						}}
-					>
+				<Interactive.Div
+					name="Y-axis labels"
+					style={{
+						color: '#6b7280',
+						fontSize: 40,
+						fontWeight: 700,
+						inset: 0,
+						opacity: interpolate(frame, [6, 30], [0, 1], {
+							easing: Easing.bezier(0.22, 1, 0.36, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						position: 'absolute',
+					}}
+				>
+					{[80, 40, 0].map((value) => (
 						<div
+							key={value}
 							style={{
-								borderTop: '2px solid #d1d5db',
-								opacity: interpolate(frame, [6, 30], [0, 1], {
-									easing: Easing.bezier(0.22, 1, 0.36, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								}),
+								left: `${((PLOT_PADDING - POINT_OUTER_RADIUS) / CHART_WIDTH) * 100}%`,
 								position: 'absolute',
-								width: '100%',
-							}}
-						/>
-						<Interactive.Div
-							name="Y-axis label"
-							style={{
-								color: '#6b7280',
-								fontSize: 40,
-								fontWeight: 700,
-								opacity: interpolate(frame, [6, 30], [0, 1], {
-									easing: Easing.bezier(0.22, 1, 0.36, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								}),
-								position: 'absolute',
-								right: 'calc(100% + 32px)',
-								textAlign: 'left',
-								translate: '0 -50%',
-								whiteSpace: 'nowrap',
-								width: 94,
+								right: `${((PLOT_PADDING - POINT_OUTER_RADIUS) / CHART_WIDTH) * 100}%`,
+								top: `${((MAX_VALUE - value) / MAX_VALUE) * 100}%`,
 							}}
 						>
-							{value}K
-						</Interactive.Div>
-					</div>
-				))}
+							<div
+								style={{
+									position: 'absolute',
+									right: 'calc(100% + 32px)',
+									textAlign: 'left',
+									translate: '0 -50%',
+									whiteSpace: 'nowrap',
+									width: 94,
+								}}
+							>
+								{value}K
+							</div>
+						</div>
+					))}
+				</Interactive.Div>
 				<svg
 					viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
 					preserveAspectRatio="none"
@@ -134,22 +130,48 @@ export const LineChart: React.FC = () => {
 						width: '100%',
 					}}
 				>
-					<path
+					<Interactive.G
+						name="Grid lines"
+						fill="none"
+						stroke="#d1d5db"
+						strokeWidth={2}
+						style={{
+							opacity: interpolate(frame, [6, 30], [0, 1], {
+								easing: Easing.bezier(0.22, 1, 0.36, 1),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
+						}}
+					>
+						{[80, 40, 0].map((value) => {
+							const y = ((MAX_VALUE - value) / MAX_VALUE) * CHART_HEIGHT;
+
+							return (
+								<line
+									key={value}
+									x1={PLOT_PADDING - POINT_OUTER_RADIUS}
+									x2={CHART_WIDTH - PLOT_PADDING + POINT_OUTER_RADIUS}
+									y1={y}
+									y2={y}
+								/>
+							);
+						})}
+					</Interactive.G>
+					<Interactive.Path
+						name="Area fill"
 						d={areaPath}
 						fill="#2858e8"
-						opacity={interpolate(frame, [48, 68], [0, 0.1], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})}
+						style={{
+							opacity: interpolate(frame, [48, 68], [0, 0.1], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
+						}}
 					/>
 					<Interactive.Path
 						name="Trend line"
 						d={linePath}
 						fill="none"
-						opacity={interpolate(frame, [14, 15], [0, 1], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})}
 						pathLength={1}
 						stroke="#2858e8"
 						strokeDasharray="1 1"
@@ -160,48 +182,70 @@ export const LineChart: React.FC = () => {
 						})}
 						strokeLinecap="round"
 						strokeLinejoin="round"
-						strokeWidth={12}
-					/>
-					{points.map(({label, x, y}, index) => (
-						<circle
-							key={label}
-							cx={x}
-							cy={y}
-							fill="#ffffff"
-							r={interpolate(frame, [22 + index * 6, 30 + index * 6], [0, 11], {
-								easing: Easing.bezier(0.34, 1.56, 0.64, 1),
+						strokeWidth={73}
+						style={{
+							opacity: interpolate(frame, [14, 15], [0, 1], {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
-							})}
-							stroke="#2858e8"
-							strokeWidth={8}
-						/>
-					))}
+							}),
+						}}
+					/>
+					<Interactive.G
+						name="Data points"
+						fill="#ffffff"
+						stroke="#2858e8"
+						strokeWidth={8}
+					>
+						{points.map(({label, x, y}, index) => (
+							<circle
+								key={label}
+								cx={x}
+								cy={y}
+								r={interpolate(
+									frame,
+									[22 + index * 6, 30 + index * 6],
+									[0, 11],
+									{
+										easing: Easing.bezier(0.34, 1.56, 0.64, 1),
+										extrapolateLeft: 'clamp',
+										extrapolateRight: 'clamp',
+									},
+								)}
+							/>
+						))}
+					</Interactive.G>
 				</svg>
-				{data.map(({label}, index) =>
-					index % 2 === 0 ? (
-						<Interactive.Div
-							key={label}
-							name="X-axis label"
-							style={{
-								color: '#4b5563',
-								fontSize: 40,
-								fontWeight: 700,
-								left: `${(PLOT_PADDING / CHART_WIDTH + (index / (data.length - 1)) * ((CHART_WIDTH - PLOT_PADDING * 2) / CHART_WIDTH)) * 100}%`,
-								opacity: interpolate(frame, [6, 30], [0, 1], {
-									easing: Easing.bezier(0.22, 1, 0.36, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								}),
-								position: 'absolute',
-								top: 'calc(100% + 64px)',
-								translate: '-50% 0',
-							}}
-						>
-							{label}
-						</Interactive.Div>
-					) : null,
-				)}
+				<Interactive.Div
+					name="X-axis labels"
+					style={{
+						color: '#4b5563',
+						fontSize: 40,
+						fontWeight: 700,
+						inset: 0,
+						opacity: interpolate(frame, [6, 30], [0, 1], {
+							easing: Easing.bezier(0.22, 1, 0.36, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						position: 'absolute',
+					}}
+				>
+					{data.map(({label}, index) =>
+						index % 2 === 0 ? (
+							<div
+								key={label}
+								style={{
+									left: `${(PLOT_PADDING / CHART_WIDTH + (index / (data.length - 1)) * ((CHART_WIDTH - PLOT_PADDING * 2) / CHART_WIDTH)) * 100}%`,
+									position: 'absolute',
+									top: 'calc(100% + 64px)',
+									translate: '-50% 0',
+								}}
+							>
+								{label}
+							</div>
+						) : null,
+					)}
+				</Interactive.Div>
 				<div
 					style={{
 						left: `${(latestPoint.x / CHART_WIDTH) * 100}%`,
@@ -231,7 +275,7 @@ export const LineChart: React.FC = () => {
 						{latestPoint.value}K
 					</Interactive.Div>
 				</div>
-			</div>
+			</Interactive.Div>
 		</Interactive.Div>
 	);
 };
