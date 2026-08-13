@@ -294,8 +294,8 @@ export const elementDefinitions = {
 		height: 1080,
 		posterFrame: 70,
 		preview: {
-			posterUrl: '/elements/data-line-chart-preview.png',
-			videoUrl: '/elements/data-line-chart-preview.mp4',
+			posterUrl: 'https://remotion.media/elements/data-line-chart-preview.png',
+			videoUrl: 'https://remotion.media/elements/data-line-chart-preview.mp4',
 		},
 		previewPadding: 56,
 		slug: 'data/line-chart',

@@ -52,6 +52,7 @@ const sidebars: SidebarsConfig = {
 			collapsed: false,
 			items: [
 				'data/horizontal-bar-chart/index',
+				'data/line-chart/index',
 				'data/number-counter/index',
 				'data/pie-chart/index',
 			],
