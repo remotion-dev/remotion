@@ -1,10 +1,10 @@
 import {Composition, Folder, staticFile} from 'remotion';
+import {ThreeDCheck} from './3DCheck';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
 import {AnimatedMaster} from './animated-logo/AnimatedMaster';
 import {ExplodingLogo} from './animated-logo/ExplodingLogo';
-import {ThreeDCheck} from './3DCheck';
 import {AppIcons} from './AppIcons';
 import {
 	ApplicationRenderButton,
@@ -16,6 +16,10 @@ import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
 import {CanvasCaptureComposition} from './CanvasCapturePreview';
+import {Checker} from './Checker';
+import {CloseUp1} from './CloseUp1';
+import {CloseUp2} from './CloseUp2';
+import {CloseUp4} from './CloseUp4';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -790,8 +794,8 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="3DCheck"
 					component={ThreeDCheck}
-					width={1080}
-					height={1080}
+					width={300}
+					height={300}
 					fps={30}
 					durationInFrames={1000}
 				/>
@@ -860,6 +864,19 @@ export const RemotionRoot: React.FC = () => {
 				width={EFFECT_SHOWCASE_WIDTH}
 				height={EFFECT_SHOWCASE_HEIGHT}
 			/>
+			<Composition
+				id="Checker"
+				component={Checker}
+				durationInFrames={1000}
+				fps={30}
+				width={900}
+				height={900}
+			/>
+			<Folder name="CloseUps">
+				<CloseUp1 />
+				<CloseUp2 />
+				<CloseUp4 />
+			</Folder>
 		</>
 	);
 };
