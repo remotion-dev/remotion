@@ -75,34 +75,48 @@ const Bar: React.FC<{
 							width: '100%',
 						}}
 					>
-						<Interactive.Div
-							name="Value"
+						<div
 							style={{
-								color: '#111827',
-								fontSize: 48,
-								fontWeight: 800,
-								letterSpacing: -1.6,
-								lineHeight: 1,
-								textAlign: 'center',
-								transform: `translateY(${(1 - growthProgress) * 100}%)`,
-								whiteSpace: 'nowrap',
-								width: '100%',
+								transform: 'perspective(100px)',
+								translate: `0 ${(1 - growthProgress) * 100}%`,
+								willChange: 'transform',
 							}}
 						>
-							{value}
-						</Interactive.Div>
+							<Interactive.Div
+								name="Value"
+								style={{
+									color: '#111827',
+									fontSize: 48,
+									fontWeight: 800,
+									letterSpacing: -1.6,
+									lineHeight: 1,
+									textAlign: 'center',
+									whiteSpace: 'nowrap',
+									width: '100%',
+								}}
+							>
+								{value}
+							</Interactive.Div>
+						</div>
 					</div>
-					<Interactive.Div
-						name="Bar"
+					<div
 						style={{
-							backgroundColor: highlighted ? '#2858e8' : '#d1d5db',
-							borderRadius: '12px 12px 0 0',
 							bottom: 0,
 							height: `${growthProgress * 100}%`,
 							position: 'absolute',
 							width: '100%',
 						}}
-					/>
+					>
+						<Interactive.Div
+							name="Bar"
+							style={{
+								backgroundColor: highlighted ? '#2858e8' : '#d1d5db',
+								borderRadius: '12px 12px 0 0',
+								height: '100%',
+								width: '100%',
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 			<div
@@ -110,20 +124,27 @@ const Bar: React.FC<{
 					overflow: frame < barAnimationEnd ? 'hidden' : 'visible',
 				}}
 			>
-				<Interactive.Div
-					name="Label"
+				<div
 					style={{
-						color: '#111827',
-						fontSize: 40,
-						fontWeight: 700,
-						lineHeight: 1,
-						textAlign: 'center',
-						transform: `translateY(${(1 - growthProgress) * 100}%)`,
-						whiteSpace: 'nowrap',
+						transform: 'perspective(100px)',
+						translate: `0 ${(1 - growthProgress) * 100}%`,
+						willChange: 'transform',
 					}}
 				>
-					{label}
-				</Interactive.Div>
+					<Interactive.Div
+						name="Label"
+						style={{
+							color: '#111827',
+							fontSize: 40,
+							fontWeight: 700,
+							lineHeight: 1,
+							textAlign: 'center',
+							whiteSpace: 'nowrap',
+						}}
+					>
+						{label}
+					</Interactive.Div>
+				</div>
 			</div>
 		</div>
 	);
@@ -166,7 +187,8 @@ export const VerticalBarChart: React.FC = () => {
 					position: 'relative',
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Baseline"
 					style={{
 						backgroundColor: '#c5cad2',
 						bottom: 60,
