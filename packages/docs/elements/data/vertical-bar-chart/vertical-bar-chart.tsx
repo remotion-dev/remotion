@@ -24,7 +24,7 @@ const Bar: React.FC<{
 	const frame = useCurrentFrame();
 	const barAnimationStart = 22 + animationDelay;
 	const barAnimationEnd =
-		barAnimationStart + Math.round((value / maxValue) * 33);
+		barAnimationStart + 42 + Math.round((value / maxValue) * 18);
 
 	return (
 		<div
@@ -60,7 +60,7 @@ const Bar: React.FC<{
 							left: 0,
 							letterSpacing: -1.6,
 							lineHeight: 1,
-							opacity: interpolate(frame, [70, 90], [0, 1], {
+							opacity: interpolate(frame, [68, 84], [0, 1], {
 								easing: [Easing.bezier(0.45, 0, 0.55, 1)],
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
@@ -75,15 +75,22 @@ const Bar: React.FC<{
 						{value}
 					</Interactive.Div>
 					<Interactive.Div
-						cropTop={interpolate(
-							frame,
-							[barAnimationStart, barAnimationEnd],
-							[1, 0],
-							{
-								easing: [Easing.bezier(0, 0, 0.58, 1)],
+						cropTop={Math.max(
+							0,
+							interpolate(frame, [barAnimationStart, barAnimationEnd], [1, 0], {
+								easing: [
+									Easing.spring({
+										allowTail: true,
+										damping: 9,
+										durationRestThreshold: 0.02,
+										mass: 0.8,
+										overshootClamping: false,
+										stiffness: 80,
+									}),
+								],
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
-							},
+							}),
 						)}
 						name="Bar"
 						style={{

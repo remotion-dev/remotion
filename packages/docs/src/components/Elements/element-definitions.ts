@@ -346,7 +346,7 @@ export const elementDefinitions = {
 		elementWidth: 1560,
 		fps: 30,
 		height: 1080,
-		posterFrame: 70,
+		posterFrame: 115,
 		preview: {
 			posterUrl:
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.png',
