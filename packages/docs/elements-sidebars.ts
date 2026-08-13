@@ -1,5 +1,21 @@
 // @ts-expect-error
 import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
+import {
+	elementCategories,
+	elementRegistry,
+} from './src/components/Elements/element-registry';
+
+const compareStrings = (a: string, b: string) => {
+	if (a < b) {
+		return -1;
+	}
+
+	if (a > b) {
+		return 1;
+	}
+
+	return 0;
+};
 
 const sidebars: SidebarsConfig = {
 	elementsSidebar: [
@@ -12,93 +28,16 @@ const sidebars: SidebarsConfig = {
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
 			defaultStyle: true,
 		},
-		{
-			type: 'category',
-			label: 'Backgrounds',
-			link: {type: 'doc', id: 'backgrounds/index'},
+		...elementCategories.map(({category, label}) => ({
+			type: 'category' as const,
+			label,
+			link: {type: 'doc' as const, id: `${category}/index`},
 			collapsed: false,
-			items: [
-				'backgrounds/liquid-contours/index',
-				'backgrounds/notebook-paper/index',
-				'backgrounds/paper-texture/index',
-				'backgrounds/rotating-starburst/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Captions',
-			link: {type: 'doc', id: 'captions/index'},
-			collapsed: false,
-			items: [
-				'captions/moving-pill-captions/index',
-				'captions/popping-word-captions/index',
-				'captions/word-highlight-captions/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Commerce',
-			link: {type: 'doc', id: 'commerce/index'},
-			collapsed: false,
-			items: [
-				'commerce/product-discount-callout/index',
-				'commerce/product-offer/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Data',
-			link: {type: 'doc', id: 'data/index'},
-			collapsed: false,
-			items: [
-				'data/horizontal-bar-chart/index',
-				'data/number-counter/index',
-				'data/pie-chart/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Maps',
-			link: {type: 'doc', id: 'maps/index'},
-			collapsed: false,
-			items: ['maps/map-flyover/index'],
-		},
-		{
-			type: 'category',
-			label: 'Overlays',
-			link: {type: 'doc', id: 'overlays/index'},
-			collapsed: false,
-			items: [
-				'overlays/location-lower-third/index',
-				'overlays/name-lower-third/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Storytelling',
-			link: {type: 'doc', id: 'storytelling/index'},
-			collapsed: false,
-			items: ['text/news-article-headline-highlight/index'],
-		},
-		{
-			type: 'category',
-			label: 'Text',
-			link: {type: 'doc', id: 'text/index'},
-			collapsed: false,
-			items: [
-				'text/circle-marker/index',
-				'text/crossed-off/index',
-				'text/strike-through/index',
-				'text/text-marker/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'YouTube',
-			link: {type: 'doc', id: 'youtube/index'},
-			collapsed: false,
-			items: ['youtube/youtube-end-card/index'],
-		},
+			items: Object.entries(elementRegistry)
+				.filter(([, metadata]) => metadata.category === category)
+				.sort(([, a], [, b]) => compareStrings(a.displayName, b.displayName))
+				.map(([slug]) => `${slug}/index`),
+		})),
 	],
 };
 
