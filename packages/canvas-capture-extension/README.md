@@ -32,9 +32,33 @@ Load the unpacked extension from the durable installation directory:
 
 Do not replace this browser with Chrome Canary or a normal Chrome installation: those update automatically and may remove or change the experimental API. Because this browser is intentionally pinned and will not receive security updates, only use it with trusted websites.
 
+## Development
+
+Close Recorder Chrome if it is already using the dedicated Canvas Capture
+profile, then run:
+
+```bash
+cd packages/canvas-capture-extension
+bun run dev
+```
+
+WXT starts Vite, writes the development extension to the durable
+`/Users/jonathanburger/Applications/Remotion Canvas Capture Extension Dev`
+directory, launches the pinned Chrome for Testing with the required feature
+flags and persistent profile, and loads the extension automatically.
+
+Open a regular webpage and click the extension icon. Keep the recorder window
+open while editing files in `src/entrypoints/recorder`: React and CSS edits use
+Vite HMR without rebuilding or reloading the window. WXT rebuilds and reloads
+the relevant extension contexts when the background, capture, receiver, or
+manifest changes.
+
+The development extension is separate from the manually loaded production
+extension, so its path and extension ID remain stable across worktrees.
+
 ## Build and install
 
-1. From the repository root, run `.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh --repo "$PWD"`. This verifies the pinned Chrome for Testing version, builds the package, and installs the unpacked extension outside the worktree. If the browser is not at the path shown above, also pass `--browser-executable <path>`.
+1. From the repository root, run `.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh --repo "$PWD"`. This verifies the pinned Chrome for Testing version, creates the production WXT bundle, and installs the complete unpacked extension outside the worktree. If the browser is not at the path shown above, also pass `--browser-executable <path>`.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
 4. Enable `chrome://flags/#canvas-draw-element` and restart Chrome if HTML-in-canvas is not already enabled.

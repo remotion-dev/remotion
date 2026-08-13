@@ -1,75 +1,82 @@
+import {browser} from 'wxt/browser';
 import {capturePopupTargetMessageType} from './messages';
 
-const captureWindowStorageKey = 'remotion-canvas-capture-window-id';
-let windowAction = Promise.resolve();
+export const startBackground = () => {
+	const captureWindowStorageKey = 'remotion-canvas-capture-window-id';
+	let windowAction = Promise.resolve();
 
-const showCaptureWindow = async (tabId: number) => {
-	const stored = await chrome.storage.session.get(captureWindowStorageKey);
-	const storedWindowId = stored[captureWindowStorageKey];
-	if (typeof storedWindowId === 'number') {
-		try {
-			await chrome.windows.update(storedWindowId, {focused: true});
-			await chrome.runtime.sendMessage({
-				type: capturePopupTargetMessageType,
-				tabId,
-			});
-			return;
-		} catch {
-			await chrome.storage.session.remove(captureWindowStorageKey);
+	const showCaptureWindow = async (tabId: number) => {
+		const stored = await browser.storage.session.get(captureWindowStorageKey);
+		const storedWindowId = stored[captureWindowStorageKey];
+		if (typeof storedWindowId === 'number') {
+			try {
+				await browser.windows.update(storedWindowId, {focused: true});
+				await browser.runtime.sendMessage({
+					type: capturePopupTargetMessageType,
+					tabId,
+				});
+				return;
+			} catch {
+				await browser.storage.session.remove(captureWindowStorageKey);
+			}
 		}
-	}
 
-	const url = new URL(chrome.runtime.getURL('popup.html'));
-	url.searchParams.set('tabId', String(tabId));
-	const captureWindow = await chrome.windows.create({
-		url: url.toString(),
-		type: 'popup',
-		width: 340,
-		height: 435,
-		focused: true,
-	});
-	if (captureWindow.id !== undefined) {
-		await chrome.storage.session.set({
-			[captureWindowStorageKey]: captureWindow.id,
+		const url = new URL(browser.runtime.getURL('/recorder.html'));
+		url.searchParams.set('tabId', String(tabId));
+		const captureWindow = await browser.windows.create({
+			url: url.toString(),
+			type: 'popup',
+			width: 380,
+			height: 560,
+			focused: true,
 		});
-	}
-};
+		if (!captureWindow) {
+			throw new Error('Could not open the Canvas Capture window.');
+		}
 
-chrome.action.onClicked.addListener((tab) => {
-	if (tab.id === undefined) {
-		return;
-	}
-
-	const tabId = tab.id;
-	windowAction = windowAction
-		.then(() => showCaptureWindow(tabId))
-		.catch(() => undefined);
-});
-
-chrome.windows.onRemoved.addListener((windowId) => {
-	const clearStoredWindow = async () => {
-		const stored = await chrome.storage.session.get(captureWindowStorageKey);
-		if (stored[captureWindowStorageKey] === windowId) {
-			await chrome.storage.session.remove(captureWindowStorageKey);
+		if (captureWindow.id !== undefined) {
+			await browser.storage.session.set({
+				[captureWindowStorageKey]: captureWindow.id,
+			});
 		}
 	};
 
-	clearStoredWindow().catch(() => undefined);
-});
+	browser.action.onClicked.addListener((tab) => {
+		if (tab.id === undefined) {
+			return;
+		}
 
-chrome.runtime.onMessage.addListener((message) => {
-	if (
-		typeof message !== 'object' ||
-		message === null ||
-		!('type' in message) ||
-		message.type !== 'remotion-canvas-capture-open-convert' ||
-		!('captureId' in message) ||
-		typeof message.captureId !== 'string'
-	) {
-		return;
-	}
+		const tabId = tab.id;
+		windowAction = windowAction
+			.then(() => showCaptureWindow(tabId))
+			.catch(() => undefined);
+	});
 
-	const url = new URL('https://www.remotion.dev/convert');
-	url.searchParams.set('canvas-capture', message.captureId);
-	return chrome.tabs.create({url: url.toString()});
-});
+	browser.windows.onRemoved.addListener((windowId) => {
+		const clearStoredWindow = async () => {
+			const stored = await browser.storage.session.get(captureWindowStorageKey);
+			if (stored[captureWindowStorageKey] === windowId) {
+				await browser.storage.session.remove(captureWindowStorageKey);
+			}
+		};
+
+		clearStoredWindow().catch(() => undefined);
+	});
+
+	browser.runtime.onMessage.addListener((message) => {
+		if (
+			typeof message !== 'object' ||
+			message === null ||
+			!('type' in message) ||
+			message.type !== 'remotion-canvas-capture-open-convert' ||
+			!('captureId' in message) ||
+			typeof message.captureId !== 'string'
+		) {
+			return;
+		}
+
+		const url = new URL('https://www.remotion.dev/convert');
+		url.searchParams.set('canvas-capture', message.captureId);
+		return browser.tabs.create({url: url.toString()});
+	});
+};

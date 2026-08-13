@@ -54,7 +54,7 @@ fi
 package_dir="$repo_dir/packages/canvas-capture-extension"
 dist_dir="$package_dir/dist"
 
-if [[ ! -f "$package_dir/package.json" || ! -f "$package_dir/manifest.json" ]]; then
+if [[ ! -f "$package_dir/package.json" || ! -f "$package_dir/wxt.config.ts" ]]; then
 	printf 'Not a canvas capture extension source directory: %s\n' "$package_dir" >&2
 	exit 1
 fi
@@ -89,17 +89,25 @@ fi
 	bun run make
 )
 
-for required_file in manifest.json background.js content.js popup.css popup.html popup.js receiver.js; do
+for required_file in manifest.json background.js capture.js recorder.html logo.svg content-scripts/receiver.js; do
 	if [[ ! -f "$dist_dir/$required_file" ]]; then
 		printf 'Build did not produce %s\n' "$dist_dir/$required_file" >&2
 		exit 1
 	fi
 done
 
+if ! find "$dist_dir/assets" -type f -name 'recorder-*.css' -print -quit | grep -q .; then
+	printf 'Build did not produce the recorder CSS in %s\n' "$dist_dir/assets" >&2
+	exit 1
+fi
+
+if ! find "$dist_dir/chunks" -type f -name 'recorder-*.js' -print -quit | grep -q .; then
+	printf 'Build did not produce the recorder JavaScript in %s\n' "$dist_dir/chunks" >&2
+	exit 1
+fi
+
 mkdir -p "$install_dir"
-for extension_file in manifest.json background.js content.js popup.css popup.html popup.js receiver.js; do
-	cp "$dist_dir/$extension_file" "$install_dir/$extension_file"
-done
+cp -R "$dist_dir/." "$install_dir/"
 
 printf 'Installed Remotion Canvas Capture in %s\n' "$install_dir"
 printf '%s\n' 'Open chrome://extensions manually, then click Reload or choose Load unpacked for this directory.'
