@@ -400,7 +400,7 @@ const s3Renderer = async <Provider extends CloudProvider>({
 
 					const filename = join(
 						outdir,
-						`chunk:${String(payload.chunk).padStart(8, '0')}:${type}`,
+						`chunk-${String(payload.chunk).padStart(8, '0')}-${type}`,
 					);
 					let media;
 					try {

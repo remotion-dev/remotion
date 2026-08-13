@@ -129,6 +129,15 @@ export const innerHandler = async <Provider extends CloudProvider>({
 					insideFunctionSpecifics,
 				})
 					.then((r) => {
+						if (!params.streamed && r.type === 'error') {
+							return responseWriter
+								.write(new TextEncoder().encode(JSON.stringify(r)))
+								.then(() => r);
+						}
+
+						return r;
+					})
+					.then((r) => {
 						resolve(r);
 					})
 					.catch((err) => {
