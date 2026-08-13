@@ -50,7 +50,11 @@ const sidebars: SidebarsConfig = {
 			label: 'Data',
 			link: {type: 'doc', id: 'data/index'},
 			collapsed: false,
-			items: ['data/horizontal-bar-chart/index', 'data/number-counter/index'],
+			items: [
+				'data/horizontal-bar-chart/index',
+				'data/number-counter/index',
+				'data/pie-chart/index',
+			],
 		},
 		{
 			type: 'category',

@@ -14,6 +14,7 @@ import {ProductDiscountCallout} from '../../../elements/commerce/product-discoun
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
+import {PieChart} from '../../../elements/data/pie-chart/pie-chart';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
@@ -275,6 +276,29 @@ export const elementDefinitions = {
 		},
 		previewPadding: 56,
 		slug: 'data/horizontal-bar-chart',
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'data/pie-chart': {
+		category: 'data',
+		component: PieChart,
+		contributors: [],
+		description:
+			'A bold animated pie chart with four directly labeled data points.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		displayName: 'Pie Chart',
+		durationInFrames: 120,
+		elementHeight: 864,
+		elementWidth: 1560,
+		fps: 30,
+		height: 1080,
+		posterFrame: 70,
+		preview: {
+			posterUrl: 'https://remotion.media/elements/data-pie-chart-preview.png',
+			videoUrl: 'https://remotion.media/elements/data-pie-chart-preview.mp4',
+		},
+		previewPadding: 56,
+		slug: 'data/pie-chart',
 		installationMode: 'wrapped',
 		width: 1920,
 	},
