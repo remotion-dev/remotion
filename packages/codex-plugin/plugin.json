@@ -1,7 +1,7 @@
 {
 	"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
 	"name": "remotion",
-	"version": "4.0.508",
+	"version": "4.0.509",
 	"description": "Remotion video creation skills — best practices, animations, audio, captions, 3D, and more for building programmatic videos with React.",
 	"author": {
 		"name": "Remotion",

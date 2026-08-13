@@ -89,6 +89,8 @@ export const UndoRedoButtons: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
+		// Visual controls such as the color picker commit edits while their popup
+		// remains open. Keep undo and redo available in that higher z-index context.
 		const undo = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'z',
@@ -104,7 +106,7 @@ export const UndoRedoButtons: React.FC = () => {
 			},
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
+			keepRegisteredWhenNotHighestContext: true,
 		});
 
 		const redoWithShiftZ = keybindings.registerKeybinding({
@@ -122,7 +124,7 @@ export const UndoRedoButtons: React.FC = () => {
 			},
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
+			keepRegisteredWhenNotHighestContext: true,
 		});
 
 		const redoWithY = isMac
@@ -138,7 +140,7 @@ export const UndoRedoButtons: React.FC = () => {
 					},
 					preventDefault: true,
 					triggerIfInputFieldFocused: false,
-					keepRegisteredWhenNotHighestContext: false,
+					keepRegisteredWhenNotHighestContext: true,
 				});
 
 		return () => {

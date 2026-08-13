@@ -10,6 +10,7 @@ import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburs
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
+import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
@@ -306,6 +307,34 @@ export const elementDefinitions = {
 		slug: 'data/number-counter',
 		installationMode: 'wrapped',
 		width: 1920,
+	},
+	'commerce/product-discount-callout': {
+		category: 'commerce',
+		component: ProductDiscountCallout,
+		contributors: [],
+		description:
+			'An animated product cutout with pricing and a hinged discount callout.',
+		dependencies: [
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/shapes', version: null},
+		],
+		displayName: 'Product Discount Callout',
+		durationInFrames: 120,
+		elementHeight: 650,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 57,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/commerce-product-discount-callout-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/commerce-product-discount-callout-preview.mp4',
+		},
+		previewPadding: 90,
+		slug: 'commerce/product-discount-callout',
+		installationMode: 'wrapped',
+		width: 1080,
 	},
 	'commerce/product-offer': {
 		category: 'commerce',
