@@ -1,0 +1,289 @@
+:root {
+	color-scheme: dark;
+	font-family:
+		Inter,
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		sans-serif;
+	background: #1f2428;
+	color: #fff;
+	font-synthesis: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	min-width: 360px;
+	margin: 0;
+	background: #1f2428;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+button,
+input,
+select {
+	font: inherit;
+}
+
+button,
+select {
+	cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+	cursor: default;
+	opacity: 0.48;
+}
+
+.app-shell {
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+	gap: 18px;
+	padding: 20px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.logo {
+	width: 34px;
+	height: 36px;
+}
+
+h1,
+p {
+	margin: 0;
+}
+
+h1 {
+	font-size: 17px;
+	font-weight: 650;
+	letter-spacing: -0.01em;
+}
+
+.header p {
+	margin-top: 2px;
+	color: #a6a7a9;
+	font-size: 12px;
+}
+
+.panel {
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.035);
+}
+
+.settings-panel {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+}
+
+.field {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	gap: 7px;
+	padding: 12px;
+}
+
+.field + .field {
+	border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.field label,
+.section-label {
+	color: #a6a7a9;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+input,
+select {
+	width: 100%;
+	height: 34px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 5px;
+	outline: none;
+	background: #2f363d;
+	color: #fff;
+}
+
+select {
+	padding: 0 9px;
+}
+
+input {
+	padding: 0 8px;
+}
+
+input:focus,
+select:focus,
+button:focus-visible {
+	border-color: #0b84f3;
+	box-shadow: 0 0 0 2px rgba(11, 132, 243, 0.25);
+}
+
+.scale-control {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.scale-control span {
+	color: #a6a7a9;
+}
+
+.capture-section {
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+}
+
+.button-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+}
+
+.secondary-button,
+.download-button {
+	display: flex;
+	min-height: 38px;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 6px;
+	background: #2f363d;
+	color: #fff;
+	font-weight: 550;
+}
+
+.secondary-button:hover:not(:disabled),
+.download-button:hover:not(:disabled) {
+	background: #39424a;
+}
+
+.selection-icon {
+	width: 13px;
+	height: 13px;
+	border: 1px dashed #a6a7a9;
+	border-radius: 2px;
+}
+
+.page-icon {
+	width: 11px;
+	height: 14px;
+	border: 1px solid #a6a7a9;
+	border-radius: 1px;
+}
+
+.target-card {
+	display: flex;
+	min-height: 40px;
+	align-items: center;
+	gap: 9px;
+	padding: 9px 11px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 6px;
+	background: #191d20;
+	color: #a6a7a9;
+	overflow-wrap: anywhere;
+}
+
+.target-card.selected {
+	color: #ddd;
+}
+
+.target-dot,
+.status-dot {
+	width: 7px;
+	height: 7px;
+	flex: 0 0 auto;
+	border-radius: 50%;
+	background: #6d747a;
+}
+
+.target-card.selected .target-dot {
+	background: #0b84f3;
+	box-shadow: 0 0 0 3px rgba(11, 132, 243, 0.16);
+}
+
+.actions {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.record-button {
+	display: flex;
+	min-height: 44px;
+	align-items: center;
+	justify-content: center;
+	gap: 9px;
+	border: 1px solid #0b84f3;
+	border-radius: 6px;
+	background: #0b84f3;
+	color: #fff;
+	font-weight: 650;
+}
+
+.record-button:hover:not(:disabled) {
+	border-color: #2290f5;
+	background: #2290f5;
+}
+
+.record-button.recording {
+	border-color: #e74c3c;
+	background: #e74c3c;
+}
+
+.record-icon {
+	width: 10px;
+	height: 10px;
+	border: 2px solid currentColor;
+	border-radius: 50%;
+}
+
+.recording .record-icon {
+	border-radius: 2px;
+	background: currentColor;
+}
+
+.status {
+	display: flex;
+	min-height: 18px;
+	align-items: flex-start;
+	gap: 8px;
+	color: #a6a7a9;
+	font-size: 12px;
+	overflow-wrap: anywhere;
+}
+
+.status-dot {
+	margin-top: 5px;
+	background: #0b84f3;
+}
+
+.status.error {
+	color: #ff7777;
+}
+
+.status.error .status-dot {
+	background: #ff3232;
+}

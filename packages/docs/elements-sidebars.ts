@@ -55,6 +55,7 @@ const sidebars: SidebarsConfig = {
 				'data/line-chart/index',
 				'data/number-counter/index',
 				'data/pie-chart/index',
+				'data/vertical-bar-chart/index',
 			],
 		},
 		{
