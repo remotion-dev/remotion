@@ -244,6 +244,57 @@ test.describe('visual mode', () => {
 			);
 	});
 
+	test('should not open the editor when selecting text in the inspector', async ({
+		page,
+	}) => {
+		await page.addInitScript(() => {
+			window.localStorage.setItem(
+				'remotion.sidebarRightCollapsing',
+				'expanded',
+			);
+			Object.defineProperty(window, 'remotion_editorName', {
+				configurable: true,
+				get: () => 'Test editor',
+				set: () => undefined,
+			});
+		});
+		const openInEditorRequests: unknown[] = [];
+		await page.route('**/api/open-in-editor', async (route) => {
+			openInEditorRequests.push(route.request().postDataJSON());
+			await route.fulfill({
+				json: {success: true, data: {success: true}},
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+		const eyebrow = page.getByText('Eyebrow', {exact: true}).first();
+		await expect(eyebrow).toBeVisible({timeout: 15_000});
+		const textField = page.getByRole('textbox');
+		await expect(async () => {
+			await eyebrow.click();
+			await expect(textField).toHaveValue('Performance overview', {
+				timeout: 1_000,
+			});
+		}).toPass({timeout: 30_000});
+
+		await page.getByTitle('Text', {exact: true}).dblclick();
+		await expect.poll(() => openInEditorRequests.length).toBe(1);
+		openInEditorRequests.length = 0;
+
+		await textField.dblclick({position: {x: 20, y: 20}});
+		await expect
+			.poll(() =>
+				textField.evaluate((element) =>
+					element.value.slice(element.selectionStart, element.selectionEnd),
+				),
+			)
+			.toBe('overview');
+		// Headless Chromium does not consistently emit dblclick after selecting text.
+		await textField.dispatchEvent('dblclick');
+		await page.waitForTimeout(100);
+		expect(openInEditorRequests).toEqual([]);
+	});
+
 	test('should keep canvas item context menus open', async ({page}) => {
 		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 		await expect(
