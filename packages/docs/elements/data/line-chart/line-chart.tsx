@@ -23,8 +23,28 @@ const PLOT_PADDING = 128;
 const POINT_OUTER_RADIUS = 15;
 const MAX_VALUE = 80;
 
+const labelEasing = Easing.spring({
+	damping: 14.5,
+	mass: 0.8,
+	overshootClamping: false,
+	stiffness: 100,
+});
+
 export const LineChart: React.FC = () => {
 	const frame = useCurrentFrame();
+	const labelProgress =
+		frame >= 48
+			? 1
+			: interpolate(frame, [18, 48], [0, 1], {
+					easing: labelEasing,
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				});
+	const labelOpacity = interpolate(frame, [18, 44], [0, 1], {
+		easing: Easing.inOut(Easing.quad),
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
 	const points = data.map(({label, value}, index) => ({
 		label,
 		value,
@@ -87,10 +107,14 @@ export const LineChart: React.FC = () => {
 						fontSize: 40,
 						fontWeight: 700,
 						inset: 0,
+						opacity: labelOpacity,
 						position: 'absolute',
+						transform: 'perspective(100px)',
+						translate: `0 ${(1 - labelProgress) * 16}px`,
+						willChange: 'transform, opacity',
 					}}
 				>
-					{[80, 40, 0].map((value, index) => (
+					{[80, 40, 0].map((value) => (
 						<div
 							key={value}
 							style={{
@@ -110,32 +134,7 @@ export const LineChart: React.FC = () => {
 									width: 94,
 								}}
 							>
-								<div
-									style={{
-										opacity: interpolate(
-											frame,
-											[18 + (2 - index) * 3, 28 + (2 - index) * 3],
-											[0, 1],
-											{
-												easing: Easing.bezier(0.22, 1, 0.36, 1),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											},
-										),
-										translate: interpolate(
-											frame,
-											[18 + (2 - index) * 3, 28 + (2 - index) * 3],
-											['-18px 0px', '0px 0px'],
-											{
-												easing: Easing.bezier(0.22, 1, 0.36, 1),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											},
-										),
-									}}
-								>
-									{value}K
-								</div>
+								{value}K
 							</div>
 						</div>
 					))}
@@ -204,7 +203,8 @@ export const LineChart: React.FC = () => {
 						strokeLinejoin="round"
 						strokeWidth={12}
 						style={{
-							opacity: interpolate(frame, [14, 15], [0, 1], {
+							opacity: interpolate(frame, [14, 20], [0, 1], {
+								easing: Easing.inOut(Easing.cubic),
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
 							}),
@@ -223,7 +223,10 @@ export const LineChart: React.FC = () => {
 								cy={y}
 								r={interpolate(
 									frame,
-									[22 + index * 6, 30 + index * 6],
+									[
+										index === 0 ? 7 : 14 + index * 7,
+										index === 0 ? 15 : 22 + index * 7,
+									],
 									[0, 11],
 									{
 										easing: Easing.bezier(0.34, 1.56, 0.64, 1),
@@ -242,7 +245,11 @@ export const LineChart: React.FC = () => {
 						fontSize: 40,
 						fontWeight: 700,
 						inset: 0,
+						opacity: labelOpacity,
 						position: 'absolute',
+						transform: 'perspective(100px)',
+						translate: `0 ${(1 - labelProgress) * 16}px`,
+						willChange: 'transform, opacity',
 					}}
 				>
 					{data.map(({label}, index) =>
@@ -256,32 +263,7 @@ export const LineChart: React.FC = () => {
 									translate: '-50% 0',
 								}}
 							>
-								<div
-									style={{
-										opacity: interpolate(
-											frame,
-											[22 + index * 6, 30 + index * 6],
-											[0, 1],
-											{
-												easing: Easing.bezier(0.22, 1, 0.36, 1),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											},
-										),
-										translate: interpolate(
-											frame,
-											[22 + index * 6, 30 + index * 6],
-											['0px 18px', '0px 0px'],
-											{
-												easing: Easing.bezier(0.22, 1, 0.36, 1),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											},
-										),
-									}}
-								>
-									{label}
-								</div>
+								{label}
 							</div>
 						) : null,
 					)}
@@ -310,11 +292,6 @@ export const LineChart: React.FC = () => {
 								extrapolateRight: 'clamp',
 							}),
 							padding: '18px 24px',
-							translate: interpolate(frame, [60, 68], ['0px 18px', '0px 0px'], {
-								easing: Easing.bezier(0.22, 1, 0.36, 1),
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
 							whiteSpace: 'nowrap',
 						}}
 					>
