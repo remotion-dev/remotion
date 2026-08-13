@@ -2,7 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
@@ -317,9 +317,9 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 			return;
 		}
 
-		return startPointerSession({
+		return startCapturedPointerSession({
 			event: inOutDragging,
-			target: inOutDragging.target,
+			captureTarget: inOutDragging.target,
 			onMove: onPointerMoveInOut,
 			onEnd: (reason, endEvent) => {
 				if (

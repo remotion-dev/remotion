@@ -5,7 +5,7 @@ import {
 	isGuidePointerUpAClick,
 	type GuidePointerDownPosition,
 } from '../../helpers/editor-guide-selection';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import type {Guide} from '../../state/editor-guides';
 import {
 	EditorShowGuidesContext,
@@ -163,9 +163,9 @@ const GuideComp: React.FC<{
 			shouldCreateGuideRef.current = false;
 			setDraggingGuideId(() => guide.id);
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event: e.nativeEvent,
-				target: e.currentTarget,
+				captureTarget: e.currentTarget,
 				onMove: (moveEvent) => {
 					updateHasMovedGuide(moveEvent.clientX, moveEvent.clientY);
 					moveGuidePointerRef.current?.(moveEvent);

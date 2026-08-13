@@ -15,6 +15,9 @@ test('effect catalog exposes documentation links for picker context menu', () =>
 	expect(links.get('brightness()')).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
 	);
+	expect(links.get('colorCorrection()')).toBe(
+		'https://www.remotion.dev/docs/effects/color-correction',
+	);
 	expect(links.get('xyTranslate()')).toBe(
 		'https://www.remotion.dev/docs/effects/xy-translate',
 	);

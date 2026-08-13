@@ -1,4 +1,7 @@
 import type {
+	ArrowFunctionExpression,
+	FunctionDeclaration,
+	FunctionExpression,
 	JSXAttribute,
 	JSXElement,
 	JSXExpressionContainer,
@@ -10,7 +13,10 @@ import type {
 	File,
 	Statement,
 } from '@babel/types';
-import type {GoogleFontSourceEdit} from '@remotion/studio-shared';
+import type {
+	EffectClipboardParam,
+	GoogleFontSourceEdit,
+} from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {
@@ -20,11 +26,18 @@ import type {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
+	findNodePathForJsxElement,
 	findJsxElementNodeAtNodePath,
 	getStaticJsxChildrenAttribute,
 	getStaticJsxTextContent,
 	hasJsxChildrenAttribute,
 } from './sequence-props';
+import {
+	ensureClipboardParamRemotionImports,
+	getRequiredRemotionImportsForClipboardParams,
+	makeClipboardParamExpression,
+	type ClipboardParamRemotionLocalNames,
+} from './sequence-props/clipboard-param-expression';
 import {
 	getCssShorthandsForUpdates,
 	type CssShorthandProperty,
@@ -48,6 +61,7 @@ export type SequencePropUpdate = {
 	value: unknown;
 	defaultValue: unknown | null;
 	googleFont?: GoogleFontSourceEdit | null;
+	clipboardParam?: EffectClipboardParam | null;
 };
 
 const ensureImportsForUpdates = ({
@@ -90,6 +104,7 @@ export type SequencePropsNodeUpdateResult = {
 	oldValueStrings: string[];
 	logLine: number;
 	removedProps: RemovedProp[];
+	newNodePath: SequenceNodePath;
 };
 
 export type UpdateMultipleSequencePropsResult = {
@@ -162,6 +177,131 @@ type JSXElementLike = NonNullable<
 	ReturnType<typeof findJsxElementNodeAtNodePath>
 >;
 type JSXOpeningElementLike = JSXElementLike['openingElement'];
+
+type FunctionNode =
+	| FunctionDeclaration
+	| FunctionExpression
+	| ArrowFunctionExpression;
+
+const isFunctionNode = (value: unknown): value is FunctionNode => {
+	return (
+		recast.types.namedTypes.FunctionDeclaration.check(value) ||
+		recast.types.namedTypes.FunctionExpression.check(value) ||
+		recast.types.namedTypes.ArrowFunctionExpression.check(value)
+	);
+};
+
+const ensureUseCurrentFrameHook = ({
+	ast,
+	jsxElement,
+	hookName,
+}: {
+	ast: File;
+	jsxElement: JSXElementLike;
+	hookName: string;
+}) => {
+	let functionPath: recast.types.NodePath | null = null;
+	recast.types.visit(ast, {
+		visitJSXElement(path) {
+			if (path.node !== jsxElement) {
+				return this.traverse(path);
+			}
+
+			let current: recast.types.NodePath | null = path.parentPath;
+			while (current) {
+				if (isFunctionNode(current.value)) {
+					functionPath = current;
+					return false;
+				}
+
+				current = current.parentPath;
+			}
+
+			return false;
+		},
+	});
+
+	const enclosingFunctionPath = functionPath as recast.types.NodePath | null;
+	if (enclosingFunctionPath === null) {
+		return;
+	}
+
+	const fn = enclosingFunctionPath.value as FunctionNode;
+	if (!recast.types.namedTypes.BlockStatement.check(fn.body)) {
+		fn.body = b.blockStatement([
+			b.returnStatement(fn.body as Parameters<typeof b.returnStatement>[0]),
+		]) as unknown as FunctionNode['body'];
+	}
+
+	const block = fn.body as Extract<
+		FunctionNode['body'],
+		{type: 'BlockStatement'}
+	>;
+	const hasFrame = block.body.some((statement) => {
+		return (
+			statement.type === 'VariableDeclaration' &&
+			statement.declarations.some(
+				(declaration) =>
+					declaration.type === 'VariableDeclarator' &&
+					declaration.id.type === 'Identifier' &&
+					declaration.id.name === 'frame' &&
+					declaration.init?.type === 'CallExpression' &&
+					declaration.init.callee.type === 'Identifier' &&
+					declaration.init.callee.name === hookName,
+			)
+		);
+	});
+	if (hasFrame) {
+		return;
+	}
+
+	block.body.unshift(
+		b.variableDeclaration('const', [
+			b.variableDeclarator(
+				b.identifier('frame'),
+				b.callExpression(b.identifier(hookName), []),
+			),
+		]) as unknown as (typeof block.body)[number],
+	);
+};
+
+const prepareClipboardParamSourceEdits = ({
+	ast,
+	changes,
+}: {
+	ast: File;
+	changes: {
+		readonly jsxElement: JSXElementLike;
+		readonly updates: SequencePropUpdate[];
+	}[];
+}): ClipboardParamRemotionLocalNames => {
+	const params = changes.flatMap(({updates}) =>
+		updates.flatMap((update) =>
+			update.clipboardParam ? [update.clipboardParam] : [],
+		),
+	);
+	const requiredImports = getRequiredRemotionImportsForClipboardParams(params);
+	const localNames = ensureClipboardParamRemotionImports({
+		ast,
+		requiredImports,
+	});
+
+	if (requiredImports.has('useCurrentFrame')) {
+		for (const {jsxElement, updates} of changes) {
+			if (
+				updates.some((update) => update.clipboardParam?.type === 'keyframed')
+			) {
+				ensureUseCurrentFrameHook({
+					ast,
+					jsxElement,
+					hookName: localNames.useCurrentFrame ?? 'useCurrentFrame',
+				});
+			}
+		}
+	}
+
+	return localNames;
+};
 
 const escapeJsxText = (value: string): string => {
 	return value
@@ -842,11 +982,13 @@ const updateSequencePropsNode = ({
 	updates,
 	schema,
 	videoConfigValues,
+	clipboardParamLocalNames,
 }: {
 	jsxElement: JSXElementLike;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
 	videoConfigValues: VideoConfigIdentifierValues;
+	clipboardParamLocalNames: ClipboardParamRemotionLocalNames;
 }): {
 	oldValueStrings: string[];
 	logLine: number;
@@ -871,10 +1013,19 @@ const updateSequencePropsNode = ({
 	const createValueExpression = ({
 		existing,
 		value,
+		clipboardParam,
 	}: {
 		existing: Expression | null;
 		value: unknown;
+		clipboardParam: EffectClipboardParam | null | undefined;
 	}) => {
+		if (clipboardParam) {
+			return makeClipboardParamExpression({
+				param: clipboardParam,
+				localNames: clipboardParamLocalNames,
+			});
+		}
+
 		if (existing === null || typeof value !== 'number') {
 			return parseValueExpression(value);
 		}
@@ -892,7 +1043,7 @@ const updateSequencePropsNode = ({
 			: updateVideoConfigNumericExpression({expression, value});
 	};
 
-	for (const {key, value, defaultValue} of updates) {
+	for (const {key, value, defaultValue, clipboardParam} of updates) {
 		let oldValueString = '';
 
 		if (key === 'children') {
@@ -902,9 +1053,10 @@ const updateSequencePropsNode = ({
 		}
 
 		const isDefault =
-			(defaultValue === null && value === undefined) ||
-			(defaultValue !== null &&
-				JSON.stringify(value) === JSON.stringify(defaultValue));
+			!clipboardParam &&
+			((defaultValue === null && value === undefined) ||
+				(defaultValue !== null &&
+					JSON.stringify(value) === JSON.stringify(defaultValue)));
 
 		const dotIndex = key.indexOf('.');
 		const isNested = dotIndex !== -1;
@@ -920,7 +1072,7 @@ const updateSequencePropsNode = ({
 				defaultValue,
 				isDefault,
 				createValueExpression: (existing) =>
-					createValueExpression({existing, value}),
+					createValueExpression({existing, value, clipboardParam}),
 			});
 		} else {
 			const attrIndex = node.attributes?.findIndex((a) => {
@@ -968,10 +1120,13 @@ const updateSequencePropsNode = ({
 				const parsed = createValueExpression({
 					existing: existingExpression,
 					value,
+					clipboardParam,
 				});
 
 				const newValue =
-					value === true ? null : b.jsxExpressionContainer(parsed);
+					value === true && !clipboardParam
+						? null
+						: b.jsxExpressionContainer(parsed);
 
 				if (!attr || attr.type === 'JSXSpreadAttribute') {
 					const newAttr = b.jsxAttribute(b.jsxIdentifier(key), newValue);
@@ -1064,11 +1219,17 @@ export const updateSequencePropsAst = ({
 		);
 	}
 
+	const clipboardParamLocalNames = prepareClipboardParamSourceEdits({
+		ast,
+		changes: [{jsxElement, updates}],
+	});
+
 	const {oldValueStrings, logLine, removedProps} = updateSequencePropsNode({
 		jsxElement,
 		updates,
 		schema,
 		videoConfigValues: videoConfigIdentifierValues,
+		clipboardParamLocalNames,
 	});
 	ensureImportsForUpdates({ast, updates});
 	applyGoogleFontSourceEdits({ast, updates});
@@ -1089,8 +1250,7 @@ export const updateMultipleSequenceProps = ({
 	changes: SequencePropsNodeUpdate[];
 }): UpdateMultipleSequencePropsResult => {
 	const ast = parseAst(input);
-	const allUpdates: SequencePropUpdate[] = [];
-	const results = changes.map(
+	const resolvedChanges = changes.map(
 		({nodePath, updates, schema, videoConfigValues}) => {
 			const jsxElement = findJsxElementNodeAtNodePath(ast, nodePath);
 			if (!jsxElement) {
@@ -1099,20 +1259,45 @@ export const updateMultipleSequenceProps = ({
 				);
 			}
 
+			return {jsxElement, updates, schema, videoConfigValues};
+		},
+	);
+	const clipboardParamLocalNames = prepareClipboardParamSourceEdits({
+		ast,
+		changes: resolvedChanges,
+	});
+	const allUpdates: SequencePropUpdate[] = [];
+	const updateResults = resolvedChanges.map(
+		({jsxElement, updates, schema, videoConfigValues}) => {
 			allUpdates.push(...updates);
-			return updateSequencePropsNode({
+			return {
 				jsxElement,
-				updates,
-				schema,
-				videoConfigValues: getVideoConfigIdentifierValues({
-					ast,
-					videoConfigValues,
+				result: updateSequencePropsNode({
+					jsxElement,
+					updates,
+					schema,
+					videoConfigValues: getVideoConfigIdentifierValues({
+						ast,
+						videoConfigValues,
+					}),
+					clipboardParamLocalNames,
 				}),
-			});
+			};
 		},
 	);
 	ensureImportsForUpdates({ast, updates: allUpdates});
 	applyGoogleFontSourceEdits({ast, updates: allUpdates});
+	const results = updateResults.map(({jsxElement, result}) => {
+		const newNodePath = findNodePathForJsxElement(
+			ast,
+			jsxElement.openingElement,
+		);
+		if (!newNodePath) {
+			throw new Error('Could not determine the updated JSX element path');
+		}
+
+		return {...result, newNodePath};
+	});
 
 	return {
 		output: serializeAst(ast),

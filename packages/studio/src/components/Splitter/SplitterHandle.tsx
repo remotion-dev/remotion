@@ -1,6 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef} from 'react';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -123,9 +123,9 @@ export const SplitterHandle: React.FC<{
 				}
 			};
 
-			endDrag = startPointerSession({
+			endDrag = startCapturedPointerSession({
 				event: e,
-				target: current,
+				captureTarget: current,
 				onMove: onPointerMove,
 				onEnd: (reason, endEvent) => {
 					if (

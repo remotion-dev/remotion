@@ -120,6 +120,7 @@ const MapRouteDrawing = ({
 					'line-blur': 8,
 					'line-color': '#ffffff',
 					'line-opacity': glow,
+					'line-opacity-transition': {delay: 0, duration: 0},
 					'line-width': 22,
 				},
 				source: sourceId,
@@ -138,8 +139,10 @@ const MapRouteDrawing = ({
 				layout: {'line-cap': 'round', 'line-join': 'round'},
 				paint: {
 					'line-color': strokeColor,
+					'line-color-transition': {delay: 0, duration: 0},
 					'line-opacity': 1,
 					'line-width': strokeWidth,
+					'line-width-transition': {delay: 0, duration: 0},
 				},
 				source: sourceId,
 				type: 'line',

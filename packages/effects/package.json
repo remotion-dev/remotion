@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.508",
+	"version": "4.0.509",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -68,6 +68,11 @@
 			"types": "./dist/color-key.d.ts",
 			"module": "./dist/esm/color-key.mjs",
 			"import": "./dist/esm/color-key.mjs"
+		},
+		"./color-correction": {
+			"types": "./dist/color-correction.d.ts",
+			"module": "./dist/esm/color-correction.mjs",
+			"import": "./dist/esm/color-correction.mjs"
 		},
 		"./brightness": {
 			"types": "./dist/brightness.d.ts",
@@ -398,6 +403,9 @@
 			],
 			"color-key": [
 				"dist/color-key.d.ts"
+			],
+			"color-correction": [
+				"dist/color-correction.d.ts"
 			],
 			"brightness": [
 				"dist/brightness.d.ts"

@@ -144,7 +144,9 @@ const MapRegionDrawing = ({
 				id: fillSourceId,
 				paint: {
 					'fill-color': fillColor,
+					'fill-color-transition': {delay: 0, duration: 0},
 					'fill-opacity': 0,
+					'fill-opacity-transition': {delay: 0, duration: 0},
 				},
 				source: fillSourceId,
 				type: 'fill',
@@ -167,6 +169,7 @@ const MapRegionDrawing = ({
 					'line-blur': 8,
 					'line-color': '#ffffff',
 					'line-opacity': glow,
+					'line-opacity-transition': {delay: 0, duration: 0},
 					'line-width': 22,
 				},
 				source: outlineSourceId,
@@ -185,8 +188,10 @@ const MapRegionDrawing = ({
 				layout: {'line-cap': 'round', 'line-join': 'round'},
 				paint: {
 					'line-color': strokeColor,
+					'line-color-transition': {delay: 0, duration: 0},
 					'line-opacity': 1,
 					'line-width': strokeWidth,
+					'line-width-transition': {delay: 0, duration: 0},
 				},
 				source: outlineSourceId,
 				type: 'line',

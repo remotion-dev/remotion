@@ -6,7 +6,7 @@ import {
 	COLOR_PICKER_SATURATION_BLACK_GRADIENT,
 	COLOR_PICKER_SATURATION_VALUE_GRADIENT,
 } from '../../helpers/colors';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 
 const AREA_HEIGHT = 140;
 
@@ -76,9 +76,9 @@ export const SaturationValueArea: React.FC<{
 			updateFromEvent(e.clientX, e.clientY, false);
 			let lastPosition = {clientX: e.clientX, clientY: e.clientY};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event: e.nativeEvent,
-				target: e.currentTarget,
+				captureTarget: e.currentTarget,
 				onMove: (ev) => {
 					lastPosition = {clientX: ev.clientX, clientY: ev.clientY};
 					updateFromEvent(ev.clientX, ev.clientY, false);

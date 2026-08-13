@@ -140,13 +140,15 @@ export const saveSequenceProps = ({
 			nodePath: change.nodePath,
 			setPropStatuses,
 			applyOptimistic: (prev) =>
-				optimisticUpdateForPropStatuses({
-					previous: prev,
-					fieldKey: change.fieldKey,
-					value: change.value,
-					defaultValue: change.defaultValue,
-					schema: change.schema,
-				}),
+				change.sourceEdit?.type === 'clipboard-param'
+					? prev
+					: optimisticUpdateForPropStatuses({
+							previous: prev,
+							fieldKey: change.fieldKey,
+							value: change.value,
+							defaultValue: change.defaultValue,
+							schema: change.schema,
+						}),
 			apiCall: () =>
 				saveSequencePropsApi({
 					edits: [
@@ -189,6 +191,10 @@ export const saveSequenceProps = ({
 	}
 
 	for (const change of changes) {
+		if (change.sourceEdit?.type === 'clipboard-param') {
+			continue;
+		}
+
 		setPropStatuses(change.nodePath, (prev) =>
 			optimisticUpdateForPropStatuses({
 				previous: prev,

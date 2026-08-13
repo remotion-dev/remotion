@@ -1,17 +1,17 @@
 import {
-	isKeyframeInterpolationFunction,
 	parseKeyframeClipboardDataResult,
 	parseEasingClipboardDataResult,
 	parseEffectClipboardDataResult,
 	parseEffectPropClipboardDataResult,
+	parseSequencePropClipboardDataResult,
 	type EasingClipboardData,
 	type EffectClipboardData,
-	type EffectClipboardInterpolationFunction,
 	type EffectClipboardParam,
 	type EffectClipboardPasteType,
 	type EffectClipboardSnapshot,
 	type EffectPropClipboardData,
 	type KeyframeClipboardData,
+	type SequencePropClipboardData,
 } from '@remotion/studio-shared';
 import type React from 'react';
 import {useContext, useEffect} from 'react';
@@ -58,6 +58,12 @@ import {
 	getPasteKeyframeTarget,
 } from './keyframe-clipboard';
 import {saveMultipleEffectProps} from './save-effect-prop';
+import {saveSequenceProps} from './save-sequence-prop';
+import {
+	getPasteSequencePropTarget,
+	getSequencePropClipboardDataFromSelection,
+	propStatusToClipboardParam,
+} from './sequence-prop-clipboard';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
@@ -75,7 +81,8 @@ const makeClipboardText = (
 		| EffectClipboardData
 		| EffectPropClipboardData
 		| EasingClipboardData
-		| KeyframeClipboardData,
+		| KeyframeClipboardData
+		| SequencePropClipboardData,
 ) => JSON.stringify(payload);
 
 const makeTargetKey = (nodePath: SequencePropsSubscriptionKey): string => {
@@ -210,47 +217,6 @@ type CopyableEffectStatus = React.ContextType<
 		: never
 	: never;
 
-const isClipboardInterpolationFunction = (
-	value: string,
-): value is EffectClipboardInterpolationFunction => {
-	return isKeyframeInterpolationFunction(value);
-};
-
-const effectPropStatusToClipboardParam = (
-	prop: CopyableEffectStatus['props'][string],
-): EffectClipboardParam | null => {
-	if (prop.status === 'computed') {
-		return null;
-	}
-
-	if (prop.status === 'static') {
-		if (prop.codeValue === undefined) {
-			return null;
-		}
-
-		return {
-			type: 'static',
-			value: prop.codeValue,
-		};
-	}
-
-	if (!isClipboardInterpolationFunction(prop.interpolationFunction)) {
-		return null;
-	}
-
-	return {
-		type: 'keyframed',
-		interpolationFunction: prop.interpolationFunction,
-		keyframes: prop.keyframes,
-		easing: prop.easing,
-		clamping: prop.clamping,
-		...(prop.output === undefined || prop.output === 'linear'
-			? {}
-			: {output: prop.output}),
-		...(prop.posterize === undefined ? {} : {posterize: prop.posterize}),
-	};
-};
-
 const effectStatusToSnapshot = (
 	effect: CopyableEffectStatus,
 ): EffectClipboardSnapshot | null => {
@@ -264,7 +230,7 @@ const effectStatusToSnapshot = (
 			continue;
 		}
 
-		const param = effectPropStatusToClipboardParam(prop);
+		const param = propStatusToClipboardParam(prop);
 		if (param === null) {
 			return null;
 		}
@@ -488,7 +454,7 @@ export const getEffectPropClipboardDataFromSelection = ({
 		return null;
 	}
 
-	const param = effectPropStatusToClipboardParam(prop);
+	const param = propStatusToClipboardParam(prop);
 	if (param === null) {
 		return null;
 	}
@@ -786,6 +752,46 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						.catch((err) => {
 							showNotification(
 								`Could not copy easing: ${(err as Error).message}`,
+								2000,
+							);
+						});
+					return;
+				}
+
+				if (
+					selectedItems.some((selection) => selection.type === 'sequence-prop')
+				) {
+					e.preventDefault();
+					if (
+						selectedItems.length !== 1 ||
+						selectedItems[0]?.type !== 'sequence-prop'
+					) {
+						showNotification('Select one property to copy its value', 3000);
+						return;
+					}
+
+					const payload = getSequencePropClipboardDataFromSelection({
+						selection: selectedItems[0],
+						propStatuses,
+						sequences,
+						overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					});
+					if (payload === null) {
+						showNotification(
+							'Cannot copy property because its value cannot be copied',
+							3000,
+						);
+						return;
+					}
+
+					navigator.clipboard
+						.writeText(makeClipboardText(payload))
+						.then(() => {
+							showNotification('Copied property value', 1000);
+						})
+						.catch((err) => {
+							showNotification(
+								`Could not copy property: ${(err as Error).message}`,
 								2000,
 							);
 						});
@@ -1162,6 +1168,97 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							showNotification(
 								`Could not paste easing: ${(err as Error).message}`,
 								3000,
+							);
+						});
+					}
+
+					const sequencePropResult = parseSequencePropClipboardDataResult(text);
+					if (sequencePropResult.status !== 'invalid') {
+						e.preventDefault();
+						if (sequencePropResult.status === 'unsupported-version') {
+							showNotification(
+								'Cannot paste property copied from a different Remotion Studio version',
+								4000,
+							);
+							return;
+						}
+
+						const sequencePropTarget = getPasteSequencePropTarget({
+							selectedItems,
+							payload: sequencePropResult.data,
+							propStatuses,
+							sequences,
+							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+						});
+						if (sequencePropTarget.type !== 'valid') {
+							switch (sequencePropTarget.type) {
+								case 'none':
+									showNotification(
+										'Select a property or sequence to paste onto',
+										3000,
+									);
+									return;
+								case 'prop-mismatch':
+									showNotification(
+										'Select the same property to paste this value',
+										3000,
+									);
+									return;
+								case 'uncopyable':
+									showNotification(
+										'Cannot paste onto a property that cannot be updated',
+										3000,
+									);
+									return;
+								case 'incompatible':
+									showNotification(
+										'The copied value is not compatible with this property',
+										3000,
+									);
+									return;
+								default:
+									throw new Error(
+										`Unexpected paste target: ${sequencePropTarget satisfies never}`,
+									);
+							}
+						}
+
+						const {param} = sequencePropResult.data;
+						return saveSequenceProps({
+							changes: sequencePropTarget.targets.map((pasteTarget) => ({
+								fileName: pasteTarget.fileName,
+								nodePath: pasteTarget.nodePath,
+								fieldKey: pasteTarget.fieldKey,
+								value: param.type === 'static' ? param.value : undefined,
+								defaultValue: pasteTarget.defaultValue,
+								schema: pasteTarget.schema,
+								...(param.type === 'keyframed'
+									? {
+											sourceEdit: {
+												type: 'clipboard-param' as const,
+												param,
+											},
+										}
+									: {}),
+							})),
+							addedKeyframes: null,
+							movedKeyframes: null,
+							setPropStatuses,
+							clientId,
+							undoLabel:
+								sequencePropTarget.targets.length > 1
+									? 'Paste property onto selected sequences'
+									: 'Paste property',
+							redoLabel:
+								sequencePropTarget.targets.length > 1
+									? 'Reapply property paste onto selected sequences'
+									: 'Reapply property paste',
+						}).then(() => {
+							showNotification(
+								sequencePropTarget.targets.length > 1
+									? 'Pasted property onto selected sequences'
+									: 'Pasted property',
+								2000,
 							);
 						});
 					}

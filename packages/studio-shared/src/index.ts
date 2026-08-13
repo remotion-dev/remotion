@@ -212,6 +212,12 @@ export {
 	type EffectPropClipboardData,
 	type EffectPropClipboardDataParseResult,
 } from './effect-clipboard-data';
+export {
+	parseSequencePropClipboardData,
+	parseSequencePropClipboardDataResult,
+	type SequencePropClipboardData,
+	type SequencePropClipboardDataParseResult,
+} from './sequence-prop-clipboard-data';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys, getAssetSchemaKeys} from './get-all-keys';

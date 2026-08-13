@@ -197,7 +197,6 @@ const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
 import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
-import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
@@ -2504,14 +2503,6 @@ export const Index: React.FC = () => {
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 			<Folder name="3DEngine">
-				<Composition
-					id="3DCheck"
-					component={ThreeDCheck}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={1000}
-				/>
 				<Composition
 					id="3DContext"
 					component={ThreeDContext}

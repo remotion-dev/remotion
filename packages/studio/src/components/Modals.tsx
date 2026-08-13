@@ -1,14 +1,11 @@
 import React, {useContext, useEffect} from 'react';
-import ReactDOM from 'react-dom';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
-import {useZIndex} from '../state/z-index';
 import {AskAiModal} from './AskAiModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
 import {InstallPackageModal} from './InstallPackage';
-import {getPortal} from './Menu/portals';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -31,7 +28,6 @@ export const Modals: React.FC<{
 }> = ({readOnlyStudio}) => {
 	const modalContextType = useContext(SelectedModalContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {currentZIndex} = useZIndex();
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
 	);
@@ -51,7 +47,7 @@ export const Modals: React.FC<{
 		});
 	}, [setSelectedModal, subscribeToEvent]);
 
-	return ReactDOM.createPortal(
+	return (
 		<>
 			{modalContextType && modalContextType.type === 'new-comp' && (
 				<NewComposition
@@ -217,9 +213,6 @@ export const Modals: React.FC<{
 				<SvgImportDialog state={modalContextType} />
 			)}
 			{getStudioAskAIEnabled() && <AskAiModal />}
-		</>,
-		// Modals must be above overlays opened from the editor, such as the
-		// floating sidebars used in the mobile layout.
-		getPortal(currentZIndex + 1),
+		</>
 	);
 };

@@ -156,6 +156,12 @@ test.describe('effect keyframes', () => {
 			{timeout: 30_000},
 		);
 
+		const timelineExpansionLabel = page
+			.getByText('Timeline expansion', {exact: true})
+			.last();
+		const timelineExpansionRow = timelineExpansionLabel
+			.locator('..')
+			.locator('..');
 		const opacityRow = page.getByText('Opacity', {exact: true});
 		await expect(async () => {
 			await page
@@ -165,13 +171,17 @@ test.describe('effect keyframes', () => {
 			await expect(opacityRow).toHaveCount(1, {timeout: 1_000});
 		}).toPass({timeout: 15_000});
 		await expect(
-			page.locator('button[aria-label="Expand track properties"]'),
+			timelineExpansionRow.getByRole('button', {
+				name: 'Expand track properties',
+			}),
 		).toBeVisible();
 
 		await opacityRow.click();
 
 		await expect(
-			page.locator('button[aria-label="Collapse track properties"]'),
+			timelineExpansionRow.getByRole('button', {
+				name: 'Collapse track properties',
+			}),
 		).toBeVisible();
 		await expect(opacityRow).toHaveCount(2);
 
