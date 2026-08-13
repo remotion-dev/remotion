@@ -165,8 +165,8 @@ export const VerticalBarChart: React.FC = () => {
 						height: 3,
 						left: '50%',
 						position: 'absolute',
-						translate: '-50% 0',
-						width: 1040,
+						translate: '-50% 50%',
+						width: 1000,
 						zIndex: 1,
 					}}
 				/>
