@@ -5,7 +5,7 @@ import type {
 	InteractivitySchema,
 	SequenceControls,
 } from 'remotion';
-import {CanvasImage, Interactive, Sequence} from 'remotion';
+import {Interactive, Sequence} from 'remotion';
 import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
 export type MacOSCursorProps = InteractiveBaseProps & {
@@ -62,7 +62,9 @@ const MacOSCursorInner: React.FC<
 				? resolveCursor(customCursor)
 				: null
 			: resolveCursor(cursor);
-	const refForOutline = React.useRef<HTMLCanvasElement | null>(null);
+	const refForOutline = React.useRef<SVGSVGElement | null>(null);
+	const width = resolved?.width ?? 32;
+	const height = resolved?.height ?? 32;
 
 	return (
 		<Sequence
@@ -78,24 +80,31 @@ const MacOSCursorInner: React.FC<
 			outlineRef={refForOutline}
 		>
 			{resolved ? (
-				<CanvasImage
+				<svg
 					ref={refForOutline}
 					className={className}
-					src={resolved.src}
-					showInTimeline={false}
-					width={resolved.width ?? undefined}
-					height={resolved.height ?? undefined}
+					width={width}
+					height={height}
+					viewBox={`0 0 ${width} ${height}`}
+					xmlns="http://www.w3.org/2000/svg"
 					style={{
 						display: 'block',
 						position: 'absolute',
-						width: resolved.width ?? undefined,
-						height: resolved.height ?? undefined,
+						width,
+						height,
 						marginLeft: -resolved.hotspot.x,
 						marginTop: -resolved.hotspot.y,
 						transformOrigin: `${resolved.hotspot.x}px ${resolved.hotspot.y}px`,
 						...style,
 					}}
-				/>
+				>
+					<image
+						href={resolved.src}
+						width={width}
+						height={height}
+						preserveAspectRatio="xMinYMin meet"
+					/>
+				</svg>
 			) : null}
 		</Sequence>
 	);
