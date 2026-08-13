@@ -19,7 +19,7 @@ const data = [
 
 const CHART_WIDTH = 1400;
 const CHART_HEIGHT = 520;
-const PLOT_PADDING = 56;
+const PLOT_PADDING = 128;
 const POINT_OUTER_RADIUS = 15;
 const MAX_VALUE = 80;
 
@@ -38,9 +38,7 @@ export const LineChart: React.FC = () => {
 			return `M ${x} ${y}`;
 		}
 
-		const previousPoint = points[index - 1];
-		const midpointX = (previousPoint.x + x) / 2;
-		return `${path} C ${midpointX} ${previousPoint.y}, ${midpointX} ${y}, ${x} ${y}`;
+		return `${path} L ${x} ${y}`;
 	}, '');
 	const firstPoint = points[0];
 	const latestPoint = points[points.length - 1];
@@ -77,23 +75,23 @@ export const LineChart: React.FC = () => {
 			<div
 				style={{
 					height: CHART_HEIGHT,
-					marginLeft: 112,
+					marginBottom: 64,
 					position: 'relative',
 				}}
 			>
-				{[80, 60, 40, 20, 0].map((value) => (
+				{[80, 40, 0].map((value) => (
 					<div
 						key={value}
 						style={{
-							left: 0,
+							left: `${((PLOT_PADDING - POINT_OUTER_RADIUS) / CHART_WIDTH) * 100}%`,
 							position: 'absolute',
-							right: 0,
+							right: `${((PLOT_PADDING - POINT_OUTER_RADIUS) / CHART_WIDTH) * 100}%`,
 							top: `${((MAX_VALUE - value) / MAX_VALUE) * 100}%`,
 						}}
 					>
 						<div
 							style={{
-								borderTop: '2px solid #e5e7eb',
+								borderTop: '2px solid #d1d5db',
 								opacity: interpolate(frame, [6, 30], [0, 1], {
 									easing: Easing.bezier(0.22, 1, 0.36, 1),
 									extrapolateLeft: 'clamp',
@@ -106,8 +104,8 @@ export const LineChart: React.FC = () => {
 						<Interactive.Div
 							name="Y-axis label"
 							style={{
-								color: '#9ca3af',
-								fontSize: 28,
+								color: '#6b7280',
+								fontSize: 40,
 								fontWeight: 700,
 								opacity: interpolate(frame, [6, 30], [0, 1], {
 									easing: Easing.bezier(0.22, 1, 0.36, 1),
@@ -115,9 +113,11 @@ export const LineChart: React.FC = () => {
 									extrapolateRight: 'clamp',
 								}),
 								position: 'absolute',
-								right: 'calc(100% + 26px)',
+								right: 'calc(100% + 32px)',
+								textAlign: 'left',
 								translate: '0 -50%',
 								whiteSpace: 'nowrap',
+								width: 94,
 							}}
 						>
 							{value}K
@@ -178,28 +178,30 @@ export const LineChart: React.FC = () => {
 						/>
 					))}
 				</svg>
-				{data.map(({label}, index) => (
-					<Interactive.Div
-						key={label}
-						name="X-axis label"
-						style={{
-							color: '#6b7280',
-							fontSize: 28,
-							fontWeight: 700,
-							left: `${(PLOT_PADDING / CHART_WIDTH + (index / (data.length - 1)) * ((CHART_WIDTH - PLOT_PADDING * 2) / CHART_WIDTH)) * 100}%`,
-							opacity: interpolate(frame, [6, 30], [0, 1], {
-								easing: Easing.bezier(0.22, 1, 0.36, 1),
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							position: 'absolute',
-							top: 'calc(100% + 24px)',
-							translate: '-50% 0',
-						}}
-					>
-						{label}
-					</Interactive.Div>
-				))}
+				{data.map(({label}, index) =>
+					index % 2 === 0 ? (
+						<Interactive.Div
+							key={label}
+							name="X-axis label"
+							style={{
+								color: '#4b5563',
+								fontSize: 40,
+								fontWeight: 700,
+								left: `${(PLOT_PADDING / CHART_WIDTH + (index / (data.length - 1)) * ((CHART_WIDTH - PLOT_PADDING * 2) / CHART_WIDTH)) * 100}%`,
+								opacity: interpolate(frame, [6, 30], [0, 1], {
+									easing: Easing.bezier(0.22, 1, 0.36, 1),
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								}),
+								position: 'absolute',
+								top: 'calc(100% + 64px)',
+								translate: '-50% 0',
+							}}
+						>
+							{label}
+						</Interactive.Div>
+					) : null,
+				)}
 				<div
 					style={{
 						left: `${(latestPoint.x / CHART_WIDTH) * 100}%`,
@@ -214,15 +216,15 @@ export const LineChart: React.FC = () => {
 							backgroundColor: '#2858e8',
 							borderRadius: 12,
 							color: '#ffffff',
-							fontSize: 36,
+							fontSize: 44,
 							fontWeight: 800,
-							letterSpacing: -1,
+							letterSpacing: -1.5,
 							lineHeight: 1,
 							opacity: interpolate(frame, [60, 68], [0, 1], {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
 							}),
-							padding: '16px 20px',
+							padding: '18px 24px',
 							whiteSpace: 'nowrap',
 						}}
 					>
