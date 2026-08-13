@@ -293,8 +293,8 @@ export const elementDefinitions = {
 		height: 1080,
 		posterFrame: 70,
 		preview: {
-			posterUrl: '/elements/data-pie-chart-preview.png',
-			videoUrl: '/elements/data-pie-chart-preview.mp4',
+			posterUrl: 'https://remotion.media/elements/data-pie-chart-preview.png',
+			videoUrl: 'https://remotion.media/elements/data-pie-chart-preview.mp4',
 		},
 		previewPadding: 56,
 		slug: 'data/pie-chart',
