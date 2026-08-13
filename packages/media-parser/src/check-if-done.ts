@@ -3,22 +3,26 @@ import {Log} from './log';
 import type {ParserState} from './state/parser-state';
 
 export const checkIfDone = async (state: ParserState) => {
-	const startCheck = Date.now();
-	const hasAll = hasAllInfo({
-		state,
-	});
-	state.timings.timeCheckingIfDone += Date.now() - startCheck;
+	if (state.mode === 'query') {
+		const startCheck = Date.now();
+		const hasAll = hasAllInfo({
+			state,
+		});
+		state.timings.timeCheckingIfDone += Date.now() - startCheck;
 
-	if (hasAll && state.mode === 'query') {
-		Log.verbose(state.logLevel, 'Got all info, skipping to the end.');
-		state.increaseSkippedBytes(
-			state.contentLength - state.iterator.counter.getOffset(),
-		);
+		if (hasAll) {
+			Log.verbose(state.logLevel, 'Got all info, skipping to the end.');
+			state.increaseSkippedBytes(
+				state.contentLength - state.iterator.counter.getOffset(),
+			);
 
-		return true;
+			return true;
+		}
 	}
 
-	if (state.iterator.counter.getOffset() === state.contentLength) {
+	const offset = state.iterator.counter.getOffset();
+
+	if (offset === state.contentLength) {
 		if (
 			state.structure.getStructure().type === 'm3u' &&
 			!state.m3u.getAllChunksProcessedOverall()
@@ -38,8 +42,7 @@ export const checkIfDone = async (state: ParserState) => {
 	}
 
 	if (
-		state.iterator.counter.getOffset() + state.iterator.bytesRemaining() ===
-			state.contentLength &&
+		offset + state.iterator.bytesRemaining() === state.contentLength &&
 		state.errored
 	) {
 		Log.verbose(state.logLevel, 'Reached end of file and errorred');

@@ -5,18 +5,16 @@ import type {ParserState} from './state/parser-state';
 
 export const emitAllInfo = async (state: ParserState) => {
 	// Force assign
-	const allFields = (
-		Object.keys(state.fields) as (keyof Options<ParseMediaFields>)[]
-	).reduce(
-		(acc, key) => {
-			if (state.fields?.[key]) {
-				acc[key] = true;
-			}
+	const allFields: Record<keyof Options<ParseMediaFields>, boolean> =
+		{} as Record<keyof Options<ParseMediaFields>, boolean>;
 
-			return acc;
-		},
-		{} as Record<keyof Options<ParseMediaFields>, boolean>,
-	);
+	const keys = Object.keys(state.fields) as (keyof Options<ParseMediaFields>)[];
+	for (let i = 0; i < keys.length; i++) {
+		const key = keys[i];
+		if (state.fields[key]) {
+			allFields[key] = true;
+		}
+	}
 
 	await emitAvailableInfo({
 		hasInfo: allFields,
