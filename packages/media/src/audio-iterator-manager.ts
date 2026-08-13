@@ -639,6 +639,9 @@ export const audioIteratorManager = ({
 			// getCurrentAnchor() cannot hand out a stale mapping (from a previous
 			// rate/trim) during the window before a new iterator is started.
 			currentAnchor = null;
+			// seek() dedups against currentSeek before checking whether an
+			// iterator exists - reset it so the next seek restarts audio.
+			currentSeek = {...currentSeek, time: -1};
 			unblockCurrentDelayHandle();
 		},
 		seek,

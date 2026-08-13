@@ -405,3 +405,18 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 
 	expect(scheduledChunks.length).toBe(23);
 });
+
+test('seek to the same time after destroyIterator() starts a new iterator', async () => {
+	const {seek, manager} = await prepare();
+
+	seek({time: 2});
+	expect(manager.getAudioIteratorsCreated()).toBe(1);
+	expect(manager.getAudioBufferIterator()).not.toBe(null);
+
+	manager.destroyIterator();
+	expect(manager.getAudioBufferIterator()).toBe(null);
+
+	seek({time: 2});
+	expect(manager.getAudioIteratorsCreated()).toBe(2);
+	expect(manager.getAudioBufferIterator()).not.toBe(null);
+});
