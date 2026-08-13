@@ -2656,6 +2656,7 @@
         "@react-three/fiber": "catalog:",
         "@remotion/effects": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
+        "@remotion/mac-cursors": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/paths": "workspace:*",
         "@remotion/player": "workspace:*",

@@ -1,3 +1,4 @@
+import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
@@ -9,10 +10,9 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 
-import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
-
 export const CloseUp3Preview = () => {
 	const frame = useCurrentFrame();
+	const captureFrame = frame + 573;
 
 	return (
 		<HtmlInCanvas
@@ -35,7 +35,7 @@ export const CloseUp3Preview = () => {
 				}),
 			]}
 		>
-			<AbsoluteFill style={{}} from={-609}>
+			<AbsoluteFill style={{}} from={-573}>
 				<Video
 					src="https://remotion.media/studio-close-ups/studio-checker-editing.mp4"
 					style={{
@@ -44,7 +44,7 @@ export const CloseUp3Preview = () => {
 				/>
 				<MacOSCursor
 					cursor={interpolate(
-						frame,
+						captureFrame,
 						[
 							75, 149, 153, 326, 327, 328, 338, 339, 341, 365, 366, 404, 406,
 							439, 516, 604, 792, 793,
@@ -80,7 +80,7 @@ export const CloseUp3Preview = () => {
 						left: 0,
 						top: 0,
 						scale: interpolate(
-							frame,
+							captureFrame,
 							[0, 182, 187, 222, 228, 286, 293, 421, 533, 581],
 							[4, 3.6, 4, 3.6, 4, 3.6, 4, 3.6, 4, 3.6],
 							{
@@ -90,7 +90,7 @@ export const CloseUp3Preview = () => {
 							},
 						),
 						translate: interpolate(
-							frame,
+							captureFrame,
 							[
 								75, 76, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158,
 								159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171,
@@ -493,7 +493,7 @@ export const CloseUp3 = () => {
 			width={1920}
 			height={1080}
 			fps={60}
-			durationInFrames={141}
+			durationInFrames={76}
 		/>
 	);
 };

@@ -23,6 +23,8 @@ import {CloseUp3} from './CloseUp3';
 import {CloseUp4} from './CloseUp4';
 import {CloseUp5} from './CloseUp5';
 import {CloseUp6} from './CloseUp6';
+import {CloseUp7} from './CloseUp7';
+import {CloseUpsSeries} from './CloseUpsSeries';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -882,7 +884,16 @@ export const RemotionRoot: React.FC = () => {
 				<CloseUp4 />
 				<CloseUp5 />
 				<CloseUp6 />
+				<CloseUp7 />
 			</Folder>
+			<Composition
+				id="CloseUpsSeries"
+				component={CloseUpsSeries}
+				durationInFrames={537}
+				fps={60}
+				width={1920}
+				height={1080}
+			/>
 		</>
 	);
 };

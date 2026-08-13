@@ -5,7 +5,7 @@ import type {
 	InteractivitySchema,
 	SequenceControls,
 } from 'remotion';
-import {Img, Interactive, Sequence} from 'remotion';
+import {CanvasImage, Interactive, Sequence} from 'remotion';
 import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
 export type MacOSCursorProps = InteractiveBaseProps & {
@@ -62,7 +62,7 @@ const MacOSCursorInner: React.FC<
 				? resolveCursor(customCursor)
 				: null
 			: resolveCursor(cursor);
-	const refForOutline = React.useRef<HTMLImageElement | null>(null);
+	const refForOutline = React.useRef<HTMLCanvasElement | null>(null);
 
 	return (
 		<Sequence
@@ -78,11 +78,13 @@ const MacOSCursorInner: React.FC<
 			outlineRef={refForOutline}
 		>
 			{resolved ? (
-				<Img
+				<CanvasImage
 					ref={refForOutline}
 					className={className}
 					src={resolved.src}
 					showInTimeline={false}
+					width={resolved.width ?? undefined}
+					height={resolved.height ?? undefined}
 					style={{
 						display: 'block',
 						position: 'absolute',

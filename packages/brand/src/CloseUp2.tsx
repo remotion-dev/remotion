@@ -1,3 +1,4 @@
+import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
@@ -9,10 +10,9 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 
-import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
-
 export const CloseUp2Preview = () => {
 	const frame = useCurrentFrame();
+	const captureFrame = frame + 695;
 
 	return (
 		<HtmlInCanvas
@@ -60,7 +60,7 @@ export const CloseUp2Preview = () => {
 				/>
 				<MacOSCursor
 					cursor={interpolate(
-						frame,
+						captureFrame,
 						[
 							105, 131, 226, 234, 235, 276, 280, 317, 325, 380, 382, 424, 498,
 							554, 630, 640, 641, 693,
@@ -114,7 +114,7 @@ export const CloseUp2Preview = () => {
 						left: 0,
 						top: 0,
 						scale: interpolate(
-							frame,
+							captureFrame,
 							[0, 154, 210, 441, 483, 575, 616, 695, 700, 778, 781],
 							[4, 3.6, 4, 3.6, 4, 3.6, 4, 4.5, 3.6, 3.6, 4],
 							{
@@ -149,7 +149,7 @@ export const CloseUp2Preview = () => {
 							},
 						),
 						translate: interpolate(
-							frame,
+							captureFrame,
 							[
 								105, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119,
 								120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132,
