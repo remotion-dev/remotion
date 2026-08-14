@@ -567,7 +567,7 @@ export const Skills2CodeChange: React.FC = () => {
 		<AbsoluteFill style={{backgroundColor: '#f5fafb'}}>
 			<Solid
 				width={1920}
-				height={1080}
+				height={1920}
 				color="#f5fafb"
 				style={{position: 'absolute'}}
 				effects={[
