@@ -149,7 +149,7 @@ if (totalSize > maxCombinedSize) {
 
 if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
 	throw new Error(
-		'Uploading requires AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY',
+		'Uploading requires AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. Run this command from packages/docs so Bun loads packages/docs/.env.',
 	);
 }
 

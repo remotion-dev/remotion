@@ -43,8 +43,13 @@ printf 'GitHub user: %s\nRepository permission: %s\n' \
 Use the **direct member path** only when `permission` is `write`, `maintain`, or `admin`. Before continuing on that path, verify without printing their values that Bun can read both `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`:
 
 ```bash
-bun -e 'process.exit(Bun.env.AWS_ACCESS_KEY_ID && Bun.env.AWS_SECRET_ACCESS_KEY ? 0 : 1)'
+(
+  cd packages/docs
+  bun -e 'process.exit(Bun.env.AWS_ACCESS_KEY_ID && Bun.env.AWS_SECRET_ACCESS_KEY ? 0 : 1)'
+)
 ```
+
+The subshell is intentional: Bun loads `packages/docs/.env` because the working directory is `packages/docs`. Element preview uploads do not use `packages/remotion-media/.env`; do not use the generic `upload-r2` or `offload-r2` skills for them.
 
 If a repository writer is missing either credential, stop and report that direct preview upload credentials are required. Do not silently commit temporary assets for them.
 
@@ -108,7 +113,7 @@ bun run upload-element-preview \
 cd ../..
 ```
 
-The uploader validates the local URLs, signatures, combined size, uploaded sizes, public HTTP responses, and content types. Do not continue unless both uploads are verified.
+The uploader validates the local URLs, signatures, combined size, uploaded sizes, public HTTP responses, and content types. Running it from `packages/docs` makes Bun load `packages/docs/.env`. Do not continue unless both uploads are verified.
 
 Then:
 
