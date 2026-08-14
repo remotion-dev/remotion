@@ -5,12 +5,13 @@ import {
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BLUE, WHITE_ALPHA_10} from '../../helpers/colors';
+import {BLUE, LIGHT_TEXT, WHITE_ALPHA_10} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {EasingPresetPreview} from './EasingEditorModal';
 import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useCurrentTimelineSelectionStateAsRef,
@@ -163,7 +164,16 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 					id: 'linear',
 					keyHint: null,
 					label: 'Linear',
-					leftItem: null,
+					leftItem: (
+						<EasingPresetPreview
+							color={LIGHT_TEXT}
+							easing={LINEAR_KEYFRAME_EASING}
+							height={18}
+							nonScalingStroke
+							strokeWidth={5}
+							width={18}
+						/>
+					),
 					disabled: previewServerState.type !== 'connected',
 					onClick: () => updateEasing(LINEAR_KEYFRAME_EASING),
 					quickSwitcherLabel: null,
@@ -175,7 +185,16 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 					id: preset.id,
 					keyHint: null,
 					label: preset.label,
-					leftItem: null,
+					leftItem: (
+						<EasingPresetPreview
+							color={LIGHT_TEXT}
+							easing={preset.easing}
+							height={18}
+							nonScalingStroke
+							strokeWidth={5}
+							width={18}
+						/>
+					),
 					disabled: previewServerState.type !== 'connected',
 					onClick: () => updateEasing(preset.easing),
 					quickSwitcherLabel: null,
