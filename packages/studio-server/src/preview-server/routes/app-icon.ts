@@ -7,6 +7,7 @@ import {
 	type DefaultCodingAgent,
 } from '@remotion/renderer';
 import {finderArtworkDataUrl} from '../../helpers/finder-artwork';
+import {githubDesktopArtworkDataUrl} from '../../helpers/github-desktop-artwork';
 import {terminalArtworkDataUrls} from '../../helpers/terminal-artwork';
 import {validateSameOrigin} from '../validate-same-origin';
 
@@ -33,7 +34,7 @@ export const handleAppIcon = ({
 	validateSameOrigin(request);
 
 	const match =
-		/^\/api\/app-icon\/(coding-agent|file-manager|terminal)\/([a-z0-9-]+)\.png$/.exec(
+		/^\/api\/app-icon\/(coding-agent|file-manager|git-client|terminal)\/([a-z0-9-]+)\.png$/.exec(
 			pathname,
 		);
 	if (!match) {
@@ -68,13 +69,17 @@ export const handleAppIcon = ({
 	}
 
 	const dataUrl =
-		kind === 'file-manager'
-			? id === 'finder'
-				? finderArtworkDataUrl
+		kind === 'git-client'
+			? id === 'github-desktop'
+				? githubDesktopArtworkDataUrl
 				: null
-			: Object.hasOwn(terminalArtworkDataUrls, id)
-				? terminalArtworkDataUrls[id as keyof typeof terminalArtworkDataUrls]
-				: null;
+			: kind === 'file-manager'
+				? id === 'finder'
+					? finderArtworkDataUrl
+					: null
+				: Object.hasOwn(terminalArtworkDataUrls, id)
+					? terminalArtworkDataUrls[id as keyof typeof terminalArtworkDataUrls]
+					: null;
 	if (dataUrl === null) {
 		respondWithNotFound(response);
 		return Promise.resolve();

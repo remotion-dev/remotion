@@ -15,6 +15,7 @@ import {
 } from '../helpers/get-git-menu-item';
 import {EditorIcon} from '../icons/editor';
 import {FinderIcon} from '../icons/finder';
+import {GitClientIcon} from '../icons/git-client';
 import {GitHubIcon} from '../icons/github';
 import {TerminalIcon} from '../icons/terminal';
 import {CodingAgentIcon} from './CodingAgentIcon';
@@ -205,7 +206,7 @@ export const getOpenInMenuItems = ({
 						id: `open-in-git-client-${gitClient.id}`,
 						keyHint: null,
 						label: <span style={menuLabel}>{gitClient.name}</span>,
-						leftItem: <GitHubIcon size={18} />,
+						leftItem: <GitClientIcon gitClientId={gitClient.id} size={18} />,
 						onClick: () => onOpenInGitClient(gitClient.id),
 						quickSwitcherLabel: null,
 						subMenu: null,
