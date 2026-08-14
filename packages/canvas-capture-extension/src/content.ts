@@ -177,7 +177,7 @@ export const startContent = () => {
 					return;
 				}
 
-				const supportKey = `${format}:${preflight.outputSize.width}x${preflight.outputSize.height}`;
+				const supportKey = `${preflight.outputSize.width}x${preflight.outputSize.height}`;
 				outputSize = preflight.outputSize;
 				if (
 					encoderSupportKey === supportKey &&
@@ -188,24 +188,43 @@ export const startContent = () => {
 
 				encoderSupport = 'checking';
 				setStatus(
-					`Checking ${getFormatLabel(format)} support at ${outputSize.width}×${outputSize.height}…`,
+					`Checking H.264 MP4 support at ${outputSize.width}×${outputSize.height}…`,
 				);
-				const canEncode = await canEncodeCapture(format, outputSize);
+				const canEncodeMp4 = await canEncodeCapture('mp4', outputSize);
 				if (checkId !== encoderSupportCheckId) {
 					return;
 				}
 
-				if (canEncode) {
+				if (canEncodeMp4) {
+					format = 'mp4';
 					encoderSupport = 'supported';
 					encoderSupportKey = supportKey;
 					setStatus(
 						`Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`,
 					);
+					return;
+				}
+
+				setStatus(
+					`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Checking VP9 WebM…`,
+				);
+				const canEncodeWebm = await canEncodeCapture('webm', outputSize);
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				if (canEncodeWebm) {
+					format = 'webm';
+					encoderSupport = 'supported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Ready to record VP9 WebM instead.`,
+					);
 				} else {
 					encoderSupport = 'unsupported';
 					encoderSupportKey = supportKey;
 					setStatus(
-						`${getFormatLabel(format)} encoding is not supported at ${outputSize.width}×${outputSize.height} in this browser. Reduce the scale or select a smaller area.`,
+						`Neither H.264 MP4 nor VP9 WebM encoding is supported at ${outputSize.width}×${outputSize.height} in this browser. Reduce the scale or select a smaller area.`,
 						true,
 					);
 				}
@@ -349,7 +368,7 @@ export const startContent = () => {
 			}
 		});
 
-		const setOptions = (nextScale: number, nextFormat: CaptureFormat) => {
+		const setOptions = (nextScale: number) => {
 			if (!Number.isFinite(nextScale) || nextScale <= 0) {
 				encoderSupportCheckId++;
 				encoderSupport = 'unsupported';
@@ -359,21 +378,11 @@ export const startContent = () => {
 				return false;
 			}
 
-			if (nextFormat !== 'mp4' && nextFormat !== 'webm') {
-				encoderSupportCheckId++;
-				encoderSupport = 'unsupported';
-				encoderSupportKey = null;
-				outputSize = null;
-				setStatus('Choose MP4 or WebM as the recording format.', true);
-				return false;
-			}
-
-			if (scale !== nextScale || format !== nextFormat) {
+			if (scale !== nextScale) {
 				encoderSupportKey = null;
 			}
 
 			scale = nextScale;
-			format = nextFormat;
 			updateHighlight();
 			return true;
 		};
@@ -417,7 +426,7 @@ export const startContent = () => {
 
 				if (request.command === 'set-options') {
 					if (!capture && !finalizing) {
-						if (setOptions(request.scale, request.format)) {
+						if (setOptions(request.scale)) {
 							await refreshEncoderSupport();
 						}
 					}
@@ -469,7 +478,7 @@ export const startContent = () => {
 						return getState();
 					}
 
-					if (!setOptions(request.scale, request.format)) {
+					if (!setOptions(request.scale)) {
 						return getState();
 					}
 

@@ -51,7 +51,6 @@ export type CaptureControllerRequest =
 			readonly type: typeof captureControllerMessageType;
 			readonly command: 'set-options';
 			readonly scale: number;
-			readonly format: CaptureFormat;
 	  }
 	| {
 			readonly type: typeof captureControllerMessageType;
@@ -69,7 +68,6 @@ export type CaptureControllerRequest =
 			readonly type: typeof captureControllerMessageType;
 			readonly command: 'start-recording';
 			readonly scale: number;
-			readonly format: CaptureFormat;
 	  }
 	| {
 			readonly type: typeof captureControllerMessageType;

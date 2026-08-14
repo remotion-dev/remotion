@@ -113,7 +113,8 @@ h1 {
 }
 
 input,
-select {
+select,
+.format-value {
 	width: 100%;
 	height: 34px;
 	border: 1px solid rgba(255, 255, 255, 0.12);
@@ -121,6 +122,12 @@ select {
 	outline: none;
 	background: #2f363d;
 	color: #fff;
+}
+
+.format-value {
+	display: flex;
+	align-items: center;
+	padding: 0 9px;
 }
 
 select {
