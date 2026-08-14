@@ -496,7 +496,7 @@ export const OutlineSelectionCases: React.FC = () => {
 			>
 				<CaseFrame
 					caseNumber={7}
-					status="Gap"
+					status="Baseline"
 					title="Plain drag preserves direct selection"
 					summary="Pointer-down on an already-selected outline must not collapse or replace the current multi-selection."
 					desiredBehavior="Dragging either directly selected item moves every eligible selected item and preserves the complete selection."

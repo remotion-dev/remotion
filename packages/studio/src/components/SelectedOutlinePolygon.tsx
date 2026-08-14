@@ -53,6 +53,7 @@ import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from './Timeline/should-clear-selection-on-pointer-down';
 import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
@@ -493,6 +494,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 		<>
 			<polygon
 				ref={polygonRef}
+				{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 				points={points}
 				fill={effectDropHovered ? TIMELINE_DROP_BLUE_ALPHA_12 : TRANSPARENT}
 				stroke={BLUE}
