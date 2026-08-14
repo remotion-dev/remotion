@@ -9,6 +9,7 @@ import {InputDragger} from '../NewComposition/InputDragger';
 import {
 	draggerStyle,
 	getTimelineDisplayDecimalPlaces,
+	leftAlignedDraggerStyle,
 	normalizeTimelineNumber,
 } from './timeline-field-utils';
 import {formatTimelineRotationFieldValue} from './timeline-rotation-field-utils';
@@ -240,6 +241,7 @@ export const TimelineRotationField: React.FC<{
 		<InputDragger
 			type="number"
 			value={dragValue ?? degrees}
+			buttonStyle={leftAlignedDraggerStyle}
 			style={draggerStyle}
 			status="ok"
 			small

@@ -52,6 +52,32 @@ const computedValueStyle: React.CSSProperties = {
 	lineHeight: '20px',
 };
 
+const metadataDraggerStyles: Record<
+	CompositionMetadataField,
+	React.CSSProperties
+> = {
+	durationInFrames: {
+		padding: '2px 0 2px 6px',
+		textAlign: 'right',
+		width: 92,
+	},
+	fps: {
+		padding: '2px 0 2px 6px',
+		textAlign: 'right',
+		width: 72,
+	},
+	height: {
+		padding: '2px 0 2px 6px',
+		textAlign: 'right',
+		width: 52,
+	},
+	width: {
+		padding: '2px 0 2px 6px',
+		textAlign: 'right',
+		width: 52,
+	},
+};
+
 const dimensionsControls: React.CSSProperties = {
 	alignItems: 'center',
 	color: 'inherit',
@@ -196,6 +222,7 @@ const CompositionMetadataValue: React.FC<{
 	) : (
 		<InputDragger
 			aria-label={fieldLabels[field]}
+			buttonStyle={metadataDraggerStyles[field]}
 			type="number"
 			value={dragValue ?? pendingValue?.value ?? value}
 			disabled={pendingValue !== null}
@@ -208,7 +235,7 @@ const CompositionMetadataValue: React.FC<{
 			dragDecimalPlaces={isFps ? 2 : 0}
 			formatter={formatValue}
 			rightAlign
-			small
+			style={metadataDraggerStyles[field]}
 		/>
 	);
 };

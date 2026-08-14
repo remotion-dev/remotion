@@ -48,9 +48,9 @@ export const timelineFieldValueColumnStyle: React.CSSProperties = {
 export const timelineCompactStackedFieldValueColumnStyle: React.CSSProperties =
 	{
 		...timelineFieldValueColumnStyle,
-		marginBottom: -2,
+		marginBottom: -3,
 		position: 'relative',
-		top: -2,
+		top: -3,
 	};
 
 export const timelineStackedFieldContentStyle: React.CSSProperties = {

@@ -7,7 +7,7 @@ import type {
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
-import {draggerStyle} from './timeline-field-utils';
+import {draggerStyle, leftAlignedDraggerStyle} from './timeline-field-utils';
 
 export const TimelineNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -83,6 +83,7 @@ export const TimelineNumberField: React.FC<{
 		<InputDragger
 			type="number"
 			value={dragValue ?? (effectiveValue as number)}
+			buttonStyle={leftAlignedDraggerStyle}
 			style={draggerStyle}
 			status="ok"
 			small

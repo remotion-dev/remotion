@@ -1,4 +1,5 @@
 import {createContext} from 'react';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {
 	INSPECTOR_ROW_BASE_PADDING,
 	TIMELINE_ROW_BASE_PADDING,
@@ -8,6 +9,7 @@ type TimelineRowLayout = {
 	readonly basePadding: number;
 	readonly highlightSelectedLabel: boolean;
 	readonly keyframeControlsPadding: number;
+	readonly keyframeControlsPlacement: 'before-label' | 'after-label';
 	readonly rowBorderRadius: number;
 	readonly rowHorizontalMargin: number;
 };
@@ -16,14 +18,16 @@ export const INSPECTOR_TIMELINE_ROW_LAYOUT: TimelineRowLayout = {
 	basePadding: INSPECTOR_ROW_BASE_PADDING,
 	highlightSelectedLabel: false,
 	keyframeControlsPadding: 0,
+	keyframeControlsPlacement: 'after-label',
 	rowBorderRadius: 4,
-	rowHorizontalMargin: 4,
+	rowHorizontalMargin: INSPECTOR_PANEL_HORIZONTAL_PADDING,
 };
 
 export const TimelineRowLayoutContext = createContext<TimelineRowLayout>({
 	basePadding: TIMELINE_ROW_BASE_PADDING,
 	highlightSelectedLabel: true,
 	keyframeControlsPadding: TIMELINE_ROW_BASE_PADDING,
+	keyframeControlsPlacement: 'before-label',
 	rowBorderRadius: 0,
 	rowHorizontalMargin: 0,
 });

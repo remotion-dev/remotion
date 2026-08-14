@@ -89,7 +89,6 @@ type FontFamilyOption = {
 };
 
 const triggerStyle: React.CSSProperties = {
-	marginLeft: 8,
 	padding: '3px 4px',
 	display: 'inline-flex',
 	alignItems: 'center',

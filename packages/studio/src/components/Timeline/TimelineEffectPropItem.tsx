@@ -554,12 +554,14 @@ export const TimelineEffectPropItem: React.FC<{
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
 			containsSelection={false}
+			isFieldRow
 			outerHeight={null}
 		>
 			<TimelineFieldRowContent
 				field={field}
 				rowDepth={rowDepth}
 				selected={selection.selected}
+				keyframeControls={keyframeControls}
 			>
 				<TimelineEffectPropValueAtCurrentFrame
 					field={field}
