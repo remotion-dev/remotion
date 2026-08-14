@@ -21,6 +21,7 @@ import {
 	getExpectedOutName,
 	getNeedsToUpload,
 	MAX_FUNCTIONS_PER_RENDER,
+	rendererTransportPrefix,
 	serializeOrThrow,
 	ServerlessRoutines,
 	validateFramesPerFunction,
@@ -37,7 +38,7 @@ import {makeOverallRenderProgress} from '../overall-render-progress';
 import {planFrameRanges} from '../plan-frame-ranges';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {removeOutnameCredentials} from '../remove-outname-credentials';
-import {streamRendererFunctionWithRetry} from '../stream-renderer';
+import {renderRendererFunctionWithRetry} from '../stream-renderer';
 import {validateComposition} from '../validate-composition';
 import {sendTelemetryEvent} from './send-telemetry-event';
 
@@ -491,7 +492,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
-			await streamRendererFunctionWithRetry({
+			await renderRendererFunctionWithRetry({
 				files,
 				functionName: rendererFunctionName,
 				outdir,
@@ -502,6 +503,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				providerSpecifics,
 				insideFunctionSpecifics,
 				requestHandler: null,
+				expectedBucketOwner: options.expectedBucketOwner,
 			});
 		}),
 	);
@@ -543,6 +545,41 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		requestHandler: null,
 		sampleRate: params.sampleRate,
 	});
+
+	if (
+		providerSpecifics.getRendererFunctionTransport(
+			insideFunctionSpecifics.getCurrentRegionInFunction(),
+		) === 's3'
+	) {
+		try {
+			const transportObjects = await providerSpecifics.listObjects({
+				bucketName: params.bucketName,
+				prefix: rendererTransportPrefix(params.renderId),
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				expectedBucketOwner: options.expectedBucketOwner,
+				forcePathStyle: params.forcePathStyle,
+				requestHandler: null,
+			});
+			await Promise.all(
+				transportObjects.map((object) =>
+					providerSpecifics.deleteFile({
+						bucketName: params.bucketName,
+						key: object.Key,
+						region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+						customCredentials: null,
+						forcePathStyle: params.forcePathStyle,
+						requestHandler: null,
+					}),
+				),
+			);
+		} catch (err) {
+			RenderInternals.Log.warn(
+				{indent: false, logLevel: params.logLevel},
+				'Could not clean up renderer transport objects',
+				err,
+			);
+		}
+	}
 
 	return postRenderData;
 };

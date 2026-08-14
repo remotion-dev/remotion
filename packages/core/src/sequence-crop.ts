@@ -95,9 +95,9 @@ export const validateSequenceCrop = (
 			);
 		}
 
-		if (value < 0 || value > 1) {
+		if (value > 100) {
 			throw new RangeError(
-				`The "${name}" prop of ${componentName} must be between 0 and 1, but got ${value}.`,
+				`The "${name}" prop of ${componentName} must be between 0 and 1, but got ${value}. The crop range is 0 to 1, not 0 to 100.`,
 			);
 		}
 	}

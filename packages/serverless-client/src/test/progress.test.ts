@@ -93,9 +93,11 @@ const progress: OverallRenderProgress<MockProvider> = {
 const makeProviderSpecifics = ({
 	onEstimatePrice,
 	onHeadFile,
+	billingCurrency = 'USD',
 }: {
 	onEstimatePrice?: (input: EstimatePriceInput<MockProvider>) => number;
 	onHeadFile: ProviderSpecifics<MockProvider>['headFile'];
+	billingCurrency?: 'USD' | 'CNY';
 }): ProviderSpecifics<MockProvider> => {
 	return {
 		applyLifeCycle: () => Promise.resolve(),
@@ -114,6 +116,9 @@ const makeProviderSpecifics = ({
 		getBuckets: () => Promise.resolve([]),
 		getChromiumPath: () => null,
 		getEphemeralStorageForPriceCalculation: () => 512,
+		getBillingCurrency: () => billingCurrency,
+		getRendererFunctionTransport: () => 'response-streaming',
+		getServiceDnsSuffix: () => 'example.com',
 		getFunctions: () => Promise.resolve([]),
 		getLoggingUrlForMethod: () => 'logs',
 		getLoggingUrlForRendererFunction: () => 'logs',
@@ -161,6 +166,7 @@ const makeProviderSpecifics = ({
 test('getProgress treats an existing output file as finished if postRenderData was not persisted', async () => {
 	const headedFiles: {bucketName: string; key: string}[] = [];
 	const providerSpecifics = makeProviderSpecifics({
+		billingCurrency: 'CNY',
 		onHeadFile: ({bucketName: headedBucketName, key}) => {
 			headedFiles.push({bucketName: headedBucketName, key});
 			return Promise.resolve({ContentLength: 1234});
@@ -190,6 +196,8 @@ test('getProgress treats an existing output file as finished if postRenderData w
 	);
 	expect(renderProgress.outputSizeInBytes).toBe(1234);
 	expect(renderProgress.errors).toEqual([]);
+	expect(renderProgress.costs.currency).toBe('CNY');
+	expect(renderProgress.costs.displayCost).toBe('¥0.010');
 });
 
 test('getProgress estimates costs from invoked lambdas only', async () => {

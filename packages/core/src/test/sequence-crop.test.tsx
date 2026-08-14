@@ -1,5 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
+import {Interactive} from '../Interactive.js';
 import {resolveSequenceCrop} from '../sequence-crop.js';
 import {Sequence} from '../Sequence.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -92,15 +93,28 @@ test('clashing crops meet in the middle', () => {
 	).toEqual({left: 0.5, right: 0.5, top: 0.5, bottom: 0.5});
 });
 
-test('rejects crops outside the 0 to 1 range', () => {
+test('clamps crop values outside the 0 to 1 range', () => {
+	const {container} = render(
+		<WrapSequenceContext>
+			<Interactive.Div cropLeft={-0.1} cropRight={1.1}>
+				Content
+			</Interactive.Div>
+		</WrapSequenceContext>,
+	);
+
+	const element = container.firstElementChild as HTMLDivElement;
+	expect(element.style.clipPath).toBe('inset(0% 100% 0% 0%)');
+});
+
+test('rejects crop values above 100 with a range hint', () => {
 	expect(() =>
 		render(
 			<WrapSequenceContext>
-				<Sequence cropLeft={1.1}>Content</Sequence>
+				<Interactive.Div cropLeft={101}>Content</Interactive.Div>
 			</WrapSequenceContext>,
 		),
 	).toThrow(
-		'The "cropLeft" prop of <Sequence /> must be between 0 and 1, but got 1.1.',
+		'The "cropLeft" prop of <Interactive.Div> must be between 0 and 1, but got 101. The crop range is 0 to 1, not 0 to 100.',
 	);
 });
 

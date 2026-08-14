@@ -3,6 +3,7 @@ import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
+import elementSidebars from '../../elements-sidebars';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
@@ -13,6 +14,10 @@ import {
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 } from '../components/Elements/element-library-data';
+import {
+	elementCategories,
+	elementRegistry,
+} from '../components/Elements/element-registry';
 import {
 	getElementCompositionId,
 	getElementDimensionsLabel,
@@ -29,10 +34,6 @@ const staticElementsRoot = path.join(
 	'..',
 	'static',
 	'elements',
-);
-const elementSidebars = readFileSync(
-	path.join(__dirname, '..', '..', 'elements-sidebars.ts'),
-	'utf8',
 );
 const elementDefinitionList = Object.values(elementDefinitions);
 const exactVersionPattern =
@@ -304,6 +305,124 @@ describe('Element social previews', () => {
 	});
 });
 
+describe('Elements sidebar', () => {
+	test('lists every registered Element exactly once in deterministic order', () => {
+		const sidebar = elementSidebars.elementsSidebar;
+		if (!Array.isArray(sidebar)) {
+			throw new Error('Elements sidebar must be an array');
+		}
+
+		expect(sidebar.slice(0, 4)).toEqual([
+			'index',
+			'guidelines',
+			'submit-an-element',
+			{
+				type: 'html',
+				value:
+					'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+				defaultStyle: true,
+			},
+		]);
+
+		const categories = sidebar.slice(4);
+		const expectedCategories = [
+			{
+				category: 'backgrounds',
+				label: 'Backgrounds',
+				items: [
+					'backgrounds/liquid-contours/index',
+					'backgrounds/notebook-paper/index',
+					'backgrounds/paper-texture/index',
+					'backgrounds/rotating-starburst/index',
+				],
+			},
+			{
+				category: 'captions',
+				label: 'Captions',
+				items: [
+					'captions/moving-pill-captions/index',
+					'captions/popping-word-captions/index',
+					'captions/word-highlight-captions/index',
+				],
+			},
+			{
+				category: 'commerce',
+				label: 'Commerce',
+				items: [
+					'commerce/product-discount-callout/index',
+					'commerce/product-offer/index',
+				],
+			},
+			{
+				category: 'data',
+				label: 'Data',
+				items: [
+					'data/horizontal-bar-chart/index',
+					'data/line-chart/index',
+					'data/number-counter/index',
+					'data/pie-chart/index',
+					'data/vertical-bar-chart/index',
+				],
+			},
+			{
+				category: 'maps',
+				label: 'Maps',
+				items: ['maps/map-flyover/index'],
+			},
+			{
+				category: 'overlays',
+				label: 'Overlays',
+				items: [
+					'overlays/location-lower-third/index',
+					'overlays/name-lower-third/index',
+				],
+			},
+			{
+				category: 'storytelling',
+				label: 'Storytelling',
+				items: ['text/news-article-highlight/index'],
+			},
+			{
+				category: 'text',
+				label: 'Text',
+				items: [
+					'text/circle-marker/index',
+					'text/crossed-off/index',
+					'text/strike-through/index',
+					'text/text-marker/index',
+				],
+			},
+			{
+				category: 'youtube',
+				label: 'YouTube',
+				items: ['youtube/youtube-end-card/index'],
+			},
+		] as const;
+
+		expect(categories).toEqual(
+			expectedCategories.map(({category, label, items}) => ({
+				type: 'category',
+				label,
+				link: {type: 'doc', id: `${category}/index`},
+				collapsed: false,
+				items,
+			})),
+		);
+		expect(elementCategories).toEqual(
+			expectedCategories.map(({category, label}) => ({category, label})),
+		);
+
+		const listedElementPages = expectedCategories.flatMap(({items}) => items);
+		const registeredElementPages = Object.keys(elementRegistry).map(
+			(slug) => `${slug}/index`,
+		);
+		expect([...listedElementPages].sort()).toEqual(
+			registeredElementPages.sort(),
+		);
+		expect(new Set(listedElementPages).size).toBe(listedElementPages.length);
+	});
+});
+
 describe('Element preview definitions', () => {
 	test('contains every production Element exactly once', () => {
 		const elementSlugs = productionElements
@@ -495,12 +614,10 @@ describe('Element preview definitions', () => {
 			if (usesReviewUrls) {
 				expect(String(definition.preview.videoUrl)).toBe(localVideoUrl);
 
-				const isSubmitted = elementSidebars.includes(
-					`'${definition.slug}/index'`,
-				);
-				expect(existsSync(posterPath)).toBe(isSubmitted);
-				expect(existsSync(videoPath)).toBe(isSubmitted);
-				if (isSubmitted) {
+				const isRegistered = definition.slug in elementRegistry;
+				expect(existsSync(posterPath)).toBe(isRegistered);
+				expect(existsSync(videoPath)).toBe(isRegistered);
+				if (isRegistered) {
 					const poster = readFileSync(posterPath);
 					const video = readFileSync(videoPath);
 					expect(Array.from(poster.subarray(0, 8))).toEqual([

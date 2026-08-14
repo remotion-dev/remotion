@@ -41,6 +41,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	functionName: string;
 	requestHandler: Provider['requestHandler'] | null;
 }): Promise<GenericRenderProgress<Provider>> => {
+	const billingCurrency = providerSpecifics.getBillingCurrency(region);
 	const overallProgress = await getOverallProgressFromStorage({
 		renderId,
 		bucketName,
@@ -158,7 +159,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 				timeToCombine: overallProgress.timeToCombine,
 			},
 			timeToRenderFrames: overallProgress.timeToRenderFrames,
-			costs: formatCostsInfo(0),
+			costs: formatCostsInfo(0, billingCurrency),
 			renderId,
 			renderMetadata,
 			bucket: bucketName,
@@ -293,8 +294,8 @@ export const getProgress = async <Provider extends CloudProvider>({
 					minFilesToDelete: 0,
 				},
 				costs: priceFromBucket
-					? formatCostsInfo(priceFromBucket.accruedSoFar)
-					: formatCostsInfo(0),
+					? formatCostsInfo(priceFromBucket.accruedSoFar, billingCurrency)
+					: formatCostsInfo(0, billingCurrency),
 				currentTime: now,
 				done: true,
 				encodingStatus: {
@@ -358,8 +359,8 @@ export const getProgress = async <Provider extends CloudProvider>({
 		},
 		timeToRenderFrames: overallProgress.timeToRenderFrames,
 		costs: priceFromBucket
-			? formatCostsInfo(priceFromBucket.accruedSoFar)
-			: formatCostsInfo(0),
+			? formatCostsInfo(priceFromBucket.accruedSoFar, billingCurrency)
+			: formatCostsInfo(0, billingCurrency),
 		renderId,
 		renderMetadata,
 		bucket: bucketName,

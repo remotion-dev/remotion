@@ -7,8 +7,13 @@ export type AwsLayer = {
 	version: number;
 };
 
+export type HostedLayerRegion = Exclude<
+	AwsRegion,
+	'cn-north-1' | 'cn-northwest-1'
+>;
+
 export type HostedLayers = {
-	[region in AwsRegion]: AwsLayer[];
+	[region in HostedLayerRegion]: AwsLayer[];
 };
 
 export const hostedLayers: HostedLayers = {

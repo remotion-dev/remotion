@@ -258,7 +258,7 @@ export const stillCommand = async ({
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: `https://${getAwsRegion()}.console.aws.amazon.com/lambda/home#/functions/${functionName}?tab=code`})}`,
+			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: LambdaClientInternals.getLambdaFunctionUrl({region: getAwsRegion(), functionName})})}`,
 		),
 	);
 
@@ -341,7 +341,7 @@ export const stillCommand = async ({
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: `https://${getAwsRegion()}.console.aws.amazon.com/s3/buckets/${res.bucketName}/?region=${getAwsRegion()}`})}`,
+			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: LambdaClientInternals.getS3BucketUrl({region: getAwsRegion(), bucketName: res.bucketName})})}`,
 		),
 	);
 

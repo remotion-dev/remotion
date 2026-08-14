@@ -74,6 +74,9 @@ test('gets an asset type query for interactive media components', () => {
 	expect(
 		getAssetSearchQueryForComponent('dev.remotion.remotion.AnimatedImage'),
 	).toBe('type:image ');
+	expect(
+		getAssetSearchQueryForComponent('dev.remotion.remotion.CanvasImage'),
+	).toBe('type:image ');
 	expect(getAssetSearchQueryForComponent('com.example.Custom')).toBe('');
 	expect(getAssetSearchQueryForComponent(null)).toBe('');
 });

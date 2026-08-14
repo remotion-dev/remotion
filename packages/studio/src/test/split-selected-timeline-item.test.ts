@@ -19,7 +19,7 @@ import {makeRuntimeValueStore} from './make-runtime-value-store';
 const makeKey = (nodePath: SequenceNodePath): SequencePropsSubscriptionKey => ({
 	absolutePath: '/tmp/Comp.tsx',
 	nodePath,
-	sequenceKeys: [],
+	sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 	effectKeys: [],
 	videoConfigValues: null,
 });
@@ -167,6 +167,28 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 	).toEqual({
 		canSplit: true,
 		nodePathInfo: makeNodePathInfo(['body', 2]),
+	});
+});
+
+test('getTimelineSequenceSplitEligibility derives timing support from schema keys', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0]);
+	const withoutFrom = {
+		...nodePathInfo,
+		sequenceSubscriptionKey: {
+			...nodePathInfo.sequenceSubscriptionKey,
+			sequenceKeys: ['durationInFrames', 'trimBefore'],
+		},
+	};
+
+	expect(
+		getTimelineSequenceSplitEligibility({
+			selection: {type: 'sequence', nodePathInfo: withoutFrom},
+			sequence: makeSequence(),
+			splitFrame: 30,
+		}),
+	).toEqual({
+		canSplit: false,
+		reason: 'Sequence does not expose timing traits that can be split',
 	});
 });
 

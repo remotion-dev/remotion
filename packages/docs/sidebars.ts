@@ -1267,6 +1267,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/authentication',
 				'lambda/permissions',
 				'lambda/region-selection',
+				'lambda/aws-china-regions',
 				'lambda/concurrency',
 				'lambda/runtime',
 				'lambda/disk-size',

@@ -1,3 +1,4 @@
+import {getAwsRegionMetadata} from './aws-region-metadata';
 import type {AwsRegion} from './regions';
 
 export const makeS3ServeUrl = ({
@@ -9,5 +10,6 @@ export const makeS3ServeUrl = ({
 	subFolder: string;
 	region: AwsRegion;
 }): string => {
-	return `https://${bucketName}.s3.${region}.amazonaws.com/${subFolder}/index.html`;
+	const {dnsSuffix} = getAwsRegionMetadata(region);
+	return `https://${bucketName}.s3.${region}.${dnsSuffix}/${subFolder}/index.html`;
 };

@@ -1,4 +1,5 @@
 import {DOCS_URL} from '@remotion/serverless-client';
+import {getAwsRegionMetadata} from './aws-region-metadata';
 import type {AwsRegion} from './regions';
 
 export const convertToServeUrlImplementation = ({
@@ -20,5 +21,6 @@ export const convertToServeUrlImplementation = ({
 		return urlOrId;
 	}
 
-	return `https://${bucketName}.s3.${region}.amazonaws.com/sites/${urlOrId}/index.html`;
+	const {dnsSuffix} = getAwsRegionMetadata(region);
+	return `https://${bucketName}.s3.${region}.${dnsSuffix}/sites/${urlOrId}/index.html`;
 };

@@ -31,7 +31,8 @@ const makeQuotaUrl = ({
 	region: AwsRegion;
 	quotaId: string;
 }) => {
-	return `https://${region}.console.aws.amazon.com/servicequotas/home/services/lambda/quotas/${quotaId}`;
+	const {consoleDomain} = LambdaClientInternals.getAwsRegionMetadata(region);
+	return `https://${region}.${consoleDomain}/servicequotas/home/services/lambda/quotas/${quotaId}`;
 };
 
 export async function quotasIncreaseCommand(
@@ -39,6 +40,7 @@ export async function quotasIncreaseCommand(
 	requestHandler: RequestHandler | null,
 ): Promise<void> {
 	const region = getAwsRegion();
+	const {consoleDomain} = LambdaClientInternals.getAwsRegionMetadata(region);
 
 	const [concurrencyLimit, defaultConcurrencyLimit, changes] =
 		await Promise.all([
@@ -76,7 +78,7 @@ export async function quotasIncreaseCommand(
 		);
 		Log.warn(
 			logOptions,
-			`https://${region}.console.aws.amazon.com/support/home#/case/?displayId=${openCase.CaseId}`,
+			`https://${region}.${consoleDomain}/support/home#/case/?displayId=${openCase.CaseId}`,
 		);
 		exit(1);
 	}
