@@ -26,7 +26,7 @@ export const EffectKeyframeE2e: React.FC = () => {
 				width={1080}
 				height={1080}
 				color="#1f2429"
-				style={{scale: 1}}
+				style={{rotate: '0deg', scale: 1}}
 				effects={[wave({})]}
 			/>
 			<Solid

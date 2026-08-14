@@ -146,6 +146,52 @@ test.describe('effect keyframes', () => {
 			.toBe(true);
 	});
 
+	test('accepts a rotation value that is more precise than its interaction step', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		await page.getByTitle('Scale precision', {exact: true}).first().click();
+
+		const rotationRow = page
+			.getByText('Rotation', {exact: true})
+			.locator('..')
+			.locator('..');
+		const rotationDragger = rotationRow.locator(
+			'button.__remotion_input_dragger',
+		);
+		await expect(rotationDragger).toBeVisible({timeout: 15_000});
+		await rotationDragger.click();
+
+		const input = rotationRow.locator('input[type="text"]');
+		await expect(input).toBeVisible();
+		await input.fill('0.525');
+		await input.press('ArrowUp');
+		await expect(input).toHaveValue('1.525');
+		await input.fill('0.525');
+		await input.press('Enter');
+		await expect(input).toBeHidden();
+
+		await expect
+			.poll(
+				() => {
+					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+					return content.includes("rotate: '0.525deg'");
+				},
+				{
+					message:
+						'Expected the precise rotation value to be written to source',
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
+	});
+
 	test('collapses timeline tracks until a property or effect is selected', async ({
 		page,
 	}) => {
