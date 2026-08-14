@@ -15,41 +15,45 @@ import {
 } from 'remotion';
 
 const springCodeBefore = `const progress =
-  spring({fps, frame, durationInFrames: 20, config: {damping: 200}}) -
-  spring({
-    fps,
-    frame,
-    delay: durationInFrames - 20,
-    durationInFrames: 20,
-    config: {damping: 200},
-  });
+	spring({fps, frame, durationInFrames: 20, config: {damping: 200}}) -
+	spring({
+		fps,
+		frame,
+		delay: durationInFrames - 20,
+		durationInFrames: 20,
+		config: {damping: 200},
+	});
 
 return (
-  <div style={{
-    translate: interpolate(progress, [0, 1], [0, 200]),
-  }} />
+	<div
+		style={{
+			translate: interpolate(progress, [0, 1], [0, 200]),
+		}}
+	/>
 );`;
 
 const springCodeAfter = `return (
-  <div style={{
-    translate: interpolate(
-      frame,
-      [0, 20, durationInFrames - 20, durationInFrames],
-      [0, 200, 200, 0],
-      {
-        easing: Easing.spring({damping: 200}),
-      },
-    ),
-  }} />
+	<div
+		style={{
+			translate: interpolate(
+				frame,
+				[0, 20, durationInFrames - 20, durationInFrames],
+				[0, 200, 200, 0],
+				{
+					easing: Easing.spring({damping: 200}),
+				},
+			),
+		}}
+	/>
 );`;
 
 const sequenceCodeBefore = `<Sequence from={30}>
-  <Sequence from={-15}>
-    <Video src="https://remotion.media/video.mp4" />
-  </Sequence>
-</Sequence>`;
+	<Sequence from={-15}>
+		<Video src="https://remotion.media/video.mp4" />
+	</Sequence>
+</Sequence>;`;
 
-const sequenceCodeAfter = `<Video trimBefore={15} from={30} />`;
+const sequenceCodeAfter = `<Video trimBefore={15} from={30} />;`;
 
 type TokenKind =
 	| 'whitespace'
