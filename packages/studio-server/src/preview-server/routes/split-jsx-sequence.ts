@@ -21,7 +21,11 @@ import {withSourceFileWriteQueue} from './source-file-write-queue';
 export const splitJsxSequenceHandler: ApiHandler<
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse
-> = ({input: {fileName, nodePath, splitFrame}, remotionRoot, logLevel}) =>
+> = ({
+	input: {fileName, nodePath, sequenceKeys, splitFrame},
+	remotionRoot,
+	logLevel,
+}) =>
 	withSourceFileWriteQueue(async () => {
 		try {
 			RenderInternals.Log.trace(
@@ -37,7 +41,12 @@ export const splitJsxSequenceHandler: ApiHandler<
 			const fileContents = readFileSync(absolutePath, 'utf-8');
 
 			const {output, formatted, nodeLabel, logLine, nodePathRemappings} =
-				await splitJsxSequence({input: fileContents, nodePath, splitFrame});
+				await splitJsxSequence({
+					input: fileContents,
+					nodePath,
+					sequenceKeys,
+					splitFrame,
+				});
 			const nodePathMutation = broadcastSequenceNodePathMutation([
 				{
 					absolutePath,
