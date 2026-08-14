@@ -463,9 +463,9 @@ test('<Img> forwards crop props to the CanvasImage fallback', () => {
 
 test('<Img> keeps its component name in crop errors from the fallback', () => {
 	expect(() =>
-		renderImg(<Img cropLeft={1.1} effects={[makeEffect()]} src={testImgUrl} />),
+		renderImg(<Img cropLeft={101} effects={[makeEffect()]} src={testImgUrl} />),
 	).toThrow(
-		'The "cropLeft" prop of <Img /> must be between 0 and 1, but got 1.1.',
+		'The "cropLeft" prop of <Img /> must be between 0 and 1, but got 101. The crop range is 0 to 1, not 0 to 100.',
 	);
 });
 
