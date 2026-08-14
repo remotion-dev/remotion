@@ -10,6 +10,7 @@ import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
 import {Issue8216} from './Issue8216/Issue8216';
 import {LightLeakExample} from './LightLeak';
 import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
+import {MacCursorsExample} from './MacCursors';
 import {NewVideoComp} from './NewVideo';
 import {RotationKeyframeE2e} from './RotationKeyframeE2e';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
@@ -110,6 +111,14 @@ export const E2eTestRoot: React.FC = () => {
 			<Composition
 				id="package-absolute-fill"
 				component={LightLeakExample}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="mac-cursors"
+				component={MacCursorsExample}
 				width={1080}
 				height={1080}
 				fps={30}

@@ -11,7 +11,11 @@ export const MacCursorsExample: React.FC = () => {
 
 	return (
 		<AbsoluteFill style={{backgroundColor: '#ddd'}}>
-			<MacOSCursor cursor="pointer" style={{left: 350, top: 540, scale: 4}} />
+			<MacOSCursor
+				name="Hideable cursor"
+				cursor="pointer"
+				style={{left: 350, top: 540, scale: 4}}
+			/>
 			<MacOSCursor
 				cursor={interpolate(frame, [0, 45], ['pointer', 'custom'], {
 					easing: Easing.step1,
