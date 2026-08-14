@@ -27,19 +27,16 @@ body {
 }
 
 button,
-input,
-select {
+input {
 	font: inherit;
 }
 
-button,
-select {
+button {
 	cursor: pointer;
 }
 
 button:disabled,
-input:disabled,
-select:disabled {
+input:disabled {
 	cursor: default;
 	opacity: 0.48;
 }
@@ -113,7 +110,6 @@ h1 {
 }
 
 input,
-select,
 .format-value {
 	width: 100%;
 	height: 34px;
@@ -130,16 +126,11 @@ select,
 	padding: 0 9px;
 }
 
-select {
-	padding: 0 9px;
-}
-
 input {
 	padding: 0 8px;
 }
 
 input:focus,
-select:focus,
 button:focus-visible {
 	border-color: #0b84f3;
 	box-shadow: 0 0 0 2px rgba(11, 132, 243, 0.25);
