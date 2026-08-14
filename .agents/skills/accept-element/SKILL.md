@@ -46,7 +46,7 @@ Ask the maintainer to visually compare the committed assets with the fresh rende
 
 ## 3. Upload the exact approved files
 
-With maintainer R2 credentials available, run:
+With maintainer R2 credentials in `packages/docs/.env`, run:
 
 ```bash
 cd packages/docs
@@ -55,6 +55,8 @@ bun run upload-element-preview \
   --source=submission
 cd ../..
 ```
+
+Running the command from `packages/docs` makes Bun load `packages/docs/.env`. Element preview uploads do not use `packages/remotion-media/.env`; do not use the generic `upload-r2` or `offload-r2` skills for them.
 
 This command uploads the exact files from `packages/docs/static/elements`; it does not rerender or delete them. The explicit submission source validates that the assets are committed and unmodified, then checks the local paths, signatures, combined size, uploaded sizes, public HTTP responses, and content types. Do not continue unless both uploads are verified.
 
