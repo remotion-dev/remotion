@@ -312,10 +312,9 @@ describe('Elements sidebar', () => {
 			throw new Error('Elements sidebar must be an array');
 		}
 
-		expect(sidebar.slice(0, 4)).toEqual([
+		expect(sidebar.slice(0, 3)).toEqual([
 			'index',
-			'guidelines',
-			'submit-an-element',
+			'contributing',
 			{
 				type: 'html',
 				value:
@@ -324,7 +323,7 @@ describe('Elements sidebar', () => {
 			},
 		]);
 
-		const categories = sidebar.slice(4);
+		const categories = sidebar.slice(3);
 		const expectedCategories = [
 			{
 				category: 'backgrounds',

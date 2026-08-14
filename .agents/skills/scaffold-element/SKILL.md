@@ -5,7 +5,7 @@ description: Scaffold a new Remotion Element with a correctly configured preview
 
 # Scaffold a Remotion Element
 
-The source of truth for design and quality criteria is the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
+The source of truth for design and quality criteria is the [Element contribution guide](../../../packages/docs/elements/contributing.mdx). Read it completely before making changes. If this skill and the guide diverge on acceptance criteria, follow the guide.
 
 This skill owns the technical scaffolding workflow. Use the [`submit-element` skill](../submit-element/SKILL.md) when the Element is ready for the gallery.
 
@@ -41,7 +41,7 @@ mv packages/docs/elements/<category>/<slug>/element.tsx \
 
 Adapt the copied `index.mdx` to the production pattern: import `elementDefinitions`, use its `'<category>/<slug>'` entry, and set `sourceFile="./<slug>.tsx"`.
 
-Implement only enough of the component in the generated `<slug>.tsx` file to provide a visible starting point in the intended bounds. Follow the Element Guidelines for the component itself. When using Studio-editable controls, also follow the [interactivity best practices skill](../interactivity-best-practices/SKILL.md).
+Implement only enough of the component in the generated `<slug>.tsx` file to provide a visible starting point in the intended bounds. Follow the Element contribution guide for the component itself. When using Studio-editable controls, also follow the [interactivity best practices skill](../interactivity-best-practices/SKILL.md).
 
 ## 3. Register the development composition
 
