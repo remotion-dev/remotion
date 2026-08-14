@@ -32,6 +32,7 @@ import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
+import {openInGitClientHandler} from './routes/open-in-git-client';
 import {openInTerminalHandler} from './routes/open-in-terminal';
 import {pasteEffectsHandler} from './routes/paste-effects';
 import {prepareElementInstallHandler} from './routes/prepare-element-install';
@@ -79,6 +80,7 @@ export const allApiRoutes: {
 	'/api/find-in-file': findInFileHandler,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
 	'/api/open-in-terminal': openInTerminalHandler,
+	'/api/open-in-git-client': openInGitClientHandler,
 	'/api/open-in-editor': openInEditorHandler,
 	'/api/open-in-coding-agent': openInCodingAgentHandler,
 	'/api/register-client-render': registerClientRenderHandler,
