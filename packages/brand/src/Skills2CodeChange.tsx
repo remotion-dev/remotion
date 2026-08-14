@@ -429,7 +429,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 										display: 'inline-block',
 										whiteSpace: 'pre',
 										color: token.color,
-										opacity: interpolate(frame, [90, 108], [1, 0], {
+										opacity: interpolate(frame, [45, 54], [1, 0], {
 											easing: Easing.bezier(0.4, 0, 1, 1),
 											extrapolateLeft: 'clamp',
 											extrapolateRight: 'clamp',
@@ -458,12 +458,12 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 											? token.color
 											: interpolateColors(
 													frame,
-													[108, 126],
+													[54, 63],
 													[token.color, afterToken.color],
 												),
 									translate: `${interpolate(
 										frame,
-										[108, 126],
+										[54, 63],
 										[beforePosition.x, afterPosition.x],
 										{
 											easing: Easing.spring({damping: 200}),
@@ -472,7 +472,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 										},
 									)}px ${interpolate(
 										frame,
-										[108, 126],
+										[54, 63],
 										[beforePosition.y, afterPosition.y],
 										{
 											easing: Easing.spring({damping: 200}),
@@ -505,7 +505,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 									display: 'inline-block',
 									whiteSpace: 'pre',
 									color: token.color,
-									opacity: interpolate(frame, [126, 144], [0, 1], {
+									opacity: interpolate(frame, [63, 72], [0, 1], {
 										easing: Easing.bezier(0, 0, 0.2, 1),
 										extrapolateLeft: 'clamp',
 										extrapolateRight: 'clamp',
@@ -538,14 +538,10 @@ export const Skills2CodeChange: React.FC = () => {
 					}),
 				]}
 			/>
-			<Sequence durationInFrames={180} name="Spring to interpolate">
+			<Sequence durationInFrames={90} name="Spring to interpolate">
 				<CodeChange codeChange={springCodeChange} />
 			</Sequence>
-			<Sequence
-				from={180}
-				durationInFrames={180}
-				name="Sequence to Video props"
-			>
+			<Sequence from={90} durationInFrames={90} name="Sequence to Video props">
 				<CodeChange codeChange={sequenceCodeChange} />
 			</Sequence>
 		</AbsoluteFill>
