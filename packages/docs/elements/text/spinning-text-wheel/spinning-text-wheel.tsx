@@ -83,16 +83,15 @@ const SpinningTextWheelInner = forwardRef<
 				<div
 					ref={outlineRef}
 					style={{
-						height: 420,
+						height: 200,
 						maskImage:
 							'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
 						overflow: 'hidden',
 						WebkitMaskImage:
 							'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
-						perspective: 1000,
+						perspective: 10000,
 						position: 'relative',
-						transformStyle: 'preserve-3d',
-						width: 640,
+						width: 400,
 						...style,
 					}}
 				>
@@ -120,8 +119,8 @@ const SpinningTextWheelInner = forwardRef<
 											: 0.28,
 									position: 'absolute',
 									top: 0,
-									transform: `translateZ(${Math.cos(angle) * 130}px) translateY(${Math.sin(angle) * 130}px) rotateX(${rotateX}deg)`,
-									transformStyle: 'preserve-3d',
+									perspective: 1000,
+									transform: `translateZ(${Math.cos(angle) * 100}px) translateY(${Math.sin(angle) * 100}px) rotateX(${rotateX}deg)`,
 									width: '100%',
 								}}
 							>
@@ -160,7 +159,7 @@ export const SpinningTextWheel: React.FC<SpinningTextWheelProps> = (props) => {
 			style={{
 				color: '#182033',
 				fontFamily: 'Mona Sans',
-				fontSize: 72,
+				fontSize: 65,
 				fontWeight: 700,
 				lineHeight: 1,
 			}}
