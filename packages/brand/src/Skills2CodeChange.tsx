@@ -6,7 +6,6 @@ import {
 	Interactive,
 	interpolate,
 	interpolateColors,
-	Sequence,
 	Solid,
 	useCurrentFrame,
 	useCurrentScale,
@@ -37,29 +36,7 @@ return (
 	</Sequence>
 );`;
 
-const springCodeAfter = `return (
-	<Sequence from={30}>
-		<Sequence from={-15}>
-			<Video
-				src="https://remotion.media/video.mp4"
-				style={{
-					translate: interpolate(
-						frame,
-						[0, 20, durationInFrames - 20, durationInFrames],
-						[0, 200, 200, 0],
-						{
-							easing: Easing.spring({damping: 200}),
-						},
-					),
-				}}
-			/>
-		</Sequence>
-	</Sequence>
-);`;
-
-const sequenceCodeBefore = springCodeAfter;
-
-const sequenceCodeAfter = `return (
+const combinedCodeAfter = `return (
 	<Video
 		src="https://remotion.media/video.mp4"
 		trimBefore={15}
@@ -319,10 +296,9 @@ const prepareCodeChange = (before: string, after: string): CodeChangeData => {
 	};
 };
 
-const springCodeChange = prepareCodeChange(springCodeBefore, springCodeAfter);
-const sequenceCodeChange = prepareCodeChange(
-	sequenceCodeBefore,
-	sequenceCodeAfter,
+const combinedCodeChange = prepareCodeChange(
+	springCodeBefore,
+	combinedCodeAfter,
 );
 
 const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
@@ -455,7 +431,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 										display: 'inline-block',
 										whiteSpace: 'pre',
 										color: token.color,
-										opacity: interpolate(frame, [45, 54], [1, 0], {
+										opacity: interpolate(frame, [90, 108], [1, 0], {
 											easing: Easing.bezier(0.4, 0, 1, 1),
 											extrapolateLeft: 'clamp',
 											extrapolateRight: 'clamp',
@@ -484,12 +460,12 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 											? token.color
 											: interpolateColors(
 													frame,
-													[54, 63],
+													[108, 126],
 													[token.color, afterToken.color],
 												),
 									translate: `${interpolate(
 										frame,
-										[54, 63],
+										[108, 126],
 										[beforePosition.x, afterPosition.x],
 										{
 											easing: Easing.spring({damping: 200}),
@@ -498,7 +474,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 										},
 									)}px ${interpolate(
 										frame,
-										[54, 63],
+										[108, 126],
 										[beforePosition.y, afterPosition.y],
 										{
 											easing: Easing.spring({damping: 200}),
@@ -531,7 +507,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 									display: 'inline-block',
 									whiteSpace: 'pre',
 									color: token.color,
-									opacity: interpolate(frame, [63, 72], [0, 1], {
+									opacity: interpolate(frame, [126, 144], [0, 1], {
 										easing: Easing.bezier(0, 0, 0.2, 1),
 										extrapolateLeft: 'clamp',
 										extrapolateRight: 'clamp',
@@ -564,12 +540,7 @@ export const Skills2CodeChange: React.FC = () => {
 					}),
 				]}
 			/>
-			<Sequence durationInFrames={90} name="Spring to interpolate">
-				<CodeChange codeChange={springCodeChange} />
-			</Sequence>
-			<Sequence from={90} durationInFrames={90} name="Sequence to Video props">
-				<CodeChange codeChange={sequenceCodeChange} />
-			</Sequence>
+			<CodeChange codeChange={combinedCodeChange} />
 		</AbsoluteFill>
 	);
 };
