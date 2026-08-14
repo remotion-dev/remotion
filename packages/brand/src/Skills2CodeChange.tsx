@@ -326,6 +326,9 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 			return;
 		}
 
+		const verticalOffset =
+			(height - beforeMeasurementRef.current.offsetHeight) / 2;
+
 		const measure = (
 			pre: HTMLPreElement,
 			tokenCount: number,
@@ -333,7 +336,6 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 			const preBounds = pre.getBoundingClientRect();
 			const measurementScaleX = preBounds.width / pre.offsetWidth;
 			const measurementScaleY = preBounds.height / pre.offsetHeight;
-			const verticalOffset = (height - pre.offsetHeight) / 2;
 			const positions = Array.from({length: tokenCount}, () => ({x: 0, y: 0}));
 			const elements = pre.querySelectorAll<HTMLElement>('[data-token-index]');
 
