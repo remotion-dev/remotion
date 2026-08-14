@@ -79,7 +79,7 @@ const sidebars: SidebarsConfig = {
 			label: 'Storytelling',
 			link: {type: 'doc', id: 'storytelling/index'},
 			collapsed: false,
-			items: ['text/news-article-headline-highlight/index'],
+			items: ['text/news-article-highlight/index'],
 		},
 		{
 			type: 'category',
