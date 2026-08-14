@@ -11,7 +11,7 @@ import {supportsNestedHtmlInCanvas} from './html-in-canvas';
 import {makeInternalState} from './internal-state';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
 import type {InputPropsIfHasProps} from './render-media-on-web';
-import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
+import {onlyOneStillRenderAtATimeQueue} from './render-operations-queue';
 import {
 	createRenderStillOnWebResult,
 	type RenderStillOnWebResult,
@@ -237,7 +237,7 @@ export const renderStillOnWeb = <
 >(
 	options: RenderStillOnWebOptions<Schema, Props>,
 ): Promise<RenderStillOnWebResult> => {
-	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
+	onlyOneStillRenderAtATimeQueue.ref = onlyOneStillRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderStillOnWeb<Schema, Props>({
@@ -256,5 +256,5 @@ export const renderStillOnWeb = <
 			}),
 		);
 
-	return onlyOneRenderAtATimeQueue.ref as Promise<RenderStillOnWebResult>;
+	return onlyOneStillRenderAtATimeQueue.ref as Promise<RenderStillOnWebResult>;
 };

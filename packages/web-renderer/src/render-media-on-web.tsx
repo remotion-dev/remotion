@@ -41,7 +41,7 @@ import {
 	type WebRendererPageResponsiveness,
 } from './page-responsiveness';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
-import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
+import {onlyOneMediaRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
 import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
@@ -744,7 +744,7 @@ export const renderMediaOnWeb = <
 	const codec =
 		options.videoCodec ?? getDefaultVideoCodecForContainer(container) ?? null;
 
-	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
+	onlyOneMediaRenderAtATimeQueue.ref = onlyOneMediaRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderMediaOnWeb<Schema, Props>({
@@ -778,5 +778,5 @@ export const renderMediaOnWeb = <
 			}),
 		);
 
-	return onlyOneRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
+	return onlyOneMediaRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
 };
