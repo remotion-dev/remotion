@@ -15,7 +15,8 @@ export type MacOSCursorProps = InteractiveBaseProps & {
 	readonly style?: CSSProperties;
 };
 
-export const macOSCursorSchema = {
+export const macOSCursorSchema: InteractivitySchema = {
+	...Interactive.baseSchema,
 	cursor: {
 		type: 'enum',
 		default: 'default',

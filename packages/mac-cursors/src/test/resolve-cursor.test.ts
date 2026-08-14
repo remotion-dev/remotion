@@ -46,10 +46,15 @@ test('resolves named, custom, hidden, and unknown cursors', () => {
 });
 
 test('cursor schema exposes named cursors as a keyframable enum', () => {
-	expect(macOSCursorSchema.cursor.keyframable).toBe(true);
-	expect(macOSCursorSchema.cursor.variants.default).toEqual({});
-	expect(macOSCursorSchema.cursor.variants['ne-resize']).toEqual({});
-	expect(macOSCursorSchema.cursor.variants.custom).toEqual({
+	const cursorSchema = macOSCursorSchema.cursor;
+	if (cursorSchema.type !== 'enum') {
+		throw new Error('Expected cursor schema to be an enum');
+	}
+
+	expect(cursorSchema.keyframable).toBe(true);
+	expect(cursorSchema.variants.default).toEqual({});
+	expect(cursorSchema.variants['ne-resize']).toEqual({});
+	expect(cursorSchema.variants.custom).toEqual({
 		customCursor: {
 			type: 'text-content',
 			default: '',
