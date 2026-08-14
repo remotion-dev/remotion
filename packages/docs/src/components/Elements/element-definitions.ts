@@ -456,8 +456,10 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 105,
 		preview: {
-			posterUrl: '/elements/text-spinning-text-wheel-preview.png',
-			videoUrl: '/elements/text-spinning-text-wheel-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/text-spinning-text-wheel-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-spinning-text-wheel-preview.mp4',
 		},
 		previewPadding: 120,
 		installationMode: 'wrapped',
