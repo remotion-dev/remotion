@@ -44,6 +44,7 @@ const componentAssetTypes: Record<string, AssetFileType> = {
 	'dev.remotion.media.Audio': 'audio',
 	'dev.remotion.media.Video': 'video',
 	'dev.remotion.remotion.AnimatedImage': 'image',
+	'dev.remotion.remotion.CanvasImage': 'image',
 	'dev.remotion.remotion.Img': 'image',
 };
 

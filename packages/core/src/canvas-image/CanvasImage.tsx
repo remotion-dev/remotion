@@ -42,6 +42,12 @@ import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...baseSchema,
 	...cropSchema,
 	...premountSchema,
