@@ -335,9 +335,7 @@ export const splitJsxSequence = async ({
 	const jsxElement = jsxPath.node as JSXElement;
 	const tagName = getSplittableSequenceTagName(jsxElement);
 	if (!hasSequenceTimingTraits(sequenceKeys)) {
-		throw new Error(
-			`<${tagName}> does not expose the sequence timing traits needed to split from source`,
-		);
+		throw new Error(`<${tagName}> cannot be split`);
 	}
 
 	const timing = readSequenceTiming(jsxElement);

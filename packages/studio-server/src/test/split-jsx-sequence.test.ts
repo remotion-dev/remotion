@@ -183,13 +183,13 @@ test('splitJsxSequence rejects Series.Sequence', async () => {
 			'durationInFrames',
 			'trimBefore',
 		]),
-	).rejects.toThrow(/does not expose the sequence timing traits/);
+	).rejects.toThrow('<Series.Sequence> cannot be split');
 });
 
 test('splitJsxSequence rejects regular DOM elements', async () => {
 	await expect(
 		split('<div from={0} durationInFrames={50} />', 30, []),
-	).rejects.toThrow(/does not expose the sequence timing traits/);
+	).rejects.toThrow('<div> cannot be split');
 });
 
 const clearUndoStack = () => {
