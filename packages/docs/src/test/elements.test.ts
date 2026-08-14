@@ -531,7 +531,10 @@ describe('Elements sidebar', () => {
 			{
 				category: 'youtube',
 				label: 'YouTube',
-				items: ['youtube/youtube-end-card/index'],
+				items: [
+					'youtube/youtube-end-card/index',
+					'youtube/youtube-subscribe-nudge/index',
+				],
 			},
 		] as const;
 
