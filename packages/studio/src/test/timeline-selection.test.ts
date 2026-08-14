@@ -2581,6 +2581,97 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 	]);
 });
 
+test('Timeline from drag moves descendant keyframes without moving sibling keyframes', () => {
+	const descendantSchema = {
+		'style.translate': {type: 'translate', default: '0px 0px'},
+	} satisfies InteractivitySchema;
+	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const parentNodePath = parentNodePathInfo.sequenceSubscriptionKey;
+	const descendantNodePath = makeNodePathInfo(
+		['body', 0, 'children', 0],
+		[],
+	).sequenceSubscriptionKey;
+	const siblingNodePath = makeNodePathInfo(
+		['body', 1],
+		[],
+	).sequenceSubscriptionKey;
+	const propStatuses = makeFromPropStatuses([parentNodePath]);
+	for (const nodePath of [descendantNodePath, siblingNodePath]) {
+		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			canUpdate: true,
+			props: {
+				'style.translate': {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 10, value: '0px 0px'},
+						{frame: 20, value: '500px 0px'},
+					],
+					easing: [{type: 'linear'}],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		};
+	}
+
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: parentNodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo: parentNodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema: {},
+				id: 'parent',
+				overrideId: 'parent-override',
+			}),
+			makeTimelineSequence({
+				schema: descendantSchema,
+				id: 'descendant',
+				overrideId: 'descendant-override',
+				parentId: 'parent',
+			}),
+			makeTimelineSequence({
+				schema: descendantSchema,
+				id: 'sibling',
+				overrideId: 'sibling-override',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			'parent-override': parentNodePath,
+			'descendant-override': descendantNodePath,
+			'sibling-override': siblingNodePath,
+		},
+		propStatuses,
+	});
+
+	expect(
+		getTimelineSequenceFromDragKeyframeMoves({
+			targets: targets ?? [],
+			deltaFrames: -10,
+		}).sequenceKeyframes.map((keyframe) => ({
+			fieldKey: keyframe.fieldKey,
+			fromFrame: keyframe.fromFrame,
+			nodePath: keyframe.nodePath.nodePath,
+			toFrame: keyframe.toFrame,
+		})),
+	).toEqual([
+		{
+			fieldKey: 'style.translate',
+			fromFrame: 10,
+			nodePath: ['body', 0, 'children', 0],
+			toFrame: 0,
+		},
+		{
+			fieldKey: 'style.translate',
+			fromFrame: 20,
+			nodePath: ['body', 0, 'children', 0],
+			toFrame: 10,
+		},
+	]);
+});
+
 test('Timeline from drag moves owned effect keyframes by the same delta', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
