@@ -396,6 +396,19 @@ test.describe('visual mode', () => {
 		});
 	});
 
+	test('should play when a composition in the sidebar is focused', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/schema-test`);
+		await expect(page).toHaveURL(/schema-test/, {timeout: 15_000});
+
+		const otherComposition = page.getByTitle('AnimatedBarChart', {exact: true});
+		await otherComposition.press('Space');
+
+		await expect(page.getByRole('button', {name: 'Pause'})).toBeVisible();
+		await expect(page).toHaveURL(/schema-test/);
+	});
+
 	test('should navigate to a newly created composition', async ({page}) => {
 		const compositionId = 'NewlyCreatedComposition';
 		const compositionFile = path.join(

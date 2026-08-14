@@ -182,7 +182,7 @@ export const CompositionSelectorItem: React.FC<{
 
 	const onKeyDown = useCallback(
 		(evt: React.KeyboardEvent<HTMLElement>) => {
-			if (evt.key === 'Enter' || evt.key === ' ') {
+			if (evt.key === 'Enter') {
 				onClick(evt);
 			}
 		},
