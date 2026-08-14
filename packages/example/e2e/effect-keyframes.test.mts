@@ -192,6 +192,91 @@ test.describe('effect keyframes', () => {
 			.toBe(true);
 	});
 
+	test('accepts a crop value that is more precise than its interaction step', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		await page.getByTitle('Scale precision', {exact: true}).first().click();
+		await page.getByRole('button', {name: 'Expand Crop', exact: true}).click();
+
+		const cropRow = page
+			.getByText('Crop left', {exact: true})
+			.locator('..')
+			.locator('..');
+		await cropRow.locator('button.__remotion_input_dragger').click();
+
+		const input = cropRow.locator('input[type="text"]');
+		await expect(input).toBeVisible();
+		await input.fill('0.005');
+		await input.press('ArrowUp');
+		await expect(input).toHaveValue('0.015');
+		await input.fill('0.005');
+		await input.press('Enter');
+		await expect(input).toBeHidden();
+
+		await expect
+			.poll(
+				() => {
+					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+					return content.includes('cropLeft={0.005}');
+				},
+				{
+					message: 'Expected the precise crop value to be written to source',
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
+	});
+
+	test('accepts an effect parameter that is more precise than its interaction step', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		await page.getByTitle('Scale precision', {exact: true}).first().click();
+		await page.getByText('wave()', {exact: true}).click();
+
+		const amplitudeRow = page
+			.getByText('Amplitude', {exact: true})
+			.locator('..')
+			.locator('..');
+		await amplitudeRow.locator('button.__remotion_input_dragger').click();
+
+		const input = amplitudeRow.locator('input[type="text"]');
+		await expect(input).toBeVisible();
+		await input.fill('60.525');
+		await input.press('ArrowUp');
+		await expect(input).toHaveValue('61.525');
+		await input.fill('60.525');
+		await input.press('Enter');
+		await expect(input).toBeHidden();
+
+		await expect
+			.poll(
+				() => {
+					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+					return content.includes('amplitude: 60.525');
+				},
+				{
+					message:
+						'Expected the precise effect parameter to be written to source',
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
+	});
+
 	test('collapses timeline tracks until a property or effect is selected', async ({
 		page,
 	}) => {

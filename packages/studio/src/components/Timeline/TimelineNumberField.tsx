@@ -65,6 +65,9 @@ export const TimelineNumberField: React.FC<{
 	const configuredStep =
 		field.fieldSchema.type === 'number' ? field.fieldSchema.step : undefined;
 	const step = configuredStep ?? 1;
+	const allowStepMismatch =
+		field.group === 'crop' ||
+		('kind' in field && field.kind === 'effect-field');
 
 	const formatter = useCallback(
 		(v: number | string) => {
@@ -99,6 +102,7 @@ export const TimelineNumberField: React.FC<{
 			step={step}
 			formatter={formatter}
 			rightAlign={false}
+			allowStepMismatch={allowStepMismatch}
 		/>
 	);
 };
