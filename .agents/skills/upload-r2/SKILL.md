@@ -1,11 +1,13 @@
 ---
 name: upload-r2
-description: Upload large Remotion repository assets to the Cloudflare R2 bucket behind remotion.media and replace local public/ assets with hosted URLs. Use when a file is too large for Git or when a PR should avoid committing media binaries by hosting them on remotion.media.
+description: Upload large Remotion repository assets to the Cloudflare R2 bucket behind remotion.media and replace local public/ assets with hosted URLs. Use when a file is too large for Git or when a PR should avoid committing media binaries by hosting them on remotion.media. Do not use for Remotion Element previews.
 ---
 
 # Upload R2 Asset
 
 Use this for large media assets that should be hosted on `https://remotion.media/` instead of committed to Git.
+
+Do not use this skill for Remotion Element previews. Follow the `submit-element` or `accept-element` skill instead; the dedicated uploader runs from `packages/docs` and loads `packages/docs/.env`.
 
 ## Workflow
 
