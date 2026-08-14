@@ -49,22 +49,22 @@ export const config: VercelConfig = {
 	redirects: [
 		routes.redirect(
 			'/elements/guidelines',
-			'/elements/contributing#create-the-element',
+			'/elements/contributing#element-guidelines',
 			{permanent: true},
 		),
 		routes.redirect(
 			'/elements/guidelines.md',
-			'/elements/contributing.md#create-the-element',
+			'/elements/contributing.md#element-guidelines',
 			{permanent: true},
 		),
 		routes.redirect(
 			'/elements/submit-an-element',
-			'/elements/contributing#submit-the-element',
+			'/elements/contributing#submit-an-element',
 			{permanent: true},
 		),
 		routes.redirect(
 			'/elements/submit-an-element.md',
-			'/elements/contributing.md#submit-the-element',
+			'/elements/contributing.md#submit-an-element',
 			{permanent: true},
 		),
 		routes.redirect(

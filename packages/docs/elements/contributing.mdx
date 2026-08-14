@@ -6,11 +6,7 @@ description: Create and submit a Remotion Element for the Elements gallery.
 
 # Contributing an Element
 
-Have a small, remixable Remotion Element? We'd like to see it.
-
-Two [Agent Skills](https://agentskills.io/) define the workflow: scaffold the Element when starting, then submit it when it is ready.
-
-## Create the Element
+## Element Guidelines
 
 A Remotion Element should be a focused, reusable video building block that can be copied and remixed.
 
@@ -25,12 +21,6 @@ Web components, Remotion libraries, and AI-generated ideas may help with impleme
 An Element should represent one coherent visual treatment, technique, or workflow. It should work without configuration and be useful across projects.
 
 The caption Elements show the distinction: moving a pill between words, popping words, and highlighting words all serve the same purpose but use distinct visual techniques that users would choose separately. Do not create Elements for arbitrary presets, minor CSS differences, or Studio-control configurations.
-
-### Scaffold the Element
-
-Use the [`scaffold-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/scaffold-element/SKILL.md) to create the repository files and development composition.
-
-Ask your coding agent to use the skill to set up the Element, then implement and review it in Remotion Studio.
 
 ### Make it portable
 
@@ -69,15 +59,22 @@ Follow the [interactivity best practices](/docs/studio/interactivity-best-practi
 
 Choose a poster frame that clearly shows the Element. The video preview should cover the Element's full duration and, when applicable, include its entrance and exit animations.
 
-## Submit the Element
+When ready, [submit the Element](#submit-an-element).
 
-After reviewing the Element in Remotion Studio, prepare it for review.
+## Submit an Element
 
-### Use the Agent Skill
+Have a small, remixable Remotion Element? We'd like to see it.
 
-Use the [`submit-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/submit-element/SKILL.md). It adds the Element to the gallery and prepares it for review.
+Before starting, read the [Element Guidelines](#element-guidelines). They describe the design and quality criteria for Elements.
 
-Ask your coding agent to use the skill.
+### Use the Agent Skills
+
+Two [Agent Skills](https://agentskills.io/) define the contribution workflow:
+
+- Use the [`scaffold-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/scaffold-element/SKILL.md) to create the repository files and development composition.
+- Use the [`submit-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/submit-element/SKILL.md) after reviewing the Element in Remotion Studio. It adds the Element to the gallery and prepares it for review.
+
+Ask your coding agent to use the skills in that order.
 
 ### Open the pull request
 
