@@ -97,41 +97,36 @@ export const LineChart: React.FC = () => {
 					position: 'relative',
 				}}
 			>
-				<Interactive.Div
-					name="Y-axis labels"
+				<div
 					style={{
 						color: '#6b7280',
 						fontSize: 40,
 						fontWeight: 700,
-						inset: 0,
+						height: '100%',
 						position: 'absolute',
+						right: `calc(${100 - (CHART_SIDE_PADDING / CHART_WIDTH) * 100}% + 64px)`,
+						top: 0,
+						width: 94,
 					}}
 				>
 					{Y_AXIS_VALUES.map((value) => (
-						<div
+						<Interactive.Div
 							key={value}
+							name="Y-axis label"
 							style={{
-								left: `${(CHART_SIDE_PADDING / CHART_WIDTH) * 100}%`,
 								position: 'absolute',
-								right: `${(CHART_SIDE_PADDING / CHART_WIDTH) * 100}%`,
+								right: 0,
+								textAlign: 'right',
 								top: `${((MAX_VALUE - value) / (MAX_VALUE - MIN_VALUE)) * 100}%`,
+								translate: '0 -50%',
+								whiteSpace: 'nowrap',
+								width: '100%',
 							}}
 						>
-							<div
-								style={{
-									position: 'absolute',
-									right: 'calc(100% + 64px)',
-									textAlign: 'right',
-									translate: '0 -50%',
-									whiteSpace: 'nowrap',
-									width: 94,
-								}}
-							>
-								{value}K
-							</div>
-						</div>
+							{value}K
+						</Interactive.Div>
 					))}
-				</Interactive.Div>
+				</div>
 				<svg
 					viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
 					preserveAspectRatio="none"
@@ -218,32 +213,35 @@ export const LineChart: React.FC = () => {
 						))}
 					</Interactive.G>
 				</svg>
-				<Interactive.Div
-					name="X-axis labels"
+				<div
 					style={{
 						color: '#4b5563',
 						fontSize: 40,
 						fontWeight: 700,
-						inset: 0,
+						height: 48,
+						left: 0,
 						position: 'absolute',
+						right: 0,
+						top: 'calc(100% + 64px)',
 					}}
 				>
 					{data.map(({label}, index) =>
 						index % 2 === 0 ? (
-							<div
+							<Interactive.Div
 								key={label}
+								name="X-axis label"
 								style={{
 									left: `${((CHART_SIDE_PADDING + (index / (data.length - 1)) * (CHART_WIDTH - CHART_SIDE_PADDING * 2)) / CHART_WIDTH) * 100}%`,
 									position: 'absolute',
-									top: 'calc(100% + 64px)',
+									top: 0,
 									translate: '-50% 0',
 								}}
 							>
 								{label}
-							</div>
+							</Interactive.Div>
 						) : null,
 					)}
-				</Interactive.Div>
+				</div>
 				<div
 					style={{
 						left: `${(latestPoint.x / CHART_WIDTH) * 100}%`,
