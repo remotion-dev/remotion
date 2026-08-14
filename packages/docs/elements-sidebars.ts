@@ -20,8 +20,7 @@ const compareStrings = (a: string, b: string) => {
 const sidebars: SidebarsConfig = {
 	elementsSidebar: [
 		'index',
-		'guidelines',
-		'submit-an-element',
+		'contributing',
 		{
 			type: 'html',
 			value:

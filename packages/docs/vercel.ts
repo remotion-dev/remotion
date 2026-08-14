@@ -48,6 +48,26 @@ export const config: VercelConfig = {
 	],
 	redirects: [
 		routes.redirect(
+			'/elements/guidelines',
+			'/elements/contributing#element-guidelines',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/guidelines.md',
+			'/elements/contributing.md#element-guidelines',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/submit-an-element',
+			'/elements/contributing#submit-an-element',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/submit-an-element.md',
+			'/elements/contributing.md#submit-an-element',
+			{permanent: true},
+		),
+		routes.redirect(
 			'/elements/overlays/lower-third',
 			'/elements/overlays/name-lower-third',
 			{permanent: true},
