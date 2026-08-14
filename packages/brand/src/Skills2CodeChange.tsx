@@ -497,12 +497,12 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 											? token.color
 											: interpolateColors(
 													frame,
-													[108, 126],
+													[90, 108],
 													[token.color, afterToken.color],
 												),
 									translate: `${interpolate(
 										frame,
-										[108, 126],
+										[90, 108],
 										[beforePosition.x, afterPosition.x],
 										{
 											easing: Easing.spring({damping: 200}),
@@ -511,7 +511,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 										},
 									)}px ${interpolate(
 										frame,
-										[108, 126],
+										[90, 108],
 										[beforePosition.y, afterPosition.y],
 										{
 											easing: Easing.spring({damping: 200}),
@@ -544,7 +544,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 									display: 'inline-block',
 									whiteSpace: 'pre',
 									color: token.color,
-									opacity: interpolate(frame, [126, 144], [0, 1], {
+									opacity: interpolate(frame, [108, 126], [0, 1], {
 										easing: Easing.bezier(0, 0, 0.2, 1),
 										extrapolateLeft: 'clamp',
 										extrapolateRight: 'clamp',
