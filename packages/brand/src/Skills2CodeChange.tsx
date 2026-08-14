@@ -8,38 +8,49 @@ import {
 	interpolateColors,
 	Solid,
 	useCurrentFrame,
-	useCurrentScale,
 	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
 
-const codeBefore = `const progress =
-  spring({fps, frame, durationInFrames: 20, config: {damping: 200}}) -
-  spring({
-    fps,
-    frame,
-    delay: durationInFrames - 20,
-    durationInFrames: 20,
-    config: {damping: 200},
-  });
+const springCodeBefore = `const progress =
+	spring({fps, frame, durationInFrames: 20, config: {damping: 200}}) -
+	spring({
+		fps,
+		frame,
+		delay: durationInFrames - 20,
+		durationInFrames: 20,
+		config: {damping: 200},
+	});
 
 return (
-  <div style={{
-    translate: interpolate(progress, [0, 1], [0, 200]),
-  }} />
+	<Sequence from={30}>
+		<Sequence from={-15}>
+			<Video
+				src="https://remotion.media/video.mp4"
+				style={{
+					translate: interpolate(progress, [0, 1], [0, 200]),
+				}}
+			/>
+		</Sequence>
+	</Sequence>
 );`;
 
-const codeAfter = `return (
-  <div style={{
-    translate: interpolate(
-      frame,
-      [0, 20, durationInFrames - 20, durationInFrames],
-      [0, 200, 200, 0],
-      {
-        easing: Easing.spring({damping: 200}),
-      },
-    ),
-  }} />
+const combinedCodeAfter = `return (
+	<Video
+		src="https://remotion.media/video.mp4"
+		trimBefore={15}
+		from={30}
+		style={{
+			translate: interpolate(
+				frame,
+				[0, 20, durationInFrames - 20, durationInFrames],
+				[0, 200, 200, 0],
+				{
+					easing: Easing.spring({damping: 200}),
+				},
+			),
+		}}
+	/>
 );`;
 
 type TokenKind =
@@ -83,6 +94,13 @@ type CodeLayouts = {
 	readonly after: TokenPosition[];
 };
 
+type CodeChangeData = {
+	readonly before: TokenizedCode;
+	readonly after: TokenizedCode;
+	readonly afterIndexByBeforeIndex: Map<number, number>;
+	readonly matchedAfterIndexes: Set<number>;
+};
+
 const getTokenColor = (kind: TokenKind) => {
 	if (kind === 'keyword' || kind === 'operator') {
 		return '#cf222e';
@@ -109,7 +127,7 @@ const getTokenColor = (kind: TokenKind) => {
 	}
 
 	if (kind === 'identifier') {
-		return '#57606a';
+		return '#24292f';
 	}
 
 	return '#24292f';
@@ -155,9 +173,9 @@ const tokenizeCode = (code: string): TokenizedCode => {
 				kind = 'keyword';
 			} else if (['spring', 'interpolate'].includes(identifier)) {
 				kind = 'function';
-			} else if (identifier === 'div') {
+			} else if (['div', 'Sequence', 'Video'].includes(identifier)) {
 				kind = 'tag';
-			} else if (identifier === 'style') {
+			} else if (['style', 'src', 'trimBefore', 'from'].includes(identifier)) {
 				kind = 'attribute';
 			} else if (identifier === 'progress') {
 				kind = 'variable';
@@ -201,7 +219,8 @@ const matchTokens = (
 	before: VisibleToken[],
 	after: VisibleToken[],
 ): [number, number][] => {
-	const lengths = Array.from({length: before.length + 1}, () =>
+	const semanticTokenScore = before.length + after.length;
+	const scores = Array.from({length: before.length + 1}, () =>
 		Array<number>(after.length + 1).fill(0),
 	);
 
@@ -210,9 +229,15 @@ const matchTokens = (
 			const tokensMatch =
 				before[row].kind === after[column].kind &&
 				before[row].value === after[column].value;
-			lengths[row][column] = tokensMatch
-				? lengths[row + 1][column + 1] + 1
-				: Math.max(lengths[row + 1][column], lengths[row][column + 1]);
+			// Keep meaningful tokens moving even when matching more punctuation would
+			// produce a longer sequence.
+			const matchScore =
+				before[row].kind === 'punctuation' || before[row].kind === 'operator'
+					? 1
+					: semanticTokenScore;
+			scores[row][column] = tokensMatch
+				? scores[row + 1][column + 1] + matchScore
+				: Math.max(scores[row + 1][column], scores[row][column + 1]);
 		}
 	}
 
@@ -228,8 +253,7 @@ const matchTokens = (
 			beforeIndex++;
 			afterIndex++;
 		} else if (
-			lengths[beforeIndex + 1][afterIndex] >=
-			lengths[beforeIndex][afterIndex + 1]
+			scores[beforeIndex + 1][afterIndex] >= scores[beforeIndex][afterIndex + 1]
 		) {
 			beforeIndex++;
 		} else {
@@ -262,17 +286,31 @@ const renderTokenStream = (tokens: CodeToken[], prefix: string) => {
 	});
 };
 
-const beforeCode = tokenizeCode(codeBefore);
-const afterCode = tokenizeCode(codeAfter);
-const tokenMatches = matchTokens(beforeCode.visible, afterCode.visible);
-const afterIndexByBeforeIndex = new Map(tokenMatches);
-const matchedAfterIndexes = new Set(
-	tokenMatches.map(([, afterIndex]) => afterIndex),
+const prepareCodeChange = (before: string, after: string): CodeChangeData => {
+	const beforeCode = tokenizeCode(before);
+	const afterCode = tokenizeCode(after);
+	const tokenMatches = matchTokens(beforeCode.visible, afterCode.visible);
+
+	return {
+		before: beforeCode,
+		after: afterCode,
+		afterIndexByBeforeIndex: new Map(tokenMatches),
+		matchedAfterIndexes: new Set(
+			tokenMatches.map(([, afterIndex]) => afterIndex),
+		),
+	};
+};
+
+const combinedCodeChange = prepareCodeChange(
+	springCodeBefore,
+	combinedCodeAfter,
 );
 
-export const Skills2CodeChange: React.FC = () => {
+const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
+	codeChange,
+}) => {
 	const frame = useCurrentFrame();
-	const scale = useCurrentScale();
+	const posterizedFrame = Math.floor(frame / 3) * 3;
 	const {height} = useVideoConfig();
 	const beforeMeasurementRef = useRef<HTMLPreElement>(null);
 	const afterMeasurementRef = useRef<HTMLPreElement>(null);
@@ -288,12 +326,16 @@ export const Skills2CodeChange: React.FC = () => {
 			return;
 		}
 
+		const verticalOffset =
+			(height - beforeMeasurementRef.current.offsetHeight) / 2;
+
 		const measure = (
 			pre: HTMLPreElement,
 			tokenCount: number,
 		): TokenPosition[] => {
 			const preBounds = pre.getBoundingClientRect();
-			const verticalOffset = (height - preBounds.height / scale) / 2;
+			const measurementScaleX = preBounds.width / pre.offsetWidth;
+			const measurementScaleY = preBounds.height / pre.offsetHeight;
 			const positions = Array.from({length: tokenCount}, () => ({x: 0, y: 0}));
 			const elements = pre.querySelectorAll<HTMLElement>('[data-token-index]');
 
@@ -301,8 +343,10 @@ export const Skills2CodeChange: React.FC = () => {
 				const index = Number(element.dataset.tokenIndex);
 				const bounds = element.getBoundingClientRect();
 				positions[index] = {
-					x: (bounds.left - preBounds.left) / scale,
-					y: verticalOffset + (bounds.top - preBounds.top) / scale,
+					x: (bounds.left - preBounds.left) / measurementScaleX,
+					y:
+						verticalOffset +
+						(bounds.top - preBounds.top) / measurementScaleY,
 				};
 			});
 
@@ -310,10 +354,16 @@ export const Skills2CodeChange: React.FC = () => {
 		};
 
 		setLayouts({
-			before: measure(beforeMeasurementRef.current, beforeCode.visible.length),
-			after: measure(afterMeasurementRef.current, afterCode.visible.length),
+			before: measure(
+				beforeMeasurementRef.current,
+				codeChange.before.visible.length,
+			),
+			after: measure(
+				afterMeasurementRef.current,
+				codeChange.after.visible.length,
+			),
 		});
-	}, [height, scale]);
+	}, [codeChange, height]);
 
 	useEffect(() => {
 		if (layouts && !hasContinued.current) {
@@ -323,10 +373,205 @@ export const Skills2CodeChange: React.FC = () => {
 	}, [continueRender, handle, layouts]);
 
 	return (
+		<Interactive.Div
+			name="Code"
+			style={{
+				position: 'absolute',
+				left: 148,
+				top: 0,
+				right: 148,
+				bottom: 0,
+				fontFamily:
+					'SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace',
+				fontSize: 34,
+				lineHeight: 1.35,
+				tabSize: 2,
+			}}
+		>
+			<pre
+				ref={beforeMeasurementRef}
+				aria-hidden="true"
+				style={{
+					position: 'absolute',
+					left: 0,
+					top: 0,
+					width: 'max-content',
+					margin: 0,
+					font: 'inherit',
+					lineHeight: 'inherit',
+					whiteSpace: 'pre',
+					visibility: 'hidden',
+					pointerEvents: 'none',
+				}}
+			>
+				{renderTokenStream(codeChange.before.stream, 'before')}
+			</pre>
+			<pre
+				ref={afterMeasurementRef}
+				aria-hidden="true"
+				style={{
+					position: 'absolute',
+					left: 0,
+					top: 0,
+					width: 'max-content',
+					margin: 0,
+					font: 'inherit',
+					lineHeight: 'inherit',
+					whiteSpace: 'pre',
+					visibility: 'hidden',
+					pointerEvents: 'none',
+				}}
+			>
+				{renderTokenStream(codeChange.after.stream, 'after')}
+			</pre>
+
+			{layouts
+				? codeChange.before.visible.map((token, beforeIndex) => {
+						const beforePosition = layouts.before[beforeIndex];
+						const afterIndex =
+							codeChange.afterIndexByBeforeIndex.get(beforeIndex);
+
+						if (afterIndex === undefined) {
+							const exitAngle = beforeIndex * Math.PI * (3 - Math.sqrt(5));
+							const exitDistance = 2400;
+							return (
+								<span
+									key={`removed-${token.id}`}
+									style={{
+										position: 'absolute',
+										left: 0,
+										top: 0,
+										display: 'inline-block',
+										whiteSpace: 'pre',
+										color: token.color,
+										rotate: `${interpolate(
+											posterizedFrame,
+											[90, 108],
+											[0, beforeIndex % 2 === 0 ? 720 : -720],
+											{
+												easing: Easing.bezier(0.4, 0, 1, 1),
+												extrapolateLeft: 'clamp',
+												extrapolateRight: 'clamp',
+											},
+										)}deg`,
+										translate: `${interpolate(
+											posterizedFrame,
+											[90, 108],
+											[
+												beforePosition.x,
+												beforePosition.x + Math.cos(exitAngle) * exitDistance,
+											],
+											{
+												easing: Easing.bezier(0.4, 0, 1, 1),
+												extrapolateLeft: 'clamp',
+												extrapolateRight: 'clamp',
+											},
+										)}px ${interpolate(
+											posterizedFrame,
+											[90, 108],
+											[
+												beforePosition.y,
+												beforePosition.y + Math.sin(exitAngle) * exitDistance,
+											],
+											{
+												easing: Easing.bezier(0.4, 0, 1, 1),
+												extrapolateLeft: 'clamp',
+												extrapolateRight: 'clamp',
+											},
+										)}px`,
+									}}
+								>
+									{token.value}
+								</span>
+							);
+						}
+
+						const afterToken = codeChange.after.visible[afterIndex];
+						const afterPosition = layouts.after[afterIndex];
+						return (
+							<span
+								key={`matched-${token.id}-${afterToken.id}`}
+								style={{
+									position: 'absolute',
+									left: 0,
+									top: 0,
+									display: 'inline-block',
+									whiteSpace: 'pre',
+									color:
+										token.color === afterToken.color
+											? token.color
+											: interpolateColors(
+												frame,
+												[90, 108],
+												[token.color, afterToken.color],
+											),
+									translate: `${interpolate(
+										posterizedFrame,
+										[90, 108],
+										[beforePosition.x, afterPosition.x],
+										{
+											easing: Easing.spring({damping: 200}),
+											extrapolateLeft: 'clamp',
+											extrapolateRight: 'clamp',
+										},
+									)}px ${interpolate(
+										posterizedFrame,
+										[90, 108],
+										[beforePosition.y, afterPosition.y],
+										{
+											easing: Easing.spring({damping: 200}),
+											extrapolateLeft: 'clamp',
+											extrapolateRight: 'clamp',
+										},
+									)}px`,
+								}}
+							>
+								{token.value}
+							</span>
+						);
+					})
+				: null}
+
+			{layouts
+				? codeChange.after.visible.map((token, afterIndex) => {
+						if (codeChange.matchedAfterIndexes.has(afterIndex)) {
+							return null;
+						}
+
+						const afterPosition = layouts.after[afterIndex];
+						return (
+							<span
+								key={`added-${token.id}`}
+								style={{
+									position: 'absolute',
+									left: 0,
+									top: 0,
+									display: 'inline-block',
+									whiteSpace: 'pre',
+									color: token.color,
+									opacity: interpolate(frame, [108, 126], [0, 1], {
+										easing: Easing.bezier(0, 0, 0.2, 1),
+										extrapolateLeft: 'clamp',
+										extrapolateRight: 'clamp',
+									}),
+									translate: `${afterPosition.x}px ${afterPosition.y}px`,
+								}}
+							>
+								{token.value}
+							</span>
+						);
+					})
+				: null}
+		</Interactive.Div>
+	);
+};
+
+export const Skills2CodeChange: React.FC = () => {
+	return (
 		<AbsoluteFill style={{backgroundColor: '#f5fafb'}}>
 			<Solid
 				width={1920}
-				height={1080}
+				height={1920}
 				color="#f5fafb"
 				style={{position: 'absolute'}}
 				effects={[
@@ -337,164 +582,7 @@ export const Skills2CodeChange: React.FC = () => {
 					}),
 				]}
 			/>
-			<Interactive.Div
-				name="Code"
-				style={{
-					position: 'absolute',
-					left: 148,
-					top: 0,
-					right: 148,
-					bottom: 0,
-					fontFamily:
-						'SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace',
-					fontSize: 38,
-					lineHeight: 1.35,
-					tabSize: 2,
-				}}
-			>
-				<pre
-					ref={beforeMeasurementRef}
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: 0,
-						top: 0,
-						width: 'max-content',
-						margin: 0,
-						font: 'inherit',
-						lineHeight: 'inherit',
-						whiteSpace: 'pre',
-						visibility: 'hidden',
-						pointerEvents: 'none',
-					}}
-				>
-					{renderTokenStream(beforeCode.stream, 'before')}
-				</pre>
-				<pre
-					ref={afterMeasurementRef}
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: 0,
-						top: 0,
-						width: 'max-content',
-						margin: 0,
-						font: 'inherit',
-						lineHeight: 'inherit',
-						whiteSpace: 'pre',
-						visibility: 'hidden',
-						pointerEvents: 'none',
-					}}
-				>
-					{renderTokenStream(afterCode.stream, 'after')}
-				</pre>
-
-				{layouts
-					? beforeCode.visible.map((token, beforeIndex) => {
-							const beforePosition = layouts.before[beforeIndex];
-							const afterIndex = afterIndexByBeforeIndex.get(beforeIndex);
-
-							if (afterIndex === undefined) {
-								return (
-									<span
-										key={`removed-${token.id}`}
-										style={{
-											position: 'absolute',
-											left: 0,
-											top: 0,
-											display: 'inline-block',
-											whiteSpace: 'pre',
-											color: token.color,
-											opacity: interpolate(frame, [90, 108], [1, 0], {
-												easing: Easing.bezier(0.4, 0, 1, 1),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											}),
-											translate: `${beforePosition.x}px ${beforePosition.y}px`,
-										}}
-									>
-										{token.value}
-									</span>
-								);
-							}
-
-							const afterToken = afterCode.visible[afterIndex];
-							const afterPosition = layouts.after[afterIndex];
-							return (
-								<span
-									key={`matched-${token.id}-${afterToken.id}`}
-									style={{
-										position: 'absolute',
-										left: 0,
-										top: 0,
-										display: 'inline-block',
-										whiteSpace: 'pre',
-										color:
-											token.color === afterToken.color
-												? token.color
-												: interpolateColors(
-														frame,
-														[108, 126],
-														[token.color, afterToken.color],
-													),
-										translate: `${interpolate(
-											frame,
-											[108, 126],
-											[beforePosition.x, afterPosition.x],
-											{
-												easing: Easing.spring({damping: 200}),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											},
-										)}px ${interpolate(
-											frame,
-											[108, 126],
-											[beforePosition.y, afterPosition.y],
-											{
-												easing: Easing.spring({damping: 200}),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											},
-										)}px`,
-									}}
-								>
-									{token.value}
-								</span>
-							);
-						})
-					: null}
-
-				{layouts
-					? afterCode.visible.map((token, afterIndex) => {
-							if (matchedAfterIndexes.has(afterIndex)) {
-								return null;
-							}
-
-							const afterPosition = layouts.after[afterIndex];
-							return (
-								<span
-									key={`added-${token.id}`}
-									style={{
-										position: 'absolute',
-										left: 0,
-										top: 0,
-										display: 'inline-block',
-										whiteSpace: 'pre',
-										color: token.color,
-										opacity: interpolate(frame, [126, 144], [0, 1], {
-											easing: Easing.bezier(0, 0, 0.2, 1),
-											extrapolateLeft: 'clamp',
-											extrapolateRight: 'clamp',
-										}),
-										translate: `${afterPosition.x}px ${afterPosition.y}px`,
-									}}
-								>
-									{token.value}
-								</span>
-							);
-						})
-					: null}
-			</Interactive.Div>
+			<CodeChange codeChange={combinedCodeChange} />
 		</AbsoluteFill>
 	);
 };
