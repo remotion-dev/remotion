@@ -1,6 +1,6 @@
 import fs from 'fs';
 import assert from 'node:assert';
-import {expect, test} from '@playwright/test';
+import {expect, type Locator, type Page, test} from '@playwright/test';
 import {wave} from '@remotion/effects/wave';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {apiCall} from './api-call.mts';
@@ -20,6 +20,19 @@ const getLine = (input: string, search: string) => {
 	}
 
 	return line + 1;
+};
+
+const selectScalePrecisionAndWaitFor = async ({
+	page,
+	locator,
+}: {
+	readonly page: Page;
+	readonly locator: Locator;
+}) => {
+	await expect(async () => {
+		await page.getByTitle('Scale precision', {exact: true}).first().click();
+		await expect(locator).toBeVisible({timeout: 1_000});
+	}).toPass({timeout: 15_000});
 };
 
 test.describe('effect keyframes', () => {
@@ -112,8 +125,6 @@ test.describe('effect keyframes', () => {
 			{timeout: 30_000},
 		);
 
-		await page.getByTitle('Scale precision', {exact: true}).first().click();
-
 		const scaleRow = page
 			.getByText('Scale', {exact: true})
 			.locator('..')
@@ -121,7 +132,7 @@ test.describe('effect keyframes', () => {
 		const scaleDragger = scaleRow
 			.locator('button.__remotion_input_dragger')
 			.first();
-		await expect(scaleDragger).toBeVisible({timeout: 15_000});
+		await selectScalePrecisionAndWaitFor({page, locator: scaleDragger});
 		await scaleDragger.click();
 
 		const input = scaleRow.locator('input[type="text"]');
@@ -156,8 +167,6 @@ test.describe('effect keyframes', () => {
 			{timeout: 30_000},
 		);
 
-		await page.getByTitle('Scale precision', {exact: true}).first().click();
-
 		const rotationRow = page
 			.getByText('Rotation', {exact: true})
 			.locator('..')
@@ -165,7 +174,7 @@ test.describe('effect keyframes', () => {
 		const rotationDragger = rotationRow.locator(
 			'button.__remotion_input_dragger',
 		);
-		await expect(rotationDragger).toBeVisible({timeout: 15_000});
+		await selectScalePrecisionAndWaitFor({page, locator: rotationDragger});
 		await rotationDragger.click();
 
 		const input = rotationRow.locator('input[type="text"]');
@@ -202,8 +211,12 @@ test.describe('effect keyframes', () => {
 			{timeout: 30_000},
 		);
 
-		await page.getByTitle('Scale precision', {exact: true}).first().click();
-		await page.getByRole('button', {name: 'Expand Crop', exact: true}).click();
+		const expandCrop = page.getByRole('button', {
+			name: 'Expand Crop',
+			exact: true,
+		});
+		await selectScalePrecisionAndWaitFor({page, locator: expandCrop});
+		await expandCrop.click();
 
 		const cropRow = page
 			.getByText('Crop left', {exact: true})
@@ -244,8 +257,9 @@ test.describe('effect keyframes', () => {
 			{timeout: 30_000},
 		);
 
-		await page.getByTitle('Scale precision', {exact: true}).first().click();
-		await page.getByText('wave()', {exact: true}).click();
+		const waveRow = page.getByText('wave()', {exact: true});
+		await selectScalePrecisionAndWaitFor({page, locator: waveRow});
+		await waveRow.click();
 
 		const amplitudeRow = page
 			.getByText('Amplitude', {exact: true})
