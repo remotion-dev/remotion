@@ -20,62 +20,15 @@ loadFont('normal', {
 
 type SpinningTextWheelProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
-		readonly item1?: string;
-		readonly item2?: string;
-		readonly item3?: string;
-		readonly item4?: string;
-		readonly item5?: string;
-		readonly item6?: string;
-		readonly item7?: string;
-		readonly selectedIndex?: number;
+		readonly items?: string;
 	};
 
 const spinningTextWheelSchema = {
 	...Interactive.baseSchema,
-	item1: {
+	items: {
 		type: 'text-content',
-		default: 'Monday',
-		description: 'Item 1',
-	},
-	item2: {
-		type: 'text-content',
-		default: 'Tuesday',
-		description: 'Item 2',
-	},
-	item3: {
-		type: 'text-content',
-		default: 'Wednesday',
-		description: 'Item 3',
-	},
-	item4: {
-		type: 'text-content',
-		default: 'Thursday',
-		description: 'Item 4',
-	},
-	item5: {
-		type: 'text-content',
-		default: 'Friday',
-		description: 'Item 5',
-	},
-	item6: {
-		type: 'text-content',
-		default: 'Saturday',
-		description: 'Item 6',
-	},
-	item7: {
-		type: 'text-content',
-		default: 'Sunday',
-		description: 'Item 7',
-	},
-	selectedIndex: {
-		type: 'number',
-		min: 0,
-		max: 6,
-		step: 1,
-		default: 4,
-		description: 'Selected item index',
-		hiddenFromList: false,
-		keyframable: false,
+		default: 'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday',
+		description: 'Items (selected first, one per line)',
 	},
 	...Interactive.textSchema,
 	...Interactive.transformSchema,
@@ -90,15 +43,8 @@ const SpinningTextWheelInner = forwardRef<
 	(
 		{
 			controls,
-			item1 = 'Monday',
-			item2 = 'Tuesday',
-			item3 = 'Wednesday',
-			item4 = 'Thursday',
-			item5 = 'Friday',
-			item6 = 'Saturday',
-			item7 = 'Sunday',
+			items = 'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday',
 			name,
-			selectedIndex = 4,
 			style,
 			...sequenceProps
 		},
@@ -107,7 +53,10 @@ const SpinningTextWheelInner = forwardRef<
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
 		const outlineRef = useRef<HTMLDivElement>(null);
-		const values = [item1, item2, item3, item4, item5, item6, item7];
+		const values = items
+			.split('\n')
+			.map((item) => item.trim())
+			.filter(Boolean);
 		const progress = spring({
 			fps,
 			frame,
@@ -120,10 +69,6 @@ const SpinningTextWheelInner = forwardRef<
 			durationRestThreshold: 0.0001,
 		});
 		const rotation = interpolate(progress, [0, 1], [1, 0]);
-		const activeIndex = Math.max(
-			0,
-			Math.min(values.length - 1, Math.round(selectedIndex)),
-		);
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -140,8 +85,10 @@ const SpinningTextWheelInner = forwardRef<
 					style={{
 						height: 420,
 						maskImage:
-							'linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)',
+							'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
 						overflow: 'hidden',
+						WebkitMaskImage:
+							'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
 						perspective: 1000,
 						position: 'relative',
 						transformStyle: 'preserve-3d',
@@ -151,7 +98,6 @@ const SpinningTextWheelInner = forwardRef<
 				>
 					{values.map((value, index) => {
 						const wheelIndex = index / values.length + rotation;
-						const valueIndex = (index + activeIndex) % values.length;
 						const angle = wheelIndex * Math.PI * 2;
 						const rotateX = wheelIndex * 360;
 
@@ -166,7 +112,7 @@ const SpinningTextWheelInner = forwardRef<
 									justifyContent: 'center',
 									left: 0,
 									opacity:
-										valueIndex === activeIndex
+										index === 0
 											? interpolate(progress, [0.88, 1], [0.28, 1], {
 													extrapolateLeft: 'clamp',
 													extrapolateRight: 'clamp',
@@ -187,7 +133,7 @@ const SpinningTextWheelInner = forwardRef<
 										width: '100%',
 									}}
 								>
-									{values[valueIndex]}
+									{value}
 								</div>
 							</div>
 						);
@@ -209,15 +155,8 @@ const InteractiveSpinningTextWheel = Interactive.withSchema({
 export const SpinningTextWheel: React.FC<SpinningTextWheelProps> = (props) => {
 	return (
 		<InteractiveSpinningTextWheel
-			item1="Monday"
-			item2="Tuesday"
-			item3="Wednesday"
-			item4="Thursday"
-			item5="Friday"
-			item6="Saturday"
-			item7="Sunday"
+			items={'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday'}
 			name="Spinning text wheel"
-			selectedIndex={4}
 			style={{
 				color: '#182033',
 				fontFamily: 'Mona Sans',
