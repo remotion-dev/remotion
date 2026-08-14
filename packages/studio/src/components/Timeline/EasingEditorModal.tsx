@@ -177,8 +177,6 @@ const presetButtonBase: React.CSSProperties = {
 
 const presetPreviewSvgStyle: React.CSSProperties = {
 	display: 'block',
-	height: PRESET_PREVIEW_HEIGHT,
-	width: PRESET_PREVIEW_WIDTH,
 };
 
 const coordinatesGridBase: React.CSSProperties = {
@@ -557,6 +555,45 @@ const getPresetPreviewPath = (easing: TimelineEasingValue) => {
 	return points.join(' ');
 };
 
+export const EasingPresetPreview: React.FC<{
+	readonly color: string;
+	readonly easing: TimelineEasingValue;
+	readonly height?: number;
+	readonly nonScalingStroke?: boolean;
+	readonly strokeWidth?: number;
+	readonly width?: number;
+}> = ({
+	color,
+	easing,
+	height = PRESET_PREVIEW_HEIGHT,
+	nonScalingStroke = false,
+	strokeWidth = 2,
+	width = PRESET_PREVIEW_WIDTH,
+}) => {
+	const path = useMemo(() => getPresetPreviewPath(easing), [easing]);
+
+	return (
+		<svg
+			width={width}
+			height={height}
+			viewBox={`0 0 ${PRESET_PREVIEW_WIDTH} ${PRESET_PREVIEW_HEIGHT}`}
+			style={presetPreviewSvgStyle}
+			aria-hidden="true"
+			focusable={false}
+		>
+			<path
+				d={path}
+				fill="none"
+				stroke={color}
+				strokeWidth={strokeWidth}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				vectorEffect={nonScalingStroke ? 'non-scaling-stroke' : undefined}
+			/>
+		</svg>
+	);
+};
+
 const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 	const x = handle === 0 ? bezier[0] : bezier[2];
 	const y = handle === 0 ? bezier[1] : bezier[3];
@@ -652,10 +689,6 @@ const EasingPresetButton: React.FC<{
 }> = ({currentEasing, disabled, onClick, preset}) => {
 	const selected = areEasingsEqual(currentEasing, preset.easing);
 	const [hovered, setHovered] = useState(false);
-	const path = useMemo(
-		() => getPresetPreviewPath(preset.easing),
-		[preset.easing],
-	);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
 	}, []);
@@ -686,23 +719,10 @@ const EasingPresetButton: React.FC<{
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 		>
-			<svg
-				width={PRESET_PREVIEW_WIDTH}
-				height={PRESET_PREVIEW_HEIGHT}
-				viewBox={`0 0 ${PRESET_PREVIEW_WIDTH} ${PRESET_PREVIEW_HEIGHT}`}
-				style={presetPreviewSvgStyle}
-				aria-hidden="true"
-				focusable={false}
-			>
-				<path
-					d={path}
-					fill="none"
-					stroke={selected || hovered ? WHITE : LIGHT_TEXT}
-					strokeWidth={2}
-					strokeLinecap="round"
-					strokeLinejoin="round"
-				/>
-			</svg>
+			<EasingPresetPreview
+				color={selected || hovered ? WHITE : LIGHT_TEXT}
+				easing={preset.easing}
+			/>
 		</button>
 	);
 };
