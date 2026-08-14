@@ -16,7 +16,3 @@
 .buttoncontainer:not([disabled]):hover {
 	background-color: var(--hover-color) !important;
 }
-
-.buttoncontainer[draggable='true']:active {
-	cursor: grabbing !important;
-}
