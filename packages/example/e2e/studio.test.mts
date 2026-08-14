@@ -212,18 +212,29 @@ test.describe('visual mode', () => {
 			'[data-timeline-marquee-item][title="Copy rotation target"]',
 		);
 		await expect(sourceRow).toBeVisible({timeout: 15_000});
-		await page
-			.getByTitle('Copy rotation source', {exact: true})
-			.first()
-			.click({button: 'right'});
-		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await expect(targetRow).toBeVisible({timeout: 15_000});
+		const rotateButton = page.getByRole('button', {
+			name: 'Rotate',
+			exact: true,
+		});
+		await expect(async () => {
+			await page
+				.getByTitle('Copy rotation source', {exact: true})
+				.first()
+				.click({button: 'right'});
+			await expect(rotateButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		await rotateButton.click();
 		await page.keyboard.press('ControlOrMeta+c');
 
-		await page
-			.getByTitle('Copy rotation target', {exact: true})
-			.first()
-			.click({button: 'right'});
-		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await expect(async () => {
+			await page
+				.getByTitle('Copy rotation target', {exact: true})
+				.first()
+				.click({button: 'right'});
+			await expect(rotateButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		await rotateButton.click();
 		await page.keyboard.press('ControlOrMeta+v');
 
 		await expect
