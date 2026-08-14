@@ -93,6 +93,10 @@ export const elementRegistry = {
 		category: 'text',
 		displayName: 'Crossed Off',
 	},
+	'text/spinning-text-wheel': {
+		category: 'text',
+		displayName: 'Spinning Text Wheel',
+	},
 	'text/strike-through': {
 		category: 'text',
 		displayName: 'Strike Through',
