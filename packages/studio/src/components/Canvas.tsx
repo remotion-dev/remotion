@@ -988,7 +988,7 @@ export const Canvas: React.FC<{
 				event.dataTransfer?.types ?? [],
 			);
 			if (
-				metadata?.type !== 'composition' ||
+				(metadata?.type !== 'composition' && metadata?.type !== 'element') ||
 				metadata.width === undefined ||
 				metadata.height === undefined
 			) {
@@ -1001,7 +1001,7 @@ export const Canvas: React.FC<{
 				clientX: event.clientX,
 				clientY: event.clientY,
 				contentDimensions,
-				unbounded: true,
+				unbounded: metadata.type === 'composition',
 				previewSize,
 				size,
 			});
@@ -1014,7 +1014,12 @@ export const Canvas: React.FC<{
 				width: metadata.width,
 				height: metadata.height,
 			};
-			if (editorSnapping && !event.metaKey && !event.ctrlKey) {
+			if (
+				metadata.type === 'composition' &&
+				editorSnapping &&
+				!event.metaKey &&
+				!event.ctrlKey
+			) {
 				dropPosition = snapCompositionDropPosition({
 					compositionDimensions,
 					destinationDimensions: contentDimensions,

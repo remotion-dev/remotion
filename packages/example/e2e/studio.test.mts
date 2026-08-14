@@ -1395,6 +1395,72 @@ test.describe('visual mode', () => {
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
 	});
 
+	test('should preview a sized Element drop on the Canvas', async ({page}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(
+			page.getByRole('button', {name: '0', exact: true}),
+		).toBeVisible({timeout: 15_000});
+
+		const dragData = StudioProtocolInternals.makeDragData({
+			type: 'element',
+			dependencies: [],
+			dimensions: {width: 320, height: 120},
+			displayName: 'Drop Preview',
+			durationInFrames: 30,
+			slug: 'drop-preview',
+			sourceCode: 'export const DropPreview = () => null;',
+		});
+		const canvas = page.locator('.remotion-studio-composition-container');
+		await expect
+			.poll(() =>
+				canvas.evaluate((element, data) => {
+					const rect = element.getBoundingClientRect();
+					const dataTransfer = new DataTransfer();
+					dataTransfer.setData(data.mimeType, data.payload);
+					const event = new DragEvent('dragover', {
+						bubbles: true,
+						cancelable: true,
+						clientX: rect.left + rect.width / 2,
+						clientY: rect.top + rect.height / 2,
+						dataTransfer,
+					});
+					element.dispatchEvent(event);
+
+					return event.defaultPrevented;
+				}, dragData),
+			)
+			.toBe(true);
+
+		const preview = page.getByTestId('composition-drop-preview');
+		await expect(preview).toBeVisible();
+		const canvasBox = await canvas.boundingBox();
+		const previewBox = await preview.boundingBox();
+		if (canvasBox === null || previewBox === null) {
+			throw new Error('Expected the Canvas and Element preview to have boxes');
+		}
+
+		expect(previewBox.width / previewBox.height).toBeCloseTo(320 / 120, 2);
+		expect(
+			Math.abs(
+				previewBox.x +
+					previewBox.width / 2 -
+					(canvasBox.x + canvasBox.width / 2),
+			),
+		).toBeLessThan(1);
+		expect(
+			Math.abs(
+				previewBox.y +
+					previewBox.height / 2 -
+					(canvasBox.y + canvasBox.height / 2),
+			),
+		).toBeLessThan(1);
+
+		await page.evaluate(() => {
+			document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
+		});
+		await expect(preview).toBeHidden();
+	});
+
 	test('should place and select Canvas drops at the playhead', async ({
 		page,
 	}) => {
