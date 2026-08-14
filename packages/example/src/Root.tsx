@@ -300,6 +300,7 @@ import {
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
+import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
@@ -2837,6 +2838,14 @@ export const Index: React.FC = () => {
 				durationInFrames={180}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="outline-selection-cases"
+					component={OutlineSelectionCases}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={2700}
+				/>
 				<Composition
 					id="fast-updates"
 					component={FastUpdates}
