@@ -46,8 +46,6 @@
 }
 
 .sourceViewport {
-	overflow: auto;
-	overscroll-behavior: contain;
 	background: #282a36;
 }
 
