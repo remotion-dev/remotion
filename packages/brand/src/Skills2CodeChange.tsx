@@ -220,7 +220,8 @@ const matchTokens = (
 	before: VisibleToken[],
 	after: VisibleToken[],
 ): [number, number][] => {
-	const lengths = Array.from({length: before.length + 1}, () =>
+	const semanticTokenScore = before.length + after.length;
+	const scores = Array.from({length: before.length + 1}, () =>
 		Array<number>(after.length + 1).fill(0),
 	);
 
@@ -229,9 +230,15 @@ const matchTokens = (
 			const tokensMatch =
 				before[row].kind === after[column].kind &&
 				before[row].value === after[column].value;
-			lengths[row][column] = tokensMatch
-				? lengths[row + 1][column + 1] + 1
-				: Math.max(lengths[row + 1][column], lengths[row][column + 1]);
+			// Keep meaningful tokens moving even when matching more punctuation would
+			// produce a longer sequence.
+			const matchScore =
+				before[row].kind === 'punctuation' || before[row].kind === 'operator'
+					? 1
+					: semanticTokenScore;
+			scores[row][column] = tokensMatch
+				? scores[row + 1][column + 1] + matchScore
+				: Math.max(scores[row + 1][column], scores[row][column + 1]);
 		}
 	}
 
@@ -247,8 +254,7 @@ const matchTokens = (
 			beforeIndex++;
 			afterIndex++;
 		} else if (
-			lengths[beforeIndex + 1][afterIndex] >=
-			lengths[beforeIndex][afterIndex + 1]
+			scores[beforeIndex + 1][afterIndex] >= scores[beforeIndex][afterIndex + 1]
 		) {
 			beforeIndex++;
 		} else {
