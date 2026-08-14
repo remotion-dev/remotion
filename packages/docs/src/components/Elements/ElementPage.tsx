@@ -1,9 +1,5 @@
 import Head from '@docusaurus/Head';
-import {
-	createElementPayload,
-	installInStudio,
-	setStudioDragData,
-} from '@remotion/studio-protocol';
+import {installInStudio, setStudioDragData} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
 	useId,
@@ -14,7 +10,10 @@ import React, {
 import {BlueButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
-import {setElementDragImage} from './element-drag-data';
+import {
+	createElementPayloadFromDefinition,
+	setElementDragImage,
+} from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
 import {ElementPreview} from './ElementPreview';
 import {
@@ -40,17 +39,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	definition,
 	sourceCode,
 }) => {
-	const {
-		contributors,
-		description,
-		displayName,
-		durationInFrames,
-		elementHeight,
-		elementWidth,
-		fps,
-		slug,
-		installationMode,
-	} = definition;
+	const {contributors, description, durationInFrames, fps} = definition;
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
@@ -65,33 +54,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			return null;
 		}
 
-		const dimensions =
-			elementWidth !== null && elementHeight !== null
-				? {
-						width: elementWidth,
-						height: elementHeight,
-					}
-				: null;
-
-		return createElementPayload({
-			dependencies: definition.dependencies,
-			dimensions,
-			displayName,
-			durationInFrames,
-			slug,
-			sourceCode,
-			installationMode,
-		});
-	}, [
-		definition.dependencies,
-		displayName,
-		durationInFrames,
-		elementHeight,
-		elementWidth,
-		slug,
-		sourceCode,
-		installationMode,
-	]);
+		return createElementPayloadFromDefinition({definition, sourceCode});
+	}, [definition, sourceCode]);
 
 	const installElement = useCallback(async () => {
 		if (elementPayload === null) {

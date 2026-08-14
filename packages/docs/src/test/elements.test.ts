@@ -7,9 +7,11 @@ import elementSidebars from '../../elements-sidebars';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
+	getRemotionElementSourceMap,
 } from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
+import {createElementPayloadFromDefinition} from '../components/Elements/element-drag-data';
 import {
 	getElementDocumentationUrl,
 	getElementLibrarySections,
@@ -107,7 +109,7 @@ describe('Elements must follow the colocated single-file format', () => {
 		};
 		const tree = {type: 'root', children: [elementPage]};
 
-		remarkElementSource()(tree, {path: element.mdxPath});
+		remarkElementSource({elementRegistry})(tree, {path: element.mdxPath});
 
 		expect(tree.children).toHaveLength(1);
 		expect(elementPage.children).toHaveLength(1);
@@ -217,9 +219,98 @@ describe('Elements must follow the colocated single-file format', () => {
 });
 
 describe('Element library', () => {
-	test('renders every definition and filters the real category entry points', () => {
+	test('injects the exact source files needed by each listing', () => {
+		const completeSourceCodeBySlug = getRemotionElementSourceMap({
+			elementsRoot,
+		});
+		expect(Object.keys(completeSourceCodeBySlug).sort()).toEqual(
+			productionElements.map((element) => element.name).sort(),
+		);
+		for (const element of productionElements) {
+			expect(completeSourceCodeBySlug[element.name]).toBe(
+				readFileSync(element.tsxPath, 'utf8').trimEnd(),
+			);
+		}
+
+		const makeLibraryNode = (category: string | null) => ({
+			type: 'mdxJsxFlowElement',
+			name: 'ElementLibrary',
+			attributes: [
+				{
+					type: 'mdxJsxAttribute',
+					name: 'category',
+					value:
+						category === null
+							? {
+									type: 'mdxJsxAttributeValueExpression',
+									value: 'null',
+								}
+							: category,
+				},
+			],
+			children: [],
+		});
+		const getInjectedSourceCodeBySlug = (node: {
+			attributes: readonly {readonly name?: string; readonly value?: unknown}[];
+		}) => {
+			const attribute = node.attributes.find(
+				(candidate) => candidate.name === 'sourceCodeBySlug',
+			);
+			if (
+				typeof attribute?.value !== 'object' ||
+				attribute.value === null ||
+				!('value' in attribute.value) ||
+				typeof attribute.value.value !== 'string'
+			) {
+				throw new Error('ElementLibrary source map was not injected');
+			}
+
+			return JSON.parse(attribute.value.value) as Record<string, string>;
+		};
+
+		const overview = makeLibraryNode(null);
+		remarkElementSource({elementRegistry})(
+			{type: 'root', children: [overview]},
+			{path: path.join(elementsRoot, 'index.mdx')},
+		);
+		expect(getInjectedSourceCodeBySlug(overview)).toEqual(
+			completeSourceCodeBySlug,
+		);
+
+		const storytelling = makeLibraryNode('storytelling');
+		remarkElementSource({elementRegistry})(
+			{type: 'root', children: [storytelling]},
+			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
+		);
+		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
+			'text/news-article-highlight':
+				completeSourceCodeBySlug['text/news-article-highlight'],
+		});
+
+		const missingSource = makeLibraryNode(null);
+		expect(() =>
+			remarkElementSource({
+				elementRegistry: {
+					...elementRegistry,
+					'missing/source': {
+						category: 'text',
+						displayName: 'Missing Source',
+					},
+				},
+			})(
+				{type: 'root', children: [missingSource]},
+				{path: path.join(elementsRoot, 'index.mdx')},
+			),
+		).toThrow('Missing source pages: missing/source.');
+	});
+
+	test('renders draggable cards and filters the real category entry points', () => {
+		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
 		const overviewMarkup = renderToStaticMarkup(
-			React.createElement(ElementLibrary, {category: null}),
+			React.createElement(ElementLibrary, {
+				category: null,
+				sourceCodeBySlug,
+			}),
 		);
 		const sections = getElementLibrarySections(null);
 
@@ -234,10 +325,19 @@ describe('Element library', () => {
 
 		expect(overviewMarkup).not.toContain('.mp4');
 		expect(overviewMarkup).toContain('>YouTube</h2>');
+		expect(overviewMarkup.match(/draggable="true"/g)).toHaveLength(
+			elementDefinitionList.length,
+		);
+		expect(overviewMarkup).toContain(
+			'title="Click to view details, or drag this Element into Remotion Studio"',
+		);
 
 		for (const section of sections) {
 			const categoryMarkup = renderToStaticMarkup(
-				React.createElement(ElementLibrary, {category: section.category}),
+				React.createElement(ElementLibrary, {
+					category: section.category,
+					sourceCodeBySlug,
+				}),
 			);
 			const categoryIndex = readFileSync(
 				path.join(elementsRoot, section.category, 'index.mdx'),
@@ -258,6 +358,43 @@ describe('Element library', () => {
 					expect(categoryMarkup).not.toContain(definition.displayName);
 				}
 			}
+		}
+	});
+
+	test('creates canonical fixed-size and adaptive drag payloads', () => {
+		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		for (const slug of [
+			'overlays/name-lower-third',
+			'backgrounds/paper-texture',
+		] as const) {
+			const definition = elementDefinitions[slug];
+			const sourceCode = sourceCodeBySlug[slug];
+			const payload = createElementPayloadFromDefinition({
+				definition,
+				sourceCode,
+			});
+
+			expect(payload).toMatchObject({
+				type: 'remotion-element',
+				version: 1,
+				durationInFrames: definition.durationInFrames,
+				element: {
+					dependencies: definition.dependencies,
+					displayName: definition.displayName,
+					durationInFrames: definition.durationInFrames,
+					installationMode: definition.installationMode,
+					slug,
+					sourceCode,
+				},
+			});
+			const expectedDimensions =
+				definition.elementWidth !== null && definition.elementHeight !== null
+					? {
+							width: definition.elementWidth,
+							height: definition.elementHeight,
+						}
+					: null;
+			expect(payload.element.dimensions).toEqual(expectedDimensions);
 		}
 	});
 });
