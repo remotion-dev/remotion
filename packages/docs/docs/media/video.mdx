@@ -67,6 +67,32 @@ The URL of the video to be rendered. Can be a remote URL or a local file referen
 
 Apply [effects](/docs/effects/api) to the video frame after it has been drawn to the canvas.
 
+### `effectsOutputSize?`<AvailableFrom v="4.0.513" />
+
+Sets the width and height of the canvas on which [`effects`](#effects) are evaluated. By default, the encoded video dimensions are used.
+
+Use this prop to keep pixel-based effects consistent when the same video is available at different resolutions, for example when switching between a proxy and an original file.
+
+```tsx twoslash
+import {pixelate} from '@remotion/effects/pixelate';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyVideo = () => {
+  return <Video src={staticFile('video.webm')} effects={[pixelate({blockSize: 32})]} effectsOutputSize={{width: 1920, height: 1080}} />;
+};
+```
+
+The values are rounded to the nearest pixel and must be positive and finite. This prop has no effect if `effects` is empty.
+
+Without `effectsOutputSize`, the same effect has a different scale on 512px and 2048px encodes:
+
+<img src="/img/media/video-effects-output-size-before.png" alt="The same pixelate effect has different block sizes on two encodes of the same video" />
+
+Setting `effectsOutputSize` to 1024 × 1024 gives both encodes the same effect scale:
+
+<img src="/img/media/video-effects-output-size-after.png" alt="The same pixelate effect has matching block sizes after setting effectsOutputSize" />
+
 ### `cropLeft?`<AvailableFrom v="4.0.500" />
 
 Crops the video from the left by a ratio between `0` and `1`. See [`cropLeft`](/docs/sequence#cropleft).
