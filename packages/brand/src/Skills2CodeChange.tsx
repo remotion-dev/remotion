@@ -128,7 +128,7 @@ const getTokenColor = (kind: TokenKind) => {
 	}
 
 	if (kind === 'identifier') {
-		return '#57606a';
+		return '#24292f';
 	}
 
 	return '#24292f';
