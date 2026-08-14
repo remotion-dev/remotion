@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/mac-cursors",
-	"version": "4.0.510",
+	"version": "4.0.511",
 	"description": "Internal macOS cursor components for Remotion",
 	"private": true,
 	"main": "dist/index.js",
