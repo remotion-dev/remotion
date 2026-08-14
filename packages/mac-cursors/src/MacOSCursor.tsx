@@ -9,7 +9,7 @@ import {Img, Interactive, Sequence} from 'remotion';
 import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
 export type MacOSCursorProps = InteractiveBaseProps & {
-	readonly cursor: string;
+	readonly cursor?: string;
 	readonly customCursor?: string;
 	readonly className?: string;
 	readonly style?: CSSProperties;
@@ -43,7 +43,7 @@ export const macOSCursorSchema = {
 const MacOSCursorInner: React.FC<
 	MacOSCursorProps & {readonly controls: SequenceControls | undefined}
 > = ({
-	cursor,
+	cursor = 'default',
 	customCursor,
 	className,
 	style,
