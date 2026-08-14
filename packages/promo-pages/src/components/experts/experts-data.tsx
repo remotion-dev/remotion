@@ -165,28 +165,6 @@ export const experts: Expert[] = [
 		),
 	},
 	{
-		slug: 'alex-fernandez',
-		name: 'Alex Fernandez',
-		image: '/img/freelancers/alex.jpeg',
-		website: null,
-		x: null,
-		github: 'alexfernandez803',
-		linkedin: 'in/alex-f-17a5bb56/',
-		email: 'alex.frndz@gmail.com',
-		videocall: 'https://cal.com/remotion-expert-alex-fernandez',
-		discord: {
-			username: 'alex12345670000',
-			userId: '1046357837976182894',
-		},
-		since: new Date('2022-12-02').getTime(),
-		description: (
-			<div>
-				I am an experienced integration developer using Mulesoft, a backend
-				developer and on the side frontend and animation enthusiast.
-			</div>
-		),
-	},
-	{
 		slug: 'matthew-mcgillivray',
 		name: 'Matt McGillivray',
 		image: '/img/freelancers/umungo.png',

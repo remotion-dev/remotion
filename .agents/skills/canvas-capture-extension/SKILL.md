@@ -20,7 +20,7 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
      --repo <remotion-checkout>
    ```
 
-   The script builds with Bun and installs the seven unpacked-extension files in
+   The script builds with Bun and installs the complete WXT bundle in
    `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
    Before building, it verifies that the pinned Chrome for Testing
    `150.0.7842.0` (`r1631007`) is installed. If the browser is installed outside
@@ -28,8 +28,26 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
    or incompatible, use `$install-canvas-capture-browser` to install it.
 
 3. Confirm that the installed directory contains `manifest.json`,
-   `background.js`, `content.js`, `popup.css`, `popup.html`, `popup.js`, and
-   `receiver.js`.
+   `background.js`, `capture.js`, `recorder.html`, `logo.svg`,
+   `content-scripts/receiver.js`, and the recorder's generated `assets/` and
+   `chunks/` files.
+
+## Develop with React and Vite
+
+1. Close any running Recorder Chrome instance that uses the dedicated Canvas
+   Capture profile.
+2. From `packages/canvas-capture-extension`, run `bun run dev`.
+3. WXT writes the development bundle to the durable directory
+   `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension Dev`,
+   launches the pinned Chrome for Testing with the Canvas Draw Element feature
+   enabled, and loads the extension automatically.
+4. Keep the recorder window open while editing files in
+   `src/entrypoints/recorder`. React and CSS changes use Vite HMR. Background,
+   capture, receiver, or manifest changes cause WXT to rebuild and reload the
+   affected extension contexts.
+
+Use the separate development directory only for `bun run dev`. Continue using
+the production install directory above for manually loaded builds.
 
 ## Reload in Chrome for Testing
 
@@ -48,8 +66,9 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
   This one-time move changes the extension ID because Chrome derives unpacked
   extension identity from its absolute path.
 
-- Keep loading future builds from the durable directory, never from a
-  worktree-local `dist` directory.
+- Keep loading future production builds from the durable install directory,
+  never from a worktree-local `dist` directory. WXT-managed development builds
+  use the separate durable development directory documented above.
 - Enable `chrome://flags/#canvas-draw-element` and restart Chrome when the
   experimental HTML-in-canvas API is unavailable.
 

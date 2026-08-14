@@ -46,12 +46,13 @@ async function ESBuildLoader(
 	if (!('tsconfigRaw' in transformOptions) && isTypescriptInstalled()) {
 		// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 		const typescript = require('typescript') as typeof import('typescript');
-		const tsConfig = typescript.readConfigFile(
-			tsConfigPath,
-			typescript.sys.readFile,
-		);
+		// TypeScript 7 (@typescript/native-preview) does not expose `sys` on the CommonJS export
+		const sys = typescript.sys as typeof typescript.sys | undefined;
+		if (sys) {
+			const tsConfig = typescript.readConfigFile(tsConfigPath, sys.readFile);
 
-		transformOptions.tsconfigRaw = tsConfig.config;
+			transformOptions.tsconfigRaw = tsConfig.config;
+		}
 	}
 
 	// https://github.com/privatenumber/esbuild-loader/pull/107

@@ -209,13 +209,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);
-	// remove the bucketName field because request input does not have that value
-	// forceBucketName is being set in bucketName
-	const {bucketName, streamed, ...newObject} = nativeVersion;
-	const assertValue = {
-		...newObject,
-		forceBucketName: nativeVersion.bucketName,
-	};
+	const {streamed, ...assertValue} = nativeVersion;
 	expect(removeUndefined(parsedJson)).toEqual(removeUndefined(assertValue));
 });
 const removeUndefined = (data: unknown) => {

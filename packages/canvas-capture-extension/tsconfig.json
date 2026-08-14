@@ -1,10 +1,13 @@
 {
-	"extends": "../tsconfig.settings.json",
+	"extends": "./.wxt/tsconfig.json",
 	"compilerOptions": {
 		"noEmit": true,
 		"target": "ES2022",
 		"module": "esnext",
-		"moduleResolution": "bundler"
+		"moduleResolution": "bundler",
+		"jsx": "react-jsx",
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
 	},
-	"include": ["src"]
+	"include": ["src", "wxt.config.ts", ".wxt/wxt.d.ts"]
 }

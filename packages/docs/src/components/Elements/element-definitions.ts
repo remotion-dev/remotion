@@ -15,12 +15,13 @@ import {ProductOffer} from '../../../elements/commerce/product-offer/product-off
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {PieChart} from '../../../elements/data/pie-chart/pie-chart';
+import {VerticalBarChart} from '../../../elements/data/vertical-bar-chart/vertical-bar-chart';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
-import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
+import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
 import {YouTubeEndCard} from '../../../elements/youtube/youtube-end-card/youtube-end-card';
@@ -304,6 +305,28 @@ const elementImplementations = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
+	'data/vertical-bar-chart': {
+		component: VerticalBarChart,
+		contributors: [],
+		description:
+			'A bold vertical bar chart with three directly labeled data points.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 120,
+		elementHeight: 864,
+		elementWidth: 1560,
+		fps: 30,
+		height: 1080,
+		posterFrame: 115,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/data-vertical-bar-chart-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/data-vertical-bar-chart-preview.mp4',
+		},
+		previewPadding: 56,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
 	'commerce/product-discount-callout': {
 		component: ProductDiscountCallout,
 		contributors: [],
@@ -399,8 +422,8 @@ const elementImplementations = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
-	'text/news-article-headline-highlight': {
-		component: NewsArticleHeadlineHighlight,
+	'text/news-article-highlight': {
+		component: NewsArticleHighlight,
 		contributors: [],
 		description:
 			'A framed news article with camera movement, blur, and animated passage highlights.',
@@ -413,9 +436,9 @@ const elementImplementations = {
 		posterFrame: 100,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/text-news-article-headline-highlight-preview.png',
+				'https://remotion.media/elements/text-news-article-highlight-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/text-news-article-headline-highlight-preview.mp4',
+				'https://remotion.media/elements/text-news-article-highlight-preview.mp4',
 		},
 		previewPadding: 0,
 		installationMode: 'wrapped',

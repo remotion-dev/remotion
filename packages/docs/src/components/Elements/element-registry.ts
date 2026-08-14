@@ -61,6 +61,10 @@ export const elementRegistry = {
 		category: 'data',
 		displayName: 'Pie Chart',
 	},
+	'data/vertical-bar-chart': {
+		category: 'data',
+		displayName: 'Vertical Bar Chart',
+	},
 	'maps/map-flyover': {
 		category: 'maps',
 		displayName: 'A-to-B Map Flyover',
@@ -73,9 +77,9 @@ export const elementRegistry = {
 		category: 'overlays',
 		displayName: 'Name Lower Third',
 	},
-	'text/news-article-headline-highlight': {
+	'text/news-article-highlight': {
 		category: 'storytelling',
-		displayName: 'News Article Headline Highlight',
+		displayName: 'News Article Highlight',
 	},
 	'text/circle-marker': {
 		category: 'text',

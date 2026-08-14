@@ -360,6 +360,7 @@ describe('Elements sidebar', () => {
 					'data/horizontal-bar-chart/index',
 					'data/number-counter/index',
 					'data/pie-chart/index',
+					'data/vertical-bar-chart/index',
 				],
 			},
 			{
@@ -378,7 +379,7 @@ describe('Elements sidebar', () => {
 			{
 				category: 'storytelling',
 				label: 'Storytelling',
-				items: ['text/news-article-headline-highlight/index'],
+				items: ['text/news-article-highlight/index'],
 			},
 			{
 				category: 'text',
