@@ -23,6 +23,7 @@ import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-l
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
+import {SpinningTextWheel} from '../../../elements/text/spinning-text-wheel/spinning-text-wheel';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
 import {YouTubeEndCard} from '../../../elements/youtube/youtube-end-card/youtube-end-card';
@@ -437,6 +438,26 @@ const elementImplementations = {
 		preview: {
 			posterUrl: 'https://remotion.media/elements/text-crossed-off-preview.png',
 			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
+		},
+		previewPadding: 120,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'text/spinning-text-wheel': {
+		component: SpinningTextWheel,
+		contributors: [{username: 'JonnyBurger', contribution: null}],
+		description:
+			'A 3D text wheel that spins through options and decelerates onto a highlighted selection.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 120,
+		elementHeight: 420,
+		elementWidth: 640,
+		fps: 30,
+		height: 1080,
+		posterFrame: 105,
+		preview: {
+			posterUrl: '/elements/text-spinning-text-wheel-preview.png',
+			videoUrl: '/elements/text-spinning-text-wheel-preview.mp4',
 		},
 		previewPadding: 120,
 		installationMode: 'wrapped',

@@ -388,6 +388,7 @@ describe('Elements sidebar', () => {
 				items: [
 					'text/circle-marker/index',
 					'text/crossed-off/index',
+					'text/spinning-text-wheel/index',
 					'text/strike-through/index',
 					'text/text-marker/index',
 				],
