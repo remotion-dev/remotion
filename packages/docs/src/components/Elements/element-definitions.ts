@@ -462,7 +462,7 @@ const elementImplementations = {
 				'https://remotion.media/elements/text-spinning-text-wheel-preview.mp4',
 		},
 		previewPadding: 120,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	'text/news-article-highlight': {

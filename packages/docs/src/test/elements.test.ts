@@ -474,6 +474,7 @@ describe('Element preview definitions', () => {
 			'captions/popping-word-captions',
 			'captions/word-highlight-captions',
 			'maps/map-flyover',
+			'text/spinning-text-wheel',
 		]);
 
 		for (const definition of elementDefinitionList) {
