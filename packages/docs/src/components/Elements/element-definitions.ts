@@ -21,7 +21,7 @@ import {LocationLowerThird} from '../../../elements/overlays/location-lower-thir
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
-import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
+import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
 import {YouTubeEndCard} from '../../../elements/youtube/youtube-end-card/youtube-end-card';
@@ -465,14 +465,14 @@ export const elementDefinitions = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
-	'text/news-article-headline-highlight': {
+	'text/news-article-highlight': {
 		category: 'storytelling',
-		component: NewsArticleHeadlineHighlight,
+		component: NewsArticleHighlight,
 		contributors: [],
 		description:
 			'A framed news article with camera movement, blur, and animated passage highlights.',
 		dependencies: [{name: '@remotion/rough-notation', version: null}],
-		displayName: 'News Article Headline Highlight',
+		displayName: 'News Article Highlight',
 		durationInFrames: 150,
 		elementHeight: null,
 		elementWidth: null,
@@ -481,12 +481,12 @@ export const elementDefinitions = {
 		posterFrame: 100,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/text-news-article-headline-highlight-preview.png',
+				'https://remotion.media/elements/text-news-article-highlight-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/text-news-article-headline-highlight-preview.mp4',
+				'https://remotion.media/elements/text-news-article-highlight-preview.mp4',
 		},
 		previewPadding: 0,
-		slug: 'text/news-article-headline-highlight',
+		slug: 'text/news-article-highlight',
 		installationMode: 'wrapped',
 		width: 1920,
 	},
