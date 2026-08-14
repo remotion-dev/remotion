@@ -8,7 +8,6 @@ import {
 	interpolateColors,
 	Solid,
 	useCurrentFrame,
-	useCurrentScale,
 	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
@@ -312,7 +311,6 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 }) => {
 	const frame = useCurrentFrame();
 	const posterizedFrame = Math.floor(frame / 3) * 3;
-	const scale = useCurrentScale();
 	const {height} = useVideoConfig();
 	const beforeMeasurementRef = useRef<HTMLPreElement>(null);
 	const afterMeasurementRef = useRef<HTMLPreElement>(null);
@@ -333,7 +331,9 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 			tokenCount: number,
 		): TokenPosition[] => {
 			const preBounds = pre.getBoundingClientRect();
-			const verticalOffset = (height - preBounds.height / scale) / 2;
+			const measurementScaleX = preBounds.width / pre.offsetWidth;
+			const measurementScaleY = preBounds.height / pre.offsetHeight;
+			const verticalOffset = (height - pre.offsetHeight) / 2;
 			const positions = Array.from({length: tokenCount}, () => ({x: 0, y: 0}));
 			const elements = pre.querySelectorAll<HTMLElement>('[data-token-index]');
 
@@ -341,8 +341,10 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 				const index = Number(element.dataset.tokenIndex);
 				const bounds = element.getBoundingClientRect();
 				positions[index] = {
-					x: (bounds.left - preBounds.left) / scale,
-					y: verticalOffset + (bounds.top - preBounds.top) / scale,
+					x: (bounds.left - preBounds.left) / measurementScaleX,
+					y:
+						verticalOffset +
+						(bounds.top - preBounds.top) / measurementScaleY,
 				};
 			});
 
@@ -359,7 +361,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 				codeChange.after.visible.length,
 			),
 		});
-	}, [codeChange, height, scale]);
+	}, [codeChange, height]);
 
 	useEffect(() => {
 		if (layouts && !hasContinued.current) {
