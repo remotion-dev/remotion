@@ -44,7 +44,6 @@ import {issue9736BackgroundPosition} from './fixtures/issue-9736-background-posi
 import {issue9901RotatedDropShadow} from './fixtures/issue-9901-rotated-drop-shadow';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
-import {macCursorInHtmlInCanvas} from './fixtures/mac-cursor-in-html-in-canvas';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {maskImageUrl} from './fixtures/mask-image-url';
@@ -134,7 +133,6 @@ export const Root: React.FC = () => {
 			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...nestedHtmlInCanvas} />
-			<Composition {...macCursorInHtmlInCanvas} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />

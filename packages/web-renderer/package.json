@@ -28,7 +28,6 @@
 	},
 	"devDependencies": {
 		"@remotion/effects": "workspace:*",
-		"@remotion/mac-cursors": "workspace:*",
 		"@react-three/fiber": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/paths": "workspace:*",
