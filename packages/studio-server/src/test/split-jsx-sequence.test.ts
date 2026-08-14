@@ -14,7 +14,7 @@ import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
 const wrap = (
 	sequence: string,
-) => `import {Img, Interactive, Sequence, Series, Solid} from 'remotion';
+) => `import {AbsoluteFill, Img, Interactive, Sequence, Series, Solid} from 'remotion';
 import {Gif} from '@remotion/gif';
 
 export const Comp = () => {
@@ -27,12 +27,18 @@ export const Comp = () => {
 `;
 
 const sequenceLine = 7;
+const sequenceTimingKeys = ['from', 'durationInFrames', 'trimBefore'];
 
-const split = async (sequence: string, splitFrame: number) => {
+const split = async (
+	sequence: string,
+	splitFrame: number,
+	sequenceKeys = sequenceTimingKeys,
+) => {
 	const input = wrap(sequence);
 	const {output} = await splitJsxSequence({
 		input,
 		nodePath: lineColumnToNodePath(input, sequenceLine),
+		sequenceKeys,
 		splitFrame,
 	});
 
@@ -53,6 +59,7 @@ test('splitJsxSequence remaps following JSX siblings', async () => {
 	const {output, nodePathRemappings} = await splitJsxSequence({
 		input,
 		nodePath: lineContainingToNodePath(input, 'name="split"'),
+		sequenceKeys: sequenceTimingKeys,
 		splitFrame: 30,
 	});
 
@@ -121,6 +128,11 @@ test('splitJsxSequence splits from-only sequence', async () => {
 
 test('splitJsxSequence splits sequence-backed components', async () => {
 	expect(
+		await split('<AbsoluteFill from={0} durationInFrames={50} />', 30),
+	).toContain(
+		'<AbsoluteFill from={30} durationInFrames={20} trimBefore={30} />',
+	);
+	expect(
 		await split('<Img src="image.png" from={0} durationInFrames={50} />', 30),
 	).toContain(
 		'<Img src="image.png" from={30} durationInFrames={20} trimBefore={30} />',
@@ -167,14 +179,17 @@ test('splitJsxSequence rejects boundary and dynamic splits', async () => {
 
 test('splitJsxSequence rejects Series.Sequence', async () => {
 	await expect(
-		split('<Series.Sequence from={0} durationInFrames={50} />', 30),
-	).rejects.toThrow(/cannot be split from source/);
+		split('<Series.Sequence durationInFrames={50} />', 30, [
+			'durationInFrames',
+			'trimBefore',
+		]),
+	).rejects.toThrow('<Series.Sequence> cannot be split');
 });
 
 test('splitJsxSequence rejects regular DOM elements', async () => {
 	await expect(
-		split('<div from={0} durationInFrames={50} />', 30),
-	).rejects.toThrow(/does not support sequence timing props/);
+		split('<div from={0} durationInFrames={50} />', 30, []),
+	).rejects.toThrow('<div> cannot be split');
 });
 
 const clearUndoStack = () => {
@@ -224,7 +239,7 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 	try {
 		clearUndoStack();
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
-		const input = wrap('<Sequence from={0} durationInFrames={50} />');
+		const input = wrap('<AbsoluteFill from={0} durationInFrames={50} />');
 		writeFileSync(entryPoint, input);
 
 		const success = await splitJsxSequenceHandler(
@@ -232,6 +247,7 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 				input: {
 					fileName: entryPoint,
 					nodePath: lineColumnToNodePath(input, sequenceLine),
+					sequenceKeys: sequenceTimingKeys,
 					splitFrame: 30,
 				},
 				entryPoint,
@@ -241,7 +257,7 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 
 		expect(success.success).toBe(true);
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
-			'<Sequence from={30} durationInFrames={20} trimBefore={30} />',
+			'<AbsoluteFill from={30} durationInFrames={20} trimBefore={30} />',
 		);
 		expect(getUndoStack().length).toBe(1);
 
@@ -250,6 +266,7 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 				input: {
 					fileName: entryPoint,
 					nodePath: lineColumnToNodePath(input, sequenceLine),
+					sequenceKeys: sequenceTimingKeys,
 					splitFrame: 0,
 				},
 				entryPoint,

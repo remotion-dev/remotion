@@ -156,6 +156,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 			input: {
 				fileName,
 				nodePath: lineContainingToNodePath(before, 'name="c"'),
+				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 				splitFrame: 30,
 			},
 		});

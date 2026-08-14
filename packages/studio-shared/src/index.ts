@@ -163,6 +163,7 @@ export type {
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
 export {REACT_REFRESH_FINISHED_EVENT} from './react-refresh-event';
+export {hasSequenceTimingTraits} from './has-sequence-timing-traits';
 export {
 	getConfigFileChangeMessage,
 	type ConfigFileChangeType,
