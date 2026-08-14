@@ -11,7 +11,7 @@ import React, {
 	useState,
 	type ReactNode,
 } from 'react';
-import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import {BlueButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
 import {setElementDragImage} from './element-drag-data';
@@ -54,6 +54,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
+	const [isDragging, setIsDragging] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
@@ -176,22 +177,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						<>
 							<div className={styles.actionRow}>
 								<BlueButton
+									draggable
 									fullWidth
 									loading={installStatus.type === 'installing'}
 									onClick={installElement}
-									size="sm"
-									style={{padding: '7px 12px'}}
-									title="Install into the most recently focused Remotion Studio"
-								>
-									{installStatus.type === 'installing'
-										? 'Finding Studio…'
-										: 'Install in Studio'}
-								</BlueButton>
-								<PlainButton
-									draggable
-									fullWidth
-									loading={false}
+									onDragEnd={() => setIsDragging(false)}
 									onDragStart={(event) => {
+										setIsDragging(true);
 										setStudioDragData({
 											dataTransfer: event.dataTransfer,
 											payload: elementPayload,
@@ -199,11 +191,16 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										setElementDragImage(event.dataTransfer);
 									}}
 									size="sm"
-									style={{cursor: 'grab', padding: '7px 12px'}}
-									title="Drag into Remotion Studio"
+									style={{
+										cursor: isDragging ? 'grabbing' : undefined,
+										padding: '7px 12px',
+									}}
+									title="Click to install in the most recently focused Remotion Studio, or drag onto the Studio canvas"
 								>
-									Drag into Studio
-								</PlainButton>
+									{installStatus.type === 'installing'
+										? 'Finding Studio…'
+										: 'Install in Studio'}
+								</BlueButton>
 							</div>
 							{installStatus.type === 'success' ||
 							installStatus.type === 'error' ? (
