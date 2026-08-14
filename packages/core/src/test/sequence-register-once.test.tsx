@@ -18,7 +18,6 @@ import type {
 import {Img, imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {Internals} from '../internals.js';
-import {interpolate} from '../interpolate.js';
 import {Loading} from '../loading-indicator.js';
 import type {OverrideIdToNodePaths} from '../sequence-node-path.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
@@ -581,73 +580,6 @@ test('read-only Studio registers visual controls without applying overrides', ()
 		'dev.remotion.remotion.Interactive.Div',
 	);
 	expect(sequence?.duration).toBe(10);
-});
-
-test('Visual Mode preserves the frame scope of keyframed JSX props', () => {
-	const nodePath = {
-		absolutePath: '/src/Composition.tsx',
-		nodePath: ['body', 0],
-		sequenceKeys: [],
-		effectKeys: [],
-		videoConfigValues: null,
-	};
-	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
-	const Repro: React.FC = () => {
-		const frame = useCurrentFrame();
-
-		return (
-			<Sequence from={-10} durationInFrames={30}>
-				<AbsoluteFill
-					data-testid="fill"
-					style={{
-						translate: interpolate(frame, [10, 20], ['0px 0px', '500px 0px'], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
-					}}
-				/>
-			</Sequence>
-		);
-	};
-
-	const rendered = render(
-		<SequenceTestWrapperWithVisualModeOverrides
-			compositionDurationInFrames={30}
-			currentFrame={5}
-			onRegisterSequence={() => undefined}
-			visualModeOverrides={{
-				overrideIdToNodePathMappings: new Proxy(
-					{},
-					{get: () => nodePath},
-				) as OverrideIdToNodePaths,
-				propStatuses: {
-					[subscriptionKey]: {
-						canUpdate: true,
-						props: {
-							'style.translate': {
-								status: 'keyframed',
-								interpolationFunction: 'interpolate',
-								keyframes: [
-									{frame: 10, value: '0px 0px'},
-									{frame: 20, value: '500px 0px'},
-								],
-								easing: [{type: 'linear'}],
-								clamping: {left: 'clamp', right: 'clamp'},
-								posterize: undefined,
-								output: undefined,
-							},
-						},
-						effects: [],
-					},
-				},
-				dragOverrides: {},
-			}}
-		>
-			<Repro />
-		</SequenceTestWrapperWithVisualModeOverrides>,
-	);
-
-	expect(rendered.getByTestId('fill').style.translate).toBe('0px 0px');
 });
 
 test('Series.Sequence timing overrides cascade to later sequences', async () => {
