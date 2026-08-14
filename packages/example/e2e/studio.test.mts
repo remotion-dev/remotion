@@ -11,6 +11,8 @@ import {
 import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
+const macCursorsFile = path.join(exampleDir, 'src', 'MacCursors', 'index.tsx');
+
 const dropAssetOnCanvas = async ({
 	assetPath,
 	durationInSeconds,
@@ -212,18 +214,29 @@ test.describe('visual mode', () => {
 			'[data-timeline-marquee-item][title="Copy rotation target"]',
 		);
 		await expect(sourceRow).toBeVisible({timeout: 15_000});
-		await page
-			.getByTitle('Copy rotation source', {exact: true})
-			.first()
-			.click({button: 'right'});
-		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await expect(targetRow).toBeVisible({timeout: 15_000});
+		const rotateButton = page.getByRole('button', {
+			name: 'Rotate',
+			exact: true,
+		});
+		await expect(async () => {
+			await page
+				.getByTitle('Copy rotation source', {exact: true})
+				.first()
+				.click({button: 'right'});
+			await expect(rotateButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		await rotateButton.click();
 		await page.keyboard.press('ControlOrMeta+c');
 
-		await page
-			.getByTitle('Copy rotation target', {exact: true})
-			.first()
-			.click({button: 'right'});
-		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await expect(async () => {
+			await page
+				.getByTitle('Copy rotation target', {exact: true})
+				.first()
+				.click({button: 'right'});
+			await expect(rotateButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		await rotateButton.click();
 		await page.keyboard.press('ControlOrMeta+v');
 
 		await expect
@@ -242,6 +255,38 @@ test.describe('visual mode', () => {
 			.toContain(
 				'<AbsoluteFill name="Copy rotation target" style={{rotate: \'0deg\'}} />',
 			);
+	});
+
+	test('should toggle the visibility of a macOS cursor', async ({page}) => {
+		const originalSource = fs.readFileSync(macCursorsFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/mac-cursors`);
+			const cursorLabel = page
+				.getByText('Hideable cursor', {exact: true})
+				.first();
+			const visibilityToggle = cursorLabel
+				.locator('..')
+				.locator('..')
+				.locator('[data-timeline-layer-eye]');
+			await expect(async () => {
+				await expect(cursorLabel).toBeVisible({timeout: 1000});
+				await expect(visibilityToggle).toBeVisible({timeout: 1000});
+			}).toPass({timeout: 15_000});
+
+			await visibilityToggle.click();
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(macCursorsFile, 'utf-8');
+					const cursorNameIndex = source.indexOf('name="Hideable cursor"');
+					const tagStart = source.lastIndexOf('<MacOSCursor', cursorNameIndex);
+					const tagEnd = source.indexOf('/>', cursorNameIndex);
+					return source.slice(tagStart, tagEnd + 2);
+				})
+				.toContain('hidden');
+		} finally {
+			fs.writeFileSync(macCursorsFile, originalSource);
+		}
 	});
 
 	test('should not open the editor when selecting text in the inspector', async ({

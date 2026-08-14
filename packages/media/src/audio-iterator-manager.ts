@@ -78,13 +78,6 @@ export const audioIteratorManager = ({
 	getStartTime,
 	initialMuted,
 	drawDebugOverlay,
-	initialPlaybackRate,
-	initialTrimBefore,
-	initialTrimAfter,
-	initialSequenceOffset,
-	initialSequenceDurationInFrames,
-	initialLoop,
-	initialFps,
 }: {
 	audioTrack: InputAudioTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -95,27 +88,19 @@ export const audioIteratorManager = ({
 	getStartTime: () => number;
 	initialMuted: boolean;
 	drawDebugOverlay: () => void;
-	initialPlaybackRate: number;
-	initialTrimBefore: number | undefined;
-	initialTrimAfter: number | undefined;
-	initialSequenceOffset: number;
-	initialSequenceDurationInFrames: number;
-	initialLoop: boolean;
-	initialFps: number;
 }) => {
 	let muted = initialMuted;
 	let currentVolume = 1;
-	let currentSeek = {
-		// do not prevent first seek
-		time: -1,
-		playbackRate: initialPlaybackRate,
-		trimBefore: initialTrimBefore,
-		trimAfter: initialTrimAfter,
-		sequenceOffset: initialSequenceOffset,
-		sequenceDurationInFrames: initialSequenceDurationInFrames,
-		loop: initialLoop,
-		fps: initialFps,
-	};
+	let currentSeek: {
+		time: number;
+		playbackRate: number;
+		trimBefore: number | undefined;
+		trimAfter: number | undefined;
+		sequenceOffset: number;
+		sequenceDurationInFrames: number;
+		loop: boolean;
+		fps: number;
+	} | null = null;
 
 	const gainNode = sharedAudioContext.audioContext.createGain();
 	gainNode.connect(sharedAudioContext.gainNode);
@@ -539,6 +524,7 @@ export const audioIteratorManager = ({
 		}
 
 		if (
+			currentSeek !== null &&
 			currentSeek.time === newTime &&
 			currentSeek.playbackRate === playbackRate &&
 			currentSeek.trimBefore === trimBefore &&
@@ -639,6 +625,7 @@ export const audioIteratorManager = ({
 			// getCurrentAnchor() cannot hand out a stale mapping (from a previous
 			// rate/trim) during the window before a new iterator is started.
 			currentAnchor = null;
+			currentSeek = null;
 			unblockCurrentDelayHandle();
 		},
 		seek,

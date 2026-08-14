@@ -745,7 +745,6 @@ export const EasingEditor: React.FC<{
 	const springRef = useRef(spring);
 	const liveOverrideVersionRef = useRef(0);
 	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
-	const [activeHandle, setActiveHandle] = useState<HandleIndex | null>(null);
 
 	useEffect(() => {
 		const nextBezier = easingToBezier(state.initialEasing);
@@ -1086,7 +1085,6 @@ export const EasingEditor: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
-			setActiveHandle(handle);
 			updateHandleFromPointer(handle, event);
 			startCapturedPointerSession({
 				event,
@@ -1106,8 +1104,6 @@ export const EasingEditor: React.FC<{
 						bezierRef.current = bezierBeforeDrag;
 						setBezier(bezierBeforeDrag);
 					}
-
-					setActiveHandle(null);
 				},
 			});
 		},
@@ -1260,7 +1256,7 @@ export const EasingEditor: React.FC<{
 							strokeWidth={2}
 							vectorEffect="non-scaling-stroke"
 							pointerEvents={disabled ? 'none' : 'all'}
-							cursor={activeHandle === 0 ? 'grabbing' : 'default'}
+							cursor="default"
 							onPointerDown={(event) => onHandlePointerDown(0, event)}
 						/>
 						<circle
@@ -1272,7 +1268,7 @@ export const EasingEditor: React.FC<{
 							strokeWidth={2}
 							vectorEffect="non-scaling-stroke"
 							pointerEvents={disabled ? 'none' : 'all'}
-							cursor={activeHandle === 1 ? 'grabbing' : 'default'}
+							cursor="default"
 							onPointerDown={(event) => onHandlePointerDown(1, event)}
 						/>
 					</svg>

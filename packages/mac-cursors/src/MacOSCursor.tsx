@@ -5,17 +5,18 @@ import type {
 	InteractivitySchema,
 	SequenceControls,
 } from 'remotion';
-import {Img, Interactive, Sequence} from 'remotion';
+import {Interactive, Sequence} from 'remotion';
 import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
 export type MacOSCursorProps = InteractiveBaseProps & {
-	readonly cursor: string;
+	readonly cursor?: string;
 	readonly customCursor?: string;
 	readonly className?: string;
 	readonly style?: CSSProperties;
 };
 
-export const macOSCursorSchema = {
+export const macOSCursorSchema: InteractivitySchema = {
+	...Interactive.baseSchema,
 	cursor: {
 		type: 'enum',
 		default: 'default',
@@ -43,7 +44,7 @@ export const macOSCursorSchema = {
 const MacOSCursorInner: React.FC<
 	MacOSCursorProps & {readonly controls: SequenceControls | undefined}
 > = ({
-	cursor,
+	cursor = 'default',
 	customCursor,
 	className,
 	style,
@@ -62,7 +63,9 @@ const MacOSCursorInner: React.FC<
 				? resolveCursor(customCursor)
 				: null
 			: resolveCursor(cursor);
-	const refForOutline = React.useRef<HTMLImageElement | null>(null);
+	const refForOutline = React.useRef<SVGSVGElement | null>(null);
+	const width = resolved?.width ?? undefined;
+	const height = resolved?.height ?? undefined;
 
 	return (
 		<Sequence
@@ -78,22 +81,32 @@ const MacOSCursorInner: React.FC<
 			outlineRef={refForOutline}
 		>
 			{resolved ? (
-				<Img
+				<svg
 					ref={refForOutline}
 					className={className}
-					src={resolved.src}
-					showInTimeline={false}
+					width={width}
+					height={height}
+					viewBox={width && height ? `0 0 ${width} ${height}` : undefined}
+					xmlns="http://www.w3.org/2000/svg"
 					style={{
 						display: 'block',
 						position: 'absolute',
-						width: resolved.width ?? undefined,
-						height: resolved.height ?? undefined,
+						width,
+						height,
+						overflow: 'visible',
 						marginLeft: -resolved.hotspot.x,
 						marginTop: -resolved.hotspot.y,
 						transformOrigin: `${resolved.hotspot.x}px ${resolved.hotspot.y}px`,
 						...style,
 					}}
-				/>
+				>
+					<image
+						href={resolved.src}
+						width={width}
+						height={height}
+						preserveAspectRatio="xMinYMin meet"
+					/>
+				</svg>
 			) : null}
 		</Sequence>
 	);

@@ -54,6 +54,7 @@ const sidebars: SidebarsConfig = {
 				'data/horizontal-bar-chart/index',
 				'data/number-counter/index',
 				'data/pie-chart/index',
+				'data/vertical-bar-chart/index',
 			],
 		},
 		{
@@ -78,7 +79,7 @@ const sidebars: SidebarsConfig = {
 			label: 'Storytelling',
 			link: {type: 'doc', id: 'storytelling/index'},
 			collapsed: false,
-			items: ['text/news-article-headline-highlight/index'],
+			items: ['text/news-article-highlight/index'],
 		},
 		{
 			type: 'category',

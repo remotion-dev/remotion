@@ -131,17 +131,56 @@ const macCursorHotspotByFilename: Record<string, CursorHotspot> = {
 const customCursorRegex =
 	/^\s*url\(\s*(?:"([^"]*)"|'([^']*)'|([^)]*?))\s*\)(?:\s+([-+]?(?:\d+\.?\d*|\.\d+))\s+([-+]?(?:\d+\.?\d*|\.\d+)))?/;
 
+const getSvgDimensions = (
+	src: string,
+): {readonly width: number; readonly height: number} | null => {
+	const dataUri = src.match(/^data:image\/svg\+xml([^,]*),(.*)$/i);
+	if (!dataUri) {
+		return null;
+	}
+
+	try {
+		const svg = dataUri[1]?.includes(';base64')
+			? atob(dataUri[2] ?? '')
+			: decodeURIComponent(dataUri[2] ?? '');
+		const openingTag = svg.match(/<svg\b[^>]*>/i)?.[0];
+		if (!openingTag) {
+			return null;
+		}
+
+		const width = Number(
+			openingTag.match(
+				/\bwidth\s*=\s*["']\s*(\d+(?:\.\d+)?)\s*(?:px)?\s*["']/i,
+			)?.[1],
+		);
+		const height = Number(
+			openingTag.match(
+				/\bheight\s*=\s*["']\s*(\d+(?:\.\d+)?)\s*(?:px)?\s*["']/i,
+			)?.[1],
+		);
+		if (width > 0 && height > 0) {
+			return {width, height};
+		}
+	} catch {
+		return null;
+	}
+
+	return null;
+};
+
 export const resolveCursor = (cursor: string): ResolvedCursor | null => {
 	const customCursor = cursor.match(customCursorRegex);
 	if (customCursor) {
+		const customSrc = customCursor[1] ?? customCursor[2] ?? customCursor[3];
+		const dimensions = getSvgDimensions(customSrc);
 		return {
-			src: customCursor[1] ?? customCursor[2] ?? customCursor[3],
+			src: customSrc,
 			hotspot: {
 				x: Number(customCursor[4] ?? 0),
 				y: Number(customCursor[5] ?? 0),
 			},
-			width: null,
-			height: null,
+			width: dimensions?.width ?? null,
+			height: dimensions?.height ?? null,
 		};
 	}
 

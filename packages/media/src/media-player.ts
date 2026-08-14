@@ -391,15 +391,8 @@ export class MediaPlayer {
 					getStartTime: () => this.getStartTime(),
 					initialMuted,
 					drawDebugOverlay: this.drawDebugOverlay,
-					initialPlaybackRate: this.playbackRate * this.globalPlaybackRate,
 					getSequenceDurationInSeconds: () =>
 						this.getSequenceDurationInSeconds(),
-					initialTrimBefore: this.trimBefore,
-					initialTrimAfter: this.trimAfter,
-					initialSequenceOffset: this.sequenceOffset,
-					initialSequenceDurationInFrames: this.sequenceDurationInFrames,
-					initialLoop: this.loop,
-					initialFps: this.fps,
 				});
 			}
 
