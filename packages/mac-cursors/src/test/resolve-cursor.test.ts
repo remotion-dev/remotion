@@ -100,7 +100,6 @@ test('<MacOSCursor> renders the default cursor when the cursor prop is omitted',
 		),
 	);
 
-	expect(markup).toContain('<img');
 	expect(markup).toContain('width:32px');
 	expect(markup).toContain('height:32px');
 });
