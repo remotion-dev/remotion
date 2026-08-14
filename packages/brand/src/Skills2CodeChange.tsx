@@ -25,15 +25,45 @@ const springCodeBefore = `const progress =
 	});
 
 return (
-	<div
-		style={{
-			translate: interpolate(progress, [0, 1], [0, 200]),
-		}}
-	/>
+	<Sequence from={30}>
+		<Sequence from={-15}>
+			<Video
+				src="https://remotion.media/video.mp4"
+				style={{
+					translate: interpolate(progress, [0, 1], [0, 200]),
+				}}
+			/>
+		</Sequence>
+	</Sequence>
 );`;
 
 const springCodeAfter = `return (
-	<div
+	<Sequence from={30}>
+		<Sequence from={-15}>
+			<Video
+				src="https://remotion.media/video.mp4"
+				style={{
+					translate: interpolate(
+						frame,
+						[0, 20, durationInFrames - 20, durationInFrames],
+						[0, 200, 200, 0],
+						{
+							easing: Easing.spring({damping: 200}),
+						},
+					),
+				}}
+			/>
+		</Sequence>
+	</Sequence>
+);`;
+
+const sequenceCodeBefore = springCodeAfter;
+
+const sequenceCodeAfter = `return (
+	<Video
+		src="https://remotion.media/video.mp4"
+		trimBefore={15}
+		from={30}
 		style={{
 			translate: interpolate(
 				frame,
@@ -46,14 +76,6 @@ const springCodeAfter = `return (
 		}}
 	/>
 );`;
-
-const sequenceCodeBefore = `<Sequence from={30}>
-	<Sequence from={-15}>
-		<Video src="https://remotion.media/video.mp4" />
-	</Sequence>
-</Sequence>;`;
-
-const sequenceCodeAfter = `<Video trimBefore={15} from={30} />;`;
 
 type TokenKind =
 	| 'whitespace'
@@ -374,7 +396,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 				bottom: 0,
 				fontFamily:
 					'SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace',
-				fontSize: 38,
+				fontSize: 34,
 				lineHeight: 1.35,
 				tabSize: 2,
 			}}
