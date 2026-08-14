@@ -6,6 +6,7 @@ import {
 	Interactive,
 	interpolate,
 	interpolateColors,
+	Sequence,
 	Solid,
 	useCurrentFrame,
 	useCurrentScale,
@@ -13,7 +14,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-const codeBefore = `const progress =
+const springCodeBefore = `const progress =
   spring({fps, frame, durationInFrames: 20, config: {damping: 200}}) -
   spring({
     fps,
@@ -29,7 +30,7 @@ return (
   }} />
 );`;
 
-const codeAfter = `return (
+const springCodeAfter = `return (
   <div style={{
     translate: interpolate(
       frame,
@@ -41,6 +42,14 @@ const codeAfter = `return (
     ),
   }} />
 );`;
+
+const sequenceCodeBefore = `<Sequence from={30}>
+  <Sequence from={-15}>
+    <Video src="https://remotion.media/video.mp4" />
+  </Sequence>
+</Sequence>`;
+
+const sequenceCodeAfter = `<Video trimBefore={15} from={30} />`;
 
 type TokenKind =
 	| 'whitespace'
@@ -81,6 +90,13 @@ type TokenPosition = {
 type CodeLayouts = {
 	readonly before: TokenPosition[];
 	readonly after: TokenPosition[];
+};
+
+type CodeChangeData = {
+	readonly before: TokenizedCode;
+	readonly after: TokenizedCode;
+	readonly afterIndexByBeforeIndex: Map<number, number>;
+	readonly matchedAfterIndexes: Set<number>;
 };
 
 const getTokenColor = (kind: TokenKind) => {
@@ -155,9 +171,9 @@ const tokenizeCode = (code: string): TokenizedCode => {
 				kind = 'keyword';
 			} else if (['spring', 'interpolate'].includes(identifier)) {
 				kind = 'function';
-			} else if (identifier === 'div') {
+			} else if (['div', 'Sequence', 'Video'].includes(identifier)) {
 				kind = 'tag';
-			} else if (identifier === 'style') {
+			} else if (['style', 'src', 'trimBefore', 'from'].includes(identifier)) {
 				kind = 'attribute';
 			} else if (identifier === 'progress') {
 				kind = 'variable';
@@ -262,15 +278,30 @@ const renderTokenStream = (tokens: CodeToken[], prefix: string) => {
 	});
 };
 
-const beforeCode = tokenizeCode(codeBefore);
-const afterCode = tokenizeCode(codeAfter);
-const tokenMatches = matchTokens(beforeCode.visible, afterCode.visible);
-const afterIndexByBeforeIndex = new Map(tokenMatches);
-const matchedAfterIndexes = new Set(
-	tokenMatches.map(([, afterIndex]) => afterIndex),
+const prepareCodeChange = (before: string, after: string): CodeChangeData => {
+	const beforeCode = tokenizeCode(before);
+	const afterCode = tokenizeCode(after);
+	const tokenMatches = matchTokens(beforeCode.visible, afterCode.visible);
+
+	return {
+		before: beforeCode,
+		after: afterCode,
+		afterIndexByBeforeIndex: new Map(tokenMatches),
+		matchedAfterIndexes: new Set(
+			tokenMatches.map(([, afterIndex]) => afterIndex),
+		),
+	};
+};
+
+const springCodeChange = prepareCodeChange(springCodeBefore, springCodeAfter);
+const sequenceCodeChange = prepareCodeChange(
+	sequenceCodeBefore,
+	sequenceCodeAfter,
 );
 
-export const Skills2CodeChange: React.FC = () => {
+const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
+	codeChange,
+}) => {
 	const frame = useCurrentFrame();
 	const scale = useCurrentScale();
 	const {height} = useVideoConfig();
@@ -310,10 +341,16 @@ export const Skills2CodeChange: React.FC = () => {
 		};
 
 		setLayouts({
-			before: measure(beforeMeasurementRef.current, beforeCode.visible.length),
-			after: measure(afterMeasurementRef.current, afterCode.visible.length),
+			before: measure(
+				beforeMeasurementRef.current,
+				codeChange.before.visible.length,
+			),
+			after: measure(
+				afterMeasurementRef.current,
+				codeChange.after.visible.length,
+			),
 		});
-	}, [height, scale]);
+	}, [codeChange, height, scale]);
 
 	useEffect(() => {
 		if (layouts && !hasContinued.current) {
@@ -322,6 +359,170 @@ export const Skills2CodeChange: React.FC = () => {
 		}
 	}, [continueRender, handle, layouts]);
 
+	return (
+		<Interactive.Div
+			name="Code"
+			style={{
+				position: 'absolute',
+				left: 148,
+				top: 0,
+				right: 148,
+				bottom: 0,
+				fontFamily:
+					'SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace',
+				fontSize: 38,
+				lineHeight: 1.35,
+				tabSize: 2,
+			}}
+		>
+			<pre
+				ref={beforeMeasurementRef}
+				aria-hidden="true"
+				style={{
+					position: 'absolute',
+					left: 0,
+					top: 0,
+					width: 'max-content',
+					margin: 0,
+					font: 'inherit',
+					lineHeight: 'inherit',
+					whiteSpace: 'pre',
+					visibility: 'hidden',
+					pointerEvents: 'none',
+				}}
+			>
+				{renderTokenStream(codeChange.before.stream, 'before')}
+			</pre>
+			<pre
+				ref={afterMeasurementRef}
+				aria-hidden="true"
+				style={{
+					position: 'absolute',
+					left: 0,
+					top: 0,
+					width: 'max-content',
+					margin: 0,
+					font: 'inherit',
+					lineHeight: 'inherit',
+					whiteSpace: 'pre',
+					visibility: 'hidden',
+					pointerEvents: 'none',
+				}}
+			>
+				{renderTokenStream(codeChange.after.stream, 'after')}
+			</pre>
+
+			{layouts
+				? codeChange.before.visible.map((token, beforeIndex) => {
+						const beforePosition = layouts.before[beforeIndex];
+						const afterIndex =
+							codeChange.afterIndexByBeforeIndex.get(beforeIndex);
+
+						if (afterIndex === undefined) {
+							return (
+								<span
+									key={`removed-${token.id}`}
+									style={{
+										position: 'absolute',
+										left: 0,
+										top: 0,
+										display: 'inline-block',
+										whiteSpace: 'pre',
+										color: token.color,
+										opacity: interpolate(frame, [90, 108], [1, 0], {
+											easing: Easing.bezier(0.4, 0, 1, 1),
+											extrapolateLeft: 'clamp',
+											extrapolateRight: 'clamp',
+										}),
+										translate: `${beforePosition.x}px ${beforePosition.y}px`,
+									}}
+								>
+									{token.value}
+								</span>
+							);
+						}
+
+						const afterToken = codeChange.after.visible[afterIndex];
+						const afterPosition = layouts.after[afterIndex];
+						return (
+							<span
+								key={`matched-${token.id}-${afterToken.id}`}
+								style={{
+									position: 'absolute',
+									left: 0,
+									top: 0,
+									display: 'inline-block',
+									whiteSpace: 'pre',
+									color:
+										token.color === afterToken.color
+											? token.color
+											: interpolateColors(
+													frame,
+													[108, 126],
+													[token.color, afterToken.color],
+												),
+									translate: `${interpolate(
+										frame,
+										[108, 126],
+										[beforePosition.x, afterPosition.x],
+										{
+											easing: Easing.spring({damping: 200}),
+											extrapolateLeft: 'clamp',
+											extrapolateRight: 'clamp',
+										},
+									)}px ${interpolate(
+										frame,
+										[108, 126],
+										[beforePosition.y, afterPosition.y],
+										{
+											easing: Easing.spring({damping: 200}),
+											extrapolateLeft: 'clamp',
+											extrapolateRight: 'clamp',
+										},
+									)}px`,
+								}}
+							>
+								{token.value}
+							</span>
+						);
+					})
+				: null}
+
+			{layouts
+				? codeChange.after.visible.map((token, afterIndex) => {
+						if (codeChange.matchedAfterIndexes.has(afterIndex)) {
+							return null;
+						}
+
+						const afterPosition = layouts.after[afterIndex];
+						return (
+							<span
+								key={`added-${token.id}`}
+								style={{
+									position: 'absolute',
+									left: 0,
+									top: 0,
+									display: 'inline-block',
+									whiteSpace: 'pre',
+									color: token.color,
+									opacity: interpolate(frame, [126, 144], [0, 1], {
+										easing: Easing.bezier(0, 0, 0.2, 1),
+										extrapolateLeft: 'clamp',
+										extrapolateRight: 'clamp',
+									}),
+									translate: `${afterPosition.x}px ${afterPosition.y}px`,
+								}}
+							>
+								{token.value}
+							</span>
+						);
+					})
+				: null}
+		</Interactive.Div>
+	);
+};
+
+export const Skills2CodeChange: React.FC = () => {
 	return (
 		<AbsoluteFill style={{backgroundColor: '#f5fafb'}}>
 			<Solid
@@ -337,164 +538,16 @@ export const Skills2CodeChange: React.FC = () => {
 					}),
 				]}
 			/>
-			<Interactive.Div
-				name="Code"
-				style={{
-					position: 'absolute',
-					left: 148,
-					top: 0,
-					right: 148,
-					bottom: 0,
-					fontFamily:
-						'SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace',
-					fontSize: 38,
-					lineHeight: 1.35,
-					tabSize: 2,
-				}}
+			<Sequence durationInFrames={180} name="Spring to interpolate">
+				<CodeChange codeChange={springCodeChange} />
+			</Sequence>
+			<Sequence
+				from={180}
+				durationInFrames={180}
+				name="Sequence to Video props"
 			>
-				<pre
-					ref={beforeMeasurementRef}
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: 0,
-						top: 0,
-						width: 'max-content',
-						margin: 0,
-						font: 'inherit',
-						lineHeight: 'inherit',
-						whiteSpace: 'pre',
-						visibility: 'hidden',
-						pointerEvents: 'none',
-					}}
-				>
-					{renderTokenStream(beforeCode.stream, 'before')}
-				</pre>
-				<pre
-					ref={afterMeasurementRef}
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: 0,
-						top: 0,
-						width: 'max-content',
-						margin: 0,
-						font: 'inherit',
-						lineHeight: 'inherit',
-						whiteSpace: 'pre',
-						visibility: 'hidden',
-						pointerEvents: 'none',
-					}}
-				>
-					{renderTokenStream(afterCode.stream, 'after')}
-				</pre>
-
-				{layouts
-					? beforeCode.visible.map((token, beforeIndex) => {
-							const beforePosition = layouts.before[beforeIndex];
-							const afterIndex = afterIndexByBeforeIndex.get(beforeIndex);
-
-							if (afterIndex === undefined) {
-								return (
-									<span
-										key={`removed-${token.id}`}
-										style={{
-											position: 'absolute',
-											left: 0,
-											top: 0,
-											display: 'inline-block',
-											whiteSpace: 'pre',
-											color: token.color,
-											opacity: interpolate(frame, [90, 108], [1, 0], {
-												easing: Easing.bezier(0.4, 0, 1, 1),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											}),
-											translate: `${beforePosition.x}px ${beforePosition.y}px`,
-										}}
-									>
-										{token.value}
-									</span>
-								);
-							}
-
-							const afterToken = afterCode.visible[afterIndex];
-							const afterPosition = layouts.after[afterIndex];
-							return (
-								<span
-									key={`matched-${token.id}-${afterToken.id}`}
-									style={{
-										position: 'absolute',
-										left: 0,
-										top: 0,
-										display: 'inline-block',
-										whiteSpace: 'pre',
-										color:
-											token.color === afterToken.color
-												? token.color
-												: interpolateColors(
-														frame,
-														[108, 126],
-														[token.color, afterToken.color],
-													),
-										translate: `${interpolate(
-											frame,
-											[108, 126],
-											[beforePosition.x, afterPosition.x],
-											{
-												easing: Easing.spring({damping: 200}),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											},
-										)}px ${interpolate(
-											frame,
-											[108, 126],
-											[beforePosition.y, afterPosition.y],
-											{
-												easing: Easing.spring({damping: 200}),
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											},
-										)}px`,
-									}}
-								>
-									{token.value}
-								</span>
-							);
-						})
-					: null}
-
-				{layouts
-					? afterCode.visible.map((token, afterIndex) => {
-							if (matchedAfterIndexes.has(afterIndex)) {
-								return null;
-							}
-
-							const afterPosition = layouts.after[afterIndex];
-							return (
-								<span
-									key={`added-${token.id}`}
-									style={{
-										position: 'absolute',
-										left: 0,
-										top: 0,
-										display: 'inline-block',
-										whiteSpace: 'pre',
-										color: token.color,
-										opacity: interpolate(frame, [126, 144], [0, 1], {
-											easing: Easing.bezier(0, 0, 0.2, 1),
-											extrapolateLeft: 'clamp',
-											extrapolateRight: 'clamp',
-										}),
-										translate: `${afterPosition.x}px ${afterPosition.y}px`,
-									}}
-								>
-									{token.value}
-								</span>
-							);
-						})
-					: null}
-			</Interactive.Div>
+				<CodeChange codeChange={sequenceCodeChange} />
+			</Sequence>
 		</AbsoluteFill>
 	);
 };
