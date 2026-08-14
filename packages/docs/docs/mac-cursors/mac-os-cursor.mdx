@@ -1,0 +1,78 @@
+---
+image: /generated/articles-docs-mac-cursors-mac-os-cursor.png
+id: mac-os-cursor
+slug: /mac-cursors/mac-os-cursor
+title: '<MacOSCursor>'
+crumb: '@remotion/mac-cursors'
+---
+
+# &lt;MacOSCursor&gt;<AvailableFrom v="4.0.510" />
+
+Renders a macOS cursor with its hotspot placed at the component origin.
+
+Named CSS cursors use SVGs bundled with the package. Custom cursors use the supplied image and hotspot.
+
+## Example
+
+```tsx twoslash title="Cursor.tsx"
+import {MacOSCursor} from '@remotion/mac-cursors';
+
+export const Cursor = () => {
+  return (
+    <MacOSCursor
+      cursor="pointer"
+      style={{left: 200, top: 300, scale: 2}}
+    />
+  );
+};
+```
+
+Custom cursors may be quoted or unquoted and may include a hotspot:
+
+```tsx twoslash title="CustomCursor.tsx"
+import {MacOSCursor} from '@remotion/mac-cursors';
+
+const src = 'data:image/svg+xml;base64,PHN2Zy8+';
+
+export const CustomCursor = () => {
+  return (
+    <MacOSCursor
+      cursor="custom"
+      customCursor={`url("${src}") 12 8, pointer`}
+    />
+  );
+};
+```
+
+## API
+
+### `cursor?`
+
+A CSS cursor name such as `"default"`, `"pointer"`, or `"text"`. Set it to `"custom"` to use the `customCursor` prop. Default: `"default"`.
+
+Unknown cursor keywords render the default arrow. `"none"` renders nothing.
+
+### `customCursor?`
+
+A CSS custom cursor value such as `url("...") 12 8, pointer`. It is used when `cursor` is set to `"custom"`.
+
+### `className?`
+
+A CSS class name for the cursor image.
+
+### `style?`
+
+CSS styles for the cursor image. Use `left` and `top` to position it without changing the hotspot correction.
+
+### Timing and display props
+
+The component also accepts [`InteractiveBaseProps`](/docs/interactive#interactivebaseprops), including `durationInFrames`, `from`, `trimBefore`, `freeze`, `hidden`, `name`, and `showInTimeline`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`<Img>`](/docs/img)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/mac-cursors/src/MacOSCursor.tsx)
