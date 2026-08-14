@@ -5,7 +5,7 @@ description: Accept an external Remotion Element contribution by verifying its c
 
 # Accept a Remotion Element
 
-This is a maintainer-only workflow for contributions that used the external path in the [`submit-element` skill](../submit-element/SKILL.md). Do not use it for a repository writer's direct submission, which already has public preview URLs and no committed preview assets. Read the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx), the [`scaffold-element` skill](../scaffold-element/SKILL.md), and the `submit-element` skill completely before making changes.
+This is a maintainer-only workflow for contributions that used the external path in the [`submit-element` skill](../submit-element/SKILL.md). Do not use it for a repository writer's direct submission, which already has public preview URLs and no committed preview assets. Read the [Element contribution guide](../../../packages/docs/elements/contributing.mdx), the [`scaffold-element` skill](../scaffold-element/SKILL.md), and the `submit-element` skill completely before making changes.
 
 Run this workflow on the external contributor's pull request branch. Do not force push. For a pull request from a fork, confirm that “Allow edits from maintainers” is enabled. If the branch cannot be updated, upload only after approval and ask the contributor to apply the URL and asset cleanup described below.
 
@@ -17,7 +17,7 @@ Identify the single submitted `<category>/<slug>` and confirm that:
 - The page frontmatter and central definition use `/elements/<category>-<slug>-preview.png` and `.mp4` review URLs.
 - The matching files are committed at `packages/docs/static/elements/<category>-<slug>-preview.png` and `.mp4`.
 - The contributor explicitly reviewed the Element in Studio and approved both committed preview assets.
-- The pull request has passed code review against the Element Guidelines.
+- The pull request has passed code review against the Element contribution guide.
 
 Do not accept an Element whose metadata already points to a missing `https://remotion.media` asset or whose review assets are available only outside the pull request.
 

@@ -5,7 +5,7 @@ description: Finalize a developed Remotion Element, add it to the docs gallery, 
 
 # Submit a Remotion Element
 
-The source of truth for design and quality criteria is the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
+The source of truth for design and quality criteria is the [Element contribution guide](../../../packages/docs/elements/contributing.mdx). Read it completely before making changes. If this skill and the guide diverge on acceptance criteria, follow the guide.
 
 This skill owns the contributor submission workflow. It starts with an Element created by the [`scaffold-element` skill](../scaffold-element/SKILL.md). Repository writers upload reviewed previews directly. Other contributors commit temporary review assets that a maintainer later processes with the [`accept-element` skill](../accept-element/SKILL.md).
 
@@ -52,7 +52,7 @@ Use the **external contribution path** when the permission is `read`, `triage`, 
 
 ## 3. Perform the submission review
 
-Review the finished source, MDX page, and central definition against the Element Guidelines and the technical requirements in the [`scaffold-element` skill](../scaffold-element/SKILL.md). Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, `installationMode`, declared dependencies, preview padding, and poster frame.
+Review the finished source, MDX page, and central definition against the Element contribution guide and the technical requirements in the [`scaffold-element` skill](../scaffold-element/SKILL.md). Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, `installationMode`, declared dependencies, preview padding, and poster frame.
 
 Keep the local review URLs in place while rendering and reviewing:
 

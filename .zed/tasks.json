@@ -32,6 +32,14 @@
 		"save": "all"
 	},
 	{
+		"label": "start docs dev server",
+		"command": "bun run start",
+		"cwd": "$ZED_WORKTREE_ROOT/packages/docs",
+		"reveal": "always",
+		"hide": "never",
+		"save": "all"
+	},
+	{
 		"label": "start docs studio",
 		"command": "bun remotion",
 		"cwd": "$ZED_WORKTREE_ROOT/packages/docs",

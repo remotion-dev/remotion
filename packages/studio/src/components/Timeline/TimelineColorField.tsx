@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import {BLACK_HEX, BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import type {
@@ -73,12 +73,6 @@ export const TimelineColorField: React.FC<{
 		[onSave, onDragEnd, propStatus],
 	);
 
-	const swatchStyle = useMemo<React.CSSProperties>(() => {
-		return {
-			marginLeft: 5,
-		};
-	}, []);
-
 	if (currentValue === 'none') {
 		return (
 			<span style={containerStyle}>
@@ -107,7 +101,6 @@ export const TimelineColorField: React.FC<{
 				disabled={false}
 				name={field.key}
 				title={currentValue}
-				style={swatchStyle}
 			/>
 		</span>
 	);

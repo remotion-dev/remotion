@@ -132,6 +132,7 @@ export const getSequenceContextMenuItems = ({
 						},
 					);
 				},
+				onOpenInGitClient: () => undefined,
 				onOpenInTerminal: null,
 			})
 		: [];

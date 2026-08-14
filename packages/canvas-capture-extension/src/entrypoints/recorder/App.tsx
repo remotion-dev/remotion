@@ -5,7 +5,6 @@ import {
 	isCapturePopupTargetMessage,
 	type CaptureControllerRequest,
 	type CaptureControllerState,
-	type CaptureFormat,
 } from '../../messages';
 
 const getStateRequest: CaptureControllerRequest = {
@@ -230,11 +229,10 @@ export const App: React.FC = () => {
 		state.selecting ||
 		(!state.recording && state.encoderSupport !== 'supported');
 
-	const updateOptions = (format: CaptureFormat, scale: number) => {
+	const updateOptions = (scale: number) => {
 		runCommand({
 			type: captureControllerMessageType,
 			command: 'set-options',
-			format,
 			scale,
 		}).catch(() => undefined);
 	};
@@ -251,21 +249,10 @@ export const App: React.FC = () => {
 
 			<section className="panel settings-panel">
 				<div className="field">
-					<label htmlFor="format">Format</label>
-					<select
-						id="format"
-						disabled={controlsDisabled || state?.recording}
-						value={state?.format ?? 'mp4'}
-						onChange={(event) =>
-							updateOptions(
-								event.currentTarget.value as CaptureFormat,
-								state?.scale ?? 1,
-							)
-						}
-					>
-						<option value="mp4">MP4 · H.264</option>
-						<option value="webm">WebM · VP9</option>
-					</select>
+					<label>Format</label>
+					<div className="format-value">
+						{state?.format === 'webm' ? 'WebM · VP9' : 'MP4 · H.264'}
+					</div>
 				</div>
 
 				<div className="field">
@@ -279,9 +266,7 @@ export const App: React.FC = () => {
 							disabled={controlsDisabled || state?.recording}
 							value={scaleInput}
 							onChange={(event) => setScaleInput(event.currentTarget.value)}
-							onBlur={() =>
-								updateOptions(state?.format ?? 'mp4', Number(scaleInput))
-							}
+							onBlur={() => updateOptions(Number(scaleInput))}
 							onKeyDown={(event) => {
 								if (event.key === 'Enter') {
 									event.currentTarget.blur();
@@ -373,7 +358,6 @@ export const App: React.FC = () => {
 						runCommand({
 							type: captureControllerMessageType,
 							command: 'start-recording',
-							format: state?.format ?? 'mp4',
 							scale: state?.scale ?? 1,
 						}).catch(() => undefined);
 					}}

@@ -46,9 +46,6 @@
 }
 
 .sourceViewport {
-	height: 360px;
-	overflow: auto;
-	overscroll-behavior: contain;
 	background: #282a36;
 }
 
@@ -263,10 +260,6 @@
 }
 
 @media (max-width: 600px) {
-	.sourceViewport {
-		height: 320px;
-	}
-
 	.sourceViewportCollapsed {
 		height: 160px;
 	}

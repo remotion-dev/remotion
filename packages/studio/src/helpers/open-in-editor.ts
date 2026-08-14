@@ -1,5 +1,5 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
-import type {TerminalId} from '@remotion/studio-shared';
+import type {GitClientId, TerminalId} from '@remotion/studio-shared';
 import type {
 	CompositionComponentInfoResponse,
 	EditorPickerId,
@@ -50,6 +50,10 @@ export const openInTerminal = (
 	directory: string,
 ): Promise<OpenInTerminalResponse> => {
 	return callApi('/api/open-in-terminal', {directory, terminalId});
+};
+
+export const openInGitClient = (gitClientId: GitClientId) => {
+	return callApi('/api/open-in-git-client', {gitClientId});
 };
 
 export const openOriginalPositionInEditor = async (

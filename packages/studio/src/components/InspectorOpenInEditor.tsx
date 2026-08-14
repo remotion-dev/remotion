@@ -11,6 +11,7 @@ import {
 } from '../helpers/colors';
 import {
 	openInCodingAgent,
+	openInGitClient,
 	openInTerminal,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
@@ -198,6 +199,20 @@ export const InspectorOpenInEditor: React.FC<{
 				openInFileExplorer({directory: location.source}).catch((err) => {
 					showNotification(`Could not open file: ${err.message}`, 2000);
 				});
+			},
+			onOpenInGitClient: (gitClientId) => {
+				openInGitClient(gitClientId)
+					.then((response) => {
+						if (!response.success) {
+							showNotification('Could not open Git client', 2000);
+						}
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not open Git client: ${(err as Error).message}`,
+							2000,
+						);
+					});
 			},
 			onOpenInTerminal: (terminalId) => {
 				if (!location?.source || locationType !== 'folder') {

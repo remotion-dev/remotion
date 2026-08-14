@@ -125,6 +125,68 @@ const parseAttributes = (attributes) => {
 	return parsed;
 };
 
+export const getRemotionElementSourceMap = ({elementsRoot}) => {
+	const indexFiles = [];
+	const walk = (directory) => {
+		for (const entry of fs.readdirSync(directory, {withFileTypes: true})) {
+			const absolutePath = path.join(directory, entry.name);
+			if (entry.isDirectory()) {
+				walk(absolutePath);
+			} else if (entry.name === 'index.mdx') {
+				indexFiles.push(absolutePath);
+			}
+		}
+	};
+
+	walk(elementsRoot);
+	const sourceCodeBySlug = {};
+
+	for (const sourceFilePath of indexFiles.sort()) {
+		const raw = fs.readFileSync(sourceFilePath, 'utf8');
+		const elementPages = Array.from(
+			raw.matchAll(/<ElementPage\b([\s\S]*?)\/>/g),
+		);
+		if (elementPages.length === 0) {
+			continue;
+		}
+
+		if (elementPages.length > 1) {
+			throw new Error(
+				`Expected one ElementPage in "${sourceFilePath}", found ${elementPages.length}.`,
+			);
+		}
+
+		const file = parseAttributes(elementPages[0][1]).get('sourceFile');
+		if (!file) {
+			throw new Error(
+				`ElementPage in "${sourceFilePath}" must have a sourceFile attribute.`,
+			);
+		}
+
+		const relativeDirectory = path.relative(
+			elementsRoot,
+			path.dirname(sourceFilePath),
+		);
+		const slug = relativeDirectory.split(path.sep).join('/');
+		if (!slug || slug.startsWith('../') || path.isAbsolute(relativeDirectory)) {
+			throw new Error(
+				`Could not derive an Element slug for "${sourceFilePath}" relative to "${elementsRoot}".`,
+			);
+		}
+
+		if (Object.hasOwn(sourceCodeBySlug, slug)) {
+			throw new Error(`Duplicate Element source found for slug "${slug}".`);
+		}
+
+		sourceCodeBySlug[slug] = getRemotionElementSource({
+			file,
+			sourceFilePath,
+		});
+	}
+
+	return sourceCodeBySlug;
+};
+
 const appendSourceCodeBlock = ({attributes, match, sourceFilePath}) => {
 	const parsed = parseAttributes(attributes);
 	const file = parsed.get('sourceFile');

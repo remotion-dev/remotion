@@ -2581,7 +2581,7 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 	]);
 });
 
-test('Timeline from drag leaves descendant keyframes on their JSX clock', () => {
+test('Timeline from drag moves all descendant keyframes', () => {
 	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const parentNodePath = parentNodePathInfo.sequenceSubscriptionKey;
 	const descendantNodePath = makeNodePathInfo(
@@ -2639,7 +2639,27 @@ test('Timeline from drag leaves descendant keyframes on their JSX clock', () => 
 			targets: targets ?? [],
 			deltaFrames: -34,
 		}),
-	).toEqual({effectKeyframes: [], sequenceKeyframes: []});
+	).toEqual({
+		effectKeyframes: [],
+		sequenceKeyframes: [
+			{
+				fileName: '/project/src/Comp.tsx',
+				fieldKey: 'color',
+				fromFrame: 0,
+				nodePath: descendantNodePath,
+				schema: {color: {type: 'color', default: '#000000'}},
+				toFrame: -34,
+			},
+			{
+				fileName: '/project/src/Comp.tsx',
+				fieldKey: 'color',
+				fromFrame: 100,
+				nodePath: descendantNodePath,
+				schema: {color: {type: 'color', default: '#000000'}},
+				toFrame: 66,
+			},
+		],
+	});
 });
 
 test('Timeline from drag moves owned effect keyframes by the same delta', () => {

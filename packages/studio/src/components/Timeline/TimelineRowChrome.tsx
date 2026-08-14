@@ -32,6 +32,30 @@ const keyframeControlsColumnBaseStyle: React.CSSProperties = {
 	justifyContent: 'flex-start',
 };
 
+export const TimelineRowKeyframeControlsColumn: React.FC<{
+	readonly children: React.ReactNode;
+	readonly depth: number;
+}> = ({children, depth}) => {
+	const {basePadding, keyframeControlsPadding} = useContext(
+		TimelineRowLayoutContext,
+	);
+	const style = useMemo(
+		(): React.CSSProperties => ({
+			...keyframeControlsColumnBaseStyle,
+			boxSizing: keyframeControlsPadding === 0 ? undefined : 'border-box',
+			paddingLeft: keyframeControlsPadding,
+			width: getTimelineRowLeftChromeWidth(depth, basePadding),
+		}),
+		[basePadding, depth, keyframeControlsPadding],
+	);
+
+	return (
+		<div style={leftChromeStyle}>
+			<div style={style}>{children}</div>
+		</div>
+	);
+};
+
 export const TimelineRowChrome: React.FC<{
 	readonly depth: number;
 	readonly eye: React.ReactNode;
@@ -46,6 +70,7 @@ export const TimelineRowChrome: React.FC<{
 	readonly showSelectedBackground: boolean;
 	readonly containsSelection: boolean;
 	readonly hovered?: boolean;
+	readonly isFieldRow: boolean;
 	// When set, the chrome is wrapped in an outer container of this height with a
 	// bottom track separator. The background highlight and click target span the
 	// outer (used by sequence rows whose layer is taller than the chrome row).
@@ -70,6 +95,7 @@ export const TimelineRowChrome: React.FC<{
 	showSelectedBackground,
 	containsSelection,
 	hovered = false,
+	isFieldRow,
 	outerHeight,
 	onDragLeave,
 	onDragOver,
@@ -81,22 +107,12 @@ export const TimelineRowChrome: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const {
 		basePadding,
-		keyframeControlsPadding,
+		keyframeControlsPlacement,
 		rowBorderRadius,
 		rowHorizontalMargin,
 	} = useContext(TimelineRowLayoutContext);
 	const indentWidth = getTimelineRowIndentWidth(depth);
 	useTimelineFocusableItem(selectionItem, ref);
-
-	const keyframeControlsColumnStyle = useMemo(
-		(): React.CSSProperties => ({
-			...keyframeControlsColumnBaseStyle,
-			boxSizing: keyframeControlsPadding === 0 ? undefined : 'border-box',
-			paddingLeft: keyframeControlsPadding,
-			width: getTimelineRowLeftChromeWidth(depth, basePadding),
-		}),
-		[basePadding, depth, keyframeControlsPadding],
-	);
 
 	const chromeColumnStyle = useMemo(
 		(): React.CSSProperties => ({
@@ -169,19 +185,25 @@ export const TimelineRowChrome: React.FC<{
 		};
 	}, [outerHeight, highlightBackground]);
 
+	const shouldRenderLeftChrome =
+		!isFieldRow || keyframeControlsPlacement === 'before-label';
 	const chrome = (
 		<>
-			<div style={leftChromeStyle}>
-				{keyframeControls ? (
-					<div style={keyframeControlsColumnStyle}>{keyframeControls}</div>
+			{shouldRenderLeftChrome ? (
+				keyframeControls ? (
+					<TimelineRowKeyframeControlsColumn depth={depth}>
+						{keyframeControls}
+					</TimelineRowKeyframeControlsColumn>
 				) : (
-					<div style={chromeColumnStyle}>
-						{eye}
-						{indentWidth > 0 ? <Padder depth={depth} /> : null}
-						{arrow}
+					<div style={leftChromeStyle}>
+						<div style={chromeColumnStyle}>
+							{eye}
+							{indentWidth > 0 ? <Padder depth={depth} /> : null}
+							{arrow}
+						</div>
 					</div>
-				)}
-			</div>
+				)
+			) : null}
 			{children}
 		</>
 	);
