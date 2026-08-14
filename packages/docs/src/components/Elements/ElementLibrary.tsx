@@ -1,5 +1,10 @@
-import React, {useEffect, useRef, useState} from 'react';
+import {setStudioDragData} from '@remotion/studio-protocol';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {ElementDefinition} from './element-definitions';
+import {
+	createElementPayloadFromDefinition,
+	setElementDragImage,
+} from './element-drag-data';
 import {
 	getElementDocumentationUrl,
 	getElementLibrarySections,
@@ -34,7 +39,8 @@ const ElementCard: React.FC<{
 	readonly definition: ElementDefinition;
 	readonly headingLevel: 2 | 3;
 	readonly prefersReducedMotion: boolean;
-}> = ({definition, headingLevel, prefersReducedMotion}) => {
+	readonly sourceCode: string;
+}> = ({definition, headingLevel, prefersReducedMotion, sourceCode}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
@@ -42,6 +48,10 @@ const ElementCard: React.FC<{
 	const shouldPlay =
 		!prefersReducedMotion && !playbackFailed && (isFocused || isPointerOver);
 	const Heading = headingLevel === 2 ? 'h2' : 'h3';
+	const elementPayload = useMemo(
+		() => createElementPayloadFromDefinition({definition, sourceCode}),
+		[definition, sourceCode],
+	);
 
 	useEffect(() => {
 		const video = videoRef.current;
@@ -79,14 +89,23 @@ const ElementCard: React.FC<{
 		<li className={styles.cardItem}>
 			<a
 				className={styles.card}
+				draggable
 				href={getElementDocumentationUrl(definition)}
 				onBlur={() => setIsFocused(false)}
 				onFocus={() => {
 					setPlaybackFailed(false);
 					setIsFocused(true);
 				}}
+				onDragStart={(event) => {
+					setStudioDragData({
+						dataTransfer: event.dataTransfer,
+						payload: elementPayload,
+					});
+					setElementDragImage(event.dataTransfer);
+				}}
 				onPointerEnter={activateFromPointer}
 				onPointerLeave={() => setIsPointerOver(false)}
+				title="Click to view details, or drag this Element into Remotion Studio"
 			>
 				<div
 					aria-hidden="true"
@@ -128,24 +147,36 @@ const ElementGrid: React.FC<{
 	readonly definitions: readonly ElementDefinition[];
 	readonly headingLevel: 2 | 3;
 	readonly prefersReducedMotion: boolean;
-}> = ({definitions, headingLevel, prefersReducedMotion}) => {
+	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
+}> = ({definitions, headingLevel, prefersReducedMotion, sourceCodeBySlug}) => {
 	return (
 		<ul className={styles.grid} role="list">
-			{definitions.map((definition) => (
-				<ElementCard
-					key={definition.slug}
-					definition={definition}
-					headingLevel={headingLevel}
-					prefersReducedMotion={prefersReducedMotion}
-				/>
-			))}
+			{definitions.map((definition) => {
+				const sourceCode = sourceCodeBySlug[definition.slug];
+				if (!sourceCode) {
+					throw new Error(
+						`Missing generated source code for Element "${definition.slug}".`,
+					);
+				}
+
+				return (
+					<ElementCard
+						key={definition.slug}
+						definition={definition}
+						headingLevel={headingLevel}
+						prefersReducedMotion={prefersReducedMotion}
+						sourceCode={sourceCode}
+					/>
+				);
+			})}
 		</ul>
 	);
 };
 
 export const ElementLibrary: React.FC<{
 	readonly category: ElementCategory | null;
-}> = ({category}) => {
+	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
+}> = ({category, sourceCodeBySlug}) => {
 	const sections = getElementLibrarySections(category);
 	const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -163,6 +194,7 @@ export const ElementLibrary: React.FC<{
 								definitions={section.definitions}
 								headingLevel={2}
 								prefersReducedMotion={prefersReducedMotion}
+								sourceCodeBySlug={sourceCodeBySlug}
 							/>
 						</section>
 					);
@@ -183,6 +215,7 @@ export const ElementLibrary: React.FC<{
 							definitions={section.definitions}
 							headingLevel={3}
 							prefersReducedMotion={prefersReducedMotion}
+							sourceCodeBySlug={sourceCodeBySlug}
 						/>
 					</section>
 				);
