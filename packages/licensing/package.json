@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/licensing"
 	},
 	"name": "@remotion/licensing",
-	"version": "4.0.509",
+	"version": "4.0.510",
 	"description": "Manage your Remotion.pro license",
 	"main": "dist",
 	"scripts": {
