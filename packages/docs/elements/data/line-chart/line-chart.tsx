@@ -70,6 +70,7 @@ export const LineChart: React.FC = () => {
 				gap: 84,
 				height: '100%',
 				justifyContent: 'center',
+				translate: '30px 0px',
 			}}
 		>
 			<Interactive.H1
