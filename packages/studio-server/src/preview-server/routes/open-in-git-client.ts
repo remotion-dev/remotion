@@ -19,6 +19,6 @@ export const openInGitClientHandler: ApiHandler<
 		return {success: false};
 	}
 
-	await launchGitClient({gitClient, projectPath: remotionRoot});
+	await launchGitClient({gitClient, remotionRoot});
 	return {success: true};
 };

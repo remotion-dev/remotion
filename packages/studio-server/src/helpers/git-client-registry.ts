@@ -3,6 +3,7 @@ import {existsSync, readdirSync} from 'node:fs';
 import {homedir} from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
+import {BundlerInternals} from '@remotion/bundler';
 import type {GitClientId} from '@remotion/studio-shared';
 
 const execFilePromise = promisify(execFile);
@@ -69,12 +70,12 @@ export const discoverAvailableGitClients = async (
 		);
 		const applicationPath = [
 			...new Set([
-				...discoveredApplications,
 				'/Applications/GitHub Desktop.app',
 				path.posix.join(
 					context.homeDirectory,
 					'Applications/GitHub Desktop.app',
 				),
+				...discoveredApplications,
 			]),
 		].find(context.pathExists);
 
@@ -122,33 +123,44 @@ export const getAvailableGitClients = () => {
 
 export const getGitClientLaunchInstruction = ({
 	gitClient,
-	projectPath,
+	remotionRoot,
 }: {
 	gitClient: InstalledGitClient;
-	projectPath: string;
+	remotionRoot: string;
 }) => {
+	const repositoryRoot =
+		BundlerInternals.findClosestFolderWithItem(remotionRoot, '.git') ??
+		remotionRoot;
 	return gitClient.platform === 'darwin'
 		? {
 				command: 'open',
-				args: ['-a', gitClient.applicationPath, projectPath],
+				args: [
+					'-n',
+					gitClient.applicationPath,
+					'--args',
+					`--cli-open=${repositoryRoot}`,
+				],
 			}
-		: {command: gitClient.applicationPath, args: [projectPath]};
+		: {
+				command: gitClient.applicationPath,
+				args: [`--cli-open=${repositoryRoot}`],
+			};
 };
 
 export const launchGitClient = async ({
 	gitClient,
-	projectPath,
+	remotionRoot,
 }: {
 	gitClient: InstalledGitClient;
-	projectPath: string;
+	remotionRoot: string;
 }) => {
 	const {command, args} = getGitClientLaunchInstruction({
 		gitClient,
-		projectPath,
+		remotionRoot,
 	});
 	await new Promise<void>((resolve, reject) => {
 		const child = spawn(command, args, {
-			cwd: projectPath,
+			cwd: remotionRoot,
 			detached: true,
 			stdio: 'ignore',
 		});

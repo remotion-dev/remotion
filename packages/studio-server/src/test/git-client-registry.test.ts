@@ -1,4 +1,7 @@
 import {expect, test} from 'bun:test';
+import {mkdtempSync, mkdirSync, rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import type {GitClientDiscoveryContext} from '../helpers/git-client-registry';
 import {
 	discoverAvailableGitClients,
@@ -31,6 +34,13 @@ const makeContext = ({
 };
 
 test('discovers GitHub Desktop and builds platform-specific launch instructions', async () => {
+	const repositoryRoot = mkdtempSync(
+		path.join(tmpdir(), 'remotion-git-client-test-'),
+	);
+	const remotionRoot = path.join(repositoryRoot, 'packages', 'example');
+	mkdirSync(path.join(repositoryRoot, '.git'));
+	mkdirSync(remotionRoot, {recursive: true});
+
 	const macClients = await discoverAvailableGitClients(
 		makeContext({
 			platform: 'darwin',
@@ -51,10 +61,15 @@ test('discovers GitHub Desktop and builds platform-specific launch instructions'
 	expect(
 		getGitClientLaunchInstruction({
 			gitClient: macClients[0],
-			projectPath: '/project with spaces',
+			remotionRoot,
 		}),
 	).toEqual({
-		args: ['-a', '/Custom/GitHub Desktop.app', '/project with spaces'],
+		args: [
+			'-n',
+			'/Custom/GitHub Desktop.app',
+			'--args',
+			`--cli-open=${repositoryRoot}`,
+		],
 		command: 'open',
 	});
 
@@ -70,10 +85,10 @@ test('discovers GitHub Desktop and builds platform-specific launch instructions'
 	expect(
 		getGitClientLaunchInstruction({
 			gitClient: windowsClients[0],
-			projectPath: 'C:\\project',
+			remotionRoot,
 		}),
 	).toEqual({
-		args: ['C:\\project'],
+		args: [`--cli-open=${repositoryRoot}`],
 		command:
 			'C:\\Users\\test\\AppData\\Local\\GitHubDesktop\\app-3.5.4\\GitHubDesktop.exe',
 	});
@@ -83,4 +98,6 @@ test('discovers GitHub Desktop and builds platform-specific launch instructions'
 			makeContext({platform: 'linux', paths: ['/usr/bin/github-desktop']}),
 		),
 	).toEqual([]);
+
+	rmSync(repositoryRoot, {recursive: true});
 });
