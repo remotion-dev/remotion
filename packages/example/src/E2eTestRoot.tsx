@@ -7,6 +7,7 @@ import {
 	UnsymbolicatedErrorOverlayRepro,
 } from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
+import {InspectorControlLayoutE2e} from './InspectorControlLayoutE2e';
 import {Issue8216} from './Issue8216/Issue8216';
 import {LightLeakExample} from './LightLeak';
 import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
@@ -174,6 +175,14 @@ export const E2eTestRoot: React.FC = () => {
 			<Composition
 				id="rotation-keyframe-e2e"
 				component={RotationKeyframeE2e}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="inspector-control-layout-e2e"
+				component={InspectorControlLayoutE2e}
 				width={1080}
 				height={1080}
 				fps={30}
