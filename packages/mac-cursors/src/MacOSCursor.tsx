@@ -63,8 +63,8 @@ const MacOSCursorInner: React.FC<
 				: null
 			: resolveCursor(cursor);
 	const refForOutline = React.useRef<SVGSVGElement | null>(null);
-	const width = resolved?.width ?? 32;
-	const height = resolved?.height ?? 32;
+	const width = resolved?.width ?? undefined;
+	const height = resolved?.height ?? undefined;
 
 	return (
 		<Sequence
@@ -85,13 +85,14 @@ const MacOSCursorInner: React.FC<
 					className={className}
 					width={width}
 					height={height}
-					viewBox={`0 0 ${width} ${height}`}
+					viewBox={width && height ? `0 0 ${width} ${height}` : undefined}
 					xmlns="http://www.w3.org/2000/svg"
 					style={{
 						display: 'block',
 						position: 'absolute',
 						width,
 						height,
+						overflow: 'visible',
 						marginLeft: -resolved.hotspot.x,
 						marginTop: -resolved.hotspot.y,
 						transformOrigin: `${resolved.hotspot.x}px ${resolved.hotspot.y}px`,

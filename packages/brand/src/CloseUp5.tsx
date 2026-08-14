@@ -33,7 +33,7 @@ export const CloseUp5Preview = () => {
 					width: 3216,
 					height: 2610,
 					translate: interpolate(
-						captureFrame,
+						captureFrame - 164,
 						[34, 79],
 						['-303.2px -277.3px', '-348.2px -1032.6px'],
 						{
