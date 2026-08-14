@@ -99,7 +99,7 @@ export const LineChart: React.FC = () => {
 			>
 				<div
 					style={{
-						color: '#6b7280',
+						color: '#4b5563',
 						fontSize: 40,
 						fontWeight: 700,
 						height: '100%',
@@ -143,7 +143,7 @@ export const LineChart: React.FC = () => {
 						stroke="#d1d5db"
 						strokeWidth={2}
 					>
-						{[80, 40, 20].map((value) => {
+						{Y_AXIS_VALUES.map((value) => {
 							const y =
 								((MAX_VALUE - value) / (MAX_VALUE - MIN_VALUE)) * CHART_HEIGHT;
 
