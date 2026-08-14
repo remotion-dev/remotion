@@ -427,6 +427,8 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 							codeChange.afterIndexByBeforeIndex.get(beforeIndex);
 
 						if (afterIndex === undefined) {
+							const exitAngle = beforeIndex * Math.PI * (3 - Math.sqrt(5));
+							const exitDistance = 2400;
 							return (
 								<span
 									key={`removed-${token.id}`}
@@ -437,12 +439,41 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 										display: 'inline-block',
 										whiteSpace: 'pre',
 										color: token.color,
-										opacity: interpolate(frame, [90, 108], [1, 0], {
-											easing: Easing.bezier(0.4, 0, 1, 1),
-											extrapolateLeft: 'clamp',
-											extrapolateRight: 'clamp',
-										}),
-										translate: `${beforePosition.x}px ${beforePosition.y}px`,
+										rotate: `${interpolate(
+											frame,
+											[90, 108],
+											[0, beforeIndex % 2 === 0 ? 720 : -720],
+											{
+												easing: Easing.bezier(0.4, 0, 1, 1),
+												extrapolateLeft: 'clamp',
+												extrapolateRight: 'clamp',
+											},
+										)}deg`,
+										translate: `${interpolate(
+											frame,
+											[90, 108],
+											[
+												beforePosition.x,
+												beforePosition.x + Math.cos(exitAngle) * exitDistance,
+											],
+											{
+												easing: Easing.bezier(0.4, 0, 1, 1),
+												extrapolateLeft: 'clamp',
+												extrapolateRight: 'clamp',
+											},
+										)}px ${interpolate(
+											frame,
+											[90, 108],
+											[
+												beforePosition.y,
+												beforePosition.y + Math.sin(exitAngle) * exitDistance,
+											],
+											{
+												easing: Easing.bezier(0.4, 0, 1, 1),
+												extrapolateLeft: 'clamp',
+												extrapolateRight: 'clamp',
+											},
+										)}px`,
 									}}
 								>
 									{token.value}
