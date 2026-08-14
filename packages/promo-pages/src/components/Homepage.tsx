@@ -55,12 +55,16 @@ export const NewLanding: React.FC<{
 						<ReactSourceOfTruth />
 						<div className={makeVideosRowClassName}>
 							<MakeVideosProgrammatically
-								title="Design systems"
-								description="Create a library of animated assets for your organization."
+								title="Parameterization"
+								description="Organize your assets and connect your data to it."
 								videoSrc="/img/design-systems.webm"
 								fallbackVideoSrc="/img/design-systems.mp4"
 								links={[
-									{label: 'Motion design systems', href: '/design-systems'},
+									{
+										label: 'Parameterization',
+										href: '/docs/parameterized-rendering',
+									},
+									{label: 'Motion Design systems', href: '/design-systems'},
 								]}
 							/>
 							<MakeVideosAgentically
