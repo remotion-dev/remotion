@@ -311,6 +311,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 	codeChange,
 }) => {
 	const frame = useCurrentFrame();
+	const posterizedFrame = Math.floor(frame / 3) * 3;
 	const scale = useCurrentScale();
 	const {height} = useVideoConfig();
 	const beforeMeasurementRef = useRef<HTMLPreElement>(null);
@@ -429,7 +430,6 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 						if (afterIndex === undefined) {
 							const exitAngle = beforeIndex * Math.PI * (3 - Math.sqrt(5));
 							const exitDistance = 2400;
-							const posterizedFrame = Math.floor(frame / 3) * 3;
 							return (
 								<span
 									key={`removed-${token.id}`}
@@ -497,12 +497,12 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 										token.color === afterToken.color
 											? token.color
 											: interpolateColors(
-													frame,
-													[90, 108],
-													[token.color, afterToken.color],
-												),
+												frame,
+												[90, 108],
+												[token.color, afterToken.color],
+											),
 									translate: `${interpolate(
-										frame,
+										posterizedFrame,
 										[90, 108],
 										[beforePosition.x, afterPosition.x],
 										{
@@ -511,7 +511,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 											extrapolateRight: 'clamp',
 										},
 									)}px ${interpolate(
-										frame,
+										posterizedFrame,
 										[90, 108],
 										[beforePosition.y, afterPosition.y],
 										{
