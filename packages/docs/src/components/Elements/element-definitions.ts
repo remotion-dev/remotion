@@ -13,6 +13,7 @@ import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-c
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
+import {LineChart} from '../../../elements/data/line-chart/line-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {PieChart} from '../../../elements/data/pie-chart/pie-chart';
 import {VerticalBarChart} from '../../../elements/data/vertical-bar-chart/vertical-bar-chart';
@@ -255,6 +256,25 @@ const elementImplementations = {
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.mp4',
 		},
 		previewPadding: 56,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'data/line-chart': {
+		component: LineChart,
+		contributors: [],
+		description: 'A bold animated line chart with a directly labeled trend.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 120,
+		elementHeight: 864,
+		elementWidth: 1560,
+		fps: 30,
+		height: 1080,
+		posterFrame: 70,
+		preview: {
+			posterUrl: 'https://remotion.media/elements/data-line-chart-preview.png',
+			videoUrl: 'https://remotion.media/elements/data-line-chart-preview.mp4',
+		},
+		previewPadding: 160,
 		installationMode: 'wrapped',
 		width: 1920,
 	},

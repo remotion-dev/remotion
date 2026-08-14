@@ -358,6 +358,7 @@ describe('Elements sidebar', () => {
 				label: 'Data',
 				items: [
 					'data/horizontal-bar-chart/index',
+					'data/line-chart/index',
 					'data/number-counter/index',
 					'data/pie-chart/index',
 					'data/vertical-bar-chart/index',

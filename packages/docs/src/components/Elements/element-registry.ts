@@ -53,6 +53,10 @@ export const elementRegistry = {
 		category: 'data',
 		displayName: 'Horizontal Bar Chart',
 	},
+	'data/line-chart': {
+		category: 'data',
+		displayName: 'Line Chart',
+	},
 	'data/number-counter': {
 		category: 'data',
 		displayName: 'Number Counter',
