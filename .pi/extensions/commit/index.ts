@@ -4,6 +4,7 @@ import {fileURLToPath} from 'node:url';
 import type {
 	ExtensionAPI,
 	ExtensionCommandContext,
+	InputEvent,
 } from '@earendil-works/pi-coding-agent';
 
 const MESSAGE_TYPE = 'remotion-commit-result';
@@ -32,11 +33,71 @@ interface CommitResultDetails {
 	status?: CommitDisplayStatus;
 }
 
+interface QueuedUserMessage {
+	text: string;
+	images: NonNullable<InputEvent['images']>;
+}
+
 let commitWorkerRunning = false;
 let agentEndWaiter: ((messages: unknown[]) => void) | undefined;
 let latestCommitWorkerMessages: unknown[] | undefined;
+const queuedUserMessages: QueuedUserMessage[] = [];
+const queuedFollowUpUserMessages: QueuedUserMessage[] = [];
 
 export default function remotionCommitExtension(pi: ExtensionAPI) {
+	const sendQueuedUserMessage = (
+		message: QueuedUserMessage,
+		deliverAs?: 'steer' | 'followUp',
+	) => {
+		const content =
+			message.images.length === 0
+				? message.text
+				: [{type: 'text' as const, text: message.text}, ...message.images];
+
+		if (deliverAs) {
+			pi.sendUserMessage(content, {deliverAs});
+		} else {
+			pi.sendUserMessage(content);
+		}
+	};
+
+	const releaseQueuedUserMessages = () => {
+		const [firstMessage, ...followUpMessages] = queuedUserMessages.splice(0);
+		if (!firstMessage) {
+			return;
+		}
+
+		queuedFollowUpUserMessages.push(...followUpMessages);
+		sendQueuedUserMessage(firstMessage);
+	};
+
+	pi.on('input', (event, ctx) => {
+		if (!commitWorkerRunning || event.source === 'extension') {
+			return {action: 'continue'};
+		}
+
+		queuedUserMessages.push({
+			text: event.text,
+			images: event.images ? [...event.images] : [],
+		});
+		ctx.ui.notify(
+			`Message queued until the commit worker exits (${queuedUserMessages.length} pending)`,
+			'info',
+		);
+		return {action: 'handled'};
+	});
+
+	pi.on('agent_start', () => {
+		if (commitWorkerRunning || queuedFollowUpUserMessages.length === 0) {
+			return;
+		}
+
+		const followUpMessages = queuedFollowUpUserMessages.splice(0);
+		for (const message of followUpMessages) {
+			sendQueuedUserMessage(message, 'followUp');
+		}
+	});
+
 	pi.on('agent_end', (event) => {
 		if (commitWorkerRunning) {
 			latestCommitWorkerMessages = event.messages;
@@ -103,7 +164,20 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 			commitWorkerRunning = true;
 			const userContext = args?.trim() ?? '';
 			let sourceLeafId: string | null | undefined;
+			let returnedToSourceBranch = false;
 			ctx.ui.setStatus(STATUS_KEY, 'waiting for current turn...');
+
+			const sendResult = async (
+				message: Parameters<typeof sendResultAtSourceLeaf>[2],
+			) => {
+				const resultSent = await sendResultAtSourceLeaf(
+					ctx,
+					sourceLeafId,
+					message,
+				);
+				returnedToSourceBranch = resultSent;
+				return resultSent;
+			};
 
 			try {
 				await ctx.waitForIdle();
@@ -142,7 +216,7 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 						: undefined;
 
 				if (assistantError) {
-					const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+					const resultSent = await sendResult({
 						customType: MESSAGE_TYPE,
 						content: formatFailure(`Commit worker errored: ${assistantError}`),
 						display: true,
@@ -165,7 +239,7 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 				}
 
 				if (!summary) {
-					const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+					const resultSent = await sendResult({
 						customType: MESSAGE_TYPE,
 						content: formatFailure(
 							'Commit worker finished without producing a result.',
@@ -191,7 +265,7 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 
 				const workerResult = parseWorkerResult(summary);
 				if (!workerResult) {
-					const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+					const resultSent = await sendResult({
 						customType: MESSAGE_TYPE,
 						content: formatFailure(
 							'Commit worker returned a malformed result. Inspect its session-tree branch for details.',
@@ -215,7 +289,7 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 					return;
 				}
 
-				const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+				const resultSent = await sendResult({
 					customType: MESSAGE_TYPE,
 					content: workerResult.content,
 					display: true,
@@ -241,7 +315,7 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 				);
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
-				const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+				const resultSent = await sendResult({
 					customType: MESSAGE_TYPE,
 					content: formatFailure(`Commit worker failed: ${message}`),
 					display: true,
@@ -261,6 +335,20 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 				commitWorkerRunning = false;
 				agentEndWaiter = undefined;
 				latestCommitWorkerMessages = undefined;
+
+				if (returnedToSourceBranch && queuedUserMessages.length > 0) {
+					const queuedMessageCount = queuedUserMessages.length;
+					ctx.ui.notify(
+						`Commit worker exited; releasing ${queuedMessageCount} queued message${queuedMessageCount === 1 ? '' : 's'}`,
+						'info',
+					);
+					releaseQueuedUserMessages();
+				} else if (queuedUserMessages.length > 0) {
+					ctx.ui.notify(
+						`${queuedUserMessages.length} message${queuedUserMessages.length === 1 ? ' remains' : 's remain'} queued because the commit worker branch could not be exited`,
+						'warning',
+					);
+				}
 			}
 		},
 	});
