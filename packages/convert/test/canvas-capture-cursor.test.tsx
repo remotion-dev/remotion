@@ -37,8 +37,11 @@ test('renders the recorded cursor at its captured position in the Player', async
 	);
 
 	await waitFor(() => {
-		const cursor = rendered.container.querySelector<HTMLImageElement>('img');
-		expect(cursor?.src).toBe(customCursor);
+		const cursor = rendered.container.querySelector<SVGSVGElement>('svg');
+		const cursorImage = cursor?.querySelector<SVGImageElement>('image');
+		expect(cursorImage?.getAttribute('href')).toBe(customCursor);
+		expect(cursor?.getAttribute('width')).toBe('24');
+		expect(cursor?.getAttribute('height')).toBe('24');
 		expect(cursor?.style.scale).toBe('0.8');
 		expect(cursor?.style.marginLeft).toBe('-6px');
 		expect(cursor?.style.marginTop).toBe('-7px');

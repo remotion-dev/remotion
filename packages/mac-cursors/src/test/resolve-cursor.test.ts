@@ -18,6 +18,26 @@ test('resolves named, custom, hidden, and unknown cursors', () => {
 		height: null,
 	});
 
+	const customWithDimensions = `data:image/svg+xml,${encodeURIComponent(
+		'<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="18"/>',
+	)}`;
+	expect(resolveCursor(`url("${customWithDimensions}") 6 7, pointer`)).toEqual({
+		src: customWithDimensions,
+		hotspot: {x: 6, y: 7},
+		width: 24,
+		height: 18,
+	});
+
+	const base64WithDimensions = `data:image/svg+xml;base64,${btoa(
+		'<svg width="64" height="48px"/>',
+	)}`;
+	expect(resolveCursor(`url(${base64WithDimensions}), auto`)).toEqual({
+		src: base64WithDimensions,
+		hotspot: {x: 0, y: 0},
+		width: 64,
+		height: 48,
+	});
+
 	expect(resolveCursor('none')).toBeNull();
 	expect(resolveCursor('not-a-real-cursor')?.hotspot).toEqual({x: 10, y: 9});
 });
