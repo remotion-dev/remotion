@@ -20,7 +20,9 @@ const data = [
 const CHART_WIDTH = 1400;
 const CHART_HEIGHT = 520;
 const CHART_SIDE_PADDING = 16;
+const MIN_VALUE = 20;
 const MAX_VALUE = 80;
+const Y_AXIS_VALUES = [80, 60, 40, 20];
 
 const springEasing = Easing.spring({
 	damping: 14.5,
@@ -45,7 +47,7 @@ export const LineChart: React.FC = () => {
 		x:
 			CHART_SIDE_PADDING +
 			(index / (data.length - 1)) * (CHART_WIDTH - CHART_SIDE_PADDING * 2),
-		y: CHART_HEIGHT - (value / MAX_VALUE) * CHART_HEIGHT,
+		y: ((MAX_VALUE - value) / (MAX_VALUE - MIN_VALUE)) * CHART_HEIGHT,
 	}));
 	const linePath = points.reduce((path, {x, y}, index) => {
 		if (index === 0) {
@@ -105,21 +107,21 @@ export const LineChart: React.FC = () => {
 						position: 'absolute',
 					}}
 				>
-					{[80, 40, 0].map((value) => (
+					{Y_AXIS_VALUES.map((value) => (
 						<div
 							key={value}
 							style={{
 								left: `${(CHART_SIDE_PADDING / CHART_WIDTH) * 100}%`,
 								position: 'absolute',
 								right: `${(CHART_SIDE_PADDING / CHART_WIDTH) * 100}%`,
-								top: `${((MAX_VALUE - value) / MAX_VALUE) * 100}%`,
+								top: `${((MAX_VALUE - value) / (MAX_VALUE - MIN_VALUE)) * 100}%`,
 							}}
 						>
 							<div
 								style={{
 									position: 'absolute',
-									right: 'calc(100% + 32px)',
-									textAlign: 'left',
+									right: 'calc(100% + 64px)',
+									textAlign: 'right',
 									translate: '0 -50%',
 									whiteSpace: 'nowrap',
 									width: 94,
@@ -146,8 +148,9 @@ export const LineChart: React.FC = () => {
 						stroke="#d1d5db"
 						strokeWidth={2}
 					>
-						{[80, 40, 0].map((value) => {
-							const y = ((MAX_VALUE - value) / MAX_VALUE) * CHART_HEIGHT;
+						{[80, 40, 20].map((value) => {
+							const y =
+								((MAX_VALUE - value) / (MAX_VALUE - MIN_VALUE)) * CHART_HEIGHT;
 
 							return (
 								<line
