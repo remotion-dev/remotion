@@ -298,7 +298,7 @@ export const elementDefinitions = {
 			posterUrl: 'https://remotion.media/elements/data-line-chart-preview.png',
 			videoUrl: 'https://remotion.media/elements/data-line-chart-preview.mp4',
 		},
-		previewPadding: 56,
+		previewPadding: 160,
 		slug: 'data/line-chart',
 		installationMode: 'wrapped',
 		width: 1920,

@@ -19,11 +19,10 @@ const data = [
 
 const CHART_WIDTH = 1400;
 const CHART_HEIGHT = 520;
-const PLOT_PADDING = 128;
-const POINT_OUTER_RADIUS = 15;
+const CHART_SIDE_PADDING = 16;
 const MAX_VALUE = 80;
 
-const labelEasing = Easing.spring({
+const springEasing = Easing.spring({
 	damping: 14.5,
 	mass: 0.8,
 	overshootClamping: false,
@@ -32,25 +31,20 @@ const labelEasing = Easing.spring({
 
 export const LineChart: React.FC = () => {
 	const frame = useCurrentFrame();
-	const labelProgress =
-		frame >= 48
+	const latestValueProgress =
+		frame >= 70
 			? 1
-			: interpolate(frame, [18, 48], [0, 1], {
-					easing: labelEasing,
+			: interpolate(frame, [58, 70], [0, 1], {
+					easing: springEasing,
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
 				});
-	const labelOpacity = interpolate(frame, [18, 44], [0, 1], {
-		easing: Easing.inOut(Easing.quad),
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
 	const points = data.map(({label, value}, index) => ({
 		label,
 		value,
 		x:
-			PLOT_PADDING +
-			(index / (data.length - 1)) * (CHART_WIDTH - PLOT_PADDING * 2),
+			CHART_SIDE_PADDING +
+			(index / (data.length - 1)) * (CHART_WIDTH - CHART_SIDE_PADDING * 2),
 		y: CHART_HEIGHT - (value / MAX_VALUE) * CHART_HEIGHT,
 	}));
 	const linePath = points.reduce((path, {x, y}, index) => {
@@ -62,7 +56,7 @@ export const LineChart: React.FC = () => {
 	}, '');
 	const firstPoint = points[0];
 	const latestPoint = points[points.length - 1];
-	const areaPath = `${linePath} L ${latestPoint.x + POINT_OUTER_RADIUS} ${latestPoint.y} L ${latestPoint.x + POINT_OUTER_RADIUS} ${CHART_HEIGHT} L ${firstPoint.x - POINT_OUTER_RADIUS} ${CHART_HEIGHT} L ${firstPoint.x - POINT_OUTER_RADIUS} ${firstPoint.y} Z`;
+	const areaPath = `${linePath} L ${latestPoint.x} ${CHART_HEIGHT} L ${firstPoint.x} ${CHART_HEIGHT} Z`;
 
 	return (
 		<Interactive.Div
@@ -107,20 +101,16 @@ export const LineChart: React.FC = () => {
 						fontSize: 40,
 						fontWeight: 700,
 						inset: 0,
-						opacity: labelOpacity,
 						position: 'absolute',
-						transform: 'perspective(100px)',
-						translate: `0 ${(1 - labelProgress) * 16}px`,
-						willChange: 'transform, opacity',
 					}}
 				>
 					{[80, 40, 0].map((value) => (
 						<div
 							key={value}
 							style={{
-								left: `${((PLOT_PADDING - POINT_OUTER_RADIUS) / CHART_WIDTH) * 100}%`,
+								left: `${(CHART_SIDE_PADDING / CHART_WIDTH) * 100}%`,
 								position: 'absolute',
-								right: `${((PLOT_PADDING - POINT_OUTER_RADIUS) / CHART_WIDTH) * 100}%`,
+								right: `${(CHART_SIDE_PADDING / CHART_WIDTH) * 100}%`,
 								top: `${((MAX_VALUE - value) / MAX_VALUE) * 100}%`,
 							}}
 						>
@@ -154,13 +144,6 @@ export const LineChart: React.FC = () => {
 						fill="none"
 						stroke="#d1d5db"
 						strokeWidth={2}
-						style={{
-							opacity: interpolate(frame, [6, 30], [0, 1], {
-								easing: Easing.bezier(0.22, 1, 0.36, 1),
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-						}}
 					>
 						{[80, 40, 0].map((value) => {
 							const y = ((MAX_VALUE - value) / MAX_VALUE) * CHART_HEIGHT;
@@ -168,8 +151,8 @@ export const LineChart: React.FC = () => {
 							return (
 								<line
 									key={value}
-									x1={PLOT_PADDING - POINT_OUTER_RADIUS}
-									x2={CHART_WIDTH - PLOT_PADDING + POINT_OUTER_RADIUS}
+									x1={CHART_SIDE_PADDING}
+									x2={CHART_WIDTH - CHART_SIDE_PADDING}
 									y1={y}
 									y2={y}
 								/>
@@ -202,13 +185,6 @@ export const LineChart: React.FC = () => {
 						strokeLinecap="round"
 						strokeLinejoin="round"
 						strokeWidth={12}
-						style={{
-							opacity: interpolate(frame, [14, 20], [0, 1], {
-								easing: Easing.inOut(Easing.cubic),
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-						}}
 					/>
 					<Interactive.G
 						name="Data points"
@@ -245,11 +221,7 @@ export const LineChart: React.FC = () => {
 						fontSize: 40,
 						fontWeight: 700,
 						inset: 0,
-						opacity: labelOpacity,
 						position: 'absolute',
-						transform: 'perspective(100px)',
-						translate: `0 ${(1 - labelProgress) * 16}px`,
-						willChange: 'transform, opacity',
 					}}
 				>
 					{data.map(({label}, index) =>
@@ -257,7 +229,7 @@ export const LineChart: React.FC = () => {
 							<div
 								key={label}
 								style={{
-									left: `${(PLOT_PADDING / CHART_WIDTH + (index / (data.length - 1)) * ((CHART_WIDTH - PLOT_PADDING * 2) / CHART_WIDTH)) * 100}%`,
+									left: `${((CHART_SIDE_PADDING + (index / (data.length - 1)) * (CHART_WIDTH - CHART_SIDE_PADDING * 2)) / CHART_WIDTH) * 100}%`,
 									position: 'absolute',
 									top: 'calc(100% + 64px)',
 									translate: '-50% 0',
@@ -286,13 +258,12 @@ export const LineChart: React.FC = () => {
 							fontWeight: 800,
 							letterSpacing: -1.5,
 							lineHeight: 1,
-							opacity: interpolate(frame, [60, 68], [0, 1], {
-								easing: Easing.bezier(0.22, 1, 0.36, 1),
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
 							padding: '18px 24px',
+							scale: `${latestValueProgress}`,
+							transformOrigin: 'bottom center',
+							visibility: frame <= 58 ? 'hidden' : 'visible',
 							whiteSpace: 'nowrap',
+							willChange: 'transform',
 						}}
 					>
 						{latestPoint.value}K
