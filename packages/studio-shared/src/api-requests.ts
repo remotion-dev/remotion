@@ -34,6 +34,7 @@ import type {
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
+import type {GitClientId} from './git-client';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {
@@ -78,6 +79,14 @@ export type OpenInTerminalRequest = {
 };
 
 export type OpenInTerminalResponse = {
+	success: boolean;
+};
+
+export type OpenInGitClientRequest = {
+	gitClientId: GitClientId;
+};
+
+export type OpenInGitClientResponse = {
 	success: boolean;
 };
 
@@ -1075,6 +1084,10 @@ export type GetDefaultCodingAgentInfoResponse = {
 		id: TerminalId;
 		name: string;
 	}[];
+	installedGitClients: {
+		id: GitClientId;
+		name: string;
+	}[];
 };
 
 export type PackageInstallSpec = {
@@ -1149,6 +1162,10 @@ export type ApiRoutes = {
 	'/api/open-in-terminal': ReqAndRes<
 		OpenInTerminalRequest,
 		OpenInTerminalResponse
+	>;
+	'/api/open-in-git-client': ReqAndRes<
+		OpenInGitClientRequest,
+		OpenInGitClientResponse
 	>;
 	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
 	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;

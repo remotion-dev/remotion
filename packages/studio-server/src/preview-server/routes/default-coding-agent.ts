@@ -8,6 +8,7 @@ import {
 	getAvailableCodingAgents,
 	launchCodingAgent,
 } from '../../helpers/coding-agent-registry';
+import {getAvailableGitClients} from '../../helpers/git-client-registry';
 import {getAvailableTerminals} from '../../helpers/terminal-registry';
 import type {ApiHandler} from '../api-types';
 
@@ -17,6 +18,7 @@ export const getDefaultCodingAgentInfoHandler: ApiHandler<
 > = async ({getDefaultCodingAgent}) => {
 	const installedCodingAgents = await getAvailableCodingAgents();
 	const installedTerminals = await getAvailableTerminals();
+	const installedGitClients = await getAvailableGitClients();
 	return {
 		defaultCodingAgent: getDefaultCodingAgent(),
 		installedCodingAgents: installedCodingAgents.map(
@@ -27,6 +29,7 @@ export const getDefaultCodingAgentInfoHandler: ApiHandler<
 			}),
 		),
 		installedTerminals: installedTerminals.map(({id, name}) => ({id, name})),
+		installedGitClients: installedGitClients.map(({id, name}) => ({id, name})),
 	};
 };
 

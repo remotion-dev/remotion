@@ -1,5 +1,5 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
-import type {TerminalId} from '@remotion/studio-shared';
+import type {GitClientId, TerminalId} from '@remotion/studio-shared';
 import type {
 	EditorPickerId,
 	GetDefaultCodingAgentInfoResponse,
@@ -15,6 +15,7 @@ import {
 } from '../helpers/get-git-menu-item';
 import {EditorIcon} from '../icons/editor';
 import {FinderIcon} from '../icons/finder';
+import {GitClientIcon} from '../icons/git-client';
 import {GitHubIcon} from '../icons/github';
 import {TerminalIcon} from '../icons/terminal';
 import {CodingAgentIcon} from './CodingAgentIcon';
@@ -40,6 +41,7 @@ export const getOpenInMenuItems = ({
 	onOpenInCodingAgent,
 	onOpenInEditor,
 	onOpenInFileExplorer,
+	onOpenInGitClient,
 	onOpenInTerminal,
 }: {
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
@@ -57,6 +59,7 @@ export const getOpenInMenuItems = ({
 	) => void;
 	readonly onOpenInEditor: (editorId: EditorPickerId) => void;
 	readonly onOpenInFileExplorer: () => void;
+	readonly onOpenInGitClient: (gitClientId: GitClientId) => void;
 	readonly onOpenInTerminal: ((terminalId: TerminalId) => void) | null;
 }): ComboboxValue[] => {
 	const showFinder = window.remotion_fileSystemPlatform === 'darwin';
@@ -98,6 +101,7 @@ export const getOpenInMenuItems = ({
 			value: `coding-agent-${codingAgent.id}`,
 		}));
 	const terminals = folder ? (codingAgentInfo?.installedTerminals ?? []) : [];
+	const gitClients = folder ? (codingAgentInfo?.installedGitClients ?? []) : [];
 	const gitHubItem: ComboboxValue | null = window.remotion_gitSource
 		? {
 				id: 'open-in-github',
@@ -145,7 +149,10 @@ export const getOpenInMenuItems = ({
 			: null,
 	].filter(NoReactInternals.truthy);
 	const hasCategorizedApps =
-		editors.length > 0 || codingAgents.length > 0 || terminals.length > 0;
+		editors.length > 0 ||
+		codingAgents.length > 0 ||
+		terminals.length > 0 ||
+		gitClients.length > 0;
 
 	return [
 		...(editors.length > 0
@@ -185,6 +192,26 @@ export const getOpenInMenuItems = ({
 						subMenu: null,
 						type: 'item' as const,
 						value: `terminal-${terminal.id}`,
+					})),
+				]
+			: []),
+		...(gitClients.length > 0
+			? [
+					{
+						type: 'section-header' as const,
+						id: 'git-client-header',
+						label: 'Git Client',
+					},
+					...gitClients.map((gitClient) => ({
+						id: `open-in-git-client-${gitClient.id}`,
+						keyHint: null,
+						label: <span style={menuLabel}>{gitClient.name}</span>,
+						leftItem: <GitClientIcon gitClientId={gitClient.id} size={18} />,
+						onClick: () => onOpenInGitClient(gitClient.id),
+						quickSwitcherLabel: null,
+						subMenu: null,
+						type: 'item' as const,
+						value: `git-client-${gitClient.id}`,
 					})),
 				]
 			: []),

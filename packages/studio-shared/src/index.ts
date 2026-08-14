@@ -1,5 +1,6 @@
 export {splitAnsi, stripAnsi} from './ansi';
 export type {TerminalId} from './terminal';
+export type {GitClientId} from './git-client';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
@@ -81,6 +82,8 @@ export {
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
+	OpenInGitClientRequest,
+	OpenInGitClientResponse,
 	OpenInTerminalRequest,
 	OpenInTerminalResponse,
 	PackageInstallSpec,

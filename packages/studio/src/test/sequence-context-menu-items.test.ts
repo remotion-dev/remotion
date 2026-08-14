@@ -84,6 +84,7 @@ test('the file manager entry is only shown on macOS', () => {
 			onOpenInCodingAgent: noop,
 			onOpenInEditor: noop,
 			onOpenInFileExplorer: noop,
+			onOpenInGitClient: noop,
 			onOpenInTerminal: null,
 		});
 
@@ -179,6 +180,7 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 				},
 			],
 			installedTerminals: [],
+			installedGitClients: [],
 		},
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
