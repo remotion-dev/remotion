@@ -809,6 +809,7 @@ export type DuplicateJsxNodeResponse =
 export type SplitJsxSequenceRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
+	sequenceKeys: string[];
 	splitFrame: number;
 };
 

@@ -12,7 +12,10 @@ import type {
 	ReturnStatement,
 } from '@babel/types';
 import {cloneNode} from '@babel/types';
-import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
+import {
+	hasSequenceTimingTraits,
+	type SequenceNodePathRemapping,
+} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {
@@ -228,40 +231,6 @@ const orderTimingAttributes = (element: JSXElement) => {
 	);
 };
 
-const splittableSequenceTags = new Set([
-	'AnimatedImage',
-	'Arrow',
-	'Audio',
-	'Callout',
-	'CanvasImage',
-	'Circle',
-	'Ellipse',
-	'Gif',
-	'Heart',
-	'Html5Audio',
-	'Html5Video',
-	'HtmlInCanvas',
-	'Img',
-	'OffthreadVideo',
-	'Pie',
-	'Polygon',
-	'Rect',
-	'RemotionRiveCanvas',
-	'Sequence',
-	'Solid',
-	'Spark',
-	'Star',
-	'Starburst',
-	'Triangle',
-	'Video',
-]);
-
-const unsupportedSequenceTags = new Set([
-	'Series.Sequence',
-	'TransitionSeries.Overlay',
-	'TransitionSeries.Sequence',
-]);
-
 const jsxMemberNameToString = (
 	name: JSXIdentifier | JSXMemberExpression,
 ): string => {
@@ -280,32 +249,6 @@ const jsxNameToString = (
 	}
 
 	return jsxMemberNameToString(name);
-};
-
-export const getSplitUnsupportedSequenceTagReason = (
-	tagName: string,
-): string | null => {
-	if (
-		tagName === 'Series.Sequence' ||
-		tagName === 'TransitionSeries.Sequence' ||
-		tagName === 'TransitionSeries.Overlay'
-	) {
-		return `<${tagName}> cannot be split from source`;
-	}
-
-	return null;
-};
-
-export const getIsSplittableSequenceTag = (tagName: string): boolean => {
-	if (unsupportedSequenceTags.has(tagName)) {
-		return false;
-	}
-
-	if (tagName.startsWith('Interactive.')) {
-		return true;
-	}
-
-	return splittableSequenceTags.has(tagName);
 };
 
 const getSplittableSequenceTagName = (element: JSXElement): string => {
@@ -360,11 +303,13 @@ const insertAfter = (
 export const splitJsxSequence = async ({
 	input,
 	nodePath,
+	sequenceKeys,
 	splitFrame,
 	prettierConfigOverride,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
+	sequenceKeys: string[];
 	splitFrame: number;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
@@ -389,15 +334,8 @@ export const splitJsxSequence = async ({
 
 	const jsxElement = jsxPath.node as JSXElement;
 	const tagName = getSplittableSequenceTagName(jsxElement);
-	const unsupportedReason = getSplitUnsupportedSequenceTagReason(tagName);
-	if (unsupportedReason) {
-		throw new Error(unsupportedReason);
-	}
-
-	if (!getIsSplittableSequenceTag(tagName)) {
-		throw new Error(
-			`<${tagName}> does not support sequence timing props and cannot be split`,
-		);
+	if (!hasSequenceTimingTraits(sequenceKeys)) {
+		throw new Error(`<${tagName}> cannot be split`);
 	}
 
 	const timing = readSequenceTiming(jsxElement);

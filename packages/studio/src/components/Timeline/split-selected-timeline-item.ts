@@ -1,3 +1,4 @@
+import {hasSequenceTimingTraits} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatus,
 	OverrideIdToNodePaths,
@@ -27,19 +28,6 @@ type SplitPropStatuses = Partial<
 		CanUpdateSequencePropStatus
 	>
 >;
-
-export const getTimelineSequenceSplitUnsupportedReason = (
-	componentName: string | null | undefined,
-): string | null => {
-	if (
-		componentName === '<TransitionSeries.Sequence>' ||
-		componentName === '<TransitionSeries.Overlay>'
-	) {
-		return `${componentName} cannot be split from source`;
-	}
-
-	return null;
-};
 
 const staticNumberish = (
 	status: CanUpdateSequencePropStatus | undefined,
@@ -93,13 +81,14 @@ export const getTimelineSequenceSplitEligibility = ({
 		};
 	}
 
-	const unsupportedReason = getTimelineSequenceSplitUnsupportedReason(
-		sequence.controls?.componentName,
-	);
-	if (unsupportedReason) {
+	if (
+		!hasSequenceTimingTraits(
+			selection.nodePathInfo.sequenceSubscriptionKey.sequenceKeys,
+		)
+	) {
 		return {
 			canSplit: false,
-			reason: unsupportedReason,
+			reason: 'Sequence does not expose timing traits that can be split',
 		};
 	}
 
@@ -167,6 +156,7 @@ export const splitTimelineSequenceFromSource = ({
 	return callApi('/api/split-jsx-sequence', {
 		fileName: nodePath.absolutePath,
 		nodePath: nodePath.nodePath,
+		sequenceKeys: nodePath.sequenceKeys,
 		splitFrame,
 	})
 		.then((result) => {

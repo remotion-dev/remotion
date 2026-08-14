@@ -49,6 +49,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	insideFunctionSpecifics,
 	onBrowserInstance,
+	onMediaFiles,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -57,6 +58,14 @@ const renderHandler = async <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	onBrowserInstance: (browserInstance: LaunchedBrowser) => void;
+	onMediaFiles:
+		| ((options: {
+				videoOutputLocation: string;
+				audioOutputLocation: string | null;
+				isAudioOnly: boolean;
+				completedAt: number;
+		  }) => Promise<void>)
+		| null;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -381,19 +390,27 @@ const renderHandler = async <Provider extends CloudProvider>({
 		params.logLevel,
 	);
 
-	if (audioOutputLocation) {
-		const audioChunkTimer = insideFunctionSpecifics.timer(
-			'Sending audio chunk',
-			params.logLevel,
-		);
-		await onStream({
-			type: 'audio-chunk-rendered',
-			payload: new Uint8Array(fs.readFileSync(audioOutputLocation)),
+	const endRendered = Date.now();
+	if (onMediaFiles) {
+		await onMediaFiles({
+			videoOutputLocation,
+			audioOutputLocation,
+			isAudioOnly: NoReactAPIs.isAudioCodec(params.codec),
+			completedAt: endRendered,
 		});
-		audioChunkTimer.end();
-	}
+	} else {
+		if (audioOutputLocation) {
+			const audioChunkTimer = insideFunctionSpecifics.timer(
+				'Sending audio chunk',
+				params.logLevel,
+			);
+			await onStream({
+				type: 'audio-chunk-rendered',
+				payload: new Uint8Array(fs.readFileSync(audioOutputLocation)),
+			});
+			audioChunkTimer.end();
+		}
 
-	if (videoOutputLocation) {
 		const videoChunkTimer = insideFunctionSpecifics.timer(
 			'Sending main chunk',
 			params.logLevel,
@@ -406,8 +423,6 @@ const renderHandler = async <Provider extends CloudProvider>({
 		});
 		videoChunkTimer.end();
 	}
-
-	const endRendered = Date.now();
 
 	await onStream({
 		type: 'chunk-complete',
@@ -450,6 +465,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	requestContext,
 	insideFunctionSpecifics,
+	onMediaFiles,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -457,6 +473,14 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	requestContext: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	onMediaFiles:
+		| ((options: {
+				videoOutputLocation: string;
+				audioOutputLocation: string | null;
+				isAudioOnly: boolean;
+				completedAt: number;
+		  }) => Promise<void>)
+		| null;
 }): Promise<void> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -479,6 +503,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			onBrowserInstance: (browserInstance) => {
 				instance = browserInstance;
 			},
+			onMediaFiles,
 		});
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
@@ -508,7 +533,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			(err as Error).stack,
 		);
 
-		onStream({
+		await onStream({
 			type: 'error-occurred',
 			payload: {
 				error: (err as Error).stack as string,

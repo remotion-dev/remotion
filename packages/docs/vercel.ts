@@ -370,6 +370,11 @@ export const config: VercelConfig = {
 			{permanent: true},
 		),
 		routes.redirect(
+			'/elements/text/news-article-headline-highlight',
+			'/elements/text/news-article-highlight',
+			{permanent: true},
+		),
+		routes.redirect(
 			'/docs/miscellaneous/snippets/adding-animations',
 			'/docs/animation-math',
 			{permanent: false},

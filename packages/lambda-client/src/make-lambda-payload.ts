@@ -340,7 +340,9 @@ export const makeLambdaRenderStillPayload = async ({
 		offthreadVideoCacheSizeInBytes,
 		deleteAfter,
 		type: ServerlessRoutines.still,
-		streamed: true,
+		streamed:
+			awsImplementation.getRendererFunctionTransport(region) ===
+			'response-streaming',
 		forcePathStyle,
 		licenseKey: licenseKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,

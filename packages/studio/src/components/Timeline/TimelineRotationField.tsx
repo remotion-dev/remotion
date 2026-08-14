@@ -100,7 +100,7 @@ export const TimelineRotationField: React.FC<{
 	const serializeValue = useCallback(
 		(value: number) =>
 			isCssRotation
-				? serializeCssRotation(value, decimalPlaces)
+				? serializeCssRotation(value, Math.max(6, decimalPlaces))
 				: normalizeTimelineNumber(value),
 		[decimalPlaces, isCssRotation],
 	);
@@ -251,6 +251,7 @@ export const TimelineRotationField: React.FC<{
 			step={step}
 			formatter={formatter}
 			rightAlign={false}
+			allowStepMismatch
 			aria-label={isCssRotation ? 'Rotation Z' : 'Rotation angle'}
 		/>
 	);
@@ -280,6 +281,7 @@ export const TimelineRotationField: React.FC<{
 						step={step}
 						formatter={formatter}
 						rightAlign={false}
+						allowStepMismatch
 						aria-label={`Rotation ${rotationLabel}`}
 					/>
 				))}

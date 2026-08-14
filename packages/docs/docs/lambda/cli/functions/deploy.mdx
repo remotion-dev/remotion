@@ -80,6 +80,12 @@ Retention period for the CloudWatch Logs in days. Default: <DefaultLogRetention 
 
 Use a custom role for the function instead of the default (`arn:aws:iam::[aws-account-id]:role/remotion-lambda-role`)
 
+## `--custom-layer-arns`<AvailableFrom v="4.0.510" />
+
+A comma-separated list of complete Lambda Layer version ARNs. The specified Layers replace all Remotion-hosted runtime Layers.
+
+See [Custom Layers](/docs/lambda/custom-layers). This flag is required in [AWS China regions](/docs/lambda/aws-china-regions).
+
 ## `--quiet`, `-q`
 
 Only logs the function name.

@@ -34,6 +34,12 @@ export const functionsDeploySubcommand = async ({
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
 	const diskSizeInMb = parsedLambdaCli.disk ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
 	const customRoleArn = parsedLambdaCli['custom-role-arn'] ?? undefined;
+	const customLayerArns =
+		parsedLambdaCli['custom-layer-arns'] === undefined
+			? null
+			: parsedLambdaCli['custom-layer-arns']
+					.split(',')
+					.map((arn) => arn.trim());
 	const createCloudWatchLogGroup = !parsedLambdaCli['disable-cloudwatch'];
 	const enableLambdaInsights =
 		parsedLambdaCli['enable-lambda-insights'] ?? false;
@@ -70,6 +76,7 @@ Version = ${VERSION}
 CloudWatch Logging Enabled = ${createCloudWatchLogGroup}
 CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 Lambda Insights Enabled = ${enableLambdaInsights}
+Custom Layers = ${customLayerArns === null ? 'Not specified' : customLayerArns.length}
 
 				`.trim(),
 			),
@@ -102,6 +109,7 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		cloudWatchLogRetentionPeriodInDays,
 		diskSizeInMb,
 		customRoleArn,
+		customLayerArns,
 		enableLambdaInsights,
 		indent: false,
 		logLevel,

@@ -126,13 +126,6 @@ test('same goes for audio', async () => {
 		getStartTime: () => 0,
 		initialMuted: false,
 		drawDebugOverlay: () => {},
-		initialPlaybackRate: 1,
-		initialTrimBefore: undefined,
-		initialTrimAfter: undefined,
-		initialSequenceOffset: 0,
-		initialSequenceDurationInFrames: 10,
-		initialLoop: false,
-		initialFps: 30,
 	});
 
 	const nonceManager = makeNonceManager();

@@ -96,6 +96,14 @@ This will zip the layers and put them as artifacts in the `out` directory.
 You need to do this for every AWS region you want to use Remotion Lambda in.
 :::
 
+## Specify custom Layers while deploying<AvailableFrom v="4.0.510" />
+
+Pass every runtime Layer to [`deployFunction()`](/docs/lambda/deployfunction#customlayerarns) or [`--custom-layer-arns`](/docs/lambda/cli/functions/deploy#--custom-layer-arns). The list replaces all Remotion-hosted Layers.
+
+Credentials used to deploy custom Layers need `lambda:GetLayerVersion` permission for the specified Layer ARNs. Updating an existing function additionally needs `lambda:GetFunctionConfiguration` and `lambda:UpdateFunctionConfiguration`.
+
+Custom Layers are required in [AWS China regions](/docs/lambda/aws-china-regions).
+
 ## Update the Lambda function
 
 Before you continue, make sure a Remotion Lambda function is deployed.

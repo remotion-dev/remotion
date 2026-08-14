@@ -39,7 +39,7 @@ const getWordProgress = (phraseProgress: number, wordIndex: number) => {
 	);
 };
 
-export const NewsArticleHeadlineHighlight: React.FC = () => {
+export const NewsArticleHighlight: React.FC = () => {
 	const frame = useCurrentFrame();
 	const firstHighlightProgress = getHighlightProgress(frame, 0);
 	const secondHighlightProgress = getHighlightProgress(frame, 1);

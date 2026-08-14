@@ -1,3 +1,4 @@
+import type {AwsPartition} from '@remotion/lambda-client';
 import {
 	LAMBDA_INSIGHTS_PREFIX,
 	LOG_GROUP_PREFIX,
@@ -5,10 +6,14 @@ import {
 	RENDER_FN_PREFIX,
 } from '@remotion/lambda-client/constants';
 
-export const rolePermissions: {
+export type RolePermission = {
 	actions: string[];
 	resource: string[];
-}[] = [
+};
+
+export const getRolePermissions = (
+	partition: AwsPartition,
+): RolePermission[] => [
 	{
 		actions: ['s3:ListAllMyBuckets'],
 		resource: ['*'],
@@ -24,21 +29,23 @@ export const rolePermissions: {
 			's3:PutObject',
 			's3:GetBucketLocation',
 		],
-		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
+		resource: [`arn:${partition}:s3:::${REMOTION_BUCKET_PREFIX}*`],
 	},
 	{
 		actions: ['lambda:InvokeFunction'],
-		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
+		resource: [`arn:${partition}:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
 	{
 		actions: ['logs:CreateLogGroup'],
-		resource: [`arn:aws:logs:*:*:log-group:${LAMBDA_INSIGHTS_PREFIX}`],
+		resource: [`arn:${partition}:logs:*:*:log-group:${LAMBDA_INSIGHTS_PREFIX}`],
 	},
 	{
 		actions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
 		resource: [
-			`arn:aws:logs:*:*:log-group:${LOG_GROUP_PREFIX}${RENDER_FN_PREFIX}*`,
-			`arn:aws:logs:*:*:log-group:${LAMBDA_INSIGHTS_PREFIX}:*`,
+			`arn:${partition}:logs:*:*:log-group:${LOG_GROUP_PREFIX}${RENDER_FN_PREFIX}*`,
+			`arn:${partition}:logs:*:*:log-group:${LAMBDA_INSIGHTS_PREFIX}:*`,
 		],
 	},
 ];
+
+export const rolePermissions = getRolePermissions('aws');

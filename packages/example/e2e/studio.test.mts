@@ -11,6 +11,8 @@ import {
 import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
+const macCursorsFile = path.join(exampleDir, 'src', 'MacCursors', 'index.tsx');
+
 const dropAssetOnCanvas = async ({
 	assetPath,
 	durationInSeconds,
@@ -212,18 +214,29 @@ test.describe('visual mode', () => {
 			'[data-timeline-marquee-item][title="Copy rotation target"]',
 		);
 		await expect(sourceRow).toBeVisible({timeout: 15_000});
-		await page
-			.getByTitle('Copy rotation source', {exact: true})
-			.first()
-			.click({button: 'right'});
-		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await expect(targetRow).toBeVisible({timeout: 15_000});
+		const rotateButton = page.getByRole('button', {
+			name: 'Rotate',
+			exact: true,
+		});
+		await expect(async () => {
+			await page
+				.getByTitle('Copy rotation source', {exact: true})
+				.first()
+				.click({button: 'right'});
+			await expect(rotateButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		await rotateButton.click();
 		await page.keyboard.press('ControlOrMeta+c');
 
-		await page
-			.getByTitle('Copy rotation target', {exact: true})
-			.first()
-			.click({button: 'right'});
-		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await expect(async () => {
+			await page
+				.getByTitle('Copy rotation target', {exact: true})
+				.first()
+				.click({button: 'right'});
+			await expect(rotateButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		await rotateButton.click();
 		await page.keyboard.press('ControlOrMeta+v');
 
 		await expect
@@ -242,6 +255,38 @@ test.describe('visual mode', () => {
 			.toContain(
 				'<AbsoluteFill name="Copy rotation target" style={{rotate: \'0deg\'}} />',
 			);
+	});
+
+	test('should toggle the visibility of a macOS cursor', async ({page}) => {
+		const originalSource = fs.readFileSync(macCursorsFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/mac-cursors`);
+			const cursorLabel = page
+				.getByText('Hideable cursor', {exact: true})
+				.first();
+			const visibilityToggle = cursorLabel
+				.locator('..')
+				.locator('..')
+				.locator('[data-timeline-layer-eye]');
+			await expect(async () => {
+				await expect(cursorLabel).toBeVisible({timeout: 1000});
+				await expect(visibilityToggle).toBeVisible({timeout: 1000});
+			}).toPass({timeout: 15_000});
+
+			await visibilityToggle.click();
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(macCursorsFile, 'utf-8');
+					const cursorNameIndex = source.indexOf('name="Hideable cursor"');
+					const tagStart = source.lastIndexOf('<MacOSCursor', cursorNameIndex);
+					const tagEnd = source.indexOf('/>', cursorNameIndex);
+					return source.slice(tagStart, tagEnd + 2);
+				})
+				.toContain('hidden');
+		} finally {
+			fs.writeFileSync(macCursorsFile, originalSource);
+		}
 	});
 
 	test('should not open the editor when selecting text in the inspector', async ({
@@ -1348,6 +1393,72 @@ test.describe('visual mode', () => {
 		await page.locator('[data-timeline-scrubber]').click();
 
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
+	});
+
+	test('should preview a sized Element drop on the Canvas', async ({page}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(
+			page.getByRole('button', {name: '0', exact: true}),
+		).toBeVisible({timeout: 15_000});
+
+		const dragData = StudioProtocolInternals.makeDragData({
+			type: 'element',
+			dependencies: [],
+			dimensions: {width: 320, height: 120},
+			displayName: 'Drop Preview',
+			durationInFrames: 30,
+			slug: 'drop-preview',
+			sourceCode: 'export const DropPreview = () => null;',
+		});
+		const canvas = page.locator('.remotion-studio-composition-container');
+		await expect
+			.poll(() =>
+				canvas.evaluate((element, data) => {
+					const rect = element.getBoundingClientRect();
+					const dataTransfer = new DataTransfer();
+					dataTransfer.setData(data.mimeType, data.payload);
+					const event = new DragEvent('dragover', {
+						bubbles: true,
+						cancelable: true,
+						clientX: rect.left + rect.width / 2,
+						clientY: rect.top + rect.height / 2,
+						dataTransfer,
+					});
+					element.dispatchEvent(event);
+
+					return event.defaultPrevented;
+				}, dragData),
+			)
+			.toBe(true);
+
+		const preview = page.getByTestId('composition-drop-preview');
+		await expect(preview).toBeVisible();
+		const canvasBox = await canvas.boundingBox();
+		const previewBox = await preview.boundingBox();
+		if (canvasBox === null || previewBox === null) {
+			throw new Error('Expected the Canvas and Element preview to have boxes');
+		}
+
+		expect(previewBox.width / previewBox.height).toBeCloseTo(320 / 120, 2);
+		expect(
+			Math.abs(
+				previewBox.x +
+					previewBox.width / 2 -
+					(canvasBox.x + canvasBox.width / 2),
+			),
+		).toBeLessThan(1);
+		expect(
+			Math.abs(
+				previewBox.y +
+					previewBox.height / 2 -
+					(canvasBox.y + canvasBox.height / 2),
+			),
+		).toBeLessThan(1);
+
+		await page.evaluate(() => {
+			document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
+		});
+		await expect(preview).toBeHidden();
 	});
 
 	test('should place and select Canvas drops at the playhead', async ({

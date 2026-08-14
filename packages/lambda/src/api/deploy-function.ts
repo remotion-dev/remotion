@@ -16,6 +16,7 @@ import {VERSION} from 'remotion/version';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {validateRuntimePreference} from '../shared/get-layers';
+import {validateCustomLayerArns} from '../shared/validate-custom-layer-arns';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
 import {validateTimeout} from '../shared/validate-timeout';
@@ -41,7 +42,9 @@ type OptionalParameters = {
 };
 
 export type DeployFunctionInput = MandatoryParameters &
-	Partial<OptionalParameters>;
+	Partial<OptionalParameters> & {
+		customLayerArns?: string[];
+	};
 
 export type DeployFunctionOutput = {
 	functionName: string;
@@ -51,6 +54,7 @@ export type DeployFunctionOutput = {
 export const internalDeployFunction = async <Provider extends CloudProvider>(
 	params: MandatoryParameters &
 		OptionalParameters & {
+			customLayerArns: string[] | null;
 			providerSpecifics: ProviderSpecifics<Provider>;
 			fullClientSpecifics: FullClientSpecifics<Provider>;
 		},
@@ -62,6 +66,12 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 	LambdaClientInternals.validateDiskSizeInMb(params.diskSizeInMb);
 	validateCustomRoleArn(params.customRoleArn);
 	validateRuntimePreference(params.runtimePreference);
+	validateCustomLayerArns({
+		customLayerArns: params.customLayerArns,
+		enableLambdaInsights: params.enableLambdaInsights,
+		region: params.region,
+		runtimePreference: params.runtimePreference,
+	});
 
 	const functionName = speculateFunctionName({
 		diskSizeInMb: params.diskSizeInMb,
@@ -99,6 +109,7 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 		alreadyCreated: Boolean(alreadyDeployed),
 		ephemerealStorageInMb: params.diskSizeInMb,
 		customRoleArn: params.customRoleArn as string,
+		customLayerArns: params.customLayerArns,
 		enableLambdaInsights: params.enableLambdaInsights ?? false,
 		logLevel: params.logLevel,
 		vpcSubnetIds: params.vpcSubnetIds as string,
@@ -130,6 +141,7 @@ export const deployFunction = ({
 	timeoutInSeconds,
 	cloudWatchLogRetentionPeriodInDays,
 	customRoleArn,
+	customLayerArns,
 	enableLambdaInsights,
 	indent,
 	logLevel,
@@ -154,6 +166,7 @@ export const deployFunction = ({
 		logLevel: logLevel ?? 'info',
 		createCloudWatchLogGroup,
 		customRoleArn: customRoleArn ?? undefined,
+		customLayerArns: customLayerArns ?? null,
 		diskSizeInMb: diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		enableLambdaInsights: enableLambdaInsights ?? false,
 		memorySizeInMb,

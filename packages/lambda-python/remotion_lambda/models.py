@@ -521,7 +521,7 @@ class RenderStillParams:
             'forceHeight': self.force_height,
             'forceFps': self.force_fps,
             'forceDurationInFrames': self.force_duration_in_frames,
-            'forceBucketName': self.force_bucket_name,
+            'bucketName': self.force_bucket_name,
             'deleteAfter': self.delete_after,
             'attempt': self.attempt,
             'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
