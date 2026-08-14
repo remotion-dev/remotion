@@ -61,6 +61,7 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 	}
 
 	const endTime = Date.now();
+	const billingCurrency = providerSpecifics.getBillingCurrency(region);
 
 	if (overallProgress.timeToEncode === null) {
 		throw new Error('Expected time to encode to be set');
@@ -72,14 +73,17 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 
 	return {
 		cost: {
-			currency: 'USD',
+			currency: billingCurrency,
 			disclaimer:
 				'Estimated cost for function invocations only. Does not include cost for storage and data transfer.',
 			estimatedCost: cost,
-			estimatedDisplayCost: `$${new Intl.NumberFormat('en-US', {
-				currency: 'USD',
-				currencyDisplay: 'narrowSymbol',
-			}).format(cost)}`,
+			estimatedDisplayCost: `${billingCurrency === 'CNY' ? '¥' : '$'}${new Intl.NumberFormat(
+				'en-US',
+				{
+					currency: billingCurrency,
+					currencyDisplay: 'narrowSymbol',
+				},
+			).format(cost)}`,
 		},
 		outputFile: outputFile.url,
 		timeToFinish,

@@ -3033,6 +3033,15 @@ export const articles = [
 		slug: 'lambda/autodelete',
 	},
 	{
+		id: 'lambda/aws-china-regions',
+		title: 'AWS China regions',
+		relativePath: 'docs/lambda/aws-china-regions.mdx',
+		compId: 'articles-docs-lambda-aws-china-regions',
+		crumb: 'Lambda',
+		noAi: false,
+		slug: 'lambda/aws-china-regions',
+	},
+	{
 		id: 'lambda/bucket-naming',
 		title: 'Bucket names in Remotion Lambda',
 		relativePath: 'docs/lambda/bucket-naming.mdx',

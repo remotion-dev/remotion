@@ -100,6 +100,18 @@ export {OverallRenderProgress} from './overall-render-progress';
 export {getProgress} from './progress';
 export * from './provider-implementation';
 export {RenderMetadata} from './render-metadata';
+export {
+	parseS3RendererStatus,
+	rendererTransportArtifactKey,
+	rendererTransportAttemptPrefix,
+	rendererTransportAudioKey,
+	rendererTransportPrefix,
+	rendererTransportStatusKey,
+	rendererTransportVideoKey,
+	type RendererFunctionTransport,
+	type S3RendererArtifactMetadata,
+	type S3RendererStatus,
+} from './renderer-transport';
 export {OrError, ServerlessReturnValues} from './return-values';
 export {streamToString} from './stream-to-string';
 export {

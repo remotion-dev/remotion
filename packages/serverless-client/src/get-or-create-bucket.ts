@@ -62,7 +62,11 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 			requestHandler: params.requestHandler,
 		});
 
-		await checkBucketListing({bucketName: existingBucketName, region});
+		await checkBucketListing({
+			bucketName: existingBucketName,
+			region,
+			dnsSuffix: params.providerSpecifics.getServiceDnsSuffix(region),
+		});
 
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}

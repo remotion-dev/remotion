@@ -7,8 +7,13 @@ import {
 	DEFAULT_MEMORY_SIZE,
 	DEFAULT_TIMEOUT,
 } from '@remotion/lambda-client/constants';
+import {parsedLambdaCli} from '../../cli/args';
 import {LambdaInternals} from '../../internals';
 import {mockFullClientSpecifics} from '../mock-implementation';
+import {
+	clearMockCreateFunctionCalls,
+	getMockCreateFunctionCalls,
+} from '../mocks/mock-create-function';
 import {mockImplementation} from '../mocks/mock-implementation';
 import {doAfter, doBefore, getProcessWriteOutput} from './console-hooks';
 
@@ -16,6 +21,7 @@ const remotionRoot = process.cwd();
 
 beforeEach(() => {
 	doBefore();
+	parsedLambdaCli['custom-layer-arns'] = undefined;
 });
 
 afterEach(() => {
@@ -72,6 +78,27 @@ test('Deploy function and it already exists should fail', async () => {
 	);
 
 	expect(getProcessWriteOutput()).toMatch(/Already exists as remotion-render/);
+});
+
+test('Deploy function with custom Layer ARNs', async () => {
+	clearMockCreateFunctionCalls();
+	parsedLambdaCli['custom-layer-arns'] =
+		'arn:aws:lambda:us-east-1:123456789012:layer:chromium:1, arn:aws:lambda:us-east-1:123456789012:layer:fonts:2';
+
+	await LambdaInternals.executeCommand(
+		['functions', 'deploy'],
+		remotionRoot,
+		'info',
+		mockImplementation,
+		mockFullClientSpecifics,
+	);
+
+	expect(getMockCreateFunctionCalls().at(-1)?.customLayerArns).toEqual([
+		'arn:aws:lambda:us-east-1:123456789012:layer:chromium:1',
+		'arn:aws:lambda:us-east-1:123456789012:layer:fonts:2',
+	]);
+	expect(getProcessWriteOutput()).toContain('Custom Layers = 2');
+	expect(getProcessWriteOutput()).not.toContain('123456789012');
 });
 
 test('If no functions are there and is quiet, should return "()"', async () => {
