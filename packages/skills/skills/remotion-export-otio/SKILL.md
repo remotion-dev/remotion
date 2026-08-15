@@ -1,7 +1,7 @@
 ---
 name: remotion-export-otio
 description: Export a Remotion composition as an OpenTimelineIO (.otio) timeline for DaVinci Resolve or Premiere Pro
-version: 4.0.506
+version: 4.0.512
 ---
 
 Use this skill when the user wants to hand a Remotion video over to a video editor, for example:
