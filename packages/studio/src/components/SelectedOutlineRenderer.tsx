@@ -337,6 +337,29 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					onSelect={onSelect}
 					scale={scale}
 					layoutTarget={targetsByKey.get(outline.key)}
+					renderControls={false}
+				/>
+			))}
+			{/* Render all transform handles after all polygons so later polygons cannot cover them. */}
+			{outlinesForRendering.map((outline) => (
+				<SelectedOutlineElement
+					key={`${outline.key}-controls`}
+					compositionHeight={compositionHeight}
+					compositionWidth={compositionWidth}
+					dragging={dragging}
+					getAllDragOutlines={getAllDragOutlines}
+					getAllDragTargets={getAllDragTargets}
+					getAllRotationDragTargets={getAllRotationDragTargets}
+					getAllScaleDragTargets={getAllScaleDragTargets}
+					getLatestTargetByKey={getLatestOutlineTargetByKey}
+					outline={outline}
+					onDraggingChange={onDraggingChange}
+					onContextMenuOpenChange={onContextMenuOpenChange}
+					onSnapPointsChange={onSnapPointsChange}
+					onSelect={onSelect}
+					scale={scale}
+					layoutTarget={targetsByKey.get(outline.key)}
+					renderPolygon={false}
 				/>
 			))}
 			{/* Keep UV controls above every transparent outline polygon so SVG hit-testing reaches the handles first. */}

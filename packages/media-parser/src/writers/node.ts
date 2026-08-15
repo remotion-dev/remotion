@@ -84,7 +84,6 @@ const createContent = (filename: string): CreateContent => {
 			},
 			getBlob: async () => {
 				const file = await fs.promises.readFile(filename);
-				// @ts-expect-error
 				return new Blob([file]);
 			},
 		};

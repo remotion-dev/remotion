@@ -76,6 +76,8 @@ type SelectedOutlineElementProps = {
 		interaction: TimelineSelectionInteraction,
 	) => void;
 	readonly scale: number;
+	readonly renderControls?: boolean;
+	readonly renderPolygon?: boolean;
 };
 
 const SelectedOutlineElementUnmemoized: React.FC<
@@ -96,6 +98,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	onSnapPointsChange,
 	onSelect,
 	scale,
+	renderControls = true,
+	renderPolygon = true,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canConfigureApps = canUseEditorPicker(
@@ -506,28 +510,33 @@ const SelectedOutlineElementUnmemoized: React.FC<
 
 	return (
 		<>
-			<SelectedOutlinePolygon
-				compositionHeight={compositionHeight}
-				compositionWidth={compositionWidth}
-				dragging={dragging}
-				getAllDragOutlines={getAllDragOutlines}
-				getAllDragTargets={getAllDragTargets}
-				getLayoutTarget={getLayoutTarget}
-				getTarget={getTarget}
-				hasTarget={layoutTarget !== undefined}
-				hovered={hovered}
-				outline={outline}
-				onContextMenuOpen={onContextMenuOpen}
-				onContextMenuOpenChange={onContextMenuOpenChange}
-				onDraggingChange={onDraggingChange}
-				onHoverChange={onHoverChange}
-				onSnapPointsChange={onSnapPointsChange}
-				onSelect={onSelect}
-				onDoubleClickTarget={onDoubleClickTarget}
-				scale={scale}
-				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
-			/>
-			{layoutTarget?.selectedForRotation && controlTarget?.rotationDrag ? (
+			{renderPolygon ? (
+				<SelectedOutlinePolygon
+					compositionHeight={compositionHeight}
+					compositionWidth={compositionWidth}
+					dragging={dragging}
+					getAllDragOutlines={getAllDragOutlines}
+					getAllDragTargets={getAllDragTargets}
+					getLayoutTarget={getLayoutTarget}
+					getTarget={getTarget}
+					hasTarget={layoutTarget !== undefined}
+					hovered={hovered}
+					outline={outline}
+					onContextMenuOpen={onContextMenuOpen}
+					onContextMenuOpenChange={onContextMenuOpenChange}
+					onDraggingChange={onDraggingChange}
+					onHoverChange={onHoverChange}
+					onSnapPointsChange={onSnapPointsChange}
+					onSelect={onSelect}
+					onDoubleClickTarget={onDoubleClickTarget}
+					scale={scale}
+					showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
+				/>
+			) : null}
+
+			{renderControls &&
+			layoutTarget?.selectedForRotation &&
+			controlTarget?.rotationDrag ? (
 				<SelectedOutlineCanvasRotation
 					getLatestTargetByKey={getLatestTargetByKey}
 					layoutTarget={layoutTarget}
@@ -535,12 +544,17 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					outline={outline}
 				/>
 			) : null}
-			<SelectedOutlineCropControls
-				outline={outline}
-				onDraggingChange={onDraggingChange}
-				target={controlTarget}
-			/>
-			{controlTarget?.cropDrag === null &&
+
+			{renderControls ? (
+				<SelectedOutlineCropControls
+					outline={outline}
+					onDraggingChange={onDraggingChange}
+					target={controlTarget}
+				/>
+			) : null}
+
+			{renderControls &&
+			controlTarget?.cropDrag === null &&
 			(layoutTarget?.containsSelection || hovered)
 				? controlLayout.scaleEdges.map((edge) => (
 						<SelectedOutlineScaleEdgeLine
@@ -563,7 +577,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 						/>
 					))
 				: null}
-			{controlTarget?.cropDrag === null &&
+
+			{renderControls &&
+			controlTarget?.cropDrag === null &&
 			(layoutTarget?.containsSelection || hovered)
 				? controlLayout.rotationCorners.map(({corner, point}) => (
 						<SelectedOutlineRotationCornerHandle
