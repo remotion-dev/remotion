@@ -1700,6 +1700,12 @@ const sidebars: SidebarsConfig = {
 			className: 'pro-item',
 		},
 		{
+			type: 'category',
+			label: 'Canvas Capture',
+			collapsed: true,
+			items: ['canvas-capture/metadata'],
+		},
+		{
 			type: 'link',
 			href: '/docs/recorder',
 			label: 'Recorder',

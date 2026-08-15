@@ -1,0 +1,67 @@
+---
+image: /generated/articles-docs-canvas-capture-metadata.png
+title: Canvas Capture metadata
+sidebar_label: Metadata structure
+crumb: Canvas Capture
+---
+
+Canvas Capture stores information about the recorded canvas, cursor movement, and pointer presses in the video file.
+
+The data is a JSON string under the raw metadata tag `REMOTION_CAPTURE_DATA` in both MP4 and WebM recordings.
+
+:::note
+This metadata is internal and may change between Remotion versions.
+:::
+
+## Data structure
+
+```ts
+type CanvasCaptureData = {
+  // performance.now() timestamps in milliseconds
+  startedAt: number;
+  endedAt: number;
+  captureMetadata: {
+    // Ratio between CSS pixels and pixels in the encoded canvas
+    density: number;
+    contentRect: {
+      left: number;
+      top: number;
+      width: number;
+      height: number;
+    };
+    canvasSize: {
+      width: number;
+      height: number;
+    };
+    viewport: {
+      width: number;
+      height: number;
+      scrollX: number;
+      scrollY: number;
+    };
+  };
+  mouseMovements: Array<{
+    // Seconds since the recording started
+    timeInSeconds: number;
+    clientX: number;
+    clientY: number;
+    pageX: number;
+    pageY: number;
+    canvasX: number | null;
+    canvasY: number | null;
+    // Computed CSS cursor value, for example "pointer"
+    cursor: string;
+  }>;
+  pointerClicks: Array<{
+    // Seconds since the recording started
+    timeInSeconds: number;
+    type: 'pointer-down' | 'pointer-up';
+  }>;
+};
+```
+
+`contentRect` and `viewport` use CSS pixels. `canvasSize`, `canvasX`, and `canvasY` use pixels in the encoded canvas after applying `density`.
+
+`clientX` and `clientY` are relative to the viewport. `pageX` and `pageY` are relative to the document and include the scroll offset.
+
+The `mouseMovements` and `pointerClicks` timestamps are relative to the start of the recording. Use the most recent mouse movement at a pointer event's timestamp to determine its position.

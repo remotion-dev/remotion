@@ -567,6 +567,15 @@ export const articles = [
 		slug: 'cancel-render',
 	},
 	{
+		id: 'canvas-capture/metadata',
+		title: 'Canvas Capture metadata',
+		relativePath: 'docs/canvas-capture/metadata.mdx',
+		compId: 'articles-docs-canvas-capture-metadata',
+		crumb: 'Canvas Capture',
+		noAi: false,
+		slug: 'canvas-capture/metadata',
+	},
+	{
 		id: 'canvasimage',
 		title: '<CanvasImage>',
 		relativePath: 'docs/canvasimage.mdx',
