@@ -173,6 +173,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				if (shouldUpdateSelection) {
 					onSelect(target.selection, interaction);
 				}
+
 				return;
 			}
 
@@ -351,6 +352,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 					return;
 				}
+
 				const staticChanges = changes.filter(
 					(change): change is SelectedOutlineStaticDragChange =>
 						change.type === 'static',
