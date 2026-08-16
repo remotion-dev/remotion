@@ -44,17 +44,23 @@ export const updateMultipleSequenceProps = async ({
 	input,
 	changes,
 	prettierConfigOverride,
+	ast: providedAst,
 }: {
 	input: string;
 	changes: SequencePropsNodeUpdate[];
 	prettierConfigOverride: PrettierConfigOverride;
+	ast?: File;
 }): Promise<UpdateMultipleSequencePropsResult> => {
 	const {
 		output: unformattedOutput,
 		results,
 		ast,
 		openingElementRanges,
-	} = updateMultipleSequencePropsUnformatted({input, changes});
+	} = updateMultipleSequencePropsUnformatted({
+		input,
+		changes,
+		ast: providedAst,
+	});
 	if (unformattedOutput === input) {
 		return {output: input, formatted: true, results, ast};
 	}

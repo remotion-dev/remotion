@@ -1251,11 +1251,13 @@ export const updateSequencePropsAst = ({
 export const updateMultipleSequenceProps = ({
 	input,
 	changes,
+	ast: providedAst,
 }: {
 	input: string;
 	changes: SequencePropsNodeUpdate[];
+	ast?: File;
 }): UpdateMultipleSequencePropsResult => {
-	const ast = parseAst(input);
+	const ast = providedAst ?? parseAst(input);
 	const canPatchOpeningElements = changes.every(({updates}) =>
 		updates.every(
 			(update) =>

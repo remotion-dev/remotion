@@ -35,6 +35,7 @@ import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {
 	computeSequencePropsStatusFromAst,
 	computeSequencePropsStatusFromContent,
+	takeCachedSequencePropsStatusAst,
 } from './can-update-sequence-props';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
@@ -367,6 +368,10 @@ export const saveSequencePropsHandler: ApiHandler<
 		for (const [absolutePath, group] of editGroups) {
 			const fileContents = readFileSync(absolutePath, 'utf-8');
 			let output = fileContents;
+			const cachedStatusAst =
+				group.edits.length > 0
+					? takeCachedSequencePropsStatusAst(fileContents)
+					: null;
 			let sequencePropsAst: File | null = null;
 			let firstLogLine = Number.POSITIVE_INFINITY;
 
@@ -380,6 +385,7 @@ export const saveSequencePropsHandler: ApiHandler<
 					input: output,
 					changes: group.edits.map(convertSequencePropEditToCodemodChange),
 					prettierConfigOverride: null,
+					ast: cachedStatusAst ?? undefined,
 				});
 				output = sequencePropsOutput;
 				sequencePropsAst = ast;

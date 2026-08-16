@@ -72,6 +72,13 @@ let cachedSequencePropsStatusAst: {
 	videoConfigIdentifierValues: Map<string, VideoConfigIdentifierValues>;
 } | null = null;
 
+// A subsequent save can consume the last read-only snapshot if the file has
+// not changed. The save mutates the AST, so it must only be reused once.
+let reusableSequencePropsStatusAst: {
+	fileContents: string;
+	ast: File;
+} | null = null;
+
 const getCachedSequencePropsStatusAst = (fileContents: string) => {
 	if (cachedSequencePropsStatusAst?.fileContents !== fileContents) {
 		const snapshot = {
@@ -83,6 +90,7 @@ const getCachedSequencePropsStatusAst = (fileContents: string) => {
 			>(),
 		};
 		cachedSequencePropsStatusAst = snapshot;
+		reusableSequencePropsStatusAst = snapshot;
 		queueMicrotask(() => {
 			if (cachedSequencePropsStatusAst === snapshot) {
 				cachedSequencePropsStatusAst = null;
@@ -91,6 +99,22 @@ const getCachedSequencePropsStatusAst = (fileContents: string) => {
 	}
 
 	return cachedSequencePropsStatusAst;
+};
+
+export const takeCachedSequencePropsStatusAst = (
+	fileContents: string,
+): File | null => {
+	if (reusableSequencePropsStatusAst?.fileContents !== fileContents) {
+		return null;
+	}
+
+	const {ast} = reusableSequencePropsStatusAst;
+	reusableSequencePropsStatusAst = null;
+	if (cachedSequencePropsStatusAst?.ast === ast) {
+		cachedSequencePropsStatusAst = null;
+	}
+
+	return ast;
 };
 
 const staticStatus = (

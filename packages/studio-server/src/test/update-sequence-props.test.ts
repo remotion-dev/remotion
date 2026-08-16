@@ -1,9 +1,14 @@
 import {expect, test} from 'bun:test';
+import * as recast from 'recast';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	updateMultipleSequenceProps,
 	updateSequenceProps,
 } from '../codemods/update-sequence-props/update-sequence-props';
+import {
+	computeSequencePropsStatusFromContent,
+	takeCachedSequencePropsStatusAst,
+} from '../preview-server/routes/can-update-sequence-props';
 import {lineColumnToNodePath} from './test-utils';
 
 const lightLeakInput = `import {LightLeak} from '@remotion/light-leaks';
@@ -631,6 +636,41 @@ export const Example = () => {
 };
 `);
 	expect(formatted).toBe(true);
+});
+
+test('updateMultipleSequenceProps reuses the status AST across the shared Recast runtime', async () => {
+	const nodePath = lineColumnToNodePath(lightLeakInput, 8);
+	computeSequencePropsStatusFromContent({
+		fileContents: lightLeakInput,
+		nodePath,
+		componentIdentity: null,
+		keys: ['hueShift'],
+		effects: [],
+		videoConfigValues: null,
+	});
+	expect(takeCachedSequencePropsStatusAst(`${lightLeakInput}\n`)).toBeNull();
+	const cachedAst = takeCachedSequencePropsStatusAst(lightLeakInput);
+	if (!cachedAst) {
+		throw new Error('Expected the status AST to be reusable');
+	}
+
+	const {ast} = await updateMultipleSequenceProps({
+		input: lightLeakInput,
+		changes: [
+			{
+				nodePath,
+				updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: null,
+		ast: cachedAst,
+	});
+
+	expect(ast).toBe(cachedAst);
+	expect(() => recast.print(ast).code).not.toThrow();
+	expect(takeCachedSequencePropsStatusAst(lightLeakInput)).toBeNull();
 });
 
 test('updateSequenceProps should update JSX text children', async () => {
