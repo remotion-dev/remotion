@@ -463,8 +463,8 @@ export const Index: React.FC = () => {
 			/>
 			<Folder name="copilot-tests">
 				<Composition
-					id="one-thousand-interactive-divs"
-					lazyComponent={() => import('./ThousandInteractiveDivs')}
+					id="interactive-div-stress-test"
+					lazyComponent={() => import('./InteractiveDivStressTest')}
 					width={1080}
 					height={1080}
 					fps={30}
