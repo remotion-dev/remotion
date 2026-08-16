@@ -161,12 +161,23 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			const interaction = getOutlineSelectionInteraction(event);
 			const shouldUpdateSelection =
 				!selected || interaction.shiftKey || interaction.toggleKey;
-			if (shouldUpdateSelection) {
-				onSelect(target.selection, interaction);
-			}
+
+			const selectedDragTargets = getAllDragTargets();
+			const deferSelection =
+				!selected &&
+				!interaction.shiftKey &&
+				!interaction.toggleKey &&
+				selectedDragTargets.length > 0;
 
 			if (drag === null || interaction.shiftKey || interaction.toggleKey) {
+				if (shouldUpdateSelection) {
+					onSelect(target.selection, interaction);
+				}
 				return;
+			}
+
+			if (!deferSelection && shouldUpdateSelection) {
+				onSelect(target.selection, interaction);
 			}
 
 			if (commitPendingInspectorFields()) {
@@ -176,11 +187,19 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			const startPointerX = event.clientX;
 			const startPointerY = event.clientY;
 			const dragStates = getSelectedOutlineDragStates({
-				dragTargets: selected ? getAllDragTargets() : [drag],
+				dragTargets: deferSelection
+					? selectedDragTargets
+					: selected
+						? selectedDragTargets
+						: [drag],
 				getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
-			const dragOutlines = selected ? getAllDragOutlines() : [outline];
+			const dragOutlines = deferSelection
+				? getAllDragOutlines()
+				: selected
+					? getAllDragOutlines()
+					: [outline];
 			let lastValues = new Map<string, string>();
 			let currentPointerX = startPointerX;
 			let currentPointerY = startPointerY;
@@ -325,9 +344,13 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 				if (changes.length === 0) {
 					clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
+
+					if (deferSelection && !dragStarted) {
+						onSelect(target.selection, interaction);
+					}
+
 					return;
 				}
-
 				const staticChanges = changes.filter(
 					(change): change is SelectedOutlineStaticDragChange =>
 						change.type === 'static',
