@@ -57,7 +57,7 @@ export const drawBars = ({
 	// `createImageData(0, h)` / `(w, 0)` throws a DOMException, which
 	// surfaces in Studio's console for compositions with many audio
 	// sequences — some segments are 0 px wide at certain zoom levels.
-	if (w === 0 || height === 0) {
+	if (w <= 0 || height <= 0) {
 		return;
 	}
 

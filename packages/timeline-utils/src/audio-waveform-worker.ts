@@ -63,7 +63,7 @@ const drawPartialWaveform = (
 	});
 	const targetCanvas = new OffscreenCanvas(
 		Math.max(1, Math.ceil(loopWidth)),
-		message.height,
+		Math.max(1, Math.ceil(message.height)),
 	);
 	drawBars({
 		canvas: targetCanvas,
@@ -103,8 +103,11 @@ const renderWaveform = async (message: AudioWaveformWorkerRenderMessage) => {
 	latestRequestId = message.requestId;
 
 	try {
-		canvas.width = message.width;
-		canvas.height = message.height;
+		// The timeline layout can hand us a zero or slightly negative width for
+		// very short sequences (track width minus the border). Setting a negative
+		// value on OffscreenCanvas throws a DOMException, so clamp before assigning.
+		canvas.width = Math.max(0, Math.ceil(message.width));
+		canvas.height = Math.max(0, Math.ceil(message.height));
 
 		const peaks = await loadWaveformPeaks(message.src, controller.signal, {
 			onProgress: ({peaks: nextPeaks}) => {
