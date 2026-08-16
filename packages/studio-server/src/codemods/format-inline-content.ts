@@ -18,10 +18,12 @@ export const formatInlineContent = async ({
 	inlineContent,
 	linePrefix,
 	endOfLine,
+	prettierConfigOverride,
 }: {
 	inlineContent: string;
 	linePrefix: string;
 	endOfLine: 'auto' | 'lf';
+	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{formatted: string; didFormat: boolean}> => {
 	let prettier: PrettierType | null = null;
 
@@ -33,14 +35,19 @@ export const formatInlineContent = async ({
 
 	const {format, resolveConfig, resolveConfigFile} = prettier as PrettierType;
 
-	const configFilePath = await resolveConfigFile();
-	if (!configFilePath) {
-		return {formatted: inlineContent, didFormat: false};
-	}
+	let prettierConfig: Record<string, unknown> | null;
+	if (prettierConfigOverride !== undefined && prettierConfigOverride !== null) {
+		prettierConfig = prettierConfigOverride;
+	} else {
+		const configFilePath = await resolveConfigFile();
+		if (!configFilePath) {
+			return {formatted: inlineContent, didFormat: false};
+		}
 
-	const prettierConfig = await resolveConfig(configFilePath);
-	if (!prettierConfig) {
-		return {formatted: inlineContent, didFormat: false};
+		prettierConfig = await resolveConfig(configFilePath);
+		if (!prettierConfig) {
+			return {formatted: inlineContent, didFormat: false};
+		}
 	}
 
 	const tabWidth = (prettierConfig.tabWidth as number) ?? 2;

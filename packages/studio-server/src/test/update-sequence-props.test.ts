@@ -604,6 +604,35 @@ test('updateMultipleSequenceProps should not format a no-op edit', async () => {
 	expect(formatted).toBe(true);
 });
 
+test('updateMultipleSequenceProps should only format the edited opening element', async () => {
+	const input = `const unrelated    = {keep: "double quotes"};
+
+export const Example = () => {
+	return <Interactive.Div name = "Example">Text</Interactive.Div>;
+};
+`;
+	const {output, formatted} = await updateMultipleSequenceProps({
+		input,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(input, 4),
+				updates: [{key: 'hidden', value: true, defaultValue: false}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: {singleQuote: true, useTabs: true},
+	});
+
+	expect(output).toBe(`const unrelated    = {keep: "double quotes"};
+
+export const Example = () => {
+	return <Interactive.Div name="Example" hidden>Text</Interactive.Div>;
+};
+`);
+	expect(formatted).toBe(true);
+});
+
 test('updateSequenceProps should update JSX text children', async () => {
 	const input = `import React from 'react';
 import {Interactive} from 'remotion';

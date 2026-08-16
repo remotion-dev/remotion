@@ -111,6 +111,11 @@ export type UpdateMultipleSequencePropsResult = {
 	output: string;
 	results: SequencePropsNodeUpdateResult[];
 	ast: File;
+	openingElementRanges: Array<{
+		start: number;
+		end: number;
+		selfClosing: boolean;
+	}> | null;
 };
 
 const removeVariantKey = ({
@@ -1361,14 +1366,27 @@ export const updateMultipleSequenceProps = ({
 					start,
 					end,
 					replacement: recast.print(openingElement).code,
+					selfClosing: openingElement.selfClosing ?? false,
 				};
 			})
 		: null;
 	let output = input;
+	let openingElementRanges: UpdateMultipleSequencePropsResult['openingElementRanges'] =
+		null;
 	if (replacements?.every((replacement) => replacement !== null)) {
-		for (const replacement of replacements.sort(
-			(first, second) => second.start - first.start,
-		)) {
+		const replacementsByStart = replacements.sort(
+			(first, second) => first.start - second.start,
+		);
+		let shift = 0;
+		openingElementRanges = replacementsByStart.map((replacement) => {
+			const start = replacement.start + shift;
+			const end = start + replacement.replacement.length;
+			shift +=
+				replacement.replacement.length - (replacement.end - replacement.start);
+			return {start, end, selfClosing: replacement.selfClosing};
+		});
+
+		for (const replacement of [...replacementsByStart].reverse()) {
 			output =
 				output.slice(0, replacement.start) +
 				replacement.replacement +
@@ -1382,5 +1400,6 @@ export const updateMultipleSequenceProps = ({
 		output,
 		results,
 		ast,
+		openingElementRanges,
 	};
 };

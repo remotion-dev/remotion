@@ -13,6 +13,7 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 import {formatFileContent} from '../format-file-content';
+import {formatInlineContent} from '../format-inline-content';
 
 export {
 	type RemovedProp,
@@ -52,9 +53,51 @@ export const updateMultipleSequenceProps = async ({
 		output: unformattedOutput,
 		results,
 		ast,
+		openingElementRanges,
 	} = updateMultipleSequencePropsUnformatted({input, changes});
 	if (unformattedOutput === input) {
 		return {output: input, formatted: true, results, ast};
+	}
+
+	if (openingElementRanges?.length === 1) {
+		const [range] = openingElementRanges;
+		const openingElement = unformattedOutput.slice(range.start, range.end);
+		const formattableOpeningElement = range.selfClosing
+			? openingElement
+			: openingElement.slice(0, -1) + ' />';
+		const lineStart = unformattedOutput.lastIndexOf('\n', range.start) + 1;
+		const linePrefix = unformattedOutput.slice(lineStart, range.start);
+		const {formatted: formattedOpeningElement, didFormat} =
+			await formatInlineContent({
+				inlineContent: formattableOpeningElement,
+				linePrefix,
+				endOfLine: 'lf',
+				prettierConfigOverride,
+			});
+		let finalOpeningElement = formattedOpeningElement;
+		if (!range.selfClosing) {
+			const slashIndex = finalOpeningElement.lastIndexOf('/>');
+			if (slashIndex !== finalOpeningElement.length - 2) {
+				throw new Error('Could not format JSX opening element');
+			}
+
+			const lastLineStart = finalOpeningElement.lastIndexOf('\n') + 1;
+			const beforeSlash = finalOpeningElement.slice(lastLineStart, slashIndex);
+			finalOpeningElement =
+				beforeSlash.trim().length === 0
+					? finalOpeningElement.slice(0, slashIndex) + '>'
+					: finalOpeningElement.slice(0, slashIndex).trimEnd() + '>';
+		}
+
+		return {
+			output:
+				unformattedOutput.slice(0, range.start) +
+				finalOpeningElement +
+				unformattedOutput.slice(range.end),
+			formatted: didFormat,
+			results,
+			ast,
+		};
 	}
 
 	const {output, formatted} = await formatFileContent({
