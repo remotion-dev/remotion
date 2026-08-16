@@ -33,7 +33,11 @@ import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from '../codemods/get-node-path-remappings';
-import {parseAst, serializeAst} from '../codemods/parse-ast';
+import {
+	parseAst,
+	parseAstForReadOnly,
+	serializeAst,
+} from '../codemods/parse-ast';
 import {stripParenthesizedExtra} from '../codemods/strip-parenthesized-extra';
 import {parseValueExpression} from '../codemods/update-nested-prop';
 import {
@@ -1980,20 +1984,21 @@ const getComponentLocationInFile = async ({
 	remotionRoot,
 	fileName,
 	exportName,
+	ast: providedAst,
 }: {
 	remotionRoot: string;
 	fileName: string;
 	exportName: string | 'default';
+	ast?: File;
 }): Promise<ResolvedCompositionComponentWithFile> => {
-	const input = await readSourceFile({remotionRoot, fileName});
-	const ast = parseAst(input);
-	const astForSequenceSimulation = parseAst(input);
+	const ast =
+		providedAst ?? parseAst(await readSourceFile({remotionRoot, fileName}));
 	const location =
 		exportName === 'default'
 			? findDefaultExportLocation(ast)
 			: findLocalSymbolLocation({ast, name: exportName});
 	const canAddSequence = canAddSequenceToComponent({
-		ast: astForSequenceSimulation,
+		ast,
 		exportName,
 	});
 
@@ -2038,6 +2043,7 @@ const getComponentLocationRecursively = async ({
 				remotionRoot,
 				fileName,
 				exportName,
+				ast,
 			});
 		}
 
@@ -2073,6 +2079,7 @@ const getComponentLocationRecursively = async ({
 			remotionRoot,
 			fileName,
 			exportName,
+			ast,
 		});
 	} finally {
 		visited.delete(key);
@@ -2093,7 +2100,7 @@ export const resolveCompositionComponentWithFile = async ({
 		remotionRoot,
 		fileName: compositionFileName,
 	});
-	const ast = parseAst(input);
+	const ast = parseAstForReadOnly(input);
 	const compositionElement = findCompositionElement({ast, compositionId});
 	if (!compositionElement) {
 		throw new Error(`Could not find composition "${compositionId}"`);
