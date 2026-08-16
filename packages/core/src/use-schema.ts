@@ -8,6 +8,7 @@ import type {
 	InteractivitySchema,
 	InteractivitySchemaField,
 } from './interactivity-schema.js';
+import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
 import type {ExtrapolateType, InterpolateOutputOption} from './interpolate.js';
 import type {
 	CanUpdateSequencePropsResponse,
@@ -310,9 +311,14 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				});
 				if (dragOverride.type === 'resolved') {
 					value = dragOverride.value;
+				} else if (frame !== null) {
+					const interpolated = interpolateKeyframedStatus({
+						forceSpringAllowTail: null,
+						frame,
+						status,
+					});
+					value = interpolated ?? currentValue[key];
 				} else {
-					// This value was evaluated by the original JSX expression, so it
-					// preserves the frame scope in which useCurrentFrame() was called.
 					value = currentValue[key];
 				}
 			}
