@@ -1422,39 +1422,23 @@ const computeSequenceOnlyPropsRecord = ({
 	return filteredProps;
 };
 
-export const computeSequencePropsStatusFromContent = ({
-	fileContents,
+const computeSequencePropsStatusFromAstAndIdentifiers = ({
+	ast,
 	nodePath,
 	componentIdentity,
 	keys,
-	assetKeys = [],
+	assetKeys,
 	effects,
-	videoConfigValues,
+	videoConfigIdentifierValues,
 }: {
-	fileContents: string;
+	ast: File;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
-	assetKeys?: string[];
+	assetKeys: string[];
 	effects: string[][];
-	videoConfigValues: VideoConfigValues | null;
+	videoConfigIdentifierValues: VideoConfigIdentifierValues;
 }): CanUpdateSequencePropsResponseTrue => {
-	const cachedAst = getCachedSequencePropsStatusAst(fileContents);
-	const {ast} = cachedAst;
-	const videoConfigCacheKey = JSON.stringify(videoConfigValues);
-	let videoConfigIdentifierValues =
-		cachedAst.videoConfigIdentifierValues.get(videoConfigCacheKey);
-	if (videoConfigIdentifierValues === undefined) {
-		videoConfigIdentifierValues = getVideoConfigIdentifierValues({
-			ast,
-			videoConfigValues,
-		});
-		cachedAst.videoConfigIdentifierValues.set(
-			videoConfigCacheKey,
-			videoConfigIdentifierValues,
-		);
-	}
-
 	const jsxElementNode = findJsxElementNodeAtNodePath(ast, nodePath);
 	const jsxElement = jsxElementNode?.openingElement ?? null;
 
@@ -1491,6 +1475,81 @@ export const computeSequencePropsStatusFromContent = ({
 		props: filteredProps,
 		effects: effectsStatuses,
 	};
+};
+
+export const computeSequencePropsStatusFromAst = ({
+	ast,
+	nodePath,
+	componentIdentity,
+	keys,
+	assetKeys = [],
+	effects,
+	videoConfigValues,
+}: {
+	ast: File;
+	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys?: string[];
+	effects: string[][];
+	videoConfigValues: VideoConfigValues | null;
+}): CanUpdateSequencePropsResponseTrue => {
+	return computeSequencePropsStatusFromAstAndIdentifiers({
+		ast,
+		nodePath,
+		componentIdentity,
+		keys,
+		assetKeys,
+		effects,
+		videoConfigIdentifierValues: getVideoConfigIdentifierValues({
+			ast,
+			videoConfigValues,
+		}),
+	});
+};
+
+export const computeSequencePropsStatusFromContent = ({
+	fileContents,
+	nodePath,
+	componentIdentity,
+	keys,
+	assetKeys = [],
+	effects,
+	videoConfigValues,
+}: {
+	fileContents: string;
+	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys?: string[];
+	effects: string[][];
+	videoConfigValues: VideoConfigValues | null;
+}): CanUpdateSequencePropsResponseTrue => {
+	const cachedAst = getCachedSequencePropsStatusAst(fileContents);
+	const {ast} = cachedAst;
+	const videoConfigCacheKey = JSON.stringify(videoConfigValues);
+	let videoConfigIdentifierValues =
+		cachedAst.videoConfigIdentifierValues.get(videoConfigCacheKey);
+	if (videoConfigIdentifierValues === undefined) {
+		videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+			ast,
+			videoConfigValues,
+		});
+		cachedAst.videoConfigIdentifierValues.set(
+			videoConfigCacheKey,
+			videoConfigIdentifierValues,
+		);
+	}
+
+	return computeSequencePropsStatusFromAstAndIdentifiers({
+		ast,
+		nodePath,
+		componentIdentity,
+		keys,
+		assetKeys,
+		effects,
+		videoConfigIdentifierValues,
+	});
 };
 
 export const computeSequencePropsStatus = ({

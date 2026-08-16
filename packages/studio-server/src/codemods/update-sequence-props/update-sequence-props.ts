@@ -1,3 +1,4 @@
+import type {File} from '@babel/types';
 import {
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
@@ -27,6 +28,7 @@ type UpdateMultipleSequencePropsResult = {
 	output: string;
 	formatted: boolean;
 	results: SequencePropsNodeUpdateResult[];
+	ast: File;
 };
 
 type UpdateSequencePropsResult = {
@@ -46,14 +48,21 @@ export const updateMultipleSequenceProps = async ({
 	changes: SequencePropsNodeUpdate[];
 	prettierConfigOverride: PrettierConfigOverride;
 }): Promise<UpdateMultipleSequencePropsResult> => {
-	const {output: unformattedOutput, results} =
-		updateMultipleSequencePropsUnformatted({input, changes});
+	const {
+		output: unformattedOutput,
+		results,
+		ast,
+	} = updateMultipleSequencePropsUnformatted({input, changes});
+	if (unformattedOutput === input) {
+		return {output: input, formatted: true, results, ast};
+	}
+
 	const {output, formatted} = await formatFileContent({
 		input: unformattedOutput,
 		prettierConfigOverride,
 	});
 
-	return {output, formatted, results};
+	return {output, formatted, results, ast};
 };
 
 export const updateSequenceProps = async ({

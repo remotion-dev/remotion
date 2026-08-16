@@ -110,6 +110,7 @@ export type SequencePropsNodeUpdateResult = {
 export type UpdateMultipleSequencePropsResult = {
 	output: string;
 	results: SequencePropsNodeUpdateResult[];
+	ast: File;
 };
 
 const removeVariantKey = ({
@@ -1250,6 +1251,19 @@ export const updateMultipleSequenceProps = ({
 	changes: SequencePropsNodeUpdate[];
 }): UpdateMultipleSequencePropsResult => {
 	const ast = parseAst(input);
+	const canPatchOpeningElements = changes.every(({updates}) =>
+		updates.every(
+			(update) =>
+				update.key !== 'children' &&
+				update.key !== 'style.fontFamily' &&
+				!update.googleFont &&
+				!update.clipboardParam &&
+				!(
+					typeof update.value === 'string' &&
+					update.value.startsWith(NoReactInternals.FILE_TOKEN)
+				),
+		),
+	);
 	const resolvedChanges = changes.map(
 		({nodePath, updates, schema, videoConfigValues}) => {
 			const jsxElement = findJsxElementNodeAtNodePath(ast, nodePath);
@@ -1262,6 +1276,14 @@ export const updateMultipleSequenceProps = ({
 			return {jsxElement, updates, schema, videoConfigValues};
 		},
 	);
+	const openingElementLocations = canPatchOpeningElements
+		? new Map(
+				resolvedChanges.map(({jsxElement}) => [
+					jsxElement.openingElement,
+					jsxElement.openingElement.loc,
+				]),
+			)
+		: null;
 	const clipboardParamLocalNames = prepareClipboardParamSourceEdits({
 		ast,
 		changes: resolvedChanges,
@@ -1298,9 +1320,67 @@ export const updateMultipleSequenceProps = ({
 
 		return {...result, newNodePath};
 	});
+	const sourceLines = input.split('\n');
+	const lineOffsets: number[] = [];
+	let offset = 0;
+	for (const line of sourceLines) {
+		lineOffsets.push(offset);
+		offset += line.length + 1;
+	}
+
+	const replacements = openingElementLocations
+		? [...openingElementLocations].map(([openingElement, location]) => {
+				if (!location) {
+					return null;
+				}
+
+				const getOffset = ({line, column}: {line: number; column: number}) => {
+					const sourceLine = sourceLines[line - 1];
+					if (sourceLine === undefined) {
+						return null;
+					}
+
+					let sourceColumn = 0;
+					let recastColumn = 0;
+					while (sourceColumn < sourceLine.length && recastColumn < column) {
+						recastColumn +=
+							sourceLine[sourceColumn] === '\t' ? 4 - (recastColumn % 4) : 1;
+						sourceColumn++;
+					}
+
+					return lineOffsets[line - 1] + sourceColumn;
+				};
+
+				const start = getOffset(location.start);
+				const end = getOffset(location.end);
+				if (start === null || end === null) {
+					return null;
+				}
+
+				return {
+					start,
+					end,
+					replacement: recast.print(openingElement).code,
+				};
+			})
+		: null;
+	let output = input;
+	if (replacements?.every((replacement) => replacement !== null)) {
+		for (const replacement of replacements.sort(
+			(first, second) => second.start - first.start,
+		)) {
+			output =
+				output.slice(0, replacement.start) +
+				replacement.replacement +
+				output.slice(replacement.end);
+		}
+	} else {
+		output = serializeAst(ast);
+	}
 
 	return {
-		output: serializeAst(ast),
+		output,
 		results,
+		ast,
 	};
 };

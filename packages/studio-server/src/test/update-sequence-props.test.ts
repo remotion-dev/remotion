@@ -582,6 +582,28 @@ test('updateMultipleSequenceProps should update multiple nodes in one format pas
 	expect(output.split('\n')[8]).toContain('durationInFrames={120}');
 });
 
+test('updateMultipleSequenceProps should not format a no-op edit', async () => {
+	const unformattedInput = lightLeakInput.replace(
+		'\t\t<AbsoluteFill',
+		' <AbsoluteFill',
+	);
+	const {output, formatted} = await updateMultipleSequenceProps({
+		input: unformattedInput,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(unformattedInput, 8),
+				updates: [{key: 'hueShift', value: 30, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: null,
+	});
+
+	expect(output).toBe(unformattedInput);
+	expect(formatted).toBe(true);
+});
+
 test('updateSequenceProps should update JSX text children', async () => {
 	const input = `import React from 'react';
 import {Interactive} from 'remotion';
