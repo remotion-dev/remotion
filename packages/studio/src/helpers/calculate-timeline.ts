@@ -4,7 +4,6 @@ import type {
 	OverrideIdToNodePaths,
 	TSequence,
 } from 'remotion';
-import {Internals} from 'remotion';
 import {getConnectedCompositions} from './get-connected-compositions';
 import {
 	getCascadedStart,
@@ -106,16 +105,7 @@ export const calculateTimeline = ({
 		);
 
 		const overrideId = sequence.controls?.overrideId ?? null;
-		const nodePath = overrideId
-			? (overrideIdsToNodePaths[overrideId] ?? null)
-			: null;
-		const interactivitySequenceFrameOffset =
-			Internals.getInteractivitySequenceFrameOffset({
-				parentSequenceId: sequence.parent,
-				sequences: sortedSequences,
-				overrideIdsToNodePaths,
-				nodePath,
-			});
+		const nodePath = overrideId ? overrideIdsToNodePaths[overrideId] : null;
 		const hasKeyframeRows =
 			sequence.controls !== null || sequence.effects.length > 0;
 		const connectedCompositions =
@@ -136,9 +126,7 @@ export const calculateTimeline = ({
 			cascadedStart,
 			cascadedDuration: sequence.duration,
 			keyframeDisplayOffset: hasKeyframeRows
-				? cascadedStartWithTrim -
-					effectiveFrom -
-					interactivitySequenceFrameOffset
+				? cascadedStartWithTrim - effectiveFrom
 				: 0,
 			sequenceFrameOffset: visibleStart - cascadedStartWithTrim,
 			nodePathInfo: nodePath

@@ -129,51 +129,6 @@ export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallbac
 	}
 });
 
-test('subscription keys include JSX ancestors in the source frame scope', () => {
-	const input = `import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-
-export const Example = () => {
-	const frame = useCurrentFrame();
-	return (
-		<AbsoluteFill from={-444}>
-			<div style={{opacity: interpolate(frame, [0, 10], [0, 1])}} />
-		</AbsoluteFill>
-	);
-};
-`;
-	const remotionRoot = mkdtempSync(
-		path.join(tmpdir(), 'remotion-frame-scope-'),
-	);
-	const fileName = 'Example.tsx';
-	writeFileSync(path.join(remotionRoot, fileName), input);
-
-	try {
-		const location = getSourceLocation(input, '<div');
-		const result = computeSequencePropsStatusFromFilenameByLocation({
-			fileName,
-			line: location.line,
-			column: location.column,
-			componentIdentity: null,
-			keys: ['style.opacity'],
-			effects: [],
-			remotionRoot,
-			logLevel: 'info',
-			videoConfigValues,
-		});
-
-		expect(result.success).toBe(true);
-		if (!result.success) {
-			throw new Error('Expected the div to be found');
-		}
-
-		expect(result.nodePath.frameSourceAncestorNodePaths).toEqual([
-			getNodePathFromContent(input, 6),
-		]);
-	} finally {
-		rmSync(remotionRoot, {recursive: true, force: true});
-	}
-});
-
 test('computeSequencePropsStatus should ignore source locations outside the project', () => {
 	const remotionRoot = mkdtempSync(
 		path.join(tmpdir(), 'remotion-jsx-location-'),

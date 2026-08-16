@@ -20,16 +20,13 @@ import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
-import {getInteractivitySequenceFrameOffset} from './get-interactivity-sequence-frame-offset.js';
 import {
 	extendSchemaWithSequenceName,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {createRuntimeValueStore} from './runtime-value-store.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
-import {SequenceContext} from './SequenceContext.js';
 import {
-	SequenceManagerRefContext,
 	VisualModeDragOverridesContext,
 	VisualModePropStatusesContext,
 } from './SequenceManager.js';
@@ -214,10 +211,6 @@ export const withInteractivitySchema = <
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const frame = useCurrentFrame();
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const parentSequence = useContext(SequenceContext);
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const sequencesRef = useContext(SequenceManagerRefContext);
 
 		// If the parent has passed `controls`, we should not override it.
 		// @ts-expect-error
@@ -255,14 +248,6 @@ export const withInteractivitySchema = <
 		const nodePath = env.isReadOnlyStudio
 			? null
 			: (nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null);
-		const sourceFrame =
-			frame +
-			getInteractivitySequenceFrameOffset({
-				parentSequenceId: parentSequence?.id ?? null,
-				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: nodePathMapping.overrideIdToNodePathMappings,
-				nodePath,
-			});
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable
@@ -322,14 +307,14 @@ export const withInteractivitySchema = <
 					nodePath === null
 						? undefined
 						: getPropStatusesCtx(propStatuses, nodePath),
-				frame: sourceFrame,
+				frame,
 			});
 		}, [
 			currentRuntimeValueDotNotation,
 			getDragOverrides,
 			nodePath,
 			propStatuses,
-			sourceFrame,
+			frame,
 		]);
 
 		// 4. Eliminate values forbidden by the resolved discriminated union.

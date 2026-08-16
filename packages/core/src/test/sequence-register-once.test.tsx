@@ -15,6 +15,7 @@ import type {
 	EffectDefinition,
 	EffectDescriptor,
 } from '../effects/effect-types.js';
+import {useMemoizedEffects} from '../effects/use-memoized-effects.js';
 import {Img, imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {Internals} from '../internals.js';
@@ -1503,39 +1504,46 @@ test('Interactive elements inherit trimBefore from Sequence', () => {
 	expect(registeredSequences[0]?.displayName).toBe('<Interactive.Div>');
 });
 
-test('Studio evaluates keyframes in the source component frame scope', async () => {
-	const parentNodePath: SequencePropsSubscriptionKey = {
-		absolutePath: '/src/Composition.tsx',
-		nodePath: ['program', 'body', 0, 'argument', 'openingElement'],
-		sequenceKeys: [],
-		effectKeys: [],
-		videoConfigValues: null,
-	};
+test('Studio preserves renderer values for parsed keyframes', async () => {
 	const childNodePath: SequencePropsSubscriptionKey = {
 		absolutePath: '/src/Composition.tsx',
-		nodePath: [
-			'program',
-			'body',
-			0,
-			'argument',
-			'children',
-			0,
-			'openingElement',
-		],
-		frameSourceAncestorNodePaths: [parentNodePath.nodePath],
+		nodePath: ['keyframed-child'],
 		sequenceKeys: ['style.opacity'],
 		effectKeys: [],
 		videoConfigValues: null,
 	};
+	const EffectProbe: React.FC<{
+		readonly effects: readonly EffectDescriptor<unknown>[];
+	}> = ({effects}) => {
+		const resolved = useMemoizedEffects({
+			effects,
+			overrideId: 'effect-probe',
+		});
+
+		return (
+			<output data-testid="keyframed-effect">
+				{String((resolved[0].params as {amount: number}).amount)}
+			</output>
+		);
+	};
 
 	const Source = () => {
 		const frame = useCurrentFrame();
+		const effect = makeEffect();
 
 		return (
 			<AbsoluteFill from={-444}>
 				<Interactive.Div
 					data-testid="keyframed-child"
 					style={{opacity: interpolate(frame, [0, 10], [0, 1])}}
+				/>
+				<EffectProbe
+					effects={[
+						{
+							...effect,
+							params: {amount: interpolate(frame, [0, 10], [0, 1])},
+						},
+					]}
 				/>
 			</AbsoluteFill>
 		);
@@ -1557,19 +1565,16 @@ test('Studio evaluates keyframes in the source component frame scope', async () 
 				return;
 			}
 
-			const parent = sequences.find(
-				(sequence) => sequence.displayName === '<AbsoluteFill>',
-			);
 			const child = sequences.find(
 				(sequence) => sequence.displayName === '<Interactive.Div>',
 			);
-			if (!parent?.controls || !child?.controls) {
+			if (!child?.controls) {
 				return;
 			}
 
 			setOverrideIdToNodePathMappings({
-				[parent.controls.overrideId]: parentNodePath,
 				[child.controls.overrideId]: childNodePath,
+				'effect-probe': childNodePath,
 			});
 			setPropStatuses(childNodePath, () => ({
 				canUpdate: true,
@@ -1587,7 +1592,28 @@ test('Studio evaluates keyframes in the source component frame scope', async () 
 						output: undefined,
 					},
 				},
-				effects: [],
+				effects: [
+					{
+						canUpdate: true,
+						callee: 'testEffect',
+						importPath: null,
+						effectIndex: 0,
+						props: {
+							amount: {
+								status: 'keyframed',
+								interpolationFunction: 'interpolate',
+								keyframes: [
+									{frame: 0, value: 0},
+									{frame: 10, value: 1},
+								],
+								easing: [{type: 'linear'}],
+								clamping: {left: 'extend', right: 'extend'},
+								posterize: undefined,
+								output: undefined,
+							},
+						},
+					},
+				],
 			}));
 			setInstalled(true);
 		}, [installed, sequences, setPropStatuses]);
@@ -1623,6 +1649,7 @@ test('Studio evaluates keyframes in the source component frame scope', async () 
 		expect(
 			(rendered.getByTestId('keyframed-child') as HTMLElement).style.opacity,
 		).toBe('0.5');
+		expect(rendered.getByTestId('keyframed-effect').textContent).toBe('0.5');
 	});
 });
 

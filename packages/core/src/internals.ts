@@ -83,7 +83,6 @@ import {
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
-import {getInteractivitySequenceFrameOffset} from './get-interactivity-sequence-frame-offset.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
@@ -425,7 +424,6 @@ export const Internals = {
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
 	getEffectiveVisualModeValue,
-	getInteractivitySequenceFrameOffset,
 	CompositionRenderErrorContext,
 	useEffectChainState,
 	createEffectChainState,

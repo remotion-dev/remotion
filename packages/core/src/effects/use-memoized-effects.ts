@@ -1,16 +1,12 @@
 import {useContext, useRef} from 'react';
 import {resolveDragOverrideValue} from '../get-effective-visual-mode-value.js';
-import {getInteractivitySequenceFrameOffset} from '../get-interactivity-sequence-frame-offset.js';
-import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
-import {SequenceContext} from '../SequenceContext.js';
 import type {
 	CannotUpdateEffectReason,
 	CannotUpdateSequenceReason,
 } from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
-	SequenceManagerRefContext,
 	VisualModeDragOverridesContext,
 	VisualModePropStatusesContext,
 	type SequencePropsSubscriptionKey,
@@ -74,7 +70,6 @@ const mergeOverrides = ({
 
 const resolvePropStatusOverrides = (
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined,
-	frame: number,
 ): Record<string, unknown> | null => {
 	if (!propStatus) {
 		return null;
@@ -87,18 +82,6 @@ const resolvePropStatusOverrides = (
 			out[key] = status.codeValue;
 			hasAny = true;
 			continue;
-		}
-
-		if (status.status === 'keyframed') {
-			const value = interpolateKeyframedStatus({
-				forceSpringAllowTail: null,
-				frame,
-				status,
-			});
-			if (value !== null) {
-				out[key] = value;
-				hasAny = true;
-			}
 		}
 	}
 
@@ -199,9 +182,7 @@ export const useMemoizedEffects = ({
 
 	const {propStatuses} = useContext(VisualModePropStatusesContext);
 	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
-	const localFrame = useCurrentFrame();
-	const parentSequence = useContext(SequenceContext);
-	const sequencesRef = useContext(SequenceManagerRefContext);
+	const frame = useCurrentFrame();
 
 	const {overrideIdToNodePathMappings} = useContext(
 		OverrideIdsToNodePathsGettersContext,
@@ -212,14 +193,6 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
-	const frame =
-		localFrame +
-		getInteractivitySequenceFrameOffset({
-			parentSequenceId: parentSequence?.id ?? null,
-			sequences: sequencesRef.current,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			nodePath,
-		});
 
 	const resolved = effects.map((descriptor, index) => {
 		if (nodePath === null) {
@@ -237,7 +210,7 @@ export const useMemoizedEffects = ({
 		});
 		const propStatusOverrides =
 			effectStatus.type === 'can-update-effect'
-				? resolvePropStatusOverrides(effectStatus.props, frame)
+				? resolvePropStatusOverrides(effectStatus.props)
 				: null;
 		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
 		const dragOverrides =
