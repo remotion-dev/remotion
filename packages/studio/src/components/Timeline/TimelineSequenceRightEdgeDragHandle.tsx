@@ -173,6 +173,24 @@ const shiftKeyframedStatus = ({
 	};
 };
 
+export const makeTimelineSequenceFromDragKeyframedOverride = ({
+	status,
+	deltaFrames,
+	currentFrame,
+	keyframeDisplayOffset,
+}: {
+	readonly status: CanUpdateSequencePropStatusKeyframed;
+	readonly deltaFrames: number;
+	readonly currentFrame: number;
+	readonly keyframeDisplayOffset: number;
+}) => {
+	return {
+		type: 'keyframed' as const,
+		status: shiftKeyframedStatus({status, deltaFrames}),
+		sourceFrame: currentFrame - keyframeDisplayOffset + deltaFrames,
+	};
+};
+
 const canUpdateDurationInFrames = ({
 	propStatuses,
 	nodePath,
@@ -1455,14 +1473,12 @@ export const useTimelineSequenceFromDrag = ({
 					latestRef.current.setDragOverrides(
 						target.nodePath,
 						keyframeTarget.fieldKey,
-						{
-							type: 'keyframed',
-							status: shiftKeyframedStatus({
-								status: keyframeTarget.status,
-								deltaFrames,
-							}),
-							sourceFrame: getCurrentFrame() - target.keyframeDisplayOffset,
-						},
+						makeTimelineSequenceFromDragKeyframedOverride({
+							status: keyframeTarget.status,
+							deltaFrames,
+							currentFrame: getCurrentFrame(),
+							keyframeDisplayOffset: target.keyframeDisplayOffset,
+						}),
 					);
 				}
 
@@ -1471,14 +1487,12 @@ export const useTimelineSequenceFromDrag = ({
 						target.nodePath,
 						keyframeTarget.effectIndex,
 						keyframeTarget.fieldKey,
-						{
-							type: 'keyframed',
-							status: shiftKeyframedStatus({
-								status: keyframeTarget.status,
-								deltaFrames,
-							}),
-							sourceFrame: getCurrentFrame() - target.keyframeDisplayOffset,
-						},
+						makeTimelineSequenceFromDragKeyframedOverride({
+							status: keyframeTarget.status,
+							deltaFrames,
+							currentFrame: getCurrentFrame(),
+							keyframeDisplayOffset: target.keyframeDisplayOffset,
+						}),
 					);
 				}
 			}

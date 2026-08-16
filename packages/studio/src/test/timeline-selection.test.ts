@@ -143,6 +143,7 @@ import {
 	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
+	makeTimelineSequenceFromDragKeyframedOverride,
 	timelineSequenceFromDragSnapThresholdPx,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
@@ -2579,6 +2580,34 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 		['opacity', 10, 22],
 		['opacity', 20, 32],
 	]);
+});
+
+test('Timeline from drag keeps the keyframed preview stable while moving the curve', () => {
+	const dragOverride = makeTimelineSequenceFromDragKeyframedOverride({
+		status: {
+			status: 'keyframed',
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: 0},
+				{frame: 100, value: 1},
+			],
+			easing: [{type: 'linear'}],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+			output: undefined,
+		},
+		deltaFrames: -57,
+		currentFrame: 100,
+		keyframeDisplayOffset: 30,
+	});
+
+	expect(
+		dragOverride.status.keyframes.map((keyframe) => keyframe.frame),
+	).toEqual([-57, 43]);
+	expect(dragOverride.sourceFrame).toBe(13);
+	expect(
+		Internals.resolveDragOverrideValue({dragOverrideValue: dragOverride}),
+	).toEqual({type: 'resolved', value: 0.7});
 });
 
 test('Timeline from drag moves owned effect keyframes by the same delta', () => {
