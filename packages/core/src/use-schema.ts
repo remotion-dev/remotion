@@ -146,6 +146,8 @@ export type DragOverrideValue =
 	| {
 			readonly type: 'keyframed';
 			readonly status: CanUpdateSequencePropStatusKeyframed;
+			// Calculated by Studio from the timeline's keyframe display offset.
+			readonly sourceFrame: number;
 	  };
 
 export type DragOverrides = Record<string, Record<string, DragOverrideValue>>;
@@ -231,6 +233,7 @@ export const makeKeyframedDragOverride = ({
 			keyframes,
 			easing,
 		},
+		sourceFrame: frame,
 	};
 };
 
@@ -279,13 +282,11 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	currentValue,
 	overrideValues,
 	propStatus,
-	frame,
 }: {
 	schema: InteractivitySchema;
 	currentValue: Record<string, unknown>;
 	overrideValues: Record<string, DragOverrideValue>;
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
-	frame: number | null;
 }): {merged: Record<string, unknown>; propsToDelete: Set<string>} => {
 	const merged: Record<string, unknown> = {};
 	const propsToDelete = new Set<string>();
@@ -306,7 +307,6 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			} else {
 				const dragOverride = resolveDragOverrideValue({
 					dragOverrideValue: overrideValues[key],
-					frame,
 				});
 				if (dragOverride.type === 'resolved') {
 					value = dragOverride.value;
@@ -321,7 +321,6 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				propStatus: status,
 				dragOverrideValue: overrideValues[key],
 				defaultValue: field?.default,
-				frame,
 				shouldResortToDefaultValueIfUndefined: false,
 			});
 		}

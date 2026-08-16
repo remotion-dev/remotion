@@ -2664,6 +2664,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 		effectKeyframes: [],
 		fileName: nodePath.absolutePath,
 		initialFrom: 8,
+		keyframeDisplayOffset: 0,
 		nodePath,
 		sequenceKeyframes: [],
 	};
@@ -2709,6 +2710,7 @@ test('Timeline from drag does not snap nested sequences to the timeline start', 
 					effectKeyframes: [],
 					fileName: nodePath.absolutePath,
 					initialFrom: 8,
+					keyframeDisplayOffset: 0,
 					nodePath,
 					sequenceKeyframes: [],
 				},
@@ -2815,6 +2817,7 @@ test('Timeline from drag removes the prop at the default value', () => {
 				effectKeyframes: [],
 				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 				initialFrom: 5,
+				keyframeDisplayOffset: 0,
 				nodePath: nodePathInfo.sequenceSubscriptionKey,
 				sequenceKeyframes: [],
 			},
@@ -5938,7 +5941,6 @@ test('Selected outline active schema exposes default Sequence translate controls
 			layout: {status: 'static', codeValue: undefined},
 			'style.translate': {status: 'static', codeValue: undefined},
 		},
-		frame: 0,
 	});
 
 	const translateField = activeSchema['style.translate'];

@@ -123,7 +123,6 @@ export const AlignmentControls: React.FC<{
 				currentRuntimeValueDotNotation: runtimeValues,
 				dragOverrides,
 				propStatus: nodePropStatuses,
-				frame: sourceFrame,
 			});
 
 			const fieldSchema = activeSchema?.[translateFieldKey];
@@ -256,7 +255,6 @@ export const AlignmentControls: React.FC<{
 		propStatuses,
 		renderNodePath,
 	);
-	const renderSourceFrame = timelinePosition - track.keyframeDisplayOffset;
 	const renderDragOverrides = getDragOverrides(renderNodePath) ?? {};
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({
@@ -264,7 +262,6 @@ export const AlignmentControls: React.FC<{
 		currentRuntimeValueDotNotation: runtimeValues,
 		dragOverrides: renderDragOverrides,
 		propStatus: renderNodePropStatuses,
-		frame: renderSourceFrame,
 	});
 
 	const renderFieldSchema = renderActiveSchema?.[translateFieldKey];

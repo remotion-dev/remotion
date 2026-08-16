@@ -338,7 +338,6 @@ export const getFieldsToShow = ({
 			currentValue: currentRuntimeValueDotNotation,
 			overrideValues: getDragOverrides(nodePath),
 			propStatus: Internals.getPropStatusesCtx(propStatuses, nodePath),
-			frame: null,
 		});
 	const activeSchema = Internals.flattenActiveSchema(
 		schema,

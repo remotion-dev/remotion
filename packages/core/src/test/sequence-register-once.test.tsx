@@ -40,7 +40,11 @@ import {
 import {Series} from '../series/index.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import type {BasicMediaInTimelineReturnType} from '../use-media-in-timeline.js';
-import type {DragOverrides, PropStatuses} from '../use-schema.js';
+import type {
+	CanUpdateSequencePropStatusKeyframed,
+	DragOverrides,
+	PropStatuses,
+} from '../use-schema.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 afterEach(cleanup);
@@ -1504,7 +1508,19 @@ test('Interactive elements inherit trimBefore from Sequence', () => {
 	expect(registeredSequences[0]?.displayName).toBe('<Interactive.Div>');
 });
 
-test('Studio preserves renderer values for parsed keyframes', async () => {
+test('Studio preserves renderer values for parsed keyframes and drag overrides', async () => {
+	const keyframedStatus: CanUpdateSequencePropStatusKeyframed = {
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 10, value: 1},
+		],
+		easing: [{type: 'linear'}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+		output: undefined,
+	};
 	const childNodePath: SequencePropsSubscriptionKey = {
 		absolutePath: '/src/Composition.tsx',
 		nodePath: ['keyframed-child'],
@@ -1551,10 +1567,12 @@ test('Studio preserves renderer values for parsed keyframes', async () => {
 
 	const Harness = () => {
 		const {sequences} = React.useContext(SequenceManager);
-		const {setPropStatuses} = React.useContext(VisualModeSettersContext);
+		const {setDragOverrides, setEffectDragOverrides, setPropStatuses} =
+			React.useContext(VisualModeSettersContext);
 		const [overrideIdToNodePathMappings, setOverrideIdToNodePathMappings] =
 			React.useState<OverrideIdToNodePaths>({});
 		const [installed, setInstalled] = React.useState(false);
+		const [dragging, setDragging] = React.useState(false);
 		const nodePathContextValue = React.useMemo(
 			() => ({overrideIdToNodePathMappings}),
 			[overrideIdToNodePathMappings],
@@ -1579,18 +1597,7 @@ test('Studio preserves renderer values for parsed keyframes', async () => {
 			setPropStatuses(childNodePath, () => ({
 				canUpdate: true,
 				props: {
-					'style.opacity': {
-						status: 'keyframed',
-						interpolationFunction: 'interpolate',
-						keyframes: [
-							{frame: 0, value: 0},
-							{frame: 10, value: 1},
-						],
-						easing: [{type: 'linear'}],
-						clamping: {left: 'extend', right: 'extend'},
-						posterize: undefined,
-						output: undefined,
-					},
+					'style.opacity': keyframedStatus,
 				},
 				effects: [
 					{
@@ -1599,18 +1606,7 @@ test('Studio preserves renderer values for parsed keyframes', async () => {
 						importPath: null,
 						effectIndex: 0,
 						props: {
-							amount: {
-								status: 'keyframed',
-								interpolationFunction: 'interpolate',
-								keyframes: [
-									{frame: 0, value: 0},
-									{frame: 10, value: 1},
-								],
-								easing: [{type: 'linear'}],
-								clamping: {left: 'extend', right: 'extend'},
-								posterize: undefined,
-								output: undefined,
-							},
+							amount: keyframedStatus,
 						},
 					},
 				],
@@ -1618,12 +1614,39 @@ test('Studio preserves renderer values for parsed keyframes', async () => {
 			setInstalled(true);
 		}, [installed, sequences, setPropStatuses]);
 
+		const applyDragOverrides = () => {
+			setDragOverrides(
+				childNodePath,
+				'style.opacity',
+				Internals.makeKeyframedDragOverride({
+					status: keyframedStatus,
+					frame: 5,
+					value: 0.75,
+				}),
+			);
+			setEffectDragOverrides(
+				childNodePath,
+				0,
+				'amount',
+				Internals.makeKeyframedDragOverride({
+					status: keyframedStatus,
+					frame: 5,
+					value: 0.75,
+				}),
+			);
+			setDragging(true);
+		};
+
 		return (
 			<OverrideIdsToNodePathsGettersContext.Provider
 				value={nodePathContextValue}
 			>
 				<Source />
 				<output>{installed ? 'Keyframes installed' : 'Installing'}</output>
+				<button type="button" onClick={applyDragOverrides}>
+					Apply drag overrides
+				</button>
+				<output>{dragging ? 'Dragging' : 'Not dragging'}</output>
 			</OverrideIdsToNodePathsGettersContext.Provider>
 		);
 	};
@@ -1650,6 +1673,16 @@ test('Studio preserves renderer values for parsed keyframes', async () => {
 			(rendered.getByTestId('keyframed-child') as HTMLElement).style.opacity,
 		).toBe('0.5');
 		expect(rendered.getByTestId('keyframed-effect').textContent).toBe('0.5');
+	});
+
+	fireEvent.click(rendered.getByRole('button', {name: 'Apply drag overrides'}));
+
+	await waitFor(() => {
+		expect(rendered.getByText('Dragging')).toBeTruthy();
+		expect(
+			(rendered.getByTestId('keyframed-child') as HTMLElement).style.opacity,
+		).toBe('0.75');
+		expect(rendered.getByTestId('keyframed-effect').textContent).toBe('0.75');
 	});
 });
 

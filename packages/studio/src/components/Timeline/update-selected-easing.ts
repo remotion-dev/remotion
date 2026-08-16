@@ -35,6 +35,7 @@ export type SelectedEasingUpdate =
 			readonly schema: InteractivitySchema;
 			readonly segmentIndex: number;
 			readonly currentEasing: TimelineEasingValue;
+			readonly keyframeDisplayOffset: number;
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	  }
 	| {
@@ -46,6 +47,7 @@ export type SelectedEasingUpdate =
 			readonly schema: InteractivitySchema;
 			readonly segmentIndex: number;
 			readonly currentEasing: TimelineEasingValue;
+			readonly keyframeDisplayOffset: number;
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	  };
 
@@ -77,7 +79,7 @@ export const getSelectedEasingUpdate = ({
 		nodePathInfo: selection.nodePathInfo,
 	});
 	const sequence = track?.sequence ?? null;
-	if (!sequence) {
+	if (!track || !sequence) {
 		return null;
 	}
 
@@ -116,6 +118,7 @@ export const getSelectedEasingUpdate = ({
 			currentEasing:
 				sequencePropStatus.easing[selection.segmentIndex] ??
 				LINEAR_KEYFRAME_EASING,
+			keyframeDisplayOffset: track.keyframeDisplayOffset,
 			propStatus: sequencePropStatus,
 		};
 	}
@@ -157,6 +160,7 @@ export const getSelectedEasingUpdate = ({
 		segmentIndex: selection.segmentIndex,
 		currentEasing:
 			effectPropStatus.easing[selection.segmentIndex] ?? LINEAR_KEYFRAME_EASING,
+		keyframeDisplayOffset: track.keyframeDisplayOffset,
 		propStatus: effectPropStatus,
 	};
 };
@@ -188,10 +192,12 @@ export const makeEasingDragOverride = ({
 	status,
 	segmentIndex,
 	easing,
+	sourceFrame,
 }: {
 	readonly status: CanUpdateSequencePropStatusKeyframed;
 	readonly segmentIndex: number;
 	readonly easing: TimelineEasingValue;
+	readonly sourceFrame: number;
 }): DragOverrideValue => {
 	const nextEasing = [...status.easing];
 	while (nextEasing.length < status.keyframes.length - 1) {
@@ -210,6 +216,7 @@ export const makeEasingDragOverride = ({
 			...status,
 			easing: nextEasing,
 		},
+		sourceFrame,
 	};
 };
 

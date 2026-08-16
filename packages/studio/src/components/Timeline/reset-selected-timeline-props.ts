@@ -173,7 +173,6 @@ export const getTimelinePropResetTargets = ({
 					currentValue: sequence.controls.runtimeValues.getSnapshot(),
 					overrideValues: {},
 					propStatus: sequencePropStatus,
-					frame: null,
 				});
 			const sequenceFieldSchema = getActiveFieldSchema({
 				schema: sequence.controls.schema,

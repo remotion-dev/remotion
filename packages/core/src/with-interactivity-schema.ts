@@ -30,7 +30,6 @@ import {
 	VisualModeDragOverridesContext,
 	VisualModePropStatusesContext,
 } from './SequenceManager.js';
-import {useCurrentFrame} from './use-current-frame.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
 
@@ -209,8 +208,6 @@ export const withInteractivitySchema = <
 		const {getDragOverrides} = useContext(VisualModeDragOverridesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const frame = useCurrentFrame();
 
 		// If the parent has passed `controls`, we should not override it.
 		// @ts-expect-error
@@ -307,14 +304,12 @@ export const withInteractivitySchema = <
 					nodePath === null
 						? undefined
 						: getPropStatusesCtx(propStatuses, nodePath),
-				frame,
 			});
 		}, [
 			currentRuntimeValueDotNotation,
 			getDragOverrides,
 			nodePath,
 			propStatuses,
-			frame,
 		]);
 
 		// 4. Eliminate values forbidden by the resolved discriminated union.

@@ -36,6 +36,7 @@ import type {
 	MoveEffectKeyframeChange,
 	MoveSequenceKeyframeChange,
 } from './call-move-keyframe';
+import {getCurrentFrame} from './imperative-state';
 import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
@@ -84,6 +85,7 @@ export type TimelineSequenceFromDragTarget = {
 	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
 	readonly fileName: string;
 	readonly initialFrom: number;
+	readonly keyframeDisplayOffset: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly sequenceKeyframes: TimelineSequenceKeyframeDragTarget[];
 };
@@ -890,6 +892,7 @@ export const getTimelineSequenceFromDragTargets = ({
 				effectKeyframes,
 				fileName: nodePath.absolutePath,
 				initialFrom: originalSequence.from,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
 				nodePath,
 				sequenceKeyframes,
 			});
@@ -1458,6 +1461,7 @@ export const useTimelineSequenceFromDrag = ({
 								status: keyframeTarget.status,
 								deltaFrames,
 							}),
+							sourceFrame: getCurrentFrame() - target.keyframeDisplayOffset,
 						},
 					);
 				}
@@ -1473,6 +1477,7 @@ export const useTimelineSequenceFromDrag = ({
 								status: keyframeTarget.status,
 								deltaFrames,
 							}),
+							sourceFrame: getCurrentFrame() - target.keyframeDisplayOffset,
 						},
 					);
 				}

@@ -120,6 +120,7 @@ const makeMovedKeyframedDragOverride = ({
 	return {
 		type: 'keyframed',
 		status: movedStatus,
+		sourceFrame: getCurrentFrame() - details.keyframeDisplayOffset,
 	};
 };
 

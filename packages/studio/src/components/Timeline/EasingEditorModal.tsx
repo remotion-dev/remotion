@@ -32,6 +32,7 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {getCurrentFrame} from './imperative-state';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import type {TimelineSelection} from './TimelineSelection';
 import type {
@@ -834,6 +835,7 @@ export const EasingEditor: React.FC<{
 					status: update.propStatus,
 					segmentIndex: update.segmentIndex,
 					easing,
+					sourceFrame: getCurrentFrame() - update.keyframeDisplayOffset,
 				});
 
 				if (update.type === 'sequence') {

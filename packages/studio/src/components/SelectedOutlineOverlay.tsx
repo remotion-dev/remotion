@@ -317,7 +317,6 @@ const calculateOutlineTargets = ({
 					currentRuntimeValueDotNotation: runtimeValues,
 					dragOverrides,
 					propStatus: nodePropStatuses,
-					frame: sourceFrame,
 				})
 			: null;
 		const cropValues = {

@@ -21,6 +21,7 @@ import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
+import {getCurrentFrame} from './imperative-state';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
 	getTimelineKeyframeDragKey,
@@ -376,6 +377,7 @@ const makeMovedKeyframedDragOverride = ({
 	return {
 		type: 'keyframed',
 		status: movedStatus,
+		sourceFrame: getCurrentFrame() - (first.displayFrame - first.sourceFrame),
 	};
 };
 

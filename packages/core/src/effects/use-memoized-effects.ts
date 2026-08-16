@@ -11,7 +11,6 @@ import {
 	VisualModePropStatusesContext,
 	type SequencePropsSubscriptionKey,
 } from '../SequenceManager.js';
-import {useCurrentFrame} from '../use-current-frame.js';
 import {
 	type CanUpdateSequencePropStatus,
 	type DragOverrideValue,
@@ -27,12 +26,10 @@ const mergeOverrides = ({
 	descriptor,
 	propStatusOverrides,
 	dragOverrides,
-	frame,
 }: {
 	descriptor: EffectDescriptor<unknown>;
 	propStatusOverrides: Record<string, unknown> | null;
 	dragOverrides: Record<string, DragOverrideValue> | null;
-	frame: number;
 }): {params: unknown; effectKey: string} => {
 	if (!propStatusOverrides && !dragOverrides) {
 		return {params: descriptor.params, effectKey: descriptor.effectKey};
@@ -54,7 +51,6 @@ const mergeOverrides = ({
 		for (const [key, value] of Object.entries(dragOverrides)) {
 			const resolved = resolveDragOverrideValue({
 				dragOverrideValue: value,
-				frame,
 			});
 			if (resolved.type === 'resolved') {
 				merged[key] = resolved.value;
@@ -182,8 +178,6 @@ export const useMemoizedEffects = ({
 
 	const {propStatuses} = useContext(VisualModePropStatusesContext);
 	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
-	const frame = useCurrentFrame();
-
 	const {overrideIdToNodePathMappings} = useContext(
 		OverrideIdsToNodePathsGettersContext,
 	);
@@ -220,7 +214,6 @@ export const useMemoizedEffects = ({
 			descriptor,
 			propStatusOverrides,
 			dragOverrides,
-			frame,
 		});
 
 		return {descriptor, params, effectKey};

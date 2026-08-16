@@ -41,11 +41,10 @@ test('makeKeyframedDragOverride inserts a new keyframe and preserves easing leng
 			],
 			easing: [{type: 'linear'}, {type: 'linear'}],
 		},
+		sourceFrame: 30,
 	});
 
-	expect(
-		resolveDragOverrideValue({dragOverrideValue: override, frame: 30}),
-	).toEqual({
+	expect(resolveDragOverrideValue({dragOverrideValue: override})).toEqual({
 		type: 'resolved',
 		value: 3,
 	});
@@ -83,6 +82,7 @@ test('makeKeyframedDragOverride duplicates the split segment easing', () => {
 				{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 			],
 		},
+		sourceFrame: 38,
 	});
 });
 
@@ -111,6 +111,7 @@ test('makeKeyframedDragOverride uses linear easing outside the keyframe range', 
 				{type: 'linear'},
 			],
 		},
+		sourceFrame: 90,
 	});
 });
 
@@ -137,6 +138,7 @@ test('makeKeyframedDragOverride can use hold easing outside the keyframe range',
 			],
 			easing: [{type: 'step1'}],
 		},
+		sourceFrame: 60,
 	});
 });
 
@@ -157,10 +159,11 @@ test('makeKeyframedDragOverride replaces an existing keyframe without changing e
 			],
 			easing: [{type: 'linear'}],
 		},
+		sourceFrame: 60,
 	});
 });
 
-test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides at the current frame', () => {
+test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides at their source frame', () => {
 	const status = makeKeyframedStatus();
 	const {merged} = computeEffectiveSchemaValuesDotNotation({
 		schema: {
@@ -181,7 +184,6 @@ test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides 
 		propStatus: {
 			opacity: status,
 		},
-		frame: 30,
 	});
 
 	expect(merged.opacity).toBe(3);
@@ -204,7 +206,6 @@ test('computeEffectiveSchemaValuesDotNotation resolves static file tokens for as
 				codeValue: 'remotion-file:folder/new%20image.png',
 			},
 		},
-		frame: 0,
 	});
 
 	expect(merged.src).toBe('/static-abcdef/folder/new%20image.png');
@@ -253,7 +254,7 @@ test('getEffectiveVisualModeValue resolves keyframed drag overrides at the sourc
 				value: 3,
 			}),
 			defaultValue: 1,
-			frame: 30,
+			frame: 999,
 			shouldResortToDefaultValueIfUndefined: true,
 		}),
 	).toBe(3);

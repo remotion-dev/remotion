@@ -69,13 +69,11 @@ export const getSelectedOutlineActiveSchema = ({
 	currentRuntimeValueDotNotation,
 	dragOverrides,
 	propStatus,
-	frame,
 }: {
 	readonly schema: InteractivitySchema;
 	readonly currentRuntimeValueDotNotation: Record<string, unknown>;
 	readonly dragOverrides: Record<string, DragOverrideValue>;
 	readonly propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
-	readonly frame: number | null;
 }): InteractivitySchema => {
 	const {merged: valuesDotNotation} =
 		Internals.computeEffectiveSchemaValuesDotNotation({
@@ -83,7 +81,6 @@ export const getSelectedOutlineActiveSchema = ({
 			currentValue: currentRuntimeValueDotNotation,
 			overrideValues: dragOverrides,
 			propStatus,
-			frame,
 		});
 
 	return Internals.flattenActiveSchema(schema, (key) => valuesDotNotation[key]);

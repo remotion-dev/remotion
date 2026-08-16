@@ -255,6 +255,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 												},
 											),
 									},
+									sourceFrame: transformOriginDrag.sourceFrame,
 								}
 						: Internals.makeStaticDragOverride(translate),
 				);

@@ -16,10 +16,8 @@ export type ResolvedDragOverrideValue =
 
 export const resolveDragOverrideValue = ({
 	dragOverrideValue,
-	frame,
 }: {
 	dragOverrideValue: DragOverrideValue | undefined;
-	frame: number | null;
 }): ResolvedDragOverrideValue => {
 	if (dragOverrideValue === undefined) {
 		return {type: 'none'};
@@ -29,13 +27,9 @@ export const resolveDragOverrideValue = ({
 		return {type: 'resolved', value: dragOverrideValue.value};
 	}
 
-	if (frame === null) {
-		return {type: 'none'};
-	}
-
 	const interpolated = interpolateKeyframedStatus({
 		forceSpringAllowTail: null,
-		frame,
+		frame: dragOverrideValue.sourceFrame,
 		status: dragOverrideValue.status,
 	});
 	if (interpolated === null) {
@@ -62,7 +56,6 @@ export const getEffectiveVisualModeValue = ({
 }) => {
 	const dragOverride = resolveDragOverrideValue({
 		dragOverrideValue,
-		frame,
 	});
 	if (dragOverride.type === 'resolved' && dragOverride.value !== undefined) {
 		return dragOverride.value;
