@@ -171,8 +171,15 @@ const getSequencePropsStatus = ({
 				},
 				success: true,
 			};
-		} catch {
-			// Fall back to resolving the source location individually.
+		} catch (error) {
+			if (
+				!(
+					error instanceof JsxElementIdentityMismatchError ||
+					error instanceof JsxElementNotFoundAtLocationError
+				)
+			) {
+				throw error;
+			}
 		}
 	}
 

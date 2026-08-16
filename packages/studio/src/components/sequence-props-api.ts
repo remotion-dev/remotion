@@ -29,6 +29,18 @@ const flushSequencePropsSubscriptions = () => {
 		requests: pending.map(({request}) => request),
 	}).then(
 		(response: SubscribeToSequencePropsBatchResponse) => {
+			if (!Array.isArray(response.results)) {
+				pending[0].resolve(response as SubscribeToSequencePropsResponse);
+				const error = new Error(
+					'Legacy single subscription response received for a batched request',
+				);
+				for (const item of pending.slice(1)) {
+					item.reject(error);
+				}
+
+				return;
+			}
+
 			if (response.results.length !== pending.length) {
 				const error = new Error(
 					`Expected ${pending.length} sequence prop subscription results, got ${response.results.length}`,
