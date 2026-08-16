@@ -123,3 +123,152 @@ test('routes sequence prop operations through Browser Studio', async () => {
 		'unsubscribe:browser-studio:src/Composition.tsx',
 	]);
 });
+
+test('batches server sequence prop subscriptions into one request', async () => {
+	const previousFetch = globalThis.fetch;
+	const calls: unknown[] = [];
+	globalThis.fetch = ((_input, init) => {
+		const body = JSON.parse(String(init?.body));
+		calls.push(body);
+
+		return Promise.resolve({
+			json: () =>
+				Promise.resolve({
+					success: true,
+					data: {
+						results: body.requests.map((request: {line: number}) => ({
+							success: true,
+							nodePath: {
+								absolutePath: '/project/src/Composition.tsx',
+								nodePath: ['program', 'body', request.line],
+								sequenceKeys: ['from'],
+								effectKeys: [],
+								videoConfigValues: {
+									durationInFrames: 60,
+									fps: 30,
+									height: 720,
+									width: 1280,
+								},
+							},
+							status: {
+								canUpdate: true,
+								props: {from: {status: 'static', codeValue: request.line}},
+								effects: [],
+							},
+						})),
+					},
+				}),
+		} as Response);
+	}) as typeof fetch;
+
+	const subscribe = (line: number) =>
+		subscribeToSequenceProps({
+			fileName: 'src/Composition.tsx',
+			line,
+			column: 0,
+			nodePath: null,
+			componentIdentity: 'dev.remotion.remotion.Sequence',
+			keys: ['from'],
+			assetKeys: [],
+			effects: [],
+			clientId: 'studio',
+			videoConfigValues: {
+				durationInFrames: 60,
+				fps: 30,
+				height: 720,
+				width: 1280,
+			},
+		});
+
+	try {
+		const results = await Promise.all(
+			Array.from({length: 1000}, (_, index) => subscribe(index + 2)),
+		);
+		expect(calls).toHaveLength(1);
+		expect(calls[0]).toMatchObject({
+			requests: Array.from({length: 1000}, (_, index) => ({line: index + 2})),
+		});
+		const first = results[0];
+		const last = results.at(-1);
+		expect(first.success && first.status.props.from).toEqual({
+			status: 'static',
+			codeValue: 2,
+		});
+		expect(last?.success && last.status.props.from).toEqual({
+			status: 'static',
+			codeValue: 1001,
+		});
+	} finally {
+		globalThis.fetch = previousFetch;
+	}
+});
+
+test('handles a legacy single-subscription response to a batched request', async () => {
+	const previousFetch = globalThis.fetch;
+	const nodePath = {
+		absolutePath: '/project/src/Composition.tsx',
+		nodePath: ['program', 'body', 2],
+		sequenceKeys: ['from'],
+		effectKeys: [],
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	};
+	globalThis.fetch = (() =>
+		Promise.resolve({
+			json: () =>
+				Promise.resolve({
+					success: true,
+					data: {
+						success: true,
+						nodePath,
+						status: {
+							canUpdate: true,
+							props: {from: {status: 'static', codeValue: 10}},
+							effects: [],
+						},
+					},
+				}),
+		} as Response)) as unknown as typeof fetch;
+
+	const subscribe = (line: number) =>
+		subscribeToSequenceProps({
+			fileName: 'src/Composition.tsx',
+			line,
+			column: 0,
+			nodePath: null,
+			componentIdentity: 'dev.remotion.remotion.Sequence',
+			keys: ['from'],
+			assetKeys: [],
+			effects: [],
+			clientId: 'studio',
+			videoConfigValues: nodePath.videoConfigValues,
+		});
+
+	try {
+		const results = await Promise.allSettled([subscribe(2), subscribe(3)]);
+		expect(results[0]).toEqual({
+			status: 'fulfilled',
+			value: {
+				success: true,
+				nodePath,
+				status: {
+					canUpdate: true,
+					props: {from: {status: 'static', codeValue: 10}},
+					effects: [],
+				},
+			},
+		});
+		expect(results[1]).toEqual({
+			status: 'rejected',
+			reason: new Error(
+				'Legacy single subscription response received for a batched request',
+			),
+		});
+	} finally {
+		globalThis.fetch = previousFetch;
+	}
+});

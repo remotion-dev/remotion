@@ -124,6 +124,8 @@ export {
 	SubscribeToDefaultPropsResponse,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
+	SubscribeToSequencePropsBatchRequest,
+	SubscribeToSequencePropsBatchResponse,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
 	UndoRequest,
