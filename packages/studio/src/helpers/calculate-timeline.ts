@@ -106,7 +106,9 @@ export const calculateTimeline = ({
 		);
 
 		const overrideId = sequence.controls?.overrideId ?? null;
-		const nodePath = overrideId ? overrideIdsToNodePaths[overrideId] : null;
+		const nodePath = overrideId
+			? (overrideIdsToNodePaths[overrideId] ?? null)
+			: null;
 		const interactivitySequenceFrameOffset =
 			Internals.getInteractivitySequenceFrameOffset({
 				parentSequenceId: sequence.parent,

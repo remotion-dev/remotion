@@ -18,9 +18,9 @@ export const getInteractivitySequenceFrameOffset = ({
 	parentSequenceId: string | null;
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	nodePath: SequencePropsSubscriptionKey | null;
+	nodePath: SequencePropsSubscriptionKey | null | undefined;
 }): number => {
-	if (nodePath === null) {
+	if (nodePath === null || nodePath === undefined) {
 		return 0;
 	}
 

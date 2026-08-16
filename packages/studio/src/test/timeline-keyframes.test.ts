@@ -264,6 +264,25 @@ test('keyframe display offsets follow the parent sequence context', () => {
 	]);
 });
 
+test('timeline handles visual controls before their node path resolves', () => {
+	const timeline = calculateTimeline({
+		sequences: [
+			makeSequence({
+				id: 'pending-subscription',
+				from: 10,
+				trimBefore: null,
+				overrideId: 'pending-subscription',
+				nonce: 0,
+			}),
+		],
+		overrideIdsToNodePaths: {},
+	});
+
+	expect(timeline).toHaveLength(1);
+	expect(timeline[0]?.keyframeDisplayOffset).toBe(0);
+	expect(timeline[0]?.nodePathInfo).toBe(null);
+});
+
 test('keyframes keep the frame scope of their source component', () => {
 	const parentNodePath = makeNestedNodePath([
 		'program',
