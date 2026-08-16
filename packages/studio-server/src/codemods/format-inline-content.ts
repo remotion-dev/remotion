@@ -79,13 +79,18 @@ export const formatInlineContent = async ({
 
 	// Extract the formatted value from the wrapper
 	const withoutSemicolon = formattedWrapped.replace(/;\s*$/, '');
+	const wrappedInParentheses = withoutSemicolon.startsWith(
+		`${wrapperPrefix}(\n`,
+	);
 	let formattedProps: string;
 
-	if (withoutSemicolon.startsWith(wrapperPrefix)) {
+	if (withoutSemicolon.startsWith(wrapperPrefix) && !wrappedInParentheses) {
 		formattedProps = withoutSemicolon.slice(wrapperPrefix.length);
 	} else {
 		// Prettier broke the line after `=` — extract and dedent one level
-		const lines = withoutSemicolon.split('\n').slice(1);
+		const lines = withoutSemicolon
+			.split('\n')
+			.slice(1, wrappedInParentheses ? -1 : undefined);
 		const useTabs = prettierConfig.useTabs as boolean;
 		const oneIndent = useTabs ? '\t' : ' '.repeat(tabWidth);
 		formattedProps = lines

@@ -638,6 +638,42 @@ export const Example = () => {
 	expect(formatted).toBe(true);
 });
 
+test('updateMultipleSequenceProps formats a multiline non-self-closing opening element', async () => {
+	const input = `export const Example = () => {
+	return (
+		<Interactive.Div
+			name="Example"
+			style={{height: 8, scale: 1, width: 8}}
+		>
+			Text
+		</Interactive.Div>
+	);
+};
+`;
+	const {output, formatted} = await updateMultipleSequenceProps({
+		input,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(input, 3),
+				updates: [{key: 'style.scale', value: 1.353, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: {singleQuote: true, useTabs: true},
+	});
+
+	expect(output).toBe(`export const Example = () => {
+	return (
+		<Interactive.Div name="Example" style={{ height: 8, scale: 1.353, width: 8 }}>
+			Text
+		</Interactive.Div>
+	);
+};
+`);
+	expect(formatted).toBe(true);
+});
+
 test('updateMultipleSequenceProps reuses the status AST across the shared Recast runtime', async () => {
 	const nodePath = lineColumnToNodePath(lightLeakInput, 8);
 	computeSequencePropsStatusFromContent({
