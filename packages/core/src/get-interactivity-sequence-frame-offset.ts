@@ -2,27 +2,12 @@ import type {TSequence} from './CompositionManager.js';
 import type {OverrideIdToNodePaths} from './sequence-node-path.js';
 import type {SequencePropsSubscriptionKey} from './SequenceManager.js';
 
-const isJsxElementAncestor = (
-	ancestor: SequencePropsSubscriptionKey,
-	descendant: SequencePropsSubscriptionKey,
-): boolean => {
-	if (ancestor.absolutePath !== descendant.absolutePath) {
-		return false;
-	}
-
-	if (ancestor.nodePath.at(-1) !== 'openingElement') {
-		return false;
-	}
-
-	const ancestorElementPath = ancestor.nodePath.slice(0, -1);
-	if (descendant.nodePath.length <= ancestorElementPath.length) {
-		return false;
-	}
-
-	return ancestorElementPath.every(
-		(segment, index) => descendant.nodePath[index] === segment,
-	);
-};
+const nodePathsEqual = (
+	first: SequencePropsSubscriptionKey['nodePath'],
+	second: SequencePropsSubscriptionKey['nodePath'],
+) =>
+	first.length === second.length &&
+	first.every((segment, index) => segment === second[index]);
 
 export const getInteractivitySequenceFrameOffset = ({
 	parentSequenceId,
@@ -38,6 +23,9 @@ export const getInteractivitySequenceFrameOffset = ({
 	if (nodePath === null) {
 		return 0;
 	}
+
+	const frameSourceAncestorNodePaths =
+		nodePath.frameSourceAncestorNodePaths ?? [];
 
 	const sequencesById = new Map(
 		sequences.map((sequence) => [sequence.id, sequence]),
@@ -56,11 +44,12 @@ export const getInteractivitySequenceFrameOffset = ({
 			? (overrideIdsToNodePaths[overrideId] ?? null)
 			: null;
 
-		// useCurrentFrame() is evaluated when the source component renders. JSX
-		// Sequences below that hook do not make the captured frame local to them.
 		if (
 			parentNodePath !== null &&
-			isJsxElementAncestor(parentNodePath, nodePath)
+			parentNodePath.absolutePath === nodePath.absolutePath &&
+			frameSourceAncestorNodePaths.some((ancestorNodePath) =>
+				nodePathsEqual(parentNodePath.nodePath, ancestorNodePath),
+			)
 		) {
 			offset +=
 				parent.trimBefore === null

@@ -1522,6 +1522,7 @@ test('Studio evaluates keyframes in the source component frame scope', async () 
 			0,
 			'openingElement',
 		],
+		frameSourceAncestorNodePaths: [parentNodePath.nodePath],
 		sequenceKeys: ['style.opacity'],
 		effectKeys: [],
 		videoConfigValues: null,

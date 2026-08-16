@@ -794,6 +794,29 @@ export const findJsxElementPathAtNodePath = (
 	return null;
 };
 
+export const getFrameSourceAncestorNodePaths = ({
+	ast,
+	nodePath,
+}: {
+	ast: File;
+	nodePath: SequenceNodePath;
+}): SequenceNodePath[] => {
+	const openingElementPath = findJsxElementPathAtNodePath(ast, nodePath);
+	const paths: SequenceNodePath[] = [];
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let current: any = openingElementPath?.parentPath?.parentPath ?? null;
+
+	while (current) {
+		if (recast.types.namedTypes.JSXElement.check(current.value)) {
+			paths.push(getNodePathForRecastPath(current.get('openingElement'), ast));
+		}
+
+		current = current.parentPath;
+	}
+
+	return paths;
+};
+
 export const findJsxElementAtNodePath = (
 	ast: File,
 	nodePath: SequenceNodePath,
@@ -1337,23 +1360,7 @@ const computeSequenceOnlyPropsRecord = ({
 	return filteredProps;
 };
 
-export const computeSequencePropsStatusFromContent = ({
-	fileContents,
-	nodePath,
-	componentIdentity,
-	keys,
-	assetKeys = [],
-	effects,
-	videoConfigValues,
-}: {
-	fileContents: string;
-	nodePath: SequenceNodePath;
-	componentIdentity: JsxComponentIdentity | null;
-	keys: string[];
-	assetKeys?: string[];
-	effects: string[][];
-	videoConfigValues: VideoConfigValues | null;
-}): CanUpdateSequencePropsResponseTrue => {
+const getSequencePropsStatusAst = (fileContents: string) => {
 	if (cachedSequencePropsStatusAst?.fileContents !== fileContents) {
 		cachedSequencePropsStatusAst = null;
 		const snapshot = {
@@ -1372,18 +1379,38 @@ export const computeSequencePropsStatusFromContent = ({
 		});
 	}
 
-	const {ast} = cachedSequencePropsStatusAst;
+	return cachedSequencePropsStatusAst;
+};
+
+export const computeSequencePropsStatusFromContent = ({
+	fileContents,
+	nodePath,
+	componentIdentity,
+	keys,
+	assetKeys = [],
+	effects,
+	videoConfigValues,
+}: {
+	fileContents: string;
+	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys?: string[];
+	effects: string[][];
+	videoConfigValues: VideoConfigValues | null;
+}): CanUpdateSequencePropsResponseTrue => {
+	const cachedAst = getSequencePropsStatusAst(fileContents);
+
+	const {ast} = cachedAst;
 	const videoConfigCacheKey = JSON.stringify(videoConfigValues);
 	let videoConfigIdentifierValues =
-		cachedSequencePropsStatusAst.videoConfigIdentifierValues.get(
-			videoConfigCacheKey,
-		);
+		cachedAst.videoConfigIdentifierValues.get(videoConfigCacheKey);
 	if (videoConfigIdentifierValues === undefined) {
 		videoConfigIdentifierValues = getVideoConfigIdentifierValues({
 			ast,
 			videoConfigValues,
 		});
-		cachedSequencePropsStatusAst.videoConfigIdentifierValues.set(
+		cachedAst.videoConfigIdentifierValues.set(
 			videoConfigCacheKey,
 			videoConfigIdentifierValues,
 		);
@@ -1425,6 +1452,26 @@ export const computeSequencePropsStatusFromContent = ({
 		props: filteredProps,
 		effects: effectsStatuses,
 	};
+};
+
+export const getFrameSourceAncestorNodePathsFromFile = ({
+	fileName,
+	nodePath,
+	remotionRoot,
+}: {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	remotionRoot: string;
+}): SequenceNodePath[] => {
+	const {absolutePath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName,
+		action: 'read',
+	});
+	const fileContents = readFileSync(absolutePath, 'utf-8');
+	const {ast} = getSequencePropsStatusAst(fileContents);
+
+	return getFrameSourceAncestorNodePaths({ast, nodePath});
 };
 
 export const computeSequencePropsStatus = ({
@@ -1527,6 +1574,10 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 			nodePath: {
 				absolutePath,
 				nodePath: resolvedNodePath,
+				frameSourceAncestorNodePaths: getFrameSourceAncestorNodePaths({
+					ast,
+					nodePath: resolvedNodePath,
+				}),
 				sequenceKeys: keys,
 				effectKeys: effects,
 				videoConfigValues,

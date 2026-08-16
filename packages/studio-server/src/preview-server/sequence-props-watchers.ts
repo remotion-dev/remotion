@@ -19,6 +19,7 @@ import {
 	computeSequencePropsStatus,
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsStatusFromFilenameByLocation,
+	getFrameSourceAncestorNodePathsFromFile,
 } from './routes/can-update-sequence-props';
 
 type WatcherInfo = {
@@ -86,6 +87,13 @@ const getSequencePropsStatus = ({
 				nodePath: {
 					absolutePath: path.resolve(remotionRoot, fileName),
 					nodePath: preferredNodePath,
+					frameSourceAncestorNodePaths: getFrameSourceAncestorNodePathsFromFile(
+						{
+							fileName,
+							nodePath: preferredNodePath,
+							remotionRoot,
+						},
+					),
 					sequenceKeys: keys,
 					effectKeys: effects,
 					videoConfigValues,
@@ -138,6 +146,13 @@ const getSequencePropsStatus = ({
 				nodePath: {
 					absolutePath: path.resolve(remotionRoot, fileName),
 					nodePath: cachedNodePath,
+					frameSourceAncestorNodePaths: getFrameSourceAncestorNodePathsFromFile(
+						{
+							fileName,
+							nodePath: cachedNodePath,
+							remotionRoot,
+						},
+					),
 					sequenceKeys: keys,
 					effectKeys: effects,
 					videoConfigValues,

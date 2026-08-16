@@ -281,6 +281,7 @@ test('keyframes keep the frame scope of their source component', () => {
 		0,
 		'openingElement',
 	]);
+	childNodePath.frameSourceAncestorNodePaths = [parentNodePath.nodePath];
 	const timeline = calculateTimeline({
 		sequences: [
 			makeSequence({

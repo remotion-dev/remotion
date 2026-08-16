@@ -174,6 +174,8 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 export type SequencePropsSubscriptionKey = {
 	absolutePath: string;
 	nodePath: SequenceNodePath;
+	// Supplied by the Studio server for JSX ancestors in the same source component.
+	frameSourceAncestorNodePaths?: SequenceNodePath[];
 	sequenceKeys: string[];
 	effectKeys: string[][];
 	videoConfigValues: VideoConfigValues | null;
