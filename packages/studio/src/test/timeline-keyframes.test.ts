@@ -28,6 +28,13 @@ const makeNodePath = (id: string): SequencePropsSubscriptionKey => ({
 	videoConfigValues: null,
 });
 
+const makeNestedNodePath = (
+	nodePath: Array<string | number>,
+): SequencePropsSubscriptionKey => ({
+	...makeNodePath('nested'),
+	nodePath,
+});
+
 const makeNodePathWithEffectKeys = (
 	id: string,
 	effectKeys: string[][],
@@ -251,6 +258,64 @@ test('keyframe display offsets follow the parent sequence context', () => {
 			},
 			getOffset('child'),
 		),
+	).toEqual([
+		{frame: 30, value: 2},
+		{frame: 90, value: 4},
+	]);
+});
+
+test('keyframes keep the frame scope of their source component', () => {
+	const parentNodePath = makeNestedNodePath([
+		'program',
+		'body',
+		0,
+		'argument',
+		'openingElement',
+	]);
+	const childNodePath = makeNestedNodePath([
+		'program',
+		'body',
+		0,
+		'argument',
+		'children',
+		0,
+		'openingElement',
+	]);
+	const timeline = calculateTimeline({
+		sequences: [
+			makeSequence({
+				id: 'external-parent',
+				from: 30,
+				trimBefore: null,
+				nonce: 0,
+			}),
+			makeSequence({
+				id: 'same-component-parent',
+				from: -444,
+				trimBefore: null,
+				parent: 'external-parent',
+				overrideId: 'same-component-parent',
+				nonce: 1,
+			}),
+			makeSequence({
+				id: 'child',
+				from: 0,
+				trimBefore: null,
+				parent: 'same-component-parent',
+				overrideId: 'child',
+				nonce: 2,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			'same-component-parent': parentNodePath,
+			child: childNodePath,
+		},
+	});
+
+	const child = timeline.find((track) => track.sequence.id === 'child');
+	expect(child?.keyframeDisplayOffset).toBe(30);
+	expect(
+		getTimelineKeyframes(makeKeyframedStatus(), child?.keyframeDisplayOffset),
 	).toEqual([
 		{frame: 30, value: 2},
 		{frame: 90, value: 4},

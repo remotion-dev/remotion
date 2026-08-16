@@ -18,6 +18,7 @@ import type {
 import {Img, imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {Internals} from '../internals.js';
+import {interpolate} from '../interpolate.js';
 import {Loading} from '../loading-indicator.js';
 import type {OverrideIdToNodePaths} from '../sequence-node-path.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
@@ -1500,6 +1501,128 @@ test('Interactive elements inherit trimBefore from Sequence', () => {
 
 	expect(queryByText('frame7')).not.toBe(null);
 	expect(registeredSequences[0]?.displayName).toBe('<Interactive.Div>');
+});
+
+test('Studio evaluates keyframes in the source component frame scope', async () => {
+	const parentNodePath: SequencePropsSubscriptionKey = {
+		absolutePath: '/src/Composition.tsx',
+		nodePath: ['program', 'body', 0, 'argument', 'openingElement'],
+		sequenceKeys: [],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+	const childNodePath: SequencePropsSubscriptionKey = {
+		absolutePath: '/src/Composition.tsx',
+		nodePath: [
+			'program',
+			'body',
+			0,
+			'argument',
+			'children',
+			0,
+			'openingElement',
+		],
+		sequenceKeys: ['style.opacity'],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+
+	const Source = () => {
+		const frame = useCurrentFrame();
+
+		return (
+			<AbsoluteFill from={-444}>
+				<Interactive.Div
+					data-testid="keyframed-child"
+					style={{opacity: interpolate(frame, [0, 10], [0, 1])}}
+				/>
+			</AbsoluteFill>
+		);
+	};
+
+	const Harness = () => {
+		const {sequences} = React.useContext(SequenceManager);
+		const {setPropStatuses} = React.useContext(VisualModeSettersContext);
+		const [overrideIdToNodePathMappings, setOverrideIdToNodePathMappings] =
+			React.useState<OverrideIdToNodePaths>({});
+		const [installed, setInstalled] = React.useState(false);
+		const nodePathContextValue = React.useMemo(
+			() => ({overrideIdToNodePathMappings}),
+			[overrideIdToNodePathMappings],
+		);
+
+		React.useEffect(() => {
+			if (installed) {
+				return;
+			}
+
+			const parent = sequences.find(
+				(sequence) => sequence.displayName === '<AbsoluteFill>',
+			);
+			const child = sequences.find(
+				(sequence) => sequence.displayName === '<Interactive.Div>',
+			);
+			if (!parent?.controls || !child?.controls) {
+				return;
+			}
+
+			setOverrideIdToNodePathMappings({
+				[parent.controls.overrideId]: parentNodePath,
+				[child.controls.overrideId]: childNodePath,
+			});
+			setPropStatuses(childNodePath, () => ({
+				canUpdate: true,
+				props: {
+					'style.opacity': {
+						status: 'keyframed',
+						interpolationFunction: 'interpolate',
+						keyframes: [
+							{frame: 0, value: 0},
+							{frame: 10, value: 1},
+						],
+						easing: [{type: 'linear'}],
+						clamping: {left: 'extend', right: 'extend'},
+						posterize: undefined,
+						output: undefined,
+					},
+				},
+				effects: [],
+			}));
+			setInstalled(true);
+		}, [installed, sequences, setPropStatuses]);
+
+		return (
+			<OverrideIdsToNodePathsGettersContext.Provider
+				value={nodePathContextValue}
+			>
+				<Source />
+				<output>{installed ? 'Keyframes installed' : 'Installing'}</output>
+			</OverrideIdsToNodePathsGettersContext.Provider>
+		);
+	};
+
+	const rendered = render(
+		<WrapSequenceContext currentFrame={5}>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: false,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<Harness />
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>,
+	);
+
+	await waitFor(() => {
+		expect(rendered.getByText('Keyframes installed')).toBeTruthy();
+		expect(
+			(rendered.getByTestId('keyframed-child') as HTMLElement).style.opacity,
+		).toBe('0.5');
+	});
 });
 
 test('Imperative sequence refs update without rerendering ref-only consumers', async () => {

@@ -1,13 +1,16 @@
 import {useContext, useRef} from 'react';
 import {resolveDragOverrideValue} from '../get-effective-visual-mode-value.js';
+import {getInteractivitySequenceFrameOffset} from '../get-interactivity-sequence-frame-offset.js';
 import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
+import {SequenceContext} from '../SequenceContext.js';
 import type {
 	CannotUpdateEffectReason,
 	CannotUpdateSequenceReason,
 } from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
+	SequenceManagerRefContext,
 	VisualModeDragOverridesContext,
 	VisualModePropStatusesContext,
 	type SequencePropsSubscriptionKey,
@@ -196,7 +199,9 @@ export const useMemoizedEffects = ({
 
 	const {propStatuses} = useContext(VisualModePropStatusesContext);
 	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
-	const frame = useCurrentFrame();
+	const localFrame = useCurrentFrame();
+	const parentSequence = useContext(SequenceContext);
+	const sequencesRef = useContext(SequenceManagerRefContext);
 
 	const {overrideIdToNodePathMappings} = useContext(
 		OverrideIdsToNodePathsGettersContext,
@@ -207,6 +212,14 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
+	const frame =
+		localFrame +
+		getInteractivitySequenceFrameOffset({
+			parentSequenceId: parentSequence?.id ?? null,
+			sequences: sequencesRef.current,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			nodePath,
+		});
 
 	const resolved = effects.map((descriptor, index) => {
 		if (nodePath === null) {
