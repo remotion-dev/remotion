@@ -49,6 +49,7 @@ const getSequencePropsStatus = ({
 	line,
 	column,
 	preferredNodePath,
+	resolvedNodePath,
 	componentIdentity,
 	keys,
 	assetKeys,
@@ -61,6 +62,7 @@ const getSequencePropsStatus = ({
 	line: number;
 	column: number;
 	preferredNodePath: SequenceNodePath | null;
+	resolvedNodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	assetKeys: string[];
@@ -147,6 +149,33 @@ const getSequencePropsStatus = ({
 		}
 	}
 
+	if (resolvedNodePath) {
+		try {
+			return {
+				status: computeSequencePropsStatus({
+					fileName,
+					nodePath: resolvedNodePath,
+					componentIdentity,
+					keys,
+					assetKeys,
+					effects,
+					remotionRoot,
+					videoConfigValues,
+				}),
+				nodePath: {
+					absolutePath: path.resolve(remotionRoot, fileName),
+					nodePath: resolvedNodePath,
+					sequenceKeys: keys,
+					effectKeys: effects,
+					videoConfigValues,
+				},
+				success: true,
+			};
+		} catch {
+			// Fall back to resolving the source location individually.
+		}
+	}
+
 	const status = computeSequencePropsStatusFromFilenameByLocation({
 		fileName,
 		line,
@@ -168,6 +197,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line,
 	column,
 	nodePath: preferredNodePath,
+	resolvedNodePath = null,
 	componentIdentity,
 	keys,
 	assetKeys,
@@ -181,6 +211,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line: number;
 	column: number;
 	nodePath: SequenceNodePath | null;
+	resolvedNodePath?: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	assetKeys: string[];
@@ -195,6 +226,7 @@ export const subscribeToSequencePropsWatchers = ({
 		line,
 		column,
 		preferredNodePath,
+		resolvedNodePath,
 		componentIdentity,
 		keys,
 		assetKeys,

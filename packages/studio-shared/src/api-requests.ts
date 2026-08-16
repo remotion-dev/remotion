@@ -348,6 +348,16 @@ export type SubscribeToSequencePropsResponse =
 			status: CanUpdateSequencePropsResponseFalse;
 	  };
 
+export type SubscribeToSequencePropsBatchRequest =
+	SubscribeToSequencePropsRequest & {
+		requests?: SubscribeToSequencePropsRequest[];
+	};
+
+export type SubscribeToSequencePropsBatchResponse =
+	SubscribeToSequencePropsResponse & {
+		results: SubscribeToSequencePropsResponse[];
+	};
+
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -1186,8 +1196,8 @@ export type ApiRoutes = {
 		undefined
 	>;
 	'/api/subscribe-to-sequence-props': ReqAndRes<
-		SubscribeToSequencePropsRequest,
-		SubscribeToSequencePropsResponse
+		SubscribeToSequencePropsBatchRequest,
+		SubscribeToSequencePropsBatchResponse
 	>;
 	'/api/unsubscribe-from-sequence-props': ReqAndRes<
 		UnsubscribeFromSequencePropsRequest,
