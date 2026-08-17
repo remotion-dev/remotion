@@ -173,7 +173,6 @@ export const convertAudioData = ({
 		sourceChannels: srcChannels,
 		destination: data,
 		targetFrames: newNumberOfFrames,
-		sourceStart: 0,
 		chunkSize,
 	});
 

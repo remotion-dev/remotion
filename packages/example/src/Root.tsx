@@ -209,7 +209,12 @@ import {AudioSmoothnessTrimAfterLoopComp} from './AudioSmoothness/TrimAfterLoop'
 import {AudioSmoothnessTrimButtonComp} from './AudioSmoothness/TrimButton';
 import Amplify from './AudioTesting/Amplify';
 import {Issue7568} from './AudioTesting/Issue7568';
-import {Issue10468, issue10468DefaultProps} from './AudioTesting/Issue10468';
+import {
+	Issue10468,
+	Issue5758,
+	issue10468DefaultProps,
+	issue5758DefaultProps,
+} from './AudioTesting/Issue10468';
 import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
@@ -1782,22 +1787,13 @@ export const Index: React.FC = () => {
 					defaultProps={issue10468DefaultProps}
 				/>
 				<Composition
-					id="audio-issue-10468-fractional-fps"
-					component={Issue10468}
-					width={1920}
-					height={1080}
-					fps={29.97}
-					durationInFrames={120}
-					defaultProps={issue10468DefaultProps}
-				/>
-				<Composition
 					id="audio-issue-5758"
-					component={Issue10468}
+					component={Issue5758}
 					width={1920}
 					height={1080}
 					fps={24.87}
 					durationInFrames={120}
-					defaultProps={issue10468DefaultProps}
+					defaultProps={issue5758DefaultProps}
 				/>
 				<Composition
 					id="audio-issue-7568"

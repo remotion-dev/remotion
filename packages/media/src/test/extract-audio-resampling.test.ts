@@ -47,7 +47,6 @@ test('resamples Mediabunny AudioSamples as one continuous frame', async () => {
 		),
 		destination: expected,
 		targetFrames,
-		sourceStart: 0,
 		chunkSize: SOURCE_SAMPLE_RATE / TARGET_SAMPLE_RATE,
 	});
 

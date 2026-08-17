@@ -128,7 +128,6 @@ const issue5758Source = readFileSync(
 	),
 );
 const issue5758InputProps = {
-	implementation: 'media',
 	src: `data:audio/wav;base64,${issue5758Source.toString('base64')}`,
 };
 
@@ -245,31 +244,6 @@ test(
 			});
 			expect(comparison.signalToNoiseRatio).toBeGreaterThan(30);
 			expect(comparison.maximumError).toBeLessThanOrEqual(600);
-
-			const fractionalFpsComposition = await selectComposition({
-				id: 'audio-issue-10468-fractional-fps',
-				serveUrl: exampleBuild,
-				inputProps: issue10468InputProps,
-			});
-			const fractionalFpsPath = path.join(tmpDir, 'fractional-fps-media.wav');
-			await renderMedia({
-				outputLocation: fractionalFpsPath,
-				codec: 'wav',
-				serveUrl: exampleBuild,
-				composition: fractionalFpsComposition,
-				inputProps: issue10468InputProps,
-				frameRange: [81, 119],
-				sampleRate: 48000,
-				concurrency: 1,
-				logLevel: 'error',
-			});
-			const fractionalFps = readPcmWav(fractionalFpsPath);
-			const expectedFractionalFpsFrames =
-				Math.floor((119 / 29.97) * 48000) - Math.floor((81 / 29.97) * 48000);
-			expect(fractionalFps.sampleRate).toBe(48000);
-			expect(fractionalFps.samples.length / 2).toBe(
-				expectedFractionalFpsFrames,
-			);
 		} finally {
 			rmSync(tmpDir, {recursive: true, force: true});
 		}

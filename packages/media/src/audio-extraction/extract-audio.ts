@@ -1,15 +1,11 @@
 import {type LogLevel} from 'remotion';
 import type {MediaCache} from '../caches';
 import {
+	convertAudioData,
 	copyAudioDataToInterleavedS16,
 	fixFloatingPoint,
 	type PcmS16AudioData,
 } from '../convert-audiodata/convert-audiodata';
-import {
-	getTargetSampleRate,
-	resampleAudioData,
-	TARGET_NUMBER_OF_CHANNELS,
-} from '../convert-audiodata/resample-audiodata';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {
 	isNetworkError,
@@ -107,22 +103,10 @@ const extractAudioInternal = async ({
 	}
 
 	try {
-		const targetSampleRate = getTargetSampleRate();
-		const targetFrames = Math.ceil(
-			fixFloatingPoint(durationNotYetApplyingPlaybackRate * targetSampleRate),
-		);
-		const firstSourceTime = timeInSeconds;
-		const lastSourceTime =
-			timeInSeconds + ((targetFrames - 1) / targetSampleRate) * playbackRate;
-		const sourcePadding = Math.max(
-			0.001,
-			(Math.abs(playbackRate) * 2) / targetSampleRate,
-		);
-		const requestedStart = Math.max(0, firstSourceTime - sourcePadding);
-		const requestedEnd = lastSourceTime + sourcePadding;
+		const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
 		const sampleIterator = await mediaCache.audioManager.getIterator({
 			src,
-			timeInSeconds: requestedStart,
+			timeInSeconds,
 			audioSampleSink: audio.sampleSink,
 			isMatroska,
 			actualMatroskaTimestamps,
@@ -130,8 +114,8 @@ const extractAudioInternal = async ({
 			maxCacheSize,
 		});
 		const samples = await sampleIterator.getSamples(
-			requestedStart,
-			requestedEnd - requestedStart,
+			timeInSeconds,
+			durationInSeconds,
 		);
 
 		mediaCache.audioManager.logOpenFrames();
@@ -140,7 +124,7 @@ const extractAudioInternal = async ({
 			return {data: null, durationInSeconds: mediaDurationInSeconds};
 		}
 
-		const sourceBufferStartTime = samples[0].timestamp;
+		const sourceBufferStartTime = Math.min(timeInSeconds, samples[0].timestamp);
 		const decoded = samples.map((sample) => {
 			const audioData = sample.toAudioData();
 			try {
@@ -181,29 +165,38 @@ const extractAudioInternal = async ({
 			source.set(chunk.data, chunk.frameOffset * sourceNumberOfChannels);
 		}
 
-		const destination = new Int16Array(
-			targetFrames * TARGET_NUMBER_OF_CHANNELS,
-		);
-		resampleAudioData({
-			srcNumberOfChannels: sourceNumberOfChannels,
-			sourceChannels: source,
-			destination,
-			targetFrames,
-			sourceStart: (firstSourceTime - sourceBufferStartTime) * sourceSampleRate,
-			chunkSize: (sourceSampleRate * playbackRate) / targetSampleRate,
+		const combined = new AudioData({
+			format: 's16',
+			sampleRate: sourceSampleRate,
+			numberOfFrames: sourceFrames,
+			numberOfChannels: sourceNumberOfChannels,
+			timestamp: sourceBufferStartTime * 1_000_000,
+			data: source,
 		});
-
-		return {
-			data: {
-				data: destination,
-				numberOfFrames: targetFrames,
-				timestamp: fixFloatingPoint(timeInSeconds * 1_000_000),
-				durationInMicroSeconds: fixFloatingPoint(
-					(targetFrames / targetSampleRate) * 1_000_000,
+		try {
+			const converted = convertAudioData({
+				audioData: combined,
+				trimStartInSeconds: timeInSeconds - sourceBufferStartTime,
+				trimEndInSeconds: Math.max(
+					0,
+					sourceBufferStartTime +
+						sourceFrames / sourceSampleRate -
+						(timeInSeconds + durationInSeconds),
 				),
-			},
-			durationInSeconds: mediaDurationInSeconds,
-		};
+				playbackRate,
+				audioDataTimestamp: sourceBufferStartTime,
+				isLast: true,
+			});
+			return {
+				data: {
+					...converted,
+					timestamp: fixFloatingPoint(timeInSeconds * 1_000_000),
+				},
+				durationInSeconds: mediaDurationInSeconds,
+			};
+		} finally {
+			combined.close();
+		}
 	} catch (err) {
 		const error = err as Error;
 		if (isNetworkError(error)) {

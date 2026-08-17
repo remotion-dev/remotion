@@ -12,6 +12,8 @@ export const issue10468DefaultProps: Issue10468Props = {
 	src: ding,
 };
 
+export const issue5758DefaultProps = {src: ding};
+
 export const Issue10468: React.FC<Issue10468Props> = ({
 	implementation,
 	src,
@@ -23,4 +25,8 @@ export const Issue10468: React.FC<Issue10468Props> = ({
 			<Component src={src} trimBefore={4} volume={0.3} />
 		</Sequence>
 	);
+};
+
+export const Issue5758: React.FC<{src: string}> = ({src}) => {
+	return <MediaAudio src={src} />;
 };
