@@ -150,7 +150,7 @@ test.describe('error overlay dismissal', () => {
 		// 1. Introduce the bug: remove the `radius: 24` argument.
 		await writeAndWaitForRebuild(buggyContent, 'introducing the bug');
 		await expect(errorMessage).toBeVisible({timeout: 15_000});
-		await page.getByRole('button', {name: 'Open in Zed'}).click();
+		await page.getByRole('button', {name: 'Open in Zed', exact: true}).click();
 		await expect
 			.poll(() => openInEditorRequests)
 			.toEqual([expect.objectContaining({editorId: 'zed'})]);
