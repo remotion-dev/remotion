@@ -16,6 +16,7 @@ import {
 	type TSequence,
 } from 'remotion';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -133,7 +134,10 @@ const resolveKeyframeField = ({
 				fieldKey: identity.fieldKey,
 			}),
 			propStatus: sequencePropStatus,
-			keyframeDisplayOffset: track.keyframeDisplayOffset,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
+				propStatus: sequencePropStatus,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+			}),
 		};
 	}
 
@@ -161,7 +165,10 @@ const resolveKeyframeField = ({
 			fieldKey: identity.fieldKey,
 		}),
 		propStatus: effectPropStatus,
-		keyframeDisplayOffset: track.keyframeDisplayOffset,
+		keyframeDisplayOffset: getKeyframeDisplayOffset({
+			propStatus: effectPropStatus,
+			keyframeDisplayOffset: track.keyframeDisplayOffset,
+		}),
 	};
 };
 

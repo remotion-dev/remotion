@@ -18,6 +18,7 @@ import type {
 export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
+	keyframeDisplayOffsetAdjustment?: number;
 	numericExpression?: VideoConfigNumericExpression;
 };
 
@@ -124,6 +125,12 @@ export type CanUpdateSequencePropStatusComputed = {
 export type CanUpdateSequencePropStatusKeyframed = {
 	status: 'keyframed';
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
+	/**
+	 * Added to the timeline track's keyframe display offset. This is non-zero
+	 * when the useCurrentFrame() call is outside a Sequence that wraps the
+	 * controlled element.
+	 */
+	keyframeDisplayOffsetAdjustment?: number;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;

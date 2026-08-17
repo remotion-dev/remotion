@@ -10,6 +10,7 @@ import {
 } from './delete-selected-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getEasingSelectionAfterKeyframeDelete} from './get-easing-selection-after-keyframe-delete';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetPropStatuses} from './save-sequence-prop';
 import {
@@ -277,8 +278,6 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 	}
 
 	const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
-	const sourceFrame = selection.frame - track.keyframeDisplayOffset;
-
 	if (field.type === 'sequence') {
 		const sequencePropStatus = Internals.getPropStatusesCtx(
 			propStatuses,
@@ -294,7 +293,13 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 		}
 
 		return getEasingSelectionAfterKeyframeDelete({
-			deletedSourceFrames: [sourceFrame],
+			deletedSourceFrames: [
+				selection.frame -
+					getKeyframeDisplayOffset({
+						propStatus: sequencePropStatus,
+						keyframeDisplayOffset: track.keyframeDisplayOffset,
+					}),
+			],
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
 			nodePathInfo: selection.nodePathInfo,
 			propStatus: sequencePropStatus,
@@ -321,7 +326,13 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 	}
 
 	return getEasingSelectionAfterKeyframeDelete({
-		deletedSourceFrames: [sourceFrame],
+		deletedSourceFrames: [
+			selection.frame -
+				getKeyframeDisplayOffset({
+					propStatus: effectPropStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				}),
+		],
 		keyframeDisplayOffset: track.keyframeDisplayOffset,
 		nodePathInfo: selection.nodePathInfo,
 		propStatus: effectPropStatus,

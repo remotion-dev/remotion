@@ -7,6 +7,7 @@ import type {
 	JSXElement,
 	JSXOpeningElement,
 	NewExpression,
+	Node,
 	ObjectExpression,
 	ObjectProperty,
 	TSAsExpression,
@@ -551,6 +552,7 @@ const getInterpolationKeyframes = (
 			posterize: PropPosterize;
 			output: PropOutput;
 			interpolationFunction: PropInterpolationFunction;
+			keyframeDisplayOffsetAdjustment: number;
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
@@ -608,12 +610,21 @@ const getInterpolationKeyframes = (
 	if (
 		!frameArg ||
 		frameArg.type === 'SpreadElement' ||
-		!isCurrentFrameIdentifier(frameArg as Expression, ast) ||
 		!inputArg ||
 		!outputArg ||
 		inputArg.type !== 'ArrayExpression' ||
 		outputArg.type !== 'ArrayExpression'
 	) {
+		return undefined;
+	}
+
+	const keyframeDisplayOffsetAdjustment =
+		getCurrentFrameDisplayOffsetAdjustment({
+			node: frameArg as Expression,
+			ast,
+			videoConfigValues,
+		});
+	if (keyframeDisplayOffsetAdjustment === null) {
 		return undefined;
 	}
 
@@ -669,48 +680,315 @@ const getInterpolationKeyframes = (
 		clamping: metadata.clamping,
 		posterize: metadata.posterize,
 		output: metadata.output,
+		keyframeDisplayOffsetAdjustment,
 	};
 };
 
-const isUseCurrentFrameCall = (node: Expression): boolean => {
-	return (
-		node.type === 'CallExpression' &&
-		node.callee.type === 'Identifier' &&
-		node.callee.name === 'useCurrentFrame' &&
-		node.arguments.length === 0
-	);
-};
+const getRemotionImportNames = ({
+	ast,
+	importedName,
+}: {
+	ast: File;
+	importedName: string;
+}): {direct: Set<string>; namespaces: Set<string>} => {
+	const direct = new Set<string>();
+	const namespaces = new Set<string>();
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.source.value !== 'remotion'
+		) {
+			continue;
+		}
 
-const isCurrentFrameIdentifier = (node: Expression, ast: File): boolean => {
-	if (node.type === 'TSAsExpression') {
-		return isCurrentFrameIdentifier(node.expression as Expression, ast);
+		for (const specifier of statement.specifiers ?? []) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				((specifier.imported.type === 'Identifier' &&
+					specifier.imported.name === importedName) ||
+					(specifier.imported.type === 'StringLiteral' &&
+						specifier.imported.value === importedName))
+			) {
+				direct.add(specifier.local.name);
+			}
+
+			if (specifier.type === 'ImportNamespaceSpecifier') {
+				namespaces.add(specifier.local.name);
+			}
+		}
 	}
 
-	if (node.type !== 'Identifier') {
+	return {direct, namespaces};
+};
+
+const isUseCurrentFrameCall = (node: Expression, ast: File): boolean => {
+	if (node.type !== 'CallExpression' || node.arguments.length !== 0) {
 		return false;
 	}
 
-	let hasUseCurrentFrameDeclaration = false;
-	let hasOtherDeclaration = false;
+	const imports = getRemotionImportNames({
+		ast,
+		importedName: 'useCurrentFrame',
+	});
+	if (node.callee.type === 'Identifier') {
+		return imports.direct.has(node.callee.name);
+	}
 
+	return (
+		node.callee.type === 'MemberExpression' &&
+		!node.callee.computed &&
+		node.callee.object.type === 'Identifier' &&
+		node.callee.property.type === 'Identifier' &&
+		imports.namespaces.has(node.callee.object.name) &&
+		node.callee.property.name === 'useCurrentFrame'
+	);
+};
+
+const findNodePath = (
+	ast: File,
+	target: Node,
+): recast.types.NodePath | null => {
+	let found: recast.types.NodePath | null = null;
 	recast.types.visit(ast, {
+		visitNode(p) {
+			if (p.node === target) {
+				found = p as unknown as recast.types.NodePath;
+				return false;
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	return found;
+};
+
+const getJsxNumericAttribute = ({
+	openingElement,
+	name,
+	defaultValue,
+	videoConfigValues,
+}: {
+	openingElement: JSXOpeningElement;
+	name: string;
+	defaultValue: number;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): number | null => {
+	if (
+		openingElement.attributes.some(
+			(attribute) => attribute.type === 'JSXSpreadAttribute',
+		)
+	) {
+		return null;
+	}
+
+	for (let index = openingElement.attributes.length - 1; index >= 0; index--) {
+		const attribute = openingElement.attributes[index];
+		if (
+			attribute.type !== 'JSXAttribute' ||
+			attribute.name.type !== 'JSXIdentifier' ||
+			attribute.name.name !== name
+		) {
+			continue;
+		}
+
+		if (
+			attribute.value?.type !== 'JSXExpressionContainer' ||
+			attribute.value.expression.type === 'JSXEmptyExpression'
+		) {
+			return null;
+		}
+
+		return (
+			parseVideoConfigNumericExpression({
+				node: attribute.value.expression,
+				videoConfigValues,
+			})?.value ?? null
+		);
+	}
+
+	return defaultValue;
+};
+
+const isRemotionSequence = ({
+	openingElement,
+	ast,
+}: {
+	openingElement: JSXOpeningElement;
+	ast: File;
+}): boolean => {
+	const imports = getRemotionImportNames({ast, importedName: 'Sequence'});
+	if (openingElement.name.type === 'JSXIdentifier') {
+		return imports.direct.has(openingElement.name.name);
+	}
+
+	return (
+		openingElement.name.type === 'JSXMemberExpression' &&
+		openingElement.name.object.type === 'JSXIdentifier' &&
+		openingElement.name.property.type === 'JSXIdentifier' &&
+		imports.namespaces.has(openingElement.name.object.name) &&
+		openingElement.name.property.name === 'Sequence'
+	);
+};
+
+const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
+	startPath,
+	endPath,
+	ast,
+	videoConfigValues,
+}: {
+	startPath: recast.types.NodePath;
+	endPath: recast.types.NodePath;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): number | null => {
+	let current: recast.types.NodePath | null = startPath;
+	let hasSeenControlledElement = false;
+	let adjustment = 0;
+	while (current && current.value !== endPath.value) {
+		const currentNode = current.value as Node;
+		if (
+			currentNode.type === 'FunctionDeclaration' ||
+			currentNode.type === 'FunctionExpression' ||
+			currentNode.type === 'ArrowFunctionExpression'
+		) {
+			return null;
+		}
+
+		if (currentNode.type === 'JSXElement') {
+			if (!hasSeenControlledElement) {
+				hasSeenControlledElement = true;
+			} else if (
+				isRemotionSequence({
+					openingElement: currentNode.openingElement,
+					ast,
+				})
+			) {
+				const from = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'from',
+					defaultValue: 0,
+					videoConfigValues,
+				});
+				const trimBefore = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'trimBefore',
+					defaultValue: 0,
+					videoConfigValues,
+				});
+				if (from === null || trimBefore === null) {
+					return null;
+				}
+
+				adjustment -= from - trimBefore;
+			}
+		}
+
+		current = current.parentPath;
+	}
+
+	return current ? adjustment : null;
+};
+
+const getDefaultFrameDisplayOffsetAdjustment = ({
+	jsxElement,
+	ast,
+	videoConfigValues,
+}: {
+	jsxElement: JSXOpeningElement;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): number | null => {
+	const jsxPath = findNodePath(ast, jsxElement);
+	if (!jsxPath) {
+		return null;
+	}
+
+	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
+	while (functionPath) {
+		const node = functionPath.value as Node;
+		if (
+			node.type === 'FunctionDeclaration' ||
+			node.type === 'FunctionExpression' ||
+			node.type === 'ArrowFunctionExpression'
+		) {
+			break;
+		}
+
+		functionPath = functionPath.parentPath;
+	}
+
+	if (!functionPath) {
+		return null;
+	}
+
+	return getFrameDisplayOffsetAdjustmentBetweenPaths({
+		startPath: jsxPath,
+		endPath: functionPath,
+		ast,
+		videoConfigValues,
+	});
+};
+
+const getCurrentFrameDisplayOffsetAdjustment = ({
+	node,
+	ast,
+	videoConfigValues,
+}: {
+	node: Expression;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): number | null => {
+	if (node.type === 'TSAsExpression') {
+		return getCurrentFrameDisplayOffsetAdjustment({
+			node: node.expression as Expression,
+			ast,
+			videoConfigValues,
+		});
+	}
+
+	if (node.type !== 'Identifier') {
+		return null;
+	}
+
+	const nodePath = findNodePath(ast, node);
+	const bindingScope = nodePath?.scope?.lookup(node.name);
+	if (!nodePath || !bindingScope) {
+		return null;
+	}
+
+	let matchingDeclarations = 0;
+	let isCurrentFrameBinding = false;
+	recast.types.visit(bindingScope.path, {
 		visitVariableDeclarator(p) {
 			const {id, init} = p.node;
-			if (id.type !== 'Identifier' || id.name !== node.name) {
+			if (
+				id.type !== 'Identifier' ||
+				id.name !== node.name ||
+				p.scope.lookup(node.name)?.path.node !== bindingScope.path.node
+			) {
 				return this.traverse(p);
 			}
 
-			if (init && isUseCurrentFrameCall(init as Expression)) {
-				hasUseCurrentFrameDeclaration = true;
-			} else {
-				hasOtherDeclaration = true;
-			}
+			matchingDeclarations++;
+			isCurrentFrameBinding = Boolean(
+				init && isUseCurrentFrameCall(init as Expression, ast),
+			);
 
 			return false;
 		},
 	});
 
-	return hasUseCurrentFrameDeclaration && !hasOtherDeclaration;
+	if (matchingDeclarations !== 1 || !isCurrentFrameBinding) {
+		return null;
+	}
+
+	return getFrameDisplayOffsetAdjustmentBetweenPaths({
+		startPath: nodePath,
+		endPath: bindingScope.path,
+		ast,
+		videoConfigValues,
+	});
 };
 
 export const getComputedStatus = (
@@ -726,6 +1004,12 @@ export const getComputedStatus = (
 	return {
 		status: 'keyframed',
 		interpolationFunction: interpolation.interpolationFunction,
+		...(interpolation.keyframeDisplayOffsetAdjustment === 0
+			? {}
+			: {
+					keyframeDisplayOffsetAdjustment:
+						interpolation.keyframeDisplayOffsetAdjustment,
+				}),
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,
@@ -1493,11 +1777,50 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 		effects,
 		videoConfigValues: videoConfigIdentifierValues,
 	});
+	const defaultKeyframeDisplayOffsetAdjustment =
+		getDefaultFrameDisplayOffsetAdjustment({
+			jsxElement,
+			ast,
+			videoConfigValues: videoConfigIdentifierValues,
+		});
+	const addDefaultKeyframeDisplayOffsetAdjustment = (
+		status: CanUpdateSequencePropStatus,
+	): CanUpdateSequencePropStatus => {
+		if (
+			status.status !== 'static' ||
+			defaultKeyframeDisplayOffsetAdjustment === null ||
+			defaultKeyframeDisplayOffsetAdjustment === 0
+		) {
+			return status;
+		}
+
+		return {
+			...status,
+			keyframeDisplayOffsetAdjustment: defaultKeyframeDisplayOffsetAdjustment,
+		};
+	};
 
 	return {
 		canUpdate: true as const,
-		props: filteredProps,
-		effects: effectsStatuses,
+		props: Object.fromEntries(
+			Object.entries(filteredProps).map(([key, status]) => [
+				key,
+				addDefaultKeyframeDisplayOffsetAdjustment(status),
+			]),
+		),
+		effects: effectsStatuses.map((effectStatus) =>
+			effectStatus.canUpdate
+				? {
+						...effectStatus,
+						props: Object.fromEntries(
+							Object.entries(effectStatus.props).map(([key, status]) => [
+								key,
+								addDefaultKeyframeDisplayOffsetAdjustment(status),
+							]),
+						),
+					}
+				: effectStatus,
+		),
 	};
 };
 

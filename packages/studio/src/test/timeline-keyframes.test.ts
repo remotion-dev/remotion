@@ -337,6 +337,22 @@ test('keyframe display offsets account for parent trimBefore', () => {
 	]);
 });
 
+test('keyframe display offsets respect the useCurrentFrame coordinate space', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		...makeKeyframedStatus(),
+		keyframeDisplayOffsetAdjustment: 5,
+		keyframes: [
+			{frame: 10, value: '0px 0px'},
+			{frame: 20, value: '500px 0px'},
+		],
+	};
+
+	expect(getTimelineKeyframes(status, -5)).toEqual([
+		{frame: 10, value: '0px 0px'},
+		{frame: 20, value: '500px 0px'},
+	]);
+});
+
 test('timeline easing segments connect adjacent display keyframes', () => {
 	const status: CanUpdateSequencePropStatusKeyframed = {
 		...makeKeyframedStatus(),

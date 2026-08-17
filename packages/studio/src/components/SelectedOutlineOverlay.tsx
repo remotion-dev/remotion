@@ -55,6 +55,7 @@ import {
 } from './selected-outline-types';
 import {SelectedOutlineKeyboardControls} from './SelectedOutlineKeyboardControls';
 import {SelectedOutlineRenderer} from './SelectedOutlineRenderer';
+import {getKeyframeDisplayOffset} from './Timeline/get-timeline-keyframes';
 import {
 	useTimelineSelection,
 	type TimelineSelection,
@@ -305,7 +306,14 @@ const calculateOutlineTargets = ({
 			propStatuses,
 			nodePath,
 		);
-		const sourceFrame = targetTimelinePosition - keyframeDisplayOffset;
+		const firstKeyframedStatus = Object.values(nodePropStatuses ?? {}).find(
+			(status) => status.status === 'keyframed',
+		);
+		const nodeKeyframeDisplayOffset = getKeyframeDisplayOffset({
+			propStatus: firstKeyframedStatus,
+			keyframeDisplayOffset,
+		});
+		const sourceFrame = targetTimelinePosition - nodeKeyframeDisplayOffset;
 		const dragOverrides = getDragOverrides(nodePath) ?? {};
 		const runtimeValues = controls
 			? (runtimeValuesByStore.get(controls.runtimeValues) ??
@@ -387,7 +395,7 @@ const calculateOutlineTargets = ({
 			key,
 			containsSelection,
 			crop,
-			keyframeDisplayOffset,
+			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
 			nodePathInfo,
 			ref: sequence.refForOutline,
 			selected,
@@ -457,7 +465,11 @@ const calculateOutlineTargets = ({
 			selectedTransformOriginInfo?.displayFrame === null ||
 			selectedTransformOriginInfo?.displayFrame === undefined
 				? sourceFrame
-				: selectedTransformOriginInfo.displayFrame - keyframeDisplayOffset;
+				: selectedTransformOriginInfo.displayFrame -
+					getKeyframeDisplayOffset({
+						propStatus: transformOriginPropStatus,
+						keyframeDisplayOffset,
+					});
 		const canTransformOriginStatus =
 			transformOriginPropStatus?.status === 'static' ||
 			(transformOriginPropStatus?.status === 'keyframed' &&
@@ -478,7 +490,7 @@ const calculateOutlineTargets = ({
 			selectedCropInfo?.displayFrame === null ||
 			selectedCropInfo?.displayFrame === undefined
 				? sourceFrame
-				: selectedCropInfo.displayFrame - keyframeDisplayOffset;
+				: selectedCropInfo.displayFrame - nodeKeyframeDisplayOffset;
 		const canCropDrag =
 			previewInteractive &&
 			selectedForCrop &&
@@ -511,7 +523,10 @@ const calculateOutlineTargets = ({
 							propStatus,
 							clientId: connectedClientId,
 							fieldDefault: fieldSchema.default,
-							keyframeDisplayOffset,
+							keyframeDisplayOffset: getKeyframeDisplayOffset({
+								propStatus,
+								keyframeDisplayOffset,
+							}),
 							nodePath,
 							schema: controls.schema,
 						}
@@ -522,7 +537,10 @@ const calculateOutlineTargets = ({
 							clientId: connectedClientId,
 							fieldDefault: scaleFieldSchema.default,
 							fieldSchema: scaleFieldSchema,
-							keyframeDisplayOffset,
+							keyframeDisplayOffset: getKeyframeDisplayOffset({
+								propStatus: scalePropStatus,
+								keyframeDisplayOffset,
+							}),
 							linked: getScaleLockState({
 								nodePath,
 								fieldKey: scaleFieldKey,
@@ -549,7 +567,10 @@ const calculateOutlineTargets = ({
 							clientId: connectedClientId,
 							fieldDefault: rotationFieldSchema.default,
 							fieldSchema: rotationFieldSchema,
-							keyframeDisplayOffset,
+							keyframeDisplayOffset: getKeyframeDisplayOffset({
+								propStatus: rotationPropStatus,
+								keyframeDisplayOffset,
+							}),
 							nodePath,
 							schema: controls.schema,
 							transform3DMode,
@@ -559,7 +580,10 @@ const calculateOutlineTargets = ({
 				transformOriginDrag: canTransformOriginDrag
 					? {
 							clientId: connectedClientId,
-							keyframeDisplayOffset,
+							keyframeDisplayOffset: getKeyframeDisplayOffset({
+								propStatus: transformOriginPropStatus,
+								keyframeDisplayOffset,
+							}),
 							nodePath,
 							originDefault: transformOriginFieldSchema.default,
 							originPropStatus: transformOriginPropStatus,

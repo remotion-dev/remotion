@@ -103,6 +103,7 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 		props: {
 			width: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: 5,
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 12, value: 320}],
 				easing: [],
@@ -127,6 +128,7 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 	expect(updated.props.width).toEqual({
 		status: 'static',
 		codeValue: 320,
+		keyframeDisplayOffsetAdjustment: 5,
 	});
 });
 

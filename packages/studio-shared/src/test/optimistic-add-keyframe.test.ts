@@ -15,6 +15,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 			opacity: {
 				status: 'static',
 				codeValue: 0.5,
+				keyframeDisplayOffsetAdjustment: 5,
 			},
 		},
 		effects: [],
@@ -39,6 +40,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 	expect(status.keyframes).toEqual([{frame: 25, value: 0.75}]);
 	expect(status.easing).toEqual([]);
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
+	expect(status.keyframeDisplayOffsetAdjustment).toBe(5);
 });
 
 test('optimisticAddSequenceKeyframe adds a missing prop before keyframing it', () => {

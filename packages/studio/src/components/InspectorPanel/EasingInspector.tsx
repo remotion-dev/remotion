@@ -15,6 +15,7 @@ import {
 	callAddSequenceKeyframe,
 } from '../Timeline/call-add-keyframe';
 import {EasingEditor} from '../Timeline/EasingEditorModal';
+import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
@@ -176,6 +177,13 @@ export const EasingInspector: React.FC<{
 			segmentIndex: easingUpdate.segmentIndex,
 		});
 	}, [easingUpdate, selection.nodePathInfo, track]);
+	const easingKeyframeDisplayOffset =
+		easingUpdate === null || track === null
+			? 0
+			: getKeyframeDisplayOffset({
+					propStatus: easingUpdate.propStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				});
 
 	const state = useMemo(() => {
 		if (initialEasing === null || currentEasingSelection === null) {
@@ -223,7 +231,7 @@ export const EasingInspector: React.FC<{
 				return;
 			}
 
-			const sourceFrame = timelinePosition - track.keyframeDisplayOffset;
+			const sourceFrame = timelinePosition - easingKeyframeDisplayOffset;
 			const value = Internals.getEffectiveVisualModeValue({
 				propStatus: easingUpdate.propStatus,
 				dragOverrideValue: easingDetails.dragOverrideValue,
@@ -274,6 +282,7 @@ export const EasingInspector: React.FC<{
 			setPropStatuses,
 			timelinePosition,
 			track,
+			easingKeyframeDisplayOffset,
 		],
 	);
 
@@ -294,7 +303,7 @@ export const EasingInspector: React.FC<{
 						includeEasings
 						keyframes={easingUpdate.propStatus.keyframes.map((keyframe) => ({
 							...keyframe,
-							frame: keyframe.frame + track.keyframeDisplayOffset,
+							frame: keyframe.frame + easingKeyframeDisplayOffset,
 						}))}
 						nodePathInfo={selection.nodePathInfo}
 					/>
@@ -309,6 +318,7 @@ export const EasingInspector: React.FC<{
 			parentSelection,
 			selection,
 			track,
+			easingKeyframeDisplayOffset,
 		],
 	);
 

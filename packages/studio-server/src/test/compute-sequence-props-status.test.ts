@@ -1013,6 +1013,51 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus preserves the useCurrentFrame coordinate space across wrapping Sequences', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, Sequence, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<Sequence durationInFrames={30} from={-5}>
+			<AbsoluteFill
+				style={{
+					backgroundColor: 'dodgerblue',
+					translate: interpolate(frame, [10, 20], ['0px 0px', '500px 0px']),
+				}}
+			/>
+		</Sequence>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['style.backgroundColor', 'style.translate'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.translate']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 5,
+		keyframes: [
+			{frame: 10, value: '0px 0px'},
+			{frame: 20, value: '500px 0px'},
+		],
+	});
+	expect(result.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'dodgerblue',
+		keyframeDisplayOffsetAdjustment: 5,
+	});
+});
+
 test('computeSequencePropsStatus should return keyframes for String-wrapped interpolated translate props', () => {
 	const input = `import React from 'react';
 import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';

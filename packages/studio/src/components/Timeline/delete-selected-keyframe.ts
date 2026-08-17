@@ -14,6 +14,7 @@ import {
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -71,11 +72,6 @@ const getSelectedKeyframeDeletion = ({
 		return null;
 	}
 
-	const sourceFrame = frame - (track?.keyframeDisplayOffset ?? 0);
-	const playheadSourceFrame =
-		timelinePosition === null
-			? null
-			: timelinePosition - (track?.keyframeDisplayOffset ?? 0);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const fileName = nodePath.absolutePath;
 
@@ -97,9 +93,18 @@ const getSelectedKeyframeDeletion = ({
 			effectStatus?.type === 'can-update-effect'
 				? effectStatus.props[field.fieldKey]
 				: null;
+		const effectKeyframeDisplayOffset = getKeyframeDisplayOffset({
+			propStatus: effectPropStatus,
+			keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+		});
+		const effectSourceFrame = frame - effectKeyframeDisplayOffset;
+		const effectPlayheadSourceFrame =
+			timelinePosition === null
+				? null
+				: timelinePosition - effectKeyframeDisplayOffset;
 		const effectValueWhenLastKeyframeDeleted = getValueWhenLastKeyframeDeleted({
 			propStatus: effectPropStatus,
-			playheadSourceFrame,
+			playheadSourceFrame: effectPlayheadSourceFrame,
 		});
 
 		return {
@@ -108,7 +113,7 @@ const getSelectedKeyframeDeletion = ({
 			nodePath,
 			effectIndex: field.effectIndex,
 			fieldKey: field.fieldKey,
-			sourceFrame,
+			sourceFrame: effectSourceFrame,
 			schema: effect.schema,
 			valueWhenLastKeyframeDeleted: effectValueWhenLastKeyframeDeleted,
 		};
@@ -118,6 +123,13 @@ const getSelectedKeyframeDeletion = ({
 		propStatuses !== null
 			? Internals.getPropStatusesCtx(propStatuses, nodePath)?.[field.fieldKey]
 			: null;
+	const keyframeDisplayOffset = getKeyframeDisplayOffset({
+		propStatus: sequencePropStatus,
+		keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+	});
+	const sourceFrame = frame - keyframeDisplayOffset;
+	const playheadSourceFrame =
+		timelinePosition === null ? null : timelinePosition - keyframeDisplayOffset;
 	const sequenceValueWhenLastKeyframeDeleted = getValueWhenLastKeyframeDeleted({
 		propStatus: sequencePropStatus,
 		playheadSourceFrame,

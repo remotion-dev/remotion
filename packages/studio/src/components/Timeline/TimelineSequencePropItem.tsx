@@ -25,6 +25,7 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {saveSequenceProps} from './save-sequence-prop';
 import {isTimelineFieldStacked} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -291,11 +292,15 @@ const TimelineSequenceKeyframedValueAtCurrentFrame: React.FC<
 	}
 > = ({keyframeDisplayOffset, ...props}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
+		propStatus: props.propStatus,
+		keyframeDisplayOffset,
+	});
 
 	return (
 		<TimelineSequenceKeyframedValueAtSourceFrame
 			{...props}
-			sourceFrame={timelinePosition - keyframeDisplayOffset}
+			sourceFrame={timelinePosition - resolvedKeyframeDisplayOffset}
 		/>
 	);
 };
