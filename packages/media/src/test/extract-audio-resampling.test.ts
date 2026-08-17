@@ -9,7 +9,7 @@ const TARGET_SAMPLE_RATE = 48000;
 const NUMBER_OF_CHANNELS = 2;
 const TRIM_BEFORE = 4;
 
-test('resamples decoded chunks as one continuous frame', async () => {
+test('resamples Mediabunny AudioSamples as one continuous frame', async () => {
 	const src = new URL('../../../remotion-media/ding.wav', import.meta.url).href;
 	const wav = await fetch(src).then((response) => response.arrayBuffer());
 	const view = new DataView(wav);
