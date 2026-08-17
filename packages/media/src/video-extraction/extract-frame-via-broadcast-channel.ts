@@ -34,7 +34,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	src,
 	timeInSeconds,
 	logLevel,
-	durationInSeconds,
+	outputFrame,
 	playbackRate,
 	includeAudio,
 	includeVideo,
@@ -51,7 +51,7 @@ export const extractFrameViaBroadcastChannel = async ({
 }: {
 	src: string;
 	timeInSeconds: number;
-	durationInSeconds: number;
+	outputFrame: number;
 	playbackRate: number;
 	logLevel: LogLevel;
 	includeAudio: boolean;
@@ -72,7 +72,7 @@ export const extractFrameViaBroadcastChannel = async ({
 			logLevel,
 			src,
 			timeInSeconds,
-			durationInSeconds,
+			outputFrame,
 			playbackRate,
 			includeAudio,
 			includeVideo,
@@ -213,7 +213,7 @@ export const extractFrameViaBroadcastChannel = async ({
 		timeInSeconds,
 		id: requestId,
 		logLevel,
-		durationInSeconds,
+		outputFrame,
 		playbackRate,
 		includeAudio,
 		includeVideo,

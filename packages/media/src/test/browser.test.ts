@@ -13,7 +13,7 @@ test('Should be able to extract a frame', async () => {
 	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
-		durationInSeconds: 1 / 30,
+		outputFrame: 30,
 		playbackRate: 1,
 		logLevel: 'info',
 		includeAudio: true,
@@ -57,8 +57,7 @@ test('Should be able to extract a frame', async () => {
 	// bits = 16
 	// sampleRate = 48000
 	// 1 / 30 * 2 * 2 * 48000 = 6400
-	// we round down start and round up duration
-	expect(audio.data.byteLength).toBe(6404);
+	expect(audio.data.byteLength).toBe(6400);
 
 	const cacheStats = keyframeManager.getCacheStats();
 	expect(cacheStats.count).toBe(1);
@@ -70,7 +69,7 @@ test('Should be able to extract the last frame', async () => {
 	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1_000_000,
-		durationInSeconds: 1 / 30,
+		outputFrame: 30_000_000,
 		playbackRate: 1,
 		logLevel: 'info',
 		includeAudio: true,
@@ -126,7 +125,7 @@ test('Should manage the cache', async (t) => {
 		await extractFrameAndAudio({
 			src: `/bigbuckbunny.mp4?i=${i}`,
 			timeInSeconds: 1,
-			durationInSeconds: 1 / 30,
+			outputFrame: 30,
 			playbackRate: 1,
 			logLevel: 'info',
 			includeAudio: true,
@@ -157,7 +156,7 @@ test('Should be apply volume correctly', async () => {
 	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
-		durationInSeconds: 1 / 30,
+		outputFrame: 30,
 		playbackRate: 1,
 		logLevel: 'info',
 		includeAudio: true,
@@ -217,7 +216,7 @@ test('Should be able to loop', async () => {
 	const result = await extractFrameAndAudio({
 		src: `/bigbuckbunny.mp4`,
 		timeInSeconds: 10000001,
-		durationInSeconds: 1 / 30,
+		outputFrame: 300000030,
 		logLevel: 'info',
 		playbackRate: 1,
 		includeAudio: true,

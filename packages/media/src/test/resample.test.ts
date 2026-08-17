@@ -1,31 +1,10 @@
 import {expect, test} from 'vitest';
-import {convertAudioData} from '../convert-audiodata/convert-audiodata';
+import {copyAudioDataToInterleavedS16} from '../convert-audiodata/convert-audiodata';
+import {resampleAudioData} from '../convert-audiodata/resample-audiodata';
 import {generateSine, toInt16Array} from './sine';
 
-test('Should be able to convert audio that is on the verge', () => {
-	const sine = generateSine({
-		length: 2048,
-		amplitude: 4095,
-		frequency: 1000,
-		sampleRate: 44100,
-		phase: 0,
-	});
-
-	const spedUp = convertAudioData({
-		audioData: sine,
-		trimStartInSeconds: 0.041666666666666664,
-		trimEndInSeconds: 0,
-		playbackRate: 2,
-		audioDataTimestamp: sine.timestamp / 1_000_000,
-		isLast: true,
-	});
-
-	expect(spedUp.numberOfFrames).toBe(115);
-});
-
-test('convert with playbackrate', () => {
+test('resamples with playback rate', () => {
 	const sampleRate = 48000;
-
 	const sine = generateSine({
 		length: 100,
 		amplitude: 4095,
@@ -33,29 +12,47 @@ test('convert with playbackrate', () => {
 		sampleRate,
 		phase: 0,
 	});
-
-	const twoPiFOverFs = (2 * Math.PI * 1000) / sampleRate;
-
-	const sineSpedup = generateSine({
-		length: 100,
+	const expectedAudio = generateSine({
+		length: 50,
 		amplitude: 4095,
 		frequency: 2000,
 		sampleRate,
-		phase: twoPiFOverFs / 2,
+		phase: 0,
 	});
-
-	const spedUp = convertAudioData({
+	const source = copyAudioDataToInterleavedS16({
 		audioData: sine,
-		trimStartInSeconds: 0,
-		trimEndInSeconds: 0,
-		playbackRate: 2,
-		audioDataTimestamp: sine.timestamp / 1_000_000,
-		isLast: true,
+		frameOffset: 0,
+		frameCount: sine.numberOfFrames,
+	});
+	const destination = new Int16Array(50 * 2);
+
+	resampleAudioData({
+		srcNumberOfChannels: 2,
+		sourceChannels: source,
+		destination,
+		targetFrames: 50,
+		sourceStart: 0,
+		sourceStep: 2,
 	});
 
-	const sineSpedupArray = toInt16Array(sineSpedup);
-
-	for (let i = 0; i < 100; i++) {
-		expect(Math.abs(spedUp.data[i] - sineSpedupArray[i])).toBeLessThan(20);
+	const expected = toInt16Array(expectedAudio);
+	sine.close();
+	expectedAudio.close();
+	for (let index = 0; index < destination.length; index++) {
+		expect(Math.abs(destination[index] - expected[index])).toBeLessThan(20);
 	}
+});
+
+test('uses linear interpolation between source samples', () => {
+	const destination = new Int16Array(4);
+	resampleAudioData({
+		srcNumberOfChannels: 2,
+		sourceChannels: new Int16Array([0, 0, 1000, 1000, 2000, 2000]),
+		destination,
+		targetFrames: 2,
+		sourceStart: 0.5,
+		sourceStep: 1,
+	});
+
+	expect(destination).toEqual(new Int16Array([500, 500, 1500, 1500]));
 });

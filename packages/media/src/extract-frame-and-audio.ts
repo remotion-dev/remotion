@@ -11,7 +11,7 @@ export const extractFrameAndAudio = async ({
 	src,
 	timeInSeconds,
 	logLevel,
-	durationInSeconds,
+	outputFrame,
 	playbackRate,
 	includeAudio,
 	includeVideo,
@@ -28,7 +28,7 @@ export const extractFrameAndAudio = async ({
 	src: string;
 	timeInSeconds: number;
 	logLevel: LogLevel;
-	durationInSeconds: number;
+	outputFrame: number;
 	playbackRate: number;
 	includeAudio: boolean;
 	includeVideo: boolean;
@@ -64,7 +64,7 @@ export const extractFrameAndAudio = async ({
 				? extractAudio({
 						src,
 						timeInSeconds,
-						durationInSeconds,
+						outputFrame,
 						logLevel,
 						loop,
 						playbackRate,
