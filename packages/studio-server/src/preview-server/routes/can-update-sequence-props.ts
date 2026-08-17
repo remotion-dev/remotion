@@ -123,6 +123,7 @@ const staticStatus = (
 	numericExpression: VideoConfigNumericExpression | null,
 ): CanUpdatePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue,
 	...(numericExpression === null || numericExpression.type === 'literal'
 		? {}
@@ -709,7 +710,7 @@ const getRemotionImportNames = ({
 					(specifier.imported.type === 'StringLiteral' &&
 						specifier.imported.value === importedName))
 			) {
-				direct.add(specifier.local.name);
+				direct.add(specifier.local?.name ?? importedName);
 			}
 
 			if (specifier.type === 'ImportNamespaceSpecifier') {
@@ -1004,12 +1005,10 @@ export const getComputedStatus = (
 	return {
 		status: 'keyframed',
 		interpolationFunction: interpolation.interpolationFunction,
-		...(interpolation.keyframeDisplayOffsetAdjustment === 0
-			? {}
-			: {
-					keyframeDisplayOffsetAdjustment:
-						interpolation.keyframeDisplayOffsetAdjustment,
-				}),
+		keyframeDisplayOffsetAdjustment:
+			interpolation.keyframeDisplayOffsetAdjustment === 0
+				? null
+				: interpolation.keyframeDisplayOffsetAdjustment,
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,

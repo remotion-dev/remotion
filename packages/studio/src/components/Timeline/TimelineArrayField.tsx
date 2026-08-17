@@ -236,6 +236,7 @@ const ItemEditor: React.FC<{
 	const propStatus = useMemo<CanUpdateSequencePropStatusStatic>(
 		() => ({
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: value,
 		}),
 		[value],

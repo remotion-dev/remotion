@@ -33,6 +33,7 @@ import {
 
 const staticStatus = (codeValue: unknown): CanUpdateSequencePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue,
 });
 
@@ -184,6 +185,7 @@ const getPropsFromObjectExpression = ({
 			out[key] = numericExpression
 				? {
 						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
 						codeValue: numericExpression.value,
 						...(numericExpression.type === 'literal'
 							? {}
@@ -195,6 +197,7 @@ const getPropsFromObjectExpression = ({
 
 		out[key] = {
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: extractStaticValue(valueExpr),
 		};
 	}

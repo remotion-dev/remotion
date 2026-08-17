@@ -405,8 +405,16 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 			[subscriptionKey]: {
 				canUpdate: true as const,
 				props: {
-					durationInFrames: {status: 'static' as const, codeValue: 10},
-					trimBefore: {status: 'static' as const, codeValue: 2},
+					durationInFrames: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 10,
+					},
+					trimBefore: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 2,
+					},
 				},
 				effects: [],
 			},

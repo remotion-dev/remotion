@@ -18,7 +18,7 @@ import type {
 export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
-	keyframeDisplayOffsetAdjustment?: number;
+	keyframeDisplayOffsetAdjustment: number | null;
 	numericExpression?: VideoConfigNumericExpression;
 };
 
@@ -130,7 +130,7 @@ export type CanUpdateSequencePropStatusKeyframed = {
 	 * when the useCurrentFrame() call is outside a Sequence that wraps the
 	 * controlled element.
 	 */
-	keyframeDisplayOffsetAdjustment?: number;
+	keyframeDisplayOffsetAdjustment: number | null;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;

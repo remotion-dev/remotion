@@ -93,10 +93,15 @@ const borderRadiusSchema = {
 const getBorderRadiusFields = (
 	props: Record<
 		string,
-		| {status: 'static'; codeValue: unknown}
+		| {
+				status: 'static';
+				keyframeDisplayOffsetAdjustment: null;
+				codeValue: unknown;
+		  }
 		| {status: 'computed'}
 		| {
 				status: 'keyframed';
+				keyframeDisplayOffsetAdjustment: null;
 				interpolationFunction: 'interpolate';
 				keyframes: {frame: number; value: number}[];
 				easing: [];
@@ -138,6 +143,7 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 						props: {
 							colorMode: {
 								status: 'static',
+								keyframeDisplayOffsetAdjustment: null,
 								codeValue: 'source',
 							},
 						},
@@ -204,6 +210,7 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 						props: {
 							colors: {
 								status: 'static',
+								keyframeDisplayOffsetAdjustment: null,
 								codeValue: ['red', 'green', 'blue'],
 							},
 						},
@@ -417,20 +424,60 @@ test('getFieldsToShow selects one border radius representation', () => {
 	expect(getBorderRadiusFields({})).toEqual(['style.borderRadius']);
 	expect(
 		getBorderRadiusFields({
-			'style.borderRadius': {status: 'static', codeValue: 12},
-			'style.borderTopLeftRadius': {status: 'static', codeValue: 12},
-			'style.borderTopRightRadius': {status: 'static', codeValue: 12},
-			'style.borderBottomRightRadius': {status: 'static', codeValue: 12},
-			'style.borderBottomLeftRadius': {status: 'static', codeValue: 12},
+			'style.borderRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderTopLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderTopRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderBottomRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderBottomLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
 		}),
 	).toEqual(['style.borderRadius']);
 	expect(
 		getBorderRadiusFields({
-			'style.borderRadius': {status: 'static', codeValue: undefined},
-			'style.borderTopLeftRadius': {status: 'static', codeValue: 4},
-			'style.borderTopRightRadius': {status: 'static', codeValue: 8},
-			'style.borderBottomRightRadius': {status: 'static', codeValue: 12},
-			'style.borderBottomLeftRadius': {status: 'static', codeValue: 16},
+			'style.borderRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: undefined,
+			},
+			'style.borderTopLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 4,
+			},
+			'style.borderTopRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 8,
+			},
+			'style.borderBottomRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderBottomLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 16,
+			},
 		}),
 	).toEqual([
 		'style.borderTopLeftRadius',
@@ -442,6 +489,7 @@ test('getFieldsToShow selects one border radius representation', () => {
 		getBorderRadiusFields({
 			'style.borderRadius': {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 0},

@@ -84,6 +84,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () =
 		props: {
 			'style.translate': {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: '0px 59px',
 			},
 		},
@@ -124,6 +125,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', (
 		props: {
 			'style.rotate': {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: '0deg',
 			},
 		},
@@ -164,6 +166,7 @@ test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 		props: {
 			playbackRate: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 1,
 			},
 		},
@@ -195,6 +198,7 @@ test('optimisticAddSequenceKeyframe ignores enum fields', () => {
 		props: {
 			layout: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'absolute-fill',
 			},
 		},
@@ -237,7 +241,11 @@ test('optimisticAddSequenceKeyframe uses hold easing for enabled enum fields', (
 	const initial: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {
-			cursor: {status: 'static', codeValue: 'default'},
+			cursor: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 'default',
+			},
 		},
 		effects: [],
 	};
@@ -279,6 +287,7 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 		props: {
 			scale: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -323,6 +332,7 @@ test('optimisticAddSequenceKeyframe duplicates the easing for the split segment'
 		props: {
 			scale: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -370,6 +380,7 @@ test('optimisticAddSequenceKeyframe uses linear easing outside the keyframe rang
 		props: {
 			scale: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -412,6 +423,7 @@ test('optimisticAddSequenceKeyframe updates an existing keyframe at the same fra
 		props: {
 			scale: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -462,6 +474,7 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 				props: {
 					amount: {
 						status: 'keyframed',
+						keyframeDisplayOffsetAdjustment: null,
 						interpolationFunction: 'interpolate',
 						keyframes: [{frame: 0, value: 0.2}],
 						easing: [],
@@ -515,6 +528,7 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 				props: {
 					amount: {
 						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
 						codeValue: 0.2,
 					},
 				},

@@ -60,6 +60,7 @@ const staticStatus = (
 	numericExpression: VideoConfigNumericExpression | null,
 ): CanUpdatePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue,
 	...(numericExpression === null || numericExpression.type === 'literal'
 		? {}
@@ -663,6 +664,7 @@ export const getComputedStatus = (
 
 	return {
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: interpolation.interpolationFunction,
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,

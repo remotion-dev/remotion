@@ -52,7 +52,9 @@ export const getKeyframeDisplayOffset = ({
 	return (
 		keyframeDisplayOffset +
 		(propStatus?.status === 'keyframed' || propStatus?.status === 'static'
-			? (propStatus.keyframeDisplayOffsetAdjustment ?? 0)
+			? propStatus.keyframeDisplayOffsetAdjustment === null
+				? 0
+				: propStatus.keyframeDisplayOffsetAdjustment
 			: 0)
 	);
 };

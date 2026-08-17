@@ -91,6 +91,7 @@ const numberFieldSchema = {
 
 const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 	status: 'keyframed',
+	keyframeDisplayOffsetAdjustment: null,
 	interpolationFunction: 'interpolate',
 	keyframes: [
 		{frame: 0, value: 2},
@@ -239,6 +240,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 		getTimelineKeyframes(
 			{
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 2},
@@ -319,6 +321,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 		getTimelineKeyframes(
 			{
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 20, value: 2},

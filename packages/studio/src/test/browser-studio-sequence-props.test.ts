@@ -39,12 +39,24 @@ test('routes sequence prop operations through Browser Studio', async () => {
 			calls.push(`save:${request.clientId}:${request.edits[0]?.fileName}`);
 			return Promise.resolve({
 				canUpdate: true,
-				props: {from: {status: 'static', codeValue: 15}},
+				props: {
+					from: {
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 15,
+					},
+				},
 				results: [
 					{
 						fileName: 'src/Composition.tsx',
 						nodePath,
-						props: {from: {status: 'static', codeValue: 15}},
+						props: {
+							from: {
+								status: 'static',
+								keyframeDisplayOffsetAdjustment: null,
+								codeValue: 15,
+							},
+						},
 					},
 				],
 			});
@@ -56,7 +68,13 @@ test('routes sequence prop operations through Browser Studio', async () => {
 				nodePath,
 				status: {
 					canUpdate: true,
-					props: {from: {status: 'static', codeValue: 10}},
+					props: {
+						from: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 10,
+						},
+					},
 					effects: [],
 				},
 			});
@@ -152,7 +170,13 @@ test('batches server sequence prop subscriptions into one request', async () => 
 							},
 							status: {
 								canUpdate: true,
-								props: {from: {status: 'static', codeValue: request.line}},
+								props: {
+									from: {
+										status: 'static',
+										keyframeDisplayOffsetAdjustment: null,
+										codeValue: request.line,
+									},
+								},
 								effects: [],
 							},
 						})),
@@ -192,10 +216,12 @@ test('batches server sequence prop subscriptions into one request', async () => 
 		const last = results.at(-1);
 		expect(first.success && first.status.props.from).toEqual({
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: 2,
 		});
 		expect(last?.success && last.status.props.from).toEqual({
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: 1001,
 		});
 	} finally {
@@ -227,7 +253,13 @@ test('handles a legacy single-subscription response to a batched request', async
 						nodePath,
 						status: {
 							canUpdate: true,
-							props: {from: {status: 'static', codeValue: 10}},
+							props: {
+								from: {
+									status: 'static',
+									keyframeDisplayOffsetAdjustment: null,
+									codeValue: 10,
+								},
+							},
 							effects: [],
 						},
 					},
@@ -257,7 +289,13 @@ test('handles a legacy single-subscription response to a batched request', async
 				nodePath,
 				status: {
 					canUpdate: true,
-					props: {from: {status: 'static', codeValue: 10}},
+					props: {
+						from: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 10,
+						},
+					},
 					effects: [],
 				},
 			},
