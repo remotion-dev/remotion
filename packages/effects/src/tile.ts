@@ -184,8 +184,21 @@ export const tile = createEffect<TileParams, TileState>({
 		const endY = r.vertical ? height : top + tileHeight;
 
 		for (let y = startY; y < endY; y += tileHeight) {
+			const tileY = Math.round((y - top) / tileHeight);
+			const mirrorY = r.vertical && Math.abs(tileY) % 2 === 1;
+
 			for (let x = startX; x < endX; x += tileWidth) {
-				context.drawImage(state.tileCanvas, x, y);
+				const tileX = Math.round((x - left) / tileWidth);
+				const mirrorX = r.horizontal && Math.abs(tileX) % 2 === 1;
+
+				context.save();
+				context.translate(
+					mirrorX ? x + tileWidth : x,
+					mirrorY ? y + tileHeight : y,
+				);
+				context.scale(mirrorX ? -1 : 1, mirrorY ? -1 : 1);
+				context.drawImage(state.tileCanvas, 0, 0);
+				context.restore();
 			}
 		}
 	},

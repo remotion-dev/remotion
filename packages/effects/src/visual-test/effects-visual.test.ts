@@ -9,6 +9,7 @@ import {noise} from '../noise.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {saturation} from '../saturation.js';
 import {shadowsHighlights} from '../shadows-highlights.js';
+import {tile} from '../tile.js';
 import {vibrance} from '../vibrance.js';
 import {vignette} from '../vignette.js';
 import {whiteBalance} from '../white-balance.js';
@@ -488,6 +489,60 @@ test('vignette() color mode works on transparent sources', async () => {
 	if (center[3] !== 0) {
 		throw new Error(`Expected center alpha to stay 0, got ${center[3]}`);
 	}
+});
+
+test('tile() mirrors neighboring copies on both axes', async () => {
+	const source = document.createElement('canvas');
+	source.width = 6;
+	source.height = 6;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.putImageData(
+		new ImageData(
+			new Uint8ClampedArray([
+				255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255,
+			]),
+			2,
+			2,
+		),
+		2,
+		2,
+	);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width: 6,
+		height: 6,
+		effects: descriptorsToMemoizedEffects([tile()]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const pixels = context.getImageData(0, 0, 6, 6).data;
+	const colors = [];
+	for (let i = 0; i < pixels.length; i += 4) {
+		colors.push(`${pixels[i]}-${pixels[i + 1]}-${pixels[i + 2]}`);
+	}
+
+	const red = '255-0-0';
+	const green = '0-255-0';
+	const blue = '0-0-255';
+	const yellow = '255-255-0';
+	expect(colors).toEqual(
+		[
+			[yellow, blue, blue, yellow, yellow, blue],
+			[green, red, red, green, green, red],
+			[green, red, red, green, green, red],
+			[yellow, blue, blue, yellow, yellow, blue],
+			[yellow, blue, blue, yellow, yellow, blue],
+			[green, red, red, green, green, red],
+		].flat(),
+	);
 });
 
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {

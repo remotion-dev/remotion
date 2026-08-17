@@ -10,9 +10,9 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Repeats the non-transparent area of a canvas source across the canvas.
+Repeats the non-transparent area of a canvas source across the canvas. Every other copy is mirrored so neighboring tiles meet at matching edges.
 
-Place [`scale()`](/docs/effects/scale) before `tile()` to create a smaller tile.
+Place [`scale()`](/docs/effects/scale) before `tile()` to expand a texture beyond its original edges.
 
 ## Preview
 
@@ -41,7 +41,7 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-Effects are applied in array order. `tile()` finds the non-transparent bounds left by `scale()` and uses those bounds as the tile.
+Effects are applied in array order. `tile()` finds the non-transparent bounds left by `scale()` and alternates mirrored copies along each enabled axis.
 
 ## API
 
