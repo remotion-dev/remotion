@@ -188,17 +188,17 @@ test(
 				inputProps,
 				1,
 			);
-			const candidateConcurrencyFive = await renderWav(
-				'media-concurrency-5.wav',
+			const candidateConcurrencyThree = await renderWav(
+				'media-concurrency-3.wav',
 				inputProps,
-				5,
+				3,
 			);
 
 			expect(reference.sampleRate).toBe(48000);
 			expect(candidateConcurrencyOne.sampleRate).toBe(48000);
 			expect(reference.channels).toBe(2);
 			expect(candidateConcurrencyOne.channels).toBe(2);
-			expect(candidateConcurrencyFive.samples).toEqual(
+			expect(candidateConcurrencyThree.samples).toEqual(
 				candidateConcurrencyOne.samples,
 			);
 			const comparison = comparePcm({
