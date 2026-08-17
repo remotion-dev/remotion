@@ -20,7 +20,6 @@ export {random} from './random.js';
 export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 
-import {getAudioSamplePosition} from './audio/get-audio-sample-position';
 import {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_CLEAR_TOKEN,
@@ -49,7 +48,6 @@ import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
 import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
-	getAudioSamplePosition,
 	processColor,
 	truthy,
 	validateFps,

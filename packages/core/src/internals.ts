@@ -2,7 +2,6 @@ import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
 import {getAnimatedImageDurationInSeconds} from './animated-image/get-duration-in-seconds.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
-import {getAudioSamplePosition} from './audio/get-audio-sample-position.js';
 import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
@@ -409,7 +408,6 @@ export const Internals = {
 	RemotionEnvironmentContext,
 	warnAboutTooHighVolume,
 	AudioForPreview,
-	getAudioSamplePosition,
 	OBJECTFIT_CONTAIN_CLASS_NAME,
 	InnerOffthreadVideo,
 	useBasicMediaInTimeline,

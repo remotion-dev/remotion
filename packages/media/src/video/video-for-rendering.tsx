@@ -165,6 +165,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		}
 
 		const timestamp = frame / fps;
+		const durationInSeconds = 1 / fps;
 
 		const newHandle = delayRender(
 			`Extracting frame at time ${timestamp} from ${src}`,
@@ -189,7 +190,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		extractFrameViaBroadcastChannel({
 			src,
 			timeInSeconds: timestamp,
-			outputFrame: absoluteFrame,
+			durationInSeconds,
 			playbackRate,
 			logLevel,
 			includeAudio: shouldRenderAudio,

@@ -12,7 +12,7 @@ test('Extract accuracy over 100 frames with playback rate 1.75', async () => {
 		const audio = await extractAudio({
 			audioStreamIndex: 0,
 			timeInSeconds,
-			outputFrame: i,
+			durationInSeconds: 1 / FPS,
 			playbackRate: PLAYBACK_RATE,
 			fps: FPS,
 			logLevel: 'info',
@@ -45,5 +45,7 @@ test('Extract accuracy over 100 frames with playback rate 1.75', async () => {
 		expect(audio.data.timestamp).toBe(i * 70000);
 		expect(audio.data.numberOfFrames).toBeGreaterThanOrEqual(1920);
 		expect(audio.data.numberOfFrames).toBeLessThanOrEqual(1921);
+		expect(audio.data.durationInMicroSeconds).toBeGreaterThanOrEqual(40000);
+		expect(audio.data.durationInMicroSeconds).toBeLessThanOrEqual(40021);
 	}
 });

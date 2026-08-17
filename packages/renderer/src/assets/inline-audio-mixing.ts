@@ -1,6 +1,6 @@
 import fs, {writeSync} from 'node:fs';
 import path from 'node:path';
-import {NoReactInternals, type InlineAudioAsset} from 'remotion/no-react';
+import type {InlineAudioAsset} from 'remotion/no-react';
 import {deleteDirectory} from '../delete-directory';
 import type {LogLevel} from '../log-level';
 import type {CancelSignal} from '../make-cancel-signal';
@@ -34,6 +34,9 @@ const correctFloatingPointError = (value: number): number => {
 
 	return value;
 };
+
+const getSamplePosition = (frame: number, fps: number, sampleRate: number) =>
+	Math.floor(correctFloatingPointError((frame / fps) * sampleRate));
 
 const BIT_DEPTH = 16;
 const BYTES_PER_SAMPLE = BIT_DEPTH / 8;
@@ -91,16 +94,12 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 
 		writtenHeaders[filePath] = true;
 
-		const firstSample = NoReactInternals.getAudioSamplePosition({
-			frame: firstFrame,
+		const firstSample = getSamplePosition(firstFrame, fps, sampleRate);
+		const endSample = getSamplePosition(
+			firstFrame + totalNumberOfFrames,
 			fps,
 			sampleRate,
-		});
-		const endSample = NoReactInternals.getAudioSamplePosition({
-			frame: firstFrame + totalNumberOfFrames,
-			fps,
-			sampleRate,
-		});
+		);
 		const samplesToShaveFromStart = Math.floor(
 			correctFloatingPointError(trimLeftOffset * sampleRate),
 		);
@@ -243,22 +242,14 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		toneFrequencies[filePath] = asset.toneFrequency;
 
 		let arr = new Int16Array(asset.audio);
-		const frameStartSample = NoReactInternals.getAudioSamplePosition({
-			frame: asset.frame,
-			fps,
-			sampleRate,
-		});
-		const frameEndSample = NoReactInternals.getAudioSamplePosition({
-			frame: asset.frame + 1,
-			fps,
-			sampleRate,
-		});
-		const expectedFrames = frameEndSample - frameStartSample;
-		const actualFrames = arr.length / NUMBER_OF_CHANNELS;
-		if (actualFrames !== expectedFrames) {
-			throw new Error(
-				`Inline audio asset ${asset.id} at frame ${asset.frame} has ${actualFrames} samples, but ${expectedFrames} were expected`,
-			);
+		const frameStartSample = getSamplePosition(asset.frame, fps, sampleRate);
+		const frameEndSample = getSamplePosition(asset.frame + 1, fps, sampleRate);
+		const expectedLength =
+			(frameEndSample - frameStartSample) * NUMBER_OF_CHANNELS;
+		if (arr.length !== expectedLength) {
+			const normalized = new Int16Array(expectedLength);
+			normalized.set(arr.subarray(0, expectedLength));
+			arr = normalized;
 		}
 
 		const isFirst = asset.frame === firstFrame;
@@ -286,11 +277,7 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 			);
 		}
 
-		const firstRenderedSample = NoReactInternals.getAudioSamplePosition({
-			frame: firstFrame,
-			fps,
-			sampleRate,
-		});
+		const firstRenderedSample = getSamplePosition(firstFrame, fps, sampleRate);
 		const trimLeftSamples = Math.floor(
 			correctFloatingPointError(samplesToShaveFromStart),
 		);

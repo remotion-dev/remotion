@@ -1,4 +1,4 @@
-import {Internals, type LogLevel} from 'remotion';
+import {type LogLevel} from 'remotion';
 import type {MediaCache} from '../caches';
 import {
 	copyAudioDataToInterleavedS16,
@@ -22,7 +22,7 @@ type ExtractAudioReturnType = Awaited<ReturnType<typeof extractAudioInternal>>;
 type ExtractAudioParams = {
 	src: string;
 	timeInSeconds: number;
-	outputFrame: number;
+	durationInSeconds: number;
 	logLevel: LogLevel;
 	loop: boolean;
 	playbackRate: number;
@@ -39,7 +39,7 @@ type ExtractAudioParams = {
 const extractAudioInternal = async ({
 	src,
 	timeInSeconds: unloopedTimeInSeconds,
-	outputFrame,
+	durationInSeconds: durationNotYetApplyingPlaybackRate,
 	logLevel,
 	loop,
 	playbackRate,
@@ -108,34 +108,18 @@ const extractAudioInternal = async ({
 
 	try {
 		const targetSampleRate = getTargetSampleRate();
-		const outputStart = Internals.getAudioSamplePosition({
-			frame: outputFrame,
-			fps,
-			sampleRate: targetSampleRate,
-		});
-		const outputEnd = Internals.getAudioSamplePosition({
-			frame: outputFrame + 1,
-			fps,
-			sampleRate: targetSampleRate,
-		});
-		const targetFrames = outputEnd - outputStart;
-		const videoFrameStartTime = outputFrame / fps;
-		const firstSourceTime =
-			timeInSeconds +
-			(outputStart / targetSampleRate - videoFrameStartTime) * playbackRate;
+		const targetFrames = Math.ceil(
+			fixFloatingPoint(durationNotYetApplyingPlaybackRate * targetSampleRate),
+		);
+		const firstSourceTime = timeInSeconds;
 		const lastSourceTime =
-			timeInSeconds +
-			((outputEnd - 1) / targetSampleRate - videoFrameStartTime) * playbackRate;
+			timeInSeconds + ((targetFrames - 1) / targetSampleRate) * playbackRate;
 		const sourcePadding = Math.max(
 			0.001,
 			(Math.abs(playbackRate) * 2) / targetSampleRate,
 		);
-		const requestedStart = Math.max(
-			0,
-			Math.min(firstSourceTime, lastSourceTime) - sourcePadding,
-		);
-		const requestedEnd =
-			Math.max(firstSourceTime, lastSourceTime) + sourcePadding;
+		const requestedStart = Math.max(0, firstSourceTime - sourcePadding);
+		const requestedEnd = lastSourceTime + sourcePadding;
 		const sampleIterator = await mediaCache.audioManager.getIterator({
 			src,
 			timeInSeconds: requestedStart,
@@ -182,25 +166,18 @@ const extractAudioInternal = async ({
 
 		const sourceSampleRate = decoded[0].sampleRate;
 		const sourceNumberOfChannels = decoded[0].numberOfChannels;
-		for (const chunk of decoded) {
-			if (chunk.sampleRate !== sourceSampleRate) {
-				throw new Error(
-					`Audio sample rate changed from ${sourceSampleRate} to ${chunk.sampleRate} while decoding ${src}`,
-				);
-			}
-
-			if (chunk.numberOfChannels !== sourceNumberOfChannels) {
-				throw new Error(
-					`Audio channel count changed from ${sourceNumberOfChannels} to ${chunk.numberOfChannels} while decoding ${src}`,
-				);
-			}
-		}
-
 		const sourceFrames = Math.max(
 			...decoded.map((chunk) => chunk.frameOffset + chunk.numberOfFrames),
 		);
 		const source = new Int16Array(sourceFrames * sourceNumberOfChannels);
 		for (const chunk of decoded) {
+			if (
+				chunk.sampleRate !== sourceSampleRate ||
+				chunk.numberOfChannels !== sourceNumberOfChannels
+			) {
+				throw new Error(`Audio format changed while decoding ${src}`);
+			}
+
 			source.set(chunk.data, chunk.frameOffset * sourceNumberOfChannels);
 		}
 
@@ -213,7 +190,7 @@ const extractAudioInternal = async ({
 			destination,
 			targetFrames,
 			sourceStart: (firstSourceTime - sourceBufferStartTime) * sourceSampleRate,
-			sourceStep: (sourceSampleRate * playbackRate) / targetSampleRate,
+			chunkSize: (sourceSampleRate * playbackRate) / targetSampleRate,
 		});
 
 		return {
@@ -221,6 +198,9 @@ const extractAudioInternal = async ({
 				data: destination,
 				numberOfFrames: targetFrames,
 				timestamp: fixFloatingPoint(timeInSeconds * 1_000_000),
+				durationInMicroSeconds: fixFloatingPoint(
+					(targetFrames / targetSampleRate) * 1_000_000,
+				),
 			},
 			durationInSeconds: mediaDurationInSeconds,
 		};

@@ -48,7 +48,7 @@ export type ExtractFrameRequest = {
 	type: 'request';
 	src: string;
 	timeInSeconds: number;
-	outputFrame: number;
+	durationInSeconds: number;
 	playbackRate: number;
 	id: string;
 	logLevel: LogLevel;
@@ -101,7 +101,7 @@ export const addBroadcastChannelListener = () => {
 						src: data.src,
 						timeInSeconds: data.timeInSeconds,
 						logLevel: data.logLevel,
-						outputFrame: data.outputFrame,
+						durationInSeconds: data.durationInSeconds,
 						playbackRate: data.playbackRate,
 						includeAudio: data.includeAudio,
 						includeVideo: data.includeVideo,

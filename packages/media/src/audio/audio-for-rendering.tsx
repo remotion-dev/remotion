@@ -91,6 +91,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 	useLayoutEffect(() => {
 		const timestamp = frame / fps;
+		const durationInSeconds = 1 / fps;
 
 		const shouldRenderAudio = (() => {
 			if (!audioEnabled) {
@@ -120,7 +121,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		extractFrameViaBroadcastChannel({
 			src,
 			timeInSeconds: timestamp,
-			outputFrame: absoluteFrame,
+			durationInSeconds,
 			playbackRate: playbackRate ?? 1,
 			logLevel,
 			includeAudio: shouldRenderAudio,

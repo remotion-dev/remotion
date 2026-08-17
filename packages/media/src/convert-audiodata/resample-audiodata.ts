@@ -10,16 +10,15 @@ export const getTargetSampleRate = () => {
 };
 
 const fixFloatingPoint = (value: number) => {
-	const rounded = Math.round(value);
-	if (Math.abs(value - rounded) < 0.0000001) {
-		return rounded;
+	if (value % 1 < 0.0000001) {
+		return Math.floor(value);
+	}
+
+	if (value % 1 > 0.9999999) {
+		return Math.ceil(value);
 	}
 
 	return value;
-};
-
-const clampToInt16 = (value: number) => {
-	return Math.max(-32768, Math.min(32767, value));
 };
 
 export const resampleAudioData = ({
@@ -28,99 +27,120 @@ export const resampleAudioData = ({
 	destination,
 	targetFrames,
 	sourceStart,
-	sourceStep,
+	chunkSize,
 }: {
 	srcNumberOfChannels: number;
 	sourceChannels: Int16Array;
 	destination: Int16Array;
 	targetFrames: number;
 	sourceStart: number;
-	sourceStep: number;
+	chunkSize: number;
 }) => {
-	const sourceFrames = sourceChannels.length / srcNumberOfChannels;
-	const fixedSourceStart = fixFloatingPoint(sourceStart);
-	if (
-		srcNumberOfChannels === TARGET_NUMBER_OF_CHANNELS &&
-		sourceStep === 1 &&
-		Number.isInteger(fixedSourceStart)
-	) {
-		const sourceOffset = Math.max(0, fixedSourceStart);
-		const destinationOffset = Math.max(0, -fixedSourceStart);
-		const framesToCopy = Math.min(
-			targetFrames - destinationOffset,
-			sourceFrames - sourceOffset,
-		);
-		if (framesToCopy > 0) {
-			destination.set(
-				sourceChannels.subarray(
-					sourceOffset * TARGET_NUMBER_OF_CHANNELS,
-					(sourceOffset + framesToCopy) * TARGET_NUMBER_OF_CHANNELS,
-				),
-				destinationOffset * TARGET_NUMBER_OF_CHANNELS,
-			);
+	const getSourceValues = (
+		startUnfixed: number,
+		endUnfixed: number,
+		channelIndex: number,
+	) => {
+		const start = fixFloatingPoint(startUnfixed);
+		const end = fixFloatingPoint(endUnfixed);
+		const startFloor = Math.floor(start);
+		const startCeil = Math.ceil(start);
+		const startFraction = start - startFloor;
+		const endFraction = end - Math.floor(end);
+		const endFloor = Math.floor(end);
+
+		let weightedSum = 0;
+		let totalWeight = 0;
+
+		// Handle first fractional sample
+		if (startFraction > 0) {
+			const firstSample =
+				sourceChannels[startFloor * srcNumberOfChannels + channelIndex];
+			weightedSum += firstSample * (1 - startFraction);
+			totalWeight += 1 - startFraction;
 		}
 
-		return;
-	}
-
-	const getSourceValue = (position: number, channelIndex: number) => {
-		const fixedPosition = fixFloatingPoint(position);
-		const lowerFrame = Math.floor(fixedPosition);
-		const fraction = fixedPosition - lowerFrame;
-
-		const lower =
-			lowerFrame < 0 || lowerFrame >= sourceFrames
-				? 0
-				: sourceChannels[lowerFrame * srcNumberOfChannels + channelIndex];
-		if (fraction === 0) {
-			return lower;
+		// Handle full samples
+		for (let k = startCeil; k < endFloor; k++) {
+			const num = sourceChannels[k * srcNumberOfChannels + channelIndex];
+			weightedSum += num;
+			totalWeight += 1;
 		}
 
-		const upperFrame = lowerFrame + 1;
-		const upper =
-			upperFrame < 0 || upperFrame >= sourceFrames
-				? 0
-				: sourceChannels[upperFrame * srcNumberOfChannels + channelIndex];
+		// Handle last fractional sample
+		if (endFraction > 0) {
+			const lastSample =
+				sourceChannels[endFloor * srcNumberOfChannels + channelIndex];
+			weightedSum += lastSample * endFraction;
+			totalWeight += endFraction;
+		}
 
-		return lower + fraction * (upper - lower);
+		const average = weightedSum / totalWeight;
+
+		return average;
 	};
 
 	for (let newFrameIndex = 0; newFrameIndex < targetFrames; newFrameIndex++) {
-		const sourcePosition = sourceStart + newFrameIndex * sourceStep;
-		let left = 0;
-		let right = 0;
+		const start = sourceStart + newFrameIndex * chunkSize;
+		const end = start + chunkSize;
 
-		if (srcNumberOfChannels === 1) {
-			const mono = getSourceValue(sourcePosition, 0);
-			left = mono;
-			right = mono;
-		} else if (srcNumberOfChannels === 2) {
-			left = getSourceValue(sourcePosition, 0);
-			right = getSourceValue(sourcePosition, 1);
-		} else if (srcNumberOfChannels === 4) {
-			const l = getSourceValue(sourcePosition, 0);
-			const r = getSourceValue(sourcePosition, 1);
-			const sl = getSourceValue(sourcePosition, 2);
-			const sr = getSourceValue(sourcePosition, 3);
-			left = 0.5 * (l + sl);
-			right = 0.5 * (r + sr);
-		} else if (srcNumberOfChannels === 6) {
-			const l = getSourceValue(sourcePosition, 0);
-			const r = getSourceValue(sourcePosition, 1);
-			const c = getSourceValue(sourcePosition, 2);
-			const sl = getSourceValue(sourcePosition, 3);
-			const sr = getSourceValue(sourcePosition, 4);
-			const centerAndSurroundWeight = Math.sqrt(1 / 2);
-			left = l + centerAndSurroundWeight * (c + sl);
-			right = r + centerAndSurroundWeight * (c + sr);
-		} else {
-			left = getSourceValue(sourcePosition, 0);
-			right =
-				srcNumberOfChannels > 1 ? getSourceValue(sourcePosition, 1) : left;
+		if (TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels) {
+			for (let i = 0; i < srcNumberOfChannels; i++) {
+				destination[newFrameIndex * srcNumberOfChannels + i] = getSourceValues(
+					start,
+					end,
+					i,
+				);
+			}
 		}
 
-		destination[newFrameIndex * TARGET_NUMBER_OF_CHANNELS] = clampToInt16(left);
-		destination[newFrameIndex * TARGET_NUMBER_OF_CHANNELS + 1] =
-			clampToInt16(right);
+		// The following formulas were taken from Mediabunnys audio resampler:
+		// https://github.com/Vanilagy/mediabunny/blob/b9f7ab2fa2b9167784cbded044d466185308999f/src/conversion.ts
+
+		// Mono to Stereo: M -> L, M -> R
+		if (srcNumberOfChannels === 1) {
+			const m = getSourceValues(start, end, 0);
+
+			destination[newFrameIndex * 2 + 0] = m;
+			destination[newFrameIndex * 2 + 1] = m;
+		}
+
+		// Quad to Stereo: 0.5 * (L + SL), 0.5 * (R + SR)
+		else if (srcNumberOfChannels === 4) {
+			const l = getSourceValues(start, end, 0);
+			const r = getSourceValues(start, end, 1);
+			const sl = getSourceValues(start, end, 2);
+			const sr = getSourceValues(start, end, 3);
+
+			const l2 = 0.5 * (l + sl);
+			const r2 = 0.5 * (r + sr);
+
+			destination[newFrameIndex * 2 + 0] = l2;
+			destination[newFrameIndex * 2 + 1] = r2;
+		}
+
+		// 5.1 to Stereo: L + sqrt(1/2) * (C + SL), R + sqrt(1/2) * (C + SR)
+		else if (srcNumberOfChannels === 6) {
+			const l = getSourceValues(start, end, 0);
+			const r = getSourceValues(start, end, 1);
+			const c = getSourceValues(start, end, 2);
+			const sl = getSourceValues(start, end, 3);
+			const sr = getSourceValues(start, end, 4);
+
+			const sq = Math.sqrt(1 / 2);
+			const l2 = l + sq * (c + sl);
+			const r2 = r + sq * (c + sr);
+
+			destination[newFrameIndex * 2 + 0] = l2;
+			destination[newFrameIndex * 2 + 1] = r2;
+		}
+
+		// Discrete fallback: direct mapping with zero-fill or drop
+		else {
+			for (let i = 0; i < srcNumberOfChannels; i++) {
+				destination[newFrameIndex * TARGET_NUMBER_OF_CHANNELS + i] =
+					getSourceValues(start, end, i);
+			}
+		}
 	}
 };

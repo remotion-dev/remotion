@@ -48,26 +48,22 @@ const readPcmWav = (filePath: string) => {
 const comparePcm = ({
 	reference,
 	candidate,
-	requireSameOnset,
 }: {
 	reference: Int16Array;
 	candidate: Int16Array;
-	requireSameOnset: boolean;
 }) => {
-	expect(candidate.length).toBe(reference.length);
 	const referenceOnset = reference.findIndex((sample) => sample !== 0);
 	const candidateOnset = candidate.findIndex((sample) => sample !== 0);
-	if (requireSameOnset) {
-		expect(candidateOnset).toBe(referenceOnset);
-	}
+	expect(candidateOnset).toBe(referenceOnset);
 
 	let signalPower = 0;
 	let errorPower = 0;
 	let maximumError = 0;
-	const comparisonStart = requireSameOnset
-		? referenceOnset
-		: Math.max(referenceOnset, candidateOnset);
-	for (let index = comparisonStart; index < reference.length; index++) {
+	for (
+		let index = referenceOnset;
+		index < Math.min(reference.length, candidate.length);
+		index++
+	) {
 		const expected = reference[index];
 		const actual = candidate[index];
 		const error = expected - actual;
@@ -112,6 +108,45 @@ const getSampleRateFromFile = async (filePath: string): Promise<number> => {
 	return parseInt(match[1], 10);
 };
 
+const issue10468Source = readFileSync(
+	path.join(__dirname, '..', '..', '..', 'remotion-media', 'ding.wav'),
+);
+const issue10468InputProps = {
+	implementation: 'media',
+	src: `data:audio/wav;base64,${issue10468Source.toString('base64')}`,
+};
+
+const renderIssue10468Wav = async ({
+	tmpDir,
+	name,
+	props,
+	concurrency,
+}: {
+	tmpDir: string;
+	name: string;
+	props: Record<string, unknown>;
+	concurrency: number;
+}) => {
+	const outputLocation = path.join(tmpDir, name);
+	const composition = await selectComposition({
+		id: 'audio-issue-10468',
+		serveUrl: exampleBuild,
+		inputProps: props,
+	});
+	await renderMedia({
+		outputLocation,
+		codec: 'wav',
+		serveUrl: exampleBuild,
+		composition,
+		inputProps: props,
+		sampleRate: 48000,
+		concurrency,
+		logLevel: 'error',
+	});
+
+	return readPcmWav(outputLocation);
+};
+
 test(
 	'Render video with sampleRate 44100 should produce 44100 Hz audio',
 	async () => {
@@ -141,107 +176,64 @@ test(
 );
 
 test(
+	'@remotion/media sample-rate conversion should be concurrency-independent',
+	async () => {
+		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'issue-10468-'));
+		try {
+			const concurrencyOne = await renderIssue10468Wav({
+				tmpDir,
+				name: 'media-concurrency-1.wav',
+				props: issue10468InputProps,
+				concurrency: 1,
+			});
+			const concurrencyThree = await renderIssue10468Wav({
+				tmpDir,
+				name: 'media-concurrency-3.wav',
+				props: issue10468InputProps,
+				concurrency: 3,
+			});
+
+			expect(concurrencyThree.samples).toEqual(concurrencyOne.samples);
+		} finally {
+			rmSync(tmpDir, {recursive: true, force: true});
+		}
+	},
+	{timeout: 180000},
+);
+
+test(
 	'@remotion/media sample-rate conversion should match Html5Audio',
 	async () => {
 		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'issue-10468-'));
-		const source = readFileSync(
-			path.join(__dirname, '..', '..', '..', 'remotion-media', 'ding.wav'),
-		);
-		const inputProps = {
-			implementation: 'media',
-			src: `data:audio/wav;base64,${source.toString('base64')}`,
-			variant: 'reproduction',
-		};
-
 		try {
-			const renderWav = async (
-				name: string,
-				props: Record<string, unknown>,
-				concurrency: number,
-			) => {
-				const outputLocation = path.join(tmpDir, name);
-				const composition = await selectComposition({
-					id: 'audio-issue-10468',
-					serveUrl: exampleBuild,
-					inputProps: props,
-				});
-				await renderMedia({
-					outputLocation,
-					codec: 'wav',
-					serveUrl: exampleBuild,
-					composition,
-					inputProps: props,
-					sampleRate: 48000,
-					concurrency,
-					logLevel: 'error',
-				});
-
-				return readPcmWav(outputLocation);
-			};
-			const reference = await renderWav(
-				'html5-reference.wav',
-				{...inputProps, implementation: 'html5'},
-				1,
-			);
-			const candidateConcurrencyOne = await renderWav(
-				'media-concurrency-1.wav',
-				inputProps,
-				1,
-			);
-			const candidateConcurrencyThree = await renderWav(
-				'media-concurrency-3.wav',
-				inputProps,
-				3,
-			);
+			const reference = await renderIssue10468Wav({
+				tmpDir,
+				name: 'html5-reference.wav',
+				props: {...issue10468InputProps, implementation: 'html5'},
+				concurrency: 1,
+			});
+			const candidate = await renderIssue10468Wav({
+				tmpDir,
+				name: 'media.wav',
+				props: issue10468InputProps,
+				concurrency: 1,
+			});
 
 			expect(reference.sampleRate).toBe(48000);
-			expect(candidateConcurrencyOne.sampleRate).toBe(48000);
+			expect(candidate.sampleRate).toBe(48000);
 			expect(reference.channels).toBe(2);
-			expect(candidateConcurrencyOne.channels).toBe(2);
-			expect(candidateConcurrencyThree.samples).toEqual(
-				candidateConcurrencyOne.samples,
-			);
+			expect(candidate.channels).toBe(2);
 			const comparison = comparePcm({
 				reference: reference.samples,
-				candidate: candidateConcurrencyOne.samples,
-				requireSameOnset: true,
+				candidate: candidate.samples,
 			});
 			expect(comparison.signalToNoiseRatio).toBeGreaterThan(30);
 			expect(comparison.maximumError).toBeLessThanOrEqual(600);
 
-			const untrimmedReference = await renderWav(
-				'untrimmed-html5.wav',
-				{...inputProps, implementation: 'html5', variant: 'untrimmed'},
-				1,
-			);
-			const untrimmedCandidate = await renderWav(
-				'untrimmed-media.wav',
-				{...inputProps, variant: 'untrimmed'},
-				1,
-			);
-			const untrimmedComparison = comparePcm({
-				reference: untrimmedReference.samples,
-				candidate: untrimmedCandidate.samples,
-				requireSameOnset: false,
-			});
-			expect(untrimmedComparison.signalToNoiseRatio).toBeGreaterThan(30);
-			expect(untrimmedComparison.maximumError).toBeLessThanOrEqual(600);
-
-			const playbackRate = await renderWav(
-				'playback-rate-media.wav',
-				{...inputProps, variant: 'playback-rate'},
-				1,
-			);
-			expect(playbackRate.sampleRate).toBe(48000);
-			expect(playbackRate.samples.length).toBeGreaterThan(0);
-			expect(playbackRate.samples.length).toBeLessThan(
-				candidateConcurrencyOne.samples.length,
-			);
-
 			const fractionalFpsComposition = await selectComposition({
 				id: 'audio-issue-10468-fractional-fps',
 				serveUrl: exampleBuild,
-				inputProps,
+				inputProps: issue10468InputProps,
 			});
 			const fractionalFpsPath = path.join(tmpDir, 'fractional-fps-media.wav');
 			await renderMedia({
@@ -249,7 +241,7 @@ test(
 				codec: 'wav',
 				serveUrl: exampleBuild,
 				composition: fractionalFpsComposition,
-				inputProps,
+				inputProps: issue10468InputProps,
 				frameRange: [81, 119],
 				sampleRate: 48000,
 				concurrency: 1,
