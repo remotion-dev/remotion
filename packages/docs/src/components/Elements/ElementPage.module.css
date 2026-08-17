@@ -1,10 +1,20 @@
 .workbench {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 24px;
 	margin-top: 28px;
 	margin-bottom: 28px;
 }
 
-.previewColumn,
+.previewColumn {
+	flex: 3 1 700px;
+	min-width: 0;
+}
+
 .actionsColumn {
+	container: actions-column / inline-size;
+	flex: 1 1 260px;
 	min-width: 0;
 }
 
@@ -243,14 +253,7 @@
 	color: var(--ifm-color-emphasis-700);
 }
 
-@media (min-width: 1200px) {
-	.workbench {
-		display: grid;
-		grid-template-columns: minmax(0, 3fr) minmax(260px, 1fr);
-		align-items: start;
-		gap: 24px;
-	}
-
+@container actions-column (max-width: 400px) {
 	.actionsColumn .actionRow,
 	.actionsColumn .contributors,
 	.actionsColumn .contributorList {

@@ -63,14 +63,12 @@ h6 {
 	display: none;
 }
 
-@media (min-width: 1200px) {
-	.plugin-id-elements main > .container {
-		max-width: 1440px;
-	}
+.plugin-id-elements main > .container {
+	max-width: 1440px;
+}
 
-	.plugin-id-elements main > .container > .row > .col {
-		max-width: 100% !important;
-	}
+.plugin-id-elements main > .container > .row > .col {
+	max-width: 100% !important;
 }
 
 .plugin-id-elements .theme-doc-markdown > h1:first-child {
