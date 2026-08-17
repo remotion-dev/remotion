@@ -77,6 +77,14 @@ h6 {
 	margin-bottom: 0.75rem;
 }
 
+.elements-sidebar-root > .menu__list {
+	padding-left: 0;
+}
+
+.elements-sidebar-root > .menu__list-item-collapsible > .menu__caret {
+	display: none;
+}
+
 :root {
 	--ifm-color-primary: #0b84f3;
 	--ifm-color-primary-dark: #0a77db;

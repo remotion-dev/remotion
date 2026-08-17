@@ -464,6 +464,7 @@ describe('Elements sidebar', () => {
 		expect(elementsCategory).toMatchObject({
 			type: 'category',
 			label: 'Elements',
+			className: 'elements-sidebar-root',
 			link: {type: 'doc', id: 'index'},
 			collapsible: true,
 			collapsed: false,
@@ -477,7 +478,7 @@ describe('Elements sidebar', () => {
 			{
 				type: 'html',
 				value:
-					'<hr style="margin: 4px 0 4px calc(-1 * var(--ifm-menu-link-padding-horizontal)); width: calc(100% + var(--ifm-menu-link-padding-horizontal)); border-bottom: none"/>',
+					'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
 				defaultStyle: true,
 			},
 		]);
@@ -562,7 +563,8 @@ describe('Elements sidebar', () => {
 				type: 'category',
 				label,
 				link: {type: 'doc', id: `${category}/index`},
-				collapsible: false,
+				collapsible: true,
+				collapsed: false,
 				items,
 			})),
 		);
