@@ -38,10 +38,9 @@ export const YouTubeSubscribeNudge: React.FC = () => {
 				durationInFrames={39}
 				from={81}
 				name="Bell chime"
-				playbackRate={1.1}
 				src={ding}
 				trimBefore={4}
-				volume={0.3}
+				volume={0.24}
 			/>
 			<div
 				style={{

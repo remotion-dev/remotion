@@ -255,8 +255,10 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 50,
 		preview: {
-			posterUrl: '/elements/youtube-youtube-subscribe-nudge-preview.png',
-			videoUrl: '/elements/youtube-youtube-subscribe-nudge-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.mp4',
 		},
 		previewPadding: 240,
 		installationMode: 'wrapped',
