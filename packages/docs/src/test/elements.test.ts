@@ -316,8 +316,10 @@ describe('Element library', () => {
 
 		for (const definition of elementDefinitionList) {
 			expect(
-				overviewMarkup.split(`>${definition.displayName}</h3>`),
+				overviewMarkup.split(`>${definition.displayName}</span>`),
 			).toHaveLength(2);
+			expect(overviewMarkup).not.toContain(`>${definition.displayName}</h2>`);
+			expect(overviewMarkup).not.toContain(`>${definition.displayName}</h3>`);
 			expect(overviewMarkup).toContain(definition.description);
 			expect(overviewMarkup).toContain(definition.preview.posterUrl);
 			expect(overviewMarkup).toContain(getElementDocumentationUrl(definition));
@@ -449,18 +451,38 @@ describe('Elements sidebar', () => {
 			throw new Error('Elements sidebar must be an array');
 		}
 
-		expect(sidebar.slice(0, 3)).toEqual([
-			'index',
+		expect(sidebar).toHaveLength(1);
+		const elementsCategory = sidebar[0];
+		if (
+			typeof elementsCategory !== 'object' ||
+			elementsCategory === null ||
+			elementsCategory.type !== 'category'
+		) {
+			throw new Error('Elements sidebar must have an Elements root category');
+		}
+
+		expect(elementsCategory).toMatchObject({
+			type: 'category',
+			label: 'Elements',
+			link: {type: 'doc', id: 'index'},
+			collapsible: true,
+			collapsed: false,
+		});
+		if (!Array.isArray(elementsCategory.items)) {
+			throw new Error('Elements root category must contain sidebar items');
+		}
+
+		expect(elementsCategory.items.slice(0, 2)).toEqual([
 			'contributing',
 			{
 				type: 'html',
 				value:
-					'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+					'<hr style="margin: 4px 0 4px calc(-1 * var(--ifm-menu-link-padding-horizontal)); width: calc(100% + var(--ifm-menu-link-padding-horizontal)); border-bottom: none"/>',
 				defaultStyle: true,
 			},
 		]);
 
-		const categories = sidebar.slice(3);
+		const categories = elementsCategory.items.slice(2);
 		const expectedCategories = [
 			{
 				category: 'backgrounds',
@@ -540,7 +562,7 @@ describe('Elements sidebar', () => {
 				type: 'category',
 				label,
 				link: {type: 'doc', id: `${category}/index`},
-				collapsed: false,
+				collapsible: false,
 				items,
 			})),
 		);
