@@ -914,6 +914,55 @@ test.describe('visual mode', () => {
 					editorId: 'zed',
 				}),
 			]);
+
+		const timelineGridline = page.locator(
+			'[data-timeline-marquee-item][title="0% gridline"]',
+		);
+		await timelineGridline.click();
+		await page.locator('[data-sidebar-toggle="right"]').click();
+		const sourceLocation = page
+			.getByRole('group', {name: 'Inspector source location'})
+			.first();
+		await expect(sourceLocation).toBeVisible();
+		const sourceLink = sourceLocation.getByRole('button', {
+			name: /BarChart\.tsx:\d+/,
+		});
+		await expect(sourceLink).toBeEnabled();
+		await sourceLink.click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+			]);
+
+		await timelineGridline.click({button: 'right'});
+		const sequenceContextMenu = page
+			.locator('[data-remotion-menu-tree-id]')
+			.last();
+		const contextMenuOpenInZed = sequenceContextMenu.getByRole('button', {
+			name: 'Open in Zed',
+			exact: true,
+		});
+		await expect(contextMenuOpenInZed).toBeEnabled();
+		await contextMenuOpenInZed.click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+			]);
 	});
 
 	test('should use standalone and contextual app names in portaled context menus', async ({

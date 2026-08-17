@@ -10,6 +10,7 @@ import {
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
 	canUseEditorPicker,
+	getPreferredEditorId,
 	useDefaultCodingAgentInfo,
 	useDefaultEditorInfo,
 } from '../use-default-editor-info';
@@ -25,13 +26,15 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 	const editorPickerAvailable = canUseEditorPicker(previewConnected);
 	const editorInfo = useDefaultEditorInfo(editorPickerAvailable);
 	const codingAgentInfo = useDefaultCodingAgentInfo(editorPickerAvailable);
-
+	const preferredEditorId = getPreferredEditorId(editorInfo);
 	const canOpenInEditor = useMemo(
 		() =>
 			Boolean(
-				window.remotion_editorName && previewConnected && originalLocation,
+				previewConnected &&
+				originalLocation &&
+				(window.remotion_editorName !== null || preferredEditorId !== null),
 			),
-		[originalLocation, previewConnected],
+		[originalLocation, preferredEditorId, previewConnected],
 	);
 
 	const openInEditor = useCallback(
@@ -41,12 +44,16 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 			}
 
 			try {
-				await openOriginalPositionInEditor(originalLocation, editorId);
+				await openOriginalPositionInEditor(
+					originalLocation,
+					editorId ??
+						(window.remotion_editorName === null ? preferredEditorId : null),
+				);
 			} catch (err) {
 				showNotification((err as Error).message, 2000);
 			}
 		},
-		[canOpenInEditor, originalLocation],
+		[canOpenInEditor, originalLocation, preferredEditorId],
 	);
 	const openInCodingAgent = useCallback(
 		async (

@@ -49,6 +49,7 @@ import {
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {
 	canUseEditorPicker,
+	getPreferredEditorId,
 	useDefaultCodingAgentInfo,
 	useDefaultEditorInfo,
 } from './use-default-editor-info';
@@ -103,6 +104,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	);
 	const editorInfo = useDefaultEditorInfo(canConfigureApps);
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const preferredEditorId = getPreferredEditorId(editorInfo);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
@@ -202,7 +204,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				button,
 				canOpenInEditor:
 					previewServerState.type === 'connected' &&
-					Boolean(window.remotion_editorName),
+					(window.remotion_editorName !== null || preferredEditorId !== null),
 				numberOfConnectedCompositions: connectedCompositions.length,
 			});
 
@@ -222,7 +224,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation, null);
+				await openOriginalPositionInEditor(
+					originalLocation,
+					window.remotion_editorName === null ? preferredEditorId : null,
+				);
 			};
 
 			openTargetInEditor().catch((err) => {
@@ -233,6 +238,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		},
 		[
 			compositions,
+			preferredEditorId,
 			previewServerState.type,
 			resolveOriginalLocation,
 			selectComposition,
@@ -263,7 +269,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				: null;
 		const assetLinkInfo = mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null;
 		const canOpenInEditor = Boolean(
-			window.remotion_editorName && originalLocation,
+			originalLocation &&
+			(window.remotion_editorName !== null || preferredEditorId !== null),
 		);
 		const sourceEditingEnabled = isStudioInteractivityEnabled();
 		const disableInteractivityDisabled =
@@ -379,11 +386,13 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation, editorId).catch(
-					(err) => {
-						showNotification((err as Error).message, 2000);
-					},
-				);
+				openOriginalPositionInEditor(
+					originalLocation,
+					editorId ??
+						(window.remotion_editorName === null ? preferredEditorId : null),
+				).catch((err) => {
+					showNotification((err as Error).message, 2000);
+				});
 			},
 			originalLocation,
 			selectAsset,
@@ -496,6 +505,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		editorInfo,
 		getTarget,
 		onSelect,
+		preferredEditorId,
 		previewServerState,
 		resolveOriginalLocation,
 		setManuallyEnabled,
