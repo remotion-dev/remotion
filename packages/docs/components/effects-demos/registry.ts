@@ -55,6 +55,7 @@ import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
 import {starburst} from '@remotion/effects/starburst';
 import {thermalVision} from '@remotion/effects/thermal-vision';
+import {tile} from '@remotion/effects/tile';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
@@ -146,6 +147,7 @@ import {
 	STARBURST_PREVIEW_PARAMS,
 } from '../effects/effects-starburst-preview';
 import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
+import {EffectsTilePreview} from '../effects/effects-tile-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -538,6 +540,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/scale',
 		comp: EffectsScalePreview,
 		schema: scale({scale: 1}).definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-tile',
+		effectName: 'tile',
+		effectImportPath: '@remotion/effects/tile',
+		comp: EffectsTilePreview,
+		schema: tile().definition.schema,
 	},
 	{
 		...defaults,

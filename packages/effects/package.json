@@ -319,6 +319,11 @@
 			"module": "./dist/esm/thermal-vision.mjs",
 			"import": "./dist/esm/thermal-vision.mjs"
 		},
+		"./tile": {
+			"types": "./dist/tile.d.ts",
+			"module": "./dist/esm/tile.mjs",
+			"import": "./dist/esm/tile.mjs"
+		},
 		"./tint": {
 			"types": "./dist/tint.d.ts",
 			"module": "./dist/esm/tint.mjs",
@@ -553,6 +558,9 @@
 			],
 			"thermal-vision": [
 				"dist/thermal-vision.d.ts"
+			],
+			"tile": [
+				"dist/tile.d.ts"
 			],
 			"tint": [
 				"dist/tint.d.ts"

@@ -2331,6 +2331,15 @@ export const articles = [
 		slug: 'effects/thermal-vision',
 	},
 	{
+		id: 'effects/tile',
+		title: 'tile()',
+		relativePath: 'docs/effects/tile.mdx',
+		compId: 'articles-docs-effects-tile',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/tile',
+	},
+	{
 		id: 'effects/tint',
 		title: 'tint()',
 		relativePath: 'docs/effects/tint.mdx',

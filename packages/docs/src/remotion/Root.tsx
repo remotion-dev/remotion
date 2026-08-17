@@ -89,6 +89,7 @@ import {
 	STARBURST_PREVIEW_PARAMS,
 } from '../../components/effects/effects-starburst-preview';
 import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
+import {EffectsTilePreview} from '../../components/effects/effects-tile-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -450,6 +451,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{scale: 0.8, horizontal: true, vertical: true}}
+				/>
+				<Still
+					id="effects-tile-preview"
+					component={EffectsTilePreview}
+					width={1280}
+					height={720}
+					defaultProps={{horizontal: true, vertical: true}}
 				/>
 				<Still
 					id="effects-xy-translate-preview"
