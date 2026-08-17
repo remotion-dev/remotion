@@ -436,6 +436,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 	const registeredSequences: TSequence[] = [];
 	const firstStack = 'Error\n    at FirstSeriesSequence';
 	const secondStack = 'Error\n    at SecondSeriesSequence';
+	const ConnectedComposition: React.FC = () => null;
 
 	render(
 		<SequenceTestWrapper
@@ -451,7 +452,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 						_remotionInternalStack: firstStack,
 					} as {readonly _remotionInternalStack: string})}
 				>
-					First
+					<ConnectedComposition />
 				</Series.Sequence>
 				<Series.Sequence
 					durationInFrames={20}
@@ -487,6 +488,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 		firstStack,
 		secondStack,
 	]);
+	expect(seriesSequences[0]?.singleChildComponent).toBe(ConnectedComposition);
 });
 
 test('Interactive.withSchema preserves source stacks through controls without consuming a public stack prop', () => {
