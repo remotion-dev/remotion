@@ -43,6 +43,7 @@ const ElementCard: React.FC<{
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
+	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
 		!prefersReducedMotion && !playbackFailed && (isFocused || isPointerOver);
@@ -99,7 +100,7 @@ const ElementCard: React.FC<{
 						dataTransfer: event.dataTransfer,
 						payload: elementPayload,
 					});
-					setElementDragImage(event.dataTransfer);
+					setElementDragImage(event.dataTransfer, posterRef.current);
 				}}
 				onPointerEnter={activateFromPointer}
 				onPointerLeave={() => setIsPointerOver(false)}
@@ -111,6 +112,7 @@ const ElementCard: React.FC<{
 					style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}
 				>
 					<img
+						ref={posterRef}
 						alt=""
 						className={styles.previewMedia}
 						decoding="async"
