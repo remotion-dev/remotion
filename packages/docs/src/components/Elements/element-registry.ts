@@ -109,6 +109,10 @@ export const elementRegistry = {
 		category: 'youtube',
 		displayName: 'YouTube End Card',
 	},
+	'youtube/youtube-subscribe-nudge': {
+		category: 'youtube',
+		displayName: 'YouTube Subscribe Nudge',
+	},
 } as const satisfies Record<
 	string,
 	{readonly category: ElementCategory; readonly displayName: string}
