@@ -24,6 +24,7 @@ import {CloseUp4} from './CloseUp4';
 import {CloseUp5} from './CloseUp5';
 import {CloseUp6} from './CloseUp6';
 import {CloseUp7} from './CloseUp7';
+import {CloseUp8} from './CloseUp8';
 import {CloseUpsSeries} from './CloseUpsSeries';
 import {
 	WhatIsRemotion,
@@ -121,6 +122,7 @@ import {
 	skills2AnnouncementSchema,
 } from './Skills2Announcement';
 import {Skills2CodeChange} from './Skills2CodeChange';
+import {Skills2CrazyContext} from './Skills2CrazyContext';
 import {Skills2Gesture} from './Skills2Gesture';
 import {Skills2Pick} from './Skills2Pick';
 import {Skills2Router} from './Skills2Router';
@@ -171,6 +173,14 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1920}
 					height={1920}
+				/>
+				<Composition
+					id="Skills2CrazyContext"
+					component={Skills2CrazyContext}
+					durationInFrames={120}
+					fps={30}
+					width={1920}
+					height={1400}
 				/>
 				<Composition
 					id="Skills2Announcement"
@@ -885,11 +895,12 @@ export const RemotionRoot: React.FC = () => {
 				<CloseUp5 />
 				<CloseUp6 />
 				<CloseUp7 />
+				<CloseUp8 />
 			</Folder>
 			<Composition
 				id="CloseUpsSeries"
 				component={CloseUpsSeries}
-				durationInFrames={537}
+				durationInFrames={637}
 				fps={60}
 				width={1920}
 				height={1080}

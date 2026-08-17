@@ -307,6 +307,7 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
+		routes.redirect('/plugins', '/docs/ai/plugins', {permanent: false}),
 		routes.redirect(
 			'/codex',
 			'https://chatgpt.com/plugins/plugins~Plugin_efd07789186881918253a50acfc32762?open_in_codex',

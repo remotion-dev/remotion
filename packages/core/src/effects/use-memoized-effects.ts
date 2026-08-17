@@ -1,5 +1,6 @@
 import {useContext, useRef} from 'react';
 import {resolveDragOverrideValue} from '../get-effective-visual-mode-value.js';
+import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import type {
 	CannotUpdateEffectReason,
@@ -70,6 +71,7 @@ const mergeOverrides = ({
 
 const resolvePropStatusOverrides = (
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined,
+	frame: number,
 ): Record<string, unknown> | null => {
 	if (!propStatus) {
 		return null;
@@ -84,8 +86,17 @@ const resolvePropStatusOverrides = (
 			continue;
 		}
 
-		// Keyframed params retain the value evaluated by their JSX expression.
-		// Explicit drag overrides are resolved separately in mergeOverrides().
+		if (status.status === 'keyframed') {
+			const value = interpolateKeyframedStatus({
+				forceSpringAllowTail: null,
+				frame,
+				status,
+			});
+			if (value !== null) {
+				out[key] = value;
+				hasAny = true;
+			}
+		}
 	}
 
 	return hasAny ? out : null;
@@ -213,7 +224,7 @@ export const useMemoizedEffects = ({
 		});
 		const propStatusOverrides =
 			effectStatus.type === 'can-update-effect'
-				? resolvePropStatusOverrides(effectStatus.props)
+				? resolvePropStatusOverrides(effectStatus.props, frame)
 				: null;
 		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
 		const dragOverrides =

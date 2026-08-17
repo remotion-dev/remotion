@@ -72,6 +72,51 @@ let cachedSequencePropsStatusAst: {
 	videoConfigIdentifierValues: Map<string, VideoConfigIdentifierValues>;
 } | null = null;
 
+// A subsequent save can consume the last read-only snapshot if the file has
+// not changed. The save mutates the AST, so it must only be reused once.
+let reusableSequencePropsStatusAst: {
+	fileContents: string;
+	ast: File;
+} | null = null;
+
+const getCachedSequencePropsStatusAst = (fileContents: string) => {
+	if (cachedSequencePropsStatusAst?.fileContents !== fileContents) {
+		const snapshot = {
+			fileContents,
+			ast: parseAst(fileContents),
+			videoConfigIdentifierValues: new Map<
+				string,
+				VideoConfigIdentifierValues
+			>(),
+		};
+		cachedSequencePropsStatusAst = snapshot;
+		reusableSequencePropsStatusAst = snapshot;
+		queueMicrotask(() => {
+			if (cachedSequencePropsStatusAst === snapshot) {
+				cachedSequencePropsStatusAst = null;
+			}
+		});
+	}
+
+	return cachedSequencePropsStatusAst;
+};
+
+export const takeCachedSequencePropsStatusAst = (
+	fileContents: string,
+): File | null => {
+	if (reusableSequencePropsStatusAst?.fileContents !== fileContents) {
+		return null;
+	}
+
+	const {ast} = reusableSequencePropsStatusAst;
+	reusableSequencePropsStatusAst = null;
+	if (cachedSequencePropsStatusAst?.ast === ast) {
+		cachedSequencePropsStatusAst = null;
+	}
+
+	return ast;
+};
+
 const staticStatus = (
 	codeValue: unknown,
 	numericExpression: VideoConfigNumericExpression | null,
@@ -923,15 +968,12 @@ export const findNodePathForJsxElement = (
 const RECAST_TAB_WIDTH = 4;
 
 const sourceColumnToRecastColumn = ({
-	fileContents,
-	line,
+	sourceLine,
 	column,
 }: {
-	fileContents: string;
-	line: number;
+	sourceLine: string | undefined;
 	column: number;
 }) => {
-	const sourceLine = fileContents.split('\n')[line - 1];
 	if (sourceLine === undefined) {
 		return column;
 	}
@@ -960,8 +1002,7 @@ export const lineColumnToNodePath = (
 		targetColumn === undefined || fileContents === undefined
 			? targetColumn
 			: sourceColumnToRecastColumn({
-					fileContents,
-					line: targetLine,
+					sourceLine: fileContents.split('\n')[targetLine - 1],
 					column: targetColumn,
 				});
 
@@ -985,6 +1026,74 @@ export const lineColumnToNodePath = (
 	}
 
 	return lineMatches.at(-1) ?? null;
+};
+
+export const lineColumnsToNodePaths = ({
+	ast,
+	targets,
+	fileContents,
+}: {
+	ast: File;
+	targets: {line: number; column: number}[];
+	fileContents: string;
+}): (SequenceNodePath | null)[] => {
+	const sourceLines = fileContents.split('\n');
+	const targetIndicesByLine = new Map<number, number[]>();
+	const recastTargetColumns = targets.map(({line, column}, index) => {
+		const indices = targetIndicesByLine.get(line) ?? [];
+		indices.push(index);
+		targetIndicesByLine.set(line, indices);
+		return sourceColumnToRecastColumn({
+			sourceLine: sourceLines[line - 1],
+			column,
+		});
+	});
+	const lineMatches: (SequenceNodePath | null)[] = targets.map(() => null);
+	const exactMatches: (SequenceNodePath | null)[] = targets.map(() => null);
+	const exactMatchCounts = targets.map(() => 0);
+
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(p) {
+			const {node} = p;
+			const line = node.loc?.start.line;
+			const targetIndices = line ? targetIndicesByLine.get(line) : undefined;
+			if (targetIndices) {
+				const nodePath = getNodePathForRecastPath(p, ast);
+				for (const index of targetIndices) {
+					lineMatches[index] = nodePath;
+					if (node.loc?.start.column === recastTargetColumns[index]) {
+						exactMatches[index] = nodePath;
+						exactMatchCounts[index]++;
+					}
+				}
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	return targets.map((_, index) =>
+		exactMatchCounts[index] === 1 ? exactMatches[index] : lineMatches[index],
+	);
+};
+
+export const resolveSequencePropsNodePathsFromFilename = ({
+	fileName,
+	targets,
+	remotionRoot,
+}: {
+	fileName: string;
+	targets: {line: number; column: number}[];
+	remotionRoot: string;
+}) => {
+	const {absolutePath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName,
+		action: 'read',
+	});
+	const fileContents = readFileSync(absolutePath, 'utf-8');
+	const {ast} = getCachedSequencePropsStatusAst(fileContents);
+	return lineColumnsToNodePaths({ast, targets, fileContents});
 };
 
 const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
@@ -1337,58 +1446,23 @@ const computeSequenceOnlyPropsRecord = ({
 	return filteredProps;
 };
 
-export const computeSequencePropsStatusFromContent = ({
-	fileContents,
+const computeSequencePropsStatusFromAstAndIdentifiers = ({
+	ast,
 	nodePath,
 	componentIdentity,
 	keys,
-	assetKeys = [],
+	assetKeys,
 	effects,
-	videoConfigValues,
+	videoConfigIdentifierValues,
 }: {
-	fileContents: string;
+	ast: File;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
-	assetKeys?: string[];
+	assetKeys: string[];
 	effects: string[][];
-	videoConfigValues: VideoConfigValues | null;
+	videoConfigIdentifierValues: VideoConfigIdentifierValues;
 }): CanUpdateSequencePropsResponseTrue => {
-	if (cachedSequencePropsStatusAst?.fileContents !== fileContents) {
-		cachedSequencePropsStatusAst = null;
-		const snapshot = {
-			fileContents,
-			ast: parseAst(fileContents),
-			videoConfigIdentifierValues: new Map<
-				string,
-				VideoConfigIdentifierValues
-			>(),
-		};
-		cachedSequencePropsStatusAst = snapshot;
-		queueMicrotask(() => {
-			if (cachedSequencePropsStatusAst === snapshot) {
-				cachedSequencePropsStatusAst = null;
-			}
-		});
-	}
-
-	const {ast} = cachedSequencePropsStatusAst;
-	const videoConfigCacheKey = JSON.stringify(videoConfigValues);
-	let videoConfigIdentifierValues =
-		cachedSequencePropsStatusAst.videoConfigIdentifierValues.get(
-			videoConfigCacheKey,
-		);
-	if (videoConfigIdentifierValues === undefined) {
-		videoConfigIdentifierValues = getVideoConfigIdentifierValues({
-			ast,
-			videoConfigValues,
-		});
-		cachedSequencePropsStatusAst.videoConfigIdentifierValues.set(
-			videoConfigCacheKey,
-			videoConfigIdentifierValues,
-		);
-	}
-
 	const jsxElementNode = findJsxElementNodeAtNodePath(ast, nodePath);
 	const jsxElement = jsxElementNode?.openingElement ?? null;
 
@@ -1425,6 +1499,81 @@ export const computeSequencePropsStatusFromContent = ({
 		props: filteredProps,
 		effects: effectsStatuses,
 	};
+};
+
+export const computeSequencePropsStatusFromAst = ({
+	ast,
+	nodePath,
+	componentIdentity,
+	keys,
+	assetKeys = [],
+	effects,
+	videoConfigValues,
+}: {
+	ast: File;
+	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys?: string[];
+	effects: string[][];
+	videoConfigValues: VideoConfigValues | null;
+}): CanUpdateSequencePropsResponseTrue => {
+	return computeSequencePropsStatusFromAstAndIdentifiers({
+		ast,
+		nodePath,
+		componentIdentity,
+		keys,
+		assetKeys,
+		effects,
+		videoConfigIdentifierValues: getVideoConfigIdentifierValues({
+			ast,
+			videoConfigValues,
+		}),
+	});
+};
+
+export const computeSequencePropsStatusFromContent = ({
+	fileContents,
+	nodePath,
+	componentIdentity,
+	keys,
+	assetKeys = [],
+	effects,
+	videoConfigValues,
+}: {
+	fileContents: string;
+	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys?: string[];
+	effects: string[][];
+	videoConfigValues: VideoConfigValues | null;
+}): CanUpdateSequencePropsResponseTrue => {
+	const cachedAst = getCachedSequencePropsStatusAst(fileContents);
+	const {ast} = cachedAst;
+	const videoConfigCacheKey = JSON.stringify(videoConfigValues);
+	let videoConfigIdentifierValues =
+		cachedAst.videoConfigIdentifierValues.get(videoConfigCacheKey);
+	if (videoConfigIdentifierValues === undefined) {
+		videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+			ast,
+			videoConfigValues,
+		});
+		cachedAst.videoConfigIdentifierValues.set(
+			videoConfigCacheKey,
+			videoConfigIdentifierValues,
+		);
+	}
+
+	return computeSequencePropsStatusFromAstAndIdentifiers({
+		ast,
+		nodePath,
+		componentIdentity,
+		keys,
+		assetKeys,
+		effects,
+		videoConfigIdentifierValues,
+	});
 };
 
 export const computeSequencePropsStatus = ({
@@ -1495,7 +1644,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 		});
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
-		const ast = parseAst(fileContents);
+		const {ast} = getCachedSequencePropsStatusAst(fileContents);
 
 		const resolvedNodePath = lineColumnToNodePath(
 			ast,
