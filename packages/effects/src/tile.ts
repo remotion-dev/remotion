@@ -174,24 +174,27 @@ export const tile = createEffect<TileParams, TileState>({
 		);
 
 		context.clearRect(0, 0, width, height);
-		const startX = r.horizontal
-			? left - Math.ceil(left / tileWidth) * tileWidth
-			: left;
-		const startY = r.vertical
-			? top - Math.ceil(top / tileHeight) * tileHeight
-			: top;
+		// A mirrored neighbor shares its boundary pixel with the previous tile.
+		// Advancing by tileSize - 1 avoids rendering that endpoint twice as a seam.
+		const stepX = r.horizontal ? Math.max(1, tileWidth - 1) : tileWidth;
+		const stepY = r.vertical ? Math.max(1, tileHeight - 1) : tileHeight;
+		const startX = r.horizontal ? left - Math.ceil(left / stepX) * stepX : left;
+		const startY = r.vertical ? top - Math.ceil(top / stepY) * stepY : top;
 		const endX = r.horizontal ? width : left + tileWidth;
 		const endY = r.vertical ? height : top + tileHeight;
 
-		for (let y = startY; y < endY; y += tileHeight) {
-			const tileY = Math.round((y - top) / tileHeight);
+		for (let y = startY; y < endY; y += stepY) {
+			const tileY = Math.round((y - top) / stepY);
 			const mirrorY = r.vertical && Math.abs(tileY) % 2 === 1;
 
-			for (let x = startX; x < endX; x += tileWidth) {
-				const tileX = Math.round((x - left) / tileWidth);
+			for (let x = startX; x < endX; x += stepX) {
+				const tileX = Math.round((x - left) / stepX);
 				const mirrorX = r.horizontal && Math.abs(tileX) % 2 === 1;
 
 				context.save();
+				context.beginPath();
+				context.rect(x, y, stepX, stepY);
+				context.clip();
 				context.translate(
 					mirrorX ? x + tileWidth : x,
 					mirrorY ? y + tileHeight : y,

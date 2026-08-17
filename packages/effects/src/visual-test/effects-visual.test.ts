@@ -491,7 +491,7 @@ test('vignette() color mode works on transparent sources', async () => {
 	}
 });
 
-test('tile() mirrors neighboring copies on both axes', async () => {
+test('tile() mirrors neighboring copies on both axes without seams', async () => {
 	const source = document.createElement('canvas');
 	source.width = 6;
 	source.height = 6;
@@ -503,7 +503,7 @@ test('tile() mirrors neighboring copies on both axes', async () => {
 	sourceContext.putImageData(
 		new ImageData(
 			new Uint8ClampedArray([
-				255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255,
+				255, 0, 0, 128, 0, 255, 0, 128, 0, 0, 255, 128, 255, 255, 0, 128,
 			]),
 			2,
 			2,
@@ -525,8 +525,10 @@ test('tile() mirrors neighboring copies on both axes', async () => {
 
 	const pixels = context.getImageData(0, 0, 6, 6).data;
 	const colors = [];
+	const alphas = [];
 	for (let i = 0; i < pixels.length; i += 4) {
 		colors.push(`${pixels[i]}-${pixels[i + 1]}-${pixels[i + 2]}`);
+		alphas.push(pixels[i + 3]);
 	}
 
 	const red = '255-0-0';
@@ -535,14 +537,15 @@ test('tile() mirrors neighboring copies on both axes', async () => {
 	const yellow = '255-255-0';
 	expect(colors).toEqual(
 		[
-			[yellow, blue, blue, yellow, yellow, blue],
-			[green, red, red, green, green, red],
-			[green, red, red, green, green, red],
-			[yellow, blue, blue, yellow, yellow, blue],
-			[yellow, blue, blue, yellow, yellow, blue],
-			[green, red, red, green, green, red],
+			[red, green, red, green, red, green],
+			[blue, yellow, blue, yellow, blue, yellow],
+			[red, green, red, green, red, green],
+			[blue, yellow, blue, yellow, blue, yellow],
+			[red, green, red, green, red, green],
+			[blue, yellow, blue, yellow, blue, yellow],
 		].flat(),
 	);
+	expect(alphas).toEqual(new Array(36).fill(128));
 });
 
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {
