@@ -1791,6 +1791,15 @@ export const Index: React.FC = () => {
 					defaultProps={issue10468DefaultProps}
 				/>
 				<Composition
+					id="audio-issue-5758"
+					component={Issue10468}
+					width={1920}
+					height={1080}
+					fps={24.87}
+					durationInFrames={120}
+					defaultProps={issue10468DefaultProps}
+				/>
+				<Composition
 					id="audio-issue-7568"
 					component={Issue7568}
 					width={1920}

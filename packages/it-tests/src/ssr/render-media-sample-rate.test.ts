@@ -116,6 +116,32 @@ const issue10468InputProps = {
 	src: `data:audio/wav;base64,${issue10468Source.toString('base64')}`,
 };
 
+const issue5758InputProps = {
+	implementation: 'media',
+	src: (() => {
+		const numberOfFrames = 6 * 48000;
+		const dataSize = numberOfFrames * 2 * 2;
+		const wav = Buffer.alloc(44 + dataSize);
+		wav.write('RIFF', 0);
+		wav.writeUInt32LE(36 + dataSize, 4);
+		wav.write('WAVEfmt ', 8);
+		wav.writeUInt32LE(16, 16);
+		wav.writeUInt16LE(1, 20);
+		wav.writeUInt16LE(2, 22);
+		wav.writeUInt32LE(48000, 24);
+		wav.writeUInt32LE(48000 * 2 * 2, 28);
+		wav.writeUInt16LE(2 * 2, 32);
+		wav.writeUInt16LE(16, 34);
+		wav.write('data', 36);
+		wav.writeUInt32LE(dataSize, 40);
+		for (let offset = 44; offset < wav.length; offset += 2) {
+			wav.writeInt16LE(10000, offset);
+		}
+
+		return `data:audio/wav;base64,${wav.toString('base64')}`;
+	})(),
+};
+
 const renderIssue10468Wav = async ({
 	tmpDir,
 	name,
@@ -254,6 +280,43 @@ test(
 			expect(fractionalFps.samples.length / 2).toBe(
 				expectedFractionalFpsFrames,
 			);
+		} finally {
+			rmSync(tmpDir, {recursive: true, force: true});
+		}
+	},
+	{timeout: 180000},
+);
+
+test(
+	'@remotion/media should not leave audio gaps at 24.87 FPS (#5758)',
+	async () => {
+		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'issue-5758-'));
+		try {
+			const outputLocation = path.join(tmpDir, 'media.wav');
+			const composition = await selectComposition({
+				id: 'audio-issue-5758',
+				serveUrl: exampleBuild,
+				inputProps: issue5758InputProps,
+			});
+			await renderMedia({
+				outputLocation,
+				codec: 'wav',
+				serveUrl: exampleBuild,
+				composition,
+				inputProps: issue5758InputProps,
+				sampleRate: 48000,
+				concurrency: 1,
+				logLevel: 'error',
+			});
+
+			const rendered = readPcmWav(outputLocation);
+			const onset = rendered.samples.findIndex((sample) => sample !== 0);
+			expect(rendered.sampleRate).toBe(48000);
+			expect(rendered.channels).toBe(2);
+			expect(onset).toBeGreaterThan(-1);
+			expect(
+				rendered.samples.subarray(onset).findIndex((sample) => sample === 0),
+			).toBe(-1);
 		} finally {
 			rmSync(tmpDir, {recursive: true, force: true});
 		}
