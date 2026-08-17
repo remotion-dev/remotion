@@ -48,10 +48,8 @@ import {
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {
-	canUseEditorPicker,
-	getPreferredEditorId,
 	useDefaultCodingAgentInfo,
-	useDefaultEditorInfo,
+	useEditorOpening,
 } from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
 type SelectedOutlineElementProps = {
@@ -99,12 +97,13 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	scale,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const canConfigureApps = canUseEditorPicker(
-		previewServerState.type === 'connected',
-	);
-	const editorInfo = useDefaultEditorInfo(canConfigureApps);
+	const {
+		canConfigureApps,
+		canOpenInEditor: editorAvailable,
+		defaultEditorId,
+		editorInfo,
+	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
-	const preferredEditorId = getPreferredEditorId(editorInfo);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
@@ -202,9 +201,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			});
 			const action = getSequenceDoubleClickAction({
 				button,
-				canOpenInEditor:
-					previewServerState.type === 'connected' &&
-					(window.remotion_editorName !== null || preferredEditorId !== null),
+				canOpenInEditor: editorAvailable,
 				numberOfConnectedCompositions: connectedCompositions.length,
 			});
 
@@ -220,14 +217,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			const openTargetInEditor = async () => {
 				const originalLocation =
 					await resolveOriginalLocation(doubleClickTarget);
-				if (originalLocation === null) {
+				if (originalLocation === null || defaultEditorId === null) {
 					return;
 				}
 
-				await openOriginalPositionInEditor(
-					originalLocation,
-					window.remotion_editorName === null ? preferredEditorId : null,
-				);
+				await openOriginalPositionInEditor(originalLocation, defaultEditorId);
 			};
 
 			openTargetInEditor().catch((err) => {
@@ -238,8 +232,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		},
 		[
 			compositions,
-			preferredEditorId,
-			previewServerState.type,
+			defaultEditorId,
+			editorAvailable,
 			resolveOriginalLocation,
 			selectComposition,
 		],
@@ -268,10 +262,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				? contextMenuTarget.sequence.src
 				: null;
 		const assetLinkInfo = mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null;
-		const canOpenInEditor = Boolean(
-			originalLocation &&
-			(window.remotion_editorName !== null || preferredEditorId !== null),
-		);
+		const canOpenInEditor = Boolean(originalLocation && editorAvailable);
 		const sourceEditingEnabled = isStudioInteractivityEnabled();
 		const disableInteractivityDisabled =
 			!sourceEditingEnabled || !contextMenuTarget.sequence.showInTimeline;
@@ -382,17 +373,16 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					});
 			},
 			openInEditor: (editorId) => {
-				if (!originalLocation) {
+				const resolvedEditorId = editorId ?? defaultEditorId;
+				if (!originalLocation || !resolvedEditorId || !editorAvailable) {
 					return;
 				}
 
-				openOriginalPositionInEditor(
-					originalLocation,
-					editorId ??
-						(window.remotion_editorName === null ? preferredEditorId : null),
-				).catch((err) => {
-					showNotification((err as Error).message, 2000);
-				});
+				openOriginalPositionInEditor(originalLocation, resolvedEditorId).catch(
+					(err) => {
+						showNotification((err as Error).message, 2000);
+					},
+				);
 			},
 			originalLocation,
 			selectAsset,
@@ -505,7 +495,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		editorInfo,
 		getTarget,
 		onSelect,
-		preferredEditorId,
+		defaultEditorId,
+		editorAvailable,
 		previewServerState,
 		resolveOriginalLocation,
 		setManuallyEnabled,

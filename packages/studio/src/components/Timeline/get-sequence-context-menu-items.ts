@@ -90,8 +90,7 @@ export const getSequenceContextMenuItems = ({
 	const defaultEditor = installedEditors.find(
 		(editor) => editor.id === defaultEditorId,
 	);
-	const editorName =
-		window.remotion_editorName ?? defaultEditor?.nameWithType ?? null;
+	const editorName = defaultEditor?.nameWithType ?? null;
 	const defaultCodingAgent = codingAgentInfo?.installedCodingAgents.find(
 		(codingAgent) => codingAgent.id === codingAgentInfo.defaultCodingAgent,
 	);
@@ -114,7 +113,7 @@ export const getSequenceContextMenuItems = ({
 	const openInMenuItems = onConfigureApps
 		? getOpenInMenuItems({
 				codingAgentInfo,
-				editorDisabled: !originalLocation,
+				editorDisabled: !canOpenInEditor || !originalLocation,
 				editorInfo,
 				excludeCodingAgentId: defaultCodingAgent?.id ?? null,
 				excludeEditorId: defaultEditorId,

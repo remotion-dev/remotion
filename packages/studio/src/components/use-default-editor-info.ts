@@ -13,6 +13,10 @@ export const canUseEditorPicker = (previewServerConnected: boolean) => {
 	);
 };
 
+export const canOpenInEditor = (previewServerConnected: boolean) => {
+	return previewServerConnected && getBrowserStudioOperations() === null;
+};
+
 const preferredFallbackEditorIds: EditorPickerId[] = [
 	'zed',
 	'vscode',
@@ -22,22 +26,18 @@ const preferredFallbackEditorIds: EditorPickerId[] = [
 export const getPreferredEditorId = (
 	editorInfo: GetDefaultEditorInfoResponse | null,
 ): EditorPickerId | null => {
-	const runningEditorId = editorInfo?.installedEditors.find(
-		(editor) => editor.nameWithType === window.remotion_editorName,
-	)?.id;
-	if (runningEditorId) {
-		return runningEditorId;
-	}
-
-	if (window.remotion_editorName !== null) {
-		return null;
-	}
-
 	const configuredEditorId = editorInfo?.installedEditors.find(
 		(editor) => editor.id === editorInfo.defaultEditor,
 	)?.id;
 	if (configuredEditorId) {
 		return configuredEditorId;
+	}
+
+	const runningEditorId = editorInfo?.installedEditors.find(
+		(editor) => editor.nameWithType === window.remotion_editorName,
+	)?.id;
+	if (runningEditorId) {
+		return runningEditorId;
 	}
 
 	return (
@@ -59,6 +59,23 @@ export const getPreferredEditorId = (
 			})
 			.at(0)?.id ?? null
 	);
+};
+
+export const useEditorOpening = (previewServerConnected: boolean) => {
+	const editorConnectionAvailable = canOpenInEditor(previewServerConnected);
+	const editorInfo = useDefaultEditorInfo(editorConnectionAvailable);
+	const defaultEditorId = getPreferredEditorId(editorInfo);
+	const defaultEditor = editorInfo?.installedEditors.find(
+		(editor) => editor.id === defaultEditorId,
+	);
+
+	return {
+		canConfigureApps: canUseEditorPicker(previewServerConnected),
+		canOpenInEditor: editorConnectionAvailable && defaultEditorId !== null,
+		defaultEditorId,
+		defaultEditorName: defaultEditor?.nameWithType ?? null,
+		editorInfo,
+	};
 };
 
 export const useDefaultEditorInfo = (enabled: boolean) => {

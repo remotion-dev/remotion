@@ -1,3 +1,4 @@
+import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -20,6 +21,8 @@ export const getCompositionMenuItems = ({
 	closeMenu,
 	readOnlyStudio,
 	includeCompositionManagementItems,
+	editorId,
+	editorName,
 }: {
 	composition: _InternalTypes['AnyComposition'] | null;
 	connectionStatus: PreviewServerConnectionState['type'];
@@ -28,14 +31,18 @@ export const getCompositionMenuItems = ({
 	closeMenu: () => void;
 	readOnlyStudio: boolean;
 	includeCompositionManagementItems: boolean;
+	editorId: EditorPickerId | null;
+	editorName: string | null;
 }): ComboboxValue[] => {
-	const editorName = window.remotion_editorName;
 	const fileLocation = formatFileLocation({
 		location: resolvedLocation,
 		root: window.remotion_cwd,
 	});
 	const showInEditorDisabled =
-		!composition || connectionStatus !== 'connected' || !resolvedLocation;
+		!editorId ||
+		!composition ||
+		connectionStatus !== 'connected' ||
+		!resolvedLocation;
 	const openComponentInEditorDisabled =
 		showInEditorDisabled || !resolvedLocation?.source;
 	const copyFileLocationDisabled = !composition || !fileLocation;
@@ -49,12 +56,12 @@ export const getCompositionMenuItems = ({
 					leftItem: null,
 					onClick: async () => {
 						closeMenu();
-						if (!composition || !resolvedLocation) {
+						if (!composition || !resolvedLocation || !editorId) {
 							return;
 						}
 
 						try {
-							await openOriginalPositionInEditor(resolvedLocation, null);
+							await openOriginalPositionInEditor(resolvedLocation, editorId);
 						} catch (err) {
 							showNotification((err as Error).message, 2000);
 						}
@@ -74,7 +81,7 @@ export const getCompositionMenuItems = ({
 					leftItem: null,
 					onClick: async () => {
 						closeMenu();
-						if (!composition || !resolvedLocation?.source) {
+						if (!composition || !resolvedLocation?.source || !editorId) {
 							return;
 						}
 
@@ -82,6 +89,7 @@ export const getCompositionMenuItems = ({
 							await openCompositionComponentInEditor({
 								compositionFile: resolvedLocation.source,
 								compositionId: composition.id,
+								editorId,
 							});
 						} catch (err) {
 							showNotification((err as Error).message, 2000);

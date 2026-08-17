@@ -18,6 +18,7 @@ import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
@@ -382,6 +383,9 @@ export const TimelineEffectPropItem: React.FC<{
 	keyframeControlsMode = 'timeline',
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
+		previewServerState.type === 'connected',
+	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getEffectDragOverrides} = useContext(
@@ -524,20 +528,18 @@ export const TimelineEffectPropItem: React.FC<{
 		React.MouseEventHandler<HTMLDivElement>
 	>(
 		(event) => {
-			if (
-				!window.remotion_editorName ||
-				previewServerState.type !== 'connected'
-			) {
+			if (!canOpenInEditor || !defaultEditorId) {
 				return;
 			}
 
 			event.stopPropagation();
 			openOriginalPositionInEditorAtProperty({
+				editorId: defaultEditorId,
 				originalPosition: validatedLocation,
 				property: field.key,
 			}).catch(() => undefined);
 		},
-		[field.key, previewServerState.type, validatedLocation],
+		[canOpenInEditor, defaultEditorId, field.key, validatedLocation],
 	);
 
 	const row = (

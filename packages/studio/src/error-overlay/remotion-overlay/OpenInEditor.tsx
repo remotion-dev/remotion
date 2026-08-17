@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
-import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
+import type {
+	EditorPickerId,
+	SymbolicatedStackFrame,
+} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useEffect,
@@ -73,7 +76,9 @@ const reducer = (state: State, action: Action): State => {
 export const OpenInEditor: React.FC<{
 	readonly stack: SymbolicatedStackFrame;
 	readonly canHaveKeyboardShortcuts: boolean;
-}> = ({stack, canHaveKeyboardShortcuts}) => {
+	readonly editorId: EditorPickerId;
+	readonly editorName: string;
+}> = ({stack, canHaveKeyboardShortcuts, editorId, editorName}) => {
 	const isMounted = useRef(true);
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const {registerKeybinding} = useKeybinding();
@@ -84,7 +89,7 @@ export const OpenInEditor: React.FC<{
 
 	const openInBrowser = useCallback(() => {
 		dispatch({type: 'start'});
-		openInEditor(stack, null)
+		openInEditor(stack, editorId)
 			.then((data) => {
 				if (data.success) {
 					dispatchIfMounted({type: 'succeed'});
@@ -101,7 +106,7 @@ export const OpenInEditor: React.FC<{
 					dispatchIfMounted({type: 'reset'});
 				}, 2000);
 			});
-	}, [dispatchIfMounted, stack]);
+	}, [dispatchIfMounted, editorId, stack]);
 
 	useEffect(() => {
 		return () => {
@@ -134,15 +139,15 @@ export const OpenInEditor: React.FC<{
 			case 'error':
 				return 'Failed to open';
 			case 'idle':
-				return `Open in ${window.remotion_editorName}`;
+				return `Open in ${editorName}`;
 			case 'success':
-				return `Opened in ${window.remotion_editorName}`;
+				return `Opened in ${editorName}`;
 			case 'load':
 				return `Opening...`;
 			default:
 				throw new Error('invalid state');
 		}
-	}, [state.type]);
+	}, [editorName, state.type]);
 
 	return (
 		<Button onClick={openInBrowser} disabled={state.type !== 'idle'}>
