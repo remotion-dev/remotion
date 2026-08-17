@@ -85,6 +85,16 @@ h6 {
 	display: none;
 }
 
+.elements-sidebar-root > .menu__list-item-collapsible--active > .menu__link {
+	pointer-events: none;
+}
+
+.elements-sidebar-root
+	> .menu__list-item-collapsible:not(.menu__list-item-collapsible--active)
+	> .menu__link--active {
+	color: var(--ifm-menu-color);
+}
+
 :root {
 	--ifm-color-primary: #0b84f3;
 	--ifm-color-primary-dark: #0a77db;
