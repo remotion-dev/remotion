@@ -303,6 +303,23 @@ test.describe('visual mode', () => {
 				set: () => undefined,
 			});
 		});
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultEditor: 'vscode',
+						installedEditors: [
+							{
+								id: 'vscode',
+								name: 'Test editor',
+								nameWithType: 'Test editor',
+							},
+						],
+					},
+				},
+			});
+		});
 		const openInEditorRequests: unknown[] = [];
 		await page.route('**/api/open-in-editor', async (route) => {
 			openInEditorRequests.push(route.request().postDataJSON());
