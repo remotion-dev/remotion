@@ -2852,7 +2852,7 @@ export const Index: React.FC = () => {
 					width={1920}
 					height={1080}
 					fps={30}
-					durationInFrames={2700}
+					durationInFrames={2340}
 				/>
 				<Composition
 					id="fast-updates"
