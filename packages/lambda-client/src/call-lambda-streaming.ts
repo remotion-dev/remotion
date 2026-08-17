@@ -20,6 +20,7 @@ import {
 import {getLambdaClient} from './aws-clients';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 const STREAM_STALL_TIMEOUT = 30000;
 const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
@@ -39,17 +40,19 @@ const invokeStreamOrTimeout = async <Provider extends CloudProvider>({
 	functionName,
 	type,
 	payload,
+	requestHandler,
 }: {
 	region: Provider['region'];
 	timeoutInTest: number;
 	functionName: string;
 	type: string;
 	payload: Record<string, unknown>;
+	requestHandler: Provider['requestHandler'] | null;
 }) => {
 	const resProm = getLambdaClient(
 		region as AwsRegion,
 		timeoutInTest,
-		null,
+		(requestHandler ?? null) as RequestHandler | null,
 	).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
@@ -89,6 +92,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 	region,
 	timeoutInTest,
 	receivedStreamingPayload,
+	requestHandler,
 }: CallFunctionOptions<T, Provider> & {
 	receivedStreamingPayload: OnMessage<Provider>;
 }): Promise<void> => {
@@ -98,6 +102,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 		region,
 		timeoutInTest,
 		type,
+		requestHandler,
 	});
 
 	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
