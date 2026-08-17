@@ -73,6 +73,7 @@
 }
 
 .title {
+	display: block;
 	margin: 0;
 	font-size: 1.125rem;
 	font-weight: 500;
