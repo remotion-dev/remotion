@@ -4,6 +4,7 @@ import React, {
 	useCallback,
 	useId,
 	useMemo,
+	useRef,
 	useState,
 	type ReactNode,
 } from 'react';
@@ -45,6 +46,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	});
 	const [isDragging, setIsDragging] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
+	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
@@ -85,6 +87,14 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 	return (
 		<div className={styles.workbench}>
+			<img
+				ref={posterRef}
+				alt=""
+				decoding="async"
+				draggable={false}
+				hidden
+				src={definition.preview.posterUrl}
+			/>
 			<Head>
 				{Seo.renderVideo({
 					height: previewHeight,
@@ -152,7 +162,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											dataTransfer: event.dataTransfer,
 											payload: elementPayload,
 										});
-										setElementDragImage(event.dataTransfer);
+										setElementDragImage(event.dataTransfer, posterRef.current);
 									}}
 									size="sm"
 									style={{
