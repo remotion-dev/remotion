@@ -432,8 +432,16 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	}
 
 	expect(subscription.status.props).toEqual({
-		from: {status: 'static', codeValue: 10},
-		durationInFrames: {status: 'static', codeValue: 20},
+		from: {
+			status: 'static',
+			codeValue: 10,
+			keyframeDisplayOffsetAdjustment: null,
+		},
+		durationInFrames: {
+			status: 'static',
+			codeValue: 20,
+			keyframeDisplayOffsetAdjustment: null,
+		},
 	});
 	expect(subscription.nodePath.absolutePath).toBe(fileName);
 
@@ -480,7 +488,11 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		throw new Error('Expected updated sequence props to be editable');
 	}
 
-	expect(update.result.props.from).toEqual({status: 'static', codeValue: 15});
+	expect(update.result.props.from).toEqual({
+		status: 'static',
+		codeValue: 15,
+		keyframeDisplayOffsetAdjustment: null,
+	});
 	expect(await operations.undo()).toEqual({
 		success: true,
 		nodePathMutation: null,
