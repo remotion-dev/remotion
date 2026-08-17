@@ -303,6 +303,23 @@ test.describe('visual mode', () => {
 				set: () => undefined,
 			});
 		});
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultEditor: 'vscode',
+						installedEditors: [
+							{
+								id: 'vscode',
+								name: 'Test editor',
+								nameWithType: 'Test editor',
+							},
+						],
+					},
+				},
+			});
+		});
 		const openInEditorRequests: unknown[] = [];
 		await page.route('**/api/open-in-editor', async (route) => {
 			openInEditorRequests.push(route.request().postDataJSON());
@@ -831,7 +848,7 @@ test.describe('visual mode', () => {
 		).toEqual([]);
 	});
 
-	test('should fall back to the preferred installed editor if no editor is running', async ({
+	test('should use an explicit editor or fall back to an installed editor', async ({
 		page,
 	}) => {
 		await page.addInitScript(() => {
@@ -902,7 +919,14 @@ test.describe('visual mode', () => {
 			page.getByRole('button', {name: 'Zed', exact: true}),
 		).toHaveCount(0);
 
-		await page.keyboard.press('Escape');
+		await page.getByRole('button', {name: 'Code', exact: true}).click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+			]);
 		await expect(
 			page.getByRole('button', {name: 'Cursor', exact: true}),
 		).toBeHidden();
@@ -911,9 +935,118 @@ test.describe('visual mode', () => {
 			.poll(() => openInEditorRequests)
 			.toEqual([
 				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+				expect.objectContaining({
 					editorId: 'zed',
 				}),
 			]);
+
+		const timelineGridline = page.locator(
+			'[data-timeline-marquee-item][title="0% gridline"]',
+		);
+		await timelineGridline.click();
+		await page.locator('[data-sidebar-toggle="right"]').click();
+		const sourceLocation = page
+			.getByRole('group', {name: 'Inspector source location'})
+			.first();
+		await expect(sourceLocation).toBeVisible();
+		const sourceLink = sourceLocation.getByRole('button', {
+			name: /BarChart\.tsx:\d+/,
+		});
+		await expect(sourceLink).toBeEnabled();
+		await sourceLink.click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+			]);
+
+		await timelineGridline.click({button: 'right'});
+		const sequenceContextMenu = page
+			.locator('[data-remotion-menu-tree-id]')
+			.last();
+		const contextMenuOpenInZed = sequenceContextMenu.getByRole('button', {
+			name: 'Open in Zed',
+			exact: true,
+		});
+		await expect(contextMenuOpenInZed).toBeEnabled();
+		await contextMenuOpenInZed.click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+			]);
+	});
+
+	test('should disable opening when no editor is installed', async ({page}) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(window, 'remotion_editorName', {
+				configurable: true,
+				get: () => null,
+				set: () => undefined,
+			});
+		});
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {defaultEditor: null, installedEditors: []},
+				},
+			});
+		});
+		await page.route('**/api/default-coding-agent-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultCodingAgent: null,
+						installedCodingAgents: [],
+						installedTerminals: [],
+					},
+				},
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+		const projectLocation = page.getByTitle(exampleDir);
+		await projectLocation.hover();
+		await expect(
+			projectLocation.getByRole('button', {
+				name: 'Open in default editor',
+				exact: true,
+			}),
+		).toBeDisabled({timeout: 15_000});
+
+		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
+		const sourceLocation = page
+			.getByRole('group', {name: 'Inspector source location'})
+			.first();
+		await expect(sourceLocation).toBeVisible();
+		await expect(
+			sourceLocation.getByRole('button', {name: /\.tsx:\d+/}).first(),
+		).toBeDisabled();
 	});
 
 	test('should use standalone and contextual app names in portaled context menus', async ({

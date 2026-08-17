@@ -38,6 +38,7 @@ import {showNotification} from './Notifications/NotificationCenter';
 import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
+import {useEditorOpening} from './use-default-editor-info';
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 2,
@@ -192,6 +193,9 @@ export const CompositionSelectorItem: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
+	const {defaultEditorId, defaultEditorName} = useEditorOpening(
+		connectionStatus === 'connected',
+	);
 	const resolvedLocation = useResolvedStack(
 		item.type === 'composition' ? item.composition.stack : item.folder.stack,
 	);
@@ -202,6 +206,8 @@ export const CompositionSelectorItem: React.FC<{
 				closeMenu: noop,
 				composition: item.composition,
 				connectionStatus,
+				editorId: defaultEditorId,
+				editorName: defaultEditorName,
 				includeCompositionManagementItems: true,
 				resolvedLocation,
 				setSelectedModal,
@@ -212,12 +218,21 @@ export const CompositionSelectorItem: React.FC<{
 		return getFolderMenuItems({
 			closeMenu: noop,
 			connectionStatus,
+			editorId: defaultEditorId,
+			editorName: defaultEditorName,
 			folder: item.folder,
 			resolvedLocation,
 			setSelectedModal,
 			readOnlyStudio: window.remotion_isReadOnlyStudio,
 		});
-	}, [connectionStatus, item, resolvedLocation, setSelectedModal]);
+	}, [
+		connectionStatus,
+		defaultEditorId,
+		defaultEditorName,
+		item,
+		resolvedLocation,
+		setSelectedModal,
+	]);
 
 	const onCompositionDragStart = useCallback(
 		(event: DragEvent<HTMLElement>) => {

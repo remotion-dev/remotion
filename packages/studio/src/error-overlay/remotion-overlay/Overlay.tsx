@@ -6,6 +6,8 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from 'remotion';
 import {MENU_TOOLBAR_HEIGHT} from '../../components/menu-toolbar-height';
+import {SettingsProvider} from '../../components/SettingsContext';
+import {PreviewServerConnection} from '../../helpers/client-id';
 import {BACKGROUND_HEX, WHITE} from '../../helpers/colors';
 import {KeybindingContextProvider} from '../../state/keybindings';
 import {ErrorLoader} from './ErrorLoader';
@@ -67,30 +69,34 @@ export const Overlay: React.FC = () => {
 	}
 
 	return (
-		<KeybindingContextProvider>
-			<AbsoluteFill
-				style={{
-					backgroundColor: BACKGROUND_COLOR,
-					overflow: 'auto',
-					color: WHITE,
-					top: MENU_TOOLBAR_HEIGHT,
-					height: `calc(100% - ${MENU_TOOLBAR_HEIGHT}px)`,
-				}}
-			>
-				{errors.errors.map((err, i) => {
-					return (
-						<ErrorLoader
-							// eslint-disable-next-line react/no-array-index-key
-							key={(err.stack ?? '') + i}
-							keyboardShortcuts={i === 0}
-							error={err}
-							onRetry={null}
-							canHaveDismissButton
-							calculateMetadata={false}
-						/>
-					);
-				})}
-			</AbsoluteFill>
-		</KeybindingContextProvider>
+		<PreviewServerConnection>
+			<SettingsProvider>
+				<KeybindingContextProvider>
+					<AbsoluteFill
+						style={{
+							backgroundColor: BACKGROUND_COLOR,
+							overflow: 'auto',
+							color: WHITE,
+							top: MENU_TOOLBAR_HEIGHT,
+							height: `calc(100% - ${MENU_TOOLBAR_HEIGHT}px)`,
+						}}
+					>
+						{errors.errors.map((err, i) => {
+							return (
+								<ErrorLoader
+									// eslint-disable-next-line react/no-array-index-key
+									key={(err.stack ?? '') + i}
+									keyboardShortcuts={i === 0}
+									error={err}
+									onRetry={null}
+									canHaveDismissButton
+									calculateMetadata={false}
+								/>
+							);
+						})}
+					</AbsoluteFill>
+				</KeybindingContextProvider>
+			</SettingsProvider>
+		</PreviewServerConnection>
 	);
 };

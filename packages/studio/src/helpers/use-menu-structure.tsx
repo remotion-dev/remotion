@@ -1,3 +1,4 @@
+import type {EditorPickerId} from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -16,6 +17,7 @@ import {openInFileExplorer} from '../components/RenderQueue/actions';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
+import {useEditorOpening} from '../components/use-default-editor-info';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {Checkmark} from '../icons/Checkmark';
 import {drawRef} from '../state/canvas-ref';
@@ -56,12 +58,14 @@ const getFileMenu = ({
 	readOnlyStudio,
 	closeMenu,
 	editorName,
+	editorId,
 	previewServerState,
 	setSelectedModal,
 }: {
 	readOnlyStudio: boolean;
 	closeMenu: () => void;
 	editorName: string | null;
+	editorId: EditorPickerId | null;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
@@ -179,7 +183,7 @@ const getFileMenu = ({
 					id: 'open-project-divider',
 				}
 			: null,
-		editorName && !readOnlyStudio
+		editorName && editorId && !readOnlyStudio
 			? {
 					id: 'open-in-editor',
 					value: 'open-in-editor',
@@ -193,7 +197,7 @@ const getFileMenu = ({
 								originalFunctionName: null,
 								originalScriptCode: null,
 							},
-							null,
+							editorId,
 						)
 							.then(({success}) => {
 								if (!success) {
@@ -336,7 +340,9 @@ export const useMenuStructure = (
 		Internals.CompositionManager,
 	);
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
-	const editorName = window.remotion_editorName;
+	const {defaultEditorId, defaultEditorName} = useEditorOpening(
+		type === 'connected',
+	);
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
 	const studioAskAIEnabled = getStudioAskAIEnabled();
 	const canConfigureDefaultEditor =
@@ -498,7 +504,8 @@ export const useMenuStructure = (
 			getFileMenu({
 				readOnlyStudio,
 				closeMenu,
-				editorName,
+				editorId: defaultEditorId,
+				editorName: defaultEditorName,
 				previewServerState: type,
 				setSelectedModal,
 			}),
@@ -873,6 +880,8 @@ export const useMenuStructure = (
 						closeMenu,
 						composition: currentComposition,
 						connectionStatus: type,
+						editorId: defaultEditorId,
+						editorName: defaultEditorName,
 						includeCompositionManagementItems: true,
 						resolvedLocation: resolvedCompositionLocation,
 						setSelectedModal,
@@ -1138,7 +1147,8 @@ export const useMenuStructure = (
 		isFullscreenSupported,
 		remotion_packageManager,
 		mobileLayout,
-		editorName,
+		defaultEditorId,
+		defaultEditorName,
 		keyboardShortcutsDisabled,
 		studioAskAIEnabled,
 		size.size,

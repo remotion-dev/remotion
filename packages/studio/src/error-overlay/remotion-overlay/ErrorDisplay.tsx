@@ -1,8 +1,10 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
-import React, {useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {MediaPlaybackError} from 'remotion';
 import {Spacing} from '../../components/layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
+import {useEditorOpening} from '../../components/use-default-editor-info';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	ERROR_CODE_FRAME_BACKGROUND,
 	WHITE,
@@ -73,6 +75,9 @@ export const ErrorDisplay: React.FC<{
 	calculateMetadata,
 	symbolicationFailure,
 }) => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
+		useEditorOpening(previewServerState.type === 'connected');
 	const highestLineNumber = Math.max(
 		0,
 		...display.stackFrames
@@ -132,10 +137,15 @@ export const ErrorDisplay: React.FC<{
 					<div style={spacer} />
 				</>
 			) : null}
-			{display.stackFrames.length > 0 && window.remotion_editorName ? (
+			{display.stackFrames.length > 0 &&
+			canOpenInEditor &&
+			defaultEditorId &&
+			defaultEditorName ? (
 				<>
 					<OpenInEditor
 						canHaveKeyboardShortcuts={keyboardShortcuts}
+						editorId={defaultEditorId}
+						editorName={defaultEditorName}
 						stack={display.stackFrames[0]}
 					/>
 					<div style={spacer} />
@@ -183,6 +193,7 @@ export const ErrorDisplay: React.FC<{
 								s={s}
 								lineNumberWidth={lineNumberWidth}
 								defaultFunctionName={'(anonymous function)'}
+								editorId={canOpenInEditor ? defaultEditorId : null}
 							/>
 						);
 					})}

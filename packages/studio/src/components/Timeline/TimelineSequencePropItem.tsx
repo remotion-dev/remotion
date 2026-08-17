@@ -23,6 +23,7 @@ import type {
 import {ContextMenu} from '../ContextMenu';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {useEditorOpening} from '../use-default-editor-info';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {saveSequenceProps} from './save-sequence-prop';
@@ -419,6 +420,9 @@ export const TimelineSequencePropItem: React.FC<{
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
+		previewServerState.type === 'connected',
+	);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const transform3DMode = useContext(Transform3DModeContext);
 	const propStatusesForOverride = Internals.getPropStatusesCtx(
@@ -554,20 +558,18 @@ export const TimelineSequencePropItem: React.FC<{
 		React.MouseEventHandler<HTMLDivElement>
 	>(
 		(event) => {
-			if (
-				!window.remotion_editorName ||
-				previewServerState.type !== 'connected'
-			) {
+			if (!canOpenInEditor || !defaultEditorId) {
 				return;
 			}
 
 			event.stopPropagation();
 			openOriginalPositionInEditorAtProperty({
+				editorId: defaultEditorId,
 				originalPosition: validatedLocation,
 				property: field.key.split('.').at(-1) ?? field.key,
 			}).catch(() => undefined);
 		},
-		[field.key, previewServerState.type, validatedLocation],
+		[canOpenInEditor, defaultEditorId, field.key, validatedLocation],
 	);
 
 	if (propStatus === null) {

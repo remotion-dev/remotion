@@ -26,10 +26,8 @@ import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
 import {
-	canUseEditorPicker,
-	getPreferredEditorId,
 	useDefaultCodingAgentInfo,
-	useDefaultEditorInfo,
+	useEditorOpening,
 } from './use-default-editor-info';
 
 const splitButton: React.CSSProperties = {
@@ -73,14 +71,17 @@ export const InspectorOpenInEditor: React.FC<{
 	const [hovered, setHovered] = useState(false);
 	const [dropdownOpened, setDropdownOpened] = useState(false);
 	const ignorePointerEnter = useRef(false);
-	const editorPickerAvailable = canUseEditorPicker(
-		previewServerState.type === 'connected',
-	);
-	const editorInfo = useDefaultEditorInfo(editorPickerAvailable);
-	const codingAgentInfo = useDefaultCodingAgentInfo(editorPickerAvailable);
+	const {
+		canConfigureApps,
+		canOpenInEditor,
+		defaultEditorId,
+		defaultEditorName,
+		editorInfo,
+	} = useEditorOpening(previewServerState.type === 'connected');
+	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
 
 	const openWithEditor = useCallback(
-		async (editorId: EditorPickerId | null) => {
+		async (editorId: EditorPickerId) => {
 			if (!location) {
 				return;
 			}
@@ -94,10 +95,6 @@ export const InspectorOpenInEditor: React.FC<{
 		[location],
 	);
 
-	const preferredEditorId = getPreferredEditorId(editorInfo);
-	const preferredEditor = editorInfo?.installedEditors.find(
-		(editor) => editor.id === preferredEditorId,
-	);
 	const openWithCodingAgent = useCallback(
 		async (codingAgentId: DefaultCodingAgent, codingAgentName: string) => {
 			try {
@@ -114,21 +111,16 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[contextForAgents],
 	);
-	const editorName =
-		window.remotion_editorName ??
-		preferredEditor?.nameWithType ??
-		'default editor';
-	const canOpenDefault =
-		location !== null &&
-		(window.remotion_editorName !== null || preferredEditorId !== null);
+	const editorName = defaultEditorName ?? 'default editor';
+	const canOpenDefault = location !== null && canOpenInEditor;
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
-			openWithEditor(
-				window.remotion_editorName === null ? preferredEditorId : null,
-			).catch(() => undefined);
+			if (defaultEditorId) {
+				openWithEditor(defaultEditorId).catch(() => undefined);
+			}
 		},
-		[openWithEditor, preferredEditorId],
+		[defaultEditorId, openWithEditor],
 	);
 	const onDropdownOpenChange = useCallback((open: boolean) => {
 		setDropdownOpened(open);
@@ -171,18 +163,20 @@ export const InspectorOpenInEditor: React.FC<{
 			editorDisabled: location === null,
 			editorInfo,
 			excludeCodingAgentId: null,
-			excludeEditorId: preferredEditorId,
+			excludeEditorId: defaultEditorId,
 			fileManagerDisabled: !location?.source,
 			folder: locationType === 'folder',
 			location,
-			onConfigureApps: () => {
-				setSelectedModal({
-					type: 'settings',
-					initialTab: 'apps',
-					initialPublicLicenseKey:
-						window.remotion_renderDefaults?.publicLicenseKey ?? null,
-				});
-			},
+			onConfigureApps: canConfigureApps
+				? () => {
+						setSelectedModal({
+							type: 'settings',
+							initialTab: 'apps',
+							initialPublicLicenseKey:
+								window.remotion_renderDefaults?.publicLicenseKey ?? null,
+						});
+					}
+				: null,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
@@ -235,16 +229,17 @@ export const InspectorOpenInEditor: React.FC<{
 		});
 	}, [
 		codingAgentInfo,
+		canConfigureApps,
+		defaultEditorId,
 		editorInfo,
 		location,
 		locationType,
 		openWithCodingAgent,
 		openWithEditor,
-		preferredEditorId,
 		setSelectedModal,
 	]);
 
-	if (!editorPickerAvailable) {
+	if (previewServerState.type !== 'connected') {
 		return null;
 	}
 
@@ -271,7 +266,7 @@ export const InspectorOpenInEditor: React.FC<{
 				type="button"
 			>
 				{label}
-				<EditorIcon editorId={preferredEditorId} size={editorButtonIconSize} />
+				<EditorIcon editorId={defaultEditorId} size={editorButtonIconSize} />
 			</button>
 			<InlineDropdown
 				onOpenChange={onDropdownOpenChange}

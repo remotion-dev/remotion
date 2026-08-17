@@ -1,3 +1,4 @@
+import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -16,6 +17,8 @@ export const getFolderMenuItems = ({
 	readOnlyStudio,
 	resolvedLocation,
 	setSelectedModal,
+	editorId,
+	editorName,
 }: {
 	closeMenu: () => void;
 	connectionStatus: PreviewServerConnectionState['type'];
@@ -23,8 +26,9 @@ export const getFolderMenuItems = ({
 	readOnlyStudio: boolean;
 	resolvedLocation: ResolvedStackLocation | null;
 	setSelectedModal: (value: SetStateAction<ModalState | null>) => void;
+	editorId: EditorPickerId | null;
+	editorName: string | null;
 }): ComboboxValue[] => {
-	const editorName = window.remotion_editorName;
 	const folderId = getFolderId({
 		folderName: folder.name,
 		parentName: folder.parent,
@@ -34,7 +38,7 @@ export const getFolderMenuItems = ({
 		root: window.remotion_cwd,
 	});
 	const showInEditorDisabled =
-		connectionStatus !== 'connected' || !resolvedLocation;
+		!editorId || connectionStatus !== 'connected' || !resolvedLocation;
 	const copyFileLocationDisabled = !fileLocation;
 	const codemodDisabled = readOnlyStudio || !folder.stack;
 
@@ -47,12 +51,12 @@ export const getFolderMenuItems = ({
 					leftItem: null,
 					onClick: async () => {
 						closeMenu();
-						if (!resolvedLocation) {
+						if (!resolvedLocation || !editorId) {
 							return;
 						}
 
 						try {
-							await openOriginalPositionInEditor(resolvedLocation, null);
+							await openOriginalPositionInEditor(resolvedLocation, editorId);
 						} catch (err) {
 							showNotification((err as Error).message, 2000);
 						}

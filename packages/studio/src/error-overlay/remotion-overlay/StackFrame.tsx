@@ -1,4 +1,7 @@
-import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
+import type {
+	EditorPickerId,
+	SymbolicatedStackFrame,
+} from '@remotion/studio-shared';
 import React, {useCallback, useState} from 'react';
 import {Button} from '../../components/Button';
 import {
@@ -45,7 +48,8 @@ export const StackElement: React.FC<{
 	readonly lineNumberWidth: number;
 	readonly isFirst: boolean;
 	readonly defaultFunctionName: string;
-}> = ({s, lineNumberWidth, isFirst, defaultFunctionName}) => {
+	readonly editorId: EditorPickerId | null;
+}> = ({s, lineNumberWidth, isFirst, defaultFunctionName, editorId}) => {
 	const [showCodeFrame, setShowCodeFrame] = useState(
 		() =>
 			(!s.originalFileName?.includes('node_modules') &&
@@ -53,19 +57,21 @@ export const StackElement: React.FC<{
 			isFirst,
 	);
 	const [locationHovered, setLocationHovered] = useState(false);
-	const canOpenFileLocation = Boolean(
-		window.remotion_editorName && s.originalFileName,
-	);
+	const canOpenFileLocation = Boolean(editorId && s.originalFileName);
 	const onOpenFileLocation = useCallback(() => {
 		if (!canOpenFileLocation) {
 			return;
 		}
 
-		openInEditor(s, null).catch((err: unknown) => {
+		if (!editorId) {
+			return;
+		}
+
+		openInEditor(s, editorId).catch((err: unknown) => {
 			// eslint-disable-next-line no-console
 			console.log('Could not open in editor', err);
 		});
-	}, [canOpenFileLocation, s]);
+	}, [canOpenFileLocation, editorId, s]);
 	const toggleCodeFrame = useCallback(() => {
 		setShowCodeFrame((f) => !f);
 	}, []);

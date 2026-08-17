@@ -48,9 +48,8 @@ import {
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {
-	canUseEditorPicker,
 	useDefaultCodingAgentInfo,
-	useDefaultEditorInfo,
+	useEditorOpening,
 } from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
 type SelectedOutlineElementProps = {
@@ -98,10 +97,12 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	scale,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const canConfigureApps = canUseEditorPicker(
-		previewServerState.type === 'connected',
-	);
-	const editorInfo = useDefaultEditorInfo(canConfigureApps);
+	const {
+		canConfigureApps,
+		canOpenInEditor: editorAvailable,
+		defaultEditorId,
+		editorInfo,
+	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
@@ -200,9 +201,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			});
 			const action = getSequenceDoubleClickAction({
 				button,
-				canOpenInEditor:
-					previewServerState.type === 'connected' &&
-					Boolean(window.remotion_editorName),
+				canOpenInEditor: editorAvailable,
 				numberOfConnectedCompositions: connectedCompositions.length,
 			});
 
@@ -218,11 +217,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			const openTargetInEditor = async () => {
 				const originalLocation =
 					await resolveOriginalLocation(doubleClickTarget);
-				if (originalLocation === null) {
+				if (originalLocation === null || defaultEditorId === null) {
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation, null);
+				await openOriginalPositionInEditor(originalLocation, defaultEditorId);
 			};
 
 			openTargetInEditor().catch((err) => {
@@ -233,7 +232,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		},
 		[
 			compositions,
-			previewServerState.type,
+			defaultEditorId,
+			editorAvailable,
 			resolveOriginalLocation,
 			selectComposition,
 		],
@@ -262,9 +262,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				? contextMenuTarget.sequence.src
 				: null;
 		const assetLinkInfo = mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null;
-		const canOpenInEditor = Boolean(
-			window.remotion_editorName && originalLocation,
-		);
+		const canOpenInEditor = Boolean(originalLocation && editorAvailable);
 		const sourceEditingEnabled = isStudioInteractivityEnabled();
 		const disableInteractivityDisabled =
 			!sourceEditingEnabled || !contextMenuTarget.sequence.showInTimeline;
@@ -375,11 +373,12 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					});
 			},
 			openInEditor: (editorId) => {
-				if (!originalLocation) {
+				const resolvedEditorId = editorId ?? defaultEditorId;
+				if (!originalLocation || !resolvedEditorId || !editorAvailable) {
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation, editorId).catch(
+				openOriginalPositionInEditor(originalLocation, resolvedEditorId).catch(
 					(err) => {
 						showNotification((err as Error).message, 2000);
 					},
@@ -496,6 +495,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		editorInfo,
 		getTarget,
 		onSelect,
+		defaultEditorId,
+		editorAvailable,
 		previewServerState,
 		resolveOriginalLocation,
 		setManuallyEnabled,
