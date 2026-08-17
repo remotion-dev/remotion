@@ -36,6 +36,8 @@ type TileResolved = {
 };
 
 type TileState = {
+	readonly boundsCanvas: HTMLCanvasElement;
+	readonly boundsContext: CanvasRenderingContext2D;
 	readonly tileCanvas: HTMLCanvasElement;
 	readonly tileContext: CanvasRenderingContext2D;
 };
@@ -61,13 +63,22 @@ export const tile = createEffect<TileParams, TileState>({
 		return `tile-${r.horizontal}-${r.vertical}`;
 	},
 	setup: (target) => {
+		const boundsCanvas = target.ownerDocument.createElement('canvas');
+		const boundsContext = boundsCanvas.getContext('2d', {
+			colorSpace: 'srgb',
+			willReadFrequently: true,
+		});
+		if (!boundsContext) {
+			throw new Error('Failed to acquire 2D context for tile effect.');
+		}
+
 		const tileCanvas = target.ownerDocument.createElement('canvas');
 		const tileContext = tileCanvas.getContext('2d');
 		if (!tileContext) {
 			throw new Error('Failed to acquire 2D context for tile effect.');
 		}
 
-		return {tileCanvas, tileContext};
+		return {boundsCanvas, boundsContext, tileCanvas, tileContext};
 	},
 	apply: ({source, target, width, height, params, state}) => {
 		const context = target.getContext('2d');
@@ -79,13 +90,23 @@ export const tile = createEffect<TileParams, TileState>({
 
 		const r = resolve(params);
 		context.clearRect(0, 0, width, height);
-		context.drawImage(source, 0, 0, width, height);
 
 		if (!r.horizontal && !r.vertical) {
+			context.drawImage(source, 0, 0, width, height);
 			return;
 		}
 
-		const pixels = context.getImageData(0, 0, width, height).data;
+		if (
+			state.boundsCanvas.width !== width ||
+			state.boundsCanvas.height !== height
+		) {
+			state.boundsCanvas.width = width;
+			state.boundsCanvas.height = height;
+		}
+
+		state.boundsContext.clearRect(0, 0, width, height);
+		state.boundsContext.drawImage(source, 0, 0, width, height);
+		const pixels = state.boundsContext.getImageData(0, 0, width, height).data;
 		const rowHasVisiblePixel = (y: number) => {
 			for (let x = 0; x < width; x++) {
 				if (pixels[(y * width + x) * 4 + 3] !== 0) {
