@@ -1,8 +1,8 @@
-import fs from 'fs';
-import assert from 'node:assert';
-import {expect, type Locator, type Page, test} from '@playwright/test';
+import {expect, test, type Locator, type Page} from '@playwright/test';
 import {wave} from '@remotion/effects/wave';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
+import fs from 'fs';
+import assert from 'node:assert';
 import {apiCall} from './api-call.mts';
 import {
 	EXPANDED_SIDEBAR_STATE,
@@ -72,6 +72,7 @@ test.describe('effect keyframes', () => {
 		expect(effectStatus.props.phase).toEqual({
 			status: 'static',
 			codeValue: undefined,
+			keyframeDisplayOffsetAdjustment: null,
 		});
 
 		const keyframe = await apiCall('/api/add-effect-keyframe', {
@@ -94,7 +95,7 @@ test.describe('effect keyframes', () => {
 			keyframes: [{frame: 30, value: 90}],
 			easing: [],
 			clamping: {left: 'clamp', right: 'clamp'},
-			posterize: undefined,
+			keyframeDisplayOffsetAdjustment: null,
 		});
 
 		await expect
