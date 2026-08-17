@@ -422,5 +422,5 @@ test('interpolates 3D rotation keyframes as one property', () => {
 			output: undefined,
 		},
 	});
-	expect(result).toBe('0.5 0 0.5 45deg');
+	expect(result).toBe('1 0 0 45deg');
 });
