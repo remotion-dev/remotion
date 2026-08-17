@@ -811,36 +811,13 @@ const getJsxNumericAttribute = ({
 	return defaultValue;
 };
 
-const isRemotionSequence = ({
-	openingElement,
-	ast,
-}: {
-	openingElement: JSXOpeningElement;
-	ast: File;
-}): boolean => {
-	const imports = getRemotionImportNames({ast, importedName: 'Sequence'});
-	if (openingElement.name.type === 'JSXIdentifier') {
-		return imports.direct.has(openingElement.name.name);
-	}
-
-	return (
-		openingElement.name.type === 'JSXMemberExpression' &&
-		openingElement.name.object.type === 'JSXIdentifier' &&
-		openingElement.name.property.type === 'JSXIdentifier' &&
-		imports.namespaces.has(openingElement.name.object.name) &&
-		openingElement.name.property.name === 'Sequence'
-	);
-};
-
 const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	startPath,
 	endPath,
-	ast,
 	videoConfigValues,
 }: {
 	startPath: recast.types.NodePath;
 	endPath: recast.types.NodePath;
-	ast: File;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): number | null => {
 	let current: recast.types.NodePath | null = startPath;
@@ -859,12 +836,9 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 		if (currentNode.type === 'JSXElement') {
 			if (!hasSeenControlledElement) {
 				hasSeenControlledElement = true;
-			} else if (
-				isRemotionSequence({
-					openingElement: currentNode.openingElement,
-					ast,
-				})
-			) {
+			} else {
+				// Sequence-backed built-ins and userland components can both shift
+				// their children, so the prop names are the semantic boundary.
 				const from = getJsxNumericAttribute({
 					openingElement: currentNode.openingElement,
 					name: 'from',
@@ -926,7 +900,6 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 	return getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: jsxPath,
 		endPath: functionPath,
-		ast,
 		videoConfigValues,
 	});
 };
@@ -987,7 +960,6 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	return getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: nodePath,
 		endPath: bindingScope.path,
-		ast,
 		videoConfigValues,
 	});
 };
@@ -1785,11 +1757,15 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	const addDefaultKeyframeDisplayOffsetAdjustment = (
 		status: CanUpdateSequencePropStatus,
 	): CanUpdateSequencePropStatus => {
-		if (
-			status.status !== 'static' ||
-			defaultKeyframeDisplayOffsetAdjustment === null ||
-			defaultKeyframeDisplayOffsetAdjustment === 0
-		) {
+		if (status.status !== 'static') {
+			return status;
+		}
+
+		if (defaultKeyframeDisplayOffsetAdjustment === null) {
+			return computedStatus();
+		}
+
+		if (defaultKeyframeDisplayOffsetAdjustment === 0) {
 			return status;
 		}
 

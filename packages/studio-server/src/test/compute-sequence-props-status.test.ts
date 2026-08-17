@@ -1094,28 +1094,29 @@ export const Example: React.FC = () => {
 	});
 });
 
-test('computeSequencePropsStatus preserves the useCurrentFrame coordinate space across wrapping Sequences', () => {
+test('computeSequencePropsStatus preserves the useCurrentFrame coordinate space across userland timing components', () => {
 	const input = `import React from 'react';
-import {AbsoluteFill, interpolate, Sequence, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Timing} from './Timing';
 
 export const Example: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
-		<Sequence durationInFrames={30} from={-5}>
+		<Timing durationInFrames={30} from={-5} trimBefore={3}>
 			<AbsoluteFill
 				style={{
 					backgroundColor: 'dodgerblue',
 					translate: interpolate(frame, [10, 20], ['0px 0px', '500px 0px']),
 				}}
 			/>
-		</Sequence>
+		</Timing>
 	);
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
 		videoConfigValues: null,
 		fileContents: input,
-		nodePath: getNodePathFromContent(input, 8),
+		nodePath: getNodePathFromContent(input, 9),
 		componentIdentity: null,
 		keys: ['style.backgroundColor', 'style.translate'],
 		effects: [],
@@ -1126,7 +1127,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.translate']).toMatchObject({
 		status: 'keyframed',
-		keyframeDisplayOffsetAdjustment: 5,
+		keyframeDisplayOffsetAdjustment: 8,
 		keyframes: [
 			{frame: 10, value: '0px 0px'},
 			{frame: 20, value: '500px 0px'},
@@ -1135,8 +1136,44 @@ export const Example: React.FC = () => {
 	expect(result.props['style.backgroundColor']).toEqual({
 		status: 'static',
 		codeValue: 'dodgerblue',
-		keyframeDisplayOffsetAdjustment: 5,
+		keyframeDisplayOffsetAdjustment: 8,
 	});
+});
+
+test('computeSequencePropsStatus reports computed when a timing component offset is uncertain', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Timing, getTimingProps} from './Timing';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const timingProps = getTimingProps();
+	return (
+		<Timing {...timingProps}>
+			<AbsoluteFill
+				style={{
+					backgroundColor: 'dodgerblue',
+					translate: interpolate(frame, [10, 20], ['0px 0px', '500px 0px']),
+				}}
+			/>
+		</Timing>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 10),
+		componentIdentity: null,
+		keys: ['style.backgroundColor', 'style.translate'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.translate']).toEqual({status: 'computed'});
+	expect(result.props['style.backgroundColor']).toEqual({status: 'computed'});
 });
 
 test('computeSequencePropsStatus should return keyframes for String-wrapped interpolated translate props', () => {

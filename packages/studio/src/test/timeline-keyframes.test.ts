@@ -341,6 +341,36 @@ test('keyframe display offsets account for parent trimBefore', () => {
 });
 
 test('keyframe display offsets respect the useCurrentFrame coordinate space', () => {
+	const timeline = calculateTimeline({
+		sequences: [
+			makeSequence({
+				id: 'timing-wrapper',
+				from: -5,
+				trimBefore: null,
+				nonce: 0,
+			}),
+			makeSequence({
+				id: 'controlled-element',
+				from: 0,
+				trimBefore: null,
+				parent: 'timing-wrapper',
+				overrideId: 'controlled-element',
+				nonce: 1,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			'controlled-element': makeNodePath('controlled-element'),
+		},
+	});
+	const controlledElement = timeline.find(
+		(track) => track.sequence.id === 'controlled-element',
+	);
+	if (!controlledElement) {
+		throw new Error('Could not find controlled element');
+	}
+
+	expect(controlledElement.keyframeDisplayOffset).toBe(-5);
+
 	const status: CanUpdateSequencePropStatusKeyframed = {
 		...makeKeyframedStatus(),
 		keyframeDisplayOffsetAdjustment: 5,
@@ -350,7 +380,9 @@ test('keyframe display offsets respect the useCurrentFrame coordinate space', ()
 		],
 	};
 
-	expect(getTimelineKeyframes(status, -5)).toEqual([
+	expect(
+		getTimelineKeyframes(status, controlledElement.keyframeDisplayOffset),
+	).toEqual([
 		{frame: 10, value: '0px 0px'},
 		{frame: 20, value: '500px 0px'},
 	]);
