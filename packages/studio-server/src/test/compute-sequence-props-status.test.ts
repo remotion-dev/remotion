@@ -10,6 +10,7 @@ import {
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsStatusFromFilenameByLocation,
 	lineColumnToNodePath,
+	lineColumnsToNodePaths,
 } from '../preview-server/routes/can-update-sequence-props';
 
 const getNodePath = (filePath: string, line: number) => {
@@ -127,6 +128,26 @@ export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallbac
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
+});
+
+test('lineColumnsToNodePaths matches individual location resolution', () => {
+	const input = `export const Example = () => (
+	<div><span /><span><strong /></span></div>
+);`;
+	const ast = parseAst(input);
+	const targets = [
+		getSourceLocation(input, '<div>'),
+		getSourceLocation(input, '<span />'),
+		getSourceLocation(input, '<span><strong'),
+		getSourceLocation(input, '<strong'),
+		{...getSourceLocation(input, '<strong'), column: 999},
+	];
+
+	expect(lineColumnsToNodePaths({ast, targets, fileContents: input})).toEqual(
+		targets.map(({line, column}) =>
+			lineColumnToNodePath(ast, line, column, input),
+		),
+	);
 });
 
 test('computeSequencePropsStatus should ignore source locations outside the project', () => {

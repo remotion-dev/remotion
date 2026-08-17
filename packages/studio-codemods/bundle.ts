@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
 
-const external = ['@remotion/studio-shared'];
+const external = ['@remotion/studio-shared', 'recast'];
 
 console.time('Generated.');
 const esmOutput = await build({

@@ -27,6 +27,7 @@ import {SpinningTextWheel} from '../../../elements/text/spinning-text-wheel/spin
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
 import {YouTubeEndCard} from '../../../elements/youtube/youtube-end-card/youtube-end-card';
+import {YouTubeSubscribeNudge} from '../../../elements/youtube/youtube-subscribe-nudge/youtube-subscribe-nudge';
 import type {Contributor} from '../Credits';
 import {
 	elementRegistry,
@@ -235,6 +236,32 @@ const elementImplementations = {
 				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
 		},
 		previewPadding: 0,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'youtube/youtube-subscribe-nudge': {
+		component: YouTubeSubscribeNudge,
+		contributors: [],
+		description:
+			'An animated creator-branded subscribe prompt with a subscribed-state confirmation.',
+		dependencies: [
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/media', version: null},
+			{name: '@remotion/sfx', version: null},
+		],
+		durationInFrames: 120,
+		elementHeight: 240,
+		elementWidth: 760,
+		fps: 30,
+		height: 1080,
+		posterFrame: 50,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.mp4',
+		},
+		previewPadding: 240,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
