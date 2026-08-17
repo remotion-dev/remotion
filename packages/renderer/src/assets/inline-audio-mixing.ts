@@ -35,9 +35,6 @@ const correctFloatingPointError = (value: number): number => {
 	return value;
 };
 
-const getSamplePosition = (frame: number, fps: number, sampleRate: number) =>
-	Math.floor(correctFloatingPointError((frame / fps) * sampleRate));
-
 const BIT_DEPTH = 16;
 const BYTES_PER_SAMPLE = BIT_DEPTH / 8;
 const NUMBER_OF_CHANNELS = 2;
@@ -72,14 +69,12 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		asset,
 		fps,
 		totalNumberOfFrames,
-		firstFrame,
 		trimLeftOffset,
 		trimRightOffset,
 	}: {
 		asset: InlineAudioAsset;
 		fps: number;
 		totalNumberOfFrames: number;
-		firstFrame: number;
 		trimLeftOffset: number;
 		trimRightOffset: number;
 	}) => {
@@ -94,22 +89,12 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 
 		writtenHeaders[filePath] = true;
 
-		const firstSample = getSamplePosition(firstFrame, fps, sampleRate);
-		const endSample = getSamplePosition(
-			firstFrame + totalNumberOfFrames,
-			fps,
-			sampleRate,
+		const expectedDataSize = Math.round(
+			(totalNumberOfFrames / fps - trimLeftOffset + trimRightOffset) *
+				NUMBER_OF_CHANNELS *
+				sampleRate *
+				BYTES_PER_SAMPLE,
 		);
-		const samplesToShaveFromStart = Math.floor(
-			correctFloatingPointError(trimLeftOffset * sampleRate),
-		);
-		const samplesToShaveFromEnd = Math.ceil(
-			correctFloatingPointError(trimRightOffset * sampleRate),
-		);
-		const expectedFrames =
-			endSample - firstSample - samplesToShaveFromStart + samplesToShaveFromEnd;
-		const expectedDataSize =
-			expectedFrames * NUMBER_OF_CHANNELS * BYTES_PER_SAMPLE;
 
 		const expectedSize = 40 + expectedDataSize;
 
@@ -222,7 +207,6 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 			asset,
 			fps,
 			totalNumberOfFrames,
-			firstFrame,
 			trimLeftOffset,
 			trimRightOffset,
 		});
@@ -242,16 +226,6 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		toneFrequencies[filePath] = asset.toneFrequency;
 
 		let arr = new Int16Array(asset.audio);
-		const frameStartSample = getSamplePosition(asset.frame, fps, sampleRate);
-		const frameEndSample = getSamplePosition(asset.frame + 1, fps, sampleRate);
-		const expectedLength =
-			(frameEndSample - frameStartSample) * NUMBER_OF_CHANNELS;
-		if (arr.length !== expectedLength) {
-			const normalized = new Int16Array(expectedLength);
-			normalized.set(arr.subarray(0, expectedLength));
-			arr = normalized;
-		}
-
 		const isFirst = asset.frame === firstFrame;
 		const isLast = asset.frame === totalNumberOfFrames + firstFrame - 1;
 		const samplesToShaveFromStart = trimLeftOffset * sampleRate;
@@ -277,15 +251,17 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 			);
 		}
 
-		const firstRenderedSample = getSamplePosition(firstFrame, fps, sampleRate);
-		const trimLeftSamples = Math.floor(
-			correctFloatingPointError(samplesToShaveFromStart),
-		);
-		const positionInSamples = Math.max(
-			0,
-			frameStartSample - firstRenderedSample - trimLeftSamples,
-		);
-		const position = positionInSamples * NUMBER_OF_CHANNELS * BYTES_PER_SAMPLE;
+		const positionInSeconds =
+			(asset.frame - firstFrame) / fps - (isFirst ? 0 : trimLeftOffset);
+
+		// Always rounding down to ensure there are no gaps when the samples don't align
+		// In @remotion/media, we also round down the sample start timestamp and round up the end timestamp
+		// This might lead to overlapping, hopefully aligning perfectly!
+		// Test case: https://github.com/remotion-dev/remotion/issues/5758
+		const position =
+			Math.floor(correctFloatingPointError(positionInSeconds * sampleRate)) *
+			NUMBER_OF_CHANNELS *
+			BYTES_PER_SAMPLE;
 
 		writeSync(
 			// fs
