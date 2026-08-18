@@ -296,7 +296,7 @@ const elementImplementations = {
 		elementHeight: null,
 		elementWidth: null,
 		fps: 30,
-		height: 976,
+		height: 1080,
 		posterFrame: 70,
 		preview: {
 			posterUrl:
@@ -306,7 +306,7 @@ const elementImplementations = {
 		},
 		previewPadding: 0,
 		installationMode: 'wrapped',
-		width: 1672,
+		width: 1920,
 	},
 	'data/line-chart': {
 		component: LineChart,
@@ -317,7 +317,7 @@ const elementImplementations = {
 		elementHeight: null,
 		elementWidth: null,
 		fps: 30,
-		height: 1184,
+		height: 1080,
 		posterFrame: 70,
 		preview: {
 			posterUrl: 'https://remotion.media/elements/data-line-chart-preview.png',
@@ -325,7 +325,7 @@ const elementImplementations = {
 		},
 		previewPadding: 0,
 		installationMode: 'wrapped',
-		width: 1880,
+		width: 1920,
 	},
 	'data/pie-chart': {
 		component: PieChart,
@@ -337,7 +337,7 @@ const elementImplementations = {
 		elementHeight: null,
 		elementWidth: null,
 		fps: 30,
-		height: 976,
+		height: 1080,
 		posterFrame: 70,
 		preview: {
 			posterUrl: 'https://remotion.media/elements/data-pie-chart-preview.png',
@@ -345,7 +345,7 @@ const elementImplementations = {
 		},
 		previewPadding: 0,
 		installationMode: 'wrapped',
-		width: 1672,
+		width: 1920,
 	},
 	'data/number-counter': {
 		component: NumberCounter,
@@ -384,7 +384,7 @@ const elementImplementations = {
 		elementHeight: null,
 		elementWidth: null,
 		fps: 30,
-		height: 976,
+		height: 1080,
 		posterFrame: 115,
 		preview: {
 			posterUrl:
@@ -394,7 +394,7 @@ const elementImplementations = {
 		},
 		previewPadding: 0,
 		installationMode: 'wrapped',
-		width: 1672,
+		width: 1920,
 	},
 	'commerce/product-discount-callout': {
 		component: ProductDiscountCallout,
