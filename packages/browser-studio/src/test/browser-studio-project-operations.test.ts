@@ -28,6 +28,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
+		resolveDependencies: null,
 	});
 	const events: EventSourceEvent[] = [];
 	const contentsAtMutation: string[] = [];
@@ -272,6 +273,7 @@ test('replays an HMR event emitted before the Studio subscribes', () => {
 		getStaticFiles: null,
 		getProject: () => project,
 		onProjectChange: () => undefined,
+		resolveDependencies: null,
 	});
 	const hmrEvent = {
 		type: 'hmr',
@@ -305,6 +307,7 @@ test('rejects unsafe public paths and conflicting renames', async () => {
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
+		resolveDependencies: null,
 	});
 	const {renameStaticFile, writeStaticFile} = operations;
 

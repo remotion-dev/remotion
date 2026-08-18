@@ -52,6 +52,10 @@ type SequencePropsSubscription = {
 	effectChain: string;
 };
 
+type ResolveElementDependencies = (
+	dependencies: readonly ElementDependency[],
+) => Promise<Record<string, string>>;
+
 const getEffectChain = (result: SuccessfulSequencePropsSubscription) =>
 	result.status.effects
 		.map((effect) => (effect.canUpdate ? effect.callee : false))
@@ -213,9 +217,7 @@ export const createBrowserStudioOperations = ({
 	>[0]['getStaticFiles'];
 	getProject: () => VirtualProject;
 	onProjectChange: (project: VirtualProject) => void;
-	resolveDependencies?: (
-		dependencies: readonly ElementDependency[],
-	) => Promise<Record<string, string>>;
+	resolveDependencies: ResolveElementDependencies | null;
 }): BrowserStudioOperationsController => {
 	const defaultPropsSubscriptions = new Map<string, Set<string>>();
 	const lastDefaultPropsResults = new Map<string, string>();
@@ -338,9 +340,10 @@ export const createBrowserStudioOperations = ({
 	const resolveElementDependencies = async (
 		dependencies: readonly ElementDependency[],
 	) => {
-		const resolved = resolveDependencies
-			? await resolveDependencies(dependencies)
-			: {};
+		const resolved =
+			resolveDependencies !== null
+				? await resolveDependencies(dependencies)
+				: {};
 		const remotionVersion = dependencyVersions.remotion;
 
 		for (const dependency of dependencies) {

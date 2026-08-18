@@ -109,6 +109,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
+		resolveDependencies: null,
 	});
 	expect(operations.getCompositionFile('MyComp')).toBe('src/index.tsx');
 	expect(operations.getCompositionFile('Unknown')).toBeNull();
@@ -208,6 +209,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
+		resolveDependencies: null,
 	});
 	const events: EventSourceEvent[] = [];
 	operations.subscribeToEvent((event) => events.push(event));
@@ -287,6 +289,7 @@ test('reports invalid timeline Solid input without changing the project', async 
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
+		resolveDependencies: null,
 	});
 
 	const result = await operations.insertSolid({
@@ -327,6 +330,7 @@ registerRoot(Root);`,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
+		resolveDependencies: null,
 	});
 	const events: EventSourceEvent[] = [];
 	operations.subscribeToEvent((event) => events.push(event));
@@ -404,6 +408,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
+		resolveDependencies: null,
 	});
 	const events: EventSourceEvent[] = [];
 	operations.subscribeToEvent((event) => events.push(event));

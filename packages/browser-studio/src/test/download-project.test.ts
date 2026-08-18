@@ -25,6 +25,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
+		resolveDependencies: null,
 	});
 
 	const insertResult = await operations.insertSolid({
