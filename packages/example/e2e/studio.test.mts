@@ -520,6 +520,12 @@ test.describe('visual mode', () => {
 		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
 		let editorInfoRequests = 0;
 		let codingAgentInfoRequests = 0;
+		let updateConfigRequests = 0;
+		page.on('request', (request) => {
+			if (new URL(request.url()).pathname === '/api/update-config') {
+				updateConfigRequests++;
+			}
+		});
 		await page.route('**/api/default-editor-info', async (route) => {
 			editorInfoRequests++;
 			await route.fulfill({
@@ -682,15 +688,33 @@ test.describe('visual mode', () => {
 			const maxTimelineTracks = dialog.getByRole('button', {
 				name: 'Max timeline tracks',
 			});
-			await maxTimelineTracks.click();
-			const maxTimelineTracksInput = dialog.getByRole('textbox', {
-				name: 'Max timeline tracks',
-			});
-			await maxTimelineTracksInput.fill('123');
-			await maxTimelineTracksInput.press('Enter');
+			const maxTimelineTracksBounds = await maxTimelineTracks.boundingBox();
+			expect(maxTimelineTracksBounds).not.toBeNull();
+			const requestsBeforeDrag = updateConfigRequests;
+			await page.mouse.move(
+				maxTimelineTracksBounds!.x + maxTimelineTracksBounds!.width / 2,
+				maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
+			);
+			await page.mouse.down();
+			for (let step = 1; step <= 6; step++) {
+				await page.mouse.move(
+					maxTimelineTracksBounds!.x +
+						maxTimelineTracksBounds!.width / 2 +
+						step * 3,
+					maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
+				);
+				await page.waitForTimeout(80);
+			}
+			expect(updateConfigRequests).toBe(requestsBeforeDrag);
+			await page.mouse.up();
+			await expect
+				.poll(() => updateConfigRequests)
+				.toBe(requestsBeforeDrag + 1);
+			await page.waitForTimeout(500);
+			expect(updateConfigRequests).toBe(requestsBeforeDrag + 1);
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain('Config.setMaxTimelineTracks(123);');
+				.toContain('Config.setMaxTimelineTracks(');
 			await dialog.getByTitle('Use default (90)', {exact: true}).click();
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))

@@ -122,11 +122,13 @@ const ConfigNumber = ({
 	defaultValue,
 	name,
 	onChange,
+	onChangeEnd,
 	value,
 }: {
 	readonly defaultValue: number;
 	readonly name: string;
 	readonly onChange: (value: number | null) => void;
+	readonly onChangeEnd: (value: number | null) => void;
 	readonly value: number | null;
 }) => {
 	return (
@@ -142,6 +144,7 @@ const ConfigNumber = ({
 					min={0}
 					onTextChange={() => undefined}
 					onValueChange={onChange}
+					onValueChangeEnd={onChangeEnd}
 					placeholder={`Default (${defaultValue})`}
 					rightAlign
 					status="ok"
@@ -150,7 +153,7 @@ const ConfigNumber = ({
 				/>
 				<Button
 					disabled={value === null}
-					onClick={() => onChange(null)}
+					onClick={() => onChangeEnd(null)}
 					size="compact"
 					style={{color: LIGHT_TEXT}}
 					title={`Use default (${defaultValue})`}
@@ -171,6 +174,10 @@ export const StudioSettings: React.FC = () => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
 	const [settings, setSettings] =
 		useState<ConfigFileStudioSettings>(initialSettings);
+	const [committedNumberSettings, setCommittedNumberSettings] = useState<{
+		maxTimelineTracks: number | null;
+		numberOfSharedAudioTags: number | null;
+	}>({maxTimelineTracks: null, numberOfSharedAudioTags: null});
 	const [editedSetters, setEditedSetters] = useState<Set<string>>(
 		() => new Set(),
 	);
@@ -185,6 +192,13 @@ export const StudioSettings: React.FC = () => {
 		setSettings(
 			studioRuntimeConfig.configFileStudioSettings ?? initialSettings,
 		);
+		setCommittedNumberSettings({
+			maxTimelineTracks:
+				studioRuntimeConfig.configFileStudioSettings?.maxTimelineTracks ?? null,
+			numberOfSharedAudioTags:
+				studioRuntimeConfig.configFileStudioSettings?.numberOfSharedAudioTags ??
+				null,
+		});
 		setEditedSetters(new Set());
 		setSyncedRevision(revision);
 		setError(null);
@@ -201,6 +215,27 @@ export const StudioSettings: React.FC = () => {
 		},
 		[],
 	);
+	const previewNumberSetting = useCallback(
+		(
+			key: 'maxTimelineTracks' | 'numberOfSharedAudioTags',
+			value: number | null,
+		) => {
+			setSettings((current) => ({...current, [key]: value}));
+		},
+		[],
+	);
+	const commitNumberSetting = useCallback(
+		(
+			key: 'maxTimelineTracks' | 'numberOfSharedAudioTags',
+			setter: string,
+			value: number | null,
+		) => {
+			setSettings((current) => ({...current, [key]: value}));
+			setCommittedNumberSettings((current) => ({...current, [key]: value}));
+			setEditedSetters((current) => new Set(current).add(setter));
+		},
+		[],
+	);
 
 	const updates = useMemo((): ConfigUpdate[] => {
 		const update = (
@@ -213,9 +248,12 @@ export const StudioSettings: React.FC = () => {
 			update('setAskAIEnabled', settings.askAIEnabled),
 			update('setEnableCrossSiteIsolation', settings.enableCrossSiteIsolation),
 			update('setBeepOnFinish', settings.beepOnFinish),
-			update('setMaxTimelineTracks', settings.maxTimelineTracks),
+			update('setMaxTimelineTracks', committedNumberSettings.maxTimelineTracks),
 			update('setAudioLatencyHint', settings.audioLatencyHint),
-			update('setNumberOfSharedAudioTags', settings.numberOfSharedAudioTags),
+			update(
+				'setNumberOfSharedAudioTags',
+				committedNumberSettings.numberOfSharedAudioTags,
+			),
 			update('setRspack', settings.rspack),
 			update('setKeyboardShortcutsEnabled', settings.keyboardShortcutsEnabled),
 			update('setInteractivityEnabled', settings.interactivityEnabled),
@@ -234,7 +272,7 @@ export const StudioSettings: React.FC = () => {
 		}
 
 		return updatesForEditedSetters;
-	}, [editedSetters, settings]);
+	}, [committedNumberSettings, editedSetters, settings]);
 
 	const ready = studioRuntimeConfig !== null && syncedRevision === revision;
 	useAutoSaveConfig({
@@ -290,8 +328,13 @@ export const StudioSettings: React.FC = () => {
 			<ConfigNumber
 				defaultValue={DEFAULT_TIMELINE_TRACKS}
 				name="Max timeline tracks"
-				onChange={(value) =>
-					changeSetting('maxTimelineTracks', 'setMaxTimelineTracks', value)
+				onChange={(value) => previewNumberSetting('maxTimelineTracks', value)}
+				onChangeEnd={(value) =>
+					commitNumberSetting(
+						'maxTimelineTracks',
+						'setMaxTimelineTracks',
+						value,
+					)
 				}
 				value={settings.maxTimelineTracks}
 			/>
@@ -315,7 +358,10 @@ export const StudioSettings: React.FC = () => {
 				defaultValue={0}
 				name="Number of shared audio tags"
 				onChange={(value) =>
-					changeSetting(
+					previewNumberSetting('numberOfSharedAudioTags', value)
+				}
+				onChangeEnd={(value) =>
+					commitNumberSetting(
 						'numberOfSharedAudioTags',
 						'setNumberOfSharedAudioTags',
 						value,
