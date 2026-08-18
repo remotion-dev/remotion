@@ -7,7 +7,7 @@ description: Upload Remotion repository media assets to the Cloudflare R2 bucket
 
 Host media on `https://remotion.media/` while preserving the original file in the worktree as an ignored local copy.
 
-Do not use this skill for Remotion Element previews. Use the dedicated `upload-element-preview` script from `packages/docs`, which loads `packages/docs/.env`.
+Do not use this skill for Remotion Element previews. Use `accept-element-contribution` to publish an approved Element contribution.
 
 ## Workflow
 
