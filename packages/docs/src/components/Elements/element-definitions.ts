@@ -221,8 +221,7 @@ const elementImplementations = {
 	'youtube/youtube-comment-highlight': {
 		component: YouTubeCommentHighlight,
 		contributors: [],
-		description:
-			'A creator-branded comment card for featuring a viewer or pinned YouTube comment.',
+		description: 'A YouTube-style card for featuring a viewer comment.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 180,
 		elementHeight: 360,
