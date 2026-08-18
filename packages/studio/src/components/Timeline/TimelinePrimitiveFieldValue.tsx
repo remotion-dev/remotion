@@ -70,7 +70,6 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
-	readonly valueStyle?: React.CSSProperties;
 }> = ({
 	field,
 	onSave,
@@ -79,7 +78,6 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 	propStatus,
 	effectiveValue,
 	scaleLockNodePath,
-	valueStyle,
 }) => {
 	if (field.typeName === 'number') {
 		return (
@@ -91,7 +89,6 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 					onDragValueChange={onDragValueChange}
 					onSave={onSave}
 					propStatus={propStatus}
-					valueStyle={valueStyle}
 				/>
 			</span>
 		);
