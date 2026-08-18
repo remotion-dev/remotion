@@ -526,7 +526,7 @@ describe('Elements sidebar', () => {
 			{
 				category: 'maps',
 				label: 'Maps',
-				items: ['maps/map-flyover/index'],
+				items: ['maps/map-flyover/index', 'maps/watercolor-map/index'],
 			},
 			{
 				category: 'overlays',
@@ -637,6 +637,7 @@ describe('Element preview definitions', () => {
 			'captions/popping-word-captions',
 			'captions/word-highlight-captions',
 			'maps/map-flyover',
+			'maps/watercolor-map',
 			'text/spinning-text-wheel',
 		]);
 

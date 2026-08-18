@@ -73,6 +73,10 @@ export const elementRegistry = {
 		category: 'maps',
 		displayName: 'A-to-B Map Flyover',
 	},
+	'maps/watercolor-map': {
+		category: 'maps',
+		displayName: 'Watercolor Map',
+	},
 	'overlays/location-lower-third': {
 		category: 'overlays',
 		displayName: 'Location Lower Third',
