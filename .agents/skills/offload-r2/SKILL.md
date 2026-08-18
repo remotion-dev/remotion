@@ -1,13 +1,12 @@
 ---
 name: offload-r2
-description: Upload Remotion repository media assets to the Cloudflare R2 bucket behind remotion.media, switch source code to hosted URLs, and retain ignored local working copies. Use when binaries should remain available locally for editing or previewing but must not be committed to Git. Do not use for Remotion Element previews.
+description: Upload Remotion repository media assets to the Cloudflare R2 bucket behind remotion.media, switch source code to hosted URLs, and retain ignored local working copies. Use when binaries should remain available locally for editing or previewing but must not be committed to Git.
 ---
 
 # Offload R2 Asset
 
 Host media on `https://remotion.media/` while preserving the original file in the worktree as an ignored local copy.
 
-Do not use this skill for Remotion Element previews. Use `accept-element-contribution` to publish an approved Element contribution.
 
 ## Workflow
 
