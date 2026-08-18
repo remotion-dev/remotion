@@ -3,6 +3,15 @@ import path from 'path';
 import {S3Client} from 'bun';
 import {elementDefinitions} from './src/components/Elements/element-definitions';
 
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+	console.log(`Usage:
+  bun run upload-element-preview --element=<category>/<slug> --source=render
+  bun run upload-element-preview --element=<category>/<slug> --source=submission
+
+Use render to upload files from .element-previews. Use submission to upload committed files from static/elements. The command prints the hosted URLs and any cleanup required after a verified upload.`);
+	process.exit(0);
+}
+
 const elementArguments = process.argv.filter((argument) =>
 	argument.startsWith('--element='),
 );

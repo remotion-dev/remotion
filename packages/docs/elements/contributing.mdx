@@ -8,33 +8,50 @@ description: Create and submit a Remotion Element for the Elements gallery.
 
 Have a small, remixable Remotion Element? We'd like to see it.
 
-## Develop the Element
+## 1. Develop the Element
 
 1. Copy `packages/docs/elements-template` to `packages/docs/elements/<category>/<slug>`. The template includes a component and an `index.mdx` documentation page.
-2. Add its metadata to `packages/docs/src/components/Elements/element-definitions.ts` to register its Studio composition.
+2. Add its metadata to `packages/docs/src/components/Elements/element-definitions.ts` to register its Studio composition, and add its page to `packages/docs/elements-sidebars.ts`.
 3. Build and preview the Element in Studio:
 
 ```bash title="Terminal"
 cd packages/docs && bun remotion
 ```
 
-The following [Agent Skills](https://agentskills.io/) support the contribution workflow:
+The **scaffold-element skill** is an [Agent Skill](https://agentskills.io/) that can set up the template and Studio composition.
 
-- The **scaffold-element skill** copies the template and registers the development composition.
-- The **submit-element skill** adds the Element to the gallery and prepares it for review.
+## 2. Prepare previews
 
-## Open the pull request
+Render and visually review the Element and its previews:
 
-Before opening a pull request, visually review the Element in Studio.
+```bash title="Terminal"
+cd packages/docs
+bun run render-element-previews --element=<category>/<slug>
+bun test src/test/elements.test.ts
+```
+
+To make previews visible in the pull request deployment:
+
+1. Copy the rendered preview assets to `packages/docs/static/elements` and commit them.
+2. Set `image`, `posterUrl`, and `videoUrl` to `/elements/<category>-<slug>-preview.png` and `/elements/<category>-<slug>-preview.mp4`, matching those files.
+
+{/*
+Preview workflows:
+
+- External contributors render previews, commit them to static/elements, and use local URLs so the pull request deployment can show them.
+- Maintainers can use the upload-element-previews skill after rendering locally (source=render) or from a contributor's committed assets (source=submission). The uploader verifies the assets, publishes them to remotion.media, and prints the replacement URLs. Delete the static review assets after a submission upload.
+*/}
+
+## 3. Open the pull request
 
 Include:
 
 - The implementation, page, and gallery registration
 - What makes it useful
-- A working PNG and MP4 preview, committed directly to the pull request
+- A working PNG and MP4 preview
 - Links to inspiration, if any
 
-Preview assets let reviewers see the Element in the pull request deployment. After approval, a repository maintainer uploads them to static storage. Keep “Allow edits from maintainers” enabled on the pull request.
+Keep “Allow edits from maintainers” enabled on the pull request. After approval, a repository maintainer uploads the assets to static storage.
 
 ## Element Guidelines
 
@@ -89,4 +106,4 @@ Follow the [interactivity best practices](/docs/studio/interactivity-best-practi
 
 Choose a poster frame that clearly shows the Element. The video preview should cover the Element's full duration and, when applicable, include its entrance and exit animations.
 
-When ready, [open a pull request](#open-the-pull-request).
+When ready, [open a pull request](#3-open-the-pull-request).
