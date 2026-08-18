@@ -406,7 +406,8 @@ export const TimelineSequencePropItem: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
+	readonly runtimeValue: unknown;
 }> = ({
 	field,
 	validatedLocation,
@@ -415,7 +416,8 @@ export const TimelineSequencePropItem: React.FC<{
 	nodePathInfo,
 	schema,
 	keyframeDisplayOffset,
-	keyframeControlsMode = 'timeline',
+	keyframeControlsMode,
+	runtimeValue,
 }) => {
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
@@ -599,7 +601,13 @@ export const TimelineSequencePropItem: React.FC<{
 			propStatus={propStatus}
 		/>
 	) : (
-		<TimelineNonEditableStatus propStatus={propStatus} />
+		<TimelineNonEditableStatus
+			propStatus={propStatus}
+			field={field}
+			runtimeValue={runtimeValue}
+			scaleLockNodePath={nodePath}
+			fixHref="https://www.remotion.dev/docs/studio/interactivity-best-practices#keep-editable-values-visible"
+		/>
 	);
 
 	if (field.typeName === 'asset' && field.key === 'src') {

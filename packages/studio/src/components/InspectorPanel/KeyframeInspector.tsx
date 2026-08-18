@@ -583,6 +583,7 @@ export const KeyframeInspector: React.FC<{
 										nodePath={details.nodePath}
 										validatedLocation={details.validatedLocation}
 										sourceFrame={details.sourceFrame}
+										runtimeValueStore={null}
 									/>
 								)}
 							</div>

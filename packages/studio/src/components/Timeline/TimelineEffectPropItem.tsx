@@ -6,7 +6,9 @@ import {
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	RuntimeValueStore,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -15,15 +17,13 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
+import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
-import {
-	getComputedStatusLabel,
-	getKeyframeDisplayOffset,
-} from './get-timeline-keyframes';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -39,6 +39,7 @@ import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	TIMELINE_COMPUTED_EFFECT_FIX_LINK,
 	TimelineFieldValue,
+	TimelineNonEditableStatus,
 	UnsupportedStatus,
 } from './TimelineSchemaField';
 import {useTimelineRowSelection} from './TimelineSelection';
@@ -74,12 +75,32 @@ const isResettableStatus = ({
 	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
 };
 
+const TimelineComputedEffectPropValue: React.FC<{
+	readonly field: EffectSchemaFieldInfo;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly propStatus: CanUpdateSequencePropStatusFalse;
+	readonly runtimeValueStore: RuntimeValueStore | null;
+}> = ({field, nodePath, propStatus, runtimeValueStore}) => {
+	const runtimeValue = useRuntimeStoreValue(runtimeValueStore, field.key);
+
+	return (
+		<TimelineNonEditableStatus
+			propStatus={propStatus}
+			field={field}
+			runtimeValue={runtimeValue}
+			scaleLockNodePath={nodePath}
+			fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+		/>
+	);
+};
+
 export const TimelineEffectPropValue: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly sourceFrame: number;
-}> = ({field, nodePath, validatedLocation, sourceFrame}) => {
+	readonly runtimeValueStore: RuntimeValueStore | null;
+}> = ({field, nodePath, validatedLocation, sourceFrame, runtimeValueStore}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
 
@@ -267,19 +288,23 @@ export const TimelineEffectPropValue: React.FC<{
 	if (effectStatus.type === 'cannot-update-effect') {
 		if (effectStatus.reason === 'computed') {
 			return (
-				<UnsupportedStatus
-					label="computed"
-					fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+				<TimelineComputedEffectPropValue
+					propStatus={{status: 'computed'}}
+					field={field}
+					runtimeValueStore={runtimeValueStore}
+					nodePath={nodePath}
 				/>
 			);
 		}
 
 		if (effectStatus.reason === 'not-call-expression') {
-			return <UnsupportedStatus label="not inline" />;
+			return <UnsupportedStatus label="not inline" formattedValue={false} />;
 		}
 
 		if (effectStatus.reason === 'not-found') {
-			return <UnsupportedStatus label="not found in code" />;
+			return (
+				<UnsupportedStatus label="not found in code" formattedValue={false} />
+			);
 		}
 
 		throw new Error(
@@ -289,11 +314,13 @@ export const TimelineEffectPropValue: React.FC<{
 
 	if (effectStatus.type === 'cannot-update-sequence') {
 		if (effectStatus.reason === 'not-found') {
-			return <UnsupportedStatus label="not found in code" />;
+			return (
+				<UnsupportedStatus label="not found in code" formattedValue={false} />
+			);
 		}
 
 		if (effectStatus.reason === 'error') {
-			return <UnsupportedStatus label="error" />;
+			return <UnsupportedStatus label="error" formattedValue={false} />;
 		}
 
 		throw new Error(
@@ -322,9 +349,11 @@ export const TimelineEffectPropValue: React.FC<{
 
 	if (propStatus.status === 'computed') {
 		return (
-			<UnsupportedStatus
-				label={getComputedStatusLabel(propStatus)}
-				fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+			<TimelineComputedEffectPropValue
+				propStatus={propStatus}
+				field={field}
+				runtimeValueStore={runtimeValueStore}
+				nodePath={nodePath}
 			/>
 		);
 	}
@@ -355,7 +384,14 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly keyframeDisplayOffset: number;
-}> = ({field, nodePath, validatedLocation, keyframeDisplayOffset}) => {
+	readonly runtimeValueStore: RuntimeValueStore | null;
+}> = ({
+	field,
+	nodePath,
+	validatedLocation,
+	keyframeDisplayOffset,
+	runtimeValueStore,
+}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 
 	return (
@@ -364,6 +400,7 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 			nodePath={nodePath}
 			validatedLocation={validatedLocation}
 			sourceFrame={timelinePosition - keyframeDisplayOffset}
+			runtimeValueStore={runtimeValueStore}
 		/>
 	);
 };
@@ -375,7 +412,8 @@ export const TimelineEffectPropItem: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
+	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
 	validatedLocation,
@@ -383,7 +421,8 @@ export const TimelineEffectPropItem: React.FC<{
 	nodePath,
 	nodePathInfo,
 	keyframeDisplayOffset,
-	keyframeControlsMode = 'timeline',
+	keyframeControlsMode,
+	runtimeValueStore,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
@@ -577,6 +616,7 @@ export const TimelineEffectPropItem: React.FC<{
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					keyframeDisplayOffset={resolvedKeyframeDisplayOffset}
+					runtimeValueStore={runtimeValueStore}
 				/>
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>
