@@ -191,6 +191,7 @@ export const useMediaInTimeline = ({
 		}
 
 		registerSequence({
+			effectRuntimeValues: null,
 			type: mediaType,
 			src,
 			id,

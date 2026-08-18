@@ -305,7 +305,9 @@ export const TimelineTransformOriginField: React.FC<{
 	);
 
 	if (percent === null) {
-		return <UnsupportedStatus label="unsupported origin" />;
+		return (
+			<UnsupportedStatus label="unsupported origin" formattedValue={false} />
+		);
 	}
 
 	return (

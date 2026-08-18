@@ -288,6 +288,7 @@ const makeTimelineSequence = ({
 		refForOutline,
 		isInsideSeries,
 		effects,
+		effectRuntimeValues: null,
 		frozenFrame: null,
 		startMediaFrom,
 	}) as TSequence;
