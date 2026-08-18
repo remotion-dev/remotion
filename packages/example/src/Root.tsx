@@ -157,8 +157,8 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
-import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import './style.css';
+import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
@@ -268,6 +268,7 @@ import {
 	RoughNotationUnderline,
 } from './RoughNotation';
 import {SfxExample} from './Sfx';
+import {Repro as SfxDingTrimRepro} from './Sfx/Repro';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
 import {SmoothTextTransition} from './SmoothTextTransition';
@@ -2776,6 +2777,14 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={60}
+			/>
+			<Composition
+				id="sfx-ding-trim-repro"
+				component={SfxDingTrimRepro}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={42}
 			/>
 			<Folder name="transition-series-overlay">
 				<Composition
