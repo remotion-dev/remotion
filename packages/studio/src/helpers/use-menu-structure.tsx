@@ -345,11 +345,6 @@ export const useMenuStructure = (
 	);
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
 	const studioAskAIEnabled = getStudioAskAIEnabled();
-	const canConfigureDefaultEditor =
-		!readOnlyStudio &&
-		type === 'connected' &&
-		getBrowserStudioOperations() === null;
-
 	const {
 		setSidebarCollapsedState,
 		sidebarCollapsedStateLeft,
@@ -454,7 +449,7 @@ export const useMenuStructure = (
 							closeMenu();
 							setSelectedModal({
 								type: 'settings',
-								initialTab: canConfigureDefaultEditor ? 'apps' : 'license',
+								initialTab: 'rendering',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
@@ -1129,7 +1124,6 @@ export const useMenuStructure = (
 
 		return struct;
 	}, [
-		canConfigureDefaultEditor,
 		readOnlyStudio,
 		closeMenu,
 		type,

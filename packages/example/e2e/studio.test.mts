@@ -582,6 +582,10 @@ test.describe('visual mode', () => {
 			await quickSwitcher.getByText('Settings...', {exact: true}).click();
 			const dialog = page.getByRole('dialog');
 			await expect(
+				dialog.getByText('Default codec', {exact: true}),
+			).toBeVisible();
+			await dialog.getByText('Apps', {exact: true}).click();
+			await expect(
 				dialog.getByTitle('Default editor', {exact: true}),
 			).toHaveText('Cursor');
 			await expect(
@@ -1323,7 +1327,12 @@ test.describe('visual mode', () => {
 				.click();
 
 			const settings = page.getByRole('dialog');
-			await expect(settings.getByText('Apps', {exact: true})).toBeVisible();
+			await expect(
+				settings.getByTitle('Default editor', {exact: true}),
+			).toBeVisible();
+			await expect(
+				settings.getByText('Default codec', {exact: true}),
+			).toHaveCount(0);
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);
 		}
