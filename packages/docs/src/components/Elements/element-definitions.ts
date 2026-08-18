@@ -18,6 +18,7 @@ import {NumberCounter} from '../../../elements/data/number-counter/number-counte
 import {PieChart} from '../../../elements/data/pie-chart/pie-chart';
 import {VerticalBarChart} from '../../../elements/data/vertical-bar-chart/vertical-bar-chart';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
+import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
@@ -106,6 +107,31 @@ const elementImplementations = {
 		preview: {
 			posterUrl: 'https://remotion.media/elements/maps-map-flyover-preview.png',
 			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
+		},
+		previewPadding: 0,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	'maps/watercolor-map': {
+		component: WatercolorMap,
+		contributors: [
+			{username: 'JonnyBurger', contribution: 'Author'},
+			{username: 'MehmetAdemi', contribution: 'Author'},
+		],
+		description:
+			'A watercolor map journey between two editable locations, with animated labels, markers, and a hand-drawn route.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 200,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 145,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/maps-watercolor-map-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/maps-watercolor-map-preview.mp4',
 		},
 		previewPadding: 0,
 		installationMode: 'component-owned-sequence',
