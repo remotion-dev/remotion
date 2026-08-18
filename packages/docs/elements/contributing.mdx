@@ -20,15 +20,24 @@ cd packages/docs && bun remotion
 
 The **scaffold-element skill** is an [Agent Skill](https://agentskills.io/) that can set up the template and Studio composition.
 
-## Open the pull request
+## Prepare previews
 
-Before opening a pull request, render and visually review the Element and its previews:
+Render and visually review the Element and its previews:
 
 ```bash title="Terminal"
 cd packages/docs
 bun run render-element-previews --element=<category>/<slug>
 bun test src/test/elements.test.ts
 ```
+
+To make previews visible in the pull request deployment:
+
+1. Copy the rendered preview assets to `packages/docs/static/elements` and commit them.
+2. Set `image`, `posterUrl`, and `videoUrl` to `/elements/<category>-<slug>-preview.png` and `/elements/<category>-<slug>-preview.mp4`, matching those files.
+
+{/* Repository maintainers may instead upload previews to remotion.media and update the preview URLs. */}
+
+## Open the pull request
 
 Include:
 
@@ -37,14 +46,7 @@ Include:
 - A working PNG and MP4 preview
 - Links to inspiration, if any
 
-To make previews visible in the pull request deployment:
-
-1. Copy the rendered preview assets to `packages/docs/static/elements` and commit them.
-2. Set `image`, `posterUrl`, and `videoUrl` to `/elements/<category>-<slug>-preview.png` and `/elements/<category>-<slug>-preview.mp4`, matching those files.
-
-After approval, a repository maintainer uploads the assets to static storage. Keep “Allow edits from maintainers” enabled on the pull request.
-
-{/* Repository maintainers may instead upload previews to remotion.media and update the preview URLs. */}
+Keep “Allow edits from maintainers” enabled on the pull request. After approval, a repository maintainer uploads the assets to static storage.
 
 ## Element Guidelines
 
