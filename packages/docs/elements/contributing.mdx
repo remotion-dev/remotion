@@ -8,7 +8,9 @@ description: Create and submit a Remotion Element for the Elements gallery.
 
 Have a small, remixable Remotion Element? We'd like to see it.
 
-## Develop the Element
+Contribute an Element in three steps:
+
+## 1. Develop the Element
 
 1. Copy `packages/docs/elements-template` to `packages/docs/elements/<category>/<slug>`. The template includes a component and an `index.mdx` documentation page.
 2. Add its metadata to `packages/docs/src/components/Elements/element-definitions.ts` to register its Studio composition, and add its page to `packages/docs/elements-sidebars.ts`.
@@ -20,7 +22,7 @@ cd packages/docs && bun remotion
 
 The **scaffold-element skill** is an [Agent Skill](https://agentskills.io/) that can set up the template and Studio composition.
 
-## Prepare previews
+## 2. Prepare previews
 
 Render and visually review the Element and its previews:
 
@@ -37,7 +39,7 @@ To make previews visible in the pull request deployment:
 
 {/* Repository maintainers may instead upload previews to remotion.media and update the preview URLs. */}
 
-## Open the pull request
+## 3. Open the pull request
 
 Include:
 
