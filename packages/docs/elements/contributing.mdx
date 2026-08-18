@@ -35,7 +35,12 @@ To make previews visible in the pull request deployment:
 1. Copy the rendered preview assets to `packages/docs/static/elements` and commit them.
 2. Set `image`, `posterUrl`, and `videoUrl` to `/elements/<category>-<slug>-preview.png` and `/elements/<category>-<slug>-preview.mp4`, matching those files.
 
-{/* Repository maintainers may instead upload previews to remotion.media and update the preview URLs. */}
+{/*
+Preview workflows:
+
+- External contributors render previews, commit them to static/elements, and use local URLs so the pull request deployment can show them.
+- Maintainers can use the upload-element-previews skill after rendering locally (source=render) or from a contributor's committed assets (source=submission). The uploader verifies the assets, publishes them to remotion.media, and prints the replacement URLs. Delete the static review assets after a submission upload.
+*/}
 
 ## 3. Open the pull request
 
