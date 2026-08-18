@@ -34,85 +34,9 @@ test('reports outdated project skills when Remotion itself is up to date', async
 			latestVersion: '4.0.502',
 			updateAvailable: false,
 			skillsUpdateAvailable: true,
-			remotionUpgradeSkillAvailable: false,
-			remotionInteractivitySkillAvailable: false,
 			timedOut: false,
-		});
-
-		const upgradeSkillDirectory = path.join(
-			remotionRoot,
-			'.agents',
-			'skills',
-			'remotion-upgrade',
-		);
-		mkdirSync(upgradeSkillDirectory, {recursive: true});
-		writeFileSync(
-			path.join(upgradeSkillDirectory, 'SKILL.md'),
-			'---\nname: remotion-upgrade\nversion: 4.0.501\n---\n',
-		);
-		const interactivitySkillDirectory = path.join(
-			remotionRoot,
-			'.agents',
-			'skills',
-			'remotion-interactivity',
-		);
-		mkdirSync(interactivitySkillDirectory, {recursive: true});
-		writeFileSync(
-			path.join(interactivitySkillDirectory, 'SKILL.md'),
-			'---\nname: remotion-interactivity\nversion: 4.0.501\n---\n',
-		);
-
-		const resultWithUpgradeSkill = await isUpdateAvailable({
-			remotionRoot,
-			currentVersion: '4.0.502',
-			logLevel: 'error',
-			getLatestVersion: () => Promise.resolve('4.0.502'),
-		});
-
-		expect(resultWithUpgradeSkill).toMatchObject({
-			skillsUpdateAvailable: true,
-			remotionUpgradeSkillAvailable: true,
-			remotionInteractivitySkillAvailable: true,
 		});
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});
-	}
-});
-
-test('reports skills installed in the global scope as available', async () => {
-	const temporaryDirectory = mkdtempSync(
-		path.join(tmpdir(), 'remotion-studio-global-skills-'),
-	);
-	const remotionRoot = path.join(temporaryDirectory, 'project');
-	const homeDirectory = path.join(temporaryDirectory, 'home');
-
-	try {
-		mkdirSync(remotionRoot, {recursive: true});
-		for (const skillName of ['remotion-upgrade', 'remotion-interactivity']) {
-			const skillDirectory = path.join(
-				homeDirectory,
-				'.agents',
-				'skills',
-				skillName,
-			);
-			mkdirSync(skillDirectory, {recursive: true});
-			writeFileSync(path.join(skillDirectory, 'SKILL.md'), '---\n---\n');
-		}
-
-		const result = await isUpdateAvailable({
-			remotionRoot,
-			currentVersion: '4.0.502',
-			logLevel: 'error',
-			getLatestVersion: () => Promise.resolve('4.0.502'),
-			homeDirectory,
-		});
-
-		expect(result).toMatchObject({
-			skillsUpdateAvailable: false,
-			remotionUpgradeSkillAvailable: true,
-			remotionInteractivitySkillAvailable: true,
-		});
-	} finally {
-		rmSync(temporaryDirectory, {recursive: true, force: true});
 	}
 });

@@ -1031,10 +1031,14 @@ export type UpdateAvailableResponse = {
 	latestVersion: string;
 	updateAvailable: boolean;
 	skillsUpdateAvailable: boolean;
-	remotionUpgradeSkillAvailable: boolean;
-	remotionInteractivitySkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
+};
+
+export type GetRemotionSkillsInfoRequest = {};
+export type GetRemotionSkillsInfoResponse = {
+	remotionUpgradeSkillAvailable: boolean;
+	remotionInteractivitySkillAvailable: boolean;
 };
 
 export type ProjectInfoRequest = {};
@@ -1290,6 +1294,10 @@ export type ApiRoutes = {
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,
 		UpdateAvailableResponse
+	>;
+	'/api/remotion-skills-info': ReqAndRes<
+		GetRemotionSkillsInfoRequest,
+		GetRemotionSkillsInfoResponse
 	>;
 	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
 	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;

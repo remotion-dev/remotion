@@ -12,7 +12,7 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {SetSelectedModalContext} from '../../state/modals';
-import {updateAvailable} from '../RenderQueue/actions';
+import {useSettings} from '../SettingsContext';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {TimelineArrayField} from './TimelineArrayField';
 import {
@@ -125,27 +125,16 @@ export const TimelineNonEditableStatus: React.FC<{
 	readonly validatedLocation: CodePosition;
 }> = ({propStatus, field, runtimeValue, validatedLocation}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {remotionSkillsInfo} = useSettings();
 	const onFix = useCallback(() => {
-		const controller = new AbortController();
-		updateAvailable(controller.signal)
-			.then((info) => {
-				setSelectedModal({
-					type: 'fix-computed-value',
-					prop: field.key,
-					context: `${validatedLocation.source}:${validatedLocation.line}:${validatedLocation.column}`,
-					remotionInteractivitySkillAvailable:
-						info.remotionInteractivitySkillAvailable,
-				});
-			})
-			.catch(() => {
-				setSelectedModal({
-					type: 'fix-computed-value',
-					prop: field.key,
-					context: `${validatedLocation.source}:${validatedLocation.line}:${validatedLocation.column}`,
-					remotionInteractivitySkillAvailable: false,
-				});
-			});
-	}, [field.key, setSelectedModal, validatedLocation]);
+		setSelectedModal({
+			type: 'fix-computed-value',
+			prop: field.key,
+			context: `${validatedLocation.source}:${validatedLocation.line}:${validatedLocation.column}`,
+			remotionInteractivitySkillAvailable:
+				remotionSkillsInfo?.remotionInteractivitySkillAvailable ?? false,
+		});
+	}, [field.key, remotionSkillsInfo, setSelectedModal, validatedLocation]);
 
 	if (propStatus.status === 'computed') {
 		return (

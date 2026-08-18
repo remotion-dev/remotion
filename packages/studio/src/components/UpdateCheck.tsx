@@ -1,4 +1,7 @@
-import type {PackageManager} from '@remotion/studio-shared';
+import type {
+	GetRemotionSkillsInfoResponse,
+	UpdateAvailableResponse,
+} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -18,17 +21,10 @@ import {useZIndex} from '../state/z-index';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {updateAvailable} from './RenderQueue/actions';
+import {useSettings} from './SettingsContext';
 
-export type UpdateInfo = {
-	currentVersion: string;
-	latestVersion: string;
-	updateAvailable: boolean;
-	skillsUpdateAvailable: boolean;
-	remotionUpgradeSkillAvailable: boolean;
-	remotionInteractivitySkillAvailable: boolean;
-	timedOut: boolean;
-	packageManager: PackageManager | 'unknown';
-};
+export type UpdateInfo = UpdateAvailableResponse &
+	Pick<GetRemotionSkillsInfoResponse, 'remotionUpgradeSkillAvailable'>;
 
 const buttonStyle: React.CSSProperties = {
 	appearance: 'none',
@@ -57,8 +53,9 @@ export type Bug = {
 };
 
 export const UpdateCheck = () => {
-	const [info, setInfo] = useState<UpdateInfo | null>(null);
+	const [info, setInfo] = useState<UpdateAvailableResponse | null>(null);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {remotionSkillsInfo} = useSettings();
 	const {tabIndex} = useZIndex();
 	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
 	const [hovered, setHovered] = useState(false);
@@ -121,10 +118,14 @@ export const UpdateCheck = () => {
 	const openModal = useCallback(() => {
 		setSelectedModal({
 			type: 'update',
-			info: info as UpdateInfo,
+			info: {
+				...(info as UpdateAvailableResponse),
+				remotionUpgradeSkillAvailable:
+					remotionSkillsInfo?.remotionUpgradeSkillAvailable ?? false,
+			},
 			knownBugs: knownBugs as Bug[],
 		});
-	}, [info, knownBugs, setSelectedModal]);
+	}, [info, knownBugs, remotionSkillsInfo, setSelectedModal]);
 
 	const dynButtonStyle: React.CSSProperties = useMemo(() => {
 		return {

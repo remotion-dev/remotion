@@ -39,6 +39,7 @@ import {prepareElementInstallHandler} from './routes/prepare-element-install';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
+import {remotionSkillsInfoHandler} from './routes/remotion-skills-info';
 import {handleRemoveRender} from './routes/remove-render';
 import {renameStaticFileHandler} from './routes/rename-static-file';
 import {reorderEffectHandler} from './routes/reorder-effect';
@@ -114,6 +115,7 @@ export const allApiRoutes: {
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
 	'/api/split-jsx-sequence': splitJsxSequenceHandler,
 	'/api/update-available': handleUpdate,
+	'/api/remotion-skills-info': remotionSkillsInfoHandler,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/rename-static-file': renameStaticFileHandler,
