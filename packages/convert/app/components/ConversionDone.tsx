@@ -13,7 +13,9 @@ export const ConversionDone: React.FC<{
 	readonly setState: React.Dispatch<React.SetStateAction<ConvertState>>;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 }> = ({container, state, setState, setSrc}) => {
-	const [copied, setCopied] = useState(false);
+	const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>(
+		'idle',
+	);
 	const {mimeType} = getMediabunnyOutput(container);
 	const canCopyToClipboard =
 		typeof navigator !== 'undefined' &&
@@ -49,14 +51,15 @@ export const ConversionDone: React.FC<{
 					[mimeType]: file,
 				}),
 			]);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
+			setCopyStatus('success');
+			setTimeout(() => setCopyStatus('idle'), 2000);
 		} catch (e) {
 			// eslint-disable-next-line no-console
 			console.error(e);
-			setState({type: 'error', error: e as Error});
+			setCopyStatus('error');
+			setTimeout(() => setCopyStatus('idle'), 2000);
 		}
-	}, [mimeType, setState, state]);
+	}, [mimeType, state]);
 
 	const useAsInput = useCallback(async () => {
 		const file = await state.download();
@@ -87,7 +90,11 @@ export const ConversionDone: React.FC<{
 					>
 						<ClipboardIcon size={16} />
 						<div className="w-2" />
-						{copied ? 'Copied!' : 'Copy to clipboard'}
+						{copyStatus === 'success'
+							? 'Copied!'
+							: copyStatus === 'error'
+								? 'Failed to copy'
+								: 'Copy to clipboard'}
 					</Button>
 				) : null}
 				<Button
