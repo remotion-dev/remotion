@@ -17,12 +17,13 @@ export const ConversionDone: React.FC<{
 		'idle',
 	);
 	const {mimeType} = getMediabunnyOutput(container);
+	const clipboardMimeType = `web ${mimeType}`;
 	const canCopyToClipboard =
 		typeof navigator !== 'undefined' &&
 		typeof navigator.clipboard?.write === 'function' &&
 		typeof ClipboardItem !== 'undefined' &&
 		typeof ClipboardItem.supports === 'function' &&
-		ClipboardItem.supports(mimeType);
+		ClipboardItem.supports(clipboardMimeType);
 
 	if (state.type !== 'done') {
 		throw new Error('Expected state to be done');
@@ -48,7 +49,7 @@ export const ConversionDone: React.FC<{
 			const file = await state.download();
 			await navigator.clipboard.write([
 				new ClipboardItem({
-					[mimeType]: file,
+					[clipboardMimeType]: file,
 				}),
 			]);
 			setCopyStatus('success');
@@ -59,7 +60,7 @@ export const ConversionDone: React.FC<{
 			setCopyStatus('error');
 			setTimeout(() => setCopyStatus('idle'), 2000);
 		}
-	}, [mimeType, state]);
+	}, [clipboardMimeType, state]);
 
 	const useAsInput = useCallback(async () => {
 		const file = await state.download();
