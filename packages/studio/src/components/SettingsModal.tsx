@@ -82,7 +82,7 @@ export const SettingsModal: React.FC<{
 								</div>
 							)}
 						>
-							Rendering
+							Defaults
 						</VerticalTab>
 						<VerticalTab
 							style={horizontalTab}
