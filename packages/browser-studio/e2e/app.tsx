@@ -1,10 +1,21 @@
 import {
 	BrowserStudio,
 	createBlankTemplateProject,
+	type VirtualProject,
 } from '@remotion/browser-studio';
 import {createRoot} from 'react-dom/client';
+import {VERSION} from 'remotion/version';
 
 const project = createBlankTemplateProject();
+(
+	window as typeof window & {
+		__browserStudioProject: VirtualProject;
+		__browserStudioRemotionVersion: string;
+	}
+).__browserStudioProject = project;
+(
+	window as typeof window & {__browserStudioRemotionVersion: string}
+).__browserStudioRemotionVersion = VERSION;
 project.files['/project/src/index.ts'] =
 	`import {fade} from '@remotion/transitions/fade';
 import {registerRoot} from 'remotion';
@@ -24,6 +35,11 @@ createRoot(root).render(
 		iframeSrc="/frame.html"
 		project={project}
 		readOnly={false}
+		onProjectChange={(nextProject) => {
+			(
+				window as typeof window & {__browserStudioProject: VirtualProject}
+			).__browserStudioProject = nextProject;
+		}}
 		workspacePackageBaseUrl={
 			new URL('/__remotion_browser_studio_workspace__/', window.location.href)
 				.href

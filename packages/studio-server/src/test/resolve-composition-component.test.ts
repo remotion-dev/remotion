@@ -1672,6 +1672,95 @@ test('inserts a component into the resolved composition component', async () => 
 	}
 });
 
+test('rejects type-only component imports instead of using them as values', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		for (const typeOnlyImport of [
+			"import type {LowerThird} from './lower-third.element';",
+			"import {type LowerThird} from './lower-third.element';",
+		]) {
+			await fs.writeFile(
+				path.join(tempDir, 'MyComp.tsx'),
+				[
+					typeOnlyImport,
+					"import {AbsoluteFill} from 'remotion';",
+					'',
+					'export const MyComp: React.FC = () => {',
+					'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+					'};',
+					'',
+				].join('\n'),
+			);
+
+			await expect(
+				insertJsxElementIntoComposition({
+					remotionRoot: tempDir,
+					compositionFile: 'Root.tsx',
+					compositionId: 'test',
+					element: {
+						type: 'component',
+						componentName: 'LowerThird',
+						importName: 'LowerThird',
+						importPath: './lower-third.element',
+						props: [],
+						position: null,
+					},
+					from: null,
+					prettierConfigOverride: {singleQuote: true, useTabs: true},
+				}),
+			).rejects.toThrow(
+				'Cannot add <LowerThird> because LowerThird is already defined',
+			);
+		}
+
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import type {LowerThird as LowerThirdProps} from './lower-third.element';",
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'component',
+				componentName: 'LowerThird',
+				importName: 'LowerThird',
+				importPath: './lower-third.element',
+				props: [],
+				position: null,
+			},
+			from: null,
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+		expect(result.output).toContain(
+			"import { LowerThird } from './lower-third.element';",
+		);
+		expect(result.output).toContain('<LowerThird');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('wraps a component in a dimensionless Sequence', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
