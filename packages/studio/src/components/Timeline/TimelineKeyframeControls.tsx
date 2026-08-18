@@ -462,10 +462,6 @@ export const shouldShowTimelineKeyframeControls = ({
 		return false;
 	}
 
-	if (propStatus.status === 'computed') {
-		return false;
-	}
-
 	if (!keyframable && !isKeyframedStatus(propStatus)) {
 		return false;
 	}
@@ -486,6 +482,10 @@ export const shouldShowTimelineKeyframeNavigation = ({
 	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly selected: boolean;
 }) => {
+	if (propStatus.status === 'computed') {
+		return false;
+	}
+
 	if (selected) {
 		return true;
 	}

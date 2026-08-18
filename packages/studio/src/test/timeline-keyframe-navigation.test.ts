@@ -122,7 +122,7 @@ test('timeline keyframe controls visibility follows property selection or keyfra
 			selected: true,
 			keyframable: true,
 		}),
-	).toBe(false);
+	).toBe(true);
 });
 
 test('keyframe navigation visibility follows property selection or keyframed status', () => {
@@ -141,6 +141,7 @@ test('keyframe navigation visibility follows property selection or keyframed sta
 		posterize: undefined,
 		output: undefined,
 	};
+	const computedStatus: CanUpdateSequencePropStatus = {status: 'computed'};
 
 	expect(
 		shouldShowTimelineKeyframeNavigation({
@@ -160,4 +161,10 @@ test('keyframe navigation visibility follows property selection or keyframed sta
 			selected: false,
 		}),
 	).toBe(true);
+	expect(
+		shouldShowTimelineKeyframeNavigation({
+			propStatus: computedStatus,
+			selected: true,
+		}),
+	).toBe(false);
 });
