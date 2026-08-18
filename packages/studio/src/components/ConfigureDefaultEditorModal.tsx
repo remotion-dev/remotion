@@ -12,6 +12,7 @@ import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
+import {label, optionRow, rightRow} from './RenderModal/layout';
 import {useSettings} from './SettingsContext';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
@@ -24,7 +25,6 @@ const container: React.CSSProperties = {
 
 const content: React.CSSProperties = {
 	flex: 1,
-	padding: 16,
 };
 
 const description: React.CSSProperties = {
@@ -35,17 +35,20 @@ const description: React.CSSProperties = {
 	margin: 0,
 };
 
-const title: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	lineHeight: 1.5,
-	margin: 0,
-};
-
 const comboBoxStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
-	width: '100%',
+	width: 180,
+};
+
+const rightDescription: React.CSSProperties = {
+	...description,
+	textAlign: 'right',
+};
+
+const rightColumn: React.CSSProperties = {
+	...rightRow,
+	alignItems: 'flex-end',
+	flexDirection: 'column',
 };
 
 const appLabel: React.CSSProperties = {
@@ -237,51 +240,58 @@ export const DefaultEditorSettings: React.FC = () => {
 	return (
 		<div style={container}>
 			<div style={content}>
-				<p style={title}>Default editor</p>
-				<Spacing y={1} block />
-				{editorInfo === null && displayedError === null ? (
-					<p style={description}>Loading installed editors...</p>
-				) : null}
-				{editorInfo?.installedEditors.length === 0 ? (
-					<p style={description}>
-						No supported editors were found on this computer.
-					</p>
-				) : null}
-				{editorInfo === null ? null : (
-					<Combobox
-						values={editorValues}
-						selectedId={selectedEditor ?? NO_PREFERENCE_ID}
-						style={comboBoxStyle}
-						title="Default editor"
-					/>
-				)}
-				<Spacing y={2} block />
-				<p style={title}>Default coding agent</p>
-				<Spacing y={1} block />
-				{codingAgentInfo === null && displayedError === null ? (
-					<p style={description}>Loading installed coding agents...</p>
-				) : null}
-				{codingAgentInfo?.installedCodingAgents.length === 0 ? (
-					<p style={description}>
-						No supported coding agents were found on this computer.
-					</p>
-				) : null}
-				{codingAgentInfo === null ? null : (
-					<Combobox
-						values={codingAgentValues}
-						selectedId={selectedCodingAgent ?? NO_PREFERENCE_ID}
-						style={comboBoxStyle}
-						title="Default coding agent"
-					/>
-				)}
+				<div style={optionRow}>
+					<div style={label}>Default editor</div>
+					<div style={rightColumn}>
+						{editorInfo === null && displayedError === null ? (
+							<p style={rightDescription}>Loading installed editors...</p>
+						) : null}
+						{editorInfo?.installedEditors.length === 0 ? (
+							<p style={rightDescription}>
+								No supported editors were found on this computer.
+							</p>
+						) : null}
+						{editorInfo === null ? null : (
+							<Combobox
+								values={editorValues}
+								selectedId={selectedEditor ?? NO_PREFERENCE_ID}
+								style={comboBoxStyle}
+								title="Default editor"
+							/>
+						)}
+					</div>
+				</div>
+				<div style={optionRow}>
+					<div style={label}>Default coding agent</div>
+					<div style={rightColumn}>
+						{codingAgentInfo === null && displayedError === null ? (
+							<p style={rightDescription}>Loading installed coding agents...</p>
+						) : null}
+						{codingAgentInfo?.installedCodingAgents.length === 0 ? (
+							<p style={rightDescription}>
+								No supported coding agents were found on this computer.
+							</p>
+						) : null}
+						{codingAgentInfo === null ? null : (
+							<Combobox
+								values={codingAgentValues}
+								selectedId={selectedCodingAgent ?? NO_PREFERENCE_ID}
+								style={comboBoxStyle}
+								title="Default coding agent"
+							/>
+						)}
+					</div>
+				</div>
 				{displayedError ? (
 					<>
 						<Spacing y={1.5} />
-						<ValidationMessage
-							message={displayedError}
-							align="flex-start"
-							type="error"
-						/>
+						<div style={{paddingLeft: 16, paddingRight: 16}}>
+							<ValidationMessage
+								message={displayedError}
+								align="flex-start"
+								type="error"
+							/>
+						</div>
 					</>
 				) : null}
 			</div>
