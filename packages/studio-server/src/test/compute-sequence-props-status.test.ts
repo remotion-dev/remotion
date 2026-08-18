@@ -95,6 +95,7 @@ export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallbac
 
 		expect(hook.status.props.name).toEqual({
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: 'Hook',
 		});
 
@@ -105,8 +106,16 @@ export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallbac
 		}
 
 		expect(create.status.props).toMatchObject({
-			name: {status: 'static', codeValue: 'Create'},
-			from: {status: 'static', codeValue: 150},
+			name: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 'Create',
+			},
+			from: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 150,
+			},
 		});
 
 		const child = getStatus('<HeroScene');
@@ -122,8 +131,16 @@ export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallbac
 		}
 
 		expect(fallback.status.props).toMatchObject({
-			name: {status: 'static', codeValue: 'Fallback'},
-			from: {status: 'static', codeValue: 300},
+			name: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 'Fallback',
+			},
+			from: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 300,
+			},
 		});
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});
@@ -196,6 +213,7 @@ export const Example = () => {
 
 	expect(result.props.src).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: `${NoReactInternals.FILE_TOKEN}1.jpg`,
 	});
 });
@@ -229,6 +247,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props.premountFor).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 60,
 		numericExpression: {
 			type: 'video-config-multiplication',
@@ -241,6 +260,7 @@ export const Example: React.FC = () => {
 	});
 	expect(result.props.postmountFor).toMatchObject({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 75,
 		numericExpression: {
 			type: 'video-config-multiplication',
@@ -250,11 +270,13 @@ export const Example: React.FC = () => {
 	expect(result.props.from).toEqual({status: 'computed'});
 	expect(result.props.offset).toMatchObject({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: -30,
 		numericExpression: {multiplier: -1},
 	});
 	expect(result.props['style.scale']).toMatchObject({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
 			{frame: 0, value: 2},
 			{
@@ -295,14 +317,17 @@ export const Example = () => {
 
 	expect(result.props['style.borderWidth']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 12,
 	});
 	expect(result.props['style.borderStyle']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'dashed',
 	});
 	expect(result.props['style.borderColor']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'rgba(1, 2, 3, 0.5)',
 	});
 });
@@ -343,16 +368,48 @@ export const Example = () => {
 	});
 
 	expect(numeric.props).toMatchObject({
-		'style.borderTopLeftRadius': {status: 'static', codeValue: 12},
-		'style.borderTopRightRadius': {status: 'static', codeValue: 12},
-		'style.borderBottomRightRadius': {status: 'static', codeValue: 12},
-		'style.borderBottomLeftRadius': {status: 'static', codeValue: 12},
+		'style.borderTopLeftRadius': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 12,
+		},
+		'style.borderTopRightRadius': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 12,
+		},
+		'style.borderBottomRightRadius': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 12,
+		},
+		'style.borderBottomLeftRadius': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 12,
+		},
 	});
 	expect(pixelValues.props).toMatchObject({
-		'style.borderTopLeftRadius': {status: 'static', codeValue: 10},
-		'style.borderTopRightRadius': {status: 'static', codeValue: 20},
-		'style.borderBottomRightRadius': {status: 'static', codeValue: 30},
-		'style.borderBottomLeftRadius': {status: 'static', codeValue: 40},
+		'style.borderTopLeftRadius': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 10,
+		},
+		'style.borderTopRightRadius': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 20,
+		},
+		'style.borderBottomRightRadius': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 30,
+		},
+		'style.borderBottomLeftRadius': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 40,
+		},
 	});
 });
 
@@ -388,14 +445,17 @@ export const Example = () => {
 
 	expect(getStatus(6).props['style.borderRadius']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 12,
 	});
 	expect(getStatus(7).props['style.borderRadius']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 10,
 	});
 	expect(getStatus(8).props['style.borderRadius']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 8,
 	});
 	expect(getStatus(9).props['style.borderRadius']).toEqual({
@@ -403,6 +463,7 @@ export const Example = () => {
 	});
 	expect(getStatus(9).props['style.borderTopLeftRadius']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 10,
 	});
 });
@@ -426,6 +487,7 @@ export const Example = () => {
 
 	expect(result.props['style.borderRadius']).toMatchObject({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 0},
@@ -574,10 +636,12 @@ export const Example = () => {
 
 	expect(beforeShorthand.props['style.borderWidth']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 2,
 	});
 	expect(afterShorthand.props['style.borderWidth']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 8,
 	});
 });
@@ -600,14 +664,17 @@ export const Example = () => {
 
 	expect(result.props['style.borderWidth']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 3,
 	});
 	expect(result.props['style.borderStyle']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'solid',
 	});
 	expect(result.props['style.borderColor']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'currentColor',
 	});
 });
@@ -630,6 +697,7 @@ export const Example = () => {
 
 	expect(result.props['style.backgroundColor']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'rgba(1, 2, 3, 0.5)',
 	});
 });
@@ -697,10 +765,12 @@ export const Example = () => {
 
 	expect(beforeShorthand.props['style.backgroundColor']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'red',
 	});
 	expect(afterShorthand.props['style.backgroundColor']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'blue',
 	});
 });
@@ -730,6 +800,7 @@ export const Example = () => {
 
 	expect(result.props['style.backgroundColor']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'black',
 	});
 });
@@ -753,15 +824,18 @@ test('canUpdateSequenceProps should flag computed props', () => {
 
 	expect(result.props.durationInFrames).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 60,
 	});
 	expect(result.props.hueShift).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 30,
 	});
 	expect(result.props.seed).toEqual({status: 'computed'});
 	expect(result.props.nonExistentProp).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: undefined,
 	});
 });
@@ -791,6 +865,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props.color).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolateColors',
 		keyframes: [
 			{frame: 0, value: 'red'},
@@ -855,10 +930,12 @@ export const Example: React.FC = () => {
 
 	expect(result.props.progress).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 1,
 	});
 	expect(result.props.color).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'yellow',
 	});
 });
@@ -887,6 +964,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props.from).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 10,
 	});
 });
@@ -916,6 +994,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props.color).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolateColors',
 		keyframes: [
 			{frame: 0, value: 'red'},
@@ -954,6 +1033,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.opacity']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 0},
@@ -1001,6 +1081,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.translate']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: '0px 59px'},
@@ -1011,6 +1092,124 @@ export const Example: React.FC = () => {
 		posterize: undefined,
 		output: undefined,
 	});
+});
+
+test('computeSequencePropsStatus preserves the useCurrentFrame coordinate space across userland timing components', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Timing} from './Timing';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<Timing durationInFrames={30} from={-5} trimBefore={3}>
+			<AbsoluteFill
+				style={{
+					backgroundColor: 'dodgerblue',
+					translate: interpolate(frame, [10, 20], ['0px 0px', '500px 0px']),
+				}}
+			/>
+		</Timing>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 9),
+		componentIdentity: null,
+		keys: ['style.backgroundColor', 'style.translate'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.translate']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 8,
+		keyframes: [
+			{frame: 10, value: '0px 0px'},
+			{frame: 20, value: '500px 0px'},
+		],
+	});
+	expect(result.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'dodgerblue',
+		keyframeDisplayOffsetAdjustment: 8,
+	});
+});
+
+test('computeSequencePropsStatus distinguishes a zero-offset outer frame clock from a local frame clock', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Timing} from './Timing';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<Timing from={0}>
+			<AbsoluteFill style={{opacity: interpolate(frame, [10, 20], [0, 1])}} />
+		</Timing>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 9),
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
+		keyframes: [
+			{frame: 10, value: 0},
+			{frame: 20, value: 1},
+		],
+	});
+});
+
+test('computeSequencePropsStatus reports computed when a timing component offset is uncertain', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Timing, getTimingProps} from './Timing';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const timingProps = getTimingProps();
+	return (
+		<Timing {...timingProps}>
+			<AbsoluteFill
+				style={{
+					backgroundColor: 'dodgerblue',
+					translate: interpolate(frame, [10, 20], ['0px 0px', '500px 0px']),
+				}}
+			/>
+		</Timing>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 10),
+		componentIdentity: null,
+		keys: ['style.backgroundColor', 'style.translate'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.translate']).toEqual({status: 'computed'});
+	expect(result.props['style.backgroundColor']).toEqual({status: 'computed'});
 });
 
 test('computeSequencePropsStatus should return keyframes for String-wrapped interpolated translate props', () => {
@@ -1045,6 +1244,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.translate']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: '0px 59px'},
@@ -1115,6 +1315,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.rotate']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 55, value: '19deg'},
@@ -1164,10 +1365,12 @@ test('computeSequencePropsStatus should detect static nested props', () => {
 
 	expect(result.props['style.opacity']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 0.5,
 	});
 	expect(result.props['style.scale']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 2,
 	});
 });
@@ -1194,6 +1397,7 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 	// scale is static
 	expect(result.props['style.scale']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 2,
 	});
 });
@@ -1226,7 +1430,11 @@ export const Example = () => {
 
 	expect(getColorStatus(8)).toEqual({status: 'computed'});
 	expect(getColorStatus(9)).toEqual({status: 'computed'});
-	expect(getColorStatus(10)).toEqual({status: 'static', codeValue: 'red'});
+	expect(getColorStatus(10)).toEqual({
+		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
+		codeValue: 'red',
+	});
 });
 
 test('computeSequencePropsStatus should flag computed when parent is not an object', () => {
@@ -1267,6 +1475,7 @@ test('computeSequencePropsStatus should report unset nested props as undefined',
 
 	expect(result.props['style.rotate']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: undefined,
 	});
 });
@@ -1288,6 +1497,7 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 
 	expect(result.props['style.opacity']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: undefined,
 	});
 });
@@ -1309,6 +1519,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 
 	expect(result.props['style.scale']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 2},
@@ -1361,6 +1572,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.scale']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: '1.105 1.105'},
@@ -1407,6 +1619,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.scale']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 1},
@@ -1452,6 +1665,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.scale']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 1},
@@ -1490,6 +1704,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.scale']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 1},
@@ -1528,6 +1743,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props.color).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolateColors',
 		keyframes: [
 			{frame: 0, value: 'red'},
@@ -1686,6 +1902,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.scale']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 1},
@@ -1726,6 +1943,7 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.scale']).toMatchObject({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		easing: [
 			{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 			{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: 1 / 3},
@@ -1793,7 +2011,11 @@ export const Example: React.FC = () => {
 		effects: [],
 	});
 
-	expect(result.props.children).toEqual({status: 'static', codeValue: 'Hello'});
+	expect(result.props.children).toEqual({
+		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
+		codeValue: 'Hello',
+	});
 });
 
 test('computeSequencePropsStatus should detect static children attribute', () => {
@@ -1813,7 +2035,11 @@ export const Example: React.FC = () => {
 		effects: [],
 	});
 
-	expect(result.props.children).toEqual({status: 'static', codeValue: 'Hello'});
+	expect(result.props.children).toEqual({
+		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
+		codeValue: 'Hello',
+	});
 });
 
 test('computeSequencePropsStatus should prefer static children attribute over JSX children', () => {
@@ -1833,7 +2059,11 @@ export const Example: React.FC = () => {
 		effects: [],
 	});
 
-	expect(result.props.children).toEqual({status: 'static', codeValue: 'Hello'});
+	expect(result.props.children).toEqual({
+		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
+		codeValue: 'Hello',
+	});
 });
 
 test('computeSequencePropsStatus should detect empty JSX text children', () => {
@@ -1853,7 +2083,11 @@ export const Example: React.FC = () => {
 		effects: [],
 	});
 
-	expect(result.props.children).toEqual({status: 'static', codeValue: ''});
+	expect(result.props.children).toEqual({
+		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
+		codeValue: '',
+	});
 });
 
 test('computeSequencePropsStatus should reject non-static text children', () => {

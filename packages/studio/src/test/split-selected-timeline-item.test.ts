@@ -68,6 +68,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 
 const staticNumber = (value: number): CanUpdateSequencePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue: value,
 });
 

@@ -20,7 +20,10 @@ import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
-import {getComputedStatusLabel} from './get-timeline-keyframes';
+import {
+	getComputedStatusLabel,
+	getKeyframeDisplayOffset,
+} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -412,6 +415,10 @@ export const TimelineEffectPropItem: React.FC<{
 		effectStatus.type === 'can-update-effect'
 			? (effectStatus.props?.[field.key] ?? null)
 			: null;
+	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
+		propStatus,
+		keyframeDisplayOffset,
+	});
 
 	const dragOverrideValue = useMemo(() => {
 		const overrides = getEffectDragOverrides(nodePath, field.effectIndex);
@@ -569,7 +576,7 @@ export const TimelineEffectPropItem: React.FC<{
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
-					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframeDisplayOffset={resolvedKeyframeDisplayOffset}
 				/>
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>

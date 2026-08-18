@@ -307,6 +307,7 @@ import {
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
+import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
@@ -2870,6 +2871,14 @@ export const Index: React.FC = () => {
 				durationInFrames={180}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="sequence-shift-repro"
+					component={SequenceShiftRepro}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={30}
+				/>
 				<Composition
 					id="outline-selection-cases"
 					component={OutlineSelectionCases}

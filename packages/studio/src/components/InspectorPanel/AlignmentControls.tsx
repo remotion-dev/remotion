@@ -15,6 +15,7 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
 import {translateFieldKey} from '../selected-outline-types';
 import {callAddSequenceKeyframe} from '../Timeline/call-add-keyframe';
+import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from '../Timeline/save-sequence-prop';
 import {
 	parseTranslate,
@@ -115,7 +116,15 @@ export const AlignmentControls: React.FC<{
 				propStatuses,
 				nodePath,
 			);
-			const sourceFrame = timelinePosition - track.keyframeDisplayOffset;
+			const firstKeyframedStatus = Object.values(nodePropStatuses ?? {}).find(
+				(status) => status.status === 'keyframed',
+			);
+			const sourceFrame =
+				timelinePosition -
+				getKeyframeDisplayOffset({
+					propStatus: firstKeyframedStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				});
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
 
 			const activeSchema = getSelectedOutlineActiveSchema({
@@ -256,7 +265,15 @@ export const AlignmentControls: React.FC<{
 		propStatuses,
 		renderNodePath,
 	);
-	const renderSourceFrame = timelinePosition - track.keyframeDisplayOffset;
+	const firstRenderKeyframedStatus = Object.values(
+		renderNodePropStatuses ?? {},
+	).find((status) => status.status === 'keyframed');
+	const renderSourceFrame =
+		timelinePosition -
+		getKeyframeDisplayOffset({
+			propStatus: firstRenderKeyframedStatus,
+			keyframeDisplayOffset: track.keyframeDisplayOffset,
+		});
 	const renderDragOverrides = getDragOverrides(renderNodePath) ?? {};
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({

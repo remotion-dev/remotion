@@ -28,12 +28,33 @@ export const getTimelineKeyframes = (
 	}
 
 	const {keyframes} = propStatus;
-	if (keyframeDisplayOffset === 0) {
+	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
+		propStatus,
+		keyframeDisplayOffset,
+	});
+	if (resolvedKeyframeDisplayOffset === 0) {
 		return keyframes;
 	}
 
 	return keyframes.map((keyframe) => ({
 		...keyframe,
-		frame: keyframe.frame + keyframeDisplayOffset,
+		frame: keyframe.frame + resolvedKeyframeDisplayOffset,
 	}));
+};
+
+export const getKeyframeDisplayOffset = ({
+	propStatus,
+	keyframeDisplayOffset,
+}: {
+	propStatus: CanUpdateSequencePropStatus | null | undefined;
+	keyframeDisplayOffset: number;
+}): number => {
+	return (
+		keyframeDisplayOffset +
+		(propStatus?.status === 'keyframed' || propStatus?.status === 'static'
+			? propStatus.keyframeDisplayOffsetAdjustment === null
+				? 0
+				: propStatus.keyframeDisplayOffsetAdjustment
+			: 0)
+	);
 };

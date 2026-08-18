@@ -26,6 +26,7 @@ const makeNodePathInfo = (
 
 const keyframedStatus = {
 	status: 'keyframed',
+	keyframeDisplayOffsetAdjustment: null,
 	interpolationFunction: 'interpolate',
 	keyframes: [
 		{frame: 0, value: 0},

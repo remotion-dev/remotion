@@ -9,7 +9,11 @@ const staticStatuses = (values: Record<string, unknown>) => {
 	return Object.fromEntries(
 		Object.entries(values).map(([key, codeValue]) => [
 			key,
-			{status: 'static' as const, codeValue},
+			{
+				status: 'static' as const,
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue,
+			},
 		]),
 	);
 };
@@ -251,6 +255,7 @@ test('uses the component schema defaults to determine layout activity', () => {
 					...defaultStatuses,
 					layout: {
 						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
 						codeValue: defaults.layout === 'none' ? 'absolute-fill' : 'none',
 					},
 				},
@@ -264,6 +269,7 @@ test('uses the component schema defaults to determine layout activity', () => {
 					...defaultStatuses,
 					premountFor: {
 						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
 						codeValue: defaults.premountFor + 1,
 					},
 				},

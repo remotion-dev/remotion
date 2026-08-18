@@ -1,7 +1,7 @@
-import fs from 'fs';
-import assert from 'node:assert';
 import {expect, test} from '@playwright/test';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
+import fs from 'fs';
+import assert from 'node:assert';
 import {NoReactInternals} from 'remotion/no-react';
 import {apiCall} from './api-call.mts';
 import {newVideoFile} from './constants.mts';
@@ -136,6 +136,7 @@ test.describe('node-path cache for stale source maps', () => {
 		expect(result1.data.status.props.debugOverlay).toEqual({
 			status: 'static',
 			codeValue: true,
+			keyframeDisplayOffsetAdjustment: null,
 		});
 
 		const staleNodePath = result1.data.nodePath.nodePath;
@@ -173,6 +174,7 @@ test.describe('node-path cache for stale source maps', () => {
 		expect(result2.data.status.props.debugOverlay).toEqual({
 			status: 'static',
 			codeValue: true,
+			keyframeDisplayOffsetAdjustment: null,
 		});
 		expect(result2.data.nodePath.nodePath).not.toEqual(staleNodePath);
 	});

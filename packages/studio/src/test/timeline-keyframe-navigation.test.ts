@@ -73,10 +73,12 @@ test('hasKeyframeAtSourceFrame checks source frame membership', () => {
 test('timeline keyframe controls visibility follows property selection or keyframed status', () => {
 	const staticStatus: CanUpdateSequencePropStatus = {
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 1,
 	};
 	const keyframedStatus: CanUpdateSequencePropStatus = {
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 10, value: 1}],
 		easing: [],
@@ -118,10 +120,12 @@ test('timeline keyframe controls visibility follows property selection or keyfra
 test('keyframe navigation visibility follows property selection or keyframed status', () => {
 	const staticStatus: CanUpdateSequencePropStatus = {
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 1,
 	};
 	const keyframedStatus: CanUpdateSequencePropStatus = {
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 10, value: 1}],
 		easing: [],

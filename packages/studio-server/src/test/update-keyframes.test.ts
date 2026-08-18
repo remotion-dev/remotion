@@ -82,6 +82,7 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.scale']).toMatchObject({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
 			{frame: 0, value: 2},
 			{frame: 50, value: 2.5},
@@ -132,6 +133,7 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.opacity']).toMatchObject({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
 			{frame: 1, value: 0.35},
 			{frame: 160, value: 1},
@@ -177,6 +179,7 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.opacity']).toMatchObject({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
 			{frame: 0, value: 0.35},
 			{
@@ -657,6 +660,7 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.scale']).toMatchObject({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
 		easing: [{type: 'step1'}],
 	});
 });
@@ -1259,6 +1263,7 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.translate']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 44, value: '100px 20px'}],
 		easing: [],
@@ -1409,6 +1414,7 @@ export default CenteredSolid;
 	});
 	expect(status.props.width).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 11, value: 240}],
 		easing: [],
@@ -1678,6 +1684,7 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	});
 	expect(status.props['style.scale']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 320,
 	});
 });
@@ -1919,6 +1926,7 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	});
 	expect(status.props.color).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'blue',
 	});
 });

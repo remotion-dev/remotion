@@ -119,6 +119,7 @@ export const Second = () => {
 			expect(result.nodePath.nodePath).toEqual(expectedNodePaths[index]);
 			expect(result.status.props.name).toEqual({
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: expectedNames[index],
 			});
 		}

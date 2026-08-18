@@ -4,12 +4,10 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {callApi} from '../call-api';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	deleteSelectedKeyframe,
-	deleteSelectedKeyframes,
-} from './delete-selected-keyframe';
+import {deleteSelectedKeyframes} from './delete-selected-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getEasingSelectionAfterKeyframeDelete} from './get-easing-selection-after-keyframe-delete';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetPropStatuses} from './save-sequence-prop';
 import {
@@ -130,61 +128,6 @@ const deleteEffects = (
 		});
 };
 
-export const deleteSelectedTimelineItem = ({
-	selection,
-	sequences,
-	overrideIdsToNodePaths,
-	setPropStatuses,
-	clientId,
-	confirm,
-}: {
-	selection: TimelineSelection;
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	setPropStatuses: SetPropStatuses;
-	clientId: string;
-	confirm: ConfirmationDialogFunction;
-}): Promise<boolean> | null => {
-	if (selection.type === 'keyframe') {
-		const promise = deleteSelectedKeyframe({
-			nodePathInfo: selection.nodePathInfo,
-			frame: selection.frame,
-			sequences,
-			overrideIdsToNodePaths,
-			setPropStatuses,
-			clientId,
-		});
-		return promise?.then(() => true) ?? null;
-	}
-
-	switch (selection.type) {
-		case 'guide':
-			return null;
-		case 'sequence':
-			return deleteSequencesFromSource([selection.nodePathInfo], confirm);
-		case 'sequence-effect':
-			return deleteEffects([
-				{
-					type: 'single-effect',
-					nodePathInfo: selection.nodePathInfo,
-					effectIndex: selection.i,
-				},
-			]);
-		case 'sequence-prop':
-		case 'sequence-effect-prop':
-		case 'easing':
-			return null;
-		case 'sequence-all-effects':
-			return deleteEffects([
-				{type: 'all-effects', nodePathInfo: selection.nodePathInfo},
-			]);
-		default:
-			throw new Error(
-				`Unexpected timeline selection type: ${selection satisfies never}`,
-			);
-	}
-};
-
 const isSequenceRowSelection = (
 	selection: TimelineSelection,
 ): selection is TimelineSelection & {
@@ -277,8 +220,6 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 	}
 
 	const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
-	const sourceFrame = selection.frame - track.keyframeDisplayOffset;
-
 	if (field.type === 'sequence') {
 		const sequencePropStatus = Internals.getPropStatusesCtx(
 			propStatuses,
@@ -294,7 +235,13 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 		}
 
 		return getEasingSelectionAfterKeyframeDelete({
-			deletedSourceFrames: [sourceFrame],
+			deletedSourceFrames: [
+				selection.frame -
+					getKeyframeDisplayOffset({
+						propStatus: sequencePropStatus,
+						keyframeDisplayOffset: track.keyframeDisplayOffset,
+					}),
+			],
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
 			nodePathInfo: selection.nodePathInfo,
 			propStatus: sequencePropStatus,
@@ -321,7 +268,13 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 	}
 
 	return getEasingSelectionAfterKeyframeDelete({
-		deletedSourceFrames: [sourceFrame],
+		deletedSourceFrames: [
+			selection.frame -
+				getKeyframeDisplayOffset({
+					propStatus: effectPropStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				}),
+		],
 		keyframeDisplayOffset: track.keyframeDisplayOffset,
 		nodePathInfo: selection.nodePathInfo,
 		propStatus: effectPropStatus,
