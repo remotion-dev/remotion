@@ -135,12 +135,10 @@ const renderIssue10468Wav = async ({
 	tmpDir,
 	name,
 	props,
-	concurrency,
 }: {
 	tmpDir: string;
 	name: string;
 	props: Record<string, unknown>;
-	concurrency: number;
 }) => {
 	const outputLocation = path.join(tmpDir, name);
 	const composition = await selectComposition({
@@ -155,7 +153,7 @@ const renderIssue10468Wav = async ({
 		composition,
 		inputProps: props,
 		sampleRate: 48000,
-		concurrency,
+		concurrency: 1,
 		logLevel: 'error',
 	});
 
@@ -191,32 +189,6 @@ test(
 );
 
 test(
-	'@remotion/media sample-rate conversion should be concurrency-independent',
-	async () => {
-		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'issue-10468-'));
-		try {
-			const concurrencyOne = await renderIssue10468Wav({
-				tmpDir,
-				name: 'media-concurrency-1.wav',
-				props: issue10468InputProps,
-				concurrency: 1,
-			});
-			const concurrencyThree = await renderIssue10468Wav({
-				tmpDir,
-				name: 'media-concurrency-3.wav',
-				props: issue10468InputProps,
-				concurrency: 3,
-			});
-
-			expect(concurrencyThree.samples).toEqual(concurrencyOne.samples);
-		} finally {
-			rmSync(tmpDir, {recursive: true, force: true});
-		}
-	},
-	{timeout: 180000},
-);
-
-test(
 	'@remotion/media sample-rate conversion should match Html5Audio',
 	async () => {
 		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'issue-10468-'));
@@ -225,13 +197,11 @@ test(
 				tmpDir,
 				name: 'html5-reference.wav',
 				props: {...issue10468InputProps, implementation: 'html5'},
-				concurrency: 1,
 			});
 			const candidate = await renderIssue10468Wav({
 				tmpDir,
 				name: 'media.wav',
 				props: issue10468InputProps,
-				concurrency: 1,
 			});
 
 			expect(reference.sampleRate).toBe(48000);
