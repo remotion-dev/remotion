@@ -44,17 +44,20 @@ export const setElementDragImage = (
 
 	const scale = Math.min(
 		1,
-		96 / poster.naturalWidth,
-		64 / poster.naturalHeight,
+		132 / poster.naturalWidth,
+		88 / poster.naturalHeight,
 	);
 	const width = poster.naturalWidth * scale;
 	const height = poster.naturalHeight * scale;
+	const outlineWidth = 2;
 	const wrapper = document.createElement('div');
 	wrapper.style.position = 'fixed';
 	wrapper.style.top = '-1000px';
 	wrapper.style.left = '-1000px';
-	wrapper.style.width = `${width}px`;
-	wrapper.style.height = `${height}px`;
+	wrapper.style.boxSizing = 'border-box';
+	wrapper.style.width = `${width + outlineWidth * 2}px`;
+	wrapper.style.height = `${height + outlineWidth * 2}px`;
+	wrapper.style.border = `${outlineWidth}px solid #0b84f3`;
 
 	const image = document.createElement('img');
 	image.src = poster.currentSrc || poster.src;
@@ -64,6 +67,10 @@ export const setElementDragImage = (
 	wrapper.appendChild(image);
 
 	document.body.appendChild(wrapper);
-	dataTransfer.setDragImage(wrapper, width / 2, height / 2);
+	dataTransfer.setDragImage(
+		wrapper,
+		width / 2 + outlineWidth,
+		height / 2 + outlineWidth,
+	);
 	requestAnimationFrame(() => wrapper.remove());
 };
