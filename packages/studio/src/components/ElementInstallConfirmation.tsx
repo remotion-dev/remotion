@@ -295,10 +295,10 @@ export const ElementInstallConfirmation: React.FC<{
 			<div style={warningStyle}>
 				<WarningTriangle style={warningIconStyle} />
 				<p style={warningDescriptionStyle}>
-					This adds executable source code to your project.{' '}
+					This adds executable source code to your project.
 					{usesBrowserDependencyResolution
-						? 'Dependencies are resolved in the browser; package lifecycle scripts do not run.'
-						: 'Package lifecycle scripts may also run during installation, with access to your files and the network.'}
+						? null
+						: ' Package lifecycle scripts may also run during installation, with access to your files and the network.'}
 				</p>
 			</div>
 

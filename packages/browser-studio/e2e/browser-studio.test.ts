@@ -135,7 +135,7 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 		studio.getByText(
 			'Dependencies are resolved in the browser; package lifecycle scripts do not run.',
 		),
-	).toBeVisible();
+	).toHaveCount(0);
 	await studio.getByRole('button', {name: /^Install/}).click();
 
 	await expect
