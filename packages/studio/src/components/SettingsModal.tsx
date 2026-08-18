@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {AppsIcon} from '../icons/apps';
 import {CertificateIcon} from '../icons/certificate';
-import {GearIcon} from '../icons/gear';
+import {RemotionTriangleIcon} from '../icons/remotion-triangle';
 import {FilmIcon} from '../icons/video';
 import {SetSelectedModalContext} from '../state/modals';
 import {DefaultEditorSettings} from './ConfigureDefaultEditorModal';
@@ -92,7 +92,7 @@ export const SettingsModal: React.FC<{
 							onClick={() => selectTab('studio')}
 							renderIcon={(color) => (
 								<div style={iconContainer}>
-									<GearIcon color={color} style={icon} />
+									<RemotionTriangleIcon color={color} style={icon} />
 								</div>
 							)}
 						>
