@@ -13,6 +13,7 @@ import {
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {Spinner} from './Spinner';
 import type {
+	BrowserStudioDependencyResolution,
 	BrowserStudioProps,
 	BrowserStudioWorkerCompileRequest,
 	BrowserStudioWorkerCompileResponse,
@@ -87,7 +88,9 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		chromeMode: 'headless-shell',
 		codec: 'h264',
 		colorSpace: 'default',
+		configFileRenderDefaults: null,
 		concurrency: Math.round(Math.min(8, Math.max(1, maxConcurrency / 2))),
+		crf: null,
 		darkMode: false,
 		delayRenderTimeout: 30_000,
 		disableWebSecurity: false,
@@ -139,6 +142,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
 	const [iframeLoaded, setIframeLoaded] = useState(false);
+	const [installedDependencyResolutions, setInstalledDependencyResolutions] =
+		useState<Record<string, BrowserStudioDependencyResolution>>({});
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 	const lastWrittenDocumentRef = useRef<Document | null>(null);
 	const lastWrittenHtmlRef = useRef<string | null>(null);
@@ -147,6 +152,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const bundleUrlRef = useRef<string | null>(null);
 	const onCompileStateChangeRef = useRef(onCompileStateChange);
 	onCompileStateChangeRef.current = onCompileStateChange;
+	const dependencyResolverRef = useRef(dependencyResolver);
+	dependencyResolverRef.current = dependencyResolver;
 	const publicFileManager = useMemo(
 		() =>
 			createBrowserStudioPublicFileManager({
@@ -200,6 +207,58 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		},
 		[],
 	);
+	const resolveElementDependencies = useCallback(
+		(dependencies: readonly {name: string; version: string | null}[]) => {
+			const remotionVersion = browserStudioDependencyVersions.remotion;
+			if (!remotionVersion) {
+				throw new Error('Browser Studio Remotion version is unavailable');
+			}
+
+			const versions: Record<string, string> = {};
+			const resolutions: Record<string, BrowserStudioDependencyResolution> = {};
+			for (const dependency of dependencies) {
+				const requestedVersion = dependency.name.startsWith('@remotion/')
+					? remotionVersion
+					: dependency.version;
+				const customResolution = dependencyResolverRef.current?.({
+					name: dependency.name,
+					version: requestedVersion,
+				});
+				const customVersion =
+					typeof customResolution === 'string' &&
+					!customResolution.startsWith('http')
+						? customResolution
+						: typeof customResolution === 'object'
+							? (customResolution?.version ?? null)
+							: null;
+				const version = dependency.name.startsWith('@remotion/')
+					? remotionVersion
+					: (customVersion ?? requestedVersion);
+				if (version === null) {
+					throw new Error(`Could not resolve ${dependency.name}`);
+				}
+
+				versions[dependency.name] = version;
+				resolutions[dependency.name] = dependency.name.startsWith('@remotion/')
+					? typeof customResolution === 'string' &&
+						customResolution.startsWith('http')
+						? customResolution
+						: typeof customResolution === 'object' && customResolution?.url
+							? {url: customResolution.url}
+							: version
+					: (customResolution ?? version);
+			}
+
+			setInstalledDependencyResolutions((current) => {
+				const next = {...current, ...resolutions};
+				return JSON.stringify(current) === JSON.stringify(next)
+					? current
+					: next;
+			});
+			return Promise.resolve(versions);
+		},
+		[],
+	);
 
 	const browserStudioOperations = useMemo(
 		() =>
@@ -208,8 +267,9 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				getStaticFiles: publicFileManager.getStaticFiles,
 				getProject: () => activeProjectRef.current,
 				onProjectChange: updateProject,
+				resolveDependencies: resolveElementDependencies,
 			}),
-		[publicFileManager, updateProject],
+		[publicFileManager, resolveElementDependencies, updateProject],
 	);
 	const previousIncomingProject = useRef(project);
 	const incomingProjectAcknowledgesEdit =
@@ -338,6 +398,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					keyboardShortcutsEnabled: true,
 					maxTimelineTracks: null,
 					publicLicenseKey: null,
+					configFileStudioSettings: null,
 				},
 				studioServerCommand: null,
 				title: 'Remotion Studio',
@@ -358,22 +419,25 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		const request: BrowserStudioWorkerCompileRequest = {
 			type: 'init',
-			dependencyResolutions: Object.fromEntries(
-				Object.entries(browserStudioDependencyVersions).map(
-					([name, version]) => {
-						const customResolution = dependencyResolver?.({name, version});
-						if (customResolution) {
-							return [name, customResolution];
-						}
+			dependencyResolutions: {
+				...Object.fromEntries(
+					Object.entries(browserStudioDependencyVersions).map(
+						([name, version]) => {
+							const customResolution = dependencyResolver?.({name, version});
+							if (customResolution) {
+								return [name, customResolution];
+							}
 
-						if (name === '@remotion/studio') {
-							return [name, {url: localStudioPreviewEntry}];
-						}
+							if (name === '@remotion/studio') {
+								return [name, {url: localStudioPreviewEntry}];
+							}
 
-						return [name, null];
-					},
+							return [name, null];
+						},
+					),
 				),
-			),
+				...installedDependencyResolutions,
+			},
 			project: activeProjectRef.current,
 			workspacePackageBaseUrl: workspacePackageBaseUrl ?? null,
 		};
@@ -390,6 +454,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		browserStudioOperations,
 		dependencyResolver,
 		hmrAssetManager,
+		installedDependencyResolutions,
 		publicFileManager,
 		readOnly,
 		workspacePackageBaseUrl,

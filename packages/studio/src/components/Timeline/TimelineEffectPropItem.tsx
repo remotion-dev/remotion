@@ -76,11 +76,10 @@ const isResettableStatus = ({
 
 const TimelineComputedEffectPropValue: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
-	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
 	readonly runtimeValueStore: RuntimeValueStore | null;
 	readonly validatedLocation: CodePosition;
-}> = ({field, nodePath, propStatus, runtimeValueStore, validatedLocation}) => {
+}> = ({field, propStatus, runtimeValueStore, validatedLocation}) => {
 	const runtimeValue = useRuntimeStoreValue(runtimeValueStore, field.key);
 
 	return (
@@ -88,7 +87,6 @@ const TimelineComputedEffectPropValue: React.FC<{
 			propStatus={propStatus}
 			field={field}
 			runtimeValue={runtimeValue}
-			scaleLockNodePath={nodePath}
 			validatedLocation={validatedLocation}
 		/>
 	);
@@ -292,7 +290,6 @@ export const TimelineEffectPropValue: React.FC<{
 					propStatus={{status: 'computed'}}
 					field={field}
 					runtimeValueStore={runtimeValueStore}
-					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 				/>
 			);
@@ -354,7 +351,6 @@ export const TimelineEffectPropValue: React.FC<{
 				propStatus={propStatus}
 				field={field}
 				runtimeValueStore={runtimeValueStore}
-				nodePath={nodePath}
 				validatedLocation={validatedLocation}
 			/>
 		);

@@ -139,9 +139,11 @@
       "version": "4.0.513",
       "dependencies": {
         "@remotion/studio-codemods": "workspace:*",
+        "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@rspack/browser": "2.1.1",
         "fflate": "0.8.2",
+        "prettier": "catalog:",
         "react-refresh": "0.18.0",
         "remotion": "workspace:*",
       },

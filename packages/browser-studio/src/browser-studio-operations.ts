@@ -5,22 +5,50 @@ import {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
-	insertSolidIntoProjectWithNodePathRemappings,
+	insertJsxElementIntoProjectWithNodePathRemappings,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
+	makeInMemoryInsertJsxElementCodemodEnvironment,
+	resolveCompositionComponentWithFile,
 } from '@remotion/studio-codemods';
-import type {
-	BrowserStudioOperations,
-	EventSourceEvent,
-	InsertJsxElementResponse,
-	SubscribeToSequencePropsRequest,
-	SubscribeToSequencePropsResponse,
-	UnsubscribeFromSequencePropsRequest,
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {
+	getRequiredPackageForInsertableElement,
+	type BrowserStudioOperations,
+	type ElementInstallExpectedFileState,
+	type EventSourceEvent,
+	type InsertElementResponse,
+	type SubscribeToSequencePropsRequest,
+	type SubscribeToSequencePropsResponse,
+	type UnsubscribeFromSequencePropsRequest,
 } from '@remotion/studio-shared';
+import * as prettierPluginEstree from 'prettier/plugins/estree';
+import * as prettierPluginTypescript from 'prettier/plugins/typescript';
+import {format} from 'prettier/standalone';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
 import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject} from './types';
+
+/*
+ * SVG conversion uses SVGR in desktop Studio. SVGR depends on Node APIs, so
+ * Browser Studio deliberately reports the unsupported operation instead.
+ */
+const svgMarkupToJsx = (): Promise<never> =>
+	Promise.reject(
+		new Error('Importing SVG markup is not supported in Browser Studio'),
+	);
+
+const formatCodemodFile = async ({contents}: {contents: string}) => ({
+	formatted: true,
+	output: await format(contents, {
+		bracketSpacing: false,
+		parser: 'typescript',
+		plugins: [prettierPluginTypescript, prettierPluginEstree],
+		singleQuote: true,
+		useTabs: true,
+	}),
+});
 
 export {
 	insertSolidIntoProject,
@@ -44,6 +72,10 @@ type SequencePropsSubscription = {
 	effectChain: string;
 };
 
+type ResolveElementDependencies = (
+	dependencies: readonly {name: string; version: string | null}[],
+) => Promise<Record<string, string>>;
+
 const getEffectChain = (result: SuccessfulSequencePropsSubscription) =>
 	result.status.effects
 		.map((effect) => (effect.canUpdate ? effect.callee : false))
@@ -66,11 +98,142 @@ const makeSequencePropsSubscriptionKey = ({
 		effectKeys,
 	});
 
+const normalizeElementSource = (source: string) =>
+	source.replace(/\r\n/g, '\n').trim();
+
+const getElementSourceHash = async (source: string) => {
+	const hash = await crypto.subtle.digest(
+		'SHA-256',
+		new TextEncoder().encode(source),
+	);
+	return Array.from(new Uint8Array(hash), (byte) =>
+		byte.toString(16).padStart(2, '0'),
+	).join('');
+};
+
+const dirname = (filePath: string) => {
+	const slash = filePath.replaceAll('\\', '/').lastIndexOf('/');
+	return slash === -1 ? '' : filePath.slice(0, slash);
+};
+
+const relativeToRoot = (filePath: string, rootDir: string) => {
+	const root = rootDir.replace(/\/$/, '');
+	return filePath.startsWith(`${root}/`)
+		? filePath.slice(root.length + 1)
+		: filePath.replace(/^\//, '');
+};
+
+const getElementInstallPlanForProject = async ({
+	compositionFile,
+	compositionId,
+	element,
+	project,
+}: Parameters<BrowserStudioOperations['prepareElementInstall']>[0] & {
+	project: VirtualProject;
+}) => {
+	const componentName =
+		StudioProtocolInternals.getElementComponentNameFromSourceCode(
+			element.sourceCode,
+		);
+	const elementFileName = StudioProtocolInternals.makeElementFileNameFromSlug(
+		element.slug,
+	);
+	if (componentName === null || elementFileName === null) {
+		throw new Error('Invalid Element source');
+	}
+
+	const target = await resolveCompositionComponentWithFile({
+		compositionFile,
+		compositionId,
+		environment: makeInMemoryInsertJsxElementCodemodEnvironment({
+			formatFile: formatCodemodFile,
+			project,
+			svgMarkupToJsx,
+		}),
+	});
+	const elementFilePath = `${dirname(target.fileName)}/${elementFileName}`;
+	if (elementFilePath === target.fileName) {
+		throw new Error('Element source file conflicts with the composition file');
+	}
+
+	const existingSource = project.files[elementFilePath] ?? null;
+	const expectedFileState: ElementInstallExpectedFileState =
+		existingSource === null
+			? {exists: false}
+			: {
+					exists: true,
+					sourceHash: await getElementSourceHash(existingSource),
+				};
+
+	return {
+		componentName,
+		elementFilePath,
+		existingSource,
+		expectedFileState,
+		filePath: relativeToRoot(elementFilePath, project.rootDir),
+		importPath: `./${elementFileName.replace(/\.tsx$/, '')}`,
+	};
+};
+
+const expectedFileStateMatches = ({
+	actual,
+	expected,
+}: {
+	actual: ElementInstallExpectedFileState;
+	expected: ElementInstallExpectedFileState;
+}) => {
+	if (actual.exists !== expected.exists) {
+		return false;
+	}
+
+	return (
+		!actual.exists ||
+		(expected.exists && actual.sourceHash === expected.sourceHash)
+	);
+};
+
+const addDependenciesToProject = ({
+	dependencies,
+	project,
+}: {
+	dependencies: Record<string, string>;
+	project: VirtualProject;
+}): VirtualProject => {
+	if (Object.keys(dependencies).length === 0) {
+		return project;
+	}
+
+	const root = project.rootDir.replace(/\/$/, '');
+	const packageJsonPath =
+		Object.keys(project.files).find(
+			(file) => file.replaceAll('\\', '/') === `${root}/package.json`,
+		) ?? `${root}/package.json`;
+	const existing = project.files[packageJsonPath];
+	const parsed = existing
+		? (JSON.parse(existing) as Record<string, unknown>)
+		: {name: 'remotion-browser-studio-project', private: true};
+	const currentDependencies =
+		typeof parsed.dependencies === 'object' && parsed.dependencies !== null
+			? (parsed.dependencies as Record<string, string>)
+			: {};
+	parsed.dependencies = {...currentDependencies, ...dependencies};
+	const indentation = existing?.match(/\n([ \t]+)"/)?.[1] ?? '  ';
+
+	return {
+		...project,
+		files: {
+			...project.files,
+			[packageJsonPath]: `${JSON.stringify(parsed, null, indentation)}\n`,
+		},
+	};
+};
+
 export const createBrowserStudioOperations = ({
 	dependencyVersions,
 	getStaticFiles,
 	getProject,
 	onProjectChange,
+	resolveDependencies,
 }: {
 	dependencyVersions: Record<string, string>;
 	getStaticFiles: Parameters<
@@ -78,6 +241,7 @@ export const createBrowserStudioOperations = ({
 	>[0]['getStaticFiles'];
 	getProject: () => VirtualProject;
 	onProjectChange: (project: VirtualProject) => void;
+	resolveDependencies: ResolveElementDependencies | null;
 }): BrowserStudioOperationsController => {
 	const defaultPropsSubscriptions = new Map<string, Set<string>>();
 	const lastDefaultPropsResults = new Map<string, string>();
@@ -197,6 +361,96 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const resolveElementDependencies = async (
+		dependencies: readonly {name: string; version: string | null}[],
+	) => {
+		const resolved =
+			resolveDependencies !== null
+				? await resolveDependencies(dependencies)
+				: {};
+		const remotionVersion = dependencyVersions.remotion;
+
+		for (const dependency of dependencies) {
+			if (dependency.name.startsWith('@remotion/')) {
+				if (!remotionVersion) {
+					throw new Error(
+						`Cannot resolve ${dependency.name} because the Browser Studio Remotion version is unavailable`,
+					);
+				}
+
+				resolved[dependency.name] = remotionVersion;
+				continue;
+			}
+
+			if (dependency.version === null) {
+				throw new Error(`Could not resolve ${dependency.name}`);
+			}
+
+			resolved[dependency.name] ??= dependency.version;
+		}
+
+		return resolved;
+	};
+
+	const insertJsxElement: BrowserStudioOperations['insertJsxElement'] = async (
+		request,
+	) => {
+		try {
+			const requiredPackage = getRequiredPackageForInsertableElement(
+				request.element,
+			);
+			const installedDependencies =
+				requiredPackage === null
+					? {}
+					: await resolveElementDependencies([
+							{name: requiredPackage, version: null},
+						]);
+			const project = addDependenciesToProject({
+				dependencies: installedDependencies,
+				project: getProject(),
+			});
+			const result = await insertJsxElementIntoProjectWithNodePathRemappings({
+				formatFile: formatCodemodFile,
+				project,
+				request,
+				svgMarkupToJsx,
+				wrapInSequence: null,
+			});
+			const nodePathMutation = controller.applyMutation({
+				fileName: result.filePath,
+				mutate: () => result.project,
+				nodePathMutationFiles: [
+					{
+						absolutePath: result.filePath,
+						remappings: result.nodePathRemappings,
+						restoredNodePaths: [],
+					},
+				],
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not insert JSX element');
+			}
+
+			return {
+				success: true,
+				insertedNodePath:
+					result.insertedNodePath === null
+						? null
+						: {
+								absolutePath: result.filePath,
+								nodePath: result.insertedNodePath,
+							},
+				nodePathMutation,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				reason: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error && error.stack ? error.stack : '',
+			};
+		}
+	};
+
 	return {
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadProject: () =>
@@ -215,38 +469,161 @@ export const createBrowserStudioOperations = ({
 			Promise.resolve(
 				getCompositionComponentInfo({project: getProject(), request}),
 			),
-		insertSolid: (request) => {
+		insertElement: async (request) => {
 			try {
-				const result = insertSolidIntoProjectWithNodePathRemappings({
-					project: getProject(),
-					request,
+				const project = getProject();
+				const plan = await getElementInstallPlanForProject({
+					compositionFile: request.compositionFile,
+					compositionId: request.compositionId,
+					element: request.element,
+					project,
+				});
+				if (
+					request.expectedFileState !== null &&
+					!expectedFileStateMatches({
+						actual: plan.expectedFileState,
+						expected: request.expectedFileState,
+					})
+				) {
+					if (plan.existingSource !== null) {
+						return {
+							success: false,
+							type: 'file-conflict',
+							conflict: {
+								existingSource: plan.existingSource,
+								filePath: plan.filePath,
+								incomingSource: request.element.sourceCode,
+							},
+						};
+					}
+
+					throw new Error('Element source changed during installation');
+				}
+
+				const sourcesDiffer =
+					plan.existingSource !== null &&
+					normalizeElementSource(plan.existingSource) !==
+						normalizeElementSource(request.element.sourceCode);
+				if (
+					sourcesDiffer &&
+					!request.overwriteExisting &&
+					plan.existingSource !== null
+				) {
+					return {
+						success: false,
+						type: 'file-conflict',
+						conflict: {
+							existingSource: plan.existingSource,
+							filePath: plan.filePath,
+							incomingSource: request.element.sourceCode,
+						},
+					};
+				}
+
+				const installedDependencies = await resolveElementDependencies(
+					request.element.dependencies,
+				);
+				const installationMode = request.element.installationMode ?? 'wrapped';
+				const componentOwnsSequence =
+					installationMode === 'component-owned-sequence';
+				const durationInFrames = request.element.durationInFrames ?? null;
+				const insertion =
+					await insertJsxElementIntoProjectWithNodePathRemappings({
+						formatFile: formatCodemodFile,
+						project,
+						request: {
+							compositionFile: request.compositionFile,
+							compositionId: request.compositionId,
+							element: {
+								componentName: plan.componentName,
+								importName: plan.componentName,
+								importPath: plan.importPath,
+								position: componentOwnsSequence ? request.position : null,
+								props: componentOwnsSequence
+									? [
+											...(durationInFrames === null
+												? []
+												: [
+														{
+															name: 'durationInFrames',
+															value: durationInFrames,
+														},
+													]),
+											{name: 'name', value: request.element.displayName},
+										]
+									: [],
+								type: 'component',
+							},
+							from: componentOwnsSequence ? request.from : null,
+						},
+						svgMarkupToJsx,
+						wrapInSequence: componentOwnsSequence
+							? null
+							: {
+									dimensions: request.element.dimensions,
+									durationInFrames,
+									from: request.from,
+									name: request.element.displayName,
+									position: request.position,
+								},
+					});
+				const projectWithElement = {
+					...insertion.project,
+					files: {
+						...insertion.project.files,
+						[plan.elementFilePath]: request.element.sourceCode,
+					},
+				};
+				const nextProject = addDependenciesToProject({
+					dependencies: installedDependencies,
+					project: projectWithElement,
 				});
 				const nodePathMutation = controller.applyMutation({
-					fileName: result.filePath,
-					mutate: () => result.project,
+					fileName: insertion.filePath,
+					mutate: () => nextProject,
 					nodePathMutationFiles: [
 						{
-							absolutePath: result.filePath,
-							remappings: result.nodePathRemappings,
+							absolutePath: insertion.filePath,
+							remappings: insertion.nodePathRemappings,
 							restoredNodePaths: [],
 						},
 					],
 				});
 				if (nodePathMutation === null) {
-					throw new Error('Could not insert <Solid>');
+					throw new Error('Could not insert Element');
 				}
 
-				return Promise.resolve({
-					success: true,
-					insertedNodePath: null,
-					nodePathMutation,
-				});
+				return {success: true, nodePathMutation};
 			} catch (error) {
-				return Promise.resolve({
+				return {
+					success: false,
+					type: 'error',
+					reason: error instanceof Error ? error.message : String(error),
+					stack: error instanceof Error ? (error.stack ?? '') : '',
+				} satisfies InsertElementResponse;
+			}
+		},
+		insertJsxElement,
+		insertSolid: insertJsxElement,
+		prepareElementInstall: async (request) => {
+			try {
+				const plan = await getElementInstallPlanForProject({
+					...request,
+					project: getProject(),
+				});
+				return {
+					success: true,
+					plan: {
+						expectedFileState: plan.expectedFileState,
+						filePath: plan.filePath,
+					},
+				};
+			} catch (error) {
+				return {
 					success: false,
 					reason: error instanceof Error ? error.message : String(error),
 					stack: error instanceof Error ? (error.stack ?? '') : '',
-				} satisfies InsertJsxElementResponse);
+				};
 			}
 		},
 		redo: controller.redo,

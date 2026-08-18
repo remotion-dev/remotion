@@ -459,7 +459,15 @@ const TimelineInner: React.FC = () => {
 										<TimelineList timeline={shown} showTimePadding />
 									</SplitterElement>
 									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-									<SplitterElement type="anti-flexer" sticky={null}>
+									<SplitterElement
+										type="anti-flexer"
+										sticky={
+											<>
+												<TimelineTimeIndicators />
+												<TimelineSlider />
+											</>
+										}
+									>
 										<TimelineScrollable>
 											<TimelineTracks
 												timeline={shown}
@@ -467,12 +475,10 @@ const TimelineInner: React.FC = () => {
 											/>
 											<TimelinePlayCursorSyncer />
 											<TimelineInOutPointer />
-											<TimelineTimeIndicators />
 											<TimelineDragHandler />
 											{isStudioInteractivityEnabled() ? (
 												<TimelineInOutDragHandler />
 											) : null}
-											<TimelineSlider />
 										</TimelineScrollable>
 									</SplitterElement>
 								</SplitterContainer>

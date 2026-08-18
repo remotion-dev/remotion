@@ -467,6 +467,7 @@ export const QuickSwitcherContent: React.FC<{
 	const container: React.CSSProperties = useMemo(() => {
 		return {
 			width: showKeyboardShortcuts ? 800 : 400,
+			maxWidth: 'calc(100vw - 40px)',
 		};
 	}, [showKeyboardShortcuts]);
 

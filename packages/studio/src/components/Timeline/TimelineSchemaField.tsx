@@ -13,6 +13,7 @@ import type {
 } from '../../helpers/timeline-layout';
 import {SetSelectedModalContext} from '../../state/modals';
 import {updateAvailable} from '../RenderQueue/actions';
+import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {TimelineArrayField} from './TimelineArrayField';
 import {
 	isTimelinePrimitiveFieldInfo,
@@ -121,15 +122,8 @@ export const TimelineNonEditableStatus: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
 	readonly field: SchemaFieldInfo;
 	readonly runtimeValue: unknown;
-	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
 	readonly validatedLocation: CodePosition;
-}> = ({
-	propStatus,
-	field,
-	runtimeValue,
-	scaleLockNodePath,
-	validatedLocation,
-}) => {
+}> = ({propStatus, field, runtimeValue, validatedLocation}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const onFix = useCallback(() => {
 		const controller = new AbortController();
@@ -156,21 +150,10 @@ export const TimelineNonEditableStatus: React.FC<{
 	if (propStatus.status === 'computed') {
 		return (
 			<UnsupportedStatus
-				label={
-					<TimelineFieldValue
-						field={field}
-						onSave={() => Promise.resolve()}
-						onDragValueChange={() => undefined}
-						onDragEnd={() => undefined}
-						propStatus={{
-							status: 'static',
-							codeValue: runtimeValue,
-							keyframeDisplayOffsetAdjustment: null,
-						}}
-						effectiveValue={runtimeValue}
-						scaleLockNodePath={scaleLockNodePath}
-					/>
-				}
+				label={formatTimelineFieldValueForDisplay({
+					fieldSchema: field.fieldSchema,
+					value: runtimeValue,
+				})}
 				onFix={onFix}
 				formattedValue
 			/>

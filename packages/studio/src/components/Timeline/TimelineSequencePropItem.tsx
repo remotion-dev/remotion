@@ -605,7 +605,6 @@ export const TimelineSequencePropItem: React.FC<{
 			propStatus={propStatus}
 			field={field}
 			runtimeValue={runtimeValue}
-			scaleLockNodePath={nodePath}
 			validatedLocation={validatedLocation}
 		/>
 	);

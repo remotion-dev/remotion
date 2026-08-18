@@ -12,6 +12,7 @@ import React, {
 import type {CanvasContent} from 'remotion';
 import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
 import {getStaticFiles} from '../api/get-static-files';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getClipboardFigmaHtml} from '../helpers/clipboard-figma';
 import {getClipboardImageFiles} from '../helpers/clipboard-images';
@@ -60,6 +61,7 @@ import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
+import {prepareElementInstall} from './element-install-api';
 import {subscribeToElementInstallRequests} from './element-install-request';
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {handleDrop} from './handle-drop';
@@ -857,7 +859,7 @@ export const Canvas: React.FC<{
 
 		const handleInstallRequest = async () => {
 			setInstallingElementName(activeElementInstallRequest.element.displayName);
-			const preflight = await callApi('/api/prepare-element-install', {
+			const preflight = await prepareElementInstall({
 				compositionFile: activeElementInstallRequest.compositionFile,
 				compositionId: activeElementInstallRequest.compositionId,
 				element: activeElementInstallRequest.element,
@@ -916,6 +918,9 @@ export const Canvas: React.FC<{
 						dependenciesToReview={dependenciesToReview}
 						missingPackages={missingPackages}
 						sourceCode={activeElementInstallRequest.element.sourceCode}
+						usesBrowserDependencyResolution={
+							getBrowserStudioOperations() !== null
+						}
 					/>
 				),
 				confirmLabel: 'Install',

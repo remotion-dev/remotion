@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {ElementDragData} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {
@@ -27,6 +28,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
+		resolveDependencies: null,
 	});
 	const events: EventSourceEvent[] = [];
 	const contentsAtMutation: string[] = [];
@@ -74,8 +76,9 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(contentsAtMutation).toEqual([
 		initialProject.files['/project/src/Composition.tsx'],
 	]);
+	expect(project.files['/project/src/Composition.tsx']).toContain('<Solid');
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'<Solid width={1280}',
+		'width={1280}',
 	);
 
 	const {redo, undo} = operations;
@@ -100,8 +103,9 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(redoResult.nodePathMutation.files).toEqual(
 		insertResult.nodePathMutation.files,
 	);
+	expect(project.files['/project/src/Composition.tsx']).toContain('<Solid');
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'<Solid width={1280}',
+		'width={1280}',
 	);
 
 	const {writeStaticFile} = operations;
@@ -157,7 +161,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		await operations.getFileSource(
 			'webpack://remotion/./src/Composition.tsx?source',
 		),
-	).toContain('<Solid width={1280}');
+	).toContain('<Solid');
 
 	const eventCount = events.length;
 	unsubscribe();
@@ -167,6 +171,172 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(revokedUrls).toContain('blob:virtual-2');
 });
 
+test('imports an Element with pinned Remotion dependencies as one undoable mutation', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const resolvedDependencyNames: string[][] = [];
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {remotion: '4.0.999'},
+		getStaticFiles: null,
+		getProject: () => project,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: (dependencies) => {
+			resolvedDependencyNames.push(
+				dependencies.map((dependency) => dependency.name),
+			);
+			return Promise.resolve({
+				'@remotion/shapes': '0.0.1',
+				zod: '4.1.5',
+			});
+		},
+	});
+	const element = {
+		dependencies: [
+			{name: '@remotion/shapes', version: null},
+			{name: 'zod', version: '4.1.5'},
+		],
+		dimensions: {width: 640, height: 180},
+		displayName: 'Lower Third',
+		durationInFrames: 90,
+		installationMode: 'wrapped' as const,
+		slug: 'titles/lower-third',
+		sourceCode: `import {Rect} from '@remotion/shapes';
+
+export const LowerThird = () => <Rect width={640} height={180} />;
+`,
+	} satisfies ElementDragData['element'];
+	const preflight = await operations.prepareElementInstall({
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element,
+	});
+	if (!preflight.success) {
+		throw new Error(preflight.reason);
+	}
+
+	expect(preflight.plan).toEqual({
+		expectedFileState: {exists: false},
+		filePath: 'src/lower-third.element.tsx',
+	});
+	const inserted = await operations.insertElement({
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element,
+		expectedFileState: preflight.plan.expectedFileState,
+		from: 12,
+		overwriteExisting: false,
+		position: {x: 24, y: 48},
+	});
+	if (!inserted.success) {
+		throw new Error(
+			inserted.type === 'error' ? inserted.reason : 'Unexpected file conflict',
+		);
+	}
+
+	expect(resolvedDependencyNames).toEqual([['@remotion/shapes', 'zod']]);
+	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
+		element.sourceCode,
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		"import {LowerThird} from './lower-third.element';",
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain('<Sequence');
+	expect(project.files['/project/src/Composition.tsx']).toContain('from={12}');
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'name="Lower Third"',
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		"translate: '24px 48px'",
+	);
+	const packageJson = JSON.parse(project.files['/project/package.json']) as {
+		dependencies: Record<string, string>;
+	};
+	expect(packageJson.dependencies['@remotion/shapes']).toBe('4.0.999');
+	expect(packageJson.dependencies.zod).toBe('4.1.5');
+
+	expect((await operations.undo()).success).toBe(true);
+	expect(project.files['/project/src/Composition.tsx']).toBe(
+		initialProject.files['/project/src/Composition.tsx'],
+	);
+	expect(project.files['/project/src/lower-third.element.tsx']).toBeUndefined();
+	expect(project.files['/project/package.json']).toBe(
+		initialProject.files['/project/package.json'],
+	);
+	expect((await operations.redo()).success).toBe(true);
+	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
+		element.sourceCode,
+	);
+});
+
+test('inserts generic elements with pinned Remotion dependencies', async () => {
+	let project = createBlankTemplateProject();
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {remotion: '4.0.999'},
+		getStaticFiles: null,
+		getProject: () => project,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const result = await operations.insertJsxElement({
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element: {
+			assetType: 'video',
+			dimensions: {height: 1080, width: 1920},
+			durationInFrames: 90,
+			position: null,
+			src: 'clip.mp4',
+			srcType: 'static',
+			type: 'asset',
+		},
+		from: 12,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		"from '@remotion/media'",
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain('<Video');
+	const packageJson = JSON.parse(project.files['/project/package.json']) as {
+		dependencies: Record<string, string>;
+	};
+	expect(packageJson.dependencies['@remotion/media']).toBe('4.0.999');
+});
+
+test('rejects inline SVG importing in Browser Studio', async () => {
+	const project = createBlankTemplateProject();
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		onProjectChange: () => {
+			throw new Error('SVG insertion must not mutate the project');
+		},
+		resolveDependencies: null,
+	});
+	const result = await operations.insertJsxElement({
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element: {
+			markup: '<svg viewBox="0 0 10 10" />',
+			position: null,
+			type: 'svg',
+		},
+		from: null,
+	});
+
+	expect(result).toMatchObject({
+		reason: 'Importing SVG markup is not supported in Browser Studio',
+		success: false,
+	});
+});
+
 test('replays an HMR event emitted before the Studio subscribes', () => {
 	const project = createBlankTemplateProject();
 	const operations = createBrowserStudioOperations({
@@ -174,6 +344,7 @@ test('replays an HMR event emitted before the Studio subscribes', () => {
 		getStaticFiles: null,
 		getProject: () => project,
 		onProjectChange: () => undefined,
+		resolveDependencies: null,
 	});
 	const hmrEvent = {
 		type: 'hmr',
@@ -207,6 +378,7 @@ test('rejects unsafe public paths and conflicting renames', async () => {
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
+		resolveDependencies: null,
 	});
 	const {renameStaticFile, writeStaticFile} = operations;
 
