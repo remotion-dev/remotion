@@ -8,6 +8,7 @@ import {levels} from '../levels.js';
 import {noise} from '../noise.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {saturation} from '../saturation.js';
+import {scale} from '../scale.js';
 import {shadowsHighlights} from '../shadows-highlights.js';
 import {tile} from '../tile.js';
 import {vibrance} from '../vibrance.js';
@@ -537,15 +538,49 @@ test('tile() mirrors neighboring copies on both axes without seams', async () =>
 	const yellow = '255-255-0';
 	expect(colors).toEqual(
 		[
-			[red, green, red, green, red, green],
-			[blue, yellow, blue, yellow, blue, yellow],
-			[red, green, red, green, red, green],
-			[blue, yellow, blue, yellow, blue, yellow],
-			[red, green, red, green, red, green],
-			[blue, yellow, blue, yellow, blue, yellow],
+			[yellow, blue, blue, yellow, yellow, blue],
+			[green, red, red, green, green, red],
+			[green, red, red, green, green, red],
+			[yellow, blue, blue, yellow, yellow, blue],
+			[yellow, blue, blue, yellow, yellow, blue],
+			[green, red, red, green, green, red],
 		].flat(),
 	);
 	expect(alphas).toEqual(new Array(36).fill(128));
+});
+
+test('tile() does not leave transparent seams after scale()', async () => {
+	const width = 20;
+	const height = 20;
+	const source = document.createElement('canvas');
+	source.width = width;
+	source.height = height;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.fillStyle = 'red';
+	sourceContext.fillRect(0, 0, width, height);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([scale({scale: 0.36}), tile()]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const pixels = context.getImageData(0, 0, width, height).data;
+	const alphas = [];
+	for (let i = 3; i < pixels.length; i += 4) {
+		alphas.push(pixels[i]);
+	}
+
+	expect(alphas).toEqual(new Array(width * height).fill(255));
 });
 
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {

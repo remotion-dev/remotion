@@ -107,32 +107,30 @@ export const tile = createEffect<TileParams, TileState>({
 		state.boundsContext.clearRect(0, 0, width, height);
 		state.boundsContext.drawImage(source, 0, 0, width, height);
 		const pixels = state.boundsContext.getImageData(0, 0, width, height).data;
-		const rowHasVisiblePixel = (y: number) => {
+		const rowMaximumAlpha = (y: number) => {
+			let maximumAlpha = 0;
 			for (let x = 0; x < width; x++) {
-				if (pixels[(y * width + x) * 4 + 3] !== 0) {
-					return true;
-				}
+				maximumAlpha = Math.max(maximumAlpha, pixels[(y * width + x) * 4 + 3]);
 			}
 
-			return false;
+			return maximumAlpha;
 		};
 
-		const columnHasVisiblePixel = (
+		const columnMaximumAlpha = (
 			x: number,
 			visibleTop: number,
 			visibleBottom: number,
 		) => {
+			let maximumAlpha = 0;
 			for (let y = visibleTop; y <= visibleBottom; y++) {
-				if (pixels[(y * width + x) * 4 + 3] !== 0) {
-					return true;
-				}
+				maximumAlpha = Math.max(maximumAlpha, pixels[(y * width + x) * 4 + 3]);
 			}
 
-			return false;
+			return maximumAlpha;
 		};
 
 		let top = 0;
-		while (top < height && !rowHasVisiblePixel(top)) {
+		while (top < height && rowMaximumAlpha(top) === 0) {
 			top++;
 		}
 
@@ -142,18 +140,48 @@ export const tile = createEffect<TileParams, TileState>({
 		}
 
 		let bottom = height - 1;
-		while (bottom > top && !rowHasVisiblePixel(bottom)) {
+		while (bottom > top && rowMaximumAlpha(bottom) === 0) {
 			bottom--;
 		}
 
 		let left = 0;
-		while (left < width && !columnHasVisiblePixel(left, top, bottom)) {
+		while (left < width && columnMaximumAlpha(left, top, bottom) === 0) {
 			left++;
 		}
 
 		let right = width - 1;
-		while (right > left && !columnHasVisiblePixel(right, top, bottom)) {
+		while (right > left && columnMaximumAlpha(right, top, bottom) === 0) {
 			right--;
+		}
+
+		// Fractional scaling can leave a one-pixel antialias fringe around an
+		// otherwise opaque source. Repeating that fringe exposes the transparent
+		// pixels as a line between copies. Only trim a boundary when the adjacent
+		// row or column is more opaque, preserving intentionally uniform alpha.
+		if (r.vertical && top < bottom) {
+			if (rowMaximumAlpha(top) < rowMaximumAlpha(top + 1)) {
+				top++;
+			}
+
+			if (rowMaximumAlpha(bottom) < rowMaximumAlpha(bottom - 1)) {
+				bottom--;
+			}
+		}
+
+		if (r.horizontal && left < right) {
+			if (
+				columnMaximumAlpha(left, top, bottom) <
+				columnMaximumAlpha(left + 1, top, bottom)
+			) {
+				left++;
+			}
+
+			if (
+				columnMaximumAlpha(right, top, bottom) <
+				columnMaximumAlpha(right - 1, top, bottom)
+			) {
+				right--;
+			}
 		}
 
 		const tileWidth = right - left + 1;
@@ -174,27 +202,24 @@ export const tile = createEffect<TileParams, TileState>({
 		);
 
 		context.clearRect(0, 0, width, height);
-		// A mirrored neighbor shares its boundary pixel with the previous tile.
-		// Advancing by tileSize - 1 avoids rendering that endpoint twice as a seam.
-		const stepX = r.horizontal ? Math.max(1, tileWidth - 1) : tileWidth;
-		const stepY = r.vertical ? Math.max(1, tileHeight - 1) : tileHeight;
-		const startX = r.horizontal ? left - Math.ceil(left / stepX) * stepX : left;
-		const startY = r.vertical ? top - Math.ceil(top / stepY) * stepY : top;
+		const startX = r.horizontal
+			? left - Math.ceil(left / tileWidth) * tileWidth
+			: left;
+		const startY = r.vertical
+			? top - Math.ceil(top / tileHeight) * tileHeight
+			: top;
 		const endX = r.horizontal ? width : left + tileWidth;
 		const endY = r.vertical ? height : top + tileHeight;
 
-		for (let y = startY; y < endY; y += stepY) {
-			const tileY = Math.round((y - top) / stepY);
+		for (let y = startY; y < endY; y += tileHeight) {
+			const tileY = Math.round((y - top) / tileHeight);
 			const mirrorY = r.vertical && Math.abs(tileY) % 2 === 1;
 
-			for (let x = startX; x < endX; x += stepX) {
-				const tileX = Math.round((x - left) / stepX);
+			for (let x = startX; x < endX; x += tileWidth) {
+				const tileX = Math.round((x - left) / tileWidth);
 				const mirrorX = r.horizontal && Math.abs(tileX) % 2 === 1;
 
 				context.save();
-				context.beginPath();
-				context.rect(x, y, stepX, stepY);
-				context.clip();
 				context.translate(
 					mirrorX ? x + tileWidth : x,
 					mirrorY ? y + tileHeight : y,
