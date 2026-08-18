@@ -1,6 +1,6 @@
 # @remotion/mac-cursors
 
-Render macOS and custom CSS cursors in Remotion.
+macOS cursor components for Remotion
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/mac-cursors.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/mac-cursors?minimal=true)
 
