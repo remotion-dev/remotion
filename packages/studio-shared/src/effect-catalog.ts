@@ -403,6 +403,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-tile',
+		category: 'Transform',
+		label: 'tile()',
+		description: 'Repeat the visible source bounds',
+		effect: {
+			name: 'tile',
+			importPath: '@remotion/effects/tile',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-uv-translate',
 		category: 'Transform',
 		label: 'uvTranslate()',
