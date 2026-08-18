@@ -50,9 +50,8 @@ test('downloads the current Browser Studio project as a runnable archive', async
 	>;
 
 	expect(archive.fileName).toBe('remotion-project.zip');
-	expect(strFromU8(files['src/Composition.tsx'])).toContain(
-		'<Solid width={1280}',
-	);
+	expect(strFromU8(files['src/Composition.tsx'])).toContain('<Solid');
+	expect(strFromU8(files['src/Composition.tsx'])).toContain('width={1280}');
 	expect(strFromU8(files['tsconfig.json'])).toBe(
 		project.files['/project/tsconfig.json'],
 	);

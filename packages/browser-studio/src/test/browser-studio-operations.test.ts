@@ -141,7 +141,10 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	});
 	expect(result.success).toBe(true);
 	expect(currentProject.files['/project/src/MyComponent.tsx']).toContain(
-		'<Solid width={1280}',
+		'<Solid',
+	);
+	expect(currentProject.files['/project/src/MyComponent.tsx']).toContain(
+		'width={1280}',
 	);
 });
 

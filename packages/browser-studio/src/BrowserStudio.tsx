@@ -1,4 +1,3 @@
-import type {ElementDependency} from '@remotion/studio-protocol';
 import type {RenderDefaults} from '@remotion/studio-shared';
 import {studioHtml} from '@remotion/studio-shared/studio-html';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -207,7 +206,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		[],
 	);
 	const resolveElementDependencies = useCallback(
-		(dependencies: readonly ElementDependency[]) => {
+		(dependencies: readonly {name: string; version: string | null}[]) => {
 			const remotionVersion = browserStudioDependencyVersions.remotion;
 			if (!remotionVersion) {
 				throw new Error('Browser Studio Remotion version is unavailable');
@@ -216,18 +215,28 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			const versions: Record<string, string> = {};
 			const resolutions: Record<string, BrowserStudioDependencyResolution> = {};
 			for (const dependency of dependencies) {
-				const version = dependency.name.startsWith('@remotion/')
+				const requestedVersion = dependency.name.startsWith('@remotion/')
 					? remotionVersion
 					: dependency.version;
+				const customResolution = dependencyResolverRef.current?.({
+					name: dependency.name,
+					version: requestedVersion,
+				});
+				const customVersion =
+					typeof customResolution === 'string' &&
+					!customResolution.startsWith('http')
+						? customResolution
+						: typeof customResolution === 'object'
+							? (customResolution?.version ?? null)
+							: null;
+				const version = dependency.name.startsWith('@remotion/')
+					? remotionVersion
+					: (customVersion ?? requestedVersion);
 				if (version === null) {
 					throw new Error(`Could not resolve ${dependency.name}`);
 				}
 
 				versions[dependency.name] = version;
-				const customResolution = dependencyResolverRef.current?.({
-					name: dependency.name,
-					version,
-				});
 				resolutions[dependency.name] = dependency.name.startsWith('@remotion/')
 					? typeof customResolution === 'string' &&
 						customResolution.startsWith('http')

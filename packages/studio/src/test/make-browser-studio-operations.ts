@@ -16,6 +16,7 @@ export const makeBrowserStudioOperations = (
 		getCompositionFile: () => unusedOperation('getCompositionFile'),
 		getFileSource: () => unusedOperation('getFileSource'),
 		insertElement: () => unusedOperation('insertElement'),
+		insertJsxElement: () => unusedOperation('insertJsxElement'),
 		insertSolid: () => unusedOperation('insertSolid'),
 		prepareElementInstall: () => unusedOperation('prepareElementInstall'),
 		redo: () => unusedOperation('redo'),

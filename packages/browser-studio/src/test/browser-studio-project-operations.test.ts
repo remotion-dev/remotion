@@ -76,8 +76,9 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(contentsAtMutation).toEqual([
 		initialProject.files['/project/src/Composition.tsx'],
 	]);
+	expect(project.files['/project/src/Composition.tsx']).toContain('<Solid');
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'<Solid width={1280}',
+		'width={1280}',
 	);
 
 	const {redo, undo} = operations;
@@ -102,8 +103,9 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(redoResult.nodePathMutation.files).toEqual(
 		insertResult.nodePathMutation.files,
 	);
+	expect(project.files['/project/src/Composition.tsx']).toContain('<Solid');
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'<Solid width={1280}',
+		'width={1280}',
 	);
 
 	const {writeStaticFile} = operations;
@@ -159,7 +161,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		await operations.getFileSource(
 			'webpack://remotion/./src/Composition.tsx?source',
 		),
-	).toContain('<Solid width={1280}');
+	).toContain('<Solid');
 
 	const eventCount = events.length;
 	unsubscribe();
@@ -238,10 +240,12 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		element.sourceCode,
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'import {LowerThird} from "./lower-third.element";',
+		"import {LowerThird} from './lower-third.element';",
 	);
+	expect(project.files['/project/src/Composition.tsx']).toContain('<Sequence');
+	expect(project.files['/project/src/Composition.tsx']).toContain('from={12}');
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'<Sequence from={12} name="Lower Third" width={640} height={180} durationInFrames={90}',
+		'name="Lower Third"',
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		"translate: '24px 48px'",
@@ -264,6 +268,73 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
 		element.sourceCode,
 	);
+});
+
+test('inserts generic elements with pinned Remotion dependencies', async () => {
+	let project = createBlankTemplateProject();
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {remotion: '4.0.999'},
+		getStaticFiles: null,
+		getProject: () => project,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const result = await operations.insertJsxElement({
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element: {
+			assetType: 'video',
+			dimensions: {height: 1080, width: 1920},
+			durationInFrames: 90,
+			position: null,
+			src: 'clip.mp4',
+			srcType: 'static',
+			type: 'asset',
+		},
+		from: 12,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		"from '@remotion/media'",
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain('<Video');
+	const packageJson = JSON.parse(project.files['/project/package.json']) as {
+		dependencies: Record<string, string>;
+	};
+	expect(packageJson.dependencies['@remotion/media']).toBe('4.0.999');
+});
+
+test('rejects inline SVG importing in Browser Studio', async () => {
+	const project = createBlankTemplateProject();
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		onProjectChange: () => {
+			throw new Error('SVG insertion must not mutate the project');
+		},
+		resolveDependencies: null,
+	});
+	const result = await operations.insertJsxElement({
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element: {
+			markup: '<svg viewBox="0 0 10 10" />',
+			position: null,
+			type: 'svg',
+		},
+		from: null,
+	});
+
+	expect(result).toMatchObject({
+		reason: 'Importing SVG markup is not supported in Browser Studio',
+		success: false,
+	});
 });
 
 test('replays an HMR event emitted before the Studio subscribes', () => {

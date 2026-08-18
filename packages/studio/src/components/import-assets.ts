@@ -721,16 +721,17 @@ const insertCompositionElement = async ({
 	from: number | null;
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
-	await installRequiredPackages(
-		requiredPackage ? [{name: requiredPackage, version: null}] : [],
-	);
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations === null) {
+		await installRequiredPackages(
+			requiredPackage ? [{name: requiredPackage, version: null}] : [],
+		);
+	}
 
-	const result = await callApi('/api/insert-jsx-element', {
-		compositionFile,
-		compositionId,
-		element,
-		from,
-	});
+	const request = {compositionFile, compositionId, element, from};
+	const result = browserStudioOperations
+		? await browserStudioOperations.insertJsxElement(request)
+		: await callApi('/api/insert-jsx-element', request);
 
 	if (!result.success) {
 		showNotification(result.reason, 4000);

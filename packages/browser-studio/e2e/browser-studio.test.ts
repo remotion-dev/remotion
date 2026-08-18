@@ -184,6 +184,58 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 	await expect(studio.getByText('Browser Element')).toBeVisible();
 });
 
+test('reports inline SVG imports as unsupported without changing the project', async ({
+	page,
+}) => {
+	await page.goto('/');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await studio.locator('[data-compname="MyComp"]').click();
+	const canvas = studio.locator('.remotion-studio-composition-container');
+	await expect(canvas).toBeVisible();
+	const compositionBefore = await page.evaluate(() => {
+		const browserWindow = window as typeof window & {
+			__browserStudioProject: {files: Record<string, string>};
+		};
+		return browserWindow.__browserStudioProject.files[
+			'/project/src/Composition.tsx'
+		];
+	});
+
+	const dataTransfer = await canvas.evaluateHandle(() => {
+		const transfer = new DataTransfer();
+		transfer.items.add(
+			new File(
+				['<svg viewBox="0 0 10 10"><circle r="4" /></svg>'],
+				'shape.svg',
+				{
+					type: 'image/svg+xml',
+				},
+			),
+		);
+		return transfer;
+	});
+	await canvas.dispatchEvent('dragover', {dataTransfer});
+	await canvas.dispatchEvent('drop', {dataTransfer});
+	await studio.getByRole('button', {name: /Import as inline/}).click();
+
+	await expect(
+		studio.getByText(
+			'Importing SVG markup is not supported in Browser Studio',
+			{exact: true},
+		),
+	).toBeVisible();
+	const compositionAfter = await page.evaluate(() => {
+		const browserWindow = window as typeof window & {
+			__browserStudioProject: {files: Record<string, string>};
+		};
+		return browserWindow.__browserStudioProject.files[
+			'/project/src/Composition.tsx'
+		];
+	});
+	expect(compositionAfter).toBe(compositionBefore);
+});
+
 test('clears hover backgrounds even if pointer leave events are lost', async ({
 	page,
 }) => {

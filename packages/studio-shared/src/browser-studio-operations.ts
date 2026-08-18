@@ -51,6 +51,9 @@ export type BrowserStudioOperations = {
 	insertElement: (
 		request: InsertElementRequest,
 	) => Promise<InsertElementResponse>;
+	insertJsxElement: (
+		request: InsertJsxElementRequest,
+	) => Promise<InsertJsxElementResponse>;
 	prepareElementInstall: (
 		request: PrepareElementInstallRequest,
 	) => Promise<PrepareElementInstallResponse>;

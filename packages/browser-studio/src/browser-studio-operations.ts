@@ -2,33 +2,53 @@ import {
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 	findProjectFile,
-	getCompositionInsertionTarget,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
-	insertElementComponentIntoProjectWithNodePathRemappings,
-	insertSolidIntoProjectWithNodePathRemappings,
+	insertJsxElementIntoProjectWithNodePathRemappings,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
+	makeInMemoryInsertJsxElementCodemodEnvironment,
+	resolveCompositionComponentWithFile,
 } from '@remotion/studio-codemods';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
-	StudioProtocolInternals,
-	type ElementDependency,
-} from '@remotion/studio-protocol';
-import type {
-	BrowserStudioOperations,
-	ElementInstallExpectedFileState,
-	EventSourceEvent,
-	InsertElementResponse,
-	InsertJsxElementResponse,
-	SubscribeToSequencePropsRequest,
-	SubscribeToSequencePropsResponse,
-	UnsubscribeFromSequencePropsRequest,
+	getRequiredPackageForInsertableElement,
+	type BrowserStudioOperations,
+	type ElementInstallExpectedFileState,
+	type EventSourceEvent,
+	type InsertElementResponse,
+	type SubscribeToSequencePropsRequest,
+	type SubscribeToSequencePropsResponse,
+	type UnsubscribeFromSequencePropsRequest,
 } from '@remotion/studio-shared';
+import * as prettierPluginEstree from 'prettier/plugins/estree';
+import * as prettierPluginTypescript from 'prettier/plugins/typescript';
+import {format} from 'prettier/standalone';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
 import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject} from './types';
+
+/*
+ * SVG conversion uses SVGR in desktop Studio. SVGR depends on Node APIs, so
+ * Browser Studio deliberately reports the unsupported operation instead.
+ */
+const svgMarkupToJsx = (): Promise<never> =>
+	Promise.reject(
+		new Error('Importing SVG markup is not supported in Browser Studio'),
+	);
+
+const formatCodemodFile = async ({contents}: {contents: string}) => ({
+	formatted: true,
+	output: await format(contents, {
+		bracketSpacing: false,
+		parser: 'typescript',
+		plugins: [prettierPluginTypescript, prettierPluginEstree],
+		singleQuote: true,
+		useTabs: true,
+	}),
+});
 
 export {
 	insertSolidIntoProject,
@@ -53,7 +73,7 @@ type SequencePropsSubscription = {
 };
 
 type ResolveElementDependencies = (
-	dependencies: readonly ElementDependency[],
+	dependencies: readonly {name: string; version: string | null}[],
 ) => Promise<Record<string, string>>;
 
 const getEffectChain = (result: SuccessfulSequencePropsSubscription) =>
@@ -122,13 +142,17 @@ const getElementInstallPlanForProject = async ({
 		throw new Error('Invalid Element source');
 	}
 
-	const target = getCompositionInsertionTarget({
+	const target = await resolveCompositionComponentWithFile({
 		compositionFile,
 		compositionId,
-		project,
+		environment: makeInMemoryInsertJsxElementCodemodEnvironment({
+			formatFile: formatCodemodFile,
+			project,
+			svgMarkupToJsx,
+		}),
 	});
-	const elementFilePath = `${dirname(target.filePath)}/${elementFileName}`;
-	if (elementFilePath === target.filePath) {
+	const elementFilePath = `${dirname(target.fileName)}/${elementFileName}`;
+	if (elementFilePath === target.fileName) {
 		throw new Error('Element source file conflicts with the composition file');
 	}
 
@@ -338,7 +362,7 @@ export const createBrowserStudioOperations = ({
 	};
 
 	const resolveElementDependencies = async (
-		dependencies: readonly ElementDependency[],
+		dependencies: readonly {name: string; version: string | null}[],
 	) => {
 		const resolved =
 			resolveDependencies !== null
@@ -366,6 +390,65 @@ export const createBrowserStudioOperations = ({
 		}
 
 		return resolved;
+	};
+
+	const insertJsxElement: BrowserStudioOperations['insertJsxElement'] = async (
+		request,
+	) => {
+		try {
+			const requiredPackage = getRequiredPackageForInsertableElement(
+				request.element,
+			);
+			const installedDependencies =
+				requiredPackage === null
+					? {}
+					: await resolveElementDependencies([
+							{name: requiredPackage, version: null},
+						]);
+			const project = addDependenciesToProject({
+				dependencies: installedDependencies,
+				project: getProject(),
+			});
+			const result = await insertJsxElementIntoProjectWithNodePathRemappings({
+				formatFile: formatCodemodFile,
+				project,
+				request,
+				svgMarkupToJsx,
+				wrapInSequence: null,
+			});
+			const nodePathMutation = controller.applyMutation({
+				fileName: result.filePath,
+				mutate: () => result.project,
+				nodePathMutationFiles: [
+					{
+						absolutePath: result.filePath,
+						remappings: result.nodePathRemappings,
+						restoredNodePaths: [],
+					},
+				],
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not insert JSX element');
+			}
+
+			return {
+				success: true,
+				insertedNodePath:
+					result.insertedNodePath === null
+						? null
+						: {
+								absolutePath: result.filePath,
+								nodePath: result.insertedNodePath,
+							},
+				nodePathMutation,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				reason: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error && error.stack ? error.stack : '',
+			};
+		}
 	};
 
 	return {
@@ -440,21 +523,49 @@ export const createBrowserStudioOperations = ({
 				const installedDependencies = await resolveElementDependencies(
 					request.element.dependencies,
 				);
+				const installationMode = request.element.installationMode ?? 'wrapped';
+				const componentOwnsSequence =
+					installationMode === 'component-owned-sequence';
+				const durationInFrames = request.element.durationInFrames ?? null;
 				const insertion =
-					insertElementComponentIntoProjectWithNodePathRemappings({
+					await insertJsxElementIntoProjectWithNodePathRemappings({
+						formatFile: formatCodemodFile,
 						project,
 						request: {
-							componentName: plan.componentName,
 							compositionFile: request.compositionFile,
 							compositionId: request.compositionId,
-							dimensions: request.element.dimensions,
-							displayName: request.element.displayName,
-							durationInFrames: request.element.durationInFrames ?? null,
-							from: request.from,
-							importPath: plan.importPath,
-							installationMode: request.element.installationMode ?? 'wrapped',
-							position: request.position,
+							element: {
+								componentName: plan.componentName,
+								importName: plan.componentName,
+								importPath: plan.importPath,
+								position: componentOwnsSequence ? request.position : null,
+								props: componentOwnsSequence
+									? [
+											...(durationInFrames === null
+												? []
+												: [
+														{
+															name: 'durationInFrames',
+															value: durationInFrames,
+														},
+													]),
+											{name: 'name', value: request.element.displayName},
+										]
+									: [],
+								type: 'component',
+							},
+							from: componentOwnsSequence ? request.from : null,
 						},
+						svgMarkupToJsx,
+						wrapInSequence: componentOwnsSequence
+							? null
+							: {
+									dimensions: request.element.dimensions,
+									durationInFrames,
+									from: request.from,
+									name: request.element.displayName,
+									position: request.position,
+								},
 					});
 				const projectWithElement = {
 					...insertion.project,
@@ -492,40 +603,8 @@ export const createBrowserStudioOperations = ({
 				} satisfies InsertElementResponse;
 			}
 		},
-		insertSolid: (request) => {
-			try {
-				const result = insertSolidIntoProjectWithNodePathRemappings({
-					project: getProject(),
-					request,
-				});
-				const nodePathMutation = controller.applyMutation({
-					fileName: result.filePath,
-					mutate: () => result.project,
-					nodePathMutationFiles: [
-						{
-							absolutePath: result.filePath,
-							remappings: result.nodePathRemappings,
-							restoredNodePaths: [],
-						},
-					],
-				});
-				if (nodePathMutation === null) {
-					throw new Error('Could not insert <Solid>');
-				}
-
-				return Promise.resolve({
-					success: true,
-					insertedNodePath: null,
-					nodePathMutation,
-				});
-			} catch (error) {
-				return Promise.resolve({
-					success: false,
-					reason: error instanceof Error ? error.message : String(error),
-					stack: error instanceof Error ? (error.stack ?? '') : '',
-				} satisfies InsertJsxElementResponse);
-			}
-		},
+		insertJsxElement,
+		insertSolid: insertJsxElement,
 		prepareElementInstall: async (request) => {
 			try {
 				const plan = await getElementInstallPlanForProject({
