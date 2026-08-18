@@ -191,6 +191,31 @@ export type HtmlInCanvasOnPaintParams = {
 	readonly pixelDensity: number;
 };
 
+// `transferControlToOffscreen()` may only be called once per canvas — a second
+// call throws an `InvalidStateError`. The layout effect that needs the
+// `OffscreenCanvas` can run more than once for the same canvas element: its
+// dependencies (e.g. the paint callback) can change identity without the
+// canvas remounting, and React StrictMode intentionally double-invokes
+// effects. Cache the transferred `OffscreenCanvas` per canvas element so
+// re-runs reuse it instead of throwing.
+const transferredOffscreenCanvases = new WeakMap<
+	HTMLCanvasElement,
+	OffscreenCanvas
+>();
+
+const getTransferredOffscreenCanvas = (
+	canvas: HTMLCanvasElement,
+): OffscreenCanvas => {
+	const existing = transferredOffscreenCanvases.get(canvas);
+	if (existing) {
+		return existing;
+	}
+
+	const offscreen = canvas.transferControlToOffscreen();
+	transferredOffscreenCanvases.set(canvas, offscreen);
+	return offscreen;
+};
+
 // Memoize the support check across the session — neither the platform
 // capability nor the chrome://flags toggle can change between calls.
 // SSR results are not cached so the check runs again once `document` exists.
@@ -631,7 +656,7 @@ const HtmlInCanvasContent = forwardRef<
 
 			const paintTarget = usesDirectLayoutCanvas
 				? placeholder
-				: placeholder.transferControlToOffscreen();
+				: getTransferredOffscreenCanvas(placeholder);
 
 			paintTargetRef.current = paintTarget;
 			resizePaintTarget({
