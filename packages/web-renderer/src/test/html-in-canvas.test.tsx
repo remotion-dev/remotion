@@ -10,6 +10,7 @@ import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
+import {onPaintHtmlInCanvas} from './fixtures/on-paint-html-in-canvas';
 import {testImage} from './utils';
 
 setForceDisableHtmlInCanvasForTesting(false);
@@ -230,5 +231,52 @@ test('uses the DOM composer when native HTML-in-canvas does not support nesting'
 	} finally {
 		setForceDisableHtmlInCanvasForTesting(false);
 		warn.mockRestore();
+	}
+});
+
+test('includes custom onPaint output when composing in software', async () => {
+	if (!supportsNativeHtmlInCanvas()) {
+		return;
+	}
+
+	// A custom onPaint transfers the placeholder canvas's control to an
+	// OffscreenCanvas, and a transferred canvas yields transparent pixels to
+	// drawImage(). The software composer must read the exposed readback copy
+	// (and skip the layout-only children) or the painted output is lost.
+	setForceDisableHtmlInCanvasForTesting(true);
+
+	try {
+		const result = await renderStillOnWeb({
+			composition: onPaintHtmlInCanvas,
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+		});
+
+		const blob = await result.blob({format: 'png'});
+		const bitmap = await createImageBitmap(blob);
+		const probe = new OffscreenCanvas(bitmap.width, bitmap.height);
+		const ctx = probe.getContext('2d');
+		if (!ctx) {
+			throw new Error('Expected a 2d context');
+		}
+
+		ctx.drawImage(bitmap, 0, 0);
+		const {data} = ctx.getImageData(
+			Math.floor(bitmap.width / 2),
+			Math.floor(bitmap.height / 2),
+			1,
+			1,
+		);
+
+		// Green: the onPaint output made it into the still. Red would mean the
+		// layout-only children were re-rasterized over it; blue/transparent
+		// would mean the transferred canvas read back as empty.
+		expect(data[0]).toBeLessThan(64);
+		expect(data[1]).toBeGreaterThan(192);
+		expect(data[2]).toBeLessThan(64);
+		expect(data[3]).toBe(255);
+	} finally {
+		setForceDisableHtmlInCanvasForTesting(false);
 	}
 });
