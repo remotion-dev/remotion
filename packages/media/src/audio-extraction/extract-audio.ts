@@ -1,16 +1,13 @@
-import {AudioSample} from 'mediabunny';
 import {type LogLevel} from 'remotion';
 import type {MediaCache} from '../caches';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
-import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {
-	convertAudioData,
+	convertAudioDataToS16,
 	fixFloatingPoint,
+	resamplePcmS16AudioData,
+	type PcmS16AudioData,
+	type UnresampledPcmS16AudioData,
 } from '../convert-audiodata/convert-audiodata';
-import {
-	TARGET_NUMBER_OF_CHANNELS,
-	getTargetSampleRate,
-} from '../convert-audiodata/resample-audiodata';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {
 	isNetworkError,
@@ -120,42 +117,14 @@ const extractAudioInternal = async ({
 
 		const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
 
-		let samples = await sampleIterator.getSamples(
+		const samples = await sampleIterator.getSamples(
 			timeInSeconds,
 			durationInSeconds,
 		);
 
 		mediaCache.audioManager.logOpenFrames();
 
-		let combinedSample: AudioSample | null = null;
-		// Resample continuous PCM once instead of resetting at AudioSample boundaries.
-		if (
-			samples.length > 1 &&
-			(samples[0].sampleRate !== getTargetSampleRate() || playbackRate !== 1)
-		) {
-			const first = samples[0];
-			const numberOfFrames = samples.reduce(
-				(sum, sample) => sum + sample.numberOfFrames,
-				0,
-			);
-			const data = new Float32Array(numberOfFrames * first.numberOfChannels);
-			let offset = 0;
-			for (const sample of samples) {
-				sample.copyTo(data.subarray(offset), {format: 'f32', planeIndex: 0});
-				offset += sample.numberOfFrames * sample.numberOfChannels;
-			}
-
-			combinedSample = new AudioSample({
-				data,
-				format: 'f32',
-				numberOfChannels: first.numberOfChannels,
-				sampleRate: first.sampleRate,
-				timestamp: first.timestamp,
-			});
-			samples = [combinedSample];
-		}
-
-		const audioDataArray: PcmS16AudioData[] = [];
+		const audioDataArray: UnresampledPcmS16AudioData[] = [];
 		for (let i = 0; i < samples.length; i++) {
 			const sample = samples[i];
 
@@ -177,28 +146,27 @@ const extractAudioInternal = async ({
 			const isLastSample = i === samples.length - 1;
 
 			const audioDataRaw = sample.toAudioData();
-			if (sample === combinedSample) {
-				combinedSample.close();
-			}
 
 			// amount of samples to shave from start and end
 			let trimStartInSeconds = 0;
 			let trimEndInSeconds = 0;
-			let leadingSilence: PcmS16AudioData | null = null;
+			let leadingSilence: UnresampledPcmS16AudioData | null = null;
 
 			if (isFirstSample) {
 				trimStartInSeconds = fixFloatingPoint(timeInSeconds - sample.timestamp);
 
 				if (trimStartInSeconds < 0) {
 					const silenceFrames = Math.ceil(
-						fixFloatingPoint(-trimStartInSeconds * getTargetSampleRate()),
+						fixFloatingPoint(-trimStartInSeconds * audioDataRaw.sampleRate),
 					);
 					leadingSilence = {
-						data: new Int16Array(silenceFrames * TARGET_NUMBER_OF_CHANNELS),
+						data: new Int16Array(silenceFrames * audioDataRaw.numberOfChannels),
+						numberOfChannels: audioDataRaw.numberOfChannels,
 						numberOfFrames: silenceFrames,
+						sampleRate: audioDataRaw.sampleRate,
 						timestamp: timeInSeconds * 1_000_000,
 						durationInMicroSeconds:
-							(silenceFrames / getTargetSampleRate()) * 1_000_000,
+							(silenceFrames / audioDataRaw.sampleRate) * 1_000_000,
 					};
 					trimStartInSeconds = 0;
 				}
@@ -215,11 +183,10 @@ const extractAudioInternal = async ({
 					);
 			}
 
-			const audioData = convertAudioData({
+			const audioData = convertAudioDataToS16({
 				audioData: audioDataRaw,
 				trimStartInSeconds,
 				trimEndInSeconds,
-				playbackRate,
 				audioDataTimestamp: sample.timestamp,
 				isLast: isLastSample,
 			});
@@ -241,8 +208,13 @@ const extractAudioInternal = async ({
 		}
 
 		const combined = combineAudioDataAndClosePrevious(audioDataArray);
+		const resampled = resamplePcmS16AudioData({
+			audioData: combined,
+			playbackRate,
+			isLast: true,
+		});
 
-		return {data: combined, durationInSeconds: mediaDurationInSeconds};
+		return {data: resampled, durationInSeconds: mediaDurationInSeconds};
 	} catch (err) {
 		const error = err as Error;
 		if (isNetworkError(error)) {
