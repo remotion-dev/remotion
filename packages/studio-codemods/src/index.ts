@@ -11,6 +11,13 @@ import type {SequenceNodePath} from 'remotion';
 import {getNodePathForRecastPath} from './sequence-props';
 import {parseAst} from './sequence-props/parse-ast';
 
+export {
+	deleteJsxElementAtPath,
+	deleteJsxNode,
+	deleteJsxNodes,
+	findJsxElementPathForDeletion,
+	getJsxElementTagLabel,
+} from './delete-jsx-node';
 export {findSearchPosition} from './find-search-position';
 export {
 	insertJsxElementIntoComposition,

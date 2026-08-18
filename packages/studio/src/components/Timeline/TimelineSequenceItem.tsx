@@ -38,6 +38,7 @@ import {callApi} from '../call-api';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
+import {deleteJsxNode} from '../delete-jsx-node-api';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
@@ -405,7 +406,7 @@ const TimelineSequenceItemInner: React.FC<{
 		}
 
 		try {
-			const result = await callApi('/api/delete-jsx-node', {
+			const result = await deleteJsxNode({
 				nodes: [
 					{
 						fileName: validatedLocation.source,

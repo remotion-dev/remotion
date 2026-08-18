@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-test('loads the Browser Studio canvas and enables Visual Mode', async ({
+test('loads the Browser Studio canvas and can add and delete items', async ({
 	page,
 }) => {
 	const pageErrors: Error[] = [];
@@ -58,8 +58,24 @@ test('loads the Browser Studio canvas and enables Visual Mode', async ({
 				studio.getByRole('button', {name: 'Inspector'}),
 			).toBeVisible();
 			await studio.getByRole('button', {name: 'Add Solid'}).click();
-			await expect(studio.getByText('<Solid>', {exact: true})).toBeVisible();
+			const solid = studio.getByText('<Solid>', {exact: true});
+			await expect(solid).toBeVisible();
 			await expect(studio.locator('svg[viewBox="0 0 24 16"]')).toBeVisible();
+			await solid.click();
+			await page.keyboard.press('Delete');
+			await expect(solid).toHaveCount(0);
+			await expect
+				.poll(() =>
+					page.evaluate(() => {
+						const browserWindow = window as typeof window & {
+							__browserStudioProject: {files: Record<string, string>};
+						};
+						return browserWindow.__browserStudioProject.files[
+							'/project/src/Composition.tsx'
+						];
+					}),
+				)
+				.not.toContain('<Solid');
 		})(),
 		pageError,
 	]);

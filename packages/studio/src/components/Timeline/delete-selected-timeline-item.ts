@@ -3,6 +3,7 @@ import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {callApi} from '../call-api';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
+import {deleteJsxNode} from '../delete-jsx-node-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {deleteSelectedKeyframes} from './delete-selected-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
@@ -56,7 +57,7 @@ export const deleteSequencesFromSource = async (
 		return false;
 	}
 
-	return callApi('/api/delete-jsx-node', {
+	return deleteJsxNode({
 		nodes: nodePathInfos.map((nodePathInfo) => {
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 

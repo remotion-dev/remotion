@@ -16,8 +16,8 @@ import {
 	useSetTimelineSequenceHover,
 } from '../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
-import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
+import {deleteJsxNode} from './delete-jsx-node-api';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getSelectedOutlineControlLayout} from './selected-outline-control-layout';
@@ -321,7 +321,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				}
 
 				try {
-					const result = await callApi('/api/delete-jsx-node', {
+					const result = await deleteJsxNode({
 						nodes: [
 							{
 								fileName: nodePath.absolutePath,

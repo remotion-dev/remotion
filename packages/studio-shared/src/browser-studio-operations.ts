@@ -1,6 +1,8 @@
 import type {
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
+	DeleteJsxNodeRequest,
+	DeleteJsxNodeResponse,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
 	FindInFileRequest,
@@ -32,6 +34,9 @@ export type WriteStaticFileRequest = {
 };
 
 export type BrowserStudioOperations = {
+	deleteJsxNode: (
+		request: DeleteJsxNodeRequest,
+	) => Promise<DeleteJsxNodeResponse>;
 	deleteStaticFile: (
 		request: DeleteStaticFileRequest,
 	) => Promise<DeleteStaticFileResponse>;

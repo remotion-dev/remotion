@@ -107,6 +107,38 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'width={1280}',
 	);
+	if (insertResult.insertedNodePath === null) {
+		throw new Error('Expected the inserted Solid to have a node path');
+	}
+
+	const deleteResult = await operations.deleteJsxNode({
+		nodes: [
+			{
+				fileName: '/project/src/Composition.tsx',
+				nodePath: insertResult.insertedNodePath.nodePath,
+			},
+		],
+	});
+	if (!deleteResult.success) {
+		throw new Error(deleteResult.reason);
+	}
+
+	expect(project.files['/project/src/Composition.tsx']).not.toContain('<Solid');
+	expect(deleteResult.nodePathMutation.files).toEqual([
+		{
+			absolutePath: '/project/src/Composition.tsx',
+			remappings: expect.arrayContaining([
+				{
+					oldNodePath: insertResult.insertedNodePath.nodePath,
+					newNodePath: null,
+				},
+			]),
+			restoredNodePaths: [],
+		},
+	]);
+	const undoDeleteResult = await undo();
+	expect(undoDeleteResult.success).toBe(true);
+	expect(project.files['/project/src/Composition.tsx']).toContain('<Solid');
 
 	const {writeStaticFile} = operations;
 	await writeStaticFile({
