@@ -16,6 +16,7 @@ const outer: React.CSSProperties = {
 	height: '100%',
 	overflowX: 'auto',
 	overflowY: 'hidden',
+	overscrollBehaviorX: 'none',
 	position: 'relative',
 	backgroundColor: TIMELINE_BACKGROUND,
 };

@@ -80,6 +80,7 @@ const makeSequence = ({
 	postmountDisplay: null,
 	controls: overrideId ? makeControls(overrideId) : null,
 	effects: [],
+	effectRuntimeValues: null,
 	frozenFrame: null,
 });
 
@@ -122,6 +123,8 @@ const makeSequenceFieldNode = (key: string): TimelineTreeNode => ({
 		fieldSchema: numberFieldSchema,
 		group: getSchemaFieldGroup(key),
 	},
+	runtimeValue: null,
+	runtimeValueStore: null,
 });
 
 const makeEffectFieldNode = (
@@ -150,6 +153,8 @@ const makeEffectFieldNode = (
 		},
 		group: getSchemaFieldGroup(key),
 	},
+	runtimeValue: null,
+	runtimeValueStore: null,
 });
 
 const makePropStatuses = (

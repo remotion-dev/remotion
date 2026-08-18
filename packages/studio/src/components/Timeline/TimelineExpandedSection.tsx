@@ -87,6 +87,7 @@ export const TimelineExpandedSection: React.FC<{
 							nodePath={nodePathInfo.sequenceSubscriptionKey}
 							schema={schema}
 							keyframeDisplayOffset={keyframeDisplayOffset}
+							keyframeControlsMode="timeline"
 						/>
 					</React.Fragment>
 				);

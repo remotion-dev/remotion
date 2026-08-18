@@ -60,6 +60,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		},
 		refForOutline: null,
 		effects: [],
+		effectRuntimeValues: null,
 		isInsideSeries: false,
 		frozenFrame: null,
 		type: 'sequence',

@@ -1,7 +1,6 @@
 import React, {
 	createRef,
 	useContext,
-	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
@@ -11,15 +10,25 @@ import {TIMELINE_PLAYHEAD_COLOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {getCurrentDuration} from './imperative-state';
-import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
+import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
-const container: React.CSSProperties = {
+const clippingContainer: React.CSSProperties = {
 	position: 'absolute',
-	bottom: 0,
 	top: 0,
+	left: 0,
+	width: '100%',
+	height: '100vh',
+	overflow: 'hidden',
 	pointerEvents: 'none',
+};
+
+const slider: React.CSSProperties = {
+	position: 'absolute',
+	top: 0,
+	left: 0,
+	height: '100%',
 };
 
 const PLAYHEAD_LINE_WIDTH = 1;
@@ -36,10 +45,12 @@ const PLAYHEAD_CENTER_OFFSET = PLAYHEAD_LINE_WIDTH / 2;
 const getTimelineSliderTransform = ({
 	durationInFrames,
 	frame,
+	scrollLeft,
 	width,
 }: {
 	durationInFrames: number;
 	frame: number;
+	scrollLeft: number;
 	width: number;
 }) => {
 	const left = getXPositionOfItemInTimelineImperatively(
@@ -48,7 +59,7 @@ const getTimelineSliderTransform = ({
 		width,
 	);
 
-	return `translateX(${left - PLAYHEAD_CENTER_OFFSET}px)`;
+	return `translateX(${left - scrollLeft - PLAYHEAD_CENTER_OFFSET}px)`;
 };
 
 export const redrawTimelineSliderFast = createRef<{
@@ -85,15 +96,30 @@ const TimelineSliderInner: React.FC = () => {
 	useLayoutEffect(() => {
 		const el = ref.current;
 		const measuredWidth = sliderAreaRef.current?.clientWidth;
-		if (!el || measuredWidth === undefined || measuredWidth === 0) {
+		const scrollable = scrollableRef.current;
+		if (
+			!el ||
+			!scrollable ||
+			measuredWidth === undefined ||
+			measuredWidth === 0
+		) {
 			return;
 		}
 
-		el.style.transform = getTimelineSliderTransform({
-			durationInFrames: videoConfig.durationInFrames,
-			frame: timelinePosition,
-			width: measuredWidth,
-		});
+		const draw = () => {
+			el.style.transform = getTimelineSliderTransform({
+				durationInFrames: videoConfig.durationInFrames,
+				frame: timelinePosition,
+				scrollLeft: scrollable.scrollLeft,
+				width: measuredWidth,
+			});
+		};
+
+		draw();
+		scrollable.addEventListener('scroll', draw);
+		return () => {
+			scrollable.removeEventListener('scroll', draw);
+		};
 	}, [
 		timelinePosition,
 		videoConfig.durationInFrames,
@@ -112,37 +138,19 @@ const TimelineSliderInner: React.FC = () => {
 				current.style.transform = getTimelineSliderTransform({
 					durationInFrames: getCurrentDuration(),
 					frame,
+					scrollLeft: scrollableRef.current?.scrollLeft ?? 0,
 					width: width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0,
 				});
 			},
 		};
 	}, []);
 
-	useEffect(() => {
-		const currentRef = ref.current;
-		if (!currentRef) {
-			return;
-		}
-
-		const {current} = timelineVerticalScroll;
-		if (!current) {
-			return;
-		}
-
-		const onScroll = () => {
-			currentRef.style.top = current.scrollTop + 'px';
-		};
-
-		current.addEventListener('scroll', onScroll);
-		return () => {
-			current.removeEventListener('scroll', onScroll);
-		};
-	}, []);
-
 	return (
-		<div ref={ref} style={container}>
-			<div style={line} />
-			<TimelineSliderHandle />
+		<div style={clippingContainer}>
+			<div ref={ref} style={slider}>
+				<div style={line} />
+				<TimelineSliderHandle />
+			</div>
 		</div>
 	);
 };

@@ -7,6 +7,10 @@ import type {
 	FindInFileResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
+	InsertElementRequest,
+	InsertElementResponse,
+	PrepareElementInstallRequest,
+	PrepareElementInstallResponse,
 	RedoResponse,
 	RenameStaticFileRequest,
 	RenameStaticFileResponse,
@@ -44,6 +48,15 @@ export type BrowserStudioOperations = {
 	insertSolid: (
 		request: InsertJsxElementRequest,
 	) => Promise<InsertJsxElementResponse>;
+	insertElement: (
+		request: InsertElementRequest,
+	) => Promise<InsertElementResponse>;
+	insertJsxElement: (
+		request: InsertJsxElementRequest,
+	) => Promise<InsertJsxElementResponse>;
+	prepareElementInstall: (
+		request: PrepareElementInstallRequest,
+	) => Promise<PrepareElementInstallResponse>;
 	redo: () => Promise<RedoResponse>;
 	renameStaticFile: (
 		request: RenameStaticFileRequest,

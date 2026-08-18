@@ -13,6 +13,16 @@ import {parseAst} from './sequence-props/parse-ast';
 
 export {findSearchPosition} from './find-search-position';
 export {
+	insertJsxElementIntoComposition,
+	insertJsxElementIntoProjectWithNodePathRemappings,
+	makeInMemoryInsertJsxElementCodemodEnvironment,
+	resolveCompositionComponent,
+	resolveCompositionComponentWithFile,
+	type InsertJsxElementCodemodEnvironment,
+	type ResolvedCompositionComponent,
+	type ResolvedCompositionComponentWithFile,
+} from './insert-jsx-element';
+export {
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 } from './sequence-props';
@@ -1144,6 +1154,60 @@ export const insertSolidIntoSource = ({
 	};
 };
 
+const getNodePathRemappings = ({
+	afterSource,
+	beforeSource,
+}: {
+	afterSource: string;
+	beforeSource: string;
+}) => {
+	const astBefore = parseAst(beforeSource);
+	const astAfter = parseAst(afterSource);
+	const before: Array<{nodePath: SequenceNodePath; signature: string}> = [];
+	const after: Array<{nodePath: SequenceNodePath; signature: string}> = [];
+	recast.visit(astBefore, {
+		visitJSXOpeningElement(path) {
+			before.push({
+				nodePath: getNodePathForRecastPath(path, astBefore),
+				signature: recast.print(path.node as JSXOpeningElement).code,
+			});
+			return this.traverse(path);
+		},
+	});
+	recast.visit(astAfter, {
+		visitJSXOpeningElement(path) {
+			after.push({
+				nodePath: getNodePathForRecastPath(path, astAfter),
+				signature: recast.print(path.node as JSXOpeningElement).code,
+			});
+			return this.traverse(path);
+		},
+	});
+
+	let nextAfterIndex = 0;
+	return before.flatMap(
+		({nodePath, signature}): SequenceNodePathRemapping[] => {
+			const matchedIndex = after.findIndex(
+				(item, index) =>
+					index >= nextAfterIndex && item.signature === signature,
+			);
+			if (matchedIndex === -1) {
+				throw new Error(
+					'Could not map JSX node paths after inserting an element',
+				);
+			}
+
+			nextAfterIndex = matchedIndex + 1;
+			const newNodePath = after[matchedIndex].nodePath;
+			if (JSON.stringify(nodePath) === JSON.stringify(newNodePath)) {
+				return [];
+			}
+
+			return [{oldNodePath: nodePath, newNodePath}];
+		},
+	);
+};
+
 export const insertSolidIntoProjectWithNodePathRemappings = <
 	Project extends CodemodProject,
 >({
@@ -1197,55 +1261,10 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 		source: resolved.source,
 		width: request.element.width,
 	});
-	const astBefore = parseAst(resolved.source);
-	const astAfter = parseAst(output);
-	const before: Array<{
-		nodePath: SequenceNodePath;
-		signature: string;
-	}> = [];
-	const after: Array<{
-		nodePath: SequenceNodePath;
-		signature: string;
-	}> = [];
-	recast.visit(astBefore, {
-		visitJSXOpeningElement(path) {
-			before.push({
-				nodePath: getNodePathForRecastPath(path, astBefore),
-				signature: recast.print(path.node as JSXOpeningElement).code,
-			});
-			return this.traverse(path);
-		},
+	const nodePathRemappings = getNodePathRemappings({
+		afterSource: output,
+		beforeSource: resolved.source,
 	});
-	recast.visit(astAfter, {
-		visitJSXOpeningElement(path) {
-			after.push({
-				nodePath: getNodePathForRecastPath(path, astAfter),
-				signature: recast.print(path.node as JSXOpeningElement).code,
-			});
-			return this.traverse(path);
-		},
-	});
-
-	let nextAfterIndex = 0;
-	const nodePathRemappings = before.flatMap(
-		({nodePath, signature}): SequenceNodePathRemapping[] => {
-			const matchedIndex = after.findIndex(
-				(item, index) =>
-					index >= nextAfterIndex && item.signature === signature,
-			);
-			if (matchedIndex === -1) {
-				throw new Error('Could not map JSX node paths after inserting <Solid>');
-			}
-
-			nextAfterIndex = matchedIndex + 1;
-			const newNodePath = after[matchedIndex].nodePath;
-			if (JSON.stringify(nodePath) === JSON.stringify(newNodePath)) {
-				return [];
-			}
-
-			return [{oldNodePath: nodePath, newNodePath}];
-		},
-	);
 
 	return {
 		filePath: resolved.filePath,

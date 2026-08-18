@@ -5,7 +5,7 @@ const splitWords = (inputCaptions: Caption[]): Caption[] => {
 
 	for (let i = 0; i < inputCaptions.length; i++) {
 		const w = inputCaptions[i];
-		const words = w.text.split(' ');
+		const words = w.text.split(' ').filter(Boolean);
 
 		for (let j = 0; j < words.length; j++) {
 			const word = words[j];
