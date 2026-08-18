@@ -18,6 +18,7 @@
 		"@mediabunny/flac-encoder": "catalog:",
 		"@mediabunny/prores": "catalog:",
 		"@mediabunny/ac3": "catalog:",
+		"@mediabunny/dts": "catalog:",
 		"@mux/upchunk": "3.5.0",
 		"@radix-ui/react-checkbox": "1.1.2",
 		"@radix-ui/react-dialog": "1.1.15",

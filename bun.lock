@@ -345,6 +345,7 @@
       "dependencies": {
         "@mediabunny/aac-encoder": "catalog:",
         "@mediabunny/ac3": "catalog:",
+        "@mediabunny/dts": "catalog:",
         "@mediabunny/flac-encoder": "catalog:",
         "@mediabunny/mp3-encoder": "catalog:",
         "@mediabunny/prores": "catalog:",
@@ -2772,6 +2773,7 @@
     "@aws-sdk/s3-request-presigner": "3.986.0",
     "@mediabunny/aac-encoder": "1.55.1",
     "@mediabunny/ac3": "1.55.1",
+    "@mediabunny/dts": "1.55.1",
     "@mediabunny/flac-encoder": "1.55.1",
     "@mediabunny/mp3-encoder": "1.55.1",
     "@mediabunny/prores": "1.55.1",
@@ -3750,6 +3752,8 @@
     "@mediabunny/aac-encoder": ["@mediabunny/aac-encoder@1.55.1", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-NkLRZzfZoCmMZpMosj+O9gpl1tgHgKR85G8QrtUSUGJO1HaI/NqZznwSEdGWZKT4rSiRRaYtYXecLCAIdKWDFQ=="],
 
     "@mediabunny/ac3": ["@mediabunny/ac3@1.55.1", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-6gNlm1qffxQLnK94iYsDIK+SM2LEW5vFUmLFFm3Xgz4c+o3oJ0ZNVeWaZiVMj3/Gw5BrJ4GwOTpPLsjzi+uZHA=="],
+
+    "@mediabunny/dts": ["@mediabunny/dts@1.55.1", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-JQlgcf3d6l1/CIfTreZeTGB+dnwRr/cOdJEkGmNLXEsZPx8TQ+F/TmDQkWBjr4sJqYZd/l36uF6T5ymgWRYa5A=="],
 
     "@mediabunny/flac-encoder": ["@mediabunny/flac-encoder@1.55.1", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-tWmL2Fv6MtAIkjSVebZ8YgSj7YR/xN6Jn37F+JpSA2WdZLDXLxxH0wyw/kqsKv9aWCCUcYhc/GpDo/KUr9SUHw=="],
 

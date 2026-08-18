@@ -132,6 +132,7 @@
 			"@mediabunny/flac-encoder": "1.55.1",
 			"@mediabunny/prores": "1.55.1",
 			"@mediabunny/ac3": "1.55.1",
+			"@mediabunny/dts": "1.55.1",
 			"next": "16.2.11",
 			"three": "0.178.0",
 			"sharp": "0.34.5",

@@ -136,6 +136,12 @@ export const extraPackages: ExtraPackage[] = [
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
 	},
 	{
+		name: '@mediabunny/dts',
+		version: '1.55.1',
+		description: 'DTS audio codec support for Mediabunny',
+		docsUrl: 'https://mediabunny.dev/guide/extensions/dts',
+	},
+	{
 		name: '@mediabunny/prores',
 		version: '1.55.1',
 		description: 'Apple ProRes decoder support for Mediabunny',
