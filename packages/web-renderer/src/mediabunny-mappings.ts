@@ -1,4 +1,4 @@
-import type {AudioCodec, Quality} from 'mediabunny';
+import type {AudioCodec} from 'mediabunny';
 import {
 	AdtsOutputFormat,
 	FlacOutputFormat,
@@ -7,11 +7,7 @@ import {
 	Mp3OutputFormat,
 	Mp4OutputFormat,
 	OggOutputFormat,
-	QUALITY_HIGH,
-	QUALITY_LOW,
-	QUALITY_MEDIUM,
-	QUALITY_VERY_HIGH,
-	QUALITY_VERY_LOW,
+	Quality,
 	WavOutputFormat,
 	WebMOutputFormat,
 	type OutputFormat,
@@ -142,20 +138,7 @@ export const getDefaultContainerForCodec = (
 export const getQualityForWebRendererQuality = (
 	quality: WebRendererQuality,
 ): Quality => {
-	switch (quality) {
-		case 'very-low':
-			return QUALITY_VERY_LOW;
-		case 'low':
-			return QUALITY_LOW;
-		case 'medium':
-			return QUALITY_MEDIUM;
-		case 'high':
-			return QUALITY_HIGH;
-		case 'very-high':
-			return QUALITY_VERY_HIGH;
-		default:
-			throw new Error(`Unsupported quality: ${quality satisfies never}`);
-	}
+	return new Quality({quality, preferBitrate: true});
 };
 
 export const getMimeType = (container: WebRendererContainer): string => {
