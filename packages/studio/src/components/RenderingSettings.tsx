@@ -8,10 +8,10 @@ import type {
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ConfigUpdate} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {LIGHT_TEXT} from '../helpers/colors';
 import {labelx264Preset} from '../helpers/presets-labels';
 import {labelProResProfile} from '../helpers/prores-labels';
 import {Checkmark} from '../icons/Checkmark';
+import {sectionHeader} from './InspectorPanel/styles';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
@@ -35,13 +35,9 @@ const container: React.CSSProperties = {
 };
 
 const dividerLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	fontWeight: 600,
-	letterSpacing: 0.4,
-	margin: '16px 16px 4px',
-	textTransform: 'uppercase',
+	...sectionHeader,
+	margin: 0,
+	padding: '4px 16px',
 };
 
 const fullWidth: React.CSSProperties = {
