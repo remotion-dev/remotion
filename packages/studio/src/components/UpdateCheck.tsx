@@ -25,6 +25,7 @@ export type UpdateInfo = {
 	updateAvailable: boolean;
 	skillsUpdateAvailable: boolean;
 	remotionUpgradeSkillAvailable: boolean;
+	remotionInteractivitySkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };

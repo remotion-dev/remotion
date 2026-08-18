@@ -1,25 +1,23 @@
-import React from 'react';
+import React, {useCallback, useContext} from 'react';
 import type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusStatic,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
+import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {LIGHT_TEXT, WHITE_ALPHA_40} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {SetSelectedModalContext} from '../../state/modals';
+import {updateAvailable} from '../RenderQueue/actions';
 import {TimelineArrayField} from './TimelineArrayField';
 import {
 	isTimelinePrimitiveFieldInfo,
 	TimelinePrimitiveFieldValue,
 } from './TimelinePrimitiveFieldValue';
-
-const INTERACTIVITY_BEST_PRACTICES_DOCS =
-	'https://www.remotion.dev/docs/studio/interactivity-best-practices';
-
-export const TIMELINE_COMPUTED_EFFECT_FIX_LINK = `${INTERACTIVITY_BEST_PRACTICES_DOCS}#keep-effects-editable`;
 
 const unsupportedStatusWrapper: React.CSSProperties = {
 	alignItems: 'center',
@@ -49,13 +47,18 @@ const fixLinkBase: React.CSSProperties = {
 	lineHeight: 1,
 	textDecoration: 'none',
 	width: 17,
+	appearance: 'none',
+	background: 'none',
+	border: 'none',
+	cursor: 'pointer',
+	padding: 0,
 };
 
 export const UnsupportedStatus: React.FC<{
 	readonly label: React.ReactNode;
-	readonly fixHref?: string;
+	readonly onFix?: () => void;
 	readonly formattedValue: boolean;
-}> = ({label, fixHref, formattedValue}) => {
+}> = ({label, onFix, formattedValue}) => {
 	const [hovered, setHovered] = React.useState(false);
 	const [focused, setFocused] = React.useState(false);
 	const visible = hovered || focused;
@@ -68,13 +71,13 @@ export const UnsupportedStatus: React.FC<{
 		};
 	}, [visible]);
 
-	const stopMousePropagation: React.MouseEventHandler<HTMLAnchorElement> = (
+	const stopMousePropagation: React.MouseEventHandler<HTMLButtonElement> = (
 		event,
 	) => {
 		event.stopPropagation();
 	};
 
-	const stopPointerPropagation: React.PointerEventHandler<HTMLAnchorElement> = (
+	const stopPointerPropagation: React.PointerEventHandler<HTMLButtonElement> = (
 		event,
 	) => {
 		event.stopPropagation();
@@ -92,14 +95,15 @@ export const UnsupportedStatus: React.FC<{
 			>
 				{label}
 			</span>
-			{fixHref ? (
-				<a
-					href={fixHref}
-					target="_blank"
-					rel="noreferrer"
+			{onFix ? (
+				<button
+					type="button"
 					style={fixLink}
-					title="Open docs to fix computed Studio values"
-					onClick={stopMousePropagation}
+					title="Fix computed Studio value"
+					onClick={(event) => {
+						stopMousePropagation(event);
+						onFix();
+					}}
 					onDoubleClick={stopMousePropagation}
 					onPointerDown={stopPointerPropagation}
 					onFocus={() => setFocused(true)}
@@ -107,7 +111,7 @@ export const UnsupportedStatus: React.FC<{
 					tabIndex={visible ? 0 : -1}
 				>
 					Fix
-				</a>
+				</button>
 			) : null}
 		</span>
 	);
@@ -118,8 +122,37 @@ export const TimelineNonEditableStatus: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly runtimeValue: unknown;
 	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
-	readonly fixHref: string;
-}> = ({propStatus, field, runtimeValue, scaleLockNodePath, fixHref}) => {
+	readonly validatedLocation: CodePosition;
+}> = ({
+	propStatus,
+	field,
+	runtimeValue,
+	scaleLockNodePath,
+	validatedLocation,
+}) => {
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const onFix = useCallback(() => {
+		const controller = new AbortController();
+		updateAvailable(controller.signal)
+			.then((info) => {
+				setSelectedModal({
+					type: 'fix-computed-value',
+					prop: field.key,
+					context: `${validatedLocation.source}:${validatedLocation.line}:${validatedLocation.column}`,
+					remotionInteractivitySkillAvailable:
+						info.remotionInteractivitySkillAvailable,
+				});
+			})
+			.catch(() => {
+				setSelectedModal({
+					type: 'fix-computed-value',
+					prop: field.key,
+					context: `${validatedLocation.source}:${validatedLocation.line}:${validatedLocation.column}`,
+					remotionInteractivitySkillAvailable: false,
+				});
+			});
+	}, [field.key, setSelectedModal, validatedLocation]);
+
 	if (propStatus.status === 'computed') {
 		return (
 			<UnsupportedStatus
@@ -138,7 +171,7 @@ export const TimelineNonEditableStatus: React.FC<{
 						scaleLockNodePath={scaleLockNodePath}
 					/>
 				}
-				fixHref={fixHref}
+				onFix={onFix}
 				formattedValue
 			/>
 		);

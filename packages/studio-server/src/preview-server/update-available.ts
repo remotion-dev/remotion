@@ -30,6 +30,15 @@ const getSkillsUpdateInfo = ({
 				'SKILL.md',
 			),
 		),
+		remotionInteractivitySkillAvailable: existsSync(
+			path.join(
+				remotionRoot,
+				'.agents',
+				'skills',
+				'remotion-interactivity',
+				'SKILL.md',
+			),
+		),
 	};
 };
 

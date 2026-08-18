@@ -1032,6 +1032,7 @@ export type UpdateAvailableResponse = {
 	updateAvailable: boolean;
 	skillsUpdateAvailable: boolean;
 	remotionUpgradeSkillAvailable: boolean;
+	remotionInteractivitySkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };

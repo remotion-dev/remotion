@@ -35,6 +35,7 @@ test('reports outdated project skills when Remotion itself is up to date', async
 			updateAvailable: false,
 			skillsUpdateAvailable: true,
 			remotionUpgradeSkillAvailable: false,
+			remotionInteractivitySkillAvailable: false,
 			timedOut: false,
 		});
 
@@ -49,6 +50,17 @@ test('reports outdated project skills when Remotion itself is up to date', async
 			path.join(upgradeSkillDirectory, 'SKILL.md'),
 			'---\nname: remotion-upgrade\nversion: 4.0.501\n---\n',
 		);
+		const interactivitySkillDirectory = path.join(
+			remotionRoot,
+			'.agents',
+			'skills',
+			'remotion-interactivity',
+		);
+		mkdirSync(interactivitySkillDirectory, {recursive: true});
+		writeFileSync(
+			path.join(interactivitySkillDirectory, 'SKILL.md'),
+			'---\nname: remotion-interactivity\nversion: 4.0.501\n---\n',
+		);
 
 		const resultWithUpgradeSkill = await isUpdateAvailable({
 			remotionRoot,
@@ -60,6 +72,7 @@ test('reports outdated project skills when Remotion itself is up to date', async
 		expect(resultWithUpgradeSkill).toMatchObject({
 			skillsUpdateAvailable: true,
 			remotionUpgradeSkillAvailable: true,
+			remotionInteractivitySkillAvailable: true,
 		});
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});

@@ -37,7 +37,6 @@ import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
-	TIMELINE_COMPUTED_EFFECT_FIX_LINK,
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
 	UnsupportedStatus,
@@ -80,7 +79,8 @@ const TimelineComputedEffectPropValue: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
 	readonly runtimeValueStore: RuntimeValueStore | null;
-}> = ({field, nodePath, propStatus, runtimeValueStore}) => {
+	readonly validatedLocation: CodePosition;
+}> = ({field, nodePath, propStatus, runtimeValueStore, validatedLocation}) => {
 	const runtimeValue = useRuntimeStoreValue(runtimeValueStore, field.key);
 
 	return (
@@ -89,7 +89,7 @@ const TimelineComputedEffectPropValue: React.FC<{
 			field={field}
 			runtimeValue={runtimeValue}
 			scaleLockNodePath={nodePath}
-			fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+			validatedLocation={validatedLocation}
 		/>
 	);
 };
@@ -293,6 +293,7 @@ export const TimelineEffectPropValue: React.FC<{
 					field={field}
 					runtimeValueStore={runtimeValueStore}
 					nodePath={nodePath}
+					validatedLocation={validatedLocation}
 				/>
 			);
 		}
@@ -354,6 +355,7 @@ export const TimelineEffectPropValue: React.FC<{
 				field={field}
 				runtimeValueStore={runtimeValueStore}
 				nodePath={nodePath}
+				validatedLocation={validatedLocation}
 			/>
 		);
 	}
