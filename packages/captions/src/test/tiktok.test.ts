@@ -351,3 +351,35 @@ test('Should never break inside a word, even across a silence or after punctuati
 		},
 	]);
 });
+
+test('Should break at every word boundary when silenceGapMs is 0', () => {
+	const {pages} = createTikTokStyleCaptions({
+		captions: [
+			{
+				text: 'one',
+				startMs: 0,
+				endMs: 200,
+				timestampMs: 100,
+				confidence: null,
+			},
+			{
+				text: ' two',
+				startMs: 200,
+				endMs: 400,
+				timestampMs: 300,
+				confidence: null,
+			},
+			{
+				text: ' three',
+				startMs: 400,
+				endMs: 600,
+				timestampMs: 500,
+				confidence: null,
+			},
+		],
+		combineTokensWithinMilliseconds: 10000,
+		silenceGapMs: 0,
+	});
+
+	expect(pages.map((p) => p.text)).toEqual(['one', 'two', 'three']);
+});
