@@ -7,7 +7,7 @@ description: Upload large Remotion repository assets to the Cloudflare R2 bucket
 
 Use this for large media assets that should be hosted on `https://remotion.media/` instead of committed to Git.
 
-Do not use this skill for Remotion Element previews. Follow the `submit-element` or `accept-element` skill instead; the dedicated uploader runs from `packages/docs` and loads `packages/docs/.env`.
+Do not use this skill for Remotion Element previews. Use the dedicated `upload-element-preview` script from `packages/docs`, which loads `packages/docs/.env`.
 
 ## Workflow
 
