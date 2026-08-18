@@ -482,6 +482,10 @@ export const shouldShowTimelineKeyframeNavigation = ({
 	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly selected: boolean;
 }) => {
+	if (propStatus.status === 'computed') {
+		return false;
+	}
+
 	if (selected) {
 		return true;
 	}

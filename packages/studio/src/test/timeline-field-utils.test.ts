@@ -153,6 +153,19 @@ test('formatTimelineFieldValueForDisplay rounds unknown numeric fallbacks', () =
 	).toBe('10');
 });
 
+test('formatTimelineFieldValueForDisplay formats computed enum values as text', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'enum',
+				default: '400',
+				variants: {'300': {}, '400': {}},
+			},
+			value: 300,
+		}),
+	).toBe('300');
+});
+
 test('formatTimelineFieldValueForDisplay shows undefined schema values as unset', () => {
 	expect(
 		formatTimelineFieldValueForDisplay({
