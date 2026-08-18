@@ -84,46 +84,61 @@ const Bar: React.FC<{
 export const HorizontalBarChart: React.FC = () => {
 	return (
 		<Interactive.Div
-			name="Chart"
+			name="Background"
 			style={{
-				fontFamily,
-				fontVariantNumeric: 'tabular-nums',
-				height: '100%',
+				alignItems: 'center',
+				backgroundColor: '#f5f6f7',
+				boxSizing: 'border-box',
 				display: 'flex',
-				flexDirection: 'column',
+				height: '100%',
 				justifyContent: 'center',
-				gap: 42,
+				padding: 56,
+				width: '100%',
 			}}
 		>
-			<Interactive.H1
-				name="Title"
+			<Interactive.Div
+				name="Chart"
 				style={{
-					fontSize: 76,
-					fontWeight: 800,
-					letterSpacing: -3.8,
-					lineHeight: 0.95,
-					margin: 0,
-					color: '#111827',
+					display: 'flex',
+					flexDirection: 'column',
+					fontFamily,
+					fontVariantNumeric: 'tabular-nums',
+					gap: 42,
+					height: '100%',
+					justifyContent: 'center',
+					width: '100%',
 				}}
 			>
-				Team member pull-ups
-			</Interactive.H1>
-			{data.map(({highlighted, label, value}, index) => (
-				<div
-					key={label}
+				<Interactive.H1
+					name="Title"
 					style={{
-						height: HEIGHT,
+						fontSize: 76,
+						fontWeight: 800,
+						letterSpacing: -3.8,
+						lineHeight: 0.95,
+						margin: 0,
+						color: '#111827',
 					}}
 				>
-					<Interactive.Div
-						from={8 + index * 6}
-						style={{width: `${(value / maxValue) * 100}%`, height: '100%'}}
-						showInTimeline={false}
+					Team member pull-ups
+				</Interactive.H1>
+				{data.map(({highlighted, label, value}, index) => (
+					<div
+						key={label}
+						style={{
+							height: HEIGHT,
+						}}
 					>
-						<Bar highlighted={highlighted} label={label} value={value} />
-					</Interactive.Div>
-				</div>
-			))}
+						<Interactive.Div
+							from={8 + index * 6}
+							style={{width: `${(value / maxValue) * 100}%`, height: '100%'}}
+							showInTimeline={false}
+						>
+							<Bar highlighted={highlighted} label={label} value={value} />
+						</Interactive.Div>
+					</div>
+				))}
+			</Interactive.Div>
 		</Interactive.Div>
 	);
 };
