@@ -12,6 +12,7 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	keyboardShortcutsEnabled: true,
 	maxTimelineTracks: null,
 	publicLicenseKey: null,
+	configFileStudioSettings: null,
 };
 
 const getStudioRuntimeConfig = (): StudioRuntimeConfig => {

@@ -26,5 +26,5 @@ export type StudioRuntimeConfig = {
 	readonly defaultCodingAgent: DefaultCodingAgent | null;
 	readonly defaultEditor: BuiltInEditor | 'custom' | null;
 	readonly publicLicenseKey: string | null;
-	readonly configFileStudioSettings?: ConfigFileStudioSettings;
+	readonly configFileStudioSettings: ConfigFileStudioSettings | null;
 };
