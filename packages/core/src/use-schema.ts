@@ -1,5 +1,6 @@
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
+	getFrameInKeyframedStatusClock,
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
@@ -126,9 +127,10 @@ export type CanUpdateSequencePropStatusKeyframed = {
 	status: 'keyframed';
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	/**
-	 * Added to the timeline track's keyframe display offset. This is non-zero
-	 * when the useCurrentFrame() call is outside a Sequence that wraps the
-	 * controlled element.
+	 * Added to the timeline track's keyframe display offset and subtracted from
+	 * the controlled element's local frame when evaluating the interpolation.
+	 * This is non-zero when the useCurrentFrame() call is outside a timing
+	 * element that wraps the controlled element.
 	 */
 	keyframeDisplayOffsetAdjustment: number | null;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
@@ -321,7 +323,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				} else if (frame !== null) {
 					const interpolated = interpolateKeyframedStatus({
 						forceSpringAllowTail: null,
-						frame,
+						frame: getFrameInKeyframedStatusClock({frame, status}),
 						status,
 					});
 					value = interpolated ?? currentValue[key];

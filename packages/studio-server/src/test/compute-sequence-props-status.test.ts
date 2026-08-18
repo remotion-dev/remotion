@@ -1140,6 +1140,42 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus distinguishes a zero-offset outer frame clock from a local frame clock', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Timing} from './Timing';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<Timing from={0}>
+			<AbsoluteFill style={{opacity: interpolate(frame, [10, 20], [0, 1])}} />
+		</Timing>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 9),
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
+		keyframes: [
+			{frame: 10, value: 0},
+			{frame: 20, value: 1},
+		],
+	});
+});
+
 test('computeSequencePropsStatus reports computed when a timing component offset is uncertain', () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';

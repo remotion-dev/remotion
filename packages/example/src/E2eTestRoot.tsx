@@ -17,6 +17,7 @@ import {RotationKeyframeE2e} from './RotationKeyframeE2e';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
+import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 
 const UseCurrentScaleOnLoad: React.FC = () => {
 	const scale = useCurrentScale();
@@ -179,6 +180,14 @@ export const E2eTestRoot: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={90}
+			/>
+			<Composition
+				id="sequence-shift-repro"
+				component={SequenceShiftRepro}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={60}
 			/>
 			<Composition
 				id="inspector-control-layout-e2e"

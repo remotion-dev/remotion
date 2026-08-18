@@ -553,7 +553,7 @@ const getInterpolationKeyframes = (
 			posterize: PropPosterize;
 			output: PropOutput;
 			interpolationFunction: PropInterpolationFunction;
-			keyframeDisplayOffsetAdjustment: number;
+			keyframeDisplayOffsetAdjustment: number | null;
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
@@ -619,13 +619,12 @@ const getInterpolationKeyframes = (
 		return undefined;
 	}
 
-	const keyframeDisplayOffsetAdjustment =
-		getCurrentFrameDisplayOffsetAdjustment({
-			node: frameArg as Expression,
-			ast,
-			videoConfigValues,
-		});
-	if (keyframeDisplayOffsetAdjustment === null) {
+	const frameDisplayOffset = getCurrentFrameDisplayOffsetAdjustment({
+		node: frameArg as Expression,
+		ast,
+		videoConfigValues,
+	});
+	if (frameDisplayOffset === null) {
 		return undefined;
 	}
 
@@ -681,7 +680,9 @@ const getInterpolationKeyframes = (
 		clamping: metadata.clamping,
 		posterize: metadata.posterize,
 		output: metadata.output,
-		keyframeDisplayOffsetAdjustment,
+		keyframeDisplayOffsetAdjustment: frameDisplayOffset.hasEnclosingElement
+			? frameDisplayOffset.adjustment
+			: null,
 	};
 };
 
@@ -819,9 +820,13 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	startPath: recast.types.NodePath;
 	endPath: recast.types.NodePath;
 	videoConfigValues: VideoConfigIdentifierValues;
-}): number | null => {
+}): {
+	readonly adjustment: number;
+	readonly hasEnclosingElement: boolean;
+} | null => {
 	let current: recast.types.NodePath | null = startPath;
 	let hasSeenControlledElement = false;
+	let hasEnclosingElement = false;
 	let adjustment = 0;
 	while (current && current.value !== endPath.value) {
 		const currentNode = current.value as Node;
@@ -837,6 +842,7 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 			if (!hasSeenControlledElement) {
 				hasSeenControlledElement = true;
 			} else {
+				hasEnclosingElement = true;
 				// Sequence-backed built-ins and userland components can both shift
 				// their children, so the prop names are the semantic boundary.
 				const from = getJsxNumericAttribute({
@@ -862,7 +868,7 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 		current = current.parentPath;
 	}
 
-	return current ? adjustment : null;
+	return current ? {adjustment, hasEnclosingElement} : null;
 };
 
 const getDefaultFrameDisplayOffsetAdjustment = ({
@@ -897,11 +903,12 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 		return null;
 	}
 
-	return getFrameDisplayOffsetAdjustmentBetweenPaths({
+	const result = getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: jsxPath,
 		endPath: functionPath,
 		videoConfigValues,
 	});
+	return result?.adjustment ?? null;
 };
 
 const getCurrentFrameDisplayOffsetAdjustment = ({
@@ -912,7 +919,10 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	node: Expression;
 	ast: File;
 	videoConfigValues: VideoConfigIdentifierValues;
-}): number | null => {
+}): {
+	readonly adjustment: number;
+	readonly hasEnclosingElement: boolean;
+} | null => {
 	if (node.type === 'TSAsExpression') {
 		return getCurrentFrameDisplayOffsetAdjustment({
 			node: node.expression as Expression,
@@ -978,9 +988,7 @@ export const getComputedStatus = (
 		status: 'keyframed',
 		interpolationFunction: interpolation.interpolationFunction,
 		keyframeDisplayOffsetAdjustment:
-			interpolation.keyframeDisplayOffsetAdjustment === 0
-				? null
-				: interpolation.keyframeDisplayOffsetAdjustment,
+			interpolation.keyframeDisplayOffsetAdjustment,
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,

@@ -2671,6 +2671,112 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 	]);
 });
 
+test('Timeline from drag moves only descendant keyframes tied to an outer frame clock', () => {
+	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const parentNodePath = parentNodePathInfo.sequenceSubscriptionKey;
+	const outerFrameDescendantNodePath = makeNodePathInfo(
+		['body', 0, 'children', 0],
+		[],
+	).sequenceSubscriptionKey;
+	const localFrameDescendantNodePath = makeNodePathInfo(
+		['body', 1],
+		[],
+	).sequenceSubscriptionKey;
+	const propStatuses = makeFromPropStatuses([parentNodePath]);
+	const keyframedColorStatus = {
+		status: 'keyframed' as const,
+		interpolationFunction: 'interpolateColors' as const,
+		keyframes: [
+			{frame: 0, value: '#0b84f3'},
+			{frame: 100, value: '#f43b00'},
+		],
+		easing: [{type: 'linear' as const}],
+		clamping: {left: 'extend' as const, right: 'extend' as const},
+		posterize: undefined,
+		output: undefined,
+	};
+	propStatuses[
+		Internals.makeSequencePropsSubscriptionKey(outerFrameDescendantNodePath)
+	] = {
+		canUpdate: true,
+		props: {
+			color: {
+				...keyframedColorStatus,
+				keyframeDisplayOffsetAdjustment: 0,
+			},
+		},
+		effects: [],
+	};
+	propStatuses[
+		Internals.makeSequencePropsSubscriptionKey(localFrameDescendantNodePath)
+	] = {
+		canUpdate: true,
+		props: {
+			color: {
+				...keyframedColorStatus,
+				keyframeDisplayOffsetAdjustment: null,
+			},
+		},
+		effects: [],
+	};
+
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: parentNodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo: parentNodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema: {},
+				id: 'parent',
+				overrideId: 'parent-override',
+			}),
+			makeTimelineSequence({
+				schema: {color: {type: 'color', default: '#000000'}},
+				id: 'outer-frame-descendant',
+				overrideId: 'outer-frame-descendant-override',
+				parentId: 'parent',
+			}),
+			makeTimelineSequence({
+				schema: {color: {type: 'color', default: '#000000'}},
+				id: 'local-frame-descendant',
+				overrideId: 'local-frame-descendant-override',
+				parentId: 'parent',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			'parent-override': parentNodePath,
+			'outer-frame-descendant-override': outerFrameDescendantNodePath,
+			'local-frame-descendant-override': localFrameDescendantNodePath,
+		},
+		propStatuses,
+	});
+
+	expect(
+		getTimelineSequenceFromDragKeyframeMoves({
+			targets: targets ?? [],
+			deltaFrames: 10,
+		}).sequenceKeyframes.map((keyframe) => ({
+			nodePath: keyframe.nodePath,
+			fromFrame: keyframe.fromFrame,
+			toFrame: keyframe.toFrame,
+			keyframeDisplayOffsetAdjustmentDelta:
+				keyframe.keyframeDisplayOffsetAdjustmentDelta,
+		})),
+	).toEqual([
+		{
+			nodePath: outerFrameDescendantNodePath,
+			fromFrame: 0,
+			toFrame: 10,
+			keyframeDisplayOffsetAdjustmentDelta: -10,
+		},
+		{
+			nodePath: outerFrameDescendantNodePath,
+			fromFrame: 100,
+			toFrame: 110,
+			keyframeDisplayOffsetAdjustmentDelta: -10,
+		},
+	]);
+});
+
 test('Timeline from drag moves owned effect keyframes by the same delta', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
