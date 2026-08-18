@@ -113,7 +113,10 @@ const elementImplementations = {
 	},
 	'maps/watercolor-map': {
 		component: WatercolorMap,
-		contributors: [{username: 'MehmetAdemi', contribution: 'Author'}],
+		contributors: [
+			{username: 'JonnyBurger', contribution: 'Author'},
+			{username: 'MehmetAdemi', contribution: 'Author'},
+		],
 		description:
 			'A watercolor map journey between two editable locations, with animated labels, markers, and a hand-drawn route.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],

@@ -208,16 +208,25 @@ const WatercolorMapContent: React.FC<{
 		[0, 1],
 		[projectedOrigin.x, destinationX],
 	);
-	const centerY = interpolate(
+	const interpolatedCenterY = interpolate(
 		travelProgress,
 		[0, 1],
 		[projectedOrigin.y, projectedDestination.y],
+	);
+	const centerY = Math.max(
+		height / 2,
+		Math.min(worldSize - height / 2, interpolatedCenterY),
 	);
 	const originX = projectedOrigin.x - centerX + width / 2;
 	const originY = projectedOrigin.y - centerY + height / 2;
 	const destinationScreenX = destinationX - centerX + width / 2;
 	const destinationScreenY = projectedDestination.y - centerY + height / 2;
-	const routePath = `M ${originX} ${originY} Q ${(originX + destinationScreenX) / 2} ${(originY + destinationScreenY) / 2 - Math.min(400, height * 0.37)} ${destinationScreenX} ${destinationScreenY}`;
+	const routeDistance = Math.hypot(
+		destinationScreenX - originX,
+		destinationScreenY - originY,
+	);
+	const routeArcHeight = Math.min(400, height * 0.37, routeDistance * 0.35);
+	const routePath = `M ${originX} ${originY} Q ${(originX + destinationScreenX) / 2} ${(originY + destinationScreenY) / 2 - routeArcHeight} ${destinationScreenX} ${destinationScreenY}`;
 	const originLabelOpacity =
 		1 -
 		spring({
@@ -239,8 +248,11 @@ const WatercolorMapContent: React.FC<{
 		durationInFrames: 20,
 	});
 	const tiles = getTiles({centerX, centerY, height, width, zoom});
-	const originLabelIsAbove = origin[1] > destination[1];
-	const destinationLabelIsAbove = destination[1] > origin[1];
+	const originLabelIsAbove =
+		originY > 120 && (originY > height - 120 || origin[1] > destination[1]);
+	const destinationLabelIsAbove =
+		destinationScreenY > 120 &&
+		(destinationScreenY > height - 120 || destination[1] >= origin[1]);
 
 	return (
 		<div
@@ -257,6 +269,7 @@ const WatercolorMapContent: React.FC<{
 			{tiles.map((tile) => (
 				<Img
 					key={tile.key}
+					pauseWhenLoading
 					showInTimeline={false}
 					src={tile.src}
 					style={{
