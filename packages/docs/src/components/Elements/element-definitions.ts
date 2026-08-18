@@ -230,8 +230,10 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 135,
 		preview: {
-			posterUrl: '/elements/youtube-youtube-comment-highlight-preview.png',
-			videoUrl: '/elements/youtube-youtube-comment-highlight-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.mp4',
 		},
 		previewPadding: 200,
 		installationMode: 'wrapped',
