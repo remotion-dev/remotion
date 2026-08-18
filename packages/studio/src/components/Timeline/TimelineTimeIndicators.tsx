@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
@@ -12,7 +12,7 @@ import {
 } from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
-import {timelineVerticalScroll} from './timeline-refs';
+import {scrollableRef} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -27,18 +27,6 @@ const container: React.CSSProperties = {
 	borderBottom: `${TIMELINE_ITEM_BORDER_BOTTOM}px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
-const tick: React.CSSProperties = {
-	width: 1,
-	backgroundColor: WHITE_ALPHA_15,
-	height: 20,
-	position: 'absolute',
-};
-
-const secondTick: React.CSSProperties = {
-	...tick,
-	height: 15,
-};
-
 const TICK_LABEL_FONT_SIZE = 12;
 const TICK_LABEL_MARGIN_LEFT = 8;
 const TICK_LABEL_MIN_GAP = 16;
@@ -46,13 +34,6 @@ const MIN_SPACING_BETWEEN_FRAME_TICKS_PX = 5;
 const MIN_SPACING_BETWEEN_TIME_TICKS_PX = 16;
 const MIN_SPACING_BETWEEN_MEDIUM_FRAME_TICKS_PX = 24;
 const MIN_SPACING_BETWEEN_MEDIUM_TIME_TICKS_PX = 48;
-
-const tickLabel: React.CSSProperties = {
-	fontSize: TICK_LABEL_FONT_SIZE,
-	marginLeft: TICK_LABEL_MARGIN_LEFT,
-	marginTop: 7,
-	color: LIGHT_TEXT,
-};
 
 const timeValue: React.CSSProperties = {
 	height: TIMELINE_TIME_INDICATOR_HEIGHT,
@@ -82,12 +63,6 @@ export const TimelineTimePadding: React.FC = () => {
 			}}
 		/>
 	);
-};
-
-type TimelineTick = {
-	frame: number;
-	style: React.CSSProperties;
-	showTime: boolean;
 };
 
 const NICE_SECOND_INTERVALS = [
@@ -266,28 +241,156 @@ const TimelineTimeIndicatorsInner = React.memo<{
 	readonly fps: number;
 	readonly durationInFrames: number;
 }>(({windowWidth, durationInFrames, fps}) => {
-	const ref = useRef<HTMLDivElement>(null);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
 
-	useEffect(() => {
-		const currentRef = ref.current;
-		if (!currentRef) {
+	useLayoutEffect(() => {
+		const canvas = canvasRef.current;
+		const scrollable = scrollableRef.current;
+		if (!canvas || !scrollable) {
 			return;
 		}
 
-		const {current} = timelineVerticalScroll;
-		if (!current) {
+		const context = canvas.getContext('2d');
+		if (!context) {
 			return;
 		}
+
+		const frameInterval = getFrameIncrementFromWidth(
+			durationInFrames,
+			windowWidth,
+		);
+		const maxTickLabelWidth =
+			renderFrame(durationInFrames - 1, fps).length *
+			TICK_LABEL_FONT_SIZE *
+			0.6;
+		const tickScale = getTimelineTickScale({
+			fps,
+			frameInterval,
+			rawSecondMarkerEveryNth:
+				(TICK_LABEL_MARGIN_LEFT + maxTickLabelWidth + TICK_LABEL_MIN_GAP) /
+				(frameInterval * fps),
+		});
+
+		const draw = () => {
+			const {clientWidth: width, scrollLeft} = scrollable;
+			const pixelRatio = window.devicePixelRatio;
+			const canvasWidth = Math.ceil(width * pixelRatio);
+			const canvasHeight = TIMELINE_TIME_INDICATOR_HEIGHT * pixelRatio;
+
+			if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+				canvas.width = canvasWidth;
+				canvas.height = canvasHeight;
+				canvas.style.width = `${width}px`;
+				canvas.style.height = `${TIMELINE_TIME_INDICATOR_HEIGHT}px`;
+			}
+
+			context.resetTransform();
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			context.scale(pixelRatio, pixelRatio);
+			context.fillStyle = WHITE_ALPHA_15;
+
+			const firstFrame = Math.max(
+				0,
+				Math.floor((scrollLeft - TIMELINE_PADDING) / frameInterval),
+			);
+			const lastFrame = Math.min(
+				durationInFrames - 1,
+				Math.ceil((scrollLeft + width - TIMELINE_PADDING) / frameInterval),
+			);
+			const xForFrame = (frame: number) =>
+				Math.round(frameInterval * frame + TIMELINE_PADDING - scrollLeft) + 0.5;
+			const drawTick = (frame: number, height: number) => {
+				const x = xForFrame(frame);
+				context.fillRect(x, 0, 1, height);
+			};
+
+			const firstLabelSecond =
+				Math.ceil(firstFrame / fps / tickScale.labelEverySeconds) *
+				tickScale.labelEverySeconds;
+			const seconds = Math.floor(durationInFrames / fps);
+			for (
+				let second = firstLabelSecond;
+				second < seconds && second * fps <= lastFrame;
+				second += tickScale.labelEverySeconds
+			) {
+				const frame = second * fps;
+				drawTick(frame, 15);
+				if (second > 0) {
+					context.fillStyle = LIGHT_TEXT;
+					context.font = `${TICK_LABEL_FONT_SIZE}px ${getComputedStyle(canvas).fontFamily}`;
+					context.textBaseline = 'top';
+					context.fillText(
+						renderFrame(frame, fps),
+						xForFrame(frame) + TICK_LABEL_MARGIN_LEFT,
+						7,
+					);
+					context.fillStyle = WHITE_ALPHA_15;
+				}
+			}
+
+			const {minorTickEvery, mediumTickEvery} = tickScale;
+			if (minorTickEvery?.unit === 'frames') {
+				const firstTick =
+					Math.ceil(firstFrame / minorTickEvery.interval) *
+					minorTickEvery.interval;
+				for (
+					let frame = firstTick;
+					frame <= lastFrame;
+					frame += minorTickEvery.interval
+				) {
+					if (frame % (tickScale.labelEverySeconds * fps) === 0) {
+						continue;
+					}
+
+					drawTick(
+						frame,
+						(Number.isInteger(fps) && frame % fps === 0) ||
+							(mediumTickEvery?.unit === 'frames' &&
+								frame % mediumTickEvery.interval === 0)
+							? 5
+							: 2,
+					);
+				}
+			}
+
+			if (minorTickEvery?.unit === 'seconds') {
+				const firstSecond =
+					Math.ceil(firstFrame / fps / minorTickEvery.interval) *
+					minorTickEvery.interval;
+				for (
+					let second = firstSecond;
+					second < seconds && second * fps <= lastFrame;
+					second += minorTickEvery.interval
+				) {
+					if (second % tickScale.labelEverySeconds === 0) {
+						continue;
+					}
+
+					drawTick(
+						second * fps,
+						mediumTickEvery?.unit === 'seconds' &&
+							second % mediumTickEvery.interval === 0
+							? 5
+							: 2,
+					);
+				}
+			}
+		};
 
 		const onScroll = () => {
-			currentRef.style.top = current.scrollTop + 'px';
+			draw();
 		};
 
-		current.addEventListener('scroll', onScroll);
+		const resizeObserver = new ResizeObserver(draw);
+
+		draw();
+		scrollable.addEventListener('scroll', onScroll);
+		resizeObserver.observe(scrollable);
 		return () => {
-			current.removeEventListener('scroll', onScroll);
+			scrollable.removeEventListener('scroll', onScroll);
+			resizeObserver.disconnect();
 		};
-	}, []);
+	}, [durationInFrames, fps, windowWidth]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -298,113 +401,9 @@ const TimelineTimeIndicatorsInner = React.memo<{
 		};
 	}, [windowWidth]);
 
-	const ticks: TimelineTick[] = useMemo(() => {
-		const frameInterval = getFrameIncrementFromWidth(
-			durationInFrames,
-			windowWidth,
-		);
-
-		const maxTickLabelWidth =
-			renderFrame(durationInFrames - 1, fps).length *
-			TICK_LABEL_FONT_SIZE *
-			0.6;
-		const minSpacingBetweenTickLabelsPx =
-			TICK_LABEL_MARGIN_LEFT + maxTickLabelWidth + TICK_LABEL_MIN_GAP;
-
-		const seconds = Math.floor(durationInFrames / fps);
-		const rawSecondMarkerEveryNth =
-			minSpacingBetweenTickLabelsPx / (frameInterval * fps);
-		const tickScale = getTimelineTickScale({
-			fps,
-			frameInterval,
-			rawSecondMarkerEveryNth,
-		});
-
-		// Labeled ticks use human-friendly time intervals.
-		const secondTicks: TimelineTick[] = [];
-		for (let index = 0; index < seconds; index += tickScale.labelEverySeconds) {
-			secondTicks.push({
-				frame: index * fps,
-				style: {
-					...secondTick,
-					left: frameInterval * index * fps + TIMELINE_PADDING,
-				},
-				showTime: index > 0,
-			});
-		}
-
-		const hasSecondTick = new Set(secondTicks.map((t) => t.frame));
-		const subdivisionTicks: TimelineTick[] = [];
-		const {minorTickEvery, mediumTickEvery} = tickScale;
-
-		if (minorTickEvery?.unit === 'frames') {
-			for (
-				let frame = 0;
-				frame < durationInFrames;
-				frame += minorTickEvery.interval
-			) {
-				if (hasSecondTick.has(frame)) {
-					continue;
-				}
-
-				subdivisionTicks.push({
-					frame,
-					style: {
-						...tick,
-						left: frameInterval * frame + TIMELINE_PADDING,
-						height:
-							(Number.isInteger(fps) && frame % fps === 0) ||
-							(mediumTickEvery?.unit === 'frames' &&
-								frame % mediumTickEvery.interval === 0)
-								? 5
-								: 2,
-					},
-					showTime: false,
-				});
-			}
-		}
-
-		if (minorTickEvery?.unit === 'seconds') {
-			for (
-				let second = 0;
-				second < seconds;
-				second += minorTickEvery.interval
-			) {
-				const frame = second * fps;
-				if (hasSecondTick.has(frame)) {
-					continue;
-				}
-
-				subdivisionTicks.push({
-					frame,
-					style: {
-						...tick,
-						left: frameInterval * frame + TIMELINE_PADDING,
-						height:
-							mediumTickEvery?.unit === 'seconds' &&
-							second % mediumTickEvery.interval === 0
-								? 5
-								: 2,
-					},
-					showTime: false,
-				});
-			}
-		}
-
-		return [...secondTicks, ...subdivisionTicks];
-	}, [durationInFrames, fps, windowWidth]);
-
 	return (
-		<div ref={ref} style={style}>
-			{ticks.map((t) => {
-				return (
-					<div key={t.frame} style={t.style}>
-						{t.showTime ? (
-							<div style={tickLabel}>{renderFrame(t.frame, fps)}</div>
-						) : null}
-					</div>
-				);
-			})}
+		<div style={style}>
+			<canvas ref={canvasRef} style={{position: 'absolute', top: 0, left: 0}} />
 		</div>
 	);
 });
