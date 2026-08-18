@@ -93,5 +93,10 @@ export const createTikTokStyleCaptions = ({
 		}
 	});
 
+	const lastPage = tikTokStyleCaptions[tikTokStyleCaptions.length - 1];
+	if (lastPage && lastPage.durationMs === Infinity) {
+		lastPage.durationMs = currentTo - lastPage.startMs;
+	}
+
 	return {pages: tikTokStyleCaptions};
 };
