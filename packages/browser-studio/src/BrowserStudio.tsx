@@ -1,3 +1,4 @@
+import type {RenderDefaults} from '@remotion/studio-shared';
 import {studioHtml} from '@remotion/studio-shared/studio-html';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -74,6 +75,56 @@ const errorStyle: React.CSSProperties = {
 	overflow: 'auto',
 	textAlign: 'left',
 	whiteSpace: 'pre-wrap',
+};
+
+const getBrowserRenderDefaults = (): RenderDefaults => {
+	const maxConcurrency = navigator.hardwareConcurrency || 1;
+
+	return {
+		audioBitrate: null,
+		audioCodec: null,
+		beepOnFinish: false,
+		chromeMode: 'headless-shell',
+		codec: 'h264',
+		colorSpace: 'default',
+		concurrency: Math.round(Math.min(8, Math.max(1, maxConcurrency / 2))),
+		darkMode: false,
+		delayRenderTimeout: 30_000,
+		disableWebSecurity: false,
+		encodingBufferSize: null,
+		encodingMaxRate: null,
+		enforceAudioTrack: false,
+		everyNthFrame: 1,
+		forSeamlessAacConcatenation: false,
+		gopSize: null,
+		hardwareAcceleration: 'disable',
+		headless: true,
+		ignoreCertificateErrors: false,
+		jpegQuality: 80,
+		logLevel: 'info',
+		maxConcurrency,
+		mediaCacheSizeInBytes: null,
+		metadata: null,
+		minConcurrency: 1,
+		multiProcessOnLinux: true,
+		muted: false,
+		numberOfGifLoops: null,
+		offthreadVideoCacheSizeInBytes: null,
+		offthreadVideoThreads: null,
+		openGlRenderer: null,
+		outputLocation: null,
+		pixelFormat: 'yuv420p',
+		proResProfile: null,
+		publicLicenseKey: null,
+		repro: false,
+		sampleRate: 48_000,
+		scale: 1,
+		stillImageFormat: 'png',
+		userAgent: null,
+		videoBitrate: null,
+		videoImageFormat: 'jpeg',
+		x264Preset: 'medium',
+	};
 };
 
 export const BrowserStudio: React.FC<BrowserStudioProps> = ({
@@ -274,7 +325,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				publicPath: '',
 				readOnlyStudio: readOnly,
 				remotionRoot: currentProject.rootDir,
-				renderDefaults: undefined,
+				renderDefaults: getBrowserRenderDefaults(),
 				renderQueue: [],
 				sampleRate: null,
 				staticHash: '',
