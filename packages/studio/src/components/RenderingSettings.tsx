@@ -70,7 +70,6 @@ export const RenderingSettings: React.FC = () => {
 	const [crf, setCrf] = useState(18);
 	const [videoBitrate, setVideoBitrate] = useState('1M');
 	const [audioCodec, setAudioCodec] = useState<AudioCodec | null>(null);
-	const [audioBitrate, setAudioBitrate] = useState('');
 	const [concurrency, setConcurrency] = useState(1);
 	const [editedSetters, setEditedSetters] = useState<Set<string>>(
 		() => new Set(),
@@ -103,7 +102,6 @@ export const RenderingSettings: React.FC = () => {
 		);
 		setVideoBitrate(renderDefaults.videoBitrate ?? '1M');
 		setAudioCodec(renderDefaults.audioCodec);
-		setAudioBitrate(renderDefaults.audioBitrate ?? '');
 		setConcurrency(renderDefaults.concurrency);
 		setEditedSetters(new Set());
 		setSyncedRevision(revision);
@@ -391,19 +389,11 @@ export const RenderingSettings: React.FC = () => {
 			audioCodec === null
 				? {setter: 'setAudioCodec', type: 'delete'}
 				: {setter: 'setAudioCodec', type: 'set', value: audioCodec},
-			audioBitrate.trim() === ''
-				? {setter: 'setAudioBitrate', type: 'delete'}
-				: {
-						setter: 'setAudioBitrate',
-						type: 'set',
-						value: audioBitrate.trim(),
-					},
 			{setter: 'setConcurrency', type: 'set', value: concurrency},
 		];
 
 		return allUpdates.filter((update) => editedSetters.has(update.setter));
 	}, [
-		audioBitrate,
 		audioCodec,
 		codec,
 		concurrency,
@@ -427,14 +417,6 @@ export const RenderingSettings: React.FC = () => {
 		syncRevision: syncedRevision,
 		updates,
 	});
-
-	const onAudioBitrateChange: React.ChangeEventHandler<HTMLInputElement> = (
-		event,
-	) => {
-		setAudioBitrate(event.target.value);
-	};
-
-	const onAudioBitrateBlur = () => markEdited('setAudioBitrate');
 
 	const onVideoBitrateChange: React.ChangeEventHandler<HTMLInputElement> = (
 		event,
@@ -491,7 +473,6 @@ export const RenderingSettings: React.FC = () => {
 					/>
 				</div>
 			</div>
-
 			<RenderModalHr />
 			<p style={dividerLabel}>Encoding</p>
 			{BrowserSafeApis.codecSupportsCrf(resolvedCodec) &&
@@ -567,21 +548,6 @@ export const RenderingSettings: React.FC = () => {
 					/>
 				</div>
 			</div>
-			<div style={optionRow}>
-				<div style={label}>Audio bitrate</div>
-				<div style={rightRow}>
-					<RemotionInput
-						placeholder="Automatic"
-						style={{...input, ...fullWidth}}
-						value={audioBitrate}
-						onChange={onAudioBitrateChange}
-						onBlur={onAudioBitrateBlur}
-						status="ok"
-						rightAlign
-					/>
-				</div>
-			</div>
-
 			<RenderModalHr />
 			<p style={dividerLabel}>Performance</p>
 			<NumberSetting

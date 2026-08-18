@@ -587,6 +587,9 @@ test.describe('visual mode', () => {
 			await expect(
 				dialog.getByText('Output location', {exact: true}),
 			).toHaveCount(0);
+			await expect(
+				dialog.getByText('Audio bitrate', {exact: true}),
+			).toHaveCount(0);
 			const stillImageFormat = dialog.getByTitle('Still image format', {
 				exact: true,
 			});
