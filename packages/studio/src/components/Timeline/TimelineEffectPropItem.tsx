@@ -79,12 +79,9 @@ const TimelineComputedEffectPropValue: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
-	readonly runtimeValueStore?: RuntimeValueStore;
+	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({field, nodePath, propStatus, runtimeValueStore}) => {
-	const runtimeValue = useRuntimeStoreValue(
-		runtimeValueStore ?? null,
-		field.key,
-	);
+	const runtimeValue = useRuntimeStoreValue(runtimeValueStore, field.key);
 
 	return (
 		<TimelineNonEditableStatus
@@ -102,7 +99,7 @@ export const TimelineEffectPropValue: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly sourceFrame: number;
-	readonly runtimeValueStore?: RuntimeValueStore;
+	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({field, nodePath, validatedLocation, sourceFrame, runtimeValueStore}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
@@ -301,11 +298,13 @@ export const TimelineEffectPropValue: React.FC<{
 		}
 
 		if (effectStatus.reason === 'not-call-expression') {
-			return <UnsupportedStatus label="not inline" />;
+			return <UnsupportedStatus label="not inline" formattedValue={false} />;
 		}
 
 		if (effectStatus.reason === 'not-found') {
-			return <UnsupportedStatus label="not found in code" />;
+			return (
+				<UnsupportedStatus label="not found in code" formattedValue={false} />
+			);
 		}
 
 		throw new Error(
@@ -315,11 +314,13 @@ export const TimelineEffectPropValue: React.FC<{
 
 	if (effectStatus.type === 'cannot-update-sequence') {
 		if (effectStatus.reason === 'not-found') {
-			return <UnsupportedStatus label="not found in code" />;
+			return (
+				<UnsupportedStatus label="not found in code" formattedValue={false} />
+			);
 		}
 
 		if (effectStatus.reason === 'error') {
-			return <UnsupportedStatus label="error" />;
+			return <UnsupportedStatus label="error" formattedValue={false} />;
 		}
 
 		throw new Error(
@@ -383,7 +384,7 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly keyframeDisplayOffset: number;
-	readonly runtimeValueStore?: RuntimeValueStore;
+	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
 	nodePath,
@@ -411,8 +412,8 @@ export const TimelineEffectPropItem: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
-	readonly runtimeValueStore?: RuntimeValueStore;
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
+	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
 	validatedLocation,
@@ -420,7 +421,7 @@ export const TimelineEffectPropItem: React.FC<{
 	nodePath,
 	nodePathInfo,
 	keyframeDisplayOffset,
-	keyframeControlsMode = 'timeline',
+	keyframeControlsMode,
 	runtimeValueStore,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);

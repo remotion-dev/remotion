@@ -406,8 +406,8 @@ export const TimelineSequencePropItem: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
-	readonly runtimeValue?: unknown;
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
+	readonly runtimeValue: unknown;
 }> = ({
 	field,
 	validatedLocation,
@@ -416,7 +416,7 @@ export const TimelineSequencePropItem: React.FC<{
 	nodePathInfo,
 	schema,
 	keyframeDisplayOffset,
-	keyframeControlsMode = 'timeline',
+	keyframeControlsMode,
 	runtimeValue,
 }) => {
 	const {propStatuses: visualModePropStatuses} = useContext(

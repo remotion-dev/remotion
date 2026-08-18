@@ -136,7 +136,7 @@ export type TSequence = {
 	controls: SequenceRegistrationControls | null;
 	refForOutline: React.RefObject<Element | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
-	effectRuntimeValues?: readonly RuntimeValueStore[];
+	effectRuntimeValues: readonly RuntimeValueStore[] | null;
 	isInsideSeries: boolean;
 	frozenFrame: number | null;
 	singleChildComponent?: unknown;

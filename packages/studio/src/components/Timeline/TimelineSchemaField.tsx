@@ -54,8 +54,8 @@ const fixLinkBase: React.CSSProperties = {
 export const UnsupportedStatus: React.FC<{
 	readonly label: React.ReactNode;
 	readonly fixHref?: string;
-	readonly formattedValue?: boolean;
-}> = ({label, fixHref, formattedValue = false}) => {
+	readonly formattedValue: boolean;
+}> = ({label, fixHref, formattedValue}) => {
 	const [hovered, setHovered] = React.useState(false);
 	const [focused, setFocused] = React.useState(false);
 	const visible = hovered || focused;

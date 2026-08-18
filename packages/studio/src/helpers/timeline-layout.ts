@@ -82,8 +82,8 @@ export type TimelineTreeNode =
 			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly label: string;
 			readonly field: AnySchemaFieldInfo | null;
-			readonly runtimeValue?: unknown;
-			readonly runtimeValueStore?: RuntimeValueStore;
+			readonly runtimeValue: unknown;
+			readonly runtimeValueStore: RuntimeValueStore | null;
 	  };
 
 export const buildTimelineTree = ({
@@ -139,6 +139,7 @@ export const buildTimelineTree = ({
 				label: f.description ?? f.key,
 				field: f,
 				runtimeValue: runtimeValues?.[f.key],
+				runtimeValueStore: null,
 			});
 		}
 	}
@@ -195,7 +196,8 @@ export const buildTimelineTree = ({
 							},
 							label: f.description ?? f.key,
 							field: f,
-							runtimeValueStore: sequence.effectRuntimeValues?.[i],
+							runtimeValue: null,
+							runtimeValueStore: sequence.effectRuntimeValues?.[i] ?? null,
 						}),
 					),
 				};

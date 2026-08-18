@@ -41,7 +41,10 @@ import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
-const EMPTY_EFFECT_RUNTIME_VALUES: readonly RuntimeValueStore[] = [];
+type EffectDefinitionsWithRuntimeValues =
+	readonly EffectDefinition<unknown>[] & {
+		readonly runtimeValues: readonly RuntimeValueStore[];
+	};
 
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
@@ -74,10 +77,7 @@ export type SequencePropsWithoutDuration = {
 	readonly showInTimeline?: boolean;
 	readonly hidden?: boolean;
 	readonly controls?: SequenceControls;
-	readonly _remotionInternalEffects?: readonly EffectDefinition<unknown>[] & {
-		readonly runtimeValues?: readonly RuntimeValueStore[];
-	};
-	readonly _remotionInternalEffectRuntimeValues?: readonly RuntimeValueStore[];
+	readonly _remotionInternalEffects?: readonly EffectDefinition<unknown>[];
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -150,7 +150,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		hidden = false,
 		controls,
 		_remotionInternalEffects,
-		_remotionInternalEffectRuntimeValues,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalDocumentationLink: documentationLink,
@@ -418,6 +417,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const controlsSupportsEffects = controls?.supportsEffects;
 	const controlsComponentIdentity = controls?.componentIdentity;
 	const controlsComponentName = controls?.componentName;
+	const effectRuntimeValues = useMemo(
+		() =>
+			(
+				_remotionInternalEffects as
+					| EffectDefinitionsWithRuntimeValues
+					| undefined
+			)?.runtimeValues ?? null,
+		[_remotionInternalEffects],
+	);
 	const registrationControls =
 		useMemo((): SequenceRegistrationControls | null => {
 			if (
@@ -459,10 +467,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					type: 'image',
 					controls: registrationControls,
 					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
-					effectRuntimeValues:
-						_remotionInternalEffectRuntimeValues ??
-						_remotionInternalEffects?.runtimeValues ??
-						EMPTY_EFFECT_RUNTIME_VALUES,
+					effectRuntimeValues,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
@@ -487,10 +492,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					type: isMedia.type,
 					controls: registrationControls,
 					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
-					effectRuntimeValues:
-						_remotionInternalEffectRuntimeValues ??
-						_remotionInternalEffects?.runtimeValues ??
-						EMPTY_EFFECT_RUNTIME_VALUES,
+					effectRuntimeValues,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					doesVolumeChange: isMedia.data.doesVolumeChange,
@@ -540,10 +542,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			postmountDisplay: postmountDisplay ?? null,
 			controls: registrationControls,
 			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
-			effectRuntimeValues:
-				_remotionInternalEffectRuntimeValues ??
-				_remotionInternalEffects?.runtimeValues ??
-				EMPTY_EFFECT_RUNTIME_VALUES,
+			effectRuntimeValues,
 			refForOutline: refForOutline ?? null,
 			isInsideSeries,
 			frozenFrame: registeredFrozenFrame,
@@ -572,7 +571,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		env.isStudio,
 		registrationControls,
 		_remotionInternalEffects,
-		_remotionInternalEffectRuntimeValues,
+		effectRuntimeValues,
 		isMedia,
 		resolvedDocumentationLink,
 		refForOutline,

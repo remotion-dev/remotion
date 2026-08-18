@@ -44,7 +44,7 @@ type TimelineExpandedRowProps = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
 };
 
 const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
