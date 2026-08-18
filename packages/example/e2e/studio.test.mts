@@ -611,6 +611,36 @@ test.describe('visual mode', () => {
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setStillImageFormat');
 			await expect(stillImageFormat).toHaveText('Remotion default (PNG)');
+			const audioCodec = dialog.getByTitle('Audio codec', {exact: true});
+			await expect(audioCodec).toHaveText('Remotion default (Automatic)');
+			await audioCodec.click();
+			const automaticAudioCodec = page
+				.getByRole('button', {
+					name: 'Remotion default (Automatic)',
+					exact: true,
+				})
+				.last();
+			const aacAudioCodec = page
+				.getByRole('button', {
+					name: 'AAC',
+					exact: true,
+				})
+				.last();
+			await expect(automaticAudioCodec.getByRole('img')).toHaveCount(1);
+			await expect(aacAudioCodec.getByRole('img')).toHaveCount(0);
+			await aacAudioCodec.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain("Config.setAudioCodec('aac');");
+			await expect(audioCodec).toHaveText('AAC');
+			await audioCodec.click();
+			await expect(automaticAudioCodec.getByRole('img')).toHaveCount(0);
+			await expect(aacAudioCodec.getByRole('img')).toHaveCount(1);
+			await automaticAudioCodec.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setAudioCodec');
+			await expect(audioCodec).toHaveText('Remotion default (Automatic)');
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(
 				dialog.getByTitle('Default editor', {exact: true}),
