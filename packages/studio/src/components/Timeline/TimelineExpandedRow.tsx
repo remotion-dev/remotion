@@ -139,7 +139,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 					keyframeControlsMode={keyframeControlsMode}
-					runtimeValue={node.runtimeValue}
+					runtimeValueStore={node.runtimeValueStore}
 				/>
 			);
 		}

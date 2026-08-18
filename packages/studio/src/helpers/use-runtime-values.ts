@@ -22,7 +22,14 @@ export const useRuntimeValue = (
 	controls: SequenceRegistrationControls | null,
 	key: string,
 ): unknown => {
-	const store = controls?.runtimeValues ?? EMPTY_RUNTIME_VALUE_STORE;
+	return useRuntimeStoreValue(controls?.runtimeValues ?? null, key);
+};
+
+export const useRuntimeStoreValue = (
+	storeOrNull: RuntimeValueStore | null,
+	key: string,
+): unknown => {
+	const store = storeOrNull ?? EMPTY_RUNTIME_VALUE_STORE;
 	const getSnapshot = useCallback(() => store.getSnapshot()[key], [key, store]);
 
 	return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
@@ -103,35 +110,6 @@ export const useRuntimeValueSnapshots = (
 						unsubscribe();
 					}
 				};
-			},
-		};
-	}, [stores]);
-
-	return useSyncExternalStore(
-		aggregateStore.subscribe,
-		aggregateStore.getSnapshot,
-		aggregateStore.getSnapshot,
-	);
-};
-
-export const useRuntimeStores = (
-	stores: readonly RuntimeValueStore[],
-): readonly Readonly<Record<string, unknown>>[] => {
-	const aggregateStore = useMemo(() => {
-		let snapshots = stores.map((store) => store.getSnapshot());
-		return {
-			getSnapshot: () => {
-				const next = stores.map((store) => store.getSnapshot());
-				if (next.every((snapshot, index) => snapshot === snapshots[index])) {
-					return snapshots;
-				}
-
-				snapshots = next;
-				return snapshots;
-			},
-			subscribe: (listener: () => void) => {
-				const unsubscribers = stores.map((store) => store.subscribe(listener));
-				return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
 			},
 		};
 	}, [stores]);

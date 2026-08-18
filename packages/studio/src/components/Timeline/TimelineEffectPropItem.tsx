@@ -6,7 +6,9 @@ import {
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	RuntimeValueStore,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -15,6 +17,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
+import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -72,13 +75,35 @@ const isResettableStatus = ({
 	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
 };
 
+const TimelineComputedEffectPropValue: React.FC<{
+	readonly field: EffectSchemaFieldInfo;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly propStatus: CanUpdateSequencePropStatusFalse;
+	readonly runtimeValueStore?: RuntimeValueStore;
+}> = ({field, nodePath, propStatus, runtimeValueStore}) => {
+	const runtimeValue = useRuntimeStoreValue(
+		runtimeValueStore ?? null,
+		field.key,
+	);
+
+	return (
+		<TimelineNonEditableStatus
+			propStatus={propStatus}
+			field={field}
+			runtimeValue={runtimeValue}
+			scaleLockNodePath={nodePath}
+			fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+		/>
+	);
+};
+
 export const TimelineEffectPropValue: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly sourceFrame: number;
-	readonly runtimeValue?: unknown;
-}> = ({field, nodePath, validatedLocation, sourceFrame, runtimeValue}) => {
+	readonly runtimeValueStore?: RuntimeValueStore;
+}> = ({field, nodePath, validatedLocation, sourceFrame, runtimeValueStore}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
 
@@ -266,12 +291,11 @@ export const TimelineEffectPropValue: React.FC<{
 	if (effectStatus.type === 'cannot-update-effect') {
 		if (effectStatus.reason === 'computed') {
 			return (
-				<TimelineNonEditableStatus
+				<TimelineComputedEffectPropValue
 					propStatus={{status: 'computed'}}
 					field={field}
-					runtimeValue={runtimeValue}
-					scaleLockNodePath={nodePath}
-					fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+					runtimeValueStore={runtimeValueStore}
+					nodePath={nodePath}
 				/>
 			);
 		}
@@ -324,12 +348,11 @@ export const TimelineEffectPropValue: React.FC<{
 
 	if (propStatus.status === 'computed') {
 		return (
-			<TimelineNonEditableStatus
+			<TimelineComputedEffectPropValue
 				propStatus={propStatus}
 				field={field}
-				runtimeValue={runtimeValue}
-				scaleLockNodePath={nodePath}
-				fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+				runtimeValueStore={runtimeValueStore}
+				nodePath={nodePath}
 			/>
 		);
 	}
@@ -360,13 +383,13 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly keyframeDisplayOffset: number;
-	readonly runtimeValue?: unknown;
+	readonly runtimeValueStore?: RuntimeValueStore;
 }> = ({
 	field,
 	nodePath,
 	validatedLocation,
 	keyframeDisplayOffset,
-	runtimeValue,
+	runtimeValueStore,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 
@@ -376,7 +399,7 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 			nodePath={nodePath}
 			validatedLocation={validatedLocation}
 			sourceFrame={timelinePosition - keyframeDisplayOffset}
-			runtimeValue={runtimeValue}
+			runtimeValueStore={runtimeValueStore}
 		/>
 	);
 };
@@ -389,7 +412,7 @@ export const TimelineEffectPropItem: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
 	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
-	readonly runtimeValue?: unknown;
+	readonly runtimeValueStore?: RuntimeValueStore;
 }> = ({
 	field,
 	validatedLocation,
@@ -398,7 +421,7 @@ export const TimelineEffectPropItem: React.FC<{
 	nodePathInfo,
 	keyframeDisplayOffset,
 	keyframeControlsMode = 'timeline',
-	runtimeValue,
+	runtimeValueStore,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
@@ -592,7 +615,7 @@ export const TimelineEffectPropItem: React.FC<{
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					keyframeDisplayOffset={resolvedKeyframeDisplayOffset}
-					runtimeValue={runtimeValue}
+					runtimeValueStore={runtimeValueStore}
 				/>
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>

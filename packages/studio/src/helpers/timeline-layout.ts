@@ -16,6 +16,7 @@ import type {
 	GetDragOverrides,
 	GetEffectDragOverrides,
 	InteractivitySchema as InteractivitySchemaShape,
+	RuntimeValueStore,
 	TSequence,
 } from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
@@ -82,6 +83,7 @@ export type TimelineTreeNode =
 			readonly label: string;
 			readonly field: AnySchemaFieldInfo | null;
 			readonly runtimeValue?: unknown;
+			readonly runtimeValueStore?: RuntimeValueStore;
 	  };
 
 export const buildTimelineTree = ({
@@ -93,7 +95,6 @@ export const buildTimelineTree = ({
 	includeTextContent,
 	includeSourceControls,
 	runtimeValues,
-	effectRuntimeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
@@ -103,7 +104,6 @@ export const buildTimelineTree = ({
 	includeTextContent: boolean;
 	includeSourceControls: boolean;
 	runtimeValues: Readonly<Record<string, unknown>> | null;
-	effectRuntimeValues?: readonly Readonly<Record<string, unknown>>[];
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
@@ -156,10 +156,6 @@ export const buildTimelineTree = ({
 			label: 'Effects',
 			effectInfo: null,
 			children: sequence.effects.map((effect, i): TimelineTreeNode => {
-				const currentEffectRuntimeValues =
-					effectRuntimeValues?.[i] ??
-					sequence.effectRuntimeValues?.[i]?.getSnapshot() ??
-					{};
 				const effectFields = getEffectFieldsToShow({
 					effect,
 					effectIndex: i,
@@ -199,7 +195,7 @@ export const buildTimelineTree = ({
 							},
 							label: f.description ?? f.key,
 							field: f,
-							runtimeValue: currentEffectRuntimeValues[f.key],
+							runtimeValueStore: sequence.effectRuntimeValues?.[i],
 						}),
 					),
 				};

@@ -1,11 +1,10 @@
 import {useCallback, useContext, useMemo} from 'react';
-import {Internals, type RuntimeValueStore, type TSequence} from 'remotion';
+import {Internals, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {buildTimelineTree} from '../../helpers/timeline-layout';
 import {
 	useRuntimeValues,
 	useRuntimeValueSelector,
-	useRuntimeStores,
 } from '../../helpers/use-runtime-values';
 import {
 	ExpandedTracksGetterContext,
@@ -18,8 +17,6 @@ import {
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
 import {useTimelineSelection} from './TimelineSelection';
-
-const EMPTY_EFFECT_RUNTIME_VALUES: readonly RuntimeValueStore[] = [];
 
 export const useTimelineSequenceHasExpandableContent = ({
 	sequence,
@@ -107,9 +104,6 @@ export const useTimelineExpandedTree = ({
 	);
 	const {selectedItems} = useTimelineSelection();
 	const runtimeValues = useRuntimeValues(sequence.controls);
-	const effectRuntimeValues = useRuntimeStores(
-		sequence.effectRuntimeValues ?? EMPTY_EFFECT_RUNTIME_VALUES,
-	);
 
 	const tree = useMemo(
 		() =>
@@ -122,7 +116,6 @@ export const useTimelineExpandedTree = ({
 				includeTextContent,
 				includeSourceControls,
 				runtimeValues,
-				effectRuntimeValues,
 			}),
 		[
 			sequence,
@@ -133,7 +126,6 @@ export const useTimelineExpandedTree = ({
 			includeTextContent,
 			includeSourceControls,
 			runtimeValues,
-			effectRuntimeValues,
 		],
 	);
 	const selectedRowKeys = useMemo(
