@@ -48,6 +48,11 @@ test('loads the Browser Studio canvas and enables Visual Mode', async ({
 			).toBeVisible();
 
 			await studio.locator('[data-compname="MyComp"]').click();
+			await studio.getByRole('button', {name: 'Render on web'}).click();
+			await expect(
+				studio.getByText('Input Props', {exact: true}),
+			).toBeVisible();
+			await page.keyboard.press('Escape');
 			await studio.locator('[data-sidebar-toggle="right"]').click();
 			await expect(
 				studio.getByRole('button', {name: 'Inspector'}),
