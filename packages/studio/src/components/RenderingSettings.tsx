@@ -220,7 +220,7 @@ export const RenderingSettings: React.FC = () => {
 		{
 			id: REMOTION_DEFAULT,
 			keyHint: null,
-			label: `Remotion default (${labelValue})`,
+			label: `Default (${labelValue})`,
 			leftItem: selected ? <Checkmark /> : null,
 			onClick,
 			quickSwitcherLabel: null,

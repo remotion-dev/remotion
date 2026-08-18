@@ -593,7 +593,7 @@ test.describe('visual mode', () => {
 			const stillImageFormat = dialog.getByTitle('Still image format', {
 				exact: true,
 			});
-			await expect(stillImageFormat).toHaveText('Remotion default (PNG)');
+			await expect(stillImageFormat).toHaveText('Default (PNG)');
 			await stillImageFormat.click();
 			await page.getByRole('button', {name: 'JPEG', exact: true}).click();
 			await expect
@@ -603,20 +603,20 @@ test.describe('visual mode', () => {
 			await stillImageFormat.click();
 			await page
 				.getByRole('button', {
-					name: 'Remotion default (PNG)',
+					name: 'Default (PNG)',
 					exact: true,
 				})
 				.click();
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setStillImageFormat');
-			await expect(stillImageFormat).toHaveText('Remotion default (PNG)');
+			await expect(stillImageFormat).toHaveText('Default (PNG)');
 			const audioCodec = dialog.getByTitle('Audio codec', {exact: true});
-			await expect(audioCodec).toHaveText('Remotion default (Automatic)');
+			await expect(audioCodec).toHaveText('Default (Automatic)');
 			await audioCodec.click();
 			const automaticAudioCodec = page
 				.getByRole('button', {
-					name: 'Remotion default (Automatic)',
+					name: 'Default (Automatic)',
 					exact: true,
 				})
 				.last();
@@ -640,7 +640,7 @@ test.describe('visual mode', () => {
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setAudioCodec');
-			await expect(audioCodec).toHaveText('Remotion default (Automatic)');
+			await expect(audioCodec).toHaveText('Default (Automatic)');
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(
 				dialog.getByTitle('Default editor', {exact: true}),
