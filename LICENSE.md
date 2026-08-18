@@ -42,6 +42,10 @@ Support is provided on a best-we-can-do basis via GitHub Issues and Discord.
 
 You are required to obtain a Company License to use Remotion if you are not within the group of entities eligible for a Free License. This license will enable you to use Remotion for the allowed use cases specified in the Free License, and give you access to prioritized support (read the [Support Policy](https://www.remotion.dev/docs/support)).
 
+### Third-party patent rights
+
+A Company License grants only the rights to Remotion provided under these terms. It does not grant any license to third-party patents or other intellectual property rights, including patents that may be essential to the H.264/AVC video coding standard. Any third-party licenses, royalties, or other fees required for your use, encoding, distribution, or other exploitation of H.264/AVC are not included in the Company License and are your sole responsibility.
+
 Visit [remotion.pro](https://www.remotion.pro/license) for pricing and to buy a license.
 
 ### FAQs
