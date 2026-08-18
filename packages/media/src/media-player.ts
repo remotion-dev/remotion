@@ -17,6 +17,7 @@ import {
 	getScheduledTime,
 	getTrimStartForAudioNode,
 } from './audio/get-scheduled-time';
+import {processNext} from './audio/sort-by-priority';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getDurationOrCompute} from './get-duration-or-compute';
 import {acquireSharedInput, releaseSharedInput} from './get-shared-input';
@@ -639,10 +640,12 @@ export class MediaPlayer {
 
 	public setIsPremounting(isPremounting: boolean): void {
 		this.premountAwareDelayPlayback.setIsPremounting(isPremounting);
+		processNext();
 	}
 
 	public setIsPostmounting(isPostmounting: boolean): void {
 		this.premountAwareDelayPlayback.setIsPostmounting(isPostmounting);
+		processNext();
 	}
 
 	public async setLoop(
