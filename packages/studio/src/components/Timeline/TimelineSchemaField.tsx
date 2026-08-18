@@ -88,7 +88,6 @@ export const UnsupportedStatus: React.FC<{
 		>
 			<span
 				style={formattedValue ? computedValue : unsupportedLabel}
-				className={formattedValue ? '__remotion_computed_value' : undefined}
 				inert={formattedValue}
 			>
 				{label}

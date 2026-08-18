@@ -7,7 +7,6 @@ import {
 	FOCUS_BOX_SHADOW,
 	TRANSPARENT,
 	WHITE,
-	WHITE_ALPHA_40,
 } from './colors';
 import {makeHoverableCSS} from './hoverable';
 
@@ -155,11 +154,6 @@ const makeDefaultGlobalCSS = () => {
 
 	.__remotion_input_dragger:hover > span:first-child {
     color: var(--remotion-cli-internals-blue-hovered) !important;
-  }
-
-  .__remotion_computed_value,
-  .__remotion_computed_value * {
-    color: ${WHITE_ALPHA_40} !important;
   }
 
   .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {
