@@ -177,6 +177,14 @@ declare global {
 			element: Element | ElementImage,
 			drawTransform: DOMMatrix,
 		): DOMMatrix;
+		/**
+		 * A readable copy of the last frame painted onto this canvas's
+		 * transferred `OffscreenCanvas`, maintained by `<HtmlInCanvas>` during
+		 * client-side rendering. A canvas whose control has been transferred
+		 * yields transparent pixels to `drawImage()`, so software composition
+		 * (e.g. `@remotion/web-renderer`) reads this copy instead.
+		 */
+		__remotionRenderReadback?: OffscreenCanvas;
 	}
 }
 
@@ -190,6 +198,14 @@ export type HtmlInCanvasOnPaintParams = {
 	readonly elementImage: ElementImage;
 	readonly pixelDensity: number;
 };
+
+// Readable shadow canvases holding the latest painted frame of each
+// transferred placeholder canvas, for software composition during
+// client-side rendering. See `__remotionRenderReadback`.
+const renderReadbackCanvases = new WeakMap<
+	HTMLCanvasElement,
+	OffscreenCanvas
+>();
 
 // Memoize the support check across the session — neither the platform
 // capability nor the chrome://flags toggle can change between calls.
@@ -598,6 +614,39 @@ const HtmlInCanvasContent = forwardRef<
 					elImage.close();
 				}
 
+				// A placeholder canvas whose control was transferred yields
+				// transparent pixels to drawImage(), so software composition used
+				// for client-side rendering cannot see onPaint/onInit output.
+				// Blit the painted frame into a readable shadow canvas in the same
+				// task (before a WebGL drawing buffer can be discarded) and expose
+				// it for the compositor to pick up instead of the placeholder.
+				if (
+					isRendering &&
+					isClientSideRendering &&
+					typeof OffscreenCanvas !== 'undefined' &&
+					!(paintTarget instanceof HTMLCanvasElement)
+				) {
+					let readback = renderReadbackCanvases.get(placeholderCanvas);
+					if (
+						!readback ||
+						readback.width !== paintTarget.width ||
+						readback.height !== paintTarget.height
+					) {
+						readback = new OffscreenCanvas(
+							paintTarget.width,
+							paintTarget.height,
+						);
+						renderReadbackCanvases.set(placeholderCanvas, readback);
+						placeholderCanvas.__remotionRenderReadback = readback;
+					}
+
+					const readbackCtx = readback.getContext('2d');
+					if (readbackCtx) {
+						readbackCtx.reset();
+						readbackCtx.drawImage(paintTarget, 0, 0);
+					}
+				}
+
 				// Effects may complete after Chromium has dispatched the parent's
 				// paint event. Repaint the direct parent so deeply nested canvases
 				// propagate their final pixels through every ancestor.
@@ -616,6 +665,8 @@ const HtmlInCanvasContent = forwardRef<
 			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
+			isRendering,
+			isClientSideRendering,
 		]);
 
 		// Default paint handlers draw synchronously on the layout canvas itself so

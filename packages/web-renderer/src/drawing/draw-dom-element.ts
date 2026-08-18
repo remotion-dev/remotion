@@ -68,7 +68,7 @@ const drawReplacedElement = ({
 	computedStyle,
 	contextToDraw,
 }: {
-	drawable: HTMLImageElement | HTMLCanvasElement;
+	drawable: HTMLImageElement | HTMLCanvasElement | OffscreenCanvas;
 	dimensions: DOMRect;
 	computedStyle: CSSStyleDeclaration;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
@@ -183,7 +183,14 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 		if (node instanceof HTMLImageElement || node instanceof HTMLCanvasElement) {
 			try {
 				drawReplacedElement({
-					drawable: node,
+					// A canvas whose control was transferred to an OffscreenCanvas
+					// reads back as transparent. <HtmlInCanvas> exposes a readable
+					// shadow copy of the last painted frame during client-side
+					// rendering — prefer it when present.
+					drawable:
+						node instanceof HTMLCanvasElement && node.__remotionRenderReadback
+							? node.__remotionRenderReadback
+							: node,
 					dimensions,
 					computedStyle,
 					contextToDraw,

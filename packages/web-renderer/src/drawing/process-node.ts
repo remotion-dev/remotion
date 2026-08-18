@@ -270,5 +270,15 @@ export const processNode = async ({
 		scale,
 	});
 
+	// A layout-subtree canvas (<HtmlInCanvas>) already contains its painted
+	// output (including onPaint/onInit WebGL effects) as a readable bitmap,
+	// drawn above via drawImage. Its DOM children are layout-only and
+	// invisible in the browser; re-rasterizing them would paint crisp HTML
+	// on top of the canvas output, so skip them.
+	if (element instanceof HTMLCanvasElement && element.layoutSubtree === true) {
+		cleanupAfterChildren?.();
+		return {type: 'skip-children'};
+	}
+
 	return {type: 'continue', cleanupAfterChildren};
 };
