@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useSyncExternalStore} from 'react';
-import type {SequenceRegistrationControls} from 'remotion';
+import type {RuntimeValueStore, SequenceRegistrationControls} from 'remotion';
 
 const EMPTY_RUNTIME_VALUES: Readonly<Record<string, unknown>> = {};
 const EMPTY_RUNTIME_VALUE_STORE = {
@@ -103,6 +103,35 @@ export const useRuntimeValueSnapshots = (
 						unsubscribe();
 					}
 				};
+			},
+		};
+	}, [stores]);
+
+	return useSyncExternalStore(
+		aggregateStore.subscribe,
+		aggregateStore.getSnapshot,
+		aggregateStore.getSnapshot,
+	);
+};
+
+export const useRuntimeStores = (
+	stores: readonly RuntimeValueStore[],
+): readonly Readonly<Record<string, unknown>>[] => {
+	const aggregateStore = useMemo(() => {
+		let snapshots = stores.map((store) => store.getSnapshot());
+		return {
+			getSnapshot: () => {
+				const next = stores.map((store) => store.getSnapshot());
+				if (next.every((snapshot, index) => snapshot === snapshots[index])) {
+					return snapshots;
+				}
+
+				snapshots = next;
+				return snapshots;
+			},
+			subscribe: (listener: () => void) => {
+				const unsubscribers = stores.map((store) => store.subscribe(listener));
+				return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
 			},
 		};
 	}, [stores]);

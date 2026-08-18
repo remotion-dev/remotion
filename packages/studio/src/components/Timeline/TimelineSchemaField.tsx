@@ -10,7 +10,6 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
-import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {TimelineArrayField} from './TimelineArrayField';
 import {
 	isTimelinePrimitiveFieldInfo,
@@ -19,8 +18,6 @@ import {
 
 const INTERACTIVITY_BEST_PRACTICES_DOCS =
 	'https://www.remotion.dev/docs/studio/interactivity-best-practices';
-
-const TIMELINE_COMPUTED_VALUE_FIX_LINK = `${INTERACTIVITY_BEST_PRACTICES_DOCS}#keep-editable-values-visible`;
 
 export const TIMELINE_COMPUTED_EFFECT_FIX_LINK = `${INTERACTIVITY_BEST_PRACTICES_DOCS}#keep-effects-editable`;
 
@@ -38,6 +35,11 @@ const unsupportedLabel: React.CSSProperties = {
 	fontStyle: 'italic',
 };
 
+const computedValue: React.CSSProperties = {
+	color: WHITE_ALPHA_40,
+	pointerEvents: 'none',
+};
+
 const fixLinkBase: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	display: 'inline-block',
@@ -50,9 +52,10 @@ const fixLinkBase: React.CSSProperties = {
 };
 
 export const UnsupportedStatus: React.FC<{
-	readonly label: string;
+	readonly label: React.ReactNode;
 	readonly fixHref?: string;
-}> = ({label, fixHref}) => {
+	readonly formattedValue?: boolean;
+}> = ({label, fixHref, formattedValue = false}) => {
 	const [hovered, setHovered] = React.useState(false);
 	const [focused, setFocused] = React.useState(false);
 	const visible = hovered || focused;
@@ -83,7 +86,13 @@ export const UnsupportedStatus: React.FC<{
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
 		>
-			<span style={unsupportedLabel}>{label}</span>
+			<span
+				style={formattedValue ? computedValue : unsupportedLabel}
+				className={formattedValue ? '__remotion_computed_value' : undefined}
+				inert={formattedValue}
+			>
+				{label}
+			</span>
 			{fixHref ? (
 				<a
 					href={fixHref}
@@ -107,12 +116,31 @@ export const UnsupportedStatus: React.FC<{
 
 export const TimelineNonEditableStatus: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
-}> = ({propStatus}) => {
+	readonly field: SchemaFieldInfo;
+	readonly runtimeValue: unknown;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
+	readonly fixHref: string;
+}> = ({propStatus, field, runtimeValue, scaleLockNodePath, fixHref}) => {
 	if (propStatus.status === 'computed') {
 		return (
 			<UnsupportedStatus
-				label={getComputedStatusLabel(propStatus)}
-				fixHref={TIMELINE_COMPUTED_VALUE_FIX_LINK}
+				label={
+					<TimelineFieldValue
+						field={field}
+						onSave={() => Promise.resolve()}
+						onDragValueChange={() => undefined}
+						onDragEnd={() => undefined}
+						propStatus={{
+							status: 'static',
+							codeValue: runtimeValue,
+							keyframeDisplayOffsetAdjustment: null,
+						}}
+						effectiveValue={runtimeValue}
+						scaleLockNodePath={scaleLockNodePath}
+					/>
+				}
+				fixHref={fixHref}
+				formattedValue
 			/>
 		);
 	}

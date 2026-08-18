@@ -1,19 +1,4 @@
-import type {
-	CanUpdateSequencePropStatus,
-	CanUpdateSequencePropStatusFalse,
-} from 'remotion';
-
-export const getComputedStatusLabel: (
-	propStatus: CanUpdateSequencePropStatusFalse,
-) => string = (propStatus) => {
-	if (propStatus.status === 'computed') {
-		return 'computed';
-	}
-
-	throw new Error(
-		`Unsupported prop status: ${propStatus.status satisfies never}`,
-	);
-};
+import type {CanUpdateSequencePropStatus} from 'remotion';
 
 export const getTimelineKeyframes = (
 	propStatus: CanUpdateSequencePropStatus | null | undefined,

@@ -22,6 +22,7 @@ import {
 	sequenceSchemaWithoutFrom,
 } from './interactivity-schema.js';
 import {useNonce} from './nonce.js';
+import type {RuntimeValueStore} from './runtime-value-store.js';
 import {
 	getSequenceCropClipPath,
 	resolveSequenceCrop,
@@ -40,6 +41,7 @@ import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
+const EMPTY_EFFECT_RUNTIME_VALUES: readonly RuntimeValueStore[] = [];
 
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
@@ -72,7 +74,10 @@ export type SequencePropsWithoutDuration = {
 	readonly showInTimeline?: boolean;
 	readonly hidden?: boolean;
 	readonly controls?: SequenceControls;
-	readonly _remotionInternalEffects?: readonly EffectDefinition<unknown>[];
+	readonly _remotionInternalEffects?: readonly EffectDefinition<unknown>[] & {
+		readonly runtimeValues?: readonly RuntimeValueStore[];
+	};
+	readonly _remotionInternalEffectRuntimeValues?: readonly RuntimeValueStore[];
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -145,6 +150,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		hidden = false,
 		controls,
 		_remotionInternalEffects,
+		_remotionInternalEffectRuntimeValues,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalDocumentationLink: documentationLink,
@@ -453,6 +459,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					type: 'image',
 					controls: registrationControls,
 					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
+					effectRuntimeValues:
+						_remotionInternalEffectRuntimeValues ??
+						_remotionInternalEffects?.runtimeValues ??
+						EMPTY_EFFECT_RUNTIME_VALUES,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
@@ -477,6 +487,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					type: isMedia.type,
 					controls: registrationControls,
 					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
+					effectRuntimeValues:
+						_remotionInternalEffectRuntimeValues ??
+						_remotionInternalEffects?.runtimeValues ??
+						EMPTY_EFFECT_RUNTIME_VALUES,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					doesVolumeChange: isMedia.data.doesVolumeChange,
@@ -526,6 +540,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			postmountDisplay: postmountDisplay ?? null,
 			controls: registrationControls,
 			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
+			effectRuntimeValues:
+				_remotionInternalEffectRuntimeValues ??
+				_remotionInternalEffects?.runtimeValues ??
+				EMPTY_EFFECT_RUNTIME_VALUES,
 			refForOutline: refForOutline ?? null,
 			isInsideSeries,
 			frozenFrame: registeredFrozenFrame,
@@ -554,6 +572,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		env.isStudio,
 		registrationControls,
 		_remotionInternalEffects,
+		_remotionInternalEffectRuntimeValues,
 		isMedia,
 		resolvedDocumentationLink,
 		refForOutline,

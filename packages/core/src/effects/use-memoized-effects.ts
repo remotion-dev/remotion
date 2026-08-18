@@ -1,6 +1,8 @@
-import {useContext, useRef} from 'react';
+import {useContext, useLayoutEffect, useRef} from 'react';
 import {resolveDragOverrideValue} from '../get-effective-visual-mode-value.js';
 import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
+import {createRuntimeValueStore} from '../runtime-value-store.js';
+import type {RuntimeValueStore} from '../runtime-value-store.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import type {
 	CannotUpdateEffectReason,
@@ -19,9 +21,9 @@ import {
 	type PropStatuses,
 } from '../use-schema.js';
 import type {
-	EffectDefinition,
 	EffectDefinitionAndStack,
 	EffectDescriptor,
+	EffectDefinition,
 } from './effect-types.js';
 
 const mergeOverrides = ({
@@ -104,23 +106,43 @@ const resolvePropStatusOverrides = (
 
 export const useMemoizedEffectDefinitions = (
 	effects: readonly EffectDescriptor<unknown>[],
-): readonly EffectDefinition<unknown>[] => {
-	const previousRef = useRef<readonly EffectDefinition<unknown>[] | null>(null);
+): readonly EffectDefinition<unknown>[] & {
+	readonly runtimeValues: readonly RuntimeValueStore[];
+} => {
+	const previousRef = useRef<{
+		readonly definitions: readonly EffectDefinition<unknown>[];
+		readonly controllers: ReturnType<typeof createRuntimeValueStore>[];
+	} | null>(null);
 
 	const definitions = effects.map((descriptor) => descriptor.definition);
 
 	const previous = previousRef.current;
 	const isSame =
 		previous !== null &&
-		previous.length === definitions.length &&
-		previous.every((def, i) => def === definitions[i]);
+		previous.definitions.length === definitions.length &&
+		previous.definitions.every(
+			(definition, i) => definition === definitions[i],
+		);
+	const controllers = isSame
+		? previous.controllers
+		: effects.map((effect) =>
+				createRuntimeValueStore(effect.params as Record<string, unknown>),
+			);
+	const stableDefinitions = isSame ? previous.definitions : definitions;
 
-	if (isSame) {
-		return previous;
-	}
+	useLayoutEffect(() => {
+		// Stores are intentionally updated without changing the registered effect
+		// array, so frame-dependent parameters don't re-register the Sequence.
+		stableDefinitions.forEach((_definition, index) => {
+			const snapshot = effects[index]?.params as Record<string, unknown>;
+			controllers[index].setSnapshot(snapshot);
+		});
+	}, [controllers, effects, stableDefinitions]);
 
-	previousRef.current = definitions;
-	return definitions;
+	previousRef.current = {definitions: stableDefinitions, controllers};
+	return Object.assign(stableDefinitions, {
+		runtimeValues: controllers.map((controller) => controller.store),
+	});
 };
 
 type EffectStatus =
