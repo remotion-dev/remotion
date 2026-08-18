@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
 import {expect, test, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import fs from 'fs';
+import path from 'path';
 import {
 	STUDIO_URL,
 	effectKeyframeE2eFile,
@@ -641,6 +641,54 @@ test.describe('visual mode', () => {
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setAudioCodec');
 			await expect(audioCodec).toHaveText('Default (Automatic)');
+			await dialog.getByText('Studio', {exact: true}).click();
+			for (const setting of [
+				'Ask AI enabled',
+				'Keyboard shortcuts enabled',
+				'Interactivity enabled',
+				'Max timeline tracks',
+				'Audio latency hint',
+				'Number of shared audio tags',
+				'Beep on finish',
+				'Bundler',
+				'Cross-site isolation',
+				'Log level',
+			]) {
+				await expect(dialog.getByText(setting, {exact: true})).toBeVisible();
+			}
+
+			const askAIEnabled = dialog.getByTitle('Ask AI enabled', {exact: true});
+			await expect(askAIEnabled).toHaveText('Default (Enabled)');
+			await askAIEnabled.click();
+			await page
+				.getByRole('button', {name: 'Disabled', exact: true})
+				.last()
+				.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain('Config.setAskAIEnabled(false);');
+			await askAIEnabled.click();
+			await page
+				.getByRole('button', {name: 'Default (Enabled)', exact: true})
+				.last()
+				.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setAskAIEnabled');
+
+			const maxTimelineTracks = dialog.getByRole('spinbutton', {
+				name: 'Max timeline tracks',
+			});
+			await maxTimelineTracks.fill('123');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain('Config.setMaxTimelineTracks(123);');
+			await dialog.getByTitle('Use default (90)', {exact: true}).click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setMaxTimelineTracks');
+			await expect(maxTimelineTracks).toHaveValue('');
+
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(
 				dialog.getByTitle('Default editor', {exact: true}),

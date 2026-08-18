@@ -1,6 +1,7 @@
 import type {AnyRemotionOption} from './option';
 
 let interactivityEnabled = true;
+let configuredInteractivityEnabled: boolean | null = null;
 
 const cliFlag = 'disable-interactivity' as const;
 
@@ -34,6 +35,12 @@ export const interactivityOption = {
 	},
 	setConfig(value) {
 		interactivityEnabled = value;
+		configuredInteractivityEnabled = value;
+	},
+	getConfigValue: () => configuredInteractivityEnabled,
+	reset: () => {
+		interactivityEnabled = true;
+		configuredInteractivityEnabled = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

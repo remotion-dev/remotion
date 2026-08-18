@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {AppsIcon} from '../icons/apps';
 import {CertificateIcon} from '../icons/certificate';
+import {GearIcon} from '../icons/gear';
 import {FilmIcon} from '../icons/video';
 import {SetSelectedModalContext} from '../state/modals';
 import {DefaultEditorSettings} from './ConfigureDefaultEditorModal';
@@ -20,9 +21,10 @@ import {
 } from './RenderModal/render-modals';
 import {useSettings} from './SettingsContext';
 import {SettingsModalFooter} from './SettingsModalFooter';
+import {StudioSettings} from './StudioSettings';
 import {VerticalTab} from './Tabs/vertical';
 
-type SettingsTab = 'apps' | 'rendering' | 'license';
+type SettingsTab = 'apps' | 'rendering' | 'studio' | 'license';
 
 const hiddenPanel: React.CSSProperties = {
 	display: 'none',
@@ -86,6 +88,18 @@ export const SettingsModal: React.FC<{
 						</VerticalTab>
 						<VerticalTab
 							style={horizontalTab}
+							selected={tab === 'studio'}
+							onClick={() => selectTab('studio')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<GearIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Studio
+						</VerticalTab>
+						<VerticalTab
+							style={horizontalTab}
 							selected={tab === 'apps'}
 							onClick={() => selectTab('apps')}
 							renderIcon={(color) => (
@@ -131,6 +145,14 @@ export const SettingsModal: React.FC<{
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<RenderingSettings />
+						</div>
+					) : null}
+					{openedTabs.includes('studio') ? (
+						<div
+							style={tab === 'studio' ? optionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<StudioSettings />
 						</div>
 					) : null}
 				</div>

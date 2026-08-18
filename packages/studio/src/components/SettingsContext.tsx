@@ -2,6 +2,7 @@ import type {
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
 	RenderDefaults,
+	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import React, {
 	createContext,
@@ -21,6 +22,7 @@ type SettingsContextValue = {
 	readonly error: string | null;
 	readonly publicLicenseKey: string | null;
 	readonly renderDefaults: RenderDefaults | null;
+	readonly studioRuntimeConfig: StudioRuntimeConfig | null;
 	readonly revision: number;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
 };
@@ -41,6 +43,7 @@ export const SettingsProvider: React.FC<{
 		error: null,
 		publicLicenseKey: window.remotion_studioConfig?.publicLicenseKey ?? null,
 		renderDefaults: window.remotion_renderDefaults ?? null,
+		studioRuntimeConfig: window.remotion_studioConfig ?? null,
 		revision: 0,
 	});
 
@@ -119,6 +122,7 @@ export const SettingsProvider: React.FC<{
 				error: null,
 				publicLicenseKey: event.studioRuntimeConfig.publicLicenseKey,
 				renderDefaults: event.renderDefaults,
+				studioRuntimeConfig: event.studioRuntimeConfig,
 				revision: currentSettings.revision + 1,
 			}));
 		});
