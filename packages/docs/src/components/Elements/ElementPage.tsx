@@ -44,7 +44,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
-	const [isDragging, setIsDragging] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
@@ -146,35 +145,41 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				aria-label="Element details and actions"
 				className={styles.actionsColumn}
 			>
-				<div className={styles.useIt}>
+				<div>
 					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
 								<BlueButton
-									draggable
 									fullWidth
 									loading={installStatus.type === 'installing'}
 									onClick={installElement}
-									onDragEnd={() => setIsDragging(false)}
-									onDragStart={(event) => {
-										setIsDragging(true);
-										setStudioDragData({
-											dataTransfer: event.dataTransfer,
-											payload: elementPayload,
-										});
-										setElementDragImage(event.dataTransfer, posterRef.current);
-									}}
 									size="sm"
-									style={{
-										cursor: isDragging ? 'grabbing' : undefined,
-										padding: '7px 12px',
-									}}
-									title="Click to install in the most recently focused Remotion Studio, or drag onto the Studio canvas"
+									style={{padding: '7px 12px'}}
+									title="Install in the most recently focused Remotion Studio"
 								>
 									{installStatus.type === 'installing'
 										? 'Finding Studio…'
 										: 'Install in Studio'}
 								</BlueButton>
+							</div>
+							<div
+								className={styles.dragHandle}
+								draggable
+								onDragStart={(event) => {
+									setStudioDragData({
+										dataTransfer: event.dataTransfer,
+										payload: elementPayload,
+									});
+									setElementDragImage(event.dataTransfer, posterRef.current);
+								}}
+								title="Hover over your Studio browser tab, then drop on the canvas or timeline"
+							>
+								<span aria-hidden="true" className={styles.dragHandleIcon}>
+									⠿
+								</span>
+								<span className={styles.dragHandleText}>
+									<strong>Drag to your Studio canvas or timeline</strong>
+								</span>
 							</div>
 							{installStatus.type === 'success' ||
 							installStatus.type === 'error' ? (
