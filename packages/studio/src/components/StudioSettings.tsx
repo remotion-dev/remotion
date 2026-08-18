@@ -14,9 +14,9 @@ import {sectionHeader} from './InspectorPanel/styles';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
-import {RemotionInput} from './NewComposition/RemInput';
+import {InputDragger} from './NewComposition/InputDragger';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
-import {input, label, optionRow, rightRow} from './RenderModal/layout';
+import {label, optionRow, rightRow} from './RenderModal/layout';
 import {RenderModalHr} from './RenderModal/RenderModalHr';
 import {useSettings} from './SettingsContext';
 import {useAutoSaveConfig} from './use-auto-save-config';
@@ -133,27 +133,20 @@ const ConfigNumber = ({
 		<div style={optionRow}>
 			<div style={label}>{name}</div>
 			<div style={{...rightRow, gap: 6}}>
-				<RemotionInput
+				<InputDragger
 					aria-label={name}
+					buttonStyle={{textAlign: 'right', width: 140}}
+					formatter={() =>
+						value === null ? `Default (${defaultValue})` : String(value)
+					}
 					min={0}
-					onChange={(event) => {
-						if (event.target.value === '') {
-							onChange(null);
-							return;
-						}
-
-						const newValue = Number(event.target.value);
-						if (Number.isFinite(newValue) && newValue >= 0) {
-							onChange(newValue);
-						}
-					}}
+					onTextChange={() => undefined}
+					onValueChange={onChange}
 					placeholder={`Default (${defaultValue})`}
 					rightAlign
 					status="ok"
 					step={1}
-					style={{...input, width: 140}}
-					type="number"
-					value={value ?? ''}
+					value={value ?? defaultValue}
 				/>
 				<Button
 					disabled={value === null}

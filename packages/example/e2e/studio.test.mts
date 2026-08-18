@@ -656,6 +656,9 @@ test.describe('visual mode', () => {
 			]) {
 				await expect(dialog.getByText(setting, {exact: true})).toBeVisible();
 			}
+			await expect(
+				dialog.getByRole('button', {name: 'Number of shared audio tags'}),
+			).toBeVisible();
 
 			const askAIEnabled = dialog.getByTitle('Ask AI enabled', {exact: true});
 			await expect(askAIEnabled).toHaveText('Default (Enabled)');
@@ -676,10 +679,15 @@ test.describe('visual mode', () => {
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setAskAIEnabled');
 
-			const maxTimelineTracks = dialog.getByRole('spinbutton', {
+			const maxTimelineTracks = dialog.getByRole('button', {
 				name: 'Max timeline tracks',
 			});
-			await maxTimelineTracks.fill('123');
+			await maxTimelineTracks.click();
+			const maxTimelineTracksInput = dialog.getByRole('textbox', {
+				name: 'Max timeline tracks',
+			});
+			await maxTimelineTracksInput.fill('123');
+			await maxTimelineTracksInput.press('Enter');
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.toContain('Config.setMaxTimelineTracks(123);');
@@ -687,7 +695,7 @@ test.describe('visual mode', () => {
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setMaxTimelineTracks');
-			await expect(maxTimelineTracks).toHaveValue('');
+			await expect(maxTimelineTracks).toHaveText('Default (90)');
 
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(
