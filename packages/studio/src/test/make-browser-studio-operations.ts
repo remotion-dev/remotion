@@ -11,6 +11,7 @@ export const makeBrowserStudioOperations = (
 		deleteJsxNode: () => unusedOperation('deleteJsxNode'),
 		deleteStaticFile: () => unusedOperation('deleteStaticFile'),
 		downloadProject: () => unusedOperation('downloadProject'),
+		duplicateComposition: () => unusedOperation('duplicateComposition'),
 		findInFile: () => unusedOperation('findInFile'),
 		getCompositionComponentInfo: () =>
 			unusedOperation('getCompositionComponentInfo'),

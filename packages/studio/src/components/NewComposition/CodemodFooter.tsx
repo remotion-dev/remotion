@@ -72,6 +72,7 @@ export const CodemodFooter: React.FC<{
 	readonly onSuccess: (() => void) | null;
 	readonly fallbackToRootFile?: boolean;
 	readonly applyCodemod: ApplyCodemodAction;
+	readonly applyCodemodForPreview?: ApplyCodemodAction;
 }> = ({
 	codemod,
 	stack,
@@ -84,6 +85,7 @@ export const CodemodFooter: React.FC<{
 	onSuccess,
 	fallbackToRootFile = false,
 	applyCodemod,
+	applyCodemodForPreview = null,
 }) => {
 	const [submitting, setSubmitting] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
@@ -151,12 +153,14 @@ export const CodemodFooter: React.FC<{
 
 	const getCanApplyCodemod = useCallback(
 		async (signal: AbortSignal) => {
-			const res = await applyCodemodApi({
-				codemod,
-				dryRun: true,
-				symbolicatedStack,
-				signal,
-			});
+			const res = applyCodemodForPreview
+				? await applyCodemodForPreview({signal, symbolicatedStack})
+				: await applyCodemodApi({
+						codemod,
+						dryRun: true,
+						symbolicatedStack,
+						signal,
+					});
 
 			if (res.success) {
 				setCanApplyCodemod({type: 'success', diff: res.diff});
@@ -167,7 +171,7 @@ export const CodemodFooter: React.FC<{
 				});
 			}
 		},
-		[codemod, symbolicatedStack],
+		[applyCodemodForPreview, codemod, symbolicatedStack],
 	);
 
 	useEffect(() => {
