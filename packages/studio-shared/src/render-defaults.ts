@@ -21,6 +21,7 @@ export type RenderDefaults = {
 	scale: number;
 	logLevel: LogLevel;
 	codec: Codec;
+	crf: number | null;
 	concurrency: number;
 	minConcurrency: number;
 	muted: boolean;

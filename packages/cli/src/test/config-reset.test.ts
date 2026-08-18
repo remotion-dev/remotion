@@ -37,6 +37,7 @@ test('reset config options restores defaults before reloading config', async () 
 	Config.setStudioPort(4321);
 	Config.setMaxTimelineTracks(123);
 	Config.setChromiumOpenGlRenderer('angle');
+	Config.setCrf(12);
 	Config.setDefaultCodingAgent('codex');
 	Config.setDefaultEditor('cursor');
 	Config.setBufferStateDelayInMilliseconds(200);
@@ -63,6 +64,7 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBe('angle');
+	expect(getRenderDefaults('info').crf).toBe(12);
 	expect(
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
 			commandLine: {},
@@ -113,6 +115,7 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBeNull();
+	expect(getRenderDefaults('info').crf).toBeNull();
 	expect(
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
 			commandLine: {},

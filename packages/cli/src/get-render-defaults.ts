@@ -15,6 +15,7 @@ const {
 	scaleOption,
 	jpegQualityOption,
 	videoBitrateOption,
+	crfOption,
 	enforceAudioOption,
 	mutedOption,
 	colorSpaceOption,
@@ -81,6 +82,7 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 	const videoBitrate = videoBitrateOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const crf = crfOption.getValue({commandLine: parsedCli}).value ?? null;
 	const enforceAudioTrack = enforceAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -168,6 +170,7 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 		scale: defaultScale ?? 1,
 		logLevel,
 		codec: defaultCodec ?? 'h264',
+		crf,
 		concurrency,
 		maxConcurrency,
 		minConcurrency,
