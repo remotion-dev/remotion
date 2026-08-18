@@ -78,3 +78,41 @@ test('reports outdated project skills when Remotion itself is up to date', async
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
 });
+
+test('reports skills installed in the global scope as available', async () => {
+	const temporaryDirectory = mkdtempSync(
+		path.join(tmpdir(), 'remotion-studio-global-skills-'),
+	);
+	const remotionRoot = path.join(temporaryDirectory, 'project');
+	const homeDirectory = path.join(temporaryDirectory, 'home');
+
+	try {
+		mkdirSync(remotionRoot, {recursive: true});
+		for (const skillName of ['remotion-upgrade', 'remotion-interactivity']) {
+			const skillDirectory = path.join(
+				homeDirectory,
+				'.agents',
+				'skills',
+				skillName,
+			);
+			mkdirSync(skillDirectory, {recursive: true});
+			writeFileSync(path.join(skillDirectory, 'SKILL.md'), '---\n---\n');
+		}
+
+		const result = await isUpdateAvailable({
+			remotionRoot,
+			currentVersion: '4.0.502',
+			logLevel: 'error',
+			getLatestVersion: () => Promise.resolve('4.0.502'),
+			homeDirectory,
+		});
+
+		expect(result).toMatchObject({
+			skillsUpdateAvailable: false,
+			remotionUpgradeSkillAvailable: true,
+			remotionInteractivitySkillAvailable: true,
+		});
+	} finally {
+		rmSync(temporaryDirectory, {recursive: true, force: true});
+	}
+});

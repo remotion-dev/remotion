@@ -1,43 +1,42 @@
 import {existsSync} from 'node:fs';
+import {homedir} from 'node:os';
 import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
 import type {UpdateAvailableResponse} from '@remotion/studio-shared';
 import semver from 'semver';
 import {detectOutdatedRemotionSkills} from '../detect-outdated-remotion-skills';
 import {getLatestRemotionVersion} from '../get-latest-remotion-version';
+import type {RemotionSkillName} from '../remotion-skill-names';
 import {getPackageManager} from './get-package-manager';
 
 const getSkillsUpdateInfo = ({
 	remotionRoot,
 	currentVersion,
+	homeDirectory = homedir(),
 }: {
 	remotionRoot: string;
 	currentVersion: string;
+	homeDirectory?: string;
 }) => {
-	const projectSkills = detectOutdatedRemotionSkills({
+	const skills = detectOutdatedRemotionSkills({
 		cwd: remotionRoot,
 		currentVersion,
-	}).project;
+		homeDirectory,
+	});
+	const skillsDirectories = [
+		skills.project.skillsDirectory,
+		skills.global.skillsDirectory,
+	];
+	const isSkillAvailable = (skillName: RemotionSkillName) =>
+		skillsDirectories.some((skillsDirectory) =>
+			existsSync(path.join(skillsDirectory, skillName, 'SKILL.md')),
+		);
 
 	return {
-		skillsUpdateAvailable: projectSkills.type === 'outdated',
-		remotionUpgradeSkillAvailable: existsSync(
-			path.join(
-				remotionRoot,
-				'.agents',
-				'skills',
-				'remotion-upgrade',
-				'SKILL.md',
-			),
-		),
-		remotionInteractivitySkillAvailable: existsSync(
-			path.join(
-				remotionRoot,
-				'.agents',
-				'skills',
-				'remotion-interactivity',
-				'SKILL.md',
-			),
+		skillsUpdateAvailable: skills.project.type === 'outdated',
+		remotionUpgradeSkillAvailable: isSkillAvailable('remotion-upgrade'),
+		remotionInteractivitySkillAvailable: isSkillAvailable(
+			'remotion-interactivity',
 		),
 	};
 };
@@ -47,14 +46,20 @@ export const isUpdateAvailable = async ({
 	currentVersion,
 	logLevel,
 	getLatestVersion,
+	homeDirectory = homedir(),
 }: {
 	remotionRoot: string;
 	currentVersion: string;
 	logLevel: LogLevel;
 	getLatestVersion: (() => Promise<string>) | null;
+	homeDirectory?: string;
 }): Promise<UpdateAvailableResponse> => {
 	const latest = await (getLatestVersion ?? getLatestRemotionVersion)();
-	const skillsUpdateInfo = getSkillsUpdateInfo({remotionRoot, currentVersion});
+	const skillsUpdateInfo = getSkillsUpdateInfo({
+		remotionRoot,
+		currentVersion,
+		homeDirectory,
+	});
 
 	const pkgManager = getPackageManager({
 		remotionRoot,
