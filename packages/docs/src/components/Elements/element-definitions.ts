@@ -26,6 +26,7 @@ import {NewsArticleHighlight} from '../../../elements/text/news-article-highligh
 import {SpinningTextWheel} from '../../../elements/text/spinning-text-wheel/spinning-text-wheel';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
+import {YouTubeCommentHighlight} from '../../../elements/youtube/youtube-comment-highlight/youtube-comment-highlight';
 import {YouTubeEndCard} from '../../../elements/youtube/youtube-end-card/youtube-end-card';
 import {YouTubeSubscribeNudge} from '../../../elements/youtube/youtube-subscribe-nudge/youtube-subscribe-nudge';
 import type {Contributor} from '../Credits';
@@ -214,6 +215,27 @@ const elementImplementations = {
 				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
 		previewPadding: 300,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'youtube/youtube-comment-highlight': {
+		component: YouTubeCommentHighlight,
+		contributors: [],
+		description: 'A YouTube-style card for featuring a viewer comment.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 180,
+		elementHeight: 360,
+		elementWidth: 1120,
+		fps: 30,
+		height: 1080,
+		posterFrame: 135,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.mp4',
+		},
+		previewPadding: 200,
 		installationMode: 'wrapped',
 		width: 1920,
 	},

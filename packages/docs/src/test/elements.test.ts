@@ -556,6 +556,7 @@ describe('Elements sidebar', () => {
 				category: 'youtube',
 				label: 'YouTube',
 				items: [
+					'youtube/youtube-comment-highlight/index',
 					'youtube/youtube-end-card/index',
 					'youtube/youtube-subscribe-nudge/index',
 				],

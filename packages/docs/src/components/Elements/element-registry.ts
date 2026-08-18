@@ -105,6 +105,10 @@ export const elementRegistry = {
 		category: 'text',
 		displayName: 'Text Marker',
 	},
+	'youtube/youtube-comment-highlight': {
+		category: 'youtube',
+		displayName: 'YouTube Comment Highlight',
+	},
 	'youtube/youtube-end-card': {
 		category: 'youtube',
 		displayName: 'YouTube End Card',
