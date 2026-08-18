@@ -52,6 +52,7 @@ const getDefaults = (): RenderDefaults => {
 		publicLicenseKey: null,
 		outputLocation: null,
 		sampleRate: 48000,
+		configFileRenderDefaults: null,
 	};
 };
 

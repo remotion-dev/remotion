@@ -69,7 +69,7 @@ export type RenderDefaults = {
 	publicLicenseKey: string | null;
 	outputLocation: string | null;
 	sampleRate: number;
-	configFileRenderDefaults?: ConfigFileRenderDefaults;
+	configFileRenderDefaults: ConfigFileRenderDefaults | null;
 };
 
 declare global {
