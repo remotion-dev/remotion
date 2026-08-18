@@ -64,6 +64,7 @@ const effectEntrypoints = [
 	'src/speckle.ts',
 	'src/starburst.ts',
 	'src/thermal-vision.ts',
+	'src/tile.ts',
 	'src/tint.ts',
 	'src/translate.ts',
 	'src/tv-signal-off.ts',

@@ -1,15 +1,13 @@
 import {type LogLevel} from 'remotion';
 import type {MediaCache} from '../caches';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
-import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {
-	convertAudioData,
+	convertAudioDataToS16,
 	fixFloatingPoint,
+	resamplePcmS16AudioData,
+	type PcmS16AudioData,
+	type UnresampledPcmS16AudioData,
 } from '../convert-audiodata/convert-audiodata';
-import {
-	TARGET_NUMBER_OF_CHANNELS,
-	getTargetSampleRate,
-} from '../convert-audiodata/resample-audiodata';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {
 	isNetworkError,
@@ -126,7 +124,7 @@ const extractAudioInternal = async ({
 
 		mediaCache.audioManager.logOpenFrames();
 
-		const audioDataArray: PcmS16AudioData[] = [];
+		const audioDataArray: UnresampledPcmS16AudioData[] = [];
 		for (let i = 0; i < samples.length; i++) {
 			const sample = samples[i];
 
@@ -152,21 +150,23 @@ const extractAudioInternal = async ({
 			// amount of samples to shave from start and end
 			let trimStartInSeconds = 0;
 			let trimEndInSeconds = 0;
-			let leadingSilence: PcmS16AudioData | null = null;
+			let leadingSilence: UnresampledPcmS16AudioData | null = null;
 
 			if (isFirstSample) {
 				trimStartInSeconds = fixFloatingPoint(timeInSeconds - sample.timestamp);
 
 				if (trimStartInSeconds < 0) {
 					const silenceFrames = Math.ceil(
-						fixFloatingPoint(-trimStartInSeconds * getTargetSampleRate()),
+						fixFloatingPoint(-trimStartInSeconds * audioDataRaw.sampleRate),
 					);
 					leadingSilence = {
-						data: new Int16Array(silenceFrames * TARGET_NUMBER_OF_CHANNELS),
+						data: new Int16Array(silenceFrames * audioDataRaw.numberOfChannels),
+						numberOfChannels: audioDataRaw.numberOfChannels,
 						numberOfFrames: silenceFrames,
+						sampleRate: audioDataRaw.sampleRate,
 						timestamp: timeInSeconds * 1_000_000,
 						durationInMicroSeconds:
-							(silenceFrames / getTargetSampleRate()) * 1_000_000,
+							(silenceFrames / audioDataRaw.sampleRate) * 1_000_000,
 					};
 					trimStartInSeconds = 0;
 				}
@@ -183,11 +183,10 @@ const extractAudioInternal = async ({
 					);
 			}
 
-			const audioData = convertAudioData({
+			const audioData = convertAudioDataToS16({
 				audioData: audioDataRaw,
 				trimStartInSeconds,
 				trimEndInSeconds,
-				playbackRate,
 				audioDataTimestamp: sample.timestamp,
 				isLast: isLastSample,
 			});
@@ -209,8 +208,13 @@ const extractAudioInternal = async ({
 		}
 
 		const combined = combineAudioDataAndClosePrevious(audioDataArray);
+		const resampled = resamplePcmS16AudioData({
+			audioData: combined,
+			playbackRate,
+			isLast: true,
+		});
 
-		return {data: combined, durationInSeconds: mediaDurationInSeconds};
+		return {data: resampled, durationInSeconds: mediaDurationInSeconds};
 	} catch (err) {
 		const error = err as Error;
 		if (isNetworkError(error)) {

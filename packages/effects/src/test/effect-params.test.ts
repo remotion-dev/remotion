@@ -66,6 +66,7 @@ import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
 import {starburst} from '../starburst.js';
 import {thermalVision} from '../thermal-vision.js';
+import {tile} from '../tile.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {tvSignalOff} from '../tv-signal-off.js';
@@ -239,6 +240,9 @@ test('@remotion/effects expose documentation links', () => {
 		regionBlur({topLeft: [0.25, 0.25], bottomRight: [0.75, 0.75]}).definition
 			.documentationLink,
 	).toBe('https://www.remotion.dev/docs/effects/region-blur');
+	expect(tile().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/tile',
+	);
 	expect(radialProgressivePixelate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
 	);
@@ -371,6 +375,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(radialProgressivePixelate().definition.label).toBe(
 		'radialProgressivePixelate()',
 	);
+	expect(tile().definition.label).toBe('tile()');
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
@@ -3009,6 +3014,37 @@ test('pattern() parameters produce distinct effect keys', () => {
 			clipped.effectKey,
 		]).size,
 	).toBe(10);
+});
+
+test('tile() accepts default params', () => {
+	expect(() => tile()).not.toThrow();
+});
+
+test('tile() accepts axis params', () => {
+	expect(() => tile({horizontal: false, vertical: true})).not.toThrow();
+});
+
+test('tile() rejects invalid axis params', () => {
+	expect(() => tile({horizontal: 'yes' as unknown as boolean})).toThrow(
+		'"horizontal" must be a boolean',
+	);
+	expect(() => tile({vertical: 1 as unknown as boolean})).toThrow(
+		'"vertical" must be a boolean',
+	);
+});
+
+test('tile() parameters produce distinct effect keys', () => {
+	const defaults = tile();
+	const horizontalOnly = tile({vertical: false});
+	const verticalOnly = tile({horizontal: false});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			horizontalOnly.effectKey,
+			verticalOnly.effectKey,
+		]).size,
+	).toBe(3);
 });
 
 test('saturation() accepts default params', () => {

@@ -67,6 +67,7 @@ const stub2dContext = () => {
 };
 
 let transferControlToOffscreenCalls = 0;
+const transferredCanvases = new WeakSet<HTMLCanvasElement>();
 
 Object.defineProperties(HTMLCanvasElement.prototype, {
 	getContext: {
@@ -96,6 +97,15 @@ Object.defineProperties(HTMLCanvasElement.prototype, {
 	transferControlToOffscreen: {
 		configurable: true,
 		value(this: HTMLCanvasElement) {
+			// Real browsers only allow one transfer per canvas.
+			if (transferredCanvases.has(this)) {
+				throw new DOMException(
+					'Cannot transfer control from a canvas for more than one time.',
+					'InvalidStateError',
+				);
+			}
+
+			transferredCanvases.add(this);
 			transferControlToOffscreenCalls++;
 			let contextMode: string | null = null;
 			const webgl2Context = {
@@ -471,6 +481,27 @@ test('<HtmlInCanvas> can use a higher backing density', async () => {
 	expect(paintParams.canvas.width).toBe(100);
 	expect(paintParams.canvas.height).toBe(100);
 	expect(paintParams.pixelDensity).toBe(2);
+	expect(transferControlToOffscreenCalls).toBe(1);
+});
+
+test('<HtmlInCanvas> tolerates layout effect re-runs on the same canvas', async () => {
+	// StrictMode double-invokes effects on the same canvas element. A second
+	// transferControlToOffscreen() call throws an InvalidStateError in real
+	// browsers, so the transferred OffscreenCanvas must be reused.
+	const {container} = render(
+		<React.StrictMode>
+			<SequenceTestWrapper onRegisterSequence={() => undefined}>
+				<HtmlInCanvas width={50} height={50} onPaint={() => undefined}>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>
+		</React.StrictMode>,
+	);
+
+	await waitFor(() => {
+		expect(container.querySelector('canvas')).not.toBeNull();
+	});
+
 	expect(transferControlToOffscreenCalls).toBe(1);
 });
 
