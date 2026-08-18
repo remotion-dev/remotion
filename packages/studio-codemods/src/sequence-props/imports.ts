@@ -79,9 +79,14 @@ export const ensureNamedImport = ({
 	const existingImports = findImportDeclarations(ast, sourcePath);
 
 	for (const existingImportDeclaration of existingImports) {
+		if (existingImportDeclaration.importKind === 'type') {
+			continue;
+		}
+
 		const matchingSpecifier = existingImportDeclaration.specifiers?.find(
 			(importSpecifierCandidate) =>
 				importSpecifierCandidate.type === 'ImportSpecifier' &&
+				importSpecifierCandidate.importKind !== 'type' &&
 				getImportedName(importSpecifierCandidate) === importedName,
 		);
 
@@ -92,6 +97,7 @@ export const ensureNamedImport = ({
 
 	const existingImport = existingImports.find(
 		(candidateImportDeclaration) =>
+			candidateImportDeclaration.importKind !== 'type' &&
 			!hasNamespaceSpecifier(candidateImportDeclaration),
 	);
 
@@ -137,9 +143,16 @@ export const ensureNamedImports = ({
 	const existingNames = new Set<string>();
 
 	for (const existingImportDeclaration of existingImports) {
+		if (existingImportDeclaration.importKind === 'type') {
+			continue;
+		}
+
 		for (const importSpecifierCandidate of existingImportDeclaration.specifiers ??
 			[]) {
-			if (importSpecifierCandidate.type !== 'ImportSpecifier') {
+			if (
+				importSpecifierCandidate.type !== 'ImportSpecifier' ||
+				importSpecifierCandidate.importKind === 'type'
+			) {
 				continue;
 			}
 
@@ -153,6 +166,7 @@ export const ensureNamedImports = ({
 
 	const existingImport = existingImports.find(
 		(candidateImportDeclaration) =>
+			candidateImportDeclaration.importKind !== 'type' &&
 			!hasNamespaceSpecifier(candidateImportDeclaration),
 	);
 

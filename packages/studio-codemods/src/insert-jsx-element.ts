@@ -1634,9 +1634,14 @@ const hasComponentLocalImport = ({
 		ast,
 		sourcePath: importPath,
 	})) {
+		if (importDeclaration.importKind === 'type') {
+			continue;
+		}
+
 		for (const specifier of importDeclaration.specifiers ?? []) {
 			if (
 				specifier.type === 'ImportSpecifier' &&
+				specifier.importKind !== 'type' &&
 				getImportedName(specifier) === importName
 			) {
 				return specifier.local?.name ?? importName;
