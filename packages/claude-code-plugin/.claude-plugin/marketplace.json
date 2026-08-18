@@ -5,7 +5,6 @@
 		"name": "Remotion",
 		"email": "hi@remotion.dev"
 	},
-	"description": "Plugins for building programmatic videos with Remotion",
 	"plugins": [
 		{
 			"name": "remotion",
