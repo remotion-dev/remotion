@@ -1,6 +1,7 @@
 import {
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
+	deleteJsxNodes,
 	findProjectFile,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
@@ -392,6 +393,71 @@ export const createBrowserStudioOperations = ({
 		return resolved;
 	};
 
+	const deleteJsxNode: BrowserStudioOperations['deleteJsxNode'] = async ({
+		nodes,
+	}) => {
+		try {
+			if (nodes.length === 0) {
+				throw new Error('No JSX nodes were specified for deletion');
+			}
+
+			const project = getProject();
+			const nodesByFile = new Map<
+				string,
+				(typeof nodes)[number]['nodePath'][]
+			>();
+			for (const node of nodes) {
+				const fileName = findProjectFile({
+					filePath: node.fileName,
+					project,
+				});
+				const fileNodes = nodesByFile.get(fileName) ?? [];
+				fileNodes.push(node.nodePath);
+				nodesByFile.set(fileName, fileNodes);
+			}
+
+			const updates = await Promise.all(
+				[...nodesByFile].map(async ([fileName, nodePaths]) => ({
+					fileName,
+					result: await deleteJsxNodes({
+						input: project.files[fileName],
+						nodePaths,
+						formatFile: formatCodemodFile,
+					}),
+				})),
+			);
+			const nextProject = {
+				...project,
+				files: {
+					...project.files,
+					...Object.fromEntries(
+						updates.map(({fileName, result}) => [fileName, result.output]),
+					),
+				},
+			};
+			const nodePathMutation = controller.applyMutation({
+				fileName: updates.map(({fileName}) => fileName).join(', '),
+				mutate: () => nextProject,
+				nodePathMutationFiles: updates.map(({fileName, result}) => ({
+					absolutePath: fileName,
+					remappings: result.nodePathRemappings,
+					restoredNodePaths: [],
+				})),
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not delete JSX nodes');
+			}
+
+			return {success: true, nodePathMutation};
+		} catch (error) {
+			return {
+				success: false,
+				reason: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error && error.stack ? error.stack : '',
+			};
+		}
+	};
+
 	const insertJsxElement: BrowserStudioOperations['insertJsxElement'] = async (
 		request,
 	) => {
@@ -452,6 +518,7 @@ export const createBrowserStudioOperations = ({
 	};
 
 	return {
+		deleteJsxNode,
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadProject: () =>
 			Promise.resolve(

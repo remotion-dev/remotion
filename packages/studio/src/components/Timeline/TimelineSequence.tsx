@@ -30,9 +30,9 @@ import {
 import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
 import {SetSelectedModalContext} from '../../state/modals';
 import {AudioWaveform} from '../AudioWaveform';
-import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
+import {deleteJsxNode} from '../delete-jsx-node-api';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
@@ -416,7 +416,7 @@ const TimelineSequenceInner: React.FC<{
 		}
 
 		try {
-			const result = await callApi('/api/delete-jsx-node', {
+			const result = await deleteJsxNode({
 				nodes: [
 					{
 						fileName: validatedLocation.source,
