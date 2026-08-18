@@ -459,6 +459,7 @@ export const internalBundle = async (
 			keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled,
 			maxTimelineTracks: actualArgs.maxTimelineTracks,
 			publicLicenseKey: actualArgs.renderDefaults?.publicLicenseKey ?? null,
+			configFileStudioSettings: null,
 		},
 	});
 

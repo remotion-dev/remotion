@@ -342,7 +342,10 @@ export {
 	type StudioEntryPointPaths,
 } from './studio-entry-points';
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
-export type {StudioRuntimeConfig} from './studio-runtime-config';
+export type {
+	ConfigFileStudioSettings,
+	StudioRuntimeConfig,
+} from './studio-runtime-config';
 export {
 	BORDER_RADIUS_LONGHAND_KEYS,
 	BORDER_RADIUS_SHORTHAND_KEY,

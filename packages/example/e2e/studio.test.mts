@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
 import {expect, test, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import fs from 'fs';
+import path from 'path';
 import {
 	STUDIO_URL,
 	effectKeyframeE2eFile,
@@ -520,6 +520,12 @@ test.describe('visual mode', () => {
 		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
 		let editorInfoRequests = 0;
 		let codingAgentInfoRequests = 0;
+		let updateConfigRequests = 0;
+		page.on('request', (request) => {
+			if (new URL(request.url()).pathname === '/api/update-config') {
+				updateConfigRequests++;
+			}
+		});
 		await page.route('**/api/default-editor-info', async (route) => {
 			editorInfoRequests++;
 			await route.fulfill({
@@ -581,6 +587,141 @@ test.describe('visual mode', () => {
 			await quickSwitcher.getByRole('textbox').fill('> Settings');
 			await quickSwitcher.getByText('Settings...', {exact: true}).click();
 			const dialog = page.getByRole('dialog');
+			await expect(
+				dialog.getByText('Default codec', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('Output location', {exact: true}),
+			).toHaveCount(0);
+			await expect(
+				dialog.getByText('Audio bitrate', {exact: true}),
+			).toHaveCount(0);
+			const stillImageFormat = dialog.getByTitle('Still image format', {
+				exact: true,
+			});
+			await expect(stillImageFormat).toHaveText('Default (PNG)');
+			await stillImageFormat.click();
+			await page.getByRole('button', {name: 'JPEG', exact: true}).click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain("Config.setStillImageFormat('jpeg');");
+			await expect(stillImageFormat).toHaveText('JPEG');
+			await stillImageFormat.click();
+			await page
+				.getByRole('button', {
+					name: 'Default (PNG)',
+					exact: true,
+				})
+				.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setStillImageFormat');
+			await expect(stillImageFormat).toHaveText('Default (PNG)');
+			const audioCodec = dialog.getByTitle('Audio codec', {exact: true});
+			await expect(audioCodec).toHaveText('Default (Automatic)');
+			await audioCodec.click();
+			const automaticAudioCodec = page
+				.getByRole('button', {
+					name: 'Default (Automatic)',
+					exact: true,
+				})
+				.last();
+			const aacAudioCodec = page
+				.getByRole('button', {
+					name: 'AAC',
+					exact: true,
+				})
+				.last();
+			await expect(automaticAudioCodec.getByRole('img')).toHaveCount(1);
+			await expect(aacAudioCodec.getByRole('img')).toHaveCount(0);
+			await aacAudioCodec.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain("Config.setAudioCodec('aac');");
+			await expect(audioCodec).toHaveText('AAC');
+			await audioCodec.click();
+			await expect(automaticAudioCodec.getByRole('img')).toHaveCount(0);
+			await expect(aacAudioCodec.getByRole('img')).toHaveCount(1);
+			await automaticAudioCodec.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setAudioCodec');
+			await expect(audioCodec).toHaveText('Default (Automatic)');
+			await dialog.getByText('Studio', {exact: true}).click();
+			for (const setting of [
+				'Ask AI enabled',
+				'Keyboard shortcuts enabled',
+				'Interactivity enabled',
+				'Max timeline tracks',
+				'Audio latency hint',
+				'Number of shared audio tags',
+				'Beep on finish',
+				'Bundler',
+				'Cross-site isolation',
+				'Log level',
+			]) {
+				await expect(dialog.getByText(setting, {exact: true})).toBeVisible();
+			}
+			await expect(
+				dialog.getByRole('button', {name: 'Number of shared audio tags'}),
+			).toBeVisible();
+
+			const askAIEnabled = dialog.getByTitle('Ask AI enabled', {exact: true});
+			await expect(askAIEnabled).toHaveText('Default (Enabled)');
+			await askAIEnabled.click();
+			await page
+				.getByRole('button', {name: 'Disabled', exact: true})
+				.last()
+				.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain('Config.setAskAIEnabled(false);');
+			await askAIEnabled.click();
+			await page
+				.getByRole('button', {name: 'Default (Enabled)', exact: true})
+				.last()
+				.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setAskAIEnabled');
+
+			const maxTimelineTracks = dialog.getByRole('button', {
+				name: 'Max timeline tracks',
+			});
+			const maxTimelineTracksBounds = await maxTimelineTracks.boundingBox();
+			expect(maxTimelineTracksBounds).not.toBeNull();
+			const requestsBeforeDrag = updateConfigRequests;
+			await page.mouse.move(
+				maxTimelineTracksBounds!.x + maxTimelineTracksBounds!.width / 2,
+				maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
+			);
+			await page.mouse.down();
+			for (let step = 1; step <= 6; step++) {
+				await page.mouse.move(
+					maxTimelineTracksBounds!.x +
+						maxTimelineTracksBounds!.width / 2 +
+						step * 3,
+					maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
+				);
+				await page.waitForTimeout(80);
+			}
+			expect(updateConfigRequests).toBe(requestsBeforeDrag);
+			await page.mouse.up();
+			await expect
+				.poll(() => updateConfigRequests)
+				.toBe(requestsBeforeDrag + 1);
+			await page.waitForTimeout(500);
+			expect(updateConfigRequests).toBe(requestsBeforeDrag + 1);
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain('Config.setMaxTimelineTracks(');
+			await dialog.getByTitle('Use default (90)', {exact: true}).click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setMaxTimelineTracks');
+			await expect(maxTimelineTracks).toHaveText('Default (90)');
+
+			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(
 				dialog.getByTitle('Default editor', {exact: true}),
 			).toHaveText('Cursor');
@@ -1323,7 +1464,12 @@ test.describe('visual mode', () => {
 				.click();
 
 			const settings = page.getByRole('dialog');
-			await expect(settings.getByText('Apps', {exact: true})).toBeVisible();
+			await expect(
+				settings.getByTitle('Default editor', {exact: true}),
+			).toBeVisible();
+			await expect(
+				settings.getByText('Default codec', {exact: true}),
+			).toHaveCount(0);
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);
 		}

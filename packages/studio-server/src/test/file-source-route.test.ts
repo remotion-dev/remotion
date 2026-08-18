@@ -91,6 +91,7 @@ test('serves file source from an origin-less GET request', async () => {
 				keyboardShortcutsEnabled: true,
 				maxTimelineTracks: null,
 				publicLicenseKey: null,
+				configFileStudioSettings: null,
 			}),
 			gitSource: null,
 			liveEventsServer: noopLiveEventsServer,

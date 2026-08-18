@@ -12,6 +12,7 @@ const getDefaults = (): RenderDefaults => {
 		scale: 1,
 		logLevel: 'info',
 		codec: 'h264',
+		crf: null,
 		concurrency: 4,
 		minConcurrency: 1,
 		muted: false,
@@ -51,6 +52,7 @@ const getDefaults = (): RenderDefaults => {
 		publicLicenseKey: null,
 		outputLocation: null,
 		sampleRate: 48000,
+		configFileRenderDefaults: null,
 	};
 };
 

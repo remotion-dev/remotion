@@ -1,12 +1,15 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {AppsIcon} from '../icons/apps';
 import {CertificateIcon} from '../icons/certificate';
+import {RemotionTriangleIcon} from '../icons/remotion-triangle';
+import {FilmIcon} from '../icons/video';
 import {SetSelectedModalContext} from '../state/modals';
 import {DefaultEditorSettings} from './ConfigureDefaultEditorModal';
 import {LicenseSettings} from './ConfigureLicenseModal';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
+import {RenderingSettings} from './RenderingSettings';
 import {
 	horizontalLayout,
 	horizontalTab,
@@ -18,12 +21,19 @@ import {
 } from './RenderModal/render-modals';
 import {useSettings} from './SettingsContext';
 import {SettingsModalFooter} from './SettingsModalFooter';
+import {StudioSettings} from './StudioSettings';
 import {VerticalTab} from './Tabs/vertical';
 
-type SettingsTab = 'apps' | 'license';
+type SettingsTab = 'apps' | 'rendering' | 'studio' | 'license';
 
 const hiddenPanel: React.CSSProperties = {
 	display: 'none',
+};
+
+const settingsOptionsPanel: React.CSSProperties = {
+	...optionsPanel,
+	boxSizing: 'border-box',
+	paddingBottom: 16,
 };
 
 const appsIcon: React.CSSProperties = {
@@ -72,6 +82,30 @@ export const SettingsModal: React.FC<{
 					<div style={leftSidebar}>
 						<VerticalTab
 							style={horizontalTab}
+							selected={tab === 'rendering'}
+							onClick={() => selectTab('rendering')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<FilmIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Defaults
+						</VerticalTab>
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'studio'}
+							onClick={() => selectTab('studio')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<RemotionTriangleIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Studio
+						</VerticalTab>
+						<VerticalTab
+							style={horizontalTab}
 							selected={tab === 'apps'}
 							onClick={() => selectTab('apps')}
 							renderIcon={(color) => (
@@ -97,7 +131,7 @@ export const SettingsModal: React.FC<{
 					</div>
 					{openedTabs.includes('apps') ? (
 						<div
-							style={tab === 'apps' ? optionsPanel : hiddenPanel}
+							style={tab === 'apps' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<DefaultEditorSettings />
@@ -105,10 +139,26 @@ export const SettingsModal: React.FC<{
 					) : null}
 					{openedTabs.includes('license') ? (
 						<div
-							style={tab === 'license' ? optionsPanel : hiddenPanel}
+							style={tab === 'license' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<LicenseSettings />
+						</div>
+					) : null}
+					{openedTabs.includes('rendering') ? (
+						<div
+							style={tab === 'rendering' ? settingsOptionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<RenderingSettings />
+						</div>
+					) : null}
+					{openedTabs.includes('studio') ? (
+						<div
+							style={tab === 'studio' ? settingsOptionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<StudioSettings />
 						</div>
 					) : null}
 				</div>

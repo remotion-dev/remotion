@@ -40,7 +40,7 @@ export const SettingsModalFooter: React.FC = () => {
 	}, []);
 
 	return (
-		<ModalFooterContainer style={footer} noBorder>
+		<ModalFooterContainer style={footer}>
 			<div style={footerRow}>
 				<div style={configFileHint}>
 					Changes save to
