@@ -75,3 +75,47 @@ test('Should create captions', () => {
 		},
 	]);
 });
+
+test('Should finalize the duration when captions end in whitespace', () => {
+	const {pages} = createTikTokStyleCaptions({
+		captions: [
+			{
+				text: ' one',
+				startMs: 0,
+				endMs: 500,
+				timestampMs: 0,
+				confidence: null,
+			},
+			{
+				text: ' two',
+				startMs: 500,
+				endMs: 1000,
+				timestampMs: 500,
+				confidence: null,
+			},
+			{
+				text: ' ',
+				startMs: 2000,
+				endMs: 2000,
+				timestampMs: 2000,
+				confidence: null,
+			},
+		],
+		combineTokensWithinMilliseconds: 200,
+	});
+
+	expect(pages).toEqual([
+		{
+			text: 'one',
+			startMs: 0,
+			durationMs: 500,
+			tokens: [{text: 'one', fromMs: 0, toMs: 500}],
+		},
+		{
+			text: 'two',
+			startMs: 500,
+			durationMs: 1500,
+			tokens: [{text: 'two', fromMs: 500, toMs: 1000}],
+		},
+	]);
+});
