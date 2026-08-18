@@ -178,8 +178,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									⠿
 								</span>
 								<span className={styles.dragHandleText}>
-									<strong>Drag to your Studio tab</strong>
-									<small>Drop it on the canvas or timeline</small>
+									<strong>Drag to your Studio canvas or timeline</strong>
 								</span>
 							</div>
 							{installStatus.type === 'success' ||

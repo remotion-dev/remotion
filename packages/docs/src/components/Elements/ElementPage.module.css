@@ -155,11 +155,6 @@
 	font-weight: 600;
 }
 
-.dragHandleText small {
-	color: var(--ifm-color-emphasis-600);
-	font-size: 0.75rem;
-}
-
 .successStatus,
 .errorStatus {
 	margin: 12px 0 0;
