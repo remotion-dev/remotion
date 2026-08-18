@@ -73,6 +73,112 @@ test('loads the Browser Studio canvas and enables Visual Mode', async ({
 	expect(updateAvailableRequests).toEqual([]);
 });
 
+test('drops and imports an Element payload with the deployment Remotion version', async ({
+	page,
+}) => {
+	await page.goto('/');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await studio.locator('[data-compname="MyComp"]').click();
+	const canvas = studio.locator('.remotion-studio-composition-container');
+	await expect(canvas).toBeVisible();
+	const box = await canvas.boundingBox();
+	if (box === null) {
+		throw new Error('Browser Studio canvas has no bounding box');
+	}
+
+	const dataTransfer = await canvas.evaluateHandle(() => new DataTransfer());
+	await dataTransfer.evaluate((transfer) => {
+		const payload = JSON.stringify({
+			type: 'remotion-element',
+			version: 1,
+			element: {
+				dependencies: [{name: '@remotion/shapes', version: null}],
+				dimensions: {width: 320, height: 180},
+				displayName: 'Browser Element',
+				durationInFrames: 60,
+				installationMode: 'wrapped',
+				slug: 'browser-element',
+				sourceCode: `import {Rect} from '@remotion/shapes';
+
+export const BrowserElement = () => <Rect width={320} height={180} fill="red" />;
+`,
+			},
+		});
+		transfer.effectAllowed = 'copy';
+		transfer.setData(
+			'application/vnd.remotion.drag+json;v=1;type=element;width=320;height=180;duration=60',
+			payload,
+		);
+		transfer.setData('text/plain', payload);
+	});
+	const coordinates = {
+		clientX: box.x + box.width / 2,
+		clientY: box.y + box.height / 2,
+		dataTransfer,
+	};
+	await canvas.dispatchEvent('dragover', coordinates);
+	await canvas.dispatchEvent('drop', coordinates);
+
+	await expect(
+		studio.getByText('Install Element', {exact: true}),
+	).toBeVisible();
+	await expect(
+		studio.getByText('Unverified drag-and-drop payload'),
+	).toBeVisible();
+	await expect(
+		studio.getByText(
+			'Dependencies are resolved in the browser; package lifecycle scripts do not run.',
+		),
+	).toBeVisible();
+	await studio.getByRole('button', {name: /^Install/}).click();
+
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+					__browserStudioRemotionVersion: string;
+				};
+				const packageJson = JSON.parse(
+					browserWindow.__browserStudioProject.files['/project/package.json'],
+				) as {dependencies: Record<string, string>};
+				return {
+					composition:
+						browserWindow.__browserStudioProject.files[
+							'/project/src/Composition.tsx'
+						],
+					element:
+						browserWindow.__browserStudioProject.files[
+							'/project/src/browser-element.element.tsx'
+						],
+					installedVersion: packageJson.dependencies['@remotion/shapes'],
+					remotionVersion: browserWindow.__browserStudioRemotionVersion,
+				};
+			}),
+		)
+		.toMatchObject({
+			composition: expect.stringContaining('<BrowserElement />'),
+			element: expect.stringContaining('export const BrowserElement'),
+			installedVersion: expect.any(String),
+		});
+	const versions = await page.evaluate(() => {
+		const browserWindow = window as typeof window & {
+			__browserStudioProject: {files: Record<string, string>};
+			__browserStudioRemotionVersion: string;
+		};
+		const packageJson = JSON.parse(
+			browserWindow.__browserStudioProject.files['/project/package.json'],
+		) as {dependencies: Record<string, string>};
+		return {
+			installed: packageJson.dependencies['@remotion/shapes'],
+			remotion: browserWindow.__browserStudioRemotionVersion,
+		};
+	});
+	expect(versions.installed).toBe(versions.remotion);
+	await expect(studio.getByText('Browser Element')).toBeVisible();
+});
+
 test('clears hover backgrounds even if pointer leave events are lost', async ({
 	page,
 }) => {

@@ -3,6 +3,7 @@ import type {JSXOpeningElement} from '@babel/types';
 import type {
 	CanUpdateDefaultPropsResponse,
 	CompositionComponentInfoRequest,
+	InsertableCompositionElementPosition,
 	InsertJsxElementRequest,
 	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
@@ -883,6 +884,91 @@ const getImportEdit = ({
 	};
 };
 
+const findNamedImportedLocalName = ({
+	ast,
+	importedName,
+	importPath,
+}: {
+	ast: AstNode;
+	importedName: string;
+	importPath: string;
+}) => {
+	for (const statement of programStatements(ast)) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			getString(getNode(statement, 'source'), 'value') !== importPath
+		) {
+			continue;
+		}
+
+		for (const specifier of getNodes(statement, 'specifiers')) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				(getString(getNode(specifier, 'imported'), 'name') ??
+					getString(getNode(specifier, 'imported'), 'value')) === importedName
+			) {
+				return getString(getNode(specifier, 'local'), 'name') ?? importedName;
+			}
+		}
+	}
+
+	return null;
+};
+
+const getNamedImportEdit = ({
+	ast,
+	importedName,
+	importPath,
+	localName,
+}: {
+	ast: AstNode;
+	importedName: string;
+	importPath: string;
+	localName: string;
+}): TextEdit => {
+	const specifier =
+		importedName === localName
+			? importedName
+			: `${importedName} as ${localName}`;
+	const existingImport = programStatements(ast).find(
+		(statement) =>
+			statement.type === 'ImportDeclaration' &&
+			getString(getNode(statement, 'source'), 'value') === importPath &&
+			getString(statement, 'importKind') !== 'type' &&
+			!getNodes(statement, 'specifiers').some(
+				(item) => item.type === 'ImportNamespaceSpecifier',
+			),
+	);
+	if (existingImport) {
+		const existingSpecifiers = getNodes(existingImport, 'specifiers');
+		const lastNamedSpecifier = existingSpecifiers
+			.filter((item) => item.type === 'ImportSpecifier')
+			.at(-1);
+		if (lastNamedSpecifier) {
+			const end = getPosition(lastNamedSpecifier, 'end');
+			return {end, start: end, text: `, ${specifier}`};
+		}
+
+		const defaultSpecifier = existingSpecifiers.find(
+			(item) => item.type === 'ImportDefaultSpecifier',
+		);
+		if (defaultSpecifier) {
+			const end = getPosition(defaultSpecifier, 'end');
+			return {end, start: end, text: `, {${specifier}}`};
+		}
+	}
+
+	const firstImport = programStatements(ast).find(
+		(statement) => statement.type === 'ImportDeclaration',
+	);
+	const start = firstImport ? getPosition(firstImport, 'start') : 0;
+	return {
+		end: start,
+		start,
+		text: `import {${specifier}} from ${JSON.stringify(importPath)};\n`,
+	};
+};
+
 const lineIndentAt = (source: string, position: number) => {
 	const lineStart = source.lastIndexOf('\n', position - 1) + 1;
 	return source.slice(lineStart, position).match(/^\s*/)?.[0] ?? '';
@@ -1144,6 +1230,60 @@ export const insertSolidIntoSource = ({
 	};
 };
 
+const getNodePathRemappings = ({
+	afterSource,
+	beforeSource,
+}: {
+	afterSource: string;
+	beforeSource: string;
+}) => {
+	const astBefore = parseAst(beforeSource);
+	const astAfter = parseAst(afterSource);
+	const before: Array<{nodePath: SequenceNodePath; signature: string}> = [];
+	const after: Array<{nodePath: SequenceNodePath; signature: string}> = [];
+	recast.visit(astBefore, {
+		visitJSXOpeningElement(path) {
+			before.push({
+				nodePath: getNodePathForRecastPath(path, astBefore),
+				signature: recast.print(path.node as JSXOpeningElement).code,
+			});
+			return this.traverse(path);
+		},
+	});
+	recast.visit(astAfter, {
+		visitJSXOpeningElement(path) {
+			after.push({
+				nodePath: getNodePathForRecastPath(path, astAfter),
+				signature: recast.print(path.node as JSXOpeningElement).code,
+			});
+			return this.traverse(path);
+		},
+	});
+
+	let nextAfterIndex = 0;
+	return before.flatMap(
+		({nodePath, signature}): SequenceNodePathRemapping[] => {
+			const matchedIndex = after.findIndex(
+				(item, index) =>
+					index >= nextAfterIndex && item.signature === signature,
+			);
+			if (matchedIndex === -1) {
+				throw new Error(
+					'Could not map JSX node paths after inserting an element',
+				);
+			}
+
+			nextAfterIndex = matchedIndex + 1;
+			const newNodePath = after[matchedIndex].nodePath;
+			if (JSON.stringify(nodePath) === JSON.stringify(newNodePath)) {
+				return [];
+			}
+
+			return [{oldNodePath: nodePath, newNodePath}];
+		},
+	);
+};
+
 export const insertSolidIntoProjectWithNodePathRemappings = <
 	Project extends CodemodProject,
 >({
@@ -1197,55 +1337,10 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 		source: resolved.source,
 		width: request.element.width,
 	});
-	const astBefore = parseAst(resolved.source);
-	const astAfter = parseAst(output);
-	const before: Array<{
-		nodePath: SequenceNodePath;
-		signature: string;
-	}> = [];
-	const after: Array<{
-		nodePath: SequenceNodePath;
-		signature: string;
-	}> = [];
-	recast.visit(astBefore, {
-		visitJSXOpeningElement(path) {
-			before.push({
-				nodePath: getNodePathForRecastPath(path, astBefore),
-				signature: recast.print(path.node as JSXOpeningElement).code,
-			});
-			return this.traverse(path);
-		},
+	const nodePathRemappings = getNodePathRemappings({
+		afterSource: output,
+		beforeSource: resolved.source,
 	});
-	recast.visit(astAfter, {
-		visitJSXOpeningElement(path) {
-			after.push({
-				nodePath: getNodePathForRecastPath(path, astAfter),
-				signature: recast.print(path.node as JSXOpeningElement).code,
-			});
-			return this.traverse(path);
-		},
-	});
-
-	let nextAfterIndex = 0;
-	const nodePathRemappings = before.flatMap(
-		({nodePath, signature}): SequenceNodePathRemapping[] => {
-			const matchedIndex = after.findIndex(
-				(item, index) =>
-					index >= nextAfterIndex && item.signature === signature,
-			);
-			if (matchedIndex === -1) {
-				throw new Error('Could not map JSX node paths after inserting <Solid>');
-			}
-
-			nextAfterIndex = matchedIndex + 1;
-			const newNodePath = after[matchedIndex].nodePath;
-			if (JSON.stringify(nodePath) === JSON.stringify(newNodePath)) {
-				return [];
-			}
-
-			return [{oldNodePath: nodePath, newNodePath}];
-		},
-	);
 
 	return {
 		filePath: resolved.filePath,
@@ -1256,6 +1351,227 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 				...project.files,
 				[resolved.filePath]: output,
 			},
+		},
+	};
+};
+
+export const getCompositionInsertionTarget = <Project extends CodemodProject>({
+	compositionFile,
+	compositionId,
+	project,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	project: Project;
+}) => {
+	const resolved = resolveCompositionComponent({
+		compositionFile,
+		compositionId,
+		project,
+	});
+	if (!resolved.canAddSequence) {
+		throw new Error('Cannot insert Element into this composition component');
+	}
+
+	return {filePath: resolved.filePath};
+};
+
+export type InsertElementComponentCodemodRequest = {
+	componentName: string;
+	compositionFile: string;
+	compositionId: string;
+	dimensions: {width: number; height: number} | null;
+	displayName: string;
+	durationInFrames: number | null;
+	from: number | null;
+	importPath: string;
+	installationMode: 'wrapped' | 'component-owned-sequence';
+	position: InsertableCompositionElementPosition | null;
+};
+
+const elementPositionStyle = (
+	position: InsertableCompositionElementPosition | null,
+) => {
+	const translate = position
+		? `, translate: '${roundCoordinate(position.x)}px ${roundCoordinate(position.y)}px'`
+		: '';
+	return `style={{position: 'absolute'${translate}}}`;
+};
+
+const insertElementComponentIntoSource = ({
+	exportName,
+	request,
+	source,
+}: {
+	exportName: string | 'default';
+	request: InsertElementComponentCodemodRequest;
+	source: string;
+}) => {
+	const ast = parseSource(source);
+	const declaration =
+		exportName === 'default'
+			? findDefaultDeclaration(ast)
+			: findNamedDeclaration(ast, exportName);
+	if (!declaration) {
+		throw new Error(`Could not find composition component "${exportName}"`);
+	}
+
+	const root = getReturnedRoot(declaration);
+	if (!canAddToRoot(root)) {
+		throw new Error('Cannot insert Element into this composition component');
+	}
+
+	const existingLocalName = findNamedImportedLocalName({
+		ast,
+		importedName: request.componentName,
+		importPath: request.importPath,
+	});
+	if (!existingLocalName && collectBindings(ast).has(request.componentName)) {
+		throw new Error(
+			`Cannot add <${request.componentName}> because ${request.componentName} is already defined`,
+		);
+	}
+
+	const componentLocalName = existingLocalName ?? request.componentName;
+	const openingElement =
+		root.type === 'JSXElement' ? getNode(root, 'openingElement') : null;
+	const isSelfClosing = openingElement?.selfClosing === true;
+	const needsSequence = request.installationMode === 'wrapped' || isSelfClosing;
+	const sequenceImport = needsSequence
+		? chooseLocalName({
+				ast,
+				candidates: ['Sequence', 'RemotionSequence'],
+				importedName: 'Sequence',
+			})
+		: null;
+	const componentProps =
+		request.installationMode === 'component-owned-sequence'
+			? [
+					...(request.durationInFrames === null
+						? []
+						: [`durationInFrames={${request.durationInFrames}}`]),
+					`name=${JSON.stringify(request.displayName)}`,
+					...(request.from === null ? [] : [`from={${request.from}}`]),
+					elementPositionStyle(request.position),
+				]
+			: [];
+	const component = `<${componentLocalName}${componentProps.length === 0 ? '' : ` ${componentProps.join(' ')}`} />`;
+	const element =
+		request.installationMode === 'component-owned-sequence'
+			? component
+			: `<${sequenceImport!.localName}${[
+					...(request.from === null ? [] : [`from={${request.from}}`]),
+					`name=${JSON.stringify(request.displayName)}`,
+					...(request.dimensions === null
+						? []
+						: [
+								`width={${request.dimensions.width}}`,
+								`height={${request.dimensions.height}}`,
+							]),
+					...(request.durationInFrames === null
+						? []
+						: [`durationInFrames={${request.durationInFrames}}`]),
+					elementPositionStyle(request.position),
+				]
+					.map((attribute) => ` ${attribute}`)
+					.join('')}>${component}</${sequenceImport!.localName}>`;
+	const unit = indentationUnit(source);
+	const rootEdit =
+		root.type === 'NullLiteral'
+			? replaceNullRoot({element, root, source, unit})
+			: root.type === 'JSXElement'
+				? replaceJsxElementRoot({
+						element,
+						root,
+						sequenceLocalName: sequenceImport?.localName ?? null,
+						source,
+						unit,
+						wrapRootInSequence: isSelfClosing,
+					})
+				: appendToJsxRoot({element, root, source, unit});
+	const componentImportEdit = existingLocalName
+		? null
+		: getNamedImportEdit({
+				ast,
+				importedName: request.componentName,
+				importPath: request.importPath,
+				localName: request.componentName,
+			});
+	const sequenceImportEdit = sequenceImport?.addImport
+		? getImportEdit({
+				ast,
+				imports: [
+					{
+						importedName: 'Sequence',
+						localName: sequenceImport.localName,
+					},
+				],
+			})
+		: null;
+
+	return applyTextEdits(source, [
+		rootEdit,
+		...(componentImportEdit ? [componentImportEdit] : []),
+		...(sequenceImportEdit ? [sequenceImportEdit] : []),
+	]);
+};
+
+export const insertElementComponentIntoProjectWithNodePathRemappings = <
+	Project extends CodemodProject,
+>({
+	project,
+	request,
+}: {
+	project: Project;
+	request: InsertElementComponentCodemodRequest;
+}): {
+	filePath: string;
+	nodePathRemappings: SequenceNodePathRemapping[];
+	project: Project;
+} => {
+	if (!/^[A-Z_$][A-Za-z0-9_$]*$/.test(request.componentName)) {
+		throw new Error('Element component name is invalid');
+	}
+
+	if (
+		request.from !== null &&
+		(!Number.isInteger(request.from) || request.from < 0)
+	) {
+		throw new Error('from must be a non-negative integer');
+	}
+
+	if (
+		request.position !== null &&
+		(!Number.isFinite(request.position.x) ||
+			!Number.isFinite(request.position.y))
+	) {
+		throw new Error('Position must be finite');
+	}
+
+	const resolved = resolveCompositionComponent({
+		compositionFile: request.compositionFile,
+		compositionId: request.compositionId,
+		project,
+	});
+	if (!resolved.canAddSequence) {
+		throw new Error('Cannot insert Element into this composition component');
+	}
+
+	const output = insertElementComponentIntoSource({
+		exportName: resolved.exportName,
+		request,
+		source: resolved.source,
+	});
+
+	return {
+		filePath: resolved.filePath,
+		nodePathRemappings: getNodePathRemappings({
+			afterSource: output,
+			beforeSource: resolved.source,
+		}),
+		project: {
+			...project,
+			files: {...project.files, [resolved.filePath]: output},
 		},
 	};
 };

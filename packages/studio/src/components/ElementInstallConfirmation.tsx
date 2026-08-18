@@ -210,6 +210,7 @@ export const ElementInstallConfirmation: React.FC<{
 	readonly dependenciesToReview: string[];
 	readonly missingPackages: string[];
 	readonly sourceCode: string;
+	readonly usesBrowserDependencyResolution: boolean;
 }> = ({
 	displayName,
 	sourceLabel,
@@ -220,6 +221,7 @@ export const ElementInstallConfirmation: React.FC<{
 	dependenciesToReview,
 	missingPackages,
 	sourceCode,
+	usesBrowserDependencyResolution,
 }) => {
 	return (
 		<div style={container}>
@@ -293,9 +295,10 @@ export const ElementInstallConfirmation: React.FC<{
 			<div style={warningStyle}>
 				<WarningTriangle style={warningIconStyle} />
 				<p style={warningDescriptionStyle}>
-					This adds executable source code to your project. Package lifecycle
-					scripts may also run during installation, with access to your files
-					and the network.
+					This adds executable source code to your project.{' '}
+					{usesBrowserDependencyResolution
+						? 'Dependencies are resolved in the browser; package lifecycle scripts do not run.'
+						: 'Package lifecycle scripts may also run during installation, with access to your files and the network.'}
 				</p>
 			</div>
 

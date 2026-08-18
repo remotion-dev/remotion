@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {ElementDragData} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {
@@ -165,6 +166,103 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(events).toHaveLength(eventCount);
 	publicFileManager.dispose();
 	expect(revokedUrls).toContain('blob:virtual-2');
+});
+
+test('imports an Element with pinned Remotion dependencies as one undoable mutation', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const resolvedDependencyNames: string[][] = [];
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {remotion: '4.0.999'},
+		getStaticFiles: null,
+		getProject: () => project,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: (dependencies) => {
+			resolvedDependencyNames.push(
+				dependencies.map((dependency) => dependency.name),
+			);
+			return Promise.resolve({
+				'@remotion/shapes': '0.0.1',
+				zod: '4.1.5',
+			});
+		},
+	});
+	const element = {
+		dependencies: [
+			{name: '@remotion/shapes', version: null},
+			{name: 'zod', version: '4.1.5'},
+		],
+		dimensions: {width: 640, height: 180},
+		displayName: 'Lower Third',
+		durationInFrames: 90,
+		installationMode: 'wrapped' as const,
+		slug: 'titles/lower-third',
+		sourceCode: `import {Rect} from '@remotion/shapes';
+
+export const LowerThird = () => <Rect width={640} height={180} />;
+`,
+	} satisfies ElementDragData['element'];
+	const preflight = await operations.prepareElementInstall({
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element,
+	});
+	if (!preflight.success) {
+		throw new Error(preflight.reason);
+	}
+
+	expect(preflight.plan).toEqual({
+		expectedFileState: {exists: false},
+		filePath: 'src/lower-third.element.tsx',
+	});
+	const inserted = await operations.insertElement({
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element,
+		expectedFileState: preflight.plan.expectedFileState,
+		from: 12,
+		overwriteExisting: false,
+		position: {x: 24, y: 48},
+	});
+	if (!inserted.success) {
+		throw new Error(
+			inserted.type === 'error' ? inserted.reason : 'Unexpected file conflict',
+		);
+	}
+
+	expect(resolvedDependencyNames).toEqual([['@remotion/shapes', 'zod']]);
+	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
+		element.sourceCode,
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'import {LowerThird} from "./lower-third.element";',
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'<Sequence from={12} name="Lower Third" width={640} height={180} durationInFrames={90}',
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		"translate: '24px 48px'",
+	);
+	const packageJson = JSON.parse(project.files['/project/package.json']) as {
+		dependencies: Record<string, string>;
+	};
+	expect(packageJson.dependencies['@remotion/shapes']).toBe('4.0.999');
+	expect(packageJson.dependencies.zod).toBe('4.1.5');
+
+	expect((await operations.undo()).success).toBe(true);
+	expect(project.files['/project/src/Composition.tsx']).toBe(
+		initialProject.files['/project/src/Composition.tsx'],
+	);
+	expect(project.files['/project/src/lower-third.element.tsx']).toBeUndefined();
+	expect(project.files['/project/package.json']).toBe(
+		initialProject.files['/project/package.json'],
+	);
+	expect((await operations.redo()).success).toBe(true);
+	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
+		element.sourceCode,
+	);
 });
 
 test('replays an HMR event emitted before the Studio subscribes', () => {

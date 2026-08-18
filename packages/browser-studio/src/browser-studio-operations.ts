@@ -2,16 +2,24 @@ import {
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 	findProjectFile,
+	getCompositionInsertionTarget,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	insertElementComponentIntoProjectWithNodePathRemappings,
 	insertSolidIntoProjectWithNodePathRemappings,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 } from '@remotion/studio-codemods';
+import {
+	StudioProtocolInternals,
+	type ElementDependency,
+} from '@remotion/studio-protocol';
 import type {
 	BrowserStudioOperations,
+	ElementInstallExpectedFileState,
 	EventSourceEvent,
+	InsertElementResponse,
 	InsertJsxElementResponse,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
@@ -66,11 +74,138 @@ const makeSequencePropsSubscriptionKey = ({
 		effectKeys,
 	});
 
+const normalizeElementSource = (source: string) =>
+	source.replace(/\r\n/g, '\n').trim();
+
+const getElementSourceHash = async (source: string) => {
+	const hash = await crypto.subtle.digest(
+		'SHA-256',
+		new TextEncoder().encode(source),
+	);
+	return Array.from(new Uint8Array(hash), (byte) =>
+		byte.toString(16).padStart(2, '0'),
+	).join('');
+};
+
+const dirname = (filePath: string) => {
+	const slash = filePath.replaceAll('\\', '/').lastIndexOf('/');
+	return slash === -1 ? '' : filePath.slice(0, slash);
+};
+
+const relativeToRoot = (filePath: string, rootDir: string) => {
+	const root = rootDir.replace(/\/$/, '');
+	return filePath.startsWith(`${root}/`)
+		? filePath.slice(root.length + 1)
+		: filePath.replace(/^\//, '');
+};
+
+const getElementInstallPlanForProject = async ({
+	compositionFile,
+	compositionId,
+	element,
+	project,
+}: Parameters<BrowserStudioOperations['prepareElementInstall']>[0] & {
+	project: VirtualProject;
+}) => {
+	const componentName =
+		StudioProtocolInternals.getElementComponentNameFromSourceCode(
+			element.sourceCode,
+		);
+	const elementFileName = StudioProtocolInternals.makeElementFileNameFromSlug(
+		element.slug,
+	);
+	if (componentName === null || elementFileName === null) {
+		throw new Error('Invalid Element source');
+	}
+
+	const target = getCompositionInsertionTarget({
+		compositionFile,
+		compositionId,
+		project,
+	});
+	const elementFilePath = `${dirname(target.filePath)}/${elementFileName}`;
+	if (elementFilePath === target.filePath) {
+		throw new Error('Element source file conflicts with the composition file');
+	}
+
+	const existingSource = project.files[elementFilePath] ?? null;
+	const expectedFileState: ElementInstallExpectedFileState =
+		existingSource === null
+			? {exists: false}
+			: {
+					exists: true,
+					sourceHash: await getElementSourceHash(existingSource),
+				};
+
+	return {
+		componentName,
+		elementFilePath,
+		existingSource,
+		expectedFileState,
+		filePath: relativeToRoot(elementFilePath, project.rootDir),
+		importPath: `./${elementFileName.replace(/\.tsx$/, '')}`,
+	};
+};
+
+const expectedFileStateMatches = ({
+	actual,
+	expected,
+}: {
+	actual: ElementInstallExpectedFileState;
+	expected: ElementInstallExpectedFileState;
+}) => {
+	if (actual.exists !== expected.exists) {
+		return false;
+	}
+
+	return (
+		!actual.exists ||
+		(expected.exists && actual.sourceHash === expected.sourceHash)
+	);
+};
+
+const addDependenciesToProject = ({
+	dependencies,
+	project,
+}: {
+	dependencies: Record<string, string>;
+	project: VirtualProject;
+}): VirtualProject => {
+	if (Object.keys(dependencies).length === 0) {
+		return project;
+	}
+
+	const root = project.rootDir.replace(/\/$/, '');
+	const packageJsonPath =
+		Object.keys(project.files).find(
+			(file) => file.replaceAll('\\', '/') === `${root}/package.json`,
+		) ?? `${root}/package.json`;
+	const existing = project.files[packageJsonPath];
+	const parsed = existing
+		? (JSON.parse(existing) as Record<string, unknown>)
+		: {name: 'remotion-browser-studio-project', private: true};
+	const currentDependencies =
+		typeof parsed.dependencies === 'object' && parsed.dependencies !== null
+			? (parsed.dependencies as Record<string, string>)
+			: {};
+	parsed.dependencies = {...currentDependencies, ...dependencies};
+	const indentation = existing?.match(/\n([ \t]+)"/)?.[1] ?? '  ';
+
+	return {
+		...project,
+		files: {
+			...project.files,
+			[packageJsonPath]: `${JSON.stringify(parsed, null, indentation)}\n`,
+		},
+	};
+};
+
 export const createBrowserStudioOperations = ({
 	dependencyVersions,
 	getStaticFiles,
 	getProject,
 	onProjectChange,
+	resolveDependencies,
 }: {
 	dependencyVersions: Record<string, string>;
 	getStaticFiles: Parameters<
@@ -78,6 +213,9 @@ export const createBrowserStudioOperations = ({
 	>[0]['getStaticFiles'];
 	getProject: () => VirtualProject;
 	onProjectChange: (project: VirtualProject) => void;
+	resolveDependencies?: (
+		dependencies: readonly ElementDependency[],
+	) => Promise<Record<string, string>>;
 }): BrowserStudioOperationsController => {
 	const defaultPropsSubscriptions = new Map<string, Set<string>>();
 	const lastDefaultPropsResults = new Map<string, string>();
@@ -197,6 +335,36 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const resolveElementDependencies = async (
+		dependencies: readonly ElementDependency[],
+	) => {
+		const resolved = resolveDependencies
+			? await resolveDependencies(dependencies)
+			: {};
+		const remotionVersion = dependencyVersions.remotion;
+
+		for (const dependency of dependencies) {
+			if (dependency.name.startsWith('@remotion/')) {
+				if (!remotionVersion) {
+					throw new Error(
+						`Cannot resolve ${dependency.name} because the Browser Studio Remotion version is unavailable`,
+					);
+				}
+
+				resolved[dependency.name] = remotionVersion;
+				continue;
+			}
+
+			if (dependency.version === null) {
+				throw new Error(`Could not resolve ${dependency.name}`);
+			}
+
+			resolved[dependency.name] ??= dependency.version;
+		}
+
+		return resolved;
+	};
+
 	return {
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadProject: () =>
@@ -215,6 +383,112 @@ export const createBrowserStudioOperations = ({
 			Promise.resolve(
 				getCompositionComponentInfo({project: getProject(), request}),
 			),
+		insertElement: async (request) => {
+			try {
+				const project = getProject();
+				const plan = await getElementInstallPlanForProject({
+					compositionFile: request.compositionFile,
+					compositionId: request.compositionId,
+					element: request.element,
+					project,
+				});
+				if (
+					request.expectedFileState !== null &&
+					!expectedFileStateMatches({
+						actual: plan.expectedFileState,
+						expected: request.expectedFileState,
+					})
+				) {
+					if (plan.existingSource !== null) {
+						return {
+							success: false,
+							type: 'file-conflict',
+							conflict: {
+								existingSource: plan.existingSource,
+								filePath: plan.filePath,
+								incomingSource: request.element.sourceCode,
+							},
+						};
+					}
+
+					throw new Error('Element source changed during installation');
+				}
+
+				const sourcesDiffer =
+					plan.existingSource !== null &&
+					normalizeElementSource(plan.existingSource) !==
+						normalizeElementSource(request.element.sourceCode);
+				if (
+					sourcesDiffer &&
+					!request.overwriteExisting &&
+					plan.existingSource !== null
+				) {
+					return {
+						success: false,
+						type: 'file-conflict',
+						conflict: {
+							existingSource: plan.existingSource,
+							filePath: plan.filePath,
+							incomingSource: request.element.sourceCode,
+						},
+					};
+				}
+
+				const installedDependencies = await resolveElementDependencies(
+					request.element.dependencies,
+				);
+				const insertion =
+					insertElementComponentIntoProjectWithNodePathRemappings({
+						project,
+						request: {
+							componentName: plan.componentName,
+							compositionFile: request.compositionFile,
+							compositionId: request.compositionId,
+							dimensions: request.element.dimensions,
+							displayName: request.element.displayName,
+							durationInFrames: request.element.durationInFrames ?? null,
+							from: request.from,
+							importPath: plan.importPath,
+							installationMode: request.element.installationMode ?? 'wrapped',
+							position: request.position,
+						},
+					});
+				const projectWithElement = {
+					...insertion.project,
+					files: {
+						...insertion.project.files,
+						[plan.elementFilePath]: request.element.sourceCode,
+					},
+				};
+				const nextProject = addDependenciesToProject({
+					dependencies: installedDependencies,
+					project: projectWithElement,
+				});
+				const nodePathMutation = controller.applyMutation({
+					fileName: insertion.filePath,
+					mutate: () => nextProject,
+					nodePathMutationFiles: [
+						{
+							absolutePath: insertion.filePath,
+							remappings: insertion.nodePathRemappings,
+							restoredNodePaths: [],
+						},
+					],
+				});
+				if (nodePathMutation === null) {
+					throw new Error('Could not insert Element');
+				}
+
+				return {success: true, nodePathMutation};
+			} catch (error) {
+				return {
+					success: false,
+					type: 'error',
+					reason: error instanceof Error ? error.message : String(error),
+					stack: error instanceof Error ? (error.stack ?? '') : '',
+				} satisfies InsertElementResponse;
+			}
+		},
 		insertSolid: (request) => {
 			try {
 				const result = insertSolidIntoProjectWithNodePathRemappings({
@@ -247,6 +521,27 @@ export const createBrowserStudioOperations = ({
 					reason: error instanceof Error ? error.message : String(error),
 					stack: error instanceof Error ? (error.stack ?? '') : '',
 				} satisfies InsertJsxElementResponse);
+			}
+		},
+		prepareElementInstall: async (request) => {
+			try {
+				const plan = await getElementInstallPlanForProject({
+					...request,
+					project: getProject(),
+				});
+				return {
+					success: true,
+					plan: {
+						expectedFileState: plan.expectedFileState,
+						filePath: plan.filePath,
+					},
+				};
+			} catch (error) {
+				return {
+					success: false,
+					reason: error instanceof Error ? error.message : String(error),
+					stack: error instanceof Error ? (error.stack ?? '') : '',
+				};
 			}
 		},
 		redo: controller.redo,
