@@ -163,6 +163,16 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
+	const configFileRenderDefaults = {
+		codec: defaultCodec ?? null,
+		proResProfile:
+			proResProfileOption.getValue({commandLine: {}}).value ?? null,
+		stillImageFormat:
+			stillImageFormatOption.getValue({commandLine: {}}).value ?? null,
+		videoImageFormat:
+			videoImageFormatOption.getValue({commandLine: {}}).value ?? null,
+		x264Preset: x264Option.getValue({commandLine: {}}).value ?? null,
+	};
 
 	return {
 		darkMode,
@@ -211,5 +221,6 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 		publicLicenseKey,
 		outputLocation,
 		sampleRate: sampleRateOption.getValue({commandLine: parsedCli}).value,
+		configFileRenderDefaults,
 	};
 };

@@ -16,6 +16,14 @@ import type {GitSource} from './git-source';
 import type {PackageManager} from './package-manager';
 import type {StudioRuntimeConfig} from './studio-runtime-config';
 
+export type ConfigFileRenderDefaults = {
+	codec: Codec | null;
+	proResProfile: _InternalTypes['ProResProfile'] | null;
+	stillImageFormat: StillImageFormat | null;
+	videoImageFormat: VideoImageFormat | null;
+	x264Preset: X264Preset | null;
+};
+
 export type RenderDefaults = {
 	jpegQuality: number;
 	scale: number;
@@ -61,6 +69,7 @@ export type RenderDefaults = {
 	publicLicenseKey: string | null;
 	outputLocation: string | null;
 	sampleRate: number;
+	configFileRenderDefaults?: ConfigFileRenderDefaults;
 };
 
 declare global {

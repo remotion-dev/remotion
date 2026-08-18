@@ -584,6 +584,27 @@ test.describe('visual mode', () => {
 			await expect(
 				dialog.getByText('Default codec', {exact: true}),
 			).toBeVisible();
+			const stillImageFormat = dialog.getByTitle('Still image format', {
+				exact: true,
+			});
+			await expect(stillImageFormat).toHaveText('Remotion default (PNG)');
+			await stillImageFormat.click();
+			await page.getByRole('button', {name: 'JPEG', exact: true}).click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain("Config.setStillImageFormat('jpeg');");
+			await expect(stillImageFormat).toHaveText('JPEG');
+			await stillImageFormat.click();
+			await page
+				.getByRole('button', {
+					name: 'Remotion default (PNG)',
+					exact: true,
+				})
+				.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setStillImageFormat');
+			await expect(stillImageFormat).toHaveText('Remotion default (PNG)');
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(
 				dialog.getByTitle('Default editor', {exact: true}),

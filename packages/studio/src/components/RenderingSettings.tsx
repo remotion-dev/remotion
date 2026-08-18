@@ -45,21 +45,28 @@ const fullWidth: React.CSSProperties = {
 	width: 180,
 };
 
-const DEFAULT_AUDIO_CODEC = 'automatic';
+const REMOTION_DEFAULT = 'remotion-default';
+const DEFAULT_CODEC: Codec = 'h264';
+const DEFAULT_STILL_IMAGE_FORMAT: StillImageFormat = 'png';
+const DEFAULT_VIDEO_IMAGE_FORMAT: VideoImageFormat = 'jpeg';
+const DEFAULT_PRO_RES_PROFILE: ProResProfile = 'hq';
+const DEFAULT_X264_PRESET: X264Preset = 'medium';
 type ProResProfile = (typeof BrowserSafeApis.proResProfileOptions)[number];
 type QualityMode = 'crf' | 'bitrate';
 
 export const RenderingSettings: React.FC = () => {
 	const {error: settingsError, renderDefaults, revision} = useSettings();
-	const [codec, setCodec] = useState<Codec>('h264');
+	const [codec, setCodec] = useState<Codec | null>(null);
 	const [outputLocation, setOutputLocation] = useState('');
 	const [scale, setScale] = useState(1);
 	const [stillImageFormat, setStillImageFormat] =
-		useState<StillImageFormat>('png');
+		useState<StillImageFormat | null>(null);
 	const [videoImageFormat, setVideoImageFormat] =
-		useState<VideoImageFormat>('jpeg');
-	const [proResProfile, setProResProfile] = useState<ProResProfile>('hq');
-	const [x264Preset, setX264Preset] = useState<X264Preset>('medium');
+		useState<VideoImageFormat | null>(null);
+	const [proResProfile, setProResProfile] = useState<ProResProfile | null>(
+		null,
+	);
+	const [x264Preset, setX264Preset] = useState<X264Preset | null>(null);
 	const [qualityMode, setQualityMode] = useState<QualityMode>('crf');
 	const [crf, setCrf] = useState(18);
 	const [videoBitrate, setVideoBitrate] = useState('1M');
@@ -77,13 +84,19 @@ export const RenderingSettings: React.FC = () => {
 			return;
 		}
 
-		setCodec(renderDefaults.codec);
+		setCodec(renderDefaults.configFileRenderDefaults?.codec ?? null);
 		setOutputLocation(renderDefaults.outputLocation ?? '');
 		setScale(renderDefaults.scale);
-		setStillImageFormat(renderDefaults.stillImageFormat);
-		setVideoImageFormat(renderDefaults.videoImageFormat);
-		setProResProfile(renderDefaults.proResProfile ?? 'hq');
-		setX264Preset(renderDefaults.x264Preset);
+		setStillImageFormat(
+			renderDefaults.configFileRenderDefaults?.stillImageFormat ?? null,
+		);
+		setVideoImageFormat(
+			renderDefaults.configFileRenderDefaults?.videoImageFormat ?? null,
+		);
+		setProResProfile(
+			renderDefaults.configFileRenderDefaults?.proResProfile ?? null,
+		);
+		setX264Preset(renderDefaults.configFileRenderDefaults?.x264Preset ?? null);
 		setQualityMode(renderDefaults.videoBitrate === null ? 'crf' : 'bitrate');
 		setCrf(
 			renderDefaults.crf ??
@@ -102,35 +115,35 @@ export const RenderingSettings: React.FC = () => {
 		setEditedSetters((current) => new Set(current).add(setter));
 	}, []);
 	const selectCodec = useCallback(
-		(value: Codec) => {
+		(value: Codec | null) => {
 			setCodec(value);
 			markEdited('setCodec');
 		},
 		[markEdited],
 	);
 	const selectStillImageFormat = useCallback(
-		(value: StillImageFormat) => {
+		(value: StillImageFormat | null) => {
 			setStillImageFormat(value);
 			markEdited('setStillImageFormat');
 		},
 		[markEdited],
 	);
 	const selectVideoImageFormat = useCallback(
-		(value: VideoImageFormat) => {
+		(value: VideoImageFormat | null) => {
 			setVideoImageFormat(value);
 			markEdited('setVideoImageFormat');
 		},
 		[markEdited],
 	);
 	const selectProResProfile = useCallback(
-		(value: ProResProfile) => {
+		(value: ProResProfile | null) => {
 			setProResProfile(value);
 			markEdited('setProResProfile');
 		},
 		[markEdited],
 	);
 	const selectX264Preset = useCallback(
-		(value: X264Preset) => {
+		(value: X264Preset | null) => {
 			setX264Preset(value);
 			markEdited('setX264Preset');
 		},
@@ -183,7 +196,7 @@ export const RenderingSettings: React.FC = () => {
 		labelValue = (value) => value,
 	}: {
 		options: readonly T[];
-		selected: T;
+		selected: T | null;
 		setSelected: (value: T) => void;
 		labelValue?: (value: T) => string;
 	}): ComboboxValue[] =>
@@ -199,10 +212,37 @@ export const RenderingSettings: React.FC = () => {
 			type: 'item',
 			value,
 		}));
+	const makeRemotionDefaultValue = ({
+		labelValue,
+		onClick,
+		selected,
+	}: {
+		labelValue: string;
+		onClick: () => void;
+		selected: boolean;
+	}): ComboboxValue[] => [
+		{
+			id: REMOTION_DEFAULT,
+			keyHint: null,
+			label: `Remotion default (${labelValue})`,
+			leftItem: selected ? <Checkmark /> : null,
+			onClick,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item',
+			value: REMOTION_DEFAULT,
+		},
+		{id: `${REMOTION_DEFAULT}-divider`, type: 'divider'},
+	];
 
 	const codecValues = useMemo(
-		() =>
-			makeValues({
+		() => [
+			...makeRemotionDefaultValue({
+				labelValue: humanReadableCodec(DEFAULT_CODEC),
+				onClick: () => selectCodec(null),
+				selected: codec === null,
+			}),
+			...makeValues({
 				options: BrowserSafeApis.validCodecs.filter(
 					(value) => value !== 'mp3' && value !== 'wav' && value !== 'aac',
 				),
@@ -210,64 +250,83 @@ export const RenderingSettings: React.FC = () => {
 				setSelected: selectCodec,
 				labelValue: humanReadableCodec,
 			}),
+		],
 		[codec, selectCodec],
 	);
 	const stillFormatValues = useMemo(
-		() =>
-			makeValues({
+		() => [
+			...makeRemotionDefaultValue({
+				labelValue: DEFAULT_STILL_IMAGE_FORMAT.toUpperCase(),
+				onClick: () => selectStillImageFormat(null),
+				selected: stillImageFormat === null,
+			}),
+			...makeValues({
 				options: BrowserSafeApis.validStillImageFormats,
 				selected: stillImageFormat,
 				setSelected: selectStillImageFormat,
 				labelValue: (value) => value.toUpperCase(),
 			}),
+		],
 		[selectStillImageFormat, stillImageFormat],
 	);
 	const videoFormatValues = useMemo(
-		() =>
-			makeValues({
+		() => [
+			...makeRemotionDefaultValue({
+				labelValue: DEFAULT_VIDEO_IMAGE_FORMAT.toUpperCase(),
+				onClick: () => selectVideoImageFormat(null),
+				selected: videoImageFormat === null,
+			}),
+			...makeValues({
 				options: BrowserSafeApis.validVideoImageFormats,
 				selected: videoImageFormat,
 				setSelected: selectVideoImageFormat,
 				labelValue: (value) => value.toUpperCase(),
 			}),
+		],
 		[selectVideoImageFormat, videoImageFormat],
 	);
 	const profileValues = useMemo(
-		() =>
-			makeValues({
+		() => [
+			...makeRemotionDefaultValue({
+				labelValue: labelProResProfile(DEFAULT_PRO_RES_PROFILE),
+				onClick: () => selectProResProfile(null),
+				selected: proResProfile === null,
+			}),
+			...makeValues({
 				options: BrowserSafeApis.proResProfileOptions,
 				selected: proResProfile,
 				setSelected: selectProResProfile,
 				labelValue: labelProResProfile,
 			}),
+		],
 		[proResProfile, selectProResProfile],
 	);
 	const presetValues = useMemo(
-		() =>
-			makeValues({
+		() => [
+			...makeRemotionDefaultValue({
+				labelValue: labelx264Preset(DEFAULT_X264_PRESET),
+				onClick: () => selectX264Preset(null),
+				selected: x264Preset === null,
+			}),
+			...makeValues({
 				options: BrowserSafeApis.x264PresetOptions,
 				selected: x264Preset,
 				setSelected: selectX264Preset,
 				labelValue: labelx264Preset,
 			}),
+		],
 		[selectX264Preset, x264Preset],
 	);
 	const audioCodecValues = useMemo((): ComboboxValue[] => {
 		return [
-			{
-				id: DEFAULT_AUDIO_CODEC,
-				keyHint: null,
-				label: 'Automatic',
-				leftItem: audioCodec === null ? <Checkmark /> : null,
+			...makeRemotionDefaultValue({
+				labelValue: 'Automatic',
 				onClick: () => selectAudioCodec(null),
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: DEFAULT_AUDIO_CODEC,
-			},
+				selected: audioCodec === null,
+			}),
 			...makeValues({
 				options: BrowserSafeApis.validAudioCodecs,
-				selected: audioCodec ?? 'aac',
+				selected: audioCodec,
 				setSelected: selectAudioCodec,
 				labelValue: (value) => value.toUpperCase(),
 			}),
@@ -281,10 +340,13 @@ export const RenderingSettings: React.FC = () => {
 			selected: qualityMode === value,
 		}));
 	}, [qualityMode, selectQualityMode]);
+	const resolvedCodec = codec ?? DEFAULT_CODEC;
 
 	const updates = useMemo((): ConfigUpdate[] => {
 		const allUpdates: ConfigUpdate[] = [
-			{setter: 'setCodec', type: 'set', value: codec},
+			codec === null
+				? {setter: 'setCodec', type: 'delete'}
+				: {setter: 'setCodec', type: 'set', value: codec},
 			outputLocation.trim() === ''
 				? {setter: 'setOutputLocation', type: 'delete'}
 				: {
@@ -293,22 +355,46 @@ export const RenderingSettings: React.FC = () => {
 						value: outputLocation.trim(),
 					},
 			{setter: 'setScale', type: 'set', value: scale},
-			{setter: 'setStillImageFormat', type: 'set', value: stillImageFormat},
-			{setter: 'setVideoImageFormat', type: 'set', value: videoImageFormat},
+			stillImageFormat === null
+				? {setter: 'setStillImageFormat', type: 'delete'}
+				: {
+						setter: 'setStillImageFormat',
+						type: 'set',
+						value: stillImageFormat,
+					},
+			videoImageFormat === null
+				? {setter: 'setVideoImageFormat', type: 'delete'}
+				: {
+						setter: 'setVideoImageFormat',
+						type: 'set',
+						value: videoImageFormat,
+					},
 			qualityMode === 'crf'
 				? {setter: 'setCrf', type: 'set', value: crf}
 				: {setter: 'setCrf', type: 'delete'},
 			qualityMode === 'bitrate'
 				? {setter: 'setVideoBitrate', type: 'set', value: videoBitrate.trim()}
 				: {setter: 'setVideoBitrate', type: 'delete'},
-			...(codec === 'prores'
+			...(resolvedCodec === 'prores'
 				? ([
-						{setter: 'setProResProfile', type: 'set', value: proResProfile},
+						proResProfile === null
+							? {setter: 'setProResProfile', type: 'delete'}
+							: {
+									setter: 'setProResProfile',
+									type: 'set',
+									value: proResProfile,
+								},
 					] satisfies ConfigUpdate[])
 				: []),
-			...(codec === 'h264'
+			...(resolvedCodec === 'h264'
 				? ([
-						{setter: 'setX264Preset', type: 'set', value: x264Preset},
+						x264Preset === null
+							? {setter: 'setX264Preset', type: 'delete'}
+							: {
+									setter: 'setX264Preset',
+									type: 'set',
+									value: x264Preset,
+								},
 					] satisfies ConfigUpdate[])
 				: []),
 			audioCodec === null
@@ -335,6 +421,7 @@ export const RenderingSettings: React.FC = () => {
 		outputLocation,
 		proResProfile,
 		qualityMode,
+		resolvedCodec,
 		scale,
 		stillImageFormat,
 		videoImageFormat,
@@ -388,7 +475,11 @@ export const RenderingSettings: React.FC = () => {
 			<div style={optionRow}>
 				<div style={label}>Default codec</div>
 				<div style={rightRow}>
-					<Combobox values={codecValues} selectedId={codec} title="Codec" />
+					<Combobox
+						values={codecValues}
+						selectedId={codec ?? REMOTION_DEFAULT}
+						title="Codec"
+					/>
 				</div>
 			</div>
 			<div style={optionRow}>
@@ -417,7 +508,7 @@ export const RenderingSettings: React.FC = () => {
 				<div style={rightRow}>
 					<Combobox
 						values={stillFormatValues}
-						selectedId={stillImageFormat}
+						selectedId={stillImageFormat ?? REMOTION_DEFAULT}
 						title="Still image format"
 					/>
 				</div>
@@ -427,7 +518,7 @@ export const RenderingSettings: React.FC = () => {
 				<div style={rightRow}>
 					<Combobox
 						values={videoFormatValues}
-						selectedId={videoImageFormat}
+						selectedId={videoImageFormat ?? REMOTION_DEFAULT}
 						title="Video frame format"
 					/>
 				</div>
@@ -435,8 +526,8 @@ export const RenderingSettings: React.FC = () => {
 
 			<RenderModalHr />
 			<p style={dividerLabel}>Encoding</p>
-			{BrowserSafeApis.codecSupportsCrf(codec) &&
-			BrowserSafeApis.codecSupportsVideoBitrate(codec) ? (
+			{BrowserSafeApis.codecSupportsCrf(resolvedCodec) &&
+			BrowserSafeApis.codecSupportsVideoBitrate(resolvedCodec) ? (
 				<div style={optionRow}>
 					<div style={label}>Quality control</div>
 					<div style={rightRow}>
@@ -445,18 +536,18 @@ export const RenderingSettings: React.FC = () => {
 				</div>
 			) : null}
 			{qualityMode === 'crf' &&
-			BrowserSafeApis.codecSupportsCrf(codec) &&
-			BrowserSafeApis.getValidCrfRanges(codec) ? (
+			BrowserSafeApis.codecSupportsCrf(resolvedCodec) &&
+			BrowserSafeApis.getValidCrfRanges(resolvedCodec) ? (
 				<CrfSetting
 					crf={crf}
 					setCrf={changeCrf}
-					min={BrowserSafeApis.getValidCrfRanges(codec)[0]}
-					max={BrowserSafeApis.getValidCrfRanges(codec)[1]}
+					min={BrowserSafeApis.getValidCrfRanges(resolvedCodec)[0]}
+					max={BrowserSafeApis.getValidCrfRanges(resolvedCodec)[1]}
 					option="crfOption"
 				/>
 			) : null}
 			{qualityMode === 'bitrate' &&
-			BrowserSafeApis.codecSupportsVideoBitrate(codec) ? (
+			BrowserSafeApis.codecSupportsVideoBitrate(resolvedCodec) ? (
 				<div style={optionRow}>
 					<div style={label}>Video bitrate</div>
 					<div style={rightRow}>
@@ -471,25 +562,25 @@ export const RenderingSettings: React.FC = () => {
 					</div>
 				</div>
 			) : null}
-			{codec === 'prores' ? (
+			{resolvedCodec === 'prores' ? (
 				<div style={optionRow}>
 					<div style={label}>ProRes profile</div>
 					<div style={rightRow}>
 						<Combobox
 							values={profileValues}
-							selectedId={proResProfile}
+							selectedId={proResProfile ?? REMOTION_DEFAULT}
 							title="ProRes profile"
 						/>
 					</div>
 				</div>
 			) : null}
-			{codec === 'h264' ? (
+			{resolvedCodec === 'h264' ? (
 				<div style={optionRow}>
 					<div style={label}>x264 preset</div>
 					<div style={rightRow}>
 						<Combobox
 							values={presetValues}
-							selectedId={x264Preset}
+							selectedId={x264Preset ?? REMOTION_DEFAULT}
 							title="x264 preset"
 						/>
 					</div>
@@ -503,7 +594,7 @@ export const RenderingSettings: React.FC = () => {
 				<div style={rightRow}>
 					<Combobox
 						values={audioCodecValues}
-						selectedId={audioCodec ?? DEFAULT_AUDIO_CODEC}
+						selectedId={audioCodec ?? REMOTION_DEFAULT}
 						title="Audio codec"
 					/>
 				</div>
