@@ -30,6 +30,12 @@ const hiddenPanel: React.CSSProperties = {
 	display: 'none',
 };
 
+const settingsOptionsPanel: React.CSSProperties = {
+	...optionsPanel,
+	boxSizing: 'border-box',
+	paddingBottom: 16,
+};
+
 const appsIcon: React.CSSProperties = {
 	...icon,
 	height: 20,
@@ -125,7 +131,7 @@ export const SettingsModal: React.FC<{
 					</div>
 					{openedTabs.includes('apps') ? (
 						<div
-							style={tab === 'apps' ? optionsPanel : hiddenPanel}
+							style={tab === 'apps' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<DefaultEditorSettings />
@@ -133,7 +139,7 @@ export const SettingsModal: React.FC<{
 					) : null}
 					{openedTabs.includes('license') ? (
 						<div
-							style={tab === 'license' ? optionsPanel : hiddenPanel}
+							style={tab === 'license' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<LicenseSettings />
@@ -141,7 +147,7 @@ export const SettingsModal: React.FC<{
 					) : null}
 					{openedTabs.includes('rendering') ? (
 						<div
-							style={tab === 'rendering' ? optionsPanel : hiddenPanel}
+							style={tab === 'rendering' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<RenderingSettings />
@@ -149,7 +155,7 @@ export const SettingsModal: React.FC<{
 					) : null}
 					{openedTabs.includes('studio') ? (
 						<div
-							style={tab === 'studio' ? optionsPanel : hiddenPanel}
+							style={tab === 'studio' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<StudioSettings />
