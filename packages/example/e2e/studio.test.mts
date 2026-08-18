@@ -584,6 +584,9 @@ test.describe('visual mode', () => {
 			await expect(
 				dialog.getByText('Default codec', {exact: true}),
 			).toBeVisible();
+			await expect(
+				dialog.getByText('Output location', {exact: true}),
+			).toHaveCount(0);
 			const stillImageFormat = dialog.getByTitle('Still image format', {
 				exact: true,
 			});

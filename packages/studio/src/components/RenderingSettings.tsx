@@ -57,7 +57,6 @@ type QualityMode = 'crf' | 'bitrate';
 export const RenderingSettings: React.FC = () => {
 	const {error: settingsError, renderDefaults, revision} = useSettings();
 	const [codec, setCodec] = useState<Codec | null>(null);
-	const [outputLocation, setOutputLocation] = useState('');
 	const [scale, setScale] = useState(1);
 	const [stillImageFormat, setStillImageFormat] =
 		useState<StillImageFormat | null>(null);
@@ -85,7 +84,6 @@ export const RenderingSettings: React.FC = () => {
 		}
 
 		setCodec(renderDefaults.configFileRenderDefaults?.codec ?? null);
-		setOutputLocation(renderDefaults.outputLocation ?? '');
 		setScale(renderDefaults.scale);
 		setStillImageFormat(
 			renderDefaults.configFileRenderDefaults?.stillImageFormat ?? null,
@@ -347,13 +345,6 @@ export const RenderingSettings: React.FC = () => {
 			codec === null
 				? {setter: 'setCodec', type: 'delete'}
 				: {setter: 'setCodec', type: 'set', value: codec},
-			outputLocation.trim() === ''
-				? {setter: 'setOutputLocation', type: 'delete'}
-				: {
-						setter: 'setOutputLocation',
-						type: 'set',
-						value: outputLocation.trim(),
-					},
 			{setter: 'setScale', type: 'set', value: scale},
 			stillImageFormat === null
 				? {setter: 'setStillImageFormat', type: 'delete'}
@@ -418,7 +409,6 @@ export const RenderingSettings: React.FC = () => {
 		concurrency,
 		crf,
 		editedSetters,
-		outputLocation,
 		proResProfile,
 		qualityMode,
 		resolvedCodec,
@@ -437,14 +427,6 @@ export const RenderingSettings: React.FC = () => {
 		syncRevision: syncedRevision,
 		updates,
 	});
-
-	const onOutputLocationChange: React.ChangeEventHandler<HTMLInputElement> = (
-		event,
-	) => {
-		setOutputLocation(event.target.value);
-	};
-
-	const onOutputLocationBlur = () => markEdited('setOutputLocation');
 
 	const onAudioBitrateChange: React.ChangeEventHandler<HTMLInputElement> = (
 		event,
@@ -479,20 +461,6 @@ export const RenderingSettings: React.FC = () => {
 						values={codecValues}
 						selectedId={codec ?? REMOTION_DEFAULT}
 						title="Codec"
-					/>
-				</div>
-			</div>
-			<div style={optionRow}>
-				<div style={label}>Output location</div>
-				<div style={rightRow}>
-					<RemotionInput
-						placeholder="out/{composition}.{codec}"
-						style={{...input, ...fullWidth}}
-						value={outputLocation}
-						onChange={onOutputLocationChange}
-						onBlur={onOutputLocationBlur}
-						status="ok"
-						rightAlign
 					/>
 				</div>
 			</div>
