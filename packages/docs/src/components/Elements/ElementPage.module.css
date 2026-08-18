@@ -95,18 +95,69 @@
 	border-radius: 0 !important;
 }
 
-.useIt {
-	padding: 12px;
-	border: 1px solid var(--ifm-color-emphasis-300);
-	border-radius: 12px;
-	background: var(--ifm-background-surface-color);
-}
-
 .actionRow {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 10px;
+}
+
+.dragHandle {
+	position: relative;
+	display: flex;
+	align-items: center;
+	margin-top: 8px;
+	padding: 8px 40px;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 8px;
+	background: var(--ifm-background-surface-color);
+	color: var(--ifm-color-emphasis-800);
+	cursor: grab;
+	font-size: 0.8125rem;
+	user-select: none;
+}
+
+.dragHandle:hover {
+	background: var(--ifm-color-emphasis-100);
+}
+
+.dragHandle:active {
+	cursor: grabbing;
+}
+
+[data-theme='dark'] .dragHandle {
+	border-color: var(--ifm-color-emphasis-200);
+	color: var(--ifm-color-emphasis-700);
+}
+
+.dragHandleIcon {
+	position: absolute;
+	left: 12px;
+	top: 50%;
+	font-size: 1.5rem;
+	line-height: 1;
+	transform: translateY(-50%);
+}
+
+[data-theme='dark'] .dragHandleIcon {
+	color: var(--ifm-color-emphasis-500);
+}
+
+.dragHandleText {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	line-height: 1.3;
+	text-align: center;
+}
+
+.dragHandleText strong {
+	font-weight: 600;
+}
+
+.dragHandleText small {
+	color: var(--ifm-color-emphasis-600);
+	font-size: 0.75rem;
 }
 
 .successStatus,
