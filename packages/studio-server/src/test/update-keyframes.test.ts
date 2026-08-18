@@ -660,7 +660,7 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.scale']).toMatchObject({
 		status: 'keyframed',
-		keyframeDisplayOffsetAdjustment: null,
+		keyframeDisplayOffsetAdjustment: 0,
 		easing: [{type: 'step1'}],
 	});
 });
@@ -1263,7 +1263,7 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.translate']).toEqual({
 		status: 'keyframed',
-		keyframeDisplayOffsetAdjustment: null,
+		keyframeDisplayOffsetAdjustment: 0,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 44, value: '100px 20px'}],
 		easing: [],
@@ -1414,7 +1414,7 @@ export default CenteredSolid;
 	});
 	expect(status.props.width).toEqual({
 		status: 'keyframed',
-		keyframeDisplayOffsetAdjustment: null,
+		keyframeDisplayOffsetAdjustment: 0,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 11, value: 240}],
 		easing: [],

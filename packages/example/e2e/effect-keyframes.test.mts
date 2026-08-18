@@ -95,7 +95,7 @@ test.describe('effect keyframes', () => {
 			keyframes: [{frame: 30, value: 90}],
 			easing: [],
 			clamping: {left: 'clamp', right: 'clamp'},
-			keyframeDisplayOffsetAdjustment: null,
+			keyframeDisplayOffsetAdjustment: 0,
 		});
 
 		await expect
