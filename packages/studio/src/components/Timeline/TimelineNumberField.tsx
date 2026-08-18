@@ -16,6 +16,7 @@ export const TimelineNumberField: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
+	readonly valueStyle?: React.CSSProperties;
 }> = ({
 	field,
 	effectiveValue,
@@ -23,6 +24,7 @@ export const TimelineNumberField: React.FC<{
 	onDragValueChange,
 	onDragEnd,
 	propStatus,
+	valueStyle,
 }) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
 
@@ -85,6 +87,7 @@ export const TimelineNumberField: React.FC<{
 			value={dragValue ?? (effectiveValue as number)}
 			buttonStyle={leftAlignedDraggerStyle}
 			style={draggerStyle}
+			formatterStyle={valueStyle}
 			status="ok"
 			small
 			onValueChange={onValueChange}

@@ -136,6 +136,7 @@ export const TimelineNonEditableStatus: React.FC<{
 						}}
 						effectiveValue={runtimeValue}
 						scaleLockNodePath={scaleLockNodePath}
+						valueStyle={computedValue}
 					/>
 				}
 				fixHref={fixHref}
@@ -153,6 +154,7 @@ export const TimelineFieldValue: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
+	readonly valueStyle?: React.CSSProperties;
 }> = ({
 	field,
 	onSave,
@@ -161,6 +163,7 @@ export const TimelineFieldValue: React.FC<{
 	propStatus,
 	effectiveValue,
 	scaleLockNodePath,
+	valueStyle,
 }) => {
 	if (isTimelinePrimitiveFieldInfo(field)) {
 		return (
@@ -172,6 +175,7 @@ export const TimelineFieldValue: React.FC<{
 				onSave={onSave}
 				propStatus={propStatus}
 				scaleLockNodePath={scaleLockNodePath}
+				valueStyle={valueStyle}
 			/>
 		);
 	}

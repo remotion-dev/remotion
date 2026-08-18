@@ -462,6 +462,10 @@ export const shouldShowTimelineKeyframeControls = ({
 		return false;
 	}
 
+	if (propStatus.status === 'computed') {
+		return false;
+	}
+
 	if (!keyframable && !isKeyframedStatus(propStatus)) {
 		return false;
 	}

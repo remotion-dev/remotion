@@ -448,6 +448,7 @@ export const TimelineSequencePropItem: React.FC<{
 	});
 	const keyframeControls =
 		propStatus !== null &&
+		propStatus.status !== 'computed' &&
 		(keyframeControlsMode === 'inspector'
 			? keyframable
 			: shouldShowTimelineKeyframeControls({
