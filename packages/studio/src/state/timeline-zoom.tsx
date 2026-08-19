@@ -8,7 +8,7 @@ import {prepareToPreserveTimelineCursor} from '../components/Timeline/timeline-s
 import {getZoomFromLocalStorage} from '../components/ZoomPersistor';
 
 export const TIMELINE_MIN_ZOOM = 1;
-export const TIMELINE_MAX_ZOOM = 100;
+export const TIMELINE_MAX_ZOOM = 5;
 
 export type TimelineSetZoomOptions = {
 	anchorFrame: number | null;
