@@ -171,7 +171,7 @@ export const detailsWithInlineAction: React.CSSProperties = {
 	paddingBottom: INSPECTOR_PANEL_HORIZONTAL_PADDING,
 };
 
-export const inspectorQuickActionsSection: React.CSSProperties = {
+export const inspectorActionSection: React.CSSProperties = {
 	padding: '4px 0',
 };
 

@@ -30,9 +30,9 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
 import {
-	InspectorQuickActionsSection,
+	InspectorActionSection,
 	InspectorDefaultPropsWarnings,
-	InspectorQuickAction,
+	InspectorInlineAction,
 	InspectorSectionDivider,
 	InspectorSectionHeader,
 } from './common';
@@ -99,9 +99,9 @@ const CompositionActions: React.FC<{
 	}
 
 	return (
-		<InspectorQuickActionsSection>
+		<InspectorActionSection>
 			{canShowInsertSolid ? (
-				<InspectorQuickAction
+				<InspectorInlineAction
 					disabled={!canInsertSolid}
 					onClick={insertSolid}
 					renderIcon={(color) => (
@@ -109,10 +109,10 @@ const CompositionActions: React.FC<{
 					)}
 				>
 					Add Solid
-				</InspectorQuickAction>
+				</InspectorInlineAction>
 			) : null}
 			{canShowInsertAsset ? (
-				<InspectorQuickAction
+				<InspectorInlineAction
 					disabled={!canInsertAsset}
 					onClick={insertAsset}
 					renderIcon={(color) => (
@@ -120,10 +120,10 @@ const CompositionActions: React.FC<{
 					)}
 				>
 					Add asset...
-				</InspectorQuickAction>
+				</InspectorInlineAction>
 			) : null}
 			{canShowInsertComposition ? (
-				<InspectorQuickAction
+				<InspectorInlineAction
 					disabled={!canInsertComposition}
 					onClick={insertComposition}
 					renderIcon={(color) => (
@@ -131,10 +131,10 @@ const CompositionActions: React.FC<{
 					)}
 				>
 					Add composition...
-				</InspectorQuickAction>
+				</InspectorInlineAction>
 			) : null}
 			{canShowInsertAsset ? (
-				<InspectorQuickAction
+				<InspectorInlineAction
 					disabled={false}
 					iconContainerStyle={browseElementsIconContainerStyle}
 					onClick={openElementsLibrary}
@@ -144,9 +144,9 @@ const CompositionActions: React.FC<{
 					title="Open the Remotion Elements library in a new tab. Install an Element there to send it to this composition."
 				>
 					Browse Elements...
-				</InspectorQuickAction>
+				</InspectorInlineAction>
 			) : null}
-		</InspectorQuickActionsSection>
+		</InspectorActionSection>
 	);
 };
 

@@ -12,7 +12,7 @@ import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {useEditorOpening} from '../use-default-editor-info';
-import {InspectorQuickAction} from './common';
+import {InspectorInlineAction} from './common';
 
 const compositionIconStyle: React.CSSProperties = {
 	height: 18,
@@ -99,7 +99,7 @@ const ConnectedCompositionRow: React.FC<{
 			getItems={getContextMenuItems}
 			style={compositionContextMenuStyle}
 		>
-			<InspectorQuickAction
+			<InspectorInlineAction
 				disabled={false}
 				onClick={() => selectComposition(composition, true)}
 				renderIcon={(color) => (
@@ -111,7 +111,7 @@ const ConnectedCompositionRow: React.FC<{
 				)}
 			>
 				{composition.id}
-			</InspectorQuickAction>
+			</InspectorInlineAction>
 		</ContextMenu>
 	);
 };

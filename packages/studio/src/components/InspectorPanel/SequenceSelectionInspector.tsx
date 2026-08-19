@@ -27,8 +27,8 @@ import {
 import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
 import {
-	InspectorQuickActionsSection,
-	InspectorQuickAction,
+	InspectorActionSection,
+	InspectorInlineAction,
 	InspectorMessage,
 	InspectorSectionDivider,
 } from './common';
@@ -57,7 +57,7 @@ const largeActionIconStyle: React.CSSProperties = {
 	width: 20,
 };
 
-const SplitSequenceQuickAction: React.FC<{
+const SplitSequenceAction: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
 	readonly track: TimelineTrackData;
 }> = ({selection, track}) => {
@@ -104,7 +104,7 @@ const SplitSequenceQuickAction: React.FC<{
 				: eligibility.reason;
 
 	return (
-		<InspectorQuickAction
+		<InspectorInlineAction
 			disabled={!canSplit}
 			onClick={onSplit}
 			title={disabledReason}
@@ -113,11 +113,11 @@ const SplitSequenceQuickAction: React.FC<{
 			)}
 		>
 			Split clip
-		</InspectorQuickAction>
+		</InspectorInlineAction>
 	);
 };
 
-const SequenceSourceQuickActions: React.FC<{
+const SequenceSourceActions: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
 	readonly track: TimelineTrackData;
 	readonly validatedSource: string;
@@ -172,7 +172,7 @@ const SequenceSourceQuickActions: React.FC<{
 	return (
 		<>
 			{freezeFrameMenuItem?.type === 'item' ? (
-				<InspectorQuickAction
+				<InspectorInlineAction
 					disabled={Boolean(freezeFrameMenuItem.disabled)}
 					onClick={() =>
 						freezeFrameMenuItem.onClick(freezeFrameMenuItem.id, null)
@@ -182,9 +182,9 @@ const SequenceSourceQuickActions: React.FC<{
 					)}
 				>
 					{freezeFrameMenuItem.label}
-				</InspectorQuickAction>
+				</InspectorInlineAction>
 			) : null}
-			<InspectorQuickAction
+			<InspectorInlineAction
 				disabled={sourceActionsDisabled}
 				onClick={onDuplicate}
 				renderIcon={(color) => (
@@ -192,8 +192,8 @@ const SequenceSourceQuickActions: React.FC<{
 				)}
 			>
 				Duplicate
-			</InspectorQuickAction>
-			<InspectorQuickAction
+			</InspectorInlineAction>
+			<InspectorInlineAction
 				disabled={sourceActionsDisabled}
 				onClick={onDelete}
 				renderIcon={(color) => (
@@ -201,7 +201,7 @@ const SequenceSourceQuickActions: React.FC<{
 				)}
 			>
 				Delete
-			</InspectorQuickAction>
+			</InspectorInlineAction>
 		</>
 	);
 };
@@ -300,17 +300,14 @@ const SequenceExpandedInspector: React.FC<{
 						keyframeDisplayOffset={track.keyframeDisplayOffset}
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
-					<InspectorQuickActionsSection>
-						<SplitSequenceQuickAction
-							selection={sequenceSelection}
-							track={track}
-						/>
-						<SequenceSourceQuickActions
+					<InspectorActionSection>
+						<SplitSequenceAction selection={sequenceSelection} track={track} />
+						<SequenceSourceActions
 							selection={sequenceSelection}
 							track={track}
 							validatedSource={validatedLocation.source}
 						/>
-					</InspectorQuickActionsSection>
+					</InspectorActionSection>
 				</>
 			) : (
 				<InspectorMessage>Source controls unavailable</InspectorMessage>

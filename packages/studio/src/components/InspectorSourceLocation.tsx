@@ -2,7 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {BACKGROUND, LIGHT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
-import {InspectorQuickAction} from './InspectorPanel/common';
+import {InspectorInlineAction} from './InspectorPanel/common';
 import {getOriginalSourceAttribution} from './Timeline/TimelineStack/source-attribution';
 
 const sourceLocationStyle: React.CSSProperties = {
@@ -46,7 +46,7 @@ export const InspectorSourceLocation: React.FC<{
 	readonly canOpen: boolean;
 	readonly onOpen: () => void;
 	readonly renderIcon?: (color: string) => React.ReactNode;
-	readonly size?: 'default' | 'quick-action';
+	readonly size?: 'default' | 'inline-action';
 }> = ({location, canOpen, onOpen, renderIcon, size = 'default'}) => {
 	const [hovered, setHovered] = useState(false);
 
@@ -98,9 +98,9 @@ export const InspectorSourceLocation: React.FC<{
 		return null;
 	}
 
-	if (size === 'quick-action') {
+	if (size === 'inline-action') {
 		return (
-			<InspectorQuickAction
+			<InspectorInlineAction
 				disabled={!canOpen}
 				onClick={onClick}
 				renderIcon={(iconColor) => renderIcon?.(iconColor)}
@@ -108,7 +108,7 @@ export const InspectorSourceLocation: React.FC<{
 				title={fileLocation ?? undefined}
 			>
 				{label}
-			</InspectorQuickAction>
+			</InspectorInlineAction>
 		);
 	}
 

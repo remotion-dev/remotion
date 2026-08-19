@@ -1,7 +1,7 @@
 import React from 'react';
 import {FAIL_COLOR} from '../helpers/colors';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
-import {InspectorQuickAction} from './InspectorPanel/common';
+import {InspectorInlineAction} from './InspectorPanel/common';
 
 const LICENSE_KEY_LENGTH = 55;
 const LICENSE_KEY_PREFIX = 'rm_pub_';
@@ -140,7 +140,7 @@ export const LicenseKeyDetailsDisplay: React.FC<{
 
 	return (
 		<div>
-			<InspectorQuickAction
+			<InspectorInlineAction
 				disabled={false}
 				onClick={() => window.open(usageUrl, '_blank', 'noopener,noreferrer')}
 				renderIcon={(color) => (
@@ -153,8 +153,8 @@ export const LicenseKeyDetailsDisplay: React.FC<{
 					<span style={actionText}>Belongs to {details.projectName}</span>
 					<span style={actionLabel}>View usage</span>
 				</span>
-			</InspectorQuickAction>
-			<InspectorQuickAction
+			</InspectorInlineAction>
+			<InspectorInlineAction
 				disabled={false}
 				onClick={() => window.open(projectUrl, '_blank', 'noopener,noreferrer')}
 				renderIcon={(color) =>
@@ -175,7 +175,7 @@ export const LicenseKeyDetailsDisplay: React.FC<{
 					</span>
 					<span style={actionLabel}>Manage</span>
 				</span>
-			</InspectorQuickAction>
+			</InspectorInlineAction>
 		</div>
 	);
 };

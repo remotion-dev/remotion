@@ -11,7 +11,7 @@ import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {useOpenSequenceInApps} from '../Timeline/use-open-sequence-in-apps';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
 import {
-	InspectorQuickAction,
+	InspectorInlineAction,
 	InspectorSection,
 	InspectorSectionDivider,
 } from './common';
@@ -145,7 +145,7 @@ export const SequenceInspectorHeader: React.FC<{
 					size="inspector"
 				/>
 				{documentationLink ? (
-					<InspectorQuickAction
+					<InspectorInlineAction
 						disabled={false}
 						style={defaultCursor}
 						size="compact"
@@ -153,7 +153,7 @@ export const SequenceInspectorHeader: React.FC<{
 						onClick={openDocumentationLink}
 					>
 						{componentName}
-					</InspectorQuickAction>
+					</InspectorInlineAction>
 				) : (
 					<div style={subtitleStyle}>{componentName}</div>
 				)}
@@ -162,7 +162,7 @@ export const SequenceInspectorHeader: React.FC<{
 					canOpen={sourceLocation.canOpenInEditor}
 					onOpen={sourceLocation.openFileLocation}
 					renderIcon={renderReactIcon}
-					size="quick-action"
+					size="inline-action"
 				/>
 			</InspectorLocationCopy>
 		</InspectorInfoHeader>

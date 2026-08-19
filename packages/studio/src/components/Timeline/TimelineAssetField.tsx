@@ -12,8 +12,8 @@ import {SetSelectedModalContext} from '../../state/modals';
 import {pickFilesToImport} from '../import-assets';
 import {InlineAction} from '../InlineAction';
 import {
-	InspectorQuickAction,
-	type InspectorQuickActionProps,
+	InspectorInlineAction,
+	type InspectorInlineActionProps,
 } from '../InspectorPanel/common';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useStaticFiles} from '../use-static-files';
@@ -24,7 +24,7 @@ const penIcon: React.CSSProperties = {
 	width: 14,
 };
 
-export type InspectorSourceAction = Omit<InspectorQuickActionProps, 'variant'>;
+export type InspectorSourceAction = Omit<InspectorInlineActionProps, 'variant'>;
 
 type AssetSelectionContextValue = {
 	readonly initialQuery: string;
@@ -166,7 +166,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	}
 
 	return (
-		<InspectorQuickAction
+		<InspectorInlineAction
 			{...inlineSourceAction}
 			size="compact"
 			variant={{

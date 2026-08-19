@@ -71,14 +71,14 @@ const makeDefaultGlobalCSS = () => {
 	  }
 
   .__remotion-composition-selector-item:focus,
-  .__remotion-inspector-quick-action:focus,
+  .__remotion-inspector-inline-action:focus,
   .__remotion-inspector-section-title:focus {
     outline: none;
     box-shadow: none;
   }
 
   .__remotion-composition-selector-item:focus-visible,
-  .__remotion-inspector-quick-action:focus-visible,
+  .__remotion-inspector-inline-action:focus-visible,
   .__remotion-inspector-section-title:focus-visible {
     box-shadow: ${FOCUS_BOX_SHADOW};
   }

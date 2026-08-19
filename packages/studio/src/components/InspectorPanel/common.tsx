@@ -22,7 +22,7 @@ import {
 	detailLabel,
 	detailRow,
 	detailValue,
-	inspectorQuickActionsSection,
+	inspectorActionSection,
 	inspectorSectionBody,
 	inspectorSectionDivider,
 	resolveLinkStyle,
@@ -37,12 +37,12 @@ export const InspectorSectionDivider: React.FC = () => (
 	<div style={inspectorSectionDivider} />
 );
 
-export const InspectorQuickActionsSection: React.FC<{
+export const InspectorActionSection: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => (
 	<>
 		<InspectorSectionDivider />
-		<div style={inspectorQuickActionsSection}>{children}</div>
+		<div style={inspectorActionSection}>{children}</div>
 	</>
 );
 
@@ -87,15 +87,15 @@ export const InspectorBackAction: React.FC<{
 	readonly title: string;
 }> = ({children, disabled, onClick, title}) => {
 	return (
-		<div style={inspectorQuickActionsSection}>
-			<InspectorQuickAction
+		<div style={inspectorActionSection}>
+			<InspectorInlineAction
 				disabled={disabled}
 				onClick={onClick}
 				renderIcon={(color) => <BackArrow color={color} />}
 				title={title}
 			>
 				{children}
-			</InspectorQuickAction>
+			</InspectorInlineAction>
 		</div>
 	);
 };
@@ -202,14 +202,14 @@ const segmentedTrailingAction: React.CSSProperties = {
 	width: 28,
 };
 
-export type InspectorQuickActionSegment = {
+export type InspectorInlineActionSegment = {
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly renderIcon: (color: string) => React.ReactNode;
 	readonly title?: string;
 };
 
-export type InspectorQuickActionProps = {
+export type InspectorInlineActionProps = {
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
 	readonly iconContainerStyle?: React.CSSProperties;
@@ -222,11 +222,11 @@ export type InspectorQuickActionProps = {
 		| {readonly type: 'single'}
 		| {
 				readonly type: 'segmented';
-				readonly trailing: InspectorQuickActionSegment;
+				readonly trailing: InspectorInlineActionSegment;
 		  };
 };
 
-export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
+export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 	children,
 	disabled,
 	iconContainerStyle,
@@ -272,7 +272,7 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 	);
 	const mainAction = onClick ? (
 		<button
-			className={`__remotion-inspector-quick-action ${HOVERABLE_CLASS_NAME}`}
+			className={`__remotion-inspector-inline-action ${HOVERABLE_CLASS_NAME}`}
 			type="button"
 			disabled={disabled}
 			style={buttonStyle}

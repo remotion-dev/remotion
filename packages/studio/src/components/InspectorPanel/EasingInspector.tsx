@@ -26,9 +26,9 @@ import {
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {
-	InspectorQuickActionsSection,
+	InspectorActionSection,
 	InspectorBackAction,
-	InspectorQuickAction,
+	InspectorInlineAction,
 	InspectorMessage,
 	InspectorSectionDivider,
 } from './common';
@@ -343,8 +343,8 @@ export const EasingInspector: React.FC<{
 			<InspectorSectionDivider />
 			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
-				<InspectorQuickActionsSection>
-					<InspectorQuickAction
+				<InspectorActionSection>
+					<InspectorInlineAction
 						disabled={addKeyframeDisabled}
 						onClick={onAddKeyframeAtPlayhead}
 						renderIcon={(color) => (
@@ -352,8 +352,8 @@ export const EasingInspector: React.FC<{
 						)}
 					>
 						{`Add keyframe at ${addKeyframeTime}`}
-					</InspectorQuickAction>
-				</InspectorQuickActionsSection>
+					</InspectorInlineAction>
+				</InspectorActionSection>
 			) : null}
 		</div>
 	);
