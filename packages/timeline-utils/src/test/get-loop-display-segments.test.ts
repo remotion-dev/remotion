@@ -64,7 +64,8 @@ test('stays bounded for fractional offsets that stalled the accumulating loop', 
 	// growing arrays until an out-of-memory crash.
 	const displayOffsetInFrames = 11256.685714285799;
 	const displayDurationInFrames = 33426.30571428571;
-	const loopDurationInFrames = 100;
+	// Stalls the previous accumulating implementation after 12 iterations
+	const loopDurationInFrames = 99.999;
 	const segments = getLoopDisplaySegments({
 		displayDurationInFrames,
 		displayOffsetInFrames,

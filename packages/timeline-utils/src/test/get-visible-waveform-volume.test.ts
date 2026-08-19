@@ -72,7 +72,9 @@ test('terminates with fractional display windows from timeline virtualization', 
 		displayDurationInFrames: 33426.30571428571,
 		displayOffsetInFrames: 11256.685714285799,
 		loopDisplay: {
-			durationInFrames: 100,
+			// A fractional loop duration whose residue stalls the previous
+			// `processed += segmentDuration` implementation below 1 ULP
+			durationInFrames: 99.999,
 			numberOfTimes: 600,
 			startOffset: 0,
 		},
