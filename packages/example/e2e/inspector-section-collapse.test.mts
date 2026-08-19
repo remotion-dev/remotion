@@ -167,12 +167,12 @@ test.describe('inspector section collapse', () => {
 		).toBeVisible();
 		const outline = page
 			.locator('polygon[stroke-opacity="1"][pointer-events="all"]')
-			.first();
+			.nth(1);
 		await expect(outline).toBeVisible();
-		await outline.click({button: 'right'});
-		await page.getByRole('button', {name: /^Rotate(?: all)?$/}).click();
+		await outline.dispatchEvent('contextmenu');
+		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
 		await expect(
-			page.getByRole('button', {name: 'Rotation X', exact: true}),
+			page.getByRole('button', {name: 'Rotation X', exact: true}).first(),
 		).toBeVisible();
 		await expect(
 			page.getByRole('button', {
