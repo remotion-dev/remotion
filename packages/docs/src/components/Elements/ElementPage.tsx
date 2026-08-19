@@ -73,12 +73,18 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			return;
 		}
 
+		if (window.location.origin === 'https://www.remotion.dev') {
+			navigator.sendBeacon(
+				`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
+			);
+		}
+
 		const {target} = result;
 		setInstallStatus({
 			type: 'success',
 			message: `Sent to ${target.projectName ?? 'Remotion Studio'} / ${target.compositionId}. Confirm the installation in Studio.`,
 		});
-	}, [elementPayload]);
+	}, [definition.slug, elementPayload]);
 
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
