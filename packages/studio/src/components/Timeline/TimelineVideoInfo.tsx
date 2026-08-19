@@ -307,7 +307,7 @@ const TimelineVideoInfoSegment: React.FC<{
 			});
 			repeatTarget();
 			const unfilled = Array.from(filledSlots.keys()).filter(
-				(timestamp) => !filledSlots.get(timestamp),
+				(timestamp) => filledSlots.get(timestamp) === undefined,
 			);
 
 			// Don't extract frames if all slots are filled
@@ -336,10 +336,21 @@ const TimelineVideoInfoSegment: React.FC<{
 					aspectRatio: aspectRatio.current,
 					frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 				});
+				fillWithCachedFrames({
+					ctx: targetCtx,
+					naturalWidth: targetWidth,
+					filledSlots,
+					src,
+					segmentDuration: toSeconds - fromSeconds,
+					fromSeconds,
+					devicePixelRatio: window.devicePixelRatio,
+					frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+				});
+				repeatTarget();
 
-				return Array.from(filledSlots.keys()).map(
-					(timestamp) => timestamp / WEBCODECS_TIMESCALE,
-				);
+				return Array.from(filledSlots.keys())
+					.filter((timestamp) => filledSlots.get(timestamp) === undefined)
+					.map((timestamp) => timestamp / WEBCODECS_TIMESCALE);
 			},
 			src,
 			onVideoSample: (sample) => {
@@ -496,6 +507,7 @@ const getVisibleSegments = ({
 	if (!loopDisplay || loopDisplay.numberOfTimes <= 1) {
 		return [
 			{
+				key: 'single',
 				displayOffsetInFrames,
 				durationInFrames: displayDurationInFrames,
 				sourceOffsetInFrames: displayOffsetInFrames,
@@ -504,6 +516,7 @@ const getVisibleSegments = ({
 	}
 
 	const segments: {
+		key: string;
 		displayOffsetInFrames: number;
 		durationInFrames: number;
 		sourceOffsetInFrames: number;
@@ -524,6 +537,7 @@ const getVisibleSegments = ({
 		}
 
 		segments.push({
+			key: `loop-${Math.floor(absoluteOffset / loopDisplay.durationInFrames)}`,
 			displayOffsetInFrames: absoluteOffset,
 			durationInFrames,
 			sourceOffsetInFrames,
@@ -573,13 +587,40 @@ const TimelineVideoInfoInner: React.FC<{
 		loopDisplay !== undefined &&
 		loopWidth !== null &&
 		loopWidth <= visualizationWidth;
-	const segments = shouldTileLoop
-		? []
-		: getVisibleSegments({
-				displayDurationInFrames,
-				displayOffsetInFrames,
-				loopDisplay,
-			});
+	const tiledLoop = useMemo(() => {
+		if (!shouldTileLoop || !loopDisplay || loopWidth === null) {
+			return null;
+		}
+
+		return {
+			displayDurationInFrames,
+			displayOffsetInFrames,
+			loopDisplay,
+			loopWidth,
+		};
+	}, [
+		displayDurationInFrames,
+		displayOffsetInFrames,
+		loopDisplay,
+		loopWidth,
+		shouldTileLoop,
+	]);
+	const segments = useMemo(() => {
+		if (shouldTileLoop) {
+			return [];
+		}
+
+		return getVisibleSegments({
+			displayDurationInFrames,
+			displayOffsetInFrames,
+			loopDisplay,
+		});
+	}, [
+		displayDurationInFrames,
+		displayOffsetInFrames,
+		loopDisplay,
+		shouldTileLoop,
+	]);
 	const getSegmentVolume = (
 		segmentDisplayOffsetInFrames: number,
 		segmentDurationInFrames: number,
@@ -602,21 +643,16 @@ const TimelineVideoInfoInner: React.FC<{
 
 	return (
 		<div style={{display: 'flex', marginLeft, height: '100%'}}>
-			{shouldTileLoop ? (
+			{tiledLoop ? (
 				<TimelineVideoInfoSegment
 					src={src}
 					visualizationWidth={visualizationWidth}
 					startMediaFrom={startMediaFrom}
 					mediaFrameAtSequenceZero={mediaFrameAtSequenceZero}
 					sequenceFrameOffset={sequenceFrameOffset}
-					durationInFrames={loopDisplay.durationInFrames}
+					durationInFrames={tiledLoop.loopDisplay.durationInFrames}
 					sourceOffsetInFrames={0}
-					tiledLoop={{
-						displayDurationInFrames,
-						displayOffsetInFrames,
-						loopDisplay,
-						loopWidth,
-					}}
+					tiledLoop={tiledLoop}
 					playbackRate={playbackRate}
 					volume={volume}
 					doesVolumeChange={doesVolumeChange}
@@ -626,7 +662,7 @@ const TimelineVideoInfoInner: React.FC<{
 			) : (
 				segments.map((segment) => (
 					<TimelineVideoInfoSegment
-						key={segment.displayOffsetInFrames}
+						key={segment.key}
 						src={src}
 						visualizationWidth={segment.durationInFrames * pixelsPerFrame}
 						startMediaFrom={startMediaFrom}
