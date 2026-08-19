@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {Internals} from 'remotion';
 import {LoopedIndicator} from './LoopedIndicator';
 
 const row: React.CSSProperties = {
@@ -35,7 +35,7 @@ export const LoopedTimelineIndicator: React.FC<{
 		.map((_, index) => (firstVisibleBoundaryIndex + index) * loopWidth);
 
 	return (
-		<AbsoluteFill style={row}>
+		<Internals.AbsoluteFillElement style={row}>
 			{boundaries.map((boundary) => {
 				return (
 					<div
@@ -52,6 +52,6 @@ export const LoopedTimelineIndicator: React.FC<{
 					</div>
 				);
 			})}
-		</AbsoluteFill>
+		</Internals.AbsoluteFillElement>
 	);
 };
