@@ -107,8 +107,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
 						fps={fps}
-						height={previewHeight}
-						width={previewWidth}
 					/>
 					{children ? (
 						<div className={styles.sourceArea}>
