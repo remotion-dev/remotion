@@ -8,7 +8,6 @@ import type {
 	Node,
 	ReturnStatement,
 } from '@babel/types';
-import {cloneNode} from '@babel/types';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {
@@ -36,6 +35,28 @@ const audioProps = [
 	'volume',
 	'loop',
 ];
+
+/*
+ * Deep-clones an AST subtree while sharing `loc` objects by reference, like
+ * Babel's `cloneNode`. A runtime import of `@babel/types` is avoided because
+ * it reads `process.env` at module load, which breaks browser bundles.
+ */
+const cloneAstValue = <T>(value: T): T => {
+	if (Array.isArray(value)) {
+		return value.map((item) => cloneAstValue(item)) as T;
+	}
+
+	if (value !== null && typeof value === 'object') {
+		const clone: Record<string, unknown> = {};
+		for (const [key, item] of Object.entries(value)) {
+			clone[key] = key === 'loc' ? item : cloneAstValue(item);
+		}
+
+		return clone as T;
+	}
+
+	return value;
+};
 
 const getAttributeName = (
 	attribute: JSXElement['openingElement']['attributes'][number],
@@ -232,25 +253,27 @@ export const splitVideoFromAudio = async ({
 		);
 	}
 
-	const audioElement = cloneNode(jsxElement, true) as JSXElement;
-	audioElement.openingElement.attributes =
-		audioElement.openingElement.attributes.filter((attribute) => {
-			const name = getAttributeName(attribute);
-			return name !== null && audioProps.includes(name);
-		});
-	audioElement.openingElement.selfClosing = true;
-	audioElement.closingElement = null;
-	audioElement.children = [];
-
 	const audioLocalName = ensureNamedImport({
 		ast,
 		importedName: 'Audio',
 		sourcePath: importSource,
 		localName: 'Audio',
 	});
-	audioElement.openingElement.name = {
-		type: 'JSXIdentifier',
-		name: audioLocalName,
+	const audioElement: JSXElement = {
+		type: 'JSXElement',
+		openingElement: {
+			type: 'JSXOpeningElement',
+			name: {type: 'JSXIdentifier', name: audioLocalName},
+			attributes: jsxElement.openingElement.attributes
+				.filter((attribute) => {
+					const name = getAttributeName(attribute);
+					return name !== null && audioProps.includes(name);
+				})
+				.map((attribute) => cloneAstValue(attribute)),
+			selfClosing: true,
+		},
+		closingElement: null,
+		children: [],
 	};
 
 	setBareMutedAttribute(jsxElement);
