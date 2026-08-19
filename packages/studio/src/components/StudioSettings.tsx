@@ -119,18 +119,22 @@ const ConfigSelect = <T extends string | boolean>({
 };
 
 const ConfigNumber = ({
+	defaultLabel,
 	defaultValue,
 	name,
 	onChange,
 	onChangeEnd,
 	value,
 }: {
+	readonly defaultLabel?: string;
 	readonly defaultValue: number;
 	readonly name: string;
 	readonly onChange: (value: number | null) => void;
 	readonly onChangeEnd: (value: number | null) => void;
 	readonly value: number | null;
 }) => {
+	const resolvedDefaultLabel = defaultLabel ?? String(defaultValue);
+
 	return (
 		<div style={optionRow}>
 			<div style={label}>{name}</div>
@@ -139,13 +143,13 @@ const ConfigNumber = ({
 					aria-label={name}
 					buttonStyle={{textAlign: 'right', width: 140}}
 					formatter={() =>
-						value === null ? `Default (${defaultValue})` : String(value)
+						value === null ? `Default (${resolvedDefaultLabel})` : String(value)
 					}
 					min={0}
 					onTextChange={() => undefined}
 					onValueChange={onChange}
 					onValueChangeEnd={onChangeEnd}
-					placeholder={`Default (${defaultValue})`}
+					placeholder={`Default (${resolvedDefaultLabel})`}
 					rightAlign
 					status="ok"
 					step={1}
@@ -156,7 +160,7 @@ const ConfigNumber = ({
 					onClick={() => onChangeEnd(null)}
 					size="compact"
 					style={{color: LIGHT_TEXT}}
-					title={`Use default (${defaultValue})`}
+					title={`Use default (${resolvedDefaultLabel})`}
 				>
 					<UndoIcon style={resetIcon} />
 				</Button>
@@ -326,6 +330,7 @@ export const StudioSettings: React.FC = () => {
 				value={settings.interactivityEnabled}
 			/>
 			<ConfigNumber
+				defaultLabel="Unlimited"
 				defaultValue={DEFAULT_TIMELINE_TRACKS}
 				name="Max timeline tracks"
 				onChange={(value) => previewNumberSetting('maxTimelineTracks', value)}

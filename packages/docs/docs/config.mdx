@@ -195,7 +195,7 @@ The [command line flag](/docs/cli/render#--log) `--log` will take precedence ove
 
 ## `setMaxTimelineTracks()`<AvailableFrom v="2.1.10" />
 
-Set how many tracks are being displayed in the timeline in the Studio at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
+Set how many tracks are displayed in the Studio timeline at most. This does not affect your video, only the number of tracks shown while previewing. By default, all tracks are available and the timeline is virtualized.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';

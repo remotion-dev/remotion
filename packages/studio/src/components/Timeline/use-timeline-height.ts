@@ -1,4 +1,4 @@
-import {useContext, useMemo} from 'react';
+import {useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
@@ -12,24 +12,18 @@ import {
 import {useRuntimeValueSnapshots} from '../../helpers/use-runtime-values';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getNodeHasKeyframes} from './get-node-keyframes';
-import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
 import {useTimelineSelection} from './TimelineSelection';
-import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 
-export const useTimelineHeight = ({
-	shown,
-	hasBeenCut,
-	isStill,
+export const useTimelineTrackHeights = ({
+	timeline,
 }: {
-	shown: TimelineTrackData[];
-	hasBeenCut: boolean;
-	isStill: boolean;
-}): number => {
+	timeline: readonly TimelineTrackData[];
+}): readonly number[] => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -45,7 +39,7 @@ export const useTimelineHeight = ({
 	);
 	const expandedControls = useMemo(
 		() =>
-			shown.flatMap((track) => {
+			timeline.flatMap((track) => {
 				if (
 					!previewServerConnected ||
 					track.nodePathInfo === null ||
@@ -57,7 +51,7 @@ export const useTimelineHeight = ({
 
 				return [track.sequence.controls];
 			}),
-		[getIsExpanded, previewServerConnected, shown],
+		[getIsExpanded, previewServerConnected, timeline],
 	);
 	const runtimeValueSnapshots = useRuntimeValueSnapshots(expandedControls);
 	const runtimeValuesByStore = useMemo(
@@ -71,8 +65,8 @@ export const useTimelineHeight = ({
 		[expandedControls, runtimeValueSnapshots],
 	);
 
-	return useMemo(() => {
-		const tracksHeight = shown.reduce((acc, track) => {
+	const heights = useMemo(() => {
+		return timeline.map((track) => {
 			const isExpanded =
 				previewServerConnected &&
 				track.nodePathInfo !== null &&
@@ -131,19 +125,10 @@ export const useTimelineHeight = ({
 				const separators = Math.max(0, flat.length - 1);
 				return totalRowsHeight + separators + TIMELINE_ITEM_BORDER_BOTTOM;
 			})();
-			return acc + layerHeight + expandedHeight;
-		}, 0);
-
-		return (
-			tracksHeight +
-			TIMELINE_ITEM_BORDER_BOTTOM +
-			(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
-			(isStill ? 0 : TIMELINE_TIME_INDICATOR_HEIGHT)
-		);
+			return layerHeight + expandedHeight;
+		});
 	}, [
-		shown,
-		hasBeenCut,
-		isStill,
+		timeline,
 		previewServerConnected,
 		getIsExpanded,
 		propStatuses,
@@ -152,4 +137,13 @@ export const useTimelineHeight = ({
 		selectedRowKeys,
 		runtimeValuesByStore,
 	]);
+	const stableHeights = useRef(heights);
+	if (
+		stableHeights.current.length !== heights.length ||
+		heights.some((height, index) => stableHeights.current[index] !== height)
+	) {
+		stableHeights.current = heights;
+	}
+
+	return stableHeights.current;
 };

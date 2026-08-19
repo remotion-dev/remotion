@@ -629,6 +629,9 @@ type TimelineSelectionContextValue = {
 		item: TimelineSelection,
 		getElement: () => Element | null,
 	) => () => void;
+	readonly registerRevealHandler: (
+		handler: (item: TimelineSelection) => void,
+	) => () => void;
 	readonly getMarqueeSelection: (
 		marqueeRect: TimelineMarqueeRect,
 		lockedSelectionKind: TimelineMarqueeSelectionKind | null,
@@ -648,6 +651,7 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	selectItems: () => undefined,
 	registerMarqueeSelectableItem: () => () => undefined,
 	registerFocusableItem: () => () => undefined,
+	registerRevealHandler: () => () => undefined,
 	getMarqueeSelection: () => ({
 		lockedSelectionKind: null,
 		selectedItems: [],
@@ -683,7 +687,7 @@ export const TimelineSelectionOrderProvider: React.FC<{
 const CurrentTimelineSelectionContext =
 	createContext<React.RefObject<TimelineSelectionContextValue> | null>(null);
 
-const TIMELINE_SELECTION_REVEAL_RETRY_COUNT = 2;
+const TIMELINE_SELECTION_REVEAL_RETRY_COUNT = 10;
 
 type TimelineSelectionOptions = {
 	readonly reveal?: boolean;
@@ -691,6 +695,7 @@ type TimelineSelectionOptions = {
 
 type TimelineSelectionRevealRequest = {
 	readonly key: string;
+	readonly item: TimelineSelection;
 	readonly token: number;
 };
 
@@ -1189,6 +1194,9 @@ export const TimelineSelectionProvider: React.FC<{
 		new Map<string, Map<number, TimelineFocusableItem>>(),
 	);
 	const focusableRegistrationCounter = useRef(0);
+	const revealHandler = useRef<((item: TimelineSelection) => void) | null>(
+		null,
+	);
 	const [revealRequest, setRevealRequest] =
 		useState<TimelineSelectionRevealRequest | null>(null);
 
@@ -1284,6 +1292,7 @@ export const TimelineSelectionProvider: React.FC<{
 			return;
 		}
 
+		revealHandler.current?.(revealRequest.item);
 		return revealSelectionKey(revealRequest.key);
 	}, [revealRequest, revealSelectionKey]);
 
@@ -1291,6 +1300,7 @@ export const TimelineSelectionProvider: React.FC<{
 		const key = getTimelineSelectionKey(item);
 		setRevealRequest((previousRequest) => ({
 			key,
+			item,
 			token: (previousRequest?.token ?? 0) + 1,
 		}));
 	}, []);
@@ -1476,6 +1486,18 @@ export const TimelineSelectionProvider: React.FC<{
 		[],
 	);
 
+	const registerRevealHandler = useCallback(
+		(handler: (item: TimelineSelection) => void) => {
+			revealHandler.current = handler;
+			return () => {
+				if (revealHandler.current === handler) {
+					revealHandler.current = null;
+				}
+			};
+		},
+		[],
+	);
+
 	const getMarqueeSelectionForRect = useCallback(
 		(
 			marqueeRect: TimelineMarqueeRect,
@@ -1541,6 +1563,7 @@ export const TimelineSelectionProvider: React.FC<{
 			selectItems,
 			registerMarqueeSelectableItem,
 			registerFocusableItem,
+			registerRevealHandler,
 			getMarqueeSelection: getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,
@@ -1553,6 +1576,7 @@ export const TimelineSelectionProvider: React.FC<{
 			selectItems,
 			registerMarqueeSelectableItem,
 			registerFocusableItem,
+			registerRevealHandler,
 			getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,

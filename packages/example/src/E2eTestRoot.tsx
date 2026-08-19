@@ -15,6 +15,7 @@ import {MacCursorsExample} from './MacCursors';
 import {NewVideoComp} from './NewVideo';
 import {RotationKeyframeE2e} from './RotationKeyframeE2e';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
+import {TimelineVirtualizationTestbed} from './TimelineVirtualizationTestbed';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
@@ -188,6 +189,14 @@ export const E2eTestRoot: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={60}
+			/>
+			<Composition
+				id="timeline-virtualization-testbed"
+				component={TimelineVirtualizationTestbed}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={30}
 			/>
 			<Composition
 				id="inspector-control-layout-e2e"

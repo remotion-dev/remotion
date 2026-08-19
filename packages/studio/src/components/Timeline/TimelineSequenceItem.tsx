@@ -189,7 +189,9 @@ const sequenceReorderLineBase: React.CSSProperties = {
 
 const sequenceReorderAfterLineWrapper: React.CSSProperties = {
 	height: 0,
-	position: 'relative',
+	left: 0,
+	position: 'absolute',
+	right: 0,
 };
 
 const sequenceReorderAfterLine: React.CSSProperties = {
@@ -260,7 +262,7 @@ type SequenceDropTarget =
 	  };
 
 const TimelineSequenceItemInner: React.FC<{
-	readonly children: React.ReactNode;
+	readonly afterDropLineOffset: number;
 	readonly sequence: TSequence;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nestedDepth: number;
@@ -269,7 +271,7 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly sequenceFrameOffset: number;
 	readonly siblingIndex: number;
 }> = ({
-	children,
+	afterDropLineOffset,
 	connectedCompositions,
 	nestedDepth,
 	sequence,
@@ -1307,6 +1309,16 @@ const TimelineSequenceItemInner: React.FC<{
 				<div style={sequenceReorderLineStyle} />
 			) : null}
 			{trackRow}
+			{sequenceDropIndicator === 'after' ? (
+				<div
+					style={{
+						...sequenceReorderAfterLineWrapper,
+						top: afterDropLineOffset,
+					}}
+				>
+					<div style={sequenceReorderAfterLine} />
+				</div>
+			) : null}
 		</div>
 	) : (
 		trackRow
@@ -1334,12 +1346,6 @@ const TimelineSequenceItemInner: React.FC<{
 					nestedDepth={nestedDepth}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
-			) : null}
-			{children}
-			{sequenceDropIndicator === 'after' ? (
-				<div style={sequenceReorderAfterLineWrapper}>
-					<div style={sequenceReorderAfterLine} />
-				</div>
 			) : null}
 		</>
 	);
