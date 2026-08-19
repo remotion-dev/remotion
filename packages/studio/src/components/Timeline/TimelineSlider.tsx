@@ -80,6 +80,7 @@ const TimelineSliderInner: React.FC = () => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const ref = useRef<HTMLDivElement>(null);
+	const displayedFrameRef = useRef(timelinePosition);
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {canvasContent} = useContext(Internals.CompositionManager);
@@ -94,6 +95,7 @@ const TimelineSliderInner: React.FC = () => {
 			: TIMELINE_MIN_ZOOM;
 
 	useLayoutEffect(() => {
+		displayedFrameRef.current = timelinePosition;
 		const el = ref.current;
 		const measuredWidth = sliderAreaRef.current?.clientWidth;
 		const scrollable = scrollableRef.current;
@@ -107,9 +109,10 @@ const TimelineSliderInner: React.FC = () => {
 		}
 
 		const draw = () => {
+			// `displayedFrameRef` stays current across seeks; React state does not.
 			el.style.transform = getTimelineSliderTransform({
 				durationInFrames: videoConfig.durationInFrames,
-				frame: timelinePosition,
+				frame: displayedFrameRef.current,
 				scrollLeft: scrollable.scrollLeft,
 				width: measuredWidth,
 			});
@@ -135,6 +138,7 @@ const TimelineSliderInner: React.FC = () => {
 					throw new Error('unexpectedly did not have ref to timelineslider');
 				}
 
+				displayedFrameRef.current = frame;
 				current.style.transform = getTimelineSliderTransform({
 					durationInFrames: getCurrentDuration(),
 					frame,
