@@ -647,8 +647,6 @@ const transformLoneJsxElement = (
 			compId === transformation.idToRename) ||
 		(transformation.type === 'update-composition-metadata' &&
 			compId === transformation.idToUpdate) ||
-		(transformation.type === 'duplicate-composition' &&
-			compId === transformation.idToDuplicate) ||
 		(transformation.type === 'delete-folder' &&
 			folderName === transformation.folderName &&
 			parentFolderName === transformation.parentName) ||
@@ -717,25 +715,6 @@ const mapJsxChild = (
 
 	if (transformation === null) {
 		return [c];
-	}
-
-	if (
-		transformation.type === 'duplicate-composition' &&
-		compId === transformation.idToDuplicate
-	) {
-		return [
-			c,
-			changeComposition({
-				jsxElement: c,
-				newCompositionId: transformation.newId,
-				newCompositionFps: transformation.newFps,
-				newCompositionDurationInFrames: transformation.newDurationInFrames,
-				newCompositionHeight: transformation.newHeight,
-				newCompositionWidth: transformation.newWidth,
-				newTagToUse: transformation.tag,
-				changesMade,
-			}),
-		];
 	}
 
 	if (
