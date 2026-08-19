@@ -1103,20 +1103,22 @@ export const findJsxElementAtNodePath = (
 	return current ? (current.value as unknown as JSXOpeningElement) : null;
 };
 
+const getJsxElementNodeFromJsxPath = (
+	jsxPath: recast.types.NodePath,
+): JSXElement | null => {
+	if (recast.types.namedTypes.JSXElement.check(jsxPath.parentPath?.value)) {
+		return jsxPath.parentPath.value as unknown as JSXElement;
+	}
+
+	return null;
+};
+
 export const findJsxElementNodeAtNodePath = (
 	ast: File,
 	nodePath: SequenceNodePath,
 ): JSXElement | null => {
 	const current = findJsxElementPathAtNodePath(ast, nodePath);
-	if (!current) {
-		return null;
-	}
-
-	if (recast.types.namedTypes.JSXElement.check(current.parentPath?.value)) {
-		return current.parentPath.value as unknown as JSXElement;
-	}
-
-	return null;
+	return current ? getJsxElementNodeFromJsxPath(current) : null;
 };
 
 export type StaticJsxTextContent =
@@ -1720,11 +1722,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	videoConfigIdentifierValues: VideoConfigIdentifierValues;
 }): CanUpdateSequencePropsResponseTrue => {
 	const jsxPath = findJsxElementPathAtNodePath(ast, nodePath);
-	const jsxElementNode = recast.types.namedTypes.JSXElement.check(
-		jsxPath?.parentPath?.value,
-	)
-		? (jsxPath?.parentPath?.value as unknown as JSXElement)
-		: null;
+	const jsxElementNode = jsxPath ? getJsxElementNodeFromJsxPath(jsxPath) : null;
 	const jsxElement = jsxElementNode?.openingElement ?? null;
 
 	if (!jsxPath || !jsxElement || !jsxElementNode) {
