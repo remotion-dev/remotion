@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
 import {expect, test, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import fs from 'fs';
+import path from 'path';
 import {
 	STUDIO_URL,
 	effectKeyframeE2eFile,
@@ -368,20 +368,12 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 
 		const canvasItem = page.getByText('Performance overview', {exact: true});
-		const canvasItemBox = await canvasItem.boundingBox();
-		if (canvasItemBox === null) {
-			throw new Error('Canvas item has no bounding box');
-		}
-
-		const canvasItemCenter = {
-			x: canvasItemBox.x + canvasItemBox.width / 2,
-			y: canvasItemBox.y + canvasItemBox.height / 2,
-		};
-		await page.mouse.move(canvasItemCenter.x, canvasItemCenter.y);
-		await page.waitForTimeout(100);
-		await page.mouse.click(canvasItemCenter.x, canvasItemCenter.y, {
-			button: 'right',
-		});
+		await canvasItem.hover();
+		const canvasItemOutline = page.locator(
+			'polygon[data-remotion-prevent-selection-clear="true"][stroke-opacity="1"]',
+		);
+		await expect(canvasItemOutline).toHaveCount(1);
+		await canvasItemOutline.click({button: 'right'});
 
 		const duplicateButton = page.getByRole('button', {
 			name: 'Duplicate',
