@@ -5,18 +5,15 @@ type ElementPreviewProps = {
 	readonly component: ComponentType<Record<string, never>>;
 	readonly durationInFrames: number;
 	readonly fps: number;
-	readonly width: number;
-	readonly height: number;
 };
 
-const maxPreviewHeight = 560;
+const previewWidth = 1920;
+const previewHeight = 1080;
 
 export const ElementPreview: React.FC<ElementPreviewProps> = ({
 	component,
 	durationInFrames,
 	fps,
-	width,
-	height,
 }) => {
 	const [checkerboard, setCheckerboard] = useState(true);
 	const transparencyLabel = checkerboard
@@ -32,8 +29,7 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 		>
 			<div
 				style={{
-					aspectRatio: `${width} / ${height}`,
-					maxHeight: maxPreviewHeight,
+					aspectRatio: `${previewWidth} / ${previewHeight}`,
 					width: '100%',
 				}}
 			>
@@ -43,8 +39,8 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 					component={component}
 					durationInFrames={durationInFrames}
 					fps={fps}
-					compositionWidth={width}
-					compositionHeight={height}
+					compositionWidth={previewWidth}
+					compositionHeight={previewHeight}
 					controls
 					initiallyMuted
 					loop

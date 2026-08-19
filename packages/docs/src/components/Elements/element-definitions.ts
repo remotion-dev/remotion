@@ -60,7 +60,7 @@ export type ElementDefinition = {
 	readonly height: number;
 	readonly posterFrame: number;
 	readonly preview: ElementPreviewMetadata;
-	readonly previewPadding: number;
+	readonly safeArea: number;
 	readonly slug: string;
 	readonly installationMode: ElementInstallationMode;
 	readonly width: number;
@@ -85,7 +85,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-liquid-contours-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -108,7 +108,7 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/maps-map-flyover-preview.png',
 			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -133,7 +133,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/maps-watercolor-map-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -154,7 +154,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-notebook-paper-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -176,7 +176,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-paper-texture-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -197,7 +197,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -218,7 +218,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/overlays-location-lower-third-preview.mp4',
 		},
-		previewPadding: 300,
+		safeArea: 300,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -240,7 +240,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
-		previewPadding: 300,
+		safeArea: 300,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -261,7 +261,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.mp4',
 		},
-		previewPadding: 200,
+		safeArea: 200,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -283,7 +283,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -309,7 +309,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.mp4',
 		},
-		previewPadding: 240,
+		safeArea: 240,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -330,7 +330,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -349,7 +349,7 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/data-line-chart-preview.png',
 			videoUrl: 'https://remotion.media/elements/data-line-chart-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -369,7 +369,7 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/data-pie-chart-preview.png',
 			videoUrl: 'https://remotion.media/elements/data-pie-chart-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -396,7 +396,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/data-number-counter-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -418,7 +418,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -443,7 +443,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.mp4',
 		},
-		previewPadding: 90,
+		safeArea: 90,
 		installationMode: 'wrapped',
 		width: 1080,
 	},
@@ -465,7 +465,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/commerce-product-offer-preview.mp4',
 		},
-		previewPadding: 90,
+		safeArea: 90,
 		installationMode: 'wrapped',
 		width: 1080,
 	},
@@ -490,7 +490,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/text-circle-marker-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -513,7 +513,7 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/text-crossed-off-preview.png',
 			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -535,7 +535,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/text-spinning-text-wheel-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -557,7 +557,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/text-news-article-highlight-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -582,7 +582,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/text-strike-through-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -605,7 +605,7 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/text-text-marker-preview.png',
 			videoUrl: 'https://remotion.media/elements/text-text-marker-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -631,7 +631,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/captions-moving-pill-captions-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -656,7 +656,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/captions-popping-word-captions-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -681,7 +681,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/captions-word-highlight-captions-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
