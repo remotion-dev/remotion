@@ -687,7 +687,7 @@ export const TimelineSelectionOrderProvider: React.FC<{
 const CurrentTimelineSelectionContext =
 	createContext<React.RefObject<TimelineSelectionContextValue> | null>(null);
 
-const TIMELINE_SELECTION_REVEAL_RETRY_COUNT = 10;
+const TIMELINE_SELECTION_REVEAL_RETRY_COUNT = 2;
 
 type TimelineSelectionOptions = {
 	readonly reveal?: boolean;
