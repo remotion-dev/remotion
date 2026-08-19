@@ -872,19 +872,12 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 };
 
 const getDefaultFrameDisplayOffsetAdjustment = ({
-	jsxElement,
-	ast,
+	jsxPath,
 	videoConfigValues,
 }: {
-	jsxElement: JSXOpeningElement;
-	ast: File;
+	jsxPath: recast.types.NodePath;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): number | null => {
-	const jsxPath = findNodePath(ast, jsxElement);
-	if (!jsxPath) {
-		return null;
-	}
-
 	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
 	while (functionPath) {
 		const node = functionPath.value as Node;
@@ -1110,20 +1103,22 @@ export const findJsxElementAtNodePath = (
 	return current ? (current.value as unknown as JSXOpeningElement) : null;
 };
 
+const getJsxElementNodeFromJsxPath = (
+	jsxPath: recast.types.NodePath,
+): JSXElement | null => {
+	if (recast.types.namedTypes.JSXElement.check(jsxPath.parentPath?.value)) {
+		return jsxPath.parentPath.value as unknown as JSXElement;
+	}
+
+	return null;
+};
+
 export const findJsxElementNodeAtNodePath = (
 	ast: File,
 	nodePath: SequenceNodePath,
 ): JSXElement | null => {
 	const current = findJsxElementPathAtNodePath(ast, nodePath);
-	if (!current) {
-		return null;
-	}
-
-	if (recast.types.namedTypes.JSXElement.check(current.parentPath?.value)) {
-		return current.parentPath.value as unknown as JSXElement;
-	}
-
-	return null;
+	return current ? getJsxElementNodeFromJsxPath(current) : null;
 };
 
 export type StaticJsxTextContent =
@@ -1726,10 +1721,11 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	effects: string[][];
 	videoConfigIdentifierValues: VideoConfigIdentifierValues;
 }): CanUpdateSequencePropsResponseTrue => {
-	const jsxElementNode = findJsxElementNodeAtNodePath(ast, nodePath);
+	const jsxPath = findJsxElementPathAtNodePath(ast, nodePath);
+	const jsxElementNode = jsxPath ? getJsxElementNodeFromJsxPath(jsxPath) : null;
 	const jsxElement = jsxElementNode?.openingElement ?? null;
 
-	if (!jsxElement || !jsxElementNode) {
+	if (!jsxPath || !jsxElement || !jsxElementNode) {
 		throw new JsxElementNotFoundAtLocationError();
 	}
 
@@ -1758,8 +1754,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	});
 	const defaultKeyframeDisplayOffsetAdjustment =
 		getDefaultFrameDisplayOffsetAdjustment({
-			jsxElement,
-			ast,
+			jsxPath,
 			videoConfigValues: videoConfigIdentifierValues,
 		});
 	const addDefaultKeyframeDisplayOffsetAdjustment = (
