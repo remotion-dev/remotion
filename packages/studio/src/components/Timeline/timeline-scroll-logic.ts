@@ -1,6 +1,7 @@
 import {interpolate} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {scrollableRef} from './timeline-refs';
+import {setCurrentFrame} from './imperative-state';
+import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 
 export const canScrollTimelineIntoDirection = () => {
@@ -12,7 +13,175 @@ export const canScrollTimelineIntoDirection = () => {
 	return {canScrollRight, canScrollLeft};
 };
 
-const SCROLL_INCREMENT = 200;
+export const SCROLL_INCREMENT = 200;
+
+export const EDGE_SCROLL_VERTICAL_INCREMENT = 60;
+
+const EDGE_SCROLL_INTERVAL_MS = 100;
+
+// Once edge-scrolling has started, the pointer must move this many pixels
+// back inside the timeline to stop it. Prevents pixel jitter around the edge
+// threshold from rapidly cancelling and restarting the auto-scroll.
+const EDGE_SCROLL_EXIT_HYSTERESIS = 8;
+
+// The vertical edge zones extend this many pixels into the viewport, so the
+// auto-scroll already engages when dragging close to (not exactly onto) the
+// top or bottom edge.
+const EDGE_SCROLL_VERTICAL_INSET = 8;
+
+export type TimelineEdgeScrollDirections = {
+	x: 'left' | 'right' | null;
+	y: 'up' | 'down' | null;
+};
+
+export type TimelineEdgeAutoScroller = {
+	update: (e: {
+		clientX: number;
+		clientY: number;
+	}) => TimelineEdgeScrollDirections;
+	stop: () => void;
+};
+
+const canScrollTimelineVerticallyIntoDirection = () => {
+	const {current} = timelineVerticalScroll;
+	if (!current) {
+		return {canScrollUp: false, canScrollDown: false};
+	}
+
+	const {scrollTop, scrollHeight, clientHeight} = current;
+	return {
+		canScrollUp: scrollTop > 0,
+		canScrollDown: scrollHeight - scrollTop - clientHeight > 0,
+	};
+};
+
+const getEdgeScrollDirections = ({
+	clientX,
+	clientY,
+	includeVertical,
+	active,
+}: {
+	clientX: number;
+	clientY: number;
+	includeVertical: boolean;
+	active: TimelineEdgeScrollDirections;
+}): TimelineEdgeScrollDirections => {
+	let x: TimelineEdgeScrollDirections['x'] = null;
+	const scrollable = scrollableRef.current;
+	if (scrollable) {
+		const rect = scrollable.getBoundingClientRect();
+		const leftThreshold =
+			rect.left + (active.x === 'left' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
+		const rightThreshold =
+			rect.left +
+			scrollable.clientWidth -
+			TIMELINE_PADDING -
+			(active.x === 'right' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
+		const {canScrollLeft, canScrollRight} = canScrollTimelineIntoDirection();
+		if (clientX <= leftThreshold && canScrollLeft) {
+			x = 'left';
+		} else if (clientX >= rightThreshold && canScrollRight) {
+			x = 'right';
+		}
+	}
+
+	let y: TimelineEdgeScrollDirections['y'] = null;
+	const vertical = timelineVerticalScroll.current;
+	if (includeVertical && vertical) {
+		const rect = vertical.getBoundingClientRect();
+		const topThreshold =
+			rect.top +
+			EDGE_SCROLL_VERTICAL_INSET +
+			(active.y === 'up' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
+		const bottomThreshold =
+			rect.bottom -
+			EDGE_SCROLL_VERTICAL_INSET -
+			(active.y === 'down' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
+		const {canScrollUp, canScrollDown} =
+			canScrollTimelineVerticallyIntoDirection();
+		if (clientY <= topThreshold && canScrollUp) {
+			y = 'up';
+		} else if (clientY >= bottomThreshold && canScrollDown) {
+			y = 'down';
+		}
+	}
+
+	return {x, y};
+};
+
+/**
+ * Shared edge auto-scroll loop for drag gestures on the timeline (playhead
+ * scrubbing, marquee selection). Detects when the pointer is in an edge zone
+ * and repeatedly invokes `onTick` while it stays there. The consumer performs
+ * the actual scrolling (and any dependent updates) inside `onTick`, so it can
+ * read a settled scroll position afterwards.
+ */
+export const startTimelineEdgeAutoScroll = ({
+	includeVertical,
+	onTick,
+}: {
+	includeVertical: boolean;
+	onTick: (directions: TimelineEdgeScrollDirections) => void;
+}): TimelineEdgeAutoScroller => {
+	let active: TimelineEdgeScrollDirections = {x: null, y: null};
+	let lastPointer: {clientX: number; clientY: number} | null = null;
+	let interval: ReturnType<typeof setInterval> | null = null;
+
+	const stopInterval = () => {
+		if (interval !== null) {
+			clearInterval(interval);
+			interval = null;
+		}
+	};
+
+	const tick = () => {
+		if (lastPointer === null) {
+			return;
+		}
+
+		active = getEdgeScrollDirections({
+			clientX: lastPointer.clientX,
+			clientY: lastPointer.clientY,
+			includeVertical,
+			active,
+		});
+		if (active.x === null && active.y === null) {
+			stopInterval();
+			return;
+		}
+
+		onTick(active);
+	};
+
+	const update = (e: {clientX: number; clientY: number}) => {
+		lastPointer = {clientX: e.clientX, clientY: e.clientY};
+		active = getEdgeScrollDirections({
+			clientX: e.clientX,
+			clientY: e.clientY,
+			includeVertical,
+			active,
+		});
+
+		if (active.x !== null || active.y !== null) {
+			if (interval === null) {
+				onTick(active);
+				interval = setInterval(tick, EDGE_SCROLL_INTERVAL_MS);
+			}
+		} else {
+			stopInterval();
+		}
+
+		return active;
+	};
+
+	const stop = () => {
+		stopInterval();
+		lastPointer = null;
+		active = {x: null, y: null};
+	};
+
+	return {update, stop};
+};
 
 const calculateFrameWhileScrollingRight = ({
 	durationInFrames,
@@ -104,6 +273,9 @@ export const ensureFrameIsInViewport = ({
 	durationInFrames: number;
 	frame: number;
 }) => {
+	// Sync the imperative frame first: scrolling below triggers the scroll
+	// listener in TimelineSlider, which reads the frame imperatively.
+	setCurrentFrame(frame);
 	redrawTimelineSliderFast.current?.draw(frame);
 	const width = scrollableRef.current?.scrollWidth ?? 0;
 	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
