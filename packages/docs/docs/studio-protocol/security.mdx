@@ -4,23 +4,23 @@ title: 'Studio Protocol security'
 crumb: '@remotion/studio-protocol'
 ---
 
-# Studio Protocol security<AvailableFrom v="4.0.503" />
+# Studio Protocol security
 
-An Element contains executable React source code and may declare npm dependencies. Studio requires confirmation before applying every installation request.
-
-## Confirmation boundary
-
-A successful [`installInStudio()`](/docs/studio-protocol/install-in-studio) result only means the request reached Studio and is awaiting confirmation.
-
-Before confirming, Studio shows the requesting website, target composition and destination file, source code, and every declared dependency with its installation status. Source code and package lifecycle scripts run with the project's file and network access.
-
-Declining the confirmation does not write source files or install packages. Drag-and-drop Element data has no reliable website provenance and is labeled as unverified.
+An Element contains executable React source code and may declare npm dependencies. Studio requires confirmation before applying an Element delivered through drag-and-drop or an installation request.
 
 ## Allowed origins
 
 Any HTTPS website can request an Element installation confirmation. HTTP is supported only for local development pages on `localhost` or `127.0.0.1`.
 
 Studio reflects only the requesting allowed origin in CORS. It does not use wildcard CORS or cross-origin credentials.
+
+## Confirmation boundary
+
+Elements delivered using [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) or [`installInStudio()`](/docs/studio-protocol/install-in-studio) require confirmation in Studio. A successful `installInStudio()` result only means the request reached Studio and is awaiting confirmation.
+
+Before confirming, Studio shows the target composition and destination file, source code, and every declared dependency with its installation status. For an installation request, Studio also shows the requesting website. Drag-and-drop data has no reliable website provenance and is labeled as unverified. Source code and package lifecycle scripts run with the project's file and network access.
+
+Declining the confirmation does not write source files or install packages.
 
 ## Target information
 
