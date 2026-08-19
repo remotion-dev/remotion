@@ -209,6 +209,12 @@ export type ModalState =
 			knownBugs: Bug[];
 	  }
 	| {
+			type: 'fix-computed-value';
+			prop: string;
+			context: string;
+			remotionInteractivitySkillAvailable: boolean;
+	  }
+	| {
 			type: 'install-packages';
 			packageManager: PackageManager;
 	  }

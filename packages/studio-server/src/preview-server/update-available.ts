@@ -1,5 +1,3 @@
-import {existsSync} from 'node:fs';
-import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
 import type {UpdateAvailableResponse} from '@remotion/studio-shared';
 import semver from 'semver';
@@ -21,15 +19,6 @@ const getSkillsUpdateInfo = ({
 
 	return {
 		skillsUpdateAvailable: projectSkills.type === 'outdated',
-		remotionUpgradeSkillAvailable: existsSync(
-			path.join(
-				remotionRoot,
-				'.agents',
-				'skills',
-				'remotion-upgrade',
-				'SKILL.md',
-			),
-		),
 	};
 };
 
@@ -45,7 +34,10 @@ export const isUpdateAvailable = async ({
 	getLatestVersion: (() => Promise<string>) | null;
 }): Promise<UpdateAvailableResponse> => {
 	const latest = await (getLatestVersion ?? getLatestRemotionVersion)();
-	const skillsUpdateInfo = getSkillsUpdateInfo({remotionRoot, currentVersion});
+	const skillsUpdateInfo = getSkillsUpdateInfo({
+		remotionRoot,
+		currentVersion,
+	});
 
 	const pkgManager = getPackageManager({
 		remotionRoot,

@@ -5,6 +5,7 @@ import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
+import {FixComputedValueModal} from './FixComputedValueModal';
 import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
@@ -189,6 +190,9 @@ export const Modals: React.FC<{
 					info={modalContextType.info}
 					knownBugs={modalContextType.knownBugs}
 				/>
+			)}
+			{modalContextType && modalContextType.type === 'fix-computed-value' && (
+				<FixComputedValueModal state={modalContextType} />
 			)}
 			{modalContextType && modalContextType.type === 'install-packages' && (
 				<InstallPackageModal packageManager={modalContextType.packageManager} />

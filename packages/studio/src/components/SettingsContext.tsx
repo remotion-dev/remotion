@@ -1,6 +1,7 @@
 import type {
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
+	GetRemotionSkillsInfoResponse,
 	RenderDefaults,
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
@@ -21,6 +22,7 @@ type SettingsContextValue = {
 	readonly editorInfo: GetDefaultEditorInfoResponse | null;
 	readonly error: string | null;
 	readonly publicLicenseKey: string | null;
+	readonly remotionSkillsInfo: GetRemotionSkillsInfoResponse | null;
 	readonly renderDefaults: RenderDefaults | null;
 	readonly studioRuntimeConfig: StudioRuntimeConfig | null;
 	readonly revision: number;
@@ -42,6 +44,7 @@ export const SettingsProvider: React.FC<{
 		editorInfo: null,
 		error: null,
 		publicLicenseKey: window.remotion_studioConfig?.publicLicenseKey ?? null,
+		remotionSkillsInfo: null,
 		renderDefaults: window.remotion_renderDefaults ?? null,
 		studioRuntimeConfig: window.remotion_studioConfig ?? null,
 		revision: 0,
@@ -64,8 +67,9 @@ export const SettingsProvider: React.FC<{
 		Promise.all([
 			callApi('/api/default-editor-info', {}, controller.signal),
 			callApi('/api/default-coding-agent-info', {}, controller.signal),
+			callApi('/api/remotion-skills-info', {}, controller.signal),
 		])
-			.then(([editorInfo, codingAgentInfo]) => {
+			.then(([editorInfo, codingAgentInfo, remotionSkillsInfo]) => {
 				const runtimeConfig = window.remotion_studioConfig;
 				setSettings((currentSettings) => ({
 					...currentSettings,
@@ -81,6 +85,7 @@ export const SettingsProvider: React.FC<{
 							? runtimeConfig.defaultEditor
 							: editorInfo.defaultEditor,
 					},
+					remotionSkillsInfo,
 					error: null,
 					revision: currentSettings.revision + 1,
 				}));

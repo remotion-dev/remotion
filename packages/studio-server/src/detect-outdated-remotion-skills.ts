@@ -99,6 +99,19 @@ const getStatusForSkillsDirectory = ({
 	return {type: 'up-to-date', scope, skillsDirectory};
 };
 
+export const getRemotionSkillsDirectories = ({
+	cwd,
+	homeDirectory,
+}: {
+	cwd: string;
+	homeDirectory: string;
+}) => {
+	return {
+		project: path.join(cwd, '.agents', 'skills'),
+		global: path.join(homeDirectory, '.agents', 'skills'),
+	};
+};
+
 export const detectOutdatedRemotionSkills = ({
 	currentVersion = VERSION,
 	cwd = process.cwd(),
@@ -111,19 +124,18 @@ export const detectOutdatedRemotionSkills = ({
 	project: RemotionSkillsStatus;
 	global: RemotionSkillsStatus;
 } => {
-	const projectSkillsDirectory = path.join(cwd, '.agents', 'skills');
-	const globalSkillsDirectory = path.join(homeDirectory, '.agents', 'skills');
+	const skillsDirectories = getRemotionSkillsDirectories({cwd, homeDirectory});
 
 	return {
 		project: getStatusForSkillsDirectory({
 			currentVersion,
 			scope: 'project',
-			skillsDirectory: projectSkillsDirectory,
+			skillsDirectory: skillsDirectories.project,
 		}),
 		global: getStatusForSkillsDirectory({
 			currentVersion,
 			scope: 'global',
-			skillsDirectory: globalSkillsDirectory,
+			skillsDirectory: skillsDirectories.global,
 		}),
 	};
 };

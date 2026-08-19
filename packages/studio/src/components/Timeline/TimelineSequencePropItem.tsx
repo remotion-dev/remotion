@@ -605,7 +605,7 @@ export const TimelineSequencePropItem: React.FC<{
 			propStatus={propStatus}
 			field={field}
 			runtimeValue={runtimeValue}
-			fixHref="https://www.remotion.dev/docs/studio/interactivity-best-practices#keep-editable-values-visible"
+			validatedLocation={validatedLocation}
 		/>
 	);
 
