@@ -324,9 +324,13 @@ export function createScaffold<Props extends Record<string, unknown>>({
 											timeUpdater={timeUpdater}
 										>
 											<Internals.CanUseRemotionHooks.Provider value>
-												{/**
-												 * @ts-expect-error	*/}
-												<Component {...resolvedProps} />
+												<Internals.CanvasFrameOutputContext.Provider
+													value={!useHtmlInCanvas}
+												>
+													{/**
+													 * @ts-expect-error	*/}
+													<Component {...resolvedProps} />
+												</Internals.CanvasFrameOutputContext.Provider>
 											</Internals.CanUseRemotionHooks.Provider>
 										</UpdateTime>
 									</Internals.RenderAssetManagerProvider>

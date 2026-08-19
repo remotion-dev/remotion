@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {calculateObjectFit, parseObjectFit} from './calculate-object-fit';
 import type {DrawFn} from './drawn-fn';
 import {fitSvgIntoItsContainer} from './fit-svg-into-its-dimensions';
@@ -68,7 +69,7 @@ const drawReplacedElement = ({
 	computedStyle,
 	contextToDraw,
 }: {
-	drawable: HTMLImageElement | HTMLCanvasElement;
+	drawable: HTMLImageElement | HTMLCanvasElement | OffscreenCanvas;
 	dimensions: DOMRect;
 	computedStyle: CSSStyleDeclaration;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
@@ -183,7 +184,10 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 		if (node instanceof HTMLImageElement || node instanceof HTMLCanvasElement) {
 			try {
 				drawReplacedElement({
-					drawable: node,
+					drawable:
+						node instanceof HTMLCanvasElement
+							? (Internals.getPublishedCanvasFrame(node) ?? node)
+							: node,
 					dimensions,
 					computedStyle,
 					contextToDraw,

@@ -270,5 +270,12 @@ export const processNode = async ({
 		scale,
 	});
 
+	// layoutSubtree children provide layout and accessibility input to the
+	// canvas paint pipeline. They are not independently visible output.
+	if (element instanceof HTMLCanvasElement && element.layoutSubtree === true) {
+		cleanupAfterChildren?.();
+		return {type: 'skip-children'};
+	}
+
 	return {type: 'continue', cleanupAfterChildren};
 };

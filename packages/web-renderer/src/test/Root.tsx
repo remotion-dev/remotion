@@ -51,6 +51,10 @@ import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origi
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
+import {
+	elementImageOnPaintHtmlInCanvas,
+	webGlOnPaintHtmlInCanvas,
+} from './fixtures/on-paint-html-in-canvas';
 import {opacityInherited} from './fixtures/opacity-inherited';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacityReset} from './fixtures/opacity-reset';
@@ -134,6 +138,8 @@ export const Root: React.FC = () => {
 			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...nestedHtmlInCanvas} />
+			<Composition {...elementImageOnPaintHtmlInCanvas} />
+			<Composition {...webGlOnPaintHtmlInCanvas} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />

@@ -29,6 +29,10 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {
+	CanvasFrameOutputContext,
+	publishCanvasFrame,
+} from './published-canvas-frame.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
@@ -416,6 +420,7 @@ const HtmlInCanvasContent = forwardRef<
 		ref,
 	) => {
 		const ancestor = useContext(HtmlInCanvasAncestorContext);
+		const shouldPublishCanvasFrame = useContext(CanvasFrameOutputContext);
 		assertHtmlInCanvasDimensions(width, height);
 		const chromeMajorVersion = getChromeMajorVersion();
 		if (
@@ -619,6 +624,16 @@ const HtmlInCanvasContent = forwardRef<
 						width: canvasWidth,
 						height: canvasHeight,
 					});
+
+					if (shouldPublishCanvasFrame) {
+						// Painting and effects form one pipeline. Materialize its final frame
+						// while GPU drawing buffers are still readable so the DOM composer
+						// consumes the same output regardless of which paint stage produced it.
+						publishCanvasFrame({
+							canvas: placeholderCanvas,
+							source: paintTarget,
+						});
+					}
 				} finally {
 					elImage.close();
 				}
@@ -641,6 +656,7 @@ const HtmlInCanvasContent = forwardRef<
 			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
+			shouldPublishCanvasFrame,
 		]);
 
 		// Default paint handlers draw synchronously on the layout canvas itself so

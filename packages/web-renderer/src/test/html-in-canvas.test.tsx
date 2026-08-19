@@ -10,13 +10,23 @@ import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
+import {
+	elementImageOnPaintHtmlInCanvas,
+	webGlOnPaintHtmlInCanvas,
+} from './fixtures/on-paint-html-in-canvas';
 import {testImage} from './utils';
 
 setForceDisableHtmlInCanvasForTesting(false);
 
+const chromeMajorVersion = Number(
+	navigator.userAgent.match(/\b(?:HeadlessChrome|Chrome)\/(\d+)/)?.[1],
+);
+const canRenderNestedHtmlInCanvas =
+	!Number.isFinite(chromeMajorVersion) || chromeMajorVersion >= 152;
+
 test('captures three nested HTML-in-canvas effect layers natively', async () => {
 	const supportsNesting = await supportsNestedHtmlInCanvas();
-	if (!supportsNesting) {
+	if (!supportsNesting || !canRenderNestedHtmlInCanvas) {
 		return;
 	}
 
@@ -51,7 +61,7 @@ test('captures three nested HTML-in-canvas effect layers natively', async () => 
 
 test('captures three nested HTML-in-canvas effect layers across video frames', async () => {
 	const supportsNesting = await supportsNestedHtmlInCanvas();
-	if (!supportsNesting) {
+	if (!supportsNesting || !canRenderNestedHtmlInCanvas) {
 		return;
 	}
 
@@ -65,7 +75,7 @@ test('captures three nested HTML-in-canvas effect layers across video frames', a
 
 test('retries a transient missing nested paint record during a client-side render', async () => {
 	const supportsNesting = await supportsNestedHtmlInCanvas();
-	if (!supportsNesting) {
+	if (!supportsNesting || !canRenderNestedHtmlInCanvas) {
 		return;
 	}
 
@@ -198,7 +208,7 @@ test('keeps the DOM composer scaffold paintable', () => {
 });
 
 test('uses the DOM composer when native HTML-in-canvas does not support nesting', async () => {
-	if (!supportsNativeHtmlInCanvas()) {
+	if (!supportsNativeHtmlInCanvas() || !canRenderNestedHtmlInCanvas) {
 		return;
 	}
 
@@ -230,5 +240,65 @@ test('uses the DOM composer when native HTML-in-canvas does not support nesting'
 	} finally {
 		setForceDisableHtmlInCanvasForTesting(false);
 		warn.mockRestore();
+	}
+});
+
+test('publishes custom paint output during software composition', async () => {
+	if (!supportsNativeHtmlInCanvas()) {
+		if (/\b(?:HeadlessChrome|Chrome)\//.test(navigator.userAgent)) {
+			throw new Error(
+				'Expected CanvasDrawElement to be enabled for Chromium web renderer tests',
+			);
+		}
+
+		return;
+	}
+
+	setForceDisableHtmlInCanvasForTesting(true);
+
+	try {
+		const elementImageResult = await renderStillOnWeb({
+			composition: elementImageOnPaintHtmlInCanvas,
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+		});
+		const elementImageBlob = await elementImageResult.blob({format: 'png'});
+		const elementImageBitmap = await createImageBitmap(elementImageBlob);
+		const elementImageProbe = new OffscreenCanvas(100, 100);
+		const elementImageCtx = elementImageProbe.getContext('2d');
+		if (!elementImageCtx) {
+			throw new Error('Expected a 2D context');
+		}
+
+		elementImageCtx.drawImage(elementImageBitmap, 0, 0);
+		elementImageBitmap.close();
+		const elementImagePixel = elementImageCtx.getImageData(50, 50, 1, 1).data;
+
+		// The custom paint stage consumes the red ElementImage and masks it green.
+		expect([...elementImagePixel]).toEqual([0, 255, 0, 255]);
+
+		const webGlResult = await renderStillOnWeb({
+			composition: webGlOnPaintHtmlInCanvas,
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+		});
+		const webGlBlob = await webGlResult.blob({format: 'png'});
+		const webGlBitmap = await createImageBitmap(webGlBlob);
+		const webGlProbe = new OffscreenCanvas(100, 100);
+		const webGlCtx = webGlProbe.getContext('2d');
+		if (!webGlCtx) {
+			throw new Error('Expected a 2D context');
+		}
+
+		webGlCtx.drawImage(webGlBitmap, 0, 0);
+		webGlBitmap.close();
+		const webGlPixel = webGlCtx.getImageData(50, 50, 1, 1).data;
+
+		// The custom WebGL paint stage replaces the red layout child with cyan.
+		expect([...webGlPixel]).toEqual([0, 255, 255, 255]);
+	} finally {
+		setForceDisableHtmlInCanvasForTesting(false);
 	}
 });
