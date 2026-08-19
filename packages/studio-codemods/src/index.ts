@@ -11,6 +11,7 @@ import type {SequenceNodePath} from 'remotion';
 import {getNodePathForRecastPath} from './sequence-props';
 import {parseAst} from './sequence-props/parse-ast';
 
+export {applyVisualControl} from './apply-visual-control';
 export {
 	deleteJsxElementAtPath,
 	deleteJsxNode,
@@ -20,6 +21,12 @@ export {
 } from './delete-jsx-node';
 export {duplicateCompositionInSource} from './duplicate-composition';
 export {findSearchPosition} from './find-search-position';
+export {parseAndApplyCodemod} from './parse-and-apply-codemod';
+export {
+	applyCodemod,
+	type ApplyCodeModReturnType,
+	type Change,
+} from './recast-mods';
 export {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,

@@ -9,8 +9,8 @@ import {
 } from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import {parseAst} from './parse-ast';
 import type {ApplyCodeModReturnType, Change} from './recast-mods';
+import {parseAst} from './sequence-props/parse-ast';
 
 const expectString = (
 	node: ExpressionKind | recast.types.namedTypes.SpreadElement,
