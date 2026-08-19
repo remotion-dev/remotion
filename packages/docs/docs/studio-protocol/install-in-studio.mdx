@@ -8,16 +8,19 @@ crumb: '@remotion/studio-protocol'
 
 Discovers a recently focused Remotion Studio and sends it an Element payload.
 
-```ts twoslash title="install-element.ts"
+## Example
+
+```ts title="install-element.ts"
 import {
   createElementPayload,
   installInStudio,
 } from '@remotion/studio-protocol';
+import elementSourceCode from './MyElement.tsx?raw'; // Import the source code as text
 
 const payload = createElementPayload({
-  displayName: 'Lower Third',
-  slug: 'lower-third',
-  sourceCode: 'export const LowerThird = () => null;',
+  displayName: 'My Element',
+  slug: 'my-element',
+  sourceCode: elementSourceCode,
   dependencies: [],
   dimensions: {width: 900, height: 260},
   durationInFrames: 90,
@@ -30,6 +33,12 @@ if (!result.success) {
   console.log(result.status); // "awaiting-confirmation"
 }
 ```
+
+## When to use an installation request
+
+An installation request provides a one-click flow and shows the requesting website in Studio. On macOS, Studio attempts to bring the selected Studio tab to the foreground after delivering the request.
+
+The target is selected automatically: local Studio ports are probed and the most recently focused compatible Studio is used. Also offer drag-and-drop with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) when possible so the user can choose a specific Studio tab, timeline position, and canvas position.
 
 ## Arguments
 
