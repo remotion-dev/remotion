@@ -1,5 +1,6 @@
 import {
 	drawBars,
+	getVisibleWaveformVolume,
 	loadWaveformPeaks,
 	makeAudioWaveformWorker,
 	sliceVisibleWaveformPeaks,
@@ -111,44 +112,12 @@ const AudioWaveformInner: React.FC<{
 		doesVolumeChange && typeof volume === 'string';
 	const parsedVolume = useMemo(() => parseVolume(volume), [volume]);
 	const visibleVolume = useMemo((): WaveformVolume => {
-		if (!Array.isArray(parsedVolume)) {
-			return parsedVolume;
-		}
-
-		if (!loopDisplay || loopDisplay.numberOfTimes <= 1) {
-			const start = Math.max(0, Math.floor(displayOffsetInFrames));
-			const end = Math.min(
-				parsedVolume.length,
-				Math.ceil(displayOffsetInFrames + displayDurationInFrames),
-			);
-			return parsedVolume.slice(start, end);
-		}
-
-		const result: number[] = [];
-		let processed = 0;
-		while (processed < displayDurationInFrames) {
-			const absoluteOffset = displayOffsetInFrames + processed;
-			const loopOffset =
-				((absoluteOffset % loopDisplay.durationInFrames) +
-					loopDisplay.durationInFrames) %
-				loopDisplay.durationInFrames;
-			const segmentDuration = Math.min(
-				displayDurationInFrames - processed,
-				loopDisplay.durationInFrames - loopOffset,
-			);
-			result.push(
-				...parsedVolume.slice(
-					Math.max(0, Math.floor(loopOffset)),
-					Math.min(
-						parsedVolume.length,
-						Math.ceil(loopOffset + segmentDuration),
-					),
-				),
-			);
-			processed += segmentDuration;
-		}
-
-		return result;
+		return getVisibleWaveformVolume({
+			displayDurationInFrames,
+			displayOffsetInFrames,
+			loopDisplay,
+			volume: parsedVolume,
+		});
 	}, [
 		displayDurationInFrames,
 		displayOffsetInFrames,

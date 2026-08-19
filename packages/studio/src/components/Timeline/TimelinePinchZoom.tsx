@@ -7,11 +7,11 @@ import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {viewportClientXToScrollContentX} from './timeline-scroll-logic';
 
 /**
- * Maps wheel deltaY to zoom delta. Must be large enough that typical ctrl+wheel
- * pinch steps change `TimelineZoomCtx` zoom by at least one 0.1 step after
- * `Math.round(z * 10) / 10` in `timeline-zoom.tsx` (0.005 was too small).
+ * Maps wheel deltaY to a multiplicative zoom change. Must be large enough that
+ * typical ctrl+wheel pinch steps change `TimelineZoomCtx` zoom by at least one
+ * 0.1 step after rounding in `clampTimelineZoom` (0.005 was too small at 1x).
  */
-const ZOOM_WHEEL_DELTA = 0.06;
+const ZOOM_WHEEL_SENSITIVITY = 0.06;
 
 type WebKitGestureEvent = UIEvent & {
 	scale: number;
@@ -82,7 +82,7 @@ export const TimelinePinchZoom: FC = () => {
 
 			setZoom(
 				canvasContent.compositionId,
-				(z) => z - scaledDeltaY * ZOOM_WHEEL_DELTA,
+				(z) => z * Math.exp(-scaledDeltaY * ZOOM_WHEEL_SENSITIVITY),
 				{anchorFrame: null, anchorContentX},
 			);
 		},
