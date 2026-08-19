@@ -1036,6 +1036,110 @@ export const Root = () => {
 	);
 });
 
+test('reorders JSX sequences as an undoable project mutation', async () => {
+	const fileName = '/project/src/Composition.tsx';
+	const initialContents = `import {Composition, Sequence} from 'remotion';
+
+export const Component = () => {
+	return (
+		<>
+			<Sequence name="first" from={0} durationInFrames={20} />
+			<Sequence name="second" from={20} durationInFrames={20} />
+		</>
+	);
+};
+
+export const Root = () => <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />;
+`;
+	const {operations, getProject} = makeOperationsForProject({
+		rootDir: '/project',
+		entryPoint: '/project/src/index.tsx',
+		files: {
+			'/project/src/index.tsx': `import {registerRoot} from 'remotion';
+import {Root} from './Composition';
+registerRoot(Root);`,
+			[fileName]: initialContents,
+		},
+	});
+	const events: EventSourceEvent[] = [];
+	operations.subscribeToEvent((event) => events.push(event));
+
+	const subscribeAtLine = async (line: number) => {
+		const subscription = await operations.subscribeToSequenceProps({
+			fileName: 'src/Composition.tsx',
+			line,
+			column: 3,
+			nodePath: null,
+			componentIdentity: 'dev.remotion.remotion.Sequence',
+			keys: ['from', 'durationInFrames'],
+			assetKeys: [],
+			effects: [],
+			clientId: 'browser-studio',
+			videoConfigValues: {
+				durationInFrames: 60,
+				fps: 30,
+				height: 720,
+				width: 1280,
+			},
+		});
+		if (!subscription.success) {
+			throw new Error('Expected sequence props subscription to succeed');
+		}
+
+		return subscription.nodePath;
+	};
+
+	const firstNodePath = await subscribeAtLine(6);
+	const secondNodePath = await subscribeAtLine(7);
+
+	const identicalFailure = await operations.reorderSequence({
+		fileName: 'src/Composition.tsx',
+		sourceNodePath: firstNodePath,
+		targetNodePath: firstNodePath,
+		position: 'after',
+		clientId: 'browser-studio',
+	});
+	expect(identicalFailure).toMatchObject({
+		success: false,
+		reason: 'Cannot reorder sequence: source and target are identical',
+		stack: expect.any(String),
+	});
+	expect(getProject().files[fileName]).toBe(initialContents);
+
+	const result = await operations.reorderSequence({
+		fileName: 'src/Composition.tsx',
+		sourceNodePath: firstNodePath,
+		targetNodePath: secondNodePath,
+		position: 'after',
+		clientId: 'browser-studio',
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	const reordered = getProject().files[fileName];
+	expect(reordered.indexOf('name="second"')).toBeLessThan(
+		reordered.indexOf('name="first"'),
+	);
+	expect(result.nodePathMutation.files).toEqual([
+		{
+			absolutePath: fileName,
+			remappings: expect.any(Array),
+			restoredNodePaths: [],
+		},
+	]);
+	expect(
+		events.findLast((event) => event.type === 'sequence-node-paths-remapped'),
+	).toEqual({
+		type: 'sequence-node-paths-remapped',
+		mutation: result.nodePathMutation,
+	});
+
+	const undoResult = await operations.undo();
+	expect(undoResult.success).toBe(true);
+	expect(getProject().files[fileName]).toBe(initialContents);
+});
+
 test('updates default props in the virtual project', async () => {
 	const fileName = '/project/src/Root.tsx';
 	const {operations, getProject} = makeOperationsForProject({

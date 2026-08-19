@@ -15,6 +15,7 @@ import {
 	JsxElementNotFoundAtLocationError,
 	makeInMemoryInsertJsxElementCodemodEnvironment,
 	parseAndApplyCodemod,
+	reorderSequence as reorderSequenceCodemod,
 	resolveCompositionComponentWithFile,
 	simpleDiff,
 	splitJsxSequence as splitJsxSequenceCodemod,
@@ -690,6 +691,53 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async ({
+		fileName,
+		sourceNodePath,
+		targetNodePath,
+		position,
+	}) => {
+		try {
+			const project = getProject();
+			const absolutePath = findProjectFile({
+				filePath: fileName,
+				project,
+			});
+			const result = await reorderSequenceCodemod({
+				input: project.files[absolutePath],
+				sourceNodePath: sourceNodePath.nodePath,
+				targetNodePath: targetNodePath.nodePath,
+				position,
+				formatFile: formatCodemodFile,
+			});
+			const nodePathMutation = controller.applyMutation({
+				fileName: absolutePath,
+				mutate: () => ({
+					...project,
+					files: {...project.files, [absolutePath]: result.output},
+				}),
+				nodePathMutationFiles: [
+					{
+						absolutePath,
+						remappings: result.nodePathRemappings,
+						restoredNodePaths: [],
+					},
+				],
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not reorder sequence');
+			}
+
+			return {success: true, nodePathMutation};
+		} catch (error) {
+			return {
+				success: false,
+				reason: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error && error.stack ? error.stack : '',
+			};
+		}
+	};
+
 	const duplicateComposition: BrowserStudioOperations['duplicateComposition'] =
 		async ({codemod, dryRun}) => {
 			try {
@@ -1056,6 +1104,7 @@ export const createBrowserStudioOperations = ({
 		},
 		redo: controller.redo,
 		renameStaticFile: controller.renameStaticFile,
+		reorderSequence,
 		saveSequenceProps: (request) => {
 			try {
 				let response: Awaited<

@@ -18,6 +18,8 @@ import type {
 	RedoResponse,
 	RenameStaticFileRequest,
 	RenameStaticFileResponse,
+	ReorderSequenceRequest,
+	ReorderSequenceResponse,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 	SimpleDiff,
@@ -96,6 +98,9 @@ export type BrowserStudioOperations = {
 	renameStaticFile: (
 		request: RenameStaticFileRequest,
 	) => Promise<RenameStaticFileResponse>;
+	reorderSequence: (
+		request: ReorderSequenceRequest,
+	) => Promise<ReorderSequenceResponse>;
 	saveSequenceProps: (
 		request: SaveSequencePropsRequest,
 	) => Promise<SaveSequencePropsResponse>;
