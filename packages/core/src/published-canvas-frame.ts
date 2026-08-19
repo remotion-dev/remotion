@@ -1,8 +1,4 @@
-import {createContext} from 'react';
-
 type CanvasFrameSource = HTMLCanvasElement | OffscreenCanvas;
-
-export const CanvasFrameOutputContext = createContext(false);
 
 const publishedCanvasFrames = new WeakMap<HTMLCanvasElement, OffscreenCanvas>();
 
@@ -13,6 +9,10 @@ export const publishCanvasFrame = ({
 	readonly canvas: HTMLCanvasElement;
 	readonly source: CanvasFrameSource;
 }): void => {
+	if (typeof OffscreenCanvas === 'undefined') {
+		return;
+	}
+
 	let publishedFrame = publishedCanvasFrames.get(canvas);
 	if (
 		!publishedFrame ||

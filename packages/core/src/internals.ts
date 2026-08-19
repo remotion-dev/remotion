@@ -127,10 +127,7 @@ import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {PremountContext} from './PremountContext.js';
-import {
-	CanvasFrameOutputContext,
-	getPublishedCanvasFrame,
-} from './published-canvas-frame.js';
+import {getPublishedCanvasFrame} from './published-canvas-frame.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
@@ -360,7 +357,6 @@ export const Internals = {
 	isCompositionIdValid,
 	isFolderNameValid,
 	getPreviewDomElement,
-	CanvasFrameOutputContext,
 	getPublishedCanvasFrame,
 	compositionsRef,
 	portalNode,
