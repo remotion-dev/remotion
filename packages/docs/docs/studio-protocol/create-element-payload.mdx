@@ -10,9 +10,14 @@ Creates a validated, versioned Element payload for [`setStudioDragData()`](/docs
 
 ## Example
 
-```ts title="element-payload.ts"
+```ts twoslash title="element-payload.ts"
 import {createElementPayload} from '@remotion/studio-protocol';
-import elementSourceCode from './MyElement.tsx?raw'; // Import the source code as text
+
+const elementSourceCode = `
+export const MyElement = () => {
+  return <div>Hello world</div>;
+};
+`;
 
 const payload = createElementPayload({
   displayName: 'My Element',
@@ -41,9 +46,7 @@ A lowercase Element identifier. Its final path segment is used to create the `.e
 
 ### sourceCode
 
-The complete Element source code. It must contain exactly one exported named component.
-
-With Vite, use the [`?raw` import suffix](https://vite.dev/guide/assets#importing-asset-as-string) to import the component file as a string. Other build tools may provide an equivalent raw-text import.
+A string containing the complete Element source code. It must contain exactly one exported named component.
 
 ### dependencies
 
