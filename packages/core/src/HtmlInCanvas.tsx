@@ -244,21 +244,6 @@ export const isHtmlInCanvasSupported = (): boolean => {
 export const HTML_IN_CANVAS_UNSUPPORTED_MESSAGE =
 	'HTML in Canvas is not supported. Two common causes: Chrome is older than version 148 (update Chrome), or the HTML-in-Canvas flag is disabled at chrome://flags/#canvas-draw-element (enable it and restart Chrome).';
 
-const MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS = 152;
-
-const getChromeMajorVersion = (): number | null => {
-	if (typeof navigator === 'undefined') {
-		return null;
-	}
-
-	const match = navigator.userAgent.match(/\b(?:HeadlessChrome|Chrome)\/(\d+)/);
-	if (!match) {
-		return null;
-	}
-
-	return Number(match[1]);
-};
-
 export type HtmlInCanvasOnPaint = (
 	params: HtmlInCanvasOnPaintParams,
 ) => void | Promise<void>;
@@ -377,13 +362,7 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 	};
 /* eslint-enable react/require-default-props */
 
-type HtmlInCanvasAncestor = {
-	readonly requestParentPaint: () => void;
-};
-
-const HtmlInCanvasAncestorContext = createContext<HtmlInCanvasAncestor | null>(
-	null,
-);
+const HtmlInCanvasAncestorContext = createContext(false);
 
 type HtmlInCanvasContentProps = {
 	readonly width: number;
@@ -415,16 +394,13 @@ const HtmlInCanvasContent = forwardRef<
 		},
 		ref,
 	) => {
-		const ancestor = useContext(HtmlInCanvasAncestorContext);
+		const isInsideAncestorHtmlInCanvas = useContext(
+			HtmlInCanvasAncestorContext,
+		);
 		assertHtmlInCanvasDimensions(width, height);
-		const chromeMajorVersion = getChromeMajorVersion();
-		if (
-			ancestor &&
-			chromeMajorVersion !== null &&
-			chromeMajorVersion < MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS
-		) {
+		if (isInsideAncestorHtmlInCanvas) {
 			throw new Error(
-				`Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer, but the current browser is Chrome ${chromeMajorVersion}. Upgrade Chrome or avoid nesting components that use <HtmlInCanvas>, such as shapes with effects.`,
+				'<HtmlInCanvas> components cannot be nested. Chrome does not reliably render nested HTML-in-canvas subtrees. Consider merging the effects into one <HtmlInCanvas> if you can.',
 			);
 		}
 
@@ -475,8 +451,6 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
-		const ancestorRef = useRef(ancestor);
-		ancestorRef.current = ancestor;
 
 		const onPaintCb = useCallback(async () => {
 			const element = divRef.current;
@@ -623,11 +597,6 @@ const HtmlInCanvasContent = forwardRef<
 					elImage.close();
 				}
 
-				// Effects may complete after Chromium has dispatched the parent's
-				// paint event. Repaint the direct parent so deeply nested canvases
-				// propagate their final pixels through every ancestor.
-				ancestorRef.current?.requestParentPaint();
-
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
@@ -643,9 +612,8 @@ const HtmlInCanvasContent = forwardRef<
 			canRetryMissingPaintRecord,
 		]);
 
-		// Default paint handlers draw synchronously on the layout canvas itself so
-		// Chromium can include their final pixels during its deepest-first nested
-		// paint traversal. Custom handlers retain the transferred OffscreenCanvas API.
+		// Default paint handlers draw synchronously on the layout canvas itself.
+		// Custom handlers retain the transferred OffscreenCanvas API.
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current;
 			if (!placeholder) {
@@ -736,16 +704,8 @@ const HtmlInCanvasContent = forwardRef<
 			};
 		}, [height, style, width]);
 
-		const ancestorValue = useMemo<HtmlInCanvasAncestor>(() => {
-			return {
-				requestParentPaint: () => {
-					canvas2dRef.current?.requestPaint?.();
-				},
-			};
-		}, []);
-
 		return (
-			<HtmlInCanvasAncestorContext.Provider value={ancestorValue}>
+			<HtmlInCanvasAncestorContext.Provider value>
 				<canvas
 					key={canvasSizeKey}
 					ref={setLayoutCanvasRef}

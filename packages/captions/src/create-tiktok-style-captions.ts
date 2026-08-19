@@ -16,6 +16,7 @@ export type TikTokPage = {
 export type CreateTikTokStyleCaptionsInput = {
 	captions: Caption[];
 	combineTokensWithinMilliseconds: number;
+	breakOnSilenceAfterMilliseconds?: number;
 };
 
 export type CreateTikTokStyleCaptionsOutput = {
@@ -25,6 +26,7 @@ export type CreateTikTokStyleCaptionsOutput = {
 export const createTikTokStyleCaptions = ({
 	captions,
 	combineTokensWithinMilliseconds,
+	breakOnSilenceAfterMilliseconds,
 }: CreateTikTokStyleCaptionsInput): CreateTikTokStyleCaptionsOutput => {
 	const tikTokStyleCaptions: TikTokPage[] = [];
 	let currentText = '';
@@ -48,11 +50,16 @@ export const createTikTokStyleCaptions = ({
 
 	captions.forEach((item, index) => {
 		const {text} = item;
+		const exceedsDuration =
+			currentTo - currentFrom > combineTokensWithinMilliseconds;
+		// A pause between the previous caption and this one
+		const shouldBreakOnSilence =
+			breakOnSilenceAfterMilliseconds !== undefined &&
+			currentText !== '' &&
+			item.startMs - currentTo >= breakOnSilenceAfterMilliseconds;
+
 		// If text starts with a space, push the currentText (if it exists) and start a new one
-		if (
-			text.startsWith(' ') &&
-			currentTo - currentFrom > combineTokensWithinMilliseconds
-		) {
+		if (text.startsWith(' ') && (exceedsDuration || shouldBreakOnSilence)) {
 			if (currentText !== '') {
 				add();
 			}

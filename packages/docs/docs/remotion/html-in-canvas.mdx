@@ -796,9 +796,7 @@ const onPaint: HtmlInCanvasOnPaint = async ({canvas, elementImage}) => {
 
 ## Nested HTML-in-canvas
 
-Nesting `<HtmlInCanvas>` components is supported from <AvailableFrom v="4.0.491" inline /> for client-side rendering and preview if on Chrome 152.0.7944.0 or later.
-
-On server-side rendering, nested HTML-in-canvas is not yet supported, pending a Chrome upgrade which we are working on.
+Do not nest `<HtmlInCanvas>` inside another `<HtmlInCanvas>`. Nesting is unsupported and throws an error. If you need to combine multiple effects, merge them into one `<HtmlInCanvas>` if possible.
 
 ## Compatibility
 

@@ -49,6 +49,7 @@ import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
 import {splitJsxSequenceHandler} from './routes/split-jsx-sequence';
+import {splitVideoFromAudioHandler} from './routes/split-video-from-audio';
 import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
 import {subscribeToSequenceProps} from './routes/subscribe-to-sequence-props';
@@ -114,6 +115,7 @@ export const allApiRoutes: {
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
 	'/api/split-jsx-sequence': splitJsxSequenceHandler,
+	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/update-available': handleUpdate,
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,
 	'/api/project-info': projectInfoHandler,

@@ -45,10 +45,10 @@ import {
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
 import {canEditEasingForInterpolationFunction} from '../Timeline/update-selected-easing';
 import {
-	InspectorActionSection,
+	InspectorQuickActionsSection,
 	InspectorBackAction,
 	InspectorDetailRow,
-	InspectorInlineAction,
+	InspectorQuickAction,
 	InspectorMessage,
 	InspectorSectionDivider,
 } from './common';
@@ -590,15 +590,15 @@ export const KeyframeInspector: React.FC<{
 						</InspectorDetailRow>
 					</div>
 				</div>
-				<InspectorActionSection>
-					<InspectorInlineAction
+				<InspectorQuickActionsSection>
+					<InspectorQuickAction
 						disabled={removeDisabled}
 						onClick={onRemoveKeyframe}
 						renderIcon={(color) => <TrashIcon color={color} />}
 					>
 						Remove keyframe
-					</InspectorInlineAction>
-				</InspectorActionSection>
+					</InspectorQuickAction>
+				</InspectorQuickActionsSection>
 			</div>
 		</div>
 	);

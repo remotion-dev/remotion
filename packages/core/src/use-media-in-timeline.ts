@@ -69,6 +69,14 @@ export const useBasicMediaInTimeline = ({
 			return volume;
 		}
 
+		if (typeof volume !== 'function') {
+			return evaluateVolume({
+				frame: 0,
+				volume,
+				mediaVolume,
+			});
+		}
+
 		return new Array(Math.floor(Math.max(0, duration + mediaStartsAt)))
 			.fill(true)
 			.map((_, i) => {

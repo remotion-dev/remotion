@@ -14,6 +14,7 @@ import {
 	resolveCompositionComponentWithFile,
 	simpleDiff,
 	splitJsxSequence as splitJsxSequenceCodemod,
+	splitVideoFromAudio as splitVideoFromAudioCodemod,
 } from '@remotion/studio-codemods';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
@@ -558,6 +559,44 @@ export const createBrowserStudioOperations = ({
 			}
 		};
 
+	const splitVideoFromAudio: BrowserStudioOperations['splitVideoFromAudio'] =
+		async ({fileName, nodePath}) => {
+			try {
+				const project = getProject();
+				const absolutePath = findProjectFile({filePath: fileName, project});
+				const result = await splitVideoFromAudioCodemod({
+					input: project.files[absolutePath],
+					nodePath,
+					formatFile: formatCodemodFile,
+				});
+				const nodePathMutation = controller.applyMutation({
+					fileName: absolutePath,
+					mutate: () => ({
+						...project,
+						files: {...project.files, [absolutePath]: result.output},
+					}),
+					nodePathMutationFiles: [
+						{
+							absolutePath,
+							remappings: result.nodePathRemappings,
+							restoredNodePaths: [],
+						},
+					],
+				});
+				if (nodePathMutation === null) {
+					throw new Error('Could not split video from audio');
+				}
+
+				return {success: true, nodePathMutation};
+			} catch (error) {
+				return {
+					success: false,
+					reason: error instanceof Error ? error.message : String(error),
+					stack: error instanceof Error && error.stack ? error.stack : '',
+				};
+			}
+		};
+
 	const insertJsxElement: BrowserStudioOperations['insertJsxElement'] = async (
 		request,
 	) => {
@@ -825,6 +864,7 @@ export const createBrowserStudioOperations = ({
 			refreshDefaultPropsSubscriptions();
 			refreshSequencePropsSubscriptions();
 		},
+		splitVideoFromAudio,
 		subscribeToDefaultProps: ({clientId, compositionId}) => {
 			const clients =
 				defaultPropsSubscriptions.get(compositionId) ?? new Set<string>();

@@ -45,6 +45,7 @@ type ClientRenderJobBase = {
 	logLevel: LogLevel;
 	licenseKey: string | null;
 	scale: number;
+	allowHtmlInCanvas: boolean;
 };
 
 export type ClientStillRenderJob = ClientRenderJobBase & {

@@ -68,6 +68,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 					licenseKey: job.licenseKey ?? undefined,
 					scale: job.scale,
 					signal,
+					allowHtmlInCanvas: job.allowHtmlInCanvas,
 				})
 			).blob({format: job.imageFormat});
 
@@ -135,6 +136,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				outputTarget: 'web-fs',
 				licenseKey: job.licenseKey ?? undefined,
 				pageResponsiveness: job.pageResponsiveness,
+				allowHtmlInCanvas: job.allowHtmlInCanvas,
 			});
 
 			return {
