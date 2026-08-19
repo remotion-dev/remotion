@@ -937,6 +937,16 @@ export const importFigmaClipboard = async ({
 	dropPosition: InsertElementDropPosition | null;
 	html: string;
 }) => {
+	// Figma clipboard conversion requires the SVGR-based pipeline in
+	// @remotion/studio-server, which Browser Studio does not support.
+	if (getBrowserStudioOperations()) {
+		showNotification(
+			'Importing Figma clipboard data is not supported in Browser Studio',
+			4000,
+		);
+		return;
+	}
+
 	try {
 		const converted = await callApi('/api/convert-figma-clipboard-to-svg', {
 			html,
