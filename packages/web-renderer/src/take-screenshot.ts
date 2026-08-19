@@ -3,10 +3,7 @@ import {Internals} from 'remotion';
 import {compose} from './compose';
 import {containsUrlMaskImage} from './drawing/mask-image';
 import type {HtmlInCanvasContext} from './html-in-canvas';
-import {
-	containsLayoutSubtreeCanvas,
-	drawWithHtmlInCanvas,
-} from './html-in-canvas';
+import {drawWithHtmlInCanvas} from './html-in-canvas';
 import type {InternalState} from './internal-state';
 
 export type HtmlInCanvasLayerOutcome =
@@ -53,8 +50,6 @@ export const createLayer = async ({
 				shouldWarn: false,
 			});
 		} else {
-			const hasNestedHtmlInCanvas = containsLayoutSubtreeCanvas(element);
-
 			try {
 				const offCtx = await drawWithHtmlInCanvas({
 					htmlInCanvasContext,
@@ -62,7 +57,6 @@ export const createLayer = async ({
 					scaledWidth,
 					scaledHeight,
 					waitForRenderReady,
-					useElementImage: hasNestedHtmlInCanvas,
 				});
 				onHtmlInCanvasLayerOutcome({native: true});
 				return offCtx;
