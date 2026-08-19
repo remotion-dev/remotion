@@ -1366,6 +1366,126 @@ export const getCompositionFile = ({
 	return null;
 };
 
+export const getFolderFile = ({
+	folderName,
+	project,
+}: {
+	folderName: string;
+	project: CodemodProject;
+}) => {
+	for (const [filePath, source] of Object.entries(project.files)) {
+		if (typeof source !== 'string') {
+			continue;
+		}
+
+		try {
+			const ast = parseSource(source);
+			let found = false;
+			visit(ast, (node) => {
+				if (node.type !== 'JSXElement') {
+					return false;
+				}
+
+				const openingElement = getNode(node, 'openingElement');
+				if (
+					!openingElement ||
+					jsxName(getNode(openingElement, 'name')) !== 'Folder'
+				) {
+					return false;
+				}
+
+				if (
+					jsxAttributeString(getJsxAttribute(openingElement, 'name')) !==
+					folderName
+				) {
+					return false;
+				}
+
+				found = true;
+				return true;
+			});
+			if (found) {
+				return relativeToRoot(filePath, project.rootDir);
+			}
+		} catch {
+			// Ignore files that are not parseable source modules.
+		}
+	}
+
+	return null;
+};
+
+export const getRootFileForProject = ({
+	entryPoint,
+	project,
+}: {
+	entryPoint: string;
+	project: CodemodProject;
+}): string | null => {
+	let entryFile: string;
+	try {
+		entryFile = findProjectFile({filePath: entryPoint, project});
+	} catch {
+		return null;
+	}
+
+	try {
+		const ast = parseSource(project.files[entryFile]);
+		let rootComponentName: string | null = null;
+		visit(ast, (node) => {
+			if (node.type !== 'CallExpression') {
+				return false;
+			}
+
+			const callee = getNode(node, 'callee');
+			if (
+				callee?.type !== 'Identifier' ||
+				getString(callee, 'name') !== 'registerRoot'
+			) {
+				return false;
+			}
+
+			const [argument] = getNodes(node, 'arguments');
+			if (argument?.type === 'Identifier') {
+				rootComponentName = getString(argument, 'name');
+			}
+
+			return true;
+		});
+		if (rootComponentName === null) {
+			return null;
+		}
+
+		let importPath: string | null = null;
+		visit(ast, (node) => {
+			if (node.type !== 'ImportDeclaration') {
+				return false;
+			}
+
+			for (const specifier of getNodes(node, 'specifiers')) {
+				const local = getNode(specifier, 'local');
+				if (local && getString(local, 'name') === rootComponentName) {
+					importPath = getString(getNode(node, 'source'), 'value');
+					return true;
+				}
+			}
+
+			return false;
+		});
+		if (importPath === null) {
+			// The root component is defined in the entry file itself.
+			return relativeToRoot(entryFile, project.rootDir);
+		}
+
+		return relativeToRoot(
+			resolveImportFile({fromFile: entryFile, importPath, project}),
+			project.rootDir,
+		);
+	} catch {
+		return null;
+	}
+};
+
 const staticFileToken = 'remotion-file:';
 const dateToken = 'remotion-date:';
 

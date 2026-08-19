@@ -772,3 +772,327 @@ registerRoot(Root);`,
 		'<Sequence from={15} durationInFrames={15} trimBefore={5} />',
 	);
 });
+
+const makeOperationsForProject = (project: VirtualProject) => {
+	let currentProject = project;
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => currentProject,
+		onProjectChange: (nextProject) => {
+			currentProject = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	return {operations, getProject: () => currentProject};
+};
+
+test('renames a composition by resolving the file from the composition id', async () => {
+	const {operations, getProject} = makeOperationsForProject(
+		createBlankTemplateProject(),
+	);
+
+	const result = await operations.applyCodemod({
+		codemod: {
+			type: 'rename-composition',
+			idToRename: 'MyComp',
+			newId: 'RenamedComp',
+		},
+		dryRun: false,
+		symbolicatedStack: null,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	expect(getProject().files['/project/src/Composition.tsx']).toContain(
+		'id="RenamedComp"',
+	);
+
+	const undoResult = await operations.undo();
+	expect(undoResult.success).toBe(true);
+	expect(getProject().files['/project/src/Composition.tsx']).toContain(
+		'id="MyComp"',
+	);
+});
+
+test('updates composition metadata in Browser Studio', async () => {
+	const {operations, getProject} = makeOperationsForProject(
+		createBlankTemplateProject(),
+	);
+
+	const result = await operations.applyCodemod({
+		codemod: {
+			type: 'update-composition-metadata',
+			idToUpdate: 'MyComp',
+			newDurationInFrames: 120,
+			newFps: 60,
+			newHeight: 1080,
+			newWidth: 1920,
+		},
+		dryRun: false,
+		symbolicatedStack: null,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	const composition = getProject().files['/project/src/Composition.tsx'];
+	expect(composition).toContain('durationInFrames={120}');
+	expect(composition).toContain('fps={60}');
+	expect(composition).toContain('width={1920}');
+	expect(composition).toContain('height={1080}');
+});
+
+test('deletes a composition and supports a dry run', async () => {
+	const {operations, getProject} = makeOperationsForProject(
+		createBlankTemplateProject(),
+	);
+	const initialContents = getProject().files['/project/src/Composition.tsx'];
+
+	const dryRunResult = await operations.applyCodemod({
+		codemod: {type: 'delete-composition', idToDelete: 'MyComp'},
+		dryRun: true,
+		symbolicatedStack: null,
+	});
+	if (!dryRunResult.success) {
+		throw new Error(dryRunResult.reason);
+	}
+
+	expect(dryRunResult.diff.deletions).toBeGreaterThan(0);
+	expect(getProject().files['/project/src/Composition.tsx']).toBe(
+		initialContents,
+	);
+
+	const result = await operations.applyCodemod({
+		codemod: {type: 'delete-composition', idToDelete: 'MyComp'},
+		dryRun: false,
+		symbolicatedStack: null,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	expect(getProject().files['/project/src/Composition.tsx']).not.toContain(
+		'<Composition',
+	);
+});
+
+test('creates a composition with a component file in the root file', async () => {
+	const {operations, getProject} = makeOperationsForProject(
+		createBlankTemplateProject(),
+	);
+
+	const codemod = {
+		type: 'new-composition' as const,
+		newId: 'FreshComp',
+		componentName: 'FreshComp',
+		componentImportPath: './FreshComp',
+		folderName: null,
+		parentName: null,
+		newHeight: 720,
+		newWidth: 1280,
+		newFps: 30,
+		newDurationInFrames: 90,
+		canvasCapture: null,
+	};
+	const result = await operations.applyCodemod({
+		codemod,
+		dryRun: false,
+		symbolicatedStack: null,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	const rootFile = getProject().files['/project/src/Root.tsx'];
+	expect(rootFile).toContain('id="FreshComp"');
+	expect(rootFile).toContain("import {Composition} from 'remotion'");
+	expect(rootFile).toContain("import {FreshComp} from './FreshComp'");
+	expect(getProject().files['/project/src/FreshComp.tsx']).toContain(
+		'export const FreshComp: React.FC',
+	);
+
+	const conflict = await operations.applyCodemod({
+		codemod: {...codemod, newId: 'FreshComp2'},
+		dryRun: false,
+		symbolicatedStack: null,
+	});
+	expect(conflict).toEqual({
+		success: false,
+		reason: 'Cannot create src/FreshComp.tsx because it already exists',
+	});
+
+	const undoResult = await operations.undo();
+	expect(undoResult.success).toBe(true);
+	expect(getProject().files['/project/src/FreshComp.tsx']).toBeUndefined();
+	expect(getProject().files['/project/src/Root.tsx']).not.toContain(
+		'id="FreshComp"',
+	);
+});
+
+test('creates, renames and deletes a folder in Browser Studio', async () => {
+	const {operations, getProject} = makeOperationsForProject(
+		createBlankTemplateProject(),
+	);
+
+	const createResult = await operations.applyCodemod({
+		codemod: {type: 'new-folder', folderName: 'my-folder', parentName: null},
+		dryRun: false,
+		symbolicatedStack: null,
+	});
+	if (!createResult.success) {
+		throw new Error(createResult.reason);
+	}
+
+	const rootFile = getProject().files['/project/src/Root.tsx'];
+	expect(rootFile).toContain('<Folder name="my-folder" />');
+	expect(rootFile).toContain("import {Folder} from 'remotion'");
+
+	const renameResult = await operations.applyCodemod({
+		codemod: {
+			type: 'rename-folder',
+			folderName: 'my-folder',
+			parentName: null,
+			newName: 'renamed-folder',
+		},
+		dryRun: false,
+		symbolicatedStack: null,
+	});
+	if (!renameResult.success) {
+		throw new Error(renameResult.reason);
+	}
+
+	expect(getProject().files['/project/src/Root.tsx']).toContain(
+		'<Folder name="renamed-folder" />',
+	);
+
+	const deleteResult = await operations.applyCodemod({
+		codemod: {
+			type: 'delete-folder',
+			folderName: 'renamed-folder',
+			parentName: null,
+		},
+		dryRun: false,
+		symbolicatedStack: null,
+	});
+	if (!deleteResult.success) {
+		throw new Error(deleteResult.reason);
+	}
+
+	expect(getProject().files['/project/src/Root.tsx']).not.toContain('<Folder');
+});
+
+test('moves a composition into a folder using a symbolicated stack', async () => {
+	const fileName = '/project/src/Root.tsx';
+	const {operations, getProject} = makeOperationsForProject({
+		rootDir: '/project',
+		entryPoint: '/project/src/index.ts',
+		files: {
+			'/project/src/index.ts': `import {registerRoot} from 'remotion';
+import {Root} from './Root';
+registerRoot(Root);
+`,
+			[fileName]: `import {Composition, Folder} from 'remotion';
+
+const MyComponent = () => null;
+
+export const Root = () => {
+	return (
+		<>
+			<Folder name="target-folder" />
+			<Composition id="MyComp" component={MyComponent} durationInFrames={60} fps={30} width={1280} height={720} />
+		</>
+	);
+};
+`,
+		},
+	});
+
+	const result = await operations.applyCodemod({
+		codemod: {
+			type: 'move-composition-to-folder',
+			idToMove: 'MyComp',
+			folderName: 'target-folder',
+			parentName: null,
+		},
+		dryRun: false,
+		symbolicatedStack: {
+			originalFileName: 'src/Root.tsx',
+			originalFunctionName: null,
+			originalLineNumber: 9,
+			originalColumnNumber: 4,
+			originalScriptCode: null,
+		},
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	const rootFile = getProject().files[fileName];
+	expect(rootFile).toContain('<Folder name="target-folder">');
+	expect(rootFile.indexOf('<Composition')).toBeGreaterThan(
+		rootFile.indexOf('<Folder'),
+	);
+});
+
+test('reports structured failures for unsupported codemods', async () => {
+	const {operations, getProject} = makeOperationsForProject(
+		createBlankTemplateProject(),
+	);
+	const initialFiles = {...getProject().files};
+
+	expect(
+		await operations.applyCodemod({
+			codemod: {type: 'apply-visual-control', changes: []},
+			dryRun: false,
+			symbolicatedStack: null,
+		}),
+	).toEqual({
+		success: false,
+		reason: 'Applying visual controls is not supported in Browser Studio',
+	});
+
+	expect(
+		await operations.applyCodemod({
+			codemod: {
+				type: 'new-composition',
+				newId: 'CanvasComp',
+				componentName: 'CanvasComp',
+				componentImportPath: './CanvasComp',
+				folderName: null,
+				parentName: null,
+				newHeight: 720,
+				newWidth: 1280,
+				newFps: 30,
+				newDurationInFrames: 90,
+				canvasCapture: {
+					videoFileName: 'video.mp4',
+					videoHeight: 720,
+					videoWidth: 1280,
+					keyframeFps: 30,
+					data: {version: 1, tracks: []} as never,
+				},
+			},
+			dryRun: false,
+			symbolicatedStack: null,
+		}),
+	).toEqual({
+		success: false,
+		reason:
+			'Creating canvas capture compositions is not supported in Browser Studio',
+	});
+
+	expect(
+		await operations.applyCodemod({
+			codemod: {type: 'delete-composition', idToDelete: 'MissingComp'},
+			dryRun: false,
+			symbolicatedStack: null,
+		}),
+	).toEqual({
+		success: false,
+		reason: 'Could not find composition "MissingComp"',
+	});
+
+	expect(getProject().files).toEqual(initialFiles);
+});
