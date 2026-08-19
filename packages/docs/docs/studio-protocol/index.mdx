@@ -8,18 +8,20 @@ crumb: '@remotion/studio-protocol'
 
 A versioned protocol for providing content to Remotion Studio.
 
-Websites can provide [Remotion Elements](/docs/studio-protocol/create-element-payload#what-is-a-remotion-element) by drag-and-drop or request their installation into the active composition.
-
 <Installation pkg="@remotion/studio-protocol" />
 
-## Usage
+## Capabilities
+
+### Installing Remotion Elements
+
+A **Remotion Element** is a reusable React component distributed as source code, together with the metadata and dependencies needed to add it to a composition. Because its source code becomes part of the project, it can be edited and remixed by the user.
+
+Websites can provide Remotion Elements by drag-and-drop or request their installation into the active composition.
 
 - <Step>1</Step> Create an Element payload with [`createElementPayload()`](/docs/studio-protocol/create-element-payload).
 - <Step>2</Step> Provide the payload to Studio: put it on a drag event with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data), or request installation into the active composition with [`installInStudio()`](/docs/studio-protocol/install-in-studio).
 
-## Choosing a delivery method
-
-Offer both methods when possible. They use the same Element payload but suit different workflows.
+Offer both delivery methods when possible. They use the same Element payload but suit different workflows.
 
 | Method                                                          | Benefits                                                                                                        | Tradeoffs                                                                                                                                        |
 | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
