@@ -6,6 +6,7 @@ import {ConfigInternals} from './config';
 import {parsedCli} from './parsed-cli';
 
 const {
+	allowHtmlInCanvasOption,
 	x264Option,
 	gopSizeOption,
 	audioBitrateOption,
@@ -160,6 +161,9 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
 	const metadata = ConfigInternals.getMetadata();
 	const outputLocation = ConfigInternals.getOutputLocation();
+	const allowHtmlInCanvas = allowHtmlInCanvasOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -220,6 +224,7 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 		mediaCacheSizeInBytes,
 		publicLicenseKey,
 		outputLocation,
+		allowHtmlInCanvas,
 		sampleRate: sampleRateOption.getValue({commandLine: parsedCli}).value,
 		configFileRenderDefaults,
 	};

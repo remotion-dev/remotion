@@ -8,6 +8,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 
 const {
+	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	beepOnFinishOption,
 	colorSpaceOption,
@@ -86,6 +87,9 @@ const {
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
+	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
+		typeof allowHtmlInCanvasOption
+	> | null;
 	[browserExecutableOption.cliFlag]: TypeOfOption<
 		typeof browserExecutableOption
 	>;
@@ -209,6 +213,7 @@ export type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
+	allowHtmlInCanvasOption.cliFlag,
 	overwriteOption.cliFlag,
 	imageSequenceOption.cliFlag,
 	'help',
@@ -239,6 +244,7 @@ export const BooleanFlags = [
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
+		[allowHtmlInCanvasOption.cliFlag]: null,
 		[overwriteOption.cliFlag]: null,
 		[bundleCacheOption.cliFlag]: null,
 		[darkModeOption.cliFlag]: null,

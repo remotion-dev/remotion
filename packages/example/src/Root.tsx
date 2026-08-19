@@ -82,7 +82,6 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
-	HtmlInCanvasNestedEffects,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -1262,14 +1261,6 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-docs-demo-2d-blur"
 						component={HtmlInCanvasDocsDemo2DBlur}
-						fps={30}
-						height={1080}
-						width={1920}
-						durationInFrames={120}
-					/>
-					<Composition
-						id="html-in-canvas-nested-effects"
-						component={HtmlInCanvasNestedEffects}
 						fps={30}
 						height={1080}
 						width={1920}

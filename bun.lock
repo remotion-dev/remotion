@@ -2685,7 +2685,6 @@
         "react-dom": "catalog:",
         "three": "catalog:",
         "vitest": "catalog:",
-        "vitest-browser-react": "2.0.2",
         "zod": "catalog:",
       },
       "peerDependencies": {

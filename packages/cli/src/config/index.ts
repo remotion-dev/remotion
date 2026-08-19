@@ -22,7 +22,6 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {Log} from '../log';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -80,6 +79,7 @@ export type {
 };
 
 const {
+	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	concurrencyOption,
 	offthreadVideoCacheSizeInBytesOption,
@@ -220,7 +220,8 @@ declare global {
 		 */
 		readonly setInteractivityEnabled: (enabled: boolean) => void;
 		/**
-		 * @deprecated HTML-in-canvas is now enabled by default when supported. This method is a no-op and can be removed.
+		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
+		 * @default false
 		 */
 		readonly setAllowHtmlInCanvasEnabled: (enabled: boolean) => void;
 		/**
@@ -718,13 +719,6 @@ type FlatConfig = RemotionConfigObject &
 		Output: void;
 	};
 
-const setAllowHtmlInCanvasEnabled = (_enabled: boolean) => {
-	Log.warn(
-		{indent: false, logLevel: 'info'},
-		'Config.setAllowHtmlInCanvasEnabled() is now a no-op because HTML-in-canvas is enabled by default when supported. You can remove this option from your config file.',
-	);
-};
-
 export const Config: FlatConfig = {
 	get Bundling() {
 		throw new Error(
@@ -759,7 +753,7 @@ export const Config: FlatConfig = {
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setInteractivityEnabled: interactivityOption.setConfig,
-	setAllowHtmlInCanvasEnabled,
+	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
