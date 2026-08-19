@@ -292,7 +292,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
-	const {onSelect, selectable, selected, selectionItem} =
+	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
 	const {selectItem, selectedItems} = useTimelineSelection();
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -1244,7 +1244,6 @@ const TimelineSequenceItemInner: React.FC<{
 			style={rowStyle}
 			selected={selected}
 			selectable={selectable}
-			selectionItem={selectionItem}
 			onSelect={onSelect}
 			showSelectedBackground
 			containsSelection={containsSelection}

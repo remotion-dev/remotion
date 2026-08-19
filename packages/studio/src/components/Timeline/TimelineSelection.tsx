@@ -62,7 +62,6 @@ import {
 	getSelectedTimelineExpandedRowKeys,
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
-import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -609,6 +608,7 @@ export const extendTimelineMarqueeSelection = ({
 
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
+	readonly revealRequest: TimelineSelectionRevealRequest | null;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (
@@ -625,13 +625,6 @@ type TimelineSelectionContextValue = {
 		item: TimelineSelection,
 		getRect: () => DOMRect | null,
 	) => () => void;
-	readonly registerFocusableItem: (
-		item: TimelineSelection,
-		getElement: () => Element | null,
-	) => () => void;
-	readonly registerRevealHandler: (
-		handler: (item: TimelineSelection) => void,
-	) => () => void;
 	readonly getMarqueeSelection: (
 		marqueeRect: TimelineMarqueeRect,
 		lockedSelectionKind: TimelineMarqueeSelectionKind | null,
@@ -645,13 +638,12 @@ type TimelineSelectionContextValue = {
 
 const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	canSelect: false,
+	revealRequest: null,
 	selectedItems: [],
 	isSelected: () => false,
 	selectItem: () => undefined,
 	selectItems: () => undefined,
 	registerMarqueeSelectableItem: () => () => undefined,
-	registerFocusableItem: () => () => undefined,
-	registerRevealHandler: () => () => undefined,
 	getMarqueeSelection: () => ({
 		lockedSelectionKind: null,
 		selectedItems: [],
@@ -687,21 +679,13 @@ export const TimelineSelectionOrderProvider: React.FC<{
 const CurrentTimelineSelectionContext =
 	createContext<React.RefObject<TimelineSelectionContextValue> | null>(null);
 
-const TIMELINE_SELECTION_REVEAL_RETRY_COUNT = 2;
-
 type TimelineSelectionOptions = {
 	readonly reveal?: boolean;
 };
 
 type TimelineSelectionRevealRequest = {
-	readonly key: string;
 	readonly item: TimelineSelection;
 	readonly token: number;
-};
-
-type TimelineFocusableItem = {
-	readonly getElement: () => Element | null;
-	readonly order: number;
 };
 
 const parseEffectIndex = (effectIndex: string): number | null => {
@@ -1190,13 +1174,6 @@ export const TimelineSelectionProvider: React.FC<{
 		>(),
 	);
 	const marqueeRegistrationCounter = useRef(0);
-	const focusableItems = useRef(
-		new Map<string, Map<number, TimelineFocusableItem>>(),
-	);
-	const focusableRegistrationCounter = useRef(0);
-	const revealHandler = useRef<((item: TimelineSelection) => void) | null>(
-		null,
-	);
 	const [revealRequest, setRevealRequest] =
 		useState<TimelineSelectionRevealRequest | null>(null);
 
@@ -1234,72 +1211,8 @@ export const TimelineSelectionProvider: React.FC<{
 		getCurrentAvailableSelectionState(selectedItems);
 	const availableSelectedItems = availableSelectionState.selectedItems;
 
-	const revealSelectionKey = useCallback((selectedKey: string) => {
-		let cancelled = false;
-		let animationFrame: number | null = null;
-
-		const reveal = (attempt: number) => {
-			if (cancelled) {
-				return;
-			}
-
-			const scrollParent = timelineVerticalScroll.current;
-			const focusableRegistrations = focusableItems.current.get(selectedKey);
-			const focusableElement =
-				scrollParent && focusableRegistrations
-					? [...focusableRegistrations.values()]
-							.sort((a, b) => a.order - b.order)
-							.map((registered) => registered.getElement())
-							.find(
-								(element): element is Element =>
-									element !== null && scrollParent.contains(element),
-							)
-					: null;
-			const rect =
-				focusableElement?.getBoundingClientRect() ??
-				marqueeSelectableItems.current.get(selectedKey)?.getRect();
-
-			if (!scrollParent || !rect) {
-				if (attempt < TIMELINE_SELECTION_REVEAL_RETRY_COUNT) {
-					animationFrame = requestAnimationFrame(() => reveal(attempt + 1));
-				}
-
-				return;
-			}
-
-			const parentRect = scrollParent.getBoundingClientRect();
-			if (rect.top >= parentRect.top && rect.bottom <= parentRect.bottom) {
-				return;
-			}
-
-			const elementCenter = rect.top + rect.height / 2;
-			const parentCenter = parentRect.top + parentRect.height / 2;
-			scrollParent.scrollTop += elementCenter - parentCenter;
-		};
-
-		animationFrame = requestAnimationFrame(() => reveal(0));
-
-		return () => {
-			cancelled = true;
-			if (animationFrame !== null) {
-				cancelAnimationFrame(animationFrame);
-			}
-		};
-	}, []);
-
-	useEffect(() => {
-		if (revealRequest === null) {
-			return;
-		}
-
-		revealHandler.current?.(revealRequest.item);
-		return revealSelectionKey(revealRequest.key);
-	}, [revealRequest, revealSelectionKey]);
-
 	const requestRevealSelectionItem = useCallback((item: TimelineSelection) => {
-		const key = getTimelineSelectionKey(item);
 		setRevealRequest((previousRequest) => ({
-			key,
 			item,
 			token: (previousRequest?.token ?? 0) + 1,
 		}));
@@ -1462,42 +1375,6 @@ export const TimelineSelectionProvider: React.FC<{
 		[],
 	);
 
-	const registerFocusableItem = useCallback(
-		(item: TimelineSelection, getElement: () => Element | null) => {
-			const key = getTimelineSelectionKey(item);
-			const registrationOrder = focusableRegistrationCounter.current;
-			focusableRegistrationCounter.current += 1;
-			const registrations =
-				focusableItems.current.get(key) ??
-				new Map<number, TimelineFocusableItem>();
-			registrations.set(registrationOrder, {
-				getElement,
-				order: registrationOrder,
-			});
-			focusableItems.current.set(key, registrations);
-			return () => {
-				const latestRegistrations = focusableItems.current.get(key);
-				latestRegistrations?.delete(registrationOrder);
-				if (latestRegistrations?.size === 0) {
-					focusableItems.current.delete(key);
-				}
-			};
-		},
-		[],
-	);
-
-	const registerRevealHandler = useCallback(
-		(handler: (item: TimelineSelection) => void) => {
-			revealHandler.current = handler;
-			return () => {
-				if (revealHandler.current === handler) {
-					revealHandler.current = null;
-				}
-			};
-		},
-		[],
-	);
-
 	const getMarqueeSelectionForRect = useCallback(
 		(
 			marqueeRect: TimelineMarqueeRect,
@@ -1557,26 +1434,24 @@ export const TimelineSelectionProvider: React.FC<{
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
+			revealRequest,
 			selectedItems: availableSelectedItems,
 			isSelected,
 			selectItem,
 			selectItems,
 			registerMarqueeSelectableItem,
-			registerFocusableItem,
-			registerRevealHandler,
 			getMarqueeSelection: getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,
 		}),
 		[
 			canSelect,
+			revealRequest,
 			availableSelectedItems,
 			isSelected,
 			selectItem,
 			selectItems,
 			registerMarqueeSelectableItem,
-			registerFocusableItem,
-			registerRevealHandler,
 			getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,
@@ -1766,21 +1641,6 @@ export const useTimelineMarqueeSelectableItem = (
 			() => ref.current?.getBoundingClientRect() ?? null,
 		);
 	}, [item, ref, registerMarqueeSelectableItem]);
-};
-
-export const useTimelineFocusableItem = (
-	item: TimelineSelection | null,
-	ref: React.RefObject<Element | null>,
-) => {
-	const {registerFocusableItem} = useTimelineSelection();
-
-	useEffect(() => {
-		if (item === null) {
-			return;
-		}
-
-		return registerFocusableItem(item, () => ref.current);
-	}, [item, ref, registerFocusableItem]);
 };
 
 export const useTimelineRowSelection = (

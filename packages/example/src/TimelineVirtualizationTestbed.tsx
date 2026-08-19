@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Sequence} from 'remotion';
+import {AbsoluteFill, Interactive, Sequence} from 'remotion';
 
 export const TIMELINE_VIRTUALIZATION_TRACK_COUNT = 120;
 
@@ -364,7 +364,19 @@ export const TimelineVirtualizationTestbed: React.FC = () => {
 				<AbsoluteFill />
 			</Sequence>
 			<Sequence durationInFrames={30} name="Virtual track 119">
-				<AbsoluteFill />
+				<Interactive.Div
+					name="Reveal target"
+					style={{
+						backgroundColor: 'red',
+						height: 100,
+						left: 100,
+						position: 'absolute',
+						top: 100,
+						width: 100,
+					}}
+				>
+					Reveal target
+				</Interactive.Div>
 			</Sequence>
 		</>
 	);

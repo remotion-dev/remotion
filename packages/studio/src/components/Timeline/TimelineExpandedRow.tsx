@@ -116,7 +116,6 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 				}}
 				selected={selection.selected}
 				selectable={selection.selectable}
-				selectionItem={selection.selectionItem}
 				onSelect={selection.onSelect}
 				showSelectedBackground
 				containsSelection={false}
@@ -175,7 +174,6 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 			}}
 			selected={selection.selected}
 			selectable={selection.selectable}
-			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}

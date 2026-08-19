@@ -116,15 +116,28 @@ test.describe('visual mode', () => {
 		const mountedTrackLabels = page.getByText(/^Virtual track \d{3}$/);
 		expect(await mountedTrackLabels.count()).toBeLessThan(120);
 
-		await timelineScroll.evaluate((element) => {
-			element.scrollTop = element.scrollHeight;
-		});
+		const revealTargetTrack = page.locator(
+			'[data-timeline-marquee-item][title="Reveal target"]',
+		);
+		await expect(revealTargetTrack).toHaveCount(0);
+		const canvas = page.locator('.remotion-studio-composition-container');
+		const visibleOutlines = canvas.locator(
+			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
+		);
+		await canvas.hover();
+		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await visibleOutlines.first().click({force: true});
+
+		await expect(revealTargetTrack).toBeVisible();
 		await expect(
 			page.getByText('Virtual track 119', {exact: true}),
 		).toBeVisible();
 		await expect(
 			page.locator('[data-timeline-marquee-item][title="Virtual track 119"]'),
 		).toBeVisible();
+		expect(
+			await timelineScroll.evaluate((element) => element.scrollTop),
+		).toBeGreaterThan(0);
 		expect(await mountedTrackLabels.count()).toBeLessThan(120);
 	});
 

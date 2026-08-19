@@ -56,7 +56,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 	readonly timeline: readonly TimelineTrackData[];
 }> = ({children, hasBeenCut, isStill, timeline}) => {
 	const trackHeights = useTimelineTrackHeights({timeline});
-	const {registerRevealHandler, selectedItems} = useTimelineSelection();
+	const {revealRequest, selectedItems} = useTimelineSelection();
 	const paddingStart = isStill ? 0 : TIMELINE_TIME_INDICATOR_HEIGHT;
 	const paddingEnd =
 		TIMELINE_ITEM_BORDER_BOTTOM +
@@ -179,14 +179,16 @@ export const TimelineVirtualizationProvider: React.FC<{
 	}, [trackHeights, virtualizer]);
 
 	useEffect(() => {
-		return registerRevealHandler((selection) => {
-			const key = getSelectionTrackKey(selection);
-			const index = key === null ? undefined : layout.rootTrackIndexes.get(key);
-			if (index !== undefined) {
-				virtualizer.scrollToIndex(index, {align: 'auto'});
-			}
-		});
-	}, [layout.rootTrackIndexes, registerRevealHandler, virtualizer]);
+		if (revealRequest === null) {
+			return;
+		}
+
+		const key = getSelectionTrackKey(revealRequest.item);
+		const index = key === null ? undefined : layout.rootTrackIndexes.get(key);
+		if (index !== undefined) {
+			virtualizer.scrollToIndex(index, {align: 'auto'});
+		}
+	}, [layout.rootTrackIndexes, revealRequest, virtualizer]);
 
 	const virtualItems = virtualizer.getVirtualItems();
 	const value = useMemo(
