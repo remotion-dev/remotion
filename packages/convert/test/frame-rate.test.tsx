@@ -45,3 +45,15 @@ test('probes constant and variable frame rates for the player and metadata', asy
 	render(<FrameRateProbe file={constantFile} />);
 	expect(await screen.findByText('30.00 FPS')).toBeTruthy();
 });
+
+test('can unmount while probing a file', async () => {
+	const variableFile = await loadFixture(
+		'../example-videos/videos/variable-fps.webm',
+	);
+	const pendingProbe = render(<FrameRateProbe file={variableFile} />);
+	pendingProbe.unmount();
+
+	const constantFile = await loadFixture('../example/public/framer.webm');
+	render(<FrameRateProbe file={constantFile} />);
+	expect(await screen.findByText('30.00 FPS')).toBeTruthy();
+});
