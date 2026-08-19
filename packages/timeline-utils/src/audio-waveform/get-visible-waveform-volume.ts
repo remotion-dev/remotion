@@ -1,4 +1,8 @@
-import {shouldTileLoopDisplay, type TimelineLoopDisplay} from '../loop-display';
+import {
+	getLoopDisplaySegments,
+	shouldTileLoopDisplay,
+	type TimelineLoopDisplay,
+} from '../loop-display';
 import type {WaveformVolume} from './draw-peaks';
 
 export const getVisibleWaveformVolume = ({
@@ -35,34 +39,24 @@ export const getVisibleWaveformVolume = ({
 		return volume.slice(start, end);
 	}
 
-	const result: number[] = [];
-	let processed = 0;
-	while (processed < displayDurationInFrames) {
-		const absoluteOffset = displayOffsetInFrames + processed;
-		const loopOffset =
-			((absoluteOffset % loopDisplay.durationInFrames) +
-				loopDisplay.durationInFrames) %
-			loopDisplay.durationInFrames;
-		const segmentDuration = Math.min(
-			displayDurationInFrames - processed,
-			loopDisplay.durationInFrames - loopOffset,
-		);
-		if (segmentDuration <= 0) {
-			break;
-		}
+	const segments = getLoopDisplaySegments({
+		displayDurationInFrames,
+		displayOffsetInFrames,
+		loopDurationInFrames: loopDisplay.durationInFrames,
+	});
 
-		const start = Math.max(0, Math.floor(loopOffset));
+	const result: number[] = [];
+	for (const segment of segments) {
+		const start = Math.max(0, Math.floor(segment.loopOffsetInFrames));
 		const end = Math.min(
 			volume.length,
-			Math.ceil(loopOffset + segmentDuration),
+			Math.ceil(segment.loopOffsetInFrames + segment.durationInFrames),
 		);
 		// Do not `push(...slice)`: Chrome throws RangeError: Invalid array length
 		// once a loop segment is longer than ~65k frames.
 		for (let index = start; index < end; index++) {
 			result.push(volume[index]);
 		}
-
-		processed += segmentDuration;
 	}
 
 	return result;

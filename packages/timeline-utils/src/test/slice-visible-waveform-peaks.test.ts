@@ -41,3 +41,28 @@ test('joins waveform portions across a loop boundary', () => {
 		...Array.from({length: 30}, (_, index) => index),
 	]);
 });
+
+test('terminates with fractional display windows from timeline virtualization', () => {
+	const peaks = Float32Array.from({length: 1000}, (_, index) => index);
+	const visible = sliceVisibleWaveformPeaks({
+		displayDurationInFrames: 33426.30571428571,
+		displayOffsetInFrames: 11256.685714285799,
+		durationInFrames: 100,
+		fps: 10,
+		loopDisplay: {
+			// A fractional loop duration whose residue stalls the previous
+			// `processed += segmentDuration` implementation below 1 ULP
+			durationInFrames: 99.999,
+			numberOfTimes: 600,
+			startOffset: 0,
+		},
+		peaks,
+		playbackRate: 1,
+		startFrom: 0,
+	});
+
+	// 10 peaks per frame at fps 10 and TARGET_SAMPLE_RATE 100,
+	// plus up to 2 peaks of rounding per loop segment
+	expect(visible.length).toBeGreaterThan(334000);
+	expect(visible.length).toBeLessThan(336000);
+});

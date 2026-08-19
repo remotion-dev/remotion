@@ -8,6 +8,7 @@ import {
 	frameDatabase,
 	getAspectRatioFromCache,
 	getFrameDatabaseKeyPrefix,
+	getLoopDisplaySegments,
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 	resizeVideoFrame,
@@ -504,7 +505,11 @@ const getVisibleSegments = ({
 	readonly displayOffsetInFrames: number;
 	readonly loopDisplay: LoopDisplay | undefined;
 }) => {
-	if (!loopDisplay || loopDisplay.numberOfTimes <= 1) {
+	if (
+		!loopDisplay ||
+		loopDisplay.numberOfTimes <= 1 ||
+		loopDisplay.durationInFrames <= 0
+	) {
 		return [
 			{
 				key: 'single',
@@ -515,37 +520,18 @@ const getVisibleSegments = ({
 		];
 	}
 
-	const segments: {
-		key: string;
-		displayOffsetInFrames: number;
-		durationInFrames: number;
-		sourceOffsetInFrames: number;
-	}[] = [];
-	let processed = 0;
-	while (processed < displayDurationInFrames) {
-		const absoluteOffset = displayOffsetInFrames + processed;
-		const sourceOffsetInFrames =
-			((absoluteOffset % loopDisplay.durationInFrames) +
-				loopDisplay.durationInFrames) %
-			loopDisplay.durationInFrames;
-		const durationInFrames = Math.min(
-			displayDurationInFrames - processed,
-			loopDisplay.durationInFrames - sourceOffsetInFrames,
-		);
-		if (durationInFrames <= 0) {
-			break;
-		}
-
-		segments.push({
-			key: `loop-${Math.floor(absoluteOffset / loopDisplay.durationInFrames)}`,
-			displayOffsetInFrames: absoluteOffset,
-			durationInFrames,
-			sourceOffsetInFrames,
-		});
-		processed += durationInFrames;
-	}
-
-	return segments;
+	return getLoopDisplaySegments({
+		displayDurationInFrames,
+		displayOffsetInFrames,
+		loopDurationInFrames: loopDisplay.durationInFrames,
+	}).map((segment) => {
+		return {
+			key: `loop-${segment.loopIndex}`,
+			displayOffsetInFrames: segment.absoluteOffsetInFrames,
+			durationInFrames: segment.durationInFrames,
+			sourceOffsetInFrames: segment.loopOffsetInFrames,
+		};
+	});
 };
 
 const TimelineVideoInfoInner: React.FC<{
