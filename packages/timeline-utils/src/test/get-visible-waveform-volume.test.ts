@@ -66,6 +66,26 @@ test('tiles a long looped volume curve', () => {
 	expect((visible as number[])[loopDurationInFrames - 1]).toBe(0.5);
 });
 
+test('terminates with fractional display windows from timeline virtualization', () => {
+	const volume = Array.from({length: 100}, (_, index) => index / 100);
+	const visible = getVisibleWaveformVolume({
+		displayDurationInFrames: 33426.30571428571,
+		displayOffsetInFrames: 11256.685714285799,
+		loopDisplay: {
+			durationInFrames: 100,
+			numberOfTimes: 600,
+			startOffset: 0,
+		},
+		volume,
+	});
+
+	expect(Array.isArray(visible)).toBe(true);
+	const values = visible as number[];
+	expect(values.length).toBeGreaterThan(33426);
+	// Bounded by display duration plus per-segment rounding
+	expect(values.length).toBeLessThan(34000);
+});
+
 test('stops tiling if a loop segment would not advance', () => {
 	expect(
 		getVisibleWaveformVolume({

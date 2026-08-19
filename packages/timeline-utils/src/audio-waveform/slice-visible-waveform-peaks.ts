@@ -1,5 +1,5 @@
 import type {TimelineLoopDisplay} from '../loop-display';
-import {shouldTileLoopDisplay} from '../loop-display';
+import {getLoopDisplaySegments, shouldTileLoopDisplay} from '../loop-display';
 import {sliceWaveformPeaks} from './slice-waveform-peaks';
 
 export const sliceVisibleWaveformPeaks = ({
@@ -21,7 +21,10 @@ export const sliceVisibleWaveformPeaks = ({
 	readonly playbackRate: number;
 	readonly startFrom: number;
 }) => {
-	if (!shouldTileLoopDisplay(loopDisplay)) {
+	if (
+		!shouldTileLoopDisplay(loopDisplay) ||
+		loopDisplay.durationInFrames <= 0
+	) {
 		return sliceWaveformPeaks({
 			durationInFrames: Math.min(
 				displayDurationInFrames,
@@ -34,33 +37,24 @@ export const sliceVisibleWaveformPeaks = ({
 		});
 	}
 
-	const parts: Float32Array[] = [];
-	let processed = 0;
-	let totalLength = 0;
-	while (processed < displayDurationInFrames) {
-		const absoluteOffset = displayOffsetInFrames + processed;
-		const loopOffset =
-			((absoluteOffset % loopDisplay.durationInFrames) +
-				loopDisplay.durationInFrames) %
-			loopDisplay.durationInFrames;
-		const segmentDuration = Math.min(
-			displayDurationInFrames - processed,
-			loopDisplay.durationInFrames - loopOffset,
-		);
-		if (segmentDuration <= 0) {
-			break;
-		}
+	const segments = getLoopDisplaySegments({
+		displayDurationInFrames,
+		displayOffsetInFrames,
+		loopDurationInFrames: loopDisplay.durationInFrames,
+	});
 
+	const parts: Float32Array[] = [];
+	let totalLength = 0;
+	for (const segment of segments) {
 		const part = sliceWaveformPeaks({
-			durationInFrames: segmentDuration,
+			durationInFrames: segment.durationInFrames,
 			fps,
 			peaks,
 			playbackRate,
-			startFrom: startFrom + loopOffset * playbackRate,
+			startFrom: startFrom + segment.loopOffsetInFrames * playbackRate,
 		});
 		parts.push(part);
 		totalLength += part.length;
-		processed += segmentDuration;
 	}
 
 	if (parts.length === 1) {
