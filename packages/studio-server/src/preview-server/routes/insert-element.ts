@@ -20,7 +20,10 @@ import {
 	validateElementInstallPosition,
 } from './element-install-plan';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const hasExpectedFileState = ({
 	expected,
@@ -268,11 +271,11 @@ export const insertElementHandler: ApiHandler<
 					: 'Created Element source';
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(elementLocationLabel)} ${elementFileAction}`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(elementLocationLabel)} ${elementFileAction}`,
 			);
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${plan.componentName}>`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${plan.componentName}>`,
 			);
 			if (!inserted.formatted) {
 				warnAboutPrettierOnce(logLevel);

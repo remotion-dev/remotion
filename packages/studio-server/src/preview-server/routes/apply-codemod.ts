@@ -23,7 +23,10 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {checkIfTypeScriptFile} from './can-update-default-props';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const formatNewCompositionFile = (
 	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,
@@ -338,7 +341,7 @@ export const applyCodemodHandler: ApiHandler<
 				}
 
 				const logMessage = getCodemodLogMessage(codemod);
-				const editMessage = `${RenderInternals.chalk.blueBright(
+				const editMessage = `${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
 					formatLogFileLocation({
 						remotionRoot,
 						absolutePath: filePath,

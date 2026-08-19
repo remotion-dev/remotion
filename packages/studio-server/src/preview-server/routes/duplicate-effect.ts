@@ -16,7 +16,10 @@ import {
 } from '../undo-stack';
 import {attrName} from './log-updates/formatting';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const getDuplicatedEffectDescription = (effectLabels: string[]): string => {
 	if (effectLabels.length === 1) {
@@ -113,7 +116,7 @@ export const duplicateEffectHandler: ApiHandler<
 				});
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${attrName(duplicatedEffectDescription)}`,
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${attrName(duplicatedEffectDescription)}`,
 				);
 				if (!update.formatted) {
 					warnAboutPrettierOnce(logLevel);
