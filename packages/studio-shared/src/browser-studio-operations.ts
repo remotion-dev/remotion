@@ -19,6 +19,8 @@ import type {
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 	SimpleDiff,
+	SplitJsxSequenceRequest,
+	SplitJsxSequenceResponse,
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse,
 	SubscribeToDefaultPropsRequest,
@@ -92,6 +94,9 @@ export type BrowserStudioOperations = {
 	saveSequenceProps: (
 		request: SaveSequencePropsRequest,
 	) => Promise<SaveSequencePropsResponse>;
+	splitJsxSequence: (
+		request: SplitJsxSequenceRequest,
+	) => Promise<SplitJsxSequenceResponse>;
 	splitVideoFromAudio: (
 		request: SplitVideoFromAudioRequest,
 	) => Promise<SplitVideoFromAudioResponse>;
