@@ -593,3 +593,104 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		),
 	).toHaveLength(sequenceEventCount);
 });
+
+test('splits a JSX sequence at the playhead as an undoable project mutation', async () => {
+	const fileName = '/project/src/Composition.tsx';
+	const initialContents = `import {Composition, Sequence} from 'remotion';
+export const Component = () => <Sequence from={10} durationInFrames={20} />;
+export const Root = () => <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />;`;
+	let currentProject: VirtualProject = {
+		rootDir: '/project',
+		entryPoint: '/project/src/index.tsx',
+		files: {
+			'/project/src/index.tsx': `import {registerRoot} from 'remotion';
+import {Root} from './Composition';
+registerRoot(Root);`,
+			[fileName]: initialContents,
+		},
+	};
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => currentProject,
+		onProjectChange: (nextProject) => {
+			currentProject = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const events: EventSourceEvent[] = [];
+	operations.subscribeToEvent((event) => events.push(event));
+
+	const subscription = await operations.subscribeToSequenceProps({
+		fileName: 'src/Composition.tsx',
+		line: 2,
+		column: 31,
+		nodePath: null,
+		componentIdentity: 'dev.remotion.remotion.Sequence',
+		keys: ['from', 'durationInFrames'],
+		assetKeys: [],
+		effects: [],
+		clientId: 'browser-studio',
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	});
+	if (!subscription.success) {
+		throw new Error('Expected sequence props subscription to succeed');
+	}
+
+	const failure = await operations.splitJsxSequence({
+		fileName: 'src/Composition.tsx',
+		nodePath: subscription.nodePath.nodePath,
+		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+		splitFrame: 10,
+	});
+	expect(failure).toMatchObject({
+		success: false,
+		reason: 'Cannot split at or before the sequence start',
+		stack: expect.any(String),
+	});
+	expect(currentProject.files[fileName]).toBe(initialContents);
+
+	const splitResult = await operations.splitJsxSequence({
+		fileName: 'src/Composition.tsx',
+		nodePath: subscription.nodePath.nodePath,
+		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+		splitFrame: 15,
+	});
+	if (!splitResult.success) {
+		throw new Error(splitResult.reason);
+	}
+
+	expect(currentProject.files[fileName]).toContain(
+		'<Sequence from={10} durationInFrames={5} />',
+	);
+	expect(currentProject.files[fileName]).toContain(
+		'<Sequence from={15} durationInFrames={15} trimBefore={5} />',
+	);
+	expect(
+		events.findLast((event) => event.type === 'sequence-node-paths-remapped'),
+	).toEqual({
+		type: 'sequence-node-paths-remapped',
+		mutation: splitResult.nodePathMutation,
+	});
+	expect(splitResult.nodePathMutation.files).toEqual([
+		{
+			absolutePath: fileName,
+			remappings: expect.any(Array),
+			restoredNodePaths: [],
+		},
+	]);
+
+	const undoResult = await operations.undo();
+	expect(undoResult.success).toBe(true);
+	expect(currentProject.files[fileName]).toBe(initialContents);
+	const redoResult = await operations.redo();
+	expect(redoResult.success).toBe(true);
+	expect(currentProject.files[fileName]).toContain(
+		'<Sequence from={15} durationInFrames={15} trimBefore={5} />',
+	);
+});

@@ -13,6 +13,7 @@ import {
 	makeInMemoryInsertJsxElementCodemodEnvironment,
 	resolveCompositionComponentWithFile,
 	simpleDiff,
+	splitJsxSequence as splitJsxSequenceCodemod,
 } from '@remotion/studio-codemods';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
@@ -460,6 +461,53 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const splitJsxSequence: BrowserStudioOperations['splitJsxSequence'] = async ({
+		fileName,
+		nodePath,
+		sequenceKeys,
+		splitFrame,
+	}) => {
+		try {
+			const project = getProject();
+			const absolutePath = findProjectFile({
+				filePath: fileName,
+				project,
+			});
+			const result = await splitJsxSequenceCodemod({
+				input: project.files[absolutePath],
+				nodePath,
+				sequenceKeys,
+				splitFrame,
+				formatFile: formatCodemodFile,
+			});
+			const nodePathMutation = controller.applyMutation({
+				fileName: absolutePath,
+				mutate: () => ({
+					...project,
+					files: {...project.files, [absolutePath]: result.output},
+				}),
+				nodePathMutationFiles: [
+					{
+						absolutePath,
+						remappings: result.nodePathRemappings,
+						restoredNodePaths: [],
+					},
+				],
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not split JSX sequence');
+			}
+
+			return {success: true, nodePathMutation};
+		} catch (error) {
+			return {
+				success: false,
+				reason: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error && error.stack ? error.stack : '',
+			};
+		}
+	};
+
 	const duplicateComposition: BrowserStudioOperations['duplicateComposition'] =
 		async ({codemod, dryRun}) => {
 			try {
@@ -786,6 +834,7 @@ export const createBrowserStudioOperations = ({
 			lastDefaultPropsResults.set(compositionId, JSON.stringify(result));
 			return Promise.resolve(result);
 		},
+		splitJsxSequence,
 		subscribeToEvent: controller.subscribeToEvent,
 		subscribeToSequenceProps: (request) => {
 			const result = getSequencePropsSubscription(request);

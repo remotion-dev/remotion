@@ -24,6 +24,7 @@ export const makeBrowserStudioOperations = (
 		redo: () => unusedOperation('redo'),
 		renameStaticFile: () => unusedOperation('renameStaticFile'),
 		saveSequenceProps: () => unusedOperation('saveSequenceProps'),
+		splitJsxSequence: () => unusedOperation('splitJsxSequence'),
 		subscribeToDefaultProps: () => unusedOperation('subscribeToDefaultProps'),
 		subscribeToEvent: () => unusedOperation('subscribeToEvent'),
 		subscribeToSequenceProps: () => unusedOperation('subscribeToSequenceProps'),
