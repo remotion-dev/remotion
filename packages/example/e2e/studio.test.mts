@@ -129,6 +129,16 @@ test.describe('visual mode', () => {
 		await visibleOutlines.first().click({force: true});
 
 		await expect(revealTargetTrack).toBeVisible();
+		const [revealTargetRect, timelineScrollRect] = await Promise.all([
+			revealTargetTrack.boundingBox(),
+			timelineScroll.boundingBox(),
+		]);
+		expect(revealTargetRect).not.toBeNull();
+		expect(timelineScrollRect).not.toBeNull();
+		expect(revealTargetRect!.y).toBeGreaterThanOrEqual(timelineScrollRect!.y);
+		expect(revealTargetRect!.y + revealTargetRect!.height).toBeLessThanOrEqual(
+			timelineScrollRect!.y + timelineScrollRect!.height,
+		);
 		await expect(
 			page.getByText('Virtual track 119', {exact: true}),
 		).toBeVisible();
