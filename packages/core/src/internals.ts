@@ -1,5 +1,6 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
+import {AbsoluteFillElement} from './AbsoluteFillElement.js';
 import {getAnimatedImageDurationInSeconds} from './animated-image/get-duration-in-seconds.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
 import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
@@ -290,6 +291,7 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	AbsoluteFillElement,
 	MaxMediaCacheSizeContext,
 	makeRenderResourceManager,
 	RenderResourceManagerContext,

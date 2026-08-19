@@ -17,7 +17,6 @@ import type {
 	VideoConfigWithSerializedProps,
 } from 'remotion';
 import {
-	AbsoluteFill,
 	getInputProps,
 	getRemotionEnvironment,
 	continueRender as globalContinueRender,
@@ -79,7 +78,7 @@ const DelayedSpinner: React.FC = () => {
 	}
 
 	return (
-		<AbsoluteFill
+		<Internals.AbsoluteFillElement
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
@@ -90,7 +89,7 @@ const DelayedSpinner: React.FC = () => {
 			}}
 		>
 			Loading Studio
-		</AbsoluteFill>
+		</Internals.AbsoluteFillElement>
 	);
 };
 

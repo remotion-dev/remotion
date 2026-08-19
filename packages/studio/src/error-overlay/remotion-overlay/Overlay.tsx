@@ -4,7 +4,7 @@ import React, {
 	useImperativeHandle,
 	useState,
 } from 'react';
-import {AbsoluteFill} from 'remotion';
+import {Internals} from 'remotion';
 import {MENU_TOOLBAR_HEIGHT} from '../../components/menu-toolbar-height';
 import {SettingsProvider} from '../../components/SettingsContext';
 import {PreviewServerConnection} from '../../helpers/client-id';
@@ -72,7 +72,7 @@ export const Overlay: React.FC = () => {
 		<PreviewServerConnection>
 			<SettingsProvider>
 				<KeybindingContextProvider>
-					<AbsoluteFill
+					<Internals.AbsoluteFillElement
 						style={{
 							backgroundColor: BACKGROUND_COLOR,
 							overflow: 'auto',
@@ -94,7 +94,7 @@ export const Overlay: React.FC = () => {
 								/>
 							);
 						})}
-					</AbsoluteFill>
+					</Internals.AbsoluteFillElement>
 				</KeybindingContextProvider>
 			</SettingsProvider>
 		</PreviewServerConnection>
