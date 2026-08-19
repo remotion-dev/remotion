@@ -153,7 +153,11 @@ export {
 	type ConfigValue,
 	type KeyframeSettings,
 } from './api-requests';
-export type {BrowserStudioOperations} from './browser-studio-operations';
+export type {
+	BrowserStudioOperations,
+	DuplicateCompositionRequest,
+	DuplicateCompositionResponse,
+} from './browser-studio-operations';
 export type {
 	CanvasCaptureData,
 	CanvasCaptureMouseMovement,

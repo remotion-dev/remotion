@@ -18,6 +18,7 @@ export {
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
 } from './delete-jsx-node';
+export {duplicateCompositionInSource} from './duplicate-composition';
 export {findSearchPosition} from './find-search-position';
 export {
 	insertJsxElementIntoComposition,
@@ -35,6 +36,7 @@ export {
 } from './sequence-props';
 export {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 export {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
+export {simpleDiff} from './simple-diff';
 export {updateInlineCaptionPatches} from './update-inline-caption-patches';
 export {
 	type RemovedProp,

@@ -77,6 +77,7 @@ const DeleteCompositionLoaded: React.FC<{
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

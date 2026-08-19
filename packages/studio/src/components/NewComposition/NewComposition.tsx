@@ -344,6 +344,7 @@ const NewCompositionLoaded: React.FC<{
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 						fallbackToRootFile
 					/>
 				</ModalFooterContainer>

@@ -67,6 +67,7 @@ export const DeleteFolder: React.FC<{
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

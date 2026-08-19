@@ -1,9 +1,10 @@
 import {expect, test} from '@playwright/test';
 
-test('loads the Browser Studio canvas and can add and delete items', async ({
+test('loads Browser Studio and can add, delete, and duplicate', async ({
 	page,
 }) => {
 	const pageErrors: Error[] = [];
+	const applyCodemodRequests: string[] = [];
 	const remoteRemotionRequests: string[] = [];
 	const updateAvailableRequests: string[] = [];
 	const workspacePackageRequests: string[] = [];
@@ -13,6 +14,10 @@ test('loads the Browser Studio canvas and can add and delete items', async ({
 	});
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
+		if (requestUrl.pathname === '/api/apply-codemod') {
+			applyCodemodRequests.push(request.url());
+		}
+
 		if (requestUrl.pathname === '/api/update-available') {
 			updateAvailableRequests.push(request.url());
 		}
@@ -76,6 +81,31 @@ test('loads the Browser Studio canvas and can add and delete items', async ({
 					}),
 				)
 				.not.toContain('<Solid');
+
+			const composition = studio.locator('[data-compname="MyComp"]');
+			await composition.click({button: 'right'});
+			await studio.getByText('Duplicate...', {exact: true}).click();
+			await expect(studio.getByText('Duplicate MyComp')).toBeVisible();
+			await expect(studio.getByPlaceholder('Composition ID')).toHaveValue(
+				'MyComp1',
+			);
+			await expect(studio.getByText(/addition/)).toBeVisible();
+			await studio.getByRole('button', {name: /^Add to /}).click();
+			await expect(
+				studio.getByTitle('/project').getByText('MyComp1'),
+			).toBeVisible();
+			await expect
+				.poll(() =>
+					page.evaluate(() => {
+						const browserWindow = window as typeof window & {
+							__browserStudioProject: {files: Record<string, string>};
+						};
+						return browserWindow.__browserStudioProject.files[
+							'/project/src/Composition.tsx'
+						];
+					}),
+				)
+				.toContain('id="MyComp1"');
 		})(),
 		pageError,
 	]);
@@ -91,6 +121,7 @@ test('loads the Browser Studio canvas and can add and delete items', async ({
 		'/__remotion_browser_studio_workspace__/packages/transitions/dist/esm/fade.mjs',
 	);
 	expect(remoteRemotionRequests).toEqual([]);
+	expect(applyCodemodRequests).toEqual([]);
 	expect(updateAvailableRequests).toEqual([]);
 });
 

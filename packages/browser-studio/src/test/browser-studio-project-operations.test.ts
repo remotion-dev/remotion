@@ -203,6 +203,79 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(revokedUrls).toContain('blob:virtual-2');
 });
 
+test('previews and duplicates compositions as an undoable project mutation', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const request = {
+		codemod: {
+			type: 'duplicate-composition' as const,
+			idToDuplicate: 'MyComp',
+			newDurationInFrames: 120,
+			newFps: 24,
+			newHeight: 1080,
+			newId: 'MyCompCopy',
+			newWidth: 1920,
+			tag: 'Composition' as const,
+		},
+	};
+
+	const preview = await operations.duplicateComposition({
+		...request,
+		dryRun: true,
+	});
+	expect(preview.success).toBe(true);
+	if (!preview.success) {
+		throw new Error(preview.reason);
+	}
+
+	expect(preview.diff.additions).toBeGreaterThan(0);
+	expect(project).toBe(initialProject);
+
+	const result = await operations.duplicateComposition({
+		...request,
+		dryRun: false,
+	});
+	expect(result).toEqual(preview);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'id="MyCompCopy"',
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain('fps={24}');
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'width={1920}',
+	);
+
+	expect(await operations.undo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+	});
+	expect(project.files['/project/src/Composition.tsx']).toBe(
+		initialProject.files['/project/src/Composition.tsx'],
+	);
+
+	const failure = await operations.duplicateComposition({
+		...request,
+		codemod: {...request.codemod, idToDuplicate: 'Missing'},
+		dryRun: false,
+	});
+	expect(failure).toMatchObject({
+		success: false,
+		reason: 'Could not find composition "Missing" to duplicate',
+		stack: expect.any(String),
+	});
+	expect(project.files['/project/src/Composition.tsx']).toBe(
+		initialProject.files['/project/src/Composition.tsx'],
+	);
+});
+
 test('imports an Element with pinned Remotion dependencies as one undoable mutation', async () => {
 	const initialProject = createBlankTemplateProject();
 	let project = initialProject;

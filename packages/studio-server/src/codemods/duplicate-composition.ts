@@ -1,3 +1,4 @@
+import {duplicateCompositionInSource} from '@remotion/studio-codemods';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import {ensureNamedImport} from '../helpers/imports';
 import {parseAst, serializeAst} from './parse-ast';
@@ -46,6 +47,10 @@ export const parseAndApplyCodemod = ({
 	input: string;
 	codeMod: RecastCodemod;
 }): {newContents: string; changesMade: Change[]} => {
+	if (codeMod.type === 'duplicate-composition') {
+		return duplicateCompositionInSource({input, codemod: codeMod});
+	}
+
 	const ast = parseAst(input);
 
 	const {newAst, changesMade} = applyCodemod({
@@ -57,15 +62,6 @@ export const parseAndApplyCodemod = ({
 		throw new Error(
 			'Unable to calculate the changes needed for this file. Edit the file manually.',
 		);
-	}
-
-	if (codeMod.type === 'duplicate-composition' && codeMod.tag) {
-		ensureNamedImport({
-			ast: newAst,
-			importedName: codeMod.tag,
-			sourcePath: 'remotion',
-			localName: codeMod.tag,
-		});
 	}
 
 	if (codeMod.type === 'new-composition') {

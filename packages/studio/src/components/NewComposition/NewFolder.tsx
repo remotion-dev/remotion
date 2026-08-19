@@ -153,6 +153,7 @@ export const NewFolder: React.FC<{
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

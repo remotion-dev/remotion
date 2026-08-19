@@ -18,6 +18,7 @@ import type {
 	RenameStaticFileResponse,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
+	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToSequencePropsRequest,
@@ -26,12 +27,29 @@ import type {
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromSequencePropsRequest,
 } from './api-requests';
+import type {RecastCodemod} from './codemods';
 import type {EventSourceEvent} from './event-source-event';
 
 export type WriteStaticFileRequest = {
 	contents: string | ArrayBuffer;
 	filePath: string;
 };
+
+export type DuplicateCompositionRequest = {
+	codemod: Extract<RecastCodemod, {type: 'duplicate-composition'}>;
+	dryRun: boolean;
+};
+
+export type DuplicateCompositionResponse =
+	| {
+			success: true;
+			diff: SimpleDiff;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
 
 export type BrowserStudioOperations = {
 	deleteJsxNode: (
@@ -44,6 +62,9 @@ export type BrowserStudioOperations = {
 		data: Uint8Array;
 		fileName: string;
 	}>;
+	duplicateComposition: (
+		request: DuplicateCompositionRequest,
+	) => Promise<DuplicateCompositionResponse>;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;
 	getCompositionFile: (compositionId: string) => string | null;

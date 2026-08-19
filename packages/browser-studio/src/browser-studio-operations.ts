@@ -2,6 +2,7 @@ import {
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 	deleteJsxNodes,
+	duplicateCompositionInSource,
 	findProjectFile,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
@@ -11,6 +12,7 @@ import {
 	JsxElementNotFoundAtLocationError,
 	makeInMemoryInsertJsxElementCodemodEnvironment,
 	resolveCompositionComponentWithFile,
+	simpleDiff,
 } from '@remotion/studio-codemods';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
@@ -458,6 +460,56 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const duplicateComposition: BrowserStudioOperations['duplicateComposition'] =
+		async ({codemod, dryRun}) => {
+			try {
+				const project = getProject();
+				const compositionFile = getCompositionFile({
+					compositionId: codemod.idToDuplicate,
+					project,
+				});
+				if (compositionFile === null) {
+					throw new Error(
+						`Could not find composition "${codemod.idToDuplicate}" to duplicate`,
+					);
+				}
+
+				const absolutePath = findProjectFile({
+					filePath: compositionFile,
+					project,
+				});
+				const input = project.files[absolutePath];
+				const {newContents} = duplicateCompositionInSource({
+					input,
+					codemod,
+				});
+				const {output} = await formatCodemodFile({contents: newContents});
+				const diff = simpleDiff({
+					oldLines: input.split('\n'),
+					newLines: output.split('\n'),
+				});
+
+				if (!dryRun) {
+					controller.applyMutation({
+						fileName: absolutePath,
+						nodePathMutationFiles: null,
+						mutate: () => ({
+							...project,
+							files: {...project.files, [absolutePath]: output},
+						}),
+					});
+				}
+
+				return {success: true, diff};
+			} catch (error) {
+				return {
+					success: false,
+					reason: error instanceof Error ? error.message : String(error),
+					stack: error instanceof Error && error.stack ? error.stack : '',
+				};
+			}
+		};
+
 	const insertJsxElement: BrowserStudioOperations['insertJsxElement'] = async (
 		request,
 	) => {
@@ -527,6 +579,7 @@ export const createBrowserStudioOperations = ({
 					project: getProject(),
 				}),
 			),
+		duplicateComposition,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
 		getFileSource: controller.getFileSource,
