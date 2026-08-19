@@ -191,11 +191,15 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		} catch (err) {
 			// eslint-disable-next-line no-console
 			console.log({err});
+			const response: OrError<0> = {
+				type: 'error',
+				message: (err as Error).message,
+				stack: (err as Error).stack as string,
+			};
 			await responseWriter.write(
-				new TextEncoder().encode(
-					JSON.stringify({type: 'error', message: (err as Error).stack}),
-				),
+				new TextEncoder().encode(JSON.stringify(response)),
 			);
+			await responseWriter.end();
 			return;
 		}
 	}
