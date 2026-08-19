@@ -132,9 +132,16 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const relativePublicDir = publicDirOption.getValue({
+	let activeRelativePublicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const activateRelativePublicDir = () => {
+		activeRelativePublicDir = publicDirOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+		return activeRelativePublicDir;
+	};
+
 	const rendererPort = ConfigInternals.getRendererPortFromConfigFile();
 
 	const enableCrossSiteIsolation = enableCrossSiteIsolationOption.getValue({
@@ -305,7 +312,7 @@ export const studioCommand = async (
 		getEnvVariables: () => envVariables,
 		desiredPort,
 		remotionRoot,
-		relativePublicDir,
+		getRelativePublicDir: activateRelativePublicDir,
 		bundlerOverride,
 		rspackOverride,
 		webpackOverride,
@@ -319,7 +326,7 @@ export const studioCommand = async (
 					...options,
 					fixedConfig: {
 						bundlerOverride,
-						publicDir: relativePublicDir,
+						publicDir: activeRelativePublicDir,
 						rendererPort,
 						rspackOverride,
 						rspack: useRspack,

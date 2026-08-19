@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {mkdtemp, rm, writeFile} from 'node:fs/promises';
+import {mkdir, mkdtemp, rm, writeFile} from 'node:fs/promises';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
@@ -82,6 +82,7 @@ test('serves file source from an origin-less GET request', async () => {
 			getRenderQueue: () => [],
 			getNumberOfAudioTags: () => 0,
 			getPreviewSampleRate: () => null,
+			getPublicDir: () => remotionRoot,
 			getStudioRuntimeConfig: () => ({
 				askAIEnabled: false,
 				bufferStateDelayInMilliseconds: null,
@@ -98,7 +99,6 @@ test('serves file source from an origin-less GET request', async () => {
 			logLevel: 'info',
 			outputHash: '/outputs',
 			outputHashPrefix: '/outputs',
-			publicDir: remotionRoot,
 			queueMethods: {
 				addJob: () => undefined,
 				cancelJob: () => undefined,
@@ -112,10 +112,86 @@ test('serves file source from an origin-less GET request', async () => {
 			response,
 			staticHash: '/static',
 			staticHashPrefix: '/static',
+			updatePublicDir: () => undefined,
 		});
 
 		expect(response.statusCode).toBe(200);
 		expect(response.body).toBe('export const value = 1;');
+	} finally {
+		await rm(remotionRoot, {force: true, recursive: true});
+	}
+});
+
+test('activates the latest public directory when the Studio page reloads', async () => {
+	const remotionRoot = await mkdtemp(path.join(tmpdir(), 'remotion-source-'));
+	const firstPublicDir = path.join(remotionRoot, 'first');
+	const secondPublicDir = path.join(remotionRoot, 'second');
+	await mkdir(firstPublicDir);
+	await mkdir(secondPublicDir);
+	await writeFile(path.join(remotionRoot, 'package.json'), '{}');
+	await writeFile(path.join(firstPublicDir, 'first.txt'), 'first');
+	await writeFile(path.join(secondPublicDir, 'second.txt'), 'second');
+
+	let publicDir = firstPublicDir;
+	let updates = 0;
+	const request = Readable.from([]) as IncomingMessage;
+	request.method = 'GET';
+	request.url = '/';
+	request.headers = {accept: 'text/html', host: 'localhost:3000'};
+
+	try {
+		const response = makeResponse();
+		await handleRoutes({
+			binariesDirectory: null,
+			configFile: null,
+			enableCrossSiteIsolation: false,
+			entryPoint: '',
+			getAudioLatencyHint: () => null,
+			getExperimentalKeepAudioContextAlive: () => false,
+			getCurrentInputProps: () => ({}),
+			getDefaultCodingAgent: () => null,
+			getDefaultEditor: () => null,
+			getEnvVariables: () => ({}),
+			getRenderDefaults: () => ({}) as RenderDefaults,
+			getRenderQueue: () => [],
+			getNumberOfAudioTags: () => 0,
+			getPreviewSampleRate: () => null,
+			getPublicDir: () => publicDir,
+			getStudioRuntimeConfig: () => ({
+				askAIEnabled: false,
+				bufferStateDelayInMilliseconds: null,
+				defaultCodingAgent: null,
+				defaultEditor: null,
+				interactivityEnabled: true,
+				keyboardShortcutsEnabled: true,
+				maxTimelineTracks: null,
+				publicLicenseKey: null,
+				configFileStudioSettings: null,
+			}),
+			gitSource: null,
+			liveEventsServer: noopLiveEventsServer,
+			logLevel: 'info',
+			outputHash: '/outputs',
+			outputHashPrefix: '/outputs',
+			queueMethods: {
+				addJob: () => undefined,
+				cancelJob: () => undefined,
+				removeJob: () => undefined,
+			},
+			remotionRoot,
+			request,
+			response,
+			staticHash: '/static',
+			staticHashPrefix: '/static',
+			updatePublicDir: () => {
+				updates++;
+				publicDir = secondPublicDir;
+			},
+		});
+
+		expect(updates).toBe(1);
+		expect(response.body).toContain('second.txt');
+		expect(response.body).not.toContain('first.txt');
 	} finally {
 		await rm(remotionRoot, {force: true, recursive: true});
 	}

@@ -375,7 +375,8 @@ export const handleRoutes = ({
 	getEnvVariables,
 	remotionRoot,
 	entryPoint,
-	publicDir,
+	getPublicDir,
+	updatePublicDir,
 	logLevel,
 	getRenderQueue,
 	getRenderDefaults,
@@ -403,7 +404,8 @@ export const handleRoutes = ({
 	getEnvVariables: () => Record<string, string>;
 	remotionRoot: string;
 	entryPoint: string;
-	publicDir: string;
+	getPublicDir: () => string;
+	updatePublicDir: () => void;
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
@@ -421,6 +423,7 @@ export const handleRoutes = ({
 	configFile: string | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
+	const publicDir = getPublicDir();
 
 	if (url.pathname === '/api/file-source') {
 		return handleFileSource({
@@ -580,6 +583,11 @@ export const handleRoutes = ({
 		return output404(response);
 	}
 
+	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
+	if (request.method === 'GET' && acceptsHtml) {
+		updatePublicDir();
+	}
+
 	return handleFallback({
 		remotionRoot,
 		hash: staticHash,
@@ -587,7 +595,7 @@ export const handleRoutes = ({
 		request,
 		getCurrentInputProps,
 		getEnvVariables,
-		publicDir,
+		publicDir: getPublicDir(),
 		getRenderQueue,
 		getRenderDefaults,
 		getNumberOfAudioTags,

@@ -46,7 +46,7 @@ export const startStudio = async ({
 	getEnvVariables,
 	desiredPort,
 	remotionRoot,
-	relativePublicDir,
+	getRelativePublicDir,
 	bundlerOverride,
 	rspackOverride,
 	webpackOverride,
@@ -79,7 +79,7 @@ export const startStudio = async ({
 	getEnvVariables: () => Record<string, string>;
 	desiredPort: number | null;
 	remotionRoot: string;
-	relativePublicDir: string | null;
+	getRelativePublicDir: () => string | null;
 	bundlerOverride: BundlerOverrideFn;
 	rspackOverride: RspackOverrideFn;
 	webpackOverride: WebpackOverrideFn;
@@ -117,8 +117,8 @@ export const startStudio = async ({
 	getFileWatcherRegistry();
 
 	watchRootFile(remotionRoot, previewEntry);
-	const publicDir = getAbsolutePublicDir({
-		relativePublicDir,
+	let publicDir = getAbsolutePublicDir({
+		relativePublicDir: getRelativePublicDir(),
 		remotionRoot,
 	});
 	const hash = crypto.randomBytes(6).toString('hex');
@@ -129,7 +129,7 @@ export const startStudio = async ({
 	const staticHashPrefix = '/static-';
 	const staticHash = `${staticHashPrefix}${hash}`;
 
-	initPublicFolderWatch({
+	const publicFolderWatch = initPublicFolderWatch({
 		publicDir,
 		remotionRoot,
 		onUpdate: () => {
@@ -149,6 +149,18 @@ export const startStudio = async ({
 		},
 		staticHash,
 	});
+	const updatePublicDir = () => {
+		const newPublicDir = getAbsolutePublicDir({
+			relativePublicDir: getRelativePublicDir(),
+			remotionRoot,
+		});
+		if (newPublicDir === publicDir) {
+			return;
+		}
+
+		publicDir = newPublicDir;
+		publicFolderWatch.updatePublicFolderWatch(newPublicDir);
+	};
 
 	const result = await startServer({
 		entry: path.resolve(previewEntry),
@@ -157,7 +169,8 @@ export const startStudio = async ({
 		getEnvVariables,
 		port: desiredPort,
 		remotionRoot,
-		publicDir,
+		getPublicDir: () => publicDir,
+		updatePublicDir,
 		bundlerOverride,
 		rspackOverride,
 		webpackOverride,
@@ -187,6 +200,7 @@ export const startStudio = async ({
 	});
 
 	if (result.type === 'already-running') {
+		publicFolderWatch.close();
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			`Already running on port ${result.port}.`,
@@ -246,6 +260,7 @@ export const startStudio = async ({
 		await noOpUntilRestart();
 	} finally {
 		openBrowserShortcut.cleanup();
+		publicFolderWatch.close();
 	}
 
 	RenderInternals.Log.info(

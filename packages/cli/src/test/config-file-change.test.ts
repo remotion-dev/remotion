@@ -45,6 +45,12 @@ test('classifies runtime config changes', () => {
 test('classifies changes that require a page reload', () => {
 	expect(
 		classify(
+			prepare('import_config.Config.setPublicDir("public");'),
+			prepare('import_config.Config.setPublicDir("assets");'),
+		),
+	).toBe('reload');
+	expect(
+		classify(
 			prepare('import_config.Config.setAudioLatencyHint("playback");'),
 			prepare('import_config.Config.setAudioLatencyHint("interactive");'),
 		),

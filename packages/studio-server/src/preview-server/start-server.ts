@@ -55,7 +55,8 @@ export const startServer = async (options: {
 	getEnvVariables: () => Record<string, string>;
 	port: number | null;
 	remotionRoot: string;
-	publicDir: string;
+	getPublicDir: () => string;
+	updatePublicDir: () => void;
 	poll: number | null;
 	staticHash: string;
 	staticHashPrefix: string;
@@ -171,7 +172,8 @@ export const startServer = async (options: {
 					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
 					entryPoint: options.userDefinedComponent,
-					publicDir: options.publicDir,
+					getPublicDir: options.getPublicDir,
+					updatePublicDir: options.updatePublicDir,
 					logLevel: options.logLevel,
 					getRenderQueue: options.getRenderQueue,
 					getRenderDefaults: options.getRenderDefaults,

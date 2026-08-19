@@ -49,6 +49,7 @@ test('reset config options restores defaults before reloading config', async () 
 	Config.setKeyboardShortcutsEnabled(false);
 	Config.setLogLevel('verbose');
 	Config.setNumberOfSharedAudioTags(2);
+	Config.setPublicDir('assets');
 	Config.setRspack(true);
 	Config.setExperimentalKeepAudioContextAlive(true);
 	Config.overrideBundlerConfig((config, {bundler}) => ({
@@ -106,6 +107,9 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.numberOfSharedAudioTagsOption.getConfigValue(),
 	).toBe(2);
+	expect(
+		BrowserSafeApis.options.publicDirOption.getValue({commandLine: {}}).value,
+	).toBe('assets');
 	expect(BrowserSafeApis.options.rspackOption.getConfigValue()).toBe(true);
 	expect(StudioServerInternals.getConfiguredMaxTimelineTracks()).toBe(123);
 	expect(
@@ -179,6 +183,9 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.numberOfSharedAudioTagsOption.getConfigValue(),
 	).toBeNull();
+	expect(
+		BrowserSafeApis.options.publicDirOption.getValue({commandLine: {}}).value,
+	).toBeNull();
 	expect(BrowserSafeApis.options.rspackOption.getConfigValue()).toBeNull();
 	expect(StudioServerInternals.getConfiguredMaxTimelineTracks()).toBeNull();
 	expect(
@@ -223,6 +230,7 @@ test('CLI app flags take precedence over the configured defaults', () => {
 		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
 	});
 	Config.setExperimentalKeepAudioContextAlive(false);
+	Config.setPublicDir('assets');
 
 	expect(
 		BrowserSafeApis.options.experimentalKeepAudioContextAliveOption.getValue({
@@ -239,6 +247,11 @@ test('CLI app flags take precedence over the configured defaults', () => {
 			commandLine: {editor: 'zed'},
 		}),
 	).toEqual({source: 'cli', value: 'zed'});
+	expect(
+		BrowserSafeApis.options.publicDirOption.getValue({
+			commandLine: {'public-dir': 'cli-assets'},
+		}),
+	).toEqual({source: 'cli', value: 'cli-assets'});
 	expect(() => Config.setDefaultCodingAgent('invalid' as 'codex')).toThrow(
 		'Config.setDefaultCodingAgent() must be one of',
 	);
