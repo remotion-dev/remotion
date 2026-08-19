@@ -11,7 +11,6 @@ import type {
 	Node,
 	ReturnStatement,
 } from '@babel/types';
-import {cloneNode} from '@babel/types';
 import {
 	hasSequenceTimingTraits,
 	type SequenceNodePathRemapping,
@@ -26,7 +25,11 @@ import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from './get-node-path-remappings';
-import {parseAst, serializeAst} from './sequence-props/parse-ast';
+import {
+	parseAst,
+	parseAstForReadOnly,
+	serializeAst,
+} from './sequence-props/parse-ast';
 
 const {builders: b, namedTypes} = recast.types;
 
@@ -254,6 +257,34 @@ const getSplittableSequenceTagName = (element: JSXElement): string => {
 	return jsxNameToString(element.openingElement.name);
 };
 
+/*
+ * `cloneNode` from `@babel/types` reads `process.env` at module scope, which
+ * breaks browser bundles. Printing and reparsing yields an equally detached
+ * deep copy without the Node-only dependency.
+ */
+const cloneJsxElement = (element: JSXElement): JSXElement => {
+	const printed = recast.print(
+		element as Parameters<typeof recast.print>[0],
+	).code;
+	const file = parseAstForReadOnly(`<>${printed}</>;`);
+	const statement = file.program.body[0];
+	if (
+		statement?.type !== 'ExpressionStatement' ||
+		statement.expression.type !== 'JSXFragment'
+	) {
+		throw new Error('Could not clone the JSX sequence to split');
+	}
+
+	const cloned = statement.expression.children.find(
+		(child): child is JSXElement => child.type === 'JSXElement',
+	);
+	if (!cloned) {
+		throw new Error('Could not clone the JSX sequence to split');
+	}
+
+	return cloned;
+};
+
 const makeFragment = (first: JSXElement, second: JSXElement): JSXFragment => ({
 	type: 'JSXFragment',
 	openingFragment: {type: 'JSXOpeningFragment'},
@@ -356,7 +387,7 @@ export const splitJsxSequence = async ({
 		throw new Error('Cannot split at or after the sequence end');
 	}
 
-	const right = cloneNode(jsxElement, true) as JSXElement;
+	const right = cloneJsxElement(jsxElement);
 	const leftDuration = splitFrame - timing.from;
 	const rightDuration =
 		timing.durationInFrames === Infinity ? Infinity : finiteEnd - splitFrame;
