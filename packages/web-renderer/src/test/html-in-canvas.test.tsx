@@ -10,13 +10,20 @@ import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
+import {onPaintHtmlInCanvas} from './fixtures/on-paint-html-in-canvas';
 import {testImage} from './utils';
 
 setForceDisableHtmlInCanvasForTesting(false);
 
+const chromeMajorVersion = Number(
+	navigator.userAgent.match(/\b(?:HeadlessChrome|Chrome)\/(\d+)/)?.[1],
+);
+const canRenderNestedHtmlInCanvas =
+	!Number.isFinite(chromeMajorVersion) || chromeMajorVersion >= 152;
+
 test('captures three nested HTML-in-canvas effect layers natively', async () => {
 	const supportsNesting = await supportsNestedHtmlInCanvas();
-	if (!supportsNesting) {
+	if (!supportsNesting || !canRenderNestedHtmlInCanvas) {
 		return;
 	}
 
@@ -51,7 +58,7 @@ test('captures three nested HTML-in-canvas effect layers natively', async () => 
 
 test('captures three nested HTML-in-canvas effect layers across video frames', async () => {
 	const supportsNesting = await supportsNestedHtmlInCanvas();
-	if (!supportsNesting) {
+	if (!supportsNesting || !canRenderNestedHtmlInCanvas) {
 		return;
 	}
 
@@ -65,7 +72,7 @@ test('captures three nested HTML-in-canvas effect layers across video frames', a
 
 test('retries a transient missing nested paint record during a client-side render', async () => {
 	const supportsNesting = await supportsNestedHtmlInCanvas();
-	if (!supportsNesting) {
+	if (!supportsNesting || !canRenderNestedHtmlInCanvas) {
 		return;
 	}
 
@@ -198,7 +205,7 @@ test('keeps the DOM composer scaffold paintable', () => {
 });
 
 test('uses the DOM composer when native HTML-in-canvas does not support nesting', async () => {
-	if (!supportsNativeHtmlInCanvas()) {
+	if (!supportsNativeHtmlInCanvas() || !canRenderNestedHtmlInCanvas) {
 		return;
 	}
 
@@ -230,5 +237,52 @@ test('uses the DOM composer when native HTML-in-canvas does not support nesting'
 	} finally {
 		setForceDisableHtmlInCanvasForTesting(false);
 		warn.mockRestore();
+	}
+});
+
+test('includes custom onPaint output when composing in software', async () => {
+	if (!supportsNativeHtmlInCanvas()) {
+		if (/\b(?:HeadlessChrome|Chrome)\//.test(navigator.userAgent)) {
+			throw new Error(
+				'Expected CanvasDrawElement to be enabled for Chromium web renderer tests',
+			);
+		}
+
+		return;
+	}
+
+	setForceDisableHtmlInCanvasForTesting(true);
+
+	try {
+		const result = await renderStillOnWeb({
+			composition: onPaintHtmlInCanvas,
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+		});
+
+		const blob = await result.blob({format: 'png'});
+		const bitmap = await createImageBitmap(blob);
+		const probe = new OffscreenCanvas(bitmap.width, bitmap.height);
+		const ctx = probe.getContext('2d');
+		if (!ctx) {
+			throw new Error('Expected a 2d context');
+		}
+
+		ctx.drawImage(bitmap, 0, 0);
+		bitmap.close();
+		const {data} = ctx.getImageData(
+			Math.floor(bitmap.width / 2),
+			Math.floor(bitmap.height / 2),
+			1,
+			1,
+		);
+
+		expect(data[0]).toBeLessThan(64);
+		expect(data[1]).toBeGreaterThan(192);
+		expect(data[2]).toBeLessThan(64);
+		expect(data[3]).toBe(255);
+	} finally {
+		setForceDisableHtmlInCanvasForTesting(false);
 	}
 });

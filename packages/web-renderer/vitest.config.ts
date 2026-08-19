@@ -20,6 +20,7 @@ export default defineConfig({
 					browser: 'chromium',
 					provider: playwright({
 						launchOptions: {
+							args: ['--enable-blink-features=CanvasDrawElement'],
 							channel: 'chrome',
 						},
 						actionTimeout: 5_000,

@@ -270,5 +270,12 @@ export const processNode = async ({
 		scale,
 	});
 
+	// layoutSubtree children participate in layout and accessibility, but the
+	// browser only displays the pixels that their canvas paint handler produced.
+	if (element instanceof HTMLCanvasElement && element.layoutSubtree === true) {
+		cleanupAfterChildren?.();
+		return {type: 'skip-children'};
+	}
+
 	return {type: 'continue', cleanupAfterChildren};
 };

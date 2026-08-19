@@ -182,8 +182,7 @@ declare global {
 
 export type HtmlInCanvasOnPaintParams = {
 	/**
-	 * The `OffscreenCanvas` from {@link HTMLCanvasElement.transferControlToOffscreen}
-	 * on the layout `<canvas>` (same logical canvas as the forwarded ref).
+	 * The `OffscreenCanvas` used to paint the layout `<canvas>`.
 	 */
 	readonly canvas: OffscreenCanvas;
 	readonly element: HTMLDivElement;
@@ -436,6 +435,8 @@ const HtmlInCanvasContent = forwardRef<
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
 			onPaint === undefined && onInit === undefined;
+		const usesDetachedClientSidePaintTarget =
+			isRendering && isClientSideRendering && !usesDirectLayoutCanvas;
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
@@ -443,6 +444,7 @@ const HtmlInCanvasContent = forwardRef<
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
 		const paintTargetRef = useRef<HtmlInCanvasPaintTarget | null>(null);
+		const clientSidePaintTargetRef = useRef<OffscreenCanvas | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
 		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}-${usesDirectLayoutCanvas ? 'direct' : 'offscreen'}`;
 
@@ -619,6 +621,20 @@ const HtmlInCanvasContent = forwardRef<
 						width: canvasWidth,
 						height: canvasHeight,
 					});
+
+					if (usesDetachedClientSidePaintTarget) {
+						const placeholderContext = placeholderCanvas.getContext('2d');
+						if (!placeholderContext) {
+							throw new Error(
+								'HtmlInCanvas: Failed to acquire a 2D context for client-side rendering',
+							);
+						}
+
+						// The DOM compositor reads the HTML canvas. Publish the finished
+						// detached paint target before marking the frame as ready.
+						placeholderContext.reset();
+						placeholderContext.drawImage(paintTarget, 0, 0);
+					}
 				} finally {
 					elImage.close();
 				}
@@ -641,11 +657,12 @@ const HtmlInCanvasContent = forwardRef<
 			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
+			usesDetachedClientSidePaintTarget,
 		]);
 
 		// Default paint handlers draw synchronously on the layout canvas itself so
 		// Chromium can include their final pixels during its deepest-first nested
-		// paint traversal. Custom handlers retain the transferred OffscreenCanvas API.
+		// paint traversal. Custom handlers retain an OffscreenCanvas paint target.
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current;
 			if (!placeholder) {
@@ -654,9 +671,23 @@ const HtmlInCanvasContent = forwardRef<
 
 			placeholder.layoutSubtree = true;
 
-			const paintTarget = usesDirectLayoutCanvas
-				? placeholder
-				: getTransferredOffscreenCanvas(placeholder);
+			let paintTarget: HtmlInCanvasPaintTarget;
+			if (usesDirectLayoutCanvas) {
+				paintTarget = placeholder;
+			} else if (usesDetachedClientSidePaintTarget) {
+				// A transferred placeholder reads as transparent to drawImage().
+				// Keep it readable when the client-side DOM compositor is the consumer.
+				if (!clientSidePaintTargetRef.current) {
+					clientSidePaintTargetRef.current = new OffscreenCanvas(
+						canvasWidth,
+						canvasHeight,
+					);
+				}
+
+				paintTarget = clientSidePaintTargetRef.current;
+			} else {
+				paintTarget = getTransferredOffscreenCanvas(placeholder);
+			}
 
 			paintTargetRef.current = paintTarget;
 			resizePaintTarget({
@@ -684,6 +715,7 @@ const HtmlInCanvasContent = forwardRef<
 			canvasWidth,
 			canvasHeight,
 			usesDirectLayoutCanvas,
+			usesDetachedClientSidePaintTarget,
 		]);
 
 		const onPaintChangedRef = useRef(false);
