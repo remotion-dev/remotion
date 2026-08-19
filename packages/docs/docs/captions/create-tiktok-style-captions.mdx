@@ -114,11 +114,13 @@ This prevents pages like `"the blank page. This"` which span across a sentence b
 
 Abbreviations are not detected: `"Dr."` also triggers a break. The rule is a plain punctuation match to stay predictable.
 
-### `silenceGapMs?`<AvailableFrom v="4.0.514" />
+### `breakOnSilenceAfterMilliseconds?`<AvailableFrom v="4.0.514" />
 
 _number_
 
-If set, a silence of at least this many milliseconds between the end of one caption and the start of the next begins a new page, even if `combineTokensWithinMilliseconds` has not been exceeded yet.
+If set, a gap of at least this many milliseconds between the end of one caption and the start of the next begins a new page, even if `combineTokensWithinMilliseconds` has not been exceeded yet. By default, gaps do not cause an early page break.
+
+This compares caption timestamps and does not analyze the audio track.
 
 As with all page breaks, the previous page's `durationMs` extends until the next page starts, so the caption stays on screen through the pause.
 

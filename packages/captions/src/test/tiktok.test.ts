@@ -211,7 +211,7 @@ test('Should break on punctuation inside closing quotes', () => {
 	expect(pages.map((p) => p.text)).toEqual(['"done."', 'next']);
 });
 
-test('Should start a new page after a silence of at least silenceGapMs', () => {
+test('Should start a new page after the configured silence duration', () => {
 	const {pages} = createTikTokStyleCaptions({
 		captions: [
 			{
@@ -237,7 +237,7 @@ test('Should start a new page after a silence of at least silenceGapMs', () => {
 			},
 		],
 		combineTokensWithinMilliseconds: 10000,
-		silenceGapMs: 1000,
+		breakOnSilenceAfterMilliseconds: 1000,
 	});
 
 	expect(pages).toEqual([
@@ -259,7 +259,7 @@ test('Should start a new page after a silence of at least silenceGapMs', () => {
 	]);
 });
 
-test('Should not break when the silence is shorter than silenceGapMs', () => {
+test('Should not break when the silence is shorter than the configured duration', () => {
 	const {pages} = createTikTokStyleCaptions({
 		captions: [
 			{
@@ -278,7 +278,7 @@ test('Should not break when the silence is shorter than silenceGapMs', () => {
 			},
 		],
 		combineTokensWithinMilliseconds: 10000,
-		silenceGapMs: 1000,
+		breakOnSilenceAfterMilliseconds: 1000,
 	});
 
 	expect(pages.map((p) => p.text)).toEqual(['hello there']);
@@ -336,7 +336,7 @@ test('Should never break inside a word, even across a silence or after punctuati
 		],
 		combineTokensWithinMilliseconds: 100,
 		breakOnPunctuation: true,
-		silenceGapMs: 500,
+		breakOnSilenceAfterMilliseconds: 500,
 	});
 
 	expect(pages).toEqual([
@@ -352,7 +352,7 @@ test('Should never break inside a word, even across a silence or after punctuati
 	]);
 });
 
-test('Should break at every word boundary when silenceGapMs is 0', () => {
+test('Should break at every word boundary when the silence duration is 0', () => {
 	const {pages} = createTikTokStyleCaptions({
 		captions: [
 			{
@@ -378,7 +378,7 @@ test('Should break at every word boundary when silenceGapMs is 0', () => {
 			},
 		],
 		combineTokensWithinMilliseconds: 10000,
-		silenceGapMs: 0,
+		breakOnSilenceAfterMilliseconds: 0,
 	});
 
 	expect(pages.map((p) => p.text)).toEqual(['one', 'two', 'three']);
