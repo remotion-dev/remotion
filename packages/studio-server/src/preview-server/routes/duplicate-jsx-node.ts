@@ -16,7 +16,10 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 export const duplicateJsxNodeHandler: ApiHandler<
 	DuplicateJsxNodeRequest,
@@ -76,7 +79,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${nodeLabel}`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${nodeLabel}`,
 			);
 			if (!formatted) {
 				warnAboutPrettierOnce(logLevel);
