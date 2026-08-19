@@ -124,6 +124,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

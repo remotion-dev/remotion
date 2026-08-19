@@ -72,7 +72,7 @@ export const CodemodFooter: React.FC<{
 	readonly onSuccess: (() => void) | null;
 	readonly fallbackToRootFile?: boolean;
 	readonly applyCodemod: ApplyCodemodAction;
-	readonly applyCodemodForPreview?: ApplyCodemodAction;
+	readonly applyCodemodForPreview: ApplyCodemodAction | null;
 }> = ({
 	codemod,
 	stack,
@@ -85,7 +85,7 @@ export const CodemodFooter: React.FC<{
 	onSuccess,
 	fallbackToRootFile = false,
 	applyCodemod,
-	applyCodemodForPreview = null,
+	applyCodemodForPreview,
 }) => {
 	const [submitting, setSubmitting] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
