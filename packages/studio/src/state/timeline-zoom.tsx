@@ -6,9 +6,15 @@ import {
 } from '../components/Timeline/imperative-state';
 import {prepareToPreserveTimelineCursor} from '../components/Timeline/timeline-scroll-logic';
 import {getZoomFromLocalStorage} from '../components/ZoomPersistor';
+import {
+	clampTimelineZoom,
+	TIMELINE_MIN_ZOOM,
+} from '../helpers/get-timeline-max-zoom';
 
-export const TIMELINE_MIN_ZOOM = 1;
-export const TIMELINE_MAX_ZOOM = 5;
+export {
+	getTimelineMaxZoom,
+	TIMELINE_MIN_ZOOM,
+} from '../helpers/get-timeline-max-zoom';
 
 export type TimelineSetZoomOptions = {
 	anchorFrame: number | null;
@@ -52,14 +58,10 @@ export const TimelineZoomContext: React.FC<{
 
 			flushSync(() => {
 				setZoomState((prevZoomMap) => {
-					const newZoomWithFloatingPointErrors = Math.min(
-						TIMELINE_MAX_ZOOM,
-						Math.max(
-							TIMELINE_MIN_ZOOM,
-							callback(prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM),
-						),
-					);
-					const newZoom = Math.round(newZoomWithFloatingPointErrors * 10) / 10;
+					const newZoom = clampTimelineZoom({
+						zoom: callback(prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM),
+						durationInFrames: getCurrentDuration(),
+					});
 
 					return {...prevZoomMap, [compositionId]: newZoom};
 				});

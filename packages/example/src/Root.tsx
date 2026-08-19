@@ -63,6 +63,11 @@ import {
 	HlsMediaVideoTrimmed,
 } from './Hls/HlsMediaVideo';
 import {
+	HOUR_LONG_TIMELINE_DURATION_IN_FRAMES,
+	HOUR_LONG_TIMELINE_FPS,
+	HourLongTimelineTestbed,
+} from './HourLongTimelineTestbed';
+import {
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
 	CrossZoomTransitionDoc,
@@ -2837,6 +2842,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="video-editing">
+				<Composition
+					id="hour-long-timeline"
+					component={HourLongTimelineTestbed}
+					width={1920}
+					height={1080}
+					fps={HOUR_LONG_TIMELINE_FPS}
+					durationInFrames={HOUR_LONG_TIMELINE_DURATION_IN_FRAMES}
+				/>
 				<Composition
 					id="video-editing-cascading"
 					component={Issue8974TransitionSeriesTimeline}
