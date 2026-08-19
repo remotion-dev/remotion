@@ -122,6 +122,8 @@ export {
 	SimpleDiff,
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse,
+	SplitVideoFromAudioRequest,
+	SplitVideoFromAudioResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToFileExistenceRequest,

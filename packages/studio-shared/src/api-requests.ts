@@ -834,6 +834,22 @@ export type SplitJsxSequenceResponse =
 			stack: string;
 	  };
 
+export type SplitVideoFromAudioRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+};
+
+export type SplitVideoFromAudioResponse =
+	| {
+			success: true;
+			nodePathMutation: SequenceNodePathMutation;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type InsertableCompositionElement =
 	| {
 			type: 'solid';
@@ -1269,6 +1285,10 @@ export type ApiRoutes = {
 	'/api/split-jsx-sequence': ReqAndRes<
 		SplitJsxSequenceRequest,
 		SplitJsxSequenceResponse
+	>;
+	'/api/split-video-from-audio': ReqAndRes<
+		SplitVideoFromAudioRequest,
+		SplitVideoFromAudioResponse
 	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,
