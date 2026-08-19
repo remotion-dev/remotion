@@ -32,6 +32,8 @@ import type {
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromSequencePropsRequest,
+	UpdateDefaultPropsRequest,
+	UpdateDefaultPropsResponse,
 } from './api-requests';
 import type {RecastCodemod} from './codemods';
 import type {EventSourceEvent} from './event-source-event';
@@ -117,6 +119,9 @@ export type BrowserStudioOperations = {
 	unsubscribeFromSequenceProps: (
 		request: UnsubscribeFromSequencePropsRequest,
 	) => Promise<undefined>;
+	updateDefaultProps: (
+		request: UpdateDefaultPropsRequest,
+	) => Promise<UpdateDefaultPropsResponse>;
 	writeStaticFile: (request: WriteStaticFileRequest) => Promise<void>;
 };
 

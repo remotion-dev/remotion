@@ -1036,6 +1036,94 @@ export const Root = () => {
 	);
 });
 
+test('updates default props in the virtual project', async () => {
+	const fileName = '/project/src/Root.tsx';
+	const {operations, getProject} = makeOperationsForProject({
+		rootDir: '/project',
+		entryPoint: '/project/src/index.ts',
+		files: {
+			'/project/src/index.ts': `import {registerRoot} from 'remotion';
+import {Root} from './Root';
+registerRoot(Root);
+`,
+			[fileName]: `import {Composition} from 'remotion';
+
+const MyComponent = (props: {title: string; count: number}) => null;
+
+export const Root = () => {
+	return (
+		<Composition
+			id="MyComp"
+			component={MyComponent}
+			durationInFrames={60}
+			fps={30}
+			width={1280}
+			height={720}
+			defaultProps={{title: 'Hello', count: 1}}
+		/>
+	);
+};
+`,
+		},
+	});
+	const events: EventSourceEvent[] = [];
+	operations.subscribeToEvent((event) => events.push(event));
+	await operations.subscribeToDefaultProps({
+		clientId: 'browser-studio',
+		compositionId: 'MyComp',
+	});
+
+	const result = await operations.updateDefaultProps({
+		compositionId: 'MyComp',
+		defaultProps: JSON.stringify({title: 'Updated', count: 2}),
+		enumPaths: [],
+	});
+	expect(result).toEqual({success: true});
+	expect(getProject().files[fileName]).toContain(
+		`defaultProps={{title: 'Updated', count: 2}}`,
+	);
+	expect(
+		events.some((event) => event.type === 'default-props-updatable-changed'),
+	).toBe(true);
+
+	const undoResult = await operations.undo();
+	expect(undoResult.success).toBe(true);
+	expect(getProject().files[fileName]).toContain(
+		`defaultProps={{title: 'Hello', count: 1}}`,
+	);
+
+	const missingDefaultProps = await operations.updateDefaultProps({
+		compositionId: 'Unknown',
+		defaultProps: JSON.stringify({}),
+		enumPaths: [],
+	});
+	expect(missingDefaultProps).toEqual({
+		success: false,
+		reason: 'Could not find composition "Unknown"',
+		stack: expect.any(String),
+	});
+});
+
+test('reports a structured error when a composition has no defaultProps', async () => {
+	const {operations, getProject} = makeOperationsForProject(
+		createBlankTemplateProject(),
+	);
+	const initialFiles = {...getProject().files};
+
+	const result = await operations.updateDefaultProps({
+		compositionId: 'MyComp',
+		defaultProps: JSON.stringify({title: 'Hello'}),
+		enumPaths: [],
+	});
+	expect(result).toEqual({
+		success: false,
+		reason:
+			'No `defaultProps` prop found in the <Composition/> tag with the ID "MyComp".',
+		stack: expect.any(String),
+	});
+	expect(getProject().files).toEqual(initialFiles);
+});
+
 test('reports structured failures for unsupported codemods', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),

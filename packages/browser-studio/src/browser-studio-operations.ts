@@ -7,6 +7,7 @@ import {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	formatInlineContentWithFormatter,
 	getFolderFile,
 	getRootFileForProject,
 	insertJsxElementIntoProjectWithNodePathRemappings,
@@ -18,6 +19,8 @@ import {
 	simpleDiff,
 	splitJsxSequence as splitJsxSequenceCodemod,
 	splitVideoFromAudio as splitVideoFromAudioCodemod,
+	updateDefaultProps as updateDefaultPropsCodemod,
+	type FormatInline,
 } from '@remotion/studio-codemods';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
@@ -59,6 +62,24 @@ const formatCodemodFile = async ({contents}: {contents: string}) => ({
 		useTabs: true,
 	}),
 });
+
+const formatInline: FormatInline = ({inlineContent, linePrefix, endOfLine}) =>
+	formatInlineContentWithFormatter({
+		inlineContent,
+		linePrefix,
+		endOfLine,
+		prettierConfig: {
+			bracketSpacing: false,
+			parser: 'typescript',
+			singleQuote: true,
+			useTabs: true,
+		},
+		format: (source, options) =>
+			format(source, {
+				...options,
+				plugins: [prettierPluginTypescript, prettierPluginEstree],
+			}),
+	});
 
 export {
 	insertSolidIntoProject,
@@ -718,6 +739,45 @@ export const createBrowserStudioOperations = ({
 			}
 		};
 
+	const updateDefaultProps: BrowserStudioOperations['updateDefaultProps'] =
+		async ({compositionId, defaultProps, enumPaths}) => {
+			try {
+				const project = getProject();
+				const compositionFile = getCompositionFile({compositionId, project});
+				if (compositionFile === null) {
+					throw new Error(`Could not find composition "${compositionId}"`);
+				}
+
+				const absolutePath = findProjectFile({
+					filePath: compositionFile,
+					project,
+				});
+				const {output} = await updateDefaultPropsCodemod({
+					input: project.files[absolutePath],
+					compositionId,
+					newDefaultProps: JSON.parse(defaultProps),
+					enumPaths,
+					formatInline,
+				});
+				controller.applyMutation({
+					fileName: absolutePath,
+					nodePathMutationFiles: null,
+					mutate: () => ({
+						...project,
+						files: {...project.files, [absolutePath]: output},
+					}),
+				});
+
+				return {success: true};
+			} catch (error) {
+				return {
+					success: false,
+					reason: error instanceof Error ? error.message : String(error),
+					stack: error instanceof Error && error.stack ? error.stack : '',
+				};
+			}
+		};
+
 	const splitVideoFromAudio: BrowserStudioOperations['splitVideoFromAudio'] =
 		async ({fileName, nodePath}) => {
 			try {
@@ -1089,6 +1149,7 @@ export const createBrowserStudioOperations = ({
 
 			return Promise.resolve(undefined);
 		},
+		updateDefaultProps,
 		writeStaticFile: controller.writeStaticFile,
 	};
 };
