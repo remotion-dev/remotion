@@ -1,10 +1,8 @@
 import {
 	drawBars,
-	getLoopDisplayWidth,
 	loadWaveformPeaks,
 	makeAudioWaveformWorker,
-	shouldTileLoopDisplay,
-	sliceWaveformPeaks,
+	sliceVisibleWaveformPeaks,
 	type AudioWaveformWorkerOutgoingMessage,
 	type AudioWaveformWorkerRenderMessage,
 	type WaveformVolume,
@@ -70,60 +68,14 @@ const parseVolume = (volume: string | number): WaveformVolume => {
 	return volume.split(',').map((v) => Number(v));
 };
 
-const drawLoopedWaveform = ({
-	canvas,
-	peaks,
-	volume,
-	visualizationWidth,
-	loopWidth,
-}: {
-	canvas: HTMLCanvasElement;
-	peaks: Float32Array;
-	volume: WaveformVolume;
-	visualizationWidth: number;
-	loopWidth: number;
-}) => {
-	const h = canvas.height;
-	const w = Math.ceil(visualizationWidth);
-	const targetCanvas = document.createElement('canvas');
-	targetCanvas.width = Math.max(1, Math.ceil(loopWidth));
-	targetCanvas.height = h;
-
-	drawBars({
-		canvas: targetCanvas,
-		peaks,
-		color: WHITE_ALPHA_60,
-		volume,
-		width: targetCanvas.width,
-	});
-
-	canvas.width = w;
-	canvas.height = h;
-
-	const ctx = canvas.getContext('2d');
-	if (!ctx) {
-		throw new Error('Failed to get canvas context');
-	}
-
-	const pattern = ctx.createPattern(targetCanvas, 'repeat-x');
-	if (!pattern) {
-		return;
-	}
-
-	pattern.setTransform(
-		new DOMMatrix().scaleSelf(loopWidth / targetCanvas.width, 1),
-	);
-	ctx.clearRect(0, 0, w, h);
-	ctx.fillStyle = pattern;
-	ctx.fillRect(0, 0, w, h);
-};
-
 const AudioWaveformInner: React.FC<{
 	readonly src: string;
 	readonly height: number;
 	readonly visualizationWidth: number;
 	readonly startFrom: number;
 	readonly durationInFrames: number;
+	readonly displayOffsetInFrames: number;
+	readonly displayDurationInFrames: number;
 	readonly volume: string | number;
 	readonly doesVolumeChange: boolean;
 	readonly playbackRate: number;
@@ -133,6 +85,8 @@ const AudioWaveformInner: React.FC<{
 	height,
 	startFrom,
 	durationInFrames,
+	displayOffsetInFrames,
+	displayDurationInFrames,
 	visualizationWidth,
 	volume,
 	doesVolumeChange,
@@ -156,6 +110,51 @@ const AudioWaveformInner: React.FC<{
 	const shouldRenderVolumeOverlay =
 		doesVolumeChange && typeof volume === 'string';
 	const parsedVolume = useMemo(() => parseVolume(volume), [volume]);
+	const visibleVolume = useMemo((): WaveformVolume => {
+		if (!Array.isArray(parsedVolume)) {
+			return parsedVolume;
+		}
+
+		if (!loopDisplay || loopDisplay.numberOfTimes <= 1) {
+			const start = Math.max(0, Math.floor(displayOffsetInFrames));
+			const end = Math.min(
+				parsedVolume.length,
+				Math.ceil(displayOffsetInFrames + displayDurationInFrames),
+			);
+			return parsedVolume.slice(start, end);
+		}
+
+		const result: number[] = [];
+		let processed = 0;
+		while (processed < displayDurationInFrames) {
+			const absoluteOffset = displayOffsetInFrames + processed;
+			const loopOffset =
+				((absoluteOffset % loopDisplay.durationInFrames) +
+					loopDisplay.durationInFrames) %
+				loopDisplay.durationInFrames;
+			const segmentDuration = Math.min(
+				displayDurationInFrames - processed,
+				loopDisplay.durationInFrames - loopOffset,
+			);
+			result.push(
+				...parsedVolume.slice(
+					Math.max(0, Math.floor(loopOffset)),
+					Math.min(
+						parsedVolume.length,
+						Math.ceil(loopOffset + segmentDuration),
+					),
+				),
+			);
+			processed += segmentDuration;
+		}
+
+		return result;
+	}, [
+		displayDurationInFrames,
+		displayOffsetInFrames,
+		loopDisplay,
+		parsedVolume,
+	]);
 
 	useEffect(() => {
 		if (canUseWorkerPath) {
@@ -253,17 +252,20 @@ const AudioWaveformInner: React.FC<{
 			return null;
 		}
 
-		return sliceWaveformPeaks({
-			durationInFrames: shouldTileLoopDisplay(loopDisplay)
-				? loopDisplay.durationInFrames
-				: durationInFrames,
+		return sliceVisibleWaveformPeaks({
+			displayDurationInFrames,
+			displayOffsetInFrames,
+			durationInFrames,
 			fps: vidConf.fps,
+			loopDisplay,
 			peaks,
 			playbackRate,
 			startFrom,
 		});
 	}, [
 		canUseWorkerPath,
+		displayDurationInFrames,
+		displayOffsetInFrames,
 		durationInFrames,
 		loopDisplay,
 		peaks,
@@ -295,9 +297,11 @@ const AudioWaveformInner: React.FC<{
 				src,
 				width: w,
 				height: h,
-				volume: parsedVolume,
+				volume: visibleVolume,
 				startFrom,
 				durationInFrames,
+				displayOffsetInFrames,
+				displayDurationInFrames,
 				fps: vidConf.fps,
 				playbackRate,
 				loopDisplay,
@@ -309,38 +313,27 @@ const AudioWaveformInner: React.FC<{
 		canvasElement.width = w;
 		canvasElement.height = h;
 
-		if (shouldTileLoopDisplay(loopDisplay)) {
-			drawLoopedWaveform({
-				canvas: canvasElement,
-				peaks: portionPeaks ?? EMPTY_PEAKS,
-				volume: parsedVolume,
-				visualizationWidth,
-				loopWidth: getLoopDisplayWidth({
-					visualizationWidth,
-					loopDisplay,
-				}),
-			});
-		} else {
-			drawBars({
-				canvas: canvasElement,
-				peaks: portionPeaks ?? EMPTY_PEAKS,
-				color: WHITE_ALPHA_60,
-				volume: parsedVolume,
-				width: w,
-			});
-		}
+		drawBars({
+			canvas: canvasElement,
+			peaks: portionPeaks ?? EMPTY_PEAKS,
+			color: WHITE_ALPHA_60,
+			volume: visibleVolume,
+			width: w,
+		});
 	}, [
 		canUseWorkerPath,
+		displayDurationInFrames,
+		displayOffsetInFrames,
 		durationInFrames,
 		height,
 		loopDisplay,
 		playbackRate,
-		parsedVolume,
 		portionPeaks,
 		src,
 		startFrom,
 		vidConf.fps,
 		visualizationWidth,
+		visibleVolume,
 		waveformCanvasKey,
 	]);
 
@@ -364,17 +357,17 @@ const AudioWaveformInner: React.FC<{
 		volumeCanvasElement.height = h;
 
 		context.clearRect(0, 0, visualizationWidth, h);
-		if (!Array.isArray(parsedVolume)) {
+		if (!Array.isArray(visibleVolume)) {
 			return;
 		}
 
 		context.beginPath();
 		context.moveTo(0, h);
-		parsedVolume.forEach((v, index) => {
+		visibleVolume.forEach((v, index) => {
 			const x =
-				parsedVolume.length <= 1
+				visibleVolume.length <= 1
 					? 0
-					: (index / (parsedVolume.length - 1)) * visualizationWidth;
+					: (index / (visibleVolume.length - 1)) * visualizationWidth;
 			const y = (1 - v) * (h - TIMELINE_BORDER * 2) + 1;
 			if (index === 0) {
 				context.moveTo(x, y);
@@ -384,7 +377,7 @@ const AudioWaveformInner: React.FC<{
 		});
 		context.strokeStyle = WHITE_ALPHA_70;
 		context.stroke();
-	}, [height, parsedVolume, shouldRenderVolumeOverlay, visualizationWidth]);
+	}, [height, shouldRenderVolumeOverlay, visibleVolume, visualizationWidth]);
 
 	if (error) {
 		return null;

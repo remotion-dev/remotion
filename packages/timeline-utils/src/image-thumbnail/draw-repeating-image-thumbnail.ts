@@ -23,9 +23,11 @@ const createOffscreenCanvas = (width: number, height: number) => {
 export const drawRepeatingImageThumbnail = ({
 	canvas,
 	image,
+	offsetInPixels = 0,
 }: {
 	readonly canvas: HTMLCanvasElement | OffscreenCanvas;
 	readonly image: ImageWithNaturalDimensions;
+	readonly offsetInPixels?: number;
 }) => {
 	const ctx = canvas.getContext('2d');
 
@@ -64,6 +66,7 @@ export const drawRepeatingImageThumbnail = ({
 		return;
 	}
 
+	pattern.setTransform(new DOMMatrix().translate(-offsetInPixels, 0));
 	ctx.fillStyle = pattern;
 	ctx.fillRect(0, 0, width, height);
 };

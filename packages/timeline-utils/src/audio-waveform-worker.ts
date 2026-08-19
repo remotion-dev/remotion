@@ -7,8 +7,7 @@ import type {
 } from './audio-waveform/audio-waveform-worker-types';
 import {drawBars} from './audio-waveform/draw-peaks';
 import {loadWaveformPeaks} from './audio-waveform/load-waveform-peaks';
-import {sliceWaveformPeaks} from './audio-waveform/slice-waveform-peaks';
-import {getLoopDisplayWidth, shouldTileLoopDisplay} from './loop-display';
+import {sliceVisibleWaveformPeaks} from './audio-waveform/slice-visible-waveform-peaks';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -36,59 +35,24 @@ const drawPartialWaveform = (
 		return;
 	}
 
-	const portionPeaks = sliceWaveformPeaks({
-		durationInFrames: shouldTileLoopDisplay(message.loopDisplay)
-			? message.loopDisplay.durationInFrames
-			: message.durationInFrames,
+	const portionPeaks = sliceVisibleWaveformPeaks({
+		displayDurationInFrames: message.displayDurationInFrames,
+		displayOffsetInFrames: message.displayOffsetInFrames,
+		durationInFrames: message.durationInFrames,
 		fps: message.fps,
+		loopDisplay: message.loopDisplay,
 		peaks,
 		playbackRate: message.playbackRate,
 		startFrom: message.startFrom,
 	});
 
-	if (!shouldTileLoopDisplay(message.loopDisplay)) {
-		drawBars({
-			canvas,
-			peaks: portionPeaks,
-			color: 'rgba(255, 255, 255, 0.6)',
-			volume: message.volume,
-			width: message.width,
-		});
-		return;
-	}
-
-	const loopWidth = getLoopDisplayWidth({
-		visualizationWidth: message.width,
-		loopDisplay: message.loopDisplay,
-	});
-	const targetCanvas = new OffscreenCanvas(
-		Math.max(1, Math.ceil(loopWidth)),
-		message.height,
-	);
 	drawBars({
-		canvas: targetCanvas,
+		canvas,
 		peaks: portionPeaks,
 		color: 'rgba(255, 255, 255, 0.6)',
 		volume: message.volume,
-		width: targetCanvas.width,
+		width: message.width,
 	});
-
-	const ctx = canvas.getContext('2d');
-	if (!ctx) {
-		throw new Error('Failed to get canvas context');
-	}
-
-	const pattern = ctx.createPattern(targetCanvas, 'repeat-x');
-	if (!pattern) {
-		return;
-	}
-
-	pattern.setTransform(
-		new DOMMatrix().scaleSelf(loopWidth / targetCanvas.width, 1),
-	);
-	ctx.clearRect(0, 0, message.width, message.height);
-	ctx.fillStyle = pattern;
-	ctx.fillRect(0, 0, message.width, message.height);
 };
 
 const renderWaveform = async (message: AudioWaveformWorkerRenderMessage) => {
