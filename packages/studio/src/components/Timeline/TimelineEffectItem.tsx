@@ -476,7 +476,6 @@ export const TimelineEffectItem: React.FC<{
 			style={rowStyle}
 			selected={selection.selected}
 			selectable={selection.selectable}
-			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={containsSelection}

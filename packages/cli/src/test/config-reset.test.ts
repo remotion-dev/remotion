@@ -1,7 +1,6 @@
 import {expect, test} from 'bun:test';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import type {RspackConfiguration, WebpackConfiguration} from '../config';
 import {Config, ConfigInternals} from '../config';
 import {getRenderDefaults} from '../get-render-defaults';
@@ -142,9 +141,7 @@ test('reset config options restores defaults before reloading config', async () 
 	ConfigInternals.resetConfigOptions();
 
 	expect(ConfigInternals.getStudioPort()).toBeUndefined();
-	expect(StudioServerInternals.getMaxTimelineTracks()).toBe(
-		DEFAULT_TIMELINE_TRACKS,
-	);
+	expect(StudioServerInternals.getMaxTimelineTracks()).toBeNull();
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBeNull();

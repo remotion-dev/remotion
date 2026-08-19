@@ -632,7 +632,6 @@ export const TimelineSequencePropItem: React.FC<{
 			style={style}
 			selected={selection.selected}
 			selectable={selection.selectable}
-			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground

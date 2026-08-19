@@ -1,7 +1,7 @@
-import {expect, test, type Page} from '@playwright/test';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import fs from 'fs';
 import path from 'path';
+import {expect, test, type Page} from '@playwright/test';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	STUDIO_URL,
 	effectKeyframeE2eFile,
@@ -92,6 +92,63 @@ test.describe('visual mode', () => {
 	test('should load the studio', async ({page}) => {
 		await page.goto(STUDIO_URL);
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
+	});
+
+	test('should virtualize a large timeline without hiding tracks', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/timeline-virtualization-testbed`);
+		await expect(page).toHaveURL(/timeline-virtualization-testbed/, {
+			timeout: 15_000,
+		});
+
+		const timelineScroll = page
+			.locator('.__remotion-vertical-scrollbar')
+			.filter({has: page.locator('[data-timeline-scrollable]')});
+		await expect(timelineScroll).toHaveCount(1);
+		await expect(
+			page.getByText('Virtual track 000', {exact: true}),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Virtual track 000"]'),
+		).toBeVisible();
+
+		const mountedTrackLabels = page.getByText(/^Virtual track \d{3}$/);
+		expect(await mountedTrackLabels.count()).toBeLessThan(120);
+
+		const revealTargetTrack = page.locator(
+			'[data-timeline-marquee-item][title="Reveal target"]',
+		);
+		await expect(revealTargetTrack).toHaveCount(0);
+		const canvas = page.locator('.remotion-studio-composition-container');
+		const visibleOutlines = canvas.locator(
+			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
+		);
+		await canvas.hover();
+		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await visibleOutlines.first().click({force: true});
+
+		await expect(revealTargetTrack).toBeVisible();
+		const [revealTargetRect, timelineScrollRect] = await Promise.all([
+			revealTargetTrack.boundingBox(),
+			timelineScroll.boundingBox(),
+		]);
+		expect(revealTargetRect).not.toBeNull();
+		expect(timelineScrollRect).not.toBeNull();
+		expect(revealTargetRect!.y).toBeGreaterThanOrEqual(timelineScrollRect!.y);
+		expect(revealTargetRect!.y + revealTargetRect!.height).toBeLessThanOrEqual(
+			timelineScrollRect!.y + timelineScrollRect!.height,
+		);
+		await expect(
+			page.getByText('Virtual track 119', {exact: true}),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Virtual track 119"]'),
+		).toBeVisible();
+		expect(
+			await timelineScroll.evaluate((element) => element.scrollTop),
+		).toBeGreaterThan(0);
+		expect(await mountedTrackLabels.count()).toBeLessThan(120);
 	});
 
 	test('should commit a color drag before the picker closes', async ({
@@ -715,11 +772,11 @@ test.describe('visual mode', () => {
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.toContain('Config.setMaxTimelineTracks(');
-			await dialog.getByTitle('Use default (90)', {exact: true}).click();
+			await dialog.getByTitle('Use default (Unlimited)', {exact: true}).click();
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setMaxTimelineTracks');
-			await expect(maxTimelineTracks).toHaveText('Default (90)');
+			await expect(maxTimelineTracks).toHaveText('Default (Unlimited)');
 
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(

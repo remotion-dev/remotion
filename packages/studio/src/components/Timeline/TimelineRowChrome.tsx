@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {Padder} from './Padder';
 import {
@@ -7,11 +7,7 @@ import {
 } from './timeline-row-layout';
 import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
-import {
-	getTimelineRowHighlightBackground,
-	type TimelineSelection,
-	useTimelineFocusableItem,
-} from './TimelineSelection';
+import {getTimelineRowHighlightBackground} from './TimelineSelection';
 
 const rowBase: React.CSSProperties = {
 	alignItems: 'stretch',
@@ -65,7 +61,6 @@ export const TimelineRowChrome: React.FC<{
 	readonly style: React.CSSProperties;
 	readonly selected: boolean;
 	readonly selectable: boolean;
-	readonly selectionItem: TimelineSelection | null;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly showSelectedBackground: boolean;
 	readonly containsSelection: boolean;
@@ -90,7 +85,6 @@ export const TimelineRowChrome: React.FC<{
 	style,
 	selected,
 	selectable,
-	selectionItem,
 	onSelect,
 	showSelectedBackground,
 	containsSelection,
@@ -104,7 +98,6 @@ export const TimelineRowChrome: React.FC<{
 	onPointerEnter,
 	onPointerLeave,
 }) => {
-	const ref = useRef<HTMLDivElement>(null);
 	const {
 		basePadding,
 		keyframeControlsPlacement,
@@ -112,7 +105,6 @@ export const TimelineRowChrome: React.FC<{
 		rowHorizontalMargin,
 	} = useContext(TimelineRowLayoutContext);
 	const indentWidth = getTimelineRowIndentWidth(depth);
-	useTimelineFocusableItem(selectionItem, ref);
 
 	const chromeColumnStyle = useMemo(
 		(): React.CSSProperties => ({
@@ -211,7 +203,6 @@ export const TimelineRowChrome: React.FC<{
 	if (outerStyle) {
 		return (
 			<div
-				ref={ref}
 				style={outerStyle}
 				onDragLeave={onDragLeave}
 				onDragOver={onDragOver}
@@ -229,7 +220,6 @@ export const TimelineRowChrome: React.FC<{
 
 	return (
 		<div
-			ref={ref}
 			onDragLeave={onDragLeave}
 			onDragOver={onDragOver}
 			onDrop={onDrop}
