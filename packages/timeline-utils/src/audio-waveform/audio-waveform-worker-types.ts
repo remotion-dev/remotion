@@ -15,6 +15,8 @@ export type AudioWaveformWorkerRenderMessage = {
 	readonly volume: WaveformVolume;
 	readonly startFrom: number;
 	readonly durationInFrames: number;
+	readonly displayOffsetInFrames: number;
+	readonly displayDurationInFrames: number;
 	readonly fps: number;
 	readonly playbackRate: number;
 	readonly loopDisplay: TimelineLoopDisplay | undefined;

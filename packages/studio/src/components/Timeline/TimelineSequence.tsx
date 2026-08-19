@@ -26,6 +26,7 @@ import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-h
 import {
 	getTimelineLayerHeight,
 	TIMELINE_LAYER_HEIGHT_AUDIO,
+	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -39,7 +40,7 @@ import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
-import {getTimelineMediaVisualizationLayout} from './get-timeline-media-visualization-layout';
+import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
@@ -62,6 +63,7 @@ import {
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
+import {TimelineViewportContext} from './TimelineViewport';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
@@ -92,8 +94,8 @@ const TimelineSequenceFn: React.FC<{
 const TimelineSequenceCurrentFrame: React.FC<{
 	readonly s: TSequence;
 	readonly displayDurationInFrames: number;
-	readonly premountWidth: number | null;
-	readonly postmountWidth: number | null;
+	readonly premount: {readonly left: number; readonly width: number} | null;
+	readonly postmount: {readonly left: number; readonly width: number} | null;
 	readonly style: React.CSSProperties;
 	readonly children: React.ReactNode;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -107,8 +109,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 }> = ({
 	s,
 	displayDurationInFrames,
-	premountWidth,
-	postmountWidth,
+	premount,
+	postmount,
 	style,
 	children,
 	nodePathInfo,
@@ -183,10 +185,11 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onDoubleClick={onDoubleClick}
 		>
-			{premountWidth ? (
+			{premount ? (
 				<div
 					style={{
-						width: premountWidth,
+						left: premount.left,
+						width: premount.width,
 						height: '100%',
 						background: `repeating-linear-gradient(
 								-45deg,
@@ -200,10 +203,11 @@ const TimelineSequenceCurrentFrame: React.FC<{
 				/>
 			) : null}
 
-			{postmountWidth ? (
+			{postmount ? (
 				<div
 					style={{
-						width: postmountWidth,
+						left: postmount.left,
+						width: postmount.width,
 						height: '100%',
 						background: `repeating-linear-gradient(
 								-45deg,
@@ -213,7 +217,6 @@ const TimelineSequenceCurrentFrame: React.FC<{
 								${isPostmounting ? WHITE_ALPHA_50 : WHITE_ALPHA_20} 4px
 							)`,
 						position: 'absolute',
-						right: 0,
 					}}
 				/>
 			) : null}
@@ -227,7 +230,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			(isInRange || isPremounting || isPostmounting) ? (
 				<div
 					style={{
-						paddingLeft: 5 + (premountWidth ?? 0),
+						paddingLeft: 5 + (premount?.width ?? 0),
 						height: '100%',
 						display: 'flex',
 						alignItems: 'center',
@@ -263,6 +266,7 @@ const TimelineSequenceInner: React.FC<{
 	// if that is the case, it needs to be asynchronously determined
 
 	const video = Internals.useVideo();
+	const renderWindow = useContext(TimelineViewportContext);
 
 	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
@@ -557,40 +561,46 @@ const TimelineSequenceInner: React.FC<{
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
 		: s.duration;
 
-	const {marginLeft, width, naturalWidth, premountWidth, postmountWidth} =
-		useMemo(() => {
-			return getTimelineSequenceLayout({
-				durationInFrames: displayDurationInFrames,
-				startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
-				startFromMedia:
-					s.type === 'sequence' || s.type === 'image' ? 0 : s.startMediaFrom,
-				maxMediaDuration: effectiveMaxMediaDuration,
-				video,
-				windowWidth,
-				premountDisplay: s.premountDisplay,
-				postmountDisplay: s.postmountDisplay,
-			});
-		}, [
-			displayDurationInFrames,
-			effectiveMaxMediaDuration,
-			s,
+	const {marginLeft, width, premountWidth, postmountWidth} = useMemo(() => {
+		return getTimelineSequenceLayout({
+			durationInFrames: displayDurationInFrames,
+			startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
+			startFromMedia:
+				s.type === 'sequence' || s.type === 'image' ? 0 : s.startMediaFrom,
+			maxMediaDuration: effectiveMaxMediaDuration,
 			video,
 			windowWidth,
-		]);
-	const mediaVisualizationLayout = useMemo(() => {
-		return getTimelineMediaVisualizationLayout({
-			visualizationWidth: width,
+			premountDisplay: s.premountDisplay,
+			postmountDisplay: s.postmountDisplay,
+		});
+	}, [
+		displayDurationInFrames,
+		effectiveMaxMediaDuration,
+		s,
+		video,
+		windowWidth,
+	]);
+	const visibleLayout = useMemo(() => {
+		if (renderWindow === null) {
+			return null;
+		}
+
+		return getTimelineSequenceVisibleLayout({
+			marginLeft,
+			width,
 			premountWidth: premountWidth ?? 0,
 			postmountWidth: postmountWidth ?? 0,
+			renderWindowLeft: renderWindow.left - TIMELINE_PADDING,
+			renderWindowWidth: renderWindow.width,
 		});
-	}, [postmountWidth, premountWidth, width]);
+	}, [marginLeft, postmountWidth, premountWidth, renderWindow, width]);
 	const mediaVisualizationStyle = useMemo((): React.CSSProperties => {
 		return {
-			width: mediaVisualizationLayout.width,
-			marginLeft: mediaVisualizationLayout.marginLeft,
+			width: visibleLayout?.media?.width ?? 0,
+			marginLeft: visibleLayout?.media?.left ?? 0,
 			height: '100%',
 		};
-	}, [mediaVisualizationLayout]);
+	}, [visibleLayout]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -603,15 +613,24 @@ const TimelineSequenceInner: React.FC<{
 							? TIMELINE_IMAGE_GRADIENT
 							: BLUE,
 			border: `${SEQUENCE_BORDER_WIDTH}px solid ${WHITE_ALPHA_20}`,
-			borderRadius: 2,
+			borderLeftColor: visibleLayout?.leftEdgeVisible
+				? WHITE_ALPHA_20
+				: TRANSPARENT,
+			borderRightColor: visibleLayout?.rightEdgeVisible
+				? WHITE_ALPHA_20
+				: TRANSPARENT,
+			borderTopLeftRadius: visibleLayout?.leftEdgeVisible ? 2 : 0,
+			borderBottomLeftRadius: visibleLayout?.leftEdgeVisible ? 2 : 0,
+			borderTopRightRadius: visibleLayout?.rightEdgeVisible ? 2 : 0,
+			borderBottomRightRadius: visibleLayout?.rightEdgeVisible ? 2 : 0,
 			position: 'absolute',
 			height: getTimelineLayerHeight(s.type),
-			marginLeft,
-			width,
+			marginLeft: visibleLayout?.marginLeft ?? 0,
+			width: visibleLayout?.width ?? 0,
 			color: WHITE,
 			overflow: 'hidden',
 		};
-	}, [marginLeft, s.type, width]);
+	}, [s.type, visibleLayout]);
 
 	const showRightEdgeDragHandle =
 		isTimelineSequenceDurationDraggable(s) &&
@@ -626,16 +645,25 @@ const TimelineSequenceInner: React.FC<{
 		durationCanUpdate &&
 		trimBeforeCanUpdate;
 
-	if (maxMediaDuration === null && !s.loopDisplay) {
+	if ((maxMediaDuration === null && !s.loopDisplay) || visibleLayout === null) {
 		return null;
 	}
+
+	const frameIncrement =
+		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
+	const mediaDisplayOffsetInFrames = visibleLayout.media
+		? visibleLayout.media.offset / frameIncrement
+		: 0;
+	const mediaDisplayDurationInFrames = visibleLayout.media
+		? visibleLayout.media.width / frameIncrement
+		: 0;
 
 	const sequence = (
 		<TimelineSequenceCurrentFrame
 			s={s}
 			displayDurationInFrames={displayDurationInFrames}
-			premountWidth={premountWidth}
-			postmountWidth={postmountWidth}
+			premount={visibleLayout.premount}
+			postmount={visibleLayout.postmount}
 			style={style}
 			nodePathInfo={nodePathInfo}
 			sequenceFrameOffset={sequenceFrameOffset}
@@ -646,59 +674,72 @@ const TimelineSequenceInner: React.FC<{
 				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
 			}
 		>
-			{s.type === 'audio' ? (
+			{s.type === 'audio' && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
 					<AudioWaveform
 						src={s.src}
 						height={TIMELINE_LAYER_HEIGHT_AUDIO}
 						doesVolumeChange={s.doesVolumeChange}
-						visualizationWidth={mediaVisualizationLayout.width}
+						visualizationWidth={visibleLayout.media.width}
 						startFrom={s.startMediaFrom}
 						durationInFrames={s.duration}
+						displayOffsetInFrames={mediaDisplayOffsetInFrames}
+						displayDurationInFrames={mediaDisplayDurationInFrames}
 						volume={s.volume}
 						playbackRate={s.playbackRate}
 						loopDisplay={s.loopDisplay}
 					/>
 				</div>
 			) : null}
-			{s.type === 'video' ? (
+			{s.type === 'video' && visibleLayout.media ? (
 				<TimelineVideoInfo
 					src={s.src}
-					visualizationWidth={width}
-					naturalWidth={naturalWidth}
+					visualizationWidth={visibleLayout.media.width}
+					displayOffsetInFrames={mediaDisplayOffsetInFrames}
+					displayDurationInFrames={mediaDisplayDurationInFrames}
 					startMediaFrom={s.startMediaFrom}
 					mediaFrameAtSequenceZero={s.mediaFrameAtSequenceZero}
 					sequenceFrameOffset={sequenceFrameOffset}
-					durationInFrames={s.duration}
 					playbackRate={s.playbackRate}
 					volume={s.volume}
 					doesVolumeChange={s.doesVolumeChange}
-					premountWidth={premountWidth ?? 0}
-					postmountWidth={postmountWidth ?? 0}
+					marginLeft={visibleLayout.media.left}
 					loopDisplay={s.loopDisplay}
 					frozenMediaFrame={s.frozenMediaFrame}
 					extendLastFrame={extendVideoLastFrame}
 				/>
 			) : null}
-			{s.type === 'image' ? (
+			{s.type === 'image' && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
 					<TimelineImageInfo
 						src={s.src}
-						visualizationWidth={mediaVisualizationLayout.width}
+						visualizationWidth={visibleLayout.media.width}
+						offsetInPixels={visibleLayout.media.offset}
 					/>
 				</div>
 			) : null}
 			{s.loopDisplay === undefined ? null : (
-				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
+				<LoopedTimelineIndicator
+					loops={s.loopDisplay.numberOfTimes}
+					fullWidth={width}
+					visibleOffset={visibleLayout.cropLeft}
+					visibleWidth={visibleLayout.width}
+				/>
 			)}
-			{showLeftEdgeDragHandle && nodePathInfo && validatedLocation ? (
+			{showLeftEdgeDragHandle &&
+			visibleLayout.leftEdgeVisible &&
+			nodePathInfo &&
+			validatedLocation ? (
 				<TimelineSequenceLeftEdgeDragHandle
 					nodePathInfo={nodePathInfo}
 					windowWidth={windowWidth}
 					timelineDurationInFrames={video.durationInFrames ?? 1}
 				/>
 			) : null}
-			{showRightEdgeDragHandle && nodePathInfo && validatedLocation ? (
+			{showRightEdgeDragHandle &&
+			visibleLayout.rightEdgeVisible &&
+			nodePathInfo &&
+			validatedLocation ? (
 				<TimelineSequenceRightEdgeDragHandle
 					nodePathInfo={nodePathInfo}
 					windowWidth={windowWidth}

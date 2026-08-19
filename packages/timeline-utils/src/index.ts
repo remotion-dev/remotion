@@ -8,6 +8,7 @@ export {drawBars, type WaveformVolume} from './audio-waveform/draw-peaks';
 export {loadWaveformPeaks} from './audio-waveform/load-waveform-peaks';
 export {makeAudioWaveformWorker} from './audio-waveform/make-audio-waveform-worker';
 export {sliceWaveformPeaks} from './audio-waveform/slice-waveform-peaks';
+export {sliceVisibleWaveformPeaks} from './audio-waveform/slice-visible-waveform-peaks';
 export {
 	createWaveformPeakProcessor,
 	emitWaveformProgress,

@@ -10,6 +10,7 @@ import {
 	TIMELINE_BACKGROUND,
 	useTimelineMarqueeSelection,
 } from './TimelineSelection';
+import {TimelineViewportProvider} from './TimelineViewport';
 
 const outer: React.CSSProperties = {
 	width: '100%',
@@ -49,7 +50,9 @@ export const TimelineScrollable: React.FC<{
 			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
 			onPointerDownCapture={onPointerDownCapture}
 		>
-			<div style={containerStyle}>{children}</div>
+			<TimelineViewportProvider scrollable={scrollableRef}>
+				<div style={containerStyle}>{children}</div>
+			</TimelineViewportProvider>
 			<TimelineAssetDropIndicator />
 			{marqueeRect === null ? null : (
 				<div
