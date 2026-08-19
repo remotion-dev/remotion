@@ -132,14 +132,13 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	let activeRelativePublicDir = publicDirOption.getValue({
+	const relativePublicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const activateRelativePublicDir = () => {
-		activeRelativePublicDir = publicDirOption.getValue({
+	const getRelativePublicDir = () => {
+		return publicDirOption.getValue({
 			commandLine: parsedCli,
 		}).value;
-		return activeRelativePublicDir;
 	};
 
 	const rendererPort = ConfigInternals.getRendererPortFromConfigFile();
@@ -312,7 +311,7 @@ export const studioCommand = async (
 		getEnvVariables: () => envVariables,
 		desiredPort,
 		remotionRoot,
-		getRelativePublicDir: activateRelativePublicDir,
+		getRelativePublicDir,
 		bundlerOverride,
 		rspackOverride,
 		webpackOverride,
@@ -326,7 +325,7 @@ export const studioCommand = async (
 					...options,
 					fixedConfig: {
 						bundlerOverride,
-						publicDir: activeRelativePublicDir,
+						publicDir: relativePublicDir,
 						rendererPort,
 						rspackOverride,
 						rspack: useRspack,

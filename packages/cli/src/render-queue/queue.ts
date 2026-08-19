@@ -15,17 +15,11 @@ import {processStill} from './process-still';
 import {processVideoJob} from './process-video';
 import type {StudioRenderJobFixedConfig} from './studio-render-job-fixed-config';
 
-type RenderJobWithCleanupAndFixedConfig = RenderJobWithCleanup & {
-	fixedConfig: StudioRenderJobFixedConfig;
-};
-
-let jobQueue: RenderJobWithCleanupAndFixedConfig[] = [];
+let jobQueue: RenderJobWithCleanup[] = [];
 
 const updateJob = (
 	id: string,
-	updater: (
-		job: RenderJobWithCleanupAndFixedConfig,
-	) => RenderJobWithCleanupAndFixedConfig,
+	updater: (job: RenderJobWithCleanup) => RenderJobWithCleanup,
 ) => {
 	jobQueue = jobQueue.map((j) => {
 		if (id === j.id) {
@@ -39,7 +33,7 @@ const updateJob = (
 
 export const getRenderQueue = (): RenderJob[] => {
 	return jobQueue.map((j) => {
-		const {cleanup, fixedConfig, ...rest} = j;
+		const {cleanup, ...rest} = j;
 		return rest;
 	});
 };
@@ -111,8 +105,8 @@ export const addJob = ({
 	logLevel: LogLevel;
 	fixedConfig: StudioRenderJobFixedConfig;
 }) => {
-	jobQueue.push({...job, fixedConfig});
-	processJobIfPossible({entryPoint, remotionRoot, logLevel});
+	jobQueue.push(job);
+	processJobIfPossible({entryPoint, remotionRoot, logLevel, fixedConfig});
 
 	notifyClientsOfJobUpdate();
 };
@@ -148,10 +142,12 @@ const processJobIfPossible = async ({
 	remotionRoot,
 	entryPoint,
 	logLevel,
+	fixedConfig,
 }: {
 	remotionRoot: string;
 	entryPoint: string;
 	logLevel: LogLevel;
+	fixedConfig: StudioRenderJobFixedConfig;
 }) => {
 	const runningJob = jobQueue.find((q) => {
 		return q.status === 'running';
@@ -228,7 +224,7 @@ const processJobIfPossible = async ({
 				jobCleanups.push({label, job: cleanup});
 			},
 			logLevel,
-			fixedConfig: nextJob.fixedConfig,
+			fixedConfig,
 		});
 		Log.info(
 			{indent: false, logLevel},
@@ -302,5 +298,5 @@ const processJobIfPossible = async ({
 		);
 	}
 
-	processJobIfPossible({remotionRoot, entryPoint, logLevel});
+	processJobIfPossible({remotionRoot, entryPoint, logLevel, fixedConfig});
 };
