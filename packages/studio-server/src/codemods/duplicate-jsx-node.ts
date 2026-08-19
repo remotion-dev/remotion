@@ -402,31 +402,23 @@ const insertDuplicateForParent = (
 	return false;
 };
 
-export const insertJsxSiblingAfterPath = (
-	jsxPath: recast.types.NodePath,
-	sibling: JSXElement,
-): void => {
-	const {node, parentPath} = jsxPath;
-	if (!parentPath) {
-		throw new Error('Cannot insert next to a JSX element with no parent');
-	}
-
-	const jsxNode = node as JSXElement;
-	if (insertDuplicateForParent(parentPath.node, jsxNode, sibling)) {
-		return;
-	}
-
-	jsxPath.replace(makeFragment(jsxNode, sibling));
-};
-
 export const duplicateJsxElementAtPath = (
 	jsxPath: recast.types.NodePath,
 ): void => {
-	const jsxNode = jsxPath.node as JSXElement;
+	const {node, parentPath} = jsxPath;
+	if (!parentPath) {
+		throw new Error('Cannot duplicate JSX element with no parent');
+	}
+
+	const jsxNode = node as JSXElement;
 	const clone = cloneNode(jsxNode, true) as JSXElement;
 	uniquifyNamePropOnClone(clone);
 
-	insertJsxSiblingAfterPath(jsxPath, clone);
+	if (insertDuplicateForParent(parentPath.node, jsxNode, clone)) {
+		return;
+	}
+
+	jsxPath.replace(makeFragment(jsxNode, clone));
 };
 
 export const duplicateJsxNode = async ({

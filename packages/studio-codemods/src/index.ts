@@ -37,6 +37,7 @@ export {
 export {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 export {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 export {simpleDiff} from './simple-diff';
+export {splitVideoFromAudio} from './split-video-from-audio';
 export {updateInlineCaptionPatches} from './update-inline-caption-patches';
 export {
 	type RemovedProp,

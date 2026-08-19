@@ -282,6 +282,84 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	).toBe(false);
 });
 
+test('splits video from audio, broadcasts remappings and supports undo', async () => {
+	const fileName = '/project/src/Composition.tsx';
+	const initialSource = `import {Video} from '@remotion/media';
+export const Component = () => <Video src="video.mp4" from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />;`;
+	let currentProject: VirtualProject = {
+		rootDir: '/project',
+		entryPoint: '/project/src/index.tsx',
+		files: {
+			'/project/src/index.tsx': `import {registerRoot} from 'remotion';
+import {Root} from './Composition';
+registerRoot(Root);`,
+			[fileName]: initialSource,
+		},
+	};
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => currentProject,
+		onProjectChange: (nextProject) => {
+			currentProject = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const events: EventSourceEvent[] = [];
+	operations.subscribeToEvent((event) => events.push(event));
+	const subscription = await operations.subscribeToSequenceProps({
+		fileName: 'src/Composition.tsx',
+		line: 2,
+		column: 31,
+		nodePath: null,
+		componentIdentity: 'dev.remotion.media.Video',
+		keys: ['from', 'durationInFrames'],
+		assetKeys: [],
+		effects: [],
+		clientId: 'browser-studio',
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	});
+	if (!subscription.success) {
+		throw new Error('Expected sequence props subscription to succeed');
+	}
+
+	events.length = 0;
+	const result = await operations.splitVideoFromAudio({
+		fileName: 'src/Composition.tsx',
+		nodePath: subscription.nodePath.nodePath,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	const output = currentProject.files[fileName];
+	const singleLine = output.replace(/\s+/g, ' ');
+	expect(output).toContain(`import {Video, Audio} from '@remotion/media';`);
+	expect(singleLine).toContain(
+		'<Video src="video.mp4" from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} muted />',
+	);
+	expect(singleLine).toContain(
+		'<Audio src="video.mp4" from={10} durationInFrames={20} volume={0.5} />',
+	);
+	expect(
+		events.filter((event) => event.type === 'sequence-node-paths-remapped'),
+	).toEqual([
+		{
+			type: 'sequence-node-paths-remapped',
+			mutation: result.nodePathMutation,
+		},
+	]);
+
+	const undoResult = await operations.undo();
+	expect(undoResult.success).toBe(true);
+	expect(currentProject.files[fileName]).toBe(initialSource);
+});
+
 test('reports invalid timeline Solid input without changing the project', async () => {
 	const project = createBlankTemplateProject();
 	let currentProject = project;

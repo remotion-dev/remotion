@@ -8,7 +8,6 @@ import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
 import {TrashIcon} from '../../icons/trash';
-import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {
 	hasSequenceControls,
@@ -16,6 +15,7 @@ import {
 } from '../InspectorSequenceSection';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {splitVideoFromAudio} from '../split-video-from-audio-api';
 import {deleteSequencesFromSource} from '../Timeline/delete-selected-timeline-item';
 import {duplicateSequencesFromSource} from '../Timeline/duplicate-selected-timeline-item';
 import {
@@ -182,7 +182,7 @@ const SequenceSourceQuickActions: React.FC<{
 		}
 
 		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
-		callApi('/api/split-video-from-audio', {
+		splitVideoFromAudio({
 			fileName: nodePath.absolutePath,
 			nodePath: nodePath.nodePath,
 		})
