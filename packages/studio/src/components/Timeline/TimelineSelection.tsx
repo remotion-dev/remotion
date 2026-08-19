@@ -62,6 +62,12 @@ import {
 	getSelectedTimelineExpandedRowKeys,
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
+import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
+import {
+	EDGE_SCROLL_VERTICAL_INCREMENT,
+	SCROLL_INCREMENT,
+	startTimelineEdgeAutoScroll,
+} from './timeline-scroll-logic';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -1529,15 +1535,19 @@ export const useTimelineMarqueeSelection = () => {
 
 			const {currentTarget: target} = event;
 
+			const scrollable = scrollableRef.current;
+			const verticalScroll = timelineVerticalScroll.current;
+			const initialScrollLeft = scrollable?.scrollLeft ?? 0;
+			const initialScrollTop = verticalScroll?.scrollTop ?? 0;
+
 			const initialBounds = target.getBoundingClientRect();
-			const marqueeBounds: TimelineMarqueeRect = {
-				bottom: initialBounds.bottom,
-				left: initialBounds.left,
-				right: initialBounds.right,
-				top: initialBounds.top,
-			};
 			const start = getClampedTimelineMarqueePoint({
-				bounds: marqueeBounds,
+				bounds: {
+					bottom: initialBounds.bottom,
+					left: initialBounds.left,
+					right: initialBounds.right,
+					top: initialBounds.top,
+				},
 				x: event.clientX,
 				y: event.clientY,
 			});
@@ -1550,25 +1560,57 @@ export const useTimelineMarqueeSelection = () => {
 
 			let hasDragged = false;
 			let lockedSelectionKind: TimelineMarqueeSelectionKind | null = null;
+			let lastClientX = event.clientX;
+			let lastClientY = event.clientY;
 			const extendSelection = event.metaKey || event.ctrlKey;
 			const selectionBeforeMarquee = selectedItems;
 
-			const cleanup = () => {
-				document.body.style.userSelect = previousUserSelect;
-				document.body.style.webkitUserSelect = previousWebkitUserSelect;
-				setMarqueeRect(null);
-			};
-
 			const updateSelection = (clientX: number, clientY: number) => {
+				lastClientX = clientX;
+				lastClientY = clientY;
+
+				// The container moves when the timeline scrolls vertically, so read
+				// the bounds live. Restrict them to the visible viewport of the
+				// vertical scroller so the fixed-positioned marquee cannot paint
+				// outside the visible timeline area.
+				const liveBounds = target.getBoundingClientRect();
+				const verticalRect = verticalScroll?.getBoundingClientRect() ?? null;
+				const bounds: TimelineMarqueeRect = {
+					bottom:
+						verticalRect === null
+							? liveBounds.bottom
+							: Math.min(liveBounds.bottom, verticalRect.bottom),
+					left: liveBounds.left,
+					right: liveBounds.right,
+					top:
+						verticalRect === null
+							? liveBounds.top
+							: Math.max(liveBounds.top, verticalRect.top),
+				};
+
+				// The anchor is fixed to timeline content, not to the screen:
+				// compensate for any scrolling that happened since pointerdown so the
+				// marquee keeps covering the originally spanned content while
+				// edge auto-scrolling. It is deliberately not clamped to the bounds -
+				// it may sit outside the viewport, and the selection should still
+				// include everything between it and the pointer.
+				const scrollDeltaX = (scrollable?.scrollLeft ?? 0) - initialScrollLeft;
+				const scrollDeltaY =
+					(verticalScroll?.scrollTop ?? 0) - initialScrollTop;
+				const anchorX = startX - scrollDeltaX;
+				const anchorY = startY - scrollDeltaY;
+
 				const current = getClampedTimelineMarqueePoint({
-					bounds: marqueeBounds,
+					bounds,
 					x: clientX,
 					y: clientY,
 				});
 				if (
 					!hasDragged &&
-					Math.max(Math.abs(current.x - startX), Math.abs(current.y - startY)) <
-						3
+					Math.max(
+						Math.abs(current.x - anchorX),
+						Math.abs(current.y - anchorY),
+					) < 3
 				) {
 					return;
 				}
@@ -1577,12 +1619,17 @@ export const useTimelineMarqueeSelection = () => {
 				const rect = getNormalizedTimelineMarqueeRect({
 					currentX: current.x,
 					currentY: current.y,
-					startX,
-					startY,
+					startX: anchorX,
+					startY: anchorY,
 				});
 				const nextSelection = getMarqueeSelection(rect, lockedSelectionKind);
 				lockedSelectionKind = nextSelection.lockedSelectionKind;
-				setMarqueeRect(rect);
+				setMarqueeRect({
+					bottom: Math.min(rect.bottom, bounds.bottom),
+					left: Math.max(rect.left, bounds.left),
+					right: Math.min(rect.right, bounds.right),
+					top: Math.max(rect.top, bounds.top),
+				});
 				selectItems(
 					extendSelection
 						? extendTimelineMarqueeSelection({
@@ -1593,8 +1640,39 @@ export const useTimelineMarqueeSelection = () => {
 				);
 			};
 
+			const autoScroll = startTimelineEdgeAutoScroll({
+				includeVertical: true,
+				onTick: (directions) => {
+					if (scrollable && directions.x !== null) {
+						scrollable.scrollLeft +=
+							directions.x === 'left' ? -SCROLL_INCREMENT : SCROLL_INCREMENT;
+					}
+
+					if (verticalScroll && directions.y !== null) {
+						verticalScroll.scrollTop +=
+							directions.y === 'up'
+								? -EDGE_SCROLL_VERTICAL_INCREMENT
+								: EDGE_SCROLL_VERTICAL_INCREMENT;
+					}
+
+					updateSelection(lastClientX, lastClientY);
+				},
+			});
+
+			const cleanup = () => {
+				autoScroll.stop();
+				document.body.style.userSelect = previousUserSelect;
+				document.body.style.webkitUserSelect = previousWebkitUserSelect;
+				setMarqueeRect(null);
+			};
+
 			const onPointerMove = (moveEvent: PointerEvent) => {
 				updateSelection(moveEvent.clientX, moveEvent.clientY);
+				// Only auto-scroll for an actual marquee drag, not a plain click
+				// near an edge
+				if (hasDragged) {
+					autoScroll.update(moveEvent);
+				}
 			};
 
 			startCapturedPointerSession({

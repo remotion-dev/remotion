@@ -9,7 +9,7 @@ import {Internals, useVideoConfig} from 'remotion';
 import {TIMELINE_PLAYHEAD_COLOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
-import {getCurrentDuration} from './imperative-state';
+import {getCurrentDuration, getCurrentFrame} from './imperative-state';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -106,19 +106,24 @@ const TimelineSliderInner: React.FC = () => {
 			return;
 		}
 
-		const draw = () => {
+		const draw = (frame: number) => {
 			el.style.transform = getTimelineSliderTransform({
 				durationInFrames: videoConfig.durationInFrames,
-				frame: timelinePosition,
+				frame,
 				scrollLeft: scrollable.scrollLeft,
 				width: measuredWidth,
 			});
 		};
 
-		draw();
-		scrollable.addEventListener('scroll', draw);
+		draw(timelinePosition);
+
+		// Read the frame imperatively on scroll: during edge auto-scrolling, the
+		// scroll event can fire before React has committed the seek, and drawing
+		// with the stale `timelinePosition` closure makes the playhead flicker.
+		const onScroll = () => draw(getCurrentFrame());
+		scrollable.addEventListener('scroll', onScroll);
 		return () => {
-			scrollable.removeEventListener('scroll', draw);
+			scrollable.removeEventListener('scroll', onScroll);
 		};
 	}, [
 		timelinePosition,
