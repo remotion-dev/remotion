@@ -375,6 +375,7 @@ const RenderButtonInner: React.FC<{
 			initialTransparent: null,
 			initialMuted: null,
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
 			initialPageResponsiveness: 'medium',
 		});
 	}, [video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame]);

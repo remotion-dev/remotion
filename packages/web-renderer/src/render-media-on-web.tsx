@@ -12,7 +12,7 @@ import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createAudioSampleSource} from './create-audio-sample-source';
 import {checkForError, createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
-import {supportsNestedHtmlInCanvas} from './html-in-canvas';
+import {supportsNativeHtmlInCanvas} from './html-in-canvas';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import {
@@ -139,6 +139,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	muted: boolean;
 	scale: number;
 	sampleRate: number;
+	allowHtmlInCanvas: boolean;
 };
 
 export type RenderMediaOnWebOptions<
@@ -189,6 +190,7 @@ const internalRenderMediaOnWeb = async <
 	scale,
 	isProduction,
 	sampleRate,
+	allowHtmlInCanvas,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
@@ -207,7 +209,7 @@ const internalRenderMediaOnWeb = async <
 		if (outcome.native) {
 			Internals.Log.warn(
 				{logLevel, tag: '@remotion/web-renderer'},
-				'Using Chromium experimental HTML-in-canvas (drawElementImage) for video frames. See https://remotion.dev/docs/client-side-rendering/html-in-canvas',
+				'Using Chromium experimental HTML-in-canvas (drawElementImage) for video frames. Pixels may differ from the built-in DOM composer. Set allowHtmlInCanvas: false to force software rasterization. See https://remotion.dev/docs/client-side-rendering/html-in-canvas',
 			);
 		} else if (outcome.shouldWarn) {
 			Internals.Log.warn(
@@ -315,8 +317,6 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
-	const useHtmlInCanvas = await supportsNestedHtmlInCanvas();
-
 	using scaffold = createScaffold({
 		width: resolved.width,
 		height: resolved.height,
@@ -334,7 +334,7 @@ const internalRenderMediaOnWeb = async <
 		initialFrame: 0,
 		defaultCodec: resolved.defaultCodec,
 		defaultOutName: resolved.defaultOutName,
-		useHtmlInCanvas,
+		useHtmlInCanvas: allowHtmlInCanvas,
 		pixelDensity: scale,
 	});
 
@@ -346,6 +346,30 @@ const internalRenderMediaOnWeb = async <
 		errorHolder,
 		htmlInCanvasContext,
 	} = scaffold;
+
+	if (allowHtmlInCanvas && !htmlInCanvasContext) {
+		if (!supportsNativeHtmlInCanvas()) {
+			onHtmlInCanvasLayerOutcome({
+				native: false,
+				reason:
+					'This browser does not expose CanvasRenderingContext2D.prototype.drawElementImage. In Chromium, enable chrome://flags/#canvas-draw-element and use a version that ships the API.',
+				shouldWarn: false,
+			});
+		} else {
+			onHtmlInCanvasLayerOutcome({
+				native: false,
+				reason:
+					'drawElementImage is available but canvas.requestPaint() is missing. Use a Chromium version that ships requestPaint.',
+				shouldWarn: true,
+			});
+		}
+	} else if (!allowHtmlInCanvas) {
+		onHtmlInCanvasLayerOutcome({
+			native: false,
+			reason: 'allowHtmlInCanvas is false; using the built-in DOM composer.',
+			shouldWarn: false,
+		});
+	}
 
 	using internalState = makeInternalState({
 		signal,
@@ -531,7 +555,6 @@ const internalRenderMediaOnWeb = async <
 						? onHtmlInCanvasLayerOutcome
 						: undefined,
 					waitForPageResponsiveness,
-					waitForRenderReady,
 				});
 				internalState.addCreateFrameTime(performance.now() - createFrameStart);
 				layerCanvas = layer.canvas;
@@ -774,6 +797,7 @@ export const renderMediaOnWeb = <
 				muted: options.muted ?? false,
 				scale: options.scale ?? 1,
 				isProduction: options.isProduction ?? true,
+				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
 				sampleRate: options.sampleRate ?? 48000,
 			}),
 		);

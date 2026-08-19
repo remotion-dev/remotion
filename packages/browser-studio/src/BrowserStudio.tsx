@@ -82,6 +82,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 	const maxConcurrency = navigator.hardwareConcurrency || 1;
 
 	return {
+		allowHtmlInCanvas: false,
 		audioBitrate: null,
 		audioCodec: null,
 		beepOnFinish: false,
