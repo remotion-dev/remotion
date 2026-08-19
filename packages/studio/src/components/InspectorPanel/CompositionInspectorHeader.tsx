@@ -156,7 +156,7 @@ export const CompositionInspectorHeader = () => {
 						canOpen={validatedLocation !== null && canOpenInEditor}
 						onOpen={openFileLocation}
 						renderIcon={renderCompositionIcon}
-						size="inline-action"
+						size="quick-action"
 					/>
 					{compositionComponentInfo === null &&
 					compositionFile !== null &&
@@ -168,7 +168,7 @@ export const CompositionInspectorHeader = () => {
 							canOpen={componentLocation !== null && canOpenInEditor}
 							onOpen={openComponentLocation}
 							renderIcon={renderReactIcon}
-							size="inline-action"
+							size="quick-action"
 						/>
 					)}
 				</InspectorLocationCopy>
