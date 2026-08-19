@@ -872,19 +872,12 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 };
 
 const getDefaultFrameDisplayOffsetAdjustment = ({
-	jsxElement,
-	ast,
+	jsxPath,
 	videoConfigValues,
 }: {
-	jsxElement: JSXOpeningElement;
-	ast: File;
+	jsxPath: recast.types.NodePath;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): number | null => {
-	const jsxPath = findNodePath(ast, jsxElement);
-	if (!jsxPath) {
-		return null;
-	}
-
 	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
 	while (functionPath) {
 		const node = functionPath.value as Node;
@@ -1726,10 +1719,15 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	effects: string[][];
 	videoConfigIdentifierValues: VideoConfigIdentifierValues;
 }): CanUpdateSequencePropsResponseTrue => {
-	const jsxElementNode = findJsxElementNodeAtNodePath(ast, nodePath);
+	const jsxPath = findJsxElementPathAtNodePath(ast, nodePath);
+	const jsxElementNode = recast.types.namedTypes.JSXElement.check(
+		jsxPath?.parentPath?.value,
+	)
+		? (jsxPath?.parentPath?.value as unknown as JSXElement)
+		: null;
 	const jsxElement = jsxElementNode?.openingElement ?? null;
 
-	if (!jsxElement || !jsxElementNode) {
+	if (!jsxPath || !jsxElement || !jsxElementNode) {
 		throw new JsxElementNotFoundAtLocationError();
 	}
 
@@ -1758,8 +1756,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	});
 	const defaultKeyframeDisplayOffsetAdjustment =
 		getDefaultFrameDisplayOffsetAdjustment({
-			jsxElement,
-			ast,
+			jsxPath,
 			videoConfigValues: videoConfigIdentifierValues,
 		});
 	const addDefaultKeyframeDisplayOffsetAdjustment = (
