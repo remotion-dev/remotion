@@ -36,6 +36,10 @@ test(
 		if (contents.includes('PreviewToolbar') || contents.includes('TopPanel')) {
 			throw new Error('Studio was bundled');
 		}
+		// remotion/no-react must not pull in another stateful delay-render module.
+		expect(
+			contents.match(/window\.remotion_delayRenderHandles = \[\]/g),
+		).toHaveLength(1);
 
 		const indexHtmlContent = readFileSync(
 			path.join(folder, 'index.html'),
@@ -72,6 +76,24 @@ test(
 			return document.querySelectorAll('.css-reset').length;
 		});
 		expect(result.toString()).toBeGreaterThan(1);
+
+		const fontLoaded = await tab.evaluateHandle(() => {
+			let loaded = false;
+			document.fonts.forEach((font) => {
+				if (font.family === 'Bangers' && font.status === 'loaded') {
+					loaded = true;
+				}
+			});
+			return loaded;
+		});
+		expect(String(fontLoaded.toString())).toBe('true');
+
+		const orphanedFontTimeouts = await tab.evaluateHandle(() => {
+			return Object.values(window.remotion_delayRenderTimeouts).filter(
+				(timeout) => timeout.label?.startsWith('Loading font Bangers'),
+			).length;
+		});
+		expect(Number(orphanedFontTimeouts.toString())).toBe(0);
 
 		await (await browser).close({silent: false});
 		await close();
