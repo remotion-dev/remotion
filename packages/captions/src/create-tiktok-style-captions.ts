@@ -16,11 +16,8 @@ export type TikTokPage = {
 export type CreateTikTokStyleCaptionsInput = {
 	captions: Caption[];
 	combineTokensWithinMilliseconds: number;
-	breakOnPunctuation?: boolean;
 	breakOnSilenceAfterMilliseconds?: number;
 };
-
-const SENTENCE_ENDING_PUNCTUATION = /[.!?…]["'”’)\]]*$/;
 
 export type CreateTikTokStyleCaptionsOutput = {
 	pages: TikTokPage[];
@@ -29,7 +26,6 @@ export type CreateTikTokStyleCaptionsOutput = {
 export const createTikTokStyleCaptions = ({
 	captions,
 	combineTokensWithinMilliseconds,
-	breakOnPunctuation,
 	breakOnSilenceAfterMilliseconds,
 }: CreateTikTokStyleCaptionsInput): CreateTikTokStyleCaptionsOutput => {
 	const tikTokStyleCaptions: TikTokPage[] = [];
@@ -61,16 +57,9 @@ export const createTikTokStyleCaptions = ({
 			breakOnSilenceAfterMilliseconds !== undefined &&
 			currentText !== '' &&
 			item.startMs - currentTo >= breakOnSilenceAfterMilliseconds;
-		// Fixed slice keeps the check O(1) however long the page grows
-		const endsSentence =
-			breakOnPunctuation === true &&
-			SENTENCE_ENDING_PUNCTUATION.test(currentText.slice(-24).trimEnd());
 
 		// If text starts with a space, push the currentText (if it exists) and start a new one
-		if (
-			text.startsWith(' ') &&
-			(exceedsDuration || shouldBreakOnSilence || endsSentence)
-		) {
+		if (text.startsWith(' ') && (exceedsDuration || shouldBreakOnSilence)) {
 			if (currentText !== '') {
 				add();
 			}

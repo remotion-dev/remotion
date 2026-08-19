@@ -120,97 +120,6 @@ test('Should finalize the duration when captions end in whitespace', () => {
 	]);
 });
 
-test('Should break after sentence-ending punctuation when breakOnPunctuation is set', () => {
-	const {pages} = createTikTokStyleCaptions({
-		captions: [
-			{
-				text: 'the',
-				startMs: 0,
-				endMs: 200,
-				timestampMs: 100,
-				confidence: null,
-			},
-			{
-				text: ' blank',
-				startMs: 200,
-				endMs: 500,
-				timestampMs: 350,
-				confidence: null,
-			},
-			{
-				text: ' page.',
-				startMs: 500,
-				endMs: 900,
-				timestampMs: 700,
-				confidence: null,
-			},
-			{
-				text: ' This',
-				startMs: 1000,
-				endMs: 1200,
-				timestampMs: 1100,
-				confidence: null,
-			},
-			{
-				text: ' continues',
-				startMs: 1200,
-				endMs: 1600,
-				timestampMs: 1400,
-				confidence: null,
-			},
-		],
-		combineTokensWithinMilliseconds: 5000,
-		breakOnPunctuation: true,
-	});
-
-	expect(pages).toEqual([
-		{
-			text: 'the blank page.',
-			startMs: 0,
-			durationMs: 1000,
-			tokens: [
-				{text: 'the', fromMs: 0, toMs: 200},
-				{text: ' blank', fromMs: 200, toMs: 500},
-				{text: ' page.', fromMs: 500, toMs: 900},
-			],
-		},
-		{
-			text: 'This continues',
-			startMs: 1000,
-			durationMs: 600,
-			tokens: [
-				{text: 'This', fromMs: 1000, toMs: 1200},
-				{text: ' continues', fromMs: 1200, toMs: 1600},
-			],
-		},
-	]);
-});
-
-test('Should break on punctuation inside closing quotes', () => {
-	const {pages} = createTikTokStyleCaptions({
-		captions: [
-			{
-				text: '"done."',
-				startMs: 0,
-				endMs: 300,
-				timestampMs: 150,
-				confidence: null,
-			},
-			{
-				text: ' next',
-				startMs: 300,
-				endMs: 500,
-				timestampMs: 400,
-				confidence: null,
-			},
-		],
-		combineTokensWithinMilliseconds: 5000,
-		breakOnPunctuation: true,
-	});
-
-	expect(pages.map((p) => p.text)).toEqual(['"done."', 'next']);
-});
-
 test('Should start a new page after the configured silence duration', () => {
 	const {pages} = createTikTokStyleCaptions({
 		captions: [
@@ -284,38 +193,7 @@ test('Should not break when the silence is shorter than the configured duration'
 	expect(pages.map((p) => p.text)).toEqual(['hello there']);
 });
 
-test('Should produce identical output when the new options are omitted or disabled', () => {
-	const input: Caption[] = [
-		{
-			text: 'one.',
-			startMs: 0,
-			endMs: 300,
-			timestampMs: 150,
-			confidence: null,
-		},
-		{
-			text: ' two',
-			startMs: 1000,
-			endMs: 1300,
-			timestampMs: 1150,
-			confidence: null,
-		},
-	];
-
-	const omitted = createTikTokStyleCaptions({
-		captions: input,
-		combineTokensWithinMilliseconds: 500,
-	});
-	const disabled = createTikTokStyleCaptions({
-		captions: input,
-		combineTokensWithinMilliseconds: 500,
-		breakOnPunctuation: false,
-	});
-
-	expect(disabled).toEqual(omitted);
-});
-
-test('Should never break inside a word, even across a silence or after punctuation', () => {
+test('Should never break inside a word, even across a silence', () => {
 	const {pages} = createTikTokStyleCaptions({
 		captions: [
 			{
@@ -335,7 +213,6 @@ test('Should never break inside a word, even across a silence or after punctuati
 			},
 		],
 		combineTokensWithinMilliseconds: 100,
-		breakOnPunctuation: true,
 		breakOnSilenceAfterMilliseconds: 500,
 	});
 

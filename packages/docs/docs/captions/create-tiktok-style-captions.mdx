@@ -104,16 +104,6 @@ An array of [`Caption`](/docs/captions/caption) objects.
 
 Controls how long captions are combined into a page. Once the current page's duration exceeds this value, the next caption that starts with a space begins a new page.
 
-### `breakOnPunctuation?`<AvailableFrom v="4.0.514" />
-
-_boolean_
-
-If set to `true`, a caption ending in sentence-ending punctuation (`.`, `!`, `?`, `…`, optionally followed by closing quotes or brackets) finishes the current page, even if `combineTokensWithinMilliseconds` has not been exceeded yet. Default is `false`.
-
-This prevents pages like `"the blank page. This"` which span across a sentence boundary.
-
-Abbreviations are not detected: `"Dr."` also triggers a break. The rule is a plain punctuation match to stay predictable.
-
 ### `breakOnSilenceAfterMilliseconds?`<AvailableFrom v="4.0.514" />
 
 _number_
@@ -126,7 +116,7 @@ As with all page breaks, the previous page's `durationMs` extends until the next
 
 A value of `0` starts a new page at every word boundary, resulting in word-by-word pages.
 
-Both options only add earlier page breaks: `combineTokensWithinMilliseconds` remains the upper bound, and pages can only get shorter, never longer.
+This option only adds earlier page breaks: `combineTokensWithinMilliseconds` remains the upper bound, and pages can only get shorter, never longer.
 
 ## Return value
 
