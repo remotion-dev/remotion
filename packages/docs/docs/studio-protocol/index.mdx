@@ -6,50 +6,31 @@ crumb: '@remotion/studio-protocol'
 
 # Remotion Studio Protocol<AvailableFrom v="4.0.502" />
 
-A versioned protocol for connecting websites to Remotion Studio.
+A versioned protocol for providing content to Remotion Studio.
 
-Protocol v1 supports [Remotion Elements](/elements) from the official Remotion Elements library. It provides one Element payload that can be delivered by dragging it into Studio or by requesting installation into the active composition.
+Websites can provide [Remotion Elements](/docs/studio-protocol/create-element-payload#what-is-a-remotion-element) by drag-and-drop or request their installation into the active composition.
 
 <Installation pkg="@remotion/studio-protocol" />
 
 ## Usage
 
-```ts twoslash title="element.ts"
-import {
-  createElementPayload,
-  installInStudio,
-} from '@remotion/studio-protocol';
+- <Step>1</Step> Create an Element payload with [`createElementPayload()`](/docs/studio-protocol/create-element-payload).
+- <Step>2</Step> Provide the payload to Studio: put it on a drag event with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data), or request installation into the active composition with [`installInStudio()`](/docs/studio-protocol/install-in-studio).
 
-const payload = createElementPayload({
-  displayName: 'Lower Third',
-  slug: 'lower-third',
-  sourceCode: 'export const LowerThird = () => null;',
-  dependencies: [],
-  dimensions: {width: 900, height: 260},
-  durationInFrames: 90,
-});
+## Choosing a delivery method
 
-const result = await installInStudio({payload});
-if (result.success) {
-  console.log(result.status); // "awaiting-confirmation"
-}
-```
+Offer both methods when possible. They use the same Element payload but suit different workflows.
 
-A successful request means Studio received the Element and is awaiting confirmation. It does not mean dependencies or source files were installed.
+| Method                                                          | Benefits                                                                                                        | Tradeoffs                                                                                                                                        |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Drag-and-drop](/docs/studio-protocol/set-studio-drag-data)     | The user chooses the exact Studio tab, timeline position, and canvas position.                                  | Drag data has no reliable website provenance, so Studio labels the source as [unverified](/docs/studio-protocol/security#confirmation-boundary). |
+| [Installation request](/docs/studio-protocol/install-in-studio) | The requesting website is shown in Studio. On macOS, Studio attempts to bring the target tab to the foreground. | Local Studio ports are probed and the most recently focused compatible Studio is selected automatically.                                         |
 
 ## APIs
 
 import {TableOfContents} from './table-of-contents';
 
 <TableOfContents />
-
-## Supported origins
-
-Any HTTPS website can request an Element installation confirmation. HTTP is supported on `localhost` and `127.0.0.1` for local development.
-
-## Compatibility
-
-Remotion Studio 4.0.502 or newer is required. Browser Studio is not supported in protocol v1.
 
 ## License
 

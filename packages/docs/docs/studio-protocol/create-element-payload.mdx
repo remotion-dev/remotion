@@ -8,13 +8,22 @@ crumb: '@remotion/studio-protocol'
 
 Creates a validated, versioned Element payload for [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) and [`installInStudio()`](/docs/studio-protocol/install-in-studio).
 
-```ts twoslash title="element-payload.ts"
+## What is a Remotion Element?
+
+A **Remotion Element** is a reusable React component distributed as source code, together with the metadata and dependencies needed to add it to a composition. Because its source code becomes part of the project, it can be edited and remixed by the user.
+
+## Example
+
+```ts title="element-payload.ts"
 import {createElementPayload} from '@remotion/studio-protocol';
 
+// Import the source code as text
+import elementSourceCode from './MyElement.tsx?raw';
+
 const payload = createElementPayload({
-  displayName: 'Lower Third',
-  slug: 'lower-third',
-  sourceCode: 'export const LowerThird = () => null;',
+  displayName: 'My Element',
+  slug: 'my-element',
+  sourceCode: elementSourceCode,
   dependencies: [
     {name: '@remotion/google-fonts', version: null},
     {name: 'color-namer', version: '1.4.0'},
@@ -39,6 +48,8 @@ A lowercase Element identifier. Its final path segment is used to create the `.e
 ### sourceCode
 
 The complete Element source code. It must contain exactly one exported named component.
+
+With Vite, use the [`?raw` import suffix](https://vite.dev/guide/assets#importing-asset-as-string) to import the component file as a string. Other build tools may provide an equivalent raw-text import.
 
 ### dependencies
 
