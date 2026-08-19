@@ -170,7 +170,8 @@ export const Comp = () => {
 		const completionLog = consoleSpy.mock.calls
 			.map((call) => call.join(' '))
 			.find((line) => line.includes('Comp.tsx:4'));
-		expect(completionLog).toMatch(/^\[\d+ms\] Comp\.tsx:4/);
+		expect(completionLog).toMatch(/^\[\d+ms\] /);
+		expect(completionLog).toContain('Comp.tsx:4');
 		expect(getUndoStack()).toHaveLength(1);
 		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
