@@ -177,7 +177,7 @@ const getFileMenu = ({
 					quickSwitcherLabel: 'Download project',
 				}
 			: null,
-		!readOnlyStudio && downloadProject
+		!readOnlyStudio && downloadProject && browserStudioOperations === null
 			? {
 					type: 'divider' as const,
 					id: 'open-project-divider',
@@ -218,7 +218,7 @@ const getFileMenu = ({
 					disabled: previewServerState !== 'connected',
 				}
 			: null,
-		!readOnlyStudio
+		!readOnlyStudio && browserStudioOperations === null
 			? {
 					id: 'open-project-in-explorer',
 					value: 'open-project-in-explorer',
@@ -355,6 +355,7 @@ export const useMenuStructure = (
 	const isFullscreenSupported = checkFullscreenSupport();
 
 	const {remotion_packageManager} = window;
+	const browserStudioOperations = getBrowserStudioOperations();
 
 	const sizePreselectIndex = sizes.findIndex(
 		(s) => String(size.size) === String(s.size),
@@ -441,26 +442,28 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Changelog',
 					},
-					{
-						id: 'settings',
-						value: 'settings',
-						label: 'Settings...',
-						onClick: () => {
-							closeMenu();
-							setSelectedModal({
-								type: 'settings',
-								initialTab: 'rendering',
-								initialPublicLicenseKey:
-									window.remotion_renderDefaults?.publicLicenseKey ?? null,
-							});
-						},
-						type: 'item' as const,
-						keyHint: null,
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'Settings...',
-						disabled: readOnlyStudio || type !== 'connected',
-					},
+					browserStudioOperations === null
+						? {
+								id: 'settings',
+								value: 'settings',
+								label: 'Settings...',
+								onClick: () => {
+									closeMenu();
+									setSelectedModal({
+										type: 'settings',
+										initialTab: 'rendering',
+										initialPublicLicenseKey:
+											window.remotion_renderDefaults?.publicLicenseKey ?? null,
+									});
+								},
+								type: 'item' as const,
+								keyHint: null,
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: 'Settings...',
+								disabled: readOnlyStudio || type !== 'connected',
+							}
+						: null,
 					{
 						id: 'acknowledgements',
 						value: 'acknowledgements',
@@ -475,24 +478,28 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Acknowledgements',
 					},
-					{
-						type: 'divider' as const,
-						id: 'timeline-divider-1',
-					},
-					{
-						id: 'restart-studio',
-						value: 'restart-studio',
-						label: 'Restart Studio Server',
-						onClick: () => {
-							closeMenu();
-							restartStudio();
-						},
-						type: 'item' as const,
-						keyHint: null,
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'Restart Studio Server',
-					},
+					browserStudioOperations === null
+						? {
+								type: 'divider' as const,
+								id: 'timeline-divider-1',
+							}
+						: null,
+					browserStudioOperations === null
+						? {
+								id: 'restart-studio',
+								value: 'restart-studio',
+								label: 'Restart Studio Server',
+								onClick: () => {
+									closeMenu();
+									restartStudio();
+								},
+								type: 'item' as const,
+								keyHint: null,
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: 'Restart Studio Server',
+							}
+						: null,
 				].filter(NoReactInternals.truthy),
 				quickSwitcherLabel: null,
 			},
@@ -1145,6 +1152,7 @@ export const useMenuStructure = (
 		defaultEditorName,
 		keyboardShortcutsDisabled,
 		studioAskAIEnabled,
+		browserStudioOperations,
 		size.size,
 		setSize,
 		setEditorZoomGestures,
