@@ -2,7 +2,6 @@ import {expect, test} from 'bun:test';
 import {Readable} from 'node:stream';
 import {overallProgressKey} from '../constants';
 import {getExpectedOutName} from '../expected-out-name';
-import {getOverallProgressFromStorage} from '../get-overall-progress-from-storage';
 import type {OverallRenderProgress} from '../overall-render-progress';
 import {getProgress} from '../progress';
 import type {
@@ -67,7 +66,7 @@ const renderMetadata: RenderMetadata<MockProvider> = {
 };
 
 const progress: OverallRenderProgress<MockProvider> = {
-	cancellationEnabled: null,
+	cancellationEnabled: false,
 	chunks: [0, 1],
 	combinedFrames: 20,
 	compositionValidated: startedDate + 2,
@@ -164,32 +163,6 @@ const makeProviderSpecifics = ({
 		headFile: onHeadFile,
 	};
 };
-
-test('normalizes missing cancellation support from old progress files', async () => {
-	const providerSpecifics = makeProviderSpecifics({
-		onHeadFile: () => Promise.resolve({ContentLength: 0}),
-	});
-	providerSpecifics.readFile = () =>
-		Promise.resolve(
-			Readable.from([
-				Buffer.from(
-					JSON.stringify({...progress, cancellationEnabled: undefined}),
-				),
-			]),
-		);
-
-	const storedProgress = await getOverallProgressFromStorage({
-		bucketName,
-		expectedBucketOwner: null,
-		forcePathStyle: false,
-		providerSpecifics,
-		region: 'eu-central-1',
-		renderId,
-		requestHandler: null,
-	});
-
-	expect(storedProgress.cancellationEnabled).toBeNull();
-});
 
 test('getProgress treats an existing output file as finished if postRenderData was not persisted', async () => {
 	const headedFiles: {bucketName: string; key: string}[] = [];

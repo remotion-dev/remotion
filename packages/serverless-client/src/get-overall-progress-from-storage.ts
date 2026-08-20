@@ -34,11 +34,7 @@ export const getOverallProgressFromStorage = async <
 		});
 
 		const str = await streamToString(Body);
-		const parsed = JSON.parse(str) as OverallRenderProgress<Provider>;
-		return {
-			...parsed,
-			cancellationEnabled: parsed.cancellationEnabled ?? null,
-		};
+		return JSON.parse(str) as OverallRenderProgress<Provider>;
 	} catch (err) {
 		if ((err as Error).name === 'NotFound') {
 			throw new TypeError(
