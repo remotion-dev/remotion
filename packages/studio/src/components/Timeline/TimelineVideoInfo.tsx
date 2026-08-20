@@ -103,10 +103,13 @@ const TimelineVideoInfoSegment: React.FC<{
 		}
 
 		const controller = new AbortController();
+		const pixelRatio = window.devicePixelRatio;
 
 		const canvas = document.createElement('canvas');
-		canvas.width = visualizationWidth;
-		canvas.height = TIMELINE_LAYER_FILMSTRIP_HEIGHT;
+		canvas.width = Math.ceil(visualizationWidth * pixelRatio);
+		canvas.height = Math.ceil(TIMELINE_LAYER_FILMSTRIP_HEIGHT * pixelRatio);
+		canvas.style.width = visualizationWidth + 'px';
+		canvas.style.height = TIMELINE_LAYER_FILMSTRIP_HEIGHT + 'px';
 		const ctx = canvas.getContext('2d');
 		if (!ctx) {
 			return;
@@ -115,20 +118,11 @@ const TimelineVideoInfoSegment: React.FC<{
 		current.appendChild(canvas);
 
 		const drawRepeatedFrame = (frame: VideoFrame) => {
-			const thumbnailWidth = Math.max(
-				1,
-				frame.displayWidth / window.devicePixelRatio,
-			);
+			const thumbnailWidth = Math.max(1, frame.displayWidth);
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			for (let x = 0; x < canvas.width; x += thumbnailWidth) {
-				ctx.drawImage(
-					frame,
-					x,
-					0,
-					thumbnailWidth,
-					TIMELINE_LAYER_FILMSTRIP_HEIGHT,
-				);
+				ctx.drawImage(frame, x, 0, thumbnailWidth, canvas.height);
 			}
 		};
 
@@ -198,9 +192,7 @@ const TimelineVideoInfoSegment: React.FC<{
 					let frame: VideoFrame | undefined;
 					try {
 						frame = sample.toVideoFrame();
-						const scale =
-							(TIMELINE_LAYER_FILMSTRIP_HEIGHT / frame.displayHeight) *
-							window.devicePixelRatio;
+						const scale = canvas.height / frame.displayHeight;
 
 						const transformed = resizeVideoFrame({
 							frame,
@@ -243,7 +235,7 @@ const TimelineVideoInfoSegment: React.FC<{
 
 		const targetCanvas = tiledLoop ? document.createElement('canvas') : canvas;
 		targetCanvas.width = tiledLoop
-			? Math.max(1, Math.ceil(tiledLoop.loopWidth))
+			? Math.max(1, Math.ceil(tiledLoop.loopWidth * pixelRatio))
 			: canvas.width;
 		targetCanvas.height = canvas.height;
 		const targetCtx = tiledLoop ? targetCanvas.getContext('2d') : ctx;
@@ -256,7 +248,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		const filledSlots = new Map<number, number | undefined>();
 
 		const {fromSeconds, toSeconds} = times;
-		const targetWidth = tiledLoop ? targetCanvas.width : visualizationWidth;
+		const targetWidth = targetCanvas.width;
 		const repeatTarget = () => {
 			if (!tiledLoop) {
 				return;
@@ -270,10 +262,11 @@ const TimelineVideoInfoSegment: React.FC<{
 			const phase =
 				(tiledLoop.displayOffsetInFrames %
 					tiledLoop.loopDisplay.durationInFrames) *
-				(tiledLoop.loopWidth / tiledLoop.loopDisplay.durationInFrames);
+				((tiledLoop.loopWidth * pixelRatio) /
+					tiledLoop.loopDisplay.durationInFrames);
 			pattern.setTransform(
 				new DOMMatrix([
-					tiledLoop.loopWidth / targetCanvas.width,
+					(tiledLoop.loopWidth * pixelRatio) / targetCanvas.width,
 					0,
 					0,
 					1,
@@ -293,7 +286,7 @@ const TimelineVideoInfoSegment: React.FC<{
 				fromSeconds,
 				toSeconds,
 				aspectRatio: aspectRatio.current,
-				frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+				frameHeight: canvas.height,
 			});
 
 			fillWithCachedFrames({
@@ -303,8 +296,8 @@ const TimelineVideoInfoSegment: React.FC<{
 				src,
 				segmentDuration: toSeconds - fromSeconds,
 				fromSeconds,
-				devicePixelRatio: window.devicePixelRatio,
-				frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+				devicePixelRatio: 1,
+				frameHeight: canvas.height,
 			});
 			repeatTarget();
 			const unfilled = Array.from(filledSlots.keys()).filter(
@@ -335,7 +328,7 @@ const TimelineVideoInfoSegment: React.FC<{
 					toSeconds,
 					naturalWidth: targetWidth,
 					aspectRatio: aspectRatio.current,
-					frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+					frameHeight: canvas.height,
 				});
 				fillWithCachedFrames({
 					ctx: targetCtx,
@@ -344,8 +337,8 @@ const TimelineVideoInfoSegment: React.FC<{
 					src,
 					segmentDuration: toSeconds - fromSeconds,
 					fromSeconds,
-					devicePixelRatio: window.devicePixelRatio,
-					frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+					devicePixelRatio: 1,
+					frameHeight: canvas.height,
 				});
 				repeatTarget();
 
@@ -358,9 +351,7 @@ const TimelineVideoInfoSegment: React.FC<{
 				let frame: VideoFrame | undefined;
 				try {
 					frame = sample.toVideoFrame();
-					const scale =
-						(TIMELINE_LAYER_FILMSTRIP_HEIGHT / frame.displayHeight) *
-						window.devicePixelRatio;
+					const scale = canvas.height / frame.displayHeight;
 
 					const transformed = resizeVideoFrame({
 						frame,
@@ -386,7 +377,7 @@ const TimelineVideoInfoSegment: React.FC<{
 						toSeconds,
 						naturalWidth: targetWidth,
 						aspectRatio: aspectRatio.current,
-						frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+						frameHeight: canvas.height,
 					});
 					fillFrameWhereItFits({
 						ctx: targetCtx,
@@ -395,8 +386,8 @@ const TimelineVideoInfoSegment: React.FC<{
 						frame: transformed,
 						segmentDuration: toSeconds - fromSeconds,
 						fromSeconds,
-						devicePixelRatio: window.devicePixelRatio,
-						frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+						devicePixelRatio: 1,
+						frameHeight: canvas.height,
 					});
 					repeatTarget();
 				} catch (e) {
@@ -423,8 +414,8 @@ const TimelineVideoInfoSegment: React.FC<{
 					src,
 					segmentDuration: toSeconds - fromSeconds,
 					fromSeconds,
-					devicePixelRatio: window.devicePixelRatio,
-					frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+					devicePixelRatio: 1,
+					frameHeight: canvas.height,
 				});
 				repeatTarget();
 			})

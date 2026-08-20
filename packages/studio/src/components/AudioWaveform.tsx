@@ -59,6 +59,8 @@ const waveformCanvasStyle: React.CSSProperties = {
 
 const volumeCanvasStyle: React.CSSProperties = {
 	position: 'absolute',
+	width: '100%',
+	height: '100%',
 };
 
 const parseVolume = (volume: string | number): WaveformVolume => {
@@ -249,8 +251,9 @@ const AudioWaveformInner: React.FC<{
 			return;
 		}
 
-		const h = height;
-		const w = Math.ceil(visualizationWidth);
+		const pixelRatio = window.devicePixelRatio;
+		const h = Math.ceil(height * pixelRatio);
+		const w = Math.ceil(visualizationWidth * pixelRatio);
 
 		if (canUseWorkerPath) {
 			const worker = waveformWorker.current;
@@ -316,16 +319,18 @@ const AudioWaveformInner: React.FC<{
 			return;
 		}
 
-		const h = height;
+		const pixelRatio = window.devicePixelRatio;
+		const h = Math.ceil(height * pixelRatio);
+		const w = Math.ceil(visualizationWidth * pixelRatio);
 		const context = volumeCanvasElement.getContext('2d');
 		if (!context) {
 			return;
 		}
 
-		volumeCanvasElement.width = Math.ceil(visualizationWidth);
+		volumeCanvasElement.width = w;
 		volumeCanvasElement.height = h;
 
-		context.clearRect(0, 0, visualizationWidth, h);
+		context.clearRect(0, 0, w, h);
 		if (!Array.isArray(visibleVolume)) {
 			return;
 		}
@@ -336,8 +341,8 @@ const AudioWaveformInner: React.FC<{
 			const x =
 				visibleVolume.length <= 1
 					? 0
-					: (index / (visibleVolume.length - 1)) * visualizationWidth;
-			const y = (1 - v) * (h - TIMELINE_BORDER * 2) + 1;
+					: (index / (visibleVolume.length - 1)) * w;
+			const y = (1 - v) * (h - TIMELINE_BORDER * 2 * pixelRatio) + pixelRatio;
 			if (index === 0) {
 				context.moveTo(x, y);
 			} else {
@@ -345,6 +350,7 @@ const AudioWaveformInner: React.FC<{
 			}
 		});
 		context.strokeStyle = WHITE_ALPHA_70;
+		context.lineWidth = pixelRatio;
 		context.stroke();
 	}, [height, shouldRenderVolumeOverlay, visibleVolume, visualizationWidth]);
 
