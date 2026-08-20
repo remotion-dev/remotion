@@ -283,10 +283,7 @@ export const audioIteratorManager = ({
 		) => number | null;
 		playbackRate: number;
 		scheduleAudioNode: ScheduleAudioNode;
-		onScheduled: (
-			sourceDurationInSeconds: number,
-			timelineTimestamp: number,
-		) => void;
+		onScheduled: (sourceDurationInSeconds: number) => void;
 		onDone: () => void;
 		onDestroyed: () => void;
 		logLevel: LogLevel;
@@ -334,10 +331,7 @@ export const audioIteratorManager = ({
 					return;
 				}
 
-				onScheduled(
-					result.value.sourceDurationInSeconds,
-					result.value.timelineTimestamp,
-				);
+				onScheduled(result.value.sourceDurationInSeconds);
 				notifyNodeScheduled();
 
 				onAudioChunk({
@@ -449,7 +443,7 @@ export const audioIteratorManager = ({
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
 
-		let bufferedUntil = startFromSecond;
+		let bufferedDuration = 0;
 		let hasUnblockedPlayback = false;
 		const unblockPlayback = () => {
 			if (hasUnblockedPlayback) {
@@ -466,17 +460,12 @@ export const audioIteratorManager = ({
 			getTargetTime,
 			playbackRate,
 			scheduleAudioNode,
-			onScheduled: (sourceDurationInSeconds, timelineTimestamp) => {
-				bufferedUntil = Math.max(
-					bufferedUntil,
-					timelineTimestamp + sourceDurationInSeconds,
-				);
-				const bufferedDuration = bufferedUntil - startFromSecond;
+			onScheduled: (sourceDurationInSeconds) => {
+				bufferedDuration += sourceDurationInSeconds;
 				// Need to schedule a bit into the future to unblock the buffer state,
 				// otherwise we might be scheduling too late. This must be based on
-				// timeline coverage, not audible duration or chunk count: silence is
-				// already safe to play, and large PCM chunks can exceed the scheduling
-				// horizon before enough chunks are queued:
+				// duration, not chunk count, because large PCM chunks can exceed the
+				// scheduling horizon before enough chunks are queued:
 				// https://github.com/remotion-dev/remotion/issues/9394
 				if (hasEnoughAudioToStartPlayback(bufferedDuration)) {
 					unblockPlayback();
@@ -599,19 +588,12 @@ export const audioIteratorManager = ({
 			}
 
 			const currentIteratorTimestamp = audioBufferIterator.guessNextTimestamp();
-			const iteratorHasAdvancedThroughSilence =
-				loop &&
-				currentAnchor !== null &&
-				unloopedNewTime >= currentAnchor.unloopedStartInSeconds &&
-				currentIteratorTimestamp >= timeToCheck;
 			if (
-				iteratorHasAdvancedThroughSilence ||
-				(currentIteratorTimestamp < timeToCheck &&
-					Math.abs(currentIteratorTimestamp - timeToCheck) < 1)
+				currentIteratorTimestamp < timeToCheck &&
+				Math.abs(currentIteratorTimestamp - timeToCheck) < 1
 			) {
 				processNext();
-				// The iterator has either advanced beyond the current time, meaning
-				// the gap is known silence, or is less than 1 second behind. Let it run.
+				// iterator is less than 1 second behind, we will just let it run
 				return;
 			}
 		}
