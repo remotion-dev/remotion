@@ -27,6 +27,7 @@ const sidebars: SidebarsConfig = {
 			collapsible: true,
 			collapsed: false,
 			items: [
+				'libraries',
 				'contributing',
 				{
 					type: 'html',

@@ -475,7 +475,8 @@ describe('Elements sidebar', () => {
 			throw new Error('Elements root category must contain sidebar items');
 		}
 
-		expect(elementsCategory.items.slice(0, 2)).toEqual([
+		expect(elementsCategory.items.slice(0, 3)).toEqual([
+			'libraries',
 			'contributing',
 			{
 				type: 'html',
@@ -485,7 +486,7 @@ describe('Elements sidebar', () => {
 			},
 		]);
 
-		const categories = elementsCategory.items.slice(2);
+		const categories = elementsCategory.items.slice(3);
 		const expectedCategories = [
 			{
 				category: 'backgrounds',
