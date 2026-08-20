@@ -9,7 +9,7 @@
       "video-aac.mp4",
       "video-h264-aac.mp4"
     ],
-    "size": 2005880,
+    "size": 2004344,
     "category": "codecs"
   },
   {
@@ -20,7 +20,7 @@
       "video-flac.mp4",
       "video-h264-flac.mp4"
     ],
-    "size": 1966571,
+    "size": 2067676,
     "category": "codecs"
   },
   {
@@ -31,7 +31,7 @@
       "video-mp3.mp4",
       "video-h264-mp3.mp4"
     ],
-    "size": 2003652,
+    "size": 2002055,
     "category": "codecs"
   },
   {
@@ -42,7 +42,7 @@
       "video-pcm.mp4",
       "video-h264-pcm.mp4"
     ],
-    "size": 3760128,
+    "size": 3758531,
     "category": "codecs"
   },
   {
@@ -64,7 +64,7 @@
       "video-h265.mp4",
       "video-h265-aac.mp4"
     ],
-    "size": 1449927,
+    "size": 1449988,
     "category": "codecs"
   },
   {
@@ -74,7 +74,7 @@
     "fileNames": [
       "video-h265-flac.mp4"
     ],
-    "size": 1410618,
+    "size": 1513320,
     "category": "codecs"
   },
   {
@@ -94,7 +94,7 @@
     "fileNames": [
       "video-h265-pcm.mp4"
     ],
-    "size": 3204175,
+    "size": 3205011,
     "category": "codecs"
   },
   {
@@ -137,7 +137,7 @@
       "audio.flac",
       "audio-flac.flac"
     ],
-    "size": 135327,
+    "size": 238029,
     "category": "codecs"
   },
   {
@@ -148,7 +148,7 @@
       "video-opus.webm",
       "video-vp8-opus.webm"
     ],
-    "size": 1065491,
+    "size": 1139832,
     "category": "codecs"
   },
   {
@@ -159,7 +159,7 @@
       "video-vorbis.webm",
       "video-vp8-vorbis.webm"
     ],
-    "size": 937784,
+    "size": 988924,
     "category": "codecs"
   },
   {
@@ -180,7 +180,7 @@
     "fileNames": [
       "video-vp9-opus.webm"
     ],
-    "size": 2661566,
+    "size": 2687740,
     "category": "codecs"
   },
   {
@@ -190,7 +190,7 @@
     "fileNames": [
       "video-vp9-vorbis.webm"
     ],
-    "size": 2533859,
+    "size": 2536832,
     "category": "codecs"
   },
   {
@@ -213,7 +213,7 @@
       "video-aac.mkv",
       "video-h264-aac.mkv"
     ],
-    "size": 1999677,
+    "size": 1998157,
     "category": "codecs"
   },
   {
@@ -224,7 +224,7 @@
       "video-flac.mkv",
       "video-h264-flac.mkv"
     ],
-    "size": 1963723,
+    "size": 2064844,
     "category": "codecs"
   },
   {
@@ -235,7 +235,7 @@
       "video-mp3.mkv",
       "video-h264-mp3.mkv"
     ],
-    "size": 1999377,
+    "size": 1997796,
     "category": "codecs"
   },
   {
@@ -246,7 +246,7 @@
       "video-opus.mkv",
       "video-h264-opus.mkv"
     ],
-    "size": 2021519,
+    "size": 2046112,
     "category": "codecs"
   },
   {
@@ -257,7 +257,7 @@
       "video-vorbis.mkv",
       "video-h264-vorbis.mkv"
     ],
-    "size": 1893814,
+    "size": 1895206,
     "category": "codecs"
   },
   {
@@ -279,7 +279,7 @@
       "video-h265.mkv",
       "video-h265-aac.mkv"
     ],
-    "size": 1443360,
+    "size": 1443421,
     "category": "codecs"
   },
   {
@@ -289,7 +289,7 @@
     "fileNames": [
       "video-h265-flac.mkv"
     ],
-    "size": 1407405,
+    "size": 1510107,
     "category": "codecs"
   },
   {
@@ -309,7 +309,7 @@
     "fileNames": [
       "video-h265-opus.mkv"
     ],
-    "size": 1465202,
+    "size": 1491376,
     "category": "codecs"
   },
   {
@@ -319,7 +319,7 @@
     "fileNames": [
       "video-h265-vorbis.mkv"
     ],
-    "size": 1337497,
+    "size": 1340470,
     "category": "codecs"
   },
   {
@@ -340,7 +340,7 @@
       "video-vp8.mkv",
       "video-vp8-aac.mkv"
     ],
-    "size": 1043733,
+    "size": 1091961,
     "category": "codecs"
   },
   {
@@ -350,7 +350,7 @@
     "fileNames": [
       "video-vp8-flac.mkv"
     ],
-    "size": 1007776,
+    "size": 1158645,
     "category": "codecs"
   },
   {
@@ -360,7 +360,7 @@
     "fileNames": [
       "video-vp8-mp3.mkv"
     ],
-    "size": 1043433,
+    "size": 1091600,
     "category": "codecs"
   },
   {
@@ -370,7 +370,7 @@
     "fileNames": [
       "video-vp8-opus.mkv"
     ],
-    "size": 1065575,
+    "size": 1139916,
     "category": "codecs"
   },
   {
@@ -380,7 +380,7 @@
     "fileNames": [
       "video-vp8-vorbis.mkv"
     ],
-    "size": 937868,
+    "size": 989008,
     "category": "codecs"
   },
   {
@@ -401,7 +401,7 @@
       "video-vp9.mkv",
       "video-vp9-aac.mkv"
     ],
-    "size": 2639808,
+    "size": 2639869,
     "category": "codecs"
   },
   {
@@ -411,7 +411,7 @@
     "fileNames": [
       "video-vp9-flac.mkv"
     ],
-    "size": 2603851,
+    "size": 2706553,
     "category": "codecs"
   },
   {
@@ -431,7 +431,7 @@
     "fileNames": [
       "video-vp9-opus.mkv"
     ],
-    "size": 2661650,
+    "size": 2687824,
     "category": "codecs"
   },
   {
@@ -441,7 +441,7 @@
     "fileNames": [
       "video-vp9-vorbis.mkv"
     ],
-    "size": 2533943,
+    "size": 2536916,
     "category": "codecs"
   },
   {
@@ -462,7 +462,7 @@
       "video-prores.mkv",
       "video-prores-aac.mkv"
     ],
-    "size": 140913336,
+    "size": 140913397,
     "category": "codecs"
   },
   {
@@ -472,7 +472,7 @@
     "fileNames": [
       "video-prores-flac.mkv"
     ],
-    "size": 140877186,
+    "size": 140979889,
     "category": "codecs"
   },
   {
@@ -492,7 +492,7 @@
     "fileNames": [
       "video-prores-opus.mkv"
     ],
-    "size": 140935179,
+    "size": 140961353,
     "category": "codecs"
   },
   {
@@ -502,7 +502,7 @@
     "fileNames": [
       "video-prores-vorbis.mkv"
     ],
-    "size": 140807173,
+    "size": 140810147,
     "category": "codecs"
   },
   {
@@ -525,7 +525,7 @@
       "video-aac.mov",
       "video-h264-aac.mov"
     ],
-    "size": 2005957,
+    "size": 2005769,
     "category": "codecs"
   },
   {
@@ -536,7 +536,7 @@
       "video-pcm.mov",
       "video-h264-pcm.mov"
     ],
-    "size": 3760113,
+    "size": 3759864,
     "category": "codecs"
   },
   {
@@ -558,7 +558,7 @@
       "video-h265.mov",
       "video-h265-aac.mov"
     ],
-    "size": 1450008,
+    "size": 1450905,
     "category": "codecs"
   },
   {
@@ -568,7 +568,7 @@
     "fileNames": [
       "video-h265-pcm.mov"
     ],
-    "size": 3204164,
+    "size": 3205000,
     "category": "codecs"
   },
   {
@@ -589,7 +589,7 @@
       "video-prores.mov",
       "video-prores-aac.mov"
     ],
-    "size": 140908351,
+    "size": 140909556,
     "category": "codecs"
   },
   {
@@ -599,7 +599,7 @@
     "fileNames": [
       "video-prores-pcm.mov"
     ],
-    "size": 142663059,
+    "size": 142664203,
     "category": "codecs"
   },
   {
@@ -619,7 +619,7 @@
     "fileNames": [
       "video-360p.mp4"
     ],
-    "size": 35728439,
+    "size": 29890124,
     "category": "dimensions"
   },
   {
@@ -629,7 +629,7 @@
     "fileNames": [
       "video-480p.mp4"
     ],
-    "size": 35983115,
+    "size": 30139639,
     "category": "dimensions"
   },
   {
@@ -639,7 +639,7 @@
     "fileNames": [
       "video-720p.mp4"
     ],
-    "size": 36507967,
+    "size": 30665190,
     "category": "dimensions"
   },
   {
@@ -649,7 +649,7 @@
     "fileNames": [
       "video-1080p.mp4"
     ],
-    "size": 37378464,
+    "size": 31546672,
     "category": "dimensions"
   },
   {
@@ -659,7 +659,7 @@
     "fileNames": [
       "video-1440p.mp4"
     ],
-    "size": 38300807,
+    "size": 32472765,
     "category": "dimensions"
   },
   {
@@ -669,7 +669,7 @@
     "fileNames": [
       "video-2160p.mp4"
     ],
-    "size": 40365974,
+    "size": 34551604,
     "category": "dimensions"
   },
   {
@@ -679,7 +679,7 @@
     "fileNames": [
       "video-5s.mp4"
     ],
-    "size": 2061745,
+    "size": 2061494,
     "category": "durations"
   },
   {
@@ -689,7 +689,7 @@
     "fileNames": [
       "video-10s.mp4"
     ],
-    "size": 4335431,
+    "size": 4335492,
     "category": "durations"
   },
   {
@@ -699,7 +699,7 @@
     "fileNames": [
       "video-30s.mp4"
     ],
-    "size": 12756693,
+    "size": 12756307,
     "category": "durations"
   },
   {
@@ -709,7 +709,7 @@
     "fileNames": [
       "video-1m.mp4"
     ],
-    "size": 25266373,
+    "size": 25266299,
     "category": "durations"
   },
   {
@@ -719,7 +719,7 @@
     "fileNames": [
       "video-5m.mp4"
     ],
-    "size": 125507936,
+    "size": 125505256,
     "category": "durations"
   },
   {
@@ -729,7 +729,7 @@
     "fileNames": [
       "video-10m.mp4"
     ],
-    "size": 249897169,
+    "size": 249892924,
     "category": "durations"
   },
   {
@@ -739,7 +739,7 @@
     "fileNames": [
       "video-30m.mp4"
     ],
-    "size": 748909719,
+    "size": 748895261,
     "category": "durations"
   },
   {
@@ -749,7 +749,7 @@
     "fileNames": [
       "video-24fps.mp4"
     ],
-    "size": 3700056,
+    "size": 3703572,
     "category": "fps"
   },
   {
@@ -759,7 +759,7 @@
     "fileNames": [
       "video-25fps.mp4"
     ],
-    "size": 3795076,
+    "size": 3771048,
     "category": "fps"
   },
   {
@@ -769,7 +769,7 @@
     "fileNames": [
       "video-29.97fps.mp4"
     ],
-    "size": 4273776,
+    "size": 4242299,
     "category": "fps"
   },
   {
@@ -779,7 +779,7 @@
     "fileNames": [
       "video-30fps.mp4"
     ],
-    "size": 4275384,
+    "size": 4239032,
     "category": "fps"
   },
   {
@@ -789,7 +789,7 @@
     "fileNames": [
       "video-59.94fps.mp4"
     ],
-    "size": 5881638,
+    "size": 5860974,
     "category": "fps"
   },
   {
@@ -799,7 +799,7 @@
     "fileNames": [
       "video-60fps.mp4"
     ],
-    "size": 5887211,
+    "size": 5862694,
     "category": "fps"
   },
   {
@@ -809,7 +809,7 @@
     "fileNames": [
       "video-120fps.mp4"
     ],
-    "size": 9030640,
+    "size": 8960805,
     "category": "fps"
   },
   {
@@ -819,7 +819,7 @@
     "fileNames": [
       "video-240fps.mp4"
     ],
-    "size": 17780437,
+    "size": 17746946,
     "category": "fps"
   },
   {
