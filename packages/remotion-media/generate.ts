@@ -1,6 +1,6 @@
+import {$} from 'bun';
 import {copyFileSync, existsSync, mkdirSync} from 'fs';
 import path from 'path';
-import {$} from 'bun';
 
 const audioCodecs = [
 	'aac',
@@ -274,6 +274,10 @@ const tonePath = 'tone.wav';
 
 const base8k = path.join('out', '8k.mp4');
 const baseMute = path.join('out', 'mute.mp4');
+
+if (!(await Bun.file(tonePath).exists())) {
+	await $`bunx remotion render src/compositions/index.ts Tone ${tonePath} --codec=wav --frames=0-299`;
+}
 
 const generateCodecVariant = async ({
 	outputPath,
