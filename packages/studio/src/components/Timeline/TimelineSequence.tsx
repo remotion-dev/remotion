@@ -674,7 +674,7 @@ const TimelineSequenceInner: React.FC<{
 				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
 			}
 		>
-			{s.type === 'audio' && visibleLayout.media ? (
+			{s.type === 'audio' && !s.muted && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
 					<AudioWaveform
 						src={s.src}
@@ -707,6 +707,7 @@ const TimelineSequenceInner: React.FC<{
 					loopDisplay={s.loopDisplay}
 					frozenMediaFrame={s.frozenMediaFrame}
 					extendLastFrame={extendVideoLastFrame}
+					muted={s.muted}
 				/>
 			) : null}
 			{s.type === 'image' && visibleLayout.media ? (

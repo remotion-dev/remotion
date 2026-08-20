@@ -63,6 +63,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	readonly doesVolumeChange: boolean;
 	readonly frozenMediaFrame: number | null;
 	readonly extendLastFrame: boolean;
+	readonly muted: boolean;
 }> = ({
 	src,
 	visualizationWidth,
@@ -77,6 +78,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	doesVolumeChange,
 	frozenMediaFrame,
 	extendLastFrame,
+	muted,
 }) => {
 	const {fps} = useVideoConfig();
 	const ref = useRef<HTMLDivElement>(null);
@@ -475,23 +477,25 @@ const TimelineVideoInfoSegment: React.FC<{
 	return (
 		<div style={segmentStyle}>
 			<div ref={ref} style={filmstripStyle} />
-			<div style={audioStyle}>
-				<AudioWaveform
-					src={src}
-					height={TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT}
-					visualizationWidth={audioWidth}
-					startFrom={mediaStartFrame}
-					durationInFrames={durationInFrames}
-					displayOffsetInFrames={tiledLoop?.displayOffsetInFrames ?? 0}
-					displayDurationInFrames={
-						tiledLoop?.displayDurationInFrames ?? durationInFrames
-					}
-					volume={volume}
-					doesVolumeChange={doesVolumeChange}
-					playbackRate={playbackRate}
-					loopDisplay={tiledLoop?.loopDisplay}
-				/>
-			</div>
+			{muted ? null : (
+				<div style={audioStyle}>
+					<AudioWaveform
+						src={src}
+						height={TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT}
+						visualizationWidth={audioWidth}
+						startFrom={mediaStartFrame}
+						durationInFrames={durationInFrames}
+						displayOffsetInFrames={tiledLoop?.displayOffsetInFrames ?? 0}
+						displayDurationInFrames={
+							tiledLoop?.displayDurationInFrames ?? durationInFrames
+						}
+						volume={volume}
+						doesVolumeChange={doesVolumeChange}
+						playbackRate={playbackRate}
+						loopDisplay={tiledLoop?.loopDisplay}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };
@@ -549,6 +553,7 @@ const TimelineVideoInfoInner: React.FC<{
 	readonly loopDisplay: LoopDisplay | undefined;
 	readonly frozenMediaFrame: number | null;
 	readonly extendLastFrame: boolean;
+	readonly muted: boolean;
 }> = ({
 	src,
 	visualizationWidth,
@@ -564,6 +569,7 @@ const TimelineVideoInfoInner: React.FC<{
 	loopDisplay,
 	frozenMediaFrame,
 	extendLastFrame,
+	muted,
 }) => {
 	const pixelsPerFrame = visualizationWidth / displayDurationInFrames;
 	const loopWidth = loopDisplay
@@ -644,6 +650,7 @@ const TimelineVideoInfoInner: React.FC<{
 					doesVolumeChange={doesVolumeChange}
 					frozenMediaFrame={frozenMediaFrame}
 					extendLastFrame={extendLastFrame}
+					muted={muted}
 				/>
 			) : (
 				segments.map((segment) => (
@@ -665,6 +672,7 @@ const TimelineVideoInfoInner: React.FC<{
 						doesVolumeChange={doesVolumeChange}
 						frozenMediaFrame={frozenMediaFrame}
 						extendLastFrame={extendLastFrame}
+						muted={muted}
 					/>
 				))
 			)}

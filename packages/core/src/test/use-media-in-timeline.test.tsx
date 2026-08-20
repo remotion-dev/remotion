@@ -83,6 +83,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				loopDisplay: undefined,
 				documentationLink: null,
 				refForOutline: null,
+				muted: true,
 			}),
 		{
 			wrapper,
@@ -91,6 +92,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 	expect(registerSequence).toHaveBeenCalled();
 	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
 		mediaFrameAtSequenceZero: null,
+		muted: true,
 	});
 	unmount();
 	expect(unregisterSequence).toHaveBeenCalled();
@@ -137,6 +139,7 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 				loopDisplay: undefined,
 				documentationLink: 'https://www.remotion.dev/docs/html5-video',
 				refForOutline: null,
+				muted: false,
 			}),
 		{
 			wrapper,

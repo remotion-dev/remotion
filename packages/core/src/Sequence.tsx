@@ -496,6 +496,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					doesVolumeChange: isMedia.data.doesVolumeChange,
+					muted: isMedia.data.muted,
 					duration: actualDurationInFrames,
 					from,
 					trimBefore: registeredTrimBefore,

@@ -89,6 +89,7 @@ const AudioInner: React.FC<
 		mediaVolume,
 		mediaStartsAt,
 		loop: props.loop ?? false,
+		muted: props.muted ?? false,
 	});
 
 	// TODO: Redundant with what we do in the Studio

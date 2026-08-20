@@ -34,6 +34,7 @@ export const useBasicMediaInTimeline = ({
 	sequenceDurationInFrames,
 	mediaStartsAt,
 	loop,
+	muted,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -46,6 +47,7 @@ export const useBasicMediaInTimeline = ({
 	sequenceDurationInFrames: number;
 	mediaStartsAt: number;
 	loop: boolean;
+	muted: boolean;
 }) => {
 	if (!src) {
 		throw new Error('No src passed');
@@ -112,6 +114,7 @@ export const useBasicMediaInTimeline = ({
 			startMediaFrom,
 			src,
 			playbackRate,
+			muted,
 		};
 	}, [
 		volumes,
@@ -122,6 +125,7 @@ export const useBasicMediaInTimeline = ({
 		src,
 		startMediaFrom,
 		playbackRate,
+		muted,
 	]);
 
 	return memoizedResult;
@@ -146,6 +150,7 @@ export const useMediaInTimeline = ({
 	loopDisplay,
 	documentationLink,
 	refForOutline,
+	muted,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -161,6 +166,7 @@ export const useMediaInTimeline = ({
 	loopDisplay: LoopDisplay | undefined;
 	documentationLink: string | null;
 	refForOutline: React.RefObject<Element | null> | null;
+	muted: boolean;
 }) => {
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = useMediaStartsAt();
@@ -181,6 +187,7 @@ export const useMediaInTimeline = ({
 			sequenceDurationInFrames: durationInFrames,
 			mediaStartsAt,
 			loop: false,
+			muted,
 		});
 
 	const {isStudio} = useRemotionEnvironment();
@@ -210,6 +217,7 @@ export const useMediaInTimeline = ({
 			displayName: finalDisplayName,
 			documentationLink,
 			volume: volumes,
+			muted,
 			showInTimeline: true,
 			nonce: nonce.get(),
 			startMediaFrom: 0 - startsAt,
@@ -253,5 +261,6 @@ export const useMediaInTimeline = ({
 		finalDisplayName,
 		isStudio,
 		refForOutline,
+		muted,
 	]);
 };
