@@ -144,8 +144,9 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
 	const [iframeLoaded, setIframeLoaded] = useState(false);
-	const [installedDependencyResolutions, setInstalledDependencyResolutions] =
-		useState<Record<string, BrowserStudioDependencyResolution>>({});
+	const installedDependencyResolutionsRef = useRef<
+		Record<string, BrowserStudioDependencyResolution>
+	>({});
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 	const lastWrittenDocumentRef = useRef<Document | null>(null);
 	const lastWrittenHtmlRef = useRef<string | null>(null);
@@ -255,12 +256,10 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					: (customResolution ?? version);
 			}
 
-			setInstalledDependencyResolutions((current) => {
-				const next = {...current, ...resolutions};
-				return JSON.stringify(current) === JSON.stringify(next)
-					? current
-					: next;
-			});
+			installedDependencyResolutionsRef.current = {
+				...installedDependencyResolutionsRef.current,
+				...resolutions,
+			};
 			return Promise.resolve(versions);
 		},
 		[remotionPackageSource],
@@ -443,7 +442,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 						},
 					),
 				),
-				...installedDependencyResolutions,
+				...installedDependencyResolutionsRef.current,
 			},
 			project: activeProjectRef.current,
 			remotionPackageSource: remotionPackageSource ?? null,
@@ -461,7 +460,6 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		browserStudioOperations,
 		dependencyResolver,
 		hmrAssetManager,
-		installedDependencyResolutions,
 		publicFileManager,
 		readOnly,
 		remotionPackageSource,
@@ -482,6 +480,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		lastSentProjectRef.current = activeProject;
 		worker.postMessage({
+			dependencyResolutions: installedDependencyResolutionsRef.current,
 			project: activeProject,
 			type: 'update-project',
 		} satisfies BrowserStudioWorkerCompileRequest);

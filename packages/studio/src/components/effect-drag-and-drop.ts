@@ -4,8 +4,9 @@ import {
 } from '@remotion/studio-protocol';
 import {getRequiredPackageForEffectImportPath} from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey} from 'remotion';
+import {getBrowserStudioEffectOperations} from '../helpers/browser-studio-operations';
 import {installRequiredPackages} from '../helpers/install-required-package';
-import {callApi} from './call-api';
+import {addEffect} from './effect-operations-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
 export const hasEffectDragType = (dataTransfer: DataTransfer) => {
@@ -60,11 +61,13 @@ export const addEffectToSequence = async ({
 		const requiredPackage = getRequiredPackageForEffectImportPath(
 			effect.importPath,
 		);
-		await installRequiredPackages(
-			requiredPackage ? [{name: requiredPackage, version: null}] : [],
-		);
+		if (getBrowserStudioEffectOperations() === null) {
+			await installRequiredPackages(
+				requiredPackage ? [{name: requiredPackage, version: null}] : [],
+			);
+		}
 
-		const result = await callApi('/api/add-effect', {
+		const result = await addEffect({
 			fileName,
 			sequenceNodePath: nodePath,
 			effectName: effect.name,

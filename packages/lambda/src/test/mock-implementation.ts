@@ -11,6 +11,7 @@ import type {
 	InvokeWebhookParams,
 } from '@remotion/serverless';
 import {Log} from '../cli/log';
+import {serverAwsImplementation} from '../functions/aws-server-implementation';
 import {mockBundleSite} from './mocks/mock-bundle-site';
 import {mockCreateFunction} from './mocks/mock-create-function';
 import {mockReadDirectory} from './mocks/mock-read-dir';
@@ -33,6 +34,7 @@ export const getBrowserInstance: GetBrowserInstance = async ({
 const paramsArray: InvokeWebhookParams[] = [];
 
 export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
+	defaultX264Preset: serverAwsImplementation.defaultX264Preset,
 	forgetBrowserEventLoop: ({launchedBrowser}) => {
 		browsersOpen.delete(launchedBrowser.instance.id);
 

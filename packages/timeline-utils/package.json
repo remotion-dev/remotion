@@ -21,7 +21,8 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"mediabunny": "catalog:"
+		"mediabunny": "catalog:",
+		"remotion": "workspace:*"
 	},
 	"devDependencies": {
 		"@mediabunny/server": "catalog:",

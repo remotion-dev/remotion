@@ -346,6 +346,20 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-outline',
+		category: 'Blur & Shadow',
+		label: 'outline()',
+		description: 'Solid alpha outline effect',
+		effect: {
+			name: 'outline',
+			importPath: '@remotion/effects/outline',
+			config: {
+				width: 12,
+				color: '#00ffff',
+			},
+		},
+	},
+	{
 		id: 'effects-light-trail',
 		category: 'Blur & Shadow',
 		label: 'lightTrail()',

@@ -121,6 +121,12 @@ import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
 import {MaxMediaCacheSizeContext} from './max-video-cache-size.js';
+import {
+	getMediabunnyInputResourceKey,
+	globalMediaResourceManager,
+	makeMediaResourceManager,
+	MEDIABUNNY_DURATION_VALUE_KEY,
+} from './media-resource-manager.js';
 import type {NonceHistory} from './nonce.js';
 import {NonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
@@ -293,6 +299,10 @@ const compositionSelectorRef = createRef<{
 export const Internals = {
 	AbsoluteFillElement,
 	MaxMediaCacheSizeContext,
+	getMediabunnyInputResourceKey,
+	globalMediaResourceManager,
+	makeMediaResourceManager,
+	MEDIABUNNY_DURATION_VALUE_KEY,
 	makeRenderResourceManager,
 	RenderResourceManagerContext,
 	useUnsafeVideoConfig,

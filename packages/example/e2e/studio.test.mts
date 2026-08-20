@@ -539,8 +539,7 @@ test.describe('visual mode', () => {
 	test('should play when a composition in the sidebar is focused', async ({
 		page,
 	}) => {
-		await page.goto(`${STUDIO_URL}/schema-test`);
-		await expect(page).toHaveURL(/schema-test/, {timeout: 15_000});
+		await navigateToSchemaTest(page);
 
 		const otherComposition = page.getByTitle('AnimatedBarChart', {exact: true});
 		await otherComposition.press('Space');
@@ -590,55 +589,10 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('untoggling the free license removes it from the config', async ({
+	test('settings reuse reactive runtime config and license toggle', async ({
 		page,
 	}) => {
-		const configFile = path.join(exampleDir, 'remotion.config.ts');
-		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
-
-		try {
-			await page.goto(STUDIO_URL);
-			const response = await fetch(`${STUDIO_URL}/api/update-config`, {
-				method: 'POST',
-				headers: {'content-type': 'application/json', origin: STUDIO_URL},
-				body: JSON.stringify({
-					clientId: 'license-settings-e2e',
-					updates: [
-						{
-							setter: 'setPublicLicenseKey',
-							type: 'set',
-							value: 'free-license',
-						},
-					],
-				}),
-			});
-			expect(await response.json()).toEqual({
-				success: true,
-				data: {success: true},
-			});
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain("Config.setPublicLicenseKey('free-license');");
-
-			await page.getByRole('button', {name: /Search\.\.\./}).click();
-			const quickSwitcher = page.getByRole('dialog');
-			await quickSwitcher.getByRole('textbox').fill('> Settings');
-			await quickSwitcher.getByText('Settings...', {exact: true}).click();
-			const dialog = page.getByRole('dialog');
-			await dialog.getByText('License', {exact: true}).click();
-			const freeLicenseToggle = dialog.locator('input[name="free-license"]');
-			await expect(freeLicenseToggle).toBeChecked();
-			await freeLicenseToggle.click();
-
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setPublicLicenseKey');
-		} finally {
-			fs.writeFileSync(configFile, configBeforeTest);
-		}
-	});
-
-	test('settings reuse reactive runtime config', async ({page}) => {
+		test.setTimeout(120_000);
 		const configFile = path.join(exampleDir, 'remotion.config.ts');
 		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
 		let editorInfoRequests = 0;
@@ -853,11 +807,16 @@ test.describe('visual mode', () => {
 				dialog.getByTitle('Default coding agent', {exact: true}),
 			).toContainText('Codex');
 			await dialog.getByText('License', {exact: true}).click();
-			await expect(dialog.locator('input[name="free-license"]')).toBeChecked();
+			const freeLicenseToggle = dialog.locator('input[name="free-license"]');
+			await expect(freeLicenseToggle).toBeChecked();
 			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
 				codingAgentInfoRequests: 1,
 				editorInfoRequests: 1,
 			});
+			await freeLicenseToggle.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setPublicLicenseKey');
 			await page.mouse.move(10, 100);
 			await page.mouse.down();
 			await page.mouse.move(13, 101);
@@ -1755,10 +1714,6 @@ test.describe('visual mode', () => {
 		expect(subMenuItemBox!.x).toBeGreaterThan(compositionBox!.x);
 	});
 
-	test('should navigate to schema-test composition', async ({page}) => {
-		await navigateToSchemaTest(page);
-	});
-
 	test('should not subscribe to package-owned sequence props', async ({
 		page,
 	}) => {
@@ -1811,7 +1766,10 @@ test.describe('visual mode', () => {
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
 	});
 
-	test('should preview a sized Element drop on the Canvas', async ({page}) => {
+	test('should preview and place Canvas drops at the playhead', async ({
+		page,
+	}) => {
+		test.setTimeout(90_000);
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
 		await expect(
 			page.getByRole('button', {name: '0', exact: true}),
@@ -1875,15 +1833,7 @@ test.describe('visual mode', () => {
 			document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
 		});
 		await expect(preview).toBeHidden();
-	});
 
-	test('should place and select Canvas drops at the playhead', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await expect(
-			page.getByRole('button', {name: '0', exact: true}),
-		).toBeVisible({timeout: 15_000});
 		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
 			await page.locator('[data-sidebar-toggle="right"]').click();
 		}

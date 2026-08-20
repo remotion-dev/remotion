@@ -2,6 +2,8 @@ import type {ElementDragData} from '@remotion/studio-protocol';
 import type {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
+	AddEffectRequest,
+	AddEffectResponse,
 	AddKeyframesRequest,
 	AddKeyframesResponse,
 	AddSequenceKeyframeRequest,
@@ -16,25 +18,37 @@ import type {
 	DeleteJsxNodeResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
+	DeleteEffectRequest,
+	DeleteEffectResponse,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
 	FindInFileRequest,
 	FindInFileResponse,
+	DuplicateEffectRequest,
+	DuplicateEffectResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertElementRequest,
 	InsertElementResponse,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
+	PasteEffectsRequest,
+	PasteEffectsResponse,
 	PrepareElementInstallRequest,
 	PrepareElementInstallResponse,
 	RedoResponse,
 	RenameStaticFileRequest,
 	RenameStaticFileResponse,
+	ReorderEffectRequest,
+	ReorderEffectResponse,
 	ReorderSequenceRequest,
 	ReorderSequenceResponse,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
+	SaveEffectPropsRequest,
+	SaveEffectPropsResponse,
+	SaveMultipleEffectPropsRequest,
+	SaveMultipleEffectPropsResponse,
 	SimpleDiff,
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse,
@@ -103,6 +117,26 @@ export type BrowserStudioKeyframeOperations = {
 	) => Promise<UpdateSequenceKeyframeSettingsResponse>;
 };
 
+export type BrowserStudioEffectOperations = {
+	addEffect: (request: AddEffectRequest) => Promise<AddEffectResponse>;
+	deleteEffects: (
+		request: DeleteEffectRequest,
+	) => Promise<DeleteEffectResponse>;
+	duplicateEffects: (
+		request: DuplicateEffectRequest,
+	) => Promise<DuplicateEffectResponse>;
+	pasteEffects: (request: PasteEffectsRequest) => Promise<PasteEffectsResponse>;
+	reorderEffect: (
+		request: ReorderEffectRequest,
+	) => Promise<ReorderEffectResponse>;
+	saveEffectProps: (
+		request: SaveEffectPropsRequest,
+	) => Promise<SaveEffectPropsResponse>;
+	saveMultipleEffectProps: (
+		request: SaveMultipleEffectPropsRequest,
+	) => Promise<SaveMultipleEffectPropsResponse>;
+};
+
 export type BrowserStudioOperations = {
 	consumeInitialElement: () => {
 		element: ElementDragData['element'];
@@ -122,6 +156,8 @@ export type BrowserStudioOperations = {
 	duplicateComposition: (
 		request: DuplicateCompositionRequest,
 	) => Promise<DuplicateCompositionResponse>;
+	/** Optional for compatibility with older Browser Studio hosts. */
+	effects?: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;
 	getCompositionFile: (compositionId: string) => string | null;

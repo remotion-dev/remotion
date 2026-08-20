@@ -27,6 +27,7 @@ const sidebars: SidebarsConfig = {
 			collapsible: true,
 			collapsed: false,
 			items: [
+				'libraries',
 				'contributing',
 				{
 					type: 'html',
@@ -39,7 +40,7 @@ const sidebars: SidebarsConfig = {
 					label,
 					link: {type: 'doc' as const, id: `${category}/index`},
 					collapsible: true,
-					collapsed: false,
+					collapsed: true,
 					items: Object.entries(elementRegistry)
 						.filter(([, metadata]) => metadata.category === category)
 						.sort(([, a], [, b]) =>

@@ -43,6 +43,7 @@ import {
 	type NoiseDisplacementParams,
 } from '../noise-displacement.js';
 import {noise} from '../noise.js';
+import {outline} from '../outline.js';
 import {paper} from '../paper.js';
 import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
@@ -224,6 +225,9 @@ test('@remotion/effects expose documentation links', () => {
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition
 			.documentationLink,
 	).toBe('https://www.remotion.dev/docs/effects/noise-displacement');
+	expect(outline().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/outline',
+	);
 	expect(paper().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/paper',
 	);
@@ -363,6 +367,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
+	expect(outline().definition.label).toBe('outline()');
 	expect(
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
 	).toBe('noiseDisplacement()');
@@ -624,6 +629,66 @@ test('colorKey() parameters produce distinct effect keys', () => {
 			moreSpill.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('outline() accepts default params', () => {
+	expect(() => outline()).not.toThrow();
+});
+
+test('outline() rejects invalid width', () => {
+	expect(() => outline({width: Number.NaN})).toThrow(
+		'"width" must be a finite number',
+	);
+	expect(() => outline({width: -1})).toThrow('"width" must be >= 0');
+});
+
+test('outline() rejects invalid edgeSimplification', () => {
+	expect(() => outline({edgeSimplification: Number.NaN})).toThrow(
+		'"edgeSimplification" must be a finite number',
+	);
+	expect(() => outline({edgeSimplification: -1})).toThrow(
+		'"edgeSimplification" must be >= 0',
+	);
+});
+
+test('outline() rejects invalid color', () => {
+	expect(() => outline({color: ''})).toThrow(
+		'"color" must be a non-empty string',
+	);
+});
+
+test('outline() rejects invalid opacity', () => {
+	expect(() => outline({opacity: Number.NaN})).toThrow(
+		'"opacity" must be a finite number',
+	);
+	expect(() => outline({opacity: -0.1})).toThrow('"opacity" must be >= 0');
+	expect(() => outline({opacity: 1.1})).toThrow('"opacity" must be <= 1');
+});
+
+test('outline() rejects invalid outlineOnly', () => {
+	expect(() => outline({outlineOnly: 'yes' as unknown as boolean})).toThrow(
+		'"outlineOnly" must be a boolean',
+	);
+});
+
+test('outline() parameters produce distinct effect keys', () => {
+	const defaults = outline();
+	const wider = outline({width: 16});
+	const polygonal = outline({edgeSimplification: 8});
+	const colored = outline({color: '#00ffff'});
+	const transparent = outline({opacity: 0.5});
+	const outlineOnly = outline({outlineOnly: true});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			wider.effectKey,
+			polygonal.effectKey,
+			colored.effectKey,
+			transparent.effectKey,
+			outlineOnly.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('tint() throws when color is not passed', () => {

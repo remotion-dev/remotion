@@ -36,6 +36,7 @@ import {liquidContours} from '@remotion/effects/liquid-contours';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {outline} from '@remotion/effects/outline';
 import {paper} from '@remotion/effects/paper';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
@@ -112,6 +113,7 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsOutlinePreview} from '../effects/effects-outline-preview';
 import {
 	EffectsPaletteMapPreview,
 	paletteMap,
@@ -237,6 +239,16 @@ export const effectsDemos: EffectsDemoType[] = [
 		initialValues: {
 			similarity: 0.45,
 		},
+	},
+	{
+		...defaults,
+		id: 'effects-outline',
+		effectName: 'outline',
+		effectImportPath: '@remotion/effects/outline',
+		comp: EffectsOutlinePreview,
+		schema: outline().definition.schema,
+		durationInFrames: 150,
+		autoPlay: true,
 	},
 	{
 		...defaults,

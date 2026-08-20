@@ -475,7 +475,8 @@ describe('Elements sidebar', () => {
 			throw new Error('Elements root category must contain sidebar items');
 		}
 
-		expect(elementsCategory.items.slice(0, 2)).toEqual([
+		expect(elementsCategory.items.slice(0, 3)).toEqual([
+			'libraries',
 			'contributing',
 			{
 				type: 'html',
@@ -485,7 +486,7 @@ describe('Elements sidebar', () => {
 			},
 		]);
 
-		const categories = elementsCategory.items.slice(2);
+		const categories = elementsCategory.items.slice(3);
 		const expectedCategories = [
 			{
 				category: 'backgrounds',
@@ -507,22 +508,22 @@ describe('Elements sidebar', () => {
 				],
 			},
 			{
-				category: 'commerce',
-				label: 'Commerce',
-				items: [
-					'commerce/product-discount-callout/index',
-					'commerce/product-offer/index',
-				],
-			},
-			{
 				category: 'data',
-				label: 'Data',
+				label: 'Charts & Data',
 				items: [
 					'data/horizontal-bar-chart/index',
 					'data/line-chart/index',
 					'data/number-counter/index',
 					'data/pie-chart/index',
 					'data/vertical-bar-chart/index',
+				],
+			},
+			{
+				category: 'commerce',
+				label: 'Commerce',
+				items: [
+					'commerce/product-discount-callout/index',
+					'commerce/product-offer/index',
 				],
 			},
 			{
@@ -548,7 +549,7 @@ describe('Elements sidebar', () => {
 			},
 			{
 				category: 'text',
-				label: 'Text',
+				label: 'Text Effects',
 				items: [
 					'text/circle-marker/index',
 					'text/crossed-off/index',
@@ -574,7 +575,7 @@ describe('Elements sidebar', () => {
 				label,
 				link: {type: 'doc', id: `${category}/index`},
 				collapsible: true,
-				collapsed: false,
+				collapsed: true,
 				items,
 			})),
 		);

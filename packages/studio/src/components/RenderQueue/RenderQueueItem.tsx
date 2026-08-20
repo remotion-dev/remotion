@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
@@ -74,6 +75,7 @@ export const RenderQueueItem: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const isClientJob = isClientRenderJob(job);
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const {canDrag, isDragging, onDragEnd, onDragStart} =
 		useRenderOutputFileDrag(job);
 
@@ -229,13 +231,13 @@ export const RenderQueueItem: React.FC<{
 					{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
 					{job.status === 'running' ? (
 						<RenderQueueCancelButton job={job} />
-					) : (
+					) : isBrowserStudio ? null : (
 						<RenderQueueRemoveItem job={job} />
 					)}
 					{job.status === 'done' ? (
 						clientBlobInfo ? (
 							<RenderQueueDownloadItem job={job as ClientRenderJob} />
-						) : (
+						) : isBrowserStudio ? null : (
 							<RenderQueueOpenInFinderItem job={job} />
 						)
 					) : null}

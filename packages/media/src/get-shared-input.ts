@@ -1,5 +1,6 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
-import type {LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
+import {getDurationOrCompute} from './get-duration-or-compute';
 import {getMaxSourceCacheSize} from './max-cache-size';
 import {
 	getMediaRequestInitFingerprint,
@@ -19,18 +20,6 @@ import {
 // same media share the same `src`, they can share ONE `Input`: the container is
 // parsed once and subsequent seeks are served from the warm byte cache.
 //
-// The Input is reference counted: `acquireSharedInput` hands out the cached
-// Input and bumps a count; `releaseSharedInput` decrements it and only disposes
-// (and evicts) the Input once the last holder releases it. This mirrors the
-// sink cache in `get-sink.ts`, but for the preview `MediaPlayer` path.
-
-type SharedInputEntry = {
-	input: Input;
-	refCount: number;
-};
-
-const sharedInputs: Record<string, SharedInputEntry> = {};
-
 const getSharedInputCacheKey = ({
 	src,
 	credentials,
@@ -40,11 +29,12 @@ const getSharedInputCacheKey = ({
 	credentials: RequestCredentials | undefined;
 	requestInit: MediaRequestInit | undefined;
 }): string =>
-	JSON.stringify([
+	Internals.getMediabunnyInputResourceKey({
 		src,
-		credentials ?? null,
-		getMediaRequestInitFingerprint(requestInit),
-	]);
+		credentials: credentials ?? null,
+		requestInitFingerprint: getMediaRequestInitFingerprint(requestInit),
+		revision: null,
+	});
 
 export const acquireSharedInput = ({
 	src,
@@ -56,7 +46,11 @@ export const acquireSharedInput = ({
 	credentials: RequestCredentials | undefined;
 	requestInit: MediaRequestInit | undefined;
 	logLevel: LogLevel;
-}): {input: Input; cacheKey: string} => {
+}): {
+	input: Input;
+	getDuration: () => Promise<number>;
+	release: () => void;
+} => {
 	const normalizedRequestInit = normalizeMediaRequestInit(requestInit);
 	const cacheKey = getSharedInputCacheKey({
 		src,
@@ -64,37 +58,33 @@ export const acquireSharedInput = ({
 		requestInit: normalizedRequestInit,
 	});
 
-	const existing = sharedInputs[cacheKey];
-	if (existing) {
-		existing.refCount++;
-		return {input: existing.input, cacheKey};
-	}
-
 	const resolvedRequestInit = resolveRequestInit({
 		credentials,
 		requestInit: normalizedRequestInit,
 	});
-	const input = new Input({
-		source: new UrlSource(src, {
-			maxCacheSize: getMaxSourceCacheSize(logLevel),
-			...(resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined),
-		}),
-		formats: ALL_FORMATS,
+	const lease = Internals.globalMediaResourceManager.acquire<Input>({
+		key: cacheKey,
+		create: () => {
+			const input = new Input({
+				source: new UrlSource(src, {
+					maxCacheSize: getMaxSourceCacheSize(logLevel),
+					...(resolvedRequestInit
+						? {requestInit: resolvedRequestInit}
+						: undefined),
+				}),
+				formats: ALL_FORMATS,
+			});
+
+			return {resource: input, dispose: () => input.dispose()};
+		},
 	});
 
-	sharedInputs[cacheKey] = {input, refCount: 1};
-	return {input, cacheKey};
-};
-
-export const releaseSharedInput = (cacheKey: string): void => {
-	const entry = sharedInputs[cacheKey];
-	if (!entry) {
-		return;
-	}
-
-	entry.refCount--;
-	if (entry.refCount <= 0) {
-		delete sharedInputs[cacheKey];
-		entry.input.dispose();
-	}
+	return {
+		input: lease.resource,
+		getDuration: () =>
+			lease.getOrCreateValue(Internals.MEDIABUNNY_DURATION_VALUE_KEY, () =>
+				getDurationOrCompute(lease.resource),
+			),
+		release: lease.release,
+	};
 };

@@ -4,7 +4,10 @@ import {
 	type SaveMultipleEffectPropsEdit,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
-import {callApi} from '../call-api';
+import {
+	saveEffectProps as saveEffectPropsApi,
+	saveMultipleEffectProps as saveMultipleEffectPropsApi,
+} from '../effect-operations-api';
 import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetPropStatuses} from './save-sequence-prop';
@@ -73,7 +76,7 @@ export const saveMultipleEffectProps = ({
 		);
 	}
 
-	return callApi('/api/save-multiple-effect-props', {
+	return saveMultipleEffectPropsApi({
 		edits: changes.map(
 			(change): SaveMultipleEffectPropsEdit =>
 				change.type === 'effect-param'
@@ -141,8 +144,7 @@ export const saveEffectProp = (input: SaveEffectPropInput): Promise<void> => {
 		applyServerResponse: (prev, response) =>
 			applyEffectResponseToPropStatuses({previous: prev, response}),
 		apiCall: () =>
-			callApi(
-				'/api/save-effect-props',
+			saveEffectPropsApi(
 				input.type === 'effect-param'
 					? {
 							type: 'effect-param',

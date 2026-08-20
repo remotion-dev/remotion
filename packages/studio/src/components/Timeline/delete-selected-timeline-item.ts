@@ -1,9 +1,10 @@
 import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
 import {Internals} from 'remotion';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {callApi} from '../call-api';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
 import {deleteJsxNode} from '../delete-jsx-node-api';
+import {deleteEffects as deleteEffectsApi} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {deleteSelectedKeyframes} from './delete-selected-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
@@ -97,8 +98,11 @@ const deleteEffects = (
 		return Promise.resolve(false);
 	}
 
-	return callApi(
-		'/api/delete-effect',
+	if (!canUseEffectOperations()) {
+		return Promise.resolve(false);
+	}
+
+	return deleteEffectsApi(
 		effects.map((effect) => {
 			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
 			return effect.type === 'single-effect'

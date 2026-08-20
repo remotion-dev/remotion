@@ -133,6 +133,7 @@ export const getAssetContextMenuItems = ({
 	openAssetInExplorer,
 	renameAsset,
 	deleteAsset,
+	fileExplorerAvailable,
 	fileExplorerDisabled,
 	mutationsDisabled,
 }: {
@@ -143,10 +144,11 @@ export const getAssetContextMenuItems = ({
 	openAssetInExplorer: () => void;
 	renameAsset: () => void;
 	deleteAsset: () => void;
+	fileExplorerAvailable: boolean;
 	fileExplorerDisabled: boolean;
 	mutationsDisabled: boolean;
 }): ComboboxValue[] => {
-	return [
+	const items: (ComboboxValue | null)[] = [
 		getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
 		{
 			type: 'divider',
@@ -178,18 +180,20 @@ export const getAssetContextMenuItems = ({
 			type: 'divider',
 			id: 'asset-file-actions-divider',
 		},
-		{
-			id: 'open-asset-in-explorer',
-			keyHint: null,
-			label: `Show in ${fileManagerName}`,
-			leftItem: null,
-			onClick: openAssetInExplorer,
-			quickSwitcherLabel: `Show asset in ${fileManagerName}`,
-			subMenu: null,
-			type: 'item',
-			value: 'open-asset-in-explorer',
-			disabled: fileExplorerDisabled,
-		},
+		fileExplorerAvailable
+			? {
+					id: 'open-asset-in-explorer',
+					keyHint: null,
+					label: `Show in ${fileManagerName}`,
+					leftItem: null,
+					onClick: openAssetInExplorer,
+					quickSwitcherLabel: `Show asset in ${fileManagerName}`,
+					subMenu: null,
+					type: 'item',
+					value: 'open-asset-in-explorer',
+					disabled: fileExplorerDisabled,
+				}
+			: null,
 		{
 			id: 'rename-asset',
 			keyHint: null,
@@ -215,6 +219,8 @@ export const getAssetContextMenuItems = ({
 			disabled: mutationsDisabled,
 		},
 	];
+
+	return items.filter(NoReactInternals.truthy);
 };
 
 const AssetFolderItem: React.FC<{
@@ -631,6 +637,7 @@ const AssetSelectorItem: React.FC<{
 			openAssetInExplorer,
 			renameAsset,
 			deleteAsset,
+			fileExplorerAvailable: getBrowserStudioOperations() === null,
 			fileExplorerDisabled,
 			mutationsDisabled,
 		});

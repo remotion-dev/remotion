@@ -8,10 +8,8 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 	page,
 }) => {
 	const pageErrors: Error[] = [];
-	const applyCodemodRequests: string[] = [];
 	const remoteRemotionRequests: string[] = [];
-	const renderPersistenceRequests: string[] = [];
-	const updateAvailableRequests: string[] = [];
+	const studioApiRequests: string[] = [];
 	const workspacePackageRequests: string[] = [];
 	let rejectPageError: (error: Error) => void = () => undefined;
 	const pageError = new Promise<never>((_resolve, reject) => {
@@ -19,19 +17,11 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 	});
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
-		if (requestUrl.pathname === '/api/apply-codemod') {
-			applyCodemodRequests.push(request.url());
-		}
-
-		if (requestUrl.pathname === '/api/update-available') {
-			updateAvailableRequests.push(request.url());
-		}
-
 		if (
-			requestUrl.pathname === '/api/upload-output' ||
-			requestUrl.pathname === '/api/register-client-render'
+			requestUrl.pathname.startsWith('/api/') &&
+			requestUrl.origin === new URL(page.url()).origin
 		) {
-			renderPersistenceRequests.push(request.url());
+			studioApiRequests.push(requestUrl.pathname);
 		}
 
 		if (
@@ -63,17 +53,47 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 			await expect(
 				studio.locator('.remotion-studio-composition-container'),
 			).toBeVisible();
+			await studio.getByRole('button', {name: 'File', exact: true}).click();
+			await expect(
+				studio.getByRole('button', {
+					name: 'Open in File Manager',
+					exact: true,
+				}),
+			).toHaveCount(0);
+			await page.keyboard.press('Escape');
+
+			await studio.getByRole('button', {name: /Search/}).click();
+			const quickSwitcher = studio.getByRole('dialog');
+			const quickSwitcherInput = quickSwitcher.getByRole('textbox');
+			await quickSwitcherInput.fill('> Settings');
+			await expect(
+				quickSwitcher.getByText('Settings...', {exact: true}),
+			).toHaveCount(0);
+			await quickSwitcherInput.fill('> Restart Studio Server');
+			await expect(
+				quickSwitcher.getByText('Restart Studio Server', {exact: true}),
+			).toHaveCount(0);
+			await quickSwitcherInput.press('Escape');
 
 			await studio.locator('[data-compname="MyComp"]').click();
 			await studio.getByRole('button', {name: 'Render on web'}).click();
 			await expect(
 				studio.getByText('Input Props', {exact: true}),
 			).toBeVisible();
+			await expect(
+				studio.getByRole('button', {name: 'License', exact: true}),
+			).toHaveCount(0);
 			await studio.getByText('Still', {exact: true}).click();
 			const downloadPromise = page.waitForEvent('download');
 			await studio.getByRole('button', {name: 'Render still'}).click();
 			const download = await downloadPromise;
 			expect(download.suggestedFilename()).toBe('MyComp.png');
+			await expect(
+				studio.getByRole('button', {name: 'Download', exact: true}),
+			).toBeVisible();
+			await expect(
+				studio.getByRole('button', {name: 'Remove', exact: true}),
+			).toHaveCount(0);
 			const inspector = studio.getByRole('button', {name: 'Inspector'});
 			await expect(inspector).toBeVisible();
 			await inspector.click();
@@ -142,9 +162,7 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 		'/__remotion_browser_studio_workspace__/commits/e2e/packages/transitions/dist/esm/fade.mjs',
 	);
 	expect(remoteRemotionRequests).toEqual([]);
-	expect(applyCodemodRequests).toEqual([]);
-	expect(renderPersistenceRequests).toEqual([]);
-	expect(updateAvailableRequests).toEqual([]);
+	expect(studioApiRequests).toEqual([]);
 });
 
 test('loads Browser Studio from one immutable release artifact set', async ({
@@ -292,13 +310,15 @@ test('confirms and imports an Element payload from the URL fragment', async ({
 	page,
 }) => {
 	const payload = createElementPayload({
-		dependencies: [],
+		dependencies: [{name: '@remotion/shapes', version: null}],
 		dimensions: {height: 180, width: 320},
 		displayName: 'Linked Element',
 		durationInFrames: 60,
 		installationMode: 'wrapped',
 		slug: 'linked-element',
-		sourceCode: `export const LinkedElement = () => <div>Grüezi 👋</div>;`,
+		sourceCode: `import {Rect} from '@remotion/shapes';
+
+export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;`,
 	});
 	const url = StudioProtocolInternals.makeBrowserStudioUrl({
 		endpoint: 'http://127.0.0.1:62338/',
@@ -329,6 +349,13 @@ test('confirms and imports an Element payload from the URL fragment', async ({
 		)
 		.toBeUndefined();
 
+	await studio.locator('body').evaluate(() => {
+		(
+			window as typeof window & {
+				__browserStudioInstallPreservedIframe?: boolean;
+			}
+		).__browserStudioInstallPreservedIframe = true;
+	});
 	await studio.getByRole('button', {name: /^Install/}).click();
 	await expect
 		.poll(() =>
@@ -350,8 +377,18 @@ test('confirms and imports an Element payload from the URL fragment', async ({
 		)
 		.toEqual({
 			composition: expect.stringContaining('<LinkedElement />'),
-			element: expect.stringContaining('Grüezi 👋'),
+			element: expect.stringContaining("import {Rect} from '@remotion/shapes'"),
 		});
+	expect(
+		await studio.locator('body').evaluate(
+			() =>
+				(
+					window as typeof window & {
+						__browserStudioInstallPreservedIframe?: boolean;
+					}
+				).__browserStudioInstallPreservedIframe,
+		),
+	).toBe(true);
 });
 
 test('reports inline SVG imports as unsupported without changing the project', async ({

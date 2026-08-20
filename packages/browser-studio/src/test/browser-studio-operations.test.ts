@@ -1583,3 +1583,225 @@ test('reports structured failures for unsupported codemods', async () => {
 
 	expect(getProject().files).toEqual(initialFiles);
 });
+
+test('mutates effects in the virtual project and reports structured failures', async () => {
+	const fileName = '/project/src/Comp.tsx';
+	const initialContents = `import {brightness} from '@remotion/effects/brightness';
+import {contrast} from '@remotion/effects/contrast';
+import {AbsoluteFill} from 'remotion';
+
+export const Comp = () => (
+	<AbsoluteFill effects={[brightness({amount: 1}), contrast({amount: 2})]} />
+);
+`;
+	let currentProject: VirtualProject = {
+		rootDir: '/project',
+		entryPoint: fileName,
+		files: {
+			[fileName]: initialContents,
+			'/project/package.json': '{"dependencies": {}}',
+		},
+	};
+	let projectChanges = 0;
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {remotion: '4.0.514'},
+		getStaticFiles: null,
+		getProject: () => currentProject,
+		initialElement: null,
+		onProjectChange: (project) => {
+			projectChanges++;
+			currentProject = project;
+		},
+		resolveDependencies: null,
+	});
+	const subscription = await operations.subscribeToSequenceProps({
+		fileName: 'src/Comp.tsx',
+		line: 6,
+		column: 2,
+		nodePath: null,
+		componentIdentity: null,
+		keys: [],
+		assetKeys: [],
+		effects: [['amount'], ['amount']],
+		clientId: 'browser-studio',
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	});
+	if (!subscription.success || !operations.effects) {
+		throw new Error('Expected Browser Studio effect capability');
+	}
+
+	const {effects} = operations;
+	const addResult = await effects.addEffect({
+		fileName: 'src/Comp.tsx',
+		sequenceNodePath: subscription.nodePath,
+		effectName: 'tint',
+		effectImportPath: '@remotion/effects/tint',
+		effectConfig: {color: 'red'},
+		clientId: 'browser-studio',
+	});
+	expect(addResult).toEqual({success: true});
+	expect(currentProject.files[fileName]).toContain('tint({');
+	expect(currentProject.files['/project/package.json']).toContain(
+		'"@remotion/effects": "4.0.514"',
+	);
+
+	expect(
+		await effects.duplicateEffects([
+			{
+				fileName: 'src/Comp.tsx',
+				sequenceNodePath: subscription.nodePath,
+				effectIndex: 0,
+			},
+		]),
+	).toEqual({success: true});
+	expect(currentProject.files[fileName].match(/brightness\(\{/g)).toHaveLength(
+		2,
+	);
+
+	expect(
+		await effects.reorderEffect({
+			fileName: 'src/Comp.tsx',
+			sequenceNodePath: subscription.nodePath,
+			fromIndex: 3,
+			toIndex: 0,
+			clientId: 'browser-studio',
+		}),
+	).toEqual({success: true});
+	expect(currentProject.files[fileName].indexOf('tint({')).toBeLessThan(
+		currentProject.files[fileName].indexOf('brightness({'),
+	);
+
+	const effectSchema = {
+		amount: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const editResult = await effects.saveEffectProps({
+		type: 'value',
+		fileName: 'src/Comp.tsx',
+		sequenceNodePath: subscription.nodePath,
+		effectIndex: 1,
+		key: 'amount',
+		value: '0.5',
+		defaultValue: '1',
+		schema: effectSchema,
+		clientId: 'browser-studio',
+	});
+	expect(editResult).toMatchObject({
+		canUpdate: true,
+		effectIndex: 1,
+		props: {amount: {status: 'static', codeValue: 0.5}},
+	});
+	expect(currentProject.files[fileName]).toContain('amount: 0.5');
+
+	const multipleEditResult = await effects.saveMultipleEffectProps({
+		edits: [
+			{
+				type: 'value',
+				fileName: 'src/Comp.tsx',
+				sequenceNodePath: subscription.nodePath,
+				effectIndex: 2,
+				key: 'amount',
+				value: '0.25',
+				defaultValue: '1',
+				schema: effectSchema,
+			},
+		],
+		clientId: 'browser-studio',
+		undoLabel: 'Undo effect edits',
+		redoLabel: 'Redo effect edits',
+	});
+	expect(multipleEditResult.results[0]?.status).toMatchObject({
+		canUpdate: true,
+		props: {amount: {status: 'static', codeValue: 0.25}},
+	});
+
+	expect(
+		await effects.pasteEffects({
+			targetFileName: 'src/Comp.tsx',
+			targetSequenceNodePath: subscription.nodePath,
+			type: 'effects-additive',
+			effects: [
+				{
+					callee: 'blur',
+					importPath: '@remotion/effects/blur',
+					params: {radius: {type: 'static', value: 12}},
+				},
+			],
+			clientId: 'browser-studio',
+			insertAtIndices: null,
+		}),
+	).toEqual({success: true});
+	expect(currentProject.files[fileName]).toContain('blur({');
+
+	const beforeDelete = currentProject.files[fileName];
+	expect(
+		await effects.deleteEffects([
+			{
+				type: 'single-effect',
+				fileName: 'src/Comp.tsx',
+				sequenceNodePath: subscription.nodePath,
+				effectIndex: 0,
+			},
+		]),
+	).toEqual({success: true});
+	expect(currentProject.files[fileName].indexOf('tint({')).toBe(-1);
+	expect(await operations.undo()).toMatchObject({success: true});
+	expect(currentProject.files[fileName]).toBe(beforeDelete);
+	expect(await operations.redo()).toMatchObject({success: true});
+	expect(currentProject.files[fileName].indexOf('tint({')).toBe(-1);
+	expect(projectChanges).toBeGreaterThanOrEqual(9);
+
+	const beforeFailures = currentProject.files[fileName];
+	expect(
+		await effects.duplicateEffects([
+			{
+				fileName: 'src/Comp.tsx',
+				sequenceNodePath: subscription.nodePath,
+				effectIndex: 99,
+			},
+		]),
+	).toEqual({
+		success: false,
+		reason: 'Cannot duplicate effect: not-found',
+		stack: expect.any(String),
+	});
+	expect(
+		await effects.addEffect({
+			fileName: 'src/Comp.tsx',
+			sequenceNodePath: subscription.nodePath,
+			effectName: 'unsafe',
+			effectImportPath: 'untrusted-package',
+			effectConfig: {},
+			clientId: 'browser-studio',
+		}),
+	).toEqual({
+		success: false,
+		reason: 'Unsupported effect import "untrusted-package"',
+		stack: expect.any(String),
+	});
+	expect(
+		await effects.pasteEffects({
+			targetFileName: 'src/Comp.tsx',
+			targetSequenceNodePath: subscription.nodePath,
+			type: 'effects-additive',
+			effects: [
+				{
+					callee: 'blur',
+					importPath: '@remotion/effects/blur',
+					params: {},
+				},
+			],
+			clientId: 'browser-studio',
+			insertAtIndices: [0, 1],
+		}),
+	).toEqual({
+		success: false,
+		reason: 'Cannot paste effects: invalid insertion indices',
+		stack: expect.any(String),
+	});
+	expect(currentProject.files[fileName]).toBe(beforeFailures);
+});

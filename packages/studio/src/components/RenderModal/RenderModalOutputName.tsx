@@ -1,4 +1,5 @@
 import React, {useCallback} from 'react';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {WHITE} from '../../helpers/colors';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
@@ -69,6 +70,7 @@ export const RenderModalOutputName = ({
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 
 	return (
 		<div style={outputNameRow}>
@@ -101,12 +103,14 @@ export const RenderModalOutputName = ({
 								align="flex-end"
 								message={
 									<span style={existsMessageStyle}>
-										<InlineAction
-											variant={null}
-											onClick={openExistingOutput}
-											renderAction={renderOpenIcon}
-											title={`Open in ${fileManagerName}`}
-										/>
+										{isBrowserStudio ? null : (
+											<InlineAction
+												variant={null}
+												onClick={openExistingOutput}
+												renderAction={renderOpenIcon}
+												title={`Open in ${fileManagerName}`}
+											/>
+										)}
 										Exists, will be overwritten
 									</span>
 								}

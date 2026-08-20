@@ -3,6 +3,7 @@ import type {
 	ChromiumOptions,
 	EmittedArtifact,
 	LogLevel,
+	X264Preset,
 } from '@remotion/renderer';
 import type {
 	CloudProvider,
@@ -119,6 +120,7 @@ export type InvokeWebhookParams = {
 export type InvokeWebhook = (params: InvokeWebhookParams) => Promise<void>;
 
 export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
+	defaultX264Preset: X264Preset | null;
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
 	timer: DebuggingTimer;

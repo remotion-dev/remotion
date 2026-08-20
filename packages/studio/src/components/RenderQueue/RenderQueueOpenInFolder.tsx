@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {CURRENT_COLOR} from '../../helpers/colors';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
 import type {RenderInlineAction} from '../InlineAction';
@@ -10,6 +11,7 @@ import type {AnyRenderJob} from './context';
 export const RenderQueueOpenInFinderItem: React.FC<{
 	readonly job: AnyRenderJob;
 }> = ({job}) => {
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
@@ -34,7 +36,7 @@ export const RenderQueueOpenInFinderItem: React.FC<{
 		[icon],
 	);
 
-	return (
+	return isBrowserStudio ? null : (
 		<InlineAction
 			renderAction={renderAction}
 			onClick={onClick}
