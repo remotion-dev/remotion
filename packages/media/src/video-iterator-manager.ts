@@ -192,6 +192,7 @@ export const videoIteratorManager = async ({
 			if (!videoFrameIterator.isDestroyed() && iterator.initialFrame) {
 				await drawFrame(iterator.initialFrame);
 			}
+
 			return;
 		}
 
