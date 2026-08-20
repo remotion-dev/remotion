@@ -390,7 +390,7 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should not open the editor when selecting text in the inspector', async ({
+	test('should only open the editor from non-interactive inspector content', async ({
 		page,
 	}) => {
 		await page.addInitScript(() => {
@@ -454,6 +454,29 @@ test.describe('visual mode', () => {
 			.toBe('overview');
 		// Headless Chromium does not consistently emit dblclick after selecting text.
 		await textField.dispatchEvent('dblclick');
+		const numberDragger = page
+			.locator('button.__remotion_input_dragger')
+			.first();
+		await expect(numberDragger).toBeVisible();
+		await numberDragger.dispatchEvent('dblclick');
+		const colorPicker = page.getByTitle('#8E9AB8', {exact: true});
+		await expect(colorPicker).toBeVisible();
+		await colorPicker.dispatchEvent('dblclick');
+
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+		const scaleEffectRow = page.getByText('scale()', {exact: true});
+		await expect(async () => {
+			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await expect(scaleEffectRow).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 15_000});
+		await scaleEffectRow.click();
+		const horizontalCheckbox = page.locator('input[name="horizontal"]');
+		await expect(horizontalCheckbox).toBeVisible();
+		await horizontalCheckbox.dispatchEvent('dblclick');
 		await page.waitForTimeout(100);
 		expect(openInEditorRequests).toEqual([]);
 	});
