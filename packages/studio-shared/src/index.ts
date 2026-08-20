@@ -156,6 +156,7 @@ export {
 	type KeyframeSettings,
 } from './api-requests';
 export type {
+	BrowserStudioKeyframeOperations,
 	BrowserStudioOperations,
 	DuplicateCompositionRequest,
 	DuplicateCompositionResponse,

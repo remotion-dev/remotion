@@ -1,10 +1,20 @@
 import type {
+	AddEffectKeyframeRequest,
+	AddEffectKeyframeResponse,
+	AddKeyframesRequest,
+	AddKeyframesResponse,
+	AddSequenceKeyframeRequest,
+	AddSequenceKeyframeResponse,
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
+	BatchUpdateKeyframeSettingsRequest,
+	BatchUpdateKeyframeSettingsResponse,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
 	DeleteJsxNodeRequest,
 	DeleteJsxNodeResponse,
+	DeleteKeyframesRequest,
+	DeleteKeyframesResponse,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
 	FindInFileRequest,
@@ -13,6 +23,8 @@ import type {
 	InsertJsxElementResponse,
 	InsertElementRequest,
 	InsertElementResponse,
+	MoveKeyframesRequest,
+	MoveKeyframesResponse,
 	PrepareElementInstallRequest,
 	PrepareElementInstallResponse,
 	RedoResponse,
@@ -36,6 +48,10 @@ import type {
 	UnsubscribeFromSequencePropsRequest,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
+	UpdateEffectKeyframeSettingsRequest,
+	UpdateEffectKeyframeSettingsResponse,
+	UpdateSequenceKeyframeSettingsRequest,
+	UpdateSequenceKeyframeSettingsResponse,
 } from './api-requests';
 import type {RecastCodemod} from './codemods';
 import type {EventSourceEvent} from './event-source-event';
@@ -60,6 +76,31 @@ export type DuplicateCompositionResponse =
 			reason: string;
 			stack: string;
 	  };
+
+export type BrowserStudioKeyframeOperations = {
+	addEffectKeyframe: (
+		request: AddEffectKeyframeRequest,
+	) => Promise<AddEffectKeyframeResponse>;
+	addKeyframes: (request: AddKeyframesRequest) => Promise<AddKeyframesResponse>;
+	addSequenceKeyframe: (
+		request: AddSequenceKeyframeRequest,
+	) => Promise<AddSequenceKeyframeResponse>;
+	batchUpdateKeyframeSettings: (
+		request: BatchUpdateKeyframeSettingsRequest,
+	) => Promise<BatchUpdateKeyframeSettingsResponse>;
+	deleteKeyframes: (
+		request: DeleteKeyframesRequest,
+	) => Promise<DeleteKeyframesResponse>;
+	moveKeyframes: (
+		request: MoveKeyframesRequest,
+	) => Promise<MoveKeyframesResponse>;
+	updateEffectKeyframeSettings: (
+		request: UpdateEffectKeyframeSettingsRequest,
+	) => Promise<UpdateEffectKeyframeSettingsResponse>;
+	updateSequenceKeyframeSettings: (
+		request: UpdateSequenceKeyframeSettingsRequest,
+	) => Promise<UpdateSequenceKeyframeSettingsResponse>;
+};
 
 export type BrowserStudioOperations = {
 	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
@@ -91,6 +132,8 @@ export type BrowserStudioOperations = {
 	insertJsxElement: (
 		request: InsertJsxElementRequest,
 	) => Promise<InsertJsxElementResponse>;
+	/** Optional for compatibility with older Browser Studio hosts. */
+	keyframes?: BrowserStudioKeyframeOperations;
 	prepareElementInstall: (
 		request: PrepareElementInstallRequest,
 	) => Promise<PrepareElementInstallResponse>;

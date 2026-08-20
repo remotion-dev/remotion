@@ -1,5 +1,7 @@
 import {expect, test} from 'bun:test';
 import type {EventSourceEvent} from '@remotion/studio-shared';
+import type {InteractivitySchema} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	createBrowserStudioOperations,
 	insertSolidIntoProject,
@@ -786,6 +788,217 @@ const makeOperationsForProject = (project: VirtualProject) => {
 	});
 	return {operations, getProject: () => currentProject};
 };
+
+test('edits sequence and effect keyframes in the virtual project', async () => {
+	const fileName = '/project/src/Comp.tsx';
+	const initialContents = `import {tint} from '@remotion/effects/tint';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Comp = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill
+			style={{opacity: interpolate(frame, [0, 20], [0, 1])}}
+			effects={[tint({amount: interpolate(frame, [0, 20], [0.2, 0.8])})]}
+		/>
+	);
+};
+`;
+	const effectSchema = {
+		amount: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const {operations, getProject} = makeOperationsForProject({
+		rootDir: '/project',
+		entryPoint: fileName,
+		files: {[fileName]: initialContents},
+	});
+	const subscription = await operations.subscribeToSequenceProps({
+		fileName: 'src/Comp.tsx',
+		line: 7,
+		column: 2,
+		nodePath: null,
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		assetKeys: [],
+		effects: [['amount']],
+		clientId: 'browser-studio',
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	});
+	if (!subscription.success || !operations.keyframes) {
+		throw new Error('Expected Browser Studio keyframe capability');
+	}
+
+	const failedContents = getProject().files[fileName];
+	await expect(
+		operations.keyframes.moveKeyframes({
+			sequenceKeyframes: [
+				{
+					fileName: 'src/Comp.tsx',
+					nodePath: subscription.nodePath,
+					key: 'style.opacity',
+					fromFrame: 99,
+					toFrame: 10,
+					schema: NoReactInternals.sequenceSchema,
+				},
+			],
+			effectKeyframes: [],
+			clientId: 'browser-studio',
+		}),
+	).rejects.toThrow('Cannot move keyframe at frame 99: not found');
+	expect(getProject().files[fileName]).toBe(failedContents);
+
+	const sequenceResult = await operations.keyframes.addSequenceKeyframe({
+		fileName: 'src/Comp.tsx',
+		nodePath: subscription.nodePath,
+		key: 'style.opacity',
+		frame: 5,
+		value: '0.25',
+		schema: NoReactInternals.sequenceSchema,
+		clientId: 'browser-studio',
+	});
+	expect(sequenceResult.canUpdate).toBe(true);
+	expect(getProject().files[fileName]).toContain(
+		'opacity: interpolate(frame, [0, 5, 20], [0, 0.25, 1])',
+	);
+	const beforeQueuedSave = getProject().files[fileName];
+	await operations.saveSequenceProps({
+		edits: [],
+		captionPatches: [],
+		addedKeyframes: [
+			{
+				fileName: 'src/Comp.tsx',
+				nodePath: subscription.nodePath,
+				key: 'style.opacity',
+				frame: 8,
+				value: '0.4',
+				schema: NoReactInternals.sequenceSchema,
+			},
+		],
+		movedKeyframes: null,
+		clientId: 'browser-studio',
+		undoLabel: 'Remove opacity keyframe',
+		redoLabel: 'Add opacity keyframe',
+	});
+	expect(getProject().files[fileName]).toContain(
+		'opacity: interpolate(frame, [0, 5, 8, 20], [0, 0.25, 0.4, 1])',
+	);
+	expect(await operations.undo()).toMatchObject({success: true});
+	expect(getProject().files[fileName]).toBe(beforeQueuedSave);
+
+	const effectResult = await operations.keyframes.addEffectKeyframe({
+		fileName: 'src/Comp.tsx',
+		sequenceNodePath: subscription.nodePath,
+		effectIndex: 0,
+		key: 'amount',
+		frame: 10,
+		value: '0.5',
+		schema: effectSchema,
+		clientId: 'browser-studio',
+	});
+	expect(effectResult).toMatchObject({canUpdate: true, effectIndex: 0});
+	expect(getProject().files[fileName]).toContain(
+		'amount: interpolate(frame, [0, 10, 20], [0.2, 0.5, 0.8])',
+	);
+
+	await operations.keyframes.moveKeyframes({
+		sequenceKeyframes: [
+			{
+				fileName: 'src/Comp.tsx',
+				nodePath: subscription.nodePath,
+				key: 'style.opacity',
+				fromFrame: 5,
+				toFrame: 6,
+				schema: NoReactInternals.sequenceSchema,
+			},
+		],
+		effectKeyframes: [
+			{
+				fileName: 'src/Comp.tsx',
+				sequenceNodePath: subscription.nodePath,
+				effectIndex: 0,
+				key: 'amount',
+				fromFrame: 10,
+				toFrame: 12,
+				schema: effectSchema,
+			},
+		],
+		clientId: 'browser-studio',
+	});
+	expect(getProject().files[fileName]).toContain('[0, 6, 20], [0, 0.25, 1]');
+	expect(getProject().files[fileName]).toContain(
+		'[0, 12, 20], [0.2, 0.5, 0.8]',
+	);
+
+	await operations.keyframes.batchUpdateKeyframeSettings({
+		sequenceKeyframes: [
+			{
+				fileName: 'src/Comp.tsx',
+				nodePath: subscription.nodePath,
+				key: 'style.opacity',
+				settings: {
+					type: 'easing',
+					segmentIndex: 0,
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+				},
+				schema: NoReactInternals.sequenceSchema,
+			},
+		],
+		effectKeyframes: [
+			{
+				fileName: 'src/Comp.tsx',
+				sequenceNodePath: subscription.nodePath,
+				effectIndex: 0,
+				key: 'amount',
+				settings: {
+					type: 'easing',
+					segmentIndex: 0,
+					easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
+				},
+				schema: effectSchema,
+			},
+		],
+		clientId: 'browser-studio',
+	});
+	expect(getProject().files[fileName]).toContain(
+		'Easing.bezier(0.42, 0, 1, 1)',
+	);
+	expect(getProject().files[fileName]).toContain(
+		'Easing.bezier(0, 0, 0.58, 1)',
+	);
+
+	const beforeDelete = getProject().files[fileName];
+	await operations.keyframes.deleteKeyframes({
+		sequenceKeyframes: [
+			{
+				fileName: 'src/Comp.tsx',
+				nodePath: subscription.nodePath,
+				key: 'style.opacity',
+				frame: 6,
+				schema: NoReactInternals.sequenceSchema,
+			},
+		],
+		effectKeyframes: [
+			{
+				fileName: 'src/Comp.tsx',
+				sequenceNodePath: subscription.nodePath,
+				effectIndex: 0,
+				key: 'amount',
+				frame: 12,
+				schema: effectSchema,
+			},
+		],
+		clientId: 'browser-studio',
+	});
+	expect(getProject().files[fileName]).not.toContain('[0, 6, 20]');
+	expect(getProject().files[fileName]).not.toContain('[0, 12, 20]');
+	expect(await operations.undo()).toMatchObject({success: true});
+	expect(getProject().files[fileName]).toBe(beforeDelete);
+});
 
 test('renames a composition by resolving the file from the composition id', async () => {
 	const {operations, getProject} = makeOperationsForProject(

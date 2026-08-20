@@ -13,3 +13,10 @@ export const getBrowserStudioOperations =
 
 		return window.remotion_browserStudio ?? null;
 	};
+
+export const getBrowserStudioKeyframeOperations = () =>
+	getBrowserStudioOperations()?.keyframes ?? null;
+
+export const canUseKeyframeOperations = () =>
+	!window.remotion_isReadOnlyStudio ||
+	getBrowserStudioKeyframeOperations() !== null;

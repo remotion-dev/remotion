@@ -21,11 +21,17 @@ import {
 	splitJsxSequence as splitJsxSequenceCodemod,
 	splitVideoFromAudio as splitVideoFromAudioCodemod,
 	updateDefaultProps as updateDefaultPropsCodemod,
+	updateEffectKeyframes,
+	updateSequenceKeyframes,
+	type EffectKeyframeUpdate,
 	type FormatInline,
+	type SequenceKeyframeUpdate,
 } from '@remotion/studio-codemods';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
+	getAllSchemaKeys,
 	getRequiredPackageForInsertableElement,
+	type BrowserStudioKeyframeOperations,
 	type BrowserStudioOperations,
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
@@ -39,6 +45,11 @@ import {
 import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as prettierPluginTypescript from 'prettier/plugins/typescript';
 import {format} from 'prettier/standalone';
+import type {
+	InteractivitySchema,
+	SequenceNodePath,
+	SequencePropsSubscriptionKey,
+} from 'remotion';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
 import {saveSequencePropsInProject} from './save-sequence-props';
@@ -108,6 +119,31 @@ type SequencePropsSubscription = {
 type ResolveElementDependencies = (
 	dependencies: readonly {name: string; version: string | null}[],
 ) => Promise<Record<string, string>>;
+
+type SequenceKeyframeMutation = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	schema: InteractivitySchema;
+	updates: SequenceKeyframeUpdate[];
+};
+
+type EffectKeyframeMutation = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	schema: InteractivitySchema;
+	updates: EffectKeyframeUpdate[];
+};
+
+type AppliedSequenceKeyframeMutation = SequenceKeyframeMutation & {
+	absolutePath: string;
+	updatedNodePath: SequenceNodePath;
+};
+
+type AppliedEffectKeyframeMutation = EffectKeyframeMutation & {
+	absolutePath: string;
+	updatedSequenceNodePath: SequenceNodePath;
+};
 
 const getEffectChain = (result: SuccessfulSequencePropsSubscription) =>
 	result.status.effects
@@ -378,6 +414,211 @@ export const createBrowserStudioOperations = ({
 			}
 		},
 	});
+
+	const mutateKeyframesInProject = async ({
+		project,
+		sequenceMutations,
+		effectMutations,
+	}: {
+		project: VirtualProject;
+		sequenceMutations: SequenceKeyframeMutation[];
+		effectMutations: EffectKeyframeMutation[];
+	}) => {
+		if (sequenceMutations.length === 0 && effectMutations.length === 0) {
+			throw new Error('No keyframe changes were specified');
+		}
+
+		const mergeUpdates = <T extends SequenceKeyframeUpdate>(updates: T[]) => {
+			const merged: T[] = [];
+			for (const update of updates) {
+				const existingMove = merged.find(
+					(candidate) =>
+						candidate.key === update.key &&
+						candidate.operation.type === 'move' &&
+						update.operation.type === 'move',
+				);
+				if (
+					existingMove?.operation.type === 'move' &&
+					update.operation.type === 'move'
+				) {
+					existingMove.operation.moves.push(...update.operation.moves);
+				} else {
+					merged.push(update);
+				}
+			}
+
+			return merged;
+		};
+
+		const mergedSequenceMutations = [
+			...sequenceMutations
+				.reduce((groups, mutation) => {
+					const key = `${mutation.fileName}:${JSON.stringify(mutation.nodePath.nodePath)}`;
+					const existing = groups.get(key);
+					if (existing) {
+						existing.updates.push(...mutation.updates);
+					} else {
+						groups.set(key, {...mutation, updates: [...mutation.updates]});
+					}
+
+					return groups;
+				}, new Map<string, SequenceKeyframeMutation>())
+				.values(),
+		].map((mutation) => ({
+			...mutation,
+			updates: mergeUpdates(mutation.updates),
+		}));
+		const mergedEffectMutations = [
+			...effectMutations
+				.reduce((groups, mutation) => {
+					const key = `${mutation.fileName}:${JSON.stringify(mutation.sequenceNodePath.nodePath)}:${mutation.effectIndex}`;
+					const existing = groups.get(key);
+					if (existing) {
+						existing.updates.push(...mutation.updates);
+					} else {
+						groups.set(key, {...mutation, updates: [...mutation.updates]});
+					}
+
+					return groups;
+				}, new Map<string, EffectKeyframeMutation>())
+				.values(),
+		].map((mutation) => ({
+			...mutation,
+			updates: mergeUpdates(mutation.updates),
+		}));
+
+		const files = {...project.files};
+		const appliedSequenceMutations: AppliedSequenceKeyframeMutation[] = [];
+		const appliedEffectMutations: AppliedEffectKeyframeMutation[] = [];
+
+		for (const mutation of mergedSequenceMutations) {
+			const absolutePath = findProjectFile({
+				filePath: mutation.fileName,
+				project,
+			});
+			const result = await updateSequenceKeyframes({
+				input: files[absolutePath],
+				nodePath: mutation.nodePath.nodePath,
+				updates: mutation.updates,
+				schema: mutation.schema,
+				videoConfigValues: mutation.nodePath.videoConfigValues,
+				formatFile: formatCodemodFile,
+			});
+			files[absolutePath] = result.output;
+			appliedSequenceMutations.push({
+				...mutation,
+				absolutePath,
+				updatedNodePath: result.updatedNodePath,
+			});
+		}
+
+		for (const mutation of mergedEffectMutations) {
+			const absolutePath = findProjectFile({
+				filePath: mutation.fileName,
+				project,
+			});
+			const result = await updateEffectKeyframes({
+				input: files[absolutePath],
+				sequenceNodePath: mutation.sequenceNodePath.nodePath,
+				effectIndex: mutation.effectIndex,
+				updates: mutation.updates,
+				schema: mutation.schema,
+				videoConfigValues: mutation.sequenceNodePath.videoConfigValues,
+				formatFile: formatCodemodFile,
+			});
+			files[absolutePath] = result.output;
+			appliedEffectMutations.push({
+				...mutation,
+				absolutePath,
+				updatedSequenceNodePath: result.updatedSequenceNodePath,
+			});
+		}
+
+		return {
+			project: {...project, files},
+			appliedSequenceMutations,
+			appliedEffectMutations,
+		};
+	};
+
+	const commitKeyframeMutations = async ({
+		label,
+		sequenceMutations,
+		effectMutations,
+	}: {
+		label: string;
+		sequenceMutations: SequenceKeyframeMutation[];
+		effectMutations: EffectKeyframeMutation[];
+	}) => {
+		const project = getProject();
+		const result = await mutateKeyframesInProject({
+			project,
+			sequenceMutations,
+			effectMutations,
+		});
+		controller.applyMutation({
+			fileName: label,
+			mutate: () => result.project,
+			nodePathMutationFiles: null,
+		});
+		return result;
+	};
+
+	const getSequenceKeyframeResponse = ({
+		mutation,
+		project,
+	}: {
+		mutation: AppliedSequenceKeyframeMutation;
+		project: VirtualProject;
+	}) => {
+		const status = computeSequencePropsStatusFromContent({
+			fileContents: project.files[mutation.absolutePath],
+			nodePath: mutation.updatedNodePath,
+			componentIdentity: null,
+			keys: getAllSchemaKeys(mutation.schema),
+			effects: [],
+			videoConfigValues: mutation.nodePath.videoConfigValues,
+		});
+		const nodePath = {
+			...mutation.nodePath,
+			absolutePath: mutation.absolutePath,
+			nodePath: mutation.updatedNodePath,
+		};
+
+		return {
+			canUpdate: true as const,
+			props: status.props,
+			results: [{fileName: mutation.fileName, nodePath, props: status.props}],
+		};
+	};
+
+	const getEffectKeyframeResponse = ({
+		mutation,
+		project,
+	}: {
+		mutation: AppliedEffectKeyframeMutation;
+		project: VirtualProject;
+	}) => {
+		const effects = Array.from({length: mutation.effectIndex + 1}, (_, index) =>
+			index === mutation.effectIndex ? getAllSchemaKeys(mutation.schema) : [],
+		);
+		const status = computeSequencePropsStatusFromContent({
+			fileContents: project.files[mutation.absolutePath],
+			nodePath: mutation.updatedSequenceNodePath,
+			componentIdentity: null,
+			keys: [],
+			effects,
+			videoConfigValues: mutation.sequenceNodePath.videoConfigValues,
+		});
+
+		return (
+			status.effects[mutation.effectIndex] ?? {
+				canUpdate: false as const,
+				effectIndex: mutation.effectIndex,
+				reason: 'not-found' as const,
+			}
+		);
+	};
 
 	const getDefaultPropsStatus = (compositionId: string) =>
 		getCanUpdateDefaultPropsForProject({
@@ -738,6 +979,252 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const keyframes: BrowserStudioKeyframeOperations = {
+		addSequenceKeyframe: async (request) => {
+			const result = await commitKeyframeMutations({
+				label: `${request.key} keyframe`,
+				sequenceMutations: [
+					{
+						fileName: request.fileName,
+						nodePath: request.nodePath,
+						schema: request.schema,
+						updates: [
+							{
+								key: request.key,
+								operation: {
+									type: 'add',
+									frame: request.frame,
+									value: JSON.parse(request.value),
+								},
+							},
+						],
+					},
+				],
+				effectMutations: [],
+			});
+			const mutation = result.appliedSequenceMutations[0];
+			if (!mutation) {
+				throw new Error('Could not add sequence keyframe');
+			}
+
+			return getSequenceKeyframeResponse({mutation, project: result.project});
+		},
+		addEffectKeyframe: async (request) => {
+			const result = await commitKeyframeMutations({
+				label: `${request.key} effect keyframe`,
+				sequenceMutations: [],
+				effectMutations: [
+					{
+						fileName: request.fileName,
+						sequenceNodePath: request.sequenceNodePath,
+						effectIndex: request.effectIndex,
+						schema: request.schema,
+						updates: [
+							{
+								key: request.key,
+								operation: {
+									type: 'add',
+									frame: request.frame,
+									value: JSON.parse(request.value),
+								},
+							},
+						],
+					},
+				],
+			});
+			const mutation = result.appliedEffectMutations[0];
+			if (!mutation) {
+				throw new Error('Could not add effect keyframe');
+			}
+
+			return getEffectKeyframeResponse({mutation, project: result.project});
+		},
+		addKeyframes: async ({sequenceKeyframes, effectKeyframes}) => {
+			await commitKeyframeMutations({
+				label: `${sequenceKeyframes.length + effectKeyframes.length} keyframes`,
+				sequenceMutations: sequenceKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					nodePath: keyframe.nodePath,
+					schema: keyframe.schema,
+					updates: [
+						{
+							key: keyframe.key,
+							operation: {
+								type: 'add',
+								frame: keyframe.frame,
+								value: JSON.parse(keyframe.value),
+							},
+						},
+					],
+				})),
+				effectMutations: effectKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					sequenceNodePath: keyframe.sequenceNodePath,
+					effectIndex: keyframe.effectIndex,
+					schema: keyframe.schema,
+					updates: [
+						{
+							key: keyframe.key,
+							operation: {
+								type: 'add',
+								frame: keyframe.frame,
+								value: JSON.parse(keyframe.value),
+							},
+						},
+					],
+				})),
+			});
+			return {success: true};
+		},
+		deleteKeyframes: async ({sequenceKeyframes, effectKeyframes}) => {
+			await commitKeyframeMutations({
+				label: `${sequenceKeyframes.length + effectKeyframes.length} keyframes`,
+				sequenceMutations: sequenceKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					nodePath: keyframe.nodePath,
+					schema: keyframe.schema,
+					updates: [
+						{
+							key: keyframe.key,
+							operation: {
+								type: 'remove',
+								frame: keyframe.frame,
+								valueWhenLastKeyframeDeleted:
+									keyframe.valueWhenLastKeyframeDeleted ?? null,
+							},
+						},
+					],
+				})),
+				effectMutations: effectKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					sequenceNodePath: keyframe.sequenceNodePath,
+					effectIndex: keyframe.effectIndex,
+					schema: keyframe.schema,
+					updates: [
+						{
+							key: keyframe.key,
+							operation: {
+								type: 'remove',
+								frame: keyframe.frame,
+								valueWhenLastKeyframeDeleted:
+									keyframe.valueWhenLastKeyframeDeleted ?? null,
+							},
+						},
+					],
+				})),
+			});
+			return {success: true};
+		},
+		moveKeyframes: async ({sequenceKeyframes, effectKeyframes}) => {
+			await commitKeyframeMutations({
+				label: `${sequenceKeyframes.length + effectKeyframes.length} keyframes`,
+				sequenceMutations: sequenceKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					nodePath: keyframe.nodePath,
+					schema: keyframe.schema,
+					updates: [
+						{
+							key: keyframe.key,
+							operation: {
+								type: 'move',
+								moves: [
+									{
+										fromFrame: keyframe.fromFrame,
+										toFrame: keyframe.toFrame,
+									},
+								],
+							},
+						},
+					],
+				})),
+				effectMutations: effectKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					sequenceNodePath: keyframe.sequenceNodePath,
+					effectIndex: keyframe.effectIndex,
+					schema: keyframe.schema,
+					updates: [
+						{
+							key: keyframe.key,
+							operation: {
+								type: 'move',
+								moves: [
+									{
+										fromFrame: keyframe.fromFrame,
+										toFrame: keyframe.toFrame,
+									},
+								],
+							},
+						},
+					],
+				})),
+			});
+			return {success: true};
+		},
+		updateSequenceKeyframeSettings: async (request) => {
+			const result = await commitKeyframeMutations({
+				label: `${request.key} keyframe settings`,
+				sequenceMutations: [
+					{
+						fileName: request.fileName,
+						nodePath: request.nodePath,
+						schema: request.schema,
+						updates: [{key: request.key, operation: request.settings}],
+					},
+				],
+				effectMutations: [],
+			});
+			const mutation = result.appliedSequenceMutations[0];
+			if (!mutation) {
+				throw new Error('Could not update sequence keyframe settings');
+			}
+
+			return getSequenceKeyframeResponse({mutation, project: result.project});
+		},
+		updateEffectKeyframeSettings: async (request) => {
+			const result = await commitKeyframeMutations({
+				label: `${request.key} effect keyframe settings`,
+				sequenceMutations: [],
+				effectMutations: [
+					{
+						fileName: request.fileName,
+						sequenceNodePath: request.sequenceNodePath,
+						effectIndex: request.effectIndex,
+						schema: request.schema,
+						updates: [{key: request.key, operation: request.settings}],
+					},
+				],
+			});
+			const mutation = result.appliedEffectMutations[0];
+			if (!mutation) {
+				throw new Error('Could not update effect keyframe settings');
+			}
+
+			return getEffectKeyframeResponse({mutation, project: result.project});
+		},
+		batchUpdateKeyframeSettings: async ({
+			sequenceKeyframes,
+			effectKeyframes,
+		}) => {
+			await commitKeyframeMutations({
+				label: `${sequenceKeyframes.length + effectKeyframes.length} keyframe settings`,
+				sequenceMutations: sequenceKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					nodePath: keyframe.nodePath,
+					schema: keyframe.schema,
+					updates: [{key: keyframe.key, operation: keyframe.settings}],
+				})),
+				effectMutations: effectKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					sequenceNodePath: keyframe.sequenceNodePath,
+					effectIndex: keyframe.effectIndex,
+					schema: keyframe.schema,
+					updates: [{key: keyframe.key, operation: keyframe.settings}],
+				})),
+			});
+			return {success: true};
+		},
+	};
+
 	const duplicateComposition: BrowserStudioOperations['duplicateComposition'] =
 		async ({codemod, dryRun}) => {
 			try {
@@ -1081,6 +1568,7 @@ export const createBrowserStudioOperations = ({
 		},
 		insertJsxElement,
 		insertSolid: insertJsxElement,
+		keyframes,
 		prepareElementInstall: async (request) => {
 			try {
 				const plan = await getElementInstallPlanForProject({
@@ -1105,29 +1593,105 @@ export const createBrowserStudioOperations = ({
 		redo: controller.redo,
 		renameStaticFile: controller.renameStaticFile,
 		reorderSequence,
-		saveSequenceProps: (request) => {
-			try {
-				let response: Awaited<
-					ReturnType<BrowserStudioOperations['saveSequenceProps']>
-				> | null = null;
-				const firstTarget = request.edits[0] ?? request.captionPatches?.[0];
-				controller.applyMutation({
-					fileName: firstTarget?.fileName ?? 'Sequence props',
-					nodePathMutationFiles: null,
-					mutate: (project) => {
-						const result = saveSequencePropsInProject({project, request});
-						response = result.response;
-						return result.project;
+		saveSequenceProps: async (request) => {
+			const project = getProject();
+			const hasPropChanges =
+				request.edits.length > 0 || (request.captionPatches?.length ?? 0) > 0;
+			const propResult = hasPropChanges
+				? saveSequencePropsInProject({project, request})
+				: null;
+			const sequenceMutations: SequenceKeyframeMutation[] = [
+				...(request.addedKeyframes ?? []).map((keyframe) => ({
+					fileName: keyframe.fileName,
+					nodePath: keyframe.nodePath,
+					schema: keyframe.schema,
+					updates: [
+						{
+							key: keyframe.key,
+							operation: {
+								type: 'add' as const,
+								frame: keyframe.frame,
+								value: JSON.parse(keyframe.value),
+							},
+						},
+					],
+				})),
+				...(request.movedKeyframes?.sequenceKeyframes ?? []).map(
+					(keyframe) => ({
+						fileName: keyframe.fileName,
+						nodePath: keyframe.nodePath,
+						schema: keyframe.schema,
+						updates: [
+							{
+								key: keyframe.key,
+								operation: {
+									type: 'move' as const,
+									moves: [
+										{
+											fromFrame: keyframe.fromFrame,
+											toFrame: keyframe.toFrame,
+										},
+									],
+								},
+							},
+						],
+					}),
+				),
+			];
+			const effectMutations: EffectKeyframeMutation[] = (
+				request.movedKeyframes?.effectKeyframes ?? []
+			).map((keyframe) => ({
+				fileName: keyframe.fileName,
+				sequenceNodePath: keyframe.sequenceNodePath,
+				effectIndex: keyframe.effectIndex,
+				schema: keyframe.schema,
+				updates: [
+					{
+						key: keyframe.key,
+						operation: {
+							type: 'move',
+							moves: [
+								{
+									fromFrame: keyframe.fromFrame,
+									toFrame: keyframe.toFrame,
+								},
+							],
+						},
 					},
-				});
-				if (response === null) {
-					throw new Error('Could not save sequence props');
-				}
-
-				return Promise.resolve(response);
-			} catch (error) {
-				return Promise.reject(error);
+				],
+			}));
+			const keyframeResult =
+				sequenceMutations.length > 0 || effectMutations.length > 0
+					? await mutateKeyframesInProject({
+							project: propResult?.project ?? project,
+							sequenceMutations,
+							effectMutations,
+						})
+					: null;
+			if (propResult === null && keyframeResult === null) {
+				throw new Error('No sequence prop edits to save');
 			}
+
+			const firstTarget = request.edits[0] ?? request.captionPatches?.[0];
+			controller.applyMutation({
+				fileName:
+					firstTarget?.fileName ??
+					sequenceMutations[0]?.fileName ??
+					'Keyframes',
+				nodePathMutationFiles: null,
+				mutate: () => keyframeResult?.project ?? propResult!.project,
+			});
+			if (propResult) {
+				return propResult.response;
+			}
+
+			const firstSequenceMutation = keyframeResult?.appliedSequenceMutations[0];
+			return firstSequenceMutation && keyframeResult
+				? getSequenceKeyframeResponse({
+						mutation: firstSequenceMutation,
+						project: keyframeResult.project,
+					})
+				: {canUpdate: true, props: {}, results: []};
 		},
 		resetHistory: () => {
 			controller.resetHistory();

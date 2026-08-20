@@ -20,6 +20,11 @@ export {
 	getJsxElementTagLabel,
 } from './delete-jsx-node';
 export {duplicateCompositionInSource} from './duplicate-composition';
+export {
+	ensureRemotionImports,
+	ensureUseCurrentFrameHook,
+	findEnclosingFunctionPath,
+} from './ensure-imports-and-frame-hook';
 export {findSearchPosition} from './find-search-position';
 export {parseAndApplyCodemod} from './parse-and-apply-codemod';
 export {
@@ -54,6 +59,17 @@ export {
 	type FormatInline,
 } from './update-default-props';
 export {updateInlineCaptionPatches} from './update-inline-caption-patches';
+export {
+	type EffectKeyframeUpdate,
+	type FormatKeyframesFile,
+	type IntroducedKeyframeIdentifiers,
+	type KeyframeOperation,
+	type SequenceKeyframeUpdate,
+	updateEffectKeyframes,
+	updateEffectKeyframesAst,
+	updateSequenceKeyframes,
+	updateSequenceKeyframesAst,
+} from './update-keyframes';
 export {
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
