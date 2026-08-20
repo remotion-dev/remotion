@@ -663,7 +663,11 @@ const internalRenderFramesRaw = ({
 			}),
 		])
 			.then((res) => {
-				server?.compositor
+				if (!server || server.compositor.pid === null) {
+					return resolve(res);
+				}
+
+				server.compositor
 					.executeCommand('CloseAllVideos', {})
 					.then(() => {
 						Log.verbose(

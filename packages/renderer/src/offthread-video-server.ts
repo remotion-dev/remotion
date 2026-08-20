@@ -3,9 +3,8 @@ import {URLSearchParams} from 'node:url';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
-import {startCompositor} from './compositor/compositor';
+import {makeLazyCompositor} from './compositor/compositor';
 import type {LogLevel} from './log-level';
-import {isEqualOrBelowLogLevel} from './log-level';
 import {Log} from './logger';
 import {validateOffthreadVideoCacheSizeInBytes} from './options/offthreadvideo-cache-size';
 
@@ -67,13 +66,9 @@ export const startOffthreadVideoServer = ({
 	compositor: Compositor;
 } => {
 	validateOffthreadVideoCacheSizeInBytes(offthreadVideoCacheSizeInBytes);
-	const compositor = startCompositor({
-		type: 'StartLongRunningProcess',
-		payload: {
-			concurrency: offthreadVideoThreads,
-			maximum_frame_cache_size_in_bytes: offthreadVideoCacheSizeInBytes,
-			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
-		},
+	const compositor = makeLazyCompositor({
+		extraThreads: offthreadVideoThreads,
+		maximumFrameCacheItemsInBytes: offthreadVideoCacheSizeInBytes,
 		logLevel,
 		indent,
 		binariesDirectory,
