@@ -45,6 +45,8 @@ const label: React.CSSProperties = {
 
 const baseList: React.CSSProperties = {
 	overflowY: 'auto',
+	paddingTop: 4,
+	paddingBottom: 4,
 };
 
 export const AssetSelector: React.FC<{
