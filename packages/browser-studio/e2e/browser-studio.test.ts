@@ -67,6 +67,12 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 			await expect(solid).toBeVisible();
 			await expect(studio.locator('svg[viewBox="0 0 24 16"]')).toBeVisible();
 			await solid.click();
+			await expect(
+				studio.getByRole('button', {name: 'Copy context for agents'}).first(),
+			).toBeAttached();
+			await expect(
+				studio.getByRole('button', {name: 'Open in another app'}),
+			).toHaveCount(0, {timeout: 1000});
 			await page.keyboard.press('Delete');
 			await expect(solid).toHaveCount(0);
 			await expect
