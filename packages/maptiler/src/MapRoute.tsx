@@ -1,4 +1,4 @@
-import {GeoJSONSource} from '@maptiler/sdk';
+import type {GeoJSONSource} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
 import {
 	forwardRef,
@@ -8,6 +8,7 @@ import {
 	useMemo,
 	useRef,
 	useState,
+	type ForwardRefRenderFunction,
 	type RefObject,
 } from 'react';
 import {
@@ -127,6 +128,7 @@ const MapRouteDrawing = ({
 				type: 'line',
 			});
 		}
+
 		map.setPaintProperty(
 			glowLayerId,
 			'line-opacity',
@@ -148,6 +150,7 @@ const MapRouteDrawing = ({
 				type: 'line',
 			});
 		}
+
 		map.setPaintProperty(sourceId, 'line-color', strokeColor);
 		map.setPaintProperty(sourceId, 'line-width', strokeWidth);
 
@@ -259,56 +262,59 @@ const MapRouteBounds = ({
 	);
 };
 
-const MapRouteInner = forwardRef<HTMLDivElement, MapRouteProps>(
-	(
-		{
-			feature,
-			glow = 0.72,
-			id,
-			progress = 1,
-			strokeColor = '#006cff',
-			strokeWidth = 9,
-			durationInFrames,
-			from,
-			trimBefore,
-			freeze,
-			hidden,
-			name,
-			showInTimeline,
-			controls,
-		},
-		ref,
-	) => {
-		const refForOutline = useRef<HTMLDivElement>(null);
-
-		useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? `<${feature.properties.name}>`}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls}
-				outlineRef={refForOutline}
-			>
-				<MapRouteDrawing
-					feature={feature}
-					glow={glow}
-					id={id}
-					progress={progress}
-					strokeColor={strokeColor}
-					strokeWidth={strokeWidth}
-				/>
-				<MapRouteBounds feature={feature} refForOutline={refForOutline} />
-			</Sequence>
-		);
+const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
+	HTMLDivElement,
+	MapRouteProps
+> = (
+	{
+		feature,
+		glow = 0.72,
+		id,
+		progress = 1,
+		strokeColor = '#006cff',
+		strokeWidth = 9,
+		durationInFrames,
+		from,
+		trimBefore,
+		freeze,
+		hidden,
+		name,
+		showInTimeline,
+		controls,
 	},
-);
+	ref,
+) => {
+	const refForOutline = useRef<HTMLDivElement>(null);
+
+	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
+
+	return (
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			trimBefore={trimBefore}
+			durationInFrames={durationInFrames ?? Infinity}
+			freeze={freeze}
+			hidden={hidden}
+			name={name ?? `<${feature.properties.name}>`}
+			showInTimeline={showInTimeline ?? true}
+			controls={controls}
+			outlineRef={refForOutline}
+		>
+			<MapRouteDrawing
+				feature={feature}
+				glow={glow}
+				id={id}
+				progress={progress}
+				strokeColor={strokeColor}
+				strokeWidth={strokeWidth}
+			/>
+			<MapRouteBounds feature={feature} refForOutline={refForOutline} />
+		</Sequence>
+	);
+};
+
+const MapRouteInner = forwardRef(MapRouteRefForwardingFunction);
 
 export const MapRoute = Interactive.withSchema({
 	Component: MapRouteInner,

@@ -271,6 +271,9 @@
 			"path": "./packages/light-leaks"
 		},
 		{
+			"path": "./packages/maptiler"
+		},
+		{
 			"path": "./packages/mac-cursors"
 		},
 		{
