@@ -1,8 +1,4 @@
-import {
-	config as mapTilerConfig,
-	Map as MapTilerMap,
-	MapStyle,
-} from '@maptiler/sdk';
+import {Map as MapTilerMap, MapStyle} from '@maptiler/sdk';
 import '@maptiler/sdk/style.css';
 import type {ForwardRefRenderFunction, ReactNode} from 'react';
 import {
@@ -161,10 +157,10 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		}
 
 		const initialCamera = initialCameraRef.current;
-		mapTilerConfig.apiKey = apiKey;
 		// Keep MapTiler's logo and attribution visible:
 		// https://docs.maptiler.com/guides/map-design/attribution/remove-attribution/
 		const mapInstance = new MapTilerMap({
+			apiKey,
 			bearing: initialCamera.bearing,
 			canvasContextAttributes: {preserveDrawingBuffer: true},
 			center: [initialCamera.centerLongitude, initialCamera.centerLatitude],
