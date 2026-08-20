@@ -1,8 +1,8 @@
+import fs from 'fs';
+import assert from 'node:assert';
 import {expect, test, type Locator, type Page} from '@playwright/test';
 import {wave} from '@remotion/effects/wave';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import fs from 'fs';
-import assert from 'node:assert';
 import {apiCall} from './api-call.mts';
 import {
 	EXPANDED_SIDEBAR_STATE,
@@ -116,185 +116,10 @@ test.describe('effect keyframes', () => {
 			.toBe(true);
 	});
 
-	test('accepts a scale value that is more precise than its interaction step', async ({
+	test('accepts precise inspector values and expands collapsed timeline tracks', async ({
 		page,
 	}) => {
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
-		await page.waitForFunction(
-			() => !document.body.innerText.includes('Loading...'),
-			{timeout: 30_000},
-		);
-
-		const scaleRow = page
-			.getByText('Scale', {exact: true})
-			.locator('..')
-			.locator('..');
-		const scaleDragger = scaleRow
-			.locator('button.__remotion_input_dragger')
-			.first();
-		await selectScalePrecisionAndWaitFor({page, locator: scaleDragger});
-		await scaleDragger.click();
-
-		const input = scaleRow.locator('input[type="text"]');
-		await expect(input).toBeVisible();
-		await input.fill('0.525');
-		await input.press('ArrowUp');
-		await expect(input).toHaveValue('0.535');
-		await input.fill('0.525');
-		await input.press('Enter');
-
-		await expect
-			.poll(
-				() => {
-					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
-					return content.includes('scale: 0.525');
-				},
-				{
-					message: 'Expected the precise scale value to be written to source',
-					timeout: 10_000,
-				},
-			)
-			.toBe(true);
-	});
-
-	test('accepts a rotation value that is more precise than its interaction step', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
-		await page.waitForFunction(
-			() => !document.body.innerText.includes('Loading...'),
-			{timeout: 30_000},
-		);
-
-		const rotationRow = page
-			.getByText('Rotation', {exact: true})
-			.locator('..')
-			.locator('..');
-		const rotationDragger = rotationRow.locator(
-			'button.__remotion_input_dragger',
-		);
-		await selectScalePrecisionAndWaitFor({page, locator: rotationDragger});
-		await rotationDragger.click();
-
-		const input = rotationRow.locator('input[type="text"]');
-		await expect(input).toBeVisible();
-		await input.fill('0.525');
-		await input.press('ArrowUp');
-		await expect(input).toHaveValue('1.525');
-		await input.fill('0.525');
-		await input.press('Enter');
-		await expect(input).toBeHidden();
-
-		await expect
-			.poll(
-				() => {
-					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
-					return content.includes("rotate: '0.525deg'");
-				},
-				{
-					message:
-						'Expected the precise rotation value to be written to source',
-					timeout: 10_000,
-				},
-			)
-			.toBe(true);
-	});
-
-	test('accepts a crop value that is more precise than its interaction step', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
-		await page.waitForFunction(
-			() => !document.body.innerText.includes('Loading...'),
-			{timeout: 30_000},
-		);
-
-		const expandCrop = page.getByRole('button', {
-			name: 'Expand Crop',
-			exact: true,
-		});
-		await selectScalePrecisionAndWaitFor({page, locator: expandCrop});
-		await expandCrop.click();
-
-		const cropRow = page
-			.getByText('Crop left', {exact: true})
-			.locator('..')
-			.locator('..');
-		await cropRow.locator('button.__remotion_input_dragger').click();
-
-		const input = cropRow.locator('input[type="text"]');
-		await expect(input).toBeVisible();
-		await input.fill('0.005');
-		await input.press('ArrowUp');
-		await expect(input).toHaveValue('0.015');
-		await input.fill('0.005');
-		await input.press('Enter');
-		await expect(input).toBeHidden();
-
-		await expect
-			.poll(
-				() => {
-					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
-					return content.includes('cropLeft={0.005}');
-				},
-				{
-					message: 'Expected the precise crop value to be written to source',
-					timeout: 10_000,
-				},
-			)
-			.toBe(true);
-	});
-
-	test('accepts an effect parameter that is more precise than its interaction step', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
-		await page.waitForFunction(
-			() => !document.body.innerText.includes('Loading...'),
-			{timeout: 30_000},
-		);
-
-		const waveRow = page.getByText('wave()', {exact: true});
-		await selectScalePrecisionAndWaitFor({page, locator: waveRow});
-		await waveRow.click();
-
-		const amplitudeRow = page
-			.getByText('Amplitude', {exact: true})
-			.locator('..')
-			.locator('..');
-		await amplitudeRow.locator('button.__remotion_input_dragger').click();
-
-		const input = amplitudeRow.locator('input[type="text"]');
-		await expect(input).toBeVisible();
-		await input.fill('60.525');
-		await input.press('ArrowUp');
-		await expect(input).toHaveValue('61.525');
-		await input.fill('60.525');
-		await input.press('Enter');
-		await expect(input).toBeHidden();
-
-		await expect
-			.poll(
-				() => {
-					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
-					return content.includes('amplitude: 60.525');
-				},
-				{
-					message:
-						'Expected the precise effect parameter to be written to source',
-					timeout: 10_000,
-				},
-			)
-			.toBe(true);
-	});
-
-	test('collapses timeline tracks until a property or effect is selected', async ({
-		page,
-	}) => {
+		test.setTimeout(120_000);
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
 		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
 		await page.waitForFunction(
@@ -338,7 +163,137 @@ test.describe('effect keyframes', () => {
 		}).toPass({timeout: 15_000});
 
 		await waveRow.click();
-
 		await expect(waveRow).toHaveCount(2);
+
+		const scaleRow = page
+			.getByText('Scale', {exact: true})
+			.locator('..')
+			.locator('..');
+		const scaleDragger = scaleRow
+			.locator('button.__remotion_input_dragger')
+			.first();
+		await selectScalePrecisionAndWaitFor({page, locator: scaleDragger});
+		await scaleDragger.click();
+
+		const scaleInput = scaleRow.locator('input[type="text"]');
+		await expect(scaleInput).toBeVisible();
+		await scaleInput.fill('0.525');
+		await scaleInput.press('ArrowUp');
+		await expect(scaleInput).toHaveValue('0.535');
+		await scaleInput.fill('0.525');
+		await scaleInput.press('Enter');
+
+		await expect
+			.poll(
+				() => {
+					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+					return content.includes('scale: 0.525');
+				},
+				{
+					message: 'Expected the precise scale value to be written to source',
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
+
+		const rotationRow = page
+			.getByText('Rotation', {exact: true})
+			.locator('..')
+			.locator('..');
+		const rotationDragger = rotationRow.locator(
+			'button.__remotion_input_dragger',
+		);
+		await selectScalePrecisionAndWaitFor({page, locator: rotationDragger});
+		await rotationDragger.click();
+
+		const rotationInput = rotationRow.locator('input[type="text"]');
+		await expect(rotationInput).toBeVisible();
+		await rotationInput.fill('0.525');
+		await rotationInput.press('ArrowUp');
+		await expect(rotationInput).toHaveValue('1.525');
+		await rotationInput.fill('0.525');
+		await rotationInput.press('Enter');
+		await expect(rotationInput).toBeHidden();
+
+		await expect
+			.poll(
+				() => {
+					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+					return content.includes("rotate: '0.525deg'");
+				},
+				{
+					message:
+						'Expected the precise rotation value to be written to source',
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
+
+		const expandCrop = page.getByRole('button', {
+			name: 'Expand Crop',
+			exact: true,
+		});
+		await selectScalePrecisionAndWaitFor({page, locator: expandCrop});
+		await expandCrop.click();
+
+		const cropRow = page
+			.getByText('Crop left', {exact: true})
+			.locator('..')
+			.locator('..');
+		await cropRow.locator('button.__remotion_input_dragger').click();
+
+		const cropInput = cropRow.locator('input[type="text"]');
+		await expect(cropInput).toBeVisible();
+		await cropInput.fill('0.005');
+		await cropInput.press('ArrowUp');
+		await expect(cropInput).toHaveValue('0.015');
+		await cropInput.fill('0.005');
+		await cropInput.press('Enter');
+		await expect(cropInput).toBeHidden();
+
+		await expect
+			.poll(
+				() => {
+					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+					return content.includes('cropLeft={0.005}');
+				},
+				{
+					message: 'Expected the precise crop value to be written to source',
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
+
+		await selectScalePrecisionAndWaitFor({page, locator: waveRow});
+		await waveRow.click();
+
+		const amplitudeRow = page
+			.getByText('Amplitude', {exact: true})
+			.locator('..')
+			.locator('..');
+		await amplitudeRow.locator('button.__remotion_input_dragger').click();
+
+		const amplitudeInput = amplitudeRow.locator('input[type="text"]');
+		await expect(amplitudeInput).toBeVisible();
+		await amplitudeInput.fill('60.525');
+		await amplitudeInput.press('ArrowUp');
+		await expect(amplitudeInput).toHaveValue('61.525');
+		await amplitudeInput.fill('60.525');
+		await amplitudeInput.press('Enter');
+		await expect(amplitudeInput).toBeHidden();
+
+		await expect
+			.poll(
+				() => {
+					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+					return content.includes('amplitude: 60.525');
+				},
+				{
+					message:
+						'Expected the precise effect parameter to be written to source',
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
 	});
 });
