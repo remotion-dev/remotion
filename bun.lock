@@ -517,6 +517,7 @@
         "@remotion/elevenlabs": "workspace:*",
         "@remotion/enable-scss": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
+        "@remotion/example": "workspace:*",
         "@remotion/fonts": "workspace:*",
         "@remotion/gif": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
