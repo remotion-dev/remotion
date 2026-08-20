@@ -1,0 +1,29 @@
+---
+image: /generated/articles-docs-gsap-index.png
+id: gsap-index
+sidebar_label: Overview
+title: '@remotion/gsap'
+slug: /gsap
+---
+
+# @remotion/gsap<AvailableFrom v="4.0.516" />
+
+import {TableOfContents} from './table-of-contents';
+
+Use [GSAP](https://gsap.com/) timelines in Remotion.
+
+GSAP normally advances animations on its own ticker, which runs on the wall clock. Remotion requires every frame to be a pure function of [`useCurrentFrame()`](/docs/use-current-frame). This package builds a paused GSAP timeline and seeks it to the current frame, so previews, scrubbing and renders are deterministic.
+
+<Installation pkg="@remotion/gsap" />
+
+Also install `gsap` itself, which is a peer dependency:
+
+<Installation pkg="gsap" />
+
+## APIs
+
+<TableOfContents />
+
+## License
+
+MIT
