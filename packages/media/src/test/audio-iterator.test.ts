@@ -186,6 +186,33 @@ test('PCM chunks unblock playback based on duration before six chunks or EOF', a
 	manager.destroyIterator();
 });
 
+// https://github.com/remotion-dev/remotion/issues/10658
+test('silence before the next loop pass counts toward startup buffering', async () => {
+	const {
+		manager,
+		seek,
+		scheduledChunks,
+		audioContextCurrentTime,
+		getPlaybackUnblocks,
+	} = await prepare({
+		src: 'https://remotion.media/audio-shorter-than-video.mp4',
+		mediaEndTimestamp: 10,
+		sequenceDurationInSeconds: 12,
+		loop: true,
+	});
+
+	audioContextCurrentTime.current = 8;
+	seek({time: 8});
+	await manager.waitForNScheduledNodes(1);
+
+	expect(scheduledChunks[0]).toBeCloseTo(10);
+	expect(getPlaybackUnblocks()).toBe(1);
+
+	seek({time: 8 + 1 / 30});
+	expect(manager.getAudioIteratorsCreated()).toBe(1);
+	manager.destroyIterator();
+});
+
 test('media player should work', async () => {
 	const {manager, scheduledChunks, seek, audioContextCurrentTime} =
 		await prepare();
