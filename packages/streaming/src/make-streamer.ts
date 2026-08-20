@@ -269,7 +269,15 @@ export const makeStreamer = (
 		clear: () => {
 			unprocessedBuffers = [];
 			outputBuffer = new Uint8Array(0);
-			activeSink = null;
+			if (activeSink) {
+				// Best-effort: close the sink so no file descriptor is leaked
+				// if the stream aborted mid-payload
+				const {sink} = activeSink;
+				activeSink = null;
+				try {
+					Promise.resolve(sink.end()).catch(() => undefined);
+				} catch {}
+			}
 		},
 	};
 };

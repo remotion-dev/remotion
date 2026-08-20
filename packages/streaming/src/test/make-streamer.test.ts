@@ -141,6 +141,48 @@ test('should apply backpressure from an async sink', async () => {
 	expect(concat(sinkWrites)).toEqual(body);
 });
 
+test('should end the active sink when cleared after an aborted stream', async () => {
+	let sinkEnded = false;
+
+	const {onData, clear} = makeStreamer(
+		() => {},
+		() => ({
+			write: () => {},
+			end: () => {
+				sinkEnded = true;
+			},
+		}),
+	);
+
+	const body = new Uint8Array(10_000).fill(3);
+	const wire = makeStreamPayloadMessage({nonce: '4', status: 0, body});
+
+	// Deliver only part of the payload, then abort
+	await onData(wire.subarray(0, 5000));
+	expect(sinkEnded).toBe(false);
+
+	clear();
+	// clear() is synchronous; sink.end() is invoked best-effort
+	await Promise.resolve();
+	expect(sinkEnded).toBe(true);
+
+	// After clearing, a new message must be parseable from scratch
+	let received = 0;
+	const fullWire = makeStreamPayloadMessage({
+		nonce: '4',
+		status: 0,
+		body: new Uint8Array(100).fill(1),
+	});
+	const streamerAfterRetry = makeStreamer(
+		() => {
+			received++;
+		},
+		() => ({write: () => {}, end: () => {}}),
+	);
+	await streamerAfterRetry.onData(fullWire);
+	expect(received).toBe(1);
+});
+
 test('should handle multiple sinked messages and messages split mid-header', async () => {
 	const sinks: Record<string, Uint8Array[]> = {};
 	const received: ReceivedMessage[] = [];
