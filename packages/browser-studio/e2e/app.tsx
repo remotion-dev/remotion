@@ -39,7 +39,7 @@ createRoot(root).render(
 		iframeSrc="/frame.html"
 		initialElement={
 			initialElementPayload === null
-				? undefined
+				? null
 				: {payload: initialElementPayload, sourceOrigin: null}
 		}
 		project={project}

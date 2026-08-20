@@ -11,6 +11,7 @@ if (!root) {
 createRoot(root).render(
 	<BrowserStudio
 		iframeSrc="/frame.html"
+		initialElement={null}
 		project={createBlankTemplateProject()}
 		readOnly={false}
 		remotionPackageSource={{

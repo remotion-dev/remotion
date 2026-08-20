@@ -130,7 +130,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			return;
 		}
 
-		StudioProtocolInternals.openInBrowserStudio({payload: elementPayload});
+		StudioProtocolInternals.openInBrowserStudio({
+			endpoint: null,
+			payload: elementPayload,
+		});
 	}, [elementPayload]);
 
 	const PreviewComponent = useMemo(() => {

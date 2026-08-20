@@ -53,10 +53,10 @@ export type CompileState =
 export type BrowserStudioProps = {
 	project: VirtualProject;
 	readOnly: boolean;
-	initialElement?: {
+	initialElement: {
 		payload: StudioElementPayload;
 		sourceOrigin: string | null;
-	};
+	} | null;
 	iframeSrc?: string;
 	remotionPackageSource?: BrowserStudioRemotionPackageSource;
 	dependencyResolver?: BrowserStudioDependencyResolver;

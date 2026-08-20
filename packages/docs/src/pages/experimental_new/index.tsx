@@ -107,7 +107,7 @@ const BrowserStudioContent: React.FC<{
 			initialElement={
 				initialElementState.type === 'payload'
 					? initialElementState.payload
-					: undefined
+					: null
 			}
 			project={project}
 			readOnly={false}

@@ -25,6 +25,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		dependencyVersions: {},
 		getStaticFiles: publicFileManager.getStaticFiles,
 		getProject: () => project,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
@@ -210,6 +211,7 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => project,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
@@ -284,6 +286,7 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 		dependencyVersions: {remotion: '4.0.999'},
 		getStaticFiles: null,
 		getProject: () => project,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
@@ -381,6 +384,7 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 		dependencyVersions: {remotion: '4.0.999'},
 		getStaticFiles: null,
 		getProject: () => project,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
@@ -420,6 +424,7 @@ test('rejects inline SVG importing in Browser Studio', async () => {
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => project,
+		initialElement: null,
 		onProjectChange: () => {
 			throw new Error('SVG insertion must not mutate the project');
 		},
@@ -448,6 +453,7 @@ test('replays an HMR event emitted before the Studio subscribes', () => {
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => project,
+		initialElement: null,
 		onProjectChange: () => undefined,
 		resolveDependencies: null,
 	});
@@ -480,6 +486,7 @@ test('rejects unsafe public paths and conflicting renames', async () => {
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => project,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},

@@ -13,7 +13,10 @@ const payload = createElementPayload({
 });
 
 test('round-trips a payload through the default Browser Studio URL', () => {
-	const url = StudioProtocolInternals.makeBrowserStudioUrl({payload});
+	const url = StudioProtocolInternals.makeBrowserStudioUrl({
+		endpoint: null,
+		payload,
+	});
 	const parsedUrl = new URL(url);
 
 	expect(parsedUrl.origin).toBe('https://www.remotion.dev');

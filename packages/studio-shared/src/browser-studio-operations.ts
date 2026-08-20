@@ -63,7 +63,7 @@ export type DuplicateCompositionResponse =
 	  };
 
 export type BrowserStudioOperations = {
-	consumeInitialElement?: () => {
+	consumeInitialElement: () => {
 		element: ElementDragData['element'];
 		sourceOrigin: string | null;
 	} | null;

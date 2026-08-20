@@ -49,11 +49,11 @@ test('consumes an initial Element payload only once', () => {
 		resolveDependencies: null,
 	});
 
-	expect(operations.consumeInitialElement?.()).toEqual({
+	expect(operations.consumeInitialElement()).toEqual({
 		element: payload.element,
 		sourceOrigin: 'https://elements.example.test',
 	});
-	expect(operations.consumeInitialElement?.()).toBe(null);
+	expect(operations.consumeInitialElement()).toBe(null);
 });
 
 test('adds a Solid to the blank Browser Studio project', () => {
@@ -134,6 +134,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -237,6 +238,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -328,6 +330,7 @@ registerRoot(Root);`,
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -395,6 +398,7 @@ test('reports invalid timeline Solid input without changing the project', async 
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -436,6 +440,7 @@ registerRoot(Root);`,
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -514,6 +519,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -719,6 +725,7 @@ registerRoot(Root);`,
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -807,6 +814,7 @@ const makeOperationsForProject = (project: VirtualProject) => {
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},

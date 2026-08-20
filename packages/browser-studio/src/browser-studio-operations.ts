@@ -360,14 +360,14 @@ export const createBrowserStudioOperations = ({
 		typeof createBrowserStudioProjectController
 	>[0]['getStaticFiles'];
 	getProject: () => VirtualProject;
-	initialElement?: {
+	initialElement: {
 		payload: StudioElementPayload;
 		sourceOrigin: string | null;
-	};
+	} | null;
 	onProjectChange: (project: VirtualProject) => void;
 	resolveDependencies: ResolveElementDependencies | null;
 }): BrowserStudioOperationsController => {
-	let pendingInitialElement = initialElement ?? null;
+	let pendingInitialElement = initialElement;
 	const defaultPropsSubscriptions = new Map<string, Set<string>>();
 	const lastDefaultPropsResults = new Map<string, string>();
 	const sequencePropsSubscriptions = new Map<

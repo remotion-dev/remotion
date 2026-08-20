@@ -47,17 +47,17 @@ const fromBase64Url = (value: string) => {
 };
 
 export const makeBrowserStudioUrl = ({
-	endpoint = defaultBrowserStudioEndpoint,
+	endpoint,
 	payload,
 }: {
-	readonly endpoint?: string;
+	readonly endpoint: string | null;
 	readonly payload: StudioElementPayload;
 }) => {
 	if (parseStudioElementPayload(payload) === null) {
 		throw new TypeError('Invalid Element payload');
 	}
 
-	const url = new URL(endpoint);
+	const url = new URL(endpoint ?? defaultBrowserStudioEndpoint);
 	if (url.protocol !== 'https:' && url.protocol !== 'http:') {
 		throw new TypeError('Browser Studio endpoint must use HTTP or HTTPS');
 	}
@@ -116,7 +116,7 @@ export const openInBrowserStudio = ({
 	endpoint,
 	payload,
 }: {
-	readonly endpoint?: string;
+	readonly endpoint: string | null;
 	readonly payload: StudioElementPayload;
 }) => {
 	if (typeof window === 'undefined') {

@@ -846,7 +846,7 @@ export const Canvas: React.FC<{
 		}
 
 		const initialElement =
-			getBrowserStudioOperations()?.consumeInitialElement?.() ?? null;
+			getBrowserStudioOperations()?.consumeInitialElement() ?? null;
 		if (initialElement === null) {
 			return;
 		}
