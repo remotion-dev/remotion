@@ -58,6 +58,44 @@ import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
+const isPointInsidePolygon = (
+	point: {x: number; y: number},
+	polygon: readonly {x: number; y: number}[],
+): boolean => {
+	let inside = false;
+	for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+		const {x: xi, y: yi} = polygon[i];
+		const {x: xj, y: yj} = polygon[j];
+		const intersects =
+			yi > point.y !== yj > point.y &&
+			point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
+		if (intersects) {
+			inside = !inside;
+		}
+	}
+
+	return inside;
+};
+
+const isPointerInsideSelectedOutline = (
+	event: {clientX: number; clientY: number},
+	outlines: readonly SelectedOutline[],
+	polygonEl: SVGPolygonElement | null,
+): boolean => {
+	const svg = polygonEl?.ownerSVGElement;
+	const ctm = svg?.getScreenCTM();
+	if (!svg || !ctm) {
+		return false;
+	}
+
+	const screenPoint = svg.createSVGPoint();
+	screenPoint.x = event.clientX;
+	screenPoint.y = event.clientY;
+	const {x, y} = screenPoint.matrixTransform(ctm.inverse());
+	return outlines.some((selectedOutline) =>
+		isPointInsidePolygon({x, y}, selectedOutline.points),
+	);
+};
 
 const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly compositionHeight: number;
@@ -161,26 +199,52 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			const interaction = getOutlineSelectionInteraction(event);
 			const shouldUpdateSelection =
 				!selected || interaction.shiftKey || interaction.toggleKey;
-			if (shouldUpdateSelection) {
-				onSelect(target.selection, interaction);
-			}
 
+			const selectedDragTargets = getAllDragTargets();
+			const allDragOutlines = getAllDragOutlines();
+			const deferSelection =
+				!selected &&
+				!interaction.shiftKey &&
+				!interaction.toggleKey &&
+				selectedDragTargets.length > 0 &&
+				isPointerInsideSelectedOutline(
+					event,
+					allDragOutlines,
+					polygonRef.current,
+				);
 			if (drag === null || interaction.shiftKey || interaction.toggleKey) {
+				if (shouldUpdateSelection) {
+					onSelect(target.selection, interaction);
+				}
+
 				return;
 			}
 
+			if (!deferSelection && shouldUpdateSelection) {
+				onSelect(target.selection, interaction);
+			}
+
 			if (commitPendingInspectorFields()) {
+				if (deferSelection) {
+					onSelect(target.selection, interaction);
+				}
+
 				return;
 			}
 
 			const startPointerX = event.clientX;
 			const startPointerY = event.clientY;
 			const dragStates = getSelectedOutlineDragStates({
-				dragTargets: selected ? getAllDragTargets() : [drag],
+				dragTargets: deferSelection
+					? selectedDragTargets
+					: selected
+						? selectedDragTargets
+						: [drag],
 				getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
-			const dragOutlines = selected ? getAllDragOutlines() : [outline];
+			const dragOutlines =
+				deferSelection || selected ? allDragOutlines : [outline];
 			let lastValues = new Map<string, string>();
 			let currentPointerX = startPointerX;
 			let currentPointerY = startPointerY;
@@ -325,6 +389,11 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 				if (changes.length === 0) {
 					clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
+
+					if (deferSelection && !dragStarted) {
+						onSelect(target.selection, interaction);
+					}
+
 					return;
 				}
 
