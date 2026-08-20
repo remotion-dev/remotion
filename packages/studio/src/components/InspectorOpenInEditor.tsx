@@ -2,6 +2,7 @@ import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	LIGHT_TEXT,
@@ -239,7 +240,10 @@ export const InspectorOpenInEditor: React.FC<{
 		setSelectedModal,
 	]);
 
-	if (previewServerState.type !== 'connected') {
+	if (
+		previewServerState.type !== 'connected' ||
+		getBrowserStudioOperations() !== null
+	) {
 		return null;
 	}
 
