@@ -69,6 +69,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		body: JSON.stringify(
 			makeInitialOverallRenderProgress(
 				options.timeoutInMilliseconds + Date.now(),
+				params.enableCancellation ?? false,
 			),
 		),
 		expectedBucketOwner: options.expectedBucketOwner,
@@ -81,6 +82,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 	});
 
 	const payload: ServerlessPayload<Provider> = {
+		enableCancellation: params.enableCancellation ?? false,
 		type: ServerlessRoutines.launch,
 		framesPerFunction: params.framesPerLambda,
 		concurrency: params.concurrency,

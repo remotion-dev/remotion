@@ -218,7 +218,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		scale: params.scale,
 	};
 
-	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
+	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds, false);
 	still.renderMetadata = renderMetadata;
 
 	await providerSpecifics.writeFile({

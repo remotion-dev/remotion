@@ -382,6 +382,7 @@ export const renderCommand = async ({
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
 	const res = await LambdaClientInternals.internalRenderMediaOnLambdaRaw({
+		enableCancellation: false,
 		functionName,
 		serveUrl,
 		inputProps,

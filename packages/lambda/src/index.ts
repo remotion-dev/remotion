@@ -1,6 +1,7 @@
 import type {
 	AwsPartition,
 	AwsRegion,
+	CancelRenderOnLambdaInput,
 	CustomCredentials,
 	DeleteFunctionInput,
 	DeleteRenderInput,
@@ -23,6 +24,7 @@ import type {
 	RenderStillOnLambdaOutput,
 } from '@remotion/lambda-client';
 import {
+	cancelRenderOnLambda as deprecatedCancelRenderOnLambda,
 	deleteFunction,
 	deleteRender,
 	getRenderProgress as deprecatedGetRenderProgress,
@@ -98,6 +100,17 @@ const renderMediaOnLambda = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 /**
  * @deprecated Import this from `@remotion/lambda-client` instead
  */
+const cancelRenderOnLambda = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'cancelRenderOnLambda() has moved to `@remotion/lambda-client`. Please import it from there.',
+			);
+		}
+	: deprecatedCancelRenderOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda-client` instead
+ */
 const getRenderProgress = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 	? () => {
 			throw new Error(
@@ -143,6 +156,7 @@ export {
 	deleteFunction,
 	deleteRender,
 	deleteSite,
+	cancelRenderOnLambda,
 	deployFunction,
 	deploySite,
 	deploySiteFromBundle,
@@ -169,6 +183,7 @@ export {
 export type {
 	AwsPartition,
 	AwsRegion,
+	CancelRenderOnLambdaInput,
 	CustomCredentials,
 	DeleteFunctionInput,
 	DeleteRenderInput,

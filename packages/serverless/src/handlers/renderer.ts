@@ -3,10 +3,11 @@ import path from 'node:path';
 import type {
 	AudioCodec,
 	BrowserLog,
+	CancelSignal,
 	Codec,
 	OnArtifact,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import {makeCancelSignal, RenderInternals} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	CloudProvider,
@@ -23,6 +24,7 @@ import {
 	truthy,
 	VERSION,
 } from '@remotion/serverless-client';
+import {startCancellationPolling} from '../cancellation-polling';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {startLeakDetection} from '../leak-detection';
@@ -50,6 +52,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	insideFunctionSpecifics,
 	onBrowserInstance,
 	onMediaFiles,
+	cancelSignal,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -66,6 +69,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 				completedAt: number;
 		  }) => Promise<void>)
 		| null;
+	cancelSignal: CancelSignal | null;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -341,7 +345,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			audioCodec,
 			preferLossless: params.preferLossless,
 			browserExecutable: providerSpecifics.getChromiumPath(),
-			cancelSignal: undefined,
+			cancelSignal: cancelSignal ?? undefined,
 			disallowParallelEncoding: false,
 			ffmpegOverride: ({args}) => args,
 			indent: false,
@@ -491,6 +495,23 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 	let shouldKeepBrowserOpen = true;
 	let instance: LaunchedBrowser | undefined;
+	let cancellationRequested = false;
+	const {cancel, cancelSignal} = makeCancelSignal();
+	const stopCancellationPolling = params.enableCancellation
+		? startCancellationPolling({
+				bucketName: params.bucketName,
+				renderId: params.renderId,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				providerSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				intervalInMilliseconds: 1000,
+				logLevel: params.logLevel,
+				onCancelled: () => {
+					cancellationRequested = true;
+					cancel();
+				},
+			})
+		: () => undefined;
 
 	try {
 		await renderHandler({
@@ -504,6 +525,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				instance = browserInstance;
 			},
 			onMediaFiles,
+			cancelSignal: params.enableCancellation ? cancelSignal : null,
 		});
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
@@ -519,7 +541,8 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			shouldKeepBrowserOpen = false;
 		}
 
-		const shouldNotRetry = (err as Error).name === 'CancelledError';
+		const shouldNotRetry =
+			cancellationRequested || (err as Error).name === 'CancelledError';
 
 		const shouldRetry =
 			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
@@ -557,6 +580,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			},
 		});
 	} finally {
+		stopCancellationPolling();
 		if (shouldKeepBrowserOpen && instance) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel: params.logLevel,

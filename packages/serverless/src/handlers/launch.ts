@@ -27,6 +27,7 @@ import {
 	validateFramesPerFunction,
 	validateOutname,
 	validatePrivacy,
+	writeCancellationSignal,
 } from '@remotion/serverless-client';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
@@ -264,6 +265,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: ServerlessPayload<Provider> = {
+			enableCancellation: params.enableCancellation ?? false,
 			type: ServerlessRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
@@ -633,6 +635,30 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		return prom;
 	};
 
+	const cancelOtherRenderers = async () => {
+		if (!params.enableCancellation) {
+			return;
+		}
+
+		try {
+			await writeCancellationSignal({
+				bucketName: params.bucketName,
+				renderId: params.renderId,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				expectedBucketOwner: options.expectedBucketOwner,
+				providerSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				requestHandler: null,
+			});
+		} catch (err) {
+			RenderInternals.Log.warn(
+				{indent: false, logLevel: params.logLevel},
+				'Could not signal other renderers to stop.',
+				err,
+			);
+		}
+	};
+
 	const onTimeout = async () => {
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
@@ -648,6 +674,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		}
 
 		runCleanupTasks();
+		await cancelOtherRenderers();
 
 		if (!params.webhook) {
 			RenderInternals.Log.verbose(
@@ -741,6 +768,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	);
 
 	const overallProgress = makeOverallRenderProgress({
+		cancellationEnabled: params.enableCancellation ?? false,
 		renderId: params.renderId,
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
@@ -832,6 +860,8 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
 		}
+
+		await cancelOtherRenderers();
 
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},

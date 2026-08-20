@@ -116,6 +116,32 @@ func main() {
 }
 ```
 
+## Cancelling a render<AvailableFrom v="4.0.515" />
+
+Set `EnableCancellation` when starting the render, then pass its response to `CancelRenderOnLambda()`:
+
+```go title="cancel-render.go"
+renderResponse, err := lambda_go_sdk.RenderMediaOnLambda(lambda_go_sdk.RemotionOptions{
+  ServeUrl: serveUrl,
+  FunctionName: functionName,
+  Region: region,
+  Composition: "main",
+  EnableCancellation: true,
+})
+if err != nil {
+  log.Fatal(err)
+}
+
+err = lambda_go_sdk.CancelRenderOnLambda(lambda_go_sdk.CancelRenderOnLambdaInput{
+  Region: region,
+  BucketName: renderResponse.BucketName,
+  RenderId: renderResponse.RenderId,
+})
+if err != nil {
+  log.Fatal(err)
+}
+```
+
 ## Changelog
 
 `v4.0.6`: The response payload structure has changed. See the history of this page to see the previous structure.
