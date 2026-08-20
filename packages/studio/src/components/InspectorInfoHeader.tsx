@@ -54,10 +54,10 @@ const inspectorSubtitle: React.CSSProperties = {
 	boxSizing: 'border-box',
 	fontFamily: 'sans-serif',
 	fontSize: 13,
-	height: 28,
-	lineHeight: '18px',
+	height: 20,
+	lineHeight: '20px',
 	margin: '0 4px',
-	padding: '5px 8px',
+	padding: '0 8px',
 	width: 'calc(100% - 8px)',
 };
 
