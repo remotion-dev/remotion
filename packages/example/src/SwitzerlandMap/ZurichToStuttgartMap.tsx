@@ -1,8 +1,8 @@
 import {
 	MapOverlay,
-	MapRoute,
+	MapPolyline,
 	MapViewport,
-	type MapRouteFeature,
+	type MapPolylineFeature,
 } from '@remotion/maptiler';
 import {Easing, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {MapPin} from './MapPin';
@@ -24,7 +24,7 @@ const zurichToStuttgart = {
 			[9.1829, 48.7758],
 		],
 	},
-} as const satisfies MapRouteFeature;
+} as const satisfies MapPolylineFeature;
 
 export const ZurichToStuttgartMap = () => {
 	const frame = useCurrentFrame();
@@ -34,6 +34,8 @@ export const ZurichToStuttgartMap = () => {
 			name="Map camera"
 			from={0}
 			apiKey={process.env.REMOTION_MAPTILER_KEY ?? null}
+			showLabels={false}
+			administrativeBorders="country-only"
 			centerLongitude={interpolate(
 				frame,
 				[106, 179],
@@ -84,6 +86,7 @@ export const ZurichToStuttgartMap = () => {
 			<MapOverlay
 				name="Zurich marker"
 				from={28}
+				anchor="top-left"
 				longitude={8.541071693747302}
 				latitude={47.41728197584036}
 				style={{
@@ -92,12 +95,16 @@ export const ZurichToStuttgartMap = () => {
 			>
 				<MapPin name="Zurich pin" imageSrc={staticFile('zurich-pin.png')} />
 			</MapOverlay>
-			<MapRoute
+			<MapPolyline
 				name="Zurich to Stuttgart route"
 				from={106}
-				id="zurich-to-stuttgart"
-				feature={zurichToStuttgart}
-				glow={0.7}
+				layerId="zurich-to-stuttgart"
+				data={zurichToStuttgart}
+				outline
+				outlineBlur={8}
+				outlineColor="#ffffff"
+				outlineOpacity={0.7}
+				outlineWidth={7}
 				progress={interpolate(frame, [128, 179], [0, 1], {
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
@@ -113,12 +120,13 @@ export const ZurichToStuttgartMap = () => {
 						}),
 					],
 				})}
-				strokeColor={'#ff6700'}
-				strokeWidth={8}
+				lineColor={'#ff6700'}
+				lineWidth={8}
 			/>
 			<MapOverlay
 				name="Stuttgart marker"
 				from={225}
+				anchor="top-left"
 				longitude={9.1829}
 				latitude={48.7758}
 				style={{

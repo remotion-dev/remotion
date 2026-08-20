@@ -1,6 +1,6 @@
-import {Map as MapTilerMap, MapStyle} from '@maptiler/sdk';
+import {Map as MapTilerMap, MapStyle, type MapOptions} from '@maptiler/sdk';
 import '@maptiler/sdk/style.css';
-import type {ForwardRefRenderFunction, ReactNode} from 'react';
+import type {ComponentType, ForwardRefRenderFunction, ReactNode} from 'react';
 import {
 	forwardRef,
 	useEffect,
@@ -19,7 +19,27 @@ import {
 } from 'remotion';
 import {MapTilerContext} from './MapTilerContext';
 
-type MapViewportProps = InteractiveBaseProps & {
+export type MapViewportMapOptions = Omit<
+	MapOptions,
+	| 'apiKey'
+	| 'bearing'
+	| 'center'
+	| 'container'
+	| 'fadeDuration'
+	| 'interactive'
+	| 'language'
+	| 'padding'
+	| 'pitch'
+	| 'projection'
+	| 'style'
+	| 'terrain'
+	| 'terrainExaggeration'
+	| 'zoom'
+>;
+
+export type MapAdministrativeBorders = 'all' | 'country-only' | 'none';
+
+export type MapViewportProps = InteractiveBaseProps & {
 	readonly apiKey: string | null;
 	readonly backgroundColor?: string;
 	readonly bearing?: number;
@@ -27,7 +47,43 @@ type MapViewportProps = InteractiveBaseProps & {
 	readonly centerLongitude?: number;
 	readonly children?: ReactNode;
 	readonly controls?: SequenceControls;
+	readonly language?: MapOptions['language'];
+	readonly mapOptions?: MapViewportMapOptions;
+	readonly mapStyle?: MapOptions['style'];
+	readonly onMapReady?: (map: MapTilerMap) => void;
+	readonly paddingBottom?: number;
+	readonly paddingLeft?: number;
+	readonly paddingRight?: number;
+	readonly paddingTop?: number;
+	readonly pitch?: number;
+	readonly projection?: MapOptions['projection'];
+	readonly showLabels?: boolean;
+	readonly administrativeBorders?: MapAdministrativeBorders;
+	readonly terrain?: boolean;
+	readonly terrainExaggeration?: number;
 	readonly zoom?: number;
+};
+
+const stripStyleLayers = ({
+	administrativeBorders,
+	map,
+	showLabels,
+}: {
+	readonly administrativeBorders: MapAdministrativeBorders;
+	readonly map: MapTilerMap;
+	readonly showLabels: boolean;
+}) => {
+	for (const layer of [...(map.getStyle().layers ?? [])]) {
+		const shouldRemoveLabel = !showLabels && layer.type === 'symbol';
+		const shouldRemoveAdministrativeBorder =
+			administrativeBorders === 'none'
+				? /border/i.test(layer.id)
+				: administrativeBorders === 'country-only' &&
+					/other border/i.test(layer.id);
+		if (shouldRemoveLabel || shouldRemoveAdministrativeBorder) {
+			map.removeLayer(layer.id);
+		}
+	}
 };
 
 const mapViewportSchema = {
@@ -69,6 +125,56 @@ const mapViewportSchema = {
 		step: 1,
 		default: 0,
 		description: 'Bearing',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	pitch: {
+		type: 'number',
+		min: 0,
+		max: 85,
+		step: 1,
+		default: 0,
+		description: 'Pitch',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	paddingTop: {
+		type: 'number',
+		min: 0,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Top camera padding',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	paddingRight: {
+		type: 'number',
+		min: 0,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Right camera padding',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	paddingBottom: {
+		type: 'number',
+		min: 0,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Bottom camera padding',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	paddingLeft: {
+		type: 'number',
+		min: 0,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Left camera padding',
 		hiddenFromList: false,
 		keyframable: true,
 	},
@@ -114,6 +220,20 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		centerLatitude = 0,
 		centerLongitude = 0,
 		children,
+		language,
+		mapOptions,
+		mapStyle = MapStyle.BASIC,
+		onMapReady,
+		paddingBottom = 0,
+		paddingLeft = 0,
+		paddingRight = 0,
+		paddingTop = 0,
+		pitch = 0,
+		projection,
+		showLabels = true,
+		administrativeBorders = 'all',
+		terrain = false,
+		terrainExaggeration = 1,
 		durationInFrames,
 		from,
 		trimBefore,
@@ -133,15 +253,38 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		bearing,
 		centerLatitude,
 		centerLongitude,
+		paddingBottom,
+		paddingLeft,
+		paddingRight,
+		paddingTop,
+		pitch,
 		zoom,
 	});
+	const initialMapOptionsRef = useRef({
+		administrativeBorders,
+		language,
+		mapOptions,
+		mapStyle,
+		projection,
+		showLabels,
+		terrain,
+		terrainExaggeration,
+	});
+	const lastMapStyleRef = useRef(mapStyle);
+	const lastLayerVisibilityRef = useRef({
+		administrativeBorders,
+		showLabels,
+	});
+	const onMapReadyRef = useRef(onMapReady);
+	onMapReadyRef.current = onMapReady;
 	const {continueRender, delayRender} = useDelayRender();
 	const [map, setMap] = useState<MapTilerMap | null>(null);
 	const [cameraRevision, setCameraRevision] = useState(0);
+	const [styleRevision, setStyleRevision] = useState(0);
 	const [loadingHandle] = useState(() => delayRender('Loading MapTiler map'));
 	const contextValue = useMemo(
-		() => ({cameraRevision, map}),
-		[cameraRevision, map],
+		() => ({cameraRevision, map, styleRevision}),
+		[cameraRevision, map, styleRevision],
 	);
 
 	useImperativeHandle(ref, () => viewportRef.current as HTMLDivElement, []);
@@ -157,35 +300,52 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		}
 
 		const initialCamera = initialCameraRef.current;
+		const initialOptions = initialMapOptionsRef.current;
 		// Keep MapTiler's logo and attribution visible:
 		// https://docs.maptiler.com/guides/map-design/attribution/remove-attribution/
 		const mapInstance = new MapTilerMap({
+			fullscreenControl: false,
+			geolocateControl: false,
+			navigationControl: false,
+			scaleControl: false,
+			terrainControl: false,
+			...initialOptions.mapOptions,
 			apiKey,
 			bearing: initialCamera.bearing,
-			canvasContextAttributes: {preserveDrawingBuffer: true},
+			canvasContextAttributes: {
+				...initialOptions.mapOptions?.canvasContextAttributes,
+				preserveDrawingBuffer: true,
+			},
 			center: [initialCamera.centerLongitude, initialCamera.centerLatitude],
 			container: mapContainerRef.current,
 			fadeDuration: 0,
-			fullscreenControl: false,
-			geolocateControl: false,
 			interactive: false,
-			navigationControl: false,
-			scaleControl: false,
-			style: MapStyle.BASIC,
-			terrainControl: false,
+			language: initialOptions.language,
+			pitch: initialCamera.pitch,
+			projection: initialOptions.projection,
+			style: initialOptions.mapStyle,
+			terrain: initialOptions.terrain,
+			terrainExaggeration: initialOptions.terrainExaggeration,
 			zoom: initialCamera.zoom,
+		});
+		mapInstance.setPadding({
+			bottom: initialCamera.paddingBottom,
+			left: initialCamera.paddingLeft,
+			right: initialCamera.paddingRight,
+			top: initialCamera.paddingTop,
 		});
 		mapRef.current = mapInstance;
 
 		mapInstance.on('load', () => {
-			for (const layer of [...(mapInstance.getStyle().layers ?? [])]) {
-				if (layer.type === 'symbol' || /other border/i.test(layer.id)) {
-					mapInstance.removeLayer(layer.id);
-				}
-			}
+			stripStyleLayers({
+				administrativeBorders: initialOptions.administrativeBorders,
+				map: mapInstance,
+				showLabels: initialOptions.showLabels,
+			});
 
 			mapInstance.once('idle', () => {
 				setMap(mapInstance);
+				onMapReadyRef.current?.(mapInstance);
 				continueRender(loadingHandle);
 			});
 			mapInstance.triggerRepaint();
@@ -203,11 +363,17 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		}
 
 		const currentCenter = map.getCenter();
+		const currentPadding = map.getPadding();
 		const cameraIsCurrent =
 			Math.abs(currentCenter.lng - centerLongitude) < 0.0000001 &&
 			Math.abs(currentCenter.lat - centerLatitude) < 0.0000001 &&
 			Math.abs(map.getZoom() - zoom) < 0.0000001 &&
-			Math.abs(map.getBearing() - bearing) < 0.0000001;
+			Math.abs(map.getBearing() - bearing) < 0.0000001 &&
+			Math.abs(map.getPitch() - pitch) < 0.0000001 &&
+			Math.abs((currentPadding.top ?? 0) - paddingTop) < 0.0000001 &&
+			Math.abs((currentPadding.right ?? 0) - paddingRight) < 0.0000001 &&
+			Math.abs((currentPadding.bottom ?? 0) - paddingBottom) < 0.0000001 &&
+			Math.abs((currentPadding.left ?? 0) - paddingLeft) < 0.0000001;
 
 		if (cameraIsCurrent) {
 			return;
@@ -230,6 +396,13 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		map.jumpTo({
 			bearing,
 			center: [centerLongitude, centerLatitude],
+			padding: {
+				bottom: paddingBottom,
+				left: paddingLeft,
+				right: paddingRight,
+				top: paddingTop,
+			},
+			pitch,
 			zoom,
 		});
 		setCameraRevision((revision) => revision + 1);
@@ -246,8 +419,93 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		continueRender,
 		delayRender,
 		map,
+		paddingBottom,
+		paddingLeft,
+		paddingRight,
+		paddingTop,
+		pitch,
 		zoom,
 	]);
+
+	useEffect(() => {
+		if (
+			!map ||
+			(lastMapStyleRef.current === mapStyle &&
+				lastLayerVisibilityRef.current.showLabels === showLabels &&
+				lastLayerVisibilityRef.current.administrativeBorders ===
+					administrativeBorders)
+		) {
+			return;
+		}
+
+		const styleHandle = delayRender('Updating MapTiler style');
+		let hasFinished = false;
+		const finish = () => {
+			if (hasFinished) {
+				return;
+			}
+
+			hasFinished = true;
+			lastMapStyleRef.current = mapStyle;
+			lastLayerVisibilityRef.current = {
+				administrativeBorders,
+				showLabels,
+			};
+			setStyleRevision((revision) => revision + 1);
+			continueRender(styleHandle);
+		};
+
+		const onStyleLoad = () => {
+			stripStyleLayers({administrativeBorders, map, showLabels});
+			map.once('idle', finish);
+			map.triggerRepaint();
+		};
+
+		map.once('style.load', onStyleLoad);
+		map.setStyle(mapStyle ?? null);
+		map.triggerRepaint();
+
+		return () => {
+			map.off('style.load', onStyleLoad);
+			map.off('idle', finish);
+			finish();
+		};
+	}, [
+		administrativeBorders,
+		continueRender,
+		delayRender,
+		map,
+		mapStyle,
+		showLabels,
+	]);
+
+	useEffect(() => {
+		if (map && language) {
+			map.setLanguage(language);
+			map.triggerRepaint();
+		}
+	}, [language, map]);
+
+	useEffect(() => {
+		if (!map) {
+			return;
+		}
+
+		if (terrain) {
+			map.enableTerrain(terrainExaggeration);
+		} else {
+			map.disableTerrain();
+		}
+
+		map.triggerRepaint();
+	}, [map, terrain, terrainExaggeration]);
+
+	useEffect(() => {
+		if (map && projection) {
+			map.setProjection(projection, {persist: true});
+			map.triggerRepaint();
+		}
+	}, [map, projection]);
 
 	return (
 		<Sequence
@@ -293,10 +551,11 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 
 const MapViewportInner = forwardRef(MapViewportRefForwardingFunction);
 
-export const MapViewport = Interactive.withSchema({
-	Component: MapViewportInner,
-	componentName: '<MapViewport>',
-	componentIdentity: null,
-	schema: mapViewportSchema,
-	supportsEffects: false,
-});
+export const MapViewport: ComponentType<MapViewportProps> =
+	Interactive.withSchema({
+		Component: MapViewportInner,
+		componentName: '<MapViewport>',
+		componentIdentity: null,
+		schema: mapViewportSchema,
+		supportsEffects: false,
+	});

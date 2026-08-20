@@ -18,6 +18,8 @@ export const SwitzerlandMap = () => {
 			name="Map camera"
 			from={0}
 			apiKey={process.env.REMOTION_MAPTILER_KEY ?? null}
+			showLabels={false}
+			administrativeBorders="country-only"
 			centerLongitude={interpolate(frame, [124, 164], [8.2275, 13.3347], {
 				easing: [Easing.bezier(0.65, 0, 0.35, 1)],
 				extrapolateLeft: 'clamp',
