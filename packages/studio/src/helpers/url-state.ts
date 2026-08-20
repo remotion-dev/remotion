@@ -1,7 +1,7 @@
 type UrlHandling = 'spa' | 'query-string';
 
 const getUrlHandlingType = (): UrlHandling => {
-	if (window.remotion_isReadOnlyStudio) {
+	if (window.remotion_isReadOnlyStudio || window.remotion_browserStudio) {
 		return 'query-string';
 	}
 
