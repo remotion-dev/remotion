@@ -72,7 +72,8 @@ const formatInline: FormatInline = ({inlineContent, linePrefix, endOfLine}) =>
 			bracketSpacing: false,
 			parser: 'typescript',
 			singleQuote: true,
-			useTabs: true,
+			tabWidth: 2,
+			useTabs: false,
 		},
 		format: (source, options) =>
 			format(source, {

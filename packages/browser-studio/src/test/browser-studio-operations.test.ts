@@ -1104,6 +1104,52 @@ export const Root = () => {
 	});
 });
 
+test('formats wrapped default props with spaces', async () => {
+	const fileName = '/project/src/Root.tsx';
+	const {operations, getProject} = makeOperationsForProject({
+		rootDir: '/project',
+		entryPoint: '/project/src/index.ts',
+		files: {
+			'/project/src/index.ts': `import {registerRoot} from 'remotion';
+import {Root} from './Root';
+registerRoot(Root);
+`,
+			[fileName]: `import {Composition} from 'remotion';
+
+const MyComponent = () => null;
+
+export const Root = () => (
+  <Composition
+    id="MyComp"
+    component={MyComponent}
+    durationInFrames={60}
+    fps={30}
+    width={1280}
+    height={720}
+    defaultProps={{title: 'Before'}}
+  />
+);
+`,
+		},
+	});
+
+	const result = await operations.updateDefaultProps({
+		compositionId: 'MyComp',
+		defaultProps: JSON.stringify({
+			title: 'A sufficiently long title to wrap the default props object',
+			count: 2,
+		}),
+		enumPaths: [],
+	});
+
+	expect(result).toEqual({success: true});
+	expect(getProject().files[fileName]).toContain(`defaultProps={{
+      title: 'A sufficiently long title to wrap the default props object',
+      count: 2,
+    }}`);
+	expect(getProject().files[fileName]).not.toContain('\t');
+});
+
 test('reports a structured error when a composition has no defaultProps', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
