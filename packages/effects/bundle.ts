@@ -47,6 +47,7 @@ const effectEntrypoints = [
 	'src/mirror.ts',
 	'src/noise.ts',
 	'src/noise-displacement.ts',
+	'src/outline.ts',
 	'src/paper.ts',
 	'src/roughen-edges.ts',
 	'src/pattern.ts',

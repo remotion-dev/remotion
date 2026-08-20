@@ -16,7 +16,7 @@ import {
 } from '@remotion/timeline-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
-import {useVideoConfig} from 'remotion';
+import {Internals, useVideoConfig} from 'remotion';
 import {BLACK_ALPHA_30} from '../../helpers/colors';
 import {
 	TIMELINE_LAYER_FILMSTRIP_HEIGHT,
@@ -81,6 +81,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	extendLastFrame,
 }) => {
 	const {fps} = useVideoConfig();
+	const resolvedSrc = Internals.usePreload(src);
 	const ref = useRef<HTMLDivElement>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
@@ -189,7 +190,7 @@ const TimelineVideoInfoSegment: React.FC<{
 
 					return [times.timestampInSeconds];
 				},
-				src,
+				src: resolvedSrc,
 				onVideoSample: (sample) => {
 					let frame: VideoFrame | undefined;
 					try {
@@ -348,7 +349,7 @@ const TimelineVideoInfoSegment: React.FC<{
 					.filter((timestamp) => filledSlots.get(timestamp) === undefined)
 					.map((timestamp) => timestamp / WEBCODECS_TIMESCALE);
 			},
-			src,
+			src: resolvedSrc,
 			onVideoSample: (sample) => {
 				let frame: VideoFrame | undefined;
 				try {
@@ -437,6 +438,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		frozenMediaFrame,
 		mediaStartFrame,
 		playbackRate,
+		resolvedSrc,
 		src,
 		tiledLoop,
 		visualizationWidth,

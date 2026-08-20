@@ -77,6 +77,7 @@ export const RenderQueueRemoveItem: React.FC<{
 		<InlineAction
 			renderAction={renderAction}
 			onClick={onClick}
+			title="Remove"
 			variant={null}
 		/>
 	);
