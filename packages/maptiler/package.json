@@ -1,0 +1,57 @@
+{
+	"name": "@remotion/maptiler",
+	"version": "4.0.513",
+	"description": "MapTiler components for Remotion",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/maptiler"
+	},
+	"type": "module",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"watch": "tsgo -w",
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "Remotion License",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"@maptiler/sdk": "4.0.2",
+		"@turf/turf": "7.3.2",
+		"remotion": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"devDependencies": {
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"maptiler"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://github.com/remotion-dev/remotion/tree/main/packages/maptiler"
+}

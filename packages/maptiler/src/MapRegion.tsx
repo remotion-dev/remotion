@@ -1,4 +1,4 @@
-import {GeoJSONSource} from '@maptiler/sdk';
+import type {GeoJSONSource} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
 import {
 	forwardRef,
@@ -8,6 +8,7 @@ import {
 	useMemo,
 	useRef,
 	useState,
+	type ForwardRefRenderFunction,
 	type RefObject,
 } from 'react';
 import {
@@ -152,6 +153,7 @@ const MapRegionDrawing = ({
 				type: 'fill',
 			});
 		}
+
 		map.setPaintProperty(fillSourceId, 'fill-color', fillColor);
 
 		if (!map.getSource(outlineSourceId)) {
@@ -176,6 +178,7 @@ const MapRegionDrawing = ({
 				type: 'line',
 			});
 		}
+
 		map.setPaintProperty(
 			outlineGlowLayerId,
 			'line-opacity',
@@ -197,6 +200,7 @@ const MapRegionDrawing = ({
 				type: 'line',
 			});
 		}
+
 		map.setPaintProperty(outlineSourceId, 'line-color', strokeColor);
 		map.setPaintProperty(outlineSourceId, 'line-width', strokeWidth);
 
@@ -326,60 +330,63 @@ const MapRegionBounds = ({
 	);
 };
 
-const MapRegionInner = forwardRef<HTMLDivElement, MapRegionProps>(
-	(
-		{
-			feature,
-			fill = 0,
-			fillColor,
-			glow = 0.72,
-			id,
-			progress = 1,
-			strokeColor = '#8f1712',
-			strokeWidth = 9,
-			durationInFrames,
-			from,
-			trimBefore,
-			freeze,
-			hidden,
-			name,
-			showInTimeline,
-			controls,
-		},
-		ref,
-	) => {
-		const refForOutline = useRef<HTMLDivElement>(null);
-
-		useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? `<${feature.properties.name}>`}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls}
-				outlineRef={refForOutline}
-			>
-				<MapRegionDrawing
-					feature={feature}
-					fill={fill}
-					fillColor={fillColor}
-					glow={glow}
-					id={id}
-					progress={progress}
-					strokeColor={strokeColor}
-					strokeWidth={strokeWidth}
-				/>
-				<MapRegionBounds feature={feature} refForOutline={refForOutline} />
-			</Sequence>
-		);
+const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
+	HTMLDivElement,
+	MapRegionProps
+> = (
+	{
+		feature,
+		fill = 0,
+		fillColor,
+		glow = 0.72,
+		id,
+		progress = 1,
+		strokeColor = '#8f1712',
+		strokeWidth = 9,
+		durationInFrames,
+		from,
+		trimBefore,
+		freeze,
+		hidden,
+		name,
+		showInTimeline,
+		controls,
 	},
-);
+	ref,
+) => {
+	const refForOutline = useRef<HTMLDivElement>(null);
+
+	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
+
+	return (
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			trimBefore={trimBefore}
+			durationInFrames={durationInFrames ?? Infinity}
+			freeze={freeze}
+			hidden={hidden}
+			name={name ?? `<${feature.properties.name}>`}
+			showInTimeline={showInTimeline ?? true}
+			controls={controls}
+			outlineRef={refForOutline}
+		>
+			<MapRegionDrawing
+				feature={feature}
+				fill={fill}
+				fillColor={fillColor}
+				glow={glow}
+				id={id}
+				progress={progress}
+				strokeColor={strokeColor}
+				strokeWidth={strokeWidth}
+			/>
+			<MapRegionBounds feature={feature} refForOutline={refForOutline} />
+		</Sequence>
+	);
+};
+
+const MapRegionInner = forwardRef(MapRegionRefForwardingFunction);
 
 export const MapRegion = Interactive.withSchema({
 	Component: MapRegionInner,

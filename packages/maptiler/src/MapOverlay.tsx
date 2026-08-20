@@ -3,6 +3,7 @@ import {
 	useContext,
 	useImperativeHandle,
 	useRef,
+	type ForwardRefRenderFunction,
 	type ReactNode,
 } from 'react';
 import {
@@ -46,60 +47,63 @@ const mapOverlaySchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const MapOverlayInner = forwardRef<HTMLDivElement, MapOverlayProps>(
-	(
-		{
-			children,
-			latitude,
-			longitude,
-			style,
-			durationInFrames,
-			from,
-			trimBefore,
-			freeze,
-			hidden,
-			name,
-			showInTimeline,
-			controls,
-		},
-		ref,
-	) => {
-		const {map} = useContext(MapTilerContext);
-		const refForOutline = useRef<HTMLDivElement>(null);
-		const point = map?.project([longitude, latitude]);
-
-		useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? '<MapOverlay>'}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls}
-				outlineRef={refForOutline}
-			>
-				<div
-					ref={refForOutline}
-					style={{
-						left: point?.x ?? 0,
-						pointerEvents: 'none',
-						position: 'absolute',
-						top: point?.y ?? 0,
-						zIndex: 1,
-						...style,
-					}}
-				>
-					{children}
-				</div>
-			</Sequence>
-		);
+const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
+	HTMLDivElement,
+	MapOverlayProps
+> = (
+	{
+		children,
+		latitude,
+		longitude,
+		style,
+		durationInFrames,
+		from,
+		trimBefore,
+		freeze,
+		hidden,
+		name,
+		showInTimeline,
+		controls,
 	},
-);
+	ref,
+) => {
+	const {map} = useContext(MapTilerContext);
+	const refForOutline = useRef<HTMLDivElement>(null);
+	const point = map?.project([longitude, latitude]);
+
+	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
+
+	return (
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			trimBefore={trimBefore}
+			durationInFrames={durationInFrames ?? Infinity}
+			freeze={freeze}
+			hidden={hidden}
+			name={name ?? '<MapOverlay>'}
+			showInTimeline={showInTimeline ?? true}
+			controls={controls}
+			outlineRef={refForOutline}
+		>
+			<div
+				ref={refForOutline}
+				style={{
+					left: point?.x ?? 0,
+					pointerEvents: 'none',
+					position: 'absolute',
+					top: point?.y ?? 0,
+					zIndex: 1,
+					...style,
+				}}
+			>
+				{children}
+			</div>
+		</Sequence>
+	);
+};
+
+const MapOverlayInner = forwardRef(MapOverlayRefForwardingFunction);
 
 export const MapOverlay = Interactive.withSchema({
 	Component: MapOverlayInner,

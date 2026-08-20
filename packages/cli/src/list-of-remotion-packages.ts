@@ -96,6 +96,7 @@ export const listOfRemotionPackages = [
 	'@remotion/design',
 	'@remotion/studio-protocol',
 	'@remotion/light-leaks',
+	'@remotion/maptiler',
 	'@remotion/mac-cursors',
 	'@remotion/rough-notation',
 	'@remotion/starburst',

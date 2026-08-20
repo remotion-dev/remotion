@@ -1,7 +1,10 @@
+import {
+	MapRegion,
+	MapViewport,
+	type MapRegionFeature,
+} from '@remotion/maptiler';
 import {Easing, interpolate, useCurrentFrame} from 'remotion';
 import austriaData from './austria-10m.json';
-import {MapRegion, type MapRegionFeature} from './MapRegion';
-import {MapViewport} from './MapViewport';
 import switzerlandData from './switzerland-10m.json';
 
 const switzerland = switzerlandData as MapRegionFeature;
@@ -14,6 +17,7 @@ export const SwitzerlandMap = () => {
 		<MapViewport
 			name="Map camera"
 			from={0}
+			apiKey={process.env.REMOTION_MAPTILER_KEY ?? null}
 			centerLongitude={interpolate(frame, [124, 164], [8.2275, 13.3347], {
 				easing: [Easing.bezier(0.65, 0, 0.35, 1)],
 				extrapolateLeft: 'clamp',

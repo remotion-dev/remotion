@@ -1,8 +1,11 @@
+import {
+	MapOverlay,
+	MapRoute,
+	MapViewport,
+	type MapRouteFeature,
+} from '@remotion/maptiler';
 import {Easing, interpolate, staticFile, useCurrentFrame} from 'remotion';
-import {MapOverlay} from './MapOverlay';
 import {MapPin} from './MapPin';
-import {MapRoute, type MapRouteFeature} from './MapRoute';
-import {MapViewport} from './MapViewport';
 
 const zurichToStuttgart = {
 	type: 'Feature',
@@ -30,6 +33,7 @@ export const ZurichToStuttgartMap = () => {
 		<MapViewport
 			name="Map camera"
 			from={0}
+			apiKey={process.env.REMOTION_MAPTILER_KEY ?? null}
 			centerLongitude={interpolate(
 				frame,
 				[106, 179],
