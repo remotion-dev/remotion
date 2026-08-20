@@ -157,6 +157,7 @@ export {
 } from './api-requests';
 export type {
 	BrowserStudioKeyframeOperations,
+	BrowserStudioEffectOperations,
 	BrowserStudioOperations,
 	DuplicateCompositionRequest,
 	DuplicateCompositionResponse,

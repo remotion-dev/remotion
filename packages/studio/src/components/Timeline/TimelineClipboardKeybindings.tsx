@@ -24,6 +24,7 @@ import {
 	type InteractivitySchema,
 	type TSequence,
 } from 'remotion';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {hasClipboardFigmaPayload} from '../../helpers/clipboard-figma';
 import {hasClipboardImage} from '../../helpers/clipboard-images';
@@ -33,8 +34,8 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../../helpers/use-keybinding';
-import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
+import {pasteEffects} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {callAddKeyframes} from './call-add-keyframe';
 import {callDeleteKeyframes} from './call-delete-keyframe';
@@ -1367,6 +1368,10 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						return;
 					}
 
+					if (!canUseEffectOperations()) {
+						return;
+					}
+
 					e.preventDefault();
 
 					if (result.status === 'unsupported-version') {
@@ -1403,7 +1408,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						envelope?.sourceIdentity === makeTargetKey(targetSequenceNodePath)
 							? envelope.originalEffectIndices
 							: null;
-					return callApi('/api/paste-effects', {
+					return pasteEffects({
 						targetFileName: targetSequenceNodePath.absolutePath,
 						targetSequenceNodePath,
 						type: payload.type,

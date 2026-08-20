@@ -21,6 +21,18 @@ export {
 } from './delete-jsx-node';
 export {duplicateCompositionInSource} from './duplicate-composition';
 export {
+	addEffect,
+	deleteEffects,
+	duplicateEffects,
+	pasteEffects,
+	reorderEffect,
+	updateEffectProps,
+	type EffectDeletionTarget,
+	type EffectPropUpdate,
+	type EffectTarget,
+	type FormatEffectFile,
+} from './effect-operations';
+export {
 	ensureRemotionImports,
 	ensureUseCurrentFrameHook,
 	findEnclosingFunctionPath,
