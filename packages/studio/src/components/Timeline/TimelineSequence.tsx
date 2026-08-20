@@ -29,7 +29,7 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
-import {useRuntimeValue} from '../../helpers/use-runtime-values';
+import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {SetSelectedModalContext} from '../../state/modals';
 import {AudioWaveform} from '../AudioWaveform';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -268,7 +268,7 @@ const TimelineSequenceInner: React.FC<{
 
 	const video = Internals.useVideo();
 	const renderWindow = useContext(TimelineViewportContext);
-	const muted = useRuntimeValue(s.controls, 'muted') === true;
+	const runtimeValues = useRuntimeValues(s.controls);
 
 	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
@@ -300,12 +300,36 @@ const TimelineSequenceInner: React.FC<{
 	}, [originalLocation]);
 
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const propStatusesForOverride = useMemo(() => {
 		return nodePath
 			? Internals.getPropStatusesCtx(propStatuses, nodePath)
 			: undefined;
 	}, [propStatuses, nodePath]);
+	const muted = useMemo(() => {
+		if (s.controls === null) {
+			return false;
+		}
+
+		return (
+			Internals.computeEffectiveSchemaValuesDotNotation({
+				schema: s.controls.schema,
+				currentValue: runtimeValues,
+				overrideValues: nodePath === null ? {} : getDragOverrides(nodePath),
+				propStatus: propStatusesForOverride,
+				frame: null,
+			}).merged.muted === true
+		);
+	}, [
+		getDragOverrides,
+		nodePath,
+		propStatusesForOverride,
+		runtimeValues,
+		s.controls,
+	]);
 	const durationCanUpdate = Boolean(
 		isStudioInteractivityEnabled() &&
 		propStatusesForOverride?.durationInFrames?.status === 'static',
