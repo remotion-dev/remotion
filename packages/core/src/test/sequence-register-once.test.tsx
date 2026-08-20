@@ -1489,7 +1489,7 @@ test('Loading indicator does not register an interactive sequence', () => {
 		'#remotion-comp-loading',
 	);
 	expect(loadingIndicator).toBeTruthy();
-	expect(loadingIndicator?.style.backgroundColor).toBe('black');
+	expect(loadingIndicator?.style.backgroundColor).toBe('#1f2428');
 	expect(registeredSequences).toHaveLength(0);
 });
 
