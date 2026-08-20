@@ -292,13 +292,15 @@ test('confirms and imports an Element payload from the URL fragment', async ({
 	page,
 }) => {
 	const payload = createElementPayload({
-		dependencies: [],
+		dependencies: [{name: '@remotion/shapes', version: null}],
 		dimensions: {height: 180, width: 320},
 		displayName: 'Linked Element',
 		durationInFrames: 60,
 		installationMode: 'wrapped',
 		slug: 'linked-element',
-		sourceCode: `export const LinkedElement = () => <div>Grüezi 👋</div>;`,
+		sourceCode: `import {Rect} from '@remotion/shapes';
+
+export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;`,
 	});
 	const url = StudioProtocolInternals.makeBrowserStudioUrl({
 		endpoint: 'http://127.0.0.1:62338/',
@@ -329,6 +331,13 @@ test('confirms and imports an Element payload from the URL fragment', async ({
 		)
 		.toBeUndefined();
 
+	await studio.locator('body').evaluate(() => {
+		(
+			window as typeof window & {
+				__browserStudioInstallPreservedIframe?: boolean;
+			}
+		).__browserStudioInstallPreservedIframe = true;
+	});
 	await studio.getByRole('button', {name: /^Install/}).click();
 	await expect
 		.poll(() =>
@@ -350,8 +359,18 @@ test('confirms and imports an Element payload from the URL fragment', async ({
 		)
 		.toEqual({
 			composition: expect.stringContaining('<LinkedElement />'),
-			element: expect.stringContaining('Grüezi 👋'),
+			element: expect.stringContaining("import {Rect} from '@remotion/shapes'"),
 		});
+	expect(
+		await studio.locator('body').evaluate(
+			() =>
+				(
+					window as typeof window & {
+						__browserStudioInstallPreservedIframe?: boolean;
+					}
+				).__browserStudioInstallPreservedIframe,
+		),
+	).toBe(true);
 });
 
 test('reports inline SVG imports as unsupported without changing the project', async ({
