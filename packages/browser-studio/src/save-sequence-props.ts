@@ -25,14 +25,6 @@ const parseSequencePropEditValue = (
 	return JSON.parse(value.serialized);
 };
 
-const hasKeyframeChanges = (request: SaveSequencePropsRequest) => {
-	return (
-		(request.addedKeyframes?.length ?? 0) > 0 ||
-		(request.movedKeyframes?.sequenceKeyframes.length ?? 0) > 0 ||
-		(request.movedKeyframes?.effectKeyframes.length ?? 0) > 0
-	);
-};
-
 type FileMutation = {
 	edits: SaveSequencePropEdit[];
 	captionPatches: NonNullable<SaveSequencePropsRequest['captionPatches']>;
@@ -73,12 +65,6 @@ export const saveSequencePropsInProject = ({
 	project: VirtualProject;
 	response: SaveSequencePropsResponse;
 } => {
-	if (hasKeyframeChanges(request)) {
-		throw new Error(
-			'Browser Studio does not support saving sequence keyframes yet',
-		);
-	}
-
 	if (
 		request.edits.length === 0 &&
 		(request.captionPatches?.length ?? 0) === 0

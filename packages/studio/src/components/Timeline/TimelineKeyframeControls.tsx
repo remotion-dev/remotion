@@ -11,6 +11,7 @@ import type {
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
+import {canUseKeyframeOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BLUE, LIGHT_GRAY, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import type {
@@ -598,6 +599,7 @@ export const TimelineKeyframeControls: React.FC<{
 	});
 	const canAddKeyframe = keyframable;
 	const canToggleKeyframe =
+		canUseKeyframeOperations() &&
 		propStatus.status !== 'computed' &&
 		(hasKeyframeAtCurrentFrame || canAddKeyframe);
 

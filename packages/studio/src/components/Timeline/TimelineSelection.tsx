@@ -18,6 +18,7 @@ import {
 	type GetEffectDragOverrides,
 	type PropStatuses,
 } from 'remotion';
+import {canUseKeyframeOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
@@ -1164,6 +1165,7 @@ export const TimelineSelectionProvider: React.FC<{
 		isStudioSelectionEnabled() &&
 		(previewServerState.type === 'connected' ||
 			window.remotion_isReadOnlyStudio);
+	const keyframeOperationsAvailable = canUseKeyframeOperations();
 	const [selectedItems, setSelectedItems] = useState<
 		readonly TimelineSelection[]
 	>([]);
@@ -1195,8 +1197,10 @@ export const TimelineSelectionProvider: React.FC<{
 	const canSelectItem = useCallback(
 		(item: TimelineSelection) =>
 			canSelect &&
-			(!window.remotion_isReadOnlyStudio || item.type === 'sequence'),
-		[canSelect],
+			(!window.remotion_isReadOnlyStudio ||
+				keyframeOperationsAvailable ||
+				item.type === 'sequence'),
+		[canSelect, keyframeOperationsAvailable],
 	);
 
 	const getCurrentAvailableSelectionState = useCallback(

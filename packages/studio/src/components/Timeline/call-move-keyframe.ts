@@ -1,12 +1,14 @@
 import {
 	optimisticMoveEffectKeyframes,
 	optimisticMoveSequenceKeyframes,
+	type MoveKeyframesRequest,
 } from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatus,
 	InteractivitySchema,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {callApi} from '../call-api';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -22,6 +24,17 @@ export type MoveSequenceKeyframeChange = {
 
 export type MoveEffectKeyframeChange = MoveSequenceKeyframeChange & {
 	effectIndex: number;
+};
+
+const moveKeyframes = (request: MoveKeyframesRequest) => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return callApi('/api/move-keyframes', request);
+	}
+
+	return browserStudioOperations.keyframes
+		? browserStudioOperations.keyframes.moveKeyframes(request)
+		: Promise.reject(new Error('Keyframe editing is unavailable'));
 };
 
 const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
@@ -180,7 +193,7 @@ export const callMoveKeyframes = ({
 		setPropStatuses,
 	});
 
-	return callApi('/api/move-keyframes', {
+	return moveKeyframes({
 		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,
 			nodePath: keyframe.nodePath,

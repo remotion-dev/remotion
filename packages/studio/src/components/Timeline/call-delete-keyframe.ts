@@ -3,8 +3,10 @@ import {
 	optimisticDeleteEffectKeyframes,
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
+	type DeleteKeyframesRequest,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {callApi} from '../call-api';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetPropStatuses} from './save-sequence-prop';
@@ -20,6 +22,17 @@ export type DeleteSequenceKeyframeChange = {
 
 export type DeleteEffectKeyframeChange = DeleteSequenceKeyframeChange & {
 	effectIndex: number;
+};
+
+const deleteKeyframes = (request: DeleteKeyframesRequest) => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return callApi('/api/delete-keyframes', request);
+	}
+
+	return browserStudioOperations.keyframes
+		? browserStudioOperations.keyframes.deleteKeyframes(request)
+		: Promise.reject(new Error('Keyframe editing is unavailable'));
 };
 
 const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
@@ -63,7 +76,7 @@ export const callDeleteSequenceKeyframe = ({
 				frame: sourceFrame,
 			}),
 		apiCall: () =>
-			callApi('/api/delete-keyframes', {
+			deleteKeyframes({
 				sequenceKeyframes: [
 					{
 						fileName,
@@ -110,7 +123,7 @@ export const callDeleteEffectKeyframe = ({
 				frame: sourceFrame,
 			}),
 		apiCall: () =>
-			callApi('/api/delete-keyframes', {
+			deleteKeyframes({
 				sequenceKeyframes: [],
 				effectKeyframes: [
 					{
@@ -180,7 +193,7 @@ export const callDeleteKeyframes = ({
 		);
 	}
 
-	return callApi('/api/delete-keyframes', {
+	return deleteKeyframes({
 		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,
 			nodePath: keyframe.nodePath,
