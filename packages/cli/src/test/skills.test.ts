@@ -22,7 +22,7 @@ const runSkillsCommand = ({
 }) => {
 	return new Promise<void>((resolve, reject) => {
 		const cliPath = path.join(__dirname, '..', '..', 'remotion-cli.js');
-		const child = spawn(process.execPath, [cliPath, 'skills', ...args], {
+		const child = spawn('node', [cliPath, 'skills', ...args], {
 			env: {
 				...process.env,
 				PATH: `${fakeNpxDirectory}${path.delimiter}${process.env.PATH}`,

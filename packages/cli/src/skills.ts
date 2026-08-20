@@ -1,5 +1,6 @@
 import {spawn} from 'node:child_process';
 import type {LogLevel} from '@remotion/renderer';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {chalk} from './chalk';
 import {Log} from './log';
 import {remotionSkillNames} from './remotion-skill-names';
@@ -69,6 +70,7 @@ export const skillsCommand = (
 		cwd,
 		env: environment,
 		stdio: 'inherit',
+		...StudioServerInternals.getPackageManagerSpawnOptions(),
 	});
 
 	return new Promise<void>((resolve, reject) => {
