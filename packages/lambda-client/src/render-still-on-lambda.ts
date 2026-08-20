@@ -118,6 +118,7 @@ const innerRenderStillOnLambda = async (
 								},
 								timeoutInTest: 120000,
 								retriesRemaining: input.maxRetries,
+								getBinaryPayloadSink: null,
 								requestHandler: input.requestHandler,
 							})
 							.then(() => {

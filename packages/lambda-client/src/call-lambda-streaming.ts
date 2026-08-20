@@ -7,12 +7,14 @@ import {
 import type {
 	CallFunctionOptions,
 	CloudProvider,
+	GetBinaryPayloadSink,
 	MessageTypeId,
 	OnMessage,
 	ServerlessRoutines,
 	StreamingMessage,
 } from '@remotion/serverless-client';
 import {
+	binaryPayloadSinkForStreamer,
 	formatMap,
 	makeStreamer,
 	messageTypeIdToMessageType,
@@ -93,8 +95,10 @@ const callLambdaWithStreamingWithoutRetry = async <
 	timeoutInTest,
 	receivedStreamingPayload,
 	requestHandler,
+	getBinaryPayloadSink,
 }: CallFunctionOptions<T, Provider> & {
 	receivedStreamingPayload: OnMessage<Provider>;
+	getBinaryPayloadSink: GetBinaryPayloadSink | null;
 }): Promise<void> => {
 	const res = await invokeStreamOrTimeout({
 		functionName,
@@ -105,25 +109,30 @@ const callLambdaWithStreamingWithoutRetry = async <
 		requestHandler,
 	});
 
-	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
-		const messageType = messageTypeIdToMessageType(
-			messageTypeId as MessageTypeId,
-		);
-		const innerPayload =
-			formatMap[messageType] === 'json'
-				? parseJsonOrThrowSource(data, messageType)
-				: data;
+	const {onData, clear} = makeStreamer(
+		(status, messageTypeId, data) => {
+			const messageType = messageTypeIdToMessageType(
+				messageTypeId as MessageTypeId,
+			);
+			const innerPayload =
+				formatMap[messageType] === 'json'
+					? parseJsonOrThrowSource(data, messageType)
+					: data;
 
-		const message: StreamingMessage<Provider> = {
-			successType: status,
-			message: {
-				type: messageType,
-				payload: innerPayload,
-			},
-		};
+			const message: StreamingMessage<Provider> = {
+				successType: status,
+				message: {
+					type: messageType,
+					payload: innerPayload,
+				},
+			};
 
-		receivedStreamingPayload(message);
-	});
+			receivedStreamingPayload(message);
+		},
+		getBinaryPayloadSink
+			? binaryPayloadSinkForStreamer(getBinaryPayloadSink)
+			: null,
+	);
 
 	const dumpBuffers = () => {
 		clear();
@@ -147,7 +156,9 @@ const callLambdaWithStreamingWithoutRetry = async <
 		// `PayloadChunk`: These contain the actual raw bytes of the chunk
 		// It has a single property: `Payload`
 		if (event.PayloadChunk && event.PayloadChunk.Payload) {
-			onData(event.PayloadChunk.Payload);
+			// Awaiting applies backpressure to the response stream when the
+			// payload is being streamed to a sink
+			await onData(event.PayloadChunk.Payload);
 		}
 
 		if (event.InvokeComplete) {
@@ -190,6 +201,7 @@ export const callFunctionWithStreamingImplementation = async <
 	options: CallFunctionOptions<T, Provider> & {
 		receivedStreamingPayload: OnMessage<Provider>;
 		retriesRemaining: number;
+		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
 ): Promise<void> => {
 	// As of August 2023, Lambda streaming sometimes misses parts of the JSON response.
