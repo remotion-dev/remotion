@@ -508,6 +508,7 @@ describe('Elements sidebar', () => {
 				category: 'commerce',
 				label: 'Commerce',
 				items: [
+					'commerce/product-collection/index',
 					'commerce/product-discount-callout/index',
 					'commerce/product-offer/index',
 				],

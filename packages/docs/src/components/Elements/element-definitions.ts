@@ -10,6 +10,7 @@ import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburs
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
+import {ProductCollection} from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
@@ -421,6 +422,28 @@ const elementImplementations = {
 		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
+	},
+	'commerce/product-collection': {
+		component: ProductCollection,
+		contributors: [],
+		description:
+			'An animated product carousel that adapts to changing catalog images, titles, prices, and promotions.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 150,
+		elementHeight: 1020,
+		elementWidth: 1020,
+		fps: 30,
+		height: 1080,
+		posterFrame: 90,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/commerce-product-collection-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/commerce-product-collection-preview.mp4',
+		},
+		safeArea: 30,
+		installationMode: 'wrapped',
+		width: 1080,
 	},
 	'commerce/product-discount-callout': {
 		component: ProductDiscountCallout,
