@@ -217,6 +217,7 @@ const makeMediaInTimelineData = ({
 		volumes: 1,
 		duration: 100,
 		doesVolumeChange: false,
+		muted: false,
 		nonce: {get: () => [[0, 0]]},
 		finalDisplayName: 'video.mp4',
 		startMediaFrom,

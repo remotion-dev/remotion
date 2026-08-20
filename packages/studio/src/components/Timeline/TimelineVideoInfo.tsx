@@ -61,6 +61,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	readonly playbackRate: number;
 	readonly volume: string | number;
 	readonly doesVolumeChange: boolean;
+	readonly muted: boolean;
 	readonly frozenMediaFrame: number | null;
 	readonly extendLastFrame: boolean;
 }> = ({
@@ -75,6 +76,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	playbackRate,
 	volume,
 	doesVolumeChange,
+	muted,
 	frozenMediaFrame,
 	extendLastFrame,
 }) => {
@@ -488,6 +490,7 @@ const TimelineVideoInfoSegment: React.FC<{
 					}
 					volume={volume}
 					doesVolumeChange={doesVolumeChange}
+					muted={muted}
 					playbackRate={playbackRate}
 					loopDisplay={tiledLoop?.loopDisplay}
 				/>
@@ -545,6 +548,7 @@ const TimelineVideoInfoInner: React.FC<{
 	readonly playbackRate: number;
 	readonly volume: string | number;
 	readonly doesVolumeChange: boolean;
+	readonly muted: boolean;
 	readonly marginLeft: number;
 	readonly loopDisplay: LoopDisplay | undefined;
 	readonly frozenMediaFrame: number | null;
@@ -560,6 +564,7 @@ const TimelineVideoInfoInner: React.FC<{
 	playbackRate,
 	volume,
 	doesVolumeChange,
+	muted,
 	marginLeft,
 	loopDisplay,
 	frozenMediaFrame,
@@ -642,6 +647,7 @@ const TimelineVideoInfoInner: React.FC<{
 					playbackRate={playbackRate}
 					volume={volume}
 					doesVolumeChange={doesVolumeChange}
+					muted={muted}
 					frozenMediaFrame={frozenMediaFrame}
 					extendLastFrame={extendLastFrame}
 				/>
@@ -663,6 +669,7 @@ const TimelineVideoInfoInner: React.FC<{
 							segment.durationInFrames,
 						)}
 						doesVolumeChange={doesVolumeChange}
+						muted={muted}
 						frozenMediaFrame={frozenMediaFrame}
 						extendLastFrame={extendLastFrame}
 					/>

@@ -79,6 +79,7 @@ const AudioWaveformInner: React.FC<{
 	readonly displayDurationInFrames: number;
 	readonly volume: string | number;
 	readonly doesVolumeChange: boolean;
+	readonly muted: boolean;
 	readonly playbackRate: number;
 	readonly loopDisplay: LoopDisplay | undefined;
 }> = ({
@@ -91,6 +92,7 @@ const AudioWaveformInner: React.FC<{
 	visualizationWidth,
 	volume,
 	doesVolumeChange,
+	muted,
 	playbackRate,
 	loopDisplay,
 }) => {
@@ -112,6 +114,10 @@ const AudioWaveformInner: React.FC<{
 		doesVolumeChange && typeof volume === 'string';
 	const parsedVolume = useMemo(() => parseVolume(volume), [volume]);
 	const visibleVolume = useMemo((): WaveformVolume => {
+		if (muted) {
+			return 0;
+		}
+
 		return getVisibleWaveformVolume({
 			displayDurationInFrames,
 			displayOffsetInFrames,
@@ -122,6 +128,7 @@ const AudioWaveformInner: React.FC<{
 		displayDurationInFrames,
 		displayOffsetInFrames,
 		loopDisplay,
+		muted,
 		parsedVolume,
 	]);
 
