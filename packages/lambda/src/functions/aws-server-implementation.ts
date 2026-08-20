@@ -5,6 +5,7 @@ import {
 	getBrowserInstanceImplementation,
 	invokeWebhook,
 } from '@remotion/serverless';
+import {NoReactInternals} from 'remotion/no-react';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-folder-files';
@@ -12,6 +13,9 @@ import {makeAwsArtifact} from './helpers/make-aws-artifact';
 import {timer} from './helpers/timer';
 
 export const serverAwsImplementation: InsideFunctionSpecifics<AwsProvider> = {
+	defaultX264Preset: NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+		? 'veryfast'
+		: null,
 	forgetBrowserEventLoop: forgetBrowserEventLoopImplementation,
 	getBrowserInstance: getBrowserInstanceImplementation,
 	timer,
