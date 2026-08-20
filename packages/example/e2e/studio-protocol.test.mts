@@ -202,7 +202,7 @@ export const MyComponent = () => {
 
 		await studioPage.locator('[data-sidebar-toggle="right"]').click();
 		const browseElements = studioPage.getByRole('button', {
-			name: 'Browse Elements...',
+			name: 'Browse Elements',
 		});
 		await expect(browseElements).toBeVisible();
 		const senderPagePromise = context.waitForEvent('page', {timeout: 10_000});

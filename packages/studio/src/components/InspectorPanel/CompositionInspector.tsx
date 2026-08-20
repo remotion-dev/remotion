@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import type {_InternalTypes} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {CURRENT_COLOR} from '../../helpers/colors';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {PicIcon} from '../../icons/frame';
@@ -66,6 +67,14 @@ const browseElementsIconContainerStyle: React.CSSProperties = {
 	marginLeft: -2,
 	marginRight: -2,
 	width: 22,
+};
+
+const browseElementsArrowStyle: React.CSSProperties = {
+	display: 'inline-block',
+	height: 12,
+	marginLeft: 4,
+	verticalAlign: -2,
+	width: 12,
 };
 
 const CompositionActions: React.FC<{
@@ -143,7 +152,21 @@ const CompositionActions: React.FC<{
 					)}
 					title="Open the Remotion Elements library in a new tab. Install an Element there to send it to this composition."
 				>
-					Browse Elements...
+					Browse Elements
+					<svg
+						aria-hidden="true"
+						viewBox="0 0 16 16"
+						style={browseElementsArrowStyle}
+					>
+						<path
+							d="M4 12 12 4M6 4h6v6"
+							fill="none"
+							stroke={CURRENT_COLOR}
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth="1.5"
+						/>
+					</svg>
 				</InspectorQuickAction>
 			) : null}
 		</InspectorQuickActionsSection>
