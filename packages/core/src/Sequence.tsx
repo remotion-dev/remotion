@@ -512,6 +512,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
 					mediaFrameAtSequenceZero,
 					volume: isMedia.data.volumes,
+					muted: isMedia.data.muted,
 					refForOutline: refForOutline ?? null,
 					isInsideSeries,
 					frozenFrame: registeredFrozenFrame,

@@ -680,6 +680,7 @@ const TimelineSequenceInner: React.FC<{
 						src={s.src}
 						height={TIMELINE_LAYER_HEIGHT_AUDIO}
 						doesVolumeChange={s.doesVolumeChange}
+						muted={s.muted}
 						visualizationWidth={visibleLayout.media.width}
 						startFrom={s.startMediaFrom}
 						durationInFrames={s.duration}
@@ -702,6 +703,7 @@ const TimelineSequenceInner: React.FC<{
 					sequenceFrameOffset={sequenceFrameOffset}
 					playbackRate={s.playbackRate}
 					volume={s.volume}
+					muted={s.muted}
 					doesVolumeChange={s.doesVolumeChange}
 					marginLeft={visibleLayout.media.left}
 					loopDisplay={s.loopDisplay}
