@@ -271,13 +271,14 @@ const getOutputName = ({
 };
 
 const tonePath = 'tone.wav';
-const toneLoopPath = 'tone-loop.wav';
+const toneLoopPath = path.join('out', 'tone-loop.wav');
 
 const base8k = path.join('out', '8k.mp4');
 const baseMute = path.join('out', 'mute.mp4');
 
 if (!(await Bun.file(tonePath).exists())) {
 	if (!(await Bun.file(toneLoopPath).exists())) {
+		mkdirSync(path.dirname(toneLoopPath), {recursive: true});
 		await $`bunx remotion render src/compositions/index.ts Tone ${toneLoopPath} --codec=wav --frames=0-299`;
 	}
 
