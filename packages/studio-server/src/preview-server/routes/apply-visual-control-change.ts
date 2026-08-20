@@ -1,13 +1,13 @@
 import {readFileSync} from 'node:fs';
 import type {File} from '@babel/types';
 import {RenderInternals} from '@remotion/renderer';
+import {applyCodemod} from '@remotion/studio-codemods';
 import type {
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse,
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {parseAst, serializeAst} from '../../codemods/parse-ast';
-import {applyCodemod} from '../../codemods/recast-mods';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
