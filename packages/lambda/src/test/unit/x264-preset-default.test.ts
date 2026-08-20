@@ -65,6 +65,7 @@ const makeStartPayload = ({
 		colorSpace: null,
 		preferLossless: false,
 		forcePathStyle: false,
+		enableCancellation: null,
 		metadata: null,
 		licenseKey: null,
 		storageClass: null,
