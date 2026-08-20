@@ -283,6 +283,8 @@ describe('Element library', () => {
 			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
 		);
 		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
+			'storytelling/polaroid-pictures':
+				completeSourceCodeBySlug['storytelling/polaroid-pictures'],
 			'text/news-article-highlight':
 				completeSourceCodeBySlug['text/news-article-highlight'],
 		});
@@ -539,7 +541,10 @@ describe('Elements sidebar', () => {
 			{
 				category: 'storytelling',
 				label: 'Storytelling',
-				items: ['text/news-article-highlight/index'],
+				items: [
+					'text/news-article-highlight/index',
+					'storytelling/polaroid-pictures/index',
+				],
 			},
 			{
 				category: 'text',

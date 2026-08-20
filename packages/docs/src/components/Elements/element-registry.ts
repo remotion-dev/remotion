@@ -85,6 +85,10 @@ export const elementRegistry = {
 		category: 'overlays',
 		displayName: 'Name Lower Third',
 	},
+	'storytelling/polaroid-pictures': {
+		category: 'storytelling',
+		displayName: 'Polaroid Pictures',
+	},
 	'text/news-article-highlight': {
 		category: 'storytelling',
 		displayName: 'News Article Highlight',
