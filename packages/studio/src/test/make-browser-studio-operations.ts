@@ -35,6 +35,7 @@ export const makeBrowserStudioOperations = (
 			unusedOperation('unsubscribeFromDefaultProps'),
 		unsubscribeFromSequenceProps: () =>
 			unusedOperation('unsubscribeFromSequenceProps'),
+		updateDefaultProps: () => unusedOperation('updateDefaultProps'),
 		writeStaticFile: () => unusedOperation('writeStaticFile'),
 		...overrides,
 	};
