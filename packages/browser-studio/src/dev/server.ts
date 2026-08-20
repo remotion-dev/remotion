@@ -1,6 +1,7 @@
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'bun';
+import {browserStudioPackageJsonArtifactFilename} from '../workspace-package-exports';
 import {getBrowserStudioDependencyVersionsForBuild} from './get-dependency-versions-for-build';
 import {getBrowserStudioReactRefreshFilesForBuild} from './get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './get-setup-environment-for-build';
@@ -158,7 +159,14 @@ const start = async () => {
 			}
 
 			if (url.pathname.startsWith(workspacePackagePath)) {
-				const relativePath = url.pathname.slice(workspacePackagePath.length);
+				const requestedRelativePath = url.pathname.slice(
+					workspacePackagePath.length,
+				);
+				const relativePath = requestedRelativePath.endsWith(
+					`/${browserStudioPackageJsonArtifactFilename}`,
+				)
+					? `${requestedRelativePath.slice(0, -browserStudioPackageJsonArtifactFilename.length)}package.json`
+					: requestedRelativePath;
 				const workspaceAssetPath = path.join(
 					repoDir,
 					path.normalize(relativePath),

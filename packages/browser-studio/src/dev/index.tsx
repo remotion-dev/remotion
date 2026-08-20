@@ -13,9 +13,13 @@ createRoot(root).render(
 		iframeSrc="/frame.html"
 		project={createBlankTemplateProject()}
 		readOnly={false}
-		workspacePackageBaseUrl={
-			new URL('/__remotion_browser_studio_workspace__/', window.location.href)
-				.href
-		}
+		remotionPackageSource={{
+			baseUrl: new URL(
+				'/__remotion_browser_studio_workspace__/',
+				window.location.href,
+			).href,
+			commit: 'local',
+			type: 'workspace',
+		}}
 	/>,
 );

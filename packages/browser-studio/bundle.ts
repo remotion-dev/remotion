@@ -45,7 +45,7 @@ if (!output.success) {
 }
 
 const externalVersionSensitiveImport =
-	/^[^'"\n]*\bfrom\s*["']@remotion\/(?:player|studio-shared)["'];?\s*$|^\s*import\s*["']@remotion\/(?:player|studio-shared)["'];?\s*$/m;
+	/^[^'"\n]*\bfrom\s*["']@remotion\/(?:player|studio-shared|timeline-utils)["'];?\s*$|^\s*import\s*["']@remotion\/(?:player|studio-shared|timeline-utils)["'];?\s*$/m;
 
 for (const file of output.outputs) {
 	const str = await file.text();

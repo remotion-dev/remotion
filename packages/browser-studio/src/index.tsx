@@ -5,6 +5,7 @@ export type {
 	BrowserStudioDependencyResolver,
 	BrowserStudioError,
 	BrowserStudioProps,
+	BrowserStudioRemotionPackageSource,
 	CompileState,
 	VirtualFileSystem,
 	VirtualProject,

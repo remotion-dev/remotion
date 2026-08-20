@@ -1,10 +1,11 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Head from '@docusaurus/Head';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {
 	BrowserStudio,
 	createBlankTemplateProject,
 } from '@remotion/browser-studio';
-import type React from 'react';
+import React from 'react';
 
 const page: React.CSSProperties = {
 	backgroundColor: '#111111',
@@ -43,6 +44,13 @@ const standaloneCss = `
 `;
 
 const NewRemotionProject = () => {
+	const {siteConfig} = useDocusaurusContext();
+	const browserStudioWorkspaceCommit =
+		siteConfig.customFields?.browserStudioWorkspaceCommit;
+	if (typeof browserStudioWorkspaceCommit !== 'string') {
+		throw new Error('Browser Studio workspace commit is not configured');
+	}
+
 	return (
 		<>
 			<Head>
@@ -56,6 +64,14 @@ const NewRemotionProject = () => {
 							iframeSrc="/experimental_new/frame.html"
 							project={createBlankTemplateProject()}
 							readOnly={false}
+							remotionPackageSource={{
+								baseUrl: new URL(
+									`/__remotion_browser_studio_workspace__/commits/${browserStudioWorkspaceCommit}/`,
+									window.location.href,
+								).href,
+								commit: browserStudioWorkspaceCommit,
+								type: 'workspace',
+							}}
 						/>
 					)}
 				</BrowserOnly>

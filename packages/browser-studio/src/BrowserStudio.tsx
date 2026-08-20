@@ -138,7 +138,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	dependencyResolver,
 	onCompileStateChange,
 	onProjectChange,
-	workspacePackageBaseUrl,
+	remotionPackageSource,
 }) => {
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
@@ -210,7 +210,10 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	);
 	const resolveElementDependencies = useCallback(
 		(dependencies: readonly {name: string; version: string | null}[]) => {
-			const remotionVersion = browserStudioDependencyVersions.remotion;
+			const remotionVersion =
+				remotionPackageSource?.type === 'release'
+					? remotionPackageSource.version
+					: browserStudioDependencyVersions.remotion;
 			if (!remotionVersion) {
 				throw new Error('Browser Studio Remotion version is unavailable');
 			}
@@ -258,7 +261,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			});
 			return Promise.resolve(versions);
 		},
-		[],
+		[remotionPackageSource],
 	);
 
 	const browserStudioOperations = useMemo(
@@ -440,7 +443,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				...installedDependencyResolutions,
 			},
 			project: activeProjectRef.current,
-			workspacePackageBaseUrl: workspacePackageBaseUrl ?? null,
+			remotionPackageSource: remotionPackageSource ?? null,
 		};
 
 		worker.postMessage(request);
@@ -458,7 +461,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		installedDependencyResolutions,
 		publicFileManager,
 		readOnly,
-		workspacePackageBaseUrl,
+		remotionPackageSource,
 		activeProject.entryPoint,
 		activeProject.rootDir,
 	]);
