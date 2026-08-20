@@ -49,8 +49,6 @@ Each renderer makes approximately one additional S3 `HEAD` request for every sec
 
 In the absolute worst case of 200 concurrent functions running for the full 15-minute Lambda limit, polling costs approximately $0.072.
 
-In the same scenario, the renderer functions cost at least $1.20 in Lambda duration charges when using Remotion's [minimum memory size of 512 MB](/docs/lambda/deployfunction#memorysizeinmb). The main function adds approximately $0.006, making polling about 6% of the Lambda duration cost. With the recommended memory size of 2048 MB, Lambda duration costs approximately $4.82 and polling adds about 1.5%.
-
 These estimates use the current US East (N. Virginia) ARM list prices and exclude the AWS Free Tier and volume discounts. Prices vary by region. See [AWS Lambda pricing](https://aws.amazon.com/lambda/pricing/) and [Amazon S3 pricing](https://aws.amazon.com/s3/pricing/).
 
 Leave `enableCancellation` at its default value of `false` if the render does not need to be cancellable.
