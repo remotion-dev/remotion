@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_BLUE, WHITE_ALPHA_80} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -9,8 +10,8 @@ import {
 	EXPANDED_SECTION_PADDING_RIGHT,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
-import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
+import {deleteEffects, reorderEffect} from '../effect-operations-api';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -138,6 +139,7 @@ export const TimelineEffectItem: React.FC<{
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
+	const canMutateEffects = canUseEffectOperations();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
@@ -169,15 +171,18 @@ export const TimelineEffectItem: React.FC<{
 		return false;
 	}, [disabledStatus]);
 
-	const canToggle = previewConnected && disabledStatus?.status === 'static';
+	const canToggle =
+		previewConnected && canMutateEffects && disabledStatus?.status === 'static';
 
 	const deleteDisabled =
 		!previewConnected ||
+		!canMutateEffects ||
 		effectStatus.type !== 'can-update-effect' ||
 		!validatedLocation.source;
 
 	const canReorder =
 		previewConnected &&
+		canMutateEffects &&
 		effectStatus.type === 'can-update-effect' &&
 		Boolean(validatedLocation.source);
 
@@ -192,7 +197,7 @@ export const TimelineEffectItem: React.FC<{
 		}
 
 		try {
-			const result = await callApi('/api/delete-effect', [
+			const result = await deleteEffects([
 				{
 					type: 'single-effect',
 					fileName: validatedLocation.source,
@@ -429,7 +434,7 @@ export const TimelineEffectItem: React.FC<{
 			currentEffectDrag = null;
 
 			try {
-				const result = await callApi('/api/reorder-effect', {
+				const result = await reorderEffect({
 					fileName: validatedLocation.source,
 					sequenceNodePath: nodePath,
 					fromIndex: dropTarget.dragData.effectIndex,

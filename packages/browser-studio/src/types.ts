@@ -86,6 +86,7 @@ export type BrowserStudioWorkerCompileRequest =
 	| {
 			type: 'update-project';
 			project: VirtualProject;
+			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
 	  };
 
 export type BrowserStudioHmrAsset = {

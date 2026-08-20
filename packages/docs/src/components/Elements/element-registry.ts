@@ -1,12 +1,12 @@
 export const elementCategories = [
 	{category: 'backgrounds', label: 'Backgrounds'},
 	{category: 'captions', label: 'Captions'},
+	{category: 'data', label: 'Charts & Data'},
 	{category: 'commerce', label: 'Commerce'},
-	{category: 'data', label: 'Data'},
 	{category: 'maps', label: 'Maps'},
 	{category: 'overlays', label: 'Overlays'},
 	{category: 'storytelling', label: 'Storytelling'},
-	{category: 'text', label: 'Text'},
+	{category: 'text', label: 'Text Effects'},
 	{category: 'youtube', label: 'YouTube'},
 ] as const;
 
@@ -84,6 +84,10 @@ export const elementRegistry = {
 	'overlays/name-lower-third': {
 		category: 'overlays',
 		displayName: 'Name Lower Third',
+	},
+	'storytelling/polaroid-pictures': {
+		category: 'storytelling',
+		displayName: 'Polaroid Pictures',
 	},
 	'text/news-article-highlight': {
 		category: 'storytelling',

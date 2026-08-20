@@ -1,7 +1,10 @@
 import {
+	addEffect as addEffectCodemod,
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 	deleteJsxNodes,
+	deleteEffects as deleteEffectsCodemod,
+	duplicateEffects as duplicateEffectsCodemod,
 	duplicateCompositionInSource,
 	findProjectFile,
 	getCanUpdateDefaultPropsForProject,
@@ -15,12 +18,15 @@ import {
 	JsxElementNotFoundAtLocationError,
 	makeInMemoryInsertJsxElementCodemodEnvironment,
 	parseAndApplyCodemod,
+	pasteEffects as pasteEffectsCodemod,
+	reorderEffect as reorderEffectCodemod,
 	reorderSequence as reorderSequenceCodemod,
 	resolveCompositionComponentWithFile,
 	simpleDiff,
 	splitJsxSequence as splitJsxSequenceCodemod,
 	splitVideoFromAudio as splitVideoFromAudioCodemod,
 	updateDefaultProps as updateDefaultPropsCodemod,
+	updateEffectProps as updateEffectPropsCodemod,
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
 	type EffectKeyframeUpdate,
@@ -33,7 +39,9 @@ import {
 } from '@remotion/studio-protocol';
 import {
 	getAllSchemaKeys,
+	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
+	type BrowserStudioEffectOperations,
 	type BrowserStudioKeyframeOperations,
 	type BrowserStudioOperations,
 	type ElementInstallExpectedFileState,
@@ -96,6 +104,12 @@ const formatInline: FormatInline = ({inlineContent, linePrefix, endOfLine}) =>
 				plugins: [prettierPluginTypescript, prettierPluginEstree],
 			}),
 	});
+
+const getStructuredError = (error: unknown) => ({
+	success: false as const,
+	reason: error instanceof Error ? error.message : String(error),
+	stack: error instanceof Error && error.stack ? error.stack : '',
+});
 
 export {
 	insertSolidIntoProject,
@@ -756,6 +770,402 @@ export const createBrowserStudioOperations = ({
 		}
 
 		return resolved;
+	};
+
+	const getEffectStatus = ({
+		effectIndex,
+		fileName,
+		project,
+		schema,
+		sequenceNodePath,
+	}: {
+		effectIndex: number;
+		fileName: string;
+		project: VirtualProject;
+		schema: InteractivitySchema;
+		sequenceNodePath: SequencePropsSubscriptionKey;
+	}) => {
+		const absolutePath = findProjectFile({filePath: fileName, project});
+		const status = computeSequencePropsStatusFromContent({
+			fileContents: project.files[absolutePath],
+			nodePath: sequenceNodePath.nodePath,
+			componentIdentity: null,
+			keys: [],
+			effects: Array.from({length: effectIndex + 1}, (_, index) =>
+				index === effectIndex ? getAllSchemaKeys(schema) : [],
+			),
+			videoConfigValues: sequenceNodePath.videoConfigValues,
+		});
+		return (
+			status.effects[effectIndex] ?? {
+				canUpdate: false as const,
+				effectIndex,
+				reason: 'not-found' as const,
+			}
+		);
+	};
+
+	const effectOperations: BrowserStudioEffectOperations = {
+		addEffect: async (request) => {
+			try {
+				const requiredPackage = getRequiredPackageForEffectImportPath(
+					request.effectImportPath,
+				);
+				const dependencies =
+					requiredPackage === null
+						? {}
+						: await resolveElementDependencies([
+								{name: requiredPackage, version: null},
+							]);
+				const project = addDependenciesToProject({
+					dependencies,
+					project: getProject(),
+				});
+				const absolutePath = findProjectFile({
+					filePath: request.fileName,
+					project,
+				});
+				const result = await addEffectCodemod({
+					effectConfig: request.effectConfig,
+					effectImportPath: request.effectImportPath,
+					effectName: request.effectName,
+					formatFile: formatCodemodFile,
+					input: project.files[absolutePath],
+					sequenceNodePath: request.sequenceNodePath.nodePath,
+				});
+				controller.applyMutation({
+					fileName: absolutePath,
+					nodePathMutationFiles: null,
+					mutate: () => ({
+						...project,
+						files: {...project.files, [absolutePath]: result.output},
+					}),
+				});
+				return {success: true};
+			} catch (error) {
+				return getStructuredError(error);
+			}
+		},
+		deleteEffects: async (request) => {
+			try {
+				if (request.length === 0) {
+					throw new Error('No effects were specified for deletion');
+				}
+
+				const project = getProject();
+				const groups = new Map<
+					string,
+					Array<
+						| {
+								type: 'single-effect';
+								effectIndex: number;
+								sequenceNodePath: SequenceNodePath;
+						  }
+						| {type: 'all-effects'; sequenceNodePath: SequenceNodePath}
+					>
+				>();
+				for (const item of request) {
+					const absolutePath = findProjectFile({
+						filePath: item.fileName,
+						project,
+					});
+					const group = groups.get(absolutePath) ?? [];
+					group.push(
+						item.type === 'single-effect'
+							? {
+									type: 'single-effect',
+									effectIndex: item.effectIndex,
+									sequenceNodePath: item.sequenceNodePath.nodePath,
+								}
+							: {
+									type: 'all-effects',
+									sequenceNodePath: item.sequenceNodePath.nodePath,
+								},
+					);
+					groups.set(absolutePath, group);
+				}
+
+				const updates = await Promise.all(
+					[...groups].map(async ([absolutePath, targets]) => ({
+						absolutePath,
+						result: await deleteEffectsCodemod({
+							effects: targets,
+							formatFile: formatCodemodFile,
+							input: project.files[absolutePath],
+						}),
+					})),
+				);
+				controller.applyMutation({
+					fileName: updates.map((update) => update.absolutePath).join(', '),
+					nodePathMutationFiles: null,
+					mutate: () => ({
+						...project,
+						files: {
+							...project.files,
+							...Object.fromEntries(
+								updates.map((update) => [
+									update.absolutePath,
+									update.result.output,
+								]),
+							),
+						},
+					}),
+				});
+				return {success: true};
+			} catch (error) {
+				return getStructuredError(error);
+			}
+		},
+		duplicateEffects: async (request) => {
+			try {
+				if (request.length === 0) {
+					throw new Error('No effects were specified for duplication');
+				}
+
+				const project = getProject();
+				const groups = new Map<
+					string,
+					Array<{
+						effectIndex: number;
+						sequenceNodePath: SequenceNodePath;
+					}>
+				>();
+				for (const item of request) {
+					const absolutePath = findProjectFile({
+						filePath: item.fileName,
+						project,
+					});
+					const group = groups.get(absolutePath) ?? [];
+					group.push({
+						effectIndex: item.effectIndex,
+						sequenceNodePath: item.sequenceNodePath.nodePath,
+					});
+					groups.set(absolutePath, group);
+				}
+
+				const updates = await Promise.all(
+					[...groups].map(async ([absolutePath, targets]) => ({
+						absolutePath,
+						result: await duplicateEffectsCodemod({
+							effects: targets,
+							formatFile: formatCodemodFile,
+							input: project.files[absolutePath],
+						}),
+					})),
+				);
+				controller.applyMutation({
+					fileName: updates.map((update) => update.absolutePath).join(', '),
+					nodePathMutationFiles: null,
+					mutate: () => ({
+						...project,
+						files: {
+							...project.files,
+							...Object.fromEntries(
+								updates.map((update) => [
+									update.absolutePath,
+									update.result.output,
+								]),
+							),
+						},
+					}),
+				});
+				return {success: true};
+			} catch (error) {
+				return getStructuredError(error);
+			}
+		},
+		pasteEffects: async (request) => {
+			try {
+				const packageNames = new Set(
+					request.effects.flatMap((effect) => {
+						const packageName = getRequiredPackageForEffectImportPath(
+							effect.importPath,
+						);
+						return packageName === null ? [] : [packageName];
+					}),
+				);
+				const dependencies = await resolveElementDependencies(
+					[...packageNames].map((name) => ({name, version: null})),
+				);
+				const project = addDependenciesToProject({
+					dependencies,
+					project: getProject(),
+				});
+				const absolutePath = findProjectFile({
+					filePath: request.targetFileName,
+					project,
+				});
+				const result = await pasteEffectsCodemod({
+					effects: request.effects,
+					formatFile: formatCodemodFile,
+					input: project.files[absolutePath],
+					insertAtIndices: request.insertAtIndices,
+					targetSequenceNodePath: request.targetSequenceNodePath.nodePath,
+					type: request.type,
+				});
+				controller.applyMutation({
+					fileName: absolutePath,
+					nodePathMutationFiles: null,
+					mutate: () => ({
+						...project,
+						files: {...project.files, [absolutePath]: result.output},
+					}),
+				});
+				return {success: true};
+			} catch (error) {
+				return getStructuredError(error);
+			}
+		},
+		reorderEffect: async (request) => {
+			try {
+				const project = getProject();
+				const absolutePath = findProjectFile({
+					filePath: request.fileName,
+					project,
+				});
+				const result = await reorderEffectCodemod({
+					formatFile: formatCodemodFile,
+					fromIndex: request.fromIndex,
+					input: project.files[absolutePath],
+					sequenceNodePath: request.sequenceNodePath.nodePath,
+					toIndex: request.toIndex,
+				});
+				controller.applyMutation({
+					fileName: absolutePath,
+					nodePathMutationFiles: null,
+					mutate: () => ({
+						...project,
+						files: {...project.files, [absolutePath]: result.output},
+					}),
+				});
+				return {success: true};
+			} catch (error) {
+				return getStructuredError(error);
+			}
+		},
+		saveEffectProps: async (request) => {
+			const project = getProject();
+			const absolutePath = findProjectFile({
+				filePath: request.fileName,
+				project,
+			});
+			const result = await updateEffectPropsCodemod({
+				effectIndex: request.effectIndex,
+				formatFile: formatCodemodFile,
+				input: project.files[absolutePath],
+				schema: request.schema,
+				sequenceNodePath: request.sequenceNodePath.nodePath,
+				update:
+					request.type === 'effect-param'
+						? {
+								defaultValue:
+									request.defaultValue === null
+										? null
+										: JSON.parse(request.defaultValue),
+								effectParam: request.effectParam,
+								key: request.key,
+							}
+						: {
+								defaultValue:
+									request.defaultValue === null
+										? null
+										: JSON.parse(request.defaultValue),
+								key: request.key,
+								value: JSON.parse(request.value),
+							},
+			});
+			const nextProject = {
+				...project,
+				files: {...project.files, [absolutePath]: result.output},
+			};
+			controller.applyMutation({
+				fileName: absolutePath,
+				nodePathMutationFiles: null,
+				mutate: () => nextProject,
+			});
+			return getEffectStatus({
+				effectIndex: request.effectIndex,
+				fileName: request.fileName,
+				project: nextProject,
+				schema: request.schema,
+				sequenceNodePath: request.sequenceNodePath,
+			});
+		},
+		saveMultipleEffectProps: async (request) => {
+			if (request.edits.length === 0) {
+				throw new Error('No effect prop edits to save');
+			}
+
+			const project = getProject();
+			const outputByPath = new Map<string, string>();
+			for (const edit of request.edits) {
+				const absolutePath = findProjectFile({
+					filePath: edit.fileName,
+					project,
+				});
+				const result = await updateEffectPropsCodemod({
+					effectIndex: edit.effectIndex,
+					formatFile: formatCodemodFile,
+					input: outputByPath.get(absolutePath) ?? project.files[absolutePath],
+					schema: edit.schema,
+					sequenceNodePath: edit.sequenceNodePath.nodePath,
+					update:
+						edit.type === 'effect-param'
+							? {
+									defaultValue:
+										edit.defaultValue === null
+											? null
+											: JSON.parse(edit.defaultValue),
+									effectParam: edit.effectParam,
+									key: edit.key,
+								}
+							: {
+									defaultValue:
+										edit.defaultValue === null
+											? null
+											: JSON.parse(edit.defaultValue),
+									key: edit.key,
+									value: JSON.parse(edit.value),
+								},
+				});
+				outputByPath.set(absolutePath, result.output);
+			}
+
+			const nextProject = {
+				...project,
+				files: {...project.files, ...Object.fromEntries(outputByPath)},
+			};
+			controller.applyMutation({
+				fileName: request.undoLabel,
+				nodePathMutationFiles: null,
+				mutate: () => nextProject,
+			});
+			const targets = [
+				...new Map(
+					request.edits.map((edit) => [
+						JSON.stringify([
+							edit.fileName,
+							edit.sequenceNodePath.nodePath,
+							edit.effectIndex,
+						]),
+						edit,
+					]),
+				).values(),
+			];
+			return {
+				results: targets.map((edit) => ({
+					fileName: edit.fileName,
+					sequenceNodePath: edit.sequenceNodePath,
+					status: getEffectStatus({
+						effectIndex: edit.effectIndex,
+						fileName: edit.fileName,
+						project: nextProject,
+						schema: edit.schema,
+						sequenceNodePath: edit.sequenceNodePath,
+					}),
+				})),
+			};
+		},
 	};
 
 	const deleteJsxNode: BrowserStudioOperations['deleteJsxNode'] = async ({
@@ -1442,6 +1852,7 @@ export const createBrowserStudioOperations = ({
 				}),
 			),
 		duplicateComposition,
+		effects: effectOperations,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
 		getFileSource: controller.getFileSource,

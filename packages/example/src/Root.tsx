@@ -449,22 +449,32 @@ export const Index: React.FC = () => {
 				width={1280}
 				height={720}
 			/>
-			<Composition
-				id="switzerland-map"
-				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
-				durationInFrames={240}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
-			<Composition
-				id="zurich-to-stuttgart-map"
-				lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
-				durationInFrames={270}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
+			<Folder name="maptiler">
+				<Composition
+					id="switzerland-map"
+					lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
+					durationInFrames={240}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="zurich-to-stuttgart-map"
+					lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
+					durationInFrames={270}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="maptiler-heatmap"
+					lazyComponent={() => import('./SwitzerlandMap/Heatmap')}
+					durationInFrames={150}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+			</Folder>
 			<Composition
 				id="captions-tester"
 				component={AnimatedCaptionsComposition}

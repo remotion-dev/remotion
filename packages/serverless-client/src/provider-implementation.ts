@@ -6,7 +6,7 @@ import type {BillingCurrency} from './format-costs-info';
 import type {RenderMetadata} from './render-metadata';
 import type {RendererFunctionTransport} from './renderer-transport';
 import type {ServerlessReturnValues} from './return-values';
-import type {OnMessage} from './streaming/streaming';
+import type {GetBinaryPayloadSink, OnMessage} from './streaming/streaming';
 import type {CallFunctionOptions, CloudProvider} from './types';
 
 export type ParseFunctionName = (functionName: string) => {
@@ -159,6 +159,7 @@ export type CallFunctionStreaming<Provider extends CloudProvider> = <
 	options: CallFunctionOptions<T, Provider> & {
 		receivedStreamingPayload: OnMessage<Provider>;
 		retriesRemaining: number;
+		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
 ) => Promise<void>;
 

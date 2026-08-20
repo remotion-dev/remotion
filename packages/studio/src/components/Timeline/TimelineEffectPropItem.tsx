@@ -13,13 +13,14 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
-import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
+import {saveEffectProps} from '../effect-operations-api';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
@@ -219,7 +220,7 @@ export const TimelineEffectPropValue: React.FC<{
 						schema: field.effectSchema,
 					}),
 				apiCall: () =>
-					callApi('/api/save-effect-props', {
+					saveEffectProps({
 						type: 'value',
 						fileName: validatedLocation.source,
 						sequenceNodePath: nodePath,
@@ -281,6 +282,10 @@ export const TimelineEffectPropValue: React.FC<{
 
 	if (field.fieldSchema.type === 'scale') {
 		throw new Error(`Effects do not support scale fields: ${field.key}`);
+	}
+
+	if (!canUseEffectOperations()) {
+		return <UnsupportedStatus label="read only" formattedValue={false} />;
 	}
 
 	if (effectStatus.type === 'cannot-update-effect') {

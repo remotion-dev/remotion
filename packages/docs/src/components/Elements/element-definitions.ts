@@ -21,6 +21,7 @@ import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover'
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
+import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
@@ -537,6 +538,26 @@ const elementImplementations = {
 		},
 		safeArea: 120,
 		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	'storytelling/polaroid-pictures': {
+		component: PolaroidPictures,
+		contributors: [],
+		description:
+			'A staggered instant-photo montage with handwritten captions, paper shadows, and developing-photo accents.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 150,
+		elementHeight: 640,
+		elementWidth: 1480,
+		fps: 30,
+		height: 1080,
+		posterFrame: 82,
+		preview: {
+			posterUrl: '/elements/storytelling-polaroid-pictures-preview.png',
+			videoUrl: '/elements/storytelling-polaroid-pictures-preview.mp4',
+		},
+		safeArea: 220,
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/news-article-highlight': {
