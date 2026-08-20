@@ -966,6 +966,20 @@ import {Config} from '@remotion/cli/config';
 Config.setEnableFolderExpiry(true);
 ```
 
+## `setEnableCancellation()`<AvailableFrom v="4.0.515" />
+
+<Options id="enable-cancellation" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEnableCancellation(true);
+```
+
+The `--enable-cancellation` command line flag will take precedence over this option.
+
 ## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 
 <Options id="enable-lambda-insights" />

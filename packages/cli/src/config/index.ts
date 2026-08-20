@@ -98,6 +98,7 @@ const {
 	disallowParallelEncodingOption,
 	deleteAfterOption,
 	folderExpiryOption,
+	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	gopSizeOption,
@@ -640,6 +641,10 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setEnableFolderExpiry: (value: boolean | null) => void;
 		/**
+		 * Allow `npx remotion lambda render` to cancel a render when Ctrl+C is pressed.
+		 */
+		setEnableCancellation: (value: boolean) => void;
+		/**
 		 * Set whether Lambda Insights should be enabled when deploying a function.
 		 */
 		setLambdaInsights: (value: boolean) => void;
@@ -835,6 +840,7 @@ export const Config: FlatConfig = {
 	setDisallowParallelEncoding: disallowParallelEncodingOption.setConfig,
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
+	setEnableCancellation: enableCancellationOption.setConfig,
 	setRepro: reproOption.setConfig,
 	setLambdaInsights: enableLambdaInsights.setConfig,
 	setBinariesDirectory: binariesDirectoryOption.setConfig,

@@ -11,8 +11,12 @@ Gem::Specification.new do |s|
   s.license       = "MIT"
   s.add_runtime_dependency "aws-sdk-lambda",
     ["> 1.0.0"]
+  s.add_runtime_dependency "aws-sdk-s3",
+    ["> 1.0.0"]
   s.add_runtime_dependency "json",
     ["> 2.0.0"]
   s.add_runtime_dependency "logger",
     ["> 1.0.0"]
+  s.add_runtime_dependency "rexml",
+    ["> 3.0.0"]
 end

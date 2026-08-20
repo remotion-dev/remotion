@@ -445,6 +445,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/getrenderprogress',
 				'lambda/presignurl',
 				'lambda/rendermediaonlambda',
+				'lambda/cancelrenderonlambda',
 				'lambda/renderstillonlambda',
 				'lambda/simulatepermissions',
 				'lambda/speculatefunctionname',
@@ -1289,6 +1290,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/custom-destination',
 				'lambda/checklist',
 				'lambda/webhooks',
+				'lambda/cancellation',
 				'lambda/cost-example',
 				'lambda/autodelete',
 				{

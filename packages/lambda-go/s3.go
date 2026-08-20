@@ -5,10 +5,13 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -25,6 +28,11 @@ type bucketLocationGetter interface {
 }
 
 type objectUploader interface {
+	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
+}
+
+type cancellationObjectClient interface {
+	GetObject(context.Context, *s3.GetObjectInput, ...func(*s3.Options)) (*s3.GetObjectOutput, error)
 	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 }
 
@@ -59,6 +67,56 @@ func makeBucketName(region string) (string, error) {
 
 func inputPropsKey(hash string) string {
 	return fmt.Sprintf("input-props/%s.json", hash)
+}
+
+func overallProgressKey(renderId string) string {
+	return fmt.Sprintf("renders/%s/progress.json", renderId)
+}
+
+func cancellationKey(renderId string) string {
+	return fmt.Sprintf("renders/%s/cancel.json", renderId)
+}
+
+func cancelRenderOnLambda(client cancellationObjectClient, input CancelRenderOnLambdaInput) error {
+	progressObject, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: new(input.BucketName),
+		Key:    new(overallProgressKey(input.RenderId)),
+	})
+	if err != nil {
+		return fmt.Errorf("could not read progress for render %q: %w", input.RenderId, err)
+	}
+	defer progressObject.Body.Close()
+
+	progressBody, err := io.ReadAll(progressObject.Body)
+	if err != nil {
+		return fmt.Errorf("could not read progress for render %q: %w", input.RenderId, err)
+	}
+
+	var progress struct {
+		CancellationEnabled bool `json:"cancellationEnabled"`
+	}
+	if err := json.Unmarshal(progressBody, &progress); err != nil {
+		return fmt.Errorf("could not parse progress for render %q: %w", input.RenderId, err)
+	}
+	if !progress.CancellationEnabled {
+		return fmt.Errorf("cannot cancel render %s: the render was not started with enableCancellation: true", input.RenderId)
+	}
+
+	cancellationBody, err := json.Marshal(map[string]int64{"cancelledAt": time.Now().UnixMilli()})
+	if err != nil {
+		return fmt.Errorf("could not serialize cancellation signal: %w", err)
+	}
+	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket:      new(input.BucketName),
+		Key:         new(cancellationKey(input.RenderId)),
+		Body:        strings.NewReader(string(cancellationBody)),
+		ContentType: new("application/json"),
+	})
+	if err != nil {
+		return fmt.Errorf("could not cancel render %q: %w", input.RenderId, err)
+	}
+
+	return nil
 }
 
 // newS3Client creates an S3 client using the same shared config resolution as

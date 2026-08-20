@@ -2,6 +2,7 @@ import {interpolate, NoReactInternals, random} from 'remotion/no-react';
 export * from './constants';
 export {
 	artifactName,
+	cancellationKey,
 	customOutName,
 	expiryDays,
 	MINIMUM_FRAMES_PER_FUNCTION,
@@ -133,6 +134,7 @@ export {validateBucketName} from './validate-bucket-name';
 export {validateOutname} from './validate-outname';
 export {validatePrivacy} from './validate-privacy';
 export {validateWebhook} from './validate-webhook';
+export {writeCancellationSignal} from './write-cancellation-signal';
 export * from './webhook-types';
 export {EnhancedErrorInfo, FunctionErrorInfo} from './write-error-to-storage';
 export {interpolate, random};

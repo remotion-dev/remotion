@@ -19,6 +19,7 @@ const {
 	encodingMaxRateOption,
 	deleteAfterOption,
 	folderExpiryOption,
+	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,
 	numberOfGifLoopsOption,
 	x264Option,
@@ -190,6 +191,9 @@ export type CommandLineOptions = {
 	[ipv4Option.cliFlag]: TypeOfOption<typeof ipv4Option> | null;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
+	[enableCancellationOption.cliFlag]: TypeOfOption<
+		typeof enableCancellationOption
+	> | null;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
 		typeof enableMultiprocessOnLinuxOption
 	>;
@@ -232,6 +236,7 @@ export const BooleanFlags = [
 	disableGitSourceOption.cliFlag,
 	disallowParallelEncodingOption.cliFlag,
 	forSeamlessAacConcatenationOption.cliFlag,
+	enableCancellationOption.cliFlag,
 	reproOption.cliFlag,
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
@@ -262,6 +267,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[forceNewStudioOption.cliFlag]: null,
 		[experimentalKeepAudioContextAliveOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
+		[enableCancellationOption.cliFlag]: null,
 		[rspackOption.cliFlag]: null,
 	},
 }) as CommandLineOptions & {
