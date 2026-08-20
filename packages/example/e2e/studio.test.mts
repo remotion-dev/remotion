@@ -728,6 +728,7 @@ test.describe('visual mode', () => {
 					name: 'Default (PNG)',
 					exact: true,
 				})
+				.last()
 				.click();
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))

@@ -1,7 +1,7 @@
 type UrlHandling = 'spa' | 'query-string';
 
 const getUrlHandlingType = (): UrlHandling => {
-	if (window.remotion_isReadOnlyStudio) {
+	if (window.remotion_isReadOnlyStudio || window.remotion_browserStudio) {
 		return 'query-string';
 	}
 
@@ -34,7 +34,8 @@ export const reloadUrl = () => {
 
 export const getRoute = () => {
 	if (getUrlHandlingType() === 'query-string') {
-		return window.location.search.substring(1);
+		const route = window.location.search.substring(1);
+		return route.startsWith('/') ? route : '';
 	}
 
 	return window.location.pathname;
