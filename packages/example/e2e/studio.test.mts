@@ -522,11 +522,18 @@ test.describe('visual mode', () => {
 		).toHaveText('100', {timeout: 15_000});
 	});
 
-	test('should show the composition list', async ({page}) => {
+	test('should show and search the composition list', async ({page}) => {
 		await page.goto(STUDIO_URL);
 		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
 			timeout: 15_000,
 		});
+
+		await page.keyboard.press('ControlOrMeta+k');
+		await page
+			.getByPlaceholder('Search compositions...')
+			.fill('timeline virtualization');
+		await page.keyboard.press('Enter');
+		await expect(page).toHaveURL(/timeline-virtualization-testbed/);
 	});
 
 	test('should play when a composition in the sidebar is focused', async ({
