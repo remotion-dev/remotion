@@ -904,6 +904,134 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 	return result?.adjustment ?? null;
 };
 
+type ResolvedCurrentFrameExpression = {
+	readonly bindingScopePath: recast.types.NodePath;
+	readonly offset: number;
+};
+
+const resolveCurrentFrameExpression = ({
+	node,
+	ast,
+	seenDeclarations,
+}: {
+	node: Expression;
+	ast: File;
+	seenDeclarations: Set<object>;
+}): ResolvedCurrentFrameExpression | null => {
+	if (node.type === 'TSAsExpression') {
+		return resolveCurrentFrameExpression({
+			node: node.expression as Expression,
+			ast,
+			seenDeclarations,
+		});
+	}
+
+	if (
+		node.type === 'BinaryExpression' &&
+		(node.operator === '+' || node.operator === '-')
+	) {
+		const rightValue = getNumericValue(node.right as Expression);
+		if (rightValue !== null && Number.isFinite(rightValue)) {
+			const resolvedLeft = resolveCurrentFrameExpression({
+				node: node.left as Expression,
+				ast,
+				seenDeclarations,
+			});
+			if (resolvedLeft !== null) {
+				return {
+					...resolvedLeft,
+					offset:
+						resolvedLeft.offset +
+						(node.operator === '+' ? rightValue : -rightValue),
+				};
+			}
+		}
+
+		if (node.operator === '+') {
+			const leftValue = getNumericValue(node.left as Expression);
+			if (leftValue !== null && Number.isFinite(leftValue)) {
+				const resolvedRight = resolveCurrentFrameExpression({
+					node: node.right as Expression,
+					ast,
+					seenDeclarations,
+				});
+				if (resolvedRight !== null) {
+					return {
+						...resolvedRight,
+						offset: resolvedRight.offset + leftValue,
+					};
+				}
+			}
+		}
+
+		return null;
+	}
+
+	if (node.type !== 'Identifier') {
+		return null;
+	}
+
+	const nodePath = findNodePath(ast, node);
+	const bindingScope = nodePath?.scope?.lookup(node.name);
+	if (!nodePath || !bindingScope) {
+		return null;
+	}
+
+	let matchingDeclarations = 0;
+	let matchingDeclaration: object | null = null;
+	let initializer: Expression | null = null;
+	let isConstDeclaration = false;
+	recast.types.visit(bindingScope.path, {
+		visitVariableDeclarator(p) {
+			const {id, init} = p.node;
+			if (
+				id.type !== 'Identifier' ||
+				id.name !== node.name ||
+				p.scope.lookup(node.name)?.path.node !== bindingScope.path.node
+			) {
+				return this.traverse(p);
+			}
+
+			matchingDeclarations++;
+			const declaration = p.parentPath.node;
+			if (init) {
+				matchingDeclaration = p.node;
+				initializer = init as Expression;
+				isConstDeclaration =
+					declaration.type === 'VariableDeclaration' &&
+					declaration.kind === 'const';
+			}
+
+			return false;
+		},
+	});
+
+	if (
+		matchingDeclarations !== 1 ||
+		matchingDeclaration === null ||
+		initializer === null ||
+		seenDeclarations.has(matchingDeclaration)
+	) {
+		return null;
+	}
+
+	if (isUseCurrentFrameCall(initializer, ast)) {
+		return {bindingScopePath: bindingScope.path, offset: 0};
+	}
+
+	if (!isConstDeclaration) {
+		return null;
+	}
+
+	const nextSeenDeclarations = new Set(seenDeclarations);
+	nextSeenDeclarations.add(matchingDeclaration);
+	return resolveCurrentFrameExpression({
+		node: initializer,
+		ast,
+		seenDeclarations: nextSeenDeclarations,
+	});
+};
+
 const getCurrentFrameDisplayOffsetAdjustment = ({
 	node,
 	ast,
@@ -924,47 +1052,31 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 		});
 	}
 
-	if (node.type !== 'Identifier') {
-		return null;
-	}
-
 	const nodePath = findNodePath(ast, node);
-	const bindingScope = nodePath?.scope?.lookup(node.name);
-	if (!nodePath || !bindingScope) {
-		return null;
-	}
-
-	let matchingDeclarations = 0;
-	let isCurrentFrameBinding = false;
-	recast.types.visit(bindingScope.path, {
-		visitVariableDeclarator(p) {
-			const {id, init} = p.node;
-			if (
-				id.type !== 'Identifier' ||
-				id.name !== node.name ||
-				p.scope.lookup(node.name)?.path.node !== bindingScope.path.node
-			) {
-				return this.traverse(p);
-			}
-
-			matchingDeclarations++;
-			isCurrentFrameBinding = Boolean(
-				init && isUseCurrentFrameCall(init as Expression, ast),
-			);
-
-			return false;
-		},
+	const resolved = resolveCurrentFrameExpression({
+		node,
+		ast,
+		seenDeclarations: new Set(),
 	});
-
-	if (matchingDeclarations !== 1 || !isCurrentFrameBinding) {
+	if (!nodePath || resolved === null) {
 		return null;
 	}
 
-	return getFrameDisplayOffsetAdjustmentBetweenPaths({
+	const frameDisplayOffset = getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: nodePath,
-		endPath: bindingScope.path,
+		endPath: resolved.bindingScopePath,
 		videoConfigValues,
 	});
+	if (frameDisplayOffset === null) {
+		return null;
+	}
+
+	return {
+		...frameDisplayOffset,
+		// interpolate(frame + offset, [keyframe], ...) reaches the keyframe at
+		// composition frame `keyframe - offset`.
+		adjustment: frameDisplayOffset.adjustment - resolved.offset,
+	};
 };
 
 export const getComputedStatus = (

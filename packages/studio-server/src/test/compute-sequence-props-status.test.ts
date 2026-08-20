@@ -1176,6 +1176,60 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus resolves affine aliases of useCurrentFrame', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const captureFrame = frame + 30;
+	let mutableCaptureFrame = frame + 30;
+	return (
+		<AbsoluteFill from={-30}>
+			<Sequence
+				style={{
+					rotate: interpolate(captureFrame, [30, 60], ['0deg', '30deg']),
+					opacity: interpolate(captureFrame - 10, [20, 50], [0, 1]),
+					scale: interpolate(frame * 2, [0, 60], [1, 2]),
+					translate: interpolate(mutableCaptureFrame, [30, 60], ['0px', '10px']),
+				}}
+			/>
+		</AbsoluteFill>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 10),
+		componentIdentity: null,
+		keys: ['style.rotate', 'style.opacity', 'style.scale', 'style.translate'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.rotate']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
+		keyframes: [
+			{frame: 30, value: '0deg'},
+			{frame: 60, value: '30deg'},
+		],
+	});
+	expect(result.props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 10,
+		keyframes: [
+			{frame: 20, value: 0},
+			{frame: 50, value: 1},
+		],
+	});
+	expect(result.props['style.scale']).toEqual({status: 'computed'});
+	expect(result.props['style.translate']).toEqual({status: 'computed'});
+});
+
 test('computeSequencePropsStatus reports computed when a timing component offset is uncertain', () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
