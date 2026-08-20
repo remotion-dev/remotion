@@ -75,6 +75,36 @@ test('outline() draws around alpha while preserving the source', async () => {
 
 	const transparentPixel = context.getImageData(8, 8, 1, 1).data;
 	expect([...transparentPixel]).toEqual([0, 0, 0, 0]);
+
+	const outlineOnlyCanvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			outline({width: 6, color: '#ff0000', outlineOnly: true}),
+		]),
+	});
+	const outlineOnlyContext = outlineOnlyCanvas.getContext('2d');
+	if (!outlineOnlyContext) {
+		throw new Error('Could not get outline-only output context');
+	}
+
+	const filledSourcePixel = outlineOnlyContext.getImageData(32, 32, 1, 1).data;
+	expect([...filledSourcePixel]).toEqual([255, 0, 0, 255]);
+
+	const filledOutlinePixel = outlineOnlyContext.getImageData(20, 32, 1, 1).data;
+	expect(filledOutlinePixel[0]).toBeGreaterThanOrEqual(250);
+	expect(filledOutlinePixel[1]).toBeLessThanOrEqual(5);
+	expect(filledOutlinePixel[2]).toBeLessThanOrEqual(5);
+	expect(filledOutlinePixel[3]).toBeGreaterThanOrEqual(250);
+
+	const outlineOnlyTransparentPixel = outlineOnlyContext.getImageData(
+		8,
+		8,
+		1,
+		1,
+	).data;
+	expect([...outlineOnlyTransparentPixel]).toEqual([0, 0, 0, 0]);
 });
 
 test('evolve() reveals with feather', async () => {

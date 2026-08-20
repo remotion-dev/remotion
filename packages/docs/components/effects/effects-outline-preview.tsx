@@ -8,14 +8,15 @@ export const EffectsOutlinePreview: React.FC<{
 	readonly width: number;
 	readonly color: string;
 	readonly opacity: number;
-}> = ({width, color, opacity}) => {
+	readonly outlineOnly: boolean;
+}> = ({width, color, opacity, outlineOnly}) => {
 	return (
 		<AbsoluteFill style={{backgroundColor: '#15171e'}}>
 			<Video
 				src="https://remotion.media/greenscreen.mp4"
 				effects={[
 					colorKey({similarity: 0.45}),
-					outline({width, color, opacity}),
+					outline({width, color, opacity, outlineOnly}),
 				]}
 			/>
 		</AbsoluteFill>

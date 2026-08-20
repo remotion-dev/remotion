@@ -656,11 +656,18 @@ test('outline() rejects invalid opacity', () => {
 	expect(() => outline({opacity: 1.1})).toThrow('"opacity" must be <= 1');
 });
 
+test('outline() rejects invalid outlineOnly', () => {
+	expect(() => outline({outlineOnly: 'yes' as unknown as boolean})).toThrow(
+		'"outlineOnly" must be a boolean',
+	);
+});
+
 test('outline() parameters produce distinct effect keys', () => {
 	const defaults = outline();
 	const wider = outline({width: 16});
 	const colored = outline({color: '#00ffff'});
 	const transparent = outline({opacity: 0.5});
+	const outlineOnly = outline({outlineOnly: true});
 
 	expect(
 		new Set([
@@ -668,8 +675,9 @@ test('outline() parameters produce distinct effect keys', () => {
 			wider.effectKey,
 			colored.effectKey,
 			transparent.effectKey,
+			outlineOnly.effectKey,
 		]).size,
-	).toBe(4);
+	).toBe(5);
 });
 
 test('tint() throws when color is not passed', () => {

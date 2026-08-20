@@ -8,6 +8,7 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {
+	assertOptionalBoolean,
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
@@ -17,6 +18,7 @@ const {createEffect, createWebGL2ContextError} = Internals;
 const DEFAULT_WIDTH = 8 as const;
 const DEFAULT_COLOR = '#ffffff' as const;
 const DEFAULT_OPACITY = 1 as const;
+const DEFAULT_OUTLINE_ONLY = false as const;
 
 export const outlineSchema = {
 	width: {
@@ -42,6 +44,11 @@ export const outlineSchema = {
 		description: 'Opacity',
 		hiddenFromList: false,
 	},
+	outlineOnly: {
+		type: 'boolean',
+		default: DEFAULT_OUTLINE_ONLY,
+		description: 'Outline only',
+	},
 } as const satisfies InteractivitySchema;
 
 export type OutlineParams = {
@@ -51,12 +58,15 @@ export type OutlineParams = {
 	readonly color?: string;
 	/** Opacity of the outline from `0` to `1`. Defaults to `1`. */
 	readonly opacity?: number;
+	/** Whether to replace the source with a filled outline mask. Defaults to `false`. */
+	readonly outlineOnly?: boolean;
 };
 
 type OutlineResolved = {
 	readonly width: number;
 	readonly color: string;
 	readonly opacity: number;
+	readonly outlineOnly: boolean;
 };
 
 type OutlineState = {
@@ -71,6 +81,7 @@ type OutlineState = {
 		readonly uWidth: WebGLUniformLocation | null;
 		readonly uColor: WebGLUniformLocation | null;
 		readonly uOpacity: WebGLUniformLocation | null;
+		readonly uOutlineOnly: WebGLUniformLocation | null;
 	};
 	readonly colorCtx: CanvasRenderingContext2D;
 	cachedColor: string;
@@ -81,6 +92,7 @@ const resolve = (params: OutlineParams): OutlineResolved => ({
 	width: params.width ?? DEFAULT_WIDTH,
 	color: params.color ?? DEFAULT_COLOR,
 	opacity: params.opacity ?? DEFAULT_OPACITY,
+	outlineOnly: params.outlineOnly ?? DEFAULT_OUTLINE_ONLY,
 });
 
 const validateOutlineParams = (params: OutlineParams): void => {
@@ -88,6 +100,7 @@ const validateOutlineParams = (params: OutlineParams): void => {
 	assertOptionalFiniteNumber(params.width, 'width');
 	assertOptionalColor(params.color, 'color');
 	assertOptionalFiniteNumber(params.opacity, 'opacity');
+	assertOptionalBoolean(params.outlineOnly, 'outlineOnly');
 
 	const resolved = resolve(params);
 	validateNonNegative(resolved.width, 'width');
@@ -116,6 +129,7 @@ uniform vec2 uTexelSize;
 uniform float uWidth;
 uniform vec4 uColor;
 uniform float uOpacity;
+uniform bool uOutlineOnly;
 
 const float TAU = 6.283185307179586;
 const int SAMPLE_DIRECTIONS = 32;
@@ -124,22 +138,35 @@ const int SAMPLE_RINGS = 3;
 void main() {
 	vec4 source = texture(uSource, vUv);
 
-	if (uWidth <= 0.0 || uOpacity <= 0.0 || uColor.a <= 0.0) {
+	if (uOpacity <= 0.0 || uColor.a <= 0.0) {
+		fragColor = uOutlineOnly ? vec4(0.0) : source;
+		return;
+	}
+
+	if (uWidth <= 0.0 && !uOutlineOnly) {
 		fragColor = source;
 		return;
 	}
 
 	float neighboringAlpha = 0.0;
-	for (int ring = 1; ring <= SAMPLE_RINGS; ring++) {
-		float distancePx = uWidth * float(ring) / float(SAMPLE_RINGS);
-		for (int direction = 0; direction < SAMPLE_DIRECTIONS; direction++) {
-			float angle = TAU * float(direction) / float(SAMPLE_DIRECTIONS);
-			vec2 offset = vec2(cos(angle), sin(angle)) * distancePx * uTexelSize;
-			neighboringAlpha = max(
-				neighboringAlpha,
-				texture(uSource, vUv + offset).a
-			);
+	if (uWidth > 0.0) {
+		for (int ring = 1; ring <= SAMPLE_RINGS; ring++) {
+			float distancePx = uWidth * float(ring) / float(SAMPLE_RINGS);
+			for (int direction = 0; direction < SAMPLE_DIRECTIONS; direction++) {
+				float angle = TAU * float(direction) / float(SAMPLE_DIRECTIONS);
+				vec2 offset = vec2(cos(angle), sin(angle)) * distancePx * uTexelSize;
+				neighboringAlpha = max(
+					neighboringAlpha,
+					texture(uSource, vUv + offset).a
+				);
+			}
 		}
+	}
+
+	if (uOutlineOnly) {
+		float filledAlpha = max(source.a, neighboringAlpha) * uColor.a * uOpacity;
+		fragColor = vec4(uColor.rgb * filledAlpha, filledAlpha);
+		return;
 	}
 
 	float outlineAlpha = neighboringAlpha * uColor.a * uOpacity * (1.0 - source.a);
@@ -263,6 +290,7 @@ const setupOutline = (target: HTMLCanvasElement): OutlineState => {
 			uWidth: gl.getUniformLocation(program, 'uWidth'),
 			uColor: gl.getUniformLocation(program, 'uColor'),
 			uOpacity: gl.getUniformLocation(program, 'uOpacity'),
+			uOutlineOnly: gl.getUniformLocation(program, 'uOutlineOnly'),
 		},
 		colorCtx,
 		cachedColor: '',
@@ -277,7 +305,7 @@ export const outline = createEffect<OutlineParams, OutlineState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
-		return `outline-${resolved.width}-${resolved.color}-${resolved.opacity}`;
+		return `outline-${resolved.width}-${resolved.color}-${resolved.opacity}-${resolved.outlineOnly}`;
 	},
 	setup: setupOutline,
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -321,6 +349,8 @@ export const outline = createEffect<OutlineParams, OutlineState>({
 				alpha / 255,
 			);
 		if (uniforms.uOpacity) gl.uniform1f(uniforms.uOpacity, resolved.opacity);
+		if (uniforms.uOutlineOnly)
+			gl.uniform1i(uniforms.uOutlineOnly, resolved.outlineOnly ? 1 : 0);
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

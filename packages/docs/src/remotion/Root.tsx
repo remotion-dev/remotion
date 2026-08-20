@@ -295,6 +295,7 @@ export const RemotionRoot: React.FC = () => {
 						width: 12,
 						color: '#00ffff',
 						opacity: 1,
+						outlineOnly: false,
 					}}
 				/>
 				<Still
