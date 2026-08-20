@@ -111,3 +111,65 @@ test('renderFrames() should render selected frames', async () => {
 		await puppeteerInstance.close({silent: false});
 	}
 });
+
+test('renderFrames() should await async frame buffer callbacks', async () => {
+	const puppeteerInstance = await openBrowser('chrome');
+
+	try {
+		const scripts = await selectComposition({
+			id: 'scripts',
+			serveUrl: exampleBuild,
+			puppeteerInstance,
+			inputProps: {},
+		});
+		const completedFrames: number[] = [];
+		let notifyFirstFrameReceived: () => void = () => {
+			throw new Error('The first frame was not received.');
+		};
+		const firstFrameReceived = new Promise<void>((resolve) => {
+			notifyFirstFrameReceived = resolve;
+		});
+		let releaseFirstFrame: () => void = () => {
+			throw new Error('The first frame was not received.');
+		};
+		const firstFrameCanFinish = new Promise<void>((resolve) => {
+			releaseFirstFrame = resolve;
+		});
+
+		const render = renderFrames({
+			composition: scripts,
+			frames: [0],
+			imageFormat: 'jpeg',
+			inputProps: {},
+			onFrameUpdate: () => undefined,
+			serveUrl: exampleBuild,
+			concurrency: 1,
+			outputDir: null,
+			onStart: () => undefined,
+			puppeteerInstance,
+			onFrameBuffer: async (_buffer, frame) => {
+				if (frame === 0) {
+					notifyFirstFrameReceived();
+					await firstFrameCanFinish;
+				}
+
+				completedFrames.push(frame);
+			},
+		});
+
+		await firstFrameReceived;
+		const stateWhileCallbackIsPending = await Promise.race([
+			render.then(() => 'finished' as const),
+			new Promise<'pending'>((resolve) => {
+				setTimeout(() => resolve('pending'), 500);
+			}),
+		]);
+		releaseFirstFrame();
+		await render;
+
+		expect(stateWhileCallbackIsPending).toBe('pending');
+		expect(completedFrames).toEqual([0]);
+	} finally {
+		await puppeteerInstance.close({silent: false});
+	}
+});
