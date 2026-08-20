@@ -195,7 +195,11 @@ export const makeLambdaRenderMediaPayload = async ({
 		envVariables,
 		pixelFormat: pixelFormat ?? null,
 		proResProfile: proResProfile ?? null,
-		x264Preset,
+		x264Preset:
+			x264Preset ??
+			(ENABLE_V5_BREAKING_CHANGES && actualCodec === 'h264'
+				? 'veryfast'
+				: null),
 		gopSize,
 		jpegQuality,
 		maxRetries,

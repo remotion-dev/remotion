@@ -107,6 +107,12 @@ The default value of `overwrite` in [`renderMediaOnLambda()`](/docs/lambda/rende
 
 **Required action**: Set `overwrite: false` if an existing file should still cause an error.
 
+## `veryfast` is now the default x264 preset on Lambda
+
+The default [`x264Preset`](/docs/lambda/rendermediaonlambda#x264preset) for H.264 Lambda renders has changed from `medium` to `veryfast`. This reduces encoding time and Lambda costs.
+
+**Required action**: Set `x264Preset: "medium"` or pass `--x264-preset=medium` to keep the previous behavior.
+
 ## `openBrowser()` now takes a `logLevel` instead of `shouldDumpIo`
 
 The `shouldDumpIo` option has been be removed in 5.0.  
