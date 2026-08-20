@@ -17,6 +17,7 @@ import {
 } from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {AudioIcon} from '../../icons/audio';
 import {CertificateIcon} from '../../icons/certificate';
 import {FileIcon} from '../../icons/file';
@@ -220,6 +221,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				: 'still',
 	);
 	const [tab, setTab] = useState<TabType>('general');
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const [imageFormat, setImageFormat] = useState<RenderStillOnWebImageFormat>(
 		() => initialStillImageFormat ?? 'png',
 	);
@@ -710,24 +712,26 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					>
 						Other
 					</VerticalTab>
-					<VerticalTab
-						style={horizontalTab}
-						selected={false}
-						onClick={() =>
-							setSelectedModal({
-								type: 'settings',
-								initialTab: 'license',
-								initialPublicLicenseKey: publicLicenseKey,
-							})
-						}
-						renderIcon={(color) => (
-							<div style={iconContainer}>
-								<CertificateIcon color={color} style={icon} />
-							</div>
-						)}
-					>
-						License
-					</VerticalTab>
+					{isBrowserStudio ? null : (
+						<VerticalTab
+							style={horizontalTab}
+							selected={false}
+							onClick={() =>
+								setSelectedModal({
+									type: 'settings',
+									initialTab: 'license',
+									initialPublicLicenseKey: publicLicenseKey,
+								})
+							}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<CertificateIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							License
+						</VerticalTab>
+					)}
 				</div>
 				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (

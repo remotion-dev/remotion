@@ -1,4 +1,5 @@
 import React, {useContext, useEffect} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
@@ -33,8 +34,13 @@ export const Modals: React.FC<{
 		StudioServerConnectionCtx,
 	);
 	const canRender = previewServerState.type === 'connected';
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 
 	useEffect(() => {
+		if (isBrowserStudio) {
+			return;
+		}
+
 		return subscribeToEvent('license-key-install-request', (event) => {
 			if (event.type !== 'license-key-install-request') {
 				return;
@@ -46,7 +52,7 @@ export const Modals: React.FC<{
 				initialPublicLicenseKey: event.licenseKey,
 			});
 		});
-	}, [setSelectedModal, subscribeToEvent]);
+	}, [isBrowserStudio, setSelectedModal, subscribeToEvent]);
 
 	return (
 		<>
@@ -96,13 +102,15 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
-			{modalContextType && modalContextType.type === 'settings' && (
-				<SettingsModal
-					key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
-					initialTab={modalContextType.initialTab}
-					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
-				/>
-			)}
+			{!isBrowserStudio &&
+				modalContextType &&
+				modalContextType.type === 'settings' && (
+					<SettingsModal
+						key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
+						initialTab={modalContextType.initialTab}
+						initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
+					/>
+				)}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
 			)}
@@ -194,9 +202,13 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
 			)}
-			{modalContextType && modalContextType.type === 'install-packages' && (
-				<InstallPackageModal packageManager={modalContextType.packageManager} />
-			)}
+			{!isBrowserStudio &&
+				modalContextType &&
+				modalContextType.type === 'install-packages' && (
+					<InstallPackageModal
+						packageManager={modalContextType.packageManager}
+					/>
+				)}
 
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher
