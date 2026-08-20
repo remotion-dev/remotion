@@ -77,7 +77,6 @@ type EnhancedTSequenceData =
 			// are passed.
 			// If not a function was passed, a number is being used
 			volume: string | number;
-			muted: boolean;
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
 			mediaFrameAtSequenceZero: number | null;
@@ -88,7 +87,6 @@ type EnhancedTSequenceData =
 			type: 'video';
 			src: string;
 			volume: string | number;
-			muted: boolean;
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
 			mediaFrameAtSequenceZero: number | null;

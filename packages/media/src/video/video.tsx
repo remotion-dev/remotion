@@ -277,7 +277,6 @@ const VideoInner: React.FC<
 		mediaVolume,
 		mediaStartsAt,
 		loop: loop ?? false,
-		muted: muted ?? false,
 	});
 
 	// TODO: Redundant with what we do in the Studio

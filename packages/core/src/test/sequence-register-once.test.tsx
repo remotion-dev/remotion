@@ -209,11 +209,9 @@ const SequenceTestWrapper: React.FC<SequenceTestWrapperProps> = ({
 const makeMediaInTimelineData = ({
 	startMediaFrom,
 	playbackRate = 1,
-	muted = false,
 }: {
 	startMediaFrom: number;
 	playbackRate?: number;
-	muted?: boolean;
 }): BasicMediaInTimelineReturnType =>
 	({
 		volumes: 1,
@@ -224,37 +222,7 @@ const makeMediaInTimelineData = ({
 		startMediaFrom,
 		src: 'video.mp4',
 		playbackRate,
-		muted,
 	}) as unknown as BasicMediaInTimelineReturnType;
-
-test('Media registration preserves the muted state', () => {
-	const registeredSequences: TSequence[] = [];
-
-	render(
-		<SequenceTestWrapper
-			onRegisterSequence={(sequence) => {
-				registeredSequences.push(sequence);
-			}}
-		>
-			<Sequence
-				layout="none"
-				_remotionInternalIsMedia={{
-					type: 'video',
-					data: makeMediaInTimelineData({
-						startMediaFrom: 0,
-						muted: true,
-					}),
-				}}
-			/>
-		</SequenceTestWrapper>,
-	);
-
-	const videoSequence = registeredSequences.find(
-		(sequence) => sequence.type === 'video',
-	);
-
-	expect(videoSequence).toMatchObject({muted: true});
-});
 
 test('Sequence calls registerSequence exactly once on mount', () => {
 	let registerCalls = 0;

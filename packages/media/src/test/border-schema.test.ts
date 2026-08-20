@@ -2,6 +2,17 @@ import {expect, test} from 'vitest';
 import {audioSchema} from '../audio/audio';
 import {videoSchema} from '../video/video';
 
+test('Video and Audio expose muted controls', () => {
+	expect(videoSchema.muted).toMatchObject({
+		type: 'boolean',
+		default: false,
+	});
+	expect(audioSchema.muted).toMatchObject({
+		type: 'boolean',
+		default: false,
+	});
+});
+
 test('Video exposes background and border controls', () => {
 	expect('style.backgroundColor' in videoSchema).toBe(true);
 	expect('style.borderWidth' in videoSchema).toBe(true);

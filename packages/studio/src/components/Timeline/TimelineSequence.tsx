@@ -29,6 +29,7 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
+import {useRuntimeValue} from '../../helpers/use-runtime-values';
 import {SetSelectedModalContext} from '../../state/modals';
 import {AudioWaveform} from '../AudioWaveform';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -267,6 +268,7 @@ const TimelineSequenceInner: React.FC<{
 
 	const video = Internals.useVideo();
 	const renderWindow = useContext(TimelineViewportContext);
+	const muted = useRuntimeValue(s.controls, 'muted') === true;
 
 	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
@@ -674,7 +676,7 @@ const TimelineSequenceInner: React.FC<{
 				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
 			}
 		>
-			{s.type === 'audio' && !s.muted && visibleLayout.media ? (
+			{s.type === 'audio' && !muted && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
 					<AudioWaveform
 						src={s.src}
@@ -707,7 +709,7 @@ const TimelineSequenceInner: React.FC<{
 					loopDisplay={s.loopDisplay}
 					frozenMediaFrame={s.frozenMediaFrame}
 					extendLastFrame={extendVideoLastFrame}
-					muted={s.muted}
+					muted={muted}
 				/>
 			) : null}
 			{s.type === 'image' && visibleLayout.media ? (
