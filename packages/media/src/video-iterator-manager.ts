@@ -186,6 +186,15 @@ export const videoIteratorManager = async ({
 		}
 
 		if (nonce.isStale()) {
+			// A superseded seek has still paid for a completed decode. During a
+			// paused scrub, every seek is superseded by the next pointer move
+			// before its decode lands, so returning here undrawn would discard
+			// every frame and freeze the preview for the whole drag. Painting
+			// the completed frame is safe: the newer seek is already queued and
+			// lands last, so this is monotonic progress toward the target.
+			if (!videoFrameIterator.isDestroyed() && iterator.initialFrame) {
+				await drawFrame(iterator.initialFrame);
+			}
 			return;
 		}
 
