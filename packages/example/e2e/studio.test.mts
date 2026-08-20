@@ -1,7 +1,7 @@
-import {expect, test, type Page} from '@playwright/test';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import fs from 'fs';
 import path from 'path';
+import {expect, test, type Page} from '@playwright/test';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	STUDIO_URL,
 	effectKeyframeE2eFile,
@@ -12,6 +12,12 @@ import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const macCursorsFile = path.join(exampleDir, 'src', 'MacCursors', 'index.tsx');
+const outlineSelectionCasesFile = path.join(
+	exampleDir,
+	'src',
+	'VisualModeTests',
+	'OutlineSelectionCases.tsx',
+);
 
 const dropAssetOnCanvas = async ({
 	assetPath,
@@ -92,6 +98,144 @@ test.describe('visual mode', () => {
 	test('should load the studio', async ({page}) => {
 		await page.goto(STUDIO_URL);
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
+	});
+
+	test('should arbitrate clicks and drags on overlapping outlines', async ({
+		page,
+	}) => {
+		const sourceBefore = fs.readFileSync(outlineSelectionCasesFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/outline-selection-cases`);
+			await page.waitForFunction(
+				() => !document.body.innerText.includes('Loading...'),
+				{timeout: 30_000},
+			);
+			await page.keyboard.press('g');
+			const currentFrameInput = page.locator('input:focus');
+			await expect(currentFrameInput).toBeVisible();
+			await currentFrameInput.fill('1650');
+			await currentFrameInput.press('Enter');
+
+			const canvas = page.locator('.remotion-studio-composition-container');
+			const outer = canvas
+				.getByText('Select the large target first', {exact: true})
+				.locator('..');
+			const inner = canvas
+				.getByText('Unselected overlap', {exact: true})
+				.locator('..');
+			const outerTimelineItem = page.getByText('Large selected target', {
+				exact: true,
+			});
+			await expect(outerTimelineItem).toBeVisible({timeout: 15_000});
+			await expect(page.getByText('Baseline', {exact: true})).toBeVisible();
+
+			const innerBefore = await inner.boundingBox();
+			const outerBefore = await outer.boundingBox();
+			if (innerBefore === null || outerBefore === null) {
+				throw new Error('Expected overlapping outlines to have bounding boxes');
+			}
+
+			const overlapPoint = {
+				x: innerBefore.x + innerBefore.width / 2,
+				y: innerBefore.y + innerBefore.height / 2,
+			};
+			const visibleOutlines = canvas.locator(
+				'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
+			);
+			await outerTimelineItem.click();
+			await expect(outerTimelineItem).toHaveCSS(
+				'background-color',
+				'rgb(176, 176, 176)',
+			);
+			await page.mouse.move(0, 0);
+			await expect
+				.poll(async () =>
+					visibleOutlines
+						.first()
+						.evaluate((element) => element.getBoundingClientRect().width),
+				)
+				.toBeCloseTo(outerBefore.width, 0);
+			await page.mouse.move(overlapPoint.x, overlapPoint.y);
+			await expect
+				.poll(async () =>
+					(
+						await visibleOutlines.evaluateAll((elements) =>
+							elements.map((element) => element.getBoundingClientRect().width),
+						)
+					).map(Math.round),
+				)
+				.toEqual([
+					Math.round(outerBefore.width),
+					Math.round(innerBefore.width),
+				]);
+
+			await page.mouse.down();
+			await page.mouse.up();
+			await page.mouse.move(0, 0);
+			await expect
+				.poll(async () => {
+					const boxes = await visibleOutlines.evaluateAll((elements) =>
+						elements.map((element) => element.getBoundingClientRect().width),
+					);
+					return (
+						boxes.length === 1 && Math.abs(boxes[0] - innerBefore.width) < 1
+					);
+				})
+				.toBe(true);
+
+			await outerTimelineItem.click();
+			await expect(outerTimelineItem).toHaveCSS(
+				'background-color',
+				'rgb(176, 176, 176)',
+			);
+			await page.mouse.move(0, 0);
+			await expect
+				.poll(async () => {
+					const boxes = await visibleOutlines.evaluateAll((elements) =>
+						elements.map((element) => element.getBoundingClientRect().width),
+					);
+					return (
+						boxes.length === 1 && Math.abs(boxes[0] - outerBefore.width) < 1
+					);
+				})
+				.toBe(true);
+			await page.mouse.move(overlapPoint.x, overlapPoint.y);
+			await page.mouse.down();
+			await page.mouse.move(overlapPoint.x + 60, overlapPoint.y, {steps: 5});
+			await page.mouse.up();
+
+			await expect
+				.poll(async () => (await outer.boundingBox())?.x ?? null)
+				.toBeCloseTo(outerBefore.x + 60, 0);
+			await expect
+				.poll(async () => (await inner.boundingBox())?.x ?? null)
+				.toBeCloseTo(innerBefore.x, 0);
+
+			const innerAfterOuterDrag = await inner.boundingBox();
+			if (innerAfterOuterDrag === null) {
+				throw new Error('Expected the inner outline to remain mounted');
+			}
+
+			const innerPoint = {
+				x: innerAfterOuterDrag.x + innerAfterOuterDrag.width / 2,
+				y: innerAfterOuterDrag.y + innerAfterOuterDrag.height / 2,
+			};
+			await page.mouse.click(innerPoint.x, innerPoint.y);
+			await page.mouse.move(innerPoint.x, innerPoint.y);
+			await page.mouse.down();
+			await page.mouse.move(innerPoint.x, innerPoint.y + 50, {steps: 5});
+			await page.mouse.up();
+
+			await expect
+				.poll(async () => (await inner.boundingBox())?.y ?? null)
+				.toBeCloseTo(innerBefore.y + 50, 0);
+			await expect
+				.poll(async () => (await outer.boundingBox())?.x ?? null)
+				.toBeCloseTo(outerBefore.x + 60, 0);
+		} finally {
+			fs.writeFileSync(outlineSelectionCasesFile, sourceBefore);
+		}
 	});
 
 	test('should virtualize a large timeline without hiding tracks', async ({

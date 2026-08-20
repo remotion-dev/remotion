@@ -510,6 +510,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			<SelectedOutlinePolygon
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
+				directlySelected={layoutTarget?.selected === true}
 				dragging={dragging}
 				getAllDragOutlines={getAllDragOutlines}
 				getAllDragTargets={getAllDragTargets}
