@@ -45,7 +45,7 @@ test('uses query-string routing in Browser Studio', () => {
 			},
 			location: {
 				pathname: '/experimental_new',
-				search: '',
+				search: '?source=release',
 			},
 			remotion_browserStudio: {},
 			remotion_isReadOnlyStudio: false,

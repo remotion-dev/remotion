@@ -34,7 +34,8 @@ export const reloadUrl = () => {
 
 export const getRoute = () => {
 	if (getUrlHandlingType() === 'query-string') {
-		return window.location.search.substring(1);
+		const route = window.location.search.substring(1);
+		return route.startsWith('/') ? route : '';
 	}
 
 	return window.location.pathname;
