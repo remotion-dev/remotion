@@ -36,6 +36,9 @@ const unsupportedLabel: React.CSSProperties = {
 
 const computedValue: React.CSSProperties = {
 	color: WHITE_ALPHA_40,
+	fontFamily: 'Arial, Helvetica, sans-serif',
+	fontSize: 12,
+	lineHeight: '18px',
 	pointerEvents: 'none',
 };
 
