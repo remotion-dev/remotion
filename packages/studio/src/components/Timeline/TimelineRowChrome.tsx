@@ -138,6 +138,26 @@ export const TimelineRowChrome: React.FC<{
 		[onSelect],
 	);
 
+	const onDoubleClickIfNotInteractive = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			const {target} = e;
+			if (
+				target instanceof Element &&
+				e.currentTarget.contains(
+					target.closest(
+						'button, input, select, textarea, a, [contenteditable="true"]',
+					),
+				)
+			) {
+				e.stopPropagation();
+				return;
+			}
+
+			onDoubleClick?.(e);
+		},
+		[onDoubleClick],
+	);
+
 	const highlightBackground = getTimelineRowHighlightBackground({
 		showSelectedBackground,
 		selected,
@@ -209,7 +229,7 @@ export const TimelineRowChrome: React.FC<{
 				onDrop={onDrop}
 				onPointerDown={selectable ? onPointerDown : undefined}
 				onContextMenu={selectable ? onContextMenu : undefined}
-				onDoubleClick={onDoubleClick}
+				onDoubleClick={onDoubleClickIfNotInteractive}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
 			>
@@ -225,7 +245,7 @@ export const TimelineRowChrome: React.FC<{
 			onDrop={onDrop}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onContextMenu={selectable ? onContextMenu : undefined}
-			onDoubleClick={onDoubleClick}
+			onDoubleClick={onDoubleClickIfNotInteractive}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={innerRowStyle}
