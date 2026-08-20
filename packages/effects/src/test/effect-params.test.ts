@@ -642,12 +642,12 @@ test('outline() rejects invalid width', () => {
 	expect(() => outline({width: -1})).toThrow('"width" must be >= 0');
 });
 
-test('outline() rejects invalid edgeBlockSize', () => {
-	expect(() => outline({edgeBlockSize: Number.NaN})).toThrow(
-		'"edgeBlockSize" must be a finite number',
+test('outline() rejects invalid edgeSimplification', () => {
+	expect(() => outline({edgeSimplification: Number.NaN})).toThrow(
+		'"edgeSimplification" must be a finite number',
 	);
-	expect(() => outline({edgeBlockSize: 0})).toThrow(
-		'"edgeBlockSize" must be >= 1',
+	expect(() => outline({edgeSimplification: -1})).toThrow(
+		'"edgeSimplification" must be >= 0',
 	);
 });
 
@@ -674,7 +674,7 @@ test('outline() rejects invalid outlineOnly', () => {
 test('outline() parameters produce distinct effect keys', () => {
 	const defaults = outline();
 	const wider = outline({width: 16});
-	const blockier = outline({edgeBlockSize: 8});
+	const polygonal = outline({edgeSimplification: 8});
 	const colored = outline({color: '#00ffff'});
 	const transparent = outline({opacity: 0.5});
 	const outlineOnly = outline({outlineOnly: true});
@@ -683,7 +683,7 @@ test('outline() parameters produce distinct effect keys', () => {
 		new Set([
 			defaults.effectKey,
 			wider.effectKey,
-			blockier.effectKey,
+			polygonal.effectKey,
 			colored.effectKey,
 			transparent.effectKey,
 			outlineOnly.effectKey,

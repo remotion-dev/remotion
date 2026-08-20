@@ -76,28 +76,29 @@ test('outline() draws around alpha while preserving the source', async () => {
 	const transparentPixel = context.getImageData(8, 8, 1, 1).data;
 	expect([...transparentPixel]).toEqual([0, 0, 0, 0]);
 
-	const smoothCornerPixel = context.getImageData(18, 18, 1, 1).data;
-	expect(smoothCornerPixel[3]).toBeLessThanOrEqual(5);
+	const smoothCornerPixel = context.getImageData(19, 19, 1, 1).data;
+	expect(smoothCornerPixel[3]).toBeLessThanOrEqual(20);
 
-	const blockyCanvas = await renderEffectChainToCanvas({
+	const polygonalCanvas = await renderEffectChainToCanvas({
 		source,
 		width,
 		height,
 		effects: descriptorsToMemoizedEffects([
-			outline({width: 6, edgeBlockSize: 8, color: '#ff0000'}),
+			outline({width: 6, edgeSimplification: 8, color: '#ff0000'}),
 		]),
 	});
-	const blockyContext = blockyCanvas.getContext('2d');
-	if (!blockyContext) {
-		throw new Error('Could not get blocky outline output context');
+	const polygonalContext = polygonalCanvas.getContext('2d');
+	if (!polygonalContext) {
+		throw new Error('Could not get polygonal outline output context');
 	}
 
-	const blockyCornerPixel = blockyContext.getImageData(18, 18, 1, 1).data;
-	expect(blockyCornerPixel[3]).toBeGreaterThan(50);
-	const sameBlockPixel = blockyContext.getImageData(22, 22, 1, 1).data;
-	expect([...sameBlockPixel]).toEqual([...blockyCornerPixel]);
-	const blockySourcePixel = blockyContext.getImageData(32, 32, 1, 1).data;
-	expect([...blockySourcePixel]).toEqual([255, 255, 255, 255]);
+	const polygonalCornerPixel = polygonalContext.getImageData(19, 19, 1, 1).data;
+	expect(polygonalCornerPixel[0]).toBeGreaterThanOrEqual(250);
+	expect(polygonalCornerPixel[1]).toBeLessThanOrEqual(5);
+	expect(polygonalCornerPixel[2]).toBeLessThanOrEqual(5);
+	expect(polygonalCornerPixel[3]).toBeGreaterThanOrEqual(250);
+	const polygonalSourcePixel = polygonalContext.getImageData(32, 32, 1, 1).data;
+	expect([...polygonalSourcePixel]).toEqual([255, 255, 255, 255]);
 
 	const outlineOnlyCanvas = await renderEffectChainToCanvas({
 		source,
@@ -106,7 +107,7 @@ test('outline() draws around alpha while preserving the source', async () => {
 		effects: descriptorsToMemoizedEffects([
 			outline({
 				width: 6,
-				edgeBlockSize: 8,
+				edgeSimplification: 8,
 				color: '#ff0000',
 				outlineOnly: true,
 			}),

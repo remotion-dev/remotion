@@ -293,7 +293,7 @@ export const RemotionRoot: React.FC = () => {
 					height={720}
 					defaultProps={{
 						width: 12,
-						edgeBlockSize: 8,
+						edgeSimplification: 12,
 						color: '#00ffff',
 						opacity: 1,
 						outlineOnly: false,

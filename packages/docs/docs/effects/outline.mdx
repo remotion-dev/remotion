@@ -33,7 +33,7 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/greenscreen.mp4"
         effects={[
           colorKey({similarity: 0.45}),
-          outline({width: 12, edgeBlockSize: 8, color: '#00ffff'}),
+          outline({width: 12, edgeSimplification: 12, color: '#00ffff'}),
         ]}
       />
     </AbsoluteFill>
@@ -51,9 +51,13 @@ All parameters are optional. You can call `outline()` without arguments.
 
 Width of the outline in pixels. Defaults to `8`. Must be at least `0`.
 
-### edgeBlockSize?
+### edgeSimplification?
 
-Size of the blocks used to pixelate the outline edge, in pixels. `1` keeps the edge smooth. Larger values make the edge blockier without pixelating the source. With `outlineOnly: true`, the filled mask is pixelated as well. Defaults to `1`.
+Pixel tolerance used to simplify the alpha contour into straight edges. Larger values remove more contour points and make the outline more polygonal. `0` disables simplification and is the default.
+
+The source remains unchanged. With `outlineOnly: true`, the simplified contour is used for the filled mask as well.
+
+Values above `0` extract and simplify the alpha contour on the CPU for every frame, which is more expensive than the default outline.
 
 ### color?
 
