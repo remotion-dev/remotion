@@ -22,6 +22,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 		dependencyVersions,
 		getStaticFiles: null,
 		getProject: () => project,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},

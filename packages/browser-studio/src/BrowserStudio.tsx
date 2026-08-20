@@ -134,6 +134,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	project,
 	readOnly,
+	initialElement,
 	iframeSrc,
 	dependencyResolver,
 	onCompileStateChange,
@@ -149,6 +150,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const lastWrittenDocumentRef = useRef<Document | null>(null);
 	const lastWrittenHtmlRef = useRef<string | null>(null);
 	const workerRef = useRef<Worker | null>(null);
+	const initialElementRef = useRef(initialElement);
 	const lastSentProjectRef = useRef<BrowserStudioProps['project'] | null>(null);
 	const bundleUrlRef = useRef<string | null>(null);
 	const onCompileStateChangeRef = useRef(onCompileStateChange);
@@ -270,6 +272,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				dependencyVersions: browserStudioDependencyVersions,
 				getStaticFiles: publicFileManager.getStaticFiles,
 				getProject: () => activeProjectRef.current,
+				initialElement: initialElementRef.current,
 				onProjectChange: updateProject,
 				resolveDependencies: resolveElementDependencies,
 			}),

@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {
 	createBrowserStudioOperations,
@@ -27,6 +28,33 @@ const insertSolid = (
 		},
 	});
 };
+
+test('consumes an initial Element payload only once', () => {
+	const project = createBlankTemplateProject();
+	const payload = createElementPayload({
+		dependencies: [],
+		dimensions: {height: 180, width: 320},
+		displayName: 'Linked Element',
+		durationInFrames: 60,
+		installationMode: 'wrapped',
+		slug: 'linked-element',
+		sourceCode: 'export const LinkedElement = () => <div />;',
+	});
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getProject: () => project,
+		getStaticFiles: null,
+		initialElement: {payload, sourceOrigin: 'https://elements.example.test'},
+		onProjectChange: () => undefined,
+		resolveDependencies: null,
+	});
+
+	expect(operations.consumeInitialElement()).toEqual({
+		element: payload.element,
+		sourceOrigin: 'https://elements.example.test',
+	});
+	expect(operations.consumeInitialElement()).toBe(null);
+});
 
 test('adds a Solid to the blank Browser Studio project', () => {
 	const project = createBlankTemplateProject();
@@ -106,6 +134,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -209,6 +238,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -300,6 +330,7 @@ registerRoot(Root);`,
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -367,6 +398,7 @@ test('reports invalid timeline Solid input without changing the project', async 
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -408,6 +440,7 @@ registerRoot(Root);`,
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -486,6 +519,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -691,6 +725,7 @@ registerRoot(Root);`,
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
@@ -779,6 +814,7 @@ const makeOperationsForProject = (project: VirtualProject) => {
 		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => currentProject,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},

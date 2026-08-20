@@ -5,7 +5,8 @@ import {
 	BrowserStudio,
 	createBlankTemplateProject,
 } from '@remotion/browser-studio';
-import React from 'react';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import React, {useEffect, useState} from 'react';
 
 const page: React.CSSProperties = {
 	backgroundColor: '#111111',
@@ -43,6 +44,85 @@ const standaloneCss = `
 	}
 `;
 
+type InitialElementState =
+	| {type: 'none'}
+	| {type: 'invalid'}
+	| {
+			type: 'payload';
+			payload: NonNullable<
+				React.ComponentProps<typeof BrowserStudio>['initialElement']
+			>;
+	  };
+
+const getInitialElementState = (): InitialElementState => {
+	const hasPayload = new URLSearchParams(window.location.hash.slice(1)).has(
+		'remotion-browser-studio',
+	);
+	if (!hasPayload) {
+		return {type: 'none'};
+	}
+
+	const payload = StudioProtocolInternals.parseBrowserStudioHash(
+		window.location.hash,
+	);
+	if (payload === null) {
+		return {type: 'invalid'};
+	}
+
+	let sourceOrigin: string | null = null;
+	try {
+		sourceOrigin = document.referrer ? new URL(document.referrer).origin : null;
+	} catch {
+		sourceOrigin = null;
+	}
+
+	return {type: 'payload', payload: {payload, sourceOrigin}};
+};
+
+const BrowserStudioContent: React.FC<{
+	readonly browserStudioWorkspaceCommit: string;
+}> = ({browserStudioWorkspaceCommit}) => {
+	const [initialElementState] = useState(getInitialElementState);
+	const [project] = useState(createBlankTemplateProject);
+
+	useEffect(() => {
+		if (initialElementState.type === 'none') {
+			return;
+		}
+
+		window.history.replaceState(
+			null,
+			'',
+			`${window.location.pathname}${window.location.search}`,
+		);
+	}, [initialElementState.type]);
+
+	if (initialElementState.type === 'invalid') {
+		return <div style={fallback}>Invalid Browser Studio payload.</div>;
+	}
+
+	return (
+		<BrowserStudio
+			iframeSrc="/experimental_new/frame.html"
+			initialElement={
+				initialElementState.type === 'payload'
+					? initialElementState.payload
+					: null
+			}
+			project={project}
+			readOnly={false}
+			remotionPackageSource={{
+				baseUrl: new URL(
+					`/__remotion_browser_studio_workspace__/commits/${browserStudioWorkspaceCommit}/`,
+					window.location.href,
+				).href,
+				commit: browserStudioWorkspaceCommit,
+				type: 'workspace',
+			}}
+		/>
+	);
+};
+
 const NewRemotionProject = () => {
 	const {siteConfig} = useDocusaurusContext();
 	const browserStudioWorkspaceCommit =
@@ -60,18 +140,8 @@ const NewRemotionProject = () => {
 			<div style={page}>
 				<BrowserOnly fallback={<div style={fallback}>Loading...</div>}>
 					{() => (
-						<BrowserStudio
-							iframeSrc="/experimental_new/frame.html"
-							project={createBlankTemplateProject()}
-							readOnly={false}
-							remotionPackageSource={{
-								baseUrl: new URL(
-									`/__remotion_browser_studio_workspace__/commits/${browserStudioWorkspaceCommit}/`,
-									window.location.href,
-								).href,
-								commit: browserStudioWorkspaceCommit,
-								type: 'workspace',
-							}}
+						<BrowserStudioContent
+							browserStudioWorkspaceCommit={browserStudioWorkspaceCommit}
 						/>
 					)}
 				</BrowserOnly>

@@ -1002,6 +1002,10 @@ export type ElementInstallSource =
 			origin: string;
 	  }
 	| {
+			type: 'browser-studio-link';
+			origin: string | null;
+	  }
+	| {
 			type: 'drag-and-drop';
 	  };
 

@@ -1,3 +1,4 @@
+import type {ElementDragData} from '@remotion/studio-protocol';
 import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
@@ -62,6 +63,10 @@ export type DuplicateCompositionResponse =
 	  };
 
 export type BrowserStudioOperations = {
+	consumeInitialElement: () => {
+		element: ElementDragData['element'];
+		sourceOrigin: string | null;
+	} | null;
 	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
 	deleteJsxNode: (
 		request: DeleteJsxNodeRequest,
