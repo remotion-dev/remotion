@@ -51,6 +51,7 @@ import {
 	NoiseDisplacementTextSource,
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsOutlinePreview} from '../../components/effects/effects-outline-preview';
 import {
 	EffectsPaperPreview,
 	PAPER_PREVIEW_PARAMS,
@@ -283,6 +284,17 @@ export const RemotionRoot: React.FC = () => {
 						similarity: 0.45,
 						smoothness: 0.08,
 						spillSuppression: 0.25,
+					}}
+				/>
+				<Still
+					id="effects-outline-preview"
+					component={EffectsOutlinePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						width: 12,
+						color: '#00ffff',
+						opacity: 1,
 					}}
 				/>
 				<Still

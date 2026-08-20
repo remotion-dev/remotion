@@ -2160,6 +2160,15 @@ export const articles = [
 		slug: 'effects/noise',
 	},
 	{
+		id: 'effects/outline',
+		title: 'outline()',
+		relativePath: 'docs/effects/outline.mdx',
+		compId: 'articles-docs-effects-outline',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/outline',
+	},
+	{
 		id: 'effects/paper',
 		title: 'paper()',
 		relativePath: 'docs/effects/paper.mdx',

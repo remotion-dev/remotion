@@ -6,6 +6,7 @@ import {evolve} from '../evolve.js';
 import {exposure} from '../exposure.js';
 import {levels} from '../levels.js';
 import {noise} from '../noise.js';
+import {outline} from '../outline.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
@@ -34,6 +35,46 @@ test('stacks repeated WebGL effects without blanking or flipping the image', asy
 		blob,
 		testId: 'stacked-blur-blur-noise',
 	});
+});
+
+test('outline() draws around alpha while preserving the source', async () => {
+	const width = 64;
+	const height = 64;
+	const source = document.createElement('canvas');
+	source.width = width;
+	source.height = height;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.fillStyle = 'white';
+	sourceContext.fillRect(24, 24, 16, 16);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			outline({width: 6, color: '#ff0000'}),
+		]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const outlinePixel = context.getImageData(20, 32, 1, 1).data;
+	expect(outlinePixel[0]).toBeGreaterThanOrEqual(250);
+	expect(outlinePixel[1]).toBeLessThanOrEqual(5);
+	expect(outlinePixel[2]).toBeLessThanOrEqual(5);
+	expect(outlinePixel[3]).toBeGreaterThanOrEqual(250);
+
+	const sourcePixel = context.getImageData(32, 32, 1, 1).data;
+	expect([...sourcePixel]).toEqual([255, 255, 255, 255]);
+
+	const transparentPixel = context.getImageData(8, 8, 1, 1).data;
+	expect([...transparentPixel]).toEqual([0, 0, 0, 0]);
 });
 
 test('evolve() reveals with feather', async () => {

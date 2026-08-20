@@ -234,6 +234,11 @@
 			"module": "./dist/esm/noise-displacement.mjs",
 			"import": "./dist/esm/noise-displacement.mjs"
 		},
+		"./outline": {
+			"types": "./dist/outline.d.ts",
+			"module": "./dist/esm/outline.mjs",
+			"import": "./dist/esm/outline.mjs"
+		},
 		"./paper": {
 			"types": "./dist/paper.d.ts",
 			"module": "./dist/esm/paper.mjs",
@@ -507,6 +512,9 @@
 			],
 			"noise-displacement": [
 				"dist/noise-displacement.d.ts"
+			],
+			"outline": [
+				"dist/outline.d.ts"
 			],
 			"paper": [
 				"dist/paper.d.ts"
