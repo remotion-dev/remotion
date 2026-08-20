@@ -783,6 +783,14 @@
 		"category": "edge-cases"
 	},
 	{
+		"videoCodec": "h264",
+		"audioCodec": "aac",
+		"container": "mp4",
+		"fileNames": ["audio-shorter-than-video.mp4"],
+		"size": 318935,
+		"category": "edge-cases"
+	},
+	{
 		"videoCodec": "none",
 		"audioCodec": "pcm",
 		"container": "wav",
