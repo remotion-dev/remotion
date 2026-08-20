@@ -62,7 +62,10 @@ import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
 import {prepareElementInstall} from './element-install-api';
-import {subscribeToElementInstallRequests} from './element-install-request';
+import {
+	enqueueElementInstallRequest,
+	subscribeToElementInstallRequests,
+} from './element-install-request';
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {handleDrop} from './handle-drop';
 import {
@@ -835,6 +838,37 @@ export const Canvas: React.FC<{
 
 	useEffect(() => {
 		if (
+			!canInstallElements ||
+			compositionFile === null ||
+			currentCompositionId === null
+		) {
+			return;
+		}
+
+		const initialElement =
+			getBrowserStudioOperations()?.consumeInitialElement?.() ?? null;
+		if (initialElement === null) {
+			return;
+		}
+
+		enqueueElementInstallRequest({
+			clientId: 'browser-studio',
+			compositionFile,
+			compositionId: currentCompositionId,
+			createdAt: Date.now(),
+			element: initialElement.element,
+			from: null,
+			id: crypto.randomUUID(),
+			position: null,
+			source: {
+				origin: initialElement.sourceOrigin,
+				type: 'browser-studio-link',
+			},
+		});
+	}, [canInstallElements, compositionFile, currentCompositionId]);
+
+	useEffect(() => {
+		if (
 			activeElementInstallRequest !== null ||
 			pendingElementInstallRequests.length === 0
 		) {
@@ -899,19 +933,23 @@ export const Canvas: React.FC<{
 						? dependency.name
 						: `${dependency.name}@${dependency.version}`,
 				);
+			const {source} = activeElementInstallRequest;
 			const sourceLabel =
-				activeElementInstallRequest.source.type === 'studio-protocol'
-					? activeElementInstallRequest.source.origin
-					: 'Unverified drag-and-drop payload';
+				source.type === 'studio-protocol'
+					? source.origin
+					: source.type === 'browser-studio-link'
+						? (source.origin ?? 'Unverified Browser Studio link')
+						: 'Unverified drag-and-drop payload';
+			const sourceIsUnverified =
+				source.type === 'drag-and-drop' ||
+				(source.type === 'browser-studio-link' && source.origin === null);
 			const accepted = await confirm({
 				title: 'Install Element',
 				message: (
 					<ElementInstallConfirmation
 						displayName={activeElementInstallRequest.element.displayName}
 						sourceLabel={sourceLabel}
-						sourceIsUnverified={
-							activeElementInstallRequest.source.type === 'drag-and-drop'
-						}
+						sourceIsUnverified={sourceIsUnverified}
 						compositionId={activeElementInstallRequest.compositionId}
 						filePath={preflight.plan.filePath}
 						overwritesExistingFile={preflight.plan.expectedFileState.exists}

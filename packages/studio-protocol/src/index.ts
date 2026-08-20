@@ -1,4 +1,9 @@
 import {
+	makeBrowserStudioUrl,
+	openInBrowserStudio,
+	parseBrowserStudioHash,
+} from './browser-studio-link';
+import {
 	areComponentProps,
 	isComponentIdentifier,
 	isComponentImportPath,
@@ -79,8 +84,11 @@ export const StudioProtocolInternals = {
 	isComponentImportPath,
 	installInStudioWithDependencies,
 	isValidPublicLicenseKey,
+	makeBrowserStudioUrl,
 	makeDragData,
 	makeElementFileNameFromSlug,
+	openInBrowserStudio,
+	parseBrowserStudioHash,
 	parseDragData,
 	parseStudioElementPayload,
 	setLicenseKeyInStudio,

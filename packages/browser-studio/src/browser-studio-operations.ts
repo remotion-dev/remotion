@@ -23,7 +23,10 @@ import {
 	updateDefaultProps as updateDefaultPropsCodemod,
 	type FormatInline,
 } from '@remotion/studio-codemods';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {
+	StudioProtocolInternals,
+	type StudioElementPayload,
+} from '@remotion/studio-protocol';
 import {
 	getRequiredPackageForInsertableElement,
 	type BrowserStudioOperations,
@@ -348,6 +351,7 @@ export const createBrowserStudioOperations = ({
 	dependencyVersions,
 	getStaticFiles,
 	getProject,
+	initialElement,
 	onProjectChange,
 	resolveDependencies,
 }: {
@@ -356,9 +360,14 @@ export const createBrowserStudioOperations = ({
 		typeof createBrowserStudioProjectController
 	>[0]['getStaticFiles'];
 	getProject: () => VirtualProject;
+	initialElement?: {
+		payload: StudioElementPayload;
+		sourceOrigin: string | null;
+	};
 	onProjectChange: (project: VirtualProject) => void;
 	resolveDependencies: ResolveElementDependencies | null;
 }): BrowserStudioOperationsController => {
+	let pendingInitialElement = initialElement ?? null;
 	const defaultPropsSubscriptions = new Map<string, Set<string>>();
 	const lastDefaultPropsResults = new Map<string, string>();
 	const sequencePropsSubscriptions = new Map<
@@ -926,6 +935,16 @@ export const createBrowserStudioOperations = ({
 
 	return {
 		applyCodemod,
+		consumeInitialElement: () => {
+			const value = pendingInitialElement;
+			pendingInitialElement = null;
+			return value === null
+				? null
+				: {
+						element: value.payload.element,
+						sourceOrigin: value.sourceOrigin,
+					};
+		},
 		deleteJsxNode,
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadProject: () =>

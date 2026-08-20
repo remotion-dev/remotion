@@ -1,4 +1,8 @@
 import {expect, test} from '@playwright/test';
+import {
+	createElementPayload,
+	StudioProtocolInternals,
+} from '@remotion/studio-protocol';
 
 test('loads Browser Studio and can add, delete, and duplicate', async ({
 	page,
@@ -229,6 +233,72 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 	});
 	expect(versions.installed).toBe(versions.remotion);
 	await expect(studio.getByText('Browser Element')).toBeVisible();
+});
+
+test('confirms and imports an Element payload from the URL fragment', async ({
+	page,
+}) => {
+	const payload = createElementPayload({
+		dependencies: [],
+		dimensions: {height: 180, width: 320},
+		displayName: 'Linked Element',
+		durationInFrames: 60,
+		installationMode: 'wrapped',
+		slug: 'linked-element',
+		sourceCode: `export const LinkedElement = () => <div>Grüezi 👋</div>;`,
+	});
+	const url = StudioProtocolInternals.makeBrowserStudioUrl({
+		endpoint: 'http://127.0.0.1:62338/',
+		payload,
+	});
+
+	await page.goto(url);
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+
+	await expect(
+		studio.getByText('Install Element', {exact: true}),
+	).toBeVisible();
+	await expect(
+		studio.getByText('Unverified Browser Studio link'),
+	).toBeVisible();
+	await expect(studio.getByText('Linked Element')).toBeVisible();
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+				};
+				return browserWindow.__browserStudioProject.files[
+					'/project/src/linked-element.element.tsx'
+				];
+			}),
+		)
+		.toBeUndefined();
+
+	await studio.getByRole('button', {name: /^Install/}).click();
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+				};
+				return {
+					composition:
+						browserWindow.__browserStudioProject.files[
+							'/project/src/Composition.tsx'
+						],
+					element:
+						browserWindow.__browserStudioProject.files[
+							'/project/src/linked-element.element.tsx'
+						],
+				};
+			}),
+		)
+		.toEqual({
+			composition: expect.stringContaining('<LinkedElement />'),
+			element: expect.stringContaining('Grüezi 👋'),
+		});
 });
 
 test('reports inline SVG imports as unsupported without changing the project', async ({

@@ -1,3 +1,4 @@
+import type {StudioElementPayload} from '@remotion/studio-protocol';
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 
 export type VirtualProject = {
@@ -52,6 +53,10 @@ export type CompileState =
 export type BrowserStudioProps = {
 	project: VirtualProject;
 	readOnly: boolean;
+	initialElement?: {
+		payload: StudioElementPayload;
+		sourceOrigin: string | null;
+	};
 	iframeSrc?: string;
 	workspacePackageBaseUrl?: string;
 	dependencyResolver?: BrowserStudioDependencyResolver;

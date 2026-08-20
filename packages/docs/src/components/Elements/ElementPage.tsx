@@ -1,14 +1,19 @@
 import Head from '@docusaurus/Head';
-import {installInStudio, setStudioDragData} from '@remotion/studio-protocol';
+import {
+	installInStudio,
+	setStudioDragData,
+	StudioProtocolInternals,
+} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
+	useEffect,
 	useId,
 	useMemo,
 	useRef,
 	useState,
 	type ReactNode,
 } from 'react';
-import {BlueButton} from '../../../components/layout/Button';
+import {BlueButton, PlainButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
 import {
@@ -45,6 +50,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		type: 'idle',
 	});
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
+	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
+		useState(false);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
@@ -57,6 +64,38 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 		return createElementPayloadFromDefinition({definition, sourceCode});
 	}, [definition, sourceCode]);
+
+	useEffect(() => {
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (
+				event.repeat ||
+				!event.altKey ||
+				!event.shiftKey ||
+				event.ctrlKey ||
+				event.metaKey ||
+				event.code !== 'KeyB'
+			) {
+				return;
+			}
+
+			const {target} = event;
+			if (
+				target instanceof HTMLElement &&
+				(target.isContentEditable ||
+					target.tagName === 'INPUT' ||
+					target.tagName === 'SELECT' ||
+					target.tagName === 'TEXTAREA')
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			setIsBrowserStudioActionVisible(true);
+		};
+
+		window.addEventListener('keydown', onKeyDown);
+		return () => window.removeEventListener('keydown', onKeyDown);
+	}, []);
 
 	const installElement = useCallback(async () => {
 		if (elementPayload === null) {
@@ -85,6 +124,14 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			);
 		}
 	}, [definition.slug, elementPayload]);
+
+	const openInBrowserStudio = useCallback(() => {
+		if (elementPayload === null) {
+			return;
+		}
+
+		StudioProtocolInternals.openInBrowserStudio({payload: elementPayload});
+	}, [elementPayload]);
 
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
@@ -165,6 +212,17 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										? 'Finding Studio…'
 										: 'Install in Studio'}
 								</BlueButton>
+								{isBrowserStudioActionVisible ? (
+									<PlainButton
+										fullWidth
+										loading={false}
+										onClick={openInBrowserStudio}
+										size="sm"
+										style={{padding: '7px 12px'}}
+									>
+										Open in Browser Studio
+									</PlainButton>
+								) : null}
 							</div>
 							<div
 								className={styles.dragHandle}

@@ -3,10 +3,14 @@ import {
 	createBlankTemplateProject,
 	type VirtualProject,
 } from '@remotion/browser-studio';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {createRoot} from 'react-dom/client';
 import {VERSION} from 'remotion/version';
 
 const project = createBlankTemplateProject();
+const initialElementPayload = StudioProtocolInternals.parseBrowserStudioHash(
+	window.location.hash,
+);
 (
 	window as typeof window & {
 		__browserStudioProject: VirtualProject;
@@ -33,6 +37,11 @@ if (!root) {
 createRoot(root).render(
 	<BrowserStudio
 		iframeSrc="/frame.html"
+		initialElement={
+			initialElementPayload === null
+				? undefined
+				: {payload: initialElementPayload, sourceOrigin: null}
+		}
 		project={project}
 		readOnly={false}
 		onProjectChange={(nextProject) => {
