@@ -1,12 +1,16 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
-import React from 'react';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
 import {
 	Easing,
 	Img,
 	Interactive,
+	Sequence,
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
+	type InteractiveBaseProps,
+	type InteractivitySchema,
+	type SequenceControls,
 } from 'remotion';
 
 loadFont('normal', {
@@ -14,317 +18,342 @@ loadFont('normal', {
 	weights: ['500', '600', '700'],
 });
 
-type Product = {
-	readonly title: string;
+type ProductCardProps = InteractiveBaseProps & {
+	readonly count: number;
+	readonly discount: string;
 	readonly image: string;
-	readonly imageFit: 'contain' | 'cover';
 	readonly imageBackgroundColor: string;
+	readonly imageFit: 'contain' | 'cover';
+	readonly index: number;
+	readonly originalPrice: string;
 	readonly price: string;
-	readonly originalPrice: string | null;
-	readonly discount: string | null;
+	readonly title: string;
 };
 
-const products: readonly Product[] = [
-	{
-		title: 'Cloudline Runner',
-		image:
+const productCardSchema = {
+	...Interactive.baseSchema,
+	title: {
+		type: 'text-content',
+		default: 'Product title',
+		description: 'Product title',
+	},
+	image: {
+		type: 'asset',
+		default:
 			'https://remotion.media/elements/product-discount-callout-gray-runner.png',
-		imageFit: 'contain',
-		imageBackgroundColor: '#dbe1e9',
-		price: '$118',
-		originalPrice: '$148',
-		discount: '20% off',
+		description: 'Product image',
 	},
-	{
-		title: 'Minimal Steel Watch',
-		image:
-			'https://images.unsplash.com/photo-1523275335684-37898b6baf30?fm=jpg&fit=crop&w=900&q=90',
-		imageFit: 'contain',
-		imageBackgroundColor: '#deded8',
-		price: '$185',
-		originalPrice: null,
-		discount: null,
+	imageFit: {
+		type: 'enum',
+		default: 'cover',
+		description: 'Image fit',
+		variants: {
+			contain: {},
+			cover: {},
+		},
 	},
-	{
-		title: 'Studio Sunglasses',
-		image:
-			'https://images.unsplash.com/photo-1511499767150-a48a237f0083?fm=jpg&fit=crop&w=900&q=90',
-		imageFit: 'cover',
-		imageBackgroundColor: '#c8d8e6',
-		price: '$94',
-		originalPrice: '$125',
-		discount: 'Save $31',
+	imageBackgroundColor: {
+		type: 'color',
+		default: '#dbe1e9',
+		description: 'Image background',
 	},
-	{
-		title: 'Studio Headset',
-		image:
-			'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?fm=jpg&fit=crop&w=900&q=90',
-		imageFit: 'cover',
-		imageBackgroundColor: '#f1c647',
-		price: '$179',
-		originalPrice: null,
-		discount: 'New',
+	price: {
+		type: 'text-content',
+		default: '$100',
+		description: 'Current price',
 	},
-	{
-		title: 'Sculptural Table Lamp',
-		image:
-			'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?fm=jpg&fit=crop&w=900&q=90',
-		imageFit: 'cover',
-		imageBackgroundColor: '#e5b17a',
-		price: '$149',
-		originalPrice: null,
-		discount: null,
+	originalPrice: {
+		type: 'text-content',
+		default: '',
+		description: 'Original price (leave empty to hide)',
 	},
-];
+	discount: {
+		type: 'text-content',
+		default: '',
+		description: 'Promotion (leave empty to hide)',
+	},
+	count: {type: 'hidden'},
+	index: {type: 'hidden'},
+} as const satisfies InteractivitySchema;
 
-const ProductCard = ({
-	product,
-	index,
-	count,
-}: {
-	readonly product: Product;
-	readonly index: number;
-	readonly count: number;
-}) => {
-	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
-	const lastProductIndex = Math.max(0, count - 1);
-	const rawScrollPosition = interpolate(
-		frame,
-		[24, durationInFrames - 28],
-		[0, lastProductIndex],
+const ProductCardInner = forwardRef<
+	HTMLDivElement,
+	ProductCardProps & {readonly controls: SequenceControls | undefined}
+>(
+	(
 		{
+			controls,
+			count,
+			discount,
+			image,
+			imageBackgroundColor,
+			imageFit,
+			index,
+			name,
+			originalPrice,
+			price,
+			title,
+			...sequenceProps
+		},
+		ref,
+	) => {
+		const outlineRef = useRef<HTMLDivElement>(null);
+		const frame = useCurrentFrame();
+		const {durationInFrames} = useVideoConfig();
+		const lastProductIndex = Math.max(0, count - 1);
+		const rawScrollPosition = interpolate(
+			frame,
+			[24, durationInFrames - 28],
+			[0, lastProductIndex],
+			{
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
+		const transitionIndex = Math.min(
+			Math.floor(rawScrollPosition),
+			Math.max(0, lastProductIndex - 1),
+		);
+		const transitionProgress = interpolate(
+			rawScrollPosition - transitionIndex,
+			[0.18, 0.82],
+			[0, 1],
+			{
+				easing: Easing.inOut(Easing.cubic),
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
+		const scrollPosition = transitionIndex + transitionProgress;
+		const unwrappedSlotPosition = index - scrollPosition;
+		const slotPosition =
+			count <= 2
+				? unwrappedSlotPosition
+				: ((((unwrappedSlotPosition + count / 2) % count) + count) % count) -
+					count / 2;
+		const distanceFromCenter = Math.abs(slotPosition);
+		const visibility = interpolate(distanceFromCenter, [1.02, 1.18], [1, 0], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		},
-	);
-	const transitionIndex = Math.min(
-		Math.floor(rawScrollPosition),
-		Math.max(0, lastProductIndex - 1),
-	);
-	const transitionProgress = interpolate(
-		rawScrollPosition - transitionIndex,
-		[0.18, 0.82],
-		[0, 1],
-		{
-			easing: Easing.inOut(Easing.cubic),
+		});
+		const entryStart = 8 + Math.min(index, 1) * 5;
+		const entryProgress = interpolate(
+			frame,
+			[entryStart, entryStart + 18],
+			[0, 1],
+			{
+				easing: Easing.bezier(0.16, 1, 0.3, 1),
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
+		const x = slotPosition * 270;
+		const y =
+			Math.min(distanceFromCenter, 1.3) * 36 + (1 - entryProgress) * 180;
+		const rotation = slotPosition * 5.5;
+		const cardScale = interpolate(distanceFromCenter, [0, 1.5], [1.02, 0.84], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		},
-	);
-	const scrollPosition = transitionIndex + transitionProgress;
-	const unwrappedSlotPosition = index - scrollPosition;
-	const slotPosition =
-		count <= 2
-			? unwrappedSlotPosition
-			: ((((unwrappedSlotPosition + count / 2) % count) + count) % count) -
-				count / 2;
-	const distanceFromCenter = Math.abs(slotPosition);
-	const visibility = interpolate(distanceFromCenter, [1.02, 1.18], [1, 0], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-	const entryStart = 8 + Math.min(index, 1) * 5;
-	const entryProgress = interpolate(
-		frame,
-		[entryStart, entryStart + 18],
-		[0, 1],
-		{
-			easing: Easing.bezier(0.16, 1, 0.3, 1),
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		},
-	);
-	const x = slotPosition * 270;
-	const y = Math.min(distanceFromCenter, 1.3) * 36 + (1 - entryProgress) * 180;
-	const rotation = slotPosition * 5.5;
-	const cardScale = interpolate(distanceFromCenter, [0, 1.5], [1.02, 0.84], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-	const obscuredSidePadding = interpolate(
-		distanceFromCenter,
-		[0.5, 1],
-		[22, 48],
-		{
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		},
-	);
+		});
+		const obscuredSidePadding = interpolate(
+			distanceFromCenter,
+			[0.5, 1],
+			[22, 48],
+			{
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
 
-	return (
-		<div
-			style={{
-				height: 560,
-				left: 360,
-				top: 265,
-				opacity: visibility * entryProgress,
-				position: 'absolute',
-				rotate: `${rotation}deg`,
-				scale: cardScale * (0.86 + entryProgress * 0.14),
-				transform: 'perspective(100px)',
-				translate: `${x}px ${y}px`,
-				width: 300,
-				willChange: 'transform, opacity',
-				zIndex: 100 - Math.round(distanceFromCenter * 20),
-			}}
-		>
-			<Interactive.Div
-				name="Product card"
-				style={{
-					backgroundColor: '#ffffff',
-					boxSizing: 'border-box',
-					color: '#1d1d19',
-					display: 'flex',
-					flexDirection: 'column',
-					height: '100%',
-					overflow: 'hidden',
-					width: '100%',
-				}}
+		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+
+		return (
+			<Sequence
+				layout="none"
+				{...sequenceProps}
+				controls={controls}
+				name={name ?? '<ProductCard>'}
+				outlineRef={outlineRef}
 			>
 				<div
+					ref={outlineRef}
 					style={{
-						backgroundColor: product.imageBackgroundColor,
-						height: 335,
-						overflow: 'hidden',
-						position: 'relative',
-						width: '100%',
+						height: 560,
+						left: 360,
+						top: 265,
+						opacity: visibility * entryProgress,
+						position: 'absolute',
+						rotate: `${rotation}deg`,
+						scale: cardScale * (0.86 + entryProgress * 0.14),
+						transform: 'perspective(100px)',
+						translate: `${x}px ${y}px`,
+						width: 300,
+						willChange: 'transform, opacity',
+						zIndex: 100 - Math.round(distanceFromCenter * 20),
 					}}
 				>
-					<Img
-						alt={product.title}
-						name="Product image"
-						src={product.image}
-						style={{
-							height: '100%',
-							objectFit: product.imageFit,
-							objectPosition: '50% 50%',
-							scale: interpolate(
-								frame,
-								[0, durationInFrames - 1],
-								[1.06, 1.01],
-								{
-									easing: Easing.inOut(Easing.quad),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
-							),
-							transform: 'perspective(100px)',
-							width: '100%',
-							willChange: 'transform',
-						}}
-					/>
-
-					{product.discount === null ? null : (
-						<Interactive.Div
-							name="Promotion"
-							style={{
-								backgroundColor: '#1d1d19',
-								color: '#f7c900',
-								fontSize: 20,
-								fontWeight: 700,
-								letterSpacing: -0.3,
-								lineHeight: 1,
-								maxWidth: 132,
-								overflow: 'hidden',
-								padding: '10px 12px',
-								position: 'absolute',
-								right: 0,
-								textOverflow: 'ellipsis',
-								textTransform: 'uppercase',
-								top: 0,
-								whiteSpace: 'nowrap',
-							}}
-						>
-							{product.discount}
-						</Interactive.Div>
-					)}
-				</div>
-
-				<div
-					style={{
-						boxSizing: 'border-box',
-						display: 'flex',
-						flex: 1,
-						flexDirection: 'column',
-						paddingBottom: 24,
-						paddingLeft: slotPosition > 0 ? obscuredSidePadding : 22,
-						paddingRight: slotPosition < 0 ? obscuredSidePadding : 22,
-						paddingTop: 22,
-					}}
-				>
-					<Interactive.H3
-						name="Product title"
-						style={{
-							WebkitBoxOrient: 'vertical',
-							WebkitLineClamp: 3,
-							display: '-webkit-box',
-							fontSize: 32,
-							fontWeight: 700,
-							height: 98,
-							letterSpacing: -1.4,
-							lineHeight: 0.98,
-							margin: 0,
-							overflow: 'hidden',
-							overflowWrap: 'anywhere',
-							textTransform: 'uppercase',
-							textWrap: 'balance',
-						}}
-					>
-						{product.title}
-					</Interactive.H3>
-
 					<div
 						style={{
-							alignItems: 'baseline',
+							backgroundColor: '#ffffff',
+							boxSizing: 'border-box',
+							color: '#1d1d19',
 							display: 'flex',
-							fontVariantNumeric: 'tabular-nums',
-							gap: 10,
-							height: 48,
-							marginTop: 'auto',
-							minWidth: 0,
+							flexDirection: 'column',
+							height: '100%',
+							overflow: 'hidden',
+							width: '100%',
 						}}
 					>
-						<Interactive.Div
-							name="Current price"
+						<div
 							style={{
-								fontSize: 48,
-								fontWeight: 700,
-								letterSpacing: -2.3,
-								lineHeight: 1,
-								maxWidth: 148,
+								backgroundColor: imageBackgroundColor,
+								height: 335,
 								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-								whiteSpace: 'nowrap',
+								position: 'relative',
+								width: '100%',
 							}}
 						>
-							{product.price}
-						</Interactive.Div>
-
-						{product.originalPrice === null ? null : (
-							<Interactive.Div
-								name="Original price"
+							<Img
+								alt={title}
+								name="Product image"
+								showInTimeline={false}
+								src={image}
 								style={{
-									color: '#7b776e',
-									fontSize: 22,
-									fontWeight: 500,
-									maxWidth: 74,
+									height: '100%',
+									objectFit: imageFit,
+									objectPosition: '50% 50%',
+									scale: interpolate(
+										frame,
+										[0, durationInFrames - 1],
+										[1.06, 1.01],
+										{
+											easing: Easing.inOut(Easing.quad),
+											extrapolateLeft: 'clamp',
+											extrapolateRight: 'clamp',
+										},
+									),
+									transform: 'perspective(100px)',
+									width: '100%',
+									willChange: 'transform',
+								}}
+							/>
+
+							{discount.trim() === '' ? null : (
+								<div
+									style={{
+										backgroundColor: '#1d1d19',
+										color: '#f7c900',
+										fontSize: 20,
+										fontWeight: 700,
+										letterSpacing: -0.3,
+										lineHeight: 1,
+										maxWidth: 132,
+										overflow: 'hidden',
+										padding: '10px 12px',
+										position: 'absolute',
+										right: 0,
+										textOverflow: 'ellipsis',
+										textTransform: 'uppercase',
+										top: 0,
+										whiteSpace: 'nowrap',
+									}}
+								>
+									{discount}
+								</div>
+							)}
+						</div>
+
+						<div
+							style={{
+								boxSizing: 'border-box',
+								display: 'flex',
+								flex: 1,
+								flexDirection: 'column',
+								paddingBottom: 24,
+								paddingLeft: slotPosition > 0 ? obscuredSidePadding : 22,
+								paddingRight: slotPosition < 0 ? obscuredSidePadding : 22,
+								paddingTop: 22,
+							}}
+						>
+							<h3
+								style={{
+									WebkitBoxOrient: 'vertical',
+									WebkitLineClamp: 3,
+									display: '-webkit-box',
+									fontSize: 32,
+									fontWeight: 700,
+									height: 98,
+									letterSpacing: -1.4,
+									lineHeight: 0.98,
+									margin: 0,
 									overflow: 'hidden',
-									textDecoration: 'line-through',
-									textDecorationThickness: 1.5,
-									textOverflow: 'ellipsis',
-									whiteSpace: 'nowrap',
+									overflowWrap: 'anywhere',
+									textTransform: 'uppercase',
+									textWrap: 'balance',
 								}}
 							>
-								{product.originalPrice}
-							</Interactive.Div>
-						)}
+								{title}
+							</h3>
+
+							<div
+								style={{
+									alignItems: 'baseline',
+									display: 'flex',
+									fontVariantNumeric: 'tabular-nums',
+									gap: 10,
+									height: 48,
+									marginTop: 'auto',
+									minWidth: 0,
+								}}
+							>
+								<div
+									style={{
+										fontSize: 48,
+										fontWeight: 700,
+										letterSpacing: -2.3,
+										lineHeight: 1,
+										maxWidth: 148,
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+										whiteSpace: 'nowrap',
+									}}
+								>
+									{price}
+								</div>
+
+								{originalPrice.trim() === '' ? null : (
+									<div
+										style={{
+											color: '#7b776e',
+											fontSize: 22,
+											fontWeight: 500,
+											maxWidth: 74,
+											overflow: 'hidden',
+											textDecoration: 'line-through',
+											textDecorationThickness: 1.5,
+											textOverflow: 'ellipsis',
+											whiteSpace: 'nowrap',
+										}}
+									>
+										{originalPrice}
+									</div>
+								)}
+							</div>
+						</div>
 					</div>
 				</div>
-			</Interactive.Div>
-		</div>
-	);
-};
+			</Sequence>
+		);
+	},
+);
+
+const ProductCard = Interactive.withSchema({
+	Component: ProductCardInner,
+	componentName: '<ProductCard>',
+	componentIdentity: null,
+	schema: productCardSchema,
+	supportsEffects: false,
+}) as React.FC<ProductCardProps>;
 
 export const ProductCollection = () => {
 	const frame = useCurrentFrame();
@@ -417,14 +446,66 @@ export const ProductCollection = () => {
 				</Interactive.H2>
 			</div>
 
-			{products.map((product, index) => (
-				<ProductCard
-					key={product.title}
-					count={products.length}
-					index={index}
-					product={product}
-				/>
-			))}
+			<ProductCard
+				count={5}
+				discount="20% off"
+				image="https://remotion.media/elements/product-discount-callout-gray-runner.png"
+				imageBackgroundColor="#dbe1e9"
+				imageFit="contain"
+				index={0}
+				name="Cloudline Runner card"
+				originalPrice="$148"
+				price="$118"
+				title="Cloudline Runner"
+			/>
+			<ProductCard
+				count={5}
+				discount=""
+				image="https://images.unsplash.com/photo-1523275335684-37898b6baf30?fm=jpg&fit=crop&w=900&q=90"
+				imageBackgroundColor="#deded8"
+				imageFit="contain"
+				index={1}
+				name="Minimal Steel Watch card"
+				originalPrice=""
+				price="$185"
+				title="Minimal Steel Watch"
+			/>
+			<ProductCard
+				count={5}
+				discount="Save $31"
+				image="https://images.unsplash.com/photo-1511499767150-a48a237f0083?fm=jpg&fit=crop&w=900&q=90"
+				imageBackgroundColor="#c8d8e6"
+				imageFit="cover"
+				index={2}
+				name="Studio Sunglasses card"
+				originalPrice="$125"
+				price="$94"
+				title="Studio Sunglasses"
+			/>
+			<ProductCard
+				count={5}
+				discount="New"
+				image="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?fm=jpg&fit=crop&w=900&q=90"
+				imageBackgroundColor="#f1c647"
+				imageFit="cover"
+				index={3}
+				name="Studio Headset card"
+				originalPrice=""
+				price="$179"
+				title="Studio Headset"
+			/>
+			<ProductCard
+				count={5}
+				discount=""
+				image="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?fm=jpg&fit=crop&w=900&q=90"
+				imageBackgroundColor="#e5b17a"
+				imageFit="cover"
+				index={4}
+				name="Sculptural Table Lamp card"
+				originalPrice=""
+				price="$149"
+				title="Sculptural Table Lamp"
+			/>
 		</Interactive.Div>
 	);
 };
