@@ -2596,6 +2596,62 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	).toEqual([12, 22]);
 });
 
+test('Timeline from drag only moves selected sequences without selected ancestors', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const videoNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'parent',
+			overrideId: 'parent',
+			from: 10,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'child',
+			overrideId: 'child',
+			parentId: 'parent',
+			from: 5,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'video',
+			overrideId: 'video',
+			from: 20,
+			type: 'video',
+		}),
+	];
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: parentNodePathInfo,
+		selectedItems: [
+			{type: 'sequence', nodePathInfo: parentNodePathInfo},
+			{type: 'sequence', nodePathInfo: childNodePathInfo},
+			{type: 'sequence', nodePathInfo: videoNodePathInfo},
+		],
+		sequences,
+		overrideIdsToNodePaths: {
+			parent: parentNodePathInfo.sequenceSubscriptionKey,
+			child: childNodePathInfo.sequenceSubscriptionKey,
+			video: videoNodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeFromPropStatuses([
+			parentNodePathInfo.sequenceSubscriptionKey,
+			childNodePathInfo.sequenceSubscriptionKey,
+			videoNodePathInfo.sequenceSubscriptionKey,
+		]),
+	});
+
+	expect(targets?.map((target) => target.initialFrom)).toEqual([10, 20]);
+	expect(
+		getTimelineSequenceFromDragChanges({
+			targets: targets ?? [],
+			deltaFrames: -4,
+		}).map((change) => change.value),
+	).toEqual([6, 16]);
+});
+
 test('Timeline from drag moves all owned sequence keyframes by the same delta', () => {
 	const schema = {
 		'style.translate': {type: 'translate', default: '0px 0px'},

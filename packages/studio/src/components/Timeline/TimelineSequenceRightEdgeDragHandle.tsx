@@ -901,27 +901,57 @@ export const getTimelineSequenceFromDragTargets = ({
 			? selectedSequenceItems.map((item) => item.nodePathInfo)
 			: [draggedNodePathInfo];
 	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
-	const targets = new Map<string, TimelineSequenceFromDragTarget>();
-	const includedKeyframeNodePaths = new Set<string>();
 	const sequencesById = new Map(
 		sequences.map((sequence) => [sequence.id, sequence]),
 	);
-
-	for (const nodePathInfo of targetNodePathInfos) {
+	const selectedSequences = targetNodePathInfos.flatMap((nodePathInfo) => {
 		const track = findSequenceTrack({tracks, nodePathInfo});
 		const originalSequence = track
-			? sequences.find((sequence) => sequence.id === track.sequence.id)
-			: null;
-		if (
-			!track ||
-			!track.nodePathInfo ||
-			!originalSequence ||
-			!isFromDraggableSequence(originalSequence)
-		) {
+			? sequencesById.get(track.sequence.id)
+			: undefined;
+		if (!track?.nodePathInfo || !originalSequence) {
+			return [];
+		}
+
+		return [
+			{
+				nodePath: track.nodePathInfo.sequenceSubscriptionKey,
+				originalSequence,
+			},
+		];
+	});
+	if (selectedSequences.length !== targetNodePathInfos.length) {
+		return null;
+	}
+
+	const selectedSequenceIds = new Set(
+		selectedSequences.map(({originalSequence}) => originalSequence.id),
+	);
+	const sequencesWithoutSelectedAncestors = selectedSequences.filter(
+		({originalSequence}) => {
+			let parentId = originalSequence.parent;
+			while (parentId !== null) {
+				if (selectedSequenceIds.has(parentId)) {
+					return false;
+				}
+
+				parentId = sequencesById.get(parentId)?.parent ?? null;
+			}
+
+			return true;
+		},
+	);
+	const targets = new Map<string, TimelineSequenceFromDragTarget>();
+	const includedKeyframeNodePaths = new Set<string>();
+
+	for (const {
+		nodePath,
+		originalSequence,
+	} of sequencesWithoutSelectedAncestors) {
+		if (!isFromDraggableSequence(originalSequence)) {
 			return null;
 		}
 
-		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		if (!canUpdateFrom({propStatuses, nodePath})) {
 			return null;
 		}
