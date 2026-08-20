@@ -251,7 +251,7 @@ A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/doc
 
 If you passed `null` to `outputDir`, this method will be called passing a buffer of the current frame. This is mostly used internally by Remotion to implement [`renderMedia()`](/docs/renderer/render-media) and might have limited usefulness for end users.
 
-The callback may return a promise. Remotion will wait for it to resolve before reusing the renderer for another frame, allowing the callback to apply backpressure.
+From <AvailableFrom v="4.0.515" inline />, the callback may return a promise. Remotion will wait for it to resolve before reusing the renderer for another frame, allowing the callback to apply backpressure.
 
 ### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 
