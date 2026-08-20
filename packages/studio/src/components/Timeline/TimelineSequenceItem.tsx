@@ -34,7 +34,6 @@ import {
 import {SetSelectedModalContext} from '../../state/modals';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../../state/transform-3d-mode';
-import {callApi} from '../call-api';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
@@ -52,6 +51,7 @@ import {
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {Spacing} from '../layout';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {reorderSequence} from '../reorder-sequence-api';
 import {
 	canEditSelectedOutlineCrop,
 	cropFieldKeys,
@@ -625,7 +625,7 @@ const TimelineSequenceItemInner: React.FC<{
 			currentSequenceDrag = null;
 
 			try {
-				const result = await callApi('/api/reorder-sequence', {
+				const result = await reorderSequence({
 					fileName: validatedLocation.source,
 					sourceNodePath: dropTarget.dragData.nodePath,
 					targetNodePath: nodePath,

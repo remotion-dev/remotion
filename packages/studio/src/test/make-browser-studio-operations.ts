@@ -24,6 +24,7 @@ export const makeBrowserStudioOperations = (
 		prepareElementInstall: () => unusedOperation('prepareElementInstall'),
 		redo: () => unusedOperation('redo'),
 		renameStaticFile: () => unusedOperation('renameStaticFile'),
+		reorderSequence: () => unusedOperation('reorderSequence'),
 		saveSequenceProps: () => unusedOperation('saveSequenceProps'),
 		splitJsxSequence: () => unusedOperation('splitJsxSequence'),
 		splitVideoFromAudio: () => unusedOperation('splitVideoFromAudio'),

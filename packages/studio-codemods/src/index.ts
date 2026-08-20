@@ -27,6 +27,7 @@ export {
 	type ApplyCodeModReturnType,
 	type Change,
 } from './recast-mods';
+export {reorderSequence} from './reorder-sequence';
 export {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
