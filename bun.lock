@@ -2624,6 +2624,7 @@
       "version": "4.0.514",
       "dependencies": {
         "mediabunny": "catalog:",
+        "remotion": "workspace:*",
       },
       "devDependencies": {
         "@mediabunny/server": "catalog:",

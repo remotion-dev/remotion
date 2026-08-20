@@ -2,6 +2,7 @@ import {getVideoMetadata} from '@remotion/media-utils';
 import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import {useEffect, useState} from 'react';
+import {Internals} from 'remotion';
 import {getDurationOrCompute} from './get-duration-or-compute';
 
 export type MediaMetadata = {
@@ -36,20 +37,45 @@ const safeCall = async <T>(fn: () => Promise<T>): Promise<T | null> => {
 const getMediabunnyMetadata = async (
 	src: string,
 ): Promise<MediaMetadata | null> => {
-	let input: Input;
+	const lease = (() => {
+		try {
+			return Internals.globalMediaResourceManager.acquire<Input>({
+				key: Internals.getMediabunnyInputResourceKey({
+					src,
+					credentials: null,
+					requestInitFingerprint: null,
+					revision: null,
+				}),
+				create: () => {
+					const createdInput = new Input({
+						formats: ALL_FORMATS,
+						source: new UrlSource(src),
+					});
 
-	try {
-		input = new Input({
-			formats: ALL_FORMATS,
-			source: new UrlSource(src),
-		});
-	} catch {
+					return {
+						resource: createdInput,
+						dispose: () => createdInput.dispose(),
+					};
+				},
+			});
+		} catch {
+			return null;
+		}
+	})();
+
+	if (lease === null) {
 		return null;
 	}
 
+	const input = lease.resource;
+
 	try {
 		const [duration, format, videoTrack, audioTrack] = await Promise.all([
-			safeCall(() => getDurationOrCompute(input)),
+			safeCall(() =>
+				lease.getOrCreateValue(Internals.MEDIABUNNY_DURATION_VALUE_KEY, () =>
+					getDurationOrCompute(input),
+				),
+			),
 			safeCall(() => input.getFormat()),
 			safeCall(() => input.getPrimaryVideoTrack()),
 			safeCall(() => input.getPrimaryAudioTrack()),
@@ -91,11 +117,7 @@ const getMediabunnyMetadata = async (
 			hasAudioTrack: Boolean(audioTrack),
 		};
 	} finally {
-		try {
-			input.dispose();
-		} catch {
-			// ignore
-		}
+		lease.release();
 	}
 };
 
@@ -158,21 +180,23 @@ export const getMediaMetadata = (
 };
 
 export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
+	const resolvedSrc = Internals.usePreload(src ?? '');
+	const metadataSrc = src === null ? null : resolvedSrc;
 	const [mediaMetadata, setMediaMetadata] = useState<MediaMetadata | null>(
-		src ? getCachedMediaMetadata(src) : null,
+		metadataSrc ? getCachedMediaMetadata(metadataSrc) : null,
 	);
 
 	useEffect(() => {
-		const cached = src ? getCachedMediaMetadata(src) : null;
+		const cached = metadataSrc ? getCachedMediaMetadata(metadataSrc) : null;
 		setMediaMetadata(cached);
 
-		if (!src || cached) {
+		if (!metadataSrc || cached) {
 			return;
 		}
 
 		let cancelled = false;
 
-		getMediaMetadata(src)
+		getMediaMetadata(metadataSrc)
 			.then((metadata) => {
 				if (cancelled) {
 					return;
@@ -191,7 +215,7 @@ export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
 		return () => {
 			cancelled = true;
 		};
-	}, [src]);
+	}, [metadataSrc]);
 
 	return mediaMetadata;
 };
