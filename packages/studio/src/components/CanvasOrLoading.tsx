@@ -3,6 +3,7 @@ import React, {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
 import {BACKGROUND, WHITE} from '../helpers/colors';
+import {CompositionListContext} from '../state/composition-list';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
 import {FramePersistor} from './FramePersistor';
@@ -33,6 +34,7 @@ export const CanvasOrLoading: React.FC<{
 	const resolved = Internals.useResolvedVideoConfig(null);
 	const {setZoom} = useContext(TimelineZoomCtx);
 	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {compositionListState} = useContext(CompositionListContext);
 	const {error: renderError} = useContext(RenderErrorContext);
 
 	useEffect(() => {
@@ -61,6 +63,10 @@ export const CanvasOrLoading: React.FC<{
 	}
 
 	if (!canvasContent) {
+		if (compositionListState !== 'ready') {
+			return null;
+		}
+
 		const compname = window.location.pathname.replace('/', '');
 
 		return (
