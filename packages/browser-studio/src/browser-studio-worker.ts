@@ -31,6 +31,8 @@ type CompilerSession = {
 	project: VirtualProject;
 	queuedProject: VirtualProject | null;
 	removedFiles: ReadonlySet<string> | undefined;
+	resolvedUrls: Record<string, string>;
+	resolvedVersions: Record<string, string>;
 	running: boolean;
 };
 
@@ -405,7 +407,13 @@ const createCompiler = async ({
 		resolve: {extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']},
 	});
 
-	return {builtinMemFs, compiler, rspackBrowser};
+	return {
+		builtinMemFs,
+		compiler,
+		resolvedUrls,
+		resolvedVersions,
+		rspackBrowser,
+	};
 };
 
 const makeHmrEvent = ({
@@ -602,7 +610,8 @@ const startCompiler = async (
 		compilerSession = null;
 	}
 
-	const {builtinMemFs, compiler} = await createCompiler(request);
+	const {builtinMemFs, compiler, resolvedUrls, resolvedVersions} =
+		await createCompiler(request);
 	const session: CompilerSession = {
 		builtinMemFs,
 		compiler,
@@ -611,6 +620,8 @@ const startCompiler = async (
 		project: request.project,
 		queuedProject: null,
 		removedFiles: undefined,
+		resolvedUrls,
+		resolvedVersions,
 		running: false,
 	};
 	compilerSession = session;
@@ -622,6 +633,17 @@ const updateProject = (
 ) => {
 	if (!compilerSession) {
 		throw new Error('Cannot update Browser Studio before initializing it');
+	}
+
+	for (const [name, resolution] of Object.entries(
+		request.dependencyResolutions,
+	)) {
+		applyDependencyResolution({
+			name,
+			resolution,
+			resolvedUrls: compilerSession.resolvedUrls,
+			resolvedVersions: compilerSession.resolvedVersions,
+		});
 	}
 
 	if (compilerSession.running) {
