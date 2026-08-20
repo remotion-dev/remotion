@@ -34,7 +34,6 @@ import {getBrowserStudioOperations} from './browser-studio-operations';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
 import {CURRENT_COLOR} from './colors';
-import {downloadBlob} from './download-blob';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
@@ -73,7 +72,6 @@ const getFileMenu = ({
 		window.remotion_fileSystemPlatform,
 	);
 	const browserStudioOperations = getBrowserStudioOperations();
-	const downloadProject = browserStudioOperations?.downloadProject;
 	const items: ComboboxValue[] = [
 		readOnlyStudio
 			? null
@@ -141,46 +139,6 @@ const getFileMenu = ({
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'Override input props',
-				}
-			: null,
-		downloadProject
-			? {
-					id: 'download-project',
-					value: 'download-project',
-					label: 'Download project',
-					onClick: async () => {
-						closeMenu();
-
-						try {
-							const {data, fileName} = await downloadProject();
-							const arrayBuffer = data.buffer.slice(
-								data.byteOffset,
-								data.byteOffset + data.byteLength,
-							) as ArrayBuffer;
-							downloadBlob(
-								new Blob([arrayBuffer], {type: 'application/zip'}),
-								fileName,
-							);
-						} catch (error) {
-							showNotification(
-								`Could not download project: ${
-									error instanceof Error ? error.message : String(error)
-								}`,
-								2000,
-							);
-						}
-					},
-					type: 'item' as const,
-					keyHint: null,
-					leftItem: null,
-					subMenu: null,
-					quickSwitcherLabel: 'Download project',
-				}
-			: null,
-		!readOnlyStudio && downloadProject && browserStudioOperations === null
-			? {
-					type: 'divider' as const,
-					id: 'open-project-divider',
 				}
 			: null,
 		editorName && editorId && !readOnlyStudio
