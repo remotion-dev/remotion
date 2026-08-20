@@ -50,6 +50,8 @@ test('outline() draws around alpha while preserving the source', async () => {
 
 	sourceContext.fillStyle = 'white';
 	sourceContext.fillRect(24, 24, 16, 16);
+	sourceContext.fillStyle = 'rgba(255, 255, 255, 0.2)';
+	sourceContext.fillRect(8, 48, 4, 4);
 
 	const canvas = await renderEffectChainToCanvas({
 		source,
@@ -76,6 +78,12 @@ test('outline() draws around alpha while preserving the source', async () => {
 	const transparentPixel = context.getImageData(8, 8, 1, 1).data;
 	expect([...transparentPixel]).toEqual([0, 0, 0, 0]);
 
+	const translucentSourceOutlinePixel = context.getImageData(4, 50, 1, 1).data;
+	expect(translucentSourceOutlinePixel[0]).toBeGreaterThanOrEqual(250);
+	expect(translucentSourceOutlinePixel[1]).toBeLessThanOrEqual(5);
+	expect(translucentSourceOutlinePixel[2]).toBeLessThanOrEqual(5);
+	expect(translucentSourceOutlinePixel[3]).toBeGreaterThanOrEqual(250);
+
 	const smoothCornerPixel = context.getImageData(19, 19, 1, 1).data;
 	expect(smoothCornerPixel[3]).toBeLessThanOrEqual(20);
 
@@ -99,6 +107,21 @@ test('outline() draws around alpha while preserving the source', async () => {
 	expect(polygonalCornerPixel[3]).toBeGreaterThanOrEqual(250);
 	const polygonalSourcePixel = polygonalContext.getImageData(32, 32, 1, 1).data;
 	expect([...polygonalSourcePixel]).toEqual([255, 255, 255, 255]);
+	const polygonalPixels = polygonalContext.getImageData(
+		0,
+		0,
+		width,
+		height,
+	).data;
+	const partiallyTransparentPolygonPixels = [];
+	for (let index = 3; index < polygonalPixels.length; index += 4) {
+		const alpha = polygonalPixels[index];
+		if (alpha > 5 && alpha < 250) {
+			partiallyTransparentPolygonPixels.push(alpha);
+		}
+	}
+
+	expect(partiallyTransparentPolygonPixels).toEqual([]);
 
 	const outlineOnlyCanvas = await renderEffectChainToCanvas({
 		source,

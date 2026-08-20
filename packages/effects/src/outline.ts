@@ -94,7 +94,6 @@ type OutlineState = {
 		readonly uSource: WebGLUniformLocation | null;
 		readonly uPolygonMask: WebGLUniformLocation | null;
 		readonly uUsePolygonMask: WebGLUniformLocation | null;
-		readonly uTexelSize: WebGLUniformLocation | null;
 		readonly uWidth: WebGLUniformLocation | null;
 		readonly uColor: WebGLUniformLocation | null;
 		readonly uOpacity: WebGLUniformLocation | null;
@@ -151,13 +150,13 @@ out vec4 fragColor;
 uniform sampler2D uSource;
 uniform sampler2D uPolygonMask;
 uniform bool uUsePolygonMask;
-uniform vec2 uTexelSize;
 uniform float uWidth;
 uniform vec4 uColor;
 uniform float uOpacity;
 uniform bool uOutlineOnly;
 
 const float TAU = 6.283185307179586;
+const float MIN_ALPHA = 0.5 / 255.0;
 const int SAMPLE_DIRECTIONS = 32;
 const int SAMPLE_RINGS = 3;
 
@@ -176,16 +175,29 @@ void main() {
 
 	float outlineMaskAlpha = 0.0;
 	if (uUsePolygonMask) {
-		outlineMaskAlpha = texture(uPolygonMask, vUv).a;
+		outlineMaskAlpha = step(MIN_ALPHA, texture(uPolygonMask, vUv).a);
 	} else if (uWidth > 0.0) {
+		ivec2 sourceSize = textureSize(uSource, 0);
+		ivec2 sourcePosition = clamp(
+			ivec2(vUv * vec2(sourceSize)),
+			ivec2(0),
+			sourceSize - ivec2(1)
+		);
 		for (int ring = 1; ring <= SAMPLE_RINGS; ring++) {
 			float distancePx = uWidth * float(ring) / float(SAMPLE_RINGS);
 			for (int direction = 0; direction < SAMPLE_DIRECTIONS; direction++) {
 				float angle = TAU * float(direction) / float(SAMPLE_DIRECTIONS);
-				vec2 offset = vec2(cos(angle), sin(angle)) * distancePx * uTexelSize;
+				ivec2 offset = ivec2(round(
+					vec2(cos(angle), sin(angle)) * distancePx
+				));
+				ivec2 samplePosition = clamp(
+					sourcePosition + offset,
+					ivec2(0),
+					sourceSize - ivec2(1)
+				);
 				outlineMaskAlpha = max(
 					outlineMaskAlpha,
-					texture(uSource, vUv + offset).a
+					step(MIN_ALPHA, texelFetch(uSource, samplePosition, 0).a)
 				);
 			}
 		}
@@ -193,7 +205,9 @@ void main() {
 
 	if (uOutlineOnly) {
 		float filledAlpha = (
-			uUsePolygonMask ? outlineMaskAlpha : max(source.a, outlineMaskAlpha)
+			uUsePolygonMask
+				? outlineMaskAlpha
+				: max(step(MIN_ALPHA, source.a), outlineMaskAlpha)
 		) * uColor.a * uOpacity;
 		fragColor = vec4(uColor.rgb * filledAlpha, filledAlpha);
 		return;
@@ -416,7 +430,6 @@ const setupOutline = (target: HTMLCanvasElement): OutlineState => {
 			uSource: gl.getUniformLocation(program, 'uSource'),
 			uPolygonMask: gl.getUniformLocation(program, 'uPolygonMask'),
 			uUsePolygonMask: gl.getUniformLocation(program, 'uUsePolygonMask'),
-			uTexelSize: gl.getUniformLocation(program, 'uTexelSize'),
 			uWidth: gl.getUniformLocation(program, 'uWidth'),
 			uColor: gl.getUniformLocation(program, 'uColor'),
 			uOpacity: gl.getUniformLocation(program, 'uOpacity'),
@@ -503,8 +516,6 @@ export const outline = createEffect<OutlineParams, OutlineState>({
 		if (uniforms.uPolygonMask) gl.uniform1i(uniforms.uPolygonMask, 1);
 		if (uniforms.uUsePolygonMask)
 			gl.uniform1i(uniforms.uUsePolygonMask, usePolygonMask ? 1 : 0);
-		if (uniforms.uTexelSize)
-			gl.uniform2f(uniforms.uTexelSize, 1 / width, 1 / height);
 		if (uniforms.uWidth) gl.uniform1f(uniforms.uWidth, resolved.width);
 		if (uniforms.uColor)
 			gl.uniform4f(
