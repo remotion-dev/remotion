@@ -4,6 +4,7 @@ import type {
 	CallFunctionOptions,
 	CallFunctionStreaming,
 	CallFunctionSync,
+	GetBinaryPayloadSink,
 	MessageTypeId,
 	OnMessage,
 	OrError,
@@ -12,6 +13,7 @@ import type {
 	StreamingMessage,
 } from '@remotion/serverless';
 import {
+	binaryPayloadSinkForStreamer,
 	formatMap,
 	innerHandler,
 	messageTypeIdToMessageType,
@@ -29,29 +31,35 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	params: CallFunctionOptions<T, AwsProvider> & {
 		receivedStreamingPayload: OnMessage<AwsProvider>;
 		retriesRemaining: number;
+		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
 ) => {
 	const responseStream = new ResponseStream();
 
-	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
-		const messageType = messageTypeIdToMessageType(
-			messageTypeId as MessageTypeId,
-		);
-		const innerPayload =
-			formatMap[messageType] === 'json'
-				? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
-				: data;
+	const {onData, clear} = makeStreamer(
+		(status, messageTypeId, data) => {
+			const messageType = messageTypeIdToMessageType(
+				messageTypeId as MessageTypeId,
+			);
+			const innerPayload =
+				formatMap[messageType] === 'json'
+					? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
+					: data;
 
-		const message: StreamingMessage<AwsProvider> = {
-			successType: status,
-			message: {
-				type: messageType,
-				payload: innerPayload,
-			},
-		};
+			const message: StreamingMessage<AwsProvider> = {
+				successType: status,
+				message: {
+					type: messageType,
+					payload: innerPayload,
+				},
+			};
 
-		params.receivedStreamingPayload(message);
-	});
+			params.receivedStreamingPayload(message);
+		},
+		params.getBinaryPayloadSink
+			? binaryPayloadSinkForStreamer(params.getBinaryPayloadSink)
+			: null,
+	);
 
 	Log.verbose(
 		{indent: false, logLevel: params.payload.logLevel},
@@ -61,9 +69,8 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	await innerHandler<AwsProvider>({
 		params: params.payload,
 		responseWriter: {
-			write(message) {
-				onData(message);
-				return Promise.resolve();
+			async write(message) {
+				await onData(message);
 			},
 			end() {
 				clear();

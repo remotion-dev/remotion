@@ -115,7 +115,10 @@ export {
 export {OrError, ServerlessReturnValues} from './return-values';
 export {streamToString} from './stream-to-string';
 export {
+	BinaryMessageType,
+	binaryPayloadSinkForStreamer,
 	formatMap,
+	GetBinaryPayloadSink,
 	makeStreamPayload,
 	MessageTypeId,
 	messageTypeIdToMessageType,
