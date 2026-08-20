@@ -356,7 +356,6 @@ export const ProductCollection = () => {
 			name="Container"
 			style={{
 				WebkitFontSmoothing: 'antialiased',
-				backgroundColor: '#f2f3f4',
 				boxSizing: 'border-box',
 				color: '#1d1d19',
 				fontFamily: 'Inter',
@@ -400,44 +399,6 @@ export const ProductCollection = () => {
 				willChange: 'transform, opacity',
 			}}
 		>
-			<div
-				style={{
-					left: 0,
-					position: 'absolute',
-					right: 0,
-					top: 112,
-					zIndex: 300,
-				}}
-			>
-				<Interactive.H2
-					name="Collection title"
-					style={{
-						fontSize: 80,
-						fontWeight: 700,
-						letterSpacing: -4.6,
-						lineHeight: 0.92,
-						margin: 0,
-						opacity: interpolate(frame, [4, 22], [0, 1], {
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
-						textAlign: 'center',
-						textTransform: 'uppercase',
-						textWrap: 'balance',
-						transform: 'perspective(100px)',
-						translate: interpolate(frame, [4, 22], ['0px 24px', '0px 0px'], {
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
-						willChange: 'transform, opacity',
-					}}
-				>
-					Featured Products
-				</Interactive.H2>
-			</div>
-
 			<ProductCard
 				count={5}
 				discount="20% off"
