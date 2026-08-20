@@ -6,10 +6,13 @@ import React, {
 	useState,
 } from 'react';
 import type {_InternalTypes} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {CURRENT_COLOR} from '../../helpers/colors';
+import {downloadBlob} from '../../helpers/download-blob';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
+import {CloudDownloadIcon} from '../../icons/cloud-download';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {FilmIcon} from '../../icons/video';
@@ -17,6 +20,7 @@ import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {ObserveDefaultPropsContext} from '../ObserveDefaultPropsContext';
 import {
 	type DataEditorMode,
@@ -77,9 +81,7 @@ const browseElementsArrowStyle: React.CSSProperties = {
 	width: 12,
 };
 
-const CompositionActions: React.FC<{
-	readonly readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+const CompositionActions: React.FC = () => {
 	const {
 		canInsertAsset,
 		canInsertComposition,
@@ -91,6 +93,32 @@ const CompositionActions: React.FC<{
 		insertComposition,
 		insertSolid,
 	} = useCompositionActions();
+	const downloadProject = getBrowserStudioOperations()?.downloadProject ?? null;
+
+	const onDownloadProject = useCallback(async () => {
+		if (downloadProject === null) {
+			return;
+		}
+
+		try {
+			const {data, fileName} = await downloadProject();
+			const arrayBuffer = data.buffer.slice(
+				data.byteOffset,
+				data.byteOffset + data.byteLength,
+			) as ArrayBuffer;
+			downloadBlob(
+				new Blob([arrayBuffer], {type: 'application/zip'}),
+				fileName,
+			);
+		} catch (error) {
+			showNotification(
+				`Could not download project: ${
+					error instanceof Error ? error.message : String(error)
+				}`,
+				2000,
+			);
+		}
+	}, [downloadProject]);
 
 	const openElementsLibrary = useCallback(() => {
 		window.open(
@@ -101,8 +129,10 @@ const CompositionActions: React.FC<{
 	}, []);
 
 	if (
-		(readOnlyStudio && !canShowInsertSolid) ||
-		(!canShowInsertAsset && !canShowInsertComposition && !canShowInsertSolid)
+		!canShowInsertAsset &&
+		!canShowInsertComposition &&
+		!canShowInsertSolid &&
+		downloadProject === null
 	) {
 		return null;
 	}
@@ -167,6 +197,17 @@ const CompositionActions: React.FC<{
 							strokeWidth="1.5"
 						/>
 					</svg>
+				</InspectorQuickAction>
+			) : null}
+			{downloadProject ? (
+				<InspectorQuickAction
+					disabled={false}
+					onClick={onDownloadProject}
+					renderIcon={(color) => (
+						<CloudDownloadIcon color={color} style={actionIconStyle} />
+					)}
+				>
+					Download project
 				</InspectorQuickAction>
 			) : null}
 		</InspectorQuickActionsSection>
@@ -341,7 +382,7 @@ export const CompositionInspector: React.FC<{
 				setDefaultProps={setDefaultProps}
 			/>
 			<CompositionVisualControlsSection readOnlyStudio={readOnlyStudio} />
-			<CompositionActions readOnlyStudio={readOnlyStudio} />
+			<CompositionActions />
 		</div>
 	);
 };
