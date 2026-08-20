@@ -76,12 +76,40 @@ test('outline() draws around alpha while preserving the source', async () => {
 	const transparentPixel = context.getImageData(8, 8, 1, 1).data;
 	expect([...transparentPixel]).toEqual([0, 0, 0, 0]);
 
+	const smoothCornerPixel = context.getImageData(18, 18, 1, 1).data;
+	expect(smoothCornerPixel[3]).toBeLessThanOrEqual(5);
+
+	const blockyCanvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			outline({width: 6, edgeBlockSize: 8, color: '#ff0000'}),
+		]),
+	});
+	const blockyContext = blockyCanvas.getContext('2d');
+	if (!blockyContext) {
+		throw new Error('Could not get blocky outline output context');
+	}
+
+	const blockyCornerPixel = blockyContext.getImageData(18, 18, 1, 1).data;
+	expect(blockyCornerPixel[3]).toBeGreaterThan(50);
+	const sameBlockPixel = blockyContext.getImageData(22, 22, 1, 1).data;
+	expect([...sameBlockPixel]).toEqual([...blockyCornerPixel]);
+	const blockySourcePixel = blockyContext.getImageData(32, 32, 1, 1).data;
+	expect([...blockySourcePixel]).toEqual([255, 255, 255, 255]);
+
 	const outlineOnlyCanvas = await renderEffectChainToCanvas({
 		source,
 		width,
 		height,
 		effects: descriptorsToMemoizedEffects([
-			outline({width: 6, color: '#ff0000', outlineOnly: true}),
+			outline({
+				width: 6,
+				edgeBlockSize: 8,
+				color: '#ff0000',
+				outlineOnly: true,
+			}),
 		]),
 	});
 	const outlineOnlyContext = outlineOnlyCanvas.getContext('2d');

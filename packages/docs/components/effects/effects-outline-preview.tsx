@@ -6,17 +6,18 @@ import {AbsoluteFill} from 'remotion';
 
 export const EffectsOutlinePreview: React.FC<{
 	readonly width: number;
+	readonly edgeBlockSize: number;
 	readonly color: string;
 	readonly opacity: number;
 	readonly outlineOnly: boolean;
-}> = ({width, color, opacity, outlineOnly}) => {
+}> = ({width, edgeBlockSize, color, opacity, outlineOnly}) => {
 	return (
 		<AbsoluteFill style={{backgroundColor: '#15171e'}}>
 			<Video
 				src="https://remotion.media/greenscreen.mp4"
 				effects={[
 					colorKey({similarity: 0.45}),
-					outline({width, color, opacity, outlineOnly}),
+					outline({width, edgeBlockSize, color, opacity, outlineOnly}),
 				]}
 			/>
 		</AbsoluteFill>

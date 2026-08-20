@@ -33,7 +33,7 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/greenscreen.mp4"
         effects={[
           colorKey({similarity: 0.45}),
-          outline({width: 12, color: '#00ffff'}),
+          outline({width: 12, edgeBlockSize: 8, color: '#00ffff'}),
         ]}
       />
     </AbsoluteFill>
@@ -50,6 +50,10 @@ All parameters are optional. You can call `outline()` without arguments.
 ### width?
 
 Width of the outline in pixels. Defaults to `8`. Must be at least `0`.
+
+### edgeBlockSize?
+
+Size of the blocks used to pixelate the outline edge, in pixels. `1` keeps the edge smooth. Larger values make the edge blockier without pixelating the source. With `outlineOnly: true`, the filled mask is pixelated as well. Defaults to `1`.
 
 ### color?
 

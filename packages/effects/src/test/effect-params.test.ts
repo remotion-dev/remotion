@@ -642,6 +642,15 @@ test('outline() rejects invalid width', () => {
 	expect(() => outline({width: -1})).toThrow('"width" must be >= 0');
 });
 
+test('outline() rejects invalid edgeBlockSize', () => {
+	expect(() => outline({edgeBlockSize: Number.NaN})).toThrow(
+		'"edgeBlockSize" must be a finite number',
+	);
+	expect(() => outline({edgeBlockSize: 0})).toThrow(
+		'"edgeBlockSize" must be >= 1',
+	);
+});
+
 test('outline() rejects invalid color', () => {
 	expect(() => outline({color: ''})).toThrow(
 		'"color" must be a non-empty string',
@@ -665,6 +674,7 @@ test('outline() rejects invalid outlineOnly', () => {
 test('outline() parameters produce distinct effect keys', () => {
 	const defaults = outline();
 	const wider = outline({width: 16});
+	const blockier = outline({edgeBlockSize: 8});
 	const colored = outline({color: '#00ffff'});
 	const transparent = outline({opacity: 0.5});
 	const outlineOnly = outline({outlineOnly: true});
@@ -673,11 +683,12 @@ test('outline() parameters produce distinct effect keys', () => {
 		new Set([
 			defaults.effectKey,
 			wider.effectKey,
+			blockier.effectKey,
 			colored.effectKey,
 			transparent.effectKey,
 			outlineOnly.effectKey,
 		]).size,
-	).toBe(5);
+	).toBe(6);
 });
 
 test('tint() throws when color is not passed', () => {

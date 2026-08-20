@@ -16,6 +16,7 @@ import {
 const {createEffect, createWebGL2ContextError} = Internals;
 
 const DEFAULT_WIDTH = 8 as const;
+const DEFAULT_EDGE_BLOCK_SIZE = 1 as const;
 const DEFAULT_COLOR = '#ffffff' as const;
 const DEFAULT_OPACITY = 1 as const;
 const DEFAULT_OUTLINE_ONLY = false as const;
@@ -28,6 +29,15 @@ export const outlineSchema = {
 		step: 1,
 		default: DEFAULT_WIDTH,
 		description: 'Width',
+		hiddenFromList: false,
+	},
+	edgeBlockSize: {
+		type: 'number',
+		min: 1,
+		max: 100,
+		step: 1,
+		default: DEFAULT_EDGE_BLOCK_SIZE,
+		description: 'Edge block size',
 		hiddenFromList: false,
 	},
 	color: {
@@ -54,6 +64,8 @@ export const outlineSchema = {
 export type OutlineParams = {
 	/** Width of the outline in pixels. Defaults to `8`. */
 	readonly width?: number;
+	/** Size of the blocks used to pixelate the outline edge, in pixels. Defaults to `1`. */
+	readonly edgeBlockSize?: number;
 	/** Color of the outline. Defaults to white. */
 	readonly color?: string;
 	/** Opacity of the outline from `0` to `1`. Defaults to `1`. */
@@ -64,6 +76,7 @@ export type OutlineParams = {
 
 type OutlineResolved = {
 	readonly width: number;
+	readonly edgeBlockSize: number;
 	readonly color: string;
 	readonly opacity: number;
 	readonly outlineOnly: boolean;
@@ -79,6 +92,7 @@ type OutlineState = {
 		readonly uSource: WebGLUniformLocation | null;
 		readonly uTexelSize: WebGLUniformLocation | null;
 		readonly uWidth: WebGLUniformLocation | null;
+		readonly uEdgeBlockSize: WebGLUniformLocation | null;
 		readonly uColor: WebGLUniformLocation | null;
 		readonly uOpacity: WebGLUniformLocation | null;
 		readonly uOutlineOnly: WebGLUniformLocation | null;
@@ -90,6 +104,7 @@ type OutlineState = {
 
 const resolve = (params: OutlineParams): OutlineResolved => ({
 	width: params.width ?? DEFAULT_WIDTH,
+	edgeBlockSize: params.edgeBlockSize ?? DEFAULT_EDGE_BLOCK_SIZE,
 	color: params.color ?? DEFAULT_COLOR,
 	opacity: params.opacity ?? DEFAULT_OPACITY,
 	outlineOnly: params.outlineOnly ?? DEFAULT_OUTLINE_ONLY,
@@ -98,12 +113,17 @@ const resolve = (params: OutlineParams): OutlineResolved => ({
 const validateOutlineParams = (params: OutlineParams): void => {
 	assertEffectParamsObject(params, 'Outline');
 	assertOptionalFiniteNumber(params.width, 'width');
+	assertOptionalFiniteNumber(params.edgeBlockSize, 'edgeBlockSize');
 	assertOptionalColor(params.color, 'color');
 	assertOptionalFiniteNumber(params.opacity, 'opacity');
 	assertOptionalBoolean(params.outlineOnly, 'outlineOnly');
 
 	const resolved = resolve(params);
 	validateNonNegative(resolved.width, 'width');
+	if (resolved.edgeBlockSize < 1) {
+		throw new Error('"edgeBlockSize" must be >= 1');
+	}
+
 	validateUnitInterval(resolved.opacity, 'opacity');
 };
 
@@ -127,6 +147,7 @@ out vec4 fragColor;
 uniform sampler2D uSource;
 uniform vec2 uTexelSize;
 uniform float uWidth;
+uniform float uEdgeBlockSize;
 uniform vec4 uColor;
 uniform float uOpacity;
 uniform bool uOutlineOnly;
@@ -137,6 +158,14 @@ const int SAMPLE_RINGS = 3;
 
 void main() {
 	vec4 source = texture(uSource, vUv);
+	vec2 maskUv = vUv;
+	float maskSourceAlpha = source.a;
+
+	if (uEdgeBlockSize > 1.0) {
+		vec2 blockSizeUv = uTexelSize * uEdgeBlockSize;
+		maskUv = floor(vUv / blockSizeUv) * blockSizeUv + blockSizeUv * 0.5;
+		maskSourceAlpha = texture(uSource, maskUv).a;
+	}
 
 	if (uOpacity <= 0.0 || uColor.a <= 0.0) {
 		fragColor = uOutlineOnly ? vec4(0.0) : source;
@@ -157,14 +186,14 @@ void main() {
 				vec2 offset = vec2(cos(angle), sin(angle)) * distancePx * uTexelSize;
 				neighboringAlpha = max(
 					neighboringAlpha,
-					texture(uSource, vUv + offset).a
+					texture(uSource, maskUv + offset).a
 				);
 			}
 		}
 	}
 
 	if (uOutlineOnly) {
-		float filledAlpha = max(source.a, neighboringAlpha) * uColor.a * uOpacity;
+		float filledAlpha = max(maskSourceAlpha, neighboringAlpha) * uColor.a * uOpacity;
 		fragColor = vec4(uColor.rgb * filledAlpha, filledAlpha);
 		return;
 	}
@@ -288,6 +317,7 @@ const setupOutline = (target: HTMLCanvasElement): OutlineState => {
 			uSource: gl.getUniformLocation(program, 'uSource'),
 			uTexelSize: gl.getUniformLocation(program, 'uTexelSize'),
 			uWidth: gl.getUniformLocation(program, 'uWidth'),
+			uEdgeBlockSize: gl.getUniformLocation(program, 'uEdgeBlockSize'),
 			uColor: gl.getUniformLocation(program, 'uColor'),
 			uOpacity: gl.getUniformLocation(program, 'uOpacity'),
 			uOutlineOnly: gl.getUniformLocation(program, 'uOutlineOnly'),
@@ -305,7 +335,7 @@ export const outline = createEffect<OutlineParams, OutlineState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
-		return `outline-${resolved.width}-${resolved.color}-${resolved.opacity}-${resolved.outlineOnly}`;
+		return `outline-${resolved.width}-${resolved.edgeBlockSize}-${resolved.color}-${resolved.opacity}-${resolved.outlineOnly}`;
 	},
 	setup: setupOutline,
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -340,6 +370,8 @@ export const outline = createEffect<OutlineParams, OutlineState>({
 		if (uniforms.uTexelSize)
 			gl.uniform2f(uniforms.uTexelSize, 1 / width, 1 / height);
 		if (uniforms.uWidth) gl.uniform1f(uniforms.uWidth, resolved.width);
+		if (uniforms.uEdgeBlockSize)
+			gl.uniform1f(uniforms.uEdgeBlockSize, resolved.edgeBlockSize);
 		if (uniforms.uColor)
 			gl.uniform4f(
 				uniforms.uColor,
