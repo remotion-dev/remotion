@@ -149,6 +149,7 @@
 	flex-direction: column;
 	line-height: 1.3;
 	text-align: center;
+	white-space: nowrap;
 }
 
 .dragHandleText strong {

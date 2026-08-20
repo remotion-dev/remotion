@@ -237,13 +237,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									});
 									setElementDragImage(event.dataTransfer, posterRef.current);
 								}}
-								title="Hover over your Studio browser tab, then drop on the canvas or timeline"
+								title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
 							>
 								<span aria-hidden="true" className={styles.dragHandleIcon}>
 									⠿
 								</span>
 								<span className={styles.dragHandleText}>
-									<strong>Drag to your Studio canvas or timeline</strong>
+									<strong>Drag into Studio</strong>
 								</span>
 							</div>
 							{installStatus.type === 'success' ||
