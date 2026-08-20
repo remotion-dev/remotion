@@ -9,7 +9,6 @@ import type {
 	ObjectProperty,
 	StringLiteral,
 } from '@babel/types';
-import {cloneNode} from '@babel/types';
 import type {
 	EffectClipboardParam,
 	EffectClipboardPasteType,
@@ -42,6 +41,28 @@ import {parseValueExpression} from './update-nested-prop';
 
 const b = recast.types.builders;
 const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
+
+/*
+ * Deep-clones an AST subtree while sharing `loc` objects by reference, like
+ * Babel's `cloneNode`. A runtime import of `@babel/types` is avoided because
+ * it reads `process.env` at module load, which breaks browser bundles.
+ */
+const cloneAstValue = <T>(value: T): T => {
+	if (Array.isArray(value)) {
+		return value.map((item) => cloneAstValue(item)) as T;
+	}
+
+	if (value !== null && typeof value === 'object') {
+		const clone: Record<string, unknown> = {};
+		for (const [key, item] of Object.entries(value)) {
+			clone[key] = key === 'loc' ? item : cloneAstValue(item);
+		}
+
+		return clone as T;
+	}
+
+	return value;
+};
 
 export type FormatEffectFile = (input: {contents: string}) => Promise<{
 	formatted: boolean;
@@ -267,11 +288,7 @@ export const duplicateEffects = async ({
 				throw new Error('Cannot duplicate effect: not-call-expression');
 			}
 
-			array.elements.splice(
-				effectIndex + 1,
-				0,
-				cloneNode(effect, true) as never,
-			);
+			array.elements.splice(effectIndex + 1, 0, cloneAstValue(effect) as never);
 		}
 	}
 
