@@ -1,3 +1,8 @@
+import type {BrowserStudioRemotionPackageSource} from './types';
+
+export const browserStudioPackageJsonArtifactFilename =
+	'__remotion_browser_studio_package.json';
+
 export type BrowserStudioWorkspacePackageExports = Record<
 	string,
 	{
@@ -79,4 +84,40 @@ export const resolveBrowserStudioWorkspacePackage = ({
 		`${workspacePackage.packageRoot}/${target.slice(2)}`,
 		normalizedBaseUrl,
 	).href;
+};
+
+export const resolveBrowserStudioRemotionPackage = ({
+	packages,
+	request,
+	source,
+}: {
+	readonly packages: BrowserStudioWorkspacePackageExports;
+	readonly request: string;
+	readonly source: BrowserStudioRemotionPackageSource | null;
+}) => {
+	if (source === null) {
+		return null;
+	}
+
+	const packageName = getPackageName(request);
+	if (packageName !== 'remotion' && !packageName.startsWith('@remotion/')) {
+		return null;
+	}
+
+	const resolved = resolveBrowserStudioWorkspacePackage({
+		baseUrl: source.baseUrl,
+		packages,
+		request,
+	});
+	if (resolved) {
+		return resolved;
+	}
+
+	const sourceId =
+		source.type === 'workspace'
+			? `workspace commit ${source.commit}`
+			: `release ${source.version}`;
+	throw new Error(
+		`The Remotion package ${packageName} is not part of the configured ${sourceId}. Refusing to fall back to the package registry.`,
+	);
 };
