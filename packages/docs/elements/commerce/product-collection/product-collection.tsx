@@ -22,7 +22,6 @@ type ProductCardProps = InteractiveBaseProps & {
 	readonly count: number;
 	readonly discount: string;
 	readonly image: string;
-	readonly imageBackgroundColor: string;
 	readonly imageFit: 'contain' | 'cover';
 	readonly index: number;
 	readonly originalPrice: string;
@@ -40,7 +39,7 @@ const productCardSchema = {
 	image: {
 		type: 'asset',
 		default:
-			'https://remotion.media/elements/product-discount-callout-gray-runner.png',
+			'https://remotion.media/elements/product-collection-cloudline-runner.png',
 		description: 'Product image',
 	},
 	imageFit: {
@@ -51,11 +50,6 @@ const productCardSchema = {
 			contain: {},
 			cover: {},
 		},
-	},
-	imageBackgroundColor: {
-		type: 'color',
-		default: '#dbe1e9',
-		description: 'Image background',
 	},
 	price: {
 		type: 'text-content',
@@ -86,7 +80,6 @@ const ProductCardInner = forwardRef<
 			count,
 			discount,
 			image,
-			imageBackgroundColor,
 			imageFit,
 			index,
 			name,
@@ -206,7 +199,6 @@ const ProductCardInner = forwardRef<
 					>
 						<div
 							style={{
-								backgroundColor: imageBackgroundColor,
 								height: 335,
 								overflow: 'hidden',
 								position: 'relative',
@@ -449,9 +441,8 @@ export const ProductCollection = () => {
 			<ProductCard
 				count={5}
 				discount="20% off"
-				image="https://remotion.media/elements/product-discount-callout-gray-runner.png"
-				imageBackgroundColor="#dbe1e9"
-				imageFit="contain"
+				image="https://remotion.media/elements/product-collection-cloudline-runner.png"
+				imageFit="cover"
 				index={0}
 				name="Cloudline Runner card"
 				originalPrice="$148"
@@ -461,9 +452,8 @@ export const ProductCollection = () => {
 			<ProductCard
 				count={5}
 				discount=""
-				image="https://images.unsplash.com/photo-1523275335684-37898b6baf30?fm=jpg&fit=crop&w=900&q=90"
-				imageBackgroundColor="#deded8"
-				imageFit="contain"
+				image="https://remotion.media/elements/product-collection-minimal-steel-watch.png"
+				imageFit="cover"
 				index={1}
 				name="Minimal Steel Watch card"
 				originalPrice=""
@@ -474,7 +464,6 @@ export const ProductCollection = () => {
 				count={5}
 				discount="Save $31"
 				image="https://images.unsplash.com/photo-1511499767150-a48a237f0083?fm=jpg&fit=crop&w=900&q=90"
-				imageBackgroundColor="#c8d8e6"
 				imageFit="cover"
 				index={2}
 				name="Studio Sunglasses card"
@@ -486,7 +475,6 @@ export const ProductCollection = () => {
 				count={5}
 				discount="New"
 				image="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?fm=jpg&fit=crop&w=900&q=90"
-				imageBackgroundColor="#f1c647"
 				imageFit="cover"
 				index={3}
 				name="Studio Headset card"
@@ -498,7 +486,6 @@ export const ProductCollection = () => {
 				count={5}
 				discount=""
 				image="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?fm=jpg&fit=crop&w=900&q=90"
-				imageBackgroundColor="#e5b17a"
 				imageFit="cover"
 				index={4}
 				name="Sculptural Table Lamp card"
