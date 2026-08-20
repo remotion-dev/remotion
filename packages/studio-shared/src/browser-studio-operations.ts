@@ -1,4 +1,6 @@
 import type {
+	ApplyCodemodRequest,
+	ApplyCodemodResponse,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
 	DeleteJsxNodeRequest,
@@ -56,6 +58,7 @@ export type DuplicateCompositionResponse =
 	  };
 
 export type BrowserStudioOperations = {
+	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
 	deleteJsxNode: (
 		request: DeleteJsxNodeRequest,
 	) => Promise<DeleteJsxNodeResponse>;

@@ -8,6 +8,7 @@ export const makeBrowserStudioOperations = (
 	overrides: Partial<BrowserStudioOperations>,
 ): BrowserStudioOperations => {
 	return {
+		applyCodemod: () => unusedOperation('applyCodemod'),
 		deleteJsxNode: () => unusedOperation('deleteJsxNode'),
 		deleteStaticFile: () => unusedOperation('deleteStaticFile'),
 		downloadProject: () => unusedOperation('downloadProject'),

@@ -7,10 +7,13 @@ import {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	getFolderFile,
+	getRootFileForProject,
 	insertJsxElementIntoProjectWithNodePathRemappings,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	makeInMemoryInsertJsxElementCodemodEnvironment,
+	parseAndApplyCodemod,
 	resolveCompositionComponentWithFile,
 	simpleDiff,
 	splitJsxSequence as splitJsxSequenceCodemod,
@@ -23,8 +26,10 @@ import {
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
 	type InsertElementResponse,
+	type RecastCodemod,
 	type SubscribeToSequencePropsRequest,
 	type SubscribeToSequencePropsResponse,
+	type SymbolicatedStackFrame,
 	type UnsubscribeFromSequencePropsRequest,
 } from '@remotion/studio-shared';
 import * as prettierPluginEstree from 'prettier/plugins/estree';
@@ -127,6 +132,89 @@ const relativeToRoot = (filePath: string, rootDir: string) => {
 		? filePath.slice(root.length + 1)
 		: filePath.replace(/^\//, '');
 };
+
+const getCodemodTargetCompositionId = (
+	codemod: RecastCodemod,
+): string | null => {
+	if (codemod.type === 'duplicate-composition') {
+		return codemod.idToDuplicate;
+	}
+
+	if (codemod.type === 'rename-composition') {
+		return codemod.idToRename;
+	}
+
+	if (codemod.type === 'update-composition-metadata') {
+		return codemod.idToUpdate;
+	}
+
+	if (codemod.type === 'delete-composition') {
+		return codemod.idToDelete;
+	}
+
+	if (codemod.type === 'move-composition-to-folder') {
+		return codemod.idToMove;
+	}
+
+	return null;
+};
+
+const resolveCodemodTargetFile = ({
+	codemod,
+	project,
+	symbolicatedStack,
+}: {
+	codemod: RecastCodemod;
+	project: VirtualProject;
+	symbolicatedStack: SymbolicatedStackFrame | null;
+}): string => {
+	if (symbolicatedStack?.originalFileName) {
+		return findProjectFile({
+			filePath: symbolicatedStack.originalFileName,
+			project,
+		});
+	}
+
+	const compositionId = getCodemodTargetCompositionId(codemod);
+	if (compositionId !== null) {
+		const compositionFile = getCompositionFile({compositionId, project});
+		if (compositionFile === null) {
+			throw new Error(`Could not find composition "${compositionId}"`);
+		}
+
+		return findProjectFile({filePath: compositionFile, project});
+	}
+
+	if (codemod.type === 'rename-folder' || codemod.type === 'delete-folder') {
+		const folderFile = getFolderFile({
+			folderName: codemod.folderName,
+			project,
+		});
+		if (folderFile === null) {
+			throw new Error(`Could not find folder "${codemod.folderName}"`);
+		}
+
+		return findProjectFile({filePath: folderFile, project});
+	}
+
+	const rootFile = getRootFileForProject({
+		entryPoint: project.entryPoint,
+		project,
+	});
+	if (rootFile === null) {
+		throw new Error('Could not find the root file of the project');
+	}
+
+	return findProjectFile({filePath: rootFile, project});
+};
+
+const makeNewCompositionComponentSource = (componentName: string) =>
+	`import React from 'react';
+
+export const ${componentName}: React.FC = () => {
+	return null;
+};
+`;
 
 const getElementInstallPlanForProject = async ({
 	compositionFile,
@@ -509,6 +597,77 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const applyCodemod: BrowserStudioOperations['applyCodemod'] = async ({
+		codemod,
+		dryRun,
+		symbolicatedStack,
+	}) => {
+		try {
+			if (codemod.type === 'apply-visual-control') {
+				throw new Error(
+					'Applying visual controls is not supported in Browser Studio',
+				);
+			}
+
+			if (
+				codemod.type === 'new-composition' &&
+				codemod.canvasCapture !== null
+			) {
+				throw new Error(
+					'Creating canvas capture compositions is not supported in Browser Studio',
+				);
+			}
+
+			const project = getProject();
+			const absolutePath = resolveCodemodTargetFile({
+				codemod,
+				project,
+				symbolicatedStack,
+			});
+			const input = project.files[absolutePath];
+			const {newContents} = parseAndApplyCodemod({input, codeMod: codemod});
+			const {output} = await formatCodemodFile({contents: newContents});
+			const files: Record<string, string> = {
+				...project.files,
+				[absolutePath]: output,
+			};
+
+			if (codemod.type === 'new-composition') {
+				const componentFilePath = `${dirname(absolutePath)}/${codemod.componentName}.tsx`;
+				if (project.files[componentFilePath] !== undefined) {
+					throw new Error(
+						`Cannot create ${relativeToRoot(componentFilePath, project.rootDir)} because it already exists`,
+					);
+				}
+
+				const componentFile = await formatCodemodFile({
+					contents: makeNewCompositionComponentSource(codemod.componentName),
+				});
+				files[componentFilePath] = componentFile.output;
+			}
+
+			const diff = simpleDiff({
+				oldLines: input.split('\n'),
+				newLines: output.split('\n'),
+			});
+
+			if (!dryRun) {
+				controller.applyMutation({
+					fileName: absolutePath,
+					nodePathMutationFiles: null,
+					mutate: () => ({...project, files}),
+				});
+			}
+
+			return {success: true, diff};
+		} catch (error) {
+			return {
+				success: false,
+				reason: error instanceof Error ? error.message : String(error),
+			};
+		}
+	};
+
 	const duplicateComposition: BrowserStudioOperations['duplicateComposition'] =
 		async ({codemod, dryRun}) => {
 			try {
@@ -657,6 +816,7 @@ export const createBrowserStudioOperations = ({
 	};
 
 	return {
+		applyCodemod,
 		deleteJsxNode,
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadProject: () =>
