@@ -29,6 +29,54 @@ const videoConfigValues = {
 	width: 1920,
 };
 
+test('updateSequenceKeyframes preserves an affine frame alias', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const captureFrame = frame + 30;
+	return (
+		<AbsoluteFill from={-30}>
+			<Sequence style={{rotate: interpolate(captureFrame, [30, 60], ['0deg', '30deg'])}} />
+		</AbsoluteFill>
+	);
+};
+`;
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, 9),
+		updates: [
+			{
+				key: 'style.rotate',
+				operation: {type: 'add', frame: 45, value: '15deg'},
+			},
+		],
+		videoConfigValues,
+	});
+
+	expect(output).toMatch(
+		/interpolate\(\s*captureFrame,\s*\[30, 45, 60\],\s*\['0deg', '15deg', '30deg'\]/,
+	);
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.rotate'],
+		effects: [],
+		videoConfigValues,
+	});
+	expect(status.props['style.rotate']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
+		keyframes: [
+			{frame: 30, value: '0deg'},
+			{frame: 45, value: '15deg'},
+			{frame: 60, value: '30deg'},
+		],
+	});
+});
+
 test('updateSequenceKeyframes preserves representable video config frame expressions', async () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';

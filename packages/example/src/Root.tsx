@@ -303,6 +303,7 @@ import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
 import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
+import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
 import {FastUpdates} from './VisualModeTests/FastUpdates';
 import {FastUpdatesNested} from './VisualModeTests/FastUpdatesNested';
 import {
@@ -2875,6 +2876,14 @@ export const Index: React.FC = () => {
 				durationInFrames={180}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="affine-frame-clock"
+					component={AffineFrameClock}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={60}
+				/>
 				<Composition
 					id="sequence-shift-repro"
 					component={SequenceShiftRepro}

@@ -18,6 +18,7 @@ import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {TimelineVirtualizationTestbed} from './TimelineVirtualizationTestbed';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
+import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 
 const UseCurrentScaleOnLoad: React.FC = () => {
@@ -181,6 +182,14 @@ export const E2eTestRoot: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={90}
+			/>
+			<Composition
+				id="affine-frame-clock"
+				component={AffineFrameClock}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={60}
 			/>
 			<Composition
 				id="sequence-shift-repro"
