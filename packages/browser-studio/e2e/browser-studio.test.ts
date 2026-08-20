@@ -10,6 +10,7 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 	const pageErrors: Error[] = [];
 	const applyCodemodRequests: string[] = [];
 	const remoteRemotionRequests: string[] = [];
+	const renderPersistenceRequests: string[] = [];
 	const updateAvailableRequests: string[] = [];
 	const workspacePackageRequests: string[] = [];
 	let rejectPageError: (error: Error) => void = () => undefined;
@@ -24,6 +25,13 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 
 		if (requestUrl.pathname === '/api/update-available') {
 			updateAvailableRequests.push(request.url());
+		}
+
+		if (
+			requestUrl.pathname === '/api/upload-output' ||
+			requestUrl.pathname === '/api/register-client-render'
+		) {
+			renderPersistenceRequests.push(request.url());
 		}
 
 		if (
@@ -61,11 +69,14 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 			await expect(
 				studio.getByText('Input Props', {exact: true}),
 			).toBeVisible();
-			await page.keyboard.press('Escape');
-			await studio.locator('[data-sidebar-toggle="right"]').click();
-			await expect(
-				studio.getByRole('button', {name: 'Inspector'}),
-			).toBeVisible();
+			await studio.getByText('Still', {exact: true}).click();
+			const downloadPromise = page.waitForEvent('download');
+			await studio.getByRole('button', {name: 'Render still'}).click();
+			const download = await downloadPromise;
+			expect(download.suggestedFilename()).toBe('MyComp.png');
+			const inspector = studio.getByRole('button', {name: 'Inspector'});
+			await expect(inspector).toBeVisible();
+			await inspector.click();
 			await studio.getByRole('button', {name: 'Add Solid'}).click();
 			const solid = studio.getByText('<Solid>', {exact: true});
 			await expect(solid).toBeVisible();
@@ -132,6 +143,7 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 	);
 	expect(remoteRemotionRequests).toEqual([]);
 	expect(applyCodemodRequests).toEqual([]);
+	expect(renderPersistenceRequests).toEqual([]);
 	expect(updateAvailableRequests).toEqual([]);
 });
 
