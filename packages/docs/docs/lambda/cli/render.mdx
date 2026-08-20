@@ -77,6 +77,12 @@ npx remotion lambda render --codec=mp3 testbed my-comp
 
 The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
 
+### `--enable-cancellation`<AvailableFrom v="4.0.515" />
+
+<Options id="enable-cancellation" />
+
+Press Ctrl+C to cancel the render. Without this flag, Ctrl+C stops the CLI from waiting while the Lambda render continues.
+
 ### `--props`
 
 <Options id="props" />

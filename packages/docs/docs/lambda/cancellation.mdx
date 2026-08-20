@@ -10,7 +10,7 @@ crumb: 'Lambda'
 
 By default, a Lambda render continues until it finishes or fails.
 
-To allow a render to be cancelled, polling to S3 needs to be enabled, adding a small overhead of less than 2% or cost in the very worst case.
+To allow a render to be cancelled, polling to S3 needs to be enabled. Each active renderer then makes one S3 `HEAD` request per second.
 
 Set [`enableCancellation`](/docs/lambda/rendermediaonlambda#enablecancellation) to `true` when calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
 
@@ -40,6 +40,18 @@ await cancelRenderOnLambda({
 ```
 
 Calling [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda) for a render that was not started with `enableCancellation: true` throws an error.
+
+## Cancelling from the CLI
+
+Pass `--enable-cancellation` to [`npx remotion lambda render`](/docs/lambda/cli/render):
+
+```bash title="Terminal"
+npx remotion lambda render <serve-url> <composition-id> --enable-cancellation
+```
+
+Press Ctrl+C to send the cancellation signal. The CLI exits after the signal has been written. Press Ctrl+C again to exit immediately without waiting for the signal to be written.
+
+Without `--enable-cancellation`, pressing Ctrl+C stops the CLI from waiting, but the Lambda render continues.
 
 ## Cost
 
@@ -82,7 +94,6 @@ In the value returned by [`getRenderProgress()`](/docs/lambda/getrenderprogress)
 The same `errors` array is stored in `progress.json`, so checking for `CancelledError` also works when reading the file directly. `fatalErrorEncountered` is derived by `getRenderProgress()` and is not stored in `progress.json`.
 
 If the main function fails or times out, the remaining renderer functions may also report `CancelledError`. The error indicates that a renderer received the cancellation signal, but not why the signal was sent.
-
 
 ## See also
 

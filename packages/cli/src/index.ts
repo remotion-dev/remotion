@@ -9,7 +9,11 @@ import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {bundleCommand} from './bundle';
 import {chalk} from './chalk';
 import {checkForNpmRunFlagPass} from './check-for-npm-run-flag-pass';
-import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
+import {
+	cleanupBeforeQuit,
+	handleCtrlC,
+	registerCtrlCHandler,
+} from './cleanup-before-quit';
 import {cloudrunCommand} from './cloudrun-command';
 import {listCompositionsCommand} from './compositions';
 import {determineFinalStillImageFormat} from './determine-image-format';
@@ -207,4 +211,6 @@ export const CliInternals = {
 	makeHyperlink,
 	supportsHyperlink,
 	getGitSource,
+	handleCtrlC,
+	registerCtrlCHandler,
 };

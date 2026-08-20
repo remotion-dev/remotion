@@ -40,6 +40,7 @@ export const configMethodLifecycles = {
 	setDeleteAfter: 'runtime',
 	setDisallowParallelEncoding: 'runtime',
 	setDotEnvLocation: 'restart',
+	setEnableCancellation: 'runtime',
 	setEnableCrossSiteIsolation: 'restart',
 	setEnableFolderExpiry: 'runtime',
 	setEncodingBufferSize: 'runtime',
