@@ -18,7 +18,7 @@
 		"clear": "docusaurus clear",
 		"lint": "eslint src components",
 		"test": "bun test src",
-		"remotion": "remotion studio src/remotion/entry.ts",
+		"remotion": "remotion studio src/remotion/entry.ts --no-open",
 		"render-cards": "bun run render-cards.ts",
 		"render-element-previews": "bun run render-element-previews.ts",
 		"upload-element-preview": "bun run upload-element-preview.ts"
