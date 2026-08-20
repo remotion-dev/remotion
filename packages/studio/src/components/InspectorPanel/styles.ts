@@ -20,6 +20,7 @@ export const container: React.CSSProperties = {
 
 export const scrollableContainer: React.CSSProperties = {
 	...container,
+	overflowX: 'hidden',
 	overflowY: 'auto',
 };
 
@@ -149,6 +150,7 @@ export const selectedContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	flex: 1,
 	minHeight: 0,
+	overflowX: 'hidden',
 	overflowY: 'auto',
 };
 
