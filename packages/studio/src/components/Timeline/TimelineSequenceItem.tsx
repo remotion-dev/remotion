@@ -91,6 +91,7 @@ const labelContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
 	alignSelf: 'stretch',
 	display: 'flex',
+	flex: 1,
 	flexDirection: 'row',
 	minWidth: 0,
 };
@@ -1229,18 +1230,7 @@ const TimelineSequenceItemInner: React.FC<{
 					<TimelineLayerEyeSpacer />
 				)
 			}
-			arrow={
-				hasExpandableContent && nodePathInfo !== null ? (
-					<TimelineSequenceExpandArrow
-						disabled={!previewInteractive}
-						isExpanded={isExpanded}
-						nodePathInfo={nodePathInfo}
-						sequence={sequence}
-					/>
-				) : (
-					<TimelineExpandArrowSpacer />
-				)
-			}
+			arrow={<TimelineExpandArrowSpacer />}
 			style={rowStyle}
 			selected={selected}
 			selectable={selectable}
@@ -1279,6 +1269,14 @@ const TimelineSequenceItemInner: React.FC<{
 					onCancelEditing={onCancelRenaming}
 					onSaveName={onSaveName}
 				/>
+				{hasExpandableContent && nodePathInfo !== null ? (
+					<TimelineSequenceExpandArrow
+						disabled={!previewInteractive}
+						isExpanded={isExpanded}
+						nodePathInfo={nodePathInfo}
+						sequence={sequence}
+					/>
+				) : null}
 				{numberOfHiddenDuplicates > 0 ? (
 					<>
 						<Spacing x={0.5} />

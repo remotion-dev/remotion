@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {LIGHT_GRAY, WHITE} from '../../helpers/colors';
+import {CaretDown} from '../../icons/caret';
 
 const arrowButton: React.CSSProperties = {
 	background: 'none',
@@ -24,8 +25,6 @@ const arrowSpacer: React.CSSProperties = {
 	...arrowButton,
 	cursor: 'default',
 };
-
-const svgStyle: React.CSSProperties = {display: 'block'};
 
 export const TimelineExpandArrowButton: React.FC<{
 	readonly isExpanded: boolean;
@@ -55,7 +54,7 @@ export const TimelineExpandArrowButton: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...arrowButton,
-			transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+			transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
 			cursor: disabled ? 'default' : 'pointer',
 			opacity: disabled ? 0.5 : 1,
 		};
@@ -72,9 +71,7 @@ export const TimelineExpandArrowButton: React.FC<{
 			aria-expanded={isExpanded}
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}
 		>
-			<svg width="12" height="12" viewBox="0 0 8 8" style={svgStyle}>
-				<path d="M2 1L6 4L2 7Z" fill={LIGHT_GRAY} />
-			</svg>
+			<CaretDown color={LIGHT_GRAY} />
 		</button>
 	);
 };

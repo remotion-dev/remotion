@@ -15,7 +15,10 @@ import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {saveEffectProp} from './save-effect-prop';
-import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
+import {
+	TimelineExpandArrowButton,
+	TimelineExpandArrowSpacer,
+} from './TimelineExpandArrowButton';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
@@ -44,6 +47,15 @@ const rowLabel: React.CSSProperties = {
 const rowStyle: React.CSSProperties = {
 	height: TREE_GROUP_ROW_HEIGHT,
 	cursor: 'default',
+};
+
+const labelContainerStyle: React.CSSProperties = {
+	alignItems: 'center',
+	alignSelf: 'stretch',
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
+	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
 const reorderWrapper: React.CSSProperties = {
@@ -303,8 +315,11 @@ export const TimelineEffectItem: React.FC<{
 			alignItems: 'center',
 			color: getTimelineColor(selection.selected, true),
 			display: 'inline-flex',
-			marginRight: EXPANDED_SECTION_PADDING_RIGHT,
+			flexShrink: 1,
 			minWidth: 0,
+			overflow: 'hidden',
+			textOverflow: 'ellipsis',
+			whiteSpace: 'nowrap',
 			boxShadow:
 				containsSelection && !selection.selected
 					? `inset 0 0 0 2px ${TIMELINE_SELECTED_LABEL_BACKGROUND}`
@@ -465,14 +480,7 @@ export const TimelineEffectItem: React.FC<{
 					<TimelineLayerEyeSpacer />
 				)
 			}
-			arrow={
-				<TimelineExpandArrowButton
-					isExpanded={isExpanded}
-					onClick={() => toggleTrack(nodePathInfo)}
-					label={`${label} section`}
-					disabled={false}
-				/>
-			}
+			arrow={<TimelineExpandArrowSpacer />}
 			style={rowStyle}
 			selected={selection.selected}
 			selectable={selection.selectable}
@@ -482,9 +490,17 @@ export const TimelineEffectItem: React.FC<{
 			isFieldRow={false}
 			outerHeight={null}
 		>
-			<span title={label} style={labelStyle}>
-				{label}
-			</span>
+			<div style={labelContainerStyle}>
+				<span title={label} style={labelStyle}>
+					{label}
+				</span>
+				<TimelineExpandArrowButton
+					isExpanded={isExpanded}
+					onClick={() => toggleTrack(nodePathInfo)}
+					label={`${label} section`}
+					disabled={false}
+				/>
+			</div>
 		</TimelineRowChrome>
 	);
 
