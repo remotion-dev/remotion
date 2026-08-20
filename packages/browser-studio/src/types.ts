@@ -53,18 +53,30 @@ export type BrowserStudioProps = {
 	project: VirtualProject;
 	readOnly: boolean;
 	iframeSrc?: string;
-	workspacePackageBaseUrl?: string;
+	remotionPackageSource?: BrowserStudioRemotionPackageSource;
 	dependencyResolver?: BrowserStudioDependencyResolver;
 	onCompileStateChange?: (state: CompileState) => void;
 	onProjectChange?: (project: VirtualProject) => void;
 };
+
+export type BrowserStudioRemotionPackageSource =
+	| {
+			readonly type: 'workspace';
+			readonly baseUrl: string;
+			readonly commit: string;
+	  }
+	| {
+			readonly type: 'release';
+			readonly baseUrl: string;
+			readonly version: string;
+	  };
 
 export type BrowserStudioWorkerCompileRequest =
 	| {
 			type: 'init';
 			project: VirtualProject;
 			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
-			workspacePackageBaseUrl: string | null;
+			remotionPackageSource: BrowserStudioRemotionPackageSource | null;
 	  }
 	| {
 			type: 'update-project';

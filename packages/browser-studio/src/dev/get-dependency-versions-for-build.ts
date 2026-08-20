@@ -1,6 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {isBrowserStudioArtifactPath} from './is-browser-studio-artifact-path';
 
 type PackageJson = {
 	readonly name?: string;
@@ -23,6 +24,10 @@ const getWorkspacePackageVersions = () => {
 	const workspacePackageVersions: Record<string, string> = {};
 
 	for (const packageJsonPath of packageJsonGlob.scanSync({cwd: repoDir})) {
+		if (isBrowserStudioArtifactPath(packageJsonPath)) {
+			continue;
+		}
+
 		const packageJson = readPackageJson(join(repoDir, packageJsonPath));
 
 		if (

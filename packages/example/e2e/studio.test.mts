@@ -1,7 +1,7 @@
-import {expect, test, type Page} from '@playwright/test';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import fs from 'fs';
 import path from 'path';
+import {expect, test, type Page} from '@playwright/test';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	STUDIO_URL,
 	effectKeyframeE2eFile,
@@ -89,9 +89,53 @@ test.describe('visual mode', () => {
 		await stopStudio();
 	});
 
-	test('should load the studio', async ({page}) => {
-		await page.goto(STUDIO_URL);
+	test('should load the studio without flashing a composition error', async ({
+		page,
+	}) => {
+		await page.addInitScript(() => {
+			const state = {compositionNotFoundWasShown: false};
+			Object.defineProperty(window, '__remotion_initial_load_test', {
+				value: state,
+			});
+
+			const observer = new MutationObserver(() => {
+				if (
+					document.body?.innerText.includes(
+						'Composition with ID AnimatedBarChart not found.',
+					)
+				) {
+					state.compositionNotFoundWasShown = true;
+				}
+			});
+			observer.observe(document, {
+				childList: true,
+				characterData: true,
+				subtree: true,
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toBeVisible();
+		expect(
+			await page.evaluate(
+				() =>
+					(
+						window as typeof window & {
+							__remotion_initial_load_test: {
+								compositionNotFoundWasShown: boolean;
+							};
+						}
+					).__remotion_initial_load_test.compositionNotFoundWasShown,
+			),
+		).toBe(false);
+
+		await page.goto(`${STUDIO_URL}/does-not-exist`);
+		await expect(
+			page.getByText('Composition with ID does-not-exist not found.'),
+		).toBeVisible();
 	});
 
 	test('should virtualize a large timeline without hiding tracks', async ({

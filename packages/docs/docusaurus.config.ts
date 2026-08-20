@@ -1,4 +1,5 @@
 import type {Config} from '@docusaurus/types';
+import {getBrowserStudioWorkspaceCommit} from './get-browser-studio-workspace-commit';
 import elementSourceDependencies from './plugins/element-source-dependencies.js';
 import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
@@ -27,6 +28,9 @@ const showGitLastUpdate =
 	process.env.REMOTION_DOCS_DISABLE_GIT_LAST_UPDATE !== '1';
 
 const config: Config = {
+	customFields: {
+		browserStudioWorkspaceCommit: getBrowserStudioWorkspaceCommit(),
+	},
 	title: 'Remotion | Make videos programmatically',
 	tagline: 'Make videos programmatically',
 	url: 'https://www.remotion.dev',

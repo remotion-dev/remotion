@@ -17,7 +17,7 @@ import {
 } from './virtual-files';
 import {
 	getBrowserStudioWorkspacePackageExports,
-	resolveBrowserStudioWorkspacePackage,
+	resolveBrowserStudioRemotionPackage,
 } from './workspace-package-exports';
 
 type BuiltinMemFs = typeof RspackBrowser.builtinMemFs;
@@ -241,13 +241,21 @@ const getBrowserStudioHmrRuntimePlugin = (
 const createCompiler = async ({
 	dependencyResolutions,
 	project,
-	workspacePackageBaseUrl,
+	remotionPackageSource,
 }: Extract<BrowserStudioWorkerCompileRequest, {type: 'init'}>) => {
 	const rspackBrowser = await loadRspackBrowser();
 	const {BrowserHttpImportEsmPlugin, builtinMemFs, rspack} = rspackBrowser;
 	writeInitialFiles({builtinMemFs, project});
 
 	const resolvedVersions = {...browserStudioDependencyVersions};
+	if (remotionPackageSource?.type === 'release') {
+		for (const name of Object.keys(resolvedVersions)) {
+			if (name === 'remotion' || name.startsWith('@remotion/')) {
+				resolvedVersions[name] = remotionPackageSource.version;
+			}
+		}
+	}
+
 	const workspacePackageExports = getBrowserStudioWorkspacePackageExports();
 	const resolvedUrls: Record<string, string> = {};
 	for (const [name, resolution] of Object.entries(dependencyResolutions)) {
@@ -282,7 +290,7 @@ const createCompiler = async ({
 				allowedUris: [
 					'https://esm.sh/',
 					`${self.location.origin}/`,
-					...(workspacePackageBaseUrl ? [workspacePackageBaseUrl] : []),
+					...(remotionPackageSource ? [remotionPackageSource.baseUrl] : []),
 				],
 				cacheLocation: false,
 			},
@@ -363,15 +371,13 @@ const createCompiler = async ({
 						return undefined;
 					}
 
-					if (workspacePackageBaseUrl) {
-						const workspacePackageUrl = resolveBrowserStudioWorkspacePackage({
-							baseUrl: workspacePackageBaseUrl,
-							packages: workspacePackageExports,
-							request,
-						});
-						if (workspacePackageUrl) {
-							return workspacePackageUrl;
-						}
+					const remotionPackageUrl = resolveBrowserStudioRemotionPackage({
+						packages: workspacePackageExports,
+						request,
+						source: remotionPackageSource,
+					});
+					if (remotionPackageUrl) {
+						return remotionPackageUrl;
 					}
 
 					const packageName = getPackageName(request);

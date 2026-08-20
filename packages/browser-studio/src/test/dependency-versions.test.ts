@@ -3,6 +3,9 @@ import {readFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {getBrowserStudioDependencyVersionsForBuild} from '../dev/get-dependency-versions-for-build';
+import {getBrowserStudioWorkspacePackageExportsForBuild} from '../dev/get-workspace-package-exports-for-build';
+import {isBrowserStudioArtifactPath} from '../dev/is-browser-studio-artifact-path';
+import {browserStudioPackageJsonArtifactFilename} from '../workspace-package-exports';
 
 type PackageJson = {
 	readonly version?: string;
@@ -56,4 +59,18 @@ test('browser studio dependency versions are derived from package metadata', () 
 				!version.startsWith('workspace:') && !version.startsWith('catalog:'),
 		),
 	).toBe(true);
+});
+
+test('generated Browser Studio artifacts are not rediscovered as workspace packages', () => {
+	expect(
+		isBrowserStudioArtifactPath(
+			'packages/docs/static/__remotion_browser_studio_workspace__/commits/abc/packages/core/package.json',
+		),
+	).toBe(true);
+	expect(isBrowserStudioArtifactPath('packages/core/package.json')).toBe(false);
+	expect(
+		getBrowserStudioWorkspacePackageExportsForBuild().remotion.exports[
+			'./package.json'
+		],
+	).toBe(`./${browserStudioPackageJsonArtifactFilename}`);
 });
