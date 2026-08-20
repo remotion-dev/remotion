@@ -49,9 +49,24 @@ createRoot(root).render(
 				window as typeof window & {__browserStudioProject: VirtualProject}
 			).__browserStudioProject = nextProject;
 		}}
-		workspacePackageBaseUrl={
-			new URL('/__remotion_browser_studio_workspace__/', window.location.href)
-				.href
+		remotionPackageSource={
+			new URLSearchParams(window.location.search).get('source') === 'release'
+				? {
+						baseUrl: new URL(
+							`/__remotion_browser_studio_release__/${VERSION}/`,
+							window.location.href,
+						).href,
+						type: 'release',
+						version: VERSION,
+					}
+				: {
+						baseUrl: new URL(
+							'/__remotion_browser_studio_workspace__/commits/e2e/',
+							window.location.href,
+						).href,
+						commit: 'e2e',
+						type: 'workspace',
+					}
 		}
 	/>,
 );

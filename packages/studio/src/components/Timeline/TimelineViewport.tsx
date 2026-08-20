@@ -13,13 +13,20 @@ type TimelineRenderWindow = {
 export const TimelineViewportContext =
 	createContext<TimelineRenderWindow | null>(null);
 
-const getRenderWindow = (scrollable: HTMLDivElement): TimelineRenderWindow => {
+export const getTimelineRenderWindow = (
+	scrollable: HTMLDivElement,
+): TimelineRenderWindow => {
 	const viewportWidth = scrollable.clientWidth;
 	if (viewportWidth === 0) {
 		return {left: 0, width: 0};
 	}
 
-	const currentSection = Math.floor(scrollable.scrollLeft / viewportWidth);
+	// Move the render window half a viewport before the visible viewport reaches
+	// its right edge. This keeps at least half a viewport rendered ahead while
+	// retaining the three-viewport-wide window.
+	const currentSection = Math.floor(
+		(scrollable.scrollLeft + viewportWidth / 2) / viewportWidth,
+	);
 	const left = Math.max(0, (currentSection - 1) * viewportWidth);
 
 	return {
@@ -43,7 +50,7 @@ export const TimelineViewportProvider: React.FC<{
 			return;
 		}
 
-		const next = getRenderWindow(element);
+		const next = getTimelineRenderWindow(element);
 		setRenderWindow((previous) => {
 			if (previous.left === next.left && previous.width === next.width) {
 				return previous;

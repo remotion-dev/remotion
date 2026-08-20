@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useLayoutEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {useStudioConfigRevision} from '../helpers/client-id';
 import {BACKGROUND} from '../helpers/colors';
@@ -7,6 +7,7 @@ import {noop} from '../helpers/noop';
 import {getStudioCurrentScaleContext} from '../helpers/studio-fit-padding';
 import {getStudioBufferStateDelayInMilliseconds} from '../helpers/studio-runtime-config';
 import {drawRef} from '../state/canvas-ref';
+import {compositionListRenderedRef} from '../state/composition-list';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
@@ -25,6 +26,29 @@ const background: React.CSSProperties = {
 	height: '100%',
 	flexDirection: 'column',
 	position: 'absolute',
+};
+
+const RootCompositionLoader: React.FC<{
+	readonly Root: React.FC;
+}> = ({Root}) => {
+	return (
+		<>
+			<Root />
+			<CompositionListRenderMarker />
+		</>
+	);
+};
+
+const CompositionListRenderMarker: React.FC = () => {
+	useLayoutEffect(() => {
+		compositionListRenderedRef.current = true;
+
+		return () => {
+			compositionListRenderedRef.current = false;
+		};
+	}, []);
+
+	return null;
 };
 
 export const Editor: React.FC<{
@@ -90,7 +114,9 @@ export const Editor: React.FC<{
 								<Internals.CompositionRenderErrorContext.Provider
 									value={compositionRenderErrorContextValue}
 								>
-									{canvasMounted ? <MemoRoot /> : null}
+									{canvasMounted ? (
+										<RootCompositionLoader Root={MemoRoot} />
+									) : null}
 								</Internals.CompositionRenderErrorContext.Provider>
 								<Internals.CanUseRemotionHooksProvider>
 									<RenderErrorContext.Provider value={renderErrorContextValue}>

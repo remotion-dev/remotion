@@ -1,5 +1,6 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Head from '@docusaurus/Head';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {
 	BrowserStudio,
 	createBlankTemplateProject,
@@ -78,7 +79,9 @@ const getInitialElementState = (): InitialElementState => {
 	return {type: 'payload', payload: {payload, sourceOrigin}};
 };
 
-const BrowserStudioContent: React.FC = () => {
+const BrowserStudioContent: React.FC<{
+	readonly browserStudioWorkspaceCommit: string;
+}> = ({browserStudioWorkspaceCommit}) => {
 	const [initialElementState] = useState(getInitialElementState);
 	const [project] = useState(createBlankTemplateProject);
 
@@ -108,11 +111,26 @@ const BrowserStudioContent: React.FC = () => {
 			}
 			project={project}
 			readOnly={false}
+			remotionPackageSource={{
+				baseUrl: new URL(
+					`/__remotion_browser_studio_workspace__/commits/${browserStudioWorkspaceCommit}/`,
+					window.location.href,
+				).href,
+				commit: browserStudioWorkspaceCommit,
+				type: 'workspace',
+			}}
 		/>
 	);
 };
 
 const NewRemotionProject = () => {
+	const {siteConfig} = useDocusaurusContext();
+	const browserStudioWorkspaceCommit =
+		siteConfig.customFields?.browserStudioWorkspaceCommit;
+	if (typeof browserStudioWorkspaceCommit !== 'string') {
+		throw new Error('Browser Studio workspace commit is not configured');
+	}
+
 	return (
 		<>
 			<Head>
@@ -121,7 +139,11 @@ const NewRemotionProject = () => {
 			</Head>
 			<div style={page}>
 				<BrowserOnly fallback={<div style={fallback}>Loading...</div>}>
-					{() => <BrowserStudioContent />}
+					{() => (
+						<BrowserStudioContent
+							browserStudioWorkspaceCommit={browserStudioWorkspaceCommit}
+						/>
+					)}
 				</BrowserOnly>
 			</div>
 		</>
