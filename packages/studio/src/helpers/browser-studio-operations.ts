@@ -17,6 +17,13 @@ export const getBrowserStudioOperations =
 export const getBrowserStudioKeyframeOperations = () =>
 	getBrowserStudioOperations()?.keyframes ?? null;
 
+export const getBrowserStudioEffectOperations = () =>
+	getBrowserStudioOperations()?.effects ?? null;
+
 export const canUseKeyframeOperations = () =>
 	!window.remotion_isReadOnlyStudio ||
 	getBrowserStudioKeyframeOperations() !== null;
+
+export const canUseEffectOperations = () =>
+	!window.remotion_isReadOnlyStudio ||
+	getBrowserStudioEffectOperations() !== null;

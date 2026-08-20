@@ -7,6 +7,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BORDER_TIMELINE_DROP_BLUE,
@@ -19,7 +20,10 @@ import {
 	getSequenceDoubleClickAction,
 } from '../../helpers/get-sequence-double-click-action';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {
+	isStudioInteractivityEnabled,
+	isStudioSelectionEnabled,
+} from '../../helpers/interactivity-enabled';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -287,6 +291,8 @@ const TimelineSequenceItemInner: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const canMutateEffects =
+		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
@@ -876,7 +882,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const canAddEffect =
 		nodePathInfo?.supportsEffects === true &&
-		previewInteractive &&
+		canMutateEffects &&
 		Boolean(validatedLocation?.source);
 	const canCrop = useRuntimeValueSelector({
 		controls: sequence.controls,
@@ -1133,7 +1139,7 @@ const TimelineSequenceItemInner: React.FC<{
 		validatedLocation?.source,
 	]);
 	const canDropEffect =
-		previewInteractive &&
+		canMutateEffects &&
 		nodePath !== null &&
 		validatedLocation !== null &&
 		sequence.controls?.supportsEffects === true;

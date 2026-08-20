@@ -16,12 +16,29 @@ import {
 } from 'remotion';
 import {MapTilerContext} from './MapTilerContext';
 
-type MapOverlayProps = InteractiveBaseProps &
+export type MapOverlayAnchor =
+	| 'bottom'
+	| 'bottom-left'
+	| 'bottom-right'
+	| 'center'
+	| 'left'
+	| 'right'
+	| 'top'
+	| 'top-left'
+	| 'top-right';
+
+export type MapOverlayProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
+		readonly anchor?: MapOverlayAnchor;
 		readonly children?: ReactNode;
 		readonly controls?: SequenceControls;
 		readonly latitude: number;
 		readonly longitude: number;
+		readonly offsetX?: number;
+		readonly offsetY?: number;
+		readonly opacity?: number;
+		readonly rotation?: number;
+		readonly rotationAlignment?: 'map' | 'viewport';
 	};
 
 const mapOverlaySchema = {
@@ -44,6 +61,46 @@ const mapOverlaySchema = {
 		description: 'Latitude',
 		hiddenFromList: false,
 	},
+	offsetX: {
+		type: 'number',
+		min: -2000,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Horizontal marker offset',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	offsetY: {
+		type: 'number',
+		min: -2000,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Vertical marker offset',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	opacity: {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 1,
+		description: 'Marker opacity',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	rotation: {
+		type: 'number',
+		min: -360,
+		max: 360,
+		step: 1,
+		default: 0,
+		description: 'Marker rotation',
+		hiddenFromList: false,
+		keyframable: true,
+	},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
@@ -52,9 +109,15 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 	MapOverlayProps
 > = (
 	{
+		anchor = 'center',
 		children,
 		latitude,
 		longitude,
+		offsetX = 0,
+		offsetY = 0,
+		opacity = 1,
+		rotation = 0,
+		rotationAlignment = 'viewport',
 		style,
 		durationInFrames,
 		from,
@@ -70,6 +133,16 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 	const {map} = useContext(MapTilerContext);
 	const refForOutline = useRef<HTMLDivElement>(null);
 	const point = map?.project([longitude, latitude]);
+	const horizontalAnchor = anchor.includes('left')
+		? 0
+		: anchor.includes('right')
+			? -100
+			: -50;
+	const verticalAnchor = anchor.includes('top')
+		? 0
+		: anchor.includes('bottom')
+			? -100
+			: -50;
 
 	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
 
@@ -89,10 +162,13 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 			<div
 				ref={refForOutline}
 				style={{
-					left: point?.x ?? 0,
+					left: (point?.x ?? 0) + offsetX,
+					opacity,
 					pointerEvents: 'none',
 					position: 'absolute',
-					top: point?.y ?? 0,
+					rotate: `${rotation + (rotationAlignment === 'map' ? (map?.getBearing() ?? 0) : 0)}deg`,
+					top: (point?.y ?? 0) + offsetY,
+					translate: `${horizontalAnchor}% ${verticalAnchor}%`,
 					zIndex: 1,
 					...style,
 				}}
@@ -112,3 +188,5 @@ export const MapOverlay = Interactive.withSchema({
 	schema: mapOverlaySchema,
 	supportsEffects: false,
 });
+
+export const MapMarker = MapOverlay;
