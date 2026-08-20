@@ -14,8 +14,13 @@ loadFont('normal', {
 });
 
 export const PolaroidPictures = () => {
-	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
+	const sequenceFrame = useCurrentFrame();
+	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
+	// Compress the treatment when its wrapping Sequence is shorter than 150 frames.
+	const durationInFrames = Math.max(sequenceDurationInFrames, 150);
+	const frame =
+		sequenceFrame *
+		((durationInFrames - 1) / Math.max(1, sequenceDurationInFrames - 1));
 
 	return (
 		<Interactive.Div
@@ -102,7 +107,8 @@ export const PolaroidPictures = () => {
 					zIndex: 1,
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Photo 1 tape"
 					style={{
 						backgroundColor: '#d9c58f',
 						boxShadow: '0 2px 8px rgba(67, 47, 29, 0.14)',
@@ -114,6 +120,7 @@ export const PolaroidPictures = () => {
 						top: -21,
 						width: 150,
 						zIndex: 2,
+						translate: '-3.3px -12.3px',
 					}}
 				/>
 				<div
@@ -228,7 +235,8 @@ export const PolaroidPictures = () => {
 					zIndex: 2,
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Photo 2 tape"
 					style={{
 						backgroundColor: '#d9c58f',
 						boxShadow: '0 2px 8px rgba(67, 47, 29, 0.14)',
@@ -354,7 +362,8 @@ export const PolaroidPictures = () => {
 					zIndex: 3,
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Photo 3 tape"
 					style={{
 						backgroundColor: '#d9c58f',
 						boxShadow: '0 2px 8px rgba(67, 47, 29, 0.14)',
