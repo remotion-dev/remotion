@@ -18,6 +18,14 @@ const container: React.CSSProperties = {
 	backgroundColor: '#1f2428',
 };
 
+const content: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	animation: 'anim 2s',
+	animationFillMode: 'forwards',
+};
+
 export const Loading: React.FC = () => {
 	return (
 		<AbsoluteFillElement style={container} id="remotion-comp-loading">
@@ -30,26 +38,24 @@ export const Loading: React.FC = () => {
 						opacity: 1
 					}
 				}
-				#remotion-comp-loading {
-					animation: anim 2s;
-					animation-fill-mode: forwards;
-				}
 			`}</style>
-			<svg
-				width={ICON_SIZE}
-				height={ICON_SIZE}
-				viewBox="-100 -100 400 400"
-				style={rotate}
-			>
-				<path
-					fill="#555"
-					stroke="#555"
-					strokeWidth="100"
-					strokeLinejoin="round"
-					d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
-				/>
-			</svg>
-			<p style={label}>Resolving {'<Suspense>'}...</p>
+			<div id="remotion-comp-loading-content" style={content}>
+				<svg
+					width={ICON_SIZE}
+					height={ICON_SIZE}
+					viewBox="-100 -100 400 400"
+					style={rotate}
+				>
+					<path
+						fill="#555"
+						stroke="#555"
+						strokeWidth="100"
+						strokeLinejoin="round"
+						d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
+					/>
+				</svg>
+				<p style={label}>Resolving {'<Suspense>'}...</p>
+			</div>
 		</AbsoluteFillElement>
 	);
 };
