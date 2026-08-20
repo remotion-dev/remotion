@@ -153,6 +153,12 @@ if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
 	);
 }
 
+if (!Bun.env.CLOUDFLARE_API_TOKEN || !Bun.env.CLOUDFLARE_ZONE_ID) {
+	throw new Error(
+		'Clearing the CDN cache requires CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID in packages/docs/.env.',
+	);
+}
+
 const client = new S3Client({
 	accessKeyId: Bun.env.AWS_ACCESS_KEY_ID,
 	secretAccessKey: Bun.env.AWS_SECRET_ACCESS_KEY,
@@ -190,6 +196,30 @@ for (const asset of assets) {
 	console.log(`Uploaded ${publicUrl} (${file.size} bytes)`);
 }
 
+const purgeResponse = await fetch(
+	`https://api.cloudflare.com/client/v4/zones/${Bun.env.CLOUDFLARE_ZONE_ID}/purge_cache`,
+	{
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${Bun.env.CLOUDFLARE_API_TOKEN}`,
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			files: assets.map((asset) => `https://remotion.media${asset.localUrl}`),
+		}),
+	},
+);
+const purgeResult = (await purgeResponse.json()) as {
+	success: boolean;
+	errors?: unknown;
+};
+if (!purgeResponse.ok || !purgeResult.success) {
+	throw new Error(
+		`Could not clear the CDN cache: HTTP ${purgeResponse.status} ${JSON.stringify(purgeResult.errors)}`,
+	);
+}
+
+console.log('Cleared the CDN cache for both preview URLs.');
 console.log('Upload verified. Replace the review URLs with:');
 console.log(`https://remotion.media${expectedPosterUrl}`);
 console.log(`https://remotion.media${expectedVideoUrl}`);
