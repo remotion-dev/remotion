@@ -248,6 +248,8 @@ const MapPointDrawing = ({
 		pointOpacityIsDynamic,
 		pointRadius,
 		pointRadiusIsDynamic,
+		structuralKey,
+		styleRevision,
 	]);
 
 	return null;

@@ -350,11 +350,39 @@ const MapPolylineDrawing = ({
 				);
 			}
 
-			if (outlineWidthIsDynamic && lineWidthIsDynamic) {
+			if (outlineWidthIsDynamic || lineWidthIsDynamic) {
+				const actualLineWidth = lineWidth ?? 3;
+				const actualOutlineWidth = outlineWidth ?? 1;
+				const combinedOutlineWidth =
+					typeof actualLineWidth === 'number'
+						? typeof actualOutlineWidth === 'number'
+							? actualLineWidth + actualOutlineWidth * 2
+							: [
+									'interpolate',
+									['linear'],
+									['zoom'],
+									...actualOutlineWidth.flatMap(({value, zoom}) => [
+										zoom,
+										actualLineWidth + value * 2,
+									]),
+								]
+						: [
+								'interpolate',
+								['linear'],
+								['zoom'],
+								...actualLineWidth.flatMap(({value, zoom}) => [
+									zoom,
+									value +
+										(typeof actualOutlineWidth === 'number'
+											? actualOutlineWidth
+											: 1) *
+											2,
+								]),
+							];
 				map.setPaintProperty(
 					ids.polylineOutlineLayerId,
 					'line-width',
-					lineWidth + outlineWidth * 2,
+					combinedOutlineWidth,
 				);
 			}
 		}

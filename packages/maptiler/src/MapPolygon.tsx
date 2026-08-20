@@ -315,6 +315,8 @@ const MapPolygonDrawing = ({
 		outlineOpacityIsDynamic,
 		outlineWidth,
 		outlineWidthIsDynamic,
+		structuralKey,
+		styleRevision,
 	]);
 
 	if (!hasAnimatedOutline) {

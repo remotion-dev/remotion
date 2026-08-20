@@ -174,6 +174,8 @@ const MapHeatmapDrawing = ({
 		opacityIsDynamic,
 		radius,
 		radiusIsDynamic,
+		structuralKey,
+		styleRevision,
 	]);
 
 	return null;
