@@ -1,6 +1,6 @@
-import {$} from 'bun';
 import {copyFileSync, existsSync, mkdirSync} from 'fs';
 import path from 'path';
+import {$} from 'bun';
 
 const audioCodecs = [
 	'aac',
