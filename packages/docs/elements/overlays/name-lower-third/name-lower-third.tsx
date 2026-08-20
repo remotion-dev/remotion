@@ -67,7 +67,7 @@ export const NameLowerThird: React.FC = () => {
 				style={{
 					display: 'flex',
 					alignItems: 'center',
-					width: 534,
+					width: 514,
 					height: 66,
 					boxSizing: 'border-box',
 					padding: '0 24px',
