@@ -507,22 +507,22 @@ describe('Elements sidebar', () => {
 				],
 			},
 			{
-				category: 'commerce',
-				label: 'Commerce',
-				items: [
-					'commerce/product-discount-callout/index',
-					'commerce/product-offer/index',
-				],
-			},
-			{
 				category: 'data',
-				label: 'Data',
+				label: 'Charts & Data',
 				items: [
 					'data/horizontal-bar-chart/index',
 					'data/line-chart/index',
 					'data/number-counter/index',
 					'data/pie-chart/index',
 					'data/vertical-bar-chart/index',
+				],
+			},
+			{
+				category: 'commerce',
+				label: 'Commerce',
+				items: [
+					'commerce/product-discount-callout/index',
+					'commerce/product-offer/index',
 				],
 			},
 			{
@@ -548,7 +548,7 @@ describe('Elements sidebar', () => {
 			},
 			{
 				category: 'text',
-				label: 'Text',
+				label: 'Text Effects',
 				items: [
 					'text/circle-marker/index',
 					'text/crossed-off/index',
@@ -574,7 +574,7 @@ describe('Elements sidebar', () => {
 				label,
 				link: {type: 'doc', id: `${category}/index`},
 				collapsible: true,
-				collapsed: false,
+				collapsed: true,
 				items,
 			})),
 		);

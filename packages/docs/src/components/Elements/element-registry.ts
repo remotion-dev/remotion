@@ -1,12 +1,12 @@
 export const elementCategories = [
 	{category: 'backgrounds', label: 'Backgrounds'},
 	{category: 'captions', label: 'Captions'},
+	{category: 'data', label: 'Charts & Data'},
 	{category: 'commerce', label: 'Commerce'},
-	{category: 'data', label: 'Data'},
 	{category: 'maps', label: 'Maps'},
 	{category: 'overlays', label: 'Overlays'},
 	{category: 'storytelling', label: 'Storytelling'},
-	{category: 'text', label: 'Text'},
+	{category: 'text', label: 'Text Effects'},
 	{category: 'youtube', label: 'YouTube'},
 ] as const;
 
