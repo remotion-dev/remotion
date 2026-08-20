@@ -10,10 +10,10 @@ import type {FunctionErrorInfo} from './write-error-to-storage';
 
 export type OverallRenderProgress<Provider extends CloudProvider> = {
 	/**
-	 * Whether renderers poll for a cancellation signal. Missing on renders made
+	 * Whether renderers poll for a cancellation signal. Null for renders made
 	 * before cancellation support was introduced.
 	 */
-	cancellationEnabled?: boolean;
+	cancellationEnabled: boolean | null;
 	chunks: number[];
 	framesRendered: number;
 	framesEncoded: number;
