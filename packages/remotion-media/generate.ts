@@ -271,9 +271,28 @@ const getOutputName = ({
 };
 
 const tonePath = 'tone.wav';
+const toneLoopPath = path.join('out', 'tone-loop.wav');
 
 const base8k = path.join('out', '8k.mp4');
 const baseMute = path.join('out', 'mute.mp4');
+
+if (!(await Bun.file(tonePath).exists())) {
+	if (!(await Bun.file(toneLoopPath).exists())) {
+		mkdirSync(path.dirname(toneLoopPath), {recursive: true});
+		await $`bunx remotion render src/compositions/index.ts Tone ${toneLoopPath} --codec=wav --frames=0-299`;
+	}
+
+	await $`ffmpeg -stream_loop -1 -i ${toneLoopPath} -t 1800 -c:a copy ${tonePath} -y`;
+}
+
+const getEncodedVideoPath = async (videoEncoder: string) => {
+	const encodedVideoPath = path.join('out', `${videoEncoder}.mkv`);
+	if (!(await Bun.file(encodedVideoPath).exists())) {
+		await $`ffmpeg -i ${baseMute} -t 10 -c:v ${videoEncoder} -an ${encodedVideoPath} -y`;
+	}
+
+	return encodedVideoPath;
+};
 
 const generateCodecVariant = async ({
 	outputPath,
@@ -285,12 +304,14 @@ const generateCodecVariant = async ({
 	audioEncoder: string | null;
 }) => {
 	if (videoEncoder && audioEncoder) {
-		await $`ffmpeg -i ${baseMute} -i ${tonePath} -t 10 -c:v ${videoEncoder} -c:a ${audioEncoder} ${outputPath} -y`;
+		const encodedVideoPath = await getEncodedVideoPath(videoEncoder);
+		await $`ffmpeg -i ${encodedVideoPath} -i ${tonePath} -t 10 -c:v copy -c:a ${audioEncoder} ${outputPath} -y`;
 		return;
 	}
 
 	if (videoEncoder && !audioEncoder) {
-		await $`ffmpeg -i ${baseMute} -t 10 -c:v ${videoEncoder} -an ${outputPath} -y`;
+		const encodedVideoPath = await getEncodedVideoPath(videoEncoder);
+		await $`ffmpeg -i ${encodedVideoPath} -t 10 -c:v copy -an ${outputPath} -y`;
 		return;
 	}
 
