@@ -1485,7 +1485,11 @@ test('Loading indicator does not register an interactive sequence', () => {
 	);
 
 	expect(getByText('Resolving <Suspense>...')).toBeTruthy();
-	expect(container.querySelector('#remotion-comp-loading')).toBeTruthy();
+	const loadingIndicator = container.querySelector<HTMLDivElement>(
+		'#remotion-comp-loading',
+	);
+	expect(loadingIndicator).toBeTruthy();
+	expect(loadingIndicator?.style.backgroundColor).toBe('black');
 	expect(registeredSequences).toHaveLength(0);
 });
 

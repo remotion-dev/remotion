@@ -15,6 +15,7 @@ const label: React.CSSProperties = {
 const container: React.CSSProperties = {
 	justifyContent: 'center',
 	alignItems: 'center',
+	backgroundColor: 'black',
 };
 
 export const Loading: React.FC = () => {
