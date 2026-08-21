@@ -31,11 +31,7 @@ const description: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 13,
 	lineHeight: 1.5,
-	margin: '4px 0 0',
-};
-
-const installationInstructions: React.CSSProperties = {
-	marginTop: 14,
+	margin: 0,
 };
 
 const commandField: React.CSSProperties = {
@@ -145,7 +141,7 @@ export const SkillsSettings: React.FC = () => {
 				</div>
 			) : null}
 			{missingSkills > 0 ? (
-				<div style={installationInstructions}>
+				<div>
 					<p style={description}>
 						Not all skills are installed. To install skills, run this command in
 						the project directory, then reload Studio and restart your coding
