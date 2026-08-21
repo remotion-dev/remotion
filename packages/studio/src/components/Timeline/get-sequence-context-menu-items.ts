@@ -12,6 +12,7 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {getPreferredEditorId} from '../use-default-editor-info';
+import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import type {TimelineAssetLinkInfo} from './timeline-asset-link';
 import {openTimelineAssetLink} from './timeline-asset-link';
 
@@ -190,29 +191,7 @@ export const getSequenceContextMenuItems = ({
 					value: 'open-in-another-app',
 				}
 			: null,
-		{
-			type: 'item' as const,
-			id: 'copy-context-for-agents',
-			keyHint: null,
-			label: 'Copy context for agents',
-			leftItem: null,
-			disabled: !contextForAgents,
-			onClick: () => {
-				if (!contextForAgents) {
-					return;
-				}
-
-				navigator.clipboard.writeText(contextForAgents).catch((err) => {
-					showNotification(
-						`Could not copy to clipboard: ${(err as Error).message}`,
-						1000,
-					);
-				});
-			},
-			quickSwitcherLabel: null,
-			subMenu: null,
-			value: 'copy-context-for-agents',
-		},
+		getCopyContextForAgentsMenuItem({contextForAgents}),
 		assetLinkInfo
 			? {
 					type: 'item' as const,

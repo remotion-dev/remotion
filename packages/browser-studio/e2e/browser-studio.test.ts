@@ -1,9 +1,74 @@
-import {expect, test} from '@playwright/test';
+import {fileURLToPath} from 'node:url';
+import {
+	expect,
+	test,
+	type FrameLocator,
+	type Locator,
+	type Page,
+} from '@playwright/test';
 import {
 	createElementPayload,
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
 import {strFromU8, unzipSync} from 'fflate';
+
+const localImagePath = fileURLToPath(
+	new URL('../../codex-plugin/assets/logo.png', import.meta.url),
+);
+
+const dropLocalFile = async ({
+	filePath,
+	page,
+	target,
+}: {
+	filePath: string;
+	page: Page;
+	target: Locator;
+}) => {
+	const box = await target.boundingBox();
+	if (box === null) {
+		throw new Error('Browser Studio drop target has no bounding box');
+	}
+
+	const client = await page.context().newCDPSession(page);
+	const dragData = {
+		dragOperationsMask: 1,
+		files: [filePath],
+		items: [],
+	};
+	const coordinates = {x: box.x + box.width / 2, y: box.y + box.height / 2};
+	await client.send('Input.dispatchDragEvent', {
+		...coordinates,
+		data: dragData,
+		type: 'dragEnter',
+	});
+	await client.send('Input.dispatchDragEvent', {
+		...coordinates,
+		data: dragData,
+		type: 'dragOver',
+	});
+	await client.send('Input.dispatchDragEvent', {
+		...coordinates,
+		data: dragData,
+		type: 'drop',
+	});
+};
+
+const waitForBrowserStudioOperations = async (studio: FrameLocator) => {
+	await expect
+		.poll(() =>
+			studio.locator('body').evaluate(() =>
+				Boolean(
+					(
+						window as typeof window & {
+							remotion_browserStudio?: unknown;
+						}
+					).remotion_browserStudio,
+				),
+			),
+		)
+		.toBe(true);
+};
 
 test('loads Browser Studio, opens external links, and can add, delete, and duplicate', async ({
 	page,
@@ -348,6 +413,130 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	);
 });
 
+test('drops a local image onto the canvas and imports it into the virtual project', async ({
+	page,
+}) => {
+	const studioApiRequests: string[] = [];
+	page.on('request', (request) => {
+		const requestUrl = new URL(request.url());
+		if (
+			requestUrl.pathname.startsWith('/api/') &&
+			requestUrl.origin === new URL(page.url()).origin
+		) {
+			studioApiRequests.push(requestUrl.pathname);
+		}
+	});
+
+	await page.goto('/');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await waitForBrowserStudioOperations(studio);
+	await studio.locator('[data-compname="MyComp"]').click();
+	const canvas = studio.locator('.remotion-studio-composition-container');
+	await expect(canvas).toBeVisible();
+	await dropLocalFile({
+		filePath: localImagePath,
+		page,
+		target: canvas,
+	});
+	await expect(studio.getByText('<CanvasImage>', {exact: true})).toBeVisible();
+
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {
+						files: Record<string, string>;
+						publicFiles?: Record<
+							string,
+							Uint8Array | string | {sizeInBytes: number; type: 'stored'}
+						>;
+					};
+				};
+				const contents =
+					browserWindow.__browserStudioProject.publicFiles?.['logo.png'];
+				return {
+					composition:
+						browserWindow.__browserStudioProject.files[
+							'/project/src/Composition.tsx'
+						],
+					publicFileSize:
+						typeof contents === 'string'
+							? new TextEncoder().encode(contents).byteLength
+							: contents instanceof Uint8Array
+								? contents.byteLength
+								: contents?.sizeInBytes,
+				};
+			}),
+		)
+		.toMatchObject({
+			composition: expect.stringContaining('logo.png'),
+			publicFileSize: expect.any(Number),
+		});
+	expect(studioApiRequests).toEqual([]);
+});
+
+test('drops a local file into the virtual Assets folder', async ({page}) => {
+	const studioApiRequests: string[] = [];
+	page.on('request', (request) => {
+		const requestUrl = new URL(request.url());
+		if (
+			requestUrl.pathname.startsWith('/api/') &&
+			requestUrl.origin === new URL(page.url()).origin
+		) {
+			studioApiRequests.push(requestUrl.pathname);
+		}
+	});
+
+	await page.goto('/');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await waitForBrowserStudioOperations(studio);
+	await studio.getByRole('button', {name: 'Assets', exact: true}).click();
+	const assetSelector = studio.locator('[data-asset-selector]');
+	await expect(assetSelector).toBeVisible();
+	await dropLocalFile({
+		filePath: localImagePath,
+		page,
+		target: assetSelector,
+	});
+
+	await expect(studio.getByText('logo.png', {exact: true})).toBeVisible();
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {
+						files: Record<string, string>;
+						publicFiles?: Record<
+							string,
+							Uint8Array | string | {sizeInBytes: number; type: 'stored'}
+						>;
+					};
+				};
+				const contents =
+					browserWindow.__browserStudioProject.publicFiles?.['logo.png'];
+				return {
+					composition:
+						browserWindow.__browserStudioProject.files[
+							'/project/src/Composition.tsx'
+						],
+					publicFileSize:
+						typeof contents === 'string'
+							? new TextEncoder().encode(contents).byteLength
+							: contents instanceof Uint8Array
+								? contents.byteLength
+								: contents?.sizeInBytes,
+				};
+			}),
+		)
+		.toMatchObject({
+			composition: expect.not.stringContaining('logo.png'),
+			publicFileSize: expect.any(Number),
+		});
+	expect(studioApiRequests).toEqual([]);
+});
+
 test('installs packages without a server API and preserves undo, redo, and HMR', async ({
 	page,
 }) => {
@@ -365,6 +554,7 @@ test('installs packages without a server API and preserves undo, redo, and HMR',
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
 	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await waitForBrowserStudioOperations(studio);
 	await studio.locator('body').evaluate(() => {
 		(
 			window as typeof window & {
