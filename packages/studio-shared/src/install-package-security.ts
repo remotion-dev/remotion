@@ -1,1 +1,1 @@
-export const INSTALL_PACKAGE_CSRF_HEADER = 'x-remotion-csrf-token';
+export const STUDIO_CSRF_HEADER = 'x-remotion-csrf-token';

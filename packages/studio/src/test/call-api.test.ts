@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {INSTALL_PACKAGE_CSRF_HEADER} from '@remotion/studio-shared';
+import {STUDIO_CSRF_HEADER} from '@remotion/studio-shared';
 import {callApi} from '../components/call-api';
 
 test('sends the Studio CSRF token with API requests', async () => {
@@ -9,7 +9,7 @@ test('sends the Studio CSRF token with API requests', async () => {
 
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,
-		value: {remotion_installPackageCsrfToken: 'csrf-token'},
+		value: {remotion_studioCsrfToken: 'csrf-token'},
 	});
 	globalThis.fetch = ((_input, init) => {
 		requestInit = init;
@@ -19,13 +19,11 @@ test('sends the Studio CSRF token with API requests', async () => {
 	}) as typeof fetch;
 
 	try {
-		await callApi('/api/install-package', {
-			dependencies: [{name: 'lodash', version: '4.17.21'}],
-		});
+		await callApi('/api/restart-studio', {});
 
 		expect(requestInit?.headers).toEqual({
 			'content-type': 'application/json',
-			[INSTALL_PACKAGE_CSRF_HEADER]: 'csrf-token',
+			[STUDIO_CSRF_HEADER]: 'csrf-token',
 		});
 	} finally {
 		globalThis.fetch = previousFetch;

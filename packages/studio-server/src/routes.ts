@@ -17,10 +17,7 @@ import type {
 	RenderJob,
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
-import {
-	getProjectName,
-	INSTALL_PACKAGE_CSRF_HEADER,
-} from '@remotion/studio-shared';
+import {getProjectName, STUDIO_CSRF_HEADER} from '@remotion/studio-shared';
 import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
@@ -44,6 +41,21 @@ import {validateSameOrigin} from './preview-server/validate-same-origin';
 import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
 import type {RemotionConfigResponse} from './remotion-config-response';
 const loggedStaticFileHints = new Set<string>();
+const clientRenderOutputExtensions = new Set([
+	'aac',
+	'flac',
+	'jpeg',
+	'jpg',
+	'mkv',
+	'mov',
+	'mp3',
+	'mp4',
+	'ogg',
+	'png',
+	'wav',
+	'webm',
+	'webp',
+]);
 
 const static404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
@@ -96,7 +108,7 @@ const handleFallback = async ({
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
 	getDefaultEditor,
-	installPackageCsrfToken,
+	studioCsrfToken,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -116,7 +128,7 @@ const handleFallback = async ({
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 	getDefaultEditor: () => DefaultEditor | null;
-	installPackageCsrfToken: string;
+	studioCsrfToken: string;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
 	if (request.method === 'GET' && acceptsHtml) {
@@ -198,7 +210,7 @@ const handleFallback = async ({
 			experimentalKeepAudioContextAlive: getExperimentalKeepAudioContextAlive(),
 			sampleRate: getPreviewSampleRate(),
 			studioRuntimeConfig: getStudioRuntimeConfig(),
-			installPackageCsrfToken,
+			studioCsrfToken,
 		}),
 	);
 };
@@ -285,6 +297,17 @@ const handleAddAsset = ({
 	return Promise.resolve();
 };
 
+const rejectInvalidStudioCsrfToken = (response: ServerResponse) => {
+	response.setHeader('content-type', 'application/json');
+	response.writeHead(403);
+	response.end(
+		JSON.stringify({
+			success: false,
+			error: 'Invalid CSRF token',
+		}),
+	);
+};
+
 const handleUploadOutput = ({
 	req,
 	res,
@@ -307,10 +330,26 @@ const handleUploadOutput = ({
 		}
 
 		const absolutePath = resolveOutputPath(remotionRoot, filePath);
+		const extension = path.extname(absolutePath).slice(1).toLowerCase();
+		if (!clientRenderOutputExtensions.has(extension)) {
+			throw new Error(
+				`Not allowed to upload a .${extension || 'unknown'} file`,
+			);
+		}
 
 		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
 
-		const writeStream = createWriteStream(absolutePath);
+		const fileDescriptor = fs.openSync(
+			absolutePath,
+			fs.constants.O_CREAT |
+				fs.constants.O_WRONLY |
+				fs.constants.O_TRUNC |
+				fs.constants.O_NOFOLLOW,
+		);
+		const writeStream = createWriteStream(absolutePath, {
+			fd: fileDescriptor,
+			autoClose: true,
+		});
 		writeStream.on('close', () => {
 			res.end(JSON.stringify({success: true}));
 		});
@@ -397,7 +436,7 @@ export const handleRoutes = ({
 	getDefaultCodingAgent,
 	getDefaultEditor,
 	configFile,
-	installPackageCsrfToken,
+	studioCsrfToken,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -426,7 +465,7 @@ export const handleRoutes = ({
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
-	installPackageCsrfToken: string;
+	studioCsrfToken: string;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -441,6 +480,11 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname === `${staticHash}/api/add-asset`) {
+		if (request.headers[STUDIO_CSRF_HEADER] !== studioCsrfToken) {
+			rejectInvalidStudioCsrfToken(response);
+			return Promise.resolve();
+		}
+
 		return handleAddAsset({
 			req: request,
 			res: response,
@@ -450,6 +494,11 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname === '/api/upload-output') {
+		if (request.headers[STUDIO_CSRF_HEADER] !== studioCsrfToken) {
+			rejectInvalidStudioCsrfToken(response);
+			return Promise.resolve();
+		}
+
 		return handleUploadOutput({
 			req: request,
 			res: response,
@@ -512,18 +561,8 @@ export const handleRoutes = ({
 
 	for (const [key, value] of Object.entries(allApiRoutes)) {
 		if (url.pathname === key) {
-			if (
-				key === '/api/install-package' &&
-				request.headers[INSTALL_PACKAGE_CSRF_HEADER] !== installPackageCsrfToken
-			) {
-				response.setHeader('content-type', 'application/json');
-				response.writeHead(403);
-				response.end(
-					JSON.stringify({
-						success: false,
-						error: 'Invalid CSRF token',
-					}),
-				);
+			if (request.headers[STUDIO_CSRF_HEADER] !== studioCsrfToken) {
+				rejectInvalidStudioCsrfToken(response);
 				return Promise.resolve();
 			}
 
@@ -622,6 +661,6 @@ export const handleRoutes = ({
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,
 		getDefaultEditor,
-		installPackageCsrfToken,
+		studioCsrfToken,
 	});
 };

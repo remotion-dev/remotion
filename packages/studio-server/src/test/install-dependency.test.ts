@@ -8,7 +8,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {PassThrough, Readable} from 'node:stream';
 import {
-	INSTALL_PACKAGE_CSRF_HEADER,
+	STUDIO_CSRF_HEADER,
 	type PackageManager,
 	type RenderDefaults,
 } from '@remotion/studio-shared';
@@ -164,7 +164,7 @@ test('rejects package installation without the Studio CSRF token', async () => {
 	request.headers = {
 		host: 'localhost:3000',
 		origin: 'http://localhost:3000',
-		[INSTALL_PACKAGE_CSRF_HEADER]: 'wrong-token',
+		[STUDIO_CSRF_HEADER]: 'wrong-token',
 	};
 	let responseBody = '';
 	let responseStatusCode = 0;
@@ -216,7 +216,7 @@ test('rejects package installation without the Studio CSRF token', async () => {
 				publicLicenseKey: null,
 			}),
 			gitSource: null,
-			installPackageCsrfToken: 'correct-token',
+			studioCsrfToken: 'correct-token',
 			liveEventsServer,
 			logLevel: 'error',
 			outputHash: '/outputs',
