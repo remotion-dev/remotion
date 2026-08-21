@@ -15,24 +15,9 @@ Consider a scenario where a video is dynamically specified as a background and t
 
 Pass a [`calculateMetadata`](/docs/composition#calculatemetadata) callback function to a [`<Composition>`](/docs/composition). This function should take the [combined props](/docs/props-resolution) and calculate the metadata.
 
-```twoslash include dynamic-metadata-frame-rate-helper
-// @filename: get-video-frame-rate.ts
-import type {Input} from 'mediabunny';
-
-export type VideoFrameRate =
-  | {type: 'constant'; rate: number}
-  | {type: 'variable'; max: number; average: number};
-
-export declare const getVideoFrameRate: (
-  input: Input,
-) => Promise<VideoFrameRate | null>;
-```
-
 ```tsx twoslash title="src/Root.tsx"
-// @include: dynamic-metadata-frame-rate-helper
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
-import {getVideoFrameRate} from './get-video-frame-rate';
 
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
@@ -50,13 +35,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const frameRate = await getVideoFrameRate(input);
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
   const fps =
-    frameRate === null
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
       ? null
-      : frameRate.type === 'constant'
-        ? frameRate.rate
-        : frameRate.max;
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -110,7 +95,7 @@ export const Root: React.FC = () => {
 
 :::note
 See [Getting metadata using Mediabunny](/docs/mediabunny/metadata) for the snippet for `get-media-metadata.ts`.
-It uses the [`getVideoFrameRate()` helper](/docs/mediabunny/frame-rate) to match the composition FPS to the source video.
+It uses Mediabunny's [`computeFrameRateMetrics()`](https://mediabunny.dev/api/InputVideoTrack#computeframeratemetrics) method to match the composition FPS to the source video.
 :::
 
 The `props` defaults to the `defaultProps` specified, but may be overriden by [passing input props to the render](/docs/props-resolution).
@@ -127,10 +112,8 @@ In the following example, Remotion is instructed to wait for the [`getMediaMetad
 By calling [`delayRender()`](/docs/delay-render), Remotion will be blocked from proceeding until [`continueRender()`](/docs/continue-render) is called.
 
 ```tsx twoslash title="src/Root.tsx"
-// @include: dynamic-metadata-frame-rate-helper
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
-import {getVideoFrameRate} from './get-video-frame-rate';
 
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
@@ -148,13 +131,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const frameRate = await getVideoFrameRate(input);
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
   const fps =
-    frameRate === null
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
       ? null
-      : frameRate.type === 'constant'
-        ? frameRate.rate
-        : frameRate.max;
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -238,10 +221,8 @@ The [`<Player>`](/docs/player) will react if the metadata being passed to it cha
 </p>
 
 ```tsx twoslash title="MyApp.tsx"
-// @include: dynamic-metadata-frame-rate-helper
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
-import {getVideoFrameRate} from './get-video-frame-rate';
 
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
@@ -259,13 +240,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const frameRate = await getVideoFrameRate(input);
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
   const fps =
-    frameRate === null
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
       ? null
-      : frameRate.type === 'constant'
-        ? frameRate.rate
-        : frameRate.max;
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
