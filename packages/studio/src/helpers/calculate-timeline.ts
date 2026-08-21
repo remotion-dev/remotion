@@ -124,6 +124,7 @@ export const calculateTimeline = ({
 			},
 			depth: getTimelineNestedLevel(sequence, sortedSequences, 0),
 			cascadedStart,
+			localStart: sequence.from,
 			cascadedDuration: sequence.duration,
 			keyframeDisplayOffset: hasKeyframeRows
 				? cascadedStartWithTrim - effectiveFrom
@@ -153,7 +154,7 @@ export const calculateTimeline = ({
 			return sortKeyA.localeCompare(sortKeyB);
 		})
 		.map((track) => {
-			const {cascadedDuration, cascadedStart, ...cleanTrack} = track;
+			const {cascadedDuration, ...cleanTrack} = track;
 			return cleanTrack;
 		});
 

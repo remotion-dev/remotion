@@ -201,6 +201,40 @@ test.describe('visual mode', () => {
 		expect(await mountedTrackLabels.count()).toBeLessThan(120);
 	});
 
+	test('should show negative sequence timing in the frame-zero gutter', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/timeline-negative-start`);
+		await expect(page).toHaveURL(/timeline-negative-start/, {
+			timeout: 15_000,
+		});
+
+		const timelineScrollable = page.locator('[data-timeline-scrollable]');
+		const negativeSequence = page.locator(
+			'[data-timeline-marquee-item][title="Negative start"]',
+		);
+		const zeroSequence = page.locator(
+			'[data-timeline-marquee-item][title="Zero start"]',
+		);
+		await expect(negativeSequence).toBeVisible();
+		await expect(zeroSequence).toBeVisible();
+
+		const [timelineRect, negativeSequenceRect, zeroSequenceRect] =
+			await Promise.all([
+				timelineScrollable.boundingBox(),
+				negativeSequence.boundingBox(),
+				zeroSequence.boundingBox(),
+			]);
+		expect(timelineRect).not.toBeNull();
+		expect(negativeSequenceRect).not.toBeNull();
+		expect(zeroSequenceRect).not.toBeNull();
+		expect(negativeSequenceRect!.x).toBeGreaterThanOrEqual(timelineRect!.x);
+		expect(negativeSequenceRect!.x).toBeLessThan(zeroSequenceRect!.x);
+		expect(zeroSequenceRect!.x - negativeSequenceRect!.x).toBeLessThanOrEqual(
+			16,
+		);
+	});
+
 	test('should commit a color drag before the picker closes', async ({
 		page,
 	}) => {

@@ -19,10 +19,11 @@ export type TimelineTrackData = {
 	nodePathInfo: SequenceNodePathInfo | null;
 	keyframeDisplayOffset: number;
 	sequenceFrameOffset: number;
+	cascadedStart: number;
+	localStart: number;
 };
 
 export type TimelineTrackWithOriginalTimings = TimelineTrackData & {
-	cascadedStart: number;
 	cascadedDuration: number;
 };
 
