@@ -3,7 +3,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {CURRENT_COLOR} from '../helpers/colors';
+import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
@@ -51,6 +51,14 @@ const convertArrowStyle: React.CSSProperties = {
 };
 
 const assetMetadataStyle: React.CSSProperties = {
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
+const assetEmptyStateStyle: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	lineHeight: 1.4,
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
@@ -147,7 +155,10 @@ export const getCurrentAssetMediaSections = (mediaMetadata: MediaMetadata) => {
 	}
 
 	return {
-		audio: hasAudio ? audio : null,
+		audio:
+			hasAudio || (hasVideo && mediaMetadata.hasAudioTrack === false)
+				? audio
+				: null,
 		video: hasVideo ? video : null,
 	};
 };
@@ -270,15 +281,19 @@ export const AssetInfo: React.FC<{
 					</div>
 				</InspectorSection>
 			) : null}
-			{mediaSections && mediaSections.audio ? (
+			{mediaSections && mediaSections.audio !== null ? (
 				<InspectorSection header="Audio">
-					<div style={assetMetadataStyle}>
-						{mediaSections.audio.map((detail) => (
-							<InspectorDetailRow key={detail.label} label={detail.label}>
-								{detail.value}
-							</InspectorDetailRow>
-						))}
-					</div>
+					{mediaSections.audio.length === 0 ? (
+						<div style={assetEmptyStateStyle}>None</div>
+					) : (
+						<div style={assetMetadataStyle}>
+							{mediaSections.audio.map((detail) => (
+								<InspectorDetailRow key={detail.label} label={detail.label}>
+									{detail.value}
+								</InspectorDetailRow>
+							))}
+						</div>
+					)}
 				</InspectorSection>
 			) : null}
 			{src ? (

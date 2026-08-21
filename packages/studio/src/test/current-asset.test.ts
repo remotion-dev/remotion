@@ -65,7 +65,7 @@ test('formats video and audio sections for current assets', () => {
 	});
 });
 
-test('omits the audio section for videos without audio', () => {
+test('returns an empty audio section for videos without audio', () => {
 	expect(
 		getCurrentAssetMediaSections({
 			duration: 10,
@@ -81,7 +81,7 @@ test('omits the audio section for videos without audio', () => {
 			hasAudioTrack: false,
 		}),
 	).toEqual({
-		audio: null,
+		audio: [],
 		video: [
 			{label: 'Dimensions', value: '1920 × 1080'},
 			{label: 'Frame rate', value: '30.00 FPS'},
