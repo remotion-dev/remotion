@@ -434,6 +434,33 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Expand Crop', exact: true}),
 		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Transform', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Transform', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Transform', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).toHaveCount(0);
+		await page
+			.getByRole('button', {name: 'Expand Transform', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Effects', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Effects', exact: true}),
+		).toBeVisible();
 
 		await page
 			.getByRole('button', {name: 'Expand Border radius', exact: true})
@@ -488,6 +515,15 @@ test.describe('inspector section collapse', () => {
 		await page.locator('[title="Default premount"]').first().click();
 		await expect(
 			page.getByRole('button', {name: 'Expand Layout', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Source', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Source', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Source', exact: true}),
 		).toBeVisible();
 
 		await page.goto(`${STUDIO_URL}/visual-mode-3d`);
