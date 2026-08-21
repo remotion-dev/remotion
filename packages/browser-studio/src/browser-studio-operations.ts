@@ -64,6 +64,7 @@ import type {
 } from 'remotion';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
+import {downloadRemoteAssetInBrowserStudio} from './download-remote-asset';
 import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject} from './types';
 
@@ -1872,6 +1873,12 @@ export const createBrowserStudioOperations = ({
 		},
 		deleteJsxNode,
 		deleteStaticFile: controller.deleteStaticFile,
+		downloadRemoteAsset: (request) =>
+			downloadRemoteAssetInBrowserStudio({
+				getProject,
+				request,
+				writeStaticFile: controller.writeStaticFile,
+			}),
 		downloadProject: () =>
 			makeBrowserStudioProjectArchive({
 				dependencyVersions,

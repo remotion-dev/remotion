@@ -195,6 +195,13 @@ export {
 	type ImageFileType,
 } from './detect-file-type';
 export {
+	getRemoteAssetElement,
+	getRemoteAssetFilename,
+	maxRemoteAssetSize,
+	remoteAssetAcceptHeader,
+	remoteAssetDownloadTimeout,
+} from './remote-asset';
+export {
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
 	type EasingClipboardData,

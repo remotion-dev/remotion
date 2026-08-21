@@ -206,6 +206,91 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(revokedUrls).toContain('blob:virtual-2');
 });
 
+test('downloads CORS-enabled remote assets and rejects failed cross-origin fetches', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const originalFetch = globalThis.fetch;
+	const requestedUrls: string[] = [];
+	const gif = new Uint8Array([
+		0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x20, 0x03, 0x58, 0x02,
+	]);
+	globalThis.fetch = Object.assign(
+		(input: Parameters<typeof fetch>[0]) => {
+			const url = input.toString();
+			requestedUrls.push(url);
+			if (url.includes('cors-blocked')) {
+				return Promise.reject(new TypeError('Load failed'));
+			}
+
+			return Promise.resolve(
+				new Response(gif, {
+					headers: {'content-length': String(gif.byteLength)},
+					status: 200,
+				}),
+			);
+		},
+		{preconnect: originalFetch.preconnect},
+	);
+
+	try {
+		expect(
+			await operations.downloadRemoteAsset({
+				url: 'https://assets.example/path/remote-logo.png',
+			}),
+		).toEqual({
+			assetPath: 'remote-logo.gif',
+			created: true,
+			element: {
+				assetType: 'gif',
+				dimensions: {height: 600, width: 800},
+				durationInFrames: null,
+				position: null,
+				src: 'remote-logo.gif',
+				srcType: 'static',
+				type: 'asset',
+			},
+			sizeInBytes: gif.byteLength,
+		});
+		expect(project.publicFiles?.['remote-logo.gif']).toEqual(gif);
+
+		expect(await operations.undo()).toEqual({
+			nodePathMutation: null,
+			success: true,
+		});
+		expect(project.publicFiles?.['remote-logo.gif']).toBeUndefined();
+		expect(await operations.redo()).toEqual({
+			nodePathMutation: null,
+			success: true,
+		});
+		expect(project.publicFiles?.['remote-logo.gif']).toEqual(gif);
+
+		await expect(
+			operations.downloadRemoteAsset({
+				url: 'https://assets.example/cors-blocked.gif',
+			}),
+		).rejects.toThrow(
+			'Could not fetch remote asset. The URL may not allow cross-origin requests (CORS): Load failed',
+		);
+		expect(project.publicFiles?.['cors-blocked.gif']).toBeUndefined();
+		expect(requestedUrls).toEqual([
+			'https://assets.example/path/remote-logo.png',
+			'https://assets.example/cors-blocked.gif',
+		]);
+	} finally {
+		globalThis.fetch = originalFetch;
+	}
+});
+
 test('previews and duplicates compositions as an undoable project mutation', async () => {
 	const initialProject = createBlankTemplateProject();
 	let project = initialProject;
