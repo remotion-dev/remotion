@@ -15,6 +15,9 @@ import {strFromU8, unzipSync} from 'fflate';
 const localImagePath = fileURLToPath(
 	new URL('../../codex-plugin/assets/logo.png', import.meta.url),
 );
+const localVideoPath = fileURLToPath(
+	new URL('../../example/public/framer.webm', import.meta.url),
+);
 
 const dropLocalFile = async ({
 	filePath,
@@ -473,6 +476,22 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 			composition: expect.stringContaining('logo.png'),
 			publicFileSize: expect.any(Number),
 		});
+
+	await dropLocalFile({
+		filePath: localVideoPath,
+		page,
+		target: canvas,
+	});
+	await expect(studio.getByText('framer.webm', {exact: true})).toBeVisible();
+	await expect
+		.poll(() =>
+			page.evaluate(() =>
+				window.__browserStudioProject.files[
+					'/project/src/Composition.tsx'
+				].includes("staticFile('framer.webm')"),
+			),
+		)
+		.toBe(true);
 	expect(studioApiRequests).toEqual([]);
 });
 
