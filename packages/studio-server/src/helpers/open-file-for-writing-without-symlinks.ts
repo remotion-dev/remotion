@@ -62,6 +62,6 @@ export const openFileForWritingWithoutSymlinks = ({
 		fs.constants.O_CREAT |
 			fs.constants.O_WRONLY |
 			fs.constants.O_TRUNC |
-			fs.constants.O_NOFOLLOW,
+			(process.platform === 'win32' ? 0 : fs.constants.O_NOFOLLOW),
 	);
 };
