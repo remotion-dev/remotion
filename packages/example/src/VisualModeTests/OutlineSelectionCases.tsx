@@ -665,11 +665,11 @@ export const OutlineSelectionCases: React.FC = () => {
 			>
 				<CaseFrame
 					caseNumber={11}
-					status="Gap"
-					title="A selected parent drags from covered areas"
-					summary="A higher-priority child can receive the event inside a selected parent, replacing the selection instead of starting the drag."
-					desiredBehavior="After selecting the parent, every point inside its polygon starts a parent drag—even where a child covers that point."
-					instructions="Select Parent drag target in the timeline, then drag from the red child-covered area. Parent should move; Child should not become selected."
+					status="Baseline"
+					title="A selected parent wins drag arbitration"
+					summary="A covering child stays clickable, while a drag beginning inside the selected parent moves the parent."
+					desiredBehavior="Clicking the child selects it. Dragging there while the parent is selected moves the parent instead."
+					instructions="Select Parent drag target in the timeline. Click the red child to select it, or reselect the parent and drag from the child-covered area to move the parent."
 				>
 					<Interactive.Div
 						name="Parent drag target"
