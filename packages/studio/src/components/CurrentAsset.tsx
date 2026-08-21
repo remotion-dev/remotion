@@ -54,6 +54,10 @@ const assetMetadataStyle: React.CSSProperties = {
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
+const assetMetadataValueStyle: React.CSSProperties = {
+	color: LIGHT_TEXT,
+};
+
 const assetEmptyStateStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
@@ -264,7 +268,7 @@ export const AssetInfo: React.FC<{
 					<div style={assetMetadataStyle}>
 						{fileDetails.map((detail) => (
 							<InspectorDetailRow key={detail.label} label={detail.label}>
-								{detail.value}
+								<span style={assetMetadataValueStyle}>{detail.value}</span>
 							</InspectorDetailRow>
 						))}
 					</div>
@@ -275,7 +279,7 @@ export const AssetInfo: React.FC<{
 					<div style={assetMetadataStyle}>
 						{mediaSections.video.map((detail) => (
 							<InspectorDetailRow key={detail.label} label={detail.label}>
-								{detail.value}
+								<span style={assetMetadataValueStyle}>{detail.value}</span>
 							</InspectorDetailRow>
 						))}
 					</div>
@@ -289,7 +293,7 @@ export const AssetInfo: React.FC<{
 						<div style={assetMetadataStyle}>
 							{mediaSections.audio.map((detail) => (
 								<InspectorDetailRow key={detail.label} label={detail.label}>
-									{detail.value}
+									<span style={assetMetadataValueStyle}>{detail.value}</span>
 								</InspectorDetailRow>
 							))}
 						</div>
