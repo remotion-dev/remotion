@@ -63,6 +63,8 @@ const TimelineTrackUnmemoized: React.FC<{
 				) : null}
 				<TimelineSequence
 					s={track.sequence}
+					cascadedStart={track.cascadedStart}
+					localStart={track.localStart}
 					connectedCompositions={
 						track.connectedCompositions ?? emptyConnectedCompositions
 					}

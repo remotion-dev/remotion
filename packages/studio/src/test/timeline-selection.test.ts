@@ -5793,6 +5793,8 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 			selectedItems: [],
 			timeline: [
 				{
+					cascadedStart: 0,
+					localStart: 0,
 					depth: 0,
 					keyframeDisplayOffset: 0,
 					nodePathInfo: sequenceNodePathInfo,
