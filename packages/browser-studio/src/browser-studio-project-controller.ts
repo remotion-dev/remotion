@@ -8,7 +8,16 @@ import type {
 	UndoResponse,
 } from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
-import type {VirtualProject} from './types';
+import {
+	createBrowserStudioProjectStorage,
+	getBrowserStudioStoredPublicFile,
+	writeBrowserStudioStoredPublicFile,
+} from './opfs-public-files';
+import type {
+	BrowserStudioStoredPublicFile,
+	VirtualProject,
+	VirtualProjectPublicFile,
+} from './types';
 
 type ProjectNodePathMutationFiles = SequenceNodePathMutation['files'];
 
@@ -26,6 +35,13 @@ type ProjectMutation = {
 };
 
 const MAX_HISTORY_ENTRIES = 100;
+
+const isStoredPublicFile = (
+	contents: VirtualProjectPublicFile,
+): contents is BrowserStudioStoredPublicFile =>
+	typeof contents === 'object' &&
+	!(contents instanceof Uint8Array) &&
+	contents.type === 'stored';
 
 const normalizePublicFilePath = (path: string) => {
 	const withoutLeadingSlash = path.startsWith('/') ? path.slice(1) : path;
@@ -45,7 +61,7 @@ const normalizePublicFilePath = (path: string) => {
 };
 
 const getCanonicalPublicFiles = (project: VirtualProject) => {
-	const canonicalFiles: Record<string, Uint8Array | string> = {};
+	const canonicalFiles: Record<string, VirtualProjectPublicFile> = {};
 
 	for (const [path, contents] of Object.entries(project.publicFiles ?? {})) {
 		const canonicalPath = normalizePublicFilePath(path);
@@ -60,14 +76,27 @@ const getCanonicalPublicFiles = (project: VirtualProject) => {
 };
 
 const arePublicFileContentsEqual = (
-	left: Uint8Array | string | undefined,
-	right: Uint8Array | string | undefined,
+	left: VirtualProjectPublicFile | undefined,
+	right: VirtualProjectPublicFile | undefined,
 ) => {
 	if (left === right) {
 		return true;
 	}
 
-	if (typeof left === 'string' || typeof right === 'string') {
+	if (left && right && isStoredPublicFile(left) && isStoredPublicFile(right)) {
+		return (
+			left.key === right.key &&
+			left.lastModified === right.lastModified &&
+			left.sizeInBytes === right.sizeInBytes
+		);
+	}
+
+	if (
+		typeof left === 'string' ||
+		typeof right === 'string' ||
+		!(left instanceof Uint8Array) ||
+		!(right instanceof Uint8Array)
+	) {
 		return false;
 	}
 
@@ -91,8 +120,8 @@ const areStringRecordsEqual = (
 };
 
 const arePublicFileRecordsEqual = (
-	left: Record<string, Uint8Array | string> | undefined,
-	right: Record<string, Uint8Array | string> | undefined,
+	left: Record<string, VirtualProjectPublicFile> | undefined,
+	right: Record<string, VirtualProjectPublicFile> | undefined,
 ) => {
 	const leftEntries = Object.entries(left ?? {});
 	if (leftEntries.length !== Object.keys(right ?? {}).length) {
@@ -115,6 +144,8 @@ export const areBrowserStudioProjectsEqual = (
 	return (
 		left.entryPoint === right.entryPoint &&
 		left.rootDir === right.rootDir &&
+		left.publicFileStorage?.directoryName ===
+			right.publicFileStorage?.directoryName &&
 		areStringRecordsEqual(left.files, right.files) &&
 		arePublicFileRecordsEqual(left.publicFiles, right.publicFiles)
 	);
@@ -144,24 +175,38 @@ export const getBrowserStudioStaticFiles = ({
 	lastModifiedByPath,
 	project,
 }: {
-	getSrc: ((name: string, contents: Uint8Array | string) => string) | null;
+	getSrc:
+		| ((
+				name: string,
+				contents: VirtualProjectPublicFile,
+				project: VirtualProject,
+		  ) => Promise<string> | string)
+		| null;
 	lastModifiedByPath: ReadonlyMap<string, number> | null;
 	project: VirtualProject;
 }) => {
-	return Object.entries(getCanonicalPublicFiles(project)).map(
-		([name, contents]) => ({
-			lastModified:
-				lastModifiedByPath === null ? 0 : (lastModifiedByPath.get(name) ?? 0),
-			name,
-			sizeInBytes:
-				typeof contents === 'string'
-					? new TextEncoder().encode(contents).byteLength
-					: contents.byteLength,
-			src:
-				getSrc === null
-					? `/${encodePublicFilePath(name)}`
-					: getSrc(name, contents),
-		}),
+	return Promise.all(
+		Object.entries(getCanonicalPublicFiles(project)).map(
+			async ([name, contents]) => ({
+				lastModified:
+					lastModifiedByPath === null
+						? isStoredPublicFile(contents)
+							? contents.lastModified
+							: 0
+						: (lastModifiedByPath.get(name) ?? 0),
+				name,
+				sizeInBytes:
+					typeof contents === 'string'
+						? new TextEncoder().encode(contents).byteLength
+						: contents instanceof Uint8Array
+							? contents.byteLength
+							: contents.sizeInBytes,
+				src:
+					getSrc === null
+						? `/${encodePublicFilePath(name)}`
+						: await getSrc(name, contents, project),
+			}),
+		),
 	);
 };
 
@@ -182,10 +227,14 @@ export const createBrowserStudioPublicFileManager = ({
 			: revokeObjectUrl;
 	const objectUrls = new Map<
 		string,
-		{contents: Uint8Array | string; url: string}
+		{contents: VirtualProjectPublicFile; url: string}
 	>();
 
-	const getObjectUrl = (name: string, contents: Uint8Array | string) => {
+	const getObjectUrl = async (
+		name: string,
+		contents: VirtualProjectPublicFile,
+		project: VirtualProject,
+	) => {
 		const existing = objectUrls.get(name);
 		if (arePublicFileContentsEqual(existing?.contents, contents)) {
 			return existing!.url;
@@ -195,11 +244,26 @@ export const createBrowserStudioPublicFileManager = ({
 			resolvedRevokeObjectUrl(existing.url);
 		}
 
-		const blobContents =
-			typeof contents === 'string' ? contents : contents.slice().buffer;
-		const url = resolvedCreateObjectUrl(new Blob([blobContents]));
+		const blob = isStoredPublicFile(contents)
+			? await getBrowserStudioStoredPublicFile({
+					file: contents,
+					storage:
+						project.publicFileStorage ??
+						(() => {
+							throw new Error(
+								`Stored public file ${name} has no project storage`,
+							);
+						})(),
+				})
+			: new Blob([
+					typeof contents === 'string' ? contents : contents.slice().buffer,
+				]);
+		const url = resolvedCreateObjectUrl(blob);
 		objectUrls.set(name, {
-			contents: typeof contents === 'string' ? contents : contents.slice(),
+			contents:
+				typeof contents === 'string' || isStoredPublicFile(contents)
+					? contents
+					: contents.slice(),
 			url,
 		});
 		return url;
@@ -294,7 +358,7 @@ export type BrowserStudioProjectController = {
 export type BrowserStudioStaticFilesGetter = (input: {
 	lastModifiedByPath: ReadonlyMap<string, number> | null;
 	project: VirtualProject;
-}) => ReturnType<typeof getBrowserStudioStaticFiles>;
+}) => Promise<Awaited<ReturnType<typeof getBrowserStudioStaticFiles>>>;
 
 export const createBrowserStudioProjectController = ({
 	getStaticFiles,
@@ -325,6 +389,11 @@ export const createBrowserStudioProjectController = ({
 	let publicFileRevision = 0;
 	const nodePathMutationSessionId = `${Date.now()}:${Math.random()}`;
 	let nodePathMutationCounter = 0;
+	const reportAsyncError = (error: unknown) => {
+		setTimeout(() => {
+			throw error;
+		}, 0);
+	};
 
 	const getUndoRedoEvent = (): EventSourceEvent => ({
 		type: 'undo-redo-stack-changed',
@@ -332,9 +401,9 @@ export const createBrowserStudioProjectController = ({
 		redoFile: redoStack.at(-1)?.fileName ?? null,
 	});
 
-	const getPublicFilesEvent = (): EventSourceEvent => ({
+	const getPublicFilesEvent = async (): Promise<EventSourceEvent> => ({
 		type: 'new-public-folder',
-		files: resolvedGetStaticFiles({
+		files: await resolvedGetStaticFiles({
 			lastModifiedByPath,
 			project: getProject(),
 		}),
@@ -394,7 +463,7 @@ export const createBrowserStudioProjectController = ({
 			skipSequencePropsUpdate: nodePathMutationFiles !== null,
 		});
 		if (publicFilesChanged) {
-			emit(getPublicFilesEvent());
+			getPublicFilesEvent().then(emit).catch(reportAsyncError);
 		}
 
 		emit(getUndoRedoEvent());
@@ -559,7 +628,13 @@ export const createBrowserStudioProjectController = ({
 				undoFile: undoStack.at(-1)?.fileName ?? null,
 				redoFile: redoStack.at(-1)?.fileName ?? null,
 			});
-			listener(getPublicFilesEvent());
+			getPublicFilesEvent()
+				.then((event) => {
+					if (listeners.has(listener)) {
+						listener(event);
+					}
+				})
+				.catch(reportAsyncError);
 			if (latestHmrEvent) {
 				listener(latestHmrEvent);
 				latestHmrEvent = null;
@@ -571,10 +646,15 @@ export const createBrowserStudioProjectController = ({
 		},
 		undo,
 		writeStaticFile: ({contents, filePath}) => {
-			try {
+			return (async () => {
 				const canonicalPath = normalizePublicFilePath(filePath);
-				const nextContents =
-					typeof contents === 'string'
+				const currentProject = getProject();
+				const storage =
+					currentProject.publicFileStorage ??
+					(await createBrowserStudioProjectStorage());
+				const nextContents = storage
+					? await writeBrowserStudioStoredPublicFile({contents, storage})
+					: typeof contents === 'string'
 						? contents
 						: new Uint8Array(contents.slice(0));
 				applyMutation({
@@ -582,16 +662,14 @@ export const createBrowserStudioProjectController = ({
 					nodePathMutationFiles: null,
 					mutate: (project) => ({
 						...project,
+						publicFileStorage: storage ?? project.publicFileStorage,
 						publicFiles: {
 							...getCanonicalPublicFiles(project),
 							[canonicalPath]: nextContents,
 						},
 					}),
 				});
-				return Promise.resolve();
-			} catch (error) {
-				return Promise.reject(error);
-			}
+			})();
 		},
 	};
 };

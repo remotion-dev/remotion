@@ -1845,12 +1845,10 @@ export const createBrowserStudioOperations = ({
 		deleteJsxNode,
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadProject: () =>
-			Promise.resolve(
-				makeBrowserStudioProjectArchive({
-					dependencyVersions,
-					project: getProject(),
-				}),
-			),
+			makeBrowserStudioProjectArchive({
+				dependencyVersions,
+				project: getProject(),
+			}),
 		duplicateComposition,
 		effects: effectOperations,
 		emitEvent: controller.emitEvent,

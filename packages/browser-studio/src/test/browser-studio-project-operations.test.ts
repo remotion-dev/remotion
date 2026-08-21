@@ -39,6 +39,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 			contentsAtMutation.push(project.files['/project/src/Composition.tsx']);
 		}
 	});
+	await new Promise((resolve) => setTimeout(resolve, 0));
 
 	expect(events.slice(0, 2).map((event) => event.type)).toEqual([
 		'init',
@@ -146,6 +147,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		contents: new Uint8Array([0, 127, 128, 255]).buffer,
 		filePath: '/nested/upload.bin',
 	});
+	await new Promise((resolve) => setTimeout(resolve, 0));
 	expect(project.publicFiles?.['nested/upload.bin']).toEqual(
 		new Uint8Array([0, 127, 128, 255]),
 	);
@@ -512,7 +514,7 @@ test('rejects unsafe public paths and conflicting renames', async () => {
 	});
 });
 
-test('refreshes object URLs if a supplied byte array is mutated', () => {
+test('refreshes object URLs if a supplied byte array is mutated', async () => {
 	const contents = new Uint8Array([1, 2, 3]);
 	const revokedUrls: string[] = [];
 	let nextObjectUrl = 0;
@@ -526,20 +528,28 @@ test('refreshes object URLs if a supplied byte array is mutated', () => {
 	};
 
 	expect(
-		publicFileManager.getStaticFiles({lastModifiedByPath: null, project})[0]
-			.src,
+		(
+			await publicFileManager.getStaticFiles({
+				lastModifiedByPath: null,
+				project,
+			})
+		)[0].src,
 	).toBe('blob:mutable-1');
 	contents[0] = 4;
 	expect(
-		publicFileManager.getStaticFiles({lastModifiedByPath: null, project})[0]
-			.src,
+		(
+			await publicFileManager.getStaticFiles({
+				lastModifiedByPath: null,
+				project,
+			})
+		)[0].src,
 	).toBe('blob:mutable-2');
 	expect(revokedUrls).toEqual(['blob:mutable-1']);
 
 	publicFileManager.dispose();
 });
 
-test('uses the platform object URL implementation when overrides are null', () => {
+test('uses the platform object URL implementation when overrides are null', async () => {
 	const publicFileManager = createBrowserStudioPublicFileManager({
 		createObjectUrl: null,
 		revokeObjectUrl: null,
@@ -549,7 +559,7 @@ test('uses the platform object URL implementation when overrides are null', () =
 		publicFiles: {'default.txt': 'contents'},
 	};
 
-	const [file] = publicFileManager.getStaticFiles({
+	const [file] = await publicFileManager.getStaticFiles({
 		lastModifiedByPath: null,
 		project,
 	});

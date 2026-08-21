@@ -328,7 +328,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		workerRef.current = worker;
 		lastSentProjectRef.current = activeProjectRef.current;
 
-		worker.onmessage = (
+		worker.onmessage = async (
 			event: MessageEvent<BrowserStudioWorkerCompileResponse>,
 		) => {
 			if (didCancel) {
@@ -365,6 +365,13 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				new Blob([response.bundle], {type: 'text/javascript'}),
 			);
 			const currentProject = activeProjectRef.current;
+			const publicFiles = await publicFileManager.getStaticFiles({
+				lastModifiedByPath: null,
+				project: currentProject,
+			});
+			if (didCancel) {
+				return;
+			}
 
 			const html = studioHtml({
 				audioLatencyHint: 'playback',
@@ -382,10 +389,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				numberOfAudioTags: 0,
 				packageManager: 'unknown',
 				projectName: 'template-blank',
-				publicFiles: publicFileManager.getStaticFiles({
-					lastModifiedByPath: null,
-					project: currentProject,
-				}),
+				publicFiles,
 				publicFolderExists: null,
 				fileSystemPlatform: null,
 				publicPath: '',
@@ -487,14 +491,42 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	}, [activeProject]);
 
 	useEffect(() => {
-		browserStudioOperations.emitEvent({
-			files: publicFileManager.getStaticFiles({
+		let cancelled = false;
+		publicFileManager
+			.getStaticFiles({
 				lastModifiedByPath: null,
 				project: activeProject,
-			}),
-			folderExists: '/public',
-			type: 'new-public-folder',
-		});
+			})
+			.then((files) => {
+				if (cancelled) {
+					return;
+				}
+
+				browserStudioOperations.emitEvent({
+					files,
+					folderExists: '/public',
+					type: 'new-public-folder',
+				});
+			})
+			.catch((error) => {
+				if (cancelled) {
+					return;
+				}
+
+				const nextState: CompileState = {
+					status: 'error',
+					error: {
+						message: error instanceof Error ? error.message : String(error),
+						stack: error instanceof Error ? error.stack : undefined,
+					},
+				};
+				setState(nextState);
+				onCompileStateChangeRef.current?.(nextState);
+			});
+
+		return () => {
+			cancelled = true;
+		};
 	}, [activeProject, browserStudioOperations, publicFileManager]);
 
 	useEffect(() => {

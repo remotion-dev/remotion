@@ -3,6 +3,7 @@ import {
 	createElementPayload,
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
+import {strFromU8, unzipSync} from 'fflate';
 
 test('loads Browser Studio and can add, delete, and duplicate', async ({
 	page,
@@ -198,6 +199,121 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 		`/__remotion_browser_studio_release__/${await page.evaluate(() => (window as typeof window & {__browserStudioRemotionVersion: string}).__browserStudioRemotionVersion)}/packages/studio/dist/esm/previewEntry.mjs`,
 	);
 	expect(remoteRemotionRequests).toEqual([]);
+});
+
+test('stores imported public files in OPFS, supports ranges, and downloads them', async ({
+	page,
+}) => {
+	const rawFiles: Record<string, string> = {
+		'package.json': JSON.stringify({
+			dependencies: {
+				react: '^19.0.0',
+				'react-dom': '^19.0.0',
+				remotion: '^4.0.0',
+			},
+		}),
+		'public/pixel.svg':
+			'<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="red"/></svg>',
+		'src/index.ts':
+			"import {registerRoot} from 'remotion'; import {Root} from './Root'; registerRoot(Root);",
+		'src/Root.tsx': `import {AbsoluteFill, Composition, Img, staticFile} from 'remotion';
+
+const OpfsComposition = () => <AbsoluteFill><Img src={staticFile('pixel.svg')} /></AbsoluteFill>;
+
+export const Root = () => <Composition id="OpfsComp" component={OpfsComposition} durationInFrames={30} fps={30} width={64} height={64} />;
+`,
+	};
+	const encoder = new TextEncoder();
+	const tree = Object.entries(rawFiles).map(([path, contents]) => ({
+		path,
+		size: encoder.encode(contents).byteLength,
+		type: 'blob',
+	}));
+	const treeSha = 'ddc7ec42c2c9c06e84c9d5d2606e7ffc1394d900';
+
+	await page.route(
+		'https://api.github.com/repos/remotion-dev/opfs-fixture/git/trees/HEAD?recursive=1',
+		(route) =>
+			route.fulfill({
+				contentType: 'application/json',
+				body: JSON.stringify({sha: treeSha, tree, truncated: false}),
+			}),
+	);
+	await page.route(
+		`https://raw.githubusercontent.com/remotion-dev/opfs-fixture/${treeSha}/**`,
+		(route) => {
+			const marker = `/${treeSha}/`;
+			const url = route.request().url();
+			const path = decodeURIComponent(
+				url.slice(url.indexOf(marker) + marker.length),
+			);
+			const contents = rawFiles[path];
+			return contents === undefined
+				? route.fulfill({status: 404})
+				: route.fulfill({body: contents});
+		},
+	);
+
+	await page.goto('/?github=1');
+	const studio = page.frameLocator('iframe');
+	await expect(
+		studio.getByTitle('/project').getByText('OpfsComp'),
+	).toBeVisible();
+	await studio.locator('[data-compname="OpfsComp"]').click();
+	await expect(
+		studio.locator('.remotion-studio-composition-container img'),
+	).toBeVisible();
+
+	const projectStorage = await page.evaluate(() => {
+		const project = (
+			window as typeof window & {
+				__browserStudioProject: {
+					publicFileStorage?: {type: string};
+					publicFiles?: Record<string, {sizeInBytes?: number; type?: string}>;
+				};
+			}
+		).__browserStudioProject;
+		return {
+			file: project.publicFiles?.['pixel.svg'],
+			storageType: project.publicFileStorage?.type,
+		};
+	});
+	expect(projectStorage).toEqual({
+		file: {
+			key: expect.any(String),
+			lastModified: expect.any(Number),
+			sizeInBytes: encoder.encode(rawFiles['public/pixel.svg']).byteLength,
+			type: 'stored',
+		},
+		storageType: 'opfs',
+	});
+
+	const studioFrame = page.frames().find((frame) => frame !== page.mainFrame());
+	if (!studioFrame) {
+		throw new Error('Could not find the Browser Studio frame');
+	}
+
+	const rangeResult = await studioFrame.evaluate(async () => {
+		const src = window.remotion_staticFiles.find(
+			(file) => file.name === 'pixel.svg',
+		)?.src;
+		if (!src) {
+			throw new Error('Could not find pixel.svg');
+		}
+
+		const response = await fetch(src, {headers: {Range: 'bytes=0-3'}});
+		return {body: await response.text(), status: response.status};
+	});
+	expect(rangeResult).toEqual({body: '<svg', status: 206});
+
+	const archiveBytes = await studioFrame.evaluate(async () => {
+		const {data} = await window.remotion_browserStudio.downloadProject();
+		return Array.from(data);
+	});
+	const archive = unzipSync(new Uint8Array(archiveBytes));
+	expect(strFromU8(archive['public/pixel.svg'])).toBe(
+		rawFiles['public/pixel.svg'],
+	);
 });
 
 test('drops and imports an Element payload with the deployment Remotion version', async ({
