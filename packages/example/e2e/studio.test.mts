@@ -824,6 +824,79 @@ test.describe('visual mode', () => {
 				},
 			});
 		});
+		await page.route('**/api/remotion-skills-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						remotionUpgradeSkillAvailable: false,
+						remotionInteractivitySkillAvailable: false,
+						skills: [
+							{
+								name: 'remotion-best-practices',
+								installedInProject: true,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-captions',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-create',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-docs',
+								installedInProject: false,
+								installedGlobally: true,
+							},
+							{
+								name: 'remotion-interactivity',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-maps',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-markup',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-multimedia',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-render',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-saas',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-studio',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-upgrade',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+						],
+					},
+				},
+			});
+		});
 		try {
 			await page.goto(`${STUDIO_URL}/schema-test`);
 			await page.locator('[data-sidebar-toggle="right"]').click();
@@ -981,6 +1054,55 @@ test.describe('visual mode', () => {
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setMaxTimelineTracks');
 			await expect(maxTimelineTracks).toHaveText('Default (Unlimited)');
+
+			await dialog.getByText('Skills', {exact: true}).click();
+			await expect(
+				dialog.getByText(
+					'Not all skills are installed. Run this command in the project directory, then reload Studio and restart your coding agent.',
+					{exact: true},
+				),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-best-practices', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-docs', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-studio', {exact: true}),
+			).toBeVisible();
+			await expect(dialog.getByText('Project', {exact: true})).toBeVisible();
+			await expect(dialog.getByText('Global', {exact: true})).toBeVisible();
+			await expect(
+				dialog.getByText('Not installed', {exact: true}).first(),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('npx remotion skills add', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByRole('button', {name: 'Copy install command'}),
+			).toBeVisible();
+			const skillsList = dialog.getByRole('list', {
+				name: 'Remotion Agent Skills',
+			});
+			const skillsScrollContainer = skillsList.locator('..').locator('..');
+			await skillsScrollContainer.evaluate((element) => {
+				element.scrollTop = element.scrollHeight;
+			});
+			const skillsScrollContainerBounds =
+				await skillsScrollContainer.boundingBox();
+			const lastSkillBounds = await skillsList
+				.getByRole('listitem')
+				.last()
+				.boundingBox();
+			expect(
+				skillsScrollContainerBounds!.y +
+					skillsScrollContainerBounds!.height -
+					(lastSkillBounds!.y + lastSkillBounds!.height),
+			).toBeGreaterThanOrEqual(16);
+			await expect(
+				dialog.getByText('Changes save to', {exact: false}),
+			).toBeVisible();
 
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(

@@ -42,10 +42,31 @@ test('the skills info endpoint reports project skills', async () => {
 			response: {} as never,
 		});
 
-		expect(response).toEqual({
-			remotionUpgradeSkillAvailable: false,
-			remotionInteractivitySkillAvailable: true,
-		});
+		expect(response.remotionUpgradeSkillAvailable).toBe(false);
+		expect(response.remotionInteractivitySkillAvailable).toBe(true);
+		expect(response.skills.map(({name}) => name)).toEqual([
+			'remotion-best-practices',
+			'remotion-captions',
+			'remotion-create',
+			'remotion-docs',
+			'remotion-interactivity',
+			'remotion-maps',
+			'remotion-markup',
+			'remotion-multimedia',
+			'remotion-render',
+			'remotion-saas',
+			'remotion-studio',
+			'remotion-upgrade',
+		]);
+		expect(
+			response.skills.filter(({installedInProject}) => installedInProject),
+		).toEqual([
+			{
+				name: 'remotion-interactivity',
+				installedGlobally: false,
+				installedInProject: true,
+			},
+		]);
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
@@ -68,10 +89,23 @@ test('global skills are also available to the endpoint response', () => {
 			'remotion-interactivity',
 		);
 
-		expect(getRemotionSkillsInfo({remotionRoot, homeDirectory})).toEqual({
-			remotionUpgradeSkillAvailable: true,
-			remotionInteractivitySkillAvailable: true,
-		});
+		const response = getRemotionSkillsInfo({remotionRoot, homeDirectory});
+		expect(response.remotionUpgradeSkillAvailable).toBe(true);
+		expect(response.remotionInteractivitySkillAvailable).toBe(true);
+		expect(
+			response.skills.filter(({installedGlobally}) => installedGlobally),
+		).toEqual([
+			{
+				name: 'remotion-interactivity',
+				installedGlobally: true,
+				installedInProject: false,
+			},
+			{
+				name: 'remotion-upgrade',
+				installedGlobally: true,
+				installedInProject: false,
+			},
+		]);
 	} finally {
 		rmSync(temporaryDirectory, {recursive: true, force: true});
 	}
