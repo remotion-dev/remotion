@@ -105,56 +105,64 @@ const TimelineSequenceFn: React.FC<{
 	);
 };
 
-const TimelineSequenceNegativeStart: React.FC<{
+const TimelineSequenceNegativeStartInner: React.FC<{
 	readonly left: number;
 	readonly width: number;
 	readonly leftEdgeVisible: boolean;
 	readonly clipped: boolean;
 }> = ({left, width, leftEdgeVisible, clipped}) => {
-	// WHITE_ALPHA_10 composited over the timeline background (#15181B).
-	const backgroundColor = '#2C2F32';
-	// The same stroke composited over the indicator background.
-	const borderColor = '#414446';
-	const showLeftEdge = leftEdgeVisible && !clipped;
-	const maskImage = clipped
-		? 'linear-gradient(to right, transparent, black 20%)'
-		: undefined;
+	const outerStyle = useMemo((): React.CSSProperties => {
+		return {
+			backgroundColor: clipped ? TIMELINE_BACKGROUND_COLOR : undefined,
+			height: '100%',
+			left,
+			minWidth: 2,
+			pointerEvents: 'none',
+			position: 'absolute',
+			top: 0,
+			width,
+		};
+	}, [clipped, left, width]);
+
+	const innerStyle = useMemo((): React.CSSProperties => {
+		// WHITE_ALPHA_10 composited over the timeline background (#15181B).
+		const backgroundColor = '#2C2F32';
+		// The same stroke composited over the indicator background.
+		const borderColor = '#414446';
+		const showLeftEdge = leftEdgeVisible && !clipped;
+		const maskImage = clipped
+			? 'linear-gradient(to right, transparent, black 20%)'
+			: undefined;
+
+		return {
+			backgroundColor,
+			border: `${SEQUENCE_BORDER_WIDTH}px solid ${borderColor}`,
+			borderBottomLeftRadius: showLeftEdge ? 2 : 0,
+			borderLeft: showLeftEdge
+				? `${SEQUENCE_BORDER_WIDTH}px solid ${borderColor}`
+				: 'none',
+			borderRight: 'none',
+			borderTopLeftRadius: showLeftEdge ? 2 : 0,
+			boxSizing: 'border-box',
+			height: '100%',
+			maskImage,
+			position: 'absolute',
+			top: 0,
+			WebkitMaskImage: maskImage,
+			width: '100%',
+		};
+	}, [clipped, leftEdgeVisible]);
 
 	return (
-		<div
-			style={{
-				backgroundColor: clipped ? TIMELINE_BACKGROUND_COLOR : undefined,
-				height: '100%',
-				left,
-				minWidth: 2,
-				pointerEvents: 'none',
-				position: 'absolute',
-				top: 0,
-				width,
-			}}
-		>
-			<div
-				style={{
-					backgroundColor,
-					border: `${SEQUENCE_BORDER_WIDTH}px solid ${borderColor}`,
-					borderBottomLeftRadius: showLeftEdge ? 2 : 0,
-					borderLeft: showLeftEdge
-						? `${SEQUENCE_BORDER_WIDTH}px solid ${borderColor}`
-						: 'none',
-					borderRight: 'none',
-					borderTopLeftRadius: showLeftEdge ? 2 : 0,
-					boxSizing: 'border-box',
-					height: '100%',
-					maskImage,
-					position: 'absolute',
-					top: 0,
-					WebkitMaskImage: maskImage,
-					width: '100%',
-				}}
-			/>
+		<div style={outerStyle}>
+			<div style={innerStyle} />
 		</div>
 	);
 };
+
+const TimelineSequenceNegativeStart = React.memo(
+	TimelineSequenceNegativeStartInner,
+);
 
 const TimelineSequenceCurrentFrame: React.FC<{
 	readonly s: TSequence;
