@@ -14,6 +14,7 @@ import {borderRadiusNested} from './fixtures/border-radius-nested';
 import {borderRadiusNestedOverflowHidden} from './fixtures/border-radius-nested-overflow-hidden';
 import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
+import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
 import {clipPathCircle} from './fixtures/clip-path-circle';
@@ -173,6 +174,7 @@ export const Root: React.FC = () => {
 				<Composition {...borderRadiusPercentage} />
 				<Composition {...borderRadiusNone} />
 				<Composition {...borderRadiusClamped} />
+				<Composition {...borderRadiusPill} />
 				<Composition {...borderRadiusNested} />
 				<Composition {...borderRadiusNestedOverflowHidden} />
 				<Composition {...borderIndividualSides} />
