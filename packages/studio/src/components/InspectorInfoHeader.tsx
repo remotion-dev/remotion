@@ -57,7 +57,7 @@ const inspectorSubtitle: React.CSSProperties = {
 	height: 20,
 	lineHeight: '20px',
 	margin: '0 4px',
-	padding: '0 8px',
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
 	width: 'calc(100% - 8px)',
 };
 
