@@ -57,11 +57,13 @@ export const openFileForWritingWithoutSymlinks = ({
 		absolutePath: resolvedAbsolutePath,
 	});
 
-	return fs.openSync(
-		resolvedAbsolutePath,
-		fs.constants.O_CREAT |
-			fs.constants.O_WRONLY |
-			fs.constants.O_TRUNC |
-			(process.platform === 'win32' ? 0 : fs.constants.O_NOFOLLOW),
-	);
+	const flags =
+		process.platform === 'win32'
+			? 'w'
+			: fs.constants.O_CREAT |
+				fs.constants.O_WRONLY |
+				fs.constants.O_TRUNC |
+				fs.constants.O_NOFOLLOW;
+
+	return fs.openSync(resolvedAbsolutePath, flags);
 };
