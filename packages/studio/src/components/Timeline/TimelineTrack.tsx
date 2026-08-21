@@ -10,6 +10,7 @@ import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {
 	getTimelineSelectedTrackHighlightStyle,
+	TIMELINE_SELECTED_BACKGROUND,
 	useTimelineRowHighlightBackground,
 } from './TimelineSelection';
 import {TimelineSequence} from './TimelineSequence';
@@ -29,7 +30,10 @@ const TimelineTrackUnmemoized: React.FC<{
 	);
 	const rowHighlightBackground = useTimelineRowHighlightBackground(
 		track.nodePathInfo,
-		hovered,
+		{
+			hovered,
+			selectedBackground: TIMELINE_SELECTED_BACKGROUND,
+		},
 	);
 
 	const layerStyle = useMemo(
