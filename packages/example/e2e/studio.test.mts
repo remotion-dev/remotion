@@ -736,6 +736,34 @@ test.describe('visual mode', () => {
 				},
 			});
 		});
+		await page.route('**/api/remotion-skills-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						remotionUpgradeSkillAvailable: false,
+						remotionInteractivitySkillAvailable: false,
+						skills: [
+							{
+								name: 'remotion-best-practices',
+								installedInProject: true,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-docs',
+								installedInProject: false,
+								installedGlobally: true,
+							},
+							{
+								name: 'remotion-studio',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+						],
+					},
+				},
+			});
+		});
 		try {
 			await page.goto(`${STUDIO_URL}/schema-test`);
 			await page.locator('[data-sidebar-toggle="right"]').click();
@@ -893,6 +921,44 @@ test.describe('visual mode', () => {
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setMaxTimelineTracks');
 			await expect(maxTimelineTracks).toHaveText('Default (Unlimited)');
+
+			await dialog.getByText('Skills', {exact: true}).click();
+			await expect(
+				dialog.getByText('Install missing skills', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText(
+					'Skills give coding agents Remotion-specific instructions and best practices.',
+					{exact: true},
+				),
+			).toHaveCount(0);
+			await expect(
+				dialog.getByRole('heading', {name: 'Remotion Agent Skills'}),
+			).toHaveCount(0);
+			await expect(dialog.getByText('2 of 3 installed')).toHaveCount(0);
+			await expect(
+				dialog.getByText('/remotion-best-practices', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-docs', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-studio', {exact: true}),
+			).toBeVisible();
+			await expect(dialog.getByText('Project', {exact: true})).toBeVisible();
+			await expect(dialog.getByText('Global', {exact: true})).toBeVisible();
+			await expect(
+				dialog.getByText('Not installed', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('npx remotion skills add', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByRole('button', {name: 'Copy install command'}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('Changes save to', {exact: false}),
+			).toBeVisible();
 
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(
