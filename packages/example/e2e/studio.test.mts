@@ -608,6 +608,94 @@ test.describe('visual mode', () => {
 		}
 	});
 
+	test('should keep selected editing handles above overlapping outlines', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/outline-selection-cases`);
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+		await page.keyboard.press('g');
+		const currentFrameInput = page.locator('input:focus');
+		await expect(currentFrameInput).toBeVisible();
+		await currentFrameInput.fill('2160');
+		await currentFrameInput.press('Enter');
+
+		const target = page.locator(
+			'[data-timeline-marquee-item="true"][title="Editable transform target"]',
+		);
+		await expect(target).toBeVisible();
+		await target.click();
+
+		const rightScaleEdge = page.locator(
+			'[data-remotion-studio-scale-edge="right"][data-remotion-studio-scale-edge-contains-selection="true"]',
+		);
+		await expect(rightScaleEdge).toBeVisible();
+		const scaleEdgePoint = await rightScaleEdge.evaluate((element) => {
+			if (!(element instanceof SVGLineElement)) {
+				throw new Error('Scale edge should be an SVG line');
+			}
+
+			const matrix = element.getScreenCTM();
+			if (matrix === null) {
+				throw new Error('Scale edge should have a screen transform');
+			}
+
+			const first = new DOMPoint(
+				element.x1.baseVal.value,
+				element.y1.baseVal.value,
+			).matrixTransform(matrix);
+			const second = new DOMPoint(
+				element.x2.baseVal.value,
+				element.y2.baseVal.value,
+			).matrixTransform(matrix);
+			const [top, bottom] =
+				first.y < second.y ? [first, second] : [second, first];
+
+			return {
+				x: top.x + (bottom.x - top.x) * 0.2,
+				y: top.y + (bottom.y - top.y) * 0.2,
+			};
+		});
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-scale-edge') ?? null,
+				scaleEdgePoint,
+			),
+		).toBe('right');
+
+		const topRightRotationCorner = page.locator(
+			'[data-remotion-studio-rotation-corner="top-right"][data-remotion-studio-rotation-corner-contains-selection="true"]',
+		);
+		await expect(topRightRotationCorner).toBeVisible();
+		const rotationCornerBox = await topRightRotationCorner.boundingBox();
+		if (rotationCornerBox === null) {
+			throw new Error('Rotation corner should have a visible layout');
+		}
+
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-rotation-corner') ?? null,
+				{
+					x: rotationCornerBox.x + rotationCornerBox.width / 2,
+					y: rotationCornerBox.y + rotationCornerBox.height / 2,
+				},
+			),
+		).toBe('top-right');
+
+		await topRightRotationCorner.click({button: 'right'});
+		await expect(
+			page.getByRole('button', {name: 'Duplicate', exact: true}),
+		).toBeVisible();
+	});
+
 	test('should compensate DOM measurements with useCurrentScale() on direct load', async ({
 		page,
 	}) => {
