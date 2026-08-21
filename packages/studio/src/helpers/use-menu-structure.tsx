@@ -72,7 +72,7 @@ const getFileMenu = ({
 		window.remotion_fileSystemPlatform,
 	);
 	const browserStudioOperations = getBrowserStudioOperations();
-	const items: ComboboxValue[] = [
+	const newProjectItems: ComboboxValue[] = [
 		readOnlyStudio
 			? null
 			: {
@@ -117,12 +117,8 @@ const getFileMenu = ({
 					quickSwitcherLabel: 'New folder...',
 					disabled: previewServerState !== 'connected',
 				},
-		readOnlyStudio
-			? null
-			: {
-					type: 'divider' as const,
-					id: 'new-project-item-divider',
-				},
+	].filter(NoReactInternals.truthy);
+	const projectItems: ComboboxValue[] = [
 		window.remotion_isReadOnlyStudio
 			? {
 					id: 'input-props-override',
@@ -202,6 +198,16 @@ const getFileMenu = ({
 			: null,
 
 		getGitMenuItem(),
+	].filter(NoReactInternals.truthy);
+	const items: ComboboxValue[] = [
+		...newProjectItems,
+		newProjectItems.length > 0 && projectItems.length > 0
+			? {
+					type: 'divider' as const,
+					id: 'new-project-item-divider',
+				}
+			: null,
+		...projectItems,
 	].filter(NoReactInternals.truthy);
 	if (items.length === 0) {
 		return null;

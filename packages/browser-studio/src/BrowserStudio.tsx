@@ -564,7 +564,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					ref={iframeRef}
 					allow="cross-origin-isolated"
 					onLoad={() => setIframeLoaded(true)}
-					sandbox="allow-scripts allow-same-origin allow-downloads"
+					sandbox="allow-scripts allow-same-origin allow-downloads allow-popups allow-popups-to-escape-sandbox"
 					src={iframeSrc ?? 'about:blank'}
 					style={iframeStyle}
 					title="Remotion Studio"
