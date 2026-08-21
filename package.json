@@ -46,6 +46,7 @@
 		"makethree": "turbo run make --filter='@remotion/three'",
 		"watchthree": "turbo watch make --experimental-write-cache --filter='@remotion/three'",
 		"release": "bun publish.ts && turbo run publishprivate --concurrency=1 && git push --tags && git push",
+		"react-scan:capture": "bun packages/.monorepo/react-scan/capture.ts",
 		"publishtemplates": "cd packages/it-tests && bun src/templates/publish.ts",
 		"playground": "bun packages/skills-evals/src/playground.ts",
 		"checkskills": "bun packages/skills/scripts/sync-agent-skills.ts --check && bun packages/skills/scripts/sync-embedded-skills.ts --check && bun packages/skills/scripts/sync-readme.ts --check && bun run validateskills",
@@ -67,7 +68,8 @@
 		"@types/react-dom": "catalog:",
 		"oxfmt": "0.35.0",
 		"prettier": "catalog:",
-		"prettier-plugin-organize-imports": "3.2.4"
+		"prettier-plugin-organize-imports": "3.2.4",
+		"react-scan": "0.5.7"
 	},
 	"dependencies": {
 		"p-limit": "7.2.0",

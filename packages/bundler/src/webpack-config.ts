@@ -11,6 +11,7 @@ import type {
 	WebpackConfiguration,
 	WebpackOverrideFn,
 } from './override-types';
+import {getReactScanEntryPoint} from './react-scan-entry-point';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
@@ -68,6 +69,7 @@ export const webpackConfig = async ({
 				environment === 'development'
 					? require.resolve('./fast-refresh/runtime.js')
 					: null,
+			reactScan: getReactScanEntryPoint(environment),
 			environmentSetup: require.resolve('./setup-environment'),
 			sequenceStackTraces:
 				environment === 'development'
