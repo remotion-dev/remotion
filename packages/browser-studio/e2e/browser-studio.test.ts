@@ -10,9 +10,13 @@ import {
 	createElementPayload,
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
+import {strFromU8, unzipSync} from 'fflate';
 
 const localImagePath = fileURLToPath(
 	new URL('../../codex-plugin/assets/logo.png', import.meta.url),
+);
+const localVideoPath = fileURLToPath(
+	new URL('../../example/public/framer.webm', import.meta.url),
 );
 
 const dropLocalFile = async ({
@@ -297,6 +301,271 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 	expect(remoteRemotionRequests).toEqual([]);
 });
 
+test('stores, reclaims, ranges, and downloads imported OPFS files', async ({
+	page,
+}) => {
+	const rawFiles: Record<string, string> = {
+		'package.json': JSON.stringify({
+			dependencies: {
+				react: '^19.0.0',
+				'react-dom': '^19.0.0',
+				remotion: '^4.0.0',
+			},
+		}),
+		'public/pixel.svg':
+			'<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="red"/></svg>',
+		'src/index.ts':
+			"import {registerRoot} from 'remotion'; import {Root} from './Root'; registerRoot(Root);",
+		'src/Root.tsx': `import {AbsoluteFill, Composition, Img, staticFile} from 'remotion';
+
+const OpfsComposition = () => <AbsoluteFill><Img src={staticFile('pixel.svg')} /></AbsoluteFill>;
+
+export const Root = () => <Composition id="OpfsComp" component={OpfsComposition} durationInFrames={30} fps={30} width={64} height={64} />;
+`,
+	};
+	const encoder = new TextEncoder();
+	const tree = Object.entries(rawFiles).map(([path, contents]) => ({
+		path,
+		size: encoder.encode(contents).byteLength,
+		type: 'blob',
+	}));
+	const treeSha = 'ddc7ec42c2c9c06e84c9d5d2606e7ffc1394d900';
+
+	await page
+		.context()
+		.route(
+			'https://api.github.com/repos/remotion-dev/opfs-fixture/git/trees/HEAD?recursive=1',
+			(route) =>
+				route.fulfill({
+					contentType: 'application/json',
+					body: JSON.stringify({sha: treeSha, tree, truncated: false}),
+				}),
+		);
+	await page
+		.context()
+		.route(
+			`https://raw.githubusercontent.com/remotion-dev/opfs-fixture/${treeSha}/**`,
+			(route) => {
+				const marker = `/${treeSha}/`;
+				const url = route.request().url();
+				const path = decodeURIComponent(
+					url.slice(url.indexOf(marker) + marker.length),
+				);
+				const contents = rawFiles[path];
+				return contents === undefined
+					? route.fulfill({status: 404})
+					: route.fulfill({body: contents});
+			},
+		);
+
+	await page.goto('/?github=1');
+	const studio = page.frameLocator('iframe');
+	await expect(
+		studio.getByTitle('/project').getByText('OpfsComp'),
+	).toBeVisible();
+	await studio.locator('[data-compname="OpfsComp"]').click();
+	await expect(
+		studio.locator('.remotion-studio-composition-container img'),
+	).toBeVisible();
+
+	const projectStorage = await page.evaluate(() => {
+		const project = (
+			window as typeof window & {
+				__browserStudioProject: {
+					publicFileStorage?: {type: string};
+					publicFiles?: Record<string, {sizeInBytes?: number; type?: string}>;
+				};
+			}
+		).__browserStudioProject;
+		return {
+			file: project.publicFiles?.['pixel.svg'],
+			storage: project.publicFileStorage,
+		};
+	});
+	expect(projectStorage).toEqual({
+		file: {
+			key: expect.any(String),
+			lastModified: expect.any(Number),
+			sizeInBytes: encoder.encode(rawFiles['public/pixel.svg']).byteLength,
+			type: 'stored',
+		},
+		storage: {
+			directoryName: expect.any(String),
+			type: 'opfs',
+		},
+	});
+
+	const studioFrame = page.frames().find((frame) => frame !== page.mainFrame());
+	if (!studioFrame) {
+		throw new Error('Could not find the Browser Studio frame');
+	}
+
+	const rangeResult = await studioFrame.evaluate(async () => {
+		const src = window.remotion_staticFiles.find(
+			(file) => file.name === 'pixel.svg',
+		)?.src;
+		if (!src) {
+			throw new Error('Could not find pixel.svg');
+		}
+
+		const response = await fetch(src, {headers: {Range: 'bytes=0-3'}});
+		return {body: await response.text(), status: response.status};
+	});
+	expect(rangeResult).toEqual({body: '<svg', status: 206});
+
+	await studioFrame.evaluate(async () => {
+		await window.remotion_browserStudio.writeStaticFile({
+			contents: new TextEncoder().encode('temporary').buffer,
+			filePath: 'temporary.txt',
+		});
+	});
+	await expect
+		.poll(() =>
+			page.evaluate(
+				() =>
+					(
+						window.__browserStudioProject.publicFiles?.['temporary.txt'] as
+							| {key?: string}
+							| undefined
+					)?.key,
+			),
+		)
+		.toEqual(expect.any(String));
+	const temporaryKey = await page.evaluate(
+		() =>
+			(
+				window.__browserStudioProject.publicFiles?.['temporary.txt'] as
+					| {key: string}
+					| undefined
+			)?.key,
+	);
+	await studioFrame.evaluate(async () => {
+		await window.remotion_browserStudio.undo();
+		await window.remotion_browserStudio.redo();
+	});
+	await expect
+		.poll(() =>
+			page.evaluate(
+				() =>
+					(
+						window.__browserStudioProject.publicFiles?.['temporary.txt'] as
+							| {key?: string}
+							| undefined
+					)?.key,
+			),
+		)
+		.toBe(temporaryKey);
+	await studioFrame.evaluate(async () => {
+		await window.remotion_browserStudio.undo();
+		await window.remotion_browserStudio.writeStaticFile({
+			contents: new TextEncoder().encode('kept').buffer,
+			filePath: 'kept.txt',
+		});
+	});
+	const retainedKeys = await page.evaluate(() => {
+		const publicFiles = window.__browserStudioProject.publicFiles as
+			| Record<string, {key?: string}>
+			| undefined;
+		return [publicFiles?.['kept.txt']?.key, publicFiles?.['pixel.svg']?.key];
+	});
+	expect(retainedKeys).not.toContain(undefined);
+	await expect
+		.poll(
+			() =>
+				page.evaluate(async () => {
+					const storage = window.__browserStudioProject.publicFileStorage;
+					if (!storage) {
+						throw new Error('Expected Browser Studio project storage');
+					}
+
+					const root = await navigator.storage.getDirectory();
+					const browserStudioDirectory = await root.getDirectoryHandle(
+						'remotion-browser-studio',
+					);
+					const projectsDirectory =
+						await browserStudioDirectory.getDirectoryHandle('projects');
+					const projectDirectory = await projectsDirectory.getDirectoryHandle(
+						storage.directoryName,
+					);
+					const keys: string[] = [];
+					for await (const key of (
+						projectDirectory as FileSystemDirectoryHandle & {
+							keys: () => AsyncIterableIterator<string>;
+						}
+					).keys()) {
+						keys.push(key);
+					}
+
+					return keys.sort();
+				}),
+			{timeout: 10_000},
+		)
+		.toEqual(retainedKeys.toSorted());
+	expect(retainedKeys).not.toContain(temporaryKey);
+
+	const archiveBytes = await studioFrame.evaluate(async () => {
+		const {data} = await window.remotion_browserStudio.downloadProject();
+		return Array.from(data);
+	});
+	const archive = unzipSync(new Uint8Array(archiveBytes));
+	expect(strFromU8(archive['public/pixel.svg'])).toBe(
+		rawFiles['public/pixel.svg'],
+	);
+	expect(strFromU8(archive['public/kept.txt'])).toBe('kept');
+	expect(archive['public/temporary.txt']).toBeUndefined();
+	const secondPage = await page.context().newPage();
+	await secondPage.goto('/?github=1');
+	await expect(
+		secondPage
+			.frameLocator('iframe')
+			.getByTitle('/project')
+			.getByText('OpfsComp'),
+	).toBeVisible();
+	expect(
+		await studioFrame.evaluate(async () => {
+			const src = window.remotion_staticFiles.find(
+				(file) => file.name === 'pixel.svg',
+			)?.src;
+			if (!src) {
+				throw new Error('Could not find pixel.svg');
+			}
+
+			return (await fetch(src)).status;
+		}),
+	).toBe(200);
+	await secondPage.close();
+
+	const previousDirectoryName = projectStorage.storage?.directoryName;
+	await page.reload();
+	await expect(
+		studio.getByTitle('/project').getByText('OpfsComp'),
+	).toBeVisible();
+	const reloadedStorage = await page.evaluate(
+		() => window.__browserStudioProject.publicFileStorage,
+	);
+	expect(reloadedStorage?.directoryName).not.toBe(previousDirectoryName);
+	const remainingProjectDirectories = await page.evaluate(async () => {
+		const root = await navigator.storage.getDirectory();
+		const browserStudioDirectory = await root.getDirectoryHandle(
+			'remotion-browser-studio',
+		);
+		const projectsDirectory =
+			await browserStudioDirectory.getDirectoryHandle('projects');
+		const directories: string[] = [];
+		for await (const name of (
+			projectsDirectory as FileSystemDirectoryHandle & {
+				keys: () => AsyncIterableIterator<string>;
+			}
+		).keys()) {
+			directories.push(name);
+		}
+
+		return directories;
+	});
+	expect(remainingProjectDirectories).toContain(reloadedStorage?.directoryName);
+	expect(remainingProjectDirectories).not.toContain(previousDirectoryName);
+});
+
 test('drops a local image onto the canvas and imports it into the virtual project', async ({
 	page,
 }) => {
@@ -323,7 +592,6 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 		page,
 		target: canvas,
 	});
-	await expect(studio.getByText('logo.png', {exact: true})).toBeVisible();
 	await expect(studio.getByText('<CanvasImage>', {exact: true})).toBeVisible();
 
 	await expect
@@ -332,7 +600,10 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 				const browserWindow = window as typeof window & {
 					__browserStudioProject: {
 						files: Record<string, string>;
-						publicFiles?: Record<string, Uint8Array | string>;
+						publicFiles?: Record<
+							string,
+							Uint8Array | string | {sizeInBytes: number; type: 'stored'}
+						>;
 					};
 				};
 				const contents =
@@ -345,7 +616,9 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 					publicFileSize:
 						typeof contents === 'string'
 							? new TextEncoder().encode(contents).byteLength
-							: contents?.byteLength,
+							: contents instanceof Uint8Array
+								? contents.byteLength
+								: contents?.sizeInBytes,
 				};
 			}),
 		)
@@ -353,6 +626,22 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 			composition: expect.stringContaining('logo.png'),
 			publicFileSize: expect.any(Number),
 		});
+
+	await dropLocalFile({
+		filePath: localVideoPath,
+		page,
+		target: canvas,
+	});
+	await expect(studio.getByText('framer.webm', {exact: true})).toBeVisible();
+	await expect
+		.poll(() =>
+			page.evaluate(() =>
+				window.__browserStudioProject.files[
+					'/project/src/Composition.tsx'
+				].includes("staticFile('framer.webm')"),
+			),
+		)
+		.toBe(true);
 	expect(studioApiRequests).toEqual([]);
 });
 
@@ -388,7 +677,10 @@ test('drops a local file into the virtual Assets folder', async ({page}) => {
 				const browserWindow = window as typeof window & {
 					__browserStudioProject: {
 						files: Record<string, string>;
-						publicFiles?: Record<string, Uint8Array | string>;
+						publicFiles?: Record<
+							string,
+							Uint8Array | string | {sizeInBytes: number; type: 'stored'}
+						>;
 					};
 				};
 				const contents =
@@ -401,7 +693,9 @@ test('drops a local file into the virtual Assets folder', async ({page}) => {
 					publicFileSize:
 						typeof contents === 'string'
 							? new TextEncoder().encode(contents).byteLength
-							: contents?.byteLength,
+							: contents instanceof Uint8Array
+								? contents.byteLength
+								: contents?.sizeInBytes,
 				};
 			}),
 		)
