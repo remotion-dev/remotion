@@ -340,8 +340,19 @@ const TimelineSequenceInner: React.FC<{
 	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
 	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
+	const {onPointerDown: onMoveDragPointerDown, shouldSuppressDoubleClick} =
+		useTimelineSequenceFromDrag({
+			nodePathInfo,
+			windowWidth,
+			timelineDurationInFrames: video?.durationInFrames ?? 1,
+		});
 	const onSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (shouldSuppressDoubleClick()) {
+				e.stopPropagation();
+				return;
+			}
+
 			if (isTimelineSelectionModifierEvent(e)) {
 				e.stopPropagation();
 				return;
@@ -380,6 +391,7 @@ const TimelineSequenceInner: React.FC<{
 			s,
 			selectComposition,
 			sequenceFrameOffset,
+			shouldSuppressDoubleClick,
 		],
 	);
 	const canHandleSequenceDoubleClick =
@@ -554,12 +566,6 @@ const TimelineSequenceInner: React.FC<{
 		validatedLocation?.source,
 	]);
 	const {frozenFrame} = s;
-
-	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
-		nodePathInfo,
-		windowWidth,
-		timelineDurationInFrames: video?.durationInFrames ?? 1,
-	});
 
 	if (!video) {
 		throw new TypeError('Expected video config');

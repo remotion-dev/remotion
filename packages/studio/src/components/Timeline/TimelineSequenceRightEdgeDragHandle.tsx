@@ -48,6 +48,7 @@ import {
 
 const HANDLE_WIDTH = 6;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
+const timelineSequenceFromDragThresholdPx = 3;
 
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -1377,8 +1378,10 @@ export const useTimelineSequenceFromDrag = ({
 	const {editorSnapping} = useContext(EditorSnappingContext);
 
 	const [dragging, setDragging] = useState(false);
+	const suppressNextDoubleClickRef = useRef(false);
 	const dragStateRef = useRef<{
 		initialClientX: number;
+		hasDragged: boolean;
 		latestDeltaFrames: number;
 		pxPerFrame: number;
 		pointerId: number;
@@ -1417,6 +1420,7 @@ export const useTimelineSequenceFromDrag = ({
 		}
 
 		dragStateRef.current = null;
+		suppressNextDoubleClickRef.current = dragState.hasDragged;
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		setDragging(false);
@@ -1523,8 +1527,10 @@ export const useTimelineSequenceFromDrag = ({
 			}
 
 			e.preventDefault();
+			suppressNextDoubleClickRef.current = false;
 			dragStateRef.current = {
 				initialClientX: e.clientX,
+				hasDragged: false,
 				latestDeltaFrames: 0,
 				pxPerFrame,
 				pointerId: e.pointerId,
@@ -1558,6 +1564,10 @@ export const useTimelineSequenceFromDrag = ({
 			}
 
 			const dx = e.clientX - dragState.initialClientX;
+			if (Math.abs(dx) >= timelineSequenceFromDragThresholdPx) {
+				dragState.hasDragged = true;
+			}
+
 			const deltaFrames = getTimelineSequenceFromDragDelta({
 				deltaFrames: Math.round(dx / dragState.pxPerFrame),
 				pxPerFrame: dragState.pxPerFrame,
@@ -1650,9 +1660,19 @@ export const useTimelineSequenceFromDrag = ({
 		});
 	}, [dragging, finishDrag]);
 
+	const shouldSuppressDoubleClick = useCallback(() => {
+		if (!suppressNextDoubleClickRef.current) {
+			return false;
+		}
+
+		suppressNextDoubleClickRef.current = false;
+		return true;
+	}, []);
+
 	return {
 		dragging,
 		onPointerDown,
+		shouldSuppressDoubleClick,
 	};
 };
 

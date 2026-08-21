@@ -29,6 +29,38 @@ test.describe('moving sequence keyframes', () => {
 	test('moves nested outer-clock descendant keyframes without double-shifting local-clock descendants', async ({
 		page,
 	}) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(window, 'remotion_editorName', {
+				configurable: true,
+				get: () => 'Test editor',
+				set: () => undefined,
+			});
+		});
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultEditor: 'vscode',
+						installedEditors: [
+							{
+								id: 'vscode',
+								name: 'Test editor',
+								nameWithType: 'Test editor',
+							},
+						],
+					},
+				},
+			});
+		});
+		const openInEditorRequests: unknown[] = [];
+		await page.route('**/api/open-in-editor', async (route) => {
+			openInEditorRequests.push(route.request().postDataJSON());
+			await route.fulfill({
+				json: {success: true, data: {success: true}},
+			});
+		});
+
 		await page.goto(`${STUDIO_URL}/sequence-shift-repro`);
 		await page.waitForFunction(
 			() => !document.body.innerText.includes('Loading...'),
@@ -74,7 +106,29 @@ test.describe('moving sequence keyframes', () => {
 			throw new Error('Expected the parent sequence to have a bounding box');
 		}
 
+		await page.waitForTimeout(1_000);
+		await parent.dblclick();
+		await expect.poll(() => openInEditorRequests.length).toBe(1);
+		openInEditorRequests.length = 0;
+		await page.waitForTimeout(500);
+		await page.evaluate(() => {
+			Reflect.set(window, 'remotionTimelineDoubleClicks', 0);
+			document.addEventListener(
+				'dblclick',
+				() => {
+					const doubleClicks = Reflect.get(
+						window,
+						'remotionTimelineDoubleClicks',
+					);
+					Reflect.set(window, 'remotionTimelineDoubleClicks', doubleClicks + 1);
+				},
+				{capture: true},
+			);
+		});
+
 		await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+		await page.mouse.down();
+		await page.mouse.up();
 		await page.mouse.down();
 		try {
 			await page.mouse.move(
@@ -101,5 +155,14 @@ test.describe('moving sequence keyframes', () => {
 			/translate: interpolate\(\s*frame,\s*\[16, 26\],\s*\['0px 0px', '300px 0px'\]/,
 		);
 		expect(source).toContain('opacity: interpolate(frame, [4, 14], [0, 1])');
+		await page.waitForTimeout(100);
+		const doubleClicks = await page.evaluate(() =>
+			Reflect.get(window, 'remotionTimelineDoubleClicks'),
+		);
+		if (doubleClicks === 0) {
+			await parent.dispatchEvent('dblclick');
+		}
+
+		expect(openInEditorRequests).toEqual([]);
 	});
 });
