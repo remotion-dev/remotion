@@ -31,7 +31,7 @@ export const canUseEffectOperations = () =>
 export const canInstallPackages = () => {
 	const browserStudioOperations = getBrowserStudioOperations();
 	if (browserStudioOperations !== null) {
-		return browserStudioOperations.packageInstallation !== undefined;
+		return true;
 	}
 
 	return !window.remotion_isReadOnlyStudio;

@@ -69,22 +69,3 @@ test('surfaces structured Browser Studio package installation failures', async (
 		installPackages([{name: 'example-package', version: null}]),
 	).rejects.toThrow('Could not resolve example-package');
 });
-
-test('reports package installation as unavailable for an older Browser Studio host', async () => {
-	Object.defineProperty(globalThis, 'window', {
-		configurable: true,
-		value: {
-			remotion_browserStudio: makeBrowserStudioOperations({}),
-			remotion_isPlayer: false,
-			remotion_isReadOnlyStudio: false,
-			remotion_isStudio: true,
-		},
-	});
-
-	expect(canInstallPackages()).toBe(false);
-	await expect(
-		installPackages([{name: '@remotion/google-fonts', version: null}]),
-	).rejects.toThrow(
-		'Package installation is not supported by this Browser Studio',
-	);
-});

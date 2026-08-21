@@ -15,12 +15,6 @@ export const installPackages = async (
 
 	const browserStudioOperations = getBrowserStudioOperations();
 	if (browserStudioOperations !== null) {
-		if (browserStudioOperations.packageInstallation === undefined) {
-			throw new Error(
-				'Package installation is not supported by this Browser Studio',
-			);
-		}
-
 		const response =
 			await browserStudioOperations.packageInstallation.installPackages({
 				dependencies: [...dependencies],

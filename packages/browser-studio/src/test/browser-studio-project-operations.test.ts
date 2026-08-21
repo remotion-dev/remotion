@@ -397,10 +397,6 @@ test('installs packages as an undoable project mutation and reports structured f
 			return Promise.resolve({zod: '4.1.5'});
 		},
 	});
-	if (!operations.packageInstallation) {
-		throw new Error('Expected Browser Studio package installation capability');
-	}
-
 	const result = await operations.packageInstallation.installPackages({
 		dependencies: [
 			{name: '@remotion/google-fonts', version: null},
