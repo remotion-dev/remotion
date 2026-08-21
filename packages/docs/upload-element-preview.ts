@@ -5,13 +5,14 @@ import {elementDefinitions} from './src/components/Elements/element-definitions'
 
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
 	console.log(`Usage:
-  bun run upload-element-preview --element=<category>/<slug> --source=render
-  bun run upload-element-preview --element=<category>/<slug> --source=submission
+  bun run upload-element-preview --element=<category>/<slug> --source=render [--overwrite]
+  bun run upload-element-preview --element=<category>/<slug> --source=submission [--overwrite]
 
-Use render to upload files from .element-previews. Use submission to upload committed files from static/elements. The command prints the hosted URLs and any cleanup required after a verified upload.`);
+Use render to upload files from .element-previews. Use submission to upload committed files from static/elements. By default, the Element definition must use its exact local /elements/... review URLs. Use --overwrite to refresh an already-published preview only when the definition uses its exact https://remotion.media/elements/... URLs. The command prints the hosted URLs and any cleanup required after a verified upload.`);
 	process.exit(0);
 }
 
+const overwrite = process.argv.includes('--overwrite');
 const elementArguments = process.argv.filter((argument) =>
 	argument.startsWith('--element='),
 );
@@ -50,13 +51,28 @@ if (!definition) {
 const assetSlug = definition.slug.replaceAll('/', '-');
 const expectedPosterUrl = `/elements/${assetSlug}-preview.png` as const;
 const expectedVideoUrl = `/elements/${assetSlug}-preview.mp4` as const;
-if (
-	definition.preview.posterUrl !== expectedPosterUrl ||
-	definition.preview.videoUrl !== expectedVideoUrl
-) {
-	throw new Error(
-		`${definition.slug} must use its local review URLs before its previews can be uploaded`,
-	);
+const expectedHostedPosterUrl =
+	`https://remotion.media${expectedPosterUrl}` as const;
+const expectedHostedVideoUrl =
+	`https://remotion.media${expectedVideoUrl}` as const;
+const usesLocalReviewUrls =
+	definition.preview.posterUrl === expectedPosterUrl &&
+	definition.preview.videoUrl === expectedVideoUrl;
+const usesHostedPreviewUrls =
+	definition.preview.posterUrl === expectedHostedPosterUrl &&
+	definition.preview.videoUrl === expectedHostedVideoUrl;
+if (!usesLocalReviewUrls) {
+	if (!overwrite) {
+		throw new Error(
+			`${definition.slug} must use its exact local review URLs (${expectedPosterUrl} and ${expectedVideoUrl}) before its previews can be uploaded. To refresh an already-published preview, use --overwrite while the definition uses ${expectedHostedPosterUrl} and ${expectedHostedVideoUrl}.`,
+		);
+	}
+
+	if (!usesHostedPreviewUrls) {
+		throw new Error(
+			`${definition.slug} cannot be overwritten because its preview URLs do not exactly match ${expectedHostedPosterUrl} and ${expectedHostedVideoUrl}.`,
+		);
+	}
 }
 
 const sourceDirectory =
@@ -229,9 +245,13 @@ if (!purgeResponse.ok || !purgeResult.success) {
 }
 
 console.log('Cleared the CDN cache for both preview URLs.');
-console.log('Upload verified. Replace the review URLs with:');
-console.log(`https://remotion.media${expectedPosterUrl}`);
-console.log(`https://remotion.media${expectedVideoUrl}`);
+console.log(
+	usesHostedPreviewUrls
+		? 'Upload verified. Preview URLs remain:'
+		: 'Upload verified. Replace the review URLs with:',
+);
+console.log(expectedHostedPosterUrl);
+console.log(expectedHostedVideoUrl);
 if (source === 'submission') {
 	console.log('Then delete the two files from packages/docs/static/elements.');
 } else {
