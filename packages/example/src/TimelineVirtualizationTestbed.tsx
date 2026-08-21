@@ -186,24 +186,8 @@ export const TimelineVirtualizationTestbed: React.FC = () => {
 			<Sequence durationInFrames={30} name="Virtual track 059">
 				<AbsoluteFill />
 			</Sequence>
-			<Sequence
-				durationInFrames={30}
-				name="Virtual track 060"
-				style={{zIndex: 1}}
-			>
-				<Interactive.Div
-					name="Reveal target"
-					style={{
-						backgroundColor: 'red',
-						height: 100,
-						left: 100,
-						position: 'absolute',
-						top: 100,
-						width: 100,
-					}}
-				>
-					Reveal target
-				</Interactive.Div>
+			<Sequence durationInFrames={30} name="Virtual track 060">
+				<AbsoluteFill />
 			</Sequence>
 			<Sequence durationInFrames={30} name="Virtual track 061">
 				<AbsoluteFill />
@@ -380,7 +364,19 @@ export const TimelineVirtualizationTestbed: React.FC = () => {
 				<AbsoluteFill />
 			</Sequence>
 			<Sequence durationInFrames={30} name="Virtual track 119">
-				<AbsoluteFill />
+				<Interactive.Div
+					name="Reveal target"
+					style={{
+						backgroundColor: 'red',
+						height: 100,
+						left: 100,
+						position: 'absolute',
+						top: 100,
+						width: 100,
+					}}
+				>
+					Reveal target
+				</Interactive.Div>
 			</Sequence>
 		</>
 	);
