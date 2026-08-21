@@ -301,7 +301,7 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 	expect(remoteRemotionRequests).toEqual([]);
 });
 
-test('stores imported public files in OPFS, supports ranges, and downloads them', async ({
+test('stores, reclaims, ranges, and downloads imported OPFS files', async ({
 	page,
 }) => {
 	const rawFiles: Record<string, string> = {
@@ -331,28 +331,32 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	}));
 	const treeSha = 'ddc7ec42c2c9c06e84c9d5d2606e7ffc1394d900';
 
-	await page.route(
-		'https://api.github.com/repos/remotion-dev/opfs-fixture/git/trees/HEAD?recursive=1',
-		(route) =>
-			route.fulfill({
-				contentType: 'application/json',
-				body: JSON.stringify({sha: treeSha, tree, truncated: false}),
-			}),
-	);
-	await page.route(
-		`https://raw.githubusercontent.com/remotion-dev/opfs-fixture/${treeSha}/**`,
-		(route) => {
-			const marker = `/${treeSha}/`;
-			const url = route.request().url();
-			const path = decodeURIComponent(
-				url.slice(url.indexOf(marker) + marker.length),
-			);
-			const contents = rawFiles[path];
-			return contents === undefined
-				? route.fulfill({status: 404})
-				: route.fulfill({body: contents});
-		},
-	);
+	await page
+		.context()
+		.route(
+			'https://api.github.com/repos/remotion-dev/opfs-fixture/git/trees/HEAD?recursive=1',
+			(route) =>
+				route.fulfill({
+					contentType: 'application/json',
+					body: JSON.stringify({sha: treeSha, tree, truncated: false}),
+				}),
+		);
+	await page
+		.context()
+		.route(
+			`https://raw.githubusercontent.com/remotion-dev/opfs-fixture/${treeSha}/**`,
+			(route) => {
+				const marker = `/${treeSha}/`;
+				const url = route.request().url();
+				const path = decodeURIComponent(
+					url.slice(url.indexOf(marker) + marker.length),
+				);
+				const contents = rawFiles[path];
+				return contents === undefined
+					? route.fulfill({status: 404})
+					: route.fulfill({body: contents});
+			},
+		);
 
 	await page.goto('/?github=1');
 	const studio = page.frameLocator('iframe');
@@ -375,7 +379,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 		).__browserStudioProject;
 		return {
 			file: project.publicFiles?.['pixel.svg'],
-			storageType: project.publicFileStorage?.type,
+			storage: project.publicFileStorage,
 		};
 	});
 	expect(projectStorage).toEqual({
@@ -385,7 +389,10 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 			sizeInBytes: encoder.encode(rawFiles['public/pixel.svg']).byteLength,
 			type: 'stored',
 		},
-		storageType: 'opfs',
+		storage: {
+			directoryName: expect.any(String),
+			type: 'opfs',
+		},
 	});
 
 	const studioFrame = page.frames().find((frame) => frame !== page.mainFrame());
@@ -406,6 +413,96 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	});
 	expect(rangeResult).toEqual({body: '<svg', status: 206});
 
+	await studioFrame.evaluate(async () => {
+		await window.remotion_browserStudio.writeStaticFile({
+			contents: new TextEncoder().encode('temporary').buffer,
+			filePath: 'temporary.txt',
+		});
+	});
+	await expect
+		.poll(() =>
+			page.evaluate(
+				() =>
+					(
+						window.__browserStudioProject.publicFiles?.['temporary.txt'] as
+							| {key?: string}
+							| undefined
+					)?.key,
+			),
+		)
+		.toEqual(expect.any(String));
+	const temporaryKey = await page.evaluate(
+		() =>
+			(
+				window.__browserStudioProject.publicFiles?.['temporary.txt'] as
+					| {key: string}
+					| undefined
+			)?.key,
+	);
+	await studioFrame.evaluate(async () => {
+		await window.remotion_browserStudio.undo();
+		await window.remotion_browserStudio.redo();
+	});
+	await expect
+		.poll(() =>
+			page.evaluate(
+				() =>
+					(
+						window.__browserStudioProject.publicFiles?.['temporary.txt'] as
+							| {key?: string}
+							| undefined
+					)?.key,
+			),
+		)
+		.toBe(temporaryKey);
+	await studioFrame.evaluate(async () => {
+		await window.remotion_browserStudio.undo();
+		await window.remotion_browserStudio.writeStaticFile({
+			contents: new TextEncoder().encode('kept').buffer,
+			filePath: 'kept.txt',
+		});
+	});
+	const retainedKeys = await page.evaluate(() => {
+		const publicFiles = window.__browserStudioProject.publicFiles as
+			| Record<string, {key?: string}>
+			| undefined;
+		return [publicFiles?.['kept.txt']?.key, publicFiles?.['pixel.svg']?.key];
+	});
+	expect(retainedKeys).not.toContain(undefined);
+	await expect
+		.poll(
+			() =>
+				page.evaluate(async () => {
+					const storage = window.__browserStudioProject.publicFileStorage;
+					if (!storage) {
+						throw new Error('Expected Browser Studio project storage');
+					}
+
+					const root = await navigator.storage.getDirectory();
+					const browserStudioDirectory = await root.getDirectoryHandle(
+						'remotion-browser-studio',
+					);
+					const projectsDirectory =
+						await browserStudioDirectory.getDirectoryHandle('projects');
+					const projectDirectory = await projectsDirectory.getDirectoryHandle(
+						storage.directoryName,
+					);
+					const keys: string[] = [];
+					for await (const key of (
+						projectDirectory as FileSystemDirectoryHandle & {
+							keys: () => AsyncIterableIterator<string>;
+						}
+					).keys()) {
+						keys.push(key);
+					}
+
+					return keys.sort();
+				}),
+			{timeout: 10_000},
+		)
+		.toEqual(retainedKeys.toSorted());
+	expect(retainedKeys).not.toContain(temporaryKey);
+
 	const archiveBytes = await studioFrame.evaluate(async () => {
 		const {data} = await window.remotion_browserStudio.downloadProject();
 		return Array.from(data);
@@ -414,6 +511,59 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	expect(strFromU8(archive['public/pixel.svg'])).toBe(
 		rawFiles['public/pixel.svg'],
 	);
+	expect(strFromU8(archive['public/kept.txt'])).toBe('kept');
+	expect(archive['public/temporary.txt']).toBeUndefined();
+	const secondPage = await page.context().newPage();
+	await secondPage.goto('/?github=1');
+	await expect(
+		secondPage
+			.frameLocator('iframe')
+			.getByTitle('/project')
+			.getByText('OpfsComp'),
+	).toBeVisible();
+	expect(
+		await studioFrame.evaluate(async () => {
+			const src = window.remotion_staticFiles.find(
+				(file) => file.name === 'pixel.svg',
+			)?.src;
+			if (!src) {
+				throw new Error('Could not find pixel.svg');
+			}
+
+			return (await fetch(src)).status;
+		}),
+	).toBe(200);
+	await secondPage.close();
+
+	const previousDirectoryName = projectStorage.storage?.directoryName;
+	await page.reload();
+	await expect(
+		studio.getByTitle('/project').getByText('OpfsComp'),
+	).toBeVisible();
+	const reloadedStorage = await page.evaluate(
+		() => window.__browserStudioProject.publicFileStorage,
+	);
+	expect(reloadedStorage?.directoryName).not.toBe(previousDirectoryName);
+	const remainingProjectDirectories = await page.evaluate(async () => {
+		const root = await navigator.storage.getDirectory();
+		const browserStudioDirectory = await root.getDirectoryHandle(
+			'remotion-browser-studio',
+		);
+		const projectsDirectory =
+			await browserStudioDirectory.getDirectoryHandle('projects');
+		const directories: string[] = [];
+		for await (const name of (
+			projectsDirectory as FileSystemDirectoryHandle & {
+				keys: () => AsyncIterableIterator<string>;
+			}
+		).keys()) {
+			directories.push(name);
+		}
+
+		return directories;
+	});
+	expect(remainingProjectDirectories).toContain(reloadedStorage?.directoryName);
+	expect(remainingProjectDirectories).not.toContain(previousDirectoryName);
 });
 
 test('drops a local image onto the canvas and imports it into the virtual project', async ({

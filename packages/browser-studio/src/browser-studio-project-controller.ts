@@ -9,11 +9,13 @@ import type {
 } from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import {
+	collectBrowserStudioProjectStorageGarbage,
 	createBrowserStudioProjectStorage,
 	getBrowserStudioStoredPublicFile,
 	writeBrowserStudioStoredPublicFile,
 } from './opfs-public-files';
 import type {
+	BrowserStudioProjectStorage,
 	BrowserStudioStoredPublicFile,
 	VirtualProject,
 	VirtualProjectPublicFile,
@@ -395,6 +397,54 @@ export const createBrowserStudioProjectController = ({
 		}, 0);
 	};
 
+	let garbageCollection = Promise.resolve();
+	const queueGarbageCollection = (storage: BrowserStudioProjectStorage) => {
+		garbageCollection = garbageCollection
+			.then(() => {
+				const referencedKeys = new Set<string>();
+				const projects = [
+					getProject(),
+					...undoStack.flatMap((entry) => [entry.before, entry.after]),
+					...redoStack.flatMap((entry) => [entry.before, entry.after]),
+				];
+				for (const project of projects) {
+					if (
+						project.publicFileStorage?.directoryName !== storage.directoryName
+					) {
+						continue;
+					}
+
+					for (const contents of Object.values(project.publicFiles ?? {})) {
+						if (isStoredPublicFile(contents)) {
+							referencedKeys.add(contents.key);
+						}
+					}
+				}
+
+				return collectBrowserStudioProjectStorageGarbage({
+					referencedKeys,
+					storage,
+				});
+			})
+			.catch(reportAsyncError);
+	};
+
+	const queueProjectGarbageCollections = (projects: VirtualProject[]) => {
+		const storages = new Map<string, BrowserStudioProjectStorage>();
+		for (const project of projects) {
+			if (project.publicFileStorage) {
+				storages.set(
+					project.publicFileStorage.directoryName,
+					project.publicFileStorage,
+				);
+			}
+		}
+
+		for (const storage of storages.values()) {
+			queueGarbageCollection(storage);
+		}
+	};
+
 	const getUndoRedoEvent = (): EventSourceEvent => ({
 		type: 'undo-redo-stack-changed',
 		undoFile: undoStack.at(-1)?.fileName ?? null,
@@ -482,17 +532,28 @@ export const createBrowserStudioProjectController = ({
 			return null;
 		}
 
+		const discardedProjects: VirtualProject[] = [];
 		undoStack.push({before, after, fileName, nodePathMutationFiles});
 		if (undoStack.length > MAX_HISTORY_ENTRIES) {
-			undoStack.shift();
+			const discarded = undoStack.shift();
+			if (discarded) {
+				discardedProjects.push(discarded.before, discarded.after);
+			}
+		}
+
+		for (const entry of redoStack) {
+			discardedProjects.push(entry.before, entry.after);
 		}
 
 		redoStack.length = 0;
-		return commitProject({
+		const nodePathMutation = commitProject({
 			previousProject: before,
 			nextProject: after,
 			nodePathMutationFiles,
 		});
+		queueProjectGarbageCollections(discardedProjects);
+
+		return nodePathMutation;
 	};
 
 	const undo = (): Promise<UndoResponse> => {
@@ -584,9 +645,14 @@ export const createBrowserStudioProjectController = ({
 			Promise.resolve(getFileSource({fileName, project: getProject()})),
 		redo,
 		resetHistory: () => {
+			const discardedProjects = [
+				...undoStack.flatMap((entry) => [entry.before, entry.after]),
+				...redoStack.flatMap((entry) => [entry.before, entry.after]),
+			];
 			undoStack.length = 0;
 			redoStack.length = 0;
 			emit(getUndoRedoEvent());
+			queueProjectGarbageCollections(discardedProjects);
 		},
 		renameStaticFile: ({oldRelativePath, newRelativePath}) => {
 			try {
@@ -669,6 +735,9 @@ export const createBrowserStudioProjectController = ({
 						},
 					}),
 				});
+				if (storage) {
+					queueGarbageCollection(storage);
+				}
 			})();
 		},
 	};

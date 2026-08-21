@@ -12,6 +12,7 @@ import {
 } from './browser-studio-project-controller';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
+import {deleteBrowserStudioProjectStorage} from './opfs-public-files';
 import {Spinner} from './Spinner';
 import type {
 	BrowserStudioDependencyResolution,
@@ -201,6 +202,22 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			: project;
 	const activeProjectRef = useRef(activeProject);
 	activeProjectRef.current = activeProject;
+	const previousProjectStorageRef = useRef(activeProject.publicFileStorage);
+	useEffect(() => {
+		const previousStorage = previousProjectStorageRef.current;
+		const nextStorage = activeProject.publicFileStorage;
+		previousProjectStorageRef.current = nextStorage;
+		if (
+			previousStorage &&
+			previousStorage.directoryName !== nextStorage?.directoryName
+		) {
+			deleteBrowserStudioProjectStorage(previousStorage).catch((error) => {
+				setTimeout(() => {
+					throw error;
+				}, 0);
+			});
+		}
+	}, [activeProject.publicFileStorage]);
 	const incomingProjectRef = useRef(project);
 	incomingProjectRef.current = project;
 	const onProjectChangeRef = useRef(onProjectChange);
