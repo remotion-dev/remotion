@@ -1,6 +1,7 @@
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import type * as RspackBrowser from '@rspack/browser';
+import {makeBrowserStudioHttpClient} from './browser-studio-http-client';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
 import type {
@@ -44,6 +45,22 @@ const loadRspackBrowser = () => {
 	workerGlobal.window ??= globalThis;
 	rspackBrowserPromise ??= import('@rspack/browser');
 	return rspackBrowserPromise;
+};
+
+const browserStudioVendorExternals = {
+	react: 'globalThis.remotion_browserStudioVendor.react',
+	'react-dom': 'globalThis.remotion_browserStudioVendor.reactDom',
+	'react-dom/client': 'globalThis.remotion_browserStudioVendor.reactDomClient',
+	'react/jsx-dev-runtime':
+		'globalThis.remotion_browserStudioVendor.reactJsxDevRuntime',
+	'react/jsx-runtime':
+		'globalThis.remotion_browserStudioVendor.reactJsxRuntime',
+	'react-refresh/runtime':
+		'globalThis.remotion_browserStudioVendor.reactRefreshRuntime',
+	remotion: 'globalThis.remotion_browserStudioVendor.remotion',
+	'remotion/no-react':
+		'globalThis.remotion_browserStudioVendor.remotionNoReact',
+	'remotion/version': 'globalThis.remotion_browserStudioVendor.remotionVersion',
 };
 
 const normalizePath = (path: string) =>
@@ -244,6 +261,7 @@ const createCompiler = async ({
 	dependencyResolutions,
 	project,
 	remotionPackageSource,
+	useVendorBundle,
 }: Extract<BrowserStudioWorkerCompileRequest, {type: 'init'}>) => {
 	const rspackBrowser = await loadRspackBrowser();
 	const {BrowserHttpImportEsmPlugin, builtinMemFs, rspack} = rspackBrowser;
@@ -274,7 +292,9 @@ const createCompiler = async ({
 		fastRefreshRuntime: browserStudioVirtualFilePaths.reactRefreshEntry,
 		reactShim: browserStudioVirtualFilePaths.reactShim,
 		sequenceStackTraces: browserStudioVirtualFilePaths.setupSequenceStackTraces,
-		studioRenderEntry: '@remotion/studio/previewEntry',
+		studioRenderEntry: useVendorBundle
+			? browserStudioVirtualFilePaths.studioPreviewEntry
+			: '@remotion/studio/previewEntry',
 		userDefinedComponent: normalizePath(project.entryPoint),
 	});
 	entryPoints.splice(
@@ -295,8 +315,13 @@ const createCompiler = async ({
 					...(remotionPackageSource ? [remotionPackageSource.baseUrl] : []),
 				],
 				cacheLocation: false,
+				httpClient: makeBrowserStudioHttpClient({
+					fetchImplementation: fetch,
+				}),
 			},
 		},
+		externals: useVendorBundle ? browserStudioVendorExternals : undefined,
+		externalsType: useVendorBundle ? 'var' : undefined,
 		mode: 'development',
 		module: {
 			rules: [
@@ -373,6 +398,12 @@ const createCompiler = async ({
 						return undefined;
 					}
 
+					const packageName = getPackageName(request);
+					const resolvedUrl = resolvedUrls[packageName];
+					if (resolvedUrl) {
+						return resolvedUrl;
+					}
+
 					const remotionPackageUrl = resolveBrowserStudioRemotionPackage({
 						packages: workspacePackageExports,
 						request,
@@ -380,12 +411,6 @@ const createCompiler = async ({
 					});
 					if (remotionPackageUrl) {
 						return remotionPackageUrl;
-					}
-
-					const packageName = getPackageName(request);
-					const resolvedUrl = resolvedUrls[packageName];
-					if (resolvedUrl) {
-						return resolvedUrl;
 					}
 
 					const version = resolvedVersions[packageName] ?? 'latest';

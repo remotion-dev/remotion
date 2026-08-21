@@ -10,6 +10,7 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 	const pageErrors: Error[] = [];
 	const remoteRemotionRequests: string[] = [];
 	const studioApiRequests: string[] = [];
+	const vendorBundleRequests: string[] = [];
 	const workspacePackageRequests: string[] = [];
 	let rejectPageError: (error: Error) => void = () => undefined;
 	const pageError = new Promise<never>((_resolve, reject) => {
@@ -17,6 +18,10 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 	});
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
+		if (requestUrl.searchParams.has('projectBundleUrl')) {
+			vendorBundleRequests.push(request.url());
+		}
+
 		if (
 			requestUrl.pathname.startsWith('/api/') &&
 			requestUrl.origin === new URL(page.url()).origin
@@ -172,15 +177,16 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 	]);
 
 	expect(pageErrors).toEqual([]);
-	expect(workspacePackageRequests).toContain(
+	expect(workspacePackageRequests).not.toContain(
 		'/__remotion_browser_studio_workspace__/commits/e2e/packages/core/dist/esm/index.mjs',
 	);
-	expect(workspacePackageRequests).toContain(
+	expect(workspacePackageRequests).not.toContain(
 		'/__remotion_browser_studio_workspace__/commits/e2e/packages/studio/dist/esm/previewEntry.mjs',
 	);
 	expect(workspacePackageRequests).toContain(
 		'/__remotion_browser_studio_workspace__/commits/e2e/packages/transitions/dist/esm/fade.mjs',
 	);
+	expect(vendorBundleRequests).toHaveLength(1);
 	expect(remoteRemotionRequests).toEqual([]);
 	expect(studioApiRequests).toEqual([]);
 });
@@ -190,8 +196,13 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 }) => {
 	const releasePackageRequests: string[] = [];
 	const remoteRemotionRequests: string[] = [];
+	const vendorBundleRequests: string[] = [];
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
+		if (requestUrl.searchParams.has('projectBundleUrl')) {
+			vendorBundleRequests.push(request.url());
+		}
+
 		if (
 			requestUrl.pathname.startsWith('/__remotion_browser_studio_release__/')
 		) {
@@ -214,10 +225,50 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 	await expect(
 		studio.locator('.remotion-studio-composition-container'),
 	).toBeVisible();
-	expect(releasePackageRequests).toContain(
-		`/__remotion_browser_studio_release__/${await page.evaluate(() => (window as typeof window & {__browserStudioRemotionVersion: string}).__browserStudioRemotionVersion)}/packages/studio/dist/esm/previewEntry.mjs`,
-	);
+	expect(releasePackageRequests).toEqual([
+		`/__remotion_browser_studio_release__/${await page.evaluate(() => (window as typeof window & {__browserStudioRemotionVersion: string}).__browserStudioRemotionVersion)}/packages/transitions/dist/esm/fade.mjs`,
+	]);
+	expect(vendorBundleRequests).toHaveLength(1);
 	expect(remoteRemotionRequests).toEqual([]);
+});
+
+test('fetches each HTTP module once when the vendor bundle is overridden', async ({
+	page,
+}) => {
+	const workspacePackageRequests: string[] = [];
+	page.on('request', (request) => {
+		const requestUrl = new URL(request.url());
+		if (
+			requestUrl.pathname.startsWith('/__remotion_browser_studio_workspace__/')
+		) {
+			workspacePackageRequests.push(requestUrl.pathname);
+		}
+	});
+
+	await page.goto('/?source=fallback');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio.locator('.remotion-studio-composition-container'),
+	).toBeVisible();
+
+	expect(
+		workspacePackageRequests.filter(
+			(request) =>
+				request ===
+				'/__remotion_browser_studio_workspace__/commits/e2e/packages/core/dist/esm/index.mjs',
+		),
+	).toHaveLength(1);
+	expect(
+		workspacePackageRequests.filter(
+			(request) =>
+				request ===
+				'/__remotion_browser_studio_workspace__/commits/e2e/packages/core/dist/esm/no-react.mjs',
+		),
+	).toHaveLength(1);
+	expect(workspacePackageRequests).toContain(
+		'/__remotion_browser_studio_workspace__/commits/e2e/packages/studio/dist/esm/previewEntry.mjs',
+	);
 });
 
 test('drops and imports an Element payload with the deployment Remotion version', async ({
