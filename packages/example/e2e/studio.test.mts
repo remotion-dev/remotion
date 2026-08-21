@@ -165,6 +165,51 @@ test.describe('visual mode', () => {
 
 		const mountedTrackLabels = page.getByText(/^Virtual track \d{3}$/);
 		expect(await mountedTrackLabels.count()).toBeLessThan(120);
+		const waitForScrollEffects = () =>
+			page.evaluate(
+				() =>
+					new Promise<void>((resolve) =>
+						requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+					),
+			);
+
+		await timelineScroll.evaluate((element) => {
+			element.scrollTop = 600;
+		});
+		const directlySelectedTrack = page.locator(
+			'[data-timeline-marquee-item][title="Virtual track 020"]',
+		);
+		await expect(directlySelectedTrack).toBeVisible();
+		await directlySelectedTrack.evaluate((element) => {
+			element.scrollIntoView({block: 'start'});
+		});
+		await timelineScroll.evaluate((element) => {
+			element.scrollTop -= 50;
+		});
+		const [directlySelectedTrackRect, timelineScrollRectBeforeSelection] =
+			await Promise.all([
+				directlySelectedTrack.boundingBox(),
+				timelineScroll.boundingBox(),
+			]);
+		expect(directlySelectedTrackRect).not.toBeNull();
+		expect(timelineScrollRectBeforeSelection).not.toBeNull();
+		expect(directlySelectedTrackRect!.y).toBeGreaterThan(
+			timelineScrollRectBeforeSelection!.y,
+		);
+		expect(
+			directlySelectedTrackRect!.y + directlySelectedTrackRect!.height,
+		).toBeLessThan(
+			timelineScrollRectBeforeSelection!.y +
+				timelineScrollRectBeforeSelection!.height,
+		);
+		const scrollTopBeforeDirectSelection = await timelineScroll.evaluate(
+			(element) => element.scrollTop,
+		);
+		await directlySelectedTrack.click();
+		await waitForScrollEffects();
+		expect(await timelineScroll.evaluate((element) => element.scrollTop)).toBe(
+			scrollTopBeforeDirectSelection,
+		);
 
 		const revealTargetTrack = page.locator(
 			'[data-timeline-marquee-item][title="Reveal target"]',
@@ -174,9 +219,23 @@ test.describe('visual mode', () => {
 		const visibleOutlines = canvas.locator(
 			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
 		);
-		await canvas.hover();
+		const canvasRevealTarget = canvas.getByText('Reveal target', {exact: true});
+		await expect(canvasRevealTarget).toBeVisible();
+		const canvasRevealTargetRect = await canvasRevealTarget.boundingBox();
+		expect(canvasRevealTargetRect).not.toBeNull();
+		const canvasRevealTargetCenter = {
+			x: canvasRevealTargetRect!.x + canvasRevealTargetRect!.width / 2,
+			y: canvasRevealTargetRect!.y + canvasRevealTargetRect!.height / 2,
+		};
+		await page.mouse.move(
+			canvasRevealTargetCenter.x,
+			canvasRevealTargetCenter.y,
+		);
 		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
-		await visibleOutlines.first().click({force: true});
+		await page.mouse.click(
+			canvasRevealTargetCenter.x,
+			canvasRevealTargetCenter.y,
+		);
 
 		await expect(revealTargetTrack).toBeVisible();
 		const [revealTargetRect, timelineScrollRect] = await Promise.all([
@@ -190,11 +249,40 @@ test.describe('visual mode', () => {
 			timelineScrollRect!.y + timelineScrollRect!.height,
 		);
 		await expect(
-			page.getByText('Virtual track 119', {exact: true}),
+			page.getByText('Virtual track 060', {exact: true}),
 		).toBeVisible();
-		await expect(
-			page.locator('[data-timeline-marquee-item][title="Virtual track 119"]'),
-		).toBeVisible();
+		const revealedParentTrack = page.locator(
+			'[data-timeline-marquee-item][title="Virtual track 060"]',
+		);
+		await expect(revealedParentTrack).toBeVisible();
+		await revealedParentTrack.evaluate((element) => {
+			element.scrollIntoView({block: 'start'});
+		});
+		await timelineScroll.evaluate((element) => {
+			element.scrollTop -= 50;
+		});
+		const adjacentTrack = page.locator(
+			'[data-timeline-marquee-item][title="Virtual track 061"]',
+		);
+		await expect(adjacentTrack).toBeVisible();
+		await adjacentTrack.click();
+		await waitForScrollEffects();
+		const scrollTopBeforeVisibleCanvasSelection = await timelineScroll.evaluate(
+			(element) => element.scrollTop,
+		);
+		await page.mouse.move(
+			canvasRevealTargetCenter.x,
+			canvasRevealTargetCenter.y,
+		);
+		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await page.mouse.click(
+			canvasRevealTargetCenter.x,
+			canvasRevealTargetCenter.y,
+		);
+		await waitForScrollEffects();
+		expect(await timelineScroll.evaluate((element) => element.scrollTop)).toBe(
+			scrollTopBeforeVisibleCanvasSelection,
+		);
 		expect(
 			await timelineScroll.evaluate((element) => element.scrollTop),
 		).toBeGreaterThan(0);

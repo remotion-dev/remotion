@@ -186,7 +186,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		const key = getSelectionTrackKey(revealRequest.item);
 		const index = key === null ? undefined : layout.rootTrackIndexes.get(key);
 		if (index !== undefined) {
-			virtualizer.scrollToIndex(index, {align: 'center'});
+			virtualizer.scrollToIndex(index, {align: 'auto'});
 		}
 	}, [layout.rootTrackIndexes, revealRequest, virtualizer]);
 

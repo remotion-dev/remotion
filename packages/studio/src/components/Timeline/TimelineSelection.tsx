@@ -1751,7 +1751,6 @@ export const useTimelineRowSelection = (
 				selectionItem,
 				interaction,
 				selectableTimelineItemsRef.current,
-				{reveal: true},
 			);
 		},
 		[selectItem, selectableTimelineItemsRef, selectionItem],
