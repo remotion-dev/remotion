@@ -751,6 +751,11 @@ const insertCompositionElement = async ({
 const downloadRemoteAsset = (
 	url: string,
 ): Promise<DownloadRemoteAssetResponse> => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations) {
+		return browserStudioOperations.downloadRemoteAsset({url});
+	}
+
 	return callApi('/api/download-remote-asset', {url});
 };
 

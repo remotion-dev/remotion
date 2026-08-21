@@ -12,6 +12,7 @@ export const makeBrowserStudioOperations = (
 		consumeInitialElement: () => null,
 		deleteJsxNode: () => unusedOperation('deleteJsxNode'),
 		deleteStaticFile: () => unusedOperation('deleteStaticFile'),
+		downloadRemoteAsset: () => unusedOperation('downloadRemoteAsset'),
 		downloadProject: () => unusedOperation('downloadProject'),
 		duplicateComposition: () => unusedOperation('duplicateComposition'),
 		effects: {

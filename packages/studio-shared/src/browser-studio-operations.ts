@@ -22,6 +22,8 @@ import type {
 	DeleteEffectResponse,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
+	DownloadRemoteAssetRequest,
+	DownloadRemoteAssetResponse,
 	FindInFileRequest,
 	FindInFileResponse,
 	DuplicateEffectRequest,
@@ -170,6 +172,9 @@ export type BrowserStudioOperations = {
 		data: Uint8Array;
 		fileName: string;
 	}>;
+	downloadRemoteAsset: (
+		request: DownloadRemoteAssetRequest,
+	) => Promise<DownloadRemoteAssetResponse>;
 	duplicateComposition: (
 		request: DuplicateCompositionRequest,
 	) => Promise<DuplicateCompositionResponse>;
