@@ -409,6 +409,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			if (didCancel) {
 				return;
 			}
+
 			const bundleScriptUrl = useVendorBundle
 				? `${localVendorEntry}?projectBundleUrl=${encodeURIComponent(bundleUrlRef.current)}`
 				: bundleUrlRef.current;
