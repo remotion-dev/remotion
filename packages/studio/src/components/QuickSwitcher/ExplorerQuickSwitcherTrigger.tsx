@@ -6,7 +6,7 @@ import {SetSelectedModalContext} from '../../state/modals';
 import type {QuickSwitcherMode} from './NoResults';
 
 const quickSwitcherArea: React.CSSProperties = {
-	padding: '4px 0 4px 4px',
+	padding: '4px 4px 4px 8px',
 	borderBottom: `1px solid ${BLACK_HEX}`,
 	overflowY: 'auto',
 };
@@ -14,7 +14,7 @@ const quickSwitcherArea: React.CSSProperties = {
 const quickSwitcherTrigger: React.CSSProperties = {
 	backgroundColor: WHITE_ALPHA_06,
 	borderRadius: 4,
-	padding: '4px 10px',
+	padding: '4px 10px 4px 12px',
 	color: LIGHT_TEXT,
 	fontSize: 12,
 	cursor: 'pointer',

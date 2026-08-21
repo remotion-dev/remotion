@@ -11,6 +11,7 @@ import {
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {COMPACT_INLINE_ROW_HEIGHT} from './layout';
 
 const titleWrapper: React.CSSProperties = {
@@ -82,8 +83,8 @@ const inspectorTitleInner: React.CSSProperties = {
 	fontSize: 13,
 	height: COMPACT_INLINE_ROW_HEIGHT,
 	paddingBottom: 0,
-	paddingLeft: 8,
-	paddingRight: 8,
+	paddingLeft: INSPECTOR_PANEL_HORIZONTAL_PADDING - 4,
+	paddingRight: INSPECTOR_PANEL_HORIZONTAL_PADDING - 4,
 	paddingTop: 0,
 	width: '100%',
 };
