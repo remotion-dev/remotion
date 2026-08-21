@@ -1,4 +1,4 @@
-import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import React, {useContext, useLayoutEffect} from 'react';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -9,12 +9,7 @@ import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
-import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {SetSelectedModalContext} from '../state/modals';
-import {
-	useIsTimelineSequenceHovered,
-	useSetTimelineSequenceHover,
-} from '../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {deleteJsxNode} from './delete-jsx-node-api';
@@ -47,6 +42,7 @@ import {
 	useEditorOpening,
 } from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
+import {useSelectedOutlineControlTarget} from './use-selected-outline-control-target';
 type SelectedOutlineElementProps = {
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
@@ -110,57 +106,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
-	const setHoveredSequence = useSetTimelineSequenceHover();
-	const targetRef = useRef(layoutTarget);
-	useLayoutEffect(() => {
-		targetRef.current = layoutTarget;
-	}, [layoutTarget]);
-	const getTarget = React.useCallback(() => {
-		const currentTarget = targetRef.current;
-		if (currentTarget === undefined) {
-			return undefined;
-		}
-
-		return getLatestTargetByKey(currentTarget.key);
-	}, [getLatestTargetByKey]);
-	const getLayoutTarget = React.useCallback(() => targetRef.current, []);
-	const hoveredNodePathKey = useMemo(
-		() =>
-			layoutTarget === undefined
-				? null
-				: timelineSequenceNodePathToKey(
-						layoutTarget.nodePathInfo.sequenceSubscriptionKey,
-					),
-		[layoutTarget],
-	);
-	const hovered = useIsTimelineSequenceHovered(hoveredNodePathKey);
-	const controlTarget =
-		layoutTarget !== undefined && (layoutTarget.containsSelection || hovered)
-			? getLatestTargetByKey(layoutTarget.key)
-			: undefined;
-	const onHoverChange = React.useCallback(
-		(key: string | null) => {
-			setHoveredSequence((currentHover) => {
-				if (key !== null) {
-					const hoverTarget = targetRef.current;
-					if (hoverTarget === undefined || hoverTarget.key !== key) {
-						return currentHover;
-					}
-
-					return {
-						key,
-						nodePathKey: timelineSequenceNodePathToKey(
-							hoverTarget.nodePathInfo.sequenceSubscriptionKey,
-						),
-						source: 'canvas',
-					};
-				}
-
-				return currentHover?.source === 'canvas' ? null : currentHover;
-			});
-		},
-		[setHoveredSequence],
-	);
+	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
+		useSelectedOutlineControlTarget({
+			getLatestTargetByKey,
+			layoutTarget,
+		});
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
