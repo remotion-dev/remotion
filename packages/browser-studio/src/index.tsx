@@ -1,4 +1,5 @@
 export {BrowserStudio} from './BrowserStudio';
+export {loadGitHubRepository} from './load-github-repository';
 export {createBlankTemplateProject} from './templates/blank';
 export type {
 	BrowserStudioDependencyResolution,
@@ -10,3 +11,4 @@ export type {
 	VirtualFileSystem,
 	VirtualProject,
 } from './types';
+export type {LoadGitHubRepositoryProgress} from './load-github-repository';
