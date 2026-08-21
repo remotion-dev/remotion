@@ -56,6 +56,9 @@ const assetMetadataStyle: React.CSSProperties = {
 
 const assetMetadataValueStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '20px',
 };
 
 const assetEmptyStateStyle: React.CSSProperties = {
