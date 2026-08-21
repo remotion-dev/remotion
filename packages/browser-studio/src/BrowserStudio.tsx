@@ -11,6 +11,7 @@ import {
 	createBrowserStudioPublicFileManager,
 } from './browser-studio-project-controller';
 import {browserStudioDependencyVersions} from './dependency-versions';
+import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
 import {Spinner} from './Spinner';
 import type {
 	BrowserStudioDependencyResolution,
@@ -31,6 +32,11 @@ const BROWSER_STUDIO_OPERATIONS_READY_EVENT =
 
 const localStudioPreviewEntry = new URL(
 	'./browser-studio-preview-entry.mjs',
+	import.meta.url,
+).href;
+
+const localVendorEntry = new URL(
+	'./browser-studio-vendor-entry.mjs',
 	import.meta.url,
 ).href;
 
@@ -320,6 +326,37 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		setIframeHtml(null);
 		setCompileState({status: 'compiling'});
+		const configuredDependencyResolutions = Object.fromEntries(
+			Object.entries(browserStudioDependencyVersions).map(([name, version]) => [
+				name,
+				dependencyResolver?.({name, version}) ?? null,
+			]),
+		);
+		const dependencyResolutions = {
+			...configuredDependencyResolutions,
+			...installedDependencyResolutionsRef.current,
+		};
+		const hasVendorOverride = Object.entries(dependencyResolutions).some(
+			([name, resolution]) =>
+				resolution !== null &&
+				(name.startsWith('@remotion/') ||
+					name === 'react-refresh' ||
+					studioRenderEntryExternal.includes(name)),
+		);
+		const releaseMatchesVendor =
+			remotionPackageSource?.type !== 'release' ||
+			remotionPackageSource.version ===
+				browserStudioDependencyVersions.remotion;
+		const useVendorBundle = !hasVendorOverride && releaseMatchesVendor;
+		if (
+			!useVendorBundle &&
+			!remotionPackageSource &&
+			dependencyResolutions['@remotion/studio'] === null
+		) {
+			dependencyResolutions['@remotion/studio'] = {
+				url: localStudioPreviewEntry,
+			};
+		}
 
 		const worker = new Worker(
 			new URL('./browser-studio-worker.mjs', import.meta.url),
@@ -365,11 +402,15 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				new Blob([response.bundle], {type: 'text/javascript'}),
 			);
 			const currentProject = activeProjectRef.current;
+			const bundleScriptUrl = useVendorBundle
+				? `${localVendorEntry}?projectBundleUrl=${encodeURIComponent(bundleUrlRef.current)}`
+				: bundleUrlRef.current;
 
 			const html = studioHtml({
 				audioLatencyHint: 'playback',
 				experimentalKeepAudioContextAlive: false,
-				bundleScriptUrl: bundleUrlRef.current,
+				bundleScriptUrl,
+				bundleScriptType: useVendorBundle ? 'module' : undefined,
 				completedClientRenders: [],
 				editorName: null,
 				envVariables: {NODE_ENV: 'development'},
@@ -423,32 +464,13 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			});
 		};
 
-		const request: BrowserStudioWorkerCompileRequest = {
+		worker.postMessage({
 			type: 'init',
-			dependencyResolutions: {
-				...Object.fromEntries(
-					Object.entries(browserStudioDependencyVersions).map(
-						([name, version]) => {
-							const customResolution = dependencyResolver?.({name, version});
-							if (customResolution) {
-								return [name, customResolution];
-							}
-
-							if (name === '@remotion/studio') {
-								return [name, {url: localStudioPreviewEntry}];
-							}
-
-							return [name, null];
-						},
-					),
-				),
-				...installedDependencyResolutionsRef.current,
-			},
+			dependencyResolutions,
 			project: activeProjectRef.current,
 			remotionPackageSource: remotionPackageSource ?? null,
-		};
-
-		worker.postMessage(request);
+			useVendorBundle,
+		} satisfies BrowserStudioWorkerCompileRequest);
 
 		return () => {
 			didCancel = true;

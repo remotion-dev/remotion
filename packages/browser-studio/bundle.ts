@@ -44,17 +44,31 @@ if (!output.success) {
 	process.exit(1);
 }
 
+const vendorOutput = await build({
+	define: {'process.env.NODE_ENV': JSON.stringify('development')},
+	entrypoints: ['src/browser-studio-vendor-entry.ts'],
+	format: 'iife',
+	minify: true,
+	naming: '[name].mjs',
+	target: 'browser',
+});
+
+if (!vendorOutput.success) {
+	console.log(vendorOutput.logs.join('\n'));
+	process.exit(1);
+}
+
 const externalVersionSensitiveImport =
 	/^[^'"\n]*\bfrom\s*["']@remotion\/(?:player|studio-shared|timeline-utils)["'];?\s*$|^\s*import\s*["']@remotion\/(?:player|studio-shared|timeline-utils)["'];?\s*$/m;
 
-for (const file of output.outputs) {
+for (const file of [...output.outputs, ...vendorOutput.outputs]) {
 	const str = await file.text();
 	if (
-		path.basename(file.path) === 'browser-studio-preview-entry.mjs' &&
+		path.basename(file.path) === 'browser-studio-vendor-entry.mjs' &&
 		externalVersionSensitiveImport.test(str)
 	) {
 		throw new Error(
-			'Browser Studio must bundle version-sensitive workspace packages into its preview entry so it cannot link against an incompatible published version.',
+			'Browser Studio must bundle version-sensitive workspace packages into its vendor entry so it cannot link against an incompatible published version.',
 		);
 	}
 
