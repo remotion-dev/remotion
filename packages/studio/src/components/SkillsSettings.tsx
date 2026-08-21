@@ -143,9 +143,8 @@ export const SkillsSettings: React.FC = () => {
 			{missingSkills > 0 ? (
 				<div>
 					<p style={description}>
-						Not all skills are installed. To install skills, run this command in
-						the project directory, then reload Studio and restart your coding
-						agent.
+						Not all skills are installed. Run this command in the project
+						directory, then reload Studio and restart your coding agent.
 					</p>
 					<div style={commandField}>
 						<pre style={command}>{INSTALL_COMMAND}</pre>

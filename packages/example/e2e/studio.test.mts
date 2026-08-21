@@ -973,7 +973,7 @@ test.describe('visual mode', () => {
 			).toHaveCount(0);
 			await expect(
 				dialog.getByText(
-					'Not all skills are installed. To install skills, run this command in the project directory, then reload Studio and restart your coding agent.',
+					'Not all skills are installed. Run this command in the project directory, then reload Studio and restart your coding agent.',
 					{exact: true},
 				),
 			).toBeVisible();
