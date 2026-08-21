@@ -11,17 +11,23 @@ export const getVideoConfigIdentifierValues = ({
 	ast: File;
 	videoConfigValues: VideoConfigValues | null;
 }): VideoConfigIdentifierValues => {
-	if (videoConfigValues === null) {
-		return {};
-	}
-
 	const candidates = new Map<string, number>();
 	const otherDeclarations = new Set<string>();
+	const addCandidate = (identifier: string, value: number) => {
+		if (candidates.has(identifier) || otherDeclarations.has(identifier)) {
+			candidates.delete(identifier);
+			otherDeclarations.add(identifier);
+			return;
+		}
+
+		candidates.set(identifier, value);
+	};
 
 	recast.types.visit(ast, {
 		visitVariableDeclarator(path) {
 			const {id, init} = path.node;
 			const isVideoConfigDeclaration =
+				videoConfigValues !== null &&
 				id.type === 'ObjectPattern' &&
 				init?.type === 'CallExpression' &&
 				init.callee.type === 'Identifier' &&
@@ -50,11 +56,25 @@ export const getVideoConfigIdentifierValues = ({
 
 					const value = videoConfigValues[configKey as keyof VideoConfigValues];
 					if (Number.isFinite(value)) {
-						candidates.set(property.value.name, value);
+						addCandidate(property.value.name, value);
 					}
 				}
 			} else if (id.type === 'Identifier') {
-				otherDeclarations.add(id.name);
+				const declaration = path.parentPath.node;
+				const numericConstant =
+					declaration.type === 'VariableDeclaration' &&
+					declaration.kind === 'const' &&
+					init?.type === 'NumericLiteral' &&
+					Number.isFinite(init.value)
+						? init.value
+						: null;
+
+				if (numericConstant !== null) {
+					addCandidate(id.name, numericConstant);
+				} else {
+					candidates.delete(id.name);
+					otherDeclarations.add(id.name);
+				}
 			}
 
 			this.traverse(path);

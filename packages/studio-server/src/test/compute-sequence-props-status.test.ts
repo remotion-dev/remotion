@@ -299,6 +299,39 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should parse multiplication by a numeric constant', () => {
+	const input = `import {Sequence} from 'remotion';
+
+const fps = 30;
+
+export const ShortAudioLoop = () => {
+	return <Sequence from={-8 * fps} layout="none" />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: null,
+		keys: ['from'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props.from).toEqual({
+		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
+		codeValue: -240,
+		numericExpression: {
+			type: 'video-config-multiplication',
+			identifier: 'fps',
+			multiplier: -8,
+			multiplicand: 30,
+			factorPosition: 'left',
+			value: -240,
+		},
+	});
+});
+
 test('computeSequencePropsStatus should expand a static border shorthand', () => {
 	const input = `import {AbsoluteFill} from 'remotion';
 
