@@ -23,8 +23,7 @@ const container: React.CSSProperties = {
 	flex: 1,
 	fontFamily: 'sans-serif',
 	minWidth: 0,
-	padding: 16,
-	paddingBottom: 32,
+	padding: '16px 16px 0',
 };
 
 const description: React.CSSProperties = {
