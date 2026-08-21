@@ -202,13 +202,9 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
 			)}
-			{!isBrowserStudio &&
-				modalContextType &&
-				modalContextType.type === 'install-packages' && (
-					<InstallPackageModal
-						packageManager={modalContextType.packageManager}
-					/>
-				)}
+			{modalContextType && modalContextType.type === 'install-packages' && (
+				<InstallPackageModal packageManager={modalContextType.packageManager} />
+			)}
 
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher

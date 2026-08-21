@@ -30,6 +30,7 @@ import type {
 	InsertJsxElementResponse,
 	InsertElementRequest,
 	InsertElementResponse,
+	InstallPackageRequest,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	PasteEffectsRequest,
@@ -137,6 +138,22 @@ export type BrowserStudioEffectOperations = {
 	) => Promise<SaveMultipleEffectPropsResponse>;
 };
 
+export type BrowserStudioInstallPackagesResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type BrowserStudioPackageInstallationOperations = {
+	installPackages: (
+		request: InstallPackageRequest,
+	) => Promise<BrowserStudioInstallPackagesResponse>;
+};
+
 export type BrowserStudioOperations = {
 	consumeInitialElement: () => {
 		element: ElementDragData['element'];
@@ -156,8 +173,7 @@ export type BrowserStudioOperations = {
 	duplicateComposition: (
 		request: DuplicateCompositionRequest,
 	) => Promise<DuplicateCompositionResponse>;
-	/** Optional for compatibility with older Browser Studio hosts. */
-	effects?: BrowserStudioEffectOperations;
+	effects: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;
 	getCompositionFile: (compositionId: string) => string | null;
@@ -173,8 +189,8 @@ export type BrowserStudioOperations = {
 	insertJsxElement: (
 		request: InsertJsxElementRequest,
 	) => Promise<InsertJsxElementResponse>;
-	/** Optional for compatibility with older Browser Studio hosts. */
-	keyframes?: BrowserStudioKeyframeOperations;
+	keyframes: BrowserStudioKeyframeOperations;
+	packageInstallation: BrowserStudioPackageInstallationOperations;
 	prepareElementInstall: (
 		request: PrepareElementInstallRequest,
 	) => Promise<PrepareElementInstallResponse>;

@@ -217,7 +217,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'install-packages';
-			packageManager: PackageManager;
+			packageManager: PackageManager | null;
 	  }
 	| {
 			type: 'quick-switcher';

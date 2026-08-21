@@ -10,14 +10,8 @@ import type {
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {callApi} from './call-api';
 
-const getBrowserEffectOperations = () => {
-	const browserStudio = getBrowserStudioOperations();
-	if (browserStudio !== null && browserStudio.effects === undefined) {
-		throw new Error('Effect editing is not supported by this Browser Studio');
-	}
-
-	return browserStudio?.effects ?? null;
-};
+const getBrowserEffectOperations = () =>
+	getBrowserStudioOperations()?.effects ?? null;
 
 export const addEffect = (request: AddEffectRequest) =>
 	getBrowserEffectOperations()?.addEffect(request) ??
