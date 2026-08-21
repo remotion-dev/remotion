@@ -46,7 +46,6 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
-	getTimelineSequenceOpacity,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
@@ -175,13 +174,13 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		!isInRange;
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
+		const hasSelectedTrack = selectedItems.some(
+			(item) => item.type !== 'guide',
+		);
+
 		return {
 			...style,
-			opacity: getTimelineSequenceOpacity({
-				containsSelection,
-				selected,
-				selectedItems,
-			}),
+			opacity: hasSelectedTrack && !selected && !containsSelection ? 0.75 : 1,
 		};
 	}, [containsSelection, selected, selectedItems, style]);
 

@@ -181,20 +181,6 @@ export type TimelineSelection =
 			readonly segmentIndex: number;
 	  };
 
-export const getTimelineSequenceOpacity = ({
-	containsSelection,
-	selected,
-	selectedItems,
-}: {
-	readonly containsSelection: boolean;
-	readonly selected: boolean;
-	readonly selectedItems: readonly TimelineSelection[];
-}): number => {
-	const hasSelectedTrack = selectedItems.some((item) => item.type !== 'guide');
-
-	return hasSelectedTrack && !selected && !containsSelection ? 0.75 : 1;
-};
-
 export type TimelineEasingSelection = Extract<
 	TimelineSelection,
 	{type: 'easing'}

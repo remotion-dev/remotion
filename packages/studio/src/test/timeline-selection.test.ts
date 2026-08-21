@@ -118,7 +118,6 @@ import {
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
-	getTimelineSequenceOpacity,
 	getTimelineSequenceSelectionForEscape,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
@@ -3125,59 +3124,6 @@ test('Timeline hover highlight is weaker than selection', () => {
 			selectedBackground: TIMELINE_EXPANDED_SELECTED_BACKGROUND,
 		}),
 	).toBe(TIMELINE_EXPANDED_SELECTED_BACKGROUND);
-});
-
-test('Timeline sequence opacity emphasizes tracks containing selection', () => {
-	const nodePathInfo = makeNodePathInfo(['body', 0], []);
-	const sequenceSelection = {type: 'sequence' as const, nodePathInfo};
-	const propSelection = {
-		type: 'sequence-prop' as const,
-		nodePathInfo,
-		key: 'from',
-	};
-
-	expect(
-		getTimelineSequenceOpacity({
-			containsSelection: false,
-			selected: false,
-			selectedItems: [],
-		}),
-	).toBe(1);
-	expect(
-		getTimelineSequenceOpacity({
-			containsSelection: true,
-			selected: false,
-			selectedItems: [propSelection],
-		}),
-	).toBe(1);
-	expect(
-		getTimelineSequenceOpacity({
-			containsSelection: false,
-			selected: false,
-			selectedItems: [propSelection],
-		}),
-	).toBe(0.75);
-	expect(
-		getTimelineSequenceOpacity({
-			containsSelection: false,
-			selected: false,
-			selectedItems: [sequenceSelection],
-		}),
-	).toBe(0.75);
-	expect(
-		getTimelineSequenceOpacity({
-			containsSelection: false,
-			selected: true,
-			selectedItems: [sequenceSelection],
-		}),
-	).toBe(1);
-	expect(
-		getTimelineSequenceOpacity({
-			containsSelection: false,
-			selected: false,
-			selectedItems: [{type: 'guide', guideId: 'guide'}],
-		}),
-	).toBe(1);
 });
 
 test('Timeline outlines visibility is enabled by default and persisted', () => {
