@@ -16,7 +16,7 @@ import React, {
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
-import {timelineVerticalScroll} from './timeline-refs';
+import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
@@ -162,6 +162,10 @@ export const TimelineVirtualizationProvider: React.FC<{
 		() => timelineVerticalScroll.current,
 		[],
 	);
+	const horizontalScrollbarHeight =
+		scrollableRef.current === null
+			? 0
+			: scrollableRef.current.offsetHeight - scrollableRef.current.clientHeight;
 
 	const virtualizer = useVirtualizer({
 		count: timeline.length,
@@ -172,6 +176,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		paddingEnd,
 		paddingStart,
 		rangeExtractor,
+		scrollPaddingEnd: horizontalScrollbarHeight,
 	});
 
 	useLayoutEffect(() => {
