@@ -527,7 +527,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 260,
 							backgroundColor: '#7c3aed',
 							borderRadius: 30,
-							translate: '-7px 87px',
+							translate: '0px 0px',
 						}}
 					>
 						<ShapeLabel>Selected B</ShapeLabel>
@@ -635,7 +635,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 480,
 							backgroundColor: '#2563eb',
 							borderRadius: 32,
-							translate: '-71.7px 116.5px',
+							translate: '0px 0px',
 						}}
 					>
 						<ShapeLabel>Select the large target first</ShapeLabel>
@@ -650,7 +650,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 220,
 							backgroundColor: '#d97706',
 							borderRadius: 24,
-							translate: '-26.8px 181.5px',
+							translate: '0px 0px',
 						}}
 					>
 						<ShapeLabel>Unselected overlap</ShapeLabel>
@@ -681,7 +681,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 500,
 							backgroundColor: '#2563eb',
 							borderRadius: 32,
-							translate: '81.2px 80.3px',
+							translate: '0px 0px',
 						}}
 					>
 						<ShapeLabel>Selected parent</ShapeLabel>
@@ -695,7 +695,7 @@ export const OutlineSelectionCases: React.FC = () => {
 								height: 290,
 								backgroundColor: '#e11d48',
 								borderRadius: 24,
-								translate: '-51.1px -4.4px',
+								translate: '0px 0px',
 							}}
 						>
 							<ShapeLabel>Drag parent from here</ShapeLabel>
@@ -727,8 +727,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 400,
 							backgroundColor: '#7c3aed',
 							borderRadius: 34,
-							translate: '73.7px -167.8px',
-							rotate: '-19.9deg',
+							translate: '0px 0px',
 						}}
 					>
 						<ShapeLabel>Select one of my properties, then drag me</ShapeLabel>
@@ -763,10 +762,10 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 360,
 							backgroundColor: '#7c3aed',
 							borderRadius: 34,
-							rotate: '12.4deg',
+							rotate: '8deg',
 							scale: 1,
-							transformOrigin: '100% 0%',
-							translate: '33.6px 50.4px',
+							transformOrigin: '50% 50%',
+							translate: '0px 0px',
 						}}
 					>
 						<ShapeLabel>Selected transform target</ShapeLabel>
@@ -782,7 +781,6 @@ export const OutlineSelectionCases: React.FC = () => {
 							backgroundColor: '#d97706',
 							borderRadius: 24,
 							translate: '0px 0px',
-							rotate: '15.7deg',
 						}}
 					>
 						<ShapeLabel>Must stay below handles</ShapeLabel>
