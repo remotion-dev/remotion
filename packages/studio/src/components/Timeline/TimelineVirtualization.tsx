@@ -16,7 +16,7 @@ import React, {
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
-import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
+import {timelineVerticalScroll} from './timeline-refs';
 import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
@@ -162,10 +162,6 @@ export const TimelineVirtualizationProvider: React.FC<{
 		() => timelineVerticalScroll.current,
 		[],
 	);
-	const horizontalScrollbarHeight =
-		scrollableRef.current === null
-			? 0
-			: scrollableRef.current.offsetHeight - scrollableRef.current.clientHeight;
 
 	const virtualizer = useVirtualizer({
 		count: timeline.length,
@@ -176,7 +172,6 @@ export const TimelineVirtualizationProvider: React.FC<{
 		paddingEnd,
 		paddingStart,
 		rangeExtractor,
-		scrollPaddingEnd: horizontalScrollbarHeight,
 	});
 
 	useLayoutEffect(() => {
@@ -190,8 +185,11 @@ export const TimelineVirtualizationProvider: React.FC<{
 
 		const key = getSelectionTrackKey(revealRequest.item);
 		const index = key === null ? undefined : layout.rootTrackIndexes.get(key);
-		if (index !== undefined) {
-			virtualizer.scrollToIndex(index, {align: 'auto'});
+		if (
+			index !== undefined &&
+			virtualizer.getOffsetForIndex(index, 'auto')?.[1] !== 'auto'
+		) {
+			virtualizer.scrollToIndex(index, {align: 'center'});
 		}
 	}, [layout.rootTrackIndexes, revealRequest, virtualizer]);
 
