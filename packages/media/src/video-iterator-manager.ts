@@ -186,6 +186,13 @@ export const videoIteratorManager = async ({
 		}
 
 		if (nonce.isStale()) {
+			// During a paused scrub, every seek goes stale before its decode
+			// lands, so returning undrawn would discard every frame and freeze
+			// the preview. Painting is safe: the newer seek always lands last.
+			if (!videoFrameIterator.isDestroyed() && iterator.initialFrame) {
+				await drawFrame(iterator.initialFrame);
+			}
+
 			return;
 		}
 
