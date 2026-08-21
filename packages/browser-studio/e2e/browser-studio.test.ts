@@ -64,6 +64,16 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			expect(popup.url()).toBe('https://remotion.dev/');
 			await popup.close();
 			await studio.getByRole('button', {name: 'File', exact: true}).click();
+			const fileMenu = studio
+				.locator('[data-remotion-menu-tree-id]')
+				.filter({hasText: 'New composition...'});
+			await expect(fileMenu).toBeVisible();
+			await expect(
+				fileMenu.getByText('New folder...', {exact: true}),
+			).toBeVisible();
+			await expect(fileMenu.getByRole('separator')).toHaveCount(0, {
+				timeout: 1000,
+			});
 			await expect(
 				studio.getByRole('button', {
 					name: 'Open in File Manager',
