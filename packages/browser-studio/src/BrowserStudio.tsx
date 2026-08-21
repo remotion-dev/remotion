@@ -377,7 +377,6 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				includeFavicon: true,
 				inputProps: {},
 				installedDependencies: null,
-				studioCsrfToken: null,
 				logLevel: 'info',
 				mode: 'dev',
 				numberOfAudioTags: 0,

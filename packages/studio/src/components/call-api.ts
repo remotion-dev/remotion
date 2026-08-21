@@ -1,4 +1,4 @@
-import {STUDIO_CSRF_HEADER, type ApiRoutes} from '@remotion/studio-shared';
+import type {ApiRoutes} from '@remotion/studio-shared';
 import {queueSequenceNodePathMutationFromApiResponse} from '../helpers/sequence-node-path-mutations';
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(
@@ -11,11 +11,6 @@ export const callApi = <Endpoint extends keyof ApiRoutes>(
 			method: 'post',
 			headers: {
 				'content-type': 'application/json',
-				...(typeof window.remotion_studioCsrfToken === 'string'
-					? {
-							[STUDIO_CSRF_HEADER]: window.remotion_studioCsrfToken,
-						}
-					: {}),
 			},
 			signal,
 			body: JSON.stringify(body),

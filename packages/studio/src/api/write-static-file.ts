@@ -1,4 +1,3 @@
-import {STUDIO_CSRF_HEADER} from '@remotion/studio-shared';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 
 export const writeStaticFile = async ({
@@ -32,9 +31,6 @@ export const writeStaticFile = async ({
 
 	const response = await fetch(url, {
 		method: 'POST',
-		headers: {
-			[STUDIO_CSRF_HEADER]: window.remotion_studioCsrfToken ?? '',
-		},
 		body: contents,
 	});
 

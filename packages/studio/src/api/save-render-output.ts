@@ -1,7 +1,4 @@
-import {
-	STUDIO_CSRF_HEADER,
-	type CompletedClientRender,
-} from '@remotion/studio-shared';
+import type {CompletedClientRender} from '@remotion/studio-shared';
 import {callApi} from '../components/call-api';
 
 const throwIfNotOk = async (response: Response): Promise<void> => {
@@ -31,9 +28,6 @@ export const saveOutputFile = async ({
 
 	const response = await fetch(url, {
 		method: 'POST',
-		headers: {
-			[STUDIO_CSRF_HEADER]: window.remotion_studioCsrfToken ?? '',
-		},
 		body: blob,
 	});
 

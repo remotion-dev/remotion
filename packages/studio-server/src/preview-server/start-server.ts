@@ -1,4 +1,3 @@
-import {randomBytes} from 'node:crypto';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
 import type {
@@ -124,7 +123,6 @@ export const startServer = async (options: {
 	};
 
 	const server = http.createServer(handleRequestBeforeReady);
-	const studioCsrfToken = randomBytes(32).toString('hex');
 	const maxTries = 5;
 	let selectedPort: number | null = null;
 
@@ -296,7 +294,6 @@ export const startServer = async (options: {
 						getDefaultCodingAgent: options.getDefaultCodingAgent,
 						getDefaultEditor: options.getDefaultEditor,
 						configFile: options.configFile,
-						studioCsrfToken,
 					});
 				})
 				.catch((err) => {

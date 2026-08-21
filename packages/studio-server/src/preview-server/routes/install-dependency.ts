@@ -87,7 +87,6 @@ export const handleInstallPackage: ApiHandler<
 				env: {
 					...process.env,
 					YARN_ENABLE_SCRIPTS: 'false',
-					YARN_IGNORE_SCRIPTS: 'true',
 				},
 			});
 			cmd.on('error', reject);

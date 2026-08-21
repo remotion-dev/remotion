@@ -461,7 +461,6 @@ export const internalBundle = async (
 			publicLicenseKey: actualArgs.renderDefaults?.publicLicenseKey ?? null,
 			configFileStudioSettings: null,
 		},
-		studioCsrfToken: null,
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);

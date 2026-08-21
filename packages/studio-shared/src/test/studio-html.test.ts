@@ -5,12 +5,10 @@ const makeHtml = ({
 	publicPath,
 	staticHash,
 	publicFolderExists,
-	studioCsrfToken = null,
 }: {
 	publicPath: string;
 	staticHash: string;
 	publicFolderExists: string;
-	studioCsrfToken?: string | null;
 }) => {
 	return studioHtml({
 		publicPath,
@@ -40,7 +38,6 @@ const makeHtml = ({
 		gitSource: null,
 		projectName: 'test',
 		installedDependencies: null,
-		studioCsrfToken,
 		packageManager: 'unknown',
 		logLevel: 'info',
 		mode: 'bundle',
@@ -73,17 +70,6 @@ test('makes relative bundles resolve public assets from the document URL', () =>
 		new URL('./public/image.png', 'https://example.com/sites/alpha/index.html')
 			.pathname,
 	).toBe('/sites/alpha/public/image.png');
-});
-
-test('embeds the Studio CSRF token', () => {
-	const html = makeHtml({
-		publicPath: '/',
-		staticHash: '/static',
-		publicFolderExists: '/public',
-		studioCsrfToken: 'csrf-token',
-	});
-
-	expect(html).toContain('window.remotion_studioCsrfToken = "csrf-token";');
 });
 
 test('preserves explicitly absolute bundle paths', () => {

@@ -4,7 +4,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {Readable} from 'node:stream';
-import {STUDIO_CSRF_HEADER, type RenderDefaults} from '@remotion/studio-shared';
+import type {RenderDefaults} from '@remotion/studio-shared';
 import type {LiveEventsServer} from '../preview-server/live-events';
 import {handleRoutes} from '../routes';
 
@@ -16,24 +16,21 @@ const makeLiveEventsServer = (): LiveEventsServer => ({
 	sendEventToClientId: () => false,
 });
 
-const requestRoute = async ({
+const requestUpload = async ({
 	remotionRoot,
-	url,
+	filePath,
 	body,
-	csrfToken,
 }: {
 	remotionRoot: string;
-	url: string;
+	filePath: string;
 	body: string;
-	csrfToken?: string;
 }) => {
 	const request = Readable.from([body]) as IncomingMessage;
 	request.method = 'POST';
-	request.url = url;
+	request.url = `/api/upload-output?filePath=${encodeURIComponent(filePath)}`;
 	request.headers = {
 		host: 'localhost:3000',
 		origin: 'http://localhost:3000',
-		...(csrfToken ? {[STUDIO_CSRF_HEADER]: csrfToken} : {}),
 	};
 	let responseBody = '';
 	let responseStatusCode = 0;
@@ -103,39 +100,34 @@ const requestRoute = async ({
 		response,
 		staticHash: '/static',
 		staticHashPrefix: '/static',
-		studioCsrfToken: 'correct-token',
 	});
 	await responseEnded;
 
 	return {responseBody, responseStatusCode};
 };
 
-test('rejects output uploads without the Studio CSRF token', async () => {
+test('uploads supported render output files', async () => {
 	const remotionRoot = await mkdtemp(
-		path.join(tmpdir(), 'remotion-upload-csrf-'),
+		path.join(tmpdir(), 'remotion-upload-output-'),
 	);
-	const configFile = path.join(remotionRoot, 'remotion.config.ts');
-	await writeFile(configFile, 'safe config');
 
 	try {
-		const response = await requestRoute({
-			body: 'malicious config',
+		const response = await requestUpload({
+			body: 'video contents',
+			filePath: 'output.mp4',
 			remotionRoot,
-			url: '/api/upload-output?filePath=remotion.config.ts',
 		});
 
-		expect(response.responseStatusCode).toBe(403);
-		expect(JSON.parse(response.responseBody)).toEqual({
-			success: false,
-			error: 'Invalid CSRF token',
-		});
-		expect(await readFile(configFile, 'utf8')).toBe('safe config');
+		expect(JSON.parse(response.responseBody)).toEqual({success: true});
+		expect(await readFile(path.join(remotionRoot, 'output.mp4'), 'utf8')).toBe(
+			'video contents',
+		);
 	} finally {
 		await rm(remotionRoot, {force: true, recursive: true});
 	}
 });
 
-test('rejects config uploads even with the Studio CSRF token', async () => {
+test('rejects config files as render output', async () => {
 	const remotionRoot = await mkdtemp(
 		path.join(tmpdir(), 'remotion-upload-config-'),
 	);
@@ -143,11 +135,10 @@ test('rejects config uploads even with the Studio CSRF token', async () => {
 	await writeFile(configFile, 'safe config');
 
 	try {
-		const response = await requestRoute({
+		const response = await requestUpload({
 			body: 'malicious config',
-			csrfToken: 'correct-token',
+			filePath: 'remotion.config.ts',
 			remotionRoot,
-			url: '/api/upload-output?filePath=remotion.config.ts',
 		});
 
 		expect(response.responseStatusCode).toBe(500);
@@ -174,11 +165,10 @@ test('does not follow symlinks when uploading render output', async () => {
 	await symlink(configFile, outputFile);
 
 	try {
-		const response = await requestRoute({
+		const response = await requestUpload({
 			body: 'malicious config',
-			csrfToken: 'correct-token',
+			filePath: 'output.mp4',
 			remotionRoot,
-			url: '/api/upload-output?filePath=output.mp4',
 		});
 
 		expect(response.responseStatusCode).toBe(500);
@@ -186,18 +176,4 @@ test('does not follow symlinks when uploading render output', async () => {
 	} finally {
 		await rm(remotionRoot, {force: true, recursive: true});
 	}
-});
-
-test('rejects Studio restarts without the Studio CSRF token', async () => {
-	const response = await requestRoute({
-		body: '{}',
-		remotionRoot: process.cwd(),
-		url: '/api/restart-studio',
-	});
-
-	expect(response.responseStatusCode).toBe(403);
-	expect(JSON.parse(response.responseBody)).toEqual({
-		success: false,
-		error: 'Invalid CSRF token',
-	});
 });

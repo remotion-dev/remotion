@@ -6,19 +6,13 @@ import {mkdtemp, rm, writeFile} from 'node:fs/promises';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {PassThrough, Readable} from 'node:stream';
-import {
-	STUDIO_CSRF_HEADER,
-	type PackageManager,
-	type RenderDefaults,
-} from '@remotion/studio-shared';
+import {PassThrough} from 'node:stream';
+import type {PackageManager} from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
-import type {LiveEventsServer} from '../preview-server/live-events';
 import {
 	getPackageInstallSpec,
 	handleInstallPackage,
 } from '../preview-server/routes/install-dependency';
-import {handleRoutes} from '../routes';
 
 type SpawnCall = {
 	command: string;
@@ -134,7 +128,6 @@ test('installs without running dependency lifecycle scripts', async () => {
 			if (manager === 'yarn') {
 				expect(call.args).not.toContain('--ignore-scripts');
 				expect(call.options.env?.YARN_ENABLE_SCRIPTS).toBe('false');
-				expect(call.options.env?.YARN_IGNORE_SCRIPTS).toBe('true');
 			} else {
 				expect(call.args).toContain('--ignore-scripts');
 			}
@@ -146,102 +139,5 @@ test('installs without running dependency lifecycle scripts', async () => {
 				rm(directory, {force: true, recursive: true}),
 			),
 		);
-	}
-});
-
-test('rejects package installation without the Studio CSRF token', async () => {
-	const {calls: spawnCalls, spawnSpy} = mockPackageManagerSpawn();
-	const remotionRoot = await mkdtemp(
-		path.join(tmpdir(), 'remotion-install-csrf-'),
-	);
-	const request = Readable.from([
-		JSON.stringify({
-			dependencies: [{name: 'lodash', version: '4.17.21'}],
-		}),
-	]) as IncomingMessage;
-	request.method = 'POST';
-	request.url = '/api/install-package';
-	request.headers = {
-		host: 'localhost:3000',
-		origin: 'http://localhost:3000',
-		[STUDIO_CSRF_HEADER]: 'wrong-token',
-	};
-	let responseBody = '';
-	let responseStatusCode = 0;
-	const response = {
-		end(chunk?: string) {
-			if (chunk) {
-				responseBody += chunk;
-			}
-		},
-		setHeader() {},
-		writeHead(statusCode: number) {
-			responseStatusCode = statusCode;
-		},
-	} as unknown as ServerResponse;
-	const liveEventsServer: LiveEventsServer = {
-		addNewClientListener: () => () => undefined,
-		closeConnections: () => Promise.resolve(),
-		router: () => Promise.resolve(),
-		sendEventToClient: () => undefined,
-		sendEventToClientId: () => false,
-	};
-
-	try {
-		spawnCalls.length = 0;
-		await handleRoutes({
-			binariesDirectory: null,
-			configFile: null,
-			enableCrossSiteIsolation: false,
-			entryPoint: '',
-			getAudioLatencyHint: () => null,
-			getCurrentInputProps: () => ({}),
-			getDefaultCodingAgent: () => null,
-			getDefaultEditor: () => null,
-			getEnvVariables: () => ({}),
-			getExperimentalKeepAudioContextAlive: () => false,
-			getNumberOfAudioTags: () => 0,
-			getPreviewSampleRate: () => null,
-			getRenderDefaults: () => ({}) as RenderDefaults,
-			getRenderQueue: () => [],
-			getStudioRuntimeConfig: () => ({
-				askAIEnabled: false,
-				bufferStateDelayInMilliseconds: null,
-				configFileStudioSettings: null,
-				defaultCodingAgent: null,
-				defaultEditor: null,
-				interactivityEnabled: true,
-				keyboardShortcutsEnabled: true,
-				maxTimelineTracks: null,
-				publicLicenseKey: null,
-			}),
-			gitSource: null,
-			studioCsrfToken: 'correct-token',
-			liveEventsServer,
-			logLevel: 'error',
-			outputHash: '/outputs',
-			outputHashPrefix: '/outputs',
-			publicDir: remotionRoot,
-			queueMethods: {
-				addJob: () => undefined,
-				cancelJob: () => undefined,
-				removeJob: () => undefined,
-			},
-			remotionRoot,
-			request,
-			response,
-			staticHash: '/static',
-			staticHashPrefix: '/static',
-		});
-
-		expect(responseStatusCode).toBe(403);
-		expect(JSON.parse(responseBody)).toEqual({
-			success: false,
-			error: 'Invalid CSRF token',
-		});
-		expect(spawnCalls).toHaveLength(0);
-	} finally {
-		spawnSpy.mockRestore();
-		await rm(remotionRoot, {force: true, recursive: true});
 	}
 });
