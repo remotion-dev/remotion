@@ -31,6 +31,7 @@ test('keeps copy and open-in-new-window asset actions enabled in read-only Studi
 		fileManagerName: 'Finder',
 		copyFileName: noop,
 		copyStaticFilePath: noop,
+		openAssetInConvert: noop,
 		openAssetInExplorer: noop,
 		renameAsset: noop,
 		deleteAsset: noop,
@@ -39,6 +40,7 @@ test('keeps copy and open-in-new-window asset actions enabled in read-only Studi
 	});
 
 	expect(getItem(items, 'open-in-new-window').disabled).not.toBe(true);
+	expect(getItem(items, 'open-asset-in-convert').disabled).not.toBe(true);
 	expect(getItem(items, 'copy-asset-file-name').disabled).not.toBe(true);
 	expect(getItem(items, 'copy-asset-static-file-path').disabled).not.toBe(true);
 	expect(getItem(items, 'open-asset-in-explorer').disabled).toBe(true);
@@ -52,6 +54,7 @@ test('hides file-manager asset actions in Browser Studio', () => {
 		fileManagerName: 'Finder',
 		copyFileName: noop,
 		copyStaticFilePath: noop,
+		openAssetInConvert: noop,
 		openAssetInExplorer: noop,
 		renameAsset: noop,
 		deleteAsset: noop,
@@ -63,6 +66,29 @@ test('hides file-manager asset actions in Browser Studio', () => {
 	expect(items.find((item) => item.id === 'open-asset-in-explorer')).toBe(
 		undefined,
 	);
+});
+
+test('only offers Remotion Convert for audio and video assets', () => {
+	const getItems = (relativePath: string) =>
+		getAssetContextMenuItems({
+			relativePath,
+			fileManagerName: 'Finder',
+			copyFileName: noop,
+			copyStaticFilePath: noop,
+			openAssetInConvert: noop,
+			openAssetInExplorer: noop,
+			renameAsset: noop,
+			deleteAsset: noop,
+			fileExplorerAvailable: true,
+			fileExplorerDisabled: false,
+			mutationsDisabled: false,
+		});
+
+	expect(getItem(getItems('video.mp4'), 'open-asset-in-convert')).toBeDefined();
+	expect(getItem(getItems('audio.wav'), 'open-asset-in-convert')).toBeDefined();
+	expect(
+		getItems('image.png').find((item) => item.id === 'open-asset-in-convert'),
+	).toBeUndefined();
 });
 
 test('only offers file-manager actions when a local public folder is available', () => {

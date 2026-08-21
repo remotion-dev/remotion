@@ -5,6 +5,7 @@ import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
@@ -12,6 +13,7 @@ import {
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {Button} from './Button';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {
 	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
@@ -26,6 +28,14 @@ import {
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
+
+const convertButtonContainer: React.CSSProperties = {
+	marginTop: 12,
+};
+
+const convertButtonStyle: React.CSSProperties = {
+	width: '100%',
+};
 
 export const getCurrentAssetMetadataSource = (assetName: string | null) => {
 	if (!assetName) {
@@ -128,6 +138,13 @@ export const AssetInfo: React.FC<{
 		},
 		[renameFile],
 	);
+	const onOpenConvert = useCallback(() => {
+		if (assetName === null) {
+			return;
+		}
+
+		openInRemotionConvert({relativePath: assetName});
+	}, [assetName]);
 
 	if (!assetName) {
 		return <InspectorInfoHeader contentSized={contentSized} />;
@@ -193,6 +210,17 @@ export const AssetInfo: React.FC<{
 					</InspectorInfoSubtitle>
 				);
 			})}
+			{src ? (
+				<div style={convertButtonContainer}>
+					<Button
+						onClick={onOpenConvert}
+						size="compact"
+						style={convertButtonStyle}
+					>
+						Open in Remotion Convert
+					</Button>
+				</div>
+			) : null}
 		</InspectorInfoHeader>
 	);
 };

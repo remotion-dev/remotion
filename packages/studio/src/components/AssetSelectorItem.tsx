@@ -24,6 +24,7 @@ import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	markAssetSidebarScrollFromRowClick,
 	maybeScrollAssetSidebarRowIntoView,
@@ -130,6 +131,7 @@ export const getAssetContextMenuItems = ({
 	fileManagerName,
 	copyFileName,
 	copyStaticFilePath,
+	openAssetInConvert,
 	openAssetInExplorer,
 	renameAsset,
 	deleteAsset,
@@ -141,6 +143,7 @@ export const getAssetContextMenuItems = ({
 	fileManagerName: string;
 	copyFileName: () => void;
 	copyStaticFilePath: () => void;
+	openAssetInConvert: () => void;
 	openAssetInExplorer: () => void;
 	renameAsset: () => void;
 	deleteAsset: () => void;
@@ -148,8 +151,24 @@ export const getAssetContextMenuItems = ({
 	fileExplorerDisabled: boolean;
 	mutationsDisabled: boolean;
 }): ComboboxValue[] => {
+	const previewFileType = getPreviewFileType(relativePath);
+	const canOpenInConvert =
+		previewFileType === 'audio' || previewFileType === 'video';
 	const items: (ComboboxValue | null)[] = [
 		getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
+		canOpenInConvert
+			? {
+					id: 'open-asset-in-convert',
+					keyHint: null,
+					label: 'Open in Remotion Convert',
+					leftItem: null,
+					onClick: openAssetInConvert,
+					quickSwitcherLabel: 'Open asset in Remotion Convert',
+					subMenu: null,
+					type: 'item',
+					value: 'open-asset-in-convert',
+				}
+			: null,
 		{
 			type: 'divider',
 			id: 'open-in-new-window-divider',
@@ -559,6 +578,10 @@ const AssetSelectorItem: React.FC<{
 			});
 	}, [relativePath]);
 
+	const openAssetInConvert = useCallback(() => {
+		openInRemotionConvert({relativePath});
+	}, [relativePath]);
+
 	const openAssetInExplorer = useCallback(() => {
 		if (!window.remotion_publicFolderExists) {
 			showNotification('Could not find the public folder', 2000);
@@ -634,6 +657,7 @@ const AssetSelectorItem: React.FC<{
 			fileManagerName,
 			copyFileName,
 			copyStaticFilePath,
+			openAssetInConvert,
 			openAssetInExplorer,
 			renameAsset,
 			deleteAsset,
@@ -648,6 +672,7 @@ const AssetSelectorItem: React.FC<{
 		fileExplorerDisabled,
 		fileManagerName,
 		mutationsDisabled,
+		openAssetInConvert,
 		openAssetInExplorer,
 		renameAsset,
 		relativePath,
