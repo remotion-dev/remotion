@@ -17,6 +17,7 @@ import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
+import {TrashIcon} from '../icons/trash';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {
 	InspectorInfoHeader,
@@ -36,6 +37,7 @@ import {
 } from './NewComposition/use-rename-static-file';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
+import {useDeleteAsset} from './use-delete-asset';
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = COMPACT_INLINE_ROW_HEIGHT + 8;
@@ -182,6 +184,7 @@ export const AssetInfo: React.FC<{
 }> = ({assetName, contentSized = false, onAssetClick, readOnlyStudio}) => {
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
+	const browserStudioOperations = getBrowserStudioOperations();
 
 	const staticFiles = useStaticFiles();
 	const renameFile = useRenameStaticFile({
@@ -204,7 +207,7 @@ export const AssetInfo: React.FC<{
 	const imageMetadata = useImageMetadata(imageSrc);
 	const canRename =
 		onAssetClick === undefined &&
-		(getBrowserStudioOperations() !== null ||
+		(browserStudioOperations !== null ||
 			(connectionStatus === 'connected' && !readOnlyStudio));
 	const onRename = useCallback(
 		(newName: string) => {
@@ -231,6 +234,7 @@ export const AssetInfo: React.FC<{
 			showNotification(`Could not open file: ${err.message}`, 2000);
 		});
 	}, [assetName]);
+	const onDelete = useDeleteAsset(assetName);
 
 	if (!assetName) {
 		return (
@@ -255,7 +259,7 @@ export const AssetInfo: React.FC<{
 	const mediaSections = mediaMetadata
 		? getCurrentAssetMediaSections(mediaMetadata)
 		: null;
-	const fileManagerAvailable = getBrowserStudioOperations() === null;
+	const fileManagerAvailable = browserStudioOperations === null;
 	const fileManagerDisabled =
 		window.remotion_publicFolderExists === null ||
 		readOnlyStudio ||
@@ -263,6 +267,9 @@ export const AssetInfo: React.FC<{
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
+	const mutationsDisabled =
+		browserStudioOperations === null &&
+		(readOnlyStudio || connectionStatus !== 'connected');
 
 	return (
 		<>
@@ -327,52 +334,53 @@ export const AssetInfo: React.FC<{
 					)}
 				</InspectorSection>
 			) : null}
-			{src || fileManagerAvailable ? (
-				<InspectorQuickActionsSection>
-					{src ? (
-						<InspectorQuickAction
-							disabled={false}
-							onClick={onOpenConvert}
-							renderIcon={(color) => (
-								<RemotionConvertIcon
-									color={color}
-									style={quickActionIconStyle}
-								/>
-							)}
+			<InspectorQuickActionsSection>
+				{src ? (
+					<InspectorQuickAction
+						disabled={false}
+						onClick={onOpenConvert}
+						renderIcon={(color) => (
+							<RemotionConvertIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Convert
+						<svg
+							aria-hidden="true"
+							viewBox="0 0 16 16"
+							style={convertArrowStyle}
 						>
-							Convert
-							<svg
-								aria-hidden="true"
-								viewBox="0 0 16 16"
-								style={convertArrowStyle}
-							>
-								<path
-									d="M4 12 12 4M6 4h6v6"
-									fill="none"
-									stroke={CURRENT_COLOR}
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="1.5"
-								/>
-							</svg>
-						</InspectorQuickAction>
-					) : null}
-					{fileManagerAvailable ? (
-						<InspectorQuickAction
-							disabled={fileManagerDisabled}
-							onClick={onShowInFileManager}
-							renderIcon={(color) => (
-								<ExpandedFolderIcon
-									color={color}
-									style={quickActionIconStyle}
-								/>
-							)}
-						>
-							Show in {fileManagerName}
-						</InspectorQuickAction>
-					) : null}
-				</InspectorQuickActionsSection>
-			) : null}
+							<path
+								d="M4 12 12 4M6 4h6v6"
+								fill="none"
+								stroke={CURRENT_COLOR}
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="1.5"
+							/>
+						</svg>
+					</InspectorQuickAction>
+				) : null}
+				{fileManagerAvailable ? (
+					<InspectorQuickAction
+						disabled={fileManagerDisabled}
+						onClick={onShowInFileManager}
+						renderIcon={(color) => (
+							<ExpandedFolderIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Show in {fileManagerName}
+					</InspectorQuickAction>
+				) : null}
+				<InspectorQuickAction
+					disabled={mutationsDisabled}
+					onClick={onDelete}
+					renderIcon={(color) => (
+						<TrashIcon color={color} style={quickActionIconStyle} />
+					)}
+				>
+					Delete
+				</InspectorQuickAction>
+			</InspectorQuickActionsSection>
 		</>
 	);
 };

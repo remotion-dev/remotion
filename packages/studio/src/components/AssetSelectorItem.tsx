@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import {Internals, staticFile, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {deleteStaticFile} from '../api/delete-static-file';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -39,17 +38,16 @@ import {ClipboardIcon} from '../icons/clipboard';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {SetSelectedModalContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
-import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenu} from './ContextMenu';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
-import {inlineCodeSnippet} from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getOpenInNewWindowMenuItem} from './open-in-new-window';
 import {openInFileExplorer} from './RenderQueue/actions';
+import {useDeleteAsset} from './use-delete-asset';
 
 const iconStyle: React.CSSProperties = {
 	width: 18,
@@ -437,7 +435,6 @@ const AssetSelectorItem: React.FC<{
 	const [hovered, setHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const confirm = useConfirmationDialog();
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const onPointerEnter = useCallback(() => {
@@ -603,46 +600,7 @@ const AssetSelectorItem: React.FC<{
 		publicFolderExists: window.remotion_publicFolderExists,
 	});
 
-	const deleteAsset = useCallback(() => {
-		confirm({
-			title: 'Delete asset',
-			message: (
-				<>
-					Do you want to delete the asset{' '}
-					<code style={inlineCodeSnippet}>{relativePath}</code> from your public
-					folder?
-				</>
-			),
-			confirmLabel: 'Delete',
-		})
-			.then((confirmed) => {
-				if (!confirmed) {
-					return;
-				}
-
-				const notification = showNotification(
-					`Deleting ${relativePath}...`,
-					null,
-				);
-
-				deleteStaticFile(relativePath)
-					.then(() => {
-						notification.replaceContent(`Deleted ${relativePath}`, 2000);
-					})
-					.catch((err) => {
-						notification.replaceContent(
-							`Could not delete ${relativePath}: ${(err as Error).message}`,
-							3000,
-						);
-					});
-			})
-			.catch((err) => {
-				showNotification(
-					`Could not delete ${relativePath}: ${(err as Error).message}`,
-					3000,
-				);
-			});
-	}, [confirm, relativePath]);
+	const deleteAsset = useDeleteAsset(relativePath);
 
 	const renameAsset = useCallback(() => {
 		setSelectedModal({
