@@ -7,133 +7,47 @@ crumb: '@remotion/studio-protocol'
 
 # Integrating a component library with Studio
 
-A Studio Protocol Element transfers a component's implementation as source code, together with the metadata Studio needs to insert it. Studio writes the source to an `.element.tsx` file and only installs the dependencies declared by the Element. The component library itself does not need to be published or installed in the target project.
+An Element contains the source code for one component. It also contains the data that Studio needs to insert the component.
 
-This guide recommends one way to organize the integration for maximum code reuse: Show the component in a [`<Player>`](/docs/player), provide its source to [`createElementPayload()`](/docs/studio-protocol/create-element-payload), and use the resulting Element for both installation and drag-and-drop.
+Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list. You do not have to publish or install the component library in the target project.
 
-```text title="Recommended flow"
-Component → <Player> preview
-          → source string → createElementPayload()
-                          → install or drag into Studio
-```
+Use this procedure to preview and deliver a component:
 
-The Studio Protocol only receives the final payload. A website is free to reuse the component source directly, generate code, combine files, or let users modify the code interactively before creating it.
+1. Show the component in a [`<Player>`](/docs/player).
+2. Pass the component source code to [`createElementPayload()`](/docs/studio-protocol/create-element-payload).
+3. Use the payload to install the Element or drag the Element into Studio.
+
+The website can reuse, combine, or change source code before the website creates the payload. The website can also let users change the source code. Studio receives only the final payload.
 
 ## Show a Player preview
 
-We recommend showing each component in a [`<Player>`](/docs/player) so users can see the animation before sending it to Studio. Import the library component normally so the website's bundler compiles it:
+Show each component in a [`<Player>`](/docs/player). The preview lets users examine the component before they send it to Studio.
 
-```tsx title="LowerThirdPreview.tsx"
-'use client';
+Import the component normally for the preview. The website bundler then compiles the component.
 
-import {Player} from '@remotion/player';
-import {LowerThird} from './LowerThird';
-
-export const LowerThirdPreview = () => {
-  return (
-    <Player
-      component={LowerThird}
-      compositionWidth={900}
-      compositionHeight={260}
-      durationInFrames={90}
-      fps={30}
-      controls
-      loop
-      style={{width: '100%'}}
-    />
-  );
-};
-```
-
-Use matching dimensions, duration, and props when creating the Element payload so the result in Studio resembles the preview.
+Use the same dimensions and duration in the Player and the Element payload. Use the same initial values in the preview and the source code. This configuration helps the installed Element match the preview.
 
 ## Provide the component source
 
-Studio installs the final source string as one `.element.tsx` file. It must be self-contained and contain exactly one exported named React component.
+A component that follows the [Element guidelines](/elements/contributing#element-guidelines) is usually ready for Studio. Pass its source code to [`createElementPayload()`](/docs/studio-protocol/create-element-payload) as a string.
 
-If a component already consists of one self-contained `.tsx` file, the website can import it normally for the Player preview and load the same file as a string for the payload. This is the simplest way to reuse the implementation; the Element is the transfer abstraction around it.
+A self-contained `.tsx` file can serve two purposes. Import it normally to render the preview. Load the same file as a string to create the payload. This avoids a separate Element implementation.
 
-For a source file that is sent unchanged, avoid relative imports, project aliases, local CSS files, and local assets. Inline local implementation files or combine them into the final source string. The component source itself—not an import path to the component library—is what crosses the Studio Protocol boundary.
+### Combine or edit the source code
 
-If the component uses supporting npm packages, declare them with exact versions in `dependencies` so Studio can offer to install them. For `@remotion/*` packages, use `version: null`. Do not declare `react`, `react-dom`, or `remotion` because the target project provides them.
+The Element source does not have to be the exact content of one file. A build step can combine multiple files into one source code string.
 
-### Generate or edit the source
+The website can also show controls or a code editor. The website can change the source code based on the user's selections.
 
-The Element source does not have to match a file byte-for-byte. A build step can combine registry files into one installable source string. A website can also expose controls or a code editor, generate an Element from the user's choices, and pass the modified string to Studio.
+## Add install actions
 
-Only the final string passed to [`createElementPayload()`](/docs/studio-protocol/create-element-payload) must satisfy the payload requirements.
+Create one payload for installation and drag-and-drop. Run the install actions in the browser.
 
-## Add the browser actions
-
-We recommend creating one payload and offering both delivery methods. The action component must run in the browser because dragging needs a `DataTransfer` and installation discovers a locally running Studio.
-
-```tsx twoslash title="ElementActions.tsx"
-'use client';
-
-import {
-  createElementPayload,
-  installInStudio,
-  setStudioDragData,
-} from '@remotion/studio-protocol';
-import {useMemo, useState} from 'react';
-
-type ElementActionsProps = {
-  readonly sourceCode: string;
-};
-
-export const ElementActions = ({sourceCode}: ElementActionsProps) => {
-  const [message, setMessage] = useState<string | null>(null);
-  const payload = useMemo(
-    () =>
-      createElementPayload({
-        displayName: 'Lower Third',
-        slug: 'lower-third',
-        sourceCode,
-        dependencies: [],
-        dimensions: {width: 900, height: 260},
-        durationInFrames: 90,
-      }),
-    [sourceCode],
-  );
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={async () => {
-          const result = await installInStudio({payload});
-          setMessage(
-            result.success
-              ? 'Sent to Studio. Confirm the installation there.'
-              : result.message,
-          );
-        }}
-      >
-        Install in Studio
-      </button>
-      <button
-        type="button"
-        draggable
-        onDragStart={(event) => {
-          setStudioDragData({
-            dataTransfer: event.dataTransfer,
-            payload,
-          });
-        }}
-      >
-        Drag into Studio
-      </button>
-      {message ? <p aria-live="polite">{message}</p> : null}
-    </>
-  );
-};
-```
-
-A successful [`installInStudio()`](/docs/studio-protocol/install-in-studio) result means that Studio is awaiting confirmation. It does not mean the Element has been installed.
+See [`installInStudio()`](/docs/studio-protocol/install-in-studio) and [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) for implementation examples.
 
 ## Vite-based projects
 
-For Element source that should be sent unchanged, Vite's [`?raw` imports](https://vite.dev/guide/assets#importing-asset-as-string) are a convenient option. Import the component normally for the Player preview and import it with `?raw` for the Studio actions:
+Vite lets you import file content with [`?raw`](https://vite.dev/guide/assets#importing-asset-as-string). Use a normal import for the Player preview. Use a `?raw` import for the install actions.
 
 ```tsx title="LowerThirdGalleryItem.tsx"
 import {ElementActions} from './ElementActions';
@@ -150,67 +64,34 @@ export const LowerThirdGalleryItem = () => {
 };
 ```
 
-The framework determines how this component is mounted or hydrated in the browser. A generated or interactively edited source string is equally valid.
+Render this component on the client with the method that your framework provides.
 
 ## Next.js
 
-Next.js supports multiple bundlers, so the way a website obtains the source string depends on its build setup. The Studio Protocol does not require a particular source-loading pattern; it only requires that the browser receives the final string.
+Next.js can use Webpack or Turbopack. The method that gets the source code string depends on the selected bundler.
+
+The Studio Protocol does not require a specific method. It requires only that the browser receives the final source code string.
 
 ### Webpack
 
-For a site that explicitly uses Webpack, a raw import keeps the preview import and source import close together. An [`asset/source` module](https://webpack.js.org/guides/asset-modules/#source-assets) can enable the same `?raw` syntax as Vite:
-
-```ts title="next.config.ts"
-import type {NextConfig} from 'next';
-
-const nextConfig: NextConfig = {
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.tsx$/,
-      resourceQuery: /raw/,
-      type: 'asset/source',
-    });
-
-    return config;
-  },
-};
-
-export default nextConfig;
-```
-
-```ts title="LowerThirdActions.tsx"
-import lowerThirdSource from './LowerThird.tsx?raw';
-```
-
-The Webpack rule only applies when Next.js is running with Webpack.
+With Webpack, an [`asset/source` rule](https://webpack.js.org/guides/asset-modules/#source-assets) can provide `?raw` imports.
 
 ### Turbopack
 
-A Turbopack-based site can generate a browser-importable source manifest before `next dev` and `next build`. Such a script could:
-
-- Read each component's `.tsx` source.
-- Inline or transform local implementation files when necessary.
-- Serialize each final source string into a browser-importable artifact.
-- Write an entry per component so each page imports only the source it needs.
-- Watch the component files during development and regenerate the artifact when they change.
-
-If the site already creates shadcn-style registry artifacts, the script may reuse or transform their `files[].content` instead of reading the source again.
-
-This is directional guidance rather than a required architecture. The generated artifact only needs to make the final source string available to the client-side Studio actions.
+With Turbopack, a script could combine the component and its local code into one browser-importable source code string.
 
 ## Test the integration
 
-- Compare the Player preview with the Element installed in Studio.
-- Import only the source needed by the current page. A complete library source map can make the client bundle large.
-- Treat the source as public because it is delivered to the browser and shown in Studio.
-- Call `createElementPayload()` for every generated payload in a test or build step.
-- Test the production website build as well as the development server.
-- Install into a clean Remotion project to find unresolved imports, package dependencies, and assets.
-- Test cross-tab dragging. The payload must be available synchronously during `dragstart`.
-- Serve the production website over HTTPS. HTTP is supported only on `localhost` and `127.0.0.1`.
+- Compare the Player preview with the installed Element.
+- Validate each payload with `createElementPayload()`.
+- Test installation and cross-tab drag-and-drop from the production website.
+- Install the Element in a clean Remotion project. Check for unresolved imports, package dependencies, and assets.
+- Treat the source code as public. The browser receives it, and Studio shows it.
+- Serve the production website through HTTPS. HTTP is supported only on `localhost` and `127.0.0.1`.
 
 ## See also
 
+- [Element guidelines](/elements/contributing#element-guidelines)
 - [`<Player>`](/docs/player)
 - [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
 - [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
