@@ -30,6 +30,7 @@ h6 {
 	word-spacing: -0.025em;
 	font-family: 'GTPlanar';
 	font-feature-settings: 'ss03' on;
+	text-wrap: balance;
 }
 
 @font-face {
