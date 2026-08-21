@@ -18,6 +18,7 @@ import {useSettings} from './SettingsContext';
 const INSTALL_COMMAND = 'npx remotion skills add';
 
 const container: React.CSSProperties = {
+	alignSelf: 'flex-start',
 	boxSizing: 'border-box',
 	flex: 1,
 	fontFamily: 'sans-serif',
