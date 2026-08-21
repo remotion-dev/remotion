@@ -6,6 +6,8 @@
 	"version": "4.0.514",
 	"description": "Primitives for dealing with captions",
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -14,7 +16,7 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsgo -d"
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
@@ -28,6 +30,15 @@
 	"keywords": [
 		"remotion"
 	],
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
 	"publishConfig": {
 		"access": "public"
 	},

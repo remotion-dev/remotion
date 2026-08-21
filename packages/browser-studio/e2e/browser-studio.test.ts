@@ -4,12 +4,13 @@ import {
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
 
-test('loads Browser Studio and can add, delete, and duplicate', async ({
+test('loads Browser Studio, opens external links, and can add, delete, and duplicate', async ({
 	page,
 }) => {
 	const pageErrors: Error[] = [];
 	const remoteRemotionRequests: string[] = [];
 	const studioApiRequests: string[] = [];
+	const vendorBundleRequests: string[] = [];
 	const workspacePackageRequests: string[] = [];
 	let rejectPageError: (error: Error) => void = () => undefined;
 	const pageError = new Promise<never>((_resolve, reject) => {
@@ -17,6 +18,10 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 	});
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
+		if (requestUrl.searchParams.has('projectBundleUrl')) {
+			vendorBundleRequests.push(request.url());
+		}
+
 		if (
 			requestUrl.pathname.startsWith('/api/') &&
 			requestUrl.origin === new URL(page.url()).origin
@@ -42,6 +47,9 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 		pageErrors.push(error);
 		rejectPageError(error);
 	});
+	await page.context().route('https://remotion.dev/**', async (route) => {
+		await route.fulfill({body: 'About Remotion', contentType: 'text/html'});
+	});
 
 	await Promise.race([
 		(async () => {
@@ -53,7 +61,24 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 			await expect(
 				studio.locator('.remotion-studio-composition-container'),
 			).toBeVisible();
+			await studio.locator('button:has(svg[viewBox="0 0 415 426"])').click();
+			const popupPromise = page.waitForEvent('popup');
+			await studio.getByText('About Remotion', {exact: true}).click();
+			const popup = await popupPromise;
+			await popup.waitForLoadState('domcontentloaded');
+			expect(popup.url()).toBe('https://remotion.dev/');
+			await popup.close();
 			await studio.getByRole('button', {name: 'File', exact: true}).click();
+			const fileMenu = studio
+				.locator('[data-remotion-menu-tree-id]')
+				.filter({hasText: 'New composition...'});
+			await expect(fileMenu).toBeVisible();
+			await expect(
+				fileMenu.getByText('New folder...', {exact: true}),
+			).toBeVisible();
+			await expect(fileMenu.getByRole('separator')).toHaveCount(0, {
+				timeout: 1000,
+			});
 			await expect(
 				studio.getByRole('button', {
 					name: 'Open in File Manager',
@@ -152,15 +177,16 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 	]);
 
 	expect(pageErrors).toEqual([]);
-	expect(workspacePackageRequests).toContain(
+	expect(workspacePackageRequests).not.toContain(
 		'/__remotion_browser_studio_workspace__/commits/e2e/packages/core/dist/esm/index.mjs',
 	);
-	expect(workspacePackageRequests).toContain(
+	expect(workspacePackageRequests).not.toContain(
 		'/__remotion_browser_studio_workspace__/commits/e2e/packages/studio/dist/esm/previewEntry.mjs',
 	);
 	expect(workspacePackageRequests).toContain(
 		'/__remotion_browser_studio_workspace__/commits/e2e/packages/transitions/dist/esm/fade.mjs',
 	);
+	expect(vendorBundleRequests).toHaveLength(1);
 	expect(remoteRemotionRequests).toEqual([]);
 	expect(studioApiRequests).toEqual([]);
 });
@@ -170,8 +196,13 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 }) => {
 	const releasePackageRequests: string[] = [];
 	const remoteRemotionRequests: string[] = [];
+	const vendorBundleRequests: string[] = [];
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
+		if (requestUrl.searchParams.has('projectBundleUrl')) {
+			vendorBundleRequests.push(request.url());
+		}
+
 		if (
 			requestUrl.pathname.startsWith('/__remotion_browser_studio_release__/')
 		) {
@@ -194,10 +225,151 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 	await expect(
 		studio.locator('.remotion-studio-composition-container'),
 	).toBeVisible();
-	expect(releasePackageRequests).toContain(
-		`/__remotion_browser_studio_release__/${await page.evaluate(() => (window as typeof window & {__browserStudioRemotionVersion: string}).__browserStudioRemotionVersion)}/packages/studio/dist/esm/previewEntry.mjs`,
-	);
+	expect(releasePackageRequests).toEqual([
+		`/__remotion_browser_studio_release__/${await page.evaluate(() => (window as typeof window & {__browserStudioRemotionVersion: string}).__browserStudioRemotionVersion)}/packages/transitions/dist/esm/fade.mjs`,
+	]);
+	expect(vendorBundleRequests).toHaveLength(1);
 	expect(remoteRemotionRequests).toEqual([]);
+});
+
+test('installs packages without a server API and preserves undo, redo, and HMR', async ({
+	page,
+}) => {
+	const studioApiRequests: string[] = [];
+	page.on('request', (request) => {
+		const requestUrl = new URL(request.url());
+		if (
+			requestUrl.pathname.startsWith('/api/') &&
+			requestUrl.origin === new URL(page.url()).origin
+		) {
+			studioApiRequests.push(requestUrl.pathname);
+		}
+	});
+
+	await page.goto('/');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await studio.locator('body').evaluate(() => {
+		(
+			window as typeof window & {
+				__browserStudioInstallPreservedIframe?: boolean;
+			}
+		).__browserStudioInstallPreservedIframe = true;
+	});
+
+	await studio.getByRole('button', {name: 'Tools', exact: true}).click();
+	await studio.getByText('Install package...', {exact: true}).click();
+	await expect(
+		studio.getByText('Install packages', {exact: true}),
+	).toBeVisible();
+	await studio.locator('input[name="@remotion/google-fonts"]').click();
+	await studio.getByRole('button', {name: /^Install/}).click();
+	await expect(
+		studio.getByText('Installed package successfully.'),
+	).toBeVisible();
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+					__browserStudioRemotionVersion: string;
+				};
+				const packageJson = JSON.parse(
+					browserWindow.__browserStudioProject.files['/project/package.json'],
+				) as {dependencies: Record<string, string>};
+				return packageJson.dependencies['@remotion/google-fonts'];
+			}),
+		)
+		.toBe(
+			await page.evaluate(
+				() =>
+					(
+						window as typeof window & {
+							__browserStudioRemotionVersion: string;
+						}
+					).__browserStudioRemotionVersion,
+			),
+		);
+	expect(
+		await studio.locator('body').evaluate(
+			() =>
+				(
+					window as typeof window & {
+						__browserStudioInstallPreservedIframe?: boolean;
+					}
+				).__browserStudioInstallPreservedIframe,
+		),
+	).toBe(true);
+
+	await studio.getByRole('button', {name: /^Done/}).click();
+	await page.keyboard.press('ControlOrMeta+Z');
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+				};
+				const packageJson = JSON.parse(
+					browserWindow.__browserStudioProject.files['/project/package.json'],
+				) as {dependencies: Record<string, string>};
+				return packageJson.dependencies['@remotion/google-fonts'];
+			}),
+		)
+		.toBeUndefined();
+	await page.keyboard.press('ControlOrMeta+Shift+Z');
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+				};
+				const packageJson = JSON.parse(
+					browserWindow.__browserStudioProject.files['/project/package.json'],
+				) as {dependencies: Record<string, string>};
+				return packageJson.dependencies['@remotion/google-fonts'];
+			}),
+		)
+		.toBeDefined();
+	expect(studioApiRequests).toEqual([]);
+});
+
+test('fetches each HTTP module once when the vendor bundle is overridden', async ({
+	page,
+}) => {
+	const workspacePackageRequests: string[] = [];
+	page.on('request', (request) => {
+		const requestUrl = new URL(request.url());
+		if (
+			requestUrl.pathname.startsWith('/__remotion_browser_studio_workspace__/')
+		) {
+			workspacePackageRequests.push(requestUrl.pathname);
+		}
+	});
+
+	await page.goto('/?source=fallback');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio.locator('.remotion-studio-composition-container'),
+	).toBeVisible();
+
+	expect(
+		workspacePackageRequests.filter(
+			(request) =>
+				request ===
+				'/__remotion_browser_studio_workspace__/commits/e2e/packages/core/dist/esm/index.mjs',
+		),
+	).toHaveLength(1);
+	expect(
+		workspacePackageRequests.filter(
+			(request) =>
+				request ===
+				'/__remotion_browser_studio_workspace__/commits/e2e/packages/core/dist/esm/no-react.mjs',
+		),
+	).toHaveLength(1);
+	expect(workspacePackageRequests).toContain(
+		'/__remotion_browser_studio_workspace__/commits/e2e/packages/studio/dist/esm/previewEntry.mjs',
+	);
 });
 
 test('drops and imports an Element payload with the deployment Remotion version', async ({

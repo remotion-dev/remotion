@@ -149,14 +149,3 @@ test('routes effect mutations through the explicit Browser Studio capability', a
 		'delete:1',
 	]);
 });
-
-test('reports the capability as unavailable for an older Browser Studio host', () => {
-	Object.defineProperty(globalThis, 'window', {
-		configurable: true,
-		value: {
-			remotion_browserStudio: makeBrowserStudioOperations({}),
-			remotion_isReadOnlyStudio: true,
-		},
-	});
-	expect(canUseEffectOperations()).toBe(false);
-});

@@ -7,7 +7,14 @@ import {
 } from './timeline-row-layout';
 import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
-import {getTimelineRowHighlightBackground} from './TimelineSelection';
+import {
+	getTimelineRowHighlightBackground,
+	TIMELINE_SELECTED_BACKGROUND,
+} from './TimelineSelection';
+
+export const TimelineRowSelectedBackgroundContext = React.createContext<string>(
+	TIMELINE_SELECTED_BACKGROUND,
+);
 
 const rowBase: React.CSSProperties = {
 	alignItems: 'stretch',
@@ -104,6 +111,7 @@ export const TimelineRowChrome: React.FC<{
 		rowBorderRadius,
 		rowHorizontalMargin,
 	} = useContext(TimelineRowLayoutContext);
+	const selectedBackground = useContext(TimelineRowSelectedBackgroundContext);
 	const indentWidth = getTimelineRowIndentWidth(depth);
 
 	const chromeColumnStyle = useMemo(
@@ -163,6 +171,7 @@ export const TimelineRowChrome: React.FC<{
 		selected,
 		containsSelection,
 		hovered,
+		selectedBackground,
 	});
 
 	const innerRowStyle = useMemo(

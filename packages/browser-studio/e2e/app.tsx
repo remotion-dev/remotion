@@ -34,8 +34,15 @@ if (!root) {
 	throw new Error('Could not find root element');
 }
 
+const source = new URLSearchParams(window.location.search).get('source');
+
 createRoot(root).render(
 	<BrowserStudio
+		dependencyResolver={
+			source === 'fallback'
+				? ({name, version}) => (name === 'react' ? version : null)
+				: undefined
+		}
 		iframeSrc="/frame.html"
 		initialElement={
 			initialElementPayload === null
@@ -50,7 +57,7 @@ createRoot(root).render(
 			).__browserStudioProject = nextProject;
 		}}
 		remotionPackageSource={
-			new URLSearchParams(window.location.search).get('source') === 'release'
+			source === 'release'
 				? {
 						baseUrl: new URL(
 							`/__remotion_browser_studio_release__/${VERSION}/`,

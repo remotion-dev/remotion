@@ -41,6 +41,10 @@ export const elementRegistry = {
 		category: 'captions',
 		displayName: 'Word Highlight Captions',
 	},
+	'commerce/product-collection': {
+		category: 'commerce',
+		displayName: 'Product Collection',
+	},
 	'commerce/product-discount-callout': {
 		category: 'commerce',
 		displayName: 'Product Discount Callout',

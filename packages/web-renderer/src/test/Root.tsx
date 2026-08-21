@@ -43,6 +43,7 @@ import {issue7489Minimal} from './fixtures/issue-7489-minimal';
 import {issue8650LottieControlChars} from './fixtures/issue-8650-lottie-control-chars';
 import {issue9736BackgroundPosition} from './fixtures/issue-9736-background-position';
 import {issue9901RotatedDropShadow} from './fixtures/issue-9901-rotated-drop-shadow';
+import {issue10676SvgGradientStroke} from './fixtures/issue-10676-svg-gradient-stroke';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
@@ -223,6 +224,7 @@ export const Root: React.FC = () => {
 				<Composition {...issue6211MaskWheel} />
 				<Composition {...issue7199ScaleAndDropShadow} />
 				<Composition {...issue9901RotatedDropShadow} />
+				<Composition {...issue10676SvgGradientStroke} />
 				<Composition {...issue7243SvgJapaneseText} />
 				<Composition {...issue7489Minimal} />
 			</Folder>

@@ -12,6 +12,12 @@ import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const macCursorsFile = path.join(exampleDir, 'src', 'MacCursors', 'index.tsx');
+const outlineSelectionCasesFile = path.join(
+	exampleDir,
+	'src',
+	'VisualModeTests',
+	'OutlineSelectionCases.tsx',
+);
 
 const dropAssetOnCanvas = async ({
 	assetPath,
@@ -511,6 +517,95 @@ test.describe('visual mode', () => {
 			.locator('.remotion-studio-composition-container')
 			.dispatchEvent('pointerleave');
 		await expect(duplicateButton).toBeVisible();
+	});
+
+	test('should preserve property selection while dragging its outline', async ({
+		page,
+	}) => {
+		test.setTimeout(120_000);
+		const sourceBefore = fs.readFileSync(outlineSelectionCasesFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/outline-selection-cases`);
+			await page.waitForFunction(
+				() => !document.body.innerText.includes('Loading...'),
+				{timeout: 30_000},
+			);
+			await page.keyboard.press('g');
+			const currentFrameInput = page.locator('input:focus');
+			await expect(currentFrameInput).toBeVisible();
+			await currentFrameInput.fill('2010');
+			await currentFrameInput.press('Enter');
+
+			const canvas = page.locator('.remotion-studio-composition-container');
+			const target = canvas
+				.getByText('Select one of my properties, then drag me', {exact: true})
+				.locator('..');
+			await expect(target).toBeVisible({timeout: 15_000});
+			await expect(page.getByText('Baseline', {exact: true})).toBeVisible();
+
+			const timelineItem = page
+				.getByTitle('Property-selected sequence', {exact: true})
+				.first();
+			const offsetProperty = page.getByTitle('Offset', {exact: true});
+			await expect(async () => {
+				await expect(timelineItem).toBeVisible({timeout: 1000});
+				await timelineItem.click();
+				await page.keyboard.press('p');
+				await expect(offsetProperty).toBeVisible({timeout: 1000});
+			}).toPass({timeout: 15_000});
+			await offsetProperty.click();
+			const offsetSelection = offsetProperty.locator('..');
+			await expect(offsetSelection).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.1)',
+			);
+
+			const outline = canvas.locator(
+				'> svg[aria-hidden="true"] polygon[data-remotion-prevent-selection-clear="true"][stroke-opacity="1"]',
+			);
+			await expect(outline).toHaveCount(1);
+
+			const targetBefore = await target.boundingBox();
+			const outlineBefore = await outline.boundingBox();
+			if (targetBefore === null || outlineBefore === null) {
+				throw new Error('Expected the selected outline to have a bounding box');
+			}
+
+			const dragStart = {
+				x: outlineBefore.x + outlineBefore.width / 2,
+				y: outlineBefore.y + outlineBefore.height / 2,
+			};
+			await page.mouse.move(dragStart.x, dragStart.y);
+			await page.mouse.down();
+			await expect(offsetSelection).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.1)',
+			);
+			await page.mouse.move(dragStart.x + 60, dragStart.y, {steps: 5});
+			await page.mouse.up();
+
+			await expect
+				.poll(async () => (await target.boundingBox())?.x ?? null)
+				.toBeCloseTo(targetBefore.x + 60, 0);
+			await expect(offsetSelection).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.1)',
+			);
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(outlineSelectionCasesFile, 'utf-8');
+					const targetIndex = source.indexOf(
+						'name="Property-selected sequence"',
+					);
+					return source
+						.slice(targetIndex, targetIndex + 1000)
+						.match(/translate: '([^']+)'/)?.[1];
+				})
+				.not.toBe('0px 0px');
+		} finally {
+			fs.writeFileSync(outlineSelectionCasesFile, sourceBefore);
+		}
 	});
 
 	test('should compensate DOM measurements with useCurrentScale() on direct load', async ({

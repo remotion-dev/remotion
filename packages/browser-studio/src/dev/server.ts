@@ -113,6 +113,21 @@ const buildDevAssets = async () => {
 		process.exit(1);
 	}
 
+	const vendorEntryOutput = await build({
+		define: {'process.env.NODE_ENV': JSON.stringify('development')},
+		entrypoints: ['src/browser-studio-vendor-entry.ts'],
+		format: 'iife',
+		naming: '[name].mjs',
+		outdir: outDir,
+		sourcemap: 'linked',
+		target: 'browser',
+	});
+
+	if (!vendorEntryOutput.success) {
+		process.stderr.write(`${vendorEntryOutput.logs.join('\n')}\n`);
+		process.exit(1);
+	}
+
 	const rspackBrowserEntry = fileURLToPath(
 		import.meta.resolve('@rspack/browser'),
 	);

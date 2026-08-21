@@ -1,12 +1,11 @@
 import React, {useMemo} from 'react';
-import {LIGHT_GRAY, WHITE} from '../../helpers/colors';
+import {LIGHT_GRAY, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {CaretDown} from '../../icons/caret';
 
 const arrowButton: React.CSSProperties = {
 	background: 'none',
 	border: 'none',
-	color: WHITE,
-	cursor: 'pointer',
 	padding: 0,
 	display: 'flex',
 	alignItems: 'center',
@@ -23,7 +22,6 @@ const arrowButton: React.CSSProperties = {
 
 const arrowSpacer: React.CSSProperties = {
 	...arrowButton,
-	cursor: 'default',
 };
 
 export const TimelineExpandArrowButton: React.FC<{
@@ -54,8 +52,13 @@ export const TimelineExpandArrowButton: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...arrowButton,
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: TRANSPARENT,
+				idleColor: LIGHT_GRAY,
+				hoverColor: disabled ? LIGHT_GRAY : WHITE,
+			}),
 			transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
-			cursor: disabled ? 'default' : 'pointer',
 			opacity: disabled ? 0.5 : 1,
 		};
 	}, [isExpanded, disabled]);
@@ -63,6 +66,7 @@ export const TimelineExpandArrowButton: React.FC<{
 	return (
 		<button
 			type="button"
+			className={`${HOVERABLE_CLASS_NAME} __remotion-timeline-expand-arrow-button`}
 			style={style}
 			onClick={handleClick}
 			onDoubleClick={stopPropagation}
@@ -71,7 +75,7 @@ export const TimelineExpandArrowButton: React.FC<{
 			aria-expanded={isExpanded}
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}
 		>
-			<CaretDown color={LIGHT_GRAY} />
+			<CaretDown />
 		</button>
 	);
 };

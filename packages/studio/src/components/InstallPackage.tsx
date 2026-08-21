@@ -13,6 +13,7 @@ import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {SetSelectedModalContext} from '../state/modals';
 import {Checkbox} from './Checkbox';
 import {InstallablePackageComp} from './InstallablePackage';
 import {Flex, Row, Spacing} from './layout';
@@ -51,17 +52,27 @@ type State =
 	  };
 
 export const InstallPackageModal: React.FC<{
-	readonly packageManager: PackageManager;
+	readonly packageManager: PackageManager | null;
 }> = ({packageManager}) => {
 	const [state, setState] = React.useState<State>({type: 'idle'});
 
 	const [map, setMap] = React.useState<Record<string, boolean>>({});
 	const {previewServerState: ctx} = useContext(StudioServerConnectionCtx);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const selectedPackages = Object.keys(map).filter((pkg) => map[pkg]);
+	const selectedPackageSpecs = selectedPackages.map((name) => ({
+		name,
+		version: extraPackages.find((pkg) => pkg.name === name)?.version ?? null,
+	}));
 
 	const onClick = useCallback(async () => {
 		if (state.type === 'done') {
+			if (packageManager === null) {
+				setSelectedModal(null);
+				return;
+			}
+
 			setState({type: 'restarting'});
 			restartStudio();
 			return;
@@ -69,14 +80,24 @@ export const InstallPackageModal: React.FC<{
 
 		setState({type: 'installing'});
 		try {
-			await installPackages(
-				selectedPackages.map((name) => ({name, version: null})),
+			await installPackages(selectedPackageSpecs);
+			window.remotion_installedPackages = Array.from(
+				new Set([
+					...(window.remotion_installedPackages ?? []),
+					...selectedPackages,
+				]),
 			);
 			setState({type: 'done'});
 		} catch (err) {
 			setState({type: 'error', error: err as Error});
 		}
-	}, [selectedPackages, state.type]);
+	}, [
+		packageManager,
+		selectedPackageSpecs,
+		selectedPackages,
+		setSelectedModal,
+		state.type,
+	]);
 
 	const canSelectPackages = state.type === 'idle' && ctx.type === 'connected';
 
@@ -114,14 +135,19 @@ export const InstallPackageModal: React.FC<{
 				{state.type === 'done' ? (
 					<div style={text}>
 						Installed package{selectedPackages.length === 1 ? '' : 's'}{' '}
-						successfully. Restart the server to complete.
+						successfully.
+						{packageManager === null
+							? null
+							: ' Restart the server to complete.'}
 					</div>
 				) : state.type === 'restarting' ? (
 					<div style={text}>Restarting the Studio server...</div>
 				) : state.type === 'installing' ? (
 					<div style={text}>
-						Installing package{selectedPackages.length === 1 ? '' : 's'}. Check
-						your terminal for progress.
+						Installing package{selectedPackages.length === 1 ? '' : 's'}
+						{packageManager === null
+							? '.'
+							: '. Check your terminal for progress.'}
 					</div>
 				) : (
 					<div style={text}>
@@ -200,7 +226,9 @@ export const InstallPackageModal: React.FC<{
 							This will install {selectedPackages.length} package
 							{selectedPackages.length === 1 ? '' : 's'}
 							<br />
-							using {packageManager}, Remotion v{VERSION}
+							{packageManager === null
+								? `in this project, Remotion v${VERSION}`
+								: `using ${packageManager}, Remotion v${VERSION}`}
 						</span>
 					) : null}
 					<Flex />
@@ -210,7 +238,9 @@ export const InstallPackageModal: React.FC<{
 							: state.type === 'installing'
 								? 'Installing...'
 								: state.type === 'done'
-									? 'Restart Server'
+									? packageManager === null
+										? 'Done'
+										: 'Restart Server'
 									: 'Install'}
 						{disabled ? null : <ShortcutHint keyToPress="↵" cmdOrCtrl />}
 					</ModalButton>

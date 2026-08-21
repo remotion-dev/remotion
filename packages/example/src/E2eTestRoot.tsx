@@ -19,6 +19,7 @@ import {TimelineVirtualizationTestbed} from './TimelineVirtualizationTestbed';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
 import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
+import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 
 const UseCurrentScaleOnLoad: React.FC = () => {
@@ -190,6 +191,14 @@ export const E2eTestRoot: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={60}
+			/>
+			<Composition
+				id="outline-selection-cases"
+				component={OutlineSelectionCases}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={2340}
 			/>
 			<Composition
 				id="sequence-shift-repro"
