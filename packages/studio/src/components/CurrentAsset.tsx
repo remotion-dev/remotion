@@ -17,7 +17,6 @@ import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {
-	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
 } from './InspectorInfoHeader';
@@ -28,13 +27,14 @@ import {
 	InspectorSection,
 } from './InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
+import {COMPACT_INLINE_ROW_HEIGHT} from './layout';
 import {
 	getStaticFileRenameSelection,
 	useRenameStaticFile,
 } from './NewComposition/use-rename-static-file';
 import {useStaticFiles} from './use-static-files';
 
-export const CURRENT_ASSET_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
+export const CURRENT_ASSET_HEIGHT = COMPACT_INLINE_ROW_HEIGHT + 8;
 
 const convertIconStyle: React.CSSProperties = {
 	display: 'block',
@@ -79,7 +79,7 @@ export const getCurrentAssetImageMetadataSource = (
 
 const formatFps = (fps: number) => `${fps.toFixed(2)} FPS`;
 
-type CurrentAssetMediaDetail = {
+type CurrentAssetDetail = {
 	readonly label: string;
 	readonly value: string;
 };
@@ -96,8 +96,8 @@ export const getCurrentAssetMediaSections = (mediaMetadata: MediaMetadata) => {
 		mediaMetadata.hasAudioTrack === true ||
 		mediaMetadata.audioCodec !== null ||
 		mediaMetadata.sampleRate !== null;
-	const video: CurrentAssetMediaDetail[] = [];
-	const audio: CurrentAssetMediaDetail[] = [];
+	const video: CurrentAssetDetail[] = [];
+	const audio: CurrentAssetDetail[] = [];
 
 	if (hasVideo) {
 		if (mediaMetadata.width !== null && mediaMetadata.height !== null) {
@@ -199,23 +199,23 @@ export const AssetInfo: React.FC<{
 	}, [assetName]);
 
 	if (!assetName) {
-		return <InspectorInfoHeader contentSized={contentSized} />;
+		return (
+			<InspectorInfoHeader
+				contentSized={contentSized}
+				minHeight={CURRENT_ASSET_HEIGHT}
+			/>
+		);
 	}
 
 	const fileName = assetName.split('/').pop() ?? assetName;
-
-	const subtitleParts: string[] = [];
-	if (sizeInBytes !== null) {
-		subtitleParts.push(formatBytes(sizeInBytes));
+	const fileDetails: CurrentAssetDetail[] = [];
+	const container = mediaMetadata?.format ?? imageMetadata?.format ?? null;
+	if (container !== null) {
+		fileDetails.push({label: 'Container', value: container});
 	}
 
-	if (mediaMetadata) {
-		if (mediaMetadata.format) {
-			subtitleParts.push(mediaMetadata.format);
-		}
-	} else if (imageMetadata) {
-		subtitleParts.push(imageMetadata.format);
-		subtitleParts.push(`${imageMetadata.width}x${imageMetadata.height}`);
+	if (sizeInBytes !== null) {
+		fileDetails.push({label: 'Size', value: formatBytes(sizeInBytes)});
 	}
 
 	const mediaSections = mediaMetadata
@@ -226,6 +226,7 @@ export const AssetInfo: React.FC<{
 		<>
 			<InspectorInfoHeader
 				contentSized={contentSized}
+				minHeight={CURRENT_ASSET_HEIGHT}
 				padding={
 					contentSized
 						? `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 6px`
@@ -241,12 +242,23 @@ export const AssetInfo: React.FC<{
 					size={contentSized ? 'default' : 'inspector'}
 					title={assetName}
 				/>
-				{subtitleParts.length > 0 ? (
+				{imageMetadata ? (
 					<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
-						{subtitleParts.join(' · ')}
+						{imageMetadata.width} × {imageMetadata.height}
 					</InspectorInfoSubtitle>
 				) : null}
 			</InspectorInfoHeader>
+			{fileDetails.length > 0 ? (
+				<InspectorSection header="File">
+					<div style={assetMetadataStyle}>
+						{fileDetails.map((detail) => (
+							<InspectorDetailRow key={detail.label} label={detail.label}>
+								{detail.value}
+							</InspectorDetailRow>
+						))}
+					</div>
+				</InspectorSection>
+			) : null}
 			{mediaSections && mediaSections.video ? (
 				<InspectorSection header="Video">
 					<div style={assetMetadataStyle}>
