@@ -619,11 +619,11 @@ export const OutlineSelectionCases: React.FC = () => {
 			>
 				<CaseFrame
 					caseNumber={10}
-					status="Gap"
-					title="A selected outline always wins hit-testing"
-					summary="Area and hierarchy ordering can currently put an unselected child or smaller unrelated outline above the selected target."
-					desiredBehavior="Direct selection raises the selected outline for hit-testing so it remains draggable wherever its polygon is visible."
-					instructions="Select Large selected target in the timeline, then drag from beneath the amber overlap. The large target should move and remain selected."
+					status="Baseline"
+					title="A selected outline wins drag arbitration"
+					summary="An overlapping unselected outline stays hoverable and clickable, while a drag beginning inside the selected outline moves the existing selection."
+					desiredBehavior="Clicking the amber overlap selects it. Dragging there while the large target is selected moves the large target instead."
+					instructions="Select Large selected target in the timeline. Click the amber overlap to select it, or reselect the large target and drag from the overlap to move the large target."
 				>
 					<Interactive.Div
 						name="Large selected target"
