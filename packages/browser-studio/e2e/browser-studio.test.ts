@@ -200,6 +200,107 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 	expect(remoteRemotionRequests).toEqual([]);
 });
 
+test('installs packages without a server API and preserves undo, redo, and HMR', async ({
+	page,
+}) => {
+	const studioApiRequests: string[] = [];
+	page.on('request', (request) => {
+		const requestUrl = new URL(request.url());
+		if (
+			requestUrl.pathname.startsWith('/api/') &&
+			requestUrl.origin === new URL(page.url()).origin
+		) {
+			studioApiRequests.push(requestUrl.pathname);
+		}
+	});
+
+	await page.goto('/');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await studio.locator('body').evaluate(() => {
+		(
+			window as typeof window & {
+				__browserStudioInstallPreservedIframe?: boolean;
+			}
+		).__browserStudioInstallPreservedIframe = true;
+	});
+
+	await studio.getByRole('button', {name: 'Tools', exact: true}).click();
+	await studio.getByText('Install package...', {exact: true}).click();
+	await expect(
+		studio.getByText('Install packages', {exact: true}),
+	).toBeVisible();
+	await studio.locator('input[name="@remotion/google-fonts"]').click();
+	await studio.getByRole('button', {name: /^Install/}).click();
+	await expect(
+		studio.getByText('Installed package successfully.'),
+	).toBeVisible();
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+					__browserStudioRemotionVersion: string;
+				};
+				const packageJson = JSON.parse(
+					browserWindow.__browserStudioProject.files['/project/package.json'],
+				) as {dependencies: Record<string, string>};
+				return packageJson.dependencies['@remotion/google-fonts'];
+			}),
+		)
+		.toBe(
+			await page.evaluate(
+				() =>
+					(
+						window as typeof window & {
+							__browserStudioRemotionVersion: string;
+						}
+					).__browserStudioRemotionVersion,
+			),
+		);
+	expect(
+		await studio.locator('body').evaluate(
+			() =>
+				(
+					window as typeof window & {
+						__browserStudioInstallPreservedIframe?: boolean;
+					}
+				).__browserStudioInstallPreservedIframe,
+		),
+	).toBe(true);
+
+	await studio.getByRole('button', {name: /^Done/}).click();
+	await page.keyboard.press('ControlOrMeta+Z');
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+				};
+				const packageJson = JSON.parse(
+					browserWindow.__browserStudioProject.files['/project/package.json'],
+				) as {dependencies: Record<string, string>};
+				return packageJson.dependencies['@remotion/google-fonts'];
+			}),
+		)
+		.toBeUndefined();
+	await page.keyboard.press('ControlOrMeta+Shift+Z');
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+				};
+				const packageJson = JSON.parse(
+					browserWindow.__browserStudioProject.files['/project/package.json'],
+				) as {dependencies: Record<string, string>};
+				return packageJson.dependencies['@remotion/google-fonts'];
+			}),
+		)
+		.toBeDefined();
+	expect(studioApiRequests).toEqual([]);
+});
+
 test('drops and imports an Element payload with the deployment Remotion version', async ({
 	page,
 }) => {

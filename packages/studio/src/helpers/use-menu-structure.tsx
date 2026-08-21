@@ -30,7 +30,10 @@ import type {ModalState} from '../state/modals';
 import {SetSelectedModalContext} from '../state/modals';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
-import {getBrowserStudioOperations} from './browser-studio-operations';
+import {
+	canInstallPackages,
+	getBrowserStudioOperations,
+} from './browser-studio-operations';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
 import {CURRENT_COLOR} from './colors';
@@ -887,7 +890,9 @@ export const useMenuStructure = (
 								quickSwitcherLabel: 'Show Color Picker',
 							}
 						: null,
-					readOnlyStudio || remotion_packageManager === 'unknown'
+					!canInstallPackages() ||
+					(browserStudioOperations === null &&
+						remotion_packageManager === 'unknown')
 						? null
 						: {
 								id: 'install-packages',
@@ -897,7 +902,10 @@ export const useMenuStructure = (
 									closeMenu();
 									setSelectedModal({
 										type: 'install-packages',
-										packageManager: remotion_packageManager,
+										packageManager:
+											remotion_packageManager === 'unknown'
+												? null
+												: remotion_packageManager,
 									});
 								},
 								type: 'item' as const,

@@ -27,3 +27,12 @@ export const canUseKeyframeOperations = () =>
 export const canUseEffectOperations = () =>
 	!window.remotion_isReadOnlyStudio ||
 	getBrowserStudioEffectOperations() !== null;
+
+export const canInstallPackages = () => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations !== null) {
+		return browserStudioOperations.packageInstallation !== undefined;
+	}
+
+	return !window.remotion_isReadOnlyStudio;
+};

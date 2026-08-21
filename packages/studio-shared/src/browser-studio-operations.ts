@@ -30,6 +30,7 @@ import type {
 	InsertJsxElementResponse,
 	InsertElementRequest,
 	InsertElementResponse,
+	InstallPackageRequest,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	PasteEffectsRequest,
@@ -137,6 +138,22 @@ export type BrowserStudioEffectOperations = {
 	) => Promise<SaveMultipleEffectPropsResponse>;
 };
 
+export type BrowserStudioInstallPackagesResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type BrowserStudioPackageInstallationOperations = {
+	installPackages: (
+		request: InstallPackageRequest,
+	) => Promise<BrowserStudioInstallPackagesResponse>;
+};
+
 export type BrowserStudioOperations = {
 	consumeInitialElement: () => {
 		element: ElementDragData['element'];
@@ -175,6 +192,8 @@ export type BrowserStudioOperations = {
 	) => Promise<InsertJsxElementResponse>;
 	/** Optional for compatibility with older Browser Studio hosts. */
 	keyframes?: BrowserStudioKeyframeOperations;
+	/** Optional for compatibility with older Browser Studio hosts. */
+	packageInstallation?: BrowserStudioPackageInstallationOperations;
 	prepareElementInstall: (
 		request: PrepareElementInstallRequest,
 	) => Promise<PrepareElementInstallResponse>;
