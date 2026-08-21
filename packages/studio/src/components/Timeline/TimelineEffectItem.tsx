@@ -509,7 +509,6 @@ export const TimelineEffectItem: React.FC<{
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={containsSelection}
-			isFieldRow={false}
 			outerHeight={null}
 		>
 			<div style={labelContainerStyle}>
