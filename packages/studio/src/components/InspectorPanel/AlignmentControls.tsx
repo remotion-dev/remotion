@@ -47,10 +47,9 @@ const iconStyle: React.CSSProperties = {
 	height: 16,
 };
 
-const verticalDivider: React.CSSProperties = {
+const verticalSpacer: React.CSSProperties = {
 	width: 1,
 	height: 16,
-	backgroundColor: 'rgba(255, 255, 255, 0.1)',
 	margin: '0 8px',
 };
 
@@ -313,7 +312,7 @@ export const AlignmentControls: React.FC<{
 				Icon={AlignRightIcon}
 				disabled={alignmentDisabled}
 			/>
-			<div style={verticalDivider} />
+			<div style={verticalSpacer} />
 			<AlignmentButton
 				title="Align top"
 				onClick={() => handleAlign('top')}

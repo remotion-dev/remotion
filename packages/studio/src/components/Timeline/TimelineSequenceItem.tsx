@@ -1244,7 +1244,6 @@ const TimelineSequenceItemInner: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			hovered={hovered}
-			isFieldRow={false}
 			outerHeight={outerHeight}
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}

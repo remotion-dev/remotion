@@ -649,14 +649,12 @@ export const TimelineSequencePropItem: React.FC<{
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
 			containsSelection={false}
-			isFieldRow
 			outerHeight={null}
 		>
 			<TimelineFieldRowContent
 				field={field}
 				rowDepth={rowDepth}
 				selected={selection.selected}
-				keyframeControls={keyframeControls}
 			>
 				{fieldValue}
 			</TimelineFieldRowContent>

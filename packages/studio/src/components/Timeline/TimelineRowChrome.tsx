@@ -72,7 +72,6 @@ export const TimelineRowChrome: React.FC<{
 	readonly showSelectedBackground: boolean;
 	readonly containsSelection: boolean;
 	readonly hovered?: boolean;
-	readonly isFieldRow: boolean;
 	// When set, the chrome is wrapped in an outer container of this height with a
 	// bottom track separator. The background highlight and click target span the
 	// outer (used by sequence rows whose layer is taller than the chrome row).
@@ -96,7 +95,6 @@ export const TimelineRowChrome: React.FC<{
 	showSelectedBackground,
 	containsSelection,
 	hovered = false,
-	isFieldRow,
 	outerHeight,
 	onDragLeave,
 	onDragOver,
@@ -105,12 +103,9 @@ export const TimelineRowChrome: React.FC<{
 	onPointerEnter,
 	onPointerLeave,
 }) => {
-	const {
-		basePadding,
-		keyframeControlsPlacement,
-		rowBorderRadius,
-		rowHorizontalMargin,
-	} = useContext(TimelineRowLayoutContext);
+	const {basePadding, rowBorderRadius, rowHorizontalMargin} = useContext(
+		TimelineRowLayoutContext,
+	);
 	const selectedBackground = useContext(TimelineRowSelectedBackgroundContext);
 	const indentWidth = getTimelineRowIndentWidth(depth);
 
@@ -206,25 +201,21 @@ export const TimelineRowChrome: React.FC<{
 		};
 	}, [outerHeight, highlightBackground]);
 
-	const shouldRenderLeftChrome =
-		!isFieldRow || keyframeControlsPlacement === 'before-label';
 	const chrome = (
 		<>
-			{shouldRenderLeftChrome ? (
-				keyframeControls ? (
-					<TimelineRowKeyframeControlsColumn depth={depth}>
-						{keyframeControls}
-					</TimelineRowKeyframeControlsColumn>
-				) : (
-					<div style={leftChromeStyle}>
-						<div style={chromeColumnStyle}>
-							{eye}
-							{indentWidth > 0 ? <Padder depth={depth} /> : null}
-							{arrow}
-						</div>
+			{keyframeControls ? (
+				<TimelineRowKeyframeControlsColumn depth={depth}>
+					{keyframeControls}
+				</TimelineRowKeyframeControlsColumn>
+			) : (
+				<div style={leftChromeStyle}>
+					<div style={chromeColumnStyle}>
+						{eye}
+						{indentWidth > 0 ? <Padder depth={depth} /> : null}
+						{arrow}
 					</div>
-				)
-			) : null}
+				</div>
+			)}
 			{children}
 		</>
 	);

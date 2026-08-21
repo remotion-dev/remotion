@@ -28,10 +28,8 @@ const containerStyle: React.CSSProperties = {
 };
 
 const compactDraggerStyle: React.CSSProperties = {
-	paddingBottom: 2,
 	paddingLeft: 2,
 	paddingRight: 2,
-	paddingTop: 2,
 };
 
 const ROTATION_LABELS = ['X', 'Y', 'Z'] as const;

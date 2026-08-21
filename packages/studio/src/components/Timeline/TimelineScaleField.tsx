@@ -18,19 +18,15 @@ import {timelineLayerIconContainer} from './TimelineLayerEye';
 import {Transform3DModeContext} from './Transform3DModeContext';
 
 const leftDraggerStyle: React.CSSProperties = {
-	paddingBottom: 2,
 	paddingLeft: 0,
-	paddingTop: 2,
 	textAlign: 'left',
-	width: 52,
+	width: 40,
 };
 
 const rightDraggerStyle: React.CSSProperties = {
-	paddingBottom: 2,
 	paddingRight: 0,
-	paddingTop: 2,
 	textAlign: 'left',
-	width: 52,
+	width: 40,
 };
 
 const containerStyle: React.CSSProperties = {
