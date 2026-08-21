@@ -3,6 +3,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {CURRENT_COLOR} from '../helpers/colors';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
@@ -37,6 +38,14 @@ const convertIconStyle: React.CSSProperties = {
 	display: 'block',
 	height: 18,
 	width: 18,
+};
+
+const convertArrowStyle: React.CSSProperties = {
+	display: 'inline-block',
+	height: 12,
+	marginLeft: 4,
+	verticalAlign: -2,
+	width: 12,
 };
 
 export const getCurrentAssetMetadataSource = (assetName: string | null) => {
@@ -225,7 +234,21 @@ export const AssetInfo: React.FC<{
 							<RemotionConvertIcon color={color} style={convertIconStyle} />
 						)}
 					>
-						Open in Remotion Convert
+						Convert
+						<svg
+							aria-hidden="true"
+							viewBox="0 0 16 16"
+							style={convertArrowStyle}
+						>
+							<path
+								d="M4 12 12 4M6 4h6v6"
+								fill="none"
+								stroke={CURRENT_COLOR}
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="1.5"
+							/>
+						</svg>
 					</InspectorQuickAction>
 				</InspectorQuickActionsSection>
 			) : null}
