@@ -158,6 +158,10 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Show 3D transform controls'}),
 		).toBeVisible();
+		await page
+			.locator('polygon[pointer-events="all"]')
+			.nth(1)
+			.dispatchEvent('pointerover');
 		const outline = page
 			.locator('polygon[stroke-opacity="1"][pointer-events="all"]')
 			.nth(1);
