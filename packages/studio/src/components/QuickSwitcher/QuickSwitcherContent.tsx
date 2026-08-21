@@ -20,14 +20,12 @@ import {
 } from '../../helpers/use-menu-structure';
 import {SetSelectedModalContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
-import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {useSelectAsset} from '../use-select-asset';
 import {useStaticFiles} from '../use-static-files';
 import {algoliaSearch} from './algolia-search';
-import {AlgoliaCredit} from './AlgoliaCredit';
 import {filterAssetsByType} from './asset-search';
 import {fuzzySearch} from './fuzzy-search';
 import type {QuickSwitcherMode} from './NoResults';
@@ -82,6 +80,16 @@ const content: React.CSSProperties = {
 const contentWithoutModeSelector: React.CSSProperties = {
 	...content,
 	paddingTop: 16,
+};
+
+const container: React.CSSProperties = {
+	width: 400,
+	maxWidth: 'calc(100vw - 40px)',
+};
+
+const results: React.CSSProperties = {
+	overflowY: 'auto',
+	height: 300,
 };
 
 const stripQuery = (query: string) => {
@@ -229,8 +237,8 @@ export const QuickSwitcherContent: React.FC<{
 			return fuzzySearch(actualQuery, menuActions);
 		}
 
-		if (mode === 'docs' && docResults.type === 'results') {
-			return docResults.results;
+		if (mode === 'docs') {
+			return docResults.type === 'results' ? docResults.results : [];
 		}
 
 		if (mode === 'assets') {
@@ -452,9 +460,9 @@ export const QuickSwitcherContent: React.FC<{
 		inputRef.current?.focus();
 	}, []);
 
-	const showKeyboardShortcuts = mode === 'docs' && actualQuery.trim() === '';
 	const showSearchLoadingState =
 		mode === 'docs' && docResults.type === 'loading';
+	const showEmptyDocSearch = mode === 'docs' && actualQuery.trim() === '';
 	const placeholder =
 		mode === 'assets'
 			? 'Search assets...'
@@ -463,27 +471,6 @@ export const QuickSwitcherContent: React.FC<{
 				: mode === 'docs'
 					? 'Search documentation...'
 					: 'Search compositions...';
-
-	const container: React.CSSProperties = useMemo(() => {
-		return {
-			width: showKeyboardShortcuts ? 800 : 400,
-			maxWidth: 'calc(100vw - 40px)',
-		};
-	}, [showKeyboardShortcuts]);
-
-	const results: React.CSSProperties = useMemo(() => {
-		if (showKeyboardShortcuts) {
-			return {
-				maxHeight: 600,
-				overflowY: 'auto',
-			};
-		}
-
-		return {
-			overflowY: 'auto',
-			height: 300,
-		};
-	}, [showKeyboardShortcuts]);
 
 	return (
 		<div style={container}>
@@ -540,16 +527,10 @@ export const QuickSwitcherContent: React.FC<{
 					placeholder={placeholder}
 					rightAlign={false}
 				/>
-				{showKeyboardShortcuts ? (
-					<>
-						<Spacing x={2} /> <AlgoliaCredit />
-					</>
-				) : null}
 			</div>
 			<div style={results} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-				{showKeyboardShortcuts ? (
-					<KeyboardShortcutsExplainer />
-				) : showSearchLoadingState ? null : resultsArray.length === 0 ? (
+				{showEmptyDocSearch ||
+				showSearchLoadingState ? null : resultsArray.length === 0 ? (
 					<QuickSwitcherNoResults mode={mode} query={actualQuery} />
 				) : (
 					resultsArray.map((result, i) => {

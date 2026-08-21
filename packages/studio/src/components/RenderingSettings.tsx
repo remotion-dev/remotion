@@ -21,7 +21,6 @@ import {CrfSetting} from './RenderModal/CrfSetting';
 import {humanReadableCodec} from './RenderModal/human-readable-codec';
 import {input, label, optionRow, rightRow} from './RenderModal/layout';
 import {NumberSetting} from './RenderModal/NumberSetting';
-import {RenderModalHr} from './RenderModal/RenderModalHr';
 import type {SegmentedControlItem} from './SegmentedControl';
 import {SegmentedControl} from './SegmentedControl';
 import {useSettings} from './SettingsContext';
@@ -38,6 +37,11 @@ const dividerLabel: React.CSSProperties = {
 	...sectionHeader,
 	margin: 0,
 	padding: '4px 16px',
+};
+
+const sectionTitle: React.CSSProperties = {
+	...dividerLabel,
+	marginTop: 8,
 };
 
 const fullWidth: React.CSSProperties = {
@@ -473,8 +477,7 @@ export const RenderingSettings: React.FC = () => {
 					/>
 				</div>
 			</div>
-			<RenderModalHr />
-			<p style={dividerLabel}>Encoding</p>
+			<p style={sectionTitle}>Encoding</p>
 			{BrowserSafeApis.codecSupportsCrf(resolvedCodec) &&
 			BrowserSafeApis.codecSupportsVideoBitrate(resolvedCodec) ? (
 				<div style={optionRow}>
@@ -536,8 +539,7 @@ export const RenderingSettings: React.FC = () => {
 				</div>
 			) : null}
 
-			<RenderModalHr />
-			<p style={dividerLabel}>Audio</p>
+			<p style={sectionTitle}>Audio</p>
 			<div style={optionRow}>
 				<div style={label}>Audio codec</div>
 				<div style={rightRow}>
@@ -548,8 +550,7 @@ export const RenderingSettings: React.FC = () => {
 					/>
 				</div>
 			</div>
-			<RenderModalHr />
-			<p style={dividerLabel}>Performance</p>
+			<p style={sectionTitle}>Performance</p>
 			<NumberSetting
 				name="Concurrency"
 				value={concurrency}

@@ -938,11 +938,10 @@ export const useMenuStructure = (
 							closeMenu();
 
 							setSelectedModal({
-								type: 'quick-switcher',
-								mode: 'docs',
-								invocationTimestamp: Date.now(),
-								assetSelection: null,
-								compositionSelection: null,
+								type: 'settings',
+								initialTab: 'shortcuts',
+								initialPublicLicenseKey:
+									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
 						},
 						keyHint: '?',
