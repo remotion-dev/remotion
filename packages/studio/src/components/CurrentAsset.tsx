@@ -13,6 +13,7 @@ import {
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {RemotionConvertIcon} from '../icons/remotion-convert';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {
 	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
@@ -31,6 +32,12 @@ import {
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
+
+const convertIconStyle: React.CSSProperties = {
+	display: 'block',
+	height: 18,
+	width: 18,
+};
 
 export const getCurrentAssetMetadataSource = (assetName: string | null) => {
 	if (!assetName) {
@@ -211,7 +218,13 @@ export const AssetInfo: React.FC<{
 			</InspectorInfoHeader>
 			{src ? (
 				<InspectorQuickActionsSection>
-					<InspectorQuickAction disabled={false} onClick={onOpenConvert}>
+					<InspectorQuickAction
+						disabled={false}
+						onClick={onOpenConvert}
+						renderIcon={(color) => (
+							<RemotionConvertIcon color={color} style={convertIconStyle} />
+						)}
+					>
 						Open in Remotion Convert
 					</InspectorQuickAction>
 				</InspectorQuickActionsSection>
