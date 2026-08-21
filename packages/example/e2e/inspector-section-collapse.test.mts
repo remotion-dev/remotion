@@ -529,6 +529,11 @@ test.describe('inspector section collapse', () => {
 			laterCompositionBox.y + laterCompositionBox.height / 2,
 		);
 		await expect(canvasRotationSurface).toBeVisible();
+		expect(
+			await canvasRotationSurface.evaluate((surface) =>
+				decodeURIComponent(surface.getAttribute('cursor') ?? ''),
+			),
+		).toContain('<svg width="24" height="24"');
 		await expect(
 			page.locator('[data-remotion-studio-transform-origin-handle]').first(),
 		).toBeVisible();
@@ -560,6 +565,11 @@ test.describe('inspector section collapse', () => {
 			laterCompositionBox.y + laterCompositionBox.height / 2,
 		);
 		await expect(canvasRotationSurface).toBeVisible();
+		expect(
+			await canvasRotationSurface.evaluate((surface) =>
+				decodeURIComponent(surface.getAttribute('cursor') ?? ''),
+			),
+		).toContain('<svg width="29" height="30"');
 		const threeDRotationSurfaceBox = await canvasRotationSurface.boundingBox();
 		if (threeDRotationSurfaceBox === null) {
 			throw new Error(
