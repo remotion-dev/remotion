@@ -2,10 +2,12 @@ import {expect, test} from 'bun:test';
 import {studioHtml} from '../studio-html';
 
 const makeHtml = ({
+	bundleScriptType,
 	publicPath,
 	staticHash,
 	publicFolderExists,
 }: {
+	bundleScriptType?: 'module';
 	publicPath: string;
 	staticHash: string;
 	publicFolderExists: string;
@@ -41,6 +43,7 @@ const makeHtml = ({
 		packageManager: 'unknown',
 		logLevel: 'info',
 		mode: 'bundle',
+		bundleScriptType,
 	});
 };
 
@@ -86,4 +89,15 @@ test('preserves explicitly absolute bundle paths', () => {
 		'window.remotion_publicFolderExists = "/sites/alpha/public";',
 	);
 	expect(html).not.toContain('.map((file)');
+});
+
+test('marks an explicitly requested module bundle', () => {
+	const html = makeHtml({
+		bundleScriptType: 'module',
+		publicPath: './',
+		staticHash: './public',
+		publicFolderExists: './public',
+	});
+
+	expect(html).toContain('<script type="module" src="./bundle.js"></script>');
 });

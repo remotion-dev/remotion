@@ -380,6 +380,72 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	);
 });
 
+test('installs packages as an undoable project mutation and reports structured failures', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const resolvedDependencies: string[][] = [];
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {remotion: '4.0.999'},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: (dependencies) => {
+			resolvedDependencies.push(
+				dependencies.map((dependency) => dependency.name),
+			);
+			return Promise.resolve({zod: '4.1.5'});
+		},
+	});
+	const result = await operations.packageInstallation.installPackages({
+		dependencies: [
+			{name: '@remotion/google-fonts', version: null},
+			{name: 'zod', version: '4.1.5'},
+		],
+	});
+	expect(result).toEqual({success: true});
+	expect(resolvedDependencies).toEqual([['@remotion/google-fonts', 'zod']]);
+	const packageJson = JSON.parse(project.files['/project/package.json']) as {
+		dependencies: Record<string, string>;
+	};
+	expect(packageJson.dependencies['@remotion/google-fonts']).toBe('4.0.999');
+	expect(packageJson.dependencies.zod).toBe('4.1.5');
+
+	expect(await operations.undo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+	});
+	expect(project.files['/project/package.json']).toBe(
+		initialProject.files['/project/package.json'],
+	);
+	expect(await operations.redo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+	});
+	expect(project.files['/project/package.json']).toContain(
+		'"@remotion/google-fonts": "4.0.999"',
+	);
+
+	const unresolved = await operations.packageInstallation.installPackages({
+		dependencies: [{name: 'unresolvable', version: null}],
+	});
+	expect(unresolved).toMatchObject({
+		success: false,
+		reason: 'Could not resolve unresolvable',
+		stack: expect.any(String),
+	});
+	const empty = await operations.packageInstallation.installPackages({
+		dependencies: [],
+	});
+	expect(empty).toMatchObject({
+		success: false,
+		reason: 'No packages were specified',
+		stack: expect.any(String),
+	});
+});
+
 test('inserts generic elements with pinned Remotion dependencies', async () => {
 	let project = createBlankTemplateProject();
 	const operations = createBrowserStudioOperations({

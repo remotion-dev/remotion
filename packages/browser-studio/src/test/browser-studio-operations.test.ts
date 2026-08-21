@@ -865,8 +865,8 @@ export const Comp = () => {
 			width: 1280,
 		},
 	});
-	if (!subscription.success || !operations.keyframes) {
-		throw new Error('Expected Browser Studio keyframe capability');
+	if (!subscription.success) {
+		throw new Error('Expected sequence props subscription');
 	}
 
 	const failedContents = getProject().files[fileName];
@@ -1631,8 +1631,8 @@ export const Comp = () => (
 			width: 1280,
 		},
 	});
-	if (!subscription.success || !operations.effects) {
-		throw new Error('Expected Browser Studio effect capability');
+	if (!subscription.success) {
+		throw new Error('Expected sequence props subscription');
 	}
 
 	const {effects} = operations;

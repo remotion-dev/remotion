@@ -36,13 +36,17 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 	return new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();
-		const url = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgData)}`;
+		const url = URL.createObjectURL(
+			new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'}),
+		);
 
 		image.onload = function () {
+			URL.revokeObjectURL(url);
 			resolve(image);
 		};
 
 		image.onerror = () => {
+			URL.revokeObjectURL(url);
 			reject(new Error('Failed to convert SVG to image'));
 		};
 

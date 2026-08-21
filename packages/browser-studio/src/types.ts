@@ -100,6 +100,7 @@ export type BrowserStudioWorkerCompileRequest =
 			project: VirtualProject;
 			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
 			remotionPackageSource: BrowserStudioRemotionPackageSource | null;
+			useVendorBundle: boolean;
 	  }
 	| {
 			type: 'update-project';

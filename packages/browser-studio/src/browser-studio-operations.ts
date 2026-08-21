@@ -44,6 +44,7 @@ import {
 	type BrowserStudioEffectOperations,
 	type BrowserStudioKeyframeOperations,
 	type BrowserStudioOperations,
+	type BrowserStudioPackageInstallationOperations,
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
 	type InsertElementResponse,
@@ -1168,6 +1169,33 @@ export const createBrowserStudioOperations = ({
 		},
 	};
 
+	const packageInstallation: BrowserStudioPackageInstallationOperations = {
+		installPackages: async ({dependencies}) => {
+			try {
+				if (dependencies.length === 0) {
+					throw new Error('No packages were specified');
+				}
+
+				const installedDependencies =
+					await resolveElementDependencies(dependencies);
+				const project = getProject();
+				const nextProject = addDependenciesToProject({
+					dependencies: installedDependencies,
+					project,
+				});
+				controller.applyMutation({
+					fileName: 'Install packages',
+					mutate: () => nextProject,
+					nodePathMutationFiles: null,
+				});
+
+				return {success: true};
+			} catch (error) {
+				return getStructuredError(error);
+			}
+		},
+	};
+
 	const deleteJsxNode: BrowserStudioOperations['deleteJsxNode'] = async ({
 		nodes,
 	}) => {
@@ -1997,6 +2025,7 @@ export const createBrowserStudioOperations = ({
 		insertJsxElement,
 		insertSolid: insertJsxElement,
 		keyframes,
+		packageInstallation,
 		prepareElementInstall: async (request) => {
 			try {
 				const plan = await getElementInstallPlanForProject({
