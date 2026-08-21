@@ -5,6 +5,7 @@ import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {formatMediaDuration} from '../helpers/format-media-duration';
+import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
@@ -14,6 +15,7 @@ import {
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {
@@ -32,11 +34,13 @@ import {
 	getStaticFileRenameSelection,
 	useRenameStaticFile,
 } from './NewComposition/use-rename-static-file';
+import {showNotification} from './Notifications/NotificationCenter';
+import {openInFileExplorer} from './RenderQueue/actions';
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = COMPACT_INLINE_ROW_HEIGHT + 8;
 
-const convertIconStyle: React.CSSProperties = {
+const quickActionIconStyle: React.CSSProperties = {
 	display: 'block',
 	height: 18,
 	width: 18,
@@ -215,6 +219,18 @@ export const AssetInfo: React.FC<{
 
 		openInRemotionConvert({relativePath: assetName});
 	}, [assetName]);
+	const onShowInFileManager = useCallback(() => {
+		if (assetName === null || !window.remotion_publicFolderExists) {
+			showNotification('Could not find the public folder', 2000);
+			return;
+		}
+
+		openInFileExplorer({
+			directory: window.remotion_publicFolderExists + '/' + assetName,
+		}).catch((err) => {
+			showNotification(`Could not open file: ${err.message}`, 2000);
+		});
+	}, [assetName]);
 
 	if (!assetName) {
 		return (
@@ -239,6 +255,14 @@ export const AssetInfo: React.FC<{
 	const mediaSections = mediaMetadata
 		? getCurrentAssetMediaSections(mediaMetadata)
 		: null;
+	const fileManagerAvailable = getBrowserStudioOperations() === null;
+	const fileManagerDisabled =
+		window.remotion_publicFolderExists === null ||
+		readOnlyStudio ||
+		connectionStatus !== 'connected';
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
 
 	return (
 		<>
@@ -303,31 +327,50 @@ export const AssetInfo: React.FC<{
 					)}
 				</InspectorSection>
 			) : null}
-			{src ? (
+			{src || fileManagerAvailable ? (
 				<InspectorQuickActionsSection>
-					<InspectorQuickAction
-						disabled={false}
-						onClick={onOpenConvert}
-						renderIcon={(color) => (
-							<RemotionConvertIcon color={color} style={convertIconStyle} />
-						)}
-					>
-						Convert
-						<svg
-							aria-hidden="true"
-							viewBox="0 0 16 16"
-							style={convertArrowStyle}
+					{src ? (
+						<InspectorQuickAction
+							disabled={false}
+							onClick={onOpenConvert}
+							renderIcon={(color) => (
+								<RemotionConvertIcon
+									color={color}
+									style={quickActionIconStyle}
+								/>
+							)}
 						>
-							<path
-								d="M4 12 12 4M6 4h6v6"
-								fill="none"
-								stroke={CURRENT_COLOR}
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="1.5"
-							/>
-						</svg>
-					</InspectorQuickAction>
+							Convert
+							<svg
+								aria-hidden="true"
+								viewBox="0 0 16 16"
+								style={convertArrowStyle}
+							>
+								<path
+									d="M4 12 12 4M6 4h6v6"
+									fill="none"
+									stroke={CURRENT_COLOR}
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="1.5"
+								/>
+							</svg>
+						</InspectorQuickAction>
+					) : null}
+					{fileManagerAvailable ? (
+						<InspectorQuickAction
+							disabled={fileManagerDisabled}
+							onClick={onShowInFileManager}
+							renderIcon={(color) => (
+								<ExpandedFolderIcon
+									color={color}
+									style={quickActionIconStyle}
+								/>
+							)}
+						>
+							Show in {fileManagerName}
+						</InspectorQuickAction>
+					) : null}
 				</InspectorQuickActionsSection>
 			) : null}
 		</>
