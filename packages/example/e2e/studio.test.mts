@@ -984,7 +984,6 @@ test.describe('visual mode', () => {
 			await dialog.getByText('Studio', {exact: true}).click();
 			for (const setting of [
 				'Ask AI enabled',
-				'Keyboard shortcuts enabled',
 				'Interactivity enabled',
 				'Max timeline tracks',
 				'Audio latency hint',
@@ -999,6 +998,16 @@ test.describe('visual mode', () => {
 			await expect(
 				dialog.getByRole('button', {name: 'Number of shared audio tags'}),
 			).toBeVisible();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			await expect(
+				dialog.getByText('Keyboard shortcuts', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByRole('list', {name: 'Playback', exact: true}),
+			).toBeVisible();
+			await dialog.getByRole('button', {name: 'Studio', exact: true}).click();
 
 			const askAIEnabled = dialog.getByTitle('Ask AI enabled', {exact: true});
 			await expect(askAIEnabled).toHaveText('Default (Enabled)');

@@ -1,12 +1,14 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {AppsIcon} from '../icons/apps';
 import {CertificateIcon} from '../icons/certificate';
+import {KeyboardIcon} from '../icons/keyboard';
 import {RemotionTriangleIcon} from '../icons/remotion-triangle';
 import {SkillsIcon} from '../icons/skills';
 import {FilmIcon} from '../icons/video';
 import {SetSelectedModalContext} from '../state/modals';
 import {DefaultEditorSettings} from './ConfigureDefaultEditorModal';
 import {LicenseSettings} from './ConfigureLicenseModal';
+import {KeyboardShortcutsSettings} from './KeyboardShortcutsSettings';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
@@ -26,7 +28,13 @@ import {SkillsSettings} from './SkillsSettings';
 import {StudioSettings} from './StudioSettings';
 import {VerticalTab} from './Tabs/vertical';
 
-type SettingsTab = 'apps' | 'rendering' | 'studio' | 'skills' | 'license';
+type SettingsTab =
+	| 'apps'
+	| 'rendering'
+	| 'studio'
+	| 'shortcuts'
+	| 'skills'
+	| 'license';
 
 const hiddenPanel: React.CSSProperties = {
 	display: 'none',
@@ -48,6 +56,12 @@ const appsIconContainer: React.CSSProperties = {
 	...iconContainer,
 	height: 20,
 	width: 20,
+};
+
+const keyboardIcon: React.CSSProperties = {
+	...icon,
+	height: 16,
+	width: 16,
 };
 
 export const SettingsModal: React.FC<{
@@ -108,6 +122,18 @@ export const SettingsModal: React.FC<{
 						</VerticalTab>
 						<VerticalTab
 							style={horizontalTab}
+							selected={tab === 'shortcuts'}
+							onClick={() => selectTab('shortcuts')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<KeyboardIcon color={color} style={keyboardIcon} />
+								</div>
+							)}
+						>
+							Shortcuts
+						</VerticalTab>
+						<VerticalTab
+							style={horizontalTab}
 							selected={tab === 'skills'}
 							onClick={() => selectTab('skills')}
 							renderIcon={(color) => (
@@ -165,6 +191,14 @@ export const SettingsModal: React.FC<{
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<SkillsSettings />
+						</div>
+					) : null}
+					{openedTabs.includes('shortcuts') ? (
+						<div
+							style={tab === 'shortcuts' ? settingsOptionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<KeyboardShortcutsSettings />
 						</div>
 					) : null}
 					{openedTabs.includes('rendering') ? (

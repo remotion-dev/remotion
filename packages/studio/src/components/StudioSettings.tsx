@@ -7,17 +7,14 @@ import type {
 import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {LIGHT_TEXT} from '../helpers/colors';
-import {Checkmark} from '../icons/Checkmark';
 import {UndoIcon} from '../icons/undo';
 import {Button} from './Button';
+import {booleanOptions, ConfigSelect} from './ConfigSelect';
 import {sectionHeader} from './InspectorPanel/styles';
 import {Spacing} from './layout';
-import type {ComboboxValue} from './NewComposition/ComboBox';
-import {Combobox} from './NewComposition/ComboBox';
 import {InputDragger} from './NewComposition/InputDragger';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {label, optionRow, rightRow} from './RenderModal/layout';
-import {RenderModalHr} from './RenderModal/RenderModalHr';
 import {useSettings} from './SettingsContext';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
@@ -34,17 +31,15 @@ const dividerLabel: React.CSSProperties = {
 	padding: '4px 16px',
 };
 
-const controlWidth: React.CSSProperties = {
-	boxSizing: 'border-box',
-	width: 180,
+const sectionTitle: React.CSSProperties = {
+	...dividerLabel,
+	marginTop: 8,
 };
 
 const resetIcon: React.CSSProperties = {
 	height: 12,
 	width: 12,
 };
-
-const DEFAULT_VALUE = 'studio-default';
 
 const initialSettings: ConfigFileStudioSettings = {
 	askAIEnabled: null,
@@ -57,65 +52,6 @@ const initialSettings: ConfigFileStudioSettings = {
 	maxTimelineTracks: null,
 	numberOfSharedAudioTags: null,
 	rspack: null,
-};
-
-const ConfigSelect = <T extends string | boolean>({
-	defaultLabel,
-	name,
-	onChange,
-	options,
-	value,
-}: {
-	readonly defaultLabel: string;
-	readonly name: string;
-	readonly onChange: (value: T | null) => void;
-	readonly options: readonly {label: string; value: T}[];
-	readonly value: T | null;
-}) => {
-	const values: ComboboxValue[] = [
-		{
-			id: DEFAULT_VALUE,
-			keyHint: null,
-			label: `Default (${defaultLabel})`,
-			leftItem: value === null ? <Checkmark /> : null,
-			onClick: () => onChange(null),
-			quickSwitcherLabel: null,
-			subMenu: null,
-			type: 'item',
-			value: DEFAULT_VALUE,
-		},
-		{id: `${DEFAULT_VALUE}-divider`, type: 'divider'},
-		...options.map((option): ComboboxValue => {
-			const id = `${name}-${String(option.value)}`;
-			return {
-				id,
-				keyHint: null,
-				label: option.label,
-				leftItem: value === option.value ? <Checkmark /> : null,
-				onClick: () => onChange(option.value),
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: id,
-			};
-		}),
-	];
-
-	return (
-		<div style={optionRow}>
-			<div style={label}>{name}</div>
-			<div style={rightRow}>
-				<Combobox
-					values={values}
-					selectedId={
-						value === null ? DEFAULT_VALUE : `${name}-${String(value)}`
-					}
-					style={controlWidth}
-					title={name}
-				/>
-			</div>
-		</div>
-	);
 };
 
 const ConfigNumber = ({
@@ -168,11 +104,6 @@ const ConfigNumber = ({
 		</div>
 	);
 };
-
-const booleanOptions = [
-	{label: 'Enabled', value: true},
-	{label: 'Disabled', value: false},
-] as const;
 
 export const StudioSettings: React.FC = () => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
@@ -259,7 +190,6 @@ export const StudioSettings: React.FC = () => {
 				committedNumberSettings.numberOfSharedAudioTags,
 			),
 			update('setRspack', settings.rspack),
-			update('setKeyboardShortcutsEnabled', settings.keyboardShortcutsEnabled),
 			update('setInteractivityEnabled', settings.interactivityEnabled),
 			update('setLogLevel', settings.logLevel),
 		].filter((item) => editedSetters.has(item.setter));
@@ -305,19 +235,6 @@ export const StudioSettings: React.FC = () => {
 			/>
 			<ConfigSelect
 				defaultLabel="Enabled"
-				name="Keyboard shortcuts enabled"
-				onChange={(value) =>
-					changeSetting(
-						'keyboardShortcutsEnabled',
-						'setKeyboardShortcutsEnabled',
-						value,
-					)
-				}
-				options={booleanOptions}
-				value={settings.keyboardShortcutsEnabled}
-			/>
-			<ConfigSelect
-				defaultLabel="Enabled"
 				name="Interactivity enabled"
 				onChange={(value) =>
 					changeSetting(
@@ -344,8 +261,7 @@ export const StudioSettings: React.FC = () => {
 				value={settings.maxTimelineTracks}
 			/>
 
-			<RenderModalHr />
-			<p style={dividerLabel}>Audio</p>
+			<p style={sectionTitle}>Audio</p>
 			<ConfigSelect
 				defaultLabel="Playback"
 				name="Audio latency hint"
@@ -384,8 +300,7 @@ export const StudioSettings: React.FC = () => {
 				value={settings.beepOnFinish}
 			/>
 
-			<RenderModalHr />
-			<p style={dividerLabel}>Development</p>
+			<p style={sectionTitle}>Development</p>
 			<ConfigSelect
 				defaultLabel="Webpack"
 				name="Bundler"

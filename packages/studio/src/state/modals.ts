@@ -195,7 +195,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialTab: 'apps' | 'rendering' | 'studio' | 'license';
+			initialTab: 'apps' | 'rendering' | 'studio' | 'shortcuts' | 'license';
 			initialPublicLicenseKey: string | null;
 	  }
 	| RenderModalState
