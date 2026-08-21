@@ -606,6 +606,20 @@ variants.push({
 	category: 'edge-cases',
 });
 
+const shortAudioFileName = 'audio-shorter-than-video.mp4';
+copyFileSync(shortAudioFileName, path.join(outDir, shortAudioFileName));
+const shortAudioStat = await Bun.file(
+	path.join(outDir, shortAudioFileName),
+).stat();
+variants.push({
+	videoCodec: 'h264',
+	audioCodec: 'aac',
+	container: 'mp4',
+	fileNames: [shortAudioFileName],
+	size: shortAudioStat.size,
+	category: 'edge-cases',
+});
+
 // Sound effects (pre-existing files, CC0 licensed)
 const soundEffects = [
 	{

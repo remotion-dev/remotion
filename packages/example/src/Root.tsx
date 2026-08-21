@@ -208,6 +208,7 @@ import {AnimatedImageEffects} from './AnimatedImage/Effects';
 import {AudioSmoothnessBufferInterruptionComp} from './AudioSmoothness/BufferInterruption';
 import {AudioSmoothnessLoopedAudioComp} from './AudioSmoothness/LoopedAudio';
 import {AudioSmoothnessNewVideoComp} from './AudioSmoothness/NewVideo';
+import {AudioSmoothnessShortAudioLoopComp} from './AudioSmoothness/ShortAudioLoop';
 import {AudioSmoothnessSlicedVideoComp} from './AudioSmoothness/SlicedVideo';
 import {AudioSmoothnessTrimAfterLoopComp} from './AudioSmoothness/TrimAfterLoop';
 import {AudioSmoothnessTrimButtonComp} from './AudioSmoothness/TrimButton';
@@ -2233,6 +2234,7 @@ export const Index: React.FC = () => {
 				<AudioSmoothnessTrimButtonComp />
 				<AudioSmoothnessTrimAfterLoopComp />
 				<AudioSmoothnessLoopedAudioComp />
+				<AudioSmoothnessShortAudioLoopComp />
 			</Folder>
 			<Folder name="Postmount">
 				<Composition
