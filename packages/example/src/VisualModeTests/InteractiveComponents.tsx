@@ -12,111 +12,114 @@ export const InteractiveHtmlElements: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#0f172a'}}>
-			<Interactive.H1
-				style={{
-					position: 'absolute',
-					top: 70,
-					left: 90,
-					margin: 0,
-					fontFamily: 'sans-serif',
-					fontSize: 82,
-					color: '#f8fafc',
-					letterSpacing: -4,
-				}}
-			>
-				Interactive HTML
-			</Interactive.H1>
-			<Interactive.Div
-				style={{
-					position: 'absolute',
-					top: 220,
-					left: 110,
-					width: 420,
-					padding: 36,
-					borderRadius: 28,
-					background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
-					boxShadow: '0 30px 80px rgba(37, 99, 235, 0.35)',
-				}}
-			>
+		<>
+			<AbsoluteFill style={{backgroundColor: '#0f172a'}}>
+				<Interactive.H1
+					style={{
+						position: 'absolute',
+						top: 70,
+						left: 90,
+						margin: 0,
+						fontFamily: 'sans-serif',
+						fontSize: 82,
+						color: '#f8fafc',
+						letterSpacing: -4,
+					}}
+				>
+					Interactive HTML
+				</Interactive.H1>
+				<Interactive.Div
+					style={{
+						position: 'absolute',
+						top: 220,
+						left: 110,
+						width: 420,
+						padding: 36,
+						borderRadius: 28,
+						background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+						boxShadow: '0 30px 80px rgba(37, 99, 235, 0.35)',
+					}}
+				>
+					<Interactive.P
+						style={{
+							...labelStyle,
+							fontSize: 36,
+							fontWeight: 800,
+							marginBottom: 18,
+						}}
+					>
+						Drag the card
+					</Interactive.P>
+					<Interactive.Span
+						style={{
+							...labelStyle,
+							display: 'block',
+							lineHeight: 1.35,
+						}}
+					>
+						This is an <Interactive.Strong>Interactive.Div</Interactive.Strong>{' '}
+						containing interactive text elements.
+					</Interactive.Span>
+				</Interactive.Div>
+				<Interactive.Button
+					style={{
+						position: 'absolute',
+						left: 650,
+						top: 240,
+						border: 0,
+						borderRadius: 999,
+						padding: '28px 44px',
+						backgroundColor: '#f8fafc',
+						color: '#0f172a',
+						fontSize: 34,
+						fontWeight: 800,
+						boxShadow: '0 20px 60px rgba(248, 250, 252, 0.22)',
+					}}
+				>
+					Button
+				</Interactive.Button>
 				<Interactive.P
 					style={{
-						...labelStyle,
-						fontSize: 36,
-						fontWeight: 800,
-						marginBottom: 18,
+						position: 'absolute',
+						left: 620,
+						top: 390,
+						width: 350,
+						margin: 0,
+						fontFamily: 'sans-serif',
+						fontSize: 38,
+						color: '#facc15',
+						letterSpacing: 2,
+						lineHeight: 1.15,
+						textAlign: 'center',
 					}}
 				>
-					Drag the card
+					Editable text schema
 				</Interactive.P>
-				<Interactive.Span
+				<Interactive.Section
 					style={{
-						...labelStyle,
-						display: 'block',
-						lineHeight: 1.35,
+						position: 'absolute',
+						left: 570,
+						top: 520,
+						width: 390,
+						padding: 28,
+						borderRadius: 24,
+						border: '3px solid #38bdf8',
+						transform: `rotate(${Math.sin(frame / 20) * 4}deg)`,
+						scale: 1.13,
 					}}
 				>
-					This is an <Interactive.Strong>Interactive.Div</Interactive.Strong>{' '}
-					containing interactive text elements.
-				</Interactive.Span>
-			</Interactive.Div>
-			<Interactive.Button
-				style={{
-					position: 'absolute',
-					left: 650,
-					top: 240,
-					border: 0,
-					borderRadius: 999,
-					padding: '28px 44px',
-					backgroundColor: '#f8fafc',
-					color: '#0f172a',
-					fontSize: 34,
-					fontWeight: 800,
-					boxShadow: '0 20px 60px rgba(248, 250, 252, 0.22)',
-				}}
-			>
-				Button
-			</Interactive.Button>
-			<Interactive.P
-				style={{
-					position: 'absolute',
-					left: 620,
-					top: 390,
-					width: 350,
-					margin: 0,
-					fontFamily: 'sans-serif',
-					fontSize: 38,
-					color: '#facc15',
-					letterSpacing: 2,
-					lineHeight: 1.15,
-					textAlign: 'center',
-				}}
-			>
-				Editable text schema
-			</Interactive.P>
-			<Interactive.Section
-				style={{
-					position: 'absolute',
-					left: 570,
-					top: 520,
-					width: 390,
-					padding: 28,
-					borderRadius: 24,
-					border: '3px solid #38bdf8',
-					transform: `rotate(${Math.sin(frame / 20) * 4}deg)`,
-				}}
-			>
-				<Interactive.Code
-					style={{
-						fontSize: 26,
-						color: '#67e8f9',
-						fontFamily: 'monospace',
-					}}
-				>
-					&lt;Interactive.Section /&gt;
-				</Interactive.Code>
-			</Interactive.Section>
-		</AbsoluteFill>
+					<Interactive.Code
+						style={{
+							fontSize: 26,
+							color: '#67e8f9',
+							fontFamily: 'monospace',
+						}}
+					>
+						&lt;Interactive.Section /&gt;
+					</Interactive.Code>
+				</Interactive.Section>
+			</AbsoluteFill>
+		</>
 	);
 };
 

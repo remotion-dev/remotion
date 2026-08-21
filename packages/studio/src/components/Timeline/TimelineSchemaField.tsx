@@ -5,7 +5,17 @@ import type {
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {LIGHT_TEXT, WHITE_ALPHA_40} from '../../helpers/colors';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_40,
+} from '../../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -43,7 +53,12 @@ const computedValue: React.CSSProperties = {
 };
 
 const fixLinkBase: React.CSSProperties = {
-	color: LIGHT_TEXT,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 	display: 'inline-block',
 	fontSize: 10,
 	fontStyle: 'normal',
@@ -54,7 +69,7 @@ const fixLinkBase: React.CSSProperties = {
 	appearance: 'none',
 	background: 'none',
 	border: 'none',
-	cursor: 'pointer',
+	cursor: 'default',
 	padding: 0,
 };
 
@@ -102,6 +117,7 @@ export const UnsupportedStatus: React.FC<{
 			{onFix ? (
 				<button
 					type="button"
+					className={`${FOCUS_VISIBLE_ONLY_CLASS_NAME} ${HOVERABLE_CLASS_NAME}`}
 					style={fixLink}
 					title="Fix computed Studio value"
 					onClick={(event) => {
