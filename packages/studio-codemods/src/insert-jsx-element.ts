@@ -2291,6 +2291,48 @@ const ensureCompositionComponentImport = async ({
 		return sourceLocation.exportName;
 	}
 
+	if (sourceLocation.exportName !== 'default') {
+		const sourceAst = parseAstForReadOnly(
+			await readSourceFile({
+				environment,
+				fileName: sourceLocation.fileName,
+			}),
+		);
+		const hasNamedExport = sourceAst.program.body.some((node) => {
+			if (
+				node.type !== 'ExportNamedDeclaration' ||
+				node.exportKind === 'type'
+			) {
+				return false;
+			}
+
+			if (
+				node.declaration &&
+				(node.declaration.type === 'FunctionDeclaration' ||
+					node.declaration.type === 'ClassDeclaration' ||
+					node.declaration.type === 'VariableDeclaration') &&
+				declarationBindsName(node.declaration, sourceLocation.exportName)
+			) {
+				return true;
+			}
+
+			return node.specifiers.some((specifier) => {
+				return (
+					specifier.type === 'ExportSpecifier' &&
+					specifier.exportKind !== 'type' &&
+					getSpecifierLocalName(specifier) === sourceLocation.exportName &&
+					getExportedName(specifier.exported) === sourceLocation.exportName
+				);
+			});
+		});
+
+		if (!hasNamedExport) {
+			throw new Error(
+				`Cannot add composition "${compositionId}" because its component "${sourceLocation.exportName}" is not exported from ${sourceLocation.source}. Export the component and try again.`,
+			);
+		}
+	}
+
 	const sourcePath = getImportPathBetweenFiles({
 		environment,
 		fromFile: destinationFileName,
