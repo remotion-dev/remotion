@@ -1137,14 +1137,17 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			if (isFileDragEvent(event) && !window.remotion_isReadOnlyStudio) {
+			const localFiles = isFileDragEvent(event)
+				? Array.from(event.dataTransfer?.files ?? [])
+				: null;
+
+			if (localFiles !== null && !window.remotion_isReadOnlyStudio) {
 				event.preventDefault();
 				event.stopPropagation();
-				const files = Array.from(event.dataTransfer?.files ?? []);
-				if (files.length === 1) {
+				if (localFiles.length === 1) {
 					setIsAddingAsset(true);
 					try {
-						const canvasCapture = await getCanvasCaptureImport(files[0]);
+						const canvasCapture = await getCanvasCaptureImport(localFiles[0]);
 						if (canvasCapture !== null) {
 							setSelectedModal({
 								type: 'new-comp',
@@ -1244,6 +1247,7 @@ export const Canvas: React.FC<{
 					event,
 					fps: config.fps,
 					from: getCurrentFrame(),
+					localFiles,
 					preferCompositionStart: true,
 				});
 			} finally {
