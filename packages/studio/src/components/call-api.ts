@@ -1,4 +1,7 @@
-import type {ApiRoutes} from '@remotion/studio-shared';
+import {
+	INSTALL_PACKAGE_CSRF_HEADER,
+	type ApiRoutes,
+} from '@remotion/studio-shared';
 import {queueSequenceNodePathMutationFromApiResponse} from '../helpers/sequence-node-path-mutations';
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(
@@ -11,6 +14,13 @@ export const callApi = <Endpoint extends keyof ApiRoutes>(
 			method: 'post',
 			headers: {
 				'content-type': 'application/json',
+				...(endpoint === '/api/install-package' &&
+				typeof window.remotion_installPackageCsrfToken === 'string'
+					? {
+							[INSTALL_PACKAGE_CSRF_HEADER]:
+								window.remotion_installPackageCsrfToken,
+						}
+					: {}),
 			},
 			signal,
 			body: JSON.stringify(body),

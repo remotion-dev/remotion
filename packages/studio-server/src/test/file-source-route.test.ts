@@ -94,6 +94,7 @@ test('serves file source from an origin-less GET request', async () => {
 				configFileStudioSettings: null,
 			}),
 			gitSource: null,
+			installPackageCsrfToken: 'csrf-token',
 			liveEventsServer: noopLiveEventsServer,
 			logLevel: 'info',
 			outputHash: '/outputs',

@@ -17,7 +17,10 @@ import type {
 	RenderJob,
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
-import {getProjectName} from '@remotion/studio-shared';
+import {
+	getProjectName,
+	INSTALL_PACKAGE_CSRF_HEADER,
+} from '@remotion/studio-shared';
 import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
@@ -93,6 +96,7 @@ const handleFallback = async ({
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
 	getDefaultEditor,
+	installPackageCsrfToken,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -112,6 +116,7 @@ const handleFallback = async ({
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 	getDefaultEditor: () => DefaultEditor | null;
+	installPackageCsrfToken: string;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
 	if (request.method === 'GET' && acceptsHtml) {
@@ -193,6 +198,7 @@ const handleFallback = async ({
 			experimentalKeepAudioContextAlive: getExperimentalKeepAudioContextAlive(),
 			sampleRate: getPreviewSampleRate(),
 			studioRuntimeConfig: getStudioRuntimeConfig(),
+			installPackageCsrfToken,
 		}),
 	);
 };
@@ -391,6 +397,7 @@ export const handleRoutes = ({
 	getDefaultCodingAgent,
 	getDefaultEditor,
 	configFile,
+	installPackageCsrfToken,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -419,6 +426,7 @@ export const handleRoutes = ({
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
+	installPackageCsrfToken: string;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -504,6 +512,21 @@ export const handleRoutes = ({
 
 	for (const [key, value] of Object.entries(allApiRoutes)) {
 		if (url.pathname === key) {
+			if (
+				key === '/api/install-package' &&
+				request.headers[INSTALL_PACKAGE_CSRF_HEADER] !== installPackageCsrfToken
+			) {
+				response.setHeader('content-type', 'application/json');
+				response.writeHead(403);
+				response.end(
+					JSON.stringify({
+						success: false,
+						error: 'Invalid CSRF token',
+					}),
+				);
+				return Promise.resolve();
+			}
+
 			return handleRequest({
 				remotionRoot,
 				entryPoint,
@@ -599,5 +622,6 @@ export const handleRoutes = ({
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,
 		getDefaultEditor,
+		installPackageCsrfToken,
 	});
 };

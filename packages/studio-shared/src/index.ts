@@ -238,6 +238,7 @@ export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys, getAssetSchemaKeys} from './get-all-keys';
 export {getDefaultOutLocation} from './get-default-out-name';
+export {INSTALL_PACKAGE_CSRF_HEADER} from './install-package-security';
 export {
 	ErrorLocation,
 	getLocationFromBuildError,

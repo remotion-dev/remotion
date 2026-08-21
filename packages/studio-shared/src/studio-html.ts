@@ -34,6 +34,7 @@ export type StudioHtmlOptions = {
 	bundleScriptUrl?: string;
 	readOnlyStudio?: boolean;
 	studioRuntimeConfig?: StudioRuntimeConfig;
+	installPackageCsrfToken: string | null;
 };
 
 export const studioHtml = ({
@@ -65,6 +66,7 @@ export const studioHtml = ({
 	bundleScriptUrl,
 	readOnlyStudio,
 	studioRuntimeConfig,
+	installPackageCsrfToken,
 }: StudioHtmlOptions) => {
 	const scriptUrl = bundleScriptUrl ?? `${publicPath}bundle.js`;
 	const isRelativeBundle = mode === 'bundle' && publicPath === './';
@@ -165,6 +167,7 @@ export const studioHtml = ({
 		<script>window.remotion_staticFiles = ${staticFilesValue}</script>
 		<script>window.remotion_installedPackages = ${JSON.stringify(installedDependencies)}</script>
 		<script>window.remotion_packageManager = ${JSON.stringify(packageManager)}</script>
+		<script>window.remotion_installPackageCsrfToken = ${JSON.stringify(installPackageCsrfToken)};</script>
 		<script>window.remotion_publicFolderExists = ${publicFolderExistsValue};</script>
 		<script>
 				// Increment this value when the generated bundle format or behavior changes
