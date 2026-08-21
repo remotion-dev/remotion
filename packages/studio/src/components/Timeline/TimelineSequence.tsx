@@ -46,11 +46,14 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
+	getTimelineSequenceOpacity,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
+	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
+	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
@@ -123,6 +126,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
+	const {selectedItems} = useTimelineSelection();
 	useTimelineMarqueeSelectableItem(selectionItem, ref);
 
 	const onPointerDown = useCallback(
@@ -172,9 +177,13 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
-			opacity: isInRange ? 1 : 0.5,
+			opacity: getTimelineSequenceOpacity({
+				containsSelection,
+				selected,
+				selectedItems,
+			}),
 		};
-	}, [isInRange, style]);
+	}, [containsSelection, selected, selectedItems, style]);
 
 	return (
 		<div
