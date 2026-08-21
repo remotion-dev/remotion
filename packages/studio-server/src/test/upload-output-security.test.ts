@@ -1,5 +1,12 @@
 import {expect, test} from 'bun:test';
-import {mkdtemp, readFile, rm, symlink, writeFile} from 'node:fs/promises';
+import {
+	mkdir,
+	mkdtemp,
+	readFile,
+	rm,
+	symlink,
+	writeFile,
+} from 'node:fs/promises';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
@@ -16,18 +23,24 @@ const makeLiveEventsServer = (): LiveEventsServer => ({
 	sendEventToClientId: () => false,
 });
 
-const requestUpload = async ({
+const requestWriteRoute = async ({
 	remotionRoot,
+	publicDir,
 	filePath,
 	body,
+	route,
 }: {
 	remotionRoot: string;
+	publicDir: string;
 	filePath: string;
 	body: string;
+	route: 'add-asset' | 'upload-output';
 }) => {
 	const request = Readable.from([body]) as IncomingMessage;
 	request.method = 'POST';
-	request.url = `/api/upload-output?filePath=${encodeURIComponent(filePath)}`;
+	request.url = `${
+		route === 'add-asset' ? '/static/api/add-asset' : '/api/upload-output'
+	}?filePath=${encodeURIComponent(filePath)}`;
 	request.headers = {
 		host: 'localhost:3000',
 		origin: 'http://localhost:3000',
@@ -89,7 +102,7 @@ const requestUpload = async ({
 		logLevel: 'error',
 		outputHash: '/outputs',
 		outputHashPrefix: '/outputs',
-		publicDir: remotionRoot,
+		publicDir,
 		queueMethods: {
 			addJob: () => undefined,
 			cancelJob: () => undefined,
@@ -112,10 +125,12 @@ test('uploads supported render output files', async () => {
 	);
 
 	try {
-		const response = await requestUpload({
+		const response = await requestWriteRoute({
 			body: 'video contents',
 			filePath: 'output.mp4',
+			publicDir: remotionRoot,
 			remotionRoot,
+			route: 'upload-output',
 		});
 
 		expect(JSON.parse(response.responseBody)).toEqual({success: true});
@@ -135,10 +150,12 @@ test('rejects config files as render output', async () => {
 	await writeFile(configFile, 'safe config');
 
 	try {
-		const response = await requestUpload({
+		const response = await requestWriteRoute({
 			body: 'malicious config',
 			filePath: 'remotion.config.ts',
+			publicDir: remotionRoot,
 			remotionRoot,
+			route: 'upload-output',
 		});
 
 		expect(response.responseStatusCode).toBe(500);
@@ -165,15 +182,110 @@ test('does not follow symlinks when uploading render output', async () => {
 	await symlink(configFile, outputFile);
 
 	try {
-		const response = await requestUpload({
+		const response = await requestWriteRoute({
 			body: 'malicious config',
 			filePath: 'output.mp4',
+			publicDir: remotionRoot,
 			remotionRoot,
+			route: 'upload-output',
 		});
 
 		expect(response.responseStatusCode).toBe(500);
 		expect(await readFile(configFile, 'utf8')).toBe('safe config');
 	} finally {
 		await rm(remotionRoot, {force: true, recursive: true});
+	}
+});
+
+test('does not follow parent-directory symlinks when uploading render output', async () => {
+	if (process.platform === 'win32') {
+		return;
+	}
+
+	const remotionRoot = await mkdtemp(
+		path.join(tmpdir(), 'remotion-upload-parent-symlink-'),
+	);
+	const outsideDirectory = await mkdtemp(
+		path.join(tmpdir(), 'remotion-upload-outside-'),
+	);
+	const outsideFile = path.join(outsideDirectory, 'output.mp4');
+	await writeFile(outsideFile, 'safe contents');
+	await symlink(outsideDirectory, path.join(remotionRoot, 'linked-output'));
+
+	try {
+		const response = await requestWriteRoute({
+			body: 'malicious contents',
+			filePath: 'linked-output/output.mp4',
+			publicDir: remotionRoot,
+			remotionRoot,
+			route: 'upload-output',
+		});
+
+		expect(response.responseStatusCode).toBe(500);
+		expect(await readFile(outsideFile, 'utf8')).toBe('safe contents');
+	} finally {
+		await rm(remotionRoot, {force: true, recursive: true});
+		await rm(outsideDirectory, {force: true, recursive: true});
+	}
+});
+
+test('writes normal static assets without following symlinks', async () => {
+	if (process.platform === 'win32') {
+		return;
+	}
+
+	const remotionRoot = await mkdtemp(
+		path.join(tmpdir(), 'remotion-add-asset-'),
+	);
+	const publicDir = path.join(remotionRoot, 'public');
+	const outsideDirectory = await mkdtemp(
+		path.join(tmpdir(), 'remotion-add-asset-outside-'),
+	);
+	const finalSymlinkTarget = path.join(outsideDirectory, 'final.png');
+	const parentSymlinkTarget = path.join(outsideDirectory, 'parent.png');
+	await mkdir(publicDir);
+	await writeFile(finalSymlinkTarget, 'safe final contents');
+	await writeFile(parentSymlinkTarget, 'safe parent contents');
+	await symlink(finalSymlinkTarget, path.join(publicDir, 'final.png'));
+	await symlink(outsideDirectory, path.join(publicDir, 'linked-assets'));
+
+	try {
+		const normalResponse = await requestWriteRoute({
+			body: 'normal contents',
+			filePath: 'nested/normal.png',
+			publicDir,
+			remotionRoot,
+			route: 'add-asset',
+		});
+		const finalSymlinkResponse = await requestWriteRoute({
+			body: 'malicious final contents',
+			filePath: 'final.png',
+			publicDir,
+			remotionRoot,
+			route: 'add-asset',
+		});
+		const parentSymlinkResponse = await requestWriteRoute({
+			body: 'malicious parent contents',
+			filePath: 'linked-assets/parent.png',
+			publicDir,
+			remotionRoot,
+			route: 'add-asset',
+		});
+
+		expect(JSON.parse(normalResponse.responseBody)).toEqual({success: true});
+		expect(
+			await readFile(path.join(publicDir, 'nested/normal.png'), 'utf8'),
+		).toBe('normal contents');
+		expect(finalSymlinkResponse.responseStatusCode).toBe(500);
+		expect(parentSymlinkResponse.responseStatusCode).toBe(500);
+		expect(await readFile(finalSymlinkTarget, 'utf8')).toBe(
+			'safe final contents',
+		);
+		expect(await readFile(parentSymlinkTarget, 'utf8')).toBe(
+			'safe parent contents',
+		);
+	} finally {
+		await rm(remotionRoot, {force: true, recursive: true});
+		await rm(outsideDirectory, {force: true, recursive: true});
 	}
 });

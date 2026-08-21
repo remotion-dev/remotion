@@ -1,5 +1,9 @@
-import fs, {createWriteStream} from 'fs';
-import {createReadStream, existsSync, statSync} from 'node:fs';
+import {
+	createReadStream,
+	createWriteStream,
+	existsSync,
+	statSync,
+} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
@@ -22,6 +26,7 @@ import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
+import {openFileForWritingWithoutSymlinks} from './helpers/open-file-for-writing-without-symlinks';
 import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
@@ -278,9 +283,14 @@ const handleAddAsset = ({
 			throw new Error(`Not allowed to write to ${relativeToPublicDir}`);
 		}
 
-		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
-
-		const writeStream = createWriteStream(absolutePath);
+		const fileDescriptor = openFileForWritingWithoutSymlinks({
+			rootDirectory: publicDir,
+			absolutePath,
+		});
+		const writeStream = createWriteStream(absolutePath, {
+			fd: fileDescriptor,
+			autoClose: true,
+		});
 		writeStream.on('close', () => {
 			res.end(JSON.stringify({success: true}));
 		});
@@ -323,15 +333,10 @@ const handleUploadOutput = ({
 			);
 		}
 
-		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
-
-		const fileDescriptor = fs.openSync(
+		const fileDescriptor = openFileForWritingWithoutSymlinks({
+			rootDirectory: remotionRoot,
 			absolutePath,
-			fs.constants.O_CREAT |
-				fs.constants.O_WRONLY |
-				fs.constants.O_TRUNC |
-				fs.constants.O_NOFOLLOW,
-		);
+		});
 		const writeStream = createWriteStream(absolutePath, {
 			fd: fileDescriptor,
 			autoClose: true,
