@@ -6,6 +6,7 @@ import type {
 	RspackConfiguration,
 	RspackOverrideFn,
 } from './override-types';
+import {getReactScanEntryPoint} from './react-scan-entry-point';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
@@ -90,6 +91,7 @@ export const rspackConfig = async ({
 				environment === 'development'
 					? require.resolve('./fast-refresh/notify-on-refresh.js')
 					: null,
+			reactScan: getReactScanEntryPoint(environment),
 			environmentSetup: require.resolve('./setup-environment'),
 			sequenceStackTraces:
 				environment === 'development'

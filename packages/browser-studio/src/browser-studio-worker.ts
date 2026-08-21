@@ -290,6 +290,7 @@ const createCompiler = async ({
 	const entryPoints = getStudioEntryPoints({
 		environmentSetup: browserStudioVirtualFilePaths.setupEnvironment,
 		fastRefreshRuntime: browserStudioVirtualFilePaths.reactRefreshEntry,
+		reactScan: null,
 		reactShim: browserStudioVirtualFilePaths.reactShim,
 		sequenceStackTraces: browserStudioVirtualFilePaths.setupSequenceStackTraces,
 		studioRenderEntry: useVendorBundle
