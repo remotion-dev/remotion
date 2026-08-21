@@ -9,6 +9,7 @@ import {borderRadiusNested} from './fixtures/border-radius-nested';
 import {borderRadiusNestedOverflowHidden} from './fixtures/border-radius-nested-overflow-hidden';
 import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
+import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {testImage} from './utils';
 
@@ -101,6 +102,19 @@ test('should clamp border radius that exceeds maximum', async () => {
 	).blob({format: 'png'});
 
 	await testImage({blob, testId: 'draw-border-radius-clamped'});
+});
+
+test('should preserve circular corners when clamping a pixel border radius', async () => {
+	const blob = await (
+		await renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: borderRadiusPill,
+			frame: 0,
+			inputProps: {},
+		})
+	).blob({format: 'png'});
+
+	await testImage({blob, testId: 'draw-border-radius-pill'});
 });
 
 test('should render nested border radii correctly', async () => {
