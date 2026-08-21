@@ -536,6 +536,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					layoutTarget={layoutTarget}
 					onDraggingChange={onDraggingChange}
 					outline={outline}
+					transform3DMode={controlTarget.rotationDrag.transform3DMode}
 				/>
 			) : null}
 			<SelectedOutlineCropControls
