@@ -157,11 +157,7 @@ export const useProbe = ({src}: {src: Source}) => {
 	}, [getStart]);
 
 	const fps =
-		frameRate === undefined || frameRate === null
-			? frameRate
-			: frameRate.type === 'constant'
-				? frameRate.rate
-				: frameRate.max;
+		frameRate === undefined || frameRate === null ? frameRate : frameRate.rate;
 
 	return useMemo(() => {
 		return {
