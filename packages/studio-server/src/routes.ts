@@ -1,5 +1,9 @@
-import fs, {createWriteStream} from 'fs';
-import {createReadStream, existsSync, statSync} from 'node:fs';
+import {
+	createReadStream,
+	createWriteStream,
+	existsSync,
+	statSync,
+} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
@@ -22,6 +26,7 @@ import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
+import {openFileForWritingWithoutSymlinks} from './helpers/open-file-for-writing-without-symlinks';
 import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
@@ -41,6 +46,21 @@ import {validateSameOrigin} from './preview-server/validate-same-origin';
 import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
 import type {RemotionConfigResponse} from './remotion-config-response';
 const loggedStaticFileHints = new Set<string>();
+const clientRenderOutputExtensions = new Set([
+	'aac',
+	'flac',
+	'jpeg',
+	'jpg',
+	'mkv',
+	'mov',
+	'mp3',
+	'mp4',
+	'ogg',
+	'png',
+	'wav',
+	'webm',
+	'webp',
+]);
 
 const static404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
@@ -263,9 +283,14 @@ const handleAddAsset = ({
 			throw new Error(`Not allowed to write to ${relativeToPublicDir}`);
 		}
 
-		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
-
-		const writeStream = createWriteStream(absolutePath);
+		const fileDescriptor = openFileForWritingWithoutSymlinks({
+			rootDirectory: publicDir,
+			absolutePath,
+		});
+		const writeStream = createWriteStream(absolutePath, {
+			fd: fileDescriptor,
+			autoClose: true,
+		});
 		writeStream.on('close', () => {
 			res.end(JSON.stringify({success: true}));
 		});
@@ -301,10 +326,21 @@ const handleUploadOutput = ({
 		}
 
 		const absolutePath = resolveOutputPath(remotionRoot, filePath);
+		const extension = path.extname(absolutePath).slice(1).toLowerCase();
+		if (!clientRenderOutputExtensions.has(extension)) {
+			throw new Error(
+				`Not allowed to upload a .${extension || 'unknown'} file`,
+			);
+		}
 
-		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
-
-		const writeStream = createWriteStream(absolutePath);
+		const fileDescriptor = openFileForWritingWithoutSymlinks({
+			rootDirectory: remotionRoot,
+			absolutePath,
+		});
+		const writeStream = createWriteStream(absolutePath, {
+			fd: fileDescriptor,
+			autoClose: true,
+		});
 		writeStream.on('close', () => {
 			res.end(JSON.stringify({success: true}));
 		});

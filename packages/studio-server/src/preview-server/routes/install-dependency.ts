@@ -73,7 +73,7 @@ export const handleInstallPackage: ApiHandler<
 		manager: manager.manager,
 		packages: packagesWithVersions,
 		version: '',
-		additionalArgs: [],
+		additionalArgs: manager.manager === 'yarn' ? [] : ['--ignore-scripts'],
 	});
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
@@ -82,11 +82,13 @@ export const handleInstallPackage: ApiHandler<
 	const time = Date.now();
 	try {
 		await new Promise<void>((resolve, reject) => {
-			const cmd = spawn(
-				manager.manager,
-				command,
-				getPackageManagerSpawnOptions(),
-			);
+			const cmd = spawn(manager.manager, command, {
+				...getPackageManagerSpawnOptions(),
+				env: {
+					...process.env,
+					YARN_ENABLE_SCRIPTS: 'false',
+				},
+			});
 			cmd.on('error', reject);
 			cmd.stdout.on('data', (d: Buffer) =>
 				d
