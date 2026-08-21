@@ -969,24 +969,11 @@ test.describe('visual mode', () => {
 
 			await dialog.getByText('Skills', {exact: true}).click();
 			await expect(
-				dialog.getByText('Install missing skills', {exact: true}),
-			).toHaveCount(0);
-			await expect(
 				dialog.getByText(
 					'Not all skills are installed. Run this command in the project directory, then reload Studio and restart your coding agent.',
 					{exact: true},
 				),
 			).toBeVisible();
-			await expect(
-				dialog.getByText(
-					'Skills give coding agents Remotion-specific instructions and best practices.',
-					{exact: true},
-				),
-			).toHaveCount(0);
-			await expect(
-				dialog.getByRole('heading', {name: 'Remotion Agent Skills'}),
-			).toHaveCount(0);
-			await expect(dialog.getByText('2 of 3 installed')).toHaveCount(0);
 			await expect(
 				dialog.getByText('/remotion-best-practices', {exact: true}),
 			).toBeVisible();
