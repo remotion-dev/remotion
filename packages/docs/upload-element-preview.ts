@@ -245,11 +245,7 @@ if (!purgeResponse.ok || !purgeResult.success) {
 }
 
 console.log('Cleared the CDN cache for both preview URLs.');
-console.log(
-	usesHostedPreviewUrls
-		? 'Upload verified. Preview URLs remain:'
-		: 'Upload verified. Replace the review URLs with:',
-);
+console.log('Upload verified. Preview URLs:');
 console.log(expectedHostedPosterUrl);
 console.log(expectedHostedVideoUrl);
 if (source === 'submission') {
