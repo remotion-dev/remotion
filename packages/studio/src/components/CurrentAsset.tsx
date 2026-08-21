@@ -13,13 +13,16 @@ import {
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
-import {Button} from './Button';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {
 	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
 } from './InspectorInfoHeader';
+import {
+	InspectorQuickActionsSection,
+	InspectorQuickAction,
+} from './InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
 	getStaticFileRenameSelection,
@@ -28,14 +31,6 @@ import {
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
-
-const convertButtonContainer: React.CSSProperties = {
-	marginTop: 12,
-};
-
-const convertButtonStyle: React.CSSProperties = {
-	width: '100%',
-};
 
 export const getCurrentAssetMetadataSource = (assetName: string | null) => {
 	if (!assetName) {
@@ -175,53 +170,53 @@ export const AssetInfo: React.FC<{
 		: [];
 
 	return (
-		<InspectorInfoHeader
-			contentSized={contentSized}
-			padding={
-				contentSized ? `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 6px` : '4px 0'
-			}
-		>
-			<InlineEditableTitle
-				value={fileName}
-				canRename={canRename}
-				getInitialSelection={getStaticFileRenameSelection}
-				onClick={onAssetClick}
-				onCommit={onRename}
-				size={contentSized ? 'default' : 'inspector'}
-				title={assetName}
-			/>
-			{subtitleParts.length > 0 ? (
-				<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
-					{subtitleParts.join(' · ')}
-				</InspectorInfoSubtitle>
-			) : null}
-			{mediaMetadata ? (
-				<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
-					{formatMediaDuration(mediaMetadata.duration)}
-				</InspectorInfoSubtitle>
-			) : null}
-			{mediaDetailLines.map((line) => {
-				return (
-					<InspectorInfoSubtitle
-						key={line}
-						size={contentSized ? 'default' : 'inspector'}
-					>
-						{line}
+		<>
+			<InspectorInfoHeader
+				contentSized={contentSized}
+				padding={
+					contentSized
+						? `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 6px`
+						: '4px 0'
+				}
+			>
+				<InlineEditableTitle
+					value={fileName}
+					canRename={canRename}
+					getInitialSelection={getStaticFileRenameSelection}
+					onClick={onAssetClick}
+					onCommit={onRename}
+					size={contentSized ? 'default' : 'inspector'}
+					title={assetName}
+				/>
+				{subtitleParts.length > 0 ? (
+					<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
+						{subtitleParts.join(' · ')}
 					</InspectorInfoSubtitle>
-				);
-			})}
+				) : null}
+				{mediaMetadata ? (
+					<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
+						{formatMediaDuration(mediaMetadata.duration)}
+					</InspectorInfoSubtitle>
+				) : null}
+				{mediaDetailLines.map((line) => {
+					return (
+						<InspectorInfoSubtitle
+							key={line}
+							size={contentSized ? 'default' : 'inspector'}
+						>
+							{line}
+						</InspectorInfoSubtitle>
+					);
+				})}
+			</InspectorInfoHeader>
 			{src ? (
-				<div style={convertButtonContainer}>
-					<Button
-						onClick={onOpenConvert}
-						size="compact"
-						style={convertButtonStyle}
-					>
+				<InspectorQuickActionsSection>
+					<InspectorQuickAction disabled={false} onClick={onOpenConvert}>
 						Open in Remotion Convert
-					</Button>
-				</div>
+					</InspectorQuickAction>
+				</InspectorQuickActionsSection>
 			) : null}
-		</InspectorInfoHeader>
+		</>
 	);
 };
 
