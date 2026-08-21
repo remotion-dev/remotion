@@ -970,6 +970,12 @@ test.describe('visual mode', () => {
 			await dialog.getByText('Skills', {exact: true}).click();
 			await expect(
 				dialog.getByText('Install missing skills', {exact: true}),
+			).toHaveCount(0);
+			await expect(
+				dialog.getByText(
+					'Not all skills are installed. To install skills, run this command in the project directory, then reload Studio and restart your coding agent.',
+					{exact: true},
+				),
 			).toBeVisible();
 			await expect(
 				dialog.getByText(

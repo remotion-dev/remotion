@@ -38,13 +38,6 @@ const installationInstructions: React.CSSProperties = {
 	marginTop: 14,
 };
 
-const instructionsTitle: React.CSSProperties = {
-	color: WHITE,
-	fontSize: 13,
-	fontWeight: 600,
-	lineHeight: 1.4,
-};
-
 const commandField: React.CSSProperties = {
 	alignItems: 'center',
 	backgroundColor: 'rgba(0, 0, 0, 0.22)',
@@ -153,10 +146,10 @@ export const SkillsSettings: React.FC = () => {
 			) : null}
 			{missingSkills > 0 ? (
 				<div style={installationInstructions}>
-					<div style={instructionsTitle}>Install missing skills</div>
 					<p style={description}>
-						Run this command in the project directory, then reload Studio and
-						restart your coding agent.
+						Not all skills are installed. To install skills, run this command in
+						the project directory, then reload Studio and restart your coding
+						agent.
 					</p>
 					<div style={commandField}>
 						<pre style={command}>{INSTALL_COMMAND}</pre>
