@@ -4,77 +4,20 @@ import {isIP} from 'node:net';
 import path from 'node:path';
 import {
 	detectFileType,
+	getRemoteAssetElement,
+	getRemoteAssetFilename,
 	isImageFileType,
+	maxRemoteAssetSize,
+	remoteAssetAcceptHeader,
+	remoteAssetDownloadTimeout,
 	type DownloadRemoteAssetRequest,
 	type DownloadRemoteAssetResponse,
-	type ImageFileType,
-	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
 import type {ApiHandler} from '../api-types';
 import {validateSameOrigin} from '../validate-same-origin';
 
-const maxRemoteAssetSize = 50 * 1024 * 1024;
-const remoteAssetDownloadTimeout = 15000;
 const maxRemoteAssetRedirects = 5;
-const remoteAssetAcceptHeader =
-	'image/png,image/apng,image/jpeg,image/webp,image/bmp,image/gif';
-
-const extensionsForFileType: Record<ImageFileType['type'], string[]> = {
-	png: ['png'],
-	apng: ['png', 'apng'],
-	jpeg: ['jpg', 'jpeg'],
-	webp: ['webp'],
-	bmp: ['bmp'],
-	gif: ['gif'],
-};
-
-const safeDecodeURIComponent = (value: string) => {
-	try {
-		return decodeURIComponent(value);
-	} catch {
-		return value;
-	}
-};
-
-const sanitizeAssetFilename = (filename: string) => {
-	return Array.from(filename)
-		.map((character) => {
-			const charCode = character.charCodeAt(0);
-			return charCode <= 31 || '<>:"/\\|?*'.includes(character)
-				? '-'
-				: character;
-		})
-		.join('')
-		.trim()
-		.replace(/^[. ]+|[. ]+$/g, '');
-};
-
-export const getRemoteAssetFilename = ({
-	fileType,
-	url,
-}: {
-	fileType: ImageFileType;
-	url: URL;
-}) => {
-	const basename = safeDecodeURIComponent(path.posix.basename(url.pathname));
-	const sanitized = sanitizeAssetFilename(basename);
-	const filenameWithoutFallback = sanitized === '' ? 'image' : sanitized;
-	const extensions = extensionsForFileType[fileType.type];
-	const extension = path
-		.extname(filenameWithoutFallback)
-		.slice(1)
-		.toLowerCase();
-
-	if (extensions.includes(extension)) {
-		return filenameWithoutFallback;
-	}
-
-	const withoutExtension = extension
-		? filenameWithoutFallback.slice(0, -(extension.length + 1))
-		: filenameWithoutFallback;
-	const safeName = withoutExtension === '' ? 'image' : withoutExtension;
-	return `${safeName}.${extensions[0]}`;
-};
+export {getRemoteAssetFilename};
 
 const isForbiddenIpv4Address = (address: string) => {
 	const parts = address.split('.').map((part) => Number(part));
@@ -334,21 +277,7 @@ export const downloadRemoteAssetHandler: ApiHandler<
 		writeFileSync(absolutePath, contents);
 	}
 
-	const element: InsertableCompositionElement = {
-		type: 'asset',
-		assetType:
-			fileType.type === 'gif'
-				? 'gif'
-				: fileType.type === 'apng' ||
-					  (fileType.type === 'webp' && fileType.animated)
-					? 'animated-image'
-					: 'image',
-		src: assetPath,
-		srcType: 'static',
-		dimensions: fileType.dimensions,
-		durationInFrames: null,
-		position: null,
-	};
+	const element = getRemoteAssetElement({assetPath, fileType});
 
 	return {
 		assetPath,
