@@ -527,7 +527,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 260,
 							backgroundColor: '#7c3aed',
 							borderRadius: 30,
-							translate: '0px 0px',
+							translate: '-7px 87px',
 						}}
 					>
 						<ShapeLabel>Selected B</ShapeLabel>
@@ -635,7 +635,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 480,
 							backgroundColor: '#2563eb',
 							borderRadius: 32,
-							translate: '0px 0px',
+							translate: '-71.7px 116.5px',
 						}}
 					>
 						<ShapeLabel>Select the large target first</ShapeLabel>
@@ -650,7 +650,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 220,
 							backgroundColor: '#d97706',
 							borderRadius: 24,
-							translate: '0px 0px',
+							translate: '-26.8px 181.5px',
 						}}
 					>
 						<ShapeLabel>Unselected overlap</ShapeLabel>
@@ -681,7 +681,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 500,
 							backgroundColor: '#2563eb',
 							borderRadius: 32,
-							translate: '0px 0px',
+							translate: '81.2px 80.3px',
 						}}
 					>
 						<ShapeLabel>Selected parent</ShapeLabel>
@@ -695,7 +695,7 @@ export const OutlineSelectionCases: React.FC = () => {
 								height: 290,
 								backgroundColor: '#e11d48',
 								borderRadius: 24,
-								translate: '0px 0px',
+								translate: '-51.1px -4.4px',
 							}}
 						>
 							<ShapeLabel>Drag parent from here</ShapeLabel>
@@ -727,7 +727,8 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 400,
 							backgroundColor: '#7c3aed',
 							borderRadius: 34,
-							translate: '0px 0px',
+							translate: '73.7px -167.8px',
+							rotate: '-19.9deg',
 						}}
 					>
 						<ShapeLabel>Select one of my properties, then drag me</ShapeLabel>
@@ -742,9 +743,9 @@ export const OutlineSelectionCases: React.FC = () => {
 			>
 				<CaseFrame
 					caseNumber={13}
-					status="Partial"
+					status="Baseline"
 					title="All selected editing handles stay on top"
-					summary="Transform-origin and UV handles are already globally raised, but scale and rotation controls can be covered by a later polygon."
+					summary="Transform-origin, UV, crop, scale, and rotation handles are globally raised above every outline polygon."
 					desiredBehavior="Every visible handle belonging to a selected outline is rendered and hit-tested above every unselected polygon."
 					instructions="Select Editable transform target and activate its transform controls. The amber polygon must not block any handle near the top-right corner."
 				>
@@ -762,10 +763,10 @@ export const OutlineSelectionCases: React.FC = () => {
 							height: 360,
 							backgroundColor: '#7c3aed',
 							borderRadius: 34,
-							rotate: '8deg',
+							rotate: '12.4deg',
 							scale: 1,
-							transformOrigin: '50% 50%',
-							translate: '0px 0px',
+							transformOrigin: '100% 0%',
+							translate: '33.6px 50.4px',
 						}}
 					>
 						<ShapeLabel>Selected transform target</ShapeLabel>
@@ -781,6 +782,7 @@ export const OutlineSelectionCases: React.FC = () => {
 							backgroundColor: '#d97706',
 							borderRadius: 24,
 							translate: '0px 0px',
+							rotate: '15.7deg',
 						}}
 					>
 						<ShapeLabel>Must stay below handles</ShapeLabel>
