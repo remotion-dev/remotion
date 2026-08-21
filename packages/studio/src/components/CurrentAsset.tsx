@@ -22,8 +22,10 @@ import {
 	InspectorInfoSubtitle,
 } from './InspectorInfoHeader';
 import {
+	InspectorDetailRow,
 	InspectorQuickActionsSection,
 	InspectorQuickAction,
+	InspectorSection,
 } from './InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
@@ -46,6 +48,10 @@ const convertArrowStyle: React.CSSProperties = {
 	marginLeft: 4,
 	verticalAlign: -2,
 	width: 12,
+};
+
+const assetMetadataStyle: React.CSSProperties = {
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
 export const getCurrentAssetMetadataSource = (assetName: string | null) => {
@@ -73,42 +79,77 @@ export const getCurrentAssetImageMetadataSource = (
 
 const formatFps = (fps: number) => `${fps.toFixed(2)} FPS`;
 
-export const getCurrentAssetMediaDetailLines = (
-	mediaMetadata: MediaMetadata,
-) => {
-	const detailLines: string[] = [];
+type CurrentAssetMediaDetail = {
+	readonly label: string;
+	readonly value: string;
+};
 
-	if (mediaMetadata.hasVideoTrack === true) {
-		const videoParts = [
-			renderHumanReadableVideoCodec(mediaMetadata.videoCodec),
-		];
+export const getCurrentAssetMediaSections = (mediaMetadata: MediaMetadata) => {
+	const hasVideo =
+		mediaMetadata.hasVideoTrack === true ||
+		mediaMetadata.width !== null ||
+		mediaMetadata.height !== null ||
+		mediaMetadata.videoCodec !== null ||
+		mediaMetadata.fps !== null ||
+		mediaMetadata.isHdr !== null;
+	const hasAudio =
+		mediaMetadata.hasAudioTrack === true ||
+		mediaMetadata.audioCodec !== null ||
+		mediaMetadata.sampleRate !== null;
+	const video: CurrentAssetMediaDetail[] = [];
+	const audio: CurrentAssetMediaDetail[] = [];
+
+	if (hasVideo) {
+		if (mediaMetadata.width !== null && mediaMetadata.height !== null) {
+			video.push({
+				label: 'Dimensions',
+				value: `${mediaMetadata.width} × ${mediaMetadata.height}`,
+			});
+		}
 
 		if (mediaMetadata.fps !== null) {
-			videoParts.push(formatFps(mediaMetadata.fps));
+			video.push({label: 'Frame rate', value: formatFps(mediaMetadata.fps)});
 		}
+
+		video.push({
+			label: 'Duration',
+			value: formatMediaDuration(mediaMetadata.duration),
+		});
+		video.push({
+			label: 'Codec',
+			value: renderHumanReadableVideoCodec(mediaMetadata.videoCodec),
+		});
 
 		if (mediaMetadata.isHdr !== null) {
-			videoParts.push(`HDR: ${mediaMetadata.isHdr ? 'Yes' : 'No'}`);
+			video.push({
+				label: 'HDR',
+				value: mediaMetadata.isHdr ? 'Yes' : 'No',
+			});
 		}
-
-		detailLines.push(`Video: ${videoParts.join(' · ')}`);
 	}
 
-	if (mediaMetadata.hasAudioTrack === true) {
-		const audioParts = [
-			renderHumanReadableAudioCodec(mediaMetadata.audioCodec),
-		];
+	if (hasAudio) {
+		audio.push({
+			label: 'Duration',
+			value: formatMediaDuration(mediaMetadata.duration),
+		});
+		audio.push({
+			label: 'Codec',
+			value: renderHumanReadableAudioCodec(mediaMetadata.audioCodec),
+		});
 
 		if (mediaMetadata.sampleRate !== null) {
-			audioParts.push(`${mediaMetadata.sampleRate} Hz`);
+			audio.push({
+				label: 'Sample rate',
+				value: `${mediaMetadata.sampleRate} Hz`,
+			});
 		}
-
-		detailLines.push(`Audio: ${audioParts.join(' · ')}`);
-	} else if (mediaMetadata.hasAudioTrack === false) {
-		detailLines.push('Audio: No audio');
 	}
 
-	return detailLines;
+	return {
+		audio: hasAudio ? audio : null,
+		video: hasVideo ? video : null,
+	};
 };
 
 export const AssetInfo: React.FC<{
@@ -172,18 +213,14 @@ export const AssetInfo: React.FC<{
 		if (mediaMetadata.format) {
 			subtitleParts.push(mediaMetadata.format);
 		}
-
-		if (mediaMetadata.width !== null && mediaMetadata.height !== null) {
-			subtitleParts.push(`${mediaMetadata.width}x${mediaMetadata.height}`);
-		}
 	} else if (imageMetadata) {
 		subtitleParts.push(imageMetadata.format);
 		subtitleParts.push(`${imageMetadata.width}x${imageMetadata.height}`);
 	}
 
-	const mediaDetailLines = mediaMetadata
-		? getCurrentAssetMediaDetailLines(mediaMetadata)
-		: [];
+	const mediaSections = mediaMetadata
+		? getCurrentAssetMediaSections(mediaMetadata)
+		: null;
 
 	return (
 		<>
@@ -209,22 +246,29 @@ export const AssetInfo: React.FC<{
 						{subtitleParts.join(' · ')}
 					</InspectorInfoSubtitle>
 				) : null}
-				{mediaMetadata ? (
-					<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
-						{formatMediaDuration(mediaMetadata.duration)}
-					</InspectorInfoSubtitle>
-				) : null}
-				{mediaDetailLines.map((line) => {
-					return (
-						<InspectorInfoSubtitle
-							key={line}
-							size={contentSized ? 'default' : 'inspector'}
-						>
-							{line}
-						</InspectorInfoSubtitle>
-					);
-				})}
 			</InspectorInfoHeader>
+			{mediaSections && mediaSections.video ? (
+				<InspectorSection header="Video">
+					<div style={assetMetadataStyle}>
+						{mediaSections.video.map((detail) => (
+							<InspectorDetailRow key={detail.label} label={detail.label}>
+								{detail.value}
+							</InspectorDetailRow>
+						))}
+					</div>
+				</InspectorSection>
+			) : null}
+			{mediaSections && mediaSections.audio ? (
+				<InspectorSection header="Audio">
+					<div style={assetMetadataStyle}>
+						{mediaSections.audio.map((detail) => (
+							<InspectorDetailRow key={detail.label} label={detail.label}>
+								{detail.value}
+							</InspectorDetailRow>
+						))}
+					</div>
+				</InspectorSection>
+			) : null}
 			{src ? (
 				<InspectorQuickActionsSection>
 					<InspectorQuickAction
