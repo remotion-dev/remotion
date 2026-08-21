@@ -4,7 +4,7 @@ import {
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
 
-test('loads Browser Studio and can add, delete, and duplicate', async ({
+test('loads Browser Studio, opens external links, and can add, delete, and duplicate', async ({
 	page,
 }) => {
 	const pageErrors: Error[] = [];
@@ -42,6 +42,9 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 		pageErrors.push(error);
 		rejectPageError(error);
 	});
+	await page.context().route('https://remotion.dev/**', async (route) => {
+		await route.fulfill({body: 'About Remotion', contentType: 'text/html'});
+	});
 
 	await Promise.race([
 		(async () => {
@@ -53,6 +56,13 @@ test('loads Browser Studio and can add, delete, and duplicate', async ({
 			await expect(
 				studio.locator('.remotion-studio-composition-container'),
 			).toBeVisible();
+			await studio.locator('button:has(svg[viewBox="0 0 415 426"])').click();
+			const popupPromise = page.waitForEvent('popup');
+			await studio.getByText('About Remotion', {exact: true}).click();
+			const popup = await popupPromise;
+			await popup.waitForLoadState('domcontentloaded');
+			expect(popup.url()).toBe('https://remotion.dev/');
+			await popup.close();
 			await studio.getByRole('button', {name: 'File', exact: true}).click();
 			await expect(
 				studio.getByRole('button', {
