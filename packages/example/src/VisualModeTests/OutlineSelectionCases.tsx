@@ -711,11 +711,11 @@ export const OutlineSelectionCases: React.FC = () => {
 			>
 				<CaseFrame
 					caseNumber={12}
-					status="Gap"
+					status="Baseline"
 					title="Property selection survives outline dragging"
-					summary="A selected property raises its containing sequence, but pointer-down on the polygon can promote selection to the whole sequence."
-					desiredBehavior="Dragging the sequence outline preserves the property or keyframe selection while translating the owning sequence."
-					instructions="Select a property of Property-selected sequence, then drag the purple rectangle. The property selection should remain active."
+					summary="Click and drag gestures are arbitrated after the movement threshold, so dragging an outline does not replace its selected property."
+					desiredBehavior="Clicking the outline selects the sequence. Dragging it preserves the property or keyframe selection while translating the owning sequence."
+					instructions="Select a property of Property-selected sequence. Click the purple rectangle to select the sequence, or reselect the property and drag the rectangle to move it without changing selection."
 				>
 					<Interactive.Div
 						name="Property-selected sequence"
