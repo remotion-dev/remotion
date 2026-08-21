@@ -7,6 +7,8 @@ import {
 	TIMELINE_BACKGROUND_COLOR,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_IMAGE_GRADIENT,
+	TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
+	TIMELINE_NEGATIVE_START_BORDER_COLOR,
 	TIMELINE_VIDEO_GRADIENT,
 	TRANSPARENT,
 	WHITE,
@@ -125,21 +127,17 @@ const TimelineSequenceNegativeStartInner: React.FC<{
 	}, [clipped, left, width]);
 
 	const innerStyle = useMemo((): React.CSSProperties => {
-		// WHITE_ALPHA_10 composited over the timeline background (#15181B).
-		const backgroundColor = '#2C2F32';
-		// The same stroke composited over the indicator background.
-		const borderColor = '#414446';
 		const showLeftEdge = leftEdgeVisible && !clipped;
 		const maskImage = clipped
 			? 'linear-gradient(to right, transparent, black 20%)'
 			: undefined;
 
 		return {
-			backgroundColor,
-			border: `${SEQUENCE_BORDER_WIDTH}px solid ${borderColor}`,
+			backgroundColor: TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
+			border: `${SEQUENCE_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`,
 			borderBottomLeftRadius: showLeftEdge ? 2 : 0,
 			borderLeft: showLeftEdge
-				? `${SEQUENCE_BORDER_WIDTH}px solid ${borderColor}`
+				? `${SEQUENCE_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`
 				: 'none',
 			borderRight: 'none',
 			borderTopLeftRadius: showLeftEdge ? 2 : 0,
