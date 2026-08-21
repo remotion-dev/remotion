@@ -145,6 +145,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				button,
 				canOpenInEditor: editorAvailable,
 				numberOfConnectedCompositions: connectedCompositions.length,
+				sequenceWasDragged: false,
 			});
 
 			if (action === null) {

@@ -49,6 +49,18 @@ import {
 const HANDLE_WIDTH = 6;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
 
+// The browser fires `dblclick` even if the second press of a double-click
+// turned into a drag. Double-click handlers consult this to ignore those
+// gestures.
+let lastSequenceDragEnd = {endedAt: 0, moved: false};
+
+const markSequenceDragEnd = (moved: boolean) => {
+	lastSequenceDragEnd = {endedAt: Date.now(), moved};
+};
+
+export const didTimelineSequenceDragJustMove = () =>
+	lastSequenceDragEnd.moved && Date.now() - lastSequenceDragEnd.endedAt < 500;
+
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
@@ -1095,6 +1107,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
 		button: number;
@@ -1126,6 +1139,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
+		markSequenceDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
@@ -1221,6 +1235,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				didMove: false,
 				pxPerFrame,
 				pointerId: e.pointerId,
 				button: e.button,
@@ -1256,6 +1271,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const dx = e.clientX - dragState.initialClientX;
 			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 			dragState.latestDeltaFrames = deltaFrames;
+			if (deltaFrames !== 0) {
+				dragState.didMove = true;
+			}
+
 			for (const target of dragState.targets) {
 				const nextValues = getTimelineSequenceLeftEdgeDragValues({
 					initialDuration: target.initialDuration,
@@ -1380,6 +1399,7 @@ export const useTimelineSequenceFromDrag = ({
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
 		button: number;
@@ -1417,6 +1437,7 @@ export const useTimelineSequenceFromDrag = ({
 		}
 
 		dragStateRef.current = null;
+		markSequenceDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		setDragging(false);
@@ -1526,6 +1547,7 @@ export const useTimelineSequenceFromDrag = ({
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				didMove: false,
 				pxPerFrame,
 				pointerId: e.pointerId,
 				button: e.button,
@@ -1565,6 +1587,10 @@ export const useTimelineSequenceFromDrag = ({
 				targets: dragState.targets,
 			});
 			dragState.latestDeltaFrames = deltaFrames;
+			if (deltaFrames !== 0) {
+				dragState.didMove = true;
+			}
+
 			for (const target of dragState.targets) {
 				const nextFrom = getTimelineSequenceFromDragValue({
 					initialFrom: target.initialFrom,
@@ -1678,6 +1704,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
 		button: number;
@@ -1710,6 +1737,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
+		markSequenceDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
@@ -1803,6 +1831,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				didMove: false,
 				pxPerFrame,
 				pointerId: e.pointerId,
 				button: e.button,
@@ -1841,6 +1870,10 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const dx = e.clientX - dragState.initialClientX;
 			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 			dragState.latestDeltaFrames = deltaFrames;
+			if (deltaFrames !== 0) {
+				dragState.didMove = true;
+			}
+
 			for (const target of dragState.targets) {
 				latestRef.current.setDragOverrides(
 					target.nodePath,

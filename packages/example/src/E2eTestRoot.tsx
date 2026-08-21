@@ -19,6 +19,10 @@ import {TimelineVirtualizationTestbed} from './TimelineVirtualizationTestbed';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
 import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
+import {
+	DoubleClickDragChild,
+	DoubleClickDragRepro,
+} from './VisualModeTests/DoubleClickDragRepro';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 
@@ -207,6 +211,22 @@ export const E2eTestRoot: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={60}
+			/>
+			<Composition
+				id="double-click-drag-repro"
+				component={DoubleClickDragRepro}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={60}
+			/>
+			<Composition
+				id="double-click-drag-child"
+				component={DoubleClickDragChild}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={30}
 			/>
 			<Composition
 				id="timeline-virtualization-testbed"

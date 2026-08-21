@@ -3168,6 +3168,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: true,
 			numberOfConnectedCompositions: 1,
+			sequenceWasDragged: false,
 		}),
 	).toBe('open-connected-composition');
 	expect(
@@ -3175,6 +3176,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: false,
 			numberOfConnectedCompositions: 1,
+			sequenceWasDragged: false,
 		}),
 	).toBe('open-connected-composition');
 	expect(
@@ -3182,6 +3184,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: true,
 			numberOfConnectedCompositions: 0,
+			sequenceWasDragged: false,
 		}),
 	).toBe('open-in-editor');
 	expect(
@@ -3189,6 +3192,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: true,
 			numberOfConnectedCompositions: 2,
+			sequenceWasDragged: false,
 		}),
 	).toBe('open-in-editor');
 	expect(
@@ -3196,6 +3200,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: false,
 			numberOfConnectedCompositions: 2,
+			sequenceWasDragged: false,
 		}),
 	).toBeNull();
 	expect(
@@ -3203,6 +3208,26 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 2,
 			canOpenInEditor: true,
 			numberOfConnectedCompositions: 1,
+			sequenceWasDragged: false,
+		}),
+	).toBeNull();
+});
+
+test('Sequence double-click does nothing when the second press dragged the sequence', () => {
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 1,
+			sequenceWasDragged: true,
+		}),
+	).toBeNull();
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 0,
+			sequenceWasDragged: true,
 		}),
 	).toBeNull();
 });

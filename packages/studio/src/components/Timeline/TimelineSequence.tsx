@@ -57,6 +57,7 @@ import {
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
 	canResizeTimelineSequenceDuration,
+	didTimelineSequenceDragJustMove,
 	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
@@ -351,6 +352,7 @@ const TimelineSequenceInner: React.FC<{
 				button: e.button,
 				canOpenInEditor,
 				numberOfConnectedCompositions: connectedCompositions.length,
+				sequenceWasDragged: didTimelineSequenceDragJustMove(),
 			});
 			if (action === null) {
 				return;
