@@ -64,7 +64,7 @@ const makeDefaultGlobalCSS = () => {
 
   input:focus,
   textarea:focus,
-  button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch):not(.__remotion-inspector-section-title),
+  button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch):not(.__remotion-inspector-section-title):not(.__remotion-timeline-expand-arrow-button),
   a:focus {
 	    outline: none;
 	    box-shadow: ${FOCUS_BOX_SHADOW};
@@ -72,14 +72,16 @@ const makeDefaultGlobalCSS = () => {
 
   .__remotion-composition-selector-item:focus,
   .__remotion-inspector-quick-action:focus,
-  .__remotion-inspector-section-title:focus {
+  .__remotion-inspector-section-title:focus,
+  .__remotion-timeline-expand-arrow-button:focus {
     outline: none;
     box-shadow: none;
   }
 
   .__remotion-composition-selector-item:focus-visible,
   .__remotion-inspector-quick-action:focus-visible,
-  .__remotion-inspector-section-title:focus-visible {
+  .__remotion-inspector-section-title:focus-visible,
+  .__remotion-timeline-expand-arrow-button:focus-visible {
     box-shadow: ${FOCUS_BOX_SHADOW};
   }
 
