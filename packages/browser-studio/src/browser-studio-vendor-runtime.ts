@@ -6,6 +6,7 @@ import * as ReactJsxDevRuntime from 'react/jsx-dev-runtime';
 import * as ReactJsxRuntime from 'react/jsx-runtime';
 import * as Remotion from 'remotion';
 import * as RemotionNoReact from 'remotion/no-react';
+import * as RemotionVersion from 'remotion/version';
 
 let studioPromise: Promise<void> | null = null;
 const makeMutableNamespace = <Namespace extends object>(
@@ -43,6 +44,7 @@ globalThis.remotion_browserStudioVendor = {
 	reactRefreshRuntime: makeMutableNamespace(ReactRefreshRuntime),
 	remotion: makeMutableNamespace(Remotion),
 	remotionNoReact: makeMutableNamespace(RemotionNoReact),
+	remotionVersion: makeMutableNamespace(RemotionVersion),
 	startStudio: () => {
 		studioPromise ??= import('@remotion/studio/previewEntry').then(
 			() => undefined,
@@ -85,6 +87,7 @@ declare global {
 		reactRefreshRuntime: typeof ReactRefreshRuntime;
 		remotion: typeof Remotion;
 		remotionNoReact: typeof RemotionNoReact;
+		remotionVersion: typeof RemotionVersion;
 		startStudio: () => Promise<void>;
 	};
 }

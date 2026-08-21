@@ -44,6 +44,10 @@ if (!output.success) {
 	process.exit(1);
 }
 
+// These artifacts deliberately have different linkage contracts. The preview
+// entry is the compatibility fallback for custom dependency resolutions and
+// mismatched releases, so its shared dependencies must remain external. The
+// vendor entry is the fast path and must bundle the stable dependency graph.
 const vendorOutput = await build({
 	define: {'process.env.NODE_ENV': JSON.stringify('development')},
 	entrypoints: ['src/browser-studio-vendor-entry.ts'],

@@ -60,7 +60,7 @@ const browserStudioVendorExternals = {
 	remotion: 'globalThis.remotion_browserStudioVendor.remotion',
 	'remotion/no-react':
 		'globalThis.remotion_browserStudioVendor.remotionNoReact',
-	'remotion/version': 'globalThis.remotion_browserStudioVendor.remotion',
+	'remotion/version': 'globalThis.remotion_browserStudioVendor.remotionVersion',
 };
 
 const normalizePath = (path: string) =>
