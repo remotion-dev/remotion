@@ -172,8 +172,8 @@ const ProductCardInner = forwardRef<
 					ref={outlineRef}
 					style={{
 						height: 560,
-						left: 360,
-						top: 265,
+						left: 300,
+						top: 40,
 						opacity: visibility * entryProgress,
 						position: 'absolute',
 						rotate: `${rotation}deg`,
@@ -359,8 +359,9 @@ export const ProductCollection = () => {
 				boxSizing: 'border-box',
 				color: '#1d1d19',
 				fontFamily: 'Inter',
-				height: '100%',
+				height: 660,
 				isolation: 'isolate',
+				left: 60,
 				opacity: interpolate(
 					frame,
 					[0, 10, durationInFrames - 8, durationInFrames - 1],
@@ -372,7 +373,7 @@ export const ProductCollection = () => {
 					},
 				),
 				overflow: 'hidden',
-				position: 'relative',
+				position: 'absolute',
 				scale: interpolate(
 					frame,
 					[0, 16, durationInFrames - 8, durationInFrames - 1],
@@ -384,6 +385,7 @@ export const ProductCollection = () => {
 						output: 'perceptual-scale',
 					},
 				),
+				top: 180,
 				transform: 'perspective(100px)',
 				translate: interpolate(
 					frame,
@@ -395,7 +397,7 @@ export const ProductCollection = () => {
 						extrapolateRight: 'clamp',
 					},
 				),
-				width: '100%',
+				width: 900,
 				willChange: 'transform, opacity',
 			}}
 		>
