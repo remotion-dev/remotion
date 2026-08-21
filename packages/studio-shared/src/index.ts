@@ -158,7 +158,9 @@ export {
 export type {
 	BrowserStudioKeyframeOperations,
 	BrowserStudioEffectOperations,
+	BrowserStudioInstallPackagesResponse,
 	BrowserStudioOperations,
+	BrowserStudioPackageInstallationOperations,
 	DuplicateCompositionRequest,
 	DuplicateCompositionResponse,
 } from './browser-studio-operations';
