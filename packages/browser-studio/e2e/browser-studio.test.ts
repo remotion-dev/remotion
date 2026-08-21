@@ -1,5 +1,11 @@
 import {fileURLToPath} from 'node:url';
-import {expect, test, type Locator, type Page} from '@playwright/test';
+import {
+	expect,
+	test,
+	type FrameLocator,
+	type Locator,
+	type Page,
+} from '@playwright/test';
 import {
 	createElementPayload,
 	StudioProtocolInternals,
@@ -45,6 +51,22 @@ const dropLocalFile = async ({
 		data: dragData,
 		type: 'drop',
 	});
+};
+
+const waitForBrowserStudioOperations = async (studio: FrameLocator) => {
+	await expect
+		.poll(() =>
+			studio.locator('body').evaluate(() =>
+				Boolean(
+					(
+						window as typeof window & {
+							remotion_browserStudio?: unknown;
+						}
+					).remotion_browserStudio,
+				),
+			),
+		)
+		.toBe(true);
 };
 
 test('loads Browser Studio, opens external links, and can add, delete, and duplicate', async ({
@@ -292,6 +314,7 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
 	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await waitForBrowserStudioOperations(studio);
 	await studio.locator('[data-compname="MyComp"]').click();
 	const canvas = studio.locator('.remotion-studio-composition-container');
 	await expect(canvas).toBeVisible();
@@ -348,6 +371,7 @@ test('drops a local file into the virtual Assets folder', async ({page}) => {
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
 	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await waitForBrowserStudioOperations(studio);
 	await studio.getByRole('button', {name: 'Assets', exact: true}).click();
 	const assetSelector = studio.locator('[data-asset-selector]');
 	await expect(assetSelector).toBeVisible();
@@ -405,6 +429,7 @@ test('installs packages without a server API and preserves undo, redo, and HMR',
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
 	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await waitForBrowserStudioOperations(studio);
 	await studio.locator('body').evaluate(() => {
 		(
 			window as typeof window & {
