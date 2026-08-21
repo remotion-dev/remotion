@@ -6,6 +6,7 @@ import {
 	deleteEffects as deleteEffectsCodemod,
 	duplicateEffects as duplicateEffectsCodemod,
 	duplicateCompositionInSource,
+	duplicateJsxNode as duplicateJsxNodeCodemod,
 	findProjectFile,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
@@ -1262,6 +1263,45 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const duplicateJsxNode: BrowserStudioOperations['duplicateJsxNode'] = async ({
+		fileName,
+		nodePath,
+	}) => {
+		try {
+			const project = getProject();
+			const absolutePath = findProjectFile({
+				filePath: fileName,
+				project,
+			});
+			const result = await duplicateJsxNodeCodemod({
+				input: project.files[absolutePath],
+				nodePath,
+				formatFile: formatCodemodFile,
+			});
+			const nodePathMutation = controller.applyMutation({
+				fileName: absolutePath,
+				mutate: () => ({
+					...project,
+					files: {...project.files, [absolutePath]: result.output},
+				}),
+				nodePathMutationFiles: [
+					{
+						absolutePath,
+						remappings: result.nodePathRemappings,
+						restoredNodePaths: [],
+					},
+				],
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not duplicate JSX node');
+			}
+
+			return {success: true, nodePathMutation};
+		} catch (error) {
+			return getStructuredError(error);
+		}
+	};
+
 	const splitJsxSequence: BrowserStudioOperations['splitJsxSequence'] = async ({
 		fileName,
 		nodePath,
@@ -1885,6 +1925,7 @@ export const createBrowserStudioOperations = ({
 				project: getProject(),
 			}),
 		duplicateComposition,
+		duplicateJsxNode,
 		effects: effectOperations,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
