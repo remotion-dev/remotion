@@ -15,6 +15,7 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
@@ -24,6 +25,7 @@ import {saveEffectProps} from '../effect-operations-api';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
+import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -558,6 +560,17 @@ export const TimelineEffectPropItem: React.FC<{
 		}
 
 		return [
+			getCopyContextForAgentsMenuItem({
+				contextForAgents: formatContextForAgents({
+					location: validatedLocation,
+					name: `Effect property "${field.key}"`,
+					root: window.remotion_cwd,
+				}),
+			}),
+			{
+				type: 'divider',
+				id: 'copy-context-for-agents-divider',
+			},
 			{
 				type: 'item',
 				id: 'reset-effect-field',
@@ -571,7 +584,7 @@ export const TimelineEffectPropItem: React.FC<{
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canShowReset, onReset, selection]);
+	}, [canShowReset, field.key, onReset, selection, validatedLocation]);
 
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
