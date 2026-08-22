@@ -49,18 +49,6 @@ import {
 const HANDLE_WIDTH = 6;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
 
-// The browser fires `dblclick` even if the second press of a double-click
-// turned into a drag. Double-click handlers consult this to ignore those
-// gestures.
-let lastSequenceDragEnd = {endedAt: 0, moved: false};
-
-const markSequenceDragEnd = (moved: boolean) => {
-	lastSequenceDragEnd = {endedAt: Date.now(), moved};
-};
-
-export const didTimelineSequenceDragJustMove = () =>
-	lastSequenceDragEnd.moved && Date.now() - lastSequenceDragEnd.endedAt < 500;
-
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
@@ -1089,7 +1077,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
-}> = ({nodePathInfo, windowWidth, timelineDurationInFrames}) => {
+	readonly onDragEnd: (wasDragged: boolean) => void;
+}> = ({nodePathInfo, windowWidth, timelineDurationInFrames, onDragEnd}) => {
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
@@ -1122,6 +1111,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -1130,6 +1120,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -1139,7 +1130,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
-		markSequenceDragEnd(dragState.didMove);
+		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
@@ -1372,10 +1363,12 @@ export const useTimelineSequenceFromDrag = ({
 	nodePathInfo,
 	windowWidth,
 	timelineDurationInFrames,
+	onDragEnd,
 }: {
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
+	readonly onDragEnd: (wasDragged: boolean) => void;
 }) => {
 	const {
 		setPropStatuses,
@@ -1417,6 +1410,7 @@ export const useTimelineSequenceFromDrag = ({
 		previewServerState,
 		overrideIdToNodePathMappings,
 		editorSnapping,
+		onDragEnd,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -1428,6 +1422,7 @@ export const useTimelineSequenceFromDrag = ({
 		previewServerState,
 		overrideIdToNodePathMappings,
 		editorSnapping,
+		onDragEnd,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -1437,7 +1432,7 @@ export const useTimelineSequenceFromDrag = ({
 		}
 
 		dragStateRef.current = null;
-		markSequenceDragEnd(dragState.didMove);
+		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		setDragging(false);
@@ -1686,7 +1681,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
-}> = ({nodePathInfo, windowWidth, timelineDurationInFrames}) => {
+	readonly onDragEnd: (wasDragged: boolean) => void;
+}> = ({nodePathInfo, windowWidth, timelineDurationInFrames, onDragEnd}) => {
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
@@ -1720,6 +1716,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -1728,6 +1725,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -1737,7 +1735,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
-		markSequenceDragEnd(dragState.didMove);
+		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
