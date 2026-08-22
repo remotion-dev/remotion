@@ -97,3 +97,11 @@ Upgrade Remotion, related packages, compatible Mediabunny packages, and installe
 Guidance for browser-based multimedia handling with Mediabunny.
 
 Use this for advice on how to get video and audio metadata.
+
+### `/remotion-export-otio`
+
+Export a composition as an OpenTimelineIO (`.otio`) timeline for DaVinci Resolve or Premiere Pro.
+
+Use this to hand a rough cut over to a video editor.
+
+> Example prompt: `/remotion-export-otio Export this composition for DaVinci Resolve.`
