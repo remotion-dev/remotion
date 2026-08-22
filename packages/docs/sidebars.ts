@@ -812,6 +812,7 @@ const sidebars: SidebarsConfig = {
 				id: 'studio-protocol/index',
 			},
 			items: [
+				'studio-protocol/component-library-integration',
 				'studio-protocol/create-element-payload',
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
