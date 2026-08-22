@@ -162,12 +162,46 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await quickSwitcherInput.fill('> Settings');
 			await expect(
 				quickSwitcher.getByText('Settings...', {exact: true}),
-			).toHaveCount(0);
-			await quickSwitcherInput.fill('> Restart Studio Server');
+			).toBeVisible();
+			await quickSwitcher.getByText('Settings...', {exact: true}).click();
+			const settings = studio.getByRole('dialog');
 			await expect(
-				quickSwitcher.getByText('Restart Studio Server', {exact: true}),
+				settings.getByRole('button', {name: 'Shortcuts', exact: true}),
+			).toBeVisible();
+			await expect(
+				settings.getByRole('button', {name: 'Packages', exact: true}),
+			).toBeVisible();
+			for (const hiddenTab of [
+				'Defaults',
+				'Studio',
+				'Skills',
+				'Apps',
+				'License',
+			]) {
+				await expect(
+					settings.getByRole('button', {name: hiddenTab, exact: true}),
+				).toHaveCount(0);
+			}
+
+			await expect(
+				settings.getByText('Keyboard shortcuts', {exact: true}),
 			).toHaveCount(0);
-			await quickSwitcherInput.press('Escape');
+			await expect(
+				settings.getByRole('list', {name: 'Playback', exact: true}),
+			).toBeVisible();
+			await expect(
+				settings.getByText('Changes save to', {exact: true}),
+			).toHaveCount(0);
+			await studio.locator('body').press('Escape');
+
+			await studio.getByRole('button', {name: /Search/}).click();
+			const secondQuickSwitcher = studio.getByRole('dialog');
+			const secondQuickSwitcherInput = secondQuickSwitcher.getByRole('textbox');
+			await secondQuickSwitcherInput.fill('> Restart Studio Server');
+			await expect(
+				secondQuickSwitcher.getByText('Restart Studio Server', {exact: true}),
+			).toHaveCount(0);
+			await secondQuickSwitcherInput.press('Escape');
 
 			await studio.locator('[data-compname="MyComp"]').click();
 			await studio.getByRole('button', {name: 'Render on web'}).click();
@@ -736,9 +770,8 @@ test('installs packages without a server API and preserves undo, redo, and HMR',
 
 	await studio.getByRole('button', {name: 'Tools', exact: true}).click();
 	await studio.getByText('Install package...', {exact: true}).click();
-	await expect(
-		studio.getByText('Install packages', {exact: true}),
-	).toBeVisible();
+	await expect(studio.getByText('Settings', {exact: true})).toBeVisible();
+	await expect(studio.getByText('Packages', {exact: true})).toBeVisible();
 	await studio.locator('input[name="@remotion/google-fonts"]').click();
 	await studio.getByRole('button', {name: /^Install/}).click();
 	await expect(

@@ -1,13 +1,19 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
+import {
+	canInstallPackages,
+	getBrowserStudioOperations,
+} from '../helpers/browser-studio-operations';
 import {AppsIcon} from '../icons/apps';
-import {CertificateIcon} from '../icons/certificate';
 import {KeyboardIcon} from '../icons/keyboard';
+import {LicenseIcon} from '../icons/license';
+import {PackageIcon} from '../icons/package';
 import {RemotionTriangleIcon} from '../icons/remotion-triangle';
 import {SkillsIcon} from '../icons/skills';
 import {FilmIcon} from '../icons/video';
 import {SetSelectedModalContext} from '../state/modals';
 import {DefaultEditorSettings} from './ConfigureDefaultEditorModal';
 import {LicenseSettings} from './ConfigureLicenseModal';
+import {InstallPackageSettings} from './InstallPackage';
 import {KeyboardShortcutsSettings} from './KeyboardShortcutsSettings';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalHeader} from './ModalHeader';
@@ -32,6 +38,7 @@ type SettingsTab =
 	| 'apps'
 	| 'rendering'
 	| 'studio'
+	| 'packages'
 	| 'shortcuts'
 	| 'skills'
 	| 'license';
@@ -46,14 +53,21 @@ const settingsOptionsPanel: React.CSSProperties = {
 	paddingBottom: 16,
 };
 
-const appsIcon: React.CSSProperties = {
-	...icon,
-	height: 20,
-	width: 20,
+const settingsLeftSidebar: React.CSSProperties = {
+	...leftSidebar,
+	paddingLeft: 8,
 };
 
-const appsIconContainer: React.CSSProperties = {
-	...iconContainer,
+const appsIcon: React.CSSProperties = {
+	...icon,
+	flexShrink: 0,
+	height: 24,
+	width: 24,
+};
+
+const skillsIcon: React.CSSProperties = {
+	...icon,
+	flexShrink: 0,
 	height: 20,
 	width: 20,
 };
@@ -70,8 +84,17 @@ export const SettingsModal: React.FC<{
 }> = ({initialPublicLicenseKey, initialTab}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setPublicLicenseKey} = useSettings();
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const packageManager =
+		window.remotion_packageManager === 'unknown'
+			? null
+			: window.remotion_packageManager;
+	const showPackages =
+		canInstallPackages() && (isBrowserStudio || packageManager !== null);
 	const [tab, setTab] = useState<SettingsTab>(initialTab);
 	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([initialTab]);
+	const [packagesFooterContainer, setPackagesFooterContainer] =
+		useState<HTMLDivElement | null>(null);
 
 	const dismiss = useCallback(() => {
 		setSelectedModal(null);
@@ -95,31 +118,35 @@ export const SettingsModal: React.FC<{
 			<>
 				<ModalHeader title="Settings" onClose={dismiss} />
 				<div style={horizontalLayout}>
-					<div style={leftSidebar}>
-						<VerticalTab
-							style={horizontalTab}
-							selected={tab === 'rendering'}
-							onClick={() => selectTab('rendering')}
-							renderIcon={(color) => (
-								<div style={iconContainer}>
-									<FilmIcon color={color} style={icon} />
-								</div>
-							)}
-						>
-							Defaults
-						</VerticalTab>
-						<VerticalTab
-							style={horizontalTab}
-							selected={tab === 'studio'}
-							onClick={() => selectTab('studio')}
-							renderIcon={(color) => (
-								<div style={iconContainer}>
-									<RemotionTriangleIcon color={color} style={icon} />
-								</div>
-							)}
-						>
-							Studio
-						</VerticalTab>
+					<div style={settingsLeftSidebar}>
+						{isBrowserStudio ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'rendering'}
+								onClick={() => selectTab('rendering')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<FilmIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Defaults
+							</VerticalTab>
+						)}
+						{isBrowserStudio ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'studio'}
+								onClick={() => selectTab('studio')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<RemotionTriangleIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Studio
+							</VerticalTab>
+						)}
 						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'shortcuts'}
@@ -132,43 +159,71 @@ export const SettingsModal: React.FC<{
 						>
 							Shortcuts
 						</VerticalTab>
-						<VerticalTab
-							style={horizontalTab}
-							selected={tab === 'skills'}
-							onClick={() => selectTab('skills')}
-							renderIcon={(color) => (
-								<div style={iconContainer}>
-									<SkillsIcon color={color} style={icon} />
-								</div>
-							)}
-						>
-							Skills
-						</VerticalTab>
-						<VerticalTab
-							style={horizontalTab}
-							selected={tab === 'apps'}
-							onClick={() => selectTab('apps')}
-							renderIcon={(color) => (
-								<div style={appsIconContainer}>
-									<AppsIcon color={color} style={appsIcon} />
-								</div>
-							)}
-						>
-							Apps
-						</VerticalTab>
-						<VerticalTab
-							style={horizontalTab}
-							selected={tab === 'license'}
-							onClick={() => selectTab('license')}
-							renderIcon={(color) => (
-								<div style={iconContainer}>
-									<CertificateIcon color={color} style={icon} />
-								</div>
-							)}
-						>
-							License
-						</VerticalTab>
+						{showPackages ? (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'packages'}
+								onClick={() => selectTab('packages')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<PackageIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Packages
+							</VerticalTab>
+						) : null}
+						{isBrowserStudio ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'skills'}
+								onClick={() => selectTab('skills')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<SkillsIcon color={color} style={skillsIcon} />
+									</div>
+								)}
+							>
+								Skills
+							</VerticalTab>
+						)}
+						{isBrowserStudio ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'apps'}
+								onClick={() => selectTab('apps')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<AppsIcon color={color} style={appsIcon} />
+									</div>
+								)}
+							>
+								Apps
+							</VerticalTab>
+						)}
+						{isBrowserStudio ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'license'}
+								onClick={() => selectTab('license')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<LicenseIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								License
+							</VerticalTab>
+						)}
 					</div>
+					{openedTabs.includes('packages') ? (
+						<div style={tab === 'packages' ? optionsPanel : hiddenPanel}>
+							<InstallPackageSettings
+								footerContainer={packagesFooterContainer}
+								packageManager={packageManager}
+							/>
+						</div>
+					) : null}
 					{openedTabs.includes('apps') ? (
 						<div
 							style={tab === 'apps' ? settingsOptionsPanel : hiddenPanel}
@@ -218,7 +273,11 @@ export const SettingsModal: React.FC<{
 						</div>
 					) : null}
 				</div>
-				<SettingsModalFooter />
+				{tab === 'packages' ? (
+					<div ref={setPackagesFooterContainer} />
+				) : isBrowserStudio ? null : (
+					<SettingsModalFooter />
+				)}
 			</>
 		</DismissableModal>
 	);
