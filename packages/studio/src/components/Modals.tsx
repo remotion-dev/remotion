@@ -6,6 +6,7 @@ import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
+import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
 import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
@@ -213,6 +214,12 @@ export const Modals: React.FC<{
 					initialMode={modalContextType.mode}
 					assetSelection={modalContextType.assetSelection}
 					compositionSelection={modalContextType.compositionSelection}
+				/>
+			)}
+			{modalContextType && modalContextType.type === 'element-library' && (
+				<ElementLibraryModal
+					name={modalContextType.name}
+					url={modalContextType.url}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'add-effect' && (

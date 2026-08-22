@@ -200,31 +200,47 @@ export const MyComponent = () => {
 				],
 			});
 
+		const decoyStudioPage = await context.newPage();
+		await decoyStudioPage.goto(studioUrl);
+		await expect(decoyStudioPage.getByText('MyComp').first()).toBeVisible();
+		await decoyStudioPage.bringToFront();
+		await decoyStudioPage.mouse.click(500, 300);
+
+		await studioPage.bringToFront();
 		await studioPage.locator('[data-sidebar-toggle="right"]').click();
 		const browseElements = studioPage.getByRole('button', {
 			name: 'Browse Elements',
 		});
 		await expect(browseElements).toBeVisible();
-		const senderPagePromise = context.waitForEvent('page', {timeout: 10_000});
 		await browseElements.click();
-		const senderPage = await senderPagePromise;
-		await senderPage.waitForLoadState('domcontentloaded');
+		const elementsIframe = studioPage.locator(
+			'iframe[title="Remotion Elements library"]',
+		);
+		await expect(elementsIframe).toBeVisible();
+		await expect(elementsIframe).toHaveAttribute(
+			'allow',
+			'local-network-access; loopback-network',
+		);
+		await expect(elementsIframe).toHaveAttribute('credentialless', '');
+		expect(context.pages()).toHaveLength(2);
 		expect(elementsLibraryRequests).toEqual([
 			'https://www.remotion.dev/elements',
 		]);
-		await expect(senderPage).toHaveURL(senderUrl);
-		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
-		await senderPage.waitForFunction(
-			() => document.querySelector('#status')?.textContent !== '',
+		const elementsFrame = studioPage.frameLocator(
+			'iframe[title="Remotion Elements library"]',
 		);
-		const senderStatus = await senderPage.locator('#status').textContent();
-		expect(senderStatus).toContain('awaiting-confirmation');
-		expect(senderStatus).toContain('remotion-studio-protocol-');
+		const installInStudio = elementsFrame.getByRole('button', {
+			name: 'Install in Studio',
+		});
+		await expect(installInStudio).toBeVisible();
+		await installInStudio.click();
 
-		await studioPage.bringToFront();
 		const dialog = studioPage.getByRole('dialog');
 		await expect(dialog.getByText('Install Element')).toBeVisible();
 		await expect(dialog.getByText(/Protocol Element.*MyComp/)).toBeVisible();
+		await expect(dialog.getByText(senderUrl, {exact: true})).toBeVisible();
+		await expect(decoyStudioPage.getByText('Install Element')).toHaveCount(0);
+		await expect(elementsIframe).toHaveCount(0);
 		await dialog.getByRole('button', {name: /Install/}).click();
 
 		const elementFile = path.join(
@@ -245,7 +261,8 @@ export const MyComponent = () => {
 
 		await studioPage.bringToFront();
 		await studioPage.mouse.click(500, 300);
-		await senderPage.bringToFront();
+		const senderPage = await context.newPage();
+		await senderPage.goto(senderUrl);
 		await senderPage
 			.getByRole('button', {name: 'Configure license in Studio'})
 			.click();
