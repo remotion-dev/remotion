@@ -21,6 +21,10 @@ export {
 } from './delete-jsx-node';
 export {duplicateCompositionInSource} from './duplicate-composition';
 export {
+	duplicateJsxElementAtPath,
+	duplicateJsxNode,
+} from './duplicate-jsx-node';
+export {
 	addEffect,
 	deleteEffects,
 	duplicateEffects,

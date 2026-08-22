@@ -190,7 +190,13 @@ export const addBroadcastChannelListener = () => {
 						durationInSeconds: durationInSeconds ?? null,
 					};
 
-					window.remotion_broadcastChannel!.postMessage(response);
+					try {
+						window.remotion_broadcastChannel!.postMessage(response);
+					} finally {
+						// BroadcastChannel clones ImageBitmaps instead of transferring them.
+						// Release the sender-side GPU resource after synchronous serialization.
+						imageBitmap?.close();
+					}
 				} catch (error) {
 					const response: MessageFromMainTab = {
 						type: 'response-error',

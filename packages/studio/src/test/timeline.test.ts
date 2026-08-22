@@ -6,15 +6,30 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 const getStack = () => null;
 
 const withoutKeyframeDisplayOffset = <
-	T extends {keyframeDisplayOffset: number; sequenceFrameOffset: number},
+	T extends {
+		keyframeDisplayOffset: number;
+		sequenceFrameOffset: number;
+		cascadedStart: number;
+		localStart: number;
+	},
 >(
 	tracks: T[],
 ) =>
-	tracks.map(({keyframeDisplayOffset, sequenceFrameOffset, ...track}) => {
-		expect(keyframeDisplayOffset).toBe(0);
-		expect(sequenceFrameOffset).toBe(0);
-		return track;
-	});
+	tracks.map(
+		({
+			keyframeDisplayOffset,
+			sequenceFrameOffset,
+			cascadedStart,
+			localStart,
+			...track
+		}) => {
+			expect(keyframeDisplayOffset).toBe(0);
+			expect(sequenceFrameOffset).toBe(0);
+			expect(cascadedStart).toBeGreaterThanOrEqual(0);
+			expect(typeof localStart).toBe('number');
+			return track;
+		},
+	);
 
 test('Should calculate timeline with no sequences', () => {
 	const calculated = calculateTimeline({
@@ -289,6 +304,7 @@ test('Should calculate sequence frame offset for negative from values', () => {
 
 	expect(calculated[0].sequence.from).toBe(0);
 	expect(calculated[0].sequenceFrameOffset).toBe(37);
+	expect(calculated[0].cascadedStart).toBe(-37);
 });
 
 test('Should calculate sequence frame offset for trimBefore values', () => {

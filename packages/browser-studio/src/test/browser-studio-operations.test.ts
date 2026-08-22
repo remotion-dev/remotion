@@ -825,6 +825,93 @@ const makeOperationsForProject = (project: VirtualProject) => {
 	return {operations, getProject: () => currentProject};
 };
 
+test('duplicates a JSX sequence as an undoable project mutation', async () => {
+	const fileName = '/project/src/Composition.tsx';
+	const initialContents = `import {Composition, Sequence} from 'remotion';
+
+export const Component = () => (
+	<>
+		<Sequence name="first" from={0} durationInFrames={20} />
+		<Sequence name="second" from={20} durationInFrames={20} />
+	</>
+);
+export const Root = () => <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />;`;
+	const {operations, getProject} = makeOperationsForProject({
+		rootDir: '/project',
+		entryPoint: '/project/src/index.tsx',
+		files: {
+			'/project/src/index.tsx': `import {registerRoot} from 'remotion';
+import {Root} from './Composition';
+registerRoot(Root);`,
+			[fileName]: initialContents,
+		},
+	});
+	const events: EventSourceEvent[] = [];
+	operations.subscribeToEvent((event) => events.push(event));
+	const subscription = await operations.subscribeToSequenceProps({
+		fileName: 'src/Composition.tsx',
+		line: 5,
+		column: 2,
+		nodePath: null,
+		componentIdentity: 'dev.remotion.remotion.Sequence',
+		keys: ['from', 'durationInFrames'],
+		assetKeys: [],
+		effects: [],
+		clientId: 'browser-studio',
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	});
+	if (!subscription.success) {
+		throw new Error('Expected sequence props subscription to succeed');
+	}
+
+	const failure = await operations.duplicateJsxNode({
+		fileName: 'src/Composition.tsx',
+		nodePath: [...subscription.nodePath.nodePath, 'missing'],
+	});
+	expect(failure).toMatchObject({
+		success: false,
+		reason:
+			'Could not find a JSX element at the specified location to duplicate',
+		stack: expect.any(String),
+	});
+	expect(getProject().files[fileName]).toBe(initialContents);
+
+	const result = await operations.duplicateJsxNode({
+		fileName: 'src/Composition.tsx',
+		nodePath: subscription.nodePath.nodePath,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	const output = getProject().files[fileName];
+	expect(output.match(/<Sequence/g)).toHaveLength(3);
+	expect(output).toContain('name="first-copy"');
+	expect(result.nodePathMutation.files).toEqual([
+		{
+			absolutePath: fileName,
+			remappings: expect.any(Array),
+			restoredNodePaths: [],
+		},
+	]);
+	expect(
+		events.findLast((event) => event.type === 'sequence-node-paths-remapped'),
+	).toEqual({
+		type: 'sequence-node-paths-remapped',
+		mutation: result.nodePathMutation,
+	});
+
+	expect(await operations.undo()).toMatchObject({success: true});
+	expect(getProject().files[fileName]).toBe(initialContents);
+	expect(await operations.redo()).toMatchObject({success: true});
+	expect(getProject().files[fileName]).toContain('name="first-copy"');
+});
+
 test('edits sequence and effect keyframes in the virtual project', async () => {
 	const fileName = '/project/src/Comp.tsx';
 	const initialContents = `import {tint} from '@remotion/effects/tint';

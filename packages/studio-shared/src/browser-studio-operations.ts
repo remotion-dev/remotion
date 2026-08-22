@@ -28,6 +28,8 @@ import type {
 	FindInFileResponse,
 	DuplicateEffectRequest,
 	DuplicateEffectResponse,
+	DuplicateJsxNodeRequest,
+	DuplicateJsxNodeResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertElementRequest,
@@ -178,6 +180,9 @@ export type BrowserStudioOperations = {
 	duplicateComposition: (
 		request: DuplicateCompositionRequest,
 	) => Promise<DuplicateCompositionResponse>;
+	duplicateJsxNode: (
+		request: DuplicateJsxNodeRequest,
+	) => Promise<DuplicateJsxNodeResponse>;
 	effects: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;

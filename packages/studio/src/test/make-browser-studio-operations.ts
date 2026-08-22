@@ -15,6 +15,7 @@ export const makeBrowserStudioOperations = (
 		downloadRemoteAsset: () => unusedOperation('downloadRemoteAsset'),
 		downloadProject: () => unusedOperation('downloadProject'),
 		duplicateComposition: () => unusedOperation('duplicateComposition'),
+		duplicateJsxNode: () => unusedOperation('duplicateJsxNode'),
 		effects: {
 			addEffect: () => unusedOperation('effects'),
 			deleteEffects: () => unusedOperation('effects'),
