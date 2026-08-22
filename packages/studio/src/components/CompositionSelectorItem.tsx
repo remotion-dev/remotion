@@ -19,7 +19,6 @@ import {
 	WHITE_ALPHA_06,
 	WHITE_ALPHA_12,
 } from '../helpers/colors';
-import {getFolderId} from '../helpers/get-folder-id';
 import {noop} from '../helpers/noop';
 import {
 	markCompositionSidebarScrollFromRowClick,
@@ -331,10 +330,6 @@ export const CompositionSelectorItem: React.FC<{
 				return;
 			}
 
-			const folderId = getFolderId({
-				folderName: item.folderName,
-				parentName: item.parentName,
-			});
 			const notification = showNotification(
 				`Moving ${compositionDragData.compositionId}...`,
 				null,
@@ -355,12 +350,12 @@ export const CompositionSelectorItem: React.FC<{
 						compositionDragDataToSymbolicatedStack(compositionDragData),
 				});
 
-				notification.replaceContent(
-					result.success
-						? `Moved ${compositionDragData.compositionId} to ${folderId}`
-						: result.reason,
-					result.success ? 2000 : 4000,
-				);
+				if (result.success) {
+					notification.dismiss();
+				} else {
+					notification.replaceContent(result.reason, 4000);
+				}
+
 				if (result.success && !item.expanded) {
 					toggleFolder(item.folderName, item.parentName);
 				}

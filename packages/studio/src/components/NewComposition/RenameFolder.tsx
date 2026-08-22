@@ -113,7 +113,6 @@ export const RenameFolder: React.FC<{
 					<CodemodFooter
 						loadingNotification={'Renaming folder...'}
 						errorNotification={'Could not rename folder'}
-						successNotification={`Renamed folder to ${newName}`}
 						genericSubmitLabel={'Rename'}
 						submitLabel={({relativeRootPath}) => `Modify ${relativeRootPath}`}
 						codemod={codemod}

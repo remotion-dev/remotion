@@ -161,7 +161,6 @@ export const splitTimelineSequenceFromSource = ({
 	})
 		.then((result) => {
 			if (result.success) {
-				showNotification('Split sequence', 2000);
 				return true;
 			}
 

@@ -370,7 +370,6 @@ const DuplicateCompositionLoaded: React.FC<{
 					<CodemodFooter
 						loadingNotification={'Duplicating...'}
 						errorNotification={'Could not duplicate composition'}
-						successNotification={`Duplicated ${unresolved.id} as ${newId}`}
 						genericSubmitLabel={'Duplicate'}
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}

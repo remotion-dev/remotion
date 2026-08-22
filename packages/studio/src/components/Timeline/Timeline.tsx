@@ -164,7 +164,6 @@ const TimelineContextMenuArea: React.FC<{
 				: await callApi('/api/insert-jsx-element', request);
 
 			if (result.success) {
-				showNotification('Added <Solid> to source file', 2000);
 				return;
 			}
 
