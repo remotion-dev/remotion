@@ -19,9 +19,9 @@ import {
   LINES_PER_PAGE,
 } from "./constants";
 import { FONT_FAMILY } from "./font";
-import type { AudiogramProps } from "./types";
+import type { AudiogramCompositionSchemaType } from "./schema";
 
-export const Audiogram: React.FC<AudiogramProps> = ({
+export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   visualizer,
   audioFileUrl,
   titleColor,

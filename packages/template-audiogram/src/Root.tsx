@@ -1,6 +1,7 @@
 import { parseMedia } from "@remotion/media-parser";
 import { Composition, staticFile } from "remotion";
 import { Audiogram } from "./Audiogram/Main";
+import { audiogramSchema } from "./Audiogram/schema";
 import { getSubtitles } from "./helpers/fetch-captions";
 import { FPS } from "./helpers/ms-to-frame";
 
@@ -12,6 +13,7 @@ export const RemotionRoot: React.FC = () => {
         component={Audiogram}
         width={1080}
         height={1080}
+        schema={audiogramSchema}
         defaultProps={{
           // audio settings
           audioFileUrl: staticFile("dialogue.wav"),
