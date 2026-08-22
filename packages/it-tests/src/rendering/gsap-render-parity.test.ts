@@ -93,7 +93,9 @@ describe('GSAP renderer parity', () => {
 			puppeteerInstance: browser,
 			onStart: () => undefined,
 			onFrameUpdate: () => undefined,
-			onFrameBuffer: (buffer, frame) => frames.set(frame, buffer),
+			onFrameBuffer: (buffer, frame) => {
+				frames.set(frame, buffer);
+			},
 			logLevel: 'warn',
 		});
 
