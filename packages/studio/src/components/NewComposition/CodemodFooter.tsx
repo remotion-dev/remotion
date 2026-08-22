@@ -65,7 +65,6 @@ export const CodemodFooter: React.FC<{
 	readonly codemod: RecastCodemod;
 	readonly stack: string | null;
 	readonly loadingNotification: React.ReactNode | null;
-	readonly successNotification: React.ReactNode;
 	readonly errorNotification: string;
 	readonly genericSubmitLabel: string;
 	readonly submitLabel: (options: {relativeRootPath: string}) => string;
@@ -78,7 +77,6 @@ export const CodemodFooter: React.FC<{
 	stack,
 	valid,
 	loadingNotification,
-	successNotification,
 	errorNotification,
 	genericSubmitLabel,
 	submitLabel,
@@ -125,11 +123,7 @@ export const CodemodFooter: React.FC<{
 					return;
 				}
 
-				if (notification) {
-					notification.replaceContent(successNotification, 2000);
-				} else {
-					showNotification(successNotification, 2000);
-				}
+				notification?.dismiss();
 
 				onSuccess?.();
 			})
@@ -147,7 +141,6 @@ export const CodemodFooter: React.FC<{
 		loadingNotification,
 		onSuccess,
 		setSelectedModal,
-		successNotification,
 		symbolicatedStack,
 	]);
 

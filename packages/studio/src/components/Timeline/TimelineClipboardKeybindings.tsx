@@ -1255,12 +1255,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 									? 'Reapply property paste onto selected sequences'
 									: 'Reapply property paste',
 						}).then(() => {
-							showNotification(
-								sequencePropTarget.targets.length > 1
-									? 'Pasted property onto selected sequences'
-									: 'Pasted property',
-								2000,
-							);
+							if (sequencePropTarget.targets.length > 1) {
+								showNotification(
+									'Pasted property onto selected sequences',
+									2000,
+								);
+							}
 						});
 					}
 
@@ -1351,12 +1351,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 									? 'Reapply effect prop paste onto selected effects'
 									: 'Reapply effect prop paste',
 						}).then(() => {
-							showNotification(
-								effectPropTarget.targets.length > 1
-									? 'Pasted effect prop onto selected effects'
-									: 'Pasted effect prop',
-								2000,
-							);
+							if (effectPropTarget.targets.length > 1) {
+								showNotification(
+									'Pasted effect prop onto selected effects',
+									2000,
+								);
+							}
 						});
 					}
 
@@ -1416,9 +1416,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						clientId,
 						insertAtIndices,
 					}).then((pasteResult) => {
-						if (pasteResult.success) {
-							showNotification('Pasted effects', 2000);
-						} else {
+						if (!pasteResult.success) {
 							showNotification(pasteResult.reason, 4000);
 						}
 					});

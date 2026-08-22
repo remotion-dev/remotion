@@ -187,9 +187,7 @@ const SequenceSourceQuickActions: React.FC<{
 			nodePath: nodePath.nodePath,
 		})
 			.then((result) => {
-				if (result.success) {
-					showNotification('Split video from audio', 2000);
-				} else {
+				if (!result.success) {
 					showNotification(result.reason, 4000);
 				}
 			})

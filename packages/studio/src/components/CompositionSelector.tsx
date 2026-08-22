@@ -331,12 +331,11 @@ export const CompositionSelector: React.FC = () => {
 						compositionDragDataToSymbolicatedStack(compositionDragData),
 				});
 
-				notification.replaceContent(
-					result.success
-						? `Moved ${compositionDragData.compositionId} outside of folder`
-						: result.reason,
-					result.success ? 2000 : 4000,
-				);
+				if (result.success) {
+					notification.dismiss();
+				} else {
+					notification.replaceContent(result.reason, 4000);
+				}
 			} catch (err) {
 				notification.replaceContent(
 					err instanceof Error ? err.message : String(err),

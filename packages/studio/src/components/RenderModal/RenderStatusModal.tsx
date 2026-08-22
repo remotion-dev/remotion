@@ -87,7 +87,6 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 		setSelectedModal(null);
 		if (isClientJob) {
 			removeClientJob(job.id);
-			showNotification('Removed render', 2000);
 		} else {
 			removeRenderJob(job).catch((err) => {
 				showNotification(`Could not remove job: ${err.message}`, 2000);

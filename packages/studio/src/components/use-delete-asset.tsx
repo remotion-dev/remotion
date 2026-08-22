@@ -35,7 +35,7 @@ export const useDeleteAsset = (relativePath: string | null) => {
 
 				deleteStaticFile(relativePath)
 					.then(() => {
-						notification.replaceContent(`Deleted ${relativePath}`, 2000);
+						notification.dismiss();
 					})
 					.catch((err) => {
 						notification.replaceContent(

@@ -461,9 +461,7 @@ export const TimelineEffectItem: React.FC<{
 					clientId: previewServerState.clientId,
 				});
 
-				if (result.success) {
-					showNotification('Reordered effect', 2000);
-				} else {
+				if (!result.success) {
 					showNotification(result.reason, 4000);
 				}
 			} catch (err) {

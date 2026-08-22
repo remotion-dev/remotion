@@ -331,7 +331,6 @@ const NewCompositionLoaded: React.FC<{
 					<CodemodFooter
 						loadingNotification={null}
 						errorNotification="Could not create composition"
-						successNotification={`Created ${newId}`}
 						genericSubmitLabel="Add to root file"
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}

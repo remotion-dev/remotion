@@ -258,38 +258,6 @@ const isSvgFile = (file: File) => file.name.toLowerCase().endsWith('.svg');
 
 export const hasSvgFile = (files: File[]) => files.some(isSvgFile);
 
-const getAssetLabel = (element: InsertableCompositionElement) => {
-	if (element.type !== 'asset') {
-		throw new Error('Expected asset element');
-	}
-
-	if (element.assetType === 'image') {
-		return '<CanvasImage>';
-	}
-
-	if (element.assetType === 'video') {
-		return '<Video>';
-	}
-
-	if (element.assetType === 'gif') {
-		return '<Gif>';
-	}
-
-	if (element.assetType === 'animated-image') {
-		return '<AnimatedImage>';
-	}
-
-	if (element.assetType === 'audio') {
-		return '<Audio>';
-	}
-
-	throw new Error('Unsupported asset type');
-};
-
-const getComponentLabel = (component: ComponentDragData['component']) => {
-	return `<${component.componentName}>`;
-};
-
 const getCenteredPosition = ({
 	dimensions,
 	dropPosition,
@@ -684,17 +652,6 @@ export const pickFilesToImport = ({
 	});
 };
 
-const notifyInsertedAssets = (insertedLabels: string[]) => {
-	if (insertedLabels.length === 1) {
-		showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
-	} else if (insertedLabels.length > 1) {
-		showNotification(
-			`Added ${insertedLabels.length} assets to source file`,
-			2000,
-		);
-	}
-};
-
 const notifyUnsupportedFiles = (unsupportedFiles: string[]) => {
 	if (unsupportedFiles.length === 1) {
 		showNotification(
@@ -804,7 +761,6 @@ export const importAssets = async ({
 		return;
 	}
 
-	const insertedLabels: string[] = [];
 	const addedStaticFiles: string[] = [];
 	const unsupportedFiles: string[] = [];
 	const notifyAddedStaticFiles = () => {
@@ -851,7 +807,6 @@ export const importAssets = async ({
 					return;
 				}
 
-				insertedLabels.push('<Interactive.Svg>');
 				continue;
 			}
 
@@ -912,12 +867,9 @@ export const importAssets = async ({
 				notifyAddedStaticFiles();
 				return;
 			}
-
-			insertedLabels.push(getAssetLabel(element));
 		}
 
 		notifyAddedStaticFiles();
-		notifyInsertedAssets(insertedLabels);
 		notifyUnsupportedFiles(unsupportedFiles);
 	} catch (error) {
 		showNotification(
@@ -1008,7 +960,7 @@ export const insertSvgMarkup = async ({
 			dimensions = null;
 		}
 
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			from: null,
@@ -1022,10 +974,6 @@ export const insertSvgMarkup = async ({
 				}),
 			},
 		});
-
-		if (inserted) {
-			notifyInsertedAssets(['<Interactive.Svg>']);
-		}
 	} catch (error) {
 		showNotification(
 			`Could not add SVG: ${
@@ -1079,7 +1027,7 @@ export const importRemoteAsset = async ({
 					fps,
 				})
 			: null;
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			from: getFromForDrop({
@@ -1098,12 +1046,6 @@ export const importRemoteAsset = async ({
 				}),
 			},
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		notifyInsertedAssets([getAssetLabel(element)]);
 	} catch (error) {
 		showNotification(
 			`Could not add remote asset: ${
@@ -1149,7 +1091,7 @@ export const insertRemoteAudio = async ({
 			position: null,
 		};
 
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			element,
@@ -1159,12 +1101,6 @@ export const insertRemoteAudio = async ({
 				preferCompositionStart,
 			}),
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		notifyInsertedAssets([getAssetLabel(element)]);
 	} catch (error) {
 		showNotification(
 			`Could not add sound effect: ${
@@ -1198,7 +1134,6 @@ export const insertExistingAssets = async ({
 		return;
 	}
 
-	const insertedLabels: string[] = [];
 	const unsupportedFiles: string[] = [];
 
 	try {
@@ -1244,11 +1179,8 @@ export const insertExistingAssets = async ({
 			if (!inserted) {
 				return;
 			}
-
-			insertedLabels.push(getAssetLabel(element));
 		}
 
-		notifyInsertedAssets(insertedLabels);
 		notifyUnsupportedFiles(unsupportedFiles);
 	} catch (error) {
 		showNotification(
@@ -1276,7 +1208,7 @@ export const insertComponent = async ({
 	preferCompositionStart: boolean | null;
 }) => {
 	try {
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			from: getFromForDrop({
@@ -1296,15 +1228,6 @@ export const insertComponent = async ({
 				}),
 			},
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		showNotification(
-			`Added ${getComponentLabel(component)} to source file`,
-			2000,
-		);
 	} catch (error) {
 		showNotification(
 			`Could not add component: ${
@@ -1363,7 +1286,7 @@ export const insertComposition = async ({
 			width: calculated.width,
 			height: calculated.height,
 		};
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			from: getFromForDrop({
@@ -1386,15 +1309,6 @@ export const insertComposition = async ({
 				}),
 			},
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		showNotification(
-			`Added ${composition.compositionId} to ${compositionId}`,
-			2000,
-		);
 	} catch (error) {
 		showNotification(
 			`Could not add composition: ${
@@ -1443,10 +1357,7 @@ export const insertElement = async ({
 					? response.reason
 					: `Element file changed: ${response.conflict.filePath}`;
 			showNotification(`Could not add Element: ${reason}`, 4000);
-			return;
 		}
-
-		showNotification(`Added ${element.displayName} to source file`, 2000);
 	} catch (error) {
 		showNotification(
 			`Could not add Element: ${
