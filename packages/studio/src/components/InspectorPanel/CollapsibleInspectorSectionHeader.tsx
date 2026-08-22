@@ -1,5 +1,6 @@
-import React, {useMemo, useState} from 'react';
-import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import React from 'react';
+import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {sectionHeaderRow} from './styles';
 
 const collapsibleSectionHeaderButton: React.CSSProperties = {
@@ -22,6 +23,12 @@ const collapsibleSectionHeaderButton: React.CSSProperties = {
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
 	whiteSpace: 'nowrap',
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 };
 
 export const CollapsibleInspectorSectionHeader: React.FC<{
@@ -30,25 +37,15 @@ export const CollapsibleInspectorSectionHeader: React.FC<{
 	readonly label: string;
 	readonly onToggle: () => void;
 }> = ({action, expanded, label, onToggle}) => {
-	const [hovered, setHovered] = useState(false);
-	const style = useMemo<React.CSSProperties>(() => {
-		return {
-			...collapsibleSectionHeaderButton,
-			color: hovered ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered]);
-
 	return (
 		<div style={sectionHeaderRow}>
 			<button
 				type="button"
 				aria-expanded={expanded}
 				aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}`}
-				className="__remotion-inspector-section-title"
+				className={`__remotion-inspector-section-title ${HOVERABLE_CLASS_NAME}`}
 				onClick={onToggle}
-				onPointerEnter={() => setHovered(true)}
-				onPointerLeave={() => setHovered(false)}
-				style={style}
+				style={collapsibleSectionHeaderButton}
 			>
 				{label}
 			</button>
