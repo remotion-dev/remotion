@@ -29,8 +29,6 @@ export {
 	makeFrameDatabaseKey,
 } from './frame-database';
 export type {FrameDatabaseKey} from './frame-database';
-export {drawRepeatingImageThumbnail} from './image-thumbnail/draw-repeating-image-thumbnail';
-export {getScaledImageThumbnailDimensions} from './image-thumbnail/get-scaled-image-thumbnail-dimensions';
 export {
 	getLoopDisplaySegments,
 	getLoopDisplayWidth,
