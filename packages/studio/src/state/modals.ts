@@ -11,11 +11,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {
-	CanvasCaptureData,
-	PackageManager,
-	RenderDefaults,
-} from '@remotion/studio-shared';
+import type {CanvasCaptureData, RenderDefaults} from '@remotion/studio-shared';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
@@ -195,7 +191,13 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialTab: 'apps' | 'rendering' | 'studio' | 'shortcuts' | 'license';
+			initialTab:
+				| 'apps'
+				| 'rendering'
+				| 'studio'
+				| 'packages'
+				| 'shortcuts'
+				| 'license';
 			initialPublicLicenseKey: string | null;
 	  }
 	| RenderModalState
@@ -214,10 +216,6 @@ export type ModalState =
 			prop: string;
 			context: string;
 			remotionInteractivitySkillAvailable: boolean;
-	  }
-	| {
-			type: 'install-packages';
-			packageManager: PackageManager | null;
 	  }
 	| {
 			type: 'quick-switcher';

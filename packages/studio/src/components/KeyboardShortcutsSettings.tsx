@@ -1,5 +1,6 @@
 import type {ConfigUpdate} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {
 	BLACK_ALPHA_60,
 	BORDER_WHITE_ALPHA_12,
@@ -55,7 +56,7 @@ const lastShortcutRow: React.CSSProperties = {
 
 const actionName: React.CSSProperties = {
 	color: LIGHT_TEXT,
-	fontSize: 13,
+	fontSize: 14,
 	lineHeight: 1.4,
 	minWidth: 0,
 };
@@ -94,6 +95,7 @@ const alternative: React.CSSProperties = {
 
 export const KeyboardShortcutsSettings: React.FC = () => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const [enabled, setEnabled] = useState<boolean | null>(null);
 	const [edited, setEdited] = useState(false);
 	const [syncedRevision, setSyncedRevision] = useState(-1);
@@ -139,7 +141,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 
 	const ready = studioRuntimeConfig !== null && syncedRevision === revision;
 	useAutoSaveConfig({
-		enabled: ready,
+		enabled: ready && !isBrowserStudio,
 		onError: setError,
 		ready,
 		syncRevision: syncedRevision,
@@ -152,14 +154,18 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 
 	return (
 		<div style={container}>
-			<p style={dividerLabel}>General</p>
-			<ConfigSelect
-				defaultLabel="Enabled"
-				name="Keyboard shortcuts"
-				onChange={onEnabledChange}
-				options={booleanOptions}
-				value={enabled}
-			/>
+			{isBrowserStudio ? null : (
+				<>
+					<p style={dividerLabel}>General</p>
+					<ConfigSelect
+						defaultLabel="Enabled"
+						name="Keyboard shortcuts"
+						onChange={onEnabledChange}
+						options={booleanOptions}
+						value={enabled}
+					/>
+				</>
+			)}
 			{displayedShortcutGroups.map((group, groupIndex) => (
 				<div key={group.name}>
 					<p style={shortcutSectionTitle}>{group.name}</p>
