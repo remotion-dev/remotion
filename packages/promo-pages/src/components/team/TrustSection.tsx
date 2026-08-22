@@ -266,7 +266,7 @@ export const TrustSection: React.FC = () => {
 				<StarIcon />
 				<div className="h-4" />
 				<div className="font-brand font-bold text-2xl mb-2">
-					56,000+ GitHub stars
+					57,000+ GitHub stars
 				</div>
 				<div className="font-brand">
 					One of the most popular media projects on GitHub. Trusted by the

@@ -134,7 +134,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	);
 
 	const onDoubleClickTarget = React.useCallback(
-		(doubleClickTarget: SelectedOutlineTarget, button: number) => {
+		(
+			doubleClickTarget: SelectedOutlineTarget,
+			button: number,
+			sequenceWasDragged: boolean,
+		) => {
 			const connectedCompositions = getConnectedCompositions({
 				compositions,
 				singleChildComponent: doubleClickTarget.sequence.singleChildComponent,
@@ -143,6 +147,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				button,
 				canOpenInEditor: editorAvailable,
 				numberOfConnectedCompositions: connectedCompositions.length,
+				sequenceWasDragged,
 			});
 
 			if (action === null) {

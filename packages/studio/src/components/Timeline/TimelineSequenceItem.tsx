@@ -782,6 +782,9 @@ const TimelineSequenceItemInner: React.FC<{
 				button: e.button,
 				canOpenInEditor,
 				numberOfConnectedCompositions: connectedCompositions.length,
+				// The track list row reorders via native drag-and-drop, which
+				// already suppresses `dblclick` after a drag.
+				sequenceWasDragged: false,
 			});
 			if (action === null) {
 				return;
