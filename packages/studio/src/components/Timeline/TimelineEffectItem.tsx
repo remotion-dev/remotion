@@ -125,6 +125,7 @@ export const TimelineEffectItem: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
+	readonly labelNextToToggle: boolean;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 }> = ({
@@ -136,6 +137,7 @@ export const TimelineEffectItem: React.FC<{
 	nodePath,
 	validatedLocation,
 	rowDepth,
+	labelNextToToggle,
 	getIsExpanded,
 	toggleTrack,
 }) => {
@@ -502,7 +504,7 @@ export const TimelineEffectItem: React.FC<{
 					<TimelineLayerEyeSpacer />
 				)
 			}
-			arrow={<TimelineExpandArrowSpacer />}
+			arrow={labelNextToToggle ? null : <TimelineExpandArrowSpacer />}
 			style={rowStyle}
 			selected={selection.selected}
 			selectable={selection.selectable}
