@@ -1,5 +1,6 @@
 import {useContext} from 'react';
 import {staticFile} from 'remotion';
+import {addAssetCacheBust} from '../helpers/add-asset-cache-bust';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
@@ -52,7 +53,13 @@ export const StaticFilePreview: React.FC<{
 		<FilePreview
 			currentAsset={currentAsset}
 			fileType={fileType}
-			src={`${staticFileSrc}?date=${assetMetadata && assetMetadata.type === 'found' ? assetMetadata.fetchedAt : 0}`}
+			src={addAssetCacheBust({
+				fetchedAt:
+					assetMetadata && assetMetadata.type === 'found'
+						? assetMetadata.fetchedAt
+						: 0,
+				src: staticFileSrc,
+			})}
 			assetMetadata={assetMetadata}
 		/>
 	);

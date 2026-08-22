@@ -671,6 +671,8 @@ test('drops a local file into the virtual Assets folder', async ({page}) => {
 	});
 
 	await expect(studio.getByText('logo.png', {exact: true})).toBeVisible();
+	await assetSelector.getByText('logo.png', {exact: true}).click();
+	await expect(studio.locator('img[src^="blob:"]')).toBeVisible();
 	await expect
 		.poll(() =>
 			page.evaluate(() => {

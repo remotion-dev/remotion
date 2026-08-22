@@ -9,6 +9,7 @@ import {
 	getStaticFileRenameSelection,
 	validateStaticFileRename,
 } from '../components/NewComposition/use-rename-static-file';
+import {addAssetCacheBust} from '../helpers/add-asset-cache-bust';
 
 test('requests image metadata for image assets', () => {
 	expect(getCurrentAssetImageMetadataSource('1.jpg')).toBe('/1.jpg');
@@ -25,6 +26,21 @@ test('does not request media metadata for image assets', () => {
 	expect(getCurrentAssetMetadataSource('1.jpg')).toBe(null);
 	expect(getCurrentAssetMetadataSource('nested/file.png')).toBe(null);
 	expect(getCurrentAssetMetadataSource('animation.gif')).toBe(null);
+});
+
+test('does not append cache-busting parameters to blob asset URLs', () => {
+	expect(
+		addAssetCacheBust({
+			fetchedAt: 123,
+			src: 'blob:https://www.remotion.dev/asset-id',
+		}),
+	).toBe('blob:https://www.remotion.dev/asset-id');
+	expect(addAssetCacheBust({fetchedAt: 123, src: '/asset.png'})).toBe(
+		'/asset.png?date=123',
+	);
+	expect(addAssetCacheBust({fetchedAt: 123, src: '/asset.png?v=1'})).toBe(
+		'/asset.png?v=1&date=123',
+	);
 });
 
 test('requests media metadata for audio and video assets', () => {
