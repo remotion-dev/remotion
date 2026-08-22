@@ -1,9 +1,13 @@
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
+	getFrameInKeyframedStatusClock,
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
-import {FILE_TOKEN} from './input-props-serialization.js';
+import {
+	FILE_TOKEN,
+	resolveFileTokenToUrl,
+} from './input-props-serialization.js';
 import type {
 	InteractivitySchema,
 	InteractivitySchemaField,
@@ -18,6 +22,7 @@ import type {
 export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
+	keyframeDisplayOffsetAdjustment: number | null;
 	numericExpression?: VideoConfigNumericExpression;
 };
 
@@ -124,6 +129,13 @@ export type CanUpdateSequencePropStatusComputed = {
 export type CanUpdateSequencePropStatusKeyframed = {
 	status: 'keyframed';
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
+	/**
+	 * Added to the timeline track's keyframe display offset and subtracted from
+	 * the controlled element's local frame when evaluating the interpolation.
+	 * This is non-zero when the useCurrentFrame() call is outside a timing
+	 * element that wraps the controlled element.
+	 */
+	keyframeDisplayOffsetAdjustment: number | null;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
@@ -314,7 +326,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				} else if (frame !== null) {
 					const interpolated = interpolateKeyframedStatus({
 						forceSpringAllowTail: null,
-						frame,
+						frame: getFrameInKeyframedStatusClock({frame, status}),
 						status,
 					});
 					value = interpolated ?? currentValue[key];
@@ -339,7 +351,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			typeof value === 'string' &&
 			value.startsWith(FILE_TOKEN)
 		) {
-			value = `${window.remotion_staticBase}/${value.slice(FILE_TOKEN.length)}`;
+			value = resolveFileTokenToUrl(value);
 		}
 
 		if (value === undefined) {

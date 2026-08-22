@@ -9,6 +9,7 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 		props: {
 			'style.opacity': {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 0.5,
 			},
 		},
@@ -26,6 +27,7 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 		props: {
 			'style.opacity': {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 0.6,
 			},
 		},
@@ -43,6 +45,7 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 		props: {
 			layout: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'none',
 			},
 		},
@@ -56,6 +59,7 @@ test('optimisticUpdateForPropStatuses should use undefined for removed default v
 		props: {
 			name: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'hehe',
 			},
 		},
@@ -75,6 +79,7 @@ test('optimisticUpdateForPropStatuses should use undefined for removed default v
 		props: {
 			name: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: undefined,
 			},
 		},

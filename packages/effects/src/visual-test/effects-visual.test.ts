@@ -6,9 +6,12 @@ import {evolve} from '../evolve.js';
 import {exposure} from '../exposure.js';
 import {levels} from '../levels.js';
 import {noise} from '../noise.js';
+import {outline} from '../outline.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {saturation} from '../saturation.js';
+import {scale} from '../scale.js';
 import {shadowsHighlights} from '../shadows-highlights.js';
+import {tile} from '../tile.js';
 import {vibrance} from '../vibrance.js';
 import {vignette} from '../vignette.js';
 import {whiteBalance} from '../white-balance.js';
@@ -32,6 +35,128 @@ test('stacks repeated WebGL effects without blanking or flipping the image', asy
 		blob,
 		testId: 'stacked-blur-blur-noise',
 	});
+});
+
+test('outline() draws around alpha while preserving the source', async () => {
+	const width = 64;
+	const height = 64;
+	const source = document.createElement('canvas');
+	source.width = width;
+	source.height = height;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.fillStyle = 'white';
+	sourceContext.fillRect(24, 24, 16, 16);
+	sourceContext.fillStyle = 'rgba(255, 255, 255, 0.2)';
+	sourceContext.fillRect(8, 48, 4, 4);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			outline({width: 6, color: '#ff0000'}),
+		]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const outlinePixel = context.getImageData(20, 32, 1, 1).data;
+	expect(outlinePixel[0]).toBeGreaterThanOrEqual(250);
+	expect(outlinePixel[1]).toBeLessThanOrEqual(5);
+	expect(outlinePixel[2]).toBeLessThanOrEqual(5);
+	expect(outlinePixel[3]).toBeGreaterThanOrEqual(250);
+
+	const sourcePixel = context.getImageData(32, 32, 1, 1).data;
+	expect([...sourcePixel]).toEqual([255, 255, 255, 255]);
+
+	const transparentPixel = context.getImageData(8, 8, 1, 1).data;
+	expect([...transparentPixel]).toEqual([0, 0, 0, 0]);
+
+	const translucentSourceOutlinePixel = context.getImageData(4, 50, 1, 1).data;
+	expect(translucentSourceOutlinePixel[0]).toBeGreaterThanOrEqual(250);
+	expect(translucentSourceOutlinePixel[1]).toBeLessThanOrEqual(5);
+	expect(translucentSourceOutlinePixel[2]).toBeLessThanOrEqual(5);
+	expect(translucentSourceOutlinePixel[3]).toBeGreaterThanOrEqual(250);
+
+	const smoothCornerPixel = context.getImageData(19, 19, 1, 1).data;
+	expect(smoothCornerPixel[3]).toBeLessThanOrEqual(20);
+
+	const polygonalCanvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			outline({width: 6, edgeSimplification: 8, color: '#ff0000'}),
+		]),
+	});
+	const polygonalContext = polygonalCanvas.getContext('2d');
+	if (!polygonalContext) {
+		throw new Error('Could not get polygonal outline output context');
+	}
+
+	const polygonalCornerPixel = polygonalContext.getImageData(19, 19, 1, 1).data;
+	expect(polygonalCornerPixel[0]).toBeGreaterThanOrEqual(250);
+	expect(polygonalCornerPixel[1]).toBeLessThanOrEqual(5);
+	expect(polygonalCornerPixel[2]).toBeLessThanOrEqual(5);
+	expect(polygonalCornerPixel[3]).toBeGreaterThanOrEqual(250);
+	const polygonalSourcePixel = polygonalContext.getImageData(32, 32, 1, 1).data;
+	expect([...polygonalSourcePixel]).toEqual([255, 255, 255, 255]);
+	const polygonalPixels = polygonalContext.getImageData(
+		0,
+		0,
+		width,
+		height,
+	).data;
+	const partiallyTransparentPolygonPixels = [];
+	for (let index = 3; index < polygonalPixels.length; index += 4) {
+		const alpha = polygonalPixels[index];
+		if (alpha > 5 && alpha < 250) {
+			partiallyTransparentPolygonPixels.push(alpha);
+		}
+	}
+
+	expect(partiallyTransparentPolygonPixels).toEqual([]);
+
+	const outlineOnlyCanvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			outline({
+				width: 6,
+				edgeSimplification: 8,
+				color: '#ff0000',
+				outlineOnly: true,
+			}),
+		]),
+	});
+	const outlineOnlyContext = outlineOnlyCanvas.getContext('2d');
+	if (!outlineOnlyContext) {
+		throw new Error('Could not get outline-only output context');
+	}
+
+	const filledSourcePixel = outlineOnlyContext.getImageData(32, 32, 1, 1).data;
+	expect([...filledSourcePixel]).toEqual([255, 0, 0, 255]);
+
+	const filledOutlinePixel = outlineOnlyContext.getImageData(20, 32, 1, 1).data;
+	expect(filledOutlinePixel[0]).toBeGreaterThanOrEqual(250);
+	expect(filledOutlinePixel[1]).toBeLessThanOrEqual(5);
+	expect(filledOutlinePixel[2]).toBeLessThanOrEqual(5);
+	expect(filledOutlinePixel[3]).toBeGreaterThanOrEqual(250);
+
+	const outlineOnlyTransparentPixel = outlineOnlyContext.getImageData(
+		8,
+		8,
+		1,
+		1,
+	).data;
+	expect([...outlineOnlyTransparentPixel]).toEqual([0, 0, 0, 0]);
 });
 
 test('evolve() reveals with feather', async () => {
@@ -488,6 +613,97 @@ test('vignette() color mode works on transparent sources', async () => {
 	if (center[3] !== 0) {
 		throw new Error(`Expected center alpha to stay 0, got ${center[3]}`);
 	}
+});
+
+test('tile() mirrors neighboring copies on both axes without seams', async () => {
+	const source = document.createElement('canvas');
+	source.width = 6;
+	source.height = 6;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.putImageData(
+		new ImageData(
+			new Uint8ClampedArray([
+				255, 0, 0, 128, 0, 255, 0, 128, 0, 0, 255, 128, 255, 255, 0, 128,
+			]),
+			2,
+			2,
+		),
+		2,
+		2,
+	);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width: 6,
+		height: 6,
+		effects: descriptorsToMemoizedEffects([tile()]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const pixels = context.getImageData(0, 0, 6, 6).data;
+	const colors = [];
+	const alphas = [];
+	for (let i = 0; i < pixels.length; i += 4) {
+		colors.push(`${pixels[i]}-${pixels[i + 1]}-${pixels[i + 2]}`);
+		alphas.push(pixels[i + 3]);
+	}
+
+	const red = '255-0-0';
+	const green = '0-255-0';
+	const blue = '0-0-255';
+	const yellow = '255-255-0';
+	expect(colors).toEqual(
+		[
+			[yellow, blue, blue, yellow, yellow, blue],
+			[green, red, red, green, green, red],
+			[green, red, red, green, green, red],
+			[yellow, blue, blue, yellow, yellow, blue],
+			[yellow, blue, blue, yellow, yellow, blue],
+			[green, red, red, green, green, red],
+		].flat(),
+	);
+	expect(alphas).toEqual(new Array(36).fill(128));
+});
+
+test('tile() does not leave transparent seams after scale()', async () => {
+	const width = 20;
+	const height = 20;
+	const source = document.createElement('canvas');
+	source.width = width;
+	source.height = height;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.fillStyle = 'red';
+	sourceContext.fillRect(0, 0, width, height);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([scale({scale: 0.36}), tile()]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const pixels = context.getImageData(0, 0, width, height).data;
+	const alphas = [];
+	for (let i = 3; i < pixels.length; i += 4) {
+		alphas.push(pixels[i]);
+	}
+
+	expect(alphas).toEqual(new Array(width * height).fill(255));
 });
 
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {

@@ -6,6 +6,8 @@ description: Open a pull request for the current feature
 Ensure we are not on the main branch, make a branch if necessary.  
 Check whether a PR already exists for the current branch with `gh pr status` or `gh pr view`. If one exists, update it with local changes.
 
+If the changes add a Remotion Element, read the [Element contribution guide](../../../packages/docs/elements/contributing.mdx) before continuing.
+
 Run Oxfmt on the files or package directories affected by the current change. Pass their actual paths; do not assume that the repository root has a `src` directory. Include relevant root-level files, and do not format unrelated packages or the whole repository.
 
 For example:

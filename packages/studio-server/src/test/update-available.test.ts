@@ -34,32 +34,7 @@ test('reports outdated project skills when Remotion itself is up to date', async
 			latestVersion: '4.0.502',
 			updateAvailable: false,
 			skillsUpdateAvailable: true,
-			remotionUpgradeSkillAvailable: false,
 			timedOut: false,
-		});
-
-		const upgradeSkillDirectory = path.join(
-			remotionRoot,
-			'.agents',
-			'skills',
-			'remotion-upgrade',
-		);
-		mkdirSync(upgradeSkillDirectory, {recursive: true});
-		writeFileSync(
-			path.join(upgradeSkillDirectory, 'SKILL.md'),
-			'---\nname: remotion-upgrade\nversion: 4.0.501\n---\n',
-		);
-
-		const resultWithUpgradeSkill = await isUpdateAvailable({
-			remotionRoot,
-			currentVersion: '4.0.502',
-			logLevel: 'error',
-			getLatestVersion: () => Promise.resolve('4.0.502'),
-		});
-
-		expect(resultWithUpgradeSkill).toMatchObject({
-			skillsUpdateAvailable: true,
-			remotionUpgradeSkillAvailable: true,
 		});
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});

@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {type TSequence} from 'remotion';
+import {Internals, type TSequence} from 'remotion';
 import {isVideoWithLastFrameHold} from './is-video-with-last-frame-hold';
 import {getMediaMetadata} from './use-media-metadata';
 
@@ -22,7 +22,8 @@ const getSrc = (s: TSequence) => {
 export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 	const holdsLastFrame = isVideoWithLastFrameHold(s);
 	const src = holdsLastFrame ? null : getSrc(s);
-	const cacheKey = src ? getCacheKey(src, fps) : null;
+	const resolvedSrc = Internals.usePreload(src ?? '');
+	const cacheKey = src ? getCacheKey(resolvedSrc, fps) : null;
 
 	const [maxMediaDuration, setMaxMediaDuration] = useState(
 		cacheKey ? (cache.get(cacheKey) ?? null) : Infinity,
@@ -42,7 +43,7 @@ export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 
 		let cancelled = false;
 
-		getMediaMetadata(src)
+		getMediaMetadata(resolvedSrc)
 			.then((metadata) => {
 				if (cancelled || !metadata) {
 					return;
@@ -63,7 +64,7 @@ export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 		return () => {
 			cancelled = true;
 		};
-	}, [cacheKey, fps, src]);
+	}, [cacheKey, fps, resolvedSrc, src]);
 
 	if (holdsLastFrame) {
 		return Infinity;

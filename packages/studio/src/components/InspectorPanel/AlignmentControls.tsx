@@ -15,6 +15,7 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
 import {translateFieldKey} from '../selected-outline-types';
 import {callAddSequenceKeyframe} from '../Timeline/call-add-keyframe';
+import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from '../Timeline/save-sequence-prop';
 import {
 	parseTranslate,
@@ -46,10 +47,9 @@ const iconStyle: React.CSSProperties = {
 	height: 16,
 };
 
-const verticalDivider: React.CSSProperties = {
+const verticalSpacer: React.CSSProperties = {
 	width: 1,
 	height: 16,
-	backgroundColor: 'rgba(255, 255, 255, 0.1)',
 	margin: '0 8px',
 };
 
@@ -115,7 +115,15 @@ export const AlignmentControls: React.FC<{
 				propStatuses,
 				nodePath,
 			);
-			const sourceFrame = timelinePosition - track.keyframeDisplayOffset;
+			const firstKeyframedStatus = Object.values(nodePropStatuses ?? {}).find(
+				(status) => status.status === 'keyframed',
+			);
+			const sourceFrame =
+				timelinePosition -
+				getKeyframeDisplayOffset({
+					propStatus: firstKeyframedStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				});
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
 
 			const activeSchema = getSelectedOutlineActiveSchema({
@@ -256,7 +264,15 @@ export const AlignmentControls: React.FC<{
 		propStatuses,
 		renderNodePath,
 	);
-	const renderSourceFrame = timelinePosition - track.keyframeDisplayOffset;
+	const firstRenderKeyframedStatus = Object.values(
+		renderNodePropStatuses ?? {},
+	).find((status) => status.status === 'keyframed');
+	const renderSourceFrame =
+		timelinePosition -
+		getKeyframeDisplayOffset({
+			propStatus: firstRenderKeyframedStatus,
+			keyframeDisplayOffset: track.keyframeDisplayOffset,
+		});
 	const renderDragOverrides = getDragOverrides(renderNodePath) ?? {};
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({
@@ -296,7 +312,7 @@ export const AlignmentControls: React.FC<{
 				Icon={AlignRightIcon}
 				disabled={alignmentDisabled}
 			/>
-			<div style={verticalDivider} />
+			<div style={verticalSpacer} />
 			<AlignmentButton
 				title="Align top"
 				onClick={() => handleAlign('top')}

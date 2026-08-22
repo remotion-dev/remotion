@@ -30,6 +30,7 @@ h6 {
 	word-spacing: -0.025em;
 	font-family: 'GTPlanar';
 	font-feature-settings: 'ss03' on;
+	text-wrap: balance;
 }
 
 @font-face {
@@ -63,18 +64,34 @@ h6 {
 	display: none;
 }
 
-@media (min-width: 1200px) {
-	.plugin-id-elements main > .container {
-		max-width: 1440px;
-	}
+.plugin-id-elements main > .container {
+	max-width: 1440px;
+}
 
-	.plugin-id-elements main > .container > .row > .col {
-		max-width: 100% !important;
-	}
+.plugin-id-elements main > .container > .row > .col {
+	max-width: 100% !important;
 }
 
 .plugin-id-elements .theme-doc-markdown > h1:first-child {
 	margin-bottom: 0.75rem;
+}
+
+.elements-sidebar-root > .menu__list {
+	padding-left: 0;
+}
+
+.elements-sidebar-root > .menu__list-item-collapsible > .menu__caret {
+	display: none;
+}
+
+.elements-sidebar-root > .menu__list-item-collapsible--active > .menu__link {
+	pointer-events: none;
+}
+
+.elements-sidebar-root
+	> .menu__list-item-collapsible:not(.menu__list-item-collapsible--active)
+	> .menu__link--active {
+	color: var(--ifm-menu-color);
 }
 
 :root {

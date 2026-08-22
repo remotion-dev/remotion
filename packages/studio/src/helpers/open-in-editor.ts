@@ -16,7 +16,7 @@ import {getBrowserStudioOperations} from './browser-studio-operations';
 
 export const openInEditor = (
 	stack: SymbolicatedStackFrame,
-	editorId: EditorPickerId | null,
+	editorId: EditorPickerId,
 ) => {
 	const {
 		originalFileName,
@@ -58,7 +58,7 @@ export const openInGitClient = (gitClientId: GitClientId) => {
 
 export const openOriginalPositionInEditor = async (
 	originalPosition: OriginalPosition,
-	editorId: EditorPickerId | null,
+	editorId: EditorPickerId,
 ) => {
 	const response = await openInEditor(
 		{
@@ -76,9 +76,11 @@ export const openOriginalPositionInEditor = async (
 };
 
 export const openOriginalPositionInEditorAtProperty = async ({
+	editorId,
 	originalPosition,
 	property,
 }: {
+	editorId: EditorPickerId;
 	originalPosition: CodePosition;
 	property: string;
 }) => {
@@ -99,7 +101,7 @@ export const openOriginalPositionInEditorAtProperty = async ({
 			line: position.lineNumber,
 			column: position.columnNumber,
 		},
-		null,
+		editorId,
 	);
 };
 
@@ -259,13 +261,15 @@ export const preloadCompositionComponentInfo = ({
 export const openCompositionComponentInEditor = async ({
 	compositionFile,
 	compositionId,
+	editorId,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	editorId: EditorPickerId;
 }) => {
 	const info = await loadCompositionComponentInfo({
 		compositionFile,
 		compositionId,
 	});
-	await openOriginalPositionInEditor(info.location, null);
+	await openOriginalPositionInEditor(info.location, editorId);
 };

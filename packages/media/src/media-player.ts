@@ -17,9 +17,9 @@ import {
 	getScheduledTime,
 	getTrimStartForAudioNode,
 } from './audio/get-scheduled-time';
+import {processNext} from './audio/sort-by-priority';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
-import {getDurationOrCompute} from './get-duration-or-compute';
-import {acquireSharedInput, releaseSharedInput} from './get-shared-input';
+import {acquireSharedInput} from './get-shared-input';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {resolveAudioTrack} from './helpers/resolve-audio-track';
 import {isNetworkError} from './is-type-of-error';
@@ -167,14 +167,15 @@ export class MediaPlayer {
 		// Reuse a shared, reference-counted Input per (src, credentials,
 		// requestInit) so mounting a new range does not re-parse the container or
 		// cold-seek — the byte cache and demuxer state stay warm across ranges.
-		const {input, cacheKey} = acquireSharedInput({
+		const {input, getDuration, release} = acquireSharedInput({
 			src: this.src,
 			credentials,
 			requestInit,
 			logLevel,
 		});
 		this.input = input;
-		this.inputCacheKey = cacheKey;
+		this.getDuration = getDuration;
+		this.releaseInput = release;
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
@@ -195,8 +196,8 @@ export class MediaPlayer {
 	}
 
 	private input: Input;
-	// Key into the shared-input cache; released (ref count decremented) on dispose.
-	private inputCacheKey: string;
+	private getDuration: () => Promise<number>;
+	private releaseInput: () => void;
 	// Per-player disposal flag. The Input is now shared and reference counted, so
 	// `this.input.disposed` no longer tells us whether THIS player was disposed
 	// (the Input stays alive while other players hold it). This flag tracks our
@@ -284,7 +285,7 @@ export class MediaPlayer {
 			}
 
 			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
-				getDurationOrCompute(this.input),
+				this.getDuration(),
 				this.input.getPrimaryVideoTrack(),
 				this.input.getAudioTracks(),
 			]);
@@ -639,10 +640,12 @@ export class MediaPlayer {
 
 	public setIsPremounting(isPremounting: boolean): void {
 		this.premountAwareDelayPlayback.setIsPremounting(isPremounting);
+		processNext();
 	}
 
 	public setIsPostmounting(isPostmounting: boolean): void {
 		this.premountAwareDelayPlayback.setIsPostmounting(isPostmounting);
+		processNext();
 	}
 
 	public async setLoop(
@@ -707,7 +710,7 @@ export class MediaPlayer {
 		this.audioIteratorManager?.destroyIterator();
 		// Release our reference to the shared Input; it is only disposed once the
 		// last MediaPlayer using this src releases it.
-		releaseSharedInput(this.inputCacheKey);
+		this.releaseInput();
 	}
 
 	private getTargetTime = (

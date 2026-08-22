@@ -1,6 +1,7 @@
 import type {AnyRemotionOption} from './option';
 
 let rspackEnabled = false;
+let configuredRspackEnabled: boolean | null = null;
 
 const cliFlag = 'rspack' as const;
 
@@ -28,6 +29,12 @@ export const rspackOption = {
 	},
 	setConfig(value) {
 		rspackEnabled = value;
+		configuredRspackEnabled = value;
+	},
+	getConfigValue: () => configuredRspackEnabled,
+	reset: () => {
+		rspackEnabled = false;
+		configuredRspackEnabled = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

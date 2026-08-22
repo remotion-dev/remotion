@@ -43,6 +43,7 @@ export const audioSchema: InteractivitySchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	muted: {type: 'boolean', default: false, description: 'Muted'},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 } as const satisfies InteractivitySchema;
 
@@ -89,6 +90,7 @@ const AudioInner: React.FC<
 		mediaVolume,
 		mediaStartsAt,
 		loop: props.loop ?? false,
+		muted: props.muted ?? false,
 	});
 
 	// TODO: Redundant with what we do in the Studio

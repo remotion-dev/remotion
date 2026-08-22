@@ -102,7 +102,21 @@ An array of [`Caption`](/docs/captions/caption) objects.
 
 ### `combineTokensWithinMilliseconds`
 
-Words that are closer than this value will be combined into a single page.
+Controls how long captions are combined into a page. Once the current page's duration exceeds this value, the next caption that starts with a space begins a new page.
+
+### `breakOnSilenceAfterMilliseconds?`<AvailableFrom v="4.0.514" />
+
+_number_
+
+If set, a gap of at least this many milliseconds between the end of one caption and the start of the next begins a new page, even if `combineTokensWithinMilliseconds` has not been exceeded yet. By default, gaps do not cause an early page break.
+
+This compares caption timestamps and does not analyze the audio track.
+
+As with all page breaks, the previous page's `durationMs` extends until the next page starts, so the caption stays on screen through the pause.
+
+A value of `0` starts a new page at every word boundary, resulting in word-by-word pages.
+
+This option only adds earlier page breaks: `combineTokensWithinMilliseconds` remains the upper bound, and pages can only get shorter, never longer.
 
 ## Return value
 

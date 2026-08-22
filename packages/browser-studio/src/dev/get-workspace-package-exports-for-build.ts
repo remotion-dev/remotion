@@ -1,7 +1,11 @@
 import {readFileSync} from 'node:fs';
 import {dirname, join, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import type {BrowserStudioWorkspacePackageExports} from '../workspace-package-exports';
+import {
+	browserStudioPackageJsonArtifactFilename,
+	type BrowserStudioWorkspacePackageExports,
+} from '../workspace-package-exports';
+import {isBrowserStudioArtifactPath} from './is-browser-studio-artifact-path';
 
 type ConditionalExport = {
 	readonly default?: string;
@@ -34,6 +38,10 @@ export const getBrowserStudioWorkspacePackageExportsForBuild =
 		const packages: BrowserStudioWorkspacePackageExports = {};
 
 		for (const packageJsonPath of packageJsonGlob.scanSync({cwd: repoDir})) {
+			if (isBrowserStudioArtifactPath(packageJsonPath)) {
+				continue;
+			}
+
 			const absolutePackageJsonPath = join(repoDir, packageJsonPath);
 			const packageJson = readPackageJson(absolutePackageJsonPath);
 			if (
@@ -47,7 +55,10 @@ export const getBrowserStudioWorkspacePackageExportsForBuild =
 			const browserExports = Object.fromEntries(
 				Object.entries(packageJson.exports ?? {}).flatMap(
 					([subpath, value]) => {
-						const target = getBrowserExport(value);
+						const target =
+							subpath === './package.json'
+								? `./${browserStudioPackageJsonArtifactFilename}`
+								: getBrowserExport(value);
 						return target ? [[subpath, target]] : [];
 					},
 				),

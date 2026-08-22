@@ -60,6 +60,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		},
 		refForOutline: null,
 		effects: [],
+		effectRuntimeValues: null,
 		isInsideSeries: false,
 		frozenFrame: null,
 		type: 'sequence',
@@ -68,6 +69,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 
 const staticNumber = (value: number): CanUpdateSequencePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue: value,
 });
 

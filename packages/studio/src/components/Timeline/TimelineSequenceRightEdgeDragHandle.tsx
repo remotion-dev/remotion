@@ -89,7 +89,10 @@ export type TimelineSequenceFromDragTarget = {
 };
 
 type TimelineSequenceKeyframeDragTarget = {
+	readonly fileName: string;
 	readonly fieldKey: string;
+	readonly isDescendant: boolean;
+	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly status: CanUpdateSequencePropStatusKeyframed;
 };
@@ -103,10 +106,12 @@ const getKeyframedSequenceDragTargets = ({
 	nodePath,
 	sequence,
 	propStatuses,
+	isDescendant,
 }: {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly sequence: TSequence;
 	readonly propStatuses: PropStatuses;
+	readonly isDescendant: boolean;
 }): {
 	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
 	readonly sequenceKeyframes: TimelineSequenceKeyframeDragTarget[];
@@ -122,8 +127,18 @@ const getKeyframedSequenceDragTargets = ({
 		sequenceSchema === undefined
 			? []
 			: Object.entries(status.props).flatMap(([fieldKey, propStatus]) =>
-					propStatus.status === 'keyframed'
-						? [{fieldKey, schema: sequenceSchema, status: propStatus}]
+					propStatus.status === 'keyframed' &&
+					(!isDescendant || propStatus.keyframeDisplayOffsetAdjustment !== null)
+						? [
+								{
+									fileName: nodePath.absolutePath,
+									fieldKey,
+									isDescendant,
+									nodePath,
+									schema: sequenceSchema,
+									status: propStatus,
+								},
+							]
 						: [],
 				);
 
@@ -139,11 +154,15 @@ const getKeyframedSequenceDragTargets = ({
 
 		return Object.entries(effectStatus.props).flatMap(
 			([fieldKey, propStatus]) =>
-				propStatus.status === 'keyframed'
+				propStatus.status === 'keyframed' &&
+				(!isDescendant || propStatus.keyframeDisplayOffsetAdjustment !== null)
 					? [
 							{
 								effectIndex: effectStatus.effectIndex,
+								fileName: nodePath.absolutePath,
 								fieldKey,
+								isDescendant,
+								nodePath,
 								schema: effectSchema,
 								status: propStatus,
 							},
@@ -158,10 +177,30 @@ const getKeyframedSequenceDragTargets = ({
 const shiftKeyframedStatus = ({
 	status,
 	deltaFrames,
+	isDescendant,
 }: {
 	readonly status: CanUpdateSequencePropStatusKeyframed;
 	readonly deltaFrames: number;
+	readonly isDescendant: boolean;
 }): CanUpdateSequencePropStatusKeyframed => {
+	if (isDescendant) {
+		const adjustment = status.keyframeDisplayOffsetAdjustment;
+		if (adjustment === null) {
+			throw new Error(
+				'Expected descendant keyframes to use an outer frame clock',
+			);
+		}
+
+		return {
+			...status,
+			keyframeDisplayOffsetAdjustment: null,
+			keyframes: status.keyframes.map((keyframe) => ({
+				...keyframe,
+				frame: keyframe.frame + adjustment,
+			})),
+		};
+	}
+
 	return {
 		...status,
 		keyframes: status.keyframes.map((keyframe) => ({
@@ -585,25 +624,31 @@ export const getTimelineSequenceFromDragKeyframeMoves = ({
 		sequenceKeyframes: targets.flatMap((target) =>
 			target.sequenceKeyframes.flatMap((keyframeTarget) =>
 				keyframeTarget.status.keyframes.map((keyframe) => ({
-					fileName: target.fileName,
-					nodePath: target.nodePath,
+					fileName: keyframeTarget.fileName,
+					nodePath: keyframeTarget.nodePath,
 					fieldKey: keyframeTarget.fieldKey,
 					fromFrame: keyframe.frame,
 					toFrame: keyframe.frame + deltaFrames,
 					schema: keyframeTarget.schema,
+					keyframeDisplayOffsetAdjustmentDelta: keyframeTarget.isDescendant
+						? -deltaFrames
+						: undefined,
 				})),
 			),
 		),
 		effectKeyframes: targets.flatMap((target) =>
 			target.effectKeyframes.flatMap((keyframeTarget) =>
 				keyframeTarget.status.keyframes.map((keyframe) => ({
-					fileName: target.fileName,
-					nodePath: target.nodePath,
+					fileName: keyframeTarget.fileName,
+					nodePath: keyframeTarget.nodePath,
 					effectIndex: keyframeTarget.effectIndex,
 					fieldKey: keyframeTarget.fieldKey,
 					fromFrame: keyframe.frame,
 					toFrame: keyframe.frame + deltaFrames,
 					schema: keyframeTarget.schema,
+					keyframeDisplayOffsetAdjustmentDelta: keyframeTarget.isDescendant
+						? -deltaFrames
+						: undefined,
 				})),
 			),
 		),
@@ -856,35 +901,106 @@ export const getTimelineSequenceFromDragTargets = ({
 			? selectedSequenceItems.map((item) => item.nodePathInfo)
 			: [draggedNodePathInfo];
 	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
-	const targets = new Map<string, TimelineSequenceFromDragTarget>();
-
-	for (const nodePathInfo of targetNodePathInfos) {
+	const sequencesById = new Map(
+		sequences.map((sequence) => [sequence.id, sequence]),
+	);
+	const selectedSequences = targetNodePathInfos.flatMap((nodePathInfo) => {
 		const track = findSequenceTrack({tracks, nodePathInfo});
 		const originalSequence = track
-			? sequences.find((sequence) => sequence.id === track.sequence.id)
-			: null;
-		if (
-			!track ||
-			!track.nodePathInfo ||
-			!originalSequence ||
-			!isFromDraggableSequence(originalSequence)
-		) {
+			? sequencesById.get(track.sequence.id)
+			: undefined;
+		if (!track?.nodePathInfo || !originalSequence) {
+			return [];
+		}
+
+		return [
+			{
+				nodePath: track.nodePathInfo.sequenceSubscriptionKey,
+				originalSequence,
+			},
+		];
+	});
+	if (selectedSequences.length !== targetNodePathInfos.length) {
+		return null;
+	}
+
+	const selectedSequenceIds = new Set(
+		selectedSequences.map(({originalSequence}) => originalSequence.id),
+	);
+	const sequencesWithoutSelectedAncestors = selectedSequences.filter(
+		({originalSequence}) => {
+			let parentId = originalSequence.parent;
+			while (parentId !== null) {
+				if (selectedSequenceIds.has(parentId)) {
+					return false;
+				}
+
+				parentId = sequencesById.get(parentId)?.parent ?? null;
+			}
+
+			return true;
+		},
+	);
+	const targets = new Map<string, TimelineSequenceFromDragTarget>();
+	const includedKeyframeNodePaths = new Set<string>();
+
+	for (const {
+		nodePath,
+		originalSequence,
+	} of sequencesWithoutSelectedAncestors) {
+		if (!isFromDraggableSequence(originalSequence)) {
 			return null;
 		}
 
-		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		if (!canUpdateFrom({propStatuses, nodePath})) {
 			return null;
 		}
 
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
-			const {effectKeyframes, sequenceKeyframes} =
-				getKeyframedSequenceDragTargets({
-					nodePath,
-					sequence: originalSequence,
-					propStatuses,
-				});
+			const descendants = sequences.filter((candidate) => {
+				let parentId: string | null = candidate.id;
+				while (parentId !== null) {
+					if (parentId === originalSequence.id) {
+						return true;
+					}
+
+					parentId = sequencesById.get(parentId)?.parent ?? null;
+				}
+
+				return false;
+			});
+			const descendantKeyframes = descendants.flatMap((sequence) => {
+				const overrideId = sequence.controls?.overrideId;
+				const descendantNodePath = overrideId
+					? overrideIdsToNodePaths[overrideId]
+					: undefined;
+				if (descendantNodePath === undefined) {
+					return [];
+				}
+
+				const descendantNodePathKey =
+					stringifySequenceSubscriptionKey(descendantNodePath);
+				if (includedKeyframeNodePaths.has(descendantNodePathKey)) {
+					return [];
+				}
+
+				includedKeyframeNodePaths.add(descendantNodePathKey);
+				return [
+					getKeyframedSequenceDragTargets({
+						nodePath: descendantNodePath,
+						sequence,
+						propStatuses,
+						isDescendant: sequence.id !== originalSequence.id,
+					}),
+				];
+			});
+			const effectKeyframes = descendantKeyframes.flatMap(
+				(descendant) => descendant.effectKeyframes,
+			);
+			const sequenceKeyframes = descendantKeyframes.flatMap(
+				(descendant) => descendant.sequenceKeyframes,
+			);
 			targets.set(key, {
 				canSnapToTimelineStart: originalSequence.parent === null,
 				effectKeyframes,
@@ -937,11 +1053,22 @@ const clearFromDragOverrides = ({
 }) => {
 	for (const target of targets) {
 		clearDragOverrides(target.nodePath);
-		const effectIndexes = new Set(
-			target.effectKeyframes.map((keyframe) => keyframe.effectIndex),
-		);
-		for (const effectIndex of effectIndexes) {
-			clearEffectDragOverrides(target.nodePath, effectIndex);
+		for (const keyframeTarget of target.sequenceKeyframes) {
+			clearDragOverrides(keyframeTarget.nodePath);
+		}
+
+		const clearedEffects = new Set<string>();
+		for (const keyframeTarget of target.effectKeyframes) {
+			const key = `${stringifySequenceSubscriptionKey(keyframeTarget.nodePath)}:${keyframeTarget.effectIndex}`;
+			if (clearedEffects.has(key)) {
+				continue;
+			}
+
+			clearedEffects.add(key);
+			clearEffectDragOverrides(
+				keyframeTarget.nodePath,
+				keyframeTarget.effectIndex,
+			);
 		}
 	}
 };
@@ -1450,13 +1577,14 @@ export const useTimelineSequenceFromDrag = ({
 				);
 				for (const keyframeTarget of target.sequenceKeyframes) {
 					latestRef.current.setDragOverrides(
-						target.nodePath,
+						keyframeTarget.nodePath,
 						keyframeTarget.fieldKey,
 						{
 							type: 'keyframed',
 							status: shiftKeyframedStatus({
 								status: keyframeTarget.status,
 								deltaFrames,
+								isDescendant: keyframeTarget.isDescendant,
 							}),
 						},
 					);
@@ -1464,7 +1592,7 @@ export const useTimelineSequenceFromDrag = ({
 
 				for (const keyframeTarget of target.effectKeyframes) {
 					latestRef.current.setEffectDragOverrides(
-						target.nodePath,
+						keyframeTarget.nodePath,
 						keyframeTarget.effectIndex,
 						keyframeTarget.fieldKey,
 						{
@@ -1472,6 +1600,7 @@ export const useTimelineSequenceFromDrag = ({
 							status: shiftKeyframedStatus({
 								status: keyframeTarget.status,
 								deltaFrames,
+								isDescendant: keyframeTarget.isDescendant,
 							}),
 						},
 					);

@@ -145,108 +145,123 @@ export const PieChart: React.FC = () => {
 
 	return (
 		<Interactive.Div
-			name="Chart"
+			name="Background"
 			style={{
+				alignItems: 'center',
+				backgroundColor: '#f5f6f7',
+				boxSizing: 'border-box',
 				display: 'flex',
-				flexDirection: 'column',
-				fontFamily,
-				fontVariantNumeric: 'tabular-nums',
-				gap: 42,
 				height: '100%',
 				justifyContent: 'center',
+				padding: 56,
+				width: '100%',
 			}}
 		>
-			<Interactive.H1
-				name="Title"
+			<Interactive.Div
+				name="Chart"
 				style={{
-					color: '#111827',
-					fontSize: 76,
-					fontWeight: 800,
-					letterSpacing: -3.8,
-					lineHeight: 0.95,
-					margin: 0,
-				}}
-			>
-				How we spend a workday
-			</Interactive.H1>
-			<div
-				style={{
-					alignItems: 'center',
 					display: 'flex',
-					flex: 1,
-					gap: 72,
-					minHeight: 0,
+					flexDirection: 'column',
+					fontFamily,
+					fontVariantNumeric: 'tabular-nums',
+					gap: 42,
+					height: '100%',
+					justifyContent: 'center',
+					width: '100%',
 				}}
 			>
-				<Interactive.Svg
-					name="Pie chart"
-					viewBox="0 0 600 600"
+				<Interactive.H1
+					name="Title"
 					style={{
-						flex: '0 0 600px',
-						height: 600,
-						overflow: 'visible',
-						scale: interpolate(frame, [8, 40], [0.96, 1], {
-							easing: Easing.inOut(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-						}),
-						width: 600,
+						color: '#111827',
+						fontSize: 76,
+						fontWeight: 800,
+						letterSpacing: -3.8,
+						lineHeight: 0.95,
+						margin: 0,
 					}}
 				>
-					<Interactive.Circle
-						name="Chart background"
-						cx={300}
-						cy={300}
-						fill="#e5e7eb"
-						opacity={interpolate(frame, [0, 8], [0, 1], {
-							easing: Easing.inOut(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})}
-						r={284}
-					/>
-					{data.map(({color, label, value}) => {
-						const startAngle = angle;
-						const endAngle = angle + (value / total) * 360;
-						angle = endAngle;
-
-						return (
-							<Interactive.Path
-								key={label}
-								name={`${label} slice`}
-								d={getPieSlicePath({
-									center: 300,
-									endAngle: Math.min(endAngle, revealAngle),
-									radius: 284,
-									startAngle,
-								})}
-								fill={color}
-							/>
-						);
-					})}
-				</Interactive.Svg>
+					How we spend a workday
+				</Interactive.H1>
 				<div
 					style={{
+						alignItems: 'center',
 						display: 'flex',
 						flex: 1,
-						flexDirection: 'column',
-						gap: 18,
-						justifyContent: 'center',
+						gap: 72,
+						minHeight: 0,
 					}}
 				>
-					{data.map(({color, foreground, label, value}) => (
-						<Interactive.Div key={label} from={8} showInTimeline={false}>
-							<LegendItem
-								color={color}
-								foreground={foreground}
-								label={label}
-								value={value}
-							/>
-						</Interactive.Div>
-					))}
+					<Interactive.Svg
+						name="Pie chart"
+						viewBox="0 0 600 600"
+						style={{
+							flex: '0 0 600px',
+							height: 600,
+							overflow: 'visible',
+							scale: interpolate(frame, [8, 40], [0.96, 1], {
+								easing: Easing.inOut(Easing.cubic),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								output: 'perceptual-scale',
+							}),
+							width: 600,
+						}}
+					>
+						<Interactive.Circle
+							name="Chart background"
+							cx={300}
+							cy={300}
+							fill="#e5e7eb"
+							opacity={interpolate(frame, [0, 8], [0, 1], {
+								easing: Easing.inOut(Easing.cubic),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							})}
+							r={284}
+						/>
+						{data.map(({color, label, value}) => {
+							const startAngle = angle;
+							const endAngle = angle + (value / total) * 360;
+							angle = endAngle;
+
+							return (
+								<Interactive.Path
+									key={label}
+									name={`${label} slice`}
+									d={getPieSlicePath({
+										center: 300,
+										endAngle: Math.min(endAngle, revealAngle),
+										radius: 284,
+										startAngle,
+									})}
+									fill={color}
+								/>
+							);
+						})}
+					</Interactive.Svg>
+					<div
+						style={{
+							display: 'flex',
+							flex: 1,
+							flexDirection: 'column',
+							gap: 18,
+							justifyContent: 'center',
+						}}
+					>
+						{data.map(({color, foreground, label, value}) => (
+							<Interactive.Div key={label} from={8} showInTimeline={false}>
+								<LegendItem
+									color={color}
+									foreground={foreground}
+									label={label}
+									value={value}
+								/>
+							</Interactive.Div>
+						))}
+					</div>
 				</div>
-			</div>
+			</Interactive.Div>
 		</Interactive.Div>
 	);
 };

@@ -13,6 +13,7 @@ import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	TRANSPARENT,
@@ -227,7 +228,8 @@ const RenderButtonInner: React.FC<{
 
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const canServerRender = connectionStatus === 'connected';
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const canServerRender = connectionStatus === 'connected' && !isBrowserStudio;
 
 	const renderType: RenderType = useMemo(() => {
 		if (readOnlyStudio) {
@@ -236,12 +238,12 @@ const RenderButtonInner: React.FC<{
 				: 'client-render';
 		}
 
-		if (connectionStatus === 'disconnected') {
+		if (connectionStatus === 'disconnected' || isBrowserStudio) {
 			return 'client-render';
 		}
 
 		return preferredRenderType;
-	}, [connectionStatus, preferredRenderType, readOnlyStudio]);
+	}, [connectionStatus, isBrowserStudio, preferredRenderType, readOnlyStudio]);
 
 	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
 	const tooltip =
@@ -373,6 +375,7 @@ const RenderButtonInner: React.FC<{
 			initialTransparent: null,
 			initialMuted: null,
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
 			initialPageResponsiveness: 'medium',
 		});
 	}, [video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame]);

@@ -1,8 +1,7 @@
 {
 	"name": "@remotion/mac-cursors",
-	"version": "4.0.512",
-	"description": "Internal macOS cursor components for Remotion",
-	"private": true,
+	"version": "4.0.515",
+	"description": "macOS cursor components for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -50,5 +49,9 @@
 		"remotion",
 		"macos",
 		"cursor"
-	]
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/mac-cursors"
 }

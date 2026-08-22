@@ -7,6 +7,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BORDER_TIMELINE_DROP_BLUE,
@@ -19,7 +20,10 @@ import {
 	getSequenceDoubleClickAction,
 } from '../../helpers/get-sequence-double-click-action';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {
+	isStudioInteractivityEnabled,
+	isStudioSelectionEnabled,
+} from '../../helpers/interactivity-enabled';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -34,10 +38,10 @@ import {
 import {SetSelectedModalContext} from '../../state/modals';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../../state/transform-3d-mode';
-import {callApi} from '../call-api';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
+import {deleteJsxNode} from '../delete-jsx-node-api';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
@@ -51,6 +55,7 @@ import {
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {Spacing} from '../layout';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {reorderSequence} from '../reorder-sequence-api';
 import {
 	canEditSelectedOutlineCrop,
 	cropFieldKeys,
@@ -90,6 +95,7 @@ const labelContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
 	alignSelf: 'stretch',
 	display: 'flex',
+	flex: 1,
 	flexDirection: 'row',
 	minWidth: 0,
 };
@@ -188,7 +194,9 @@ const sequenceReorderLineBase: React.CSSProperties = {
 
 const sequenceReorderAfterLineWrapper: React.CSSProperties = {
 	height: 0,
-	position: 'relative',
+	left: 0,
+	position: 'absolute',
+	right: 0,
 };
 
 const sequenceReorderAfterLine: React.CSSProperties = {
@@ -259,7 +267,7 @@ type SequenceDropTarget =
 	  };
 
 const TimelineSequenceItemInner: React.FC<{
-	readonly children: React.ReactNode;
+	readonly afterDropLineOffset: number;
 	readonly sequence: TSequence;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nestedDepth: number;
@@ -268,7 +276,7 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly sequenceFrameOffset: number;
 	readonly siblingIndex: number;
 }> = ({
-	children,
+	afterDropLineOffset,
 	connectedCompositions,
 	nestedDepth,
 	sequence,
@@ -283,13 +291,15 @@ const TimelineSequenceItemInner: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const canMutateEffects =
+		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
-	const {onSelect, selectable, selected, selectionItem} =
+	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
 	const {selectItem, selectedItems} = useTimelineSelection();
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -405,7 +415,7 @@ const TimelineSequenceItemInner: React.FC<{
 		}
 
 		try {
-			const result = await callApi('/api/delete-jsx-node', {
+			const result = await deleteJsxNode({
 				nodes: [
 					{
 						fileName: validatedLocation.source,
@@ -622,7 +632,7 @@ const TimelineSequenceItemInner: React.FC<{
 			currentSequenceDrag = null;
 
 			try {
-				const result = await callApi('/api/reorder-sequence', {
+				const result = await reorderSequence({
 					fileName: validatedLocation.source,
 					sourceNodePath: dropTarget.dragData.nodePath,
 					targetNodePath: nodePath,
@@ -872,7 +882,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const canAddEffect =
 		nodePathInfo?.supportsEffects === true &&
-		previewInteractive &&
+		canMutateEffects &&
 		Boolean(validatedLocation?.source);
 	const canCrop = useRuntimeValueSelector({
 		controls: sequence.controls,
@@ -1129,7 +1139,7 @@ const TimelineSequenceItemInner: React.FC<{
 		validatedLocation?.source,
 	]);
 	const canDropEffect =
-		previewInteractive &&
+		canMutateEffects &&
 		nodePath !== null &&
 		validatedLocation !== null &&
 		sequence.controls?.supportsEffects === true;
@@ -1226,27 +1236,14 @@ const TimelineSequenceItemInner: React.FC<{
 					<TimelineLayerEyeSpacer />
 				)
 			}
-			arrow={
-				hasExpandableContent && nodePathInfo !== null ? (
-					<TimelineSequenceExpandArrow
-						disabled={!previewInteractive}
-						isExpanded={isExpanded}
-						nodePathInfo={nodePathInfo}
-						sequence={sequence}
-					/>
-				) : (
-					<TimelineExpandArrowSpacer />
-				)
-			}
+			arrow={<TimelineExpandArrowSpacer />}
 			style={rowStyle}
 			selected={selected}
 			selectable={selectable}
-			selectionItem={selectionItem}
 			onSelect={onSelect}
 			showSelectedBackground
 			containsSelection={containsSelection}
 			hovered={hovered}
-			isFieldRow={false}
 			outerHeight={outerHeight}
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
@@ -1277,6 +1274,14 @@ const TimelineSequenceItemInner: React.FC<{
 					onCancelEditing={onCancelRenaming}
 					onSaveName={onSaveName}
 				/>
+				{hasExpandableContent && nodePathInfo !== null ? (
+					<TimelineSequenceExpandArrow
+						disabled={!previewInteractive}
+						isExpanded={isExpanded}
+						nodePathInfo={nodePathInfo}
+						sequence={sequence}
+					/>
+				) : null}
 				{numberOfHiddenDuplicates > 0 ? (
 					<>
 						<Spacing x={0.5} />
@@ -1306,6 +1311,16 @@ const TimelineSequenceItemInner: React.FC<{
 				<div style={sequenceReorderLineStyle} />
 			) : null}
 			{trackRow}
+			{sequenceDropIndicator === 'after' ? (
+				<div
+					style={{
+						...sequenceReorderAfterLineWrapper,
+						top: afterDropLineOffset,
+					}}
+				>
+					<div style={sequenceReorderAfterLine} />
+				</div>
+			) : null}
 		</div>
 	) : (
 		trackRow
@@ -1333,12 +1348,6 @@ const TimelineSequenceItemInner: React.FC<{
 					nestedDepth={nestedDepth}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
-			) : null}
-			{children}
-			{sequenceDropIndicator === 'after' ? (
-				<div style={sequenceReorderAfterLineWrapper}>
-					<div style={sequenceReorderAfterLine} />
-				</div>
 			) : null}
 		</>
 	);

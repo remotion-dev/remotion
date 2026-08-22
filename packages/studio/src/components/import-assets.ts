@@ -18,12 +18,14 @@ import {Internals, staticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {formatFigmaClipboardErrorNotification} from '../helpers/clipboard-figma';
 import {requestInsertedElementSelection} from '../helpers/inserted-element-selection';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {getMediaMetadata} from '../helpers/use-media-metadata';
 import {callApi} from './call-api';
+import {installElement} from './element-install-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
 export type InsertElementDropPosition = {
@@ -719,16 +721,17 @@ const insertCompositionElement = async ({
 	from: number | null;
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
-	await installRequiredPackages(
-		requiredPackage ? [{name: requiredPackage, version: null}] : [],
-	);
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations === null) {
+		await installRequiredPackages(
+			requiredPackage ? [{name: requiredPackage, version: null}] : [],
+		);
+	}
 
-	const result = await callApi('/api/insert-jsx-element', {
-		compositionFile,
-		compositionId,
-		element,
-		from,
-	});
+	const request = {compositionFile, compositionId, element, from};
+	const result = browserStudioOperations
+		? await browserStudioOperations.insertJsxElement(request)
+		: await callApi('/api/insert-jsx-element', request);
 
 	if (!result.success) {
 		showNotification(result.reason, 4000);
@@ -748,6 +751,11 @@ const insertCompositionElement = async ({
 const downloadRemoteAsset = (
 	url: string,
 ): Promise<DownloadRemoteAssetResponse> => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations) {
+		return browserStudioOperations.downloadRemoteAsset({url});
+	}
+
 	return callApi('/api/download-remote-asset', {url});
 };
 
@@ -934,6 +942,16 @@ export const importFigmaClipboard = async ({
 	dropPosition: InsertElementDropPosition | null;
 	html: string;
 }) => {
+	// Figma clipboard conversion requires the SVGR-based pipeline in
+	// @remotion/studio-server, which Browser Studio does not support.
+	if (getBrowserStudioOperations()) {
+		showNotification(
+			'Importing Figma clipboard data is not supported in Browser Studio',
+			4000,
+		);
+		return;
+	}
+
 	try {
 		const converted = await callApi('/api/convert-figma-clipboard-to-svg', {
 			html,
@@ -1405,9 +1423,11 @@ export const insertElement = async ({
 	overwriteExisting: boolean;
 }) => {
 	try {
-		await installRequiredPackages(element.dependencies);
+		if (getBrowserStudioOperations() === null) {
+			await installRequiredPackages(element.dependencies);
+		}
 
-		const response = await callApi('/api/insert-element', {
+		const response = await installElement({
 			compositionFile,
 			compositionId,
 			element,

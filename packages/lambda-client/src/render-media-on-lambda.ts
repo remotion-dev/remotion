@@ -32,6 +32,7 @@ import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
 
 export type RenderMediaOnLambdaInput = {
+	enableCancellation?: boolean;
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
@@ -160,6 +161,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 	options: RenderMediaOnLambdaInput,
 ): InnerRenderMediaOnLambdaInput => {
 	return {
+		enableCancellation: options.enableCancellation ?? false,
 		offthreadVideoThreads: options.offthreadVideoThreads ?? null,
 		audioBitrate: options.audioBitrate ?? null,
 		audioCodec: options.audioCodec ?? null,

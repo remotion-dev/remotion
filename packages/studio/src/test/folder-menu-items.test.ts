@@ -36,6 +36,8 @@ test('read-only folder menus keep navigation and copy actions enabled', () => {
 	const items = getFolderMenuItems({
 		closeMenu: () => undefined,
 		connectionStatus: 'connected',
+		editorId: 'vscode',
+		editorName: 'Code',
 		folder,
 		readOnlyStudio: true,
 		resolvedLocation,

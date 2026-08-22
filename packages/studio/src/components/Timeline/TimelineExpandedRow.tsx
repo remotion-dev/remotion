@@ -44,7 +44,7 @@ type TimelineExpandedRowProps = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
 };
 
 const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
@@ -116,11 +116,9 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 				}}
 				selected={selection.selected}
 				selectable={selection.selectable}
-				selectionItem={selection.selectionItem}
 				onSelect={selection.onSelect}
 				showSelectedBackground
 				containsSelection={false}
-				isFieldRow={false}
 				outerHeight={null}
 			>
 				<span style={labelStyle}>{node.label}</span>
@@ -139,6 +137,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 					keyframeControlsMode={keyframeControlsMode}
+					runtimeValueStore={node.runtimeValueStore}
 				/>
 			);
 		}
@@ -154,6 +153,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					schema={schema}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 					keyframeControlsMode={keyframeControlsMode}
+					runtimeValue={node.runtimeValue}
 				/>
 			);
 		}
@@ -173,11 +173,9 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 			}}
 			selected={selection.selected}
 			selectable={selection.selectable}
-			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}
-			isFieldRow={false}
 			outerHeight={null}
 		>
 			<span style={labelStyle}>{node.label}</span>

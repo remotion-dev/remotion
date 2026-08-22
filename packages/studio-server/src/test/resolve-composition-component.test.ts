@@ -1672,6 +1672,95 @@ test('inserts a component into the resolved composition component', async () => 
 	}
 });
 
+test('rejects type-only component imports instead of using them as values', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		for (const typeOnlyImport of [
+			"import type {LowerThird} from './lower-third.element';",
+			"import {type LowerThird} from './lower-third.element';",
+		]) {
+			await fs.writeFile(
+				path.join(tempDir, 'MyComp.tsx'),
+				[
+					typeOnlyImport,
+					"import {AbsoluteFill} from 'remotion';",
+					'',
+					'export const MyComp: React.FC = () => {',
+					'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+					'};',
+					'',
+				].join('\n'),
+			);
+
+			await expect(
+				insertJsxElementIntoComposition({
+					remotionRoot: tempDir,
+					compositionFile: 'Root.tsx',
+					compositionId: 'test',
+					element: {
+						type: 'component',
+						componentName: 'LowerThird',
+						importName: 'LowerThird',
+						importPath: './lower-third.element',
+						props: [],
+						position: null,
+					},
+					from: null,
+					prettierConfigOverride: {singleQuote: true, useTabs: true},
+				}),
+			).rejects.toThrow(
+				'Cannot add <LowerThird> because LowerThird is already defined',
+			);
+		}
+
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import type {LowerThird as LowerThirdProps} from './lower-third.element';",
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'component',
+				componentName: 'LowerThird',
+				importName: 'LowerThird',
+				importPath: './lower-third.element',
+				props: [],
+				position: null,
+			},
+			from: null,
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+		expect(result.output).toContain(
+			"import { LowerThird } from './lower-third.element';",
+		);
+		expect(result.output).toContain('<LowerThird');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('wraps a component in a dimensionless Sequence', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
@@ -1819,6 +1908,96 @@ test('inserts a composition as a duration-aware Sequence', async () => {
 		expect(result.output).toContain(
 			"date={new Date('2025-01-01T00:00:00.000Z')}",
 		);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('rejects inserting a composition whose component is not exported', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {SourceComposition} from './Source';",
+				"import {Target} from './Target';",
+				'export const RemotionRoot = () => {',
+				'\treturn (',
+				'\t\t<>',
+				'\t\t\t<SourceComposition />',
+				'\t\t\t<Composition id="target" component={Target} />',
+				'\t\t</>',
+				'\t);',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'Source.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				'const Source: React.FC = () => {',
+				'\treturn <div>source</div>;',
+				'};',
+				'export const SourceComposition = () => {',
+				'\treturn <Composition id="source" component={Source} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		const targetContents = [
+			"import {AbsoluteFill} from 'remotion';",
+			'',
+			'export const Target: React.FC = () => {',
+			'\treturn <AbsoluteFill>target</AbsoluteFill>;',
+			'};',
+			'',
+		].join('\n');
+		const targetFile = path.join(tempDir, 'Target.tsx');
+		await fs.writeFile(targetFile, targetContents);
+
+		const response = await insertJsxElementHandler({
+			input: {
+				compositionFile: 'Root.tsx',
+				compositionId: 'target',
+				element: {
+					type: 'composition',
+					compositionId: 'source',
+					compositionFile: 'Source.tsx',
+					durationInFrames: 100,
+					width: 1080,
+					height: 540,
+					serializedResolvedPropsWithCustomSchema: JSON.stringify({}),
+					position: null,
+				},
+				from: null,
+			},
+			entryPoint: path.join(tempDir, 'Root.tsx'),
+			remotionRoot: tempDir,
+			request: {} as never,
+			response: {} as never,
+			logLevel: 'error',
+			methods: {
+				removeJob: () => undefined,
+				cancelJob: () => undefined,
+				addJob: () => undefined,
+			},
+			publicDir: tempDir,
+			binariesDirectory: null,
+			configFile: null,
+			getDefaultCodingAgent: () => null,
+			getDefaultEditor: () => null,
+		});
+
+		expect(response.success).toBe(false);
+		if (!response.success) {
+			expect(response.reason).toBe(
+				'Cannot add composition "source" because its component "Source" is not exported from Source.tsx. Export the component and try again.',
+			);
+		}
+
+		expect(await fs.readFile(targetFile, 'utf-8')).toBe(targetContents);
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

@@ -760,8 +760,14 @@ const interpolateString = ({
 	const hasAxisRotation = initiallyParsedOutputRange.some(
 		(parsed) => parsed.axisRotation,
 	);
+	const posterizedInput =
+		options?.posterize === undefined
+			? input
+			: Math.floor(input / options.posterize) * options.posterize;
+	const segmentIndex =
+		inputRange.length === 1 ? 0 : findRange(posterizedInput, inputRange);
 	const parsedOutputRange = hasAxisRotation
-		? initiallyParsedOutputRange.map((parsed) => {
+		? initiallyParsedOutputRange.map((parsed, index) => {
 				if (parsed.kind !== 'rotate') {
 					return parsed;
 				}
@@ -776,9 +782,24 @@ const interpolateString = ({
 					);
 				}
 
+				// A zero-degree rotation is the identity regardless of its axis. Reusing
+				// the active neighbor's axis prevents the axis from drifting while the
+				// angle interpolates away from zero.
+				const adjacentAxisRotation =
+					parsed.values[0] === 0
+						? index === segmentIndex
+							? initiallyParsedOutputRange[index + 1]
+							: index === segmentIndex + 1
+								? initiallyParsedOutputRange[index - 1]
+								: undefined
+						: undefined;
+				const axis = adjacentAxisRotation?.axisRotation
+					? adjacentAxisRotation.values
+					: ([0, 0, 1] as const);
+
 				return {
 					kind: 'rotate' as const,
-					values: [0, 0, 1, parsed.values[0]] as [
+					values: [axis[0], axis[1], axis[2], parsed.values[0]] as [
 						number,
 						number,
 						number,

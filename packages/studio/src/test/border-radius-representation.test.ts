@@ -14,7 +14,11 @@ import {
 
 test('a static shorthand can be converted to individual corners', () => {
 	const conversion = getBorderRadiusConversion({
-		'style.borderRadius': {status: 'static', codeValue: 12},
+		'style.borderRadius': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 12,
+		},
 	});
 	expect(conversion).toEqual({type: 'individual', value: 12});
 	if (conversion === null) {
@@ -33,11 +37,19 @@ test('a static shorthand can be converted to individual corners', () => {
 	const initial: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {
-			[BORDER_RADIUS_SHORTHAND_KEY]: {status: 'static', codeValue: 12},
+			[BORDER_RADIUS_SHORTHAND_KEY]: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
 			...Object.fromEntries(
 				BORDER_RADIUS_LONGHAND_KEYS.map((key) => [
 					key,
-					{status: 'static', codeValue: 12},
+					{
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 12,
+					},
 				]),
 			),
 		},
@@ -58,6 +70,7 @@ test('a static shorthand can be converted to individual corners', () => {
 	if (optimistic.canUpdate) {
 		expect(optimistic.props[BORDER_RADIUS_SHORTHAND_KEY]).toEqual({
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: undefined,
 		});
 	}
@@ -70,12 +83,17 @@ test('an unauthored border radius can be converted to zero-valued corners', () =
 		{
 			[BORDER_RADIUS_SHORTHAND_KEY]: {
 				status: 'static' as const,
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: undefined,
 			},
 			...Object.fromEntries(
 				BORDER_RADIUS_LONGHAND_KEYS.map((key) => [
 					key,
-					{status: 'static' as const, codeValue: undefined},
+					{
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: undefined,
+					},
 				]),
 			),
 		},
@@ -102,7 +120,11 @@ test('four equal static longhands can be converted to a shorthand', () => {
 			Object.fromEntries(
 				BORDER_RADIUS_LONGHAND_KEYS.map((key) => [
 					key,
-					{status: 'static', codeValue: 8},
+					{
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 8,
+					},
 				]),
 			) as Record<string, CanUpdateSequencePropStatus>,
 		),
@@ -115,6 +137,7 @@ test('static drag overrides determine the border radius conversion', () => {
 			{
 				[BORDER_RADIUS_SHORTHAND_KEY]: {
 					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
 					codeValue: 12,
 				},
 			},
@@ -127,7 +150,11 @@ test('static drag overrides determine the border radius conversion', () => {
 	const unequalLonghands = Object.fromEntries(
 		BORDER_RADIUS_LONGHAND_KEYS.map((key, index) => [
 			key,
-			{status: 'static' as const, codeValue: index},
+			{
+				status: 'static' as const,
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: index,
+			},
 		]),
 	);
 	expect(
@@ -147,7 +174,11 @@ test('static drag overrides determine the border radius conversion', () => {
 			Object.fromEntries(
 				BORDER_RADIUS_LONGHAND_KEYS.map((key) => [
 					key,
-					{status: 'static' as const, codeValue: 8},
+					{
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 8,
+					},
 				]),
 			),
 			{
@@ -160,10 +191,26 @@ test('static drag overrides determine the border radius conversion', () => {
 test('unequal, keyframed, and computed radii cannot be converted', () => {
 	expect(
 		getBorderRadiusConversion({
-			'style.borderTopLeftRadius': {status: 'static', codeValue: 1},
-			'style.borderTopRightRadius': {status: 'static', codeValue: 2},
-			'style.borderBottomRightRadius': {status: 'static', codeValue: 1},
-			'style.borderBottomLeftRadius': {status: 'static', codeValue: 2},
+			'style.borderTopLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 1,
+			},
+			'style.borderTopRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 2,
+			},
+			'style.borderBottomRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 1,
+			},
+			'style.borderBottomLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 2,
+			},
 		}),
 	).toBe(null);
 	expect(
@@ -175,6 +222,7 @@ test('unequal, keyframed, and computed radii cannot be converted', () => {
 		getBorderRadiusConversion({
 			'style.borderRadius': {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 0, value: 0}],
 				easing: [],

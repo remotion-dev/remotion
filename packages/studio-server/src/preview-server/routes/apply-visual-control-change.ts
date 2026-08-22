@@ -1,13 +1,13 @@
 import {readFileSync} from 'node:fs';
 import type {File} from '@babel/types';
 import {RenderInternals} from '@remotion/renderer';
+import {applyCodemod} from '@remotion/studio-codemods';
 import type {
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse,
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {parseAst, serializeAst} from '../../codemods/parse-ast';
-import {applyCodemod} from '../../codemods/recast-mods';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -20,7 +20,10 @@ import {
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const getVisualControlChangeLine = (file: File, changeId: string): number => {
 	let line = 1;
@@ -146,7 +149,7 @@ export const applyVisualControlHandler: ApiHandler<
 		});
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Applied visual control changes`,
+			`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Applied visual control changes`,
 		);
 		if (!formatted) {
 			warnAboutPrettierOnce(logLevel);

@@ -16,7 +16,10 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 export const splitJsxSequenceHandler: ApiHandler<
 	SplitJsxSequenceRequest,
@@ -85,7 +88,7 @@ export const splitJsxSequenceHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
 					`${locationLabel}`,
 				)} Split ${nodeLabel}`,
 			);

@@ -6,19 +6,6 @@ import {startStudio, stopStudio} from './studio-server.mts';
 
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
 
-async function openJsonEditor(page: import('@playwright/test').Page) {
-	await navigateToSchemaTest(page);
-
-	const jsonTab = page.getByRole('button', {name: 'JSON', exact: true});
-	await expect(jsonTab).toBeVisible({timeout: 10_000});
-	await jsonTab.click();
-
-	const textarea = page.locator('textarea');
-	await expect(textarea).toBeVisible({timeout: 10_000});
-	await expect(textarea).not.toHaveValue('', {timeout: 10_000});
-	return textarea;
-}
-
 test.describe('visual mode', () => {
 	test.beforeEach(async () => {
 		await startStudio();
@@ -28,13 +15,23 @@ test.describe('visual mode', () => {
 		await stopStudio();
 	});
 
-	test('should edit props via JSON editor and save on blur', async ({page}) => {
-		const textarea = await openJsonEditor(page);
+	test('should edit JSON props and reject invalid or schema-mismatching JSON', async ({
+		page,
+	}) => {
+		test.setTimeout(90_000);
+		await navigateToSchemaTest(page);
+
+		const jsonTab = page.getByRole('button', {name: 'JSON', exact: true});
+		await expect(jsonTab).toBeVisible({timeout: 10_000});
+		await jsonTab.click();
+
+		const textarea = page.locator('textarea');
+		await expect(textarea).toBeVisible({timeout: 10_000});
+		await expect(textarea).not.toHaveValue('', {timeout: 10_000});
 
 		const currentJson = await textarea.inputValue();
 		const parsed = JSON.parse(currentJson);
 		const newTitle = 'json-editor-e2e-test';
-
 		const beforeContent = fs.readFileSync(rootFile, 'utf-8');
 		expect(beforeContent).not.toContain(newTitle);
 
@@ -54,31 +51,25 @@ test.describe('visual mode', () => {
 				},
 			)
 			.toBe(true);
-	});
 
-	test('should show error and not save on blur when JSON is invalid', async ({
-		page,
-	}) => {
-		const textarea = await openJsonEditor(page);
-		const contentBefore = fs.readFileSync(rootFile, 'utf-8');
-
+		const contentAfterValidEdit = fs.readFileSync(rootFile, 'utf-8');
 		await textarea.fill('{invalid json');
 
 		const errorDiv = page.locator('[data-testid="json-props-error"]');
-
 		await expect(errorDiv).not.toBeEmpty({timeout: 5_000});
-
 		await textarea.blur();
 
 		await expect
-			.poll(() => fs.readFileSync(rootFile, 'utf-8') === contentBefore, {
-				timeout: 2_000,
-			})
+			.poll(
+				() => fs.readFileSync(rootFile, 'utf-8') === contentAfterValidEdit,
+				{
+					timeout: 2_000,
+				},
+			)
 			.toBe(true);
 
-		// Update the root file on disk — the textarea should auto-update and the error should clear
 		const updatedTitle = 'disk-update-clears-error';
-		const updatedContent = contentBefore.replace(
+		const updatedContent = contentAfterValidEdit.replace(
 			/title: '[^']*'/,
 			`title: '${updatedTitle}'`,
 		);
@@ -87,39 +78,28 @@ test.describe('visual mode', () => {
 		await expect(textarea).toHaveValue(new RegExp(updatedTitle), {
 			timeout: 10_000,
 		});
-
 		await expect(errorDiv).toBeEmpty({timeout: 5_000});
 
-		// Restore original file
-		fs.writeFileSync(rootFile, contentBefore);
+		fs.writeFileSync(rootFile, contentAfterValidEdit);
 
 		await expect(textarea).not.toHaveValue(new RegExp(updatedTitle), {
 			timeout: 10_000,
 		});
-	});
 
-	test('should show error and not save on blur when JSON does not match schema', async ({
-		page,
-	}) => {
-		const textarea = await openJsonEditor(page);
-		const currentJson = await textarea.inputValue();
-		const parsed = JSON.parse(currentJson);
-		const contentBefore = fs.readFileSync(rootFile, 'utf-8');
+		const jsonAfterRestore = JSON.parse(await textarea.inputValue());
+		jsonAfterRestore.delay = -1;
+		await textarea.fill(JSON.stringify(jsonAfterRestore, null, 2));
 
-		// delay: -1 violates the .min(0) constraint
-		parsed.delay = -1;
-		await textarea.fill(JSON.stringify(parsed, null, 2));
-
-		await expect(
-			page.locator('[data-testid="json-props-error"]'),
-		).not.toBeEmpty({timeout: 5_000});
-
+		await expect(errorDiv).not.toBeEmpty({timeout: 5_000});
 		await textarea.blur();
 
 		await expect
-			.poll(() => fs.readFileSync(rootFile, 'utf-8') === contentBefore, {
-				timeout: 2_000,
-			})
+			.poll(
+				() => fs.readFileSync(rootFile, 'utf-8') === contentAfterValidEdit,
+				{
+					timeout: 2_000,
+				},
+			)
 			.toBe(true);
 	});
 });

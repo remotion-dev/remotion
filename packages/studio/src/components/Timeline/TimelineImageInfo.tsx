@@ -17,7 +17,8 @@ const containerStyle: React.CSSProperties = {
 export const TimelineImageInfo: React.FC<{
 	readonly src: string;
 	readonly visualizationWidth: number;
-}> = ({src, visualizationWidth}) => {
+	readonly offsetInPixels: number;
+}> = ({src, visualizationWidth, offsetInPixels}) => {
 	const ref = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -45,6 +46,7 @@ export const TimelineImageInfo: React.FC<{
 			drawRepeatingImageThumbnail({
 				canvas,
 				image: img,
+				offsetInPixels: offsetInPixels * window.devicePixelRatio,
 			});
 		};
 
@@ -53,7 +55,7 @@ export const TimelineImageInfo: React.FC<{
 		return () => {
 			current.removeChild(canvas);
 		};
-	}, [src, visualizationWidth]);
+	}, [offsetInPixels, src, visualizationWidth]);
 
 	return <div ref={ref} style={containerStyle} />;
 };

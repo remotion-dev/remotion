@@ -2,6 +2,7 @@ import type {
 	GetDefaultEditorInfoRequest,
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
+import {resolveCustomEditorExecutable} from '../../helpers/custom-editor';
 import {getAvailableEditors} from '../../helpers/editor-registry';
 import type {ApiHandler} from '../api-types';
 
@@ -12,7 +13,9 @@ export const getDefaultEditorInfoHandler: ApiHandler<
 	const installedEditors = await getAvailableEditors();
 	const configuredEditor = getDefaultEditor();
 	const customEditor =
-		configuredEditor && typeof configuredEditor === 'object'
+		configuredEditor &&
+		typeof configuredEditor === 'object' &&
+		resolveCustomEditorExecutable(configuredEditor)
 			? configuredEditor
 			: null;
 	return {

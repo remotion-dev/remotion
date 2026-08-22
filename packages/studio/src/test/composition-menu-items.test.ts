@@ -54,6 +54,8 @@ const commonArgs = {
 	closeMenu: () => undefined,
 	composition,
 	connectionStatus: 'connected' as const,
+	editorId: 'vscode' as const,
+	editorName: 'Code',
 	readOnlyStudio: false,
 	resolvedLocation: null,
 	setSelectedModal: () => undefined,
@@ -85,6 +87,8 @@ test('connected composition context menus omit management actions', () => {
 
 	const items = getCompositionContextMenuItems({
 		...commonArgs,
+		editorId: null,
+		editorName: null,
 		includeCompositionManagementItems: false,
 	});
 

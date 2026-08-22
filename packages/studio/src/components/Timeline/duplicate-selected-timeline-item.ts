@@ -1,6 +1,8 @@
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {callApi} from '../call-api';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
+import {duplicateJsxNode} from '../duplicate-jsx-node-api';
+import {duplicateEffects} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -35,7 +37,7 @@ const confirmDuplicatingProgrammaticallyDuplicatedSequences = (
 
 const duplicateSequence = (nodePathInfo: SequenceNodePathInfo) => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
-	return callApi('/api/duplicate-jsx-node', {
+	return duplicateJsxNode({
 		fileName: nodePath.absolutePath,
 		nodePath: nodePath.nodePath,
 	});
@@ -101,8 +103,7 @@ export const isDuplicatableEffectSelection = (
 const duplicateEffectsFromSource = (
 	effects: readonly (TimelineSelection & {type: 'sequence-effect'})[],
 ): Promise<void> => {
-	return callApi(
-		'/api/duplicate-effect',
+	return duplicateEffects(
 		effects.map((effect) => {
 			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
 
@@ -148,7 +149,7 @@ export const duplicateSelectedTimelineItems = ({
 	}
 
 	const effectSelections = selections.filter(isDuplicatableEffectSelection);
-	if (effectSelections.length === 0) {
+	if (effectSelections.length === 0 || !canUseEffectOperations()) {
 		return null;
 	}
 

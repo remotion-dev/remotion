@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {beepOnFinishOption} from '../options/beep-on-finish';
 import {disableWebSecurityOption} from '../options/disable-web-security';
 import {disallowParallelEncodingOption} from '../options/disallow-parallel-encoding';
+import {enableCancellationOption} from '../options/enable-cancellation';
 import {forceNewStudioOption} from '../options/force-new-studio';
 import {headlessOption} from '../options/headless';
 import {ignoreCertificateErrorsOption} from '../options/ignore-certificate-errors';
@@ -108,6 +109,19 @@ test('boolean options respect config if CLI flag is absent', () => {
 		}).value,
 	).toEqual(false);
 	disallowParallelEncodingOption.setConfig(false);
+
+	enableCancellationOption.setConfig(true);
+	expect(
+		enableCancellationOption.getValue({
+			commandLine: {'enable-cancellation': null},
+		}).value,
+	).toEqual(true);
+	expect(
+		enableCancellationOption.getValue({
+			commandLine: {'enable-cancellation': false},
+		}).value,
+	).toEqual(false);
+	enableCancellationOption.setConfig(false);
 
 	reproOption.setConfig(true);
 	expect(reproOption.getValue({commandLine: {repro: null}}).value).toEqual(

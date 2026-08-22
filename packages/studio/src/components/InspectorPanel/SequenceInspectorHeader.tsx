@@ -6,12 +6,13 @@ import {ReactIcon} from '../../icons/react';
 import {InlineEditableTitle} from '../InlineEditableTitle';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {InspectorLocationCopy} from '../InspectorLocationCopy';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {useOpenSequenceInApps} from '../Timeline/use-open-sequence-in-apps';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
 import {
-	InspectorInlineAction,
+	InspectorQuickAction,
 	InspectorSection,
 	InspectorSectionDivider,
 } from './common';
@@ -39,7 +40,7 @@ const sequenceInspectorSubtitle: React.CSSProperties = {
 	height: COMPACT_INLINE_ROW_HEIGHT,
 	lineHeight: '18px',
 	margin: '0 4px',
-	padding: '0 8px',
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
 	width: 'calc(100% - 8px)',
 };
 
@@ -145,7 +146,7 @@ export const SequenceInspectorHeader: React.FC<{
 					size="inspector"
 				/>
 				{documentationLink ? (
-					<InspectorInlineAction
+					<InspectorQuickAction
 						disabled={false}
 						style={defaultCursor}
 						size="compact"
@@ -153,7 +154,7 @@ export const SequenceInspectorHeader: React.FC<{
 						onClick={openDocumentationLink}
 					>
 						{componentName}
-					</InspectorInlineAction>
+					</InspectorQuickAction>
 				) : (
 					<div style={subtitleStyle}>{componentName}</div>
 				)}
@@ -162,7 +163,7 @@ export const SequenceInspectorHeader: React.FC<{
 					canOpen={sourceLocation.canOpenInEditor}
 					onOpen={sourceLocation.openFileLocation}
 					renderIcon={renderReactIcon}
-					size="inline-action"
+					size="quick-action"
 				/>
 			</InspectorLocationCopy>
 		</InspectorInfoHeader>

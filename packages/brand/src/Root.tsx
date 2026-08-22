@@ -24,6 +24,7 @@ import {CloseUp4} from './CloseUp4';
 import {CloseUp5} from './CloseUp5';
 import {CloseUp6} from './CloseUp6';
 import {CloseUp7} from './CloseUp7';
+import {CloseUp8} from './CloseUp8';
 import {CloseUpsSeries} from './CloseUpsSeries';
 import {
 	WhatIsRemotion,
@@ -894,11 +895,12 @@ export const RemotionRoot: React.FC = () => {
 				<CloseUp5 />
 				<CloseUp6 />
 				<CloseUp7 />
+				<CloseUp8 />
 			</Folder>
 			<Composition
 				id="CloseUpsSeries"
 				component={CloseUpsSeries}
-				durationInFrames={537}
+				durationInFrames={637}
 				fps={60}
 				width={1920}
 				height={1080}

@@ -54,10 +54,20 @@ const getCaptionPatches = ({
 export const InlineCaptionInspector: React.FC<{
 	readonly captions: Caption[];
 	readonly controls: SequenceRegistrationControls;
+	readonly expanded: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly onToggle: () => void;
 	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;
-}> = ({captions, controls, nodePath, readOnlyStudio, validatedLocation}) => {
+}> = ({
+	captions,
+	controls,
+	expanded,
+	nodePath,
+	onToggle,
+	readOnlyStudio,
+	validatedLocation,
+}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
@@ -160,9 +170,11 @@ export const InlineCaptionInspector: React.FC<{
 	return (
 		<CaptionInspector
 			captions={draftCaptions}
+			expanded={expanded}
 			onTextChange={updateCaptions}
 			onTextSave={saveCaptions}
 			onTextCancel={cancelCaptions}
+			onToggle={onToggle}
 			readOnly={!canSave}
 			readOnlyTitle={canSave ? null : readOnlyTitle}
 		/>

@@ -217,6 +217,7 @@ const makeMediaInTimelineData = ({
 		volumes: 1,
 		duration: 100,
 		doesVolumeChange: false,
+		muted: false,
 		nonce: {get: () => [[0, 0]]},
 		finalDisplayName: 'video.mp4',
 		startMediaFrom,
@@ -436,6 +437,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 	const registeredSequences: TSequence[] = [];
 	const firstStack = 'Error\n    at FirstSeriesSequence';
 	const secondStack = 'Error\n    at SecondSeriesSequence';
+	const ConnectedComposition: React.FC = () => null;
 
 	render(
 		<SequenceTestWrapper
@@ -451,7 +453,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 						_remotionInternalStack: firstStack,
 					} as {readonly _remotionInternalStack: string})}
 				>
-					First
+					<ConnectedComposition />
 				</Series.Sequence>
 				<Series.Sequence
 					durationInFrames={20}
@@ -487,6 +489,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 		firstStack,
 		secondStack,
 	]);
+	expect(seriesSequences[0]?.singleChildComponent).toBe(ConnectedComposition);
 });
 
 test('Interactive.withSchema preserves source stacks through controls without consuming a public stack prop', () => {
@@ -654,8 +657,16 @@ test('Series.Sequence timing overrides cascade to later sequences', async () => 
 			[subscriptionKey]: {
 				canUpdate: true as const,
 				props: {
-					durationInFrames: {status: 'static' as const, codeValue: 10},
-					trimBefore: {status: 'static' as const, codeValue: 2},
+					durationInFrames: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 10,
+					},
+					trimBefore: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 2,
+					},
 				},
 				effects: [],
 			},
@@ -1475,7 +1486,16 @@ test('Loading indicator does not register an interactive sequence', () => {
 	);
 
 	expect(getByText('Resolving <Suspense>...')).toBeTruthy();
-	expect(container.querySelector('#remotion-comp-loading')).toBeTruthy();
+	const loadingIndicator = container.querySelector<HTMLDivElement>(
+		'#remotion-comp-loading',
+	);
+	expect(loadingIndicator).toBeTruthy();
+	expect(loadingIndicator?.style.backgroundColor).toBe('#1f2428');
+	expect(loadingIndicator?.style.animation).toBe('');
+	const loadingContent = container.querySelector<HTMLDivElement>(
+		'#remotion-comp-loading-content',
+	);
+	expect(loadingContent?.style.animation).toBe('anim 2s');
 	expect(registeredSequences).toHaveLength(0);
 });
 

@@ -1,17 +1,64 @@
+import type {ElementDragData} from '@remotion/studio-protocol';
 import type {
+	AddEffectKeyframeRequest,
+	AddEffectKeyframeResponse,
+	AddEffectRequest,
+	AddEffectResponse,
+	AddKeyframesRequest,
+	AddKeyframesResponse,
+	AddSequenceKeyframeRequest,
+	AddSequenceKeyframeResponse,
+	ApplyCodemodRequest,
+	ApplyCodemodResponse,
+	BatchUpdateKeyframeSettingsRequest,
+	BatchUpdateKeyframeSettingsResponse,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
+	DeleteJsxNodeRequest,
+	DeleteJsxNodeResponse,
+	DeleteKeyframesRequest,
+	DeleteKeyframesResponse,
+	DeleteEffectRequest,
+	DeleteEffectResponse,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
+	DownloadRemoteAssetRequest,
+	DownloadRemoteAssetResponse,
 	FindInFileRequest,
 	FindInFileResponse,
+	DuplicateEffectRequest,
+	DuplicateEffectResponse,
+	DuplicateJsxNodeRequest,
+	DuplicateJsxNodeResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
+	InsertElementRequest,
+	InsertElementResponse,
+	InstallPackageRequest,
+	MoveKeyframesRequest,
+	MoveKeyframesResponse,
+	PasteEffectsRequest,
+	PasteEffectsResponse,
+	PrepareElementInstallRequest,
+	PrepareElementInstallResponse,
 	RedoResponse,
 	RenameStaticFileRequest,
 	RenameStaticFileResponse,
+	ReorderEffectRequest,
+	ReorderEffectResponse,
+	ReorderSequenceRequest,
+	ReorderSequenceResponse,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
+	SaveEffectPropsRequest,
+	SaveEffectPropsResponse,
+	SaveMultipleEffectPropsRequest,
+	SaveMultipleEffectPropsResponse,
+	SimpleDiff,
+	SplitJsxSequenceRequest,
+	SplitJsxSequenceResponse,
+	SplitVideoFromAudioRequest,
+	SplitVideoFromAudioResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToSequencePropsRequest,
@@ -19,7 +66,14 @@ import type {
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromSequencePropsRequest,
+	UpdateDefaultPropsRequest,
+	UpdateDefaultPropsResponse,
+	UpdateEffectKeyframeSettingsRequest,
+	UpdateEffectKeyframeSettingsResponse,
+	UpdateSequenceKeyframeSettingsRequest,
+	UpdateSequenceKeyframeSettingsResponse,
 } from './api-requests';
+import type {RecastCodemod} from './codemods';
 import type {EventSourceEvent} from './event-source-event';
 
 export type WriteStaticFileRequest = {
@@ -27,7 +81,92 @@ export type WriteStaticFileRequest = {
 	filePath: string;
 };
 
+export type DuplicateCompositionRequest = {
+	codemod: Extract<RecastCodemod, {type: 'duplicate-composition'}>;
+	dryRun: boolean;
+};
+
+export type DuplicateCompositionResponse =
+	| {
+			success: true;
+			diff: SimpleDiff;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type BrowserStudioKeyframeOperations = {
+	addEffectKeyframe: (
+		request: AddEffectKeyframeRequest,
+	) => Promise<AddEffectKeyframeResponse>;
+	addKeyframes: (request: AddKeyframesRequest) => Promise<AddKeyframesResponse>;
+	addSequenceKeyframe: (
+		request: AddSequenceKeyframeRequest,
+	) => Promise<AddSequenceKeyframeResponse>;
+	batchUpdateKeyframeSettings: (
+		request: BatchUpdateKeyframeSettingsRequest,
+	) => Promise<BatchUpdateKeyframeSettingsResponse>;
+	deleteKeyframes: (
+		request: DeleteKeyframesRequest,
+	) => Promise<DeleteKeyframesResponse>;
+	moveKeyframes: (
+		request: MoveKeyframesRequest,
+	) => Promise<MoveKeyframesResponse>;
+	updateEffectKeyframeSettings: (
+		request: UpdateEffectKeyframeSettingsRequest,
+	) => Promise<UpdateEffectKeyframeSettingsResponse>;
+	updateSequenceKeyframeSettings: (
+		request: UpdateSequenceKeyframeSettingsRequest,
+	) => Promise<UpdateSequenceKeyframeSettingsResponse>;
+};
+
+export type BrowserStudioEffectOperations = {
+	addEffect: (request: AddEffectRequest) => Promise<AddEffectResponse>;
+	deleteEffects: (
+		request: DeleteEffectRequest,
+	) => Promise<DeleteEffectResponse>;
+	duplicateEffects: (
+		request: DuplicateEffectRequest,
+	) => Promise<DuplicateEffectResponse>;
+	pasteEffects: (request: PasteEffectsRequest) => Promise<PasteEffectsResponse>;
+	reorderEffect: (
+		request: ReorderEffectRequest,
+	) => Promise<ReorderEffectResponse>;
+	saveEffectProps: (
+		request: SaveEffectPropsRequest,
+	) => Promise<SaveEffectPropsResponse>;
+	saveMultipleEffectProps: (
+		request: SaveMultipleEffectPropsRequest,
+	) => Promise<SaveMultipleEffectPropsResponse>;
+};
+
+export type BrowserStudioInstallPackagesResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type BrowserStudioPackageInstallationOperations = {
+	installPackages: (
+		request: InstallPackageRequest,
+	) => Promise<BrowserStudioInstallPackagesResponse>;
+};
+
 export type BrowserStudioOperations = {
+	consumeInitialElement: () => {
+		element: ElementDragData['element'];
+		sourceOrigin: string | null;
+	} | null;
+	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
+	deleteJsxNode: (
+		request: DeleteJsxNodeRequest,
+	) => Promise<DeleteJsxNodeResponse>;
 	deleteStaticFile: (
 		request: DeleteStaticFileRequest,
 	) => Promise<DeleteStaticFileResponse>;
@@ -35,6 +174,16 @@ export type BrowserStudioOperations = {
 		data: Uint8Array;
 		fileName: string;
 	}>;
+	downloadRemoteAsset: (
+		request: DownloadRemoteAssetRequest,
+	) => Promise<DownloadRemoteAssetResponse>;
+	duplicateComposition: (
+		request: DuplicateCompositionRequest,
+	) => Promise<DuplicateCompositionResponse>;
+	duplicateJsxNode: (
+		request: DuplicateJsxNodeRequest,
+	) => Promise<DuplicateJsxNodeResponse>;
+	effects: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;
 	getCompositionFile: (compositionId: string) => string | null;
@@ -44,13 +193,33 @@ export type BrowserStudioOperations = {
 	insertSolid: (
 		request: InsertJsxElementRequest,
 	) => Promise<InsertJsxElementResponse>;
+	insertElement: (
+		request: InsertElementRequest,
+	) => Promise<InsertElementResponse>;
+	insertJsxElement: (
+		request: InsertJsxElementRequest,
+	) => Promise<InsertJsxElementResponse>;
+	keyframes: BrowserStudioKeyframeOperations;
+	packageInstallation: BrowserStudioPackageInstallationOperations;
+	prepareElementInstall: (
+		request: PrepareElementInstallRequest,
+	) => Promise<PrepareElementInstallResponse>;
 	redo: () => Promise<RedoResponse>;
 	renameStaticFile: (
 		request: RenameStaticFileRequest,
 	) => Promise<RenameStaticFileResponse>;
+	reorderSequence: (
+		request: ReorderSequenceRequest,
+	) => Promise<ReorderSequenceResponse>;
 	saveSequenceProps: (
 		request: SaveSequencePropsRequest,
 	) => Promise<SaveSequencePropsResponse>;
+	splitJsxSequence: (
+		request: SplitJsxSequenceRequest,
+	) => Promise<SplitJsxSequenceResponse>;
+	splitVideoFromAudio: (
+		request: SplitVideoFromAudioRequest,
+	) => Promise<SplitVideoFromAudioResponse>;
 	subscribeToDefaultProps: (
 		request: SubscribeToDefaultPropsRequest,
 	) => Promise<SubscribeToDefaultPropsResponse>;
@@ -65,6 +234,9 @@ export type BrowserStudioOperations = {
 	unsubscribeFromSequenceProps: (
 		request: UnsubscribeFromSequencePropsRequest,
 	) => Promise<undefined>;
+	updateDefaultProps: (
+		request: UpdateDefaultPropsRequest,
+	) => Promise<UpdateDefaultPropsResponse>;
 	writeStaticFile: (request: WriteStaticFileRequest) => Promise<void>;
 };
 

@@ -56,6 +56,7 @@ export type WebRenderModalState = {
 	initialTransparent: boolean | null;
 	initialMuted: boolean | null;
 	initialMediaCacheSizeInBytes: number | null;
+	initialAllowHtmlInCanvas: boolean;
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
@@ -194,7 +195,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialTab: 'apps' | 'license';
+			initialTab: 'apps' | 'rendering' | 'studio' | 'shortcuts' | 'license';
 			initialPublicLicenseKey: string | null;
 	  }
 	| RenderModalState
@@ -209,8 +210,14 @@ export type ModalState =
 			knownBugs: Bug[];
 	  }
 	| {
+			type: 'fix-computed-value';
+			prop: string;
+			context: string;
+			remotionInteractivitySkillAvailable: boolean;
+	  }
+	| {
 			type: 'install-packages';
-			packageManager: PackageManager;
+			packageManager: PackageManager | null;
 	  }
 	| {
 			type: 'quick-switcher';

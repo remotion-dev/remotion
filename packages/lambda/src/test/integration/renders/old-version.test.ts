@@ -10,6 +10,7 @@ test(
 			const aha = await mockImplementation.callFunctionSync({
 				type: ServerlessRoutines.launch,
 				payload: {
+					enableCancellation: false,
 					type: ServerlessRoutines.launch,
 					serveUrl: path.join(__dirname, 'old-version-bundle'),
 					chromiumOptions: {},

@@ -73,9 +73,10 @@ test.describe('inspector section collapse', () => {
 		fs.writeFileSync(visualMode3DFile, visualMode3DSourceBefore);
 	});
 
-	test('Escape moves crop and rotation selections to the sequence', async ({
+	test('edits visual-mode-3d transforms and collapses inactive inspector sections', async ({
 		page,
 	}) => {
+		test.setTimeout(180_000);
 		await page.goto(`${STUDIO_URL}/visual-mode-3d`);
 		await expect(page).toHaveURL(/visual-mode-3d/, {timeout: 15_000});
 		await page.waitForFunction(
@@ -129,15 +130,7 @@ test.describe('inspector section collapse', () => {
 			page.locator('[data-remotion-studio-crop-preview]'),
 		).not.toBeVisible();
 		await expect(selectedOutline).toBeVisible();
-	});
 
-	test('selects 3D rotation from the sequence context menu', async ({page}) => {
-		await page.goto(`${STUDIO_URL}/visual-mode-3d`);
-		await expect(page).toHaveURL(/visual-mode-3d/, {timeout: 15_000});
-		await page.waitForFunction(
-			() => !document.body.innerText.includes('Loading...'),
-			{timeout: 30_000},
-		);
 		const tinyScaleEdges = page.locator(
 			'[data-remotion-studio-scale-edge-contains-selection="true"]',
 		);
@@ -165,14 +158,18 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Show 3D transform controls'}),
 		).toBeVisible();
+		await page
+			.locator('polygon[pointer-events="all"]')
+			.nth(1)
+			.dispatchEvent('pointerover');
 		const outline = page
 			.locator('polygon[stroke-opacity="1"][pointer-events="all"]')
-			.first();
+			.nth(1);
 		await expect(outline).toBeVisible();
-		await outline.click({button: 'right'});
-		await page.getByRole('button', {name: /^Rotate(?: all)?$/}).click();
+		await outline.dispatchEvent('contextmenu');
+		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
 		await expect(
-			page.getByRole('button', {name: 'Rotation X', exact: true}),
+			page.getByRole('button', {name: 'Rotation X', exact: true}).first(),
 		).toBeVisible();
 		await expect(
 			page.getByRole('button', {
@@ -243,9 +240,6 @@ test.describe('inspector section collapse', () => {
 			{x: edgeCenter.x, y: edgeCenter.y},
 		);
 		await expect.poll(read2DTransformScale).not.toBe(scaleBefore);
-		const canvasRotationSurface = page.locator(
-			'[data-remotion-studio-canvas-rotation]',
-		);
 		await expect(canvasRotationSurface).toBeVisible();
 
 		const transformOriginHandle = page
@@ -414,11 +408,8 @@ test.describe('inspector section collapse', () => {
 		await page.mouse.up();
 		await page.waitForTimeout(200);
 		expect(read2DTransformRotation()).toBe(rotationAfterInsideDrag);
-	});
 
-	test('collapses inactive static sections and lets the user expand them', async ({
-		page,
-	}) => {
+		fs.writeFileSync(visualMode3DFile, visualMode3DSourceBefore);
 		await page.goto(`${STUDIO_URL}/issue-8216`);
 		await expect(page).toHaveURL(/issue-8216/, {timeout: 15_000});
 		await page.waitForFunction(
@@ -446,6 +437,33 @@ test.describe('inspector section collapse', () => {
 		).toHaveCount(0);
 		await expect(
 			page.getByRole('button', {name: 'Expand Crop', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Transform', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Transform', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Transform', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).toHaveCount(0);
+		await page
+			.getByRole('button', {name: 'Expand Transform', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Effects', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Effects', exact: true}),
 		).toBeVisible();
 
 		await page
@@ -502,6 +520,15 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Expand Layout', exact: true}),
 		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Source', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Source', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Source', exact: true}),
+		).toBeVisible();
 
 		await page.goto(`${STUDIO_URL}/visual-mode-3d`);
 		await expect(page).toHaveURL(/visual-mode-3d/, {timeout: 15_000});
@@ -529,32 +556,36 @@ test.describe('inspector section collapse', () => {
 			page.getByRole('button', {name: 'Rotation X', exact: true}),
 		).toHaveCount(0);
 		await page.getByTitle('Rotation', {exact: true}).click();
-		const compositionContainer = page.locator(
+		const laterCompositionContainer = page.locator(
 			'.remotion-studio-composition-container',
 		);
-		const compositionBox = await compositionContainer.boundingBox();
-		if (compositionBox === null) {
+		const laterCompositionBox = await laterCompositionContainer.boundingBox();
+		if (laterCompositionBox === null) {
 			throw new Error('Composition should have a visible layout');
 		}
 
 		await page.mouse.move(
-			compositionBox.x + compositionBox.width / 2,
-			compositionBox.y + compositionBox.height / 2,
-		);
-		const canvasRotationSurface = page.locator(
-			'[data-remotion-studio-canvas-rotation]',
+			laterCompositionBox.x + laterCompositionBox.width / 2,
+			laterCompositionBox.y + laterCompositionBox.height / 2,
 		);
 		await expect(canvasRotationSurface).toBeVisible();
+		expect(
+			await canvasRotationSurface.evaluate((surface) =>
+				decodeURIComponent(surface.getAttribute('cursor') ?? ''),
+			),
+		).toContain('<svg width="24" height="24"');
 		await expect(
 			page.locator('[data-remotion-studio-transform-origin-handle]').first(),
 		).toBeVisible();
-		const rotationSurfaceBox = await canvasRotationSurface.boundingBox();
-		if (rotationSurfaceBox === null) {
+		const laterRotationSurfaceBox = await canvasRotationSurface.boundingBox();
+		if (laterRotationSurfaceBox === null) {
 			throw new Error('Canvas rotation surface should have a visible layout');
 		}
 
-		const startX = rotationSurfaceBox.x + rotationSurfaceBox.width * 0.25;
-		const startY = rotationSurfaceBox.y + rotationSurfaceBox.height * 0.25;
+		const startX =
+			laterRotationSurfaceBox.x + laterRotationSurfaceBox.width * 0.25;
+		const startY =
+			laterRotationSurfaceBox.y + laterRotationSurfaceBox.height * 0.25;
 		await page.mouse.move(startX, startY);
 		await page.mouse.down();
 		await page.mouse.move(startX + 60, startY + 80, {steps: 5});
@@ -570,10 +601,15 @@ test.describe('inspector section collapse', () => {
 		).toBeVisible();
 		await page.getByTitle('Rotation', {exact: true}).click();
 		await page.mouse.move(
-			compositionBox.x + compositionBox.width / 2,
-			compositionBox.y + compositionBox.height / 2,
+			laterCompositionBox.x + laterCompositionBox.width / 2,
+			laterCompositionBox.y + laterCompositionBox.height / 2,
 		);
 		await expect(canvasRotationSurface).toBeVisible();
+		expect(
+			await canvasRotationSurface.evaluate((surface) =>
+				decodeURIComponent(surface.getAttribute('cursor') ?? ''),
+			),
+		).toContain('<svg width="29" height="30"');
 		const threeDRotationSurfaceBox = await canvasRotationSurface.boundingBox();
 		if (threeDRotationSurfaceBox === null) {
 			throw new Error(

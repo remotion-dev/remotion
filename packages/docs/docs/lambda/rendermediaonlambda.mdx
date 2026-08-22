@@ -69,6 +69,14 @@ The `framesPerLambda` parameter cannot result in more than 200 functions being s
 When rendering transparent WebM videos, chunk boundaries can be visible in the alpha channel. See [Known problem: Rendering transparent WebM on Lambda](/docs/transparent-videos#known-problem-rendering-transparent-webm-on-lambda). Increase `framesPerLambda` to reduce boundaries, or render WebM in one pass if the artifact appears.
 :::
 
+### `enableCancellation?`<AvailableFrom v="4.0.515" />
+
+Enable the render to be cancelled using [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda). Default: `false`.
+
+When enabled, every renderer checks S3 once per second for a cancellation signal. This incurs additional S3 `HEAD` request charges for the duration of the render.
+
+See [Cancelling Lambda renders](/docs/lambda/cancellation) for the full workflow.
+
 ### `concurrency?`<AvailableFrom v="4.0.322" />
 
 Specify the number of Lambda functions to use for rendering. This is an alternative to `framesPerLambda` that allows you to set the concurrency directly without needing to know the video duration.
@@ -182,6 +190,8 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 ### `x264Preset?`
 
 <Options id="x264-preset" />
+
+Starting in Remotion 5.0, the default for H.264 Lambda renders is `veryfast`. In Remotion 4.0, the default is `medium`.
 
 ### `gopSize?`<AvailableFrom v="4.0.466" />
 

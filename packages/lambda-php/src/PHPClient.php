@@ -294,6 +294,59 @@ class PHPClient
         return $this->handleLambdaResponseProgress($result);
     }
 
+    public function cancelRenderOnLambda(string $renderId, string $bucketName): void
+    {
+        try {
+            $progress = json_decode(
+                $this->readProgressFromS3($bucketName, "renders/{$renderId}/progress.json"),
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+        } catch (\Throwable $exception) {
+            throw new Exception("Could not read progress for render {$renderId}: {$exception->getMessage()}", 0, $exception);
+        }
+
+        if (($progress['cancellationEnabled'] ?? false) !== true) {
+            throw new InvalidArgumentException(
+                "Cannot cancel render {$renderId}: The render was not started with enableCancellation: true."
+            );
+        }
+
+        try {
+            $this->writeCancellationToS3(
+                $bucketName,
+                "renders/{$renderId}/cancel.json",
+                json_encode(
+                    ['cancelledAt' => (int) floor(microtime(true) * 1000)],
+                    JSON_THROW_ON_ERROR
+                )
+            );
+        } catch (\Throwable $exception) {
+            throw new Exception("Could not cancel render {$renderId}: {$exception->getMessage()}", 0, $exception);
+        }
+    }
+
+    protected function readProgressFromS3(string $bucketName, string $key): string
+    {
+        $result = $this->createS3Client()->getObject([
+            'Bucket' => $bucketName,
+            'Key' => $key,
+        ]);
+
+        return (string) $result['Body'];
+    }
+
+    protected function writeCancellationToS3(string $bucketName, string $key, string $body): void
+    {
+        $this->createS3Client()->putObject([
+            'Bucket' => $bucketName,
+            'Key' => $key,
+            'Body' => $body,
+            'ContentType' => 'application/json',
+        ]);
+    }
+
     private function invokeLambdaFunction(string $payload)
     {
         $result = $this->client->invoke([

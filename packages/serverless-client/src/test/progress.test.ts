@@ -66,6 +66,7 @@ const renderMetadata: RenderMetadata<MockProvider> = {
 };
 
 const progress: OverallRenderProgress<MockProvider> = {
+	cancellationEnabled: false,
 	chunks: [0, 1],
 	combinedFrames: 20,
 	compositionValidated: startedDate + 2,

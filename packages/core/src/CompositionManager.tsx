@@ -78,6 +78,7 @@ type EnhancedTSequenceData =
 			// If not a function was passed, a number is being used
 			volume: string | number;
 			doesVolumeChange: boolean;
+			muted: boolean;
 			startMediaFrom: number;
 			mediaFrameAtSequenceZero: number | null;
 			playbackRate: number;
@@ -88,6 +89,7 @@ type EnhancedTSequenceData =
 			src: string;
 			volume: string | number;
 			doesVolumeChange: boolean;
+			muted: boolean;
 			startMediaFrom: number;
 			mediaFrameAtSequenceZero: number | null;
 			playbackRate: number;
@@ -136,6 +138,7 @@ export type TSequence = {
 	controls: SequenceRegistrationControls | null;
 	refForOutline: React.RefObject<Element | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
+	effectRuntimeValues: readonly RuntimeValueStore[] | null;
 	isInsideSeries: boolean;
 	frozenFrame: number | null;
 	singleChildComponent?: unknown;

@@ -8,13 +8,21 @@ crumb: '@remotion/studio-protocol'
 
 Creates a validated, versioned Element payload for [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) and [`installInStudio()`](/docs/studio-protocol/install-in-studio).
 
+## Example
+
 ```ts twoslash title="element-payload.ts"
 import {createElementPayload} from '@remotion/studio-protocol';
 
+const elementSourceCode = `
+export const MyElement = () => {
+  return <div>Hello world</div>;
+};
+`;
+
 const payload = createElementPayload({
-  displayName: 'Lower Third',
-  slug: 'lower-third',
-  sourceCode: 'export const LowerThird = () => null;',
+  displayName: 'My Element',
+  slug: 'my-element',
+  sourceCode: elementSourceCode,
   dependencies: [
     {name: '@remotion/google-fonts', version: null},
     {name: 'color-namer', version: '1.4.0'},
@@ -38,7 +46,7 @@ A lowercase Element identifier. Its final path segment is used to create the `.e
 
 ### sourceCode
 
-The complete Element source code. It must contain exactly one exported named component.
+A string containing the complete Element source code. It must contain exactly one exported named component.
 
 ### dependencies
 

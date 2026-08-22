@@ -37,6 +37,7 @@ test(
 		const res = await mockImplementation.callFunctionSync({
 			type: ServerlessRoutines.start,
 			payload: {
+				enableCancellation: false,
 				type: ServerlessRoutines.start,
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
@@ -165,6 +166,7 @@ test(
 			region: 'us-east-1',
 			type: ServerlessRoutines.launch,
 			payload: {
+				enableCancellation: false,
 				type: ServerlessRoutines.launch,
 				mediaCacheSizeInBytes: null,
 				offthreadVideoCacheSizeInBytes: null,

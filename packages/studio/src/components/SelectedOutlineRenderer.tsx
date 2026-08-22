@@ -17,9 +17,11 @@ import {
 } from './selected-outline-measurement';
 import {orderOutlinesForRendering} from './selected-outline-order';
 import type {
+	SelectedOutlineContextMenuOpenHandler,
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
+import {SelectedOutlineEditingHandles} from './SelectedOutlineEditingHandles';
 import {SelectedOutlineElement} from './SelectedOutlineElement';
 import {
 	SelectedOutlineSnapIndicators,
@@ -110,6 +112,23 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const resizeObserverRef = useRef<ResizeObserver | null>(null);
 	const resizeObserverAnimationFrameRef = useRef<number | null>(null);
 	const observedOutlineElementsRef = useRef<ReadonlySet<Element>>(new Set());
+	const contextMenuOpenHandlersRef = useRef(
+		new Map<string, SelectedOutlineContextMenuOpenHandler>(),
+	);
+	const registerContextMenuOpen = useCallback(
+		(key: string, handler: SelectedOutlineContextMenuOpenHandler | null) => {
+			if (handler === null) {
+				contextMenuOpenHandlersRef.current.delete(key);
+			} else {
+				contextMenuOpenHandlersRef.current.set(key, handler);
+			}
+		},
+		[],
+	);
+	const getContextMenuOpenByKey = useCallback(
+		(key: string) => contextMenuOpenHandlersRef.current.get(key),
+		[],
+	);
 
 	const updateOutlines = useCallback(() => {
 		const targets = getOutlineTargets();
@@ -327,14 +346,13 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					dragging={dragging}
 					getAllDragOutlines={getAllDragOutlines}
 					getAllDragTargets={getAllDragTargets}
-					getAllRotationDragTargets={getAllRotationDragTargets}
-					getAllScaleDragTargets={getAllScaleDragTargets}
 					getLatestTargetByKey={getLatestOutlineTargetByKey}
 					outline={outline}
 					onDraggingChange={onDraggingChange}
 					onContextMenuOpenChange={onContextMenuOpenChange}
 					onSnapPointsChange={onSnapPointsChange}
 					onSelect={onSelect}
+					registerContextMenuOpen={registerContextMenuOpen}
 					scale={scale}
 					layoutTarget={targetsByKey.get(outline.key)}
 					renderControls={false}
@@ -360,6 +378,22 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					scale={scale}
 					layoutTarget={targetsByKey.get(outline.key)}
 					renderPolygon={false}
+				/>
+			))}
+			{/* Render editing handles after all outline polygons so selected controls stay visible and hit-testable over unrelated sequences. */}
+			{outlinesForRendering.map((outline) => (
+				<SelectedOutlineEditingHandles
+					key={`${outline.key}-editing-handles`}
+					dragging={dragging}
+					getAllRotationDragTargets={getAllRotationDragTargets}
+					getAllScaleDragTargets={getAllScaleDragTargets}
+					getContextMenuOpenByKey={getContextMenuOpenByKey}
+					getLatestTargetByKey={getLatestOutlineTargetByKey}
+					layoutTarget={targetsByKey.get(outline.key)}
+					onContextMenuOpenChange={onContextMenuOpenChange}
+					onDraggingChange={onDraggingChange}
+					onSelect={onSelect}
+					outline={outline}
 				/>
 			))}
 			{/* Keep UV controls above every transparent outline polygon so SVG hit-testing reaches the handles first. */}

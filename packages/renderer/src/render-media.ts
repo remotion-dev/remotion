@@ -80,6 +80,7 @@ import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
+import {writeWithBackpressure} from './write-with-backpressure';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -718,7 +719,14 @@ const internalRenderMediaRaw = ({
 									);
 								}
 
-								stitcherFfmpeg?.stdin?.write(buffer);
+								const stdin = stitcherFfmpeg?.stdin;
+								if (!stdin) {
+									throw new Error(
+										`FFmpeg stdin is not available while trying to pipe frame ${frame} to it.`,
+									);
+								}
+
+								await writeWithBackpressure({data: buffer, writable: stdin});
 								stopPerfMeasure(id);
 
 								const frameIndex = framesToRender.indexOf(frame);

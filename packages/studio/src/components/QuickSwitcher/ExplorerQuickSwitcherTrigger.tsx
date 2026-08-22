@@ -6,14 +6,15 @@ import {SetSelectedModalContext} from '../../state/modals';
 import type {QuickSwitcherMode} from './NoResults';
 
 const quickSwitcherArea: React.CSSProperties = {
-	padding: '4px 12px',
+	padding: '4px 4px 4px 8px',
 	borderBottom: `1px solid ${BLACK_HEX}`,
+	overflowY: 'auto',
 };
 
 const quickSwitcherTrigger: React.CSSProperties = {
 	backgroundColor: WHITE_ALPHA_06,
-	borderRadius: 5,
-	padding: '4px 10px',
+	borderRadius: 4,
+	padding: '4px 10px 4px 12px',
 	color: LIGHT_TEXT,
 	fontSize: 12,
 	cursor: 'pointer',
@@ -48,7 +49,7 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 	}, [mode, setSelectedModal]);
 
 	return (
-		<div style={quickSwitcherArea}>
+		<div style={quickSwitcherArea} className="__remotion-vertical-scrollbar">
 			<button
 				type="button"
 				style={quickSwitcherTrigger}

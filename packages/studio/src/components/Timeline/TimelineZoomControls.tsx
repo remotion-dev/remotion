@@ -1,16 +1,21 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {BLACK} from '../../helpers/colors';
+import {
+	getTimelineMaxZoom,
+	sliderValueToTimelineZoom,
+	TIMELINE_MIN_ZOOM,
+	TIMELINE_ZOOM_SLIDER_PROPS,
+	timelineZoomToSliderValue,
+} from '../../helpers/get-timeline-max-zoom';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {CanvasZoomIcon, CanvasZoomOutIcon} from '../../icons/canvas-zoom';
-import {
-	TIMELINE_MAX_ZOOM,
-	TIMELINE_MIN_ZOOM,
-	TimelineZoomCtx,
-} from '../../state/timeline-zoom';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ControlButton} from '../ControlButton';
 import {Spacing} from '../layout';
+
+const TIMELINE_ZOOM_BUTTON_FACTOR = 1.2;
 
 const container: React.CSSProperties = {
 	color: BLACK,
@@ -25,7 +30,8 @@ const buttonStyle: React.CSSProperties = {
 
 const TimelineZoomSlider: React.FC<{
 	readonly maxWidth?: number;
-}> = ({maxWidth}) => {
+	readonly maxZoom: number;
+}> = ({maxWidth, maxZoom}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();
@@ -37,12 +43,20 @@ const TimelineZoomSlider: React.FC<{
 				return;
 			}
 
-			setZoom(canvasContent.compositionId, () => Number(e.target.value), {
-				anchorFrame: null,
-				anchorContentX: null,
-			});
+			setZoom(
+				canvasContent.compositionId,
+				() =>
+					sliderValueToTimelineZoom({
+						sliderValue: Number(e.target.value),
+						maxZoom,
+					}),
+				{
+					anchorFrame: null,
+					anchorContentX: null,
+				},
+			);
 		},
-		[canvasContent, setZoom],
+		[canvasContent, maxZoom, setZoom],
 	);
 
 	if (
@@ -61,10 +75,10 @@ const TimelineZoomSlider: React.FC<{
 			title={`Timeline zoom (${zoom}x)`}
 			alt={`Timeline zoom (${zoom}x)`}
 			type="range"
-			min={TIMELINE_MIN_ZOOM}
-			step={0.1}
-			value={zoom}
-			max={TIMELINE_MAX_ZOOM}
+			min={TIMELINE_ZOOM_SLIDER_PROPS.min}
+			max={TIMELINE_ZOOM_SLIDER_PROPS.max}
+			step={TIMELINE_ZOOM_SLIDER_PROPS.step}
+			value={timelineZoomToSliderValue({zoom, maxZoom})}
 			onChange={onChange}
 			className="__remotion-timeline-slider"
 			tabIndex={tabIndex}
@@ -77,6 +91,8 @@ const TimelineZoomControlsInner: React.FC<{
 }> = ({sliderMaxWidth}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom} = useContext(TimelineZoomCtx);
+	const videoConfig = Internals.useUnsafeVideoConfig();
+	const maxZoom = getTimelineMaxZoom(videoConfig?.durationInFrames ?? 1);
 
 	const onMinusClicked = useCallback(() => {
 		if (canvasContent === null || canvasContent.type !== 'composition') {
@@ -85,7 +101,7 @@ const TimelineZoomControlsInner: React.FC<{
 
 		setZoom(
 			canvasContent.compositionId,
-			(z) => Math.max(TIMELINE_MIN_ZOOM, z - 0.2),
+			(z) => z / TIMELINE_ZOOM_BUTTON_FACTOR,
 			{anchorFrame: null, anchorContentX: null},
 		);
 	}, [canvasContent, setZoom]);
@@ -97,7 +113,7 @@ const TimelineZoomControlsInner: React.FC<{
 
 		setZoom(
 			canvasContent.compositionId,
-			(z) => Math.min(TIMELINE_MAX_ZOOM, z + 0.2),
+			(z) => z * TIMELINE_ZOOM_BUTTON_FACTOR,
 			{anchorFrame: null, anchorContentX: null},
 		);
 	}, [canvasContent, setZoom]);
@@ -124,7 +140,7 @@ const TimelineZoomControlsInner: React.FC<{
 				{(color) => <CanvasZoomOutIcon color={color} />}
 			</ControlButton>
 			<Spacing x={0.5} />
-			<TimelineZoomSlider maxWidth={sliderMaxWidth} />
+			<TimelineZoomSlider maxWidth={sliderMaxWidth} maxZoom={maxZoom} />
 			<Spacing x={0.5} />
 			<ControlButton
 				onClick={onPlusClicked}

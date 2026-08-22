@@ -5,6 +5,7 @@ import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	CloudProvider,
+	GetBinaryPayloadSink,
 	OnMessage,
 	ProviderSpecifics,
 	ServerlessPayload,
@@ -59,6 +60,35 @@ const streamRenderer = <Provider extends CloudProvider>({
 	}
 
 	return new Promise<StreamRendererResponse>((resolve) => {
+		const chunkFilename = (type: 'video' | 'audio') =>
+			join(outdir, `chunk:${String(payload.chunk).padStart(8, '0')}:${type}`);
+
+		// Stream the chunks to disk as they arrive instead of buffering them
+		// in memory. With many chunks arriving concurrently, buffering can
+		// exhaust the memory of the main function.
+		const getBinaryPayloadSink: GetBinaryPayloadSink = ({messageType}) => {
+			const filename = chunkFilename(
+				messageType === 'video-chunk-rendered' ? 'video' : 'audio',
+			);
+			const writeStream = createWriteStream(filename);
+			return {
+				write: (data) =>
+					new Promise<void>((resolve_, reject) => {
+						writeStream.write(data, (err) => {
+							if (err) {
+								reject(err);
+							} else {
+								resolve_();
+							}
+						});
+					}),
+				end: () =>
+					new Promise<void>((resolve_) => {
+						writeStream.end(resolve_);
+					}),
+			};
+		};
+
 		const receivedStreamingPayload: OnMessage<Provider> = ({message}) => {
 			if (message.type === 'lambda-invoked') {
 				overallProgress.setLambdaInvoked(payload.chunk);
@@ -75,11 +105,12 @@ const streamRenderer = <Provider extends CloudProvider>({
 			}
 
 			if (message.type === 'video-chunk-rendered') {
-				const filename = join(
-					outdir,
-					`chunk:${String(payload.chunk).padStart(8, '0')}:video`,
-				);
-				writeFileSync(filename, new Uint8Array(message.payload));
+				const filename = chunkFilename('video');
+				// An empty payload means the chunk was already streamed to disk
+				if (message.payload.length > 0) {
+					writeFileSync(filename, message.payload);
+				}
+
 				files.push(filename);
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
@@ -90,12 +121,12 @@ const streamRenderer = <Provider extends CloudProvider>({
 			}
 
 			if (message.type === 'audio-chunk-rendered') {
-				const filename = join(
-					outdir,
-					`chunk:${String(payload.chunk).padStart(8, '0')}:audio`,
-				);
+				const filename = chunkFilename('audio');
+				// An empty payload means the chunk was already streamed to disk
+				if (message.payload.length > 0) {
+					writeFileSync(filename, message.payload);
+				}
 
-				writeFileSync(filename, new Uint8Array(message.payload));
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
 					`Received audio chunk for chunk ${payload.chunk}`,
@@ -181,6 +212,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 				type: ServerlessRoutines.renderer,
 				receivedStreamingPayload,
 				requestHandler,
+				getBinaryPayloadSink,
 			})
 			.then(() => {
 				resolve({

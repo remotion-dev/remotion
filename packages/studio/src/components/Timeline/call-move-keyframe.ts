@@ -1,8 +1,14 @@
 import {
 	optimisticMoveEffectKeyframes,
 	optimisticMoveSequenceKeyframes,
+	type MoveKeyframesRequest,
 } from '@remotion/studio-shared';
-import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
+import type {
+	CanUpdateSequencePropStatus,
+	InteractivitySchema,
+	SequencePropsSubscriptionKey,
+} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {callApi} from '../call-api';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -13,10 +19,22 @@ export type MoveSequenceKeyframeChange = {
 	fromFrame: number;
 	toFrame: number;
 	schema: InteractivitySchema;
+	keyframeDisplayOffsetAdjustmentDelta?: number;
 };
 
 export type MoveEffectKeyframeChange = MoveSequenceKeyframeChange & {
 	effectIndex: number;
+};
+
+const moveKeyframes = (request: MoveKeyframesRequest) => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return callApi('/api/move-keyframes', request);
+	}
+
+	return browserStudioOperations.keyframes
+		? browserStudioOperations.keyframes.moveKeyframes(request)
+		: Promise.reject(new Error('Keyframe editing is unavailable'));
 };
 
 const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
@@ -31,6 +49,43 @@ const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
 	}
 
 	return [...groups.values()];
+};
+
+const applyKeyframeDisplayOffsetAdjustmentDeltas = ({
+	props,
+	keyframes,
+}: {
+	readonly props: Record<string, CanUpdateSequencePropStatus>;
+	readonly keyframes: readonly MoveSequenceKeyframeChange[];
+}) => {
+	const nextProps = {...props};
+	const deltas = new Map<string, number>();
+	for (const keyframe of keyframes) {
+		if (keyframe.keyframeDisplayOffsetAdjustmentDelta !== undefined) {
+			deltas.set(
+				keyframe.fieldKey,
+				keyframe.keyframeDisplayOffsetAdjustmentDelta,
+			);
+		}
+	}
+
+	for (const [fieldKey, delta] of deltas) {
+		const status = nextProps[fieldKey];
+		if (
+			status?.status !== 'keyframed' ||
+			status.keyframeDisplayOffsetAdjustment === null
+		) {
+			continue;
+		}
+
+		nextProps[fieldKey] = {
+			...status,
+			keyframeDisplayOffsetAdjustment:
+				status.keyframeDisplayOffsetAdjustment + delta,
+		};
+	}
+
+	return nextProps;
 };
 
 export const applyOptimisticKeyframeMoves = ({
@@ -52,16 +107,27 @@ export const applyOptimisticKeyframeMoves = ({
 			continue;
 		}
 
-		setPropStatuses(firstKeyframe.nodePath, (prev) =>
-			optimisticMoveSequenceKeyframes({
+		setPropStatuses(firstKeyframe.nodePath, (prev) => {
+			const moved = optimisticMoveSequenceKeyframes({
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({
 					fieldKey: keyframe.fieldKey,
 					fromFrame: keyframe.fromFrame,
 					toFrame: keyframe.toFrame,
 				})),
-			}),
-		);
+			});
+			if (!moved.canUpdate) {
+				return moved;
+			}
+
+			return {
+				...moved,
+				props: applyKeyframeDisplayOffsetAdjustmentDeltas({
+					props: moved.props,
+					keyframes,
+				}),
+			};
+		});
 	}
 
 	for (const keyframes of groupByNodePath(effectKeyframes)) {
@@ -70,8 +136,8 @@ export const applyOptimisticKeyframeMoves = ({
 			continue;
 		}
 
-		setPropStatuses(firstKeyframe.nodePath, (prev) =>
-			optimisticMoveEffectKeyframes({
+		setPropStatuses(firstKeyframe.nodePath, (prev) => {
+			const moved = optimisticMoveEffectKeyframes({
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({
 					effectIndex: keyframe.effectIndex,
@@ -79,8 +145,30 @@ export const applyOptimisticKeyframeMoves = ({
 					fromFrame: keyframe.fromFrame,
 					toFrame: keyframe.toFrame,
 				})),
-			}),
-		);
+			});
+			if (!moved.canUpdate) {
+				return moved;
+			}
+
+			return {
+				...moved,
+				effects: moved.effects.map((effect) => {
+					if (!effect.canUpdate) {
+						return effect;
+					}
+
+					return {
+						...effect,
+						props: applyKeyframeDisplayOffsetAdjustmentDeltas({
+							props: effect.props,
+							keyframes: keyframes.filter(
+								(keyframe) => keyframe.effectIndex === effect.effectIndex,
+							),
+						}),
+					};
+				}),
+			};
+		});
 	}
 };
 
@@ -105,7 +193,7 @@ export const callMoveKeyframes = ({
 		setPropStatuses,
 	});
 
-	return callApi('/api/move-keyframes', {
+	return moveKeyframes({
 		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,
 			nodePath: keyframe.nodePath,

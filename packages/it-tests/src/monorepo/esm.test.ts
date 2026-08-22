@@ -34,6 +34,9 @@ test('Should be able to "import" frontend in node', async () => {
 		`node --input-type=module -e "import {getRenderProgress} from '@remotion/lambda/client'; console.log(getRenderProgress)"`,
 	);
 	execSync(
+		`node --input-type=module -e "import {cancelRenderOnLambda} from '@remotion/lambda/client'; console.log(cancelRenderOnLambda)"`,
+	);
+	execSync(
 		`node --input-type=module -e "import {getRenderProgress} from '@remotion/lambda'; console.log(getRenderProgress)"`,
 	);
 	execSync(

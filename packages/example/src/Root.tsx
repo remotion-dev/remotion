@@ -63,6 +63,11 @@ import {
 	HlsMediaVideoTrimmed,
 } from './Hls/HlsMediaVideo';
 import {
+	HOUR_LONG_TIMELINE_DURATION_IN_FRAMES,
+	HOUR_LONG_TIMELINE_FPS,
+	HourLongTimelineTestbed,
+} from './HourLongTimelineTestbed';
+import {
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
 	CrossZoomTransitionDoc,
@@ -82,7 +87,6 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
-	HtmlInCanvasNestedEffects,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -204,11 +208,18 @@ import {AnimatedImageEffects} from './AnimatedImage/Effects';
 import {AudioSmoothnessBufferInterruptionComp} from './AudioSmoothness/BufferInterruption';
 import {AudioSmoothnessLoopedAudioComp} from './AudioSmoothness/LoopedAudio';
 import {AudioSmoothnessNewVideoComp} from './AudioSmoothness/NewVideo';
+import {AudioSmoothnessShortAudioLoopComp} from './AudioSmoothness/ShortAudioLoop';
 import {AudioSmoothnessSlicedVideoComp} from './AudioSmoothness/SlicedVideo';
 import {AudioSmoothnessTrimAfterLoopComp} from './AudioSmoothness/TrimAfterLoop';
 import {AudioSmoothnessTrimButtonComp} from './AudioSmoothness/TrimButton';
 import Amplify from './AudioTesting/Amplify';
 import {Issue7568} from './AudioTesting/Issue7568';
+import {
+	Issue10468,
+	Issue5758,
+	issue10468DefaultProps,
+	issue5758DefaultProps,
+} from './AudioTesting/Issue10468';
 import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
@@ -293,6 +304,8 @@ import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
 import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
+import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
+import {ConstantMultiplication} from './VisualModeTests/ConstantMultiplication';
 import {FastUpdates} from './VisualModeTests/FastUpdates';
 import {FastUpdatesNested} from './VisualModeTests/FastUpdatesNested';
 import {
@@ -301,6 +314,7 @@ import {
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
+import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
@@ -437,22 +451,32 @@ export const Index: React.FC = () => {
 				width={1280}
 				height={720}
 			/>
-			<Composition
-				id="switzerland-map"
-				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
-				durationInFrames={240}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
-			<Composition
-				id="zurich-to-stuttgart-map"
-				lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
-				durationInFrames={270}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
+			<Folder name="maptiler">
+				<Composition
+					id="switzerland-map"
+					lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
+					durationInFrames={240}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="zurich-to-stuttgart-map"
+					lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
+					durationInFrames={270}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="maptiler-heatmap"
+					lazyComponent={() => import('./SwitzerlandMap/Heatmap')}
+					durationInFrames={150}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+			</Folder>
 			<Composition
 				id="captions-tester"
 				component={AnimatedCaptionsComposition}
@@ -462,6 +486,14 @@ export const Index: React.FC = () => {
 				height={CAPTIONS_HEIGHT}
 			/>
 			<Folder name="copilot-tests">
+				<Composition
+					id="interactive-div-stress-test"
+					lazyComponent={() => import('./InteractiveDivStressTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
 				<Composition
 					id="keyframed-props-test"
 					lazyComponent={() => import('./KeyframedPropsTest')}
@@ -1253,14 +1285,6 @@ export const Index: React.FC = () => {
 						durationInFrames={120}
 					/>
 					<Composition
-						id="html-in-canvas-nested-effects"
-						component={HtmlInCanvasNestedEffects}
-						fps={30}
-						height={1080}
-						width={1920}
-						durationInFrames={120}
-					/>
-					<Composition
 						id="book-flip-transition-doc"
 						component={BookFlipTransitionDoc}
 						fps={30}
@@ -1764,6 +1788,24 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="audio-issue-10468"
+					component={Issue10468}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={issue10468DefaultProps}
+				/>
+				<Composition
+					id="audio-issue-5758"
+					component={Issue5758}
+					width={1920}
+					height={1080}
+					fps={24.87}
+					durationInFrames={120}
+					defaultProps={issue5758DefaultProps}
+				/>
+				<Composition
 					id="audio-issue-7568"
 					component={Issue7568}
 					width={1920}
@@ -2193,6 +2235,7 @@ export const Index: React.FC = () => {
 				<AudioSmoothnessTrimButtonComp />
 				<AudioSmoothnessTrimAfterLoopComp />
 				<AudioSmoothnessLoopedAudioComp />
+				<AudioSmoothnessShortAudioLoopComp />
 			</Folder>
 			<Folder name="Postmount">
 				<Composition
@@ -2805,6 +2848,14 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="video-editing">
 				<Composition
+					id="hour-long-timeline"
+					component={HourLongTimelineTestbed}
+					width={1920}
+					height={1080}
+					fps={HOUR_LONG_TIMELINE_FPS}
+					durationInFrames={HOUR_LONG_TIMELINE_DURATION_IN_FRAMES}
+				/>
+				<Composition
 					id="video-editing-cascading"
 					component={Issue8974TransitionSeriesTimeline}
 					width={1920}
@@ -2839,12 +2890,36 @@ export const Index: React.FC = () => {
 			/>
 			<Folder name="VisualModeTests">
 				<Composition
+					id="constant-multiplication"
+					component={ConstantMultiplication}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="affine-frame-clock"
+					component={AffineFrameClock}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={60}
+				/>
+				<Composition
+					id="sequence-shift-repro"
+					component={SequenceShiftRepro}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={30}
+				/>
+				<Composition
 					id="outline-selection-cases"
 					component={OutlineSelectionCases}
 					width={1920}
 					height={1080}
 					fps={30}
-					durationInFrames={2700}
+					durationInFrames={2340}
 				/>
 				<Composition
 					id="fast-updates"

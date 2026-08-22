@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.512",
+	"version": "4.0.515",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -234,6 +234,11 @@
 			"module": "./dist/esm/noise-displacement.mjs",
 			"import": "./dist/esm/noise-displacement.mjs"
 		},
+		"./outline": {
+			"types": "./dist/outline.d.ts",
+			"module": "./dist/esm/outline.mjs",
+			"import": "./dist/esm/outline.mjs"
+		},
 		"./paper": {
 			"types": "./dist/paper.d.ts",
 			"module": "./dist/esm/paper.mjs",
@@ -318,6 +323,11 @@
 			"types": "./dist/thermal-vision.d.ts",
 			"module": "./dist/esm/thermal-vision.mjs",
 			"import": "./dist/esm/thermal-vision.mjs"
+		},
+		"./tile": {
+			"types": "./dist/tile.d.ts",
+			"module": "./dist/esm/tile.mjs",
+			"import": "./dist/esm/tile.mjs"
 		},
 		"./tint": {
 			"types": "./dist/tint.d.ts",
@@ -503,6 +513,9 @@
 			"noise-displacement": [
 				"dist/noise-displacement.d.ts"
 			],
+			"outline": [
+				"dist/outline.d.ts"
+			],
 			"paper": [
 				"dist/paper.d.ts"
 			],
@@ -553,6 +566,9 @@
 			],
 			"thermal-vision": [
 				"dist/thermal-vision.d.ts"
+			],
+			"tile": [
+				"dist/tile.d.ts"
 			],
 			"tint": [
 				"dist/tint.d.ts"

@@ -1,13 +1,13 @@
 import React, {useMemo} from 'react';
-import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
-import {TimelineTimePadding} from './TimelineTimeIndicators';
 import {TimelineTrack} from './TimelineTrack';
+import {useTimelineVirtualization} from './TimelineVirtualization';
 
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
+	position: 'relative',
 };
 
 const timelineContent: React.CSSProperties = {
@@ -15,9 +15,9 @@ const timelineContent: React.CSSProperties = {
 };
 
 const TimelineTracksInner: React.FC<{
-	readonly timeline: TimelineTrackData[];
 	readonly hasBeenCut: boolean;
-}> = ({timeline, hasBeenCut}) => {
+}> = ({hasBeenCut}) => {
+	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();
 	const timelineStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...timelineContent,
@@ -27,10 +27,20 @@ const TimelineTracksInner: React.FC<{
 
 	return (
 		<div style={timelineStyle}>
-			<div style={content}>
-				<TimelineTimePadding />
-				{timeline.map((track) => (
-					<TimelineTrack key={track.sequence.id} track={track} />
+			<div style={{...content, height: tracksEnd}}>
+				{virtualItems.map((virtualItem) => (
+					<div
+						key={virtualItem.key}
+						style={{
+							height: virtualItem.size,
+							left: TIMELINE_PADDING,
+							position: 'absolute',
+							right: TIMELINE_PADDING,
+							top: virtualItem.start,
+						}}
+					>
+						<TimelineTrack track={rows[virtualItem.index].track} />
+					</div>
 				))}
 			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}

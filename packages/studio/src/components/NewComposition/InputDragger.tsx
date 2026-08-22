@@ -55,6 +55,17 @@ export const inputDraggerContainerStyle: React.CSSProperties = {
 	padding: '4px 6px',
 };
 
+const compactInputDraggerStyle: React.CSSProperties = {
+	fontSize: 12,
+	lineHeight: '16px',
+	padding: '0 6px',
+};
+
+const compactInputDraggerContainerStyle: React.CSSProperties = {
+	...inputDraggerContainerStyle,
+	...compactInputDraggerStyle,
+};
+
 const isInt = (num: number) => {
 	return num % 1 === 0;
 };
@@ -448,6 +459,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		formatterSubtitle,
 		formatterSubtitleStyle,
 		buttonStyle,
+		style: inputStyle,
 		status,
 		rightAlign,
 		small,
@@ -480,6 +492,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 			fontSize: small ? 12 : 14,
+			lineHeight: small ? '16px' : undefined,
 			fontVariantNumeric: 'tabular-nums',
 			...formatterStyle,
 		}),
@@ -713,6 +726,15 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					rightAlign={rightAlign}
 					small={small}
 					{...props}
+					style={
+						small
+							? {
+									...compactInputDraggerStyle,
+									display: 'block',
+									...inputStyle,
+								}
+							: inputStyle
+					}
 					type="text"
 				/>
 			</HigherZIndex>
@@ -727,8 +749,15 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			className={'__remotion_input_dragger'}
 			style={
 				buttonStyle
-					? {...inputDraggerContainerStyle, ...buttonStyle}
-					: inputDraggerContainerStyle
+					? {
+							...(small
+								? compactInputDraggerContainerStyle
+								: inputDraggerContainerStyle),
+							...buttonStyle,
+						}
+					: small
+						? compactInputDraggerContainerStyle
+						: inputDraggerContainerStyle
 			}
 			onClick={onClick}
 			onFocus={onFocus}

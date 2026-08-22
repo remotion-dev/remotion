@@ -43,6 +43,36 @@ test.describe('error overlay dismissal', () => {
 		expect(buggyContent).not.toBe(originalContent);
 
 		const errorMessage = page.getByText('"radius" must be a finite number');
+		const openInEditorRequests: unknown[] = [];
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultEditor: null,
+						installedEditors: [{id: 'zed', name: 'Zed', nameWithType: 'Zed'}],
+					},
+				},
+			});
+		});
+		await page.route('**/api/default-coding-agent-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultCodingAgent: null,
+						installedCodingAgents: [],
+						installedTerminals: [],
+					},
+				},
+			});
+		});
+		await page.route('**/api/open-in-editor', async (route) => {
+			openInEditorRequests.push(route.request().postDataJSON());
+			await route.fulfill({
+				json: {success: true, data: {success: true}},
+			});
+		});
 
 		const writeAndWaitForRebuild = async (
 			content: string,
@@ -120,6 +150,10 @@ test.describe('error overlay dismissal', () => {
 		// 1. Introduce the bug: remove the `radius: 24` argument.
 		await writeAndWaitForRebuild(buggyContent, 'introducing the bug');
 		await expect(errorMessage).toBeVisible({timeout: 15_000});
+		await page.getByRole('button', {name: 'Open in Zed', exact: true}).click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([expect.objectContaining({editorId: 'zed'})]);
 
 		// 2. Fix the bug: restore the `radius: 24` argument. The error UI should
 		//    dismiss once HMR applies the fix.

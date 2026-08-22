@@ -19,24 +19,37 @@ const compareStrings = (a: string, b: string) => {
 
 const sidebars: SidebarsConfig = {
 	elementsSidebar: [
-		'index',
-		'contributing',
 		{
-			type: 'html',
-			value:
-				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
-			defaultStyle: true,
-		},
-		...elementCategories.map(({category, label}) => ({
-			type: 'category' as const,
-			label,
-			link: {type: 'doc' as const, id: `${category}/index`},
+			type: 'category',
+			label: 'Elements',
+			className: 'elements-sidebar-root',
+			link: {type: 'doc', id: 'index'},
+			collapsible: true,
 			collapsed: false,
-			items: Object.entries(elementRegistry)
-				.filter(([, metadata]) => metadata.category === category)
-				.sort(([, a], [, b]) => compareStrings(a.displayName, b.displayName))
-				.map(([slug]) => `${slug}/index`),
-		})),
+			items: [
+				'libraries',
+				'contributing',
+				{
+					type: 'html',
+					value:
+						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+					defaultStyle: true,
+				},
+				...elementCategories.map(({category, label}) => ({
+					type: 'category' as const,
+					label,
+					link: {type: 'doc' as const, id: `${category}/index`},
+					collapsible: true,
+					collapsed: true,
+					items: Object.entries(elementRegistry)
+						.filter(([, metadata]) => metadata.category === category)
+						.sort(([, a], [, b]) =>
+							compareStrings(a.displayName, b.displayName),
+						)
+						.map(([slug]) => `${slug}/index`),
+				})),
+			],
+		},
 	],
 };
 

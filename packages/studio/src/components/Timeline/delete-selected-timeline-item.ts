@@ -1,15 +1,15 @@
 import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
 import {Internals} from 'remotion';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {callApi} from '../call-api';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
+import {deleteJsxNode} from '../delete-jsx-node-api';
+import {deleteEffects as deleteEffectsApi} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	deleteSelectedKeyframe,
-	deleteSelectedKeyframes,
-} from './delete-selected-keyframe';
+import {deleteSelectedKeyframes} from './delete-selected-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getEasingSelectionAfterKeyframeDelete} from './get-easing-selection-after-keyframe-delete';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetPropStatuses} from './save-sequence-prop';
 import {
@@ -58,7 +58,7 @@ export const deleteSequencesFromSource = async (
 		return false;
 	}
 
-	return callApi('/api/delete-jsx-node', {
+	return deleteJsxNode({
 		nodes: nodePathInfos.map((nodePathInfo) => {
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 
@@ -98,8 +98,11 @@ const deleteEffects = (
 		return Promise.resolve(false);
 	}
 
-	return callApi(
-		'/api/delete-effect',
+	if (!canUseEffectOperations()) {
+		return Promise.resolve(false);
+	}
+
+	return deleteEffectsApi(
 		effects.map((effect) => {
 			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
 			return effect.type === 'single-effect'
@@ -128,61 +131,6 @@ const deleteEffects = (
 			showNotification((err as Error).message, 4000);
 			return false;
 		});
-};
-
-export const deleteSelectedTimelineItem = ({
-	selection,
-	sequences,
-	overrideIdsToNodePaths,
-	setPropStatuses,
-	clientId,
-	confirm,
-}: {
-	selection: TimelineSelection;
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	setPropStatuses: SetPropStatuses;
-	clientId: string;
-	confirm: ConfirmationDialogFunction;
-}): Promise<boolean> | null => {
-	if (selection.type === 'keyframe') {
-		const promise = deleteSelectedKeyframe({
-			nodePathInfo: selection.nodePathInfo,
-			frame: selection.frame,
-			sequences,
-			overrideIdsToNodePaths,
-			setPropStatuses,
-			clientId,
-		});
-		return promise?.then(() => true) ?? null;
-	}
-
-	switch (selection.type) {
-		case 'guide':
-			return null;
-		case 'sequence':
-			return deleteSequencesFromSource([selection.nodePathInfo], confirm);
-		case 'sequence-effect':
-			return deleteEffects([
-				{
-					type: 'single-effect',
-					nodePathInfo: selection.nodePathInfo,
-					effectIndex: selection.i,
-				},
-			]);
-		case 'sequence-prop':
-		case 'sequence-effect-prop':
-		case 'easing':
-			return null;
-		case 'sequence-all-effects':
-			return deleteEffects([
-				{type: 'all-effects', nodePathInfo: selection.nodePathInfo},
-			]);
-		default:
-			throw new Error(
-				`Unexpected timeline selection type: ${selection satisfies never}`,
-			);
-	}
 };
 
 const isSequenceRowSelection = (
@@ -277,8 +225,6 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 	}
 
 	const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
-	const sourceFrame = selection.frame - track.keyframeDisplayOffset;
-
 	if (field.type === 'sequence') {
 		const sequencePropStatus = Internals.getPropStatusesCtx(
 			propStatuses,
@@ -294,7 +240,13 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 		}
 
 		return getEasingSelectionAfterKeyframeDelete({
-			deletedSourceFrames: [sourceFrame],
+			deletedSourceFrames: [
+				selection.frame -
+					getKeyframeDisplayOffset({
+						propStatus: sequencePropStatus,
+						keyframeDisplayOffset: track.keyframeDisplayOffset,
+					}),
+			],
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
 			nodePathInfo: selection.nodePathInfo,
 			propStatus: sequencePropStatus,
@@ -321,7 +273,13 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 	}
 
 	return getEasingSelectionAfterKeyframeDelete({
-		deletedSourceFrames: [sourceFrame],
+		deletedSourceFrames: [
+			selection.frame -
+				getKeyframeDisplayOffset({
+					propStatus: effectPropStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				}),
+		],
 		keyframeDisplayOffset: track.keyframeDisplayOffset,
 		nodePathInfo: selection.nodePathInfo,
 		propStatus: effectPropStatus,

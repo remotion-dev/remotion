@@ -6,9 +6,13 @@ import React, {
 	useState,
 } from 'react';
 import type {_InternalTypes} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {CURRENT_COLOR} from '../../helpers/colors';
+import {downloadBlob} from '../../helpers/download-blob';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
+import {CloudDownloadIcon} from '../../icons/cloud-download';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {FilmIcon} from '../../icons/video';
@@ -16,6 +20,7 @@ import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {ObserveDefaultPropsContext} from '../ObserveDefaultPropsContext';
 import {
 	type DataEditorMode,
@@ -30,9 +35,9 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
 import {
-	InspectorActionSection,
+	InspectorQuickActionsSection,
 	InspectorDefaultPropsWarnings,
-	InspectorInlineAction,
+	InspectorQuickAction,
 	InspectorSectionDivider,
 	InspectorSectionHeader,
 } from './common';
@@ -68,9 +73,15 @@ const browseElementsIconContainerStyle: React.CSSProperties = {
 	width: 22,
 };
 
-const CompositionActions: React.FC<{
-	readonly readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+const browseElementsArrowStyle: React.CSSProperties = {
+	display: 'inline-block',
+	height: 12,
+	marginLeft: 4,
+	verticalAlign: -2,
+	width: 12,
+};
+
+const CompositionActions: React.FC = () => {
 	const {
 		canInsertAsset,
 		canInsertComposition,
@@ -82,6 +93,32 @@ const CompositionActions: React.FC<{
 		insertComposition,
 		insertSolid,
 	} = useCompositionActions();
+	const downloadProject = getBrowserStudioOperations()?.downloadProject ?? null;
+
+	const onDownloadProject = useCallback(async () => {
+		if (downloadProject === null) {
+			return;
+		}
+
+		try {
+			const {data, fileName} = await downloadProject();
+			const arrayBuffer = data.buffer.slice(
+				data.byteOffset,
+				data.byteOffset + data.byteLength,
+			) as ArrayBuffer;
+			downloadBlob(
+				new Blob([arrayBuffer], {type: 'application/zip'}),
+				fileName,
+			);
+		} catch (error) {
+			showNotification(
+				`Could not download project: ${
+					error instanceof Error ? error.message : String(error)
+				}`,
+				2000,
+			);
+		}
+	}, [downloadProject]);
 
 	const openElementsLibrary = useCallback(() => {
 		window.open(
@@ -92,16 +129,18 @@ const CompositionActions: React.FC<{
 	}, []);
 
 	if (
-		(readOnlyStudio && !canShowInsertSolid) ||
-		(!canShowInsertAsset && !canShowInsertComposition && !canShowInsertSolid)
+		!canShowInsertAsset &&
+		!canShowInsertComposition &&
+		!canShowInsertSolid &&
+		downloadProject === null
 	) {
 		return null;
 	}
 
 	return (
-		<InspectorActionSection>
+		<InspectorQuickActionsSection>
 			{canShowInsertSolid ? (
-				<InspectorInlineAction
+				<InspectorQuickAction
 					disabled={!canInsertSolid}
 					onClick={insertSolid}
 					renderIcon={(color) => (
@@ -109,10 +148,10 @@ const CompositionActions: React.FC<{
 					)}
 				>
 					Add Solid
-				</InspectorInlineAction>
+				</InspectorQuickAction>
 			) : null}
 			{canShowInsertAsset ? (
-				<InspectorInlineAction
+				<InspectorQuickAction
 					disabled={!canInsertAsset}
 					onClick={insertAsset}
 					renderIcon={(color) => (
@@ -120,10 +159,10 @@ const CompositionActions: React.FC<{
 					)}
 				>
 					Add asset...
-				</InspectorInlineAction>
+				</InspectorQuickAction>
 			) : null}
 			{canShowInsertComposition ? (
-				<InspectorInlineAction
+				<InspectorQuickAction
 					disabled={!canInsertComposition}
 					onClick={insertComposition}
 					renderIcon={(color) => (
@@ -131,10 +170,10 @@ const CompositionActions: React.FC<{
 					)}
 				>
 					Add composition...
-				</InspectorInlineAction>
+				</InspectorQuickAction>
 			) : null}
 			{canShowInsertAsset ? (
-				<InspectorInlineAction
+				<InspectorQuickAction
 					disabled={false}
 					iconContainerStyle={browseElementsIconContainerStyle}
 					onClick={openElementsLibrary}
@@ -143,10 +182,35 @@ const CompositionActions: React.FC<{
 					)}
 					title="Open the Remotion Elements library in a new tab. Install an Element there to send it to this composition."
 				>
-					Browse Elements...
-				</InspectorInlineAction>
+					Browse Elements
+					<svg
+						aria-hidden="true"
+						viewBox="0 0 16 16"
+						style={browseElementsArrowStyle}
+					>
+						<path
+							d="M4 12 12 4M6 4h6v6"
+							fill="none"
+							stroke={CURRENT_COLOR}
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth="1.5"
+						/>
+					</svg>
+				</InspectorQuickAction>
 			) : null}
-		</InspectorActionSection>
+			{downloadProject ? (
+				<InspectorQuickAction
+					disabled={false}
+					onClick={onDownloadProject}
+					renderIcon={(color) => (
+						<CloudDownloadIcon color={color} style={actionIconStyle} />
+					)}
+				>
+					Download project
+				</InspectorQuickAction>
+			) : null}
+		</InspectorQuickActionsSection>
 	);
 };
 
@@ -318,7 +382,7 @@ export const CompositionInspector: React.FC<{
 				setDefaultProps={setDefaultProps}
 			/>
 			<CompositionVisualControlsSection readOnlyStudio={readOnlyStudio} />
-			<CompositionActions readOnlyStudio={readOnlyStudio} />
+			<CompositionActions />
 		</div>
 	);
 };

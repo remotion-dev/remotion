@@ -1,3 +1,4 @@
+import type {GetPayloadSink, PayloadSink} from '@remotion/streaming';
 import {makeStreamPayloadMessage} from '@remotion/streaming';
 import type {SerializedArtifact} from '../serialize-artifact';
 import type {CloudProvider, RenderStillFunctionResponsePayload} from '../types';
@@ -125,6 +126,34 @@ export type StreamingMessage<Provider extends CloudProvider> = {
 export type OnMessage<Provider extends CloudProvider> = (
 	options: StreamingMessage<Provider>,
 ) => void;
+
+export type BinaryMessageType =
+	| typeof videoChunkRendered
+	| typeof audioChunkRendered;
+
+// If a sink is returned, the binary payload is streamed into it instead of
+// being accumulated in memory. The corresponding message is then delivered
+// with an empty payload after the sink has ended.
+export type GetBinaryPayloadSink = (params: {
+	messageType: BinaryMessageType;
+	length: number;
+}) => PayloadSink | null;
+
+export const binaryPayloadSinkForStreamer = (
+	getBinaryPayloadSink: GetBinaryPayloadSink,
+): GetPayloadSink => {
+	return (_statusType, nonce, length) => {
+		const messageType = messageTypeIdToMessageType(nonce as MessageTypeId);
+		if (formatMap[messageType] !== 'binary') {
+			return null;
+		}
+
+		return getBinaryPayloadSink({
+			messageType: messageType as BinaryMessageType,
+			length,
+		});
+	};
+};
 
 export type OnStream<Provider extends CloudProvider> = (
 	payload: StreamingPayload<Provider>,

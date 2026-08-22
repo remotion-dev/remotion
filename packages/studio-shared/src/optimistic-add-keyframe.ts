@@ -100,6 +100,7 @@ const addKeyframeToPropStatus = ({
 
 		return {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: status.keyframeDisplayOffsetAdjustment,
 			interpolationFunction: getKeyframeInterpolationFunction({
 				schema,
 				key: fieldKey,
@@ -152,12 +153,14 @@ const getMissingPropStatus = ({
 	if (field && field.type !== 'hidden' && field.default !== undefined) {
 		return {
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: field.default,
 		};
 	}
 
 	return {
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: undefined,
 	};
 };

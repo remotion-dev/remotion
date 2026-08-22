@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import {Internals, staticFile, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {deleteStaticFile} from '../api/delete-static-file';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -24,6 +23,7 @@ import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	markAssetSidebarScrollFromRowClick,
 	maybeScrollAssetSidebarRowIntoView,
@@ -38,17 +38,16 @@ import {ClipboardIcon} from '../icons/clipboard';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {SetSelectedModalContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
-import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenu} from './ContextMenu';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
-import {inlineCodeSnippet} from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getOpenInNewWindowMenuItem} from './open-in-new-window';
 import {openInFileExplorer} from './RenderQueue/actions';
+import {useDeleteAsset} from './use-delete-asset';
 
 const iconStyle: React.CSSProperties = {
 	width: 18,
@@ -67,11 +66,10 @@ const itemStyle: React.CSSProperties = {
 	alignItems: 'center',
 	marginBottom: 1,
 	marginLeft: 4,
-	marginRight: 4,
 	appearance: 'none',
 	border: 'none',
 	borderRadius: 4,
-	width: 'calc(100% - 8px)',
+	width: 'calc(100% - 4px)',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
@@ -131,9 +129,11 @@ export const getAssetContextMenuItems = ({
 	fileManagerName,
 	copyFileName,
 	copyStaticFilePath,
+	openAssetInConvert,
 	openAssetInExplorer,
 	renameAsset,
 	deleteAsset,
+	fileExplorerAvailable,
 	fileExplorerDisabled,
 	mutationsDisabled,
 }: {
@@ -141,14 +141,32 @@ export const getAssetContextMenuItems = ({
 	fileManagerName: string;
 	copyFileName: () => void;
 	copyStaticFilePath: () => void;
+	openAssetInConvert: () => void;
 	openAssetInExplorer: () => void;
 	renameAsset: () => void;
 	deleteAsset: () => void;
+	fileExplorerAvailable: boolean;
 	fileExplorerDisabled: boolean;
 	mutationsDisabled: boolean;
 }): ComboboxValue[] => {
-	return [
+	const previewFileType = getPreviewFileType(relativePath);
+	const canOpenInConvert =
+		previewFileType === 'audio' || previewFileType === 'video';
+	const items: (ComboboxValue | null)[] = [
 		getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
+		canOpenInConvert
+			? {
+					id: 'open-asset-in-convert',
+					keyHint: null,
+					label: 'Open in Remotion Convert',
+					leftItem: null,
+					onClick: openAssetInConvert,
+					quickSwitcherLabel: 'Open asset in Remotion Convert',
+					subMenu: null,
+					type: 'item',
+					value: 'open-asset-in-convert',
+				}
+			: null,
 		{
 			type: 'divider',
 			id: 'open-in-new-window-divider',
@@ -179,18 +197,20 @@ export const getAssetContextMenuItems = ({
 			type: 'divider',
 			id: 'asset-file-actions-divider',
 		},
-		{
-			id: 'open-asset-in-explorer',
-			keyHint: null,
-			label: `Show in ${fileManagerName}`,
-			leftItem: null,
-			onClick: openAssetInExplorer,
-			quickSwitcherLabel: `Show asset in ${fileManagerName}`,
-			subMenu: null,
-			type: 'item',
-			value: 'open-asset-in-explorer',
-			disabled: fileExplorerDisabled,
-		},
+		fileExplorerAvailable
+			? {
+					id: 'open-asset-in-explorer',
+					keyHint: null,
+					label: `Show in ${fileManagerName}`,
+					leftItem: null,
+					onClick: openAssetInExplorer,
+					quickSwitcherLabel: `Show asset in ${fileManagerName}`,
+					subMenu: null,
+					type: 'item',
+					value: 'open-asset-in-explorer',
+					disabled: fileExplorerDisabled,
+				}
+			: null,
 		{
 			id: 'rename-asset',
 			keyHint: null,
@@ -216,6 +236,8 @@ export const getAssetContextMenuItems = ({
 			disabled: mutationsDisabled,
 		},
 	];
+
+	return items.filter(NoReactInternals.truthy);
 };
 
 const AssetFolderItem: React.FC<{
@@ -413,7 +435,6 @@ const AssetSelectorItem: React.FC<{
 	const [hovered, setHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const confirm = useConfirmationDialog();
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const onPointerEnter = useCallback(() => {
@@ -554,6 +575,10 @@ const AssetSelectorItem: React.FC<{
 			});
 	}, [relativePath]);
 
+	const openAssetInConvert = useCallback(() => {
+		openInRemotionConvert({relativePath});
+	}, [relativePath]);
+
 	const openAssetInExplorer = useCallback(() => {
 		if (!window.remotion_publicFolderExists) {
 			showNotification('Could not find the public folder', 2000);
@@ -575,46 +600,7 @@ const AssetSelectorItem: React.FC<{
 		publicFolderExists: window.remotion_publicFolderExists,
 	});
 
-	const deleteAsset = useCallback(() => {
-		confirm({
-			title: 'Delete asset',
-			message: (
-				<>
-					Do you want to delete the asset{' '}
-					<code style={inlineCodeSnippet}>{relativePath}</code> from your public
-					folder?
-				</>
-			),
-			confirmLabel: 'Delete',
-		})
-			.then((confirmed) => {
-				if (!confirmed) {
-					return;
-				}
-
-				const notification = showNotification(
-					`Deleting ${relativePath}...`,
-					null,
-				);
-
-				deleteStaticFile(relativePath)
-					.then(() => {
-						notification.replaceContent(`Deleted ${relativePath}`, 2000);
-					})
-					.catch((err) => {
-						notification.replaceContent(
-							`Could not delete ${relativePath}: ${(err as Error).message}`,
-							3000,
-						);
-					});
-			})
-			.catch((err) => {
-				showNotification(
-					`Could not delete ${relativePath}: ${(err as Error).message}`,
-					3000,
-				);
-			});
-	}, [confirm, relativePath]);
+	const deleteAsset = useDeleteAsset(relativePath);
 
 	const renameAsset = useCallback(() => {
 		setSelectedModal({
@@ -629,9 +615,11 @@ const AssetSelectorItem: React.FC<{
 			fileManagerName,
 			copyFileName,
 			copyStaticFilePath,
+			openAssetInConvert,
 			openAssetInExplorer,
 			renameAsset,
 			deleteAsset,
+			fileExplorerAvailable: getBrowserStudioOperations() === null,
 			fileExplorerDisabled,
 			mutationsDisabled,
 		});
@@ -642,6 +630,7 @@ const AssetSelectorItem: React.FC<{
 		fileExplorerDisabled,
 		fileManagerName,
 		mutationsDisabled,
+		openAssetInConvert,
 		openAssetInExplorer,
 		renameAsset,
 		relativePath,

@@ -123,6 +123,7 @@ import {
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_BACKGROUND,
+	TIMELINE_EXPANDED_SELECTED_BACKGROUND,
 	TIMELINE_HOVER_BACKGROUND,
 	TIMELINE_SELECTED_BACKGROUND,
 	TIMELINE_TICKS_BACKGROUND,
@@ -288,6 +289,7 @@ const makeTimelineSequence = ({
 		refForOutline,
 		isInsideSeries,
 		effects,
+		effectRuntimeValues: null,
 		frozenFrame: null,
 		startMediaFrom,
 	}) as TSequence;
@@ -300,7 +302,11 @@ const makeDurationPropStatuses = (
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
 			canUpdate: true,
 			props: {
-				durationInFrames: {status: 'static', codeValue: 100},
+				durationInFrames: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 100,
+				},
 			},
 			effects: [],
 		};
@@ -317,7 +323,11 @@ const makeFromPropStatuses = (
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
 			canUpdate: true,
 			props: {
-				from: {status: 'static', codeValue: 0},
+				from: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 0,
+				},
 			},
 			effects: [],
 		};
@@ -338,12 +348,26 @@ const makeLeftEdgePropStatuses = (
 			props: {
 				...(includeTimelineRange
 					? {
-							durationInFrames: {status: 'static' as const, codeValue: 100},
-							from: {status: 'static' as const, codeValue: 0},
+							durationInFrames: {
+								status: 'static' as const,
+								keyframeDisplayOffsetAdjustment: null,
+								codeValue: 100,
+							},
+							from: {
+								status: 'static' as const,
+								keyframeDisplayOffsetAdjustment: null,
+								codeValue: 0,
+							},
 						}
 					: {}),
 				...(includeTrimBefore
-					? {trimBefore: {status: 'static' as const, codeValue: 0}}
+					? {
+							trimBefore: {
+								status: 'static' as const,
+								keyframeDisplayOffsetAdjustment: null,
+								codeValue: 0,
+							},
+						}
 					: {}),
 			},
 			effects: [],
@@ -751,6 +775,7 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 					props: {
 						intensity: {
 							status: 'keyframed',
+							keyframeDisplayOffsetAdjustment: null,
 							interpolationFunction: 'interpolate',
 							keyframes: [
 								{frame: 0, value: 10},
@@ -849,6 +874,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 					props: {
 						intensity: {
 							status: 'keyframed',
+							keyframeDisplayOffsetAdjustment: null,
 							interpolationFunction: 'interpolate',
 							keyframes: [
 								{frame: 0, value: 10},
@@ -909,6 +935,7 @@ test('copying selected keyframes preserves their frame deltas', () => {
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 10, value: 0.4},
@@ -968,7 +995,11 @@ test('pasting keyframes onto a sequence targets the copied property', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				'style.translate': {status: 'static', codeValue: 'none'},
+				'style.translate': {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 'none',
+				},
 			},
 			effects: [],
 		},
@@ -1026,6 +1057,7 @@ test('copies a keyframed sequence prop between components with matching schemas'
 			props: {
 				'style.rotate': {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: '0deg'},
@@ -1042,7 +1074,11 @@ test('copies a keyframed sequence prop between components with matching schemas'
 		[Internals.makeSequencePropsSubscriptionKey(targetNodePath)]: {
 			canUpdate: true,
 			props: {
-				'style.rotate': {status: 'static', codeValue: undefined},
+				'style.rotate': {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: undefined,
+				},
 			},
 			effects: [],
 		},
@@ -1110,6 +1146,7 @@ test('copying selected keyframes requires one property', () => {
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [{frame: 10, value: 0.4}],
 					easing: [],
@@ -1119,6 +1156,7 @@ test('copying selected keyframes requires one property', () => {
 				},
 				otherOpacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [{frame: 30, value: 2}],
 					easing: [],
@@ -1154,7 +1192,11 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				opacity: {status: 'static', codeValue: 1},
+				opacity: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 1,
+				},
 			},
 			effects: [],
 		},
@@ -1212,6 +1254,7 @@ test('pasting keyframes replaces the destination range and preserves easing', ()
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 40, value: 0},
@@ -1285,7 +1328,11 @@ test('pasting a keyframe rejects an incompatible property', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				background: {status: 'static', codeValue: '#ffffff'},
+				background: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '#ffffff',
+				},
 			},
 			effects: [],
 		},
@@ -1339,6 +1386,7 @@ test('copying a selected sequence easing creates an easing payload', () => {
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0},
@@ -1400,6 +1448,7 @@ test('copying a selected effect easing creates an easing payload', () => {
 					props: {
 						intensity: {
 							status: 'keyframed',
+							keyframeDisplayOffsetAdjustment: null,
 							interpolationFunction: 'interpolateColors',
 							keyframes: [
 								{frame: 0, value: 10},
@@ -1464,7 +1513,11 @@ test('pasting an effect prop targets a matching selected effect', () => {
 					importPath: '@remotion/effects/halftone',
 					effectIndex: 1,
 					props: {
-						intensity: {status: 'static', codeValue: 0},
+						intensity: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 0,
+						},
 					},
 				},
 			],
@@ -1535,7 +1588,11 @@ test('pasting an effect prop targets multiple matching selected effects', () => 
 		importPath: '@remotion/effects/halftone',
 		effectIndex: 0,
 		props: {
-			intensity: {status: 'static', codeValue: 0},
+			intensity: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 0,
+			},
 		},
 	} as const;
 	const propStatuses = {
@@ -1643,8 +1700,16 @@ test('pasting an effect prop requires the same effect type and prop key', () => 
 					importPath: '@remotion/effects/blur',
 					effectIndex: 0,
 					props: {
-						opacity: {status: 'static', codeValue: 1},
-						intensity: {status: 'static', codeValue: 0},
+						opacity: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 1,
+						},
+						intensity: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 0,
+						},
 					},
 				},
 			],
@@ -1838,7 +1903,11 @@ test('Timeline duration drag rejects media without an explicit duration', () => 
 				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 					canUpdate: true,
 					props: {
-						durationInFrames: {status: 'static', codeValue: undefined},
+						durationInFrames: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: undefined,
+						},
 					},
 					effects: [],
 				},
@@ -2040,6 +2109,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 		props: {
 			durationInFrames: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 0, value: 15}],
 				easing: [{type: 'linear'}],
@@ -2211,8 +2281,16 @@ test('TransitionSeries.Sequence left edge drag leaves its calculated position un
 			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
 				canUpdate: true,
 				props: {
-					durationInFrames: {status: 'static', codeValue: 40},
-					trimBefore: {status: 'static', codeValue: 3},
+					durationInFrames: {
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 40,
+					},
+					trimBefore: {
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 3,
+					},
 				},
 				effects: [],
 			},
@@ -2260,8 +2338,16 @@ test('Series.Sequence left edge drag leaves its calculated position unchanged', 
 			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
 				canUpdate: true,
 				props: {
-					durationInFrames: {status: 'static', codeValue: 40},
-					trimBefore: {status: 'static', codeValue: 3},
+					durationInFrames: {
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 40,
+					},
+					trimBefore: {
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 3,
+					},
 				},
 				effects: [],
 			},
@@ -2511,6 +2597,62 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	).toEqual([12, 22]);
 });
 
+test('Timeline from drag only moves selected sequences without selected ancestors', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const videoNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'parent',
+			overrideId: 'parent',
+			from: 10,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'child',
+			overrideId: 'child',
+			parentId: 'parent',
+			from: 5,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'video',
+			overrideId: 'video',
+			from: 20,
+			type: 'video',
+		}),
+	];
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: parentNodePathInfo,
+		selectedItems: [
+			{type: 'sequence', nodePathInfo: parentNodePathInfo},
+			{type: 'sequence', nodePathInfo: childNodePathInfo},
+			{type: 'sequence', nodePathInfo: videoNodePathInfo},
+		],
+		sequences,
+		overrideIdsToNodePaths: {
+			parent: parentNodePathInfo.sequenceSubscriptionKey,
+			child: childNodePathInfo.sequenceSubscriptionKey,
+			video: videoNodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeFromPropStatuses([
+			parentNodePathInfo.sequenceSubscriptionKey,
+			childNodePathInfo.sequenceSubscriptionKey,
+			videoNodePathInfo.sequenceSubscriptionKey,
+		]),
+	});
+
+	expect(targets?.map((target) => target.initialFrom)).toEqual([10, 20]);
+	expect(
+		getTimelineSequenceFromDragChanges({
+			targets: targets ?? [],
+			deltaFrames: -4,
+		}).map((change) => change.value),
+	).toEqual([6, 16]);
+});
+
 test('Timeline from drag moves all owned sequence keyframes by the same delta', () => {
 	const schema = {
 		'style.translate': {type: 'translate', default: '0px 0px'},
@@ -2522,9 +2664,14 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 	propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
 		canUpdate: true,
 		props: {
-			from: {status: 'static', codeValue: 0},
+			from: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 0,
+			},
 			'style.translate': {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: '0px 0px'},
@@ -2537,6 +2684,7 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 			},
 			opacity: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 10, value: 0},
@@ -2581,6 +2729,112 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 	]);
 });
 
+test('Timeline from drag moves only descendant keyframes tied to an outer frame clock', () => {
+	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const parentNodePath = parentNodePathInfo.sequenceSubscriptionKey;
+	const outerFrameDescendantNodePath = makeNodePathInfo(
+		['body', 0, 'children', 0],
+		[],
+	).sequenceSubscriptionKey;
+	const localFrameDescendantNodePath = makeNodePathInfo(
+		['body', 1],
+		[],
+	).sequenceSubscriptionKey;
+	const propStatuses = makeFromPropStatuses([parentNodePath]);
+	const keyframedColorStatus = {
+		status: 'keyframed' as const,
+		interpolationFunction: 'interpolateColors' as const,
+		keyframes: [
+			{frame: 0, value: '#0b84f3'},
+			{frame: 100, value: '#f43b00'},
+		],
+		easing: [{type: 'linear' as const}],
+		clamping: {left: 'extend' as const, right: 'extend' as const},
+		posterize: undefined,
+		output: undefined,
+	};
+	propStatuses[
+		Internals.makeSequencePropsSubscriptionKey(outerFrameDescendantNodePath)
+	] = {
+		canUpdate: true,
+		props: {
+			color: {
+				...keyframedColorStatus,
+				keyframeDisplayOffsetAdjustment: 0,
+			},
+		},
+		effects: [],
+	};
+	propStatuses[
+		Internals.makeSequencePropsSubscriptionKey(localFrameDescendantNodePath)
+	] = {
+		canUpdate: true,
+		props: {
+			color: {
+				...keyframedColorStatus,
+				keyframeDisplayOffsetAdjustment: null,
+			},
+		},
+		effects: [],
+	};
+
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: parentNodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo: parentNodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema: {},
+				id: 'parent',
+				overrideId: 'parent-override',
+			}),
+			makeTimelineSequence({
+				schema: {color: {type: 'color', default: '#000000'}},
+				id: 'outer-frame-descendant',
+				overrideId: 'outer-frame-descendant-override',
+				parentId: 'parent',
+			}),
+			makeTimelineSequence({
+				schema: {color: {type: 'color', default: '#000000'}},
+				id: 'local-frame-descendant',
+				overrideId: 'local-frame-descendant-override',
+				parentId: 'parent',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			'parent-override': parentNodePath,
+			'outer-frame-descendant-override': outerFrameDescendantNodePath,
+			'local-frame-descendant-override': localFrameDescendantNodePath,
+		},
+		propStatuses,
+	});
+
+	expect(
+		getTimelineSequenceFromDragKeyframeMoves({
+			targets: targets ?? [],
+			deltaFrames: 10,
+		}).sequenceKeyframes.map((keyframe) => ({
+			nodePath: keyframe.nodePath,
+			fromFrame: keyframe.fromFrame,
+			toFrame: keyframe.toFrame,
+			keyframeDisplayOffsetAdjustmentDelta:
+				keyframe.keyframeDisplayOffsetAdjustmentDelta,
+		})),
+	).toEqual([
+		{
+			nodePath: outerFrameDescendantNodePath,
+			fromFrame: 0,
+			toFrame: 10,
+			keyframeDisplayOffsetAdjustmentDelta: -10,
+		},
+		{
+			nodePath: outerFrameDescendantNodePath,
+			fromFrame: 100,
+			toFrame: 110,
+			keyframeDisplayOffsetAdjustmentDelta: -10,
+		},
+	]);
+});
+
 test('Timeline from drag moves owned effect keyframes by the same delta', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
@@ -2594,7 +2848,11 @@ test('Timeline from drag moves owned effect keyframes by the same delta', () => 
 	propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
 		canUpdate: true,
 		props: {
-			from: {status: 'static', codeValue: 0},
+			from: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 0,
+			},
 		},
 		effects: [
 			{
@@ -2605,6 +2863,7 @@ test('Timeline from drag moves owned effect keyframes by the same delta', () => 
 				props: {
 					intensity: {
 						status: 'keyframed',
+						keyframeDisplayOffsetAdjustment: null,
 						interpolationFunction: 'interpolate',
 						keyframes: [
 							{frame: 5, value: 10},
@@ -2833,7 +3092,7 @@ test('Timeline from drag removes the prop at the default value', () => {
 });
 
 test('Timeline colors use the outlines palette', () => {
-	expect(TIMELINE_BACKGROUND).toBe('#0F1113');
+	expect(TIMELINE_BACKGROUND).toBe('#15181B');
 	expect(TIMELINE_TICKS_BACKGROUND).not.toBe(TIMELINE_BACKGROUND);
 });
 
@@ -2844,6 +3103,7 @@ test('Timeline hover highlight is weaker than selection', () => {
 			selected: false,
 			containsSelection: false,
 			hovered: true,
+			selectedBackground: TIMELINE_SELECTED_BACKGROUND,
 		}),
 	).toBe(TIMELINE_HOVER_BACKGROUND);
 	expect(
@@ -2852,8 +3112,18 @@ test('Timeline hover highlight is weaker than selection', () => {
 			selected: true,
 			containsSelection: false,
 			hovered: true,
+			selectedBackground: TIMELINE_SELECTED_BACKGROUND,
 		}),
 	).toBe(TIMELINE_SELECTED_BACKGROUND);
+	expect(
+		getTimelineRowHighlightBackground({
+			showSelectedBackground: true,
+			selected: true,
+			containsSelection: false,
+			hovered: false,
+			selectedBackground: TIMELINE_EXPANDED_SELECTED_BACKGROUND,
+		}),
+	).toBe(TIMELINE_EXPANDED_SELECTED_BACKGROUND);
 });
 
 test('Timeline outlines visibility is enabled by default and persisted', () => {
@@ -3753,10 +4023,26 @@ test('Crop is only available when all crop fields can be edited', () => {
 		cropBottom: numberField,
 	} satisfies InteractivitySchema;
 	const propStatuses = {
-		cropLeft: {status: 'static' as const, codeValue: 0},
-		cropRight: {status: 'static' as const, codeValue: 0},
-		cropTop: {status: 'static' as const, codeValue: 0},
-		cropBottom: {status: 'static' as const, codeValue: 0},
+		cropLeft: {
+			status: 'static' as const,
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 0,
+		},
+		cropRight: {
+			status: 'static' as const,
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 0,
+		},
+		cropTop: {
+			status: 'static' as const,
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 0,
+		},
+		cropBottom: {
+			status: 'static' as const,
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 0,
+		},
 	};
 
 	expect(canEditSelectedOutlineCrop({schema, propStatuses})).toBe(true);
@@ -3812,7 +4098,11 @@ test('Crop handle changes preserve static and keyframed field behavior', () => {
 	const staticField = (value: number) => ({
 		defaultValue: 0,
 		fieldSchema: schema.cropLeft,
-		propStatus: {status: 'static' as const, codeValue: value},
+		propStatus: {
+			status: 'static' as const,
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: value,
+		},
 		value,
 	});
 	const target = {
@@ -3824,6 +4114,7 @@ test('Crop handle changes preserve static and keyframed field behavior', () => {
 				fieldSchema: schema.cropRight,
 				propStatus: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0.2},
@@ -3885,7 +4176,11 @@ test('Crop handle changes preserve static and keyframed field behavior', () => {
 				...target,
 				transformOrigin: {
 					defaultValue: '50% 50%',
-					propStatus: {status: 'static', codeValue: undefined},
+					propStatus: {
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: undefined,
+					},
 					value: '50% 50%',
 				},
 			},
@@ -3935,7 +4230,11 @@ test('Crop follows an absent or crop-centered static transform origin', () => {
 			nextCrop,
 			transformOrigin: {
 				defaultValue: '50% 50%',
-				propStatus: {status: 'static', codeValue: undefined},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: undefined,
+				},
 				value: '50% 50%',
 			},
 		}),
@@ -3947,7 +4246,11 @@ test('Crop follows an absent or crop-centered static transform origin', () => {
 			nextCrop,
 			transformOrigin: {
 				defaultValue: '50% 50%',
-				propStatus: {status: 'static', codeValue: '23.5% 41.5% 10px'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '23.5% 41.5% 10px',
+				},
 				value: '23.5% 41.5% 10px',
 			},
 		}),
@@ -3972,7 +4275,11 @@ test('Crop leaves custom, keyframed and computed transform origins alone', () =>
 			...base,
 			transformOrigin: {
 				defaultValue: '50% 50%',
-				propStatus: {status: 'static', codeValue: '50% 50%'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '50% 50%',
+				},
 				value: '50% 50%',
 			},
 		}),
@@ -3984,6 +4291,7 @@ test('Crop leaves custom, keyframed and computed transform origins alone', () =>
 				defaultValue: '50% 50%',
 				propStatus: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [{frame: 0, value: '23.5% 41.5%'}],
 					easing: [],
@@ -4087,6 +4395,7 @@ const makeTransformOriginDragTarget = ({
 	originPropStatus: originKeyframed
 		? {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: '50% 50%'},
@@ -4097,7 +4406,11 @@ const makeTransformOriginDragTarget = ({
 				posterize: undefined,
 				output: undefined,
 			}
-		: {status: 'static', codeValue: '50% 50%'},
+		: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: '50% 50%',
+			},
 	originValue: '50% 50%',
 	rotateValue: '0deg',
 	scaleValue: 1,
@@ -4107,6 +4420,7 @@ const makeTransformOriginDragTarget = ({
 	translatePropStatus: translateKeyframed
 		? {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: '0px 0px'},
@@ -4117,7 +4431,11 @@ const makeTransformOriginDragTarget = ({
 				posterize: undefined,
 				output: undefined,
 			}
-		: {status: 'static', codeValue: '10px 20px'},
+		: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: '10px 20px',
+			},
 	translateValue: '10px 20px',
 });
 
@@ -4785,28 +5103,44 @@ test('UV ellipse interactive controls expose resize and rotation handles', () =>
 				fieldKey: 'width',
 				fieldSchema: schema.width,
 				fieldDefault: schema.width.default,
-				propStatus: {status: 'static', codeValue: 0.6},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 0.6,
+				},
 				value: 0.6,
 			},
 			height: {
 				fieldKey: 'height',
 				fieldSchema: schema.height,
 				fieldDefault: schema.height.default,
-				propStatus: {status: 'static', codeValue: 0.4},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 0.4,
+				},
 				value: 0.4,
 			},
 			rotation: {
 				fieldKey: 'rotation',
 				fieldSchema: schema.rotation,
 				fieldDefault: schema.rotation.default,
-				propStatus: {status: 'static', codeValue: 90},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 90,
+				},
 				value: 90,
 			},
 			start: {
 				fieldKey: 'start',
 				fieldSchema: schema.start,
 				fieldDefault: schema.start.default,
-				propStatus: {status: 'static', codeValue: 0.5},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 0.5,
+				},
 				value: 0.5,
 			},
 		},
@@ -4815,7 +5149,11 @@ test('UV ellipse interactive controls expose resize and rotation handles', () =>
 		fieldSchema: schema.center,
 		isSelected: true,
 		nodePath,
-		propStatus: {status: 'static', codeValue: [0.5, 0.5]},
+		propStatus: {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: [0.5, 0.5],
+		},
 		schema,
 		sourceFrame: 0,
 		value: [0.5, 0.5],
@@ -4895,28 +5233,44 @@ test('UV ellipse interactive controls rotate numeric fields in pixel space', () 
 				fieldKey: 'width',
 				fieldSchema: schema.width,
 				fieldDefault: schema.width.default,
-				propStatus: {status: 'static', codeValue: 0.6},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 0.6,
+				},
 				value: 0.6,
 			},
 			height: {
 				fieldKey: 'height',
 				fieldSchema: schema.height,
 				fieldDefault: schema.height.default,
-				propStatus: {status: 'static', codeValue: 0.4},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 0.4,
+				},
 				value: 0.4,
 			},
 			rotation: {
 				fieldKey: 'rotation',
 				fieldSchema: schema.rotation,
 				fieldDefault: schema.rotation.default,
-				propStatus: {status: 'static', codeValue: 90},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 90,
+				},
 				value: 90,
 			},
 			start: {
 				fieldKey: 'start',
 				fieldSchema: schema.start,
 				fieldDefault: schema.start.default,
-				propStatus: {status: 'static', codeValue: 0.5},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 0.5,
+				},
 				value: 0.5,
 			},
 		},
@@ -4925,7 +5279,11 @@ test('UV ellipse interactive controls rotate numeric fields in pixel space', () 
 		fieldSchema: schema.center,
 		isSelected: true,
 		nodePath,
-		propStatus: {status: 'static', codeValue: [0.5, 0.5]},
+		propStatus: {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: [0.5, 0.5],
+		},
 		schema,
 		sourceFrame: 0,
 		value: [0.5, 0.5],
@@ -4985,14 +5343,17 @@ const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {
 					props: {
 						start: {
 							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
 							codeValue: [0.2, 0.3],
 						},
 						end: {
 							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
 							codeValue: [0.8, 0.7],
 						},
 						dotSize: {
 							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
 							codeValue: 10,
 						},
 					},
@@ -5174,6 +5535,7 @@ test('UV handles are requested for keyframed selected effect props', () => {
 					props: {
 						position: {
 							status: 'keyframed',
+							keyframeDisplayOffsetAdjustment: null,
 							interpolationFunction: 'interpolate',
 							keyframes: [
 								{frame: 0, value: [0, 0]},
@@ -5406,6 +5768,7 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 10, value: 0},
@@ -5430,6 +5793,8 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 			selectedItems: [],
 			timeline: [
 				{
+					cascadedStart: 0,
+					localStart: 0,
 					depth: 0,
 					keyframeDisplayOffset: 0,
 					nodePathInfo: sequenceNodePathInfo,
@@ -5535,8 +5900,16 @@ test('Backspace reset targets multiple selected sequence props', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				opacity: {status: 'static', codeValue: 0.5},
-				'style.rotate': {status: 'static', codeValue: '45deg'},
+				opacity: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 0.5,
+				},
+				'style.rotate': {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '45deg',
+				},
 			},
 			effects: [],
 		},
@@ -5580,7 +5953,11 @@ test('Backspace reset targets stroke with the SVG default', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				stroke: {status: 'static', codeValue: '#ff0000'},
+				stroke: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '#ff0000',
+				},
 			},
 			effects: [],
 		},
@@ -5622,7 +5999,11 @@ test('Backspace reset targets border radius with the CSS default', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				'style.borderRadius': {status: 'static', codeValue: 24},
+				'style.borderRadius': {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 24,
+				},
 			},
 			effects: [],
 		},
@@ -5671,6 +6052,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0},
@@ -5761,6 +6143,7 @@ test('Backspace reset targets flattened built-in keyframed sequence style props'
 			props: {
 				'style.opacity': {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0},
@@ -5819,6 +6202,7 @@ test('Backspace reset skips keyframed sequence props without defaults', () => {
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0},
@@ -5866,7 +6250,11 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			startZ: 30,
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '10px 20px 30px'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '10px 20px 30px',
+				},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
 				nodePath: firstNodePath,
@@ -5882,7 +6270,11 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			startZ: null,
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '-5px 3px'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '-5px 3px',
+				},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
 				nodePath: secondNodePath,
@@ -5935,8 +6327,16 @@ test('Selected outline active schema exposes default Sequence translate controls
 		},
 		dragOverrides: {},
 		propStatus: {
-			layout: {status: 'static', codeValue: undefined},
-			'style.translate': {status: 'static', codeValue: undefined},
+			layout: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: undefined,
+			},
+			'style.translate': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: undefined,
+			},
 		},
 		frame: 0,
 	});
@@ -5989,7 +6389,11 @@ test('Selected outline keyboard nudging moves by one or ten pixels', () => {
 			startZ: null,
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '10px 20px'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '10px 20px',
+				},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
 				nodePath,
@@ -6135,6 +6539,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 				clientId: 'client',
 				propStatus: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: '0px 0px 15px'},
@@ -6200,7 +6605,11 @@ test('Selected outline edge dragging scales one axis when scale is unlinked', ()
 			startZ: 1,
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '2 3'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '2 3',
+				},
 				fieldDefault: 1,
 				fieldSchema: schema['style.scale'],
 				keyframeDisplayOffset: 0,
@@ -6259,7 +6668,11 @@ test('Selected outline edge dragging rounds scale values', () => {
 			startZ: 1,
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '2 3'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '2 3',
+				},
 				fieldDefault: 1,
 				fieldSchema: schema['style.scale'],
 				keyframeDisplayOffset: 0,
@@ -6294,7 +6707,11 @@ test('Selected outline edge dragging preserves aspect ratio when scale is linked
 			startZ: 1,
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '2 3'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '2 3',
+				},
 				fieldDefault: 1,
 				fieldSchema: schema['style.scale'],
 				keyframeDisplayOffset: 0,
@@ -6330,7 +6747,11 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 			startValue: '45deg',
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '45deg'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '45deg',
+				},
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
@@ -6349,7 +6770,11 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 			startValue: '-10deg',
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '-10deg'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '-10deg',
+				},
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
@@ -6410,7 +6835,11 @@ test('Selected outline corner dragging rounds rotation values', () => {
 			startValue: '32deg',
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '32deg'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '32deg',
+				},
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
@@ -6447,6 +6876,7 @@ test('Selected outline canvas dragging changes X and Y rotation while preserving
 				clientId: 'client',
 				propStatus: {
 					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
 					codeValue: '0.386017 0.438014 0.811871 38.630009deg',
 				},
 				fieldDefault: '0deg',
@@ -6489,6 +6919,7 @@ test('Selected outline corner dragging changes Z rotation while preserving X and
 				clientId: 'client',
 				propStatus: {
 					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
 					codeValue: '0.386017 0.438014 0.811871 38.630009deg',
 				},
 				fieldDefault: '0deg',
@@ -6534,7 +6965,11 @@ test('Selected outline corner dragging snaps rotation to 15 degree increments', 
 			startValue: '32deg',
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '32deg'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '32deg',
+				},
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
@@ -6575,7 +7010,11 @@ test('Selected outline corner dragging snaps selected rotations from the first d
 			startValue: '32deg',
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '32deg'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '32deg',
+				},
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
@@ -6594,7 +7033,11 @@ test('Selected outline corner dragging snaps selected rotations from the first d
 			startValue: '-10deg',
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '-10deg'},
+				propStatus: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: '-10deg',
+				},
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
@@ -6637,6 +7080,7 @@ test('Selected outline corner dragging keyframed rotation adds a keyframe at the
 				clientId: 'client',
 				propStatus: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: '0deg'},
@@ -6915,7 +7359,11 @@ test('Backspace reset targets selected effect props', () => {
 					importPath: null,
 					effectIndex: 0,
 					props: {
-						intensity: {status: 'static', codeValue: 10},
+						intensity: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 10,
+						},
 					},
 				},
 			],
@@ -6988,8 +7436,16 @@ test('Backspace reset targets active enum variant effect props', () => {
 					importPath: null,
 					effectIndex: 0,
 					props: {
-						colorMode: {status: 'static', codeValue: 'solid'},
-						dotColor: {status: 'static', codeValue: 'blue'},
+						colorMode: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 'solid',
+						},
+						dotColor: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 'blue',
+						},
 					},
 				},
 			],
@@ -7050,7 +7506,11 @@ test('Backspace reset targets selected static blur radius with default', () => {
 					importPath: null,
 					effectIndex: 0,
 					props: {
-						radius: {status: 'static', codeValue: 24},
+						radius: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 24,
+						},
 					},
 				},
 			],
@@ -7113,6 +7573,7 @@ test('Backspace reset targets selected keyframed effect props', () => {
 					props: {
 						intensity: {
 							status: 'keyframed',
+							keyframeDisplayOffsetAdjustment: null,
 							interpolationFunction: 'interpolate',
 							keyframes: [
 								{frame: 0, value: 10},
@@ -7185,6 +7646,7 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 					props: {
 						intensity: {
 							status: 'keyframed',
+							keyframeDisplayOffsetAdjustment: null,
 							interpolationFunction: 'interpolate',
 							keyframes: [
 								{frame: 0, value: 10},
@@ -7243,7 +7705,11 @@ test('Backspace reset targets mixed selected sequence and effect props', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				opacity: {status: 'static', codeValue: 0.5},
+				opacity: {
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: 0.5,
+				},
 			},
 			effects: [
 				{
@@ -7252,7 +7718,11 @@ test('Backspace reset targets mixed selected sequence and effect props', () => {
 					importPath: null,
 					effectIndex: 0,
 					props: {
-						intensity: {status: 'static', codeValue: 10},
+						intensity: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: 10,
+						},
 					},
 				},
 			],
@@ -7424,6 +7894,7 @@ test('Deleting selected keyframe selects remaining easing under playhead', () =>
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0},
@@ -7480,6 +7951,7 @@ test('Deleting selected keyframe clears selection when playhead is not between r
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0},
@@ -7603,6 +8075,7 @@ test('Deleting all selected keyframes preserves the value at the playhead', asyn
 			props: {
 				opacity: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0},

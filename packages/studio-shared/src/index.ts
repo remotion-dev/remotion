@@ -61,6 +61,8 @@ export {
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoRequest,
 	GetDefaultEditorInfoResponse,
+	GetRemotionSkillsInfoRequest,
+	GetRemotionSkillsInfoResponse,
 	GoogleFontSourceEdit,
 	InsertElementFileConflict,
 	InsertElementRequest,
@@ -120,10 +122,14 @@ export {
 	SimpleDiff,
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse,
+	SplitVideoFromAudioRequest,
+	SplitVideoFromAudioResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
+	SubscribeToSequencePropsBatchRequest,
+	SubscribeToSequencePropsBatchResponse,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
 	UndoRequest,
@@ -149,7 +155,15 @@ export {
 	type ConfigValue,
 	type KeyframeSettings,
 } from './api-requests';
-export type {BrowserStudioOperations} from './browser-studio-operations';
+export type {
+	BrowserStudioKeyframeOperations,
+	BrowserStudioEffectOperations,
+	BrowserStudioInstallPackagesResponse,
+	BrowserStudioOperations,
+	BrowserStudioPackageInstallationOperations,
+	DuplicateCompositionRequest,
+	DuplicateCompositionResponse,
+} from './browser-studio-operations';
 export type {
 	CanvasCaptureData,
 	CanvasCaptureMouseMovement,
@@ -180,6 +194,13 @@ export {
 	type FileType,
 	type ImageFileType,
 } from './detect-file-type';
+export {
+	getRemoteAssetElement,
+	getRemoteAssetFilename,
+	maxRemoteAssetSize,
+	remoteAssetAcceptHeader,
+	remoteAssetDownloadTimeout,
+} from './remote-asset';
 export {
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
@@ -340,7 +361,10 @@ export {
 	type StudioEntryPointPaths,
 } from './studio-entry-points';
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
-export type {StudioRuntimeConfig} from './studio-runtime-config';
+export type {
+	ConfigFileStudioSettings,
+	StudioRuntimeConfig,
+} from './studio-runtime-config';
 export {
 	BORDER_RADIUS_LONGHAND_KEYS,
 	BORDER_RADIUS_SHORTHAND_KEY,

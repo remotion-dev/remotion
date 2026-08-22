@@ -9,9 +9,8 @@ import {
 } from '../../helpers/open-in-editor';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
-	canUseEditorPicker,
 	useDefaultCodingAgentInfo,
-	useDefaultEditorInfo,
+	useEditorOpening,
 } from '../use-default-editor-info';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
@@ -22,31 +21,32 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 		sequence.getStack,
 		sequence.controls?.overrideId ?? sequence.id,
 	);
-	const editorPickerAvailable = canUseEditorPicker(previewConnected);
-	const editorInfo = useDefaultEditorInfo(editorPickerAvailable);
-	const codingAgentInfo = useDefaultCodingAgentInfo(editorPickerAvailable);
-
+	const {
+		canConfigureApps,
+		canOpenInEditor: editorAvailable,
+		defaultEditorId,
+		editorInfo,
+	} = useEditorOpening(previewConnected);
+	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
 	const canOpenInEditor = useMemo(
-		() =>
-			Boolean(
-				window.remotion_editorName && previewConnected && originalLocation,
-			),
-		[originalLocation, previewConnected],
+		() => Boolean(editorAvailable && originalLocation),
+		[editorAvailable, originalLocation],
 	);
 
 	const openInEditor = useCallback(
 		async (editorId: EditorPickerId | null) => {
-			if (!canOpenInEditor || !originalLocation) {
+			const resolvedEditorId = editorId ?? defaultEditorId;
+			if (!canOpenInEditor || !originalLocation || !resolvedEditorId) {
 				return;
 			}
 
 			try {
-				await openOriginalPositionInEditor(originalLocation, editorId);
+				await openOriginalPositionInEditor(originalLocation, resolvedEditorId);
 			} catch (err) {
 				showNotification((err as Error).message, 2000);
 			}
 		},
-		[canOpenInEditor, originalLocation],
+		[canOpenInEditor, defaultEditorId, originalLocation],
 	);
 	const openInCodingAgent = useCallback(
 		async (
@@ -71,7 +71,7 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 
 	return {
 		canOpenInEditor,
-		canConfigureApps: editorPickerAvailable,
+		canConfigureApps,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,

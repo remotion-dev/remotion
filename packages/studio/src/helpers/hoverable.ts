@@ -11,6 +11,7 @@ import {TRANSPARENT} from './colors';
 export const HOVERABLE_CLASS_NAME = '__remotion-hoverable';
 export const HOVER_GROUP_CLASS_NAME = '__remotion-hover-group';
 export const HOVER_GROUP_REVEAL_CLASS_NAME = '__remotion-hover-group-reveal';
+export const FOCUS_VISIBLE_ONLY_CLASS_NAME = '__remotion-focus-visible-only';
 
 const BG_VARIABLE = '--remotion-hoverable-bg';
 const HOVER_BG_VARIABLE = '--remotion-hoverable-hover-bg';

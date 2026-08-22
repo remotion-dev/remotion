@@ -1,6 +1,7 @@
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
+import {simpleDiff} from '@remotion/studio-codemods';
 import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
@@ -11,7 +12,6 @@ import {
 	resolveFilePathFromSymbolicatedStack,
 } from '../../codemods/apply-codemod-to-file';
 import {formatOutput} from '../../codemods/duplicate-composition';
-import {simpleDiff} from '../../codemods/simple-diff';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
@@ -23,7 +23,10 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {checkIfTypeScriptFile} from './can-update-default-props';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const formatNewCompositionFile = (
 	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,
@@ -338,7 +341,7 @@ export const applyCodemodHandler: ApiHandler<
 				}
 
 				const logMessage = getCodemodLogMessage(codemod);
-				const editMessage = `${RenderInternals.chalk.blueBright(
+				const editMessage = `${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
 					formatLogFileLocation({
 						remotionRoot,
 						absolutePath: filePath,

@@ -52,7 +52,7 @@ export const getOpenInMenuItems = ({
 	readonly fileManagerDisabled: boolean;
 	readonly folder: boolean;
 	readonly location: OriginalPosition | null;
-	readonly onConfigureApps: () => void;
+	readonly onConfigureApps: (() => void) | null;
 	readonly onOpenInCodingAgent: (
 		codingAgentId: DefaultCodingAgent,
 		codingAgentName: string,
@@ -228,19 +228,21 @@ export const getOpenInMenuItems = ({
 					...systemApps,
 				]
 			: []),
-		...(hasCategorizedApps || systemApps.length > 0
+		...(onConfigureApps && (hasCategorizedApps || systemApps.length > 0)
 			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
 			: []),
-		{
-			id: 'change-default-apps',
-			keyHint: null,
-			label: <span style={menuLabel}>Change default apps...</span>,
-			leftItem: null,
-			onClick: onConfigureApps,
-			quickSwitcherLabel: null,
-			subMenu: null,
-			type: 'item' as const,
-			value: 'change-default-apps',
-		},
-	];
+		onConfigureApps
+			? {
+					id: 'change-default-apps',
+					keyHint: null,
+					label: <span style={menuLabel}>Change default apps...</span>,
+					leftItem: null,
+					onClick: onConfigureApps,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item' as const,
+					value: 'change-default-apps',
+				}
+			: null,
+	].filter(NoReactInternals.truthy);
 };

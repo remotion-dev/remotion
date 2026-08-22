@@ -53,6 +53,7 @@ import {
 import {getInstallCommand} from './helpers/install-command';
 import {getPackageManagerSpawnOptions} from './helpers/package-manager-spawn-options';
 import {
+	getConfiguredMaxTimelineTracks,
 	getMaxTimelineTracks,
 	resetMaxTimelineTracks,
 	setMaxTimelineTracks,
@@ -85,6 +86,7 @@ export const StudioServerInternals = {
 	lockFilePaths,
 	getPackageManager,
 	getMaxTimelineTracks,
+	getConfiguredMaxTimelineTracks,
 	setMaxTimelineTracks,
 	resetMaxTimelineTracks,
 	getLatestRemotionVersion,

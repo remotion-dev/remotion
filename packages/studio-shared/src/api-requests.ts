@@ -348,6 +348,16 @@ export type SubscribeToSequencePropsResponse =
 			status: CanUpdateSequencePropsResponseFalse;
 	  };
 
+export type SubscribeToSequencePropsBatchRequest =
+	SubscribeToSequencePropsRequest & {
+		requests?: SubscribeToSequencePropsRequest[];
+	};
+
+export type SubscribeToSequencePropsBatchResponse =
+	SubscribeToSequencePropsResponse & {
+		results: SubscribeToSequencePropsResponse[];
+	};
+
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -824,6 +834,22 @@ export type SplitJsxSequenceResponse =
 			stack: string;
 	  };
 
+export type SplitVideoFromAudioRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+};
+
+export type SplitVideoFromAudioResponse =
+	| {
+			success: true;
+			nodePathMutation: SequenceNodePathMutation;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type InsertableCompositionElement =
 	| {
 			type: 'solid';
@@ -976,6 +1002,10 @@ export type ElementInstallSource =
 			origin: string;
 	  }
 	| {
+			type: 'browser-studio-link';
+			origin: string | null;
+	  }
+	| {
 			type: 'drag-and-drop';
 	  };
 
@@ -1021,9 +1051,19 @@ export type UpdateAvailableResponse = {
 	latestVersion: string;
 	updateAvailable: boolean;
 	skillsUpdateAvailable: boolean;
-	remotionUpgradeSkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
+};
+
+export type GetRemotionSkillsInfoRequest = {};
+export type GetRemotionSkillsInfoResponse = {
+	remotionUpgradeSkillAvailable: boolean;
+	remotionInteractivitySkillAvailable: boolean;
+	skills: {
+		name: string;
+		installedInProject: boolean;
+		installedGlobally: boolean;
+	}[];
 };
 
 export type ProjectInfoRequest = {};
@@ -1186,8 +1226,8 @@ export type ApiRoutes = {
 		undefined
 	>;
 	'/api/subscribe-to-sequence-props': ReqAndRes<
-		SubscribeToSequencePropsRequest,
-		SubscribeToSequencePropsResponse
+		SubscribeToSequencePropsBatchRequest,
+		SubscribeToSequencePropsBatchResponse
 	>;
 	'/api/unsubscribe-from-sequence-props': ReqAndRes<
 		UnsubscribeFromSequencePropsRequest,
@@ -1255,6 +1295,10 @@ export type ApiRoutes = {
 		SplitJsxSequenceRequest,
 		SplitJsxSequenceResponse
 	>;
+	'/api/split-video-from-audio': ReqAndRes<
+		SplitVideoFromAudioRequest,
+		SplitVideoFromAudioResponse
+	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
@@ -1279,6 +1323,10 @@ export type ApiRoutes = {
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,
 		UpdateAvailableResponse
+	>;
+	'/api/remotion-skills-info': ReqAndRes<
+		GetRemotionSkillsInfoRequest,
+		GetRemotionSkillsInfoResponse
 	>;
 	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
 	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;

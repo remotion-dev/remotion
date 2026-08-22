@@ -37,7 +37,11 @@ export const optimisticUpdateForEffectPropStatuses = ({
 
 	const props: Record<string, CanUpdateSequencePropStatus> = {
 		...target.props,
-		[fieldKey]: {status: 'static', codeValue: value},
+		[fieldKey]: {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: value,
+		},
 	};
 
 	if (schema[fieldKey]?.type === 'enum') {

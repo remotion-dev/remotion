@@ -522,8 +522,15 @@ test('Interpolates rotate strings', () => {
 		'0.5 0.5 0 50deg',
 	);
 	expect(interpolate(15, [0, 30], ['0deg', '1 0 0 100deg'])).toBe(
-		'0.5 0 0.5 50deg',
+		'1 0 0 50deg',
 	);
+	expect(
+		interpolate(
+			15,
+			[0, 30],
+			['0deg', '0.901683 0.345591 -0.259873 25.880675deg'],
+		),
+	).toBe('0.901683 0.345591 -0.259873 12.940338deg');
 });
 
 test('String interpolation supports easing, extrapolation and posterization', () => {

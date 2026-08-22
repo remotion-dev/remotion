@@ -81,16 +81,14 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 }) => {
 	if (field.typeName === 'number') {
 		return (
-			<span>
-				<TimelineNumberField
-					effectiveValue={effectiveValue}
-					field={field}
-					onDragEnd={onDragEnd}
-					onDragValueChange={onDragValueChange}
-					onSave={onSave}
-					propStatus={propStatus}
-				/>
-			</span>
+			<TimelineNumberField
+				effectiveValue={effectiveValue}
+				field={field}
+				onDragEnd={onDragEnd}
+				onDragValueChange={onDragValueChange}
+				onSave={onSave}
+				propStatus={propStatus}
+			/>
 		);
 	}
 

@@ -8,6 +8,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 
 const {
+	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	beepOnFinishOption,
 	colorSpaceOption,
@@ -18,6 +19,7 @@ const {
 	encodingMaxRateOption,
 	deleteAfterOption,
 	folderExpiryOption,
+	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,
 	numberOfGifLoopsOption,
 	x264Option,
@@ -86,6 +88,9 @@ const {
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
+	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
+		typeof allowHtmlInCanvasOption
+	> | null;
 	[browserExecutableOption.cliFlag]: TypeOfOption<
 		typeof browserExecutableOption
 	>;
@@ -186,6 +191,9 @@ export type CommandLineOptions = {
 	[ipv4Option.cliFlag]: TypeOfOption<typeof ipv4Option> | null;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
+	[enableCancellationOption.cliFlag]: TypeOfOption<
+		typeof enableCancellationOption
+	> | null;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
 		typeof enableMultiprocessOnLinuxOption
 	>;
@@ -209,6 +217,7 @@ export type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
+	allowHtmlInCanvasOption.cliFlag,
 	overwriteOption.cliFlag,
 	imageSequenceOption.cliFlag,
 	'help',
@@ -227,6 +236,7 @@ export const BooleanFlags = [
 	disableGitSourceOption.cliFlag,
 	disallowParallelEncodingOption.cliFlag,
 	forSeamlessAacConcatenationOption.cliFlag,
+	enableCancellationOption.cliFlag,
 	reproOption.cliFlag,
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
@@ -239,6 +249,7 @@ export const BooleanFlags = [
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
+		[allowHtmlInCanvasOption.cliFlag]: null,
 		[overwriteOption.cliFlag]: null,
 		[bundleCacheOption.cliFlag]: null,
 		[darkModeOption.cliFlag]: null,
@@ -256,6 +267,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[forceNewStudioOption.cliFlag]: null,
 		[experimentalKeepAudioContextAliveOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
+		[enableCancellationOption.cliFlag]: null,
 		[rspackOption.cliFlag]: null,
 	},
 }) as CommandLineOptions & {

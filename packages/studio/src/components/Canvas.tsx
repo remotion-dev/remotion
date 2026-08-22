@@ -12,6 +12,7 @@ import React, {
 import type {CanvasContent} from 'remotion';
 import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
 import {getStaticFiles} from '../api/get-static-files';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getClipboardFigmaHtml} from '../helpers/clipboard-figma';
 import {getClipboardImageFiles} from '../helpers/clipboard-images';
@@ -60,7 +61,11 @@ import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
-import {subscribeToElementInstallRequests} from './element-install-request';
+import {prepareElementInstall} from './element-install-api';
+import {
+	enqueueElementInstallRequest,
+	subscribeToElementInstallRequests,
+} from './element-install-request';
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {handleDrop} from './handle-drop';
 import {
@@ -833,6 +838,37 @@ export const Canvas: React.FC<{
 
 	useEffect(() => {
 		if (
+			!canInstallElements ||
+			compositionFile === null ||
+			currentCompositionId === null
+		) {
+			return;
+		}
+
+		const initialElement =
+			getBrowserStudioOperations()?.consumeInitialElement() ?? null;
+		if (initialElement === null) {
+			return;
+		}
+
+		enqueueElementInstallRequest({
+			clientId: 'browser-studio',
+			compositionFile,
+			compositionId: currentCompositionId,
+			createdAt: Date.now(),
+			element: initialElement.element,
+			from: null,
+			id: crypto.randomUUID(),
+			position: null,
+			source: {
+				origin: initialElement.sourceOrigin,
+				type: 'browser-studio-link',
+			},
+		});
+	}, [canInstallElements, compositionFile, currentCompositionId]);
+
+	useEffect(() => {
+		if (
 			activeElementInstallRequest !== null ||
 			pendingElementInstallRequests.length === 0
 		) {
@@ -857,7 +893,7 @@ export const Canvas: React.FC<{
 
 		const handleInstallRequest = async () => {
 			setInstallingElementName(activeElementInstallRequest.element.displayName);
-			const preflight = await callApi('/api/prepare-element-install', {
+			const preflight = await prepareElementInstall({
 				compositionFile: activeElementInstallRequest.compositionFile,
 				compositionId: activeElementInstallRequest.compositionId,
 				element: activeElementInstallRequest.element,
@@ -897,25 +933,32 @@ export const Canvas: React.FC<{
 						? dependency.name
 						: `${dependency.name}@${dependency.version}`,
 				);
+			const {source} = activeElementInstallRequest;
 			const sourceLabel =
-				activeElementInstallRequest.source.type === 'studio-protocol'
-					? activeElementInstallRequest.source.origin
-					: 'Unverified drag-and-drop payload';
+				source.type === 'studio-protocol'
+					? source.origin
+					: source.type === 'browser-studio-link'
+						? (source.origin ?? 'Unverified Browser Studio link')
+						: 'Unverified drag-and-drop payload';
+			const sourceIsUnverified =
+				source.type === 'drag-and-drop' ||
+				(source.type === 'browser-studio-link' && source.origin === null);
 			const accepted = await confirm({
 				title: 'Install Element',
 				message: (
 					<ElementInstallConfirmation
 						displayName={activeElementInstallRequest.element.displayName}
 						sourceLabel={sourceLabel}
-						sourceIsUnverified={
-							activeElementInstallRequest.source.type === 'drag-and-drop'
-						}
+						sourceIsUnverified={sourceIsUnverified}
 						compositionId={activeElementInstallRequest.compositionId}
 						filePath={preflight.plan.filePath}
 						overwritesExistingFile={preflight.plan.expectedFileState.exists}
 						dependenciesToReview={dependenciesToReview}
 						missingPackages={missingPackages}
 						sourceCode={activeElementInstallRequest.element.sourceCode}
+						usesBrowserDependencyResolution={
+							getBrowserStudioOperations() !== null
+						}
 					/>
 				),
 				confirmLabel: 'Install',
@@ -1094,14 +1137,17 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			if (isFileDragEvent(event) && !window.remotion_isReadOnlyStudio) {
+			const localFiles = isFileDragEvent(event)
+				? Array.from(event.dataTransfer?.files ?? [])
+				: null;
+
+			if (localFiles !== null && !window.remotion_isReadOnlyStudio) {
 				event.preventDefault();
 				event.stopPropagation();
-				const files = Array.from(event.dataTransfer?.files ?? []);
-				if (files.length === 1) {
+				if (localFiles.length === 1) {
 					setIsAddingAsset(true);
 					try {
-						const canvasCapture = await getCanvasCaptureImport(files[0]);
+						const canvasCapture = await getCanvasCaptureImport(localFiles[0]);
 						if (canvasCapture !== null) {
 							setSelectedModal({
 								type: 'new-comp',
@@ -1201,6 +1247,7 @@ export const Canvas: React.FC<{
 					event,
 					fps: config.fps,
 					from: getCurrentFrame(),
+					localFiles,
 					preferCompositionStart: true,
 				});
 			} finally {

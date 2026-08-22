@@ -161,6 +161,8 @@ export const CompositionSelector: React.FC = () => {
 		return {
 			flex: 1,
 			overflowY: 'auto',
+			paddingTop: 4,
+			paddingBottom: 4,
 			backgroundColor: rootDragHovered ? WHITE_ALPHA_12 : BACKGROUND,
 		};
 	}, [rootDragHovered]);

@@ -71,7 +71,7 @@ const CaseFrame: React.FC<{
 						{status}
 					</div>
 					<div style={{fontSize: 28, color: '#94a3b8'}}>
-						Case {String(caseNumber).padStart(2, '0')} / 15
+						Case {String(caseNumber).padStart(2, '0')} / 13
 					</div>
 				</div>
 				<div
@@ -615,129 +615,15 @@ export const OutlineSelectionCases: React.FC = () => {
 			<Series.Sequence
 				durationInFrames={caseDurationInFrames}
 				layout="none"
-				name="10 - Every outline reachable"
+				name="10 - Selected outline wins"
 			>
 				<CaseFrame
 					caseNumber={10}
-					status="Gap"
-					title="Every outline eventually becomes selectable"
-					summary="Completely coincident outlines cannot all be reached through the canvas when only the top hit target responds."
-					desiredBehavior="A deterministic click-through or cycling interaction must eventually select every outline at the pointer."
-					instructions="Use the future cycling gesture repeatedly on the stack. All four named outlines should become selected in a predictable order."
-				>
-					<Interactive.Div
-						name="Coincident outline A"
-						style={{
-							position: 'absolute',
-							left: 190,
-							top: 200,
-							width: 500,
-							height: 420,
-							backgroundColor: '#2563eb',
-							borderRadius: 30,
-							translate: '0px 0px',
-						}}
-					>
-						<ShapeLabel>4 coincident outlines</ShapeLabel>
-					</Interactive.Div>
-					<Interactive.Div
-						name="Coincident outline B"
-						style={{
-							position: 'absolute',
-							left: 190,
-							top: 200,
-							width: 500,
-							height: 420,
-							backgroundColor: 'rgba(225, 29, 72, 0.42)',
-							borderRadius: 30,
-							translate: '0px 0px',
-						}}
-					/>
-					<Interactive.Div
-						name="Coincident outline C"
-						style={{
-							position: 'absolute',
-							left: 190,
-							top: 200,
-							width: 500,
-							height: 420,
-							backgroundColor: 'rgba(217, 119, 6, 0.36)',
-							borderRadius: 30,
-							translate: '0px 0px',
-						}}
-					/>
-					<Interactive.Div
-						name="Coincident outline D"
-						style={{
-							position: 'absolute',
-							left: 190,
-							top: 200,
-							width: 500,
-							height: 420,
-							backgroundColor: 'rgba(124, 58, 237, 0.3)',
-							borderRadius: 30,
-							translate: '0px 0px',
-						}}
-					/>
-				</CaseFrame>
-			</Series.Sequence>
-
-			<Series.Sequence
-				durationInFrames={caseDurationInFrames}
-				layout="none"
-				name="11 - Equal-area siblings reachable"
-			>
-				<CaseFrame
-					caseNumber={11}
-					status="Gap"
-					title="Equal-area siblings are all reachable"
-					summary="Unrelated equal-area outlines retain render order, leaving the lower identical sibling inaccessible from the canvas."
-					desiredBehavior="Both siblings can be selected from the canvas; source order must not permanently lock access to one of them."
-					instructions="Cycle or click through the exact overlap. Both Equal sibling A and Equal sibling B should be reachable without using the timeline."
-				>
-					<Interactive.Div
-						name="Equal sibling A"
-						style={{
-							position: 'absolute',
-							left: 190,
-							top: 200,
-							width: 500,
-							height: 420,
-							backgroundColor: '#2563eb',
-							borderRadius: 30,
-							translate: '0px 0px',
-						}}
-					>
-						<ShapeLabel>Sibling A + B</ShapeLabel>
-					</Interactive.Div>
-					<Interactive.Div
-						name="Equal sibling B"
-						style={{
-							position: 'absolute',
-							left: 190,
-							top: 200,
-							width: 500,
-							height: 420,
-							backgroundColor: 'rgba(225, 29, 72, 0.42)',
-							borderRadius: 30,
-							translate: '0px 0px',
-						}}
-					/>
-				</CaseFrame>
-			</Series.Sequence>
-
-			<Series.Sequence
-				durationInFrames={caseDurationInFrames}
-				layout="none"
-				name="12 - Selected outline wins"
-			>
-				<CaseFrame
-					caseNumber={12}
-					status="Gap"
-					title="A selected outline always wins hit-testing"
-					summary="Area and hierarchy ordering can currently put an unselected child or smaller unrelated outline above the selected target."
-					desiredBehavior="Direct selection raises the selected outline for hit-testing so it remains draggable wherever its polygon is visible."
-					instructions="Select Large selected target in the timeline, then drag from beneath the amber overlap. The large target should move and remain selected."
+					status="Baseline"
+					title="A selected outline wins drag arbitration"
+					summary="An overlapping unselected outline stays hoverable and clickable, while a drag beginning inside the selected outline moves the existing selection."
+					desiredBehavior="Clicking the amber overlap selects it. Dragging there while the large target is selected moves the large target instead."
+					instructions="Select Large selected target in the timeline. Click the amber overlap to select it, or reselect the large target and drag from the overlap to move the large target."
 				>
 					<Interactive.Div
 						name="Large selected target"
@@ -775,15 +661,15 @@ export const OutlineSelectionCases: React.FC = () => {
 			<Series.Sequence
 				durationInFrames={caseDurationInFrames}
 				layout="none"
-				name="13 - Selected parent drag"
+				name="11 - Selected parent drag"
 			>
 				<CaseFrame
-					caseNumber={13}
-					status="Gap"
-					title="A selected parent drags from covered areas"
-					summary="A higher-priority child can receive the event inside a selected parent, replacing the selection instead of starting the drag."
-					desiredBehavior="After selecting the parent, every point inside its polygon starts a parent drag—even where a child covers that point."
-					instructions="Select Parent drag target in the timeline, then drag from the red child-covered area. Parent should move; Child should not become selected."
+					caseNumber={11}
+					status="Baseline"
+					title="A selected parent wins drag arbitration"
+					summary="A covering child stays clickable, while a drag beginning inside the selected parent moves the parent."
+					desiredBehavior="Clicking the child selects it. Dragging there while the parent is selected moves the parent instead."
+					instructions="Select Parent drag target in the timeline. Click the red child to select it, or reselect the parent and drag from the child-covered area to move the parent."
 				>
 					<Interactive.Div
 						name="Parent drag target"
@@ -821,15 +707,15 @@ export const OutlineSelectionCases: React.FC = () => {
 			<Series.Sequence
 				durationInFrames={caseDurationInFrames}
 				layout="none"
-				name="14 - Property selection survives drag"
+				name="12 - Property selection survives drag"
 			>
 				<CaseFrame
-					caseNumber={14}
-					status="Gap"
+					caseNumber={12}
+					status="Baseline"
 					title="Property selection survives outline dragging"
-					summary="A selected property raises its containing sequence, but pointer-down on the polygon can promote selection to the whole sequence."
-					desiredBehavior="Dragging the sequence outline preserves the property or keyframe selection while translating the owning sequence."
-					instructions="Select a property of Property-selected sequence, then drag the purple rectangle. The property selection should remain active."
+					summary="Click and drag gestures are arbitrated after the movement threshold, so dragging an outline does not replace its selected property."
+					desiredBehavior="Clicking the outline selects the sequence. Dragging it preserves the property or keyframe selection while translating the owning sequence."
+					instructions="Select a property of Property-selected sequence. Click the purple rectangle to select the sequence, or reselect the property and drag the rectangle to move it without changing selection."
 				>
 					<Interactive.Div
 						name="Property-selected sequence"
@@ -852,13 +738,13 @@ export const OutlineSelectionCases: React.FC = () => {
 			<Series.Sequence
 				durationInFrames={caseDurationInFrames}
 				layout="none"
-				name="15 - Handles above polygons"
+				name="13 - Handles above polygons"
 			>
 				<CaseFrame
-					caseNumber={15}
-					status="Partial"
+					caseNumber={13}
+					status="Baseline"
 					title="All selected editing handles stay on top"
-					summary="Transform-origin and UV handles are already globally raised, but scale and rotation controls can be covered by a later polygon."
+					summary="Transform-origin, UV, crop, scale, and rotation handles are globally raised above every outline polygon."
 					desiredBehavior="Every visible handle belonging to a selected outline is rendered and hit-tested above every unselected polygon."
 					instructions="Select Editable transform target and activate its transform controls. The amber polygon must not block any handle near the top-right corner."
 				>

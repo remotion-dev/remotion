@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {
-	getCurrentAssetMediaDetailLines,
+	getCurrentAssetMediaSections,
 	getCurrentAssetImageMetadataSource,
 	getCurrentAssetMetadataSource,
 } from '../components/CurrentAsset';
@@ -34,9 +34,9 @@ test('requests media metadata for audio and video assets', () => {
 	);
 });
 
-test('formats multimedia details for current assets', () => {
+test('formats video and audio sections for current assets', () => {
 	expect(
-		getCurrentAssetMediaDetailLines({
+		getCurrentAssetMediaSections({
 			duration: 10,
 			format: 'QuickTime / MOV',
 			width: 1920,
@@ -49,12 +49,25 @@ test('formats multimedia details for current assets', () => {
 			hasVideoTrack: true,
 			hasAudioTrack: true,
 		}),
-	).toEqual(['Video: H.264 · 29.97 FPS · HDR: No', 'Audio: AAC · 48000 Hz']);
+	).toEqual({
+		audio: [
+			{label: 'Duration', value: '00:10.00'},
+			{label: 'Codec', value: 'AAC'},
+			{label: 'Sample rate', value: '48000 Hz'},
+		],
+		video: [
+			{label: 'Dimensions', value: '1920 × 1080'},
+			{label: 'Frame rate', value: '29.97 FPS'},
+			{label: 'Duration', value: '00:10.00'},
+			{label: 'Codec', value: 'H.264'},
+			{label: 'HDR', value: 'No'},
+		],
+	});
 });
 
-test('formats missing audio for current asset videos', () => {
+test('returns an empty audio section for videos without audio', () => {
 	expect(
-		getCurrentAssetMediaDetailLines({
+		getCurrentAssetMediaSections({
 			duration: 10,
 			format: 'MP4',
 			width: 1920,
@@ -67,7 +80,41 @@ test('formats missing audio for current asset videos', () => {
 			hasVideoTrack: true,
 			hasAudioTrack: false,
 		}),
-	).toEqual(['Video: H.264 · 30.00 FPS · HDR: Yes', 'Audio: No audio']);
+	).toEqual({
+		audio: [],
+		video: [
+			{label: 'Dimensions', value: '1920 × 1080'},
+			{label: 'Frame rate', value: '30.00 FPS'},
+			{label: 'Duration', value: '00:10.00'},
+			{label: 'Codec', value: 'H.264'},
+			{label: 'HDR', value: 'Yes'},
+		],
+	});
+});
+
+test('formats audio-only assets', () => {
+	expect(
+		getCurrentAssetMediaSections({
+			duration: 125.5,
+			format: 'MP3',
+			width: null,
+			height: null,
+			videoCodec: null,
+			audioCodec: 'mp3',
+			fps: null,
+			isHdr: null,
+			sampleRate: 44100,
+			hasVideoTrack: false,
+			hasAudioTrack: true,
+		}),
+	).toEqual({
+		audio: [
+			{label: 'Duration', value: '02:05.50'},
+			{label: 'Codec', value: 'MP3'},
+			{label: 'Sample rate', value: '44100 Hz'},
+		],
+		video: null,
+	});
 });
 
 test('keeps renamed assets in their current folder', () => {

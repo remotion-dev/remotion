@@ -33,6 +33,7 @@ import {
 } from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
 import {getEasingSelectionAfterKeyframeDelete} from '../Timeline/get-easing-selection-after-keyframe-delete';
+import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
 import {getCurrentFrame} from '../Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from '../Timeline/parse-keyframe-field-from-node-path';
 import {TimelineEffectPropValue} from '../Timeline/TimelineEffectPropItem';
@@ -44,10 +45,10 @@ import {
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
 import {canEditEasingForInterpolationFunction} from '../Timeline/update-selected-easing';
 import {
-	InspectorActionSection,
+	InspectorQuickActionsSection,
 	InspectorBackAction,
 	InspectorDetailRow,
-	InspectorInlineAction,
+	InspectorQuickAction,
 	InspectorMessage,
 	InspectorSectionDivider,
 } from './common';
@@ -184,7 +185,6 @@ export const KeyframeInspector: React.FC<{
 
 		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
 		const {keyframeDisplayOffset} = track;
-		const sourceFrame = selection.frame - keyframeDisplayOffset;
 
 		if (keyframeField.type === 'sequence') {
 			const sequenceFields = getFieldsToShow({
@@ -213,11 +213,19 @@ export const KeyframeInspector: React.FC<{
 				field: sequenceField,
 				fieldLabel: sequenceField.description ?? sequenceField.key,
 				fileName: nodePath.absolutePath,
-				keyframeDisplayOffset,
+				keyframeDisplayOffset: getKeyframeDisplayOffset({
+					propStatus: sequencePropStatus,
+					keyframeDisplayOffset,
+				}),
 				nodePath,
 				propStatus: sequencePropStatus,
 				schema: track.sequence.controls.schema,
-				sourceFrame,
+				sourceFrame:
+					selection.frame -
+					getKeyframeDisplayOffset({
+						propStatus: sequencePropStatus,
+						keyframeDisplayOffset,
+					}),
 			};
 		}
 
@@ -257,11 +265,19 @@ export const KeyframeInspector: React.FC<{
 			field: effectField,
 			fieldLabel: effectField.description ?? effectField.key,
 			fileName: nodePath.absolutePath,
-			keyframeDisplayOffset,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
+				propStatus: effectPropStatus,
+				keyframeDisplayOffset,
+			}),
 			nodePath,
 			propStatus: effectPropStatus,
 			schema: effect.schema,
-			sourceFrame,
+			sourceFrame:
+				selection.frame -
+				getKeyframeDisplayOffset({
+					propStatus: effectPropStatus,
+					keyframeDisplayOffset,
+				}),
 			validatedLocation: {
 				source: nodePath.absolutePath,
 				line: 1,
@@ -567,21 +583,22 @@ export const KeyframeInspector: React.FC<{
 										nodePath={details.nodePath}
 										validatedLocation={details.validatedLocation}
 										sourceFrame={details.sourceFrame}
+										runtimeValueStore={null}
 									/>
 								)}
 							</div>
 						</InspectorDetailRow>
 					</div>
 				</div>
-				<InspectorActionSection>
-					<InspectorInlineAction
+				<InspectorQuickActionsSection>
+					<InspectorQuickAction
 						disabled={removeDisabled}
 						onClick={onRemoveKeyframe}
 						renderIcon={(color) => <TrashIcon color={color} />}
 					>
 						Remove keyframe
-					</InspectorInlineAction>
-				</InspectorActionSection>
+					</InspectorQuickAction>
+				</InspectorQuickActionsSection>
 			</div>
 		</div>
 	);

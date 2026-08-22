@@ -9,6 +9,7 @@
 .cache-loader
 .element-previews
 static/_raw
+static/__remotion_browser_studio_workspace__
 
 # Twoslash prewarm temp files
 .twoslash-work-*.json

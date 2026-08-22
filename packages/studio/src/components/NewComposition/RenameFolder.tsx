@@ -128,6 +128,7 @@ export const RenameFolder: React.FC<{
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

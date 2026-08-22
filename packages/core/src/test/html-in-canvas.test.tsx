@@ -67,6 +67,7 @@ const stub2dContext = () => {
 };
 
 let transferControlToOffscreenCalls = 0;
+const transferredCanvases = new WeakSet<HTMLCanvasElement>();
 
 Object.defineProperties(HTMLCanvasElement.prototype, {
 	getContext: {
@@ -96,6 +97,15 @@ Object.defineProperties(HTMLCanvasElement.prototype, {
 	transferControlToOffscreen: {
 		configurable: true,
 		value(this: HTMLCanvasElement) {
+			// Real browsers only allow one transfer per canvas.
+			if (transferredCanvases.has(this)) {
+				throw new DOMException(
+					'Cannot transfer control from a canvas for more than one time.',
+					'InvalidStateError',
+				);
+			}
+
+			transferredCanvases.add(this);
 			transferControlToOffscreenCalls++;
 			let contextMode: string | null = null;
 			const webgl2Context = {
@@ -320,51 +330,9 @@ test('<HtmlInCanvas> exposes crop controls', () => {
 	expect(htmlInCanvasSchema.cropBottom.keyframable).toBe(true);
 });
 
-test('<HtmlInCanvas> throws when nested in Chrome older than 152', () => {
-	const originalUserAgent = Object.getOwnPropertyDescriptor(
-		window.navigator,
-		'userAgent',
-	);
-	Object.defineProperty(window.navigator, 'userAgent', {
-		configurable: true,
-		value: 'Mozilla/5.0 HeadlessChrome/151.0.0.0 Safari/537.36',
-	});
-
-	try {
-		expect(() =>
-			render(
-				<SequenceTestWrapper onRegisterSequence={() => undefined}>
-					<HtmlInCanvas width={120} height={80}>
-						<HtmlInCanvas width={60} height={40}>
-							<div>Nested</div>
-						</HtmlInCanvas>
-					</HtmlInCanvas>
-				</SequenceTestWrapper>,
-			),
-		).toThrow(
-			'Nested <HtmlInCanvas> components require Chrome 152 or newer, but the current browser is Chrome 151.',
-		);
-	} finally {
-		if (originalUserAgent) {
-			Object.defineProperty(window.navigator, 'userAgent', originalUserAgent);
-		} else {
-			Reflect.deleteProperty(window.navigator, 'userAgent');
-		}
-	}
-});
-
-test('<HtmlInCanvas> allows nesting in Chrome 152', () => {
-	const originalUserAgent = Object.getOwnPropertyDescriptor(
-		window.navigator,
-		'userAgent',
-	);
-	Object.defineProperty(window.navigator, 'userAgent', {
-		configurable: true,
-		value: 'Mozilla/5.0 Chrome/152.0.0.0 Safari/537.36',
-	});
-
-	try {
-		const {container} = render(
+test('<HtmlInCanvas> throws when nested', () => {
+	expect(() =>
+		render(
 			<SequenceTestWrapper onRegisterSequence={() => undefined}>
 				<HtmlInCanvas width={120} height={80}>
 					<HtmlInCanvas width={60} height={40}>
@@ -372,16 +340,8 @@ test('<HtmlInCanvas> allows nesting in Chrome 152', () => {
 					</HtmlInCanvas>
 				</HtmlInCanvas>
 			</SequenceTestWrapper>,
-		);
-
-		expect(container.querySelectorAll('canvas')).toHaveLength(2);
-	} finally {
-		if (originalUserAgent) {
-			Object.defineProperty(window.navigator, 'userAgent', originalUserAgent);
-		} else {
-			Reflect.deleteProperty(window.navigator, 'userAgent');
-		}
-	}
+		),
+	).toThrow('<HtmlInCanvas> components cannot be nested.');
 });
 
 test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
@@ -474,6 +434,27 @@ test('<HtmlInCanvas> can use a higher backing density', async () => {
 	expect(transferControlToOffscreenCalls).toBe(1);
 });
 
+test('<HtmlInCanvas> tolerates layout effect re-runs on the same canvas', async () => {
+	// StrictMode double-invokes effects on the same canvas element. A second
+	// transferControlToOffscreen() call throws an InvalidStateError in real
+	// browsers, so the transferred OffscreenCanvas must be reused.
+	const {container} = render(
+		<React.StrictMode>
+			<SequenceTestWrapper onRegisterSequence={() => undefined}>
+				<HtmlInCanvas width={50} height={50} onPaint={() => undefined}>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>
+		</React.StrictMode>,
+	);
+
+	await waitFor(() => {
+		expect(container.querySelector('canvas')).not.toBeNull();
+	});
+
+	expect(transferControlToOffscreenCalls).toBe(1);
+});
+
 test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', async () => {
 	const {container} = render(
 		<SequenceTestWrapper onRegisterSequence={() => undefined}>
@@ -495,118 +476,6 @@ test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', as
 	const htmlInCanvasElement = canvas.querySelector('div');
 	await waitFor(() => {
 		expect(htmlInCanvasElement?.style.transform).toBe(
-			new DOMMatrix().toString(),
-		);
-	});
-});
-
-test('<HtmlInCanvas> propagates paints through nested layers', async () => {
-	let deepestPaintCalled = false;
-	let innerPaintCalled = false;
-	let outerPaintCalled = false;
-
-	const {container} = render(
-		<SequenceTestWrapper onRegisterSequence={() => undefined}>
-			<HtmlInCanvas
-				width={100}
-				height={100}
-				onPaint={() => {
-					outerPaintCalled = true;
-				}}
-			>
-				<HtmlInCanvas
-					width={50}
-					height={50}
-					onPaint={() => {
-						innerPaintCalled = true;
-					}}
-				>
-					<div>Nested</div>
-					<HtmlInCanvas
-						width={25}
-						height={25}
-						onPaint={() => {
-							deepestPaintCalled = true;
-						}}
-					>
-						<div>Deepest</div>
-					</HtmlInCanvas>
-				</HtmlInCanvas>
-			</HtmlInCanvas>
-		</SequenceTestWrapper>,
-	);
-
-	await waitFor(() => {
-		expect(container.querySelectorAll('canvas')).toHaveLength(3);
-	});
-
-	const [outerCanvas, innerCanvas, deepestCanvas] =
-		container.querySelectorAll('canvas');
-	expect(outerCanvas.contains(innerCanvas)).toBe(true);
-	expect(innerCanvas.contains(deepestCanvas)).toBe(true);
-
-	let innerPaintRequested = false;
-	let outerPaintRequested = false;
-	Object.defineProperty(innerCanvas, 'requestPaint', {
-		configurable: true,
-		value: () => {
-			innerPaintRequested = true;
-		},
-	});
-	Object.defineProperty(outerCanvas, 'requestPaint', {
-		configurable: true,
-		value: () => {
-			outerPaintRequested = true;
-		},
-	});
-
-	// Chromium 152+ dispatches nested paint events from deepest to shallowest.
-	// Remotion requests another parent paint after each async layer completes.
-	deepestCanvas.dispatchEvent(new Event('paint'));
-	await waitFor(() => {
-		expect(deepestPaintCalled).toBe(true);
-		expect(innerPaintRequested).toBe(true);
-	});
-
-	innerCanvas.dispatchEvent(new Event('paint'));
-	await waitFor(() => {
-		expect(innerPaintCalled).toBe(true);
-		expect(outerPaintRequested).toBe(true);
-	});
-
-	outerCanvas.dispatchEvent(new Event('paint'));
-	await waitFor(() => {
-		expect(outerPaintCalled).toBe(true);
-	});
-});
-
-test('<HtmlInCanvas> paints default nested layers directly on their layout canvases', async () => {
-	const {container} = render(
-		<SequenceTestWrapper onRegisterSequence={() => undefined}>
-			<HtmlInCanvas width={100} height={100}>
-				<HtmlInCanvas width={50} height={50}>
-					<HtmlInCanvas width={25} height={25}>
-						<div>Deepest</div>
-					</HtmlInCanvas>
-				</HtmlInCanvas>
-			</HtmlInCanvas>
-		</SequenceTestWrapper>,
-	);
-
-	await waitFor(() => {
-		expect(container.querySelectorAll('canvas')).toHaveLength(3);
-	});
-
-	expect(transferControlToOffscreenCalls).toBe(0);
-
-	const [outerCanvas, innerCanvas, deepestCanvas] =
-		container.querySelectorAll('canvas');
-	deepestCanvas.dispatchEvent(new Event('paint'));
-	innerCanvas.dispatchEvent(new Event('paint'));
-	outerCanvas.dispatchEvent(new Event('paint'));
-
-	await waitFor(() => {
-		expect(deepestCanvas.querySelector('div')?.style.transform).toBe(
 			new DOMMatrix().toString(),
 		);
 	});

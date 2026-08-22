@@ -44,6 +44,7 @@
 		{"path": "../studio-protocol"},
 		{"path": "../light-leaks"},
 		{"path": "../mac-cursors"},
+		{"path": "../maptiler"},
 		{"path": "../starburst"},
 		{"path": "../sfx"},
 		{"path": "../layout-utils"},

@@ -1,4 +1,4 @@
-import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import React, {useContext, useLayoutEffect} from 'react';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -9,34 +9,24 @@ import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
-import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {SetSelectedModalContext} from '../state/modals';
-import {
-	useIsTimelineSequenceHovered,
-	useSetTimelineSequenceHover,
-} from '../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
-import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
+import {deleteJsxNode} from './delete-jsx-node-api';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
-import {getSelectedOutlineControlLayout} from './selected-outline-control-layout';
 import type {SelectedOutline} from './selected-outline-geometry';
 import {type SelectedOutlineSnapPoint} from './selected-outline-snap';
 import {
 	cropFieldKeys,
 	rotateFieldKey,
+	type SelectedOutlineContextMenuOpenHandler,
 	type SelectedOutlineDragTarget,
 	type SelectedOutlineLayoutTarget,
-	type SelectedOutlineRotationDragTarget,
-	type SelectedOutlineScaleDragTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
-import {SelectedOutlineCropControls} from './SelectedOutlineCropControls';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
-import {SelectedOutlineRotationCornerHandle} from './SelectedOutlineRotationCornerHandle';
-import {SelectedOutlineScaleEdgeLine} from './SelectedOutlineScaleEdgeLine';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
@@ -48,19 +38,17 @@ import {
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {
-	canUseEditorPicker,
 	useDefaultCodingAgentInfo,
-	useDefaultEditorInfo,
+	useEditorOpening,
 } from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
+import {useSelectedOutlineControlTarget} from './use-selected-outline-control-target';
 type SelectedOutlineElementProps = {
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
-	readonly getAllRotationDragTargets: () => readonly SelectedOutlineRotationDragTarget[];
-	readonly getAllScaleDragTargets: () => readonly SelectedOutlineScaleDragTarget[];
 	readonly getLatestTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
@@ -75,6 +63,10 @@ type SelectedOutlineElementProps = {
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
+	readonly registerContextMenuOpen: (
+		key: string,
+		handler: SelectedOutlineContextMenuOpenHandler | null,
+	) => void;
 	readonly scale: number;
 	readonly renderControls?: boolean;
 	readonly renderPolygon?: boolean;
@@ -88,8 +80,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
-	getAllRotationDragTargets,
-	getAllScaleDragTargets,
 	getLatestTargetByKey,
 	layoutTarget,
 	outline,
@@ -97,15 +87,18 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	onContextMenuOpenChange,
 	onSnapPointsChange,
 	onSelect,
+	registerContextMenuOpen,
 	scale,
 	renderControls = true,
 	renderPolygon = true,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const canConfigureApps = canUseEditorPicker(
-		previewServerState.type === 'connected',
-	);
-	const editorInfo = useDefaultEditorInfo(canConfigureApps);
+	const {
+		canConfigureApps,
+		canOpenInEditor: editorAvailable,
+		defaultEditorId,
+		editorInfo,
+	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
@@ -117,61 +110,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
-	const setHoveredSequence = useSetTimelineSequenceHover();
-	const targetRef = useRef(layoutTarget);
-	const controlLayout = useMemo(
-		() => getSelectedOutlineControlLayout(outline.points),
-		[outline.points],
-	);
-	useLayoutEffect(() => {
-		targetRef.current = layoutTarget;
-	}, [layoutTarget]);
-	const getTarget = React.useCallback(() => {
-		const currentTarget = targetRef.current;
-		if (currentTarget === undefined) {
-			return undefined;
-		}
-
-		return getLatestTargetByKey(currentTarget.key);
-	}, [getLatestTargetByKey]);
-	const getLayoutTarget = React.useCallback(() => targetRef.current, []);
-	const hoveredNodePathKey = useMemo(
-		() =>
-			layoutTarget === undefined
-				? null
-				: timelineSequenceNodePathToKey(
-						layoutTarget.nodePathInfo.sequenceSubscriptionKey,
-					),
-		[layoutTarget],
-	);
-	const hovered = useIsTimelineSequenceHovered(hoveredNodePathKey);
-	const controlTarget =
-		layoutTarget !== undefined && (layoutTarget.containsSelection || hovered)
-			? getLatestTargetByKey(layoutTarget.key)
-			: undefined;
-	const onHoverChange = React.useCallback(
-		(key: string | null) => {
-			setHoveredSequence((currentHover) => {
-				if (key !== null) {
-					const hoverTarget = targetRef.current;
-					if (hoverTarget === undefined || hoverTarget.key !== key) {
-						return currentHover;
-					}
-
-					return {
-						key,
-						nodePathKey: timelineSequenceNodePathToKey(
-							hoverTarget.nodePathInfo.sequenceSubscriptionKey,
-						),
-						source: 'canvas',
-					};
-				}
-
-				return currentHover?.source === 'canvas' ? null : currentHover;
-			});
-		},
-		[setHoveredSequence],
-	);
+	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
+		useSelectedOutlineControlTarget({
+			getLatestTargetByKey,
+			layoutTarget,
+		});
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
@@ -204,9 +147,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			});
 			const action = getSequenceDoubleClickAction({
 				button,
-				canOpenInEditor:
-					previewServerState.type === 'connected' &&
-					Boolean(window.remotion_editorName),
+				canOpenInEditor: editorAvailable,
 				numberOfConnectedCompositions: connectedCompositions.length,
 			});
 
@@ -222,11 +163,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			const openTargetInEditor = async () => {
 				const originalLocation =
 					await resolveOriginalLocation(doubleClickTarget);
-				if (originalLocation === null) {
+				if (originalLocation === null || defaultEditorId === null) {
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation, null);
+				await openOriginalPositionInEditor(originalLocation, defaultEditorId);
 			};
 
 			openTargetInEditor().catch((err) => {
@@ -237,7 +178,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		},
 		[
 			compositions,
-			previewServerState.type,
+			defaultEditorId,
+			editorAvailable,
 			resolveOriginalLocation,
 			selectComposition,
 		],
@@ -266,9 +208,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				? contextMenuTarget.sequence.src
 				: null;
 		const assetLinkInfo = mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null;
-		const canOpenInEditor = Boolean(
-			window.remotion_editorName && originalLocation,
-		);
+		const canOpenInEditor = Boolean(originalLocation && editorAvailable);
 		const sourceEditingEnabled = isStudioInteractivityEnabled();
 		const disableInteractivityDisabled =
 			!sourceEditingEnabled || !contextMenuTarget.sequence.showInTimeline;
@@ -327,7 +267,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				}
 
 				try {
-					const result = await callApi('/api/delete-jsx-node', {
+					const result = await deleteJsxNode({
 						nodes: [
 							{
 								fileName: nodePath.absolutePath,
@@ -379,11 +319,12 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					});
 			},
 			openInEditor: (editorId) => {
-				if (!originalLocation) {
+				const resolvedEditorId = editorId ?? defaultEditorId;
+				if (!originalLocation || !resolvedEditorId || !editorAvailable) {
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation, editorId).catch(
+				openOriginalPositionInEditor(originalLocation, resolvedEditorId).catch(
 					(err) => {
 						showNotification((err as Error).message, 2000);
 					},
@@ -500,6 +441,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		editorInfo,
 		getTarget,
 		onSelect,
+		defaultEditorId,
+		editorAvailable,
 		previewServerState,
 		resolveOriginalLocation,
 		setManuallyEnabled,
@@ -507,13 +450,21 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		setSelectedModal,
 		setPropStatuses,
 	]);
+	useLayoutEffect(() => {
+		registerContextMenuOpen(outline.key, onContextMenuOpen);
+		return () => {
+			registerContextMenuOpen(outline.key, null);
+		};
+	}, [onContextMenuOpen, outline.key, registerContextMenuOpen]);
 
 	return (
 		<>
-			{renderPolygon ? (
+{renderPolygon ? (
 				<SelectedOutlinePolygon
 					compositionHeight={compositionHeight}
 					compositionWidth={compositionWidth}
+					containsSelection={layoutTarget?.containsSelection === true}
+					directlySelected={layoutTarget?.selected === true}
 					dragging={dragging}
 					getAllDragOutlines={getAllDragOutlines}
 					getAllDragTargets={getAllDragTargets}
@@ -542,6 +493,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					layoutTarget={layoutTarget}
 					onDraggingChange={onDraggingChange}
 					outline={outline}
+					transform3DMode={controlTarget.rotationDrag.transform3DMode}
 				/>
 			) : null}
 

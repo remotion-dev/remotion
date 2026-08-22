@@ -1,12 +1,12 @@
 export const elementCategories = [
 	{category: 'backgrounds', label: 'Backgrounds'},
 	{category: 'captions', label: 'Captions'},
+	{category: 'data', label: 'Charts & Data'},
 	{category: 'commerce', label: 'Commerce'},
-	{category: 'data', label: 'Data'},
 	{category: 'maps', label: 'Maps'},
 	{category: 'overlays', label: 'Overlays'},
 	{category: 'storytelling', label: 'Storytelling'},
-	{category: 'text', label: 'Text'},
+	{category: 'text', label: 'Text Effects'},
 	{category: 'youtube', label: 'YouTube'},
 ] as const;
 
@@ -41,6 +41,10 @@ export const elementRegistry = {
 		category: 'captions',
 		displayName: 'Word Highlight Captions',
 	},
+	'commerce/product-collection': {
+		category: 'commerce',
+		displayName: 'Product Collection',
+	},
 	'commerce/product-discount-callout': {
 		category: 'commerce',
 		displayName: 'Product Discount Callout',
@@ -73,6 +77,10 @@ export const elementRegistry = {
 		category: 'maps',
 		displayName: 'A-to-B Map Flyover',
 	},
+	'maps/watercolor-map': {
+		category: 'maps',
+		displayName: 'Watercolor Map',
+	},
 	'overlays/location-lower-third': {
 		category: 'overlays',
 		displayName: 'Location Lower Third',
@@ -80,6 +88,10 @@ export const elementRegistry = {
 	'overlays/name-lower-third': {
 		category: 'overlays',
 		displayName: 'Name Lower Third',
+	},
+	'storytelling/polaroid-pictures': {
+		category: 'storytelling',
+		displayName: 'Polaroid Pictures',
 	},
 	'text/news-article-highlight': {
 		category: 'storytelling',
@@ -105,9 +117,17 @@ export const elementRegistry = {
 		category: 'text',
 		displayName: 'Text Marker',
 	},
+	'youtube/youtube-comment-highlight': {
+		category: 'youtube',
+		displayName: 'YouTube Comment Highlight',
+	},
 	'youtube/youtube-end-card': {
 		category: 'youtube',
 		displayName: 'YouTube End Card',
+	},
+	'youtube/youtube-subscribe-nudge': {
+		category: 'youtube',
+		displayName: 'YouTube Subscribe Nudge',
 	},
 } as const satisfies Record<
 	string,

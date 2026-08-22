@@ -195,7 +195,7 @@ The [command line flag](/docs/cli/render#--log) `--log` will take precedence ove
 
 ## `setMaxTimelineTracks()`<AvailableFrom v="2.1.10" />
 
-Set how many tracks are being displayed in the timeline in the Studio at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
+Set how many tracks are displayed in the Studio timeline at most. This does not affect your video, only the number of tracks shown while previewing. From <AvailableFrom v="4.0.514" inline />, all tracks are available by default and the timeline is virtualized.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -247,11 +247,17 @@ Available coding agents: `codex`, `cursor`, `copilot`, and `claude-code`.
 
 The [`--coding-agent`](/docs/cli/studio#--coding-agent) command line flag takes precedence over this option.
 
-## ~~`setAllowHtmlInCanvasEnabled()`~~<AvailableFrom v="4.0.447" />
+## `setAllowHtmlInCanvasEnabled()`<AvailableFrom v="4.0.447" />
 
-:::info Deprecated
-From Remotion v4.0.491, this method is a no-op and can be removed from your config file. [`@remotion/web-renderer`](/docs/web-renderer) automatically uses HTML-in-canvas when the browser supports nested captures.
-:::
+<Options id="allow-html-in-canvas" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAllowHtmlInCanvasEnabled(true);
+```
+
+The [command line flag](/docs/cli/studio#--allow-html-in-canvas) `--allow-html-in-canvas` will take precedence over this option.
 
 ## `setRspack()`<AvailableFrom v="4.0.502" />
 
@@ -959,6 +965,20 @@ import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setEnableFolderExpiry(true);
 ```
+
+## `setEnableCancellation()`<AvailableFrom v="4.0.515" />
+
+<Options id="enable-cancellation" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEnableCancellation(true);
+```
+
+The `--enable-cancellation` command line flag will take precedence over this option.
 
 ## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 

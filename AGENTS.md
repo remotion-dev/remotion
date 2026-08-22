@@ -26,6 +26,10 @@ The current Remotion version can be found in `packages/core/src/version.ts`. The
 - Keep things in one function unless they are composable or reusable.
 - Do not extract single-use helpers preemptively. Inline the logic at the call site unless the helper is reused, hides a genuinely complex boundary, or has a clear independent name that improves the caller.
 
+## Internal API optionality
+
+When adding or reviewing TypeScript parameters, React props, or type/interface members, make new internal inputs preferrably nullable (`T | null`), not optional (`?:`). Public exported APIs are exempt when requiring the input would be breaking.
+
 ## Key services
 
 - **Remotion Studio** (dev testbed): `cd packages/example && bun run dev` — starts at `http://localhost:3000`. This is the main dev UI for previewing video compositions.

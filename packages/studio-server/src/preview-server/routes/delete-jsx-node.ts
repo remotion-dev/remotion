@@ -16,7 +16,10 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const getDeletedNodeDescription = (nodeLabels: string[]): string => {
 	if (nodeLabels.length === 1) {
@@ -119,7 +122,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 				});
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Deleted ${deletedNodeDescription}`,
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Deleted ${deletedNodeDescription}`,
 				);
 				if (!update.formatted) {
 					warnAboutPrettierOnce(logLevel);

@@ -60,6 +60,7 @@ import {
 	TimelineTimePlaceholders,
 } from './TimelineTimeIndicators';
 import {TimelineTracks} from './TimelineTracks';
+import {TimelineVirtualizationProvider} from './TimelineVirtualization';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
 import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
@@ -400,7 +401,7 @@ const TimelineInner: React.FC = () => {
 
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
 	const shown = useMemo(() => {
-		return collapsed.length > maxTimelineTracks
+		return maxTimelineTracks !== null && collapsed.length > maxTimelineTracks
 			? collapsed.slice(0, maxTimelineTracks)
 			: collapsed;
 	}, [collapsed, maxTimelineTracks]);
@@ -428,57 +429,62 @@ const TimelineInner: React.FC = () => {
 			{isStudioInteractivityEnabled() ? <SequencePropsObserver /> : null}
 			<TimelineKeyframeTracksProvider tracks={filtered}>
 				<TimelineSelectableItemsProvider timeline={shown}>
-					{isStudioInteractivityEnabled() ? (
-						<TimelineSelectAllKeybindings timeline={shown} />
-					) : null}
-					<TimelineHeightContainer
-						shown={shown}
+					<TimelineVirtualizationProvider
 						hasBeenCut={hasBeenCut}
 						isStill={isStill}
+						timeline={shown}
 					>
-						{isStill ? (
-							<TimelineList timeline={shown} showTimePadding={false} />
-						) : (
-							<TimelineWidthProvider>
-								<TimelinePinchZoom />
-								<SplitterContainer
-									orientation="vertical"
-									defaultFlex={0.2}
-									id="names-to-timeline"
-									maxFlex={0.5}
-									minFlex={0.15}
-									maxFlexerSize={null}
-									minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
-									maxAntiFlexerSize={null}
-									minAntiFlexerSize={null}
-								>
-									<SplitterElement
-										type="flexer"
-										sticky={<TimelineTimePlaceholders />}
+						{isStudioInteractivityEnabled() ? (
+							<TimelineSelectAllKeybindings timeline={shown} />
+						) : null}
+						<TimelineHeightContainer>
+							{isStill ? (
+								<TimelineList />
+							) : (
+								<TimelineWidthProvider>
+									<TimelinePinchZoom />
+									<SplitterContainer
+										orientation="vertical"
+										defaultFlex={0.2}
+										id="names-to-timeline"
+										maxFlex={0.5}
+										minFlex={0.15}
+										maxFlexerSize={null}
+										minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
+										maxAntiFlexerSize={null}
+										minAntiFlexerSize={null}
 									>
-										<TimelineList timeline={shown} showTimePadding />
-									</SplitterElement>
-									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-									<SplitterElement type="anti-flexer" sticky={null}>
-										<TimelineScrollable>
-											<TimelineTracks
-												timeline={shown}
-												hasBeenCut={hasBeenCut}
-											/>
-											<TimelinePlayCursorSyncer />
-											<TimelineInOutPointer />
-											<TimelineTimeIndicators />
-											<TimelineDragHandler />
-											{isStudioInteractivityEnabled() ? (
-												<TimelineInOutDragHandler />
-											) : null}
-											<TimelineSlider />
-										</TimelineScrollable>
-									</SplitterElement>
-								</SplitterContainer>
-							</TimelineWidthProvider>
-						)}
-					</TimelineHeightContainer>
+										<SplitterElement
+											type="flexer"
+											sticky={<TimelineTimePlaceholders />}
+										>
+											<TimelineList />
+										</SplitterElement>
+										<SplitterHandle onCollapse={noop} allowToCollapse="none" />
+										<SplitterElement
+											type="anti-flexer"
+											sticky={
+												<>
+													<TimelineTimeIndicators />
+													<TimelineSlider />
+												</>
+											}
+										>
+											<TimelineScrollable>
+												<TimelineTracks hasBeenCut={hasBeenCut} />
+												<TimelinePlayCursorSyncer />
+												<TimelineInOutPointer />
+												<TimelineDragHandler />
+												{isStudioInteractivityEnabled() ? (
+													<TimelineInOutDragHandler />
+												) : null}
+											</TimelineScrollable>
+										</SplitterElement>
+									</SplitterContainer>
+								</TimelineWidthProvider>
+							)}
+						</TimelineHeightContainer>
+					</TimelineVirtualizationProvider>
 				</TimelineSelectableItemsProvider>
 			</TimelineKeyframeTracksProvider>
 		</TimelineContextMenuArea>

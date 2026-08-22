@@ -1,0 +1,71 @@
+---
+image: /generated/articles-docs-effects-tile.png
+slug: /effects/tile
+title: tile()
+sidebar_label: tile()
+crumb: '@remotion/effects'
+---
+
+# tile()<AvailableFrom v="4.0.513" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Repeats the non-transparent area of a canvas source across the canvas. Every other copy is mirrored so neighboring tiles meet at matching edges.
+
+Place [`scale()`](/docs/effects/scale) before `tile()` to expand a texture beyond its original edges.
+
+## Preview
+
+<EffectsDemo type="effects-tile" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {tile} from '@remotion/effects/tile';
+import {scale} from '@remotion/effects/scale';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          scale({scale: 0.25}),
+          tile(),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+Effects are applied in array order. `tile()` finds the non-transparent bounds left by `scale()` and alternates mirrored copies along each enabled axis.
+
+## API
+
+You can call `tile()` without arguments or pass an object with the following properties.
+
+### `horizontal?`
+
+Whether to repeat the tile horizontally. Defaults to `true`.
+
+### `vertical?`
+
+Whether to repeat the tile vertically. Defaults to `true`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`scale()`](/docs/effects/scale)
+- [`pattern()`](/docs/effects/pattern)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/tile.ts)

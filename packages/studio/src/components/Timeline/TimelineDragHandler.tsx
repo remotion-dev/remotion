@@ -10,23 +10,27 @@ import React, {
 import {Internals, useVideoConfig} from 'remotion';
 import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {setCurrentFrame} from './imperative-state';
 import {
 	scrollableRef,
 	sliderAreaRef,
 	timelineVerticalScroll,
 } from './timeline-refs';
+import type {
+	TimelineEdgeAutoScroller,
+	TimelineEdgeScrollDirections,
+} from './timeline-scroll-logic';
 import {
-	canScrollTimelineIntoDirection,
 	getFrameFromX,
 	getFrameWhileScrollingLeft,
 	getFrameWhileScrollingRight,
 	getScrollPositionForCursorOnLeftEdge,
 	getScrollPositionForCursorOnRightEdge,
 	scrollToTimelineXOffset,
+	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
 import {TIMELINE_SCRUBBER_ATTR} from './TimelineSelection';
 import {redrawTimelineSliderFast} from './TimelineSlider';
@@ -121,14 +125,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 	});
 	const {isPlaying, play, pause, seek} = PlayerInternals.usePlayerMethods();
 
-	const scroller = useRef<Timer | null>(null);
-
-	const stopInterval = () => {
-		if (scroller.current) {
-			clearInterval(scroller.current);
-			scroller.current = null;
-		}
-	};
+	const autoScroller = useRef<TimelineEdgeAutoScroller | null>(null);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -140,7 +137,6 @@ const TimelineDragHandlerInner: React.FC = () => {
 				return;
 			}
 
-			stopInterval();
 			if (!videoConfig) {
 				return;
 			}
@@ -170,6 +166,46 @@ const TimelineDragHandlerInner: React.FC = () => {
 		[isHighestContext, videoConfig, left, width, seek, isPlaying, pause],
 	);
 
+	const onEdgeScrollTick = useCallback(
+		(directions: TimelineEdgeScrollDirections) => {
+			if (!videoConfig || directions.x === null) {
+				return;
+			}
+
+			const nextFrame =
+				directions.x === 'left'
+					? getFrameWhileScrollingLeft({
+							durationInFrames: videoConfig.durationInFrames,
+							width,
+						})
+					: getFrameWhileScrollingRight({
+							durationInFrames: videoConfig.durationInFrames,
+							width,
+						});
+
+			const scrollPos =
+				directions.x === 'left'
+					? getScrollPositionForCursorOnLeftEdge({
+							nextFrame,
+							durationInFrames: videoConfig.durationInFrames,
+						})
+					: getScrollPositionForCursorOnRightEdge({
+							nextFrame,
+							durationInFrames: videoConfig.durationInFrames,
+						});
+
+			// Update the imperative frame and apply the scroll before drawing, so
+			// every redraw (including the scroll event listener in TimelineSlider)
+			// sees a consistent (frame, scrollLeft) pair. Otherwise the playhead
+			// flickers between stale combinations while React commits the seek.
+			setCurrentFrame(nextFrame);
+			scrollToTimelineXOffset(scrollPos);
+			redrawTimelineSliderFast.current?.draw(nextFrame);
+			seek(nextFrame);
+		},
+		[videoConfig, width, seek],
+	);
+
 	const onPointerMoveScrubbing = useCallback(
 		(e: PointerEvent) => {
 			if (!videoConfig) {
@@ -180,13 +216,15 @@ const TimelineDragHandlerInner: React.FC = () => {
 				return;
 			}
 
-			const isRightOfArea =
-				e.clientX >=
-				(scrollableRef.current?.clientWidth as number) +
-					left -
-					TIMELINE_PADDING;
+			const directions = autoScroller.current?.update(e) ?? {
+				x: null,
+				y: null,
+			};
 
-			const isLeftOfArea = e.clientX <= left;
+			// While edge auto-scrolling is active, the tick owns seeking
+			if (directions.x !== null) {
+				return;
+			}
 
 			const frame = getFrameFromX({
 				clientX: getClientXWithScroll(e.clientX) - left,
@@ -195,81 +233,14 @@ const TimelineDragHandlerInner: React.FC = () => {
 				extrapolate: 'clamp',
 			});
 
-			if (isLeftOfArea && canScrollTimelineIntoDirection().canScrollLeft) {
-				if (scroller.current) {
-					return;
-				}
-
-				const scrollEvery = () => {
-					if (!canScrollTimelineIntoDirection().canScrollLeft) {
-						stopInterval();
-						return;
-					}
-
-					const nextFrame = getFrameWhileScrollingLeft({
-						durationInFrames: videoConfig.durationInFrames,
-						width,
-					});
-
-					const scrollPos = getScrollPositionForCursorOnLeftEdge({
-						nextFrame,
-						durationInFrames: videoConfig.durationInFrames,
-					});
-
-					redrawTimelineSliderFast.current?.draw(nextFrame);
-					seek(nextFrame);
-					scrollToTimelineXOffset(scrollPos);
-				};
-
-				scrollEvery();
-				scroller.current = setInterval(() => {
-					scrollEvery();
-				}, 100);
-			} else if (
-				isRightOfArea &&
-				canScrollTimelineIntoDirection().canScrollRight
-			) {
-				if (scroller.current) {
-					return;
-				}
-
-				const scrollEvery = () => {
-					if (!canScrollTimelineIntoDirection().canScrollRight) {
-						stopInterval();
-						return;
-					}
-
-					const nextFrame = getFrameWhileScrollingRight({
-						durationInFrames: videoConfig.durationInFrames,
-						width,
-					});
-
-					const scrollPos = getScrollPositionForCursorOnRightEdge({
-						nextFrame,
-						durationInFrames: videoConfig.durationInFrames,
-					});
-
-					redrawTimelineSliderFast.current?.draw(nextFrame);
-					seek(nextFrame);
-					scrollToTimelineXOffset(scrollPos);
-				};
-
-				scrollEvery();
-
-				scroller.current = setInterval(() => {
-					scrollEvery();
-				}, 100);
-			} else {
-				stopInterval();
-				seek(frame);
-			}
+			seek(frame);
 		},
 		[videoConfig, dragging.dragging, left, width, seek],
 	);
 
 	const onPointerUpScrubbing = useCallback(
 		(e: PointerEvent) => {
-			stopInterval();
+			autoScroller.current?.stop();
 			document.body.style.userSelect = '';
 			document.body.style.webkitUserSelect = '';
 
@@ -310,7 +281,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 	);
 
 	const onPointerCancelScrubbing = useCallback(() => {
-		stopInterval();
+		autoScroller.current?.stop();
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		if (!dragging.dragging) {
@@ -328,7 +299,13 @@ const TimelineDragHandlerInner: React.FC = () => {
 			return;
 		}
 
-		return startCapturedPointerSession({
+		const scroller = startTimelineEdgeAutoScroll({
+			includeVertical: false,
+			onTick: onEdgeScrollTick,
+		});
+		autoScroller.current = scroller;
+
+		const endSession = startCapturedPointerSession({
 			event: dragging,
 			captureTarget: dragging.target,
 			onMove: onPointerMoveScrubbing,
@@ -343,8 +320,18 @@ const TimelineDragHandlerInner: React.FC = () => {
 				}
 			},
 		});
+
+		return () => {
+			scroller.stop();
+			if (autoScroller.current === scroller) {
+				autoScroller.current = null;
+			}
+
+			endSession();
+		};
 	}, [
 		dragging,
+		onEdgeScrollTick,
 		onPointerCancelScrubbing,
 		onPointerMoveScrubbing,
 		onPointerUpScrubbing,

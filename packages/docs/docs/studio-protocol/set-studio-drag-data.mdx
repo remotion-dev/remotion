@@ -8,16 +8,24 @@ crumb: '@remotion/studio-protocol'
 
 Writes an Element payload and its preview metadata to a browser `DataTransfer` object.
 
-```tsx title="DraggableElement.tsx"
+## Example
+
+```tsx twoslash title="DraggableElement.tsx"
 import {
   createElementPayload,
   setStudioDragData,
 } from '@remotion/studio-protocol';
 
+const elementSourceCode = `
+export const MyElement = () => {
+  return <div>Hello world</div>;
+};
+`;
+
 const payload = createElementPayload({
-  displayName: 'Lower Third',
-  slug: 'lower-third',
-  sourceCode: 'export const LowerThird = () => null;',
+  displayName: 'My Element',
+  slug: 'my-element',
+  sourceCode: elementSourceCode,
   dependencies: [],
   dimensions: {width: 900, height: 260},
   durationInFrames: 90,
@@ -37,6 +45,12 @@ export const DraggableElement = () => (
   </button>
 );
 ```
+
+## When to use drag-and-drop
+
+Drag-and-drop lets the user choose the exact Studio tab, timeline position, and canvas position. It is useful when multiple Studio tabs are open or placement should be decided visually.
+
+A drag event has no reliable website provenance. Studio therefore labels the Element source as unverified. Also offer [`installInStudio()`](/docs/studio-protocol/install-in-studio) when possible so the user can choose between precise placement and an installation request with a displayed source.
 
 ## Arguments
 

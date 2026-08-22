@@ -15,6 +15,10 @@ export const config: VercelConfig = {
 		'cd .. && timeout 20m bunx turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
 		routes.header('/assets/(.*)', browserStudioAssetHeaders),
+		routes.header(
+			'/__remotion_browser_studio_workspace__/commits/(.*)',
+			browserStudioAssetHeaders,
+		),
 		routes.header('/_raw/docs/(.*).md', [
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
@@ -307,6 +311,7 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
+		routes.redirect('/plugins', '/docs/ai/plugins', {permanent: false}),
 		routes.redirect(
 			'/codex',
 			'https://chatgpt.com/plugins/plugins~Plugin_efd07789186881918253a50acfc32762?open_in_codex',

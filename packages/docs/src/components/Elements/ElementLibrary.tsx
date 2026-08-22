@@ -37,17 +37,16 @@ const usePrefersReducedMotion = () => {
 
 const ElementCard: React.FC<{
 	readonly definition: ElementDefinition;
-	readonly headingLevel: 2 | 3;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCode: string;
-}> = ({definition, headingLevel, prefersReducedMotion, sourceCode}) => {
+}> = ({definition, prefersReducedMotion, sourceCode}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
+	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
 		!prefersReducedMotion && !playbackFailed && (isFocused || isPointerOver);
-	const Heading = headingLevel === 2 ? 'h2' : 'h3';
 	const elementPayload = useMemo(
 		() => createElementPayloadFromDefinition({definition, sourceCode}),
 		[definition, sourceCode],
@@ -101,7 +100,7 @@ const ElementCard: React.FC<{
 						dataTransfer: event.dataTransfer,
 						payload: elementPayload,
 					});
-					setElementDragImage(event.dataTransfer);
+					setElementDragImage(event.dataTransfer, posterRef.current);
 				}}
 				onPointerEnter={activateFromPointer}
 				onPointerLeave={() => setIsPointerOver(false)}
@@ -113,6 +112,7 @@ const ElementCard: React.FC<{
 					style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}
 				>
 					<img
+						ref={posterRef}
 						alt=""
 						className={styles.previewMedia}
 						decoding="async"
@@ -135,7 +135,7 @@ const ElementCard: React.FC<{
 					) : null}
 				</div>
 				<div className={styles.content}>
-					<Heading className={styles.title}>{definition.displayName}</Heading>
+					<span className={styles.title}>{definition.displayName}</span>
 					<p className={styles.description}>{definition.description}</p>
 				</div>
 			</a>
@@ -145,10 +145,9 @@ const ElementCard: React.FC<{
 
 const ElementGrid: React.FC<{
 	readonly definitions: readonly ElementDefinition[];
-	readonly headingLevel: 2 | 3;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
-}> = ({definitions, headingLevel, prefersReducedMotion, sourceCodeBySlug}) => {
+}> = ({definitions, prefersReducedMotion, sourceCodeBySlug}) => {
 	return (
 		<ul className={styles.grid} role="list">
 			{definitions.map((definition) => {
@@ -163,7 +162,6 @@ const ElementGrid: React.FC<{
 					<ElementCard
 						key={definition.slug}
 						definition={definition}
-						headingLevel={headingLevel}
 						prefersReducedMotion={prefersReducedMotion}
 						sourceCode={sourceCode}
 					/>
@@ -192,7 +190,6 @@ export const ElementLibrary: React.FC<{
 						>
 							<ElementGrid
 								definitions={section.definitions}
-								headingLevel={2}
 								prefersReducedMotion={prefersReducedMotion}
 								sourceCodeBySlug={sourceCodeBySlug}
 							/>
@@ -213,7 +210,6 @@ export const ElementLibrary: React.FC<{
 						</h2>
 						<ElementGrid
 							definitions={section.definitions}
-							headingLevel={3}
 							prefersReducedMotion={prefersReducedMotion}
 							sourceCodeBySlug={sourceCodeBySlug}
 						/>

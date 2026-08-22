@@ -1,3 +1,4 @@
+import {scale} from '@remotion/effects/scale';
 import {wave} from '@remotion/effects/wave';
 import {Video} from '@remotion/media';
 import React from 'react';
@@ -28,7 +29,10 @@ export const EffectKeyframeE2e: React.FC = () => {
 				color="#1f2429"
 				cropLeft={0}
 				style={{rotate: '0deg', scale: 1}}
-				effects={[wave({})]}
+				effects={[
+					wave({}),
+					scale({scale: 1, horizontal: true, vertical: true}),
+				]}
 			/>
 			<Solid
 				name="Timeline expansion"

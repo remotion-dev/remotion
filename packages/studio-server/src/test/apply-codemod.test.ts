@@ -386,6 +386,7 @@ const runCompositionCodemodUndoRedoTest = async ({
 			const logOutput = consoleSpy?.mock.calls.flat().join(' ');
 			expect(logOutput).toContain('Root.tsx:9');
 			expect(logOutput).toContain(expectedLogMessage);
+			expect(logOutput).not.toMatch(/\[\d+ms\]/);
 		}
 
 		const undoResponse = await undoHandler(

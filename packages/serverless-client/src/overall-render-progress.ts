@@ -9,6 +9,10 @@ import type {
 import type {FunctionErrorInfo} from './write-error-to-storage';
 
 export type OverallRenderProgress<Provider extends CloudProvider> = {
+	/**
+	 * Whether renderers poll for a cancellation signal.
+	 */
+	cancellationEnabled: boolean | null;
 	chunks: number[];
 	framesRendered: number;
 	framesEncoded: number;

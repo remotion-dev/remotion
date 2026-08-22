@@ -32,6 +32,7 @@ export type StudioHtmlOptions = {
 	logLevel: LogLevel;
 	mode: 'dev' | 'bundle';
 	bundleScriptUrl?: string;
+	bundleScriptType?: 'classic' | 'module';
 	readOnlyStudio?: boolean;
 	studioRuntimeConfig?: StudioRuntimeConfig;
 };
@@ -63,6 +64,7 @@ export const studioHtml = ({
 	logLevel,
 	mode,
 	bundleScriptUrl,
+	bundleScriptType,
 	readOnlyStudio,
 	studioRuntimeConfig,
 }: StudioHtmlOptions) => {
@@ -186,7 +188,7 @@ export const studioHtml = ({
 		<div id="menuportal-3"></div>
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
-		<script src="${scriptUrl}"></script>
+		<script${bundleScriptType === 'module' ? ' type="module"' : ''} src="${scriptUrl}"></script>
 	</body>
 </html>
 `.trim();

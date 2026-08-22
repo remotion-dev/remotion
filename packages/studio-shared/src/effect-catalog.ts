@@ -346,6 +346,20 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-outline',
+		category: 'Blur & Shadow',
+		label: 'outline()',
+		description: 'Solid alpha outline effect',
+		effect: {
+			name: 'outline',
+			importPath: '@remotion/effects/outline',
+			config: {
+				width: 12,
+				color: '#00ffff',
+			},
+		},
+	},
+	{
 		id: 'effects-light-trail',
 		category: 'Blur & Shadow',
 		label: 'lightTrail()',
@@ -400,6 +414,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			config: {
 				scale: 1,
 			},
+		},
+	},
+	{
+		id: 'effects-tile',
+		category: 'Transform',
+		label: 'tile()',
+		description: 'Repeat the visible source bounds',
+		effect: {
+			name: 'tile',
+			importPath: '@remotion/effects/tile',
+			config: {},
 		},
 	},
 	{

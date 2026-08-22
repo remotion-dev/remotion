@@ -15,6 +15,18 @@ test('keeps an omitted overwrite value unresolved', () => {
 	const options = renderMediaOnLambdaOptionalToRequired(getOptions());
 
 	expect(options.overwrite).toBeUndefined();
+	expect(options.enableCancellation).toBe(false);
+});
+
+test('preserves enableCancellation in the Lambda payload', async () => {
+	const options = renderMediaOnLambdaOptionalToRequired({
+		...getOptions(),
+		enableCancellation: true,
+	});
+
+	expect(options.enableCancellation).toBe(true);
+	const payload = await makeLambdaRenderMediaPayload(options);
+	expect(payload.enableCancellation).toBe(true);
 });
 
 test('preserves an explicit overwrite value', () => {

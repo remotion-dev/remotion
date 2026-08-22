@@ -15,8 +15,13 @@ import {MacCursorsExample} from './MacCursors';
 import {NewVideoComp} from './NewVideo';
 import {RotationKeyframeE2e} from './RotationKeyframeE2e';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
+import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
+import {TimelineVirtualizationTestbed} from './TimelineVirtualizationTestbed';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
+import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
+import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
+import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 
 const UseCurrentScaleOnLoad: React.FC = () => {
 	const scale = useCurrentScale();
@@ -175,6 +180,46 @@ export const E2eTestRoot: React.FC = () => {
 			<Composition
 				id="rotation-keyframe-e2e"
 				component={RotationKeyframeE2e}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="affine-frame-clock"
+				component={AffineFrameClock}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={60}
+			/>
+			<Composition
+				id="outline-selection-cases"
+				component={OutlineSelectionCases}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={2340}
+			/>
+			<Composition
+				id="sequence-shift-repro"
+				component={SequenceShiftRepro}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={60}
+			/>
+			<Composition
+				id="timeline-virtualization-testbed"
+				component={TimelineVirtualizationTestbed}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={30}
+			/>
+			<Composition
+				id="timeline-negative-start"
+				component={TimelineNegativeFromResize}
 				width={1080}
 				height={1080}
 				fps={30}

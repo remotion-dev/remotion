@@ -36,6 +36,7 @@ import {liquidContours} from '@remotion/effects/liquid-contours';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {outline} from '@remotion/effects/outline';
 import {paper} from '@remotion/effects/paper';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
@@ -55,6 +56,7 @@ import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
 import {starburst} from '@remotion/effects/starburst';
 import {thermalVision} from '@remotion/effects/thermal-vision';
+import {tile} from '@remotion/effects/tile';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
@@ -111,6 +113,7 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsOutlinePreview} from '../effects/effects-outline-preview';
 import {
 	EffectsPaletteMapPreview,
 	paletteMap,
@@ -146,6 +149,7 @@ import {
 	STARBURST_PREVIEW_PARAMS,
 } from '../effects/effects-starburst-preview';
 import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
+import {EffectsTilePreview} from '../effects/effects-tile-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -235,6 +239,16 @@ export const effectsDemos: EffectsDemoType[] = [
 		initialValues: {
 			similarity: 0.45,
 		},
+	},
+	{
+		...defaults,
+		id: 'effects-outline',
+		effectName: 'outline',
+		effectImportPath: '@remotion/effects/outline',
+		comp: EffectsOutlinePreview,
+		schema: outline().definition.schema,
+		durationInFrames: 150,
+		autoPlay: true,
 	},
 	{
 		...defaults,
@@ -538,6 +552,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/scale',
 		comp: EffectsScalePreview,
 		schema: scale({scale: 1}).definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-tile',
+		effectName: 'tile',
+		effectImportPath: '@remotion/effects/tile',
+		comp: EffectsTilePreview,
+		schema: tile().definition.schema,
 	},
 	{
 		...defaults,

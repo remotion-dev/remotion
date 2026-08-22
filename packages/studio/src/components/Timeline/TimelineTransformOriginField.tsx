@@ -22,15 +22,11 @@ import {
 import {Transform3DModeContext} from './Transform3DModeContext';
 
 const leftDraggerStyle: React.CSSProperties = {
-	paddingBottom: 2,
 	paddingLeft: 0,
-	paddingTop: 2,
 };
 
 const rightDraggerStyle: React.CSSProperties = {
-	paddingBottom: 2,
 	paddingRight: 0,
-	paddingTop: 2,
 };
 
 const containerStyle: React.CSSProperties = {
@@ -305,7 +301,9 @@ export const TimelineTransformOriginField: React.FC<{
 	);
 
 	if (percent === null) {
-		return <UnsupportedStatus label="unsupported origin" />;
+		return (
+			<UnsupportedStatus label="unsupported origin" formattedValue={false} />
+		);
 	}
 
 	return (

@@ -1,13 +1,19 @@
 import Head from '@docusaurus/Head';
-import {installInStudio, setStudioDragData} from '@remotion/studio-protocol';
+import {
+	installInStudio,
+	setStudioDragData,
+	StudioProtocolInternals,
+} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
+	useEffect,
 	useId,
 	useMemo,
+	useRef,
 	useState,
 	type ReactNode,
 } from 'react';
-import {BlueButton} from '../../../components/layout/Button';
+import {BlueButton, PlainButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
 import {
@@ -43,8 +49,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
-	const [isDragging, setIsDragging] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
+	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
+		useState(false);
+	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
@@ -56,6 +64,38 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 		return createElementPayloadFromDefinition({definition, sourceCode});
 	}, [definition, sourceCode]);
+
+	useEffect(() => {
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (
+				event.repeat ||
+				!event.altKey ||
+				!event.shiftKey ||
+				event.ctrlKey ||
+				event.metaKey ||
+				event.code !== 'KeyB'
+			) {
+				return;
+			}
+
+			const {target} = event;
+			if (
+				target instanceof HTMLElement &&
+				(target.isContentEditable ||
+					target.tagName === 'INPUT' ||
+					target.tagName === 'SELECT' ||
+					target.tagName === 'TEXTAREA')
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			setIsBrowserStudioActionVisible(true);
+		};
+
+		window.addEventListener('keydown', onKeyDown);
+		return () => window.removeEventListener('keydown', onKeyDown);
+	}, []);
 
 	const installElement = useCallback(async () => {
 		if (elementPayload === null) {
@@ -77,6 +117,23 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			type: 'success',
 			message: `Sent to ${target.projectName ?? 'Remotion Studio'} / ${target.compositionId}. Confirm the installation in Studio.`,
 		});
+
+		if (window.location.origin === 'https://www.remotion.dev') {
+			navigator.sendBeacon(
+				`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
+			);
+		}
+	}, [definition.slug, elementPayload]);
+
+	const openInBrowserStudio = useCallback(() => {
+		if (elementPayload === null) {
+			return;
+		}
+
+		StudioProtocolInternals.openInBrowserStudio({
+			endpoint: null,
+			payload: elementPayload,
+		});
 	}, [elementPayload]);
 
 	const PreviewComponent = useMemo(() => {
@@ -85,6 +142,14 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 	return (
 		<div className={styles.workbench}>
+			<img
+				ref={posterRef}
+				alt=""
+				decoding="async"
+				draggable={false}
+				hidden
+				src={definition.preview.posterUrl}
+			/>
 			<Head>
 				{Seo.renderVideo({
 					height: previewHeight,
@@ -98,8 +163,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
 						fps={fps}
-						height={previewHeight}
-						width={previewWidth}
 					/>
 					{children ? (
 						<div className={styles.sourceArea}>
@@ -136,35 +199,52 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				aria-label="Element details and actions"
 				className={styles.actionsColumn}
 			>
-				<div className={styles.useIt}>
+				<div>
 					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
 								<BlueButton
-									draggable
 									fullWidth
 									loading={installStatus.type === 'installing'}
 									onClick={installElement}
-									onDragEnd={() => setIsDragging(false)}
-									onDragStart={(event) => {
-										setIsDragging(true);
-										setStudioDragData({
-											dataTransfer: event.dataTransfer,
-											payload: elementPayload,
-										});
-										setElementDragImage(event.dataTransfer);
-									}}
 									size="sm"
-									style={{
-										cursor: isDragging ? 'grabbing' : undefined,
-										padding: '7px 12px',
-									}}
-									title="Click to install in the most recently focused Remotion Studio, or drag onto the Studio canvas"
+									style={{padding: '7px 12px'}}
+									title="Install in the most recently focused Remotion Studio"
 								>
 									{installStatus.type === 'installing'
 										? 'Finding Studio…'
 										: 'Install in Studio'}
 								</BlueButton>
+								{isBrowserStudioActionVisible ? (
+									<PlainButton
+										fullWidth
+										loading={false}
+										onClick={openInBrowserStudio}
+										size="sm"
+										style={{padding: '7px 12px'}}
+									>
+										Open in Browser Studio
+									</PlainButton>
+								) : null}
+							</div>
+							<div
+								className={styles.dragHandle}
+								draggable
+								onDragStart={(event) => {
+									setStudioDragData({
+										dataTransfer: event.dataTransfer,
+										payload: elementPayload,
+									});
+									setElementDragImage(event.dataTransfer, posterRef.current);
+								}}
+								title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
+							>
+								<span aria-hidden="true" className={styles.dragHandleIcon}>
+									⠿
+								</span>
+								<span className={styles.dragHandleText}>
+									<strong>Drag into Studio</strong>
+								</span>
 							</div>
 							{installStatus.type === 'success' ||
 							installStatus.type === 'error' ? (
@@ -195,7 +275,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							</div>
 							<div>
 								<dt>Duration</dt>
-								<dd>{durationInFrames / fps}s</dd>
+								<dd>{(durationInFrames / fps).toFixed(2)}s</dd>
 							</div>
 							<div className={styles.dependenciesMetadata}>
 								<dt>Dependencies</dt>

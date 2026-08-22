@@ -10,6 +10,7 @@ import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburs
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
+import {ProductCollection} from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
@@ -18,15 +19,19 @@ import {NumberCounter} from '../../../elements/data/number-counter/number-counte
 import {PieChart} from '../../../elements/data/pie-chart/pie-chart';
 import {VerticalBarChart} from '../../../elements/data/vertical-bar-chart/vertical-bar-chart';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
+import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
+import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
 import {SpinningTextWheel} from '../../../elements/text/spinning-text-wheel/spinning-text-wheel';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
+import {YouTubeCommentHighlight} from '../../../elements/youtube/youtube-comment-highlight/youtube-comment-highlight';
 import {YouTubeEndCard} from '../../../elements/youtube/youtube-end-card/youtube-end-card';
+import {YouTubeSubscribeNudge} from '../../../elements/youtube/youtube-subscribe-nudge/youtube-subscribe-nudge';
 import type {Contributor} from '../Credits';
 import {
 	elementRegistry,
@@ -57,7 +62,7 @@ export type ElementDefinition = {
 	readonly height: number;
 	readonly posterFrame: number;
 	readonly preview: ElementPreviewMetadata;
-	readonly previewPadding: number;
+	readonly safeArea: number;
 	readonly slug: string;
 	readonly installationMode: ElementInstallationMode;
 	readonly width: number;
@@ -82,7 +87,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-liquid-contours-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -105,7 +110,32 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/maps-map-flyover-preview.png',
 			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	'maps/watercolor-map': {
+		component: WatercolorMap,
+		contributors: [
+			{username: 'JonnyBurger', contribution: 'Author'},
+			{username: 'MehmetAdemi', contribution: 'Author'},
+		],
+		description:
+			'A watercolor map journey between two editable locations, with animated labels, markers, and a hand-drawn route.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 200,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 145,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/maps-watercolor-map-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/maps-watercolor-map-preview.mp4',
+		},
+		safeArea: 0,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -126,7 +156,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-notebook-paper-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -148,7 +178,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-paper-texture-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -169,7 +199,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -190,7 +220,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/overlays-location-lower-third-preview.mp4',
 		},
-		previewPadding: 300,
+		safeArea: 300,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -212,7 +242,28 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
-		previewPadding: 300,
+		safeArea: 300,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'youtube/youtube-comment-highlight': {
+		component: YouTubeCommentHighlight,
+		contributors: [],
+		description: 'A YouTube-style card for featuring a viewer comment.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 180,
+		elementHeight: 360,
+		elementWidth: 1120,
+		fps: 30,
+		height: 1080,
+		posterFrame: 135,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.mp4',
+		},
+		safeArea: 200,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -234,19 +285,44 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'youtube/youtube-subscribe-nudge': {
+		component: YouTubeSubscribeNudge,
+		contributors: [],
+		description:
+			'An animated creator-branded subscribe prompt with a subscribed-state confirmation.',
+		dependencies: [
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/media', version: null},
+			{name: '@remotion/sfx', version: null},
+		],
+		durationInFrames: 120,
+		elementHeight: 240,
+		elementWidth: 760,
+		fps: 30,
+		height: 1080,
+		posterFrame: 50,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.mp4',
+		},
+		safeArea: 240,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'data/horizontal-bar-chart': {
 		component: HorizontalBarChart,
 		contributors: [],
-		description:
-			'A bold bar chart card with three directly labeled data points.',
+		description: 'A bold bar chart with three directly labeled data points.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
-		elementHeight: 864,
-		elementWidth: 1560,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
 		height: 1080,
 		posterFrame: 70,
@@ -256,7 +332,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.mp4',
 		},
-		previewPadding: 56,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -266,8 +342,8 @@ const elementImplementations = {
 		description: 'A bold animated line chart with a directly labeled trend.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
-		elementHeight: 864,
-		elementWidth: 1560,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
 		height: 1080,
 		posterFrame: 70,
@@ -275,7 +351,7 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/data-line-chart-preview.png',
 			videoUrl: 'https://remotion.media/elements/data-line-chart-preview.mp4',
 		},
-		previewPadding: 160,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -286,8 +362,8 @@ const elementImplementations = {
 			'A bold animated pie chart with four directly labeled data points.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
-		elementHeight: 864,
-		elementWidth: 1560,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
 		height: 1080,
 		posterFrame: 70,
@@ -295,7 +371,7 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/data-pie-chart-preview.png',
 			videoUrl: 'https://remotion.media/elements/data-pie-chart-preview.mp4',
 		},
-		previewPadding: 56,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -322,7 +398,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/data-number-counter-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -333,8 +409,8 @@ const elementImplementations = {
 			'A bold vertical bar chart with three directly labeled data points.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
-		elementHeight: 864,
-		elementWidth: 1560,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
 		height: 1080,
 		posterFrame: 115,
@@ -344,9 +420,31 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.mp4',
 		},
-		previewPadding: 56,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
+	},
+	'commerce/product-collection': {
+		component: ProductCollection,
+		contributors: [],
+		description:
+			'An animated product carousel that adapts to changing catalog images, titles, prices, and promotions.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 150,
+		elementHeight: 1020,
+		elementWidth: 1020,
+		fps: 30,
+		height: 1080,
+		posterFrame: 90,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/commerce-product-collection-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/commerce-product-collection-preview.mp4',
+		},
+		safeArea: 30,
+		installationMode: 'wrapped',
+		width: 1080,
 	},
 	'commerce/product-discount-callout': {
 		component: ProductDiscountCallout,
@@ -369,7 +467,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.mp4',
 		},
-		previewPadding: 90,
+		safeArea: 90,
 		installationMode: 'wrapped',
 		width: 1080,
 	},
@@ -391,7 +489,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/commerce-product-offer-preview.mp4',
 		},
-		previewPadding: 90,
+		safeArea: 90,
 		installationMode: 'wrapped',
 		width: 1080,
 	},
@@ -416,7 +514,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/text-circle-marker-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -439,7 +537,7 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/text-crossed-off-preview.png',
 			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -461,8 +559,28 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/text-spinning-text-wheel-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	'storytelling/polaroid-pictures': {
+		component: PolaroidPictures,
+		contributors: [],
+		description:
+			'A staggered instant-photo montage with handwritten captions, paper shadows, and developing-photo accents.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 150,
+		elementHeight: 640,
+		elementWidth: 1480,
+		fps: 30,
+		height: 1080,
+		posterFrame: 82,
+		preview: {
+			posterUrl: '/elements/storytelling-polaroid-pictures-preview.png',
+			videoUrl: '/elements/storytelling-polaroid-pictures-preview.mp4',
+		},
+		safeArea: 220,
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/news-article-highlight': {
@@ -483,7 +601,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/text-news-article-highlight-preview.mp4',
 		},
-		previewPadding: 0,
+		safeArea: 0,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -508,7 +626,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/text-strike-through-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -531,7 +649,7 @@ const elementImplementations = {
 			posterUrl: 'https://remotion.media/elements/text-text-marker-preview.png',
 			videoUrl: 'https://remotion.media/elements/text-text-marker-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -557,7 +675,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/captions-moving-pill-captions-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -582,7 +700,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/captions-popping-word-captions-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -607,7 +725,7 @@ const elementImplementations = {
 			videoUrl:
 				'https://remotion.media/elements/captions-word-highlight-captions-preview.mp4',
 		},
-		previewPadding: 120,
+		safeArea: 120,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},

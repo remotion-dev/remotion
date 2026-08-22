@@ -2,7 +2,10 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import type {EventSourceEvent} from '@remotion/studio-shared';
+import type {
+	EventSourceEvent,
+	SubscribeToSequencePropsRequest,
+} from '@remotion/studio-shared';
 import {deleteJsxNode, deleteJsxNodes} from '../codemods/delete-jsx-node';
 import {
 	createFileWatcherRegistry,
@@ -204,29 +207,34 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 	};
 
 	try {
-		for (const line of [6, 7, 8]) {
-			const result = await subscribeToSequenceProps({
-				...apiHandlerContext,
-				input: {
-					assetKeys: [],
-					clientId,
-					column: 0,
-					componentIdentity: 'dev.remotion.remotion.Interactive.Div',
-					effects: [],
-					fileName,
-					keys: ['name'],
-					line,
-					nodePath: lineColumnToNodePath(interactiveSiblings, line),
-					videoConfigValues: {
-						durationInFrames: 100,
-						fps: 30,
-						height: 1080,
-						width: 1920,
-					},
+		const requests: SubscribeToSequencePropsRequest[] = [6, 7, 8].map(
+			(line) => ({
+				assetKeys: [],
+				clientId,
+				column: 0,
+				componentIdentity: 'dev.remotion.remotion.Interactive.Div',
+				effects: [],
+				fileName,
+				keys: ['name'],
+				line,
+				nodePath: lineColumnToNodePath(interactiveSiblings, line),
+				videoConfigValues: {
+					durationInFrames: 100,
+					fps: 30,
+					height: 1080,
+					width: 1920,
 				},
-			});
-			expect(result.success).toBe(true);
-		}
+			}),
+		);
+		const subscription = await subscribeToSequenceProps({
+			...apiHandlerContext,
+			input: {
+				...requests[0],
+				requests,
+			},
+		});
+		expect(subscription.success).toBe(true);
+		expect(subscription.results.every((result) => result.success)).toBe(true);
 
 		const response = await deleteJsxNodeHandler({
 			...apiHandlerContext,

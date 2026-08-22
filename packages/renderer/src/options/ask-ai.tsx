@@ -1,6 +1,7 @@
 import type {AnyRemotionOption} from './option';
 
 let askAIEnabled = true;
+let configuredAskAIEnabled: boolean | null = null;
 
 const cliFlag = 'disable-ask-ai' as const;
 
@@ -32,6 +33,12 @@ export const askAIOption = {
 	},
 	setConfig(value) {
 		askAIEnabled = value;
+		configuredAskAIEnabled = value;
+	},
+	getConfigValue: () => configuredAskAIEnabled,
+	reset: () => {
+		askAIEnabled = true;
+		configuredAskAIEnabled = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

@@ -6,15 +6,30 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 const getStack = () => null;
 
 const withoutKeyframeDisplayOffset = <
-	T extends {keyframeDisplayOffset: number; sequenceFrameOffset: number},
+	T extends {
+		keyframeDisplayOffset: number;
+		sequenceFrameOffset: number;
+		cascadedStart: number;
+		localStart: number;
+	},
 >(
 	tracks: T[],
 ) =>
-	tracks.map(({keyframeDisplayOffset, sequenceFrameOffset, ...track}) => {
-		expect(keyframeDisplayOffset).toBe(0);
-		expect(sequenceFrameOffset).toBe(0);
-		return track;
-	});
+	tracks.map(
+		({
+			keyframeDisplayOffset,
+			sequenceFrameOffset,
+			cascadedStart,
+			localStart,
+			...track
+		}) => {
+			expect(keyframeDisplayOffset).toBe(0);
+			expect(sequenceFrameOffset).toBe(0);
+			expect(cascadedStart).toBeGreaterThanOrEqual(0);
+			expect(typeof localStart).toBe('number');
+			return track;
+		},
+	);
 
 test('Should calculate timeline with no sequences', () => {
 	const calculated = calculateTimeline({
@@ -47,6 +62,7 @@ test('Should calculate a basic timeline', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 		],
@@ -74,6 +90,7 @@ test('Should calculate a basic timeline', () => {
 				type: 'sequence',
 				nonce: [[0, 0]],
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 		},
@@ -103,6 +120,7 @@ test('Should follow order of nesting', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 			{
@@ -124,6 +142,7 @@ test('Should follow order of nesting', () => {
 				refForOutline: null,
 				isInsideSeries: false,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 		],
@@ -150,6 +169,7 @@ test('Should follow order of nesting', () => {
 				refForOutline: null,
 				isInsideSeries: false,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 			depth: 0,
@@ -175,6 +195,7 @@ test('Should follow order of nesting', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 			depth: 1,
@@ -188,6 +209,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 		sequences: [
 			{
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 				displayName: 'Loop',
 				documentationLink: null,
@@ -232,11 +254,13 @@ test('Should inherit loop display from parent for media tracks', () => {
 				src: 'video.mp4',
 				volume: 1,
 				doesVolumeChange: false,
+				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
 				frozenMediaFrame: null,
 				mediaFrameAtSequenceZero: null,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 		],
@@ -272,6 +296,7 @@ test('Should calculate sequence frame offset for negative from values', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 		],
@@ -279,6 +304,7 @@ test('Should calculate sequence frame offset for negative from values', () => {
 
 	expect(calculated[0].sequence.from).toBe(0);
 	expect(calculated[0].sequenceFrameOffset).toBe(37);
+	expect(calculated[0].cascadedStart).toBe(-37);
 });
 
 test('Should calculate sequence frame offset for trimBefore values', () => {
@@ -304,6 +330,7 @@ test('Should calculate sequence frame offset for trimBefore values', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 		],
@@ -336,6 +363,7 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 			},
 			{
@@ -357,12 +385,14 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
 				frozenFrame: null,
 				frozenMediaFrame: null,
 				mediaFrameAtSequenceZero: 0,
 				src: 'https://remotion.media/video.mp4',
 				volume: 1,
 				doesVolumeChange: false,
+				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
 			},
@@ -402,6 +432,7 @@ test('Should hide descendants of sequences with connected compositions', () => {
 		documentationLink: null,
 		duration: 100,
 		effects: [],
+		effectRuntimeValues: null,
 		from: 0,
 		frozenFrame: null,
 		getStack,

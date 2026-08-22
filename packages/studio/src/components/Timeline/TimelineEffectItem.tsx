@@ -2,20 +2,26 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_BLUE, WHITE_ALPHA_80} from '../../helpers/colors';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	EXPANDED_SECTION_PADDING_RIGHT,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
-import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
+import {deleteEffects, reorderEffect} from '../effect-operations-api';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {saveEffectProp} from './save-effect-prop';
-import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
+import {
+	TimelineExpandArrowButton,
+	TimelineExpandArrowSpacer,
+} from './TimelineExpandArrowButton';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
@@ -44,6 +50,15 @@ const rowLabel: React.CSSProperties = {
 const rowStyle: React.CSSProperties = {
 	height: TREE_GROUP_ROW_HEIGHT,
 	cursor: 'default',
+};
+
+const labelContainerStyle: React.CSSProperties = {
+	alignItems: 'center',
+	alignSelf: 'stretch',
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
+	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
 const reorderWrapper: React.CSSProperties = {
@@ -126,6 +141,7 @@ export const TimelineEffectItem: React.FC<{
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
+	const canMutateEffects = canUseEffectOperations();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
@@ -157,15 +173,18 @@ export const TimelineEffectItem: React.FC<{
 		return false;
 	}, [disabledStatus]);
 
-	const canToggle = previewConnected && disabledStatus?.status === 'static';
+	const canToggle =
+		previewConnected && canMutateEffects && disabledStatus?.status === 'static';
 
 	const deleteDisabled =
 		!previewConnected ||
+		!canMutateEffects ||
 		effectStatus.type !== 'can-update-effect' ||
 		!validatedLocation.source;
 
 	const canReorder =
 		previewConnected &&
+		canMutateEffects &&
 		effectStatus.type === 'can-update-effect' &&
 		Boolean(validatedLocation.source);
 
@@ -180,7 +199,7 @@ export const TimelineEffectItem: React.FC<{
 		}
 
 		try {
-			const result = await callApi('/api/delete-effect', [
+			const result = await deleteEffects([
 				{
 					type: 'single-effect',
 					fileName: validatedLocation.source,
@@ -197,15 +216,28 @@ export const TimelineEffectItem: React.FC<{
 	}, [deleteDisabled, effectIndex, nodePath, validatedLocation.source]);
 
 	const getContextMenuItems = useCallback((): ComboboxValue[] => {
-		if (!previewConnected) {
-			return [];
-		}
-
 		if (selection.selectable) {
 			selection.onSelect({shiftKey: false, toggleKey: false});
 		}
 
-		const items: ComboboxValue[] = [];
+		const items: ComboboxValue[] = [
+			getCopyContextForAgentsMenuItem({
+				contextForAgents: formatContextForAgents({
+					location: validatedLocation,
+					name: `Effect "${label}"`,
+					root: window.remotion_cwd,
+				}),
+			}),
+		];
+
+		if (!previewConnected) {
+			return items;
+		}
+
+		items.push({
+			type: 'divider',
+			id: 'copy-context-for-agents-divider',
+		});
 
 		if (documentationLink) {
 			items.push({
@@ -251,9 +283,11 @@ export const TimelineEffectItem: React.FC<{
 	}, [
 		deleteDisabled,
 		documentationLink,
+		label,
 		onDeleteEffectFromSource,
 		previewConnected,
 		selection,
+		validatedLocation,
 	]);
 
 	const onToggle = useCallback(
@@ -303,8 +337,11 @@ export const TimelineEffectItem: React.FC<{
 			alignItems: 'center',
 			color: getTimelineColor(selection.selected, true),
 			display: 'inline-flex',
-			marginRight: EXPANDED_SECTION_PADDING_RIGHT,
+			flexShrink: 1,
 			minWidth: 0,
+			overflow: 'hidden',
+			textOverflow: 'ellipsis',
+			whiteSpace: 'nowrap',
 			boxShadow:
 				containsSelection && !selection.selected
 					? `inset 0 0 0 2px ${TIMELINE_SELECTED_LABEL_BACKGROUND}`
@@ -414,7 +451,7 @@ export const TimelineEffectItem: React.FC<{
 			currentEffectDrag = null;
 
 			try {
-				const result = await callApi('/api/reorder-effect', {
+				const result = await reorderEffect({
 					fileName: validatedLocation.source,
 					sequenceNodePath: nodePath,
 					fromIndex: dropTarget.dragData.effectIndex,
@@ -465,27 +502,26 @@ export const TimelineEffectItem: React.FC<{
 					<TimelineLayerEyeSpacer />
 				)
 			}
-			arrow={
+			arrow={<TimelineExpandArrowSpacer />}
+			style={rowStyle}
+			selected={selection.selected}
+			selectable={selection.selectable}
+			onSelect={selection.onSelect}
+			showSelectedBackground
+			containsSelection={containsSelection}
+			outerHeight={null}
+		>
+			<div style={labelContainerStyle}>
+				<span title={label} style={labelStyle}>
+					{label}
+				</span>
 				<TimelineExpandArrowButton
 					isExpanded={isExpanded}
 					onClick={() => toggleTrack(nodePathInfo)}
 					label={`${label} section`}
 					disabled={false}
 				/>
-			}
-			style={rowStyle}
-			selected={selection.selected}
-			selectable={selection.selectable}
-			selectionItem={selection.selectionItem}
-			onSelect={selection.onSelect}
-			showSelectedBackground
-			containsSelection={containsSelection}
-			isFieldRow={false}
-			outerHeight={null}
-		>
-			<span title={label} style={labelStyle}>
-				{label}
-			</span>
+			</div>
 		</TimelineRowChrome>
 	);
 

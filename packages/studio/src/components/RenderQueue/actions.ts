@@ -21,6 +21,7 @@ import type {
 } from '@remotion/studio-shared';
 import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {callApi} from '../call-api';
 
 export const addStillRenderJob = ({
@@ -361,6 +362,11 @@ export const applyCodemod = ({
 		dryRun,
 		symbolicatedStack,
 	};
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations !== null) {
+		return browserStudioOperations.applyCodemod(body);
+	}
+
 	return callApi('/api/apply-codemod', body, signal);
 };
 
@@ -389,7 +395,7 @@ export const callUpdateDefaultPropsApi = (
 	defaultProps: Record<string, unknown>,
 	enumPaths: EnumPath[],
 ) => {
-	return callApi('/api/update-default-props', {
+	const body = {
 		compositionId,
 		defaultProps: NoReactInternals.serializeJSONWithSpecialTypes({
 			data: defaultProps,
@@ -397,7 +403,13 @@ export const callUpdateDefaultPropsApi = (
 			staticBase: window.remotion_staticBase,
 		}).serializedString,
 		enumPaths,
-	});
+	};
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations !== null) {
+		return browserStudioOperations.updateDefaultProps(body);
+	}
+
+	return callApi('/api/update-default-props', body);
 };
 
 export const applyVisualControlChange = ({

@@ -51,6 +51,7 @@ import {
 	NoiseDisplacementTextSource,
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsOutlinePreview} from '../../components/effects/effects-outline-preview';
 import {
 	EffectsPaperPreview,
 	PAPER_PREVIEW_PARAMS,
@@ -89,6 +90,7 @@ import {
 	STARBURST_PREVIEW_PARAMS,
 } from '../../components/effects/effects-starburst-preview';
 import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
+import {EffectsTilePreview} from '../../components/effects/effects-tile-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -285,6 +287,19 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-outline-preview"
+					component={EffectsOutlinePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						width: 12,
+						edgeSimplification: 12,
+						color: '#00ffff',
+						opacity: 1,
+						outlineOnly: false,
+					}}
+				/>
+				<Still
 					id="effects-duotone-preview"
 					component={EffectsDuotonePreview}
 					width={1280}
@@ -450,6 +465,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{scale: 0.8, horizontal: true, vertical: true}}
+				/>
+				<Still
+					id="effects-tile-preview"
+					component={EffectsTilePreview}
+					width={1280}
+					height={720}
+					defaultProps={{horizontal: true, vertical: true}}
 				/>
 				<Still
 					id="effects-xy-translate-preview"

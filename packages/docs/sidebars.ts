@@ -311,6 +311,7 @@ const sidebars: SidebarsConfig = {
 				'effects/mirror',
 				'effects/noise',
 				'effects/noise-displacement',
+				'effects/outline',
 				'effects/paper',
 				'effects/pattern',
 				'effects/pixel-dissolve',
@@ -330,6 +331,7 @@ const sidebars: SidebarsConfig = {
 				'effects/speckle',
 				'effects/starburst',
 				'effects/thermal-vision',
+				'effects/tile',
 				'effects/tint',
 				'effects/tv-signal-off',
 				'effects/uv-translate',
@@ -443,6 +445,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/getrenderprogress',
 				'lambda/presignurl',
 				'lambda/rendermediaonlambda',
+				'lambda/cancelrenderonlambda',
 				'lambda/renderstillonlambda',
 				'lambda/simulatepermissions',
 				'lambda/speculatefunctionname',
@@ -491,6 +494,15 @@ const sidebars: SidebarsConfig = {
 				'lottie/lottie-remote',
 				'lottie/lottie-lottiefiles',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/mac-cursors',
+			link: {
+				type: 'doc',
+				id: 'mac-cursors/mac-cursors-api',
+			},
+			items: ['mac-cursors/mac-os-cursor'],
 		},
 		{
 			type: 'category',
@@ -1278,6 +1290,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/custom-destination',
 				'lambda/checklist',
 				'lambda/webhooks',
+				'lambda/cancellation',
 				'lambda/cost-example',
 				'lambda/autodelete',
 				{

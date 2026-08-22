@@ -23,6 +23,7 @@ import {
 import type {SelectedOutline} from './selected-outline-geometry';
 import {
 	getAngleDegrees,
+	getRotationCursor,
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationPivot,
 } from './selected-outline-measurement';
@@ -38,6 +39,7 @@ import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 
 const rotationDegreesPerPixel = 0.5;
+const canvas2DRotationCursor = getRotationCursor(0);
 
 export const SelectedOutlineCanvasRotation: React.FC<{
 	readonly getLatestTargetByKey: (
@@ -46,7 +48,14 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 	readonly layoutTarget: SelectedOutlineLayoutTarget;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly outline: SelectedOutline;
-}> = ({getLatestTargetByKey, layoutTarget, onDraggingChange, outline}) => {
+	readonly transform3DMode: boolean;
+}> = ({
+	getLatestTargetByKey,
+	layoutTarget,
+	onDraggingChange,
+	outline,
+	transform3DMode,
+}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -54,6 +63,9 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
+	const cursor = transform3DMode
+		? canvasRotationCursor
+		: canvas2DRotationCursor;
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGPathElement>) => {
@@ -79,7 +91,10 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 			}
 
 			const previousSvgCursor = svg.style.cursor;
-			svg.style.cursor = canvasRotationCursor;
+			const dragCursor = rotationDrag.transform3DMode
+				? canvasRotationCursor
+				: canvas2DRotationCursor;
+			svg.style.cursor = dragCursor;
 
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const center = svgPointToClientPoint(
@@ -115,7 +130,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 					}
 
 					dragStarted = true;
-					forceSpecificCursor(canvasRotationCursor);
+					forceSpecificCursor(dragCursor);
 					onDraggingChange(true);
 				}
 
@@ -277,7 +292,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 			points={outline.points.map((point) => `${point.x},${point.y}`).join(' ')}
 			fill={TRANSPARENT}
 			pointerEvents="all"
-			cursor={canvasRotationCursor}
+			cursor={cursor}
 			onPointerDown={onPointerDown}
 			data-remotion-studio-canvas-rotation
 		/>

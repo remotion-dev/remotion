@@ -40,3 +40,11 @@ test('Audio does not expose visual background or border controls', () => {
 	expect('style.borderBottomRightRadius' in audioSchema).toBe(false);
 	expect('style.borderBottomLeftRadius' in audioSchema).toBe(false);
 });
+
+test('Audio exposes a muted control', () => {
+	expect(audioSchema.muted).toEqual({
+		type: 'boolean',
+		default: false,
+		description: 'Muted',
+	});
+});

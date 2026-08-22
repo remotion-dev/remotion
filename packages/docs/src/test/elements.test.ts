@@ -283,6 +283,8 @@ describe('Element library', () => {
 			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
 		);
 		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
+			'storytelling/polaroid-pictures':
+				completeSourceCodeBySlug['storytelling/polaroid-pictures'],
 			'text/news-article-highlight':
 				completeSourceCodeBySlug['text/news-article-highlight'],
 		});
@@ -316,8 +318,10 @@ describe('Element library', () => {
 
 		for (const definition of elementDefinitionList) {
 			expect(
-				overviewMarkup.split(`>${definition.displayName}</h3>`),
+				overviewMarkup.split(`>${definition.displayName}</span>`),
 			).toHaveLength(2);
+			expect(overviewMarkup).not.toContain(`>${definition.displayName}</h2>`);
+			expect(overviewMarkup).not.toContain(`>${definition.displayName}</h3>`);
 			expect(overviewMarkup).toContain(definition.description);
 			expect(overviewMarkup).toContain(definition.preview.posterUrl);
 			expect(overviewMarkup).toContain(getElementDocumentationUrl(definition));
@@ -449,8 +453,30 @@ describe('Elements sidebar', () => {
 			throw new Error('Elements sidebar must be an array');
 		}
 
-		expect(sidebar.slice(0, 3)).toEqual([
-			'index',
+		expect(sidebar).toHaveLength(1);
+		const elementsCategory = sidebar[0];
+		if (
+			typeof elementsCategory !== 'object' ||
+			elementsCategory === null ||
+			elementsCategory.type !== 'category'
+		) {
+			throw new Error('Elements sidebar must have an Elements root category');
+		}
+
+		expect(elementsCategory).toMatchObject({
+			type: 'category',
+			label: 'Elements',
+			className: 'elements-sidebar-root',
+			link: {type: 'doc', id: 'index'},
+			collapsible: true,
+			collapsed: false,
+		});
+		if (!Array.isArray(elementsCategory.items)) {
+			throw new Error('Elements root category must contain sidebar items');
+		}
+
+		expect(elementsCategory.items.slice(0, 3)).toEqual([
+			'libraries',
 			'contributing',
 			{
 				type: 'html',
@@ -460,7 +486,7 @@ describe('Elements sidebar', () => {
 			},
 		]);
 
-		const categories = sidebar.slice(3);
+		const categories = elementsCategory.items.slice(3);
 		const expectedCategories = [
 			{
 				category: 'backgrounds',
@@ -482,16 +508,8 @@ describe('Elements sidebar', () => {
 				],
 			},
 			{
-				category: 'commerce',
-				label: 'Commerce',
-				items: [
-					'commerce/product-discount-callout/index',
-					'commerce/product-offer/index',
-				],
-			},
-			{
 				category: 'data',
-				label: 'Data',
+				label: 'Charts & Data',
 				items: [
 					'data/horizontal-bar-chart/index',
 					'data/line-chart/index',
@@ -501,9 +519,18 @@ describe('Elements sidebar', () => {
 				],
 			},
 			{
+				category: 'commerce',
+				label: 'Commerce',
+				items: [
+					'commerce/product-collection/index',
+					'commerce/product-discount-callout/index',
+					'commerce/product-offer/index',
+				],
+			},
+			{
 				category: 'maps',
 				label: 'Maps',
-				items: ['maps/map-flyover/index'],
+				items: ['maps/map-flyover/index', 'maps/watercolor-map/index'],
 			},
 			{
 				category: 'overlays',
@@ -516,11 +543,14 @@ describe('Elements sidebar', () => {
 			{
 				category: 'storytelling',
 				label: 'Storytelling',
-				items: ['text/news-article-highlight/index'],
+				items: [
+					'text/news-article-highlight/index',
+					'storytelling/polaroid-pictures/index',
+				],
 			},
 			{
 				category: 'text',
-				label: 'Text',
+				label: 'Text Effects',
 				items: [
 					'text/circle-marker/index',
 					'text/crossed-off/index',
@@ -532,7 +562,11 @@ describe('Elements sidebar', () => {
 			{
 				category: 'youtube',
 				label: 'YouTube',
-				items: ['youtube/youtube-end-card/index'],
+				items: [
+					'youtube/youtube-comment-highlight/index',
+					'youtube/youtube-end-card/index',
+					'youtube/youtube-subscribe-nudge/index',
+				],
 			},
 		] as const;
 
@@ -541,7 +575,8 @@ describe('Elements sidebar', () => {
 				type: 'category',
 				label,
 				link: {type: 'doc', id: `${category}/index`},
-				collapsed: false,
+				collapsible: true,
+				collapsed: true,
 				items,
 			})),
 		);
@@ -610,6 +645,7 @@ describe('Element preview definitions', () => {
 			'captions/popping-word-captions',
 			'captions/word-highlight-captions',
 			'maps/map-flyover',
+			'maps/watercolor-map',
 			'text/spinning-text-wheel',
 		]);
 

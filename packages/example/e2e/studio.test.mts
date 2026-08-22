@@ -12,6 +12,12 @@ import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const macCursorsFile = path.join(exampleDir, 'src', 'MacCursors', 'index.tsx');
+const outlineSelectionCasesFile = path.join(
+	exampleDir,
+	'src',
+	'VisualModeTests',
+	'OutlineSelectionCases.tsx',
+);
 
 const dropAssetOnCanvas = async ({
 	assetPath,
@@ -89,9 +95,144 @@ test.describe('visual mode', () => {
 		await stopStudio();
 	});
 
-	test('should load the studio', async ({page}) => {
-		await page.goto(STUDIO_URL);
+	test('should load the studio without flashing a composition error', async ({
+		page,
+	}) => {
+		await page.addInitScript(() => {
+			const state = {compositionNotFoundWasShown: false};
+			Object.defineProperty(window, '__remotion_initial_load_test', {
+				value: state,
+			});
+
+			const observer = new MutationObserver(() => {
+				if (
+					document.body?.innerText.includes(
+						'Composition with ID AnimatedBarChart not found.',
+					)
+				) {
+					state.compositionNotFoundWasShown = true;
+				}
+			});
+			observer.observe(document, {
+				childList: true,
+				characterData: true,
+				subtree: true,
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toBeVisible();
+		expect(
+			await page.evaluate(
+				() =>
+					(
+						window as typeof window & {
+							__remotion_initial_load_test: {
+								compositionNotFoundWasShown: boolean;
+							};
+						}
+					).__remotion_initial_load_test.compositionNotFoundWasShown,
+			),
+		).toBe(false);
+
+		await page.goto(`${STUDIO_URL}/does-not-exist`);
+		await expect(
+			page.getByText('Composition with ID does-not-exist not found.'),
+		).toBeVisible();
+	});
+
+	test('should virtualize a large timeline without hiding tracks', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/timeline-virtualization-testbed`);
+		await expect(page).toHaveURL(/timeline-virtualization-testbed/, {
+			timeout: 15_000,
+		});
+
+		const timelineScroll = page
+			.locator('.__remotion-vertical-scrollbar')
+			.filter({has: page.locator('[data-timeline-scrollable]')});
+		await expect(timelineScroll).toHaveCount(1);
+		await expect(
+			page.getByText('Virtual track 000', {exact: true}),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Virtual track 000"]'),
+		).toBeVisible();
+
+		const mountedTrackLabels = page.getByText(/^Virtual track \d{3}$/);
+		expect(await mountedTrackLabels.count()).toBeLessThan(120);
+
+		const revealTargetTrack = page.locator(
+			'[data-timeline-marquee-item][title="Reveal target"]',
+		);
+		await expect(revealTargetTrack).toHaveCount(0);
+		const canvas = page.locator('.remotion-studio-composition-container');
+		const visibleOutlines = canvas.locator(
+			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
+		);
+		await canvas.hover();
+		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await visibleOutlines.first().click({force: true});
+
+		await expect(revealTargetTrack).toBeVisible();
+		const [revealTargetRect, timelineScrollRect] = await Promise.all([
+			revealTargetTrack.boundingBox(),
+			timelineScroll.boundingBox(),
+		]);
+		expect(revealTargetRect).not.toBeNull();
+		expect(timelineScrollRect).not.toBeNull();
+		expect(revealTargetRect!.y).toBeGreaterThanOrEqual(timelineScrollRect!.y);
+		expect(revealTargetRect!.y + revealTargetRect!.height).toBeLessThanOrEqual(
+			timelineScrollRect!.y + timelineScrollRect!.height,
+		);
+		await expect(
+			page.getByText('Virtual track 119', {exact: true}),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Virtual track 119"]'),
+		).toBeVisible();
+		expect(
+			await timelineScroll.evaluate((element) => element.scrollTop),
+		).toBeGreaterThan(0);
+		expect(await mountedTrackLabels.count()).toBeLessThan(120);
+	});
+
+	test('should show negative sequence timing in the frame-zero gutter', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/timeline-negative-start`);
+		await expect(page).toHaveURL(/timeline-negative-start/, {
+			timeout: 15_000,
+		});
+
+		const timelineScrollable = page.locator('[data-timeline-scrollable]');
+		const negativeSequence = page.locator(
+			'[data-timeline-marquee-item][title="Negative start"]',
+		);
+		const zeroSequence = page.locator(
+			'[data-timeline-marquee-item][title="Zero start"]',
+		);
+		await expect(negativeSequence).toBeVisible();
+		await expect(zeroSequence).toBeVisible();
+
+		const [timelineRect, negativeSequenceRect, zeroSequenceRect] =
+			await Promise.all([
+				timelineScrollable.boundingBox(),
+				negativeSequence.boundingBox(),
+				zeroSequence.boundingBox(),
+			]);
+		expect(timelineRect).not.toBeNull();
+		expect(negativeSequenceRect).not.toBeNull();
+		expect(zeroSequenceRect).not.toBeNull();
+		expect(negativeSequenceRect!.x).toBeGreaterThanOrEqual(timelineRect!.x);
+		expect(negativeSequenceRect!.x).toBeLessThan(zeroSequenceRect!.x);
+		expect(zeroSequenceRect!.x - negativeSequenceRect!.x).toBeLessThanOrEqual(
+			16,
+		);
 	});
 
 	test('should commit a color drag before the picker closes', async ({
@@ -289,7 +430,7 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should not open the editor when selecting text in the inspector', async ({
+	test('should only open the editor from non-interactive inspector content', async ({
 		page,
 	}) => {
 		await page.addInitScript(() => {
@@ -301,6 +442,23 @@ test.describe('visual mode', () => {
 				configurable: true,
 				get: () => 'Test editor',
 				set: () => undefined,
+			});
+		});
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultEditor: 'vscode',
+						installedEditors: [
+							{
+								id: 'vscode',
+								name: 'Test editor',
+								nameWithType: 'Test editor',
+							},
+						],
+					},
+				},
 			});
 		});
 		const openInEditorRequests: unknown[] = [];
@@ -336,6 +494,29 @@ test.describe('visual mode', () => {
 			.toBe('overview');
 		// Headless Chromium does not consistently emit dblclick after selecting text.
 		await textField.dispatchEvent('dblclick');
+		const numberDragger = page
+			.locator('button.__remotion_input_dragger')
+			.first();
+		await expect(numberDragger).toBeVisible();
+		await numberDragger.dispatchEvent('dblclick');
+		const colorPicker = page.getByTitle('#8E9AB8', {exact: true});
+		await expect(colorPicker).toBeVisible();
+		await colorPicker.dispatchEvent('dblclick');
+
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+		const scaleEffectRow = page.getByText('scale()', {exact: true});
+		await expect(async () => {
+			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await expect(scaleEffectRow).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 15_000});
+		await scaleEffectRow.click();
+		const horizontalCheckbox = page.locator('input[name="horizontal"]');
+		await expect(horizontalCheckbox).toBeVisible();
+		await horizontalCheckbox.dispatchEvent('dblclick');
 		await page.waitForTimeout(100);
 		expect(openInEditorRequests).toEqual([]);
 	});
@@ -351,20 +532,12 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 
 		const canvasItem = page.getByText('Performance overview', {exact: true});
-		const canvasItemBox = await canvasItem.boundingBox();
-		if (canvasItemBox === null) {
-			throw new Error('Canvas item has no bounding box');
-		}
-
-		const canvasItemCenter = {
-			x: canvasItemBox.x + canvasItemBox.width / 2,
-			y: canvasItemBox.y + canvasItemBox.height / 2,
-		};
-		await page.mouse.move(canvasItemCenter.x, canvasItemCenter.y);
-		await page.waitForTimeout(100);
-		await page.mouse.click(canvasItemCenter.x, canvasItemCenter.y, {
-			button: 'right',
-		});
+		await canvasItem.hover();
+		const canvasItemOutline = page.locator(
+			'polygon[data-remotion-prevent-selection-clear="true"][stroke-opacity="1"]',
+		);
+		await expect(canvasItemOutline).toHaveCount(1);
+		await canvasItemOutline.click({button: 'right'});
 
 		const duplicateButton = page.getByRole('button', {
 			name: 'Duplicate',
@@ -380,6 +553,183 @@ test.describe('visual mode', () => {
 		await expect(duplicateButton).toBeVisible();
 	});
 
+	test('should preserve property selection while dragging its outline', async ({
+		page,
+	}) => {
+		test.setTimeout(120_000);
+		const sourceBefore = fs.readFileSync(outlineSelectionCasesFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/outline-selection-cases`);
+			await page.waitForFunction(
+				() => !document.body.innerText.includes('Loading...'),
+				{timeout: 30_000},
+			);
+			await page.keyboard.press('g');
+			const currentFrameInput = page.locator('input:focus');
+			await expect(currentFrameInput).toBeVisible();
+			await currentFrameInput.fill('2010');
+			await currentFrameInput.press('Enter');
+
+			const canvas = page.locator('.remotion-studio-composition-container');
+			const target = canvas
+				.getByText('Select one of my properties, then drag me', {exact: true})
+				.locator('..');
+			await expect(target).toBeVisible({timeout: 15_000});
+			await expect(page.getByText('Baseline', {exact: true})).toBeVisible();
+
+			const timelineItem = page
+				.getByTitle('Property-selected sequence', {exact: true})
+				.first();
+			const offsetProperty = page.getByTitle('Offset', {exact: true});
+			await expect(async () => {
+				await expect(timelineItem).toBeVisible({timeout: 1000});
+				await timelineItem.click();
+				await page.keyboard.press('p');
+				await expect(offsetProperty).toBeVisible({timeout: 1000});
+			}).toPass({timeout: 15_000});
+			await offsetProperty.click();
+			const offsetSelection = offsetProperty.locator('..');
+			await expect(offsetSelection).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.1)',
+			);
+
+			const outline = canvas.locator(
+				'> svg[aria-hidden="true"] polygon[data-remotion-prevent-selection-clear="true"][stroke-opacity="1"]',
+			);
+			await expect(outline).toHaveCount(1);
+
+			const targetBefore = await target.boundingBox();
+			const outlineBefore = await outline.boundingBox();
+			if (targetBefore === null || outlineBefore === null) {
+				throw new Error('Expected the selected outline to have a bounding box');
+			}
+
+			const dragStart = {
+				x: outlineBefore.x + outlineBefore.width / 2,
+				y: outlineBefore.y + outlineBefore.height / 2,
+			};
+			await page.mouse.move(dragStart.x, dragStart.y);
+			await page.mouse.down();
+			await expect(offsetSelection).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.1)',
+			);
+			await page.mouse.move(dragStart.x + 60, dragStart.y, {steps: 5});
+			await page.mouse.up();
+
+			await expect
+				.poll(async () => (await target.boundingBox())?.x ?? null)
+				.toBeCloseTo(targetBefore.x + 60, 0);
+			await expect(offsetSelection).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.1)',
+			);
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(outlineSelectionCasesFile, 'utf-8');
+					const targetIndex = source.indexOf(
+						'name="Property-selected sequence"',
+					);
+					return source
+						.slice(targetIndex, targetIndex + 1000)
+						.match(/translate: '([^']+)'/)?.[1];
+				})
+				.not.toBe('0px 0px');
+		} finally {
+			fs.writeFileSync(outlineSelectionCasesFile, sourceBefore);
+		}
+	});
+
+	test('should keep selected editing handles above overlapping outlines', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/outline-selection-cases`);
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+		await page.keyboard.press('g');
+		const currentFrameInput = page.locator('input:focus');
+		await expect(currentFrameInput).toBeVisible();
+		await currentFrameInput.fill('2160');
+		await currentFrameInput.press('Enter');
+
+		const target = page.locator(
+			'[data-timeline-marquee-item="true"][title="Editable transform target"]',
+		);
+		await expect(target).toBeVisible();
+		await target.click();
+
+		const rightScaleEdge = page.locator(
+			'[data-remotion-studio-scale-edge="right"][data-remotion-studio-scale-edge-contains-selection="true"]',
+		);
+		await expect(rightScaleEdge).toBeVisible();
+		const scaleEdgePoint = await rightScaleEdge.evaluate((element) => {
+			if (!(element instanceof SVGLineElement)) {
+				throw new Error('Scale edge should be an SVG line');
+			}
+
+			const matrix = element.getScreenCTM();
+			if (matrix === null) {
+				throw new Error('Scale edge should have a screen transform');
+			}
+
+			const first = new DOMPoint(
+				element.x1.baseVal.value,
+				element.y1.baseVal.value,
+			).matrixTransform(matrix);
+			const second = new DOMPoint(
+				element.x2.baseVal.value,
+				element.y2.baseVal.value,
+			).matrixTransform(matrix);
+			const [top, bottom] =
+				first.y < second.y ? [first, second] : [second, first];
+
+			return {
+				x: top.x + (bottom.x - top.x) * 0.2,
+				y: top.y + (bottom.y - top.y) * 0.2,
+			};
+		});
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-scale-edge') ?? null,
+				scaleEdgePoint,
+			),
+		).toBe('right');
+
+		const topRightRotationCorner = page.locator(
+			'[data-remotion-studio-rotation-corner="top-right"][data-remotion-studio-rotation-corner-contains-selection="true"]',
+		);
+		await expect(topRightRotationCorner).toBeVisible();
+		const rotationCornerBox = await topRightRotationCorner.boundingBox();
+		if (rotationCornerBox === null) {
+			throw new Error('Rotation corner should have a visible layout');
+		}
+
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-rotation-corner') ?? null,
+				{
+					x: rotationCornerBox.x + rotationCornerBox.width / 2,
+					y: rotationCornerBox.y + rotationCornerBox.height / 2,
+				},
+			),
+		).toBe('top-right');
+
+		await topRightRotationCorner.click({button: 'right'});
+		await expect(
+			page.getByRole('button', {name: 'Duplicate', exact: true}),
+		).toBeVisible();
+	});
+
 	test('should compensate DOM measurements with useCurrentScale() on direct load', async ({
 		page,
 	}) => {
@@ -389,18 +739,24 @@ test.describe('visual mode', () => {
 		).toHaveText('100', {timeout: 15_000});
 	});
 
-	test('should show the composition list', async ({page}) => {
+	test('should show and search the composition list', async ({page}) => {
 		await page.goto(STUDIO_URL);
 		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
 			timeout: 15_000,
 		});
+
+		await page.keyboard.press('ControlOrMeta+k');
+		await page
+			.getByPlaceholder('Search compositions...')
+			.fill('timeline virtualization');
+		await page.keyboard.press('Enter');
+		await expect(page).toHaveURL(/timeline-virtualization-testbed/);
 	});
 
 	test('should play when a composition in the sidebar is focused', async ({
 		page,
 	}) => {
-		await page.goto(`${STUDIO_URL}/schema-test`);
-		await expect(page).toHaveURL(/schema-test/, {timeout: 15_000});
+		await navigateToSchemaTest(page);
 
 		const otherComposition = page.getByTitle('AnimatedBarChart', {exact: true});
 		await otherComposition.press('Space');
@@ -450,59 +806,20 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('untoggling the free license removes it from the config', async ({
+	test('settings reuse reactive runtime config and license toggle', async ({
 		page,
 	}) => {
-		const configFile = path.join(exampleDir, 'remotion.config.ts');
-		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
-
-		try {
-			await page.goto(STUDIO_URL);
-			const response = await fetch(`${STUDIO_URL}/api/update-config`, {
-				method: 'POST',
-				headers: {'content-type': 'application/json', origin: STUDIO_URL},
-				body: JSON.stringify({
-					clientId: 'license-settings-e2e',
-					updates: [
-						{
-							setter: 'setPublicLicenseKey',
-							type: 'set',
-							value: 'free-license',
-						},
-					],
-				}),
-			});
-			expect(await response.json()).toEqual({
-				success: true,
-				data: {success: true},
-			});
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain("Config.setPublicLicenseKey('free-license');");
-
-			await page.getByRole('button', {name: /Search\.\.\./}).click();
-			const quickSwitcher = page.getByRole('dialog');
-			await quickSwitcher.getByRole('textbox').fill('> Settings');
-			await quickSwitcher.getByText('Settings...', {exact: true}).click();
-			const dialog = page.getByRole('dialog');
-			await dialog.getByText('License', {exact: true}).click();
-			const freeLicenseToggle = dialog.locator('input[name="free-license"]');
-			await expect(freeLicenseToggle).toBeChecked();
-			await freeLicenseToggle.click();
-
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setPublicLicenseKey');
-		} finally {
-			fs.writeFileSync(configFile, configBeforeTest);
-		}
-	});
-
-	test('settings reuse reactive runtime config', async ({page}) => {
+		test.setTimeout(120_000);
 		const configFile = path.join(exampleDir, 'remotion.config.ts');
 		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
 		let editorInfoRequests = 0;
 		let codingAgentInfoRequests = 0;
+		let updateConfigRequests = 0;
+		page.on('request', (request) => {
+			if (new URL(request.url()).pathname === '/api/update-config') {
+				updateConfigRequests++;
+			}
+		});
 		await page.route('**/api/default-editor-info', async (route) => {
 			editorInfoRequests++;
 			await route.fulfill({
@@ -541,6 +858,79 @@ test.describe('visual mode', () => {
 				},
 			});
 		});
+		await page.route('**/api/remotion-skills-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						remotionUpgradeSkillAvailable: false,
+						remotionInteractivitySkillAvailable: false,
+						skills: [
+							{
+								name: 'remotion-best-practices',
+								installedInProject: true,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-captions',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-create',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-docs',
+								installedInProject: false,
+								installedGlobally: true,
+							},
+							{
+								name: 'remotion-interactivity',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-maps',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-markup',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-multimedia',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-render',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-saas',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-studio',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-upgrade',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+						],
+					},
+				},
+			});
+		});
 		try {
 			await page.goto(`${STUDIO_URL}/schema-test`);
 			await page.locator('[data-sidebar-toggle="right"]').click();
@@ -565,17 +955,216 @@ test.describe('visual mode', () => {
 			await quickSwitcher.getByText('Settings...', {exact: true}).click();
 			const dialog = page.getByRole('dialog');
 			await expect(
+				dialog.getByText('Default codec', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('Output location', {exact: true}),
+			).toHaveCount(0);
+			await expect(
+				dialog.getByText('Audio bitrate', {exact: true}),
+			).toHaveCount(0);
+			const stillImageFormat = dialog.getByTitle('Still image format', {
+				exact: true,
+			});
+			await expect(stillImageFormat).toHaveText('Default (PNG)');
+			await stillImageFormat.click();
+			await page.getByRole('button', {name: 'JPEG', exact: true}).click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain("Config.setStillImageFormat('jpeg');");
+			await expect(stillImageFormat).toHaveText('JPEG');
+			await stillImageFormat.click();
+			await page
+				.getByRole('button', {
+					name: 'Default (PNG)',
+					exact: true,
+				})
+				.last()
+				.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setStillImageFormat');
+			await expect(stillImageFormat).toHaveText('Default (PNG)');
+			const audioCodec = dialog.getByTitle('Audio codec', {exact: true});
+			await expect(audioCodec).toHaveText('Default (Automatic)');
+			await audioCodec.click();
+			const automaticAudioCodec = page
+				.getByRole('button', {
+					name: 'Default (Automatic)',
+					exact: true,
+				})
+				.last();
+			const aacAudioCodec = page
+				.getByRole('button', {
+					name: 'AAC',
+					exact: true,
+				})
+				.last();
+			await expect(automaticAudioCodec.getByRole('img')).toHaveCount(1);
+			await expect(aacAudioCodec.getByRole('img')).toHaveCount(0);
+			await aacAudioCodec.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain("Config.setAudioCodec('aac');");
+			await expect(audioCodec).toHaveText('AAC');
+			await audioCodec.click();
+			await expect(automaticAudioCodec.getByRole('img')).toHaveCount(0);
+			await expect(aacAudioCodec.getByRole('img')).toHaveCount(1);
+			await automaticAudioCodec.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setAudioCodec');
+			await expect(audioCodec).toHaveText('Default (Automatic)');
+			await dialog.getByText('Studio', {exact: true}).click();
+			for (const setting of [
+				'Ask AI enabled',
+				'Interactivity enabled',
+				'Max timeline tracks',
+				'Audio latency hint',
+				'Number of shared audio tags',
+				'Beep on finish',
+				'Bundler',
+				'Cross-site isolation',
+				'Log level',
+			]) {
+				await expect(dialog.getByText(setting, {exact: true})).toBeVisible();
+			}
+			await expect(
+				dialog.getByRole('button', {name: 'Number of shared audio tags'}),
+			).toBeVisible();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			await expect(
+				dialog.getByText('Keyboard shortcuts', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByRole('list', {name: 'Playback', exact: true}),
+			).toBeVisible();
+			await dialog.getByRole('button', {name: 'Studio', exact: true}).click();
+
+			const askAIEnabled = dialog.getByTitle('Ask AI enabled', {exact: true});
+			await expect(askAIEnabled).toHaveText('Default (Enabled)');
+			await askAIEnabled.click();
+			await page
+				.getByRole('button', {name: 'Disabled', exact: true})
+				.last()
+				.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain('Config.setAskAIEnabled(false);');
+			await askAIEnabled.click();
+			await page
+				.getByRole('button', {name: 'Default (Enabled)', exact: true})
+				.last()
+				.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setAskAIEnabled');
+
+			const maxTimelineTracks = dialog.getByRole('button', {
+				name: 'Max timeline tracks',
+			});
+			const maxTimelineTracksBounds = await maxTimelineTracks.boundingBox();
+			expect(maxTimelineTracksBounds).not.toBeNull();
+			const requestsBeforeDrag = updateConfigRequests;
+			await page.mouse.move(
+				maxTimelineTracksBounds!.x + maxTimelineTracksBounds!.width / 2,
+				maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
+			);
+			await page.mouse.down();
+			for (let step = 1; step <= 6; step++) {
+				await page.mouse.move(
+					maxTimelineTracksBounds!.x +
+						maxTimelineTracksBounds!.width / 2 +
+						step * 3,
+					maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
+				);
+				await page.waitForTimeout(80);
+			}
+			expect(updateConfigRequests).toBe(requestsBeforeDrag);
+			await page.mouse.up();
+			await expect
+				.poll(() => updateConfigRequests)
+				.toBe(requestsBeforeDrag + 1);
+			await page.waitForTimeout(500);
+			expect(updateConfigRequests).toBe(requestsBeforeDrag + 1);
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain('Config.setMaxTimelineTracks(');
+			await dialog.getByTitle('Use default (Unlimited)', {exact: true}).click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setMaxTimelineTracks');
+			await expect(maxTimelineTracks).toHaveText('Default (Unlimited)');
+
+			await dialog.getByText('Skills', {exact: true}).click();
+			await expect(
+				dialog.getByText(
+					'Not all skills are installed. Run this command in the project directory, then reload Studio and restart your coding agent.',
+					{exact: true},
+				),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-best-practices', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-docs', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-studio', {exact: true}),
+			).toBeVisible();
+			await expect(dialog.getByText('Project', {exact: true})).toBeVisible();
+			await expect(dialog.getByText('Global', {exact: true})).toBeVisible();
+			await expect(
+				dialog.getByText('Not installed', {exact: true}).first(),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('npx remotion skills add', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByRole('button', {name: 'Copy install command'}),
+			).toBeVisible();
+			const skillsList = dialog.getByRole('list', {
+				name: 'Remotion Agent Skills',
+			});
+			const skillsScrollContainer = skillsList.locator('..').locator('..');
+			await skillsScrollContainer.evaluate((element) => {
+				element.scrollTop = element.scrollHeight;
+			});
+			const skillsScrollContainerBounds =
+				await skillsScrollContainer.boundingBox();
+			const lastSkillBounds = await skillsList
+				.getByRole('listitem')
+				.last()
+				.boundingBox();
+			expect(
+				skillsScrollContainerBounds!.y +
+					skillsScrollContainerBounds!.height -
+					(lastSkillBounds!.y + lastSkillBounds!.height),
+			).toBeGreaterThanOrEqual(16);
+			await expect(
+				dialog.getByText('Changes save to', {exact: false}),
+			).toBeVisible();
+
+			await dialog.getByText('Apps', {exact: true}).click();
+			await expect(
 				dialog.getByTitle('Default editor', {exact: true}),
 			).toHaveText('Cursor');
 			await expect(
 				dialog.getByTitle('Default coding agent', {exact: true}),
 			).toContainText('Codex');
 			await dialog.getByText('License', {exact: true}).click();
-			await expect(dialog.locator('input[name="free-license"]')).toBeChecked();
+			const freeLicenseToggle = dialog.locator('input[name="free-license"]');
+			await expect(freeLicenseToggle).toBeChecked();
 			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
 				codingAgentInfoRequests: 1,
 				editorInfoRequests: 1,
 			});
+			await freeLicenseToggle.click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setPublicLicenseKey');
 			await page.mouse.move(10, 100);
 			await page.mouse.down();
 			await page.mouse.move(13, 101);
@@ -831,7 +1420,7 @@ test.describe('visual mode', () => {
 		).toEqual([]);
 	});
 
-	test('should fall back to the preferred installed editor if no editor is running', async ({
+	test('should use an explicit editor or fall back to an installed editor', async ({
 		page,
 	}) => {
 		await page.addInitScript(() => {
@@ -902,7 +1491,14 @@ test.describe('visual mode', () => {
 			page.getByRole('button', {name: 'Zed', exact: true}),
 		).toHaveCount(0);
 
-		await page.keyboard.press('Escape');
+		await page.getByRole('button', {name: 'Code', exact: true}).click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+			]);
 		await expect(
 			page.getByRole('button', {name: 'Cursor', exact: true}),
 		).toBeHidden();
@@ -911,9 +1507,118 @@ test.describe('visual mode', () => {
 			.poll(() => openInEditorRequests)
 			.toEqual([
 				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+				expect.objectContaining({
 					editorId: 'zed',
 				}),
 			]);
+
+		const timelineGridline = page.locator(
+			'[data-timeline-marquee-item][title="0% gridline"]',
+		);
+		await timelineGridline.click();
+		await page.locator('[data-sidebar-toggle="right"]').click();
+		const sourceLocation = page
+			.getByRole('group', {name: 'Inspector source location'})
+			.first();
+		await expect(sourceLocation).toBeVisible();
+		const sourceLink = sourceLocation.getByRole('button', {
+			name: /BarChart\.tsx:\d+/,
+		});
+		await expect(sourceLink).toBeEnabled();
+		await sourceLink.click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+			]);
+
+		await timelineGridline.click({button: 'right'});
+		const sequenceContextMenu = page
+			.locator('[data-remotion-menu-tree-id]')
+			.last();
+		const contextMenuOpenInZed = sequenceContextMenu.getByRole('button', {
+			name: 'Open in Zed',
+			exact: true,
+		});
+		await expect(contextMenuOpenInZed).toBeEnabled();
+		await contextMenuOpenInZed.click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+			]);
+	});
+
+	test('should disable opening when no editor is installed', async ({page}) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(window, 'remotion_editorName', {
+				configurable: true,
+				get: () => null,
+				set: () => undefined,
+			});
+		});
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {defaultEditor: null, installedEditors: []},
+				},
+			});
+		});
+		await page.route('**/api/default-coding-agent-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultCodingAgent: null,
+						installedCodingAgents: [],
+						installedTerminals: [],
+					},
+				},
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+		const projectLocation = page.getByTitle(exampleDir);
+		await projectLocation.hover();
+		await expect(
+			projectLocation.getByRole('button', {
+				name: 'Open in default editor',
+				exact: true,
+			}),
+		).toBeDisabled({timeout: 15_000});
+
+		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
+		const sourceLocation = page
+			.getByRole('group', {name: 'Inspector source location'})
+			.first();
+		await expect(sourceLocation).toBeVisible();
+		await expect(
+			sourceLocation.getByRole('button', {name: /\.tsx:\d+/}).first(),
+		).toBeDisabled();
 	});
 
 	test('should use standalone and contextual app names in portaled context menus', async ({
@@ -1190,7 +1895,12 @@ test.describe('visual mode', () => {
 				.click();
 
 			const settings = page.getByRole('dialog');
-			await expect(settings.getByText('Apps', {exact: true})).toBeVisible();
+			await expect(
+				settings.getByTitle('Default editor', {exact: true}),
+			).toBeVisible();
+			await expect(
+				settings.getByText('Default codec', {exact: true}),
+			).toHaveCount(0);
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);
 		}
@@ -1352,10 +2062,6 @@ test.describe('visual mode', () => {
 		expect(subMenuItemBox!.x).toBeGreaterThan(compositionBox!.x);
 	});
 
-	test('should navigate to schema-test composition', async ({page}) => {
-		await navigateToSchemaTest(page);
-	});
-
 	test('should not subscribe to package-owned sequence props', async ({
 		page,
 	}) => {
@@ -1408,7 +2114,10 @@ test.describe('visual mode', () => {
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
 	});
 
-	test('should preview a sized Element drop on the Canvas', async ({page}) => {
+	test('should preview and place Canvas drops at the playhead', async ({
+		page,
+	}) => {
+		test.setTimeout(90_000);
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
 		await expect(
 			page.getByRole('button', {name: '0', exact: true}),
@@ -1472,15 +2181,7 @@ test.describe('visual mode', () => {
 			document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
 		});
 		await expect(preview).toBeHidden();
-	});
 
-	test('should place and select Canvas drops at the playhead', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await expect(
-			page.getByRole('button', {name: '0', exact: true}),
-		).toBeVisible({timeout: 15_000});
 		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
 			await page.locator('[data-sidebar-toggle="right"]').click();
 		}
