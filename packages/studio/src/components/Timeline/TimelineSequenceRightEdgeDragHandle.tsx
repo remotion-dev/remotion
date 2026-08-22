@@ -1077,7 +1077,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
-}> = ({nodePathInfo, windowWidth, timelineDurationInFrames}) => {
+	readonly onDragEnd: (wasDragged: boolean) => void;
+}> = ({nodePathInfo, windowWidth, timelineDurationInFrames, onDragEnd}) => {
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
@@ -1095,6 +1096,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
 		button: number;
@@ -1109,6 +1111,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -1117,6 +1120,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -1126,6 +1130,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
+		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
@@ -1221,6 +1226,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				didMove: false,
 				pxPerFrame,
 				pointerId: e.pointerId,
 				button: e.button,
@@ -1256,6 +1262,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const dx = e.clientX - dragState.initialClientX;
 			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 			dragState.latestDeltaFrames = deltaFrames;
+			if (deltaFrames !== 0) {
+				dragState.didMove = true;
+			}
+
 			for (const target of dragState.targets) {
 				const nextValues = getTimelineSequenceLeftEdgeDragValues({
 					initialDuration: target.initialDuration,
@@ -1353,10 +1363,12 @@ export const useTimelineSequenceFromDrag = ({
 	nodePathInfo,
 	windowWidth,
 	timelineDurationInFrames,
+	onDragEnd,
 }: {
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
+	readonly onDragEnd: (wasDragged: boolean) => void;
 }) => {
 	const {
 		setPropStatuses,
@@ -1380,6 +1392,7 @@ export const useTimelineSequenceFromDrag = ({
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
 		button: number;
@@ -1397,6 +1410,7 @@ export const useTimelineSequenceFromDrag = ({
 		previewServerState,
 		overrideIdToNodePathMappings,
 		editorSnapping,
+		onDragEnd,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -1408,6 +1422,7 @@ export const useTimelineSequenceFromDrag = ({
 		previewServerState,
 		overrideIdToNodePathMappings,
 		editorSnapping,
+		onDragEnd,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -1417,6 +1432,7 @@ export const useTimelineSequenceFromDrag = ({
 		}
 
 		dragStateRef.current = null;
+		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		setDragging(false);
@@ -1526,6 +1542,7 @@ export const useTimelineSequenceFromDrag = ({
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				didMove: false,
 				pxPerFrame,
 				pointerId: e.pointerId,
 				button: e.button,
@@ -1565,6 +1582,10 @@ export const useTimelineSequenceFromDrag = ({
 				targets: dragState.targets,
 			});
 			dragState.latestDeltaFrames = deltaFrames;
+			if (deltaFrames !== 0) {
+				dragState.didMove = true;
+			}
+
 			for (const target of dragState.targets) {
 				const nextFrom = getTimelineSequenceFromDragValue({
 					initialFrom: target.initialFrom,
@@ -1660,7 +1681,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
-}> = ({nodePathInfo, windowWidth, timelineDurationInFrames}) => {
+	readonly onDragEnd: (wasDragged: boolean) => void;
+}> = ({nodePathInfo, windowWidth, timelineDurationInFrames, onDragEnd}) => {
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
@@ -1678,6 +1700,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
 		button: number;
@@ -1693,6 +1716,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -1701,6 +1725,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -1710,6 +1735,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
+		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
@@ -1803,6 +1829,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				didMove: false,
 				pxPerFrame,
 				pointerId: e.pointerId,
 				button: e.button,
@@ -1841,6 +1868,10 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const dx = e.clientX - dragState.initialClientX;
 			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 			dragState.latestDeltaFrames = deltaFrames;
+			if (deltaFrames !== 0) {
+				dragState.didMove = true;
+			}
+
 			for (const target of dragState.targets) {
 				latestRef.current.setDragOverrides(
 					target.nodePath,

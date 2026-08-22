@@ -15,6 +15,7 @@ import {
 	WHITE_ALPHA_20,
 	WHITE_ALPHA_50,
 } from '../../helpers/colors';
+import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -182,6 +183,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly onMoveDragPointerDown: (
 		e: React.PointerEvent<HTMLDivElement>,
 	) => void;
+	readonly onPointerDownCapture: () => void;
 	readonly onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }> = ({
 	s,
@@ -198,6 +200,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	fromCanUpdate,
 	frozenFrame,
 	onMoveDragPointerDown,
+	onPointerDownCapture,
 	onDoubleClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
@@ -338,6 +341,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			style={actualStyle}
 			title={s.displayName}
+			onPointerDownCapture={onPointerDownCapture}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onDoubleClick={onDoubleClick}
 		>
@@ -411,6 +415,10 @@ const TimelineSequenceInner: React.FC<{
 
 	const video = Internals.useVideo();
 	const renderWindow = useContext(TimelineViewportContext);
+	const dragAwareDoubleClick = useMemo(
+		() => createDragAwareDoubleClickTracker(),
+		[],
+	);
 
 	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
@@ -487,6 +495,8 @@ const TimelineSequenceInner: React.FC<{
 				button: e.button,
 				canOpenInEditor,
 				numberOfConnectedCompositions: connectedCompositions.length,
+				sequenceWasDragged:
+					dragAwareDoubleClick.consumePointerGestureWasDragged(),
 			});
 			if (action === null) {
 				return;
@@ -512,6 +522,7 @@ const TimelineSequenceInner: React.FC<{
 		[
 			canOpenInEditor,
 			connectedCompositions,
+			dragAwareDoubleClick,
 			openInEditor,
 			s,
 			selectComposition,
@@ -695,6 +706,7 @@ const TimelineSequenceInner: React.FC<{
 		nodePathInfo,
 		windowWidth,
 		timelineDurationInFrames: video?.durationInFrames ?? 1,
+		onDragEnd: dragAwareDoubleClick.endPointerGesture,
 	});
 
 	if (!video) {
@@ -839,6 +851,7 @@ const TimelineSequenceInner: React.FC<{
 			fromCanUpdate={fromCanUpdate}
 			frozenFrame={frozenFrame}
 			onMoveDragPointerDown={onMoveDragPointerDown}
+			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
 			onDoubleClick={
 				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
 			}
@@ -906,6 +919,7 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo={nodePathInfo}
 					windowWidth={windowWidth}
 					timelineDurationInFrames={video.durationInFrames ?? 1}
+					onDragEnd={dragAwareDoubleClick.endPointerGesture}
 				/>
 			) : null}
 			{showRightEdgeDragHandle &&
@@ -916,6 +930,7 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo={nodePathInfo}
 					windowWidth={windowWidth}
 					timelineDurationInFrames={video.durationInFrames ?? 1}
+					onDragEnd={dragAwareDoubleClick.endPointerGesture}
 				/>
 			) : null}
 		</TimelineSequenceCurrentFrame>
