@@ -15,8 +15,8 @@ import {showNotification} from './Notifications/NotificationCenter';
 import {optionsSidebarTabs} from './options-sidebar-tabs';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {extractEnumJsonPaths} from './RenderModal/SchemaEditor/extract-enum-json-paths';
+import {resolveCompositionSchema} from './RenderModal/SchemaEditor/infer-zod-schema-from-value';
 import {SchemaResetButton} from './RenderModal/SchemaEditor/SchemaResetButton';
-import type {AnyZodSchema} from './RenderModal/SchemaEditor/zod-schema-type';
 import type {UpdaterFunction} from './RenderModal/SchemaEditor/ZodSwitch';
 import {RenderQueue} from './RenderQueue';
 import {callUpdateDefaultPropsApi} from './RenderQueue/actions';
@@ -113,31 +113,17 @@ export const OptionsPanel: React.FC<{
 	const noComposition = !composition;
 
 	const schema = useMemo(() => {
-		if (!z) {
-			return 'no-zod' as const;
-		}
-
 		if (noComposition) {
 			return 'no-composition' as const;
 		}
 
-		if (!composition.schema) {
-			return 'no-schema' as const;
-		}
-
-		if (
-			!(
-				typeof (composition.schema as {safeParse?: unknown}).safeParse ===
-				'function'
-			)
-		) {
-			throw new Error(
-				'A value which is not a Zod schema was passed to `schema`',
-			);
-		}
-
-		return composition.schema as AnyZodSchema;
-	}, [composition?.schema, noComposition, z]);
+		return resolveCompositionSchema({
+			explicitSchema: composition.schema,
+			defaultProps: composition.defaultProps ?? {},
+			z,
+			zodTypes,
+		});
+	}, [composition, noComposition, z, zodTypes]);
 
 	const currentDefaultProps = useMemo(() => {
 		if (composition === null) {

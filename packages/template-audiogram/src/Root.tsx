@@ -1,7 +1,6 @@
 import { parseMedia } from "@remotion/media-parser";
 import { Composition, staticFile } from "remotion";
 import { Audiogram } from "./Audiogram/Main";
-import { audiogramSchema } from "./Audiogram/schema";
 import { getSubtitles } from "./helpers/fetch-captions";
 import { FPS } from "./helpers/ms-to-frame";
 
@@ -13,14 +12,10 @@ export const RemotionRoot: React.FC = () => {
         component={Audiogram}
         width={1080}
         height={1080}
-        schema={audiogramSchema}
         defaultProps={{
           // audio settings
-          audioOffsetInSeconds: 0,
           audioFileUrl: staticFile("dialogue.wav"),
           // podcast data
-          coverImageUrl: staticFile("podcast-cover.jpeg"),
-          titleText: "Ep 550 - Supper Club × Remotion React",
           titleColor: "rgba(186, 186, 186, 0.93)",
           // captions settings
           captions: null,
@@ -31,7 +26,7 @@ export const RemotionRoot: React.FC = () => {
           visualizer: {
             type: "oscilloscope",
             color: "#F4B941",
-            numberOfSamples: "64" as const,
+            numberOfSamples: "64",
             windowInSeconds: 0.1,
             posterization: 3,
             amplitude: 4,
@@ -50,9 +45,7 @@ export const RemotionRoot: React.FC = () => {
           });
 
           return {
-            durationInFrames: Math.floor(
-              (slowDurationInSeconds - props.audioOffsetInSeconds) * FPS,
-            ),
+            durationInFrames: Math.floor(slowDurationInSeconds * FPS),
             props: {
               ...props,
               captions,
