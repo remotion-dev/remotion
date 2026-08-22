@@ -1476,6 +1476,15 @@ export const articles = [
 		slug: 'dataset-render',
 	},
 	{
+		id: 'default-props-inference',
+		title: 'Inferring controls from default props',
+		relativePath: 'docs/default-props-inference.mdx',
+		compId: 'articles-docs-default-props-inference',
+		crumb: 'How To',
+		noAi: false,
+		slug: 'default-props-inference',
+	},
+	{
 		id: 'delay-render',
 		title: 'delayRender() and continueRender()',
 		relativePath: 'docs/delay-render.mdx',

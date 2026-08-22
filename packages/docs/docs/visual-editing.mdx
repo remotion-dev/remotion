@@ -10,7 +10,7 @@ crumb: 'How To'
 
 You can edit the [`defaultProps`](/docs/composition#defaultprops) of a [`<Composition>`](/docs/composition) visually in the Remotion Studio.
 
-Basic controls are inferred from the values in `defaultProps`. You do not need to define a [`schema`](/docs/composition#schema).
+Basic controls are [inferred from the values in `defaultProps`](/docs/default-props-inference). You do not need to define a [`schema`](/docs/composition#schema).
 
 ## Opening the default props editor
 
@@ -27,26 +27,7 @@ When editing a `<Sequence>` visually in the timeline, the visual style controls 
 
 ### Inferred from `defaultProps`<AvailableFrom v="4.0.516" />
 
-If no `schema` is specified, Remotion infers controls for:
-
-- Strings
-- Numbers
-- Booleans
-- Dates
-- Nested objects
-- Colors, if [`@remotion/zod-types`](/docs/zod-types) is installed
-- [`staticFile()`](/docs/staticfile) assets
-- Non-empty arrays whose items have the same inferred type
-
-Fields named `type` are treated as literals and cannot be edited. This prevents changing a discriminator without defining the other possible object shapes.
-
-`null`, `undefined`, empty arrays, arrays with mixed item types and values whose type cannot be inferred do not get a visual control. Define an explicit schema if these values should be editable.
-
-`zod` must be installed for Remotion to infer controls:
-
-```bash title="Install Zod"
-npx remotion add zod
-```
+If no `schema` is specified, Remotion infers controls from `defaultProps`. See [Inferring controls from default props](/docs/default-props-inference) for the supported values, edge cases and installation requirements.
 
 ### Defined by a schema
 

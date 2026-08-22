@@ -8,7 +8,7 @@ crumb: 'How To'
 
 Use [Zod](https://zod.dev/) to validate the props your component accepts and to customize their controls in the Remotion Studio.
 
-You do not need to define a schema to [edit props visually](/docs/visual-editing). Since <AvailableFrom v="4.0.516" inline />, Remotion infers basic controls from [`defaultProps`](/docs/composition#defaultprops). Define a schema when you need validation, constraints, choices or specialized controls.
+You do not need to define a schema to [edit props visually](/docs/visual-editing). Since <AvailableFrom v="4.0.516" inline />, Remotion [infers basic controls from `defaultProps`](/docs/default-props-inference). Define a schema when you need validation, constraints, choices or specialized controls.
 
 ## AI agent prompt
 
@@ -120,7 +120,7 @@ export const RemotionRoot: React.FC = () => {
 
 ## Editing props visually
 
-The schema determines which controls appear when you [edit props visually in the Remotion Studio](/docs/visual-editing). It overrides the controls that Remotion would otherwise infer from `defaultProps`.
+The schema determines which controls appear when you [edit props visually in the Remotion Studio](/docs/visual-editing). It overrides the controls that Remotion would otherwise [infer from `defaultProps`](/docs/default-props-inference).
 
 ## Supported types
 
