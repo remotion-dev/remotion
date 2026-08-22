@@ -24,6 +24,11 @@ export type VideoObjectFit =
 	| 'none'
 	| 'scale-down';
 
+export type EffectsOutputSize = {
+	readonly width: number;
+	readonly height: number;
+};
+
 export type FallbackOffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
 	transparent?: boolean;
@@ -76,6 +81,7 @@ type OptionalVideoProps = {
 	objectFit: VideoObjectFit;
 	_experimentalInitiallyDrawCachedFrame: boolean;
 	effects: EffectsProp;
+	effectsOutputSize: EffectsOutputSize | undefined;
 };
 
 export type NativeVideoProps = Omit<

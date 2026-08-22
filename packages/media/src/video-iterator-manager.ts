@@ -10,6 +10,8 @@ import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premou
 import {roundTo4Digits} from './helpers/round-to-4-digits';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
+import type {EffectsOutputSize} from './video/props';
+import {resolveEffectsOutputSize} from './video/resolve-effects-output-size';
 import {
 	createVideoIterator,
 	type VideoIterator,
@@ -54,6 +56,7 @@ export const videoIteratorManager = async ({
 	getIsLooping,
 	getEffects,
 	getEffectChainState,
+	getEffectsOutputSize = () => undefined,
 }: {
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -70,6 +73,7 @@ export const videoIteratorManager = async ({
 		width: number,
 		height: number,
 	) => EffectChainState | null;
+	getEffectsOutputSize?: () => EffectsOutputSize | undefined;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
@@ -106,7 +110,27 @@ export const videoIteratorManager = async ({
 	const paintFrame = async (frame: WrappedCanvas): Promise<void> => {
 		if (context && canvas) {
 			const effects = getEffects();
-			const chainState = getEffectChainState(canvas.width, canvas.height);
+			const outputSize =
+				effects.length > 0
+					? resolveEffectsOutputSize({
+							sourceWidth: frame.canvas.width,
+							sourceHeight: frame.canvas.height,
+							effectsOutputSize: getEffectsOutputSize(),
+						})
+					: {width: frame.canvas.width, height: frame.canvas.height};
+
+			if (
+				canvas.width !== outputSize.width ||
+				canvas.height !== outputSize.height
+			) {
+				canvas.width = outputSize.width;
+				canvas.height = outputSize.height;
+			}
+
+			const chainState = getEffectChainState(
+				outputSize.width,
+				outputSize.height,
+			);
 			if (
 				effects.length > 0 &&
 				chainState &&
@@ -117,12 +141,18 @@ export const videoIteratorManager = async ({
 					source: frame.canvas,
 					effects,
 					output: canvas,
-					width: canvas.width,
-					height: canvas.height,
+					width: outputSize.width,
+					height: outputSize.height,
 				});
 			} else {
 				context.clearRect(0, 0, canvas.width, canvas.height);
-				context.drawImage(frame.canvas, 0, 0);
+				context.drawImage(
+					frame.canvas,
+					0,
+					0,
+					outputSize.width,
+					outputSize.height,
+				);
 			}
 		}
 	};
