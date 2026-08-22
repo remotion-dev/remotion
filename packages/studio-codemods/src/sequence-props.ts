@@ -1219,6 +1219,21 @@ const computeSequenceOnlyPropsRecord = ({
 	assetKeys: string[];
 	videoConfigValues: VideoConfigIdentifierValues;
 }): Record<string, CanUpdatePropStatus> => {
+	// Props may arrive through a JSX spread attribute ({...props}), which the
+	// parser cannot resolve. Since the spread may set or override any prop,
+	// treat all of them as computed so the runtime values pass through
+	// untouched and Visual Mode does not offer to edit them.
+	if (
+		jsxElement.attributes.some((attr) => attr.type === 'JSXSpreadAttribute')
+	) {
+		const computedProps: Record<string, CanUpdatePropStatus> = {};
+		for (const key of keys) {
+			computedProps[key] = computedStatus();
+		}
+
+		return computedProps;
+	}
+
 	const allProps = getPropsStatus(
 		jsxElement,
 		ast,

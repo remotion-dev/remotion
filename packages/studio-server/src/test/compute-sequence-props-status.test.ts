@@ -218,6 +218,38 @@ export const Example = () => {
 	});
 });
 
+// https://github.com/remotion-dev/remotion/issues/10717
+// Props passed via a JSX spread are invisible to the parser. Reporting them as
+// static(undefined) made the Studio delete the runtime values of `from` /
+// `durationInFrames`, mounting every <Sequence> at every frame.
+test('computeSequencePropsStatus should treat all props as computed if a spread attribute is present', () => {
+	const input = `import {Sequence} from 'remotion';
+
+export const Example = ({timing}: {timing: {from: number; durationInFrames: number}}) => {
+	return (
+		<Sequence {...timing} name="Scene" style={{opacity: 0.5}}>
+			<div />
+		</Sequence>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 5),
+		componentIdentity: null,
+		keys: ['from', 'durationInFrames', 'name', 'style.opacity'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props).toEqual({
+		from: {status: 'computed'},
+		durationInFrames: {status: 'computed'},
+		name: {status: 'computed'},
+		'style.opacity': {status: 'computed'},
+	});
+});
+
 test('computeSequencePropsStatus should parse video config numeric expressions', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
