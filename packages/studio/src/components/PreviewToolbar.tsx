@@ -22,6 +22,7 @@ import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {PreviewToolbarOverflowButton} from './PreviewToolbarOverflowButton';
 import {RenderButton} from './RenderButton';
+import {RulersAndGuidesToggle} from './RulersAndGuidesToggle';
 import {SizeSelector} from './SizeSelector';
 import {SnappingToggle} from './SnappingToggle';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
@@ -190,6 +191,14 @@ export const PreviewToolbar: React.FC<{
 							<OutlineToggle />
 						</PreviewToolbarControl>
 					)}
+					{isMobileLayout ? null : (
+						<>
+							<Spacing x={0.25} />
+							<PreviewToolbarControl>
+								<RulersAndGuidesToggle />
+							</PreviewToolbarControl>
+						</>
+					)}
 					{readOnlyStudio || isMobileLayout ? null : (
 						<>
 							<Spacing x={0.25} />
@@ -200,7 +209,7 @@ export const PreviewToolbar: React.FC<{
 					)}
 				</>
 			) : null}
-			<Spacing x={1} />
+			<Spacing x={2} />
 			{canvasContent && isFullscreenSupported ? (
 				<PreviewToolbarControl>
 					<FullScreenToggle hidden={isMobileLayout} />
