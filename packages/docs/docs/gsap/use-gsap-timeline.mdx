@@ -119,9 +119,15 @@ Tweens must target DOM or SVG elements. Tweening plain objects animates in the P
 
 The hook rejects `"random(...)"` string values, `stagger: {from: 'random'}` and `repeatRefresh: true` because GSAP resolves them with unseeded `Math.random()`, which differs between render processes. Derive stable values from data or Remotion's [`random()`](/docs/random).
 
+Function-based values like `y: (index) => index * 20` cannot be inspected. Derive them from the index or other stable inputs, never from `Math.random()` or the current time.
+
 ### No stray animations
 
 Animations created inside the builder must be attached to the provided timeline. The hook rejects freestanding `gsap.to()` calls and `gsap.delayedCall()`, which advance on the wall clock. A plain zero-duration `gsap.set()` for static state is allowed.
+
+## Performance
+
+For determinism, every frame renders the timeline forward from time zero instead of stepping incrementally. This is imperceptible for typical timelines; a timeline with many hundreds of tweens pays the cost on every frame.
 
 ## GSAP plugins
 

@@ -14,8 +14,7 @@ import {useGsapTimeline} from '../use-gsap-timeline';
 
 const remotionClock = {frame: 0, fps: 30};
 
-// Bun patches already-imported ESM modules through live bindings, so this
-// takes effect even though the hook was imported statically above.
+// Bun's mock.module patches already-imported ESM through live bindings.
 mock.module('remotion', () => ({
 	useCurrentFrame: () => remotionClock.frame,
 	useVideoConfig: () => ({fps: remotionClock.fps}),
@@ -266,10 +265,8 @@ describe('useGsapTimeline', () => {
 	);
 
 	it('rejects timeline-shaping setters with an accurate message', async () => {
-		// timeScale(value) and duration(value) dispatch through totalTime()
-		// internally; without dedicated guards they threw a misleading
-		// "seeking" error. They also cannot be honored, because the hook
-		// seeks in unscaled local time.
+		// These route through totalTime() internally and cannot be honored
+		// by unscaled seeks.
 		const DurationHarness = () => {
 			const scope = useGsapTimeline<HTMLDivElement>(({timeline, selector}) => {
 				timeline.fromTo(
@@ -305,8 +302,7 @@ describe('useGsapTimeline', () => {
 	});
 
 	it('allows concise builders that return a stray gsap.set tween', async () => {
-		// GSAP animations are thenable; the async-builder guard must not
-		// mistake them for Promises.
+		// GSAP animations are thenable and must not be mistaken for Promises.
 		const ConciseSetHarness = () => {
 			const scope = useGsapTimeline<HTMLDivElement>(({selector}) =>
 				gsap.set(selector('[data-concise]'), {opacity: 0.75}),
@@ -324,8 +320,8 @@ describe('useGsapTimeline', () => {
 	});
 
 	it('primes nested-timeline sets at their root-time position', async () => {
-		// startTime() is parent-relative; a fresh mount landing exactly on a
-		// set nested inside an offset child timeline must still render it.
+		// A fresh mount landing exactly on a set nested inside an offset
+		// child timeline must still render it.
 		const NestedSetHarness = () => {
 			const scope = useGsapTimeline<HTMLDivElement>(({timeline, selector}) => {
 				timeline.to(selector('[data-nested-set]'), {
@@ -353,6 +349,42 @@ describe('useGsapTimeline', () => {
 		await setFrame(60, <NestedSetHarness />);
 		const element = container.querySelector('[data-nested-set]') as HTMLElement;
 		expect(element.style.backgroundColor).toBe('rgb(9, 8, 7)');
+	});
+
+	it('rebuilds the timeline when the scope element remounts', async () => {
+		const RemountHarness = ({show}: {readonly show: boolean}) => {
+			const scope = useGsapTimeline<HTMLDivElement>(({timeline, selector}) => {
+				timeline.fromTo(
+					selector('[data-remount]'),
+					{opacity: 0},
+					{opacity: 1, duration: 1, ease: 'none'},
+				);
+			});
+
+			return show ? (
+				<div ref={scope}>
+					<div data-remount />
+				</div>
+			) : (
+				<div />
+			);
+		};
+
+		await setFrame(15, <RemountHarness show />);
+		expect(opacity(container.querySelector('[data-remount]')!)).toBeCloseTo(
+			0.5,
+			4,
+		);
+
+		// Unmount the scoped root, then bring it back without changing deps.
+		await setFrame(15, <RemountHarness show={false} />);
+		expect(container.querySelector('[data-remount]')).toBeNull();
+
+		await setFrame(15, <RemountHarness show />);
+		expect(opacity(container.querySelector('[data-remount]')!)).toBeCloseTo(
+			0.5,
+			4,
+		);
 	});
 
 	it('rejects asynchronous builders', async () => {
@@ -815,11 +847,9 @@ describe('useGsapTimeline', () => {
 	});
 
 	it('keeps guard walks out of GSAP internals and the host React tree', async () => {
-		// Staggers inject vars.parent, whose graph reaches tween targets and,
-		// through React fiber properties on DOM nodes, the entire host app tree.
-		// The surrounding component state deliberately contains prose that the
-		// nondeterminism matcher must never see, mirroring the studio preview
-		// where chat state holds skill documents mentioning random().
+		// Stagger vars reach tween targets and, via React fibers, the host
+		// tree; the surrounding state holds prose mentioning random() that
+		// the matcher must never see.
 		const StaggerHarness = () => {
 			const scope = useGsapTimeline<HTMLDivElement>(({timeline, selector}) => {
 				timeline.fromTo(

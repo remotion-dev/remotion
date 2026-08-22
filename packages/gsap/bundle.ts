@@ -32,10 +32,8 @@ for (const file of output.outputs) {
 	await Bun.write(out, str);
 }
 
-// The declarations reference the ambient `gsap` namespace, but tsgo drops
-// triple-slash directives on emit. Without this, consumers who don't import
-// 'gsap' themselves get `any` for every timeline type. The directive resolves
-// through the gsap package's own "types" field.
+// tsgo drops triple-slash directives on emit; without the gsap types
+// reference, consumers who never import 'gsap' get `any` timelines.
 const gsapReference = '/// <reference types="gsap" />\n';
 for (const declaration of ['dist/index.d.ts', 'dist/use-gsap-timeline.d.ts']) {
 	const content = await Bun.file(declaration).text();

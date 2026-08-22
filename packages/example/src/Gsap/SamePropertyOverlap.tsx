@@ -4,11 +4,9 @@ import {AbsoluteFill} from 'remotion';
 
 const SamePropertyOverlapFixture: React.FC = () => {
 	const scope = useGsapTimeline<HTMLDivElement>(({timeline, selector}) => {
-		// Two tweens fighting over the same property with overlapping windows:
-		// the second tween's start value is recorded lazily at first
-		// initialization, which made frame state depend on the frame-visit path
-		// before the adapter primed in playback order and rendered forward from
-		// zero. This fixture keeps that guarantee honest in the real renderer.
+		// Two tweens contest one property with overlapping windows; lazy
+		// start-value recording makes frames depend on visit order unless the
+		// adapter primes correctly. Keeps that guarantee honest in the renderer.
 		timeline.to(
 			selector('[data-contested]'),
 			{x: 200, duration: 1, ease: 'none'},
