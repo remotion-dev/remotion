@@ -55,7 +55,6 @@ type SelectedOutlineElementProps = {
 	readonly layoutTarget: SelectedOutlineLayoutTarget | undefined;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
-	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onSnapPointsChange: (
 		snapPoints: readonly SelectedOutlineSnapPoint[],
 	) => void;
@@ -82,7 +81,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	layoutTarget,
 	outline,
 	onDraggingChange,
-	onContextMenuOpenChange,
 	onSnapPointsChange,
 	onSelect,
 	registerContextMenuOpen,
@@ -468,8 +466,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				hasTarget={layoutTarget !== undefined}
 				hovered={hovered}
 				outline={outline}
-				onContextMenuOpen={onContextMenuOpen}
-				onContextMenuOpenChange={onContextMenuOpenChange}
 				onDraggingChange={onDraggingChange}
 				onHoverChange={onHoverChange}
 				onSnapPointsChange={onSnapPointsChange}

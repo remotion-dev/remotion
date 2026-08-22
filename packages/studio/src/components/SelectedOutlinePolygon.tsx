@@ -13,7 +13,6 @@ import {
 } from '../helpers/pointer-session';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
-import {ContextMenuForTarget} from './ContextMenu';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
@@ -47,7 +46,6 @@ import {
 } from './selected-outline-snap';
 import {
 	translateFieldKey,
-	type SelectedOutlineContextMenuOpenHandler,
 	type SelectedOutlineDragTarget,
 	type SelectedOutlineLayoutTarget,
 	type SelectedOutlineTarget,
@@ -62,6 +60,9 @@ import type {
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 
+export const SELECTED_OUTLINE_KEY_ATTR =
+	'data-remotion-studio-selected-outline-key';
+
 const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
@@ -74,8 +75,6 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly getTarget: () => SelectedOutlineTarget | undefined;
 	readonly hasTarget: boolean;
 	readonly hovered: boolean;
-	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
-	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
@@ -104,8 +103,6 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	getTarget,
 	hasTarget,
 	hovered,
-	onContextMenuOpen,
-	onContextMenuOpenChange,
 	outline,
 	onDraggingChange,
 	onHoverChange,
@@ -559,42 +556,38 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	);
 
 	return (
-		<>
-			<polygon
-				ref={polygonRef}
-				{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
-				data-remotion-directly-selected-outline={
-					directlySelected ? 'true' : undefined
+		<polygon
+			ref={polygonRef}
+			{...{
+				[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true',
+				[SELECTED_OUTLINE_KEY_ATTR]: outline.key,
+			}}
+			data-remotion-directly-selected-outline={
+				directlySelected ? 'true' : undefined
+			}
+			points={points}
+			fill={effectDropHovered ? TIMELINE_DROP_BLUE_ALPHA_12 : TRANSPARENT}
+			stroke={BLUE}
+			strokeOpacity={visible || effectDropHovered ? 1 : 0}
+			strokeWidth={2}
+			vectorEffect="non-scaling-stroke"
+			pointerEvents={hasTarget ? 'all' : undefined}
+			onPointerEnter={() => {
+				if (!dragging) {
+					onHoverChange(outline.key);
 				}
-				points={points}
-				fill={effectDropHovered ? TIMELINE_DROP_BLUE_ALPHA_12 : TRANSPARENT}
-				stroke={BLUE}
-				strokeOpacity={visible || effectDropHovered ? 1 : 0}
-				strokeWidth={2}
-				vectorEffect="non-scaling-stroke"
-				pointerEvents={hasTarget ? 'all' : undefined}
-				onPointerEnter={() => {
-					if (!dragging) {
-						onHoverChange(outline.key);
-					}
-				}}
-				onPointerLeave={() => {
-					if (!dragging) {
-						onHoverChange(null);
-					}
-				}}
-				onPointerDown={onPointerDown}
-				onDoubleClick={onDoubleClick}
-				onDragOver={onEffectDragOver}
-				onDragLeave={onEffectDragLeave}
-				onDrop={onEffectDrop}
-			/>
-			<ContextMenuForTarget
-				triggerRef={polygonRef}
-				getItems={onContextMenuOpen}
-				onOpenChange={onContextMenuOpenChange}
-			/>
-		</>
+			}}
+			onPointerLeave={() => {
+				if (!dragging) {
+					onHoverChange(null);
+				}
+			}}
+			onPointerDown={onPointerDown}
+			onDoubleClick={onDoubleClick}
+			onDragOver={onEffectDragOver}
+			onDragLeave={onEffectDragLeave}
+			onDrop={onEffectDrop}
+		/>
 	);
 };
 
