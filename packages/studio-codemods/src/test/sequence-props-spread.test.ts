@@ -1,51 +1,73 @@
 import {expect, test} from 'bun:test';
 import {computeSequencePropsSubscriptionFromContent} from '../sequence-props';
 
+const videoConfigValues = {
+	durationInFrames: 120,
+	fps: 30,
+	height: 1080,
+	width: 1920,
+};
+
+const subscribe = (input: string, line: number, keys: string[]) => {
+	const result = computeSequencePropsSubscriptionFromContent({
+		fileContents: input,
+		absolutePath: '/project/src/Example.tsx',
+		line,
+		preferredNodePath: null,
+		componentIdentity: 'dev.remotion.remotion.Sequence',
+		keys,
+		effects: [],
+		videoConfigValues,
+	});
+
+	if (!result.success || !result.status.canUpdate) {
+		throw new Error('Expected the subscription to succeed');
+	}
+
+	return result.status.props;
+};
+
 // https://github.com/remotion-dev/remotion/issues/10717
 // Props passed via a JSX spread are invisible to the parser. Reporting them as
 // static(undefined) made the Studio delete the runtime values of `from` /
 // `durationInFrames`, mounting every <Sequence> at every frame.
-test('treats all props as computed if a spread attribute is present', () => {
+test('treats props that a spread attribute may override as computed', () => {
 	const input = `import {Sequence} from 'remotion';
 
 export const Example = ({timing}: {timing: {from: number; durationInFrames: number}}) => {
 	return (
-		<Sequence {...timing} name="Scene" style={{opacity: 0.5}}>
-			<div />
-		</Sequence>
+		<>
+			<Sequence from={10} {...timing} name="Scene" style={{opacity: 0.5}}>
+				<div />
+			</Sequence>
+			<Sequence {...timing} />
+		</>
 	);
 };
 `;
-	const result = computeSequencePropsSubscriptionFromContent({
-		fileContents: input,
-		absolutePath: '/project/src/Example.tsx',
-		line: 5,
-		preferredNodePath: null,
-		componentIdentity: 'dev.remotion.remotion.Sequence',
-		keys: ['from', 'durationInFrames', 'name', 'style.opacity'],
-		effects: [],
-		videoConfigValues: {
-			durationInFrames: 120,
-			fps: 30,
-			height: 1080,
-			width: 1920,
+	expect(
+		subscribe(input, 6, ['from', 'durationInFrames', 'name', 'style.opacity']),
+	).toEqual({
+		// Written before the spread, so the spread may override it
+		from: {status: 'computed'},
+		// Only provided by the spread
+		durationInFrames: {status: 'computed'},
+		// Written after the spread, so they win at runtime and stay editable
+		name: {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 'Scene',
+		},
+		'style.opacity': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 0.5,
 		},
 	});
 
-	expect(result.success).toBe(true);
-	if (!result.success) {
-		throw new Error('Expected the subscription to succeed');
-	}
-
-	expect(result.status.canUpdate).toBe(true);
-	if (!result.status.canUpdate) {
-		throw new Error('Expected canUpdate to be true');
-	}
-
-	expect(result.status.props).toEqual({
+	// With an empty element body, the spread may provide both props
+	expect(subscribe(input, 9, ['from', 'children'])).toEqual({
 		from: {status: 'computed'},
-		durationInFrames: {status: 'computed'},
-		name: {status: 'computed'},
-		'style.opacity': {status: 'computed'},
+		children: {status: 'computed'},
 	});
 });

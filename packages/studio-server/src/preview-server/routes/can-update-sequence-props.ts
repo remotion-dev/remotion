@@ -1112,6 +1112,11 @@ const getPropsStatus = (
 
 	for (const attr of jsxElement.attributes) {
 		if (attr.type === 'JSXSpreadAttribute') {
+			// The spread may override every prop written before it
+			for (const key of Object.keys(props)) {
+				props[key] = computedStatus();
+			}
+
 			continue;
 		}
 
@@ -1600,6 +1605,7 @@ const getNestedPropStatus = ({
 	childKey,
 	videoConfigValues,
 	allowSpecialValues,
+	lastSpreadIndex,
 }: {
 	jsxElement: JSXOpeningElement;
 	ast: File;
@@ -1607,16 +1613,35 @@ const getNestedPropStatus = ({
 	childKey: string;
 	videoConfigValues: VideoConfigIdentifierValues;
 	allowSpecialValues: boolean;
+	lastSpreadIndex: number;
 }): CanUpdatePropStatus => {
-	const attr = jsxElement.attributes.find(
+	const attrIndex = jsxElement.attributes.findIndex(
 		(a) =>
 			a.type !== 'JSXSpreadAttribute' &&
 			a.name.type !== 'JSXNamespacedName' &&
 			a.name.name === parentKey,
-	) as JSXAttribute | undefined;
+	);
+	const attr =
+		attrIndex === -1
+			? undefined
+			: (jsxElement.attributes[attrIndex] as JSXAttribute);
 
-	if (!attr || !attr.value) {
+	if (attrIndex !== -1 && attrIndex < lastSpreadIndex) {
+		// A later spread may replace the whole parent object
+		return computedStatus();
+	}
+
+	if (!attr) {
+		if (lastSpreadIndex !== -1) {
+			// The spread may provide the parent object
+			return computedStatus();
+		}
+
 		// Parent attribute doesn't exist, nested prop can be added
+		return staticStatus(undefined, null);
+	}
+
+	if (!attr.value) {
 		return staticStatus(undefined, null);
 	}
 
@@ -1759,21 +1784,17 @@ const computeSequenceOnlyPropsRecord = ({
 	assetKeys: string[];
 	videoConfigValues: VideoConfigIdentifierValues;
 }): Record<string, CanUpdatePropStatus> => {
-	// Props may arrive through a JSX spread attribute ({...props}), which the
-	// parser cannot resolve. Since the spread may set or override any prop,
-	// treat all of them as computed so the runtime values pass through
-	// untouched and Visual Mode does not offer to edit them.
-	if (
-		jsxElement.attributes.some((attr) => attr.type === 'JSXSpreadAttribute')
-	) {
-		const computedProps: Record<string, CanUpdatePropStatus> = {};
-		for (const key of keys) {
-			computedProps[key] = computedStatus();
-		}
-
-		return computedProps;
-	}
-
+	// A JSX spread attribute ({...props}) is invisible to the parser and may
+	// set or override every prop that is not explicitly written after it.
+	// Affected props are treated as computed so the runtime values pass
+	// through untouched and Visual Mode does not offer to edit them.
+	// Attributes written after the last spread win at runtime and can be
+	// parsed as usual.
+	const lastSpreadIndex = jsxElement.attributes.reduce(
+		(highest, attr, index) =>
+			attr.type === 'JSXSpreadAttribute' ? index : highest,
+		-1,
+	);
 	const allProps = getPropsStatus(
 		jsxElement,
 		ast,
@@ -1793,6 +1814,18 @@ const computeSequenceOnlyPropsRecord = ({
 		}
 
 		if (key === 'children') {
+			const childrenAttrIndex = jsxElement.attributes.findIndex(
+				(attr) =>
+					attr.type === 'JSXAttribute' &&
+					attr.name.type === 'JSXIdentifier' &&
+					attr.name.name === 'children',
+			);
+			if (childrenAttrIndex !== -1 && childrenAttrIndex < lastSpreadIndex) {
+				// A later spread may override the children attribute
+				filteredProps[key] = computedStatus();
+				continue;
+			}
+
 			const staticChildrenAttribute = getStaticJsxChildrenAttribute(jsxElement);
 			if (staticChildrenAttribute) {
 				filteredProps[key] = staticStatus(staticChildrenAttribute.value, null);
@@ -1800,6 +1833,18 @@ const computeSequenceOnlyPropsRecord = ({
 			}
 
 			if (hasJsxChildrenAttribute(jsxElement)) {
+				filteredProps[key] = computedStatus();
+				continue;
+			}
+
+			// JSX element children are compiled after any spread and win over
+			// it. Only if the element body is empty may the spread provide the
+			// children.
+			const hasMeaningfulJsxChildren = jsxElementNode.children.some(
+				(candidate) =>
+					!(candidate.type === 'JSXText' && candidate.value.trim() === ''),
+			);
+			if (!hasMeaningfulJsxChildren && lastSpreadIndex !== -1) {
 				filteredProps[key] = computedStatus();
 				continue;
 			}
@@ -1820,9 +1865,13 @@ const computeSequenceOnlyPropsRecord = ({
 				childKey: key.slice(dotIndex + 1),
 				videoConfigValues,
 				allowSpecialValues: assetKeys.includes(key),
+				lastSpreadIndex,
 			});
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
+		} else if (lastSpreadIndex !== -1) {
+			// The spread may provide this prop
+			filteredProps[key] = computedStatus();
 		} else {
 			filteredProps[key] = staticStatus(undefined, null);
 		}
