@@ -884,7 +884,6 @@ const TimelineSequenceInner: React.FC<{
 				<div style={mediaVisualizationStyle}>
 					<TimelineImageInfo
 						src={s.src}
-						visualizationWidth={visibleLayout.media.width}
 						offsetInPixels={visibleLayout.media.offset}
 					/>
 				</div>
