@@ -6,7 +6,9 @@ sidebar_label: Defining a schema
 crumb: 'How To'
 ---
 
-As an alternative to [using TypeScript types](/docs/parameterized-rendering) to define the shape of the props your component accepts, you may use [Zod](https://zod.dev/) to define a schema for your props. You may do so if you want to edit the props visually in the Remotion Studio.
+Use [Zod](https://zod.dev/) to validate the props your component accepts and to customize their controls in the Remotion Studio.
+
+You do not need to define a schema to [edit props visually](/docs/visual-editing). Since <AvailableFrom v="4.0.516" inline />, Remotion infers basic controls from [`defaultProps`](/docs/composition#defaultprops). Define a schema when you need validation, constraints, choices or specialized controls.
 
 ## AI agent prompt
 
@@ -16,22 +18,24 @@ Use this prompt to make an existing composition parameterizable:
 Make this Remotion composition parameterizable in Remotion Studio.
 
 Find the component that is passed to <Composition> and the file where the composition is registered.
-Define a z.object() schema that describes the props the component accepts.
-Use z.infer<typeof schema> as the React component prop type.
-Attach the schema to the <Composition> using the schema prop.
-Add defaultProps to the <Composition> that match the schema and preserve the current rendered output.
+Define a TypeScript type that describes the props the component accepts.
+Add defaultProps to the <Composition> that match the type and preserve the current rendered output.
+Keep defaultProps as an inline object literal so Remotion can infer visual controls and save changes back to the file.
 
-If zod or @remotion/zod-types are missing, install them with npx remotion add @remotion/zod-types zod.
+If zod is missing, install it with npx remotion add zod.
+Only add a Zod schema when the props need validation, constraints, choices, descriptions or specialized controls.
 Keep the existing composition behavior unchanged except for making the props editable in Remotion Studio.
 ```
 
 ## Prerequisites
 
-If you want to use this feature, install `zod` and [`@remotion/zod-types`](/docs/zod-types) for Remotion-specific types:
+To define a schema, install `zod`:
 
 ```bash
-npx remotion add @remotion/zod-types zod
+npx remotion add zod
 ```
+
+Install [`@remotion/zod-types`](/docs/zod-types) as well if you want to use Remotion-specific types such as [`zColor()`](/docs/zod-types/z-color), [`zTextarea()`](/docs/zod-types/z-textarea) or [`zMatrix()`](/docs/zod-types/z-matrix).
 
 ## Defining a schema
 
@@ -116,7 +120,7 @@ export const RemotionRoot: React.FC = () => {
 
 ## Editing props visually
 
-When you have defined a schema for your props, you can [edit them visually in the Remotion Studio](/docs/visual-editing). This is useful if you want to quickly try out different values for your props.
+The schema determines which controls appear when you [edit props visually in the Remotion Studio](/docs/visual-editing). It overrides the controls that Remotion would otherwise infer from `defaultProps`.
 
 ## Supported types
 

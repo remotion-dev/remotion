@@ -73,9 +73,11 @@ export const Root: React.FC = () => {
 
 Default props are useful so you don't preview your video with no data. [Default props will be overriden by input props](/docs/props-resolution).
 
-## Define a schema<AvailableFrom v="4.0.0"/>
+Since <AvailableFrom v="4.0.516" inline />, Remotion also infers basic [visual editing controls](/docs/visual-editing) from the values in `defaultProps`.
 
-You can use [Zod](https://github.com/colinhacks/zod) to [define a typesafe schema for your composition](/docs/schemas).
+## Optional: Define a schema<AvailableFrom v="4.0.0"/>
+
+You can use [Zod](https://github.com/colinhacks/zod) to [define a typesafe schema for your composition](/docs/schemas). A schema is not required for visual editing. Add one when you need validation, constraints, choices or specialized controls.
 
 ## Input props
 

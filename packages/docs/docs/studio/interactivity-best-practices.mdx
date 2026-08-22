@@ -144,6 +144,7 @@ Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/stud
 When scaffolding a composition, keep `width`, `height`, `fps`, `durationInFrames` and [`defaultProps`](/docs/composition#defaultprops) inline and make no type assertions.
 
 The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or [`<Still>`](/docs/still).
+Since <AvailableFrom v="4.0.516" inline />, it also infers basic controls from these values, so a Zod schema is not required.
 
 ```tsx
 // 👍 Static values are in <Composition>, dynamic values are in calculateMetadata()

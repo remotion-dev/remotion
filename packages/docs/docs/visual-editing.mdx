@@ -8,7 +8,9 @@ crumb: 'How To'
 
 <YouTube minutes={6} href="https://www.youtube.com/watch?v=NX9YTOsLGpQ" thumb="https://i.ytimg.com/vi/NX9YTOsLGpQ/hq720.jpg" title="Visual editing" />
 
-You can edit the default props of a component visually, first register a [`schema`](/docs/composition#schema) with your [`<Composition>`](/docs/composition).
+You can edit the [`defaultProps`](/docs/composition#defaultprops) of a [`<Composition>`](/docs/composition) visually in the Remotion Studio.
+
+Basic controls are inferred from the values in `defaultProps`. You do not need to define a [`schema`](/docs/composition#schema).
 
 ## Opening the default props editor
 
@@ -22,6 +24,33 @@ Use the controls in the props editor to live-update the default props of your co
 When editing a `<Sequence>` visually in the timeline, the visual style controls include offset, scale, rotation, transform origin, and opacity. Select the transform origin row or one of its keyframes to drag the pivot handle in the canvas.
 
 ## Supported controls
+
+### Inferred from `defaultProps`<AvailableFrom v="4.0.516" />
+
+If no `schema` is specified, Remotion infers controls for:
+
+- Strings
+- Numbers
+- Booleans
+- Dates
+- Nested objects
+- Colors, if [`@remotion/zod-types`](/docs/zod-types) is installed
+- [`staticFile()`](/docs/staticfile) assets
+- Non-empty arrays whose items have the same inferred type
+
+Fields named `type` are treated as literals and cannot be edited. This prevents changing a discriminator without defining the other possible object shapes.
+
+`null`, `undefined`, empty arrays, arrays with mixed item types and values whose type cannot be inferred do not get a visual control. Define an explicit schema if these values should be editable.
+
+`zod` must be installed for Remotion to infer controls:
+
+```bash title="Install Zod"
+npx remotion add zod
+```
+
+### Defined by a schema
+
+Define a [Zod schema](/docs/schemas) when you need validation, constraints or specialized controls. An explicit schema takes precedence over the controls inferred from `defaultProps`.
 
 Controls are implemented for:
 
@@ -45,7 +74,7 @@ Controls are implemented for:
 
 ## Editing JSON
 
-Alternatively, you can edit the JSON schema directly by pressing `JSON` in the props editor. Changes will not apply if the schema is invalid.
+Alternatively, you can edit the props as JSON by pressing `JSON` in the props editor. Changes will not apply if the props are invalid.
 
 ## Saving default props to your code
 
@@ -54,14 +83,13 @@ Remotion can statically analyze your root file and allow you to save props back 
 ```tsx twoslash title="Inlined defaultProps" {15-18}
 // @filename: MyComponent.tsx
 import React from 'react';
-import {z} from 'zod';
 
-export const myCompSchema = z.object({
-  propOne: z.string(),
-  propTwo: z.string(),
-});
+type Props = {
+  propOne: string;
+  propTwo: string;
+};
 
-export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({propOne, propTwo}) => {
+export const MyComponent: React.FC<Props> = ({propOne, propTwo}) => {
   return (
     <div>
       <h1>{propOne}</h1>
@@ -75,7 +103,7 @@ export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({propOne, pr
 // ---cut---
 import React from 'react';
 import {Composition} from 'remotion';
-import {MyComponent, myCompSchema} from './MyComponent';
+import {MyComponent} from './MyComponent';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -86,7 +114,6 @@ export const RemotionRoot: React.FC = () => {
       fps={30}
       width={1920}
       height={1080}
-      schema={myCompSchema}
       defaultProps={{
         propOne: 'Hello World',
         propTwo: 'Welcome to Remotion',
