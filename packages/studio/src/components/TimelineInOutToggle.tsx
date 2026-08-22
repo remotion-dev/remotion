@@ -37,6 +37,10 @@ const style: React.CSSProperties = {
 	height: 17,
 };
 
+const buttonStyle: React.CSSProperties = {
+	width: 18,
+};
+
 export const inOutHandles = createRef<{
 	inMarkClick: (e: KeyboardEvent | null) => void;
 	outMarkClick: (e: KeyboardEvent | null) => void;
@@ -303,6 +307,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			<ControlButton
 				title={getTooltipText('In', 'I')}
 				aria-label={getTooltipText('In', 'I')}
+				style={buttonStyle}
 				onClick={onInMark}
 				onContextMenu={clearInMark}
 				disabled={!videoConfig || isFirstFrame}
@@ -317,6 +322,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			<ControlButton
 				title={getTooltipText('Out', 'O')}
 				aria-label={getTooltipText('Out', 'O')}
+				style={buttonStyle}
 				onClick={onOutMark}
 				onContextMenu={clearOutMark}
 				disabled={!videoConfig || isLastFrame}
