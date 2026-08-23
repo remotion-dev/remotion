@@ -91,16 +91,11 @@ export const getSelectedOutlineControlLayout = (
 	const rotationHandleRadius = Math.max(targetHalfSizeX, targetHalfSizeY) * 1.5;
 	const scaleEdges = (['top', 'right', 'bottom', 'left'] as const).filter(
 		(edge) => {
-			// Preserve one scale control per axis when opposite edge targets would overlap.
-			if (edge === 'top') {
+			if (edge === 'top' || edge === 'bottom') {
 				return !isTinyY;
 			}
 
-			if (edge === 'left') {
-				return !isTinyX;
-			}
-
-			return true;
+			return !isTinyX;
 		},
 	);
 	const rotationCorners = (

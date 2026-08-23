@@ -134,20 +134,25 @@ test.describe('inspector section collapse', () => {
 		const tinyScaleEdges = page.locator(
 			'[data-remotion-studio-scale-edge-contains-selection="true"]',
 		);
+		const tinySelectedOutline = page.locator(
+			'polygon[data-remotion-directly-selected-outline="true"]',
+		);
 		const tinyTransform = page
 			.getByText('Tiny transform', {exact: true})
 			.first();
 		await expect(async () => {
 			await tinyTransform.click();
-			await expect(tinyScaleEdges).toHaveCount(2, {timeout: 1_000});
+			await expect(tinySelectedOutline).toHaveCount(1, {timeout: 1_000});
+			const dimensions = await tinySelectedOutline.evaluate((outline) => {
+				const rect = outline.getBoundingClientRect();
+				return {height: rect.height, width: rect.width};
+			});
+			expect(dimensions.width).toBeGreaterThan(0);
+			expect(dimensions.width).toBeLessThan(16);
+			expect(dimensions.height).toBeGreaterThan(0);
+			expect(dimensions.height).toBeLessThan(16);
+			await expect(tinyScaleEdges).toHaveCount(0, {timeout: 1_000});
 		}).toPass({timeout: 30_000});
-		expect(
-			await tinyScaleEdges.evaluateAll((edges) =>
-				edges.map((edge) =>
-					edge.getAttribute('data-remotion-studio-scale-edge'),
-				),
-			),
-		).toEqual(['right', 'bottom']);
 		await expect(
 			page.locator(
 				'[data-remotion-studio-rotation-corner-contains-selection="true"]',
