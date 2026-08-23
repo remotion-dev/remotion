@@ -158,6 +158,7 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Show 3D transform controls'}),
 		).toBeVisible();
+		await page.locator('.remotion-studio-composition-container').hover();
 		await page
 			.locator('polygon[pointer-events="all"]')
 			.nth(1)
