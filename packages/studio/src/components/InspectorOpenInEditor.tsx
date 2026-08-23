@@ -1,15 +1,10 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	LIGHT_TEXT,
-	TRANSPARENT,
-	WHITE,
-	getBackgroundFromHoverState,
-} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {
 	openInCodingAgent,
 	openInGitClient,
@@ -19,43 +14,26 @@ import {
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
 import {SetSelectedModalContext} from '../state/modals';
-import {useZIndex} from '../state/z-index';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
-import type {RenderInlineAction} from './InlineAction';
-import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
+import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
 } from './use-default-editor-info';
 
-const splitButton: React.CSSProperties = {
-	alignItems: 'center',
-	borderRadius: 3,
-	display: 'inline-flex',
-	flexDirection: 'row',
-	flexShrink: 0,
-	gap: 1,
-	height: 24,
-	overflow: 'hidden',
+const mainSegmentStyle: React.CSSProperties = {
+	columnGap: 4,
+	fontSize: 11,
+	lineHeight: '14px',
+	padding: '0 2px 0 4px',
 };
 
-const mainButtonBase: React.CSSProperties = {
-	alignItems: 'center',
-	background: TRANSPARENT,
-	border: 'none',
-	borderRadius: '3px 0 0 3px',
-	color: LIGHT_TEXT,
-	columnGap: 4,
-	display: 'inline-flex',
-	fontFamily: 'sans-serif',
-	fontSize: 11,
-	height: 24,
-	lineHeight: '14px',
-	padding: '0 6px',
-	whiteSpace: 'nowrap',
+const dropdownSegmentStyle: React.CSSProperties = {
+	padding: 0,
+	width: 20,
 };
 
 const editorButtonIconSize = 18;
@@ -68,10 +46,6 @@ export const InspectorOpenInEditor: React.FC<{
 }> = ({contextForAgents = null, label, location, locationType}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {tabIndex} = useZIndex();
-	const [hovered, setHovered] = useState(false);
-	const [dropdownOpened, setDropdownOpened] = useState(false);
-	const ignorePointerEnter = useRef(false);
 	const {
 		canConfigureApps,
 		canOpenInEditor,
@@ -123,41 +97,6 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[defaultEditorId, openWithEditor],
 	);
-	const onDropdownOpenChange = useCallback((open: boolean) => {
-		setDropdownOpened(open);
-		if (!open) {
-			ignorePointerEnter.current = true;
-			setHovered(false);
-		}
-	}, []);
-	const mainHovered = hovered && !dropdownOpened;
-	const mainButtonStyle = useMemo((): React.CSSProperties => {
-		return {
-			...mainButtonBase,
-			background: getBackgroundFromHoverState({
-				hovered: mainHovered,
-				selected: false,
-			}),
-			color: mainHovered ? WHITE : LIGHT_TEXT,
-			opacity: canOpenDefault ? 1 : 0.5,
-			pointerEvents: canOpenDefault ? 'auto' : 'none',
-		};
-	}, [canOpenDefault, mainHovered]);
-	const dropdownForegroundColor =
-		hovered || dropdownOpened ? WHITE : LIGHT_TEXT;
-	const dropdownStyle = useMemo((): React.CSSProperties => {
-		return {
-			background: getBackgroundFromHoverState({
-				hovered,
-				selected: dropdownOpened,
-			}),
-			borderRadius: '0 3px 3px 0',
-			color: dropdownForegroundColor,
-		};
-	}, [dropdownForegroundColor, dropdownOpened, hovered]);
-	const renderDropdownAction: RenderInlineAction = useCallback((color) => {
-		return <CaretDown color={color} small />;
-	}, []);
 	const menuItems = useMemo((): ComboboxValue[] => {
 		return getOpenInMenuItems({
 			codingAgentInfo,
@@ -239,6 +178,53 @@ export const InspectorOpenInEditor: React.FC<{
 		openWithEditor,
 		setSelectedModal,
 	]);
+	const segments = useMemo((): SegmentedButtonSegment[] => {
+		return [
+			{
+				ariaLabel: `Open in ${editorName}`,
+				buttonId: null,
+				disabled: !canOpenDefault,
+				idleColor: LIGHT_TEXT,
+				onClick: onOpenDefault,
+				onPointerDown: null,
+				renderContent: () => (
+					<>
+						{label}
+						<EditorIcon
+							editorId={defaultEditorId}
+							size={editorButtonIconSize}
+						/>
+					</>
+				),
+				segmentId: 'default-editor',
+				style: mainSegmentStyle,
+				title: `Open in ${editorName}`,
+				type: 'action',
+			},
+			{
+				ariaLabel: 'Open in another app',
+				buttonId: null,
+				disabled: false,
+				idleColor: LIGHT_TEXT,
+				leaveLeftSpace: true,
+				onOpenChange: null,
+				renderContent: (color) => <CaretDown color={color} />,
+				segmentId: 'another-app',
+				selectedId: null,
+				style: dropdownSegmentStyle,
+				title: 'Open in another app',
+				type: 'menu',
+				values: menuItems,
+			},
+		];
+	}, [
+		canOpenDefault,
+		defaultEditorId,
+		editorName,
+		label,
+		menuItems,
+		onOpenDefault,
+	]);
 
 	if (
 		previewServerState.type !== 'connected' ||
@@ -247,40 +233,5 @@ export const InspectorOpenInEditor: React.FC<{
 		return null;
 	}
 
-	return (
-		<div
-			style={splitButton}
-			onPointerEnter={() => {
-				if (!ignorePointerEnter.current) {
-					setHovered(true);
-				}
-			}}
-			onPointerLeave={() => {
-				ignorePointerEnter.current = false;
-				setHovered(false);
-			}}
-		>
-			<button
-				aria-label={`Open in ${editorName}`}
-				disabled={!canOpenDefault}
-				onClick={onOpenDefault}
-				style={mainButtonStyle}
-				tabIndex={tabIndex}
-				title={`Open in ${editorName}`}
-				type="button"
-			>
-				{label}
-				<EditorIcon editorId={defaultEditorId} size={editorButtonIconSize} />
-			</button>
-			<InlineDropdown
-				onOpenChange={onDropdownOpenChange}
-				renderAction={renderDropdownAction}
-				style={dropdownStyle}
-				title="Open in another app"
-				unhoveredColor={dropdownForegroundColor}
-				values={menuItems}
-				variant="compact"
-			/>
-		</div>
-	);
+	return <SegmentedButton segments={segments} style={null} title={null} />;
 };

@@ -6,12 +6,7 @@ import {
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
-import {
-	HOVERABLE_CLASS_NAME,
-	HOVER_GROUP_CLASS_NAME,
-	HOVER_GROUP_REVEAL_CLASS_NAME,
-	hoverableStyle,
-} from '../../helpers/hoverable';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT, COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -174,41 +169,6 @@ const inlineLabelIcon: React.CSSProperties = {
 	width: 18,
 };
 
-const segmentedInlineAction: React.CSSProperties = {
-	display: 'flex',
-	gap: 1,
-	margin: `0 ${INLINE_LABEL_BUTTON_MARGIN}px`,
-	width: `calc(100% - ${INLINE_LABEL_BUTTON_MARGIN * 2}px)`,
-};
-
-const segmentedMainAction: React.CSSProperties = {
-	borderRadius: '4px 0 0 4px',
-	flex: 1,
-	margin: 0,
-	minWidth: 0,
-	width: 'auto',
-};
-
-const segmentedTrailingAction: React.CSSProperties = {
-	alignItems: 'center',
-	appearance: 'none',
-	border: 'none',
-	borderRadius: '0 4px 4px 0',
-	display: 'flex',
-	flex: '0 0 28px',
-	justifyContent: 'center',
-	margin: 0,
-	padding: 0,
-	width: 28,
-};
-
-export type InspectorQuickActionSegment = {
-	readonly disabled: boolean;
-	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
-	readonly renderIcon: (color: string) => React.ReactNode;
-	readonly title?: string;
-};
-
 export type InspectorQuickActionProps = {
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
@@ -218,12 +178,6 @@ export type InspectorQuickActionProps = {
 	readonly size?: 'default' | 'compact';
 	readonly style?: React.CSSProperties;
 	readonly title?: string;
-	readonly variant?:
-		| {readonly type: 'single'}
-		| {
-				readonly type: 'segmented';
-				readonly trailing: InspectorQuickActionSegment;
-		  };
 };
 
 export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
@@ -235,13 +189,8 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 	size = 'default',
 	style,
 	title,
-	variant = {type: 'single'},
 }) => {
-	const isSegmented = variant.type === 'segmented';
-	// A non-clickable single action (onClick === null) never shows a hover
-	// effect. In the segmented variant, the main segment highlights whenever
-	// the group is hovered, even if it is not clickable itself.
-	const showsHover = !disabled && (onClick !== null || isSegmented);
+	const showsHover = !disabled && onClick !== null;
 	const buttonStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...(disabled ? inlineLabelButtonDisabled : inlineLabelButton),
@@ -254,10 +203,9 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 				hoverColor: showsHover ? WHITE : LIGHT_TEXT,
 			}),
 			...(size === 'compact' ? compactInlineLabelButton : null),
-			...(isSegmented ? segmentedMainAction : null),
 			...style,
 		}),
-		[disabled, showsHover, isSegmented, size, style],
+		[disabled, showsHover, size, style],
 	);
 
 	const mainContent = (
@@ -286,46 +234,6 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 			{mainContent}
 		</div>
 	);
-
-	if (variant.type === 'segmented') {
-		const trailingStyle: React.CSSProperties = {
-			...segmentedTrailingAction,
-			...hoverableStyle({
-				idleBackground: TRANSPARENT,
-				hoverBackground: variant.trailing.disabled
-					? TRANSPARENT
-					: getBackgroundFromHoverState({hovered: true, selected: false}),
-				idleColor: LIGHT_TEXT,
-				hoverColor: variant.trailing.disabled ? LIGHT_TEXT : WHITE,
-			}),
-			height:
-				size === 'compact'
-					? COMPACT_INLINE_ROW_HEIGHT
-					: COMPACT_CONTROL_ROW_HEIGHT,
-			opacity: variant.trailing.disabled ? 0.35 : 1,
-		};
-
-		return (
-			<div className={HOVER_GROUP_CLASS_NAME} style={segmentedInlineAction}>
-				{mainAction}
-				<button
-					type="button"
-					className={HOVERABLE_CLASS_NAME}
-					disabled={variant.trailing.disabled}
-					style={trailingStyle}
-					title={variant.trailing.title}
-					onClick={variant.trailing.onClick}
-				>
-					<span
-						className={HOVER_GROUP_REVEAL_CLASS_NAME}
-						style={inlineLabelIcon}
-					>
-						{variant.trailing.renderIcon(CURRENT_COLOR)}
-					</span>
-				</button>
-			</div>
-		);
-	}
 
 	return mainAction;
 };
