@@ -124,6 +124,17 @@ export const rspackConfig = async ({
 		module: {
 			rules: [
 				...getSharedModuleRules(),
+				...(environment === 'development'
+					? [
+							{
+								test: /[\\/]@rspack[\\/]plugin-react-refresh[\\/]client[\\/]refreshUtils\.js$/,
+								enforce: 'pre' as const,
+								use: [
+									require.resolve('./fast-refresh/zero-delay-rspack-refresh-loader.js'),
+								],
+							},
+						]
+					: []),
 				{
 					// Emscripten's main.js spawns Workers of itself via
 					// new Worker(new URL('./main.js', import.meta.url)).

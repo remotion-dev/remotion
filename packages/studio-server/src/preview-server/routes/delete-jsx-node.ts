@@ -9,6 +9,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {logHmrTiming} from '../hmr-timing';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
@@ -35,6 +36,12 @@ export const deleteJsxNodeHandler: ApiHandler<
 > = ({input: {nodes}, remotionRoot, logLevel}) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
+			logHmrTiming({
+				detail: null,
+				logLevel,
+				stage: 'delete-jsx-node-request-start',
+			});
+
 			if (nodes.length === 0) {
 				throw new Error('No JSX nodes were specified for deletion');
 			}
@@ -65,6 +72,13 @@ export const deleteJsxNodeHandler: ApiHandler<
 						await deleteJsxNodes({
 							input: fileContents,
 							nodePaths: fileItems.map((item) => item.nodePath),
+							onFormatFile: (stage) => {
+								logHmrTiming({
+									detail: `file=${fileRelativeToRoot}`,
+									logLevel,
+									stage: `source-file-format-${stage}`,
+								});
+							},
 						});
 
 					return {
@@ -79,6 +93,11 @@ export const deleteJsxNodeHandler: ApiHandler<
 					};
 				}),
 			);
+			logHmrTiming({
+				detail: `files=${updates.length}`,
+				logLevel,
+				stage: 'delete-jsx-node-codemod-complete',
+			});
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({
 					absolutePath: update.absolutePath,
@@ -108,11 +127,21 @@ export const deleteJsxNodeHandler: ApiHandler<
 					nodePathRemappings: update.nodePathRemappings,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);
+				logHmrTiming({
+					detail: `file=${update.fileRelativeToRoot}`,
+					logLevel,
+					stage: 'source-file-write-start',
+				});
 				writeFileAndNotifyFileWatchers({
 					file: update.absolutePath,
 					content: update.output,
 					originatorClientId: undefined,
 					metadata: {skipSequencePropsUpdate: true},
+				});
+				logHmrTiming({
+					detail: `file=${update.fileRelativeToRoot}`,
+					logLevel,
+					stage: 'source-file-write-complete',
 				});
 
 				const locationLabel = formatLogFileLocation({
