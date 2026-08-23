@@ -7214,6 +7214,12 @@ test('Selected outline controls adapt to the screen-space outline size', () => {
 		{x: 8, y: 40},
 		{x: 0, y: 40},
 	]);
+	const flat = getSelectedOutlineControlLayout([
+		{x: 0, y: 0},
+		{x: 40, y: 0},
+		{x: 40, y: 8},
+		{x: 0, y: 8},
+	]);
 
 	expect(normal.scaleEdges).toEqual(['top', 'right', 'bottom', 'left']);
 	expect(normal.scaleHitWidth).toEqual({horizontal: 9, vertical: 9});
@@ -7224,11 +7230,14 @@ test('Selected outline controls adapt to the screen-space outline size', () => {
 	expect(small.scaleHitWidth).toEqual({horizontal: 4.5, vertical: 4.5});
 	expect(small.rotationHandleRadius).toBe(3.375);
 	expect(small.rotationCorners).toHaveLength(4);
-	expect(tiny.scaleEdges).toEqual(['right', 'bottom']);
+	expect(tiny.scaleEdges).toEqual([]);
 	expect(tiny.rotationCorners).toEqual([]);
-	expect(thin.scaleEdges).toEqual(['top', 'right', 'bottom']);
+	expect(thin.scaleEdges).toEqual(['top', 'bottom']);
 	expect(thin.scaleHitWidth).toEqual({horizontal: 9, vertical: 4.5});
 	expect(thin.rotationCorners).toEqual([]);
+	expect(flat.scaleEdges).toEqual(['right', 'left']);
+	expect(flat.scaleHitWidth).toEqual({horizontal: 4.5, vertical: 9});
+	expect(flat.rotationCorners).toEqual([]);
 });
 
 test('Selected outline rotation pivot follows transform origin', () => {
