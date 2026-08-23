@@ -1388,15 +1388,12 @@ export const useTimelineSequenceFromDrag = ({
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {editorSnapping} = useContext(EditorSnappingContext);
 
-	const [dragging, setDragging] = useState(false);
+	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
 		didMove: boolean;
 		pxPerFrame: number;
-		pointerId: number;
-		button: number;
-		target: HTMLDivElement;
 		targets: readonly TimelineSequenceFromDragTarget[];
 	} | null>(null);
 
@@ -1435,8 +1432,6 @@ export const useTimelineSequenceFromDrag = ({
 		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
-		setDragging(false);
-
 		const {
 			setPropStatuses: latestSetPropStatuses,
 			clearDragOverrides: latestClear,
@@ -1538,24 +1533,94 @@ export const useTimelineSequenceFromDrag = ({
 				return;
 			}
 
+			stopPointerSessionRef.current?.();
 			e.preventDefault();
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
 				didMove: false,
 				pxPerFrame,
-				pointerId: e.pointerId,
-				button: e.button,
-				target: e.currentTarget,
 				targets,
 			};
-			e.currentTarget.setPointerCapture?.(e.pointerId);
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
-			setDragging(true);
+			// Register before React commits so no pointer move can arrive before
+			// the global session listeners exist.
+			stopPointerSessionRef.current = startCapturedPointerSession({
+				event: e.nativeEvent,
+				captureTarget: e.currentTarget,
+				onMove: (moveEvent) => {
+					const dragState = dragStateRef.current;
+					if (!dragState) {
+						return;
+					}
+
+					const dx = moveEvent.clientX - dragState.initialClientX;
+					const deltaFrames = getTimelineSequenceFromDragDelta({
+						deltaFrames: Math.round(dx / dragState.pxPerFrame),
+						pxPerFrame: dragState.pxPerFrame,
+						snappingEnabled: latestRef.current.editorSnapping,
+						targets: dragState.targets,
+					});
+					dragState.latestDeltaFrames = deltaFrames;
+					if (deltaFrames !== 0) {
+						dragState.didMove = true;
+					}
+
+					for (const target of dragState.targets) {
+						const nextFrom = getTimelineSequenceFromDragValue({
+							initialFrom: target.initialFrom,
+							deltaFrames,
+						});
+						latestRef.current.setDragOverrides(
+							target.nodePath,
+							'from',
+							Internals.makeStaticDragOverride(nextFrom),
+						);
+						for (const keyframeTarget of target.sequenceKeyframes) {
+							latestRef.current.setDragOverrides(
+								keyframeTarget.nodePath,
+								keyframeTarget.fieldKey,
+								{
+									type: 'keyframed',
+									status: shiftKeyframedStatus({
+										status: keyframeTarget.status,
+										deltaFrames,
+										isDescendant: keyframeTarget.isDescendant,
+									}),
+								},
+							);
+						}
+
+						for (const keyframeTarget of target.effectKeyframes) {
+							latestRef.current.setEffectDragOverrides(
+								keyframeTarget.nodePath,
+								keyframeTarget.effectIndex,
+								keyframeTarget.fieldKey,
+								{
+									type: 'keyframed',
+									status: shiftKeyframedStatus({
+										status: keyframeTarget.status,
+										deltaFrames,
+										isDescendant: keyframeTarget.isDescendant,
+									}),
+								},
+							);
+						}
+					}
+				},
+				onEnd: (reason, endEvent) => {
+					stopPointerSessionRef.current = null;
+					finishDrag(
+						(reason === 'pointerup' || reason === 'buttons-released') &&
+							endEvent !== null,
+					);
+				},
+			});
 		},
 		[
 			currentSelection,
+			finishDrag,
 			propStatusesRef,
 			sequencesRef,
 			timelineDurationInFrames,
@@ -1564,115 +1629,13 @@ export const useTimelineSequenceFromDrag = ({
 	);
 
 	useEffect(() => {
-		if (!dragging) {
-			return;
-		}
-
-		const onMove = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			const dx = e.clientX - dragState.initialClientX;
-			const deltaFrames = getTimelineSequenceFromDragDelta({
-				deltaFrames: Math.round(dx / dragState.pxPerFrame),
-				pxPerFrame: dragState.pxPerFrame,
-				snappingEnabled: latestRef.current.editorSnapping,
-				targets: dragState.targets,
-			});
-			dragState.latestDeltaFrames = deltaFrames;
-			if (deltaFrames !== 0) {
-				dragState.didMove = true;
-			}
-
-			for (const target of dragState.targets) {
-				const nextFrom = getTimelineSequenceFromDragValue({
-					initialFrom: target.initialFrom,
-					deltaFrames,
-				});
-				latestRef.current.setDragOverrides(
-					target.nodePath,
-					'from',
-					Internals.makeStaticDragOverride(nextFrom),
-				);
-				for (const keyframeTarget of target.sequenceKeyframes) {
-					latestRef.current.setDragOverrides(
-						keyframeTarget.nodePath,
-						keyframeTarget.fieldKey,
-						{
-							type: 'keyframed',
-							status: shiftKeyframedStatus({
-								status: keyframeTarget.status,
-								deltaFrames,
-								isDescendant: keyframeTarget.isDescendant,
-							}),
-						},
-					);
-				}
-
-				for (const keyframeTarget of target.effectKeyframes) {
-					latestRef.current.setEffectDragOverrides(
-						keyframeTarget.nodePath,
-						keyframeTarget.effectIndex,
-						keyframeTarget.fieldKey,
-						{
-							type: 'keyframed',
-							status: shiftKeyframedStatus({
-								status: keyframeTarget.status,
-								deltaFrames,
-								isDescendant: keyframeTarget.isDescendant,
-							}),
-						},
-					);
-				}
-			}
+		return () => {
+			stopPointerSessionRef.current?.();
+			stopPointerSessionRef.current = null;
 		};
-
-		const onUp = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			finishDrag(true);
-		};
-
-		const onCancel = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			finishDrag(false);
-		};
-
-		const activeDragState = dragStateRef.current;
-		if (!activeDragState) {
-			return;
-		}
-
-		return startCapturedPointerSession({
-			event: activeDragState,
-			captureTarget: activeDragState.target,
-			onMove,
-			onEnd: (reason, endEvent) => {
-				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
-					endEvent
-				) {
-					onUp(endEvent);
-				} else if (endEvent) {
-					onCancel(endEvent);
-				} else {
-					finishDrag(false);
-				}
-			},
-		});
-	}, [dragging, finishDrag]);
+	}, []);
 
 	return {
-		dragging,
 		onPointerDown,
 	};
 };
