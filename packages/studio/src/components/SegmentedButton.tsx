@@ -212,6 +212,16 @@ const SegmentedButtonMenu: React.FC<{
 		setOpened(false);
 		segment.onOpenChange?.(false);
 	}, [segment]);
+	const onOutsideClick = useCallback(
+		(target: Node) => {
+			if (ref.current?.contains(target)) {
+				return;
+			}
+
+			onHide();
+		},
+		[onHide],
+	);
 
 	const onClick = useCallback(
 		(event: React.MouseEvent<HTMLButtonElement>) => {
@@ -332,7 +342,7 @@ const SegmentedButtonMenu: React.FC<{
 							onPointerDown={(event) => event.stopPropagation()}
 						>
 							<div style={outerPortal} className="css-reset">
-								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
+								<HigherZIndex onOutsideClick={onOutsideClick} onEscape={onHide}>
 									<div style={portalStyle}>
 										<MenuContent
 											fixedHeight={Math.max(spaceToBottom, spaceToTop)}
