@@ -75,7 +75,7 @@ const mainSegmentStyle: React.CSSProperties = {
 
 const dropdownSegmentStyle: React.CSSProperties = {
 	padding: 0,
-	width: 24,
+	width: 20,
 };
 
 const menuLabel: React.CSSProperties = {
@@ -194,9 +194,7 @@ export const FixComputedValueModal: React.FC<{
 							idleColor: LIGHT_TEXT,
 							leaveLeftSpace: true,
 							onOpenChange: null,
-							renderContent: (color: string) => (
-								<CaretDown color={color} small />
-							),
+							renderContent: (color: string) => <CaretDown color={color} />,
 							segmentId: 'another-coding-agent',
 							selectedId: null,
 							style: dropdownSegmentStyle,
