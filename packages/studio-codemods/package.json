@@ -28,7 +28,7 @@
 		"@babel/types": "7.24.0",
 		"@remotion/studio-shared": "workspace:*",
 		"ast-types": "0.16.1",
-		"recast": "0.23.11",
+		"recast": "0.23.21",
 		"remotion": "workspace:*"
 	},
 	"exports": {
