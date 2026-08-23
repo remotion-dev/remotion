@@ -17,20 +17,26 @@ export {
 export const deleteJsxNodes = ({
 	input,
 	nodePaths,
+	onFormatFile,
 	prettierConfigOverride,
 }: {
 	input: string;
 	nodePaths: SequenceNodePath[];
+	onFormatFile: ((stage: 'start' | 'complete') => void) | null;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }) =>
 	deleteJsxNodesCodemod({
 		input,
 		nodePaths,
-		formatFile: ({contents, prettierConfigOverride: override}) =>
-			formatFileContent({
+		formatFile: async ({contents, prettierConfigOverride: override}) => {
+			onFormatFile?.('start');
+			const result = await formatFileContent({
 				input: contents,
 				prettierConfigOverride: override,
-			}),
+			});
+			onFormatFile?.('complete');
+			return result;
+		},
 		prettierConfigOverride,
 	});
 
