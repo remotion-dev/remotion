@@ -674,6 +674,8 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 	readonly getSelectableOutlines: (
 		timelinePosition: number,
 	) => ReturnType<typeof getSequencesWithSelectableOutlines>;
+	readonly hoveredTimelineNodePathKey: string | null;
+	readonly measureAllOutlines: boolean;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onSelect: (
@@ -696,6 +698,8 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 	draggingOutline,
 	getLatestOutlineTargetByKey,
 	getSelectableOutlines,
+	hoveredTimelineNodePathKey,
+	measureAllOutlines,
 	onDraggingChange,
 	onContextMenuOpenChange,
 	onSelect,
@@ -711,8 +715,42 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 	const selectableOutlines = useMemo(() => {
 		return getSelectableOutlines(timelinePosition);
 	}, [getSelectableOutlines, timelinePosition]);
+	const selectableOutlinesForLayout = useMemo(() => {
+		if (measureAllOutlines) {
+			return selectableOutlines;
+		}
+
+		// A timeline item can represent multiple connected canvas instances.
+		// Keep every instance of an active source node without calculating targets
+		// for unrelated timeline items while the canvas itself is inactive.
+		const activeNodePathKeys = new Set<string>();
+		for (const {key, nodePathInfo} of selectableOutlines) {
+			const nodePathKey = timelineSequenceNodePathToKey(
+				nodePathInfo.sequenceSubscriptionKey,
+			);
+			if (
+				selectedSequenceKeys.has(key) ||
+				sequenceKeysContainingSelection.has(key) ||
+				nodePathKey === hoveredTimelineNodePathKey
+			) {
+				activeNodePathKeys.add(nodePathKey);
+			}
+		}
+
+		return selectableOutlines.filter(({nodePathInfo}) =>
+			activeNodePathKeys.has(
+				timelineSequenceNodePathToKey(nodePathInfo.sequenceSubscriptionKey),
+			),
+		);
+	}, [
+		hoveredTimelineNodePathKey,
+		measureAllOutlines,
+		selectableOutlines,
+		selectedSequenceKeys,
+		sequenceKeysContainingSelection,
+	]);
 	const outlineRuntimeControls = useMemo(() => {
-		return selectableOutlines.flatMap(({key, sequence}) => {
+		return selectableOutlinesForLayout.flatMap(({key, sequence}) => {
 			if (
 				!selectedSequenceKeys.has(key) &&
 				!sequenceKeysContainingSelection.has(key)
@@ -723,7 +761,7 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			return sequence.controls ? [sequence.controls] : [];
 		});
 	}, [
-		selectableOutlines,
+		selectableOutlinesForLayout,
 		selectedSequenceKeys,
 		sequenceKeysContainingSelection,
 	]);
@@ -746,14 +784,14 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			calculateOutlineTargetsForCurrentState({
 				mode: 'layout',
 				runtimeValuesByStore: outlineRuntimeValuesByStore,
-				selectableOutlines,
+				selectableOutlines: selectableOutlinesForLayout,
 				targetKey: null,
 				targetTimelinePosition: timelinePosition,
 			}),
 		[
 			calculateOutlineTargetsForCurrentState,
 			outlineRuntimeValuesByStore,
-			selectableOutlines,
+			selectableOutlinesForLayout,
 			timelinePosition,
 		],
 	);
@@ -989,6 +1027,10 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		canvasContextMenuOpen ||
 		sequenceKeysContainingSelection.size > 0 ||
 		hoveredSequence?.source === 'timeline';
+	const measureAllOutlines =
+		canvasHovered || draggingOutline || canvasContextMenuOpen;
+	const hoveredTimelineNodePathKey =
+		hoveredSequence?.source === 'timeline' ? hoveredSequence.nodePathKey : null;
 	useLayoutEffect(() => {
 		if (measurementActive) {
 			return;
@@ -1015,6 +1057,8 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					draggingOutline={draggingOutline}
 					getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
 					getSelectableOutlines={getSelectableOutlines}
+					hoveredTimelineNodePathKey={hoveredTimelineNodePathKey}
+					measureAllOutlines={measureAllOutlines}
 					onDraggingChange={onDraggingChange}
 					onContextMenuOpenChange={setCanvasContextMenuOpen}
 					onSelect={selectOutlineItem}
