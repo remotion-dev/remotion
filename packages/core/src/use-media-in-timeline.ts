@@ -5,7 +5,10 @@ import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getTimelineDuration} from './get-timeline-duration.js';
 import {useNonce} from './nonce.js';
 import {SequenceContext} from './SequenceContext.js';
-import {SequenceManager} from './SequenceManager.js';
+import {
+	SequenceManager,
+	SequenceRegistrationContext,
+} from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import type {VolumeProp} from './volume-prop.js';
@@ -171,6 +174,7 @@ export const useMediaInTimeline = ({
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const {durationInFrames} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 
@@ -197,7 +201,11 @@ export const useMediaInTimeline = ({
 			throw new Error('No src passed');
 		}
 
-		if (!isStudio && window.process?.env?.NODE_ENV !== 'test') {
+		if (
+			!isStudio &&
+			!sequenceRegistrationEnabled &&
+			window.process?.env?.NODE_ENV !== 'test'
+		) {
 			return;
 		}
 
@@ -260,6 +268,7 @@ export const useMediaInTimeline = ({
 		documentationLink,
 		finalDisplayName,
 		isStudio,
+		sequenceRegistrationEnabled,
 		refForOutline,
 		muted,
 	]);

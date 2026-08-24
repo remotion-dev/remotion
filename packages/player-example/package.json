@@ -12,6 +12,7 @@
 	],
 	"dependencies": {
 		"@remotion/bundler": "workspace:*",
+		"@remotion/canvas": "workspace:*",
 		"@remotion/eslint-config-flat": "workspace:*",
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
@@ -29,8 +30,8 @@
 		"@types/node": "catalog:"
 	},
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src",
+		"formatting": "prettier src pages --check",
+		"lint": "eslint src pages",
 		"dev": "next dev",
 		"build-site": "next build",
 		"testnextjs": "next build"
