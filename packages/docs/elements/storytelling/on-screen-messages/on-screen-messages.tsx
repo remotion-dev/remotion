@@ -103,7 +103,7 @@ export const OnScreenMessages = () => {
 					willChange: 'filter, opacity, transform',
 				}}
 			>
-				I found the original recording.
+				I just saw you at the station.
 			</Interactive.Div>
 			<Interactive.Div
 				name="Message 2"
@@ -167,7 +167,7 @@ export const OnScreenMessages = () => {
 					willChange: 'filter, opacity, transform',
 				}}
 			>
-				Please tell me you didn't play it.
+				I’m still in Berlin.
 			</Interactive.Div>
 			<Interactive.Div
 				name="Message 3"
@@ -219,7 +219,7 @@ export const OnScreenMessages = () => {
 					willChange: 'filter, opacity, transform',
 				}}
 			>
-				Too late.
+				Then who waved back?
 			</Interactive.Div>
 		</Interactive.Div>
 	);
