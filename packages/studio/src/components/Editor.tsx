@@ -11,6 +11,7 @@ import {compositionListRenderedRef} from '../state/composition-list';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
+import {CanvasCaptureDropHandler} from './CanvasCaptureDropHandler';
 import {EditorContent} from './EditorContent';
 import {ForceSpecificCursor} from './ForceSpecificCursor';
 import {Modals} from './Modals';
@@ -109,6 +110,7 @@ export const Editor: React.FC<{
 				<SequencePropsSubscriptionProvider>
 					<Internals.CurrentScaleContext.Provider value={value}>
 						<ForceSpecificCursor />
+						<CanvasCaptureDropHandler readOnlyStudio={readOnlyStudio} />
 						<ScaleLockProvider>
 							<div style={background}>
 								<Internals.CompositionRenderErrorContext.Provider

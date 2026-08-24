@@ -132,7 +132,7 @@ export const AssetSelector: React.FC<{
 					return;
 				}
 
-				const {files} = e.dataTransfer;
+				const files = Array.from(e.dataTransfer.files);
 				if (files.length === 0) {
 					setDropLocation(null);
 					return;
