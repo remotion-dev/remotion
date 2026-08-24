@@ -538,6 +538,7 @@ describe('Elements sidebar', () => {
 				items: [
 					'overlays/location-lower-third/index',
 					'overlays/name-lower-third/index',
+					'overlays/social-safe-zones/index',
 				],
 			},
 			{
@@ -646,6 +647,7 @@ describe('Element preview definitions', () => {
 			'captions/word-highlight-captions',
 			'maps/map-flyover',
 			'maps/watercolor-map',
+			'overlays/social-safe-zones',
 			'text/spinning-text-wheel',
 		]);
 

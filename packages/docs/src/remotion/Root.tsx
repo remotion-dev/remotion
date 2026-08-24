@@ -131,10 +131,31 @@ const DEFAULT_THERMAL_PALETTE = [
 ] as const;
 
 export const RemotionRoot: React.FC = () => {
+	const socialSafeZonesDefinition =
+		elementDefinitions['overlays/social-safe-zones'];
+	const socialSafeZonesDimensions = getElementPreviewDimensions(
+		socialSafeZonesDefinition,
+	);
+
 	return (
 		<>
 			<Folder name="elements">
 				{Object.values(elementDefinitions).map((definition) => {
+					if (definition.slug === 'overlays/social-safe-zones') {
+						return (
+							<Composition
+								key="overlays/social-safe-zones"
+								component={ElementAssetComposition}
+								defaultProps={{slug: 'overlays/social-safe-zones'}}
+								durationInFrames={socialSafeZonesDefinition.durationInFrames}
+								fps={socialSafeZonesDefinition.fps}
+								height={socialSafeZonesDimensions.height}
+								id="element-overlays-social-safe-zones"
+								width={socialSafeZonesDimensions.width}
+							/>
+						);
+					}
+
 					const dimensions = getElementPreviewDimensions(definition);
 
 					return (

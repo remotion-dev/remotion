@@ -89,6 +89,10 @@ export const elementRegistry = {
 		category: 'overlays',
 		displayName: 'Name Lower Third',
 	},
+	'overlays/social-safe-zones': {
+		category: 'overlays',
+		displayName: 'Social Safe Zones',
+	},
 	'storytelling/polaroid-pictures': {
 		category: 'storytelling',
 		displayName: 'Polaroid Pictures',

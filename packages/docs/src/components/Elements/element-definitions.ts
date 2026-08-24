@@ -38,6 +38,7 @@ import {
 	type ElementCategory,
 	type ElementSlug,
 } from './element-registry';
+import {SocialSafeZonesPreview} from './SocialSafeZonesPreview';
 
 export type ElementPreviewMetadata = {
 	readonly posterUrl:
@@ -245,6 +246,28 @@ const elementImplementations = {
 		safeArea: 300,
 		installationMode: 'wrapped',
 		width: 1920,
+	},
+	'overlays/social-safe-zones': {
+		component: SocialSafeZonesPreview,
+		contributors: [],
+		description:
+			'Source-backed safe-area guides for TikTok, Instagram Reels, and YouTube vertical video.',
+		dependencies: [],
+		durationInFrames: 120,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1920,
+		posterFrame: 0,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/overlays-social-safe-zones-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/overlays-social-safe-zones-preview.mp4',
+		},
+		safeArea: 0,
+		installationMode: 'component-owned-sequence',
+		width: 1080,
 	},
 	'youtube/youtube-comment-highlight': {
 		component: YouTubeCommentHighlight,
