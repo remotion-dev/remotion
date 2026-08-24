@@ -158,7 +158,7 @@ const PresetDropdown: React.FC<{
 	const renderAction = useCallback((color: string) => {
 		return (
 			<span style={presetButtonIcon}>
-				<CaretDown color={color} small />
+				<CaretDown color={color} />
 			</span>
 		);
 	}, []);
