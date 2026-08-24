@@ -244,6 +244,8 @@ export const MyComposition = () => {
 
 :::note
 Playing a video in reverse is not supported.
+
+Changing `playbackRate` also changes the pitch of the video's audio. Pitch-preserving speed changes are not supported by the Mediabunny and WebCodecs path. If the video [falls back to `<OffthreadVideo>`](/docs/media/fallback) during preview or server-side rendering, audio pitch is preserved by default.
 :::
 
 ### `muted?`
