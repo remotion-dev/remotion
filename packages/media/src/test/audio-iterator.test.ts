@@ -76,6 +76,7 @@ const prepare = async (options?: {
 		getSequenceDurationInSeconds: () => sequenceDurationInSeconds,
 		getStartTime: () => startTime,
 		initialMuted: false,
+		initialVolume: 1,
 		drawDebugOverlay: () => {},
 	});
 

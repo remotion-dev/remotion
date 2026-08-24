@@ -77,6 +77,7 @@ export const audioIteratorManager = ({
 	getMediaEndTimestamp,
 	getStartTime,
 	initialMuted,
+	initialVolume,
 	drawDebugOverlay,
 }: {
 	audioTrack: InputAudioTrack;
@@ -87,10 +88,11 @@ export const audioIteratorManager = ({
 	getMediaEndTimestamp: () => number;
 	getStartTime: () => number;
 	initialMuted: boolean;
+	initialVolume: number;
 	drawDebugOverlay: () => void;
 }) => {
 	let muted = initialMuted;
-	let currentVolume = 1;
+	let currentVolume = Math.max(0, initialVolume);
 	let currentSeek: {
 		time: number;
 		playbackRate: number;
@@ -103,6 +105,7 @@ export const audioIteratorManager = ({
 	} | null = null;
 
 	const gainNode = sharedAudioContext.audioContext.createGain();
+	gainNode.gain.value = muted ? 0 : currentVolume;
 	gainNode.connect(sharedAudioContext.gainNode);
 
 	const audioSink = new AudioBufferSink(audioTrack);

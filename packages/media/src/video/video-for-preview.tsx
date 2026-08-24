@@ -205,6 +205,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
 	const initialMuted = useRef(effectiveMuted);
+	const initialVolume = useRef(userPreferredVolume);
 	const initialSequenceDuration = useRef(videoConfig.durationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
 	const hasDrawnRealFrameRef = useRef(false);
@@ -301,7 +302,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 			mediaPlayerRef.current = player;
 			player
-				.initialize(currentTimeRef.current, initialMuted.current)
+				.initialize(
+					currentTimeRef.current,
+					initialMuted.current,
+					initialVolume.current,
+				)
 				.then((result) => {
 					if (result.type === 'disposed') {
 						return;
