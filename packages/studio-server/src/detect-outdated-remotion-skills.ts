@@ -85,10 +85,10 @@ const getStatusForSkillsDirectory = ({
 	const outdatedSkillNames = remotionSkillNames.filter((skillName) => {
 		const skill = installedSkills.get(skillName);
 		return (
-			!skill?.installed ||
-			skill.version === null ||
-			semver.valid(skill.version) === null ||
-			semver.lt(skill.version, currentVersion)
+			skill?.installed &&
+			(skill.version === null ||
+				semver.valid(skill.version) === null ||
+				semver.lt(skill.version, currentVersion))
 		);
 	});
 
