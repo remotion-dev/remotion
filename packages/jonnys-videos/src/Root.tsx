@@ -277,7 +277,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="HowCanRemotionBeFree"
 					component={HowCanRemotionBeFree}
-					durationInFrames={1800}
+					durationInFrames={1802}
 					fps={30}
 					width={1080}
 					height={1920}

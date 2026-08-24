@@ -20,19 +20,19 @@ import {
 } from './UnrulyOutcome';
 import {ZURICH_PHOTO_DURATION_IN_FRAMES, ZurichPhoto} from './ZurichPhoto';
 
-const HOW_CAN_REMOTION_BE_FREE_AUDIO_FILE = 'voiceover.mp3';
-const HOW_CAN_REMOTION_BE_FREE_CAPTIONS_FILE = 'captions.json';
-const PREMIUM_VERSION_START_FRAME = 100;
-const UNRULY_OUTCOME_START_FRAME = 148;
-const FIRST_CUSTOMER_CHART_START_FRAME = 645;
-const SWITZERLAND_SCENE_START_FRAME = 816;
+const HOW_CAN_REMOTION_BE_FREE_AUDIO_FILE = 'voiceover-2.mp3';
+const HOW_CAN_REMOTION_BE_FREE_CAPTIONS_FILE = 'captions-2.json';
+const PREMIUM_VERSION_START_FRAME = 99;
+const UNRULY_OUTCOME_START_FRAME = 134;
+const FIRST_CUSTOMER_CHART_START_FRAME = 649;
+const SWITZERLAND_SCENE_START_FRAME = 866;
 
 export const HowCanRemotionBeFree: React.FC = () => {
 	return (
 		<>
 			<Audio
 				src={asset(HOW_CAN_REMOTION_BE_FREE_AUDIO_FILE)}
-				durationInFrames={1674.71}
+				durationInFrames={1801.67}
 			/>
 			<Solid
 				width={1080}
@@ -80,7 +80,7 @@ export const HowCanRemotionBeFree: React.FC = () => {
 				height={CAPTIONS_HEIGHT}
 				style={{
 					position: 'absolute',
-					translate: '0px 1132.3px',
+					translate: '0px 780px',
 				}}
 			>
 				<AnimatedCaptions
