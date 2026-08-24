@@ -1,8 +1,12 @@
 # Jonny’s videos
 
-Private Remotion compositions imported from [JonnyBurger/disco-light-show](https://github.com/JonnyBurger/disco-light-show) at commit `aed4ad8`.
+Private collection of Jonny's Remotion videos.
 
-All 51 source assets are hosted under `https://remotion.media/disco-light-show/` and resolved through `src/assets.ts`; no media binaries are committed in this package.
+## Videos
+
+- `disco-light-show` was imported from [JonnyBurger/disco-light-show](https://github.com/JonnyBurger/disco-light-show) at commit `aed4ad8`.
+
+Each video lives in its own directory under `src/`. Its assets are hosted under `https://remotion.media/jonnys-videos/<video>/`; no media binaries are committed in this package.
 
 From this directory:
 
