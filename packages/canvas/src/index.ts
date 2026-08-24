@@ -1,11 +1,7 @@
 export {calculateTimeline} from './calculate-timeline';
 export {Canvas} from './canvas';
 export type {CanvasProps} from './canvas';
-export {
-	createCanvasController,
-	useCanvasController,
-	useCanvasSelection,
-} from './canvas-controller';
+export {createCanvasController, useCanvasController} from './canvas-controller';
 export type {CanvasController} from './canvas-controller';
 export {getConnectedCompositions} from './get-connected-compositions';
 export {
@@ -21,12 +17,19 @@ export type {
 	TimelineTrackData,
 	TimelineTrackWithOriginalTimings,
 } from './get-timeline-sequence-sort-key';
-export {getCanvasSelectionItemKey} from './selection';
+export {
+	createCanvasSelectionController,
+	EMPTY_CANVAS_SELECTION,
+	getCanvasSelectionAfterInteraction,
+	getCanvasSelectionItemKey,
+	getCanvasSequenceSelectionKey,
+	useCanvasSelection,
+	useCanvasSelectionController,
+} from './selection';
 export type {
-	CanvasEntityReference,
-	CanvasPropertyPath,
+	CanvasSelectionController,
 	CanvasSelectionItem,
-	CanvasSelectionMode,
+	CanvasSelectionInteraction,
 	CanvasSelectionSnapshot,
 } from './selection';
 export {

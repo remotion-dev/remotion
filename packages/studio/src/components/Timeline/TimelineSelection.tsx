@@ -1,4 +1,15 @@
 import {
+	EMPTY_CANVAS_SELECTION,
+	getCanvasSelectionAfterInteraction,
+	getCanvasSelectionItemKey,
+	getCanvasSequenceSelectionKey,
+	useCanvasSelection,
+	useCanvasSelectionController,
+	type CanvasSelectionInteraction,
+	type CanvasSelectionItem,
+	type CanvasSelectionSnapshot,
+} from '@remotion/canvas';
+import {
 	canEditEasingForInterpolationFunction,
 	stringifySequenceExpandedRowKey,
 } from '@remotion/studio-shared';
@@ -139,57 +150,14 @@ export const getTimelineRowHighlightBackground = ({
 export const TIMELINE_BACKGROUND = TIMELINE_BACKGROUND_COLOR;
 export const TIMELINE_TICKS_BACKGROUND = BACKGROUND;
 
-export type TimelineSelection =
-	| {
-			readonly type: 'guide';
-			readonly guideId: string;
-	  }
-	| {
-			readonly type: 'sequence';
-			readonly nodePathInfo: SequenceNodePathInfo;
-	  }
-	| {
-			readonly type: 'sequence-prop';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly key: string;
-	  }
-	| {
-			readonly type: 'sequence-all-effects';
-			readonly nodePathInfo: SequenceNodePathInfo;
-	  }
-	| {
-			readonly type: 'sequence-effect';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly i: number;
-	  }
-	| {
-			readonly type: 'sequence-effect-prop';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly i: number;
-			readonly key: string;
-	  }
-	| {
-			readonly type: 'keyframe';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly frame: number;
-	  }
-	| {
-			readonly type: 'easing';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly fromFrame: number;
-			readonly toFrame: number;
-			readonly segmentIndex: number;
-	  };
+export type TimelineSelection = CanvasSelectionItem;
 
 export type TimelineEasingSelection = Extract<
 	TimelineSelection,
 	{type: 'easing'}
 >;
 
-export type TimelineSelectionInteraction = {
-	readonly shiftKey: boolean;
-	readonly toggleKey: boolean;
-};
+export type TimelineSelectionInteraction = CanvasSelectionInteraction;
 
 export const isTimelineSelectionModifierEvent = ({
 	shiftKey,
@@ -219,15 +187,10 @@ export const shouldSelectTimelineRowOnPointerDown = ({
 	);
 };
 
-export type TimelineSelectionState = {
-	readonly selectedItems: readonly TimelineSelection[];
-	readonly anchor: TimelineSelection | null;
-};
+export type TimelineSelectionState = CanvasSelectionSnapshot;
 
-export const EMPTY_TIMELINE_SELECTION_STATE: TimelineSelectionState = {
-	selectedItems: [],
-	anchor: null,
-};
+export const EMPTY_TIMELINE_SELECTION_STATE: TimelineSelectionState =
+	EMPTY_CANVAS_SELECTION;
 
 export type TimelineMarqueeRect = {
 	readonly left: number;
@@ -243,162 +206,8 @@ export type TimelineMarqueeSelectionCandidate = {
 	readonly rect: TimelineMarqueeRect;
 };
 
-const getTimelineSelectionType = (item: TimelineSelection) => item.type;
-
-const areTimelineSelectionTypesCompatible = (
-	firstType: TimelineSelection['type'],
-	secondType: TimelineSelection['type'],
-): boolean => {
-	if (firstType === secondType) {
-		return true;
-	}
-
-	return (
-		(firstType === 'sequence-prop' && secondType === 'sequence-effect-prop') ||
-		(firstType === 'sequence-effect-prop' && secondType === 'sequence-prop') ||
-		(firstType === 'keyframe' && secondType === 'easing') ||
-		(firstType === 'easing' && secondType === 'keyframe')
-	);
-};
-
-const isTimelineSelectionCompatibleWithType = (
-	item: TimelineSelection,
-	type: TimelineSelection['type'],
-) => areTimelineSelectionTypesCompatible(getTimelineSelectionType(item), type);
-
-const getTimelineSelectionAnchor = (
-	selectedItems: readonly TimelineSelection[],
-	previousAnchor: TimelineSelection | null,
-	targetType: TimelineSelection['type'],
-) => {
-	if (
-		previousAnchor &&
-		getTimelineSelectionType(previousAnchor) === targetType
-	) {
-		return previousAnchor;
-	}
-
-	for (let i = selectedItems.length - 1; i >= 0; i--) {
-		const candidate = selectedItems[i];
-		if (getTimelineSelectionType(candidate) === targetType) {
-			return candidate;
-		}
-	}
-
-	return null;
-};
-
-const getRangeSelection = ({
-	anchor,
-	clickedItem,
-	allSelectableItems,
-}: {
-	readonly anchor: TimelineSelection;
-	readonly clickedItem: TimelineSelection;
-	readonly allSelectableItems: readonly TimelineSelection[];
-}): readonly TimelineSelection[] => {
-	const anchorKey = getTimelineSelectionKey(anchor);
-	const clickedKey = getTimelineSelectionKey(clickedItem);
-	const orderedOfType = allSelectableItems.filter(
-		(item) => getTimelineSelectionType(item) === clickedItem.type,
-	);
-	const anchorIndex = orderedOfType.findIndex(
-		(item) => getTimelineSelectionKey(item) === anchorKey,
-	);
-	const clickedIndex = orderedOfType.findIndex(
-		(item) => getTimelineSelectionKey(item) === clickedKey,
-	);
-
-	if (anchorIndex === -1 || clickedIndex === -1) {
-		return [clickedItem];
-	}
-
-	const [from, to] =
-		anchorIndex < clickedIndex
-			? [anchorIndex, clickedIndex]
-			: [clickedIndex, anchorIndex];
-	return orderedOfType.slice(from, to + 1);
-};
-
-export const getTimelineSelectionAfterInteraction = ({
-	currentState,
-	clickedItem,
-	interaction,
-	allSelectableItems,
-}: {
-	readonly currentState: TimelineSelectionState;
-	readonly clickedItem: TimelineSelection;
-	readonly interaction: TimelineSelectionInteraction;
-	readonly allSelectableItems: readonly TimelineSelection[];
-}): TimelineSelectionState => {
-	const {selectedItems, anchor: previousAnchor} = currentState;
-	const clickedType = getTimelineSelectionType(clickedItem);
-	if (clickedType === 'guide') {
-		return {
-			selectedItems: [clickedItem],
-			anchor: clickedItem,
-		};
-	}
-
-	const nextAnchor = getTimelineSelectionAnchor(
-		selectedItems,
-		previousAnchor,
-		clickedType,
-	);
-	const clickedKey = getTimelineSelectionKey(clickedItem);
-
-	if (interaction.shiftKey && nextAnchor) {
-		return {
-			selectedItems: getRangeSelection({
-				anchor: nextAnchor,
-				clickedItem,
-				allSelectableItems,
-			}),
-			anchor: nextAnchor,
-		};
-	}
-
-	if (interaction.toggleKey) {
-		const compatibleItems = selectedItems.filter((item) =>
-			isTimelineSelectionCompatibleWithType(item, clickedType),
-		);
-		const existingKeySet = new Set(
-			compatibleItems.map(getTimelineSelectionKey),
-		);
-		if (existingKeySet.has(clickedKey)) {
-			const toggledSelection = compatibleItems.filter(
-				(item) => getTimelineSelectionKey(item) !== clickedKey,
-			);
-			return {
-				selectedItems: toggledSelection,
-				anchor: toggledSelection.length === 0 ? null : clickedItem,
-			};
-		}
-
-		const selectableOrderMap = new Map(
-			allSelectableItems
-				.filter((item) =>
-					isTimelineSelectionCompatibleWithType(item, clickedType),
-				)
-				.map((item, index) => [getTimelineSelectionKey(item), index] as const),
-		);
-		const extendedSelection = [...compatibleItems, clickedItem].sort((a, b) => {
-			return (
-				(selectableOrderMap.get(getTimelineSelectionKey(a)) ?? 0) -
-				(selectableOrderMap.get(getTimelineSelectionKey(b)) ?? 0)
-			);
-		});
-		return {
-			selectedItems: extendedSelection,
-			anchor: clickedItem,
-		};
-	}
-
-	return {
-		selectedItems: [clickedItem],
-		anchor: clickedItem,
-	};
-};
+export const getTimelineSelectionAfterInteraction =
+	getCanvasSelectionAfterInteraction;
 
 export const getAvailableTimelineSelectionState = ({
 	availableKeys,
@@ -750,42 +559,7 @@ export const getTimelineSelectionFromNodePathInfo = (
 	return null;
 };
 
-export const getTimelineSelectionKey = (item: TimelineSelection): string => {
-	switch (item.type) {
-		case 'guide':
-			return `guide.${item.guideId}`;
-		case 'sequence':
-			return `${getTimelineSequenceSelectionKey(item.nodePathInfo)}.sequence`;
-		case 'sequence-prop':
-			return `${getTimelineSequenceSelectionKey(
-				item.nodePathInfo,
-			)}.sequence-prop.${item.key}`;
-		case 'sequence-all-effects':
-			return `${getTimelineSequenceSelectionKey(
-				item.nodePathInfo,
-			)}.sequence-all-effects`;
-		case 'sequence-effect':
-			return `${getTimelineSequenceSelectionKey(
-				item.nodePathInfo,
-			)}.sequence-effect.${item.i}`;
-		case 'sequence-effect-prop':
-			return `${getTimelineSequenceSelectionKey(
-				item.nodePathInfo,
-			)}.sequence-effect-prop.${item.i}.${item.key}`;
-		case 'keyframe':
-			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.keyframe.${
-				item.frame
-			}`;
-		case 'easing':
-			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.easing.${
-				item.segmentIndex
-			}`;
-		default:
-			throw new Error(
-				`Unexpected timeline selection type: ${item satisfies never}`,
-			);
-	}
-};
+export const getTimelineSelectionKey = getCanvasSelectionItemKey;
 
 const nodePathDescendsFrom = (
 	descendant: SequenceNodePathInfo,
@@ -983,9 +757,7 @@ export const getSelectableTimelineItems = ({
 	});
 };
 
-export const getTimelineSequenceSelectionKey = (
-	nodePathInfo: SequenceNodePathInfo,
-): string => timelineNodePathInfoToKey({...nodePathInfo, auxiliaryKeys: []});
+export const getTimelineSequenceSelectionKey = getCanvasSequenceSelectionKey;
 
 export const TimelineSelectAllKeybindings: React.FC<{
 	readonly timeline: readonly TimelineTrackData[];
@@ -1169,10 +941,8 @@ export const TimelineSelectionProvider: React.FC<{
 		(previewServerState.type === 'connected' ||
 			window.remotion_isReadOnlyStudio);
 	const keyframeOperationsAvailable = canUseKeyframeOperations();
-	const [selectedItems, setSelectedItems] = useState<
-		readonly TimelineSelection[]
-	>([]);
-	const selectionAnchor = useRef<TimelineSelection | null>(null);
+	const selectionController = useCanvasSelectionController();
+	const selectionState = useCanvasSelection(selectionController);
 	const selectionScope = useRef<string | null>(null);
 	const marqueeSelectableItems = useRef(
 		new Map<
@@ -1191,11 +961,10 @@ export const TimelineSelectionProvider: React.FC<{
 	useEffect(() => {
 		if (!canSelect) {
 			selectionScope.current = null;
-			selectionAnchor.current = null;
 			setRevealRequest(null);
-			setSelectedItems([]);
+			selectionController.clear();
 		}
-	}, [canSelect]);
+	}, [canSelect, selectionController]);
 
 	const canSelectItem = useCallback(
 		(item: TimelineSelection) =>
@@ -1206,22 +975,10 @@ export const TimelineSelectionProvider: React.FC<{
 		[canSelect, keyframeOperationsAvailable],
 	);
 
-	const getCurrentAvailableSelectionState = useCallback(
-		(currentSelectedItems: readonly TimelineSelection[]) => {
-			if (selectionScope.current !== timelineSelectionScope) {
-				return EMPTY_TIMELINE_SELECTION_STATE;
-			}
-
-			return {
-				selectedItems: currentSelectedItems,
-				anchor: selectionAnchor.current,
-			};
-		},
-		[timelineSelectionScope],
-	);
-
 	const availableSelectionState =
-		getCurrentAvailableSelectionState(selectedItems);
+		selectionScope.current === timelineSelectionScope
+			? selectionState
+			: EMPTY_TIMELINE_SELECTION_STATE;
 	const availableSelectedItems = availableSelectionState.selectedItems;
 
 	const requestRevealSelectionItem = useCallback((item: TimelineSelection) => {
@@ -1256,30 +1013,13 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 
 	useEffect(() => {
-		setSelectedItems((currentSelectedItems) => {
-			const nextState =
-				selectionScope.current === timelineSelectionScope
-					? {
-							selectedItems: currentSelectedItems,
-							anchor: selectionAnchor.current,
-						}
-					: EMPTY_TIMELINE_SELECTION_STATE;
+		if (selectionScope.current === timelineSelectionScope) {
+			return;
+		}
 
-			selectionScope.current = timelineSelectionScope;
-			selectionAnchor.current = nextState.anchor;
-
-			if (
-				nextState.selectedItems.length === currentSelectedItems.length &&
-				nextState.selectedItems.every(
-					(item, index) => item === currentSelectedItems[index],
-				)
-			) {
-				return currentSelectedItems;
-			}
-
-			return nextState.selectedItems;
-		});
-	}, [timelineSelectionScope]);
+		selectionScope.current = timelineSelectionScope;
+		selectionController.clear();
+	}, [selectionController, timelineSelectionScope]);
 
 	const selectedKeys = useMemo(
 		() => new Set(availableSelectedItems.map(getTimelineSelectionKey)),
@@ -1313,29 +1053,18 @@ export const TimelineSelectionProvider: React.FC<{
 				requestRevealSelectionItem(item);
 			}
 
-			setSelectedItems((currentSelectedItems) => {
-				const currentSelectionState =
-					getCurrentAvailableSelectionState(currentSelectedItems);
+			if (selectionScope.current !== timelineSelectionScope) {
+				selectionController.clear();
+			}
 
-				const nextState = getTimelineSelectionAfterInteraction({
-					currentState: {
-						selectedItems: currentSelectionState.selectedItems,
-						anchor: currentSelectionState.anchor,
-					},
-					clickedItem: item,
-					interaction,
-					allSelectableItems,
-				});
-				selectionScope.current = timelineSelectionScope;
-				selectionAnchor.current = nextState.anchor;
-				return nextState.selectedItems;
-			});
+			selectionScope.current = timelineSelectionScope;
+			selectionController.select(item, interaction, allSelectableItems);
 		},
 		[
 			canSelectItem,
 			expandParentsForSelectionItem,
-			getCurrentAvailableSelectionState,
 			requestRevealSelectionItem,
+			selectionController,
 			timelineSelectionScope,
 		],
 	);
@@ -1354,19 +1083,18 @@ export const TimelineSelectionProvider: React.FC<{
 			}
 
 			selectionScope.current = timelineSelectionScope;
-			selectionAnchor.current =
-				items.length === 0 ? null : items[items.length - 1];
 			expandParentsForSelectionItems(items);
 			if (options.reveal && items.length === 1) {
 				requestRevealSelectionItem(items[0]);
 			}
 
-			setSelectedItems(items);
+			selectionController.setSelectedItems(items);
 		},
 		[
 			canSelectItem,
 			expandParentsForSelectionItems,
 			requestRevealSelectionItem,
+			selectionController,
 			timelineSelectionScope,
 		],
 	);
@@ -1429,9 +1157,8 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const clearSelection = useCallback(() => {
 		selectionScope.current = null;
-		selectionAnchor.current = null;
-		setSelectedItems([]);
-	}, []);
+		selectionController.clear();
+	}, [selectionController]);
 
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {

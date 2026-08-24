@@ -19,12 +19,9 @@ controller.selection.subscribe(() => {
 });
 
 controller.selection.select(
-	{
-		type: 'property',
-		entity: {type: 'sequence', id: 'title'},
-		propertyPath: ['style', 'opacity'],
-	},
-	'add',
+	sequenceSelection,
+	{shiftKey: false, toggleKey: false},
+	allSelectableSequences,
 );
 
 <Canvas

@@ -4,7 +4,8 @@ import {
 	useCanvasController,
 	useCanvasSelection,
 	type CanvasSelectionItem,
-	type CanvasSelectionMode,
+	type SequenceNodePathInfo,
+	type TimelineTrackData,
 } from '@remotion/canvas';
 import React, {useSyncExternalStore} from 'react';
 import {AbsoluteFill, Sequence, useCurrentFrame} from 'remotion';
@@ -44,6 +45,26 @@ const CanvasComposition: React.FC = () => {
 	);
 };
 
+const getExampleNodePathInfo = (
+	layer: TimelineTrackData,
+): SequenceNodePathInfo => {
+	return (
+		layer.nodePathInfo ?? {
+			sequenceSubscriptionKey: {
+				absolutePath: 'canvas-example',
+				effectKeys: [],
+				nodePath: ['sequence', layer.sequence.id],
+				sequenceKeys: [],
+				videoConfigValues: null,
+			},
+			auxiliaryKeys: [],
+			index: 0,
+			numberOfSequencesWithThisNodePath: 1,
+			supportsEffects: layer.sequence.controls?.supportsEffects === true,
+		}
+	);
+};
+
 const CanvasPage: React.FC = () => {
 	const controller = useCanvasController();
 	const layers = useSyncExternalStore(
@@ -51,10 +72,14 @@ const CanvasPage: React.FC = () => {
 		controller.timeline.getSnapshot,
 		controller.timeline.getSnapshot,
 	);
-	const selection = useCanvasSelection(controller);
+	const selection = useCanvasSelection(controller.selection);
 	const selectedKeys = new Set(
 		selection.selectedItems.map(getCanvasSelectionItemKey),
 	);
+	const selectableLayers: CanvasSelectionItem[] = layers.map((layer) => ({
+		type: 'sequence',
+		nodePathInfo: getExampleNodePathInfo(layer),
+	}));
 
 	return (
 		<main
@@ -103,23 +128,22 @@ const CanvasPage: React.FC = () => {
 						) : (
 							<ol style={{paddingLeft: 24}}>
 								{layers.map((layer) => {
-									const entity = {
-										type: 'sequence' as const,
-										id: layer.sequence.id,
-									};
+									const nodePathInfo = getExampleNodePathInfo(layer);
 									const layerSelection: CanvasSelectionItem = {
-										type: 'entity',
-										entity,
+										type: 'sequence',
+										nodePathInfo,
 									};
 									const opacitySelection: CanvasSelectionItem = {
-										type: 'property',
-										entity,
-										propertyPath: ['style', 'opacity'],
+										type: 'sequence-prop',
+										nodePathInfo,
+										key: 'style.opacity',
 									};
 									const easingSelection: CanvasSelectionItem = {
 										type: 'easing',
-										entity,
-										propertyPath: ['style', 'opacity'],
+										nodePathInfo: {
+											...nodePathInfo,
+											auxiliaryKeys: ['controls', 'style.opacity'],
+										},
 										fromFrame: layer.sequence.from,
 										toFrame: Math.min(
 											layer.sequence.from + 30,
@@ -149,13 +173,14 @@ const CanvasPage: React.FC = () => {
 												type="button"
 												aria-pressed={layerSelected}
 												onClick={(event) => {
-													const mode: CanvasSelectionMode =
-														event.metaKey || event.ctrlKey
-															? 'toggle'
-															: event.shiftKey
-																? 'add'
-																: 'replace';
-													controller.selection.select(layerSelection, mode);
+													controller.selection.select(
+														layerSelection,
+														{
+															shiftKey: event.shiftKey,
+															toggleKey: event.metaKey || event.ctrlKey,
+														},
+														selectableLayers,
+													);
 												}}
 												style={{
 													backgroundColor: layerSelected ? '#ddd6fe' : 'white',
@@ -181,7 +206,8 @@ const CanvasPage: React.FC = () => {
 													onClick={() =>
 														controller.selection.select(
 															opacitySelection,
-															'toggle',
+															{shiftKey: false, toggleKey: true},
+															[opacitySelection],
 														)
 													}
 												>
@@ -193,7 +219,8 @@ const CanvasPage: React.FC = () => {
 													onClick={() =>
 														controller.selection.select(
 															easingSelection,
-															'toggle',
+															{shiftKey: false, toggleKey: true},
+															[easingSelection],
 														)
 													}
 												>
@@ -218,9 +245,9 @@ const CanvasPage: React.FC = () => {
 							Selection ({selection.selectedItems.length})
 						</h2>
 						<p style={{fontSize: 14}}>
-							Click a layer to replace the selection. Shift-click adds a layer;
-							Command/Ctrl-click toggles it. Property and easing buttons toggle
-							heterogeneous items.
+							Click a layer to replace the selection. Shift-click selects a
+							contiguous range; Command/Ctrl-click toggles a layer. Property and
+							easing buttons demonstrate different selection item types.
 						</p>
 						<button type="button" onClick={controller.selection.clear}>
 							Clear selection

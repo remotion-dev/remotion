@@ -1,53 +1,96 @@
 import {expect, test} from 'bun:test';
-import {createCanvasController, type CanvasSelectionItem} from '../index';
+import {
+	createCanvasSelectionController,
+	type CanvasSelectionItem,
+	type SequenceNodePathInfo,
+} from '../index';
 
-test('stores a heterogeneous multi-selection through the public controller', () => {
-	const controller = createCanvasController();
+const makeNodePathInfo = (
+	id: string,
+	auxiliaryKeys: string[] = [],
+): SequenceNodePathInfo => ({
+	sequenceSubscriptionKey: {
+		absolutePath: '/src/Composition.tsx',
+		effectKeys: [],
+		nodePath: ['sequence', id],
+		sequenceKeys: [],
+		videoConfigValues: null,
+	},
+	auxiliaryKeys,
+	index: 0,
+	numberOfSequencesWithThisNodePath: 1,
+	supportsEffects: true,
+});
+
+test('stores Studio-compatible heterogeneous multi-selection state', () => {
+	const controller = createCanvasSelectionController();
 	let updates = 0;
-	const unsubscribe = controller.selection.subscribe(() => {
+	const unsubscribe = controller.subscribe(() => {
 		updates++;
 	});
-	const sequence: CanvasSelectionItem = {
-		type: 'entity',
-		entity: {type: 'sequence', id: 'intro'},
+	const sequences: CanvasSelectionItem[] = ['intro', 'title', 'outro'].map(
+		(id) => ({type: 'sequence', nodePathInfo: makeNodePathInfo(id)}),
+	);
+	const sequenceProperty: CanvasSelectionItem = {
+		type: 'sequence-prop',
+		nodePathInfo: makeNodePathInfo('intro', ['controls', 'style.opacity']),
+		key: 'style.opacity',
 	};
 	const effectProperty: CanvasSelectionItem = {
-		type: 'property',
-		entity: {type: 'effect', id: 'blur', sequenceId: 'intro'},
-		propertyPath: ['radius'],
+		type: 'sequence-effect-prop',
+		nodePathInfo: makeNodePathInfo('intro', ['effects', '0', 'radius']),
+		i: 0,
+		key: 'radius',
+	};
+	const keyframe: CanvasSelectionItem = {
+		type: 'keyframe',
+		nodePathInfo: makeNodePathInfo('intro', ['controls', 'style.opacity']),
+		frame: 0,
 	};
 	const easing: CanvasSelectionItem = {
 		type: 'easing',
-		entity: {type: 'sequence', id: 'intro'},
-		propertyPath: ['style', 'opacity'],
+		nodePathInfo: makeNodePathInfo('intro', ['controls', 'style.opacity']),
 		fromFrame: 0,
 		toFrame: 30,
 		segmentIndex: 0,
 	};
 
-	controller.selection.select(sequence, 'replace');
-	controller.selection.select(effectProperty, 'add');
-	controller.selection.select(easing, 'add');
-
-	expect(controller.selection.getSnapshot()).toEqual({
-		selectedItems: [sequence, effectProperty, easing],
-		anchor: easing,
+	controller.select(
+		sequences[0],
+		{shiftKey: false, toggleKey: false},
+		sequences,
+	);
+	controller.select(
+		sequences[2],
+		{shiftKey: true, toggleKey: false},
+		sequences,
+	);
+	expect(controller.getSnapshot()).toEqual({
+		selectedItems: sequences,
+		anchor: sequences[0],
 	});
+	controller.select(sequenceProperty, {shiftKey: false, toggleKey: false}, [
+		sequenceProperty,
+		effectProperty,
+	]);
+	controller.select(effectProperty, {shiftKey: false, toggleKey: true}, [
+		sequenceProperty,
+		effectProperty,
+	]);
 
-	controller.selection.select(effectProperty, 'toggle');
-	expect(controller.selection.getSnapshot()).toEqual({
-		selectedItems: [sequence, easing],
-		anchor: easing,
-	});
-
-	controller.selection.setSelectedItems([sequence, sequence, effectProperty]);
-	expect(controller.selection.getSnapshot()).toEqual({
-		selectedItems: [sequence, effectProperty],
+	expect(controller.getSnapshot()).toEqual({
+		selectedItems: [sequenceProperty, effectProperty],
 		anchor: effectProperty,
 	});
 
-	controller.selection.clear();
-	expect(controller.selection.getSnapshot()).toEqual({
+	controller.setSelectedItems([keyframe, easing]);
+	expect(controller.getSnapshot()).toEqual({
+		selectedItems: [keyframe, easing],
+		anchor: easing,
+	});
+
+	controller.clear();
+	expect(controller.getSnapshot()).toEqual({
 		selectedItems: [],
 		anchor: null,
 	});
