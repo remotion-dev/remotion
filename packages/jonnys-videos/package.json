@@ -1,0 +1,38 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/jonnys-videos"
+	},
+	"name": "@remotion/jonnys-videos",
+	"version": "4.0.515",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "remotion studio",
+		"bundle": "remotion bundle",
+		"render": "remotion render",
+		"lint": "eslint src && tsgo --noEmit",
+		"formatting": "oxfmt src remotion.config.ts --check",
+		"format": "oxfmt src remotion.config.ts"
+	},
+	"dependencies": {
+		"@mediabunny/prores": "catalog:",
+		"@remotion/captions": "workspace:*",
+		"@remotion/cli": "workspace:*",
+		"@remotion/effects": "workspace:*",
+		"@remotion/media": "workspace:*",
+		"@remotion/noise": "workspace:*",
+		"@remotion/shapes": "workspace:*",
+		"@remotion/starburst": "workspace:*",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"remotion": "workspace:*"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-flat": "workspace:*",
+		"@typescript/native-preview": "catalog:",
+		"@types/react": "catalog:",
+		"@types/web": "catalog:",
+		"eslint": "catalog:"
+	},
+	"license": "UNLICENSED"
+}

@@ -972,6 +972,30 @@
         "sharp": "catalog:",
       },
     },
+    "packages/jonnys-videos": {
+      "name": "@remotion/jonnys-videos",
+      "version": "4.0.515",
+      "dependencies": {
+        "@mediabunny/prores": "catalog:",
+        "@remotion/captions": "workspace:*",
+        "@remotion/cli": "workspace:*",
+        "@remotion/effects": "workspace:*",
+        "@remotion/media": "workspace:*",
+        "@remotion/noise": "workspace:*",
+        "@remotion/shapes": "workspace:*",
+        "@remotion/starburst": "workspace:*",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "remotion": "workspace:*",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-flat": "workspace:*",
+        "@types/react": "catalog:",
+        "@types/web": "catalog:",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
     "packages/kimi-code-plugin": {
       "name": "@remotion/kimi-code-plugin",
       "version": "4.0.515",
@@ -4360,6 +4384,8 @@
     "@remotion/install-whisper-cpp": ["@remotion/install-whisper-cpp@workspace:packages/install-whisper-cpp"],
 
     "@remotion/it-tests": ["@remotion/it-tests@workspace:packages/it-tests"],
+
+    "@remotion/jonnys-videos": ["@remotion/jonnys-videos@workspace:packages/jonnys-videos"],
 
     "@remotion/kimi-code-plugin": ["@remotion/kimi-code-plugin@workspace:packages/kimi-code-plugin"],
 
@@ -10434,6 +10460,10 @@
     "@remotion/gif/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
 
     "@remotion/gif/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
+
+    "@remotion/jonnys-videos/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
+
+    "@remotion/jonnys-videos/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
 
     "@remotion/lambda/@types/express": ["@types/express@5.0.1", "", { "dependencies": { "@types/body-parser": "1.19.1", "@types/express-serve-static-core": "5.0.4", "@types/serve-static": "1.13.10" } }, "sha512-UZUw8vjpWFXuDnjFTh7/5c2TWDlQqeXHi6hcN7F2XSVT5P+WmUnnbFS3KA6Jnc6IsEqI2qCVu2bK0R0J4A8ZQQ=="],
 
