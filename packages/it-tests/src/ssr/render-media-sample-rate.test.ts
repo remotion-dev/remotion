@@ -10,6 +10,7 @@ import {
 import os from 'os';
 import path from 'path';
 import {
+	combineChunks,
 	renderMedia,
 	RenderInternals,
 	selectComposition,
@@ -113,6 +114,25 @@ const getSampleRateFromFile = async (filePath: string): Promise<number> => {
 	}
 
 	return parseInt(match[1], 10);
+};
+
+const decodeAudioToPcmWav = async ({
+	input,
+	output,
+}: {
+	input: string;
+	output: string;
+}) => {
+	await RenderInternals.callFf({
+		bin: 'ffmpeg',
+		args: ['-y', '-i', input, '-map', '0:a:0', '-c:a', 'pcm_s16le', output],
+		indent: false,
+		logLevel: 'error',
+		binariesDirectory: null,
+		cancelSignal: undefined,
+	});
+
+	return readPcmWav(output);
 };
 
 const issue10468Source = readFileSync(
@@ -463,6 +483,109 @@ test(
 				process.env.TMPDIR = previousTmpDir;
 			}
 
+			rmSync(tmpDir, {recursive: true, force: true});
+		}
+	},
+	{timeout: 300000},
+);
+
+test(
+	'@remotion/media keeps seamless AAC chunks sample-identical with 423 nested clips',
+	async () => {
+		const tmpDir = mkdtempSync(
+			path.join(os.tmpdir(), 'inline-audio-seamless-aac-'),
+		);
+		try {
+			const composition = await selectComposition({
+				id: 'inline-audio-stress',
+				serveUrl: exampleBuild,
+				inputProps: inlineAudioStressInputProps,
+			});
+			const singleAac = path.join(tmpDir, 'single.aac');
+			await renderMedia({
+				outputLocation: singleAac,
+				codec: 'aac',
+				serveUrl: exampleBuild,
+				composition,
+				inputProps: inlineAudioStressInputProps,
+				sampleRate: STRESS_SAMPLE_RATE,
+				concurrency: 4,
+				logLevel: 'error',
+			});
+
+			const framesPerChunk = 200;
+			const audioFiles: string[] = [];
+			for (
+				let chunkStart = 0;
+				chunkStart < STRESS_DURATION_IN_FRAMES;
+				chunkStart += framesPerChunk
+			) {
+				const chunk = path.join(tmpDir, `chunk-${chunkStart}.aac`);
+				audioFiles.push(chunk);
+				await renderMedia({
+					outputLocation: chunk,
+					codec: 'aac',
+					serveUrl: exampleBuild,
+					composition,
+					inputProps: inlineAudioStressInputProps,
+					frameRange: [
+						chunkStart,
+						Math.min(
+							chunkStart + framesPerChunk - 1,
+							STRESS_DURATION_IN_FRAMES - 1,
+						),
+					],
+					compositionStart: 0,
+					forSeamlessAacConcatenation: true,
+					sampleRate: STRESS_SAMPLE_RATE,
+					concurrency: 4,
+					logLevel: 'error',
+				});
+			}
+
+			const combinedAac = path.join(tmpDir, 'combined.aac');
+			await combineChunks({
+				outputLocation: combinedAac,
+				audioFiles,
+				videoFiles: [],
+				codec: 'aac',
+				audioCodec: 'aac',
+				fps: STRESS_FPS,
+				framesPerChunk,
+				preferLossless: false,
+				compositionDurationInFrames: STRESS_DURATION_IN_FRAMES,
+				sampleRate: STRESS_SAMPLE_RATE,
+				logLevel: 'error',
+			});
+
+			const single = await decodeAudioToPcmWav({
+				input: singleAac,
+				output: path.join(tmpDir, 'single.wav'),
+			});
+			const combined = await decodeAudioToPcmWav({
+				input: combinedAac,
+				output: path.join(tmpDir, 'combined.wav'),
+			});
+			expect(combined.sampleRate).toBe(single.sampleRate);
+			expect(combined.channels).toBe(single.channels);
+			expect(combined.samples.length).toBeGreaterThanOrEqual(
+				single.samples.length,
+			);
+
+			let firstDifferentSample = -1;
+			for (let index = 0; index < single.samples.length; index++) {
+				if (single.samples[index] !== combined.samples[index]) {
+					firstDifferentSample = index;
+					break;
+				}
+			}
+
+			expect(firstDifferentSample).toBe(-1);
+			// AAC concatenation may retain up to two encoder frames of tail padding.
+			expect(
+				combined.samples.length - single.samples.length,
+			).toBeLessThanOrEqual(2 * 1024 * single.channels);
+		} finally {
 			rmSync(tmpDir, {recursive: true, force: true});
 		}
 	},

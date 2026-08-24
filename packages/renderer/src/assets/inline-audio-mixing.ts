@@ -42,8 +42,8 @@ const WAV_HEADER_SIZE = 44;
 
 export type InlineAudioTrack = {
 	outName: string;
-	startInSeconds: number;
-	durationInSeconds: number;
+	startInSamples: number;
+	durationInSamples: number;
 };
 
 export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
@@ -51,7 +51,7 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 	const openFiles: Record<string, number> = {};
 	const writtenHeaders: Record<string, boolean> = {};
 	const toneFrequencies: Record<string, number> = {};
-	const startTimesInSeconds: Record<string, number> = {};
+	const startTimesInSamples: Record<string, number> = {};
 	const writtenDataSizes: Record<string, number> = {};
 
 	const cleanup = () => {
@@ -69,12 +69,11 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		return Object.keys(writtenHeaders)
 			.map((outName) => ({
 				outName,
-				startInSeconds: startTimesInSeconds[outName],
-				durationInSeconds:
-					writtenDataSizes[outName] /
-					(NUMBER_OF_CHANNELS * sampleRate * BYTES_PER_SAMPLE),
+				startInSamples: startTimesInSamples[outName],
+				durationInSamples:
+					writtenDataSizes[outName] / (NUMBER_OF_CHANNELS * BYTES_PER_SAMPLE),
 			}))
-			.sort((a, b) => a.startInSeconds - b.startInSeconds);
+			.sort((a, b) => a.startInSamples - b.startInSamples);
 	};
 
 	const getFilePath = (asset: InlineAudioAsset) => {
@@ -198,21 +197,25 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 
 		const assetStartInVideo = asset.startInVideo ?? firstFrame;
 		const firstFrameForAsset = Math.max(assetStartInVideo, firstFrame);
-		const startsAtRenderStart = firstFrameForAsset === firstFrame;
-		const startInSeconds = Math.max(
+		const startInSamples = Math.max(
 			0,
-			(firstFrameForAsset - firstFrame) / fps - trimLeftOffset,
+			Math.floor(
+				correctFloatingPointError(
+					((firstFrameForAsset - firstFrame) / fps - trimLeftOffset) *
+						sampleRate,
+				),
+			),
 		);
 		if (
-			startTimesInSeconds[filePath] !== undefined &&
-			Math.abs(startTimesInSeconds[filePath] - startInSeconds) > 0.00001
+			startTimesInSamples[filePath] !== undefined &&
+			startTimesInSamples[filePath] !== startInSamples
 		) {
 			throw new Error(
-				`The start time for inline audio asset ${asset.id} changed from ${startTimesInSeconds[filePath]} to ${startInSeconds}`,
+				`The start time for inline audio asset ${asset.id} changed from ${startTimesInSamples[filePath]} to ${startInSamples} samples`,
 			);
 		}
 
-		startTimesInSeconds[filePath] = startInSeconds;
+		startTimesInSamples[filePath] = startInSamples;
 
 		let arr = new Int16Array(asset.audio);
 		const isFirst = asset.frame === firstFrame;
@@ -240,16 +243,18 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 			);
 		}
 
-		const positionInSeconds =
-			(asset.frame - firstFrameForAsset) / fps -
-			(isFirst || !startsAtRenderStart ? 0 : trimLeftOffset);
+		const positionInRenderInSeconds =
+			(asset.frame - firstFrame) / fps - (isFirst ? 0 : trimLeftOffset);
 
 		// Always rounding down to ensure there are no gaps when the samples don't align
 		// In @remotion/media, we also round down the sample start timestamp and round up the end timestamp
 		// This might lead to overlapping, hopefully aligning perfectly!
 		// Test case: https://github.com/remotion-dev/remotion/issues/5758
 		const position =
-			Math.floor(correctFloatingPointError(positionInSeconds * sampleRate)) *
+			(Math.floor(
+				correctFloatingPointError(positionInRenderInSeconds * sampleRate),
+			) -
+				startInSamples) *
 			NUMBER_OF_CHANNELS *
 			BYTES_PER_SAMPLE;
 

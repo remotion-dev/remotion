@@ -5,7 +5,10 @@ import path from 'node:path';
 import type {InlineAudioAsset} from 'remotion/no-react';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {makeInlineAudioMixing} from '../assets/inline-audio-mixing';
-import {mergeInlineAudioTracks} from '../merge-inline-audio-tracks';
+import {
+	inlineAudioTrackToPreprocessedAudioTrack,
+	mergeInlineAudioTracks,
+} from '../merge-inline-audio-tracks';
 
 const SAMPLE_RATE = 48_000;
 const FPS = 30;
@@ -67,8 +70,8 @@ test('writes late inline audio relative to its clip origin', async () => {
 
 		const [track] = mixing.getListOfAssets();
 		const wav = readFileSync(track.outName);
-		expect(track.startInSeconds).toBe(10);
-		expect(track.durationInSeconds).toBeCloseTo(2 / FPS, 8);
+		expect(track.startInSamples).toBe(10 * SAMPLE_RATE);
+		expect(track.durationInSamples).toBe(2 * SAMPLES_PER_FRAME);
 		expect(wav.length).toBe(44 + SAMPLES_PER_FRAME * 2 * 2 * 2);
 		expect(wav.readUInt32LE(4)).toBe(wav.length - 8);
 		expect(wav.readUInt32LE(40)).toBe(wav.length - 44);
@@ -94,8 +97,50 @@ test('keeps a composition-relative fallback for an unknown clip origin', async (
 		await finish(mixing);
 
 		const [track] = mixing.getListOfAssets();
-		expect(track.startInSeconds).toBe(0);
-		expect(track.durationInSeconds).toBeCloseTo(4 / FPS, 8);
+		expect(track.startInSamples).toBe(0);
+		expect(track.durationInSamples).toBe(4 * SAMPLES_PER_FRAME);
+	} finally {
+		mixing.cleanup();
+		rmSync(dir, {recursive: true, force: true});
+	}
+});
+
+test('preserves legacy sample placement at fractional frame rates', async () => {
+	const dir = mkdtempSync(path.join(os.tmpdir(), 'inline-audio-fractional-'));
+	const mixing = makeInlineAudioMixing(dir, SAMPLE_RATE);
+
+	try {
+		// Write out of order to also exercise sparse compact-file placement.
+		mixing.addAsset({
+			asset: makeAsset({id: 'fractional', frame: 83, startInVideo: 81}),
+			fps: 24.87,
+			totalNumberOfFrames: 41,
+			firstFrame: 79,
+			trimLeftOffset: 0.0021487736228385534,
+			trimRightOffset: 0,
+		});
+		mixing.addAsset({
+			asset: makeAsset({id: 'fractional', frame: 81, startInVideo: 81}),
+			fps: 24.87,
+			totalNumberOfFrames: 41,
+			firstFrame: 79,
+			trimLeftOffset: 0.0021487736228385534,
+			trimRightOffset: 0,
+		});
+		await finish(mixing);
+
+		const [track] = mixing.getListOfAssets();
+		const wav = readFileSync(track.outName);
+		const preprocessed = inlineAudioTrackToPreprocessedAudioTrack({
+			track,
+			relativeToInSamples: 0,
+			padToDurationInSamples: null,
+		});
+		expect(preprocessed.filter.pad_start).toBe('adelay=3756S|3756S|3756S');
+		// Legacy absolute placement for frame 83 is sample 7617. Relative to the
+		// compact track's sample 3756 origin, its first sample must be at 3861.
+		expect(wav.readInt16LE(44 + 3860 * 2 * 2)).toBe(0);
+		expect(wav.readInt16LE(44 + 3861 * 2 * 2)).toBe(1000);
 	} finally {
 		mixing.cleanup();
 		rmSync(dir, {recursive: true, force: true});
@@ -148,10 +193,9 @@ test(
 			});
 
 			expect(merged).not.toBeNull();
-			expect(merged?.startInSeconds).toBe(startFrames[0] / FPS);
-			expect(merged?.durationInSeconds).toBeCloseTo(
-				(startFrames.at(-1)! - startFrames[0] + 1) / FPS,
-				8,
+			expect(merged?.startInSamples).toBe((startFrames[0] * SAMPLE_RATE) / FPS);
+			expect(merged?.durationInSamples).toBe(
+				((startFrames.at(-1)! - startFrames[0] + 1) * SAMPLE_RATE) / FPS,
 			);
 			expect(statSync(merged!.outName).size).toBeLessThan(4_000_000);
 		} finally {

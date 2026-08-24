@@ -12,27 +12,23 @@ const MAX_INLINE_AUDIO_INPUTS = 10;
 
 export const inlineAudioTrackToPreprocessedAudioTrack = ({
 	track,
-	relativeToInSeconds,
-	padToDurationInSeconds,
-	sampleRate,
+	relativeToInSamples,
+	padToDurationInSamples,
 }: {
 	track: InlineAudioTrack;
-	relativeToInSeconds: number;
-	padToDurationInSeconds: number | null;
-	sampleRate: number;
+	relativeToInSamples: number;
+	padToDurationInSamples: number | null;
 }): PreprocessedAudioTrack => {
 	const delayInSamples = Math.max(
 		0,
-		Math.round((track.startInSeconds - relativeToInSeconds) * sampleRate),
+		track.startInSamples - relativeToInSamples,
 	);
 	const padAtEndInSamples =
-		padToDurationInSeconds === null
+		padToDurationInSamples === null
 			? 0
 			: Math.max(
 					0,
-					Math.round(padToDurationInSeconds * sampleRate) -
-						delayInSamples -
-						Math.round(track.durationInSeconds * sampleRate),
+					padToDurationInSamples - delayInSamples - track.durationInSamples,
 				);
 
 	return {
@@ -72,7 +68,7 @@ export const mergeInlineAudioTracks = async ({
 	sampleRate: number;
 }): Promise<InlineAudioTrack | null> => {
 	let currentTracks = tracks.sort(
-		(a, b) => a.startInSeconds - b.startInSeconds,
+		(a, b) => a.startInSamples - b.startInSamples,
 	);
 	let level = 0;
 
@@ -84,12 +80,11 @@ export const mergeInlineAudioTracks = async ({
 					return group[0];
 				}
 
-				const [{startInSeconds}] = group;
+				const [{startInSamples}] = group;
 				const durationInSamples = Math.max(
 					...group.map((track) => {
 						return (
-							Math.round((track.startInSeconds - startInSeconds) * sampleRate) +
-							Math.round(track.durationInSeconds * sampleRate)
+							track.startInSamples - startInSamples + track.durationInSamples
 						);
 					}),
 				);
@@ -102,9 +97,8 @@ export const mergeInlineAudioTracks = async ({
 					files: group.map((track) =>
 						inlineAudioTrackToPreprocessedAudioTrack({
 							track,
-							relativeToInSeconds: startInSeconds,
-							padToDurationInSeconds: null,
-							sampleRate,
+							relativeToInSamples: startInSamples,
+							padToDurationInSamples: null,
 						}),
 					),
 					outName,
@@ -126,8 +120,8 @@ export const mergeInlineAudioTracks = async ({
 
 				return {
 					outName,
-					startInSeconds,
-					durationInSeconds: durationInSamples / sampleRate,
+					startInSamples,
+					durationInSamples,
 				};
 			}),
 		);

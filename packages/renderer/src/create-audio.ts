@@ -161,9 +161,10 @@ export const createAudio = async ({
 			? [
 					inlineAudioTrackToPreprocessedAudioTrack({
 						track: mergedInlineAudio,
-						relativeToInSeconds: 0,
-						padToDurationInSeconds: chunkLengthInSeconds,
-						sampleRate,
+						relativeToInSamples: 0,
+						padToDurationInSamples: Math.round(
+							chunkLengthInSeconds * sampleRate,
+						),
 					}),
 				]
 			: []),
