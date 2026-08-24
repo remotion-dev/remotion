@@ -2,12 +2,17 @@ import {useState} from 'react';
 import type {TSequence} from 'remotion';
 import {calculateTimeline} from './calculate-timeline';
 import type {TimelineTrackData} from './get-timeline-sequence-sort-key';
+import {
+	createCanvasSelectionController,
+	type CanvasSelectionController,
+} from './selection';
 
 export type CanvasController = {
 	readonly timeline: {
 		readonly getSnapshot: () => readonly TimelineTrackData[];
 		readonly subscribe: (listener: () => void) => () => void;
 	};
+	readonly selection: CanvasSelectionController;
 };
 
 type CanvasControllerInternals = {
@@ -21,36 +26,39 @@ const controllerInternals = new WeakMap<
 >();
 
 export const createCanvasController = (): CanvasController => {
-	let snapshot: readonly TimelineTrackData[] = [];
-	const listeners = new Set<() => void>();
+	let timelineSnapshot: readonly TimelineTrackData[] = [];
+	const timelineListeners = new Set<() => void>();
 
-	const updateSnapshot = (nextSnapshot: readonly TimelineTrackData[]) => {
-		snapshot = nextSnapshot;
-		for (const listener of listeners) {
+	const updateTimelineSnapshot = (
+		nextSnapshot: readonly TimelineTrackData[],
+	) => {
+		timelineSnapshot = nextSnapshot;
+		for (const listener of timelineListeners) {
 			listener();
 		}
 	};
 
 	const controller: CanvasController = {
 		timeline: {
-			getSnapshot: () => snapshot,
+			getSnapshot: () => timelineSnapshot,
 			subscribe: (listener) => {
-				listeners.add(listener);
-				return () => listeners.delete(listener);
+				timelineListeners.add(listener);
+				return () => timelineListeners.delete(listener);
 			},
 		},
+		selection: createCanvasSelectionController(),
 	};
 
 	controllerInternals.set(controller, {
 		setSequences: (sequences) => {
-			updateSnapshot(
+			updateTimelineSnapshot(
 				calculateTimeline({
 					sequences,
 					overrideIdsToNodePaths: {},
 				}),
 			);
 		},
-		clear: () => updateSnapshot([]),
+		clear: () => updateTimelineSnapshot([]),
 	});
 
 	return controller;

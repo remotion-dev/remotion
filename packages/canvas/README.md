@@ -14,6 +14,16 @@ controller.timeline.subscribe(() => {
 	console.log(controller.timeline.getSnapshot());
 });
 
+controller.selection.subscribe(() => {
+	console.log(controller.selection.getSnapshot());
+});
+
+controller.selection.select(
+	sequenceSelection,
+	{shiftKey: false, toggleKey: false},
+	allSelectableSequences,
+);
+
 <Canvas
 	controller={controller}
 	component={MyComposition}
