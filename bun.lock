@@ -914,7 +914,7 @@
     },
     "packages/gsap": {
       "name": "@remotion/gsap",
-      "version": "4.0.515",
+      "version": "4.0.516",
       "dependencies": {
         "remotion": "workspace:*",
       },

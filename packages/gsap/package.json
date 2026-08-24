@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/gsap",
-	"version": "4.0.515",
+	"version": "4.0.516",
 	"description": "Drive GSAP timelines from the Remotion frame",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
