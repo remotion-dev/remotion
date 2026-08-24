@@ -112,6 +112,7 @@ h6 {
 
 [data-theme='light'] {
 	--background: #fff;
+	--ifm-background-color: #fff;
 	--footer-background: #fcfcfc;
 	--footer-border: #eaeaea;
 	--text-color: #000;

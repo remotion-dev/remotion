@@ -1486,6 +1486,9 @@ test('Loading indicator does not register an interactive sequence', () => {
 	);
 
 	expect(getByText('Resolving <Suspense>...')).toBeTruthy();
+	expect(getByText('Resolving <Suspense>...').style.color).toBe(
+		'rgba(255, 255, 255, 0.8)',
+	);
 	const loadingIndicator = container.querySelector<HTMLDivElement>(
 		'#remotion-comp-loading',
 	);
@@ -1497,6 +1500,26 @@ test('Loading indicator does not register an interactive sequence', () => {
 	);
 	expect(loadingContent?.style.animation).toBe('anim 2s');
 	expect(registeredSequences).toHaveLength(0);
+});
+
+test('Loading indicator compensates for the canvas scale', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<Internals.CurrentScaleContext.Provider value={{type: 'scale', scale: 2}}>
+				<Loading />
+			</Internals.CurrentScaleContext.Provider>
+		</SequenceTestWrapper>,
+	);
+
+	const loadingLabel = container.querySelector<HTMLParagraphElement>(
+		'#remotion-comp-loading-content p',
+	);
+	const loadingIcon = container.querySelector<SVGElement>(
+		'#remotion-comp-loading-content svg',
+	);
+	expect(loadingLabel?.style.fontSize).toBe('7px');
+	expect(loadingIcon?.getAttribute('width')).toBe('20');
+	expect(loadingIcon?.getAttribute('height')).toBe('20');
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {

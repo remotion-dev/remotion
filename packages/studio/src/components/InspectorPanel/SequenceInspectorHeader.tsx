@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {CURRENT_COLOR} from '../../helpers/colors';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {ReactIcon} from '../../icons/react';
 import {InlineEditableTitle} from '../InlineEditableTitle';
@@ -8,7 +9,7 @@ import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {InspectorLocationCopy} from '../InspectorLocationCopy';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
-import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {useOpenSequenceInApps} from '../Timeline/use-open-sequence-in-apps';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
 import {
@@ -37,7 +38,7 @@ const sequenceInspectorSubtitle: React.CSSProperties = {
 	alignItems: 'center',
 	boxSizing: 'border-box',
 	fontSize: 13,
-	height: COMPACT_INLINE_ROW_HEIGHT,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	lineHeight: '18px',
 	margin: '0 4px',
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
@@ -46,6 +47,14 @@ const sequenceInspectorSubtitle: React.CSSProperties = {
 
 const defaultCursor: React.CSSProperties = {
 	cursor: 'default',
+};
+
+const externalTabIndicatorStyle: React.CSSProperties = {
+	display: 'inline-block',
+	height: 12,
+	marginLeft: 4,
+	verticalAlign: -2,
+	width: 12,
 };
 
 type SequenceInspectorSourceLocation = {
@@ -149,11 +158,24 @@ export const SequenceInspectorHeader: React.FC<{
 					<InspectorQuickAction
 						disabled={false}
 						style={defaultCursor}
-						size="compact"
 						title="Open component docs"
 						onClick={openDocumentationLink}
 					>
 						{componentName}
+						<svg
+							aria-hidden="true"
+							viewBox="0 0 16 16"
+							style={externalTabIndicatorStyle}
+						>
+							<path
+								d="M4 12 12 4M6 4h6v6"
+								fill="none"
+								stroke={CURRENT_COLOR}
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="1.5"
+							/>
+						</svg>
 					</InspectorQuickAction>
 				) : (
 					<div style={subtitleStyle}>{componentName}</div>

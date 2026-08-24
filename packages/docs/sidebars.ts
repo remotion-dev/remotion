@@ -399,6 +399,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/gsap',
+			link: {
+				type: 'doc',
+				id: 'gsap/gsap-index',
+			},
+			items: ['gsap/use-gsap-timeline'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/install-whisper-cpp',
 			link: {
 				type: 'doc',

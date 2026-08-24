@@ -775,6 +775,19 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="regression-testing">
 				<Composition
+					id="suspense-loading-indicator-test"
+					lazyComponent={async () => {
+						await new Promise<void>((resolve) => {
+							setTimeout(resolve, 10_000);
+						});
+						return import('./SuspenseLoadingIndicatorTest');
+					}}
+					width={100}
+					height={100}
+					fps={30}
+					durationInFrames={30}
+				/>
+				<Composition
 					id="simple-img"
 					component={SimpleImg}
 					width={1080}
@@ -1912,6 +1925,88 @@ export const Index: React.FC = () => {
 						phoneColor: 'black',
 						textureType: 'offthreadvideo',
 					}}
+				/>
+			</Folder>
+			<Folder name="gsap">
+				<Composition
+					id="gsap-showcase"
+					lazyComponent={() => import('./Gsap/Showcase')}
+					durationInFrames={210}
+					fps={30}
+					width={1280}
+					height={720}
+				/>
+				<Composition
+					id="gsap-fps-24"
+					lazyComponent={() => import('./Gsap/OpacityFixture')}
+					durationInFrames={48}
+					fps={24}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-fps-30"
+					lazyComponent={() => import('./Gsap/OpacityFixture')}
+					durationInFrames={60}
+					fps={30}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-fps-60"
+					lazyComponent={() => import('./Gsap/OpacityFixture')}
+					durationInFrames={120}
+					fps={60}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-sequence"
+					lazyComponent={() => import('./Gsap/Sequence')}
+					durationInFrames={90}
+					fps={30}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-nested-sequence"
+					lazyComponent={() => import('./Gsap/NestedSequence')}
+					durationInFrames={100}
+					fps={30}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-surface"
+					lazyComponent={() => import('./Gsap/Surface')}
+					durationInFrames={75}
+					fps={30}
+					width={320}
+					height={180}
+				/>
+				<Composition
+					id="gsap-overlap"
+					lazyComponent={() => import('./Gsap/Overlap')}
+					durationInFrames={90}
+					fps={30}
+					width={320}
+					height={180}
+				/>
+				<Composition
+					id="gsap-same-property-overlap"
+					lazyComponent={() => import('./Gsap/SamePropertyOverlap')}
+					durationInFrames={60}
+					fps={30}
+					width={320}
+					height={120}
+				/>
+				<Composition
+					id="gsap-svg-root"
+					lazyComponent={() => import('./Gsap/SvgRoot')}
+					durationInFrames={60}
+					fps={30}
+					width={100}
+					height={100}
 				/>
 			</Folder>
 			<Folder name="lottie">

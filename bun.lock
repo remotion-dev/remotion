@@ -522,6 +522,7 @@
         "@remotion/fonts": "workspace:*",
         "@remotion/gif": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
+        "@remotion/gsap": "workspace:*",
         "@remotion/install-whisper-cpp": "workspace:*",
         "@remotion/lambda": "workspace:*",
         "@remotion/lambda-client": "workspace:*",
@@ -579,6 +580,7 @@
         "crawlchat-client": "1.2.1",
         "create-video": "workspace:*",
         "eslint": "catalog:",
+        "gsap": "3.15.0",
         "hls.js": "0.14.17",
         "https-proxy-agent": "7.0.6",
         "lottie-web": "5.13.0",
@@ -771,6 +773,7 @@
         "@remotion/fonts": "workspace:*",
         "@remotion/gif": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
+        "@remotion/gsap": "workspace:*",
         "@remotion/lambda": "workspace:*",
         "@remotion/lambda-client": "workspace:*",
         "@remotion/layout-utils": "workspace:*",
@@ -815,6 +818,7 @@
         "babel-loader": "8.2.2",
         "css-loader": "7.1.4",
         "dotenv": "17.3.1",
+        "gsap": "3.15.0",
         "hls.js": "0.14.17",
         "lottie-web": "5.13.0",
         "mediabunny": "catalog:",
@@ -908,6 +912,29 @@
         "postcss": "8.5.23",
       },
     },
+    "packages/gsap": {
+      "name": "@remotion/gsap",
+      "version": "4.0.516",
+      "dependencies": {
+        "remotion": "workspace:*",
+      },
+      "devDependencies": {
+        "@happy-dom/global-registrator": "14.5.1",
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+        "gsap": "3.15.0",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "peerDependencies": {
+        "gsap": ">=3.12.0 <4",
+        "react": ">=16.8.0",
+        "react-dom": ">=16.8.0",
+      },
+    },
     "packages/install-whisper-cpp": {
       "name": "@remotion/install-whisper-cpp",
       "version": "4.0.516",
@@ -961,9 +988,12 @@
         "@remotion/zod-types": "workspace:*",
         "@rspack/core": "1.7.11",
         "@types/node": "catalog:",
+        "@types/pngjs": "6.0.5",
         "@types/sharp": "0.28.6",
         "create-video": "workspace:*",
         "execa": "5.1.1",
+        "pixelmatch": "7.1.0",
+        "pngjs": "7.0.0",
         "postcss": "8.5.23",
         "postcss-loader": "7.3.4",
         "postcss-size": "5.0.0",
@@ -4380,6 +4410,8 @@
 
     "@remotion/google-fonts": ["@remotion/google-fonts@workspace:packages/google-fonts"],
 
+    "@remotion/gsap": ["@remotion/gsap@workspace:packages/gsap"],
+
     "@remotion/install-whisper-cpp": ["@remotion/install-whisper-cpp@workspace:packages/install-whisper-cpp"],
 
     "@remotion/it-tests": ["@remotion/it-tests@workspace:packages/it-tests"],
@@ -5297,6 +5329,8 @@
     "@types/offscreencanvas": ["@types/offscreencanvas@2019.7.0", "", {}, "sha512-PGcyveRIpL1XIqK8eBsmRBt76eFgtzuPiSTyKHZxnGemp2yzGzWpjYKAfK3wIMiU7eH+851yEpiuP8JZerTmWg=="],
 
     "@types/opentype.js": ["@types/opentype.js@1.3.4", "", {}, "sha512-6fbXi67I07ugNM+FExwJnfuui2hD7hraD6nqjr3UnqsbBpxSkrtmO6tBubPdNAjqRT9TVkquVkNS9IkgTtq6/w=="],
+
+    "@types/pngjs": ["@types/pngjs@6.0.5", "", { "dependencies": { "@types/node": "*" } }, "sha512-0k5eKfrA83JOZPppLtS2C7OUtyNAl2wKNxfyYl9Q5g9lPkgBl/9hNyAu6HuEH2J4XmIv2znEpkDd0SaZVxW6iQ=="],
 
     "@types/prettier": ["@types/prettier@2.7.2", "", {}, "sha512-KufADq8uQqo1pYKVIYzfKbJfBAc0sOeXqGbFaSpv8MRmC/zXgowNZmFcbngndGk922QDmOASEXUZCaY48gs4cg=="],
 
@@ -6587,6 +6621,8 @@
     "graphql": ["graphql@16.12.0", "", {}, "sha512-DKKrynuQRne0PNpEbzuEdHlYOMksHSUI8Zc9Unei5gTsMNA2/vMpoMz/yKba50pejK56qj98qM0SjYxAKi13gQ=="],
 
     "gray-matter": ["gray-matter@4.0.3", "", { "dependencies": { "js-yaml": "3.14.1", "kind-of": "6.0.3", "section-matter": "1.0.0", "strip-bom-string": "1.0.0" } }, "sha512-5v6yZd4JK3eMI3FqqCouswVqwugaA9r4dNZB1wwcmrD02QkV5H0y7XBQW8QwQqEaZY1pM9aqORSORhJRdNK44Q=="],
+
+    "gsap": ["gsap@3.15.0", "", {}, "sha512-dMW4CWBTUK1AEEDeZc1g4xpPGIrSf9fJF960qbTZmN/QwZIWY5wgliS6JWl9/25fpTGJrMRtSjGtOmPnfjZB+A=="],
 
     "gtoken": ["gtoken@6.1.2", "", { "dependencies": { "gaxios": "5.1.0", "google-p12-pem": "4.0.1", "jws": "4.0.0" } }, "sha512-4ccGpzz7YAr7lxrT2neugmXQ3hP9ho2gcaityLVkiUecAiwiy60Ii8gRbZeOsXV19fYaRjgBSshs8kXw+NKCPQ=="],
 
@@ -10460,6 +10496,10 @@
 
     "@remotion/gif/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
 
+    "@remotion/gsap/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
+
+    "@remotion/gsap/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
+
     "@remotion/jonnys-videos/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
 
     "@remotion/jonnys-videos/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
@@ -11061,6 +11101,8 @@
     "@types/mute-stream/@types/node": ["@types/node@24.12.0", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-GYDxsZi3ChgmckRT9HPU0WEhKLP08ev/Yfcq2AstjrDASOYCSXeyjDsHg4v5t4jOj7cyDX3vmprafKlWIG9MXQ=="],
 
     "@types/nlcst/@types/unist": ["@types/unist@2.0.6", "", {}, "sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ=="],
+
+    "@types/pngjs/@types/node": ["@types/node@24.12.0", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-GYDxsZi3ChgmckRT9HPU0WEhKLP08ev/Yfcq2AstjrDASOYCSXeyjDsHg4v5t4jOj7cyDX3vmprafKlWIG9MXQ=="],
 
     "@types/react-native/@types/react": ["@types/react@19.0.0", "", { "dependencies": { "csstype": "3.1.3" } }, "sha512-MY3oPudxvMYyesqs/kW1Bh8y9VqSmf+tzqw3ae8a9DZW68pUe3zAdHeI1jc6iAysuRdACnVknHP8AhwD4/dxtg=="],
 
@@ -16305,6 +16347,8 @@
     "@types/keyv/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
 
     "@types/mute-stream/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
+
+    "@types/pngjs/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
 
     "@types/react-native/@types/react/csstype": ["csstype@3.1.3", "", {}, "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw=="],
 

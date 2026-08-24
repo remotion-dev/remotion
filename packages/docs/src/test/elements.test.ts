@@ -352,6 +352,20 @@ describe('Element library', () => {
 				`<ElementLibrary category="${section.category}" />`,
 			);
 
+			if (section.category === 'backgrounds') {
+				const backgroundNames = [
+					'Notebook Paper',
+					'Paper Texture',
+					'Rotating Starburst',
+					'Liquid Contours',
+				];
+				for (let index = 1; index < backgroundNames.length; index++) {
+					expect(
+						categoryMarkup.indexOf(backgroundNames[index - 1]),
+					).toBeLessThan(categoryMarkup.indexOf(backgroundNames[index]));
+				}
+			}
+
 			for (const definition of elementDefinitionList) {
 				if (definition.category === section.category) {
 					expect(categoryMarkup).toContain(definition.displayName);
