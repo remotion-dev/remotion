@@ -199,6 +199,7 @@ export const SidebarCollapserControl: React.FC<{
 				variant={null}
 				onClick={toggleLeft}
 				renderAction={toggleLeftAction}
+				style={{marginRight: 4}}
 				unhoveredColor={WHITE_ALPHA_80}
 			/>
 		);
