@@ -1276,12 +1276,15 @@ const TimelineSequenceItemInner: React.FC<{
 					onSaveName={onSaveName}
 				/>
 				{hasExpandableContent && nodePathInfo !== null ? (
-					<TimelineSequenceExpandArrow
-						disabled={!previewInteractive}
-						isExpanded={isExpanded}
-						nodePathInfo={nodePathInfo}
-						sequence={sequence}
-					/>
+					<>
+						<Spacing x={0.5} />
+						<TimelineSequenceExpandArrow
+							disabled={!previewInteractive}
+							isExpanded={isExpanded}
+							nodePathInfo={nodePathInfo}
+							sequence={sequence}
+						/>
+					</>
 				) : null}
 				{numberOfHiddenDuplicates > 0 ? (
 					<>
