@@ -1,27 +1,20 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import React, {useCallback} from 'react';
-import {
-	LIGHT_TEXT,
-	SELECTED_BACKGROUND,
-	TRANSPARENT,
-	WHITE,
-	getBackgroundFromHoverState,
-} from '../helpers/colors';
+import {LIGHT_TEXT, SELECTED_BACKGROUND, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import {openInCodingAgent} from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
 import {ClipboardIcon} from '../icons/clipboard';
 import type {ModalState} from '../state/modals';
-import {useZIndex} from '../state/z-index';
 import {CodingAgentIcon} from './CodingAgentIcon';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
-import {InlineDropdown} from './InlineDropdown';
 import {ModalFooterContainer} from './ModalFooter';
 import {ModalHeader} from './ModalHeader';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {showNotification} from './Notifications/NotificationCenter';
+import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
 import {useSettings} from './SettingsContext';
 
 const panelStyle: React.CSSProperties = {
@@ -75,39 +68,14 @@ const footer: React.CSSProperties = {
 	justifyContent: 'flex-end',
 };
 
-const splitButton: React.CSSProperties = {
-	alignItems: 'center',
-	borderRadius: 4,
-	display: 'inline-flex',
-	flexDirection: 'row',
-	gap: 1,
-	height: 24,
-	overflow: 'hidden',
-};
-
-const mainButtonBase: React.CSSProperties = {
-	alignItems: 'center',
-	background: TRANSPARENT,
-	border: 'none',
-	borderRadius: '4px 0 0 4px',
-	color: LIGHT_TEXT,
-	display: 'inline-flex',
-	fontFamily: 'sans-serif',
-	fontSize: 12,
+const mainSegmentStyle: React.CSSProperties = {
 	gap: 6,
-	height: 24,
 	padding: '0 9px',
-	whiteSpace: 'nowrap',
 };
 
-const singleButton: React.CSSProperties = {
-	borderRadius: 4,
-};
-
-const dropdownButton: React.CSSProperties = {
-	borderRadius: '0 4px 4px 0',
-	height: 24,
-	width: 24,
+const dropdownSegmentStyle: React.CSSProperties = {
+	padding: 0,
+	width: 20,
 };
 
 const menuLabel: React.CSSProperties = {
@@ -126,8 +94,6 @@ export const FixComputedValueModal: React.FC<{
 	readonly state: FixComputedValueModalState;
 }> = ({state}) => {
 	const {codingAgentInfo} = useSettings();
-	const {tabIndex} = useZIndex();
-	const [hovered, setHovered] = React.useState(false);
 	const prompt = `/remotion-interactivity ${state.context} make "${state.prop}" interactive`;
 	const installCommand = 'npx remotion skills add';
 	const installedCodingAgents = codingAgentInfo?.installedCodingAgents ?? [];
@@ -190,21 +156,61 @@ export const FixComputedValueModal: React.FC<{
 		}));
 	}, [alternativeCodingAgents, openWithCodingAgent]);
 
-	const renderDropdownAction: RenderInlineAction = useCallback((color) => {
-		return <CaretDown color={color} small />;
-	}, []);
+	const segments = React.useMemo((): SegmentedButtonSegment[] => {
+		if (!defaultCodingAgent) {
+			return [];
+		}
 
-	const mainButtonStyle = React.useMemo((): React.CSSProperties => {
-		return {
-			...mainButtonBase,
-			...(alternativeCodingAgents.length === 0 ? singleButton : null),
-			background: getBackgroundFromHoverState({
-				hovered,
-				selected: false,
-			}),
-			color: hovered ? WHITE : LIGHT_TEXT,
-		};
-	}, [alternativeCodingAgents.length, hovered]);
+		return [
+			{
+				ariaLabel: `Open in ${defaultCodingAgent.nameWithType}`,
+				buttonId: null,
+				disabled: false,
+				idleColor: LIGHT_TEXT,
+				onClick: () => {
+					openWithCodingAgent(
+						defaultCodingAgent.id,
+						defaultCodingAgent.nameWithType,
+					).catch(() => undefined);
+				},
+				onPointerDown: null,
+				renderContent: () => (
+					<>
+						<CodingAgentIcon codingAgentId={defaultCodingAgent.id} size={18} />
+						Open in {defaultCodingAgent.name}
+					</>
+				),
+				segmentId: 'default-coding-agent',
+				style: mainSegmentStyle,
+				title: `Open in ${defaultCodingAgent.nameWithType}`,
+				type: 'action',
+			},
+			...(alternativeCodingAgents.length > 0
+				? [
+						{
+							ariaLabel: 'Open in another coding agent',
+							buttonId: null,
+							disabled: false,
+							idleColor: LIGHT_TEXT,
+							leaveLeftSpace: true,
+							onOpenChange: null,
+							renderContent: (color: string) => <CaretDown color={color} />,
+							segmentId: 'another-coding-agent',
+							selectedId: null,
+							style: dropdownSegmentStyle,
+							title: 'Open in another coding agent',
+							type: 'menu' as const,
+							values: agentMenuItems,
+						},
+					]
+				: []),
+		];
+	}, [
+		agentMenuItems,
+		alternativeCodingAgents.length,
+		defaultCodingAgent,
+		openWithCodingAgent,
+	]);
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
@@ -246,40 +252,7 @@ export const FixComputedValueModal: React.FC<{
 			</div>
 			{defaultCodingAgent ? (
 				<ModalFooterContainer style={footer}>
-					<div
-						style={splitButton}
-						onPointerEnter={() => setHovered(true)}
-						onPointerLeave={() => setHovered(false)}
-					>
-						<button
-							aria-label={`Open in ${defaultCodingAgent.nameWithType}`}
-							onClick={() => {
-								openWithCodingAgent(
-									defaultCodingAgent.id,
-									defaultCodingAgent.nameWithType,
-								).catch(() => undefined);
-							}}
-							style={mainButtonStyle}
-							tabIndex={tabIndex}
-							title={`Open in ${defaultCodingAgent.nameWithType}`}
-							type="button"
-						>
-							<CodingAgentIcon
-								codingAgentId={defaultCodingAgent.id}
-								size={18}
-							/>
-							Open in {defaultCodingAgent.name}
-						</button>
-						{alternativeCodingAgents.length > 0 ? (
-							<InlineDropdown
-								renderAction={renderDropdownAction}
-								style={dropdownButton}
-								title="Open in another coding agent"
-								values={agentMenuItems}
-								variant={null}
-							/>
-						) : null}
-					</div>
+					<SegmentedButton segments={segments} style={null} title={null} />
 				</ModalFooterContainer>
 			) : null}
 		</DismissableModal>

@@ -94,10 +94,9 @@ test('detects project and global Remotion skill versions without a lockfile', ()
 				homeDirectory,
 			}).project,
 		).toEqual({
-			type: 'outdated',
+			type: 'up-to-date',
 			scope: 'project',
 			skillsDirectory: projectSkillsDirectory,
-			outdatedSkillNames: remotionSkillNames.slice(1),
 		});
 
 		for (const skillName of remotionSkillNames) {

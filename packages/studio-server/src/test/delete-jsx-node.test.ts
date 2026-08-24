@@ -139,6 +139,7 @@ test('deleteJsxNodes removes multiple JSX children in one transform', async () =
 			lineColumnToNodePath(multipleSiblings, 7),
 			lineColumnToNodePath(multipleSiblings, 8),
 		],
+		onFormatFile: null,
 	});
 
 	expect(output).not.toContain('<div');

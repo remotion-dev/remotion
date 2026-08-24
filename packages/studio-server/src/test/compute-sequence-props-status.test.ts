@@ -218,6 +218,67 @@ export const Example = () => {
 	});
 });
 
+// https://github.com/remotion-dev/remotion/issues/10717
+// Props passed via a JSX spread are invisible to the parser. Reporting them as
+// static(undefined) made the Studio delete the runtime values of `from` /
+// `durationInFrames`, mounting every <Sequence> at every frame.
+test('computeSequencePropsStatus should treat props that a spread attribute may override as computed', () => {
+	const input = `import {Sequence} from 'remotion';
+
+export const Example = ({timing}: {timing: {from: number; durationInFrames: number}}) => {
+	return (
+		<>
+			<Sequence from={10} {...timing} name="Scene" style={{opacity: 0.5}}>
+				<div />
+			</Sequence>
+			<Sequence {...timing} />
+		</>
+	);
+};
+`;
+	const spreadMayOverride = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: null,
+		keys: ['from', 'durationInFrames', 'name', 'style.opacity'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(spreadMayOverride.props).toEqual({
+		// Written before the spread, so the spread may override it
+		from: {status: 'computed'},
+		// Only provided by the spread
+		durationInFrames: {status: 'computed'},
+		// Written after the spread, so they win at runtime and stay editable
+		name: {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 'Scene',
+		},
+		'style.opacity': {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: 0.5,
+		},
+	});
+
+	const spreadMayProvide = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 9),
+		componentIdentity: null,
+		keys: ['from', 'children'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	// With an empty element body, the spread may provide both props
+	expect(spreadMayProvide.props).toEqual({
+		from: {status: 'computed'},
+		children: {status: 'computed'},
+	});
+});
+
 test('computeSequencePropsStatus should parse video config numeric expressions', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';

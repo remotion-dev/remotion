@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/studio-codemods",
-	"version": "4.0.515",
+	"version": "4.0.516",
 	"description": "Shared codemods for Remotion Studio",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
@@ -28,7 +28,7 @@
 		"@babel/types": "7.24.0",
 		"@remotion/studio-shared": "workspace:*",
 		"ast-types": "0.16.1",
-		"recast": "0.23.11",
+		"recast": "0.23.21",
 		"remotion": "workspace:*"
 	},
 	"exports": {

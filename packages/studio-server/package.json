@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-server"
 	},
 	"name": "@remotion/studio-server",
-	"version": "4.0.515",
+	"version": "4.0.516",
 	"description": "Run a Remotion Studio with a server backend",
 	"main": "dist",
 	"scripts": {
@@ -33,7 +33,7 @@
 		"zod": "catalog:",
 		"prettier": "catalog:",
 		"remotion": "workspace:*",
-		"recast": "0.23.11",
+		"recast": "0.23.21",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-codemods": "workspace:*",
