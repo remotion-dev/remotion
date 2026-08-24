@@ -24,7 +24,12 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/player": "workspace:*",
 		"remotion": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"exports": {
 		"./package.json": "./package.json",
@@ -36,9 +41,13 @@
 		}
 	},
 	"devDependencies": {
+		"@happy-dom/global-registrator": "14.5.1",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@testing-library/react": "16.1.0",
 		"@typescript/native-preview": "catalog:",
-		"eslint": "catalog:"
+		"eslint": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:"
 	},
 	"keywords": [
 		"remotion",

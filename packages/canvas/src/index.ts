@@ -1,3 +1,7 @@
+export {Canvas} from './canvas';
+export type {CanvasProps} from './canvas';
+export {createCanvasController, useCanvasController} from './canvas-controller';
+export type {CanvasController} from './canvas-controller';
 export {calculateTimeline} from './calculate-timeline';
 export type {
 	SequenceNodePathInfo,

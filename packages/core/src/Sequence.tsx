@@ -30,7 +30,10 @@ import {
 } from './sequence-crop.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
-import {SequenceManager} from './SequenceManager.js';
+import {
+	SequenceManager,
+	SequenceRegistrationContext,
+} from './SequenceManager.js';
 import {IsInsideSeriesContext} from './series/is-inside-series.js';
 import {useTimelinePosition} from './timeline-position-state.js';
 import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
@@ -293,6 +296,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const wrapperRefForOutline = useRef<HTMLDivElement | null>(null);
 	const refForOutline =
 		other.layout === 'none'
@@ -457,7 +461,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		]);
 
 	useEffect(() => {
-		if (!env.isStudio) {
+		if (!env.isStudio && !sequenceRegistrationEnabled) {
 			return;
 		}
 
@@ -570,6 +574,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		premountDisplay,
 		postmountDisplay,
 		env.isStudio,
+		sequenceRegistrationEnabled,
 		registrationControls,
 		_remotionInternalEffects,
 		effectRuntimeValues,
