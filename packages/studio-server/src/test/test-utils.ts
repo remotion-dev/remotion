@@ -43,12 +43,20 @@ export const lineContainingToNodePath = (
 	input: string,
 	search: string,
 ): SequenceNodePath => {
-	const line = input
-		.split('\n')
-		.findIndex((sourceLine) => sourceLine.includes(search));
+	const sourceLines = input.split('\n');
+	const line = sourceLines.findIndex((sourceLine) =>
+		sourceLine.includes(search),
+	);
 	if (line === -1) {
 		throw new Error(`Could not find ${JSON.stringify(search)} in source`);
 	}
 
-	return lineColumnToNodePath(input, line + 1);
+	const ast = parseAst(input);
+	const column = sourceLines[line].indexOf(search);
+	const result = _lineColumnToNodePath(ast, line + 1, column, input);
+	if (!result) {
+		throw new Error(`No JSX element found for ${JSON.stringify(search)}`);
+	}
+
+	return result;
 };

@@ -16,7 +16,6 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
@@ -68,17 +67,10 @@ export const deleteJsxNodeHandler: ApiHandler<
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
 
-					const {output, formatted, nodeLabels, logLines, nodePathRemappings} =
+					const {output, nodeLabels, logLines, nodePathRemappings} =
 						await deleteJsxNodes({
 							input: fileContents,
 							nodePaths: fileItems.map((item) => item.nodePath),
-							onFormatFile: (stage) => {
-								logHmrTiming({
-									detail: `file=${fileRelativeToRoot}`,
-									logLevel,
-									stage: `source-file-format-${stage}`,
-								});
-							},
 						});
 
 					return {
@@ -86,7 +78,6 @@ export const deleteJsxNodeHandler: ApiHandler<
 						fileRelativeToRoot,
 						fileContents,
 						output,
-						formatted,
 						nodeLabels,
 						nodePathRemappings,
 						logLine: Math.min(...logLines),
@@ -153,13 +144,9 @@ export const deleteJsxNodeHandler: ApiHandler<
 					{indent: false, logLevel},
 					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Deleted ${deletedNodeDescription}`,
 				);
-				if (!update.formatted) {
-					warnAboutPrettierOnce(logLevel);
-				}
-
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
-					`[delete-jsx-node] Wrote ${update.fileRelativeToRoot}${update.formatted ? ' (formatted)' : ''}`,
+					`[delete-jsx-node] Wrote ${update.fileRelativeToRoot}`,
 				);
 			}
 

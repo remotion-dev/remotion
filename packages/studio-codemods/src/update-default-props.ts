@@ -1,5 +1,6 @@
 import {stringifyDefaultProps, type EnumPath} from '@remotion/studio-shared';
 import * as recast from 'recast';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {parseAst} from './sequence-props/parse-ast';
 
 export type FormatInline = (options: {
@@ -85,35 +86,6 @@ export const formatInlineContentWithFormatter = async ({
 		.join('\n');
 
 	return {formatted: indentedProps, didFormat: true};
-};
-
-// Recast uses tabWidth=4 for column counting, so columns don't
-// correspond to character indices when tabs are present.
-// This converts a recast loc (line/column) to a character offset.
-const RECAST_TAB_WIDTH = 4;
-
-const recastLocToOffset = (
-	input: string,
-	loc: {line: number; column: number},
-): number => {
-	const lines = input.split('\n');
-	let offset = 0;
-	for (let i = 0; i < loc.line - 1; i++) {
-		offset += lines[i].length + 1;
-	}
-
-	// Convert recast's tab-expanded column to character index
-	const line = lines[loc.line - 1];
-	let col = 0;
-	for (let i = 0; i < line.length; i++) {
-		if (col >= loc.column) {
-			return offset + i;
-		}
-
-		col += line[i] === '\t' ? RECAST_TAB_WIDTH : 1;
-	}
-
-	return offset + line.length;
 };
 
 export const updateDefaultProps = async ({
