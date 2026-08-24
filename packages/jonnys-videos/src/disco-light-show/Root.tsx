@@ -1,4 +1,4 @@
-import {Composition, Folder} from 'remotion';
+import {Composition} from 'remotion';
 import {
 	AnimatedCaptions,
 	CAPTIONS_DURATION_IN_FRAMES,
@@ -24,29 +24,16 @@ import {DiscoBallBg} from './DiscoBallBg';
 import {DragIn} from './DragIn';
 import {DragInDemo} from './DragInDemo';
 import {EffectShow} from './EffectShow';
-import {
-	FIRST_CUSTOMER_CHART_DURATION_IN_FRAMES,
-	FirstCustomerChart,
-} from './FirstCustomerChart';
 import {Fork} from './Fork';
 import {ForkDrop} from './ForkDrop';
-import {FreeMaster} from './FreeMaster';
 import {HuggingFace} from './HuggingFace';
 import {MasterWithEffect} from './MasterWithEffect';
 import {Mediabunny} from './Mediabunny';
 import {OneShot} from './OneShot';
-import {
-	PREMIUM_VERSION_DURATION_IN_FRAMES,
-	PremiumVersion,
-} from './PremiumVersion';
 import {Separate} from './Separate';
 import {Setup} from './Setup';
 import {TextBehindVideoSeriesFirst20s} from './TextBehindVideoSeriesFirst20s';
 import {TextBehindVideoStack} from './TextBehindVideoStack';
-import {
-	UNRULY_OUTCOME_DURATION_IN_FRAMES,
-	UnrulyOutcome,
-} from './UnrulyOutcome';
 import {VibeCoded} from './VibeCoded';
 
 export const DiscoLightShowRoot: React.FC = () => {
@@ -263,40 +250,6 @@ export const DiscoLightShowRoot: React.FC = () => {
 				width={1080}
 				height={1920}
 			/>
-			<Folder name="HowIsRemotionFree">
-				<Composition
-					id="FirstCustomerChart"
-					component={FirstCustomerChart}
-					durationInFrames={FIRST_CUSTOMER_CHART_DURATION_IN_FRAMES}
-					fps={30}
-					width={1080}
-					height={1920}
-				/>
-				<Composition
-					id="PremiumVersion"
-					component={PremiumVersion}
-					durationInFrames={PREMIUM_VERSION_DURATION_IN_FRAMES}
-					fps={30}
-					width={1080}
-					height={1920}
-				/>
-				<Composition
-					id="UnrulyOutcome"
-					component={UnrulyOutcome}
-					durationInFrames={UNRULY_OUTCOME_DURATION_IN_FRAMES}
-					fps={30}
-					width={1080}
-					height={1920}
-				/>
-				<Composition
-					id="FreeMaster"
-					component={FreeMaster}
-					durationInFrames={1800}
-					fps={30}
-					width={1080}
-					height={1920}
-				/>
-			</Folder>
 		</>
 	);
 };

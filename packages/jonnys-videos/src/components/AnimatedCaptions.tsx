@@ -3,124 +3,87 @@ import {Audio} from '@remotion/media';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	AbsoluteFill,
-	Easing,
-	Interactive,
-	interpolate,
 	Sequence,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
-import {createSentenceAwareCaptionPages} from '../components/paginate-captions';
-import {asset} from './assets';
+import {createSentenceAwareCaptionPages} from './paginate-captions';
 
-export const BIG_WORD_CAPTIONS_DURATION_IN_FRAMES = 1816;
+export const CAPTIONS_HEIGHT = 360;
 
-const VOICEOVER_FILE = 'text-behind-video-2.wav';
-const CAPTIONS_FILE = 'voiceover-captions.json';
-const FONT_FAMILY = 'Arial Black, Arial, sans-serif';
+type AnimatedCaptionsProps = {
+	captionsSrc: string;
+	voiceoverSrc: string | null;
+};
+
 const SWITCH_CAPTIONS_EVERY_MS = 1100;
 const HIGHLIGHT_COLOR = '#ff3b1f';
 
-const BigWordPage: React.FC<{page: TikTokPage}> = ({page}) => {
+const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const absoluteTimeMs = page.startMs + (frame / fps) * 1000;
-	const longestWordLength = Math.max(
-		...page.tokens.map((token) => token.text.trim().length),
-		1,
-	);
-	const fontSize = Math.min(230, 920 / Math.max(longestWordLength * 0.72, 1));
 
 	return (
 		<AbsoluteFill
 			style={{
 				alignItems: 'center',
 				justifyContent: 'center',
-				overflow: 'hidden',
-				padding: 64,
+				padding: '42px 64px 48px',
 				pointerEvents: 'none',
 			}}
 		>
-			<Interactive.Div
-				name={`Caption page: ${page.text.trim()}`}
+			<div
 				style={{
-					alignItems: 'center',
-					display: 'flex',
-					flexDirection: 'column',
-					fontFamily: FONT_FAMILY,
+					textAlign: 'center',
+					fontFamily: 'Arial Black, Arial, sans-serif',
+					fontSize: 76,
 					fontWeight: 900,
-					justifyContent: 'center',
-					width: '100%',
-					textTransform: 'uppercase',
+					letterSpacing: -3.5,
+					lineHeight: 1.05,
+					textWrap: 'balance',
+					whiteSpace: 'pre-wrap',
+					filter:
+						'drop-shadow(0 8px 0 rgba(0, 0, 0, 0.82)) drop-shadow(0 16px 24px rgba(0, 0, 0, 0.55))',
 				}}
 			>
 				{page.tokens.map((token, tokenIndex) => {
-					const word = token.text.trim();
 					const isActive =
 						token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
-					const wordStartFrame = Math.round(
-						((token.fromMs - page.startMs) / 1000) * fps,
-					);
-
 					return (
-						<div
+						<span
 							key={`${token.fromMs}-${tokenIndex}`}
 							style={{
 								color: isActive ? HIGHLIGHT_COLOR : '#ffffff',
-								filter:
-									'drop-shadow(0 14px 0 rgba(0, 0, 0, 0.96)) drop-shadow(0 30px 34px rgba(0, 0, 0, 0.5))',
-								fontSize,
-								letterSpacing: -0.055 * fontSize,
-								lineHeight: 0.86,
-								maxWidth: 952,
-								opacity: interpolate(
-									frame,
-									[wordStartFrame, wordStartFrame + 1],
-									[0, 1],
-									{
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									},
-								),
-								scale: interpolate(
-									frame,
-									[wordStartFrame, wordStartFrame + 10],
-									[0.2, 1],
-									{
-										easing: Easing.spring({
-											damping: 11,
-											mass: 0.65,
-											stiffness: 210,
-										}),
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									},
-								),
-								textAlign: 'center',
-								transformOrigin: 'center center',
-								WebkitTextStroke: `${Math.max(3, fontSize * 0.018)}px black`,
-								whiteSpace: 'nowrap',
+								display: 'inline-block',
+								marginLeft: tokenIndex === 0 ? 0 : 26,
+								WebkitTextStroke: isActive
+									? '3px rgba(38, 4, 0, 0.95)'
+									: '2px rgba(0, 0, 0, 0.85)',
 							}}
 						>
-							{word}
-						</div>
+							{token.text.trimStart()}
+						</span>
 					);
 				})}
-			</Interactive.Div>
+			</div>
 		</AbsoluteFill>
 	);
 };
 
-export const AnimatedCaptionsBigWords: React.FC = () => {
+export const AnimatedCaptions: React.FC<AnimatedCaptionsProps> = ({
+	captionsSrc,
+	voiceoverSrc,
+}) => {
 	const [captions, setCaptions] = useState<Caption[] | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
-	const [handle] = useState(() => delayRender('Loading big word captions'));
+	const [handle] = useState(() => delayRender('Loading ElevenLabs captions'));
 	const {fps} = useVideoConfig();
 
 	const loadCaptions = useCallback(async () => {
 		try {
-			const response = await fetch(asset(CAPTIONS_FILE));
+			const response = await fetch(captionsSrc);
 			if (!response.ok) {
 				throw new Error(`Could not load captions (${response.status})`);
 			}
@@ -130,7 +93,7 @@ export const AnimatedCaptionsBigWords: React.FC = () => {
 		} catch (error) {
 			cancelRender(error);
 		}
-	}, [cancelRender, continueRender, handle]);
+	}, [cancelRender, captionsSrc, continueRender, handle]);
 
 	useEffect(() => {
 		loadCaptions();
@@ -153,7 +116,9 @@ export const AnimatedCaptionsBigWords: React.FC = () => {
 
 	return (
 		<AbsoluteFill>
-			<Audio src={asset(VOICEOVER_FILE)} hidden showInTimeline={false} />
+			{voiceoverSrc ? (
+				<Audio src={voiceoverSrc} hidden showInTimeline={false} />
+			) : null}
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];
 				const startFrame = Math.round((page.startMs / 1000) * fps);
@@ -171,13 +136,12 @@ export const AnimatedCaptionsBigWords: React.FC = () => {
 				return (
 					<Sequence
 						key={`${page.startMs}-${index}`}
-						name={`Caption page: ${page.text.trim()}`}
 						from={startFrame}
 						durationInFrames={durationInFrames}
 						premountFor={fps}
 						showInTimeline={false}
 					>
-						<BigWordPage page={page} />
+						<CaptionPage page={page} />
 					</Sequence>
 				);
 			})}
