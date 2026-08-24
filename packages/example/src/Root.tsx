@@ -213,6 +213,10 @@ import {AudioSmoothnessSlicedVideoComp} from './AudioSmoothness/SlicedVideo';
 import {AudioSmoothnessTrimAfterLoopComp} from './AudioSmoothness/TrimAfterLoop';
 import {AudioSmoothnessTrimButtonComp} from './AudioSmoothness/TrimButton';
 import Amplify from './AudioTesting/Amplify';
+import {
+	InlineAudioStress,
+	inlineAudioStressDefaultProps,
+} from './AudioTesting/InlineAudioStress';
 import {Issue7568} from './AudioTesting/Issue7568';
 import {
 	Issue10468,
@@ -1804,6 +1808,15 @@ export const Index: React.FC = () => {
 					fps={24.87}
 					durationInFrames={120}
 					defaultProps={issue5758DefaultProps}
+				/>
+				<Composition
+					id="inline-audio-stress"
+					component={InlineAudioStress}
+					width={16}
+					height={16}
+					fps={30}
+					durationInFrames={620}
+					defaultProps={inlineAudioStressDefaultProps}
 				/>
 				<Composition
 					id="audio-issue-7568"

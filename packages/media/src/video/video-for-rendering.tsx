@@ -109,6 +109,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	);
 	const startsAt = Internals.useMediaStartsAt();
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const startInVideo = sequenceContext
+		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
+		: 0;
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -393,6 +396,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 							? audio.data
 							: Array.from(audio.data),
 						frame: absoluteFrame,
+						startInVideo,
 						timestamp: audio.timestamp,
 						duration:
 							(audio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
@@ -432,6 +436,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		playbackRate,
 		registerRenderAsset,
 		src,
+		startInVideo,
 		startsAt,
 		unregisterRenderAsset,
 		volumeProp,
