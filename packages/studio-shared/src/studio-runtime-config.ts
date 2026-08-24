@@ -17,9 +17,15 @@ export type ConfigFileStudioSettings = {
 	readonly rspack: boolean | null;
 };
 
+export type StudioElementLibrary = {
+	readonly displayName: string | null;
+	readonly url: string;
+};
+
 export type StudioRuntimeConfig = {
 	readonly maxTimelineTracks: number | null;
 	readonly askAIEnabled: boolean;
+	readonly elementLibraries?: readonly StudioElementLibrary[];
 	readonly interactivityEnabled: boolean;
 	readonly keyboardShortcutsEnabled: boolean;
 	readonly bufferStateDelayInMilliseconds: number | null;

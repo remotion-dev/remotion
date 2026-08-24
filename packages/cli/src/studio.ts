@@ -163,6 +163,7 @@ export const studioCommand = async (
 			askAIEnabled: askAIOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			elementLibraries: ConfigInternals.getElementLibraries(),
 			interactivityEnabled: interactivityOption.getValue({
 				commandLine: parsedCli,
 			}).value,

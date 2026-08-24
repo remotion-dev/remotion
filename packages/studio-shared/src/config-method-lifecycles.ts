@@ -1,6 +1,7 @@
 import type {ConfigFileChangeType} from './config-file-change';
 
 export const configMethodLifecycles = {
+	addElementLibrary: 'runtime',
 	overrideBundlerConfig: 'restart',
 	overrideDuration: 'runtime',
 	overrideFfmpegCommand: 'runtime',

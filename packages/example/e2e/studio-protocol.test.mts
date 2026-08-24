@@ -78,6 +78,14 @@ export const MyComponent = () => {
 };
 `,
 	);
+	const externalLibraryUrl = 'https://external-elements.example.com/library';
+	const reloadedExternalLibraryUrl =
+		'https://second-elements.example.com/components';
+	const configFile = path.join(temporaryProject, 'remotion.config.ts');
+	fs.appendFileSync(
+		configFile,
+		`\nConfig.addElementLibrary('${externalLibraryUrl}', 'External Elements');\n`,
+	);
 	fs.rmSync(path.join(temporaryProject, 'node_modules'), {
 		force: true,
 		recursive: true,
@@ -162,10 +170,18 @@ export const MyComponent = () => {
 	}
 
 	const senderUrl = `http://127.0.0.1:${address.port}`;
-	const elementsLibraryRequests: string[] = [];
+	const officialLibraryRequests: string[] = [];
+	const externalLibraryRequests: string[] = [];
 	const context = await browser.newContext();
 	await context.route('https://www.remotion.dev/elements', async (route) => {
-		elementsLibraryRequests.push(route.request().url());
+		officialLibraryRequests.push(route.request().url());
+		await route.fulfill({
+			status: 302,
+			headers: {Location: senderUrl},
+		});
+	});
+	await context.route(externalLibraryUrl, async (route) => {
+		externalLibraryRequests.push(route.request().url());
 		await route.fulfill({
 			status: 302,
 			headers: {Location: senderUrl},
@@ -213,8 +229,44 @@ export const MyComponent = () => {
 		});
 		await expect(browseElements).toBeVisible();
 		await browseElements.click();
-		const elementsIframe = studioPage.locator(
+		const officialLibraryItem = studioPage.getByRole('button', {
+			name: 'Remotion Elements',
+			exact: true,
+		});
+		const externalLibraryLabel = 'External Elements';
+		const externalLibraryItem = studioPage.getByRole('button', {
+			name: externalLibraryLabel,
+			exact: true,
+		});
+		await expect(officialLibraryItem).toBeVisible();
+		await expect(externalLibraryItem).toBeVisible();
+		await officialLibraryItem.click();
+
+		const officialElementsIframe = studioPage.locator(
 			'iframe[title="Remotion Elements library"]',
+		);
+		await expect(officialElementsIframe).toBeVisible();
+		expect(officialLibraryRequests).toEqual([
+			'https://www.remotion.dev/elements',
+		]);
+		expect(context.pages()).toHaveLength(2);
+		await studioPage.keyboard.press('Escape');
+		await expect(officialElementsIframe).toHaveCount(0);
+
+		fs.appendFileSync(
+			configFile,
+			`Config.addElementLibrary('${reloadedExternalLibraryUrl}');\n`,
+		);
+		await browseElements.click();
+		await expect(
+			studioPage.getByRole('button', {
+				name: 'second-elements.example.com/components',
+				exact: true,
+			}),
+		).toBeVisible({timeout: 30_000});
+		await externalLibraryItem.click();
+		const elementsIframe = studioPage.locator(
+			`iframe[title="${externalLibraryLabel} library"]`,
 		);
 		await expect(elementsIframe).toBeVisible();
 		await expect(elementsIframe).toHaveAttribute(
@@ -222,12 +274,10 @@ export const MyComponent = () => {
 			'local-network-access; loopback-network',
 		);
 		await expect(elementsIframe).toHaveAttribute('credentialless', '');
+		expect(externalLibraryRequests).toEqual([externalLibraryUrl]);
 		expect(context.pages()).toHaveLength(2);
-		expect(elementsLibraryRequests).toEqual([
-			'https://www.remotion.dev/elements',
-		]);
 		const elementsFrame = studioPage.frameLocator(
-			'iframe[title="Remotion Elements library"]',
+			`iframe[title="${externalLibraryLabel} library"]`,
 		);
 		const installInStudio = elementsFrame.getByRole('button', {
 			name: 'Install in Studio',
