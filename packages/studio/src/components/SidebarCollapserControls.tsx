@@ -4,7 +4,6 @@ import {
 	BORDER_CURRENT_COLOR,
 	CURRENT_COLOR,
 	TRANSPARENT,
-	WHITE_ALPHA_80,
 } from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
@@ -200,7 +199,6 @@ export const SidebarCollapserControl: React.FC<{
 				onClick={toggleLeft}
 				renderAction={toggleLeftAction}
 				style={{marginRight: 4}}
-				unhoveredColor={WHITE_ALPHA_80}
 			/>
 		);
 	}
@@ -210,7 +208,6 @@ export const SidebarCollapserControl: React.FC<{
 			variant={null}
 			onClick={toggleRight}
 			renderAction={toggleRightAction}
-			unhoveredColor={WHITE_ALPHA_80}
 		/>
 	);
 };
