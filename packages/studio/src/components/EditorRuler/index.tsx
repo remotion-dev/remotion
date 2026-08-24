@@ -6,7 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
+import {BACKGROUND, WHITE_ALPHA_15} from '../../helpers/colors';
 import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
 import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
@@ -33,8 +33,7 @@ const originBlockStyles: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	left: 0,
-	borderBottom: '1px solid ' + RULER_COLOR,
-	borderRight: '1px solid ' + RULER_COLOR,
+	boxShadow: `inset -1px -1px 0 ${WHITE_ALPHA_15}`,
 	width: `${RULER_WIDTH}px`,
 	height: `${RULER_WIDTH}px`,
 	background: BACKGROUND,
@@ -272,7 +271,6 @@ export const EditorRulers: React.FC<{
 
 	return (
 		<>
-			<div style={originBlockStyles} />
 			<Ruler
 				orientation="horizontal"
 				scale={scale}
@@ -293,6 +291,7 @@ export const EditorRulers: React.FC<{
 				size={canvasSize}
 				onPointerSessionStart={onPointerSessionStart}
 			/>
+			<div style={originBlockStyles} />
 		</>
 	);
 };
