@@ -7,7 +7,7 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
+import {BACKGROUND, SHADOW_BLACK} from '../../helpers/colors';
 import {getRulerGuideHighlight} from '../../helpers/editor-guide-selection';
 import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
 import {getRulerCanvasSize} from '../../helpers/ruler-canvas-size';
@@ -119,8 +119,7 @@ const Ruler: React.FC<RulerProps> = ({
 			height: rulerHeight,
 			left: isVerticalRuler ? 0 : 'unset',
 			top: isVerticalRuler ? 'unset' : 0,
-			borderBottom: isVerticalRuler ? undefined : '1px solid ' + RULER_COLOR,
-			borderRight: isVerticalRuler ? '1px solid ' + RULER_COLOR : undefined,
+			boxShadow: SHADOW_BLACK,
 			cursor,
 		}),
 		[rulerWidth, rulerHeight, cursor, isVerticalRuler],
