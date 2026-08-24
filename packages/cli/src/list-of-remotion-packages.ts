@@ -36,6 +36,7 @@ export const listOfRemotionPackages = [
 	'@remotion/fonts',
 	'@remotion/gif',
 	'@remotion/google-fonts',
+	'@remotion/gsap',
 	'@remotion/install-whisper-cpp',
 	'@remotion/it-tests',
 	'@remotion/react18-tests',

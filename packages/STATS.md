@@ -29,6 +29,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/fonts.svg?style=flat&color=black&label=@remotion/fonts)](https://npmcharts.com/compare/@remotion/fonts?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/gif.svg?style=flat&color=black&label=@remotion/gif)](https://npmcharts.com/compare/@remotion/gif?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/google-fonts.svg?style=flat&color=black&label=@remotion/google-fonts)](https://npmcharts.com/compare/@remotion/google-fonts?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/gsap.svg?style=flat&color=black&label=@remotion/gsap)](https://npmcharts.com/compare/@remotion/gsap?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/install-whisper-cpp.svg?style=flat&color=black&label=@remotion/install-whisper-cpp)](https://npmcharts.com/compare/@remotion/install-whisper-cpp?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/lambda.svg?style=flat&color=black&label=@remotion/lambda)](https://npmcharts.com/compare/@remotion/lambda?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/layout-utils.svg?style=flat&color=black&label=@remotion/layout-utils)](https://npmcharts.com/compare/@remotion/layout-utils?minimal=true)  

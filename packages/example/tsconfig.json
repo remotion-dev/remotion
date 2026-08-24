@@ -25,6 +25,7 @@
 		{"path": "../gif"},
 		{"path": "../fonts"},
 		{"path": "../lambda"},
+		{"path": "../gsap"},
 		{"path": "../lottie"},
 		{"path": "../media-utils"},
 		{"path": "../motion-blur"},
