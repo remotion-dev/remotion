@@ -7,7 +7,7 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 
-export const FIRST_CUSTOMER_CHART_DURATION_IN_FRAMES = 174;
+export const FIRST_CUSTOMER_CHART_DURATION_IN_FRAMES = 221;
 
 const FONT_FAMILY =
 	"Noteworthy, 'Bradley Hand', 'Marker Felt', 'Comic Sans MS', cursive";
@@ -64,7 +64,7 @@ export const FirstCustomerChart: React.FC = () => {
 				style={{
 					height: 790,
 					left: 52,
-					opacity: interpolate(frame, [0, 7, 164, 173], [0, 1, 1, 0], {
+					opacity: interpolate(frame, [0, 7, 211, 220], [0, 1, 1, 0], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					}),
@@ -108,7 +108,7 @@ export const FirstCustomerChart: React.FC = () => {
 						fontWeight: 700,
 						letterSpacing: -1.8,
 						lineHeight: 1,
-						opacity: interpolate(frame, [33, 42], [0, 1], {
+						opacity: interpolate(frame, [42, 51], [0, 1], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						}),
@@ -136,13 +136,13 @@ export const FirstCustomerChart: React.FC = () => {
 						<clipPath id="june-bar-reveal">
 							<rect
 								x={760}
-								y={interpolate(frame, [69, 91], [410, 40], {
+								y={interpolate(frame, [107, 129], [410, 40], {
 									easing: Easing.bezier(0.16, 1, 0.3, 1),
 									extrapolateLeft: 'clamp',
 									extrapolateRight: 'clamp',
 								})}
 								width={210}
-								height={interpolate(frame, [69, 91], [0, 370], {
+								height={interpolate(frame, [107, 129], [0, 370], {
 									easing: Easing.bezier(0.16, 1, 0.3, 1),
 									extrapolateLeft: 'clamp',
 									extrapolateRight: 'clamp',
@@ -212,7 +212,7 @@ export const FirstCustomerChart: React.FC = () => {
 						pathLength={1}
 						stroke="#ff674f"
 						strokeDasharray={1}
-						strokeDashoffset={interpolate(frame, [91, 105], [1, 0], {
+						strokeDashoffset={interpolate(frame, [129, 143], [1, 0], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						})}
@@ -226,7 +226,7 @@ export const FirstCustomerChart: React.FC = () => {
 						pathLength={1}
 						stroke="rgba(255, 103, 79, 0.46)"
 						strokeDasharray={1}
-						strokeDashoffset={interpolate(frame, [96, 108], [1, 0], {
+						strokeDashoffset={interpolate(frame, [134, 146], [1, 0], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						})}
@@ -239,7 +239,7 @@ export const FirstCustomerChart: React.FC = () => {
 						pathLength={1}
 						stroke="#ff674f"
 						strokeDasharray={1}
-						strokeDashoffset={interpolate(frame, [99, 112], [1, 0], {
+						strokeDashoffset={interpolate(frame, [137, 150], [1, 0], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						})}
@@ -315,7 +315,7 @@ export const FirstCustomerChart: React.FC = () => {
 						fontSize: 49,
 						fontWeight: 700,
 						left: 770,
-						opacity: interpolate(frame, [85, 94], [0, 1], {
+						opacity: interpolate(frame, [123, 132], [0, 1], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						}),
@@ -336,7 +336,7 @@ export const FirstCustomerChart: React.FC = () => {
 						fontSize: 38,
 						fontWeight: 700,
 						left: 788,
-						opacity: interpolate(frame, [73, 82], [0, 1], {
+						opacity: interpolate(frame, [111, 120], [0, 1], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						}),
