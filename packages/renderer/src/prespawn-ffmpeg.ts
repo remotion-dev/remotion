@@ -1,4 +1,5 @@
 import type {_InternalTypes} from 'remotion';
+import type {OnLog} from './browser/BrowserPage';
 import {callFf} from './call-ffmpeg';
 import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
@@ -60,6 +61,7 @@ type PreStitcherOptions = {
 	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	onLog: OnLog;
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
@@ -99,6 +101,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		crf: options.crf,
 		encodingMaxRate: options.encodingMaxRate,
 		encodingBufferSize: options.encodingBufferSize,
+		onLog: options.onLog,
 	});
 
 	const ffmpegArgs = [

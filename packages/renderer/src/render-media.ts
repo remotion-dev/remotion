@@ -567,6 +567,7 @@ const internalRenderMediaRaw = ({
 				colorSpace,
 				binariesDirectory,
 				hardwareAcceleration,
+				onLog,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -837,6 +838,7 @@ const internalRenderMediaRaw = ({
 					separateAudioTo,
 					metadata,
 					hardwareAcceleration,
+					onLog,
 					sampleRate,
 				});
 			})
