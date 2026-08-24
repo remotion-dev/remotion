@@ -21,6 +21,10 @@ const fixFloatingPoint = (value: number) => {
 	return value;
 };
 
+const clampToS16 = (value: number) => {
+	return Math.max(-32768, Math.min(32767, value));
+};
+
 export const resampleAudioData = ({
 	srcNumberOfChannels,
 	sourceChannels,
@@ -122,15 +126,16 @@ export const resampleAudioData = ({
 			const l = getSourceValues(start, end, 0);
 			const r = getSourceValues(start, end, 1);
 			const c = getSourceValues(start, end, 2);
-			const sl = getSourceValues(start, end, 3);
-			const sr = getSourceValues(start, end, 4);
+			const sl = getSourceValues(start, end, 4);
+			const sr = getSourceValues(start, end, 5);
 
 			const sq = Math.sqrt(1 / 2);
-			const l2 = l + sq * (c + sl);
-			const r2 = r + sq * (c + sr);
+			const norm = 1 / (1 + sq + sq);
+			const l2 = (l + sq * (c + sl)) * norm;
+			const r2 = (r + sq * (c + sr)) * norm;
 
-			destination[newFrameIndex * 2 + 0] = l2;
-			destination[newFrameIndex * 2 + 1] = r2;
+			destination[newFrameIndex * 2 + 0] = clampToS16(l2);
+			destination[newFrameIndex * 2 + 1] = clampToS16(r2);
 		}
 
 		// Discrete fallback: direct mapping with zero-fill or drop

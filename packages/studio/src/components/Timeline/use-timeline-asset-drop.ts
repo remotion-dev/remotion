@@ -172,6 +172,7 @@ export const useTimelineAssetDrop = () => {
 					event,
 					fps: videoConfig.fps,
 					from: frame,
+					localFiles: null,
 					preferCompositionStart: false,
 				});
 			} finally {

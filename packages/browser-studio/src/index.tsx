@@ -7,8 +7,11 @@ export type {
 	BrowserStudioError,
 	BrowserStudioProps,
 	BrowserStudioRemotionPackageSource,
+	BrowserStudioProjectStorage,
+	BrowserStudioStoredPublicFile,
 	CompileState,
 	VirtualFileSystem,
 	VirtualProject,
+	VirtualProjectPublicFile,
 } from './types';
 export type {LoadGitHubRepositoryProgress} from './load-github-repository';

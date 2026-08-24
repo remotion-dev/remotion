@@ -5,6 +5,8 @@ import {
 } from '../../helpers/timeline-layout';
 import {getTimelineFieldLabelFlexBasis} from './timeline-row-layout';
 
+export const TIMELINE_STACKED_FIELD_HEADER_HEIGHT = 14;
+
 export const isTimelineFieldStacked = ({
 	field,
 	transform3DMode,
@@ -45,18 +47,12 @@ export const timelineFieldValueColumnStyle: React.CSSProperties = {
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
-export const timelineCompactStackedFieldValueColumnStyle: React.CSSProperties =
-	{
-		...timelineFieldValueColumnStyle,
-		marginBottom: -3,
-		position: 'relative',
-		top: -3,
-	};
-
 export const timelineStackedFieldContentStyle: React.CSSProperties = {
 	alignSelf: 'stretch',
+	boxSizing: 'border-box',
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
 	minWidth: 0,
+	paddingBlock: 3,
 };

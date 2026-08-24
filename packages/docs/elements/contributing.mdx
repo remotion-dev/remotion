@@ -39,7 +39,7 @@ To make previews visible in the pull request deployment:
 Preview workflows:
 
 - External contributors render previews, commit them to static/elements, and use local URLs so the pull request deployment can show them.
-- Maintainers can use the upload-element-previews skill after rendering locally (source=render) or from a contributor's committed assets (source=submission). The uploader verifies the assets, publishes them to remotion.media, and prints the replacement URLs. Delete the static review assets after a submission upload.
+- Maintainers can use the upload-element-previews skill after rendering locally (source=render) or from a contributor's committed assets (source=submission). The uploader verifies the assets, publishes them to remotion.media, and prints the replacement URLs. To refresh an already-published preview, pass --overwrite; it is accepted only when the definition uses the exact expected remotion.media URLs. Delete the static review assets after a submission upload.
 */}
 
 ## 3. Open the pull request

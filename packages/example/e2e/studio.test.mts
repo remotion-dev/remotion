@@ -201,6 +201,40 @@ test.describe('visual mode', () => {
 		expect(await mountedTrackLabels.count()).toBeLessThan(120);
 	});
 
+	test('should show negative sequence timing in the frame-zero gutter', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/timeline-negative-start`);
+		await expect(page).toHaveURL(/timeline-negative-start/, {
+			timeout: 15_000,
+		});
+
+		const timelineScrollable = page.locator('[data-timeline-scrollable]');
+		const negativeSequence = page.locator(
+			'[data-timeline-marquee-item][title="Negative start"]',
+		);
+		const zeroSequence = page.locator(
+			'[data-timeline-marquee-item][title="Zero start"]',
+		);
+		await expect(negativeSequence).toBeVisible();
+		await expect(zeroSequence).toBeVisible();
+
+		const [timelineRect, negativeSequenceRect, zeroSequenceRect] =
+			await Promise.all([
+				timelineScrollable.boundingBox(),
+				negativeSequence.boundingBox(),
+				zeroSequence.boundingBox(),
+			]);
+		expect(timelineRect).not.toBeNull();
+		expect(negativeSequenceRect).not.toBeNull();
+		expect(zeroSequenceRect).not.toBeNull();
+		expect(negativeSequenceRect!.x).toBeGreaterThanOrEqual(timelineRect!.x);
+		expect(negativeSequenceRect!.x).toBeLessThan(zeroSequenceRect!.x);
+		expect(zeroSequenceRect!.x - negativeSequenceRect!.x).toBeLessThanOrEqual(
+			16,
+		);
+	});
+
 	test('should commit a color drag before the picker closes', async ({
 		page,
 	}) => {
@@ -608,6 +642,94 @@ test.describe('visual mode', () => {
 		}
 	});
 
+	test('should keep selected editing handles above overlapping outlines', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/outline-selection-cases`);
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+		await page.keyboard.press('g');
+		const currentFrameInput = page.locator('input:focus');
+		await expect(currentFrameInput).toBeVisible();
+		await currentFrameInput.fill('2160');
+		await currentFrameInput.press('Enter');
+
+		const target = page.locator(
+			'[data-timeline-marquee-item="true"][title="Editable transform target"]',
+		);
+		await expect(target).toBeVisible();
+		await target.click();
+
+		const rightScaleEdge = page.locator(
+			'[data-remotion-studio-scale-edge="right"][data-remotion-studio-scale-edge-contains-selection="true"]',
+		);
+		await expect(rightScaleEdge).toBeVisible();
+		const scaleEdgePoint = await rightScaleEdge.evaluate((element) => {
+			if (!(element instanceof SVGLineElement)) {
+				throw new Error('Scale edge should be an SVG line');
+			}
+
+			const matrix = element.getScreenCTM();
+			if (matrix === null) {
+				throw new Error('Scale edge should have a screen transform');
+			}
+
+			const first = new DOMPoint(
+				element.x1.baseVal.value,
+				element.y1.baseVal.value,
+			).matrixTransform(matrix);
+			const second = new DOMPoint(
+				element.x2.baseVal.value,
+				element.y2.baseVal.value,
+			).matrixTransform(matrix);
+			const [top, bottom] =
+				first.y < second.y ? [first, second] : [second, first];
+
+			return {
+				x: top.x + (bottom.x - top.x) * 0.2,
+				y: top.y + (bottom.y - top.y) * 0.2,
+			};
+		});
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-scale-edge') ?? null,
+				scaleEdgePoint,
+			),
+		).toBe('right');
+
+		const topRightRotationCorner = page.locator(
+			'[data-remotion-studio-rotation-corner="top-right"][data-remotion-studio-rotation-corner-contains-selection="true"]',
+		);
+		await expect(topRightRotationCorner).toBeVisible();
+		const rotationCornerBox = await topRightRotationCorner.boundingBox();
+		if (rotationCornerBox === null) {
+			throw new Error('Rotation corner should have a visible layout');
+		}
+
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-rotation-corner') ?? null,
+				{
+					x: rotationCornerBox.x + rotationCornerBox.width / 2,
+					y: rotationCornerBox.y + rotationCornerBox.height / 2,
+				},
+			),
+		).toBe('top-right');
+
+		await topRightRotationCorner.click({button: 'right'});
+		await expect(
+			page.getByRole('button', {name: 'Duplicate', exact: true}),
+		).toBeVisible();
+	});
+
 	test('should compensate DOM measurements with useCurrentScale() on direct load', async ({
 		page,
 	}) => {
@@ -736,6 +858,79 @@ test.describe('visual mode', () => {
 				},
 			});
 		});
+		await page.route('**/api/remotion-skills-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						remotionUpgradeSkillAvailable: false,
+						remotionInteractivitySkillAvailable: false,
+						skills: [
+							{
+								name: 'remotion-best-practices',
+								installedInProject: true,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-captions',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-create',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-docs',
+								installedInProject: false,
+								installedGlobally: true,
+							},
+							{
+								name: 'remotion-interactivity',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-maps',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-markup',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-multimedia',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-render',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-saas',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-studio',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+							{
+								name: 'remotion-upgrade',
+								installedInProject: false,
+								installedGlobally: false,
+							},
+						],
+					},
+				},
+			});
+		});
 		try {
 			await page.goto(`${STUDIO_URL}/schema-test`);
 			await page.locator('[data-sidebar-toggle="right"]').click();
@@ -823,7 +1018,6 @@ test.describe('visual mode', () => {
 			await dialog.getByText('Studio', {exact: true}).click();
 			for (const setting of [
 				'Ask AI enabled',
-				'Keyboard shortcuts enabled',
 				'Interactivity enabled',
 				'Max timeline tracks',
 				'Audio latency hint',
@@ -838,6 +1032,16 @@ test.describe('visual mode', () => {
 			await expect(
 				dialog.getByRole('button', {name: 'Number of shared audio tags'}),
 			).toBeVisible();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			await expect(
+				dialog.getByText('Keyboard shortcuts', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByRole('list', {name: 'Playback', exact: true}),
+			).toBeVisible();
+			await dialog.getByRole('button', {name: 'Studio', exact: true}).click();
 
 			const askAIEnabled = dialog.getByTitle('Ask AI enabled', {exact: true});
 			await expect(askAIEnabled).toHaveText('Default (Enabled)');
@@ -893,6 +1097,55 @@ test.describe('visual mode', () => {
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setMaxTimelineTracks');
 			await expect(maxTimelineTracks).toHaveText('Default (Unlimited)');
+
+			await dialog.getByText('Skills', {exact: true}).click();
+			await expect(
+				dialog.getByText(
+					'Not all skills are installed. Run this command in the project directory, then reload Studio and restart your coding agent.',
+					{exact: true},
+				),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-best-practices', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-docs', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('/remotion-studio', {exact: true}),
+			).toBeVisible();
+			await expect(dialog.getByText('Project', {exact: true})).toBeVisible();
+			await expect(dialog.getByText('Global', {exact: true})).toBeVisible();
+			await expect(
+				dialog.getByText('Not installed', {exact: true}).first(),
+			).toBeVisible();
+			await expect(
+				dialog.getByText('npx remotion skills add', {exact: true}),
+			).toBeVisible();
+			await expect(
+				dialog.getByRole('button', {name: 'Copy install command'}),
+			).toBeVisible();
+			const skillsList = dialog.getByRole('list', {
+				name: 'Remotion Agent Skills',
+			});
+			const skillsScrollContainer = skillsList.locator('..').locator('..');
+			await skillsScrollContainer.evaluate((element) => {
+				element.scrollTop = element.scrollHeight;
+			});
+			const skillsScrollContainerBounds =
+				await skillsScrollContainer.boundingBox();
+			const lastSkillBounds = await skillsList
+				.getByRole('listitem')
+				.last()
+				.boundingBox();
+			expect(
+				skillsScrollContainerBounds!.y +
+					skillsScrollContainerBounds!.height -
+					(lastSkillBounds!.y + lastSkillBounds!.height),
+			).toBeGreaterThanOrEqual(16);
+			await expect(
+				dialog.getByText('Changes save to', {exact: false}),
+			).toBeVisible();
 
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(

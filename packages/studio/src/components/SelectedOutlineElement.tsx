@@ -1,4 +1,4 @@
-import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import React, {useContext, useLayoutEffect} from 'react';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -9,34 +9,24 @@ import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
-import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {SetSelectedModalContext} from '../state/modals';
-import {
-	useIsTimelineSequenceHovered,
-	useSetTimelineSequenceHover,
-} from '../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {deleteJsxNode} from './delete-jsx-node-api';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
-import {getSelectedOutlineControlLayout} from './selected-outline-control-layout';
 import type {SelectedOutline} from './selected-outline-geometry';
 import {type SelectedOutlineSnapPoint} from './selected-outline-snap';
 import {
 	cropFieldKeys,
 	rotateFieldKey,
+	type SelectedOutlineContextMenuOpenHandler,
 	type SelectedOutlineDragTarget,
 	type SelectedOutlineLayoutTarget,
-	type SelectedOutlineRotationDragTarget,
-	type SelectedOutlineScaleDragTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
-import {SelectedOutlineCropControls} from './SelectedOutlineCropControls';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
-import {SelectedOutlineRotationCornerHandle} from './SelectedOutlineRotationCornerHandle';
-import {SelectedOutlineScaleEdgeLine} from './SelectedOutlineScaleEdgeLine';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
@@ -52,27 +42,29 @@ import {
 	useEditorOpening,
 } from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
+import {useSelectedOutlineControlTarget} from './use-selected-outline-control-target';
 type SelectedOutlineElementProps = {
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
-	readonly getAllRotationDragTargets: () => readonly SelectedOutlineRotationDragTarget[];
-	readonly getAllScaleDragTargets: () => readonly SelectedOutlineScaleDragTarget[];
 	readonly getLatestTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
 	readonly layoutTarget: SelectedOutlineLayoutTarget | undefined;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
-	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onSnapPointsChange: (
 		snapPoints: readonly SelectedOutlineSnapPoint[],
 	) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
+	) => void;
+	readonly registerContextMenuOpen: (
+		key: string,
+		handler: SelectedOutlineContextMenuOpenHandler | null,
 	) => void;
 	readonly scale: number;
 };
@@ -85,15 +77,13 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
-	getAllRotationDragTargets,
-	getAllScaleDragTargets,
 	getLatestTargetByKey,
 	layoutTarget,
 	outline,
 	onDraggingChange,
-	onContextMenuOpenChange,
 	onSnapPointsChange,
 	onSelect,
+	registerContextMenuOpen,
 	scale,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -114,61 +104,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
-	const setHoveredSequence = useSetTimelineSequenceHover();
-	const targetRef = useRef(layoutTarget);
-	const controlLayout = useMemo(
-		() => getSelectedOutlineControlLayout(outline.points),
-		[outline.points],
-	);
-	useLayoutEffect(() => {
-		targetRef.current = layoutTarget;
-	}, [layoutTarget]);
-	const getTarget = React.useCallback(() => {
-		const currentTarget = targetRef.current;
-		if (currentTarget === undefined) {
-			return undefined;
-		}
-
-		return getLatestTargetByKey(currentTarget.key);
-	}, [getLatestTargetByKey]);
-	const getLayoutTarget = React.useCallback(() => targetRef.current, []);
-	const hoveredNodePathKey = useMemo(
-		() =>
-			layoutTarget === undefined
-				? null
-				: timelineSequenceNodePathToKey(
-						layoutTarget.nodePathInfo.sequenceSubscriptionKey,
-					),
-		[layoutTarget],
-	);
-	const hovered = useIsTimelineSequenceHovered(hoveredNodePathKey);
-	const controlTarget =
-		layoutTarget !== undefined && (layoutTarget.containsSelection || hovered)
-			? getLatestTargetByKey(layoutTarget.key)
-			: undefined;
-	const onHoverChange = React.useCallback(
-		(key: string | null) => {
-			setHoveredSequence((currentHover) => {
-				if (key !== null) {
-					const hoverTarget = targetRef.current;
-					if (hoverTarget === undefined || hoverTarget.key !== key) {
-						return currentHover;
-					}
-
-					return {
-						key,
-						nodePathKey: timelineSequenceNodePathToKey(
-							hoverTarget.nodePathInfo.sequenceSubscriptionKey,
-						),
-						source: 'canvas',
-					};
-				}
-
-				return currentHover?.source === 'canvas' ? null : currentHover;
-			});
-		},
-		[setHoveredSequence],
-	);
+	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
+		useSelectedOutlineControlTarget({
+			getLatestTargetByKey,
+			layoutTarget,
+		});
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
@@ -194,7 +134,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	);
 
 	const onDoubleClickTarget = React.useCallback(
-		(doubleClickTarget: SelectedOutlineTarget, button: number) => {
+		(
+			doubleClickTarget: SelectedOutlineTarget,
+			button: number,
+			sequenceWasDragged: boolean,
+		) => {
 			const connectedCompositions = getConnectedCompositions({
 				compositions,
 				singleChildComponent: doubleClickTarget.sequence.singleChildComponent,
@@ -203,6 +147,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				button,
 				canOpenInEditor: editorAvailable,
 				numberOfConnectedCompositions: connectedCompositions.length,
+				sequenceWasDragged,
 			});
 
 			if (action === null) {
@@ -504,6 +449,12 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		setSelectedModal,
 		setPropStatuses,
 	]);
+	useLayoutEffect(() => {
+		registerContextMenuOpen(outline.key, onContextMenuOpen);
+		return () => {
+			registerContextMenuOpen(outline.key, null);
+		};
+	}, [onContextMenuOpen, outline.key, registerContextMenuOpen]);
 
 	return (
 		<>
@@ -520,8 +471,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				hasTarget={layoutTarget !== undefined}
 				hovered={hovered}
 				outline={outline}
-				onContextMenuOpen={onContextMenuOpen}
-				onContextMenuOpenChange={onContextMenuOpenChange}
 				onDraggingChange={onDraggingChange}
 				onHoverChange={onHoverChange}
 				onSnapPointsChange={onSnapPointsChange}
@@ -539,54 +488,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					transform3DMode={controlTarget.rotationDrag.transform3DMode}
 				/>
 			) : null}
-			<SelectedOutlineCropControls
-				outline={outline}
-				onDraggingChange={onDraggingChange}
-				target={controlTarget}
-			/>
-			{controlTarget?.cropDrag === null &&
-			(layoutTarget?.containsSelection || hovered)
-				? controlLayout.scaleEdges.map((edge) => (
-						<SelectedOutlineScaleEdgeLine
-							key={edge}
-							getAllScaleDragTargets={getAllScaleDragTargets}
-							dragging={dragging}
-							edge={edge}
-							hitWidth={
-								edge === 'top' || edge === 'bottom'
-									? controlLayout.scaleHitWidth.horizontal
-									: controlLayout.scaleHitWidth.vertical
-							}
-							outline={outline}
-							onContextMenuOpen={onContextMenuOpen}
-							onContextMenuOpenChange={onContextMenuOpenChange}
-							onDraggingChange={onDraggingChange}
-							onHoverChange={onHoverChange}
-							onSelect={onSelect}
-							target={controlTarget}
-						/>
-					))
-				: null}
-			{controlTarget?.cropDrag === null &&
-			(layoutTarget?.containsSelection || hovered)
-				? controlLayout.rotationCorners.map(({corner, point}) => (
-						<SelectedOutlineRotationCornerHandle
-							key={corner}
-							getAllRotationDragTargets={getAllRotationDragTargets}
-							corner={corner}
-							dragging={dragging}
-							handlePoint={point}
-							outline={outline}
-							onContextMenuOpen={onContextMenuOpen}
-							onContextMenuOpenChange={onContextMenuOpenChange}
-							onDraggingChange={onDraggingChange}
-							onHoverChange={onHoverChange}
-							onSelect={onSelect}
-							radius={controlLayout.rotationHandleRadius}
-							target={controlTarget}
-						/>
-					))
-				: null}
 		</>
 	);
 };

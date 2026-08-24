@@ -5,7 +5,9 @@ import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {Checkmark} from '../icons/Checkmark';
 import {EllipsisIcon} from '../icons/ellipsis';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
+import {EditorShowRulersContext} from '../state/editor-rulers';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import {toggleLoop} from './LoopToggle';
@@ -40,6 +42,12 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
+	);
+	const {editorShowGuides, setEditorShowGuides} = useContext(
+		EditorShowGuidesContext,
+	);
+	const {editorShowRulers, setEditorShowRulers} = useContext(
+		EditorShowRulersContext,
 	);
 	const {
 		items: previewSizeItems,
@@ -144,6 +152,28 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				subMenu: null,
 				quickSwitcherLabel: null,
 			});
+			items.push({
+				type: 'item',
+				id: 'rulers',
+				label: 'Rulers',
+				value: 'rulers',
+				onClick: () => setEditorShowRulers((current) => !current),
+				keyHint: null,
+				leftItem: editorShowRulers ? <Checkmark /> : null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			});
+			items.push({
+				type: 'item',
+				id: 'guides',
+				label: 'Guides',
+				value: 'guides',
+				onClick: () => setEditorShowGuides((current) => !current),
+				keyHint: null,
+				leftItem: editorShowGuides ? <Checkmark /> : null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			});
 		}
 
 		if (showFullscreen) {
@@ -172,9 +202,13 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		showCompositionControls,
 		loop,
 		checkerboard,
+		editorShowGuides,
 		editorShowOutlines,
+		editorShowRulers,
 		setCheckerboard,
+		setEditorShowGuides,
 		setEditorShowOutlines,
+		setEditorShowRulers,
 		setLoop,
 		zoomable,
 		keyboardShortcutsDisabled,

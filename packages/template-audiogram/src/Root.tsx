@@ -16,11 +16,8 @@ export const RemotionRoot: React.FC = () => {
         schema={audiogramSchema}
         defaultProps={{
           // audio settings
-          audioOffsetInSeconds: 0,
           audioFileUrl: staticFile("dialogue.wav"),
           // podcast data
-          coverImageUrl: staticFile("podcast-cover.jpeg"),
-          titleText: "Ep 550 - Supper Club × Remotion React",
           titleColor: "rgba(186, 186, 186, 0.93)",
           // captions settings
           captions: null,
@@ -31,7 +28,7 @@ export const RemotionRoot: React.FC = () => {
           visualizer: {
             type: "oscilloscope",
             color: "#F4B941",
-            numberOfSamples: "64" as const,
+            numberOfSamples: "64",
             windowInSeconds: 0.1,
             posterization: 3,
             amplitude: 4,
@@ -50,9 +47,7 @@ export const RemotionRoot: React.FC = () => {
           });
 
           return {
-            durationInFrames: Math.floor(
-              (slowDurationInSeconds - props.audioOffsetInSeconds) * FPS,
-            ),
+            durationInFrames: Math.floor(slowDurationInSeconds * FPS),
             props: {
               ...props,
               captions,

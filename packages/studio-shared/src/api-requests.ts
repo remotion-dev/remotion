@@ -1059,6 +1059,11 @@ export type GetRemotionSkillsInfoRequest = {};
 export type GetRemotionSkillsInfoResponse = {
 	remotionUpgradeSkillAvailable: boolean;
 	remotionInteractivitySkillAvailable: boolean;
+	skills: {
+		name: string;
+		installedInProject: boolean;
+		installedGlobally: boolean;
+	}[];
 };
 
 export type ProjectInfoRequest = {};

@@ -640,9 +640,7 @@ const TimelineSequenceItemInner: React.FC<{
 					clientId: previewServerState.clientId,
 				});
 
-				if (result.success) {
-					showNotification('Reordered sequence', 2000);
-				} else {
+				if (!result.success) {
 					showNotification(result.reason, 4000);
 				}
 			} catch (err) {
@@ -782,6 +780,9 @@ const TimelineSequenceItemInner: React.FC<{
 				button: e.button,
 				canOpenInEditor,
 				numberOfConnectedCompositions: connectedCompositions.length,
+				// The track list row reorders via native drag-and-drop, which
+				// already suppresses `dblclick` after a drag.
+				sequenceWasDragged: false,
 			});
 			if (action === null) {
 				return;
@@ -1244,7 +1245,6 @@ const TimelineSequenceItemInner: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			hovered={hovered}
-			isFieldRow={false}
 			outerHeight={outerHeight}
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}

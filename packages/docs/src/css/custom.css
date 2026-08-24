@@ -30,6 +30,7 @@ h6 {
 	word-spacing: -0.025em;
 	font-family: 'GTPlanar';
 	font-feature-settings: 'ss03' on;
+	text-wrap: balance;
 }
 
 @font-face {
@@ -142,6 +143,10 @@ h6 {
 	--box-shadow: 0 1px 8px rgba(255, 255, 255, 0.2);
 	--ifm-out-of-focus: #505050;
 	--box-stroke: gray;
+}
+
+html[data-theme] {
+	--ifm-background-color: var(--background);
 }
 
 [data-theme='light'] .docusaurus-highlight-code-line {

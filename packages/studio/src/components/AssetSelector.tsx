@@ -125,12 +125,10 @@ export const AssetSelector: React.FC<{
 						outputPath: renderOutput.outputPath,
 						assetPath: destination,
 					});
-					showNotification(
-						result.created
-							? `Created ${destination}`
-							: `${destination} already exists`,
-						3000,
-					);
+					if (!result.created) {
+						showNotification(`${destination} already exists`, 3000);
+					}
+
 					return;
 				}
 
@@ -168,12 +166,6 @@ export const AssetSelector: React.FC<{
 						contents: body,
 						filePath: makePath(file),
 					});
-				}
-
-				if (files.length === 1) {
-					showNotification(`Created ${makePath(files[0])}`, 3000);
-				} else {
-					showNotification(`Added ${files.length} files to ${assetPath}`, 3000);
 				}
 			} catch (error) {
 				showNotification(`Error during upload: ${error}`, 3000);

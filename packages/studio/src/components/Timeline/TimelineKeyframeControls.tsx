@@ -43,6 +43,7 @@ import {
 	getKeyframeDisplayOffset,
 	getTimelineKeyframes,
 } from './get-timeline-keyframes';
+import {ensureFrameIsInViewport} from './timeline-scroll-logic';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeTracks} from './TimelineKeyframeTracksContext';
 import {
@@ -674,21 +675,26 @@ export const TimelineKeyframeControls: React.FC<{
 	]);
 
 	const seekToDisplayFrame = useCallback(
-		(frame: number) => {
+		(frame: number, direction: 'fit-left' | 'fit-right') => {
 			setFrame((current) => {
 				const next = {...current, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(next);
 				return next;
 			});
+			ensureFrameIsInViewport({
+				direction,
+				durationInFrames: videoConfig.durationInFrames,
+				frame,
+			});
 		},
-		[setFrame, videoConfig.id],
+		[setFrame, videoConfig.durationInFrames, videoConfig.id],
 	);
 
 	const onPrevious = useCallback(
 		(e: React.PointerEvent<HTMLButtonElement>) => {
 			e.stopPropagation();
 			if (previousDisplayFrame !== null) {
-				seekToDisplayFrame(previousDisplayFrame);
+				seekToDisplayFrame(previousDisplayFrame, 'fit-left');
 			}
 		},
 		[previousDisplayFrame, seekToDisplayFrame],
@@ -698,7 +704,7 @@ export const TimelineKeyframeControls: React.FC<{
 		(e: React.PointerEvent<HTMLButtonElement>) => {
 			e.stopPropagation();
 			if (nextDisplayFrame !== null) {
-				seekToDisplayFrame(nextDisplayFrame);
+				seekToDisplayFrame(nextDisplayFrame, 'fit-right');
 			}
 		},
 		[nextDisplayFrame, seekToDisplayFrame],

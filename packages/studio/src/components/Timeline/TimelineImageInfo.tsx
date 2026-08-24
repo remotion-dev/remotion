@@ -1,5 +1,4 @@
-import {drawRepeatingImageThumbnail} from '@remotion/timeline-utils';
-import React, {useEffect, useRef} from 'react';
+import React, {useMemo} from 'react';
 import {BLACK_ALPHA_30} from '../../helpers/colors';
 import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
 
@@ -12,50 +11,24 @@ const containerStyle: React.CSSProperties = {
 	display: 'flex',
 	borderTopLeftRadius: 2,
 	borderBottomLeftRadius: 2,
+	backgroundRepeat: 'repeat-x',
+	backgroundSize: 'auto 100%',
+	backgroundPositionY: 0,
 };
 
 export const TimelineImageInfo: React.FC<{
 	readonly src: string;
-	readonly visualizationWidth: number;
 	readonly offsetInPixels: number;
-}> = ({src, visualizationWidth, offsetInPixels}) => {
-	const ref = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		const canvas = document.createElement('canvas');
-		canvas.width = visualizationWidth * window.devicePixelRatio;
-		canvas.height = HEIGHT * window.devicePixelRatio;
-		canvas.style.width = visualizationWidth + 'px';
-		canvas.style.height = HEIGHT + 'px';
-		const ctx = canvas.getContext('2d');
-		if (!ctx) {
-			return;
-		}
-
-		current.appendChild(canvas);
-
-		const img = new Image();
-		img.crossOrigin = 'anonymous';
-
-		img.onload = () => {
-			drawRepeatingImageThumbnail({
-				canvas,
-				image: img,
-				offsetInPixels: offsetInPixels * window.devicePixelRatio,
-			});
+}> = ({src, offsetInPixels}) => {
+	const style = useMemo((): React.CSSProperties => {
+		return {
+			...containerStyle,
+			// This is Studio UI, not a Remotion composition that needs to wait for
+			// background images before rendering.
+			backgroundImage: `url(${JSON.stringify(src)})`,
+			backgroundPositionX: -offsetInPixels,
 		};
+	}, [offsetInPixels, src]);
 
-		img.src = src;
-
-		return () => {
-			current.removeChild(canvas);
-		};
-	}, [offsetInPixels, src, visualizationWidth]);
-
-	return <div ref={ref} style={containerStyle} />;
+	return <div style={style} />;
 };

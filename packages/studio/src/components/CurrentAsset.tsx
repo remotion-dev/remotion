@@ -3,8 +3,11 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {formatMediaDuration} from '../helpers/format-media-duration';
+import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
@@ -12,20 +15,65 @@ import {
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {ExpandedFolderIcon} from '../icons/folder';
+import {RemotionConvertIcon} from '../icons/remotion-convert';
+import {TrashIcon} from '../icons/trash';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {
-	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
 } from './InspectorInfoHeader';
+import {
+	InspectorDetailRow,
+	InspectorQuickActionsSection,
+	InspectorQuickAction,
+	InspectorSection,
+} from './InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
+import {COMPACT_INLINE_ROW_HEIGHT} from './layout';
 import {
 	getStaticFileRenameSelection,
 	useRenameStaticFile,
 } from './NewComposition/use-rename-static-file';
+import {showNotification} from './Notifications/NotificationCenter';
+import {openInFileExplorer} from './RenderQueue/actions';
+import {useDeleteAsset} from './use-delete-asset';
 import {useStaticFiles} from './use-static-files';
 
-export const CURRENT_ASSET_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
+export const CURRENT_ASSET_HEIGHT = COMPACT_INLINE_ROW_HEIGHT + 8;
+
+const quickActionIconStyle: React.CSSProperties = {
+	display: 'block',
+	height: 18,
+	width: 18,
+};
+
+const convertArrowStyle: React.CSSProperties = {
+	display: 'inline-block',
+	height: 12,
+	marginLeft: 4,
+	verticalAlign: -2,
+	width: 12,
+};
+
+const assetMetadataStyle: React.CSSProperties = {
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
+const assetMetadataValueStyle: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '20px',
+};
+
+const assetEmptyStateStyle: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	lineHeight: 1.4,
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
 
 export const getCurrentAssetMetadataSource = (assetName: string | null) => {
 	if (!assetName) {
@@ -52,42 +100,80 @@ export const getCurrentAssetImageMetadataSource = (
 
 const formatFps = (fps: number) => `${fps.toFixed(2)} FPS`;
 
-export const getCurrentAssetMediaDetailLines = (
-	mediaMetadata: MediaMetadata,
-) => {
-	const detailLines: string[] = [];
+type CurrentAssetDetail = {
+	readonly label: string;
+	readonly value: string;
+};
 
-	if (mediaMetadata.hasVideoTrack === true) {
-		const videoParts = [
-			renderHumanReadableVideoCodec(mediaMetadata.videoCodec),
-		];
+export const getCurrentAssetMediaSections = (mediaMetadata: MediaMetadata) => {
+	const hasVideo =
+		mediaMetadata.hasVideoTrack === true ||
+		mediaMetadata.width !== null ||
+		mediaMetadata.height !== null ||
+		mediaMetadata.videoCodec !== null ||
+		mediaMetadata.fps !== null ||
+		mediaMetadata.isHdr !== null;
+	const hasAudio =
+		mediaMetadata.hasAudioTrack === true ||
+		mediaMetadata.audioCodec !== null ||
+		mediaMetadata.sampleRate !== null;
+	const video: CurrentAssetDetail[] = [];
+	const audio: CurrentAssetDetail[] = [];
+
+	if (hasVideo) {
+		if (mediaMetadata.width !== null && mediaMetadata.height !== null) {
+			video.push({
+				label: 'Dimensions',
+				value: `${mediaMetadata.width} × ${mediaMetadata.height}`,
+			});
+		}
 
 		if (mediaMetadata.fps !== null) {
-			videoParts.push(formatFps(mediaMetadata.fps));
+			video.push({label: 'Frame rate', value: formatFps(mediaMetadata.fps)});
 		}
+
+		video.push({
+			label: 'Duration',
+			value: formatMediaDuration(mediaMetadata.duration),
+		});
+		video.push({
+			label: 'Codec',
+			value: renderHumanReadableVideoCodec(mediaMetadata.videoCodec),
+		});
 
 		if (mediaMetadata.isHdr !== null) {
-			videoParts.push(`HDR: ${mediaMetadata.isHdr ? 'Yes' : 'No'}`);
+			video.push({
+				label: 'HDR',
+				value: mediaMetadata.isHdr ? 'Yes' : 'No',
+			});
 		}
-
-		detailLines.push(`Video: ${videoParts.join(' · ')}`);
 	}
 
-	if (mediaMetadata.hasAudioTrack === true) {
-		const audioParts = [
-			renderHumanReadableAudioCodec(mediaMetadata.audioCodec),
-		];
+	if (hasAudio) {
+		audio.push({
+			label: 'Duration',
+			value: formatMediaDuration(mediaMetadata.duration),
+		});
+		audio.push({
+			label: 'Codec',
+			value: renderHumanReadableAudioCodec(mediaMetadata.audioCodec),
+		});
 
 		if (mediaMetadata.sampleRate !== null) {
-			audioParts.push(`${mediaMetadata.sampleRate} Hz`);
+			audio.push({
+				label: 'Sample rate',
+				value: `${mediaMetadata.sampleRate} Hz`,
+			});
 		}
-
-		detailLines.push(`Audio: ${audioParts.join(' · ')}`);
-	} else if (mediaMetadata.hasAudioTrack === false) {
-		detailLines.push('Audio: No audio');
 	}
 
-	return detailLines;
+	return {
+		audio:
+			hasAudio || (hasVideo && mediaMetadata.hasAudioTrack === false)
+				? audio
+				: null,
+		video: hasVideo ? video : null,
+	};
 };
 
 export const AssetInfo: React.FC<{
@@ -98,6 +184,7 @@ export const AssetInfo: React.FC<{
 }> = ({assetName, contentSized = false, onAssetClick, readOnlyStudio}) => {
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
+	const browserStudioOperations = getBrowserStudioOperations();
 
 	const staticFiles = useStaticFiles();
 	const renameFile = useRenameStaticFile({
@@ -120,7 +207,7 @@ export const AssetInfo: React.FC<{
 	const imageMetadata = useImageMetadata(imageSrc);
 	const canRename =
 		onAssetClick === undefined &&
-		(getBrowserStudioOperations() !== null ||
+		(browserStudioOperations !== null ||
 			(connectionStatus === 'connected' && !readOnlyStudio));
 	const onRename = useCallback(
 		(newName: string) => {
@@ -128,72 +215,173 @@ export const AssetInfo: React.FC<{
 		},
 		[renameFile],
 	);
+	const onOpenConvert = useCallback(() => {
+		if (assetName === null) {
+			return;
+		}
+
+		openInRemotionConvert({relativePath: assetName});
+	}, [assetName]);
+	const onShowInFileManager = useCallback(() => {
+		if (assetName === null || !window.remotion_publicFolderExists) {
+			showNotification('Could not find the public folder', 2000);
+			return;
+		}
+
+		openInFileExplorer({
+			directory: window.remotion_publicFolderExists + '/' + assetName,
+		}).catch((err) => {
+			showNotification(`Could not open file: ${err.message}`, 2000);
+		});
+	}, [assetName]);
+	const onDelete = useDeleteAsset(assetName);
 
 	if (!assetName) {
-		return <InspectorInfoHeader contentSized={contentSized} />;
+		return (
+			<InspectorInfoHeader
+				contentSized={contentSized}
+				minHeight={CURRENT_ASSET_HEIGHT}
+			/>
+		);
 	}
 
 	const fileName = assetName.split('/').pop() ?? assetName;
+	const fileDetails: CurrentAssetDetail[] = [];
+	const container = mediaMetadata?.format ?? imageMetadata?.format ?? null;
+	if (container !== null) {
+		fileDetails.push({label: 'Container', value: container});
+	}
 
-	const subtitleParts: string[] = [];
 	if (sizeInBytes !== null) {
-		subtitleParts.push(formatBytes(sizeInBytes));
+		fileDetails.push({label: 'Size', value: formatBytes(sizeInBytes)});
 	}
 
-	if (mediaMetadata) {
-		if (mediaMetadata.format) {
-			subtitleParts.push(mediaMetadata.format);
-		}
-
-		if (mediaMetadata.width !== null && mediaMetadata.height !== null) {
-			subtitleParts.push(`${mediaMetadata.width}x${mediaMetadata.height}`);
-		}
-	} else if (imageMetadata) {
-		subtitleParts.push(imageMetadata.format);
-		subtitleParts.push(`${imageMetadata.width}x${imageMetadata.height}`);
-	}
-
-	const mediaDetailLines = mediaMetadata
-		? getCurrentAssetMediaDetailLines(mediaMetadata)
-		: [];
+	const mediaSections = mediaMetadata
+		? getCurrentAssetMediaSections(mediaMetadata)
+		: null;
+	const fileManagerAvailable = browserStudioOperations === null;
+	const fileManagerDisabled =
+		window.remotion_publicFolderExists === null ||
+		readOnlyStudio ||
+		connectionStatus !== 'connected';
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
+	const mutationsDisabled =
+		browserStudioOperations === null &&
+		(readOnlyStudio || connectionStatus !== 'connected');
 
 	return (
-		<InspectorInfoHeader
-			contentSized={contentSized}
-			padding={
-				contentSized ? `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 6px` : '4px 0'
-			}
-		>
-			<InlineEditableTitle
-				value={fileName}
-				canRename={canRename}
-				getInitialSelection={getStaticFileRenameSelection}
-				onClick={onAssetClick}
-				onCommit={onRename}
-				size={contentSized ? 'default' : 'inspector'}
-				title={assetName}
-			/>
-			{subtitleParts.length > 0 ? (
-				<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
-					{subtitleParts.join(' · ')}
-				</InspectorInfoSubtitle>
-			) : null}
-			{mediaMetadata ? (
-				<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
-					{formatMediaDuration(mediaMetadata.duration)}
-				</InspectorInfoSubtitle>
-			) : null}
-			{mediaDetailLines.map((line) => {
-				return (
-					<InspectorInfoSubtitle
-						key={line}
-						size={contentSized ? 'default' : 'inspector'}
-					>
-						{line}
+		<>
+			<InspectorInfoHeader
+				contentSized={contentSized}
+				minHeight={CURRENT_ASSET_HEIGHT}
+				padding={
+					contentSized
+						? `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 6px`
+						: '4px 0'
+				}
+			>
+				<InlineEditableTitle
+					value={fileName}
+					canRename={canRename}
+					getInitialSelection={getStaticFileRenameSelection}
+					onClick={onAssetClick}
+					onCommit={onRename}
+					size={contentSized ? 'default' : 'inspector'}
+					title={assetName}
+				/>
+				{imageMetadata ? (
+					<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
+						{imageMetadata.width} × {imageMetadata.height}
 					</InspectorInfoSubtitle>
-				);
-			})}
-		</InspectorInfoHeader>
+				) : null}
+			</InspectorInfoHeader>
+			{fileDetails.length > 0 ? (
+				<InspectorSection header="File">
+					<div style={assetMetadataStyle}>
+						{fileDetails.map((detail) => (
+							<InspectorDetailRow key={detail.label} label={detail.label}>
+								<span style={assetMetadataValueStyle}>{detail.value}</span>
+							</InspectorDetailRow>
+						))}
+					</div>
+				</InspectorSection>
+			) : null}
+			{mediaSections && mediaSections.video ? (
+				<InspectorSection header="Video">
+					<div style={assetMetadataStyle}>
+						{mediaSections.video.map((detail) => (
+							<InspectorDetailRow key={detail.label} label={detail.label}>
+								<span style={assetMetadataValueStyle}>{detail.value}</span>
+							</InspectorDetailRow>
+						))}
+					</div>
+				</InspectorSection>
+			) : null}
+			{mediaSections && mediaSections.audio !== null ? (
+				<InspectorSection header="Audio">
+					{mediaSections.audio.length === 0 ? (
+						<div style={assetEmptyStateStyle}>None</div>
+					) : (
+						<div style={assetMetadataStyle}>
+							{mediaSections.audio.map((detail) => (
+								<InspectorDetailRow key={detail.label} label={detail.label}>
+									<span style={assetMetadataValueStyle}>{detail.value}</span>
+								</InspectorDetailRow>
+							))}
+						</div>
+					)}
+				</InspectorSection>
+			) : null}
+			<InspectorQuickActionsSection>
+				{src ? (
+					<InspectorQuickAction
+						disabled={false}
+						onClick={onOpenConvert}
+						renderIcon={(color) => (
+							<RemotionConvertIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Convert
+						<svg
+							aria-hidden="true"
+							viewBox="0 0 16 16"
+							style={convertArrowStyle}
+						>
+							<path
+								d="M4 12 12 4M6 4h6v6"
+								fill="none"
+								stroke={CURRENT_COLOR}
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="1.5"
+							/>
+						</svg>
+					</InspectorQuickAction>
+				) : null}
+				{fileManagerAvailable ? (
+					<InspectorQuickAction
+						disabled={fileManagerDisabled}
+						onClick={onShowInFileManager}
+						renderIcon={(color) => (
+							<ExpandedFolderIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Show in {fileManagerName}
+					</InspectorQuickAction>
+				) : null}
+				<InspectorQuickAction
+					disabled={mutationsDisabled}
+					onClick={onDelete}
+					renderIcon={(color) => (
+						<TrashIcon color={color} style={quickActionIconStyle} />
+					)}
+				>
+					Delete
+				</InspectorQuickAction>
+			</InspectorQuickActionsSection>
+		</>
 	);
 };
 

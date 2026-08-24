@@ -6,10 +6,12 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {
 	useSetTimelineSequenceHover,
 	useTimelineSequenceHoverState,
 } from '../state/timeline-sequence-hover';
+import {ContextMenuForTarget} from './ContextMenu';
 import type {SelectedOutline} from './selected-outline-geometry';
 import {
 	measureOutlines,
@@ -17,10 +19,13 @@ import {
 } from './selected-outline-measurement';
 import {orderOutlinesForRendering} from './selected-outline-order';
 import type {
+	SelectedOutlineContextMenuOpenHandler,
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
+import {SelectedOutlineEditingHandles} from './SelectedOutlineEditingHandles';
 import {SelectedOutlineElement} from './SelectedOutlineElement';
+import {SELECTED_OUTLINE_KEY_ATTR} from './SelectedOutlinePolygon';
 import {
 	SelectedOutlineSnapIndicators,
 	type UpdateSelectedOutlineSnapPoints,
@@ -50,26 +55,6 @@ type SelectedOutlineRenderState = {
 const emptyRenderState: SelectedOutlineRenderState = {
 	outlines: [],
 	targets: [],
-};
-
-const SelectedOutlineHoverCleanup: React.FC<{
-	readonly targets: readonly SelectedOutlineLayoutTarget[];
-}> = ({targets}) => {
-	const hoveredSequence = useTimelineSequenceHoverState();
-	const setHoveredSequence = useSetTimelineSequenceHover();
-
-	useEffect(() => {
-		if (
-			hoveredSequence?.source === 'canvas' &&
-			!targets.some((target) => target.key === hoveredSequence.key)
-		) {
-			setHoveredSequence((currentHover) =>
-				currentHover?.source === 'canvas' ? null : currentHover,
-			);
-		}
-	}, [hoveredSequence, setHoveredSequence, targets]);
-
-	return null;
 };
 
 const SelectedOutlineRendererUnmemoized: React.FC<{
@@ -110,6 +95,46 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const resizeObserverRef = useRef<ResizeObserver | null>(null);
 	const resizeObserverAnimationFrameRef = useRef<number | null>(null);
 	const observedOutlineElementsRef = useRef<ReadonlySet<Element>>(new Set());
+	const contextMenuOpenHandlersRef = useRef(
+		new Map<string, SelectedOutlineContextMenuOpenHandler>(),
+	);
+	const registerContextMenuOpen = useCallback(
+		(key: string, handler: SelectedOutlineContextMenuOpenHandler | null) => {
+			if (handler === null) {
+				contextMenuOpenHandlersRef.current.delete(key);
+			} else {
+				contextMenuOpenHandlersRef.current.set(key, handler);
+			}
+		},
+		[],
+	);
+	const getContextMenuOpenByKey = useCallback(
+		(key: string) => contextMenuOpenHandlersRef.current.get(key),
+		[],
+	);
+	const getDelegatedContextMenuItems = useCallback(
+		(event: MouseEvent) => {
+			if (!(event.target instanceof Element)) {
+				return false;
+			}
+
+			const polygon = event.target.closest<SVGPolygonElement>(
+				`polygon[${SELECTED_OUTLINE_KEY_ATTR}]`,
+			);
+			if (polygon?.ownerSVGElement !== overlayRef.current) {
+				return false;
+			}
+
+			const key = polygon.getAttribute(SELECTED_OUTLINE_KEY_ATTR);
+			return key === null ? false : (getContextMenuOpenByKey(key)?.() ?? false);
+		},
+		[getContextMenuOpenByKey],
+	);
+	const hoveredSequence = useTimelineSequenceHoverState();
+	const setHoveredSequence = useSetTimelineSequenceHover();
+	const hoveredNodePathKey = hoveredSequence?.nodePathKey ?? null;
+	const hoveredTimelineNodePathKey =
+		hoveredSequence?.source === 'timeline' ? hoveredNodePathKey : null;
 
 	const updateOutlines = useCallback(() => {
 		const targets = getOutlineTargets();
@@ -120,7 +145,11 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			return;
 		}
 
-		const nextOutlines = measureOutlines(overlayRef.current, targets);
+		const nextOutlines = measureOutlines(
+			overlayRef.current,
+			targets,
+			hoveredTimelineNodePathKey,
+		);
 		setRenderState((prevState) => {
 			const outlines = outlinesAreEqual(prevState.outlines, nextOutlines)
 				? prevState.outlines
@@ -131,7 +160,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 
 			return {outlines, targets};
 		});
-	}, [getOutlineTargets]);
+	}, [getOutlineTargets, hoveredTimelineNodePathKey]);
 
 	useLayoutEffect(() => {
 		updateOutlinesRef.current = updateOutlines;
@@ -207,6 +236,16 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const targetsByKey = useMemo(() => {
 		return new Map(renderState.targets.map((target) => [target.key, target]));
 	}, [renderState.targets]);
+	useEffect(() => {
+		if (
+			hoveredSequence?.source === 'canvas' &&
+			!renderState.targets.some((target) => target.key === hoveredSequence.key)
+		) {
+			setHoveredSequence((currentHover) =>
+				currentHover?.source === 'canvas' ? null : currentHover,
+			);
+		}
+	}, [hoveredSequence, renderState.targets, setHoveredSequence]);
 	// Reordering a captured SVG target can cancel the active pointer session.
 	const outlineRenderingOrderRef = useRef<readonly string[]>([]);
 	const outlinesForRendering = useMemo(() => {
@@ -243,6 +282,44 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			renderState.outlines.map((outline) => [outline.key, outline]),
 		);
 	}, [renderState.outlines]);
+	const {
+		outlinesForEditingHandles,
+		outlinesForTransformOrigin,
+		outlinesForUvHandles,
+	} = useMemo(() => {
+		const editingHandles: SelectedOutline[] = [];
+		const transformOrigin: SelectedOutline[] = [];
+		const uvHandles: SelectedOutline[] = [];
+		for (const outline of outlinesForRendering) {
+			const target = targetsByKey.get(outline.key);
+			if (
+				target?.containsSelection === true ||
+				(target !== undefined &&
+					timelineSequenceNodePathToKey(
+						target.nodePathInfo.sequenceSubscriptionKey,
+					) === hoveredNodePathKey)
+			) {
+				editingHandles.push(outline);
+			}
+
+			if (target?.selectedForUvHandles === true) {
+				uvHandles.push(outline);
+			}
+
+			if (
+				target?.selectedForTransformOrigin === true ||
+				target?.selectedForRotation === true
+			) {
+				transformOrigin.push(outline);
+			}
+		}
+
+		return {
+			outlinesForEditingHandles: editingHandles,
+			outlinesForTransformOrigin: transformOrigin,
+			outlinesForUvHandles: uvHandles,
+		};
+	}, [hoveredNodePathKey, outlinesForRendering, targetsByKey]);
 	const targetsRef = useRef(renderState.targets);
 	const outlinesByKeyRef = useRef(outlinesByKey);
 	useLayoutEffect(() => {
@@ -312,7 +389,11 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			height="100%"
 			aria-hidden="true"
 		>
-			<SelectedOutlineHoverCleanup targets={renderState.targets} />
+			<ContextMenuForTarget
+				triggerRef={overlayRef}
+				getItems={getDelegatedContextMenuItems}
+				onOpenChange={onContextMenuOpenChange}
+			/>
 			<SelectedOutlineSnapIndicators
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
@@ -327,27 +408,41 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					dragging={dragging}
 					getAllDragOutlines={getAllDragOutlines}
 					getAllDragTargets={getAllDragTargets}
-					getAllRotationDragTargets={getAllRotationDragTargets}
-					getAllScaleDragTargets={getAllScaleDragTargets}
 					getLatestTargetByKey={getLatestOutlineTargetByKey}
 					outline={outline}
 					onDraggingChange={onDraggingChange}
-					onContextMenuOpenChange={onContextMenuOpenChange}
 					onSnapPointsChange={onSnapPointsChange}
 					onSelect={onSelect}
+					registerContextMenuOpen={registerContextMenuOpen}
 					scale={scale}
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
+			{/* Render editing handles after all outline polygons so selected controls stay visible and hit-testable over unrelated sequences. */}
+			{outlinesForEditingHandles.map((outline) => (
+				<SelectedOutlineEditingHandles
+					key={`${outline.key}-editing-handles`}
+					dragging={dragging}
+					getAllRotationDragTargets={getAllRotationDragTargets}
+					getAllScaleDragTargets={getAllScaleDragTargets}
+					getContextMenuOpenByKey={getContextMenuOpenByKey}
+					getLatestTargetByKey={getLatestOutlineTargetByKey}
+					layoutTarget={targetsByKey.get(outline.key)}
+					onContextMenuOpenChange={onContextMenuOpenChange}
+					onDraggingChange={onDraggingChange}
+					onSelect={onSelect}
+					outline={outline}
+				/>
+			))}
 			{/* Keep UV controls above every transparent outline polygon so SVG hit-testing reaches the handles first. */}
-			{outlinesForRendering.map((outline) => (
+			{outlinesForUvHandles.map((outline) => (
 				<SelectedOutlineUvHandleConnectionLayer
 					key={`${outline.key}-uv-connection-lines`}
 					outline={outline}
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
-			{outlinesForRendering.map((outline) => (
+			{outlinesForUvHandles.map((outline) => (
 				<SelectedOutlineUvHandleCircleLayer
 					key={`${outline.key}-uv-handles`}
 					onDraggingChange={onDraggingChange}
@@ -357,7 +452,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 				/>
 			))}
 			{/* Keep transform-origin handles above the canvas rotation surface so the knob stays visible in rotation mode and hit-testable while editing the origin. */}
-			{outlinesForRendering.map((outline) => (
+			{outlinesForTransformOrigin.map((outline) => (
 				<SelectedOutlineTransformOriginHandle
 					key={`${outline.key}-transform-origin`}
 					outline={outline}

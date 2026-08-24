@@ -29,12 +29,12 @@ import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
+import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
 import {InspectorSection} from './InspectorPanel/common';
 import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
-import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
@@ -84,11 +84,6 @@ const emptyState: React.CSSProperties = {
 	padding: '0 12px',
 };
 
-const effectsHeaderTitle: React.CSSProperties = {
-	...sectionHeaderTitle,
-	flexShrink: 1,
-};
-
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
@@ -104,61 +99,6 @@ const transform3DToggleIcon: React.CSSProperties = {
 	flexShrink: 0,
 	height: 14,
 	width: 14,
-};
-
-const collapsibleSectionHeaderButton: React.CSSProperties = {
-	appearance: 'none',
-	backgroundColor: 'transparent',
-	border: 'none',
-	borderRadius: 3,
-	cursor: 'default',
-	display: 'block',
-	flex: 1,
-	fontFamily: 'Arial, Helvetica, sans-serif',
-	fontSize: 12,
-	fontWeight: 'bold',
-	lineHeight: '16px',
-	margin: 0,
-	minWidth: 0,
-	overflow: 'hidden',
-	padding: '4px 0',
-	textAlign: 'left',
-	textOverflow: 'ellipsis',
-	userSelect: 'none',
-	whiteSpace: 'nowrap',
-};
-
-const CollapsibleInspectorSectionHeader: React.FC<{
-	readonly action: React.ReactNode;
-	readonly expanded: boolean;
-	readonly label: string;
-	readonly onToggle: () => void;
-}> = ({action, expanded, label, onToggle}) => {
-	const [hovered, setHovered] = useState(false);
-	const style = useMemo<React.CSSProperties>(() => {
-		return {
-			...collapsibleSectionHeaderButton,
-			color: hovered ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered]);
-
-	return (
-		<div style={sectionHeaderRow}>
-			<button
-				type="button"
-				aria-expanded={expanded}
-				aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}`}
-				className="__remotion-inspector-section-title"
-				onClick={onToggle}
-				onPointerEnter={() => setHovered(true)}
-				onPointerLeave={() => setHovered(false)}
-				style={style}
-			>
-				{label}
-			</button>
-			{action}
-		</div>
-	);
 };
 
 const assetSelectorIcon: React.CSSProperties = {
@@ -261,6 +201,7 @@ const persistInspectorCollapsedKeys = (keys: ReadonlySet<string>): void => {
 };
 
 type InspectorSectionExpansionOverrides = Readonly<Record<string, boolean>>;
+type AdditionalInspectorSectionId = 'captions' | 'effects';
 
 const loadInspectorSectionExpansionOverrides =
 	(): InspectorSectionExpansionOverrides => {
@@ -314,16 +255,16 @@ const persistInspectorSectionExpansionOverrides = (
 
 const getInspectorSectionExpansionKey = ({
 	nodePathInfo,
-	groupId,
+	sectionId,
 }: {
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly groupId: SchemaFieldGroupInfo['id'];
+	readonly sectionId: SchemaFieldGroupInfo['id'] | AdditionalInspectorSectionId;
 }) => {
 	return JSON.stringify([
 		nodePathInfo.sequenceSubscriptionKey.absolutePath,
 		nodePathInfo.sequenceSubscriptionKey.nodePath,
 		nodePathInfo.index,
-		groupId,
+		sectionId,
 	]);
 };
 
@@ -575,7 +516,7 @@ export const InspectorSequenceSection: React.FC<{
 
 				const expansionKey = getInspectorSectionExpansionKey({
 					nodePathInfo,
-					groupId: group.id,
+					sectionId: group.id,
 				});
 				const activity = getControlGroupActivity(group);
 				if (activity === 'active' && next[expansionKey] !== true) {
@@ -595,17 +536,17 @@ export const InspectorSequenceSection: React.FC<{
 	}, [controlGroups, getControlGroupActivity, nodePathInfo]);
 	const isControlGroupExpanded = useCallback(
 		(group: InspectorControlGroup): boolean => {
-			if (!isSmartCollapsibleInspectorGroup(group.id)) {
-				return true;
-			}
-
 			const expansionKey = getInspectorSectionExpansionKey({
 				nodePathInfo,
-				groupId: group.id,
+				sectionId: group.id,
 			});
 			const override = sectionExpansionOverrides[expansionKey];
 			if (override !== undefined) {
 				return override;
+			}
+
+			if (!isSmartCollapsibleInspectorGroup(group.id)) {
+				return true;
 			}
 
 			const automaticExpansion = automaticSectionExpansion[expansionKey];
@@ -626,7 +567,7 @@ export const InspectorSequenceSection: React.FC<{
 		(group: InspectorControlGroup) => {
 			const expansionKey = getInspectorSectionExpansionKey({
 				nodePathInfo,
-				groupId: group.id,
+				sectionId: group.id,
 			});
 			const nextExpanded = !isControlGroupExpanded(group);
 			setSectionExpansionOverrides((previous) => {
@@ -637,6 +578,33 @@ export const InspectorSequenceSection: React.FC<{
 		},
 		[isControlGroupExpanded, nodePathInfo],
 	);
+	const isAdditionalSectionExpanded = useCallback(
+		(sectionId: AdditionalInspectorSectionId): boolean => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			return sectionExpansionOverrides[expansionKey] ?? true;
+		},
+		[nodePathInfo, sectionExpansionOverrides],
+	);
+	const toggleAdditionalSection = useCallback(
+		(sectionId: AdditionalInspectorSectionId) => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			const nextExpanded = !isAdditionalSectionExpanded(sectionId);
+			setSectionExpansionOverrides((previous) => {
+				const next = {...previous, [expansionKey]: nextExpanded};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+		},
+		[isAdditionalSectionExpanded, nodePathInfo],
+	);
+	const captionsExpanded = isAdditionalSectionExpanded('captions');
+	const effectsExpanded = isAdditionalSectionExpanded('effects');
 	const visibleControlRows = controlGroups.flatMap((group) => {
 		return isControlGroupExpanded(group) ? group.rows : [];
 	});
@@ -779,16 +747,20 @@ export const InspectorSequenceSection: React.FC<{
 	);
 
 	const effectsHeader = (
-		<div style={sectionHeaderRow}>
-			<div style={effectsHeaderTitle}>Effects</div>
-			<InlineAction
-				variant={null}
-				disabled={!canAddEffect}
-				onClick={onAddEffect}
-				title={canAddEffect ? 'Add effect' : undefined}
-				renderAction={(color) => <Plus color={color} style={plusIcon} />}
-			/>
-		</div>
+		<CollapsibleInspectorSectionHeader
+			action={
+				<InlineAction
+					variant={null}
+					disabled={!canAddEffect}
+					onClick={onAddEffect}
+					title={canAddEffect ? 'Add effect' : undefined}
+					renderAction={(color) => <Plus color={color} style={plusIcon} />}
+				/>
+			}
+			expanded={effectsExpanded}
+			label="Effects"
+			onToggle={() => toggleAdditionalSection('effects')}
+		/>
 	);
 
 	const renderRow = ({node, depth}: FlatTreeRow) => {
@@ -815,26 +787,22 @@ export const InspectorSequenceSection: React.FC<{
 	};
 
 	const renderControlGroupHeader = (group: InspectorControlGroup) => {
-		const collapsible = isSmartCollapsibleInspectorGroup(group.id);
 		const expanded = isControlGroupExpanded(group);
-		if (collapsible) {
-			return (
-				<CollapsibleInspectorSectionHeader
-					action={
-						group.id === 'border-radius' && expanded ? borderRadiusAction : null
-					}
-					expanded={expanded}
-					label={group.label}
-					onToggle={() => toggleControlGroup(group)}
-				/>
-			);
-		}
-
 		return (
-			<div style={sectionHeaderRow}>
-				<div style={effectsHeaderTitle}>{group.label}</div>
-				{group.id === 'transforms' ? transform3DAction : null}
-			</div>
+			<CollapsibleInspectorSectionHeader
+				action={
+					expanded
+						? group.id === 'border-radius'
+							? borderRadiusAction
+							: group.id === 'transforms'
+								? transform3DAction
+								: null
+						: null
+				}
+				expanded={expanded}
+				label={group.label}
+				onToggle={() => toggleControlGroup(group)}
+			/>
 		);
 	};
 
@@ -882,14 +850,16 @@ export const InspectorSequenceSection: React.FC<{
 					<InlineCaptionInspector
 						captions={inlineCaptions}
 						controls={sequence.controls}
+						expanded={captionsExpanded}
 						nodePath={nodePathInfo.sequenceSubscriptionKey}
+						onToggle={() => toggleAdditionalSection('captions')}
 						readOnlyStudio={readOnlyStudio}
 						validatedLocation={validatedLocation}
 					/>
 				) : null}
 				{showEffectsSection ? (
 					<InspectorSection header={effectsHeader}>
-						{effectRows.length > 0 ? (
+						{effectsExpanded && effectRows.length > 0 ? (
 							<TimelineSelectionOrderProvider items={effectSelectableItems}>
 								{effectRows.map(renderRow)}
 							</TimelineSelectionOrderProvider>

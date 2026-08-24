@@ -3168,6 +3168,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: true,
 			numberOfConnectedCompositions: 1,
+			sequenceWasDragged: false,
 		}),
 	).toBe('open-connected-composition');
 	expect(
@@ -3175,6 +3176,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: false,
 			numberOfConnectedCompositions: 1,
+			sequenceWasDragged: false,
 		}),
 	).toBe('open-connected-composition');
 	expect(
@@ -3182,6 +3184,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: true,
 			numberOfConnectedCompositions: 0,
+			sequenceWasDragged: false,
 		}),
 	).toBe('open-in-editor');
 	expect(
@@ -3189,6 +3192,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: true,
 			numberOfConnectedCompositions: 2,
+			sequenceWasDragged: false,
 		}),
 	).toBe('open-in-editor');
 	expect(
@@ -3196,6 +3200,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 0,
 			canOpenInEditor: false,
 			numberOfConnectedCompositions: 2,
+			sequenceWasDragged: false,
 		}),
 	).toBeNull();
 	expect(
@@ -3203,6 +3208,26 @@ test('Sequence double-click opens one connected composition before the editor', 
 			button: 2,
 			canOpenInEditor: true,
 			numberOfConnectedCompositions: 1,
+			sequenceWasDragged: false,
+		}),
+	).toBeNull();
+});
+
+test('Sequence double-click does nothing when the second press dragged the sequence', () => {
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 1,
+			sequenceWasDragged: true,
+		}),
+	).toBeNull();
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 0,
+			sequenceWasDragged: true,
 		}),
 	).toBeNull();
 });
@@ -5793,6 +5818,8 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 			selectedItems: [],
 			timeline: [
 				{
+					cascadedStart: 0,
+					localStart: 0,
 					depth: 0,
 					keyframeDisplayOffset: 0,
 					nodePathInfo: sequenceNodePathInfo,
@@ -7187,6 +7214,12 @@ test('Selected outline controls adapt to the screen-space outline size', () => {
 		{x: 8, y: 40},
 		{x: 0, y: 40},
 	]);
+	const flat = getSelectedOutlineControlLayout([
+		{x: 0, y: 0},
+		{x: 40, y: 0},
+		{x: 40, y: 8},
+		{x: 0, y: 8},
+	]);
 
 	expect(normal.scaleEdges).toEqual(['top', 'right', 'bottom', 'left']);
 	expect(normal.scaleHitWidth).toEqual({horizontal: 9, vertical: 9});
@@ -7197,11 +7230,14 @@ test('Selected outline controls adapt to the screen-space outline size', () => {
 	expect(small.scaleHitWidth).toEqual({horizontal: 4.5, vertical: 4.5});
 	expect(small.rotationHandleRadius).toBe(3.375);
 	expect(small.rotationCorners).toHaveLength(4);
-	expect(tiny.scaleEdges).toEqual(['right', 'bottom']);
+	expect(tiny.scaleEdges).toEqual([]);
 	expect(tiny.rotationCorners).toEqual([]);
-	expect(thin.scaleEdges).toEqual(['top', 'right', 'bottom']);
+	expect(thin.scaleEdges).toEqual(['top', 'bottom']);
 	expect(thin.scaleHitWidth).toEqual({horizontal: 9, vertical: 4.5});
 	expect(thin.rotationCorners).toEqual([]);
+	expect(flat.scaleEdges).toEqual(['right', 'left']);
+	expect(flat.scaleHitWidth).toEqual({horizontal: 4.5, vertical: 9});
+	expect(flat.rotationCorners).toEqual([]);
 });
 
 test('Selected outline rotation pivot follows transform origin', () => {

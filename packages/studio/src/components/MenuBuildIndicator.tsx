@@ -59,6 +59,7 @@ export const MenuBuildIndicator: React.FC<{
 			<Spacing x={mobileLayout ? 0.5 : 2} />
 			{window.remotion_projectName}
 			<MenuCompositionName />
+			<Spacing x={1} />
 			<InspectorOpenInEditor location={folderLocation} locationType="folder" />
 			{mobileLayout ? null : <Spacing x={0.5} />}
 			{mobileLayout ? (

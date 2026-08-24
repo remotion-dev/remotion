@@ -1,5 +1,9 @@
 import {getVideoMetadata} from '@remotion/media-utils';
-import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
+import type {
+	FrameRateMetrics,
+	InputAudioTrack,
+	InputVideoTrack,
+} from 'mediabunny';
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import {useEffect, useState} from 'react';
 import {Internals} from 'remotion';
@@ -21,6 +25,19 @@ export type MediaMetadata = {
 
 const cache = new Map<string, MediaMetadata>();
 const pendingRequests = new Map<string, Promise<MediaMetadata | null>>();
+
+export const getFrameRateFromMetrics = (
+	metrics: Pick<
+		FrameRateMetrics,
+		'bestGuessFrameRate' | 'probedPacketCount'
+	> | null,
+) => {
+	if (metrics === null || metrics.probedPacketCount < 2) {
+		return null;
+	}
+
+	return metrics.bestGuessFrameRate;
+};
 
 export const getCachedMediaMetadata = (src: string) => {
 	return cache.get(src) ?? null;
@@ -89,7 +106,7 @@ const getMediabunnyMetadata = async (
 			width,
 			height,
 			videoCodec,
-			packetStats,
+			frameRateMetrics,
 			isHdr,
 			audioCodec,
 			sampleRate,
@@ -97,7 +114,7 @@ const getMediabunnyMetadata = async (
 			videoTrack ? safeCall(() => videoTrack.getDisplayWidth()) : null,
 			videoTrack ? safeCall(() => videoTrack.getDisplayHeight()) : null,
 			videoTrack ? safeCall(() => videoTrack.getCodec()) : null,
-			videoTrack ? safeCall(() => videoTrack.computePacketStats(50)) : null,
+			videoTrack ? safeCall(() => videoTrack.computeFrameRateMetrics()) : null,
 			videoTrack ? safeCall(() => videoTrack.hasHighDynamicRange()) : null,
 			audioTrack ? safeCall(() => audioTrack.getCodec()) : null,
 			audioTrack ? safeCall(() => audioTrack.getSampleRate()) : null,
@@ -110,7 +127,7 @@ const getMediabunnyMetadata = async (
 			height,
 			videoCodec,
 			audioCodec,
-			fps: packetStats?.averagePacketRate ?? null,
+			fps: getFrameRateFromMetrics(frameRateMetrics),
 			isHdr,
 			sampleRate,
 			hasVideoTrack: Boolean(videoTrack),

@@ -62,6 +62,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 }) => {
 	const rowDepth =
 		(rowDepthBase ?? getExpandedRowDepth({nestedDepth, treeDepth: 0})) + depth;
+	const isInspector = keyframeControlsMode === 'inspector';
 	const selection = useTimelineRowSelection(node.nodePathInfo);
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
@@ -91,6 +92,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
+					labelNextToToggle={isInspector}
 					getIsExpanded={getIsExpanded}
 					toggleTrack={toggleTrack}
 				/>
@@ -119,7 +121,6 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 				onSelect={selection.onSelect}
 				showSelectedBackground
 				containsSelection={false}
-				isFieldRow={false}
 				outerHeight={null}
 			>
 				<span style={labelStyle}>{node.label}</span>
@@ -133,7 +134,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 				<TimelineEffectPropItem
 					field={node.field}
 					validatedLocation={validatedLocation}
-					rowDepth={rowDepth}
+					rowDepth={isInspector ? rowDepth - 1 : rowDepth}
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
@@ -177,7 +178,6 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}
-			isFieldRow={false}
 			outerHeight={null}
 		>
 			<span style={labelStyle}>{node.label}</span>

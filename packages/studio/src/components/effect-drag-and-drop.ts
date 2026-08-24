@@ -76,9 +76,7 @@ export const addEffectToSequence = async ({
 			clientId,
 		});
 
-		if (result.success) {
-			showNotification(`Added ${effect.name}()`, 2000);
-		} else {
+		if (!result.success) {
 			showNotification(result.reason, 4000);
 		}
 	} catch (err) {

@@ -39,6 +39,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 			contentsAtMutation.push(project.files['/project/src/Composition.tsx']);
 		}
 	});
+	await new Promise((resolve) => setTimeout(resolve, 0));
 
 	expect(events.slice(0, 2).map((event) => event.type)).toEqual([
 		'init',
@@ -146,6 +147,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		contents: new Uint8Array([0, 127, 128, 255]).buffer,
 		filePath: '/nested/upload.bin',
 	});
+	await new Promise((resolve) => setTimeout(resolve, 0));
 	expect(project.publicFiles?.['nested/upload.bin']).toEqual(
 		new Uint8Array([0, 127, 128, 255]),
 	);
@@ -202,6 +204,91 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(events).toHaveLength(eventCount);
 	publicFileManager.dispose();
 	expect(revokedUrls).toContain('blob:virtual-2');
+});
+
+test('downloads CORS-enabled remote assets and rejects failed cross-origin fetches', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const originalFetch = globalThis.fetch;
+	const requestedUrls: string[] = [];
+	const gif = new Uint8Array([
+		0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x20, 0x03, 0x58, 0x02,
+	]);
+	globalThis.fetch = Object.assign(
+		(input: Parameters<typeof fetch>[0]) => {
+			const url = input.toString();
+			requestedUrls.push(url);
+			if (url.includes('cors-blocked')) {
+				return Promise.reject(new TypeError('Load failed'));
+			}
+
+			return Promise.resolve(
+				new Response(gif, {
+					headers: {'content-length': String(gif.byteLength)},
+					status: 200,
+				}),
+			);
+		},
+		{preconnect: originalFetch.preconnect},
+	);
+
+	try {
+		expect(
+			await operations.downloadRemoteAsset({
+				url: 'https://assets.example/path/remote-logo.png',
+			}),
+		).toEqual({
+			assetPath: 'remote-logo.gif',
+			created: true,
+			element: {
+				assetType: 'gif',
+				dimensions: {height: 600, width: 800},
+				durationInFrames: null,
+				position: null,
+				src: 'remote-logo.gif',
+				srcType: 'static',
+				type: 'asset',
+			},
+			sizeInBytes: gif.byteLength,
+		});
+		expect(project.publicFiles?.['remote-logo.gif']).toEqual(gif);
+
+		expect(await operations.undo()).toEqual({
+			nodePathMutation: null,
+			success: true,
+		});
+		expect(project.publicFiles?.['remote-logo.gif']).toBeUndefined();
+		expect(await operations.redo()).toEqual({
+			nodePathMutation: null,
+			success: true,
+		});
+		expect(project.publicFiles?.['remote-logo.gif']).toEqual(gif);
+
+		await expect(
+			operations.downloadRemoteAsset({
+				url: 'https://assets.example/cors-blocked.gif',
+			}),
+		).rejects.toThrow(
+			'Could not fetch remote asset. The URL may not allow cross-origin requests (CORS): Load failed',
+		);
+		expect(project.publicFiles?.['cors-blocked.gif']).toBeUndefined();
+		expect(requestedUrls).toEqual([
+			'https://assets.example/path/remote-logo.png',
+			'https://assets.example/cors-blocked.gif',
+		]);
+	} finally {
+		globalThis.fetch = originalFetch;
+	}
 });
 
 test('previews and duplicates compositions as an undoable project mutation', async () => {
@@ -578,7 +665,7 @@ test('rejects unsafe public paths and conflicting renames', async () => {
 	});
 });
 
-test('refreshes object URLs if a supplied byte array is mutated', () => {
+test('refreshes object URLs if a supplied byte array is mutated', async () => {
 	const contents = new Uint8Array([1, 2, 3]);
 	const revokedUrls: string[] = [];
 	let nextObjectUrl = 0;
@@ -592,20 +679,28 @@ test('refreshes object URLs if a supplied byte array is mutated', () => {
 	};
 
 	expect(
-		publicFileManager.getStaticFiles({lastModifiedByPath: null, project})[0]
-			.src,
+		(
+			await publicFileManager.getStaticFiles({
+				lastModifiedByPath: null,
+				project,
+			})
+		)[0].src,
 	).toBe('blob:mutable-1');
 	contents[0] = 4;
 	expect(
-		publicFileManager.getStaticFiles({lastModifiedByPath: null, project})[0]
-			.src,
+		(
+			await publicFileManager.getStaticFiles({
+				lastModifiedByPath: null,
+				project,
+			})
+		)[0].src,
 	).toBe('blob:mutable-2');
 	expect(revokedUrls).toEqual(['blob:mutable-1']);
 
 	publicFileManager.dispose();
 });
 
-test('uses the platform object URL implementation when overrides are null', () => {
+test('uses the platform object URL implementation when overrides are null', async () => {
 	const publicFileManager = createBrowserStudioPublicFileManager({
 		createObjectUrl: null,
 		revokeObjectUrl: null,
@@ -615,7 +710,7 @@ test('uses the platform object URL implementation when overrides are null', () =
 		publicFiles: {'default.txt': 'contents'},
 	};
 
-	const [file] = publicFileManager.getStaticFiles({
+	const [file] = await publicFileManager.getStaticFiles({
 		lastModifiedByPath: null,
 		project,
 	});

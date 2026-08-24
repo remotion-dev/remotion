@@ -1,4 +1,10 @@
+import {
+	createBrowserStudioProjectStorage,
+	deleteBrowserStudioProjectStorage,
+	writeBrowserStudioStoredPublicFile,
+} from './opfs-public-files';
 import type {VirtualProject} from './types';
+import type {VirtualProjectPublicFile} from './types';
 
 type GitHubTreeEntry = {
 	path: string;
@@ -185,7 +191,13 @@ export const loadGitHubRepository = async ({
 	let loadedBytes = 0;
 	let loadedFiles = 0;
 	const files: Record<string, string> = {};
-	const publicFiles: Record<string, Uint8Array> = {};
+	const publicFiles: Record<string, VirtualProjectPublicFile> = {};
+	const hasPublicFiles = fileEntries.some((file) =>
+		file.path.startsWith('public/'),
+	);
+	const publicFileStorage = hasPublicFiles
+		? await createBrowserStudioProjectStorage()
+		: null;
 	const totalFiles = fileEntries.length;
 	const reportDownloadProgress = () =>
 		onProgress?.({
@@ -198,45 +210,69 @@ export const loadGitHubRepository = async ({
 	reportDownloadProgress();
 
 	let nextFileIndex = 0;
-	await Promise.all(
-		Array.from(
-			{length: Math.min(downloadConcurrency, fileEntries.length)},
-			async () => {
-				while (nextFileIndex < fileEntries.length) {
-					const file = fileEntries[nextFileIndex++];
-					const response = await fetch(
-						`https://raw.githubusercontent.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(treeSha)}/${encodePath(file.path)}`,
-						{signal},
-					);
-					if (!response.ok) {
-						throw new Error(
-							`Could not download ${file.path}: ${await getResponseError(response)}`,
+	try {
+		await Promise.all(
+			Array.from(
+				{length: Math.min(downloadConcurrency, fileEntries.length)},
+				async () => {
+					while (nextFileIndex < fileEntries.length) {
+						const file = fileEntries[nextFileIndex++];
+						const response = await fetch(
+							`https://raw.githubusercontent.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(treeSha)}/${encodePath(file.path)}`,
+							{signal},
 						);
-					}
-
-					const contents = new Uint8Array(await response.arrayBuffer());
-					if (file.path.startsWith('public/')) {
-						publicFiles[file.path.slice('public/'.length)] = contents;
-					} else {
-						const text = decodeTextFile(contents);
-						if (text !== null) {
-							files[`/project/${file.path}`] = text;
+						if (!response.ok) {
+							throw new Error(
+								`Could not download ${file.path}: ${await getResponseError(response)}`,
+							);
 						}
-					}
 
-					loadedBytes += file.size ?? contents.byteLength;
-					loadedFiles++;
-					reportDownloadProgress();
-				}
-			},
-		),
-	);
+						let loadedByteLength = file.size ?? 0;
+						if (file.path.startsWith('public/') && publicFileStorage) {
+							const contents = response.body ?? (await response.blob());
+							const storedFile = await writeBrowserStudioStoredPublicFile({
+								contents,
+								storage: publicFileStorage,
+							});
+							publicFiles[file.path.slice('public/'.length)] = storedFile;
+							loadedByteLength = storedFile.sizeInBytes;
+						} else {
+							const contents = new Uint8Array(await response.arrayBuffer());
+							loadedByteLength = contents.byteLength;
+							if (file.path.startsWith('public/')) {
+								publicFiles[file.path.slice('public/'.length)] = contents;
+							} else {
+								const text = decodeTextFile(contents);
+								if (text !== null) {
+									files[`/project/${file.path}`] = text;
+								}
+							}
+						}
+
+						loadedBytes += file.size ?? loadedByteLength;
+						loadedFiles++;
+						reportDownloadProgress();
+					}
+				},
+			),
+		);
+	} catch (error) {
+		if (publicFileStorage) {
+			await deleteBrowserStudioProjectStorage(publicFileStorage);
+		}
+
+		throw error;
+	}
 
 	onProgress?.({phase: 'preparing-project'});
 	const entryPoint = entryPointCandidates.find(
 		(candidate) => files[`/project/${candidate}`] !== undefined,
 	);
 	if (!entryPoint) {
+		if (publicFileStorage) {
+			await deleteBrowserStudioProjectStorage(publicFileStorage);
+		}
+
 		throw new Error(
 			`${owner}/${repo} does not have a supported Remotion entry point. Expected src/index.ts or another standard Remotion entry point.`,
 		);
@@ -246,6 +282,7 @@ export const loadGitHubRepository = async ({
 		entryPoint: `/project/${entryPoint}`,
 		files,
 		publicFiles,
+		publicFileStorage: publicFileStorage ?? undefined,
 		rootDir: '/project',
 	};
 };

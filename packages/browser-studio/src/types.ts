@@ -5,8 +5,26 @@ export type VirtualProject = {
 	rootDir: string;
 	entryPoint: string;
 	files: Record<string, string>;
-	publicFiles?: Record<string, Uint8Array | string>;
+	publicFiles?: Record<string, VirtualProjectPublicFile>;
+	publicFileStorage?: BrowserStudioProjectStorage;
 };
+
+export type BrowserStudioProjectStorage = {
+	directoryName: string;
+	type: 'opfs';
+};
+
+export type BrowserStudioStoredPublicFile = {
+	key: string;
+	lastModified: number;
+	sizeInBytes: number;
+	type: 'stored';
+};
+
+export type VirtualProjectPublicFile =
+	| Uint8Array
+	| string
+	| BrowserStudioStoredPublicFile;
 
 export type VirtualFileSystem = {
 	readFile: (path: string) => Promise<string> | string;

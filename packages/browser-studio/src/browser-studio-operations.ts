@@ -6,6 +6,7 @@ import {
 	deleteEffects as deleteEffectsCodemod,
 	duplicateEffects as duplicateEffectsCodemod,
 	duplicateCompositionInSource,
+	duplicateJsxNode as duplicateJsxNodeCodemod,
 	findProjectFile,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
@@ -64,6 +65,7 @@ import type {
 } from 'remotion';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
+import {downloadRemoteAssetInBrowserStudio} from './download-remote-asset';
 import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject} from './types';
 
@@ -1225,7 +1227,6 @@ export const createBrowserStudioOperations = ({
 					result: await deleteJsxNodes({
 						input: project.files[fileName],
 						nodePaths,
-						formatFile: formatCodemodFile,
 					}),
 				})),
 			);
@@ -1258,6 +1259,45 @@ export const createBrowserStudioOperations = ({
 				reason: error instanceof Error ? error.message : String(error),
 				stack: error instanceof Error && error.stack ? error.stack : '',
 			};
+		}
+	};
+
+	const duplicateJsxNode: BrowserStudioOperations['duplicateJsxNode'] = async ({
+		fileName,
+		nodePath,
+	}) => {
+		try {
+			const project = getProject();
+			const absolutePath = findProjectFile({
+				filePath: fileName,
+				project,
+			});
+			const result = await duplicateJsxNodeCodemod({
+				input: project.files[absolutePath],
+				nodePath,
+				formatFile: formatCodemodFile,
+			});
+			const nodePathMutation = controller.applyMutation({
+				fileName: absolutePath,
+				mutate: () => ({
+					...project,
+					files: {...project.files, [absolutePath]: result.output},
+				}),
+				nodePathMutationFiles: [
+					{
+						absolutePath,
+						remappings: result.nodePathRemappings,
+						restoredNodePaths: [],
+					},
+				],
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not duplicate JSX node');
+			}
+
+			return {success: true, nodePathMutation};
+		} catch (error) {
+			return getStructuredError(error);
 		}
 	};
 
@@ -1872,14 +1912,19 @@ export const createBrowserStudioOperations = ({
 		},
 		deleteJsxNode,
 		deleteStaticFile: controller.deleteStaticFile,
+		downloadRemoteAsset: (request) =>
+			downloadRemoteAssetInBrowserStudio({
+				getProject,
+				request,
+				writeStaticFile: controller.writeStaticFile,
+			}),
 		downloadProject: () =>
-			Promise.resolve(
-				makeBrowserStudioProjectArchive({
-					dependencyVersions,
-					project: getProject(),
-				}),
-			),
+			makeBrowserStudioProjectArchive({
+				dependencyVersions,
+				project: getProject(),
+			}),
 		duplicateComposition,
+		duplicateJsxNode,
 		effects: effectOperations,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,

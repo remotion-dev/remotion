@@ -5,6 +5,7 @@ test('clips a very wide sequence to the render window', () => {
 	const layout = getTimelineSequenceVisibleLayout({
 		marginLeft: 100,
 		width: 10_000,
+		negativeStartWidth: 0,
 		premountWidth: 50,
 		postmountWidth: 75,
 		renderWindowLeft: 1_000,
@@ -17,6 +18,7 @@ test('clips a very wide sequence to the render window', () => {
 		cropLeft: 900,
 		leftEdgeVisible: false,
 		rightEdgeVisible: false,
+		negativeStart: null,
 		premount: null,
 		postmount: null,
 		media: {
@@ -32,6 +34,7 @@ test('preserves the real item edges and mount regions when visible', () => {
 	const layout = getTimelineSequenceVisibleLayout({
 		marginLeft: 100,
 		width: 500,
+		negativeStartWidth: 0,
 		premountWidth: 50,
 		postmountWidth: 75,
 		renderWindowLeft: 0,
@@ -44,6 +47,7 @@ test('preserves the real item edges and mount regions when visible', () => {
 		cropLeft: 0,
 		leftEdgeVisible: true,
 		rightEdgeVisible: true,
+		negativeStart: null,
 		premount: {left: 0, width: 50},
 		postmount: {left: 425, width: 75},
 		media: {
@@ -65,6 +69,7 @@ test('preserves a real edge when floating-point subtraction changes the width', 
 	const layout = getTimelineSequenceVisibleLayout({
 		marginLeft,
 		width,
+		negativeStartWidth: 0,
 		premountWidth: 0,
 		postmountWidth: 0,
 		renderWindowLeft: 0,
@@ -80,10 +85,32 @@ test('does not render a sequence outside the render window', () => {
 		getTimelineSequenceVisibleLayout({
 			marginLeft: 2_000,
 			width: 500,
+			negativeStartWidth: 0,
 			premountWidth: 0,
 			postmountWidth: 0,
 			renderWindowLeft: 0,
 			renderWindowWidth: 1_000,
 		}),
 	).toBeNull();
+});
+
+test('keeps negative timing separate from premount and media', () => {
+	const layout = getTimelineSequenceVisibleLayout({
+		marginLeft: -10,
+		width: 110,
+		negativeStartWidth: 10,
+		premountWidth: 20,
+		postmountWidth: 0,
+		renderWindowLeft: -16,
+		renderWindowWidth: 200,
+	});
+
+	expect(layout?.negativeStart).toEqual({left: 0, width: 10});
+	expect(layout?.premount).toEqual({left: 10, width: 20});
+	expect(layout?.media).toEqual({
+		left: 30,
+		width: 80,
+		offset: 0,
+		fullWidth: 80,
+	});
 });

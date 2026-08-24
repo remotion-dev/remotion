@@ -1163,6 +1163,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'passing-props',
+				'default-props-inference',
 				'schemas',
 				'visual-editing',
 				'data-fetching',

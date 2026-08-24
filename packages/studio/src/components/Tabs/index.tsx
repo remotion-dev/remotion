@@ -34,7 +34,7 @@ const selectorButton: React.CSSProperties = {
 	flex: 1,
 	padding: 3,
 	height: 34,
-	paddingLeft: 12,
+	paddingLeft: 10,
 	display: 'flex',
 	flexDirection: 'row',
 	fontSize: 13,

@@ -6,31 +6,59 @@ import {
 	installableMap,
 } from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
+import ReactDOM from 'react-dom';
 import {VERSION} from 'remotion';
 import {installPackages} from '../api/install-package';
 import {restartStudio} from '../api/restart-studio';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {BORDER_WHITE_ALPHA_12, LIGHT_TEXT} from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {SetSelectedModalContext} from '../state/modals';
 import {Checkbox} from './Checkbox';
 import {InstallablePackageComp} from './InstallablePackage';
-import {Flex, Row, Spacing} from './layout';
+import {Flex, Row} from './layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalButton} from './ModalButton';
 import {ModalFooterContainer} from './ModalFooter';
-import {ModalHeader} from './ModalHeader';
-import {DismissableModal} from './NewComposition/DismissableModal';
 
 const container: React.CSSProperties = {
-	padding: 20,
-	maxHeight: 400,
+	boxSizing: 'border-box',
+	flex: 1,
+	fontFamily: 'sans-serif',
+	minHeight: 0,
 	overflowY: 'auto',
+	padding: '16px 16px 0',
+};
+
+const settingsContainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	minHeight: 0,
+	minWidth: 0,
 };
 
 const text: React.CSSProperties = {
 	fontSize: 14,
+};
+
+const footer: React.CSSProperties = {
+	flex: 'none',
+};
+
+const packageRow: React.CSSProperties = {
+	alignItems: 'center',
+	borderBottom: BORDER_WHITE_ALPHA_12,
+	display: 'flex',
+	gap: 10,
+	minHeight: 52,
+	padding: '4px 0',
+};
+
+const lastPackageRow: React.CSSProperties = {
+	...packageRow,
+	borderBottom: 'none',
 };
 
 type State =
@@ -51,9 +79,10 @@ type State =
 			type: 'restarting';
 	  };
 
-export const InstallPackageModal: React.FC<{
+export const InstallPackageSettings: React.FC<{
+	readonly footerContainer: HTMLElement | null;
 	readonly packageManager: PackageManager | null;
-}> = ({packageManager}) => {
+}> = ({footerContainer, packageManager}) => {
 	const [state, setState] = React.useState<State>({type: 'idle'});
 
 	const [map, setMap] = React.useState<Record<string, boolean>>({});
@@ -127,10 +156,13 @@ export const InstallPackageModal: React.FC<{
 			enter.unregister();
 		};
 	}, [disabled, onClick, registerKeybinding]);
+	const installablePackages = Object.entries(installableMap).filter(
+		([, install]) => install,
+	);
+	const packageCount = installablePackages.length + extraPackages.length;
 
 	return (
-		<DismissableModal>
-			<ModalHeader title="Install packages" />
+		<div style={settingsContainer}>
 			<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				{state.type === 'done' ? (
 					<div style={text}>
@@ -150,51 +182,64 @@ export const InstallPackageModal: React.FC<{
 							: '. Check your terminal for progress.'}
 					</div>
 				) : (
-					<div style={text}>
-						{Object.entries(installableMap)
-							.filter(([, install]) => install)
-							.map(([pkgShort]) => {
-								const pkg =
-									pkgShort === 'core' ? 'remotion' : `@remotion/${pkgShort}`;
-								const isInstalled =
-									window.remotion_installedPackages?.includes(pkg) ?? false;
-								const link = apiDocs[pkgShort as Pkgs];
-								const description = descriptions[pkgShort as Pkgs];
-								if (!link) {
-									throw new Error('No link for ' + pkg);
-								}
+					<div style={text} role="list" aria-label="Remotion packages">
+						{installablePackages.map(([pkgShort], index) => {
+							const pkg =
+								pkgShort === 'core' ? 'remotion' : `@remotion/${pkgShort}`;
+							const isInstalled =
+								window.remotion_installedPackages?.includes(pkg) ?? false;
+							const link = apiDocs[pkgShort as Pkgs];
+							const description = descriptions[pkgShort as Pkgs];
+							if (!link) {
+								throw new Error('No link for ' + pkg);
+							}
 
-								if (!description) {
-									throw new Error('No description for ' + pkg);
-								}
+							if (!description) {
+								throw new Error('No description for ' + pkg);
+							}
 
-								return (
-									<Row key={pkg} align="center">
-										<Checkbox
-											checked={map[pkg]}
-											name={pkg}
-											onChange={() => {
-												setMap((prev) => ({...prev, [pkg]: !prev[pkg]}));
-											}}
-											disabled={!canSelectPackages || isInstalled}
-										/>
-										<Spacing x={1.5} />
-										<InstallablePackageComp
-											description={description}
-											isInstalled={isInstalled}
-											link={link}
-											pkg={pkg}
-										/>
-									</Row>
-								);
-							})}
-						{extraPackages.map((extraPkg: ExtraPackage) => {
+							return (
+								<Row
+									key={pkg}
+									align="center"
+									role="listitem"
+									style={
+										index === packageCount - 1 ? lastPackageRow : packageRow
+									}
+								>
+									<Checkbox
+										checked={map[pkg]}
+										name={pkg}
+										onChange={() => {
+											setMap((prev) => ({...prev, [pkg]: !prev[pkg]}));
+										}}
+										disabled={!canSelectPackages || isInstalled}
+									/>
+									<InstallablePackageComp
+										description={description}
+										isInstalled={isInstalled}
+										link={link}
+										pkg={pkg}
+									/>
+								</Row>
+							);
+						})}
+						{extraPackages.map((extraPkg: ExtraPackage, index) => {
 							const isInstalled =
 								window.remotion_installedPackages?.includes(extraPkg.name) ??
 								false;
 
 							return (
-								<Row key={extraPkg.name} align="center">
+								<Row
+									key={extraPkg.name}
+									align="center"
+									role="listitem"
+									style={
+										installablePackages.length + index === packageCount - 1
+											? lastPackageRow
+											: packageRow
+									}
+								>
 									<Checkbox
 										checked={map[extraPkg.name]}
 										name={extraPkg.name}
@@ -206,7 +251,6 @@ export const InstallPackageModal: React.FC<{
 										}}
 										disabled={!canSelectPackages || isInstalled}
 									/>
-									<Spacing x={1.5} />
 									<InstallablePackageComp
 										description={extraPkg.description}
 										isInstalled={isInstalled}
@@ -219,33 +263,40 @@ export const InstallPackageModal: React.FC<{
 					</div>
 				)}
 			</div>
-			<ModalFooterContainer>
-				<Row align="center">
-					{state.type === 'idle' ? (
-						<span style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}>
-							This will install {selectedPackages.length} package
-							{selectedPackages.length === 1 ? '' : 's'}
-							<br />
-							{packageManager === null
-								? `in this project, Remotion v${VERSION}`
-								: `using ${packageManager}, Remotion v${VERSION}`}
-						</span>
-					) : null}
-					<Flex />
-					<ModalButton onClick={onClick} disabled={disabled}>
-						{state.type === 'restarting'
-							? 'Restarting...'
-							: state.type === 'installing'
-								? 'Installing...'
-								: state.type === 'done'
-									? packageManager === null
-										? 'Done'
-										: 'Restart Server'
-									: 'Install'}
-						{disabled ? null : <ShortcutHint keyToPress="↵" cmdOrCtrl />}
-					</ModalButton>
-				</Row>
-			</ModalFooterContainer>
-		</DismissableModal>
+			{footerContainer
+				? ReactDOM.createPortal(
+						<ModalFooterContainer style={footer}>
+							<Row align="center">
+								{state.type === 'idle' ? (
+									<span
+										style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}
+									>
+										This will install {selectedPackages.length} package
+										{selectedPackages.length === 1 ? '' : 's'}
+										<br />
+										{packageManager === null
+											? `in this project, Remotion v${VERSION}`
+											: `using ${packageManager}, Remotion v${VERSION}`}
+									</span>
+								) : null}
+								<Flex />
+								<ModalButton onClick={onClick} disabled={disabled}>
+									{state.type === 'restarting'
+										? 'Restarting...'
+										: state.type === 'installing'
+											? 'Installing...'
+											: state.type === 'done'
+												? packageManager === null
+													? 'Done'
+													: 'Restart Server'
+												: 'Install'}
+									{disabled ? null : <ShortcutHint keyToPress="↵" cmdOrCtrl />}
+								</ModalButton>
+							</Row>
+						</ModalFooterContainer>,
+						footerContainer,
+					)
+				: null}
+		</div>
 	);
 };

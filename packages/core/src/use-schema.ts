@@ -4,7 +4,10 @@ import {
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
-import {FILE_TOKEN} from './input-props-serialization.js';
+import {
+	FILE_TOKEN,
+	resolveFileTokenToUrl,
+} from './input-props-serialization.js';
 import type {
 	InteractivitySchema,
 	InteractivitySchemaField,
@@ -348,7 +351,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			typeof value === 'string' &&
 			value.startsWith(FILE_TOKEN)
 		) {
-			value = `${window.remotion_staticBase}/${value.slice(FILE_TOKEN.length)}`;
+			value = resolveFileTokenToUrl(value);
 		}
 
 		if (value === undefined) {

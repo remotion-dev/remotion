@@ -589,6 +589,7 @@ export const handleRoutes = ({
 			req: request,
 			res: response,
 			allowOutsidePublicFolder: false,
+			allowRemotionConvertCors: true,
 		});
 	}
 
@@ -609,6 +610,7 @@ export const handleRoutes = ({
 			req: request,
 			res: response,
 			allowOutsidePublicFolder: false,
+			allowRemotionConvertCors: false,
 		});
 	}
 

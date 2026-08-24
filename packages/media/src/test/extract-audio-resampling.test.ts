@@ -61,3 +61,20 @@ test('resamples Mediabunny AudioSamples as one continuous frame', async () => {
 
 	expect(maximumError).toBeLessThanOrEqual(2);
 });
+
+test('downmixes 5.1 audio without overflowing and excludes the LFE channel', () => {
+	const sourceChannels = new Int16Array([
+		32767, 32767, 32767, -32768, 32767, 32767, 0, 0, 0, 32767, 32767, -32768,
+	]);
+	const destination = new Int16Array(4);
+
+	resampleAudioData({
+		srcNumberOfChannels: 6,
+		sourceChannels,
+		destination,
+		targetFrames: 2,
+		chunkSize: 1,
+	});
+
+	expect(Array.from(destination)).toEqual([32767, 32767, 9597, -9597]);
+});

@@ -15,6 +15,7 @@ import {MacCursorsExample} from './MacCursors';
 import {NewVideoComp} from './NewVideo';
 import {RotationKeyframeE2e} from './RotationKeyframeE2e';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
+import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {TimelineVirtualizationTestbed} from './TimelineVirtualizationTestbed';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
@@ -215,6 +216,14 @@ export const E2eTestRoot: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={30}
+			/>
+			<Composition
+				id="timeline-negative-start"
+				component={TimelineNegativeFromResize}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
 			/>
 			<Composition
 				id="inspector-control-layout-e2e"

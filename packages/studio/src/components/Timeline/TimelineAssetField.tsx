@@ -24,7 +24,22 @@ const penIcon: React.CSSProperties = {
 	width: 14,
 };
 
-export type InspectorSourceAction = Omit<InspectorQuickActionProps, 'variant'>;
+const sourceActions: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flex: 1,
+	gap: 4,
+	minWidth: 0,
+};
+
+const standaloneSourceActionStyle: React.CSSProperties = {
+	flex: 1,
+	margin: 0,
+	minWidth: 0,
+	width: 'auto',
+};
+
+export type InspectorSourceAction = InspectorQuickActionProps;
 
 type AssetSelectionContextValue = {
 	readonly initialQuery: string;
@@ -166,18 +181,13 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	}
 
 	return (
-		<InspectorQuickAction
-			{...inlineSourceAction}
-			size="compact"
-			variant={{
-				type: 'segmented',
-				trailing: {
-					disabled: window.remotion_isReadOnlyStudio,
-					onClick: openAssetSelection,
-					renderIcon: (color) => <PenIcon color={color} style={penIcon} />,
-					title: 'Change source',
-				},
-			}}
-		/>
+		<div style={sourceActions}>
+			<InspectorQuickAction
+				{...inlineSourceAction}
+				size="compact"
+				style={standaloneSourceActionStyle}
+			/>
+			{action}
+		</div>
 	);
 };

@@ -30,8 +30,9 @@ import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from './get-node-path-remappings';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {getAstNodePath} from './sequence-props/get-ast-node-path';
-import {parseAst, serializeAst} from './sequence-props/parse-ast';
+import {parseAst} from './sequence-props/parse-ast';
 
 const {builders: b, namedTypes} = recast.types;
 
@@ -411,15 +412,126 @@ export const deleteJsxElementAtPath = (
 	jsxPath.replace(b.nullLiteral());
 };
 
-export const deleteJsxNodes = async ({
+type SourceEdit = {
+	end: number;
+	replacement: string;
+	start: number;
+};
+
+const getNodeSourceEdit = ({
+	input,
+	jsxPath,
+}: {
+	input: string;
+	jsxPath: recast.types.NodePath;
+}): SourceEdit => {
+	const node = jsxPath.node as JSXElement;
+	if (!node.loc) {
+		throw new Error('Cannot delete a JSX element without a source location');
+	}
+
+	const start = recastLocToOffset(input, node.loc.start);
+	const end = recastLocToOffset(input, node.loc.end);
+	const parentNode = jsxPath.parentPath?.node;
+	const isJsxChild =
+		parentNode !== undefined &&
+		(namedTypes.JSXElement.check(parentNode) ||
+			namedTypes.JSXFragment.check(parentNode));
+
+	if (!isJsxChild) {
+		const {extra} = node as JSXElement & {
+			extra?: {parenthesized?: boolean};
+		};
+		if (extra?.parenthesized) {
+			let openingParenthesis = start - 1;
+			while (openingParenthesis >= 0 && /\s/.test(input[openingParenthesis])) {
+				openingParenthesis--;
+			}
+
+			let closingParenthesis = end;
+			while (
+				closingParenthesis < input.length &&
+				/\s/.test(input[closingParenthesis])
+			) {
+				closingParenthesis++;
+			}
+
+			if (
+				input[openingParenthesis] === '(' &&
+				input[closingParenthesis] === ')'
+			) {
+				return {
+					end: closingParenthesis + 1,
+					replacement: 'null',
+					start: openingParenthesis,
+				};
+			}
+		}
+
+		return {end, replacement: 'null', start};
+	}
+
+	const lineStart = input.lastIndexOf('\n', start - 1) + 1;
+	const nextLineStart = input.indexOf('\n', end);
+	const lineEnd = nextLineStart === -1 ? input.length : nextLineStart;
+	const beforeNode = input.slice(lineStart, start);
+	const afterNode = input.slice(end, lineEnd);
+
+	if (beforeNode.trim() === '' && afterNode.trim() === '') {
+		return {
+			end: nextLineStart === -1 ? input.length : nextLineStart + 1,
+			replacement: '',
+			start: lineStart,
+		};
+	}
+
+	return {end, replacement: '', start};
+};
+
+const applySourceEdits = ({
+	edits,
+	input,
+}: {
+	edits: SourceEdit[];
+	input: string;
+}): string => {
+	const sorted = edits
+		.slice()
+		.sort((left, right) => left.start - right.start || right.end - left.end);
+	const nonOverlapping: SourceEdit[] = [];
+
+	for (const edit of sorted) {
+		const previous = nonOverlapping[nonOverlapping.length - 1];
+		if (previous && edit.start < previous.end) {
+			if (edit.end <= previous.end) {
+				continue;
+			}
+
+			throw new Error('Overlapping JSX deletion source ranges');
+		}
+
+		nonOverlapping.push(edit);
+	}
+
+	let output = input;
+	for (let i = nonOverlapping.length - 1; i >= 0; i--) {
+		const edit = nonOverlapping[i];
+		output =
+			output.slice(0, edit.start) + edit.replacement + output.slice(edit.end);
+	}
+
+	return output;
+};
+
+export const deleteJsxNodes = ({
 	input,
 	nodePaths,
-	formatFile,
-	prettierConfigOverride,
 }: {
 	input: string;
 	nodePaths: SequenceNodePath[];
-	formatFile: (input: {
+	// Kept optional for compatibility with callers from before source edits
+	// replaced the full-file formatting pass.
+	formatFile?: (input: {
 		contents: string;
 		prettierConfigOverride: Record<string, unknown> | null;
 	}) => Promise<{output: string; formatted: boolean}>;
@@ -460,39 +572,39 @@ export const deleteJsxNodes = async ({
 		};
 	});
 
+	const sourceEdits = pathsToDelete.map(({jsxPath}) =>
+		getNodeSourceEdit({input, jsxPath}),
+	);
+
 	for (const {jsxPath} of pathsToDelete) {
 		deleteJsxElementAtPath(jsxPath);
 	}
 
-	const finalFile = serializeAst(ast);
-	const {output, formatted} = await formatFile({
-		contents: finalFile,
-		prettierConfigOverride: prettierConfigOverride ?? null,
-	});
+	const output = applySourceEdits({edits: sourceEdits, input});
 	const {nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
 		output,
 	});
 
-	return {
+	return Promise.resolve({
 		output,
-		formatted,
+		formatted: true,
 		nodeLabels: pathsToDelete.map(({nodeLabel}) => nodeLabel),
 		logLines: pathsToDelete.map(({logLine}) => logLine),
 		nodePathRemappings,
-	};
+	});
 };
 
 export const deleteJsxNode = async ({
 	input,
 	nodePath,
-	formatFile,
-	prettierConfigOverride,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
-	formatFile: (input: {
+	// Kept optional for compatibility with callers from before source edits
+	// replaced the full-file formatting pass.
+	formatFile?: (input: {
 		contents: string;
 		prettierConfigOverride: Record<string, unknown> | null;
 	}) => Promise<{output: string; formatted: boolean}>;
@@ -506,8 +618,6 @@ export const deleteJsxNode = async ({
 	const {output, formatted, nodeLabels, logLines} = await deleteJsxNodes({
 		input,
 		nodePaths: [nodePath],
-		formatFile,
-		prettierConfigOverride,
 	});
 
 	return {

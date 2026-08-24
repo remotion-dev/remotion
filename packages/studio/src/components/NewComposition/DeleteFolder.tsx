@@ -50,7 +50,6 @@ export const DeleteFolder: React.FC<{
 					<CodemodFooter
 						errorNotification={`Could not delete folder`}
 						loadingNotification={'Deleting folder'}
-						successNotification={`Deleted folder ${folderId}`}
 						genericSubmitLabel={`Delete`}
 						submitLabel={({relativeRootPath}) =>
 							`Delete from ${relativeRootPath}`

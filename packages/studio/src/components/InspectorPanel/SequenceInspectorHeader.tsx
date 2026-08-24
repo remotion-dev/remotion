@@ -6,6 +6,7 @@ import {ReactIcon} from '../../icons/react';
 import {InlineEditableTitle} from '../InlineEditableTitle';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {InspectorLocationCopy} from '../InspectorLocationCopy';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {useOpenSequenceInApps} from '../Timeline/use-open-sequence-in-apps';
@@ -39,7 +40,7 @@ const sequenceInspectorSubtitle: React.CSSProperties = {
 	height: COMPACT_INLINE_ROW_HEIGHT,
 	lineHeight: '18px',
 	margin: '0 4px',
-	padding: '0 8px',
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
 	width: 'calc(100% - 8px)',
 };
 

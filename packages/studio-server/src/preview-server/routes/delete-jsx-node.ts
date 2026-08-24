@@ -9,13 +9,13 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {logHmrTiming} from '../hmr-timing';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
@@ -35,6 +35,12 @@ export const deleteJsxNodeHandler: ApiHandler<
 > = ({input: {nodes}, remotionRoot, logLevel}) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
+			logHmrTiming({
+				detail: null,
+				logLevel,
+				stage: 'delete-jsx-node-request-start',
+			});
+
 			if (nodes.length === 0) {
 				throw new Error('No JSX nodes were specified for deletion');
 			}
@@ -61,7 +67,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
 
-					const {output, formatted, nodeLabels, logLines, nodePathRemappings} =
+					const {output, nodeLabels, logLines, nodePathRemappings} =
 						await deleteJsxNodes({
 							input: fileContents,
 							nodePaths: fileItems.map((item) => item.nodePath),
@@ -72,13 +78,17 @@ export const deleteJsxNodeHandler: ApiHandler<
 						fileRelativeToRoot,
 						fileContents,
 						output,
-						formatted,
 						nodeLabels,
 						nodePathRemappings,
 						logLine: Math.min(...logLines),
 					};
 				}),
 			);
+			logHmrTiming({
+				detail: `files=${updates.length}`,
+				logLevel,
+				stage: 'delete-jsx-node-codemod-complete',
+			});
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({
 					absolutePath: update.absolutePath,
@@ -108,11 +118,21 @@ export const deleteJsxNodeHandler: ApiHandler<
 					nodePathRemappings: update.nodePathRemappings,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);
+				logHmrTiming({
+					detail: `file=${update.fileRelativeToRoot}`,
+					logLevel,
+					stage: 'source-file-write-start',
+				});
 				writeFileAndNotifyFileWatchers({
 					file: update.absolutePath,
 					content: update.output,
 					originatorClientId: undefined,
 					metadata: {skipSequencePropsUpdate: true},
+				});
+				logHmrTiming({
+					detail: `file=${update.fileRelativeToRoot}`,
+					logLevel,
+					stage: 'source-file-write-complete',
 				});
 
 				const locationLabel = formatLogFileLocation({
@@ -124,13 +144,9 @@ export const deleteJsxNodeHandler: ApiHandler<
 					{indent: false, logLevel},
 					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Deleted ${deletedNodeDescription}`,
 				);
-				if (!update.formatted) {
-					warnAboutPrettierOnce(logLevel);
-				}
-
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
-					`[delete-jsx-node] Wrote ${update.fileRelativeToRoot}${update.formatted ? ' (formatted)' : ''}`,
+					`[delete-jsx-node] Wrote ${update.fileRelativeToRoot}`,
 				);
 			}
 

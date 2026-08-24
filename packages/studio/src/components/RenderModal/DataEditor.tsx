@@ -5,7 +5,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BLUE, BLACK_HEX, LIGHT_TEXT} from '../../helpers/colors';
 import {CompactExplanation} from '../CompactExplanation';
-import {useZodIfPossible} from '../get-zod-if-possible';
+import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -17,6 +17,7 @@ import type {
 } from './get-render-modal-warnings';
 import {getRenderModalWarnings} from './get-render-modal-warnings';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
+import {resolveCompositionSchema} from './SchemaEditor/infer-zod-schema-from-value';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -24,10 +25,7 @@ import {
 	type SchemaErrorMode,
 	ZodNotInstalled,
 } from './SchemaEditor/SchemaErrorMessages';
-import type {
-	AnyZodSchema,
-	ZodSafeParseResult,
-} from './SchemaEditor/zod-schema-type';
+import type {ZodSafeParseResult} from './SchemaEditor/zod-schema-type';
 import {getZodSchemaType, zodSafeParse} from './SchemaEditor/zod-schema-type';
 import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 import {WarningIndicatorButton} from './WarningIndicatorButton';
@@ -281,29 +279,21 @@ export const DataEditor: React.FC<{
 	}, [setDefaultProps]);
 
 	const z = useZodIfPossible();
+	const zodTypes = useZodTypesIfPossible();
 
 	const schema = useMemo(() => {
-		if (!z) {
-			return 'no-zod' as const;
-		}
-
-		if (!unresolvedComposition.schema) {
-			return 'no-schema' as const;
-		}
-
-		if (
-			!(
-				typeof (unresolvedComposition.schema as {safeParse?: unknown})
-					.safeParse === 'function'
-			)
-		) {
-			throw new Error(
-				'A value which is not a Zod schema was passed to `schema`',
-			);
-		}
-
-		return unresolvedComposition.schema as AnyZodSchema;
-	}, [unresolvedComposition.schema, z]);
+		return resolveCompositionSchema({
+			explicitSchema: unresolvedComposition.schema,
+			defaultProps: unresolvedComposition.defaultProps ?? {},
+			z,
+			zodTypes,
+		});
+	}, [
+		unresolvedComposition.defaultProps,
+		unresolvedComposition.schema,
+		z,
+		zodTypes,
+	]);
 
 	const zodValidationResult = useMemo(() => {
 		if (schema === 'no-zod') {

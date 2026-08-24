@@ -1,7 +1,7 @@
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {callApi} from '../call-api';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
+import {duplicateJsxNode} from '../duplicate-jsx-node-api';
 import {duplicateEffects} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {TimelineSelection} from './TimelineSelection';
@@ -37,7 +37,7 @@ const confirmDuplicatingProgrammaticallyDuplicatedSequences = (
 
 const duplicateSequence = (nodePathInfo: SequenceNodePathInfo) => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
-	return callApi('/api/duplicate-jsx-node', {
+	return duplicateJsxNode({
 		fileName: nodePath.absolutePath,
 		nodePath: nodePath.nodePath,
 	});
@@ -72,15 +72,7 @@ export const duplicateSequencesFromSource = (
 				const failedResult = results.find((result) => !result.success);
 				if (failedResult && !failedResult.success) {
 					showNotification(failedResult.reason, 4000);
-					return;
 				}
-
-				showNotification(
-					toDuplicate.length === 1
-						? 'Duplicated sequence in source file'
-						: 'Duplicated sequences in source files',
-					2000,
-				);
 			})
 			.catch((err) => {
 				showNotification((err as Error).message, 4000);
@@ -115,14 +107,7 @@ const duplicateEffectsFromSource = (
 		}),
 	)
 		.then((result) => {
-			if (result.success) {
-				showNotification(
-					effects.length === 1
-						? 'Duplicated effect in source file'
-						: 'Duplicated effects in source files',
-					2000,
-				);
-			} else {
+			if (!result.success) {
 				showNotification(result.reason, 4000);
 			}
 		})

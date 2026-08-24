@@ -409,28 +409,29 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Changelog',
 					},
-					browserStudioOperations === null
-						? {
-								id: 'settings',
-								value: 'settings',
-								label: 'Settings...',
-								onClick: () => {
-									closeMenu();
-									setSelectedModal({
-										type: 'settings',
-										initialTab: 'rendering',
-										initialPublicLicenseKey:
-											window.remotion_renderDefaults?.publicLicenseKey ?? null,
-									});
-								},
-								type: 'item' as const,
-								keyHint: null,
-								leftItem: null,
-								subMenu: null,
-								quickSwitcherLabel: 'Settings...',
-								disabled: readOnlyStudio || type !== 'connected',
-							}
-						: null,
+					{
+						id: 'settings',
+						value: 'settings',
+						label: 'Settings...',
+						onClick: () => {
+							closeMenu();
+							setSelectedModal({
+								type: 'settings',
+								initialTab:
+									browserStudioOperations === null ? 'rendering' : 'shortcuts',
+								initialPublicLicenseKey:
+									window.remotion_renderDefaults?.publicLicenseKey ?? null,
+							});
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Settings...',
+						disabled:
+							(browserStudioOperations === null && readOnlyStudio) ||
+							type !== 'connected',
+					},
 					{
 						id: 'acknowledgements',
 						value: 'acknowledgements',
@@ -907,11 +908,10 @@ export const useMenuStructure = (
 								onClick: () => {
 									closeMenu();
 									setSelectedModal({
-										type: 'install-packages',
-										packageManager:
-											remotion_packageManager === 'unknown'
-												? null
-												: remotion_packageManager,
+										type: 'settings',
+										initialTab: 'packages',
+										initialPublicLicenseKey:
+											window.remotion_renderDefaults?.publicLicenseKey ?? null,
 									});
 								},
 								type: 'item' as const,
@@ -938,11 +938,10 @@ export const useMenuStructure = (
 							closeMenu();
 
 							setSelectedModal({
-								type: 'quick-switcher',
-								mode: 'docs',
-								invocationTimestamp: Date.now(),
-								assetSelection: null,
-								compositionSelection: null,
+								type: 'settings',
+								initialTab: 'shortcuts',
+								initialPublicLicenseKey:
+									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
 						},
 						keyHint: '?',

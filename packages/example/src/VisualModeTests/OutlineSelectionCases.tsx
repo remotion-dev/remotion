@@ -742,9 +742,9 @@ export const OutlineSelectionCases: React.FC = () => {
 			>
 				<CaseFrame
 					caseNumber={13}
-					status="Partial"
+					status="Baseline"
 					title="All selected editing handles stay on top"
-					summary="Transform-origin and UV handles are already globally raised, but scale and rotation controls can be covered by a later polygon."
+					summary="Transform-origin, UV, crop, scale, and rotation handles are globally raised above every outline polygon."
 					desiredBehavior="Every visible handle belonging to a selected outline is rendered and hit-tested above every unselected polygon."
 					instructions="Select Editable transform target and activate its transform controls. The amber polygon must not block any handle near the top-right corner."
 				>

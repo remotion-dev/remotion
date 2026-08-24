@@ -22,10 +22,14 @@ import type {
 	DeleteEffectResponse,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
+	DownloadRemoteAssetRequest,
+	DownloadRemoteAssetResponse,
 	FindInFileRequest,
 	FindInFileResponse,
 	DuplicateEffectRequest,
 	DuplicateEffectResponse,
+	DuplicateJsxNodeRequest,
+	DuplicateJsxNodeResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertElementRequest,
@@ -170,9 +174,15 @@ export type BrowserStudioOperations = {
 		data: Uint8Array;
 		fileName: string;
 	}>;
+	downloadRemoteAsset: (
+		request: DownloadRemoteAssetRequest,
+	) => Promise<DownloadRemoteAssetResponse>;
 	duplicateComposition: (
 		request: DuplicateCompositionRequest,
 	) => Promise<DuplicateCompositionResponse>;
+	duplicateJsxNode: (
+		request: DuplicateJsxNodeRequest,
+	) => Promise<DuplicateJsxNodeResponse>;
 	effects: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;

@@ -4,6 +4,10 @@ type TimelineSequenceVisibleLayout = {
 	readonly cropLeft: number;
 	readonly leftEdgeVisible: boolean;
 	readonly rightEdgeVisible: boolean;
+	readonly negativeStart: {
+		readonly left: number;
+		readonly width: number;
+	} | null;
 	readonly premount: {readonly left: number; readonly width: number} | null;
 	readonly postmount: {readonly left: number; readonly width: number} | null;
 	readonly media: {
@@ -40,6 +44,7 @@ const getVisibleSection = ({
 export const getTimelineSequenceVisibleLayout = ({
 	marginLeft,
 	width,
+	negativeStartWidth,
 	premountWidth,
 	postmountWidth,
 	renderWindowLeft,
@@ -47,6 +52,7 @@ export const getTimelineSequenceVisibleLayout = ({
 }: {
 	readonly marginLeft: number;
 	readonly width: number;
+	readonly negativeStartWidth: number;
 	readonly premountWidth: number;
 	readonly postmountWidth: number;
 	readonly renderWindowLeft: number;
@@ -63,7 +69,8 @@ export const getTimelineSequenceVisibleLayout = ({
 
 	const cropStart = visibleStart - itemStart;
 	const cropEnd = visibleEnd - itemStart;
-	const mediaStart = premountWidth;
+	const premountStart = negativeStartWidth;
+	const mediaStart = negativeStartWidth + premountWidth;
 	const mediaEnd = Math.max(mediaStart, width - postmountWidth);
 	const media = getVisibleSection({
 		sectionStart: mediaStart,
@@ -78,9 +85,15 @@ export const getTimelineSequenceVisibleLayout = ({
 		cropLeft: cropStart,
 		leftEdgeVisible: visibleStart === itemStart,
 		rightEdgeVisible: visibleEnd === itemEnd,
-		premount: getVisibleSection({
+		negativeStart: getVisibleSection({
 			sectionStart: 0,
-			sectionEnd: premountWidth,
+			sectionEnd: negativeStartWidth,
+			cropStart,
+			cropEnd,
+		}),
+		premount: getVisibleSection({
+			sectionStart: premountStart,
+			sectionEnd: premountStart + premountWidth,
 			cropStart,
 			cropEnd,
 		}),

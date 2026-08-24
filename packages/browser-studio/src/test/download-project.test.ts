@@ -82,8 +82,8 @@ test('downloads the current Browser Studio project as a runnable archive', async
 	);
 });
 
-test('adds a package.json if the virtual project has none', () => {
-	const {data} = makeBrowserStudioProjectArchive({
+test('adds a package.json if the virtual project has none', async () => {
+	const {data} = await makeBrowserStudioProjectArchive({
 		dependencyVersions,
 		project: {
 			rootDir: '/project',
@@ -101,7 +101,7 @@ test('adds a package.json if the virtual project has none', () => {
 	expect(packageJson.scripts.dev).toBe('remotion studio');
 });
 
-test('rejects unsafe paths and archive collisions', () => {
+test('rejects unsafe paths and archive collisions', async () => {
 	const invalidProjects: VirtualProject[] = [
 		{
 			rootDir: '/project',
@@ -122,8 +122,8 @@ test('rejects unsafe paths and archive collisions', () => {
 	];
 
 	for (const project of invalidProjects) {
-		expect(() =>
+		await expect(
 			makeBrowserStudioProjectArchive({dependencyVersions, project}),
-		).toThrow();
+		).rejects.toThrow();
 	}
 });

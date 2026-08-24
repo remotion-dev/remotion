@@ -134,20 +134,25 @@ test.describe('inspector section collapse', () => {
 		const tinyScaleEdges = page.locator(
 			'[data-remotion-studio-scale-edge-contains-selection="true"]',
 		);
+		const tinySelectedOutline = page.locator(
+			'polygon[data-remotion-directly-selected-outline="true"]',
+		);
 		const tinyTransform = page
 			.getByText('Tiny transform', {exact: true})
 			.first();
 		await expect(async () => {
 			await tinyTransform.click();
-			await expect(tinyScaleEdges).toHaveCount(2, {timeout: 1_000});
+			await expect(tinySelectedOutline).toHaveCount(1, {timeout: 1_000});
+			const dimensions = await tinySelectedOutline.evaluate((outline) => {
+				const rect = outline.getBoundingClientRect();
+				return {height: rect.height, width: rect.width};
+			});
+			expect(dimensions.width).toBeGreaterThan(0);
+			expect(dimensions.width).toBeLessThan(16);
+			expect(dimensions.height).toBeGreaterThan(0);
+			expect(dimensions.height).toBeLessThan(16);
+			await expect(tinyScaleEdges).toHaveCount(0, {timeout: 1_000});
 		}).toPass({timeout: 30_000});
-		expect(
-			await tinyScaleEdges.evaluateAll((edges) =>
-				edges.map((edge) =>
-					edge.getAttribute('data-remotion-studio-scale-edge'),
-				),
-			),
-		).toEqual(['right', 'bottom']);
 		await expect(
 			page.locator(
 				'[data-remotion-studio-rotation-corner-contains-selection="true"]',
@@ -158,6 +163,11 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Show 3D transform controls'}),
 		).toBeVisible();
+		await page.locator('.remotion-studio-composition-container').hover();
+		await page
+			.locator('polygon[pointer-events="all"]')
+			.nth(1)
+			.dispatchEvent('pointerover');
 		const outline = page
 			.locator('polygon[stroke-opacity="1"][pointer-events="all"]')
 			.nth(1);
@@ -434,6 +444,33 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Expand Crop', exact: true}),
 		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Transform', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Transform', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Transform', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).toHaveCount(0);
+		await page
+			.getByRole('button', {name: 'Expand Transform', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Effects', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Effects', exact: true}),
+		).toBeVisible();
 
 		await page
 			.getByRole('button', {name: 'Expand Border radius', exact: true})
@@ -488,6 +525,15 @@ test.describe('inspector section collapse', () => {
 		await page.locator('[title="Default premount"]').first().click();
 		await expect(
 			page.getByRole('button', {name: 'Expand Layout', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Source', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Source', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Source', exact: true}),
 		).toBeVisible();
 
 		await page.goto(`${STUDIO_URL}/visual-mode-3d`);

@@ -1,6 +1,7 @@
 import {getVideoMetadata} from '@remotion/media-utils';
 import type {CanvasContent} from 'remotion';
 import {staticFile} from 'remotion';
+import {addAssetCacheBust} from './add-asset-cache-bust';
 import {getPreviewFileType} from './get-preview-file-type';
 import type {Dimensions} from './is-current-selected-still';
 
@@ -53,29 +54,40 @@ export const getAssetMetadata = async (
 
 	try {
 		const src = getSrcFromCanvasContent(canvasContent);
+		const listedStaticFile =
+			canvasContent.type === 'asset'
+				? window.remotion_staticFiles.find(
+						(file) => file.name === canvasContent.asset && file.src === src,
+					)
+				: null;
+		let size = listedStaticFile?.sizeInBytes ?? null;
 
-		const file = await fetch(src, {
-			method: 'HEAD',
-		});
+		if (size === null) {
+			const file = await fetch(src, {
+				method: 'HEAD',
+			});
 
-		if (file.status === 404) {
-			return {type: 'not-found'};
-		}
+			if (file.status === 404) {
+				return {type: 'not-found'};
+			}
 
-		if (file.status !== 200) {
-			throw new Error(
-				`Expected status code 200 or 404 for file, got ${file.status}`,
-			);
-		}
+			if (file.status !== 200) {
+				throw new Error(
+					`Expected status code 200 or 404 for file, got ${file.status}`,
+				);
+			}
 
-		const size = file.headers.get('content-length');
+			const contentLength = file.headers.get('content-length');
 
-		if (!size) {
-			throw new Error('Unexpected error: content-length is null');
+			if (!contentLength) {
+				throw new Error('Unexpected error: content-length is null');
+			}
+
+			size = Number(contentLength);
 		}
 
 		const fetchedAt = Date.now();
-		const srcWithTime = addTime ? `${src}?date=${fetchedAt}` : src;
+		const srcWithTime = addTime ? addAssetCacheBust({fetchedAt, src}) : src;
 
 		const fileType = getPreviewFileType(src);
 
@@ -83,7 +95,7 @@ export const getAssetMetadata = async (
 			const resolution = await getVideoMetadata(srcWithTime);
 			return {
 				type: 'found',
-				size: Number(size),
+				size,
 				dimensions: {width: resolution.width, height: resolution.height},
 				fetchedAt,
 			};
@@ -95,7 +107,7 @@ export const getAssetMetadata = async (
 				img.onload = () => {
 					resolve({
 						type: 'found',
-						size: Number(size),
+						size,
 						dimensions: {width: img.width, height: img.height},
 						fetchedAt,
 					});
@@ -113,7 +125,7 @@ export const getAssetMetadata = async (
 		return {
 			type: 'found',
 			dimensions: 'none',
-			size: Number(size),
+			size,
 			fetchedAt,
 		};
 	} catch (err) {

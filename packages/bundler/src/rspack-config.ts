@@ -6,6 +6,7 @@ import type {
 	RspackConfiguration,
 	RspackOverrideFn,
 } from './override-types';
+import {getReactScanEntryPoint} from './react-scan-entry-point';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
@@ -90,6 +91,7 @@ export const rspackConfig = async ({
 				environment === 'development'
 					? require.resolve('./fast-refresh/notify-on-refresh.js')
 					: null,
+			reactScan: getReactScanEntryPoint(environment),
 			environmentSetup: require.resolve('./setup-environment'),
 			sequenceStackTraces:
 				environment === 'development'
@@ -122,6 +124,17 @@ export const rspackConfig = async ({
 		module: {
 			rules: [
 				...getSharedModuleRules(),
+				...(environment === 'development'
+					? [
+							{
+								test: /[\\/]@rspack[\\/]plugin-react-refresh[\\/]client[\\/]refreshUtils\.js$/,
+								enforce: 'pre' as const,
+								use: [
+									require.resolve('./fast-refresh/zero-delay-rspack-refresh-loader.js'),
+								],
+							},
+						]
+					: []),
 				{
 					// Emscripten's main.js spawns Workers of itself via
 					// new Worker(new URL('./main.js', import.meta.url)).

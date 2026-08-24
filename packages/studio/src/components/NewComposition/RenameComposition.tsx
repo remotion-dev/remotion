@@ -110,7 +110,6 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 					<CodemodFooter
 						loadingNotification={'Renaming...'}
 						errorNotification={'Could not rename composition'}
-						successNotification={`Renamed to ${newId}`}
 						genericSubmitLabel={'Rename'}
 						submitLabel={({relativeRootPath}) => `Modify ${relativeRootPath}`}
 						codemod={codemod}

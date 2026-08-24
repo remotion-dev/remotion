@@ -1,6 +1,7 @@
 import React, {useMemo} from 'react';
 import {BLUE, LIGHT_TEXT} from '../helpers/colors';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
+import {Spacing} from './layout';
 import {ModalFooterContainer} from './ModalFooter';
 
 const footer: React.CSSProperties = {
@@ -44,6 +45,7 @@ export const SettingsModalFooter: React.FC = () => {
 			<div style={footerRow}>
 				<div style={configFileHint}>
 					Changes save to
+					<Spacing x={0.5} />
 					<InspectorOpenInEditor
 						locationType={null}
 						location={configFileLocation}

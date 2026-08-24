@@ -19,7 +19,7 @@ import {FilmIcon} from '../../icons/video';
 import {SetSelectedModalContext} from '../../state/modals';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
-import {useZodIfPossible} from '../get-zod-if-possible';
+import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {ObserveDefaultPropsContext} from '../ObserveDefaultPropsContext';
@@ -28,6 +28,7 @@ import {
 	useDataEditorWarnings,
 	useDataEditorWarningVisibility,
 } from '../RenderModal/DataEditor';
+import {resolveCompositionSchema} from '../RenderModal/SchemaEditor/infer-zod-schema-from-value';
 import type {AnyZodSchema} from '../RenderModal/SchemaEditor/zod-schema-type';
 import {getZodSchemaType} from '../RenderModal/SchemaEditor/zod-schema-type';
 import type {UpdaterFunction} from '../RenderModal/SchemaEditor/ZodSwitch';
@@ -240,6 +241,7 @@ const CompositionDefaultPropsSection: React.FC<{
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 }> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
 	const z = useZodIfPossible();
+	const zodTypes = useZodTypesIfPossible();
 	const canSaveDefaultProps = useContext(ObserveDefaultPropsContext);
 	const [defaultPropsMode, setDefaultPropsMode] =
 		useState<DataEditorMode>('schema');
@@ -270,22 +272,21 @@ const CompositionDefaultPropsSection: React.FC<{
 		];
 	}, [defaultPropsMode]);
 
+	const schema = useMemo(() => {
+		return resolveCompositionSchema({
+			explicitSchema: composition.schema,
+			defaultProps: composition.defaultProps ?? {},
+			z,
+			zodTypes,
+		});
+	}, [composition.defaultProps, composition.schema, z, zodTypes]);
 	const canShowDefaultPropsSection = useMemo(() => {
-		if (!z || !composition.schema || !composition.defaultProps) {
+		if (schema === 'no-schema' || schema === 'no-zod') {
 			return false;
 		}
 
-		if (
-			!(
-				typeof (composition.schema as {safeParse?: unknown}).safeParse ===
-				'function'
-			)
-		) {
-			return false;
-		}
-
-		return getZodSchemaType(composition.schema as AnyZodSchema) !== 'any';
-	}, [composition.defaultProps, composition.schema, z]);
+		return getZodSchemaType(schema as AnyZodSchema) !== 'any';
+	}, [schema]);
 	const {setShowWarning, showWarning} = useDataEditorWarningVisibility();
 	const {warnings: defaultPropsWarnings} = useDataEditorWarnings({
 		canSaveDefaultProps: canSaveDefaultProps?.canSaveDefaultProps ?? null,

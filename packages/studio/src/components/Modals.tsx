@@ -8,7 +8,6 @@ import {ConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
 import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
-import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -103,15 +102,17 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
-			{!isBrowserStudio &&
-				modalContextType &&
-				modalContextType.type === 'settings' && (
-					<SettingsModal
-						key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
-						initialTab={modalContextType.initialTab}
-						initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
-					/>
-				)}
+			{modalContextType &&
+			modalContextType.type === 'settings' &&
+			(!isBrowserStudio ||
+				modalContextType.initialTab === 'packages' ||
+				modalContextType.initialTab === 'shortcuts') ? (
+				<SettingsModal
+					key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
+					initialTab={modalContextType.initialTab}
+					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
+				/>
+			) : null}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
 			)}
@@ -203,10 +204,6 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
 			)}
-			{modalContextType && modalContextType.type === 'install-packages' && (
-				<InstallPackageModal packageManager={modalContextType.packageManager} />
-			)}
-
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher
 					readOnlyStudio={readOnlyStudio}

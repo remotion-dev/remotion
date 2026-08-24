@@ -8,7 +8,7 @@ import {
 	TRANSPARENT,
 	WHITE,
 } from './colors';
-import {makeHoverableCSS} from './hoverable';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME, makeHoverableCSS} from './hoverable';
 
 const makeDefaultGlobalCSS = () => {
 	const dragAreaFactor = 2;
@@ -64,7 +64,7 @@ const makeDefaultGlobalCSS = () => {
 
   input:focus,
   textarea:focus,
-  button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch):not(.__remotion-inspector-section-title):not(.__remotion-timeline-expand-arrow-button),
+  button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch):not(.__remotion-inspector-section-title):not(.${FOCUS_VISIBLE_ONLY_CLASS_NAME}):not(.__remotion-timeline-expand-arrow-button),
   a:focus {
 	    outline: none;
 	    box-shadow: ${FOCUS_BOX_SHADOW};
@@ -73,6 +73,7 @@ const makeDefaultGlobalCSS = () => {
   .__remotion-composition-selector-item:focus,
   .__remotion-inspector-quick-action:focus,
   .__remotion-inspector-section-title:focus,
+  .${FOCUS_VISIBLE_ONLY_CLASS_NAME}:focus,
   .__remotion-timeline-expand-arrow-button:focus {
     outline: none;
     box-shadow: none;
@@ -81,6 +82,7 @@ const makeDefaultGlobalCSS = () => {
   .__remotion-composition-selector-item:focus-visible,
   .__remotion-inspector-quick-action:focus-visible,
   .__remotion-inspector-section-title:focus-visible,
+  .${FOCUS_VISIBLE_ONLY_CLASS_NAME}:focus-visible,
   .__remotion-timeline-expand-arrow-button:focus-visible {
     box-shadow: ${FOCUS_BOX_SHADOW};
   }

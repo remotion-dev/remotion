@@ -13,6 +13,7 @@ import type {
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {
@@ -25,6 +26,7 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
+import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {saveSequenceProps} from './save-sequence-prop';
@@ -546,6 +548,17 @@ export const TimelineSequencePropItem: React.FC<{
 		}
 
 		return [
+			getCopyContextForAgentsMenuItem({
+				contextForAgents: formatContextForAgents({
+					location: validatedLocation,
+					name: `Property "${field.key}"`,
+					root: window.remotion_cwd,
+				}),
+			}),
+			{
+				type: 'divider',
+				id: 'copy-context-for-agents-divider',
+			},
 			{
 				type: 'item',
 				id: 'reset-sequence-field',
@@ -559,7 +572,7 @@ export const TimelineSequencePropItem: React.FC<{
 				value: 'reset-sequence-field',
 			},
 		];
-	}, [canShowReset, onReset, selection]);
+	}, [canShowReset, field.key, onReset, selection, validatedLocation]);
 
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
@@ -636,14 +649,12 @@ export const TimelineSequencePropItem: React.FC<{
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
 			containsSelection={false}
-			isFieldRow
 			outerHeight={null}
 		>
 			<TimelineFieldRowContent
 				field={field}
 				rowDepth={rowDepth}
 				selected={selection.selected}
-				keyframeControls={keyframeControls}
 			>
 				{fieldValue}
 			</TimelineFieldRowContent>

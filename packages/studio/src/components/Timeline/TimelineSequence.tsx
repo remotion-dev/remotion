@@ -4,14 +4,18 @@ import {Internals, useCurrentFrame} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BLUE,
+	TIMELINE_BACKGROUND_COLOR,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_IMAGE_GRADIENT,
+	TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
+	TIMELINE_NEGATIVE_START_BORDER_COLOR,
 	TIMELINE_VIDEO_GRADIENT,
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_20,
 	WHITE_ALPHA_50,
 } from '../../helpers/colors';
+import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -50,7 +54,9 @@ import {
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
+	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
+	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
@@ -73,7 +79,16 @@ const TimelineSequenceFn: React.FC<{
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly sequenceFrameOffset: number;
-}> = ({s, connectedCompositions, nodePathInfo, sequenceFrameOffset}) => {
+	readonly cascadedStart: number;
+	readonly localStart: number;
+}> = ({
+	s,
+	connectedCompositions,
+	nodePathInfo,
+	sequenceFrameOffset,
+	cascadedStart,
+	localStart,
+}) => {
 	const windowWidth = useContext(TimelineWidthContext);
 
 	if (windowWidth === null) {
@@ -87,15 +102,78 @@ const TimelineSequenceFn: React.FC<{
 			connectedCompositions={connectedCompositions}
 			nodePathInfo={nodePathInfo}
 			sequenceFrameOffset={sequenceFrameOffset}
+			cascadedStart={cascadedStart}
+			localStart={localStart}
 		/>
 	);
 };
+
+const TimelineSequenceNegativeStartInner: React.FC<{
+	readonly left: number;
+	readonly width: number;
+	readonly leftEdgeVisible: boolean;
+	readonly clipped: boolean;
+}> = ({left, width, leftEdgeVisible, clipped}) => {
+	const outerStyle = useMemo((): React.CSSProperties => {
+		return {
+			backgroundColor: clipped ? TIMELINE_BACKGROUND_COLOR : undefined,
+			height: '100%',
+			left,
+			minWidth: 2,
+			pointerEvents: 'none',
+			position: 'absolute',
+			top: 0,
+			width,
+		};
+	}, [clipped, left, width]);
+
+	const innerStyle = useMemo((): React.CSSProperties => {
+		const showLeftEdge = leftEdgeVisible && !clipped;
+		const maskImage = clipped
+			? 'linear-gradient(to right, transparent, black 20%)'
+			: undefined;
+
+		return {
+			backgroundColor: TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
+			border: `${SEQUENCE_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`,
+			borderBottomLeftRadius: showLeftEdge ? 2 : 0,
+			borderLeft: showLeftEdge
+				? `${SEQUENCE_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`
+				: 'none',
+			borderRight: 'none',
+			borderTopLeftRadius: showLeftEdge ? 2 : 0,
+			boxSizing: 'border-box',
+			height: '100%',
+			maskImage,
+			position: 'absolute',
+			top: 0,
+			WebkitMaskImage: maskImage,
+			width: '100%',
+		};
+	}, [clipped, leftEdgeVisible]);
+
+	return (
+		<div style={outerStyle}>
+			<div style={innerStyle} />
+		</div>
+	);
+};
+
+const TimelineSequenceNegativeStart = React.memo(
+	TimelineSequenceNegativeStartInner,
+);
 
 const TimelineSequenceCurrentFrame: React.FC<{
 	readonly s: TSequence;
 	readonly displayDurationInFrames: number;
 	readonly premount: {readonly left: number; readonly width: number} | null;
 	readonly postmount: {readonly left: number; readonly width: number} | null;
+	readonly negativeStart: {
+		readonly left: number;
+		readonly width: number;
+	} | null;
+	readonly leftEdgeVisible: boolean;
+	readonly negativeStartClipped: boolean;
 	readonly style: React.CSSProperties;
 	readonly children: React.ReactNode;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -105,12 +183,16 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly onMoveDragPointerDown: (
 		e: React.PointerEvent<HTMLDivElement>,
 	) => void;
+	readonly onPointerDownCapture: () => void;
 	readonly onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }> = ({
 	s,
 	displayDurationInFrames,
 	premount,
 	postmount,
+	negativeStart,
+	leftEdgeVisible,
+	negativeStartClipped,
 	style,
 	children,
 	nodePathInfo,
@@ -118,11 +200,14 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	fromCanUpdate,
 	frozenFrame,
 	onMoveDragPointerDown,
+	onPointerDownCapture,
 	onDoubleClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
+	const {selectedItems} = useTimelineSelection();
 	useTimelineMarqueeSelectableItem(selectionItem, ref);
 
 	const onPointerDown = useCallback(
@@ -168,23 +253,25 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		relativeFrameWithPostmount >= 0 &&
 		relativeFrameWithPostmount < (s.postmountDisplay ?? 0) &&
 		!isInRange;
+	const negativeStartEnd = negativeStart
+		? negativeStart.left + negativeStart.width
+		: 0;
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
+		const hasSelectedTrack = selectedItems.some(
+			(item) => item.type !== 'guide',
+		);
+
 		return {
 			...style,
-			opacity: isInRange ? 1 : 0.5,
+			background: negativeStart ? TRANSPARENT : style.background,
+			border: negativeStart ? 'none' : style.border,
+			opacity: hasSelectedTrack && !selected && !containsSelection ? 0.75 : 1,
 		};
-	}, [isInRange, style]);
+	}, [containsSelection, negativeStart, selected, selectedItems, style]);
 
-	return (
-		<div
-			ref={ref}
-			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
-			style={actualStyle}
-			title={s.displayName}
-			onPointerDown={selectable ? onPointerDown : undefined}
-			onDoubleClick={onDoubleClick}
-		>
+	const content = (
+		<>
 			{premount ? (
 				<div
 					style={{
@@ -230,7 +317,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			(isInRange || isPremounting || isPostmounting) ? (
 				<div
 					style={{
-						paddingLeft: 5 + (premount?.width ?? 0),
+						paddingLeft:
+							5 + (negativeStart?.width ?? 0) + (premount?.width ?? 0),
 						height: '100%',
 						display: 'flex',
 						alignItems: 'center',
@@ -244,6 +332,62 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					/>
 				</div>
 			) : null}
+		</>
+	);
+
+	return (
+		<div
+			ref={ref}
+			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
+			style={actualStyle}
+			title={s.displayName}
+			onPointerDownCapture={onPointerDownCapture}
+			onPointerDown={selectable ? onPointerDown : undefined}
+			onDoubleClick={onDoubleClick}
+		>
+			{negativeStart ? (
+				<>
+					<TimelineSequenceNegativeStart
+						left={negativeStart.left}
+						width={negativeStart.width}
+						leftEdgeVisible={leftEdgeVisible}
+						clipped={negativeStartClipped}
+					/>
+					<div
+						style={{
+							background: style.background,
+							border: style.border,
+							borderBottomLeftRadius: 0,
+							borderBottomRightRadius: style.borderBottomRightRadius,
+							borderLeft: 'none',
+							borderRightColor: style.borderRightColor,
+							borderTopLeftRadius: 0,
+							borderTopRightRadius: style.borderTopRightRadius,
+							boxSizing: 'border-box',
+							height: '100%',
+							left: negativeStartEnd,
+							overflow: 'hidden',
+							position: 'absolute',
+							top: 0,
+							width: `calc(100% - ${negativeStartEnd}px)`,
+						}}
+					>
+						<div
+							style={{
+								height: '100%',
+								left: -negativeStartEnd,
+								position: 'absolute',
+								top: 0,
+								width: style.width,
+							}}
+						>
+							{content}
+						</div>
+					</div>
+				</>
+			) : (
+				content
+			)}
 		</div>
 	);
 };
@@ -254,12 +398,16 @@ const TimelineSequenceInner: React.FC<{
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly sequenceFrameOffset: number;
+	readonly cascadedStart: number;
+	readonly localStart: number;
 }> = ({
 	s,
 	connectedCompositions,
 	windowWidth,
 	nodePathInfo,
 	sequenceFrameOffset,
+	cascadedStart,
+	localStart,
 }) => {
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
@@ -267,6 +415,10 @@ const TimelineSequenceInner: React.FC<{
 
 	const video = Internals.useVideo();
 	const renderWindow = useContext(TimelineViewportContext);
+	const dragAwareDoubleClick = useMemo(
+		() => createDragAwareDoubleClickTracker(),
+		[],
+	);
 
 	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
@@ -343,6 +495,8 @@ const TimelineSequenceInner: React.FC<{
 				button: e.button,
 				canOpenInEditor,
 				numberOfConnectedCompositions: connectedCompositions.length,
+				sequenceWasDragged:
+					dragAwareDoubleClick.consumePointerGestureWasDragged(),
 			});
 			if (action === null) {
 				return;
@@ -368,6 +522,7 @@ const TimelineSequenceInner: React.FC<{
 		[
 			canOpenInEditor,
 			connectedCompositions,
+			dragAwareDoubleClick,
 			openInEditor,
 			s,
 			selectComposition,
@@ -551,6 +706,7 @@ const TimelineSequenceInner: React.FC<{
 		nodePathInfo,
 		windowWidth,
 		timelineDurationInFrames: video?.durationInFrames ?? 1,
+		onDragEnd: dragAwareDoubleClick.endPointerGesture,
 	});
 
 	if (!video) {
@@ -561,10 +717,18 @@ const TimelineSequenceInner: React.FC<{
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
 		: s.duration;
 
-	const {marginLeft, width, premountWidth, postmountWidth} = useMemo(() => {
+	const {
+		marginLeft,
+		width,
+		negativeStartWidth,
+		negativeStartClipped,
+		premountWidth,
+		postmountWidth,
+	} = useMemo(() => {
 		return getTimelineSequenceLayout({
 			durationInFrames: displayDurationInFrames,
 			startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
+			cascadedStart,
 			startFromMedia:
 				s.type === 'sequence' || s.type === 'image' ? 0 : s.startMediaFrom,
 			maxMediaDuration: effectiveMaxMediaDuration,
@@ -574,6 +738,7 @@ const TimelineSequenceInner: React.FC<{
 			postmountDisplay: s.postmountDisplay,
 		});
 	}, [
+		cascadedStart,
 		displayDurationInFrames,
 		effectiveMaxMediaDuration,
 		s,
@@ -588,12 +753,20 @@ const TimelineSequenceInner: React.FC<{
 		return getTimelineSequenceVisibleLayout({
 			marginLeft,
 			width,
+			negativeStartWidth,
 			premountWidth: premountWidth ?? 0,
 			postmountWidth: postmountWidth ?? 0,
 			renderWindowLeft: renderWindow.left - TIMELINE_PADDING,
 			renderWindowWidth: renderWindow.width,
 		});
-	}, [marginLeft, postmountWidth, premountWidth, renderWindow, width]);
+	}, [
+		marginLeft,
+		negativeStartWidth,
+		postmountWidth,
+		premountWidth,
+		renderWindow,
+		width,
+	]);
 	const mediaVisualizationStyle = useMemo((): React.CSSProperties => {
 		return {
 			width: visibleLayout?.media?.width ?? 0,
@@ -601,6 +774,10 @@ const TimelineSequenceInner: React.FC<{
 			height: '100%',
 		};
 	}, [visibleLayout]);
+	const showLeftBorderRadius =
+		visibleLayout?.leftEdgeVisible === true &&
+		localStart >= 0 &&
+		(s.trimBefore ?? 0) === 0;
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -613,14 +790,15 @@ const TimelineSequenceInner: React.FC<{
 							? TIMELINE_IMAGE_GRADIENT
 							: BLUE,
 			border: `${SEQUENCE_BORDER_WIDTH}px solid ${WHITE_ALPHA_20}`,
-			borderLeftColor: visibleLayout?.leftEdgeVisible
-				? WHITE_ALPHA_20
-				: TRANSPARENT,
+			borderLeftColor:
+				visibleLayout?.leftEdgeVisible && !negativeStartClipped
+					? WHITE_ALPHA_20
+					: TRANSPARENT,
 			borderRightColor: visibleLayout?.rightEdgeVisible
 				? WHITE_ALPHA_20
 				: TRANSPARENT,
-			borderTopLeftRadius: visibleLayout?.leftEdgeVisible ? 2 : 0,
-			borderBottomLeftRadius: visibleLayout?.leftEdgeVisible ? 2 : 0,
+			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
+			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderTopRightRadius: visibleLayout?.rightEdgeVisible ? 2 : 0,
 			borderBottomRightRadius: visibleLayout?.rightEdgeVisible ? 2 : 0,
 			position: 'absolute',
@@ -630,7 +808,7 @@ const TimelineSequenceInner: React.FC<{
 			color: WHITE,
 			overflow: 'hidden',
 		};
-	}, [s.type, visibleLayout]);
+	}, [negativeStartClipped, s.type, showLeftBorderRadius, visibleLayout]);
 
 	const showRightEdgeDragHandle =
 		isTimelineSequenceDurationDraggable(s) &&
@@ -664,12 +842,16 @@ const TimelineSequenceInner: React.FC<{
 			displayDurationInFrames={displayDurationInFrames}
 			premount={visibleLayout.premount}
 			postmount={visibleLayout.postmount}
+			negativeStart={visibleLayout.negativeStart}
+			leftEdgeVisible={visibleLayout.leftEdgeVisible}
+			negativeStartClipped={negativeStartClipped}
 			style={style}
 			nodePathInfo={nodePathInfo}
 			sequenceFrameOffset={sequenceFrameOffset}
 			fromCanUpdate={fromCanUpdate}
 			frozenFrame={frozenFrame}
 			onMoveDragPointerDown={onMoveDragPointerDown}
+			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
 			onDoubleClick={
 				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
 			}
@@ -715,7 +897,6 @@ const TimelineSequenceInner: React.FC<{
 				<div style={mediaVisualizationStyle}>
 					<TimelineImageInfo
 						src={s.src}
-						visualizationWidth={visibleLayout.media.width}
 						offsetInPixels={visibleLayout.media.offset}
 					/>
 				</div>
@@ -730,12 +911,14 @@ const TimelineSequenceInner: React.FC<{
 			)}
 			{showLeftEdgeDragHandle &&
 			visibleLayout.leftEdgeVisible &&
+			negativeStartWidth === 0 &&
 			nodePathInfo &&
 			validatedLocation ? (
 				<TimelineSequenceLeftEdgeDragHandle
 					nodePathInfo={nodePathInfo}
 					windowWidth={windowWidth}
 					timelineDurationInFrames={video.durationInFrames ?? 1}
+					onDragEnd={dragAwareDoubleClick.endPointerGesture}
 				/>
 			) : null}
 			{showRightEdgeDragHandle &&
@@ -746,6 +929,7 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo={nodePathInfo}
 					windowWidth={windowWidth}
 					timelineDurationInFrames={video.durationInFrames ?? 1}
+					onDragEnd={dragAwareDoubleClick.endPointerGesture}
 				/>
 			) : null}
 		</TimelineSequenceCurrentFrame>
