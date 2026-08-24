@@ -247,6 +247,9 @@
 			"path": "./packages/example-videos"
 		},
 		{
+			"path": "./packages/jonnys-videos"
+		},
+		{
 			"path": "./packages/zod-types"
 		},
 		{
