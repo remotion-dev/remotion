@@ -20,7 +20,7 @@ import {
 	popRedo,
 	popUndo,
 } from '../preview-server/undo-stack';
-import {lineColumnToNodePath} from './test-utils';
+import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
 const sample = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
@@ -139,7 +139,6 @@ test('deleteJsxNodes removes multiple JSX children in one transform', async () =
 			lineColumnToNodePath(multipleSiblings, 7),
 			lineColumnToNodePath(multipleSiblings, 8),
 		],
-		onFormatFile: null,
 	});
 
 	expect(output).not.toContain('<div');
@@ -149,12 +148,182 @@ test('deleteJsxNodes removes multiple JSX children in one transform', async () =
 	expect(logLines).toEqual([7, 8]);
 });
 
+test('deleteJsxNodes preserves source formatting and removes standalone JSX lines', async () => {
+	const cases = [
+		{
+			input: `export const Comp = () => {
+	return (
+		<div>
+			<Keep />
+			<RemoveOne />
+			<RemoveTwo />
+			<Keep />
+		</div>
+	);
+};
+`,
+			markers: ['<RemoveOne', '<RemoveTwo'],
+			expected: `export const Comp = () => {
+	return (
+		<div>
+			<Keep />
+			<Keep />
+		</div>
+	);
+};
+`,
+		},
+		{
+			input: `export const Comp = () => {
+  return (
+    <div>
+      <Remove />
+    </div>
+  )
+}
+`,
+			markers: ['<Remove'],
+			expected: `export const Comp = () => {
+  return (
+    <div>
+    </div>
+  )
+}
+`,
+		},
+		{
+			input: `export const Comp = () => {
+	return [1].map((item) => (
+		<Remove key={item} />
+	));
+};
+`,
+			markers: ['<Remove'],
+			expected: `export const Comp = () => {
+	return [1].map((item) => null);
+};
+`,
+		},
+		{
+			input: `const AnimatedBar = () => {
+	return (
+		<Remove />
+	);
+};
+`,
+			markers: ['<Remove'],
+			expected: `const AnimatedBar = () => {
+	return null;
+};
+`,
+		},
+		{
+			input: `const AnimatedBar = () => {
+	return (
+		// Keep this explanation.
+		<Remove />
+	);
+};
+`,
+			markers: ['<Remove'],
+			expected: `const AnimatedBar = () => {
+	return (
+		// Keep this explanation.
+		null
+	);
+};
+`,
+		},
+		{
+			input: `export const Comp = () => <div><Keep /><Remove /><Keep /></div>;
+`,
+			markers: ['<Remove'],
+			expected: `export const Comp = () => <div><Keep /><Keep /></div>;
+`,
+		},
+		{
+			input:
+				'export const Comp = () => <div><Keep />\t<Remove /><Keep /></div>;\n',
+			markers: ['<Remove'],
+			expected: 'export const Comp = () => <div><Keep />\t<Keep /></div>;\n',
+		},
+		{
+			input: `export const Comp = () => (
+	<div>
+		<Remove /> {/* keep this comment */}
+	</div>
+);
+`,
+			markers: ['<Remove'],
+			expected: `export const Comp = () => (
+	<div>
+		 {/* keep this comment */}
+	</div>
+);
+`,
+		},
+		{
+			input: `export const Comp = () => {
+	return (
+		<div>
+			<RemoveParent>
+				<RemoveChild />
+			</RemoveParent>
+			<Keep />
+		</div>
+	);
+};
+`,
+			markers: ['<RemoveParent', '<RemoveChild'],
+			expected: `export const Comp = () => {
+	return (
+		<div>
+			<Keep />
+		</div>
+	);
+};
+`,
+		},
+		{
+			input:
+				'export const Comp = () => {\r\n\treturn (\r\n\t\t<div>\r\n\t\t\t<Remove />\r\n\t\t</div>\r\n\t);\r\n};\r\n',
+			markers: ['<Remove'],
+			expected:
+				'export const Comp = () => {\r\n\treturn (\r\n\t\t<div>\r\n\t\t</div>\r\n\t);\r\n};\r\n',
+		},
+	] as const;
+
+	for (const item of cases) {
+		const {output, formatted} = await deleteJsxNodes({
+			input: item.input,
+			nodePaths: item.markers.map((marker) =>
+				lineContainingToNodePath(item.input, marker),
+			),
+		});
+
+		expect(output).toBe(item.expected);
+		expect(formatted).toBe(true);
+	}
+});
+
 const interactiveSiblings = `import {Interactive} from 'remotion';
 
 export const X = () => {
 	return (
 		<div>
 			<Interactive.Div name="Eyebrow" />
+			<Interactive.Div name="Title" />
+			<Interactive.Div name="Chart" />
+		</div>
+	);
+};
+`;
+
+const interactiveSiblingsAfterDelete = `import {Interactive} from 'remotion';
+
+export const X = () => {
+	return (
+		<div>
 			<Interactive.Div name="Title" />
 			<Interactive.Div name="Chart" />
 		</div>
@@ -255,6 +424,7 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 		await Promise.resolve();
 
 		const output = readFileSync(filePath, 'utf-8');
+		expect(output).toBe(interactiveSiblingsAfterDelete);
 		expect(output).not.toContain('Eyebrow');
 		expect(output).toContain('name="Title"');
 		expect(output).toContain('name="Chart"');

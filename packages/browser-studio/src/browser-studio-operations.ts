@@ -1227,7 +1227,6 @@ export const createBrowserStudioOperations = ({
 					result: await deleteJsxNodes({
 						input: project.files[fileName],
 						nodePaths,
-						formatFile: formatCodemodFile,
 					}),
 				})),
 			);
