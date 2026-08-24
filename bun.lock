@@ -1433,6 +1433,7 @@
       "version": "4.0.516",
       "dependencies": {
         "@remotion/bundler": "workspace:*",
+        "@remotion/canvas": "workspace:*",
         "@remotion/eslint-config-flat": "workspace:*",
         "@remotion/gif": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
