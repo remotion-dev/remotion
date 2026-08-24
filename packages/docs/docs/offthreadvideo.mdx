@@ -160,7 +160,7 @@ A name and that will be shown as the label of the sequence in the timeline of th
 
 ### `toneFrequency?`<AvailableFrom v="4.0.47"/>
 
-Adjust the pitch of the audio - will only be applied during rendering.
+Adjust the pitch of the audio during server-side rendering. This prop is not supported during preview.
 
 Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
 
@@ -199,7 +199,7 @@ Controls whether the audio pitch is preserved when [`playbackRate`](#playbackrat
 
 Accepts `true`, `false`, or `undefined`. Default: `true`, matching the browser default for [`HTMLMediaElement.preservesPitch`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/preservesPitch).
 
-Note: `preservePitch` only affects preview playback. During render, audio is processed via [`toneFrequency`](/docs/audio/pitch) for render-time pitch control.
+`preservePitch` only affects preview playback. During server-side rendering, [`playbackRate`](#playbackrate) always preserves the audio pitch, regardless of this prop. Use [`toneFrequency`](/docs/audio/pitch) to change the pitch during server-side rendering.
 
 ### `muted?`
 
@@ -223,7 +223,7 @@ In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/play
 
 ### `toneFrequency?`<AvailableFrom v="4.0.47"/>
 
-Adjust the pitch of the audio - will only be applied during rendering.
+Adjust the pitch of the audio during server-side rendering. This prop is not supported during preview.
 
 Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
 
