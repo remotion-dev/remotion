@@ -142,6 +142,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
 	const initialMuted = useRef(effectiveMuted);
+	const initialVolume = useRef(userPreferredVolume);
 	const initialDurationInFrames = useRef(videoConfig.durationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
 
@@ -222,7 +223,11 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 			mediaPlayerRef.current = player;
 
 			player
-				.initialize(currentTimeRef.current, initialMuted.current)
+				.initialize(
+					currentTimeRef.current,
+					initialMuted.current,
+					initialVolume.current,
+				)
 				.then((result) => {
 					if (result.type === 'disposed') {
 						return;
