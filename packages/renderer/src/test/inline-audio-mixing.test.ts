@@ -103,24 +103,34 @@ test('keeps a composition-relative fallback for an unknown clip origin', async (
 });
 
 test(
-	'pre-merges many sequential clips without materializing their timeline offsets',
+	'pre-merges 423 offset clips without materializing their timeline offsets',
 	async () => {
 		const downloadMap = makeDownloadMap(SAMPLE_RATE);
 
 		try {
-			for (let index = 0; index < 12; index++) {
+			let nextFrame = 300;
+			const startFrames: number[] = [];
+			for (let index = 0; index < 423; index++) {
+				if (index % 17 === 0) {
+					nextFrame += 4;
+				} else if (index % 7 === 0) {
+					nextFrame++;
+				}
+
+				startFrames.push(nextFrame);
 				downloadMap.inlineAudioMixing.addAsset({
 					asset: makeAsset({
 						id: `clip-${index}`,
-						frame: 300 + index,
-						startInVideo: 300 + index,
+						frame: nextFrame,
+						startInVideo: nextFrame,
 					}),
 					fps: FPS,
-					totalNumberOfFrames: 360,
+					totalNumberOfFrames: 1000,
 					firstFrame: 0,
 					trimLeftOffset: 0,
 					trimRightOffset: 0,
 				});
+				nextFrame++;
 			}
 
 			await finish(downloadMap.inlineAudioMixing);
@@ -138,12 +148,15 @@ test(
 			});
 
 			expect(merged).not.toBeNull();
-			expect(merged?.startInSeconds).toBe(10);
-			expect(merged?.durationInSeconds).toBeCloseTo(12 / FPS, 8);
-			expect(statSync(merged!.outName).size).toBeLessThan(100_000);
+			expect(merged?.startInSeconds).toBe(startFrames[0] / FPS);
+			expect(merged?.durationInSeconds).toBeCloseTo(
+				(startFrames.at(-1)! - startFrames[0] + 1) / FPS,
+				8,
+			);
+			expect(statSync(merged!.outName).size).toBeLessThan(4_000_000);
 		} finally {
 			cleanDownloadMap(downloadMap);
 		}
 	},
-	{timeout: 30_000},
+	{timeout: 120_000},
 );
