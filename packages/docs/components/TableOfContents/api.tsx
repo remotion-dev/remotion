@@ -100,7 +100,7 @@ export const TableOfContents: React.FC = () => {
 			<p>Load Google Fonts onto a page.</p>
 			<GoogleFontsTableOfContents />
 			<h2>@remotion/gsap</h2>
-			<p>Drive GSAP timelines from the Remotion frame.</p>
+			<p>Use GSAP timelines in Remotion.</p>
 			<GsapTableOfContents />
 			<h2>@remotion/install-whisper-cpp</h2>
 			<p>Whisper.cpp installation and transcription</p>

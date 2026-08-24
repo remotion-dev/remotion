@@ -1,6 +1,6 @@
 # @remotion/gsap
 
-Drive GSAP timelines from the Remotion frame
+Use GSAP timelines in Remotion
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/gsap.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/gsap?minimal=true)
 

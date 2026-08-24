@@ -175,7 +175,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'install-whisper-cpp': 'Helpers for installing and using Whisper.cpp',
 	'whisper-web': 'Helpers for using Whisper.cpp in browser using WASM',
 	'google-fonts': 'Use Google Fonts in Remotion',
-	gsap: 'Drive GSAP timelines from the Remotion frame',
+	gsap: 'Use GSAP timelines in Remotion',
 	mcp: "Remotion's Model Context Protocol",
 	'media-utils': 'Utilities for working with media files',
 	lottie: 'Include Lottie animations in Remotion',
