@@ -1155,7 +1155,9 @@ test.describe('visual mode', () => {
 				dialog.getByTitle('Default coding agent', {exact: true}),
 			).toContainText('Codex');
 			await dialog.getByText('License', {exact: true}).click();
-			const freeLicenseToggle = dialog.locator('input[name="free-license"]');
+			const freeLicenseToggle = dialog.getByRole('radio', {
+				name: 'I am eligible for the Free License',
+			});
 			await expect(freeLicenseToggle).toBeChecked();
 			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
 				codingAgentInfoRequests: 1,

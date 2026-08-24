@@ -1,17 +1,17 @@
 import type {ConfigUpdate} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {LIGHT_TEXT, WHITE} from '../helpers/colors';
-import {Checkbox} from './Checkbox';
+import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {Spacing} from './layout';
 import {
 	fetchLicenseKeyDetails,
 	hasActiveCompanyLicense,
 	LicenseKeyDetailsDisplay,
-	type LicenseKeyDetails,
 	validateLicenseKey,
+	type LicenseKeyDetails,
 } from './LicenseKeyValidation';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
+import {RadioButton} from './RadioButton';
 import {useSettings} from './SettingsContext';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
@@ -44,22 +44,81 @@ const descriptionLink: React.CSSProperties = {
 	lineHeight: '21px',
 };
 
-const checkboxRow: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	cursor: 'pointer',
-	marginTop: 5,
-	marginBottom: 5,
+const externalDescriptionLink: React.CSSProperties = {
+	...descriptionLink,
+	color: BLUE,
 };
 
-const checkboxLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	lineHeight: '20px',
-	cursor: 'pointer',
-	userSelect: 'none',
+const externalLinkIndicator: React.CSSProperties = {
+	display: 'inline-block',
+	height: 12,
+	marginLeft: 4,
+	verticalAlign: -2,
+	width: 12,
+};
+
+const licenseExplanation: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 12,
+};
+
+const licenseExplanationRow: React.CSSProperties = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: 12,
+};
+
+const people: React.CSSProperties = {
+	display: 'grid',
+	gridTemplateColumns: 'repeat(4, 9px)',
+	gap: 3,
+	flexShrink: 0,
+};
+
+const person: React.CSSProperties = {
+	display: 'block',
+	height: 24,
+	overflow: 'visible',
+	width: 9,
+};
+
+const PersonIcon: React.FC<{
+	readonly handsUp: boolean;
+	readonly opacity: number;
+}> = ({handsUp, opacity}) => {
+	return (
+		<svg
+			aria-hidden="true"
+			opacity={opacity}
+			style={person}
+			viewBox="0 0 192 512"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				fill={LIGHT_TEXT}
+				d="M128 64a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM32 64A64 64 0 1 1 160 64 64 64 0 1 1 32 64zm0 128l0 128 128 0 0-128-128 0zM0 160l192 0 0 192-32 0 0 160-32 0 0-160-64 0 0 160-32 0 0-160-32 0 0-192z"
+			/>
+			{handsUp ? (
+				<path
+					d="M10.667 192 0 -32 M181.333 192 192 -32"
+					fill="none"
+					stroke={LIGHT_TEXT}
+					strokeWidth="32"
+				/>
+			) : null}
+		</svg>
+	);
+};
+
+const freeLicenseMessage: React.CSSProperties = {
+	...description,
+	marginBottom: 5,
+	marginLeft: 28,
+};
+
+const companyLicenseContent: React.CSSProperties = {
+	marginLeft: 28,
 };
 
 const inputLabel: React.CSSProperties = {
@@ -225,116 +284,147 @@ export const LicenseSettings: React.FC = () => {
 	return (
 		<div style={container}>
 			<div style={content}>
-				<p style={description}>
-					Remotion is free to use if you are an individual or company with a
-					headcount of 3 or less.
-					<br />
-					If used in an organization with 4 people or more, a{' '}
-					<a style={descriptionLink} href="https://remotion.pro/license">
-						Company License
-					</a>
-					{' needs to be obtained.'}
-				</p>
-				<Spacing y={2} />
-				<div
-					style={checkboxRow}
-					onClick={(event) => {
-						if (!(event.target instanceof HTMLInputElement)) {
-							toggleFreeLicense();
-						}
-					}}
-				>
-					<Checkbox
-						checked={licenseType === 'free'}
-						onChange={toggleFreeLicense}
-						name="free-license"
-						rounded
-					/>
-					<Spacing x={1} />
-					<div style={checkboxLabel}>I am eligible for the Free License</div>
-				</div>
-				<div
-					style={checkboxRow}
-					onClick={(event) => {
-						if (!(event.target instanceof HTMLInputElement)) {
-							toggleCompanyLicense();
-						}
-					}}
-				>
-					<Checkbox
-						checked={licenseType === 'company'}
-						onChange={toggleCompanyLicense}
-						name="company-license"
-						rounded
-					/>
-					<Spacing x={1} />
-					<div style={checkboxLabel}>I need a Company License</div>
-				</div>
-				{licenseType === 'company' ? (
-					<>
+				<div style={licenseExplanation}>
+					<div style={licenseExplanationRow}>
+						<div style={people}>
+							<PersonIcon handsUp opacity={1} />
+							<PersonIcon handsUp opacity={1} />
+							<PersonIcon handsUp opacity={1} />
+						</div>
 						<p style={description}>
-							Visit{' '}
-							<a style={descriptionLink} href="https://remotion.pro/license">
-								remotion.pro/license
-							</a>{' '}
-							to obtain a license key. Enter the public license key from
-							{' "License Keys".'}
+							Remotion is free to use if you are an individual or company of 3
+							or less.
 						</p>
-						<label style={inputLabel}>
-							Public license key
-							<RemotionInput
-								status={
-									localLicenseKeyValidation.message ||
-									remoteValidationMessage ||
-									(licenseKeyDetails !== null &&
-										!hasActiveCompanyLicense(licenseKeyDetails))
-										? 'error'
-										: 'ok'
-								}
-								rightAlign={false}
-								value={companyLicenseKey}
-								onChange={(event) => {
-									setCompanyLicenseKey(event.target.value);
-									setError(null);
-								}}
-								onBlur={() => {
-									setCompanyLicenseKeyToSave(companyLicenseKey.trim());
-								}}
-								placeholder="rm_pub_..."
-								autoFocus
-							/>
-						</label>
-						{localLicenseKeyValidation.message ? (
-							<>
-								<Spacing y={1} />
-								<ValidationMessage
-									message={localLicenseKeyValidation.message}
-									align="flex-start"
-									type="error"
+					</div>
+					<div style={licenseExplanationRow}>
+						<div style={people}>
+							<PersonIcon handsUp={false} opacity={1} />
+							<PersonIcon handsUp={false} opacity={1} />
+							<PersonIcon handsUp={false} opacity={1} />
+							<PersonIcon handsUp={false} opacity={1} />
+						</div>
+						<p style={description}>
+							If used in an organization with 4+ people, you need a{' '}
+							<a style={descriptionLink} href="https://remotion.pro/license">
+								Company License
+							</a>
+							.
+						</p>
+					</div>
+					<div style={licenseExplanationRow}>
+						<div style={people}>
+							<PersonIcon handsUp={false} opacity={1} />
+							<PersonIcon handsUp={false} opacity={0.3} />
+							<PersonIcon handsUp={false} opacity={0.3} />
+							<PersonIcon handsUp={false} opacity={0.3} />
+						</div>
+						<p style={description}>
+							The total headcount matters, not the amount of people using
+							Remotion.
+						</p>
+					</div>
+				</div>
+				<Spacing y={2} />
+				<div aria-label="License type" role="radiogroup">
+					<RadioButton
+						checked={licenseType === 'free'}
+						onClick={toggleFreeLicense}
+					>
+						I am eligible for the Free License
+					</RadioButton>
+					{licenseType === 'free' ? (
+						<p style={freeLicenseMessage}>That&apos;s it! Enjoy Remotion.</p>
+					) : null}
+					<RadioButton
+						checked={licenseType === 'company'}
+						onClick={toggleCompanyLicense}
+					>
+						I need a Company License
+					</RadioButton>
+					{licenseType === 'company' ? (
+						<div style={companyLicenseContent}>
+							<p style={description}>
+								Visit{' '}
+								<a
+									style={externalDescriptionLink}
+									href="https://remotion.pro/license"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									remotion.pro/license
+									<svg
+										aria-hidden="true"
+										viewBox="0 0 16 16"
+										style={externalLinkIndicator}
+									>
+										<path
+											d="M4 12 12 4M6 4h6v6"
+											fill="none"
+											stroke={BLUE}
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth="1.5"
+										/>
+									</svg>
+								</a>{' '}
+								to obtain a license key. Then enter it here.
+							</p>
+							<label style={inputLabel}>
+								Public license key
+								<RemotionInput
+									status={
+										localLicenseKeyValidation.message ||
+										remoteValidationMessage ||
+										(licenseKeyDetails !== null &&
+											!hasActiveCompanyLicense(licenseKeyDetails))
+											? 'error'
+											: 'ok'
+									}
+									rightAlign={false}
+									value={companyLicenseKey}
+									onChange={(event) => {
+										setCompanyLicenseKey(event.target.value);
+										setError(null);
+									}}
+									onBlur={() => {
+										setCompanyLicenseKeyToSave(companyLicenseKey.trim());
+									}}
+									placeholder="rm_pub_..."
+									autoFocus
 								/>
-							</>
-						) : null}
-						{remoteValidationMessage ? (
-							<>
-								<Spacing y={1} />
-								<ValidationMessage
-									message={remoteValidationMessage}
-									align="flex-start"
-									type="error"
-								/>
-							</>
-						) : null}
-						{isValidatingLicenseKey ? (
-							<>
-								<Spacing y={1} />
-								<p style={description}>Loading license key details...</p>
-							</>
-						) : null}
-						{licenseKeyDetails ? (
-							<LicenseKeyDetailsDisplay details={licenseKeyDetails} />
-						) : null}
-					</>
-				) : null}
+							</label>
+							{localLicenseKeyValidation.message ? (
+								<>
+									<Spacing y={1} />
+									<ValidationMessage
+										message={localLicenseKeyValidation.message}
+										align="flex-start"
+										type="error"
+									/>
+								</>
+							) : null}
+							{remoteValidationMessage ? (
+								<>
+									<Spacing y={1} />
+									<ValidationMessage
+										message={remoteValidationMessage}
+										align="flex-start"
+										type="error"
+									/>
+								</>
+							) : null}
+							{isValidatingLicenseKey ? (
+								<>
+									<Spacing y={1} />
+									<p style={description}>Loading license key details...</p>
+								</>
+							) : null}
+							{licenseKeyDetails ? (
+								<LicenseKeyDetailsDisplay details={licenseKeyDetails} />
+							) : null}
+						</div>
+					) : null}
+				</div>
 				{displayedError ? (
 					<>
 						<Spacing y={1.5} />
