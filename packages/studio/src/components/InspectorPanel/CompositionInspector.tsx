@@ -8,15 +8,12 @@ import React, {
 import type {_InternalTypes} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {CURRENT_COLOR} from '../../helpers/colors';
 import {downloadBlob} from '../../helpers/download-blob';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {CloudDownloadIcon} from '../../icons/cloud-download';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {FilmIcon} from '../../icons/video';
-import {SetSelectedModalContext} from '../../state/modals';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
@@ -45,6 +42,7 @@ import {
 } from './common';
 import {CompositionInspectorHeader} from './CompositionInspectorHeader';
 import {CompositionMetadata} from './CompositionMetadata';
+import {ElementLibraryButton} from './ElementLibraryButton';
 import {
 	compositionDefaultPropsSection,
 	compositionVisualControlsSection,
@@ -63,26 +61,6 @@ const actionIconStyle: React.CSSProperties = {
 	width: 18,
 };
 
-const browseElementsIconStyle: React.CSSProperties = {
-	height: 22,
-	width: 22,
-};
-
-const browseElementsIconContainerStyle: React.CSSProperties = {
-	height: 22,
-	marginLeft: -2,
-	marginRight: -2,
-	width: 22,
-};
-
-const browseElementsArrowStyle: React.CSSProperties = {
-	display: 'inline-block',
-	height: 12,
-	marginLeft: 4,
-	verticalAlign: -2,
-	width: 12,
-};
-
 const CompositionActions: React.FC = () => {
 	const {
 		canInsertAsset,
@@ -95,10 +73,7 @@ const CompositionActions: React.FC = () => {
 		insertComposition,
 		insertSolid,
 	} = useCompositionActions();
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const browserStudioOperations = getBrowserStudioOperations();
-	const downloadProject = browserStudioOperations?.downloadProject ?? null;
-	const isBrowserStudio = browserStudioOperations !== null;
+	const downloadProject = getBrowserStudioOperations()?.downloadProject ?? null;
 
 	const onDownloadProject = useCallback(async () => {
 		if (downloadProject === null) {
@@ -124,23 +99,6 @@ const CompositionActions: React.FC = () => {
 			);
 		}
 	}, [downloadProject]);
-
-	const openElementsLibrary = useCallback(() => {
-		if (isBrowserStudio) {
-			window.open(
-				'https://www.remotion.dev/elements',
-				'_blank',
-				'noopener,noreferrer',
-			);
-			return;
-		}
-
-		setSelectedModal({
-			type: 'element-library',
-			name: 'Remotion Elements',
-			url: 'https://www.remotion.dev/elements',
-		});
-	}, [isBrowserStudio, setSelectedModal]);
 
 	if (
 		!canShowInsertAsset &&
@@ -186,39 +144,7 @@ const CompositionActions: React.FC = () => {
 					Add composition...
 				</InspectorQuickAction>
 			) : null}
-			{canShowInsertAsset ? (
-				<InspectorQuickAction
-					disabled={false}
-					iconContainerStyle={browseElementsIconContainerStyle}
-					onClick={openElementsLibrary}
-					renderIcon={(color) => (
-						<BrowseElementsIcon color={color} style={browseElementsIconStyle} />
-					)}
-					title={
-						isBrowserStudio
-							? 'Open the Remotion Elements library in a new tab. Install an Element there to send it to this composition.'
-							: 'Browse the Remotion Elements library inside Studio.'
-					}
-				>
-					Browse Elements
-					{isBrowserStudio ? (
-						<svg
-							aria-hidden="true"
-							viewBox="0 0 16 16"
-							style={browseElementsArrowStyle}
-						>
-							<path
-								d="M4 12 12 4M6 4h6v6"
-								fill="none"
-								stroke={CURRENT_COLOR}
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="1.5"
-							/>
-						</svg>
-					) : null}
-				</InspectorQuickAction>
-			) : null}
+			{canShowInsertAsset ? <ElementLibraryButton /> : null}
 			{downloadProject ? (
 				<InspectorQuickAction
 					disabled={false}

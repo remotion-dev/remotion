@@ -20,6 +20,7 @@ export type ConfigFileStudioSettings = {
 export type StudioRuntimeConfig = {
 	readonly maxTimelineTracks: number | null;
 	readonly askAIEnabled: boolean;
+	readonly elementLibraries?: readonly string[];
 	readonly interactivityEnabled: boolean;
 	readonly keyboardShortcutsEnabled: boolean;
 	readonly bufferStateDelayInMilliseconds: number | null;

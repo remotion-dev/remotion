@@ -40,11 +40,14 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	});
 	temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'remotion-config-'));
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321); Config.setDefaultEditor('cursor'); Config.setDefaultCodingAgent('codex');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321); Config.setDefaultEditor('cursor'); Config.setDefaultCodingAgent('codex'); Config.addElementLibrary('https://initial.example.com/elements');`,
 	);
 
 	await loadConfig(temporaryDirectory);
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
+	expect(ConfigInternals.getElementLibraries()).toEqual([
+		'https://initial.example.com/elements',
+	]);
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,
@@ -55,10 +58,13 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		}).value,
 	).toBe('codex');
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); throw new Error('Invalid config');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); Config.addElementLibrary('https://invalid.example.com/elements'); throw new Error('Invalid config');`,
 	);
 	expect((await reloadTestConfig()).type).toBe('error');
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
+	expect(ConfigInternals.getElementLibraries()).toEqual([
+		'https://initial.example.com/elements',
+	]);
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,
@@ -70,7 +76,7 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	).toBe('codex');
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); Config.addElementLibrary('https://snapshot.example.com/elements');`,
 	);
 	const snapshotErrorMessage = 'The derived config snapshot was rejected';
 	expect(
@@ -82,6 +88,9 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		}),
 	).toEqual({type: 'error', errorMessage: snapshotErrorMessage});
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
+	expect(ConfigInternals.getElementLibraries()).toEqual([
+		'https://initial.example.com/elements',
+	]);
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,
@@ -95,12 +104,18 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	writeConfig('this is not valid JavaScript }');
 	expect((await reloadTestConfig()).type).toBe('error');
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
+	expect(ConfigInternals.getElementLibraries()).toEqual([
+		'https://initial.example.com/elements',
+	]);
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789); Config.setDefaultEditor({type: 'custom', name: 'Acme Editor', executable: '/opt/acme/editor', arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%']}); Config.setDefaultCodingAgent('claude-code');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789); Config.setDefaultEditor({type: 'custom', name: 'Acme Editor', executable: '/opt/acme/editor', arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%']}); Config.setDefaultCodingAgent('claude-code'); Config.addElementLibrary('https://reloaded.example.com/library');`,
 	);
 	expect((await reloadTestConfig()).type).toBe('success');
 	expect(ConfigInternals.getStudioPort()).toBe(6789);
+	expect(ConfigInternals.getElementLibraries()).toEqual([
+		'https://reloaded.example.com/library',
+	]);
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,
@@ -120,6 +135,7 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(7890);`,
 	);
 	expect((await reloadTestConfig()).type).toBe('success');
+	expect(ConfigInternals.getElementLibraries()).toEqual([]);
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,

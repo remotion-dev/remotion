@@ -12,6 +12,20 @@ test('Studio render defaults keep the startup log level', () => {
 	expect(getRenderDefaults('warn').logLevel).toBe('warn');
 });
 
+test('Element library URLs must be absolute HTTP or HTTPS URLs', () => {
+	ConfigInternals.resetConfigOptions();
+
+	expect(() => Config.addElementLibrary('/elements')).toThrow(
+		'Config.addElementLibrary() expects an absolute URL',
+	);
+	expect(() => Config.addElementLibrary('file:///tmp/elements')).toThrow(
+		'Config.addElementLibrary() only supports HTTP and HTTPS URLs',
+	);
+	expect(() => Config.addElementLibrary(null as unknown as string)).toThrow(
+		'Config.addElementLibrary() expects a string',
+	);
+});
+
 test('Rspack can be configured using the current and deprecated APIs', () => {
 	ConfigInternals.resetConfigOptions();
 
@@ -35,6 +49,7 @@ test('reset config options restores defaults before reloading config', async () 
 
 	Config.setStudioPort(4321);
 	Config.setMaxTimelineTracks(123);
+	Config.addElementLibrary('https://example.com/elements');
 	Config.setChromiumOpenGlRenderer('angle');
 	Config.setCrf(12);
 	Config.setDefaultCodingAgent('codex');
@@ -69,6 +84,9 @@ test('reset config options restores defaults before reloading config', async () 
 
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 	expect(StudioServerInternals.getMaxTimelineTracks()).toBe(123);
+	expect(ConfigInternals.getElementLibraries()).toEqual([
+		'https://example.com/elements',
+	]);
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBe('angle');
@@ -142,6 +160,7 @@ test('reset config options restores defaults before reloading config', async () 
 
 	expect(ConfigInternals.getStudioPort()).toBeUndefined();
 	expect(StudioServerInternals.getMaxTimelineTracks()).toBeNull();
+	expect(ConfigInternals.getElementLibraries()).toEqual([]);
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBeNull();

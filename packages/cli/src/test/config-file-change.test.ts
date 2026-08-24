@@ -40,6 +40,12 @@ test('classifies runtime config changes', () => {
 			prepare('Config.setInteractivityEnabled(false);'),
 		),
 	).toBe('runtime');
+	expect(
+		classify(
+			prepare('Config.addElementLibrary("https://one.example.com");'),
+			prepare('Config.addElementLibrary("https://two.example.com");'),
+		),
+	).toBe('runtime');
 });
 
 test('classifies changes that require a page reload', () => {
