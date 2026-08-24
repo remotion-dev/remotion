@@ -162,6 +162,7 @@ export type InlineAudioAsset = {
 	id: string;
 	audio: Int16Array | number[];
 	frame: number;
+	startInVideo?: number;
 	timestamp: number;
 	duration: number;
 	toneFrequency: number;

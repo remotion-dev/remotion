@@ -11,6 +11,10 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
+import {
+	inlineAudioTrackToPreprocessedAudioTrack,
+	mergeInlineAudioTracks,
+} from './merge-inline-audio-tracks';
 import type {AudioCodec} from './options/audio-codec';
 import {getExtensionFromAudioCodec} from './options/audio-codec';
 import type {PreprocessedAudioTrack} from './preprocess-audio-track';
@@ -138,17 +142,31 @@ export const createAudio = async ({
 	});
 
 	const inlinedAudio = downloadMap.inlineAudioMixing.getListOfAssets();
+	const mergedInlineAudio = await mergeInlineAudioTracks({
+		tracks: inlinedAudio,
+		downloadMap,
+		remotionRoot,
+		indent,
+		logLevel,
+		binariesDirectory,
+		cancelSignal,
+		fps,
+		chunkLengthInSeconds,
+		sampleRate,
+	});
 
 	const preprocessed: PreprocessedAudioTrack[] = [
 		...audioTracks.filter(truthy),
-		...inlinedAudio.map((asset) => ({
-			outName: asset,
-			filter: {
-				filter: null,
-				pad_start: null,
-				pad_end: null,
-			},
-		})),
+		...(mergedInlineAudio
+			? [
+					inlineAudioTrackToPreprocessedAudioTrack({
+						track: mergedInlineAudio,
+						relativeToInSeconds: 0,
+						padToDurationInSeconds: chunkLengthInSeconds,
+						sampleRate,
+					}),
+				]
+			: []),
 	];
 	const merged = path.join(downloadMap.audioPreprocessing, 'merged.wav');
 	const extension = getExtensionFromAudioCodec(audioCodec);

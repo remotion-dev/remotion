@@ -38,13 +38,21 @@ const correctFloatingPointError = (value: number): number => {
 const BIT_DEPTH = 16;
 const BYTES_PER_SAMPLE = BIT_DEPTH / 8;
 const NUMBER_OF_CHANNELS = 2;
+const WAV_HEADER_SIZE = 44;
+
+export type InlineAudioTrack = {
+	outName: string;
+	startInSeconds: number;
+	durationInSeconds: number;
+};
 
 export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 	const folderToAdd = makeAndReturn(dir, 'remotion-inline-audio-mixing');
-	// asset id -> file descriptor
 	const openFiles: Record<string, number> = {};
 	const writtenHeaders: Record<string, boolean> = {};
 	const toneFrequencies: Record<string, number> = {};
+	const startTimesInSeconds: Record<string, number> = {};
+	const writtenDataSizes: Record<string, number> = {};
 
 	const cleanup = () => {
 		for (const fileName of Object.keys(openFiles)) {
@@ -57,29 +65,25 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		deleteDirectory(folderToAdd);
 	};
 
-	const getListOfAssets = () => {
-		return Object.keys(openFiles);
+	const getListOfAssets = (): InlineAudioTrack[] => {
+		return Object.keys(writtenHeaders)
+			.map((outName) => ({
+				outName,
+				startInSeconds: startTimesInSeconds[outName],
+				durationInSeconds:
+					writtenDataSizes[outName] /
+					(NUMBER_OF_CHANNELS * sampleRate * BYTES_PER_SAMPLE),
+			}))
+			.sort((a, b) => a.startInSeconds - b.startInSeconds);
 	};
 
 	const getFilePath = (asset: InlineAudioAsset) => {
 		return path.join(folderToAdd, `${asset.id}.wav`);
 	};
 
-	const ensureAsset = ({
-		asset,
-		fps,
-		totalNumberOfFrames,
-		trimLeftOffset,
-		trimRightOffset,
-	}: {
-		asset: InlineAudioAsset;
-		fps: number;
-		totalNumberOfFrames: number;
-		trimLeftOffset: number;
-		trimRightOffset: number;
-	}) => {
+	const ensureAsset = (asset: InlineAudioAsset) => {
 		const filePath = getFilePath(asset);
-		if (!openFiles[filePath]) {
+		if (openFiles[filePath] === undefined) {
 			openFiles[filePath] = fs.openSync(filePath, 'w');
 		}
 
@@ -88,43 +92,21 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		}
 
 		writtenHeaders[filePath] = true;
-
-		const expectedDataSize = Math.round(
-			(totalNumberOfFrames / fps - trimLeftOffset + trimRightOffset) *
-				NUMBER_OF_CHANNELS *
-				sampleRate *
-				BYTES_PER_SAMPLE,
-		);
-
-		const expectedSize = 40 + expectedDataSize;
+		writtenDataSizes[filePath] = 0;
 
 		const fd = openFiles[filePath];
 		writeSync(fd, new Uint8Array([0x52, 0x49, 0x46, 0x46]), 0, 4, 0); // "RIFF"
-		writeSync(
-			fd,
-			new Uint8Array(numberTo32BiIntLittleEndian(expectedSize)),
-			0,
-			4,
-			4,
-		); // Remaining size
+		writeSync(fd, numberTo32BiIntLittleEndian(36), 0, 4, 4); // Remaining size
 		writeSync(fd, new Uint8Array([0x57, 0x41, 0x56, 0x45]), 0, 4, 8); // "WAVE"
 		writeSync(fd, new Uint8Array([0x66, 0x6d, 0x74, 0x20]), 0, 4, 12); // "fmt "
 		writeSync(fd, new Uint8Array([BIT_DEPTH, 0x00, 0x00, 0x00]), 0, 4, 16); // fmt chunk size = 16
 		writeSync(fd, new Uint8Array([0x01, 0x00]), 0, 2, 20); // Audio format (PCM) = 1, set 3 if float32 would be true
 		writeSync(fd, new Uint8Array([NUMBER_OF_CHANNELS, 0x00]), 0, 2, 22); // Number of channels
+		writeSync(fd, numberTo32BiIntLittleEndian(sampleRate), 0, 4, 24); // Sample rate
 		writeSync(
 			fd,
-			new Uint8Array(numberTo32BiIntLittleEndian(sampleRate)),
-			0,
-			4,
-			24,
-		); // Sample rate
-		writeSync(
-			fd,
-			new Uint8Array(
-				numberTo32BiIntLittleEndian(
-					sampleRate * NUMBER_OF_CHANNELS * BYTES_PER_SAMPLE,
-				),
+			numberTo32BiIntLittleEndian(
+				sampleRate * NUMBER_OF_CHANNELS * BYTES_PER_SAMPLE,
 			),
 			0,
 			4,
@@ -132,22 +114,14 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		); // Byte rate
 		writeSync(
 			fd,
-			new Uint8Array(
-				numberTo16BitLittleEndian(NUMBER_OF_CHANNELS * BYTES_PER_SAMPLE),
-			),
+			numberTo16BitLittleEndian(NUMBER_OF_CHANNELS * BYTES_PER_SAMPLE),
 			0,
 			2,
 			32,
 		); // Block align
 		writeSync(fd, numberTo16BitLittleEndian(BIT_DEPTH), 0, 2, 34); // Bits per sample
 		writeSync(fd, new Uint8Array([0x64, 0x61, 0x74, 0x61]), 0, 4, 36); // "data"
-		writeSync(
-			fd,
-			new Uint8Array(numberTo32BiIntLittleEndian(expectedDataSize)),
-			0,
-			4,
-			40,
-		); // Remaining size
+		writeSync(fd, numberTo32BiIntLittleEndian(0), 0, 4, 40); // Data size
 	};
 
 	const finish = async ({
@@ -163,7 +137,15 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		cancelSignal: CancelSignal | undefined;
 		sampleRate: number;
 	}) => {
-		for (const fileName of Object.keys(openFiles)) {
+		for (const fileName of Object.keys(writtenHeaders)) {
+			const fd = openFiles[fileName];
+			const dataSize = Math.max(0, fs.fstatSync(fd).size - WAV_HEADER_SIZE);
+			writtenDataSizes[fileName] = dataSize;
+			writeSync(fd, numberTo32BiIntLittleEndian(36 + dataSize), 0, 4, 4);
+			writeSync(fd, numberTo32BiIntLittleEndian(dataSize), 0, 4, 40);
+			fs.closeSync(fd);
+			delete openFiles[fileName];
+
 			const frequency = toneFrequencies[fileName];
 			if (frequency === 1) {
 				continue;
@@ -180,10 +162,6 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 				cancelSignal,
 				sampleRate: finishSampleRate,
 			});
-			try {
-				fs.closeSync(openFiles[fileName]);
-			} catch {}
-
 			fs.renameSync(tmpFile, fileName);
 		}
 	};
@@ -203,16 +181,9 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		trimLeftOffset: number;
 		trimRightOffset: number;
 	}) => {
-		ensureAsset({
-			asset,
-			fps,
-			totalNumberOfFrames,
-			trimLeftOffset,
-			trimRightOffset,
-		});
+		ensureAsset(asset);
 
 		const filePath = getFilePath(asset);
-
 		if (
 			toneFrequencies[filePath] !== undefined &&
 			toneFrequencies[filePath] !== asset.toneFrequency
@@ -224,6 +195,24 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 
 		const fileDescriptor = openFiles[filePath];
 		toneFrequencies[filePath] = asset.toneFrequency;
+
+		const assetStartInVideo = asset.startInVideo ?? firstFrame;
+		const firstFrameForAsset = Math.max(assetStartInVideo, firstFrame);
+		const startsAtRenderStart = firstFrameForAsset === firstFrame;
+		const startInSeconds = Math.max(
+			0,
+			(firstFrameForAsset - firstFrame) / fps - trimLeftOffset,
+		);
+		if (
+			startTimesInSeconds[filePath] !== undefined &&
+			Math.abs(startTimesInSeconds[filePath] - startInSeconds) > 0.00001
+		) {
+			throw new Error(
+				`The start time for inline audio asset ${asset.id} changed from ${startTimesInSeconds[filePath]} to ${startInSeconds}`,
+			);
+		}
+
+		startTimesInSeconds[filePath] = startInSeconds;
 
 		let arr = new Int16Array(asset.audio);
 		const isFirst = asset.frame === firstFrame;
@@ -252,7 +241,8 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		}
 
 		const positionInSeconds =
-			(asset.frame - firstFrame) / fps - (isFirst ? 0 : trimLeftOffset);
+			(asset.frame - firstFrameForAsset) / fps -
+			(isFirst || !startsAtRenderStart ? 0 : trimLeftOffset);
 
 		// Always rounding down to ensure there are no gaps when the samples don't align
 		// In @remotion/media, we also round down the sample start timestamp and round up the end timestamp
@@ -264,16 +254,15 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 			BYTES_PER_SAMPLE;
 
 		writeSync(
-			// fs
 			fileDescriptor,
-			// data
 			arr,
-			// offset of data
 			0,
-			// length
 			arr.byteLength,
-			// position
-			44 + position,
+			WAV_HEADER_SIZE + position,
+		);
+		writtenDataSizes[filePath] = Math.max(
+			writtenDataSizes[filePath],
+			position + arr.byteLength,
 		);
 	};
 
