@@ -775,6 +775,19 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="regression-testing">
 				<Composition
+					id="suspense-loading-indicator-test"
+					lazyComponent={async () => {
+						await new Promise<void>((resolve) => {
+							setTimeout(resolve, 10_000);
+						});
+						return import('./SuspenseLoadingIndicatorTest');
+					}}
+					width={100}
+					height={100}
+					fps={30}
+					durationInFrames={30}
+				/>
+				<Composition
 					id="simple-img"
 					component={SimpleImg}
 					width={1080}
