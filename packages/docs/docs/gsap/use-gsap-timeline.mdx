@@ -11,8 +11,6 @@ _Part of the [`@remotion/gsap`](/docs/gsap) package._
 
 Builds a paused GSAP timeline and seeks it to the current frame of the Remotion timeline.
 
-The timeline never plays on GSAP's ticker. On every frame, the hook positions the timeline at `frame / fps`. The same frame produces the same pixels in the [`<Player>`](/docs/player/player), in the Studio, and in stills and concurrent renders.
-
 ## Example
 
 ```tsx twoslash title="MyComposition.tsx"
