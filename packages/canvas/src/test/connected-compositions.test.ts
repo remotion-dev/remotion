@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {getConnectedCompositions} from '../helpers/get-connected-compositions';
+import {getConnectedCompositions} from '../get-connected-compositions';
 
 const Child = () => null;
 const OtherChild = () => null;

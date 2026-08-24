@@ -28,6 +28,9 @@
 			"path": "./packages/browser-studio"
 		},
 		{
+			"path": "./packages/canvas"
+		},
+		{
 			"path": "./packages/cloudrun"
 		},
 		{
