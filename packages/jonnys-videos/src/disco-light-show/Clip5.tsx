@@ -1,6 +1,5 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {} from 'remotion';
 import {asset} from './assets';
 
 export const Clip5: React.FC = () => {

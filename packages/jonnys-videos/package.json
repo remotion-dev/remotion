@@ -22,7 +22,6 @@
 		"@remotion/media": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/shapes": "workspace:*",
-		"@remotion/starburst": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"remotion": "workspace:*"

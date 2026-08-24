@@ -81,7 +81,6 @@ export const TextBehindVideoSeriesFirst20sComposition: React.FC = () => {
 				<Clip5 />
 			</Sequence>
 			<Sequence showInTimeline={false}>
-				(
 				<Video
 					src={asset('text-behind-video-series-first-20s.mp4')}
 					style={{
@@ -117,7 +116,6 @@ export const TextBehindVideoSeriesFirst20sComposition: React.FC = () => {
 					durationInFrames={190}
 					trimBefore={31}
 				/>
-				)
 			</Sequence>
 		</>
 	);

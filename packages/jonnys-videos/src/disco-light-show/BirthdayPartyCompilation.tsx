@@ -6,8 +6,6 @@ import {Clip1} from './Clip1';
 import {Clip3} from './Clip3';
 import {Clip4} from './Clip4';
 
-export const BIRTHDAY_PARTY_COMPILATION_DURATION_IN_FRAMES = 346;
-
 export const BirthdayPartyCompilation: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
