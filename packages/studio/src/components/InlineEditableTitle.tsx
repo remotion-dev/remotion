@@ -12,7 +12,7 @@ import {
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
-import {COMPACT_INLINE_ROW_HEIGHT} from './layout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from './layout';
 
 const titleWrapper: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -71,7 +71,7 @@ const inspectorTitleWrapper: React.CSSProperties = {
 	...titleWrapper,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
-	height: COMPACT_INLINE_ROW_HEIGHT,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	margin: '0 4px',
 	width: 'calc(100% - 8px)',
 };
@@ -81,7 +81,7 @@ const inspectorTitleInner: React.CSSProperties = {
 	alignItems: 'center',
 	fontFamily: 'sans-serif',
 	fontSize: 13,
-	height: COMPACT_INLINE_ROW_HEIGHT,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	paddingBottom: 0,
 	paddingLeft: INSPECTOR_PANEL_HORIZONTAL_PADDING - 4,
 	paddingRight: INSPECTOR_PANEL_HORIZONTAL_PADDING - 4,

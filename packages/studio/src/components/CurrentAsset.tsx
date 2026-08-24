@@ -19,10 +19,7 @@ import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
 import {TrashIcon} from '../icons/trash';
 import {InlineEditableTitle} from './InlineEditableTitle';
-import {
-	InspectorInfoHeader,
-	InspectorInfoSubtitle,
-} from './InspectorInfoHeader';
+import {InspectorInfoHeader} from './InspectorInfoHeader';
 import {
 	InspectorDetailRow,
 	InspectorQuickActionsSection,
@@ -30,7 +27,7 @@ import {
 	InspectorSection,
 } from './InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
-import {COMPACT_INLINE_ROW_HEIGHT} from './layout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from './layout';
 import {
 	getStaticFileRenameSelection,
 	useRenameStaticFile,
@@ -40,7 +37,7 @@ import {openInFileExplorer} from './RenderQueue/actions';
 import {useDeleteAsset} from './use-delete-asset';
 import {useStaticFiles} from './use-static-files';
 
-export const CURRENT_ASSET_HEIGHT = COMPACT_INLINE_ROW_HEIGHT + 8;
+export const CURRENT_ASSET_HEIGHT = COMPACT_CONTROL_ROW_HEIGHT;
 
 const quickActionIconStyle: React.CSSProperties = {
 	display: 'block',
@@ -247,6 +244,13 @@ export const AssetInfo: React.FC<{
 
 	const fileName = assetName.split('/').pop() ?? assetName;
 	const fileDetails: CurrentAssetDetail[] = [];
+	if (imageMetadata !== null) {
+		fileDetails.push({
+			label: 'Dimensions',
+			value: `${imageMetadata.width} × ${imageMetadata.height}`,
+		});
+	}
+
 	const container = mediaMetadata?.format ?? imageMetadata?.format ?? null;
 	if (container !== null) {
 		fileDetails.push({label: 'Container', value: container});
@@ -291,11 +295,6 @@ export const AssetInfo: React.FC<{
 					size={contentSized ? 'default' : 'inspector'}
 					title={assetName}
 				/>
-				{imageMetadata ? (
-					<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
-						{imageMetadata.width} × {imageMetadata.height}
-					</InspectorInfoSubtitle>
-				) : null}
 			</InspectorInfoHeader>
 			{fileDetails.length > 0 ? (
 				<InspectorSection header="File">
