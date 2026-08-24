@@ -25,6 +25,7 @@
 	},
 	"dependencies": {
 		"@tanstack/react-virtual": "3.14.9",
+		"@remotion/canvas": "workspace:*",
 		"@remotion/studio-protocol": "workspace:*",
 		"semver": "7.5.3",
 		"remotion": "workspace:*",

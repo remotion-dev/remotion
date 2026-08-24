@@ -3,7 +3,7 @@ import type {TSequence} from 'remotion';
 import {
 	compareNonceHistories,
 	sortItemsByNonceHistory,
-} from '../helpers/sort-by-nonce-history';
+} from '../sort-by-nonce-history';
 
 type NonceHistory = TSequence['nonce'];
 

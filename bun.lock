@@ -191,6 +191,18 @@
         "react-dom": ">=16.8.0",
       },
     },
+    "packages/canvas": {
+      "name": "@remotion/canvas",
+      "version": "4.0.516",
+      "dependencies": {
+        "remotion": "workspace:*",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
     "packages/canvas-capture-extension": {
       "name": "@remotion/canvas-capture-extension",
       "version": "4.0.516",
@@ -1774,6 +1786,7 @@
       "version": "4.0.516",
       "dependencies": {
         "@jridgewell/trace-mapping": "0.3.31",
+        "@remotion/canvas": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
@@ -4347,6 +4360,8 @@
     "@remotion/browser-studio": ["@remotion/browser-studio@workspace:packages/browser-studio"],
 
     "@remotion/bundler": ["@remotion/bundler@workspace:packages/bundler"],
+
+    "@remotion/canvas": ["@remotion/canvas@workspace:packages/canvas"],
 
     "@remotion/canvas-capture-extension": ["@remotion/canvas-capture-extension@workspace:packages/canvas-capture-extension"],
 
