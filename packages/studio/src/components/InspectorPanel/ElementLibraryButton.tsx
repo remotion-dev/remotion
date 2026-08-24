@@ -1,4 +1,3 @@
-import type {StudioRuntimeConfig} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {CURRENT_COLOR, LIGHT_TEXT} from '../../helpers/colors';
@@ -11,8 +10,7 @@ import {SegmentedButton} from '../SegmentedButton';
 import {useSettings} from '../SettingsContext';
 import {InspectorQuickAction} from './common';
 
-const noElementLibraries: NonNullable<StudioRuntimeConfig['elementLibraries']> =
-	[];
+const noElementLibraries = [] as const;
 
 const browseElementsIconStyle: React.CSSProperties = {
 	height: 22,
@@ -151,9 +149,7 @@ export const ElementLibraryButton: React.FC = () => {
 							keyHint: null,
 							label,
 							leftItem: null,
-							onClick: () => {
-								openElementLibrary(label, library.url);
-							},
+							onClick: () => openElementLibrary(label, library.url),
 							quickSwitcherLabel: null,
 							subMenu: null,
 							type: 'item' as const,

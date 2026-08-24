@@ -462,7 +462,6 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					askAIEnabled: false,
 					bufferStateDelayInMilliseconds: null,
 					defaultCodingAgent: null,
-					elementLibraries: [],
 					defaultEditor: null,
 					interactivityEnabled: true,
 					keyboardShortcutsEnabled: true,

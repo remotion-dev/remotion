@@ -43,9 +43,8 @@ export const addElementLibrary = (url: string, displayName: string | null) => {
 	});
 };
 
-export const getElementLibraries = (): readonly StudioElementLibrary[] => {
-	return elementLibraries;
-};
+export const getElementLibraries = (): readonly StudioElementLibrary[] =>
+	elementLibraries;
 
 export const resetElementLibraries = () => {
 	elementLibraries = [];

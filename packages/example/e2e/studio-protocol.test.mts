@@ -264,9 +264,7 @@ export const MyComponent = () => {
 				exact: true,
 			}),
 		).toBeVisible({timeout: 30_000});
-		await studioPage
-			.getByRole('button', {name: externalLibraryLabel, exact: true})
-			.click();
+		await externalLibraryItem.click();
 		const elementsIframe = studioPage.locator(
 			`iframe[title="${externalLibraryLabel} library"]`,
 		);
