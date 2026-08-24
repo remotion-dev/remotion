@@ -106,6 +106,7 @@ export const generateFfmpegArgs = ({
 		hardwareAcceleration,
 		indent,
 		logLevel,
+		onLog: null,
 	});
 
 	if (encoderSettings === null) {

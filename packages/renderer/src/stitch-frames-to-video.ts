@@ -4,6 +4,7 @@ import type {_InternalTypes} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
+import type {OnLog} from './browser/BrowserPage';
 import {callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
@@ -11,6 +12,7 @@ import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {createAudio} from './create-audio';
 import {validateQualitySettings} from './crf';
+import {defaultOnLog} from './default-on-log';
 import {deleteDirectory} from './delete-directory';
 import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
@@ -76,6 +78,7 @@ type InternalStitchFramesToVideoOptions = {
 	binariesDirectory: string | null;
 	metadata: Record<string, string> | null;
 	sampleRate: number;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
@@ -166,6 +169,7 @@ const innerStitchFramesToVideo = async (
 		metadata,
 		hardwareAcceleration,
 		sampleRate,
+		onLog,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -382,16 +386,20 @@ const innerStitchFramesToVideo = async (
 		return Promise.resolve(file);
 	}
 
-	const resolvedHardwareAcceleration = resolveHardwareAcceleration({
-		codec,
-		hardwareAcceleration,
-		binariesDirectory,
-		indent: indent ?? false,
-		logLevel,
-		crf,
-		encodingMaxRate: maxRate,
-		encodingBufferSize: bufferSize,
-	});
+	// Parallel encoding already resolved the encoder in the pre-stitcher.
+	const resolvedHardwareAcceleration = preEncodedFileLocation
+		? 'disable'
+		: resolveHardwareAcceleration({
+				codec,
+				hardwareAcceleration,
+				binariesDirectory,
+				indent: indent ?? false,
+				logLevel,
+				crf,
+				encodingMaxRate: maxRate,
+				encodingBufferSize: bufferSize,
+				onLog,
+			});
 
 	const ffmpegArgs = [
 		...(preEncodedFileLocation
@@ -635,5 +643,6 @@ export const stitchFramesToVideo = ({
 		separateAudioTo: separateAudioTo ?? null,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		sampleRate: sampleRate ?? 48000,
+		onLog: defaultOnLog,
 	});
 };
