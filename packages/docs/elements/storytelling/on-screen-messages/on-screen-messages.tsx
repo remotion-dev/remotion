@@ -9,7 +9,7 @@ import {
 
 loadFont('normal', {
 	subsets: ['latin'],
-	weights: ['600', '700'],
+	weights: ['500'],
 });
 
 export const OnScreenMessages = () => {
@@ -36,10 +36,11 @@ export const OnScreenMessages = () => {
 			<Interactive.Div
 				name="Message 1"
 				style={{
-					backgroundImage:
-						'linear-gradient(90deg, rgba(5, 11, 20, 0.84) 0%, rgba(5, 11, 20, 0.42) 62%, rgba(5, 11, 20, 0) 100%)',
-					borderLeft: '3px solid #8fd3ff',
+					backgroundColor: '#e9e9eb',
+					borderRadius: '38px 38px 38px 12px',
+					boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)',
 					boxSizing: 'border-box',
+					color: '#111111',
 					filter: `blur(${interpolate(
 						frame,
 						[8, 26, durationInFrames - 26, durationInFrames - 1],
@@ -50,11 +51,11 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						},
 					)}px)`,
-					fontSize: 48,
-					fontWeight: 600,
+					fontSize: 46,
+					fontWeight: 500,
 					left: 70,
-					letterSpacing: -1.5,
-					lineHeight: 1.08,
+					letterSpacing: -1.4,
+					lineHeight: 1.12,
 					opacity: interpolate(
 						frame,
 						[
@@ -74,7 +75,7 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						},
 					),
-					padding: '22px 34px 24px 30px',
+					padding: '24px 32px 26px',
 					position: 'absolute',
 					scale: interpolate(
 						frame,
@@ -87,7 +88,6 @@ export const OnScreenMessages = () => {
 							output: 'perceptual-scale',
 						},
 					),
-					textShadow: '0 3px 20px rgba(0, 0, 0, 0.75)',
 					top: 72,
 					translate: interpolate(
 						frame,
@@ -108,10 +108,11 @@ export const OnScreenMessages = () => {
 			<Interactive.Div
 				name="Message 2"
 				style={{
-					backgroundImage:
-						'linear-gradient(270deg, rgba(5, 11, 20, 0.84) 0%, rgba(5, 11, 20, 0.42) 62%, rgba(5, 11, 20, 0) 100%)',
-					borderRight: '3px solid #ffd7a3',
+					backgroundColor: '#0a84ff',
+					borderRadius: '38px 38px 12px 38px',
+					boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)',
 					boxSizing: 'border-box',
+					color: '#ffffff',
 					filter: `blur(${interpolate(
 						frame,
 						[40, 58, durationInFrames - 26, durationInFrames - 1],
@@ -122,10 +123,10 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						},
 					)}px)`,
-					fontSize: 43,
-					fontWeight: 600,
-					letterSpacing: -1.3,
-					lineHeight: 1.1,
+					fontSize: 46,
+					fontWeight: 500,
+					letterSpacing: -1.4,
+					lineHeight: 1.12,
 					opacity: interpolate(
 						frame,
 						[40, 58, 72, 92, durationInFrames - 26, durationInFrames - 1],
@@ -136,9 +137,9 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						},
 					),
-					padding: '22px 30px 24px 34px',
+					padding: '24px 32px 26px',
 					position: 'absolute',
-					right: 55,
+					right: 70,
 					scale: interpolate(
 						frame,
 						[40, 58, durationInFrames - 26, durationInFrames - 1],
@@ -150,8 +151,6 @@ export const OnScreenMessages = () => {
 							output: 'perceptual-scale',
 						},
 					),
-					textAlign: 'right',
-					textShadow: '0 3px 20px rgba(0, 0, 0, 0.75)',
 					top: 273,
 					translate: interpolate(
 						frame,
@@ -163,7 +162,7 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						},
 					),
-					width: 555,
+					width: 470,
 					willChange: 'filter, opacity, transform',
 				}}
 			>
@@ -172,11 +171,12 @@ export const OnScreenMessages = () => {
 			<Interactive.Div
 				name="Message 3"
 				style={{
-					backgroundImage:
-						'linear-gradient(90deg, rgba(5, 11, 20, 0.92) 0%, rgba(5, 11, 20, 0.48) 64%, rgba(5, 11, 20, 0) 100%)',
-					borderLeft: '4px solid #ffcc8a',
+					backgroundColor: '#e9e9eb',
+					borderRadius: '38px 38px 38px 12px',
 					bottom: 64,
+					boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)',
 					boxSizing: 'border-box',
+					color: '#111111',
 					filter: `blur(${interpolate(
 						frame,
 						[72, 92, durationInFrames - 26, durationInFrames - 1],
@@ -187,11 +187,11 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						},
 					)}px)`,
-					fontSize: 68,
-					fontWeight: 700,
+					fontSize: 46,
+					fontWeight: 500,
 					left: 185,
-					letterSpacing: -2.4,
-					lineHeight: 1,
+					letterSpacing: -1.4,
+					lineHeight: 1.12,
 					opacity: interpolate(
 						frame,
 						[72, 92, durationInFrames - 26, durationInFrames - 1],
@@ -202,9 +202,8 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						},
 					),
-					padding: '20px 34px 22px 30px',
+					padding: '24px 32px 26px',
 					position: 'absolute',
-					textShadow: '0 3px 22px rgba(0, 0, 0, 0.8)',
 					translate: interpolate(
 						frame,
 						[72, 92, durationInFrames - 26, durationInFrames - 1],
@@ -215,7 +214,7 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						},
 					),
-					width: 430,
+					width: 560,
 					willChange: 'filter, opacity, transform',
 				}}
 			>
