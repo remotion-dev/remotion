@@ -7,4 +7,5 @@ tsconfig.tsbuildinfo
 tsconfig.json
 .prettierrc.js
 bundle.ts
+happydom.ts
 dist/cjs/test
