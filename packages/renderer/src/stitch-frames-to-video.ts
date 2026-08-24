@@ -1,10 +1,11 @@
+import {randomUUID} from 'node:crypto';
 import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
-import {callFfNative} from './call-ffmpeg';
+import {callFf, callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -16,6 +17,7 @@ import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -212,6 +214,25 @@ const innerStitchFramesToVideo = async (
 				assetsInfo.downloadMap.stitchFrames,
 				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
 			);
+	const outputExtension = (
+		getExtensionOfFilename(outputLocation) ??
+		getFileExtensionFromCodec(codec, resolvedAudioCodec)
+	).toLowerCase();
+	const fastStartMuxer =
+		codec === 'h264' && outputExtension === 'mp4'
+			? 'mp4'
+			: codec === 'h264' && outputExtension === 'mov'
+				? 'mov'
+				: null;
+	// Fast Start reopens its output for an in-place second pass. Keep that work
+	// away from the public output path so Windows file observers cannot lock it.
+	const fastStartIntermediate =
+		fastStartMuxer === null
+			? null
+			: path.join(
+					assetsInfo.downloadMap.stitchFrames,
+					'fast-start-intermediate.remotion-in-progress',
+				);
 
 	Log.verbose(
 		{
@@ -392,12 +413,15 @@ const innerStitchFramesToVideo = async (
 			indent,
 			logLevel,
 		}),
-		codec === 'h264' ? ['-movflags', 'faststart'] : null,
+		codec === 'h264' && fastStartMuxer === null
+			? ['-movflags', 'faststart']
+			: null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		...makeMetadataArgs(metadata ?? {}),
-		force ? '-y' : null,
-		outputLocation ?? tempFile,
+		force || fastStartIntermediate ? '-y' : null,
+		fastStartIntermediate ? ['-f', fastStartMuxer] : null,
+		fastStartIntermediate ?? outputLocation ?? tempFile,
 	];
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
@@ -469,25 +493,10 @@ const innerStitchFramesToVideo = async (
 		rmSync(audio);
 	}
 
-	const result = await new Promise<Buffer | null>((resolve, reject) => {
+	await new Promise<void>((resolve, reject) => {
 		task.once('close', (code, signal) => {
 			if (code === 0) {
-				if (tempFile === null) {
-					cleanDownloadMap(assetsInfo.downloadMap);
-					return resolve(null);
-				}
-
-				promises
-					.readFile(tempFile)
-					.then((f) => {
-						resolve(f);
-					})
-					.catch((e) => {
-						reject(e);
-					})
-					.finally(() => {
-						cleanDownloadMap(assetsInfo.downloadMap);
-					});
+				resolve();
 			} else {
 				reject(
 					new Error(
@@ -499,6 +508,83 @@ const innerStitchFramesToVideo = async (
 			}
 		});
 	});
+
+	if (fastStartIntermediate) {
+		const destination = outputLocation ?? tempFile;
+		if (destination === null) {
+			throw new Error('Expected a Fast Start output destination');
+		}
+
+		const finalDestination = path.resolve(remotionRoot, destination);
+		let fastStartFile: string | null = null;
+
+		for (let attempt = 0; attempt < 3; attempt++) {
+			const candidate = path.join(
+				path.dirname(finalDestination),
+				`${path.basename(finalDestination)}.${randomUUID()}.remotion-in-progress`,
+			);
+			const fastStartTask = callFf({
+				bin: 'ffmpeg',
+				args: [
+					'-hide_banner',
+					'-i',
+					fastStartIntermediate,
+					'-c',
+					'copy',
+					'-movflags',
+					'faststart',
+					'-y',
+					'-f',
+					fastStartMuxer,
+					candidate,
+				],
+				indent,
+				logLevel,
+				binariesDirectory,
+				cancelSignal: cancelSignal ?? undefined,
+			});
+			let fastStartStderr = '';
+			fastStartTask.stderr?.on('data', (data: Buffer) => {
+				fastStartStderr += data.toString();
+			});
+
+			try {
+				await fastStartTask;
+				fastStartFile = candidate;
+				break;
+			} catch (error) {
+				await promises.rm(candidate, {force: true}).catch(() => undefined);
+				const isReopenFailure =
+					fastStartStderr.includes('Unable to re-open') &&
+					fastStartStderr.includes('output file for shifting data');
+				if (!isReopenFailure || attempt === 2) {
+					throw error;
+				}
+
+				Log.verbose(
+					{indent, logLevel, tag: 'stitchFramesToVideo()'},
+					`Retrying Fast Start finalization (attempt ${attempt + 2} of 3)`,
+				);
+			}
+		}
+
+		if (fastStartFile === null) {
+			throw new Error('Fast Start finalization did not produce an output file');
+		}
+
+		if (force) {
+			await promises.rename(fastStartFile, finalDestination);
+		} else {
+			try {
+				await promises.link(fastStartFile, finalDestination);
+			} finally {
+				await promises.rm(fastStartFile, {force: true});
+			}
+		}
+	}
+
+	const result = tempFile === null ? null : await promises.readFile(tempFile);
+	cleanDownloadMap(assetsInfo.downloadMap);
 	assetsInfo.downloadMap.allowCleanup();
 
 	return result;
