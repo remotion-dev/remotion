@@ -18,6 +18,7 @@ import {SetTimelineInOutProvider} from './SetTimelineInOutProvider';
 import {SettingsProvider} from './SettingsContext';
 import {ShowGuidesProvider} from './ShowGuidesProvider';
 import {ShowOutlinesProvider} from './ShowOutlinesProvider';
+import {ShowPixelGridProvider} from './ShowPixelGridProvider';
 import {ShowRulersProvider} from './ShowRulersProvider';
 import {SnappingProvider} from './SnappingProvider';
 import {VisualControlsUndoSync} from './VisualControls/VisualControlsUndoSync';
@@ -37,35 +38,37 @@ export const EditorContexts: React.FC<{
 							<KeybindingContextProvider>
 								<CheckerboardProvider>
 									<ZoomGesturesProvider>
-										<ShowRulersProvider>
-											<ShowGuidesProvider>
-												<ShowOutlinesProvider>
-													<SnappingProvider>
-														<PreviewSizeProvider>
-															<ModalsProvider>
-																<MediaVolumeProvider>
-																	<PlayerInternals.PlayerEmitterProvider
-																		currentPlaybackRate={null}
-																	>
-																		<SidebarContextProvider>
-																			<FolderContextProvider>
-																				<HighestZIndexProvider>
-																					<SetTimelineInOutProvider>
-																						<ExpandedTracksProvider>
-																							{children}
-																						</ExpandedTracksProvider>
-																					</SetTimelineInOutProvider>
-																				</HighestZIndexProvider>
-																			</FolderContextProvider>
-																		</SidebarContextProvider>
-																	</PlayerInternals.PlayerEmitterProvider>
-																</MediaVolumeProvider>
-															</ModalsProvider>
-														</PreviewSizeProvider>
-													</SnappingProvider>
-												</ShowOutlinesProvider>
-											</ShowGuidesProvider>
-										</ShowRulersProvider>
+										<ShowPixelGridProvider>
+											<ShowRulersProvider>
+												<ShowGuidesProvider>
+													<ShowOutlinesProvider>
+														<SnappingProvider>
+															<PreviewSizeProvider>
+																<ModalsProvider>
+																	<MediaVolumeProvider>
+																		<PlayerInternals.PlayerEmitterProvider
+																			currentPlaybackRate={null}
+																		>
+																			<SidebarContextProvider>
+																				<FolderContextProvider>
+																					<HighestZIndexProvider>
+																						<SetTimelineInOutProvider>
+																							<ExpandedTracksProvider>
+																								{children}
+																							</ExpandedTracksProvider>
+																						</SetTimelineInOutProvider>
+																					</HighestZIndexProvider>
+																				</FolderContextProvider>
+																			</SidebarContextProvider>
+																		</PlayerInternals.PlayerEmitterProvider>
+																	</MediaVolumeProvider>
+																</ModalsProvider>
+															</PreviewSizeProvider>
+														</SnappingProvider>
+													</ShowOutlinesProvider>
+												</ShowGuidesProvider>
+											</ShowRulersProvider>
+										</ShowPixelGridProvider>
 									</ZoomGesturesProvider>
 								</CheckerboardProvider>
 							</KeybindingContextProvider>

@@ -23,6 +23,7 @@ import {Checkmark} from '../icons/Checkmark';
 import {drawRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
+import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
@@ -295,6 +296,9 @@ export const useMenuStructure = (
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
 		EditorZoomGesturesContext,
 	);
+	const {editorShowPixelGrid, setEditorShowPixelGrid} = useContext(
+		EditorShowPixelGridContext,
+	);
 	const {editorShowRulers, setEditorShowRulers} = useContext(
 		EditorShowRulersContext,
 	);
@@ -531,6 +535,22 @@ export const useMenuStructure = (
 						quickSwitcherLabel: editorZoomGestures
 							? 'Disable Zoom and Pan Gestures'
 							: 'Enable Zoom and Pan Gestures',
+					},
+					{
+						id: 'pixel-grid',
+						keyHint: null,
+						label: 'Pixel Grid',
+						onClick: () => {
+							closeMenu();
+							setEditorShowPixelGrid((c) => !c);
+						},
+						type: 'item' as const,
+						value: 'pixel-grid',
+						leftItem: editorShowPixelGrid ? <Checkmark /> : null,
+						subMenu: null,
+						quickSwitcherLabel: editorShowPixelGrid
+							? 'Hide Pixel Grid'
+							: 'Show Pixel Grid',
 					},
 					{
 						id: 'show-rulers',
@@ -1110,6 +1130,7 @@ export const useMenuStructure = (
 		currentComposition,
 		resolvedCompositionLocation,
 		editorZoomGestures,
+		editorShowPixelGrid,
 		editorShowRulers,
 		editorShowGuides,
 		editorSnapping,
@@ -1127,6 +1148,7 @@ export const useMenuStructure = (
 		size.size,
 		setSize,
 		setEditorZoomGestures,
+		setEditorShowPixelGrid,
 		setEditorShowRulers,
 		setEditorShowGuides,
 		setEditorSnapping,

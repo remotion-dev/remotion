@@ -18,12 +18,13 @@ import {
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {LIGHT_TEXT, RULER_COLOR} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {calculateStudioCanvasTransformation} from '../helpers/studio-fit-padding';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {RenderPreview} from './RenderPreview';
 import {SelectedOutlineOverlay} from './SelectedOutlineOverlay';
@@ -55,6 +56,7 @@ const assetMetadataErrorContainer: React.CSSProperties = {
 };
 
 const checkerboardSize = 49;
+const PIXEL_GRID_MIN_SCALE = 4;
 
 const containerStyle = (options: {
 	scale: number;
@@ -85,6 +87,32 @@ const containerStyle = (options: {
 				checkerboardSize,
 			) /* Must be half of one side of the square */,
 	};
+};
+
+const PixelGrid: React.FC<{
+	readonly scale: number;
+}> = ({scale}) => {
+	const {editorShowPixelGrid} = useContext(EditorShowPixelGridContext);
+
+	if (!editorShowPixelGrid || scale < PIXEL_GRID_MIN_SCALE) {
+		return null;
+	}
+
+	return (
+		<div
+			aria-hidden="true"
+			className="css-reset"
+			data-testid="pixel-grid"
+			style={{
+				position: 'absolute',
+				inset: 0,
+				pointerEvents: 'none',
+				opacity: 0.35,
+				backgroundImage: `linear-gradient(to right, ${RULER_COLOR} 1px, transparent 1px), linear-gradient(to bottom, ${RULER_COLOR} 1px, transparent 1px)`,
+				backgroundSize: `${scale}px ${scale}px`,
+			}}
+		/>
+	);
 };
 
 export const VideoPreview: React.FC<{
@@ -275,6 +303,7 @@ const CompWhenItHasDimensions: React.FC<{
 				xCorrection={xCorrection}
 				yCorrection={yCorrection}
 			/>
+			<PixelGrid scale={scale} />
 			<SelectedOutlineOverlay
 				canvasHovered={canvasHovered}
 				compositionHeight={(contentDimensions as Dimensions).height}
