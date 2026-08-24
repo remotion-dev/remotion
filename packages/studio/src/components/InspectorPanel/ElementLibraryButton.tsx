@@ -1,3 +1,4 @@
+import type {StudioRuntimeConfig} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {CURRENT_COLOR, LIGHT_TEXT} from '../../helpers/colors';
@@ -10,7 +11,8 @@ import {SegmentedButton} from '../SegmentedButton';
 import {useSettings} from '../SettingsContext';
 import {InspectorQuickAction} from './common';
 
-const noElementLibraries: readonly string[] = [];
+const noElementLibraries: NonNullable<StudioRuntimeConfig['elementLibraries']> =
+	[];
 
 const browseElementsIconStyle: React.CSSProperties = {
 	height: 22,
@@ -138,10 +140,10 @@ export const ElementLibraryButton: React.FC = () => {
 						type: 'item',
 						value: 'https://www.remotion.dev/elements',
 					},
-					...elementLibraries.map((url, index) => {
-						const parsedUrl = new URL(url);
+					...elementLibraries.map((library, index) => {
+						const parsedUrl = new URL(library.url);
 						const pathname = parsedUrl.pathname.replace(/\/$/, '');
-						const label = `${parsedUrl.host}${pathname}`;
+						const label = library.displayName ?? `${parsedUrl.host}${pathname}`;
 
 						return {
 							disabled: false,
@@ -150,12 +152,12 @@ export const ElementLibraryButton: React.FC = () => {
 							label,
 							leftItem: null,
 							onClick: () => {
-								openElementLibrary(label, url);
+								openElementLibrary(label, library.url);
 							},
 							quickSwitcherLabel: null,
 							subMenu: null,
 							type: 'item' as const,
-							value: url,
+							value: library.url,
 						};
 					}),
 				],

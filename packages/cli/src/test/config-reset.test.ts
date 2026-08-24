@@ -12,7 +12,7 @@ test('Studio render defaults keep the startup log level', () => {
 	expect(getRenderDefaults('warn').logLevel).toBe('warn');
 });
 
-test('Element library URLs must be absolute HTTP or HTTPS URLs', () => {
+test('Element library configuration must be valid', () => {
 	ConfigInternals.resetConfigOptions();
 
 	expect(() => Config.addElementLibrary('/elements')).toThrow(
@@ -23,6 +23,19 @@ test('Element library URLs must be absolute HTTP or HTTPS URLs', () => {
 	);
 	expect(() => Config.addElementLibrary(null as unknown as string)).toThrow(
 		'Config.addElementLibrary() expects a string',
+	);
+	expect(() =>
+		Config.addElementLibrary(
+			'https://example.com/elements',
+			123 as unknown as string,
+		),
+	).toThrow(
+		'Config.addElementLibrary() expects the display name to be a string',
+	);
+	expect(() =>
+		Config.addElementLibrary('https://example.com/elements', ' '),
+	).toThrow(
+		'Config.addElementLibrary() expects the display name to not be empty',
 	);
 });
 
@@ -49,7 +62,7 @@ test('reset config options restores defaults before reloading config', async () 
 
 	Config.setStudioPort(4321);
 	Config.setMaxTimelineTracks(123);
-	Config.addElementLibrary('https://example.com/elements');
+	Config.addElementLibrary('https://example.com/elements', 'Example Elements');
 	Config.setChromiumOpenGlRenderer('angle');
 	Config.setCrf(12);
 	Config.setDefaultCodingAgent('codex');
@@ -85,7 +98,10 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 	expect(StudioServerInternals.getMaxTimelineTracks()).toBe(123);
 	expect(ConfigInternals.getElementLibraries()).toEqual([
-		'https://example.com/elements',
+		{
+			displayName: 'Example Elements',
+			url: 'https://example.com/elements',
+		},
 	]);
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,

@@ -363,6 +363,7 @@ export {
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
 export type {
 	ConfigFileStudioSettings,
+	StudioElementLibrary,
 	StudioRuntimeConfig,
 } from './studio-runtime-config';
 export {

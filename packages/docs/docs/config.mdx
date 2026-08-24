@@ -200,10 +200,12 @@ Adds an externally hosted Element library to Remotion Studio.
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.addElementLibrary('https://example.com/elements');
+Config.addElementLibrary('https://example.com/elements', 'Acme Elements');
 ```
 
-Call `addElementLibrary()` once for each external library. When at least one is configured, Browse Elements shows a dropdown containing Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
+Call `addElementLibrary()` once for each external library. The second argument sets its display name. If it is omitted, the URL host and path are shown instead.
+
+When at least one library is configured, Browse Elements shows a dropdown containing Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
 
 The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
 

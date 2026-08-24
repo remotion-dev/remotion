@@ -40,13 +40,16 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	});
 	temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'remotion-config-'));
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321); Config.setDefaultEditor('cursor'); Config.setDefaultCodingAgent('codex'); Config.addElementLibrary('https://initial.example.com/elements');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321); Config.setDefaultEditor('cursor'); Config.setDefaultCodingAgent('codex'); Config.addElementLibrary('https://initial.example.com/elements', 'Initial Elements');`,
 	);
 
 	await loadConfig(temporaryDirectory);
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 	expect(ConfigInternals.getElementLibraries()).toEqual([
-		'https://initial.example.com/elements',
+		{
+			displayName: 'Initial Elements',
+			url: 'https://initial.example.com/elements',
+		},
 	]);
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
@@ -58,12 +61,15 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		}).value,
 	).toBe('codex');
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); Config.addElementLibrary('https://invalid.example.com/elements'); throw new Error('Invalid config');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); Config.addElementLibrary('https://invalid.example.com/elements', 'Invalid Elements'); throw new Error('Invalid config');`,
 	);
 	expect((await reloadTestConfig()).type).toBe('error');
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 	expect(ConfigInternals.getElementLibraries()).toEqual([
-		'https://initial.example.com/elements',
+		{
+			displayName: 'Initial Elements',
+			url: 'https://initial.example.com/elements',
+		},
 	]);
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
@@ -76,7 +82,7 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	).toBe('codex');
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); Config.addElementLibrary('https://snapshot.example.com/elements');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); Config.addElementLibrary('https://snapshot.example.com/elements', 'Snapshot Elements');`,
 	);
 	const snapshotErrorMessage = 'The derived config snapshot was rejected';
 	expect(
@@ -89,7 +95,10 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	).toEqual({type: 'error', errorMessage: snapshotErrorMessage});
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 	expect(ConfigInternals.getElementLibraries()).toEqual([
-		'https://initial.example.com/elements',
+		{
+			displayName: 'Initial Elements',
+			url: 'https://initial.example.com/elements',
+		},
 	]);
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
@@ -105,16 +114,22 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	expect((await reloadTestConfig()).type).toBe('error');
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 	expect(ConfigInternals.getElementLibraries()).toEqual([
-		'https://initial.example.com/elements',
+		{
+			displayName: 'Initial Elements',
+			url: 'https://initial.example.com/elements',
+		},
 	]);
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789); Config.setDefaultEditor({type: 'custom', name: 'Acme Editor', executable: '/opt/acme/editor', arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%']}); Config.setDefaultCodingAgent('claude-code'); Config.addElementLibrary('https://reloaded.example.com/library');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789); Config.setDefaultEditor({type: 'custom', name: 'Acme Editor', executable: '/opt/acme/editor', arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%']}); Config.setDefaultCodingAgent('claude-code'); Config.addElementLibrary('https://reloaded.example.com/library', 'Reloaded Elements');`,
 	);
 	expect((await reloadTestConfig()).type).toBe('success');
 	expect(ConfigInternals.getStudioPort()).toBe(6789);
 	expect(ConfigInternals.getElementLibraries()).toEqual([
-		'https://reloaded.example.com/library',
+		{
+			displayName: 'Reloaded Elements',
+			url: 'https://reloaded.example.com/library',
+		},
 	]);
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})

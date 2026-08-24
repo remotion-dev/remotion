@@ -84,7 +84,7 @@ export const MyComponent = () => {
 	const configFile = path.join(temporaryProject, 'remotion.config.ts');
 	fs.appendFileSync(
 		configFile,
-		`\nConfig.addElementLibrary('${externalLibraryUrl}');\n`,
+		`\nConfig.addElementLibrary('${externalLibraryUrl}', 'External Elements');\n`,
 	);
 	fs.rmSync(path.join(temporaryProject, 'node_modules'), {
 		force: true,
@@ -233,7 +233,7 @@ export const MyComponent = () => {
 			name: 'Remotion Elements',
 			exact: true,
 		});
-		const externalLibraryLabel = 'external-elements.example.com/library';
+		const externalLibraryLabel = 'External Elements';
 		const externalLibraryItem = studioPage.getByRole('button', {
 			name: externalLibraryLabel,
 			exact: true,

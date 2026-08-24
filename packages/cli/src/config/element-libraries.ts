@@ -1,6 +1,8 @@
-let elementLibraries: string[] = [];
+import type {StudioElementLibrary} from '@remotion/studio-shared';
 
-export const addElementLibrary = (url: string) => {
+let elementLibraries: StudioElementLibrary[] = [];
+
+export const addElementLibrary = (url: string, displayName: string | null) => {
 	if (typeof url !== 'string') {
 		throw new Error(
 			`Config.addElementLibrary() expects a string, got ${typeof url}`,
@@ -22,10 +24,26 @@ export const addElementLibrary = (url: string) => {
 		);
 	}
 
-	elementLibraries.push(parsedUrl.href);
+	if (displayName !== null && typeof displayName !== 'string') {
+		throw new Error(
+			`Config.addElementLibrary() expects the display name to be a string, got ${typeof displayName}`,
+		);
+	}
+
+	const trimmedDisplayName = displayName?.trim() ?? null;
+	if (trimmedDisplayName === '') {
+		throw new Error(
+			'Config.addElementLibrary() expects the display name to not be empty',
+		);
+	}
+
+	elementLibraries.push({
+		displayName: trimmedDisplayName,
+		url: parsedUrl.href,
+	});
 };
 
-export const getElementLibraries = (): readonly string[] => {
+export const getElementLibraries = (): readonly StudioElementLibrary[] => {
 	return elementLibraries;
 };
 
