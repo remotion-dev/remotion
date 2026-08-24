@@ -6,7 +6,7 @@ test('uses source dimensions by default', () => {
 		resolveEffectsOutputSize({
 			sourceWidth: 1920,
 			sourceHeight: 1080,
-			effectsOutputSize: undefined,
+			effectsOutputSize: null,
 		}),
 	).toEqual({width: 1920, height: 1080});
 });

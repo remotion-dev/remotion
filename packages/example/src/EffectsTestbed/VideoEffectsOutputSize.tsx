@@ -22,7 +22,7 @@ const labelStyle: React.CSSProperties = {
 };
 
 export const VideoEffectsOutputSize: React.FC<{
-	readonly effectsOutputSize?: {width: number; height: number};
+	readonly effectsOutputSize: {width: number; height: number} | null;
 }> = ({effectsOutputSize}) => {
 	const videos = [
 		{label: '512 x 512 source', src: staticFile('blush-0.5x.webm')},
@@ -42,7 +42,7 @@ export const VideoEffectsOutputSize: React.FC<{
 				Same video, same display size, pixelate({`{blockSize: 128}`})
 			</div>
 			<div style={{color: '#a1a1aa', fontSize: 26, marginTop: 12}}>
-				{effectsOutputSize
+				{effectsOutputSize !== null
 					? 'effectsOutputSize: 1024 x 1024'
 					: 'Default: effect size follows the encoded source'}
 			</div>
@@ -52,7 +52,7 @@ export const VideoEffectsOutputSize: React.FC<{
 						<div style={labelStyle}>{video.label}</div>
 						<Video
 							effects={[pixelate({blockSize: 128})]}
-							effectsOutputSize={effectsOutputSize}
+							effectsOutputSize={effectsOutputSize ?? undefined}
 							muted
 							src={video.src}
 							style={{height: 650, width: '100%'}}

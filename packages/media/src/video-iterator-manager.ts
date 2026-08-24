@@ -56,7 +56,7 @@ export const videoIteratorManager = async ({
 	getIsLooping,
 	getEffects,
 	getEffectChainState,
-	getEffectsOutputSize = () => undefined,
+	getEffectsOutputSize,
 }: {
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -73,7 +73,7 @@ export const videoIteratorManager = async ({
 		width: number,
 		height: number,
 	) => EffectChainState | null;
-	getEffectsOutputSize?: () => EffectsOutputSize | undefined;
+	getEffectsOutputSize: () => EffectsOutputSize | null;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;

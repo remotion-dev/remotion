@@ -303,7 +303,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
-				getEffectsOutputSize: () => effectsOutputSizeRef.current,
+				getEffectsOutputSize: () => effectsOutputSizeRef.current ?? null,
 			});
 
 			mediaPlayerRef.current = player;
@@ -520,7 +520,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.redrawVideoEffects().catch(() => {
 			// Player may have been disposed between layout and the async redraw.
 		});
-	}, [effects, effectsOutputSize, mediaPlayerReady, mediaPlayerRef]);
+	}, [
+		effects,
+		effectsOutputSize?.height,
+		effectsOutputSize?.width,
+		mediaPlayerReady,
+		mediaPlayerRef,
+	]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
