@@ -5,7 +5,7 @@ import {Pkgs, packages} from '@remotion/studio-shared';
 import {CreateVideoInternals} from 'create-video';
 import {packagesRemovedInV5} from '../../../studio-shared/src/release-package-policy';
 
-const workspaceOnlyPackages = ['canvas-capture-extension'];
+const workspaceOnlyPackages = ['canvas-capture-extension', 'jonnys-videos'];
 
 export const getAllPackages = () => {
 	const pkgDir = path.join(__dirname, '..', '..', '..');
