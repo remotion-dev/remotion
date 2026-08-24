@@ -2,7 +2,7 @@ import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
+import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {validateCodec, VERSION} from '@remotion/serverless-client';
 import type {
@@ -29,6 +29,10 @@ import {
 	validatePrivacy,
 	writeCancellationSignal,
 } from '@remotion/serverless-client';
+import {
+	makeArtifactRegistry,
+	type OnArtifactFromRenderer,
+} from '../artifact-registry';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
 import type {LaunchedBrowser} from '../get-browser-instance';
@@ -421,14 +425,17 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	mkdirSync(outdir);
 
 	const files: string[] = [];
+	const artifactRegistry = makeArtifactRegistry();
 
-	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
-		if (
-			overallProgress
-				.getReceivedArtifacts()
-				.find((a) => a.filename === artifact.filename)
-		) {
-			return {alreadyExisted: true};
+	const onArtifact: OnArtifactFromRenderer = ({artifact, chunk, attempt}) => {
+		const artifactRegistration = artifactRegistry.registerArtifact({
+			chunk,
+			frame: artifact.frame,
+			attempt,
+			filename: artifact.filename,
+		});
+		if (artifactRegistration.type !== 'accepted') {
+			return artifactRegistration;
 		}
 
 		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
@@ -476,9 +483,9 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 					stack: (err as Error).stack as string,
 					tmpDir: null,
 					frame: artifact.frame,
-					chunk: null,
+					chunk,
 					isFatal: false,
-					attempt: 1,
+					attempt,
 					willRetry: false,
 					totalAttempts: 1,
 				});
@@ -489,7 +496,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 					err,
 				);
 			});
-		return {alreadyExisted: false};
+		return artifactRegistration;
 	};
 
 	await Promise.all(
