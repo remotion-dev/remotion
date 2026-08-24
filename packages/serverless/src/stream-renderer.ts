@@ -17,6 +17,7 @@ import {
 	ServerlessRoutines,
 	streamToString,
 } from '@remotion/serverless-client';
+import type {OnArtifactFromRenderer} from './artifact-registry';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 import {artifactFromS3} from './s3-renderer-output';
@@ -49,7 +50,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	onArtifact: OnArtifactFromRenderer;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
@@ -156,13 +157,24 @@ const streamRenderer = <Provider extends CloudProvider>({
 					artifact.filename,
 					artifact.content.length + 'bytes.',
 				);
-				const {alreadyExisted} = onArtifact(artifact);
-				if (alreadyExisted) {
+				const artifactRegistration = onArtifact({
+					artifact,
+					chunk: payload.chunk,
+					attempt: payload.attempt,
+				});
+				if (artifactRegistration.type === 'conflict') {
 					return resolve({
 						type: 'error',
 						error: `Chunk ${payload.chunk} emitted an asset filename ${message.payload.artifact.filename} at frame ${message.payload.artifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
 						shouldRetry: false,
 					});
+				}
+
+				if (artifactRegistration.type === 'retry-replay') {
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						`Ignoring artifact ${artifact.filename} replayed by attempt ${payload.attempt} of chunk ${payload.chunk}`,
+					);
 				}
 
 				return;
@@ -291,7 +303,7 @@ const s3Renderer = async <Provider extends CloudProvider>({
 	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	onArtifact: OnArtifactFromRenderer;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
@@ -460,13 +472,24 @@ const s3Renderer = async <Provider extends CloudProvider>({
 				}
 
 				for (const emittedArtifact of emittedArtifacts) {
-					const {alreadyExisted} = onArtifact(emittedArtifact);
-					if (alreadyExisted) {
+					const artifactRegistration = onArtifact({
+						artifact: emittedArtifact,
+						chunk: payload.chunk,
+						attempt: payload.attempt,
+					});
+					if (artifactRegistration.type === 'conflict') {
 						return {
 							type: 'error',
 							error: `Chunk ${payload.chunk} emitted an asset filename ${emittedArtifact.filename} at frame ${emittedArtifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
 							shouldRetry: false,
 						};
+					}
+
+					if (artifactRegistration.type === 'retry-replay') {
+						RenderInternals.Log.info(
+							{indent: false, logLevel},
+							`Ignoring artifact ${emittedArtifact.filename} replayed by attempt ${payload.attempt} of chunk ${payload.chunk}`,
+						);
 					}
 				}
 
@@ -550,7 +573,7 @@ export const renderRendererFunctionWithRetry = async <
 	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	onArtifact: OnArtifactFromRenderer;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;

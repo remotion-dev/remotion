@@ -121,6 +121,7 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 		} as unknown as InsideFunctionSpecifics<MockProvider>;
 		const files: string[] = [];
 		const artifacts: EmittedArtifact[] = [];
+		const artifactSources: Array<{chunk: number; attempt: number}> = [];
 
 		await renderRendererFunctionWithRetry({
 			payload: {
@@ -137,9 +138,10 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 			outdir: directory,
 			overallProgress,
 			logLevel: 'info',
-			onArtifact: (artifact) => {
+			onArtifact: ({artifact, chunk, attempt}) => {
 				artifacts.push(artifact);
-				return {alreadyExisted: false};
+				artifactSources.push({chunk, attempt});
+				return {type: 'accepted'};
 			},
 			providerSpecifics,
 			insideFunctionSpecifics,
@@ -159,6 +161,7 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 				downloadBehavior: null,
 			},
 		]);
+		expect(artifactSources).toEqual([{chunk: 0, attempt: 1}]);
 		expect(files).toHaveLength(1);
 		expect(await readFile(files[0]!, 'utf8')).toBe('video');
 		expect(deleted.sort()).toEqual([artifactKey, statusKey, videoKey].sort());
