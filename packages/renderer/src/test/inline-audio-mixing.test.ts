@@ -18,7 +18,7 @@ const makeAsset = ({
 }: {
 	id: string;
 	frame: number;
-	startInVideo: number | undefined;
+	startInVideo: number | null;
 }): InlineAudioAsset => ({
 	type: 'inline-audio',
 	id,
@@ -84,7 +84,7 @@ test('keeps a composition-relative fallback for an unknown clip origin', async (
 
 	try {
 		mixing.addAsset({
-			asset: makeAsset({id: 'unknown', frame: 3, startInVideo: undefined}),
+			asset: makeAsset({id: 'unknown', frame: 3, startInVideo: null}),
 			fps: FPS,
 			totalNumberOfFrames: 4,
 			firstFrame: 0,
