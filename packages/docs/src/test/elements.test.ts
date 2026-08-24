@@ -283,6 +283,8 @@ describe('Element library', () => {
 			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
 		);
 		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
+			'storytelling/on-screen-messages':
+				completeSourceCodeBySlug['storytelling/on-screen-messages'],
 			'storytelling/polaroid-pictures':
 				completeSourceCodeBySlug['storytelling/polaroid-pictures'],
 			'text/news-article-highlight':
@@ -559,6 +561,7 @@ describe('Elements sidebar', () => {
 				label: 'Storytelling',
 				items: [
 					'text/news-article-highlight/index',
+					'storytelling/on-screen-messages/index',
 					'storytelling/polaroid-pictures/index',
 				],
 			},

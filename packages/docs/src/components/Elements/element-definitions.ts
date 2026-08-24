@@ -22,6 +22,7 @@ import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover'
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
+import {OnScreenMessages} from '../../../elements/storytelling/on-screen-messages/on-screen-messages';
 import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
@@ -561,6 +562,26 @@ const elementImplementations = {
 		},
 		safeArea: 120,
 		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	'storytelling/on-screen-messages': {
+		component: OnScreenMessages,
+		contributors: [],
+		description:
+			'A cinematic, brand-neutral text-message exchange with staggered reveals, focus shifts, and subtle editorial panels.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 150,
+		elementHeight: 680,
+		elementWidth: 1260,
+		fps: 30,
+		height: 1080,
+		posterFrame: 100,
+		preview: {
+			posterUrl: '/elements/storytelling-on-screen-messages-preview.png',
+			videoUrl: '/elements/storytelling-on-screen-messages-preview.mp4',
+		},
+		safeArea: 180,
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'storytelling/polaroid-pictures': {
