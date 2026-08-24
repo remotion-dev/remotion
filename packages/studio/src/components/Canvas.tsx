@@ -24,7 +24,6 @@ import {
 } from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
-import {getCanvasCaptureImport} from '../helpers/get-canvas-capture-import';
 import {
 	applyZoomAroundFocalPoint,
 	getCenterPointWhileScrolling,
@@ -50,6 +49,7 @@ import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
+import {handleCanvasCaptureDrop} from './canvas-capture-drop';
 import {
 	getCompositionDropPreviewBox,
 	snapCompositionDropPosition,
@@ -1147,15 +1147,12 @@ export const Canvas: React.FC<{
 				if (localFiles.length === 1) {
 					setIsAddingAsset(true);
 					try {
-						const canvasCapture = await getCanvasCaptureImport(localFiles[0]);
-						if (canvasCapture !== null) {
-							setSelectedModal({
-								type: 'new-comp',
-								canvasCapture,
-								folderName: null,
-								parentName: null,
-								stack: null,
-							});
+						if (
+							await handleCanvasCaptureDrop({
+								files: localFiles,
+								setSelectedModal,
+							})
+						) {
 							return;
 						}
 					} finally {

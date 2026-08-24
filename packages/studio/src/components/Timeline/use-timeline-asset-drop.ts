@@ -3,7 +3,9 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
-import {isSupportedDropEvent} from '../drop-handler-data';
+import {SetSelectedModalContext} from '../../state/modals';
+import {handleCanvasCaptureDrop} from '../canvas-capture-drop';
+import {isFileDragEvent, isSupportedDropEvent} from '../drop-handler-data';
 import {getEffectDragData} from '../effect-drag-and-drop';
 import {handleDrop} from '../handle-drop';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -33,6 +35,7 @@ export const useTimelineAssetDrop = () => {
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const chooseSvgImportMode = useSvgImportDialog();
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [assetDropFrame, setAssetDropFrame] = useState<number | null>(null);
@@ -127,6 +130,27 @@ export const useTimelineAssetDrop = () => {
 				return;
 			}
 
+			const localFiles = isFileDragEvent(event)
+				? Array.from(dataTransfer.files)
+				: null;
+			if (localFiles !== null && !window.remotion_isReadOnlyStudio) {
+				event.preventDefault();
+				event.stopPropagation();
+				setIsAddingAsset(true);
+				try {
+					if (
+						await handleCanvasCaptureDrop({
+							files: localFiles,
+							setSelectedModal,
+						})
+					) {
+						return;
+					}
+				} finally {
+					setIsAddingAsset(false);
+				}
+			}
+
 			if (getEffectDragData(dataTransfer) !== null) {
 				event.preventDefault();
 				return;
@@ -172,7 +196,7 @@ export const useTimelineAssetDrop = () => {
 					event,
 					fps: videoConfig.fps,
 					from: frame,
-					localFiles: null,
+					localFiles,
 					preferCompositionStart: false,
 				});
 			} finally {
@@ -186,6 +210,7 @@ export const useTimelineAssetDrop = () => {
 			compositionFile,
 			currentCompositionId,
 			getDropFrame,
+			setSelectedModal,
 			videoConfig,
 		],
 	);
