@@ -52,26 +52,34 @@ const computedValueStyle: React.CSSProperties = {
 	lineHeight: '20px',
 };
 
+const metadataFormatterStyle: React.CSSProperties = {
+	fontSize: 13,
+};
+
 const metadataDraggerStyles: Record<
 	CompositionMetadataField,
 	React.CSSProperties
 > = {
 	durationInFrames: {
+		fontSize: 13,
 		padding: '2px 0 2px 6px',
 		textAlign: 'right',
-		width: 92,
+		width: 104,
 	},
 	fps: {
+		fontSize: 13,
 		padding: '2px 0 2px 6px',
 		textAlign: 'right',
 		width: 72,
 	},
 	height: {
+		fontSize: 13,
 		padding: '2px 0 2px 6px',
 		textAlign: 'right',
 		width: 52,
 	},
 	width: {
+		fontSize: 13,
 		padding: '2px 0 2px 6px',
 		textAlign: 'right',
 		width: 52,
@@ -213,12 +221,10 @@ const CompositionMetadataValue: React.FC<{
 		[field],
 	);
 
-	return computed ? (
+	return computed || disabled ? (
 		<span style={computedContainerStyle}>
 			<span style={computedValueStyle}>{formatValue(value)}</span>
 		</span>
-	) : disabled ? (
-		formatValue(value)
 	) : (
 		<InputDragger
 			aria-label={fieldLabels[field]}
@@ -234,6 +240,7 @@ const CompositionMetadataValue: React.FC<{
 			step={isFps ? 0.01 : 1}
 			dragDecimalPlaces={isFps ? 2 : 0}
 			formatter={formatValue}
+			formatterStyle={metadataFormatterStyle}
 			rightAlign
 			style={metadataDraggerStyles[field]}
 		/>
@@ -492,7 +499,6 @@ export const CompositionMetadata: React.FC<{
 						pendingValue={pendingValues.width ?? null}
 						value={video.width}
 					/>
-					{disabled ? '\u00A0' : null}
 					<CompositionMetadataValue
 						computed={heightIsComputed}
 						disabled={disabled}

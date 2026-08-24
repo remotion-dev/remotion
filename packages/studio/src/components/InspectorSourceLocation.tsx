@@ -104,7 +104,6 @@ export const InspectorSourceLocation: React.FC<{
 				disabled={!canOpen}
 				onClick={onClick}
 				renderIcon={(iconColor) => renderIcon?.(iconColor)}
-				size="compact"
 				title={fileLocation ?? undefined}
 			>
 				{label}

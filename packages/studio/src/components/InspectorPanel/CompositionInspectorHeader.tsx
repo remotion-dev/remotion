@@ -21,12 +21,12 @@ import {InlineCompositionName} from '../InlineCompositionName';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {InspectorLocationCopy} from '../InspectorLocationCopy';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
-import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {useEditorOpening} from '../use-default-editor-info';
 
-const COMPOSITION_INSPECTOR_HEADER_HEIGHT = 66;
+const COMPOSITION_INSPECTOR_HEADER_HEIGHT = COMPACT_CONTROL_ROW_HEIGHT * 3;
 
 const sourceLocationIconStyle: CSSProperties = {
 	flexShrink: 0,
@@ -36,7 +36,7 @@ const sourceLocationIconStyle: CSSProperties = {
 
 const componentLocationPlaceholder: CSSProperties = {
 	flexShrink: 0,
-	height: COMPACT_INLINE_ROW_HEIGHT,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 };
 
 const renderReactIcon = (color: string) => {

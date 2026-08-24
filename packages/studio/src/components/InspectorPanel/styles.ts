@@ -7,6 +7,7 @@ import {
 	WHITE,
 } from '../../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 
 export const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -190,6 +191,7 @@ export const detailRow: React.CSSProperties = {
 	display: 'flex',
 	gap: 12,
 	justifyContent: 'space-between',
+	minHeight: COMPACT_CONTROL_ROW_HEIGHT,
 };
 
 export const detailLabel: React.CSSProperties = {
