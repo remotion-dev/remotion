@@ -6977,6 +6977,15 @@ export const articles = [
 		slug: 'studio-into-app',
 	},
 	{
+		id: 'studio-protocol/component-library-integration',
+		title: 'Integrating a component library with Studio',
+		relativePath: 'docs/studio-protocol/component-library-integration.mdx',
+		compId: 'articles-docs-studio-protocol-component-library-integration',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/component-library-integration',
+	},
+	{
 		id: 'studio-protocol/create-element-payload',
 		title: 'createElementPayload()',
 		relativePath: 'docs/studio-protocol/create-element-payload.mdx',
