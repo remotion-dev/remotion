@@ -1,11 +1,37 @@
 import {expect, test} from 'bun:test';
+import {timelineVerticalScroll} from '../components/Timeline/timeline-refs';
 import {
 	getFrameFromX,
 	getFrameFromTimelineDrop,
 	getFrameIncrementFromWidth,
 	getScrollLeftToKeepCursorInPlace,
+	startTimelineEdgeAutoScroll,
 } from '../components/Timeline/timeline-scroll-logic';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
+
+test('vertical top offset accounts for the covered timeline header', () => {
+	timelineVerticalScroll.current = {
+		clientHeight: 500,
+		getBoundingClientRect: () => ({bottom: 600, top: 100}),
+		scrollHeight: 1000,
+		scrollTop: 100,
+	} as HTMLDivElement;
+	const directions: Array<'up' | 'down' | null> = [];
+	const autoScroll = startTimelineEdgeAutoScroll({
+		includeHorizontal: false,
+		includeVertical: true,
+		verticalTopOffset: 39,
+		onTick: (nextDirections) => {
+			directions.push(nextDirections.y);
+		},
+	});
+
+	autoScroll.update({clientX: 200, clientY: 145});
+	autoScroll.stop();
+	timelineVerticalScroll.current = null;
+
+	expect(directions).toEqual(['up']);
+});
 
 test('getFrameFromX handles collapsed timeline widths', () => {
 	expect(
