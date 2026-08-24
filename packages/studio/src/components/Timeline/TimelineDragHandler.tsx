@@ -300,7 +300,9 @@ const TimelineDragHandlerInner: React.FC = () => {
 		}
 
 		const scroller = startTimelineEdgeAutoScroll({
+			includeHorizontal: true,
 			includeVertical: false,
+			verticalTopOffset: 0,
 			onTick: onEdgeScrollTick,
 		});
 		autoScroller.current = scroller;

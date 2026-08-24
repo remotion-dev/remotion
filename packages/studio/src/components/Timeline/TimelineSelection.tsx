@@ -1648,7 +1648,9 @@ export const useTimelineMarqueeSelection = () => {
 			};
 
 			const autoScroll = startTimelineEdgeAutoScroll({
+				includeHorizontal: true,
 				includeVertical: true,
+				verticalTopOffset: 0,
 				onTick: (directions) => {
 					if (scrollable && directions.x !== null) {
 						scrollable.scrollLeft +=

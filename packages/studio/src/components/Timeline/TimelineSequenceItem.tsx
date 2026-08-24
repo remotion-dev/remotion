@@ -112,7 +112,8 @@ const effectDropHighlight: React.CSSProperties = {
 	outlineOffset: -1,
 };
 
-const SEQUENCE_REORDER_MIME_TYPE = 'application/remotion-sequence-reorder';
+export const SEQUENCE_REORDER_MIME_TYPE =
+	'application/remotion-sequence-reorder';
 
 type SequenceReorderDragData = {
 	readonly nodePath: SequencePropsSubscriptionKey;
