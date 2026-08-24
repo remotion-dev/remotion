@@ -332,7 +332,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 								? resolveEffectsOutputSize({
 										sourceWidth: imageBitmap.width,
 										sourceHeight: imageBitmap.height,
-										effectsOutputSize,
+										effectsOutputSize: effectsOutputSize ?? null,
 									})
 								: {width: imageBitmap.width, height: imageBitmap.height};
 
@@ -469,7 +469,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		credentials,
 		effectChainState,
 		effects,
-		effectsOutputSize,
+		effectsOutputSize?.height,
+		effectsOutputSize?.width,
 		initialRequestInit,
 		mediaCache,
 	]);

@@ -1992,6 +1992,7 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={150}
+					defaultProps={{effectsOutputSize: null}}
 				/>
 				<Composition
 					id="gif-fill-modes"

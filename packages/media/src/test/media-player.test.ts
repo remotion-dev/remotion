@@ -59,6 +59,7 @@ test('audio-only file should initialize without `audioStreamIndex` (regression f
 		tagType: 'audio',
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getEffectsOutputSize: () => null,
 	});
 
 	const result = await player.initialize(0, false);
@@ -125,6 +126,7 @@ test('dispose should immediately unblock playback delays', async () => {
 		tagType: 'video',
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getEffectsOutputSize: () => null,
 	});
 
 	await player.initialize(0, false);
