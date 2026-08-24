@@ -1,4 +1,11 @@
-import {Canvas, useCanvasController} from '@remotion/canvas';
+import {
+	Canvas,
+	getCanvasSelectionItemKey,
+	useCanvasController,
+	useCanvasSelection,
+	type CanvasSelectionItem,
+	type CanvasSelectionMode,
+} from '@remotion/canvas';
 import React, {useSyncExternalStore} from 'react';
 import {AbsoluteFill, Sequence, useCurrentFrame} from 'remotion';
 
@@ -44,6 +51,10 @@ const CanvasPage: React.FC = () => {
 		controller.timeline.getSnapshot,
 		controller.timeline.getSnapshot,
 	);
+	const selection = useCanvasSelection(controller);
+	const selectedKeys = new Set(
+		selection.selectedItems.map(getCanvasSelectionItemKey),
+	);
 
 	return (
 		<main
@@ -78,35 +89,155 @@ const CanvasPage: React.FC = () => {
 					acknowledgeRemotionLicense
 					style={{width: '100%'}}
 				/>
-				<section
-					style={{
-						border: '1px solid #d1d5db',
-						borderRadius: 8,
-						padding: 20,
-					}}
-				>
-					<h2 style={{marginTop: 0}}>Mounted layers ({layers.length})</h2>
-					{layers.length === 0 ? (
-						<p>No layers mounted.</p>
-					) : (
-						<ol style={{paddingLeft: 24}}>
-							{layers.map((layer) => (
-								<li
-									key={layer.sequence.id}
-									style={{marginBottom: 12, paddingLeft: layer.depth * 16}}
-								>
-									<strong>
-										{layer.sequence.displayName ?? layer.sequence.type}
-									</strong>
-									<div style={{color: '#555', fontSize: 14}}>
-										{layer.sequence.type} · frame {layer.sequence.from} ·{' '}
-										{layer.sequence.duration} frames
-									</div>
-								</li>
-							))}
-						</ol>
-					)}
-				</section>
+				<div>
+					<section
+						style={{
+							border: '1px solid #d1d5db',
+							borderRadius: 8,
+							padding: 20,
+						}}
+					>
+						<h2 style={{marginTop: 0}}>Mounted layers ({layers.length})</h2>
+						{layers.length === 0 ? (
+							<p>No layers mounted.</p>
+						) : (
+							<ol style={{paddingLeft: 24}}>
+								{layers.map((layer) => {
+									const entity = {
+										type: 'sequence' as const,
+										id: layer.sequence.id,
+									};
+									const layerSelection: CanvasSelectionItem = {
+										type: 'entity',
+										entity,
+									};
+									const opacitySelection: CanvasSelectionItem = {
+										type: 'property',
+										entity,
+										propertyPath: ['style', 'opacity'],
+									};
+									const easingSelection: CanvasSelectionItem = {
+										type: 'easing',
+										entity,
+										propertyPath: ['style', 'opacity'],
+										fromFrame: layer.sequence.from,
+										toFrame: Math.min(
+											layer.sequence.from + 30,
+											layer.sequence.from + layer.sequence.duration,
+										),
+										segmentIndex: 0,
+									};
+									const layerSelected = selectedKeys.has(
+										getCanvasSelectionItemKey(layerSelection),
+									);
+									const opacitySelected = selectedKeys.has(
+										getCanvasSelectionItemKey(opacitySelection),
+									);
+									const easingSelected = selectedKeys.has(
+										getCanvasSelectionItemKey(easingSelection),
+									);
+
+									return (
+										<li
+											key={layer.sequence.id}
+											style={{
+												marginBottom: 16,
+												paddingLeft: layer.depth * 16,
+											}}
+										>
+											<button
+												type="button"
+												aria-pressed={layerSelected}
+												onClick={(event) => {
+													const mode: CanvasSelectionMode =
+														event.metaKey || event.ctrlKey
+															? 'toggle'
+															: event.shiftKey
+																? 'add'
+																: 'replace';
+													controller.selection.select(layerSelection, mode);
+												}}
+												style={{
+													backgroundColor: layerSelected ? '#ddd6fe' : 'white',
+													border: '1px solid #d1d5db',
+													borderRadius: 4,
+													padding: '6px 8px',
+													textAlign: 'left',
+													width: '100%',
+												}}
+											>
+												<strong>
+													{layer.sequence.displayName ?? layer.sequence.type}
+												</strong>
+												<div style={{color: '#555', fontSize: 14}}>
+													{layer.sequence.type} · frame {layer.sequence.from} ·{' '}
+													{layer.sequence.duration} frames
+												</div>
+											</button>
+											<div style={{display: 'flex', gap: 6, marginTop: 6}}>
+												<button
+													type="button"
+													aria-pressed={opacitySelected}
+													onClick={() =>
+														controller.selection.select(
+															opacitySelection,
+															'toggle',
+														)
+													}
+												>
+													style.opacity
+												</button>
+												<button
+													type="button"
+													aria-pressed={easingSelected}
+													onClick={() =>
+														controller.selection.select(
+															easingSelection,
+															'toggle',
+														)
+													}
+												>
+													Opacity easing
+												</button>
+											</div>
+										</li>
+									);
+								})}
+							</ol>
+						)}
+					</section>
+					<section
+						style={{
+							border: '1px solid #d1d5db',
+							borderRadius: 8,
+							marginTop: 16,
+							padding: 20,
+						}}
+					>
+						<h2 style={{marginTop: 0}}>
+							Selection ({selection.selectedItems.length})
+						</h2>
+						<p style={{fontSize: 14}}>
+							Click a layer to replace the selection. Shift-click adds a layer;
+							Command/Ctrl-click toggles it. Property and easing buttons toggle
+							heterogeneous items.
+						</p>
+						<button type="button" onClick={controller.selection.clear}>
+							Clear selection
+						</button>
+						<pre
+							style={{
+								backgroundColor: '#f3f4f6',
+								fontSize: 12,
+								overflowX: 'auto',
+								padding: 12,
+								whiteSpace: 'pre-wrap',
+							}}
+						>
+							{JSON.stringify(selection, null, 2)}
+						</pre>
+					</section>
+				</div>
 			</div>
 		</main>
 	);

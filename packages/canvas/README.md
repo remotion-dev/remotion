@@ -14,6 +14,19 @@ controller.timeline.subscribe(() => {
 	console.log(controller.timeline.getSnapshot());
 });
 
+controller.selection.subscribe(() => {
+	console.log(controller.selection.getSnapshot());
+});
+
+controller.selection.select(
+	{
+		type: 'property',
+		entity: {type: 'sequence', id: 'title'},
+		propertyPath: ['style', 'opacity'],
+	},
+	'add',
+);
+
 <Canvas
 	controller={controller}
 	component={MyComposition}
