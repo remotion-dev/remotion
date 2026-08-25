@@ -27,6 +27,7 @@ const toToken = (caption: Caption, isFirst: boolean): TikTokToken => ({
 	text: isFirst ? caption.text.trimStart() : caption.text,
 	fromMs: caption.startMs,
 	toMs: caption.endMs,
+	...(caption.lineBreakAfter ? {lineBreakAfter: true} : {}),
 });
 
 const rebalanceSentence = ({
@@ -49,15 +50,18 @@ const rebalanceSentence = ({
 		const endMs = nextCaption
 			? nextCaption.startMs
 			: pageCaptions[pageCaptions.length - 1].endMs;
-		const tokens = pageCaptions.map((caption, tokenIndex) =>
-			toToken(caption, tokenIndex === 0),
-		);
+		const tokens = pageCaptions.map((caption, tokenIndex) => {
+			const startsLine =
+				tokenIndex === 0 || pageCaptions[tokenIndex - 1]?.lineBreakAfter;
+			return toToken(caption, Boolean(startsLine));
+		});
 
 		pages.push({
 			text: tokens
-				.map((token) => token.text)
+				.map((token) => token.text + (token.lineBreakAfter ? '\n' : ''))
 				.join('')
-				.trimStart(),
+				.trimStart()
+				.replace(/\n$/, ''),
 			startMs,
 			tokens,
 			durationMs: endMs - startMs,

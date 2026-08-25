@@ -64,6 +64,7 @@ Each top-level item represents a line in the SubRip file.
 
 The second-level items represent the words in that line.  
 Words get concatenated together during serialization. No spaces are added between the words.  
+If a word has `lineBreakAfter: true`, a newline is inserted after it unless it is the final word in the subtitle cue.
 The start timestamp is determined from the `startMs` value of the first word in the line.  
 The end timestamp is determined from the `endMs` value of the last word in the line.
 

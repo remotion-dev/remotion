@@ -14,17 +14,29 @@ export const layoutText = ({
   fontFamily: string;
   fontSize: number;
 }) => {
-  const box = fillTextBox({
+  let box = fillTextBox({
     maxBoxWidth: textBoxWidth,
     maxLines: 1_000,
   });
 
   const lines: Caption[][] = [[]];
 
-  for (const caption of captions) {
-    const isFirstCaption = captions.indexOf(caption) === 0;
+  for (const [index, caption] of captions.entries()) {
+    const isFirstCaption = index === 0;
+    const previousCaption = captions[index - 1];
+    const forcedLineBreak = Boolean(previousCaption?.lineBreakAfter);
+    if (forcedLineBreak) {
+      lines.push([]);
+      box = fillTextBox({
+        maxBoxWidth: textBoxWidth,
+        maxLines: 1_000,
+      });
+    }
     const { newLine } = box.add({
-      text: isFirstCaption ? caption.text.trimStart() : caption.text,
+      text:
+        isFirstCaption || forcedLineBreak
+          ? caption.text.trimStart()
+          : caption.text,
       fontFamily,
       fontSize,
     });
@@ -34,7 +46,7 @@ export const layoutText = ({
     }
 
     const newCaption = { ...caption };
-    if (newLine || isFirstCaption) {
+    if (newLine || isFirstCaption || forcedLineBreak) {
       newCaption.text = newCaption.text.trimStart();
       box.add({
         text: " ".repeat(caption.text.length - newCaption.text.length),

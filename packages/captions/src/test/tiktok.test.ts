@@ -76,6 +76,46 @@ test('Should create captions', () => {
 	]);
 });
 
+test('Should preserve forced line breaks without creating a new page', () => {
+	const {pages} = createTikTokStyleCaptions({
+		captions: [
+			{
+				text: 'hello',
+				startMs: 0,
+				endMs: 200,
+				timestampMs: 100,
+				confidence: null,
+				lineBreakAfter: true,
+			},
+			{
+				text: ' there',
+				startMs: 200,
+				endMs: 400,
+				timestampMs: 300,
+				confidence: null,
+			},
+		],
+		combineTokensWithinMilliseconds: 1000,
+	});
+
+	expect(pages).toEqual([
+		{
+			text: 'hello\nthere',
+			startMs: 0,
+			durationMs: 400,
+			tokens: [
+				{
+					text: 'hello',
+					fromMs: 0,
+					toMs: 200,
+					lineBreakAfter: true,
+				},
+				{text: 'there', fromMs: 200, toMs: 400},
+			],
+		},
+	]);
+});
+
 test('Should finalize the duration when captions end in whitespace', () => {
 	const {pages} = createTikTokStyleCaptions({
 		captions: [

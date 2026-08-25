@@ -57,6 +57,78 @@ test('updates only the patched inline caption fields', () => {
 	);
 });
 
+test('adds and updates lineBreakAfter on inline captions', () => {
+	const added = updateInlineCaptionPatches({
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		patches: [
+			{
+				index: 0,
+				before: {
+					text: 'First',
+					startMs: 0,
+					endMs: 1000,
+					timestampMs: 500,
+					confidence: null,
+				},
+				changes: {lineBreakAfter: true},
+			},
+		],
+	});
+
+	expect(added.changedFields).toEqual([['lineBreakAfter']]);
+	expect(added.output).toContain(
+		'\t\t\t\t\tconfidence: null,\n\t\t\t\t\tlineBreakAfter: true,',
+	);
+
+	const updated = updateInlineCaptionPatches({
+		input: added.output,
+		nodePath: lineColumnToNodePath(added.output, 5),
+		patches: [
+			{
+				index: 0,
+				before: {
+					text: 'First',
+					startMs: 0,
+					endMs: 1000,
+					timestampMs: 500,
+					confidence: null,
+					lineBreakAfter: true,
+				},
+				changes: {lineBreakAfter: false},
+			},
+		],
+	});
+
+	expect(updated.output).toContain('lineBreakAfter: false,');
+});
+
+test('adds lineBreakAfter to a single-line inline caption', () => {
+	const singleLineInput = `export const Example = () => {
+	return <TimedCaptions captions={[{text: 'First', startMs: 0, endMs: 1000, timestampMs: 500, confidence: null}]} />;
+};
+`;
+	const {output} = updateInlineCaptionPatches({
+		input: singleLineInput,
+		nodePath: lineColumnToNodePath(singleLineInput, 2),
+		patches: [
+			{
+				index: 0,
+				before: {
+					text: 'First',
+					startMs: 0,
+					endMs: 1000,
+					timestampMs: 500,
+					confidence: null,
+				},
+				changes: {lineBreakAfter: true},
+			},
+		],
+	});
+
+	expect(output).toContain('confidence: null, lineBreakAfter: true}]}');
+});
+
 test('rejects a queued patch whose source caption has changed', () => {
 	expect(() =>
 		updateInlineCaptionPatches({

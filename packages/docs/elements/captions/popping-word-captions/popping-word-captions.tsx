@@ -247,6 +247,9 @@ const CaptionPage: React.FC<{
 								{visibleText}
 							</span>
 							{trailingWhitespace}
+							{token.lineBreakAfter && tokenIndex < page.tokens.length - 1 ? (
+								<br />
+							) : null}
 						</React.Fragment>
 					);
 				})}

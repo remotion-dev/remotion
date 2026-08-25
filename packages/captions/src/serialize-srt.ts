@@ -35,7 +35,14 @@ export const serializeSrt = ({lines}: SerializeSrtInput) => {
 				currentIndex,
 				formatSrtTimestamp(firstTimestamp, lastTimestamp),
 				// Text
-				s.map((caption) => caption.text).join(''),
+				s
+					.map((caption, index) => {
+						return (
+							caption.text +
+							(caption.lineBreakAfter && index < s.length - 1 ? '\n' : '')
+						);
+					})
+					.join(''),
 			].join('\n');
 		})
 		.filter(Boolean)

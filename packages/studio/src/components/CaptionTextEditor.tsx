@@ -1,6 +1,7 @@
 import type {Caption} from '@remotion/captions';
 import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import {BACKGROUND, LIGHT_TEXT, LINE_COLOR, WHITE} from '../helpers/colors';
+import {Checkbox} from './Checkbox';
 import {RemotionInput} from './NewComposition/RemInput';
 
 const container: React.CSSProperties = {
@@ -21,9 +22,27 @@ const row: React.CSSProperties = {
 	alignItems: 'center',
 	borderBottom: `1px solid ${LINE_COLOR}`,
 	display: 'grid',
-	gap: 12,
-	gridTemplateColumns: '100px minmax(0, 1fr)',
+	gap: 8,
+	gridTemplateColumns: '100px minmax(0, 1fr) 18px',
 	padding: '5px 12px',
+};
+
+const lineBreakControl: React.CSSProperties = {
+	display: 'flex',
+	height: 18,
+	position: 'relative',
+	width: 18,
+};
+
+const visuallyHidden: React.CSSProperties = {
+	clip: 'rect(0, 0, 0, 0)',
+	height: 1,
+	margin: -1,
+	overflow: 'hidden',
+	padding: 0,
+	position: 'absolute',
+	whiteSpace: 'nowrap',
+	width: 1,
 };
 
 const timing: React.CSSProperties = {
@@ -89,15 +108,19 @@ export const CaptionTextEditor: React.FC<{
 		return commitPending;
 	}, [commitPending]);
 
-	const updateText = useCallback(
-		(index: number, text: string) => {
-			if (latestRef.current.captions[index]?.text === text) {
+	const updateCaption = useCallback(
+		(
+			index: number,
+			changes: Partial<Pick<Caption, 'text' | 'lineBreakAfter'>>,
+		) => {
+			const currentCaption = latestRef.current.captions[index];
+			if (!currentCaption) {
 				return;
 			}
 
 			const nextCaptions = latestRef.current.captions.map(
 				(caption, captionIndex) => {
-					return captionIndex === index ? {...caption, text} : caption;
+					return captionIndex === index ? {...caption, ...changes} : caption;
 				},
 			);
 			latestRef.current.captions = nextCaptions;
@@ -105,6 +128,31 @@ export const CaptionTextEditor: React.FC<{
 			onChange(nextCaptions);
 		},
 		[onChange],
+	);
+
+	const updateText = useCallback(
+		(index: number, text: string) => {
+			if (latestRef.current.captions[index]?.text === text) {
+				return;
+			}
+
+			updateCaption(index, {text});
+		},
+		[updateCaption],
+	);
+
+	const updateLineBreakAfter = useCallback(
+		(index: number, lineBreakAfter: boolean) => {
+			if (
+				Boolean(latestRef.current.captions[index]?.lineBreakAfter) ===
+				lineBreakAfter
+			) {
+				return;
+			}
+
+			updateCaption(index, {lineBreakAfter});
+		},
+		[updateCaption],
 	);
 
 	const focusSibling = useCallback((index: number) => {
@@ -171,6 +219,21 @@ export const CaptionTextEditor: React.FC<{
 								}}
 								value={caption.text}
 							/>
+							<label style={lineBreakControl} title="Line break after">
+								<span style={visuallyHidden}>
+									Line break after caption {index + 1}
+								</span>
+								<Checkbox
+									checked={Boolean(caption.lineBreakAfter)}
+									disabled={readOnly}
+									name={`caption-line-break-after-${index}`}
+									onChange={(event) => {
+										updateLineBreakAfter(index, event.target.checked);
+										commitPending();
+									}}
+									variant="small"
+								/>
+							</label>
 						</div>
 					);
 				})}

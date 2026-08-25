@@ -39,12 +39,17 @@ const getCaptionPatches = ({
 			return null;
 		}
 
+		const changes: CaptionPatch['changes'] = {};
 		if (before.text !== after.text) {
-			patches.push({
-				index,
-				before,
-				changes: {text: after.text},
-			});
+			changes.text = after.text;
+		}
+
+		if (Boolean(before.lineBreakAfter) !== Boolean(after.lineBreakAfter)) {
+			changes.lineBreakAfter = Boolean(after.lineBreakAfter);
+		}
+
+		if (Object.keys(changes).length > 0) {
+			patches.push({index, before, changes});
 		}
 	}
 

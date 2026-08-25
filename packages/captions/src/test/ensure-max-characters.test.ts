@@ -183,3 +183,42 @@ test('Does not emit standalone whitespace captions', () => {
 		],
 	});
 });
+
+test('Preserves a forced line break on the final split word', () => {
+	const firstCaption: Caption = {
+		confidence: 1,
+		endMs: 1000,
+		startMs: 0,
+		text: ' Hello there',
+		timestampMs: 500,
+		lineBreakAfter: true,
+	};
+	const secondCaption: Caption = {
+		confidence: 1,
+		endMs: 2000,
+		startMs: 1000,
+		text: ' Remotion',
+		timestampMs: 1500,
+	};
+
+	expect(
+		ensureMaxCharactersPerLine({
+			captions: [firstCaption, secondCaption],
+			maxCharsPerLine: 100,
+		}),
+	).toEqual({
+		segments: [
+			[
+				{
+					confidence: 1,
+					endMs: 1000,
+					startMs: 0,
+					text: ' Hello',
+					timestampMs: 500,
+				},
+				{...firstCaption, text: 'there'},
+			],
+			[{...secondCaption, text: ' Remotion'}],
+		],
+	});
+});

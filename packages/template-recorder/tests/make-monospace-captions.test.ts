@@ -37,3 +37,22 @@ test("Should split up into monospace words", () => {
     },
   ]);
 });
+
+test("preserves a forced line break on the final segment", () => {
+  const caption: Caption = {
+    text: "This is a `monospace` word",
+    startMs: 0,
+    endMs: 0,
+    confidence: null,
+    timestampMs: 0,
+    lineBreakAfter: true,
+  };
+
+  const segments = splitCaptionIntoMonospaceSegments(caption);
+
+  expect(segments.map((segment) => segment.lineBreakAfter)).toEqual([
+    undefined,
+    undefined,
+    true,
+  ]);
+});

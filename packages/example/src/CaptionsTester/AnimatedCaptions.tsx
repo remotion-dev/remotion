@@ -92,20 +92,26 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 				{page.tokens.map((token, tokenIndex) => {
 					const isActive =
 						token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
+					const startsLine =
+						tokenIndex === 0 || page.tokens[tokenIndex - 1]?.lineBreakAfter;
 					return (
-						<span
-							key={`${token.fromMs}-${tokenIndex}`}
-							style={{
-								color: isActive ? HIGHLIGHT_COLOR : '#ffffff',
-								display: 'inline-block',
-								marginLeft: tokenIndex === 0 ? 0 : 26,
-								WebkitTextStroke: isActive
-									? '3px rgba(0, 20, 28, 0.95)'
-									: '2px rgba(0, 0, 0, 0.85)',
-							}}
-						>
-							{token.text.trimStart()}
-						</span>
+						<React.Fragment key={`${token.fromMs}-${tokenIndex}`}>
+							<span
+								style={{
+									color: isActive ? HIGHLIGHT_COLOR : '#ffffff',
+									display: 'inline-block',
+									marginLeft: startsLine ? 0 : 26,
+									WebkitTextStroke: isActive
+										? '3px rgba(0, 20, 28, 0.95)'
+										: '2px rgba(0, 0, 0, 0.85)',
+								}}
+							>
+								{token.text.trimStart()}
+							</span>
+							{token.lineBreakAfter && tokenIndex < page.tokens.length - 1 ? (
+								<br />
+							) : null}
+						</React.Fragment>
 					);
 				})}
 			</div>

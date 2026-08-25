@@ -12,7 +12,8 @@ import {
 const Token: React.FC<{
 	readonly token: TikTokToken;
 	readonly pageStart: number;
-}> = ({token, pageStart}) => {
+	readonly isLast: boolean;
+}> = ({token, pageStart, isLast}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const start = ((token.fromMs - pageStart) / 1000) * 30;
@@ -49,10 +50,13 @@ const Token: React.FC<{
 	}, [active, jump]);
 
 	return (
-		<span>
-			{' '}
-			<span style={style}>{token.text.trim()}</span>
-		</span>
+		<>
+			<span>
+				{' '}
+				<span style={style}>{token.text.trim()}</span>
+			</span>
+			{token.lineBreakAfter && !isLast ? <br /> : null}
+		</>
 	);
 };
 
@@ -95,9 +99,14 @@ export const Captions: React.FC = () => {
 						layout="none"
 					>
 						<div key={page.startMs}>
-							{page.tokens.map((t) => {
+							{page.tokens.map((t, index) => {
 								return (
-									<Token key={t.fromMs} pageStart={page.startMs} token={t} />
+									<Token
+										key={t.fromMs}
+										pageStart={page.startMs}
+										token={t}
+										isLast={index === page.tokens.length - 1}
+									/>
 								);
 							})}
 						</div>

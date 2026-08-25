@@ -46,3 +46,31 @@ test('Should create captions', () => {
 	const serialized = serializeSrt({lines: captions.map((c) => [c])});
 	expect(serialized).toEqual(input);
 });
+
+test('Should serialize forced line breaks within an SRT cue', () => {
+	const serialized = serializeSrt({
+		lines: [
+			[
+				{
+					text: 'First line',
+					startMs: 0,
+					endMs: 500,
+					timestampMs: 250,
+					confidence: 1,
+					lineBreakAfter: true,
+				},
+				{
+					text: 'Second line',
+					startMs: 500,
+					endMs: 1000,
+					timestampMs: 750,
+					confidence: 1,
+				},
+			],
+		],
+	});
+
+	expect(serialized).toBe(
+		'1\n00:00:00,000 --> 00:00:01,000\nFirst line\nSecond line',
+	);
+});

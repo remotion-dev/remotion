@@ -45,6 +45,14 @@ Otherwise, it is not defined, but may be the average of the start and end timest
 
 A number between 0 and 1 that indicates how confident the transcription is.
 
+### `lineBreakAfter?`<AvailableFrom v="4.0.517" />
+
+_boolean_
+
+When `true`, forces a visual line break after this caption if another caption follows in the same displayed page or subtitle cue.
+
+This field does not change caption timing or start a new caption page. When it is `false` or omitted, renderers may wrap the text automatically.
+
 ## Whitespace sensitivity
 
 The [`text`](#text) field is whitespace sensitive. You should include spaces in it, ideally before each word.

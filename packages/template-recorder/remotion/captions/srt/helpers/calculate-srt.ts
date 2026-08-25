@@ -86,8 +86,12 @@ export const calculateSrt = ({
       firstTimestampMs,
       lastTimestampMs,
       text: segment
-        .map((s) => s.text.trim())
-        .join(" ")
+        .map((s, captionIndex) => {
+          const separator =
+            s.lineBreakAfter && captionIndex < segment.length - 1 ? "\n" : " ";
+          return s.text.trim() + separator;
+        })
+        .join("")
         .trim(),
       captions: segment,
     };

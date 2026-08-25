@@ -276,7 +276,7 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 									timestampMs: 500,
 									confidence: null,
 								},
-								changes: {text: 'Updated'},
+								changes: {text: 'Updated', lineBreakAfter: true},
 							},
 						],
 					},
@@ -305,6 +305,7 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 		});
 
 		expect(readFileSync(filePath, 'utf-8')).toContain("text: 'Updated'");
+		expect(readFileSync(filePath, 'utf-8')).toContain('lineBreakAfter: true');
 		expect(getUndoStack()).toHaveLength(1);
 		expect(getUndoStack()[0]?.suppressHmrOnFileRestore).toBe(false);
 

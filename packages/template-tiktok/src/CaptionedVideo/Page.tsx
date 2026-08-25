@@ -64,7 +64,7 @@ export const Page: React.FC<{
             ]),
           }}
         >
-          {page.tokens.map((t) => {
+          {page.tokens.map((t, index) => {
             const startRelativeToSequence = t.fromMs - page.startMs;
             const endRelativeToSequence = t.toMs - page.startMs;
 
@@ -73,16 +73,20 @@ export const Page: React.FC<{
               endRelativeToSequence > timeInMs;
 
             return (
-              <span
-                key={t.fromMs}
-                style={{
-                  display: "inline",
-                  whiteSpace: "pre",
-                  color: active ? HIGHLIGHT_COLOR : "white",
-                }}
-              >
-                {t.text}
-              </span>
+              <React.Fragment key={`${t.fromMs}-${index}`}>
+                <span
+                  style={{
+                    display: "inline",
+                    whiteSpace: "pre",
+                    color: active ? HIGHLIGHT_COLOR : "white",
+                  }}
+                >
+                  {t.text}
+                </span>
+                {t.lineBreakAfter && index < page.tokens.length - 1 ? (
+                  <br />
+                ) : null}
+              </React.Fragment>
             );
           })}
         </span>

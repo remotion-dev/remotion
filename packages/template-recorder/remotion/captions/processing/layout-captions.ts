@@ -79,17 +79,18 @@ const cutCaptions = ({
   maxLines: number;
   fontSize: number;
 }): CaptionPage[] => {
-  const { add } = fillTextBox({ maxBoxWidth: boxWidth, maxLines });
+  let textBox = fillTextBox({ maxBoxWidth: boxWidth, maxLines });
   let captionsFitted = 0;
+  let linesUsed = 1;
 
-  for (const caption of captions) {
+  for (const [index, caption] of captions.entries()) {
     const { fontFamily, fontWeight, ...additionalStyles } = isCaptionMonospace(
       caption,
     )
       ? MONOSPACE_FONT
       : REGULAR_FONT;
 
-    const { exceedsBox } = add({
+    const { exceedsBox, newLine } = textBox.add({
       text: removeMonospaceTicks(caption).text,
       fontFamily: fontFamily as string,
       fontWeight: fontWeight as string,
@@ -102,6 +103,22 @@ const cutCaptions = ({
       break;
     } else {
       captionsFitted++;
+    }
+
+    if (newLine) {
+      linesUsed++;
+    }
+
+    if (caption.lineBreakAfter && index < captions.length - 1) {
+      linesUsed++;
+      if (linesUsed > maxLines) {
+        break;
+      }
+
+      textBox = fillTextBox({
+        maxBoxWidth: boxWidth,
+        maxLines: maxLines - linesUsed + 1,
+      });
     }
   }
 

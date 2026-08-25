@@ -156,17 +156,19 @@ const CaptionPage: React.FC<{ page: TikTokPage }> = ({ page }) => {
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
       <div style={{ fontSize: 80, fontWeight: "bold", whiteSpace: "pre" }}>
-        {page.tokens.map((token) => {
+        {page.tokens.map((token, tokenIndex) => {
           const isActive =
             token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
 
           return (
-            <span
-              key={token.fromMs}
-              style={{ color: isActive ? HIGHLIGHT_COLOR : "white" }}
-            >
-              {token.text}
-            </span>
+            <React.Fragment key={`${token.fromMs}-${tokenIndex}`}>
+              <span style={{ color: isActive ? HIGHLIGHT_COLOR : "white" }}>
+                {token.text}
+              </span>
+              {token.lineBreakAfter && tokenIndex < page.tokens.length - 1 ? (
+                <br />
+              ) : null}
+            </React.Fragment>
           );
         })}
       </div>

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { Fragment, useMemo } from "react";
 import type { Theme } from "../../../../config/themes";
 import { getHorizontalPaddingForSubtitles } from "../../processing/layout-captions";
 import type { CaptionPage } from "../../types";
@@ -37,13 +37,17 @@ export const SquareSubtitles: React.FC<{
       <span style={style}>
         {segment.captions.map((caption, index) => {
           return (
-            <BoxedSingleCaption
-              key={caption.startMs + caption.text + index}
-              isLast={index === segment.captions.length - 1}
-              caption={caption}
-              theme={theme}
-              startFrame={startFrame}
-            />
+            <Fragment key={caption.startMs + caption.text + index}>
+              <BoxedSingleCaption
+                isLast={index === segment.captions.length - 1}
+                caption={caption}
+                theme={theme}
+                startFrame={startFrame}
+              />
+              {caption.lineBreakAfter && index < segment.captions.length - 1 ? (
+                <br />
+              ) : null}
+            </Fragment>
           );
         })}
       </span>
