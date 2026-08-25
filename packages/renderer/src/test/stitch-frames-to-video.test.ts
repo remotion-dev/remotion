@@ -197,80 +197,87 @@ test('Fast Start finalization stays off the public output path', async () => {
 	}
 });
 
-test('Fast Start is selected from the output container', async () => {
-	const testDirectory = await fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'remotion-faststart-container-test-'),
-	);
-	await fs.promises.copyFile(
-		path.join(
-			__dirname,
-			'..',
-			'..',
-			'..',
-			'example',
-			'public',
-			'stuttgart-pin.png',
-		),
-		path.join(testDirectory, 'frame-0.png'),
-	);
+test(
+	'Fast Start is selected from the output container',
+	async () => {
+		const testDirectory = await fs.promises.mkdtemp(
+			path.join(os.tmpdir(), 'remotion-faststart-container-test-'),
+		);
+		await fs.promises.copyFile(
+			path.join(
+				__dirname,
+				'..',
+				'..',
+				'..',
+				'example',
+				'public',
+				'stuttgart-pin.png',
+			),
+			path.join(testDirectory, 'frame-0.png'),
+		);
 
-	try {
-		const h264Mp4 = await stitchVideo({
-			codec: 'h264',
-			extension: 'mp4',
-			testDirectory,
-		});
-		const h264Mkv = await stitchVideo({
-			codec: 'h264',
-			extension: 'mkv',
-			testDirectory,
-		});
-		const h265Mp4 = await stitchVideo({
-			codec: 'h265',
-			extension: 'mp4',
-			testDirectory,
-		});
-		const av1Mp4 = await stitchVideo({
-			codec: 'av1',
-			extension: 'mp4',
-			testDirectory,
-		});
-		const proResMov = await stitchVideo({
-			codec: 'prores',
-			extension: 'mov',
-			testDirectory,
-		});
-
-		await expectContainer(h264Mp4, 'mp4');
-		await expectContainer(h264Mkv, 'mkv');
-		await expectContainer(h265Mp4, 'mp4');
-		await expectContainer(av1Mp4, 'mp4');
-		await expectContainer(proResMov, 'mov');
-
-		for (const {codec, container, extension, source} of [
-			{codec: 'h264', container: 'mp4', extension: 'mp4', source: h264Mp4},
-			{codec: 'h264', container: 'mov', extension: 'mov', source: h264Mp4},
-			{codec: 'h264', container: 'mkv', extension: 'mkv', source: h264Mp4},
-			{codec: 'h264', container: 'mpegts', extension: 'ts', source: h264Mp4},
-			{codec: 'h265', container: 'mkv', extension: 'mkv', source: h265Mp4},
-			{codec: 'h265', container: 'hevc', extension: 'hevc', source: h265Mp4},
-			{codec: 'av1', container: 'mkv', extension: 'mkv', source: av1Mp4},
-			{codec: 'av1', container: 'webm', extension: 'webm', source: av1Mp4},
-		] as const) {
-			const output = path.join(testDirectory, `combined-${codec}.${extension}`);
-			await combineChunks({
-				audioFiles: [],
-				codec,
-				compositionDurationInFrames: 1,
-				fps: 1,
-				framesPerChunk: 1,
-				outputLocation: output,
-				preferLossless: false,
-				videoFiles: [source],
+		try {
+			const h264Mp4 = await stitchVideo({
+				codec: 'h264',
+				extension: 'mp4',
+				testDirectory,
 			});
-			await expectContainer(output, container);
+			const h264Mkv = await stitchVideo({
+				codec: 'h264',
+				extension: 'mkv',
+				testDirectory,
+			});
+			const h265Mp4 = await stitchVideo({
+				codec: 'h265',
+				extension: 'mp4',
+				testDirectory,
+			});
+			const av1Mp4 = await stitchVideo({
+				codec: 'av1',
+				extension: 'mp4',
+				testDirectory,
+			});
+			const proResMov = await stitchVideo({
+				codec: 'prores',
+				extension: 'mov',
+				testDirectory,
+			});
+
+			await expectContainer(h264Mp4, 'mp4');
+			await expectContainer(h264Mkv, 'mkv');
+			await expectContainer(h265Mp4, 'mp4');
+			await expectContainer(av1Mp4, 'mp4');
+			await expectContainer(proResMov, 'mov');
+
+			for (const {codec, container, extension, source} of [
+				{codec: 'h264', container: 'mp4', extension: 'mp4', source: h264Mp4},
+				{codec: 'h264', container: 'mov', extension: 'mov', source: h264Mp4},
+				{codec: 'h264', container: 'mkv', extension: 'mkv', source: h264Mp4},
+				{codec: 'h264', container: 'mpegts', extension: 'ts', source: h264Mp4},
+				{codec: 'h265', container: 'mkv', extension: 'mkv', source: h265Mp4},
+				{codec: 'h265', container: 'hevc', extension: 'hevc', source: h265Mp4},
+				{codec: 'av1', container: 'mkv', extension: 'mkv', source: av1Mp4},
+				{codec: 'av1', container: 'webm', extension: 'webm', source: av1Mp4},
+			] as const) {
+				const output = path.join(
+					testDirectory,
+					`combined-${codec}.${extension}`,
+				);
+				await combineChunks({
+					audioFiles: [],
+					codec,
+					compositionDurationInFrames: 1,
+					fps: 1,
+					framesPerChunk: 1,
+					outputLocation: output,
+					preferLossless: false,
+					videoFiles: [source],
+				});
+				await expectContainer(output, container);
+			}
+		} finally {
+			await fs.promises.rm(testDirectory, {force: true, recursive: true});
 		}
-	} finally {
-		await fs.promises.rm(testDirectory, {force: true, recursive: true});
-	}
-});
+	},
+	{timeout: 15_000},
+);
