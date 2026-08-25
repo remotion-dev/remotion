@@ -26,22 +26,16 @@ export const YouTubeCommentHighlight: React.FC = () => {
 				width: 1120,
 			}}
 		>
-			<Interactive.Div
-				name="Container"
+			<div
 				style={{
-					alignContent: 'center',
 					backfaceVisibility: 'hidden',
 					backgroundColor: '#15161a',
 					border: '1px solid rgba(255, 255, 255, 0.09)',
 					borderRadius: 26,
 					boxShadow: '0 18px 40px rgba(0, 0, 0, 0.26)',
 					boxSizing: 'border-box',
-					columnGap: 18,
-					display: 'grid',
-					gridTemplateColumns: '88px minmax(0, 1fr)',
 					height: 300,
 					left: 0,
-					padding: '24px 40px',
 					position: 'absolute',
 					rotate: interpolate(
 						frame,
@@ -86,94 +80,126 @@ export const YouTubeCommentHighlight: React.FC = () => {
 					width: 1120,
 				}}
 			>
-				<>
-					<CanvasImage
-						fit="cover"
-						height={88}
-						name="Author avatar"
-						src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fit=crop&w=176&h=176&q=80&fm=jpg"
-						style={{
-							backgroundColor: '#2a2b31',
-							border: '1px solid rgba(255, 255, 255, 0.12)',
-							borderRadius: 999,
-							boxSizing: 'border-box',
-							display: 'block',
-							gridColumn: 1,
-							gridRow: 1,
-							height: 88,
-							width: 88,
-						}}
-						width={88}
-					/>
-
-					<div
-						style={{
-							gridColumn: 2,
-							gridRow: 1,
-							minWidth: 0,
-						}}
-					>
-						<div
+				<Interactive.Div
+					name="Container"
+					style={{
+						alignContent: 'center',
+						boxSizing: 'border-box',
+						columnGap: 18,
+						display: 'grid',
+						gridTemplateColumns: '88px minmax(0, 1fr)',
+						height: '100%',
+						padding: '24px 40px',
+						translate: '0px 0px',
+						width: '100%',
+					}}
+				>
+					<>
+						<CanvasImage
+							fit="cover"
+							height={88}
+							name="Author avatar"
+							src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fit=crop&w=176&h=176&q=80&fm=jpg"
 							style={{
-								alignItems: 'baseline',
-								display: 'flex',
-								gap: 12,
+								backgroundColor: '#2a2b31',
+								border: '1px solid rgba(255, 255, 255, 0.12)',
+								borderRadius: 999,
+								boxSizing: 'border-box',
+								display: 'block',
+								gridColumn: 1,
+								gridRow: 1,
+								height: 88,
+								width: 88,
 							}}
-						>
-							<Interactive.Span
-								name="Author handle"
-								style={{
-									color: '#ffffff',
-									fontFamily: 'Inter',
-									fontSize: 26,
-									fontWeight: 700,
-									lineHeight: 1.1,
-								}}
-							>
-								@alexrenders
-							</Interactive.Span>
-						</div>
-
-						<Interactive.Div
-							name="Comment"
-							style={{
-								color: '#f4f4f5',
-								fontFamily: 'Inter',
-								fontSize: 32,
-								fontWeight: 500,
-								letterSpacing: -0.35,
-								lineHeight: 1.3,
-								marginTop: 8,
-								overflowWrap: 'anywhere',
-							}}
-						>
-							This breakdown made the whole process click. Would love to see how
-							you plan the animation timing in a future video!
-						</Interactive.Div>
+							width={88}
+						/>
 
 						<div
 							style={{
-								alignItems: 'center',
-								color: '#a9abb3',
-								display: 'flex',
-								fontFamily: 'Inter',
-								fontSize: 22,
-								fontWeight: 600,
-								gap: 22,
-								lineHeight: 1,
-								marginTop: 14,
+								gridColumn: 2,
+								gridRow: 1,
+								minWidth: 0,
 							}}
 						>
 							<div
 								style={{
-									alignItems: 'center',
+									alignItems: 'baseline',
 									display: 'flex',
-									gap: 8,
+									gap: 12,
 								}}
 							>
+								<Interactive.Span
+									name="Author handle"
+									style={{
+										color: '#ffffff',
+										fontFamily: 'Inter',
+										fontSize: 26,
+										fontWeight: 700,
+										lineHeight: 1.1,
+									}}
+								>
+									@alexrenders
+								</Interactive.Span>
+							</div>
+
+							<Interactive.Div
+								name="Comment"
+								style={{
+									color: '#f4f4f5',
+									fontFamily: 'Inter',
+									fontSize: 32,
+									fontWeight: 500,
+									letterSpacing: -0.35,
+									lineHeight: 1.3,
+									marginTop: 8,
+									overflowWrap: 'anywhere',
+								}}
+							>
+								This breakdown made the whole process click. Would love to see
+								how you plan the animation timing in a future video!
+							</Interactive.Div>
+
+							<div
+								style={{
+									alignItems: 'center',
+									color: '#a9abb3',
+									display: 'flex',
+									fontFamily: 'Inter',
+									fontSize: 22,
+									fontWeight: 600,
+									gap: 22,
+									lineHeight: 1,
+									marginTop: 14,
+								}}
+							>
+								<div
+									style={{
+										alignItems: 'center',
+										display: 'flex',
+										gap: 8,
+									}}
+								>
+									<svg
+										aria-hidden="true"
+										height="28"
+										viewBox="0 0 24 24"
+										width="28"
+									>
+										<path
+											d="M7 10v11H4V10Zm2 11V10l4-7c1.4.2 2.2 1.5 1.8 2.8L14 9h4.5c1.3 0 2.3 1.2 2 2.5l-1.7 7A3.3 3.3 0 0 1 15.6 21Z"
+											fill="none"
+											stroke="currentColor"
+											strokeLinejoin="round"
+											strokeWidth="1.8"
+										/>
+									</svg>
+									<Interactive.Span name="Like count">2.4K</Interactive.Span>
+								</div>
+
 								<svg
 									aria-hidden="true"
 									height="28"
+									style={{rotate: '180deg'}}
 									viewBox="0 0 24 24"
 									width="28"
 								>
@@ -185,28 +211,11 @@ export const YouTubeCommentHighlight: React.FC = () => {
 										strokeWidth="1.8"
 									/>
 								</svg>
-								<Interactive.Span name="Like count">2.4K</Interactive.Span>
 							</div>
-
-							<svg
-								aria-hidden="true"
-								height="28"
-								style={{rotate: '180deg'}}
-								viewBox="0 0 24 24"
-								width="28"
-							>
-								<path
-									d="M7 10v11H4V10Zm2 11V10l4-7c1.4.2 2.2 1.5 1.8 2.8L14 9h4.5c1.3 0 2.3 1.2 2 2.5l-1.7 7A3.3 3.3 0 0 1 15.6 21Z"
-									fill="none"
-									stroke="currentColor"
-									strokeLinejoin="round"
-									strokeWidth="1.8"
-								/>
-							</svg>
 						</div>
-					</div>
-				</>
-			</Interactive.Div>
+					</>
+				</Interactive.Div>
+			</div>
 		</div>
 	);
 };

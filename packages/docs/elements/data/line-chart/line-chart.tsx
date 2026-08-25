@@ -98,7 +98,7 @@ export const LineChart: React.FC = () => {
 						letterSpacing: -3.8,
 						lineHeight: 0.95,
 						margin: 0,
-						translate: '0 -32px',
+						translate: '0px -32px',
 					}}
 				>
 					Monthly active users
@@ -132,7 +132,8 @@ export const LineChart: React.FC = () => {
 									right: 0,
 									textAlign: 'right',
 									top: `${((MAX_VALUE - value) / (MAX_VALUE - MIN_VALUE)) * 100}%`,
-									translate: '0 -50%',
+									transform: 'translateY(-50%)',
+									translate: '0px 0px',
 									whiteSpace: 'nowrap',
 									width: '100%',
 								}}
@@ -249,7 +250,8 @@ export const LineChart: React.FC = () => {
 										left: `${((CHART_SIDE_PADDING + (index / (data.length - 1)) * (CHART_WIDTH - CHART_SIDE_PADDING * 2)) / CHART_WIDTH) * 100}%`,
 										position: 'absolute',
 										top: 0,
-										translate: '-50% 0',
+										transform: 'translateX(-50%)',
+										translate: '0px 0px',
 									}}
 								>
 									{label}

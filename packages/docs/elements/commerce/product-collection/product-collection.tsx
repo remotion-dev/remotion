@@ -349,7 +349,7 @@ const ProductCard = Interactive.withSchema({
 
 export const ProductCollection = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
+	const {durationInFrames: collectionDurationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div
@@ -364,7 +364,12 @@ export const ProductCollection = () => {
 				left: 60,
 				opacity: interpolate(
 					frame,
-					[0, 10, durationInFrames - 8, durationInFrames - 1],
+					[
+						0,
+						10,
+						collectionDurationInFrames - 8,
+						collectionDurationInFrames - 1,
+					],
 					[0, 1, 1, 0],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -376,7 +381,12 @@ export const ProductCollection = () => {
 				position: 'absolute',
 				scale: interpolate(
 					frame,
-					[0, 16, durationInFrames - 8, durationInFrames - 1],
+					[
+						0,
+						16,
+						collectionDurationInFrames - 8,
+						collectionDurationInFrames - 1,
+					],
 					[0.97, 1, 1, 0.98],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -389,7 +399,12 @@ export const ProductCollection = () => {
 				transform: 'perspective(100px)',
 				translate: interpolate(
 					frame,
-					[0, 16, durationInFrames - 8, durationInFrames - 1],
+					[
+						0,
+						16,
+						collectionDurationInFrames - 8,
+						collectionDurationInFrames - 1,
+					],
 					['0px 30px', '0px 0px', '0px 0px', '0px -20px'],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),

@@ -200,6 +200,7 @@ export const VerticalBarChart: React.FC = () => {
 						letterSpacing: -3.8,
 						lineHeight: 0.95,
 						margin: 0,
+						translate: '0px 0px',
 					}}
 				>
 					Browser tabs open
@@ -223,7 +224,8 @@ export const VerticalBarChart: React.FC = () => {
 							height: 3,
 							left: '50%',
 							position: 'absolute',
-							translate: '-50% 50%',
+							transform: 'translate(-50%, 50%)',
+							translate: '0px 0px',
 							width: '100%',
 							zIndex: 1,
 						}}

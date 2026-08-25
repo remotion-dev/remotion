@@ -14,17 +14,11 @@ loadFont('normal', {
 });
 
 export const PolaroidPictures = () => {
-	const sequenceFrame = useCurrentFrame();
-	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
-	// Compress the treatment when its wrapping Sequence is shorter than 150 frames.
-	const durationInFrames = Math.max(sequenceDurationInFrames, 150);
-	const frame =
-		sequenceFrame *
-		((durationInFrames - 1) / Math.max(1, sequenceDurationInFrames - 1));
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
-		<Interactive.Div
-			name="Container"
+		<div
 			style={{
 				color: '#2d2620',
 				height: 640,
@@ -430,6 +424,6 @@ export const PolaroidPictures = () => {
 					one more memory
 				</Interactive.Div>
 			</Interactive.Div>
-		</Interactive.Div>
+		</div>
 	);
 };
