@@ -19,7 +19,9 @@ export const useIsStill = () => {
 
 export const useIsVideoComposition = () => {
 	const isStill = useIsStill();
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {canvasContent, currentAssetMetadata} = useContext(
+		Internals.CompositionManager,
+	);
 
 	if (canvasContent === null) {
 		return false;
@@ -29,5 +31,9 @@ export const useIsVideoComposition = () => {
 		return false;
 	}
 
-	return canvasContent.type === 'composition';
+	return (
+		canvasContent.type === 'composition' ||
+		(canvasContent.type === 'asset' &&
+			currentAssetMetadata?.asset === canvasContent.asset)
+	);
 };

@@ -1,6 +1,9 @@
 import {createContext, createRef, useContext, useMemo} from 'react';
 import type {AnyComposition} from './CompositionManager.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	CompositionManager,
+	getAssetPreviewCompositionId,
+} from './CompositionManagerContext.js';
 import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
 import type {VideoConfigMetadataSource} from './resolve-video-config.js';
@@ -54,8 +57,12 @@ export const useResolvedVideoConfig = (
 
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
-	const {compositions, canvasContent, currentCompositionMetadata} =
-		useContext(CompositionManager);
+	const {
+		compositions,
+		canvasContent,
+		currentCompositionMetadata,
+		currentAssetMetadata,
+	} = useContext(CompositionManager);
 	const currentComposition =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const compositionId = preferredCompositionId ?? currentComposition;
@@ -68,6 +75,22 @@ export const useResolvedVideoConfig = (
 	const env = useRemotionEnvironment();
 
 	return useMemo(() => {
+		if (
+			preferredCompositionId === null &&
+			canvasContent?.type === 'asset' &&
+			currentAssetMetadata?.asset === canvasContent.asset
+		) {
+			return {
+				type: 'success',
+				metadataSource: null,
+				result: {
+					...currentAssetMetadata,
+					id: getAssetPreviewCompositionId(canvasContent.asset),
+					defaultProps: {},
+				},
+			} as const;
+		}
+
 		if (!composition) {
 			return null;
 		}
@@ -148,8 +171,11 @@ export const useResolvedVideoConfig = (
 		return context[composition.id] as VideoConfigState;
 	}, [
 		composition,
+		canvasContent,
 		context,
+		currentAssetMetadata,
 		currentCompositionMetadata,
+		preferredCompositionId,
 		selectedEditorProps,
 		env.isPlayer,
 	]);

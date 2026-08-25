@@ -37,7 +37,6 @@ import {
 	InspectorQuickActionsSection,
 	InspectorDefaultPropsWarnings,
 	InspectorQuickAction,
-	InspectorSectionDivider,
 	InspectorSectionHeader,
 } from './common';
 import {CompositionInspectorHeader} from './CompositionInspectorHeader';
@@ -227,54 +226,51 @@ const CompositionDefaultPropsSection: React.FC<{
 	}
 
 	return (
-		<>
-			<InspectorSectionDivider />
-			<div style={compositionDefaultPropsSection}>
-				<InspectorSectionHeader>
-					<div style={sectionHeaderRow}>
-						<div style={sectionHeaderStart}>
-							<span style={sectionHeaderTitle}>Default Props</span>
-							<SegmentedControl
-								items={defaultPropsModeItems}
-								needsWrapping={false}
+		<div style={compositionDefaultPropsSection}>
+			<InspectorSectionHeader>
+				<div style={sectionHeaderRow}>
+					<div style={sectionHeaderStart}>
+						<span style={sectionHeaderTitle}>Default Props</span>
+						<SegmentedControl
+							items={defaultPropsModeItems}
+							needsWrapping={false}
+							size="compact"
+						/>
+					</div>
+					<div style={sectionHeaderEnd}>
+						{defaultPropsWarnings.length > 0 ? (
+							<WarningIndicatorButton
+								setShowWarning={setShowWarning}
+								showWarning={showWarning}
+								warningCount={defaultPropsWarnings.length}
 								size="compact"
 							/>
-						</div>
-						<div style={sectionHeaderEnd}>
-							{defaultPropsWarnings.length > 0 ? (
-								<WarningIndicatorButton
-									setShowWarning={setShowWarning}
-									showWarning={showWarning}
-									warningCount={defaultPropsWarnings.length}
-									size="compact"
-								/>
-							) : null}
-						</div>
+						) : null}
 					</div>
-				</InspectorSectionHeader>
-				{defaultPropsWarnings.length > 0 && showWarning ? (
-					<div style={defaultPropsWarningContainer}>
-						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
-					</div>
-				) : null}
-				<DefaultPropsEditor
-					key={composition.id}
-					unresolvedComposition={composition}
-					defaultProps={currentDefaultProps}
-					setDefaultProps={setDefaultProps}
-					propsEditType="default-props"
-					schemaErrorMode="compact"
-					layout="inspector"
-					mode={defaultPropsMode}
-					onModeChange={setDefaultPropsMode}
-					hideModeControls={canShowDefaultPropsSection}
-					warnings={defaultPropsWarnings}
-					showWarning={false}
-					setShowWarning={setShowWarning}
-					hideWarningButton
-				/>
-			</div>
-		</>
+				</div>
+			</InspectorSectionHeader>
+			{defaultPropsWarnings.length > 0 && showWarning ? (
+				<div style={defaultPropsWarningContainer}>
+					<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
+				</div>
+			) : null}
+			<DefaultPropsEditor
+				key={composition.id}
+				unresolvedComposition={composition}
+				defaultProps={currentDefaultProps}
+				setDefaultProps={setDefaultProps}
+				propsEditType="default-props"
+				schemaErrorMode="compact"
+				layout="inspector"
+				mode={defaultPropsMode}
+				onModeChange={setDefaultPropsMode}
+				hideModeControls={canShowDefaultPropsSection}
+				warnings={defaultPropsWarnings}
+				showWarning={false}
+				setShowWarning={setShowWarning}
+				hideWarningButton
+			/>
+		</div>
 	);
 };
 
@@ -292,13 +288,10 @@ const CompositionVisualControlsSection: React.FC<{
 	}
 
 	return (
-		<>
-			<InspectorSectionDivider />
-			<div style={compositionVisualControlsSection}>
-				<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
-				<VisualControlsContent />
-			</div>
-		</>
+		<div style={compositionVisualControlsSection}>
+			<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
+			<VisualControlsContent />
+		</div>
 	);
 };
 
@@ -314,7 +307,6 @@ export const CompositionInspector: React.FC<{
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={inspectorOverviewSection}>
 				<CompositionInspectorHeader />
-				<InspectorSectionDivider />
 				<CompositionMetadata
 					compositionId={composition.id}
 					disabled={readOnlyStudio || previewServerState.type !== 'connected'}

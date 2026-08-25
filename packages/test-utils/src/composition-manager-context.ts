@@ -8,6 +8,7 @@ const Mock: React.FC = () => null;
 export const makeMockCompositionManagerContext =
 	(): CompositionManagerContext => {
 		return {
+			currentAssetMetadata: null,
 			currentCompositionMetadata: {
 				durationInFrames: 500,
 				fps: 30,

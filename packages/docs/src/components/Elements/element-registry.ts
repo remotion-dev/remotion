@@ -1,4 +1,5 @@
 export const elementCategories = [
+	{category: 'audio', label: 'Audio'},
 	{category: 'backgrounds', label: 'Backgrounds'},
 	{category: 'captions', label: 'Captions'},
 	{category: 'data', label: 'Charts & Data'},
@@ -13,6 +14,10 @@ export const elementCategories = [
 export type ElementCategory = (typeof elementCategories)[number]['category'];
 
 export const elementRegistry = {
+	'audio/mirrored-spectrum': {
+		category: 'audio',
+		displayName: 'Mirrored Audio Spectrum',
+	},
 	'backgrounds/liquid-contours': {
 		category: 'backgrounds',
 		displayName: 'Liquid Contours',

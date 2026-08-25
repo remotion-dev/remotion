@@ -89,6 +89,7 @@ const compositionContext = {
 	],
 	folders: [],
 	canvasContent: {type: 'composition' as const, compositionId: 'comp'},
+	currentAssetMetadata: null,
 	currentCompositionMetadata: {
 		defaultCodec: null,
 		defaultOutName: null,

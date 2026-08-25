@@ -5,6 +5,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/babel-loader.svg?style=flat&color=black&label=@remotion/babel-loader)](https://npmcharts.com/compare/@remotion/babel-loader?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/browser-studio.svg?style=flat&color=black&label=@remotion/browser-studio)](https://npmcharts.com/compare/@remotion/browser-studio?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/bundler.svg?style=flat&color=black&label=@remotion/bundler)](https://npmcharts.com/compare/@remotion/bundler?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/canvas.svg?style=flat&color=black&label=@remotion/canvas)](https://npmcharts.com/compare/@remotion/canvas?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/captions.svg?style=flat&color=black&label=@remotion/captions)](https://npmcharts.com/compare/@remotion/captions?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/cli.svg?style=flat&color=black&label=@remotion/cli)](https://npmcharts.com/compare/@remotion/cli?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/cloudrun.svg?style=flat&color=black&label=@remotion/cloudrun)](https://npmcharts.com/compare/@remotion/cloudrun?minimal=true)  
