@@ -1031,6 +1031,7 @@
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/effects": "workspace:*",
+        "@remotion/layout-utils": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/noise": "workspace:*",
         "@remotion/shapes": "workspace:*",
