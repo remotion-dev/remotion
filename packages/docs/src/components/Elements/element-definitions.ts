@@ -251,7 +251,7 @@ const elementImplementations = {
 		component: SocialSafeZonesPreview,
 		contributors: [],
 		description:
-			'Source-backed safe-area guides for TikTok, Instagram Reels, and YouTube vertical video.',
+			'Capture-calibrated safe-area guides for TikTok and Instagram Reels.',
 		dependencies: [],
 		durationInFrames: 120,
 		elementHeight: null,
