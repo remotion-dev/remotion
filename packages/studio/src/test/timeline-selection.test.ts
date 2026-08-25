@@ -1,4 +1,11 @@
 import {expect, test} from 'bun:test';
+import {
+	cropCanvasOutlinePoints as cropOutlinePoints,
+	getCanvasSelectableOutlines as getSequencesWithSelectableOutlines,
+	getTransformedSvgViewportPoints,
+	orderCanvasOutlinesForRendering as orderOutlinesForRendering,
+	type CanvasOutline as SelectedOutline,
+} from '@remotion/canvas';
 import type {RefObject} from 'react';
 import {
 	Internals,
@@ -12,9 +19,7 @@ import {
 import {NoReactInternals} from 'remotion/no-react';
 import {getInspectorSelectableItems} from '../components/InspectorSequenceSection';
 import {getSelectedOutlineControlLayout} from '../components/selected-outline-control-layout';
-import type {SelectedOutline} from '../components/selected-outline-geometry';
 import {
-	cropOutlinePoints,
 	getSelectedCropInfo,
 	getSelectedTransformOriginInfo,
 } from '../components/selected-outline-measurement';
@@ -61,10 +66,7 @@ import {
 	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
 	getSelectedSequenceKeys,
-	getSequencesWithSelectableOutlines,
-	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
-	orderOutlinesForRendering,
 	selectedOutlineDragThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
 	selectedOutlineUvSnapThresholdPx,
