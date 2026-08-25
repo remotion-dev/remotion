@@ -13,8 +13,9 @@ export const addElementLibrary = (options: AddElementLibraryOptions) => {
 		options === null ||
 		Array.isArray(options)
 	) {
+		const receivedType = Array.isArray(options) ? 'an array' : typeof options;
 		throw new Error(
-			`Config.addElementLibrary() expects an object, got ${typeof options}`,
+			`Config.addElementLibrary() expects an object, got ${receivedType}`,
 		);
 	}
 

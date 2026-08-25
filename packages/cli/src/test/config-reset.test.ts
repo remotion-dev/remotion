@@ -25,6 +25,9 @@ test('Element library configuration must be valid', () => {
 		Config.addElementLibrary(null as unknown as {url: string}),
 	).toThrow('Config.addElementLibrary() expects an object');
 	expect(() =>
+		Config.addElementLibrary([] as unknown as {url: string}),
+	).toThrow('Config.addElementLibrary() expects an object, got an array');
+	expect(() =>
 		Config.addElementLibrary({url: null as unknown as string}),
 	).toThrow('Config.addElementLibrary() expects "url" to be a string');
 	expect(() =>
