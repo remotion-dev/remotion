@@ -1,4 +1,9 @@
-import {BufferTarget, StreamTarget, type StreamTargetChunk} from 'mediabunny';
+import {
+	BufferTarget,
+	StreamTarget,
+	type MetadataTags,
+	type StreamTargetChunk,
+} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import {VERSION} from 'remotion/version';
@@ -140,6 +145,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	scale: number;
 	sampleRate: number;
 	allowHtmlInCanvas: boolean;
+	metadata: MetadataTags | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -191,6 +197,7 @@ const internalRenderMediaOnWeb = async <
 	isProduction,
 	sampleRate,
 	allowHtmlInCanvas,
+	metadata,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
@@ -423,8 +430,13 @@ const internalRenderMediaOnWeb = async <
 		target,
 	});
 
+	const defaultComment = `Made with Remotion ${VERSION}`;
 	outputWithCleanup.output.setMetadataTags({
-		comment: `Made with Remotion ${VERSION}`,
+		...(metadata ?? {}),
+		comment:
+			metadata?.comment === undefined
+				? defaultComment
+				: `${defaultComment}; ${metadata.comment}`,
 	});
 
 	using throttledProgress = createThrottledProgressCallback(onProgress);
@@ -799,6 +811,7 @@ export const renderMediaOnWeb = <
 				isProduction: options.isProduction ?? true,
 				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
 				sampleRate: options.sampleRate ?? 48000,
+				metadata: options.metadata ?? null,
 			}),
 		);
 

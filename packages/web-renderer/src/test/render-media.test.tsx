@@ -322,7 +322,7 @@ test(
 	},
 );
 
-test('should include "Made with Remotion" metadata', async (t) => {
+test('should include custom metadata and "Made with Remotion"', async (t) => {
 	if (t.task.file.projectName === 'webkit') {
 		t.skip();
 		return;
@@ -340,6 +340,11 @@ test('should include "Made with Remotion" metadata', async (t) => {
 			durationInFrames: 5,
 		},
 		inputProps: {},
+		metadata: {
+			title: 'My video',
+			artist: 'Remotion user',
+			comment: 'My comment',
+		},
 	});
 
 	const blob = await result.getBlob();
@@ -350,7 +355,9 @@ test('should include "Made with Remotion" metadata', async (t) => {
 	});
 
 	const tags = await input.getMetadataTags();
-	expect(tags.comment).toBe(`Made with Remotion ${VERSION}`);
+	expect(tags.title).toBe('My video');
+	expect(tags.artist).toBe('Remotion user');
+	expect(tags.comment).toBe(`Made with Remotion ${VERSION}; My comment`);
 });
 
 test('should not fire stale progress callbacks after render completes', async (t) => {
