@@ -33,7 +33,6 @@ import {
 	InspectorQuickActionsSection,
 	InspectorQuickAction,
 	InspectorMessage,
-	InspectorSectionDivider,
 } from './common';
 import {
 	ConnectedCompositionsSection,
@@ -322,12 +321,9 @@ const SequenceExpandedInspector: React.FC<{
 			/>
 			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
-				<>
-					<InspectorSectionDivider />
-					<ConnectedCompositionsSection
-						connectedCompositions={connectedCompositions}
-					/>
-				</>
+				<ConnectedCompositionsSection
+					connectedCompositions={connectedCompositions}
+				/>
 			) : null}
 			{validatedLocation ? (
 				<>
