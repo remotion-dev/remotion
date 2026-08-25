@@ -1,4 +1,5 @@
 import path from 'path';
+import {fileURLToPath} from 'url';
 import {build} from 'bun';
 import {getBrowserStudioDependencyVersionsForBuild} from './src/dev/get-dependency-versions-for-build';
 import {getBrowserStudioReactRefreshFilesForBuild} from './src/dev/get-react-refresh-files-for-build';
@@ -16,6 +17,41 @@ const reactRefreshFiles = getBrowserStudioReactRefreshFilesForBuild();
 const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
 const workspacePackageExports =
 	getBrowserStudioWorkspacePackageExportsForBuild();
+// These artifacts deliberately have different linkage contracts. The preview
+// entry is the compatibility fallback for custom dependency resolutions and
+// mismatched releases, so its shared dependencies must remain external. The
+// vendor entry is the fast path and must bundle the stable dependency graph.
+const vendorOutput = await build({
+	define: {'process.env.NODE_ENV': JSON.stringify('development')},
+	entrypoints: ['src/browser-studio-vendor-entry.ts'],
+	format: 'iife',
+	minify: true,
+	naming: '[name].mjs',
+	target: 'browser',
+});
+
+if (!vendorOutput.success) {
+	console.log(vendorOutput.logs.join('\n'));
+	process.exit(1);
+}
+
+const vendorEntryOutput = vendorOutput.outputs.find(
+	(file) => path.basename(file.path) === 'browser-studio-vendor-entry.mjs',
+);
+if (!vendorEntryOutput) {
+	throw new Error('Browser Studio vendor entry was not generated');
+}
+
+const rspackBrowserEntry = fileURLToPath(
+	import.meta.resolve('@rspack/browser'),
+);
+const rspackWasm = Bun.file(
+	path.join(path.dirname(rspackBrowserEntry), 'rspack.wasm32-wasi.wasm'),
+);
+const browserStudioAssetSizes = {
+	rspackWasm: rspackWasm.size,
+	vendorBundle: vendorEntryOutput.size,
+};
 const output = await build({
 	entrypoints: [
 		'src/index.tsx',
@@ -24,6 +60,7 @@ const output = await build({
 	],
 	naming: '[name].mjs',
 	define: {
+		__BROWSER_STUDIO_ASSET_SIZES__: JSON.stringify(browserStudioAssetSizes),
 		__BROWSER_STUDIO_DEPENDENCY_VERSIONS__: JSON.stringify(dependencyVersions),
 		__BROWSER_STUDIO_REACT_REFRESH_FILES__: JSON.stringify(reactRefreshFiles),
 		__BROWSER_STUDIO_SETUP_ENVIRONMENT__: JSON.stringify(setupEnvironment),
@@ -41,24 +78,6 @@ const output = await build({
 
 if (!output.success) {
 	console.log(output.logs.join('\n'));
-	process.exit(1);
-}
-
-// These artifacts deliberately have different linkage contracts. The preview
-// entry is the compatibility fallback for custom dependency resolutions and
-// mismatched releases, so its shared dependencies must remain external. The
-// vendor entry is the fast path and must bundle the stable dependency graph.
-const vendorOutput = await build({
-	define: {'process.env.NODE_ENV': JSON.stringify('development')},
-	entrypoints: ['src/browser-studio-vendor-entry.ts'],
-	format: 'iife',
-	minify: true,
-	naming: '[name].mjs',
-	target: 'browser',
-});
-
-if (!vendorOutput.success) {
-	console.log(vendorOutput.logs.join('\n'));
 	process.exit(1);
 }
 

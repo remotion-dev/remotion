@@ -22,6 +22,11 @@ import type {
 	CompileState,
 } from './types';
 
+declare const __BROWSER_STUDIO_ASSET_SIZES__: {
+	readonly rspackWasm: number;
+	readonly vendorBundle: number;
+};
+
 const makeInitialState = (): CompileState => ({
 	status: 'idle',
 });
@@ -371,9 +376,15 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			'vendor-bundle' | 'rspack-wasm',
 			{loadedBytes: number; totalBytes: number | null} | null
 		> = {
-			'rspack-wasm': {loadedBytes: 0, totalBytes: null},
+			'rspack-wasm': {
+				loadedBytes: 0,
+				totalBytes: __BROWSER_STUDIO_ASSET_SIZES__.rspackWasm,
+			},
 			'vendor-bundle': useVendorBundle
-				? {loadedBytes: 0, totalBytes: null}
+				? {
+						loadedBytes: 0,
+						totalBytes: __BROWSER_STUDIO_ASSET_SIZES__.vendorBundle,
+					}
 				: null,
 		};
 		const updateLoadingProgress = ({
@@ -389,7 +400,10 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				return;
 			}
 
-			downloadProgress[asset] = {loadedBytes, totalBytes};
+			downloadProgress[asset] = {
+				loadedBytes,
+				totalBytes: downloadProgress[asset]?.totalBytes ?? totalBytes,
+			};
 			const assets = Object.values(downloadProgress).filter(
 				(progress) => progress !== null,
 			);
@@ -410,7 +424,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			setLoadingProgress(total === 0 ? null : Math.min(0.95, loaded / total));
 		};
 
-		setLoadingProgress(null);
+		setLoadingProgress(0);
 		// Start the large, stable vendor download alongside the compiler. The
 		// iframe later executes these same bytes from a Blob URL, avoiding a
 		// second request after compilation finishes.

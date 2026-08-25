@@ -161,11 +161,17 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			});
 			await expect(loadingProgress).toBeVisible({timeout: 5000});
 			releaseVendorBundleRequest();
-			await expect(loadingProgress).toHaveAttribute(
-				'aria-valuenow',
-				/[1-9]\d*/,
-				{timeout: 10_000},
-			);
+			await expect
+				.poll(
+					async () => {
+						const value = Number(
+							await loadingProgress.getAttribute('aria-valuenow'),
+						);
+						return value > 0 && value < 95;
+					},
+					{timeout: 10_000},
+				)
+				.toBe(true);
 			const studio = page.frameLocator('iframe');
 			await expect(
 				studio.getByTitle('/project').getByText('MyComp'),
