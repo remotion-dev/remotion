@@ -5,6 +5,7 @@
     "": {
       "name": "remotion-monorepo",
       "dependencies": {
+        "@hono/node-server": "2.0.10",
         "@typescript/native-preview": "catalog:",
         "p-limit": "7.2.0",
         "turbo": "2.9.14",
@@ -2855,6 +2856,7 @@
   },
   "overrides": {
     "@aws-sdk/xml-builder": "3.972.5",
+    "@hono/node-server": "2.0.10",
     "@remix-run/dev": "2.17.4",
     "@remix-run/node": "2.17.4",
     "@remix-run/react": "2.17.4",
@@ -3674,7 +3676,7 @@
 
     "@happy-dom/global-registrator": ["@happy-dom/global-registrator@14.5.1", "", { "dependencies": { "happy-dom": "14.5.1" } }, "sha512-QjCEmZwTRpmHHRXvh58+gGW1R3C6Qpiy9dgEbCcPs3XedWEwpuJyr3y05IBauNLNE8KevHBGIvkZzxeTbBcCTg=="],
 
-    "@hono/node-server": ["@hono/node-server@1.19.9", "", { "peerDependencies": { "hono": "^4" } }, "sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw=="],
+    "@hono/node-server": ["@hono/node-server@2.0.10", "", { "peerDependencies": { "hono": "^4" } }, "sha512-ZcnNVhKTmyDJeg0UlnZjvM73JBsTAuhrH/J4fjwGOw59PwOW51r4J+p6CsKZWXdKSme4MFqU62CZMOsdDrU4CA=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 
