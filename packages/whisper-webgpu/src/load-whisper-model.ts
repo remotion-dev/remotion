@@ -86,16 +86,54 @@ export const loadWhisperModel = async ({
 		env.backends.onnx.wasm!.numThreads = globalThis.crossOriginIsolated ? 0 : 1;
 	}
 
+	onProgress?.({
+		status: 'loading',
+		file: null,
+		progress: 0,
+		loadedBytes: 0,
+		totalBytes: null,
+	});
+
 	const {modelId} = getModelInfo(model);
+	let lastProgress = 0;
+	let lastLoadedBytes = 0;
 	const loading = pipeline('automatic-speech-recognition', modelId, {
 		device: resolvedBackend,
 		dtype:
 			resolvedBackend === 'webgpu'
 				? {encoder_model: 'fp32', decoder_model_merged: 'q4'}
 				: 'q8',
-		progress_callback: (event) => {
-			onProgress?.(normalizeProgress(event as Record<string, unknown>));
-		},
+		progress_callback: onProgress
+			? (event) => {
+					const record = event as Record<string, unknown>;
+					if (record.status === 'progress_total') {
+						const normalized = normalizeProgress(record);
+						lastProgress = Math.max(
+							lastProgress,
+							normalized.progress ?? lastProgress,
+						);
+						lastLoadedBytes = Math.max(
+							lastLoadedBytes,
+							normalized.loadedBytes ?? lastLoadedBytes,
+						);
+						onProgress({
+							...normalized,
+							progress: lastProgress,
+							loadedBytes: lastLoadedBytes,
+						});
+					}
+
+					if (record.status === 'ready') {
+						onProgress({
+							status: 'ready',
+							file: null,
+							progress: 1,
+							loadedBytes: null,
+							totalBytes: null,
+						});
+					}
+				}
+			: undefined,
 	}) as Promise<LoadedWhisperPipeline>;
 
 	pipelines.set(cacheKey, loading);

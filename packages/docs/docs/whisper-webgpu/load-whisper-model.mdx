@@ -13,8 +13,8 @@ import {loadWhisperModel} from '@remotion/whisper-webgpu';
 
 const result = await loadWhisperModel({
   model: 'small.en',
-  onProgress: ({progress, file}) => {
-    console.log(file, progress);
+  onProgress: ({progress}) => {
+    console.log(progress);
   },
 });
 
@@ -33,7 +33,7 @@ One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-a
 
 ### onProgress?
 
-Called while model files are resolved and downloaded. `progress` is between `0` and `1` when available.
+Called while model files are resolved and downloaded. `progress` is the aggregate download progress between `0` and `1` and never decreases.
 
 ## Return value
 

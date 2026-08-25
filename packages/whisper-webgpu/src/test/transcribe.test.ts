@@ -18,10 +18,12 @@ const fakePipeline = Object.assign(
 	(audio: Float32Array, options: Record<string, unknown>) => {
 		transcriptionCall = {audio, options};
 		return Promise.resolve({
-			text: ' Hello world.',
+			text: ' Hello world free today.',
 			chunks: [
 				{text: ' Hello', timestamp: [0.25, 0.75]},
-				{text: ' world.', timestamp: [1, null]},
+				{text: ' world', timestamp: [1, 1.5]},
+				{text: ' free', timestamp: [1.8, 1.7]},
+				{text: ' today.', timestamp: [2.2, null]},
 			],
 		});
 	},
@@ -41,6 +43,44 @@ mock.module('@huggingface/transformers', () => ({
 		options: Record<string, unknown>,
 	) => {
 		pipelineInitialization = {modelId, options};
+		const onProgress = options.progress_callback as
+			| ((progress: Record<string, unknown>) => void)
+			| undefined;
+		onProgress?.({status: 'initiate', file: 'encoder_model.onnx'});
+		onProgress?.({
+			status: 'progress_total',
+			progress: 40,
+			loaded: 40,
+			total: 100,
+		});
+		onProgress?.({
+			status: 'progress',
+			file: 'encoder_model.onnx',
+			progress: 90,
+			loaded: 90,
+			total: 100,
+		});
+		onProgress?.({
+			status: 'progress_total',
+			progress: 30,
+			loaded: 30,
+			total: 100,
+		});
+		onProgress?.({
+			status: 'progress',
+			file: 'decoder_model_merged.onnx',
+			progress: 10,
+			loaded: 10,
+			total: 100,
+		});
+		onProgress?.({
+			status: 'progress_total',
+			progress: 60,
+			loaded: 60,
+			total: 100,
+		});
+		onProgress?.({status: 'done', file: 'encoder_model.onnx'});
+		onProgress?.({status: 'ready'});
 		return Promise.resolve(fakePipeline);
 	},
 }));
@@ -78,12 +118,14 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 		language: 'en',
 	});
 	expect(result).toEqual({
-		text: 'Hello world.',
+		text: 'Hello world free today.',
 		model: 'small.en',
 		backend: 'wasm',
 		words: [
 			{text: 'Hello', startInSeconds: 0.25, endInSeconds: 0.75},
-			{text: ' world.', startInSeconds: 1, endInSeconds: 3},
+			{text: ' world', startInSeconds: 1, endInSeconds: 1.5},
+			{text: ' free', startInSeconds: 1.8, endInSeconds: 2.2},
+			{text: ' today.', startInSeconds: 2.2, endInSeconds: 3},
 		],
 	});
 
@@ -97,10 +139,24 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 				confidence: null,
 			},
 			{
-				text: ' world.',
+				text: ' world',
 				startMs: 1000,
-				endMs: 3000,
+				endMs: 1500,
+				timestampMs: 1250,
+				confidence: null,
+			},
+			{
+				text: ' free',
+				startMs: 1800,
+				endMs: 2200,
 				timestampMs: 2000,
+				confidence: null,
+			},
+			{
+				text: ' today.',
+				startMs: 2200,
+				endMs: 3000,
+				timestampMs: 2600,
 				confidence: null,
 			},
 		],
@@ -202,4 +258,19 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 
 	await disposeWhisperModel();
 	expect(disposed).toBe(true);
+});
+
+test('reports aggregate model progress without moving backwards', async () => {
+	const {disposeWhisperModel, loadWhisperModel} = await import('../index');
+	const progressValues: Array<number | null> = [];
+	await loadWhisperModel({
+		backend: 'wasm',
+		model: 'medium.en',
+		onProgress: (progress) => {
+			progressValues.push(progress.progress);
+		},
+	});
+
+	expect(progressValues).toEqual([0, 0.4, 0.4, 0.6, 1]);
+	await disposeWhisperModel({backend: 'wasm', model: 'medium.en'});
 });

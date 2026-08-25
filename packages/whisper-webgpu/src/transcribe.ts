@@ -88,20 +88,31 @@ export const transcribe = async ({
 	}
 
 	const audioDuration = channelWaveform.length / 16_000;
-	const words = output.chunks.map((chunk, index): WhisperWebGpuWord => {
+	const starts = output.chunks.map((chunk) => {
 		const start = chunk.timestamp[0];
-		const end = Math.min(chunk.timestamp[1] ?? audioDuration, audioDuration);
-		if (start === null || !Number.isFinite(start) || !Number.isFinite(end)) {
+		if (start === null || !Number.isFinite(start)) {
 			throw new Error(
 				`The model returned an invalid timestamp for "${chunk.text}".`,
 			);
 		}
 
-		if (end < start) {
-			throw new Error(
-				`The model returned a backwards timestamp for "${chunk.text}".`,
-			);
-		}
+		return Math.max(0, Math.min(start, audioDuration));
+	});
+	const words = output.chunks.map((chunk, index): WhisperWebGpuWord => {
+		const start = starts[index];
+		const modelEnd = chunk.timestamp[1];
+		const nextStart = starts[index + 1];
+		const fallbackEnd =
+			nextStart === undefined || nextStart < start ? audioDuration : nextStart;
+		const end = Math.max(
+			start,
+			Math.min(
+				modelEnd !== null && Number.isFinite(modelEnd) && modelEnd >= start
+					? modelEnd
+					: fallbackEnd,
+				audioDuration,
+			),
+		);
 
 		return {
 			text: index === 0 ? chunk.text.trimStart() : chunk.text,
