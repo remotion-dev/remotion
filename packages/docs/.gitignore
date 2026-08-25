@@ -8,6 +8,8 @@
 .docusaurus
 .cache-loader
 .element-previews
+/elements/overlays/social-safe-zones/instagram-reels-interface.png
+/elements/overlays/social-safe-zones/tiktok-interface.png
 static/_raw
 static/__remotion_browser_studio_workspace__
 
