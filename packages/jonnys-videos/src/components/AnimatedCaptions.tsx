@@ -155,10 +155,10 @@ const CaptionPage: React.FC<CaptionPageProps> = ({
 				{page.tokens.map((token, tokenIndex) => {
 					return (
 						<span
+							key={`${token.fromMs}-${tokenIndex}`}
 							ref={(element) => {
 								wordRefs.current[tokenIndex] = element;
 							}}
-							key={`${token.fromMs}-${tokenIndex}`}
 							style={{
 								color:
 									tokenIndex === focusedTokenIndex

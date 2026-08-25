@@ -135,6 +135,9 @@ A page consists of:
   - `text`: The text of the token.
   - `fromMs`: The absolute start time of the token in milliseconds.
   - `toMs`: The absolute end time of the token in milliseconds.
+  - `pageBreakAfter`: Whether the source caption forced the page to end after this token (_from v4.0.517_).
+
+If a [`Caption`](/docs/captions/caption) has `pageBreakAfter: true`, the current page ends after the corresponding token and the next caption starts a new page. The token preserves the marker, while the page's `text` does not include a trailing newline.
 
 ## Whitespace sensitivity
 

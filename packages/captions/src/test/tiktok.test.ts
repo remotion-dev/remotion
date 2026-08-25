@@ -76,6 +76,51 @@ test('Should create captions', () => {
 	]);
 });
 
+test('Should start a new page after a forced page break', () => {
+	const {pages} = createTikTokStyleCaptions({
+		captions: [
+			{
+				text: 'hello',
+				startMs: 0,
+				endMs: 200,
+				timestampMs: 100,
+				confidence: null,
+				pageBreakAfter: true,
+			},
+			{
+				text: ' there',
+				startMs: 200,
+				endMs: 400,
+				timestampMs: 300,
+				confidence: null,
+			},
+		],
+		combineTokensWithinMilliseconds: 1000,
+	});
+
+	expect(pages).toEqual([
+		{
+			text: 'hello',
+			startMs: 0,
+			durationMs: 200,
+			tokens: [
+				{
+					text: 'hello',
+					fromMs: 0,
+					toMs: 200,
+					pageBreakAfter: true,
+				},
+			],
+		},
+		{
+			text: 'there',
+			startMs: 200,
+			durationMs: 200,
+			tokens: [{text: 'there', fromMs: 200, toMs: 400}],
+		},
+	]);
+});
+
 test('Should finalize the duration when captions end in whitespace', () => {
 	const {pages} = createTikTokStyleCaptions({
 		captions: [
