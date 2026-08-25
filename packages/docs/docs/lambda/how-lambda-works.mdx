@@ -26,11 +26,10 @@ that was passed and runs the <a href="/docs/props-resolution">
 as the metadata (such as the duration in frames).<br />
 <Step>4</Step> Based on the determined duration of the video and the <a href="/docs/lambda/concurrency">
   concurrency
-</a>, several <strong>renderer functions</strong> are spawned, which are tasked to
-render a portion of the video.<br />
-<Step>5</Step> The renderer functions use <a href="https://aws.amazon.com/blogs/compute/introducing-aws-lambda-response-streaming/">
+</a>, the video is split into chunks. Normally, a <strong>renderer function</strong> is invoked for each chunk. From <AvailableFrom v="4.0.517" inline />, if <code>concurrency</code> is <code>1</code> and no <a href="/docs/lambda/rendermediaonlambda#rendererfunctionname"><code>rendererFunctionName</code></a> is specified, the main function renders the only chunk itself.<br />
+<Step>5</Step> Separate renderer functions use <a href="https://aws.amazon.com/blogs/compute/introducing-aws-lambda-response-streaming/">
   AWS Lambda Response Streaming
-</a> to report progress as well as the binary video chunks. <br />
+</a> to report progress and send the binary video chunks to the main function. This streaming step is skipped when the main function renders directly.<br />
 <Step>6</Step> The main function concatenates the progress reports into a
 concise <code>progress.json</code> file and periodically uploads it to S3.<br />
 <Step>7</Step> The <a href="/docs/lambda/getrenderprogress">

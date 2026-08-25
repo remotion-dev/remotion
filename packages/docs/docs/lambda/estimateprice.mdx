@@ -10,8 +10,8 @@ Calculates the AWS costs incurred for AWS Lambda given the region, execution dur
 
 During rendering, many Lambda functions are spawned:
 
-- The main function spawns many worker functions, waits for chunks to be rendered, and stitches them together for the full video. This is the longest-running Lambda function.
-- Render functions render a short portion of a video and then shut down.
+- The main function normally spawns worker functions, waits for chunks to be rendered, and stitches them together for the full video. This is the longest-running Lambda function.
+- Renderer functions render a short portion of a video and then shut down. From <AvailableFrom v="4.0.517" inline />, with `concurrency: 1` and no `rendererFunctionName`, the main function renders the video directly and no renderer function is invoked.
 - Other short-lived, negligible functions get launched for initializing lambdas and fetching progress.
 
 The total duration is the sum of execution duration of all of the above Lambda functions.

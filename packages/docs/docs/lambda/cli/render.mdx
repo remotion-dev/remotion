@@ -128,6 +128,8 @@ Specify the number of Lambda functions to use for rendering. This is an alternat
 
 The concurrency is defined as `frameCount / framesPerLambda`. Remotion will automatically calculate the appropriate `framesPerLambda` value based on your concurrency setting.
 
+From <AvailableFrom v="4.0.517" inline />, setting `--concurrency=1` without specifying `--renderer-function-name` makes the main function render the video directly. No additional renderer function is invoked.
+
 Maximum value: 200  
 Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
 
