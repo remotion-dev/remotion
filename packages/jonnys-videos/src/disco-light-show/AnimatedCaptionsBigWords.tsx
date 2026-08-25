@@ -144,6 +144,7 @@ export const AnimatedCaptionsBigWords: React.FC = () => {
 		return createSentenceAwareCaptionPages({
 			captions,
 			combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
+			layout: null,
 		});
 	}, [captions]);
 
