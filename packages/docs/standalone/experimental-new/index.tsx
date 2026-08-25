@@ -1,6 +1,3 @@
-import BrowserOnly from '@docusaurus/BrowserOnly';
-import Head from '@docusaurus/Head';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {
 	BrowserStudio,
 	createBlankTemplateProject,
@@ -10,9 +7,13 @@ import {
 } from '@remotion/browser-studio';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import React, {useEffect, useState} from 'react';
+import {createRoot} from 'react-dom/client';
+
+declare const __BROWSER_STUDIO_WORKSPACE_COMMIT__: string;
 
 const page: React.CSSProperties = {
 	backgroundColor: '#111111',
+	color: '#ffffff',
 	height: '100dvh',
 	inset: 0,
 	overflow: 'hidden',
@@ -55,24 +56,6 @@ const progressBar: React.CSSProperties = {
 	marginTop: 20,
 	width: '100%',
 };
-
-const standaloneCss = `
-	html,
-	body,
-	#__docusaurus {
-		background: #111111;
-		height: 100%;
-		margin: 0;
-		overflow: hidden;
-		width: 100%;
-	}
-
-	.navbar,
-	.footer,
-	#crawlchat-script {
-		display: none !important;
-	}
-`;
 
 type InitialElementState =
 	| {type: 'none'}
@@ -131,9 +114,7 @@ const getInitialElementState = (): InitialElementState => {
 	return {type: 'payload', payload: {payload, sourceOrigin}};
 };
 
-const BrowserStudioContent: React.FC<{
-	readonly browserStudioWorkspaceCommit: string;
-}> = ({browserStudioWorkspaceCommit}) => {
+const BrowserStudioContent: React.FC = () => {
 	const [initialElementState] = useState(getInitialElementState);
 	const [projectState, setProjectState] = useState(getInitialProjectState);
 	const loadingRepoUrl =
@@ -260,7 +241,6 @@ const BrowserStudioContent: React.FC<{
 									backgroundColor: '#0b84f3',
 									border: 0,
 									borderRadius: 4,
-									color: '#ffffff',
 									cursor: 'pointer',
 									fontSize: 14,
 									marginTop: 20,
@@ -279,7 +259,6 @@ const BrowserStudioContent: React.FC<{
 
 	return (
 		<BrowserStudio
-			iframeSrc="/experimental_new/frame.html"
 			initialElement={
 				initialElementState.type === 'payload'
 					? initialElementState.payload
@@ -289,41 +268,23 @@ const BrowserStudioContent: React.FC<{
 			readOnly={false}
 			remotionPackageSource={{
 				baseUrl: new URL(
-					`/__remotion_browser_studio_workspace__/commits/${browserStudioWorkspaceCommit}/`,
+					`/__remotion_browser_studio_workspace__/commits/${__BROWSER_STUDIO_WORKSPACE_COMMIT__}/`,
 					window.location.href,
 				).href,
-				commit: browserStudioWorkspaceCommit,
+				commit: __BROWSER_STUDIO_WORKSPACE_COMMIT__,
 				type: 'workspace',
 			}}
 		/>
 	);
 };
 
-const NewRemotionProject = () => {
-	const {siteConfig} = useDocusaurusContext();
-	const browserStudioWorkspaceCommit =
-		siteConfig.customFields?.browserStudioWorkspaceCommit;
-	if (typeof browserStudioWorkspaceCommit !== 'string') {
-		throw new Error('Browser Studio workspace commit is not configured');
-	}
+const root = document.getElementById('root');
+if (!root) {
+	throw new Error('Could not find root element');
+}
 
-	return (
-		<>
-			<Head>
-				<title>New Remotion Project</title>
-				<style>{standaloneCss}</style>
-			</Head>
-			<div style={page}>
-				<BrowserOnly fallback={<div style={fallback}>Loading...</div>}>
-					{() => (
-						<BrowserStudioContent
-							browserStudioWorkspaceCommit={browserStudioWorkspaceCommit}
-						/>
-					)}
-				</BrowserOnly>
-			</div>
-		</>
-	);
-};
-
-export default NewRemotionProject;
+createRoot(root).render(
+	<div style={page}>
+		<BrowserStudioContent />
+	</div>,
+);

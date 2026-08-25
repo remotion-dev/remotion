@@ -56,6 +56,7 @@
 		{"path": "../cli"}
 	],
 	"exclude": [
+		"build-browser-studio-standalone.ts",
 		"copy-convert.ts",
 		"prepare-browser-studio-workspace.ts",
 		"render-cards.ts",
