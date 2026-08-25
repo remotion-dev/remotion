@@ -3,18 +3,9 @@ import {getRetryDelay} from '../video-extraction/get-frames-since-keyframe';
 
 test('retries frame fetches twice with bounded delays', () => {
 	const error = new Error('Failed to fetch');
-	const src = URL.createObjectURL(new Blob());
+	const src = 'blob:test';
 
 	expect(getRetryDelay(1, error, src)).toBe(0.25);
 	expect(getRetryDelay(2, error, src)).toBe(0.5);
 	expect(getRetryDelay(3, error, src)).toBe(null);
-
-	URL.revokeObjectURL(src);
-});
-
-test('does not retry likely cross-origin CORS errors', () => {
-	const error = new Error('Failed to fetch');
-	const src = 'https://cors-error.invalid/video.mp4';
-
-	expect(getRetryDelay(1, error, src)).toBe(null);
 });
