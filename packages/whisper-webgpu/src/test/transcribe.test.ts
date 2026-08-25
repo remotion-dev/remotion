@@ -48,36 +48,37 @@ mock.module('@huggingface/transformers', () => ({
 			| undefined;
 		onProgress?.({status: 'initiate', file: 'encoder_model.onnx'});
 		onProgress?.({
-			status: 'progress_total',
-			progress: 40,
-			loaded: 40,
-			total: 100,
-		});
-		onProgress?.({
 			status: 'progress',
 			file: 'encoder_model.onnx',
-			progress: 90,
-			loaded: 90,
-			total: 100,
+			progress: 100,
+			loaded: 500_000_000,
+			total: 500_000_000,
 		});
 		onProgress?.({
 			status: 'progress_total',
-			progress: 30,
-			loaded: 30,
-			total: 100,
+			progress: 100,
+			loaded: 500_000_000,
+			total: 500_000_000,
 		});
 		onProgress?.({
 			status: 'progress',
 			file: 'decoder_model_merged.onnx',
-			progress: 10,
-			loaded: 10,
-			total: 100,
+			progress: 20,
+			loaded: 100_000_000,
+			total: 485_710_974,
 		});
 		onProgress?.({
 			status: 'progress_total',
-			progress: 60,
-			loaded: 60,
-			total: 100,
+			progress: 60.87,
+			loaded: 600_000_000,
+			total: 985_710_974,
+		});
+		onProgress?.({
+			status: 'progress',
+			file: 'decoder_model_merged.onnx',
+			progress: 100,
+			loaded: 485_710_974,
+			total: 485_710_974,
 		});
 		onProgress?.({status: 'done', file: 'encoder_model.onnx'});
 		onProgress?.({status: 'ready'});
@@ -260,17 +261,46 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 	expect(disposed).toBe(true);
 });
 
-test('reports aggregate model progress without moving backwards', async () => {
+test('reports model progress without reaching 100% before every file loads', async () => {
 	const {disposeWhisperModel, loadWhisperModel} = await import('../index');
-	const progressValues: Array<number | null> = [];
+	const progressValues: Array<{
+		progress: number | null;
+		loadedBytes: number | null;
+		totalBytes: number | null;
+	}> = [];
 	await loadWhisperModel({
 		backend: 'wasm',
 		model: 'medium.en',
 		onProgress: (progress) => {
-			progressValues.push(progress.progress);
+			progressValues.push({
+				progress: progress.progress,
+				loadedBytes: progress.loadedBytes,
+				totalBytes: progress.totalBytes,
+			});
 		},
 	});
 
-	expect(progressValues).toEqual([0, 0.4, 0.4, 0.6, 1]);
+	expect(progressValues[0]).toEqual({
+		progress: 0,
+		loadedBytes: 0,
+		totalBytes: 985_710_974,
+	});
+	expect(progressValues.at(-1)).toEqual({
+		progress: 1,
+		loadedBytes: 985_710_974,
+		totalBytes: 985_710_974,
+	});
+	const downloading = progressValues.slice(0, -1);
+	expect(
+		downloading.every(({progress}) => progress !== null && progress < 1),
+	).toBe(true);
+	expect(downloading.map(({loadedBytes}) => loadedBytes)).toEqual([
+		0, 500_000_000, 600_000_000, 985_710_974,
+	]);
+	expect(downloading.map(({progress}) => progress)).toEqual(
+		[0, 500_000_000, 600_000_000, 985_710_974].map((loaded) =>
+			Math.min(loaded / 985_710_974, 0.99),
+		),
+	);
 	await disposeWhisperModel({backend: 'wasm', model: 'medium.en'});
 });

@@ -29,27 +29,6 @@ const getCacheKey = (
 	backend: ResolvedWhisperWebGpuBackend,
 ) => `${model}:${backend}`;
 
-const normalizeProgress = (
-	event: Record<string, unknown>,
-): WhisperWebGpuModelLoadProgress => {
-	const rawProgress =
-		typeof event.progress === 'number' ? event.progress : null;
-
-	return {
-		status: typeof event.status === 'string' ? event.status : 'progress',
-		file: typeof event.file === 'string' ? event.file : null,
-		progress:
-			rawProgress === null
-				? null
-				: Math.max(
-						0,
-						Math.min(1, rawProgress > 1 ? rawProgress / 100 : rawProgress),
-					),
-		loadedBytes: typeof event.loaded === 'number' ? event.loaded : null,
-		totalBytes: typeof event.total === 'number' ? event.total : null,
-	};
-};
-
 export type LoadWhisperModelOptions = {
 	model: WhisperWebGpuModel;
 	backend?: WhisperWebGpuBackend;
@@ -68,6 +47,11 @@ export const loadWhisperModel = async ({
 }: LoadWhisperModelOptions): Promise<LoadWhisperModelResult> => {
 	const resolvedBackend = await resolveBackend(backend);
 	const cacheKey = getCacheKey(model, resolvedBackend);
+	const modelInfo = getModelInfo(model);
+	const totalBytes =
+		resolvedBackend === 'webgpu'
+			? modelInfo.webGpuDownloadSize
+			: modelInfo.wasmDownloadSize;
 	const existing = pipelines.get(cacheKey);
 	if (existing) {
 		await existing;
@@ -75,8 +59,8 @@ export const loadWhisperModel = async ({
 			status: 'ready',
 			file: null,
 			progress: 1,
-			loadedBytes: null,
-			totalBytes: null,
+			loadedBytes: totalBytes,
+			totalBytes,
 		});
 		return {backend: resolvedBackend, alreadyLoaded: true};
 	}
@@ -91,10 +75,11 @@ export const loadWhisperModel = async ({
 		file: null,
 		progress: 0,
 		loadedBytes: 0,
-		totalBytes: null,
+		totalBytes,
 	});
 
-	const {modelId} = getModelInfo(model);
+	const {modelId} = modelInfo;
+	const loadedByFile = new Map<string, number>();
 	let lastProgress = 0;
 	let lastLoadedBytes = 0;
 	const loading = pipeline('automatic-speech-recognition', modelId, {
@@ -106,20 +91,31 @@ export const loadWhisperModel = async ({
 		progress_callback: onProgress
 			? (event) => {
 					const record = event as Record<string, unknown>;
-					if (record.status === 'progress_total') {
-						const normalized = normalizeProgress(record);
+					if (
+						record.status === 'progress' &&
+						typeof record.file === 'string' &&
+						typeof record.loaded === 'number' &&
+						Number.isFinite(record.loaded)
+					) {
+						loadedByFile.set(
+							record.file,
+							Math.max(loadedByFile.get(record.file) ?? 0, record.loaded),
+						);
+						const loadedBytes = [...loadedByFile.values()].reduce(
+							(sum, loaded) => sum + loaded,
+							0,
+						);
 						lastProgress = Math.max(
 							lastProgress,
-							normalized.progress ?? lastProgress,
+							Math.min(loadedBytes / totalBytes, 0.99),
 						);
-						lastLoadedBytes = Math.max(
-							lastLoadedBytes,
-							normalized.loadedBytes ?? lastLoadedBytes,
-						);
+						lastLoadedBytes = Math.max(lastLoadedBytes, loadedBytes);
 						onProgress({
-							...normalized,
+							status: 'loading',
+							file: null,
 							progress: lastProgress,
 							loadedBytes: lastLoadedBytes,
+							totalBytes,
 						});
 					}
 
@@ -128,8 +124,8 @@ export const loadWhisperModel = async ({
 							status: 'ready',
 							file: null,
 							progress: 1,
-							loadedBytes: null,
-							totalBytes: null,
+							loadedBytes: Math.max(lastLoadedBytes, totalBytes),
+							totalBytes,
 						});
 					}
 				}
