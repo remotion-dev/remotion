@@ -445,9 +445,9 @@ const renderHandler = async <Provider extends CloudProvider>({
 
 	await Promise.all(
 		[
-			fs.promises.rm(videoOutputLocation, {recursive: true}),
+			fs.promises.rm(videoOutputLocation, {recursive: true, force: true}),
 			audioOutputLocation
-				? fs.promises.rm(audioOutputLocation, {recursive: true})
+				? fs.promises.rm(audioOutputLocation, {recursive: true, force: true})
 				: null,
 			fs.promises.rm(outputPath, {recursive: true}),
 		].filter(truthy),
@@ -470,6 +470,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	requestContext,
 	insideFunctionSpecifics,
 	onMediaFiles,
+	executionMode,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -485,6 +486,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				completedAt: number;
 		  }) => Promise<void>)
 		| null;
+	executionMode: 'invoked' | 'direct';
 }): Promise<void> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -581,7 +583,11 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		});
 	} finally {
 		stopCancellationPolling();
-		if (shouldKeepBrowserOpen && instance) {
+		if (executionMode === 'direct') {
+			if (!shouldKeepBrowserOpen && instance) {
+				await instance.instance.close({silent: true});
+			}
+		} else if (shouldKeepBrowserOpen && instance) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,

@@ -24,6 +24,7 @@ import {makeStreamer} from '@remotion/streaming';
 import {Log} from '../../cli/log';
 import {mockServerImplementation} from '../mock-implementation';
 import {mockImplementation} from './mock-implementation';
+import {trackMockInvocation} from './mock-invocations';
 
 export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	AwsProvider
@@ -34,6 +35,7 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
 ) => {
+	trackMockInvocation(params.payload);
 	const responseStream = new ResponseStream();
 
 	const {onData, clear} = makeStreamer(
@@ -95,6 +97,7 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 >(
 	params: CallFunctionOptions<T, AwsProvider>,
 ) => {
+	trackMockInvocation(params.payload);
 	const responseStream = new ResponseStream();
 	await innerHandler<AwsProvider>({
 		context: {

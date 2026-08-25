@@ -4,11 +4,12 @@ import {tmpdir} from 'node:os';
 import path from 'path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless';
+import {rendersPrefix, ServerlessRoutines} from '@remotion/serverless';
 import {mockImplementation} from '../../mocks/mock-implementation';
+import {getMockInvocationTypesForRender} from '../../mocks/mock-invocations';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
-test('Should make muted render audio', async () => {
+test('Should directly make a muted render with one Lambda', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'h264',
 		composition: 'framer',
@@ -18,6 +19,7 @@ test('Should make muted render audio', async () => {
 		region: 'eu-central-1',
 		inputProps: {},
 		muted: true,
+		concurrency: 1,
 	});
 
 	const tmpfile = path.join(tmpdir(), 'out.mp4');
@@ -40,6 +42,11 @@ test('Should make muted render audio', async () => {
 	});
 
 	expect(out.stdout).not.toContain('Audio');
+	expect(getMockInvocationTypesForRender(renderId)).toEqual([
+		ServerlessRoutines.launch,
+	]);
+	expect(progress.renderMetadata?.estimatedTotalLambdaInvokations).toBe(1);
+	expect(progress.renderMetadata?.estimatedRenderLambdaInvokations).toBe(0);
 
 	unlinkSync(tmpfile);
 
