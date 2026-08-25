@@ -40,10 +40,6 @@ export const inspectorOverviewSection: React.CSSProperties = {
 	flexDirection: 'column',
 };
 
-export const inspectorSectionDivider: React.CSSProperties = {
-	borderBottom: `1px solid ${LINE_COLOR}`,
-};
-
 export const sequenceHeaderDivider: React.CSSProperties = {
 	backgroundColor: LINE_COLOR,
 	flexShrink: 0,

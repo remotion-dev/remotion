@@ -19,7 +19,6 @@ import {
 	detailValue,
 	inspectorQuickActionsSection,
 	inspectorSectionBody,
-	inspectorSectionDivider,
 	resolveLinkStyle,
 	sectionHeader,
 } from './styles';
@@ -28,18 +27,9 @@ export const InspectorSectionHeader: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => <div style={sectionHeader}>{children}</div>;
 
-export const InspectorSectionDivider: React.FC = () => (
-	<div style={inspectorSectionDivider} />
-);
-
 export const InspectorQuickActionsSection: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => (
-	<>
-		<InspectorSectionDivider />
-		<div style={inspectorQuickActionsSection}>{children}</div>
-	</>
-);
+}> = ({children}) => <div style={inspectorQuickActionsSection}>{children}</div>;
 
 export const InspectorSection: React.FC<{
 	readonly children: React.ReactNode;
@@ -47,7 +37,6 @@ export const InspectorSection: React.FC<{
 }> = ({children, header}) => {
 	return (
 		<>
-			<InspectorSectionDivider />
 			<InspectorSectionHeader>{header}</InspectorSectionHeader>
 			{children === null ? null : (
 				<div style={inspectorSectionBody}>{children}</div>
