@@ -15,7 +15,7 @@ const labelRowStyle: React.CSSProperties = {
 };
 
 const trackStyle: React.CSSProperties = {
-	backgroundColor: '#292929',
+	backgroundColor: '#1f2428',
 	borderRadius: 2,
 	height: 4,
 	overflow: 'hidden',
@@ -24,7 +24,7 @@ const trackStyle: React.CSSProperties = {
 };
 
 const fillStyle: React.CSSProperties = {
-	backgroundColor: '#0b84f3',
+	backgroundColor: '#2f363d',
 	borderRadius: 2,
 	height: '100%',
 	transition: 'width 100ms linear',
