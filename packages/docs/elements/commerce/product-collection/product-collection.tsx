@@ -7,7 +7,6 @@ import {
 	Sequence,
 	interpolate,
 	useCurrentFrame,
-	useVideoConfig,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
@@ -18,6 +17,8 @@ loadFont('normal', {
 	subsets: ['latin'],
 	weights: ['500', '600', '700'],
 });
+
+export const productCollectionDurationInFrames = 150;
 
 type ProductCardProps = InteractiveBaseProps &
 	Omit<InteractiveTransformProps, 'style'> & {
@@ -97,11 +98,10 @@ const ProductCardInner = forwardRef<
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
 		const frame = useCurrentFrame();
-		const {durationInFrames} = useVideoConfig();
 		const lastProductIndex = Math.max(0, count - 1);
 		const rawScrollPosition = interpolate(
 			frame,
-			[24, durationInFrames - 28],
+			[24, productCollectionDurationInFrames - 28],
 			[0, lastProductIndex],
 			{
 				extrapolateLeft: 'clamp',
@@ -222,7 +222,7 @@ const ProductCardInner = forwardRef<
 									objectPosition: '50% 50%',
 									scale: interpolate(
 										frame,
-										[0, durationInFrames - 1],
+										[0, productCollectionDurationInFrames - 1],
 										[1.06, 1.01],
 										{
 											easing: Easing.inOut(Easing.quad),
@@ -355,7 +355,6 @@ const ProductCard = Interactive.withSchema({
 
 export const ProductCollection = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames: collectionDurationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div
@@ -373,8 +372,8 @@ export const ProductCollection = () => {
 					[
 						0,
 						10,
-						collectionDurationInFrames - 8,
-						collectionDurationInFrames - 1,
+						productCollectionDurationInFrames - 8,
+						productCollectionDurationInFrames - 1,
 					],
 					[0, 1, 1, 0],
 					{
@@ -390,8 +389,8 @@ export const ProductCollection = () => {
 					[
 						0,
 						16,
-						collectionDurationInFrames - 8,
-						collectionDurationInFrames - 1,
+						productCollectionDurationInFrames - 8,
+						productCollectionDurationInFrames - 1,
 					],
 					[0.97, 1, 1, 0.98],
 					{
@@ -408,8 +407,8 @@ export const ProductCollection = () => {
 					[
 						0,
 						16,
-						collectionDurationInFrames - 8,
-						collectionDurationInFrames - 1,
+						productCollectionDurationInFrames - 8,
+						productCollectionDurationInFrames - 1,
 					],
 					['0px 30px', '0px 0px', '0px 0px', '0px -20px'],
 					{

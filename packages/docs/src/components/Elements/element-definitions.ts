@@ -10,7 +10,10 @@ import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburs
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
-import {ProductCollection} from '../../../elements/commerce/product-collection/product-collection';
+import {
+	ProductCollection,
+	productCollectionDurationInFrames,
+} from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
@@ -431,7 +434,7 @@ const elementImplementations = {
 		description:
 			'An animated product carousel that adapts to changing catalog images, titles, prices, and promotions.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
-		durationInFrames: 150,
+		durationInFrames: productCollectionDurationInFrames,
 		elementHeight: 1020,
 		elementWidth: 1020,
 		fps: 30,
