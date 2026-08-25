@@ -202,13 +202,25 @@ const getElementOutlinePoints = (
 		: rectToPoints(elementRect, containerRect);
 };
 
-const mixPoint = (
+export const clampCanvasOutlineValue = (
+	value: number,
+	min: number,
+	max: number,
+): number => Math.min(max, Math.max(min, value));
+
+export const mixCanvasOutlineValues = (
+	from: number,
+	to: number,
+	progress: number,
+): number => from + (to - from) * progress;
+
+export const mixCanvasOutlinePoints = (
 	from: CanvasOutlinePoint,
 	to: CanvasOutlinePoint,
 	progress: number,
 ): CanvasOutlinePoint => ({
-	x: from.x + (to.x - from.x) * progress,
-	y: from.y + (to.y - from.y) * progress,
+	x: mixCanvasOutlineValues(from.x, to.x, progress),
+	y: mixCanvasOutlineValues(from.y, to.y, progress),
 });
 
 type ProjectiveTransform = {
@@ -221,6 +233,8 @@ type ProjectiveTransform = {
 	readonly g: number;
 	readonly h: number;
 };
+
+const projectiveEpsilon = 0.000001;
 
 const getProjectiveTransform = (
 	points: CanvasOutline['points'],
@@ -235,9 +249,9 @@ const getProjectiveTransform = (
 
 	let g = 0;
 	let h = 0;
-	if (Math.abs(dx3) > 0.000001 || Math.abs(dy3) > 0.000001) {
+	if (Math.abs(dx3) > projectiveEpsilon || Math.abs(dy3) > projectiveEpsilon) {
 		const determinant = dx1 * dy2 - dx2 * dy1;
-		if (Math.abs(determinant) < 0.000001) {
+		if (Math.abs(determinant) < projectiveEpsilon) {
 			return null;
 		}
 
@@ -280,7 +294,84 @@ export const getCanvasOutlinePointAtUv = (
 	}
 
 	const [tl, tr, br, bl] = points;
-	return mixPoint(mixPoint(tl, tr, uv[0]), mixPoint(bl, br, uv[0]), uv[1]);
+	return mixCanvasOutlinePoints(
+		mixCanvasOutlinePoints(tl, tr, uv[0]),
+		mixCanvasOutlinePoints(bl, br, uv[0]),
+		uv[1],
+	);
+};
+
+const getBilinearCanvasOutlineUvForPoint = (
+	points: CanvasOutline['points'],
+	point: CanvasOutlinePoint,
+): readonly [number, number] => {
+	const [tl, tr, br, bl] = points;
+	let u = 0.5;
+	let v = 0.5;
+
+	for (let i = 0; i < 8; i++) {
+		const current = getCanvasOutlinePointAtUv(points, [u, v]);
+		const errorX = current.x - point.x;
+		const errorY = current.y - point.y;
+		if (Math.abs(errorX) + Math.abs(errorY) < 0.001) {
+			break;
+		}
+
+		const du = {
+			x: mixCanvasOutlineValues(tr.x - tl.x, br.x - bl.x, v),
+			y: mixCanvasOutlineValues(tr.y - tl.y, br.y - bl.y, v),
+		};
+		const top = mixCanvasOutlinePoints(tl, tr, u);
+		const bottom = mixCanvasOutlinePoints(bl, br, u);
+		const dv = {x: bottom.x - top.x, y: bottom.y - top.y};
+		const determinant = du.x * dv.y - du.y * dv.x;
+		if (Math.abs(determinant) < projectiveEpsilon) {
+			break;
+		}
+
+		u -= (errorX * dv.y - errorY * dv.x) / determinant;
+		v -= (du.x * errorY - du.y * errorX) / determinant;
+	}
+
+	return [u, v];
+};
+
+export const getCanvasOutlineUvForPoint = (
+	points: CanvasOutline['points'],
+	point: CanvasOutlinePoint,
+): readonly [number, number] => {
+	const transform = getProjectiveTransform(points);
+	if (transform === null) {
+		return getBilinearCanvasOutlineUvForPoint(points, point);
+	}
+
+	const determinant =
+		transform.a * (transform.e - transform.f * transform.h) -
+		transform.b * (transform.d - transform.f * transform.g) +
+		transform.c * (transform.d * transform.h - transform.e * transform.g);
+	if (Math.abs(determinant) < projectiveEpsilon) {
+		return getBilinearCanvasOutlineUvForPoint(points, point);
+	}
+
+	const inverseA = transform.e - transform.f * transform.h;
+	const inverseB = transform.c * transform.h - transform.b;
+	const inverseC = transform.b * transform.f - transform.c * transform.e;
+	const inverseD = transform.f * transform.g - transform.d;
+	const inverseE = transform.a - transform.c * transform.g;
+	const inverseF = transform.c * transform.d - transform.a * transform.f;
+	const inverseG = transform.d * transform.h - transform.e * transform.g;
+	const inverseH = transform.b * transform.g - transform.a * transform.h;
+	const inverseI = transform.a * transform.e - transform.b * transform.d;
+
+	const denominator = inverseG * point.x + inverseH * point.y + inverseI;
+	if (Math.abs(denominator) < projectiveEpsilon) {
+		return getBilinearCanvasOutlineUvForPoint(points, point);
+	}
+
+	return [
+		(inverseA * point.x + inverseB * point.y + inverseC) / denominator,
+		(inverseD * point.x + inverseE * point.y + inverseF) / denominator,
+	];
 };
 
 export const cropCanvasOutlinePoints = (

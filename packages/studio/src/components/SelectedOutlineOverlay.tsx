@@ -1,3 +1,4 @@
+import {getCanvasSelectableOutlines} from '@remotion/canvas';
 import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
@@ -38,9 +39,7 @@ import {
 	getSelectedSequenceKeys,
 	getSelectedTransformOriginInfo,
 	getSequenceKeysContainingSelection,
-	getSequencesWithSelectableOutlines,
 } from './selected-outline-measurement';
-import {orderOutlinesForRendering} from './selected-outline-order';
 import {
 	canEditSelectedOutlineCrop,
 	cropFieldKeys,
@@ -62,8 +61,6 @@ import {
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
-
-export {orderOutlinesForRendering};
 
 export {
 	applySelectedOutlineDragAxisLock,
@@ -102,8 +99,6 @@ export {
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationPivot,
 	getSelectedSequenceKeys,
-	getSequencesWithSelectableOutlines,
-	getTransformedSvgViewportPoints,
 } from './selected-outline-measurement';
 export {selectedOutlineDragThresholdPx} from './selected-outline-types';
 
@@ -185,7 +180,7 @@ const getCropDragFields = ({
 	return fields as SelectedOutlineCropDragTarget['fields'];
 };
 
-type SelectableOutlines = ReturnType<typeof getSequencesWithSelectableOutlines>;
+type SelectableOutlines = ReturnType<typeof getCanvasSelectableOutlines>;
 
 type CalculateOutlineTargetsOptions = {
 	readonly mode: 'controls' | 'layout';
@@ -674,7 +669,7 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 	) => SelectedOutlineTarget | undefined;
 	readonly getSelectableOutlines: (
 		timelinePosition: number,
-	) => ReturnType<typeof getSequencesWithSelectableOutlines>;
+	) => ReturnType<typeof getCanvasSelectableOutlines>;
 	readonly hoveredTimelineNodePathKey: string | null;
 	readonly measureAllOutlines: boolean;
 	readonly onDraggingChange: (dragging: boolean) => void;
@@ -896,7 +891,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 				return [];
 			}
 
-			return getSequencesWithSelectableOutlines({
+			return getCanvasSelectableOutlines({
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				compositions,
@@ -961,9 +956,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	const getSelectableOutlinesRef = useRef(getSelectableOutlines);
 	const selectableOutlinesCacheRef = useRef<{
 		readonly getSelectableOutlines: typeof getSelectableOutlines;
-		readonly selectableOutlines: ReturnType<
-			typeof getSequencesWithSelectableOutlines
-		>;
+		readonly selectableOutlines: ReturnType<typeof getCanvasSelectableOutlines>;
 		readonly timelinePosition: number;
 	} | null>(null);
 	useLayoutEffect(() => {

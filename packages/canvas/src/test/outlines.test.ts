@@ -1,8 +1,25 @@
 import {expect, test} from 'bun:test';
 import {
 	createCanvasOutlinesController,
+	getCanvasOutlinePointAtUv,
+	getCanvasOutlineUvForPoint,
 	type CanvasOutlineTarget,
 } from '../index';
+
+test('projects outline UV coordinates in both directions', () => {
+	const points = [
+		{x: 10, y: 20},
+		{x: 180, y: 5},
+		{x: 140, y: 130},
+		{x: 30, y: 100},
+	] as const;
+	const uv = [0.35, 0.7] as const;
+	const point = getCanvasOutlinePointAtUv(points, uv);
+	const projectedUv = getCanvasOutlineUvForPoint(points, point);
+
+	expect(projectedUv[0]).toBeCloseTo(uv[0]);
+	expect(projectedUv[1]).toBeCloseTo(uv[1]);
+});
 
 test('publishes cropped outline geometry and keeps unchanged snapshots stable', () => {
 	const controller = createCanvasOutlinesController();

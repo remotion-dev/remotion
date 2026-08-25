@@ -1,13 +1,6 @@
-export {
-	cropCanvasOutlinePoints as cropOutlinePoints,
-	getTransformedSvgViewportPoints,
-} from '@remotion/canvas';
-import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
 import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
 import {mixPoint} from './selected-outline-geometry';
-import type {SequenceWithSelectedOutline} from './selected-outline-types';
 import {
 	cropFieldKeys,
 	rotateFieldKey,
@@ -415,49 +408,4 @@ export const getSelectedRotationInfo = (
 				? selectedItem.frame
 				: selectedItem.fromFrame,
 	};
-};
-
-export const getSequencesWithSelectableOutlines = ({
-	sequences,
-	overrideIdsToNodePaths,
-	compositions = [],
-	timelinePosition,
-}: {
-	readonly sequences: readonly TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
-	readonly compositions?: readonly _InternalTypes['AnyComposition'][];
-	readonly timelinePosition: number;
-}): SequenceWithSelectedOutline[] => {
-	return calculateTimeline({
-		sequences: [...sequences],
-		overrideIdsToNodePaths,
-		compositions,
-	})
-		.filter((track) => {
-			if (track.nodePathInfo === null) {
-				return false;
-			}
-
-			return (
-				track.sequence.showInTimeline &&
-				timelinePosition >= track.sequence.from &&
-				timelinePosition < track.sequence.from + track.sequence.duration &&
-				track.nodePathInfo.auxiliaryKeys.length === 0
-			);
-		})
-		.filter((track) => track.sequence.refForOutline !== null)
-		.sort((a, b) => a.depth - b.depth)
-		.map((track) => {
-			if (track.nodePathInfo === null) {
-				throw new Error('Expected selected outline to have a node path');
-			}
-
-			return {
-				depth: track.depth,
-				keyframeDisplayOffset: track.keyframeDisplayOffset,
-				key: getTimelineSequenceSelectionKey(track.nodePathInfo),
-				nodePathInfo: track.nodePathInfo,
-				sequence: track.sequence,
-			};
-		});
 };

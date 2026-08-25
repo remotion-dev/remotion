@@ -1,4 +1,8 @@
-import {useCanvasOutlines, useCanvasOutlinesController} from '@remotion/canvas';
+import {
+	orderCanvasOutlinesForRendering,
+	useCanvasOutlines,
+	useCanvasOutlinesController,
+} from '@remotion/canvas';
 import React, {
 	useCallback,
 	useEffect,
@@ -13,7 +17,6 @@ import {
 } from '../state/timeline-sequence-hover';
 import {ContextMenuForTarget} from './ContextMenu';
 import type {SelectedOutline} from './selected-outline-geometry';
-import {orderOutlinesForRendering} from './selected-outline-order';
 import type {
 	SelectedOutlineContextMenuOpenHandler,
 	SelectedOutlineLayoutTarget,
@@ -59,7 +62,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	) => void;
 	readonly scale: number;
 	readonly sequences: Parameters<
-		typeof orderOutlinesForRendering
+		typeof orderCanvasOutlinesForRendering
 	>[0]['sequences'];
 	readonly updateOutlinesRef: React.MutableRefObject<() => void>;
 }> = ({
@@ -153,7 +156,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const outlineRenderingOrderRef = useRef<readonly string[]>([]);
 	const outlinesForRendering = useMemo(() => {
 		if (!dragging || outlineRenderingOrderRef.current.length === 0) {
-			const orderedOutlines = orderOutlinesForRendering({
+			const orderedOutlines = orderCanvasOutlinesForRendering({
 				outlines: renderState.outlines,
 				sequences,
 				targetsByKey,

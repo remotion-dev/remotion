@@ -218,14 +218,6 @@ export type SelectedOutlineRotationDragState = {
 	readonly target: SelectedOutlineRotationDragTarget;
 };
 
-export type SequenceWithSelectedOutline = {
-	readonly depth: number;
-	readonly keyframeDisplayOffset: number;
-	readonly key: string;
-	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly sequence: TSequence;
-};
-
 export const translateFieldKey = 'style.translate';
 export const scaleFieldKey = 'style.scale';
 export const rotateFieldKey = 'style.rotate';
