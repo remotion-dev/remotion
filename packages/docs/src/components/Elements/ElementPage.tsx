@@ -15,6 +15,7 @@ import React, {
 } from 'react';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
+import {getBrowserStudioEndpoint} from './browser-studio-endpoint';
 import type {ElementDefinition} from './element-definitions';
 import {
 	createElementPayloadFromDefinition,
@@ -131,7 +132,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		}
 
 		StudioProtocolInternals.openInBrowserStudio({
-			endpoint: null,
+			endpoint: getBrowserStudioEndpoint(window.location),
 			payload: elementPayload,
 		});
 	}, [elementPayload]);
