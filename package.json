@@ -76,8 +76,7 @@
 		"@typescript/native-preview": "catalog:",
 		"p-limit": "7.2.0",
 		"turbo": "2.9.14",
-		"typescript": "5.9.3",
-		"websocket-driver": "0.7.5"
+		"typescript": "5.9.3"
 	},
 	"packageManager": "bun@1.3.3",
 	"overrides": {
@@ -88,7 +87,8 @@
 		"@remix-run/node": "2.17.4",
 		"@remix-run/react": "2.17.4",
 		"@remix-run/serve": "2.17.4",
-		"@remix-run/server-runtime": "2.17.4"
+		"@remix-run/server-runtime": "2.17.4",
+		"websocket-driver": "0.7.5"
 	},
 	"workspaces": {
 		"packages": [
