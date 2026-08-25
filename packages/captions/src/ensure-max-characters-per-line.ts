@@ -15,6 +15,9 @@ const splitWords = (inputCaptions: Caption[]): Caption[] => {
 				endMs: w.endMs,
 				confidence: w.confidence,
 				timestampMs: w.timestampMs,
+				...(j === words.length - 1 && w.pageBreakAfter
+					? {pageBreakAfter: true}
+					: {}),
 			});
 		}
 	}
@@ -59,8 +62,15 @@ export const ensureMaxCharactersPerLine = ({
 		}
 
 		currentSegment.push(w);
+		if (w.pageBreakAfter && i < splitted.length - 1) {
+			segments.push(currentSegment);
+			currentSegment = [];
+		}
 	}
 
-	segments.push(currentSegment);
+	if (currentSegment.length > 0) {
+		segments.push(currentSegment);
+	}
+
 	return {segments};
 };

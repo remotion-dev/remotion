@@ -7,6 +7,7 @@
 		"target": "ES2022",
 		"module": "es2020",
 		"moduleResolution": "bundler",
+		"allowJs": true,
 		"declaration": true,
 		"emitDeclarationOnly": true
 	},

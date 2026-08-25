@@ -1,6 +1,15 @@
 import type {Caption} from '@remotion/captions';
 import React, {useCallback, useEffect, useMemo, useRef} from 'react';
-import {BACKGROUND, LIGHT_TEXT, LINE_COLOR, WHITE} from '../helpers/colors';
+import {
+	BACKGROUND,
+	BLUE,
+	LIGHT_TEXT,
+	LINE_COLOR,
+	WHITE,
+} from '../helpers/colors';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
+import {EnterIcon} from '../icons/enter';
+import {InlineAction} from './InlineAction';
 import {RemotionInput} from './NewComposition/RemInput';
 
 const container: React.CSSProperties = {
@@ -21,8 +30,8 @@ const row: React.CSSProperties = {
 	alignItems: 'center',
 	borderBottom: `1px solid ${LINE_COLOR}`,
 	display: 'grid',
-	gap: 12,
-	gridTemplateColumns: '100px minmax(0, 1fr)',
+	gap: 8,
+	gridTemplateColumns: '100px minmax(0, 1fr) 24px',
 	padding: '5px 12px',
 };
 
@@ -89,15 +98,19 @@ export const CaptionTextEditor: React.FC<{
 		return commitPending;
 	}, [commitPending]);
 
-	const updateText = useCallback(
-		(index: number, text: string) => {
-			if (latestRef.current.captions[index]?.text === text) {
+	const updateCaption = useCallback(
+		(
+			index: number,
+			changes: Partial<Pick<Caption, 'text' | 'pageBreakAfter'>>,
+		) => {
+			const currentCaption = latestRef.current.captions[index];
+			if (!currentCaption) {
 				return;
 			}
 
 			const nextCaptions = latestRef.current.captions.map(
 				(caption, captionIndex) => {
-					return captionIndex === index ? {...caption, text} : caption;
+					return captionIndex === index ? {...caption, ...changes} : caption;
 				},
 			);
 			latestRef.current.captions = nextCaptions;
@@ -105,6 +118,31 @@ export const CaptionTextEditor: React.FC<{
 			onChange(nextCaptions);
 		},
 		[onChange],
+	);
+
+	const updateText = useCallback(
+		(index: number, text: string) => {
+			if (latestRef.current.captions[index]?.text === text) {
+				return;
+			}
+
+			updateCaption(index, {text});
+		},
+		[updateCaption],
+	);
+
+	const updatePageBreakAfter = useCallback(
+		(index: number, pageBreakAfter: boolean) => {
+			if (
+				Boolean(latestRef.current.captions[index]?.pageBreakAfter) ===
+				pageBreakAfter
+			) {
+				return;
+			}
+
+			updateCaption(index, {pageBreakAfter});
+		},
+		[updateCaption],
 	);
 
 	const focusSibling = useCallback((index: number) => {
@@ -120,6 +158,11 @@ export const CaptionTextEditor: React.FC<{
 			<div ref={listRef} style={list}>
 				{captions.length === 0 ? <div style={empty}>No captions</div> : null}
 				{captionRows.map(({caption, key}, index) => {
+					const hasPageBreakAfter = Boolean(caption.pageBreakAfter);
+					const pageBreakTitle = hasPageBreakAfter
+						? `Remove page break after caption ${index + 1}`
+						: `Add page break after caption ${index + 1}`;
+
 					return (
 						<div key={key} style={row}>
 							<div style={timing}>
@@ -170,6 +213,25 @@ export const CaptionTextEditor: React.FC<{
 									lineHeight: '16px',
 								}}
 								value={caption.text}
+							/>
+							<InlineAction
+								aria-pressed={hasPageBreakAfter}
+								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+								disabled={readOnly}
+								onClick={() => {
+									updatePageBreakAfter(index, !hasPageBreakAfter);
+									commitPending();
+								}}
+								renderAction={(color) => (
+									<EnterIcon
+										aria-hidden="true"
+										color={hasPageBreakAfter ? BLUE : color}
+										focusable="false"
+										style={{height: 16, width: 16}}
+									/>
+								)}
+								title={pageBreakTitle}
+								variant={null}
 							/>
 						</div>
 					);

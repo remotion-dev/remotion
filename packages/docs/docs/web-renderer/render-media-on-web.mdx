@@ -209,6 +209,37 @@ _number_
 The [audio sample rate](/docs/sample-rate) in Hz.  
 Default is `48000`.
 
+### `metadata?`<AvailableFrom v="4.0.517" />
+
+_object_ <TsType type="MetadataTags" source="mediabunny" href="https://mediabunny.dev/api/MetadataTags" />
+
+Metadata to embed in the output media. See [Mediabunny's metadata documentation](https://mediabunny.dev/guide/reading-media-files#reading-metadata-tags) for the available fields.
+
+```tsx twoslash title="Set output metadata"
+const Component: React.FC = () => null;
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+await renderMediaOnWeb({
+  composition: {
+    component: Component,
+    durationInFrames: 100,
+    fps: 30,
+    width: 1920,
+    height: 1080,
+    id: 'my-composition',
+  },
+  metadata: {
+    title: 'My video',
+    artist: 'Remotion user',
+    comment: 'My comment',
+  },
+});
+```
+
+Remotion adds `Made with Remotion <version>` to the comment. If you pass a comment, it is appended after this text.
+
 ### `delayRenderTimeoutInMilliseconds?`
 
 _number_

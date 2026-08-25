@@ -14,7 +14,7 @@ type CommandHandler = (
 	ctx: ExtensionCommandContext,
 ) => unknown | Promise<unknown>;
 
-test('queues user messages outside the temporary commit worker branch', async () => {
+test('queues user messages outside the temporary commit worker branch with prompt expansion enabled', async () => {
 	const handlers = new Map<string, Handler>();
 	let commitCommand: CommandHandler | undefined;
 	let leafId = 'source-leaf';
@@ -116,15 +116,21 @@ test('queues user messages outside the temporary commit worker branch', async ()
 	expect(leafId).toBe('source-leaf');
 	expect(sentCustomMessages.at(-1)?.customType).toBe('remotion-commit-result');
 	expect(sentUserMessages).toEqual([
-		{content: 'Do not steer the worker', options: undefined},
+		{
+			content: 'Do not steer the worker',
+			options: {expandPromptTemplates: true},
+		},
 	]);
 
 	await handlers.get('agent_start')?.({}, context);
 	expect(sentUserMessages).toEqual([
-		{content: 'Do not steer the worker', options: undefined},
+		{
+			content: 'Do not steer the worker',
+			options: {expandPromptTemplates: true},
+		},
 		{
 			content: 'Run this after the worker exits',
-			options: {deliverAs: 'followUp'},
+			options: {deliverAs: 'followUp', expandPromptTemplates: true},
 		},
 	]);
 });

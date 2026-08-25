@@ -101,6 +101,7 @@ test('<MacOSCursor> renders the default cursor when the cursor prop is omitted',
 		],
 		folders: [],
 		canvasContent: {type: 'composition' as const, compositionId: 'comp'},
+		currentAssetMetadata: null,
 		currentCompositionMetadata: compositionMetadata,
 	} as React.ContextType<typeof Internals.CompositionManager>;
 	const timeline = {

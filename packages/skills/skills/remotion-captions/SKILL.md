@@ -1,7 +1,7 @@
 ---
 name: remotion-captions
 description: Transcribing, displaying and animating captions
-version: 4.0.516
+version: 4.0.517
 ---
 
 All captions must be processed in JSON. The captions must use the [`Caption`](https://www.remotion.dev/docs/captions/caption.md) type which is the following:
@@ -19,6 +19,7 @@ type Caption = {
   endMs: number;
   timestampMs: number | null;
   confidence: number | null;
+  pageBreakAfter?: boolean;
 };
 ```
 

@@ -74,7 +74,7 @@ export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
 		setPlaybackRate,
 	});
 
-	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
+	if (isStill || canvasContent === null) {
 		return null;
 	}
 

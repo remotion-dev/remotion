@@ -40,11 +40,13 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 		canvasContent && canvasContent.type === 'composition'
 			? canvasContent.compositionId
 			: null;
+	// Asset previews have a synthetic video config, but no composition ID
+	// with which to look up a persisted timeline zoom.
 	const zoom = compositionId
 		? (zoomMap[compositionId] ?? TIMELINE_MIN_ZOOM)
-		: null;
+		: TIMELINE_MIN_ZOOM;
 
-	if (zoom && video) {
+	if (video) {
 		setCurrentFrame(timelinePosition);
 		setCurrentZoom(zoom);
 		setCurrentDuration(video.durationInFrames);

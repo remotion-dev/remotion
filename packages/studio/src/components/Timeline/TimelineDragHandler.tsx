@@ -65,14 +65,19 @@ export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
 
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {canvasContent, currentAssetMetadata} = useContext(
+		Internals.CompositionManager,
+	);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!canvasContent || canvasContent.type !== 'composition') {
+		if (!canvasContent) {
 			return {};
 		}
 
-		const zoom = zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
+		const zoom =
+			canvasContent.type === 'composition'
+				? (zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM)
+				: TIMELINE_MIN_ZOOM;
 		return {
 			...container,
 			width: 100 * zoom + '%',
@@ -80,7 +85,11 @@ export const TimelineDragHandler: React.FC = () => {
 		};
 	}, [canvasContent, zoomMap]);
 
-	if (!canvasContent || canvasContent.type !== 'composition') {
+	const hasPlayableContent =
+		canvasContent?.type === 'composition' ||
+		(canvasContent?.type === 'asset' &&
+			currentAssetMetadata?.asset === canvasContent.asset);
+	if (!hasPlayableContent) {
 		return null;
 	}
 

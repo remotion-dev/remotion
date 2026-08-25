@@ -283,6 +283,8 @@ describe('Element library', () => {
 			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
 		);
 		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
+			'storytelling/on-screen-messages':
+				completeSourceCodeBySlug['storytelling/on-screen-messages'],
 			'storytelling/polaroid-pictures':
 				completeSourceCodeBySlug['storytelling/polaroid-pictures'],
 			'text/news-article-highlight':
@@ -503,6 +505,11 @@ describe('Elements sidebar', () => {
 		const categories = elementsCategory.items.slice(3);
 		const expectedCategories = [
 			{
+				category: 'audio',
+				label: 'Audio',
+				items: ['audio/mirrored-spectrum/index'],
+			},
+			{
 				category: 'backgrounds',
 				label: 'Backgrounds',
 				items: [
@@ -559,6 +566,7 @@ describe('Elements sidebar', () => {
 				label: 'Storytelling',
 				items: [
 					'text/news-article-highlight/index',
+					'storytelling/on-screen-messages/index',
 					'storytelling/polaroid-pictures/index',
 				],
 			},
@@ -655,6 +663,7 @@ describe('Element preview definitions', () => {
 
 	test('only Elements with one interactive timeline item own their Sequence', () => {
 		const componentOwnedSequenceSlugs = new Set([
+			'audio/mirrored-spectrum',
 			'captions/moving-pill-captions',
 			'captions/popping-word-captions',
 			'captions/word-highlight-captions',
