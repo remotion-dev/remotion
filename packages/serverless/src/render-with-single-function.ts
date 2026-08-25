@@ -56,7 +56,6 @@ export const renderWithSingleFunction = async <Provider extends CloudProvider>({
 		},
 		onStream: (message) => {
 			if (message.type === 'lambda-invoked') {
-				overallProgress.setLambdaInvoked(payload.chunk);
 				return Promise.resolve();
 			}
 

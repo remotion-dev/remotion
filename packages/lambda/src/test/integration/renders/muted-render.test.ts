@@ -5,6 +5,7 @@ import path from 'path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
 import {rendersPrefix, ServerlessRoutines} from '@remotion/serverless';
+import {makeProgressString} from '../../../cli/commands/render/progress';
 import {mockImplementation} from '../../mocks/mock-implementation';
 import {getMockInvocationTypesForRender} from '../../mocks/mock-invocations';
 import {simulateLambdaRender} from '../simulate-lambda-render';
@@ -47,6 +48,12 @@ test('Should directly make a muted render with one Lambda', async () => {
 	]);
 	expect(progress.renderMetadata?.estimatedTotalLambdaInvokations).toBe(1);
 	expect(progress.renderMetadata?.estimatedRenderLambdaInvokations).toBe(0);
+	const progressString = makeProgressString({
+		downloadInfo: null,
+		overall: progress,
+	});
+	expect(progressString).toContain('Invoked lambdas');
+	expect(progressString).not.toContain('1/0');
 
 	unlinkSync(tmpfile);
 
