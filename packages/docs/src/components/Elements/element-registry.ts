@@ -14,6 +14,10 @@ export const elementCategories = [
 export type ElementCategory = (typeof elementCategories)[number]['category'];
 
 export const elementRegistry = {
+	'audio/oscilloscope': {
+		category: 'audio',
+		displayName: 'Audio Oscilloscope',
+	},
 	'audio/mirrored-spectrum': {
 		category: 'audio',
 		displayName: 'Mirrored Audio Spectrum',

@@ -4,6 +4,7 @@ import type {
 } from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
 import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/mirrored-spectrum';
+import {AudioOscilloscope} from '../../../elements/audio/oscilloscope/audio-oscilloscope';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
@@ -74,6 +75,29 @@ export type ElementDefinition = {
 };
 
 const elementImplementations = {
+	'audio/oscilloscope': {
+		component: AudioOscilloscope,
+		contributors: [{username: 'samohovets', contribution: 'Author'}],
+		description:
+			'A glowing oscilloscope waveform for visualizing voices, podcasts, and other audio.',
+		dependencies: [
+			{name: '@remotion/media', version: null},
+			{name: '@remotion/media-utils', version: null},
+		],
+		durationInFrames: 271,
+		elementHeight: 300,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 105,
+		preview: {
+			posterUrl: '/elements/audio-oscilloscope-preview.png',
+			videoUrl: '/elements/audio-oscilloscope-preview.mp4',
+		},
+		safeArea: 120,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
 	'audio/mirrored-spectrum': {
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
