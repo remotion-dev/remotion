@@ -11,6 +11,7 @@
 		"bundle": "remotion bundle",
 		"render": "remotion render",
 		"lint": "eslint src && tsgo --noEmit",
+		"test": "bun test src",
 		"formatting": "oxfmt src remotion.config.ts --check",
 		"format": "oxfmt src remotion.config.ts"
 	},

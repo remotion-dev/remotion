@@ -173,24 +173,24 @@ const countAwkwardPageBreaks = (pages: TikTokPage[]) => {
 	return awkwardBreaks;
 };
 
-const splitIntoSentences = (captions: Caption[]): Caption[][] => {
-	const sentences: Caption[][] = [];
-	let sentence: Caption[] = [];
+const splitIntoPageGroups = (captions: Caption[]): Caption[][] => {
+	const pageGroups: Caption[][] = [];
+	let pageGroup: Caption[] = [];
 
 	for (const caption of captions) {
-		sentence.push(caption);
+		pageGroup.push(caption);
 
-		if (SENTENCE_END.test(caption.text.trim())) {
-			sentences.push(sentence);
-			sentence = [];
+		if (SENTENCE_END.test(caption.text.trim()) || caption.lineBreakAfter) {
+			pageGroups.push(pageGroup);
+			pageGroup = [];
 		}
 	}
 
-	if (sentence.length > 0) {
-		sentences.push(sentence);
+	if (pageGroup.length > 0) {
+		pageGroups.push(pageGroup);
 	}
 
-	return sentences;
+	return pageGroups;
 };
 
 const toToken = (caption: Caption, isFirst: boolean): TikTokToken => ({
@@ -436,11 +436,11 @@ const rebalanceSentence = ({
 };
 
 /**
- * Never crosses a sentence boundary. When layout information is supplied, the
- * page count is derived from rendered width and a duration ceiling. Dynamic
- * programming then chooses boundaries based on line balance, timing and
- * natural phrase boundaries. Without layout information, the library's
- * time-based cadence is retained.
+ * Never crosses a sentence or forced line break boundary. When layout
+ * information is supplied, the page count is derived from rendered width and
+ * a duration ceiling. Dynamic programming then chooses boundaries based on
+ * line balance, timing and natural phrase boundaries. Without layout
+ * information, the library's time-based cadence is retained.
  */
 export const createSentenceAwareCaptionPages = ({
 	captions,
@@ -451,8 +451,8 @@ export const createSentenceAwareCaptionPages = ({
 	combineTokensWithinMilliseconds: number;
 	layout: CaptionPageLayout | null;
 }): TikTokPage[] => {
-	return splitIntoSentences(captions).flatMap((sentence) => {
-		const visibleCaptions = sentence.filter(
+	return splitIntoPageGroups(captions).flatMap((pageGroup) => {
+		const visibleCaptions = pageGroup.filter(
 			(caption) => caption.text.trim().length > 0,
 		);
 
