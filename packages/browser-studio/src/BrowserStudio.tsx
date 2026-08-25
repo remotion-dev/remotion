@@ -40,6 +40,7 @@ const localVendorEntry = new URL(
 	'./browser-studio-vendor-entry.mjs',
 	import.meta.url,
 ).href;
+const localVendorEntryWithMarker = `${localVendorEntry}?browserStudioVendor`;
 
 type BrowserStudioContentWindow = Window & {
 	remotion_browserStudioHmr: BrowserStudioHmrBridge;
@@ -365,6 +366,28 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			remotionPackageSource.version ===
 				browserStudioDependencyVersions.remotion;
 		const useVendorBundle = !hasVendorOverride && releaseMatchesVendor;
+		// Start the large, stable vendor download alongside the compiler. The
+		// iframe later executes these same bytes from a Blob URL, avoiding a
+		// second request after compilation finishes.
+		const vendorBundlePromise = useVendorBundle
+			? fetch(localVendorEntryWithMarker)
+					.then(async (response) => {
+						if (!response.ok) {
+							throw new Error(
+								`Failed to load the Browser Studio vendor bundle: ${response.status}`,
+							);
+						}
+
+						const blob = await response.blob();
+						return {
+							blob: blob.slice(0, blob.size, 'text/javascript'),
+							type: 'success' as const,
+						};
+					})
+					.catch((error: unknown) => ({error, type: 'error' as const}))
+			: null;
+		let vendorBundleUrl: string | null = null;
+
 		if (
 			!useVendorBundle &&
 			!remotionPackageSource &&
@@ -427,8 +450,30 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				return;
 			}
 
-			const bundleScriptUrl = useVendorBundle
-				? `${localVendorEntry}?projectBundleUrl=${encodeURIComponent(bundleUrlRef.current)}`
+			if (vendorBundlePromise && !vendorBundleUrl) {
+				const vendorBundleResult = await vendorBundlePromise;
+				if (didCancel) {
+					return;
+				}
+
+				if (vendorBundleResult.type === 'error') {
+					setCompileState({
+						status: 'error',
+						error: {
+							message:
+								vendorBundleResult.error instanceof Error
+									? vendorBundleResult.error.message
+									: String(vendorBundleResult.error),
+						},
+					});
+					return;
+				}
+
+				vendorBundleUrl ??= URL.createObjectURL(vendorBundleResult.blob);
+			}
+
+			const bundleScriptUrl = vendorBundleUrl
+				? `${vendorBundleUrl}#projectBundleUrl=${encodeURIComponent(bundleUrlRef.current)}`
 				: bundleUrlRef.current;
 
 			const html = studioHtml({
@@ -496,6 +541,10 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		return () => {
 			didCancel = true;
+			if (vendorBundleUrl) {
+				URL.revokeObjectURL(vendorBundleUrl);
+			}
+
 			workerRef.current = null;
 			lastSentProjectRef.current = null;
 			worker.terminate();
