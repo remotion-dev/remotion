@@ -160,6 +160,21 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 				name: 'Loading Studio',
 			});
 			await expect(loadingProgress).toBeVisible({timeout: 5000});
+			await expect(page.getByText('Loading Studio', {exact: true})).toHaveCount(
+				0,
+			);
+			await expect(page.getByText(/^\d+%$/)).toHaveCount(0);
+			const loadingLogo = page.locator('svg[viewBox="-100 -100 400 400"]');
+			await expect(loadingLogo).toBeVisible();
+			const logoBounds = await loadingLogo.boundingBox();
+			const progressBounds = await loadingProgress.boundingBox();
+			expect(logoBounds).not.toBeNull();
+			expect(progressBounds).not.toBeNull();
+			expect(progressBounds?.width).toBe(168);
+			expect(
+				(progressBounds?.y ?? 0) -
+					((logoBounds?.y ?? 0) + (logoBounds?.height ?? 0)),
+			).toBe(20);
 			releaseVendorBundleRequest();
 			await expect
 				.poll(
