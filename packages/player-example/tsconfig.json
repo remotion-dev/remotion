@@ -1,5 +1,10 @@
 {
-	"include": ["./src/**/*"],
+	"include": [
+		"./src/**/*",
+		"./pages/index.tsx",
+		"./pages/player.tsx",
+		"./pages/canvas.tsx"
+	],
 	"compilerOptions": {
 		"strict": true,
 		"esModuleInterop": true,
@@ -19,6 +24,9 @@
 		"incremental": true
 	},
 	"references": [
+		{
+			"path": "../canvas"
+		},
 		{
 			"path": "../player"
 		},

@@ -30,6 +30,12 @@ import {
 } from './buffer-state-delay-in-milliseconds';
 import type {Concurrency} from './concurrency';
 import {getConcurrency} from './concurrency';
+import type {AddElementLibraryOptions} from './element-libraries';
+import {
+	addElementLibrary,
+	getElementLibraries,
+	resetElementLibraries,
+} from './element-libraries';
 import {getEntryPoint, resetEntryPoint, setEntryPoint} from './entry-point';
 import {getDotEnvLocation} from './env-file';
 import {
@@ -70,6 +76,7 @@ import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
 
 export type {
+	AddElementLibraryOptions,
 	BundlerOverrideFn,
 	Concurrency,
 	RspackConfiguration,
@@ -617,6 +624,10 @@ declare global {
 type FlatConfig = RemotionConfigObject &
 	RemotionBundlingOptions & {
 		/**
+		 * Add an Element library to the Remotion Studio.
+		 */
+		addElementLibrary: (options: AddElementLibraryOptions) => void;
+		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
 		 */
@@ -755,6 +766,7 @@ export const Config: FlatConfig = {
 			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.',
 		);
 	},
+	addElementLibrary,
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setInteractivityEnabled: interactivityOption.setConfig,
@@ -916,6 +928,7 @@ const resetConfigOptions = () => {
 	resetBrowserSafeConfigOptions();
 	StudioServerInternals.resetMaxTimelineTracks();
 	resetBufferStateDelayInMilliseconds();
+	resetElementLibraries();
 	resetEntryPoint();
 	resetFfmpegOverrideFunction();
 	resetMetadata();
@@ -949,6 +962,7 @@ export const ConfigInternals = {
 	getEntryPoint,
 	getWebpackPolling,
 	getBufferStateDelayInMilliseconds,
+	getElementLibraries,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
 	resetConfigOptions,
 };

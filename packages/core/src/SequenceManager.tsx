@@ -37,6 +37,8 @@ export const SequenceManagerRefContext =
 		current: [],
 	});
 
+export const SequenceRegistrationContext = React.createContext(false);
+
 export type VisualModePropStatuses = {
 	propStatuses: PropStatuses;
 };

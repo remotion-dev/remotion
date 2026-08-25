@@ -1,3 +1,4 @@
+import type {CanvasOutlineTarget} from '@remotion/canvas';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
@@ -19,12 +20,11 @@ export type SelectedOutlineContextMenuOpenHandler = () =>
 	| SelectedOutlineContextMenuOpenResult
 	| Promise<SelectedOutlineContextMenuOpenResult>;
 
-export type SelectedOutlineLayoutTarget = {
+export type SelectedOutlineLayoutTarget = CanvasOutlineTarget & {
 	readonly key: string;
 	readonly containsSelection: boolean;
 	readonly keyframeDisplayOffset: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly ref: React.RefObject<Element | null>;
 	readonly selected: boolean;
 	readonly selectedForCrop: boolean;
 	readonly selectedForRotation: boolean;
@@ -34,12 +34,6 @@ export type SelectedOutlineLayoutTarget = {
 	readonly transformOriginValue: string;
 	readonly selection: TimelineSelection;
 	readonly sequence: TSequence;
-	readonly crop: {
-		readonly left: number;
-		readonly right: number;
-		readonly top: number;
-		readonly bottom: number;
-	};
 };
 
 export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
@@ -222,14 +216,6 @@ export type SelectedOutlineRotationDragState = {
 	readonly startRotation: readonly [number, number, number];
 	readonly startValue: string;
 	readonly target: SelectedOutlineRotationDragTarget;
-};
-
-export type SequenceWithSelectedOutline = {
-	readonly depth: number;
-	readonly keyframeDisplayOffset: number;
-	readonly key: string;
-	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly sequence: TSequence;
 };
 
 export const translateFieldKey = 'style.translate';

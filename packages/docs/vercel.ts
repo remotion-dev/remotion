@@ -1,7 +1,7 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
 const browserStudioIsolationHeaders = [
-	{key: 'Cross-Origin-Embedder-Policy', value: 'credentialless'},
+	{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 	{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 ];
 
@@ -131,6 +131,7 @@ export const config: VercelConfig = {
 		),
 		routes.redirect('/skia', '/docs/skia', {permanent: false}),
 		routes.redirect('/gif', '/docs/gif', {permanent: false}),
+		routes.redirect('/gsap', '/docs/gsap', {permanent: false}),
 		routes.redirect('/lottie', '/docs/lottie', {permanent: false}),
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),

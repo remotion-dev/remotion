@@ -112,7 +112,8 @@ const effectDropHighlight: React.CSSProperties = {
 	outlineOffset: -1,
 };
 
-const SEQUENCE_REORDER_MIME_TYPE = 'application/remotion-sequence-reorder';
+export const SEQUENCE_REORDER_MIME_TYPE =
+	'application/remotion-sequence-reorder';
 
 type SequenceReorderDragData = {
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -1276,12 +1277,15 @@ const TimelineSequenceItemInner: React.FC<{
 					onSaveName={onSaveName}
 				/>
 				{hasExpandableContent && nodePathInfo !== null ? (
-					<TimelineSequenceExpandArrow
-						disabled={!previewInteractive}
-						isExpanded={isExpanded}
-						nodePathInfo={nodePathInfo}
-						sequence={sequence}
-					/>
+					<>
+						<Spacing x={0.5} />
+						<TimelineSequenceExpandArrow
+							disabled={!previewInteractive}
+							isExpanded={isExpanded}
+							nodePathInfo={nodePathInfo}
+							sequence={sequence}
+						/>
+					</>
 				) : null}
 				{numberOfHiddenDuplicates > 0 ? (
 					<>

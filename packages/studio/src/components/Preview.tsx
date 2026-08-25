@@ -1,3 +1,4 @@
+import {Audio, Video} from '@remotion/media';
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {
@@ -9,21 +10,25 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {createPortal} from 'react-dom';
 import type {CanvasContent} from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, staticFile} from 'remotion';
 import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
+import {addAssetCacheBust} from '../helpers/add-asset-cache-bust';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {LIGHT_TEXT, RULER_COLOR} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {calculateStudioCanvasTransformation} from '../helpers/studio-fit-padding';
+import {AudioFileIcon} from '../icons/audio';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {RenderPreview} from './RenderPreview';
 import {SelectedOutlineOverlay} from './SelectedOutlineOverlay';
@@ -55,6 +60,7 @@ const assetMetadataErrorContainer: React.CSSProperties = {
 };
 
 const checkerboardSize = 49;
+const PIXEL_GRID_MIN_SCALE = 4;
 
 const containerStyle = (options: {
 	scale: number;
@@ -66,6 +72,9 @@ const containerStyle = (options: {
 }): React.CSSProperties => {
 	return {
 		transform: `scale(${options.scale})`,
+		// Avoid the background bleeding through opaque compositions at fractional
+		// scales due to Chromium compositing the child and background together.
+		willChange: 'transform',
 		marginLeft: options.xCorrection,
 		marginTop: options.yCorrection,
 		width: options.width,
@@ -82,6 +91,32 @@ const containerStyle = (options: {
 				checkerboardSize,
 			) /* Must be half of one side of the square */,
 	};
+};
+
+const PixelGrid: React.FC<{
+	readonly scale: number;
+}> = ({scale}) => {
+	const {editorShowPixelGrid} = useContext(EditorShowPixelGridContext);
+
+	if (!editorShowPixelGrid || scale < PIXEL_GRID_MIN_SCALE) {
+		return null;
+	}
+
+	return (
+		<div
+			aria-hidden="true"
+			className="css-reset"
+			data-testid="pixel-grid"
+			style={{
+				position: 'absolute',
+				inset: 0,
+				pointerEvents: 'none',
+				opacity: 0.35,
+				backgroundImage: `linear-gradient(to right, ${RULER_COLOR} 1px, transparent 1px), linear-gradient(to bottom, ${RULER_COLOR} 1px, transparent 1px)`,
+				backgroundSize: `${scale}px ${scale}px`,
+			}}
+		/>
+	);
 };
 
 export const VideoPreview: React.FC<{
@@ -123,7 +158,10 @@ export const VideoPreview: React.FC<{
 		);
 	}
 
-	if (contentDimensions === null) {
+	if (
+		contentDimensions === null ||
+		(canvasContent.type !== 'composition' && assetMetadata === null)
+	) {
 		return (
 			<div style={centeredContainer}>
 				<Spinner duration={0.5} size={24} />
@@ -148,6 +186,7 @@ const CompWhenItHasDimensions: React.FC<{
 	readonly assetMetadata: AssetMetadata | null;
 }> = ({contentDimensions, canvasSize, canvasContent, assetMetadata}) => {
 	const {size: previewSize} = useContext(Internals.PreviewSizeContext);
+	const {currentAssetMetadata} = useContext(Internals.CompositionManager);
 	const [canvasHovered, setCanvasHovered] = useState(false);
 	const compositionContainerRef = useRef<HTMLDivElement>(null);
 	useEffect(() => {
@@ -194,6 +233,19 @@ const CompWhenItHasDimensions: React.FC<{
 					previewSize: previewSize.size,
 				});
 	}, [canvasContent.type, canvasSize, contentDimensions, previewSize.size]);
+	const assetFileType =
+		canvasContent.type === 'asset'
+			? getPreviewFileType(canvasContent.asset)
+			: null;
+	const mediaCompositionFileType =
+		(assetFileType === 'audio' || assetFileType === 'video') &&
+		assetMetadata?.type === 'found' &&
+		assetMetadata.mediaMetadata !== null &&
+		canvasContent.type === 'asset' &&
+		currentAssetMetadata?.asset === canvasContent.asset &&
+		contentDimensions !== 'none'
+			? assetFileType
+			: null;
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
@@ -209,10 +261,14 @@ const CompWhenItHasDimensions: React.FC<{
 			left: centerX - previewSize.translation.x,
 			top: centerY - previewSize.translation.y,
 			overflow: canvasContent.type === 'composition' ? 'visible' : 'hidden',
-			justifyContent: canvasContent.type === 'asset' ? 'center' : 'flex-start',
+			justifyContent:
+				canvasContent.type === 'asset' && mediaCompositionFileType === null
+					? 'center'
+					: 'flex-start',
 			alignItems:
 				canvasContent.type === 'asset' &&
-				getPreviewFileType(canvasContent.asset) === 'audio'
+				mediaCompositionFileType === null &&
+				assetFileType === 'audio'
 					? 'center'
 					: 'normal',
 		};
@@ -224,9 +280,55 @@ const CompWhenItHasDimensions: React.FC<{
 		previewSize.translation.y,
 		centerY,
 		canvasContent,
+		mediaCompositionFileType,
+		assetFileType,
 	]);
 
 	if (canvasContent.type === 'asset') {
+		if (
+			mediaCompositionFileType !== null &&
+			assetMetadata?.type === 'found' &&
+			contentDimensions !== 'none'
+		) {
+			return (
+				<div
+					ref={compositionContainerRef}
+					className="remotion-studio-composition-container"
+					style={outer}
+				>
+					{mediaCompositionFileType === 'audio' ? (
+						<AudioFileIcon
+							aria-label="Audio asset"
+							color={LIGHT_TEXT}
+							role="img"
+							style={{
+								height: 64,
+								left: '50%',
+								opacity: 0.25,
+								pointerEvents: 'none',
+								position: 'absolute',
+								top: '50%',
+								transform: 'translate(-50%, -50%)',
+								width: 64,
+							}}
+						/>
+					) : null}
+					<PortalContainer
+						contentDimensions={contentDimensions}
+						offscreen={mediaCompositionFileType === 'audio'}
+						scale={scale}
+						xCorrection={xCorrection}
+						yCorrection={yCorrection}
+					/>
+					<AssetMediaComposition
+						asset={canvasContent.asset}
+						fetchedAt={assetMetadata.fetchedAt}
+						fileType={mediaCompositionFileType}
+					/>
+				</div>
+			);
+		}
+
 		return (
 			<div style={outer}>
 				<StaticFilePreview
@@ -268,10 +370,12 @@ const CompWhenItHasDimensions: React.FC<{
 		>
 			<PortalContainer
 				contentDimensions={contentDimensions as Dimensions}
+				offscreen={false}
 				scale={scale}
 				xCorrection={xCorrection}
 				yCorrection={yCorrection}
 			/>
+			<PixelGrid scale={scale} />
 			<SelectedOutlineOverlay
 				canvasHovered={canvasHovered}
 				compositionHeight={(contentDimensions as Dimensions).height}
@@ -284,17 +388,59 @@ const CompWhenItHasDimensions: React.FC<{
 	);
 };
 
+const AssetMediaComposition: React.FC<{
+	readonly asset: string;
+	readonly fetchedAt: number;
+	readonly fileType: 'audio' | 'video';
+}> = ({asset, fetchedAt, fileType}) => {
+	const src = addAssetCacheBust({
+		fetchedAt,
+		src: staticFile(asset),
+	});
+	const style: React.CSSProperties = {
+		width: '100%',
+		height: '100%',
+	};
+
+	return createPortal(
+		<Internals.CanUseRemotionHooksProvider>
+			<Internals.DisableInteractivityProvider>
+				<div data-testid="asset-media-preview" style={style}>
+					{fileType === 'video' ? (
+						<Video name={asset} src={src} style={style} />
+					) : (
+						<Audio name={asset} src={src} />
+					)}
+				</div>
+			</Internals.DisableInteractivityProvider>
+		</Internals.CanUseRemotionHooksProvider>,
+		Internals.portalNode(),
+	);
+};
+
 const PortalContainer: React.FC<{
+	readonly offscreen: boolean;
 	readonly scale: number;
 	readonly xCorrection: number;
 	readonly yCorrection: number;
 	readonly contentDimensions: Dimensions;
-}> = ({scale, xCorrection, yCorrection, contentDimensions}) => {
+}> = ({offscreen, scale, xCorrection, yCorrection, contentDimensions}) => {
 	const {checkerboard} = useContext(CheckerboardContext);
 	const {clearSelection} = useTimelineSelection();
 	const portalContainer = useRef<HTMLDivElement>(null);
 
 	const style = useMemo((): React.CSSProperties => {
+		if (offscreen) {
+			return {
+				height: contentDimensions.height,
+				left: -999999,
+				overflow: 'hidden',
+				position: 'fixed',
+				top: 0,
+				width: contentDimensions.width,
+			};
+		}
+
 		return containerStyle({
 			checkerboard,
 			scale,
@@ -307,6 +453,7 @@ const PortalContainer: React.FC<{
 		checkerboard,
 		contentDimensions.height,
 		contentDimensions.width,
+		offscreen,
 		scale,
 		xCorrection,
 		yCorrection,

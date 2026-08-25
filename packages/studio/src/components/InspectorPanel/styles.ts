@@ -7,6 +7,7 @@ import {
 	WHITE,
 } from '../../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 
 export const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -37,10 +38,6 @@ export const compositionVisualControlsSection: React.CSSProperties = {
 export const inspectorOverviewSection: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
-};
-
-export const inspectorSectionDivider: React.CSSProperties = {
-	borderBottom: `1px solid ${LINE_COLOR}`,
 };
 
 export const sequenceHeaderDivider: React.CSSProperties = {
@@ -190,6 +187,7 @@ export const detailRow: React.CSSProperties = {
 	display: 'flex',
 	gap: 12,
 	justifyContent: 'space-between',
+	minHeight: COMPACT_CONTROL_ROW_HEIGHT,
 };
 
 export const detailLabel: React.CSSProperties = {

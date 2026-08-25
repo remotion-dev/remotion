@@ -125,6 +125,7 @@ test('same goes for audio', async () => {
 		getSequenceDurationInSeconds: () => 10,
 		getStartTime: () => 0,
 		initialMuted: false,
+		initialVolume: 1,
 		drawDebugOverlay: () => {},
 	});
 

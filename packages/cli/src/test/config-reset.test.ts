@@ -12,6 +12,42 @@ test('Studio render defaults keep the startup log level', () => {
 	expect(getRenderDefaults('warn').logLevel).toBe('warn');
 });
 
+test('Element library configuration must be valid', () => {
+	ConfigInternals.resetConfigOptions();
+
+	expect(() => Config.addElementLibrary({url: '/elements'})).toThrow(
+		'Config.addElementLibrary() expects an absolute URL',
+	);
+	expect(() => Config.addElementLibrary({url: 'file:///tmp/elements'})).toThrow(
+		'Config.addElementLibrary() only supports HTTP and HTTPS URLs',
+	);
+	expect(() =>
+		Config.addElementLibrary(null as unknown as {url: string}),
+	).toThrow('Config.addElementLibrary() expects an object');
+	expect(() =>
+		Config.addElementLibrary([] as unknown as {url: string}),
+	).toThrow('Config.addElementLibrary() expects an object, got an array');
+	expect(() =>
+		Config.addElementLibrary({url: null as unknown as string}),
+	).toThrow('Config.addElementLibrary() expects "url" to be a string');
+	expect(() =>
+		Config.addElementLibrary({
+			url: 'https://example.com/elements',
+			displayName: 123 as unknown as string,
+		}),
+	).toThrow(
+		'Config.addElementLibrary() expects the display name to be a string',
+	);
+	expect(() =>
+		Config.addElementLibrary({
+			url: 'https://example.com/elements',
+			displayName: ' ',
+		}),
+	).toThrow(
+		'Config.addElementLibrary() expects the display name to not be empty',
+	);
+});
+
 test('Rspack can be configured using the current and deprecated APIs', () => {
 	ConfigInternals.resetConfigOptions();
 
@@ -35,6 +71,10 @@ test('reset config options restores defaults before reloading config', async () 
 
 	Config.setStudioPort(4321);
 	Config.setMaxTimelineTracks(123);
+	Config.addElementLibrary({
+		url: 'https://example.com/elements',
+		displayName: 'Example Elements',
+	});
 	Config.setChromiumOpenGlRenderer('angle');
 	Config.setCrf(12);
 	Config.setDefaultCodingAgent('codex');
@@ -69,6 +109,12 @@ test('reset config options restores defaults before reloading config', async () 
 
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 	expect(StudioServerInternals.getMaxTimelineTracks()).toBe(123);
+	expect(ConfigInternals.getElementLibraries()).toEqual([
+		{
+			displayName: 'Example Elements',
+			url: 'https://example.com/elements',
+		},
+	]);
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBe('angle');
@@ -142,6 +188,7 @@ test('reset config options restores defaults before reloading config', async () 
 
 	expect(ConfigInternals.getStudioPort()).toBeUndefined();
 	expect(StudioServerInternals.getMaxTimelineTracks()).toBeNull();
+	expect(ConfigInternals.getElementLibraries()).toEqual([]);
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBeNull();

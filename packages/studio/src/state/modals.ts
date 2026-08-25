@@ -231,6 +231,11 @@ export type ModalState =
 				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
 			} | null;
 	  }
+	| {
+			type: 'element-library';
+			name: string;
+			url: string;
+	  }
 	| AddEffectModalState
 	| ConfirmationDialogState
 	| SvgImportDialogState;

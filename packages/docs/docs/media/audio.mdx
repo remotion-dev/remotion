@@ -193,7 +193,9 @@ export const MyComposition = () => {
 ```
 
 :::note
-Playing a audio in reverse is not supported.
+Playing audio in reverse is not supported.
+
+Changing `playbackRate` also changes the audio pitch. Pitch-preserving speed changes are not supported by the Mediabunny and WebCodecs path. If the audio [falls back to `<Html5Audio>`](/docs/media/fallback) during preview or server-side rendering, audio pitch is preserved by default.
 :::
 
 ### `loop?`<AvailableFrom v="3.2.29" />

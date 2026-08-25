@@ -22,9 +22,11 @@ import {
 	BORDER_TIMELINE_DROP_BLUE,
 	TIMELINE_DROP_BLUE_ALPHA_16,
 } from '../helpers/colors';
-import type {AssetMetadata} from '../helpers/get-asset-metadata';
-import {getAssetMetadata} from '../helpers/get-asset-metadata';
-import {getCanvasCaptureImport} from '../helpers/get-canvas-capture-import';
+import {
+	getAssetMetadata,
+	getAssetPreviewMetadata,
+	type AssetMetadata,
+} from '../helpers/get-asset-metadata';
 import {
 	applyZoomAroundFocalPoint,
 	getCenterPointWhileScrolling,
@@ -50,6 +52,7 @@ import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
+import {handleCanvasCaptureDrop} from './canvas-capture-drop';
 import {
 	getCompositionDropPreviewBox,
 	snapCompositionDropPosition,
@@ -226,6 +229,7 @@ export const Canvas: React.FC<{
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {compositions} = useContext(Internals.CompositionManager);
+	const {setCurrentAssetMetadata} = useContext(Internals.CompositionSetters);
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
 	);
@@ -250,6 +254,7 @@ export const Canvas: React.FC<{
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
 	);
+	const metadataRequestRef = useRef(0);
 
 	const currentCompositionId =
 		canvasContent.type === 'composition' ? canvasContent.compositionId : null;
@@ -719,8 +724,10 @@ export const Canvas: React.FC<{
 	}, [keybindings, onReset, onZoomIn, onZoomOut]);
 
 	const fetchMetadata = useCallback(async () => {
+		const request = ++metadataRequestRef.current;
 		setAssetResolution(null);
 		if (canvasContent.type === 'composition') {
+			setCurrentAssetMetadata(null);
 			return;
 		}
 
@@ -728,8 +735,13 @@ export const Canvas: React.FC<{
 			canvasContent,
 			canvasContent.type === 'asset',
 		);
+		if (request !== metadataRequestRef.current) {
+			return;
+		}
+
 		setAssetResolution(metadata);
-	}, [canvasContent]);
+		setCurrentAssetMetadata(getAssetPreviewMetadata({canvasContent, metadata}));
+	}, [canvasContent, setCurrentAssetMetadata]);
 
 	useEffect(() => {
 		if (canvasContent.type !== 'asset') {
@@ -1147,15 +1159,12 @@ export const Canvas: React.FC<{
 				if (localFiles.length === 1) {
 					setIsAddingAsset(true);
 					try {
-						const canvasCapture = await getCanvasCaptureImport(localFiles[0]);
-						if (canvasCapture !== null) {
-							setSelectedModal({
-								type: 'new-comp',
-								canvasCapture,
-								folderName: null,
-								parentName: null,
-								stack: null,
-							});
+						if (
+							await handleCanvasCaptureDrop({
+								files: localFiles,
+								setSelectedModal,
+							})
+						) {
 							return;
 						}
 					} finally {
@@ -1467,6 +1476,7 @@ export const Canvas: React.FC<{
 			</div>
 			{areRulersVisible && (
 				<EditorRulers
+					canCreateGuides={canvasContent.type === 'composition'}
 					contentDimensions={contentDimensions}
 					canvasSize={size}
 					assetMetadata={assetResolution}

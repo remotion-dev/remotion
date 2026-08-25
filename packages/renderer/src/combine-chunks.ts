@@ -66,21 +66,6 @@ type AllCombineChunksOptions = MandatoryCombineChunksOptions &
 export type CombineChunksOptions = MandatoryCombineChunksOptions &
 	Partial<OptionalCombineChunksOptions>;
 
-const codecSupportsFastStart: {[key in Codec]: boolean} = {
-	'h264-mkv': false,
-	'h264-ts': false,
-	h264: true,
-	h265: true,
-	av1: true,
-	aac: false,
-	gif: false,
-	mp3: false,
-	prores: false,
-	vp8: false,
-	vp9: false,
-	wav: false,
-};
-
 const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
 export const internalCombineChunks = async ({
@@ -250,7 +235,6 @@ export const internalCombineChunks = async ({
 			binariesDirectory,
 			fps,
 			cancelSignal,
-			addFaststart: codecSupportsFastStart[codec],
 			metadata,
 			numberOfGifLoops,
 		});

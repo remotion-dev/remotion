@@ -78,6 +78,14 @@ export const MyComponent = () => {
 };
 `,
 	);
+	const externalLibraryUrl = 'https://external-elements.example.com/library';
+	const reloadedExternalLibraryUrl =
+		'https://second-elements.example.com/components';
+	const configFile = path.join(temporaryProject, 'remotion.config.ts');
+	fs.appendFileSync(
+		configFile,
+		`\nConfig.addElementLibrary({url: '${externalLibraryUrl}', displayName: 'External Elements'});\n`,
+	);
 	fs.rmSync(path.join(temporaryProject, 'node_modules'), {
 		force: true,
 		recursive: true,
@@ -162,10 +170,18 @@ export const MyComponent = () => {
 	}
 
 	const senderUrl = `http://127.0.0.1:${address.port}`;
-	const elementsLibraryRequests: string[] = [];
+	const officialLibraryRequests: string[] = [];
+	const externalLibraryRequests: string[] = [];
 	const context = await browser.newContext();
 	await context.route('https://www.remotion.dev/elements', async (route) => {
-		elementsLibraryRequests.push(route.request().url());
+		officialLibraryRequests.push(route.request().url());
+		await route.fulfill({
+			status: 302,
+			headers: {Location: senderUrl},
+		});
+	});
+	await context.route(externalLibraryUrl, async (route) => {
+		externalLibraryRequests.push(route.request().url());
 		await route.fulfill({
 			status: 302,
 			headers: {Location: senderUrl},
@@ -200,31 +216,81 @@ export const MyComponent = () => {
 				],
 			});
 
+		const decoyStudioPage = await context.newPage();
+		await decoyStudioPage.goto(studioUrl);
+		await expect(decoyStudioPage.getByText('MyComp').first()).toBeVisible();
+		await decoyStudioPage.bringToFront();
+		await decoyStudioPage.mouse.click(500, 300);
+
+		await studioPage.bringToFront();
 		await studioPage.locator('[data-sidebar-toggle="right"]').click();
 		const browseElements = studioPage.getByRole('button', {
 			name: 'Browse Elements',
 		});
 		await expect(browseElements).toBeVisible();
-		const senderPagePromise = context.waitForEvent('page', {timeout: 10_000});
 		await browseElements.click();
-		const senderPage = await senderPagePromise;
-		await senderPage.waitForLoadState('domcontentloaded');
-		expect(elementsLibraryRequests).toEqual([
+		const officialLibraryItem = studioPage.getByRole('button', {
+			name: 'Remotion Elements',
+			exact: true,
+		});
+		const externalLibraryLabel = 'External Elements';
+		const externalLibraryItem = studioPage.getByRole('button', {
+			name: externalLibraryLabel,
+			exact: true,
+		});
+		await expect(officialLibraryItem).toBeVisible();
+		await expect(externalLibraryItem).toBeVisible();
+		await officialLibraryItem.click();
+
+		const officialElementsIframe = studioPage.locator(
+			'iframe[title="Remotion Elements library"]',
+		);
+		await expect(officialElementsIframe).toBeVisible();
+		expect(officialLibraryRequests).toEqual([
 			'https://www.remotion.dev/elements',
 		]);
-		await expect(senderPage).toHaveURL(senderUrl);
-		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
-		await senderPage.waitForFunction(
-			() => document.querySelector('#status')?.textContent !== '',
-		);
-		const senderStatus = await senderPage.locator('#status').textContent();
-		expect(senderStatus).toContain('awaiting-confirmation');
-		expect(senderStatus).toContain('remotion-studio-protocol-');
+		expect(context.pages()).toHaveLength(2);
+		await studioPage.keyboard.press('Escape');
+		await expect(officialElementsIframe).toHaveCount(0);
 
-		await studioPage.bringToFront();
+		fs.appendFileSync(
+			configFile,
+			`Config.addElementLibrary({url: '${reloadedExternalLibraryUrl}'});\n`,
+		);
+		await browseElements.click();
+		await expect(
+			studioPage.getByRole('button', {
+				name: 'second-elements.example.com/components',
+				exact: true,
+			}),
+		).toBeVisible({timeout: 30_000});
+		await externalLibraryItem.click();
+		const elementsIframe = studioPage.locator(
+			`iframe[title="${externalLibraryLabel} library"]`,
+		);
+		await expect(elementsIframe).toBeVisible();
+		await expect(elementsIframe).toHaveAttribute(
+			'allow',
+			'local-network-access; loopback-network',
+		);
+		await expect(elementsIframe).toHaveAttribute('credentialless', '');
+		expect(externalLibraryRequests).toEqual([externalLibraryUrl]);
+		expect(context.pages()).toHaveLength(2);
+		const elementsFrame = studioPage.frameLocator(
+			`iframe[title="${externalLibraryLabel} library"]`,
+		);
+		const installInStudio = elementsFrame.getByRole('button', {
+			name: 'Install in Studio',
+		});
+		await expect(installInStudio).toBeVisible();
+		await installInStudio.click();
+
 		const dialog = studioPage.getByRole('dialog');
 		await expect(dialog.getByText('Install Element')).toBeVisible();
 		await expect(dialog.getByText(/Protocol Element.*MyComp/)).toBeVisible();
+		await expect(dialog.getByText(senderUrl, {exact: true})).toBeVisible();
+		await expect(decoyStudioPage.getByText('Install Element')).toHaveCount(0);
+		await expect(elementsIframe).toHaveCount(0);
 		await dialog.getByRole('button', {name: /Install/}).click();
 
 		const elementFile = path.join(
@@ -245,7 +311,8 @@ export const MyComponent = () => {
 
 		await studioPage.bringToFront();
 		await studioPage.mouse.click(500, 300);
-		await senderPage.bringToFront();
+		const senderPage = await context.newPage();
+		await senderPage.goto(senderUrl);
 		await senderPage
 			.getByRole('button', {name: 'Configure license in Studio'})
 			.click();

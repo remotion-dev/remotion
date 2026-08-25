@@ -4,6 +4,7 @@ import {colorCorrection} from '../color-correction.js';
 import {contrast} from '../contrast.js';
 import {evolve} from '../evolve.js';
 import {exposure} from '../exposure.js';
+import {fisheye} from '../fisheye.js';
 import {levels} from '../levels.js';
 import {noise} from '../noise.js';
 import {outline} from '../outline.js';
@@ -35,6 +36,56 @@ test('stacks repeated WebGL effects without blanking or flipping the image', asy
 		blob,
 		testId: 'stacked-blur-blur-noise',
 	});
+});
+
+test('fisheye() preserves pixels outside the lens radius and at zero field of view', async () => {
+	const width = 64;
+	const height = 64;
+	const source = document.createElement('canvas');
+	source.width = width;
+	source.height = height;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.fillStyle = 'rgb(12, 34, 56)';
+	sourceContext.fillRect(0, 0, width, height);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			fisheye({fieldOfView: 1, radius: 0.25}),
+		]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const pixelOutsideLens = context.getImageData(2, 2, 1, 1).data;
+	expect([...pixelOutsideLens]).toEqual([12, 34, 56, 255]);
+
+	const zeroFieldOfViewCanvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([fisheye({fieldOfView: 0})]),
+	});
+	const zeroFieldOfViewContext = zeroFieldOfViewCanvas.getContext('2d');
+	if (!zeroFieldOfViewContext) {
+		throw new Error('Could not get zero field of view output context');
+	}
+
+	const zeroFieldOfViewPixel = zeroFieldOfViewContext.getImageData(
+		32,
+		32,
+		1,
+		1,
+	).data;
+	expect([...zeroFieldOfViewPixel]).toEqual([12, 34, 56, 255]);
 });
 
 test('outline() draws around alpha while preserving the source', async () => {

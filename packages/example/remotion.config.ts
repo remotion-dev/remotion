@@ -10,3 +10,7 @@ Config.overrideBundlerConfig(async (config) => {
 	return bundlerOverride(config);
 });
 Config.setEnableCrossSiteIsolation(true);
+Config.addElementLibrary({
+	url: 'https://remocn.dev/docs/typography',
+	displayName: 'Remocn',
+});

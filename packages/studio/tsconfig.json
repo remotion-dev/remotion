@@ -10,6 +10,9 @@
 	"include": ["src"],
 	"references": [
 		{
+			"path": "../canvas"
+		},
+		{
 			"path": "../core"
 		},
 		{

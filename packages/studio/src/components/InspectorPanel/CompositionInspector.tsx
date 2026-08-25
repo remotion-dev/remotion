@@ -8,10 +8,8 @@ import React, {
 import type {_InternalTypes} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {CURRENT_COLOR} from '../../helpers/colors';
 import {downloadBlob} from '../../helpers/download-blob';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {CloudDownloadIcon} from '../../icons/cloud-download';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
@@ -39,11 +37,11 @@ import {
 	InspectorQuickActionsSection,
 	InspectorDefaultPropsWarnings,
 	InspectorQuickAction,
-	InspectorSectionDivider,
 	InspectorSectionHeader,
 } from './common';
 import {CompositionInspectorHeader} from './CompositionInspectorHeader';
 import {CompositionMetadata} from './CompositionMetadata';
+import {ElementLibraryButton} from './ElementLibraryButton';
 import {
 	compositionDefaultPropsSection,
 	compositionVisualControlsSection,
@@ -60,26 +58,6 @@ import {useCompositionActions} from './use-composition-actions';
 const actionIconStyle: React.CSSProperties = {
 	height: 18,
 	width: 18,
-};
-
-const browseElementsIconStyle: React.CSSProperties = {
-	height: 22,
-	width: 22,
-};
-
-const browseElementsIconContainerStyle: React.CSSProperties = {
-	height: 22,
-	marginLeft: -2,
-	marginRight: -2,
-	width: 22,
-};
-
-const browseElementsArrowStyle: React.CSSProperties = {
-	display: 'inline-block',
-	height: 12,
-	marginLeft: 4,
-	verticalAlign: -2,
-	width: 12,
 };
 
 const CompositionActions: React.FC = () => {
@@ -120,14 +98,6 @@ const CompositionActions: React.FC = () => {
 			);
 		}
 	}, [downloadProject]);
-
-	const openElementsLibrary = useCallback(() => {
-		window.open(
-			'https://www.remotion.dev/elements',
-			'_blank',
-			'noopener,noreferrer',
-		);
-	}, []);
 
 	if (
 		!canShowInsertAsset &&
@@ -173,33 +143,7 @@ const CompositionActions: React.FC = () => {
 					Add composition...
 				</InspectorQuickAction>
 			) : null}
-			{canShowInsertAsset ? (
-				<InspectorQuickAction
-					disabled={false}
-					iconContainerStyle={browseElementsIconContainerStyle}
-					onClick={openElementsLibrary}
-					renderIcon={(color) => (
-						<BrowseElementsIcon color={color} style={browseElementsIconStyle} />
-					)}
-					title="Open the Remotion Elements library in a new tab. Install an Element there to send it to this composition."
-				>
-					Browse Elements
-					<svg
-						aria-hidden="true"
-						viewBox="0 0 16 16"
-						style={browseElementsArrowStyle}
-					>
-						<path
-							d="M4 12 12 4M6 4h6v6"
-							fill="none"
-							stroke={CURRENT_COLOR}
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth="1.5"
-						/>
-					</svg>
-				</InspectorQuickAction>
-			) : null}
+			{canShowInsertAsset ? <ElementLibraryButton /> : null}
 			{downloadProject ? (
 				<InspectorQuickAction
 					disabled={false}
@@ -282,54 +226,51 @@ const CompositionDefaultPropsSection: React.FC<{
 	}
 
 	return (
-		<>
-			<InspectorSectionDivider />
-			<div style={compositionDefaultPropsSection}>
-				<InspectorSectionHeader>
-					<div style={sectionHeaderRow}>
-						<div style={sectionHeaderStart}>
-							<span style={sectionHeaderTitle}>Default Props</span>
-							<SegmentedControl
-								items={defaultPropsModeItems}
-								needsWrapping={false}
+		<div style={compositionDefaultPropsSection}>
+			<InspectorSectionHeader>
+				<div style={sectionHeaderRow}>
+					<div style={sectionHeaderStart}>
+						<span style={sectionHeaderTitle}>Default Props</span>
+						<SegmentedControl
+							items={defaultPropsModeItems}
+							needsWrapping={false}
+							size="compact"
+						/>
+					</div>
+					<div style={sectionHeaderEnd}>
+						{defaultPropsWarnings.length > 0 ? (
+							<WarningIndicatorButton
+								setShowWarning={setShowWarning}
+								showWarning={showWarning}
+								warningCount={defaultPropsWarnings.length}
 								size="compact"
 							/>
-						</div>
-						<div style={sectionHeaderEnd}>
-							{defaultPropsWarnings.length > 0 ? (
-								<WarningIndicatorButton
-									setShowWarning={setShowWarning}
-									showWarning={showWarning}
-									warningCount={defaultPropsWarnings.length}
-									size="compact"
-								/>
-							) : null}
-						</div>
+						) : null}
 					</div>
-				</InspectorSectionHeader>
-				{defaultPropsWarnings.length > 0 && showWarning ? (
-					<div style={defaultPropsWarningContainer}>
-						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
-					</div>
-				) : null}
-				<DefaultPropsEditor
-					key={composition.id}
-					unresolvedComposition={composition}
-					defaultProps={currentDefaultProps}
-					setDefaultProps={setDefaultProps}
-					propsEditType="default-props"
-					schemaErrorMode="compact"
-					layout="inspector"
-					mode={defaultPropsMode}
-					onModeChange={setDefaultPropsMode}
-					hideModeControls={canShowDefaultPropsSection}
-					warnings={defaultPropsWarnings}
-					showWarning={false}
-					setShowWarning={setShowWarning}
-					hideWarningButton
-				/>
-			</div>
-		</>
+				</div>
+			</InspectorSectionHeader>
+			{defaultPropsWarnings.length > 0 && showWarning ? (
+				<div style={defaultPropsWarningContainer}>
+					<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
+				</div>
+			) : null}
+			<DefaultPropsEditor
+				key={composition.id}
+				unresolvedComposition={composition}
+				defaultProps={currentDefaultProps}
+				setDefaultProps={setDefaultProps}
+				propsEditType="default-props"
+				schemaErrorMode="compact"
+				layout="inspector"
+				mode={defaultPropsMode}
+				onModeChange={setDefaultPropsMode}
+				hideModeControls={canShowDefaultPropsSection}
+				warnings={defaultPropsWarnings}
+				showWarning={false}
+				setShowWarning={setShowWarning}
+				hideWarningButton
+			/>
+		</div>
 	);
 };
 
@@ -347,13 +288,10 @@ const CompositionVisualControlsSection: React.FC<{
 	}
 
 	return (
-		<>
-			<InspectorSectionDivider />
-			<div style={compositionVisualControlsSection}>
-				<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
-				<VisualControlsContent />
-			</div>
-		</>
+		<div style={compositionVisualControlsSection}>
+			<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
+			<VisualControlsContent />
+		</div>
 	);
 };
 
@@ -369,7 +307,6 @@ export const CompositionInspector: React.FC<{
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={inspectorOverviewSection}>
 				<CompositionInspectorHeader />
-				<InspectorSectionDivider />
 				<CompositionMetadata
 					compositionId={composition.id}
 					disabled={readOnlyStudio || previewServerState.type !== 'connected'}

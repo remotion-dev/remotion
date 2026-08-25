@@ -38,6 +38,11 @@ const flex: React.CSSProperties = {
 	flex: 1,
 };
 
+const menuItems: React.CSSProperties = {
+	display: 'inline-flex',
+	height: 24,
+};
+
 export const MenuToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
@@ -173,23 +178,25 @@ export const MenuToolbar: React.FC<{
 				) : (
 					<SidebarCollapserControl side="left" />
 				)}
-				{structure.map((s) => {
-					return (
-						<MenuItem
-							key={s.id}
-							selected={selected === s.id}
-							onItemSelected={itemClicked}
-							onItemHovered={itemHovered}
-							id={s.id}
-							label={s.label}
-							onItemQuit={onItemQuit}
-							menu={s}
-							onPreviousMenu={onPreviousMenu}
-							onNextMenu={onNextMenu}
-							leaveLeftPadding={s.leaveLeftPadding}
-						/>
-					);
-				})}
+				<div style={menuItems}>
+					{structure.map((s) => {
+						return (
+							<MenuItem
+								key={s.id}
+								selected={selected === s.id}
+								onItemSelected={itemClicked}
+								onItemHovered={itemHovered}
+								id={s.id}
+								label={s.label}
+								onItemQuit={onItemQuit}
+								menu={s}
+								onPreviousMenu={onPreviousMenu}
+								onNextMenu={onNextMenu}
+								leaveLeftPadding={s.leaveLeftPadding}
+							/>
+						);
+					})}
+				</div>
 				{readOnlyStudio || browserStudioOperations ? null : <UpdateCheck />}
 			</div>
 			{mobileLayout ? null : <div style={flex} />}

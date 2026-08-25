@@ -9,6 +9,7 @@ import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-sc
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
 import {TableOfContents as GifTableOfContents} from '../../docs/gif/table-of-contents';
 import {TableOfContents as GoogleFontsTableOfContents} from '../../docs/google-fonts/TableOfContents';
+import {TableOfContents as GsapTableOfContents} from '../../docs/gsap/table-of-contents';
 import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
 import {TableOfContents as LambdaTableOfContents} from '../../docs/lambda/table-of-contents';
 import {TableOfContents as LayoutUtilsTableOfContents} from '../../docs/layout-utils/table-of-contents';
@@ -98,6 +99,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/google-fonts</h2>
 			<p>Load Google Fonts onto a page.</p>
 			<GoogleFontsTableOfContents />
+			<h2>@remotion/gsap</h2>
+			<p>Use GSAP timelines in Remotion.</p>
+			<GsapTableOfContents />
 			<h2>@remotion/install-whisper-cpp</h2>
 			<p>Whisper.cpp installation and transcription</p>
 			<InstallWhisperCppTableOfContents />

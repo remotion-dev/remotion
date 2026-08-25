@@ -28,6 +28,9 @@
 			"path": "./packages/browser-studio"
 		},
 		{
+			"path": "./packages/canvas"
+		},
+		{
 			"path": "./packages/cloudrun"
 		},
 		{
@@ -59,6 +62,9 @@
 		},
 		{
 			"path": "./packages/google-fonts"
+		},
+		{
+			"path": "./packages/gsap"
 		},
 		{
 			"path": "./packages/openai-whisper"

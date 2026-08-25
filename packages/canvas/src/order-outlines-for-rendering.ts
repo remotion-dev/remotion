@@ -1,5 +1,17 @@
-import type {SelectedOutline} from './selected-outline-geometry';
-import type {SelectedOutlineLayoutTarget} from './selected-outline-types';
+import type {CanvasOutline} from './outlines';
+
+export type CanvasOutlineOrderTarget = {
+	readonly key: string;
+	readonly containsSelection: boolean;
+	readonly selected: boolean;
+	readonly sequence: {
+		readonly id: string;
+		readonly parent: string | null;
+	};
+};
+
+type SelectedOutline = CanvasOutline;
+type SelectedOutlineLayoutTarget = CanvasOutlineOrderTarget;
 
 const outlinePointEqualityTolerance = 0.5;
 const outlineAreaEqualityTolerance = 0.5;
@@ -353,7 +365,7 @@ const orderOutlineGroup = ({
 	return ordered;
 };
 
-export const orderOutlinesForRendering = ({
+export const orderCanvasOutlinesForRendering = ({
 	outlines,
 	sequences,
 	targetsByKey,

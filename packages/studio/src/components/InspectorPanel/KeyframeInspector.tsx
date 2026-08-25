@@ -50,7 +50,6 @@ import {
 	InspectorDetailRow,
 	InspectorQuickAction,
 	InspectorMessage,
-	InspectorSectionDivider,
 } from './common';
 import {
 	clampInspectorKeyframeDisplayFrame,
@@ -527,7 +526,6 @@ export const KeyframeInspector: React.FC<{
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<SequenceInspectorSections track={track} />
-			<InspectorSectionDivider />
 			<InspectorBackAction
 				disabled={parentSelection === null}
 				onClick={onSelectParent}
@@ -535,7 +533,6 @@ export const KeyframeInspector: React.FC<{
 			>
 				{details.fieldLabel}
 			</InspectorBackAction>
-			<InspectorSectionDivider />
 			<KeyframeEasingNavigator
 				currentSelection={selection}
 				includeEasings={canEditEasingForInterpolationFunction(

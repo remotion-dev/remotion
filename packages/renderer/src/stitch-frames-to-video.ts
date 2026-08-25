@@ -4,6 +4,7 @@ import type {_InternalTypes} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
+import type {OnLog} from './browser/BrowserPage';
 import {callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
@@ -11,13 +12,15 @@ import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {createAudio} from './create-audio';
 import {validateQualitySettings} from './crf';
+import {defaultOnLog} from './default-on-log';
 import {deleteDirectory} from './delete-directory';
 import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
-import {finalizeFastStart, type FastStartMuxer} from './finalize-fast-start';
+import {finalizeFastStart} from './finalize-fast-start';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
+import {getFastStartMuxer} from './get-fast-start-muxer';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -76,6 +79,7 @@ type InternalStitchFramesToVideoOptions = {
 	binariesDirectory: string | null;
 	metadata: Record<string, string> | null;
 	sampleRate: number;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
@@ -111,24 +115,6 @@ export type StitchFramesToVideoOptions = {
 } & Partial<ToOptions<typeof optionsMap.stitchFramesToVideo>>;
 
 type ReturnType = Promise<Buffer | null>;
-
-const getFastStartMuxer = ({
-	codec,
-	outputExtension,
-}: {
-	codec: Codec;
-	outputExtension: string;
-}): FastStartMuxer | null => {
-	if (codec !== 'h264') {
-		return null;
-	}
-
-	if (outputExtension === 'mp4' || outputExtension === 'mov') {
-		return outputExtension;
-	}
-
-	return null;
-};
 
 const innerStitchFramesToVideo = async (
 	{
@@ -166,6 +152,7 @@ const innerStitchFramesToVideo = async (
 		metadata,
 		hardwareAcceleration,
 		sampleRate,
+		onLog,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -236,7 +223,7 @@ const innerStitchFramesToVideo = async (
 		getExtensionOfFilename(outputLocation) ??
 		getFileExtensionFromCodec(codec, resolvedAudioCodec)
 	).toLowerCase();
-	const fastStartMuxer = getFastStartMuxer({codec, outputExtension});
+	const fastStartMuxer = getFastStartMuxer(outputExtension);
 	// Fast Start reopens its output for an in-place second pass. Keep that work
 	// away from the public output path so Windows file observers cannot lock it.
 	const fastStartIntermediate =
@@ -382,16 +369,20 @@ const innerStitchFramesToVideo = async (
 		return Promise.resolve(file);
 	}
 
-	const resolvedHardwareAcceleration = resolveHardwareAcceleration({
-		codec,
-		hardwareAcceleration,
-		binariesDirectory,
-		indent: indent ?? false,
-		logLevel,
-		crf,
-		encodingMaxRate: maxRate,
-		encodingBufferSize: bufferSize,
-	});
+	// Parallel encoding already resolved the encoder in the pre-stitcher.
+	const resolvedHardwareAcceleration = preEncodedFileLocation
+		? 'disable'
+		: resolveHardwareAcceleration({
+				codec,
+				hardwareAcceleration,
+				binariesDirectory,
+				indent: indent ?? false,
+				logLevel,
+				crf,
+				encodingMaxRate: maxRate,
+				encodingBufferSize: bufferSize,
+				onLog,
+			});
 
 	const ffmpegArgs = [
 		...(preEncodedFileLocation
@@ -426,9 +417,6 @@ const innerStitchFramesToVideo = async (
 			indent,
 			logLevel,
 		}),
-		codec === 'h264' && fastStartMuxer === null
-			? ['-movflags', 'faststart']
-			: null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		...makeMetadataArgs(metadata ?? {}),
@@ -635,5 +623,6 @@ export const stitchFramesToVideo = ({
 		separateAudioTo: separateAudioTo ?? null,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		sampleRate: sampleRate ?? 48000,
+		onLog: defaultOnLog,
 	});
 };

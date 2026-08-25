@@ -3,6 +3,7 @@ import type {
 	ElementInstallationMode,
 } from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
+import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/mirrored-spectrum';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
@@ -10,7 +11,10 @@ import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburs
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
-import {ProductCollection} from '../../../elements/commerce/product-collection/product-collection';
+import {
+	ProductCollection,
+	productCollectionDurationInFrames,
+} from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
@@ -22,6 +26,7 @@ import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover'
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
+import {OnScreenMessages} from '../../../elements/storytelling/on-screen-messages/on-screen-messages';
 import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
@@ -70,6 +75,31 @@ export type ElementDefinition = {
 };
 
 const elementImplementations = {
+	'audio/mirrored-spectrum': {
+		component: MirroredAudioSpectrum,
+		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
+		description:
+			'A mirrored frequency spectrum that works well for visualizing voices and podcasts.',
+		dependencies: [
+			{name: '@remotion/media', version: null},
+			{name: '@remotion/media-utils', version: null},
+		],
+		durationInFrames: 271,
+		elementHeight: 300,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 105,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/audio-mirrored-spectrum-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/audio-mirrored-spectrum-preview.mp4',
+		},
+		safeArea: 120,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
 	'backgrounds/liquid-contours': {
 		component: LiquidContours,
 		contributors: [],
@@ -453,7 +483,7 @@ const elementImplementations = {
 		description:
 			'An animated product carousel that adapts to changing catalog images, titles, prices, and promotions.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
-		durationInFrames: 150,
+		durationInFrames: productCollectionDurationInFrames,
 		elementHeight: 1020,
 		elementWidth: 1020,
 		fps: 30,
@@ -584,6 +614,28 @@ const elementImplementations = {
 		},
 		safeArea: 120,
 		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	'storytelling/on-screen-messages': {
+		component: OnScreenMessages,
+		contributors: [],
+		description:
+			'An iMessage-inspired text exchange with staggered reveals, focus shifts, and familiar blue and gray chat bubbles.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 162,
+		elementHeight: 680,
+		elementWidth: 1260,
+		fps: 30,
+		height: 1080,
+		posterFrame: 114,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/storytelling-on-screen-messages-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/storytelling-on-screen-messages-preview.mp4',
+		},
+		safeArea: 180,
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'storytelling/polaroid-pictures': {

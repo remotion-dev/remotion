@@ -73,6 +73,15 @@ const waitForBrowserStudioOperations = async (studio: FrameLocator) => {
 		.toBe(true);
 };
 
+test('runs Browser Studio in Safari', async ({page}) => {
+	await page.goto('/');
+
+	expect(await page.evaluate(() => window.crossOriginIsolated)).toBe(true);
+	await expect(
+		page.frameLocator('iframe').getByTitle('/project').getByText('MyComp'),
+	).toBeVisible();
+});
+
 test('loads Browser Studio, opens external links, and can add, delete, and duplicate', async ({
 	page,
 }) => {
@@ -81,14 +90,16 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 	const studioApiRequests: string[] = [];
 	const vendorBundleRequests: string[] = [];
 	const workspacePackageRequests: string[] = [];
+	let vendorBundleStartedBeforeIframe = false;
 	let rejectPageError: (error: Error) => void = () => undefined;
 	const pageError = new Promise<never>((_resolve, reject) => {
 		rejectPageError = reject;
 	});
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
-		if (requestUrl.searchParams.has('projectBundleUrl')) {
+		if (requestUrl.searchParams.has('browserStudioVendor')) {
 			vendorBundleRequests.push(request.url());
+			vendorBundleStartedBeforeIframe = page.frames().length === 1;
 		}
 
 		if (
@@ -290,6 +301,7 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 		'/__remotion_browser_studio_workspace__/commits/e2e/packages/transitions/dist/esm/fade.mjs',
 	);
 	expect(vendorBundleRequests).toHaveLength(1);
+	expect(vendorBundleStartedBeforeIframe).toBe(true);
 	expect(remoteRemotionRequests).toEqual([]);
 	expect(studioApiRequests).toEqual([]);
 });
@@ -302,7 +314,7 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 	const vendorBundleRequests: string[] = [];
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
-		if (requestUrl.searchParams.has('projectBundleUrl')) {
+		if (requestUrl.searchParams.has('browserStudioVendor')) {
 			vendorBundleRequests.push(request.url());
 		}
 

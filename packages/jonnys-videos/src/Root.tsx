@@ -1,4 +1,5 @@
 import {Composition, Folder} from 'remotion';
+import {Composition4People} from './Composition4People';
 import {
 	AnimatedCaptions,
 	CAPTIONS_DURATION_IN_FRAMES,
@@ -276,7 +277,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="HowCanRemotionBeFree"
 					component={HowCanRemotionBeFree}
-					durationInFrames={1800}
+					durationInFrames={1802}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -310,6 +311,14 @@ export const RemotionRoot: React.FC = () => {
 						id="ZurichPhoto"
 						component={ZurichPhoto}
 						durationInFrames={ZURICH_PHOTO_DURATION_IN_FRAMES}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+					<Composition
+						id="4People"
+						component={Composition4People}
+						durationInFrames={1800}
 						fps={30}
 						width={1080}
 						height={1920}

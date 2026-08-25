@@ -77,7 +77,7 @@ Bun.serve({
 	async fetch(request) {
 		const url = new URL(request.url);
 		const headers = {
-			'Cross-Origin-Embedder-Policy': 'credentialless',
+			'Cross-Origin-Embedder-Policy': 'require-corp',
 			'Cross-Origin-Opener-Policy': 'same-origin',
 		};
 

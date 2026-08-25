@@ -211,8 +211,13 @@ export class MediaPlayer {
 	public initialize(
 		startTimeUnresolved: number,
 		initialMuted: boolean,
+		initialVolume: number,
 	): Promise<MediaPlayerInitResult> {
-		const promise = this._initialize(startTimeUnresolved, initialMuted);
+		const promise = this._initialize(
+			startTimeUnresolved,
+			initialMuted,
+			initialVolume,
+		);
 		this.initializationPromise = promise;
 		this.seekPromiseChain = promise;
 		return promise;
@@ -255,6 +260,7 @@ export class MediaPlayer {
 	private async _initialize(
 		startTimeUnresolved: number,
 		initialMuted: boolean,
+		initialVolume: number,
 	): Promise<MediaPlayerInitResult> {
 		using _ = this.delayPlaybackHandleIfNotPremounting();
 		try {
@@ -391,6 +397,7 @@ export class MediaPlayer {
 					getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
 					getStartTime: () => this.getStartTime(),
 					initialMuted,
+					initialVolume,
 					drawDebugOverlay: this.drawDebugOverlay,
 					getSequenceDurationInSeconds: () =>
 						this.getSequenceDurationInSeconds(),

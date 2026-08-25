@@ -30,7 +30,6 @@ import {
 	InspectorBackAction,
 	InspectorQuickAction,
 	InspectorMessage,
-	InspectorSectionDivider,
 } from './common';
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
@@ -296,7 +295,6 @@ export const EasingInspector: React.FC<{
 				>
 					{fieldLabel}
 				</InspectorBackAction>
-				<InspectorSectionDivider />
 				{easingUpdate === null || track === null ? null : (
 					<KeyframeEasingNavigator
 						currentSelection={currentEasingSelection ?? selection}
@@ -334,13 +332,11 @@ export const EasingInspector: React.FC<{
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<SequenceInspectorSections track={track} />
-			<InspectorSectionDivider />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
 				renderHeader={renderHeader}
 			/>
-			<InspectorSectionDivider />
 			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
 				<InspectorQuickActionsSection>

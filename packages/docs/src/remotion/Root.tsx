@@ -313,9 +313,9 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
-						width: 12,
-						edgeSimplification: 12,
-						color: '#00ffff',
+						width: 8,
+						edgeSimplification: 0,
+						color: '#ffffff',
 						opacity: 1,
 						outlineOnly: false,
 					}}

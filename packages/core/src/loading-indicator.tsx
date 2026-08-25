@@ -1,14 +1,15 @@
 import React from 'react';
 import {AbsoluteFillElement} from './AbsoluteFillElement.js';
+import {useCurrentScale} from './use-current-scale.js';
 
 const rotate: React.CSSProperties = {
 	transform: `rotate(90deg)`,
 };
 const ICON_SIZE = 40;
+const LABEL_SIZE = 14;
 
 const label: React.CSSProperties = {
-	color: 'white',
-	fontSize: 14,
+	color: 'rgba(255, 255, 255, 0.8)',
 	fontFamily: 'sans-serif',
 };
 
@@ -27,6 +28,8 @@ const content: React.CSSProperties = {
 };
 
 export const Loading: React.FC = () => {
+	const scale = useCurrentScale({dontThrowIfOutsideOfRemotion: true});
+
 	return (
 		<AbsoluteFillElement style={container} id="remotion-comp-loading">
 			<style type="text/css">{`
@@ -41,8 +44,8 @@ export const Loading: React.FC = () => {
 			`}</style>
 			<div id="remotion-comp-loading-content" style={content}>
 				<svg
-					width={ICON_SIZE}
-					height={ICON_SIZE}
+					width={ICON_SIZE / scale}
+					height={ICON_SIZE / scale}
 					viewBox="-100 -100 400 400"
 					style={rotate}
 				>
@@ -54,7 +57,9 @@ export const Loading: React.FC = () => {
 						d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
 					/>
 				</svg>
-				<p style={label}>Resolving {'<Suspense>'}...</p>
+				<p style={{...label, fontSize: LABEL_SIZE / scale}}>
+					Resolving {'<Suspense>'}...
+				</p>
 			</div>
 		</AbsoluteFillElement>
 	);

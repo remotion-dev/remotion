@@ -240,7 +240,7 @@ export const experts: Expert[] = [
 		github: 'rayBlock',
 		linkedin: 'in/raymond-lotmar/',
 		email: 'ray@blocklab.ch',
-		videocall: 'https://cal.com/remotion-expert-ray-lotmar',
+		videocall: 'https://cal.com/rayblock',
 		discord: {
 			username: 'ray_block',
 			userId: '402806969980944384',

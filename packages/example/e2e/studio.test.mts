@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {expect, test, type Page} from '@playwright/test';
+import {expect, test, type Locator, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	STUDIO_URL,
@@ -69,6 +69,46 @@ const dropAssetOnCanvas = async ({
 			}),
 		);
 	}, dragData);
+};
+
+const dropFile = async ({
+	base64,
+	fileName,
+	mimeType,
+	target,
+}: {
+	base64: string;
+	fileName: string;
+	mimeType: string;
+	target: Locator;
+}) => {
+	return target.evaluate(
+		(element, file) => {
+			const bytes = Uint8Array.from(atob(file.base64), (character) =>
+				character.charCodeAt(0),
+			);
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add(
+				new File([bytes], file.fileName, {type: file.mimeType}),
+			);
+			const dragOver = new DragEvent('dragover', {
+				bubbles: true,
+				cancelable: true,
+				dataTransfer,
+			});
+			element.dispatchEvent(dragOver);
+			element.dispatchEvent(
+				new DragEvent('drop', {
+					bubbles: true,
+					cancelable: true,
+					dataTransfer,
+				}),
+			);
+
+			return dragOver.defaultPrevented;
+		},
+		{base64, fileName, mimeType},
+	);
 };
 
 const getVideoTag = (source: string, assetPath: string) => {
@@ -142,6 +182,166 @@ test.describe('visual mode', () => {
 		await expect(
 			page.getByText('Composition with ID does-not-exist not found.'),
 		).toBeVisible();
+	});
+
+	test('should preview media assets as a non-interactive timeline', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/assets/prores.mov`);
+
+		await expect(page.getByTestId('asset-media-preview')).toBeVisible({
+			timeout: 15_000,
+		});
+		const checkerboardToggle = page.getByRole('button', {
+			name: /Show transparency as checkerboard/,
+		});
+		await expect(checkerboardToggle).toBeVisible();
+		const checkerboardWasPressed =
+			(await checkerboardToggle.getAttribute('aria-pressed')) === 'true';
+		await checkerboardToggle.click();
+		await expect(checkerboardToggle).toHaveAttribute(
+			'aria-pressed',
+			String(!checkerboardWasPressed),
+		);
+		await checkerboardToggle.click();
+
+		const rulersToggle = page.getByRole('button', {
+			name: /^(Show|Hide) rulers$/,
+		});
+		const rulersWerePressed =
+			(await rulersToggle.getAttribute('aria-pressed')) === 'true';
+		await rulersToggle.click();
+		await expect(rulersToggle).toHaveAttribute(
+			'aria-pressed',
+			String(!rulersWerePressed),
+		);
+		if (rulersWerePressed) {
+			await rulersToggle.click();
+		}
+		const horizontalRuler = page.getByLabel('Horizontal ruler', {exact: true});
+		await expect(horizontalRuler).toBeVisible();
+		await expect(horizontalRuler).toHaveAttribute('aria-readonly', 'true');
+		await expect(
+			page.getByLabel('Vertical ruler', {exact: true}),
+		).toBeVisible();
+		if (!rulersWerePressed) {
+			await page
+				.getByRole('button', {name: 'Hide rulers', exact: true})
+				.click();
+		}
+
+		const timeline = page.locator('[data-timeline-scrollable]');
+		await expect(timeline).toBeVisible();
+		const mediaTrack = page.getByTitle('prores.mov').last();
+		await expect(mediaTrack).toBeVisible();
+		await expect(timeline.locator('canvas').first()).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Play', exact: true}),
+		).toBeEnabled();
+		await expect(
+			page.getByText(/Failed to execute getVideoMetadata/),
+		).toHaveCount(0);
+
+		await mediaTrack.dblclick();
+		await expect(page.getByRole('textbox')).toHaveCount(0);
+
+		await page.goto(`${STUDIO_URL}/assets/whip.mp3`);
+		await expect(
+			page.getByRole('img', {name: 'Audio asset', exact: true}),
+		).toBeVisible();
+		await expect(page.getByTestId('asset-media-preview')).not.toBeInViewport();
+		await expect(page.locator('[data-timeline-scrollable]')).toBeVisible();
+		await expect(page.getByTitle('whip.mp3').last()).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Play', exact: true}),
+		).toBeEnabled();
+		await expect(checkerboardToggle).toHaveCount(0);
+		await expect(rulersToggle).toHaveCount(0);
+		await expect(horizontalRuler).toHaveCount(0);
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toHaveCSS('background-image', 'none');
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+
+		await page.goto(`${STUDIO_URL}/assets/blush-2x.mp4`);
+		await expect(page.getByTestId('asset-media-preview')).toBeVisible();
+		const squarePreview = page.locator(
+			'.remotion-studio-composition-container',
+		);
+		await expect(squarePreview).toBeVisible();
+		await expect
+			.poll(async () => {
+				const outerBox = await squarePreview.boundingBox();
+				const mediaBox = await page
+					.getByTestId('asset-media-preview')
+					.boundingBox();
+				if (outerBox === null || mediaBox === null) {
+					return null;
+				}
+
+				return Math.max(
+					Math.abs(outerBox.x - mediaBox.x),
+					Math.abs(outerBox.y - mediaBox.y),
+					Math.abs(outerBox.width - outerBox.height),
+					Math.abs(outerBox.width - mediaBox.width),
+					Math.abs(outerBox.height - mediaBox.height),
+				);
+			})
+			.toBeLessThan(1);
+	});
+
+	test('should route Canvas Capture drops by Studio target', async ({page}) => {
+		test.setTimeout(90_000);
+		const canvasCapture = fs.readFileSync(
+			path.join(
+				exampleDir,
+				'../brand/public/remotion-capture-editor-starter.mp4',
+			),
+		);
+		const publicFileName = 'canvas-capture-drop-e2e.mp4';
+		const publicAsset = path.join(exampleDir, 'public', publicFileName);
+		fs.rmSync(publicAsset, {force: true});
+		const file = {
+			base64: canvasCapture.toString('base64'),
+			fileName: publicFileName,
+			mimeType: 'video/mp4',
+		};
+		const modalTitle = page.getByText('Import Canvas Capture', {exact: true});
+
+		try {
+			await page.goto(`${STUDIO_URL}/does-not-exist`);
+			const missingComposition = page.getByText(
+				'Composition with ID does-not-exist not found.',
+			);
+			await expect(missingComposition).toBeVisible();
+			expect(await dropFile({...file, target: missingComposition})).toBe(true);
+			await expect(modalTitle).toBeVisible();
+			await page.keyboard.press('Escape');
+
+			await page.getByText('Assets', {exact: true}).click();
+			const assetSelector = page.locator('[data-asset-selector]');
+			await expect(assetSelector).toBeVisible();
+			expect(await dropFile({...file, target: assetSelector})).toBe(true);
+			await expect
+				.poll(
+					() =>
+						fs.existsSync(publicAsset) &&
+						fs.readFileSync(publicAsset).equals(canvasCapture),
+				)
+				.toBe(true);
+			await expect(page.getByText(publicFileName, {exact: true})).toBeVisible();
+			await expect(modalTitle).toBeHidden();
+
+			await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+			const timeline = page.locator('[data-timeline-scrollable]');
+			await expect(timeline).toBeVisible();
+			expect(await dropFile({...file, target: timeline})).toBe(true);
+			await expect(modalTitle).toBeVisible();
+		} finally {
+			fs.rmSync(publicAsset, {force: true});
+		}
 	});
 
 	test('should virtualize a large timeline without hiding tracks', async ({
@@ -1155,7 +1355,9 @@ test.describe('visual mode', () => {
 				dialog.getByTitle('Default coding agent', {exact: true}),
 			).toContainText('Codex');
 			await dialog.getByText('License', {exact: true}).click();
-			const freeLicenseToggle = dialog.locator('input[name="free-license"]');
+			const freeLicenseToggle = dialog.getByRole('radio', {
+				name: 'I am eligible for the Free License',
+			});
 			await expect(freeLicenseToggle).toBeChecked();
 			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
 				codingAgentInfoRequests: 1,

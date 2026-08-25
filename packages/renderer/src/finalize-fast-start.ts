@@ -2,11 +2,10 @@ import {randomUUID} from 'node:crypto';
 import {promises} from 'node:fs';
 import path from 'node:path';
 import {callFf} from './call-ffmpeg';
+import type {FastStartMuxer} from './get-fast-start-muxer';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
-
-export type FastStartMuxer = 'mov' | 'mp4';
 
 export const finalizeFastStart = async ({
 	input,

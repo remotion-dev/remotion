@@ -31,6 +31,8 @@ import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
+import type {TimelineSequenceObserver} from './timeline-sequence-observer-context.js';
+import {TimelineSequenceObserverContext} from './timeline-sequence-observer-context.js';
 import {acknowledgeRemotionLicenseMessage} from './use-remotion-license-acknowledge.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
@@ -117,6 +119,18 @@ export const componentOrNullIfLazy = <Props,>(
 	return null;
 };
 
+const TimelineSequenceObserverComponent: React.FC<{
+	readonly onTimelineSequenceChange: TimelineSequenceObserver;
+}> = ({onTimelineSequenceChange}) => {
+	const {sequences} = React.useContext(Internals.SequenceManager);
+
+	useEffect(() => {
+		onTimelineSequenceChange(sequences);
+	}, [onTimelineSequenceChange, sequences]);
+
+	return null;
+};
+
 const PlayerFn = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -181,6 +195,10 @@ const PlayerFn = <
 	if (typeof window !== 'undefined') {
 		window.remotion_isPlayer = true;
 	}
+
+	const onTimelineSequenceChange = React.useContext(
+		TimelineSequenceObserverContext,
+	);
 
 	// @ts-expect-error
 	if (componentProps.defaultProps !== undefined) {
@@ -436,7 +454,7 @@ const PlayerFn = <
 			);
 		}, [passedBrowserMediaControlsBehavior]);
 
-	return (
+	const player = (
 		<Internals.IsPlayerContextProvider>
 			<SharedPlayerContexts
 				timelineContext={timelineContextValue}
@@ -514,6 +532,21 @@ const PlayerFn = <
 				</Internals.SetTimelineContext.Provider>
 			</SharedPlayerContexts>
 		</Internals.IsPlayerContextProvider>
+	);
+
+	if (!onTimelineSequenceChange) {
+		return player;
+	}
+
+	return (
+		<Internals.SequenceRegistrationContext.Provider value>
+			<Internals.SequenceManagerProvider>
+				<TimelineSequenceObserverComponent
+					onTimelineSequenceChange={onTimelineSequenceChange}
+				/>
+				{player}
+			</Internals.SequenceManagerProvider>
+		</Internals.SequenceRegistrationContext.Provider>
 	);
 };
 
