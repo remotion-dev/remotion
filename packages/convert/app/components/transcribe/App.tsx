@@ -1,8 +1,8 @@
-import type {DownloadWhisperModelParams} from '@remotion/whisper-web';
+import type {WhisperWebGpuModel} from '@remotion/whisper-webgpu';
 import React, {useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import Display from './display';
-import DownloadModel from './downloadModel';
+import ModelSelector from './modelSelector';
 import type {TranscriptionState} from './state';
 import TranscribeAudio from './transcribeAudio';
 
@@ -14,15 +14,17 @@ const Transcribe: React.FC<{
 	const [state, setState] = useState<TranscriptionState>({type: 'idle'});
 
 	const [selectedModel, setSelectedModel] =
-		useState<DownloadWhisperModelParams['model']>('tiny.en');
+		useState<WhisperWebGpuModel>('tiny.en');
 
 	return (
 		<>
 			<div className="h-8 lg:h-0 lg:w-8" />
 			<div className="w-full lg:w-[350px]">
-				{state.type === 'idle' || state.type === 'initializing' ? (
+				{state.type === 'idle' ||
+				state.type === 'initializing' ||
+				state.type === 'error' ? (
 					<>
-						<DownloadModel
+						<ModelSelector
 							selectedModel={selectedModel}
 							setSelectedModel={setSelectedModel}
 							disabled={state.type === 'initializing'}
@@ -38,7 +40,7 @@ const Transcribe: React.FC<{
 					setState={setState}
 				/>
 				{state.type === 'transcribing' ? <div className="h-4" /> : null}
-				{state.type === 'done' || state.type === 'transcribing' ? (
+				{state.type === 'done' ? (
 					<Display result={state.result} time={playbackTime} />
 				) : null}
 			</div>

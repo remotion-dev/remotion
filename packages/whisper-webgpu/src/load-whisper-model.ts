@@ -1,4 +1,3 @@
-import {env, pipeline} from '@huggingface/transformers';
 import type {
 	ResolvedWhisperWebGpuBackend,
 	WhisperWebGpuBackend,
@@ -18,9 +17,10 @@ export type OnWhisperWebGpuModelLoadProgress = (
 	progress: WhisperWebGpuModelLoadProgress,
 ) => void;
 
-type LoadedWhisperPipeline = Awaited<
-	ReturnType<typeof pipeline<'automatic-speech-recognition'>>
->;
+type LoadedWhisperPipeline = {
+	(audio: Float32Array, options: Record<string, unknown>): Promise<unknown>;
+	dispose: () => Promise<void>;
+};
 
 const pipelines = new Map<string, Promise<LoadedWhisperPipeline>>();
 
@@ -81,6 +81,7 @@ export const loadWhisperModel = async ({
 		return {backend: resolvedBackend, alreadyLoaded: true};
 	}
 
+	const {env, pipeline} = await import('@huggingface/transformers');
 	if (resolvedBackend === 'wasm') {
 		env.backends.onnx.wasm!.numThreads = globalThis.crossOriginIsolated ? 0 : 1;
 	}
@@ -95,7 +96,7 @@ export const loadWhisperModel = async ({
 		progress_callback: (event) => {
 			onProgress?.(normalizeProgress(event as Record<string, unknown>));
 		},
-	});
+	}) as Promise<LoadedWhisperPipeline>;
 
 	pipelines.set(cacheKey, loading);
 	try {
