@@ -503,6 +503,11 @@ describe('Elements sidebar', () => {
 		const categories = elementsCategory.items.slice(3);
 		const expectedCategories = [
 			{
+				category: 'audio',
+				label: 'Audio',
+				items: ['audio/mirrored-spectrum/index'],
+			},
+			{
 				category: 'backgrounds',
 				label: 'Backgrounds',
 				items: [
@@ -655,6 +660,7 @@ describe('Element preview definitions', () => {
 
 	test('only Elements with one interactive timeline item own their Sequence', () => {
 		const componentOwnedSequenceSlugs = new Set([
+			'audio/mirrored-spectrum',
 			'captions/moving-pill-captions',
 			'captions/popping-word-captions',
 			'captions/word-highlight-captions',

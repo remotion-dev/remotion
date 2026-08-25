@@ -3,6 +3,7 @@ import type {
 	ElementInstallationMode,
 } from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
+import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/mirrored-spectrum';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
@@ -69,6 +70,29 @@ export type ElementDefinition = {
 };
 
 const elementImplementations = {
+	'audio/mirrored-spectrum': {
+		component: MirroredAudioSpectrum,
+		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
+		description:
+			'A mirrored frequency spectrum that works well for visualizing voices and podcasts.',
+		dependencies: [
+			{name: '@remotion/media', version: null},
+			{name: '@remotion/media-utils', version: null},
+		],
+		durationInFrames: 271,
+		elementHeight: 300,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 105,
+		preview: {
+			posterUrl: '/elements/audio-mirrored-spectrum-preview.png',
+			videoUrl: '/elements/audio-mirrored-spectrum-preview.mp4',
+		},
+		safeArea: 120,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
 	'backgrounds/liquid-contours': {
 		component: LiquidContours,
 		contributors: [],
