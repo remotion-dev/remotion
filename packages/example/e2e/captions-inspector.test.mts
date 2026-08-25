@@ -37,16 +37,26 @@ test.describe('captions inspector', () => {
 		const captionsSequence = page
 			.getByText('<AnimatedCaptions>', {exact: true})
 			.first();
-		const lineBreakAfterFirstCaption = page.getByRole('checkbox', {
-			name: 'Line break after caption 1',
+		const lineBreakAfterFirstCaption = page.getByRole('button', {
+			name: 'Add line break after caption 1',
 			exact: true,
 		});
 		await expect(async () => {
 			await captionsSequence.click();
 			await expect(lineBreakAfterFirstCaption).toBeVisible({timeout: 1_000});
 		}).toPass({timeout: 30_000});
+		await expect(lineBreakAfterFirstCaption).toHaveAttribute(
+			'aria-pressed',
+			'false',
+		);
 
-		await lineBreakAfterFirstCaption.check();
+		await lineBreakAfterFirstCaption.click();
+		await expect(
+			page.getByRole('button', {
+				name: 'Remove line break after caption 1',
+				exact: true,
+			}),
+		).toHaveAttribute('aria-pressed', 'true');
 		await expect
 			.poll(() => {
 				return fs

@@ -1,7 +1,15 @@
 import type {Caption} from '@remotion/captions';
 import React, {useCallback, useEffect, useMemo, useRef} from 'react';
-import {BACKGROUND, LIGHT_TEXT, LINE_COLOR, WHITE} from '../helpers/colors';
-import {Checkbox} from './Checkbox';
+import {
+	BACKGROUND,
+	BLUE,
+	LIGHT_TEXT,
+	LINE_COLOR,
+	WHITE,
+} from '../helpers/colors';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
+import {EnterIcon} from '../icons/enter';
+import {InlineAction} from './InlineAction';
 import {RemotionInput} from './NewComposition/RemInput';
 
 const container: React.CSSProperties = {
@@ -23,26 +31,8 @@ const row: React.CSSProperties = {
 	borderBottom: `1px solid ${LINE_COLOR}`,
 	display: 'grid',
 	gap: 8,
-	gridTemplateColumns: '100px minmax(0, 1fr) 18px',
+	gridTemplateColumns: '100px minmax(0, 1fr) 24px',
 	padding: '5px 12px',
-};
-
-const lineBreakControl: React.CSSProperties = {
-	display: 'flex',
-	height: 18,
-	position: 'relative',
-	width: 18,
-};
-
-const visuallyHidden: React.CSSProperties = {
-	clip: 'rect(0, 0, 0, 0)',
-	height: 1,
-	margin: -1,
-	overflow: 'hidden',
-	padding: 0,
-	position: 'absolute',
-	whiteSpace: 'nowrap',
-	width: 1,
 };
 
 const timing: React.CSSProperties = {
@@ -168,6 +158,11 @@ export const CaptionTextEditor: React.FC<{
 			<div ref={listRef} style={list}>
 				{captions.length === 0 ? <div style={empty}>No captions</div> : null}
 				{captionRows.map(({caption, key}, index) => {
+					const hasLineBreakAfter = Boolean(caption.lineBreakAfter);
+					const lineBreakTitle = hasLineBreakAfter
+						? `Remove line break after caption ${index + 1}`
+						: `Add line break after caption ${index + 1}`;
+
 					return (
 						<div key={key} style={row}>
 							<div style={timing}>
@@ -219,21 +214,25 @@ export const CaptionTextEditor: React.FC<{
 								}}
 								value={caption.text}
 							/>
-							<label style={lineBreakControl} title="Line break after">
-								<span style={visuallyHidden}>
-									Line break after caption {index + 1}
-								</span>
-								<Checkbox
-									checked={Boolean(caption.lineBreakAfter)}
-									disabled={readOnly}
-									name={`caption-line-break-after-${index}`}
-									onChange={(event) => {
-										updateLineBreakAfter(index, event.target.checked);
-										commitPending();
-									}}
-									variant="small"
-								/>
-							</label>
+							<InlineAction
+								aria-pressed={hasLineBreakAfter}
+								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+								disabled={readOnly}
+								onClick={() => {
+									updateLineBreakAfter(index, !hasLineBreakAfter);
+									commitPending();
+								}}
+								renderAction={(color) => (
+									<EnterIcon
+										aria-hidden="true"
+										color={hasLineBreakAfter ? BLUE : color}
+										focusable="false"
+										style={{height: 16, width: 16}}
+									/>
+								)}
+								title={lineBreakTitle}
+								variant={null}
+							/>
 						</div>
 					);
 				})}
