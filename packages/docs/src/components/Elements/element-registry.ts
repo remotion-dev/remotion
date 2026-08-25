@@ -98,6 +98,10 @@ export const elementRegistry = {
 		category: 'overlays',
 		displayName: 'Name Lower Third',
 	},
+	'overlays/social-safe-zones': {
+		category: 'overlays',
+		displayName: 'Social Safe Zones',
+	},
 	'storytelling/on-screen-messages': {
 		category: 'storytelling',
 		displayName: 'On-Screen Messages',

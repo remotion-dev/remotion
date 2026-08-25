@@ -1,0 +1,18 @@
+---
+title: Social Safe Zones
+description: Capture-calibrated safe-area guides for TikTok and Instagram Reels.
+image: https://remotion.media/elements/overlays-social-safe-zones-preview.png
+---
+
+import {ElementPage} from '@site/src/components/Elements/ElementPage';
+import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+
+# Social Safe Zones
+
+<ElementPage definition={elementDefinitions['overlays/social-safe-zones']} sourceFile="./social-safe-zones.tsx" />
+
+## Accuracy
+
+The presets were measured at 9:16 from representative iOS captures of full-green videos in TikTok and Instagram Reels. The interface references are transparent images extracted from those captures, rather than redrawn approximations. Author-specific text and avatars were replaced with generic content. The guide scales to other composition dimensions so it remains visible in previews of any aspect ratio.
+
+Live interfaces can vary by device, app version, locale, account state, caption length, and placement. Treat the clear region as a capture-calibrated reference, not a guarantee from either platform. The captured geometry is exact at 9:16 and scaled at other aspect ratios. The guide is rendered like any other Element, so hide or remove it when it should not appear in the final video.

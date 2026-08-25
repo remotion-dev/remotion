@@ -27,6 +27,7 @@ import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover'
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
+import {SocialSafeZones} from '../../../elements/overlays/social-safe-zones/social-safe-zones';
 import {OnScreenMessages} from '../../../elements/storytelling/on-screen-messages/on-screen-messages';
 import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
@@ -301,6 +302,28 @@ const elementImplementations = {
 		safeArea: 300,
 		installationMode: 'wrapped',
 		width: 1920,
+	},
+	'overlays/social-safe-zones': {
+		component: SocialSafeZones,
+		contributors: [],
+		description:
+			'Capture-calibrated safe-area guides for TikTok and Instagram Reels.',
+		dependencies: [],
+		durationInFrames: 120,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1920,
+		posterFrame: 0,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/overlays-social-safe-zones-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/overlays-social-safe-zones-preview.mp4',
+		},
+		safeArea: 0,
+		installationMode: 'component-owned-sequence',
+		width: 1080,
 	},
 	'youtube/youtube-comment-highlight': {
 		component: YouTubeCommentHighlight,
