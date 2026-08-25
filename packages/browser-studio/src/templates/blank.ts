@@ -1,33 +1,5 @@
 import type {VirtualProject} from '../types';
 
-const makeBlankCompositionFile = (durationInFrames: number) =>
-	`import { CalculateMetadataFunction, Composition } from "remotion";
-
-type Props = {};
-
-const calculateMetadata: CalculateMetadataFunction<Props> = () => {
-  return {};
-};
-
-export const MyComposition = () => {
-  return (
-    <Composition
-      id="MyComp"
-      component={MyComponent}
-      durationInFrames={${durationInFrames}}
-      fps={30}
-      width={1280}
-      height={720}
-      calculateMetadata={calculateMetadata}
-    />
-  );
-};
-
-export const MyComponent: React.FC<Props> = () => {
-  return null;
-};
-`;
-
 export const blankTemplateFiles = {
 	'/project/src/index.ts': `import { registerRoot } from "remotion";
 import { RemotionRoot } from "./Root";
@@ -44,7 +16,32 @@ export const RemotionRoot: React.FC = () => {
   );
 };
 `,
-	'/project/src/Composition.tsx': makeBlankCompositionFile(60),
+	'/project/src/Composition.tsx': `import { CalculateMetadataFunction, Composition } from "remotion";
+
+type Props = {};
+
+const calculateMetadata: CalculateMetadataFunction<Props> = () => {
+  return {};
+};
+
+export const MyComposition = () => {
+  return (
+    <Composition
+      id="MyComp"
+      component={MyComponent}
+      durationInFrames={60}
+      fps={30}
+      width={1280}
+      height={720}
+      calculateMetadata={calculateMetadata}
+    />
+  );
+};
+
+export const MyComponent: React.FC<Props> = () => {
+  return null;
+};
+`,
 	'/project/package.json': `{
   "name": "template-empty",
   "version": "1.0.0",
@@ -106,27 +103,8 @@ Config.setOverwriteOutput(true);
 `,
 } as const;
 
-export const createBlankTemplateProject = (
-	{durationInFrames}: {readonly durationInFrames: number | null} = {
-		durationInFrames: null,
-	},
-): VirtualProject => {
-	const resolvedDurationInFrames = durationInFrames ?? 60;
-	if (
-		!Number.isInteger(resolvedDurationInFrames) ||
-		resolvedDurationInFrames <= 0
-	) {
-		throw new TypeError('durationInFrames must be a positive integer');
-	}
-
-	return {
-		rootDir: '/project',
-		entryPoint: '/project/src/index.ts',
-		files: {
-			...blankTemplateFiles,
-			'/project/src/Composition.tsx': makeBlankCompositionFile(
-				resolvedDurationInFrames,
-			),
-		},
-	};
-};
+export const createBlankTemplateProject = (): VirtualProject => ({
+	rootDir: '/project',
+	entryPoint: '/project/src/index.ts',
+	files: {...blankTemplateFiles},
+});

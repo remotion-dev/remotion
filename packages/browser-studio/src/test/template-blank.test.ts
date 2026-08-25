@@ -37,15 +37,10 @@ test('blank template virtual files match the source template', () => {
 	);
 });
 
-test('createBlankTemplateProject uses the requested composition duration', () => {
+test('createBlankTemplateProject points to the virtual entry point', () => {
 	expect(createBlankTemplateProject()).toEqual({
 		rootDir: '/project',
 		entryPoint: '/project/src/index.ts',
 		files: {...blankTemplateFiles},
 	});
-
-	const project = createBlankTemplateProject({durationInFrames: 150});
-	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'durationInFrames={150}',
-	);
 });
