@@ -43,7 +43,39 @@ export type VideoSinkResult =
 	| 'unknown-container-format'
 	| 'network-error';
 
-export const getRetryDelay = ((previousAttempts) => {
+export const getRetryDelay = ((previousAttempts, error, src) => {
+	const couldBeCorsError =
+		error instanceof Error &&
+		[
+			'Failed to fetch',
+			'Load failed',
+			'NetworkError when attempting to fetch resource',
+		].some((message) => error.message.includes(message)) &&
+		typeof window !== 'undefined';
+
+	if (couldBeCorsError) {
+		const isOnline =
+			typeof navigator === 'undefined' ||
+			typeof navigator.onLine !== 'boolean' ||
+			navigator.onLine;
+		const srcString =
+			typeof Request !== 'undefined' && src instanceof Request
+				? src.url
+				: src.toString();
+
+		try {
+			if (
+				isOnline &&
+				new URL(srcString, window.location.href).origin !==
+					window.location.origin
+			) {
+				return null;
+			}
+		} catch {
+			// Let the bounded retry policy handle malformed URLs.
+		}
+	}
+
 	if (previousAttempts > 2) {
 		return null;
 	}
