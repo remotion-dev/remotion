@@ -43,8 +43,12 @@ export type VideoSinkResult =
 	| 'unknown-container-format'
 	| 'network-error';
 
-const getRetryDelay = (() => {
-	return null;
+export const getRetryDelay = ((previousAttempts) => {
+	if (previousAttempts > 2) {
+		return null;
+	}
+
+	return previousAttempts * 0.25;
 }) satisfies UrlSourceOptions['getRetryDelay'];
 
 const getFormatOrNullOrNetworkError = async (
