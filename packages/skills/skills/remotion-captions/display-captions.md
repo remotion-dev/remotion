@@ -84,7 +84,7 @@ const { pages } = useMemo(() => {
 }, [captions]);
 ```
 
-If a caption has `lineBreakAfter: true`, the current page ends after that caption and the next caption starts a new page.
+If a caption has `pageBreakAfter: true`, the current page ends after that caption and the next caption starts a new page.
 
 ## Rendering with Sequences
 

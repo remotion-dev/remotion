@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import type {Caption} from '@remotion/captions';
 import {createSentenceAwareCaptionPages} from './paginate-captions';
 
-test('treats a forced line break as a page boundary', () => {
+test('treats a forced page break as a page boundary', () => {
 	const captions = [
 		{
 			text: 'This',
@@ -17,7 +17,7 @@ test('treats a forced line break as a page boundary', () => {
 			endMs: 400,
 			timestampMs: 300,
 			confidence: null,
-			lineBreakAfter: true,
+			pageBreakAfter: true,
 		},
 		{
 			text: ' start',

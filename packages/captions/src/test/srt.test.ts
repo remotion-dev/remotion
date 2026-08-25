@@ -47,7 +47,7 @@ test('Should create captions', () => {
 	expect(serialized).toEqual(input);
 });
 
-test('Should serialize forced line breaks within an SRT cue', () => {
+test('Should start a new SRT cue after a forced page break', () => {
 	const serialized = serializeSrt({
 		lines: [
 			[
@@ -57,7 +57,7 @@ test('Should serialize forced line breaks within an SRT cue', () => {
 					endMs: 500,
 					timestampMs: 250,
 					confidence: 1,
-					lineBreakAfter: true,
+					pageBreakAfter: true,
 				},
 				{
 					text: 'Second line',
@@ -71,6 +71,6 @@ test('Should serialize forced line breaks within an SRT cue', () => {
 	});
 
 	expect(serialized).toBe(
-		'1\n00:00:00,000 --> 00:00:01,000\nFirst line\nSecond line',
+		'1\n00:00:00,000 --> 00:00:00,500\nFirst line\n\n2\n00:00:00,500 --> 00:00:01,000\nSecond line',
 	);
 });

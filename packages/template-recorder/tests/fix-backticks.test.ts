@@ -83,7 +83,7 @@ test("join captions correctly", () => {
   ]);
 });
 
-test("does not join captions across a forced line break", () => {
+test("does not join captions across a forced page break", () => {
   const captions = fixBackticks([
     {
       text: " `dev`",
@@ -91,7 +91,7 @@ test("does not join captions across a forced line break", () => {
       startMs: 0,
       confidence: null,
       timestampMs: 0,
-      lineBreakAfter: true,
+      pageBreakAfter: true,
     },
     {
       text: ". It",
@@ -109,7 +109,7 @@ test("does not join captions across a forced line break", () => {
       startMs: 0,
       confidence: null,
       timestampMs: 0,
-      lineBreakAfter: true,
+      pageBreakAfter: true,
     },
     {
       text: ". It",

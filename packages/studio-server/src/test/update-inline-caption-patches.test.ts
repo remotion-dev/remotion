@@ -42,6 +42,7 @@ test('updates only the patched inline caption fields', () => {
 					endMs: 2000,
 					text: 'Second',
 					timestampMs: 1500,
+					pageBreakAfter: null,
 				},
 				changes: {startMs: 1100, endMs: 2100},
 			},
@@ -57,7 +58,7 @@ test('updates only the patched inline caption fields', () => {
 	);
 });
 
-test('adds and updates lineBreakAfter on inline captions', () => {
+test('adds and updates pageBreakAfter on inline captions', () => {
 	const added = updateInlineCaptionPatches({
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
@@ -70,15 +71,16 @@ test('adds and updates lineBreakAfter on inline captions', () => {
 					endMs: 1000,
 					timestampMs: 500,
 					confidence: null,
+					pageBreakAfter: null,
 				},
-				changes: {lineBreakAfter: true},
+				changes: {pageBreakAfter: true},
 			},
 		],
 	});
 
-	expect(added.changedFields).toEqual([['lineBreakAfter']]);
+	expect(added.changedFields).toEqual([['pageBreakAfter']]);
 	expect(added.output).toContain(
-		'\t\t\t\t\tconfidence: null,\n\t\t\t\t\tlineBreakAfter: true,',
+		'\t\t\t\t\tconfidence: null,\n\t\t\t\t\tpageBreakAfter: true,',
 	);
 
 	const updated = updateInlineCaptionPatches({
@@ -93,17 +95,17 @@ test('adds and updates lineBreakAfter on inline captions', () => {
 					endMs: 1000,
 					timestampMs: 500,
 					confidence: null,
-					lineBreakAfter: true,
+					pageBreakAfter: true,
 				},
-				changes: {lineBreakAfter: false},
+				changes: {pageBreakAfter: false},
 			},
 		],
 	});
 
-	expect(updated.output).toContain('lineBreakAfter: false,');
+	expect(updated.output).toContain('pageBreakAfter: false,');
 });
 
-test('adds lineBreakAfter to a single-line inline caption', () => {
+test('adds pageBreakAfter to a single-line inline caption', () => {
 	const singleLineInput = `export const Example = () => {
 	return <TimedCaptions captions={[{text: 'First', startMs: 0, endMs: 1000, timestampMs: 500, confidence: null}]} />;
 };
@@ -120,13 +122,14 @@ test('adds lineBreakAfter to a single-line inline caption', () => {
 					endMs: 1000,
 					timestampMs: 500,
 					confidence: null,
+					pageBreakAfter: null,
 				},
-				changes: {lineBreakAfter: true},
+				changes: {pageBreakAfter: true},
 			},
 		],
 	});
 
-	expect(output).toContain('confidence: null, lineBreakAfter: true}]}');
+	expect(output).toContain('confidence: null, pageBreakAfter: true}]}');
 });
 
 test('rejects a queued patch whose source caption has changed', () => {
@@ -143,6 +146,7 @@ test('rejects a queued patch whose source caption has changed', () => {
 						endMs: 1000,
 						timestampMs: 500,
 						confidence: null,
+						pageBreakAfter: null,
 					},
 					changes: {endMs: 900},
 				},
@@ -170,6 +174,7 @@ test('rejects captions wrapped in a satisfies expression', () => {
 						endMs: 1000,
 						timestampMs: 500,
 						confidence: null,
+						pageBreakAfter: null,
 					},
 					changes: {text: 'Updated'},
 				},

@@ -26,7 +26,7 @@ test.describe('captions inspector', () => {
 		fs.writeFileSync(inlineCaptionsFile, sourceBefore);
 	});
 
-	test('persists a forced line break to an inline caption', async ({page}) => {
+	test('persists a forced page break to an inline caption', async ({page}) => {
 		await page.goto(`${STUDIO_URL}/captions-inspector-e2e`);
 		await expect(page).toHaveURL(/captions-inspector-e2e/, {timeout: 15_000});
 		await page.waitForFunction(
@@ -37,23 +37,23 @@ test.describe('captions inspector', () => {
 		const captionsSequence = page
 			.getByText('<AnimatedCaptions>', {exact: true})
 			.first();
-		const lineBreakAfterFirstCaption = page.getByRole('button', {
-			name: 'Add line break after caption 1',
+		const pageBreakAfterFirstCaption = page.getByRole('button', {
+			name: 'Add page break after caption 1',
 			exact: true,
 		});
 		await expect(async () => {
 			await captionsSequence.click();
-			await expect(lineBreakAfterFirstCaption).toBeVisible({timeout: 1_000});
+			await expect(pageBreakAfterFirstCaption).toBeVisible({timeout: 1_000});
 		}).toPass({timeout: 30_000});
-		await expect(lineBreakAfterFirstCaption).toHaveAttribute(
+		await expect(pageBreakAfterFirstCaption).toHaveAttribute(
 			'aria-pressed',
 			'false',
 		);
 
-		await lineBreakAfterFirstCaption.click();
+		await pageBreakAfterFirstCaption.click();
 		await expect(
 			page.getByRole('button', {
-				name: 'Remove line break after caption 1',
+				name: 'Remove page break after caption 1',
 				exact: true,
 			}),
 		).toHaveAttribute('aria-pressed', 'true');
@@ -61,7 +61,7 @@ test.describe('captions inspector', () => {
 			.poll(() => {
 				return fs
 					.readFileSync(inlineCaptionsFile, 'utf-8')
-					.includes('lineBreakAfter: true');
+					.includes('pageBreakAfter: true');
 			})
 			.toBe(true);
 	});

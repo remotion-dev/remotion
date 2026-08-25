@@ -4,7 +4,7 @@ export type TikTokToken = {
 	text: string;
 	fromMs: number;
 	toMs: number;
-	lineBreakAfter?: boolean;
+	pageBreakAfter?: boolean;
 };
 
 export type TikTokPage = {
@@ -75,7 +75,7 @@ export const createTikTokStyleCaptions = ({
 					text: text.trimStart(),
 					fromMs: item.startMs,
 					toMs: item.endMs,
-					...(item.lineBreakAfter ? {lineBreakAfter: true} : {}),
+					...(item.pageBreakAfter ? {pageBreakAfter: true} : {}),
 				},
 			].filter((t) => t.text !== '');
 			currentFrom = item.startMs;
@@ -96,14 +96,14 @@ export const createTikTokStyleCaptions = ({
 						currentTokens.length === 0 ? currentText.trimStart() : textToAppend,
 					fromMs: item.startMs,
 					toMs: item.endMs,
-					...(item.lineBreakAfter ? {lineBreakAfter: true} : {}),
+					...(item.pageBreakAfter ? {pageBreakAfter: true} : {}),
 				});
 			}
 
 			currentTo = item.endMs;
 		}
 
-		if (item.lineBreakAfter && currentText !== '') {
+		if (item.pageBreakAfter && currentText !== '') {
 			add();
 			currentText = '';
 			currentTokens = [];

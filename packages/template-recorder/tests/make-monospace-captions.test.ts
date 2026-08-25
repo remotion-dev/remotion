@@ -38,19 +38,19 @@ test("Should split up into monospace words", () => {
   ]);
 });
 
-test("preserves a forced line break on the final segment", () => {
+test("preserves a forced page break on the final segment", () => {
   const caption: Caption = {
     text: "This is a `monospace` word",
     startMs: 0,
     endMs: 0,
     confidence: null,
     timestampMs: 0,
-    lineBreakAfter: true,
+    pageBreakAfter: true,
   };
 
   const segments = splitCaptionIntoMonospaceSegments(caption);
 
-  expect(segments.map((segment) => segment.lineBreakAfter)).toEqual([
+  expect(segments.map((segment) => segment.pageBreakAfter)).toEqual([
     undefined,
     undefined,
     true,

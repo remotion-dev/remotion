@@ -153,39 +153,33 @@ const CaptionPage: React.FC<CaptionPageProps> = ({
 				}}
 			>
 				{page.tokens.map((token, tokenIndex) => {
-					const startsLine =
-						tokenIndex === 0 || page.tokens[tokenIndex - 1]?.lineBreakAfter;
 					return (
-						<React.Fragment key={`${token.fromMs}-${tokenIndex}`}>
-							<span
-								ref={(element) => {
-									wordRefs.current[tokenIndex] = element;
-								}}
-								style={{
-									color:
-										tokenIndex === focusedTokenIndex
+						<span
+							key={`${token.fromMs}-${tokenIndex}`}
+							ref={(element) => {
+								wordRefs.current[tokenIndex] = element;
+							}}
+							style={{
+								color:
+									tokenIndex === focusedTokenIndex
+										? interpolateColors(
+												focusProgress,
+												[0, 1],
+												['#d9d9d9', '#ffffff'],
+											)
+										: tokenIndex === focusedTokenIndex - 1
 											? interpolateColors(
 													focusProgress,
 													[0, 1],
-													['#d9d9d9', '#ffffff'],
+													['#ffffff', '#d9d9d9'],
 												)
-											: tokenIndex === focusedTokenIndex - 1
-												? interpolateColors(
-														focusProgress,
-														[0, 1],
-														['#ffffff', '#d9d9d9'],
-													)
-												: '#d9d9d9',
-									display: 'inline-block',
-									marginLeft: startsLine ? 0 : 26,
-								}}
-							>
-								{token.text.trimStart()}
-							</span>
-							{token.lineBreakAfter && tokenIndex < page.tokens.length - 1 ? (
-								<br />
-							) : null}
-						</React.Fragment>
+											: '#d9d9d9',
+								display: 'inline-block',
+								marginLeft: tokenIndex === 0 ? 0 : 26,
+							}}
+						>
+							{token.text.trimStart()}
+						</span>
 					);
 				})}
 			</div>

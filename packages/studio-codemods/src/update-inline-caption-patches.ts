@@ -10,7 +10,7 @@ const captionKeys = [
 	'endMs',
 	'timestampMs',
 	'confidence',
-	'lineBreakAfter',
+	'pageBreakAfter',
 ] as const;
 
 type CaptionKey = (typeof captionKeys)[number];
@@ -66,14 +66,14 @@ const getStaticCaption = (expression: ObjectExpression): StaticCaption => {
 	const endMs = values.get('endMs');
 	const timestampMs = values.get('timestampMs');
 	const confidence = values.get('confidence');
-	const lineBreakAfter = values.get('lineBreakAfter');
+	const pageBreakAfter = values.get('pageBreakAfter');
 	if (
 		typeof text !== 'string' ||
 		typeof startMs !== 'number' ||
 		typeof endMs !== 'number' ||
 		(timestampMs !== null && typeof timestampMs !== 'number') ||
 		(confidence !== null && typeof confidence !== 'number') ||
-		(lineBreakAfter !== undefined && typeof lineBreakAfter !== 'boolean')
+		(pageBreakAfter !== undefined && typeof pageBreakAfter !== 'boolean')
 	) {
 		throw new Error(
 			'Captions must have the standard static caption shape to edit',
@@ -86,7 +86,7 @@ const getStaticCaption = (expression: ObjectExpression): StaticCaption => {
 		endMs,
 		timestampMs,
 		confidence,
-		...(typeof lineBreakAfter === 'boolean' ? {lineBreakAfter} : {}),
+		pageBreakAfter: pageBreakAfter ?? null,
 	};
 };
 
@@ -288,7 +288,7 @@ const updateCaption = ({
 			((key === 'timestampMs' || key === 'confidence') &&
 				value !== null &&
 				(typeof value !== 'number' || !Number.isFinite(value))) ||
-			(key === 'lineBreakAfter' && typeof value !== 'boolean')
+			(key === 'pageBreakAfter' && typeof value !== 'boolean')
 		) {
 			throw new Error(`Caption ${key} has an invalid value`);
 		}
@@ -301,7 +301,7 @@ const updateCaption = ({
 			);
 		});
 		if (!property || property.type !== 'ObjectProperty') {
-			if (key === 'lineBreakAfter' && typeof value === 'boolean') {
+			if (key === 'pageBreakAfter' && typeof value === 'boolean') {
 				replacements.push(
 					...getPropertyInsertionReplacements({
 						input,

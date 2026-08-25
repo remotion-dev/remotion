@@ -101,7 +101,7 @@ export const CaptionTextEditor: React.FC<{
 	const updateCaption = useCallback(
 		(
 			index: number,
-			changes: Partial<Pick<Caption, 'text' | 'lineBreakAfter'>>,
+			changes: Partial<Pick<Caption, 'text' | 'pageBreakAfter'>>,
 		) => {
 			const currentCaption = latestRef.current.captions[index];
 			if (!currentCaption) {
@@ -131,16 +131,16 @@ export const CaptionTextEditor: React.FC<{
 		[updateCaption],
 	);
 
-	const updateLineBreakAfter = useCallback(
-		(index: number, lineBreakAfter: boolean) => {
+	const updatePageBreakAfter = useCallback(
+		(index: number, pageBreakAfter: boolean) => {
 			if (
-				Boolean(latestRef.current.captions[index]?.lineBreakAfter) ===
-				lineBreakAfter
+				Boolean(latestRef.current.captions[index]?.pageBreakAfter) ===
+				pageBreakAfter
 			) {
 				return;
 			}
 
-			updateCaption(index, {lineBreakAfter});
+			updateCaption(index, {pageBreakAfter});
 		},
 		[updateCaption],
 	);
@@ -158,10 +158,10 @@ export const CaptionTextEditor: React.FC<{
 			<div ref={listRef} style={list}>
 				{captions.length === 0 ? <div style={empty}>No captions</div> : null}
 				{captionRows.map(({caption, key}, index) => {
-					const hasLineBreakAfter = Boolean(caption.lineBreakAfter);
-					const lineBreakTitle = hasLineBreakAfter
-						? `Remove line break after caption ${index + 1}`
-						: `Add line break after caption ${index + 1}`;
+					const hasPageBreakAfter = Boolean(caption.pageBreakAfter);
+					const pageBreakTitle = hasPageBreakAfter
+						? `Remove page break after caption ${index + 1}`
+						: `Add page break after caption ${index + 1}`;
 
 					return (
 						<div key={key} style={row}>
@@ -215,22 +215,22 @@ export const CaptionTextEditor: React.FC<{
 								value={caption.text}
 							/>
 							<InlineAction
-								aria-pressed={hasLineBreakAfter}
+								aria-pressed={hasPageBreakAfter}
 								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 								disabled={readOnly}
 								onClick={() => {
-									updateLineBreakAfter(index, !hasLineBreakAfter);
+									updatePageBreakAfter(index, !hasPageBreakAfter);
 									commitPending();
 								}}
 								renderAction={(color) => (
 									<EnterIcon
 										aria-hidden="true"
-										color={hasLineBreakAfter ? BLUE : color}
+										color={hasPageBreakAfter ? BLUE : color}
 										focusable="false"
 										style={{height: 16, width: 16}}
 									/>
 								)}
-								title={lineBreakTitle}
+								title={pageBreakTitle}
 								variant={null}
 							/>
 						</div>

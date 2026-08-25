@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { UnserializedSrt } from "../helpers/serialize-srt";
 import { SrtSingleCaption } from "./SingleCaption";
 
@@ -32,12 +32,10 @@ export const SrtPreviewLine: React.FC<{
       <div style={inner}>
         {segment.captions.map((caption, index) => {
           return (
-            <Fragment key={caption.startMs}>
-              <SrtSingleCaption caption={caption}></SrtSingleCaption>
-              {caption.lineBreakAfter && index < segment.captions.length - 1 ? (
-                <br />
-              ) : null}
-            </Fragment>
+            <SrtSingleCaption
+              key={`${caption.startMs}-${index}`}
+              caption={caption}
+            />
           );
         })}
       </div>

@@ -92,7 +92,7 @@ const srtContent = serializeSrt({
       endMs: token.toMs,
       timestampMs: (token.fromMs + token.toMs) / 2,
       confidence: null,
-      lineBreakAfter: token.lineBreakAfter,
+      pageBreakAfter: token.pageBreakAfter,
     }));
   }),
 });

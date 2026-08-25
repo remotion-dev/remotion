@@ -24,8 +24,8 @@ export const layoutText = ({
   for (const [index, caption] of captions.entries()) {
     const isFirstCaption = index === 0;
     const previousCaption = captions[index - 1];
-    const forcedLineBreak = Boolean(previousCaption?.lineBreakAfter);
-    if (forcedLineBreak) {
+    const startsNewPage = Boolean(previousCaption?.pageBreakAfter);
+    if (startsNewPage) {
       lines.push([]);
       box = fillTextBox({
         maxBoxWidth: textBoxWidth,
@@ -34,7 +34,7 @@ export const layoutText = ({
     }
     const { newLine } = box.add({
       text:
-        isFirstCaption || forcedLineBreak
+        isFirstCaption || startsNewPage
           ? caption.text.trimStart()
           : caption.text,
       fontFamily,
@@ -46,7 +46,7 @@ export const layoutText = ({
     }
 
     const newCaption = { ...caption };
-    if (newLine || isFirstCaption || forcedLineBreak) {
+    if (newLine || isFirstCaption || startsNewPage) {
       newCaption.text = newCaption.text.trimStart();
       box.add({
         text: " ".repeat(caption.text.length - newCaption.text.length),
@@ -74,6 +74,14 @@ export const filterCurrentlyDisplayedLines = ({
     });
   });
 
+  const lastPageBreak = currentlyActiveLines.findLastIndex((line, index) => {
+    return (
+      index < currentlyActiveLines.length - 1 &&
+      Boolean(line.at(-1)?.pageBreakAfter)
+    );
+  });
+  const currentPageLines = currentlyActiveLines.slice(lastPageBreak + 1);
+
   // Return the last 4 lines
-  return currentlyActiveLines.slice(-LINES_PER_PAGE);
+  return currentPageLines.slice(-LINES_PER_PAGE);
 };

@@ -180,7 +180,7 @@ const splitIntoPageGroups = (captions: Caption[]): Caption[][] => {
 	for (const caption of captions) {
 		pageGroup.push(caption);
 
-		if (SENTENCE_END.test(caption.text.trim()) || caption.lineBreakAfter) {
+		if (SENTENCE_END.test(caption.text.trim()) || caption.pageBreakAfter) {
 			pageGroups.push(pageGroup);
 			pageGroup = [];
 		}
@@ -197,7 +197,7 @@ const toToken = (caption: Caption, isFirst: boolean): TikTokToken => ({
 	text: isFirst ? caption.text.trimStart() : caption.text,
 	fromMs: caption.startMs,
 	toMs: caption.endMs,
-	...(caption.lineBreakAfter ? {lineBreakAfter: true} : {}),
+	...(caption.pageBreakAfter ? {pageBreakAfter: true} : {}),
 });
 
 const rebalanceSentence = ({
@@ -412,18 +412,15 @@ const rebalanceSentence = ({
 		const endMs = nextCaption
 			? nextCaption.startMs
 			: pageCaptions[pageCaptions.length - 1].endMs;
-		const tokens = pageCaptions.map((caption, tokenIndex) => {
-			const startsLine =
-				tokenIndex === 0 || pageCaptions[tokenIndex - 1]?.lineBreakAfter;
-			return toToken(caption, Boolean(startsLine));
-		});
+		const tokens = pageCaptions.map((caption, tokenIndex) =>
+			toToken(caption, tokenIndex === 0),
+		);
 
 		pages.push({
 			text: tokens
-				.map((token) => token.text + (token.lineBreakAfter ? '\n' : ''))
+				.map((token) => token.text)
 				.join('')
-				.trimStart()
-				.replace(/\n$/, ''),
+				.trimStart(),
 			startMs,
 			tokens,
 			durationMs: endMs - startMs,
@@ -436,7 +433,7 @@ const rebalanceSentence = ({
 };
 
 /**
- * Never crosses a sentence or forced line break boundary. When layout
+ * Never crosses a sentence or forced page break boundary. When layout
  * information is supplied, the page count is derived from rendered width and
  * a duration ceiling. Dynamic programming then chooses boundaries based on
  * line balance, timing and natural phrase boundaries. Without layout

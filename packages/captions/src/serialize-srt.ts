@@ -18,33 +18,37 @@ export type SerializeSrtInput = {
 };
 
 export const serializeSrt = ({lines}: SerializeSrtInput) => {
-	let currentIndex = 0;
+	const cues: Caption[][] = [];
 
-	return lines
-		.map((s) => {
-			currentIndex++;
-			if (s.length === 0) {
-				return null;
+	for (const line of lines) {
+		let currentCue: Caption[] = [];
+
+		for (const caption of line) {
+			currentCue.push(caption);
+
+			if (caption.pageBreakAfter) {
+				cues.push(currentCue);
+				currentCue = [];
 			}
+		}
 
+		if (currentCue.length > 0) {
+			cues.push(currentCue);
+		}
+	}
+
+	return cues
+		.map((s, index) => {
 			const firstTimestamp = s[0].startMs;
 			const lastTimestamp = s[s.length - 1].endMs;
 
 			return [
 				// Index
-				currentIndex,
+				index + 1,
 				formatSrtTimestamp(firstTimestamp, lastTimestamp),
 				// Text
-				s
-					.map((caption, index) => {
-						return (
-							caption.text +
-							(caption.lineBreakAfter && index < s.length - 1 ? '\n' : '')
-						);
-					})
-					.join(''),
+				s.map((caption) => caption.text).join(''),
 			].join('\n');
 		})
-		.filter(Boolean)
 		.join('\n\n');
 };

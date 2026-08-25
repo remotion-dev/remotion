@@ -184,14 +184,14 @@ test('Does not emit standalone whitespace captions', () => {
 	});
 });
 
-test('Preserves a forced line break on the final split word', () => {
+test('Preserves a forced page break on the final split word', () => {
 	const firstCaption: Caption = {
 		confidence: 1,
 		endMs: 1000,
 		startMs: 0,
 		text: ' Hello there',
 		timestampMs: 500,
-		lineBreakAfter: true,
+		pageBreakAfter: true,
 	};
 	const secondCaption: Caption = {
 		confidence: 1,

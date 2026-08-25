@@ -15,8 +15,8 @@ const splitWords = (inputCaptions: Caption[]): Caption[] => {
 				endMs: w.endMs,
 				confidence: w.confidence,
 				timestampMs: w.timestampMs,
-				...(j === words.length - 1 && w.lineBreakAfter
-					? {lineBreakAfter: true}
+				...(j === words.length - 1 && w.pageBreakAfter
+					? {pageBreakAfter: true}
 					: {}),
 			});
 		}
@@ -62,7 +62,7 @@ export const ensureMaxCharactersPerLine = ({
 		}
 
 		currentSegment.push(w);
-		if (w.lineBreakAfter && i < splitted.length - 1) {
+		if (w.pageBreakAfter && i < splitted.length - 1) {
 			segments.push(currentSegment);
 			currentSegment = [];
 		}

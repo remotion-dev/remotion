@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import type {Caption} from '@remotion/captions';
 import {Switch} from '@remotion/design';
-import {Fragment, useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {Card} from '../ui/card';
 
 const SingleToken: React.FC<{
@@ -95,16 +95,14 @@ export default function Display({
 						}
 
 						return (
-							<Fragment key={`${c.text}-${c.startMs}-${index}`}>
-								<span
-									data-active={time * 1000 >= c.startMs}
-									data-last-active={index === lastActiveIndex}
-									className="data-[active=true]:font-bold data-[last-active=true]:text-brand"
-								>
-									{c.text}
-								</span>
-								{c.lineBreakAfter && index < result.length - 1 ? <br /> : null}
-							</Fragment>
+							<span
+								key={`${c.text}-${c.startMs}-${index}`}
+								data-active={time * 1000 >= c.startMs}
+								data-last-active={index === lastActiveIndex}
+								className="data-[active=true]:font-bold data-[last-active=true]:text-brand"
+							>
+								{c.text}
+							</span>
 						);
 					})}
 				</div>

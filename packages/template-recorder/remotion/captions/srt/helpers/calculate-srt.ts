@@ -32,9 +32,16 @@ const segmentCaptions = (caption: Caption[]) => {
       currentSegment = [];
     }
     currentSegment.push(w);
+
+    if (w.pageBreakAfter && i < caption.length - 1) {
+      segments.push(currentSegment);
+      currentSegment = [];
+    }
   }
 
-  segments.push(currentSegment);
+  if (currentSegment.length > 0) {
+    segments.push(currentSegment);
+  }
   return segments;
 };
 
@@ -86,11 +93,7 @@ export const calculateSrt = ({
       firstTimestampMs,
       lastTimestampMs,
       text: segment
-        .map((s, captionIndex) => {
-          const separator =
-            s.lineBreakAfter && captionIndex < segment.length - 1 ? "\n" : " ";
-          return s.text.trim() + separator;
-        })
+        .map((s) => s.text.trim() + " ")
         .join("")
         .trim(),
       captions: segment,

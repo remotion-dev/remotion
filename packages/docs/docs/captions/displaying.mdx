@@ -72,6 +72,8 @@ const {pages} = useMemo(() => {
 }, [captions]);
 ```
 
+If a caption has `pageBreakAfter: true`, the current page ends after that caption and the next caption starts a new page.
+
 ## Rendering with Sequences
 
 Map over the pages and render each one in a [`<Sequence>`](/docs/sequence). Calculate the start frame and duration from the page timing:

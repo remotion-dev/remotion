@@ -4,7 +4,7 @@ export const splitCaptionIntoMonospaceSegments = (
   caption: Caption,
 ): Caption[] => {
   const result: Caption[] = [];
-  const { lineBreakAfter, ...captionWithoutLineBreak } = caption;
+  const { pageBreakAfter, ...captionWithoutPageBreak } = caption;
 
   const regex = /`([^`]+)`/g; // regex pattern to find text enclosed in backticks
   let lastIndex = 0;
@@ -13,13 +13,13 @@ export const splitCaptionIntoMonospaceSegments = (
   while ((match = regex.exec(caption.text)) !== null) {
     if (match.index > lastIndex) {
       result.push({
-        ...captionWithoutLineBreak,
+        ...captionWithoutPageBreak,
         text: caption.text.slice(lastIndex, match.index),
       });
     }
 
     result.push({
-      ...captionWithoutLineBreak,
+      ...captionWithoutPageBreak,
       text: `${("`" + match[1]) as string}\``,
     });
     lastIndex = regex.lastIndex;
@@ -27,14 +27,14 @@ export const splitCaptionIntoMonospaceSegments = (
 
   if (lastIndex < caption.text.length) {
     result.push({
-      ...captionWithoutLineBreak,
+      ...captionWithoutPageBreak,
       text: caption.text.slice(lastIndex),
     });
   }
 
   const lastCaption = result[result.length - 1];
-  if (lineBreakAfter && lastCaption) {
-    lastCaption.lineBreakAfter = true;
+  if (pageBreakAfter && lastCaption) {
+    lastCaption.pageBreakAfter = true;
   }
 
   return result;

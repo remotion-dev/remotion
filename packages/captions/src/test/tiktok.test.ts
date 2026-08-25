@@ -76,7 +76,7 @@ test('Should create captions', () => {
 	]);
 });
 
-test('Should start a new page after a forced line break', () => {
+test('Should start a new page after a forced page break', () => {
 	const {pages} = createTikTokStyleCaptions({
 		captions: [
 			{
@@ -85,7 +85,7 @@ test('Should start a new page after a forced line break', () => {
 				endMs: 200,
 				timestampMs: 100,
 				confidence: null,
-				lineBreakAfter: true,
+				pageBreakAfter: true,
 			},
 			{
 				text: ' there',
@@ -108,7 +108,7 @@ test('Should start a new page after a forced line break', () => {
 					text: 'hello',
 					fromMs: 0,
 					toMs: 200,
-					lineBreakAfter: true,
+					pageBreakAfter: true,
 				},
 			],
 		},

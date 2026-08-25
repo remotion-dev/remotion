@@ -73,20 +73,16 @@ export const Page: React.FC<{
               endRelativeToSequence > timeInMs;
 
             return (
-              <React.Fragment key={`${t.fromMs}-${index}`}>
-                <span
-                  style={{
-                    display: "inline",
-                    whiteSpace: "pre",
-                    color: active ? HIGHLIGHT_COLOR : "white",
-                  }}
-                >
-                  {t.text}
-                </span>
-                {t.lineBreakAfter && index < page.tokens.length - 1 ? (
-                  <br />
-                ) : null}
-              </React.Fragment>
+              <span
+                key={`${t.fromMs}-${index}`}
+                style={{
+                  display: "inline",
+                  whiteSpace: "pre",
+                  color: active ? HIGHLIGHT_COLOR : "white",
+                }}
+              >
+                {t.text}
+              </span>
             );
           })}
         </span>

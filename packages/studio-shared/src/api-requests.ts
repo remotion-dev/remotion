@@ -410,7 +410,7 @@ export type CaptionPatch = {
 		endMs: number;
 		timestampMs: number | null;
 		confidence: number | null;
-		lineBreakAfter?: boolean;
+		pageBreakAfter: boolean | null;
 	};
 	changes: Partial<{
 		text: string;
@@ -418,7 +418,7 @@ export type CaptionPatch = {
 		endMs: number;
 		timestampMs: number | null;
 		confidence: number | null;
-		lineBreakAfter: boolean;
+		pageBreakAfter: boolean;
 	}>;
 };
 

@@ -44,12 +44,19 @@ const getCaptionPatches = ({
 			changes.text = after.text;
 		}
 
-		if (Boolean(before.lineBreakAfter) !== Boolean(after.lineBreakAfter)) {
-			changes.lineBreakAfter = Boolean(after.lineBreakAfter);
+		if (Boolean(before.pageBreakAfter) !== Boolean(after.pageBreakAfter)) {
+			changes.pageBreakAfter = Boolean(after.pageBreakAfter);
 		}
 
 		if (Object.keys(changes).length > 0) {
-			patches.push({index, before, changes});
+			patches.push({
+				index,
+				before: {
+					...before,
+					pageBreakAfter: before.pageBreakAfter ?? null,
+				},
+				changes,
+			});
 		}
 	}
 

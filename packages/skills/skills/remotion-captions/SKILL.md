@@ -19,7 +19,7 @@ type Caption = {
   endMs: number;
   timestampMs: number | null;
   confidence: number | null;
-  lineBreakAfter?: boolean;
+  pageBreakAfter?: boolean;
 };
 ```
 
