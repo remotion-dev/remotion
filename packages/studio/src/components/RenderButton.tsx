@@ -146,6 +146,7 @@ const RenderButtonInner: React.FC<{
 	}, [controlSize]);
 
 	const video = Internals.useVideo();
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
 
 	const {props} = useContext(Internals.EditorPropsContext);
@@ -428,7 +429,7 @@ const RenderButtonInner: React.FC<{
 		tooltip,
 	]);
 
-	if (!video) {
+	if (!video || canvasContent?.type !== 'composition') {
 		return null;
 	}
 

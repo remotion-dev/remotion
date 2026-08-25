@@ -30,6 +30,7 @@
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
 		"@remotion/captions": "workspace:*",
+		"@remotion/media": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/renderer": "workspace:*",

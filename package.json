@@ -88,7 +88,8 @@
 		"@remix-run/react": "2.17.4",
 		"@remix-run/serve": "2.17.4",
 		"@remix-run/server-runtime": "2.17.4",
-		"protobufjs": "7.6.5"
+		"protobufjs": "7.6.5",
+		"websocket-driver": "0.7.5"
 	},
 	"workspaces": {
 		"packages": [

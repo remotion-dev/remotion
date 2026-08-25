@@ -1799,6 +1799,7 @@
         "@jridgewell/trace-mapping": "0.3.31",
         "@remotion/canvas": "workspace:*",
         "@remotion/captions": "workspace:*",
+        "@remotion/media": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
@@ -2862,6 +2863,7 @@
     "@rspack/core": "1.7.11",
     "caniuse-lite": "1.0.30001766",
     "protobufjs": "7.6.5",
+    "websocket-driver": "0.7.5",
   },
   "catalog": {
     "@aws-sdk/client-cloudwatch-logs": "3.986.0",
@@ -8894,7 +8896,7 @@
 
     "webpackbar": ["webpackbar@7.0.0", "", { "dependencies": { "ansis": "^3.2.0", "consola": "^3.2.3", "pretty-time": "^1.1.0", "std-env": "^3.7.0" }, "peerDependencies": { "@rspack/core": "*", "webpack": "3 || 4 || 5" }, "optionalPeers": ["@rspack/core", "webpack"] }, "sha512-aS9soqSO2iCHgqHoCrj4LbfGQUboDCYJPSFOAchEK+9psIjNrfSWW4Y0YEz67MKURNvMmfo0ycOg9d/+OOf9/Q=="],
 
-    "websocket-driver": ["websocket-driver@0.7.4", "", { "dependencies": { "http-parser-js": "0.5.3", "safe-buffer": "5.2.1", "websocket-extensions": "0.1.4" } }, "sha512-b17KeDIQVjvb0ssuSDF2cYXSg2iztliJ4B9WdsuB6J952qCPKmnVq4DyW5motImXHDC1cBT/1UezrJVsKw5zjg=="],
+    "websocket-driver": ["websocket-driver@0.7.5", "", { "dependencies": { "http-parser-js": ">=0.5.1", "safe-buffer": ">=5.1.0", "websocket-extensions": ">=0.1.1" } }, "sha512-ZL2+3c7kMBdIRCMz6l8jQMHyGVxj+UL+xVk74Ombiciboca8rHa15L86B19E5oh1pL9Ii/uj54gtsIrZGMo6zA=="],
 
     "websocket-extensions": ["websocket-extensions@0.1.4", "", {}, "sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg=="],
 

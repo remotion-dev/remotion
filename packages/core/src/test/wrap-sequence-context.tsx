@@ -39,6 +39,7 @@ const makeMockCompositionContext = (
 		},
 	],
 	folders: [],
+	currentAssetMetadata: null,
 	canvasContent: {type: 'composition', compositionId: 'my-comp'},
 	currentCompositionMetadata: {
 		defaultCodec: null,

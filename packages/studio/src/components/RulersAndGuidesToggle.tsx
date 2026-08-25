@@ -4,23 +4,37 @@ import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {ControlButton} from './ControlButton';
 
-export const RulersAndGuidesToggle: React.FC = () => {
+export const RulersAndGuidesToggle: React.FC<{
+	readonly showGuides: boolean;
+}> = ({showGuides}) => {
 	const {editorShowGuides, setEditorShowGuides} = useContext(
 		EditorShowGuidesContext,
 	);
 	const {editorShowRulers, setEditorShowRulers} = useContext(
 		EditorShowRulersContext,
 	);
-	const rulersOrGuidesAreVisible = editorShowRulers || editorShowGuides;
+	const rulersOrGuidesAreVisible =
+		editorShowRulers || (showGuides && editorShowGuides);
 
 	const onClick = useCallback(() => {
 		setEditorShowRulers(() => !rulersOrGuidesAreVisible);
-		setEditorShowGuides(() => !rulersOrGuidesAreVisible);
-	}, [rulersOrGuidesAreVisible, setEditorShowGuides, setEditorShowRulers]);
+		if (showGuides) {
+			setEditorShowGuides(() => !rulersOrGuidesAreVisible);
+		}
+	}, [
+		rulersOrGuidesAreVisible,
+		setEditorShowGuides,
+		setEditorShowRulers,
+		showGuides,
+	]);
 
-	const accessibilityLabel = rulersOrGuidesAreVisible
-		? 'Hide rulers and guides'
-		: 'Show rulers and guides';
+	const accessibilityLabel = showGuides
+		? rulersOrGuidesAreVisible
+			? 'Hide rulers and guides'
+			: 'Show rulers and guides'
+		: editorShowRulers
+			? 'Hide rulers'
+			: 'Show rulers';
 
 	return (
 		<ControlButton
