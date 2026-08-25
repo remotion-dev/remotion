@@ -17,6 +17,7 @@ type MirroredAudioSpectrumProps = InteractiveBaseProps &
 		readonly audioSrc?: string;
 		readonly barColor?: string;
 		readonly numberOfBars?: number;
+		readonly sensitivity?: number;
 	};
 
 const mirroredAudioSpectrumSchema = {
@@ -29,7 +30,7 @@ const mirroredAudioSpectrumSchema = {
 	},
 	barColor: {
 		type: 'color',
-		default: '#f4b941',
+		default: '#0b84f3',
 		description: 'Bar color',
 	},
 	numberOfBars: {
@@ -42,6 +43,15 @@ const mirroredAudioSpectrumSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	sensitivity: {
+		type: 'number',
+		min: 0.25,
+		max: 3,
+		step: 0.05,
+		default: 1.5,
+		description: 'Sensitivity',
+		hiddenFromList: false,
+	},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
@@ -50,8 +60,9 @@ const MirroredAudioSpectrumContent: React.FC<{
 	readonly barColor: string;
 	readonly numberOfBars: number;
 	readonly outlineRef: React.RefObject<HTMLDivElement | null>;
+	readonly sensitivity: number;
 	readonly style: MirroredAudioSpectrumProps['style'];
-}> = ({audioSrc, barColor, numberOfBars, outlineRef, style}) => {
+}> = ({audioSrc, barColor, numberOfBars, outlineRef, sensitivity, style}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
@@ -103,7 +114,10 @@ const MirroredAudioSpectrumContent: React.FC<{
 						backgroundColor: barColor,
 						borderRadius: 999,
 						flex: 1,
-						height: Math.max(4, 300 * Math.sqrt(value)),
+						height: Math.max(
+							4,
+							Math.min(300, 300 * Math.sqrt(value) * sensitivity),
+						),
 						minWidth: 2,
 					}}
 				/>
@@ -119,10 +133,11 @@ const MirroredAudioSpectrumInner = forwardRef<
 	(
 		{
 			audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-			barColor = '#f4b941',
+			barColor = '#0b84f3',
 			controls,
 			name,
 			numberOfBars = 65,
+			sensitivity = 1.5,
 			style,
 			...sequenceProps
 		},
@@ -144,6 +159,7 @@ const MirroredAudioSpectrumInner = forwardRef<
 					barColor={barColor}
 					numberOfBars={numberOfBars}
 					outlineRef={outlineRef}
+					sensitivity={sensitivity}
 					style={style}
 				/>
 			</Sequence>
@@ -165,9 +181,10 @@ export const MirroredAudioSpectrum: React.FC<MirroredAudioSpectrumProps> = (
 	return (
 		<InteractiveMirroredAudioSpectrum
 			audioSrc="https://remotion.media/elements/remotion-made-this-picture-move.mp3"
-			barColor="#f4b941"
+			barColor="#0b84f3"
 			name="Mirrored audio spectrum"
 			numberOfBars={65}
+			sensitivity={1.5}
 			{...props}
 		/>
 	);
