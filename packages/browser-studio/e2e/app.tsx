@@ -19,7 +19,9 @@ const render = async () => {
 		? await loadGitHubRepository({
 				repoUrl: 'https://github.com/remotion-dev/opfs-fixture',
 			})
-		: createBlankTemplateProject();
+		: createBlankTemplateProject({
+				durationInFrames: initialElementPayload?.durationInFrames ?? null,
+			});
 	(
 		window as typeof window & {
 			__browserStudioProject: VirtualProject;

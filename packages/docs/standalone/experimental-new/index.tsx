@@ -76,10 +76,22 @@ type ProjectState =
 	  }
 	| {type: 'error'; repoUrl: string; message: string};
 
-const getInitialProjectState = (): ProjectState => {
+const createBlankProject = (
+	initialElementState: InitialElementState,
+): VirtualProject =>
+	createBlankTemplateProject({
+		durationInFrames:
+			initialElementState.type === 'payload'
+				? initialElementState.payload.payload.durationInFrames
+				: null,
+	});
+
+const getInitialProjectState = (
+	initialElementState: InitialElementState,
+): ProjectState => {
 	const repoUrl = new URLSearchParams(window.location.search).get('repo');
 	if (!repoUrl) {
-		return {type: 'ready', project: createBlankTemplateProject()};
+		return {type: 'ready', project: createBlankProject(initialElementState)};
 	}
 
 	return {
@@ -116,7 +128,9 @@ const getInitialElementState = (): InitialElementState => {
 
 const BrowserStudioContent: React.FC = () => {
 	const [initialElementState] = useState(getInitialElementState);
-	const [projectState, setProjectState] = useState(getInitialProjectState);
+	const [projectState, setProjectState] = useState(() =>
+		getInitialProjectState(initialElementState),
+	);
 	const loadingRepoUrl =
 		projectState.type === 'loading' ? projectState.repoUrl : null;
 
@@ -233,7 +247,7 @@ const BrowserStudioContent: React.FC = () => {
 							<button
 								onClick={() =>
 									setProjectState({
-										project: createBlankTemplateProject(),
+										project: createBlankProject(initialElementState),
 										type: 'ready',
 									})
 								}

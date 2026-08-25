@@ -1007,7 +1007,7 @@ test('confirms and imports an Element payload from the URL fragment', async ({
 		dependencies: [{name: '@remotion/shapes', version: null}],
 		dimensions: {height: 180, width: 320},
 		displayName: 'Linked Element',
-		durationInFrames: 60,
+		durationInFrames: 150,
 		installationMode: 'wrapped',
 		slug: 'linked-element',
 		sourceCode: `import {Rect} from '@remotion/shapes';
@@ -1073,6 +1073,20 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 			composition: expect.stringContaining('<LinkedElement />'),
 			element: expect.stringContaining("import {Rect} from '@remotion/shapes'"),
 		});
+	const composition = await page.evaluate(() => {
+		const browserWindow = window as typeof window & {
+			__browserStudioProject: {files: Record<string, string>};
+		};
+		return browserWindow.__browserStudioProject.files[
+			'/project/src/Composition.tsx'
+		];
+	});
+	expect(composition).toMatch(
+		/<Composition\b(?=[^>]*\bdurationInFrames=\{150\})[^>]*\/>/,
+	);
+	expect(composition).toMatch(
+		/<Sequence\b(?=[^>]*\bdurationInFrames=\{150\})[^>]*>/,
+	);
 	expect(
 		await studio.locator('body').evaluate(
 			() =>
