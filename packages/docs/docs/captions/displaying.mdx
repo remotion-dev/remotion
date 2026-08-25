@@ -119,6 +119,7 @@ const CaptionedContent: React.FC = () => {
 A caption page contains `tokens` which you can use to highlight the currently spoken word. Here's an example that highlights words as they are spoken:
 
 ```tsx twoslash title="Rendering a caption page with word highlighting"
+import {Fragment} from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {TikTokPage} from '@remotion/captions';
 
@@ -153,7 +154,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
           const isActive = token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
 
           return (
-            <React.Fragment key={`${token.fromMs}-${tokenIndex}`}>
+            <Fragment key={`${token.fromMs}-${tokenIndex}`}>
               <span
                 style={{
                   color: isActive ? HIGHLIGHT_COLOR : 'white',
@@ -164,7 +165,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
               {token.lineBreakAfter && tokenIndex < page.tokens.length - 1 ? (
                 <br />
               ) : null}
-            </React.Fragment>
+            </Fragment>
           );
         })}
       </div>
@@ -179,7 +180,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 <summary>Show full example</summary>
 
 ```tsx twoslash title="Full captioned video example"
-import {useState, useEffect, useCallback, useMemo} from 'react';
+import {Fragment, useState, useEffect, useCallback, useMemo} from 'react';
 import {AbsoluteFill, Sequence, staticFile, useCurrentFrame, useDelayRender, useVideoConfig} from 'remotion';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import type {Caption, TikTokPage} from '@remotion/captions';
@@ -212,7 +213,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
           const isActive = token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
 
           return (
-            <React.Fragment key={`${token.fromMs}-${tokenIndex}`}>
+            <Fragment key={`${token.fromMs}-${tokenIndex}`}>
               <span
                 style={{
                   color: isActive ? HIGHLIGHT_COLOR : 'white',
@@ -223,7 +224,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
               {token.lineBreakAfter && tokenIndex < page.tokens.length - 1 ? (
                 <br />
               ) : null}
-            </React.Fragment>
+            </Fragment>
           );
         })}
       </div>
