@@ -164,7 +164,7 @@ const SocialSafeZonesInner = forwardRef<
 							src={
 								platform === 'tiktok'
 									? 'https://remotion.media/elements/social-safe-zones/tiktok-interface.png'
-									: 'https://remotion.media/elements/social-safe-zones/instagram-reels-interface.png'
+									: 'https://remotion.media/elements/social-safe-zones/instagram-reels-interface-v3.png'
 							}
 							style={{
 								height: '100%',
