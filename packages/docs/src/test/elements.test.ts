@@ -632,7 +632,7 @@ describe('Element preview definitions', () => {
 					url: definition.preview.videoUrl,
 				},
 			])
-			.filter(({url}) => url.startsWith('/elements/'));
+			.filter(({url}) => url.startsWith('/'));
 
 		expect(localPreviewUrls).toEqual([]);
 	});
