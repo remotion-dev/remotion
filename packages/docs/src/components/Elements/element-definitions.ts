@@ -86,8 +86,10 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 105,
 		preview: {
-			posterUrl: '/elements/audio-mirrored-spectrum-preview.png',
-			videoUrl: '/elements/audio-mirrored-spectrum-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/audio-mirrored-spectrum-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/audio-mirrored-spectrum-preview.mp4',
 		},
 		safeArea: 120,
 		installationMode: 'component-owned-sequence',

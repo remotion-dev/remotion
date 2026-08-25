@@ -151,7 +151,7 @@ const MirroredAudioSpectrumInner = forwardRef<
 				layout="none"
 				{...sequenceProps}
 				controls={controls}
-				name={name ?? '<MirroredAudioSpectrum>'}
+				name={name ?? 'Mirrored audio spectrum'}
 				outlineRef={outlineRef}
 			>
 				<MirroredAudioSpectrumContent
@@ -167,25 +167,10 @@ const MirroredAudioSpectrumInner = forwardRef<
 	},
 );
 
-const InteractiveMirroredAudioSpectrum = Interactive.withSchema({
+export const MirroredAudioSpectrum = Interactive.withSchema({
 	Component: MirroredAudioSpectrumInner,
 	componentName: '<MirroredAudioSpectrum>',
 	componentIdentity: null,
 	schema: mirroredAudioSpectrumSchema,
 	supportsEffects: false,
 }) as React.FC<MirroredAudioSpectrumProps>;
-
-export const MirroredAudioSpectrum: React.FC<MirroredAudioSpectrumProps> = (
-	props,
-) => {
-	return (
-		<InteractiveMirroredAudioSpectrum
-			audioSrc="https://remotion.media/elements/remotion-made-this-picture-move.mp3"
-			barColor="#0b84f3"
-			name="Mirrored audio spectrum"
-			numberOfBars={65}
-			sensitivity={1.5}
-			{...props}
-		/>
-	);
-};
