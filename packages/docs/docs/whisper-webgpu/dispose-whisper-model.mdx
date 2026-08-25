@@ -1,0 +1,33 @@
+---
+image: /generated/articles-docs-whisper-webgpu-dispose-whisper-model.png
+title: disposeWhisperModel()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# disposeWhisperModel()<AvailableFrom v="4.0.517" />
+
+Releases the memory used by initialized Whisper pipelines. Persistent browser-cached model files are not deleted.
+
+```ts twoslash title="dispose.ts"
+import {disposeWhisperModel} from '@remotion/whisper-webgpu';
+
+await disposeWhisperModel({model: 'small.en'});
+```
+
+## Options
+
+### model?
+
+Only dispose this model. Default: all loaded models.
+
+### backend?
+
+Only dispose the `'webgpu'` or `'wasm'` instance. Default: both backends.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model)

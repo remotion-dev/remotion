@@ -1,0 +1,54 @@
+{
+	"name": "@remotion/whisper-webgpu",
+	"version": "4.0.516",
+	"description": "Transcribe audio in the browser using Whisper and WebGPU",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/whisper-webgpu"
+	},
+	"type": "module",
+	"scripts": {
+		"test": "bun test src/test",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"watch": "tsgo -w",
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"@huggingface/transformers": "catalog:",
+		"@remotion/captions": "workspace:*"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"whisper",
+		"webgpu",
+		"captions",
+		"speech-to-text"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/whisper-webgpu"
+}

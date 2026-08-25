@@ -1,0 +1,39 @@
+---
+image: /generated/articles-docs-whisper-webgpu-resample-to-16khz.png
+title: resampleTo16Khz()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# resampleTo16Khz()<AvailableFrom v="4.0.517" />
+
+Decodes an audio `Blob`, mixes it to mono, and resamples it to the 16kHz waveform expected by [`transcribe()`](/docs/whisper-webgpu/transcribe).
+
+```ts twoslash title="resample.ts"
+import {resampleTo16Khz} from '@remotion/whisper-webgpu';
+
+const file = new File([], 'audio.wav');
+const waveform = await resampleTo16Khz({
+  file,
+  onProgress: (progress) => console.log(progress),
+});
+
+console.log(waveform);
+```
+
+## Options
+
+### file
+
+An audio `Blob` or `File` supported by the browser's Web Audio decoder.
+
+### onProgress?
+
+Called with values between `0` and `1` while the file is read, decoded, and resampled.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`transcribe()`](/docs/whisper-webgpu/transcribe)

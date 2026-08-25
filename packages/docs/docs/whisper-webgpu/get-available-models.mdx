@@ -1,0 +1,31 @@
+---
+image: /generated/articles-docs-whisper-webgpu-get-available-models.png
+title: getAvailableModels()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# getAvailableModels()<AvailableFrom v="4.0.517" />
+
+Returns the timestamped Whisper models supported by [`transcribe()`](/docs/whisper-webgpu/transcribe).
+
+```ts twoslash title="models.ts"
+import {getAvailableModels} from '@remotion/whisper-webgpu';
+
+const models = getAvailableModels();
+console.log(models);
+```
+
+Each item contains the short `name`, Hugging Face `modelId`, parameter count, whether the model is multilingual, and estimated downloads for the default WebGPU and WASM configurations.
+
+Available sizes are `tiny`, `base`, `small`, `medium`, and `large-v3-turbo`. English-only `.en` variants are available through `medium`.
+
+The estimates cover model weights. Browser caches and supporting model files may add a small amount.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`transcribe()`](/docs/whisper-webgpu/transcribe)
+- [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model)

@@ -1,0 +1,69 @@
+---
+image: /generated/articles-docs-whisper-webgpu-transcribe.png
+title: transcribe()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# transcribe()<AvailableFrom v="4.0.517" />
+
+Transcribes a 16kHz mono waveform and returns words with start and end timestamps.
+
+```ts twoslash title="transcribe.ts"
+import {resampleTo16Khz, transcribe} from '@remotion/whisper-webgpu';
+
+const file = new File([], 'audio.wav');
+const channelWaveform = await resampleTo16Khz({file});
+
+const result = await transcribe({
+  channelWaveform,
+  model: 'small.en',
+  language: 'en',
+});
+
+console.log(result.text, result.words, result.backend);
+```
+
+## Options
+
+### channelWaveform
+
+A mono `Float32Array` sampled at 16kHz. Use [`resampleTo16Khz()`](/docs/whisper-webgpu/resample-to-16khz) for browser audio files.
+
+### model
+
+One of the timestamped models returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models). `small` or `small.en` is the recommended default.
+
+### backend?
+
+`'auto'`, `'webgpu'`, or `'wasm'`. Default: `'auto'`.
+
+### language?
+
+The spoken language name or language code. Default: `'auto'`. Set it when known to reduce language-detection errors.
+
+### chunkLengthInSeconds?
+
+Length of long-audio chunks. Default: `30`.
+
+### strideLengthInSeconds?
+
+Overlap on both sides of a chunk. Default: `5`. It must be less than half of `chunkLengthInSeconds`.
+
+### onModelLoadProgress?
+
+Called while the model is loaded. To load independently, use [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model).
+
+## Return value
+
+Returns the full `text`, timestamped `words`, selected `model`, and resolved `backend`.
+
+Word-level timestamps are returned after transcription completes. Transformers.js does not currently stream word-aligned updates while inference is running.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`toCaptions()`](/docs/whisper-webgpu/to-captions)
+- [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models)

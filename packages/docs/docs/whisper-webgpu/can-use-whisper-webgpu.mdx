@@ -1,0 +1,40 @@
+---
+image: /generated/articles-docs-whisper-webgpu-can-use-whisper-webgpu.png
+title: canUseWhisperWebGpu()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# canUseWhisperWebGpu()<AvailableFrom v="4.0.517" />
+
+Checks whether WebGPU or the WASM fallback can run in the current browser.
+
+```ts twoslash title="support.ts"
+import {canUseWhisperWebGpu} from '@remotion/whisper-webgpu';
+
+const result = await canUseWhisperWebGpu();
+if (!result.supported) {
+  throw new Error(result.detailedReason);
+}
+
+console.log(result.backend, result.wasmThreads);
+```
+
+## Options
+
+### backend?
+
+`'auto'`, `'webgpu'`, or `'wasm'`. Default: `'auto'`, which selects WebGPU when available and otherwise uses WASM.
+
+Requesting `'webgpu'` reports an unsupported result when WebGPU is unavailable or the page is not a secure context.
+
+## Cross-origin isolation
+
+Cross-origin isolation is not required. It only changes the WASM thread count: isolated pages may use multiple threads, while other pages use one.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model)

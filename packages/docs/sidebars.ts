@@ -981,6 +981,23 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/whisper-webgpu',
+			link: {
+				type: 'doc',
+				id: 'whisper-webgpu/index',
+			},
+			items: [
+				'whisper-webgpu/can-use-whisper-webgpu',
+				'whisper-webgpu/get-available-models',
+				'whisper-webgpu/load-whisper-model',
+				'whisper-webgpu/transcribe',
+				'whisper-webgpu/to-captions',
+				'whisper-webgpu/resample-to-16khz',
+				'whisper-webgpu/dispose-whisper-model',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/zod-types',
 			link: {
 				type: 'doc',
