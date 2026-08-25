@@ -1,11 +1,27 @@
 import type {StudioElementLibrary} from '@remotion/studio-shared';
 
+export type AddElementLibraryOptions = {
+	readonly url: string;
+	readonly displayName?: string;
+};
+
 let elementLibraries: StudioElementLibrary[] = [];
 
-export const addElementLibrary = (url: string, displayName: string | null) => {
+export const addElementLibrary = (options: AddElementLibraryOptions) => {
+	if (
+		typeof options !== 'object' ||
+		options === null ||
+		Array.isArray(options)
+	) {
+		throw new Error(
+			`Config.addElementLibrary() expects an object, got ${typeof options}`,
+		);
+	}
+
+	const {url, displayName} = options;
 	if (typeof url !== 'string') {
 		throw new Error(
-			`Config.addElementLibrary() expects a string, got ${typeof url}`,
+			`Config.addElementLibrary() expects "url" to be a string, got ${typeof url}`,
 		);
 	}
 
@@ -24,7 +40,7 @@ export const addElementLibrary = (url: string, displayName: string | null) => {
 		);
 	}
 
-	if (displayName !== null && typeof displayName !== 'string') {
+	if (displayName !== undefined && typeof displayName !== 'string') {
 		throw new Error(
 			`Config.addElementLibrary() expects the display name to be a string, got ${typeof displayName}`,
 		);

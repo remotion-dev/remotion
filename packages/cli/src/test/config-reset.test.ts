@@ -15,25 +15,31 @@ test('Studio render defaults keep the startup log level', () => {
 test('Element library configuration must be valid', () => {
 	ConfigInternals.resetConfigOptions();
 
-	expect(() => Config.addElementLibrary('/elements')).toThrow(
+	expect(() => Config.addElementLibrary({url: '/elements'})).toThrow(
 		'Config.addElementLibrary() expects an absolute URL',
 	);
-	expect(() => Config.addElementLibrary('file:///tmp/elements')).toThrow(
+	expect(() => Config.addElementLibrary({url: 'file:///tmp/elements'})).toThrow(
 		'Config.addElementLibrary() only supports HTTP and HTTPS URLs',
 	);
-	expect(() => Config.addElementLibrary(null as unknown as string)).toThrow(
-		'Config.addElementLibrary() expects a string',
-	);
 	expect(() =>
-		Config.addElementLibrary(
-			'https://example.com/elements',
-			123 as unknown as string,
-		),
+		Config.addElementLibrary(null as unknown as {url: string}),
+	).toThrow('Config.addElementLibrary() expects an object');
+	expect(() =>
+		Config.addElementLibrary({url: null as unknown as string}),
+	).toThrow('Config.addElementLibrary() expects "url" to be a string');
+	expect(() =>
+		Config.addElementLibrary({
+			url: 'https://example.com/elements',
+			displayName: 123 as unknown as string,
+		}),
 	).toThrow(
 		'Config.addElementLibrary() expects the display name to be a string',
 	);
 	expect(() =>
-		Config.addElementLibrary('https://example.com/elements', ' '),
+		Config.addElementLibrary({
+			url: 'https://example.com/elements',
+			displayName: ' ',
+		}),
 	).toThrow(
 		'Config.addElementLibrary() expects the display name to not be empty',
 	);
@@ -62,7 +68,10 @@ test('reset config options restores defaults before reloading config', async () 
 
 	Config.setStudioPort(4321);
 	Config.setMaxTimelineTracks(123);
-	Config.addElementLibrary('https://example.com/elements', 'Example Elements');
+	Config.addElementLibrary({
+		url: 'https://example.com/elements',
+		displayName: 'Example Elements',
+	});
 	Config.setChromiumOpenGlRenderer('angle');
 	Config.setCrf(12);
 	Config.setDefaultCodingAgent('codex');

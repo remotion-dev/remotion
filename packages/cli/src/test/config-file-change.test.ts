@@ -42,8 +42,8 @@ test('classifies runtime config changes', () => {
 	).toBe('runtime');
 	expect(
 		classify(
-			prepare('Config.addElementLibrary("https://one.example.com");'),
-			prepare('Config.addElementLibrary("https://two.example.com");'),
+			prepare('Config.addElementLibrary({url: "https://one.example.com"});'),
+			prepare('Config.addElementLibrary({url: "https://two.example.com"});'),
 		),
 	).toBe('runtime');
 });
