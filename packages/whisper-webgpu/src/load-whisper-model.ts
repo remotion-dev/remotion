@@ -66,7 +66,7 @@ export const loadWhisperModel = async ({
 	backend = 'auto',
 	onProgress,
 }: LoadWhisperModelOptions): Promise<LoadWhisperModelResult> => {
-	const resolvedBackend = resolveBackend(backend);
+	const resolvedBackend = await resolveBackend(backend);
 	const cacheKey = getCacheKey(model, resolvedBackend);
 	const existing = pipelines.get(cacheKey);
 	if (existing) {

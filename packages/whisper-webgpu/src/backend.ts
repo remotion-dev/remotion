@@ -4,24 +4,41 @@ export type ResolvedWhisperWebGpuBackend = Exclude<
 	'auto'
 >;
 
-const hasWebGpu = () => {
-	return (
-		typeof navigator !== 'undefined' &&
-		'gpu' in navigator &&
-		globalThis.isSecureContext !== false
-	);
+const requestWebGpuAdapter = async (): Promise<unknown | null> => {
+	if (
+		typeof navigator === 'undefined' ||
+		!('gpu' in navigator) ||
+		globalThis.isSecureContext === false
+	) {
+		return null;
+	}
+
+	const {gpu} = navigator as unknown as {
+		gpu: {requestAdapter: () => Promise<unknown | null>};
+	};
+
+	try {
+		return await gpu.requestAdapter();
+	} catch {
+		return null;
+	}
 };
 
-export const resolveBackend = (
+export const resolveBackend = async (
 	backend: WhisperWebGpuBackend,
-): ResolvedWhisperWebGpuBackend => {
-	if (backend === 'webgpu' && !hasWebGpu()) {
-		throw new Error('WebGPU is not available in this browser.');
+): Promise<ResolvedWhisperWebGpuBackend> => {
+	if (backend === 'wasm') {
+		return 'wasm';
 	}
 
-	if (backend === 'auto') {
-		return hasWebGpu() ? 'webgpu' : 'wasm';
+	const adapter = await requestWebGpuAdapter();
+	if (adapter) {
+		return 'webgpu';
 	}
 
-	return backend;
+	if (backend === 'webgpu') {
+		throw new Error('No usable WebGPU adapter is available in this browser.');
+	}
+
+	return 'wasm';
 };

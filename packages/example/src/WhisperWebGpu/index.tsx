@@ -30,7 +30,7 @@ export const WhisperWebGpu = () => {
 		setResult('');
 
 		try {
-			const support = canUseWhisperWebGpu({backend: 'auto'});
+			const support = await canUseWhisperWebGpu({backend: 'auto'});
 			if (!support.supported) {
 				throw new Error(support.detailedReason);
 			}

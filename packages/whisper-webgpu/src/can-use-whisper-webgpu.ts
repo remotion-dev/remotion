@@ -27,9 +27,9 @@ export type CanUseWhisperWebGpuOptions = {
 	backend?: WhisperWebGpuBackend;
 };
 
-export const canUseWhisperWebGpu = ({
+export const canUseWhisperWebGpu = async ({
 	backend = 'auto',
-}: CanUseWhisperWebGpuOptions = {}): CanUseWhisperWebGpuResult => {
+}: CanUseWhisperWebGpuOptions = {}): Promise<CanUseWhisperWebGpuResult> => {
 	if (typeof window === 'undefined') {
 		return {
 			supported: false,
@@ -39,7 +39,10 @@ export const canUseWhisperWebGpu = ({
 		};
 	}
 
-	if (backend === 'webgpu' && !('gpu' in navigator)) {
+	if (
+		backend === 'webgpu' &&
+		(typeof navigator === 'undefined' || !('gpu' in navigator))
+	) {
 		return {
 			supported: false,
 			reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
@@ -56,7 +59,17 @@ export const canUseWhisperWebGpu = ({
 		};
 	}
 
-	const resolvedBackend = resolveBackend(backend);
+	let resolvedBackend: ResolvedWhisperWebGpuBackend;
+	try {
+		resolvedBackend = await resolveBackend(backend);
+	} catch {
+		return {
+			supported: false,
+			reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
+			detailedReason: 'No usable WebGPU adapter is available in this browser.',
+		};
+	}
+
 	if (resolvedBackend === 'wasm' && typeof WebAssembly === 'undefined') {
 		return {
 			supported: false,

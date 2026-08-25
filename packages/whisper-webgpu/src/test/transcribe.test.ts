@@ -45,9 +45,16 @@ mock.module('@huggingface/transformers', () => ({
 	},
 }));
 
-test('transcribes with the selected timestamped model and returns Remotion captions', async () => {
+test('transcribes with timestamps and selects a usable backend', async () => {
 	const api = await import('../index');
-	const {disposeWhisperModel, getAvailableModels, toCaptions, transcribe} = api;
+	const {
+		canUseWhisperWebGpu,
+		disposeWhisperModel,
+		getAvailableModels,
+		toCaptions,
+		transcribe,
+		WhisperWebGpuUnsupportedReason,
+	} = api;
 	const channelWaveform = new Float32Array(16_000 * 3);
 	const result = await transcribe({
 		backend: 'wasm',
@@ -117,6 +124,82 @@ test('transcribes with the selected timestamped model and returns Remotion capti
 		webGpuDownloadSize: 586_209_938,
 	});
 
-	await disposeWhisperModel({model: 'small.en', backend: 'wasm'});
+	const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+	const originalNavigator = Object.getOwnPropertyDescriptor(
+		globalThis,
+		'navigator',
+	);
+	let adapter: object | null = null;
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: {
+			crossOriginIsolated: false,
+			isSecureContext: true,
+		},
+	});
+	Object.defineProperty(globalThis, 'navigator', {
+		configurable: true,
+		value: {
+			gpu: {
+				requestAdapter: () => Promise.resolve(adapter),
+			},
+			hardwareConcurrency: 8,
+		},
+	});
+
+	try {
+		expect(await canUseWhisperWebGpu()).toEqual({
+			supported: true,
+			backend: 'wasm',
+			wasmThreads: 1,
+		});
+		expect(await canUseWhisperWebGpu({backend: 'webgpu'})).toEqual({
+			supported: false,
+			reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
+			detailedReason: 'No usable WebGPU adapter is available in this browser.',
+		});
+
+		const fallbackResult = await transcribe({
+			backend: 'auto',
+			channelWaveform,
+			model: 'base.en',
+		});
+		expect(fallbackResult.backend).toBe('wasm');
+		expect(pipelineInitialization?.options).toMatchObject({
+			device: 'wasm',
+			dtype: 'q8',
+		});
+
+		adapter = {};
+		expect(await canUseWhisperWebGpu()).toEqual({
+			supported: true,
+			backend: 'webgpu',
+			wasmThreads: null,
+		});
+		const webGpuResult = await transcribe({
+			backend: 'auto',
+			channelWaveform,
+			model: 'tiny.en',
+		});
+		expect(webGpuResult.backend).toBe('webgpu');
+		expect(pipelineInitialization?.options).toMatchObject({
+			device: 'webgpu',
+			dtype: {encoder_model: 'fp32', decoder_model_merged: 'q4'},
+		});
+	} finally {
+		if (originalWindow) {
+			Object.defineProperty(globalThis, 'window', originalWindow);
+		} else {
+			delete (globalThis as {window?: unknown}).window;
+		}
+
+		if (originalNavigator) {
+			Object.defineProperty(globalThis, 'navigator', originalNavigator);
+		} else {
+			delete (globalThis as {navigator?: unknown}).navigator;
+		}
+	}
+
+	await disposeWhisperModel();
 	expect(disposed).toBe(true);
 });

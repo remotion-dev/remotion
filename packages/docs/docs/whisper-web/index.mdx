@@ -8,7 +8,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 :::warning
-**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API and switch to a WebGPU-based backend in the future.
+Unstable API: This package is experimental for the moment. It remains supported and is not deprecated. For new browser transcription integrations, prefer [`@remotion/whisper-webgpu`](/docs/whisper-webgpu), which uses WebGPU when available and does not require cross-origin isolation.
 :::
 
 Similar to [@remotion/install-whisper-cpp](/docs/install-whisper-cpp) but for the browser. Allows you to transcribe audio locally in the browser, with the help of WASM.
