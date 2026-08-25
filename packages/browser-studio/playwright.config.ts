@@ -19,7 +19,13 @@ export default defineConfig({
 	projects: [
 		{
 			name: 'chromium',
+			grepInvert: /runs Browser Studio in Safari/,
 			use: {...devices['Desktop Chrome']},
+		},
+		{
+			name: 'webkit',
+			grep: /runs Browser Studio in Safari/,
+			use: {...devices['Desktop Safari']},
 		},
 	],
 	webServer: {
