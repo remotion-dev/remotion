@@ -570,12 +570,12 @@ const elementImplementations = {
 		description:
 			'An iMessage-inspired text exchange with staggered reveals, focus shifts, and familiar blue and gray chat bubbles.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
-		durationInFrames: 150,
+		durationInFrames: 162,
 		elementHeight: 680,
 		elementWidth: 1260,
 		fps: 30,
 		height: 1080,
-		posterFrame: 100,
+		posterFrame: 114,
 		preview: {
 			posterUrl: '/elements/storytelling-on-screen-messages-preview.png',
 			videoUrl: '/elements/storytelling-on-screen-messages-preview.mp4',

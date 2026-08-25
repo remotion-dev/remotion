@@ -15,8 +15,8 @@ loadFont('normal', {
 export const OnScreenMessages = () => {
 	const sequenceFrame = useCurrentFrame();
 	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
-	// Compress the treatment when its wrapping Sequence is shorter than 150 frames.
-	const durationInFrames = Math.max(sequenceDurationInFrames, 150);
+	// Compress the treatment when its wrapping Sequence is shorter than 162 frames.
+	const durationInFrames = Math.max(sequenceDurationInFrames, 162);
 	const frame =
 		sequenceFrame *
 		((durationInFrames - 1) / Math.max(1, sequenceDurationInFrames - 1));
@@ -43,7 +43,7 @@ export const OnScreenMessages = () => {
 					color: '#111111',
 					filter: `blur(${interpolate(
 						frame,
-						[8, 26, durationInFrames - 26, durationInFrames - 1],
+						[8, 26, durationInFrames - 14, durationInFrames - 1],
 						[12, 0, 0, 8],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -54,18 +54,17 @@ export const OnScreenMessages = () => {
 					fontSize: 46,
 					fontWeight: 500,
 					left: 70,
-					letterSpacing: -1.4,
 					lineHeight: 1.12,
 					opacity: interpolate(
 						frame,
 						[
 							8,
 							26,
-							40,
-							58,
-							72,
-							92,
-							durationInFrames - 26,
+							50,
+							68,
+							94,
+							112,
+							durationInFrames - 14,
 							durationInFrames - 1,
 						],
 						[0, 1, 1, 0.64, 0.64, 0.44, 0.44, 0],
@@ -79,7 +78,7 @@ export const OnScreenMessages = () => {
 					position: 'absolute',
 					scale: interpolate(
 						frame,
-						[8, 26, durationInFrames - 26, durationInFrames - 1],
+						[8, 26, durationInFrames - 14, durationInFrames - 1],
 						[0.94, 1, 1, 1.015],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -91,7 +90,7 @@ export const OnScreenMessages = () => {
 					top: 72,
 					translate: interpolate(
 						frame,
-						[8, 26, durationInFrames - 26, durationInFrames - 1],
+						[8, 26, durationInFrames - 14, durationInFrames - 1],
 						['-42px 10px', '0px 0px', '0px 0px', '-24px -20px'],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -115,7 +114,7 @@ export const OnScreenMessages = () => {
 					color: '#ffffff',
 					filter: `blur(${interpolate(
 						frame,
-						[40, 58, durationInFrames - 26, durationInFrames - 1],
+						[50, 68, durationInFrames - 14, durationInFrames - 1],
 						[12, 0, 0, 8],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -125,11 +124,10 @@ export const OnScreenMessages = () => {
 					)}px)`,
 					fontSize: 46,
 					fontWeight: 500,
-					letterSpacing: -1.4,
 					lineHeight: 1.12,
 					opacity: interpolate(
 						frame,
-						[40, 58, 72, 92, durationInFrames - 26, durationInFrames - 1],
+						[50, 68, 94, 112, durationInFrames - 14, durationInFrames - 1],
 						[0, 1, 1, 0.68, 0.68, 0],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -142,7 +140,7 @@ export const OnScreenMessages = () => {
 					right: 70,
 					scale: interpolate(
 						frame,
-						[40, 58, durationInFrames - 26, durationInFrames - 1],
+						[50, 68, durationInFrames - 14, durationInFrames - 1],
 						[0.94, 1, 1, 1.015],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -154,7 +152,7 @@ export const OnScreenMessages = () => {
 					top: 273,
 					translate: interpolate(
 						frame,
-						[40, 58, durationInFrames - 26, durationInFrames - 1],
+						[50, 68, durationInFrames - 14, durationInFrames - 1],
 						['42px 10px', '0px 0px', '0px 0px', '24px -20px'],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -179,7 +177,7 @@ export const OnScreenMessages = () => {
 					color: '#111111',
 					filter: `blur(${interpolate(
 						frame,
-						[72, 92, durationInFrames - 26, durationInFrames - 1],
+						[94, 112, durationInFrames - 14, durationInFrames - 1],
 						[12, 0, 0, 8],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -190,11 +188,10 @@ export const OnScreenMessages = () => {
 					fontSize: 46,
 					fontWeight: 500,
 					left: 185,
-					letterSpacing: -1.4,
 					lineHeight: 1.12,
 					opacity: interpolate(
 						frame,
-						[72, 92, durationInFrames - 26, durationInFrames - 1],
+						[94, 112, durationInFrames - 14, durationInFrames - 1],
 						[0, 1, 1, 0],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -206,7 +203,7 @@ export const OnScreenMessages = () => {
 					position: 'absolute',
 					translate: interpolate(
 						frame,
-						[72, 92, durationInFrames - 26, durationInFrames - 1],
+						[94, 112, durationInFrames - 14, durationInFrames - 1],
 						['-30px 24px', '0px 0px', '0px 0px', '-20px -24px'],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -214,7 +211,7 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						},
 					),
-					width: 560,
+					width: 620,
 					willChange: 'filter, opacity, transform',
 				}}
 			>
