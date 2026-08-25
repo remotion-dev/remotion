@@ -3,6 +3,10 @@ import type {TSequence} from 'remotion';
 import {calculateTimeline} from './calculate-timeline';
 import type {TimelineTrackData} from './get-timeline-sequence-sort-key';
 import {
+	createCanvasOutlinesController,
+	type CanvasOutlinesController,
+} from './outlines';
+import {
 	createCanvasSelectionController,
 	type CanvasSelectionController,
 } from './selection';
@@ -12,6 +16,7 @@ export type CanvasController = {
 		readonly getSnapshot: () => readonly TimelineTrackData[];
 		readonly subscribe: (listener: () => void) => () => void;
 	};
+	readonly outlines: CanvasOutlinesController;
 	readonly selection: CanvasSelectionController;
 };
 
@@ -46,6 +51,7 @@ export const createCanvasController = (): CanvasController => {
 				return () => timelineListeners.delete(listener);
 			},
 		},
+		outlines: createCanvasOutlinesController(),
 		selection: createCanvasSelectionController(),
 	};
 
@@ -58,7 +64,10 @@ export const createCanvasController = (): CanvasController => {
 				}),
 			);
 		},
-		clear: () => updateTimelineSnapshot([]),
+		clear: () => {
+			controller.outlines.disconnect();
+			updateTimelineSnapshot([]);
+		},
 	});
 
 	return controller;
