@@ -507,7 +507,7 @@ describe('Elements sidebar', () => {
 			{
 				category: 'audio',
 				label: 'Audio',
-				items: ['audio/mirrored-spectrum/index'],
+				items: ['audio/oscilloscope/index', 'audio/mirrored-spectrum/index'],
 			},
 			{
 				category: 'backgrounds',
@@ -618,6 +618,25 @@ describe('Elements sidebar', () => {
 });
 
 describe('Element preview definitions', () => {
+	test('does not publish local preview URLs', () => {
+		const localPreviewUrls = elementDefinitionList
+			.flatMap((definition) => [
+				{
+					slug: definition.slug,
+					type: 'poster',
+					url: definition.preview.posterUrl,
+				},
+				{
+					slug: definition.slug,
+					type: 'video',
+					url: definition.preview.videoUrl,
+				},
+			])
+			.filter(({url}) => url.startsWith('/'));
+
+		expect(localPreviewUrls).toEqual([]);
+	});
+
 	test('contains every production Element exactly once', () => {
 		const elementSlugs = productionElements
 			.map((element) => element.name)
@@ -663,6 +682,7 @@ describe('Element preview definitions', () => {
 
 	test('only Elements with one interactive timeline item own their Sequence', () => {
 		const componentOwnedSequenceSlugs = new Set([
+			'audio/oscilloscope',
 			'audio/mirrored-spectrum',
 			'captions/moving-pill-captions',
 			'captions/popping-word-captions',

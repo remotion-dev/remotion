@@ -132,7 +132,13 @@ Bun.serve({
 			return new Response('Not found', {status: 404});
 		}
 
-		return new Response(file, {headers});
+		const shouldStreamWithoutContentLength =
+			url.pathname.endsWith('.wasm') ||
+			url.searchParams.has('browserStudioVendor');
+		return new Response(
+			shouldStreamWithoutContentLength ? file.stream() : file,
+			{headers},
+		);
 	},
 });
 
