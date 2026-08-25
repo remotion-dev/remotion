@@ -69,7 +69,7 @@ export const createTikTokStyleCaptions = ({
 			}
 
 			// Start a new sentence
-			currentText = text.trimStart() + (item.lineBreakAfter ? '\n' : '');
+			currentText = text.trimStart();
 			currentTokens = [
 				{
 					text: text.trimStart(),
@@ -87,8 +87,7 @@ export const createTikTokStyleCaptions = ({
 				currentFrom = item.startMs;
 			}
 
-			const followsLineBreak = currentText.endsWith('\n');
-			const textToAppend = followsLineBreak ? text.trimStart() : text;
+			const textToAppend = text;
 			currentText += textToAppend;
 			currentText = currentText.trimStart();
 			if (text.trim() !== '') {
@@ -101,11 +100,13 @@ export const createTikTokStyleCaptions = ({
 				});
 			}
 
-			if (item.lineBreakAfter) {
-				currentText += '\n';
-			}
-
 			currentTo = item.endMs;
+		}
+
+		if (item.lineBreakAfter && currentText !== '') {
+			add();
+			currentText = '';
+			currentTokens = [];
 		}
 
 		// Ensure the last sentence is added

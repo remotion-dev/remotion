@@ -59,9 +59,11 @@ A number between 0 and 1 that indicates how confident the transcription is, or `
 
 _boolean_
 
-When `true`, forces a visual line break after this caption if another caption follows in the same displayed page or subtitle cue.
+When `true`, forces a break after this caption.
 
-This field does not change caption timing or start a new caption page. When it is `false` or omitted, renderers may wrap the text automatically.
+[`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions) ends the current page after this caption, so the next caption starts a new page. Other consumers, such as [`serializeSrt()`](/docs/captions/serialize-srt), may represent the break as a newline.
+
+This field does not change caption timing. When it is `false` or omitted, page breaks are determined automatically.
 
 ## Whitespace sensitivity
 

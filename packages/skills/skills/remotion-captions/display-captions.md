@@ -84,6 +84,8 @@ const { pages } = useMemo(() => {
 }, [captions]);
 ```
 
+If a caption has `lineBreakAfter: true`, the current page ends after that caption and the next caption starts a new page.
+
 ## Rendering with Sequences
 
 Map over the pages and render each one in a `<Sequence>`. Calculate the start frame and duration from the page timing:
@@ -161,14 +163,12 @@ const CaptionPage: React.FC<{ page: TikTokPage }> = ({ page }) => {
             token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
 
           return (
-            <React.Fragment key={`${token.fromMs}-${tokenIndex}`}>
-              <span style={{ color: isActive ? HIGHLIGHT_COLOR : "white" }}>
-                {token.text}
-              </span>
-              {token.lineBreakAfter && tokenIndex < page.tokens.length - 1 ? (
-                <br />
-              ) : null}
-            </React.Fragment>
+            <span
+              key={`${token.fromMs}-${tokenIndex}`}
+              style={{ color: isActive ? HIGHLIGHT_COLOR : "white" }}
+            >
+              {token.text}
+            </span>
           );
         })}
       </div>

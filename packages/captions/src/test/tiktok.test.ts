@@ -76,7 +76,7 @@ test('Should create captions', () => {
 	]);
 });
 
-test('Should preserve forced line breaks without creating a new page', () => {
+test('Should start a new page after a forced line break', () => {
 	const {pages} = createTikTokStyleCaptions({
 		captions: [
 			{
@@ -100,9 +100,9 @@ test('Should preserve forced line breaks without creating a new page', () => {
 
 	expect(pages).toEqual([
 		{
-			text: 'hello\nthere',
+			text: 'hello',
 			startMs: 0,
-			durationMs: 400,
+			durationMs: 200,
 			tokens: [
 				{
 					text: 'hello',
@@ -110,8 +110,13 @@ test('Should preserve forced line breaks without creating a new page', () => {
 					toMs: 200,
 					lineBreakAfter: true,
 				},
-				{text: 'there', fromMs: 200, toMs: 400},
 			],
+		},
+		{
+			text: 'there',
+			startMs: 200,
+			durationMs: 200,
+			tokens: [{text: 'there', fromMs: 200, toMs: 400}],
 		},
 	]);
 });
