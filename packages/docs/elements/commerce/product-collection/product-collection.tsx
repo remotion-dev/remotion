@@ -9,6 +9,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 	type InteractiveBaseProps,
+	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
@@ -18,16 +19,18 @@ loadFont('normal', {
 	weights: ['500', '600', '700'],
 });
 
-type ProductCardProps = InteractiveBaseProps & {
-	readonly count: number;
-	readonly discount: string;
-	readonly image: string;
-	readonly imageFit: 'contain' | 'cover';
-	readonly index: number;
-	readonly originalPrice: string;
-	readonly price: string;
-	readonly title: string;
-};
+type ProductCardProps = InteractiveBaseProps &
+	Omit<InteractiveTransformProps, 'style'> & {
+		readonly count: number;
+		readonly discount: string;
+		readonly image: string;
+		readonly imageFit: 'contain' | 'cover';
+		readonly index: number;
+		readonly originalPrice: string;
+		readonly price: string;
+		readonly style: React.CSSProperties | null;
+		readonly title: string;
+	};
 
 const productCardSchema = {
 	...Interactive.baseSchema,
@@ -68,6 +71,7 @@ const productCardSchema = {
 	},
 	count: {type: 'hidden'},
 	index: {type: 'hidden'},
+	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const ProductCardInner = forwardRef<
@@ -85,6 +89,7 @@ const ProductCardInner = forwardRef<
 			name,
 			originalPrice,
 			price,
+			style,
 			title,
 			...sequenceProps
 		},
@@ -169,7 +174,6 @@ const ProductCardInner = forwardRef<
 				outlineRef={outlineRef}
 			>
 				<div
-					ref={outlineRef}
 					style={{
 						height: 560,
 						left: 300,
@@ -186,7 +190,9 @@ const ProductCardInner = forwardRef<
 					}}
 				>
 					<div
+						ref={outlineRef}
 						style={{
+							...style,
 							backgroundColor: '#ffffff',
 							boxSizing: 'border-box',
 							color: '#1d1d19',
@@ -425,6 +431,7 @@ export const ProductCollection = () => {
 				name="Cloudline Runner card"
 				originalPrice="$148"
 				price="$118"
+				style={{translate: '0px 0px'}}
 				title="Cloudline Runner"
 			/>
 			<ProductCard
@@ -436,6 +443,7 @@ export const ProductCollection = () => {
 				name="Minimal Steel Watch card"
 				originalPrice=""
 				price="$185"
+				style={{translate: '0px 0px'}}
 				title="Minimal Steel Watch"
 			/>
 			<ProductCard
@@ -447,6 +455,7 @@ export const ProductCollection = () => {
 				name="Studio Sunglasses card"
 				originalPrice="$125"
 				price="$94"
+				style={{translate: '0px 0px'}}
 				title="Studio Sunglasses"
 			/>
 			<ProductCard
@@ -458,6 +467,7 @@ export const ProductCollection = () => {
 				name="Studio Headset card"
 				originalPrice=""
 				price="$179"
+				style={{translate: '0px 0px'}}
 				title="Studio Headset"
 			/>
 			<ProductCard
@@ -469,6 +479,7 @@ export const ProductCollection = () => {
 				name="Sculptural Table Lamp card"
 				originalPrice=""
 				price="$149"
+				style={{translate: '0px 0px'}}
 				title="Sculptural Table Lamp"
 			/>
 		</Interactive.Div>
