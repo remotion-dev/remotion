@@ -22,15 +22,17 @@ import {
 	BORDER_TIMELINE_DROP_BLUE,
 	TIMELINE_DROP_BLUE_ALPHA_16,
 } from '../helpers/colors';
-import type {AssetMetadata} from '../helpers/get-asset-metadata';
-import {getAssetMetadata} from '../helpers/get-asset-metadata';
+import {
+	getAssetMetadata,
+	getAssetPreviewMetadata,
+	type AssetMetadata,
+} from '../helpers/get-asset-metadata';
 import {
 	applyZoomAroundFocalPoint,
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
 	getUnboundedCenterPointWhileScrolling,
 } from '../helpers/get-effective-translation';
-import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {getMissingPackages} from '../helpers/install-required-package';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
 import {
@@ -738,51 +740,7 @@ export const Canvas: React.FC<{
 		}
 
 		setAssetResolution(metadata);
-		if (
-			canvasContent.type !== 'asset' ||
-			metadata.type !== 'found' ||
-			metadata.mediaMetadata === null ||
-			!Number.isFinite(metadata.mediaMetadata.duration) ||
-			metadata.mediaMetadata.duration <= 0
-		) {
-			setCurrentAssetMetadata(null);
-			return;
-		}
-
-		const fileType = getPreviewFileType(canvasContent.asset);
-		if (fileType !== 'audio' && fileType !== 'video') {
-			setCurrentAssetMetadata(null);
-			return;
-		}
-
-		const detectedFps = metadata.mediaMetadata.fps;
-		const fps =
-			detectedFps !== null && Number.isFinite(detectedFps) && detectedFps > 0
-				? detectedFps
-				: 30;
-		const {dimensions} = metadata;
-		if (dimensions === null || dimensions === 'none') {
-			setCurrentAssetMetadata(null);
-			return;
-		}
-
-		setCurrentAssetMetadata({
-			asset: canvasContent.asset,
-			width: dimensions.width,
-			height: dimensions.height,
-			fps,
-			durationInFrames: Math.max(
-				1,
-				Math.ceil(metadata.mediaMetadata.duration * fps),
-			),
-			props: {},
-			defaultCodec: null,
-			defaultOutName: null,
-			defaultVideoImageFormat: null,
-			defaultPixelFormat: null,
-			defaultProResProfile: null,
-			defaultSampleRate: metadata.mediaMetadata.sampleRate,
-		});
+		setCurrentAssetMetadata(getAssetPreviewMetadata({canvasContent, metadata}));
 	}, [canvasContent, setCurrentAssetMetadata]);
 
 	useEffect(() => {

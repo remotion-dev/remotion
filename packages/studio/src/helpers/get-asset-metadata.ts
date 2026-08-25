@@ -36,6 +36,58 @@ export type AssetMetadata =
 			mediaMetadata: MediaMetadata | null;
 	  };
 
+export const getAssetPreviewMetadata = ({
+	canvasContent,
+	metadata,
+}: {
+	canvasContent: CanvasContent;
+	metadata: AssetMetadata;
+}) => {
+	if (
+		canvasContent.type !== 'asset' ||
+		metadata.type !== 'found' ||
+		metadata.mediaMetadata === null ||
+		!Number.isFinite(metadata.mediaMetadata.duration) ||
+		metadata.mediaMetadata.duration <= 0
+	) {
+		return null;
+	}
+
+	const fileType = getPreviewFileType(canvasContent.asset);
+	if (fileType !== 'audio' && fileType !== 'video') {
+		return null;
+	}
+
+	const {dimensions} = metadata;
+	if (dimensions === null || dimensions === 'none') {
+		return null;
+	}
+
+	const detectedFps = metadata.mediaMetadata.fps;
+	const fps =
+		detectedFps !== null && Number.isFinite(detectedFps) && detectedFps > 0
+			? detectedFps
+			: 30;
+
+	return {
+		asset: canvasContent.asset,
+		width: dimensions.width,
+		height: dimensions.height,
+		fps,
+		durationInFrames: Math.max(
+			1,
+			Math.ceil(metadata.mediaMetadata.duration * fps),
+		),
+		props: {},
+		defaultCodec: null,
+		defaultOutName: null,
+		defaultVideoImageFormat: null,
+		defaultPixelFormat: null,
+		defaultProResProfile: null,
+		defaultSampleRate: metadata.mediaMetadata.sampleRate,
+	};
+};
+
 export const getAssetMetadata = async (
 	canvasContent: CanvasContent,
 	addTime: boolean,
