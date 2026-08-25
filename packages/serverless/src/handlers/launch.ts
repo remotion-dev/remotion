@@ -35,6 +35,7 @@ import {
 } from '../artifact-registry';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
+import {finishRender} from '../finish-render';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {mergeChunksAndFinishRender} from '../merge-chunks';
@@ -337,11 +338,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	const rendererFunctionName =
 		params.rendererFunctionName ??
 		insideFunctionSpecifics.getCurrentFunctionName();
-	const directRequestContext =
-		params.concurrency === 1 && params.rendererFunctionName === null
-			? options.requestContext
-			: null;
-	const shouldRenderDirectly = directRequestContext !== null;
+	const shouldRenderDirectly =
+		params.concurrency === 1 &&
+		params.rendererFunctionName === null &&
+		options.requestContext !== null;
 
 	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate,
@@ -422,16 +422,6 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	overallProgress.setRenderMetadata(renderMetadata);
 
-	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
-	if (existsSync(outdir)) {
-		rmSync(outdir, {
-			recursive: true,
-		});
-	}
-
-	mkdirSync(outdir);
-
-	const files: string[] = [];
 	const artifactRegistry = makeArtifactRegistry();
 
 	const onArtifact: OnArtifactFromRenderer = ({artifact, chunk, attempt}) => {
@@ -506,19 +496,56 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		return artifactRegistration;
 	};
 
-	if (directRequestContext) {
-		await renderWithSingleFunction({
-			payload: lambdaPayloads[0],
-			files,
-			outdir,
+	let postRenderData: PostRenderData<Provider>;
+	if (shouldRenderDirectly) {
+		const directRender = await renderWithSingleFunction({
+			params,
+			composition: comp,
+			serializedInputPropsWithCustomSchema,
+			frameRange: realFrameRange,
+			browserInstance: instance,
+			chromiumOptions: chromiumParams,
 			overallProgress,
 			onArtifact,
 			providerSpecifics,
 			insideFunctionSpecifics,
-			expectedBucketOwner: options.expectedBucketOwner,
-			requestContext: directRequestContext,
 		});
+		try {
+			postRenderData = await finishRender({
+				expectedBucketOwner: options.expectedBucketOwner,
+				renderBucketName,
+				customCredentials,
+				downloadBehavior: params.downloadBehavior,
+				key,
+				privacy: params.privacy,
+				inputProps: params.inputProps,
+				serializedResolvedProps,
+				renderMetadata,
+				logLevel: params.logLevel,
+				overallProgress,
+				startTime,
+				providerSpecifics,
+				insideFunctionSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				storageClass: params.storageClass,
+				requestHandler: null,
+				outputFile: directRender.outputFile,
+				timeToCombine: null,
+			});
+		} finally {
+			await directRender.cleanup();
+		}
 	} else {
+		const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
+		if (existsSync(outdir)) {
+			rmSync(outdir, {
+				recursive: true,
+			});
+		}
+
+		mkdirSync(outdir);
+		const files: string[] = [];
+
 		await Promise.all(
 			lambdaPayloads.map(async (payload) => {
 				await renderRendererFunctionWithRetry({
@@ -536,47 +563,48 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				});
 			}),
 		);
+
+		postRenderData = await mergeChunksAndFinishRender({
+			bucketName: params.bucketName,
+			renderId: params.renderId,
+			expectedBucketOwner: options.expectedBucketOwner,
+			numberOfFrames: comp.durationInFrames,
+			audioCodec: params.audioCodec,
+			chunkCount: chunks.length,
+			codec: params.codec,
+			customCredentials,
+			downloadBehavior: params.downloadBehavior,
+			fps,
+			key,
+			numberOfGifLoops: params.numberOfGifLoops,
+			privacy: params.privacy,
+			renderBucketName,
+			inputProps: params.inputProps,
+			serializedResolvedProps,
+			renderMetadata,
+			audioBitrate: params.audioBitrate,
+			logLevel: params.logLevel,
+			framesPerLambda,
+			binariesDirectory: null,
+			preferLossless: params.preferLossless,
+			compositionStart: realFrameRange[0],
+			outdir,
+			files: files.sort(),
+			overallProgress,
+			startTime,
+			providerSpecifics,
+			forcePathStyle: params.forcePathStyle,
+			insideFunctionSpecifics,
+			everyNthFrame: params.everyNthFrame,
+			frameRange: params.frameRange,
+			storageClass: params.storageClass,
+			requestHandler: null,
+			sampleRate: params.sampleRate,
+		});
 	}
 
-	const postRenderData = await mergeChunksAndFinishRender({
-		bucketName: params.bucketName,
-		renderId: params.renderId,
-		expectedBucketOwner: options.expectedBucketOwner,
-		numberOfFrames: comp.durationInFrames,
-		audioCodec: params.audioCodec,
-		chunkCount: chunks.length,
-		codec: params.codec,
-		customCredentials,
-		downloadBehavior: params.downloadBehavior,
-		fps,
-		key,
-		numberOfGifLoops: params.numberOfGifLoops,
-		privacy: params.privacy,
-		renderBucketName,
-		inputProps: params.inputProps,
-		serializedResolvedProps,
-		renderMetadata,
-		audioBitrate: params.audioBitrate,
-		logLevel: params.logLevel,
-		framesPerLambda,
-		binariesDirectory: null,
-		preferLossless: params.preferLossless,
-		compositionStart: realFrameRange[0],
-		outdir,
-		files: files.sort(),
-		overallProgress,
-		startTime,
-		providerSpecifics,
-		forcePathStyle: params.forcePathStyle,
-		insideFunctionSpecifics,
-		everyNthFrame: params.everyNthFrame,
-		frameRange: params.frameRange,
-		storageClass: params.storageClass,
-		requestHandler: null,
-		sampleRate: params.sampleRate,
-	});
-
 	if (
+		!shouldRenderDirectly &&
 		providerSpecifics.getRendererFunctionTransport(
 			insideFunctionSpecifics.getCurrentRegionInFunction(),
 		) === 's3'

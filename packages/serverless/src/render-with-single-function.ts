@@ -1,170 +1,177 @@
-import {rename} from 'node:fs/promises';
+import fs from 'node:fs';
 import {join} from 'node:path';
+import {
+	makeCancelSignal,
+	renderMedia,
+	RenderInternals,
+} from '@remotion/renderer';
+import type {
+	Bitrate,
+	ChromiumOptions,
+	ResolvedFrameRange,
+} from '@remotion/renderer';
 import type {
 	CloudProvider,
 	ProviderSpecifics,
 	ServerlessPayload,
+	VideoConfig,
 } from '@remotion/serverless-client';
-import {
-	deserializeArtifact,
-	ServerlessRoutines,
-} from '@remotion/serverless-client';
+import {ServerlessRoutines} from '@remotion/serverless-client';
 import type {OnArtifactFromRenderer} from './artifact-registry';
-import type {RequestContext} from './handlers/renderer';
-import {rendererHandler} from './handlers/renderer';
+import {startCancellationPolling} from './cancellation-polling';
+import type {LaunchedBrowser} from './get-browser-instance';
+import {onDownloadsHelper} from './on-downloads-helpers';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
 export const renderWithSingleFunction = async <Provider extends CloudProvider>({
-	payload,
-	files,
-	outdir,
+	params,
+	composition,
+	serializedInputPropsWithCustomSchema,
+	frameRange,
+	browserInstance,
+	chromiumOptions,
 	overallProgress,
 	onArtifact,
 	providerSpecifics,
 	insideFunctionSpecifics,
-	expectedBucketOwner,
-	requestContext,
 }: {
-	payload: ServerlessPayload<Provider>;
-	files: string[];
-	outdir: string;
+	params: ServerlessPayload<Provider>;
+	composition: VideoConfig;
+	serializedInputPropsWithCustomSchema: string;
+	frameRange: ResolvedFrameRange;
+	browserInstance: LaunchedBrowser['instance'];
+	chromiumOptions: ChromiumOptions;
 	overallProgress: OverallProgressHelper<Provider>;
 	onArtifact: OnArtifactFromRenderer;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-	expectedBucketOwner: string;
-	requestContext: RequestContext;
-}): Promise<void> => {
-	if (payload.type !== ServerlessRoutines.renderer) {
-		throw new Error('Expected renderer type');
+}): Promise<{
+	outputFile: string;
+	cleanup: () => Promise<void>;
+}> => {
+	if (params.type !== ServerlessRoutines.launch) {
+		throw new Error('Expected launch type');
 	}
 
-	const rendererState: {
-		error: {
-			error: string;
-			shouldRetry: boolean;
-		} | null;
-	} = {error: null};
-	const renderedFiles: string[] = [];
+	const outputDirectory = RenderInternals.tmpDir('remotion-direct-render-');
+	const outputFile = join(
+		outputDirectory,
+		`output.${RenderInternals.getFileExtensionFromCodec(
+			params.codec,
+			params.audioCodec,
+		)}`,
+	);
+	const cleanup = () =>
+		fs.promises.rm(outputDirectory, {recursive: true, force: true});
+	const frameCount = RenderInternals.getFramesToRender(
+		frameRange,
+		params.everyNthFrame,
+	).length;
+	const startedAt = Date.now();
+	const {cancel, cancelSignal} = makeCancelSignal();
+	const stopCancellationPolling = params.enableCancellation
+		? startCancellationPolling({
+				bucketName: params.bucketName,
+				renderId: params.renderId,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				providerSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				intervalInMilliseconds: 1000,
+				logLevel: params.logLevel,
+				onCancelled: cancel,
+			})
+		: () => undefined;
 
-	await rendererHandler({
-		params: payload,
-		options: {
-			expectedBucketOwner,
-			isWarm: true,
-		},
-		onStream: (message) => {
-			if (message.type === 'lambda-invoked') {
-				return Promise.resolve();
-			}
-
-			if (message.type === 'frames-rendered') {
-				overallProgress.setFrames({
-					index: payload.chunk,
-					encoded: message.payload.encoded,
-					rendered: message.payload.rendered,
-				});
-				return Promise.resolve();
-			}
-
-			if (message.type === 'chunk-complete') {
-				overallProgress.addChunkCompleted(
-					payload.chunk,
-					message.payload.start,
-					message.payload.rendered,
-				);
-				return Promise.resolve();
-			}
-
-			if (message.type === 'artifact-emitted') {
-				const artifact = deserializeArtifact(message.payload.artifact);
+	try {
+		await renderMedia({
+			composition,
+			serveUrl: params.serveUrl,
+			codec: params.codec,
+			outputLocation: outputFile,
+			inputProps: JSON.parse(serializedInputPropsWithCustomSchema) as Record<
+				string,
+				unknown
+			>,
+			imageFormat: params.imageFormat,
+			frameRange,
+			concurrency: params.concurrencyPerFunction,
+			puppeteerInstance: browserInstance,
+			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+			envVariables: params.envVariables ?? {},
+			logLevel: params.logLevel,
+			crf: params.crf,
+			pixelFormat: params.pixelFormat ?? undefined,
+			proResProfile: params.proResProfile ?? undefined,
+			x264Preset: params.x264Preset,
+			gopSize: params.gopSize ?? null,
+			onDownload: onDownloadsHelper(params.logLevel),
+			overwrite: true,
+			chromiumOptions,
+			scale: params.scale,
+			timeoutInMilliseconds: params.timeoutInMilliseconds,
+			everyNthFrame: params.everyNthFrame,
+			numberOfGifLoops: params.numberOfGifLoops,
+			muted: params.muted,
+			enforceAudioTrack: true,
+			audioBitrate: params.audioBitrate as Bitrate | null,
+			videoBitrate: params.videoBitrate as Bitrate | null,
+			encodingBufferSize: params.encodingBufferSize as Bitrate | null,
+			encodingMaxRate: params.encodingMaxRate as Bitrate | null,
+			audioCodec: params.audioCodec,
+			preferLossless: params.preferLossless,
+			browserExecutable: providerSpecifics.getChromiumPath(),
+			cancelSignal: params.enableCancellation ? cancelSignal : undefined,
+			disallowParallelEncoding: false,
+			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+			colorSpace: params.colorSpace ?? undefined,
+			repro: false,
+			binariesDirectory: null,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Lambda');
+			},
+			onArtifact: (artifact) => {
 				const registration = onArtifact({
 					artifact,
-					chunk: payload.chunk,
-					attempt: payload.attempt,
+					chunk: 0,
+					attempt: 1,
 				});
 				if (registration.type === 'conflict') {
-					rendererState.error = {
-						error: `Chunk ${payload.chunk} emitted an asset filename ${artifact.filename} at frame ${artifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
-						shouldRetry: false,
-					};
+					throw new Error(
+						`The artifact filename ${artifact.filename} was emitted more than once. https://remotion.dev/docs/artifacts`,
+					);
 				}
-
-				return Promise.resolve();
-			}
-
-			if (message.type === 'error-occurred') {
-				overallProgress.addErrorWithoutUpload(message.payload.errorInfo);
-				overallProgress.setFrames({
-					encoded: 0,
-					index: payload.chunk,
-					rendered: 0,
-				});
-				rendererState.error = {
-					error: message.payload.error,
-					shouldRetry: message.payload.shouldRetry,
-				};
-				return Promise.resolve();
-			}
-
-			throw new Error(`Unexpected ${message.type} event from direct renderer`);
-		},
-		requestContext,
-		providerSpecifics,
-		insideFunctionSpecifics,
-		executionMode: 'direct',
-		onMediaFiles: async ({
-			videoOutputLocation,
-			audioOutputLocation,
-			isAudioOnly,
-		}) => {
-			const chunkName = `chunk:${String(payload.chunk).padStart(8, '0')}`;
-			const videoDestination = join(outdir, `${chunkName}:video`);
-			const audioDestination = join(outdir, `${chunkName}:audio`);
-
-			if (isAudioOnly) {
-				await rename(videoOutputLocation, audioDestination);
-				renderedFiles.push(audioDestination);
-				return;
-			}
-
-			await rename(videoOutputLocation, videoDestination);
-			renderedFiles.push(videoDestination);
-			if (audioOutputLocation) {
-				await rename(audioOutputLocation, audioDestination);
-				renderedFiles.push(audioDestination);
-			}
-		},
-	});
-
-	if (rendererState.error) {
-		if (!rendererState.error.shouldRetry || payload.retriesLeft <= 0) {
-			throw new Error(rendererState.error.error);
-		}
-
-		overallProgress.addRetry({
-			attempt: payload.attempt + 1,
-			time: Date.now(),
-			chunk: payload.chunk,
-		});
-		await renderWithSingleFunction({
-			payload: {
-				...payload,
-				attempt: payload.attempt + 1,
-				retriesLeft: payload.retriesLeft - 1,
 			},
-			files,
-			outdir,
-			overallProgress,
-			onArtifact,
-			providerSpecifics,
-			insideFunctionSpecifics,
-			expectedBucketOwner,
-			requestContext,
+			metadata: params.metadata,
+			hardwareAcceleration: 'disable',
+			chromeMode: 'headless-shell',
+			offthreadVideoThreads: params.offthreadVideoThreads,
+			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			licenseKey: null,
+			isProduction: false,
+			sampleRate: params.sampleRate,
+			onProgress: ({renderedFrames, encodedFrames}) => {
+				overallProgress.setFrames({
+					index: 0,
+					rendered: renderedFrames,
+					encoded: encodedFrames,
+				});
+			},
 		});
-		return;
-	}
 
-	files.push(...renderedFiles);
+		overallProgress.setFrames({
+			index: 0,
+			rendered: frameCount,
+			encoded: frameCount,
+		});
+		overallProgress.addChunkCompleted(0, startedAt, Date.now());
+		overallProgress.setCombinedFrames(frameCount);
+
+		return {outputFile, cleanup};
+	} catch (err) {
+		await cleanup();
+		throw err;
+	} finally {
+		stopCancellationPolling();
+	}
 };

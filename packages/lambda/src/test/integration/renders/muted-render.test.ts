@@ -10,7 +10,7 @@ import {mockImplementation} from '../../mocks/mock-implementation';
 import {getMockInvocationTypesForRender} from '../../mocks/mock-invocations';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
-test('Should directly make a muted render with one Lambda', async () => {
+test('Should directly render final media with one Lambda', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'h264',
 		composition: 'framer',
@@ -19,7 +19,7 @@ test('Should directly make a muted render with one Lambda', async () => {
 		logLevel: 'verbose',
 		region: 'eu-central-1',
 		inputProps: {},
-		muted: true,
+		muted: false,
 		concurrency: 1,
 	});
 
@@ -35,19 +35,29 @@ test('Should directly make a muted render with one Lambda', async () => {
 
 	const out = await RenderInternals.callFf({
 		bin: 'ffprobe',
-		args: [tmpfile],
+		args: [
+			'-v',
+			'error',
+			'-show_entries',
+			'stream=codec_type',
+			'-of',
+			'json',
+			tmpfile,
+		],
 		indent: false,
 		binariesDirectory: null,
 		cancelSignal: undefined,
 		logLevel: 'error',
 	});
 
-	expect(out.stdout).not.toContain('Audio');
+	expect(out.stdout).toContain('"codec_type": "video"');
+	expect(out.stdout).toContain('"codec_type": "audio"');
 	expect(getMockInvocationTypesForRender(renderId)).toEqual([
 		ServerlessRoutines.launch,
 	]);
 	expect(progress.renderMetadata?.estimatedTotalLambdaInvokations).toBe(1);
 	expect(progress.renderMetadata?.estimatedRenderLambdaInvokations).toBe(0);
+	expect(progress.timeToCombine).toBeNull();
 	const progressString = makeProgressString({
 		downloadInfo: null,
 		overall: progress,
