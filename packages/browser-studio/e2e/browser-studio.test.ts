@@ -92,8 +92,24 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 	const workspacePackageRequests: string[] = [];
 	let vendorBundleStartedBeforeIframe = false;
 	let rejectPageError: (error: Error) => void = () => undefined;
+	let markVendorBundleRequestStarted: () => void = () => undefined;
+	let releaseVendorBundleRequest: () => void = () => undefined;
 	const pageError = new Promise<never>((_resolve, reject) => {
 		rejectPageError = reject;
+	});
+	const vendorBundleRequestStarted = new Promise<void>((resolve) => {
+		markVendorBundleRequestStarted = resolve;
+	});
+	const waitBeforeServingVendorBundle = new Promise<void>((resolve) => {
+		releaseVendorBundleRequest = resolve;
+	});
+	const client = await page.context().newCDPSession(page);
+	await client.send('Network.enable');
+	await client.send('Network.emulateNetworkConditions', {
+		downloadThroughput: 10 * 1024 * 1024,
+		latency: 0,
+		offline: false,
+		uploadThroughput: 10 * 1024 * 1024,
 	});
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
@@ -130,10 +146,26 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 	await page.context().route('https://remotion.dev/**', async (route) => {
 		await route.fulfill({body: 'About Remotion', contentType: 'text/html'});
 	});
+	await page.context().route(/\.mjs\?browserStudioVendor$/, async (route) => {
+		markVendorBundleRequestStarted();
+		await waitBeforeServingVendorBundle;
+		await route.continue();
+	});
 
 	await Promise.race([
 		(async () => {
-			await page.goto('/');
+			await page.goto('/', {waitUntil: 'commit'});
+			await vendorBundleRequestStarted;
+			const loadingProgress = page.getByRole('progressbar', {
+				name: 'Loading Studio',
+			});
+			await expect(loadingProgress).toBeVisible({timeout: 5000});
+			releaseVendorBundleRequest();
+			await expect(loadingProgress).toHaveAttribute(
+				'aria-valuenow',
+				/[1-9]\d*/,
+				{timeout: 10_000},
+			);
 			const studio = page.frameLocator('iframe');
 			await expect(
 				studio.getByTitle('/project').getByText('MyComp'),

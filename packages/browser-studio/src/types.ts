@@ -120,6 +120,12 @@ export type BrowserStudioWorkerCompileResponse =
 			warnings: string[];
 	  }
 	| {
+			type: 'load-progress';
+			asset: 'rspack-wasm';
+			loadedBytes: number;
+			totalBytes: number | null;
+	  }
+	| {
 			type: 'building';
 	  }
 	| {
