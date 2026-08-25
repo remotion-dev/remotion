@@ -124,22 +124,28 @@ export const LineChart: React.FC = () => {
 						}}
 					>
 						{Y_AXIS_VALUES.map((value) => (
-							<Interactive.Div
+							<div
 								key={value}
-								name="Y-axis label"
 								style={{
 									position: 'absolute',
 									right: 0,
-									textAlign: 'right',
 									top: `${((MAX_VALUE - value) / (MAX_VALUE - MIN_VALUE)) * 100}%`,
 									transform: 'translateY(-50%)',
-									translate: '0px 0px',
-									whiteSpace: 'nowrap',
 									width: '100%',
 								}}
 							>
-								{value}K
-							</Interactive.Div>
+								<Interactive.Div
+									name="Y-axis label"
+									style={{
+										textAlign: 'right',
+										translate: '0px 0px',
+										whiteSpace: 'nowrap',
+										width: '100%',
+									}}
+								>
+									{value}K
+								</Interactive.Div>
+							</div>
 						))}
 					</div>
 					<svg
@@ -243,19 +249,22 @@ export const LineChart: React.FC = () => {
 					>
 						{data.map(({label}, index) =>
 							index % 2 === 0 ? (
-								<Interactive.Div
+								<div
 									key={label}
-									name="X-axis label"
 									style={{
 										left: `${((CHART_SIDE_PADDING + (index / (data.length - 1)) * (CHART_WIDTH - CHART_SIDE_PADDING * 2)) / CHART_WIDTH) * 100}%`,
 										position: 'absolute',
 										top: 0,
 										transform: 'translateX(-50%)',
-										translate: '0px 0px',
 									}}
 								>
-									{label}
-								</Interactive.Div>
+									<Interactive.Div
+										name="X-axis label"
+										style={{translate: '0px 0px'}}
+									>
+										{label}
+									</Interactive.Div>
+								</div>
 							) : null,
 						)}
 					</div>
