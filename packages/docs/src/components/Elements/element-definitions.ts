@@ -91,8 +91,10 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 105,
 		preview: {
-			posterUrl: '/elements/audio-oscilloscope-preview.png',
-			videoUrl: '/elements/audio-oscilloscope-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/audio-oscilloscope-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/audio-oscilloscope-preview.mp4',
 		},
 		safeArea: 120,
 		installationMode: 'component-owned-sequence',
@@ -652,8 +654,10 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 82,
 		preview: {
-			posterUrl: '/elements/storytelling-polaroid-pictures-preview.png',
-			videoUrl: '/elements/storytelling-polaroid-pictures-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/storytelling-polaroid-pictures-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/storytelling-polaroid-pictures-preview.mp4',
 		},
 		safeArea: 220,
 		installationMode: 'wrapped',
