@@ -73,11 +73,10 @@
 		"react-scan": "0.5.7"
 	},
 	"dependencies": {
-		"@typescript/native-preview": "catalog:",
-		"loader-utils": "3.2.1",
 		"p-limit": "7.2.0",
 		"turbo": "2.9.14",
-		"typescript": "5.9.3"
+		"typescript": "5.9.3",
+		"@typescript/native-preview": "catalog:"
 	},
 	"packageManager": "bun@1.3.3",
 	"overrides": {
