@@ -26,6 +26,7 @@ import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover'
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
+import {SocialSafeZones} from '../../../elements/overlays/social-safe-zones/social-safe-zones';
 import {OnScreenMessages} from '../../../elements/storytelling/on-screen-messages/on-screen-messages';
 import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
@@ -43,7 +44,6 @@ import {
 	type ElementCategory,
 	type ElementSlug,
 } from './element-registry';
-import {SocialSafeZonesPreview} from './SocialSafeZonesPreview';
 
 export type ElementPreviewMetadata = {
 	readonly posterUrl:
@@ -278,7 +278,7 @@ const elementImplementations = {
 		width: 1920,
 	},
 	'overlays/social-safe-zones': {
-		component: SocialSafeZonesPreview,
+		component: SocialSafeZones,
 		contributors: [],
 		description:
 			'Capture-calibrated safe-area guides for TikTok and Instagram Reels.',

@@ -7,13 +7,11 @@ import {
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
-	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
 
 type SocialSafeZonesProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
-		readonly forceVisibleForPreview?: boolean;
 		readonly overlayOpacity?: number;
 		readonly platform?: 'instagram' | 'tiktok';
 		readonly showInterface?: boolean;
@@ -23,7 +21,7 @@ const socialSafeZonesSchema = {
 	...Interactive.baseSchema,
 	platform: {
 		type: 'enum',
-		default: 'tiktok',
+		default: 'instagram',
 		description: 'Platform',
 		keyframable: false,
 		variants: {
@@ -47,7 +45,6 @@ const socialSafeZonesSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
-	forceVisibleForPreview: {type: 'hidden'},
 } as const satisfies InteractivitySchema;
 
 const SocialSafeZonesInner = forwardRef<
@@ -59,10 +56,9 @@ const SocialSafeZonesInner = forwardRef<
 	(
 		{
 			controls,
-			forceVisibleForPreview = false,
 			name,
 			overlayOpacity = 0.45,
-			platform = 'tiktok',
+			platform = 'instagram',
 			showInterface = true,
 			style,
 			...sequenceProps
@@ -71,14 +67,9 @@ const SocialSafeZonesInner = forwardRef<
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
 		const {height, width} = useVideoConfig();
-		const {isRendering, isStudio} = useRemotionEnvironment();
 		const maskId = `social-safe-zone-${useId().replaceAll(':', '')}`;
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
-		if ((!isStudio || isRendering) && !forceVisibleForPreview) {
-			return null;
-		}
 
 		// Both paths and interface references are measured from representative
 		// iOS captures of full-green videos, rather than inferred from platform
