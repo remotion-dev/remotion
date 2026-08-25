@@ -2,7 +2,11 @@ import {expect, test} from 'bun:test';
 import type {ComponentType} from 'react';
 import React from 'react';
 import {getZodIfPossible} from '../components/get-zod-if-possible';
-import {createFolderTree, getKeysToExpand} from '../helpers/create-folder-tree';
+import {
+	createFolderTree,
+	getKeysToExpand,
+	sortFolderTreeAlphabetically,
+} from '../helpers/create-folder-tree';
 
 const SampleComp: React.FC<{}> = () => null;
 const component = React.lazy(() =>
@@ -230,4 +234,55 @@ test('Should throw if two folders with the same name', () => {
 	).toThrow(
 		/Multiple folders with the name my-folder exist. Folder names must be unique./,
 	);
+});
+
+test('sortFolderTreeAlphabetically sorts every level and keeps folders on top', async () => {
+	const z = await getZ();
+	const obj = z.object({});
+
+	const testComp = (id: string, folderName: string | null) => ({
+		component,
+		defaultProps: {},
+		durationInFrames: 200,
+		folderName,
+		parentFolderName: null,
+		fps: 30,
+		height: 1080,
+		id,
+		nonce: [[0, 0]] as [[number, number]],
+		width: 1080,
+		calculateMetadata: null,
+		schema: obj,
+		stack: null,
+	});
+
+	const tree = createFolderTree(
+		[
+			testComp('Zebra', null),
+			testComp('Scene10', 'zoo'),
+			testComp('Scene2', 'zoo'),
+			testComp('Apple', null),
+		],
+		[testFolder('zoo', null), testFolder('animals', null)],
+		{},
+	);
+
+	const sorted = sortFolderTreeAlphabetically(tree);
+
+	expect(
+		sorted.map((item) =>
+			item.type === 'folder' ? item.folderName : item.composition.id,
+		),
+	).toEqual(['animals', 'zoo', 'Apple', 'Zebra']);
+
+	const zoo = sorted[1];
+	if (zoo.type !== 'folder') {
+		throw new Error('expected a folder');
+	}
+
+	expect(
+		zoo.items.map((item) =>
+			item.type === 'folder' ? item.folderName : item.composition.id,
+		),
+	).toEqual(['Scene2', 'Scene10']);
 });

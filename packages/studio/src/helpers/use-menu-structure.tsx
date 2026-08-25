@@ -14,6 +14,7 @@ import type {
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {openInFileExplorer} from '../components/RenderQueue/actions';
+import {getCompositionSortOrderMenuItems} from '../components/root-composition-menu-items';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
@@ -27,6 +28,7 @@ import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
+import {FolderContext} from '../state/folders';
 import type {ModalState} from '../state/modals';
 import {SetSelectedModalContext} from '../state/modals';
 import type {SidebarCollapsedState} from '../state/sidebar';
@@ -306,6 +308,8 @@ export const useMenuStructure = (
 		EditorShowGuidesContext,
 	);
 	const {editorSnapping, setEditorSnapping} = useContext(EditorSnappingContext);
+	const {compositionSortOrder, setCompositionSortOrder} =
+		useContext(FolderContext);
 	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -731,6 +735,25 @@ export const useMenuStructure = (
 						onClick: () => undefined,
 					},
 					{
+						id: 'sort-compositions',
+						label: 'Sort Compositions By',
+						keyHint: null,
+						type: 'item' as const,
+						value: 'sort-compositions',
+						leftItem: null,
+						quickSwitcherLabel: null,
+						subMenu: {
+							leaveLeftSpace: true,
+							preselectIndex: compositionSortOrder === 'alphabetical' ? 1 : 0,
+							items: getCompositionSortOrderMenuItems({
+								compositionSortOrder,
+								setCompositionSortOrder,
+								onSelected: closeMenu,
+							}),
+						},
+						onClick: () => undefined,
+					},
+					{
 						id: 'timeline-divider-2',
 						type: 'divider' as const,
 					},
@@ -1137,6 +1160,7 @@ export const useMenuStructure = (
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
+		compositionSortOrder,
 		isFullscreenSupported,
 		remotion_packageManager,
 		mobileLayout,
@@ -1154,6 +1178,7 @@ export const useMenuStructure = (
 		setEditorSnapping,
 		setSidebarCollapsedState,
 		setCheckerboard,
+		setCompositionSortOrder,
 		setSelectedModal,
 	]);
 
