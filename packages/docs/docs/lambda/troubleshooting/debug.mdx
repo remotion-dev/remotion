@@ -58,7 +58,7 @@ If your error message reads that the main Lambda function has timed out, it mean
 - If you use the CLI, add `--log=verbose` to the command. This will print a CloudWatch link to the console.
 - When using [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), add `logLevel: "verbose"`. Use the returned `cloudWatchLogs` URL for renderer functions and `cloudWatchMainLogs` for the main function.
 
-From <AvailableFrom v="4.0.517" inline />, with `concurrency: 1` and no `rendererFunctionName`, the main function renders directly and there are no separate renderer logs. The CLI prints only the main function link.
+From <AvailableFrom v="4.0.517" inline />, you can set `concurrency` to `1` to render the video on the main function. There are no separate renderer logs, and the CLI prints only the main function link.
 
 Open this link and log into AWS if needed. A log stream will open.
 

@@ -26,7 +26,7 @@ that was passed and runs the <a href="/docs/props-resolution">
 as the metadata (such as the duration in frames).<br />
 <Step>4</Step> Based on the determined duration of the video and the <a href="/docs/lambda/concurrency">
   concurrency
-</a>, the video is split into chunks. Normally, a <strong>renderer function</strong> is invoked for each chunk. From <AvailableFrom v="4.0.517" inline />, if <code>concurrency</code> is <code>1</code> and no <a href="/docs/lambda/rendermediaonlambda#rendererfunctionname"><code>rendererFunctionName</code></a> is specified, the main function renders the only chunk itself.<br />
+</a>, the video is split into chunks. Normally, a <strong>renderer function</strong> is invoked for each chunk. From <AvailableFrom v="4.0.517" inline />, you can set <code>concurrency</code> to <code>1</code> to render the video on the main function.<br />
 <Step>5</Step> Separate renderer functions use <a href="https://aws.amazon.com/blogs/compute/introducing-aws-lambda-response-streaming/">
   AWS Lambda Response Streaming
 </a> to report progress and send the binary video chunks to the main function. This streaming step is skipped when the main function renders directly.<br />

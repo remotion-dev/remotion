@@ -31,9 +31,11 @@ By default, the concurrency limit is 1000 functions per region, however in some 
 
 According to AWS, "some accounts" which are new to AWS Lambda might get a very low concurrency limit such as 10 when they first start with AWS Lambda. In that case, increase the limit via the AWS console or the Remotion CLI (see below).
 
-### Render with one function<AvailableFrom v="4.0.517" />
+### Render with one function
 
-While waiting for AWS to approve a higher limit, set [`concurrency`](/docs/lambda/rendermediaonlambda#concurrency) to `1`:
+From <AvailableFrom v="4.0.517" inline />, you can set `concurrency` to `1` to render the video on the main function.
+
+While waiting for AWS to approve a higher limit, use:
 
 ```bash title="Terminal"
 npx remotion lambda render <serve-url> <composition-id> --concurrency=1
@@ -52,7 +54,7 @@ await renderMediaOnLambda({
 });
 ```
 
-If no [`rendererFunctionName`](/docs/lambda/rendermediaonlambda#rendererfunctionname) is specified, the launch function renders the video directly and no renderer function is invoked. A progress request may briefly use one additional invocation.
+A progress request may briefly use one additional invocation.
 
 This is slower than distributed rendering, but it is useful for testing Remotion Lambda on accounts with a low concurrency limit.
 
