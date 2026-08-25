@@ -44,7 +44,14 @@ export const EditorRulers: React.FC<{
 	readonly contentDimensions: Dimensions | 'none' | null;
 	readonly assetMetadata: AssetMetadata | null;
 	readonly containerRef: React.RefObject<HTMLDivElement | null>;
-}> = ({contentDimensions, canvasSize, assetMetadata, containerRef}) => {
+	readonly canCreateGuides: boolean;
+}> = ({
+	contentDimensions,
+	canvasSize,
+	assetMetadata,
+	containerRef,
+	canCreateGuides,
+}) => {
 	const {scale, canvasPosition} = useStudioCanvasDimensions({
 		canvasSize,
 		contentDimensions,
@@ -272,6 +279,7 @@ export const EditorRulers: React.FC<{
 	return (
 		<>
 			<Ruler
+				canCreateGuides={canCreateGuides}
 				orientation="horizontal"
 				scale={scale}
 				points={horizontalRulerPoints}
@@ -282,6 +290,7 @@ export const EditorRulers: React.FC<{
 				onPointerSessionStart={onPointerSessionStart}
 			/>
 			<Ruler
+				canCreateGuides={canCreateGuides}
 				orientation="vertical"
 				scale={scale}
 				points={verticalRulerPoints}

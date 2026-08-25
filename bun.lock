@@ -1799,6 +1799,7 @@
         "@jridgewell/trace-mapping": "0.3.31",
         "@remotion/canvas": "workspace:*",
         "@remotion/captions": "workspace:*",
+        "@remotion/media": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",

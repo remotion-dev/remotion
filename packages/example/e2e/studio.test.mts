@@ -184,6 +184,114 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
+	test('should preview media assets as a non-interactive timeline', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/assets/prores.mov`);
+
+		await expect(page.getByTestId('asset-media-preview')).toBeVisible({
+			timeout: 15_000,
+		});
+		const checkerboardToggle = page.getByRole('button', {
+			name: /Show transparency as checkerboard/,
+		});
+		await expect(checkerboardToggle).toBeVisible();
+		const checkerboardWasPressed =
+			(await checkerboardToggle.getAttribute('aria-pressed')) === 'true';
+		await checkerboardToggle.click();
+		await expect(checkerboardToggle).toHaveAttribute(
+			'aria-pressed',
+			String(!checkerboardWasPressed),
+		);
+		await checkerboardToggle.click();
+
+		const rulersToggle = page.getByRole('button', {
+			name: /^(Show|Hide) rulers$/,
+		});
+		const rulersWerePressed =
+			(await rulersToggle.getAttribute('aria-pressed')) === 'true';
+		await rulersToggle.click();
+		await expect(rulersToggle).toHaveAttribute(
+			'aria-pressed',
+			String(!rulersWerePressed),
+		);
+		if (rulersWerePressed) {
+			await rulersToggle.click();
+		}
+		const horizontalRuler = page.getByLabel('Horizontal ruler', {exact: true});
+		await expect(horizontalRuler).toBeVisible();
+		await expect(horizontalRuler).toHaveAttribute('aria-readonly', 'true');
+		await expect(
+			page.getByLabel('Vertical ruler', {exact: true}),
+		).toBeVisible();
+		if (!rulersWerePressed) {
+			await page
+				.getByRole('button', {name: 'Hide rulers', exact: true})
+				.click();
+		}
+
+		const timeline = page.locator('[data-timeline-scrollable]');
+		await expect(timeline).toBeVisible();
+		const mediaTrack = page.getByTitle('prores.mov').last();
+		await expect(mediaTrack).toBeVisible();
+		await expect(timeline.locator('canvas').first()).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Play', exact: true}),
+		).toBeEnabled();
+		await expect(
+			page.getByText(/Failed to execute getVideoMetadata/),
+		).toHaveCount(0);
+
+		await mediaTrack.dblclick();
+		await expect(page.getByRole('textbox')).toHaveCount(0);
+
+		await page.goto(`${STUDIO_URL}/assets/whip.mp3`);
+		await expect(
+			page.getByRole('img', {name: 'Audio asset', exact: true}),
+		).toBeVisible();
+		await expect(page.getByTestId('asset-media-preview')).not.toBeInViewport();
+		await expect(page.locator('[data-timeline-scrollable]')).toBeVisible();
+		await expect(page.getByTitle('whip.mp3').last()).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Play', exact: true}),
+		).toBeEnabled();
+		await expect(checkerboardToggle).toHaveCount(0);
+		await expect(rulersToggle).toHaveCount(0);
+		await expect(horizontalRuler).toHaveCount(0);
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toHaveCSS('background-image', 'none');
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+
+		await page.goto(`${STUDIO_URL}/assets/blush-2x.mp4`);
+		await expect(page.getByTestId('asset-media-preview')).toBeVisible();
+		const squarePreview = page.locator(
+			'.remotion-studio-composition-container',
+		);
+		await expect(squarePreview).toBeVisible();
+		await expect
+			.poll(async () => {
+				const outerBox = await squarePreview.boundingBox();
+				const mediaBox = await page
+					.getByTestId('asset-media-preview')
+					.boundingBox();
+				if (outerBox === null || mediaBox === null) {
+					return null;
+				}
+
+				return Math.max(
+					Math.abs(outerBox.x - mediaBox.x),
+					Math.abs(outerBox.y - mediaBox.y),
+					Math.abs(outerBox.width - outerBox.height),
+					Math.abs(outerBox.width - mediaBox.width),
+					Math.abs(outerBox.height - mediaBox.height),
+				);
+			})
+			.toBeLessThan(1);
+	});
+
 	test('should route Canvas Capture drops by Studio target', async ({page}) => {
 		test.setTimeout(90_000);
 		const canvasCapture = fs.readFileSync(

@@ -1,4 +1,5 @@
 import React, {
+	createContext,
 	forwardRef,
 	useContext,
 	useLayoutEffect,
@@ -168,6 +169,18 @@ export type WithInteractivitySchemaOptions<
 	supportsEffects: boolean;
 };
 
+const DisableInteractivityContext = createContext(false);
+
+export const DisableInteractivityProvider: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	return React.createElement(
+		DisableInteractivityContext.Provider,
+		{value: true},
+		children,
+	);
+};
+
 export const withInteractivitySchema = <
 	S extends InteractivitySchema,
 	Props extends object,
@@ -191,8 +204,14 @@ export const withInteractivitySchema = <
 		const cleanProps = propsWithoutInternalStack as Props;
 		const env = useRemotionEnvironment();
 		const canUseRemotionHooks = useContext(CanUseRemotionHooks);
+		const disableInteractivity = useContext(DisableInteractivityContext);
 
-		if (!env.isStudio || env.isRendering || !canUseRemotionHooks) {
+		if (
+			!env.isStudio ||
+			env.isRendering ||
+			!canUseRemotionHooks ||
+			disableInteractivity
+		) {
 			return React.createElement(Component, {
 				...cleanProps,
 				controls: null,
