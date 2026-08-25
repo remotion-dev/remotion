@@ -23,7 +23,7 @@ const trackStyle: React.CSSProperties = {
 };
 
 const fillStyle: React.CSSProperties = {
-	backgroundColor: '#2f363d',
+	backgroundColor: '#fff',
 	borderRadius: 2,
 	height: '100%',
 	transition: 'width 100ms linear',
