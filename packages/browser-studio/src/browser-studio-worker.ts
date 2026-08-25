@@ -40,10 +40,104 @@ type CompilerSession = {
 let rspackBrowserPromise: Promise<typeof RspackBrowser> | null = null;
 let compilerSession: CompilerSession | null = null;
 
+const postResponse = (response: BrowserStudioWorkerCompileResponse) => {
+	self.postMessage(response);
+};
+
 const loadRspackBrowser = () => {
 	const workerGlobal = globalThis as Record<string, unknown>;
 	workerGlobal.window ??= globalThis;
-	rspackBrowserPromise ??= import('@rspack/browser');
+	if (!rspackBrowserPromise) {
+		const originalFetch = globalThis.fetch.bind(globalThis);
+		workerGlobal.fetch = async (
+			input: RequestInfo | URL,
+			init?: RequestInit,
+		) => {
+			const response = await originalFetch(input, init);
+			const inputUrl =
+				typeof input === 'string'
+					? input
+					: input instanceof URL
+						? input.href
+						: input.url;
+			// Asset filenames may be hashed by the consumer's bundler.
+			if (!inputUrl.split(/[?#]/)[0].endsWith('.wasm')) {
+				return response;
+			}
+
+			const contentLength = Number(response.headers.get('content-length'));
+			const totalBytes =
+				Number.isFinite(contentLength) && contentLength > 0
+					? contentLength
+					: null;
+			postResponse({
+				asset: 'rspack-wasm',
+				loadedBytes: 0,
+				totalBytes,
+				type: 'load-progress',
+			});
+			if (!response.body) {
+				postResponse({
+					asset: 'rspack-wasm',
+					loadedBytes: totalBytes ?? 0,
+					totalBytes,
+					type: 'load-progress',
+				});
+				return response;
+			}
+
+			const reader = response.body.getReader();
+			let loadedBytes = 0;
+			let lastProgressUpdate = 0;
+			const body = new ReadableStream<Uint8Array>({
+				async pull(controller) {
+					try {
+						const result = await reader.read();
+						if (result.done) {
+							postResponse({
+								asset: 'rspack-wasm',
+								loadedBytes,
+								totalBytes: totalBytes ?? loadedBytes,
+								type: 'load-progress',
+							});
+							controller.close();
+							return;
+						}
+
+						loadedBytes += result.value.byteLength;
+						const now = performance.now();
+						if (now - lastProgressUpdate >= 50) {
+							lastProgressUpdate = now;
+							postResponse({
+								asset: 'rspack-wasm',
+								loadedBytes,
+								totalBytes,
+								type: 'load-progress',
+							});
+						}
+
+						controller.enqueue(result.value);
+					} catch (error) {
+						controller.error(error);
+					}
+				},
+				cancel(reason) {
+					return reader.cancel(reason);
+				},
+			});
+
+			return new Response(body, {
+				headers: response.headers,
+				status: response.status,
+				statusText: response.statusText,
+			});
+		};
+
+		rspackBrowserPromise = import('@rspack/browser').finally(() => {
+			workerGlobal.fetch = originalFetch;
+		});
+	}
+
 	return rspackBrowserPromise;
 };
 
@@ -96,10 +190,6 @@ const problemToString = (problem: unknown): string => {
 	}
 
 	return String(problem);
-};
-
-const postResponse = (response: BrowserStudioWorkerCompileResponse) => {
-	self.postMessage(response);
 };
 
 const applyDependencyResolution = ({
