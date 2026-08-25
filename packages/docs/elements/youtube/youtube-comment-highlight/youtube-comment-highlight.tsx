@@ -29,11 +29,6 @@ export const YouTubeCommentHighlight: React.FC = () => {
 			<div
 				style={{
 					backfaceVisibility: 'hidden',
-					backgroundColor: '#15161a',
-					border: '1px solid rgba(255, 255, 255, 0.09)',
-					borderRadius: 26,
-					boxShadow: '0 18px 40px rgba(0, 0, 0, 0.26)',
-					boxSizing: 'border-box',
 					height: 300,
 					left: 0,
 					position: 'absolute',
@@ -84,6 +79,10 @@ export const YouTubeCommentHighlight: React.FC = () => {
 					name="Container"
 					style={{
 						alignContent: 'center',
+						backgroundColor: '#15161a',
+						border: '1px solid rgba(255, 255, 255, 0.09)',
+						borderRadius: 26,
+						boxShadow: '0 18px 40px rgba(0, 0, 0, 0.26)',
 						boxSizing: 'border-box',
 						columnGap: 18,
 						display: 'grid',
