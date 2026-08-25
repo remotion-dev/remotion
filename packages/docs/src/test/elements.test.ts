@@ -618,6 +618,25 @@ describe('Elements sidebar', () => {
 });
 
 describe('Element preview definitions', () => {
+	test('does not publish local preview URLs', () => {
+		const localPreviewUrls = elementDefinitionList
+			.flatMap((definition) => [
+				{
+					slug: definition.slug,
+					type: 'poster',
+					url: definition.preview.posterUrl,
+				},
+				{
+					slug: definition.slug,
+					type: 'video',
+					url: definition.preview.videoUrl,
+				},
+			])
+			.filter(({url}) => url.startsWith('/'));
+
+		expect(localPreviewUrls).toEqual([]);
+	});
+
 	test('contains every production Element exactly once', () => {
 		const elementSlugs = productionElements
 			.map((element) => element.name)
