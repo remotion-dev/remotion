@@ -7,9 +7,9 @@ export const resolveEffectsOutputSize = ({
 }: {
 	readonly sourceWidth: number;
 	readonly sourceHeight: number;
-	readonly effectsOutputSize: EffectsOutputSize | undefined;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 }): EffectsOutputSize => {
-	if (effectsOutputSize === undefined) {
+	if (effectsOutputSize === null) {
 		return {width: sourceWidth, height: sourceHeight};
 	}
 

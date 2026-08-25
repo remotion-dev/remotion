@@ -84,7 +84,7 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
-	private getEffectsOutputSize: () => EffectsOutputSize | undefined;
+	private getEffectsOutputSize: () => EffectsOutputSize | null;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
@@ -116,7 +116,7 @@ export class MediaPlayer {
 		tagType,
 		getEffects,
 		getEffectChainState,
-		getEffectsOutputSize = () => undefined,
+		getEffectsOutputSize,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -145,7 +145,7 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
-		getEffectsOutputSize?: () => EffectsOutputSize | undefined;
+		getEffectsOutputSize: () => EffectsOutputSize | null;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
