@@ -77,7 +77,7 @@ export type ElementDefinition = {
 const elementImplementations = {
 	'audio/oscilloscope': {
 		component: AudioOscilloscope,
-		contributors: [],
+		contributors: [{username: 'samohovets', contribution: 'Author'}],
 		description:
 			'A glowing oscilloscope waveform for visualizing voices, podcasts, and other audio.',
 		dependencies: [
