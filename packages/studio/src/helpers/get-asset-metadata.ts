@@ -1,9 +1,9 @@
-import {getVideoMetadata} from '@remotion/media-utils';
 import type {CanvasContent} from 'remotion';
 import {staticFile} from 'remotion';
 import {addAssetCacheBust} from './add-asset-cache-bust';
 import {getPreviewFileType} from './get-preview-file-type';
 import type {Dimensions} from './is-current-selected-still';
+import {getMediaMetadata, type MediaMetadata} from './use-media-metadata';
 
 export const remotion_outputsBase = window.remotion_staticBase.replace(
 	'static',
@@ -33,6 +33,7 @@ export type AssetMetadata =
 			size: number;
 			dimensions: Dimensions | 'none' | null;
 			fetchedAt: number;
+			mediaMetadata: MediaMetadata | null;
 	  };
 
 export const getAssetMetadata = async (
@@ -45,6 +46,7 @@ export const getAssetMetadata = async (
 			size: canvasContent.sizeInBytes,
 			dimensions: {width: canvasContent.width, height: canvasContent.height},
 			fetchedAt: Date.now(),
+			mediaMetadata: null,
 		};
 	}
 
@@ -91,13 +93,20 @@ export const getAssetMetadata = async (
 
 		const fileType = getPreviewFileType(src);
 
-		if (fileType === 'video') {
-			const resolution = await getVideoMetadata(srcWithTime);
+		if (fileType === 'video' || fileType === 'audio') {
+			const mediaMetadata = await getMediaMetadata(srcWithTime);
+			if (mediaMetadata === null) {
+				throw new Error(`Could not read media metadata for ${src}`);
+			}
+
+			const width = mediaMetadata.width ?? 1920;
+			const height = mediaMetadata.height ?? 1080;
 			return {
 				type: 'found',
 				size,
-				dimensions: {width: resolution.width, height: resolution.height},
+				dimensions: {width, height},
 				fetchedAt,
+				mediaMetadata,
 			};
 		}
 
@@ -110,6 +119,7 @@ export const getAssetMetadata = async (
 						size,
 						dimensions: {width: img.width, height: img.height},
 						fetchedAt,
+						mediaMetadata: null,
 					});
 				};
 
@@ -127,6 +137,7 @@ export const getAssetMetadata = async (
 			dimensions: 'none',
 			size,
 			fetchedAt,
+			mediaMetadata: null,
 		};
 	} catch (err) {
 		return {

@@ -80,6 +80,7 @@ export const SharedPlayerContexts: React.FC<{
 				},
 			],
 			folders: [],
+			currentAssetMetadata: null,
 			currentCompositionMetadata: {
 				defaultCodec: null,
 				defaultOutName: null,

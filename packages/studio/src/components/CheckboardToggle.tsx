@@ -25,6 +25,7 @@ export const CheckboardToggle: React.FC = () => {
 		<ControlButton
 			title={accessibilityLabel}
 			aria-label={accessibilityLabel}
+			aria-pressed={checkerboard}
 			onClick={onClick}
 		>
 			{(color) => (

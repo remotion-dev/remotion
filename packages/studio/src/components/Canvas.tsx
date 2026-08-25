@@ -30,6 +30,7 @@ import {
 	getEffectiveTranslation,
 	getUnboundedCenterPointWhileScrolling,
 } from '../helpers/get-effective-translation';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {getMissingPackages} from '../helpers/install-required-package';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
 import {
@@ -226,6 +227,7 @@ export const Canvas: React.FC<{
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {compositions} = useContext(Internals.CompositionManager);
+	const {setCurrentAssetMetadata} = useContext(Internals.CompositionSetters);
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
 	);
@@ -250,6 +252,7 @@ export const Canvas: React.FC<{
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
 	);
+	const metadataRequestRef = useRef(0);
 
 	const currentCompositionId =
 		canvasContent.type === 'composition' ? canvasContent.compositionId : null;
@@ -719,8 +722,10 @@ export const Canvas: React.FC<{
 	}, [keybindings, onReset, onZoomIn, onZoomOut]);
 
 	const fetchMetadata = useCallback(async () => {
+		const request = ++metadataRequestRef.current;
 		setAssetResolution(null);
 		if (canvasContent.type === 'composition') {
+			setCurrentAssetMetadata(null);
 			return;
 		}
 
@@ -728,8 +733,57 @@ export const Canvas: React.FC<{
 			canvasContent,
 			canvasContent.type === 'asset',
 		);
+		if (request !== metadataRequestRef.current) {
+			return;
+		}
+
 		setAssetResolution(metadata);
-	}, [canvasContent]);
+		if (
+			canvasContent.type !== 'asset' ||
+			metadata.type !== 'found' ||
+			metadata.mediaMetadata === null ||
+			!Number.isFinite(metadata.mediaMetadata.duration) ||
+			metadata.mediaMetadata.duration <= 0
+		) {
+			setCurrentAssetMetadata(null);
+			return;
+		}
+
+		const fileType = getPreviewFileType(canvasContent.asset);
+		if (fileType !== 'audio' && fileType !== 'video') {
+			setCurrentAssetMetadata(null);
+			return;
+		}
+
+		const detectedFps = metadata.mediaMetadata.fps;
+		const fps =
+			detectedFps !== null && Number.isFinite(detectedFps) && detectedFps > 0
+				? detectedFps
+				: 30;
+		const {dimensions} = metadata;
+		if (dimensions === null || dimensions === 'none') {
+			setCurrentAssetMetadata(null);
+			return;
+		}
+
+		setCurrentAssetMetadata({
+			asset: canvasContent.asset,
+			width: dimensions.width,
+			height: dimensions.height,
+			fps,
+			durationInFrames: Math.max(
+				1,
+				Math.ceil(metadata.mediaMetadata.duration * fps),
+			),
+			props: {},
+			defaultCodec: null,
+			defaultOutName: null,
+			defaultVideoImageFormat: null,
+			defaultPixelFormat: null,
+			defaultProResProfile: null,
+			defaultSampleRate: metadata.mediaMetadata.sampleRate,
+		});
+	}, [canvasContent, setCurrentAssetMetadata]);
 
 	useEffect(() => {
 		if (canvasContent.type !== 'asset') {
@@ -1464,6 +1518,7 @@ export const Canvas: React.FC<{
 			</div>
 			{areRulersVisible && (
 				<EditorRulers
+					canCreateGuides={canvasContent.type === 'composition'}
 					contentDimensions={contentDimensions}
 					canvasSize={size}
 					assetMetadata={assetResolution}

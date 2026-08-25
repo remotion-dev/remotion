@@ -42,9 +42,9 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 			: null;
 	const zoom = compositionId
 		? (zoomMap[compositionId] ?? TIMELINE_MIN_ZOOM)
-		: null;
+		: TIMELINE_MIN_ZOOM;
 
-	if (zoom && video) {
+	if (video) {
 		setCurrentFrame(timelinePosition);
 		setCurrentZoom(zoom);
 		setCurrentDuration(video.durationInFrames);
