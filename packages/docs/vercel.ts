@@ -1,7 +1,7 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
 const browserStudioIsolationHeaders = [
-	{key: 'Cross-Origin-Embedder-Policy', value: 'credentialless'},
+	{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 	{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 ];
 

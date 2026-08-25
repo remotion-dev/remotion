@@ -15,7 +15,7 @@ const workspacePackagesDir = path.join(repoDir, 'packages');
 const workspacePackagePath = '/__remotion_browser_studio_workspace__/';
 
 const headers = {
-	'Cross-Origin-Embedder-Policy': 'credentialless',
+	'Cross-Origin-Embedder-Policy': 'require-corp',
 	'Cross-Origin-Opener-Policy': 'same-origin',
 };
 
