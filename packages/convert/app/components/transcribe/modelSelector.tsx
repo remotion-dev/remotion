@@ -44,8 +44,7 @@ export default function ModelSelector({
 										<div className="text-left">
 											<div className="font-medium">{model.name}</div>
 											<div className="text-xs text-muted-foreground">
-												{formatBytes(model.webGpuDownloadSize)} WebGPU ·{' '}
-												{formatBytes(model.wasmDownloadSize)} WASM
+												{formatBytes(model.webGpuDownloadSize)} WebGPU
 											</div>
 										</div>
 									</SelectItem>

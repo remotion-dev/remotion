@@ -43,7 +43,8 @@ export default function TranscribeAudio({
 				file: await sourceToBlob(source),
 			});
 
-			const {backend} = await loadWhisperModel({
+			await loadWhisperModel({
+				backend: 'webgpu',
 				model: selectedModel,
 				onProgress: (progress) =>
 					setState(() => ({
@@ -54,11 +55,10 @@ export default function TranscribeAudio({
 
 			setState(() => ({
 				type: 'transcribing',
-				backend,
 			}));
 
 			const transcription = await transcribe({
-				backend,
+				backend: 'webgpu',
 				channelWaveform: waveform,
 				model: selectedModel,
 			});
@@ -66,7 +66,6 @@ export default function TranscribeAudio({
 			setState(() => ({
 				type: 'done',
 				result: toCaptions({whisperWebGpuOutput: transcription}).captions,
-				backend,
 			}));
 		} catch (error) {
 			setState({
@@ -122,7 +121,7 @@ export default function TranscribeAudio({
 								<strong className="font-brand">Transcribing {name}</strong>
 							</div>
 							<div className="tabular-nums text-muted-foreground font-brand text-sm">
-								<span>Using {state.backend.toUpperCase()}</span>
+								<span>Using WebGPU</span>
 							</div>
 						</div>
 					</>
@@ -131,7 +130,7 @@ export default function TranscribeAudio({
 			{state.type === 'done' ? (
 				<>
 					<Card className="p-3 text-sm text-muted-foreground">
-						Transcribed with {state.backend.toUpperCase()}
+						Transcribed with WebGPU
 						{state.result.length === 0 ? ' · No speech detected' : null}
 					</Card>
 					<div className="h-4" />

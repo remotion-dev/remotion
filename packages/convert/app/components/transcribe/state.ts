@@ -1,8 +1,5 @@
 import type {Caption} from '@remotion/captions';
-import type {
-	ResolvedWhisperWebGpuBackend,
-	WhisperWebGpuModelLoadProgress,
-} from '@remotion/whisper-webgpu';
+import type {WhisperWebGpuModelLoadProgress} from '@remotion/whisper-webgpu';
 
 export type TranscriptionState =
 	| {
@@ -17,11 +14,9 @@ export type TranscriptionState =
 	  }
 	| {
 			type: 'transcribing';
-			backend: ResolvedWhisperWebGpuBackend;
 	  }
 	| {
 			type: 'done';
 			result: Caption[];
-			backend: ResolvedWhisperWebGpuBackend;
 	  }
 	| {type: 'error'; message: string};
