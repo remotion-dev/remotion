@@ -577,8 +577,10 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 114,
 		preview: {
-			posterUrl: '/elements/storytelling-on-screen-messages-preview.png',
-			videoUrl: '/elements/storytelling-on-screen-messages-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/storytelling-on-screen-messages-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/storytelling-on-screen-messages-preview.mp4',
 		},
 		safeArea: 180,
 		installationMode: 'wrapped',
