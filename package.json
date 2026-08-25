@@ -75,7 +75,6 @@
 	"dependencies": {
 		"@typescript/native-preview": "catalog:",
 		"p-limit": "7.2.0",
-		"protobufjs": "8.6.6",
 		"turbo": "2.9.14",
 		"typescript": "5.9.3"
 	},
@@ -88,7 +87,8 @@
 		"@remix-run/node": "2.17.4",
 		"@remix-run/react": "2.17.4",
 		"@remix-run/serve": "2.17.4",
-		"@remix-run/server-runtime": "2.17.4"
+		"@remix-run/server-runtime": "2.17.4",
+		"protobufjs": "7.6.5"
 	},
 	"workspaces": {
 		"packages": [
