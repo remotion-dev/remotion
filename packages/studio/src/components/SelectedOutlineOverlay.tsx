@@ -395,6 +395,7 @@ const calculateOutlineTargets = ({
 			key,
 			containsSelection,
 			crop,
+			includeOutsideContainer: showSelectedOutline,
 			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
 			nodePathInfo,
 			ref: sequence.refForOutline,
@@ -779,28 +780,32 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 		[outlineRuntimeControls, outlineRuntimeSnapshots],
 	);
 
-	const outlineTargets = useMemo(
-		() =>
-			calculateOutlineTargetsForCurrentState({
-				mode: 'layout',
-				runtimeValuesByStore: outlineRuntimeValuesByStore,
-				selectableOutlines: selectableOutlinesForLayout,
-				targetKey: null,
-				targetTimelinePosition: timelinePosition,
-			}),
-		[
-			calculateOutlineTargetsForCurrentState,
-			outlineRuntimeValuesByStore,
-			selectableOutlinesForLayout,
-			timelinePosition,
-		],
-	);
+	const outlineTargets = useMemo(() => {
+		const targets = calculateOutlineTargetsForCurrentState({
+			mode: 'layout',
+			runtimeValuesByStore: outlineRuntimeValuesByStore,
+			selectableOutlines: selectableOutlinesForLayout,
+			targetKey: null,
+			targetTimelinePosition: timelinePosition,
+		});
+		return targets.map((target) => {
+			const hovered =
+				timelineSequenceNodePathToKey(
+					target.nodePathInfo.sequenceSubscriptionKey,
+				) === hoveredTimelineNodePathKey;
+			return hovered && !target.includeOutsideContainer
+				? {...target, includeOutsideContainer: true}
+				: target;
+		});
+	}, [
+		calculateOutlineTargetsForCurrentState,
+		hoveredTimelineNodePathKey,
+		outlineRuntimeValuesByStore,
+		selectableOutlinesForLayout,
+		timelinePosition,
+	]);
 
-	const outlineTargetsRef =
-		useRef<readonly SelectedOutlineLayoutTarget[]>(outlineTargets);
-	const getOutlineTargets = useCallback(() => outlineTargetsRef.current, []);
 	useLayoutEffect(() => {
-		outlineTargetsRef.current = outlineTargets;
 		updateOutlinesRef.current();
 	}, [outlineTargets, scale, translationX, translationY]);
 	return (
@@ -809,7 +814,7 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			compositionWidth={compositionWidth}
 			dragging={draggingOutline}
 			getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
-			getOutlineTargets={getOutlineTargets}
+			outlineTargets={outlineTargets}
 			onDraggingChange={onDraggingChange}
 			onContextMenuOpenChange={onContextMenuOpenChange}
 			onSelect={onSelect}

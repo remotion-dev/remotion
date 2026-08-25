@@ -18,6 +18,23 @@ export type {
 	TimelineTrackWithOriginalTimings,
 } from './get-timeline-sequence-sort-key';
 export {
+	canvasOutlinesAreEqual,
+	createCanvasOutlinesController,
+	cropCanvasOutlinePoints,
+	getCanvasOutlinePointAtUv,
+	getTransformedSvgViewportPoints,
+	measureCanvasOutlines,
+	useCanvasOutlines,
+	useCanvasOutlinesController,
+} from './outlines';
+export type {
+	CanvasOutline,
+	CanvasOutlinePoint,
+	CanvasOutlinesController,
+	CanvasOutlinesSnapshot,
+	CanvasOutlineTarget,
+} from './outlines';
+export {
 	createCanvasSelectionController,
 	EMPTY_CANVAS_SELECTION,
 	getCanvasSelectionAfterInteraction,
