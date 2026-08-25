@@ -73,14 +73,14 @@
 		"react-scan": "0.5.7"
 	},
 	"dependencies": {
-		"@typescript/native-preview": "catalog:",
-		"fast-xml-parser": "5.7.0",
 		"p-limit": "7.2.0",
 		"turbo": "2.9.14",
-		"typescript": "5.9.3"
+		"typescript": "5.9.3",
+		"@typescript/native-preview": "catalog:"
 	},
 	"packageManager": "bun@1.3.3",
 	"overrides": {
+		"@aws-sdk/xml-builder": "3.972.5",
 		"caniuse-lite": "1.0.30001766",
 		"@rspack/core": "1.7.11",
 		"@remix-run/dev": "2.17.4",
