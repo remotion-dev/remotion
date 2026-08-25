@@ -13,13 +13,8 @@ loadFont('normal', {
 });
 
 export const OnScreenMessages = () => {
-	const sequenceFrame = useCurrentFrame();
-	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
-	// Compress the treatment when its wrapping Sequence is shorter than 162 frames.
-	const durationInFrames = Math.max(sequenceDurationInFrames, 162);
-	const frame =
-		sequenceFrame *
-		((durationInFrames - 1) / Math.max(1, sequenceDurationInFrames - 1));
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div
