@@ -6,7 +6,7 @@ crumb: '@remotion/whisper-webgpu'
 
 # canUseWhisperWebGpu()<AvailableFrom v="4.0.518" />
 
-Asynchronously checks whether a usable WebGPU adapter is available in the current browser.
+Asynchronously checks whether WebGPU can be used in the current browser. WebGPU, a usable adapter, and a secure context (or localhost) is required.
 
 ```ts twoslash title="support.ts"
 import {canUseWhisperWebGpu} from '@remotion/whisper-webgpu';
@@ -19,7 +19,27 @@ if (!result.supported) {
 console.log(result.supported);
 ```
 
-An unsupported result includes a `reason` and `detailedReason`. WebGPU requires the WebGPU API, a usable adapter, and a secure context.
+## Return type
+
+A `Promise` resolving to a `CanUseWhisperWebGpuResult` object with the following properties:
+
+### `supported`
+
+_boolean_
+
+`true` if WebGPU transcription is supported, `false` otherwise.
+
+### `reason?`
+
+If `supported` is `false`, a categorized reason why WebGPU transcription is not supported:
+
+- `window-undefined`
+- `webgpu-unavailable`
+- `webgpu-requires-secure-context`
+
+### `detailedReason?`
+
+If `supported` is `false`, a human-readable explanation of why WebGPU transcription is not supported.
 
 ## Cross-origin isolation
 
