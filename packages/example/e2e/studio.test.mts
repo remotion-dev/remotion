@@ -8,7 +8,11 @@ import {
 	exampleDir,
 	lostNodePathE2eFile,
 } from './constants.mts';
-import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
+import {
+	navigateToLostNodePathE2e,
+	navigateToSchemaTest,
+	retryCanvasInteractionUntilOutlineIsVisible,
+} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const macCursorsFile = path.join(exampleDir, 'src', 'MacCursors', 'index.tsx');
@@ -374,8 +378,11 @@ test.describe('visual mode', () => {
 		const visibleOutlines = canvas.locator(
 			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
 		);
-		await canvas.hover();
-		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await retryCanvasInteractionUntilOutlineIsVisible({
+			interaction: () => canvas.hover(),
+			outline: visibleOutlines,
+			page,
+		});
 		await visibleOutlines.first().click({force: true});
 
 		await expect(revealTargetTrack).toBeVisible();
@@ -732,10 +739,14 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 
 		const canvasItem = page.getByText('Performance overview', {exact: true});
-		await canvasItem.hover();
 		const canvasItemOutline = page.locator(
 			'polygon[data-remotion-prevent-selection-clear="true"][stroke-opacity="1"]',
 		);
+		await retryCanvasInteractionUntilOutlineIsVisible({
+			interaction: () => canvasItem.hover(),
+			outline: canvasItemOutline,
+			page,
+		});
 		await expect(canvasItemOutline).toHaveCount(1);
 		await canvasItemOutline.click({button: 'right'});
 
@@ -1443,14 +1454,17 @@ test.describe('visual mode', () => {
 		await expect(firstGridline).toBeVisible({timeout: 15_000});
 
 		const canvas = page.locator('.remotion-studio-composition-container');
-		const visibleOutlines = page.locator(
-			'.remotion-studio-composition-container > svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
+		const visibleOutlines = canvas.locator(
+			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
 		);
-		await canvas.hover();
-		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await retryCanvasInteractionUntilOutlineIsVisible({
+			interaction: () => canvas.hover(),
+			outline: visibleOutlines,
+			page,
+		});
 		await visibleOutlines.first().click({force: true});
 		await page.mouse.move(0, 0);
-		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await expect(visibleOutlines.first()).toBeVisible();
 	});
 
 	test('should preserve following interactive elements after deleting a sibling', async ({
