@@ -1,0 +1,70 @@
+---
+image: /generated/articles-docs-ai-webmcp.png
+crumb: 'AI'
+title: WebMCP
+sidebar_label: WebMCP
+---
+
+# WebMCP<AvailableFrom v="4.0.518" />
+
+<ExperimentalBadge>
+  <p>WebMCP is an experimental browser API. Availability depends on the browser and AI agent.</p>
+</ExperimentalBadge>
+
+Remotion Studio exposes WebMCP tools that allow an AI agent to inspect and control the open composition.
+
+Unlike the [deprecated Remotion MCP](/docs/ai/mcp), which provided documentation to agents, WebMCP gives an agent structured access to the current Studio tab.
+
+## Requirements
+
+Start the [Remotion Studio](/docs/studio) and open it in a browser with an AI agent that supports [WebMCP](https://webmachinelearning.github.io/webmcp/).
+
+No Remotion configuration is required. Studio registers its tools when the browser provides `document.modelContext`. Browsers without WebMCP support continue to run Studio without registering tools.
+
+## Available tools
+
+| Tool                 | Input                                                                                    | Description                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `get_compositions`   | None                                                                                     | Returns mounted compositions as a nested tree of folders and compositions.                     |
+| `select_composition` | `compositionName`: string                                                                | Opens a registered composition in Studio.                                                      |
+| `get_composition`    | None                                                                                     | Returns composition metadata and the current frame, or `null` fields for other canvas content. |
+| `get_selection`      | None                                                                                     | Returns the current frame, composition and source-code context for the selected item.          |
+| `get_guides`         | None                                                                                     | Returns the horizontal and vertical guides drawn over the canvas.                              |
+| `add_guide`          | `orientation`: `horizontal` or `vertical`; `position`: number                            | Adds and shows a guide in the current composition.                                             |
+| `remove_guide`       | `guideId`: string                                                                        | Removes a guide from the current composition.                                                  |
+| `seek_to_frame`      | `frame`: a non-negative integer                                                          | Seeks the timeline. Values beyond the duration are clamped to the final frame.                 |
+| `play`               | None                                                                                     | Starts playback from the current frame.                                                        |
+| `pause`              | None                                                                                     | Pauses playback at the current frame.                                                          |
+| `set_timeline_zoom`  | `zoom`: a positive number                                                                | Sets the timeline zoom. Values outside the supported range are clamped.                        |
+| `set_playback_rate`  | `playbackRate`: `-4`, `-2`, `-1`, `-0.5`, `-0.25`, `0.25`, `0.5`, `1`, `1.5`, `2` or `4` | Sets the playback speed. Negative values play backwards.                                       |
+| `mute`               | None                                                                                     | Mutes audio playback.                                                                          |
+| `unmute`             | None                                                                                     | Unmutes audio playback.                                                                        |
+
+Tools that change playback require a composition to be open. `play` is unavailable for still compositions.
+
+`get_selection` returns source-code context when exactly one sequence or property is selected. It returns `null` when there is no selection, multiple items are selected or a guide is selected.
+
+## Example prompts
+
+You can ask a browser agent:
+
+- “What is currently selected in the Studio?”
+- “List all mounted compositions and their folders.”
+- “Open the `Shapes` composition.”
+- “Set the timeline zoom to 2.5x.”
+- “Seek to frame 90, set the playback rate to 0.5x and play.”
+- “List the guides in the current composition.”
+- “Add a vertical guide at 640 pixels.”
+- “Mute the preview.”
+
+The agent chooses and invokes the matching tools. Tool calls affect the open Studio tab immediately.
+
+## Browser support
+
+WebMCP is a draft web platform API. Refer to the [WebMCP specification](https://webmachinelearning.github.io/webmcp/) and [Chrome's WebMCP documentation](https://developer.chrome.com/docs/ai/agents) for current browser and agent support.
+
+## See also
+
+- [Prompting videos with coding agents](/docs/ai/coding-agents)
+- [Remotion Agent Skills](/docs/ai/skills)
+- [Remotion Studio](/docs/studio)

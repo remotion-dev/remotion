@@ -1470,6 +1470,7 @@ const sidebars: SidebarsConfig = {
 						'ai/kimi-code-plugin',
 					],
 				},
+				'ai/webmcp',
 				'ai/bolt',
 				'ai/chatbot',
 				'ai/generate',

@@ -21,6 +21,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'Plugins'}</strong>
 					<div>Use Remotion with Codex, Claude Code, Cursor or Kimi Code</div>
 				</TOCItem>
+				<TOCItem link="/docs/ai/webmcp">
+					<strong>{'WebMCP'}</strong>
+					<div>Inspect and control Remotion Studio with an AI agent</div>
+				</TOCItem>
 				<TOCItem link="/docs/ai/chatbot">
 					<strong>{'Chatbot'}</strong>
 					<div>Use the chatbot to get help with Remotion</div>
