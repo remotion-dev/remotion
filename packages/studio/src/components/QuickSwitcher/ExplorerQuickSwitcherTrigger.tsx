@@ -47,18 +47,6 @@ const quickSwitcherTrigger: React.CSSProperties = {
 	}),
 };
 
-const moreActionsStyle: React.CSSProperties = {
-	height: 26,
-	width: 26,
-	borderRadius: 4,
-	...hoverableStyle({
-		idleBackground: WHITE_ALPHA_06,
-		hoverBackground: WHITE_ALPHA_06,
-		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
-	}),
-};
-
 const ellipsisSvgProps: React.SVGProps<SVGSVGElement> = {
 	style: {
 		height: 12,
@@ -112,7 +100,6 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 				title={moreActionsTitle}
 				renderAction={renderMoreActions}
 				getItems={getActions}
-				style={moreActionsStyle}
 				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 			/>
 		</div>
