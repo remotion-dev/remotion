@@ -280,6 +280,9 @@
 			"path": "./packages/light-leaks"
 		},
 		{
+			"path": "./packages/whisper-webgpu"
+		},
+		{
 			"path": "./packages/maptiler"
 		},
 		{

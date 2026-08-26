@@ -65,10 +65,10 @@ export const Footer: React.FC<{
 					{routeAction.type === 'transcribe' ? (
 						<a
 							target="_blank"
-							href="https://remotion.dev/docs/whisper-web"
+							href="https://remotion.dev/docs/whisper-webgpu"
 							className="text-sm text-muted-foreground font-medium hover:text-foreground"
 						>
-							Powered by @remotion/whisper-web
+							Powered by @remotion/whisper-webgpu
 						</a>
 					) : (
 						<div className="row flex items-center">

@@ -29,7 +29,7 @@ export const clampTimelineZoom = ({
 	return Math.round(clamped * 10) / 10;
 };
 
-export const timelineZoomToSliderValue = ({
+export const timelineZoomToNormalized = ({
 	zoom,
 	maxZoom,
 }: {
@@ -41,10 +41,39 @@ export const timelineZoomToSliderValue = ({
 	}
 
 	const clampedZoom = Math.min(maxZoom, Math.max(TIMELINE_MIN_ZOOM, zoom));
-	const t =
+	const normalized =
 		Math.log(clampedZoom / TIMELINE_MIN_ZOOM) /
 		Math.log(maxZoom / TIMELINE_MIN_ZOOM);
-	return Math.round(t * TIMELINE_ZOOM_SLIDER_MAX);
+	return (
+		Math.round(normalized * TIMELINE_ZOOM_SLIDER_MAX) / TIMELINE_ZOOM_SLIDER_MAX
+	);
+};
+
+export const timelineZoomToSliderValue = ({
+	zoom,
+	maxZoom,
+}: {
+	zoom: number;
+	maxZoom: number;
+}): number => {
+	return Math.round(
+		timelineZoomToNormalized({zoom, maxZoom}) * TIMELINE_ZOOM_SLIDER_MAX,
+	);
+};
+
+export const normalizedToTimelineZoom = ({
+	normalized,
+	maxZoom,
+}: {
+	normalized: number;
+	maxZoom: number;
+}): number => {
+	if (maxZoom <= TIMELINE_MIN_ZOOM) {
+		return TIMELINE_MIN_ZOOM;
+	}
+
+	const t = Math.min(1, Math.max(0, normalized));
+	return TIMELINE_MIN_ZOOM * (maxZoom / TIMELINE_MIN_ZOOM) ** t;
 };
 
 export const sliderValueToTimelineZoom = ({
@@ -54,12 +83,10 @@ export const sliderValueToTimelineZoom = ({
 	sliderValue: number;
 	maxZoom: number;
 }): number => {
-	if (maxZoom <= TIMELINE_MIN_ZOOM) {
-		return TIMELINE_MIN_ZOOM;
-	}
-
-	const t = sliderValue / TIMELINE_ZOOM_SLIDER_MAX;
-	return TIMELINE_MIN_ZOOM * (maxZoom / TIMELINE_MIN_ZOOM) ** t;
+	return normalizedToTimelineZoom({
+		normalized: sliderValue / TIMELINE_ZOOM_SLIDER_MAX,
+		maxZoom,
+	});
 };
 
 export const TIMELINE_ZOOM_SLIDER_PROPS = {
