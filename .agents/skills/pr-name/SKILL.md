@@ -3,8 +3,8 @@ name: pr-name
 description: Review or correct a Remotion pull request title
 ---
 
-When given a pull request, inspect its current title and final diff before
-proposing a name. Treat the title as a changelog entry for developers, not as a
+When given a pull request, inspect its current title and diff before proposing a
+name. Treat the title as a changelog entry for developers, not as a
 high-level summary of the work and not as an inventory of everything that
 changed. Do not automatically reuse the commit message.
 
@@ -24,10 +24,10 @@ By default, use that package name in the PR title:
 `[package-name]`: [description]
 ```
 
-Start the description with a capitalized word, as in:
+For example:
 
 ```
-`@remotion/shapes`: Add a heart shape
+`@remotion/shapes`: Add heart shape
 ```
 
 If multiple packages are affected, use the package that owns the primary
@@ -37,8 +37,7 @@ user-facing change, not necessarily the package with the most changed files.
 
 Use these guidelines in order:
 
-1. Identify the main developer-visible change from the diff. Inspect public
-   exports, types, documentation, and tests when needed to understand it.
+1. Identify the main developer-visible change from the diff.
 2. If a new or changed public API is central to the change, name the primary
    function, method, component, hook, prop, option, or CLI flag exactly and put
    the identifier in backticks.
@@ -56,7 +55,9 @@ Use these guidelines in order:
 
 Prefer concrete verbs such as `add`, `fix`, `remove`, `rename`, and `change`.
 Avoid vague descriptions such as `allow`, `improve`, `update handling`, or
-`support` when the diff provides a clearer description.
+`support` when the diff provides a clearer description. PR titles may use
+concise, telegraphic wording. Do not add articles or filler solely to make the
+title a grammatically complete sentence; keep them when they improve clarity.
 
 Useful title shapes include:
 
@@ -72,7 +73,7 @@ Examples:
 ```
 `@remotion/studio-protocol`: Add `addElementLibraryToStudio()` for adding Element libraries to the config
 `@remotion/web-renderer`: Add a `metadata` option to `renderMediaOnWeb()` using Mediabunny's `MetadataTags`
-`@remotion/studio`: Remove the scrollbar from Asset Inspector quick actions
+`@remotion/studio`: Remove Asset Inspector quick action scrollbar
 ```
 
 The first example is better than "Add Element catalogs to Studio" because it
@@ -83,9 +84,8 @@ implemented it.
 ## Special handling
 
 For changes that match one of the categories below, use its special prefix
-instead of a package name. Classify the change by its primary user-facing impact,
-not merely by the package directory containing the changed files. A shipped
-package API change keeps the package prefix when docs and tests accompany it.
+instead of a package name. Classify the change by its user-facing impact, not
+merely by the package directory containing the changed files.
 
 If a change only adds, fixes, or stabilizes internal tests, test fixtures,
 snapshots, or test infrastructure, and does not change shipped behavior, use the
@@ -95,7 +95,7 @@ located there. The package name may instead appear in the description when
 useful:
 
 ```
-Internal: Stabilize the registration range test in `@remotion/transitions`
+Internal: Stabilize registration range test in `@remotion/transitions`
 ```
 
 If shipped implementation changes are accompanied by tests, use the normal
@@ -104,7 +104,7 @@ affected-package prefix instead.
 If the change is about docs only:
 
 ```
-Docs: Add a page about the heart shape
+Docs: Add page about heart shape
 ```
 
 If the change is internal monorepo work that does not have a more specific
@@ -114,12 +114,10 @@ category below, use the `Internal:` prefix:
 Internal: Simplify release bookkeeping
 ```
 
-If the primary deliverable adds or modifies a Remotion Element or Elements
-catalog content, use the `Elements:` prefix. Do not use this prefix merely
-because a package API interacts with Elements; use that package's name instead.
+If the change relates to Remotion Elements, use the `Elements:` prefix:
 
 ```
-Elements: Add an animated title element
+Elements: Add animated title element
 ```
 
 If the change relates to packages/convert, use the remotion.dev/convert prefix:
@@ -128,40 +126,26 @@ If the change relates to packages/convert, use the remotion.dev/convert prefix:
 remotion.dev/convert: Support trimming
 ```
 
-If the change relates to packages/example, say Internal testbed:
+If the change relates to packages/example, say Internal Testbed:
 
 ```
-Internal testbed: Add a trimming sample composition
+Internal testbed: Add trimming sample composition
 ```
 
 If the change adds or modifies a skill, prefix with `Skills:`:
 
 ```
-Skills: Add the `/remotion-upgrade` skill
+Skills: Add `/remotion-upgrade` skill
 ```
 
 If the change relates to packages/brand, prefix with remotion.dev/brand:
 
 ```
-remotion.dev/brand: Add an animated logo
+remotion.dev/brand: Add animated logo
 ```
 
 If the change relates to packages/it-tests, prefix with Internal tests:
 
 ```
-Internal tests: Add a video integration test
+Internal tests: Add video integration test
 ```
-
-## Final check
-
-Before proposing the title, verify:
-
-- It is understandable without the PR body.
-- It describes the main developer-visible outcome rather than the broad project
-  goal.
-- It names the primary public API when that API is central, but does not list
-  every API or implementation detail.
-- Its prefix reflects the owner of the user-facing change.
-- The description after the prefix starts with a capitalized word unless it
-  must begin with an identifier whose casing differs.
-- Every technical claim is supported by the diff.
