@@ -173,20 +173,26 @@ export const MyComponent = () => {
 	const officialLibraryRequests: string[] = [];
 	const externalLibraryRequests: string[] = [];
 	const context = await browser.newContext();
-	await context.route('https://www.remotion.dev/elements', async (route) => {
-		officialLibraryRequests.push(route.request().url());
-		await route.fulfill({
-			status: 302,
-			headers: {Location: senderUrl},
-		});
-	});
-	await context.route(externalLibraryUrl, async (route) => {
-		externalLibraryRequests.push(route.request().url());
-		await route.fulfill({
-			status: 302,
-			headers: {Location: senderUrl},
-		});
-	});
+	await context.route(
+		'https://www.remotion.dev/elements?remotion-studio=true',
+		async (route) => {
+			officialLibraryRequests.push(route.request().url());
+			await route.fulfill({
+				status: 302,
+				headers: {Location: senderUrl},
+			});
+		},
+	);
+	await context.route(
+		`${externalLibraryUrl}?remotion-studio=true`,
+		async (route) => {
+			externalLibraryRequests.push(route.request().url());
+			await route.fulfill({
+				status: 302,
+				headers: {Location: senderUrl},
+			});
+		},
+	);
 	try {
 		await waitForUrl(studioUrl, studioProcess);
 		const studioPage = await context.newPage();
@@ -247,7 +253,7 @@ export const MyComponent = () => {
 		);
 		await expect(officialElementsIframe).toBeVisible();
 		expect(officialLibraryRequests).toEqual([
-			'https://www.remotion.dev/elements',
+			'https://www.remotion.dev/elements?remotion-studio=true',
 		]);
 		expect(context.pages()).toHaveLength(2);
 		await studioPage.keyboard.press('Escape');
@@ -274,7 +280,9 @@ export const MyComponent = () => {
 			'local-network-access; loopback-network',
 		);
 		await expect(elementsIframe).toHaveAttribute('credentialless', '');
-		expect(externalLibraryRequests).toEqual([externalLibraryUrl]);
+		expect(externalLibraryRequests).toEqual([
+			`${externalLibraryUrl}?remotion-studio=true`,
+		]);
 		expect(context.pages()).toHaveLength(2);
 		const elementsFrame = studioPage.frameLocator(
 			`iframe[title="${externalLibraryLabel} library"]`,

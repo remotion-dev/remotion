@@ -52,6 +52,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
 		useState(false);
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
@@ -66,6 +67,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	}, [definition, sourceCode]);
 
 	useEffect(() => {
+		// Internal navigation may drop the query parameter, but the page remains
+		// inside the same Studio iframe.
+		setIsEmbeddedInStudio(
+			new URLSearchParams(window.location.search).get('remotion-studio') ===
+				'true' || window.parent !== window,
+		);
+
 		const onKeyDown = (event: KeyboardEvent) => {
 			if (
 				event.repeat ||
@@ -227,25 +235,27 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							<div
-								className={styles.dragHandle}
-								draggable
-								onDragStart={(event) => {
-									setStudioDragData({
-										dataTransfer: event.dataTransfer,
-										payload: elementPayload,
-									});
-									setElementDragImage(event.dataTransfer, posterRef.current);
-								}}
-								title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
-							>
-								<span aria-hidden="true" className={styles.dragHandleIcon}>
-									⠿
-								</span>
-								<span className={styles.dragHandleText}>
-									<strong>Drag into Studio</strong>
-								</span>
-							</div>
+							{isEmbeddedInStudio ? null : (
+								<div
+									className={styles.dragHandle}
+									draggable
+									onDragStart={(event) => {
+										setStudioDragData({
+											dataTransfer: event.dataTransfer,
+											payload: elementPayload,
+										});
+										setElementDragImage(event.dataTransfer, posterRef.current);
+									}}
+									title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
+								>
+									<span aria-hidden="true" className={styles.dragHandleIcon}>
+										⠿
+									</span>
+									<span className={styles.dragHandleText}>
+										<strong>Drag into Studio</strong>
+									</span>
+								</div>
+							)}
 							{installStatus.type === 'success' ||
 							installStatus.type === 'error' ? (
 								<p
