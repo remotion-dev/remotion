@@ -122,6 +122,19 @@ const getAutoScrollSpeed = ({
 	return 0;
 };
 
+const SORT_MODE_KEY = 'remotion.compositionSortMode';
+
+type SortMode = 'registration' | 'alphabetical';
+
+const getSortMode = (): SortMode => {
+	const stored = localStorage.getItem(SORT_MODE_KEY);
+	if (stored === 'alphabetical') {
+		return 'alphabetical';
+	}
+
+	return 'registration';
+};
+
 export const CompositionSelector: React.FC = () => {
 	const {compositions, canvasContent, folders} = useContext(
 		Internals.CompositionManager,
@@ -138,6 +151,7 @@ export const CompositionSelector: React.FC = () => {
 		});
 	}, [connectionStatus, setSelectedModal]);
 	const [rootDragHovered, setRootDragHovered] = useState(false);
+	const [sortMode, setSortMode] = useState<SortMode>(() => getSortMode());
 	const listRef = useRef<HTMLDivElement>(null);
 	const autoScrollAnimation = useRef<number | null>(null);
 	const autoScrollSpeed = useRef(0);
@@ -145,9 +159,21 @@ export const CompositionSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
 
+	const toggleSortMode = useCallback(() => {
+		setSortMode((prev) => {
+			const next = prev === 'registration' ? 'alphabetical' : 'registration';
+			localStorage.setItem(SORT_MODE_KEY, next);
+			return next;
+		});
+	}, []);
+
 	const sortedCompositions = useMemo(() => {
+		if (sortMode === 'alphabetical') {
+			return [...compositions].sort((a, b) => a.id.localeCompare(b.id));
+		}
+
 		return sortItemsByNonceHistory(compositions);
-	}, [compositions]);
+	}, [compositions, sortMode]);
 
 	const sortedFolders = useMemo(() => {
 		return sortItemsByNonceHistory(folders);
@@ -352,11 +378,33 @@ export const CompositionSelector: React.FC = () => {
 				triggerRef={listRef}
 				getItems={getRootContextMenuItems}
 			/>
-			<ExplorerQuickSwitcherTrigger
-				mode="compositions"
-				showShortcut
-				tabIndex={tabIndex}
-			/>
+			<div style={{display: 'flex', alignItems: 'center', gap: 4}}>
+				<ExplorerQuickSwitcherTrigger
+					mode="compositions"
+					showShortcut
+					tabIndex={tabIndex}
+				/>
+				<button
+					type="button"
+					onClick={toggleSortMode}
+					title={
+						sortMode === 'registration'
+							? 'Sort alphabetically'
+							: 'Sort by registration order'
+					}
+					style={{
+						background: 'none',
+						border: 'none',
+						cursor: 'pointer',
+						padding: 2,
+						opacity: 0.6,
+						fontSize: 14,
+						lineHeight: 1,
+					}}
+				>
+					{sortMode === 'registration' ? '↕' : 'Az'}
+				</button>
+			</div>
 			<div
 				ref={listRef}
 				className="__remotion-vertical-scrollbar"
