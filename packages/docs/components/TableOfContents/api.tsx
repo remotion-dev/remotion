@@ -42,6 +42,7 @@ import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfC
 import {TableOfContents as TransitionsTableOfContents} from '../../docs/transitions/table-of-contents';
 import {TableOfContents as VercelTableOfContents} from '../../docs/vercel/table-of-contents';
 import {TableOfContents as WebcodecsTableOfContents} from '../../docs/webcodecs/TableOfContents';
+import {TableOfContents as WhisperWebGpuTableOfContents} from '../../docs/whisper-webgpu/table-of-contents';
 import {ZodTypesTableOfContents} from '../../docs/zod-types/TableOfContents';
 import {Grid} from './Grid';
 import {TOCItem} from './TOCItem';
@@ -198,6 +199,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/webcodecs</h2>
 			<p>Converting media using WebCodecs</p>
 			<WebcodecsTableOfContents />
+			<h2>@remotion/whisper-webgpu</h2>
+			<p>Transcribe audio in the browser using Whisper and WebGPU</p>
+			<WhisperWebGpuTableOfContents />
 			<h2>@remotion/zod-types</h2>
 			<p>Zod types enabling Remotion Studio UI</p>
 			<ZodTypesTableOfContents />
