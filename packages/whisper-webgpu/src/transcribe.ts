@@ -1,8 +1,8 @@
 import {
-	getLoadedWhisperPipeline,
+	withLoadedWhisperPipeline,
 	type OnWhisperWebGpuModelLoadProgress,
 } from './load-whisper-model';
-import type {WhisperWebGpuModel} from './models';
+import {getModelInfo, type WhisperWebGpuModel} from './models';
 
 export type WhisperWebGpuWord = {
 	text: string;
@@ -38,7 +38,7 @@ type TransformersJsTranscription = {
 export const transcribe = async ({
 	channelWaveform,
 	model,
-	language = 'auto',
+	language,
 	chunkLengthInSeconds = 30,
 	strideLengthInSeconds = 5,
 	onModelLoadProgress,
@@ -47,30 +47,53 @@ export const transcribe = async ({
 		throw new Error('The audio waveform is empty.');
 	}
 
-	if (chunkLengthInSeconds <= 0) {
-		throw new Error('chunkLengthInSeconds must be greater than 0.');
+	if (!Number.isFinite(chunkLengthInSeconds) || chunkLengthInSeconds <= 0) {
+		throw new Error(
+			'chunkLengthInSeconds must be a finite number greater than 0.',
+		);
 	}
 
 	if (
+		!Number.isFinite(strideLengthInSeconds) ||
 		strideLengthInSeconds < 0 ||
 		strideLengthInSeconds * 2 >= chunkLengthInSeconds
 	) {
 		throw new Error(
-			'strideLengthInSeconds must be non-negative and less than half of chunkLengthInSeconds.',
+			'strideLengthInSeconds must be a finite, non-negative number and less than half of chunkLengthInSeconds.',
 		);
 	}
 
-	const transcriber = await getLoadedWhisperPipeline({
+	const {multilingual} = getModelInfo(model);
+	if (multilingual && (language === undefined || language === 'auto')) {
+		throw new Error(
+			`The language option is required for the multilingual model "${model}" because automatic language detection is not supported.`,
+		);
+	}
+
+	if (
+		!multilingual &&
+		language !== undefined &&
+		language !== 'auto' &&
+		language !== 'en' &&
+		language !== 'english'
+	) {
+		throw new Error(
+			`The English-only model "${model}" does not support the language "${language}".`,
+		);
+	}
+
+	const output = await withLoadedWhisperPipeline({
 		model,
 		onProgress: onModelLoadProgress,
+		run: async (transcriber) => {
+			return (await transcriber(channelWaveform, {
+				return_timestamps: 'word',
+				chunk_length_s: chunkLengthInSeconds,
+				stride_length_s: strideLengthInSeconds,
+				...(multilingual ? {language} : {}),
+			})) as TransformersJsTranscription;
+		},
 	});
-
-	const output = (await transcriber(channelWaveform, {
-		return_timestamps: 'word',
-		chunk_length_s: chunkLengthInSeconds,
-		stride_length_s: strideLengthInSeconds,
-		...(language === 'auto' ? {} : {language}),
-	})) as TransformersJsTranscription;
 
 	if (!output.chunks) {
 		throw new Error(

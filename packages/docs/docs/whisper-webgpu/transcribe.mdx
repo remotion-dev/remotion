@@ -17,7 +17,6 @@ const channelWaveform = await resampleTo16Khz({file});
 const result = await transcribe({
   channelWaveform,
   model: 'small.en',
-  language: 'en',
 });
 
 console.log(result.text, result.words);
@@ -35,15 +34,15 @@ One of the timestamped models returned by [`getAvailableModels()`](/docs/whisper
 
 ### language?
 
-The spoken language name or language code. Default: `'auto'`. Set it when known to reduce language-detection errors.
+The spoken language name or language code. This option is required for multilingual models because automatic language detection is not supported. Omit it for English-only models such as `small.en`.
 
 ### chunkLengthInSeconds?
 
-Length of long-audio chunks. Default: `30`.
+Length of long-audio chunks. Default: `30`. Must be a finite number greater than `0`.
 
 ### strideLengthInSeconds?
 
-Overlap on both sides of a chunk. Default: `5`. It must be less than half of `chunkLengthInSeconds`.
+Overlap on both sides of a chunk. Default: `5`. Must be finite, non-negative, and less than half of `chunkLengthInSeconds`.
 
 ### onModelLoadProgress?
 
