@@ -42,7 +42,9 @@ if (typeof window !== 'undefined') {
 		window.remotion_delayRenderTimeouts = {};
 	}
 
-	window.remotion_delayRenderHandles = [];
+	if (!window.remotion_delayRenderHandles) {
+		window.remotion_delayRenderHandles = [];
+	}
 }
 
 const defaultTimeout = 30000;
