@@ -22,7 +22,6 @@ import type {QuickSwitcherMode} from './NoResults';
 const quickSwitcherArea: React.CSSProperties = {
 	padding: '4px 8px',
 	borderBottom: `1px solid ${BLACK_HEX}`,
-	overflowY: 'auto',
 	display: 'flex',
 	alignItems: 'center',
 	gap: 4,
