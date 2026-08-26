@@ -1,6 +1,7 @@
 import Head from '@docusaurus/Head';
 import {
 	installInStudio,
+	isInsideStudio,
 	setStudioDragData,
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
@@ -8,6 +9,7 @@ import React, {
 	useCallback,
 	useEffect,
 	useId,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -52,7 +54,9 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
 		useState(false);
-	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState<boolean | null>(
+		null,
+	);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
@@ -66,14 +70,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		return createElementPayloadFromDefinition({definition, sourceCode});
 	}, [definition, sourceCode]);
 
-	useEffect(() => {
-		// Internal navigation may drop the query parameter, but the page remains
-		// inside the same Studio iframe.
-		setIsEmbeddedInStudio(
-			new URLSearchParams(window.location.search).get('remotion-studio') ===
-				'true' || window.parent !== window,
-		);
+	useLayoutEffect(() => {
+		setIsEmbeddedInStudio(isInsideStudio());
+	}, []);
 
+	useEffect(() => {
 		const onKeyDown = (event: KeyboardEvent) => {
 			if (
 				event.repeat ||
@@ -235,7 +236,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							{isEmbeddedInStudio ? null : (
+							{isEmbeddedInStudio === false ? (
 								<div
 									className={styles.dragHandle}
 									draggable
@@ -255,7 +256,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										<strong>Drag into Studio</strong>
 									</span>
 								</div>
-							)}
+							) : null}
 							{installStatus.type === 'success' ||
 							installStatus.type === 'error' ? (
 								<p

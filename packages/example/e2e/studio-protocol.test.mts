@@ -136,9 +136,11 @@ export const MyComponent = () => {
 		response.end(`<!doctype html>
 			<button id="install">Install in Studio</button>
 			<button id="license">Configure license in Studio</button>
+			<p id="environment"></p>
 			<p id="status"></p>
 			<script type="module">
-				import {createElementPayload, installInStudio, StudioProtocolInternals} from '/protocol.js';
+				import {createElementPayload, installInStudio, isInsideStudio, StudioProtocolInternals} from '/protocol.js';
+				document.querySelector('#environment').textContent = isInsideStudio() ? 'Inside Remotion Studio' : 'Outside Remotion Studio';
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
 					slug: 'protocol-element',
@@ -287,6 +289,9 @@ export const MyComponent = () => {
 		const elementsFrame = studioPage.frameLocator(
 			`iframe[title="${externalLibraryLabel} library"]`,
 		);
+		await expect(
+			elementsFrame.getByText('Inside Remotion Studio', {exact: true}),
+		).toBeVisible();
 		const installInStudio = elementsFrame.getByRole('button', {
 			name: 'Install in Studio',
 		});
@@ -321,6 +326,9 @@ export const MyComponent = () => {
 		await studioPage.mouse.click(500, 300);
 		const senderPage = await context.newPage();
 		await senderPage.goto(senderUrl);
+		await expect(
+			senderPage.getByText('Outside Remotion Studio', {exact: true}),
+		).toBeVisible();
 		await senderPage
 			.getByRole('button', {name: 'Configure license in Studio'})
 			.click();
