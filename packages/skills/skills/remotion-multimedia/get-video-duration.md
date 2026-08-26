@@ -17,9 +17,7 @@ import { Input, ALL_FORMATS, UrlSource } from "mediabunny";
 export const getVideoDuration = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
