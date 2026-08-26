@@ -1,10 +1,10 @@
 import {loadFonts} from './base';
 
 export const getInfo = () => ({
-	fontFamily: 'Yuyu',
-	importName: 'Yuyu',
+	fontFamily: 'Caacupe One',
+	importName: 'CaacupeOne',
 	version: 'v2',
-	url: 'https://fonts.googleapis.com/css2?family=Yuyu:ital,wght@0,400',
+	url: 'https://fonts.googleapis.com/css2?family=Caacupe+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
 			'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
@@ -15,15 +15,16 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yuyu/v2/cY9Kfj2VT1Zd2UrkM-_L.woff2',
-				latin: 'https://fonts.gstatic.com/s/yuyu/v2/cY9Kfj2VT1Zd2UTkMw.woff2',
+					'https://fonts.gstatic.com/s/caacupeone/v2/PlI5Fl60NbF_eNjJe2jslWxNvcGAfA.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/caacupeone/v2/PlI5Fl60NbF_eNjJe2jslWxDvcE.woff2',
 			},
 		},
 	},
 	subsets: ['latin', 'latin-ext'],
 });
 
-export const fontFamily = 'Yuyu' as const;
+export const fontFamily = 'Caacupe One' as const;
 
 type Variants = {
 	normal: {

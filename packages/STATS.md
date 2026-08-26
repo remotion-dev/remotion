@@ -75,5 +75,6 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/web-renderer.svg?style=flat&color=black&label=@remotion/web-renderer)](https://npmcharts.com/compare/@remotion/web-renderer?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/webcodecs.svg?style=flat&color=black&label=@remotion/webcodecs)](https://npmcharts.com/compare/@remotion/webcodecs?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/whisper-web.svg?style=flat&color=black&label=@remotion/whisper-web)](https://npmcharts.com/compare/@remotion/whisper-web?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/whisper-webgpu.svg?style=flat&color=black&label=@remotion/whisper-webgpu)](https://npmcharts.com/compare/@remotion/whisper-webgpu?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types.svg?style=flat&color=black&label=@remotion/zod-types)](https://npmcharts.com/compare/@remotion/zod-types?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types-v3.svg?style=flat&color=black&label=@remotion/zod-types-v3)](https://npmcharts.com/compare/@remotion/zod-types-v3?minimal=true)  

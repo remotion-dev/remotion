@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.517",
+	"version": "4.0.518",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -386,6 +386,9 @@
 			],
 			"AsapCondensed": [
 				"dist/cjs/AsapCondensed.d.ts"
+			],
+			"AsapSharp": [
+				"dist/cjs/AsapSharp.d.ts"
 			],
 			"Asar": [
 				"dist/cjs/Asar.d.ts"
@@ -857,6 +860,9 @@
 			],
 			"Bytesized": [
 				"dist/cjs/Bytesized.d.ts"
+			],
+			"CaacupeOne": [
+				"dist/cjs/CaacupeOne.d.ts"
 			],
 			"Cabin": [
 				"dist/cjs/Cabin.d.ts"
@@ -4635,6 +4641,9 @@
 			"ScopeOne": [
 				"dist/cjs/ScopeOne.d.ts"
 			],
+			"ScoutieSans": [
+				"dist/cjs/ScoutieSans.d.ts"
+			],
 			"SeaweedScript": [
 				"dist/cjs/SeaweedScript.d.ts"
 			],
@@ -5240,6 +5249,9 @@
 			],
 			"VT323": [
 				"dist/cjs/VT323.d.ts"
+			],
+			"ValleySans": [
+				"dist/cjs/ValleySans.d.ts"
 			],
 			"VampiroOne": [
 				"dist/cjs/VampiroOne.d.ts"
