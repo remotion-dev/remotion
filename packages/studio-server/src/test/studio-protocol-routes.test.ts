@@ -12,6 +12,7 @@ import {
 } from '../preview-server/element-install-state';
 import type {LiveEventsServer} from '../preview-server/live-events';
 import {handleStudioProtocolDiscovery} from '../preview-server/studio-protocol/handle-discovery';
+import {handleStudioProtocolElementLibrary} from '../preview-server/studio-protocol/handle-element-library';
 import {handleStudioProtocolInstall} from '../preview-server/studio-protocol/handle-install';
 import {handleStudioProtocolLicenseKey} from '../preview-server/studio-protocol/handle-license-key';
 import {handleStudioProtocolOptions} from '../preview-server/studio-protocol/origin-policy';
@@ -342,6 +343,215 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		await new Promise<void>((resolve, reject) => {
 			server.close((error) => (error ? reject(error) : resolve()));
 		});
+		clearElementInstallStateForTests();
+	}
+});
+
+test('delivers an Element catalog request without changing config before confirmation', async () => {
+	clearElementInstallStateForTests();
+	const deliveredEvents: EventSourceEvent[] = [];
+	const focusedUrls: string[] = [];
+	const directory = mkdtempSync(
+		path.join(tmpdir(), 'remotion-element-library-protocol-'),
+	);
+	const configFile = path.join(directory, 'remotion.config.ts');
+	const configContents = [
+		"import {Config} from '@remotion/cli/config';",
+		"Config.addElementLibrary({url: 'https://existing.example.com/'});",
+		'',
+	].join('\n');
+	writeFileSync(configFile, configContents);
+	let loadedConfigFile: string | null = configFile;
+	const liveEventsServer: LiveEventsServer = {
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: (event) => {
+			if (event.type !== 'request-element-install-target') {
+				return;
+			}
+
+			updateElementInstallTarget({
+				requestId: event.requestId,
+				clientId: 'focused-studio-tab',
+				compositionFile: null,
+				compositionId: null,
+				canInstall: false,
+				lastFocusedAt: Date.now(),
+				readOnly: false,
+				studioUrl: 'http://localhost:3000',
+			});
+		},
+		sendEventToClientId: (clientId, event) => {
+			if (clientId !== 'focused-studio-tab') {
+				return false;
+			}
+
+			deliveredEvents.push(event);
+			return true;
+		},
+	};
+	const server = createServer((request, response) => {
+		const {pathname} = new URL(request.url ?? '/', 'http://localhost');
+		if (request.method === 'OPTIONS') {
+			handleStudioProtocolOptions({request, response}).catch((error) =>
+				response.destroy(error),
+			);
+			return;
+		}
+
+		if (pathname === '/api/studio-protocol') {
+			handleStudioProtocolDiscovery({
+				gitSource: null,
+				liveEventsServer,
+				remotionRoot: directory,
+				request,
+				response,
+			}).catch((error) => response.destroy(error));
+			return;
+		}
+
+		handleStudioProtocolElementLibrary({
+			configFile: loadedConfigFile,
+			focusStudioTab: (studioUrl) => focusedUrls.push(studioUrl),
+			liveEventsServer,
+			request,
+			response,
+		}).catch((error) => response.destroy(error));
+	});
+	await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+
+	try {
+		const address = server.address();
+		if (address === null || typeof address === 'string') {
+			throw new Error('Expected an HTTP server address');
+		}
+
+		const origin = `http://127.0.0.1:${address.port}`;
+		const requestOrigin = 'https://catalog.example.com';
+		const preflight = await fetch(
+			`${origin}/api/studio-protocol/element-library`,
+			{method: 'OPTIONS', headers: {Origin: requestOrigin}},
+		);
+		expect(preflight.status).toBe(204);
+		expect(preflight.headers.get('access-control-allow-origin')).toBe(
+			requestOrigin,
+		);
+
+		const discover = async () => {
+			const discoveryResponse = await fetch(`${origin}/api/studio-protocol`, {
+				headers: {Origin: requestOrigin},
+			});
+			const descriptor = (await discoveryResponse.json()) as {
+				capabilities: [
+					{type: 'install-element'},
+					{type: 'set-license-key'},
+					{type: 'add-element-library'; target: {id: string}},
+				];
+			};
+			return descriptor.capabilities[2].target.id;
+		};
+
+		let targetId = await discover();
+		const body = {
+			operation: 'add-element-library',
+			protocol: 'remotion-studio-protocol',
+			protocolVersion: 1,
+			targetId,
+			url: 'https://new.example.com/catalog',
+			displayName: '  New catalog  ',
+		};
+
+		for (const invalidBody of [
+			{...body, protocolVersion: 2},
+			{...body, url: 'file:///tmp/catalog'},
+			{...body, displayName: '  '},
+		]) {
+			const invalidResponse = await fetch(
+				`${origin}/api/studio-protocol/element-library`,
+				{
+					method: 'POST',
+					headers: {'Content-Type': 'application/json', Origin: requestOrigin},
+					body: JSON.stringify(invalidBody),
+				},
+			);
+			expect(invalidResponse.status).toBe(400);
+		}
+
+		expect(deliveredEvents).toHaveLength(0);
+
+		const wrongOriginResponse = await fetch(
+			`${origin}/api/studio-protocol/element-library`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Origin: 'https://other.example.com',
+				},
+				body: JSON.stringify(body),
+			},
+		);
+		expect(wrongOriginResponse.status).toBe(409);
+		expect(deliveredEvents).toHaveLength(0);
+
+		targetId = await discover();
+		const validBody = {...body, targetId};
+		const response = await fetch(
+			`${origin}/api/studio-protocol/element-library`,
+			{
+				method: 'POST',
+				headers: {'Content-Type': 'application/json', Origin: requestOrigin},
+				body: JSON.stringify(validBody),
+			},
+		);
+		expect(await response.json()).toEqual({
+			protocol: 'remotion-studio-protocol',
+			protocolVersion: 1,
+			status: 'awaiting-confirmation',
+		});
+		expect(deliveredEvents).toEqual([
+			{
+				type: 'element-library-add-request',
+				url: 'https://new.example.com/catalog',
+				displayName: 'New catalog',
+				origin: requestOrigin,
+			},
+		]);
+		expect(focusedUrls).toEqual(['http://localhost:3000']);
+		expect(readFileSync(configFile, 'utf8')).toBe(configContents);
+
+		const replay = await fetch(
+			`${origin}/api/studio-protocol/element-library`,
+			{
+				method: 'POST',
+				headers: {'Content-Type': 'application/json', Origin: requestOrigin},
+				body: JSON.stringify(validBody),
+			},
+		);
+		expect(replay.status).toBe(409);
+		expect(deliveredEvents).toHaveLength(1);
+
+		targetId = await discover();
+		loadedConfigFile = null;
+		const noConfigResponse = await fetch(
+			`${origin}/api/studio-protocol/element-library`,
+			{
+				method: 'POST',
+				headers: {'Content-Type': 'application/json', Origin: requestOrigin},
+				body: JSON.stringify({...body, targetId}),
+			},
+		);
+		expect(noConfigResponse.status).toBe(409);
+		expect(await noConfigResponse.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'no-config-file'},
+		});
+		expect(deliveredEvents).toHaveLength(1);
+	} finally {
+		await new Promise<void>((resolve, reject) => {
+			server.close((error) => (error ? reject(error) : resolve()));
+		});
+		rmSync(directory, {recursive: true, force: true});
 		clearElementInstallStateForTests();
 	}
 });

@@ -4,7 +4,8 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
-import {ConfirmationDialog} from './ConfirmationDialog';
+import {callApi} from './call-api';
+import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
 import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
@@ -16,6 +17,7 @@ import {NewFolder} from './NewComposition/NewFolder';
 import {RenameComposition} from './NewComposition/RenameComposition';
 import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
+import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideInputPropsModal} from './OverrideInputProps';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
@@ -35,6 +37,7 @@ export const Modals: React.FC<{
 	);
 	const canRender = previewServerState.type === 'connected';
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const confirm = useConfirmationDialog();
 
 	useEffect(() => {
 		if (isBrowserStudio) {
@@ -53,6 +56,82 @@ export const Modals: React.FC<{
 			});
 		});
 	}, [isBrowserStudio, setSelectedModal, subscribeToEvent]);
+
+	useEffect(() => {
+		if (isBrowserStudio) {
+			return;
+		}
+
+		return subscribeToEvent('element-library-add-request', (event) => {
+			if (event.type !== 'element-library-add-request') {
+				return;
+			}
+
+			(async () => {
+				const confirmed = await confirm({
+					title: 'Add Element catalog',
+					message: (
+						<div>
+							<p>
+								The website <code>{event.origin}</code> wants to add this
+								Element catalog:
+							</p>
+							<p>
+								<code>{event.url}</code>
+							</p>
+							{event.displayName === null ? null : (
+								<p>Display name: {event.displayName}</p>
+							)}
+							<p>
+								Confirming permanently adds a{' '}
+								<code>Config.addElementLibrary()</code> call to{' '}
+								<code>remotion.config.ts</code>.
+							</p>
+							<p>
+								Adding this catalog does not install Element source code or
+								dependencies. Individual Element installations still require
+								confirmation.
+							</p>
+						</div>
+					),
+					confirmLabel: 'Add catalog',
+					cancelLabel: 'Cancel',
+				});
+				if (!confirmed) {
+					return;
+				}
+
+				if (previewServerState.type !== 'connected') {
+					showNotification('Could not add catalog: Studio disconnected', 4000);
+					return;
+				}
+
+				try {
+					const result = await callApi('/api/update-config', {
+						clientId: previewServerState.clientId,
+						updates: [
+							{
+								setter: 'addElementLibrary',
+								type: 'set',
+								value:
+									event.displayName === null
+										? {url: event.url}
+										: {url: event.url, displayName: event.displayName},
+							},
+						],
+					});
+					if (!result.success) {
+						showNotification(`Could not add catalog: ${result.reason}`, 4000);
+					}
+				} catch (error) {
+					showNotification(
+						`Could not add catalog: ${(error as Error).message}`,
+						4000,
+					);
+				}
+			})();
+		});
+	}, [confirm, isBrowserStudio, previewServerState, subscribeToEvent]);
 
 	return (
 		<>

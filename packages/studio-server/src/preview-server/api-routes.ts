@@ -59,14 +59,15 @@ import {unsubscribeFromDefaultProps} from './routes/unsubscribe-from-default-pro
 import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-existence';
 import {unsubscribeFromSequenceProps} from './routes/unsubscribe-from-sequence-props';
 import {handleUpdate} from './routes/update-available';
-import {updateConfigHandler} from './routes/update-config';
 import {updateDefaultPropsHandler} from './routes/update-default-props';
 import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 
+type StandardApiRoute = Exclude<keyof ApiRoutes, '/api/update-config'>;
+
 export const allApiRoutes: {
-	[key in keyof ApiRoutes]: ApiHandler<
+	[key in StandardApiRoute]: ApiHandler<
 		ApiRoutes[key]['Request'],
 		ApiRoutes[key]['Response']
 	>;
@@ -122,7 +123,6 @@ export const allApiRoutes: {
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/rename-static-file': renameStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
-	'/api/update-config': updateConfigHandler,
 	'/api/default-coding-agent-info': getDefaultCodingAgentInfoHandler,
 	'/api/default-editor-info': getDefaultEditorInfoHandler,
 	'/api/install-package': handleInstallPackage,

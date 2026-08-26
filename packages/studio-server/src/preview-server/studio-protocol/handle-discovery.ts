@@ -133,6 +133,15 @@ export const handleStudioProtocolDiscovery = ({
 							purpose: 'set-license-key',
 							target,
 						});
+			const issuedElementLibraryTarget =
+				target === null
+					? null
+					: issueStudioProtocolTarget({
+							now,
+							origin: requestOrigin,
+							purpose: 'add-element-library',
+							target,
+						});
 			response.writeHead(200, {
 				'Cache-Control': 'no-store',
 				'Content-Type': 'application/json',
@@ -168,6 +177,19 @@ export const handleStudioProtocolDiscovery = ({
 									: {
 											id: issuedLicenseKeyTarget.id,
 											expiresAt: issuedLicenseKeyTarget.expiresAt,
+											lastFocusedAt: target.lastFocusedAt,
+										},
+						},
+						{
+							type: 'add-element-library',
+							target:
+								issuedElementLibraryTarget === null ||
+								target === null ||
+								target.lastFocusedAt === null
+									? null
+									: {
+											id: issuedElementLibraryTarget.id,
+											expiresAt: issuedElementLibraryTarget.expiresAt,
 											lastFocusedAt: target.lastFocusedAt,
 										},
 						},

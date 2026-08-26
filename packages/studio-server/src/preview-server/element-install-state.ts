@@ -15,7 +15,10 @@ export type ElementInstallTarget = {
 	updatedAt: number;
 };
 
-export type StudioProtocolTargetPurpose = 'install-element' | 'set-license-key';
+export type StudioProtocolTargetPurpose =
+	| 'install-element'
+	| 'set-license-key'
+	| 'add-element-library';
 
 const targetsByClientId = new Map<string, ElementInstallTarget>();
 
@@ -134,7 +137,7 @@ export const consumeStudioProtocolTarget = ({
 		return null;
 	}
 
-	if (purpose === 'set-license-key') {
+	if (purpose !== 'install-element') {
 		return issued.target;
 	}
 
