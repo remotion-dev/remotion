@@ -2320,8 +2320,10 @@ test.describe('visual mode', () => {
 					readonly outlines: readonly {
 						readonly name: string | null;
 						readonly sequenceId: string;
-						readonly outlineId: string;
-						readonly context: string | null;
+						readonly location: {
+							readonly filename: string;
+							readonly line: number;
+						} | null;
 						readonly geometry: {
 							readonly points: readonly {
 								readonly x: number;
@@ -2343,11 +2345,13 @@ test.describe('visual mode', () => {
 				outlines: expect.any(Array),
 			});
 			expect(gridlineOutline).toEqual({
-				outlineId: expect.any(String),
 				sequenceId: selectedSequence.sequenceId,
 				name: '0% gridline',
 				depth: expect.any(Number),
-				context: contextForAgents,
+				location: {
+					filename: 'src/BarChart.tsx',
+					line: expect.any(Number),
+				},
 				geometry: {
 					points: expect.arrayContaining([
 						expect.objectContaining({

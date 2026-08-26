@@ -181,11 +181,13 @@ Returns the measurable selectable component outlines active at the current frame
   currentComposition: string | null;
   currentFrame: number | null;
   outlines: Array<{
-    outlineId: string;
     sequenceId: string;
     name: string | null;
     depth: number;
-    context: string | null;
+    location: {
+      filename: string;
+      line: number;
+    } | null;
     geometry: {
       points: [
         {x: number; y: number},

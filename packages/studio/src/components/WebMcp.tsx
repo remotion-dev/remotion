@@ -9,7 +9,10 @@ import {play} from '../api/play';
 import {seek} from '../api/seek';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {createFolderTree} from '../helpers/create-folder-tree';
-import {formatContextForAgents} from '../helpers/format-file-location';
+import {
+	formatContextForAgents,
+	getRelativeFileLocation,
+} from '../helpers/format-file-location';
 import {
 	clampTimelineZoom,
 	TIMELINE_MIN_ZOOM,
@@ -518,7 +521,7 @@ export const WebMcp: FC = () => {
 					name: 'get_outlines',
 					title: 'Get Studio canvas outlines',
 					description:
-						'Read the active selectable component outlines in the current Remotion Studio canvas, including sequence identity, source-code context, and geometry in composition pixels.',
+						'Read the active selectable component outlines in the current Remotion Studio canvas, including sequence identity, source-code location, and geometry in composition pixels.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -620,13 +623,11 @@ export const WebMcp: FC = () => {
 								const bottom = Math.max(...yValues);
 
 								return {
-									outlineId: outline.key,
 									sequenceId: outline.sequence.id,
 									name,
 									depth: outline.depth,
-									context: formatContextForAgents({
+									location: getRelativeFileLocation({
 										location,
-										name,
 										root: window.remotion_cwd,
 									}),
 									geometry: {
