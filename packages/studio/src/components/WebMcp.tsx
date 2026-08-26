@@ -15,7 +15,10 @@ import {
 } from '../helpers/format-file-location';
 import {
 	clampTimelineZoom,
+	getTimelineMaxZoom,
+	normalizedToTimelineZoom,
 	TIMELINE_MIN_ZOOM,
+	timelineZoomToNormalized,
 } from '../helpers/get-timeline-max-zoom';
 import type {TimelineTrackData} from '../helpers/get-timeline-sequence-sort-key';
 import {
@@ -624,8 +627,8 @@ export const WebMcp: FC = () => {
 
 								return {
 									sequenceId: outline.sequence.id,
+									parentSequenceId: outline.sequence.parent,
 									name,
-									depth: outline.depth,
 									location: getRelativeFileLocation({
 										location,
 										root: window.remotion_cwd,
@@ -660,7 +663,7 @@ export const WebMcp: FC = () => {
 					name: 'get_playback_state',
 					title: 'Get Studio playback state',
 					description:
-						'Read the current frame, playing state, audio state, playback rate, looping state, and timeline zoom for the composition open in Remotion Studio. All playback fields are null when the canvas is not showing a composition.',
+						'Read the current frame, playing state, audio state, playback rate, looping state, and normalized timeline zoom for the composition open in Remotion Studio. All playback fields are null when the canvas is not showing a composition.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -690,8 +693,11 @@ export const WebMcp: FC = () => {
 							volume: mediaVolumeRef.current,
 							playbackRate: playbackRateRef.current,
 							looping: loadLoopOption(),
-							timelineZoom:
-								timelineZoomRef.current[compositionId] ?? TIMELINE_MIN_ZOOM,
+							timelineZoom: timelineZoomToNormalized({
+								zoom:
+									timelineZoomRef.current[compositionId] ?? TIMELINE_MIN_ZOOM,
+								maxZoom: getTimelineMaxZoom(getCurrentDuration()),
+							}),
 						});
 					},
 				},
@@ -1056,14 +1062,16 @@ export const WebMcp: FC = () => {
 					name: 'set_timeline_zoom',
 					title: 'Set Studio timeline zoom',
 					description:
-						'Set the timeline zoom factor for the current Remotion Studio composition. The zoom is clamped to the range supported by the composition duration.',
+						'Set the timeline zoom for the current Remotion Studio composition. Use 0 for fully zoomed out and 1 for the maximum zoom supported by the composition duration.',
 					inputSchema: {
 						type: 'object',
 						properties: {
 							zoom: {
 								type: 'number',
-								exclusiveMinimum: 0,
-								description: 'The requested timeline zoom factor.',
+								minimum: 0,
+								maximum: 1,
+								description:
+									'The normalized timeline zoom, from 0 (fully zoomed out) to 1 (maximum zoom).',
 							},
 						},
 						required: ['zoom'],
@@ -1074,9 +1082,10 @@ export const WebMcp: FC = () => {
 						if (
 							typeof zoom !== 'number' ||
 							!Number.isFinite(zoom) ||
-							zoom <= 0
+							zoom < 0 ||
+							zoom > 1
 						) {
-							throw new Error('zoom must be a positive finite number.');
+							throw new Error('zoom must be a finite number between 0 and 1.');
 						}
 
 						const compositionId = currentCompositionRef.current;
@@ -1091,8 +1100,12 @@ export const WebMcp: FC = () => {
 							);
 						}
 
+						const maxZoom = getTimelineMaxZoom(durationInFrames);
 						const timelineZoom = clampTimelineZoom({
-							zoom,
+							zoom: normalizedToTimelineZoom({
+								normalized: zoom,
+								maxZoom,
+							}),
 							durationInFrames,
 						});
 						setTimelineZoom(compositionId, () => timelineZoom, {
@@ -1102,7 +1115,10 @@ export const WebMcp: FC = () => {
 
 						return Promise.resolve({
 							currentComposition: compositionId,
-							timelineZoom,
+							timelineZoom: timelineZoomToNormalized({
+								zoom: timelineZoom,
+								maxZoom,
+							}),
 						});
 					},
 				},

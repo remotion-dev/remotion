@@ -7,7 +7,7 @@ sidebar_label: WebMCP
 
 # WebMCP<AvailableFrom v="4.0.518" />
 
-Remotion Studio exposes WebMCP tools that allow an AI agent to inspect and control the open composition.
+Remotion Studio exposes WebMCP tools that allow an AI agent to inspect and steer it.
 
 ## Capabilities
 
@@ -15,10 +15,10 @@ Agents can:
 
 - See which items you currently have selected
 - See selectable items and select them
-- See available compositions and navigate
+- See available compositions and navigate to them
 - Get the current HTML of your composition
 - See current outlines of elements and their geometry
-- See your current playhead position and playback state
+- Get your current playhead position and playback state
 - Play, pause and seek
 - Set timeline zoom, playback rate, and mute state
 - See, add and remove guides
@@ -32,6 +32,12 @@ Start the [Remotion Studio](/docs/studio) and open it in a browser with an AI ag
 Out of the major harnesses, only ChatGPT Codex supports WebMCP. We hope more agents add support soon.
 
 ## Available tools
+
+:::note
+
+The shape of inputs and outputs is not currently stable.
+
+:::
 
 Tools that modify the timeline, playback or guides require a composition to be open.
 
@@ -182,8 +188,8 @@ Returns the measurable selectable component outlines active at the current frame
   currentFrame: number | null;
   outlines: Array<{
     sequenceId: string;
+    parentSequenceId: string | null;
     name: string | null;
-    depth: number;
     location: {
       filename: string;
       line: number;
@@ -208,7 +214,7 @@ Returns the measurable selectable component outlines active at the current frame
 
 ### `get_playback_state`
 
-Returns the current playhead, playback, audio, looping and timeline zoom state. Playback fields are `null` when the canvas is not showing a composition.
+Returns the current playhead, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` when the canvas is not showing a composition.
 
 ```ts title="Input"
 {}
@@ -406,7 +412,7 @@ Unmutes audio playback.
 
 ### `set_timeline_zoom`
 
-Sets the timeline zoom factor. The requested value is clamped to the range supported by the composition duration. Still compositions do not have timeline zoom.
+Sets the timeline zoom using a normalized value between `0` (fully zoomed out) and `1` (maximum zoom). The output contains the effective normalized zoom after Studio applies its supported zoom step. Still compositions do not have timeline zoom.
 
 ```ts title="Input"
 {
@@ -474,19 +480,19 @@ Seeks to a zero-based frame. Values beyond the duration are clamped to the final
 
 You can ask a browser agent:
 
-- “What is currently selected in the Studio?”
-- “List all mounted compositions and their folders.”
-- “Open the `Shapes` composition.”
-- “List the sequences and select the `Title` sequence.”
-- “Inspect the HTML rendered on the canvas.”
-- “List the visible components and their canvas geometry.”
-- “What is the current playback state?”
-- “Set the timeline zoom to 2.5x.”
-- “Seek to frame 90, set the playback rate to 0.5x and play.”
-- “List the guides in the current composition.”
-- “Hide the guides.”
-- “Add a vertical guide at 640 pixels.”
-- “Mute the preview.”
+- "What is currently selected in the Studio?"
+- "List all mounted compositions and their folders."
+- "Open the `Shapes` composition."
+- "List the sequences and select the `Title` sequence."
+- "Inspect the HTML rendered on the canvas."
+- "List the visible components and their canvas geometry."
+- "What is the current playback state?"
+- "Set the timeline zoom to 2.5x."
+- "Seek to frame 90, set the playback rate to 0.5x and play."
+- "List the guides in the current composition."
+- "Hide the guides."
+- "Add a vertical guide at 640 pixels."
+- "Mute the preview."
 
 The agent chooses and invokes the matching tools. Tool calls affect the open Studio tab immediately.
 

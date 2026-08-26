@@ -2141,6 +2141,7 @@ test.describe('visual mode', () => {
 				webMcpSelection as {
 					readonly selectedSequence: {
 						readonly sequenceId: string;
+						readonly parentSequenceId: string | null;
 					};
 				}
 			).selectedSequence;
@@ -2320,6 +2321,7 @@ test.describe('visual mode', () => {
 					readonly outlines: readonly {
 						readonly name: string | null;
 						readonly sequenceId: string;
+						readonly parentSequenceId: string | null;
 						readonly location: {
 							readonly filename: string;
 							readonly line: number;
@@ -2346,8 +2348,8 @@ test.describe('visual mode', () => {
 			});
 			expect(gridlineOutline).toEqual({
 				sequenceId: selectedSequence.sequenceId,
+				parentSequenceId: selectedSequence.parentSequenceId,
 				name: '0% gridline',
-				depth: expect.any(Number),
 				location: {
 					filename: 'src/BarChart.tsx',
 					line: expect.any(Number),
@@ -2719,15 +2721,15 @@ test.describe('visual mode', () => {
 					throw new Error('set_timeline_zoom was not registered');
 				}
 
-				return tool.execute({zoom: 2.5});
+				return tool.execute({zoom: 0.5});
 			});
 			expect(webMcpTimelineZoomResult).toEqual({
 				currentComposition: 'AnimatedBarChart',
-				timelineZoom: 2.5,
+				timelineZoom: 0.489,
 			});
 			await expect(
-				page.getByTitle('Timeline zoom (2.5x)', {exact: true}),
-			).toBeVisible();
+				page.locator('input[type="range"][alt^="Timeline zoom"]'),
+			).toHaveValue('489');
 			const webMcpMuteResult = await page.evaluate(async () => {
 				const tools = (
 					window as typeof window & {
@@ -2887,7 +2889,7 @@ test.describe('visual mode', () => {
 				volume: 1,
 				playbackRate: 1.5,
 				looping: true,
-				timelineZoom: 2.5,
+				timelineZoom: 0.489,
 			});
 
 			fs.writeFileSync(
