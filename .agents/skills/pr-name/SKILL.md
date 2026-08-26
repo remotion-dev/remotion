@@ -38,20 +38,11 @@ user-facing change, not necessarily the package with the most changed files.
 Use these guidelines in order:
 
 1. Identify the main developer-visible change from the diff.
-2. If a new or changed public API is central to the change, name the primary
-   function, method, component, hook, prop, option, or CLI flag exactly and put
-   the identifier in backticks.
-3. Briefly explain what that API enables or what outcome changed. Naming an API
-   without explaining its purpose is often too abstract for a changelog.
-4. Do not enumerate every affected API. If several APIs implement one
-   capability, describe the shared capability and name only the primary anchor,
-   if there is one.
-5. For UI, CSS, or implementation fixes, describe the observable result. Do not
-   name files, selectors, CSS properties, internal helpers, or implementation
-   layers unless they are themselves the developer-facing subject of the
-   change.
-6. Include a technical mechanism or type only when it is part of the public
-   contract or materially helps developers understand the change.
+2. If a public API is central to the change, name the primary API exactly in
+   backticks and briefly explain what it does. Do not list supporting APIs.
+3. Otherwise, describe what changed rather than the files or implementation
+   steps used to achieve it. Include technical details only when they help
+   developers understand the result.
 
 Prefer concrete verbs such as `add`, `fix`, `remove`, `rename`, and `change`.
 Avoid vague descriptions such as `allow`, `improve`, `update handling`, or
