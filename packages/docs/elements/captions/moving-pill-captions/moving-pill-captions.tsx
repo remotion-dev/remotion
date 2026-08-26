@@ -476,25 +476,16 @@ const MovingPillCaptionsInner = forwardRef<
 	},
 );
 
-const MovingPillCaptionsLayer = Interactive.withSchema({
-	Component: MovingPillCaptionsInner,
-	componentName: '<MovingPillCaptions>',
-	componentIdentity: null,
-	schema: movingPillCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<MovingPillCaptionsLayerProps>;
-
-export const MovingPillCaptions: React.FC<MovingPillCaptionsProps> = ({
-	captions,
-	style,
-	...props
-}) => {
+const MovingPillCaptionsWithControls: React.FC<
+	MovingPillCaptionsProps & {readonly controls: SequenceControls | undefined}
+> = ({captions, controls, style, ...props}) => {
 	if (captions) {
 		return (
-			<MovingPillCaptionsLayer
+			<MovingPillCaptionsInner
 				{...props}
 				callerStyle={style ?? null}
 				captions={captions}
+				controls={controls}
 				style={{translate: '0px 0px'}}
 			/>
 		);
@@ -510,7 +501,7 @@ export const MovingPillCaptions: React.FC<MovingPillCaptionsProps> = ({
 				width: 900,
 			}}
 		>
-			<MovingPillCaptionsLayer
+			<MovingPillCaptionsInner
 				{...props}
 				callerStyle={style ?? null}
 				captions={[
@@ -564,6 +555,7 @@ export const MovingPillCaptions: React.FC<MovingPillCaptionsProps> = ({
 						confidence: null,
 					},
 				]}
+				controls={controls}
 				width={681}
 				height={252}
 				style={{translate: '0px 0px'}}
@@ -571,3 +563,11 @@ export const MovingPillCaptions: React.FC<MovingPillCaptionsProps> = ({
 		</div>
 	);
 };
+
+export const MovingPillCaptions = Interactive.withSchema({
+	Component: MovingPillCaptionsWithControls,
+	componentName: '<MovingPillCaptions>',
+	componentIdentity: null,
+	schema: movingPillCaptionsSchema,
+	supportsEffects: false,
+}) as React.FC<MovingPillCaptionsProps>;
