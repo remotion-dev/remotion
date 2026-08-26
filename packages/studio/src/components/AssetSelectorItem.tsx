@@ -23,6 +23,10 @@ import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
+} from '../helpers/hoverable';
 import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	markAssetSidebarScrollFromRowClick,
@@ -34,7 +38,7 @@ import useAssetDragEvents, {
 } from '../helpers/use-asset-drag-events';
 import {getCachedImageMetadata} from '../helpers/use-image-metadata';
 import {getCachedMediaMetadata} from '../helpers/use-media-metadata';
-import {ClipboardIcon} from '../icons/clipboard';
+import {EllipsisIcon} from '../icons/ellipsis';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {SetSelectedModalContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
@@ -42,6 +46,7 @@ import {ContextMenu} from './ContextMenu';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
+import {InlineDropdown} from './InlineDropdown';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -92,6 +97,12 @@ const revealIconStyle: React.CSSProperties = {
 	color: CURRENT_COLOR,
 };
 
+const ellipsisIconStyle: React.SVGProps<SVGSVGElement> = {
+	style: {
+		height: 12,
+	},
+};
+
 export const getAssetActionAvailability = ({
 	browserStudioCanMutateAssets,
 	readOnlyStudio,
@@ -129,6 +140,7 @@ export const getAssetContextMenuItems = ({
 	fileManagerName,
 	copyFileName,
 	copyStaticFilePath,
+	copyAbsolutePath,
 	openAssetInConvert,
 	openAssetInExplorer,
 	renameAsset,
@@ -141,6 +153,7 @@ export const getAssetContextMenuItems = ({
 	fileManagerName: string;
 	copyFileName: () => void;
 	copyStaticFilePath: () => void;
+	copyAbsolutePath: (() => void) | null;
 	openAssetInConvert: () => void;
 	openAssetInExplorer: () => void;
 	renameAsset: () => void;
@@ -193,6 +206,19 @@ export const getAssetContextMenuItems = ({
 			type: 'item',
 			value: 'copy-asset-static-file-path',
 		},
+		copyAbsolutePath
+			? {
+					id: 'copy-asset-absolute-path',
+					keyHint: null,
+					label: 'Copy absolute path',
+					leftItem: null,
+					onClick: copyAbsolutePath,
+					quickSwitcherLabel: 'Copy asset absolute path',
+					subMenu: null,
+					type: 'item',
+					value: 'copy-asset-absolute-path',
+				}
+			: null,
 		{
 			type: 'divider',
 			id: 'asset-file-actions-divider',
@@ -550,8 +576,8 @@ const AssetSelectorItem: React.FC<{
 		return <ExpandedFolderIcon style={revealIconStyle} color={color} />;
 	}, []);
 
-	const renderCopyAction: RenderInlineAction = useCallback((color) => {
-		return <ClipboardIcon style={revealIconStyle} color={color} />;
+	const renderContextMenuAction: RenderInlineAction = useCallback((color) => {
+		return <EllipsisIcon svgProps={ellipsisIconStyle} fill={color} />;
 	}, []);
 
 	const copyFileName = useCallback(() => {
@@ -566,6 +592,21 @@ const AssetSelectorItem: React.FC<{
 
 	const copyStaticFilePath = useCallback(() => {
 		const content = `staticFile("${relativePath}")`;
+		copyText(content)
+			.then(() => {
+				showNotification(`Copied '${content}' to clipboard`, 1000);
+			})
+			.catch((err) => {
+				showNotification(`Could not copy: ${err.message}`, 2000);
+			});
+	}, [relativePath]);
+
+	const copyAbsolutePath = useCallback(() => {
+		if (window.remotion_publicFolderExists === null) {
+			return;
+		}
+
+		const content = `${window.remotion_publicFolderExists}/${relativePath}`;
 		copyText(content)
 			.then(() => {
 				showNotification(`Copied '${content}' to clipboard`, 1000);
@@ -615,6 +656,8 @@ const AssetSelectorItem: React.FC<{
 			fileManagerName,
 			copyFileName,
 			copyStaticFilePath,
+			copyAbsolutePath:
+				window.remotion_publicFolderExists === null ? null : copyAbsolutePath,
 			openAssetInConvert,
 			openAssetInExplorer,
 			renameAsset,
@@ -626,6 +669,7 @@ const AssetSelectorItem: React.FC<{
 	}, [
 		copyFileName,
 		copyStaticFilePath,
+		copyAbsolutePath,
 		deleteAsset,
 		fileExplorerDisabled,
 		fileManagerName,
@@ -643,15 +687,6 @@ const AssetSelectorItem: React.FC<{
 				openAssetInExplorer();
 			},
 			[openAssetInExplorer],
-		);
-
-	const copyToClipboard: React.MouseEventHandler<HTMLButtonElement> =
-		useCallback(
-			(e) => {
-				e.stopPropagation();
-				copyStaticFilePath();
-			},
-			[copyStaticFilePath],
 		);
 
 	return (
@@ -679,11 +714,13 @@ const AssetSelectorItem: React.FC<{
 					{hovered && !isDragging ? (
 						<>
 							<Spacing x={0.5} />
-							<InlineAction
+							<InlineDropdown
 								variant={null}
-								title="Copy staticFile() path"
-								renderAction={renderCopyAction}
-								onClick={copyToClipboard}
+								title="More actions"
+								renderAction={renderContextMenuAction}
+								getItems={getContextMenuItems}
+								style={NO_HOVER_BACKGROUND_STYLE}
+								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 							/>
 							{fileExplorerDisabled ? null : (
 								<>
@@ -693,6 +730,8 @@ const AssetSelectorItem: React.FC<{
 										title={`Show in ${fileManagerName}`}
 										renderAction={renderFileExplorerAction}
 										onClick={revealInExplorer}
+										style={NO_HOVER_BACKGROUND_STYLE}
+										className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 									/>
 								</>
 							)}
