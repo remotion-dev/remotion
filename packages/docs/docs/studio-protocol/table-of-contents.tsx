@@ -17,6 +17,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>installInStudio()</strong>
 				<div>Request installation into the active Studio</div>
 			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/is-inside-studio">
+				<strong>isInsideStudio()</strong>
+				<div>Check whether a library is embedded in Studio</div>
+			</TOCItem>
 		</Grid>
 	);
 };

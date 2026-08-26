@@ -7040,6 +7040,15 @@ export const articles = [
 		slug: 'studio-protocol/install-in-studio',
 	},
 	{
+		id: 'studio-protocol/is-inside-studio',
+		title: 'isInsideStudio()',
+		relativePath: 'docs/studio-protocol/is-inside-studio.mdx',
+		compId: 'articles-docs-studio-protocol-is-inside-studio',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/is-inside-studio',
+	},
+	{
 		id: 'studio-protocol/security',
 		title: 'Studio Protocol security',
 		relativePath: 'docs/studio-protocol/security.mdx',

@@ -136,9 +136,11 @@ export const MyComponent = () => {
 		response.end(`<!doctype html>
 			<button id="install">Install in Studio</button>
 			<button id="license">Configure license in Studio</button>
+			<p id="environment"></p>
 			<p id="status"></p>
 			<script type="module">
-				import {createElementPayload, installInStudio, StudioProtocolInternals} from '/protocol.js';
+				import {createElementPayload, installInStudio, isInsideStudio, StudioProtocolInternals} from '/protocol.js';
+				document.querySelector('#environment').textContent = isInsideStudio() ? 'Inside Remotion Studio' : 'Outside Remotion Studio';
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
 					slug: 'protocol-element',
@@ -173,20 +175,26 @@ export const MyComponent = () => {
 	const officialLibraryRequests: string[] = [];
 	const externalLibraryRequests: string[] = [];
 	const context = await browser.newContext();
-	await context.route('https://www.remotion.dev/elements', async (route) => {
-		officialLibraryRequests.push(route.request().url());
-		await route.fulfill({
-			status: 302,
-			headers: {Location: senderUrl},
-		});
-	});
-	await context.route(externalLibraryUrl, async (route) => {
-		externalLibraryRequests.push(route.request().url());
-		await route.fulfill({
-			status: 302,
-			headers: {Location: senderUrl},
-		});
-	});
+	await context.route(
+		'https://www.remotion.dev/elements?remotion-studio=true',
+		async (route) => {
+			officialLibraryRequests.push(route.request().url());
+			await route.fulfill({
+				status: 302,
+				headers: {Location: senderUrl},
+			});
+		},
+	);
+	await context.route(
+		`${externalLibraryUrl}?remotion-studio=true`,
+		async (route) => {
+			externalLibraryRequests.push(route.request().url());
+			await route.fulfill({
+				status: 302,
+				headers: {Location: senderUrl},
+			});
+		},
+	);
 	try {
 		await waitForUrl(studioUrl, studioProcess);
 		const studioPage = await context.newPage();
@@ -247,7 +255,7 @@ export const MyComponent = () => {
 		);
 		await expect(officialElementsIframe).toBeVisible();
 		expect(officialLibraryRequests).toEqual([
-			'https://www.remotion.dev/elements',
+			'https://www.remotion.dev/elements?remotion-studio=true',
 		]);
 		expect(context.pages()).toHaveLength(2);
 		await studioPage.keyboard.press('Escape');
@@ -274,11 +282,16 @@ export const MyComponent = () => {
 			'local-network-access; loopback-network',
 		);
 		await expect(elementsIframe).toHaveAttribute('credentialless', '');
-		expect(externalLibraryRequests).toEqual([externalLibraryUrl]);
+		expect(externalLibraryRequests).toEqual([
+			`${externalLibraryUrl}?remotion-studio=true`,
+		]);
 		expect(context.pages()).toHaveLength(2);
 		const elementsFrame = studioPage.frameLocator(
 			`iframe[title="${externalLibraryLabel} library"]`,
 		);
+		await expect(
+			elementsFrame.getByText('Inside Remotion Studio', {exact: true}),
+		).toBeVisible();
 		const installInStudio = elementsFrame.getByRole('button', {
 			name: 'Install in Studio',
 		});
@@ -313,6 +326,9 @@ export const MyComponent = () => {
 		await studioPage.mouse.click(500, 300);
 		const senderPage = await context.newPage();
 		await senderPage.goto(senderUrl);
+		await expect(
+			senderPage.getByText('Outside Remotion Studio', {exact: true}),
+		).toBeVisible();
 		await senderPage
 			.getByRole('button', {name: 'Configure license in Studio'})
 			.click();
