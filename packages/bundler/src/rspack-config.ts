@@ -81,6 +81,14 @@ export const rspackConfig = async ({
 
 	const baseConfig = {
 		...getBaseConfig(environment, poll),
+		// Remove once https://github.com/huggingface/transformers.js/issues/1759 is resolved.
+		ignoreWarnings: [
+			{
+				module:
+					/[\\/]@huggingface[\\/]transformers[\\/]dist[\\/]transformers\.web\.js$/,
+				message: /Accessing import\.meta directly is unsupported/,
+			},
+		],
 		node: {
 			// Suppress the warning in `source-map`
 			__dirname: 'mock',

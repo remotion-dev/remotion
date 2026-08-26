@@ -77,6 +77,7 @@ export {
 	type InstallInStudioErrorCode,
 	type InstallInStudioResult,
 } from './install-in-studio';
+export {isInsideStudio} from './is-inside-studio';
 export type {SfxDragData} from './sfx-drag-data';
 export type {
 	StudioProtocolDescriptor,

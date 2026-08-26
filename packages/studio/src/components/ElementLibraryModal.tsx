@@ -33,7 +33,9 @@ export const ElementLibraryModal: React.FC<{
 		// Studio is cross-origin isolated. A credentialless iframe may embed a
 		// library that does not set Cross-Origin-Resource-Policy headers.
 		iframe.setAttribute('credentialless', '');
-		iframe.src = url;
+		const iframeUrl = new URL(url);
+		iframeUrl.searchParams.set('remotion-studio', 'true');
+		iframe.src = iframeUrl.toString();
 	}, [url]);
 
 	return (

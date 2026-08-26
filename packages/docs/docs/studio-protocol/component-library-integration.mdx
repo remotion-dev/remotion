@@ -85,6 +85,8 @@ Create one payload for both install actions. Run the actions in the browser.
 - Let users click an Install in Studio button. Use [`installInStudio()`](/docs/studio-protocol/install-in-studio) for this action.
 - Let users drag the component into Studio. Use [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) for this action.
 
+When Studio embeds the library through Browse Elements, use [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio) to hide actions that are redundant inside the Studio iframe.
+
 ## Test the integration
 
 - Compare the Player preview with the installed Element.
@@ -102,4 +104,5 @@ Create one payload for both install actions. Run the actions in the browser.
 - [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
 - [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
 - [`installInStudio()`](/docs/studio-protocol/install-in-studio)
+- [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio)
 - [Studio Protocol security](/docs/studio-protocol/security)

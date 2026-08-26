@@ -40,10 +40,6 @@ export const config: VercelConfig = {
 					'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
 			},
 		]),
-		routes.header('/transcribe(.*)', [
-			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
-			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
-		]),
 		routes.header('/experimental_new(.*)', browserStudioIsolationHeaders),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},

@@ -646,7 +646,7 @@ const elementImplementations = {
 		component: OnScreenMessages,
 		contributors: [],
 		description:
-			'An iMessage-inspired text exchange with staggered reveals, focus shifts, and familiar blue and gray chat bubbles.',
+			'An iMessage-inspired text exchange with staggered reveals and familiar blue and gray chat bubbles.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 162,
 		elementHeight: 680,

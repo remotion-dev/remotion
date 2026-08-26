@@ -21,6 +21,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>addElementLibraryToStudio()</strong>
 				<div>Add an Element catalog to a Studio project</div>
 			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/is-inside-studio">
+				<strong>isInsideStudio()</strong>
+				<div>Check whether a library is embedded in Studio</div>
+			</TOCItem>
 		</Grid>
 	);
 };
