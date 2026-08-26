@@ -11,6 +11,10 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
+} from '../helpers/hoverable';
 import {ThinRenderIcon} from '../icons/render';
 import {SetSelectedModalContext} from '../state/modals';
 import type {RenderInlineAction} from './InlineAction';
@@ -118,6 +122,8 @@ export const SidebarRenderButton: React.FC<{
 			renderAction={renderAction}
 			onClick={onClick}
 			variant={null}
+			style={NO_HOVER_BACKGROUND_STYLE}
+			className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 		/>
 	);
 };

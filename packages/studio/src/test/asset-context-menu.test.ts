@@ -31,6 +31,7 @@ test('keeps copy and open-in-new-window asset actions enabled in read-only Studi
 		fileManagerName: 'Finder',
 		copyFileName: noop,
 		copyStaticFilePath: noop,
+		copyAbsolutePath: noop,
 		openAssetInConvert: noop,
 		openAssetInExplorer: noop,
 		renameAsset: noop,
@@ -43,6 +44,7 @@ test('keeps copy and open-in-new-window asset actions enabled in read-only Studi
 	expect(getItem(items, 'open-asset-in-convert').disabled).not.toBe(true);
 	expect(getItem(items, 'copy-asset-file-name').disabled).not.toBe(true);
 	expect(getItem(items, 'copy-asset-static-file-path').disabled).not.toBe(true);
+	expect(getItem(items, 'copy-asset-absolute-path').disabled).not.toBe(true);
 	expect(getItem(items, 'open-asset-in-explorer').disabled).toBe(true);
 	expect(getItem(items, 'rename-asset').disabled).toBe(true);
 	expect(getItem(items, 'delete-asset').disabled).toBe(true);
@@ -54,6 +56,7 @@ test('hides file-manager asset actions in Browser Studio', () => {
 		fileManagerName: 'Finder',
 		copyFileName: noop,
 		copyStaticFilePath: noop,
+		copyAbsolutePath: null,
 		openAssetInConvert: noop,
 		openAssetInExplorer: noop,
 		renameAsset: noop,
@@ -66,6 +69,9 @@ test('hides file-manager asset actions in Browser Studio', () => {
 	expect(items.find((item) => item.id === 'open-asset-in-explorer')).toBe(
 		undefined,
 	);
+	expect(items.find((item) => item.id === 'copy-asset-absolute-path')).toBe(
+		undefined,
+	);
 });
 
 test('only offers Remotion Convert for audio and video assets', () => {
@@ -75,6 +81,7 @@ test('only offers Remotion Convert for audio and video assets', () => {
 			fileManagerName: 'Finder',
 			copyFileName: noop,
 			copyStaticFilePath: noop,
+			copyAbsolutePath: noop,
 			openAssetInConvert: noop,
 			openAssetInExplorer: noop,
 			renameAsset: noop,

@@ -288,6 +288,7 @@ const ProductCardInner = forwardRef<
 									overflowWrap: 'anywhere',
 									textTransform: 'uppercase',
 									textWrap: 'balance',
+									width: 230,
 								}}
 							>
 								{title}
