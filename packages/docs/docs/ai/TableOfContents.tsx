@@ -23,7 +23,7 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/ai/webmcp">
 					<strong>{'WebMCP'}</strong>
-					<div>Inspect and control Remotion Studio with an AI agent</div>
+					<div>Control Remotion Studio with an AI agent</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/chatbot">
 					<strong>{'Chatbot'}</strong>
