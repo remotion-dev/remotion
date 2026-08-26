@@ -61,6 +61,9 @@ export const interpolateKeyframedStatus = ({
 	const sortedKeyframes = [...keyframes].sort((a, b) => a.frame - b.frame);
 	const inputRange = sortedKeyframes.map((k) => k.frame);
 	const outputs = sortedKeyframes.map((k) => k.value);
+	const disabledKeyframes = sortedKeyframes.flatMap((keyframe) =>
+		keyframe.disabled ? [keyframe.frame] : [],
+	);
 
 	if (interpolationFunction === 'interpolateColors') {
 		if (!outputs.every((v) => typeof v === 'string')) {
@@ -73,6 +76,7 @@ export const interpolateKeyframedStatus = ({
 
 		try {
 			return interpolateColors(frame, inputRange, outputs as string[], {
+				disabledKeyframes,
 				easing: easing.map((e) =>
 					easingToFn({easing: e, forceSpringAllowTail}),
 				),
@@ -93,6 +97,7 @@ export const interpolateKeyframedStatus = ({
 			inputRange,
 			outputs as (number | string | number[])[],
 			{
+				disabledKeyframes,
 				easing: easing.map((e) =>
 					easingToFn({easing: e, forceSpringAllowTail}),
 				),

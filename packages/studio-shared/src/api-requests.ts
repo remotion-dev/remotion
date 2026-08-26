@@ -692,6 +692,11 @@ export type KeyframeSettings =
 			type: 'easing';
 			segmentIndex: number;
 			easing: KeyframeEasing;
+	  }
+	| {
+			type: 'disabled';
+			frame: number;
+			disabled: boolean;
 	  };
 
 export type UpdateSequenceKeyframeSettingsRequest = {

@@ -76,19 +76,7 @@ const groupBy = <T>(items: T[], getKey: (item: T) => string): T[][] => {
 	return [...groups.values()];
 };
 
-const toOperation = (settings: KeyframeSettings) =>
-	settings.type === 'settings'
-		? {
-				type: 'settings' as const,
-				clamping: settings.clamping,
-				posterize: settings.posterize,
-				output: settings.output,
-			}
-		: {
-				type: 'easing' as const,
-				segmentIndex: settings.segmentIndex,
-				easing: settings.easing,
-			};
+const toOperation = (settings: KeyframeSettings) => settings;
 
 export const batchUpdateKeyframeSettings = async ({
 	sequenceKeyframes,

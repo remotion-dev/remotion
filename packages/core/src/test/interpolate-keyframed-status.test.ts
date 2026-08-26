@@ -442,3 +442,85 @@ test('interpolates 3D rotation keyframes as one property', () => {
 	});
 	expect(result).toBe('1 0 0 45deg');
 });
+
+test('excludes disabled keyframes and preserves their data when re-enabled', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 30, value: 100, disabled: true},
+			{frame: 60, value: 60},
+		],
+		easing: [{type: 'linear'}, {type: 'linear'}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+		output: undefined,
+	};
+
+	expect(
+		interpolateKeyframedStatus({forceSpringAllowTail: null, frame: 30, status}),
+	).toBe(30);
+	expect(status.keyframes[1]).toEqual({
+		frame: 30,
+		value: 100,
+		disabled: true,
+	});
+
+	const reEnabled = {
+		...status,
+		keyframes: status.keyframes.map((keyframe) => ({
+			...keyframe,
+			disabled: false,
+		})),
+	};
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 30,
+			status: reEnabled,
+		}),
+	).toBe(100);
+});
+
+test('handles disabled first, last, and all keyframes', () => {
+	const makeStatus = (
+		disabledFrames: number[],
+	): CanUpdateSequencePropStatusKeyframed => ({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 10, disabled: disabledFrames.includes(0)},
+			{frame: 30, value: 30, disabled: disabledFrames.includes(30)},
+			{frame: 60, value: 60, disabled: disabledFrames.includes(60)},
+		],
+		easing: [{type: 'linear'}, {type: 'linear'}],
+		clamping: {left: 'clamp', right: 'clamp'},
+		posterize: undefined,
+		output: undefined,
+	});
+
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 0,
+			status: makeStatus([0]),
+		}),
+	).toBe(30);
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 60,
+			status: makeStatus([60]),
+		}),
+	).toBe(30);
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 45,
+			status: makeStatus([0, 30, 60]),
+		}),
+	).toBe(10);
+});

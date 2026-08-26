@@ -10,8 +10,14 @@ export const getTimelineEasingSegments = (
 	keyframes: ReturnType<typeof getTimelineKeyframes>,
 ): TimelineEasingSegment[] => {
 	return keyframes.flatMap((keyframe, index) => {
-		const nextKeyframe = keyframes[index + 1];
-		if (!nextKeyframe) {
+		if (keyframe.disabled) {
+			return [];
+		}
+
+		const nextKeyframe = keyframes
+			.slice(index + 1)
+			.find((candidate) => !candidate.disabled);
+		if (nextKeyframe === undefined) {
 			return [];
 		}
 

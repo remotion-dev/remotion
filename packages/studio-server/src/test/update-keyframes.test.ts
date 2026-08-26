@@ -567,6 +567,61 @@ export const Example: React.FC = () => {
 	expect(output).not.toContain('posterize');
 });
 
+test('updateSequenceKeyframes disables and re-enables a keyframe without losing it', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return <AbsoluteFill style={{scale: interpolate(frame, [0, 30, 60], [1, 9, 3])}} />;
+};
+`;
+	const disabled = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'AbsoluteFill style')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'disabled', frame: 30, disabled: true},
+			},
+		],
+	});
+
+	expect(disabled.output).toContain('disabledKeyframes: [30]');
+	expect(disabled.output).toContain('[0, 30, 60], [1, 9, 3]');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: disabled.output,
+		nodePath: disabled.updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+		videoConfigValues: null,
+	});
+	expect(status.props['style.scale']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 1},
+			{frame: 30, value: 9, disabled: true},
+			{frame: 60, value: 3},
+		],
+	});
+
+	const reEnabled = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input: disabled.output,
+		nodePath: disabled.updatedNodePath,
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'disabled', frame: 30, disabled: false},
+			},
+		],
+	});
+	expect(reEnabled.output).not.toContain('disabledKeyframes');
+	expect(reEnabled.output).toContain('[0, 30, 60], [1, 9, 3]');
+});
+
 test('updateSequenceKeyframes updates output settings', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';

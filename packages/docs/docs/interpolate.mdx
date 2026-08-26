@@ -287,6 +287,21 @@ interpolate(frame, [0, 100, 200], [0, 1, 2], {
 });
 ```
 
+### disabledKeyframes?<AvailableFrom v="4.0.518" />
+
+An array of input-range values to temporarily exclude from interpolation while keeping their matching input and output values in code.
+
+```ts twoslash
+import {interpolate, useCurrentFrame} from 'remotion';
+const frame = useCurrentFrame();
+
+interpolate(frame, [0, 30, 60], [0, 100, 60], {
+  disabledKeyframes: [30],
+});
+```
+
+This behaves like interpolating between `[0, 60]` and `[0, 60]`. Per-segment easing uses the easing attached to the previous enabled keyframe. If every keyframe is disabled, the first output value is returned.
+
 ### output?<AvailableFrom v="4.0.490" />
 
 _Default_: `linear`

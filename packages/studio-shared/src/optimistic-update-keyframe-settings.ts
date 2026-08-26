@@ -61,6 +61,15 @@ const applySettingsToStatus = (
 					}),
 				}
 			: {}),
+		...(settings.type === 'disabled'
+			? {
+					keyframes: status.keyframes.map((keyframe) =>
+						keyframe.frame === settings.frame
+							? {...keyframe, disabled: settings.disabled}
+							: keyframe,
+					),
+				}
+			: {}),
 	};
 };
 

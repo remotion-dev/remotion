@@ -131,3 +131,45 @@ test('optimisticUpdateSequenceKeyframeSettings updates output', () => {
 	expect(status.output).toBe('perceptual-scale');
 	expect(status.posterize).toBe(3);
 });
+
+test('optimisticUpdateSequenceKeyframeSettings toggles a keyframe without losing data', () => {
+	const disabled = optimisticUpdateSequenceKeyframeSettings({
+		previous,
+		fieldKey: 'scale',
+		settings: {type: 'disabled', frame: 20, disabled: true},
+	});
+	if (!disabled.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const disabledStatus = disabled.props.scale;
+	if (!disabledStatus || disabledStatus.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(disabledStatus.keyframes[1]).toEqual({
+		frame: 20,
+		value: 2,
+		disabled: true,
+	});
+
+	const reEnabled = optimisticUpdateSequenceKeyframeSettings({
+		previous: disabled,
+		fieldKey: 'scale',
+		settings: {type: 'disabled', frame: 20, disabled: false},
+	});
+	if (!reEnabled.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const reEnabledStatus = reEnabled.props.scale;
+	if (!reEnabledStatus || reEnabledStatus.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(reEnabledStatus.keyframes[1]).toEqual({
+		frame: 20,
+		value: 2,
+		disabled: false,
+	});
+});

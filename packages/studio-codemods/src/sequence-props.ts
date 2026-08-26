@@ -358,6 +358,7 @@ const getInterpolationMetadata = (
 	clamping: PropClamping;
 	posterize: PropPosterize;
 	output: PropOutput;
+	disabledKeyframes: number[];
 } | null => {
 	const segments = Math.max(0, keyframeCount - 1);
 	const defaultClamping: PropClamping =
@@ -375,6 +376,7 @@ const getInterpolationMetadata = (
 		clamping: defaultClamping,
 		posterize: undefined,
 		output: undefined,
+		disabledKeyframes: [] as number[],
 	};
 
 	const optionsArg = callExpression.arguments[3];
@@ -390,6 +392,7 @@ const getInterpolationMetadata = (
 	let {clamping}: {clamping: PropClamping} = defaults;
 	let posterize: PropPosterize;
 	let {output}: {output: PropOutput} = defaults;
+	let {disabledKeyframes} = defaults;
 
 	for (const property of optionsArg.properties) {
 		if (property.type !== 'ObjectProperty' || property.computed) {
@@ -467,6 +470,24 @@ const getInterpolationMetadata = (
 			continue;
 		}
 
+		if (key === 'disabledKeyframes') {
+			if (value.type !== 'ArrayExpression') {
+				return null;
+			}
+
+			const parsed = value.elements.map((element) =>
+				element && element.type !== 'SpreadElement'
+					? getNumericValue(element as Expression)
+					: null,
+			);
+			if (parsed.some((frame) => frame === null)) {
+				return null;
+			}
+
+			disabledKeyframes = parsed as number[];
+			continue;
+		}
+
 		return null;
 	}
 
@@ -475,6 +496,7 @@ const getInterpolationMetadata = (
 		clamping,
 		posterize,
 		output,
+		disabledKeyframes,
 	};
 };
 
@@ -644,7 +666,12 @@ const getInterpolationKeyframes = (
 
 	return {
 		interpolationFunction,
-		keyframes,
+		keyframes: keyframes.map((keyframe) => ({
+			...keyframe,
+			...(metadata.disabledKeyframes.includes(keyframe.frame)
+				? {disabled: true}
+				: {}),
+		})),
 		easing: metadata.easing,
 		clamping: metadata.clamping,
 		posterize: metadata.posterize,

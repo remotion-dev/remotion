@@ -7,7 +7,7 @@ import {interpolate, type InterpolateOptions} from './interpolate.js';
 
 export type InterpolateColorsOptions = Pick<
 	InterpolateOptions,
-	'easing' | 'posterize'
+	'disabledKeyframes' | 'easing' | 'posterize'
 >;
 
 type MatcherType = RegExp | undefined;

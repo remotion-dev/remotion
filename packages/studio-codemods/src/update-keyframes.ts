@@ -179,6 +179,11 @@ export type KeyframeOperation =
 			easing: KeyframeEasing;
 	  }
 	| {
+			type: 'disabled';
+			frame: number;
+			disabled: boolean;
+	  }
+	| {
 			type: 'move';
 			moves: {
 				fromFrame: number;
@@ -212,6 +217,7 @@ type MissingPropInitialValue = {
 };
 
 type InterpolateKeyframe = {
+	disabled: boolean;
 	frame: number;
 	frameExpression: ExpressionKind;
 	frameNumericExpression: VideoConfigNumericExpression;
@@ -296,6 +302,7 @@ const getInterpolationExpression = (
 		}
 
 		keyframes.push({
+			disabled: false,
 			frame: frameExpression.value,
 			frameExpression: inputElement as ExpressionKind,
 			frameNumericExpression: frameExpression,
@@ -317,6 +324,32 @@ const getInterpolationExpression = (
 		}
 
 		extraArgs.push(supportedArg);
+	}
+
+	const options = getInlineOptionsFromExtraArgs(extraArgs);
+	const disabledProperty = options
+		? findObjectOptionProperty(options, 'disabledKeyframes').prop
+		: undefined;
+	if (disabledProperty) {
+		if (disabledProperty.value.type !== 'ArrayExpression') {
+			return null;
+		}
+
+		const disabledFrames = disabledProperty.value.elements.map((element) =>
+			element && element.type !== 'SpreadElement'
+				? (parseVideoConfigNumericExpression({
+						node: element as Expression,
+						videoConfigValues,
+					})?.value ?? null)
+				: null,
+		);
+		if (disabledFrames.some((frame) => frame === null)) {
+			return null;
+		}
+
+		for (const keyframe of keyframes) {
+			keyframe.disabled = disabledFrames.includes(keyframe.frame);
+		}
 	}
 
 	return {
@@ -1009,6 +1042,39 @@ const createInterpolateExpression = ({
 	const sortedKeyframes = [...keyframes].sort(
 		(first, second) => first.frame - second.frame,
 	);
+	const existingOptions = getInlineOptionsFromExtraArgs(extraArgs);
+	const hasDisabledOption =
+		existingOptions !== null &&
+		findObjectOptionProperty(existingOptions, 'disabledKeyframes').prop !==
+			undefined;
+	let synchronizedExtraArgs = extraArgs;
+	if (
+		hasDisabledOption ||
+		sortedKeyframes.some((keyframe) => keyframe.disabled)
+	) {
+		const options =
+			existingOptions ??
+			(extraArgs.length === 0 ? createEmptyOptionsExpression() : null);
+		if (options === null) {
+			throw new Error(
+				'Cannot update disabled keyframes: options must be inline',
+			);
+		}
+
+		const disabledFrames = sortedKeyframes
+			.filter((keyframe) => keyframe.disabled)
+			.map((keyframe) => b.numericLiteral(keyframe.frame));
+		setOptionsProperty({
+			options,
+			propertyName: 'disabledKeyframes',
+			value:
+				disabledFrames.length === 0
+					? null
+					: (b.arrayExpression(disabledFrames) as ExpressionKind),
+		});
+		synchronizedExtraArgs = getExtraArgsWithOptions({extraArgs, options});
+	}
+
 	return b.callExpression(callee, [
 		input,
 		b.arrayExpression(
@@ -1022,8 +1088,39 @@ const createInterpolateExpression = ({
 			),
 		),
 		b.arrayExpression(sortedKeyframes.map((keyframe) => keyframe.output)),
-		...extraArgs,
+		...synchronizedExtraArgs,
 	]) as ExpressionKind;
+};
+
+const updateKeyframeDisabled = ({
+	expression,
+	frame,
+	disabled,
+	videoConfigValues,
+}: {
+	expression: Expression;
+	frame: number;
+	disabled: boolean;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): ExpressionKind => {
+	const existing = getInterpolationExpression(expression, videoConfigValues);
+	if (!existing) {
+		throw new Error('Cannot disable keyframe in non-interpolated expression');
+	}
+
+	const keyframeIndex = existing.keyframes.findIndex(
+		(keyframe) => keyframe.frame === frame,
+	);
+	if (keyframeIndex === -1) {
+		throw new Error(`Cannot disable keyframe at frame ${frame}: not found`);
+	}
+
+	return createInterpolateExpression({
+		...existing,
+		keyframes: existing.keyframes.map((keyframe, index) =>
+			index === keyframeIndex ? {...keyframe, disabled} : keyframe,
+		),
+	});
 };
 
 export type IntroducedKeyframeIdentifiers = {
@@ -1081,6 +1178,7 @@ const addKeyframe = ({
 				? [
 						...existing.keyframes,
 						{
+							disabled: false,
 							frame,
 							frameExpression: createFrameExpression(frame),
 							frameNumericExpression: {type: 'literal', value: frame},
@@ -1138,6 +1236,7 @@ const addKeyframe = ({
 		staticNumericExpression?.value ?? extractStaticValue(expression);
 	const keyframes: InterpolateKeyframe[] = [
 		{
+			disabled: false,
 			frame,
 			frameExpression: createFrameExpression(frame),
 			frameNumericExpression: {type: 'literal', value: frame},
@@ -1384,6 +1483,18 @@ const applyKeyframeOperation = ({
 				...noIntroducedIdentifiers,
 				needsEasingImport: updated.needsEasingImport,
 			},
+		};
+	}
+
+	if (operation.type === 'disabled') {
+		return {
+			expression: updateKeyframeDisabled({
+				expression,
+				frame: operation.frame,
+				disabled: operation.disabled,
+				videoConfigValues,
+			}),
+			introduced: noIntroducedIdentifiers,
 		};
 	}
 

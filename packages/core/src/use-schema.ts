@@ -30,6 +30,7 @@ export type CanUpdateSequencePropStatusKeyframe = {
 	frame: number;
 	value: unknown;
 	frameExpression?: VideoConfigNumericExpression;
+	disabled?: boolean;
 };
 
 export type VideoConfigNumericExpression =

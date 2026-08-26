@@ -21,6 +21,7 @@ export type InterpolateOptions = Partial<{
 	extrapolateRight: ExtrapolateType;
 	output: InterpolateOutputOption;
 	posterize: number;
+	disabledKeyframes: readonly number[];
 }>;
 
 type InterpolateSegmentResolvedOptions = {
@@ -1192,6 +1193,30 @@ export function interpolate(
 
 	if (!Array.isArray(outputRange)) {
 		throw new Error('outputRange must contain only numbers');
+	}
+
+	if (options?.disabledKeyframes && options.disabledKeyframes.length > 0) {
+		const enabledIndexes = inputRange.flatMap((keyframe, index) =>
+			options.disabledKeyframes?.includes(keyframe) ? [] : [index],
+		);
+		if (enabledIndexes.length === 0) {
+			return outputRange[0];
+		}
+
+		const easingArray = Array.isArray(options.easing)
+			? (options.easing as readonly EasingFunction[])
+			: null;
+		const easing = easingArray
+			? enabledIndexes
+					.slice(0, -1)
+					.map((keyframeIndex) => easingArray[keyframeIndex] ?? Easing.linear)
+			: options.easing;
+		return interpolate(
+			input,
+			enabledIndexes.map((index) => inputRange[index]),
+			enabledIndexes.map((index) => outputRange[index]),
+			{...options, disabledKeyframes: undefined, easing},
+		);
 	}
 
 	const hasStringOutput = outputRange.some(

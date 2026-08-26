@@ -3,7 +3,7 @@ import type {CanUpdateSequencePropStatus} from 'remotion';
 export const getTimelineKeyframes = (
 	propStatus: CanUpdateSequencePropStatus | null | undefined,
 	keyframeDisplayOffset = 0,
-): {frame: number; value: unknown}[] => {
+): {frame: number; value: unknown; disabled?: boolean}[] => {
 	if (!propStatus) {
 		return [];
 	}

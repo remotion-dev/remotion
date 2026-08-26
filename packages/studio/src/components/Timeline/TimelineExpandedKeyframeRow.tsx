@@ -82,6 +82,7 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<
 					{keyframes.map((keyframe) => (
 						<TimelineKeyframeDiamond
 							key={keyframe.frame}
+							disabled={keyframe.disabled === true}
 							frame={keyframe.frame}
 							rowHeight={height}
 							nodePathInfo={nodePathInfo}

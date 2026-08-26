@@ -32,6 +32,10 @@ import {
 	callDeleteSequenceKeyframe,
 } from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
+import {
+	callUpdateEffectKeyframeSettings,
+	callUpdateSequenceKeyframeSettings,
+} from '../Timeline/call-update-keyframe-settings';
 import {getEasingSelectionAfterKeyframeDelete} from '../Timeline/get-easing-selection-after-keyframe-delete';
 import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
 import {getCurrentFrame} from '../Timeline/imperative-state';
@@ -137,6 +141,22 @@ const TrashIcon: React.FC<{readonly color: string}> = ({color}) => {
 				fill={color}
 				d="M160.5 27.4c2-6.8 8.3-11.4 15.3-11.4l96.4 0c7.1 0 13.3 4.6 15.3 11.4l11 36.6-149 0 11-36.6zM116.1 64L16 64C7.2 64 0 71.2 0 80S7.2 96 16 96l416 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-100.1 0-13.7-45.8C312.1-2.1 293.4-16 272.2-16l-96.4 0c-21.2 0-39.9 13.9-46 34.2L116.1 64zM28.7 144L51.6 452.7c2.5 33.4 30.3 59.3 63.8 59.3l217.1 0c33.5 0 61.3-25.9 63.8-59.3l22.9-308.7-32.1 0-22.7 306.4c-1.2 16.7-15.2 29.6-31.9 29.6l-217.1 0c-16.8 0-30.7-12.9-31.9-29.6L60.8 144 28.7 144z"
 			/>
+		</svg>
+	);
+};
+
+const DisabledKeyframeIcon: React.FC<{readonly color: string}> = ({color}) => {
+	return (
+		<svg viewBox="0 0 16 16" style={removeKeyframeIcon}>
+			<circle
+				cx="8"
+				cy="8"
+				r="5.5"
+				fill="none"
+				stroke={color}
+				strokeWidth="1.5"
+			/>
+			<path d="M4 12 12 4" fill="none" stroke={color} strokeWidth="1.5" />
 		</svg>
 	);
 };
@@ -518,6 +538,50 @@ export const KeyframeInspector: React.FC<{
 			setPropStatuses,
 		],
 	);
+	const selectedKeyframeDisabled =
+		details?.propStatus.keyframes.find(
+			(keyframe) => keyframe.frame === details.sourceFrame,
+		)?.disabled === true;
+	const onToggleDisabled = useCallback<
+		React.MouseEventHandler<HTMLButtonElement>
+	>(
+		(event) => {
+			event.stopPropagation();
+			if (details === null || previewServerState.type !== 'connected') {
+				return;
+			}
+
+			const settings = {
+				type: 'disabled' as const,
+				frame: details.sourceFrame,
+				disabled: !selectedKeyframeDisabled,
+			};
+			if (details.type === 'sequence') {
+				callUpdateSequenceKeyframeSettings({
+					fileName: details.fileName,
+					nodePath: details.nodePath,
+					fieldKey: details.field.key,
+					settings,
+					schema: details.schema,
+					setPropStatuses,
+					clientId: previewServerState.clientId,
+				}).catch(() => undefined);
+				return;
+			}
+
+			callUpdateEffectKeyframeSettings({
+				fileName: details.fileName,
+				nodePath: details.nodePath,
+				effectIndex: details.effectIndex,
+				fieldKey: details.field.key,
+				settings,
+				schema: details.schema,
+				setPropStatuses,
+				clientId: previewServerState.clientId,
+			}).catch(() => undefined);
+		},
+		[details, previewServerState, selectedKeyframeDisabled, setPropStatuses],
+	);
 
 	if (details === null || track === null) {
 		return <InspectorMessage>Keyframe unavailable</InspectorMessage>;
@@ -588,6 +652,13 @@ export const KeyframeInspector: React.FC<{
 					</div>
 				</div>
 				<InspectorQuickActionsSection>
+					<InspectorQuickAction
+						disabled={removeDisabled}
+						onClick={onToggleDisabled}
+						renderIcon={(color) => <DisabledKeyframeIcon color={color} />}
+					>
+						{selectedKeyframeDisabled ? 'Enable keyframe' : 'Disable keyframe'}
+					</InspectorQuickAction>
 					<InspectorQuickAction
 						disabled={removeDisabled}
 						onClick={onRemoveKeyframe}

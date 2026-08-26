@@ -29,10 +29,11 @@ const diamondBase: React.CSSProperties = {
 };
 
 const TimelineKeyframeDiamondUnmemoized: React.FC<{
+	readonly disabled: boolean;
 	readonly frame: number;
 	readonly rowHeight: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
-}> = ({frame, rowHeight, nodePathInfo}) => {
+}> = ({disabled, frame, rowHeight, nodePathInfo}) => {
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
 	const ref = useRef<HTMLButtonElement>(null);
@@ -57,10 +58,11 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 					timelineWidth,
 				) - TIMELINE_PADDING,
 			pointerEvents: 'auto',
+			opacity: disabled ? 0.4 : 1,
 			top: rowHeight / 2,
 			transform: 'translate(-50%, -50%)',
 		};
-	}, [frame, rowHeight, timelineWidth, videoConfig.durationInFrames]);
+	}, [disabled, frame, rowHeight, timelineWidth, videoConfig.durationInFrames]);
 
 	const onPointerDown = useTimelineKeyframeDrag({
 		frame,
@@ -80,7 +82,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			type="button"
 			style={style}
-			title={`Keyframe at frame ${frame}`}
+			title={`${disabled ? 'Disabled keyframe' : 'Keyframe'} at frame ${frame}`}
 			aria-label={`Select keyframe at frame ${frame}`}
 			onPointerDown={selectable ? onPointerDown : undefined}
 		>

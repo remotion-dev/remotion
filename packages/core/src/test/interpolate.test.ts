@@ -822,3 +822,16 @@ test('wrap option', () => {
 	expect(interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'wrap'})).toBe(1);
 	expect(interpolate(-0.5, [0, 1], [0, 2], {extrapolateLeft: 'wrap'})).toBe(1);
 });
+
+test('disabledKeyframes excludes input and output pairs', () => {
+	expect(
+		interpolate(30, [0, 30, 60], [0, 100, 60], {
+			disabledKeyframes: [30],
+		}),
+	).toBe(30);
+	expect(
+		interpolate(30, [0, 30, 60], [0, 100, 60], {
+			disabledKeyframes: [0, 30, 60],
+		}),
+	).toBe(0);
+});
