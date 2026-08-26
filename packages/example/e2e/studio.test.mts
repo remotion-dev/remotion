@@ -965,6 +965,60 @@ test.describe('visual mode', () => {
 			'Schema',
 			'AnimatedBarChart',
 		]);
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await expect(
+			page.getByRole('button', {name: 'New composition...', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'New folder...', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'New composition...', exact: true})
+			.click();
+		await expect(page.getByPlaceholder('Composition ID')).toBeVisible();
+		await page.keyboard.press('Escape');
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
+			.getByRole('button', {name: 'New folder...', exact: true})
+			.click();
+		await expect(page.getByPlaceholder('Folder name')).toBeVisible();
+		await page.keyboard.press('Escape');
+
+		const uploadedFileName = 'explorer-header-upload-e2e.txt';
+		const uploadedFileContents = 'Uploaded from the explorer header';
+		const uploadedFilePath = path.join(exampleDir, 'public', uploadedFileName);
+		fs.rmSync(uploadedFilePath, {force: true});
+		try {
+			await page.getByRole('button', {name: 'Assets', exact: true}).click();
+			await page.getByRole('button', {name: 'More asset actions'}).click();
+			const fileChooserPromise = page.waitForEvent('filechooser');
+			await page.getByRole('button', {name: 'Upload...', exact: true}).click();
+			const fileChooser = await fileChooserPromise;
+			await fileChooser.setFiles({
+				name: uploadedFileName,
+				mimeType: 'text/plain',
+				buffer: Buffer.from(uploadedFileContents),
+			});
+			await expect(
+				page.getByText(`Uploaded ${uploadedFileName} to public folder`, {
+					exact: true,
+				}),
+			).toBeVisible();
+			await expect
+				.poll(() =>
+					fs.existsSync(uploadedFilePath)
+						? fs.readFileSync(uploadedFilePath, 'utf8')
+						: null,
+				)
+				.toBe(uploadedFileContents);
+			await expect(
+				page.getByText(uploadedFileName, {exact: true}),
+			).toBeVisible();
+		} finally {
+			fs.rmSync(uploadedFilePath, {force: true});
+		}
+
+		await page.getByRole('button', {name: 'Compositions', exact: true}).click();
 
 		await page.keyboard.press('ControlOrMeta+k');
 		await page
