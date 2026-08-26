@@ -234,6 +234,15 @@ export const articles = [
 		slug: 'ai/system-prompt',
 	},
 	{
+		id: 'ai/webmcp',
+		title: 'WebMCP',
+		relativePath: 'docs/ai/webmcp.mdx',
+		compId: 'articles-docs-ai-webmcp',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/webmcp',
+	},
+	{
 		id: 'angular',
 		title: 'Using Remotion in Angular',
 		relativePath: 'docs/angular.mdx',

@@ -398,7 +398,7 @@ export const cropCanvasOutlinePoints = (
 };
 
 export const measureCanvasOutlines = <Target extends CanvasOutlineTarget>(
-	container: SVGSVGElement,
+	container: Element,
 	targets: readonly Target[],
 ): CanvasOutline[] => {
 	resetBoxQuadsCache();

@@ -15,6 +15,7 @@ import {
 	TimelineSelectionProvider,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
+import {WebMcp} from './WebMcp';
 
 const noop = () => undefined;
 
@@ -86,6 +87,7 @@ export const EditorContent: React.FC<{
 
 	return (
 		<TimelineSelectionProvider>
+			<WebMcp />
 			<Transform3DModeStateProvider>
 				<StudioClearSelectionArea>
 					<InitialCompositionLoader />
