@@ -1832,6 +1832,31 @@ test.describe('visual mode', () => {
 		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
 			origin: STUDIO_URL,
 		});
+		await page.addInitScript(() => {
+			type RegisteredTool = {
+				readonly name: string;
+				readonly execute: () => Promise<unknown>;
+			};
+			const tools = new Map<string, RegisteredTool>();
+			Object.defineProperty(window, '__remotion_webmcp_tools', {
+				value: tools,
+			});
+			Object.defineProperty(document, 'modelContext', {
+				value: {
+					registerTool: async (
+						tool: RegisteredTool,
+						options: {readonly signal: AbortSignal},
+					) => {
+						tools.set(tool.name, tool);
+						options.signal.addEventListener('abort', () => {
+							if (tools.get(tool.name) === tool) {
+								tools.delete(tool.name);
+							}
+						});
+					},
+				},
+			});
+		});
 		await page.route('**/api/default-editor-info', async (route) => {
 			await route.fulfill({
 				json: {
@@ -2015,6 +2040,45 @@ test.describe('visual mode', () => {
 			await expect
 				.poll(() => page.evaluate(() => navigator.clipboard.readText()))
 				.toBe(contextForAgents);
+			await page.getByRole('button', {name: 'Jump to beginning'}).click();
+			for (let i = 0; i < 3; i++) {
+				await page
+					.getByRole('button', {name: 'Step forward one frame'})
+					.click();
+			}
+			await expect
+				.poll(() =>
+					page.evaluate(() => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<string, unknown>;
+							}
+						).__remotion_webmcp_tools;
+						return tools.has('get_selection');
+					}),
+				)
+				.toBe(true);
+			const webMcpSelection = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_selection');
+				if (!tool) {
+					throw new Error('get_selection was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpSelection).toEqual({
+				currentFrame: 3,
+				currentSelection: contextForAgents,
+				currentComposition: 'AnimatedBarChart',
+			});
 
 			fs.writeFileSync(
 				configFile,
