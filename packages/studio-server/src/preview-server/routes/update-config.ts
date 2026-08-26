@@ -78,9 +78,7 @@ const validateUpdates = (updates: unknown): string | null => {
 				!('value' in update) ||
 				typeof update.value !== 'object' ||
 				update.value === null ||
-				Array.isArray(update.value) ||
-				(Object.getPrototypeOf(update.value) !== Object.prototype &&
-					Object.getPrototypeOf(update.value) !== null)
+				Array.isArray(update.value)
 			) {
 				return 'Config.addElementLibrary() expects an object value.';
 			}
