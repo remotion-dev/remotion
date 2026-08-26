@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/whisper-webgpu",
-	"version": "4.0.516",
+	"version": "4.0.517",
 	"description": "Transcribe audio in the browser using Whisper and WebGPU",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

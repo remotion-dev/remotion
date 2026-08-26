@@ -81,6 +81,13 @@ export const rspackConfig = async ({
 
 	const baseConfig = {
 		...getBaseConfig(environment, poll),
+		ignoreWarnings: [
+			{
+				module:
+					/[\\/]@huggingface[\\/]transformers[\\/]dist[\\/]transformers\.web\.js$/,
+				message: /Accessing import\.meta directly is unsupported/,
+			},
+		],
 		node: {
 			// Suppress the warning in `source-map`
 			__dirname: 'mock',

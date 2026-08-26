@@ -2826,7 +2826,7 @@
     },
     "packages/whisper-webgpu": {
       "name": "@remotion/whisper-webgpu",
-      "version": "4.0.516",
+      "version": "4.0.517",
       "dependencies": {
         "@huggingface/transformers": "catalog:",
         "@remotion/captions": "workspace:*",
