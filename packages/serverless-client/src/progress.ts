@@ -384,8 +384,12 @@ export const getProgress = async <Provider extends CloudProvider>({
 				? (overallProgress.framesEncoded ?? 0) / frameCount
 				: 0,
 			invoking:
-				(overallProgress.lambdasInvoked ?? 0) /
-				renderMetadata.estimatedRenderLambdaInvokations,
+				renderMetadata.estimatedRenderLambdaInvokations === 0
+					? (overallProgress.lambdasInvoked ?? 0) > 0
+						? 1
+						: 0
+					: (overallProgress.lambdasInvoked ?? 0) /
+						renderMetadata.estimatedRenderLambdaInvokations,
 			frames: (overallProgress.framesRendered ?? 0) / (frameCount ?? 1),
 			gotComposition: overallProgress.compositionValidated,
 			visitedServeUrl: overallProgress.serveUrlOpened,

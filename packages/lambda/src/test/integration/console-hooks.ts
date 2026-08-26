@@ -26,14 +26,14 @@ export const doBefore = () => {
 		stdoutOutput.push(str);
 	};
 
-	console.log = (str: string) => {
-		// originalStdout(str);
-		stdoutOutput.push(str);
+	console.log = (...args: unknown[]) => {
+		// originalStdout(args.join(' '));
+		stdoutOutput.push(args.map(String).join(' '));
 	};
 
-	console.error = (str: string) => {
-		// originalStderr(str);
-		stderrOutput.push(str);
+	console.error = (...args: unknown[]) => {
+		// originalStderr(args.join(' '));
+		stderrOutput.push(args.map(String).join(' '));
 	};
 
 	// @ts-expect-error

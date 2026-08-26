@@ -95,10 +95,12 @@ const makeProviderSpecifics = ({
 	onEstimatePrice,
 	onHeadFile,
 	billingCurrency = 'USD',
+	renderProgress,
 }: {
 	onEstimatePrice?: (input: EstimatePriceInput<MockProvider>) => number;
 	onHeadFile: ProviderSpecifics<MockProvider>['headFile'];
 	billingCurrency?: 'USD' | 'CNY';
+	renderProgress: OverallRenderProgress<MockProvider> | null;
 }): ProviderSpecifics<MockProvider> => {
 	return {
 		applyLifeCycle: () => Promise.resolve(),
@@ -154,7 +156,9 @@ const makeProviderSpecifics = ({
 		readFile: ({key}) => {
 			expect(key).toBe(overallProgressKey(renderId));
 			return Promise.resolve(
-				Readable.from([Buffer.from(JSON.stringify(progress))]),
+				Readable.from([
+					Buffer.from(JSON.stringify(renderProgress ?? progress)),
+				]),
 			);
 		},
 		serverStorageProductName: () => 'S3',
@@ -172,6 +176,7 @@ test('getProgress treats an existing output file as finished if postRenderData w
 			headedFiles.push({bucketName: headedBucketName, key});
 			return Promise.resolve({ContentLength: 1234});
 		},
+		renderProgress: null,
 	});
 
 	const renderProgress = await getProgress({
@@ -218,6 +223,7 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 				return input.durationInMilliseconds;
 			},
 			onHeadFile: () => Promise.resolve({ContentLength: 0}),
+			renderProgress: null,
 		});
 
 		const renderProgress = await getProgress({
@@ -243,5 +249,49 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 		progress.timings = originalTimings;
 		progress.chunks = originalChunks;
 		progress.lambdasInvoked = originalLambdasInvoked;
+	}
+});
+
+test('getProgress keeps direct render progress finite', async () => {
+	const directProgress: OverallRenderProgress<MockProvider> = {
+		...progress,
+		chunks: [],
+		combinedFrames: 0,
+		framesEncoded: 0,
+		framesRendered: 0,
+		lambdasInvoked: 0,
+		renderMetadata: {
+			...renderMetadata,
+			estimatedRenderLambdaInvokations: 0,
+			estimatedTotalLambdaInvokations: 1,
+			totalChunks: 1,
+		},
+		timeToCombine: null,
+	};
+	const providerSpecifics = makeProviderSpecifics({
+		onHeadFile: () => Promise.reject(new Error('Unexpected headFile call')),
+		renderProgress: directProgress,
+	});
+
+	for (const lambdasInvoked of [0, 1]) {
+		directProgress.lambdasInvoked = lambdasInvoked;
+		const renderProgress = await getProgress({
+			bucketName,
+			customCredentials: null,
+			expectedBucketOwner: null,
+			forcePathStyle: false,
+			functionName: renderMetadata.functionName,
+			memorySizeInMb: 2048,
+			providerSpecifics,
+			region: 'eu-central-1',
+			renderId,
+			requestHandler: null,
+			timeoutInMilliseconds: 120000,
+		});
+
+		expect(renderProgress.done).toBe(false);
+		expect(Number.isFinite(renderProgress.overallProgress)).toBe(true);
+		expect(renderProgress.overallProgress).toBeGreaterThanOrEqual(0);
+		expect(renderProgress.overallProgress).toBeLessThanOrEqual(1);
 	}
 });
