@@ -21,13 +21,13 @@ scope such as `fix(core)`. For a package change, read the affected package's
 By default, use that package name in the PR title:
 
 ```
-`[package-name]`: [lowercase description]
+`[package-name]`: [description]
 ```
 
-For example:
+Start the description with a capitalized word, as in:
 
 ```
-`@remotion/shapes`: add a heart shape
+`@remotion/shapes`: Add a heart shape
 ```
 
 If multiple packages are affected, use the package that owns the primary
@@ -61,18 +61,18 @@ Avoid vague descriptions such as `allow`, `improve`, `update handling`, or
 Useful title shapes include:
 
 ```
-`[package]`: add `[api]()` for [concise purpose]
-`[package]`: add a `[name]` option to `[api]()` for [concise purpose]
-`[package]`: fix [observable problem] when [condition]
-`[package]`: change `[api]()` to [new observable behavior]
+`[package]`: Add `[api]()` for [concise purpose]
+`[package]`: Add a `[name]` option to `[api]()` for [concise purpose]
+`[package]`: Fix [observable problem] when [condition]
+`[package]`: Change `[api]()` to [new observable behavior]
 ```
 
 Examples:
 
 ```
-`@remotion/studio-protocol`: add `addElementLibraryToStudio()` for adding Element libraries to the config
-`@remotion/web-renderer`: add a `metadata` option to `renderMediaOnWeb()` using Mediabunny's `MetadataTags`
-`@remotion/studio`: remove the scrollbar from Asset Inspector quick actions
+`@remotion/studio-protocol`: Add `addElementLibraryToStudio()` for adding Element libraries to the config
+`@remotion/web-renderer`: Add a `metadata` option to `renderMediaOnWeb()` using Mediabunny's `MetadataTags`
+`@remotion/studio`: Remove the scrollbar from Asset Inspector quick actions
 ```
 
 The first example is better than "Add Element catalogs to Studio" because it
@@ -95,7 +95,7 @@ located there. The package name may instead appear in the description when
 useful:
 
 ```
-Internal: stabilize the registration range test in `@remotion/transitions`
+Internal: Stabilize the registration range test in `@remotion/transitions`
 ```
 
 If shipped implementation changes are accompanied by tests, use the normal
@@ -104,14 +104,14 @@ affected-package prefix instead.
 If the change is about docs only:
 
 ```
-Docs: add a page about the heart shape
+Docs: Add a page about the heart shape
 ```
 
 If the change is internal monorepo work that does not have a more specific
 category below, use the `Internal:` prefix:
 
 ```
-Internal: simplify release bookkeeping
+Internal: Simplify release bookkeeping
 ```
 
 If the primary deliverable adds or modifies a Remotion Element or Elements
@@ -119,37 +119,37 @@ catalog content, use the `Elements:` prefix. Do not use this prefix merely
 because a package API interacts with Elements; use that package's name instead.
 
 ```
-Elements: add an animated title element
+Elements: Add an animated title element
 ```
 
 If the change relates to packages/convert, use the remotion.dev/convert prefix:
 
 ```
-remotion.dev/convert: support trimming
+remotion.dev/convert: Support trimming
 ```
 
 If the change relates to packages/example, say Internal testbed:
 
 ```
-Internal testbed: add a trimming sample composition
+Internal testbed: Add a trimming sample composition
 ```
 
 If the change adds or modifies a skill, prefix with `Skills:`:
 
 ```
-Skills: add the `/remotion-upgrade` skill
+Skills: Add the `/remotion-upgrade` skill
 ```
 
 If the change relates to packages/brand, prefix with remotion.dev/brand:
 
 ```
-remotion.dev/brand: add an animated logo
+remotion.dev/brand: Add an animated logo
 ```
 
 If the change relates to packages/it-tests, prefix with Internal tests:
 
 ```
-Internal tests: add a video integration test
+Internal tests: Add a video integration test
 ```
 
 ## Final check
@@ -162,6 +162,6 @@ Before proposing the title, verify:
 - It names the primary public API when that API is central, but does not list
   every API or implementation detail.
 - Its prefix reflects the owner of the user-facing change.
-- The description after the prefix starts with a lowercase word unless it must
-  begin with a proper noun or identifier.
+- The description after the prefix starts with a capitalized word unless it
+  must begin with an identifier whose casing differs.
 - Every technical claim is supported by the diff.
