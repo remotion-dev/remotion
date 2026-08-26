@@ -603,6 +603,23 @@ export const InspectorSequenceSection: React.FC<{
 		},
 		[isAdditionalSectionExpanded, nodePathInfo],
 	);
+	const expandAdditionalSection = useCallback(
+		(sectionId: AdditionalInspectorSectionId) => {
+			if (isAdditionalSectionExpanded(sectionId)) {
+				return;
+			}
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			setSectionExpansionOverrides((previous) => {
+				const next = {...previous, [expansionKey]: true};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+		},
+		[isAdditionalSectionExpanded, nodePathInfo],
+	);
 	const captionsExpanded = isAdditionalSectionExpanded('captions');
 	const effectsExpanded = isAdditionalSectionExpanded('effects');
 	const visibleControlRows = controlGroups.flatMap((group) => {
@@ -649,6 +666,7 @@ export const InspectorSequenceSection: React.FC<{
 			return;
 		}
 
+		expandAdditionalSection('effects');
 		setSelectedModal({
 			type: 'add-effect',
 			clientId: previewServerState.clientId,
@@ -657,6 +675,7 @@ export const InspectorSequenceSection: React.FC<{
 		});
 	}, [
 		canAddEffect,
+		expandAdditionalSection,
 		nodePathInfo.sequenceSubscriptionKey,
 		previewServerState,
 		setSelectedModal,
