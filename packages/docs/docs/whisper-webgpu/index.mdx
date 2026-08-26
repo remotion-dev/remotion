@@ -6,7 +6,7 @@ crumb: 'Transcribe audio in browser'
 
 # @remotion/whisper-webgpu<AvailableFrom v="4.0.518" />
 
-Transcribe audio locally in the browser using timestamped Whisper models and WebGPU through [Transformers.js](https://huggingface.co/docs/transformers.js).
+Transcribe audio locally in the browser using timestamped Whisper models and WebGPU through [Transformers.js](https://huggingface.co/docs/transformers.js), and convert the result to [`@remotion/captions`](/docs/captions).
 
 import {TableOfContents} from './table-of-contents';
 
@@ -17,11 +17,9 @@ import {TableOfContents} from './table-of-contents';
 ## Example
 
 ```ts twoslash title="transcribe.ts"
-import {
-  resampleTo16Khz,
-  toCaptions,
-  transcribe,
-} from '@remotion/whisper-webgpu';
+import {clearStaleModels, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
+
+await clearStaleModels();
 
 const file = new File([], 'audio.wav');
 const channelWaveform = await resampleTo16Khz({file});
