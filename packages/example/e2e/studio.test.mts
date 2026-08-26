@@ -944,6 +944,16 @@ test.describe('visual mode', () => {
 		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
 			timeout: 15_000,
 		});
+		const firstCompositionItems = await page
+			.locator('.__remotion-composition-selector-item')
+			.evaluateAll((items) =>
+				items.slice(0, 3).map((item) => item.getAttribute('title')),
+			);
+		expect(firstCompositionItems).toEqual([
+			'use-current-scale-on-load',
+			'Schema',
+			'AnimatedBarChart',
+		]);
 
 		await page.keyboard.press('ControlOrMeta+k');
 		await page

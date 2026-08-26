@@ -18,6 +18,10 @@ const HOVER_BG_VARIABLE = '--remotion-hoverable-hover-bg';
 const COLOR_VARIABLE = '--remotion-hoverable-color';
 const HOVER_COLOR_VARIABLE = '--remotion-hoverable-hover-color';
 
+export const NO_HOVER_BACKGROUND_STYLE = {
+	[HOVER_BG_VARIABLE]: TRANSPARENT,
+} as React.CSSProperties;
+
 // To disable the hover effect (e.g. for a disabled control), pass the idle
 // values as the hover values.
 export const hoverableStyle = ({
