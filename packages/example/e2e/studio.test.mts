@@ -1834,6 +1834,7 @@ test.describe('visual mode', () => {
 		});
 		await page.addInitScript(() => {
 			window.localStorage.setItem('remotion.mute', 'false');
+			window.localStorage.setItem('remotion.loop', 'true');
 			window.localStorage.setItem('remotion.editorShowGuides', 'true');
 			window.localStorage.setItem(
 				'remotion.guidesList',
@@ -2085,9 +2086,15 @@ test.describe('visual mode', () => {
 						return (
 							tools.has('get_compositions') &&
 							tools.has('select_composition') &&
+							tools.has('get_sequences') &&
+							tools.has('select_sequence') &&
 							tools.has('get_composition') &&
+							tools.has('get_canvas_html') &&
+							tools.has('get_outlines') &&
+							tools.has('get_playback_state') &&
 							tools.has('get_selection') &&
 							tools.has('get_guides') &&
+							tools.has('set_guides_visible') &&
 							tools.has('add_guide') &&
 							tools.has('remove_guide') &&
 							tools.has('play') &&
@@ -2121,7 +2128,120 @@ test.describe('visual mode', () => {
 				currentFrame: 3,
 				currentSelection: contextForAgents,
 				currentComposition: 'AnimatedBarChart',
+				selectionType: 'sequence',
+				selectedSequence: expect.objectContaining({
+					sequenceId: expect.any(String),
+					name: '0% gridline',
+					type: 'sequence',
+					stack: expect.any(String),
+					selectable: true,
+				}),
 			});
+			const selectedSequence = (
+				webMcpSelection as {
+					readonly selectedSequence: {
+						readonly sequenceId: string;
+					};
+				}
+			).selectedSequence;
+			const webMcpSequences = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_sequences');
+				if (!tool) {
+					throw new Error('get_sequences was not registered');
+				}
+
+				return tool.execute();
+			});
+			const sequenceList = (
+				webMcpSequences as {
+					readonly sequences: readonly {
+						readonly sequenceId: string;
+						readonly selectable: boolean;
+					}[];
+				}
+			).sequences;
+			expect(webMcpSequences).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				sequences: expect.arrayContaining([
+					expect.objectContaining({
+						sequenceId: selectedSequence.sequenceId,
+						name: '0% gridline',
+						selectable: true,
+					}),
+				]),
+			});
+			const sequenceToSelect = sequenceList.find(
+				(sequence) =>
+					sequence.selectable &&
+					sequence.sequenceId !== selectedSequence.sequenceId,
+			);
+			expect(sequenceToSelect).toBeDefined();
+			const webMcpSelectSequenceResult = await page.evaluate(
+				async ({sequenceId}) => {
+					const tools = (
+						window as typeof window & {
+							readonly __remotion_webmcp_tools: Map<
+								string,
+								{
+									readonly execute: (
+										input: Record<string, unknown>,
+									) => Promise<unknown>;
+								}
+							>;
+						}
+					).__remotion_webmcp_tools;
+					const tool = tools.get('select_sequence');
+					if (!tool) {
+						throw new Error('select_sequence was not registered');
+					}
+
+					return tool.execute({sequenceId});
+				},
+				{sequenceId: sequenceToSelect?.sequenceId ?? ''},
+			);
+			expect(webMcpSelectSequenceResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				selectedSequence: expect.objectContaining({
+					sequenceId: sequenceToSelect?.sequenceId,
+					selectable: true,
+				}),
+			});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_selection');
+						const selection = (await tool?.execute()) as {
+							readonly selectionType?: string;
+							readonly selectedSequence?: {
+								readonly sequenceId?: string;
+							};
+						};
+						return {
+							selectionType: selection.selectionType,
+							sequenceId: selection.selectedSequence?.sequenceId,
+						};
+					}),
+				)
+				.toEqual({
+					selectionType: 'sequence',
+					sequenceId: sequenceToSelect?.sequenceId,
+				});
 			const webMcpComposition = await page.evaluate(async () => {
 				const tools = (
 					window as typeof window & {
@@ -2147,6 +2267,109 @@ test.describe('visual mode', () => {
 				fps: 30,
 				currentFrame: 3,
 			});
+			const webMcpCanvasHtml = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_canvas_html');
+				if (!tool) {
+					throw new Error('get_canvas_html was not registered');
+				}
+
+				return tool.execute();
+			});
+			const canvasHtml = (
+				webMcpCanvasHtml as {
+					readonly html: string;
+					readonly htmlLength: number;
+				}
+			).html;
+			expect(webMcpCanvasHtml).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				currentFrame: 3,
+				html: expect.any(String),
+				htmlLength: canvasHtml.length,
+				truncated: false,
+			});
+			expect(canvasHtml).toContain('Performance overview');
+			expect(canvasHtml).toContain('Regional growth');
+			expect(canvasHtml).not.toContain('Change the playback rate');
+			const webMcpOutlines = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_outlines');
+				if (!tool) {
+					throw new Error('get_outlines was not registered');
+				}
+
+				return tool.execute();
+			});
+			const gridlineOutline = (
+				webMcpOutlines as {
+					readonly outlines: readonly {
+						readonly name: string | null;
+						readonly sequenceId: string;
+						readonly outlineId: string;
+						readonly context: string | null;
+						readonly geometry: {
+							readonly points: readonly {
+								readonly x: number;
+								readonly y: number;
+							}[];
+							readonly boundingBox: {
+								readonly x: number;
+								readonly y: number;
+								readonly width: number;
+								readonly height: number;
+							};
+						};
+					}[];
+				}
+			).outlines.find((outline) => outline.name === '0% gridline');
+			expect(webMcpOutlines).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				currentFrame: 3,
+				outlines: expect.any(Array),
+			});
+			expect(gridlineOutline).toEqual({
+				outlineId: expect.any(String),
+				sequenceId: selectedSequence.sequenceId,
+				name: '0% gridline',
+				depth: expect.any(Number),
+				context: contextForAgents,
+				geometry: {
+					points: expect.arrayContaining([
+						expect.objectContaining({
+							x: expect.any(Number),
+							y: expect.any(Number),
+						}),
+					]),
+					boundingBox: {
+						x: expect.any(Number),
+						y: expect.any(Number),
+						width: expect.any(Number),
+						height: expect.any(Number),
+					},
+				},
+			});
+			expect(gridlineOutline?.geometry.points).toHaveLength(4);
+			expect(gridlineOutline?.geometry.boundingBox.x).toBeGreaterThan(150);
+			expect(gridlineOutline?.geometry.boundingBox.x).toBeLessThan(180);
+			expect(gridlineOutline?.geometry.boundingBox.y).toBeGreaterThan(550);
+			expect(gridlineOutline?.geometry.boundingBox.y).toBeLessThan(610);
+			expect(gridlineOutline?.geometry.boundingBox.width).toBeGreaterThan(950);
+			expect(gridlineOutline?.geometry.boundingBox.width).toBeLessThan(1030);
 			const webMcpCompositions = await page.evaluate(async () => {
 				const tools = (
 					window as typeof window & {
@@ -2292,6 +2515,70 @@ test.describe('visual mode', () => {
 				],
 			});
 			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(2);
+			const webMcpHideGuidesResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_guides_visible');
+				if (!tool) {
+					throw new Error('set_guides_visible was not registered');
+				}
+
+				return tool.execute({visible: false});
+			});
+			expect(webMcpHideGuidesResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				guidesVisible: false,
+			});
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(0);
+			await expect
+				.poll(() =>
+					page.evaluate(() =>
+						localStorage.getItem('remotion.editorShowGuides'),
+					),
+				)
+				.toBe('false');
+			const webMcpShowGuidesResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_guides_visible');
+				if (!tool) {
+					throw new Error('set_guides_visible was not registered');
+				}
+
+				return tool.execute({visible: true});
+			});
+			expect(webMcpShowGuidesResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				guidesVisible: true,
+			});
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(2);
+			await expect
+				.poll(() =>
+					page.evaluate(() =>
+						localStorage.getItem('remotion.editorShowGuides'),
+					),
+				)
+				.toBe('true');
 			const webMcpAddGuideResult = await page.evaluate(async () => {
 				const tools = (
 					window as typeof window & {
@@ -2572,6 +2859,32 @@ test.describe('visual mode', () => {
 			await expect(
 				page.getByRole('button', {name: '179', exact: true}),
 			).toBeVisible();
+			const webMcpPlaybackState = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_playback_state');
+				if (!tool) {
+					throw new Error('get_playback_state was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpPlaybackState).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				currentFrame: 179,
+				playing: false,
+				muted: false,
+				volume: 1,
+				playbackRate: 1.5,
+				looping: true,
+				timelineZoom: 2.5,
+			});
 
 			fs.writeFileSync(
 				configFile,
@@ -2685,6 +2998,73 @@ test.describe('visual mode', () => {
 					width: null,
 					fps: null,
 					currentFrame: null,
+				});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_playback_state');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					currentComposition: null,
+					currentFrame: null,
+					playing: null,
+					muted: null,
+					volume: null,
+					playbackRate: null,
+					looping: null,
+					timelineZoom: null,
+				});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_canvas_html');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					currentComposition: null,
+					currentFrame: null,
+					html: null,
+					htmlLength: null,
+					truncated: false,
+				});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_outlines');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					currentComposition: null,
+					currentFrame: null,
+					outlines: [],
 				});
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);

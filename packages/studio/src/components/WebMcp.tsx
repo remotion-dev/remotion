@@ -1,16 +1,26 @@
+import {
+	getCanvasSelectableOutlines,
+	measureCanvasOutlines,
+} from '@remotion/canvas';
 import {useContext, useEffect, useMemo, useRef, type FC} from 'react';
 import {Internals} from 'remotion';
 import {pause} from '../api/pause';
 import {play} from '../api/play';
 import {seek} from '../api/seek';
+import {calculateTimeline} from '../helpers/calculate-timeline';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {formatContextForAgents} from '../helpers/format-file-location';
-import {clampTimelineZoom} from '../helpers/get-timeline-max-zoom';
+import {
+	clampTimelineZoom,
+	TIMELINE_MIN_ZOOM,
+} from '../helpers/get-timeline-max-zoom';
+import type {TimelineTrackData} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	EditorShowGuidesContext,
 	persistGuidesList,
 	type Guide,
 } from '../state/editor-guides';
+import {loadLoopOption} from '../state/loop';
 import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
@@ -18,7 +28,12 @@ import {useSelectComposition} from './InitialCompositionLoader';
 import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info';
 import {getCurrentDuration, getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
-import {useTimelineSelection} from './Timeline/TimelineSelection';
+import {shouldShowTrackInTimeline} from './Timeline/should-show-track-in-timeline';
+import {
+	getTimelineSelectionFromNodePathInfo,
+	useTimelineSelection,
+} from './Timeline/TimelineSelection';
+import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useResolveStackAndReactToChange} from './Timeline/use-resolved-stack-react-to-change';
 
 type WebMcpTool = {
@@ -48,6 +63,37 @@ type WebMcpCompositionTreeItem =
 			readonly children: WebMcpCompositionTreeItem[];
 	  };
 
+type WebMcpSequence = {
+	readonly sequenceId: string;
+	readonly name: string | null;
+	readonly type: TimelineTrackData['sequence']['type'];
+	readonly parentSequenceId: string | null;
+	readonly depth: number;
+	readonly startFrame: number;
+	readonly endFrame: number;
+	readonly durationInFrames: number;
+	readonly stack: string | null;
+	readonly selectable: boolean;
+};
+
+const serializeSequence = (track: TimelineTrackData): WebMcpSequence => {
+	return {
+		sequenceId: track.sequence.id,
+		name:
+			track.sequence.displayName ||
+			track.sequence.controls?.componentName ||
+			null,
+		type: track.sequence.type,
+		parentSequenceId: track.sequence.parent,
+		depth: track.depth,
+		startFrame: track.sequence.from,
+		endFrame: track.sequence.from + track.sequence.duration - 1,
+		durationInFrames: track.sequence.duration,
+		stack: track.sequence.getStack(),
+		selectable: track.nodePathInfo !== null,
+	};
+};
+
 const serializeCompositionTree = (
 	items: ReturnType<typeof createFolderTree>,
 ): WebMcpCompositionTreeItem[] => {
@@ -68,14 +114,20 @@ const serializeCompositionTree = (
 };
 
 const getNoStack = () => null;
+const MAX_CANVAS_HTML_LENGTH = 100_000;
 
 export const WebMcp: FC = () => {
-	const {clearSelection, selectedItems} = useTimelineSelection();
+	const {canSelect, clearSelection, selectedItems, selectItems} =
+		useTimelineSelection();
 	const {canvasContent, compositions, currentCompositionMetadata, folders} =
 		useContext(Internals.CompositionManager);
-	const {setPlaybackRate} = Internals.usePlaybackRate();
+	const {playbackRate: currentPlaybackRate, setPlaybackRate} =
+		Internals.usePlaybackRate();
+	const [, , imperativePlaying] = Internals.Timeline.usePlayingState();
+	const {mediaVolume, playerMuted} = useContext(Internals.MediaVolumeContext);
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
-	const {setZoom: setTimelineZoom} = useContext(TimelineZoomCtx);
+	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
+		useContext(TimelineZoomCtx);
 	const selectComposition = useSelectComposition();
 	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
 		useContext(EditorShowGuidesContext);
@@ -159,8 +211,16 @@ export const WebMcp: FC = () => {
 	}, [currentResolvedLocation, selectedItem, selectedItems.length, track]);
 	const currentSelectionRef = useRef(currentSelection);
 	currentSelectionRef.current = currentSelection;
+	const selectedSequence = useMemo(
+		() => (track === null ? null : serializeSequence(track)),
+		[track],
+	);
+	const selectedSequenceRef = useRef(selectedSequence);
+	selectedSequenceRef.current = selectedSequence;
 	const selectedItemsRef = useRef(selectedItems);
 	selectedItemsRef.current = selectedItems;
+	const canSelectRef = useRef(canSelect);
+	canSelectRef.current = canSelect;
 	const currentCompositionDefinition = useMemo(() => {
 		if (canvasContent?.type !== 'composition') {
 			return null;
@@ -179,6 +239,10 @@ export const WebMcp: FC = () => {
 	currentCompositionDefinitionRef.current = currentCompositionDefinition;
 	const compositionsRef = useRef(compositions);
 	compositionsRef.current = compositions;
+	const sequencesRef = useRef(sequences);
+	sequencesRef.current = sequences;
+	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
+	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const foldersRef = useRef(folders);
 	foldersRef.current = folders;
 	const currentCompositionMetadataRef = useRef(currentCompositionMetadata);
@@ -187,6 +251,14 @@ export const WebMcp: FC = () => {
 	guidesListRef.current = guidesList;
 	const editorShowGuidesRef = useRef(editorShowGuides);
 	editorShowGuidesRef.current = editorShowGuides;
+	const mediaVolumeRef = useRef(mediaVolume);
+	mediaVolumeRef.current = mediaVolume;
+	const playbackRateRef = useRef(currentPlaybackRate);
+	playbackRateRef.current = currentPlaybackRate;
+	const playerMutedRef = useRef(playerMuted);
+	playerMutedRef.current = playerMuted;
+	const timelineZoomRef = useRef(timelineZoomMap);
+	timelineZoomRef.current = timelineZoomMap;
 
 	useEffect(() => {
 		const {modelContext} = document as Document & {
@@ -197,6 +269,26 @@ export const WebMcp: FC = () => {
 		}
 
 		const controller = new AbortController();
+		const getCurrentTimeline = () => {
+			const composition = currentCompositionDefinitionRef.current;
+			if (composition === null) {
+				return [];
+			}
+
+			const durationInFrames =
+				currentCompositionMetadataRef.current?.durationInFrames ??
+				composition.durationInFrames ??
+				getCurrentDuration();
+
+			return calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+				compositions: compositionsRef.current,
+			}).filter((timelineTrack) =>
+				shouldShowTrackInTimeline(timelineTrack, durationInFrames),
+			);
+		};
+
 		Promise.all([
 			modelContext.registerTool(
 				{
@@ -261,6 +353,89 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'get_sequences',
+					title: 'Get Studio sequences',
+					description:
+						'Read the mounted sequences in the current Remotion Studio timeline, including their IDs, hierarchy, timing, type, source stack, and whether they can be selected.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => {
+						const compositionId = currentCompositionRef.current;
+						return Promise.resolve({
+							currentComposition: compositionId,
+							sequences:
+								compositionId === null
+									? []
+									: getCurrentTimeline().map(serializeSequence),
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'select_sequence',
+					title: 'Select Studio sequence',
+					description:
+						'Select and reveal a sequence in the current Remotion Studio timeline by the sequence ID returned by get_sequences.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							sequenceId: {
+								type: 'string',
+								minLength: 1,
+								description: 'The sequence ID returned by get_sequences.',
+							},
+						},
+						required: ['sequenceId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({sequenceId}) => {
+						if (typeof sequenceId !== 'string' || sequenceId.length === 0) {
+							throw new Error('sequenceId must be a non-empty string.');
+						}
+
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						if (!canSelectRef.current) {
+							throw new Error('Studio sequence selection is unavailable.');
+						}
+
+						const timelineTrack = getCurrentTimeline().find(
+							(candidate) => candidate.sequence.id === sequenceId,
+						);
+						if (!timelineTrack) {
+							throw new Error(
+								`Sequence ${sequenceId} not found in the current composition.`,
+							);
+						}
+
+						const selection = getTimelineSelectionFromNodePathInfo(
+							timelineTrack.nodePathInfo,
+						);
+						if (selection === null) {
+							throw new Error(`Sequence ${sequenceId} cannot be selected.`);
+						}
+
+						selectItems([selection], {reveal: true});
+						return Promise.resolve({
+							currentComposition: compositionId,
+							selectedSequence: serializeSequence(timelineTrack),
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_composition',
 					title: 'Get Studio composition',
 					description:
@@ -304,6 +479,225 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'get_canvas_html',
+					title: 'Get Studio canvas HTML',
+					description:
+						'Read the HTML of the rendered composition at the current frame. The result is limited to the composition canvas and does not include the Studio interface. Canvas and WebGL pixels are not included.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => {
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							return Promise.resolve({
+								currentComposition: null,
+								currentFrame: null,
+								html: null,
+								htmlLength: null,
+								truncated: false,
+							});
+						}
+
+						const outerHtml = Internals.portalNode().outerHTML;
+						return Promise.resolve({
+							currentComposition: compositionId,
+							currentFrame: getCurrentFrame(),
+							html: outerHtml.slice(0, MAX_CANVAS_HTML_LENGTH),
+							htmlLength: outerHtml.length,
+							truncated: outerHtml.length > MAX_CANVAS_HTML_LENGTH,
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_outlines',
+					title: 'Get Studio canvas outlines',
+					description:
+						'Read the active selectable component outlines in the current Remotion Studio canvas, including sequence identity, source-code context, and geometry in composition pixels.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: async () => {
+						const composition = currentCompositionDefinitionRef.current;
+						if (composition === null) {
+							return {
+								currentComposition: null,
+								currentFrame: null,
+								outlines: [],
+							};
+						}
+
+						const currentFrame = getCurrentFrame();
+						const selectableOutlines = getCanvasSelectableOutlines({
+							sequences: sequencesRef.current,
+							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+							compositions: compositionsRef.current,
+							timelinePosition: currentFrame,
+						});
+						const portalNode = Internals.portalNode();
+						const portalRect = portalNode.getBoundingClientRect();
+						const metadata = currentCompositionMetadataRef.current;
+						const compositionWidth =
+							metadata?.width ?? composition.width ?? portalNode.offsetWidth;
+						const compositionHeight =
+							metadata?.height ?? composition.height ?? portalNode.offsetHeight;
+						const scaleX = portalRect.width / compositionWidth;
+						const scaleY = portalRect.height / compositionHeight;
+						if (
+							!Number.isFinite(scaleX) ||
+							scaleX === 0 ||
+							!Number.isFinite(scaleY) ||
+							scaleY === 0
+						) {
+							throw new Error('The Studio canvas is not ready to be measured.');
+						}
+
+						const measuredOutlines = measureCanvasOutlines(
+							portalNode,
+							selectableOutlines.map((outline) => {
+								if (outline.sequence.refForOutline === null) {
+									throw new Error('Expected an outline ref.');
+								}
+
+								return {
+									key: outline.key,
+									ref: outline.sequence.refForOutline,
+									crop: {left: 0, right: 0, top: 0, bottom: 0},
+									includeOutsideContainer: true,
+								};
+							}),
+						);
+						const measurementsByKey = new Map(
+							measuredOutlines.map((outline) => [outline.key, outline]),
+						);
+						const contextByStack = new Map<
+							string,
+							Promise<Awaited<ReturnType<typeof getOriginalLocationFromStack>>>
+						>();
+						const outlines = await Promise.all(
+							selectableOutlines.map(async (outline) => {
+								const measurement = measurementsByKey.get(outline.key);
+								if (!measurement) {
+									return null;
+								}
+
+								const outlineStack = outline.sequence.getStack();
+								let location = null;
+								if (outlineStack !== null) {
+									let promise = contextByStack.get(outlineStack);
+									if (!promise) {
+										promise = getOriginalLocationFromStack(
+											outlineStack,
+											'sequence',
+										).catch(() => null);
+										contextByStack.set(outlineStack, promise);
+									}
+
+									location = await promise;
+								}
+
+								const name =
+									outline.sequence.displayName ||
+									outline.sequence.controls?.componentName ||
+									null;
+								const points = measurement.points.map((point) => ({
+									x: point.x / scaleX,
+									y: point.y / scaleY,
+								}));
+								const xValues = points.map((point) => point.x);
+								const yValues = points.map((point) => point.y);
+								const left = Math.min(...xValues);
+								const top = Math.min(...yValues);
+								const right = Math.max(...xValues);
+								const bottom = Math.max(...yValues);
+
+								return {
+									outlineId: outline.key,
+									sequenceId: outline.sequence.id,
+									name,
+									depth: outline.depth,
+									context: formatContextForAgents({
+										location,
+										name,
+										root: window.remotion_cwd,
+									}),
+									geometry: {
+										points,
+										boundingBox: {
+											x: left,
+											y: top,
+											width: right - left,
+											height: bottom - top,
+										},
+									},
+								};
+							}),
+						);
+
+						return {
+							currentComposition: composition.id,
+							currentFrame,
+							outlines: outlines.filter(
+								(outline): outline is NonNullable<typeof outline> =>
+									outline !== null,
+							),
+						};
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_playback_state',
+					title: 'Get Studio playback state',
+					description:
+						'Read the current frame, playing state, audio state, playback rate, looping state, and timeline zoom for the composition open in Remotion Studio. All playback fields are null when the canvas is not showing a composition.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => {
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							return Promise.resolve({
+								currentComposition: null,
+								currentFrame: null,
+								playing: null,
+								muted: null,
+								volume: null,
+								playbackRate: null,
+								looping: null,
+								timelineZoom: null,
+							});
+						}
+
+						return Promise.resolve({
+							currentComposition: compositionId,
+							currentFrame: getCurrentFrame(),
+							playing: imperativePlaying.current,
+							muted: playerMutedRef.current,
+							volume: mediaVolumeRef.current,
+							playbackRate: playbackRateRef.current,
+							looping: loadLoopOption(),
+							timelineZoom:
+								timelineZoomRef.current[compositionId] ?? TIMELINE_MIN_ZOOM,
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_selection',
 					title: 'Get Studio selection',
 					description:
@@ -319,6 +713,11 @@ export const WebMcp: FC = () => {
 							currentFrame: getCurrentFrame(),
 							currentSelection: currentSelectionRef.current,
 							currentComposition: currentCompositionRef.current,
+							selectionType:
+								selectedItemsRef.current.length === 1
+									? selectedItemsRef.current[0].type
+									: null,
+							selectedSequence: selectedSequenceRef.current,
 						}),
 				},
 				{signal: controller.signal},
@@ -353,6 +752,44 @@ export const WebMcp: FC = () => {
 												position: guide.position,
 												visible: guidesAreVisible && guide.show,
 											})),
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'set_guides_visible',
+					title: 'Set Studio guides visibility',
+					description:
+						'Show or hide all guides for the current Remotion Studio composition.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							visible: {
+								type: 'boolean',
+								description: 'Whether guides should be visible.',
+							},
+						},
+						required: ['visible'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({visible}) => {
+						if (typeof visible !== 'boolean') {
+							throw new Error('visible must be a boolean.');
+						}
+
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						editorShowGuidesRef.current = visible;
+						setEditorShowGuides(() => visible);
+						return Promise.resolve({
+							currentComposition: compositionId,
+							guidesVisible: visible,
 						});
 					},
 				},
@@ -764,7 +1201,9 @@ export const WebMcp: FC = () => {
 		};
 	}, [
 		clearSelection,
+		imperativePlaying,
 		selectComposition,
+		selectItems,
 		setEditorShowGuides,
 		setGuidesList,
 		setPlaybackRate,

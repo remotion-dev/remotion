@@ -27,9 +27,15 @@ No Remotion configuration is required. Studio registers its tools when the brows
 | -------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `get_compositions`   | None                                                                                     | Returns mounted compositions as a nested tree of folders and compositions.                     |
 | `select_composition` | `compositionName`: string                                                                | Opens a registered composition in Studio.                                                      |
+| `get_sequences`      | None                                                                                     | Returns mounted timeline sequences with IDs, hierarchy, timing, type and source context.       |
+| `select_sequence`    | `sequenceId`: string                                                                     | Selects and reveals a sequence returned by `get_sequences`.                                    |
 | `get_composition`    | None                                                                                     | Returns composition metadata and the current frame, or `null` fields for other canvas content. |
-| `get_selection`      | None                                                                                     | Returns the current frame, composition and source-code context for the selected item.          |
+| `get_canvas_html`    | None                                                                                     | Returns the rendered composition HTML at the current frame, capped at 100,000 characters.      |
+| `get_outlines`       | None                                                                                     | Returns active component outlines with source context and composition-space geometry.          |
+| `get_playback_state` | None                                                                                     | Returns the current playback, audio, looping and timeline zoom state.                          |
+| `get_selection`      | None                                                                                     | Returns the selection type, owning sequence metadata and source-code context.                  |
 | `get_guides`         | None                                                                                     | Returns the horizontal and vertical guides drawn over the canvas.                              |
+| `set_guides_visible` | `visible`: boolean                                                                       | Shows or hides all guides in the current composition.                                          |
 | `add_guide`          | `orientation`: `horizontal` or `vertical`; `position`: number                            | Adds and shows a guide in the current composition.                                             |
 | `remove_guide`       | `guideId`: string                                                                        | Removes a guide from the current composition.                                                  |
 | `seek_to_frame`      | `frame`: a non-negative integer                                                          | Seeks the timeline. Values beyond the duration are clamped to the final frame.                 |
@@ -42,7 +48,11 @@ No Remotion configuration is required. Studio registers its tools when the brows
 
 Tools that change playback require a composition to be open. `play` is unavailable for still compositions.
 
-`get_selection` returns source-code context when exactly one sequence or property is selected. It returns `null` when there is no selection, multiple items are selected or a guide is selected.
+`get_selection` returns source-code context when exactly one sequence or property is selected. Its `selectedSequence` uses the same descriptor and `sequenceId` as `get_sequences`, including when a property, effect or keyframe inside that sequence is selected. Source context is `null` when there is no selection, multiple items are selected or a guide is selected.
+
+`get_canvas_html` returns only the composition canvas markup, not the surrounding Studio interface. It reports the full `htmlLength` and whether the returned HTML was `truncated`. Canvas and WebGL pixels are not represented in HTML.
+
+`get_outlines` returns the selectable component outlines active at the current frame. Each outline includes the `sequenceId` accepted by `select_sequence`, a node-path-based `outlineId`, source-code context, and a four-point polygon with its bounding box in composition pixels. Components without measurable DOM geometry are omitted.
 
 ## Example prompts
 
@@ -51,9 +61,14 @@ You can ask a browser agent:
 - “What is currently selected in the Studio?”
 - “List all mounted compositions and their folders.”
 - “Open the `Shapes` composition.”
+- “List the sequences and select the `Title` sequence.”
+- “Inspect the HTML rendered on the canvas.”
+- “List the visible components and their canvas geometry.”
+- “What is the current playback state?”
 - “Set the timeline zoom to 2.5x.”
 - “Seek to frame 90, set the playback rate to 0.5x and play.”
 - “List the guides in the current composition.”
+- “Hide the guides.”
 - “Add a vertical guide at 640 pixels.”
 - “Mute the preview.”
 
