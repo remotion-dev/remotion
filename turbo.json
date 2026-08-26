@@ -65,7 +65,12 @@
 			"dependsOn": ["@remotion/web-renderer#make"]
 		},
 		"testbrowserstudio": {
-			"dependsOn": ["@remotion/browser-studio#make"]
+			"dependsOn": [
+				"@remotion/browser-studio#make",
+				"@remotion/captions#make",
+				"@remotion/google-fonts#make",
+				"@remotion/layout-utils#make"
+			]
 		},
 		"testlayoututils": {
 			"dependsOn": ["@remotion/layout-utils#make"]
