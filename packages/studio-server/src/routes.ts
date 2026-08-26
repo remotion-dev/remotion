@@ -20,6 +20,8 @@ import type {
 	RenderDefaults,
 	RenderJob,
 	StudioRuntimeConfig,
+	UpdateConfigRequest,
+	UpdateConfigResponse,
 } from '@remotion/studio-shared';
 import {getProjectName} from '@remotion/studio-shared';
 import {focusBrowserTab} from './better-opn';
@@ -37,8 +39,10 @@ import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {handleAppIcon} from './preview-server/routes/app-icon';
 import {getEditorName} from './preview-server/routes/open-in-editor';
+import {updateConfigHandler} from './preview-server/routes/update-config';
 import {serveStatic} from './preview-server/serve-static';
 import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
+import {handleStudioProtocolElementLibrary} from './preview-server/studio-protocol/handle-element-library';
 import {handleStudioProtocolInstall} from './preview-server/studio-protocol/handle-install';
 import {handleStudioProtocolLicenseKey} from './preview-server/studio-protocol/handle-license-key';
 import {handleStudioProtocolOptions} from './preview-server/studio-protocol/origin-policy';
@@ -497,7 +501,8 @@ export const handleRoutes = ({
 	if (
 		url.pathname === '/api/studio-protocol' ||
 		url.pathname === '/api/studio-protocol/install' ||
-		url.pathname === '/api/studio-protocol/license-key'
+		url.pathname === '/api/studio-protocol/license-key' ||
+		url.pathname === '/api/studio-protocol/element-library'
 	) {
 		if (request.method === 'OPTIONS') {
 			return handleStudioProtocolOptions({
@@ -528,6 +533,18 @@ export const handleRoutes = ({
 			});
 		}
 
+		if (url.pathname === '/api/studio-protocol/element-library') {
+			return handleStudioProtocolElementLibrary({
+				configFile,
+				focusStudioTab: (studioUrl) => {
+					focusBrowserTab({url: studioUrl}).catch(() => undefined);
+				},
+				liveEventsServer,
+				request,
+				response,
+			});
+		}
+
 		return handleStudioProtocolInstall({
 			focusStudioTab: (studioUrl) => {
 				focusBrowserTab({url: studioUrl}).catch(() => undefined);
@@ -535,6 +552,24 @@ export const handleRoutes = ({
 			liveEventsServer,
 			request,
 			response,
+		});
+	}
+
+	if (url.pathname === '/api/update-config') {
+		return handleRequest<UpdateConfigRequest, UpdateConfigResponse>({
+			remotionRoot,
+			entryPoint,
+			handler: (params) =>
+				updateConfigHandler({...params, getStudioRuntimeConfig}),
+			request,
+			response,
+			logLevel,
+			methods,
+			binariesDirectory,
+			publicDir,
+			configFile,
+			getDefaultCodingAgent,
+			getDefaultEditor,
 		});
 	}
 

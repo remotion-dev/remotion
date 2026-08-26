@@ -7004,6 +7004,15 @@ export const articles = [
 		slug: 'studio-into-app',
 	},
 	{
+		id: 'studio-protocol/add-element-library-to-studio',
+		title: 'addElementLibraryToStudio()',
+		relativePath: 'docs/studio-protocol/add-element-library-to-studio.mdx',
+		compId: 'articles-docs-studio-protocol-add-element-library-to-studio',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/add-element-library-to-studio',
+	},
+	{
 		id: 'studio-protocol/component-library-integration',
 		title: 'Integrating a component library with Studio',
 		relativePath: 'docs/studio-protocol/component-library-integration.mdx',
