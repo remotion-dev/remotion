@@ -14,7 +14,9 @@ import useAssetDragEvents, {
 import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
+import {pickFilesToImport} from './import-assets';
 import {inlineCodeSnippet} from './Menu/styles';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
 import {useStaticFiles} from './use-static-files';
@@ -75,6 +77,40 @@ export const AssetSelector: React.FC<{
 	const assetTree = useMemo(() => {
 		return buildAssetFolderStructure(staticFiles, null, assetFoldersExpanded);
 	}, [assetFoldersExpanded, staticFiles]);
+	const writeFilesToPublicFolder = useCallback(
+		async ({files, assetPath}: {files: File[]; assetPath: string | null}) => {
+			const makePath = (file: File) => {
+				return [assetPath, file.name].filter(Boolean).join('/');
+			};
+
+			const differentExistingFile = files.find((file) => {
+				const filePath = makePath(file);
+				return staticFiles.some(
+					(staticFile) =>
+						staticFile.name === filePath &&
+						staticFile.sizeInBytes !== file.size,
+				);
+			});
+			if (differentExistingFile) {
+				showNotification(
+					`File with name ${makePath(
+						differentExistingFile,
+					)} already exists and is different`,
+					4000,
+				);
+				return;
+			}
+
+			for (const file of files) {
+				const body = await file.arrayBuffer();
+				await writeStaticFile({
+					contents: body,
+					filePath: makePath(file),
+				});
+			}
+		},
+		[staticFiles],
+	);
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
@@ -138,43 +174,39 @@ export const AssetSelector: React.FC<{
 					return;
 				}
 
-				const makePath = (file: File) => {
-					return [assetPath, file.name].filter(Boolean).join('/');
-				};
-
-				const differentExistingFile = Array.from(files).find((file) => {
-					const filePath = makePath(file);
-					return staticFiles.some(
-						(staticFile) =>
-							staticFile.name === filePath &&
-							staticFile.sizeInBytes !== file.size,
-					);
-				});
-				if (differentExistingFile) {
-					showNotification(
-						`File with name ${makePath(
-							differentExistingFile,
-						)} already exists and is different`,
-						4000,
-					);
-					return;
-				}
-
-				for (const file of files) {
-					const body = await file.arrayBuffer();
-					await writeStaticFile({
-						contents: body,
-						filePath: makePath(file),
-					});
-				}
+				await writeFilesToPublicFolder({files, assetPath});
 			} catch (error) {
 				showNotification(`Error during upload: ${error}`, 3000);
 			} finally {
 				setDropLocation(null);
 			}
 		},
-		[dropLocation, staticFiles],
+		[dropLocation, writeFilesToPublicFolder],
 	);
+	const uploadAssets = useCallback(async () => {
+		try {
+			const files = await pickFilesToImport();
+			await writeFilesToPublicFolder({files, assetPath: null});
+		} catch (error) {
+			showNotification(`Error during upload: ${error}`, 3000);
+		}
+	}, [writeFilesToPublicFolder]);
+	const getAssetActions = useCallback((): ComboboxValue[] => {
+		return [
+			{
+				id: 'upload-assets',
+				keyHint: null,
+				label: 'Upload...',
+				leftItem: null,
+				onClick: uploadAssets,
+				quickSwitcherLabel: 'Upload assets...',
+				subMenu: null,
+				type: 'item',
+				value: 'upload-assets',
+				disabled: !shouldAllowUpload,
+			},
+		];
+	}, [shouldAllowUpload, uploadAssets]);
 
 	return (
 		<div
@@ -187,6 +219,7 @@ export const AssetSelector: React.FC<{
 				mode="assets"
 				showShortcut
 				tabIndex={tabIndex}
+				getActions={getAssetActions}
 			/>
 			{staticFiles.length === 0 ? (
 				publicFolderExists ? (
