@@ -8,8 +8,6 @@ crumb: '@remotion/whisper-webgpu'
 
 Releases the memory used by initialized Whisper pipelines. Persistent browser-cached model files are not deleted.
 
-If a model is loading or transcribing, disposal waits until initialization and active transcriptions have completed.
-
 ```ts twoslash title="dispose.ts"
 import {disposeWhisperModel} from '@remotion/whisper-webgpu';
 
