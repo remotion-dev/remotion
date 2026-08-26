@@ -999,6 +999,11 @@ test.describe('visual mode', () => {
 				mimeType: 'text/plain',
 				buffer: Buffer.from(uploadedFileContents),
 			});
+			await expect(
+				page.getByText(`Uploaded ${uploadedFileName} to public folder`, {
+					exact: true,
+				}),
+			).toBeVisible();
 			await expect
 				.poll(() =>
 					fs.existsSync(uploadedFilePath)

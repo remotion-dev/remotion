@@ -78,7 +78,13 @@ export const AssetSelector: React.FC<{
 		return buildAssetFolderStructure(staticFiles, null, assetFoldersExpanded);
 	}, [assetFoldersExpanded, staticFiles]);
 	const writeFilesToPublicFolder = useCallback(
-		async ({files, assetPath}: {files: File[]; assetPath: string | null}) => {
+		async ({
+			files,
+			assetPath,
+		}: {
+			files: File[];
+			assetPath: string | null;
+		}): Promise<boolean> => {
 			const makePath = (file: File) => {
 				return [assetPath, file.name].filter(Boolean).join('/');
 			};
@@ -98,7 +104,7 @@ export const AssetSelector: React.FC<{
 					)} already exists and is different`,
 					4000,
 				);
-				return;
+				return false;
 			}
 
 			for (const file of files) {
@@ -108,6 +114,8 @@ export const AssetSelector: React.FC<{
 					filePath: makePath(file),
 				});
 			}
+
+			return true;
 		},
 		[staticFiles],
 	);
@@ -186,7 +194,22 @@ export const AssetSelector: React.FC<{
 	const uploadAssets = useCallback(async () => {
 		try {
 			const files = await pickFilesToImport();
-			await writeFilesToPublicFolder({files, assetPath: null});
+			if (files.length === 0) {
+				return;
+			}
+
+			const wereWritten = await writeFilesToPublicFolder({
+				files,
+				assetPath: null,
+			});
+			if (wereWritten) {
+				showNotification(
+					files.length === 1
+						? `Uploaded ${files[0].name} to public folder`
+						: `Uploaded ${files.length} assets to public folder`,
+					3000,
+				);
+			}
 		} catch (error) {
 			showNotification(`Error during upload: ${error}`, 3000);
 		}
