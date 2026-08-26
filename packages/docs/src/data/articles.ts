@@ -9012,6 +9012,15 @@ export const articles = [
 		slug: 'whisper-webgpu/index',
 	},
 	{
+		id: 'whisper-webgpu/is-whisper-model-cached',
+		title: 'isWhisperModelCached()',
+		relativePath: 'docs/whisper-webgpu/is-whisper-model-cached.mdx',
+		compId: 'articles-docs-whisper-webgpu-is-whisper-model-cached',
+		crumb: '@remotion/whisper-webgpu',
+		noAi: false,
+		slug: 'whisper-webgpu/is-whisper-model-cached',
+	},
+	{
 		id: 'whisper-webgpu/load-whisper-model',
 		title: 'loadWhisperModel()',
 		relativePath: 'docs/whisper-webgpu/load-whisper-model.mdx',

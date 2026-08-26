@@ -989,6 +989,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'whisper-webgpu/can-use-whisper-webgpu',
 				'whisper-webgpu/get-available-models',
+				'whisper-webgpu/is-whisper-model-cached',
 				'whisper-webgpu/load-whisper-model',
 				'whisper-webgpu/transcribe',
 				'whisper-webgpu/to-captions',

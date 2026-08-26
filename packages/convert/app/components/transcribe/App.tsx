@@ -1,5 +1,9 @@
-import type {WhisperWebGpuModel} from '@remotion/whisper-webgpu';
-import React, {useState} from 'react';
+import {
+	getAvailableModels,
+	isWhisperModelCached,
+	type WhisperWebGpuModel,
+} from '@remotion/whisper-webgpu';
+import React, {useEffect, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import Display from './display';
 import ModelSelector from './modelSelector';
@@ -15,6 +19,36 @@ const Transcribe: React.FC<{
 
 	const [selectedModel, setSelectedModel] =
 		useState<WhisperWebGpuModel>('tiny.en');
+	const [cachedModels, setCachedModels] = useState<
+		WhisperWebGpuModel[] | null
+	>(null);
+
+	useEffect(() => {
+		if (state.type !== 'idle' && state.type !== 'error') {
+			return;
+		}
+
+		let cancelled = false;
+		Promise.all(
+			getAvailableModels().map(async ({name: modelName}) => {
+				const cached = await isWhisperModelCached({
+					model: modelName,
+					backend: 'webgpu',
+				}).catch(() => false);
+				return cached ? modelName : null;
+			}),
+		).then((models) => {
+			if (!cancelled) {
+				setCachedModels(
+					models.filter((model): model is WhisperWebGpuModel => model !== null),
+				);
+			}
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [state.type]);
 
 	return (
 		<>
@@ -28,6 +62,7 @@ const Transcribe: React.FC<{
 							selectedModel={selectedModel}
 							setSelectedModel={setSelectedModel}
 							disabled={state.type === 'initializing'}
+							cachedModels={cachedModels}
 						/>
 						<div className="h-4" />
 					</>

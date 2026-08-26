@@ -17,10 +17,12 @@ export default function ModelSelector({
 	selectedModel,
 	setSelectedModel,
 	disabled,
+	cachedModels,
 }: {
 	readonly selectedModel: WhisperWebGpuModel;
 	readonly setSelectedModel: (model: WhisperWebGpuModel) => void;
 	readonly disabled: boolean;
+	readonly cachedModels: WhisperWebGpuModel[] | null;
 }) {
 	return (
 		<div className="flex flex-col gap-5">
@@ -45,6 +47,9 @@ export default function ModelSelector({
 											<div className="font-medium">{model.name}</div>
 											<div className="text-xs text-muted-foreground">
 												{formatBytes(model.webGpuDownloadSize)} WebGPU
+												{cachedModels?.includes(model.name)
+													? ' · Downloaded'
+													: null}
 											</div>
 										</div>
 									</SelectItem>

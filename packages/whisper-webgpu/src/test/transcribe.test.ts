@@ -13,6 +13,13 @@ let transcriptionCall:
 	  }
 	| undefined;
 let disposed = false;
+let cacheCheck:
+	| {
+			task: string;
+			modelId: string;
+			options: Record<string, unknown>;
+	  }
+	| undefined;
 
 const fakePipeline = Object.assign(
 	(audio: Float32Array, options: Record<string, unknown>) => {
@@ -37,6 +44,16 @@ const fakePipeline = Object.assign(
 
 mock.module('@huggingface/transformers', () => ({
 	env: {backends: {onnx: {wasm: {numThreads: 0}}}},
+	ModelRegistry: {
+		is_pipeline_cached: (
+			task: string,
+			modelId: string,
+			options: Record<string, unknown>,
+		) => {
+			cacheCheck = {task, modelId, options};
+			return Promise.resolve(true);
+		},
+	},
 	pipeline: (
 		_task: string,
 		modelId: string,
@@ -92,6 +109,7 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 		canUseWhisperWebGpu,
 		disposeWhisperModel,
 		getAvailableModels,
+		isWhisperModelCached,
 		toCaptions,
 		transcribe,
 		WhisperWebGpuUnsupportedReason,
@@ -179,6 +197,17 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 		parameters: 244_000_000,
 		multilingual: false,
 		webGpuDownloadSize: 586_209_938,
+	});
+	expect(
+		await isWhisperModelCached({backend: 'webgpu', model: 'small.en'}),
+	).toBe(true);
+	expect(cacheCheck).toEqual({
+		task: 'automatic-speech-recognition',
+		modelId: 'onnx-community/whisper-small.en_timestamped',
+		options: {
+			device: 'webgpu',
+			dtype: {encoder_model: 'fp32', decoder_model_merged: 'q4'},
+		},
 	});
 
 	const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');

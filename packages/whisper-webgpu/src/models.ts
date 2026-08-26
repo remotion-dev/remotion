@@ -1,3 +1,5 @@
+import type {ResolvedWhisperWebGpuBackend} from './backend';
+
 export const WHISPER_WEBGPU_MODELS = [
 	'tiny',
 	'tiny.en',
@@ -104,4 +106,10 @@ export const getModelInfo = (
 	model: WhisperWebGpuModel,
 ): WhisperWebGpuModelInfo => {
 	return MODEL_INFO[model];
+};
+
+export const getWhisperModelDtype = (backend: ResolvedWhisperWebGpuBackend) => {
+	return backend === 'webgpu'
+		? ({encoder_model: 'fp32', decoder_model_merged: 'q4'} as const)
+		: ('q8' as const);
 };

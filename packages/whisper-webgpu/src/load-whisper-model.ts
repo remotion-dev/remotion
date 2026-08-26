@@ -3,7 +3,11 @@ import type {
 	WhisperWebGpuBackend,
 } from './backend';
 import {resolveBackend} from './backend';
-import {getModelInfo, type WhisperWebGpuModel} from './models';
+import {
+	getModelInfo,
+	getWhisperModelDtype,
+	type WhisperWebGpuModel,
+} from './models';
 
 export type WhisperWebGpuModelLoadProgress = {
 	status: string;
@@ -84,10 +88,7 @@ export const loadWhisperModel = async ({
 	let lastLoadedBytes = 0;
 	const loading = pipeline('automatic-speech-recognition', modelId, {
 		device: resolvedBackend,
-		dtype:
-			resolvedBackend === 'webgpu'
-				? {encoder_model: 'fp32', decoder_model_merged: 'q4'}
-				: 'q8',
+		dtype: getWhisperModelDtype(resolvedBackend),
 		progress_callback: onProgress
 			? (event) => {
 					const record = event as Record<string, unknown>;

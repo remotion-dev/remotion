@@ -7,6 +7,7 @@ afterEach(() => cleanup());
 test('offers WebGPU model downloads without a WASM alternative', () => {
 	const rendered = render(
 		<ModelSelector
+			cachedModels={['tiny.en']}
 			selectedModel="tiny.en"
 			setSelectedModel={() => undefined}
 			disabled={false}
@@ -15,5 +16,6 @@ test('offers WebGPU model downloads without a WASM alternative', () => {
 
 	const model = rendered.getByRole('combobox', {name: 'Whisper model'});
 	expect(model.textContent).toContain('119.7 MB WebGPU');
+	expect(model.textContent).toContain('Downloaded');
 	expect(model.textContent).not.toContain('WASM');
 });

@@ -1,0 +1,41 @@
+---
+image: /generated/articles-docs-whisper-webgpu-is-whisper-model-cached.png
+title: isWhisperModelCached()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# isWhisperModelCached()<AvailableFrom v="4.0.518" />
+
+Checks whether all files needed for a timestamped Whisper model are present in the browser cache. The check does not download or initialize the model.
+
+```ts twoslash title="model-cache.ts"
+import {isWhisperModelCached} from '@remotion/whisper-webgpu';
+
+const downloaded = await isWhisperModelCached({
+  model: 'small.en',
+  backend: 'webgpu',
+});
+```
+
+## Options
+
+### model
+
+One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models).
+
+### backend
+
+`'webgpu'` or `'wasm'`. The cache is checked for the model files used by that specific backend.
+
+## Return value
+
+A `Promise<boolean>` resolving to `true` if every required model file is cached.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models)
+- [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model)
