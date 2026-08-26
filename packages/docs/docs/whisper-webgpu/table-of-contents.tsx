@@ -13,6 +13,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>getAvailableModels()</strong>
 				<div>List timestamped models and their download sizes</div>
 			</TOCItem>
+			<TOCItem link="/docs/whisper-webgpu/clear-stale-models">
+				<strong>clearStaleModels()</strong>
+				<div>Remove models discontinued by newer versions</div>
+			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/is-whisper-model-cached">
 				<strong>isWhisperModelCached()</strong>
 				<div>Check whether a model is downloaded</div>

@@ -106,6 +106,7 @@ test('transcribes with word timestamps using WebGPU', async () => {
 	const api = await import('../index');
 	const {
 		canUseWhisperWebGpu,
+		clearStaleModels,
 		disposeWhisperModel,
 		getAvailableModels,
 		isWhisperModelCached,
@@ -113,6 +114,7 @@ test('transcribes with word timestamps using WebGPU', async () => {
 		transcribe,
 		WhisperWebGpuUnsupportedReason,
 	} = api;
+	await expect(clearStaleModels()).resolves.toBeUndefined();
 	const channelWaveform = new Float32Array(16_000 * 3);
 	const result = await transcribe({
 		channelWaveform,

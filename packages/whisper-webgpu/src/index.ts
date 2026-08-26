@@ -3,6 +3,7 @@ export {
 	WhisperWebGpuUnsupportedReason,
 } from './can-use-whisper-webgpu';
 export type {CanUseWhisperWebGpuResult} from './can-use-whisper-webgpu';
+export {clearStaleModels} from './clear-stale-models';
 export {disposeWhisperModel, loadWhisperModel} from './load-whisper-model';
 export type {
 	DisposeWhisperModelOptions,

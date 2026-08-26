@@ -1,4 +1,5 @@
 import {
+	clearStaleModels,
 	getAvailableModels,
 	isWhisperModelCached,
 	type WhisperWebGpuModel,
@@ -19,11 +20,31 @@ const Transcribe: React.FC<{
 
 	const [selectedModel, setSelectedModel] =
 		useState<WhisperWebGpuModel>('tiny.en');
-	const [cachedModels, setCachedModels] = useState<
-		WhisperWebGpuModel[] | null
-	>(null);
+	const [cachedModels, setCachedModels] = useState<WhisperWebGpuModel[] | null>(
+		null,
+	);
+	const [staleModelsCleared, setStaleModelsCleared] = useState(false);
 
 	useEffect(() => {
+		let cancelled = false;
+		clearStaleModels()
+			.catch(() => undefined)
+			.then(() => {
+				if (!cancelled) {
+					setStaleModelsCleared(true);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!staleModelsCleared) {
+			return;
+		}
+
 		if (state.type !== 'idle' && state.type !== 'error') {
 			return;
 		}
@@ -47,7 +68,7 @@ const Transcribe: React.FC<{
 		return () => {
 			cancelled = true;
 		};
-	}, [state.type]);
+	}, [staleModelsCleared, state.type]);
 
 	return (
 		<>

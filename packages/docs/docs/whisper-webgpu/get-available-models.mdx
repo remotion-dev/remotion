@@ -19,7 +19,7 @@ Each item contains the short `name`, Hugging Face `modelId`, parameter count, wh
 
 Available sizes are `tiny`, `base`, `small`, `medium`, and `large-v3-turbo`. English-only `.en` variants are available through `medium`.
 
-The set of available models may change between versions as faster variants of these models are in development by Hugging Face. If the set of models is changing, we will introduce an API for clearing stale models.
+The set of available models may change between versions as faster variants of these models are in development by Hugging Face. Call [`clearStaleModels()`](/docs/whisper-webgpu/clear-stale-models) to remove cached models that are no longer available after upgrading.
 
 The estimates cover model weights. Browser caches and supporting model files may add a small amount.
 
@@ -30,5 +30,6 @@ The estimates cover model weights. Browser caches and supporting model files may
 ## See also
 
 - [`transcribe()`](/docs/whisper-webgpu/transcribe)
+- [`clearStaleModels()`](/docs/whisper-webgpu/clear-stale-models)
 - [`isWhisperModelCached()`](/docs/whisper-webgpu/is-whisper-model-cached)
 - [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model)

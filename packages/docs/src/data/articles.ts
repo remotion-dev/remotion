@@ -8985,6 +8985,15 @@ export const articles = [
 		slug: 'whisper-webgpu/can-use-whisper-webgpu',
 	},
 	{
+		id: 'whisper-webgpu/clear-stale-models',
+		title: 'clearStaleModels()',
+		relativePath: 'docs/whisper-webgpu/clear-stale-models.mdx',
+		compId: 'articles-docs-whisper-webgpu-clear-stale-models',
+		crumb: '@remotion/whisper-webgpu',
+		noAi: false,
+		slug: 'whisper-webgpu/clear-stale-models',
+	},
+	{
 		id: 'whisper-webgpu/dispose-whisper-model',
 		title: 'disposeWhisperModel()',
 		relativePath: 'docs/whisper-webgpu/dispose-whisper-model.mdx',
