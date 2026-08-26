@@ -33,14 +33,6 @@ type MovingPillCaptionsProps = InteractiveBaseProps &
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-type MovingPillCaptionsLayerProps = Omit<
-	MovingPillCaptionsProps,
-	'captions'
-> & {
-	readonly callerStyle: React.CSSProperties | null;
-	readonly captions: Caption[];
-};
-
 const desiredFontSize = 80;
 const maximumTextWidth = 800;
 const fontWeight = '700';
@@ -51,6 +43,10 @@ const pillVerticalPadding = 12;
 const pillBorderRadius = 10;
 const pillMoveDurationInFrames = 5;
 const defaultCombineTokensWithinMilliseconds = 800;
+const demoCaptionsWidth = 681;
+const demoCaptionsHeight = 252;
+const demoAreaWidth = 900;
+const demoAreaHeight = 180;
 
 const movingPillCaptionsSchema = {
 	...Interactive.baseSchema,
@@ -79,7 +75,6 @@ const movingPillCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	callerStyle: {type: 'hidden'},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
@@ -87,6 +82,58 @@ const {fontFamily, waitUntilDone} = loadFont('normal', {
 	weights: [fontWeight],
 	subsets: ['latin'],
 });
+
+const demoCaptions: Caption[] = [
+	{
+		text: 'Captions',
+		startMs: 0,
+		endMs: 800,
+		timestampMs: 400,
+		confidence: null,
+	},
+	{
+		text: ' can',
+		startMs: 800,
+		endMs: 1500,
+		timestampMs: 1150,
+		confidence: null,
+	},
+	{
+		text: ' move',
+		startMs: 1500,
+		endMs: 2300,
+		timestampMs: 1900,
+		confidence: null,
+	},
+	{
+		text: ' with',
+		startMs: 2300,
+		endMs: 3100,
+		timestampMs: 2700,
+		confidence: null,
+	},
+	{
+		text: ' every',
+		startMs: 3100,
+		endMs: 4000,
+		timestampMs: 3550,
+		confidence: null,
+	},
+	{
+		text: ' spoken',
+		startMs: 4000,
+		endMs: 5100,
+		timestampMs: 4550,
+		confidence: null,
+	},
+	{
+		text: ' word.',
+		startMs: 5100,
+		endMs: 6500,
+		timestampMs: 5800,
+		confidence: null,
+	},
+];
 
 const frameToMilliseconds = (frame: number, fps: number) =>
 	(frame / fps) * 1000;
@@ -388,13 +435,12 @@ const MovingPillCaptionsContent: React.FC<{
 
 const MovingPillCaptionsInner = forwardRef<
 	HTMLDivElement,
-	MovingPillCaptionsLayerProps & {
+	MovingPillCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
 		{
-			callerStyle,
 			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
@@ -408,16 +454,7 @@ const MovingPillCaptionsInner = forwardRef<
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
 		const [fontLoaded, setFontLoaded] = useState(false);
-		const {
-			rotate: callerRotate,
-			scale: callerScale,
-			transform: callerTransform,
-			transformBox: callerTransformBox,
-			transformOrigin: callerTransformOrigin,
-			transformStyle: callerTransformStyle,
-			translate: callerTranslate,
-			...callerContentStyle
-		} = callerStyle ?? {};
+		const isShowingDemoCaptions = captions === undefined;
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -442,30 +479,27 @@ const MovingPillCaptionsInner = forwardRef<
 				outlineRef={outlineRef}
 			>
 				<div
+					ref={outlineRef}
 					style={{
-						height: height ?? '100%',
-						rotate: callerRotate,
-						scale: callerScale,
-						transform: callerTransform,
-						transformBox: callerTransformBox,
-						transformOrigin: callerTransformOrigin,
-						transformStyle: callerTransformStyle,
-						translate: callerTranslate,
-						width: width ?? '100%',
+						alignItems: 'center',
+						display: 'flex',
+						height: height ?? (isShowingDemoCaptions ? demoAreaHeight : '100%'),
+						justifyContent: 'center',
+						width: width ?? (isShowingDemoCaptions ? demoAreaWidth : '100%'),
+						...style,
 					}}
 				>
 					<div
-						ref={outlineRef}
 						style={{
-							height: '100%',
-							width: '100%',
-							...style,
-							...callerContentStyle,
+							height: isShowingDemoCaptions ? demoCaptionsHeight : '100%',
+							width: isShowingDemoCaptions ? demoCaptionsWidth : '100%',
 						}}
 					>
 						<MovingPillCaptionsContent
-							captionAreaWidth={width ?? null}
-							captions={captions}
+							captionAreaWidth={
+								isShowingDemoCaptions ? demoCaptionsWidth : (width ?? null)
+							}
+							captions={captions ?? demoCaptions}
 							combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
 							fontLoaded={fontLoaded}
 						/>
@@ -476,98 +510,10 @@ const MovingPillCaptionsInner = forwardRef<
 	},
 );
 
-const MovingPillCaptionsLayer = Interactive.withSchema({
+export const MovingPillCaptions = Interactive.withSchema({
 	Component: MovingPillCaptionsInner,
 	componentName: '<MovingPillCaptions>',
 	componentIdentity: null,
 	schema: movingPillCaptionsSchema,
 	supportsEffects: false,
-}) as React.FC<MovingPillCaptionsLayerProps>;
-
-export const MovingPillCaptions: React.FC<MovingPillCaptionsProps> = ({
-	captions,
-	style,
-	...props
-}) => {
-	if (captions) {
-		return (
-			<MovingPillCaptionsLayer
-				{...props}
-				callerStyle={style ?? null}
-				captions={captions}
-				style={{translate: '0px 0px'}}
-			/>
-		);
-	}
-
-	return (
-		<div
-			style={{
-				alignItems: 'center',
-				display: 'flex',
-				height: 180,
-				justifyContent: 'center',
-				width: 900,
-			}}
-		>
-			<MovingPillCaptionsLayer
-				{...props}
-				callerStyle={style ?? null}
-				captions={[
-					{
-						text: 'Captions',
-						startMs: 0,
-						endMs: 800,
-						timestampMs: 400,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 800,
-						endMs: 1500,
-						timestampMs: 1150,
-						confidence: null,
-					},
-					{
-						text: ' move',
-						startMs: 1500,
-						endMs: 2300,
-						timestampMs: 1900,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 2300,
-						endMs: 3100,
-						timestampMs: 2700,
-						confidence: null,
-					},
-					{
-						text: ' every',
-						startMs: 3100,
-						endMs: 4000,
-						timestampMs: 3550,
-						confidence: null,
-					},
-					{
-						text: ' spoken',
-						startMs: 4000,
-						endMs: 5100,
-						timestampMs: 4550,
-						confidence: null,
-					},
-					{
-						text: ' word.',
-						startMs: 5100,
-						endMs: 6500,
-						timestampMs: 5800,
-						confidence: null,
-					},
-				]}
-				width={681}
-				height={252}
-				style={{translate: '0px 0px'}}
-			/>
-		</div>
-	);
-};
+});
