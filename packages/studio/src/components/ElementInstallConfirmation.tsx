@@ -152,6 +152,14 @@ const warningDescriptionStyle: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
+const browseElementsStyle: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'inherit',
+	fontSize: 'inherit',
+	fontWeight: 600,
+	lineHeight: 'inherit',
+};
+
 const sourceDetailsStyle: React.CSSProperties = {
 	paddingTop: 2,
 	fontFamily: 'sans-serif',
@@ -197,6 +205,45 @@ const makeSourceControlsVisible = (sourceCode: string) => {
 		(character) => {
 			return `\\u${character.codePointAt(0)?.toString(16).padStart(4, '0')}`;
 		},
+	);
+};
+
+export const ElementLibraryAddConfirmation: React.FC<{
+	readonly displayName: string | null;
+	readonly origin: string;
+	readonly url: string;
+}> = ({displayName, origin, url}) => {
+	return (
+		<div style={container}>
+			<dl style={metadataStyle} aria-label="Catalog details">
+				{displayName === null ? null : (
+					<div style={metadataRowStyle}>
+						<dt style={metadataTermStyle}>Display name</dt>
+						<dd style={metadataDescriptionStyle}>{displayName}</dd>
+					</div>
+				)}
+				<div style={metadataRowStyle}>
+					<dt style={metadataTermStyle}>Request source</dt>
+					<dd style={metadataDescriptionStyle}>{origin}</dd>
+				</div>
+				<div style={metadataRowStyle}>
+					<dt style={metadataTermStyle}>Catalog URL</dt>
+					<dd style={metadataDescriptionStyle}>
+						<code style={codeStyle}>{url}</code>
+					</dd>
+				</div>
+			</dl>
+
+			<div style={warningStyle}>
+				<WarningTriangle style={warningIconStyle} />
+				<p style={warningDescriptionStyle}>
+					This adds the catalog to{' '}
+					<strong style={browseElementsStyle}>Browse Elements</strong> when
+					nothing is selected on the canvas. It is saved in{' '}
+					<code style={codeStyle}>remotion.config.ts</code>.
+				</p>
+			</div>
+		</div>
 	);
 };
 

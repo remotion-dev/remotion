@@ -346,10 +346,12 @@ export const MyComponent = () => {
 		await expect(
 			addCatalogDialog.getByText(protocolLibraryUrl, {exact: true}),
 		).toBeVisible();
+		const catalogDetails = addCatalogDialog.getByLabel('Catalog details');
 		await expect(
-			addCatalogDialog.getByText('Display name: Protocol Catalog', {
-				exact: true,
-			}),
+			catalogDetails.getByText('Display name', {exact: true}),
+		).toBeVisible();
+		await expect(
+			catalogDetails.getByText('Protocol Catalog', {exact: true}),
 		).toBeVisible();
 		await expect(decoyStudioPage.getByText('Add Element catalog')).toHaveCount(
 			0,

@@ -7,6 +7,7 @@ import {AskAiModal} from './AskAiModal';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
+import {ElementLibraryAddConfirmation} from './ElementInstallConfirmation';
 import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
@@ -71,28 +72,11 @@ export const Modals: React.FC<{
 				const confirmed = await confirm({
 					title: 'Add Element catalog',
 					message: (
-						<div>
-							<p>
-								The website <code>{event.origin}</code> wants to add this
-								Element catalog:
-							</p>
-							<p>
-								<code>{event.url}</code>
-							</p>
-							{event.displayName === null ? null : (
-								<p>Display name: {event.displayName}</p>
-							)}
-							<p>
-								Confirming permanently adds a{' '}
-								<code>Config.addElementLibrary()</code> call to{' '}
-								<code>remotion.config.ts</code>.
-							</p>
-							<p>
-								Adding this catalog does not install Element source code or
-								dependencies. Individual Element installations still require
-								confirmation.
-							</p>
-						</div>
+						<ElementLibraryAddConfirmation
+							displayName={event.displayName}
+							origin={event.origin}
+							url={event.url}
+						/>
 					),
 					confirmLabel: 'Add catalog',
 					cancelLabel: 'Cancel',
