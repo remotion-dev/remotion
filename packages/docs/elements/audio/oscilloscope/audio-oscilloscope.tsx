@@ -20,7 +20,6 @@ type AudioOscilloscopeProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
 		readonly amplitude?: number;
 		readonly audioSrc?: string;
-		readonly backgroundColor?: string;
 		readonly lineColor?: string;
 		readonly lineWidth?: number;
 		readonly windowInSeconds?: number;
@@ -33,11 +32,6 @@ const audioOscilloscopeSchema = {
 		default:
 			'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 		description: 'Audio source',
-	},
-	backgroundColor: {
-		type: 'color',
-		default: '#07111f',
-		description: 'Background color',
 	},
 	lineColor: {
 		type: 'color',
@@ -82,7 +76,6 @@ const AudioOscilloscopeInner = forwardRef<
 		{
 			amplitude = 2,
 			audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-			backgroundColor = '#07111f',
 			controls,
 			lineColor = '#55e6ff',
 			lineWidth = 6,
@@ -116,7 +109,9 @@ const AudioOscilloscopeInner = forwardRef<
 			: [];
 		const path = createSmoothSvgPath({
 			points: waveform.map((value, index) => ({
-				x: (index / (waveform.length - 1)) * 900,
+				x:
+					lineWidth * 2 +
+					(index / (waveform.length - 1)) * (900 - lineWidth * 4),
 				y: 150 + value * 150 * amplitude,
 			})),
 		});
@@ -134,11 +129,6 @@ const AudioOscilloscopeInner = forwardRef<
 				<div
 					ref={outlineRef}
 					style={{
-						backgroundColor,
-						backgroundImage:
-							'linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px)',
-						backgroundSize: '45px 45px',
-						borderRadius: 32,
 						boxSizing: 'border-box',
 						height: 300,
 						overflow: 'hidden',
