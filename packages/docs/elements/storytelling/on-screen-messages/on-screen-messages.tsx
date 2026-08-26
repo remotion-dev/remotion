@@ -36,10 +36,15 @@ export const OnScreenMessages = () => {
 			<Interactive.Div
 				name="Container"
 				style={{
+					boxSizing: 'border-box',
 					color: '#f8fafc',
+					display: 'flex',
+					flexDirection: 'column',
 					fontFamily,
+					gap: 32,
 					height: 680,
 					isolation: 'isolate',
+					paddingTop: 90,
 					position: 'relative',
 					width: 1260,
 				}}
@@ -48,14 +53,15 @@ export const OnScreenMessages = () => {
 					className="on-screen-message-from-them"
 					name="Message 1"
 					style={{
+						alignSelf: 'flex-start',
 						backgroundColor: '#e5e5ea',
 						borderRadius: 37,
 						boxSizing: 'border-box',
 						color: '#000000',
 						fontSize: 40,
 						fontWeight: 400,
-						left: 70,
 						lineHeight: 1.25,
+						marginLeft: 70,
 						maxWidth: '75%',
 						opacity: interpolate(frame, [2, 10], [0, 1], {
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -63,8 +69,7 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						}),
 						padding: '16px 28px',
-						position: 'absolute',
-						top: 90,
+						position: 'relative',
 						translate: interpolate(frame, [2, 10], ['0px 32px', '0px 0px'], {
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
 							extrapolateLeft: 'clamp',
@@ -81,6 +86,7 @@ export const OnScreenMessages = () => {
 					className="on-screen-message-from-me"
 					name="Message 2"
 					style={{
+						alignSelf: 'flex-end',
 						backgroundColor: '#248bf5',
 						borderRadius: 37,
 						boxSizing: 'border-box',
@@ -88,6 +94,7 @@ export const OnScreenMessages = () => {
 						fontSize: 40,
 						fontWeight: 400,
 						lineHeight: 1.25,
+						marginRight: 70,
 						maxWidth: '75%',
 						opacity: interpolate(frame, [27, 35], [0, 1], {
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -95,9 +102,7 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						}),
 						padding: '16px 28px',
-						position: 'absolute',
-						right: 70,
-						top: 204,
+						position: 'relative',
 						translate: interpolate(frame, [27, 35], ['0px 32px', '0px 0px'], {
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
 							extrapolateLeft: 'clamp',
@@ -114,14 +119,15 @@ export const OnScreenMessages = () => {
 					className="on-screen-message-from-them"
 					name="Message 3"
 					style={{
+						alignSelf: 'flex-start',
 						backgroundColor: '#e5e5ea',
 						borderRadius: 37,
 						boxSizing: 'border-box',
 						color: '#000000',
 						fontSize: 40,
 						fontWeight: 400,
-						left: 70,
 						lineHeight: 1.25,
+						marginLeft: 70,
 						maxWidth: '75%',
 						opacity: interpolate(frame, [52, 59], [0, 1], {
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -129,8 +135,7 @@ export const OnScreenMessages = () => {
 							extrapolateRight: 'clamp',
 						}),
 						padding: '16px 28px',
-						position: 'absolute',
-						top: 318,
+						position: 'relative',
 						translate: interpolate(frame, [52, 59], ['0px 32px', '0px 0px'], {
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
 							extrapolateLeft: 'clamp',
