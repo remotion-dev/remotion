@@ -466,8 +466,8 @@ const PoppingWordCaptionsWithControls: React.FC<
 					},
 				]}
 				controls={controls}
-				width={681}
-				height={252}
+				width={props.width ?? 681}
+				height={props.height ?? 252}
 				style={{translate: '0px 0px'}}
 			/>
 		</div>
