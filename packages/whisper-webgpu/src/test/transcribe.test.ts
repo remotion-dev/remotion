@@ -13,6 +13,12 @@ let transcriptionCall:
 	  }
 	| undefined;
 let disposed = false;
+let disposeCalls = 0;
+let pipelineInitializationCount = 0;
+let pipelineInitializationGate: Promise<void> | null = null;
+let onPipelineInitializationStarted: (() => void) | null = null;
+let transcriptionGate: Promise<void> | null = null;
+let onTranscriptionStarted: (() => void) | null = null;
 let cacheCheck:
 	| {
 			task: string;
@@ -22,9 +28,11 @@ let cacheCheck:
 	| undefined;
 
 const fakePipeline = Object.assign(
-	(audio: Float32Array, options: Record<string, unknown>) => {
+	async (audio: Float32Array, options: Record<string, unknown>) => {
 		transcriptionCall = {audio, options};
-		return Promise.resolve({
+		onTranscriptionStarted?.();
+		await transcriptionGate;
+		return {
 			text: ' Hello world free today.',
 			chunks: [
 				{text: ' Hello', timestamp: [0.25, 0.75]},
@@ -32,11 +40,12 @@ const fakePipeline = Object.assign(
 				{text: ' free', timestamp: [1.8, 1.7]},
 				{text: ' today.', timestamp: [2.2, null]},
 			],
-		});
+		};
 	},
 	{
 		dispose: () => {
 			disposed = true;
+			disposeCalls++;
 			return Promise.resolve();
 		},
 	},
@@ -53,12 +62,15 @@ mock.module('@huggingface/transformers', () => ({
 			return Promise.resolve(true);
 		},
 	},
-	pipeline: (
+	pipeline: async (
 		_task: string,
 		modelId: string,
 		options: Record<string, unknown>,
 	) => {
+		pipelineInitializationCount++;
 		pipelineInitialization = {modelId, options};
+		onPipelineInitializationStarted?.();
+		await pipelineInitializationGate;
 		const onProgress = options.progress_callback as
 			| ((progress: Record<string, unknown>) => void)
 			| undefined;
@@ -98,7 +110,7 @@ mock.module('@huggingface/transformers', () => ({
 		});
 		onProgress?.({status: 'done', file: 'encoder_model.onnx'});
 		onProgress?.({status: 'ready'});
-		return Promise.resolve(fakePipeline);
+		return fakePipeline;
 	},
 }));
 
@@ -130,11 +142,10 @@ test('transcribes with word timestamps using WebGPU', async () => {
 		dtype: {encoder_model: 'fp32', decoder_model_merged: 'q4'},
 	});
 	expect(transcriptionCall?.audio).toBe(channelWaveform);
-	expect(transcriptionCall?.options).toMatchObject({
+	expect(transcriptionCall?.options).toEqual({
 		return_timestamps: 'word',
 		chunk_length_s: 30,
 		stride_length_s: 5,
-		language: 'en',
 	});
 	expect(result).toEqual({
 		text: 'Hello world free today.',
@@ -300,4 +311,106 @@ test('reports model progress without reaching 100% before every file loads', asy
 		),
 	);
 	await disposeWhisperModel({model: 'medium.en'});
+});
+
+test('validates language and finite chunk settings through transcribe()', async () => {
+	const {disposeWhisperModel, transcribe} = await import('../index');
+	const channelWaveform = new Float32Array(16_000);
+
+	await expect(
+		transcribe({channelWaveform, model: 'tiny', language: 'auto'}),
+	).rejects.toThrow(
+		'The language option is required for the multilingual model "tiny" because automatic language detection is not supported.',
+	);
+	await expect(
+		transcribe({channelWaveform, model: 'tiny.en', language: 'de'}),
+	).rejects.toThrow(
+		'The English-only model "tiny.en" does not support the language "de".',
+	);
+	await expect(
+		transcribe({
+			channelWaveform,
+			model: 'tiny.en',
+			chunkLengthInSeconds: Number.NaN,
+		}),
+	).rejects.toThrow(
+		'chunkLengthInSeconds must be a finite number greater than 0.',
+	);
+	await expect(
+		transcribe({
+			channelWaveform,
+			model: 'tiny.en',
+			strideLengthInSeconds: Number.NaN,
+		}),
+	).rejects.toThrow(
+		'strideLengthInSeconds must be a finite, non-negative number and less than half of chunkLengthInSeconds.',
+	);
+
+	await transcribe({channelWaveform, model: 'tiny', language: 'de'});
+	expect(transcriptionCall?.options).toEqual({
+		return_timestamps: 'word',
+		chunk_length_s: 30,
+		stride_length_s: 5,
+		language: 'de',
+	});
+	await disposeWhisperModel({model: 'tiny'});
+});
+
+test('shares concurrent initialization and waits for it before disposal', async () => {
+	const {disposeWhisperModel, loadWhisperModel} = await import('../index');
+	let releaseInitialization: () => void = () => {};
+	pipelineInitializationGate = new Promise<void>((resolve) => {
+		releaseInitialization = resolve;
+	});
+	const initializationStarted = new Promise<void>((resolve) => {
+		onPipelineInitializationStarted = resolve;
+	});
+	const initializationsBeforeLoading = pipelineInitializationCount;
+	const disposalsBeforeLoading = disposeCalls;
+
+	const firstLoad = loadWhisperModel({model: 'base'});
+	const secondLoad = loadWhisperModel({model: 'base'});
+	await initializationStarted;
+	expect(pipelineInitializationCount - initializationsBeforeLoading).toBe(1);
+	const disposal = disposeWhisperModel({model: 'base'});
+	await Promise.resolve();
+	expect(disposeCalls).toBe(disposalsBeforeLoading);
+
+	releaseInitialization();
+	await expect(Promise.all([firstLoad, secondLoad])).resolves.toEqual([
+		{alreadyLoaded: false},
+		{alreadyLoaded: true},
+	]);
+	await disposal;
+	expect(disposeCalls).toBe(disposalsBeforeLoading + 1);
+	pipelineInitializationGate = null;
+	onPipelineInitializationStarted = null;
+});
+
+test('waits for active transcriptions before disposal', async () => {
+	const {disposeWhisperModel, transcribe} = await import('../index');
+	let releaseTranscription: () => void = () => {};
+	transcriptionGate = new Promise<void>((resolve) => {
+		releaseTranscription = resolve;
+	});
+	const transcriptionStarted = new Promise<void>((resolve) => {
+		onTranscriptionStarted = resolve;
+	});
+	const disposalsBeforeTranscription = disposeCalls;
+
+	const transcription = transcribe({
+		channelWaveform: new Float32Array(16_000),
+		model: 'base.en',
+	});
+	await transcriptionStarted;
+	const disposal = disposeWhisperModel({model: 'base.en'});
+	await Promise.resolve();
+	expect(disposeCalls).toBe(disposalsBeforeTranscription);
+
+	releaseTranscription();
+	await expect(transcription).resolves.toMatchObject({model: 'base.en'});
+	await disposal;
+	expect(disposeCalls).toBe(disposalsBeforeTranscription + 1);
+	transcriptionGate = null;
+	onTranscriptionStarted = null;
 });
