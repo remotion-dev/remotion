@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Interactive} from 'remotion';
 
-export const UNRULY_OUTCOME_DURATION_IN_FRAMES = 81;
+export const UNRULY_OUTCOME_DURATION_IN_FRAMES = 70;
 
 const OUTCOMES = [
 	'bait and switch',

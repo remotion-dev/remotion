@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/captions"
 	},
 	"name": "@remotion/captions",
-	"version": "4.0.516",
+	"version": "4.0.517",
 	"description": "Primitives for dealing with captions",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

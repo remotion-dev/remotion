@@ -1,28 +1,7 @@
 # @remotion/canvas
 
-Headless primitives for Remotion authoring interfaces.
+Headless primitives for Remotion authoring interfaces
 
-`<Canvas>` renders an `@remotion/player` and publishes its live timeline through
-a controller:
+## Usage
 
-```tsx
-import {Canvas, createCanvasController} from '@remotion/canvas';
-
-const controller = createCanvasController();
-
-controller.timeline.subscribe(() => {
-	console.log(controller.timeline.getSnapshot());
-});
-
-<Canvas
-	controller={controller}
-	component={MyComposition}
-	durationInFrames={300}
-	compositionWidth={1920}
-	compositionHeight={1080}
-	fps={30}
-/>;
-```
-
-This package is an internal dependency of Remotion Studio. Its API is not yet
-ready for general use.
+This is an internal package and has no documentation.

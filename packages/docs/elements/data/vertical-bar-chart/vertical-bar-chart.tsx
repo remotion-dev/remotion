@@ -200,6 +200,7 @@ export const VerticalBarChart: React.FC = () => {
 						letterSpacing: -3.8,
 						lineHeight: 0.95,
 						margin: 0,
+						translate: '0px 0px',
 					}}
 				>
 					Browser tabs open
@@ -215,19 +216,26 @@ export const VerticalBarChart: React.FC = () => {
 						width: 1080,
 					}}
 				>
-					<Interactive.Div
-						name="Baseline"
+					<div
 						style={{
-							backgroundColor: '#c5cad2',
 							bottom: 68,
-							height: 3,
 							left: '50%',
 							position: 'absolute',
-							translate: '-50% 50%',
+							transform: 'translate(-50%, 50%)',
 							width: '100%',
 							zIndex: 1,
 						}}
-					/>
+					>
+						<Interactive.Div
+							name="Baseline"
+							style={{
+								backgroundColor: '#c5cad2',
+								height: 3,
+								translate: '0px 0px',
+								width: '100%',
+							}}
+						/>
+					</div>
 					{data.map(({highlighted, label, value}, index) => (
 						<div
 							key={label}

@@ -23,9 +23,7 @@ import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -56,7 +54,6 @@ export const getMediaMetadata = async (src: string) => {
   <summary>Explanation</summary>
   <p>We load a URL (e.g. `https://remotion.media/video.mp4`) and parse it using Mediabunny.</p>
   <p>We don't care which format, so we load all parsers using `ALL_FORMATS`.</p>
-  <p>By setting `getRetryDelay` to `() => null`, we prevent Mediabunny from infinitely retrying if the request fails.</p>
   <p>We compute the duration, dimensions, and frame rate. If the media file is an audio file, we return `null` for the dimensions and frame rate.</p>
 </details>
 

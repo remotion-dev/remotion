@@ -4,6 +4,7 @@ export type TikTokToken = {
 	text: string;
 	fromMs: number;
 	toMs: number;
+	pageBreakAfter?: boolean;
 };
 
 export type TikTokPage = {
@@ -35,8 +36,11 @@ export const createTikTokStyleCaptions = ({
 	let currentTo = 0;
 
 	const add = () => {
+		const text = currentText.endsWith('\n')
+			? currentText.slice(0, -1)
+			: currentText;
 		tikTokStyleCaptions.push({
-			text: currentText.trimStart(),
+			text: text.trimStart(),
 			startMs: currentFrom,
 			tokens: currentTokens,
 			durationMs: Infinity,
@@ -67,7 +71,12 @@ export const createTikTokStyleCaptions = ({
 			// Start a new sentence
 			currentText = text.trimStart();
 			currentTokens = [
-				{text: currentText, fromMs: item.startMs, toMs: item.endMs},
+				{
+					text: text.trimStart(),
+					fromMs: item.startMs,
+					toMs: item.endMs,
+					...(item.pageBreakAfter ? {pageBreakAfter: true} : {}),
+				},
 			].filter((t) => t.text !== '');
 			currentFrom = item.startMs;
 			currentTo = item.endMs;
@@ -78,17 +87,26 @@ export const createTikTokStyleCaptions = ({
 				currentFrom = item.startMs;
 			}
 
-			currentText += text;
+			const textToAppend = text;
+			currentText += textToAppend;
 			currentText = currentText.trimStart();
 			if (text.trim() !== '') {
 				currentTokens.push({
-					text: currentTokens.length === 0 ? currentText.trimStart() : text,
+					text:
+						currentTokens.length === 0 ? currentText.trimStart() : textToAppend,
 					fromMs: item.startMs,
 					toMs: item.endMs,
+					...(item.pageBreakAfter ? {pageBreakAfter: true} : {}),
 				});
 			}
 
 			currentTo = item.endMs;
+		}
+
+		if (item.pageBreakAfter && currentText !== '') {
+			add();
+			currentText = '';
+			currentTokens = [];
 		}
 
 		// Ensure the last sentence is added

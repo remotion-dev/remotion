@@ -16,10 +16,11 @@ import {defaultOnLog} from './default-on-log';
 import {deleteDirectory} from './delete-directory';
 import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
-import {finalizeFastStart, type FastStartMuxer} from './finalize-fast-start';
+import {finalizeFastStart} from './finalize-fast-start';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
+import {getFastStartMuxer} from './get-fast-start-muxer';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -114,24 +115,6 @@ export type StitchFramesToVideoOptions = {
 } & Partial<ToOptions<typeof optionsMap.stitchFramesToVideo>>;
 
 type ReturnType = Promise<Buffer | null>;
-
-const getFastStartMuxer = ({
-	codec,
-	outputExtension,
-}: {
-	codec: Codec;
-	outputExtension: string;
-}): FastStartMuxer | null => {
-	if (codec !== 'h264') {
-		return null;
-	}
-
-	if (outputExtension === 'mp4' || outputExtension === 'mov') {
-		return outputExtension;
-	}
-
-	return null;
-};
 
 const innerStitchFramesToVideo = async (
 	{
@@ -240,7 +223,7 @@ const innerStitchFramesToVideo = async (
 		getExtensionOfFilename(outputLocation) ??
 		getFileExtensionFromCodec(codec, resolvedAudioCodec)
 	).toLowerCase();
-	const fastStartMuxer = getFastStartMuxer({codec, outputExtension});
+	const fastStartMuxer = getFastStartMuxer(outputExtension);
 	// Fast Start reopens its output for an in-place second pass. Keep that work
 	// away from the public output path so Windows file observers cannot lock it.
 	const fastStartIntermediate =
@@ -434,9 +417,6 @@ const innerStitchFramesToVideo = async (
 			indent,
 			logLevel,
 		}),
-		codec === 'h264' && fastStartMuxer === null
-			? ['-movflags', 'faststart']
-			: null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		...makeMetadataArgs(metadata ?? {}),

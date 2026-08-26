@@ -283,6 +283,8 @@ describe('Element library', () => {
 			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
 		);
 		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
+			'storytelling/on-screen-messages':
+				completeSourceCodeBySlug['storytelling/on-screen-messages'],
 			'storytelling/polaroid-pictures':
 				completeSourceCodeBySlug['storytelling/polaroid-pictures'],
 			'text/news-article-highlight':
@@ -503,6 +505,11 @@ describe('Elements sidebar', () => {
 		const categories = elementsCategory.items.slice(3);
 		const expectedCategories = [
 			{
+				category: 'audio',
+				label: 'Audio',
+				items: ['audio/oscilloscope/index', 'audio/mirrored-spectrum/index'],
+			},
+			{
 				category: 'backgrounds',
 				label: 'Backgrounds',
 				items: [
@@ -552,6 +559,7 @@ describe('Elements sidebar', () => {
 				items: [
 					'overlays/location-lower-third/index',
 					'overlays/name-lower-third/index',
+					'overlays/social-safe-zones/index',
 				],
 			},
 			{
@@ -559,6 +567,7 @@ describe('Elements sidebar', () => {
 				label: 'Storytelling',
 				items: [
 					'text/news-article-highlight/index',
+					'storytelling/on-screen-messages/index',
 					'storytelling/polaroid-pictures/index',
 				],
 			},
@@ -610,6 +619,25 @@ describe('Elements sidebar', () => {
 });
 
 describe('Element preview definitions', () => {
+	test('does not publish local preview URLs', () => {
+		const localPreviewUrls = elementDefinitionList
+			.flatMap((definition) => [
+				{
+					slug: definition.slug,
+					type: 'poster',
+					url: definition.preview.posterUrl,
+				},
+				{
+					slug: definition.slug,
+					type: 'video',
+					url: definition.preview.videoUrl,
+				},
+			])
+			.filter(({url}) => url.startsWith('/'));
+
+		expect(localPreviewUrls).toEqual([]);
+	});
+
 	test('contains every production Element exactly once', () => {
 		const elementSlugs = productionElements
 			.map((element) => element.name)
@@ -655,11 +683,14 @@ describe('Element preview definitions', () => {
 
 	test('only Elements with one interactive timeline item own their Sequence', () => {
 		const componentOwnedSequenceSlugs = new Set([
+			'audio/oscilloscope',
+			'audio/mirrored-spectrum',
 			'captions/moving-pill-captions',
 			'captions/popping-word-captions',
 			'captions/word-highlight-captions',
 			'maps/map-flyover',
 			'maps/watercolor-map',
+			'overlays/social-safe-zones',
 			'text/spinning-text-wheel',
 		]);
 

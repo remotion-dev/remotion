@@ -12,11 +12,7 @@ import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {useOpenSequenceInApps} from '../Timeline/use-open-sequence-in-apps';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
-import {
-	InspectorQuickAction,
-	InspectorSection,
-	InspectorSectionDivider,
-} from './common';
+import {InspectorQuickAction, InspectorSection} from './common';
 import {
 	ConnectedCompositionsSection,
 	useConnectedCompositions,
@@ -235,12 +231,9 @@ export const SequenceInspectorSections: React.FC<{
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
 			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
-				<>
-					<InspectorSectionDivider />
-					<ConnectedCompositionsSection
-						connectedCompositions={connectedCompositions}
-					/>
-				</>
+				<ConnectedCompositionsSection
+					connectedCompositions={connectedCompositions}
+				/>
 			) : null}
 		</>
 	);

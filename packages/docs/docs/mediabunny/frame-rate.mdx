@@ -84,9 +84,7 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
 }) => {
   using input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(props.src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(props.src),
   });
 
   const videoTrack = await input.getPrimaryVideoTrack();

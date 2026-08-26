@@ -23,6 +23,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	readonly showFullscreen: boolean;
 	readonly showPlaybackRate: boolean;
 	readonly showLoop: boolean;
+	readonly showCanvasViewControls: boolean;
 	readonly showCompositionControls: boolean;
 	readonly playbackRate: number;
 	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
@@ -32,6 +33,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	showFullscreen,
 	showPlaybackRate,
 	showLoop,
+	showCanvasViewControls,
 	showCompositionControls,
 	playbackRate,
 	setPlaybackRate,
@@ -129,7 +131,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 			});
 		}
 
-		if (showCompositionControls) {
+		if (showCanvasViewControls) {
 			items.push({
 				type: 'item',
 				id: 'checkerboard',
@@ -141,6 +143,9 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				subMenu: null,
 				quickSwitcherLabel: null,
 			});
+		}
+
+		if (showCompositionControls) {
 			items.push({
 				type: 'item',
 				id: 'outlines',
@@ -152,6 +157,9 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				subMenu: null,
 				quickSwitcherLabel: null,
 			});
+		}
+
+		if (showCanvasViewControls) {
 			items.push({
 				type: 'item',
 				id: 'rulers',
@@ -163,6 +171,9 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				subMenu: null,
 				quickSwitcherLabel: null,
 			});
+		}
+
+		if (showCompositionControls) {
 			items.push({
 				type: 'item',
 				id: 'guides',
@@ -199,6 +210,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		showFullscreen,
 		showLoop,
 		showPlaybackRate,
+		showCanvasViewControls,
 		showCompositionControls,
 		loop,
 		checkerboard,

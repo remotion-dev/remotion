@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useState} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
 import {BACKGROUND, BORDER_BLACK_ALPHA_50} from '../helpers/colors';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {
 	useIsStill,
 	useIsVideoComposition,
@@ -92,6 +93,11 @@ export const PreviewToolbar: React.FC<{
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isVideoComposition = useIsVideoComposition();
+	const showCompositionControls = canvasContent?.type === 'composition';
+	const showCanvasViewControls =
+		showCompositionControls ||
+		(canvasContent?.type === 'asset' &&
+			getPreviewFileType(canvasContent.asset) === 'video');
 
 	const isStill = useIsStill();
 
@@ -138,7 +144,8 @@ export const PreviewToolbar: React.FC<{
 								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
 								showPlaybackRate={isVideoComposition}
 								showLoop={isVideoComposition}
-								showCompositionControls={canvasContent?.type === 'composition'}
+								showCanvasViewControls={showCanvasViewControls}
+								showCompositionControls={showCompositionControls}
 								playbackRate={playbackRate}
 								setPlaybackRate={setPlaybackRate}
 								loop={loop}
@@ -178,7 +185,7 @@ export const PreviewToolbar: React.FC<{
 					<Spacing x={2} />
 				</>
 			) : null}
-			{canvasContent?.type === 'composition' ? (
+			{showCanvasViewControls ? (
 				<>
 					{isMobileLayout ? null : (
 						<PreviewToolbarControl>
@@ -186,20 +193,22 @@ export const PreviewToolbar: React.FC<{
 						</PreviewToolbarControl>
 					)}
 					{isMobileLayout ? null : <Spacing x={0.25} />}
-					{isMobileLayout ? null : (
+					{isMobileLayout || !showCompositionControls ? null : (
 						<PreviewToolbarControl>
 							<OutlineToggle />
 						</PreviewToolbarControl>
 					)}
 					{isMobileLayout ? null : (
 						<>
-							<Spacing x={0.25} />
+							{showCompositionControls ? <Spacing x={0.25} /> : null}
 							<PreviewToolbarControl>
-								<RulersAndGuidesToggle />
+								<RulersAndGuidesToggle showGuides={showCompositionControls} />
 							</PreviewToolbarControl>
 						</>
 					)}
-					{readOnlyStudio || isMobileLayout ? null : (
+					{readOnlyStudio ||
+					isMobileLayout ||
+					!showCompositionControls ? null : (
 						<>
 							<Spacing x={0.25} />
 							<PreviewToolbarControl>

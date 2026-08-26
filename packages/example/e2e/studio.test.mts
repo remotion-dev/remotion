@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {expect, test, type Page} from '@playwright/test';
+import {expect, test, type Locator, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	STUDIO_URL,
@@ -8,7 +8,11 @@ import {
 	exampleDir,
 	lostNodePathE2eFile,
 } from './constants.mts';
-import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
+import {
+	navigateToLostNodePathE2e,
+	navigateToSchemaTest,
+	retryCanvasInteractionUntilOutlineIsVisible,
+} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const macCursorsFile = path.join(exampleDir, 'src', 'MacCursors', 'index.tsx');
@@ -69,6 +73,46 @@ const dropAssetOnCanvas = async ({
 			}),
 		);
 	}, dragData);
+};
+
+const dropFile = async ({
+	base64,
+	fileName,
+	mimeType,
+	target,
+}: {
+	base64: string;
+	fileName: string;
+	mimeType: string;
+	target: Locator;
+}) => {
+	return target.evaluate(
+		(element, file) => {
+			const bytes = Uint8Array.from(atob(file.base64), (character) =>
+				character.charCodeAt(0),
+			);
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add(
+				new File([bytes], file.fileName, {type: file.mimeType}),
+			);
+			const dragOver = new DragEvent('dragover', {
+				bubbles: true,
+				cancelable: true,
+				dataTransfer,
+			});
+			element.dispatchEvent(dragOver);
+			element.dispatchEvent(
+				new DragEvent('drop', {
+					bubbles: true,
+					cancelable: true,
+					dataTransfer,
+				}),
+			);
+
+			return dragOver.defaultPrevented;
+		},
+		{base64, fileName, mimeType},
+	);
 };
 
 const getVideoTag = (source: string, assetPath: string) => {
@@ -144,6 +188,166 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
+	test('should preview media assets as a non-interactive timeline', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/assets/prores.mov`);
+
+		await expect(page.getByTestId('asset-media-preview')).toBeVisible({
+			timeout: 15_000,
+		});
+		const checkerboardToggle = page.getByRole('button', {
+			name: /Show transparency as checkerboard/,
+		});
+		await expect(checkerboardToggle).toBeVisible();
+		const checkerboardWasPressed =
+			(await checkerboardToggle.getAttribute('aria-pressed')) === 'true';
+		await checkerboardToggle.click();
+		await expect(checkerboardToggle).toHaveAttribute(
+			'aria-pressed',
+			String(!checkerboardWasPressed),
+		);
+		await checkerboardToggle.click();
+
+		const rulersToggle = page.getByRole('button', {
+			name: /^(Show|Hide) rulers$/,
+		});
+		const rulersWerePressed =
+			(await rulersToggle.getAttribute('aria-pressed')) === 'true';
+		await rulersToggle.click();
+		await expect(rulersToggle).toHaveAttribute(
+			'aria-pressed',
+			String(!rulersWerePressed),
+		);
+		if (rulersWerePressed) {
+			await rulersToggle.click();
+		}
+		const horizontalRuler = page.getByLabel('Horizontal ruler', {exact: true});
+		await expect(horizontalRuler).toBeVisible();
+		await expect(horizontalRuler).toHaveAttribute('aria-readonly', 'true');
+		await expect(
+			page.getByLabel('Vertical ruler', {exact: true}),
+		).toBeVisible();
+		if (!rulersWerePressed) {
+			await page
+				.getByRole('button', {name: 'Hide rulers', exact: true})
+				.click();
+		}
+
+		const timeline = page.locator('[data-timeline-scrollable]');
+		await expect(timeline).toBeVisible();
+		const mediaTrack = page.getByTitle('prores.mov').last();
+		await expect(mediaTrack).toBeVisible();
+		await expect(timeline.locator('canvas').first()).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Play', exact: true}),
+		).toBeEnabled();
+		await expect(
+			page.getByText(/Failed to execute getVideoMetadata/),
+		).toHaveCount(0);
+
+		await mediaTrack.dblclick();
+		await expect(page.getByRole('textbox')).toHaveCount(0);
+
+		await page.goto(`${STUDIO_URL}/assets/whip.mp3`);
+		await expect(
+			page.getByRole('img', {name: 'Audio asset', exact: true}),
+		).toBeVisible();
+		await expect(page.getByTestId('asset-media-preview')).not.toBeInViewport();
+		await expect(page.locator('[data-timeline-scrollable]')).toBeVisible();
+		await expect(page.getByTitle('whip.mp3').last()).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Play', exact: true}),
+		).toBeEnabled();
+		await expect(checkerboardToggle).toHaveCount(0);
+		await expect(rulersToggle).toHaveCount(0);
+		await expect(horizontalRuler).toHaveCount(0);
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toHaveCSS('background-image', 'none');
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+
+		await page.goto(`${STUDIO_URL}/assets/blush-2x.mp4`);
+		await expect(page.getByTestId('asset-media-preview')).toBeVisible();
+		const squarePreview = page.locator(
+			'.remotion-studio-composition-container',
+		);
+		await expect(squarePreview).toBeVisible();
+		await expect
+			.poll(async () => {
+				const outerBox = await squarePreview.boundingBox();
+				const mediaBox = await page
+					.getByTestId('asset-media-preview')
+					.boundingBox();
+				if (outerBox === null || mediaBox === null) {
+					return null;
+				}
+
+				return Math.max(
+					Math.abs(outerBox.x - mediaBox.x),
+					Math.abs(outerBox.y - mediaBox.y),
+					Math.abs(outerBox.width - outerBox.height),
+					Math.abs(outerBox.width - mediaBox.width),
+					Math.abs(outerBox.height - mediaBox.height),
+				);
+			})
+			.toBeLessThan(1);
+	});
+
+	test('should route Canvas Capture drops by Studio target', async ({page}) => {
+		test.setTimeout(90_000);
+		const canvasCapture = fs.readFileSync(
+			path.join(
+				exampleDir,
+				'../brand/public/remotion-capture-editor-starter.mp4',
+			),
+		);
+		const publicFileName = 'canvas-capture-drop-e2e.mp4';
+		const publicAsset = path.join(exampleDir, 'public', publicFileName);
+		fs.rmSync(publicAsset, {force: true});
+		const file = {
+			base64: canvasCapture.toString('base64'),
+			fileName: publicFileName,
+			mimeType: 'video/mp4',
+		};
+		const modalTitle = page.getByText('Import Canvas Capture', {exact: true});
+
+		try {
+			await page.goto(`${STUDIO_URL}/does-not-exist`);
+			const missingComposition = page.getByText(
+				'Composition with ID does-not-exist not found.',
+			);
+			await expect(missingComposition).toBeVisible();
+			expect(await dropFile({...file, target: missingComposition})).toBe(true);
+			await expect(modalTitle).toBeVisible();
+			await page.keyboard.press('Escape');
+
+			await page.getByText('Assets', {exact: true}).click();
+			const assetSelector = page.locator('[data-asset-selector]');
+			await expect(assetSelector).toBeVisible();
+			expect(await dropFile({...file, target: assetSelector})).toBe(true);
+			await expect
+				.poll(
+					() =>
+						fs.existsSync(publicAsset) &&
+						fs.readFileSync(publicAsset).equals(canvasCapture),
+				)
+				.toBe(true);
+			await expect(page.getByText(publicFileName, {exact: true})).toBeVisible();
+			await expect(modalTitle).toBeHidden();
+
+			await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+			const timeline = page.locator('[data-timeline-scrollable]');
+			await expect(timeline).toBeVisible();
+			expect(await dropFile({...file, target: timeline})).toBe(true);
+			await expect(modalTitle).toBeVisible();
+		} finally {
+			fs.rmSync(publicAsset, {force: true});
+		}
+	});
+
 	test('should virtualize a large timeline without hiding tracks', async ({
 		page,
 	}) => {
@@ -174,8 +378,11 @@ test.describe('visual mode', () => {
 		const visibleOutlines = canvas.locator(
 			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
 		);
-		await canvas.hover();
-		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await retryCanvasInteractionUntilOutlineIsVisible({
+			interaction: () => canvas.hover(),
+			outline: visibleOutlines,
+			page,
+		});
 		await visibleOutlines.first().click({force: true});
 
 		await expect(revealTargetTrack).toBeVisible();
@@ -532,10 +739,14 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 
 		const canvasItem = page.getByText('Performance overview', {exact: true});
-		await canvasItem.hover();
 		const canvasItemOutline = page.locator(
 			'polygon[data-remotion-prevent-selection-clear="true"][stroke-opacity="1"]',
 		);
+		await retryCanvasInteractionUntilOutlineIsVisible({
+			interaction: () => canvasItem.hover(),
+			outline: canvasItemOutline,
+			page,
+		});
 		await expect(canvasItemOutline).toHaveCount(1);
 		await canvasItemOutline.click({button: 'right'});
 
@@ -744,6 +955,70 @@ test.describe('visual mode', () => {
 		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
 			timeout: 15_000,
 		});
+		const firstCompositionItems = await page
+			.locator('.__remotion-composition-selector-item')
+			.evaluateAll((items) =>
+				items.slice(0, 3).map((item) => item.getAttribute('title')),
+			);
+		expect(firstCompositionItems).toEqual([
+			'use-current-scale-on-load',
+			'Schema',
+			'AnimatedBarChart',
+		]);
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await expect(
+			page.getByRole('button', {name: 'New composition...', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'New folder...', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'New composition...', exact: true})
+			.click();
+		await expect(page.getByPlaceholder('Composition ID')).toBeVisible();
+		await page.keyboard.press('Escape');
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
+			.getByRole('button', {name: 'New folder...', exact: true})
+			.click();
+		await expect(page.getByPlaceholder('Folder name')).toBeVisible();
+		await page.keyboard.press('Escape');
+
+		const uploadedFileName = 'explorer-header-upload-e2e.txt';
+		const uploadedFileContents = 'Uploaded from the explorer header';
+		const uploadedFilePath = path.join(exampleDir, 'public', uploadedFileName);
+		fs.rmSync(uploadedFilePath, {force: true});
+		try {
+			await page.getByRole('button', {name: 'Assets', exact: true}).click();
+			await page.getByRole('button', {name: 'More asset actions'}).click();
+			const fileChooserPromise = page.waitForEvent('filechooser');
+			await page.getByRole('button', {name: 'Upload...', exact: true}).click();
+			const fileChooser = await fileChooserPromise;
+			await fileChooser.setFiles({
+				name: uploadedFileName,
+				mimeType: 'text/plain',
+				buffer: Buffer.from(uploadedFileContents),
+			});
+			await expect(
+				page.getByText(`Uploaded ${uploadedFileName} to public folder`, {
+					exact: true,
+				}),
+			).toBeVisible();
+			await expect
+				.poll(() =>
+					fs.existsSync(uploadedFilePath)
+						? fs.readFileSync(uploadedFilePath, 'utf8')
+						: null,
+				)
+				.toBe(uploadedFileContents);
+			await expect(
+				page.getByText(uploadedFileName, {exact: true}),
+			).toBeVisible();
+		} finally {
+			fs.rmSync(uploadedFilePath, {force: true});
+		}
+
+		await page.getByRole('button', {name: 'Compositions', exact: true}).click();
 
 		await page.keyboard.press('ControlOrMeta+k');
 		await page
@@ -1233,14 +1508,17 @@ test.describe('visual mode', () => {
 		await expect(firstGridline).toBeVisible({timeout: 15_000});
 
 		const canvas = page.locator('.remotion-studio-composition-container');
-		const visibleOutlines = page.locator(
-			'.remotion-studio-composition-container > svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
+		const visibleOutlines = canvas.locator(
+			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
 		);
-		await canvas.hover();
-		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await retryCanvasInteractionUntilOutlineIsVisible({
+			interaction: () => canvas.hover(),
+			outline: visibleOutlines,
+			page,
+		});
 		await visibleOutlines.first().click({force: true});
 		await page.mouse.move(0, 0);
-		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await expect(visibleOutlines.first()).toBeVisible();
 	});
 
 	test('should preserve following interactive elements after deleting a sibling', async ({
@@ -1632,6 +1910,60 @@ test.describe('visual mode', () => {
 		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
 			origin: STUDIO_URL,
 		});
+		await page.addInitScript(() => {
+			window.localStorage.setItem('remotion.mute', 'false');
+			window.localStorage.setItem('remotion.loop', 'true');
+			window.localStorage.setItem('remotion.editorShowGuides', 'true');
+			window.localStorage.setItem(
+				'remotion.guidesList',
+				JSON.stringify([
+					{
+						id: 'webmcp-vertical-guide',
+						orientation: 'vertical',
+						position: 320,
+						show: true,
+						compositionId: 'AnimatedBarChart',
+					},
+					{
+						id: 'webmcp-horizontal-guide',
+						orientation: 'horizontal',
+						position: 180,
+						show: true,
+						compositionId: 'AnimatedBarChart',
+					},
+					{
+						id: 'other-composition-guide',
+						orientation: 'vertical',
+						position: 100,
+						show: true,
+						compositionId: 'Shapes',
+					},
+				]),
+			);
+			type RegisteredTool = {
+				readonly name: string;
+				readonly execute: (input: Record<string, unknown>) => Promise<unknown>;
+			};
+			const tools = new Map<string, RegisteredTool>();
+			Object.defineProperty(window, '__remotion_webmcp_tools', {
+				value: tools,
+			});
+			Object.defineProperty(document, 'modelContext', {
+				value: {
+					registerTool: async (
+						tool: RegisteredTool,
+						options: {readonly signal: AbortSignal},
+					) => {
+						tools.set(tool.name, tool);
+						options.signal.addEventListener('abort', () => {
+							if (tools.get(tool.name) === tool) {
+								tools.delete(tool.name);
+							}
+						});
+					},
+				},
+			});
+		});
 		await page.route('**/api/default-editor-info', async (route) => {
 			await route.fulfill({
 				json: {
@@ -1815,6 +2147,828 @@ test.describe('visual mode', () => {
 			await expect
 				.poll(() => page.evaluate(() => navigator.clipboard.readText()))
 				.toBe(contextForAgents);
+			await page.getByRole('button', {name: 'Jump to beginning'}).click();
+			for (let i = 0; i < 3; i++) {
+				await page
+					.getByRole('button', {name: 'Step forward one frame'})
+					.click();
+			}
+			await expect
+				.poll(() =>
+					page.evaluate(() => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<string, unknown>;
+							}
+						).__remotion_webmcp_tools;
+						return (
+							tools.has('get_compositions') &&
+							tools.has('select_composition') &&
+							tools.has('get_sequences') &&
+							tools.has('select_sequence') &&
+							tools.has('get_composition') &&
+							tools.has('get_canvas_html') &&
+							tools.has('get_outlines') &&
+							tools.has('get_playback_state') &&
+							tools.has('get_selection') &&
+							tools.has('get_guides') &&
+							tools.has('set_guides_visible') &&
+							tools.has('add_guide') &&
+							tools.has('remove_guide') &&
+							tools.has('play') &&
+							tools.has('pause') &&
+							tools.has('mute') &&
+							tools.has('unmute') &&
+							tools.has('set_timeline_zoom') &&
+							tools.has('set_playback_rate') &&
+							tools.has('seek_to_frame')
+						);
+					}),
+				)
+				.toBe(true);
+			const webMcpSelection = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_selection');
+				if (!tool) {
+					throw new Error('get_selection was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpSelection).toEqual({
+				currentFrame: 3,
+				currentSelection: contextForAgents,
+				currentComposition: 'AnimatedBarChart',
+				selectionType: 'sequence',
+				selectedSequence: expect.objectContaining({
+					sequenceId: expect.any(String),
+					name: '0% gridline',
+					type: 'sequence',
+					stack: expect.any(String),
+					selectable: true,
+				}),
+			});
+			const selectedSequence = (
+				webMcpSelection as {
+					readonly selectedSequence: {
+						readonly sequenceId: string;
+						readonly parentSequenceId: string | null;
+					};
+				}
+			).selectedSequence;
+			const webMcpSequences = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_sequences');
+				if (!tool) {
+					throw new Error('get_sequences was not registered');
+				}
+
+				return tool.execute();
+			});
+			const sequenceList = (
+				webMcpSequences as {
+					readonly sequences: readonly {
+						readonly sequenceId: string;
+						readonly selectable: boolean;
+					}[];
+				}
+			).sequences;
+			expect(webMcpSequences).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				sequences: expect.arrayContaining([
+					expect.objectContaining({
+						sequenceId: selectedSequence.sequenceId,
+						name: '0% gridline',
+						selectable: true,
+					}),
+				]),
+			});
+			const sequenceToSelect = sequenceList.find(
+				(sequence) =>
+					sequence.selectable &&
+					sequence.sequenceId !== selectedSequence.sequenceId,
+			);
+			expect(sequenceToSelect).toBeDefined();
+			const webMcpSelectSequenceResult = await page.evaluate(
+				async ({sequenceId}) => {
+					const tools = (
+						window as typeof window & {
+							readonly __remotion_webmcp_tools: Map<
+								string,
+								{
+									readonly execute: (
+										input: Record<string, unknown>,
+									) => Promise<unknown>;
+								}
+							>;
+						}
+					).__remotion_webmcp_tools;
+					const tool = tools.get('select_sequence');
+					if (!tool) {
+						throw new Error('select_sequence was not registered');
+					}
+
+					return tool.execute({sequenceId});
+				},
+				{sequenceId: sequenceToSelect?.sequenceId ?? ''},
+			);
+			expect(webMcpSelectSequenceResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				selectedSequence: expect.objectContaining({
+					sequenceId: sequenceToSelect?.sequenceId,
+					selectable: true,
+				}),
+			});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_selection');
+						const selection = (await tool?.execute()) as {
+							readonly selectionType?: string;
+							readonly selectedSequence?: {
+								readonly sequenceId?: string;
+							};
+						};
+						return {
+							selectionType: selection.selectionType,
+							sequenceId: selection.selectedSequence?.sequenceId,
+						};
+					}),
+				)
+				.toEqual({
+					selectionType: 'sequence',
+					sequenceId: sequenceToSelect?.sequenceId,
+				});
+			const webMcpComposition = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_composition');
+				if (!tool) {
+					throw new Error('get_composition was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpComposition).toEqual({
+				compositionName: 'AnimatedBarChart',
+				stack: expect.any(String),
+				durationInFrames: 180,
+				height: 720,
+				width: 1280,
+				fps: 30,
+				currentFrame: 3,
+			});
+			const webMcpCanvasHtml = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_canvas_html');
+				if (!tool) {
+					throw new Error('get_canvas_html was not registered');
+				}
+
+				return tool.execute();
+			});
+			const canvasHtml = (
+				webMcpCanvasHtml as {
+					readonly html: string;
+					readonly htmlLength: number;
+				}
+			).html;
+			expect(webMcpCanvasHtml).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				currentFrame: 3,
+				html: expect.any(String),
+				htmlLength: canvasHtml.length,
+				truncated: false,
+			});
+			expect(canvasHtml).toContain('Performance overview');
+			expect(canvasHtml).toContain('Regional growth');
+			expect(canvasHtml).not.toContain('Change the playback rate');
+			const webMcpOutlines = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_outlines');
+				if (!tool) {
+					throw new Error('get_outlines was not registered');
+				}
+
+				return tool.execute();
+			});
+			const gridlineOutline = (
+				webMcpOutlines as {
+					readonly outlines: readonly {
+						readonly name: string | null;
+						readonly sequenceId: string;
+						readonly parentSequenceId: string | null;
+						readonly location: {
+							readonly filename: string;
+							readonly line: number;
+						} | null;
+						readonly geometry: {
+							readonly points: readonly {
+								readonly x: number;
+								readonly y: number;
+							}[];
+							readonly boundingBox: {
+								readonly x: number;
+								readonly y: number;
+								readonly width: number;
+								readonly height: number;
+							};
+						};
+					}[];
+				}
+			).outlines.find((outline) => outline.name === '0% gridline');
+			expect(webMcpOutlines).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				currentFrame: 3,
+				outlines: expect.any(Array),
+			});
+			expect(gridlineOutline).toEqual({
+				sequenceId: selectedSequence.sequenceId,
+				parentSequenceId: selectedSequence.parentSequenceId,
+				name: '0% gridline',
+				location: {
+					filename: 'src/BarChart.tsx',
+					line: expect.any(Number),
+				},
+				geometry: {
+					points: expect.arrayContaining([
+						expect.objectContaining({
+							x: expect.any(Number),
+							y: expect.any(Number),
+						}),
+					]),
+					boundingBox: {
+						x: expect.any(Number),
+						y: expect.any(Number),
+						width: expect.any(Number),
+						height: expect.any(Number),
+					},
+				},
+			});
+			expect(gridlineOutline?.geometry.points).toHaveLength(4);
+			expect(gridlineOutline?.geometry.boundingBox.x).toBeGreaterThan(150);
+			expect(gridlineOutline?.geometry.boundingBox.x).toBeLessThan(180);
+			expect(gridlineOutline?.geometry.boundingBox.y).toBeGreaterThan(550);
+			expect(gridlineOutline?.geometry.boundingBox.y).toBeLessThan(610);
+			expect(gridlineOutline?.geometry.boundingBox.width).toBeGreaterThan(950);
+			expect(gridlineOutline?.geometry.boundingBox.width).toBeLessThan(1030);
+			const webMcpCompositions = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_compositions');
+				if (!tool) {
+					throw new Error('get_compositions was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpCompositions).toEqual({
+				compositions: expect.arrayContaining([
+					{
+						type: 'folder',
+						folderName: 'visual-controls',
+						children: [
+							{
+								type: 'composition',
+								compositionName: 'visual-controls',
+							},
+							{
+								type: 'composition',
+								compositionName: 'effect-keyframe-e2e',
+							},
+						],
+					},
+					{
+						type: 'composition',
+						compositionName: 'AnimatedBarChart',
+					},
+				]),
+			});
+			const webMcpSelectCompositionResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('select_composition');
+				if (!tool) {
+					throw new Error('select_composition was not registered');
+				}
+
+				return tool.execute({compositionName: 'package-absolute-fill'});
+			});
+			expect(webMcpSelectCompositionResult).toEqual({
+				currentComposition: 'package-absolute-fill',
+			});
+			await expect
+				.poll(() => new URL(page.url()).pathname)
+				.toBe('/package-absolute-fill');
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_composition');
+						const result = (await tool?.execute()) as {
+							readonly compositionName?: string;
+						};
+						return result?.compositionName ?? null;
+					}),
+				)
+				.toBe('package-absolute-fill');
+			await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('select_composition');
+				if (!tool) {
+					throw new Error('select_composition was not registered');
+				}
+
+				await tool.execute({compositionName: 'AnimatedBarChart'});
+			});
+			await expect
+				.poll(() => new URL(page.url()).pathname)
+				.toBe('/AnimatedBarChart');
+			const webMcpGuides = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_guides');
+				if (!tool) {
+					throw new Error('get_guides was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpGuides).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				guidesVisible: true,
+				guides: [
+					{
+						id: 'webmcp-vertical-guide',
+						orientation: 'vertical',
+						position: 320,
+						visible: true,
+					},
+					{
+						id: 'webmcp-horizontal-guide',
+						orientation: 'horizontal',
+						position: 180,
+						visible: true,
+					},
+				],
+			});
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(2);
+			const webMcpHideGuidesResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_guides_visible');
+				if (!tool) {
+					throw new Error('set_guides_visible was not registered');
+				}
+
+				return tool.execute({visible: false});
+			});
+			expect(webMcpHideGuidesResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				guidesVisible: false,
+			});
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(0);
+			await expect
+				.poll(() =>
+					page.evaluate(() =>
+						localStorage.getItem('remotion.editorShowGuides'),
+					),
+				)
+				.toBe('false');
+			const webMcpShowGuidesResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_guides_visible');
+				if (!tool) {
+					throw new Error('set_guides_visible was not registered');
+				}
+
+				return tool.execute({visible: true});
+			});
+			expect(webMcpShowGuidesResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				guidesVisible: true,
+			});
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(2);
+			await expect
+				.poll(() =>
+					page.evaluate(() =>
+						localStorage.getItem('remotion.editorShowGuides'),
+					),
+				)
+				.toBe('true');
+			const webMcpAddGuideResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('add_guide');
+				if (!tool) {
+					throw new Error('add_guide was not registered');
+				}
+
+				return tool.execute({orientation: 'vertical', position: 640});
+			});
+			expect(webMcpAddGuideResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				guide: {
+					id: expect.any(String),
+					orientation: 'vertical',
+					position: 640,
+					visible: true,
+				},
+			});
+			const addedGuideId = (
+				webMcpAddGuideResult as {readonly guide: {readonly id: string}}
+			).guide.id;
+			await expect
+				.poll(() =>
+					page.evaluate(
+						({guideId}) => {
+							const guides = JSON.parse(
+								localStorage.getItem('remotion.guidesList') ?? '[]',
+							) as {readonly id: string}[];
+							return guides.some((guide) => guide.id === guideId);
+						},
+						{guideId: addedGuideId},
+					),
+				)
+				.toBe(true);
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(3);
+			const webMcpRemoveGuideResult = await page.evaluate(
+				async ({guideId}) => {
+					const tools = (
+						window as typeof window & {
+							readonly __remotion_webmcp_tools: Map<
+								string,
+								{
+									readonly execute: (
+										input: Record<string, unknown>,
+									) => Promise<unknown>;
+								}
+							>;
+						}
+					).__remotion_webmcp_tools;
+					const tool = tools.get('remove_guide');
+					if (!tool) {
+						throw new Error('remove_guide was not registered');
+					}
+
+					return tool.execute({guideId});
+				},
+				{guideId: addedGuideId},
+			);
+			expect(webMcpRemoveGuideResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				guideId: addedGuideId,
+				removed: true,
+			});
+			await expect
+				.poll(() =>
+					page.evaluate(
+						({guideId}) => {
+							const guides = JSON.parse(
+								localStorage.getItem('remotion.guidesList') ?? '[]',
+							) as {readonly id: string}[];
+							return guides.some((guide) => guide.id === guideId);
+						},
+						{guideId: addedGuideId},
+					),
+				)
+				.toBe(false);
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(2);
+			const webMcpPlaybackRateResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_playback_rate');
+				if (!tool) {
+					throw new Error('set_playback_rate was not registered');
+				}
+
+				return tool.execute({playbackRate: 1.5});
+			});
+			expect(webMcpPlaybackRateResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				playbackRate: 1.5,
+			});
+			await expect(
+				page.getByRole('button', {
+					name: 'Change the playback rate',
+					exact: true,
+				}),
+			).toContainText('1.5x');
+			const webMcpTimelineZoomResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_timeline_zoom');
+				if (!tool) {
+					throw new Error('set_timeline_zoom was not registered');
+				}
+
+				return tool.execute({zoom: 0.5});
+			});
+			expect(webMcpTimelineZoomResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				timelineZoom: 0.489,
+			});
+			await expect(
+				page.locator('input[type="range"][alt^="Timeline zoom"]'),
+			).toHaveValue('489');
+			const webMcpMuteResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('mute');
+				if (!tool) {
+					throw new Error('mute was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpMuteResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				muted: true,
+			});
+			await expect(
+				page.getByRole('button', {name: 'Unmute video', exact: true}),
+			).toBeVisible();
+			const webMcpUnmuteResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('unmute');
+				if (!tool) {
+					throw new Error('unmute was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpUnmuteResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				muted: false,
+			});
+			await expect(
+				page.getByRole('button', {name: 'Mute video', exact: true}),
+			).toBeVisible();
+			const webMcpPlayResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('play');
+				if (!tool) {
+					throw new Error('play was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpPlayResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				playing: true,
+			});
+			await expect(
+				page.getByRole('button', {name: 'Pause', exact: true}),
+			).toBeVisible();
+			const webMcpPauseResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('pause');
+				if (!tool) {
+					throw new Error('pause was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpPauseResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				playing: false,
+			});
+			await expect(
+				page.getByRole('button', {name: 'Play', exact: true}),
+			).toBeVisible();
+			const webMcpSeekResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('seek_to_frame');
+				if (!tool) {
+					throw new Error('seek_to_frame was not registered');
+				}
+
+				return tool.execute({frame: 200});
+			});
+			expect(webMcpSeekResult).toEqual({
+				currentFrame: 179,
+				currentComposition: 'AnimatedBarChart',
+			});
+			await expect(
+				page.getByRole('button', {name: '179', exact: true}),
+			).toBeVisible();
+			const webMcpPlaybackState = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_playback_state');
+				if (!tool) {
+					throw new Error('get_playback_state was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpPlaybackState).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				currentFrame: 179,
+				playing: false,
+				muted: false,
+				volume: 1,
+				playbackRate: 1.5,
+				looping: true,
+				timelineZoom: 0.489,
+			});
 
 			fs.writeFileSync(
 				configFile,
@@ -1903,6 +3057,99 @@ test.describe('visual mode', () => {
 			await expect(
 				settings.getByText('Default codec', {exact: true}),
 			).toHaveCount(0);
+
+			await page.goto(`${STUDIO_URL}/assets/test.gif`);
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_composition');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					compositionName: null,
+					stack: null,
+					durationInFrames: null,
+					height: null,
+					width: null,
+					fps: null,
+					currentFrame: null,
+				});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_playback_state');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					currentComposition: null,
+					currentFrame: null,
+					playing: null,
+					muted: null,
+					volume: null,
+					playbackRate: null,
+					looping: null,
+					timelineZoom: null,
+				});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_canvas_html');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					currentComposition: null,
+					currentFrame: null,
+					html: null,
+					htmlLength: null,
+					truncated: false,
+				});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_outlines');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					currentComposition: null,
+					currentFrame: null,
+					outlines: [],
+				});
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);
 		}

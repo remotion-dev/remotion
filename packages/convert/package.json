@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/convert",
-	"version": "4.0.516",
+	"version": "4.0.517",
 	"private": true,
 	"type": "module",
 	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
@@ -40,7 +40,7 @@
 		"@remotion/player": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/timeline-utils": "workspace:*",
-		"@remotion/whisper-web": "workspace:*",
+		"@remotion/whisper-webgpu": "workspace:*",
 		"@vercel/remix": "2.16.7",
 		"@vidstack/react": "1.12.13",
 		"class-variance-authority": "0.7.1",

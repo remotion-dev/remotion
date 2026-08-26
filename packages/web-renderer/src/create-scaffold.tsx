@@ -295,6 +295,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 										type: 'composition',
 										compositionId: id,
 									},
+									currentAssetMetadata: null,
 									currentCompositionMetadata: {
 										props: resolvedProps,
 										durationInFrames,

@@ -58,17 +58,21 @@ const canScrollTimelineVerticallyIntoDirection = () => {
 const getEdgeScrollDirections = ({
 	clientX,
 	clientY,
+	includeHorizontal,
 	includeVertical,
+	verticalTopOffset,
 	active,
 }: {
 	clientX: number;
 	clientY: number;
+	includeHorizontal: boolean;
 	includeVertical: boolean;
+	verticalTopOffset: number;
 	active: TimelineEdgeScrollDirections;
 }): TimelineEdgeScrollDirections => {
 	let x: TimelineEdgeScrollDirections['x'] = null;
 	const scrollable = scrollableRef.current;
-	if (scrollable) {
+	if (includeHorizontal && scrollable) {
 		const rect = scrollable.getBoundingClientRect();
 		const leftThreshold =
 			rect.left + (active.x === 'left' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
@@ -91,6 +95,7 @@ const getEdgeScrollDirections = ({
 		const rect = vertical.getBoundingClientRect();
 		const topThreshold =
 			rect.top +
+			verticalTopOffset +
 			EDGE_SCROLL_VERTICAL_INSET +
 			(active.y === 'up' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
 		const bottomThreshold =
@@ -111,16 +116,20 @@ const getEdgeScrollDirections = ({
 
 /**
  * Shared edge auto-scroll loop for drag gestures on the timeline (playhead
- * scrubbing, marquee selection). Detects when the pointer is in an edge zone
- * and repeatedly invokes `onTick` while it stays there. The consumer performs
- * the actual scrolling (and any dependent updates) inside `onTick`, so it can
- * read a settled scroll position afterwards.
+ * scrubbing, marquee selection, sequence reordering). Detects when the pointer
+ * is in an edge zone and repeatedly invokes `onTick` while it stays there. The
+ * consumer performs the actual scrolling (and any dependent updates) inside
+ * `onTick`, so it can read a settled scroll position afterwards.
  */
 export const startTimelineEdgeAutoScroll = ({
+	includeHorizontal,
 	includeVertical,
+	verticalTopOffset,
 	onTick,
 }: {
+	includeHorizontal: boolean;
 	includeVertical: boolean;
+	verticalTopOffset: number;
 	onTick: (directions: TimelineEdgeScrollDirections) => void;
 }): TimelineEdgeAutoScroller => {
 	let active: TimelineEdgeScrollDirections = {x: null, y: null};
@@ -142,7 +151,9 @@ export const startTimelineEdgeAutoScroll = ({
 		active = getEdgeScrollDirections({
 			clientX: lastPointer.clientX,
 			clientY: lastPointer.clientY,
+			includeHorizontal,
 			includeVertical,
+			verticalTopOffset,
 			active,
 		});
 		if (active.x === null && active.y === null) {
@@ -158,7 +169,9 @@ export const startTimelineEdgeAutoScroll = ({
 		active = getEdgeScrollDirections({
 			clientX: e.clientX,
 			clientY: e.clientY,
+			includeHorizontal,
 			includeVertical,
+			verticalTopOffset,
 			active,
 		});
 

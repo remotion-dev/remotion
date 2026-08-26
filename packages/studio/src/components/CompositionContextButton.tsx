@@ -1,6 +1,10 @@
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
+} from '../helpers/hoverable';
 import {EllipsisIcon} from '../icons/ellipsis';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
@@ -37,6 +41,8 @@ export const CompositionContextButton: React.FC<{
 			renderAction={renderAction}
 			getItems={getItems}
 			variant={null}
+			style={NO_HOVER_BACKGROUND_STYLE}
+			className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 		/>
 	);
 };

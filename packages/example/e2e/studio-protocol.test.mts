@@ -84,7 +84,7 @@ export const MyComponent = () => {
 	const configFile = path.join(temporaryProject, 'remotion.config.ts');
 	fs.appendFileSync(
 		configFile,
-		`\nConfig.addElementLibrary('${externalLibraryUrl}', 'External Elements');\n`,
+		`\nConfig.addElementLibrary({url: '${externalLibraryUrl}', displayName: 'External Elements'});\n`,
 	);
 	fs.rmSync(path.join(temporaryProject, 'node_modules'), {
 		force: true,
@@ -255,7 +255,7 @@ export const MyComponent = () => {
 
 		fs.appendFileSync(
 			configFile,
-			`Config.addElementLibrary('${reloadedExternalLibraryUrl}');\n`,
+			`Config.addElementLibrary({url: '${reloadedExternalLibraryUrl}'});\n`,
 		);
 		await browseElements.click();
 		await expect(

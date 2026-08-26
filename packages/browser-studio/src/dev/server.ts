@@ -15,7 +15,7 @@ const workspacePackagesDir = path.join(repoDir, 'packages');
 const workspacePackagePath = '/__remotion_browser_studio_workspace__/';
 
 const headers = {
-	'Cross-Origin-Embedder-Policy': 'credentialless',
+	'Cross-Origin-Embedder-Policy': 'require-corp',
 	'Cross-Origin-Opener-Policy': 'same-origin',
 };
 
@@ -75,9 +75,42 @@ const buildDevAssets = async () => {
 	const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
 	const workspacePackageExports =
 		getBrowserStudioWorkspacePackageExportsForBuild();
+	const rspackBrowserEntry = fileURLToPath(
+		import.meta.resolve('@rspack/browser'),
+	);
+	const rspackBrowserDist = path.dirname(rspackBrowserEntry);
+	const vendorOutput = await build({
+		define: {'process.env.NODE_ENV': JSON.stringify('development')},
+		entrypoints: ['src/browser-studio-vendor-entry.ts'],
+		format: 'iife',
+		naming: '[name].mjs',
+		outdir: outDir,
+		sourcemap: 'linked',
+		target: 'browser',
+	});
+
+	if (!vendorOutput.success) {
+		process.stderr.write(`${vendorOutput.logs.join('\n')}\n`);
+		process.exit(1);
+	}
+
+	const vendorEntryArtifact = vendorOutput.outputs.find(
+		(file) => path.basename(file.path) === 'browser-studio-vendor-entry.mjs',
+	);
+	if (!vendorEntryArtifact) {
+		throw new Error('Browser Studio vendor entry was not generated');
+	}
+
+	const browserStudioAssetSizes = {
+		rspackWasm: Bun.file(
+			path.join(rspackBrowserDist, 'rspack.wasm32-wasi.wasm'),
+		).size,
+		vendorBundle: vendorEntryArtifact.size,
+	};
 	const output = await build({
 		entrypoints: ['src/dev/index.tsx', 'src/browser-studio-worker.ts'],
 		define: {
+			__BROWSER_STUDIO_ASSET_SIZES__: JSON.stringify(browserStudioAssetSizes),
 			__BROWSER_STUDIO_DEPENDENCY_VERSIONS__:
 				JSON.stringify(dependencyVersions),
 			__BROWSER_STUDIO_REACT_REFRESH_FILES__: JSON.stringify(reactRefreshFiles),
@@ -112,26 +145,6 @@ const buildDevAssets = async () => {
 		process.stderr.write(`${studioPreviewEntryOutput.logs.join('\n')}\n`);
 		process.exit(1);
 	}
-
-	const vendorEntryOutput = await build({
-		define: {'process.env.NODE_ENV': JSON.stringify('development')},
-		entrypoints: ['src/browser-studio-vendor-entry.ts'],
-		format: 'iife',
-		naming: '[name].mjs',
-		outdir: outDir,
-		sourcemap: 'linked',
-		target: 'browser',
-	});
-
-	if (!vendorEntryOutput.success) {
-		process.stderr.write(`${vendorEntryOutput.logs.join('\n')}\n`);
-		process.exit(1);
-	}
-
-	const rspackBrowserEntry = fileURLToPath(
-		import.meta.resolve('@rspack/browser'),
-	);
-	const rspackBrowserDist = path.dirname(rspackBrowserEntry);
 
 	for (const asset of ['rspack.wasm32-wasi.wasm', 'wasi-worker-browser.mjs']) {
 		await Bun.write(

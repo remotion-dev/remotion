@@ -1,4 +1,5 @@
 export const elementCategories = [
+	{category: 'audio', label: 'Audio'},
 	{category: 'backgrounds', label: 'Backgrounds'},
 	{category: 'captions', label: 'Captions'},
 	{category: 'data', label: 'Charts & Data'},
@@ -13,6 +14,14 @@ export const elementCategories = [
 export type ElementCategory = (typeof elementCategories)[number]['category'];
 
 export const elementRegistry = {
+	'audio/oscilloscope': {
+		category: 'audio',
+		displayName: 'Audio Oscilloscope',
+	},
+	'audio/mirrored-spectrum': {
+		category: 'audio',
+		displayName: 'Mirrored Audio Spectrum',
+	},
 	'backgrounds/liquid-contours': {
 		category: 'backgrounds',
 		displayName: 'Liquid Contours',
@@ -88,6 +97,14 @@ export const elementRegistry = {
 	'overlays/name-lower-third': {
 		category: 'overlays',
 		displayName: 'Name Lower Third',
+	},
+	'overlays/social-safe-zones': {
+		category: 'overlays',
+		displayName: 'Social Safe Zones',
+	},
+	'storytelling/on-screen-messages': {
+		category: 'storytelling',
+		displayName: 'On-Screen Messages',
 	},
 	'storytelling/polaroid-pictures': {
 		category: 'storytelling',

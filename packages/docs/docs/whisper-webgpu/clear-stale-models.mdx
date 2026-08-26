@@ -1,0 +1,30 @@
+---
+image: /generated/articles-docs-whisper-webgpu-clear-stale-models.png
+title: clearStaleModels()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# clearStaleModels()<AvailableFrom v="4.0.518" />
+
+Removes cached model files that are no longer returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models). There are no stale models in the current version, so this function resolves without changing the cache.
+
+Call this function when the page loads to remove models discontinued by a newer version of `@remotion/whisper-webgpu`.
+
+```ts twoslash title="clear-stale-models.ts"
+import {clearStaleModels} from '@remotion/whisper-webgpu';
+
+await clearStaleModels();
+```
+
+## Return type
+
+A `Promise<void>` that resolves after stale models have been removed.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models)
+- [`isWhisperModelCached()`](/docs/whisper-webgpu/is-whisper-model-cached)

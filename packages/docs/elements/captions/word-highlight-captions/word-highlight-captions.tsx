@@ -34,6 +34,7 @@ type WordHighlightCaptionsLayerProps = Omit<
 	WordHighlightCaptionsProps,
 	'captions'
 > & {
+	readonly callerStyle: React.CSSProperties | null;
 	readonly captions: Caption[];
 };
 
@@ -71,6 +72,7 @@ const wordHighlightCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
+	callerStyle: {type: 'hidden'},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
@@ -260,6 +262,7 @@ const WordHighlightCaptionsInner = forwardRef<
 >(
 	(
 		{
+			callerStyle,
 			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
@@ -273,6 +276,16 @@ const WordHighlightCaptionsInner = forwardRef<
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
 		const [fontLoaded, setFontLoaded] = useState(false);
+		const {
+			rotate: callerRotate,
+			scale: callerScale,
+			transform: callerTransform,
+			transformBox: callerTransformBox,
+			transformOrigin: callerTransformOrigin,
+			transformStyle: callerTransformStyle,
+			translate: callerTranslate,
+			...callerContentStyle
+		} = callerStyle ?? {};
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -297,19 +310,34 @@ const WordHighlightCaptionsInner = forwardRef<
 				outlineRef={outlineRef}
 			>
 				<div
-					ref={outlineRef}
 					style={{
 						height: height ?? '100%',
+						rotate: callerRotate,
+						scale: callerScale,
+						transform: callerTransform,
+						transformBox: callerTransformBox,
+						transformOrigin: callerTransformOrigin,
+						transformStyle: callerTransformStyle,
+						translate: callerTranslate,
 						width: width ?? '100%',
-						...style,
 					}}
 				>
-					<WordHighlightCaptionsContent
-						captionAreaWidth={width ?? null}
-						captions={captions}
-						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						fontLoaded={fontLoaded}
-					/>
+					<div
+						ref={outlineRef}
+						style={{
+							height: '100%',
+							width: '100%',
+							...style,
+							...callerContentStyle,
+						}}
+					>
+						<WordHighlightCaptionsContent
+							captionAreaWidth={width ?? null}
+							captions={captions}
+							combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+							fontLoaded={fontLoaded}
+						/>
+					</div>
 				</div>
 			</Sequence>
 		);
@@ -326,10 +354,18 @@ const WordHighlightCaptionsLayer = Interactive.withSchema({
 
 export const WordHighlightCaptions: React.FC<WordHighlightCaptionsProps> = ({
 	captions,
+	style,
 	...props
 }) => {
 	if (captions) {
-		return <WordHighlightCaptionsLayer {...props} captions={captions} />;
+		return (
+			<WordHighlightCaptionsLayer
+				{...props}
+				callerStyle={style ?? null}
+				captions={captions}
+				style={{translate: '0px 0px'}}
+			/>
+		);
 	}
 
 	return (
@@ -344,6 +380,7 @@ export const WordHighlightCaptions: React.FC<WordHighlightCaptionsProps> = ({
 		>
 			<WordHighlightCaptionsLayer
 				{...props}
+				callerStyle={style ?? null}
 				captions={[
 					{
 						text: 'Captions',
@@ -397,6 +434,7 @@ export const WordHighlightCaptions: React.FC<WordHighlightCaptionsProps> = ({
 				]}
 				width={681}
 				height={252}
+				style={{translate: '0px 0px'}}
 			/>
 		</div>
 	);

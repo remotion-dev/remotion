@@ -9,6 +9,7 @@ import type {AnyZodObject} from './any-zod-type.js';
 import type {TComposition} from './CompositionManager';
 import {compositionsRef, type AnyComposition} from './CompositionManager';
 import type {
+	AssetPreviewMetadata,
 	CanvasContent,
 	CompositionManagerContext,
 	CompositionManagerSetters,
@@ -38,6 +39,8 @@ export const CompositionManagerProvider = ({
 	const [canvasContent, setCanvasContent] = useState<CanvasContent | null>(
 		initialCanvasContent,
 	);
+	const [currentAssetMetadata, setCurrentAssetMetadata] =
+		useState<AssetPreviewMetadata | null>(null);
 	const [compositions, setCompositions] =
 		useState<AnyComposition[]>(initialCompositions);
 
@@ -124,6 +127,7 @@ export const CompositionManagerProvider = ({
 			registerFolder,
 			unregisterFolder,
 			setCanvasContent,
+			setCurrentAssetMetadata,
 			onlyRenderComposition,
 		};
 	}, [
@@ -140,9 +144,16 @@ export const CompositionManagerProvider = ({
 				compositions,
 				folders,
 				currentCompositionMetadata,
+				currentAssetMetadata,
 				canvasContent,
 			};
-		}, [compositions, folders, currentCompositionMetadata, canvasContent]);
+		}, [
+			compositions,
+			folders,
+			currentCompositionMetadata,
+			currentAssetMetadata,
+			canvasContent,
+		]);
 
 	return (
 		<CompositionManager.Provider value={compositionManagerContextValue}>

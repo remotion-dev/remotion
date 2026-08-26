@@ -1,0 +1,49 @@
+---
+image: /generated/articles-docs-whisper-webgpu-index.png
+title: '@remotion/whisper-webgpu'
+crumb: 'Transcribe audio in browser'
+---
+
+# @remotion/whisper-webgpu<AvailableFrom v="4.0.518" />
+
+Transcribe audio locally in the browser using timestamped Whisper models and WebGPU through [Transformers.js](https://huggingface.co/docs/transformers.js), and convert the result to [`@remotion/captions`](/docs/captions).
+
+import {TableOfContents} from './table-of-contents';
+
+## Installation
+
+<Installation pkg="@remotion/whisper-webgpu" />
+
+## Example
+
+```ts twoslash title="transcribe.ts"
+import {clearStaleModels, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
+
+await clearStaleModels();
+
+const file = new File([], 'audio.wav');
+const channelWaveform = await resampleTo16Khz({file});
+
+const transcription = await transcribe({
+  channelWaveform,
+  model: 'small.en',
+  language: 'en',
+});
+
+const {captions} = toCaptions({whisperWebGpuOutput: transcription});
+console.log(captions);
+```
+
+The model is downloaded on the first call and cached by the browser. Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) first to display model download progress.
+
+## APIs
+
+<TableOfContents />
+
+## Requirements
+
+WebGPU requires HTTPS in production or `localhost` during development. Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) to check for a usable adapter.
+
+## License
+
+MIT

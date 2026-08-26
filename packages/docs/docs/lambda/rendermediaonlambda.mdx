@@ -83,6 +83,8 @@ Specify the number of Lambda functions to use for rendering. This is an alternat
 
 The concurrency is defined as `frameCount / framesPerLambda`. Remotion will automatically calculate the appropriate `framesPerLambda` value based on your concurrency setting.
 
+From <AvailableFrom v="4.0.517" inline />, you can set `concurrency` to `1` to render the video on the main function.
+
 Maximum value: 200  
 Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
 
@@ -402,7 +404,7 @@ Use [`logLevel`](#loglevel) instead.
 
 ## Return value
 
-Returns a promise resolving to an object containing four properties. Of these, `renderId`, `bucketName` are useful for passing to `getRenderProgress()`.
+Returns a promise resolving to an object. `renderId` and `bucketName` are useful for passing to [`getRenderProgress()`](/docs/lambda/getrenderprogress).
 
 ### `renderId`
 
@@ -414,15 +416,23 @@ The S3 bucket name in which all files are being saved.
 
 ### `cloudWatchLogs`<AvailableFrom v="3.2.10"/>
 
-A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
+A link to the CloudWatch logs of the renderer functions, if you have not disabled CloudWatch.
 
-### `lambdaInsightsUrl`<AvailableFrom v="4.0.61"/>
+### `cloudWatchMainLogs`<AvailableFrom v="4.0.174" />
+
+A link to the CloudWatch logs of the main function.
+
+### `lambdaInsightsLogs`<AvailableFrom v="4.0.61"/>
 
 A link to the [Lambda Insights](/docs/lambda/insights), if you enabled it.
 
 ### `folderInS3Console`<AvailableFrom v="3.2.43"/>
 
 A link to the folder in the AWS console where each chunk and render is located.
+
+### `progressJsonInConsole`<AvailableFrom v="4.0.182" />
+
+A link to the `progress.json` file in the AWS console.
 
 ## See also
 

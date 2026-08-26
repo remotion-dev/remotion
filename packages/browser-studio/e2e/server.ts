@@ -77,7 +77,7 @@ Bun.serve({
 	async fetch(request) {
 		const url = new URL(request.url);
 		const headers = {
-			'Cross-Origin-Embedder-Policy': 'credentialless',
+			'Cross-Origin-Embedder-Policy': 'require-corp',
 			'Cross-Origin-Opener-Policy': 'same-origin',
 		};
 
@@ -132,7 +132,13 @@ Bun.serve({
 			return new Response('Not found', {status: 404});
 		}
 
-		return new Response(file, {headers});
+		const shouldStreamWithoutContentLength =
+			url.pathname.endsWith('.wasm') ||
+			url.searchParams.has('browserStudioVendor');
+		return new Response(
+			shouldStreamWithoutContentLength ? file.stream() : file,
+			{headers},
+		);
 	},
 });
 

@@ -4,7 +4,13 @@ const config = remotionFlatConfig({react: true});
 
 export default {
 	...config,
-	files: [...config.files, 'components/**/*.ts', 'components/**/*.tsx'],
+	files: [
+		...config.files,
+		'components/**/*.ts',
+		'components/**/*.tsx',
+		'standalone/**/*.ts',
+		'standalone/**/*.tsx',
+	],
 	rules: {
 		...config.rules,
 		'no-console': 'off',

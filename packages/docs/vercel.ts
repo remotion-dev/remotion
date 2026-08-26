@@ -1,7 +1,7 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
 const browserStudioIsolationHeaders = [
-	{key: 'Cross-Origin-Embedder-Policy', value: 'credentialless'},
+	{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 	{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 ];
 
@@ -39,10 +39,6 @@ export const config: VercelConfig = {
 				value:
 					'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
 			},
-		]),
-		routes.header('/transcribe(.*)', [
-			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
-			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 		]),
 		routes.header('/experimental_new(.*)', browserStudioIsolationHeaders),
 		routes.header('/convert/assets/(.*)', [
