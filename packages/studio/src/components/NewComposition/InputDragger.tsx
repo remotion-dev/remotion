@@ -500,12 +500,12 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	);
 
 	const onFocus = useCallback(() => {
-		if (!small || pointerDownRef.current) {
+		if (pointerDownRef.current) {
 			return;
 		}
 
 		setInputFallback(true);
-	}, [small]);
+	}, []);
 
 	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
 		if (!getClickLock()) {
