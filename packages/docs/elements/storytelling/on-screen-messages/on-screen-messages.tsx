@@ -1,217 +1,149 @@
 import {fontFamily, loadFont} from '@remotion/google-fonts/Inter';
-import {
-	Easing,
-	Interactive,
-	interpolate,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
 loadFont('normal', {
 	subsets: ['latin'],
-	weights: ['500'],
+	weights: ['400'],
 });
 
 export const OnScreenMessages = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
 
 	return (
-		<Interactive.Div
-			name="Container"
-			style={{
-				color: '#f8fafc',
-				fontFamily,
-				height: 680,
-				isolation: 'isolate',
-				position: 'relative',
-				width: 1260,
-			}}
-		>
+		<>
+			<style>{`
+				.on-screen-message-from-them::after,
+				.on-screen-message-from-me::after {
+					bottom: 0;
+					content: '';
+					height: 32px;
+					position: absolute;
+					width: 32px;
+				}
+
+				.on-screen-message-from-them::after {
+					background-color: #e5e5ea;
+					clip-path: path('M32 0H12v16c0 8-4 13-12 16 18 0 32-7 32-16Z');
+					left: -12px;
+				}
+
+				.on-screen-message-from-me::after {
+					background-color: #248bf5;
+					clip-path: path('M0 0h20v16c0 8 4 13 12 16C14 32 0 25 0 16Z');
+					right: -12px;
+				}
+			`}</style>
 			<Interactive.Div
-				name="Message 1"
+				name="Container"
 				style={{
-					backgroundColor: '#e9e9eb',
-					borderRadius: '38px 38px 38px 12px',
-					boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)',
-					boxSizing: 'border-box',
-					color: '#111111',
-					filter: `blur(${interpolate(
-						frame,
-						[8, 26, durationInFrames - 14, durationInFrames - 1],
-						[12, 0, 0, 8],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					)}px)`,
-					fontSize: 46,
-					fontWeight: 500,
-					left: 70,
-					lineHeight: 1.12,
-					opacity: interpolate(
-						frame,
-						[
-							8,
-							26,
-							50,
-							68,
-							94,
-							112,
-							durationInFrames - 14,
-							durationInFrames - 1,
-						],
-						[0, 1, 1, 0.64, 0.64, 0.44, 0.44, 0],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-					padding: '24px 32px 26px',
-					position: 'absolute',
-					scale: interpolate(
-						frame,
-						[8, 26, durationInFrames - 14, durationInFrames - 1],
-						[0.94, 1, 1, 1.015],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-						},
-					),
-					top: 72,
-					translate: interpolate(
-						frame,
-						[8, 26, durationInFrames - 14, durationInFrames - 1],
-						['-42px 10px', '0px 0px', '0px 0px', '-24px -20px'],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-					width: 560,
-					willChange: 'filter, opacity, transform',
+					color: '#f8fafc',
+					fontFamily,
+					height: 680,
+					isolation: 'isolate',
+					position: 'relative',
+					width: 1260,
 				}}
 			>
-				I just saw you at the station.
+				<Interactive.Div
+					className="on-screen-message-from-them"
+					name="Message 1"
+					style={{
+						backgroundColor: '#e5e5ea',
+						borderRadius: 37,
+						boxSizing: 'border-box',
+						color: '#000000',
+						fontSize: 40,
+						fontWeight: 400,
+						left: 70,
+						lineHeight: 1.25,
+						maxWidth: '75%',
+						opacity: interpolate(frame, [2, 10], [0, 1], {
+							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						padding: '16px 28px',
+						position: 'absolute',
+						top: 90,
+						translate: interpolate(frame, [2, 10], ['0px 32px', '0px 0px'], {
+							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						width: 'fit-content',
+						willChange: 'opacity, transform',
+						wordWrap: 'break-word',
+					}}
+				>
+					I just saw you at the station.
+				</Interactive.Div>
+				<Interactive.Div
+					className="on-screen-message-from-me"
+					name="Message 2"
+					style={{
+						backgroundColor: '#248bf5',
+						borderRadius: 37,
+						boxSizing: 'border-box',
+						color: '#ffffff',
+						fontSize: 40,
+						fontWeight: 400,
+						lineHeight: 1.25,
+						maxWidth: '75%',
+						opacity: interpolate(frame, [27, 35], [0, 1], {
+							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						padding: '16px 28px',
+						position: 'absolute',
+						right: 70,
+						top: 204,
+						translate: interpolate(frame, [27, 35], ['0px 32px', '0px 0px'], {
+							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						width: 'fit-content',
+						willChange: 'opacity, transform',
+						wordWrap: 'break-word',
+					}}
+				>
+					I’m still in Berlin.
+				</Interactive.Div>
+				<Interactive.Div
+					className="on-screen-message-from-them"
+					name="Message 3"
+					style={{
+						backgroundColor: '#e5e5ea',
+						borderRadius: 37,
+						boxSizing: 'border-box',
+						color: '#000000',
+						fontSize: 40,
+						fontWeight: 400,
+						left: 70,
+						lineHeight: 1.25,
+						maxWidth: '75%',
+						opacity: interpolate(frame, [52, 59], [0, 1], {
+							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						padding: '16px 28px',
+						position: 'absolute',
+						top: 318,
+						translate: interpolate(frame, [52, 59], ['0px 32px', '0px 0px'], {
+							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						width: 'fit-content',
+						willChange: 'opacity, transform',
+						wordWrap: 'break-word',
+					}}
+				>
+					Then who waved back?
+				</Interactive.Div>
 			</Interactive.Div>
-			<Interactive.Div
-				name="Message 2"
-				style={{
-					backgroundColor: '#0a84ff',
-					borderRadius: '38px 38px 12px 38px',
-					boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)',
-					boxSizing: 'border-box',
-					color: '#ffffff',
-					filter: `blur(${interpolate(
-						frame,
-						[50, 68, durationInFrames - 14, durationInFrames - 1],
-						[12, 0, 0, 8],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					)}px)`,
-					fontSize: 46,
-					fontWeight: 500,
-					lineHeight: 1.12,
-					opacity: interpolate(
-						frame,
-						[50, 68, 94, 112, durationInFrames - 14, durationInFrames - 1],
-						[0, 1, 1, 0.68, 0.68, 0],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-					padding: '24px 32px 26px',
-					position: 'absolute',
-					right: 70,
-					scale: interpolate(
-						frame,
-						[50, 68, durationInFrames - 14, durationInFrames - 1],
-						[0.94, 1, 1, 1.015],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-						},
-					),
-					top: 273,
-					translate: interpolate(
-						frame,
-						[50, 68, durationInFrames - 14, durationInFrames - 1],
-						['42px 10px', '0px 0px', '0px 0px', '24px -20px'],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-					width: 470,
-					willChange: 'filter, opacity, transform',
-				}}
-			>
-				I’m still in Berlin.
-			</Interactive.Div>
-			<Interactive.Div
-				name="Message 3"
-				style={{
-					backgroundColor: '#e9e9eb',
-					borderRadius: '38px 38px 38px 12px',
-					bottom: 64,
-					boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)',
-					boxSizing: 'border-box',
-					color: '#111111',
-					filter: `blur(${interpolate(
-						frame,
-						[94, 112, durationInFrames - 14, durationInFrames - 1],
-						[12, 0, 0, 8],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					)}px)`,
-					fontSize: 46,
-					fontWeight: 500,
-					left: 185,
-					lineHeight: 1.12,
-					opacity: interpolate(
-						frame,
-						[94, 112, durationInFrames - 14, durationInFrames - 1],
-						[0, 1, 1, 0],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-					padding: '24px 32px 26px',
-					position: 'absolute',
-					translate: interpolate(
-						frame,
-						[94, 112, durationInFrames - 14, durationInFrames - 1],
-						['-30px 24px', '0px 0px', '0px 0px', '-20px -24px'],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-					width: 620,
-					willChange: 'filter, opacity, transform',
-				}}
-			>
-				Then who waved back?
-			</Interactive.Div>
-		</Interactive.Div>
+		</>
 	);
 };
