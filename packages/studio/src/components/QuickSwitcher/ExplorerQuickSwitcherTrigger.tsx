@@ -82,7 +82,7 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 		mode === 'assets' ? 'More asset actions' : 'More composition actions';
 
 	return (
-		<div style={quickSwitcherArea} className="__remotion-vertical-scrollbar">
+		<div style={quickSwitcherArea}>
 			<button
 				type="button"
 				style={quickSwitcherTrigger}
