@@ -2,7 +2,10 @@ import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {formatFileLocation} from '../helpers/format-file-location';
+import {
+	formatContextForAgents,
+	formatFileLocation,
+} from '../helpers/format-file-location';
 import {
 	openCompositionComponentInEditor,
 	openOriginalPositionInEditor,
@@ -36,6 +39,11 @@ export const getCompositionMenuItems = ({
 }): ComboboxValue[] => {
 	const fileLocation = formatFileLocation({
 		location: resolvedLocation,
+		root: window.remotion_cwd,
+	});
+	const contextForAgents = formatContextForAgents({
+		location: resolvedLocation,
+		name: composition?.id ?? null,
 		root: window.remotion_cwd,
 	});
 	const showInEditorDisabled =
@@ -188,6 +196,30 @@ export const getCompositionMenuItems = ({
 					id: 'copy-actions-divider',
 				}
 			: null,
+		{
+			id: 'copy-context-for-agents',
+			keyHint: null,
+			label: `Copy context for agents`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				if (!contextForAgents) {
+					return;
+				}
+
+				navigator.clipboard.writeText(contextForAgents).catch((err) => {
+					showNotification(
+						`Could not copy to clipboard: ${(err as Error).message}`,
+						1000,
+					);
+				});
+			},
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-context-for-agents',
+			disabled: !contextForAgents,
+		},
 		{
 			id: 'copy-file-location',
 			keyHint: null,

@@ -1,6 +1,5 @@
-import {afterEach, expect, test} from 'bun:test';
-import type {_InternalTypes} from 'remotion';
-import type {ResolvedStackLocation} from 'remotion';
+import {afterEach, expect, mock, test} from 'bun:test';
+import type {_InternalTypes, ResolvedStackLocation} from 'remotion';
 import {
 	getCompositionContextMenuItems,
 	getCompositionMenuItems,
@@ -10,12 +9,22 @@ const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
 	'window',
 );
+const originalNavigatorDescriptor = Object.getOwnPropertyDescriptor(
+	globalThis,
+	'navigator',
+);
 
 afterEach(() => {
 	if (originalWindowDescriptor) {
 		Object.defineProperty(globalThis, 'window', originalWindowDescriptor);
 	} else {
 		Reflect.deleteProperty(globalThis, 'window');
+	}
+
+	if (originalNavigatorDescriptor) {
+		Object.defineProperty(globalThis, 'navigator', originalNavigatorDescriptor);
+	} else {
+		Reflect.deleteProperty(globalThis, 'navigator');
 	}
 });
 
@@ -95,9 +104,18 @@ test('connected composition context menus omit management actions', () => {
 	expect(ids(items)).toEqual([
 		'open-in-new-window',
 		'open-in-new-window-divider',
+		'copy-context-for-agents',
 		'copy-file-location',
 		'copy-id',
 	]);
+	const copyContext = items.find(
+		(item) => item.id === 'copy-context-for-agents',
+	);
+	if (copyContext?.type !== 'item') {
+		throw new Error('Expected copy context to be a menu item');
+	}
+
+	expect(copyContext.disabled).toBe(true);
 });
 
 test('copy actions are adjacent', () => {
@@ -107,12 +125,43 @@ test('copy actions are adjacent', () => {
 		...commonArgs,
 		includeCompositionManagementItems: true,
 	});
+	const copyContextIndex = items.findIndex(
+		(item) => item.id === 'copy-context-for-agents',
+	);
 	const copyFileLocationIndex = items.findIndex(
 		(item) => item.id === 'copy-file-location',
 	);
 	const copyIdIndex = items.findIndex((item) => item.id === 'copy-id');
 
+	expect(copyFileLocationIndex).toBe(copyContextIndex + 1);
 	expect(copyIdIndex).toBe(copyFileLocationIndex + 1);
+});
+
+test('copies composition context for agents', async () => {
+	installTestWindow();
+	const writeText = mock(() => Promise.resolve());
+	Object.defineProperty(globalThis, 'navigator', {
+		configurable: true,
+		value: {clipboard: {writeText}},
+	});
+
+	const items = getCompositionMenuItems({
+		...commonArgs,
+		includeCompositionManagementItems: false,
+		resolvedLocation,
+	});
+	const copyContext = items.find(
+		(item) => item.id === 'copy-context-for-agents',
+	);
+	if (copyContext?.type !== 'item') {
+		throw new Error('Expected copy context to be a menu item');
+	}
+
+	copyContext.onClick(copyContext.id, null);
+	await Promise.resolve();
+	expect(writeText).toHaveBeenCalledWith(
+		'ConnectedComposition in src/Composition.tsx:10',
+	);
 });
 
 test('editor actions use Open labels and are adjacent', () => {
@@ -161,6 +210,7 @@ test('read-only composition menus keep navigation and copy actions enabled', () 
 	expect(itemById('open-in-new-window').disabled).not.toBe(true);
 	expect(itemById('show-in-editor').disabled).toBe(false);
 	expect(itemById('open-component-in-editor').disabled).toBe(false);
+	expect(itemById('copy-context-for-agents').disabled).toBe(false);
 	expect(itemById('copy-file-location').disabled).toBe(false);
 	expect(itemById('copy-id').disabled).toBe(false);
 	expect(itemById('rename').disabled).toBe(true);
