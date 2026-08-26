@@ -1,6 +1,6 @@
 import React, {forwardRef, useId, useImperativeHandle, useRef} from 'react';
 import {
-	Img,
+	CanvasImage,
 	Interactive,
 	Sequence,
 	type InteractiveBaseProps,
@@ -150,8 +150,9 @@ const SocialSafeZonesInner = forwardRef<
 					</svg>
 
 					{showInterface ? (
-						<Img
-							alt=""
+						<CanvasImage
+							aria-hidden="true"
+							fit="contain"
 							src={
 								platform === 'tiktok'
 									? 'https://remotion.media/elements/social-safe-zones/tiktok-interface.png'
@@ -160,7 +161,6 @@ const SocialSafeZonesInner = forwardRef<
 							style={{
 								height: '100%',
 								left: 0,
-								objectFit: 'contain',
 								position: 'absolute',
 								top: 0,
 								width: '100%',
