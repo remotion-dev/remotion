@@ -44,7 +44,6 @@ export default function TranscribeAudio({
 			});
 
 			await loadWhisperModel({
-				backend: 'webgpu',
 				model: selectedModel,
 				onProgress: (progress) =>
 					setState(() => ({
@@ -58,7 +57,6 @@ export default function TranscribeAudio({
 			}));
 
 			const transcription = await transcribe({
-				backend: 'webgpu',
 				channelWaveform: waveform,
 				model: selectedModel,
 			});

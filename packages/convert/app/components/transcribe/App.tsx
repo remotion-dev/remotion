@@ -33,7 +33,6 @@ const Transcribe: React.FC<{
 			getAvailableModels().map(async ({name: modelName}) => {
 				const cached = await isWhisperModelCached({
 					model: modelName,
-					backend: 'webgpu',
 				}).catch(() => false);
 				return cached ? modelName : null;
 			}),

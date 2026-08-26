@@ -7,7 +7,7 @@ export const TableOfContents: React.FC = () => {
 		<Grid>
 			<TOCItem link="/docs/whisper-webgpu/can-use-whisper-webgpu">
 				<strong>canUseWhisperWebGpu()</strong>
-				<div>Check which inference backend is available</div>
+				<div>Check whether WebGPU is available</div>
 			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/get-available-models">
 				<strong>getAvailableModels()</strong>

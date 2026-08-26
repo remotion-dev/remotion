@@ -43,7 +43,6 @@ const fakePipeline = Object.assign(
 );
 
 mock.module('@huggingface/transformers', () => ({
-	env: {backends: {onnx: {wasm: {numThreads: 0}}}},
 	ModelRegistry: {
 		is_pipeline_cached: (
 			task: string,
@@ -103,7 +102,7 @@ mock.module('@huggingface/transformers', () => ({
 	},
 }));
 
-test('transcribes with timestamps and selects a usable backend', async () => {
+test('transcribes with word timestamps using WebGPU', async () => {
 	const api = await import('../index');
 	const {
 		canUseWhisperWebGpu,
@@ -116,7 +115,6 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 	} = api;
 	const channelWaveform = new Float32Array(16_000 * 3);
 	const result = await transcribe({
-		backend: 'wasm',
 		channelWaveform,
 		language: 'en',
 		model: 'small.en',
@@ -126,8 +124,8 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 		'onnx-community/whisper-small.en_timestamped',
 	);
 	expect(pipelineInitialization?.options).toMatchObject({
-		device: 'wasm',
-		dtype: 'q8',
+		device: 'webgpu',
+		dtype: {encoder_model: 'fp32', decoder_model_merged: 'q4'},
 	});
 	expect(transcriptionCall?.audio).toBe(channelWaveform);
 	expect(transcriptionCall?.options).toMatchObject({
@@ -139,7 +137,6 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 	expect(result).toEqual({
 		text: 'Hello world free today.',
 		model: 'small.en',
-		backend: 'wasm',
 		words: [
 			{text: 'Hello', startInSeconds: 0.25, endInSeconds: 0.75},
 			{text: ' world', startInSeconds: 1, endInSeconds: 1.5},
@@ -193,14 +190,14 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 		'medium.en',
 		'large-v3-turbo',
 	]);
-	expect(models.find((model) => model.name === 'small.en')).toMatchObject({
+	expect(models.find((model) => model.name === 'small.en')).toEqual({
+		name: 'small.en',
+		modelId: 'onnx-community/whisper-small.en_timestamped',
 		parameters: 244_000_000,
 		multilingual: false,
 		webGpuDownloadSize: 586_209_938,
 	});
-	expect(
-		await isWhisperModelCached({backend: 'webgpu', model: 'small.en'}),
-	).toBe(true);
+	expect(await isWhisperModelCached({model: 'small.en'})).toBe(true);
 	expect(cacheCheck).toEqual({
 		task: 'automatic-speech-recognition',
 		modelId: 'onnx-community/whisper-small.en_timestamped',
@@ -235,43 +232,13 @@ test('transcribes with timestamps and selects a usable backend', async () => {
 
 	try {
 		expect(await canUseWhisperWebGpu()).toEqual({
-			supported: true,
-			backend: 'wasm',
-			wasmThreads: 1,
-		});
-		expect(await canUseWhisperWebGpu({backend: 'webgpu'})).toEqual({
 			supported: false,
 			reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
 			detailedReason: 'No usable WebGPU adapter is available in this browser.',
 		});
 
-		const fallbackResult = await transcribe({
-			backend: 'auto',
-			channelWaveform,
-			model: 'base.en',
-		});
-		expect(fallbackResult.backend).toBe('wasm');
-		expect(pipelineInitialization?.options).toMatchObject({
-			device: 'wasm',
-			dtype: 'q8',
-		});
-
 		adapter = {};
-		expect(await canUseWhisperWebGpu()).toEqual({
-			supported: true,
-			backend: 'webgpu',
-			wasmThreads: null,
-		});
-		const webGpuResult = await transcribe({
-			backend: 'auto',
-			channelWaveform,
-			model: 'tiny.en',
-		});
-		expect(webGpuResult.backend).toBe('webgpu');
-		expect(pipelineInitialization?.options).toMatchObject({
-			device: 'webgpu',
-			dtype: {encoder_model: 'fp32', decoder_model_merged: 'q4'},
-		});
+		expect(await canUseWhisperWebGpu()).toEqual({supported: true});
 	} finally {
 		if (originalWindow) {
 			Object.defineProperty(globalThis, 'window', originalWindow);
@@ -298,7 +265,6 @@ test('reports model progress without reaching 100% before every file loads', asy
 		totalBytes: number | null;
 	}> = [];
 	await loadWhisperModel({
-		backend: 'wasm',
 		model: 'medium.en',
 		onProgress: (progress) => {
 			progressValues.push({
@@ -312,12 +278,12 @@ test('reports model progress without reaching 100% before every file loads', asy
 	expect(progressValues[0]).toEqual({
 		progress: 0,
 		loadedBytes: 0,
-		totalBytes: 985_710_974,
+		totalBytes: 1_698_504_047,
 	});
 	expect(progressValues.at(-1)).toEqual({
 		progress: 1,
-		loadedBytes: 985_710_974,
-		totalBytes: 985_710_974,
+		loadedBytes: 1_698_504_047,
+		totalBytes: 1_698_504_047,
 	});
 	const downloading = progressValues.slice(0, -1);
 	expect(
@@ -328,8 +294,8 @@ test('reports model progress without reaching 100% before every file loads', asy
 	]);
 	expect(downloading.map(({progress}) => progress)).toEqual(
 		[0, 500_000_000, 600_000_000, 985_710_974].map((loaded) =>
-			Math.min(loaded / 985_710_974, 0.99),
+			Math.min(loaded / 1_698_504_047, 0.99),
 		),
 	);
-	await disposeWhisperModel({backend: 'wasm', model: 'medium.en'});
+	await disposeWhisperModel({model: 'medium.en'});
 });

@@ -20,7 +20,7 @@ const result = await transcribe({
   language: 'en',
 });
 
-console.log(result.text, result.words, result.backend);
+console.log(result.text, result.words);
 ```
 
 ## Options
@@ -32,10 +32,6 @@ A mono `Float32Array` sampled at 16kHz. Use [`resampleTo16Khz()`](/docs/whisper-
 ### model
 
 One of the timestamped models returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models). `small` or `small.en` is the recommended default.
-
-### backend?
-
-`'auto'`, `'webgpu'`, or `'wasm'`. Default: `'auto'`.
 
 ### language?
 
@@ -55,7 +51,7 @@ Called while the model is loaded. To load independently, use [`loadWhisperModel(
 
 ## Return value
 
-Returns the full `text`, timestamped `words`, selected `model`, and resolved `backend`.
+Returns the full `text`, timestamped `words`, and selected `model`.
 
 Word-level timestamps are returned after transcription completes. Transformers.js does not currently stream word-aligned updates while inference is running.
 

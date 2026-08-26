@@ -13,7 +13,6 @@ import {isWhisperModelCached} from '@remotion/whisper-webgpu';
 
 const downloaded = await isWhisperModelCached({
   model: 'small.en',
-  backend: 'webgpu',
 });
 ```
 
@@ -22,10 +21,6 @@ const downloaded = await isWhisperModelCached({
 ### model
 
 One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models).
-
-### backend
-
-`'webgpu'` or `'wasm'`. The cache is checked for the model files used by that specific backend.
 
 ## Return value
 

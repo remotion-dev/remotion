@@ -6,7 +6,7 @@ crumb: '@remotion/whisper-webgpu'
 
 # canUseWhisperWebGpu()<AvailableFrom v="4.0.518" />
 
-Asynchronously checks whether a usable WebGPU adapter or the WASM fallback can run in the current browser.
+Asynchronously checks whether a usable WebGPU adapter is available in the current browser.
 
 ```ts twoslash title="support.ts"
 import {canUseWhisperWebGpu} from '@remotion/whisper-webgpu';
@@ -16,20 +16,14 @@ if (!result.supported) {
   throw new Error(result.detailedReason);
 }
 
-console.log(result.backend, result.wasmThreads);
+console.log(result.supported);
 ```
 
-## Options
-
-### backend?
-
-`'auto'`, `'webgpu'`, or `'wasm'`. Default: `'auto'`, which requests a WebGPU adapter and uses WASM when no adapter is available.
-
-Requesting `'webgpu'` reports an unsupported result when the WebGPU API or a usable adapter is unavailable, or when the page is not a secure context.
+An unsupported result includes a `reason` and `detailedReason`. WebGPU requires the WebGPU API, a usable adapter, and a secure context.
 
 ## Cross-origin isolation
 
-Cross-origin isolation is not required. It only changes the WASM thread count: isolated pages may use multiple threads, while other pages use one.
+Cross-origin isolation is not required.
 
 ## Compatibility
 

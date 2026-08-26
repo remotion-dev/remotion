@@ -10,7 +10,7 @@ crumb: 'Transcribe audio in browser'
 <p>This package is experimental.</p>
 </ExperimentalBadge>
 
-Transcribe audio locally in the browser using timestamped Whisper models from Transformers.js. WebGPU is used when a usable adapter is available and single-threaded WASM is the fallback.
+Transcribe audio locally in the browser using timestamped Whisper models and WebGPU through Transformers.js.
 
 For new browser transcription integrations, prefer `@remotion/whisper-webgpu`. [`@remotion/whisper-web`](/docs/whisper-web) remains supported and is not deprecated, but requires cross-origin isolation and does not use WebGPU.
 
@@ -50,9 +50,9 @@ The model is downloaded on the first call and cached by the browser. Call [`load
 
 ## Requirements
 
-WebGPU requires HTTPS in production or `localhost` during development. Browsers without WebGPU fall back to WASM.
+WebGPU requires HTTPS in production or `localhost` during development. Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) to check for a usable adapter.
 
-Cross-origin isolation enables multithreaded WASM but is not required. Without it, the WASM fallback uses one thread.
+Cross-origin isolation is not required.
 
 ## License
 

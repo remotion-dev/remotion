@@ -30,12 +30,12 @@ export const WhisperWebGpu = () => {
 		setResult('');
 
 		try {
-			const support = await canUseWhisperWebGpu({backend: 'auto'});
+			const support = await canUseWhisperWebGpu();
 			if (!support.supported) {
 				throw new Error(support.detailedReason);
 			}
 
-			setStatus(`Fetching audio for the ${support.backend} backend...`);
+			setStatus('Fetching audio for WebGPU transcription...');
 			const response = await fetch(audioFileUrl);
 			if (!response.ok) {
 				throw new Error(`Could not fetch audio: HTTP ${response.status}`);
@@ -62,9 +62,7 @@ export const WhisperWebGpu = () => {
 				},
 			});
 			const {captions} = toCaptions({whisperWebGpuOutput: transcription});
-			setStatus(
-				`Done using ${transcription.backend}: ${captions.length} timestamped words.`,
-			);
+			setStatus(`Done: ${captions.length} timestamped words.`);
 			setResult(
 				captions
 					.map(
@@ -113,9 +111,7 @@ export const WhisperWebGpu = () => {
 				{selectedModelInfo ? (
 					<p className="rounded-md bg-slate-100 p-3 text-sm text-slate-700">
 						{selectedModelInfo.multilingual ? 'Multilingual' : 'English-only'} ·{' '}
-						{formatMegabytes(selectedModelInfo.webGpuDownloadSize)} WebGPU
-						download · {formatMegabytes(selectedModelInfo.wasmDownloadSize)}{' '}
-						WASM download
+						{formatMegabytes(selectedModelInfo.webGpuDownloadSize)} download
 					</p>
 				) : null}
 

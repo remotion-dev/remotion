@@ -1,15 +1,8 @@
-export type {
-	ResolvedWhisperWebGpuBackend,
-	WhisperWebGpuBackend,
-} from './backend';
 export {
 	canUseWhisperWebGpu,
 	WhisperWebGpuUnsupportedReason,
 } from './can-use-whisper-webgpu';
-export type {
-	CanUseWhisperWebGpuOptions,
-	CanUseWhisperWebGpuResult,
-} from './can-use-whisper-webgpu';
+export type {CanUseWhisperWebGpuResult} from './can-use-whisper-webgpu';
 export {disposeWhisperModel, loadWhisperModel} from './load-whisper-model';
 export type {
 	DisposeWhisperModelOptions,

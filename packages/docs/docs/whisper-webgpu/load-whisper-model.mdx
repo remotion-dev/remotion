@@ -18,7 +18,7 @@ const result = await loadWhisperModel({
   },
 });
 
-console.log(result.backend, result.alreadyLoaded);
+console.log(result.alreadyLoaded);
 ```
 
 ## Options
@@ -27,17 +27,13 @@ console.log(result.backend, result.alreadyLoaded);
 
 One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models).
 
-### backend?
-
-`'auto'`, `'webgpu'`, or `'wasm'`. Default: `'auto'`.
-
 ### onProgress?
 
 Called while model files are resolved and downloaded. `progress` is the aggregate download progress between `0` and `1` and never decreases.
 
 ## Return value
 
-Returns the selected `backend` and whether the same model pipeline was already loaded in memory.
+Returns whether the same model pipeline was already loaded in memory.
 
 The browser manages its persistent Transformers.js cache. This function also retains the initialized model in memory until [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) is called or the page closes.
 

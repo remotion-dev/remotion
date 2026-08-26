@@ -1,7 +1,3 @@
-import type {
-	ResolvedWhisperWebGpuBackend,
-	WhisperWebGpuBackend,
-} from './backend';
 import {
 	getLoadedWhisperPipeline,
 	type OnWhisperWebGpuModelLoadProgress,
@@ -18,13 +14,11 @@ export type WhisperWebGpuTranscription = {
 	text: string;
 	words: WhisperWebGpuWord[];
 	model: WhisperWebGpuModel;
-	backend: ResolvedWhisperWebGpuBackend;
 };
 
 export type TranscribeOptions = {
 	channelWaveform: Float32Array;
 	model: WhisperWebGpuModel;
-	backend?: WhisperWebGpuBackend;
 	language?: string;
 	chunkLengthInSeconds?: number;
 	strideLengthInSeconds?: number;
@@ -44,7 +38,6 @@ type TransformersJsTranscription = {
 export const transcribe = async ({
 	channelWaveform,
 	model,
-	backend = 'auto',
 	language = 'auto',
 	chunkLengthInSeconds = 30,
 	strideLengthInSeconds = 5,
@@ -67,12 +60,10 @@ export const transcribe = async ({
 		);
 	}
 
-	const {pipeline: transcriber, backend: resolvedBackend} =
-		await getLoadedWhisperPipeline({
-			model,
-			backend,
-			onProgress: onModelLoadProgress,
-		});
+	const transcriber = await getLoadedWhisperPipeline({
+		model,
+		onProgress: onModelLoadProgress,
+	});
 
 	const output = (await transcriber(channelWaveform, {
 		return_timestamps: 'word',
@@ -125,6 +116,5 @@ export const transcribe = async ({
 		text: output.text.trimStart(),
 		words,
 		model,
-		backend: resolvedBackend,
 	};
 };
