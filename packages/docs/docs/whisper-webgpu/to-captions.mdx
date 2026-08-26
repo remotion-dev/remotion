@@ -21,7 +21,7 @@ const {captions} = toCaptions({whisperWebGpuOutput: transcription});
 console.log(captions);
 ```
 
-`startMs` and `endMs` use the model's word boundaries. `timestampMs` is the midpoint of each word. `confidence` is `null` because Transformers.js does not expose calibrated word confidence values for this pipeline.
+`startMs` and `endMs` use the model's word boundaries. `timestampMs` is the midpoint of each word. `confidence` is `null` because [Transformers.js](https://huggingface.co/docs/transformers.js) does not expose calibrated word confidence values for this pipeline.
 
 ## Options
 
