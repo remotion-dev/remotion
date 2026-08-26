@@ -81,6 +81,7 @@ export const rspackConfig = async ({
 
 	const baseConfig = {
 		...getBaseConfig(environment, poll),
+		// Remove once https://github.com/huggingface/transformers.js/issues/1759 is resolved.
 		ignoreWarnings: [
 			{
 				module:
