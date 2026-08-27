@@ -35,6 +35,7 @@ import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
+import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
@@ -87,6 +88,11 @@ const emptyState: React.CSSProperties = {
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
+};
+
+const effectsHeaderTitle: React.CSSProperties = {
+	...sectionHeaderTitle,
+	flexShrink: 1,
 };
 
 const borderRadiusToggleIcon: React.CSSProperties = {
@@ -201,7 +207,7 @@ const persistInspectorCollapsedKeys = (keys: ReadonlySet<string>): void => {
 };
 
 type InspectorSectionExpansionOverrides = Readonly<Record<string, boolean>>;
-type AdditionalInspectorSectionId = 'captions' | 'effects';
+type AdditionalInspectorSectionId = 'captions';
 
 const loadInspectorSectionExpansionOverrides =
 	(): InspectorSectionExpansionOverrides => {
@@ -604,7 +610,6 @@ export const InspectorSequenceSection: React.FC<{
 		[isAdditionalSectionExpanded, nodePathInfo],
 	);
 	const captionsExpanded = isAdditionalSectionExpanded('captions');
-	const effectsExpanded = isAdditionalSectionExpanded('effects');
 	const visibleControlRows = controlGroups.flatMap((group) => {
 		return isControlGroupExpanded(group) ? group.rows : [];
 	});
@@ -747,20 +752,16 @@ export const InspectorSequenceSection: React.FC<{
 	);
 
 	const effectsHeader = (
-		<CollapsibleInspectorSectionHeader
-			action={
-				<InlineAction
-					variant={null}
-					disabled={!canAddEffect}
-					onClick={onAddEffect}
-					title={canAddEffect ? 'Add effect' : undefined}
-					renderAction={(color) => <Plus color={color} style={plusIcon} />}
-				/>
-			}
-			expanded={effectsExpanded}
-			label="Effects"
-			onToggle={() => toggleAdditionalSection('effects')}
-		/>
+		<div style={sectionHeaderRow}>
+			<div style={effectsHeaderTitle}>Effects</div>
+			<InlineAction
+				variant={null}
+				disabled={!canAddEffect}
+				onClick={onAddEffect}
+				title={canAddEffect ? 'Add effect' : undefined}
+				renderAction={(color) => <Plus color={color} style={plusIcon} />}
+			/>
+		</div>
 	);
 
 	const renderRow = ({node, depth}: FlatTreeRow) => {
@@ -859,7 +860,7 @@ export const InspectorSequenceSection: React.FC<{
 				) : null}
 				{showEffectsSection ? (
 					<InspectorSection header={effectsHeader}>
-						{effectsExpanded && effectRows.length > 0 ? (
+						{effectRows.length > 0 ? (
 							<TimelineSelectionOrderProvider items={effectSelectableItems}>
 								{effectRows.map(renderRow)}
 							</TimelineSelectionOrderProvider>

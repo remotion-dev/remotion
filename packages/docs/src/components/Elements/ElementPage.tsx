@@ -54,9 +54,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
 		useState(false);
-	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState<boolean | null>(
-		null,
-	);
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
@@ -171,7 +169,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					<ElementPreview
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
+						elementHeight={definition.elementHeight}
+						elementWidth={definition.elementWidth}
 						fps={fps}
+						previewLayout={definition.preview.previewLayout}
+						safeArea={definition.safeArea}
 					/>
 					{children ? (
 						<div className={styles.sourceArea}>

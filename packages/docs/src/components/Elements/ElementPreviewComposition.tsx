@@ -54,13 +54,24 @@ export const ElementPreviewComposition: React.FC<{
 			<Sequence height={elementHeight} layout="none" width={elementWidth}>
 				<div
 					style={{
-						height: elementHeight,
+						height: elementHeight * scale,
 						position: 'relative',
-						scale,
-						width: elementWidth,
+						width: elementWidth * scale,
 					}}
 				>
-					<Component />
+					<div
+						style={{
+							height: elementHeight,
+							left: 0,
+							position: 'absolute',
+							top: 0,
+							transform: `scale(${scale})`,
+							transformOrigin: 'top left',
+							width: elementWidth,
+						}}
+					>
+						<Component />
+					</div>
 				</div>
 			</Sequence>
 		</AbsoluteFill>

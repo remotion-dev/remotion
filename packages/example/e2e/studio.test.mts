@@ -322,6 +322,7 @@ test.describe('visual mode', () => {
 			await expect(missingComposition).toBeVisible();
 			expect(await dropFile({...file, target: missingComposition})).toBe(true);
 			await expect(modalTitle).toBeVisible();
+			await expect(page.getByTitle('Folder')).toHaveText('None');
 			await page.keyboard.press('Escape');
 
 			await page.getByText('Assets', {exact: true}).click();
@@ -504,7 +505,7 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should preserve the sequence inspector scroll position when adding an effect', async ({
+	test('should keep Effects expanded and preserve the inspector scroll position when adding an effect', async ({
 		page,
 	}) => {
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
@@ -518,6 +519,10 @@ test.describe('visual mode', () => {
 			await page.getByTitle('Scale precision', {exact: true}).first().click();
 			await expect(addEffectButton).toBeVisible({timeout: 1000});
 		}).toPass({timeout: 15_000});
+		await expect(page.getByText('wave()', {exact: true})).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
+		).toHaveCount(0);
 		const inspector = page
 			.locator('.__remotion-vertical-scrollbar')
 			.filter({has: addEffectButton});
@@ -965,6 +970,14 @@ test.describe('visual mode', () => {
 			'Schema',
 			'AnimatedBarChart',
 		]);
+		const registeredCompositionItems = await page
+			.locator('.__remotion-composition-selector-item[data-compname]')
+			.evaluateAll((items) =>
+				items.map((item) => item.getAttribute('data-compname') ?? ''),
+			);
+		const alphabeticalCompositionItems = [...registeredCompositionItems].sort(
+			(a, b) => a.localeCompare(b, undefined, {numeric: true}),
+		);
 		await page.getByRole('button', {name: 'More composition actions'}).click();
 		await expect(
 			page.getByRole('button', {name: 'New composition...', exact: true}),
@@ -972,10 +985,89 @@ test.describe('visual mode', () => {
 		await expect(
 			page.getByRole('button', {name: 'New folder...', exact: true}),
 		).toBeVisible();
+		await expect(page.getByText('Sort', {exact: true})).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Alphabetically', exact: true})
+			.click();
+		await expect
+			.poll(() =>
+				page
+					.locator('.__remotion-composition-selector-item[data-compname]')
+					.evaluateAll((items) =>
+						items.map((item) => item.getAttribute('data-compname') ?? ''),
+					),
+			)
+			.toEqual(alphabeticalCompositionItems);
+		await page.reload();
+		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
+			timeout: 15_000,
+		});
+		await expect
+			.poll(() =>
+				page
+					.locator('.__remotion-composition-selector-item[data-compname]')
+					.evaluateAll((items) =>
+						items.map((item) => item.getAttribute('data-compname') ?? ''),
+					),
+			)
+			.toEqual(alphabeticalCompositionItems);
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
+			.getByRole('button', {name: 'New composition...', exact: true})
+			.click();
+		await page.getByTitle('Folder').click();
+		const rootFolderNames = [
+			'Schema',
+			'visual-controls',
+			'lost-node-path',
+			'error-overlay',
+			'hook-order-change',
+		];
+		const getVisibleRootFolderOrder = () =>
+			page
+				.locator('[data-remotion-menu-tree-id]')
+				.last()
+				.getByRole('button')
+				.allTextContents()
+				.then((items) =>
+					items
+						.map((item) => item.trim())
+						.filter((item) => rootFolderNames.includes(item)),
+				);
+		await expect
+			.poll(getVisibleRootFolderOrder)
+			.toEqual([
+				'error-overlay',
+				'hook-order-change',
+				'lost-node-path',
+				'Schema',
+				'visual-controls',
+			]);
+		await page.keyboard.press('Escape');
+		await page.keyboard.press('Escape');
+
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
+			.getByRole('button', {name: 'As registered', exact: true})
+			.click();
+		await expect
+			.poll(() =>
+				page
+					.locator('.__remotion-composition-selector-item')
+					.evaluateAll((items) =>
+						items.slice(0, 3).map((item) => item.getAttribute('title')),
+					),
+			)
+			.toEqual(firstCompositionItems);
+
+		await page.getByRole('button', {name: 'More composition actions'}).click();
 		await page
 			.getByRole('button', {name: 'New composition...', exact: true})
 			.click();
 		await expect(page.getByPlaceholder('Composition ID')).toBeVisible();
+		await page.getByTitle('Folder').click();
+		await expect.poll(getVisibleRootFolderOrder).toEqual(rootFolderNames);
+		await page.keyboard.press('Escape');
 		await page.keyboard.press('Escape');
 		await page.getByRole('button', {name: 'More composition actions'}).click();
 		await page
@@ -1042,6 +1134,7 @@ test.describe('visual mode', () => {
 
 	test('should navigate to a newly created composition', async ({page}) => {
 		const compositionId = 'NewlyCreatedComposition';
+		const rootFile = path.join(exampleDir, 'src', 'E2eTestRoot.tsx');
 		const compositionFile = path.join(
 			exampleDir,
 			'src',
@@ -1059,6 +1152,18 @@ test.describe('visual mode', () => {
 			await page
 				.getByRole('textbox', {name: 'Composition ID'})
 				.fill(compositionId);
+			await page.getByTitle('Folder').click();
+			const schemaFolderOption = page
+				.getByRole('button', {name: 'Schema', exact: true})
+				.last();
+			const schemaFolderLabel = schemaFolderOption.getByText('Schema', {
+				exact: true,
+			});
+			await expect(schemaFolderLabel).toHaveCSS('font-size', '13px');
+			await schemaFolderOption.hover();
+			await expect(schemaFolderLabel).toHaveCSS('font-size', '13px');
+			await schemaFolderOption.click();
+			await expect(page.getByTitle('Folder')).toHaveText('Schema');
 
 			const createButton = page.getByRole('button', {
 				name: /Add to .*/,
@@ -1072,9 +1177,19 @@ test.describe('visual mode', () => {
 			await expect(page).toHaveTitle(new RegExp(compositionId), {
 				timeout: 5_000,
 			});
+			const rootContents = fs.readFileSync(rootFile, 'utf8');
+			const folderStart = rootContents.indexOf('<Folder name="Schema">');
+			const folderEnd = rootContents.indexOf('</Folder>', folderStart);
+			if (folderStart === -1 || folderEnd === -1) {
+				throw new Error('Could not find the Schema folder in the root file');
+			}
+
+			const compositionPosition = rootContents.indexOf(`id="${compositionId}"`);
+			expect(compositionPosition).toBeGreaterThan(folderStart);
+			expect(compositionPosition).toBeLessThan(folderEnd);
 		} finally {
 			const undoButton = page.getByRole('button', {name: /^Undo/});
-			if (await undoButton.isEnabled()) {
+			if ((await undoButton.count()) > 0 && (await undoButton.isEnabled())) {
 				await undoButton.click();
 				await expect.poll(() => fs.existsSync(compositionFile)).toBe(false);
 			}

@@ -46,7 +46,10 @@ import {
 	type ElementSlug,
 } from './element-registry';
 
+export type ElementPreviewLayout = 'composition' | 'vertical';
+
 export type ElementPreviewMetadata = {
+	readonly previewLayout: ElementPreviewLayout;
 	readonly posterUrl:
 		| `/elements/${string}-preview.png`
 		| `https://remotion.media/elements/${string}-preview.png`;
@@ -92,6 +95,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 105,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/audio-oscilloscope-preview.png',
 			videoUrl:
@@ -117,6 +121,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 105,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/audio-mirrored-spectrum-preview.png',
 			videoUrl:
@@ -139,6 +144,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 120,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-liquid-contours-preview.png',
 			videoUrl:
@@ -164,6 +170,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 240,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/maps-map-flyover-preview.png',
 			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
 		},
@@ -187,6 +194,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 145,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/maps-watercolor-map-preview.png',
 			videoUrl:
@@ -208,6 +216,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 0,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-notebook-paper-preview.png',
 			videoUrl:
@@ -230,6 +239,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 60,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-paper-texture-preview.png',
 			videoUrl:
@@ -251,6 +261,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 120,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.png',
 			videoUrl:
@@ -272,6 +283,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 60,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/overlays-location-lower-third-preview.png',
 			videoUrl:
@@ -294,6 +306,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 60,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/overlays-name-lower-third-preview.png',
 			videoUrl:
@@ -310,12 +323,13 @@ const elementImplementations = {
 			'Capture-calibrated safe-area guides for TikTok and Instagram Reels.',
 		dependencies: [],
 		durationInFrames: 120,
-		elementHeight: null,
-		elementWidth: null,
+		elementHeight: 1920,
+		elementWidth: 1080,
 		fps: 30,
 		height: 1920,
 		posterFrame: 0,
 		preview: {
+			previewLayout: 'vertical',
 			posterUrl:
 				'https://remotion.media/elements/overlays-social-safe-zones-preview.png',
 			videoUrl:
@@ -337,6 +351,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 135,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.png',
 			videoUrl:
@@ -359,6 +374,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 75,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/overlays-social-endcard-preview.png',
 			videoUrl:
@@ -385,6 +401,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 50,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.png',
 			videoUrl:
@@ -406,6 +423,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 70,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.png',
 			videoUrl:
@@ -427,6 +445,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 70,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/data-line-chart-preview.png',
 			videoUrl: 'https://remotion.media/elements/data-line-chart-preview.mp4',
 		},
@@ -447,6 +466,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 70,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/data-pie-chart-preview.png',
 			videoUrl: 'https://remotion.media/elements/data-pie-chart-preview.mp4',
 		},
@@ -472,6 +492,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 60,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/data-number-counter-preview.png',
 			videoUrl:
@@ -494,6 +515,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 115,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.png',
 			videoUrl:
@@ -516,6 +538,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 90,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/commerce-product-collection-preview.png',
 			videoUrl:
@@ -541,6 +564,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 57,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.png',
 			videoUrl:
@@ -563,6 +587,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 75,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/commerce-product-offer-preview.png',
 			videoUrl:
@@ -588,6 +613,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 60,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-circle-marker-preview.png',
 			videoUrl:
@@ -613,6 +639,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 60,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/text-crossed-off-preview.png',
 			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
 		},
@@ -633,6 +660,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 105,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-spinning-text-wheel-preview.png',
 			videoUrl:
@@ -655,6 +683,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 114,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/storytelling-on-screen-messages-preview.png',
 			videoUrl:
@@ -677,6 +706,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 82,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/storytelling-polaroid-pictures-preview.png',
 			videoUrl:
@@ -699,6 +729,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 100,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-news-article-highlight-preview.png',
 			videoUrl:
@@ -724,6 +755,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 60,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-strike-through-preview.png',
 			videoUrl:
@@ -749,6 +781,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 60,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/text-text-marker-preview.png',
 			videoUrl: 'https://remotion.media/elements/text-text-marker-preview.mp4',
 		},
@@ -773,6 +806,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 75,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-moving-pill-captions-preview.png',
 			videoUrl:
@@ -798,6 +832,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 75,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-popping-word-captions-preview.png',
 			videoUrl:
@@ -823,6 +858,7 @@ const elementImplementations = {
 		height: 1080,
 		posterFrame: 75,
 		preview: {
+			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-word-highlight-captions-preview.png',
 			videoUrl:

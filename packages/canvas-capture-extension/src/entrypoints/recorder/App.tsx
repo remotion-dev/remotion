@@ -1,8 +1,8 @@
+import {Button, Slider} from '@remotion/design';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {browser} from 'wxt/browser';
 import {
 	captureControllerMessageType,
-	isCapturePopupTargetMessage,
 	type CaptureControllerRequest,
 	type CaptureControllerState,
 } from '../../messages';
@@ -36,7 +36,7 @@ export const App: React.FC = () => {
 	const [connectionMessage, setConnectionMessage] = useState(
 		'Connecting to the selected tab…',
 	);
-	const [scaleInput, setScaleInput] = useState('1');
+	const [scaleInput, setScaleInput] = useState(1);
 
 	const applyState = useCallback((nextState: CaptureControllerState) => {
 		currentState.current = nextState;
@@ -132,34 +132,26 @@ export const App: React.FC = () => {
 
 	useEffect(() => {
 		if (state && document.activeElement?.id !== 'scale') {
-			setScaleInput(String(state.scale));
+			setScaleInput(state.scale);
 		}
 	}, [state]);
 
 	useEffect(() => {
-		const onMessage = (message: unknown) => {
-			if (!isCapturePopupTargetMessage(message)) {
-				return;
-			}
+		browser.tabs
+			.query({active: true, currentWindow: true})
+			.then(([tab]) => {
+				if (tab?.id === undefined) {
+					renderDisconnected('No active tab is available.');
+					return;
+				}
 
-			connectToTab(message.tabId).catch(() => undefined);
-		};
-
-		browser.runtime.onMessage.addListener(onMessage);
-		return () => browser.runtime.onMessage.removeListener(onMessage);
-	}, [connectToTab]);
-
-	useEffect(() => {
-		const initialTabId = Number(
-			new URL(window.location.href).searchParams.get('tabId'),
-		);
-		if (Number.isInteger(initialTabId) && initialTabId >= 0) {
-			connectToTab(initialTabId).catch(() => undefined);
-		} else {
-			renderDisconnected(
-				'No target tab was provided. Click the extension icon on the page you want to capture.',
-			);
-		}
+				return connectToTab(tab.id);
+			})
+			.catch((error) => {
+				renderDisconnected(
+					error instanceof Error ? error.message : String(error),
+				);
+			});
 	}, [connectToTab, renderDisconnected]);
 
 	useEffect(() => {
@@ -181,21 +173,7 @@ export const App: React.FC = () => {
 						return;
 					}
 
-					const selectionFinished =
-						currentState.current?.selecting && !nextState.selecting;
 					applyState(nextState);
-					if (selectionFinished) {
-						browser.windows
-							.getCurrent()
-							.then((recorderWindow) => {
-								if (recorderWindow.id !== undefined) {
-									return browser.windows.update(recorderWindow.id, {
-										focused: true,
-									});
-								}
-							})
-							.catch(() => undefined);
-					}
 				})
 				.catch((error) => {
 					if (activeTabId.current === tabId) {
@@ -213,6 +191,7 @@ export const App: React.FC = () => {
 	}, [applyState, renderDisconnected]);
 
 	const controlsDisabled = busy || !state || state.finalizing;
+	const setupDisabled = controlsDisabled || state?.hasCompletedRecording;
 	const targetLabel = state?.targetLabel
 		? `${state.targetLabel}${
 				state.outputSize
@@ -241,50 +220,15 @@ export const App: React.FC = () => {
 		<main className="app-shell">
 			<header className="header">
 				<img className="logo" src="/logo.svg" alt="" />
-				<div>
-					<h1>Canvas Capture</h1>
-					<p>High-resolution recording for the web</p>
-				</div>
+				<h1>Canvas Capture</h1>
 			</header>
-
-			<section className="panel settings-panel">
-				<div className="field">
-					<label>Format</label>
-					<div className="format-value">
-						{state?.format === 'webm' ? 'WebM · VP9' : 'MP4 · H.264'}
-					</div>
-				</div>
-
-				<div className="field">
-					<label htmlFor="scale">Scale</label>
-					<div className="scale-control">
-						<input
-							id="scale"
-							type="number"
-							min="0.1"
-							step="0.1"
-							disabled={controlsDisabled || state?.recording}
-							value={scaleInput}
-							onChange={(event) => setScaleInput(event.currentTarget.value)}
-							onBlur={() => updateOptions(Number(scaleInput))}
-							onKeyDown={(event) => {
-								if (event.key === 'Enter') {
-									event.currentTarget.blur();
-								}
-							}}
-						/>
-						<span>×</span>
-					</div>
-				</div>
-			</section>
 
 			<section className="capture-section">
 				<div className="section-label">Capture target</div>
 				<div className="button-row">
-					<button
+					<Button
 						className="secondary-button"
-						type="button"
-						disabled={controlsDisabled || state?.recording}
+						disabled={setupDisabled || state?.recording}
 						onClick={() => {
 							const command = state?.selecting
 								? 'cancel-selection'
@@ -295,33 +239,16 @@ export const App: React.FC = () => {
 										return;
 									}
 
-									const tabId = activeTabId.current;
-									if (tabId === null) {
-										return;
-									}
-
-									browser.tabs
-										.get(tabId)
-										.then(async (tab) => {
-											await browser.tabs.update(tabId, {active: true});
-											if (tab.windowId !== undefined) {
-												await browser.windows.update(tab.windowId, {
-													focused: true,
-												});
-											}
-										})
-										.catch(() => undefined);
+									window.close();
 								})
 								.catch(() => undefined);
 						}}
 					>
-						<span className="selection-icon" aria-hidden="true" />
 						{state?.selecting ? 'Cancel selection' : 'Select area'}
-					</button>
-					<button
+					</Button>
+					<Button
 						className="secondary-button"
-						type="button"
-						disabled={controlsDisabled || state?.recording}
+						disabled={setupDisabled || state?.recording}
 						onClick={() =>
 							runCommand({
 								type: captureControllerMessageType,
@@ -329,58 +256,100 @@ export const App: React.FC = () => {
 							}).catch(() => undefined)
 						}
 					>
-						<span className="page-icon" aria-hidden="true" />
 						Whole page
-					</button>
+					</Button>
 				</div>
-				<div className={`target-card${state?.hasTarget ? ' selected' : ''}`}>
-					<span className="target-dot" />
-					<span>{targetLabel}</span>
+			</section>
+
+			<section className="settings-panel">
+				<div className="field">
+					<label>Format</label>
+					<div className="format-value">
+						{state?.format === 'webm' ? 'WebM · VP9' : 'MP4 · H.264'}
+					</div>
+				</div>
+
+				<div className="field">
+					<label htmlFor="scale">Scale</label>
+					<div className="scale-control">
+						<Slider
+							id="scale"
+							min="0.1"
+							max="4"
+							step="0.1"
+							disabled={setupDisabled || state?.recording}
+							value={scaleInput}
+							onChange={setScaleInput}
+							onPointerUp={(event) =>
+								updateOptions(Number(event.currentTarget.value))
+							}
+							onKeyUp={(event) =>
+								updateOptions(Number(event.currentTarget.value))
+							}
+						/>
+						<output htmlFor="scale">{Number(scaleInput.toFixed(1))}×</output>
+					</div>
 				</div>
 			</section>
 
 			<div className="actions">
-				<button
-					className={`record-button${state?.recording ? ' recording' : ''}`}
-					type="button"
-					disabled={recordDisabled}
-					title={state?.encoderSupport === 'unsupported' ? state.status : ''}
-					onClick={() => {
-						if (state?.recording) {
-							runCommand({
-								type: captureControllerMessageType,
-								command: 'stop-recording',
-								destination: 'convert',
-							}).catch(() => undefined);
-							return;
-						}
+				{state?.hasCompletedRecording ? (
+					<div className="completed-recording">
+						<div className="completed-title">Recording ready</div>
+						<div className="completed-actions">
+							<Button
+								className="convert-button"
+								disabled={controlsDisabled}
+								onClick={() =>
+									runCommand({
+										type: captureControllerMessageType,
+										command: 'open-in-convert',
+									}).catch(() => undefined)
+								}
+							>
+								Open in Convert
+							</Button>
+							<Button
+								className="download-button"
+								disabled={controlsDisabled}
+								onClick={() =>
+									runCommand({
+										type: captureControllerMessageType,
+										command: 'download-recording',
+									}).catch(() => undefined)
+								}
+							>
+								Download {state.format === 'mp4' ? 'MP4' : 'WebM'}
+							</Button>
+						</div>
+					</div>
+				) : (
+					<Button
+						className={`record-button${state?.recording ? ' recording' : ''}`}
+						disabled={recordDisabled}
+						title={state?.encoderSupport === 'unsupported' ? state.status : ''}
+						onClick={() => {
+							if (state?.recording) {
+								runCommand({
+									type: captureControllerMessageType,
+									command: 'stop-recording',
+								}).catch(() => undefined);
+								return;
+							}
 
-						runCommand({
-							type: captureControllerMessageType,
-							command: 'start-recording',
-							scale: state?.scale ?? 1,
-						}).catch(() => undefined);
-					}}
-				>
-					<span className="record-icon" aria-hidden="true" />
-					{state?.recording ? 'Stop & open in Convert' : 'Start recording'}
-				</button>
-				{state?.recording ? (
-					<button
-						className="download-button"
-						type="button"
-						disabled={controlsDisabled}
-						onClick={() =>
 							runCommand({
 								type: captureControllerMessageType,
-								command: 'stop-recording',
-								destination: 'download',
-							}).catch(() => undefined)
-						}
+								command: 'start-recording',
+								scale: state?.scale ?? 1,
+							}).catch(() => undefined);
+						}}
 					>
-						Download {state.format === 'mp4' ? 'MP4' : 'WebM'}
-					</button>
-				) : null}
+						{state?.recording ? 'Stop recording' : 'Start recording'}
+					</Button>
+				)}
+				<div className={`target-summary${state?.hasTarget ? ' selected' : ''}`}>
+					{targetLabel}
+				</div>
 			</div>
 
 			<footer className={`status${statusIsError ? ' error' : ''}`}>
