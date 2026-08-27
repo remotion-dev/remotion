@@ -2,7 +2,7 @@ import {existsSync, readFileSync} from 'node:fs';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 
-export const getFreeMemoryFromProcMeminfo = (
+export const getAvailableMemoryFromProcMeminfo = (
 	logLevel: LogLevel,
 ): number | null => {
 	if (!existsSync('/proc/meminfo')) {
@@ -11,7 +11,8 @@ export const getFreeMemoryFromProcMeminfo = (
 
 	try {
 		const data = readFileSync('/proc/meminfo', 'utf-8');
-		// Split the file by lines and find the line with MemFree
+		// MemAvailable includes reclaimable memory and is a better estimate than MemFree
+		// of how much memory can be allocated without swapping.
 		const lines = data.split('\n');
 		const memAvailableLine = lines.find((line) =>
 			line.startsWith('MemAvailable'),

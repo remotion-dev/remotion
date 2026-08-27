@@ -3,45 +3,41 @@ import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import {getAvailableMemoryFromCgroup} from './from-docker-cgroup';
 import {getMaxLambdaMemory} from './from-lambda-env';
-import {getFreeMemoryFromProcMeminfo} from './from-proc-meminfo';
+import {getAvailableMemoryFromMacOS} from './from-macos-memory-pressure';
+import {getAvailableMemoryFromProcMeminfo} from './from-proc-meminfo';
+
+type MemoryEstimate = {
+	bytes: number;
+	source: string;
+};
 
 export const getAvailableMemory = (logLevel: LogLevel) => {
-	// If we are in Lambda, the most reliable way is to read the environment variable
-	// This is also pretty much free
-	const maxMemory = getMaxLambdaMemory();
+	const procInfo = getAvailableMemoryFromProcMeminfo(logLevel);
+	const macOSMemory = getAvailableMemoryFromMacOS(logLevel);
+	const hostEstimate: MemoryEstimate =
+		procInfo !== null
+			? {bytes: procInfo, source: '/proc/meminfo MemAvailable'}
+			: macOSMemory !== null
+				? {bytes: macOSMemory, source: 'macOS memory_pressure'}
+				: {bytes: freemem(), source: 'os.freemem()'};
 
-	if (maxMemory !== null) {
-		const nodeMemory = freemem();
-		return Math.min(nodeMemory, maxMemory);
-	}
-
-	// If cgroup memory data is available, we are in Docker, and we should respect it
+	const estimates = [hostEstimate];
 	const cgroupMemory = getAvailableMemoryFromCgroup();
-	if (cgroupMemory !== null) {
+	if (cgroupMemory !== null && Number.isFinite(cgroupMemory)) {
 		// There are 2 Docker memory configurations:
 		// 1. --memory=[num]
 		// 2. Global Docker memory limit
 
 		// If cgroup limit is higher than global memory, the global memory limit still applies
-		const nodeMemory = freemem();
-		const _procInfo = getFreeMemoryFromProcMeminfo(logLevel);
-
-		if (cgroupMemory > nodeMemory * 1.25 && Number.isFinite(cgroupMemory)) {
+		if (cgroupMemory > hostEstimate.bytes * 1.25) {
 			Log.warn({indent: false, logLevel}, 'Detected differing memory amounts:');
 			Log.warn(
 				{indent: false, logLevel},
 				`Memory reported by CGroup: ${(cgroupMemory / 1024 / 1024).toFixed(2)} MB`,
 			);
-			if (_procInfo !== null) {
-				Log.warn(
-					{indent: false, logLevel},
-					`Memory reported by /proc/meminfo: ${(_procInfo / 1024 / 1024).toFixed(2)} MB`,
-				);
-			}
-
 			Log.warn(
 				{indent: false, logLevel},
-				`Memory reported by Node: ${(nodeMemory / 1024 / 1024).toFixed(2)} MB`,
+				`Host available memory reported by ${hostEstimate.source}: ${(hostEstimate.bytes / 1024 / 1024).toFixed(2)} MB`,
 			);
 			Log.warn(
 				{indent: false, logLevel},
@@ -53,14 +49,28 @@ export const getAvailableMemory = (logLevel: LogLevel) => {
 			);
 		}
 
-		return Math.min(nodeMemory, cgroupMemory);
+		estimates.push({
+			bytes: Math.max(0, cgroupMemory),
+			source: 'remaining CGroup allocation',
+		});
 	}
 
-	const procInfo = getFreeMemoryFromProcMeminfo(logLevel);
-
-	if (procInfo !== null) {
-		return Math.min(freemem(), procInfo);
+	const maxLambdaMemory = getMaxLambdaMemory();
+	if (maxLambdaMemory !== null && Number.isFinite(maxLambdaMemory)) {
+		estimates.push({
+			bytes: Math.max(0, maxLambdaMemory),
+			source: 'AWS Lambda memory limit',
+		});
 	}
 
-	return freemem();
+	const selected = estimates.reduce((lowest, estimate) =>
+		estimate.bytes < lowest.bytes ? estimate : lowest,
+	);
+
+	Log.verbose(
+		{indent: false, logLevel},
+		`Available memory for rendering: ${(selected.bytes / 1024 / 1024).toFixed(2)} MB (${selected.source}; lowest applicable host estimate or allocation limit).`,
+	);
+
+	return selected.bytes;
 };
