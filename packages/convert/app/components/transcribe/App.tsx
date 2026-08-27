@@ -96,7 +96,11 @@ const Transcribe: React.FC<{
 				/>
 				{state.type === 'transcribing' ? <div className="h-4" /> : null}
 				{state.type === 'done' ? (
-					<Display result={state.result} time={playbackTime} />
+					<Display
+						result={state.result}
+						time={playbackTime}
+						whisperWebGpuOutput={state.whisperWebGpuOutput}
+					/>
 				) : null}
 			</div>
 		</>
