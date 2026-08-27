@@ -13,12 +13,14 @@ import {writeStaticFile} from '../../api/write-static-file';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {getFolderId} from '../../helpers/get-folder-id';
 import {installRequiredPackages} from '../../helpers/install-required-package';
+import {sortItemsByNonceHistory} from '../../helpers/sort-by-nonce-history';
 import {
 	getUniqueCompositionName,
 	useCreateComposition,
 } from '../../helpers/use-create-composition';
 import {Checkmark} from '../../icons/Checkmark';
 import {CollapsedFolderIcon} from '../../icons/folder';
+import {FolderContext} from '../../state/folders';
 import type {CanvasCaptureImport} from '../../state/modals';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -102,6 +104,7 @@ const NewCompositionLoaded: React.FC<{
 	readonly canvasCapture: CanvasCaptureImport | null;
 }> = ({canvasCapture, folderName, parentName, stack}) => {
 	const {compositions, folders} = useContext(Internals.CompositionManager);
+	const {compositionSortOrder} = useContext(FolderContext);
 	const [selectedFolder, setSelectedFolder] = useState(() => ({
 		folderName,
 		parentName,
@@ -115,10 +118,17 @@ const NewCompositionLoaded: React.FC<{
 		: rootFolderId;
 	const folderValues = useMemo((): ComboboxValue[] => {
 		const foldersInTreeOrder: (typeof folders)[number][] = [];
+		const sortedFolders =
+			compositionSortOrder === 'alphabetical'
+				? folders
+						.slice()
+						.sort((a, b) =>
+							a.name.localeCompare(b.name, undefined, {numeric: true}),
+						)
+				: sortItemsByNonceHistory(folders);
 		const appendFolders = (parent: string | null) => {
-			folders
+			sortedFolders
 				.filter((folder) => folder.parent === parent)
-				.sort((a, b) => a.name.localeCompare(b.name))
 				.forEach((folder) => {
 					foldersInTreeOrder.push(folder);
 					appendFolders(
@@ -187,7 +197,12 @@ const NewCompositionLoaded: React.FC<{
 				};
 			}),
 		];
-	}, [folders, selectedFolder.folderName, selectedFolderId]);
+	}, [
+		compositionSortOrder,
+		folders,
+		selectedFolder.folderName,
+		selectedFolderId,
+	]);
 	const resolvedComposition = Internals.useResolvedVideoConfig(null);
 	const initialComposition =
 		resolvedComposition?.type === 'success' ||

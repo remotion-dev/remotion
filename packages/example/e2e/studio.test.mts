@@ -1009,6 +1009,41 @@ test.describe('visual mode', () => {
 			.toEqual(alphabeticalCompositionItems);
 		await page.getByRole('button', {name: 'More composition actions'}).click();
 		await page
+			.getByRole('button', {name: 'New composition...', exact: true})
+			.click();
+		await page.getByTitle('Folder').click();
+		const rootFolderNames = [
+			'Schema',
+			'visual-controls',
+			'lost-node-path',
+			'error-overlay',
+			'hook-order-change',
+		];
+		const getVisibleRootFolderOrder = () =>
+			page
+				.locator('[data-remotion-menu-tree-id]')
+				.last()
+				.getByRole('button')
+				.allTextContents()
+				.then((items) =>
+					items
+						.map((item) => item.trim())
+						.filter((item) => rootFolderNames.includes(item)),
+				);
+		await expect
+			.poll(getVisibleRootFolderOrder)
+			.toEqual([
+				'error-overlay',
+				'hook-order-change',
+				'lost-node-path',
+				'Schema',
+				'visual-controls',
+			]);
+		await page.keyboard.press('Escape');
+		await page.keyboard.press('Escape');
+
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
 			.getByRole('button', {name: 'As registered', exact: true})
 			.click();
 		await expect
@@ -1026,6 +1061,9 @@ test.describe('visual mode', () => {
 			.getByRole('button', {name: 'New composition...', exact: true})
 			.click();
 		await expect(page.getByPlaceholder('Composition ID')).toBeVisible();
+		await page.getByTitle('Folder').click();
+		await expect.poll(getVisibleRootFolderOrder).toEqual(rootFolderNames);
+		await page.keyboard.press('Escape');
 		await page.keyboard.press('Escape');
 		await page.getByRole('button', {name: 'More composition actions'}).click();
 		await page
