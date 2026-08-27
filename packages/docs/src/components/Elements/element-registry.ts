@@ -18,6 +18,10 @@ export const elementRegistry = {
 		category: 'audio',
 		displayName: 'Audio Oscilloscope',
 	},
+	'audio/waveform-progress': {
+		category: 'audio',
+		displayName: 'Audio Waveform Progress',
+	},
 	'audio/mirrored-spectrum': {
 		category: 'audio',
 		displayName: 'Mirrored Audio Spectrum',
