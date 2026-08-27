@@ -969,6 +969,14 @@ test.describe('visual mode', () => {
 			'Schema',
 			'AnimatedBarChart',
 		]);
+		const registeredCompositionItems = await page
+			.locator('.__remotion-composition-selector-item[data-compname]')
+			.evaluateAll((items) =>
+				items.map((item) => item.getAttribute('data-compname') ?? ''),
+			);
+		const alphabeticalCompositionItems = [...registeredCompositionItems].sort(
+			(a, b) => a.localeCompare(b, undefined, {numeric: true}),
+		);
 		await page.getByRole('button', {name: 'More composition actions'}).click();
 		await expect(
 			page.getByRole('button', {name: 'New composition...', exact: true}),
@@ -976,6 +984,47 @@ test.describe('visual mode', () => {
 		await expect(
 			page.getByRole('button', {name: 'New folder...', exact: true}),
 		).toBeVisible();
+		await expect(page.getByText('Sort', {exact: true})).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Alphabetically', exact: true})
+			.click();
+		await expect
+			.poll(() =>
+				page
+					.locator('.__remotion-composition-selector-item[data-compname]')
+					.evaluateAll((items) =>
+						items.map((item) => item.getAttribute('data-compname') ?? ''),
+					),
+			)
+			.toEqual(alphabeticalCompositionItems);
+		await page.reload();
+		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
+			timeout: 15_000,
+		});
+		await expect
+			.poll(() =>
+				page
+					.locator('.__remotion-composition-selector-item[data-compname]')
+					.evaluateAll((items) =>
+						items.map((item) => item.getAttribute('data-compname') ?? ''),
+					),
+			)
+			.toEqual(alphabeticalCompositionItems);
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
+			.getByRole('button', {name: 'As registered', exact: true})
+			.click();
+		await expect
+			.poll(() =>
+				page
+					.locator('.__remotion-composition-selector-item')
+					.evaluateAll((items) =>
+						items.slice(0, 3).map((item) => item.getAttribute('title')),
+					),
+			)
+			.toEqual(firstCompositionItems);
+
+		await page.getByRole('button', {name: 'More composition actions'}).click();
 		await page
 			.getByRole('button', {name: 'New composition...', exact: true})
 			.click();

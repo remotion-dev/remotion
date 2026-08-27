@@ -11,9 +11,12 @@ import React, {
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, WHITE_ALPHA_12} from '../helpers/colors';
-import {createFolderTree} from '../helpers/create-folder-tree';
+import {
+	createFolderTree,
+	sortFolderTreeAlphabetically,
+} from '../helpers/create-folder-tree';
 import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
-import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
+import {FolderContext} from '../state/folders';
 import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
@@ -127,6 +130,8 @@ export const CompositionSelector: React.FC = () => {
 		Internals.CompositionManager,
 	);
 	const {foldersExpanded} = useContext(ExpandedFoldersContext);
+	const {compositionSortOrder, setCompositionSortOrder} =
+		useContext(FolderContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
@@ -135,8 +140,15 @@ export const CompositionSelector: React.FC = () => {
 			connectionStatus,
 			readOnlyStudio: window.remotion_isReadOnlyStudio,
 			setSelectedModal,
+			compositionSortOrder,
+			setCompositionSortOrder,
 		});
-	}, [connectionStatus, setSelectedModal]);
+	}, [
+		compositionSortOrder,
+		connectionStatus,
+		setCompositionSortOrder,
+		setSelectedModal,
+	]);
 	const [rootDragHovered, setRootDragHovered] = useState(false);
 	const listRef = useRef<HTMLDivElement>(null);
 	const autoScrollAnimation = useRef<number | null>(null);
@@ -145,17 +157,13 @@ export const CompositionSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
 
-	const sortedCompositions = useMemo(() => {
-		return sortItemsByNonceHistory(compositions);
-	}, [compositions]);
-
-	const sortedFolders = useMemo(() => {
-		return sortItemsByNonceHistory(folders);
-	}, [folders]);
-
 	const items = useMemo(() => {
-		return createFolderTree(sortedCompositions, sortedFolders, foldersExpanded);
-	}, [sortedCompositions, sortedFolders, foldersExpanded]);
+		const tree = createFolderTree(compositions, folders, foldersExpanded);
+
+		return compositionSortOrder === 'alphabetical'
+			? sortFolderTreeAlphabetically(tree)
+			: tree;
+	}, [compositionSortOrder, compositions, folders, foldersExpanded]);
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {
