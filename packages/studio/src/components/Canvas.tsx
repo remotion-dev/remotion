@@ -842,8 +842,7 @@ export const Canvas: React.FC<{
 
 	useEffect(() => {
 		return subscribeToElementInstallRequests((request) => {
-			setPendingElementInstallRequests((requests) => [
-				...requests,
+			const requestWithFrom =
 				request.source.type === 'drag-and-drop' || request.from !== null
 					? request
 					: {
@@ -853,7 +852,10 @@ export const Canvas: React.FC<{
 								from: getCurrentFrame(),
 								preferCompositionStart: true,
 							}),
-						},
+						};
+			setPendingElementInstallRequests((requests) => [
+				...requests,
+				requestWithFrom,
 			]);
 		});
 	}, []);
