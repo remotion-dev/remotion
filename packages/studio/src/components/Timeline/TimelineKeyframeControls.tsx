@@ -358,7 +358,9 @@ const getAddChange = (
 
 	const value = getCurrentKeyframeValue({
 		propStatus: target.propStatus,
-		jsxFrame: target.sourceFrame,
+		jsxFrame:
+			target.sourceFrame +
+			(target.propStatus.keyframeDisplayOffsetAdjustment ?? 0),
 		defaultValue: target.defaultValue,
 		dragOverrideValue: target.dragOverrideValue,
 	});

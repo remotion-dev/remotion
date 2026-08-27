@@ -456,13 +456,11 @@ test.describe('inspector section collapse', () => {
 		).toBeVisible();
 		await expect(
 			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
-		).toBeVisible();
-		await page
-			.getByRole('button', {name: 'Collapse Effects', exact: true})
-			.click();
+		).toHaveCount(0);
 		await expect(
 			page.getByRole('button', {name: 'Expand Effects', exact: true}),
-		).toBeVisible();
+		).toHaveCount(0);
+		await expect(page.getByTitle('Add effect', {exact: true})).toBeVisible();
 
 		await page
 			.getByRole('button', {name: 'Expand Border radius', exact: true})

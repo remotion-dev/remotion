@@ -505,7 +505,7 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should preserve the sequence inspector scroll position when adding an effect', async ({
+	test('should keep Effects expanded and preserve the inspector scroll position when adding an effect', async ({
 		page,
 	}) => {
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
@@ -519,6 +519,10 @@ test.describe('visual mode', () => {
 			await page.getByTitle('Scale precision', {exact: true}).first().click();
 			await expect(addEffectButton).toBeVisible({timeout: 1000});
 		}).toPass({timeout: 15_000});
+		await expect(page.getByText('wave()', {exact: true})).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
+		).toHaveCount(0);
 		const inspector = page
 			.locator('.__remotion-vertical-scrollbar')
 			.filter({has: addEffectButton});
