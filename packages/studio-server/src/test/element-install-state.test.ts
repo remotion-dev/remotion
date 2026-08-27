@@ -8,14 +8,12 @@ import {
 } from '../preview-server/element-install-state';
 
 const updateTarget = ({
-	canInstall = true,
 	clientId = 'focused-tab',
 	compositionId = 'Main',
 	lastFocusedAt = Date.now(),
 	readOnly = false,
 	requestId = 'protocol-request',
 }: {
-	readonly canInstall?: boolean;
 	readonly clientId?: string;
 	readonly compositionId?: string | null;
 	readonly lastFocusedAt?: number;
@@ -28,7 +26,6 @@ const updateTarget = ({
 		compositionFile:
 			compositionId === null ? null : `/project/src/${compositionId}.tsx`,
 		compositionId,
-		canInstall,
 		lastFocusedAt,
 		readOnly,
 		studioUrl: `http://localhost:3000/${compositionId ?? ''}`,
@@ -107,7 +104,7 @@ test('binds install tokens to one origin, purpose and composition', () => {
 
 test('config targets are project-level, purpose-bound, single-use and invalidated by read-only mode', () => {
 	clearElementInstallStateForTests();
-	updateTarget({canInstall: false, compositionId: null});
+	updateTarget({compositionId: null});
 	const selected = getElementInstallTarget('protocol-request');
 	if (selected === null) {
 		throw new Error('Expected a Studio target');
@@ -157,7 +154,7 @@ test('config targets are project-level, purpose-bound, single-use and invalidate
 		purpose: 'set-license-key',
 		target: selected,
 	});
-	updateTarget({canInstall: false, compositionId: null, readOnly: true});
+	updateTarget({compositionId: null, readOnly: true});
 	expect(
 		consumeStudioProtocolTarget({
 			now: Date.now(),

@@ -1,4 +1,9 @@
-import type {ChangeEventHandler} from 'react';
+import type {
+	ChangeEventHandler,
+	Dispatch,
+	RefObject,
+	SetStateAction,
+} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -97,23 +102,42 @@ const FolderDropdownLabel: React.FC<{
 const rootFolderId = 'new-composition-root-folder';
 const folderSelectIdPrefix = 'new-composition-folder-';
 
-const NewCompositionLoaded: React.FC<{
-	readonly folderName: string | null;
-	readonly parentName: string | null;
-	readonly stack: string | null;
-	readonly canvasCapture: CanvasCaptureImport | null;
-}> = ({canvasCapture, folderName, parentName, stack}) => {
-	const {compositions, folders} = useContext(Internals.CompositionManager);
+export type NewCompositionFormValues = {
+	readonly durationInFrames: number;
+	readonly folder: {
+		readonly folderName: string | null;
+		readonly parentName: string | null;
+		readonly stack: string | null;
+	};
+	readonly fps: number;
+	readonly id: string;
+	readonly size: {
+		readonly height: number;
+		readonly width: number;
+	};
+};
+
+export const NewCompositionFields: React.FC<{
+	readonly heightValidationMessage: string | null;
+	readonly inputRef: RefObject<HTMLInputElement | null>;
+	readonly nameValidationMessage: string | null;
+	readonly setValues: Dispatch<SetStateAction<NewCompositionFormValues>>;
+	readonly values: NewCompositionFormValues;
+	readonly widthValidationMessage: string | null;
+}> = ({
+	heightValidationMessage,
+	inputRef,
+	nameValidationMessage,
+	setValues,
+	values,
+	widthValidationMessage,
+}) => {
+	const {folders} = useContext(Internals.CompositionManager);
 	const {compositionSortOrder} = useContext(FolderContext);
-	const [selectedFolder, setSelectedFolder] = useState(() => ({
-		folderName,
-		parentName,
-		stack,
-	}));
-	const selectedFolderId = selectedFolder.folderName
+	const selectedFolderId = values.folder.folderName
 		? `${folderSelectIdPrefix}${getFolderId({
-				folderName: selectedFolder.folderName,
-				parentName: selectedFolder.parentName,
+				folderName: values.folder.folderName,
+				parentName: values.folder.parentName,
 			})}`
 		: rootFolderId;
 	const folderValues = useMemo((): ComboboxValue[] => {
@@ -144,13 +168,16 @@ const NewCompositionLoaded: React.FC<{
 				id: rootFolderId,
 				keyHint: null,
 				label: <FolderDropdownLabel folderPath={null} indentation={0} />,
-				leftItem: selectedFolder.folderName === null ? <Checkmark /> : null,
+				leftItem: values.folder.folderName === null ? <Checkmark /> : null,
 				onClick: () => {
-					setSelectedFolder({
-						folderName: null,
-						parentName: null,
-						stack: null,
-					});
+					setValues((current) => ({
+						...current,
+						folder: {
+							folderName: null,
+							parentName: null,
+							stack: null,
+						},
+					}));
 				},
 				quickSwitcherLabel: 'None',
 				subMenu: null,
@@ -183,11 +210,14 @@ const NewCompositionLoaded: React.FC<{
 					),
 					leftItem: selectedFolderId === id ? <Checkmark /> : null,
 					onClick: () => {
-						setSelectedFolder({
-							folderName: folder.name,
-							parentName: folder.parent,
-							stack: folder.stack,
-						});
+						setValues((current) => ({
+							...current,
+							folder: {
+								folderName: folder.name,
+								parentName: folder.parent,
+								stack: folder.stack,
+							},
+						}));
 					},
 					quickSwitcherLabel: folderPath,
 					subMenu: null,
@@ -200,9 +230,219 @@ const NewCompositionLoaded: React.FC<{
 	}, [
 		compositionSortOrder,
 		folders,
-		selectedFolder.folderName,
 		selectedFolderId,
+		setValues,
+		values.folder.folderName,
 	]);
+
+	const onWidthChanged = useCallback(
+		(newValue: string) => {
+			setValues((current) => ({
+				...current,
+				size: {height: current.size.height, width: Number(newValue)},
+			}));
+		},
+		[setValues],
+	);
+	const onWidthDirectlyChanged = useCallback(
+		(newWidth: number) => {
+			setValues((current) => ({
+				...current,
+				size: {height: current.size.height, width: newWidth},
+			}));
+		},
+		[setValues],
+	);
+	const onHeightChanged = useCallback(
+		(newValue: string) => {
+			setValues((current) => ({
+				...current,
+				size: {height: Number(newValue), width: current.size.width},
+			}));
+		},
+		[setValues],
+	);
+	const onHeightDirectlyChanged = useCallback(
+		(newHeight: number) => {
+			setValues((current) => ({
+				...current,
+				size: {height: newHeight, width: current.size.width},
+			}));
+		},
+		[setValues],
+	);
+	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
+		(event) => {
+			setValues((current) => ({...current, id: event.target.value}));
+		},
+		[setValues],
+	);
+	const onTextFpsChange = useCallback(
+		(newFps: string) => {
+			setValues((current) => ({...current, fps: Number(newFps)}));
+		},
+		[setValues],
+	);
+	const onFpsChange = useCallback(
+		(newFps: number) => {
+			setValues((current) => ({...current, fps: newFps}));
+		},
+		[setValues],
+	);
+	const setDurationInFrames: Dispatch<SetStateAction<number>> = useCallback(
+		(update) => {
+			setValues((current) => ({
+				...current,
+				durationInFrames:
+					typeof update === 'function'
+						? update(current.durationInFrames)
+						: update,
+			}));
+		},
+		[setValues],
+	);
+
+	return (
+		<>
+			<div style={optionRow}>
+				<div style={label}>Folder</div>
+				<div style={rightRow}>
+					<Combobox
+						values={folderValues}
+						selectedId={selectedFolderId}
+						style={folderSelectStyle}
+						title="Folder"
+					/>
+				</div>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>ID</div>
+				<div style={rightRow}>
+					<InputAndValidationContainer>
+						<RemotionInput
+							ref={inputRef}
+							value={values.id}
+							onChange={onNameChange}
+							type="text"
+							autoFocus
+							placeholder="Composition ID"
+							status="ok"
+							rightAlign
+						/>
+						{nameValidationMessage ? (
+							<>
+								<Spacing y={1} block />
+								<ValidationMessage
+									align="flex-start"
+									message={nameValidationMessage}
+									type="error"
+								/>
+							</>
+						) : null}
+					</InputAndValidationContainer>
+				</div>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>Width</div>
+				<div style={rightRow}>
+					<InputAndValidationContainer>
+						<InputDragger
+							aria-label="Width"
+							type="number"
+							value={values.size.width}
+							placeholder="Width"
+							onTextChange={onWidthChanged}
+							name="width"
+							step={2}
+							min={2}
+							required
+							status="ok"
+							formatter={(width) => `${width}px`}
+							max={100000000}
+							onValueChange={onWidthDirectlyChanged}
+							rightAlign={false}
+						/>
+						{widthValidationMessage ? (
+							<>
+								<Spacing y={1} block />
+								<ValidationMessage
+									align="flex-start"
+									message={widthValidationMessage}
+									type="error"
+								/>
+							</>
+						) : null}
+					</InputAndValidationContainer>
+				</div>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>Height</div>
+				<div style={rightRow}>
+					<InputAndValidationContainer>
+						<InputDragger
+							aria-label="Height"
+							type="number"
+							value={values.size.height}
+							onTextChange={onHeightChanged}
+							placeholder="Height"
+							name="height"
+							step={2}
+							required
+							formatter={(height) => `${height}px`}
+							min={2}
+							status="ok"
+							max={100000000}
+							onValueChange={onHeightDirectlyChanged}
+							rightAlign={false}
+						/>
+						{heightValidationMessage ? (
+							<>
+								<Spacing y={1} block />
+								<ValidationMessage
+									align="flex-start"
+									message={heightValidationMessage}
+									type="error"
+								/>
+							</>
+						) : null}
+					</InputAndValidationContainer>
+				</div>
+			</div>
+			<NewCompDuration
+				durationInFrames={values.durationInFrames}
+				setDurationInFrames={setDurationInFrames}
+			/>
+			<div style={optionRow}>
+				<div style={label}>FPS</div>
+				<div style={rightRow}>
+					<InputDragger
+						aria-label="FPS"
+						type="number"
+						value={values.fps}
+						onTextChange={onTextFpsChange}
+						placeholder="Frame rate (fps)"
+						name="fps"
+						min={1}
+						required
+						status="ok"
+						max={240}
+						step={0.01}
+						onValueChange={onFpsChange}
+						rightAlign={false}
+					/>
+				</div>
+			</div>
+		</>
+	);
+};
+
+const NewCompositionLoaded: React.FC<{
+	readonly folderName: string | null;
+	readonly parentName: string | null;
+	readonly stack: string | null;
+	readonly canvasCapture: CanvasCaptureImport | null;
+}> = ({canvasCapture, folderName, parentName, stack}) => {
+	const {compositions} = useContext(Internals.CompositionManager);
 	const resolvedComposition = Internals.useResolvedVideoConfig(null);
 	const initialComposition =
 		resolvedComposition?.type === 'success' ||
@@ -213,9 +453,16 @@ const NewCompositionLoaded: React.FC<{
 		initialComposition,
 		canvasCapture?.durationInSeconds ?? null,
 	);
-	const [newId, setName] = useState(() =>
-		getUniqueCompositionName(compositions),
-	);
+	const [values, setValues] = useState<NewCompositionFormValues>(() => ({
+		durationInFrames: initialDimensions.durationInFrames,
+		folder: {folderName, parentName, stack},
+		fps: initialDimensions.fps,
+		id: getUniqueCompositionName(compositions),
+		size: {
+			height: initialDimensions.height,
+			width: initialDimensions.width,
+		},
+	}));
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
@@ -224,81 +471,21 @@ const NewCompositionLoaded: React.FC<{
 		input.select();
 	}, []);
 
-	const [selectedFrameRate, setFrameRate] = useState(initialDimensions.fps);
-	const [size, setSize] = useState(() => ({
-		width: initialDimensions.width,
-		height: initialDimensions.height,
-	}));
-	const [durationInFrames, setDurationInFrames] = useState(
-		initialDimensions.durationInFrames,
-	);
-
-	const onWidthChanged = useCallback((newValue: string) => {
-		setSize((s) => {
-			return {
-				height: s.height,
-				width: Number(newValue),
-			};
-		});
-	}, []);
-
-	const onWidthDirectlyChanged = useCallback((newWidth: number) => {
-		setSize((s) => {
-			return {
-				height: s.height,
-				width: newWidth,
-			};
-		});
-	}, []);
-
-	const onHeightDirectlyChanged = useCallback((newHeight: number) => {
-		setSize((s) => {
-			return {
-				width: s.width,
-				height: newHeight,
-			};
-		});
-	}, []);
-
-	const onHeightChanged = useCallback((newValue: string) => {
-		setSize((s) => {
-			return {
-				width: s.width,
-				height: Number(newValue),
-			};
-		});
-	}, []);
-
-	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			setName(e.target.value);
-		},
-		[],
-	);
-
-	const onTextFpsChange = useCallback((newFps: string) => {
-		setFrameRate(Number(newFps));
-	}, []);
-
-	const onFpsChange = useCallback((newFps: number) => {
-		setFrameRate(newFps);
-	}, []);
-
 	const {
 		codemod,
 		createComposition,
-		heightValidationMessage: compHeightErrMessage,
-		nameValidationMessage: compNameErrMessage,
+		heightValidationMessage,
+		nameValidationMessage,
 		valid,
-		widthValidationMessage: compWidthErrMessage,
+		widthValidationMessage,
 	} = useCreateComposition({
 		compositions,
-		durationInFrames,
-		folderName: selectedFolder.folderName,
-		newId,
-		parentName: selectedFolder.parentName,
-		selectedFrameRate,
-		size,
+		durationInFrames: values.durationInFrames,
+		folderName: values.folder.folderName,
+		newId: values.id,
+		parentName: values.folder.parentName,
+		selectedFrameRate: values.fps,
+		size: values.size,
 		canvasCapture:
 			canvasCapture === null
 				? null
@@ -358,131 +545,14 @@ const NewCompositionLoaded: React.FC<{
 			/>
 			<form onSubmit={onSubmit}>
 				<div style={content}>
-					<div style={optionRow}>
-						<div style={label}>Folder</div>
-						<div style={rightRow}>
-							<Combobox
-								values={folderValues}
-								selectedId={selectedFolderId}
-								style={folderSelectStyle}
-								title="Folder"
-							/>
-						</div>
-					</div>
-					<div style={optionRow}>
-						<div style={label}>ID</div>
-						<div style={rightRow}>
-							<InputAndValidationContainer>
-								<RemotionInput
-									ref={inputRef}
-									value={newId}
-									onChange={onNameChange}
-									type="text"
-									autoFocus
-									placeholder="Composition ID"
-									status="ok"
-									rightAlign
-								/>
-								{compNameErrMessage ? (
-									<>
-										<Spacing y={1} block />
-										<ValidationMessage
-											align="flex-start"
-											message={compNameErrMessage}
-											type="error"
-										/>
-									</>
-								) : null}
-							</InputAndValidationContainer>
-						</div>
-					</div>
-					<div style={optionRow}>
-						<div style={label}>Width</div>
-						<div style={rightRow}>
-							<InputAndValidationContainer>
-								<InputDragger
-									type="number"
-									value={size.width}
-									placeholder="Width"
-									onTextChange={onWidthChanged}
-									name="width"
-									step={2}
-									min={2}
-									required
-									status="ok"
-									formatter={(w) => `${w}px`}
-									max={100000000}
-									onValueChange={onWidthDirectlyChanged}
-									rightAlign={false}
-								/>
-								{compWidthErrMessage ? (
-									<>
-										<Spacing y={1} block />
-										<ValidationMessage
-											align="flex-start"
-											message={compWidthErrMessage}
-											type="error"
-										/>
-									</>
-								) : null}
-							</InputAndValidationContainer>
-						</div>
-					</div>
-					<div style={optionRow}>
-						<div style={label}>Height</div>
-						<div style={rightRow}>
-							<InputAndValidationContainer>
-								<InputDragger
-									type="number"
-									value={size.height}
-									onTextChange={onHeightChanged}
-									placeholder="Height"
-									name="height"
-									step={2}
-									required
-									formatter={(h) => `${h}px`}
-									min={2}
-									status="ok"
-									max={100000000}
-									onValueChange={onHeightDirectlyChanged}
-									rightAlign={false}
-								/>
-								{compHeightErrMessage ? (
-									<>
-										<Spacing y={1} block />
-										<ValidationMessage
-											align="flex-start"
-											message={compHeightErrMessage}
-											type="error"
-										/>
-									</>
-								) : null}
-							</InputAndValidationContainer>
-						</div>
-					</div>
-					<NewCompDuration
-						durationInFrames={durationInFrames}
-						setDurationInFrames={setDurationInFrames}
+					<NewCompositionFields
+						heightValidationMessage={heightValidationMessage}
+						inputRef={inputRef}
+						nameValidationMessage={nameValidationMessage}
+						setValues={setValues}
+						values={values}
+						widthValidationMessage={widthValidationMessage}
 					/>
-					<div style={optionRow}>
-						<div style={label}>FPS</div>
-						<div style={rightRow}>
-							<InputDragger
-								type="number"
-								value={selectedFrameRate}
-								onTextChange={onTextFpsChange}
-								placeholder="Frame rate (fps)"
-								name="fps"
-								min={1}
-								required
-								status="ok"
-								max={240}
-								step={0.01}
-								onValueChange={onFpsChange}
-								rightAlign={false}
-							/>
-						</div>
-					</div>
 				</div>
 				<ModalFooterContainer>
 					<CodemodFooter
@@ -491,7 +561,7 @@ const NewCompositionLoaded: React.FC<{
 						genericSubmitLabel="Add to root file"
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}
-						stack={selectedFolder.stack}
+						stack={values.folder.stack}
 						valid={valid}
 						onSuccess={null}
 						applyCodemod={({signal, symbolicatedStack}) =>

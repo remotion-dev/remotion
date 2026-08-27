@@ -122,7 +122,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		const {target} = result;
 		setInstallStatus({
 			type: 'success',
-			message: `Sent to ${target.projectName ?? 'Remotion Studio'} / ${target.compositionId}. Confirm the installation in Studio.`,
+			message: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
 		});
 
 		if (window.location.origin === 'https://www.remotion.dev') {

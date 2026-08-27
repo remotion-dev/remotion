@@ -163,7 +163,8 @@ test('distinguishes a compatible Studio without an installable target', async ()
 	).toEqual({
 		success: false,
 		code: 'no-installable-target',
-		message: 'Focus a writable composition in Remotion Studio, then try again.',
+		message:
+			'Focus a composition in a Remotion Studio that is not read-only, then try again.',
 	});
 });
 

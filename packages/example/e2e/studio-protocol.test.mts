@@ -59,22 +59,56 @@ test('installs an Element from a website into a clean Studio project', async ({
 	fs.writeFileSync(
 		path.join(temporaryProject, 'src', 'Composition.tsx'),
 		`import {AbsoluteFill, Composition} from 'remotion';
+import {CloseupFolder} from './closeups/Closeup';
 
 export const MyComposition = () => {
 	return (
-		<Composition
-			id="MyComp"
-			component={MyComponent}
-			durationInFrames={60}
-			fps={30}
-			width={1280}
-			height={720}
-		/>
+		<>
+			<Composition
+				id="MyComp"
+				component={MyComponent}
+				durationInFrames={60}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+			<CloseupFolder />
+		</>
 	);
 };
 
 export const MyComponent = () => {
 	return <AbsoluteFill></AbsoluteFill>;
+};
+`,
+	);
+	const closeupDirectory = path.join(
+		temporaryProject,
+		'src',
+		'closeups',
+	);
+	fs.mkdirSync(closeupDirectory);
+	fs.writeFileSync(
+		path.join(closeupDirectory, 'Closeup.tsx'),
+		`import {AbsoluteFill, Composition, Folder} from 'remotion';
+
+export const CloseupFolder = () => {
+	return (
+		<Folder name="Closeup">
+			<Composition
+				id="CloseupPlaceholder"
+				component={CloseupPlaceholder}
+				durationInFrames={60}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+		</Folder>
+	);
+};
+
+const CloseupPlaceholder = () => {
+	return <AbsoluteFill />;
 };
 `,
 	);
@@ -349,9 +383,130 @@ export const MyComponent = () => {
 		await studioPage.mouse.click(500, 300);
 		const senderPage = await context.newPage();
 		await senderPage.goto(senderUrl);
+		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
+		await studioPage.bringToFront();
+		const newCompositionDialog = studioPage.getByRole('dialog');
+		await expect(
+			newCompositionDialog.getByText('Install Element'),
+		).toBeVisible();
+		await newCompositionDialog
+			.getByRole('button', {name: 'New composition'})
+			.click();
+		await expect(
+			newCompositionDialog.getByPlaceholder('Composition ID'),
+		).toHaveValue('ProtocolElementComposition');
+		const widthControl = newCompositionDialog.getByRole('button', {
+			name: 'Width',
+		});
+		const heightControl = newCompositionDialog.getByRole('button', {
+			name: 'Height',
+		});
+		const durationControl = newCompositionDialog.getByRole('button', {
+			name: 'Duration in frames',
+		});
+		await expect(widthControl).toHaveText('640px');
+		await expect(heightControl).toHaveText('120px');
+		await expect(durationControl).toHaveText('30');
+		await newCompositionDialog
+			.getByPlaceholder('Composition ID')
+			.fill('ProtocolElementScene');
+		await newCompositionDialog.getByTitle('Folder').click();
+		await studioPage
+			.getByRole('button', {name: 'Closeup', exact: true})
+			.last()
+			.click();
+		await widthControl.click();
+		const widthInput = newCompositionDialog.getByRole('textbox', {
+			name: 'Width',
+		});
+		await widthInput.fill('800');
+		await widthInput.press('Enter');
+		await heightControl.click();
+		const heightInput = newCompositionDialog.getByRole('textbox', {
+			name: 'Height',
+		});
+		await heightInput.fill('450');
+		await heightInput.press('Enter');
+		await durationControl.click();
+		const durationInput = newCompositionDialog.getByRole('textbox', {
+			name: 'Duration in frames',
+		});
+		await durationInput.fill('90');
+		await durationInput.press('Enter');
+		const installIntoNewComposition = newCompositionDialog.getByRole('button', {
+			name: /Install/,
+		});
+		await expect(installIntoNewComposition).toBeEnabled();
+		await installIntoNewComposition.click();
+
+		const newCompositionFile = path.join(
+			closeupDirectory,
+			'ProtocolElementScene.tsx',
+		);
+		await waitForFile(newCompositionFile);
+		await expect
+			.poll(() => fs.readFileSync(newCompositionFile, 'utf8'))
+			.toContain('ProtocolElement');
+		expect(
+			fs.readFileSync(
+				path.join(closeupDirectory, 'protocol-element.element.tsx'),
+				'utf8',
+			),
+		).toContain('export const ProtocolElement');
+		const sourceWithNewComposition = fs.readFileSync(
+			path.join(closeupDirectory, 'Closeup.tsx'),
+			'utf8',
+		);
+		expect(sourceWithNewComposition).toContain('id="ProtocolElementScene"');
+		expect(sourceWithNewComposition).toContain('durationInFrames={90}');
+		expect(sourceWithNewComposition).toContain('width={800}');
+		expect(sourceWithNewComposition).toContain('height={450}');
+		const folderStart = sourceWithNewComposition.indexOf(
+			'<Folder name="Closeup">',
+		);
+		const folderEnd = sourceWithNewComposition.indexOf(
+			'</Folder>',
+			folderStart,
+		);
+		const newCompositionPosition = sourceWithNewComposition.indexOf(
+			'id="ProtocolElementScene"',
+		);
+		expect(newCompositionPosition).toBeGreaterThan(folderStart);
+		expect(newCompositionPosition).toBeLessThan(folderEnd);
+		expect(
+			fs.readFileSync(
+				path.join(temporaryProject, 'src', 'Composition.tsx'),
+				'utf8',
+			),
+		).not.toContain('id="ProtocolElementScene"');
+		await expect(studioPage).toHaveURL(/ProtocolElementScene/, {
+			timeout: 30_000,
+		});
+
+		await studioPage.bringToFront();
+		await studioPage.mouse.click(500, 300);
+		await expect
+			.poll(() =>
+				fetch(`${studioUrl}/api/studio-protocol`, {
+					headers: {Origin: 'http://localhost:4000'},
+				})
+					.then((response) => response.json())
+					.then(
+						(response) =>
+							response.capabilities.find(
+								(capability: {type: string}) =>
+									capability.type === 'install-element',
+							)?.target?.compositionId ?? null,
+					),
+			)
+			.toBe('ProtocolElementScene');
+		await senderPage.bringToFront();
 		await expect(
 			senderPage.getByText('Outside Remotion Studio', {exact: true}),
 		).toBeVisible();
+		await senderPage.locator('#status').evaluate((element) => {
+			element.textContent = '';
+		});
 		const configBeforeCatalogConfirmation = fs.readFileSync(configFile, 'utf8');
 		await senderPage
 			.getByRole('button', {name: 'Add catalog to Studio'})
