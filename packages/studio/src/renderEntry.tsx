@@ -308,6 +308,7 @@ const renderContent = (Root: React.FC) => {
 				window.remotion_isStudio = true;
 				window.remotion_isReadOnlyStudio = true;
 				window.remotion_inputProps = '{}';
+				window.remotion_enableSequenceStackTraces?.();
 
 				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})

@@ -38,6 +38,12 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./resolve-composition-component-location": {
+			"types": "./dist/resolve-composition-component-location.d.ts",
+			"require": "./dist/resolve-composition-component-location.cjs",
+			"module": "./dist/esm/resolve-composition-component-location.mjs",
+			"import": "./dist/esm/resolve-composition-component-location.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {

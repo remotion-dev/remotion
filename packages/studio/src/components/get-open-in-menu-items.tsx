@@ -9,10 +9,7 @@ import React from 'react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
-import {
-	getGitRefUrl,
-	getGitSourceBranchUrl,
-} from '../helpers/get-git-menu-item';
+import {openGitSource} from '../helpers/get-git-menu-item';
 import {EditorIcon} from '../icons/editor';
 import {FinderIcon} from '../icons/finder';
 import {GitClientIcon} from '../icons/git-client';
@@ -109,17 +106,7 @@ export const getOpenInMenuItems = ({
 				label: <span style={menuLabel}>GitHub.com</span>,
 				leftItem: <GitHubIcon size={18} />,
 				onClick: () => {
-					const gitSource = window.remotion_gitSource;
-					if (!gitSource) {
-						return;
-					}
-
-					window.open(
-						folder || !location
-							? getGitSourceBranchUrl(gitSource)
-							: getGitRefUrl(gitSource, location, window.remotion_cwd),
-						'_blank',
-					);
+					openGitSource({folder, location});
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,

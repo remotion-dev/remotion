@@ -1805,6 +1805,7 @@
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
+        "@remotion/studio-codemods": "workspace:*",
         "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@remotion/timeline-utils": "workspace:*",
