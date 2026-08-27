@@ -2,19 +2,13 @@ import {
 	Canvas,
 	getCanvasSelectionItemKey,
 	useCanvasController,
-	useCanvasOutlines,
 	useCanvasSelection,
 	type CanvasSelectionItem,
 	type SequenceNodePathInfo,
 	type TimelineTrackData,
 } from '@remotion/canvas';
-import React, {
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useSyncExternalStore,
-} from 'react';
-import {AbsoluteFill, Interactive, Sequence, useCurrentFrame} from 'remotion';
+import React, {useSyncExternalStore} from 'react';
+import {AbsoluteFill, Sequence, useCurrentFrame} from 'remotion';
 
 const CanvasComposition: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -37,40 +31,9 @@ const CanvasComposition: React.FC = () => {
 					}}
 				/>
 			</Sequence>
-			<Interactive.Div
-				name="Outline test card"
-				style={{
-					alignItems: 'center',
-					backgroundColor: '#f59e0b',
-					borderRadius: 28,
-					boxShadow: '0 24px 60px rgba(0, 0, 0, 0.35)',
-					color: '#111827',
-					display: 'flex',
-					fontSize: 44,
-					fontWeight: 700,
-					height: 180,
-					justifyContent: 'center',
-					left: 100,
-					position: 'absolute',
-					rotate: '-6deg',
-					top: 90,
-					width: 360,
-				}}
-			>
-				Outline test
-			</Interactive.Div>
 			{frame < 90 ? (
 				<Sequence name="Intro card" durationInFrames={90}>
-					<h1
-						style={{
-							fontSize: 88,
-							transform: `translateX(${Math.sin(frame / 12) * 80}px) rotate(${
-								Math.sin(frame / 18) * 8
-							}deg)`,
-						}}
-					>
-						Canvas
-					</h1>
+					<h1 style={{fontSize: 88}}>Canvas</h1>
 				</Sequence>
 			) : null}
 			{frame >= 60 ? (
@@ -110,45 +73,13 @@ const CanvasPage: React.FC = () => {
 		controller.timeline.getSnapshot,
 	);
 	const selection = useCanvasSelection(controller.selection);
-	const outlineSnapshot = useCanvasOutlines(controller.outlines);
-	const outlineOverlayRef = useRef<SVGSVGElement>(null);
-	const selectedKeys = useMemo(
-		() => new Set(selection.selectedItems.map(getCanvasSelectionItemKey)),
-		[selection.selectedItems],
+	const selectedKeys = new Set(
+		selection.selectedItems.map(getCanvasSelectionItemKey),
 	);
 	const selectableLayers: CanvasSelectionItem[] = layers.map((layer) => ({
 		type: 'sequence',
 		nodePathInfo: getExampleNodePathInfo(layer),
 	}));
-	const outlineTargets = useMemo(() => {
-		return layers.flatMap((layer) => {
-			if (layer.sequence.refForOutline === null) {
-				return [];
-			}
-
-			const selectionItem: CanvasSelectionItem = {
-				type: 'sequence',
-				nodePathInfo: getExampleNodePathInfo(layer),
-			};
-			const key = getCanvasSelectionItemKey(selectionItem);
-			if (!selectedKeys.has(key)) {
-				return [];
-			}
-
-			return [
-				{
-					key,
-					ref: layer.sequence.refForOutline,
-					crop: {bottom: 0, left: 0, right: 0, top: 0},
-					includeOutsideContainer: true,
-				},
-			];
-		});
-	}, [layers, selectedKeys]);
-
-	useLayoutEffect(() => {
-		controller.outlines.update(outlineOverlayRef.current, outlineTargets);
-	}, [controller, outlineTargets]);
 
 	return (
 		<main
@@ -172,43 +103,17 @@ const CanvasPage: React.FC = () => {
 					gridTemplateColumns: 'minmax(0, 2fr) minmax(240px, 1fr)',
 				}}
 			>
-				<div style={{position: 'relative'}}>
-					<Canvas
-						controller={controller}
-						component={CanvasComposition}
-						compositionWidth={1280}
-						compositionHeight={720}
-						durationInFrames={180}
-						fps={30}
-						controls
-						acknowledgeRemotionLicense
-						style={{width: '100%'}}
-					/>
-					<svg
-						ref={outlineOverlayRef}
-						aria-hidden="true"
-						style={{
-							inset: 0,
-							overflow: 'visible',
-							pointerEvents: 'none',
-							position: 'absolute',
-						}}
-						width="100%"
-						height="100%"
-					>
-						{outlineSnapshot.outlines.map((outline) => (
-							<polygon
-								key={outline.key}
-								fill="rgba(124, 58, 237, 0.15)"
-								points={outline.points
-									.map((point) => `${point.x},${point.y}`)
-									.join(' ')}
-								stroke="#a78bfa"
-								strokeWidth={2}
-							/>
-						))}
-					</svg>
-				</div>
+				<Canvas
+					controller={controller}
+					component={CanvasComposition}
+					compositionWidth={1280}
+					compositionHeight={720}
+					durationInFrames={180}
+					fps={30}
+					controls
+					acknowledgeRemotionLicense
+					style={{width: '100%'}}
+				/>
 				<div>
 					<section
 						style={{
@@ -343,8 +248,6 @@ const CanvasPage: React.FC = () => {
 							Click a layer to replace the selection. Shift-click selects a
 							contiguous range; Command/Ctrl-click toggles a layer. Property and
 							easing buttons demonstrate different selection item types.
-							Selected layers with a mounted outline ref are drawn over the
-							Canvas by the outline controller.
 						</p>
 						<button type="button" onClick={controller.selection.clear}>
 							Clear selection

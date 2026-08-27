@@ -1,7 +1,3 @@
-import {
-	getCanvasSelectableOutlines,
-	measureCanvasOutlines,
-} from '@remotion/canvas';
 import {useContext, useEffect, useMemo, useRef, type FC} from 'react';
 import {Internals} from 'remotion';
 import {pause} from '../api/pause';
@@ -31,6 +27,10 @@ import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {useSelectComposition} from './InitialCompositionLoader';
+import {
+	getSequencesWithSelectableOutlines,
+	measureOutlineTargets,
+} from './selected-outline-measurement';
 import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info';
 import {getCurrentDuration, getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
@@ -542,7 +542,7 @@ export const WebMcp: FC = () => {
 						}
 
 						const currentFrame = getCurrentFrame();
-						const selectableOutlines = getCanvasSelectableOutlines({
+						const selectableOutlines = getSequencesWithSelectableOutlines({
 							sequences: sequencesRef.current,
 							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 							compositions: compositionsRef.current,
@@ -566,7 +566,7 @@ export const WebMcp: FC = () => {
 							throw new Error('The Studio canvas is not ready to be measured.');
 						}
 
-						const measuredOutlines = measureCanvasOutlines(
+						const measuredOutlines = measureOutlineTargets(
 							portalNode,
 							selectableOutlines.map((outline) => {
 								if (outline.sequence.refForOutline === null) {
