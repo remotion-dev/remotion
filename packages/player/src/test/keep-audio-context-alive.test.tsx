@@ -1,6 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import {createRef} from 'react';
-import {Html5Audio, Internals} from 'remotion';
+import {Html5Audio, Internals, useBufferState} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
 import {act, cleanup, render} from './test-utils.js';
@@ -33,7 +33,9 @@ class TrackedAudioContext {
 			connect: () => undefined,
 			gain: {
 				cancelScheduledValues: () => undefined,
-				linearRampToValueAtTime: () => undefined,
+				linearRampToValueAtTime: (value: number) => {
+					gainValues.push(value);
+				},
 				setValueAtTime: (value: number) => {
 					gainValues.push(value);
 				},
@@ -71,7 +73,11 @@ const sequenceManager = {
 	sequences: [],
 };
 
+let startBuffering: (() => {unblock: () => void}) | null = null;
+
 const AudioComposition = () => {
+	startBuffering = useBufferState().delayPlayback;
+
 	return (
 		<Internals.SequenceManager.Provider value={sequenceManager}>
 			<Html5Audio src="audio.mp3" />
@@ -81,8 +87,10 @@ const AudioComposition = () => {
 
 const playAndPause = async ({
 	_experimentalKeepAudioContextAlive,
+	bufferAfterPlay = false,
 }: {
 	_experimentalKeepAudioContextAlive: boolean;
+	bufferAfterPlay?: boolean;
 }) => {
 	const originalAudioContext = globalThis.AudioContext;
 	const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
@@ -133,6 +141,41 @@ const playAndPause = async ({
 		});
 
 		const resumeCallsDuringPlay = nativeResumeCalls;
+		let gainValuesDuringBufferResume: number[] = [];
+		if (bufferAfterPlay) {
+			if (!startBuffering) {
+				throw new Error('Expected buffering controls');
+			}
+
+			const beginBuffering = startBuffering;
+			let unblock: () => void = () => undefined;
+			await act(async () => {
+				unblock = beginBuffering().unblock;
+				await Promise.resolve();
+			});
+
+			const queuedFrames = [...animationFrames.values()];
+			if (queuedFrames.length === 0) {
+				throw new Error('Expected a queued animation frame');
+			}
+
+			animationFrames.clear();
+			await act(async () => {
+				for (const frame of queuedFrames) {
+					frame(performance.now());
+				}
+
+				await Promise.resolve();
+			});
+
+			gainValues = [];
+			await act(async () => {
+				unblock();
+				await Promise.resolve();
+			});
+			gainValuesDuringBufferResume = gainValues;
+		}
+
 		gainValues = [];
 
 		await act(async () => {
@@ -144,8 +187,10 @@ const playAndPause = async ({
 			resumeCallsDuringPlay,
 			suspendCallsDuringPause: nativeSuspendCalls,
 			gainValuesDuringPause: gainValues,
+			gainValuesDuringBufferResume,
 		};
 	} finally {
+		startBuffering = null;
 		globalThis.AudioContext = originalAudioContext;
 		globalThis.requestAnimationFrame = originalRequestAnimationFrame;
 		globalThis.cancelAnimationFrame = originalCancelAnimationFrame;
@@ -173,4 +218,13 @@ test('_experimentalKeepAudioContextAlive silences through the gain instead of su
 	expect(resumeCallsDuringPlay).toBe(0);
 	expect(suspendCallsDuringPause).toBe(0);
 	expect(gainValuesDuringPause).toContain(0);
+});
+
+test('_experimentalKeepAudioContextAlive resumes immediately after buffering', async () => {
+	const {gainValuesDuringBufferResume} = await playAndPause({
+		_experimentalKeepAudioContextAlive: true,
+		bufferAfterPlay: true,
+	});
+
+	expect(gainValuesDuringBufferResume).toContain(1);
 });
