@@ -17,6 +17,7 @@ import {
 	getUniqueCompositionName,
 	useCreateComposition,
 } from '../../helpers/use-create-composition';
+import {Checkmark} from '../../icons/Checkmark';
 import {CollapsedFolderIcon} from '../../icons/folder';
 import type {CanvasCaptureImport} from '../../state/modals';
 import {Spacing} from '../layout';
@@ -48,8 +49,37 @@ const folderSelectStyle: React.CSSProperties = {
 };
 
 const folderIconStyle: React.CSSProperties = {
+	flexShrink: 0,
 	height: 16,
 	width: 16,
+};
+
+const folderLabelStyle: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	minWidth: 0,
+};
+
+const folderLabelTextStyle: React.CSSProperties = {
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+const FolderDropdownLabel: React.FC<{
+	readonly folderPath: string | null;
+}> = ({folderPath}) => {
+	return (
+		<div style={folderLabelStyle}>
+			{folderPath === null ? (
+				<div style={folderIconStyle} />
+			) : (
+				<CollapsedFolderIcon color={LIGHT_TEXT} style={folderIconStyle} />
+			)}
+			<Spacing x={1} />
+			<span style={folderLabelTextStyle}>{folderPath ?? 'None'}</span>
+		</div>
+	);
 };
 
 const rootFolderId = 'new-composition-root-folder';
@@ -78,8 +108,8 @@ const NewCompositionLoaded: React.FC<{
 			{
 				id: rootFolderId,
 				keyHint: null,
-				label: 'None',
-				leftItem: null,
+				label: <FolderDropdownLabel folderPath={null} />,
+				leftItem: selectedFolder.folderName === null ? <Checkmark /> : null,
 				onClick: () => {
 					setSelectedFolder({
 						folderName: null,
@@ -87,7 +117,7 @@ const NewCompositionLoaded: React.FC<{
 						stack: null,
 					});
 				},
-				quickSwitcherLabel: null,
+				quickSwitcherLabel: 'None',
 				subMenu: null,
 				type: 'item',
 				value: rootFolderId,
@@ -119,10 +149,8 @@ const NewCompositionLoaded: React.FC<{
 					return {
 						id,
 						keyHint: null,
-						label: folderPath,
-						leftItem: (
-							<CollapsedFolderIcon color={LIGHT_TEXT} style={folderIconStyle} />
-						),
+						label: <FolderDropdownLabel folderPath={folderPath} />,
+						leftItem: selectedFolderId === id ? <Checkmark /> : null,
 						onClick: () => {
 							setSelectedFolder({
 								folderName: folder.name,
@@ -130,7 +158,7 @@ const NewCompositionLoaded: React.FC<{
 								stack: folder.stack,
 							});
 						},
-						quickSwitcherLabel: null,
+						quickSwitcherLabel: folderPath,
 						subMenu: null,
 						type: 'item',
 						value: id,
@@ -138,7 +166,7 @@ const NewCompositionLoaded: React.FC<{
 					};
 				}),
 		];
-	}, [folders]);
+	}, [folders, selectedFolder.folderName, selectedFolderId]);
 	const resolvedComposition = Internals.useResolvedVideoConfig(null);
 	const initialComposition =
 		resolvedComposition?.type === 'success' ||
