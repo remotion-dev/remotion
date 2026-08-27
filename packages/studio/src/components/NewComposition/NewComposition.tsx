@@ -10,13 +10,14 @@ import React, {
 import {Internals} from 'remotion';
 import {getStaticFiles} from '../../api/get-static-files';
 import {writeStaticFile} from '../../api/write-static-file';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {getFolderId} from '../../helpers/get-folder-id';
 import {installRequiredPackages} from '../../helpers/install-required-package';
 import {
 	getUniqueCompositionName,
 	useCreateComposition,
 } from '../../helpers/use-create-composition';
-import {Checkmark} from '../../icons/Checkmark';
+import {CollapsedFolderIcon} from '../../icons/folder';
 import type {CanvasCaptureImport} from '../../state/modals';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -46,6 +47,11 @@ const folderSelectStyle: React.CSSProperties = {
 	width: 250,
 };
 
+const folderIconStyle: React.CSSProperties = {
+	height: 16,
+	width: 16,
+};
+
 const rootFolderId = 'new-composition-root-folder';
 const folderSelectIdPrefix = 'new-composition-folder-';
 
@@ -73,7 +79,9 @@ const NewCompositionLoaded: React.FC<{
 				id: rootFolderId,
 				keyHint: null,
 				label: 'Root',
-				leftItem: selectedFolder.folderName === null ? <Checkmark /> : null,
+				leftItem: (
+					<CollapsedFolderIcon color={LIGHT_TEXT} style={folderIconStyle} />
+				),
 				onClick: () => {
 					setSelectedFolder({
 						folderName: null,
@@ -106,7 +114,9 @@ const NewCompositionLoaded: React.FC<{
 						id,
 						keyHint: null,
 						label: folderPath,
-						leftItem: selectedFolderId === id ? <Checkmark /> : null,
+						leftItem: (
+							<CollapsedFolderIcon color={LIGHT_TEXT} style={folderIconStyle} />
+						),
 						onClick: () => {
 							setSelectedFolder({
 								folderName: folder.name,
@@ -122,7 +132,7 @@ const NewCompositionLoaded: React.FC<{
 					};
 				}),
 		];
-	}, [folders, selectedFolder.folderName, selectedFolderId]);
+	}, [folders]);
 	const resolvedComposition = Internals.useResolvedVideoConfig(null);
 	const initialComposition =
 		resolvedComposition?.type === 'success' ||
