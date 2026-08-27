@@ -22,6 +22,8 @@ const previewEnvironment = {
 };
 
 let nativeSuspendCalls = 0;
+let stallNativeResume = false;
+let finishNativeResume: (() => void) | null = null;
 let gainValues: number[] = [];
 
 class TrackedAudioContext {
@@ -30,6 +32,7 @@ class TrackedAudioContext {
 	public outputLatency = 0;
 	public currentTime = 0;
 	public destination = {};
+	private outputTime = 0;
 
 	addEventListener() {
 		return undefined;
@@ -59,12 +62,26 @@ class TrackedAudioContext {
 	}
 
 	resume() {
+		if (stallNativeResume) {
+			return new Promise<void>((resolve) => {
+				finishNativeResume = () => {
+					this.state = 'running';
+					resolve();
+				};
+			});
+		}
+
 		this.state = 'running';
 		return Promise.resolve();
 	}
 
 	getOutputTimestamp() {
-		return {contextTime: this.currentTime, performanceTime: 0};
+		if (this.state === 'running') {
+			this.currentTime += 0.01;
+			this.outputTime += 10;
+		}
+
+		return {contextTime: this.currentTime, performanceTime: this.outputTime};
 	}
 
 	createMediaElementSource() {
@@ -139,6 +156,8 @@ const withMockedAudioContext = async (fn: () => Promise<void>) => {
 	globalThis.AudioContext =
 		TrackedAudioContext as unknown as typeof AudioContext;
 	nativeSuspendCalls = 0;
+	stallNativeResume = false;
+	finishNativeResume = null;
 	gainValues = [];
 	try {
 		await fn();
@@ -161,6 +180,31 @@ test('suspend() suspends the AudioContext by default', async () => {
 			value.suspend();
 			await Promise.resolve();
 		});
+		expect(nativeSuspendCalls).toBe(1);
+	});
+});
+
+test('suspend() waits for a pending resume before suspending', async () => {
+	await withMockedAudioContext(async () => {
+		stallNativeResume = true;
+		const value = renderProvider(false);
+
+		await act(async () => {
+			value.resume();
+			await Promise.resolve();
+		});
+		nativeSuspendCalls = 0;
+
+		const pendingNativeResume = finishNativeResume;
+		expect(pendingNativeResume).not.toBeNull();
+		const suspendPromise = value.suspend();
+		expect(nativeSuspendCalls).toBe(0);
+
+		await act(async () => {
+			pendingNativeResume?.();
+			await suspendPromise;
+		});
+
 		expect(nativeSuspendCalls).toBe(1);
 	});
 });
