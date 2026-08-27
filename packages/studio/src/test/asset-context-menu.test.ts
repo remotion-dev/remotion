@@ -137,6 +137,20 @@ test('enables supported Browser Studio asset mutations', () => {
 	});
 });
 
+test('disables file-manager actions in editable Browser Studio', () => {
+	const availability = getAssetActionAvailability({
+		browserStudioCanMutateAssets: true,
+		readOnlyStudio: false,
+		connectionStatus: 'connected',
+		publicFolderExists: '/public',
+	});
+
+	expect(availability).toEqual({
+		fileExplorerDisabled: true,
+		mutationsDisabled: false,
+	});
+});
+
 test('disables drag insertion in read-only Studio', () => {
 	expect(
 		getCanDragAsset({

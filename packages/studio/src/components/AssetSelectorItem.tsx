@@ -25,7 +25,11 @@ import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	HOVER_GROUP_CLASS_NAME,
+	HOVER_GROUP_REVEAL_CLASS_NAME,
 	NO_HOVER_BACKGROUND_STYLE,
+	hoverableStyle,
 } from '../helpers/hoverable';
 import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
@@ -61,7 +65,6 @@ const iconStyle: React.CSSProperties = {
 };
 
 const itemStyle: React.CSSProperties = {
-	paddingRight: 10,
 	paddingTop: 5,
 	paddingBottom: 5,
 	fontSize: 13,
@@ -76,7 +79,6 @@ const itemStyle: React.CSSProperties = {
 	borderRadius: 4,
 	width: 'calc(100% - 4px)',
 	textAlign: 'left',
-	backgroundColor: BACKGROUND,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
@@ -103,6 +105,11 @@ const ellipsisIconStyle: React.SVGProps<SVGSVGElement> = {
 	},
 };
 
+const inlineActionsStyle: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+};
+
 export const getAssetActionAvailability = ({
 	browserStudioCanMutateAssets,
 	readOnlyStudio,
@@ -119,6 +126,7 @@ export const getAssetActionAvailability = ({
 			browserStudioCanMutateAssets !== true &&
 			(readOnlyStudio || connectionStatus !== 'connected'),
 		fileExplorerDisabled:
+			browserStudioCanMutateAssets !== null ||
 			publicFolderExists === null ||
 			readOnlyStudio ||
 			connectionStatus !== 'connected',
@@ -288,7 +296,6 @@ const AssetFolderItem: React.FC<{
 	setDropLocation,
 	readOnlyStudio,
 }) => {
-	const [hovered, setHovered] = useState(false);
 	const openFolderTimerRef = useRef<number | null>(null);
 
 	const {isDropDiv, onDragEnter, onDragLeave} = useAssetDragEvents({
@@ -298,28 +305,18 @@ const AssetFolderItem: React.FC<{
 		setDropLocation,
 	});
 
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
-
 	const folderStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
 			paddingLeft: 4 + level * 8,
-			backgroundColor: hovered ? WHITE_ALPHA_06 : TRANSPARENT,
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: WHITE_ALPHA_06,
+				idleColor: LIGHT_TEXT,
+				hoverColor: WHITE,
+			}),
 		};
-	}, [hovered, level]);
-
-	const label = useMemo(() => {
-		return {
-			...labelStyle,
-			color: hovered ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered]);
+	}, [level]);
 
 	const onClick = useCallback(() => {
 		toggleFolder(item.name, parentFolder);
@@ -337,8 +334,7 @@ const AssetFolderItem: React.FC<{
 		>
 			<div
 				style={folderStyle}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
+				className={HOVERABLE_CLASS_NAME}
 				tabIndex={tabIndex}
 				title={item.name}
 				onClick={onClick}
@@ -364,9 +360,9 @@ const AssetFolderItem: React.FC<{
 				}}
 			>
 				<Row>
-					<Icon style={iconStyle} color={hovered ? WHITE : LIGHT_TEXT} />
+					<Icon style={iconStyle} color={CURRENT_COLOR} />
 					<Spacing x={1} />
-					<div style={label}>{item.name}</div>
+					<div style={labelStyle}>{item.name}</div>
 				</Row>
 			</div>
 
@@ -458,15 +454,10 @@ const AssetSelectorItem: React.FC<{
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
-	const [hovered, setHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -488,10 +479,6 @@ const AssetSelectorItem: React.FC<{
 	const canDragAsset = useMemo(() => {
 		return getCanDragAsset({readOnlyStudio, relativePath});
 	}, [readOnlyStudio, relativePath]);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
 
 	const rowRef = useRef<HTMLDivElement>(null);
 	useLayoutEffect(() => {
@@ -559,18 +546,15 @@ const AssetSelectorItem: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			color: hovered || selected ? WHITE : LIGHT_TEXT,
-			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
+			...hoverableStyle({
+				idleBackground: selected ? WHITE_ALPHA_06 : TRANSPARENT,
+				hoverBackground: WHITE_ALPHA_06,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: WHITE,
+			}),
 			paddingLeft: 12 + level * 8,
 		};
-	}, [hovered, level, selected]);
-
-	const label = useMemo(() => {
-		return {
-			...labelStyle,
-			color: hovered || selected ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered, selected]);
+	}, [level, selected]);
 
 	const renderFileExplorerAction: RenderInlineAction = useCallback((color) => {
 		return <ExpandedFolderIcon style={revealIconStyle} color={color} />;
@@ -695,8 +679,7 @@ const AssetSelectorItem: React.FC<{
 				<div
 					ref={rowRef}
 					style={style}
-					onPointerEnter={onPointerEnter}
-					onPointerLeave={onPointerLeave}
+					className={`${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 					onClick={onClick}
 					draggable={canDragAsset}
 					onDragStart={onDragStart}
@@ -707,12 +690,15 @@ const AssetSelectorItem: React.FC<{
 					<AssetFileIcon
 						fileType={previewFileType}
 						style={iconStyle}
-						color={hovered || selected ? WHITE : LIGHT_TEXT}
+						color={CURRENT_COLOR}
 					/>
 					<Spacing x={1} />
-					<div style={label}>{item.name}</div>
-					{hovered && !isDragging ? (
-						<>
+					<div style={labelStyle}>{item.name}</div>
+					{!isDragging ? (
+						<div
+							className={HOVER_GROUP_REVEAL_CLASS_NAME}
+							style={inlineActionsStyle}
+						>
 							<Spacing x={0.5} />
 							<InlineDropdown
 								variant={null}
@@ -735,7 +721,7 @@ const AssetSelectorItem: React.FC<{
 									/>
 								</>
 							)}
-						</>
+						</div>
 					) : null}
 				</div>
 			</Row>
