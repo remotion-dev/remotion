@@ -3,10 +3,7 @@ import React from 'react';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {CaptionTextEditor} from './CaptionTextEditor';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
-import {
-	InspectorSectionDivider,
-	InspectorSectionHeader,
-} from './InspectorPanel/common';
+import {InspectorSectionHeader} from './InspectorPanel/common';
 import {sectionHeaderEnd} from './InspectorPanel/styles';
 
 const readOnlyStatus: React.CSSProperties = {
@@ -39,7 +36,6 @@ export const CaptionInspector: React.FC<{
 }) => {
 	return (
 		<>
-			<InspectorSectionDivider />
 			<InspectorSectionHeader>
 				<CollapsibleInspectorSectionHeader
 					action={

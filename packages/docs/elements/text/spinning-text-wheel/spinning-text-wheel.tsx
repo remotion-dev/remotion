@@ -5,12 +5,12 @@ import {
 	Sequence,
 	interpolate,
 	spring,
+	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
-	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 
 loadFont('normal', {
@@ -23,6 +23,10 @@ type SpinningTextWheelProps = InteractiveBaseProps &
 		readonly items?: string;
 	};
 
+type InteractiveSpinningTextWheelProps = SpinningTextWheelProps & {
+	readonly callerStyle: React.CSSProperties | null;
+};
+
 const spinningTextWheelSchema = {
 	...Interactive.baseSchema,
 	items: {
@@ -31,17 +35,19 @@ const spinningTextWheelSchema = {
 		description: 'Items (selected first, one per line)',
 	},
 	...Interactive.textSchema,
+	callerStyle: {type: 'hidden'},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const SpinningTextWheelInner = forwardRef<
 	HTMLDivElement,
-	SpinningTextWheelProps & {
+	InteractiveSpinningTextWheelProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
 		{
+			callerStyle,
 			controls,
 			items = 'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday',
 			name,
@@ -69,6 +75,16 @@ const SpinningTextWheelInner = forwardRef<
 			durationRestThreshold: 0.0001,
 		});
 		const rotation = interpolate(progress, [0, 1], [1, 0]);
+		const {
+			rotate: callerRotate,
+			scale: callerScale,
+			transform: callerTransform,
+			transformBox: callerTransformBox,
+			transformOrigin: callerTransformOrigin,
+			transformStyle: callerTransformStyle,
+			translate: callerTranslate,
+			...callerContentStyle
+		} = callerStyle ?? {};
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -81,62 +97,75 @@ const SpinningTextWheelInner = forwardRef<
 				outlineRef={outlineRef}
 			>
 				<div
-					ref={outlineRef}
 					style={{
-						height: 200,
-						maskImage:
-							'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
-						overflow: 'hidden',
-						WebkitMaskImage:
-							'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
-						perspective: 10000,
-						position: 'relative',
-						width: 400,
-						...style,
+						rotate: callerRotate,
+						scale: callerScale,
+						transform: callerTransform,
+						transformBox: callerTransformBox,
+						transformOrigin: callerTransformOrigin,
+						transformStyle: callerTransformStyle,
+						translate: callerTranslate,
 					}}
 				>
-					{values.map((value, index) => {
-						const wheelIndex = index / values.length + rotation;
-						const angle = wheelIndex * Math.PI * 2;
-						const rotateX = wheelIndex * 360;
+					<div
+						ref={outlineRef}
+						style={{
+							height: 200,
+							maskImage:
+								'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
+							overflow: 'hidden',
+							WebkitMaskImage:
+								'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
+							perspective: 10000,
+							position: 'relative',
+							width: 400,
+							...style,
+							...callerContentStyle,
+						}}
+					>
+						{values.map((value, index) => {
+							const wheelIndex = index / values.length + rotation;
+							const angle = wheelIndex * Math.PI * 2;
+							const rotateX = wheelIndex * 360;
 
-						return (
-							<div
-								key={`${index}-${value}`}
-								style={{
-									alignItems: 'center',
-									backfaceVisibility: 'hidden',
-									display: 'flex',
-									height: '100%',
-									justifyContent: 'center',
-									left: 0,
-									opacity:
-										index === 0
-											? interpolate(progress, [0.88, 1], [0.28, 1], {
-													extrapolateLeft: 'clamp',
-													extrapolateRight: 'clamp',
-												})
-											: 0.28,
-									position: 'absolute',
-									top: 0,
-									perspective: 1000,
-									transform: `translateZ(${Math.cos(angle) * 100}px) translateY(${Math.sin(angle) * 100}px) rotateX(${rotateX}deg)`,
-									width: '100%',
-								}}
-							>
+							return (
 								<div
+									key={`${index}-${value}`}
 									style={{
+										alignItems: 'center',
 										backfaceVisibility: 'hidden',
-										textAlign: 'center',
-										transform: `rotateX(${-rotateX}deg)`,
+										display: 'flex',
+										height: '100%',
+										justifyContent: 'center',
+										left: 0,
+										opacity:
+											index === 0
+												? interpolate(progress, [0.88, 1], [0.28, 1], {
+														extrapolateLeft: 'clamp',
+														extrapolateRight: 'clamp',
+													})
+												: 0.28,
+										position: 'absolute',
+										top: 0,
+										perspective: 1000,
+										transform: `translateZ(${Math.cos(angle) * 100}px) translateY(${Math.sin(angle) * 100}px) rotateX(${rotateX}deg)`,
 										width: '100%',
 									}}
 								>
-									{value}
+									<div
+										style={{
+											backfaceVisibility: 'hidden',
+											textAlign: 'center',
+											transform: `rotateX(${-rotateX}deg)`,
+											width: '100%',
+										}}
+									>
+										{value}
+									</div>
 								</div>
-							</div>
-						);
-					})}
+							);
+						})}
+					</div>
 				</div>
 			</Sequence>
 		);
@@ -149,21 +178,26 @@ const InteractiveSpinningTextWheel = Interactive.withSchema({
 	componentIdentity: null,
 	schema: spinningTextWheelSchema,
 	supportsEffects: false,
-}) as React.FC<SpinningTextWheelProps>;
+}) as React.FC<InteractiveSpinningTextWheelProps>;
 
-export const SpinningTextWheel: React.FC<SpinningTextWheelProps> = (props) => {
+export const SpinningTextWheel: React.FC<SpinningTextWheelProps> = ({
+	style,
+	...props
+}) => {
 	return (
 		<InteractiveSpinningTextWheel
 			items={'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday'}
 			name="Spinning text wheel"
+			{...props}
+			callerStyle={style ?? null}
 			style={{
 				color: '#182033',
 				fontFamily: 'Mona Sans',
 				fontSize: 65,
 				fontWeight: 700,
 				lineHeight: 1,
+				translate: '0px 0px',
 			}}
-			{...props}
 		/>
 	);
 };

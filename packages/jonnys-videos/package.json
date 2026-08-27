@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/jonnys-videos"
 	},
 	"name": "@remotion/jonnys-videos",
-	"version": "4.0.515",
+	"version": "4.0.518",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -11,6 +11,7 @@
 		"bundle": "remotion bundle",
 		"render": "remotion render",
 		"lint": "eslint src && tsgo --noEmit",
+		"test": "bun test src",
 		"formatting": "oxfmt src remotion.config.ts --check",
 		"format": "oxfmt src remotion.config.ts"
 	},
@@ -19,6 +20,7 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/effects": "workspace:*",
+		"@remotion/layout-utils": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/shapes": "workspace:*",

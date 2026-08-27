@@ -12,10 +12,10 @@ const SampleComp: React.FC<{}> = () => null;
 const component = React.lazy(() =>
 	Promise.resolve({default: SampleComp as ComponentType<unknown>}),
 );
-const testFolder = (name: string, parent: string | null) => ({
+const testFolder = (name: string, parent: string | null, nonce = 0) => ({
 	name,
 	parent,
-	nonce: [[0, 0]] as [[number, number]],
+	nonce: [[0, nonce]] as [[number, number]],
 	stack: null,
 });
 
@@ -204,6 +204,80 @@ test('Should handle nested folders well', async () => {
 			],
 			type: 'folder',
 		},
+	]);
+});
+
+test('Should interleave folders and compositions in render order', async () => {
+	const z = await getZ();
+	const obj = z.object({});
+	const composition = {
+		component,
+		defaultProps: {},
+		durationInFrames: 200,
+		fps: 30,
+		height: 1080,
+		width: 1080,
+		calculateMetadata: null,
+		schema: obj,
+		stack: null,
+	};
+
+	const tree = createFolderTree(
+		[
+			{
+				...composition,
+				id: 'root-before',
+				folderName: null,
+				parentFolderName: null,
+				nonce: [[0, 0]],
+			},
+			{
+				...composition,
+				id: 'inside-before',
+				folderName: 'group',
+				parentFolderName: null,
+				nonce: [[0, 2]],
+			},
+			{
+				...composition,
+				id: 'inside-nested',
+				folderName: 'nested',
+				parentFolderName: 'group',
+				nonce: [[0, 4]],
+			},
+			{
+				...composition,
+				id: 'inside-after',
+				folderName: 'group',
+				parentFolderName: null,
+				nonce: [[0, 5]],
+			},
+			{
+				...composition,
+				id: 'root-after',
+				folderName: null,
+				parentFolderName: null,
+				nonce: [[0, 6]],
+			},
+		],
+		[testFolder('group', null, 1), testFolder('nested', 'group', 3)],
+		{},
+	);
+
+	expect(tree.map((item) => item.key)).toEqual([
+		'root-before',
+		'group',
+		'root-after',
+	]);
+	const group = tree[1];
+	if (group.type !== 'folder') {
+		throw new Error('Expected group to be a folder');
+	}
+
+	expect(group.items.map((item) => item.key)).toEqual([
+		'inside-before',
+		'nested',
+		'inside-after',
 	]);
 });
 

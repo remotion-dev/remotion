@@ -1,6 +1,11 @@
 import React from 'react';
 import {AbsoluteFill, Composition, Folder, useCurrentScale} from 'remotion';
 import {BarChart} from './BarChart';
+import {
+	CAPTIONS_DURATION_IN_FRAMES,
+	CAPTIONS_HEIGHT,
+} from './CaptionsTester/AnimatedCaptions';
+import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
 import {EffectKeyframeE2e} from './EffectKeyframeE2e';
 import {
 	ErrorOverlayRepro,
@@ -95,6 +100,14 @@ export const E2eTestRoot: React.FC = () => {
 				fps={30}
 				width={1280}
 				height={720}
+			/>
+			<Composition
+				id="captions-inspector-e2e"
+				component={AnimatedCaptionsComposition}
+				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
+				fps={30}
+				width={1080}
+				height={CAPTIONS_HEIGHT}
 			/>
 			<Folder name="visual-controls">
 				<Composition

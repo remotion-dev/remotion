@@ -23,6 +23,7 @@ const makeCompositionSetters = (
 	registerFolder: () => undefined,
 	unregisterFolder: () => undefined,
 	setCanvasContent: () => undefined,
+	setCurrentAssetMetadata: () => undefined,
 	onlyRenderComposition: null,
 });
 

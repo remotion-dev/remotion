@@ -30,6 +30,12 @@ Offer both delivery methods when possible. They use the same Element payload but
 | [Drag-and-drop](/docs/studio-protocol/set-studio-drag-data)     | The user chooses the exact Studio tab, timeline position, and canvas position.                                  | Drag data has no reliable website provenance, so Studio labels the source as [unverified](/docs/studio-protocol/security#confirmation-boundary). |
 | [Installation request](/docs/studio-protocol/install-in-studio) | The requesting website is shown in Studio. On macOS, Studio attempts to bring the target tab to the foreground. | Local Studio ports are probed and the most recently focused compatible Studio is selected automatically.                                         |
 
+### Adding Element catalogs
+
+A website can use [`addElementLibraryToStudio()`](/docs/studio-protocol/add-element-library-to-studio) to request that its catalog is persisted in a Remotion project's config. Studio shows the requesting origin and catalog URL before changing `remotion.config.ts`.
+
+Adding a catalog does not install Element source code or dependencies. Each Element installation keeps its own confirmation.
+
 ## APIs
 
 import {TableOfContents} from './table-of-contents';

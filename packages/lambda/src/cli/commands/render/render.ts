@@ -382,6 +382,8 @@ export const renderCommand = async ({
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
 	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
+	const rendererFunctionName =
+		parsedLambdaCli['renderer-function-name'] ?? null;
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
@@ -430,7 +432,7 @@ export const renderCommand = async ({
 					customData: webhookCustomData,
 				}
 			: null,
-		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
+		rendererFunctionName,
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
 		audioCodec,
 		deleteAfter: deleteAfter ?? null,
@@ -560,11 +562,15 @@ export const renderCommand = async ({
 			url: res.cloudWatchMainLogs,
 			fallback: res.cloudWatchMainLogs,
 		}),
-		CliInternals.makeHyperlink({
-			text: `Renderer functions`,
-			url: res.cloudWatchLogs,
-			fallback: res.cloudWatchLogs,
-		}),
+		...(concurrency === 1 && rendererFunctionName === null
+			? []
+			: [
+					CliInternals.makeHyperlink({
+						text: `Renderer functions`,
+						url: res.cloudWatchLogs,
+						fallback: res.cloudWatchLogs,
+					}),
+				]),
 	);
 	Log.verbose(
 		{indent: false, logLevel},

@@ -46,7 +46,7 @@ const waitForFile = async (file: string) => {
 test('installs an Element from a website into a clean Studio project', async ({
 	browser,
 }) => {
-	test.setTimeout(120_000);
+	test.setTimeout(180_000);
 	const dirname = path.dirname(fileURLToPath(import.meta.url));
 	const packagesDirectory = path.resolve(dirname, '..', '..');
 	const repositoryRoot = path.resolve(packagesDirectory, '..');
@@ -81,6 +81,7 @@ export const MyComponent = () => {
 	const externalLibraryUrl = 'https://external-elements.example.com/library';
 	const reloadedExternalLibraryUrl =
 		'https://second-elements.example.com/components';
+	const protocolLibraryUrl = 'https://protocol-catalog.example.com/library';
 	const configFile = path.join(temporaryProject, 'remotion.config.ts');
 	fs.appendFileSync(
 		configFile,
@@ -135,10 +136,13 @@ export const MyComponent = () => {
 		response.writeHead(200, {'Content-Type': 'text/html'});
 		response.end(`<!doctype html>
 			<button id="install">Install in Studio</button>
+			<button id="add-library">Add catalog to Studio</button>
 			<button id="license">Configure license in Studio</button>
+			<p id="environment"></p>
 			<p id="status"></p>
 			<script type="module">
-				import {createElementPayload, installInStudio, StudioProtocolInternals} from '/protocol.js';
+				import {addElementLibraryToStudio, createElementPayload, installInStudio, isInsideStudio, StudioProtocolInternals} from '/protocol.js';
+				document.querySelector('#environment').textContent = isInsideStudio() ? 'Inside Remotion Studio' : 'Outside Remotion Studio';
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
 					slug: 'protocol-element',
@@ -150,6 +154,14 @@ export const MyComponent = () => {
 				document.querySelector('#install').onclick = async () => {
 					document.querySelector('#status').textContent = '';
 					const result = await installInStudio({payload});
+					document.querySelector('#status').textContent = JSON.stringify(result);
+				};
+				document.querySelector('#add-library').onclick = async () => {
+					document.querySelector('#status').textContent = '';
+					const result = await addElementLibraryToStudio({
+						url: '${protocolLibraryUrl}',
+						displayName: 'Protocol Catalog',
+					});
 					document.querySelector('#status').textContent = JSON.stringify(result);
 				};
 				document.querySelector('#license').onclick = async () => {
@@ -173,20 +185,26 @@ export const MyComponent = () => {
 	const officialLibraryRequests: string[] = [];
 	const externalLibraryRequests: string[] = [];
 	const context = await browser.newContext();
-	await context.route('https://www.remotion.dev/elements', async (route) => {
-		officialLibraryRequests.push(route.request().url());
-		await route.fulfill({
-			status: 302,
-			headers: {Location: senderUrl},
-		});
-	});
-	await context.route(externalLibraryUrl, async (route) => {
-		externalLibraryRequests.push(route.request().url());
-		await route.fulfill({
-			status: 302,
-			headers: {Location: senderUrl},
-		});
-	});
+	await context.route(
+		'https://www.remotion.dev/elements?remotion-studio=true',
+		async (route) => {
+			officialLibraryRequests.push(route.request().url());
+			await route.fulfill({
+				status: 302,
+				headers: {Location: senderUrl},
+			});
+		},
+	);
+	await context.route(
+		`${externalLibraryUrl}?remotion-studio=true`,
+		async (route) => {
+			externalLibraryRequests.push(route.request().url());
+			await route.fulfill({
+				status: 302,
+				headers: {Location: senderUrl},
+			});
+		},
+	);
 	try {
 		await waitForUrl(studioUrl, studioProcess);
 		const studioPage = await context.newPage();
@@ -213,6 +231,7 @@ export const MyComponent = () => {
 						target: {compositionId: 'MyComp'},
 					},
 					{type: 'set-license-key'},
+					{type: 'add-element-library'},
 				],
 			});
 
@@ -247,7 +266,7 @@ export const MyComponent = () => {
 		);
 		await expect(officialElementsIframe).toBeVisible();
 		expect(officialLibraryRequests).toEqual([
-			'https://www.remotion.dev/elements',
+			'https://www.remotion.dev/elements?remotion-studio=true',
 		]);
 		expect(context.pages()).toHaveLength(2);
 		await studioPage.keyboard.press('Escape');
@@ -274,11 +293,16 @@ export const MyComponent = () => {
 			'local-network-access; loopback-network',
 		);
 		await expect(elementsIframe).toHaveAttribute('credentialless', '');
-		expect(externalLibraryRequests).toEqual([externalLibraryUrl]);
+		expect(externalLibraryRequests).toEqual([
+			`${externalLibraryUrl}?remotion-studio=true`,
+		]);
 		expect(context.pages()).toHaveLength(2);
 		const elementsFrame = studioPage.frameLocator(
 			`iframe[title="${externalLibraryLabel} library"]`,
 		);
+		await expect(
+			elementsFrame.getByText('Inside Remotion Studio', {exact: true}),
+		).toBeVisible();
 		const installInStudio = elementsFrame.getByRole('button', {
 			name: 'Install in Studio',
 		});
@@ -313,6 +337,84 @@ export const MyComponent = () => {
 		await studioPage.mouse.click(500, 300);
 		const senderPage = await context.newPage();
 		await senderPage.goto(senderUrl);
+		await expect(
+			senderPage.getByText('Outside Remotion Studio', {exact: true}),
+		).toBeVisible();
+		const configBeforeCatalogConfirmation = fs.readFileSync(configFile, 'utf8');
+		await senderPage
+			.getByRole('button', {name: 'Add catalog to Studio'})
+			.click();
+		await senderPage.waitForFunction(
+			() => document.querySelector('#status')?.textContent !== '',
+		);
+		expect(await senderPage.locator('#status').textContent()).toContain(
+			'awaiting-confirmation',
+		);
+
+		await studioPage.bringToFront();
+		const addCatalogDialog = studioPage.getByRole('dialog');
+		await expect(
+			addCatalogDialog.getByText('Add Element catalog', {exact: true}),
+		).toBeVisible();
+		await expect(
+			addCatalogDialog.getByText(senderUrl, {exact: true}),
+		).toBeVisible();
+		await expect(
+			addCatalogDialog.getByText(protocolLibraryUrl, {exact: true}),
+		).toBeVisible();
+		const catalogDetails = addCatalogDialog.getByLabel('Catalog details');
+		await expect(
+			catalogDetails.getByText('Display name', {exact: true}),
+		).toBeVisible();
+		await expect(
+			catalogDetails.getByText('Protocol Catalog', {exact: true}),
+		).toBeVisible();
+		await expect(decoyStudioPage.getByText('Add Element catalog')).toHaveCount(
+			0,
+		);
+		expect(fs.readFileSync(configFile, 'utf8')).toBe(
+			configBeforeCatalogConfirmation,
+		);
+		await addCatalogDialog.getByRole('button', {name: /^Add catalog/}).click();
+		await expect
+			.poll(() => fs.readFileSync(configFile, 'utf8'), {timeout: 30_000})
+			.toContain(protocolLibraryUrl);
+
+		await browseElements.click();
+		await expect(
+			studioPage.getByRole('button', {
+				name: 'Protocol Catalog',
+				exact: true,
+			}),
+		).toBeVisible({timeout: 30_000});
+		await studioPage.keyboard.press('Escape');
+
+		await studioPage.bringToFront();
+		await studioPage.mouse.click(500, 300);
+		await senderPage.bringToFront();
+		await senderPage
+			.getByRole('button', {name: 'Add catalog to Studio'})
+			.click();
+		await senderPage.waitForFunction(
+			() => document.querySelector('#status')?.textContent !== '',
+		);
+		await studioPage.bringToFront();
+		await studioPage
+			.getByRole('dialog')
+			.getByRole('button', {name: /^Add catalog/})
+			.click();
+		await expect
+			.poll(
+				() =>
+					fs.readFileSync(configFile, 'utf8').split(protocolLibraryUrl).length -
+					1,
+				{timeout: 30_000},
+			)
+			.toBe(1);
+
+		await studioPage.bringToFront();
+		await studioPage.mouse.click(500, 300);
+		await senderPage.bringToFront();
 		await senderPage
 			.getByRole('button', {name: 'Configure license in Studio'})
 			.click();

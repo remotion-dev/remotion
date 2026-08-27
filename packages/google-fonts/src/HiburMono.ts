@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hibur Mono',
 	importName: 'HiburMono',
-	version: 'v1',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Hibur+Mono:ital,wght@0,400',
 	unicodeRanges: {
 		ethiopic:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				ethiopic:
-					'https://fonts.gstatic.com/s/hiburmono/v1/R70fjyoFkv6fKPKNWxXXiDy0Ugv4.woff2',
+					'https://fonts.gstatic.com/s/hiburmono/v3/R70fjyoFkv6fKPKNWxXXiDy0Ugv4.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hiburmono/v1/R70fjyoFkv6fKPKNWxXXiCO0Ugv4.woff2',
+					'https://fonts.gstatic.com/s/hiburmono/v3/R70fjyoFkv6fKPKNWxXXiCO0Ugv4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hiburmono/v1/R70fjyoFkv6fKPKNWxXXiC20Ug.woff2',
+					'https://fonts.gstatic.com/s/hiburmono/v3/R70fjyoFkv6fKPKNWxXXiC20Ug.woff2',
 			},
 		},
 	},

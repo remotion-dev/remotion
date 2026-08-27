@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.516",
+	"version": "4.0.518",
 	"scripts": {
 		"formatting": "oxfmt src standalone --check",
 		"format": "oxfmt src standalone",
@@ -99,6 +99,7 @@
 		"@remotion/web-renderer": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@remotion/whisper-web": "workspace:*",
+		"@remotion/whisper-webgpu": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/zod-types-v3": "workspace:*",
 		"@rive-app/canvas-advanced": "2.31.5",

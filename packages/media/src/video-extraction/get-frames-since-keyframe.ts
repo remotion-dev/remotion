@@ -1,4 +1,4 @@
-import type {InputFormat, UrlSourceOptions} from 'mediabunny';
+import type {InputFormat} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	AudioSampleSink,
@@ -43,10 +43,6 @@ export type VideoSinkResult =
 	| 'unknown-container-format'
 	| 'network-error';
 
-const getRetryDelay = (() => {
-	return null;
-}) satisfies UrlSourceOptions['getRetryDelay'];
-
 const getFormatOrNullOrNetworkError = async (
 	input: Input,
 ): Promise<InputFormat | 'network-error' | null> => {
@@ -71,7 +67,6 @@ export const makeSinks = (
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, {
-			getRetryDelay,
 			maxCacheSize: getMaxSourceCacheSize(logLevel),
 			...(resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined),
 		}),

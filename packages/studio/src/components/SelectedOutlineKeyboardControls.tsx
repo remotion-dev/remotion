@@ -1,3 +1,4 @@
+import type {CanvasSelectableOutline} from '@remotion/canvas';
 import {PlayerInternals} from '@remotion/player';
 import type React from 'react';
 import {useCallback, useContext, useEffect, useRef} from 'react';
@@ -15,7 +16,6 @@ import {
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
-import type {getSequencesWithSelectableOutlines} from './selected-outline-measurement';
 import {
 	getSelectedSequenceKeys,
 	getSequenceKeysContainingSelection,
@@ -35,9 +35,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 	readonly getLatestOutlineTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
-	readonly getSelectableOutlines: () => ReturnType<
-		typeof getSequencesWithSelectableOutlines
-	>;
+	readonly getSelectableOutlines: () => readonly CanvasSelectableOutline[];
 }> = ({getLatestOutlineTargetByKey, getSelectableOutlines}) => {
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {getDragOverrides} = useContext(

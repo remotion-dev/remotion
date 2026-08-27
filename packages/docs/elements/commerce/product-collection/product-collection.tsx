@@ -7,8 +7,8 @@ import {
 	Sequence,
 	interpolate,
 	useCurrentFrame,
-	useVideoConfig,
 	type InteractiveBaseProps,
+	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
@@ -18,16 +18,20 @@ loadFont('normal', {
 	weights: ['500', '600', '700'],
 });
 
-type ProductCardProps = InteractiveBaseProps & {
-	readonly count: number;
-	readonly discount: string;
-	readonly image: string;
-	readonly imageFit: 'contain' | 'cover';
-	readonly index: number;
-	readonly originalPrice: string;
-	readonly price: string;
-	readonly title: string;
-};
+export const productCollectionDurationInFrames = 150;
+
+type ProductCardProps = InteractiveBaseProps &
+	Omit<InteractiveTransformProps, 'style'> & {
+		readonly count: number;
+		readonly discount: string;
+		readonly image: string;
+		readonly imageFit: 'contain' | 'cover';
+		readonly index: number;
+		readonly originalPrice: string;
+		readonly price: string;
+		readonly style: React.CSSProperties | null;
+		readonly title: string;
+	};
 
 const productCardSchema = {
 	...Interactive.baseSchema,
@@ -68,6 +72,7 @@ const productCardSchema = {
 	},
 	count: {type: 'hidden'},
 	index: {type: 'hidden'},
+	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const ProductCardInner = forwardRef<
@@ -85,6 +90,7 @@ const ProductCardInner = forwardRef<
 			name,
 			originalPrice,
 			price,
+			style,
 			title,
 			...sequenceProps
 		},
@@ -92,11 +98,10 @@ const ProductCardInner = forwardRef<
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
 		const frame = useCurrentFrame();
-		const {durationInFrames} = useVideoConfig();
 		const lastProductIndex = Math.max(0, count - 1);
 		const rawScrollPosition = interpolate(
 			frame,
-			[24, durationInFrames - 28],
+			[24, productCollectionDurationInFrames - 28],
 			[0, lastProductIndex],
 			{
 				extrapolateLeft: 'clamp',
@@ -169,7 +174,6 @@ const ProductCardInner = forwardRef<
 				outlineRef={outlineRef}
 			>
 				<div
-					ref={outlineRef}
 					style={{
 						height: 560,
 						left: 300,
@@ -186,7 +190,9 @@ const ProductCardInner = forwardRef<
 					}}
 				>
 					<div
+						ref={outlineRef}
 						style={{
+							...style,
 							backgroundColor: '#ffffff',
 							boxSizing: 'border-box',
 							color: '#1d1d19',
@@ -216,7 +222,7 @@ const ProductCardInner = forwardRef<
 									objectPosition: '50% 50%',
 									scale: interpolate(
 										frame,
-										[0, durationInFrames - 1],
+										[0, productCollectionDurationInFrames - 1],
 										[1.06, 1.01],
 										{
 											easing: Easing.inOut(Easing.quad),
@@ -282,6 +288,7 @@ const ProductCardInner = forwardRef<
 									overflowWrap: 'anywhere',
 									textTransform: 'uppercase',
 									textWrap: 'balance',
+									width: 230,
 								}}
 							>
 								{title}
@@ -349,7 +356,6 @@ const ProductCard = Interactive.withSchema({
 
 export const ProductCollection = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div
@@ -364,7 +370,12 @@ export const ProductCollection = () => {
 				left: 60,
 				opacity: interpolate(
 					frame,
-					[0, 10, durationInFrames - 8, durationInFrames - 1],
+					[
+						0,
+						10,
+						productCollectionDurationInFrames - 8,
+						productCollectionDurationInFrames - 1,
+					],
 					[0, 1, 1, 0],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -376,7 +387,12 @@ export const ProductCollection = () => {
 				position: 'absolute',
 				scale: interpolate(
 					frame,
-					[0, 16, durationInFrames - 8, durationInFrames - 1],
+					[
+						0,
+						16,
+						productCollectionDurationInFrames - 8,
+						productCollectionDurationInFrames - 1,
+					],
 					[0.97, 1, 1, 0.98],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -389,7 +405,12 @@ export const ProductCollection = () => {
 				transform: 'perspective(100px)',
 				translate: interpolate(
 					frame,
-					[0, 16, durationInFrames - 8, durationInFrames - 1],
+					[
+						0,
+						16,
+						productCollectionDurationInFrames - 8,
+						productCollectionDurationInFrames - 1,
+					],
 					['0px 30px', '0px 0px', '0px 0px', '0px -20px'],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -410,6 +431,7 @@ export const ProductCollection = () => {
 				name="Cloudline Runner card"
 				originalPrice="$148"
 				price="$118"
+				style={{translate: '0px 0px'}}
 				title="Cloudline Runner"
 			/>
 			<ProductCard
@@ -421,6 +443,7 @@ export const ProductCollection = () => {
 				name="Minimal Steel Watch card"
 				originalPrice=""
 				price="$185"
+				style={{translate: '0px 0px'}}
 				title="Minimal Steel Watch"
 			/>
 			<ProductCard
@@ -432,6 +455,7 @@ export const ProductCollection = () => {
 				name="Studio Sunglasses card"
 				originalPrice="$125"
 				price="$94"
+				style={{translate: '0px 0px'}}
 				title="Studio Sunglasses"
 			/>
 			<ProductCard
@@ -443,6 +467,7 @@ export const ProductCollection = () => {
 				name="Studio Headset card"
 				originalPrice=""
 				price="$179"
+				style={{translate: '0px 0px'}}
 				title="Studio Headset"
 			/>
 			<ProductCard
@@ -454,6 +479,7 @@ export const ProductCollection = () => {
 				name="Sculptural Table Lamp card"
 				originalPrice=""
 				price="$149"
+				style={{translate: '0px 0px'}}
 				title="Sculptural Table Lamp"
 			/>
 		</Interactive.Div>

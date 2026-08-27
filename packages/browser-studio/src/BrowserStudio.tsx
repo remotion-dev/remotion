@@ -12,8 +12,8 @@ import {
 } from './browser-studio-project-controller';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
+import {LoadingProgress} from './LoadingProgress';
 import {deleteBrowserStudioProjectStorage} from './opfs-public-files';
-import {Spinner} from './Spinner';
 import type {
 	BrowserStudioDependencyResolution,
 	BrowserStudioProps,
@@ -21,6 +21,11 @@ import type {
 	BrowserStudioWorkerCompileResponse,
 	CompileState,
 } from './types';
+
+declare const __BROWSER_STUDIO_ASSET_SIZES__: {
+	readonly rspackWasm: number;
+	readonly vendorBundle: number;
+};
 
 const makeInitialState = (): CompileState => ({
 	status: 'idle',
@@ -40,6 +45,7 @@ const localVendorEntry = new URL(
 	'./browser-studio-vendor-entry.mjs',
 	import.meta.url,
 ).href;
+const localVendorEntryWithMarker = `${localVendorEntry}?browserStudioVendor`;
 
 type BrowserStudioContentWindow = Window & {
 	remotion_browserStudioHmr: BrowserStudioHmrBridge;
@@ -151,6 +157,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
 	const [iframeLoaded, setIframeLoaded] = useState(false);
+	const [loadingProgress, setLoadingProgress] = useState<number | null>(null);
 	const installedDependencyResolutionsRef = useRef<
 		Record<string, BrowserStudioDependencyResolution>
 	>({});
@@ -365,6 +372,141 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			remotionPackageSource.version ===
 				browserStudioDependencyVersions.remotion;
 		const useVendorBundle = !hasVendorOverride && releaseMatchesVendor;
+		const downloadProgress: Record<
+			'vendor-bundle' | 'rspack-wasm',
+			{loadedBytes: number; totalBytes: number | null} | null
+		> = {
+			'rspack-wasm': {
+				loadedBytes: 0,
+				totalBytes: __BROWSER_STUDIO_ASSET_SIZES__.rspackWasm,
+			},
+			'vendor-bundle': useVendorBundle
+				? {
+						loadedBytes: 0,
+						totalBytes: __BROWSER_STUDIO_ASSET_SIZES__.vendorBundle,
+					}
+				: null,
+		};
+		const updateLoadingProgress = ({
+			asset,
+			loadedBytes,
+			totalBytes,
+		}: {
+			asset: 'vendor-bundle' | 'rspack-wasm';
+			loadedBytes: number;
+			totalBytes: number | null;
+		}) => {
+			if (didCancel) {
+				return;
+			}
+
+			downloadProgress[asset] = {
+				loadedBytes,
+				totalBytes: downloadProgress[asset]?.totalBytes ?? totalBytes,
+			};
+			const assets = Object.values(downloadProgress).filter(
+				(progress) => progress !== null,
+			);
+			if (assets.some((progress) => progress.totalBytes === null)) {
+				setLoadingProgress(null);
+				return;
+			}
+
+			const total = assets.reduce(
+				(sum, progress) => sum + (progress.totalBytes ?? 0),
+				0,
+			);
+			const loaded = assets.reduce(
+				(sum, progress) =>
+					sum + Math.min(progress.loadedBytes, progress.totalBytes ?? 0),
+				0,
+			);
+			setLoadingProgress(total === 0 ? null : Math.min(0.95, loaded / total));
+		};
+
+		setLoadingProgress(0);
+		// Start the large, stable vendor download alongside the compiler. The
+		// iframe later executes these same bytes from a Blob URL, avoiding a
+		// second request after compilation finishes.
+		const vendorBundleAbortController = new AbortController();
+		const vendorBundlePromise = useVendorBundle
+			? fetch(localVendorEntryWithMarker, {
+					signal: vendorBundleAbortController.signal,
+				})
+					.then(async (response) => {
+						if (!response.ok) {
+							throw new Error(
+								`Failed to load the Browser Studio vendor bundle: ${response.status}`,
+							);
+						}
+
+						const contentLength = Number(
+							response.headers.get('content-length'),
+						);
+						const totalBytes =
+							Number.isFinite(contentLength) && contentLength > 0
+								? contentLength
+								: null;
+						updateLoadingProgress({
+							asset: 'vendor-bundle',
+							loadedBytes: 0,
+							totalBytes,
+						});
+						if (!response.body) {
+							const fallbackBlob = await response.blob();
+							updateLoadingProgress({
+								asset: 'vendor-bundle',
+								loadedBytes: fallbackBlob.size,
+								totalBytes: totalBytes ?? fallbackBlob.size,
+							});
+							return {
+								blob: fallbackBlob.slice(
+									0,
+									fallbackBlob.size,
+									'text/javascript',
+								),
+								type: 'success' as const,
+							};
+						}
+
+						const reader = response.body.getReader();
+						const chunks: BlobPart[] = [];
+						let loadedBytes = 0;
+						let lastProgressUpdate = 0;
+						while (true) {
+							const result = await reader.read();
+							if (result.done) {
+								break;
+							}
+
+							chunks.push(result.value);
+							loadedBytes += result.value.byteLength;
+							const now = performance.now();
+							if (now - lastProgressUpdate >= 50) {
+								lastProgressUpdate = now;
+								updateLoadingProgress({
+									asset: 'vendor-bundle',
+									loadedBytes,
+									totalBytes,
+								});
+							}
+						}
+
+						const vendorBlob = new Blob(chunks, {type: 'text/javascript'});
+						updateLoadingProgress({
+							asset: 'vendor-bundle',
+							loadedBytes,
+							totalBytes: totalBytes ?? loadedBytes,
+						});
+						return {
+							blob: vendorBlob,
+							type: 'success' as const,
+						};
+					})
+					.catch((error: unknown) => ({error, type: 'error' as const}))
+			: null;
+		let vendorBundleUrl: string | null = null;
+
 		if (
 			!useVendorBundle &&
 			!remotionPackageSource &&
@@ -393,6 +535,11 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 			if (response.type === 'error') {
 				setCompileState({status: 'error', error: response.error});
+				return;
+			}
+
+			if (response.type === 'load-progress') {
+				updateLoadingProgress(response);
 				return;
 			}
 
@@ -427,8 +574,30 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				return;
 			}
 
-			const bundleScriptUrl = useVendorBundle
-				? `${localVendorEntry}?projectBundleUrl=${encodeURIComponent(bundleUrlRef.current)}`
+			if (vendorBundlePromise && !vendorBundleUrl) {
+				const vendorBundleResult = await vendorBundlePromise;
+				if (didCancel) {
+					return;
+				}
+
+				if (vendorBundleResult.type === 'error') {
+					setCompileState({
+						status: 'error',
+						error: {
+							message:
+								vendorBundleResult.error instanceof Error
+									? vendorBundleResult.error.message
+									: String(vendorBundleResult.error),
+						},
+					});
+					return;
+				}
+
+				vendorBundleUrl ??= URL.createObjectURL(vendorBundleResult.blob);
+			}
+
+			const bundleScriptUrl = vendorBundleUrl
+				? `${vendorBundleUrl}#projectBundleUrl=${encodeURIComponent(bundleUrlRef.current)}`
 				: bundleUrlRef.current;
 
 			const html = studioHtml({
@@ -474,6 +643,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			});
 
 			setIframeHtml(html);
+			setLoadingProgress(1);
 			setCompileState({status: 'compiled', warnings: response.warnings});
 		};
 
@@ -496,6 +666,11 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		return () => {
 			didCancel = true;
+			vendorBundleAbortController.abort();
+			if (vendorBundleUrl) {
+				URL.revokeObjectURL(vendorBundleUrl);
+			}
+
 			workerRef.current = null;
 			lastSentProjectRef.current = null;
 			worker.terminate();
@@ -644,7 +819,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			) : null}
 			{state.status === 'compiling' && iframeHtml === null ? (
 				<div style={overlayStyle}>
-					<Spinner duration={0.5} size={14} />
+					<LoadingProgress progress={loadingProgress} />
 				</div>
 			) : null}
 			{state.status === 'error' ? (

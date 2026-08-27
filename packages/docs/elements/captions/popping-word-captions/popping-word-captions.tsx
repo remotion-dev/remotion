@@ -36,6 +36,7 @@ type PoppingWordCaptionsLayerProps = Omit<
 	PoppingWordCaptionsProps,
 	'captions'
 > & {
+	readonly callerStyle: React.CSSProperties | null;
 	readonly captions: Caption[];
 };
 
@@ -74,6 +75,7 @@ const poppingWordCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
+	callerStyle: {type: 'hidden'},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
@@ -302,6 +304,7 @@ const PoppingWordCaptionsInner = forwardRef<
 >(
 	(
 		{
+			callerStyle,
 			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
@@ -315,6 +318,16 @@ const PoppingWordCaptionsInner = forwardRef<
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
 		const [fontLoaded, setFontLoaded] = useState(false);
+		const {
+			rotate: callerRotate,
+			scale: callerScale,
+			transform: callerTransform,
+			transformBox: callerTransformBox,
+			transformOrigin: callerTransformOrigin,
+			transformStyle: callerTransformStyle,
+			translate: callerTranslate,
+			...callerContentStyle
+		} = callerStyle ?? {};
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -339,39 +352,53 @@ const PoppingWordCaptionsInner = forwardRef<
 				outlineRef={outlineRef}
 			>
 				<div
-					ref={outlineRef}
 					style={{
 						height: height ?? '100%',
+						rotate: callerRotate,
+						scale: callerScale,
+						transform: callerTransform,
+						transformBox: callerTransformBox,
+						transformOrigin: callerTransformOrigin,
+						transformStyle: callerTransformStyle,
+						translate: callerTranslate,
 						width: width ?? '100%',
-						...style,
 					}}
 				>
-					<PoppingWordCaptionsContent
-						captionAreaWidth={width ?? null}
-						captions={captions}
-						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						fontLoaded={fontLoaded}
-					/>
+					<div
+						ref={outlineRef}
+						style={{
+							height: '100%',
+							width: '100%',
+							...style,
+							...callerContentStyle,
+						}}
+					>
+						<PoppingWordCaptionsContent
+							captionAreaWidth={width ?? null}
+							captions={captions}
+							combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+							fontLoaded={fontLoaded}
+						/>
+					</div>
 				</div>
 			</Sequence>
 		);
 	},
 );
 
-const PoppingWordCaptionsLayer = Interactive.withSchema({
-	Component: PoppingWordCaptionsInner,
-	componentName: '<PoppingWordCaptions>',
-	componentIdentity: null,
-	schema: poppingWordCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<PoppingWordCaptionsLayerProps>;
-
-export const PoppingWordCaptions: React.FC<PoppingWordCaptionsProps> = ({
-	captions,
-	...props
-}) => {
+const PoppingWordCaptionsWithControls: React.FC<
+	PoppingWordCaptionsProps & {readonly controls: SequenceControls | undefined}
+> = ({captions, controls, style, ...props}) => {
 	if (captions) {
-		return <PoppingWordCaptionsLayer {...props} captions={captions} />;
+		return (
+			<PoppingWordCaptionsInner
+				{...props}
+				callerStyle={style ?? null}
+				captions={captions}
+				controls={controls}
+				style={{translate: '0px 0px'}}
+			/>
+		);
 	}
 
 	return (
@@ -384,8 +411,9 @@ export const PoppingWordCaptions: React.FC<PoppingWordCaptionsProps> = ({
 				width: 900,
 			}}
 		>
-			<PoppingWordCaptionsLayer
+			<PoppingWordCaptionsInner
 				{...props}
+				callerStyle={style ?? null}
 				captions={[
 					{
 						text: 'Captions',
@@ -437,9 +465,19 @@ export const PoppingWordCaptions: React.FC<PoppingWordCaptionsProps> = ({
 						confidence: null,
 					},
 				]}
-				width={681}
-				height={252}
+				controls={controls}
+				width={props.width ?? 681}
+				height={props.height ?? 252}
+				style={{translate: '0px 0px'}}
 			/>
 		</div>
 	);
 };
+
+export const PoppingWordCaptions = Interactive.withSchema({
+	Component: PoppingWordCaptionsWithControls,
+	componentName: '<PoppingWordCaptions>',
+	componentIdentity: null,
+	schema: poppingWordCaptionsSchema,
+	supportsEffects: false,
+}) as React.FC<PoppingWordCaptionsProps>;

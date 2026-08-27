@@ -323,6 +323,7 @@ import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
+import {WhisperWebGpu} from './WhisperWebGpu';
 
 class Vector2 {
 	readonly x: number;
@@ -2702,6 +2703,12 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Still id="whisper-web" component={WhisperWeb} width={800} height={800} />
+			<Still
+				id="whisper-webgpu"
+				component={WhisperWebGpu}
+				width={900}
+				height={900}
+			/>
 			<Composition
 				id="empty"
 				component={Empty}

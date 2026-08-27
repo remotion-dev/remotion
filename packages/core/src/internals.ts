@@ -283,6 +283,7 @@ import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
+import {DisableInteractivityProvider} from './with-interactivity-schema.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -379,6 +380,7 @@ export const Internals = {
 	SetTimelineContext,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
+	DisableInteractivityProvider,
 	PrefetchProvider,
 	DurationsContextProvider,
 	IsPlayerContextProvider,

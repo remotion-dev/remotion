@@ -1,3 +1,4 @@
+import {addElementLibraryToStudioWithDependencies} from './add-element-library-to-studio';
 import {
 	makeBrowserStudioUrl,
 	openInBrowserStudio,
@@ -19,6 +20,12 @@ import {installInStudioWithDependencies} from './install-in-studio';
 import {isValidPublicLicenseKey} from './license-key';
 import {setLicenseKeyInStudio} from './set-license-key-in-studio';
 
+export {
+	addElementLibraryToStudio,
+	type AddElementLibraryToStudioErrorCode,
+	type AddElementLibraryToStudioInput,
+	type AddElementLibraryToStudioResult,
+} from './add-element-library-to-studio';
 export type {AssetDragData} from './asset-drag-data';
 export type {
 	ComponentDimensions,
@@ -70,6 +77,7 @@ export {
 	type InstallInStudioErrorCode,
 	type InstallInStudioResult,
 } from './install-in-studio';
+export {isInsideStudio} from './is-inside-studio';
 export type {SfxDragData} from './sfx-drag-data';
 export type {
 	StudioProtocolDescriptor,
@@ -77,6 +85,7 @@ export type {
 } from './studio-discovery';
 
 export const StudioProtocolInternals = {
+	addElementLibraryToStudioWithDependencies,
 	areComponentProps,
 	getDragPreviewMetadata,
 	getElementComponentNameFromSourceCode,

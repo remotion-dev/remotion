@@ -2,11 +2,13 @@ import {expect, test} from 'bun:test';
 import {
 	clampTimelineZoom,
 	getTimelineMaxZoom,
+	normalizedToTimelineZoom,
 	sliderValueToTimelineZoom,
 	TIMELINE_FRAMES_VISIBLE_AT_MAX_ZOOM,
 	TIMELINE_MAX_ZOOM_FLOOR,
 	TIMELINE_MIN_ZOOM,
 	TIMELINE_ZOOM_SLIDER_PROPS,
+	timelineZoomToNormalized,
 	timelineZoomToSliderValue,
 } from '../helpers/get-timeline-max-zoom';
 
@@ -59,6 +61,21 @@ test('timeline zoom slider maps min and max', () => {
 			maxZoom,
 		}),
 	).toBe(maxZoom);
+});
+
+test('normalized timeline zoom maps min, midpoint and max', () => {
+	const maxZoom = 6;
+
+	expect(normalizedToTimelineZoom({normalized: 0, maxZoom})).toBe(
+		TIMELINE_MIN_ZOOM,
+	);
+	expect(normalizedToTimelineZoom({normalized: 0.5, maxZoom})).toBeCloseTo(
+		Math.sqrt(maxZoom),
+	);
+	expect(normalizedToTimelineZoom({normalized: 1, maxZoom})).toBe(maxZoom);
+	expect(
+		timelineZoomToNormalized({zoom: Math.sqrt(maxZoom), maxZoom}),
+	).toBeCloseTo(0.5);
 });
 
 test('timeline zoom slider increases with zoom', () => {

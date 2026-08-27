@@ -1,6 +1,7 @@
 import Head from '@docusaurus/Head';
 import {
 	installInStudio,
+	isInsideStudio,
 	setStudioDragData,
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
@@ -8,6 +9,7 @@ import React, {
 	useCallback,
 	useEffect,
 	useId,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -52,6 +54,9 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
 		useState(false);
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState<boolean | null>(
+		null,
+	);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
@@ -64,6 +69,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 		return createElementPayloadFromDefinition({definition, sourceCode});
 	}, [definition, sourceCode]);
+
+	useLayoutEffect(() => {
+		setIsEmbeddedInStudio(isInsideStudio());
+	}, []);
 
 	useEffect(() => {
 		const onKeyDown = (event: KeyboardEvent) => {
@@ -162,7 +171,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					<ElementPreview
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
+						elementHeight={definition.elementHeight}
+						elementWidth={definition.elementWidth}
 						fps={fps}
+						previewLayout={definition.preview.previewLayout}
+						safeArea={definition.safeArea}
 					/>
 					{children ? (
 						<div className={styles.sourceArea}>
@@ -227,25 +240,27 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							<div
-								className={styles.dragHandle}
-								draggable
-								onDragStart={(event) => {
-									setStudioDragData({
-										dataTransfer: event.dataTransfer,
-										payload: elementPayload,
-									});
-									setElementDragImage(event.dataTransfer, posterRef.current);
-								}}
-								title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
-							>
-								<span aria-hidden="true" className={styles.dragHandleIcon}>
-									⠿
-								</span>
-								<span className={styles.dragHandleText}>
-									<strong>Drag into Studio</strong>
-								</span>
-							</div>
+							{isEmbeddedInStudio === false ? (
+								<div
+									className={styles.dragHandle}
+									draggable
+									onDragStart={(event) => {
+										setStudioDragData({
+											dataTransfer: event.dataTransfer,
+											payload: elementPayload,
+										});
+										setElementDragImage(event.dataTransfer, posterRef.current);
+									}}
+									title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
+								>
+									<span aria-hidden="true" className={styles.dragHandleIcon}>
+										⠿
+									</span>
+									<span className={styles.dragHandleText}>
+										<strong>Drag into Studio</strong>
+									</span>
+								</div>
+							) : null}
 							{installStatus.type === 'success' ||
 							installStatus.type === 'error' ? (
 								<p

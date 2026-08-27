@@ -84,9 +84,9 @@ test.describe('inspector section collapse', () => {
 			{timeout: 30_000},
 		);
 
-		const selectedOutline = page
-			.locator('polygon[stroke-opacity="1"][pointer-events="all"]')
-			.first();
+		const selectedOutline = page.locator(
+			'polygon[data-remotion-directly-selected-outline="true"]',
+		);
 		const canvasRotationSurface = page.locator(
 			'[data-remotion-studio-canvas-rotation]',
 		);
@@ -163,16 +163,8 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Show 3D transform controls'}),
 		).toBeVisible();
-		await page.locator('.remotion-studio-composition-container').hover();
-		await page
-			.locator('polygon[pointer-events="all"]')
-			.nth(1)
-			.dispatchEvent('pointerover');
-		const outline = page
-			.locator('polygon[stroke-opacity="1"][pointer-events="all"]')
-			.nth(1);
-		await expect(outline).toBeVisible();
-		await outline.dispatchEvent('contextmenu');
+		await expect(selectedOutline).toHaveCount(1);
+		await selectedOutline.dispatchEvent('contextmenu');
 		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
 		await expect(
 			page.getByRole('button', {name: 'Rotation X', exact: true}).first(),

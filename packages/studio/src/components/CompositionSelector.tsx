@@ -388,6 +388,7 @@ export const CompositionSelector: React.FC = () => {
 				mode="compositions"
 				showShortcut
 				tabIndex={tabIndex}
+				getActions={getRootContextMenuItems}
 			/>
 			<div
 				ref={listRef}

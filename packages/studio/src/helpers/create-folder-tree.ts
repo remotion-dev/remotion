@@ -1,6 +1,7 @@
 import type {_InternalTypes, StaticFile, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
+import {sortItemsByNonceHistory} from './sort-by-nonce-history';
 
 export type AssetFolder = {
 	name: string;
@@ -236,7 +237,28 @@ export const createFolderTree = (
 		list.push(toPush);
 	}
 
-	return items;
+	const sortTreeItems = (
+		treeItems: CompositionSelectorItemType[],
+	): CompositionSelectorItemType[] => {
+		return sortItemsByNonceHistory(
+			treeItems.map((item) => ({
+				item,
+				nonce:
+					item.type === 'folder' ? item.folder.nonce : item.composition.nonce,
+			})),
+		).map(({item}) => {
+			if (item.type === 'composition') {
+				return item;
+			}
+
+			return {
+				...item,
+				items: sortTreeItems(item.items),
+			};
+		});
+	};
+
+	return sortTreeItems(items);
 };
 
 /**

@@ -39,6 +39,11 @@ const input: React.CSSProperties = {
 	borderRadius: 4,
 };
 
+const touchscreenInput: React.CSSProperties = {
+	...input,
+	fontSize: 16,
+};
+
 const modeSelector: React.CSSProperties = {
 	paddingLeft: 16,
 	paddingRight: 16,
@@ -195,6 +200,7 @@ export const QuickSwitcherContent: React.FC<{
 	}, [assetSelection, compositionSelection, initialMode, invocationTimestamp]);
 
 	const inputRef = useRef<HTMLInputElement>(null);
+	const isTouchscreen = navigator.maxTouchPoints > 0;
 	const selectComposition = useSelectComposition();
 	const selectAsset = useSelectAsset();
 
@@ -426,30 +432,35 @@ export const QuickSwitcherContent: React.FC<{
 		state.selectedIndex,
 		resultsArray.length,
 	);
+	const focusInput = useCallback(() => {
+		if (!isTouchscreen) {
+			inputRef.current?.focus();
+		}
+	}, [isTouchscreen]);
 
 	const onActionsSelected = useCallback(() => {
 		setState((s) => ({
 			query: `> ${stripQuery(s.query)}`,
 			selectedIndex: 0,
 		}));
-		inputRef.current?.focus();
-	}, []);
+		focusInput();
+	}, [focusInput]);
 
 	const onCompositionsSelected = useCallback(() => {
 		setState((s) => ({
 			query: stripQuery(s.query),
 			selectedIndex: 0,
 		}));
-		inputRef.current?.focus();
-	}, []);
+		focusInput();
+	}, [focusInput]);
 
 	const onAssetsSelected = useCallback(() => {
 		setState((s) => ({
 			query: `$ ${stripQuery(s.query)}`,
 			selectedIndex: 0,
 		}));
-		inputRef.current?.focus();
-	}, []);
+		focusInput();
+	}, [focusInput]);
 
 	const onDocSearchSelected = useCallback(() => {
 		setState((s) => ({
@@ -457,8 +468,8 @@ export const QuickSwitcherContent: React.FC<{
 			selectedIndex: 0,
 		}));
 		setDocResults({type: 'initial'});
-		inputRef.current?.focus();
-	}, []);
+		focusInput();
+	}, [focusInput]);
 
 	const showSearchLoadingState =
 		mode === 'docs' && docResults.type === 'loading';
@@ -519,8 +530,8 @@ export const QuickSwitcherContent: React.FC<{
 				<RemotionInput
 					ref={inputRef}
 					type="text"
-					style={input}
-					autoFocus
+					style={isTouchscreen ? touchscreenInput : input}
+					autoFocus={!isTouchscreen}
 					status="ok"
 					value={state.query}
 					onChange={onTextChange}

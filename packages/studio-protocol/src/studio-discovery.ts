@@ -22,9 +22,15 @@ export type StudioProtocolSetLicenseKeyCapability = {
 	readonly target: StudioProtocolTarget | null;
 };
 
+export type StudioProtocolAddElementLibraryCapability = {
+	readonly type: 'add-element-library';
+	readonly target: StudioProtocolTarget | null;
+};
+
 export type StudioProtocolCapability =
 	| StudioProtocolInstallCapability
-	| StudioProtocolSetLicenseKeyCapability;
+	| StudioProtocolSetLicenseKeyCapability
+	| StudioProtocolAddElementLibraryCapability;
 
 export type StudioProtocolDescriptor = {
 	readonly protocol: 'remotion-studio-protocol';
@@ -113,8 +119,12 @@ const isCapability = (value: unknown): value is StudioProtocolCapability => {
 		);
 	}
 
+	if (value.type === 'set-license-key') {
+		return value.target === null || isTarget(value.target);
+	}
+
 	return (
-		value.type === 'set-license-key' &&
+		value.type === 'add-element-library' &&
 		(value.target === null || isTarget(value.target))
 	);
 };
@@ -154,6 +164,14 @@ export const getSetLicenseKeyCapability = (
 	descriptor.capabilities.find(
 		(capability): capability is StudioProtocolSetLicenseKeyCapability =>
 			capability.type === 'set-license-key',
+	) ?? null;
+
+export const getAddElementLibraryCapability = (
+	descriptor: StudioProtocolDescriptor,
+): StudioProtocolAddElementLibraryCapability | null =>
+	descriptor.capabilities.find(
+		(capability): capability is StudioProtocolAddElementLibraryCapability =>
+			capability.type === 'add-element-library',
 	) ?? null;
 
 export type DiscoveredStudio = {

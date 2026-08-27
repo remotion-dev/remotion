@@ -222,6 +222,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			options: {
 				expectedBucketOwner: currentUserId,
 				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
+				requestContext: context,
 			},
 			providerSpecifics,
 			insideFunctionSpecifics,
@@ -320,6 +321,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 							});
 						},
 				onMediaFiles: s3Output?.uploadMediaAndComplete ?? null,
+				executionMode: 'invoked',
 				requestContext: context,
 				providerSpecifics,
 				insideFunctionSpecifics,

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/canvas"
 	},
 	"name": "@remotion/canvas",
-	"version": "4.0.516",
+	"version": "4.0.518",
 	"description": "Headless primitives for Remotion authoring interfaces",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
@@ -56,6 +56,5 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	},
-	"homepage": "https://www.remotion.dev"
+	}
 }

@@ -35,6 +35,7 @@ import {
 } from '../artifact-registry';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
+import {finishRender} from '../finish-render';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {mergeChunksAndFinishRender} from '../merge-chunks';
@@ -43,13 +44,16 @@ import {makeOverallRenderProgress} from '../overall-render-progress';
 import {planFrameRanges} from '../plan-frame-ranges';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {removeOutnameCredentials} from '../remove-outname-credentials';
+import {renderWithSingleFunction} from '../render-with-single-function';
 import {renderRendererFunctionWithRetry} from '../stream-renderer';
 import {validateComposition} from '../validate-composition';
+import type {RequestContext} from './renderer';
 import {sendTelemetryEvent} from './send-telemetry-event';
 
 type Options = {
 	expectedBucketOwner: string;
 	getRemainingTimeInMillis: () => number;
+	requestContext: RequestContext | null;
 };
 
 const innerLaunchHandler = async <Provider extends CloudProvider>({
@@ -334,17 +338,20 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	const rendererFunctionName =
 		params.rendererFunctionName ??
 		insideFunctionSpecifics.getCurrentFunctionName();
+	const shouldRenderDirectly =
+		params.concurrency === 1 &&
+		params.rendererFunctionName === null &&
+		options.requestContext !== null;
 
 	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
-			// Direct invokations
-			chunks.length,
+			shouldRenderDirectly ? 0 : chunks.length,
 			// This function
 			1,
 		].reduce((a, b) => a + b, 0),
-		estimatedRenderLambdaInvokations: chunks.length,
+		estimatedRenderLambdaInvokations: shouldRenderDirectly ? 0 : chunks.length,
 		compositionId: comp.id,
 		siteId: params.serveUrl,
 		codec: params.codec,
@@ -415,16 +422,6 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	overallProgress.setRenderMetadata(renderMetadata);
 
-	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
-	if (existsSync(outdir)) {
-		rmSync(outdir, {
-			recursive: true,
-		});
-	}
-
-	mkdirSync(outdir);
-
-	const files: string[] = [];
 	const artifactRegistry = makeArtifactRegistry();
 
 	const onArtifact: OnArtifactFromRenderer = ({artifact, chunk, attempt}) => {
@@ -499,63 +496,115 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		return artifactRegistration;
 	};
 
-	await Promise.all(
-		lambdaPayloads.map(async (payload) => {
-			await renderRendererFunctionWithRetry({
-				files,
-				functionName: rendererFunctionName,
-				outdir,
-				overallProgress,
-				payload,
+	let postRenderData: PostRenderData<Provider>;
+	if (shouldRenderDirectly) {
+		const directRender = await renderWithSingleFunction({
+			params,
+			composition: comp,
+			serializedInputPropsWithCustomSchema,
+			frameRange: realFrameRange,
+			browserInstance: instance,
+			chromiumOptions: chromiumParams,
+			overallProgress,
+			onArtifact,
+			providerSpecifics,
+			insideFunctionSpecifics,
+		});
+		try {
+			postRenderData = await finishRender({
+				expectedBucketOwner: options.expectedBucketOwner,
+				renderBucketName,
+				customCredentials,
+				downloadBehavior: params.downloadBehavior,
+				key,
+				privacy: params.privacy,
+				inputProps: params.inputProps,
+				serializedResolvedProps,
+				renderMetadata,
 				logLevel: params.logLevel,
-				onArtifact,
+				overallProgress,
+				startTime,
 				providerSpecifics,
 				insideFunctionSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				storageClass: params.storageClass,
 				requestHandler: null,
-				expectedBucketOwner: options.expectedBucketOwner,
+				outputFile: directRender.outputFile,
+				timeToCombine: null,
 			});
-		}),
-	);
+		} finally {
+			await directRender.cleanup();
+		}
+	} else {
+		const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
+		if (existsSync(outdir)) {
+			rmSync(outdir, {
+				recursive: true,
+			});
+		}
 
-	const postRenderData = await mergeChunksAndFinishRender({
-		bucketName: params.bucketName,
-		renderId: params.renderId,
-		expectedBucketOwner: options.expectedBucketOwner,
-		numberOfFrames: comp.durationInFrames,
-		audioCodec: params.audioCodec,
-		chunkCount: chunks.length,
-		codec: params.codec,
-		customCredentials,
-		downloadBehavior: params.downloadBehavior,
-		fps,
-		key,
-		numberOfGifLoops: params.numberOfGifLoops,
-		privacy: params.privacy,
-		renderBucketName,
-		inputProps: params.inputProps,
-		serializedResolvedProps,
-		renderMetadata,
-		audioBitrate: params.audioBitrate,
-		logLevel: params.logLevel,
-		framesPerLambda,
-		binariesDirectory: null,
-		preferLossless: params.preferLossless,
-		compositionStart: realFrameRange[0],
-		outdir,
-		files: files.sort(),
-		overallProgress,
-		startTime,
-		providerSpecifics,
-		forcePathStyle: params.forcePathStyle,
-		insideFunctionSpecifics,
-		everyNthFrame: params.everyNthFrame,
-		frameRange: params.frameRange,
-		storageClass: params.storageClass,
-		requestHandler: null,
-		sampleRate: params.sampleRate,
-	});
+		mkdirSync(outdir);
+		const files: string[] = [];
+
+		await Promise.all(
+			lambdaPayloads.map(async (payload) => {
+				await renderRendererFunctionWithRetry({
+					files,
+					functionName: rendererFunctionName,
+					outdir,
+					overallProgress,
+					payload,
+					logLevel: params.logLevel,
+					onArtifact,
+					providerSpecifics,
+					insideFunctionSpecifics,
+					requestHandler: null,
+					expectedBucketOwner: options.expectedBucketOwner,
+				});
+			}),
+		);
+
+		postRenderData = await mergeChunksAndFinishRender({
+			bucketName: params.bucketName,
+			renderId: params.renderId,
+			expectedBucketOwner: options.expectedBucketOwner,
+			numberOfFrames: comp.durationInFrames,
+			audioCodec: params.audioCodec,
+			chunkCount: chunks.length,
+			codec: params.codec,
+			customCredentials,
+			downloadBehavior: params.downloadBehavior,
+			fps,
+			key,
+			numberOfGifLoops: params.numberOfGifLoops,
+			privacy: params.privacy,
+			renderBucketName,
+			inputProps: params.inputProps,
+			serializedResolvedProps,
+			renderMetadata,
+			audioBitrate: params.audioBitrate,
+			logLevel: params.logLevel,
+			framesPerLambda,
+			binariesDirectory: null,
+			preferLossless: params.preferLossless,
+			compositionStart: realFrameRange[0],
+			outdir,
+			files: files.sort(),
+			overallProgress,
+			startTime,
+			providerSpecifics,
+			forcePathStyle: params.forcePathStyle,
+			insideFunctionSpecifics,
+			everyNthFrame: params.everyNthFrame,
+			frameRange: params.frameRange,
+			storageClass: params.storageClass,
+			requestHandler: null,
+			sampleRate: params.sampleRate,
+		});
+	}
 
 	if (
+		!shouldRenderDirectly &&
 		providerSpecifics.getRendererFunctionTransport(
 			insideFunctionSpecifics.getCurrentRegionInFunction(),
 		) === 's3'

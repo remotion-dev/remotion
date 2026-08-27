@@ -7,11 +7,11 @@ crumb: '@remotion/studio-protocol'
 
 # Studio Protocol security
 
-An Element contains executable React source code and may declare npm dependencies. Studio requires confirmation before applying an Element delivered through drag-and-drop or an installation request.
+An Element contains executable React source code and may declare npm dependencies. Studio requires confirmation before applying an Element delivered through drag-and-drop or an installation request. It also requires confirmation before adding an external Element catalog to a project.
 
 ## Allowed origins
 
-Any HTTPS website can request an Element installation confirmation. HTTP is supported only for local development pages on `localhost` or `127.0.0.1`.
+Any HTTPS website can request an Element installation or catalog confirmation. HTTP is supported only for local development pages on `localhost` or `127.0.0.1`.
 
 Studio reflects only the requesting allowed origin in CORS. It does not use wildcard CORS or cross-origin credentials.
 
@@ -23,11 +23,15 @@ Before confirming, Studio shows the target composition and destination file, sou
 
 Declining the confirmation does not write source files or install packages.
 
+A catalog request made with [`addElementLibraryToStudio()`](/docs/studio-protocol/add-element-library-to-studio) shows the requesting origin, exact catalog URL, and requested display name. The catalog is not loaded before confirmation. Confirming persists a [`Config.addElementLibrary()`](/docs/config#addelementlibrary) call in `remotion.config.ts`; it does not install Element source code or dependencies. Individual Element installations still require confirmation.
+
+Declining or closing the catalog confirmation does not change the config.
+
 ## Target information
 
-Discovery exposes limited metadata needed to present the destination: project name, composition ID, Studio version, focus time, and a short-lived target token. It does not expose project source code or filesystem contents.
+Discovery exposes limited metadata needed to present the destination: project name, composition ID when applicable, Studio version, focus time, and a short-lived target token. It does not expose project source code, config contents, or filesystem paths.
 
-Target tokens are opaque, single-use, short-lived, and bound to the requesting origin, selected Studio tab, and composition.
+Target tokens are opaque, single-use, short-lived, and bound to the requesting origin, selected Studio tab, and operation. Element installation tokens are also bound to the composition.
 
 ## See also
 

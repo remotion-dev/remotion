@@ -4,4 +4,5 @@ export type Caption = {
 	endMs: number;
 	timestampMs: number | null;
 	confidence: number | null;
+	pageBreakAfter?: boolean;
 };

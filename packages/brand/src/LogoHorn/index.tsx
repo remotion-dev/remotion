@@ -1,4 +1,5 @@
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
+import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {Audio} from '@remotion/media';
 import {useWindowedAudioData, visualizeAudio} from '@remotion/media-utils';
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
@@ -12,8 +13,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-
-import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 
 const AUDIO_FILE = staticFile('hoorn.wav');
 const LOGO_FILE = staticFile('logo/remotion/logo-on-white.svg');
@@ -52,9 +51,7 @@ export const calculateLogoHornMetadata: CalculateMetadataFunction<
 	const fps = 30;
 	const input = new Input({
 		formats: ALL_FORMATS,
-		source: new UrlSource(AUDIO_FILE, {
-			getRetryDelay: () => null,
-		}),
+		source: new UrlSource(AUDIO_FILE),
 	});
 
 	const durationInSeconds = await input.computeDuration();
