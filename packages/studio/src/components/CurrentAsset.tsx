@@ -25,6 +25,7 @@ import {
 	InspectorQuickActionsSection,
 	InspectorQuickAction,
 	InspectorSection,
+	InspectorSectionHeader,
 } from './InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from './layout';
@@ -333,6 +334,7 @@ export const AssetInfo: React.FC<{
 					)}
 				</InspectorSection>
 			) : null}
+			<InspectorSectionHeader>Actions</InspectorSectionHeader>
 			<InspectorQuickActionsSection>
 				{src ? (
 					<InspectorQuickAction
