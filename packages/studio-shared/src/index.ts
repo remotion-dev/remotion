@@ -52,6 +52,7 @@ export {
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
 	EditorPickerId,
+	ElementInstallDestination,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	ElementInstallSource,

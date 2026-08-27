@@ -1,6 +1,9 @@
 import type {Size} from '@remotion/player';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import type {ElementInstallRequest} from '@remotion/studio-shared';
+import type {
+	ElementInstallExpectedFileState,
+	ElementInstallRequest,
+} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -35,6 +38,7 @@ import {
 } from '../helpers/get-effective-translation';
 import {getMissingPackages} from '../helpers/install-required-package';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
+import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
@@ -58,7 +62,6 @@ import {
 	snapCompositionDropPosition,
 	type CompositionDropPreview,
 } from './composition-drop-preview';
-import {useConfirmationDialog} from './ConfirmationDialog';
 import {isFileDragEvent, isSupportedDropEvent} from './drop-handler-data';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
@@ -75,7 +78,6 @@ import {
 	hasSvgFile,
 	importAssets,
 	importFigmaClipboard,
-	insertElement,
 	insertSvgMarkup,
 	type InsertElementDropPosition,
 } from './import-assets';
@@ -88,6 +90,20 @@ import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const elementInstallDependencyIgnoreList = ['react', 'react-dom', 'remotion'];
+
+type ElementInstallPlan = {
+	readonly filePath: string;
+	readonly expectedFileState: ElementInstallExpectedFileState;
+};
+
+type ElementInstallReview = {
+	readonly currentPlan: ElementInstallPlan | null;
+	readonly dependenciesToReview: string[];
+	readonly missingPackages: string[];
+	readonly newPlan: ElementInstallPlan;
+	readonly sourceIsUnverified: boolean;
+	readonly sourceLabel: string;
+};
 
 const getContainerStyle = (
 	editorZoomGestures: boolean,
@@ -221,7 +237,6 @@ export const Canvas: React.FC<{
 		initialZoom: number;
 	} | null>(null);
 	const keybindings = useKeybinding();
-	const confirm = useConfirmationDialog();
 	const chooseSvgImportMode = useSvgImportDialog();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const config = Internals.useUnsafeVideoConfig();
@@ -247,6 +262,8 @@ export const Canvas: React.FC<{
 		useState<ElementInstallRequest[]>([]);
 	const [activeElementInstallRequest, setActiveElementInstallRequest] =
 		useState<ElementInstallRequest | null>(null);
+	const [elementInstallReview, setElementInstallReview] =
+		useState<ElementInstallReview | null>(null);
 	const lastFocusedAtRef = useRef<number | null>(
 		typeof document === 'undefined' || document.hasFocus() ? Date.now() : null,
 	);
@@ -277,13 +294,15 @@ export const Canvas: React.FC<{
 		compositionFile,
 		compositionId: currentCompositionId,
 	});
-	const canInstallElements =
+	const canReceiveElementInstallRequest =
 		previewServerClientId !== null &&
 		!window.remotion_isReadOnlyStudio &&
-		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null;
-	const canDropAssets = canInstallElements && !isAddingAsset;
+	const canInsertIntoCurrentComposition =
+		canReceiveElementInstallRequest &&
+		compositionComponentInfo?.canAddSequence === true;
+	const canDropAssets = canInsertIntoCurrentComposition && !isAddingAsset;
 	const cannotAddSequence = compositionComponentInfo?.canAddSequence === false;
 	const contentDimensions = useMemo(() => {
 		if (
@@ -769,16 +788,19 @@ export const Canvas: React.FC<{
 			callApi('/api/update-element-install-target', {
 				requestId,
 				clientId: previewServerClientId,
-				compositionFile: canInstallElements ? compositionFile : null,
-				compositionId: canInstallElements ? currentCompositionId : null,
-				canInstall: canInstallElements,
+				compositionFile: canReceiveElementInstallRequest
+					? compositionFile
+					: null,
+				compositionId: canReceiveElementInstallRequest
+					? currentCompositionId
+					: null,
 				lastFocusedAt: lastFocusedAtRef.current,
 				readOnly: window.remotion_isReadOnlyStudio,
 				studioUrl: window.location.href,
 			}).catch(() => undefined);
 		},
 		[
-			canInstallElements,
+			canReceiveElementInstallRequest,
 			compositionFile,
 			currentCompositionId,
 			previewServerClientId,
@@ -850,7 +872,7 @@ export const Canvas: React.FC<{
 
 	useEffect(() => {
 		if (
-			!canInstallElements ||
+			!canReceiveElementInstallRequest ||
 			compositionFile === null ||
 			currentCompositionId === null
 		) {
@@ -877,7 +899,7 @@ export const Canvas: React.FC<{
 				type: 'browser-studio-link',
 			},
 		});
-	}, [canInstallElements, compositionFile, currentCompositionId]);
+	}, [canReceiveElementInstallRequest, compositionFile, currentCompositionId]);
 
 	useEffect(() => {
 		if (
@@ -902,113 +924,111 @@ export const Canvas: React.FC<{
 		}
 
 		let canceled = false;
-
 		const handleInstallRequest = async () => {
 			setInstallingElementName(activeElementInstallRequest.element.displayName);
-			const preflight = await prepareElementInstall({
-				compositionFile: activeElementInstallRequest.compositionFile,
-				compositionId: activeElementInstallRequest.compositionId,
-				element: activeElementInstallRequest.element,
-			});
-			if (!preflight.success) {
-				showNotification(
-					`Could not review Element installation: ${preflight.reason}`,
-					4000,
-				);
-				return;
-			}
-
-			if (canceled) {
-				return;
-			}
-
-			const declaredDependencies = Array.from(
-				new Map(
-					activeElementInstallRequest.element.dependencies.map((dependency) => [
-						dependency.name,
-						dependency,
-					]),
-				).values(),
-			);
-			const missingPackages = getMissingPackages(declaredDependencies).map(
-				(dependency) => dependency.name,
-			);
-			const ignoredDependencies = declaredDependencies.filter(
-				(dependency) =>
-					elementInstallDependencyIgnoreList.includes(dependency.name) &&
-					!missingPackages.includes(dependency.name),
-			);
-			const dependenciesToReview = declaredDependencies
-				.filter((dependency) => !ignoredDependencies.includes(dependency))
-				.map((dependency) =>
-					dependency.version === null
-						? dependency.name
-						: `${dependency.name}@${dependency.version}`,
-				);
-			const {source} = activeElementInstallRequest;
-			const sourceLabel =
-				source.type === 'studio-protocol'
-					? source.origin
-					: source.type === 'browser-studio-link'
-						? (source.origin ?? 'Unverified Browser Studio link')
-						: 'Unverified drag-and-drop payload';
-			const sourceIsUnverified =
-				source.type === 'drag-and-drop' ||
-				(source.type === 'browser-studio-link' && source.origin === null);
-			const accepted = await confirm({
-				title: 'Install Element',
-				message: (
-					<ElementInstallConfirmation
-						displayName={activeElementInstallRequest.element.displayName}
-						sourceLabel={sourceLabel}
-						sourceIsUnverified={sourceIsUnverified}
-						compositionId={activeElementInstallRequest.compositionId}
-						filePath={preflight.plan.filePath}
-						overwritesExistingFile={preflight.plan.expectedFileState.exists}
-						dependenciesToReview={dependenciesToReview}
-						missingPackages={missingPackages}
-						sourceCode={activeElementInstallRequest.element.sourceCode}
-						usesBrowserDependencyResolution={
-							getBrowserStudioOperations() !== null
-						}
-					/>
-				),
-				confirmLabel: 'Install',
-				cancelLabel: 'Cancel',
-			});
-
-			if (accepted && !canceled) {
-				await insertElement({
-					element: activeElementInstallRequest.element,
-					compositionFile: activeElementInstallRequest.compositionFile,
-					compositionId: activeElementInstallRequest.compositionId,
-					expectedFileState: preflight.plan.expectedFileState,
-					from: activeElementInstallRequest.from,
-					position: activeElementInstallRequest.position,
-					overwriteExisting: preflight.plan.expectedFileState.exists,
-				});
-			}
-		};
-
-		handleInstallRequest()
-			.finally(() => {
+			try {
+				const [newPreflight, currentPreflight] = await Promise.all([
+					prepareElementInstall({
+						destination: {
+							type: 'new-composition',
+							compositionFile: activeElementInstallRequest.compositionFile,
+						},
+						element: activeElementInstallRequest.element,
+					}),
+					prepareElementInstall({
+						destination: {
+							type: 'current-composition',
+							compositionFile: activeElementInstallRequest.compositionFile,
+							compositionId: activeElementInstallRequest.compositionId,
+						},
+						element: activeElementInstallRequest.element,
+					}),
+				]);
 				if (canceled) {
 					return;
 				}
 
+				if (!newPreflight.success) {
+					showNotification(
+						`Could not review Element installation: ${newPreflight.reason}`,
+						4000,
+					);
+					setInstallingElementName(null);
+					setActiveElementInstallRequest(null);
+					return;
+				}
+
+				const declaredDependencies = Array.from(
+					new Map(
+						activeElementInstallRequest.element.dependencies.map(
+							(dependency) => [dependency.name, dependency],
+						),
+					).values(),
+				);
+				const missingPackages = getMissingPackages(declaredDependencies).map(
+					(dependency) => dependency.name,
+				);
+				const ignoredDependencies = declaredDependencies.filter(
+					(dependency) =>
+						elementInstallDependencyIgnoreList.includes(dependency.name) &&
+						!missingPackages.includes(dependency.name),
+				);
+				const dependenciesToReview = declaredDependencies
+					.filter((dependency) => !ignoredDependencies.includes(dependency))
+					.map((dependency) =>
+						dependency.version === null
+							? dependency.name
+							: `${dependency.name}@${dependency.version}`,
+					);
+				const {source} = activeElementInstallRequest;
+				const sourceLabel =
+					source.type === 'studio-protocol'
+						? source.origin
+						: source.type === 'browser-studio-link'
+							? (source.origin ?? 'Unverified Browser Studio link')
+							: 'Unverified drag-and-drop payload';
+				const sourceIsUnverified =
+					source.type === 'drag-and-drop' ||
+					(source.type === 'browser-studio-link' && source.origin === null);
+				const currentPlan = currentPreflight.success
+					? currentPreflight.plan
+					: null;
+				setSelectedModal(null);
+				setElementInstallReview({
+					currentPlan,
+					dependenciesToReview,
+					missingPackages,
+					newPlan: newPreflight.plan,
+					sourceIsUnverified,
+					sourceLabel,
+				});
+			} catch (error) {
+				if (canceled) {
+					return;
+				}
+
+				showNotification(
+					`Could not review Element installation: ${
+						error instanceof Error ? error.message : String(error)
+					}`,
+					4000,
+				);
 				setInstallingElementName(null);
 				setActiveElementInstallRequest(null);
-			})
-			.catch((err) => {
-				setTimeout(() => {
-					throw err;
-				}, 0);
-			});
+			}
+		};
 
+		handleInstallRequest();
 		return () => {
 			canceled = true;
 		};
-	}, [activeElementInstallRequest, confirm]);
+	}, [activeElementInstallRequest, setSelectedModal]);
+
+	const closeElementInstallDialog = useCallback(() => {
+		setElementInstallReview(null);
+		setInstallingElementName(null);
+		setActiveElementInstallRequest(null);
+	}, []);
 
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
@@ -1481,6 +1501,38 @@ export const Canvas: React.FC<{
 					canvasSize={size}
 					assetMetadata={assetResolution}
 					containerRef={canvasRef}
+				/>
+			)}
+			{activeElementInstallRequest === null ||
+			elementInstallReview === null ? null : (
+				<ElementInstallConfirmation
+					currentCompositionMetadata={
+						config === null ||
+						currentCompositionId !== activeElementInstallRequest.compositionId
+							? null
+							: {
+									durationInFrames: config.durationInFrames,
+									fps: config.fps,
+									height: config.height,
+									width: config.width,
+								}
+					}
+					currentPlan={elementInstallReview.currentPlan}
+					dependenciesToReview={elementInstallReview.dependenciesToReview}
+					missingPackages={elementInstallReview.missingPackages}
+					newPlan={elementInstallReview.newPlan}
+					onClose={closeElementInstallDialog}
+					request={activeElementInstallRequest}
+					sourceIsUnverified={elementInstallReview.sourceIsUnverified}
+					sourceLabel={elementInstallReview.sourceLabel}
+					symbolicatedStack={
+						currentCompositionId === activeElementInstallRequest.compositionId
+							? resolvedStackToSymbolicated(resolvedCompositionLocation)
+							: null
+					}
+					usesBrowserDependencyResolution={
+						getBrowserStudioOperations() !== null
+					}
 				/>
 			)}
 		</>

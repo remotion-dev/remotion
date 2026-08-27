@@ -154,7 +154,7 @@ export const installInStudioWithDependencies = async (
 	if (!selected || selectedTarget === null || selectedTarget === undefined) {
 		return failure(
 			'no-installable-target',
-			'Focus a writable composition in Remotion Studio, then try again.',
+			'Focus a composition in a Remotion Studio that is not read-only, then try again.',
 		);
 	}
 

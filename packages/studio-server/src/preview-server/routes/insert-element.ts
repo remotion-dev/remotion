@@ -83,8 +83,11 @@ export const insertElementHandler: ApiHandler<
 			);
 
 			const plan = await getElementInstallPlan({
-				compositionFile,
-				compositionId,
+				destination: {
+					type: 'current-composition',
+					compositionFile,
+					compositionId,
+				},
 				element,
 				remotionRoot,
 			});
@@ -171,8 +174,11 @@ export const insertElementHandler: ApiHandler<
 						},
 			});
 			const finalPlan = await getElementInstallPlan({
-				compositionFile,
-				compositionId,
+				destination: {
+					type: 'current-composition',
+					compositionFile,
+					compositionId,
+				},
 				element,
 				remotionRoot,
 			});

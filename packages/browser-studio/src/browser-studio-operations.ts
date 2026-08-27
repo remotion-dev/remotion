@@ -296,8 +296,7 @@ export const ${componentName}: React.FC = () => {
 `;
 
 const getElementInstallPlanForProject = async ({
-	compositionFile,
-	compositionId,
+	destination,
 	element,
 	project,
 }: Parameters<BrowserStudioOperations['prepareElementInstall']>[0] & {
@@ -314,17 +313,27 @@ const getElementInstallPlanForProject = async ({
 		throw new Error('Invalid Element source');
 	}
 
-	const target = await resolveCompositionComponentWithFile({
-		compositionFile,
-		compositionId,
-		environment: makeInMemoryInsertJsxElementCodemodEnvironment({
-			formatFile: formatCodemodFile,
-			project,
-			svgMarkupToJsx,
-		}),
-	});
-	const elementFilePath = `${dirname(target.fileName)}/${elementFileName}`;
-	if (elementFilePath === target.fileName) {
+	const target =
+		destination.type === 'current-composition'
+			? await resolveCompositionComponentWithFile({
+					compositionFile: destination.compositionFile,
+					compositionId: destination.compositionId,
+					environment: makeInMemoryInsertJsxElementCodemodEnvironment({
+						formatFile: formatCodemodFile,
+						project,
+						svgMarkupToJsx,
+					}),
+				})
+			: null;
+	if (target !== null && !target.canAddSequence) {
+		throw new Error('Cannot insert Element into this composition component');
+	}
+
+	const compositionFilePath =
+		target?.fileName ??
+		findProjectFile({filePath: destination.compositionFile, project});
+	const elementFilePath = `${dirname(compositionFilePath)}/${elementFileName}`;
+	if (elementFilePath === compositionFilePath) {
 		throw new Error('Element source file conflicts with the composition file');
 	}
 
@@ -1939,8 +1948,11 @@ export const createBrowserStudioOperations = ({
 			try {
 				const project = getProject();
 				const plan = await getElementInstallPlanForProject({
-					compositionFile: request.compositionFile,
-					compositionId: request.compositionId,
+					destination: {
+						type: 'current-composition',
+						compositionFile: request.compositionFile,
+						compositionId: request.compositionId,
+					},
 					element: request.element,
 					project,
 				});

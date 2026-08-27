@@ -945,9 +945,19 @@ export type ElementInstallExpectedFileState =
 			sourceHash: string;
 	  };
 
+export type ElementInstallDestination =
+	| {
+			type: 'current-composition';
+			compositionFile: string;
+			compositionId: string;
+	  }
+	| {
+			type: 'new-composition';
+			compositionFile: string;
+	  };
+
 export type PrepareElementInstallRequest = {
-	compositionFile: string;
-	compositionId: string;
+	destination: ElementInstallDestination;
 	element: ElementDragData['element'];
 };
 
@@ -1028,7 +1038,6 @@ export type UpdateElementInstallTargetRequest = {
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
-	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
 	studioUrl: string;

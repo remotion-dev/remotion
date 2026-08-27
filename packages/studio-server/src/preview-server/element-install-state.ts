@@ -8,7 +8,6 @@ export type ElementInstallTarget = {
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
-	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
 	studioUrl: string;
@@ -142,7 +141,6 @@ export const consumeStudioProtocolTarget = ({
 	}
 
 	if (
-		!current.canInstall ||
 		current.compositionFile !== issued.target.compositionFile ||
 		current.compositionId !== issued.target.compositionId
 	) {
