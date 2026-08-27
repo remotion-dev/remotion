@@ -1196,8 +1196,19 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
 	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await waitForBrowserStudioOperations(studio);
 	await studio.locator('[data-compname="MyComp"]').click();
 	await studio.locator('[data-sidebar-toggle="right"]').click();
+	await studio.locator('body').evaluate(async () => {
+		await window.remotion_browserStudio.writeStaticFile({
+			contents: new TextEncoder().encode('hover test').buffer,
+			filePath: 'hover-test.txt',
+		});
+		await window.remotion_browserStudio.writeStaticFile({
+			contents: new TextEncoder().encode('folder action test').buffer,
+			filePath: 'hover-folder/inside.txt',
+		});
+	});
 
 	const addSolid = studio.getByRole('button', {name: 'Add Solid'});
 	await expect(addSolid).toBeVisible();
@@ -1206,6 +1217,8 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 		locator.evaluate(
 			(element) => window.getComputedStyle(element).backgroundColor,
 		);
+	const getColor = (locator: ReturnType<typeof studio.locator>) =>
+		locator.evaluate((element) => window.getComputedStyle(element).color);
 
 	await addSolid.hover();
 	await expect
@@ -1229,7 +1242,62 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 		}
 	});
 
-	const neutralArea = studio.locator('.remotion-studio-composition-container');
+	const neutralArea = studio.locator('[data-sidebar-toggle="right"]');
+
+	await studio.getByRole('button', {name: 'Assets', exact: true}).click();
+	const assetFolder = studio.getByTitle('hover-folder', {exact: true});
+	await expect(assetFolder).toBeVisible();
+	await assetFolder.hover();
+	const folderActions = assetFolder.getByRole('button', {
+		name: 'More actions',
+	});
+	await expect(folderActions).toBeVisible();
+	await folderActions.click();
+	await expect(
+		studio.getByText('Copy folder path', {exact: true}),
+	).toBeVisible();
+	await expect(studio.getByText('Upload...', {exact: true})).toBeVisible();
+	await expect(studio.getByText(/^Show in /)).toHaveCount(0);
+	await page.keyboard.press('Escape');
+
+	const assetItem = studio.getByTitle('hover-test.txt', {exact: true});
+	await expect(assetItem).toBeVisible();
+	await assetItem.hover();
+	await expect
+		.poll(() => getBackgroundColor(assetItem))
+		.toBe('rgba(255, 255, 255, 0.06)');
+	const assetActions = assetItem.getByRole('button', {name: 'More actions'});
+	await assetActions.hover();
+	await expect.poll(() => getColor(assetActions)).toBe('rgb(255, 255, 255)');
+	await assetItem.hover({position: {x: 10, y: 10}});
+	await expect.poll(() => getColor(assetActions)).toBe('rgb(166, 167, 169)');
+	await neutralArea.hover();
+	await expect
+		.poll(() => getBackgroundColor(assetItem))
+		.toBe('rgba(0, 0, 0, 0)');
+
+	await assetItem.click();
+	await studio.getByRole('button', {name: 'Compositions', exact: true}).click();
+	const compositionItem = studio.locator('[data-compname="MyComp"]');
+	await compositionItem.hover();
+	await expect
+		.poll(() => getBackgroundColor(compositionItem))
+		.toBe('rgba(255, 255, 255, 0.06)');
+	const compositionActions = compositionItem.locator('button').first();
+	await compositionActions.hover();
+	await expect
+		.poll(() => getColor(compositionActions))
+		.toBe('rgb(255, 255, 255)');
+	await compositionItem.hover({position: {x: 10, y: 10}});
+	await expect
+		.poll(() => getColor(compositionActions))
+		.toBe('rgb(166, 167, 169)');
+	await neutralArea.hover();
+	await expect
+		.poll(() => getBackgroundColor(compositionItem))
+		.toBe('rgba(0, 0, 0, 0)');
+	await compositionItem.click();
+	await expect(addSolid).toBeVisible();
 
 	await neutralArea.hover();
 	await expect
