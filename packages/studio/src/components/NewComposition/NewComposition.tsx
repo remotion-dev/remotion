@@ -3,23 +3,28 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
 import {getStaticFiles} from '../../api/get-static-files';
 import {writeStaticFile} from '../../api/write-static-file';
+import {getFolderId} from '../../helpers/get-folder-id';
 import {installRequiredPackages} from '../../helpers/install-required-package';
 import {
 	getUniqueCompositionName,
 	useCreateComposition,
 } from '../../helpers/use-create-composition';
+import {Checkmark} from '../../icons/Checkmark';
 import type {CanvasCaptureImport} from '../../state/modals';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {CodemodFooter} from './CodemodFooter';
+import type {ComboboxValue} from './ComboBox';
+import {Combobox} from './ComboBox';
 import {DismissableModal} from './DismissableModal';
 import {getNewCompositionDefaults} from './get-new-composition-defaults';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
@@ -36,9 +41,13 @@ const content: React.CSSProperties = {
 	minWidth: 500,
 };
 
-const folderPathStyle: React.CSSProperties = {
-	fontSize: 14,
+const folderSelectStyle: React.CSSProperties = {
+	boxSizing: 'border-box',
+	width: 250,
 };
+
+const rootFolderId = 'new-composition-root-folder';
+const folderSelectIdPrefix = 'new-composition-folder-';
 
 const NewCompositionLoaded: React.FC<{
 	readonly folderName: string | null;
@@ -46,7 +55,74 @@ const NewCompositionLoaded: React.FC<{
 	readonly stack: string | null;
 	readonly canvasCapture: CanvasCaptureImport | null;
 }> = ({canvasCapture, folderName, parentName, stack}) => {
-	const {compositions} = useContext(Internals.CompositionManager);
+	const {compositions, folders} = useContext(Internals.CompositionManager);
+	const [selectedFolder, setSelectedFolder] = useState(() => ({
+		folderName,
+		parentName,
+		stack,
+	}));
+	const selectedFolderId = selectedFolder.folderName
+		? `${folderSelectIdPrefix}${getFolderId({
+				folderName: selectedFolder.folderName,
+				parentName: selectedFolder.parentName,
+			})}`
+		: rootFolderId;
+	const folderValues = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				id: rootFolderId,
+				keyHint: null,
+				label: 'Root',
+				leftItem: selectedFolder.folderName === null ? <Checkmark /> : null,
+				onClick: () => {
+					setSelectedFolder({
+						folderName: null,
+						parentName: null,
+						stack: null,
+					});
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: rootFolderId,
+			},
+			...folders
+				.slice()
+				.sort((a, b) => {
+					return getFolderId({
+						folderName: a.name,
+						parentName: a.parent,
+					}).localeCompare(
+						getFolderId({folderName: b.name, parentName: b.parent}),
+					);
+				})
+				.map((folder): ComboboxValue => {
+					const folderPath = getFolderId({
+						folderName: folder.name,
+						parentName: folder.parent,
+					});
+					const id = `${folderSelectIdPrefix}${folderPath}`;
+					return {
+						id,
+						keyHint: null,
+						label: folderPath,
+						leftItem: selectedFolderId === id ? <Checkmark /> : null,
+						onClick: () => {
+							setSelectedFolder({
+								folderName: folder.name,
+								parentName: folder.parent,
+								stack: folder.stack,
+							});
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						type: 'item',
+						value: id,
+						disabled: folder.stack === null,
+					};
+				}),
+		];
+	}, [folders, selectedFolder.folderName, selectedFolderId]);
 	const resolvedComposition = Internals.useResolvedVideoConfig(null);
 	const initialComposition =
 		resolvedComposition?.type === 'success' ||
@@ -138,9 +214,9 @@ const NewCompositionLoaded: React.FC<{
 	} = useCreateComposition({
 		compositions,
 		durationInFrames,
-		folderName,
+		folderName: selectedFolder.folderName,
 		newId,
-		parentName,
+		parentName: selectedFolder.parentName,
 		selectedFrameRate,
 		size,
 		canvasCapture:
@@ -193,8 +269,6 @@ const NewCompositionLoaded: React.FC<{
 		e.preventDefault();
 	}, []);
 
-	const folderPath = [parentName, folderName].filter(Boolean).join('/');
-
 	return (
 		<>
 			<ModalHeader
@@ -204,14 +278,17 @@ const NewCompositionLoaded: React.FC<{
 			/>
 			<form onSubmit={onSubmit}>
 				<div style={content}>
-					{folderPath ? (
-						<div style={optionRow}>
-							<div style={label}>Folder</div>
-							<div style={rightRow}>
-								<span style={folderPathStyle}>{folderPath}</span>
-							</div>
+					<div style={optionRow}>
+						<div style={label}>Folder</div>
+						<div style={rightRow}>
+							<Combobox
+								values={folderValues}
+								selectedId={selectedFolderId}
+								style={folderSelectStyle}
+								title="Folder"
+							/>
 						</div>
-					) : null}
+					</div>
 					<div style={optionRow}>
 						<div style={label}>ID</div>
 						<div style={rightRow}>
@@ -334,7 +411,7 @@ const NewCompositionLoaded: React.FC<{
 						genericSubmitLabel="Add to root file"
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}
-						stack={stack}
+						stack={selectedFolder.stack}
 						valid={valid}
 						onSuccess={null}
 						applyCodemod={({signal, symbolicatedStack}) =>
