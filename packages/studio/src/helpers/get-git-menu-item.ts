@@ -72,6 +72,30 @@ export const getGitRefUrl = (
 	throw new Error('Unknown git source type');
 };
 
+export const hasReadOnlyGitSource = () => {
+	return Boolean(window.remotion_isReadOnlyStudio && window.remotion_gitSource);
+};
+
+export const openGitSource = ({
+	folder,
+	location,
+}: {
+	folder: boolean;
+	location: OriginalPosition | null;
+}) => {
+	const gitSource = window.remotion_gitSource;
+	if (!gitSource) {
+		return;
+	}
+
+	window.open(
+		folder || !location
+			? getGitSourceBranchUrl(gitSource)
+			: getGitRefUrl(gitSource, location, window.remotion_cwd),
+		'_blank',
+	);
+};
+
 export const getGitMenuItem = (): ComboboxValue | null => {
 	if (!window.remotion_gitSource) {
 		return null;

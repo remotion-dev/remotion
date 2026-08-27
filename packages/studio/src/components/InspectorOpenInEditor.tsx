@@ -6,6 +6,10 @@ import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {
+	hasReadOnlyGitSource,
+	openGitSource,
+} from '../helpers/get-git-menu-item';
+import {
 	openInCodingAgent,
 	openInGitClient,
 	openInTerminal,
@@ -13,6 +17,7 @@ import {
 } from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
+import {GitHubIcon} from '../icons/github';
 import {SetSelectedModalContext} from '../state/modals';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -54,6 +59,8 @@ export const InspectorOpenInEditor: React.FC<{
 		editorInfo,
 	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const canOpenInGitHub = hasReadOnlyGitSource();
+	const defaultActionIsGitHub = !canOpenInEditor && canOpenInGitHub;
 
 	const openWithEditor = useCallback(
 		async (editorId: EditorPickerId) => {
@@ -86,25 +93,37 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[contextForAgents],
 	);
-	const editorName = defaultEditorName ?? 'default editor';
-	const canOpenDefault = location !== null && canOpenInEditor;
+	const defaultAppName = defaultActionIsGitHub
+		? 'GitHub'
+		: (defaultEditorName ?? 'default editor');
+	const canOpenDefault =
+		location !== null && (canOpenInEditor || canOpenInGitHub);
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
-			if (defaultEditorId) {
+			if (defaultActionIsGitHub) {
+				openGitSource({folder: locationType === 'folder', location});
+			} else if (defaultEditorId) {
 				openWithEditor(defaultEditorId).catch(() => undefined);
 			}
 		},
-		[defaultEditorId, openWithEditor],
+		[
+			defaultActionIsGitHub,
+			defaultEditorId,
+			location,
+			locationType,
+			openWithEditor,
+		],
 	);
 	const menuItems = useMemo((): ComboboxValue[] => {
-		return getOpenInMenuItems({
+		const items = getOpenInMenuItems({
 			codingAgentInfo,
-			editorDisabled: location === null,
+			editorDisabled: location === null || !canOpenInEditor,
 			editorInfo,
 			excludeCodingAgentId: null,
 			excludeEditorId: defaultEditorId,
-			fileManagerDisabled: !location?.source,
+			fileManagerDisabled:
+				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
 			location,
 			onConfigureApps: canConfigureApps
@@ -167,21 +186,28 @@ export const InspectorOpenInEditor: React.FC<{
 					});
 			},
 		});
+
+		return defaultActionIsGitHub
+			? items.filter((item) => item.id !== 'open-in-github')
+			: items;
 	}, [
 		codingAgentInfo,
 		canConfigureApps,
+		canOpenInEditor,
+		defaultActionIsGitHub,
 		defaultEditorId,
 		editorInfo,
 		location,
 		locationType,
 		openWithCodingAgent,
 		openWithEditor,
+		previewServerState.type,
 		setSelectedModal,
 	]);
 	const segments = useMemo((): SegmentedButtonSegment[] => {
-		return [
+		const result: SegmentedButtonSegment[] = [
 			{
-				ariaLabel: `Open in ${editorName}`,
+				ariaLabel: `Open in ${defaultAppName}`,
 				buttonId: null,
 				disabled: !canOpenDefault,
 				idleColor: LIGHT_TEXT,
@@ -190,18 +216,25 @@ export const InspectorOpenInEditor: React.FC<{
 				renderContent: () => (
 					<>
 						{label}
-						<EditorIcon
-							editorId={defaultEditorId}
-							size={editorButtonIconSize}
-						/>
+						{defaultActionIsGitHub ? (
+							<GitHubIcon size={editorButtonIconSize} />
+						) : (
+							<EditorIcon
+								editorId={defaultEditorId}
+								size={editorButtonIconSize}
+							/>
+						)}
 					</>
 				),
 				segmentId: 'default-editor',
 				style: mainSegmentStyle,
-				title: `Open in ${editorName}`,
+				title: `Open in ${defaultAppName}`,
 				type: 'action',
 			},
-			{
+		];
+
+		if (menuItems.length > 0) {
+			result.push({
 				ariaLabel: 'Open in another app',
 				buttonId: null,
 				disabled: false,
@@ -215,21 +248,25 @@ export const InspectorOpenInEditor: React.FC<{
 				title: 'Open in another app',
 				type: 'menu',
 				values: menuItems,
-			},
-		];
+			});
+		}
+
+		return result;
 	}, [
 		canOpenDefault,
+		defaultActionIsGitHub,
+		defaultAppName,
 		defaultEditorId,
-		editorName,
 		label,
 		menuItems,
 		onOpenDefault,
 	]);
 
-	if (
-		previewServerState.type !== 'connected' ||
-		getBrowserStudioOperations() !== null
-	) {
+	if (getBrowserStudioOperations() !== null) {
+		return null;
+	}
+
+	if (previewServerState.type !== 'connected' && !canOpenInGitHub) {
 		return null;
 	}
 
