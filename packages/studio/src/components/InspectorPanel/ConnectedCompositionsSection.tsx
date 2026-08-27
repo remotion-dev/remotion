@@ -12,7 +12,7 @@ import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {useEditorOpening} from '../use-default-editor-info';
-import {InspectorQuickAction} from './common';
+import {InspectorQuickAction, InspectorSectionHeader} from './common';
 
 const compositionIconStyle: React.CSSProperties = {
 	height: 18,
@@ -49,14 +49,17 @@ export const ConnectedCompositionsSection: React.FC<{
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 }> = ({connectedCompositions}) => {
 	return (
-		<div style={compositionListStyle}>
-			{connectedCompositions.map((composition) => (
-				<ConnectedCompositionRow
-					key={composition.id}
-					composition={composition}
-				/>
-			))}
-		</div>
+		<>
+			<InspectorSectionHeader>Connected compositions</InspectorSectionHeader>
+			<div style={compositionListStyle}>
+				{connectedCompositions.map((composition) => (
+					<ConnectedCompositionRow
+						key={composition.id}
+						composition={composition}
+					/>
+				))}
+			</div>
+		</>
 	);
 };
 

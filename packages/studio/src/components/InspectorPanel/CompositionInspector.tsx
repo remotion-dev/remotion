@@ -155,53 +155,56 @@ const CompositionActions: React.FC = () => {
 	}
 
 	return (
-		<InspectorQuickActionsSection>
-			{canShowInsertSolid ? (
-				<InspectorQuickAction
-					disabled={!canInsertSolid}
-					onClick={insertSolid}
-					renderIcon={(color) => (
-						<SolidIcon color={color} style={actionIconStyle} />
-					)}
-				>
-					Add Solid
-				</InspectorQuickAction>
-			) : null}
-			{canShowInsertAsset ? (
-				<InspectorQuickAction
-					disabled={!canInsertAsset}
-					onClick={insertAsset}
-					renderIcon={(color) => (
-						<PicIcon color={color} style={actionIconStyle} />
-					)}
-				>
-					Add asset...
-				</InspectorQuickAction>
-			) : null}
-			{canShowInsertComposition ? (
-				<InspectorQuickAction
-					disabled={!canInsertComposition}
-					onClick={insertComposition}
-					renderIcon={(color) => (
-						<FilmIcon color={color} style={actionIconStyle} />
-					)}
-				>
-					Add composition...
-				</InspectorQuickAction>
-			) : null}
-			{canShowInsertAsset ? <ElementLibraryButton /> : null}
-			{downloadProject ? (
-				<InspectorQuickAction
-					disabled={false}
-					onClick={onDownloadProject}
-					renderIcon={(color) => (
-						<CloudDownloadIcon color={color} style={actionIconStyle} />
-					)}
-				>
-					Download project
-				</InspectorQuickAction>
-			) : null}
-		</InspectorQuickActionsSection>
+		<>
+			<InspectorSectionHeader>Actions</InspectorSectionHeader>
+			<InspectorQuickActionsSection>
+				{canShowInsertSolid ? (
+					<InspectorQuickAction
+						disabled={!canInsertSolid}
+						onClick={insertSolid}
+						renderIcon={(color) => (
+							<SolidIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Add Solid
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertAsset ? (
+					<InspectorQuickAction
+						disabled={!canInsertAsset}
+						onClick={insertAsset}
+						renderIcon={(color) => (
+							<PicIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Add asset...
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertComposition ? (
+					<InspectorQuickAction
+						disabled={!canInsertComposition}
+						onClick={insertComposition}
+						renderIcon={(color) => (
+							<FilmIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Add composition...
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertAsset ? <ElementLibraryButton /> : null}
+				{downloadProject ? (
+					<InspectorQuickAction
+						disabled={false}
+						onClick={onDownloadProject}
+						renderIcon={(color) => (
+							<CloudDownloadIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Download project
+					</InspectorQuickAction>
+				) : null}
+			</InspectorQuickActionsSection>
+		</>
 	);
 };
 
@@ -353,6 +356,7 @@ export const CompositionInspector: React.FC<{
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={inspectorOverviewSection}>
 				<CompositionInspectorHeader />
+				<InspectorSectionHeader>Metadata</InspectorSectionHeader>
 				<CompositionMetadata
 					compositionId={composition.id}
 					disabled={readOnlyStudio || previewServerState.type !== 'connected'}
