@@ -303,6 +303,14 @@ export const usePlayback = ({
 
 				const stopListening = context.listenForResume(() => {
 					stopListening.remove();
+					if (
+						!muted &&
+						!audioContextFailed &&
+						sharedAudioContext?._experimentalKeepAudioContextAlive
+					) {
+						sharedAudioContext.resume();
+					}
+
 					startedTime = performance.now();
 					framesAdvanced = 0;
 					queueNextFrame();
