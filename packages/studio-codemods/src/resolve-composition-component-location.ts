@@ -17,6 +17,20 @@ export type SourceMapProject = {
 	rootDir: string;
 };
 
+export type ResolvedCompositionComponentInProject = {
+	canAddSequence: boolean;
+	declaration: Node;
+	exportName: string | 'default';
+	filePath: string;
+	location: {
+		column: number;
+		line: number;
+		source: string;
+	};
+	root: Node;
+	source: string;
+};
+
 const parseSource = (source: string): File => {
 	return parse(source, {
 		errorRecovery: false,
@@ -315,7 +329,12 @@ const resolveDeclaration = ({
 	exportName: string | 'default';
 	project: SourceMapProject;
 	visited: Set<string>;
-}): {declaration: Node; filePath: string} => {
+}): {
+	declaration: Node;
+	exportName: string | 'default';
+	filePath: string;
+	source: string;
+} => {
 	const key = `${filePath}:${exportName}`;
 	if (visited.has(key)) {
 		throw new Error(
@@ -338,19 +357,22 @@ const resolveDeclaration = ({
 			defaultExport?.type === 'ExportDefaultDeclaration' &&
 			defaultExport.declaration.type === 'Identifier'
 		) {
-			return resolveDeclaration({
-				filePath,
-				exportName: defaultExport.declaration.name,
-				project,
-				visited,
-			});
+			for (const statement of file.program.body) {
+				const declaration = getDeclaration(
+					statement,
+					defaultExport.declaration.name,
+				);
+				if (declaration) {
+					return {declaration, exportName, filePath, source};
+				}
+			}
 		}
 	}
 
 	for (const statement of file.program.body) {
 		const declaration = getDeclaration(statement, exportName);
 		if (declaration) {
-			return {declaration, filePath};
+			return {declaration, exportName, filePath, source};
 		}
 	}
 
@@ -415,7 +437,84 @@ const findImportedComponent = (file: File, localName: string) => {
 	return null;
 };
 
-export const resolveCompositionComponentLocation = ({
+const unwrapExpression = (node: Node | null): Node | null => {
+	let current = node;
+	while (
+		current &&
+		(current.type === 'TSAsExpression' ||
+			current.type === 'TSSatisfiesExpression' ||
+			current.type === 'TypeCastExpression' ||
+			current.type === 'ParenthesizedExpression')
+	) {
+		current = current.expression;
+	}
+
+	return current;
+};
+
+const getReturnedRoot = (declaration: Node) => {
+	let fn: Node | null = declaration;
+	if (declaration.type === 'VariableDeclarator') {
+		fn = unwrapExpression(declaration.init ?? null);
+	}
+
+	if (
+		!fn ||
+		(fn.type !== 'ArrowFunctionExpression' &&
+			fn.type !== 'FunctionExpression' &&
+			fn.type !== 'FunctionDeclaration')
+	) {
+		return null;
+	}
+
+	const body = unwrapExpression(fn.body);
+	if (!body) {
+		return null;
+	}
+
+	if (body.type !== 'BlockStatement') {
+		return body;
+	}
+
+	const returnStatements = body.body.filter(
+		(statement) => statement.type === 'ReturnStatement',
+	);
+	if (
+		returnStatements.length !== 1 ||
+		returnStatements[0] !== body.body.at(-1)
+	) {
+		return null;
+	}
+
+	return unwrapExpression(returnStatements[0].argument ?? null);
+};
+
+const isCanvasRoot = (root: Node) => {
+	if (root.type !== 'JSXElement') {
+		return false;
+	}
+
+	const name = jsxName(root.openingElement.name);
+	return (
+		name === 'ThreeCanvas' ||
+		name === 'RiveCanvas' ||
+		name === 'SkiaCanvas' ||
+		name === 'canvas'
+	);
+};
+
+const canAddToRoot = (root: Node) => {
+	if (root.type === 'NullLiteral') {
+		return true;
+	}
+
+	return (
+		(root.type === 'JSXElement' || root.type === 'JSXFragment') &&
+		!isCanvasRoot(root)
+	);
+};
+
+const resolveCompositionComponentDeclaration = ({
 	compositionFile,
 	compositionId,
 	project,
@@ -471,21 +570,66 @@ export const resolveCompositionComponentLocation = ({
 		}
 	}
 
-	const {declaration, filePath} = resolveDeclaration({
+	const resolved = resolveDeclaration({
 		filePath: componentFile,
 		exportName,
 		project,
 		visited: new Set(),
 	});
-	const normalizedFile = normalizePath(filePath);
+	const normalizedFile = normalizePath(resolved.filePath);
 	const normalizedRoot = normalizePath(project.rootDir).replace(/\/$/, '');
 	const source = normalizedFile.startsWith(`${normalizedRoot}/`)
 		? normalizedFile.slice(normalizedRoot.length + 1)
 		: normalizedFile.replace(/^\//, '');
 
 	return {
-		source,
-		line: declaration.loc?.start.line ?? 1,
-		column: declaration.loc?.start.column ?? 0,
+		...resolved,
+		location: {
+			source,
+			line: resolved.declaration.loc?.start.line ?? 1,
+			column: resolved.declaration.loc?.start.column ?? 0,
+		},
 	};
+};
+
+export const resolveCompositionComponentInProject = ({
+	compositionFile,
+	compositionId,
+	project,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	project: SourceMapProject;
+}): ResolvedCompositionComponentInProject => {
+	const resolved = resolveCompositionComponentDeclaration({
+		compositionFile,
+		compositionId,
+		project,
+	});
+	const root = getReturnedRoot(resolved.declaration);
+	if (!root) {
+		throw new Error('Composition component does not return JSX');
+	}
+
+	return {
+		...resolved,
+		canAddSequence: canAddToRoot(root),
+		root,
+	};
+};
+
+export const resolveCompositionComponentLocation = ({
+	compositionFile,
+	compositionId,
+	project,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	project: SourceMapProject;
+}) => {
+	return resolveCompositionComponentDeclaration({
+		compositionFile,
+		compositionId,
+		project,
+	}).location;
 };
