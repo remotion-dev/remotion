@@ -27,6 +27,11 @@ import {Plus} from '../icons/plus';
 import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {AssetFileIcon} from './AssetFileIcon';
+import {
+	clearPendingEffectsInspectorExpansion,
+	hasPendingEffectsInspectorExpansion,
+	subscribeToEffectsInspectorExpansionRequests,
+} from './effect-inspector-expansion';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
@@ -605,6 +610,33 @@ export const InspectorSequenceSection: React.FC<{
 	);
 	const captionsExpanded = isAdditionalSectionExpanded('captions');
 	const effectsExpanded = isAdditionalSectionExpanded('effects');
+	const expandEffectsInspectorIfRequested = useCallback(() => {
+		const subscriptionKey = nodePathInfo.sequenceSubscriptionKey;
+		if (!hasPendingEffectsInspectorExpansion(subscriptionKey)) {
+			return;
+		}
+
+		const expansionKey = getInspectorSectionExpansionKey({
+			nodePathInfo,
+			sectionId: 'effects',
+		});
+		setSectionExpansionOverrides((overrides) => {
+			clearPendingEffectsInspectorExpansion(subscriptionKey);
+			if (overrides[expansionKey] === true) {
+				return overrides;
+			}
+
+			const next = {...overrides, [expansionKey]: true};
+			persistInspectorSectionExpansionOverrides(next);
+			return next;
+		});
+	}, [nodePathInfo]);
+	useEffect(() => {
+		expandEffectsInspectorIfRequested();
+		return subscribeToEffectsInspectorExpansionRequests(
+			expandEffectsInspectorIfRequested,
+		);
+	}, [expandEffectsInspectorIfRequested]);
 	const visibleControlRows = controlGroups.flatMap((group) => {
 		return isControlGroupExpanded(group) ? group.rows : [];
 	});

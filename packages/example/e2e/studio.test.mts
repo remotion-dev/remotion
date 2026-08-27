@@ -504,7 +504,7 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should preserve the sequence inspector scroll position when adding an effect', async ({
+	test('should expand Effects and preserve the inspector scroll position when adding an effect', async ({
 		page,
 	}) => {
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
@@ -518,6 +518,12 @@ test.describe('visual mode', () => {
 			await page.getByTitle('Scale precision', {exact: true}).first().click();
 			await expect(addEffectButton).toBeVisible({timeout: 1000});
 		}).toPass({timeout: 15_000});
+		await page
+			.getByRole('button', {name: 'Collapse Effects', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Effects', exact: true}),
+		).toBeVisible();
 		const inspector = page
 			.locator('.__remotion-vertical-scrollbar')
 			.filter({has: addEffectButton});
@@ -538,6 +544,9 @@ test.describe('visual mode', () => {
 		await expect
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
 			.toContain("import {blur} from '@remotion/effects/blur';");
+		await expect(
+			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
+		).toBeVisible();
 		await expect(page.getByText('blur()', {exact: true})).toBeVisible();
 		const scrollTopAfter = await inspector.evaluate(
 			(element) => element.scrollTop,

@@ -6,6 +6,7 @@ import {getRequiredPackageForEffectImportPath} from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {getBrowserStudioEffectOperations} from '../helpers/browser-studio-operations';
 import {installRequiredPackages} from '../helpers/install-required-package';
+import {requestEffectsInspectorExpansion} from './effect-inspector-expansion';
 import {addEffect} from './effect-operations-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
@@ -78,7 +79,10 @@ export const addEffectToSequence = async ({
 
 		if (!result.success) {
 			showNotification(result.reason, 4000);
+			return;
 		}
+
+		requestEffectsInspectorExpansion(nodePath);
 	} catch (err) {
 		showNotification((err as Error).message, 4000);
 	}
