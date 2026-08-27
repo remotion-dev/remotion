@@ -61,6 +61,15 @@ const assetMetadataErrorContainer: React.CSSProperties = {
 
 const checkerboardSize = 49;
 const PIXEL_GRID_MIN_SCALE = 4;
+const portalContainerClassName = 'remotion-studio-portal-container';
+const videoCanvasOverscanCss = `
+.${portalContainerClassName}:has(canvas.${Internals.OBJECTFIT_CONTAIN_CLASS_NAME}) > div {
+	transform: scale(
+		var(--remotion-studio-video-overscan-x),
+		var(--remotion-studio-video-overscan-y)
+	);
+}
+`;
 
 const containerStyle = (options: {
 	scale: number;
@@ -441,14 +450,23 @@ const PortalContainer: React.FC<{
 			};
 		}
 
-		return containerStyle({
-			checkerboard,
-			scale,
-			xCorrection,
-			yCorrection,
-			width: contentDimensions.width,
-			height: contentDimensions.height,
-		});
+		return {
+			...containerStyle({
+				checkerboard,
+				scale,
+				xCorrection,
+				yCorrection,
+				width: contentDimensions.width,
+				height: contentDimensions.height,
+			}),
+			// Chromium composites <Video>'s canvas separately from this background.
+			// Extending the portal content by one source pixel on each side moves
+			// the canvas texture boundary outside the composition clip.
+			'--remotion-studio-video-overscan-x':
+				(contentDimensions.width + 2) / contentDimensions.width,
+			'--remotion-studio-video-overscan-y':
+				(contentDimensions.height + 2) / contentDimensions.height,
+		} as React.CSSProperties;
 	}, [
 		checkerboard,
 		contentDimensions.height,
@@ -500,5 +518,14 @@ const PortalContainer: React.FC<{
 		};
 	}, [onPointerDown]);
 
-	return <div ref={portalContainer} style={style} />;
+	return (
+		<>
+			<style>{videoCanvasOverscanCss}</style>
+			<div
+				ref={portalContainer}
+				className={portalContainerClassName}
+				style={style}
+			/>
+		</>
+	);
 };

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {expect, test, type Locator, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import sharp from 'sharp';
 import {
 	STUDIO_URL,
 	effectKeyframeE2eFile,
@@ -294,6 +295,68 @@ test.describe('visual mode', () => {
 				);
 			})
 			.toBeLessThan(1);
+
+		await page.goto(`${STUDIO_URL}/assets/framer.webm`);
+		const opaqueVideoPreview = page.locator(
+			'.remotion-studio-composition-container',
+		);
+		await expect(opaqueVideoPreview).toBeVisible();
+		const opaqueVideoCanvas = page
+			.getByTestId('asset-media-preview')
+			.locator('canvas');
+		await expect
+			.poll(() =>
+				opaqueVideoCanvas.evaluate((canvas: HTMLCanvasElement) => {
+					const context = canvas.getContext('2d');
+					return context?.getImageData(0, 0, 1, 1).data[3] ?? 0;
+				}),
+			)
+			.toBe(255);
+		if ((await checkerboardToggle.getAttribute('aria-pressed')) === 'true') {
+			await checkerboardToggle.click();
+		}
+
+		const withoutCheckerboard = await opaqueVideoPreview.screenshot();
+		await checkerboardToggle.click();
+		const withCheckerboard = await opaqueVideoPreview.screenshot();
+		const without = await sharp(withoutCheckerboard)
+			.raw()
+			.toBuffer({resolveWithObject: true});
+		const withCheckerboardRaw = await sharp(withCheckerboard)
+			.raw()
+			.toBuffer({resolveWithObject: true});
+		expect(withCheckerboardRaw.info).toEqual(without.info);
+		let largestPerimeterDifference = 0;
+		let largestPerimeterDifferenceAt = '';
+		for (let y = 0; y < without.info.height; y++) {
+			for (let x = 0; x < without.info.width; x++) {
+				if (
+					x > 1 &&
+					x < without.info.width - 2 &&
+					y > 1 &&
+					y < without.info.height - 2
+				) {
+					continue;
+				}
+
+				const offset = (y * without.info.width + x) * without.info.channels;
+				for (let channel = 0; channel < 3; channel++) {
+					const difference = Math.abs(
+						(without.data[offset + channel] ?? 0) -
+							(withCheckerboardRaw.data[offset + channel] ?? 0),
+					);
+					if (difference > largestPerimeterDifference) {
+						largestPerimeterDifference = difference;
+						largestPerimeterDifferenceAt = `${x},${y},${channel}: ${without.data[offset + channel]} -> ${withCheckerboardRaw.data[offset + channel]}`;
+					}
+				}
+			}
+		}
+
+		expect(
+			largestPerimeterDifference,
+			largestPerimeterDifferenceAt,
+		).toBeLessThanOrEqual(2);
 	});
 
 	test('should route Canvas Capture drops by Studio target', async ({page}) => {
