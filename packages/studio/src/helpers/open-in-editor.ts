@@ -8,6 +8,7 @@ import type {
 } from '@remotion/studio-shared';
 import {useEffect, useSyncExternalStore} from 'react';
 import {callApi} from '../components/call-api';
+import {getSourceMapFilesForSource} from '../components/Timeline/TimelineStack/get-stack';
 import type {
 	CodePosition,
 	OriginalPosition,
@@ -222,7 +223,27 @@ export const loadCompositionComponentInfo = async ({
 		const browserStudioOperations = getBrowserStudioOperations();
 		const body = browserStudioOperations
 			? await browserStudioOperations.getCompositionComponentInfo(request)
-			: await callApi('/api/composition-component-info', request);
+			: typeof window !== 'undefined' && window.remotion_isReadOnlyStudio
+				? await (async () => {
+						const files = getSourceMapFilesForSource(compositionFile);
+						if (files === null) {
+							throw new Error(
+								`Could not find source map contents for ${compositionFile}`,
+							);
+						}
+
+						const {resolveCompositionComponentLocation} =
+							await import('@remotion/studio-codemods/resolve-composition-component-location');
+						return {
+							canAddSequence: false,
+							location: resolveCompositionComponentLocation({
+								compositionFile,
+								compositionId,
+								project: {files, rootDir: '.'},
+							}),
+						};
+					})()
+				: await callApi('/api/composition-component-info', request);
 
 		const result = {
 			location: body.location,

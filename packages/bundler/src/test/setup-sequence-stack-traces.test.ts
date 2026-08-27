@@ -44,7 +44,7 @@ test('injects a namespaced source stack without conflicting with application pro
 		expect(
 			(renderingElement.props as {_remotionInternalStack?: string})
 				._remotionInternalStack,
-		).toBeUndefined();
+		).toContain('Error');
 
 		const sourceElement = JsxRuntimeDev.jsxDEV(
 			Composition,

@@ -68,7 +68,7 @@ test(
 			},
 		});
 		await tab.goto({
-			url: `http://localhost:${server.port}`,
+			url: `http://localhost:${server.port}/?/WidthHeight`,
 			timeout: 10000,
 			options: {},
 		});
@@ -111,6 +111,34 @@ test(
 			return null;
 		});
 		expect(sourceLocation.toString()).toMatch(/Root\.tsx:\d+/);
+		expect(sourceLocation.toString()).toMatch(/WidthHeightSequences\.tsx:\d+/);
+		const sequenceSourceLocation = await tab.evaluateHandle(async () => {
+			const label = document.querySelector<HTMLElement>('[title="<Sequence>"]');
+			label?.parentElement?.parentElement?.dispatchEvent(
+				new PointerEvent('pointerdown', {bubbles: true, button: 0}),
+			);
+
+			for (let attempt = 0; attempt < 100; attempt++) {
+				const inspectorSourceLocation = document.querySelector(
+					'[aria-label="Inspector source location"]',
+				);
+				if (
+					inspectorSourceLocation?.textContent?.startsWith('<Sequence>') &&
+					inspectorSourceLocation.textContent.includes(
+						'WidthHeightSequences.tsx:',
+					)
+				) {
+					return inspectorSourceLocation.textContent;
+				}
+
+				await new Promise((resolve) => setTimeout(resolve, 100));
+			}
+
+			return null;
+		});
+		expect(sequenceSourceLocation.toString()).toMatch(
+			/<Sequence>WidthHeightSequences\.tsx:\d+/,
+		);
 
 		const fontLoaded = await tab.evaluateHandle(() => {
 			let loaded = false;
@@ -133,6 +161,7 @@ test(
 		await Promise.all([
 			result.dispose(),
 			sourceLocation.dispose(),
+			sequenceSourceLocation.dispose(),
 			fontLoaded.dispose(),
 			orphanedFontTimeouts.dispose(),
 		]);

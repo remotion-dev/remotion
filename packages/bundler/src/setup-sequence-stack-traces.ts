@@ -1,10 +1,9 @@
 import React from 'react';
 import JsxRuntimeDev from 'react/jsx-dev-runtime';
 import JsxRuntime from 'react/jsx-runtime';
-import {Composition, Folder, Internals, Still} from 'remotion';
+import {Internals} from 'remotion';
 
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
-const componentsToAddStacksToInReadOnlyStudio = [Composition, Folder, Still];
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
 const studioOriginalSourcePrefix = 'studio-original://';
@@ -52,10 +51,7 @@ const enableProxy = <
 	return new Proxy(api, {
 		apply(target, thisArg, argArray) {
 			const component = argArray[0];
-			const shouldAddStack =
-				process.env.NODE_ENV !== 'production' ||
-				componentsToAddStacksToInReadOnlyStudio.includes(component);
-			if (shouldAddStack && componentsToAddStacksTo.includes(component)) {
+			if (componentsToAddStacksTo.includes(component)) {
 				const [first, props, ...rest] = argArray;
 				const children = isCreateElement
 					? rest.length === 0
