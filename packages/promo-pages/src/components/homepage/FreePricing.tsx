@@ -399,7 +399,7 @@ export const CompanyPricing: React.FC = () => {
 				title="Remotion for Creators"
 				subtitle={
 					<>
-						Create videos for yourself
+						Create videos as an individual
 						{mobileLayout ? <br /> : ' - '}
 						$25/mo per seat
 					</>
