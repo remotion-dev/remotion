@@ -1,5 +1,5 @@
 import React from 'react';
-import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 
 const description: React.CSSProperties = {
 	color: LIGHT_TEXT,
@@ -10,7 +10,7 @@ const description: React.CSSProperties = {
 };
 
 const descriptionLink: React.CSSProperties = {
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 14,
 	lineHeight: '21px',
