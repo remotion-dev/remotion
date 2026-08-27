@@ -1053,7 +1053,7 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 	await expect(studio.getByText('Browser Element')).toBeVisible();
 });
 
-test('confirms and imports an Element payload from the URL fragment', async ({
+test('confirms and imports an Element payload without adding a blank browser history entry', async ({
 	page,
 }) => {
 	const payload = createElementPayload({
@@ -1136,6 +1136,18 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 				).__browserStudioInstallPreservedIframe,
 		),
 	).toBe(true);
+	const historyClient = await page.context().newCDPSession(page);
+	const history = await historyClient.send('Page.getNavigationHistory');
+	const currentEntry = history.entries[history.currentIndex];
+	const previousEntry = history.entries[history.currentIndex - 1];
+	if (!currentEntry || !previousEntry) {
+		throw new Error('Expected current and previous browser history entries');
+	}
+
+	expect(previousEntry.url).not.toBe(currentEntry.url);
+	await expect(
+		studio.locator('.remotion-studio-composition-container'),
+	).toBeVisible();
 });
 
 test('reports inline SVG imports as unsupported without changing the project', async ({

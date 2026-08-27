@@ -5,7 +5,7 @@ import {Internals} from 'remotion';
 import {getKeysToExpand} from '../helpers/create-folder-tree';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
-import {getRoute, pushUrl} from '../helpers/url-state';
+import {getRoute, pushUrl, replaceUrl} from '../helpers/url-state';
 import {
 	CompositionListContext,
 	compositionListRenderedRef,
@@ -136,7 +136,8 @@ export const InitialCompositionLoader: React.FC = () => {
 		}
 
 		if (compositions.length > 0) {
-			selectComposition(compositions[0], true);
+			replaceUrl(`/${compositions[0].id}`);
+			selectComposition(compositions[0], false);
 		} else {
 			setCompositionListState('ready');
 		}
