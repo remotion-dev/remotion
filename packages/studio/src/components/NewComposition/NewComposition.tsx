@@ -56,11 +56,19 @@ const folderIconStyle: React.CSSProperties = {
 
 const folderLabelStyle: React.CSSProperties = {
 	alignItems: 'center',
+	color: 'inherit',
 	display: 'flex',
+	fontFamily: 'inherit',
+	fontSize: 'inherit',
+	lineHeight: 'normal',
 	minWidth: 0,
 };
 
 const folderLabelTextStyle: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'inherit',
+	fontSize: 'inherit',
+	lineHeight: 'normal',
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',

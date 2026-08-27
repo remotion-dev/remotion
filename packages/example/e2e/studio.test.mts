@@ -1111,10 +1111,16 @@ test.describe('visual mode', () => {
 				.getByRole('textbox', {name: 'Composition ID'})
 				.fill(compositionId);
 			await page.getByTitle('Folder').click();
-			await page
+			const schemaFolderOption = page
 				.getByRole('button', {name: 'Schema', exact: true})
-				.last()
-				.click();
+				.last();
+			const schemaFolderLabel = schemaFolderOption.getByText('Schema', {
+				exact: true,
+			});
+			await expect(schemaFolderLabel).toHaveCSS('font-size', '13px');
+			await schemaFolderOption.hover();
+			await expect(schemaFolderLabel).toHaveCSS('font-size', '13px');
+			await schemaFolderOption.click();
 			await expect(page.getByTitle('Folder')).toHaveText('Schema');
 
 			const createButton = page.getByRole('button', {
