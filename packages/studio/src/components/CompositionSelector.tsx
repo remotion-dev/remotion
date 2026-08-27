@@ -16,7 +16,6 @@ import {
 	sortFolderTreeAlphabetically,
 } from '../helpers/create-folder-tree';
 import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
-import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
 import {FolderContext} from '../state/folders';
 import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
@@ -158,36 +157,13 @@ export const CompositionSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
 
-	// In alphabetical mode the tree gets sorted by name afterwards, so the
-	// expensive nonce sorting can be skipped.
-	const sortedCompositions = useMemo(() => {
-		return compositionSortOrder === 'alphabetical'
-			? compositions
-			: sortItemsByNonceHistory(compositions);
-	}, [compositionSortOrder, compositions]);
-
-	const sortedFolders = useMemo(() => {
-		return compositionSortOrder === 'alphabetical'
-			? folders
-			: sortItemsByNonceHistory(folders);
-	}, [compositionSortOrder, folders]);
-
 	const items = useMemo(() => {
-		const tree = createFolderTree(
-			sortedCompositions,
-			sortedFolders,
-			foldersExpanded,
-		);
+		const tree = createFolderTree(compositions, folders, foldersExpanded);
 
 		return compositionSortOrder === 'alphabetical'
 			? sortFolderTreeAlphabetically(tree)
 			: tree;
-	}, [
-		compositionSortOrder,
-		sortedCompositions,
-		sortedFolders,
-		foldersExpanded,
-	]);
+	}, [compositionSortOrder, compositions, folders, foldersExpanded]);
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {

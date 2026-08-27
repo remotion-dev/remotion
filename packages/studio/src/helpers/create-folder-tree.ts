@@ -263,8 +263,7 @@ export const createFolderTree = (
 
 /**
  * Sorts the tree returned by createFolderTree by name, on every level.
- * Folders stay above compositions like they do in registration order - only
- * the order within each of the two groups changes.
+ * Folders stay grouped above compositions, and both groups are sorted.
  */
 export const sortFolderTreeAlphabetically = (
 	items: CompositionSelectorItemType[],

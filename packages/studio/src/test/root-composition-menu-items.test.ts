@@ -93,16 +93,21 @@ test('root composition menu switches the sort order and is usable read-only', ()
 		setCompositionSortOrder: (sortOrder) => sortOrders.push(sortOrder),
 	});
 
-	const sortBy = items.find((item) => item.id === 'sort-compositions');
-	if (sortBy?.type !== 'item' || sortBy.subMenu === null) {
-		throw new Error('Expected a sort submenu');
-	}
+	expect(items.map((item) => item.id)).toEqual([
+		'new-root-composition',
+		'new-root-folder',
+		'sort-compositions-divider',
+		'sort-compositions-header',
+		'sort-compositions-registration',
+		'sort-compositions-alphabetical',
+	]);
 
-	expect(sortBy.disabled).toBe(undefined);
-	expect(sortBy.subMenu.preselectIndex).toBe(0);
-
-	for (const item of sortBy.subMenu.items) {
+	for (const item of items) {
 		if (item.type !== 'item') {
+			continue;
+		}
+
+		if (!item.id.startsWith('sort-compositions-')) {
 			continue;
 		}
 

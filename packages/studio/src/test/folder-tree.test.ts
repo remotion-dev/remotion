@@ -337,7 +337,12 @@ test('sortFolderTreeAlphabetically sorts every level and keeps folders on top', 
 			testComp('Scene2', 'zoo'),
 			testComp('Apple', null),
 		],
-		[testFolder('zoo', null), testFolder('animals', null)],
+		[
+			testFolder('zoo', null),
+			testFolder('animals', null),
+			testFolder('zulu', 'zoo'),
+			testFolder('alpha', 'zoo'),
+		],
 		{},
 	);
 
@@ -358,5 +363,5 @@ test('sortFolderTreeAlphabetically sorts every level and keeps folders on top', 
 		zoo.items.map((item) =>
 			item.type === 'folder' ? item.folderName : item.composition.id,
 		),
-	).toEqual(['Scene2', 'Scene10']);
+	).toEqual(['alpha', 'zulu', 'Scene2', 'Scene10']);
 });

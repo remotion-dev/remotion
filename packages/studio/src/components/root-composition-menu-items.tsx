@@ -62,47 +62,19 @@ export const getRootCompositionMenuItems = ({
 			type: 'divider',
 		},
 		{
-			id: 'sort-compositions',
-			keyHint: null,
-			label: 'Sort by',
-			leftItem: null,
-			onClick: () => undefined,
-			quickSwitcherLabel: null,
-			type: 'item',
-			value: 'sort-compositions',
-			subMenu: {
-				leaveLeftSpace: true,
-				preselectIndex: compositionSortOrder === 'alphabetical' ? 1 : 0,
-				items: getCompositionSortOrderMenuItems({
-					compositionSortOrder,
-					setCompositionSortOrder,
-					onSelected: () => undefined,
-				}),
-			},
+			id: 'sort-compositions-header',
+			label: 'Sort',
+			type: 'section-header',
 		},
-	];
-};
-
-export const getCompositionSortOrderMenuItems = ({
-	compositionSortOrder,
-	setCompositionSortOrder,
-	onSelected,
-}: {
-	compositionSortOrder: CompositionSortOrder;
-	setCompositionSortOrder: (sortOrder: CompositionSortOrder) => void;
-	onSelected: () => void;
-}): ComboboxValue[] => {
-	return [
 		{
 			id: 'sort-compositions-registration',
 			keyHint: null,
-			label: 'Order in root file',
+			label: 'As registered',
 			leftItem: compositionSortOrder === 'registration' ? <Checkmark /> : null,
 			onClick: () => {
-				onSelected();
 				setCompositionSortOrder('registration');
 			},
-			quickSwitcherLabel: 'Sort compositions by order in root file',
+			quickSwitcherLabel: 'Sort compositions as registered',
 			subMenu: null,
 			type: 'item',
 			value: 'registration' as CompositionSortOrder,
@@ -110,13 +82,12 @@ export const getCompositionSortOrderMenuItems = ({
 		{
 			id: 'sort-compositions-alphabetical',
 			keyHint: null,
-			label: 'Name',
+			label: 'Alphabetically',
 			leftItem: compositionSortOrder === 'alphabetical' ? <Checkmark /> : null,
 			onClick: () => {
-				onSelected();
 				setCompositionSortOrder('alphabetical');
 			},
-			quickSwitcherLabel: 'Sort compositions by name',
+			quickSwitcherLabel: 'Sort compositions alphabetically',
 			subMenu: null,
 			type: 'item',
 			value: 'alphabetical' as CompositionSortOrder,

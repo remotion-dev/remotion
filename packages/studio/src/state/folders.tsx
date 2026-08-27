@@ -2,8 +2,8 @@ import React, {createContext, useCallback, useMemo, useState} from 'react';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {loadExpandedFolders} from '../helpers/persist-open-folders';
 
-// 'registration' keeps the order in which the compositions are written in the
-// root file, 'alphabetical' sorts them by name on every level of the tree.
+// 'registration' keeps the order in which compositions and folders are
+// registered, 'alphabetical' sorts them by name on every level of the tree.
 export type CompositionSortOrder = 'registration' | 'alphabetical';
 
 const compositionSortOrderKey = 'remotion.compositionSortOrder';
