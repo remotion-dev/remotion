@@ -73,6 +73,7 @@ import {
 	getSingleChildComponent,
 	getStackForControls,
 	REMOTION_INTERNAL_STACK_PROP,
+	setComponentIdentityResolver,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -412,6 +413,7 @@ export const Internals = {
 	getSingleChildComponent,
 	getStackForControls,
 	REMOTION_INTERNAL_STACK_PROP,
+	setComponentIdentityResolver,
 	CurrentScaleContext,
 	PixelDensityContext,
 	PreviewSizeContext,
