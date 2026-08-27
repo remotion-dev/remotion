@@ -787,19 +787,11 @@ const interpolateString = ({
 				// angle interpolates away from zero.
 				const adjacentAxisRotation =
 					parsed.values[0] === 0
-						? index === 0
-							? initiallyParsedOutputRange.find(
-									(candidate) => candidate.axisRotation,
-								)
-							: index === initiallyParsedOutputRange.length - 1
-								? [...initiallyParsedOutputRange]
-										.reverse()
-										.find((candidate) => candidate.axisRotation)
-								: index === segmentIndex
-									? initiallyParsedOutputRange[index + 1]
-									: index === segmentIndex + 1
-										? initiallyParsedOutputRange[index - 1]
-										: undefined
+						? index === segmentIndex
+							? initiallyParsedOutputRange[index + 1]
+							: index === segmentIndex + 1
+								? initiallyParsedOutputRange[index - 1]
+								: undefined
 						: undefined;
 				const axis = adjacentAxisRotation?.axisRotation
 					? adjacentAxisRotation.values
