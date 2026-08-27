@@ -86,18 +86,26 @@ const enableProxy = <
 	});
 };
 
-// Renderer pages set this value before the bundle loads. Avoid proxying every
-// JSX call while rendering; production stack traces are only needed by Studio.
-const shouldEnableStackTraces =
-	process.env.NODE_ENV !== 'production' ||
-	(typeof window !== 'undefined' &&
-		typeof window.remotion_puppeteerTimeout === 'undefined');
+let stackTracesEnabled = false;
 
-if (shouldEnableStackTraces) {
+const enableSequenceStackTraces = () => {
+	if (stackTracesEnabled) {
+		return;
+	}
+
+	stackTracesEnabled = true;
 	React.createElement = enableProxy(originalCreateElement, true, null);
 	JsxRuntime.jsx = enableProxy(originalJsx, false, null);
 	JsxRuntime.jsxs = enableProxy(originalJsxs, false, null);
 	if (originalJsxDev) {
 		JsxRuntimeDev.jsxDEV = enableProxy(originalJsxDev, false, 4);
 	}
+};
+
+if (typeof window !== 'undefined') {
+	window.remotion_enableSequenceStackTraces = enableSequenceStackTraces;
+}
+
+if (process.env.NODE_ENV !== 'production') {
+	enableSequenceStackTraces();
 }

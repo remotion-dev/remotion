@@ -3,31 +3,9 @@ import React from 'react';
 import JsxRuntimeDev from 'react/jsx-dev-runtime';
 import {Composition, Internals} from 'remotion';
 
-test('injects a namespaced source stack without conflicting with application props', async () => {
+test('defers and idempotently enables source stack injection in production', async () => {
 	const Component: React.FC<{readonly stack: string}> = () => null;
 	Internals.addSequenceStackTraces(Component);
-	await import('../setup-sequence-stack-traces');
-
-	const element = React.createElement(Component, {stack: 'application-stack'});
-	const props = element.props as typeof element.props & {
-		readonly _remotionInternalStack: string;
-	};
-
-	expect(props.stack).toBe('application-stack');
-	expect(props._remotionInternalStack).toContain('Error');
-
-	const existingStackElement = React.createElement(Component, {
-		stack: 'application-stack',
-		_remotionInternalStack: 'existing-source-stack',
-	} as React.ComponentProps<typeof Component> & {
-		readonly _remotionInternalStack: string;
-	});
-	const existingProps =
-		existingStackElement.props as typeof existingStackElement.props & {
-			readonly _remotionInternalStack: string;
-		};
-	expect(existingProps._remotionInternalStack).toBe('existing-source-stack');
-
 	const previousNodeEnv = process.env.NODE_ENV;
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,
@@ -38,6 +16,38 @@ test('injects a namespaced source stack without conflicting with application pro
 
 	try {
 		process.env.NODE_ENV = 'production';
+		const originalCreateElement = React.createElement;
+		await import('../setup-sequence-stack-traces');
+		expect(React.createElement).toBe(originalCreateElement);
+
+		window.remotion_enableSequenceStackTraces?.();
+		const proxiedCreateElement = React.createElement;
+		expect(proxiedCreateElement).not.toBe(originalCreateElement);
+		window.remotion_enableSequenceStackTraces?.();
+		expect(React.createElement).toBe(proxiedCreateElement);
+
+		const element = React.createElement(Component, {
+			stack: 'application-stack',
+		});
+		const props = element.props as typeof element.props & {
+			readonly _remotionInternalStack: string;
+		};
+
+		expect(props.stack).toBe('application-stack');
+		expect(props._remotionInternalStack).toContain('Error');
+
+		const existingStackElement = React.createElement(Component, {
+			stack: 'application-stack',
+			_remotionInternalStack: 'existing-source-stack',
+		} as React.ComponentProps<typeof Component> & {
+			readonly _remotionInternalStack: string;
+		});
+		const existingProps =
+			existingStackElement.props as typeof existingStackElement.props & {
+				readonly _remotionInternalStack: string;
+			};
+		expect(existingProps._remotionInternalStack).toBe('existing-source-stack');
+
 		const renderingElement = React.createElement(Component, {
 			stack: 'application-stack',
 		});
