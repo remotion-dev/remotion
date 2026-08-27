@@ -19,6 +19,7 @@ import type {RemotionAudioContextState} from './use-audio-context.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
 import {
 	type AudioContextResumeResult,
+	waitUntilAudioContextRunning,
 	waitUntilActuallyResumed,
 } from './wait-until-actually-resumed.js';
 
@@ -398,7 +399,20 @@ export const SharedAudioContextProvider: React.FC<{
 		}
 
 		if (audioContextIsPlayingEventually.current) {
-			return Promise.resolve();
+			if (
+				!_experimentalKeepAudioContextAlive ||
+				ctxAndGain.getState() === 'running'
+			) {
+				return Promise.resolve();
+			}
+
+			return ctxAndGain.resume().catch((err) => {
+				Log.warn(
+					{logLevel, tag: 'audio'},
+					'AudioContext resume rejected; keeping playback buffered until the next resume attempt',
+					err,
+				);
+			});
 		}
 
 		audioContextIsPlayingEventually.current = true;
@@ -435,17 +449,31 @@ export const SharedAudioContextProvider: React.FC<{
 		const resumeAttemptId = nextResumeAttemptId.current++;
 
 		const waitPromise = new Promise<AudioContextResumeResult>((resolve) => {
-			waitUntilActuallyResumed(
-				ctxAndGain.audioContext,
-				logLevel,
-				abortController.signal,
-			).then(resolve);
+			if (_experimentalKeepAudioContextAlive) {
+				waitUntilAudioContextRunning(
+					ctxAndGain.audioContext,
+					abortController.signal,
+				).then(resolve);
+			} else {
+				waitUntilActuallyResumed(
+					ctxAndGain.audioContext,
+					logLevel,
+					abortController.signal,
+				).then(resolve);
+			}
+
 			resumePromise.catch((err) => {
 				Log.warn(
 					{logLevel, tag: 'audio'},
-					'AudioContext resume rejected, muting playback and continuing without audio',
+					_experimentalKeepAudioContextAlive
+						? 'AudioContext resume rejected; keeping playback buffered until the next resume attempt'
+						: 'AudioContext resume rejected, muting playback and continuing without audio',
 					err,
 				);
+				if (_experimentalKeepAudioContextAlive) {
+					return;
+				}
+
 				abortController.abort();
 				resolve('failed');
 			});

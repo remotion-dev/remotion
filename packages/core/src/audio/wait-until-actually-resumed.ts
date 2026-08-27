@@ -4,6 +4,45 @@ const RESUME_WAIT_TIMEOUT = 1000;
 
 export type AudioContextResumeResult = 'resumed' | 'cancelled' | 'failed';
 
+export const waitUntilAudioContextRunning = (
+	audioContext: AudioContext,
+	signal: AbortSignal,
+): Promise<AudioContextResumeResult> => {
+	return new Promise((resolve) => {
+		let settled = false;
+		let onStateChange: () => void = () => undefined;
+		let onAbort: () => void = () => undefined;
+
+		const finish = (result: AudioContextResumeResult) => {
+			if (settled) {
+				return;
+			}
+
+			settled = true;
+			audioContext.removeEventListener('statechange', onStateChange);
+			signal.removeEventListener('abort', onAbort);
+			resolve(result);
+		};
+
+		onStateChange = () => {
+			if (audioContext.state === 'running') {
+				finish('resumed');
+			}
+		};
+
+		onAbort = () => finish('cancelled');
+
+		if (signal.aborted) {
+			finish('cancelled');
+			return;
+		}
+
+		audioContext.addEventListener('statechange', onStateChange);
+		signal.addEventListener('abort', onAbort, {once: true});
+		onStateChange();
+	});
+};
+
 export const waitUntilActuallyResumed = (
 	audioContext: AudioContext,
 	logLevel: LogLevel,
