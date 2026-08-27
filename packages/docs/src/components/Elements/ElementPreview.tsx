@@ -14,6 +14,7 @@ type ElementPreviewProps = {
 
 const previewHeight = 1080;
 const previewWidth = 1920;
+const lightPreviewBackground = '#f5f6f7';
 const checkerboardBackground =
 	'conic-gradient(rgba(0, 0, 0, 0.1) 25%, transparent 0 50%, rgba(0, 0, 0, 0.1) 0 75%, transparent 0)';
 
@@ -27,7 +28,16 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 	safeArea,
 }) => {
 	const [checkerboard, setCheckerboard] = useState(true);
-	let centeredElementBackground: React.CSSProperties | null = null;
+	const transparencyBackgroundStyle: React.CSSProperties = checkerboard
+		? {
+				backgroundColor: 'white',
+				backgroundImage: checkerboardBackground,
+				backgroundSize: '32px 32px',
+			}
+		: {backgroundColor: lightPreviewBackground};
+	let previewBackgroundStyle = transparencyBackgroundStyle;
+	let verticalBackgroundStyle: React.CSSProperties | null = null;
+
 	if (previewLayout === 'vertical') {
 		if (elementHeight === null || elementWidth === null) {
 			throw new Error(
@@ -40,16 +50,20 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 			(previewWidth - safeArea * 2) / elementWidth,
 			(previewHeight - safeArea * 2) / elementHeight,
 		);
-		centeredElementBackground = {
-			backgroundColor: checkerboard ? 'white' : '#f5f6f7',
-			backgroundImage: checkerboard ? checkerboardBackground : undefined,
-			backgroundSize: checkerboard ? '32px 32px' : undefined,
-			height: `${(elementHeight * scale * 100) / previewHeight}%`,
+		const displayedElementHeight = elementHeight * scale;
+		const displayedElementWidth = elementWidth * scale;
+
+		previewBackgroundStyle = {
+			backgroundColor: 'var(--ifm-background-surface-color)',
+		};
+		verticalBackgroundStyle = {
+			...transparencyBackgroundStyle,
+			height: `${(displayedElementHeight * 100) / previewHeight}%`,
 			left: '50%',
 			position: 'absolute',
 			top: '50%',
 			transform: 'translate(-50%, -50%)',
-			width: `${(elementWidth * scale * 100) / previewWidth}%`,
+			width: `${(displayedElementWidth * 100) / previewWidth}%`,
 		};
 	}
 
@@ -60,33 +74,20 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 	return (
 		<div
 			style={{
-				backgroundColor: '#f5f6f7',
+				backgroundColor: lightPreviewBackground,
 				overflow: 'hidden',
 			}}
 		>
 			<div
 				style={{
+					...previewBackgroundStyle,
 					aspectRatio: `${previewWidth} / ${previewHeight}`,
-					backgroundColor:
-						centeredElementBackground === null
-							? checkerboard
-								? 'white'
-								: '#f5f6f7'
-							: 'var(--ifm-background-surface-color)',
-					backgroundImage:
-						centeredElementBackground === null && checkerboard
-							? checkerboardBackground
-							: undefined,
-					backgroundSize:
-						centeredElementBackground === null && checkerboard
-							? '32px 32px'
-							: undefined,
 					position: 'relative',
 					width: '100%',
 				}}
 			>
-				{centeredElementBackground === null ? null : (
-					<div style={centeredElementBackground} />
+				{verticalBackgroundStyle === null ? null : (
+					<div style={verticalBackgroundStyle} />
 				)}
 				<Player
 					acknowledgeRemotionLicense
