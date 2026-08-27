@@ -18,6 +18,7 @@ import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
+import {ControlButton} from './ControlButton';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
@@ -122,6 +123,14 @@ const getAutoScrollSpeed = ({
 	return 0;
 };
 
+const SORT_MODE_KEY = 'remotion.compositionSortMode';
+type SortMode = 'registration' | 'alphabetical';
+
+const getSortMode = (): SortMode => {
+	const stored = localStorage.getItem(SORT_MODE_KEY);
+	return stored === 'alphabetical' ? 'alphabetical' : 'registration';
+};
+
 export const CompositionSelector: React.FC = () => {
 	const {compositions, canvasContent, folders} = useContext(
 		Internals.CompositionManager,
@@ -138,6 +147,7 @@ export const CompositionSelector: React.FC = () => {
 		});
 	}, [connectionStatus, setSelectedModal]);
 	const [rootDragHovered, setRootDragHovered] = useState(false);
+	const [sortMode, setSortMode] = useState<SortMode>(getSortMode);
 	const listRef = useRef<HTMLDivElement>(null);
 	const autoScrollAnimation = useRef<number | null>(null);
 	const autoScrollSpeed = useRef(0);
@@ -145,9 +155,21 @@ export const CompositionSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
 
+	const toggleSortMode = useCallback(() => {
+		setSortMode((prev) => {
+			const next = prev === 'registration' ? 'alphabetical' : 'registration';
+			localStorage.setItem(SORT_MODE_KEY, next);
+			return next;
+		});
+	}, []);
+
 	const sortedCompositions = useMemo(() => {
+		if (sortMode === 'alphabetical') {
+			return [...compositions].sort((a, b) => a.id.localeCompare(b.id));
+		}
+
 		return sortItemsByNonceHistory(compositions);
-	}, [compositions]);
+	}, [compositions, sortMode]);
 
 	const sortedFolders = useMemo(() => {
 		return sortItemsByNonceHistory(folders);
@@ -352,12 +374,37 @@ export const CompositionSelector: React.FC = () => {
 				triggerRef={listRef}
 				getItems={getRootContextMenuItems}
 			/>
-			<ExplorerQuickSwitcherTrigger
-				mode="compositions"
-				showShortcut
-				tabIndex={tabIndex}
-				getActions={getRootContextMenuItems}
-			/>
+			<div
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: 2,
+					flexShrink: 1,
+					overflow: 'hidden',
+				}}
+			>
+				<ExplorerQuickSwitcherTrigger
+					mode="compositions"
+					showShortcut
+					tabIndex={tabIndex}
+					getActions={getRootContextMenuItems}
+				/>
+				<ControlButton
+					title={
+						sortMode === 'registration'
+							? 'Sort alphabetically'
+							: 'Sort by registration order'
+					}
+					onClick={toggleSortMode}
+					aria-pressed={sortMode === 'alphabetical'}
+				>
+					{(color) => (
+						<span style={{fontSize: 13, lineHeight: 1, color}}>
+							{sortMode === 'registration' ? '\u2195' : 'Az'}
+						</span>
+					)}
+				</ControlButton>
+			</div>
 			<div
 				ref={listRef}
 				className="__remotion-vertical-scrollbar"
