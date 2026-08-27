@@ -39,7 +39,12 @@ const getInjectedReactRefreshFiles = () => {
 };
 
 const setupSequenceStackTraces = `import React from 'react';
+import * as RefreshRuntime from 'react-refresh/runtime';
 import {Internals} from 'remotion';
+
+Internals.setComponentIdentityResolver((component) => {
+  return RefreshRuntime.getFamilyByType(component) ?? component;
+});
 
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
