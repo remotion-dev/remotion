@@ -425,21 +425,63 @@ test.describe('visual mode', () => {
 		);
 		await expect(negativeSequence).toBeVisible();
 		await expect(zeroSequence).toBeVisible();
+		const negativeSequenceFrame = negativeSequence.locator(
+			'[data-timeline-sequence-frame]',
+		);
+		await expect(negativeSequenceFrame).toContainText('20');
 
-		const [timelineRect, negativeSequenceRect, zeroSequenceRect] =
-			await Promise.all([
-				timelineScrollable.boundingBox(),
-				negativeSequence.boundingBox(),
-				zeroSequence.boundingBox(),
-			]);
+		const [
+			timelineRect,
+			negativeSequenceRect,
+			negativeSequenceFrameRect,
+			zeroSequenceRect,
+		] = await Promise.all([
+			timelineScrollable.boundingBox(),
+			negativeSequence.boundingBox(),
+			negativeSequenceFrame.boundingBox(),
+			zeroSequence.boundingBox(),
+		]);
 		expect(timelineRect).not.toBeNull();
 		expect(negativeSequenceRect).not.toBeNull();
+		expect(negativeSequenceFrameRect).not.toBeNull();
 		expect(zeroSequenceRect).not.toBeNull();
 		expect(negativeSequenceRect!.x).toBeGreaterThanOrEqual(timelineRect!.x);
 		expect(negativeSequenceRect!.x).toBeLessThan(zeroSequenceRect!.x);
 		expect(zeroSequenceRect!.x - negativeSequenceRect!.x).toBeLessThanOrEqual(
 			16,
 		);
+		expect(
+			negativeSequenceFrameRect!.x + negativeSequenceFrameRect!.width,
+		).toBeGreaterThan(negativeSequenceRect!.x + negativeSequenceRect!.width);
+		expect(
+			await negativeSequence.evaluate(
+				(element) => getComputedStyle(element).overflow,
+			),
+		).toBe('visible');
+		expect(
+			await negativeSequence.evaluate((element) => {
+				const frame = element.querySelector('[data-timeline-sequence-frame]');
+				if (!frame) {
+					return true;
+				}
+
+				const frameRight = frame.getBoundingClientRect().right;
+				let ancestor = frame.parentElement;
+				while (ancestor && ancestor !== element) {
+					const overflow = getComputedStyle(ancestor).overflow;
+					if (
+						(overflow === 'hidden' || overflow === 'clip') &&
+						ancestor.getBoundingClientRect().right < frameRight
+					) {
+						return true;
+					}
+
+					ancestor = ancestor.parentElement;
+				}
+
+				return false;
+			}),
+		).toBe(false);
 	});
 
 	test('should commit a color drag before the picker closes', async ({

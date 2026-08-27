@@ -5,10 +5,12 @@ import {AbsoluteFill, Sequence} from 'remotion';
 export const TimelineNegativeFromResize: React.FC = () => {
 	return (
 		<>
-			<AbsoluteFill style={{backgroundColor: '#202020'}} from={-1}>
+			<AbsoluteFill style={{backgroundColor: '#202020'}}>
 				<Sequence
 					name="Negative start"
-					durationInFrames={36}
+					from={-20}
+					durationInFrames={21}
+					freeze={20}
 					style={{backgroundColor: 'black'}}
 				>
 					<Starburst rays={16} colors={['#ffdd00', '#ff8800']} />

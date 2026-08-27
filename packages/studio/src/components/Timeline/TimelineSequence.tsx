@@ -266,9 +266,33 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			...style,
 			background: negativeStart ? TRANSPARENT : style.background,
 			border: negativeStart ? 'none' : style.border,
+			overflow: negativeStart ? 'visible' : style.overflow,
 			opacity: hasSelectedTrack && !selected && !containsSelection ? 0.75 : 1,
 		};
 	}, [containsSelection, negativeStart, selected, selectedItems, style]);
+	const showSequenceFrame =
+		s.type !== 'audio' &&
+		s.type !== 'video' &&
+		s.type !== 'image' &&
+		s.loopDisplay === undefined &&
+		(isInRange || isPremounting || isPostmounting);
+	const sequenceFrameInfo = showSequenceFrame ? (
+		<div
+			data-timeline-sequence-frame
+			style={{
+				height: '100%',
+				display: 'flex',
+				alignItems: 'center',
+			}}
+		>
+			<TimelineSequenceFrame
+				premounted={isPremounting}
+				postmounted={isPostmounting ? s.duration - 1 : null}
+				roundedFrame={roundedFrame}
+				frozenFrame={frozenFrame}
+			/>
+		</div>
+	) : null;
 
 	const content = (
 		<>
@@ -310,26 +334,14 @@ const TimelineSequenceCurrentFrame: React.FC<{
 
 			{children}
 
-			{s.type !== 'audio' &&
-			s.type !== 'video' &&
-			s.type !== 'image' &&
-			s.loopDisplay === undefined &&
-			(isInRange || isPremounting || isPostmounting) ? (
+			{sequenceFrameInfo && !negativeStart ? (
 				<div
 					style={{
-						paddingLeft:
-							5 + (negativeStart?.width ?? 0) + (premount?.width ?? 0),
+						paddingLeft: 5 + (premount?.width ?? 0),
 						height: '100%',
-						display: 'flex',
-						alignItems: 'center',
 					}}
 				>
-					<TimelineSequenceFrame
-						premounted={isPremounting}
-						postmounted={isPostmounting ? s.duration - 1 : null}
-						roundedFrame={roundedFrame}
-						frozenFrame={frozenFrame}
-					/>
+					{sequenceFrameInfo}
 				</div>
 			) : null}
 		</>
@@ -384,6 +396,19 @@ const TimelineSequenceCurrentFrame: React.FC<{
 							{content}
 						</div>
 					</div>
+					{sequenceFrameInfo ? (
+						<div
+							style={{
+								height: '100%',
+								left: negativeStartEnd + 5 + (premount?.width ?? 0),
+								pointerEvents: 'none',
+								position: 'absolute',
+								top: 0,
+							}}
+						>
+							{sequenceFrameInfo}
+						</div>
+					) : null}
 				</>
 			) : (
 				content
