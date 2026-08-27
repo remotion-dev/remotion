@@ -25,7 +25,11 @@ import {
 	getElementDimensionsLabel,
 } from '../components/Elements/element-utils';
 import {ElementLibrary} from '../components/Elements/ElementLibrary';
-import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
+import {ElementPreview} from '../components/Elements/ElementPreview';
+import {
+	ElementPreviewComposition,
+	getElementPreviewDimensions,
+} from '../components/Elements/ElementPreviewComposition';
 import {Seo} from '../components/Seo';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
@@ -802,6 +806,47 @@ describe('Element preview definitions', () => {
 			expect(source).not.toContain(`width={${definition.width}}`);
 			expect(source).not.toContain(`height={${definition.height}}`);
 		}
+	});
+
+	test('Social Safe Zones keeps its calibrated 9:16 dimensions in Studio and the docs preview', () => {
+		const slug = 'overlays/social-safe-zones';
+		const definition = elementDefinitions[slug];
+		const element = productionElements.find((entry) => entry.name === slug);
+		if (!element) {
+			throw new Error(`Could not find Element source for ${slug}`);
+		}
+
+		const source = readFileSync(element.tsxPath, 'utf8');
+		const payload = createElementPayloadFromDefinition({
+			definition,
+			sourceCode: source,
+		});
+		const preview = renderToStaticMarkup(
+			React.createElement(ElementPreview, {
+				component: () =>
+					React.createElement(ElementPreviewComposition, {definition}),
+				durationInFrames: definition.durationInFrames,
+				elementHeight: definition.elementHeight,
+				elementWidth: definition.elementWidth,
+				fps: definition.fps,
+				previewLayout: definition.preview.previewLayout,
+				safeArea: definition.safeArea,
+			}),
+		);
+
+		expect(definition.elementWidth).toBe(1080);
+		expect(definition.elementHeight).toBe(1920);
+		expect(payload.element.dimensions).toEqual({width: 1080, height: 1920});
+		expect(definition.preview.previewLayout).toBe('vertical');
+		expect(preview).toContain('aspect-ratio:1920 / 1080');
+		expect(preview).toContain('width:31.640625%');
+		expect(preview).toContain('height:1080px;position:relative;width:607.5px');
+		expect(preview).toContain(
+			'transform:scale(0.5625);transform-origin:top left',
+		);
+		expect(source).not.toContain('useVideoConfig');
+		expect(source).toContain('width: 1080');
+		expect(source).toContain('height: 1920');
 	});
 
 	test('uses stable composition IDs and flat review or published preview paths', () => {

@@ -171,7 +171,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					<ElementPreview
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
+						elementHeight={definition.elementHeight}
+						elementWidth={definition.elementWidth}
 						fps={fps}
+						previewLayout={definition.preview.previewLayout}
+						safeArea={definition.safeArea}
 					/>
 					{children ? (
 						<div className={styles.sourceArea}>

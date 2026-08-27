@@ -7,7 +7,6 @@ import {
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
-	useVideoConfig,
 } from 'remotion';
 
 type SocialSafeZonesProps = InteractiveBaseProps &
@@ -66,7 +65,6 @@ const SocialSafeZonesInner = forwardRef<
 		ref,
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
-		const {height, width} = useVideoConfig();
 		const maskId = `social-safe-zone-${useId().replaceAll(':', '')}`;
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
@@ -102,12 +100,12 @@ const SocialSafeZonesInner = forwardRef<
 					ref={outlineRef}
 					style={{
 						...style,
-						height,
+						height: 1920,
 						left: 0,
 						pointerEvents: 'none',
 						position: 'absolute',
 						top: 0,
-						width,
+						width: 1080,
 						zIndex: 2147483647,
 					}}
 				>
@@ -153,6 +151,7 @@ const SocialSafeZonesInner = forwardRef<
 						<CanvasImage
 							aria-hidden="true"
 							fit="contain"
+							height={1920}
 							src={
 								platform === 'tiktok'
 									? 'https://remotion.media/elements/social-safe-zones/tiktok-interface.png'
@@ -165,6 +164,7 @@ const SocialSafeZonesInner = forwardRef<
 								top: 0,
 								width: '100%',
 							}}
+							width={1080}
 						/>
 					) : null}
 				</div>
