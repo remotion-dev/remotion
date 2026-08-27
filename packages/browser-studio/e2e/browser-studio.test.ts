@@ -1204,6 +1204,10 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 			contents: new TextEncoder().encode('hover test').buffer,
 			filePath: 'hover-test.txt',
 		});
+		await window.remotion_browserStudio.writeStaticFile({
+			contents: new TextEncoder().encode('folder action test').buffer,
+			filePath: 'hover-folder/inside.txt',
+		});
 	});
 
 	const addSolid = studio.getByRole('button', {name: 'Add Solid'});
@@ -1239,6 +1243,21 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	const neutralArea = studio.locator('[data-sidebar-toggle="right"]');
 
 	await studio.getByRole('button', {name: 'Assets', exact: true}).click();
+	const assetFolder = studio.getByTitle('hover-folder', {exact: true});
+	await expect(assetFolder).toBeVisible();
+	await assetFolder.hover();
+	const folderActions = assetFolder.getByRole('button', {
+		name: 'More actions',
+	});
+	await expect(folderActions).toBeVisible();
+	await folderActions.click();
+	await expect(
+		studio.getByText('Copy folder path', {exact: true}),
+	).toBeVisible();
+	await expect(studio.getByText('Upload...', {exact: true})).toBeVisible();
+	await expect(studio.getByText(/^Show in /)).toHaveCount(0);
+	await page.keyboard.press('Escape');
+
 	const assetItem = studio.getByTitle('hover-test.txt', {exact: true});
 	await expect(assetItem).toBeVisible();
 	await assetItem.hover();
