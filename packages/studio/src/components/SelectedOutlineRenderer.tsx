@@ -46,6 +46,34 @@ const outlineContainer: React.CSSProperties = {
 	overflow: 'visible',
 };
 
+const selectedOutlineMeasurementTargetsAreEqual = (
+	previous: readonly SelectedOutlineLayoutTarget[],
+	next: readonly SelectedOutlineLayoutTarget[],
+): boolean => {
+	if (previous.length !== next.length) {
+		return false;
+	}
+
+	for (let i = 0; i < previous.length; i++) {
+		const previousTarget = previous[i];
+		const nextTarget = next[i];
+		if (
+			previousTarget.key !== nextTarget.key ||
+			previousTarget.ref !== nextTarget.ref ||
+			previousTarget.crop.left !== nextTarget.crop.left ||
+			previousTarget.crop.right !== nextTarget.crop.right ||
+			previousTarget.crop.top !== nextTarget.crop.top ||
+			previousTarget.crop.bottom !== nextTarget.crop.bottom ||
+			previousTarget.includeOutsideContainer !==
+				nextTarget.includeOutsideContainer
+		) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
 const SelectedOutlineRendererUnmemoized: React.FC<{
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
@@ -79,7 +107,9 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	updateOutlinesRef,
 }) => {
 	const outlinesController =
-		useCanvasOutlinesController<SelectedOutlineLayoutTarget>();
+		useCanvasOutlinesController<SelectedOutlineLayoutTarget>(
+			selectedOutlineMeasurementTargetsAreEqual,
+		);
 	const renderState = useCanvasOutlines(outlinesController);
 	const overlayRef = useRef<SVGSVGElement>(null);
 	const contextMenuOpenHandlersRef = useRef(
@@ -140,18 +170,18 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	}, [outlinesController]);
 
 	const targetsByKey = useMemo(() => {
-		return new Map(renderState.targets.map((target) => [target.key, target]));
-	}, [renderState.targets]);
+		return new Map(outlineTargets.map((target) => [target.key, target]));
+	}, [outlineTargets]);
 	useEffect(() => {
 		if (
 			hoveredSequence?.source === 'canvas' &&
-			!renderState.targets.some((target) => target.key === hoveredSequence.key)
+			!outlineTargets.some((target) => target.key === hoveredSequence.key)
 		) {
 			setHoveredSequence((currentHover) =>
 				currentHover?.source === 'canvas' ? null : currentHover,
 			);
 		}
-	}, [hoveredSequence, renderState.targets, setHoveredSequence]);
+	}, [hoveredSequence, outlineTargets, setHoveredSequence]);
 	// Reordering a captured SVG target can cancel the active pointer session.
 	const outlineRenderingOrderRef = useRef<readonly string[]>([]);
 	const outlinesForRendering = useMemo(() => {
@@ -226,12 +256,12 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			outlinesForUvHandles: uvHandles,
 		};
 	}, [hoveredNodePathKey, outlinesForRendering, targetsByKey]);
-	const targetsRef = useRef(renderState.targets);
+	const targetsRef = useRef(outlineTargets);
 	const outlinesByKeyRef = useRef(outlinesByKey);
 	useLayoutEffect(() => {
-		targetsRef.current = renderState.targets;
+		targetsRef.current = outlineTargets;
 		outlinesByKeyRef.current = outlinesByKey;
-	}, [outlinesByKey, renderState.targets]);
+	}, [outlineTargets, outlinesByKey]);
 	const getAllDragTargets = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {

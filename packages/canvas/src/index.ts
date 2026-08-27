@@ -38,6 +38,7 @@ export type {CanvasOutlineOrderTarget} from './order-outlines-for-rendering';
 export type {
 	CanvasOutline,
 	CanvasOutlinePoint,
+	CanvasOutlineTargetsAreEqual,
 	CanvasOutlinesController,
 	CanvasOutlinesSnapshot,
 	CanvasOutlineTarget,

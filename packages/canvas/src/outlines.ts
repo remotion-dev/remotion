@@ -60,6 +60,10 @@ export type CanvasOutlinesController<
 	readonly disconnect: () => void;
 };
 
+export type CanvasOutlineTargetsAreEqual<
+	Target extends CanvasOutlineTarget = CanvasOutlineTarget,
+> = (previous: readonly Target[], next: readonly Target[]) => boolean;
+
 const rectToPoints = (
 	elementRect: DOMRect,
 	containerRect: DOMRect,
@@ -487,7 +491,9 @@ export const canvasOutlinesAreEqual = (
 
 export const createCanvasOutlinesController = <
 	Target extends CanvasOutlineTarget = CanvasOutlineTarget,
->(): CanvasOutlinesController<Target> => {
+>(
+	areTargetsEqual: CanvasOutlineTargetsAreEqual<Target> = Object.is,
+): CanvasOutlinesController<Target> => {
 	let snapshot: CanvasOutlinesSnapshot<Target> = {outlines: [], targets: []};
 	let container: SVGSVGElement | null = null;
 	let targets: readonly Target[] = [];
@@ -602,7 +608,11 @@ export const createCanvasOutlinesController = <
 		update: (nextContainer, nextTargets) => {
 			const containerChanged = container !== nextContainer;
 			container = nextContainer;
-			targets = nextTargets;
+
+			if (!areTargetsEqual(targets, nextTargets)) {
+				targets = nextTargets;
+			}
+
 			updateObserver(containerChanged);
 			calculate();
 		},
@@ -617,8 +627,12 @@ export const createCanvasOutlinesController = <
 
 export const useCanvasOutlinesController = <
 	Target extends CanvasOutlineTarget = CanvasOutlineTarget,
->(): CanvasOutlinesController<Target> => {
-	const [controller] = useState(createCanvasOutlinesController<Target>);
+>(
+	areTargetsEqual: CanvasOutlineTargetsAreEqual<Target> = Object.is,
+): CanvasOutlinesController<Target> => {
+	const [controller] = useState(() =>
+		createCanvasOutlinesController(areTargetsEqual),
+	);
 	return controller;
 };
 

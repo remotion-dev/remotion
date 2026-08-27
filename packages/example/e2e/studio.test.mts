@@ -769,6 +769,35 @@ test.describe('visual mode', () => {
 		await expect(duplicateButton).toBeVisible();
 	});
 
+	test('should show nested canvas outlines without an update loop', async ({
+		page,
+	}) => {
+		const updateDepthErrors: string[] = [];
+		const recordUpdateDepthError = (message: string) => {
+			if (
+				message.includes('Maximum update depth exceeded') ||
+				message.includes('Minified React error #185')
+			) {
+				updateDepthErrors.push(message);
+			}
+		};
+		page.on('console', (message) => recordUpdateDepthError(message.text()));
+		page.on('pageerror', (error) => recordUpdateDepthError(error.message));
+
+		await page.goto(`${STUDIO_URL}/outline-selection-cases`);
+		await expect(page.getByText('Children are above parents')).toBeVisible({
+			timeout: 15_000,
+		});
+		const canvas = page.locator('.remotion-studio-composition-container');
+		const outlines = canvas.locator(
+			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"]',
+		);
+		await canvas.getByText('Child', {exact: true}).hover();
+		await expect(outlines).toHaveCount(2);
+		await expect(canvas.getByText('Parent', {exact: true})).toBeVisible();
+		expect(updateDepthErrors).toEqual([]);
+	});
+
 	test('should preserve property selection while dragging its outline', async ({
 		page,
 	}) => {

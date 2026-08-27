@@ -22,7 +22,23 @@ test('projects outline UV coordinates in both directions', () => {
 });
 
 test('publishes cropped outline geometry and keeps unchanged snapshots stable', () => {
-	const controller = createCanvasOutlinesController();
+	type TestOutlineTarget = CanvasOutlineTarget & {readonly label: string};
+	const controller = createCanvasOutlinesController<TestOutlineTarget>(
+		(previous, next) =>
+			previous.length === next.length &&
+			previous.every(
+				(target, index) =>
+					target.key === next[index].key &&
+					target.label === next[index].label &&
+					target.ref === next[index].ref &&
+					target.includeOutsideContainer ===
+						next[index].includeOutsideContainer &&
+					target.crop.left === next[index].crop.left &&
+					target.crop.right === next[index].crop.right &&
+					target.crop.top === next[index].crop.top &&
+					target.crop.bottom === next[index].crop.bottom,
+			),
+	);
 	const container = document.createElementNS(
 		'http://www.w3.org/2000/svg',
 		'svg',
@@ -69,9 +85,10 @@ test('publishes cropped outline geometry and keeps unchanged snapshots stable', 
 		],
 	});
 
-	const targets: readonly CanvasOutlineTarget[] = [
+	const targets: readonly TestOutlineTarget[] = [
 		{
 			key: 'title',
+			label: 'Title',
 			ref: {current: element},
 			crop: {bottom: 0.1, left: 0.1, right: 0.1, top: 0.1},
 			includeOutsideContainer: false,
@@ -106,14 +123,27 @@ test('publishes cropped outline geometry and keeps unchanged snapshots stable', 
 
 	controller.update(container, targets);
 	expect(updates).toBe(1);
+	controller.update(container, [
+		{
+			...targets[0],
+			crop: {...targets[0].crop},
+		},
+	]);
+	expect(controller.getSnapshot().targets).toBe(targets);
+	expect(updates).toBe(1);
+
+	const renamedTargets = [{...targets[0], label: 'Renamed title'}];
+	controller.update(container, renamedTargets);
+	expect(controller.getSnapshot().targets).toBe(renamedTargets);
+	expect(updates).toBe(2);
 
 	left = 30;
-	controller.update(container, targets);
+	controller.update(container, renamedTargets);
 	expect(controller.getSnapshot().outlines[0].points[0].x).toBe(30);
-	expect(updates).toBe(2);
+	expect(updates).toBe(3);
 
 	controller.disconnect();
 	expect(controller.getSnapshot()).toEqual({outlines: [], targets: []});
-	expect(updates).toBe(3);
+	expect(updates).toBe(4);
 	unsubscribe();
 });
