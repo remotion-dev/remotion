@@ -120,7 +120,6 @@ test('discovers an exact Studio target and delivers one install request over HTT
 				clientId: 'focused-studio-tab',
 				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
 				compositionId: 'Main',
-				canInstall: true,
 				lastFocusedAt: Date.now(),
 				readOnly: false,
 				studioUrl: 'http://localhost:3000/Main',
@@ -202,7 +201,10 @@ test('discovers an exact Studio target and delivers one install request over HTT
 			capabilities: [
 				{
 					type: 'install-element';
-					target: {id: string; compositionId: string};
+					target: {
+						id: string;
+						compositionId: string;
+					};
 				},
 			];
 		};
@@ -376,7 +378,6 @@ test('delivers an Element catalog request without changing config before confirm
 				clientId: 'focused-studio-tab',
 				compositionFile: null,
 				compositionId: null,
-				canInstall: false,
 				lastFocusedAt: Date.now(),
 				readOnly: false,
 				studioUrl: 'http://localhost:3000',
@@ -587,7 +588,6 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 				clientId: 'focused-studio-tab',
 				compositionFile: null,
 				compositionId: null,
-				canInstall: false,
 				lastFocusedAt: Date.now(),
 				readOnly: false,
 				studioUrl: 'http://localhost:3000',

@@ -33,6 +33,7 @@ import {
 	InspectorQuickActionsSection,
 	InspectorQuickAction,
 	InspectorMessage,
+	InspectorSectionHeader,
 } from './common';
 import {
 	ConnectedCompositionsSection,
@@ -335,6 +336,7 @@ const SequenceExpandedInspector: React.FC<{
 						keyframeDisplayOffset={track.keyframeDisplayOffset}
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
+					<InspectorSectionHeader>Actions</InspectorSectionHeader>
 					<InspectorQuickActionsSection>
 						<SplitSequenceQuickAction
 							selection={sequenceSelection}

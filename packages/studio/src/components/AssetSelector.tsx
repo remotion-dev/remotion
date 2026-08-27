@@ -3,7 +3,7 @@ import {copyRenderOutputToAsset} from '../api/copy-render-output-to-asset';
 import {writeStaticFile} from '../api/write-static-file';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND, WHITE_ALPHA_06, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND, LIGHT_TEXT, WHITE_ALPHA_06} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import {toggleBooleanMapKey} from '../helpers/persist-boolean-map';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
@@ -191,29 +191,33 @@ export const AssetSelector: React.FC<{
 		},
 		[dropLocation, writeFilesToPublicFolder],
 	);
-	const uploadAssets = useCallback(async () => {
-		try {
-			const files = await pickFilesToImport();
-			if (files.length === 0) {
-				return;
-			}
+	const uploadAssets = useCallback(
+		async (assetPath: string | null) => {
+			try {
+				const files = await pickFilesToImport();
+				if (files.length === 0) {
+					return;
+				}
 
-			const wereWritten = await writeFilesToPublicFolder({
-				files,
-				assetPath: null,
-			});
-			if (wereWritten) {
-				showNotification(
-					files.length === 1
-						? `Uploaded ${files[0].name} to public folder`
-						: `Uploaded ${files.length} assets to public folder`,
-					3000,
-				);
+				const wereWritten = await writeFilesToPublicFolder({
+					files,
+					assetPath,
+				});
+				if (wereWritten) {
+					const destination = assetPath ? `'${assetPath}'` : 'public folder';
+					showNotification(
+						files.length === 1
+							? `Uploaded ${files[0].name} to ${destination}`
+							: `Uploaded ${files.length} assets to ${destination}`,
+						3000,
+					);
+				}
+			} catch (error) {
+				showNotification(`Error during upload: ${error}`, 3000);
 			}
-		} catch (error) {
-			showNotification(`Error during upload: ${error}`, 3000);
-		}
-	}, [writeFilesToPublicFolder]);
+		},
+		[writeFilesToPublicFolder],
+	);
 	const getAssetActions = useCallback((): ComboboxValue[] => {
 		return [
 			{
@@ -221,7 +225,7 @@ export const AssetSelector: React.FC<{
 				keyHint: null,
 				label: 'Upload...',
 				leftItem: null,
-				onClick: uploadAssets,
+				onClick: () => uploadAssets(null),
 				quickSwitcherLabel: 'Upload assets...',
 				subMenu: null,
 				type: 'item',
@@ -282,6 +286,7 @@ export const AssetSelector: React.FC<{
 						dropLocation={dropLocation}
 						setDropLocation={setDropLocation}
 						readOnlyStudio={readOnlyStudio}
+						uploadAssets={uploadAssets}
 					/>
 				</div>
 			)}

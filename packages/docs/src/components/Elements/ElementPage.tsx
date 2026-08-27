@@ -54,9 +54,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
 		useState(false);
-	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState<boolean | null>(
-		null,
-	);
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
@@ -124,7 +122,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		const {target} = result;
 		setInstallStatus({
 			type: 'success',
-			message: `Sent to ${target.projectName ?? 'Remotion Studio'} / ${target.compositionId}. Confirm the installation in Studio.`,
+			message: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
 		});
 
 		if (window.location.origin === 'https://www.remotion.dev') {
@@ -171,7 +169,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					<ElementPreview
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
+						elementHeight={definition.elementHeight}
+						elementWidth={definition.elementWidth}
 						fps={fps}
+						previewLayout={definition.preview.previewLayout}
+						safeArea={definition.safeArea}
 					/>
 					{children ? (
 						<div className={styles.sourceArea}>

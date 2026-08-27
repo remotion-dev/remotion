@@ -3,6 +3,16 @@ import JsxRuntimeDev from 'react/jsx-dev-runtime';
 import JsxRuntime from 'react/jsx-runtime';
 import {Internals} from 'remotion';
 
+type ReactRefreshRuntime = {
+	getFamilyByType: (component: unknown) => unknown;
+};
+
+const RefreshRuntime = require('react-refresh/runtime') as ReactRefreshRuntime;
+
+Internals.setComponentIdentityResolver((component) => {
+	return RefreshRuntime.getFamilyByType(component) ?? component;
+});
+
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;

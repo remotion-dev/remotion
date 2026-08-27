@@ -6,7 +6,6 @@ import {
 	BLUE,
 	TIMELINE_BACKGROUND_COLOR,
 	TIMELINE_AUDIO_GRADIENT,
-	TIMELINE_IMAGE_GRADIENT,
 	TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
 	TIMELINE_NEGATIVE_START_BORDER_COLOR,
 	TIMELINE_VIDEO_GRADIENT,
@@ -786,9 +785,7 @@ const TimelineSequenceInner: React.FC<{
 					? TIMELINE_AUDIO_GRADIENT
 					: s.type === 'video'
 						? TIMELINE_VIDEO_GRADIENT
-						: s.type === 'image'
-							? TIMELINE_IMAGE_GRADIENT
-							: BLUE,
+						: BLUE,
 			border: `${SEQUENCE_BORDER_WIDTH}px solid ${WHITE_ALPHA_20}`,
 			borderLeftColor:
 				visibleLayout?.leftEdgeVisible && !negativeStartClipped

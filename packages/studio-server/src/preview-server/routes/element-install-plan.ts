@@ -8,6 +8,7 @@ import type {
 	PrepareElementInstallRequest,
 } from '@remotion/studio-shared';
 import {resolveCompositionComponentWithFile} from '../../helpers/resolve-composition-component';
+import {getProjectInfo} from '../project-info';
 import {getSafeElementInstallPaths} from './safe-element-install-path';
 
 export const normalizeElementSourceForComparison = (source: string) => {
@@ -111,11 +112,14 @@ const getExpectedFileState = (
 };
 
 export const getElementInstallPlan = async ({
-	compositionFile,
-	compositionId,
+	destination,
 	element,
+	entryPoint,
 	remotionRoot,
-}: PrepareElementInstallRequest & {remotionRoot: string}) => {
+}: PrepareElementInstallRequest & {
+	entryPoint: string;
+	remotionRoot: string;
+}) => {
 	validateElementForInstallation(element);
 
 	const componentName =
@@ -126,12 +130,15 @@ export const getElementInstallPlan = async ({
 		throw new Error('Element source must export exactly one named component');
 	}
 
-	const location = await resolveCompositionComponentWithFile({
-		remotionRoot,
-		compositionFile,
-		compositionId,
-	});
-	if (!location.canAddSequence) {
+	const location =
+		destination.type === 'current-composition'
+			? await resolveCompositionComponentWithFile({
+					remotionRoot,
+					compositionFile: destination.compositionFile,
+					compositionId: destination.compositionId,
+				})
+			: null;
+	if (location !== null && !location.canAddSequence) {
 		throw new Error('Cannot insert Element into this composition component');
 	}
 
@@ -143,10 +150,22 @@ export const getElementInstallPlan = async ({
 		);
 	}
 
+	const destinationCompositionFile = destination.compositionFile;
+	const destinationCompositionFileName =
+		destinationCompositionFile === null
+			? (await getProjectInfo(remotionRoot, entryPoint)).rootFile
+			: path.resolve(remotionRoot, destinationCompositionFile);
+	if (destinationCompositionFileName === null) {
+		throw new Error('Could not find the root file of the project');
+	}
+
+	const compositionFileName =
+		location?.fileName ?? destinationCompositionFileName;
+
 	const safePaths = await getSafeElementInstallPaths({
-		compositionFileName: location.fileName,
+		compositionFileName,
 		elementFileName: path.resolve(
-			path.dirname(location.fileName),
+			path.dirname(compositionFileName),
 			derivedElementFileName,
 		),
 		remotionRoot,
@@ -158,6 +177,7 @@ export const getElementInstallPlan = async ({
 
 	return {
 		componentName,
+		destinationCompositionFileName,
 		elementFileExists,
 		elementFileName: safePaths.elementFileName,
 		existingElementSource,

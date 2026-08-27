@@ -12,6 +12,7 @@ import {CompositionRenderErrorContext} from './composition-render-error-context.
 import {CompositionErrorBoundary} from './CompositionErrorBoundary.js';
 import type {TComposition} from './CompositionManager.js';
 import {CompositionSetters} from './CompositionManagerContext.js';
+import {resolveComponentIdentity} from './enable-sequence-stack-traces.js';
 import {FolderContext} from './Folder.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
@@ -185,7 +186,9 @@ const InnerComposition = <
 		(compProps as {readonly _remotionInternalStack?: string})
 			._remotionInternalStack ?? null;
 	const componentFromProps =
-		'component' in compProps ? compProps.component : null;
+		'component' in compProps
+			? resolveComponentIdentity(compProps.component)
+			: null;
 
 	useEffect(() => {
 		// Ensure it's a URL safe id

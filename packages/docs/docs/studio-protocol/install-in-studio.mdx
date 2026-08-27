@@ -57,15 +57,15 @@ Returns a promise with a discriminated union.
 
 ### success
 
-Indicates whether the request reached the exact selected Studio tab and composition.
+Indicates whether the request reached the exact selected Studio tab. The returned composition is the context for the request; the final destination is chosen in Studio.
 
 ### status
 
-On success, the value is `"awaiting-confirmation"`. Studio is showing or queuing a confirmation dialog. No dependency or source-file installation is guaranteed yet.
+On success, the value is `"awaiting-confirmation"`. Studio is showing or queuing a destination and installation confirmation dialog. No composition, dependency, or source-file installation is guaranteed yet.
 
 ### target
 
-On success, contains the project name, composition ID, Studio origin, and Studio version.
+On success, contains the project name, contextual composition ID, Studio origin, and Studio version.
 
 ### code
 
@@ -88,7 +88,7 @@ A human-readable failure message. Use `code` for application logic.
 
 ## Discovery
 
-Ports 3000 through 3009 are probed in parallel. The most recently focused compatible target is selected. Discovery returns a short-lived, single-use token bound to that Studio tab and composition.
+Ports 3000 through 3009 are probed in parallel. The most recently focused compatible target is selected. Discovery returns a short-lived, single-use token bound to that Studio tab and contextual composition.
 
 Studios older than 4.0.502 are detected and return `studio-upgrade-required`. The Element is not sent through the legacy endpoint.
 

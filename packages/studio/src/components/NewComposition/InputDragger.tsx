@@ -66,6 +66,44 @@ const compactInputDraggerContainerStyle: React.CSSProperties = {
 	...compactInputDraggerStyle,
 };
 
+let activateInputDraggerOnNextFocus = false;
+
+const clearInputDraggerActivationRequest = () => {
+	// Let the receiving dragger's React onFocus handler consume the request first.
+	setTimeout(() => {
+		activateInputDraggerOnNextFocus = false;
+	}, 0);
+	document.removeEventListener(
+		'focusin',
+		clearInputDraggerActivationRequest,
+		true,
+	);
+};
+
+const requestInputDraggerActivationOnNextFocus = () => {
+	activateInputDraggerOnNextFocus = true;
+	document.addEventListener(
+		'focusin',
+		clearInputDraggerActivationRequest,
+		true,
+	);
+};
+
+const consumeInputDraggerActivationRequest = () => {
+	if (!activateInputDraggerOnNextFocus) {
+		return false;
+	}
+
+	activateInputDraggerOnNextFocus = false;
+	document.removeEventListener(
+		'focusin',
+		clearInputDraggerActivationRequest,
+		true,
+	);
+
+	return true;
+};
+
 const isInt = (num: number) => {
 	return num % 1 === 0;
 };
@@ -500,11 +538,14 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	);
 
 	const onFocus = useCallback(() => {
-		if (!small || pointerDownRef.current) {
+		if (pointerDownRef.current) {
 			return;
 		}
 
-		setInputFallback(true);
+		const wasActivatedByInputDragger = consumeInputDraggerActivationRequest();
+		if (small || wasActivatedByInputDragger) {
+			setInputFallback(true);
+		}
 	}, [small]);
 
 	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
@@ -586,6 +627,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const onInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
+				if (e.key === 'Tab') {
+					requestInputDraggerActivationOnNextFocus();
+					return;
+				}
+
 				if (e.key === 'Enter') {
 					fallbackRef.current?.blur();
 					return;

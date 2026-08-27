@@ -32,6 +32,7 @@ export const NewCompDuration: React.FC<{
 			<div style={rightRow}>
 				<InputAndValidationContainer>
 					<InputDragger
+						aria-label="Duration in frames"
 						type="number"
 						value={durationInFrames}
 						onTextChange={onDurationInFramesChanged}

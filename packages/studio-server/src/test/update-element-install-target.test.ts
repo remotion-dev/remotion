@@ -12,7 +12,6 @@ const validInput: UpdateElementInstallTargetRequest = {
 	clientId: 'client-id',
 	compositionFile: '/project/src/composition.tsx',
 	compositionId: 'composition-id',
-	canInstall: true,
 	lastFocusedAt: 1000,
 	readOnly: false,
 	studioUrl: 'http://localhost:3000/composition-id',

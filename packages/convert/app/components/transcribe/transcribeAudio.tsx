@@ -64,6 +64,7 @@ export default function TranscribeAudio({
 			setState(() => ({
 				type: 'done',
 				result: toCaptions({whisperWebGpuOutput: transcription}).captions,
+				whisperWebGpuOutput: transcription,
 			}));
 		} catch (error) {
 			setState({

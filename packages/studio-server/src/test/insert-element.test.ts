@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {
 	existsSync,
+	mkdirSync,
 	mkdtempSync,
 	readFileSync,
 	rmSync,
@@ -131,10 +132,16 @@ const makeFixture = () => {
 		});
 	};
 
-	const prepareInstall = () => {
+	const currentDestination = {
+		type: 'current-composition',
+		compositionFile: 'Root.tsx',
+		compositionId: 'target',
+	} as const;
+	const prepareInstall = (
+		destination: PrepareElementInstallRequest['destination'],
+	) => {
 		const input: PrepareElementInstallRequest = {
-			compositionFile: 'Root.tsx',
-			compositionId: 'target',
+			destination,
 			element,
 		};
 
@@ -171,6 +178,7 @@ const makeFixture = () => {
 		callHandler,
 		callHandlerWithInput,
 		cleanup,
+		currentDestination,
 		prepareInstall,
 		compositionFile,
 		contentsAtMutation,
@@ -184,11 +192,12 @@ const makeFixture = () => {
 test('plans an Element installation without changing the project', async () => {
 	const fixture = makeFixture();
 	try {
-		const response = await fixture.prepareInstall();
+		const response = await fixture.prepareInstall(fixture.currentDestination);
 
 		expect(response).toEqual({
 			success: true,
 			plan: {
+				compositionFile: fixture.compositionFile,
 				expectedFileState: {exists: false},
 				filePath: 'lower-third.element.tsx',
 			},
@@ -196,6 +205,51 @@ test('plans an Element installation without changing the project', async () => {
 		expect(existsSync(fixture.elementFile)).toBe(false);
 		expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
 			compositionSource,
+		);
+	} finally {
+		fixture.cleanup();
+	}
+});
+
+test('plans a new-composition install without resolving the selected component', async () => {
+	const fixture = makeFixture();
+	try {
+		writeFileSync(
+			fixture.compositionFile,
+			compositionSource
+				.replace(
+					'const Target = () => <div>Hello</div>;',
+					'const Comp = () => <div>Hello</div>;\nexport const ThreeDCheck = Comp;',
+				)
+				.replace('component={Target}', 'component={ThreeDCheck}'),
+		);
+		const current = await fixture.prepareInstall({
+			type: 'current-composition',
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+		});
+		expect(current).toMatchObject({success: false});
+
+		const srcDirectory = path.join(
+			path.dirname(fixture.compositionFile),
+			'src',
+		);
+		mkdirSync(srcDirectory);
+		writeFileSync(path.join(srcDirectory, 'Root.tsx'), compositionSource);
+		const newComposition = await fixture.prepareInstall({
+			type: 'new-composition',
+			compositionFile: null,
+		});
+		expect(newComposition).toEqual({
+			success: true,
+			plan: {
+				compositionFile: path.join(srcDirectory, 'Root.tsx'),
+				expectedFileState: {exists: false},
+				filePath: 'src/lower-third.element.tsx',
+			},
+		});
+		expect(existsSync(path.join(srcDirectory, 'lower-third.element.tsx'))).toBe(
+			false,
 		);
 	} finally {
 		fixture.cleanup();
@@ -317,7 +371,7 @@ test('returns a structured conflict without changing the project', async () => {
 test('does not overwrite a file that changed after planning', async () => {
 	const fixture = makeFixture();
 	try {
-		const planned = await fixture.prepareInstall();
+		const planned = await fixture.prepareInstall(fixture.currentDestination);
 		if (!planned.success) {
 			throw new Error(planned.reason);
 		}

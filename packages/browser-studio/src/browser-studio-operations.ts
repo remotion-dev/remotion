@@ -296,8 +296,7 @@ export const ${componentName}: React.FC = () => {
 `;
 
 const getElementInstallPlanForProject = async ({
-	compositionFile,
-	compositionId,
+	destination,
 	element,
 	project,
 }: Parameters<BrowserStudioOperations['prepareElementInstall']>[0] & {
@@ -314,17 +313,47 @@ const getElementInstallPlanForProject = async ({
 		throw new Error('Invalid Element source');
 	}
 
-	const target = await resolveCompositionComponentWithFile({
-		compositionFile,
-		compositionId,
-		environment: makeInMemoryInsertJsxElementCodemodEnvironment({
-			formatFile: formatCodemodFile,
-			project,
-			svgMarkupToJsx,
-		}),
+	const target =
+		destination.type === 'current-composition'
+			? await resolveCompositionComponentWithFile({
+					compositionFile: destination.compositionFile,
+					compositionId: destination.compositionId,
+					environment: makeInMemoryInsertJsxElementCodemodEnvironment({
+						formatFile: formatCodemodFile,
+						project,
+						svgMarkupToJsx,
+					}),
+				})
+			: null;
+	if (target !== null && !target.canAddSequence) {
+		throw new Error('Cannot insert Element into this composition component');
+	}
+
+	const rootFile =
+		destination.type === 'new-composition' &&
+		destination.compositionFile === null
+			? getRootFileForProject({
+					entryPoint: project.entryPoint,
+					project,
+				})
+			: null;
+	const compositionFile =
+		destination.type === 'new-composition' &&
+		destination.compositionFile === null
+			? rootFile
+			: destination.compositionFile;
+	if (compositionFile === null) {
+		throw new Error('Could not find the root file of the project');
+	}
+
+	const destinationCompositionFilePath = findProjectFile({
+		filePath: compositionFile,
+		project,
 	});
-	const elementFilePath = `${dirname(target.fileName)}/${elementFileName}`;
-	if (elementFilePath === target.fileName) {
+	const elementSiblingFilePath =
+		target?.fileName ?? destinationCompositionFilePath;
+	const elementFilePath = `${dirname(elementSiblingFilePath)}/${elementFileName}`;
+	if (elementFilePath === elementSiblingFilePath) {
 		throw new Error('Element source file conflicts with the composition file');
 	}
 
@@ -339,6 +368,7 @@ const getElementInstallPlanForProject = async ({
 
 	return {
 		componentName,
+		destinationCompositionFilePath,
 		elementFilePath,
 		existingSource,
 		expectedFileState,
@@ -1939,8 +1969,11 @@ export const createBrowserStudioOperations = ({
 			try {
 				const project = getProject();
 				const plan = await getElementInstallPlanForProject({
-					compositionFile: request.compositionFile,
-					compositionId: request.compositionId,
+					destination: {
+						type: 'current-composition',
+						compositionFile: request.compositionFile,
+						compositionId: request.compositionId,
+					},
 					element: request.element,
 					project,
 				});
@@ -2082,6 +2115,7 @@ export const createBrowserStudioOperations = ({
 				return {
 					success: true,
 					plan: {
+						compositionFile: plan.destinationCompositionFilePath,
 						expectedFileState: plan.expectedFileState,
 						filePath: plan.filePath,
 					},

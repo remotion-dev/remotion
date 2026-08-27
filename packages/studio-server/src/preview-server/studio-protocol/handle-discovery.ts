@@ -48,7 +48,7 @@ const getLiveStudioTarget = (requestId: string) => {
 	return target;
 };
 
-const isInstallableTarget = (
+const isElementRequestTarget = (
 	target: ElementInstallTarget | null,
 ): target is ElementInstallTarget & {
 	readonly compositionFile: string;
@@ -56,7 +56,6 @@ const isInstallableTarget = (
 	readonly lastFocusedAt: number;
 } =>
 	target !== null &&
-	target.canInstall &&
 	target.compositionFile !== null &&
 	target.compositionId !== null &&
 	target.lastFocusedAt !== null;
@@ -114,7 +113,7 @@ export const handleStudioProtocolDiscovery = ({
 		setTimeout(() => {
 			const now = Date.now();
 			const target = getLiveStudioTarget(requestId);
-			const installTarget = isInstallableTarget(target) ? target : null;
+			const installTarget = isElementRequestTarget(target) ? target : null;
 			const issuedInstallTarget =
 				installTarget === null
 					? null

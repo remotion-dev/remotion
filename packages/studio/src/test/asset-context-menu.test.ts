@@ -1,8 +1,9 @@
 import {expect, test} from 'bun:test';
 import {
 	getAssetActionAvailability,
-	getCanDragAsset,
 	getAssetContextMenuItems,
+	getAssetFolderContextMenuItems,
+	getCanDragAsset,
 } from '../components/AssetSelectorItem';
 
 const noop = () => undefined;
@@ -74,6 +75,50 @@ test('hides file-manager asset actions in Browser Studio', () => {
 	);
 });
 
+test('offers supported asset folder actions in Browser Studio', () => {
+	const items = getAssetFolderContextMenuItems({
+		folderPath: 'nested/assets',
+		fileManagerName: 'Finder',
+		copyFolderPath: noop,
+		copyAbsolutePath: null,
+		openFolderInExplorer: noop,
+		uploadAssets: noop,
+		fileExplorerAvailable: false,
+		fileExplorerDisabled: true,
+		mutationsDisabled: false,
+	});
+
+	expect(getItem(items, 'copy-asset-folder-path').disabled).not.toBe(true);
+	expect(getItem(items, 'upload-assets-to-folder').disabled).not.toBe(true);
+	expect(
+		items.find((item) => item.id === 'open-asset-folder-in-explorer'),
+	).toBeUndefined();
+	expect(
+		items.find((item) => item.id === 'copy-asset-folder-absolute-path'),
+	).toBeUndefined();
+});
+
+test('keeps non-mutating asset folder actions in read-only Studio', () => {
+	const items = getAssetFolderContextMenuItems({
+		folderPath: 'nested/assets',
+		fileManagerName: 'Finder',
+		copyFolderPath: noop,
+		copyAbsolutePath: noop,
+		openFolderInExplorer: noop,
+		uploadAssets: noop,
+		fileExplorerAvailable: true,
+		fileExplorerDisabled: true,
+		mutationsDisabled: true,
+	});
+
+	expect(getItem(items, 'copy-asset-folder-path').disabled).not.toBe(true);
+	expect(getItem(items, 'copy-asset-folder-absolute-path').disabled).not.toBe(
+		true,
+	);
+	expect(getItem(items, 'open-asset-folder-in-explorer').disabled).toBe(true);
+	expect(getItem(items, 'upload-assets-to-folder').disabled).toBe(true);
+});
+
 test('only offers Remotion Convert for audio and video assets', () => {
 	const getItems = (relativePath: string) =>
 		getAssetContextMenuItems({
@@ -127,6 +172,20 @@ test('enables supported Browser Studio asset mutations', () => {
 	const availability = getAssetActionAvailability({
 		browserStudioCanMutateAssets: true,
 		readOnlyStudio: true,
+		connectionStatus: 'connected',
+		publicFolderExists: '/public',
+	});
+
+	expect(availability).toEqual({
+		fileExplorerDisabled: true,
+		mutationsDisabled: false,
+	});
+});
+
+test('disables file-manager actions in editable Browser Studio', () => {
+	const availability = getAssetActionAvailability({
+		browserStudioCanMutateAssets: true,
+		readOnlyStudio: false,
 		connectionStatus: 'connected',
 		publicFolderExists: '/public',
 	});

@@ -12,13 +12,18 @@ import React, {
 import {type _InternalTypes} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
-	BACKGROUND,
+	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_06,
 	WHITE_ALPHA_12,
 } from '../helpers/colors';
+import {
+	HOVERABLE_CLASS_NAME,
+	HOVER_GROUP_CLASS_NAME,
+	hoverableStyle,
+} from '../helpers/hoverable';
 import {noop} from '../helpers/noop';
 import {
 	markCompositionSidebarScrollFromRowClick,
@@ -56,7 +61,6 @@ const itemStyle: React.CSSProperties = {
 	borderRadius: 4,
 	width: 'calc(100% - 12px)',
 	textAlign: 'left',
-	backgroundColor: BACKGROUND,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
 };
@@ -123,14 +127,6 @@ export const CompositionSelectorItem: React.FC<{
 
 		return false;
 	}, [item, currentComposition]);
-	const [hovered, setHovered] = useState(false);
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragHovered, setDragHovered] = useState(false);
 
@@ -150,23 +146,22 @@ export const CompositionSelectorItem: React.FC<{
 	}, [compositionId, selected]);
 
 	const style: React.CSSProperties = useMemo(() => {
+		const idleBackground = dragHovered
+			? WHITE_ALPHA_12
+			: selected
+				? WHITE_ALPHA_06
+				: TRANSPARENT;
 		return {
 			...itemStyle,
-			backgroundColor: dragHovered
-				? WHITE_ALPHA_12
-				: hovered || selected
-					? WHITE_ALPHA_06
-					: TRANSPARENT,
+			...hoverableStyle({
+				idleBackground,
+				hoverBackground: dragHovered ? WHITE_ALPHA_12 : WHITE_ALPHA_06,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: WHITE,
+			}),
 			paddingLeft: 12 + level * 8,
 		};
-	}, [dragHovered, hovered, level, selected]);
-
-	const label = useMemo(() => {
-		return {
-			...labelStyle,
-			color: selected || hovered ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered, selected]);
+	}, [dragHovered, level, selected]);
 
 	const onClick = useCallback(
 		(evt: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
@@ -376,9 +371,7 @@ export const CompositionSelectorItem: React.FC<{
 					<Row align="center">
 						<div
 							style={style}
-							className="__remotion-composition-selector-item"
-							onPointerEnter={onPointerEnter}
-							onPointerLeave={onPointerLeave}
+							className={`__remotion-composition-selector-item ${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 							tabIndex={tabIndex}
 							onClick={onClick}
 							onKeyDown={onKeyDown}
@@ -389,22 +382,17 @@ export const CompositionSelectorItem: React.FC<{
 							role="button"
 						>
 							{item.expanded ? (
-								<ExpandedFolderIcon
-									style={iconStyle}
-									color={hovered || selected ? WHITE : LIGHT_TEXT}
-								/>
+								<ExpandedFolderIcon style={iconStyle} color={CURRENT_COLOR} />
 							) : (
-								<CollapsedFolderIcon
-									color={hovered || selected ? WHITE : LIGHT_TEXT}
-									style={iconStyle}
-								/>
+								<CollapsedFolderIcon color={CURRENT_COLOR} style={iconStyle} />
 							)}
 							<Spacing x={1} />
-							<div style={label}>{item.folderName}</div>
+							<div style={labelStyle}>{item.folderName}</div>
 							<Spacing x={0.5} />
 							<CompositionContextButton
 								getItems={getContextMenuItems}
-								visible={hovered}
+								visible
+								readOnlyStudio={window.remotion_isReadOnlyStudio}
 							/>
 						</div>
 					</Row>
@@ -437,8 +425,6 @@ export const CompositionSelectorItem: React.FC<{
 				<a
 					ref={compositionRowRef}
 					style={style}
-					onPointerEnter={onPointerEnter}
-					onPointerLeave={onPointerLeave}
 					tabIndex={tabIndex}
 					onClick={onClick}
 					onKeyDown={onKeyDown}
@@ -447,24 +433,26 @@ export const CompositionSelectorItem: React.FC<{
 					onDragEnd={onCompositionDragEnd}
 					type="button"
 					title={item.composition.id}
-					className="__remotion-composition __remotion-composition-selector-item"
+					className={`__remotion-composition __remotion-composition-selector-item ${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 					data-compname={item.composition.id}
 				>
 					<CompositionOrStillIcon
 						composition={item.composition}
-						color={hovered || selected ? WHITE : LIGHT_TEXT}
+						color={CURRENT_COLOR}
 						style={iconStyle}
 					/>
 					<Spacing x={1} />
-					<div style={label}>{item.composition.id}</div>
+					<div style={labelStyle}>{item.composition.id}</div>
 					<Spacing x={0.5} />
 					<CompositionContextButton
 						getItems={getContextMenuItems}
-						visible={hovered && !isDragging}
+						visible={!isDragging}
+						readOnlyStudio={window.remotion_isReadOnlyStudio}
 					/>
 					<SidebarRenderButton
-						visible={hovered && !isDragging}
+						visible={!isDragging}
 						composition={item.composition}
+						readOnlyStudio={window.remotion_isReadOnlyStudio}
 					/>
 				</a>
 			</Row>

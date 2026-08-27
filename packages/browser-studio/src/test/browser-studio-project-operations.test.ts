@@ -403,8 +403,11 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 `,
 	} satisfies ElementDragData['element'];
 	const preflight = await operations.prepareElementInstall({
-		compositionFile: '/project/src/Composition.tsx',
-		compositionId: 'MyComp',
+		destination: {
+			type: 'current-composition',
+			compositionFile: '/project/src/Composition.tsx',
+			compositionId: 'MyComp',
+		},
 		element,
 	});
 	if (!preflight.success) {
@@ -412,9 +415,26 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	}
 
 	expect(preflight.plan).toEqual({
+		compositionFile: '/project/src/Composition.tsx',
 		expectedFileState: {exists: false},
 		filePath: 'src/lower-third.element.tsx',
 	});
+	const newCompositionPreflight = await operations.prepareElementInstall({
+		destination: {
+			type: 'new-composition',
+			compositionFile: null,
+		},
+		element,
+	});
+	expect(newCompositionPreflight).toEqual({
+		success: true,
+		plan: {
+			compositionFile: '/project/src/Root.tsx',
+			expectedFileState: {exists: false},
+			filePath: 'src/lower-third.element.tsx',
+		},
+	});
+
 	const inserted = await operations.insertElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
