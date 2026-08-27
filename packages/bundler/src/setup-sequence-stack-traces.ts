@@ -1,9 +1,10 @@
 import React from 'react';
 import JsxRuntimeDev from 'react/jsx-dev-runtime';
 import JsxRuntime from 'react/jsx-runtime';
-import {Internals} from 'remotion';
+import {Composition, Folder, Internals, Still} from 'remotion';
 
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
+const componentsToAddStacksToInReadOnlyStudio = [Composition, Folder, Still];
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
 const studioOriginalSourcePrefix = 'studio-original://';
@@ -50,7 +51,11 @@ const enableProxy = <
 ): T => {
 	return new Proxy(api, {
 		apply(target, thisArg, argArray) {
-			if (componentsToAddStacksTo.includes(argArray[0])) {
+			const component = argArray[0];
+			const shouldAddStack =
+				process.env.NODE_ENV !== 'production' ||
+				componentsToAddStacksToInReadOnlyStudio.includes(component);
+			if (shouldAddStack && componentsToAddStacksTo.includes(component)) {
 				const [first, props, ...rest] = argArray;
 				const children = isCreateElement
 					? rest.length === 0
@@ -85,7 +90,18 @@ const enableProxy = <
 	});
 };
 
-React.createElement = enableProxy(originalCreateElement, true, null);
-JsxRuntime.jsx = enableProxy(originalJsx, false, null);
-JsxRuntime.jsxs = enableProxy(originalJsxs, false, null);
-JsxRuntimeDev.jsxDEV = enableProxy(originalJsxDev, false, 4);
+// Renderer pages set this value before the bundle loads. Avoid proxying every
+// JSX call while rendering; production stack traces are only needed by Studio.
+const shouldEnableStackTraces =
+	process.env.NODE_ENV !== 'production' ||
+	(typeof window !== 'undefined' &&
+		typeof window.remotion_puppeteerTimeout === 'undefined');
+
+if (shouldEnableStackTraces) {
+	React.createElement = enableProxy(originalCreateElement, true, null);
+	JsxRuntime.jsx = enableProxy(originalJsx, false, null);
+	JsxRuntime.jsxs = enableProxy(originalJsxs, false, null);
+	if (originalJsxDev) {
+		JsxRuntimeDev.jsxDEV = enableProxy(originalJsxDev, false, 4);
+	}
+}

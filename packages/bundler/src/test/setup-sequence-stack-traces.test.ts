@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import React from 'react';
 import JsxRuntimeDev from 'react/jsx-dev-runtime';
-import {Internals} from 'remotion';
+import {Composition, Internals} from 'remotion';
 
 test('injects a namespaced source stack without conflicting with application props', async () => {
 	const Component: React.FC<{readonly stack: string}> = () => null;
@@ -28,15 +28,34 @@ test('injects a namespaced source stack without conflicting with application pro
 		};
 	expect(existingProps._remotionInternalStack).toBe('existing-source-stack');
 
+	const previousNodeEnv = process.env.NODE_ENV;
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,
-		value: {remotion_cwd: '/project'},
+		value: {
+			remotion_cwd: '/project',
+		},
 	});
 
 	try {
+		process.env.NODE_ENV = 'production';
+		const renderingElement = React.createElement(Component, {
+			stack: 'application-stack',
+		});
+		expect(
+			(renderingElement.props as {_remotionInternalStack?: string})
+				._remotionInternalStack,
+		).toBeUndefined();
+
 		const sourceElement = JsxRuntimeDev.jsxDEV(
-			Component,
-			{stack: 'application-stack'},
+			Composition,
+			{
+				component: Component,
+				durationInFrames: 30,
+				fps: 30,
+				height: 1080,
+				id: 'read-only-stack-test',
+				width: 1920,
+			},
 			undefined,
 			false,
 			{
@@ -53,6 +72,12 @@ test('injects a namespaced source stack without conflicting with application pro
 			'Error\n    at remotionOriginalSource (studio-original://.%2Fsrc%2FVideo.tsx:12:4)',
 		);
 	} finally {
+		if (previousNodeEnv === undefined) {
+			delete process.env.NODE_ENV;
+		} else {
+			process.env.NODE_ENV = previousNodeEnv;
+		}
+
 		Reflect.deleteProperty(globalThis, 'window');
 	}
 });

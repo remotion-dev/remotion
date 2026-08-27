@@ -102,6 +102,20 @@ test('includes React Scan only in an explicitly enabled development bundle', asy
 			).toBe(false);
 		}
 
+		for (const config of [
+			productionWebpackConfig,
+			productionRspackConfig,
+			developmentWebpackConfig,
+			developmentRspackConfig,
+		]) {
+			expect(Array.isArray(config.entry)).toBe(true);
+			expect(
+				(config.entry as string[]).some((entry) =>
+					entry.includes('setup-sequence-stack-traces'),
+				),
+			).toBe(true);
+		}
+
 		for (const config of [developmentWebpackConfig, developmentRspackConfig]) {
 			expect(Array.isArray(config.entry)).toBe(true);
 			expect(
