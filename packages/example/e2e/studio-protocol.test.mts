@@ -242,6 +242,15 @@ export const MyComponent = () => {
 		await decoyStudioPage.mouse.click(500, 300);
 
 		await studioPage.bringToFront();
+		await studioPage.keyboard.press('g');
+		const currentFrameInput = studioPage.locator('input:focus');
+		await expect(currentFrameInput).toBeVisible();
+		await currentFrameInput.fill('45');
+		await currentFrameInput.press('Enter');
+		await expect(
+			studioPage.getByRole('button', {name: '45', exact: true}),
+		).toBeVisible();
+
 		await studioPage.locator('[data-sidebar-toggle="right"]').click();
 		const browseElements = studioPage.getByRole('button', {
 			name: 'Browse Elements',
@@ -332,6 +341,9 @@ export const MyComponent = () => {
 		);
 		expect(compositionSource).toContain('ProtocolElement');
 		expect(compositionSource).toContain('protocol-element.element');
+		expect(compositionSource).toMatch(
+			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s*\/>\s*<\/Sequence>/,
+		);
 
 		await studioPage.bringToFront();
 		await studioPage.mouse.click(500, 300);

@@ -72,6 +72,7 @@ import {
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {handleDrop} from './handle-drop';
 import {
+	getFromForDrop,
 	hasSvgFile,
 	importAssets,
 	importFigmaClipboard,
@@ -835,16 +836,25 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			setPendingElementInstallRequests((requests) => [
-				...requests,
-				event.request,
-			]);
+			enqueueElementInstallRequest(event.request);
 		});
 	}, [previewServerClientId, subscribeToEvent]);
 
 	useEffect(() => {
 		return subscribeToElementInstallRequests((request) => {
-			setPendingElementInstallRequests((requests) => [...requests, request]);
+			setPendingElementInstallRequests((requests) => [
+				...requests,
+				request.source.type === 'drag-and-drop' || request.from !== null
+					? request
+					: {
+							...request,
+							from: getFromForDrop({
+								durationInFrames: request.element.durationInFrames,
+								from: getCurrentFrame(),
+								preferCompositionStart: true,
+							}),
+						},
+			]);
 		});
 	}, []);
 
