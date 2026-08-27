@@ -15,8 +15,10 @@ import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {FilmIcon} from '../../icons/video';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
+import {useConfirmationDialog} from '../ConfirmationDialog';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
+import {LicenseExplanation} from '../LicenseExplanation';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {ObserveDefaultPropsContext} from '../ObserveDefaultPropsContext';
@@ -60,6 +62,11 @@ const actionIconStyle: React.CSSProperties = {
 	width: 18,
 };
 
+const downloadLicenseAgreement: React.CSSProperties = {
+	marginBottom: 0,
+	marginTop: 20,
+};
+
 const CompositionActions: React.FC = () => {
 	const {
 		canInsertAsset,
@@ -73,9 +80,27 @@ const CompositionActions: React.FC = () => {
 		insertSolid,
 	} = useCompositionActions();
 	const downloadProject = getBrowserStudioOperations()?.downloadProject ?? null;
+	const confirm = useConfirmationDialog();
 
 	const onDownloadProject = useCallback(async () => {
 		if (downloadProject === null) {
+			return;
+		}
+
+		const accepted = await confirm({
+			title: 'Download project',
+			message: (
+				<>
+					<LicenseExplanation />
+					<p style={downloadLicenseAgreement}>
+						By downloading this project, you agree to comply with the license.
+					</p>
+				</>
+			),
+			confirmLabel: 'Accept and download',
+			cancelLabel: 'Cancel',
+		});
+		if (!accepted) {
 			return;
 		}
 
@@ -97,7 +122,7 @@ const CompositionActions: React.FC = () => {
 				2000,
 			);
 		}
-	}, [downloadProject]);
+	}, [confirm, downloadProject]);
 
 	if (
 		!canShowInsertAsset &&
