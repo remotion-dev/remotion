@@ -322,7 +322,7 @@ test.describe('visual mode', () => {
 			await expect(missingComposition).toBeVisible();
 			expect(await dropFile({...file, target: missingComposition})).toBe(true);
 			await expect(modalTitle).toBeVisible();
-			await expect(page.getByTitle('Folder')).toHaveText('Root');
+			await expect(page.getByTitle('Folder')).toHaveText('None');
 			await page.keyboard.press('Escape');
 
 			await page.getByText('Assets', {exact: true}).click();

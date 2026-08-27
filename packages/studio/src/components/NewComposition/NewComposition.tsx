@@ -78,10 +78,8 @@ const NewCompositionLoaded: React.FC<{
 			{
 				id: rootFolderId,
 				keyHint: null,
-				label: 'Root',
-				leftItem: (
-					<CollapsedFolderIcon color={LIGHT_TEXT} style={folderIconStyle} />
-				),
+				label: 'None',
+				leftItem: null,
 				onClick: () => {
 					setSelectedFolder({
 						folderName: null,
@@ -94,6 +92,14 @@ const NewCompositionLoaded: React.FC<{
 				type: 'item',
 				value: rootFolderId,
 			},
+			...(folders.length === 0
+				? []
+				: [
+						{
+							id: 'new-composition-root-folder-divider',
+							type: 'divider' as const,
+						},
+					]),
 			...folders
 				.slice()
 				.sort((a, b) => {
