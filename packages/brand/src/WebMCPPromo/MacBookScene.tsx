@@ -395,7 +395,7 @@ export const MacBookScene = () => {
 						}),
 					}}
 				>
-					Make it bigger.
+					Make this bigger.
 				</Interactive.Div>
 				<Interactive.Div
 					name="Tool call"

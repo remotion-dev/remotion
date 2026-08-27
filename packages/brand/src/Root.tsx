@@ -12,11 +12,11 @@ import {
 	ApplicationVideoEditor,
 	Applications,
 } from './Applications';
-import {Bouncy} from './Bouncy';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
 import {CanvasCaptureComposition} from './CanvasCapturePreview';
+import {Checker} from './Checker';
 import {CloseUp1} from './CloseUp1';
 import {CloseUp2} from './CloseUp2';
 import {CloseUp3} from './CloseUp3';
@@ -101,7 +101,6 @@ import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
-import {McpCloseUp} from './McpCloseUp';
 import NewSticker from './NewSticker';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {
@@ -146,17 +145,7 @@ import {Prompt, PromptSchema} from './video-elements/Prompt';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
-import {WebMCPCloseUp} from './WebMCPCloseUp';
-import {BrowserScaleScene} from './WebMCPPromo/BrowserScaleScene';
-import {ChatMessageScene} from './WebMCPPromo/ChatMessageScene';
-import {
-	MacBookAppScene,
-	MacBookDesktopScene,
-	MacBookLoopScene,
-	MacBookScene,
-} from './WebMCPPromo/MacBookScene';
-import {WebMCPPromo} from './WebMCPPromo/WebMCPPromo';
-import {WebMCPPromo2} from './WebMCPPromo2';
+import {MacBookLoopScene} from './WebMCPPromo/MacBookScene';
 
 export const RemotionRoot: React.FC = () => {
 	return (
@@ -891,6 +880,14 @@ export const RemotionRoot: React.FC = () => {
 				width={EFFECT_SHOWCASE_WIDTH}
 				height={EFFECT_SHOWCASE_HEIGHT}
 			/>
+			<Composition
+				id="Checker"
+				component={Checker}
+				durationInFrames={1000}
+				fps={30}
+				width={900}
+				height={900}
+			/>
 
 			<Folder name="CloseUps">
 				<CloseUp1 />
@@ -901,7 +898,6 @@ export const RemotionRoot: React.FC = () => {
 				<CloseUp6 />
 				<CloseUp7 />
 				<CloseUp8 />
-				<McpCloseUp />
 			</Folder>
 			<Composition
 				id="CloseUpsSeries"
@@ -912,73 +908,13 @@ export const RemotionRoot: React.FC = () => {
 				height={1080}
 			/>
 			<Composition
-				id="Bouncy"
-				component={Bouncy}
-				durationInFrames={100}
-				fps={30}
-				width={1920}
-				height={1080}
-			/>
-			<Folder name="WebMCPPromo-Scenes">
-				<Composition
-					id="WebMCPPromo-MacBook-Loop"
-					component={MacBookLoopScene}
-					durationInFrames={800}
-					fps={60}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="WebMCPPromo-MacBook"
-					component={MacBookScene}
-					durationInFrames={800}
-					fps={60}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="WebMCPPromo-MacBook-Desktop"
-					component={MacBookDesktopScene}
-					durationInFrames={1200}
-					fps={60}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="WebMCPPromo-MacBook-App"
-					component={MacBookAppScene}
-					durationInFrames={1200}
-					fps={60}
-					width={1320}
-					height={827}
-				/>
-				<Composition
-					id="WebMCPPromo-ChatMessage"
-					component={ChatMessageScene}
-					durationInFrames={90}
-					fps={60}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="WebMCPPromo-BrowserScale"
-					component={BrowserScaleScene}
-					durationInFrames={120}
-					fps={60}
-					width={1920}
-					height={1080}
-				/>
-			</Folder>
-			<Composition
-				id="WebMCPPromo"
-				component={WebMCPPromo}
-				durationInFrames={510}
+				id="WebMCPPromo-MacBook-Loop"
+				component={MacBookLoopScene}
+				durationInFrames={800}
 				fps={60}
 				width={1920}
 				height={1080}
 			/>
-			<WebMCPCloseUp />
-			<WebMCPPromo2 />
 		</>
 	);
 };
