@@ -1,4 +1,4 @@
-import {Button, Card, Input} from '@remotion/design';
+import {Button, Slider} from '@remotion/design';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {browser} from 'wxt/browser';
 import {
@@ -36,7 +36,7 @@ export const App: React.FC = () => {
 	const [connectionMessage, setConnectionMessage] = useState(
 		'Connecting to the selected tab…',
 	);
-	const [scaleInput, setScaleInput] = useState('1');
+	const [scaleInput, setScaleInput] = useState(1);
 
 	const applyState = useCallback((nextState: CaptureControllerState) => {
 		currentState.current = nextState;
@@ -132,7 +132,7 @@ export const App: React.FC = () => {
 
 	useEffect(() => {
 		if (state && document.activeElement?.id !== 'scale') {
-			setScaleInput(String(state.scale));
+			setScaleInput(state.scale);
 		}
 	}, [state]);
 
@@ -220,42 +220,8 @@ export const App: React.FC = () => {
 		<main className="app-shell">
 			<header className="header">
 				<img className="logo" src="/logo.svg" alt="" />
-				<div>
-					<h1>Canvas Capture</h1>
-					<p>High-resolution recording for the web</p>
-				</div>
+				<h1>Canvas Capture</h1>
 			</header>
-
-			<Card className="panel settings-panel">
-				<div className="field">
-					<label>Format</label>
-					<div className="format-value">
-						{state?.format === 'webm' ? 'WebM · VP9' : 'MP4 · H.264'}
-					</div>
-				</div>
-
-				<div className="field">
-					<label htmlFor="scale">Scale</label>
-					<div className="scale-control">
-						<Input
-							id="scale"
-							type="number"
-							min="0.1"
-							step="0.1"
-							disabled={setupDisabled || state?.recording}
-							value={scaleInput}
-							onChange={(event) => setScaleInput(event.currentTarget.value)}
-							onBlur={() => updateOptions(Number(scaleInput))}
-							onKeyDown={(event) => {
-								if (event.key === 'Enter') {
-									event.currentTarget.blur();
-								}
-							}}
-						/>
-						<span>×</span>
-					</div>
-				</div>
-			</Card>
 
 			<section className="capture-section">
 				<div className="section-label">Capture target</div>
@@ -278,7 +244,6 @@ export const App: React.FC = () => {
 								.catch(() => undefined);
 						}}
 					>
-						<span className="selection-icon" aria-hidden="true" />
 						{state?.selecting ? 'Cancel selection' : 'Select area'}
 					</Button>
 					<Button
@@ -291,14 +256,40 @@ export const App: React.FC = () => {
 							}).catch(() => undefined)
 						}
 					>
-						<span className="page-icon" aria-hidden="true" />
 						Whole page
 					</Button>
 				</div>
-				<Card className={`target-card${state?.hasTarget ? ' selected' : ''}`}>
-					<span className="target-dot" />
-					<span>{targetLabel}</span>
-				</Card>
+			</section>
+
+			<section className="settings-panel">
+				<div className="field">
+					<label>Format</label>
+					<div className="format-value">
+						{state?.format === 'webm' ? 'WebM · VP9' : 'MP4 · H.264'}
+					</div>
+				</div>
+
+				<div className="field">
+					<label htmlFor="scale">Scale</label>
+					<div className="scale-control">
+						<Slider
+							id="scale"
+							min="0.1"
+							max="4"
+							step="0.1"
+							disabled={setupDisabled || state?.recording}
+							value={scaleInput}
+							onChange={setScaleInput}
+							onPointerUp={(event) =>
+								updateOptions(Number(event.currentTarget.value))
+							}
+							onKeyUp={(event) =>
+								updateOptions(Number(event.currentTarget.value))
+							}
+						/>
+						<output htmlFor="scale">{Number(scaleInput.toFixed(1))}×</output>
+					</div>
+				</div>
 			</section>
 
 			<div className="actions">
@@ -353,10 +344,12 @@ export const App: React.FC = () => {
 							}).catch(() => undefined);
 						}}
 					>
-						<span className="record-icon" aria-hidden="true" />
 						{state?.recording ? 'Stop recording' : 'Start recording'}
 					</Button>
 				)}
+				<div className={`target-summary${state?.hasTarget ? ' selected' : ''}`}>
+					{targetLabel}
+				</div>
 			</div>
 
 			<footer className={`status${statusIsError ? ' error' : ''}`}>

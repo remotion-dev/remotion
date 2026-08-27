@@ -55,8 +55,7 @@ input:focus-visible {
 	height: 36px;
 }
 
-h1,
-p {
+h1 {
 	margin: 0;
 }
 
@@ -66,24 +65,10 @@ h1 {
 	letter-spacing: -0.02em;
 }
 
-.header p {
-	margin-top: 1px;
-	color: #555b61;
-	font-size: 12px;
-}
-
-.panel,
-.target-card {
-	border: 2px solid #000;
-	border-bottom-width: 4px;
-	border-radius: 8px;
-	background: #fff;
-	color: #000;
-}
-
 .settings-panel {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: 1fr;
+	gap: 8px;
 }
 
 .field {
@@ -91,11 +76,6 @@ h1 {
 	min-width: 0;
 	flex-direction: column;
 	gap: 7px;
-	padding: 11px;
-}
-
-.field + .field {
-	border-left: 2px solid #000;
 }
 
 .field label,
@@ -103,11 +83,8 @@ h1 {
 	color: #555b61;
 	font-size: 11px;
 	font-weight: 700;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
 }
 
-input,
 .format-value {
 	width: 100%;
 	height: 36px;
@@ -124,25 +101,25 @@ input,
 	padding: 0 9px;
 }
 
-input {
-	padding: 0 8px;
-	font-size: 13px;
-}
-
-input:disabled {
-	cursor: default;
-	opacity: 0.5;
-}
-
 .scale-control {
 	display: flex;
 	align-items: center;
-	gap: 7px;
+	gap: 10px;
+	height: 36px;
+	padding: 0 4px;
 }
 
-.scale-control span {
+.scale-control .remotion-design-slider {
+	min-width: 0;
+	width: auto;
+	flex: 1;
+}
+
+.scale-control output {
+	min-width: 28px;
 	color: #555b61;
 	font-weight: 700;
+	text-align: right;
 }
 
 .capture-section {
@@ -164,7 +141,6 @@ input:disabled {
 .record-button {
 	width: 100%;
 	height: 40px;
-	gap: 8px;
 	border: 2px solid #000;
 	border-bottom-width: 4px;
 	border-radius: 8px;
@@ -180,46 +156,22 @@ input:disabled {
 	background: #eef1f4;
 }
 
-.selection-icon {
-	width: 13px;
-	height: 13px;
-	border: 1px dashed currentColor;
-	border-radius: 2px;
-}
-
-.page-icon {
-	width: 11px;
-	height: 14px;
-	border: 1px solid currentColor;
-	border-radius: 1px;
-}
-
-.target-card {
-	display: flex;
-	min-height: 42px;
-	align-items: center;
-	gap: 9px;
-	padding: 9px 11px;
+.target-summary {
 	color: #6b7177;
+	font-size: 12px;
 	overflow-wrap: anywhere;
 }
 
-.target-card.selected {
+.target-summary.selected {
 	color: #000;
 }
 
-.target-dot,
 .status-dot {
 	width: 7px;
 	height: 7px;
 	flex: 0 0 auto;
 	border-radius: 50%;
 	background: #9aa0a6;
-}
-
-.target-card.selected .target-dot {
-	background: #0b84f3;
-	box-shadow: 0 0 0 3px rgba(11, 132, 243, 0.16);
 }
 
 .actions {
@@ -248,27 +200,10 @@ input:disabled {
 	background: #ff4b4b;
 }
 
-.record-icon {
-	width: 10px;
-	height: 10px;
-	border: 2px solid currentColor;
-	border-radius: 50%;
-}
-
-.recording .record-icon {
-	border-radius: 2px;
-	background: currentColor;
-}
-
 .completed-recording {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	padding: 12px;
-	border: 2px solid #000;
-	border-bottom-width: 4px;
-	border-radius: 8px;
-	background: #e9f4ff;
 }
 
 .completed-title {
