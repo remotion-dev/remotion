@@ -109,7 +109,17 @@ export const getSelectedOutlineControlLayout = (
 		}),
 	}));
 
+	// Place the border-radius handle just inside the top-left corner so it does
+	// not collide with the rotation handle, which sits outside the same corner.
+	const [topLeftPoint] = points;
+	const borderRadiusHandle: OutlinePoint = {
+		x: topLeftPoint.x + rotationHandleRadius,
+		y: topLeftPoint.y + rotationHandleRadius,
+	};
+
 	return {
+		borderRadiusHandle,
+		borderRadiusHandleRadius: rotationHandleRadius,
 		rotationCorners: isTinyX || isTinyY ? [] : rotationCorners,
 		rotationHandleRadius,
 		scaleEdges,

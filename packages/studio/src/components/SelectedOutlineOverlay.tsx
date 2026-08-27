@@ -45,6 +45,7 @@ import {
 	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
+	borderRadiusFieldKey,
 	transformOriginFieldKey,
 	translateFieldKey,
 	type SelectedOutlineCropDragTarget,
@@ -369,6 +370,8 @@ const calculateOutlineTargets = ({
 		const scalePropStatus = nodePropStatuses?.[scaleFieldKey];
 		const rotationFieldSchema = activeSchema?.[rotateFieldKey];
 		const rotationPropStatus = nodePropStatuses?.[rotateFieldKey];
+		const borderRadiusFieldSchema = activeSchema?.[borderRadiusFieldKey];
+		const borderRadiusPropStatus = nodePropStatuses?.[borderRadiusFieldKey];
 		const transformOriginFieldSchema = activeSchema?.[transformOriginFieldKey];
 		const transformOriginPropStatus =
 			nodePropStatuses?.[transformOriginFieldKey];
@@ -443,6 +446,15 @@ const calculateOutlineTargets = ({
 			controls !== null &&
 			rotationFieldSchema?.type === 'rotation-css' &&
 			canRotationDragStatus;
+		const canBorderRadiusDragStatus =
+			borderRadiusPropStatus?.status === 'static' ||
+			(borderRadiusPropStatus?.status === 'keyframed' &&
+				borderRadiusPropStatus.interpolationFunction === 'interpolate');
+		const canBorderRadiusDrag =
+			previewInteractive &&
+			controls !== null &&
+			borderRadiusFieldSchema?.type === 'number' &&
+			canBorderRadiusDragStatus;
 		const transform3DMode =
 			manuallyEnabled3DTransformSequenceKeys.has(key) ||
 			[
@@ -571,6 +583,24 @@ const calculateOutlineTargets = ({
 							schema: controls.schema,
 							transform3DMode,
 							transformOriginValue: transformOriginValueForRotation,
+						}
+					: null,
+				borderRadiusDrag: canBorderRadiusDrag
+					? {
+							propStatus: borderRadiusPropStatus,
+							clientId: connectedClientId,
+							fieldDefault: borderRadiusFieldSchema.default,
+							fieldSchema: borderRadiusFieldSchema,
+							keyframeDisplayOffset: getKeyframeDisplayOffset({
+								propStatus: borderRadiusPropStatus,
+								keyframeDisplayOffset,
+							}),
+							nodePath,
+							schema: controls.schema,
+							value:
+								typeof borderRadiusFieldSchema.default === 'number'
+									? borderRadiusFieldSchema.default
+									: 0,
 						}
 					: null,
 				transformOriginDrag: canTransformOriginDrag

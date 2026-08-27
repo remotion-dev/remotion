@@ -1,4 +1,5 @@
 import type {CanvasOutlineTarget} from '@remotion/canvas';
+import {BORDER_RADIUS_SHORTHAND_KEY} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
@@ -43,6 +44,7 @@ export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
 	readonly transformOriginDrag: SelectedOutlineTransformOriginDragTarget | null;
+	readonly borderRadiusDrag: SelectedOutlineBorderRadiusDragTarget | null;
 };
 
 export const cropFieldKeys = {
@@ -188,6 +190,24 @@ export type SelectedOutlineRotationDragTarget = {
 	readonly transformOriginValue: string;
 };
 
+export type BorderRadiusFieldSchema = Extract<
+	InteractivitySchemaField,
+	{type: 'number'}
+>;
+
+export type SelectedOutlineBorderRadiusDragTarget = {
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly clientId: string;
+	readonly fieldDefault: number | string | null | undefined;
+	readonly fieldSchema: BorderRadiusFieldSchema;
+	readonly keyframeDisplayOffset: number;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: InteractivitySchema;
+	readonly value: number;
+};
+
 export type SelectedOutlineDragState = {
 	readonly defaultValue: string | null;
 	readonly key: string;
@@ -222,6 +242,7 @@ export const translateFieldKey = 'style.translate';
 export const scaleFieldKey = 'style.scale';
 export const rotateFieldKey = 'style.rotate';
 export const transformOriginFieldKey = 'style.transformOrigin';
+export const borderRadiusFieldKey = BORDER_RADIUS_SHORTHAND_KEY;
 export const selectedOutlineDragThresholdPx = 4;
 
 export const outlineContainer: React.CSSProperties = {

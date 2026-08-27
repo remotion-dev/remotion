@@ -8,6 +8,7 @@ import type {
 	SelectedOutlineScaleDragTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
+import {SelectedOutlineBorderRadiusHandle} from './SelectedOutlineBorderRadiusHandle';
 import {SelectedOutlineCropControls} from './SelectedOutlineCropControls';
 import {SelectedOutlineRotationCornerHandle} from './SelectedOutlineRotationCornerHandle';
 import {SelectedOutlineScaleEdgeLine} from './SelectedOutlineScaleEdgeLine';
@@ -109,6 +110,26 @@ export const SelectedOutlineEditingHandles: React.FC<{
 							target={controlTarget}
 						/>
 					))
+				: null}
+			{controlTarget?.borderRadiusDrag === null &&
+			(layoutTarget?.containsSelection || hovered)
+				? (() => {
+						const handle = controlLayout.borderRadiusHandle;
+						if (handle === undefined) {
+							return null;
+						}
+
+						return (
+							<SelectedOutlineBorderRadiusHandle
+								key="border-radius"
+								handlePoint={handle}
+								onDraggingChange={onDraggingChange}
+								outline={outline}
+								radius={controlLayout.borderRadiusHandleRadius}
+								target={controlTarget?.borderRadiusDrag}
+							/>
+						);
+					})()
 				: null}
 		</>
 	);

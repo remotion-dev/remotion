@@ -18,6 +18,7 @@ import {
 	vectorLength,
 } from './selected-outline-measurement';
 import type {
+	SelectedOutlineBorderRadiusDragTarget,
 	SelectedOutlineCropDragTarget,
 	SelectedOutlineCropFieldKey,
 	SelectedOutlineCropHandle,
@@ -31,6 +32,7 @@ import type {
 	SelectedOutlineTransformOriginDragTarget,
 } from './selected-outline-types';
 import {
+	borderRadiusFieldKey,
 	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
@@ -1272,4 +1274,124 @@ export const snapSelectedOutlineTransformOriginUv = ({
 	}
 
 	return best?.uv ?? uv;
+};
+
+type SelectedOutlineBorderRadiusDragState = {
+	readonly defaultValue: string | null;
+	readonly key: string;
+	readonly sourceFrame: number;
+	readonly startValue: number;
+	readonly target: SelectedOutlineBorderRadiusDragTarget;
+};
+
+export const getSelectedOutlineBorderRadiusDragStates = ({
+	dragTargets,
+	getDragOverrides,
+	timelinePosition,
+}: {
+	readonly dragTargets: readonly SelectedOutlineBorderRadiusDragTarget[];
+	readonly getDragOverrides: GetDragOverrides;
+	readonly timelinePosition: number;
+}): SelectedOutlineBorderRadiusDragState[] => {
+	return dragTargets.map((target) => {
+		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
+			borderRadiusFieldKey
+		];
+		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const effectiveValue = Internals.getEffectiveVisualModeValue({
+			propStatus: target.propStatus,
+			dragOverrideValue,
+			defaultValue: target.fieldDefault,
+			frame: sourceFrame,
+			shouldResortToDefaultValueIfUndefined: true,
+		});
+		const startValue =
+			typeof effectiveValue === 'number' && Number.isFinite(effectiveValue)
+				? effectiveValue
+				: target.value;
+
+		return {
+			defaultValue:
+				target.fieldDefault !== undefined
+					? JSON.stringify(target.fieldDefault)
+					: null,
+			key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
+			sourceFrame,
+			startValue,
+			target,
+		};
+	});
+};
+
+export const getSelectedOutlineBorderRadiusDragChanges = ({
+	dragStates,
+	lastValues,
+}: {
+	readonly dragStates: readonly SelectedOutlineBorderRadiusDragState[];
+	readonly lastValues: ReadonlyMap<string, number>;
+}): SelectedOutlineDragChange[] => {
+	const changes: SelectedOutlineDragChange[] = [];
+
+	for (const dragState of dragStates) {
+		const value = lastValues.get(dragState.key);
+		if (value === undefined) {
+			continue;
+		}
+
+		if (dragState.target.propStatus.status === 'keyframed') {
+			const startValue = dragState.startValue;
+			if (value === startValue) {
+				continue;
+			}
+
+			changes.push({
+				type: 'keyframed',
+				fileName: dragState.target.nodePath.absolutePath,
+				nodePath: dragState.target.nodePath,
+				fieldKey: borderRadiusFieldKey,
+				sourceFrame: dragState.sourceFrame,
+				value,
+				schema: dragState.target.schema,
+				clientId: dragState.target.clientId,
+			});
+			continue;
+		}
+
+		const stringifiedValue = JSON.stringify(value);
+		const shouldSave =
+			stringifiedValue !==
+				JSON.stringify(dragState.target.propStatus.codeValue) &&
+			!(
+				dragState.defaultValue === stringifiedValue &&
+				dragState.target.propStatus.codeValue === undefined
+			);
+
+		if (!shouldSave) {
+			continue;
+		}
+
+		changes.push({
+			type: 'static',
+			fileName: dragState.target.nodePath.absolutePath,
+			nodePath: dragState.target.nodePath,
+			fieldKey: borderRadiusFieldKey,
+			value,
+			defaultValue: dragState.defaultValue,
+			schema: dragState.target.schema,
+		});
+	}
+
+	return changes;
+};
+
+export const clearSelectedOutlineBorderRadiusDragOverrides = ({
+	clearDragOverrides,
+	dragStates,
+}: {
+	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
+	readonly dragStates: readonly SelectedOutlineBorderRadiusDragState[];
+}): void => {
+	for (const dragState of dragStates) {
+		clearDragOverrides(dragState.target.nodePath);
+	}
 };
