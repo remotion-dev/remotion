@@ -22,6 +22,8 @@ const previewEnvironment = {
 };
 
 let nativeSuspendCalls = 0;
+let nativeResumeCalls = 0;
+let stallNativeResume = false;
 let gainValues: number[] = [];
 
 class TrackedAudioContext {
@@ -30,13 +32,18 @@ class TrackedAudioContext {
 	public outputLatency = 0;
 	public currentTime = 0;
 	public destination = {};
+	private readonly stateChangeListeners = new Set<EventListener>();
 
-	addEventListener() {
-		return undefined;
+	addEventListener(name: string, listener: EventListener) {
+		if (name === 'statechange') {
+			this.stateChangeListeners.add(listener);
+		}
 	}
 
-	removeEventListener() {
-		return undefined;
+	removeEventListener(name: string, listener: EventListener) {
+		if (name === 'statechange') {
+			this.stateChangeListeners.delete(listener);
+		}
 	}
 
 	createGain() {
@@ -59,7 +66,16 @@ class TrackedAudioContext {
 	}
 
 	resume() {
+		nativeResumeCalls++;
+		if (stallNativeResume) {
+			return new Promise<void>(() => undefined);
+		}
+
 		this.state = 'running';
+		for (const listener of this.stateChangeListeners) {
+			listener(new Event('statechange'));
+		}
+
 		return Promise.resolve();
 	}
 
@@ -139,6 +155,8 @@ const withMockedAudioContext = async (fn: () => Promise<void>) => {
 	globalThis.AudioContext =
 		TrackedAudioContext as unknown as typeof AudioContext;
 	nativeSuspendCalls = 0;
+	nativeResumeCalls = 0;
+	stallNativeResume = false;
 	gainValues = [];
 	try {
 		await fn();
@@ -214,5 +232,30 @@ test('_experimentalKeepAudioContextAlive queues nodes scheduled while silenced',
 			await Promise.resolve();
 		});
 		expect(startedWhileSilenced).toEqual([2]);
+	});
+});
+
+test('_experimentalKeepAudioContextAlive retries a stalled resume', async () => {
+	await withMockedAudioContext(async () => {
+		stallNativeResume = true;
+		const value = renderProvider(true);
+
+		await act(async () => {
+			value.resume();
+			await Promise.resolve();
+		});
+
+		const pendingResume = value.getIsResumingAudioContext();
+		expect(pendingResume).not.toBeNull();
+		const callsBeforeRetry = nativeResumeCalls;
+
+		stallNativeResume = false;
+		await act(async () => {
+			await value.resume();
+		});
+
+		expect(nativeResumeCalls).toBeGreaterThan(callsBeforeRetry);
+		expect(await pendingResume).toBe('resumed');
+		expect(value.getIsResumingAudioContext()).toBeNull();
 	});
 });
