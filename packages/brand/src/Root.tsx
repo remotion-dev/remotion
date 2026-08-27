@@ -145,6 +145,13 @@ import {Prompt, PromptSchema} from './video-elements/Prompt';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
+import {
+	MacBookAppScene,
+	MacBookDesktopScene,
+	MacBookLoopScene,
+	MacBookScene,
+} from './WebMCPPromo/MacBookScene';
+import {WebMCPPromo2} from './WebMCPPromo2';
 
 export const RemotionRoot: React.FC = () => {
 	return (
@@ -887,6 +894,7 @@ export const RemotionRoot: React.FC = () => {
 				width={900}
 				height={900}
 			/>
+
 			<Folder name="CloseUps">
 				<CloseUp1 />
 				<CloseUp2 />
@@ -905,6 +913,41 @@ export const RemotionRoot: React.FC = () => {
 				width={1920}
 				height={1080}
 			/>
+			<Folder name="WebMCPPromo-Scenes">
+				<Composition
+					id="WebMCPPromo-MacBook-Loop"
+					component={MacBookLoopScene}
+					durationInFrames={800}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="WebMCPPromo-MacBook"
+					component={MacBookScene}
+					durationInFrames={800}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="WebMCPPromo-MacBook-Desktop"
+					component={MacBookDesktopScene}
+					durationInFrames={1200}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="WebMCPPromo-MacBook-App"
+					component={MacBookAppScene}
+					durationInFrames={1200}
+					fps={60}
+					width={1320}
+					height={827}
+				/>
+				<WebMCPPromo2 />
+			</Folder>
 		</>
 	);
 };
