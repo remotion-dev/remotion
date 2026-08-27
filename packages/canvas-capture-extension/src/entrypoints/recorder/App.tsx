@@ -1,8 +1,8 @@
+import {Button, Card, Input} from '@remotion/design';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {browser} from 'wxt/browser';
 import {
 	captureControllerMessageType,
-	isCapturePopupTargetMessage,
 	type CaptureControllerRequest,
 	type CaptureControllerState,
 } from '../../messages';
@@ -137,29 +137,21 @@ export const App: React.FC = () => {
 	}, [state]);
 
 	useEffect(() => {
-		const onMessage = (message: unknown) => {
-			if (!isCapturePopupTargetMessage(message)) {
-				return;
-			}
+		browser.tabs
+			.query({active: true, currentWindow: true})
+			.then(([tab]) => {
+				if (tab?.id === undefined) {
+					renderDisconnected('No active tab is available.');
+					return;
+				}
 
-			connectToTab(message.tabId).catch(() => undefined);
-		};
-
-		browser.runtime.onMessage.addListener(onMessage);
-		return () => browser.runtime.onMessage.removeListener(onMessage);
-	}, [connectToTab]);
-
-	useEffect(() => {
-		const initialTabId = Number(
-			new URL(window.location.href).searchParams.get('tabId'),
-		);
-		if (Number.isInteger(initialTabId) && initialTabId >= 0) {
-			connectToTab(initialTabId).catch(() => undefined);
-		} else {
-			renderDisconnected(
-				'No target tab was provided. Click the extension icon on the page you want to capture.',
-			);
-		}
+				return connectToTab(tab.id);
+			})
+			.catch((error) => {
+				renderDisconnected(
+					error instanceof Error ? error.message : String(error),
+				);
+			});
 	}, [connectToTab, renderDisconnected]);
 
 	useEffect(() => {
@@ -181,21 +173,7 @@ export const App: React.FC = () => {
 						return;
 					}
 
-					const selectionFinished =
-						currentState.current?.selecting && !nextState.selecting;
 					applyState(nextState);
-					if (selectionFinished) {
-						browser.windows
-							.getCurrent()
-							.then((recorderWindow) => {
-								if (recorderWindow.id !== undefined) {
-									return browser.windows.update(recorderWindow.id, {
-										focused: true,
-									});
-								}
-							})
-							.catch(() => undefined);
-					}
 				})
 				.catch((error) => {
 					if (activeTabId.current === tabId) {
@@ -213,6 +191,7 @@ export const App: React.FC = () => {
 	}, [applyState, renderDisconnected]);
 
 	const controlsDisabled = busy || !state || state.finalizing;
+	const setupDisabled = controlsDisabled || state?.hasCompletedRecording;
 	const targetLabel = state?.targetLabel
 		? `${state.targetLabel}${
 				state.outputSize
@@ -247,7 +226,7 @@ export const App: React.FC = () => {
 				</div>
 			</header>
 
-			<section className="panel settings-panel">
+			<Card className="panel settings-panel">
 				<div className="field">
 					<label>Format</label>
 					<div className="format-value">
@@ -258,12 +237,12 @@ export const App: React.FC = () => {
 				<div className="field">
 					<label htmlFor="scale">Scale</label>
 					<div className="scale-control">
-						<input
+						<Input
 							id="scale"
 							type="number"
 							min="0.1"
 							step="0.1"
-							disabled={controlsDisabled || state?.recording}
+							disabled={setupDisabled || state?.recording}
 							value={scaleInput}
 							onChange={(event) => setScaleInput(event.currentTarget.value)}
 							onBlur={() => updateOptions(Number(scaleInput))}
@@ -276,15 +255,14 @@ export const App: React.FC = () => {
 						<span>×</span>
 					</div>
 				</div>
-			</section>
+			</Card>
 
 			<section className="capture-section">
 				<div className="section-label">Capture target</div>
 				<div className="button-row">
-					<button
+					<Button
 						className="secondary-button"
-						type="button"
-						disabled={controlsDisabled || state?.recording}
+						disabled={setupDisabled || state?.recording}
 						onClick={() => {
 							const command = state?.selecting
 								? 'cancel-selection'
@@ -295,33 +273,17 @@ export const App: React.FC = () => {
 										return;
 									}
 
-									const tabId = activeTabId.current;
-									if (tabId === null) {
-										return;
-									}
-
-									browser.tabs
-										.get(tabId)
-										.then(async (tab) => {
-											await browser.tabs.update(tabId, {active: true});
-											if (tab.windowId !== undefined) {
-												await browser.windows.update(tab.windowId, {
-													focused: true,
-												});
-											}
-										})
-										.catch(() => undefined);
+									window.close();
 								})
 								.catch(() => undefined);
 						}}
 					>
 						<span className="selection-icon" aria-hidden="true" />
 						{state?.selecting ? 'Cancel selection' : 'Select area'}
-					</button>
-					<button
+					</Button>
+					<Button
 						className="secondary-button"
-						type="button"
-						disabled={controlsDisabled || state?.recording}
+						disabled={setupDisabled || state?.recording}
 						onClick={() =>
 							runCommand({
 								type: captureControllerMessageType,
@@ -331,56 +293,70 @@ export const App: React.FC = () => {
 					>
 						<span className="page-icon" aria-hidden="true" />
 						Whole page
-					</button>
+					</Button>
 				</div>
-				<div className={`target-card${state?.hasTarget ? ' selected' : ''}`}>
+				<Card className={`target-card${state?.hasTarget ? ' selected' : ''}`}>
 					<span className="target-dot" />
 					<span>{targetLabel}</span>
-				</div>
+				</Card>
 			</section>
 
 			<div className="actions">
-				<button
-					className={`record-button${state?.recording ? ' recording' : ''}`}
-					type="button"
-					disabled={recordDisabled}
-					title={state?.encoderSupport === 'unsupported' ? state.status : ''}
-					onClick={() => {
-						if (state?.recording) {
-							runCommand({
-								type: captureControllerMessageType,
-								command: 'stop-recording',
-								destination: 'convert',
-							}).catch(() => undefined);
-							return;
-						}
+				{state?.hasCompletedRecording ? (
+					<div className="completed-recording">
+						<div className="completed-title">Recording ready</div>
+						<div className="completed-actions">
+							<Button
+								className="convert-button"
+								disabled={controlsDisabled}
+								onClick={() =>
+									runCommand({
+										type: captureControllerMessageType,
+										command: 'open-in-convert',
+									}).catch(() => undefined)
+								}
+							>
+								Open in Convert
+							</Button>
+							<Button
+								className="download-button"
+								disabled={controlsDisabled}
+								onClick={() =>
+									runCommand({
+										type: captureControllerMessageType,
+										command: 'download-recording',
+									}).catch(() => undefined)
+								}
+							>
+								Download {state.format === 'mp4' ? 'MP4' : 'WebM'}
+							</Button>
+						</div>
+					</div>
+				) : (
+					<Button
+						className={`record-button${state?.recording ? ' recording' : ''}`}
+						disabled={recordDisabled}
+						title={state?.encoderSupport === 'unsupported' ? state.status : ''}
+						onClick={() => {
+							if (state?.recording) {
+								runCommand({
+									type: captureControllerMessageType,
+									command: 'stop-recording',
+								}).catch(() => undefined);
+								return;
+							}
 
-						runCommand({
-							type: captureControllerMessageType,
-							command: 'start-recording',
-							scale: state?.scale ?? 1,
-						}).catch(() => undefined);
-					}}
-				>
-					<span className="record-icon" aria-hidden="true" />
-					{state?.recording ? 'Stop & open in Convert' : 'Start recording'}
-				</button>
-				{state?.recording ? (
-					<button
-						className="download-button"
-						type="button"
-						disabled={controlsDisabled}
-						onClick={() =>
 							runCommand({
 								type: captureControllerMessageType,
-								command: 'stop-recording',
-								destination: 'download',
-							}).catch(() => undefined)
-						}
+								command: 'start-recording',
+								scale: state?.scale ?? 1,
+							}).catch(() => undefined);
+						}}
 					>
-						Download {state.format === 'mp4' ? 'MP4' : 'WebM'}
-					</button>
-				) : null}
+						<span className="record-icon" aria-hidden="true" />
+						{state?.recording ? 'Stop recording' : 'Start recording'}
+					</Button>
+				)}
 			</div>
 
 			<footer className={`status${statusIsError ? ' error' : ''}`}>

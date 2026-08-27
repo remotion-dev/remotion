@@ -1,15 +1,15 @@
 :root {
-	color-scheme: dark;
+	color-scheme: light;
 	font-family:
-		Inter,
+		GTPlanar,
 		ui-sans-serif,
 		system-ui,
 		-apple-system,
 		BlinkMacSystemFont,
 		'Segoe UI',
 		sans-serif;
-	background: #1f2428;
-	color: #fff;
+	background: #f5f7f9;
+	color: #000;
 	font-synthesis: none;
 	-webkit-font-smoothing: antialiased;
 }
@@ -19,9 +19,9 @@
 }
 
 body {
-	min-width: 360px;
+	width: 380px;
 	margin: 0;
-	background: #1f2428;
+	background: #f5f7f9;
 	font-size: 13px;
 	line-height: 1.4;
 }
@@ -31,22 +31,17 @@ input {
 	font: inherit;
 }
 
-button {
-	cursor: pointer;
-}
-
-button:disabled,
-input:disabled {
-	cursor: default;
-	opacity: 0.48;
+button:focus-visible,
+input:focus-visible {
+	outline: 2px solid #0b84f3;
+	outline-offset: 2px;
 }
 
 .app-shell {
 	display: flex;
-	min-height: 100vh;
 	flex-direction: column;
-	gap: 18px;
-	padding: 20px;
+	gap: 16px;
+	padding: 18px;
 }
 
 .header {
@@ -66,21 +61,24 @@ p {
 }
 
 h1 {
-	font-size: 17px;
-	font-weight: 650;
-	letter-spacing: -0.01em;
+	font-size: 18px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
 }
 
 .header p {
-	margin-top: 2px;
-	color: #a6a7a9;
+	margin-top: 1px;
+	color: #555b61;
 	font-size: 12px;
 }
 
-.panel {
-	border: 1px solid rgba(255, 255, 255, 0.1);
+.panel,
+.target-card {
+	border: 2px solid #000;
+	border-bottom-width: 4px;
 	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.035);
+	background: #fff;
+	color: #000;
 }
 
 .settings-panel {
@@ -93,18 +91,18 @@ h1 {
 	min-width: 0;
 	flex-direction: column;
 	gap: 7px;
-	padding: 12px;
+	padding: 11px;
 }
 
 .field + .field {
-	border-left: 1px solid rgba(255, 255, 255, 0.1);
+	border-left: 2px solid #000;
 }
 
 .field label,
 .section-label {
-	color: #a6a7a9;
+	color: #555b61;
 	font-size: 11px;
-	font-weight: 600;
+	font-weight: 700;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
 }
@@ -112,12 +110,12 @@ h1 {
 input,
 .format-value {
 	width: 100%;
-	height: 34px;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 5px;
-	outline: none;
-	background: #2f363d;
-	color: #fff;
+	height: 36px;
+	border: 2px solid #000;
+	border-bottom-width: 4px;
+	border-radius: 8px;
+	background: #fff;
+	color: #000;
 }
 
 .format-value {
@@ -128,12 +126,12 @@ input,
 
 input {
 	padding: 0 8px;
+	font-size: 13px;
 }
 
-input:focus,
-button:focus-visible {
-	border-color: #0b84f3;
-	box-shadow: 0 0 0 2px rgba(11, 132, 243, 0.25);
+input:disabled {
+	cursor: default;
+	opacity: 0.5;
 }
 
 .scale-control {
@@ -143,7 +141,8 @@ button:focus-visible {
 }
 
 .scale-control span {
-	color: #a6a7a9;
+	color: #555b61;
+	font-weight: 700;
 }
 
 .capture-section {
@@ -152,60 +151,61 @@ button:focus-visible {
 	gap: 9px;
 }
 
-.button-row {
+.button-row,
+.completed-actions {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 8px;
 }
 
 .secondary-button,
-.download-button {
-	display: flex;
-	min-height: 38px;
-	align-items: center;
-	justify-content: center;
+.download-button,
+.convert-button,
+.record-button {
+	width: 100%;
+	height: 40px;
 	gap: 8px;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 6px;
-	background: #2f363d;
-	color: #fff;
-	font-weight: 550;
+	border: 2px solid #000;
+	border-bottom-width: 4px;
+	border-radius: 8px;
+	background: #fff;
+	color: #000;
+	font-size: 13px;
+	font-weight: 700;
+	padding: 0 10px;
 }
 
 .secondary-button:hover:not(:disabled),
 .download-button:hover:not(:disabled) {
-	background: #39424a;
+	background: #eef1f4;
 }
 
 .selection-icon {
 	width: 13px;
 	height: 13px;
-	border: 1px dashed #a6a7a9;
+	border: 1px dashed currentColor;
 	border-radius: 2px;
 }
 
 .page-icon {
 	width: 11px;
 	height: 14px;
-	border: 1px solid #a6a7a9;
+	border: 1px solid currentColor;
 	border-radius: 1px;
 }
 
 .target-card {
 	display: flex;
-	min-height: 40px;
+	min-height: 42px;
 	align-items: center;
 	gap: 9px;
 	padding: 9px 11px;
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	border-radius: 6px;
-	background: #191d20;
-	color: #a6a7a9;
+	color: #6b7177;
 	overflow-wrap: anywhere;
 }
 
 .target-card.selected {
-	color: #ddd;
+	color: #000;
 }
 
 .target-dot,
@@ -214,7 +214,7 @@ button:focus-visible {
 	height: 7px;
 	flex: 0 0 auto;
 	border-radius: 50%;
-	background: #6d747a;
+	background: #9aa0a6;
 }
 
 .target-card.selected .target-dot {
@@ -228,27 +228,24 @@ button:focus-visible {
 	gap: 8px;
 }
 
-.record-button {
-	display: flex;
-	min-height: 44px;
-	align-items: center;
-	justify-content: center;
-	gap: 9px;
-	border: 1px solid #0b84f3;
-	border-radius: 6px;
+.record-button,
+.convert-button {
+	height: 46px;
 	background: #0b84f3;
 	color: #fff;
-	font-weight: 650;
 }
 
-.record-button:hover:not(:disabled) {
-	border-color: #2290f5;
+.record-button:hover:not(:disabled),
+.convert-button:hover:not(:disabled) {
 	background: #2290f5;
 }
 
 .record-button.recording {
-	border-color: #e74c3c;
-	background: #e74c3c;
+	background: #ff3232;
+}
+
+.record-button.recording:hover:not(:disabled) {
+	background: #ff4b4b;
 }
 
 .record-icon {
@@ -263,12 +260,33 @@ button:focus-visible {
 	background: currentColor;
 }
 
+.completed-recording {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 12px;
+	border: 2px solid #000;
+	border-bottom-width: 4px;
+	border-radius: 8px;
+	background: #e9f4ff;
+}
+
+.completed-title {
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.completed-actions .convert-button,
+.completed-actions .download-button {
+	height: 42px;
+}
+
 .status {
 	display: flex;
 	min-height: 18px;
 	align-items: flex-start;
 	gap: 8px;
-	color: #a6a7a9;
+	color: #555b61;
 	font-size: 12px;
 	overflow-wrap: anywhere;
 }
@@ -279,7 +297,7 @@ button:focus-visible {
 }
 
 .status.error {
-	color: #ff7777;
+	color: #c5221f;
 }
 
 .status.error .status-dot {
