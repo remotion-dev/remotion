@@ -7,12 +7,6 @@ type ReactRefreshRuntime = {
 	getFamilyByType: (component: unknown) => unknown;
 };
 
-const RefreshRuntime = require('react-refresh/runtime') as ReactRefreshRuntime;
-
-Internals.setComponentIdentityResolver((component) => {
-	return RefreshRuntime.getFamilyByType(component) ?? component;
-});
-
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
@@ -117,5 +111,10 @@ if (typeof window !== 'undefined') {
 }
 
 if (process.env.NODE_ENV !== 'production') {
+	const RefreshRuntime =
+		require('react-refresh/runtime') as ReactRefreshRuntime;
+	Internals.setComponentIdentityResolver((component) => {
+		return RefreshRuntime.getFamilyByType(component) ?? component;
+	});
 	enableSequenceStackTraces();
 }
