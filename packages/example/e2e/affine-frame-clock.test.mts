@@ -28,6 +28,25 @@ const readRotationKeyframes = () => {
 		.filter((frame) => !Number.isNaN(frame));
 };
 
+const readTranslateKeyframes = () => {
+	const source = fs.readFileSync(affineFrameClockFile, 'utf-8');
+	const match =
+		/translate:\s*interpolate\(\s*frame,\s*\[([^\]]*)\],\s*\[([^\]]*)\]/.exec(
+			source,
+		);
+	if (match === null) {
+		throw new Error('Could not read affine frame clock translate keyframes');
+	}
+
+	return {
+		frames: match[1]
+			.split(',')
+			.map((frame) => Number(frame.trim()))
+			.filter((frame) => !Number.isNaN(frame)),
+		values: [...match[2].matchAll(/(['"])(.*?)\1/g)].map((value) => value[2]),
+	};
+};
+
 test.describe('affine frame clock keyframes', () => {
 	let sourceBefore: string;
 
@@ -60,7 +79,7 @@ test.describe('affine frame clock keyframes', () => {
 		await rotation.click();
 		const firstKeyframe = page
 			.getByTitle('Keyframe at frame 0', {exact: true})
-			.first();
+			.last();
 		await expect(firstKeyframe).toBeVisible({timeout: 15_000});
 		await firstKeyframe.click();
 
@@ -101,5 +120,22 @@ test.describe('affine frame clock keyframes', () => {
 		await page.mouse.up();
 
 		await expect.poll(readRotationKeyframes).toEqual([30, 40, 60]);
+
+		await page.keyboard.press('g');
+		await expect(currentFrameInput).toBeVisible();
+		await currentFrameInput.fill('50');
+		await currentFrameInput.press('Enter');
+
+		const offset = page.getByTitle('Offset', {exact: true}).first();
+		await offset.click();
+		const offsetRow = offset.locator(
+			'xpath=ancestor::div[.//button[@aria-label="Add keyframe"]][1]',
+		);
+		await offsetRow.getByRole('button', {name: 'Add keyframe'}).click();
+
+		await expect.poll(readTranslateKeyframes).toEqual({
+			frames: [0, 30, 50],
+			values: ['0px 0px', '100px 0px', '100px 0px'],
+		});
 	});
 });
