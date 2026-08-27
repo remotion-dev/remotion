@@ -63,7 +63,37 @@ const UseCurrentScaleOnLoad: React.FC = () => {
 };
 
 const OpaqueVideoCheckerboard: React.FC = () => {
-	return <Video src={staticFile('vp9.webm')} />;
+	return (
+		<AbsoluteFill>
+			<Video src={staticFile('vp9.webm')} />
+			<div
+				data-testid="small-video-container"
+				style={{
+					height: 540,
+					left: 480,
+					position: 'absolute',
+					top: 270,
+					width: 960,
+				}}
+			>
+				<Video
+					src={staticFile('vp9.webm')}
+					style={{height: '100%', width: '100%'}}
+				/>
+			</div>
+			<div
+				data-testid="video-overscan-marker"
+				style={{
+					backgroundColor: 'red',
+					height: 100,
+					left: 0,
+					position: 'absolute',
+					top: 0,
+					width: 100,
+				}}
+			/>
+		</AbsoluteFill>
+	);
 };
 
 export const E2eTestRoot: React.FC = () => {

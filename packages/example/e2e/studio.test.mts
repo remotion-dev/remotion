@@ -305,7 +305,7 @@ test.describe('visual mode', () => {
 			'.remotion-studio-composition-container',
 		);
 		await expect(opaqueVideoPreview).toBeVisible();
-		const opaqueVideoCanvas = opaqueVideoPreview.locator('canvas');
+		const opaqueVideoCanvas = opaqueVideoPreview.locator('canvas').first();
 		await expect
 			.poll(() =>
 				opaqueVideoCanvas.evaluate((canvas: HTMLCanvasElement) => {
@@ -317,6 +317,35 @@ test.describe('visual mode', () => {
 		const checkerboardToggle = page.getByRole('button', {
 			name: /Show transparency as checkerboard/,
 		});
+		const marker = page.getByTestId('video-overscan-marker');
+		const previewBox = await opaqueVideoPreview.boundingBox();
+		const markerBox = await marker.boundingBox();
+		if (previewBox === null || markerBox === null) {
+			throw new Error('Could not measure video preview geometry');
+		}
+
+		expect(
+			Math.max(
+				Math.abs(previewBox.x - markerBox.x),
+				Math.abs(previewBox.y - markerBox.y),
+			),
+		).toBeLessThan(0.1);
+		const smallVideoContainer = page.getByTestId('small-video-container');
+		const smallVideoCanvas = smallVideoContainer.locator('canvas');
+		const smallVideoContainerBox = await smallVideoContainer.boundingBox();
+		const smallVideoCanvasBox = await smallVideoCanvas.boundingBox();
+		if (smallVideoContainerBox === null || smallVideoCanvasBox === null) {
+			throw new Error('Could not measure small video geometry');
+		}
+
+		expect(
+			Math.max(
+				Math.abs(smallVideoContainerBox.x - smallVideoCanvasBox.x),
+				Math.abs(smallVideoContainerBox.y - smallVideoCanvasBox.y),
+				Math.abs(smallVideoContainerBox.width - smallVideoCanvasBox.width),
+				Math.abs(smallVideoContainerBox.height - smallVideoCanvasBox.height),
+			),
+		).toBeLessThan(0.1);
 		if ((await checkerboardToggle.getAttribute('aria-pressed')) === 'true') {
 			await checkerboardToggle.click();
 		}

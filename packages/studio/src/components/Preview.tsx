@@ -62,12 +62,14 @@ const assetMetadataErrorContainer: React.CSSProperties = {
 const checkerboardSize = 49;
 const PIXEL_GRID_MIN_SCALE = 4;
 const portalContainerClassName = 'remotion-studio-portal-container';
+const fullBleedVideoCanvasAttribute =
+	'data-remotion-studio-full-bleed-video-canvas';
+const videoCanvasSelector = `canvas.${Internals.OBJECTFIT_CONTAIN_CLASS_NAME}`;
 const videoCanvasOverscanCss = `
-.${portalContainerClassName}:has(canvas.${Internals.OBJECTFIT_CONTAIN_CLASS_NAME}) > div {
-	transform: scale(
-		var(--remotion-studio-video-overscan-x),
-		var(--remotion-studio-video-overscan-y)
-	);
+.${portalContainerClassName} ${videoCanvasSelector}[${fullBleedVideoCanvasAttribute}] {
+	scale:
+		var(--remotion-studio-video-overscan-x)
+		var(--remotion-studio-video-overscan-y);
 }
 `;
 
@@ -493,6 +495,70 @@ const PortalContainer: React.FC<{
 	useLayoutEffect(() => {
 		Internals.setPortalNodeCurrentScale(scale);
 	}, [scale]);
+
+	useLayoutEffect(() => {
+		if (offscreen) {
+			return;
+		}
+
+		const portalNode = Internals.portalNode();
+		const updateFullBleedVideoCanvases = () => {
+			const videoCanvases =
+				portalNode.querySelectorAll<HTMLCanvasElement>(videoCanvasSelector);
+			for (const canvas of videoCanvases) {
+				canvas.removeAttribute(fullBleedVideoCanvasAttribute);
+				resizeObserver.observe(canvas);
+			}
+
+			const portalRect = portalNode.getBoundingClientRect();
+			for (const canvas of videoCanvases) {
+				const canvasRect = canvas.getBoundingClientRect();
+				const isFullBleed =
+					canvasRect.width > 0 &&
+					canvasRect.height > 0 &&
+					Math.abs(canvasRect.left - portalRect.left) < 0.1 &&
+					Math.abs(canvasRect.top - portalRect.top) < 0.1 &&
+					Math.abs(canvasRect.right - portalRect.right) < 0.1 &&
+					Math.abs(canvasRect.bottom - portalRect.bottom) < 0.1;
+				canvas.toggleAttribute(fullBleedVideoCanvasAttribute, isFullBleed);
+			}
+		};
+
+		const resizeObserver = new ResizeObserver(updateFullBleedVideoCanvases);
+		resizeObserver.observe(portalNode);
+		const mutationObserver = new MutationObserver((mutations) => {
+			const videoGeometryMayHaveChanged = mutations.some((mutation) => {
+				if (mutation.type === 'childList') {
+					return true;
+				}
+
+				return (
+					mutation.target instanceof Element &&
+					(mutation.target.matches(videoCanvasSelector) ||
+						mutation.target.querySelector(videoCanvasSelector) !== null)
+				);
+			});
+
+			if (videoGeometryMayHaveChanged) {
+				updateFullBleedVideoCanvases();
+			}
+		});
+		mutationObserver.observe(portalNode, {
+			attributeFilter: ['class', 'style'],
+			attributes: true,
+			childList: true,
+			subtree: true,
+		});
+		updateFullBleedVideoCanvases();
+
+		return () => {
+			mutationObserver.disconnect();
+			resizeObserver.disconnect();
+			for (const canvas of portalNode.querySelectorAll(videoCanvasSelector)) {
+				canvas.removeAttribute(fullBleedVideoCanvasAttribute);
+			}
+		};
+	}, [offscreen]);
 
 	const onPointerDown = useCallback(
 		(event: PointerEvent) => {
