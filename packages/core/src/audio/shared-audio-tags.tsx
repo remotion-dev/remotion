@@ -499,19 +499,22 @@ export const SharedAudioContextProvider: React.FC<{
 	}, []);
 
 	const suspend = useCallback(() => {
-		isResuming.current?.abortController.abort();
+		const resumeAttempt = isResuming.current;
 
 		if (!ctxAndGain) {
+			resumeAttempt?.abortController.abort();
 			return Promise.resolve();
 		}
 
 		if (!audioContextIsPlayingEventually.current) {
+			resumeAttempt?.abortController.abort();
 			return Promise.resolve();
 		}
 
 		audioContextIsPlayingEventually.current = false;
 
 		if (_experimentalKeepAudioContextAlive) {
+			resumeAttempt?.abortController.abort();
 			// Silence through the gain instead of suspending, so the context
 			// clock keeps running and the next resume() is instant. Audio that
 			// is already scheduled plays out silently; resume() ramps the gain
@@ -526,7 +529,26 @@ export const SharedAudioContextProvider: React.FC<{
 			return Promise.resolve();
 		}
 
-		return ctxAndGain.suspend();
+		if (ctxAndGain.getState() === 'running') {
+			resumeAttempt?.abortController.abort();
+			return ctxAndGain.suspend();
+		}
+
+		if (!resumeAttempt) {
+			return Promise.resolve();
+		}
+
+		return resumeAttempt.promise.then((result) => {
+			if (
+				result !== 'resumed' ||
+				audioContextIsPlayingEventually.current ||
+				ctxAndGain.getState() !== 'running'
+			) {
+				return;
+			}
+
+			return ctxAndGain.suspend();
+		});
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
 
 	// With _experimentalKeepAudioContextAlive, start the context as early as
