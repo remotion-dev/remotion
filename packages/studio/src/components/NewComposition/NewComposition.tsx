@@ -67,10 +67,12 @@ const folderLabelTextStyle: React.CSSProperties = {
 };
 
 const FolderDropdownLabel: React.FC<{
+	readonly indentation: number;
 	readonly folderPath: string | null;
-}> = ({folderPath}) => {
+}> = ({folderPath, indentation}) => {
 	return (
 		<div style={folderLabelStyle}>
+			<Spacing x={indentation * 1.5} />
 			{folderPath === null ? (
 				<div style={folderIconStyle} />
 			) : (
@@ -104,11 +106,26 @@ const NewCompositionLoaded: React.FC<{
 			})}`
 		: rootFolderId;
 	const folderValues = useMemo((): ComboboxValue[] => {
+		const foldersInTreeOrder: (typeof folders)[number][] = [];
+		const appendFolders = (parent: string | null) => {
+			folders
+				.filter((folder) => folder.parent === parent)
+				.sort((a, b) => a.name.localeCompare(b.name))
+				.forEach((folder) => {
+					foldersInTreeOrder.push(folder);
+					appendFolders(
+						getFolderId({folderName: folder.name, parentName: folder.parent}),
+					);
+				});
+		};
+
+		appendFolders(null);
+
 		return [
 			{
 				id: rootFolderId,
 				keyHint: null,
-				label: <FolderDropdownLabel folderPath={null} />,
+				label: <FolderDropdownLabel folderPath={null} indentation={0} />,
 				leftItem: selectedFolder.folderName === null ? <Checkmark /> : null,
 				onClick: () => {
 					setSelectedFolder({
@@ -130,41 +147,37 @@ const NewCompositionLoaded: React.FC<{
 							type: 'divider' as const,
 						},
 					]),
-			...folders
-				.slice()
-				.sort((a, b) => {
-					return getFolderId({
-						folderName: a.name,
-						parentName: a.parent,
-					}).localeCompare(
-						getFolderId({folderName: b.name, parentName: b.parent}),
-					);
-				})
-				.map((folder): ComboboxValue => {
-					const folderPath = getFolderId({
-						folderName: folder.name,
-						parentName: folder.parent,
-					});
-					const id = `${folderSelectIdPrefix}${folderPath}`;
-					return {
-						id,
-						keyHint: null,
-						label: <FolderDropdownLabel folderPath={folderPath} />,
-						leftItem: selectedFolderId === id ? <Checkmark /> : null,
-						onClick: () => {
-							setSelectedFolder({
-								folderName: folder.name,
-								parentName: folder.parent,
-								stack: folder.stack,
-							});
-						},
-						quickSwitcherLabel: folderPath,
-						subMenu: null,
-						type: 'item',
-						value: id,
-						disabled: folder.stack === null,
-					};
-				}),
+			...foldersInTreeOrder.map((folder): ComboboxValue => {
+				const folderPath = getFolderId({
+					folderName: folder.name,
+					parentName: folder.parent,
+				});
+				const indentation = folder.parent?.split('/').length ?? 0;
+				const id = `${folderSelectIdPrefix}${folderPath}`;
+				return {
+					id,
+					keyHint: null,
+					label: (
+						<FolderDropdownLabel
+							folderPath={folderPath}
+							indentation={indentation}
+						/>
+					),
+					leftItem: selectedFolderId === id ? <Checkmark /> : null,
+					onClick: () => {
+						setSelectedFolder({
+							folderName: folder.name,
+							parentName: folder.parent,
+							stack: folder.stack,
+						});
+					},
+					quickSwitcherLabel: folderPath,
+					subMenu: null,
+					type: 'item',
+					value: id,
+					disabled: folder.stack === null,
+				};
+			}),
 		];
 	}, [folders, selectedFolder.folderName, selectedFolderId]);
 	const resolvedComposition = Internals.useResolvedVideoConfig(null);
