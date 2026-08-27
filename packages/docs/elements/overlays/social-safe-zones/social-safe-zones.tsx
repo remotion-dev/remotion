@@ -66,7 +66,11 @@ const SocialSafeZonesInner = forwardRef<
 		ref,
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
-		const {height, width} = useVideoConfig();
+		const {height: compHeight, width: compWidth} = useVideoConfig();
+		// Social safe zones are always 9:16 (1080×1920), centered in the composition
+		const SAFETY_WIDTH = 1080;
+		const SAFETY_HEIGHT = 1920;
+		const safetyScale = Math.min(compWidth / SAFETY_WIDTH, compHeight / SAFETY_HEIGHT);
 		const maskId = `social-safe-zone-${useId().replaceAll(':', '')}`;
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
@@ -102,12 +106,12 @@ const SocialSafeZonesInner = forwardRef<
 					ref={outlineRef}
 					style={{
 						...style,
-						height,
-						left: 0,
+						height: SAFETY_HEIGHT * safetyScale,
+						left: (compWidth - SAFETY_WIDTH * safetyScale) / 2,
 						pointerEvents: 'none',
 						position: 'absolute',
-						top: 0,
-						width,
+						top: (compHeight - SAFETY_HEIGHT * safetyScale) / 2,
+						width: SAFETY_WIDTH * safetyScale,
 						zIndex: 2147483647,
 					}}
 				>
