@@ -295,15 +295,17 @@ test.describe('visual mode', () => {
 				);
 			})
 			.toBeLessThan(1);
+	});
 
-		await page.goto(`${STUDIO_URL}/assets/framer.webm`);
+	test('should not let the checkerboard bleed through opaque video edges', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/opaque-video-checkerboard-e2e`);
 		const opaqueVideoPreview = page.locator(
 			'.remotion-studio-composition-container',
 		);
 		await expect(opaqueVideoPreview).toBeVisible();
-		const opaqueVideoCanvas = page
-			.getByTestId('asset-media-preview')
-			.locator('canvas');
+		const opaqueVideoCanvas = opaqueVideoPreview.locator('canvas');
 		await expect
 			.poll(() =>
 				opaqueVideoCanvas.evaluate((canvas: HTMLCanvasElement) => {
@@ -312,6 +314,9 @@ test.describe('visual mode', () => {
 				}),
 			)
 			.toBe(255);
+		const checkerboardToggle = page.getByRole('button', {
+			name: /Show transparency as checkerboard/,
+		});
 		if ((await checkerboardToggle.getAttribute('aria-pressed')) === 'true') {
 			await checkerboardToggle.click();
 		}

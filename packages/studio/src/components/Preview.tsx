@@ -460,12 +460,12 @@ const PortalContainer: React.FC<{
 				height: contentDimensions.height,
 			}),
 			// Chromium composites <Video>'s canvas separately from this background.
-			// Extending the portal content by one source pixel on each side moves
+			// Extending the portal content by one preview pixel on each side moves
 			// the canvas texture boundary outside the composition clip.
 			'--remotion-studio-video-overscan-x':
-				(contentDimensions.width + 2) / contentDimensions.width,
+				(contentDimensions.width + 2 / scale) / contentDimensions.width,
 			'--remotion-studio-video-overscan-y':
-				(contentDimensions.height + 2) / contentDimensions.height,
+				(contentDimensions.height + 2 / scale) / contentDimensions.height,
 		} as React.CSSProperties;
 	}, [
 		checkerboard,

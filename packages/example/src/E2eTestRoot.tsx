@@ -1,5 +1,12 @@
+import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Composition, Folder, useCurrentScale} from 'remotion';
+import {
+	AbsoluteFill,
+	Composition,
+	Folder,
+	staticFile,
+	useCurrentScale,
+} from 'remotion';
 import {BarChart} from './BarChart';
 import {
 	CAPTIONS_DURATION_IN_FRAMES,
@@ -53,6 +60,10 @@ const UseCurrentScaleOnLoad: React.FC = () => {
 			</div>
 		</AbsoluteFill>
 	);
+};
+
+const OpaqueVideoCheckerboard: React.FC = () => {
+	return <Video src={staticFile('vp9.webm')} />;
 };
 
 export const E2eTestRoot: React.FC = () => {
@@ -242,6 +253,14 @@ export const E2eTestRoot: React.FC = () => {
 				id="inspector-control-layout-e2e"
 				component={InspectorControlLayoutE2e}
 				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="opaque-video-checkerboard-e2e"
+				component={OpaqueVideoCheckerboard}
+				width={1920}
 				height={1080}
 				fps={30}
 				durationInFrames={90}
