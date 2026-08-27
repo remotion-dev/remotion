@@ -20,6 +20,17 @@ const sourceToBlob = (source: Source) => {
 	return fetch(source.url).then((r) => r.blob());
 };
 
+const downloadJson = (value: unknown, filename: string) => {
+	const blob = new Blob([JSON.stringify(value, null, 2)], {
+		type: 'application/json',
+	});
+	const a = document.createElement('a');
+	a.href = URL.createObjectURL(blob);
+	a.download = filename;
+	a.click();
+	URL.revokeObjectURL(a.href);
+};
+
 export default function TranscribeAudio({
 	source,
 	selectedModel,
@@ -64,6 +75,7 @@ export default function TranscribeAudio({
 			setState(() => ({
 				type: 'done',
 				result: toCaptions({whisperWebGpuOutput: transcription}).captions,
+				whisperWebGpuOutput: transcription,
 			}));
 		} catch (error) {
 			setState({
@@ -131,6 +143,26 @@ export default function TranscribeAudio({
 						Transcribed with WebGPU
 						{state.result.length === 0 ? ' · No speech detected' : null}
 					</Card>
+					<div className="h-2" />
+					<Button
+						type="button"
+						className="block w-full"
+						variant="brand"
+						onClick={() => downloadJson(state.result, 'captions.json')}
+					>
+						Download captions.json
+					</Button>
+					<div className="h-2" />
+					<Button
+						type="button"
+						className="block w-full"
+						variant="brandsecondary"
+						onClick={() =>
+							downloadJson(state.whisperWebGpuOutput, 'whisper-output.json')
+						}
+					>
+						Download raw Whisper output
+					</Button>
 					<div className="h-4" />
 				</>
 			) : null}
