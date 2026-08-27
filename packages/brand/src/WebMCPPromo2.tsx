@@ -1,6 +1,12 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Composition,
+	Easing,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 
 export const WebMCPPromo2Preview = () => {
 	const frame = useCurrentFrame();
@@ -152,5 +158,18 @@ export const WebMCPPromo2Preview = () => {
 				durationInFrames={254}
 			/>
 		</AbsoluteFill>
+	);
+};
+
+export const WebMCPPromo2 = () => {
+	return (
+		<Composition
+			id="WebMCPPromo2"
+			component={WebMCPPromo2Preview}
+			width={2358}
+			height={2586}
+			fps={60}
+			durationInFrames={400}
+		/>
 	);
 };
