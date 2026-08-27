@@ -8,6 +8,7 @@ import type {
 	PrepareElementInstallRequest,
 } from '@remotion/studio-shared';
 import {resolveCompositionComponentWithFile} from '../../helpers/resolve-composition-component';
+import {getProjectInfo} from '../project-info';
 import {getSafeElementInstallPaths} from './safe-element-install-path';
 
 export const normalizeElementSourceForComparison = (source: string) => {
@@ -113,8 +114,12 @@ const getExpectedFileState = (
 export const getElementInstallPlan = async ({
 	destination,
 	element,
+	entryPoint,
 	remotionRoot,
-}: PrepareElementInstallRequest & {remotionRoot: string}) => {
+}: PrepareElementInstallRequest & {
+	entryPoint: string;
+	remotionRoot: string;
+}) => {
 	validateElementForInstallation(element);
 
 	const componentName =
@@ -145,9 +150,18 @@ export const getElementInstallPlan = async ({
 		);
 	}
 
+	const destinationCompositionFile = destination.compositionFile;
+	const destinationCompositionFileName =
+		destinationCompositionFile === null
+			? (await getProjectInfo(remotionRoot, entryPoint)).rootFile
+			: path.resolve(remotionRoot, destinationCompositionFile);
+	if (destinationCompositionFileName === null) {
+		throw new Error('Could not find the root file of the project');
+	}
+
 	const compositionFileName =
-		location?.fileName ??
-		path.resolve(remotionRoot, destination.compositionFile);
+		location?.fileName ?? destinationCompositionFileName;
+
 	const safePaths = await getSafeElementInstallPaths({
 		compositionFileName,
 		elementFileName: path.resolve(
@@ -163,6 +177,7 @@ export const getElementInstallPlan = async ({
 
 	return {
 		componentName,
+		destinationCompositionFileName,
 		elementFileExists,
 		elementFileName: safePaths.elementFileName,
 		existingElementSource,

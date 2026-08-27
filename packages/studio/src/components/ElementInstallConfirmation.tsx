@@ -2,9 +2,15 @@ import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
-	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import React, {useCallback, useContext, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
@@ -21,21 +27,32 @@ import {
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../helpers/hoverable';
+import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
 import {useCreateComposition} from '../helpers/use-create-composition';
 import {validateCompositionName} from '../helpers/validate-new-comp-data';
+import {useZIndex} from '../state/z-index';
 import {Button} from './Button';
+import {prepareElementInstall} from './element-install-api';
 import {insertElement} from './import-assets';
 import {Flex, Row, Spacing} from './layout';
+import {getPortal} from './Menu/portals';
 import {ModalButton} from './ModalButton';
 import {ModalContainer} from './ModalContainer';
 import {ModalFooterContainer} from './ModalFooter';
 import {ModalHeader} from './ModalHeader';
-import {RemotionInput} from './NewComposition/RemInput';
+import {
+	NewCompositionFields,
+	type NewCompositionFormValues,
+} from './NewComposition/NewComposition';
 import {
 	ValidationMessage,
 	WarningTriangle,
 } from './NewComposition/ValidationMessage';
 import {showNotification} from './Notifications/NotificationCenter';
+import {
+	hasResolvedStack,
+	useResolvedStack,
+} from './Timeline/use-resolved-stack';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -278,10 +295,6 @@ const getDestinationOptionStyle = ({
 	}),
 });
 
-const idInputStyle: React.CSSProperties = {
-	maxWidth: 320,
-};
-
 const footerStyle: React.CSSProperties = {
 	minWidth: 0,
 };
@@ -339,9 +352,26 @@ export const ElementLibraryAddConfirmation: React.FC<{
 };
 
 type ElementInstallPlan = {
+	readonly compositionFile: string;
 	readonly filePath: string;
 	readonly expectedFileState: ElementInstallExpectedFileState;
 };
+
+type NewCompositionPlanState =
+	| {
+			readonly type: 'loading';
+			readonly folderStack: string;
+	  }
+	| {
+			readonly type: 'ready';
+			readonly folderStack: string | null;
+			readonly plan: ElementInstallPlan;
+	  }
+	| {
+			readonly type: 'error';
+			readonly folderStack: string;
+			readonly reason: string;
+	  };
 
 type CurrentCompositionMetadata = {
 	readonly durationInFrames: number;
@@ -360,7 +390,6 @@ export const ElementInstallConfirmation: React.FC<{
 	readonly request: ElementInstallRequest;
 	readonly sourceIsUnverified: boolean;
 	readonly sourceLabel: string;
-	readonly symbolicatedStack: SymbolicatedStackFrame | null;
 	readonly usesBrowserDependencyResolution: boolean;
 }> = ({
 	currentCompositionMetadata,
@@ -372,63 +401,174 @@ export const ElementInstallConfirmation: React.FC<{
 	request,
 	sourceIsUnverified,
 	sourceLabel,
-	symbolicatedStack,
 	usesBrowserDependencyResolution,
 }) => {
 	const {compositions} = useContext(Internals.CompositionManager);
+	const {currentZIndex} = useZIndex();
 	const [mode, setMode] = useState<'current-composition' | 'new-composition'>(
 		currentPlan === null ? 'new-composition' : 'current-composition',
 	);
 	const [submitting, setSubmitting] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const [newId, setNewId] = useState(() => {
-		const elementComponentName =
-			StudioProtocolInternals.getElementComponentNameFromSourceCode(
-				request.element.sourceCode,
-			) ?? 'Element';
-		const baseName = `${elementComponentName}Composition`;
-		let candidate = baseName;
-		let suffix = 2;
-		while (validateCompositionName(candidate, compositions) !== null) {
-			candidate = `${baseName}${suffix}`;
-			suffix++;
+	const [newCompositionValues, setNewCompositionValues] =
+		useState<NewCompositionFormValues>(() => {
+			const elementComponentName =
+				StudioProtocolInternals.getElementComponentNameFromSourceCode(
+					request.element.sourceCode,
+				) ?? 'Element';
+			const baseName = `${elementComponentName}Composition`;
+			let candidate = baseName;
+			let suffix = 2;
+			while (validateCompositionName(candidate, compositions) !== null) {
+				candidate = `${baseName}${suffix}`;
+				suffix++;
+			}
+
+			const size =
+				request.element.dimensions ??
+				(currentCompositionMetadata === null
+					? {width: 1920, height: 1080}
+					: {
+							width: currentCompositionMetadata.width,
+							height: currentCompositionMetadata.height,
+						});
+
+			return {
+				durationInFrames:
+					request.element.durationInFrames ??
+					currentCompositionMetadata?.durationInFrames ??
+					150,
+				folder: {folderName: null, parentName: null, stack: null},
+				fps: currentCompositionMetadata?.fps ?? 30,
+				id: candidate,
+				size,
+			};
+		});
+	const selectedFolderStack = newCompositionValues.folder.stack;
+	const resolvedFolderLocation = useResolvedStack(selectedFolderStack);
+	const folderSymbolicatedStack = useMemo(
+		() => resolvedStackToSymbolicated(resolvedFolderLocation),
+		[resolvedFolderLocation],
+	);
+	const folderCompositionFile =
+		folderSymbolicatedStack?.originalFileName ?? null;
+	const [newCompositionPlanState, setNewCompositionPlanState] =
+		useState<NewCompositionPlanState>({
+			folderStack: null,
+			type: 'ready',
+			plan: newPlan,
+		});
+
+	useEffect(() => {
+		if (selectedFolderStack === null) {
+			setNewCompositionPlanState({
+				folderStack: null,
+				type: 'ready',
+				plan: newPlan,
+			});
+			return;
 		}
 
-		return candidate;
-	});
+		if (!hasResolvedStack(selectedFolderStack)) {
+			setNewCompositionPlanState({
+				folderStack: selectedFolderStack,
+				type: 'loading',
+			});
+			return;
+		}
 
-	const durationInFrames =
-		request.element.durationInFrames ??
-		currentCompositionMetadata?.durationInFrames ??
-		150;
-	const fps = currentCompositionMetadata?.fps ?? 30;
-	const size =
-		request.element.dimensions ??
-		(currentCompositionMetadata === null
-			? {width: 1920, height: 1080}
-			: {
-					width: currentCompositionMetadata.width,
-					height: currentCompositionMetadata.height,
-				});
-	const nameValidationMessage = validateCompositionName(newId, compositions);
-	const selectedPlan =
-		mode === 'current-composition' ? (currentPlan ?? newPlan) : newPlan;
+		if (folderCompositionFile === null) {
+			setNewCompositionPlanState({
+				folderStack: selectedFolderStack,
+				type: 'error',
+				reason:
+					'Could not determine where the new composition should be created.',
+			});
+			return;
+		}
 
-	const {createComposition} = useCreateComposition({
+		let canceled = false;
+		setNewCompositionPlanState({
+			folderStack: selectedFolderStack,
+			type: 'loading',
+		});
+		prepareElementInstall({
+			destination: {
+				type: 'new-composition',
+				compositionFile: folderCompositionFile,
+			},
+			element: request.element,
+		})
+			.then((result) => {
+				if (canceled) {
+					return;
+				}
+
+				setNewCompositionPlanState(
+					result.success
+						? {
+								folderStack: selectedFolderStack,
+								type: 'ready',
+								plan: result.plan,
+							}
+						: {
+								folderStack: selectedFolderStack,
+								type: 'error',
+								reason: result.reason,
+							},
+				);
+			})
+			.catch((error) => {
+				if (!canceled) {
+					setNewCompositionPlanState({
+						folderStack: selectedFolderStack,
+						type: 'error',
+						reason: error instanceof Error ? error.message : String(error),
+					});
+				}
+			});
+
+		return () => {
+			canceled = true;
+		};
+	}, [folderCompositionFile, newPlan, request.element, selectedFolderStack]);
+
+	const {
+		createComposition,
+		heightValidationMessage,
+		nameValidationMessage,
+		valid: newCompositionValuesAreValid,
+		widthValidationMessage,
+	} = useCreateComposition({
 		canvasCapture: null,
 		compositions,
-		durationInFrames,
-		folderName: null,
-		newId,
-		parentName: null,
-		selectedFrameRate: fps,
-		size,
+		durationInFrames: newCompositionValues.durationInFrames,
+		folderName: newCompositionValues.folder.folderName,
+		newId: newCompositionValues.id,
+		parentName: newCompositionValues.folder.parentName,
+		selectedFrameRate: newCompositionValues.fps,
+		size: newCompositionValues.size,
 	});
-
+	const activeNewCompositionPlanState =
+		newCompositionPlanState.folderStack === selectedFolderStack
+			? newCompositionPlanState
+			: null;
+	const selectedNewCompositionPlan =
+		activeNewCompositionPlanState?.type === 'ready'
+			? activeNewCompositionPlanState.plan
+			: null;
+	const selectedPlan =
+		mode === 'current-composition' ? currentPlan : selectedNewCompositionPlan;
+	const folderTargetIsReady =
+		selectedFolderStack === null ||
+		(hasResolvedStack(selectedFolderStack) && folderCompositionFile !== null);
 	const canSubmit =
 		!submitting &&
-		(mode === 'current-composition' ||
-			(nameValidationMessage === null && symbolicatedStack !== null));
+		(mode === 'current-composition'
+			? currentPlan !== null
+			: newCompositionValuesAreValid &&
+				folderTargetIsReady &&
+				selectedNewCompositionPlan !== null);
 
 	const submit = useCallback(async () => {
 		if (!canSubmit) {
@@ -437,9 +577,15 @@ export const ElementInstallConfirmation: React.FC<{
 
 		setSubmitting(true);
 		if (mode === 'new-composition') {
+			if (selectedNewCompositionPlan === null) {
+				setSubmitting(false);
+				return;
+			}
+
 			const created = await createComposition({
 				signal: new AbortController().signal,
-				symbolicatedStack,
+				symbolicatedStack:
+					selectedFolderStack === null ? null : folderSymbolicatedStack,
 			});
 			if (!created.success) {
 				showNotification(
@@ -451,12 +597,12 @@ export const ElementInstallConfirmation: React.FC<{
 			}
 
 			await insertElement({
-				compositionFile: request.compositionFile,
-				compositionId: newId,
+				compositionFile: selectedNewCompositionPlan.compositionFile,
+				compositionId: newCompositionValues.id,
 				element: request.element,
-				expectedFileState: newPlan.expectedFileState,
+				expectedFileState: selectedNewCompositionPlan.expectedFileState,
 				from: null,
-				overwriteExisting: newPlan.expectedFileState.exists,
+				overwriteExisting: selectedNewCompositionPlan.expectedFileState.exists,
 				position: null,
 			});
 			onClose();
@@ -482,12 +628,13 @@ export const ElementInstallConfirmation: React.FC<{
 		canSubmit,
 		createComposition,
 		currentPlan,
+		folderSymbolicatedStack,
 		mode,
-		newId,
-		newPlan.expectedFileState,
+		newCompositionValues.id,
 		onClose,
 		request,
-		symbolicatedStack,
+		selectedFolderStack,
+		selectedNewCompositionPlan,
 	]);
 
 	const cancel = useCallback(() => {
@@ -562,36 +709,22 @@ export const ElementInstallConfirmation: React.FC<{
 					) : null}
 
 					{mode === 'new-composition' ? (
-						<section style={sectionStyle} aria-labelledby="new-composition-id">
-							<label id="new-composition-id" style={sectionTitleStyle}>
-								Composition ID
-							</label>
-							<div style={idInputStyle}>
-								<RemotionInput
-									ref={inputRef}
-									aria-labelledby="new-composition-id"
-									autoFocus
-									onChange={(event) => setNewId(event.target.value)}
-									rightAlign={false}
-									status={nameValidationMessage === null ? 'ok' : 'error'}
-									type="text"
-									value={newId}
+						<section style={sectionStyle} aria-label="New composition settings">
+							<NewCompositionFields
+								heightValidationMessage={heightValidationMessage}
+								inputRef={inputRef}
+								nameValidationMessage={nameValidationMessage}
+								setValues={setNewCompositionValues}
+								values={newCompositionValues}
+								widthValidationMessage={widthValidationMessage}
+							/>
+							{activeNewCompositionPlanState?.type === 'error' ? (
+								<ValidationMessage
+									align="flex-start"
+									message={activeNewCompositionPlanState.reason}
+									type="error"
 								/>
-								{nameValidationMessage === null ? null : (
-									<ValidationMessage
-										align="flex-start"
-										message={nameValidationMessage}
-										type="error"
-									/>
-								)}
-								{symbolicatedStack === null ? (
-									<ValidationMessage
-										align="flex-start"
-										message="Could not determine where the new composition should be created."
-										type="error"
-									/>
-								) : null}
-							</div>
+							) : null}
 						</section>
 					) : null}
 
@@ -620,17 +753,19 @@ export const ElementInstallConfirmation: React.FC<{
 								<code style={codeStyle}>
 									{mode === 'current-composition'
 										? request.compositionId
-										: newId}
+										: newCompositionValues.id}
 								</code>
 							</dd>
 						</div>
 						<div style={metadataRowStyle}>
 							<dt style={metadataTermStyle}>Destination</dt>
 							<dd style={metadataDescriptionStyle}>
-								<code style={codeStyle}>{selectedPlan.filePath}</code>
+								<code style={codeStyle}>
+									{selectedPlan?.filePath ?? 'Reviewing destination…'}
+								</code>
 							</dd>
 						</div>
-						{selectedPlan.expectedFileState.exists ? (
+						{selectedPlan?.expectedFileState.exists ? (
 							<div style={metadataRowStyle}>
 								<dt style={metadataTermStyle}>File change</dt>
 								<dd style={overwriteStyle}>Replace existing source file</dd>
@@ -706,6 +841,6 @@ export const ElementInstallConfirmation: React.FC<{
 				</ModalFooterContainer>
 			</form>
 		</ModalContainer>,
-		document.body,
+		getPortal(currentZIndex),
 	);
 };

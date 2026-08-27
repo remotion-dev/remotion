@@ -415,17 +415,25 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	}
 
 	expect(preflight.plan).toEqual({
+		compositionFile: '/project/src/Composition.tsx',
 		expectedFileState: {exists: false},
 		filePath: 'src/lower-third.element.tsx',
 	});
 	const newCompositionPreflight = await operations.prepareElementInstall({
 		destination: {
 			type: 'new-composition',
-			compositionFile: '/project/src/Composition.tsx',
+			compositionFile: null,
 		},
 		element,
 	});
-	expect(newCompositionPreflight).toEqual(preflight);
+	expect(newCompositionPreflight).toEqual({
+		success: true,
+		plan: {
+			compositionFile: '/project/src/Root.tsx',
+			expectedFileState: {exists: false},
+			filePath: 'src/lower-third.element.tsx',
+		},
+	});
 
 	const inserted = await operations.insertElement({
 		compositionFile: '/project/src/Composition.tsx',

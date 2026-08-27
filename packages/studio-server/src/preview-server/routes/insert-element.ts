@@ -60,6 +60,7 @@ export const insertElementHandler: ApiHandler<
 		position,
 		overwriteExisting,
 	},
+	entryPoint,
 	remotionRoot,
 	logLevel,
 }) =>
@@ -89,6 +90,7 @@ export const insertElementHandler: ApiHandler<
 					compositionId,
 				},
 				element,
+				entryPoint,
 				remotionRoot,
 			});
 			if (
@@ -180,6 +182,7 @@ export const insertElementHandler: ApiHandler<
 					compositionId,
 				},
 				element,
+				entryPoint,
 				remotionRoot,
 			});
 			if (

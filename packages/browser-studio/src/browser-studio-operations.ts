@@ -329,11 +329,31 @@ const getElementInstallPlanForProject = async ({
 		throw new Error('Cannot insert Element into this composition component');
 	}
 
-	const compositionFilePath =
-		target?.fileName ??
-		findProjectFile({filePath: destination.compositionFile, project});
-	const elementFilePath = `${dirname(compositionFilePath)}/${elementFileName}`;
-	if (elementFilePath === compositionFilePath) {
+	const rootFile =
+		destination.type === 'new-composition' &&
+		destination.compositionFile === null
+			? getRootFileForProject({
+					entryPoint: project.entryPoint,
+					project,
+				})
+			: null;
+	const compositionFile =
+		destination.type === 'new-composition' &&
+		destination.compositionFile === null
+			? rootFile
+			: destination.compositionFile;
+	if (compositionFile === null) {
+		throw new Error('Could not find the root file of the project');
+	}
+
+	const destinationCompositionFilePath = findProjectFile({
+		filePath: compositionFile,
+		project,
+	});
+	const elementSiblingFilePath =
+		target?.fileName ?? destinationCompositionFilePath;
+	const elementFilePath = `${dirname(elementSiblingFilePath)}/${elementFileName}`;
+	if (elementFilePath === elementSiblingFilePath) {
 		throw new Error('Element source file conflicts with the composition file');
 	}
 
@@ -348,6 +368,7 @@ const getElementInstallPlanForProject = async ({
 
 	return {
 		componentName,
+		destinationCompositionFilePath,
 		elementFilePath,
 		existingSource,
 		expectedFileState,
@@ -2094,6 +2115,7 @@ export const createBrowserStudioOperations = ({
 				return {
 					success: true,
 					plan: {
+						compositionFile: plan.destinationCompositionFilePath,
 						expectedFileState: plan.expectedFileState,
 						filePath: plan.filePath,
 					},

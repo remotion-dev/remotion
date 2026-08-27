@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {
 	existsSync,
+	mkdirSync,
 	mkdtempSync,
 	readFileSync,
 	rmSync,
@@ -196,6 +197,7 @@ test('plans an Element installation without changing the project', async () => {
 		expect(response).toEqual({
 			success: true,
 			plan: {
+				compositionFile: fixture.compositionFile,
 				expectedFileState: {exists: false},
 				filePath: 'lower-third.element.tsx',
 			},
@@ -228,18 +230,27 @@ test('plans a new-composition install without resolving the selected component',
 		});
 		expect(current).toMatchObject({success: false});
 
+		const srcDirectory = path.join(
+			path.dirname(fixture.compositionFile),
+			'src',
+		);
+		mkdirSync(srcDirectory);
+		writeFileSync(path.join(srcDirectory, 'Root.tsx'), compositionSource);
 		const newComposition = await fixture.prepareInstall({
 			type: 'new-composition',
-			compositionFile: 'Root.tsx',
+			compositionFile: null,
 		});
 		expect(newComposition).toEqual({
 			success: true,
 			plan: {
+				compositionFile: path.join(srcDirectory, 'Root.tsx'),
 				expectedFileState: {exists: false},
-				filePath: 'lower-third.element.tsx',
+				filePath: 'src/lower-third.element.tsx',
 			},
 		});
-		expect(existsSync(fixture.elementFile)).toBe(false);
+		expect(existsSync(path.join(srcDirectory, 'lower-third.element.tsx'))).toBe(
+			false,
+		);
 	} finally {
 		fixture.cleanup();
 	}

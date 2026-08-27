@@ -38,7 +38,6 @@ import {
 } from '../helpers/get-effective-translation';
 import {getMissingPackages} from '../helpers/install-required-package';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
-import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
@@ -93,6 +92,7 @@ import {useResolvedStack} from './Timeline/use-resolved-stack';
 const elementInstallDependencyIgnoreList = ['react', 'react-dom', 'remotion'];
 
 type ElementInstallPlan = {
+	readonly compositionFile: string;
 	readonly filePath: string;
 	readonly expectedFileState: ElementInstallExpectedFileState;
 };
@@ -943,7 +943,7 @@ export const Canvas: React.FC<{
 					prepareElementInstall({
 						destination: {
 							type: 'new-composition',
-							compositionFile: activeElementInstallRequest.compositionFile,
+							compositionFile: null,
 						},
 						element: activeElementInstallRequest.element,
 					}),
@@ -1537,11 +1537,6 @@ export const Canvas: React.FC<{
 					request={activeElementInstallRequest}
 					sourceIsUnverified={elementInstallReview.sourceIsUnverified}
 					sourceLabel={elementInstallReview.sourceLabel}
-					symbolicatedStack={
-						currentCompositionId === activeElementInstallRequest.compositionId
-							? resolvedStackToSymbolicated(resolvedCompositionLocation)
-							: null
-					}
 					usesBrowserDependencyResolution={
 						getBrowserStudioOperations() !== null
 					}

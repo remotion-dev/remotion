@@ -953,7 +953,7 @@ export type ElementInstallDestination =
 	  }
 	| {
 			type: 'new-composition';
-			compositionFile: string;
+			compositionFile: string | null;
 	  };
 
 export type PrepareElementInstallRequest = {
@@ -965,6 +965,7 @@ export type PrepareElementInstallResponse =
 	| {
 			success: true;
 			plan: {
+				compositionFile: string;
 				filePath: string;
 				expectedFileState: ElementInstallExpectedFileState;
 			};
