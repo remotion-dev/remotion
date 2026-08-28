@@ -1,10 +1,11 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useContext, useLayoutEffect} from 'react';
 import {
 	BACKGROUND,
 	SHADOW_BLACK,
 	WHITE,
 	WHITE_ALPHA_20,
 } from '../helpers/colors';
+import {SetOpenModalCountContext} from '../state/modals';
 import {HigherZIndex} from '../state/z-index';
 
 const padding = 20;
@@ -45,6 +46,17 @@ export const ModalContainer: React.FC<{
 	readonly noZIndex?: boolean;
 	readonly panelStyle?: React.CSSProperties;
 }> = ({children, onEscape, onOutsideClick, noZIndex, panelStyle}) => {
+	const {setOpenModalCount} = useContext(SetOpenModalCountContext);
+
+	useLayoutEffect(() => {
+		if (noZIndex) {
+			return;
+		}
+
+		setOpenModalCount((count) => count + 1);
+		return () => setOpenModalCount((count) => count - 1);
+	}, [noZIndex, setOpenModalCount]);
+
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
 		// Prevent deselection of currently selected items
 		e.stopPropagation();

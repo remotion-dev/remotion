@@ -73,6 +73,33 @@ test.describe('moving sequence keyframes', () => {
 		if (box === null) {
 			throw new Error('Expected the parent sequence to have a bounding box');
 		}
+		const durationHandle = parent.getByTitle('Drag to change duration');
+		const durationHandleBox = await durationHandle.boundingBox();
+		if (durationHandleBox === null) {
+			throw new Error('Expected the duration handle to have a bounding box');
+		}
+
+		await page.keyboard.press('?');
+		const settingsDialog = page.getByRole('dialog').getByText('Settings', {
+			exact: true,
+		});
+		await expect(settingsDialog).toBeVisible();
+		await page.mouse.move(
+			durationHandleBox.x + durationHandleBox.width / 2,
+			durationHandleBox.y + durationHandleBox.height / 2,
+		);
+		await page.mouse.down();
+		await page.mouse.move(
+			durationHandleBox.x + durationHandleBox.width / 2 + 20,
+			durationHandleBox.y + durationHandleBox.height / 2,
+			{steps: 5},
+		);
+		await page.mouse.up();
+		await expect(settingsDialog).toBeHidden();
+		await page.waitForTimeout(250);
+		expect(fs.readFileSync(sequenceShiftFile, 'utf-8')).toBe(sourceBefore);
+		await expect.poll(getOuterTranslateX).toBeCloseTo(250, 3);
+		await expect.poll(getNestedOuterTranslateX).toBeCloseTo(210, 3);
 
 		await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
 		await page.mouse.down();
