@@ -420,18 +420,28 @@ test.describe('visual mode', () => {
 		const negativeSequence = page.locator(
 			'[data-timeline-marquee-item][title="Negative start"]',
 		);
+		const negativeSequenceWithoutFreeze = page.locator(
+			'[data-timeline-marquee-item][title="Negative start without freeze"]',
+		);
 		const zeroSequence = page.locator(
 			'[data-timeline-marquee-item][title="Zero start"]',
 		);
 		await expect(negativeSequence).toBeVisible();
+		await expect(negativeSequenceWithoutFreeze).toBeVisible();
 		await expect(zeroSequence).toBeVisible();
 		const negativeSequenceFrame = negativeSequence.locator(
 			'[data-timeline-sequence-frame]',
 		);
+		const negativeSequenceFrameWithoutFreeze =
+			negativeSequenceWithoutFreeze.locator('[data-timeline-sequence-frame]');
 		await expect(negativeSequenceFrame).toContainText('20');
 		await expect(negativeSequenceFrame.locator('svg')).toHaveCount(1);
-		const sequenceFrameIsClipped = () =>
-			negativeSequence.evaluate((element) => {
+		await expect(negativeSequenceFrameWithoutFreeze).toContainText('20');
+		await expect(negativeSequenceFrameWithoutFreeze.locator('svg')).toHaveCount(
+			0,
+		);
+		const sequenceFrameIsClipped = (sequence: Locator) =>
+			sequence.evaluate((element) => {
 				const frame = element.querySelector('[data-timeline-sequence-frame]');
 				if (!frame) {
 					return true;
@@ -482,12 +492,16 @@ test.describe('visual mode', () => {
 				(element) => getComputedStyle(element).overflow,
 			),
 		).toBe('visible');
-		expect(await sequenceFrameIsClipped()).toBe(true);
+		expect(await sequenceFrameIsClipped(negativeSequence)).toBe(true);
+		expect(await sequenceFrameIsClipped(negativeSequenceWithoutFreeze)).toBe(
+			true,
+		);
 
 		await page.getByRole('button', {name: 'Step forward one frame'}).click();
 		await expect(negativeSequenceFrame).toContainText('20');
 		await expect(negativeSequenceFrame.locator('svg')).toHaveCount(1);
-		expect(await sequenceFrameIsClipped()).toBe(true);
+		await expect(negativeSequenceFrameWithoutFreeze).toHaveCount(0);
+		expect(await sequenceFrameIsClipped(negativeSequence)).toBe(true);
 	});
 
 	test('should commit a color drag before the picker closes', async ({

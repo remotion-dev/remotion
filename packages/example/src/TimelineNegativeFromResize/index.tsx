@@ -15,6 +15,13 @@ export const TimelineNegativeFromResize: React.FC = () => {
 				>
 					<Starburst rays={16} colors={['#ffdd00', '#ff8800']} />
 				</Sequence>
+				<Sequence
+					name="Negative start without freeze"
+					from={-20}
+					durationInFrames={21}
+				>
+					<div />
+				</Sequence>
 			</AbsoluteFill>
 			<Sequence name="Zero start" durationInFrames={36}>
 				<div />
