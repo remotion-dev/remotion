@@ -455,7 +455,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		element.sourceCode,
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'import {LowerThird} from "./lower-third.element";',
+		'import { LowerThird } from "./lower-third.element";',
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain('<Sequence');
 	expect(project.files['/project/src/Composition.tsx']).toContain('from={12}');

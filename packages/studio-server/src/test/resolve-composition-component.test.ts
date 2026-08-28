@@ -986,11 +986,11 @@ test('inserts a Solid into an empty component returning null', async () => {
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
-		expect(result.output).toContain("import {Solid} from 'remotion';");
+		expect(result.output).toContain("import { Solid } from 'remotion';");
 		expect(result.output).toContain('export const MyComp: React.FC = () => (');
-		expect(result.output).toContain('  <>');
-		expect(result.output).toContain('    <Solid');
-		expect(result.output).toContain('  </>');
+		expect(result.output).toContain('\t<>');
+		expect(result.output).toContain('\t\t<Solid');
+		expect(result.output).toContain('\t</>');
 		expect(result.output).toContain('width={640}');
 		expect(result.output).toContain('height={360}');
 		expect(result.output).toContain("position: 'absolute'");

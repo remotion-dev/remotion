@@ -2106,13 +2106,29 @@ const getLineIndent = (input: string, offset: number) => {
 	return input.slice(lineStart, offset).match(/^\s*/)?.[0] ?? '';
 };
 
-const getIndentationUnit = (input: string) => {
+const getIndentationUnit = (
+	input: string,
+	prettierConfigOverride: Record<string, unknown> | null,
+) => {
 	if (/^\t+/m.test(input)) {
 		return '\t';
 	}
 
 	const indentation = input.match(/^([ ]+)\S/m)?.[1].length;
-	return ' '.repeat(indentation && indentation > 1 ? indentation : 2);
+	if (indentation) {
+		return ' '.repeat(indentation > 1 ? indentation : 2);
+	}
+
+	if (prettierConfigOverride?.useTabs === true) {
+		return '\t';
+	}
+
+	const tabWidth = prettierConfigOverride?.tabWidth;
+	return ' '.repeat(
+		typeof tabWidth === 'number' && Number.isInteger(tabWidth) && tabWidth > 0
+			? tabWidth
+			: 2,
+	);
 };
 
 const renderImportSpecifier = (
@@ -2136,10 +2152,12 @@ const renderImportSpecifier = (
 };
 
 const renderImportDeclaration = ({
+	bracketSpacing,
 	declaration,
 	quote,
 	semicolon,
 }: {
+	bracketSpacing: boolean;
 	declaration: ImportDeclaration;
 	quote: '"' | "'";
 	semicolon: string;
@@ -2158,7 +2176,11 @@ const renderImportDeclaration = ({
 		...(defaultSpecifier ? [renderImportSpecifier(defaultSpecifier)] : []),
 		...(namespaceSpecifier ? [renderImportSpecifier(namespaceSpecifier)] : []),
 		...(namedSpecifiers.length
-			? [`{${namedSpecifiers.map(renderImportSpecifier).join(', ')}}`]
+			? [
+					`{${bracketSpacing ? ' ' : ''}${namedSpecifiers
+						.map(renderImportSpecifier)
+						.join(', ')}${bracketSpacing ? ' ' : ''}}`,
+				]
 			: []),
 	];
 	const source =
@@ -2166,6 +2188,33 @@ const renderImportDeclaration = ({
 			? JSON.stringify(declaration.source.value)
 			: `'${declaration.source.value.replaceAll("'", "\\'")}'`;
 	return `import ${parts.join(', ')} from ${source}${semicolon}`;
+};
+
+const getImportBracketSpacing = ({
+	declaration,
+	input,
+	prettierConfigOverride,
+}: {
+	declaration: ImportDeclaration | null;
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+}) => {
+	if (declaration?.loc) {
+		const source = input.slice(
+			recastLocToOffset(input, declaration.loc.start),
+			recastLocToOffset(input, declaration.loc.end),
+		);
+		const openingBrace = source.indexOf('{');
+		const closingBrace = source.lastIndexOf('}');
+		if (openingBrace !== -1 && closingBrace > openingBrace) {
+			return (
+				/\s/.test(source[openingBrace + 1]) &&
+				/\s/.test(source[closingBrace - 1])
+			);
+		}
+	}
+
+	return prettierConfigOverride?.bracketSpacing !== false;
 };
 
 const getInsertImportSourceEdits = ({
@@ -2183,6 +2232,17 @@ const getInsertImportSourceEdits = ({
 	const snapshotByDeclaration = new Map(
 		snapshots.map((snapshot) => [snapshot.declaration, snapshot]),
 	);
+	const importWithNamedSpecifiers =
+		snapshots.find((snapshot) =>
+			snapshot.specifiers.some(
+				(specifier) => specifier.type === 'ImportSpecifier',
+			),
+		)?.declaration ?? null;
+	const fallbackBracketSpacing = getImportBracketSpacing({
+		declaration: importWithNamedSpecifiers,
+		input,
+		prettierConfigOverride,
+	});
 	const newDeclarations: ImportDeclaration[] = [];
 
 	for (const statement of ast.program.body) {
@@ -2237,6 +2297,11 @@ const getInsertImportSourceEdits = ({
 			edits.push({
 				end: fullImportEnd,
 				replacement: renderImportDeclaration({
+					bracketSpacing: getImportBracketSpacing({
+						declaration: statement,
+						input,
+						prettierConfigOverride,
+					}),
 					declaration: statement,
 					quote: fullImport.includes('"') ? '"' : "'",
 					semicolon: fullImport.trimEnd().endsWith(';') ? ';' : '',
@@ -2267,7 +2332,7 @@ const getInsertImportSourceEdits = ({
 			const offset = recastLocToOffset(input, defaultSpecifier.loc.end);
 			edits.push({
 				end: offset,
-				replacement: `, {${rendered}}`,
+				replacement: `, {${fallbackBracketSpacing ? ' ' : ''}${rendered}${fallbackBracketSpacing ? ' ' : ''}}`,
 				start: offset,
 			});
 			continue;
@@ -2280,12 +2345,14 @@ const getInsertImportSourceEdits = ({
 		const start = recastLocToOffset(input, statement.loc.start);
 		const end = recastLocToOffset(input, statement.loc.end);
 		const original = input.slice(start, end);
-		const semicolon = original.trimEnd().endsWith(';') ? ';' : '';
 		edits.push({
 			end,
-			replacement: `import {${(statement.specifiers ?? [])
-				.map(renderImportSpecifier)
-				.join(', ')}} from '${statement.source.value}'${semicolon}`,
+			replacement: renderImportDeclaration({
+				bracketSpacing: fallbackBracketSpacing,
+				declaration: statement,
+				quote: original.includes('"') ? '"' : "'",
+				semicolon: original.trimEnd().endsWith(';') ? ';' : '',
+			}),
 			start,
 		});
 	}
@@ -2319,6 +2386,7 @@ const getInsertImportSourceEdits = ({
 		const rendered = newDeclarations
 			.map((declaration) =>
 				renderImportDeclaration({
+					bracketSpacing: fallbackBracketSpacing,
 					declaration,
 					quote,
 					semicolon,
@@ -2408,7 +2476,7 @@ const getSolidInsertionSource = ({
 	width: number;
 }) => {
 	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
-	const unit = getIndentationUnit(input);
+	const unit = getIndentationUnit(input, prettierConfigOverride);
 	const solid = [
 		`<${getJsxIdentifierName(element)}`,
 		`${unit}width={${width}}`,
@@ -2474,8 +2542,15 @@ const printInsertedJsx = ({
 	prettierConfigOverride: Record<string, unknown> | null;
 }): string => {
 	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
-	const unit = getIndentationUnit(input);
+	const unit = getIndentationUnit(input, prettierConfigOverride);
 	const printWidth = prettierConfigOverride?.printWidth;
+	const configuredTabWidth = prettierConfigOverride?.tabWidth;
+	const tabWidth =
+		typeof configuredTabWidth === 'number' &&
+		Number.isInteger(configuredTabWidth) &&
+		configuredTabWidth > 0
+			? configuredTabWidth
+			: 2;
 	recast.types.visit(element, {
 		visitObjectProperty(path) {
 			const {node} = path;
@@ -2495,7 +2570,7 @@ const printInsertedJsx = ({
 		return recast.prettyPrint(node, {
 			objectCurlySpacing: prettierConfigOverride?.bracketSpacing !== false,
 			quote: prettierConfigOverride?.singleQuote === true ? 'single' : 'double',
-			tabWidth: 2,
+			tabWidth,
 			useTabs: false,
 			wrapColumn: typeof printWidth === 'number' ? printWidth : 80,
 		}).code;
@@ -2506,7 +2581,9 @@ const printInsertedJsx = ({
 			.split('\n')
 			.map((line) => {
 				const spaces = line.match(/^ */)?.[0].length ?? 0;
-				return `${unit.repeat(Math.floor(spaces / 2))}${line.slice(spaces)}`;
+				const indentationLevels = Math.floor(spaces / tabWidth);
+				const remainingSpaces = spaces % tabWidth;
+				return `${unit.repeat(indentationLevels)}${' '.repeat(remainingSpaces)}${line.slice(spaces)}`;
 			})
 			.join(endOfLine);
 	};
@@ -2655,17 +2732,19 @@ const getInsertionRootSourceEdit = ({
 	input,
 	insertion,
 	nullRoot,
+	prettierConfigOverride,
 	root,
 	sequenceLocalName,
 }: {
 	input: string;
 	insertion: string;
 	nullRoot: NullLiteral | null;
+	prettierConfigOverride: Record<string, unknown> | null;
 	root: namedTypes.JSXElement | namedTypes.JSXFragment | null;
 	sequenceLocalName: string | null;
 }): SourceEdit => {
 	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
-	const unit = getIndentationUnit(input);
+	const unit = getIndentationUnit(input, prettierConfigOverride);
 
 	if (nullRoot) {
 		if (!nullRoot.loc) {
@@ -3401,6 +3480,7 @@ export const insertJsxElementIntoComposition = async ({
 					sequenceWrapper,
 				}),
 				nullRoot: nullRootBeforeInsertion,
+				prettierConfigOverride,
 				root: rootBeforeInsertion,
 				sequenceLocalName,
 			}),
