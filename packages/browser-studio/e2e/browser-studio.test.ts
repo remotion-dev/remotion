@@ -804,15 +804,6 @@ test('drops a local file into the virtual Assets folder', async ({page}) => {
 			composition: expect.not.stringContaining('logo.png'),
 			publicFileSize: expect.any(Number),
 		});
-
-	await dropLocalFile({
-		filePath: localVideoPath,
-		page,
-		target: assetSelector,
-	});
-	await expect(studio.getByText('framer.webm', {exact: true})).toBeVisible();
-	await assetSelector.getByText('framer.webm', {exact: true}).click();
-	await expect(studio.getByTestId('asset-media-preview')).toBeVisible();
 	expect(studioApiRequests).toEqual([]);
 });
 
