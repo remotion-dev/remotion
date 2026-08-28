@@ -46,8 +46,10 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
+		"@happy-dom/global-registrator": "14.5.1",
 		"react": "catalog:",
 		"react-dom": "catalog:",
+		"@testing-library/react": "16.1.0",
 		"@types/semver": "7.5.3",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",

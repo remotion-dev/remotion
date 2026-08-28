@@ -2,7 +2,7 @@ import {
 	getAllSchemaKeys,
 	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
-import {useContext, useEffect, useMemo, useRef} from 'react';
+import {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequencePropsSubscriptionKey,
@@ -12,7 +12,10 @@ import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
-import {acquireSequencePropsSubscription} from './sequence-props-subscription-store';
+import {
+	acquireSequencePropsSubscription,
+	subscribeToSequencePropsRefresh,
+} from './sequence-props-subscription-store';
 import {shouldSubscribeToSourceFile} from './should-subscribe-to-source-file';
 
 export const useSequencePropsSubscription = ({
@@ -44,6 +47,7 @@ export const useSequencePropsSubscription = ({
 	);
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
+	const [refreshToken, setRefreshToken] = useState(0);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
@@ -75,6 +79,12 @@ export const useSequencePropsSubscription = ({
 	const locationSource = validatedLocation?.source ?? null;
 	const locationLine = validatedLocation?.line ?? null;
 	const locationColumn = validatedLocation?.column ?? null;
+
+	useEffect(() => {
+		return subscribeToSequencePropsRefresh(overrideId, () => {
+			setRefreshToken((token) => token + 1);
+		});
+	}, [overrideId]);
 
 	useEffect(() => {
 		if (
@@ -160,6 +170,7 @@ export const useSequencePropsSubscription = ({
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
 		preferMappedNodePath,
+		refreshToken,
 		schema,
 		setPropStatuses,
 		setOverrideIdToNodePath,

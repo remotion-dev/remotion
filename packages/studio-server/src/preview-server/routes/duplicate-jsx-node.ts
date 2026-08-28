@@ -73,7 +73,6 @@ export const duplicateJsxNodeHandler: ApiHandler<
 				updates.map((update) => ({
 					absolutePath: update.absolutePath,
 					remappings: update.nodePathRemappings,
-					restoredNodePaths: [],
 				})),
 			);
 			const duplicatedNodeDescription =

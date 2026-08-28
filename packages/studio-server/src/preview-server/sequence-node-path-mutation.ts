@@ -3,7 +3,6 @@ import type {
 	SequenceNodePathMutation,
 	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
-import type {SequenceNodePath} from 'remotion';
 import {getLiveEventsListener} from './live-events';
 
 const mutationSessionId = randomUUID();
@@ -13,7 +12,6 @@ export const broadcastSequenceNodePathMutation = (
 	files: Array<{
 		absolutePath: string;
 		remappings: SequenceNodePathRemapping[];
-		restoredNodePaths: SequenceNodePath[];
 	}>,
 ): SequenceNodePathMutation => {
 	mutationCounter++;

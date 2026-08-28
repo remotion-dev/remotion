@@ -91,7 +91,13 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	}
 
 	expect(undoResult.nodePathMutation.files).toEqual(
-		insertResult.nodePathMutation.files,
+		insertResult.nodePathMutation.files.map((file) => ({
+			absolutePath: file.absolutePath,
+			remappings: file.remappings.map((remapping) => ({
+				oldNodePath: remapping.newNodePath,
+				newNodePath: remapping.oldNodePath,
+			})),
+		})),
 	);
 	expect(project.files['/project/src/Composition.tsx']).toBe(
 		initialProject.files['/project/src/Composition.tsx'],
@@ -135,7 +141,6 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 					newNodePath: null,
 				},
 			]),
-			restoredNodePaths: [],
 		},
 	]);
 	const undoDeleteResult = await undo();

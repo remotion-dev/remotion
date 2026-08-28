@@ -1275,7 +1275,6 @@ export const createBrowserStudioOperations = ({
 				nodePathMutationFiles: updates.map(({fileName, result}) => ({
 					absolutePath: fileName,
 					remappings: result.nodePathRemappings,
-					restoredNodePaths: [],
 				})),
 			});
 			if (nodePathMutation === null) {
@@ -1340,7 +1339,6 @@ export const createBrowserStudioOperations = ({
 				nodePathMutationFiles: updates.map(({fileName, result}) => ({
 					absolutePath: fileName,
 					remappings: result.nodePathRemappings,
-					restoredNodePaths: [],
 				})),
 			});
 			if (nodePathMutation === null) {
@@ -1382,7 +1380,6 @@ export const createBrowserStudioOperations = ({
 					{
 						absolutePath,
 						remappings: result.nodePathRemappings,
-						restoredNodePaths: [],
 					},
 				],
 			});
@@ -1500,7 +1497,6 @@ export const createBrowserStudioOperations = ({
 					{
 						absolutePath,
 						remappings: result.nodePathRemappings,
-						restoredNodePaths: [],
 					},
 				],
 			});
@@ -1873,7 +1869,6 @@ export const createBrowserStudioOperations = ({
 						{
 							absolutePath,
 							remappings: result.nodePathRemappings,
-							restoredNodePaths: [],
 						},
 					],
 				});
@@ -1922,7 +1917,6 @@ export const createBrowserStudioOperations = ({
 					{
 						absolutePath: result.filePath,
 						remappings: result.nodePathRemappings,
-						restoredNodePaths: [],
 					},
 				],
 			});
@@ -2106,7 +2100,6 @@ export const createBrowserStudioOperations = ({
 						{
 							absolutePath: insertion.filePath,
 							remappings: insertion.nodePathRemappings,
-							restoredNodePaths: [],
 						},
 					],
 				});

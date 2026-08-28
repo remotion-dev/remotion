@@ -7,7 +7,6 @@ import type {
 	SequenceNodePathRemapping,
 	UndoResponse,
 } from '@remotion/studio-shared';
-import type {SequenceNodePath} from 'remotion';
 import {
 	collectBrowserStudioProjectStorageGarbage,
 	createBrowserStudioProjectStorage,
@@ -565,20 +564,11 @@ export const createBrowserStudioProjectController = ({
 		redoStack.push(entry);
 		const files = entry.nodePathMutationFiles?.map((file) => ({
 			absolutePath: file.absolutePath,
-			remappings: file.remappings.flatMap(
-				(remapping): SequenceNodePathRemapping[] =>
-					remapping.newNodePath === null
-						? []
-						: [
-								{
-									oldNodePath: remapping.newNodePath,
-									newNodePath: remapping.oldNodePath,
-								},
-							],
-			),
-			restoredNodePaths: file.remappings.flatMap(
-				(remapping): SequenceNodePath[] =>
-					remapping.newNodePath === null ? [remapping.oldNodePath] : [],
+			remappings: file.remappings.map(
+				(remapping): SequenceNodePathRemapping => ({
+					oldNodePath: remapping.newNodePath,
+					newNodePath: remapping.oldNodePath,
+				}),
 			),
 		}));
 		const nodePathMutation = commitProject({

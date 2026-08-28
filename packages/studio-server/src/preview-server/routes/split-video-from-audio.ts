@@ -48,7 +48,6 @@ export const splitVideoFromAudioHandler: ApiHandler<
 				{
 					absolutePath,
 					remappings: nodePathRemappings,
-					restoredNodePaths: [],
 				},
 			]);
 

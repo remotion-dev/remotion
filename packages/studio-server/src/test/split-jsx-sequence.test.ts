@@ -65,8 +65,16 @@ test('splitJsxSequence remaps following JSX siblings', async () => {
 
 	expect(nodePathRemappings).toEqual([
 		{
+			oldNodePath: lineContainingToNodePath(input, 'name="split"'),
+			newNodePath: lineContainingToNodePath(output, 'name="split"'),
+		},
+		{
 			oldNodePath: lineContainingToNodePath(input, 'name="following"'),
 			newNodePath: lineContainingToNodePath(output, 'name="following"'),
+		},
+		{
+			oldNodePath: null,
+			newNodePath: lineContainingToNodePath(output, 'from={30}'),
 		},
 	]);
 });
