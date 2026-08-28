@@ -44,13 +44,23 @@ test('opens source locations in an existing Zed window', async () => {
 			vsCodeNewWindow: false,
 		});
 
-		expect(calls).toEqual([
-			{
-				args: ['--existing', `${sourceFile}:12:4`],
-				command: 'zed',
-				options: {stdio: 'inherit'},
-			},
-		]);
+		expect(calls).toEqual(
+			process.platform === 'win32'
+				? [
+						{
+							args: ['/C', 'zed', '--existing', `${sourceFile}:12:4`],
+							command: 'cmd.exe',
+							options: {detached: true, stdio: 'inherit'},
+						},
+					]
+				: [
+						{
+							args: ['--existing', `${sourceFile}:12:4`],
+							command: 'zed',
+							options: {stdio: 'inherit'},
+						},
+					],
+		);
 	} finally {
 		spawnSpy.mockRestore();
 	}
