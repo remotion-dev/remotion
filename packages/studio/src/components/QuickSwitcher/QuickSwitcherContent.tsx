@@ -60,6 +60,7 @@ const modeItem: React.CSSProperties = {
 	padding: 0,
 	fontSize: 13,
 	cursor: 'pointer',
+	userSelect: 'none',
 };
 
 const modeInactive: React.CSSProperties = {
