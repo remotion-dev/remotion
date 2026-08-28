@@ -109,8 +109,7 @@ const elementImplementations = {
 	'audio/waveform-progress': {
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
-		description:
-			'A full-clip audio waveform with played progress, a playhead, and timestamps.',
+		description: 'A full-clip audio waveform with played progress.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},

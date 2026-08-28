@@ -25,9 +25,6 @@ type AudioWaveformProgressProps = InteractiveBaseProps &
 		readonly barGap?: number;
 		readonly numberOfBars?: number;
 		readonly playedColor?: string;
-		readonly showPlayhead?: boolean;
-		readonly showTimestamps?: boolean;
-		readonly timestampColor?: string;
 		readonly unplayedColor?: string;
 	};
 
@@ -48,11 +45,6 @@ const audioWaveformProgressSchema = {
 		type: 'color',
 		default: '#cbd5e1',
 		description: 'Unplayed color',
-	},
-	timestampColor: {
-		type: 'color',
-		default: '#475569',
-		description: 'Timestamp color',
 	},
 	numberOfBars: {
 		type: 'number',
@@ -83,18 +75,6 @@ const audioWaveformProgressSchema = {
 		description: 'Amplitude',
 		hiddenFromList: false,
 	},
-	showPlayhead: {
-		type: 'boolean',
-		default: true,
-		description: 'Show playhead',
-		keyframable: false,
-	},
-	showTimestamps: {
-		type: 'boolean',
-		default: true,
-		description: 'Show elapsed and total time',
-		keyframable: false,
-	},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
@@ -105,9 +85,6 @@ const AudioWaveformProgressContent: React.FC<{
 	readonly durationInFrames: number;
 	readonly numberOfBars: number;
 	readonly playedColor: string;
-	readonly showPlayhead: boolean;
-	readonly showTimestamps: boolean;
-	readonly timestampColor: string;
 	readonly unplayedColor: string;
 }> = ({
 	amplitude,
@@ -116,9 +93,6 @@ const AudioWaveformProgressContent: React.FC<{
 	durationInFrames,
 	numberOfBars,
 	playedColor,
-	showPlayhead,
-	showTimestamps,
-	timestampColor,
 	unplayedColor,
 }) => {
 	const frame = useCurrentFrame();
@@ -152,15 +126,6 @@ const AudioWaveformProgressContent: React.FC<{
 		0,
 		Math.min(1, frame / Math.max(1, durationInFrames - 1)),
 	);
-	const elapsedWholeSeconds = Math.min(
-		Math.floor(durationInSeconds),
-		Math.floor(progress * durationInSeconds),
-	);
-	const totalWholeSeconds = Math.floor(durationInSeconds);
-	const elapsedMinutes = Math.floor(elapsedWholeSeconds / 60);
-	const elapsedSeconds = elapsedWholeSeconds % 60;
-	const totalMinutes = Math.floor(totalWholeSeconds / 60);
-	const totalSeconds = totalWholeSeconds % 60;
 	const resolvedBarGap = Math.max(0, Math.min(8, barGap));
 	const barWidth =
 		(884 - resolvedBarGap * (roundedNumberOfBars - 1)) / roundedNumberOfBars;
@@ -198,35 +163,10 @@ const AudioWaveformProgressContent: React.FC<{
 							rx={Math.min(barWidth / 2, barHeight / 2)}
 							width={barWidth}
 							x={8 + index * (barWidth + resolvedBarGap)}
-							y={122 - barHeight / 2}
+							y={150 - barHeight / 2}
 						/>
 					);
 				})}
-				{showPlayhead ? (
-					<line
-						x1={8 + progress * 884}
-						x2={8 + progress * 884}
-						y1={7}
-						y2={237}
-						stroke={playedColor}
-						strokeLinecap="round"
-						strokeWidth={3}
-					/>
-				) : null}
-				{showTimestamps ? (
-					<text
-						x={892}
-						y={286}
-						fill={timestampColor}
-						fontFamily="Arial, sans-serif"
-						fontSize={32}
-						fontWeight={500}
-						textAnchor="end"
-					>
-						{elapsedMinutes}:{elapsedSeconds.toString().padStart(2, '0')} /{' '}
-						{totalMinutes}:{totalSeconds.toString().padStart(2, '0')}
-					</text>
-				) : null}
 			</svg>
 		</>
 	);
@@ -248,10 +188,7 @@ const AudioWaveformProgressInner = forwardRef<
 			name,
 			numberOfBars = 64,
 			playedColor = '#0b84f3',
-			showPlayhead = true,
-			showTimestamps = true,
 			style,
-			timestampColor = '#475569',
 			unplayedColor = '#cbd5e1',
 			...sequenceProps
 		},
@@ -287,9 +224,6 @@ const AudioWaveformProgressInner = forwardRef<
 						durationInFrames={durationInFrames}
 						numberOfBars={numberOfBars}
 						playedColor={playedColor}
-						showPlayhead={showPlayhead}
-						showTimestamps={showTimestamps}
-						timestampColor={timestampColor}
 						unplayedColor={unplayedColor}
 					/>
 				</div>
