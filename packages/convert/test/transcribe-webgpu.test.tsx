@@ -11,6 +11,8 @@ test('offers WebGPU model downloads', () => {
 			cachedModels={['tiny.en']}
 			selectedModel="tiny.en"
 			setSelectedModel={() => undefined}
+			selectedLanguage="en"
+			setSelectedLanguage={() => undefined}
 			disabled={false}
 		/>,
 	);
@@ -18,6 +20,26 @@ test('offers WebGPU model downloads', () => {
 	const model = rendered.getByRole('combobox', {name: 'Whisper model'});
 	expect(model.textContent).toContain('119.7 MB WebGPU');
 	expect(model.textContent).toContain('Downloaded');
+	expect(
+		rendered.queryByRole('combobox', {name: 'Spoken language'}),
+	).toBeNull();
+});
+
+test('offers a language selector for multilingual models', () => {
+	const rendered = render(
+		<ModelSelector
+			cachedModels={[]}
+			selectedModel="small"
+			setSelectedModel={() => undefined}
+			selectedLanguage="de"
+			setSelectedLanguage={() => undefined}
+			disabled={false}
+		/>,
+	);
+
+	expect(
+		rendered.getByRole('combobox', {name: 'Spoken language'}).textContent,
+	).toContain('German');
 });
 
 test('offers transcription actions underneath the transcript', async () => {

@@ -10,6 +10,7 @@ import type {Source} from '~/lib/convert-state';
 import {formatBytes} from '~/lib/format-bytes';
 import {Button} from '../ui/button';
 import {Card} from '../ui/card';
+import type {WhisperLanguage} from './languages';
 import type {TranscriptionState} from './state';
 
 const sourceToBlob = (source: Source) => {
@@ -23,12 +24,14 @@ const sourceToBlob = (source: Source) => {
 export default function TranscribeAudio({
 	source,
 	selectedModel,
+	language,
 	name,
 	state,
 	setState,
 }: {
 	readonly source: Source;
 	readonly selectedModel: WhisperWebGpuModel;
+	readonly language: WhisperLanguage | null;
 	readonly name: string;
 	readonly state: TranscriptionState;
 	readonly setState: React.Dispatch<React.SetStateAction<TranscriptionState>>;
@@ -59,6 +62,7 @@ export default function TranscribeAudio({
 			const transcription = await transcribe({
 				channelWaveform: waveform,
 				model: selectedModel,
+				...(language === null ? {} : {language}),
 			});
 
 			setState(() => ({
@@ -72,7 +76,7 @@ export default function TranscribeAudio({
 				message: error instanceof Error ? error.message : String(error),
 			});
 		}
-	}, [selectedModel, source, setState]);
+	}, [language, selectedModel, source, setState]);
 
 	return (
 		<div>
