@@ -68,6 +68,99 @@ const audioOscilloscopeSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
+const AudioOscilloscopeContent: React.FC<{
+	readonly amplitude: number;
+	readonly audioSrc: string;
+	readonly lineColor: string;
+	readonly lineWidth: number;
+	readonly outlineRef: React.RefObject<HTMLDivElement | null>;
+	readonly style: AudioOscilloscopeProps['style'];
+	readonly windowInSeconds: number;
+}> = ({
+	amplitude,
+	audioSrc,
+	lineColor,
+	lineWidth,
+	outlineRef,
+	style,
+	windowInSeconds,
+}) => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
+		fps,
+		frame,
+		src: audioSrc,
+		windowInSeconds: 10,
+	});
+	const waveform = audioData
+		? getWaveformPortion({
+				audioData,
+				channel: 0,
+				dataOffsetInSeconds,
+				durationInSeconds: windowInSeconds,
+				normalize: false,
+				numberOfSamples: 128,
+				outputRange: 'minus-one-to-one',
+				startTimeInSeconds: frame / fps - windowInSeconds / 2,
+			}).map((sample) => sample.amplitude)
+		: [];
+	const path = createSmoothSvgPath({
+		points: waveform.map((value, index) => ({
+			x:
+				lineWidth * 2 + (index / (waveform.length - 1)) * (900 - lineWidth * 4),
+			y: 150 + value * 150 * amplitude,
+		})),
+	});
+
+	return (
+		<div
+			ref={outlineRef}
+			style={{
+				boxSizing: 'border-box',
+				height: 300,
+				overflow: 'hidden',
+				width: 900,
+				...style,
+			}}
+		>
+			<Audio showInTimeline={false} src={audioSrc} />
+			<svg height={300} viewBox="0 0 900 300" width={900}>
+				<line
+					x1={0}
+					x2={900}
+					y1={150}
+					y2={150}
+					stroke={lineColor}
+					strokeOpacity={0.18}
+					strokeWidth={1}
+				/>
+				{path ? (
+					<>
+						<path
+							d={path}
+							fill="none"
+							stroke={lineColor}
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeOpacity={0.22}
+							strokeWidth={lineWidth * 4}
+						/>
+						<path
+							d={path}
+							fill="none"
+							stroke={lineColor}
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={lineWidth}
+						/>
+					</>
+				) : null}
+			</svg>
+		</div>
+	);
+};
+
 const AudioOscilloscopeInner = forwardRef<
 	HTMLDivElement,
 	AudioOscilloscopeProps & {readonly controls: SequenceControls | undefined}
@@ -86,35 +179,7 @@ const AudioOscilloscopeInner = forwardRef<
 		},
 		ref,
 	) => {
-		const frame = useCurrentFrame();
-		const {fps} = useVideoConfig();
 		const outlineRef = useRef<HTMLDivElement>(null);
-		const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
-			fps,
-			frame,
-			src: audioSrc,
-			windowInSeconds: 10,
-		});
-		const waveform = audioData
-			? getWaveformPortion({
-					audioData,
-					channel: 0,
-					dataOffsetInSeconds,
-					durationInSeconds: windowInSeconds,
-					normalize: false,
-					numberOfSamples: 128,
-					outputRange: 'minus-one-to-one',
-					startTimeInSeconds: frame / fps - windowInSeconds / 2,
-				}).map((sample) => sample.amplitude)
-			: [];
-		const path = createSmoothSvgPath({
-			points: waveform.map((value, index) => ({
-				x:
-					lineWidth * 2 +
-					(index / (waveform.length - 1)) * (900 - lineWidth * 4),
-				y: 150 + value * 150 * amplitude,
-			})),
-		});
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -126,50 +191,15 @@ const AudioOscilloscopeInner = forwardRef<
 				name={name ?? 'Audio oscilloscope'}
 				outlineRef={outlineRef}
 			>
-				<div
-					ref={outlineRef}
-					style={{
-						boxSizing: 'border-box',
-						height: 300,
-						overflow: 'hidden',
-						width: 900,
-						...style,
-					}}
-				>
-					<Audio showInTimeline={false} src={audioSrc} />
-					<svg height={300} viewBox="0 0 900 300" width={900}>
-						<line
-							x1={0}
-							x2={900}
-							y1={150}
-							y2={150}
-							stroke={lineColor}
-							strokeOpacity={0.18}
-							strokeWidth={1}
-						/>
-						{path ? (
-							<>
-								<path
-									d={path}
-									fill="none"
-									stroke={lineColor}
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeOpacity={0.22}
-									strokeWidth={lineWidth * 4}
-								/>
-								<path
-									d={path}
-									fill="none"
-									stroke={lineColor}
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={lineWidth}
-								/>
-							</>
-						) : null}
-					</svg>
-				</div>
+				<AudioOscilloscopeContent
+					amplitude={amplitude}
+					audioSrc={audioSrc}
+					lineColor={lineColor}
+					lineWidth={lineWidth}
+					outlineRef={outlineRef}
+					style={style}
+					windowInSeconds={windowInSeconds}
+				/>
 			</Sequence>
 		);
 	},
