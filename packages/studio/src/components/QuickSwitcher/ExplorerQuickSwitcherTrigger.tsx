@@ -38,6 +38,7 @@ const quickSwitcherTrigger: React.CSSProperties = {
 	border: 'none',
 	flex: 1,
 	appearance: 'none',
+	userSelect: 'none',
 	...hoverableStyle({
 		idleBackground: WHITE_ALPHA_06,
 		hoverBackground: WHITE_ALPHA_06,

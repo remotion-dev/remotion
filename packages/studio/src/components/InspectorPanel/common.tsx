@@ -146,6 +146,7 @@ const inlineLabelText: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 

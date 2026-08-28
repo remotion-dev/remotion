@@ -25,8 +25,13 @@ const sourceLocationStyle: React.CSSProperties = {
 	textAlign: 'left',
 	textDecoration: 'none',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
 	whiteSpace: 'nowrap',
 	width: 'fit-content',
+};
+
+const quickActionStyle: React.CSSProperties = {
+	userSelect: 'none',
 };
 
 const sourceLocationLabelStyle: React.CSSProperties = {
@@ -104,6 +109,7 @@ export const InspectorSourceLocation: React.FC<{
 				disabled={!canOpen}
 				onClick={onClick}
 				renderIcon={(iconColor) => renderIcon?.(iconColor)}
+				style={quickActionStyle}
 				title={fileLocation ?? undefined}
 			>
 				{label}

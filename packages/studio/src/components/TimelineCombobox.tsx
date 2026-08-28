@@ -19,6 +19,7 @@ const label: React.CSSProperties = {
 	overflow: 'hidden',
 	textAlign: 'left',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
