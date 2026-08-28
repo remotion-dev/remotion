@@ -132,6 +132,10 @@ export const ensurePreviewServerEventSource = () => {
 		return;
 	}
 
+	if (window.remotion_isReadOnlyStudio) {
+		return;
+	}
+
 	if (typeof EventSource === 'undefined') {
 		return;
 	}
