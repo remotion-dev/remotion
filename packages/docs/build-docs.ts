@@ -1,7 +1,8 @@
 import {spawn} from 'child_process';
 
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
-const lowMemoryBuild = process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
+const lowMemoryBuild =
+	isVercel || process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
 const heartbeatIntervalMs = process.env.REMOTION_DOCS_BUILD_HEARTBEAT_MS
 	? parseInt(process.env.REMOTION_DOCS_BUILD_HEARTBEAT_MS, 10)
 	: isVercel
@@ -34,9 +35,7 @@ const nodeOldSpaceSize = process.env.REMOTION_DOCS_NODE_OLD_SPACE_MB
 	? parseInt(process.env.REMOTION_DOCS_NODE_OLD_SPACE_MB, 10)
 	: lowMemoryBuild
 		? 3072
-		: isVercel
-			? 6144
-			: 4096;
+		: 4096;
 
 const run = (
 	label: string,
