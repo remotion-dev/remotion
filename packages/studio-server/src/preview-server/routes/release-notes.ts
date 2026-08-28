@@ -7,7 +7,15 @@ import type {ApiHandler} from '../api-types';
 
 const githubApiVersion = '2022-11-28';
 const releaseNotesTimeout = 5000;
+const releaseNotesCacheDuration = 5 * 60 * 1000;
 const maximumReleaseNotes = 5;
+const releaseNotesCache = new Map<
+	string,
+	{
+		expiresAt: number;
+		response: GetReleaseNotesResponse;
+	}
+>();
 
 export const getReleaseNotesHandler: ApiHandler<
 	GetReleaseNotesRequest,
@@ -19,6 +27,12 @@ export const getReleaseNotesHandler: ApiHandler<
 		throw new Error(
 			`Invalid Remotion version range: ${input.currentVersion} to ${input.latestVersion}`,
 		);
+	}
+
+	const cacheKey = `${currentVersion}:${latestVersion}`;
+	const cachedReleaseNotes = releaseNotesCache.get(cacheKey);
+	if (cachedReleaseNotes && cachedReleaseNotes.expiresAt > Date.now()) {
+		return cachedReleaseNotes.response;
 	}
 
 	const controller = new AbortController();
@@ -137,7 +151,12 @@ export const getReleaseNotesHandler: ApiHandler<
 			}),
 		);
 
-		return {hasMore, releases};
+		const response = {hasMore, releases};
+		releaseNotesCache.set(cacheKey, {
+			expiresAt: Date.now() + releaseNotesCacheDuration,
+			response,
+		});
+		return response;
 	} catch {
 		return {hasMore: false, releases: []};
 	} finally {

@@ -23,7 +23,7 @@ const callHandler = (currentVersion: string, latestVersion: string) => {
 	});
 };
 
-test('renders every missed release with GitHub-flavored Markdown', async () => {
+test('renders and caches every missed release with GitHub-flavored Markdown', async () => {
 	const originalFetch = globalThis.fetch;
 	const requests: {body: string | null; url: string}[] = [];
 
@@ -58,7 +58,7 @@ test('renders every missed release with GitHub-flavored Markdown', async () => {
 	);
 
 	try {
-		await expect(callHandler('4.0.516', '4.0.518')).resolves.toEqual({
+		const expected = {
 			hasMore: false,
 			releases: [
 				{
@@ -72,7 +72,9 @@ test('renders every missed release with GitHub-flavored Markdown', async () => {
 					version: '4.0.517',
 				},
 			],
-		});
+		};
+		await expect(callHandler('4.0.516', '4.0.518')).resolves.toEqual(expected);
+		await expect(callHandler('4.0.516', '4.0.518')).resolves.toEqual(expected);
 		expect(requests).toEqual([
 			{
 				body: null,
@@ -143,7 +145,7 @@ test('gracefully falls back when releases cannot be loaded', async () => {
 	);
 
 	try {
-		await expect(callHandler('4.0.516', '4.0.518')).resolves.toEqual({
+		await expect(callHandler('4.0.500', '4.0.501')).resolves.toEqual({
 			hasMore: false,
 			releases: [],
 		});

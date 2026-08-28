@@ -1,4 +1,4 @@
-import {OpenIssueButton} from './UpdateModal/OpenIssueButton';
+import {OpenIssueButton} from './OpenIssueButton';
 import type {Bug} from './UpdateStatusContext';
 
 const container: React.CSSProperties = {

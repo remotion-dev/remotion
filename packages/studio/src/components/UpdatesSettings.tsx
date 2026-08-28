@@ -315,6 +315,15 @@ export const UpdatesSettings: React.FC = () => {
 		);
 	}
 
+	if (info.timedOut && !info.skillsUpdateAvailable) {
+		return (
+			<div style={container}>
+				<div style={title}>Could not check for updates.</div>
+				<div style={text}>The update check timed out. Try again later.</div>
+			</div>
+		);
+	}
+
 	if (!info.updateAvailable && !info.skillsUpdateAvailable) {
 		return (
 			<div style={container}>
