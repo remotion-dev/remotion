@@ -10,6 +10,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 1"
 						src="https://remotion.media/canvas-capture-announcement/camo-01.mov"
+						premountFor={30}
 						trimBefore={58}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -19,6 +20,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 2"
 						src="https://remotion.media/canvas-capture-announcement/camo-02.mov"
+						premountFor={30}
 						trimBefore={132}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -28,6 +30,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 3"
 						src="https://remotion.media/canvas-capture-announcement/camo-03.mov"
+						premountFor={30}
 						trimBefore={76}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -37,6 +40,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 4"
 						src="https://remotion.media/canvas-capture-announcement/camo-04.mov"
+						premountFor={30}
 						trimBefore={79}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -46,6 +50,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 5"
 						src="https://remotion.media/canvas-capture-announcement/camo-05.mov"
+						premountFor={30}
 						trimBefore={85}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -55,6 +60,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 6"
 						src="https://remotion.media/canvas-capture-announcement/camo-06.mov"
+						premountFor={30}
 						trimBefore={74}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -64,6 +70,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 7"
 						src="https://remotion.media/canvas-capture-announcement/camo-07.mov"
+						premountFor={30}
 						trimBefore={49}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -73,6 +80,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 8"
 						src="https://remotion.media/canvas-capture-announcement/camo-08.mov"
+						premountFor={30}
 						trimBefore={76}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -82,6 +90,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 9"
 						src="https://remotion.media/canvas-capture-announcement/camo-09.mov"
+						premountFor={30}
 						trimBefore={80}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -91,6 +100,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 10"
 						src="https://remotion.media/canvas-capture-announcement/camo-10.mov"
+						premountFor={30}
 						trimBefore={55}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -100,6 +110,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 11"
 						src="https://remotion.media/canvas-capture-announcement/camo-11.mov"
+						premountFor={30}
 						trimBefore={73}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
@@ -109,6 +120,7 @@ export const CanvasCaptureAnnouncement: React.FC = () => {
 					<Video
 						name="Take 12"
 						src="https://remotion.media/canvas-capture-announcement/camo-12.mov"
+						premountFor={30}
 						trimBefore={150}
 						style={{width: '100%', height: '100%'}}
 						objectFit="cover"
