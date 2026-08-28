@@ -1,5 +1,9 @@
-import {type EventSourceEvent} from '@remotion/studio-shared';
+import {
+	REACT_REFRESH_STARTED_EVENT,
+	type EventSourceEvent,
+} from '@remotion/studio-shared';
 import {useContext, useEffect, useLayoutEffect, useRef} from 'react';
+import {flushSync} from 'react-dom';
 import type {
 	SequencePropsStatusRemapping,
 	SequencePropsSubscriptionKey,
@@ -30,6 +34,9 @@ export const SequencePropsObserver = () => {
 	const {migrateExpandedTracksForSubscriptionKey} = useContext(
 		ExpandedTracksSetterContext,
 	);
+	const pendingPropStatusInvalidations = useRef<SequencePropsStatusRemapping[]>(
+		[],
+	);
 	useEffect(() => {
 		const handleEvent = (event: EventSourceEvent) => {
 			if (event.type === 'sequence-props-updated') {
@@ -41,7 +48,6 @@ export const SequencePropsObserver = () => {
 				return;
 			}
 
-			const invalidations: SequencePropsStatusRemapping[] = [];
 			for (const previousNodePath of Object.values(
 				overrideIdToNodePathMappingsRef.current,
 			)) {
@@ -56,17 +62,28 @@ export const SequencePropsObserver = () => {
 						),
 				);
 				if (sourceNodeWasInvalidated) {
-					invalidations.push({
+					pendingPropStatusInvalidations.current.push({
 						previousNodePath,
 						nodePath: previousNodePath,
 						result: null,
 					});
 				}
 			}
+		};
 
-			if (invalidations.length > 0) {
-				remapPropStatuses(invalidations);
+		const handleReactRefreshStarted = () => {
+			const invalidations = pendingPropStatusInvalidations.current;
+			pendingPropStatusInvalidations.current = [];
+			if (invalidations.length === 0) {
+				return;
 			}
+
+			// Invalidate immediately before React applies the refreshed modules. Both
+			// updates happen in the same browser task, so the old timeline remains
+			// visible until it can be replaced by the authoritative server result.
+			flushSync(() => {
+				remapPropStatuses(invalidations);
+			});
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
@@ -74,10 +91,18 @@ export const SequencePropsObserver = () => {
 			'sequence-node-paths-remapped',
 			handleEvent,
 		);
+		window.addEventListener(
+			REACT_REFRESH_STARTED_EVENT,
+			handleReactRefreshStarted,
+		);
 
 		return () => {
 			unsubscribe();
 			unsubscribeFromNodePathMutations();
+			window.removeEventListener(
+				REACT_REFRESH_STARTED_EVENT,
+				handleReactRefreshStarted,
+			);
 		};
 	}, [remapPropStatuses, setPropStatuses, subscribeToEvent]);
 

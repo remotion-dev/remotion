@@ -1,4 +1,7 @@
-import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
+import {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from '@remotion/studio-shared';
 
 type ReactRefreshRuntime = {
 	performReactRefresh: () => unknown;
@@ -12,6 +15,7 @@ if (RefreshRuntime.__remotionReactRefreshWrapped === null) {
 	const originalPerformReactRefresh = RefreshRuntime.performReactRefresh;
 	RefreshRuntime.__remotionReactRefreshWrapped = true;
 	RefreshRuntime.performReactRefresh = () => {
+		window.dispatchEvent(new Event(REACT_REFRESH_STARTED_EVENT));
 		// The refresh integration calls this after applying the update. Emitting
 		// here gives Studio a boundary after React refreshed its roots.
 		const result = originalPerformReactRefresh();
