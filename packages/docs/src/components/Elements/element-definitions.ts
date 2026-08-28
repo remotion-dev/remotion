@@ -5,6 +5,7 @@ import type {
 import type {ComponentType} from 'react';
 import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/mirrored-spectrum';
 import {AudioOscilloscope} from '../../../elements/audio/oscilloscope/audio-oscilloscope';
+import {AudioWaveformProgress} from '../../../elements/audio/waveform-progress/audio-waveform-progress';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
@@ -100,6 +101,31 @@ const elementImplementations = {
 				'https://remotion.media/elements/audio-oscilloscope-preview.png',
 			videoUrl:
 				'https://remotion.media/elements/audio-oscilloscope-preview.mp4',
+		},
+		safeArea: 120,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	'audio/waveform-progress': {
+		component: AudioWaveformProgress,
+		contributors: [{username: 'samohovets', contribution: 'Author'}],
+		description: 'A full-clip audio waveform with played progress.',
+		dependencies: [
+			{name: '@remotion/media', version: null},
+			{name: '@remotion/media-utils', version: null},
+		],
+		durationInFrames: 271,
+		elementHeight: 300,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 105,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/audio-waveform-progress-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/audio-waveform-progress-preview.mp4',
 		},
 		safeArea: 120,
 		installationMode: 'component-owned-sequence',

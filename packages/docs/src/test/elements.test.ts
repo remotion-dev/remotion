@@ -511,7 +511,11 @@ describe('Elements sidebar', () => {
 			{
 				category: 'audio',
 				label: 'Audio',
-				items: ['audio/oscilloscope/index', 'audio/mirrored-spectrum/index'],
+				items: [
+					'audio/oscilloscope/index',
+					'audio/waveform-progress/index',
+					'audio/mirrored-spectrum/index',
+				],
 			},
 			{
 				category: 'backgrounds',
@@ -688,6 +692,7 @@ describe('Element preview definitions', () => {
 	test('only Elements with one interactive timeline item own their Sequence', () => {
 		const componentOwnedSequenceSlugs = new Set([
 			'audio/oscilloscope',
+			'audio/waveform-progress',
 			'audio/mirrored-spectrum',
 			'captions/moving-pill-captions',
 			'captions/popping-word-captions',
