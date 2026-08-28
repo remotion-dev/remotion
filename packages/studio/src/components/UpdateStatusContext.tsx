@@ -8,6 +8,8 @@ import React, {
 } from 'react';
 import {VERSION} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {canShowUpdates} from '../helpers/can-show-updates';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {updateAvailable} from './RenderQueue/actions';
 
 // Keep in sync with packages/bugs/api/[v].ts
@@ -31,12 +33,21 @@ const UpdateStatusContext = createContext<UpdateStatusContextValue | null>(
 export const UpdateStatusProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [info, setInfo] = useState<UpdateAvailableResponse | null>(null);
 	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const showUpdates = canShowUpdates({
+		connectionStatus: previewServerState.type,
+		isBrowserStudio: getBrowserStudioOperations() !== null,
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+	});
 
 	useEffect(() => {
-		if (getBrowserStudioOperations() !== null) {
+		if (!showUpdates) {
+			setInfo(null);
+			setKnownBugs(null);
+			setError(null);
 			return;
 		}
 
@@ -76,7 +87,7 @@ export const UpdateStatusProvider: React.FC<{
 			updateController.abort();
 			bugsController.abort();
 		};
-	}, []);
+	}, [showUpdates]);
 
 	const value = useMemo<UpdateStatusContextValue>(() => {
 		return {error, info, knownBugs};

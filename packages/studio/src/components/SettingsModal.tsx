@@ -1,8 +1,16 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useState,
+} from 'react';
 import {
 	canInstallPackages,
 	getBrowserStudioOperations,
 } from '../helpers/browser-studio-operations';
+import {canShowUpdates} from '../helpers/can-show-updates';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {AppsIcon} from '../icons/apps';
 import {CloudDownloadIcon} from '../icons/cloud-download';
 import {KeyboardIcon} from '../icons/keyboard';
@@ -87,15 +95,23 @@ export const SettingsModal: React.FC<{
 }> = ({initialPublicLicenseKey, initialTab}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setPublicLicenseKey} = useSettings();
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const showUpdates = canShowUpdates({
+		connectionStatus: previewServerState.type,
+		isBrowserStudio,
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+	});
 	const packageManager =
 		window.remotion_packageManager === 'unknown'
 			? null
 			: window.remotion_packageManager;
 	const showPackages =
 		canInstallPackages() && (isBrowserStudio || packageManager !== null);
-	const [tab, setTab] = useState<SettingsTab>(initialTab);
-	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([initialTab]);
+	const safeInitialTab =
+		initialTab === 'updates' && !showUpdates ? 'shortcuts' : initialTab;
+	const [tab, setTab] = useState<SettingsTab>(safeInitialTab);
+	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([safeInitialTab]);
 	const [packagesFooterContainer, setPackagesFooterContainer] =
 		useState<HTMLDivElement | null>(null);
 
@@ -112,6 +128,11 @@ export const SettingsModal: React.FC<{
 			return [...currentOpenedTabs, newTab];
 		});
 	}, []);
+	useLayoutEffect(() => {
+		if (!showUpdates && tab === 'updates') {
+			selectTab('shortcuts');
+		}
+	}, [selectTab, showUpdates, tab]);
 	useEffect(() => {
 		setPublicLicenseKey(initialPublicLicenseKey);
 	}, [initialPublicLicenseKey, setPublicLicenseKey]);
@@ -218,7 +239,7 @@ export const SettingsModal: React.FC<{
 								License
 							</VerticalTab>
 						)}
-						{isBrowserStudio ? null : (
+						{showUpdates ? (
 							<VerticalTab
 								style={horizontalTab}
 								selected={tab === 'updates'}
@@ -231,7 +252,7 @@ export const SettingsModal: React.FC<{
 							>
 								Updates
 							</VerticalTab>
-						)}
+						) : null}
 					</div>
 					{openedTabs.includes('packages') ? (
 						<div style={tab === 'packages' ? optionsPanel : hiddenPanel}>
@@ -289,7 +310,7 @@ export const SettingsModal: React.FC<{
 							<StudioSettings />
 						</div>
 					) : null}
-					{openedTabs.includes('updates') ? (
+					{showUpdates && openedTabs.includes('updates') ? (
 						<div
 							style={tab === 'updates' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
