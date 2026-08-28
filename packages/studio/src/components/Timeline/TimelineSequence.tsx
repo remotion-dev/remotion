@@ -253,6 +253,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		relativeFrameWithPostmount >= 0 &&
 		relativeFrameWithPostmount < (s.postmountDisplay ?? 0) &&
 		!isInRange;
+	const allowSequenceFrameOverflow =
+		frozenFrame === null && (isInRange || isPremounting || isPostmounting);
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
 		: 0;
@@ -275,7 +277,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		s.type !== 'video' &&
 		s.type !== 'image' &&
 		s.loopDisplay === undefined &&
-		(isInRange || isPremounting || isPostmounting);
+		(frozenFrame !== null || allowSequenceFrameOverflow);
 	const sequenceFrameInfo = showSequenceFrame ? (
 		<div
 			data-timeline-sequence-frame
@@ -395,8 +397,21 @@ const TimelineSequenceCurrentFrame: React.FC<{
 						>
 							{content}
 						</div>
+						{sequenceFrameInfo && !allowSequenceFrameOverflow ? (
+							<div
+								style={{
+									height: '100%',
+									left: 5 + (premount?.width ?? 0),
+									pointerEvents: 'none',
+									position: 'absolute',
+									top: 0,
+								}}
+							>
+								{sequenceFrameInfo}
+							</div>
+						) : null}
 					</div>
-					{sequenceFrameInfo ? (
+					{sequenceFrameInfo && allowSequenceFrameOverflow ? (
 						<div
 							style={{
 								height: '100%',

@@ -429,6 +429,30 @@ test.describe('visual mode', () => {
 			'[data-timeline-sequence-frame]',
 		);
 		await expect(negativeSequenceFrame).toContainText('20');
+		await expect(negativeSequenceFrame.locator('svg')).toHaveCount(1);
+		const sequenceFrameIsClipped = () =>
+			negativeSequence.evaluate((element) => {
+				const frame = element.querySelector('[data-timeline-sequence-frame]');
+				if (!frame) {
+					return true;
+				}
+
+				const frameRight = frame.getBoundingClientRect().right;
+				let ancestor = frame.parentElement;
+				while (ancestor && ancestor !== element) {
+					const overflow = getComputedStyle(ancestor).overflow;
+					if (
+						(overflow === 'hidden' || overflow === 'clip') &&
+						ancestor.getBoundingClientRect().right < frameRight
+					) {
+						return true;
+					}
+
+					ancestor = ancestor.parentElement;
+				}
+
+				return false;
+			});
 
 		const [
 			timelineRect,
@@ -458,30 +482,12 @@ test.describe('visual mode', () => {
 				(element) => getComputedStyle(element).overflow,
 			),
 		).toBe('visible');
-		expect(
-			await negativeSequence.evaluate((element) => {
-				const frame = element.querySelector('[data-timeline-sequence-frame]');
-				if (!frame) {
-					return true;
-				}
+		expect(await sequenceFrameIsClipped()).toBe(true);
 
-				const frameRight = frame.getBoundingClientRect().right;
-				let ancestor = frame.parentElement;
-				while (ancestor && ancestor !== element) {
-					const overflow = getComputedStyle(ancestor).overflow;
-					if (
-						(overflow === 'hidden' || overflow === 'clip') &&
-						ancestor.getBoundingClientRect().right < frameRight
-					) {
-						return true;
-					}
-
-					ancestor = ancestor.parentElement;
-				}
-
-				return false;
-			}),
-		).toBe(false);
+		await page.getByRole('button', {name: 'Step forward one frame'}).click();
+		await expect(negativeSequenceFrame).toContainText('20');
+		await expect(negativeSequenceFrame.locator('svg')).toHaveCount(1);
+		expect(await sequenceFrameIsClipped()).toBe(true);
 	});
 
 	test('should commit a color drag before the picker closes', async ({
