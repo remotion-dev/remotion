@@ -747,7 +747,7 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 			page.evaluate(() =>
 				window.__browserStudioProject.files[
 					'/project/src/Composition.tsx'
-				].includes("staticFile('framer.webm')"),
+				].includes('staticFile("framer.webm")'),
 			),
 		)
 		.toBe(true);
