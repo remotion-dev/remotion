@@ -140,8 +140,16 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		const duplicateResponse = await duplicateJsxNodeHandler({
 			...handlerContext,
 			input: {
-				fileName,
-				nodePath: lineContainingToNodePath(before, 'name="b"'),
+				nodes: [
+					{
+						fileName,
+						nodePath: lineContainingToNodePath(before, 'name="b"'),
+					},
+					{
+						fileName,
+						nodePath: lineContainingToNodePath(before, 'name="c"'),
+					},
+				],
 			},
 		});
 		if (!duplicateResponse.success) {
@@ -149,6 +157,8 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		}
 
 		assertMutation({before, mutation: duplicateResponse.nodePathMutation});
+		expect(readFileSync(filePath, 'utf-8')).toContain('name="b-copy"');
+		expect(readFileSync(filePath, 'utf-8')).toContain('name="c-copy"');
 
 		before = readFileSync(filePath, 'utf-8');
 		const splitResponse = await splitJsxSequenceHandler({
