@@ -92,7 +92,7 @@ const audioWaveformProgressSchema = {
 	showTimestamps: {
 		type: 'boolean',
 		default: true,
-		description: 'Show elapsed and remaining time',
+		description: 'Show elapsed and total time',
 		keyframable: false,
 	},
 	...Interactive.transformSchema,
@@ -156,14 +156,11 @@ const AudioWaveformProgressContent: React.FC<{
 		Math.floor(durationInSeconds),
 		Math.floor(progress * durationInSeconds),
 	);
-	const remainingWholeSeconds = Math.max(
-		0,
-		Math.floor(durationInSeconds) - elapsedWholeSeconds,
-	);
+	const totalWholeSeconds = Math.floor(durationInSeconds);
 	const elapsedMinutes = Math.floor(elapsedWholeSeconds / 60);
 	const elapsedSeconds = elapsedWholeSeconds % 60;
-	const remainingMinutes = Math.floor(remainingWholeSeconds / 60);
-	const remainingSeconds = remainingWholeSeconds % 60;
+	const totalMinutes = Math.floor(totalWholeSeconds / 60);
+	const totalSeconds = totalWholeSeconds % 60;
 	const resolvedBarGap = Math.max(0, Math.min(8, barGap));
 	const barWidth =
 		(884 - resolvedBarGap * (roundedNumberOfBars - 1)) / roundedNumberOfBars;
@@ -206,43 +203,29 @@ const AudioWaveformProgressContent: React.FC<{
 					);
 				})}
 				{showPlayhead ? (
-					<>
-						<line
-							x1={8 + progress * 884}
-							x2={8 + progress * 884}
-							y1={7}
-							y2={237}
-							stroke={playedColor}
-							strokeLinecap="round"
-							strokeWidth={3}
-						/>
-						<circle cx={8 + progress * 884} cy={7} fill={playedColor} r={7} />
-					</>
+					<line
+						x1={8 + progress * 884}
+						x2={8 + progress * 884}
+						y1={7}
+						y2={237}
+						stroke={playedColor}
+						strokeLinecap="round"
+						strokeWidth={3}
+					/>
 				) : null}
 				{showTimestamps ? (
-					<>
-						<text
-							x={8}
-							y={286}
-							fill={timestampColor}
-							fontFamily="Arial, sans-serif"
-							fontSize={28}
-							fontWeight={600}
-						>
-							{elapsedMinutes}:{elapsedSeconds.toString().padStart(2, '0')}
-						</text>
-						<text
-							x={892}
-							y={286}
-							fill={timestampColor}
-							fontFamily="Arial, sans-serif"
-							fontSize={28}
-							fontWeight={600}
-							textAnchor="end"
-						>
-							−{remainingMinutes}:{remainingSeconds.toString().padStart(2, '0')}
-						</text>
-					</>
+					<text
+						x={892}
+						y={286}
+						fill={timestampColor}
+						fontFamily="Arial, sans-serif"
+						fontSize={32}
+						fontWeight={500}
+						textAnchor="end"
+					>
+						{elapsedMinutes}:{elapsedSeconds.toString().padStart(2, '0')} /{' '}
+						{totalMinutes}:{totalSeconds.toString().padStart(2, '0')}
+					</text>
 				) : null}
 			</svg>
 		</>
