@@ -8,7 +8,6 @@ import {getStudioCurrentScaleContext} from '../helpers/studio-fit-padding';
 import {getStudioBufferStateDelayInMilliseconds} from '../helpers/studio-runtime-config';
 import {drawRef} from '../state/canvas-ref';
 import {compositionListRenderedRef} from '../state/composition-list';
-import {OpenModalCountContext} from '../state/modals';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
@@ -28,6 +27,7 @@ const background: React.CSSProperties = {
 	height: '100%',
 	flexDirection: 'column',
 	position: 'absolute',
+	isolation: 'isolate',
 };
 const RootCompositionLoader: React.FC<{
 	readonly Root: React.FC;
@@ -57,7 +57,6 @@ export const Editor: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({Root, readOnlyStudio}) => {
 	useStudioConfigRevision();
-	const openModalCount = React.useContext(OpenModalCountContext);
 	const [drawElement, setDrawElement] = useState<HTMLDivElement | null>(null);
 	const size = PlayerInternals.useElementSize(drawElement, {
 		triggerOnWindowResize: false,
@@ -113,7 +112,7 @@ export const Editor: React.FC<{
 						<ForceSpecificCursor />
 						<CanvasCaptureDropHandler readOnlyStudio={readOnlyStudio} />
 						<ScaleLockProvider>
-							<div style={background} inert={openModalCount > 0}>
+							<div style={background}>
 								<Internals.CompositionRenderErrorContext.Provider
 									value={compositionRenderErrorContextValue}
 								>

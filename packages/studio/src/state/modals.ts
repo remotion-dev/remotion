@@ -244,22 +244,11 @@ export type SetSelectedModalContextType = {
 	setSelectedModal: React.Dispatch<React.SetStateAction<ModalState | null>>;
 };
 
-export type SetOpenModalCountContextType = {
-	setOpenModalCount: React.Dispatch<React.SetStateAction<number>>;
-};
-
 // Keep modal state separate from its stable setter so opening a modal only
 // updates consumers that need to render the selected modal.
 export const SelectedModalContext = createContext<ModalState | null>(null);
 
-export const OpenModalCountContext = createContext(0);
-
 export const SetSelectedModalContext =
 	createContext<SetSelectedModalContextType>({
 		setSelectedModal: () => undefined,
-	});
-
-export const SetOpenModalCountContext =
-	createContext<SetOpenModalCountContextType>({
-		setOpenModalCount: () => undefined,
 	});
