@@ -386,6 +386,14 @@ export const updateAvailable = (signal: AbortSignal) => {
 	return callApi('/api/update-available', {}, signal);
 };
 
+export const getReleaseNotes = (
+	currentVersion: string,
+	latestVersion: string,
+	signal: AbortSignal,
+) => {
+	return callApi('/api/release-notes', {currentVersion, latestVersion}, signal);
+};
+
 export const getProjectInfo = (signal: AbortSignal) => {
 	return callApi('/api/project-info', {}, signal);
 };

@@ -65,6 +65,8 @@ export {
 	GetDefaultEditorInfoResponse,
 	GetRemotionSkillsInfoRequest,
 	GetRemotionSkillsInfoResponse,
+	GetReleaseNotesRequest,
+	GetReleaseNotesResponse,
 	GoogleFontSourceEdit,
 	InsertElementFileConflict,
 	InsertElementRequest,

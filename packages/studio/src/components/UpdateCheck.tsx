@@ -1,15 +1,4 @@
-import type {
-	GetRemotionSkillsInfoResponse,
-	UpdateAvailableResponse,
-} from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
-import {VERSION} from 'remotion';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {
 	TRANSPARENT,
 	WARNING_COLOR,
@@ -20,11 +9,7 @@ import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
-import {updateAvailable} from './RenderQueue/actions';
-import {useSettings} from './SettingsContext';
-
-export type UpdateInfo = UpdateAvailableResponse &
-	Pick<GetRemotionSkillsInfoResponse, 'remotionUpgradeSkillAvailable'>;
+import {useUpdateStatus} from './UpdateStatusContext';
 
 const buttonStyle: React.CSSProperties = {
 	appearance: 'none',
@@ -44,88 +29,24 @@ const updateIconContainer: React.CSSProperties = {
 	flexShrink: 0,
 };
 
-// Keep in sync with packages/bugs/api/[v].ts
-export type Bug = {
-	title: string;
-	description: string;
-	link: string;
-	versions: string[];
-};
-
 export const UpdateCheck = () => {
-	const [info, setInfo] = useState<UpdateAvailableResponse | null>(null);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {remotionSkillsInfo} = useSettings();
 	const {tabIndex} = useZIndex();
-	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
+	const {info, knownBugs} = useUpdateStatus();
 	const [hovered, setHovered] = useState(false);
 
 	const hasBugfixesAvailable = useMemo(() => {
 		return Boolean(info?.updateAvailable && knownBugs && knownBugs.length > 0);
 	}, [info?.updateAvailable, knownBugs]);
 
-	const checkForUpdates = useCallback(() => {
-		const controller = new AbortController();
-
-		updateAvailable(controller.signal)
-			.then((d) => {
-				setInfo(d);
-			})
-			.catch((err: Error) => {
-				if (err.message.includes('aborted')) {
-					return;
-				}
-
-				// eslint-disable-next-line no-console
-				console.log('Could not check for updates', err);
-			});
-
-		return controller;
-	}, []);
-
-	const checkForBugs = useCallback(() => {
-		const controller = new AbortController();
-
-		fetch(`https://bugs.remotion.dev/api/${VERSION}`, {
-			signal: controller.signal,
-		})
-			.then(async (res) => {
-				const body = await res.json();
-				setKnownBugs(body.bugs);
-			})
-			.catch((err: Error) => {
-				if (err.message.includes('aborted')) {
-					return;
-				}
-
-				// eslint-disable-next-line no-console
-				console.log('Could not check for bugs in this version', err);
-			});
-
-		return controller;
-	}, []);
-
-	useEffect(() => {
-		const abortUpdate = checkForUpdates();
-		const abortBugs = checkForBugs();
-
-		return () => {
-			abortUpdate.abort();
-			abortBugs.abort();
-		};
-	}, [checkForBugs, checkForUpdates]);
-
 	const openModal = useCallback(() => {
 		setSelectedModal({
-			type: 'update',
-			info: {
-				...(info as UpdateAvailableResponse),
-				remotionUpgradeSkillAvailable:
-					remotionSkillsInfo?.remotionUpgradeSkillAvailable ?? false,
-			},
-			knownBugs: knownBugs as Bug[],
+			type: 'settings',
+			initialTab: 'updates',
+			initialPublicLicenseKey:
+				window.remotion_renderDefaults?.publicLicenseKey ?? null,
 		});
-	}, [info, knownBugs, remotionSkillsInfo, setSelectedModal]);
+	}, [setSelectedModal]);
 
 	const dynButtonStyle: React.CSSProperties = useMemo(() => {
 		return {
