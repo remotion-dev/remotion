@@ -12,6 +12,7 @@ let mutationCounter = 0;
 export const broadcastSequenceNodePathMutation = (
 	files: Array<{
 		absolutePath: string;
+		invalidatedNodePaths: SequenceNodePath[];
 		remappings: SequenceNodePathRemapping[];
 		restoredNodePaths: SequenceNodePath[];
 	}>,

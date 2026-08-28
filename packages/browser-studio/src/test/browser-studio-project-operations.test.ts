@@ -129,6 +129,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(deleteResult.nodePathMutation.files).toEqual([
 		{
 			absolutePath: '/project/src/Composition.tsx',
+			invalidatedNodePaths: [],
 			remappings: expect.arrayContaining([
 				{
 					oldNodePath: insertResult.insertedNodePath.nodePath,

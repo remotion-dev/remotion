@@ -47,6 +47,7 @@ export const splitVideoFromAudioHandler: ApiHandler<
 			const nodePathMutation = broadcastSequenceNodePathMutation([
 				{
 					absolutePath,
+					invalidatedNodePaths: [],
 					remappings: nodePathRemappings,
 					restoredNodePaths: [],
 				},

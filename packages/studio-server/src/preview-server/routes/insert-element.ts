@@ -206,6 +206,7 @@ export const insertElementHandler: ApiHandler<
 			const nodePathMutation = broadcastSequenceNodePathMutation([
 				{
 					absolutePath: inserted.fileName,
+					invalidatedNodePaths: [],
 					remappings: inserted.nodePathRemappings,
 					restoredNodePaths: [],
 				},

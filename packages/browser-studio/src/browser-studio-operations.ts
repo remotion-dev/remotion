@@ -1274,6 +1274,7 @@ export const createBrowserStudioOperations = ({
 				mutate: () => nextProject,
 				nodePathMutationFiles: updates.map(({fileName, result}) => ({
 					absolutePath: fileName,
+					invalidatedNodePaths: [],
 					remappings: result.nodePathRemappings,
 					restoredNodePaths: [],
 				})),
@@ -1316,6 +1317,7 @@ export const createBrowserStudioOperations = ({
 				nodePathMutationFiles: [
 					{
 						absolutePath,
+						invalidatedNodePaths: [],
 						remappings: result.nodePathRemappings,
 						restoredNodePaths: [],
 					},
@@ -1356,6 +1358,7 @@ export const createBrowserStudioOperations = ({
 				[...itemsByAbsolutePath.entries()].map(
 					async ([absolutePath, fileItems]) => ({
 						absolutePath,
+						invalidatedNodePaths: fileItems.map(({nodePath}) => nodePath),
 						result: await splitJsxSequencesCodemod({
 							input: project.files[absolutePath],
 							splits: fileItems.map(({nodePath, sequenceKeys}) => ({
@@ -1376,11 +1379,14 @@ export const createBrowserStudioOperations = ({
 			const nodePathMutation = controller.applyMutation({
 				fileName: updates[0].absolutePath,
 				mutate: () => ({...project, files}),
-				nodePathMutationFiles: updates.map(({absolutePath, result}) => ({
-					absolutePath,
-					remappings: result.nodePathRemappings,
-					restoredNodePaths: [],
-				})),
+				nodePathMutationFiles: updates.map(
+					({absolutePath, invalidatedNodePaths, result}) => ({
+						absolutePath,
+						invalidatedNodePaths,
+						remappings: result.nodePathRemappings,
+						restoredNodePaths: [],
+					}),
+				),
 			});
 			if (nodePathMutation === null) {
 				throw new Error('Could not split JSX sequence');
@@ -1495,6 +1501,7 @@ export const createBrowserStudioOperations = ({
 				nodePathMutationFiles: [
 					{
 						absolutePath,
+						invalidatedNodePaths: [],
 						remappings: result.nodePathRemappings,
 						restoredNodePaths: [],
 					},
@@ -1868,6 +1875,7 @@ export const createBrowserStudioOperations = ({
 					nodePathMutationFiles: [
 						{
 							absolutePath,
+							invalidatedNodePaths: [],
 							remappings: result.nodePathRemappings,
 							restoredNodePaths: [],
 						},
@@ -1917,6 +1925,7 @@ export const createBrowserStudioOperations = ({
 				nodePathMutationFiles: [
 					{
 						absolutePath: result.filePath,
+						invalidatedNodePaths: [],
 						remappings: result.nodePathRemappings,
 						restoredNodePaths: [],
 					},
@@ -2101,6 +2110,7 @@ export const createBrowserStudioOperations = ({
 					nodePathMutationFiles: [
 						{
 							absolutePath: insertion.filePath,
+							invalidatedNodePaths: [],
 							remappings: insertion.nodePathRemappings,
 							restoredNodePaths: [],
 						},

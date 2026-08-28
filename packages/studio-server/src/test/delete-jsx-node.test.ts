@@ -431,6 +431,7 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 		expect(response.nodePathMutation.files).toEqual([
 			{
 				absolutePath: filePath,
+				invalidatedNodePaths: [],
 				remappings: [
 					{
 						oldNodePath: lineColumnToNodePath(interactiveSiblings, 6),
@@ -474,6 +475,7 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 		expect(undoResponse.nodePathMutation.files).toEqual([
 			{
 				absolutePath: filePath,
+				invalidatedNodePaths: [],
 				remappings: [
 					{
 						oldNodePath: lineColumnToNodePath(output, 6),

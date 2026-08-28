@@ -32,19 +32,54 @@ export const SequencePropsObserver = () => {
 	);
 	useEffect(() => {
 		const handleEvent = (event: EventSourceEvent) => {
-			if (event.type !== 'sequence-props-updated') {
+			if (event.type === 'sequence-props-updated') {
+				setPropStatuses(event.nodePath, () => event.result);
 				return;
 			}
 
-			setPropStatuses(event.nodePath, () => event.result);
+			if (event.type !== 'sequence-node-paths-remapped') {
+				return;
+			}
+
+			const invalidations: SequencePropsStatusRemapping[] = [];
+			for (const previousNodePath of Object.values(
+				overrideIdToNodePathMappingsRef.current,
+			)) {
+				const previousNodePathString = JSON.stringify(
+					previousNodePath.nodePath,
+				);
+				const sourceNodeWasInvalidated = event.mutation.files.some(
+					(file) =>
+						file.absolutePath === previousNodePath.absolutePath &&
+						file.invalidatedNodePaths.some(
+							(nodePath) => JSON.stringify(nodePath) === previousNodePathString,
+						),
+				);
+				if (sourceNodeWasInvalidated) {
+					invalidations.push({
+						previousNodePath,
+						nodePath: previousNodePath,
+						result: null,
+					});
+				}
+			}
+
+			if (invalidations.length > 0) {
+				remapPropStatuses(invalidations);
+			}
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
+		const unsubscribeFromNodePathMutations = subscribeToEvent(
+			'sequence-node-paths-remapped',
+			handleEvent,
+		);
 
 		return () => {
 			unsubscribe();
+			unsubscribeFromNodePathMutations();
 		};
-	}, [setPropStatuses, subscribeToEvent]);
+	}, [remapPropStatuses, setPropStatuses, subscribeToEvent]);
 
 	useLayoutEffect(() => {
 		const mutations = takePendingSequenceNodePathMutations();
@@ -64,6 +99,7 @@ export const SequencePropsObserver = () => {
 			let {nodePath} = previousNodePath;
 			let wasRemapped = false;
 			let wasDeleted = false;
+			let sourceNodeWasInvalidated = false;
 			let runtimeNodePathExists = true;
 			const previousNodePathString = JSON.stringify(previousNodePath.nodePath);
 
@@ -71,6 +107,16 @@ export const SequencePropsObserver = () => {
 				for (const file of mutation.files) {
 					if (file.absolutePath !== previousNodePath.absolutePath) {
 						continue;
+					}
+
+					if (
+						file.invalidatedNodePaths.some(
+							(invalidatedNodePath) =>
+								JSON.stringify(invalidatedNodePath) ===
+								JSON.stringify(nodePath),
+						)
+					) {
+						sourceNodeWasInvalidated = true;
 					}
 
 					// Prop statuses follow source nodes to their new paths. Override IDs,
@@ -139,7 +185,9 @@ export const SequencePropsObserver = () => {
 			statusRemappings.push({
 				previousNodePath,
 				nodePath: nextNodePath,
-				result: propStatusesRef.current[previousStatusKey] ?? null,
+				result: sourceNodeWasInvalidated
+					? null
+					: (propStatusesRef.current[previousStatusKey] ?? null),
 			});
 
 			overrideUpdates.push({

@@ -22,6 +22,7 @@ const outlineSelectionCasesFile = path.join(
 	'VisualModeTests',
 	'OutlineSelectionCases.tsx',
 );
+const barChartFile = path.join(exampleDir, 'src', 'BarChart.tsx');
 
 const dropAssetOnCanvas = async ({
 	assetPath,
@@ -446,7 +447,6 @@ test.describe('visual mode', () => {
 	test('should commit a color drag before the picker closes', async ({
 		page,
 	}) => {
-		const barChartFile = path.join(exampleDir, 'src', 'BarChart.tsx');
 		const originalSource = fs.readFileSync(barChartFile, 'utf-8');
 
 		try {
@@ -500,6 +500,141 @@ test.describe('visual mode', () => {
 				.poll(() => fs.readFileSync(barChartFile, 'utf-8'))
 				.toBe(originalSource);
 			await expect(hexInput).toHaveValue('#000000');
+		} finally {
+			fs.writeFileSync(barChartFile, originalSource);
+		}
+	});
+
+	test('should settle every timeline clip after splitting multiple selections', async ({
+		page,
+	}) => {
+		const originalSource = fs.readFileSync(barChartFile, 'utf-8');
+
+		try {
+			await page.addInitScript(() => {
+				type RegisteredTool = {
+					readonly name: string;
+					readonly execute: (
+						input: Record<string, unknown>,
+					) => Promise<unknown>;
+				};
+				const tools = new Map<string, RegisteredTool>();
+				Object.defineProperty(window, '__remotion_webmcp_tools', {
+					value: tools,
+				});
+				Object.defineProperty(document, 'modelContext', {
+					value: {
+						registerTool: async (
+							tool: RegisteredTool,
+							options: {readonly signal: AbortSignal},
+						) => {
+							tools.set(tool.name, tool);
+							options.signal.addEventListener('abort', () => {
+								if (tools.get(tool.name) === tool) {
+									tools.delete(tool.name);
+								}
+							});
+						},
+					},
+				});
+			});
+			await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+			await expect(page).toHaveURL(/AnimatedBarChart/, {timeout: 15_000});
+
+			const ambientGlow = page.locator(
+				'[data-timeline-marquee-item][title="Ambient glow"]',
+			);
+			const eyebrow = page.locator(
+				'[data-timeline-marquee-item][title="Eyebrow"]',
+			);
+			await expect(ambientGlow).toHaveCount(1, {timeout: 15_000});
+			await expect(eyebrow).toHaveCount(1);
+			await page.keyboard.press('g');
+			const currentFrameInput = page.locator('input:focus');
+			await expect(currentFrameInput).toBeVisible();
+			await currentFrameInput.fill('38');
+			await currentFrameInput.press('Enter');
+			const getSelectionType = () =>
+				page.evaluate(async () => {
+					const tools = (
+						window as typeof window & {
+							readonly __remotion_webmcp_tools: Map<
+								string,
+								{readonly execute: () => Promise<unknown>}
+							>;
+						}
+					).__remotion_webmcp_tools;
+					const result = (await tools.get('get_selection')?.execute()) as {
+						readonly selectionType: string | null;
+					};
+					return result.selectionType;
+				});
+
+			await expect(async () => {
+				await ambientGlow.click();
+				expect(await getSelectionType()).toBe('sequence');
+			}).toPass({timeout: 30_000});
+			await eyebrow.dispatchEvent('pointerdown', {
+				bubbles: true,
+				button: 0,
+				ctrlKey: true,
+				isPrimary: true,
+				pointerId: 1,
+			});
+			await expect.poll(getSelectionType).toBe(null);
+			await page.keyboard.press(
+				process.platform === 'darwin' ? 'Meta+Shift+d' : 'Control+Shift+d',
+			);
+
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(barChartFile, 'utf-8');
+					return {
+						ambientGlow: source.match(/name="Ambient glow"/g)?.length ?? 0,
+						eyebrow: source.match(/name="Eyebrow"/g)?.length ?? 0,
+					};
+				})
+				.toEqual({ambientGlow: 2, eyebrow: 2});
+			await expect(ambientGlow).toHaveCount(2, {timeout: 30_000});
+			await expect(eyebrow).toHaveCount(2);
+			await expect
+				.poll(async () => {
+					const result = await page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						return tools.get('get_sequences')?.execute();
+					});
+					return (
+						result as {
+							readonly sequences: readonly {
+								readonly durationInFrames: number;
+								readonly name: string;
+								readonly startFrame: number;
+							}[];
+						}
+					).sequences
+						.filter(
+							(sequence) =>
+								sequence.name === 'Ambient glow' || sequence.name === 'Eyebrow',
+						)
+						.map(({durationInFrames, name, startFrame}) => ({
+							durationInFrames,
+							name,
+							startFrame,
+						}));
+				})
+				.toEqual([
+					{durationInFrames: 38, name: 'Ambient glow', startFrame: 0},
+					{durationInFrames: 142, name: 'Ambient glow', startFrame: 38},
+					{durationInFrames: 38, name: 'Eyebrow', startFrame: 0},
+					{durationInFrames: 142, name: 'Eyebrow', startFrame: 38},
+				]);
 		} finally {
 			fs.writeFileSync(barChartFile, originalSource);
 		}

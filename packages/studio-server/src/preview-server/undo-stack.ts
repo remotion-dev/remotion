@@ -445,6 +445,7 @@ export function popUndo(): UndoResponse {
 		return [
 			{
 				absolutePath: snapshot.filePath,
+				invalidatedNodePaths: [],
 				remappings: snapshot.nodePathRemappings.flatMap(
 					(remapping): SequenceNodePathRemapping[] => {
 						if (remapping.newNodePath === null) {
@@ -554,6 +555,7 @@ export function popRedo(): RedoResponse {
 		return [
 			{
 				absolutePath: snapshot.filePath,
+				invalidatedNodePaths: [],
 				remappings: snapshot.nodePathRemappings,
 				restoredNodePaths: [],
 			},

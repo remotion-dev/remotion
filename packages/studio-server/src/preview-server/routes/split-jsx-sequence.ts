@@ -66,6 +66,7 @@ export const splitJsxSequenceHandler: ApiHandler<
 						fileContents,
 						fileRelativeToRoot,
 						formatted,
+						invalidatedNodePaths: fileItems.map(({nodePath}) => nodePath),
 						logLine: Math.min(...logLines),
 						nodeLabels,
 						nodePathRemappings,
@@ -74,11 +75,14 @@ export const splitJsxSequenceHandler: ApiHandler<
 				}),
 			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
-				updates.map(({absolutePath, nodePathRemappings}) => ({
-					absolutePath,
-					remappings: nodePathRemappings,
-					restoredNodePaths: [],
-				})),
+				updates.map(
+					({absolutePath, invalidatedNodePaths, nodePathRemappings}) => ({
+						absolutePath,
+						invalidatedNodePaths,
+						remappings: nodePathRemappings,
+						restoredNodePaths: [],
+					}),
+				),
 			);
 
 			for (const update of updates) {

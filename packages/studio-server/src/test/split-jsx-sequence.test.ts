@@ -243,6 +243,8 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 			'<AbsoluteFill name="first" from={0} durationInFrames={50} />\n\t\t\t<AbsoluteFill name="second" from={10} durationInFrames={40} />',
 		);
 		writeFileSync(entryPoint, input);
+		const firstNodePath = lineContainingToNodePath(input, 'name="first"');
+		const secondNodePath = lineContainingToNodePath(input, 'name="second"');
 
 		const success = await splitJsxSequenceHandler(
 			getHandlerOptions({
@@ -250,12 +252,12 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 					sequences: [
 						{
 							fileName: entryPoint,
-							nodePath: lineContainingToNodePath(input, 'name="first"'),
+							nodePath: firstNodePath,
 							sequenceKeys: sequenceTimingKeys,
 						},
 						{
 							fileName: entryPoint,
-							nodePath: lineContainingToNodePath(input, 'name="second"'),
+							nodePath: secondNodePath,
 							sequenceKeys: sequenceTimingKeys,
 						},
 					],
@@ -266,7 +268,17 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 			}),
 		);
 
-		expect(success.success).toBe(true);
+		expect(success).toMatchObject({
+			success: true,
+			nodePathMutation: {
+				files: [
+					{
+						absolutePath: entryPoint,
+						invalidatedNodePaths: [firstNodePath, secondNodePath],
+					},
+				],
+			},
+		});
 		const output = readFileSync(entryPoint, 'utf-8');
 		expect(output).toMatch(
 			/<AbsoluteFill\s+name="first"\s+from=\{30\}\s+durationInFrames=\{20\}\s+trimBefore=\{30\}/,

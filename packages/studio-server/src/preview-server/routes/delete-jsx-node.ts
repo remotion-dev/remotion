@@ -92,6 +92,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({
 					absolutePath: update.absolutePath,
+					invalidatedNodePaths: [],
 					remappings: update.nodePathRemappings,
 					restoredNodePaths: [],
 				})),

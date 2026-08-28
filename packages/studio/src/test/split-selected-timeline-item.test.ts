@@ -315,6 +315,10 @@ test('splitSelectedTimelineItems batches eligible clips and skips ineligible cli
 				files: [
 					{
 						absolutePath: '/tmp/Comp.tsx',
+						invalidatedNodePaths: [
+							first.sequenceSubscriptionKey.nodePath,
+							second.sequenceSubscriptionKey.nodePath,
+						],
 						remappings: [
 							{oldNodePath: ['body', 1], newNodePath: ['body', 2]},
 							{oldNodePath: ['body', 2], newNodePath: ['body', 4]},

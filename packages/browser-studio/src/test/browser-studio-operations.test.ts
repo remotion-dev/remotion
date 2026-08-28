@@ -288,6 +288,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	expect(result.nodePathMutation.files).toEqual([
 		{
 			absolutePath: fileName,
+			invalidatedNodePaths: [],
 			remappings: [
 				{
 					oldNodePath: subscription.nodePath.nodePath,
@@ -803,6 +804,7 @@ registerRoot(Root);`,
 	expect(splitResult.nodePathMutation.files).toEqual([
 		{
 			absolutePath: fileName,
+			invalidatedNodePaths: [subscription.nodePath.nodePath],
 			remappings: expect.any(Array),
 			restoredNodePaths: [],
 		},
@@ -903,6 +905,7 @@ registerRoot(Root);`,
 	expect(result.nodePathMutation.files).toEqual([
 		{
 			absolutePath: fileName,
+			invalidatedNodePaths: [],
 			remappings: expect.any(Array),
 			restoredNodePaths: [],
 		},
@@ -1468,6 +1471,7 @@ registerRoot(Root);`,
 	expect(result.nodePathMutation.files).toEqual([
 		{
 			absolutePath: fileName,
+			invalidatedNodePaths: [],
 			remappings: expect.any(Array),
 			restoredNodePaths: [],
 		},

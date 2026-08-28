@@ -565,6 +565,15 @@ export const createBrowserStudioProjectController = ({
 		redoStack.push(entry);
 		const files = entry.nodePathMutationFiles?.map((file) => ({
 			absolutePath: file.absolutePath,
+			invalidatedNodePaths: file.invalidatedNodePaths.flatMap((nodePath) => {
+				const remapping = file.remappings.find(
+					(item) =>
+						JSON.stringify(item.oldNodePath) === JSON.stringify(nodePath),
+				);
+				return remapping?.newNodePath === null
+					? []
+					: [remapping?.newNodePath ?? nodePath];
+			}),
 			remappings: file.remappings.flatMap(
 				(remapping): SequenceNodePathRemapping[] =>
 					remapping.newNodePath === null
