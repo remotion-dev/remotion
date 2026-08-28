@@ -4,22 +4,19 @@ import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
 import {elementRegistry} from './src/components/Elements/element-registry';
 
-const lowMemoryBuild =
-	process.env.VERCEL === '1' ||
-	process.env.VERCEL === 'true' ||
-	process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
-const fasterConfig = lowMemoryBuild
+const fasterConfig = isVercel
 	? {
 			swcJsLoader: true,
 			swcJsMinimizer: true,
 			swcHtmlMinimizer: true,
 			lightningCssMinimizer: true,
 			mdxCrossCompilerCache: false,
-			rspackBundler: false,
+			rspackBundler: true,
 			rspackPersistentCache: false,
 			ssgWorkerThreads: false,
-			gitEagerVcs: false,
+			gitEagerVcs: true,
 		}
 	: true;
 
