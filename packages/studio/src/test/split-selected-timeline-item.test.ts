@@ -13,6 +13,7 @@ import {
 	shouldHandleTimelineSplitShortcut,
 	splitSelectedTimelineItems,
 } from '../components/Timeline/split-selected-timeline-item';
+import type {TimelineSelection} from '../components/Timeline/TimelineSelection';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {makeRuntimeValueStore} from './make-runtime-value-store';
 
@@ -231,8 +232,10 @@ test('splitSelectedTimelineItems splits the selected sequence at the playhead', 
 			effects: [],
 		},
 	} satisfies PropStatuses;
-	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
-		[];
+	const splitCalls: {
+		nodePathInfos: SequenceNodePathInfo[];
+		splitFrame: number;
+	}[] = [];
 
 	const result = await splitSelectedTimelineItems({
 		selections: [{type: 'sequence', nodePathInfo}],
@@ -242,12 +245,113 @@ test('splitSelectedTimelineItems splits the selected sequence at the playhead', 
 		},
 		propStatuses,
 		splitFrame: 30,
-		splitSequence: (options) => {
+		splitSequences: (options) => {
 			splitCalls.push(options);
-			return Promise.resolve(true);
+			return Promise.resolve({mutationId: 'test', files: []});
 		},
 	});
 
 	expect(result).toBe(true);
-	expect(splitCalls).toEqual([{nodePathInfo, splitFrame: 30}]);
+	expect(splitCalls).toEqual([{nodePathInfos: [nodePathInfo], splitFrame: 30}]);
+});
+
+test('splitSelectedTimelineItems batches eligible clips and skips ineligible clips', async () => {
+	const first = makeNodePathInfo(['body', 0]);
+	const second = makeNodePathInfo(['body', 1]);
+	const third = makeNodePathInfo(['body', 2]);
+	const propStatuses = Object.fromEntries(
+		[first, second, third].map((nodePathInfo) => [
+			Internals.makeSequencePropsSubscriptionKey(
+				nodePathInfo.sequenceSubscriptionKey,
+			),
+			{
+				canUpdate: true,
+				props: {
+					from: staticNumber(10),
+					durationInFrames: staticNumber(50),
+					trimBefore: staticNumber(0),
+				},
+				effects: [],
+			},
+		]),
+	) as PropStatuses;
+	const makeControls = (overrideId: string) => ({
+		schema: {},
+		runtimeValues: makeRuntimeValueStore({}),
+		overrideId,
+		supportsEffects: true,
+		componentIdentity: null,
+		componentName: 'Sequence',
+	});
+	const splitCalls: SequenceNodePathInfo[][] = [];
+	const notifications: string[] = [];
+	const selectedAfterSplit: (readonly TimelineSelection[])[] = [];
+
+	const result = await splitSelectedTimelineItems({
+		selections: [first, second, third].map((nodePathInfo) => ({
+			type: 'sequence' as const,
+			nodePathInfo,
+		})),
+		sequences: [
+			makeSequence({controls: makeControls('first')}),
+			makeSequence({controls: makeControls('second')}),
+			makeSequence({
+				from: 40,
+				duration: 20,
+				controls: makeControls('third'),
+			}),
+		],
+		overrideIdsToNodePaths: {
+			first: first.sequenceSubscriptionKey,
+			second: second.sequenceSubscriptionKey,
+			third: third.sequenceSubscriptionKey,
+		},
+		propStatuses,
+		splitFrame: 30,
+		splitSequences: ({nodePathInfos}) => {
+			splitCalls.push(nodePathInfos);
+			return Promise.resolve({
+				mutationId: 'test',
+				files: [
+					{
+						absolutePath: '/tmp/Comp.tsx',
+						remappings: [
+							{oldNodePath: ['body', 1], newNodePath: ['body', 2]},
+							{oldNodePath: ['body', 2], newNodePath: ['body', 4]},
+						],
+						restoredNodePaths: [],
+					},
+				],
+			});
+		},
+		notify: (content) => notifications.push(content),
+		onSplit: (selections) => selectedAfterSplit.push(selections),
+	});
+
+	expect(result).toBe(true);
+	expect(splitCalls).toEqual([[first, second]]);
+	expect(notifications).toEqual([
+		'Skipped 1 selected clip that cannot be split',
+	]);
+	expect(
+		selectedAfterSplit[0].map(
+			(selection) => selection.type === 'sequence' && selection.nodePathInfo,
+		),
+	).toEqual([
+		first,
+		{
+			...second,
+			sequenceSubscriptionKey: {
+				...second.sequenceSubscriptionKey,
+				nodePath: ['body', 2],
+			},
+		},
+		{
+			...third,
+			sequenceSubscriptionKey: {
+				...third.sequenceSubscriptionKey,
+				nodePath: ['body', 4],
+			},
+		},
+	]);
 });

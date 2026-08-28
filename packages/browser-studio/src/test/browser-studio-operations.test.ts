@@ -758,9 +758,13 @@ registerRoot(Root);`,
 	}
 
 	const failure = await operations.splitJsxSequence({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
-		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+		sequences: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+			},
+		],
 		splitFrame: 10,
 	});
 	expect(failure).toMatchObject({
@@ -771,9 +775,13 @@ registerRoot(Root);`,
 	expect(currentProject.files[fileName]).toBe(initialContents);
 
 	const splitResult = await operations.splitJsxSequence({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
-		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+		sequences: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+			},
+		],
 		splitFrame: 15,
 	});
 	if (!splitResult.success) {

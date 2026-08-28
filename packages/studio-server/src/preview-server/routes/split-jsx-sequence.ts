@@ -4,7 +4,7 @@ import type {
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse,
 } from '@remotion/studio-shared';
-import {splitJsxSequence} from '../../codemods/split-jsx-sequence';
+import {splitJsxSequences} from '../../codemods/split-jsx-sequence';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -24,84 +24,113 @@ import {
 export const splitJsxSequenceHandler: ApiHandler<
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse
-> = ({
-	input: {fileName, nodePath, sequenceKeys, splitFrame},
-	remotionRoot,
-	logLevel,
-}) =>
+> = ({input: {sequences, splitFrame}, remotionRoot, logLevel}) =>
 	withSourceFileWriteQueue(async () => {
 		try {
+			if (sequences.length === 0) {
+				throw new Error('No JSX sequences were specified for splitting');
+			}
+
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[split-jsx-sequence] Received request for fileName="${fileName}" at frame ${splitFrame}`,
+				`[split-jsx-sequence] Received request to split ${sequences.length} sequence${sequences.length === 1 ? '' : 's'} at frame ${splitFrame}`,
 			);
-			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
-				remotionRoot,
-				fileName,
-				action: 'modify',
-			});
 
-			const fileContents = readFileSync(absolutePath, 'utf-8');
+			const itemsByFileName = new Map<string, typeof sequences>();
+			for (const sequence of sequences) {
+				const fileItems = itemsByFileName.get(sequence.fileName) ?? [];
+				fileItems.push(sequence);
+				itemsByFileName.set(sequence.fileName, fileItems);
+			}
 
-			const {output, formatted, nodeLabel, logLine, nodePathRemappings} =
-				await splitJsxSequence({
-					input: fileContents,
-					nodePath,
-					sequenceKeys,
-					splitFrame,
-				});
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
+			const updates = await Promise.all(
+				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
+					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+						remotionRoot,
+						fileName,
+						action: 'modify',
+					});
+					const fileContents = readFileSync(absolutePath, 'utf-8');
+					const {output, formatted, nodeLabels, logLines, nodePathRemappings} =
+						await splitJsxSequences({
+							input: fileContents,
+							splits: fileItems.map(({nodePath, sequenceKeys}) => ({
+								nodePath,
+								sequenceKeys,
+							})),
+							splitFrame,
+						});
+
+					return {
+						absolutePath,
+						fileContents,
+						fileRelativeToRoot,
+						formatted,
+						logLine: Math.min(...logLines),
+						nodeLabels,
+						nodePathRemappings,
+						output,
+					};
+				}),
+			);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				updates.map(({absolutePath, nodePathRemappings}) => ({
 					absolutePath,
 					remappings: nodePathRemappings,
 					restoredNodePaths: [],
-				},
-			]);
-
-			pushToUndoStack({
-				filePath: absolutePath,
-				oldContents: fileContents,
-				newContents: null,
-				logLevel,
-				remotionRoot,
-				logLine,
-				description: {
-					undoMessage: `↩️  Split of ${nodeLabel}`,
-					redoMessage: `↪️  Split of ${nodeLabel}`,
-				},
-				entryType: 'split-jsx-sequence',
-				suppressHmrOnFileRestore: false,
-				nodePathRemappings,
-			});
-			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers({
-				file: absolutePath,
-				content: output,
-				originatorClientId: undefined,
-				metadata: {skipSequencePropsUpdate: true},
-			});
-
-			const locationLabel = formatLogFileLocation({
-				remotionRoot,
-				absolutePath,
-				line: logLine,
-			});
-			RenderInternals.Log.info(
-				{indent: false, logLevel},
-				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
-					`${locationLabel}`,
-				)} Split ${nodeLabel}`,
+				})),
 			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
+
+			for (const update of updates) {
+				const nodeDescription =
+					update.nodeLabels.length === 1
+						? update.nodeLabels[0]
+						: `${update.nodeLabels.length} clips`;
+				pushToUndoStack({
+					filePath: update.absolutePath,
+					oldContents: update.fileContents,
+					newContents: null,
+					logLevel,
+					remotionRoot,
+					logLine: update.logLine,
+					description: {
+						undoMessage: `↩️  Split of ${nodeDescription}`,
+						redoMessage: `↪️  Split of ${nodeDescription}`,
+					},
+					entryType: 'split-jsx-sequence',
+					suppressHmrOnFileRestore: false,
+					nodePathRemappings: update.nodePathRemappings,
+				});
+				suppressUndoStackInvalidation(update.absolutePath);
+				writeFileAndNotifyFileWatchers({
+					file: update.absolutePath,
+					content: update.output,
+					originatorClientId: undefined,
+					metadata: {skipSequencePropsUpdate: true},
+				});
+
+				const locationLabel = formatLogFileLocation({
+					remotionRoot,
+					absolutePath: update.absolutePath,
+					line: update.logLine,
+				});
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
+						`${locationLabel}`,
+					)} Split ${nodeDescription}`,
+				);
+				if (!update.formatted) {
+					warnAboutPrettierOnce(logLevel);
+				}
+
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel},
+					`[split-jsx-sequence] Wrote ${update.fileRelativeToRoot}${
+						update.formatted ? ' (formatted)' : ''
+					}`,
+				);
 			}
-
-			RenderInternals.Log.verbose(
-				{indent: false, logLevel},
-				`[split-jsx-sequence] Wrote ${fileRelativeToRoot}${
-					formatted ? ' (formatted)' : ''
-				}`,
-			);
 
 			printUndoHint(logLevel);
 

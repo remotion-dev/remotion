@@ -239,15 +239,26 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 	try {
 		clearUndoStack();
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
-		const input = wrap('<AbsoluteFill from={0} durationInFrames={50} />');
+		const input = wrap(
+			'<AbsoluteFill name="first" from={0} durationInFrames={50} />\n\t\t\t<AbsoluteFill name="second" from={10} durationInFrames={40} />',
+		);
 		writeFileSync(entryPoint, input);
 
 		const success = await splitJsxSequenceHandler(
 			getHandlerOptions({
 				input: {
-					fileName: entryPoint,
-					nodePath: lineColumnToNodePath(input, sequenceLine),
-					sequenceKeys: sequenceTimingKeys,
+					sequences: [
+						{
+							fileName: entryPoint,
+							nodePath: lineContainingToNodePath(input, 'name="first"'),
+							sequenceKeys: sequenceTimingKeys,
+						},
+						{
+							fileName: entryPoint,
+							nodePath: lineContainingToNodePath(input, 'name="second"'),
+							sequenceKeys: sequenceTimingKeys,
+						},
+					],
 					splitFrame: 30,
 				},
 				entryPoint,
@@ -256,17 +267,25 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 		);
 
 		expect(success.success).toBe(true);
-		expect(readFileSync(entryPoint, 'utf-8')).toContain(
-			'<AbsoluteFill from={30} durationInFrames={20} trimBefore={30} />',
+		const output = readFileSync(entryPoint, 'utf-8');
+		expect(output).toMatch(
+			/<AbsoluteFill\s+name="first"\s+from=\{30\}\s+durationInFrames=\{20\}\s+trimBefore=\{30\}/,
+		);
+		expect(output).toMatch(
+			/<AbsoluteFill\s+name="second"\s+from=\{30\}\s+durationInFrames=\{20\}\s+trimBefore=\{20\}/,
 		);
 		expect(getUndoStack().length).toBe(1);
 
 		const failure = await splitJsxSequenceHandler(
 			getHandlerOptions({
 				input: {
-					fileName: entryPoint,
-					nodePath: lineColumnToNodePath(input, sequenceLine),
-					sequenceKeys: sequenceTimingKeys,
+					sequences: [
+						{
+							fileName: entryPoint,
+							nodePath: lineContainingToNodePath(output, 'name="first"'),
+							sequenceKeys: sequenceTimingKeys,
+						},
+					],
 					splitFrame: 0,
 				},
 				entryPoint,

@@ -1,4 +1,7 @@
-import {hasSequenceTimingTraits} from '@remotion/studio-shared';
+import {
+	hasSequenceTimingTraits,
+	type SequenceNodePathMutation,
+} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatus,
 	OverrideIdToNodePaths,
@@ -144,34 +147,43 @@ export const getTimelineSequenceSplitEligibility = ({
 	};
 };
 
+export const splitTimelineSequencesFromSource = ({
+	nodePathInfos,
+	splitFrame,
+}: {
+	nodePathInfos: SequenceNodePathInfo[];
+	splitFrame: number;
+}): Promise<SequenceNodePathMutation | null> => {
+	return splitJsxSequence({
+		sequences: nodePathInfos.map(({sequenceSubscriptionKey}) => ({
+			fileName: sequenceSubscriptionKey.absolutePath,
+			nodePath: sequenceSubscriptionKey.nodePath,
+			sequenceKeys: sequenceSubscriptionKey.sequenceKeys,
+		})),
+		splitFrame,
+	})
+		.then((result) => {
+			if (result.success) {
+				return result.nodePathMutation;
+			}
+
+			showNotification(result.reason, 4000);
+			return null;
+		})
+		.catch((err) => {
+			showNotification((err as Error).message, 4000);
+			return null;
+		});
+};
+
 export const splitTimelineSequenceFromSource = ({
 	nodePathInfo,
 	splitFrame,
 }: {
 	nodePathInfo: SequenceNodePathInfo;
 	splitFrame: number;
-}): Promise<boolean> => {
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
-
-	return splitJsxSequence({
-		fileName: nodePath.absolutePath,
-		nodePath: nodePath.nodePath,
-		sequenceKeys: nodePath.sequenceKeys,
-		splitFrame,
-	})
-		.then((result) => {
-			if (result.success) {
-				return true;
-			}
-
-			showNotification(result.reason, 4000);
-			return false;
-		})
-		.catch((err) => {
-			showNotification((err as Error).message, 4000);
-			return false;
-		});
-};
+}): Promise<SequenceNodePathMutation | null> =>
+	splitTimelineSequencesFromSource({nodePathInfos: [nodePathInfo], splitFrame});
 
 export const shouldHandleTimelineDuplicateShortcut = ({
 	shiftKey,
@@ -191,52 +203,126 @@ export const splitSelectedTimelineItems = ({
 	overrideIdsToNodePaths,
 	propStatuses,
 	splitFrame,
-	splitSequence = splitTimelineSequenceFromSource,
+	splitSequences = splitTimelineSequencesFromSource,
+	notify = showNotification,
+	onSplit = () => undefined,
 }: {
 	selections: readonly TimelineSelection[];
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	propStatuses: PropStatuses | undefined;
 	splitFrame: number;
-	splitSequence?: (options: {
-		nodePathInfo: SequenceNodePathInfo;
+	splitSequences?: (options: {
+		nodePathInfos: SequenceNodePathInfo[];
 		splitFrame: number;
-	}) => Promise<boolean>;
+	}) => Promise<SequenceNodePathMutation | null>;
+	notify?: (content: string, durationInMs: number) => unknown;
+	onSplit?: (selections: readonly TimelineSelection[]) => void;
 }): Promise<boolean> | null => {
-	if (selections.length !== 1) {
+	if (selections.length === 0) {
 		return null;
 	}
 
-	const [selection] = selections;
-	if (selection.type !== 'sequence') {
+	const sequenceSelections = selections.filter(
+		(selection): selection is Extract<TimelineSelection, {type: 'sequence'}> =>
+			selection.type === 'sequence',
+	);
+	if (sequenceSelections.length === 0) {
 		return null;
 	}
 
-	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
-		nodePathInfo: selection.nodePathInfo,
-	});
-	const sequencePropStatuses = propStatuses
-		? Internals.getPropStatusesCtx(
-				propStatuses,
-				selection.nodePathInfo.sequenceSubscriptionKey,
-			)
-		: undefined;
-	const eligibility = getTimelineSequenceSplitEligibility({
-		selection,
-		sequence: track?.sequence ?? null,
-		splitFrame,
-		propStatuses: sequencePropStatuses,
-	});
+	const eligible: SequenceNodePathInfo[] = [];
+	const skippedReasons: string[] = [];
+	for (const selection of sequenceSelections) {
+		const track = findTrackForNodePathInfo({
+			sequences,
+			overrideIdsToNodePaths,
+			nodePathInfo: selection.nodePathInfo,
+		});
+		const sequencePropStatuses = propStatuses
+			? Internals.getPropStatusesCtx(
+					propStatuses,
+					selection.nodePathInfo.sequenceSubscriptionKey,
+				)
+			: undefined;
+		const eligibility = getTimelineSequenceSplitEligibility({
+			selection,
+			sequence: track?.sequence ?? null,
+			splitFrame,
+			propStatuses: sequencePropStatuses,
+		});
 
-	if (!eligibility.canSplit) {
-		showNotification(eligibility.reason, 4000);
+		if (eligibility.canSplit) {
+			eligible.push(eligibility.nodePathInfo);
+		} else {
+			skippedReasons.push(eligibility.reason);
+		}
+	}
+
+	if (eligible.length === 0) {
+		const uniqueReasons = [...new Set(skippedReasons)];
+		notify(
+			uniqueReasons.length === 1
+				? uniqueReasons[0]
+				: `Could not split ${skippedReasons.length} selected clips`,
+			4000,
+		);
 		return Promise.resolve(false);
 	}
 
-	return splitSequence({
-		nodePathInfo: eligibility.nodePathInfo,
-		splitFrame,
-	});
+	if (skippedReasons.length > 0) {
+		notify(
+			`Skipped ${skippedReasons.length} selected clip${skippedReasons.length === 1 ? '' : 's'} that cannot be split`,
+			4000,
+		);
+	}
+
+	return splitSequences({nodePathInfos: eligible, splitFrame}).then(
+		(mutation) => {
+			if (mutation === null) {
+				return false;
+			}
+
+			const remappedSelections = selections.flatMap(
+				(selection): TimelineSelection[] => {
+					if (selection.type !== 'sequence') {
+						return [selection];
+					}
+
+					const {sequenceSubscriptionKey} = selection.nodePathInfo;
+					const fileMutation = mutation.files.find(
+						(file) =>
+							file.absolutePath === sequenceSubscriptionKey.absolutePath,
+					);
+					const remapping = fileMutation?.remappings.find(
+						(item) =>
+							JSON.stringify(item.oldNodePath) ===
+							JSON.stringify(sequenceSubscriptionKey.nodePath),
+					);
+					if (!remapping) {
+						return [selection];
+					}
+
+					if (remapping.newNodePath === null) {
+						return [];
+					}
+
+					return [
+						{
+							...selection,
+							nodePathInfo: {
+								...selection.nodePathInfo,
+								sequenceSubscriptionKey: {
+									...sequenceSubscriptionKey,
+									nodePath: remapping.newNodePath,
+								},
+							},
+						},
+					];
+				},
+			);
+			onSplit(remappedSelections);
+			return true;
+		},
+	);
 };

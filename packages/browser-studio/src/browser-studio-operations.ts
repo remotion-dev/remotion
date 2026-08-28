@@ -24,7 +24,7 @@ import {
 	reorderSequence as reorderSequenceCodemod,
 	resolveCompositionComponentWithFile,
 	simpleDiff,
-	splitJsxSequence as splitJsxSequenceCodemod,
+	splitJsxSequences as splitJsxSequencesCodemod,
 	splitVideoFromAudio as splitVideoFromAudioCodemod,
 	updateDefaultProps as updateDefaultPropsCodemod,
 	updateEffectProps as updateEffectPropsCodemod,
@@ -1332,37 +1332,55 @@ export const createBrowserStudioOperations = ({
 	};
 
 	const splitJsxSequence: BrowserStudioOperations['splitJsxSequence'] = async ({
-		fileName,
-		nodePath,
-		sequenceKeys,
+		sequences,
 		splitFrame,
 	}) => {
 		try {
+			if (sequences.length === 0) {
+				throw new Error('No JSX sequences were specified for splitting');
+			}
+
 			const project = getProject();
-			const absolutePath = findProjectFile({
-				filePath: fileName,
-				project,
-			});
-			const result = await splitJsxSequenceCodemod({
-				input: project.files[absolutePath],
-				nodePath,
-				sequenceKeys,
-				splitFrame,
-				formatFile: formatCodemodFile,
-			});
-			const nodePathMutation = controller.applyMutation({
-				fileName: absolutePath,
-				mutate: () => ({
-					...project,
-					files: {...project.files, [absolutePath]: result.output},
-				}),
-				nodePathMutationFiles: [
-					{
+			const itemsByAbsolutePath = new Map<string, typeof sequences>();
+			for (const sequence of sequences) {
+				const absolutePath = findProjectFile({
+					filePath: sequence.fileName,
+					project,
+				});
+				const fileItems = itemsByAbsolutePath.get(absolutePath) ?? [];
+				fileItems.push(sequence);
+				itemsByAbsolutePath.set(absolutePath, fileItems);
+			}
+
+			const updates = await Promise.all(
+				[...itemsByAbsolutePath.entries()].map(
+					async ([absolutePath, fileItems]) => ({
 						absolutePath,
-						remappings: result.nodePathRemappings,
-						restoredNodePaths: [],
-					},
-				],
+						result: await splitJsxSequencesCodemod({
+							input: project.files[absolutePath],
+							splits: fileItems.map(({nodePath, sequenceKeys}) => ({
+								nodePath,
+								sequenceKeys,
+							})),
+							splitFrame,
+							formatFile: formatCodemodFile,
+						}),
+					}),
+				),
+			);
+			const files = {...project.files};
+			for (const update of updates) {
+				files[update.absolutePath] = update.result.output;
+			}
+
+			const nodePathMutation = controller.applyMutation({
+				fileName: updates[0].absolutePath,
+				mutate: () => ({...project, files}),
+				nodePathMutationFiles: updates.map(({absolutePath, result}) => ({
+					absolutePath,
+					remappings: result.nodePathRemappings,
+					restoredNodePaths: [],
+				})),
 			});
 			if (nodePathMutation === null) {
 				throw new Error('Could not split JSX sequence');

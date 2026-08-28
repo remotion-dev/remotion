@@ -205,6 +205,9 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					propStatuses: propStatusesRef.current,
 					splitFrame: getCurrentFrame(),
+					onSplit: (selections) => {
+						currentSelection.current.selectItems(selections);
+					},
 				});
 
 				if (splitPromise === null) {

@@ -125,6 +125,10 @@ export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 				chords: [[cmdOrCtrlCharacter, 'D']],
 			},
 			{
+				action: 'Split sequences at playhead',
+				chords: [[cmdOrCtrlCharacter, 'Shift', 'D']],
+			},
+			{
 				action: 'Copy effects / values',
 				chords: [[cmdOrCtrlCharacter, 'C']],
 			},

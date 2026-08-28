@@ -818,10 +818,14 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type SplitJsxSequenceRequest = {
+export type SplitJsxSequenceRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
+};
+
+export type SplitJsxSequenceRequest = {
+	sequences: SplitJsxSequenceRequestItem[];
 	splitFrame: number;
 };
 

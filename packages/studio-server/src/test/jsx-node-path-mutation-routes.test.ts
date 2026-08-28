@@ -154,9 +154,13 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		const splitResponse = await splitJsxSequenceHandler({
 			...handlerContext,
 			input: {
-				fileName,
-				nodePath: lineContainingToNodePath(before, 'name="c"'),
-				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+				sequences: [
+					{
+						fileName,
+						nodePath: lineContainingToNodePath(before, 'name="c"'),
+						sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+					},
+				],
 				splitFrame: 30,
 			},
 		});
