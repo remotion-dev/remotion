@@ -16,6 +16,7 @@ import React, {
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {callApi} from './call-api';
+import {UpdateStatusProvider} from './UpdateStatusContext';
 
 type SettingsContextValue = {
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
@@ -152,7 +153,7 @@ export const SettingsProvider: React.FC<{
 
 	return (
 		<SettingsContext.Provider value={value}>
-			{children}
+			<UpdateStatusProvider>{children}</UpdateStatusProvider>
 		</SettingsContext.Provider>
 	);
 };

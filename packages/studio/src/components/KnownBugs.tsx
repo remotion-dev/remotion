@@ -1,5 +1,5 @@
-import type {Bug} from './UpdateCheck';
 import {OpenIssueButton} from './UpdateModal/OpenIssueButton';
+import type {Bug} from './UpdateStatusContext';
 
 const container: React.CSSProperties = {
 	display: 'flex',

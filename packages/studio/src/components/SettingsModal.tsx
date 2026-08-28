@@ -4,6 +4,7 @@ import {
 	getBrowserStudioOperations,
 } from '../helpers/browser-studio-operations';
 import {AppsIcon} from '../icons/apps';
+import {CloudDownloadIcon} from '../icons/cloud-download';
 import {KeyboardIcon} from '../icons/keyboard';
 import {LicenseIcon} from '../icons/license';
 import {PackageIcon} from '../icons/package';
@@ -33,6 +34,7 @@ import {SettingsModalFooter} from './SettingsModalFooter';
 import {SkillsSettings} from './SkillsSettings';
 import {StudioSettings} from './StudioSettings';
 import {VerticalTab} from './Tabs/vertical';
+import {UpdatesSettings} from './UpdatesSettings';
 
 type SettingsTab =
 	| 'apps'
@@ -41,7 +43,8 @@ type SettingsTab =
 	| 'packages'
 	| 'shortcuts'
 	| 'skills'
-	| 'license';
+	| 'license'
+	| 'updates';
 
 const hiddenPanel: React.CSSProperties = {
 	display: 'none',
@@ -215,6 +218,20 @@ export const SettingsModal: React.FC<{
 								License
 							</VerticalTab>
 						)}
+						{isBrowserStudio ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'updates'}
+								onClick={() => selectTab('updates')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<CloudDownloadIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Updates
+							</VerticalTab>
+						)}
 					</div>
 					{openedTabs.includes('packages') ? (
 						<div style={tab === 'packages' ? optionsPanel : hiddenPanel}>
@@ -272,10 +289,18 @@ export const SettingsModal: React.FC<{
 							<StudioSettings />
 						</div>
 					) : null}
+					{openedTabs.includes('updates') ? (
+						<div
+							style={tab === 'updates' ? settingsOptionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<UpdatesSettings />
+						</div>
+					) : null}
 				</div>
 				{tab === 'packages' ? (
 					<div ref={setPackagesFooterContainer} />
-				) : isBrowserStudio ? null : (
+				) : isBrowserStudio || tab === 'updates' ? null : (
 					<SettingsModalFooter showLicenseFaq={tab === 'license'} />
 				)}
 			</>

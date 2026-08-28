@@ -26,7 +26,6 @@ import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
 import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
-import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
@@ -258,12 +257,6 @@ export const Modals: React.FC<{
 				<RenderStatusModal jobId={modalContextType.jobId} />
 			)}
 
-			{modalContextType && modalContextType.type === 'update' && (
-				<UpdateModal
-					info={modalContextType.info}
-					knownBugs={modalContextType.knownBugs}
-				/>
-			)}
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
 			)}

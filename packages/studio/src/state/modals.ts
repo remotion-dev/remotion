@@ -28,7 +28,6 @@ import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type WebRenderModalState = {
 	type: 'web-render';
@@ -197,6 +196,8 @@ export type ModalState =
 				| 'studio'
 				| 'packages'
 				| 'shortcuts'
+				| 'skills'
+				| 'updates'
 				| 'license';
 			initialPublicLicenseKey: string | null;
 	  }
@@ -205,11 +206,6 @@ export type ModalState =
 	| {
 			type: 'render-progress';
 			jobId: string;
-	  }
-	| {
-			type: 'update';
-			info: UpdateInfo;
-			knownBugs: Bug[];
 	  }
 	| {
 			type: 'fix-computed-value';
