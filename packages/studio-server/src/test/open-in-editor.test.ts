@@ -1,5 +1,11 @@
-import {expect, test} from 'bun:test';
-import {findMacOsEditorsFromProcessOutput} from '../helpers/open-in-editor';
+import {expect, spyOn, test} from 'bun:test';
+import childProcess from 'node:child_process';
+import type {SpawnOptions} from 'node:child_process';
+import {EventEmitter} from 'node:events';
+import {
+	findMacOsEditorsFromProcessOutput,
+	launchEditor,
+} from '../helpers/open-in-editor';
 import {findSearchPosition} from '../preview-server/routes/find-in-file';
 
 test('detects current VS Code macOS processes', () => {
@@ -10,6 +16,44 @@ test('detects current VS Code macOS processes', () => {
 		command: 'code',
 		process: '/Applications/Visual Studio Code.app/Contents/MacOS/Code',
 	});
+});
+
+test('opens source locations in an existing Zed window', async () => {
+	const calls: {
+		command: string;
+		args: readonly string[];
+		options: SpawnOptions;
+	}[] = [];
+	const spawnSpy = spyOn(childProcess, 'spawn').mockImplementation(((
+		command: string,
+		args: readonly string[],
+		options: SpawnOptions,
+	) => {
+		calls.push({command, args, options});
+		return new EventEmitter() as ReturnType<typeof childProcess.spawn>;
+	}) as typeof childProcess.spawn);
+	const sourceFile = __filename;
+
+	try {
+		await launchEditor({
+			colNumber: 4,
+			editor: {command: 'zed', process: 'zed'},
+			fileName: sourceFile,
+			lineNumber: 12,
+			logLevel: 'error',
+			vsCodeNewWindow: false,
+		});
+
+		expect(calls).toEqual([
+			{
+				args: ['--existing', `${sourceFile}:12:4`],
+				command: 'zed',
+				options: {stdio: 'inherit'},
+			},
+		]);
+	} finally {
+		spawnSpy.mockRestore();
+	}
 });
 
 test('finds a property after the component location', () => {
