@@ -17,6 +17,7 @@ import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
 import {CanvasCaptureAnnouncement} from './CanvasCaptureAnnouncement/CanvasCaptureAnnouncement';
 import {CanvasCaptureComposition} from './CanvasCapturePreview';
+import {CanvasCaptureShort} from './CanvasCaptureShort/CanvasCaptureShort';
 import {Checker} from './Checker';
 import {CloseUp1} from './CloseUp1';
 import {CloseUp2} from './CloseUp2';
@@ -182,6 +183,14 @@ export const RemotionRoot: React.FC = () => {
 						fps={30}
 						width={1920}
 						height={1080}
+					/>
+					<Composition
+						id="CanvasCaptureShort"
+						component={CanvasCaptureShort}
+						durationInFrames={1250}
+						fps={30}
+						width={1080}
+						height={1920}
 					/>
 				</Folder>
 				<Composition
