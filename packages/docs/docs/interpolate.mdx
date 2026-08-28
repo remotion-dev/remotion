@@ -20,7 +20,7 @@ Using the following snippet, we can calculate the current opacity for any frame:
 ```ts twoslash
 import {interpolate, useCurrentFrame} from 'remotion';
 
-const frame = useCurrentFrame(); // Example frame: 10
+const frame = useCurrentFrame(); // 10
 const opacity = interpolate(frame, [0, 20], [0, 1]); // 0.5
 ```
 
