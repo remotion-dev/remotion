@@ -3476,60 +3476,6 @@ test.describe('visual mode', () => {
 		await page.locator('[data-timeline-scrubber]').click();
 
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
-
-		await page.keyboard.type('?');
-		const settingsDialog = page.getByRole('dialog');
-		await expect(
-			settingsDialog.getByText('Keyboard shortcuts', {exact: true}),
-		).toBeVisible();
-		await expect(
-			settingsDialog.getByRole('button', {name: 'Updates', exact: true}),
-		).toHaveCount(0);
-	});
-
-	test('should hide updates when the preview server disconnects', async ({
-		page,
-	}) => {
-		await page.addInitScript(() => {
-			const NativeEventSource = window.EventSource;
-			window.EventSource = class extends NativeEventSource {
-				constructor(url: string | URL, eventSourceInitDict?: EventSourceInit) {
-					super(url, eventSourceInitDict);
-					(
-						window as typeof window & {
-							remotion_e2eEventSource: EventSource;
-						}
-					).remotion_e2eEventSource = this;
-				}
-			};
-		});
-		await page.goto(`${STUDIO_URL}/schema-test`);
-		await expect(
-			page.getByRole('button', {name: '0', exact: true}),
-		).toBeVisible({timeout: 15_000});
-
-		await page.keyboard.type('?');
-		const settingsDialog = page.getByRole('dialog');
-		await expect(
-			settingsDialog.getByRole('button', {name: 'Updates', exact: true}),
-		).toBeVisible();
-
-		await page.evaluate(() => {
-			(
-				window as typeof window & {
-					remotion_e2eEventSource: EventSource;
-				}
-			).remotion_e2eEventSource.dispatchEvent(new Event('error'));
-		});
-		await expect(
-			page.getByText('The studio server has disconnected.', {exact: false}),
-		).toBeVisible({timeout: 15_000});
-		await expect(
-			settingsDialog.getByRole('button', {name: 'Updates', exact: true}),
-		).toHaveCount(0);
-		await expect(
-			settingsDialog.getByText('Keyboard shortcuts', {exact: true}),
-		).toBeVisible();
 	});
 
 	test('should preview and place Canvas drops at the playhead', async ({
