@@ -2578,7 +2578,7 @@ const printInsertedJsx = ({
 
 	const normalizeIndentation = (code: string) => {
 		return code
-			.split('\n')
+			.split(/\r?\n/)
 			.map((line) => {
 				const spaces = line.match(/^ */)?.[0].length ?? 0;
 				const indentationLevels = Math.floor(spaces / tabWidth);
