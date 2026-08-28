@@ -34,7 +34,9 @@ const nodeOldSpaceSize = process.env.REMOTION_DOCS_NODE_OLD_SPACE_MB
 	? parseInt(process.env.REMOTION_DOCS_NODE_OLD_SPACE_MB, 10)
 	: lowMemoryBuild
 		? 3072
-		: 4096;
+		: isVercel
+			? 6144
+			: 4096;
 
 const run = (
 	label: string,
