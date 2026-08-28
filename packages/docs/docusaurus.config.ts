@@ -4,6 +4,22 @@ import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
 import {elementRegistry} from './src/components/Elements/element-registry';
 
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+
+const fasterConfig = isVercel
+	? {
+			swcJsLoader: true,
+			swcJsMinimizer: true,
+			swcHtmlMinimizer: true,
+			lightningCssMinimizer: true,
+			mdxCrossCompilerCache: true,
+			rspackBundler: false,
+			rspackPersistentCache: false,
+			ssgWorkerThreads: false,
+			gitEagerVcs: true,
+		}
+	: true;
+
 const showGitLastUpdate =
 	process.env.REMOTION_DOCS_DISABLE_GIT_LAST_UPDATE !== '1';
 
@@ -23,7 +39,7 @@ const config: Config = {
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.
 	projectName: 'remotion', // Usually your repo name.
 	future: {
-		faster: true,
+		faster: fasterConfig,
 		v4: {
 			removeLegacyPostBuildHeadAttribute: true,
 		},
