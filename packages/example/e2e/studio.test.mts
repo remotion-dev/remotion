@@ -3292,7 +3292,7 @@ test.describe('visual mode', () => {
 			await timelineGridline.click({button: 'right'});
 			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
 			await page
-				.getByRole('button', {name: 'Change default apps...', exact: true})
+				.getByRole('button', {name: 'Configure default apps...', exact: true})
 				.click();
 
 			const settings = page.getByRole('dialog');
@@ -3514,16 +3514,16 @@ test.describe('visual mode', () => {
 		const openInAnotherApp = page
 			.getByTitle(exampleDir)
 			.getByRole('button', {name: 'Open in another app'});
-		const changeDefaultApps = page.getByRole('button', {
-			name: 'Change default apps...',
+		const configureDefaultApps = page.getByRole('button', {
+			name: 'Configure default apps...',
 		});
 
 		await openInAnotherApp.click();
-		await expect(changeDefaultApps).toBeVisible();
+		await expect(configureDefaultApps).toBeVisible();
 		// The menu overlay intercepts pointerleave; clicking it closes the menu
 		// through the same outside-click path a user would take.
 		await page.mouse.click(10, 100);
-		await expect(changeDefaultApps).toBeHidden();
+		await expect(configureDefaultApps).toBeHidden();
 		await expect(openInAnotherApp).toHaveCSS(
 			'background-color',
 			'rgba(0, 0, 0, 0)',

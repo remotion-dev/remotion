@@ -2,13 +2,11 @@ import type {ScriptLine} from '@remotion/studio-shared';
 import React from 'react';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
 import {
-	BLACK,
-	BLUE,
 	ERROR_CODE_FRAME_BACKGROUND,
 	ERROR_CODE_FRAME_LINE_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
-	WHITE_ALPHA_60,
+	WHITE_ALPHA_40,
 } from '../../helpers/colors';
 
 const container: React.CSSProperties = {
@@ -19,6 +17,7 @@ const container: React.CSSProperties = {
 
 const frame: React.CSSProperties = {
 	backgroundColor: ERROR_CODE_FRAME_BACKGROUND,
+	borderRadius: 6,
 	marginBottom: 20,
 	overflowY: 'auto',
 };
@@ -53,10 +52,8 @@ export const CodeFrame: React.FC<{
 						<div
 							style={{
 								...lineNumber,
-								backgroundColor: s.highlight
-									? WHITE
-									: ERROR_CODE_FRAME_LINE_BACKGROUND,
-								color: s.highlight ? BLACK : WHITE_ALPHA_60,
+								backgroundColor: ERROR_CODE_FRAME_LINE_BACKGROUND,
+								color: s.highlight ? WHITE : WHITE_ALPHA_40,
 							}}
 						>
 							{String(s.lineNumber).padStart(lineNumberWidth, ' ')}
@@ -66,8 +63,8 @@ export const CodeFrame: React.FC<{
 								fontFamily: 'monospace',
 								whiteSpace: 'pre',
 								tabSize: 2,
-								color: s.highlight ? WHITE : WHITE_ALPHA_60,
-								backgroundColor: s.highlight ? BLUE : TRANSPARENT,
+								color: s.highlight ? WHITE : WHITE_ALPHA_40,
+								backgroundColor: TRANSPARENT,
 								lineHeight: 1.7,
 								paddingRight: 12,
 								paddingLeft: 12,
