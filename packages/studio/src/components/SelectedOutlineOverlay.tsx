@@ -796,20 +796,16 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 		],
 	);
 
-	const outlineTargetsRef =
-		useRef<readonly SelectedOutlineLayoutTarget[]>(outlineTargets);
-	const getOutlineTargets = useCallback(() => outlineTargetsRef.current, []);
 	useLayoutEffect(() => {
-		outlineTargetsRef.current = outlineTargets;
 		updateOutlinesRef.current();
-	}, [outlineTargets, scale, translationX, translationY]);
+	}, [scale, translationX, translationY]);
 	return (
 		<SelectedOutlineRenderer
 			compositionHeight={compositionHeight}
 			compositionWidth={compositionWidth}
 			dragging={draggingOutline}
 			getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
-			getOutlineTargets={getOutlineTargets}
+			outlineTargets={outlineTargets}
 			onDraggingChange={onDraggingChange}
 			onContextMenuOpenChange={onContextMenuOpenChange}
 			onSelect={onSelect}
