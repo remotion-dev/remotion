@@ -9,6 +9,7 @@ import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {takePendingSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
+import {refreshSequencePropsSubscription} from './sequence-props-subscription-store';
 
 export const SequencePropsObserver = () => {
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
@@ -57,6 +58,7 @@ export const SequencePropsObserver = () => {
 			overrideId: string;
 			nodePath: SequencePropsSubscriptionKey | null;
 		}> = [];
+		const overrideIdsToRefresh = new Set<string>();
 
 		for (const [overrideId, previousNodePath] of Object.entries(
 			overrideIdToNodePathMappingsRef.current,
@@ -65,6 +67,7 @@ export const SequencePropsObserver = () => {
 			let wasRemapped = false;
 			let wasDeleted = false;
 			let runtimeNodePathExists = true;
+			let runtimeNodePathNeedsRefresh = false;
 			const previousNodePathString = JSON.stringify(previousNodePath.nodePath);
 
 			for (const mutation of mutations) {
@@ -74,11 +77,12 @@ export const SequencePropsObserver = () => {
 					}
 
 					// Prop statuses follow source nodes to their new paths. Override IDs,
-					// however, follow React's runtime instances. After deleting an unkeyed
-					// sibling, React reuses the instance already at the destination path.
-					// Keep that mapping in place and only remove mappings for vacated paths.
+					// however, follow React's runtime instances. Structural edits may reuse
+					// the instance already at a path, so only remove mappings from paths
+					// which are sources without also being destinations.
 					const runtimeNodePathIsSource = file.remappings.some(
 						(item) =>
+							item.oldNodePath !== null &&
 							JSON.stringify(item.oldNodePath) === previousNodePathString,
 					);
 					const runtimeNodePathIsDestination = file.remappings.some(
@@ -86,33 +90,36 @@ export const SequencePropsObserver = () => {
 							item.newNodePath !== null &&
 							JSON.stringify(item.newNodePath) === previousNodePathString,
 					);
-					const runtimeNodePathWasRestored = file.restoredNodePaths.some(
-						(item) => JSON.stringify(item) === previousNodePathString,
+					const runtimeNodePathWasInserted = file.remappings.some(
+						(item) =>
+							item.oldNodePath === null &&
+							item.newNodePath !== null &&
+							JSON.stringify(item.newNodePath) === previousNodePathString,
+					);
+					const runtimeNodePathWasUpdated = file.remappings.some(
+						(item) =>
+							item.oldNodePath !== null &&
+							item.newNodePath !== null &&
+							JSON.stringify(item.oldNodePath) === previousNodePathString &&
+							JSON.stringify(item.newNodePath) === previousNodePathString,
 					);
 					if (runtimeNodePathIsSource) {
-						runtimeNodePathExists =
-							runtimeNodePathIsDestination || runtimeNodePathWasRestored;
-					} else if (
-						runtimeNodePathIsDestination ||
-						runtimeNodePathWasRestored
-					) {
+						runtimeNodePathExists = runtimeNodePathIsDestination;
+						runtimeNodePathNeedsRefresh =
+							runtimeNodePathWasInserted || runtimeNodePathWasUpdated;
+					} else if (runtimeNodePathIsDestination) {
 						runtimeNodePathExists = true;
+						runtimeNodePathNeedsRefresh =
+							runtimeNodePathWasInserted || runtimeNodePathWasUpdated;
 					}
 
 					if (wasDeleted) {
-						const wasRestored = file.restoredNodePaths.some(
-							(restoredNodePath) =>
-								JSON.stringify(restoredNodePath) === JSON.stringify(nodePath),
-						);
-						if (wasRestored) {
-							wasDeleted = false;
-						}
-
 						continue;
 					}
 
 					const remapping = file.remappings.find(
 						(item) =>
+							item.oldNodePath !== null &&
 							JSON.stringify(item.oldNodePath) === JSON.stringify(nodePath),
 					);
 					if (!remapping) {
@@ -146,12 +153,19 @@ export const SequencePropsObserver = () => {
 				overrideId,
 				nodePath: runtimeNodePathExists ? previousNodePath : null,
 			});
+			if (runtimeNodePathExists && runtimeNodePathNeedsRefresh) {
+				overrideIdsToRefresh.add(overrideId);
+			}
 		}
 
 		remapPropStatuses(statusRemappings);
 
 		for (const event of overrideUpdates) {
 			setOverrideIdToNodePath(event.overrideId, event.nodePath);
+		}
+
+		for (const overrideId of overrideIdsToRefresh) {
+			refreshSequencePropsSubscription(overrideId);
 		}
 
 		for (const event of statusRemappings) {

@@ -264,7 +264,6 @@ export const insertJsxElementHandler: ApiHandler<
 				{
 					absolutePath: fileName,
 					remappings: nodePathRemappings,
-					restoredNodePaths: [],
 				},
 			]);
 			if (insertedNodePath === null) {

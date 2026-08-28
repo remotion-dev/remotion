@@ -973,7 +973,8 @@ const getNodePathRemappings = ({
 	});
 
 	let nextAfterIndex = 0;
-	return before.flatMap(
+	const matchedAfterIndexes = new Set<number>();
+	const remappings = before.flatMap(
 		({nodePath, signature}): SequenceNodePathRemapping[] => {
 			const matchedIndex = after.findIndex(
 				(item, index) =>
@@ -986,6 +987,7 @@ const getNodePathRemappings = ({
 			}
 
 			nextAfterIndex = matchedIndex + 1;
+			matchedAfterIndexes.add(matchedIndex);
 			const newNodePath = after[matchedIndex].nodePath;
 			if (JSON.stringify(nodePath) === JSON.stringify(newNodePath)) {
 				return [];
@@ -994,6 +996,14 @@ const getNodePathRemappings = ({
 			return [{oldNodePath: nodePath, newNodePath}];
 		},
 	);
+
+	for (let i = 0; i < after.length; i++) {
+		if (!matchedAfterIndexes.has(i)) {
+			remappings.push({oldNodePath: null, newNodePath: after[i].nodePath});
+		}
+	}
+
+	return remappings;
 };
 
 export const insertSolidIntoProjectWithNodePathRemappings = <

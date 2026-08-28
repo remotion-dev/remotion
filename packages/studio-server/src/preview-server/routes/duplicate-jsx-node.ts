@@ -45,7 +45,6 @@ export const duplicateJsxNodeHandler: ApiHandler<
 				{
 					absolutePath,
 					remappings: nodePathRemappings,
-					restoredNodePaths: [],
 				},
 			]);
 

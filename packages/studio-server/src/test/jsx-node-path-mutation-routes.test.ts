@@ -110,7 +110,19 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		watcherSkipSequencePropsUpdates.length = 0;
 	};
 
+	const invertMutationFiles = (
+		files: SequenceNodePathMutation['files'],
+	): SequenceNodePathMutation['files'] =>
+		files.map((file) => ({
+			absolutePath: file.absolutePath,
+			remappings: file.remappings.map((remapping) => ({
+				oldNodePath: remapping.newNodePath,
+				newNodePath: remapping.oldNodePath,
+			})),
+		}));
+
 	try {
+		const forwardMutationFiles: SequenceNodePathMutation['files'][] = [];
 		let before = readFileSync(filePath, 'utf-8');
 		const subscriptionKey = (search: string) => ({
 			absolutePath: filePath,
@@ -135,6 +147,13 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		}
 
 		assertMutation({before, mutation: reorderResponse.nodePathMutation});
+		forwardMutationFiles.push(reorderResponse.nodePathMutation.files);
+		expect(
+			reorderResponse.nodePathMutation.files[0].remappings.every(
+				(remapping) =>
+					remapping.oldNodePath !== null && remapping.newNodePath !== null,
+			),
+		).toBe(true);
 
 		before = readFileSync(filePath, 'utf-8');
 		const duplicateResponse = await duplicateJsxNodeHandler({
@@ -149,6 +168,13 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		}
 
 		assertMutation({before, mutation: duplicateResponse.nodePathMutation});
+		forwardMutationFiles.push(duplicateResponse.nodePathMutation.files);
+		expect(
+			duplicateResponse.nodePathMutation.files[0].remappings.some(
+				(remapping) =>
+					remapping.oldNodePath === null && remapping.newNodePath !== null,
+			),
+		).toBe(true);
 
 		before = readFileSync(filePath, 'utf-8');
 		const splitResponse = await splitJsxSequenceHandler({
@@ -165,6 +191,13 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		}
 
 		assertMutation({before, mutation: splitResponse.nodePathMutation});
+		forwardMutationFiles.push(splitResponse.nodePathMutation.files);
+		expect(
+			splitResponse.nodePathMutation.files[0].remappings.some(
+				(remapping) =>
+					remapping.oldNodePath === null && remapping.newNodePath !== null,
+			),
+		).toBe(true);
 
 		before = readFileSync(filePath, 'utf-8');
 		const insertResponse = await insertJsxElementHandler({
@@ -186,6 +219,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		}
 
 		assertMutation({before, mutation: insertResponse.nodePathMutation});
+		forwardMutationFiles.push(insertResponse.nodePathMutation.files);
 
 		for (let i = 0; i < 4; i++) {
 			before = readFileSync(filePath, 'utf-8');
@@ -194,6 +228,9 @@ test('JSX structure routes broadcast and return node path mutations before writi
 				throw new Error('Expected undo to include a node path mutation');
 			}
 
+			expect(undoResponse.nodePathMutation.files).toEqual(
+				invertMutationFiles(forwardMutationFiles[3 - i]),
+			);
 			assertMutation({before, mutation: undoResponse.nodePathMutation});
 		}
 
@@ -206,6 +243,9 @@ test('JSX structure routes broadcast and return node path mutations before writi
 				throw new Error('Expected redo to include a node path mutation');
 			}
 
+			expect(redoResponse.nodePathMutation.files).toEqual(
+				forwardMutationFiles[i],
+			);
 			assertMutation({before, mutation: redoResponse.nodePathMutation});
 		}
 	} finally {

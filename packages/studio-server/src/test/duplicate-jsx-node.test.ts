@@ -28,20 +28,24 @@ test('duplicateJsxNode inserts a sibling JSX element', async () => {
 test('duplicateJsxNode remaps following JSX siblings', async () => {
 	const input = `export const X = () => (
 	<div>
-		<span data-name="duplicate" />
-		<span data-name="following" />
+		<span name="duplicate" />
+		<span name="following" />
 	</div>
 );
 `;
 	const {output, nodePathRemappings} = await duplicateJsxNode({
 		input,
-		nodePath: lineContainingToNodePath(input, 'data-name="duplicate"'),
+		nodePath: lineContainingToNodePath(input, 'name="duplicate"'),
 	});
 
 	expect(nodePathRemappings).toEqual([
 		{
-			oldNodePath: lineContainingToNodePath(input, 'data-name="following"'),
-			newNodePath: lineContainingToNodePath(output, 'data-name="following"'),
+			oldNodePath: lineContainingToNodePath(input, 'name="following"'),
+			newNodePath: lineContainingToNodePath(output, 'name="following"'),
+		},
+		{
+			oldNodePath: null,
+			newNodePath: lineContainingToNodePath(output, 'name="duplicate-copy"'),
 		},
 	]);
 });

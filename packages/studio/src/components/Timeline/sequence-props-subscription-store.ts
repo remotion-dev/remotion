@@ -51,6 +51,29 @@ type Entry = {
 };
 
 const entries = new Map<Key, Entry>();
+const refreshListeners = new Map<string, Set<() => void>>();
+
+export const subscribeToSequencePropsRefresh = (
+	overrideId: string,
+	listener: () => void,
+): (() => void) => {
+	const listeners = refreshListeners.get(overrideId) ?? new Set();
+	listeners.add(listener);
+	refreshListeners.set(overrideId, listeners);
+
+	return () => {
+		listeners.delete(listener);
+		if (listeners.size === 0) {
+			refreshListeners.delete(overrideId);
+		}
+	};
+};
+
+export const refreshSequencePropsSubscription = (overrideId: string): void => {
+	for (const listener of refreshListeners.get(overrideId) ?? []) {
+		listener();
+	}
+};
 
 export const acquireSequencePropsSubscription = ({
 	fileName,

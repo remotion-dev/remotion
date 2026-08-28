@@ -55,7 +55,6 @@ export const reorderSequenceHandler: ApiHandler<
 				{
 					absolutePath,
 					remappings: nodePathRemappings,
-					restoredNodePaths: [],
 				},
 			]);
 

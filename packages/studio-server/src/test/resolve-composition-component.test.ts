@@ -478,6 +478,14 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 				oldNodePath: lineContainingToNodePath(componentInput, '<Video'),
 				newNodePath: lineContainingToNodePath(result.output, '<Video'),
 			},
+			{
+				oldNodePath: null,
+				newNodePath: lineContainingToNodePath(result.output, '<Sequence>'),
+			},
+			{
+				oldNodePath: null,
+				newNodePath: lineContainingToNodePath(result.output, '<Audio'),
+			},
 		]);
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
