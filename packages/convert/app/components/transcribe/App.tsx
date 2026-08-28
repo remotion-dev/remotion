@@ -7,6 +7,7 @@ import {
 import React, {useEffect, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import Display from './display';
+import type {WhisperLanguage} from './languages';
 import ModelSelector from './modelSelector';
 import type {TranscriptionState} from './state';
 import TranscribeAudio from './transcribeAudio';
@@ -20,10 +21,15 @@ const Transcribe: React.FC<{
 
 	const [selectedModel, setSelectedModel] =
 		useState<WhisperWebGpuModel>('tiny.en');
+	const [selectedLanguage, setSelectedLanguage] =
+		useState<WhisperLanguage>('en');
 	const [cachedModels, setCachedModels] = useState<WhisperWebGpuModel[] | null>(
 		null,
 	);
 	const [staleModelsCleared, setStaleModelsCleared] = useState(false);
+	const selectedModelInfo = getAvailableModels().find(
+		(model) => model.name === selectedModel,
+	);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -81,6 +87,8 @@ const Transcribe: React.FC<{
 						<ModelSelector
 							selectedModel={selectedModel}
 							setSelectedModel={setSelectedModel}
+							selectedLanguage={selectedLanguage}
+							setSelectedLanguage={setSelectedLanguage}
 							disabled={state.type === 'initializing'}
 							cachedModels={cachedModels}
 						/>
@@ -90,6 +98,7 @@ const Transcribe: React.FC<{
 				<TranscribeAudio
 					source={src}
 					selectedModel={selectedModel}
+					language={selectedModelInfo?.multilingual ? selectedLanguage : null}
 					name={name}
 					state={state}
 					setState={setState}

@@ -12,18 +12,27 @@ import {
 } from '@remotion/whisper-webgpu';
 import {formatBytes} from '../../lib/format-bytes';
 import {Label} from '../ui/label';
+import {WHISPER_LANGUAGES, type WhisperLanguage} from './languages';
 
 export default function ModelSelector({
 	selectedModel,
 	setSelectedModel,
 	disabled,
 	cachedModels,
+	selectedLanguage,
+	setSelectedLanguage,
 }: {
 	readonly selectedModel: WhisperWebGpuModel;
 	readonly setSelectedModel: (model: WhisperWebGpuModel) => void;
 	readonly disabled: boolean;
 	readonly cachedModels: WhisperWebGpuModel[] | null;
+	readonly selectedLanguage: WhisperLanguage;
+	readonly setSelectedLanguage: (language: WhisperLanguage) => void;
 }) {
+	const selectedModelInfo = getAvailableModels().find(
+		(model) => model.name === selectedModel,
+	);
+
 	return (
 		<div className="flex flex-col gap-5">
 			<div className="flex items-end gap-2">
@@ -59,6 +68,33 @@ export default function ModelSelector({
 					</Select>
 				</div>
 			</div>
+			{selectedModelInfo?.multilingual ? (
+				<div className="flex items-end gap-2">
+					<div className="grid w-full max-w-sm items-center gap-1.5">
+						<Label htmlFor="language">Spoken language</Label>
+						<Select
+							disabled={disabled}
+							value={selectedLanguage}
+							onValueChange={(value) =>
+								setSelectedLanguage(value as WhisperLanguage)
+							}
+						>
+							<SelectTrigger id="language">
+								<SelectValue placeholder="Select a language" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectGroup>
+									{WHISPER_LANGUAGES.map(([code, language]) => (
+										<SelectItem key={code} value={code}>
+											{language}
+										</SelectItem>
+									))}
+								</SelectGroup>
+							</SelectContent>
+						</Select>
+					</div>
+				</div>
+			) : null}
 		</div>
 	);
 }
