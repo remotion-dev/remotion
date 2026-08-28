@@ -62,10 +62,6 @@ test('uses query-string routing in Browser Studio', () => {
 	expect(getRoute()).toBe('');
 	replaceUrl('/assets/other.mp4');
 	expect(replaceStateCalls).toEqual([
-		[
-			{},
-			'Studio',
-			'/experimental_new?source=release&remotion-route=%2Fassets%2Fother.mp4',
-		],
+		[{}, 'Studio', '/experimental_new?/assets/other.mp4&source=release'],
 	]);
 });

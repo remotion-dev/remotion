@@ -1,7 +1,5 @@
 type UrlHandling = 'browser-studio' | 'query-string' | 'spa';
 
-const browserStudioRouteParameter = 'remotion-route';
-
 const getUrlHandlingType = (): UrlHandling => {
 	if (window.remotion_browserStudio) {
 		return 'browser-studio';
@@ -26,11 +24,13 @@ export const getUrlForRoute = (route: string) => {
 	if (getUrlHandlingType() === 'browser-studio') {
 		const navigationWindow = getNavigationWindow();
 		const currentSearch = navigationWindow.location.search.substring(1);
-		const searchParams = currentSearch.startsWith('/')
-			? new URLSearchParams()
-			: new URLSearchParams(currentSearch);
-		searchParams.set(browserStudioRouteParameter, route);
-		return `${navigationWindow.location.pathname}?${searchParams.toString()}`;
+		const firstSeparator = currentSearch.indexOf('&');
+		const hostSearch = currentSearch.startsWith('/')
+			? firstSeparator === -1
+				? ''
+				: currentSearch.substring(firstSeparator + 1)
+			: currentSearch;
+		return `${navigationWindow.location.pathname}?${route}${hostSearch ? `&${hostSearch}` : ''}`;
 	}
 
 	if (getUrlHandlingType() === 'query-string') {
@@ -59,12 +59,10 @@ export const reloadUrl = () => {
 export const getRoute = () => {
 	if (getUrlHandlingType() === 'browser-studio') {
 		const search = getNavigationWindow().location.search.substring(1);
-		const route = new URLSearchParams(search).get(browserStudioRouteParameter);
-		if (route !== null) {
-			return route.startsWith('/') ? route : '';
-		}
-
-		return search.startsWith('/') ? search : '';
+		const firstSeparator = search.indexOf('&');
+		const route =
+			firstSeparator === -1 ? search : search.substring(0, firstSeparator);
+		return route.startsWith('/') ? route : '';
 	}
 
 	if (getUrlHandlingType() === 'query-string') {
