@@ -87,16 +87,26 @@ export const startServer = async (options: {
 
 	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
 
-	const onPortUnavailable = options.forceNew
-		? undefined
-		: async (port: number): Promise<'continue' | 'stop'> => {
-				const detection = await detectRemotionServer({
-					port,
-					cwd: options.remotionRoot,
-					hostname: portConfig.hostsToTry[0],
-				});
-				return detection.type === 'match' ? 'stop' : 'continue';
-			};
+	const onPortUnavailable = async (
+		port: number,
+	): Promise<'continue' | 'stop'> => {
+		if (!options.forceNew) {
+			const detection = await detectRemotionServer({
+				port,
+				cwd: options.remotionRoot,
+				hostname: portConfig.hostsToTry[0],
+			});
+			if (detection.type === 'match') {
+				return 'stop';
+			}
+		}
+
+		RenderInternals.Log.info(
+			{indent: false, logLevel: options.logLevel},
+			RenderInternals.chalk.gray(`Port ${port} is busy, trying another.`),
+		);
+		return 'continue';
+	};
 
 	let portSelection = await RenderInternals.getDesiredPort({
 		desiredPort,
