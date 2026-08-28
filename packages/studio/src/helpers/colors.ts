@@ -64,7 +64,6 @@ export const ERROR_CODE_FRAME_LINE_BACKGROUND = '#121212';
 export const ERROR_LINK_COLOR = '#58a6ff';
 export const INFO_BLUE = '#60a5fa';
 export const SERVER_DISCONNECTED_BACKGROUND = '#e74c3c';
-export const STACK_FRAME_BORDER_BLUE = 'rgb(66, 144, 245)';
 export const TIMELINE_BACKGROUND_COLOR = '#15181B';
 // WHITE_ALPHA_10 composited over TIMELINE_BACKGROUND_COLOR.
 export const TIMELINE_NEGATIVE_START_BACKGROUND_COLOR = '#2C2F32';
@@ -92,7 +91,6 @@ export const BORDER_BLACK_ALPHA_60 = `1px solid ${BLACK_ALPHA_60}`;
 export const BORDER_WHITE_ALPHA_12 = `1px solid ${WHITE_ALPHA_12}`;
 export const BORDER_WHITE_ALPHA_20 = `1px solid ${WHITE_ALPHA_20}`;
 export const BORDER_INFO_BLUE = '1px solid rgba(59, 130, 246, 0.4)';
-export const BORDER_STACK_FRAME_BLUE = `1px solid ${STACK_FRAME_BORDER_BLUE}`;
 export const BORDER_TIMELINE_DROP_BLUE = `1px solid ${TIMELINE_DROP_BLUE_ALPHA_75}`;
 export const BORDER_TIMELINE_MARQUEE_BLUE = `1px solid ${TIMELINE_MARQUEE_BLUE_ALPHA_75}`;
 export const SHADOW_BLACK = `0 0 4px ${BLACK}`;

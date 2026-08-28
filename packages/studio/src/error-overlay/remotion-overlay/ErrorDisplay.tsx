@@ -1,6 +1,7 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
 import React, {useContext, useMemo} from 'react';
 import {MediaPlaybackError} from 'remotion';
+import {CodingAgentButton} from '../../components/CodingAgentButton';
 import {Spacing} from '../../components/layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
 import {useEditorOpening} from '../../components/use-default-editor-info';
@@ -25,12 +26,13 @@ import {StackElement} from './StackFrame';
 
 const stack: React.CSSProperties = {
 	marginTop: 17,
-	overflowX: 'scroll',
-	marginBottom: '10vh',
+	overflowX: 'hidden',
+	marginBottom: 14,
 };
 
 const rawStack: React.CSSProperties = {
 	backgroundColor: ERROR_CODE_FRAME_BACKGROUND,
+	borderRadius: 6,
 	boxSizing: 'border-box',
 	color: WHITE,
 	fontFamily: 'monospace',
@@ -49,13 +51,26 @@ const symbolicationFailureStyle: React.CSSProperties = {
 	fontFamily: 'SF Pro Text, sans-serif',
 	fontSize: 14,
 	lineHeight: 1.5,
-	marginBottom: '10vh',
+	marginBottom: 14,
 	marginTop: 24,
 };
 
 const spacer: React.CSSProperties = {
 	width: 5,
 	display: 'inline-block',
+};
+
+const actionRow: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flexWrap: 'wrap',
+	marginLeft: 4,
+	marginTop: -10,
+};
+
+const codingAgentButton: React.CSSProperties = {
+	marginLeft: 1,
+	marginRight: 5,
 };
 
 export type OnRetry = null | (() => void);
@@ -78,9 +93,23 @@ export const ErrorDisplay: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
 		useEditorOpening(previewServerState.type === 'connected');
+	const stackFrames = useMemo(() => {
+		const withoutReactInternals = display.stackFrames.filter((frame) => {
+			const fileName = `/${frame.originalFileName?.replaceAll('\\', '/') ?? ''}`;
+			return ![
+				'/node_modules/react/',
+				'/node_modules/react-dom/',
+				'/node_modules/scheduler/',
+			].some((packagePath) => fileName.includes(packagePath));
+		});
+
+		return withoutReactInternals.length > 0
+			? withoutReactInternals
+			: display.stackFrames.slice(0, 1);
+	}, [display.stackFrames]);
 	const highestLineNumber = Math.max(
 		0,
-		...display.stackFrames
+		...stackFrames
 			.map((s) => s.originalScriptCode)
 			.flat(1)
 			.map((s) => s?.lineNumber ?? 0),
@@ -106,8 +135,8 @@ export const ErrorDisplay: React.FC<{
 	const errorTextForCopy = useMemo(() => {
 		const header = `${display.error.name}: ${message}`;
 
-		if (display.stackFrames.length > 0) {
-			const stackLines = display.stackFrames
+		if (stackFrames.length > 0) {
+			const stackLines = stackFrames
 				.map(
 					(frame) =>
 						`at ${frame.originalFunctionName || '<anonymous>'} (${frame.originalFileName || 'unknown'}:${frame.originalLineNumber || '?'}:${frame.originalColumnNumber || '?'})`,
@@ -117,7 +146,8 @@ export const ErrorDisplay: React.FC<{
 		}
 
 		return display.error.stack || header;
-	}, [display.stackFrames, display.error, message]);
+	}, [display.error, message, stackFrames]);
+	const fixWithAgentPrompt = `Fix this error in my Remotion project:\n\n${errorTextForCopy}`;
 
 	return (
 		<div>
@@ -128,46 +158,54 @@ export const ErrorDisplay: React.FC<{
 				canHaveDismissButton={canHaveDismissButton}
 			/>
 
-			{helpLink ? (
-				<>
-					<HelpLink
-						link={helpLink}
-						canHaveKeyboardShortcuts={keyboardShortcuts}
-					/>
-					<div style={spacer} />
-				</>
-			) : null}
-			{display.stackFrames.length > 0 &&
-			canOpenInEditor &&
-			defaultEditorId &&
-			defaultEditorName ? (
-				<>
-					<OpenInEditor
-						canHaveKeyboardShortcuts={keyboardShortcuts}
-						editorId={defaultEditorId}
-						editorName={defaultEditorName}
-						stack={display.stackFrames[0]}
-					/>
-					<div style={spacer} />
-				</>
-			) : null}
-			<CopyStackTrace errorText={errorTextForCopy} />
-			<div style={spacer} />
-			<SearchGithubIssues
-				canHaveKeyboardShortcuts={keyboardShortcuts}
-				message={display.error.message}
-			/>
-			<div style={spacer} />
-			<AskOnDiscord canHaveKeyboardShortcuts={keyboardShortcuts} />
-			{onRetry ? (
-				<>
-					<div style={spacer} />
-					<RetryButton
-						onClick={onRetry}
-						label={calculateMetadata ? 'Retry calculateMetadata()' : 'Retry'}
-					/>
-				</>
-			) : null}
+			<div style={actionRow}>
+				{helpLink ? (
+					<>
+						<HelpLink
+							link={helpLink}
+							canHaveKeyboardShortcuts={keyboardShortcuts}
+						/>
+						<div style={spacer} />
+					</>
+				) : null}
+				{stackFrames.length > 0 &&
+				canOpenInEditor &&
+				defaultEditorId &&
+				defaultEditorName ? (
+					<>
+						<OpenInEditor
+							canHaveKeyboardShortcuts={keyboardShortcuts}
+							editorId={defaultEditorId}
+							editorName={defaultEditorName}
+							stack={stackFrames[0]}
+						/>
+						<div style={spacer} />
+					</>
+				) : null}
+				<CodingAgentButton
+					label="Fix with"
+					prompt={fixWithAgentPrompt}
+					size="default"
+					style={codingAgentButton}
+				/>
+				<CopyStackTrace errorText={errorTextForCopy} />
+				<div style={spacer} />
+				<SearchGithubIssues
+					canHaveKeyboardShortcuts={keyboardShortcuts}
+					message={display.error.message}
+				/>
+				<div style={spacer} />
+				<AskOnDiscord canHaveKeyboardShortcuts={keyboardShortcuts} />
+				{onRetry ? (
+					<>
+						<div style={spacer} />
+						<RetryButton
+							onClick={onRetry}
+							label={calculateMetadata ? 'Retry calculateMetadata()' : 'Retry'}
+						/>
+					</>
+				) : null}
+			</div>
 			{calculateMetadata ? (
 				<>
 					<br />
@@ -182,9 +220,9 @@ export const ErrorDisplay: React.FC<{
 					<MediaPlaybackErrorExplainer src={display.error.src} />
 				</>
 			) : null}
-			{display.stackFrames.length > 0 ? (
+			{stackFrames.length > 0 ? (
 				<div style={stack} className={HORIZONTAL_SCROLLBAR_CLASSNAME}>
-					{display.stackFrames.map((s, i) => {
+					{stackFrames.map((s, i) => {
 						return (
 							<StackElement
 								// eslint-disable-next-line react/no-array-index-key

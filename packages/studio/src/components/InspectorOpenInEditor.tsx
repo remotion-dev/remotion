@@ -18,12 +18,12 @@ import {
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
 import {GitHubIcon} from '../icons/github';
-import {SetSelectedModalContext} from '../state/modals';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
 import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
+import {useConfigureDefaultApps} from './use-configure-default-apps';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -50,7 +50,7 @@ export const InspectorOpenInEditor: React.FC<{
 	readonly locationType: 'file' | 'folder' | null;
 }> = ({contextForAgents = null, label, location, locationType}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const configureDefaultApps = useConfigureDefaultApps();
 	const {
 		canConfigureApps,
 		canOpenInEditor,
@@ -126,16 +126,7 @@ export const InspectorOpenInEditor: React.FC<{
 				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
 			location,
-			onConfigureApps: canConfigureApps
-				? () => {
-						setSelectedModal({
-							type: 'settings',
-							initialTab: 'apps',
-							initialPublicLicenseKey:
-								window.remotion_renderDefaults?.publicLicenseKey ?? null,
-						});
-					}
-				: null,
+			onConfigureApps: configureDefaultApps,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
@@ -192,8 +183,8 @@ export const InspectorOpenInEditor: React.FC<{
 			: items;
 	}, [
 		codingAgentInfo,
-		canConfigureApps,
 		canOpenInEditor,
+		configureDefaultApps,
 		defaultActionIsGitHub,
 		defaultEditorId,
 		editorInfo,
@@ -202,7 +193,6 @@ export const InspectorOpenInEditor: React.FC<{
 		openWithCodingAgent,
 		openWithEditor,
 		previewServerState.type,
-		setSelectedModal,
 	]);
 	const segments = useMemo((): SegmentedButtonSegment[] => {
 		const result: SegmentedButtonSegment[] = [
