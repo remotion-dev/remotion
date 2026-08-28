@@ -41,8 +41,7 @@ const getCacheContext = () => {
 };
 
 /**
- * Keeps a local cache of the final HTML and shares immutable entries with the
- * other worktrees belonging to the same Git repository.
+ * Keeps a local cache of the final HTML in node_modules/.cache/twoslash.
  */
 export const cachedTwoslashCall = (
 	code: string,

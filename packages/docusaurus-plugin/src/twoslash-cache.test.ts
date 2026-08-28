@@ -1,24 +1,14 @@
 import {afterEach, describe, expect, test} from 'bun:test';
 import {execFileSync} from 'child_process';
-import {
-	existsSync,
-	mkdirSync,
-	mkdtempSync,
-	readdirSync,
-	readFileSync,
-	rmSync,
-	utimesSync,
-	writeFileSync,
-} from 'fs';
+import {mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync} from 'fs';
 import {tmpdir} from 'os';
 import {join} from 'path';
 import {pathToFileURL} from 'url';
 import {
 	createTwoslashCacheContext,
-	garbageCollectSharedTwoslashCache,
-	getSharedTwoslashCacheRoot,
 	getTwoslashCacheKey,
 	getTwoslashEnvironmentHash,
+	getTwoslashLocalCachePath,
 	readTwoslashCacheEntry,
 	type TwoslashCacheContext,
 	writeTwoslashCacheEntry,
@@ -26,20 +16,17 @@ import {
 
 const temporaryDirectories: string[] = [];
 
-const makeContext = (
-	root: string,
-	localName: string,
-	environmentHash = 'environment-a',
-): TwoslashCacheContext => ({
-	localRoot: join(root, localName),
-	sharedRoot: join(root, 'shared'),
-	environmentHash,
-	versions: {
-		twoslash: '1.0.0',
-		shiki: '1.0.0',
-		typescript: '1.0.0',
-		shikiTwoslash: '1.0.0',
-	},
+const versions = {
+	twoslash: '1.0.0',
+	shiki: '1.0.0',
+	typescript: '1.0.0',
+	shikiTwoslash: '1.0.0',
+};
+
+const makeContext = (root: string): TwoslashCacheContext => ({
+	localRoot: join(root, 'node_modules', '.cache', 'twoslash'),
+	environmentHash: 'environment-a',
+	versions,
 	workspacePackages: {},
 });
 
@@ -49,20 +36,15 @@ const makeTemporaryDirectory = () => {
 	return directory;
 };
 
-const versions = {
-	twoslash: '1.0.0',
-	shiki: '1.0.0',
-	typescript: '1.0.0',
-	shikiTwoslash: '1.0.0',
-};
-
 const makeEnvironmentRepository = ({
-	lockfile = 'lockfile',
+	committedLockfile = 'lockfile',
+	installedLockfile,
 	name,
 	packages,
 	root,
 }: {
-	lockfile?: string;
+	committedLockfile?: string;
+	installedLockfile?: string;
 	name: string;
 	packages: Record<
 		string,
@@ -73,7 +55,7 @@ const makeEnvironmentRepository = ({
 	const repository = join(root, name);
 	const docsRoot = join(repository, 'packages', 'docs');
 	mkdirSync(docsRoot, {recursive: true});
-	writeFileSync(join(repository, 'bun.lock'), lockfile, 'utf8');
+	writeFileSync(join(repository, 'bun.lock'), committedLockfile, 'utf8');
 	writeFileSync(join(repository, 'package.json'), '{}', 'utf8');
 	writeFileSync(
 		join(docsRoot, 'package.json'),
@@ -102,6 +84,23 @@ const makeEnvironmentRepository = ({
 
 	execFileSync('git', ['init', '--quiet', repository]);
 	execFileSync('git', ['-C', repository, 'add', '.']);
+	execFileSync('git', [
+		'-C',
+		repository,
+		'-c',
+		'user.name=Test',
+		'-c',
+		'user.email=test@example.com',
+		'commit',
+		'--quiet',
+		'-m',
+		'Initial',
+	]);
+
+	if (installedLockfile !== undefined) {
+		writeFileSync(join(repository, 'bun.lock'), installedLockfile, 'utf8');
+	}
+
 	return docsRoot;
 };
 
@@ -112,9 +111,101 @@ afterEach(() => {
 	for (const directory of temporaryDirectories.splice(0)) {
 		rmSync(directory, {recursive: true, force: true});
 	}
+});
 
-	delete process.env.TWOSLASH_SHARED_CACHE_GC_INTERVAL_MS;
-	delete process.env.TWOSLASH_SHARED_CACHE_MAX_AGE_MS;
+describe('Twoslash local cache', () => {
+	test('reuses unchanged snippets and invalidates only a changed snippet', () => {
+		const context = makeContext(makeTemporaryDirectory());
+		const firstCode = 'const first = 1;';
+		const secondCode = 'const second = 2;';
+		const firstKey = getTwoslashCacheKey({
+			code: firstCode,
+			context,
+			lang: 'ts',
+		});
+		const secondKey = getTwoslashCacheKey({
+			code: secondCode,
+			context,
+			lang: 'ts',
+		});
+
+		writeTwoslashCacheEntry({
+			context,
+			html: '<pre>first</pre>',
+			key: firstKey,
+		});
+		writeTwoslashCacheEntry({
+			context,
+			html: '<pre>second</pre>',
+			key: secondKey,
+		});
+
+		expect(readTwoslashCacheEntry({context, key: firstKey})).toBe(
+			'<pre>first</pre>',
+		);
+		const changedFirstKey = getTwoslashCacheKey({
+			code: `${firstCode}\nconst changed = true;`,
+			context,
+			lang: 'ts',
+		});
+		expect(readTwoslashCacheEntry({context, key: changedFirstKey})).toBeNull();
+		expect(readTwoslashCacheEntry({context, key: secondKey})).toBe(
+			'<pre>second</pre>',
+		);
+	});
+
+	test('publishes local entries atomically and rejects empty entries', async () => {
+		const root = makeTemporaryDirectory();
+		const context = makeContext(root);
+		const key = getTwoslashCacheKey({
+			code: 'const value = 1;',
+			context,
+			lang: 'ts',
+		});
+		const candidates = Array.from(
+			{length: 6},
+			(_, index) => `<pre>worker-${index}</pre>`,
+		);
+		const moduleUrl = pathToFileURL(join(__dirname, 'twoslash-cache.ts')).href;
+		const script = `
+			import {writeTwoslashCacheEntry} from ${JSON.stringify(moduleUrl)};
+			writeTwoslashCacheEntry({
+				context: JSON.parse(process.env.TWOSLASH_TEST_CONTEXT),
+				key: process.env.TWOSLASH_TEST_KEY,
+				html: process.env.TWOSLASH_TEST_HTML,
+			});
+		`;
+		const processes = candidates.map((html) =>
+			Bun.spawn({
+				cmd: [process.execPath, '-e', script],
+				env: {
+					...process.env,
+					TWOSLASH_TEST_CONTEXT: JSON.stringify(context),
+					TWOSLASH_TEST_KEY: key,
+					TWOSLASH_TEST_HTML: html,
+				},
+				stderr: 'pipe',
+				stdout: 'ignore',
+			}),
+		);
+		expect(
+			await Promise.all(processes.map((process) => process.exited)),
+		).toEqual(candidates.map(() => 0));
+
+		const cached = readTwoslashCacheEntry({context, key});
+		if (cached === null) {
+			throw new Error('Expected a local cache entry');
+		}
+
+		expect(candidates).toContain(cached);
+		expect(
+			readdirSync(context.localRoot).filter((file) => file.endsWith('.tmp')),
+		).toEqual([]);
+
+		const emptyKey = 'empty';
+		writeFileSync(getTwoslashLocalCachePath(context, emptyKey), '', 'utf8');
+		expect(readTwoslashCacheEntry({context, key: emptyKey})).toBeNull();
+	});
 });
 
 describe('Twoslash cache keys', () => {
@@ -167,62 +258,13 @@ describe('Twoslash cache keys', () => {
 			}),
 		);
 		const alphaCode = "import {alpha} from '@remotion/alpha';\nalpha;";
-		const alphaKey = getTwoslashCacheKey({
-			code: alphaCode,
-			context: baseline,
-			lang: 'ts',
-		});
 		const getAlphaKey = (context: TwoslashCacheContext) =>
 			getTwoslashCacheKey({code: alphaCode, context, lang: 'ts'});
+		const alphaKey = getAlphaKey(baseline);
 
 		expect(getAlphaKey(unrelatedChange)).toBe(alphaKey);
 		expect(getAlphaKey(directChange)).not.toBe(alphaKey);
 		expect(getAlphaKey(transitiveChange)).not.toBe(alphaKey);
-
-		const sharedRoot = join(root, 'selective-shared-cache');
-		const baselineCache = {
-			...baseline,
-			localRoot: join(root, 'baseline-cache'),
-			sharedRoot,
-		};
-		writeTwoslashCacheEntry({
-			context: baselineCache,
-			html: '<pre>alpha</pre>',
-			key: alphaKey,
-		});
-		expect(
-			readTwoslashCacheEntry({
-				context: {
-					...unrelatedChange,
-					localRoot: join(root, 'unrelated-cache'),
-					sharedRoot,
-				},
-				key: getAlphaKey(unrelatedChange),
-			}),
-		).toBe('<pre>alpha</pre>');
-		expect(
-			readTwoslashCacheEntry({
-				context: {
-					...directChange,
-					localRoot: join(root, 'direct-cache'),
-					sharedRoot,
-				},
-				key: getAlphaKey(directChange),
-			}),
-		).toBeNull();
-
-		for (const code of [
-			"import type {Alpha} from '@remotion/alpha/subpath';",
-			"import '@remotion/alpha';",
-			"export {alpha} from '@remotion/alpha';",
-			"import('@remotion/alpha');",
-			"require('@remotion/alpha');",
-			'/// <reference types="@remotion/alpha" />',
-		]) {
-			expect(
-				getTwoslashCacheKey({code, context: directChange, lang: 'ts'}),
-			).not.toBe(getTwoslashCacheKey({code, context: baseline, lang: 'ts'}));
-		}
 
 		expect(
 			getTwoslashCacheKey({
@@ -252,226 +294,83 @@ describe('Twoslash cache keys', () => {
 		);
 	});
 
-	test('fingerprint external dependency resolutions globally', () => {
+	test('uses the committed lockfile after a Vercel-style install', () => {
 		const root = makeTemporaryDirectory();
-		const first = makeEnvironmentRepository({
-			name: 'first',
+		const checkout = makeEnvironmentRepository({
+			name: 'checkout',
 			packages: {},
 			root,
 		});
-		const second = makeEnvironmentRepository({
-			lockfile: 'updated lockfile',
-			name: 'second',
+		const installedCheckout = makeEnvironmentRepository({
+			installedLockfile: 'lockfile rewritten during install',
+			name: 'installed-checkout',
+			packages: {},
+			root,
+		});
+		const updatedCheckout = makeEnvironmentRepository({
+			committedLockfile: 'committed dependency update',
+			name: 'updated-checkout',
 			packages: {},
 			root,
 		});
 
-		expect(getTwoslashEnvironmentHash(second)).not.toBe(
-			getTwoslashEnvironmentHash(first),
+		expect(getTwoslashEnvironmentHash(installedCheckout)).toBe(
+			getTwoslashEnvironmentHash(checkout),
+		);
+		expect(getTwoslashEnvironmentHash(updatedCheckout)).not.toBe(
+			getTwoslashEnvironmentHash(checkout),
+		);
+		const code = 'const value = 1;';
+		expect(
+			getTwoslashCacheKey({
+				code,
+				context: makeRepositoryContext(installedCheckout),
+				lang: 'ts',
+			}),
+		).toBe(
+			getTwoslashCacheKey({
+				code,
+				context: makeRepositoryContext(checkout),
+				lang: 'ts',
+			}),
 		);
 	});
 
-	test('include the language and type environment', () => {
+	test('include the language and Twoslash environment', () => {
 		const root = makeTemporaryDirectory();
-		const context = makeContext(root, 'local-a');
+		const context = makeContext(root);
 		const base = getTwoslashCacheKey({
 			code: 'const value = 1;',
 			lang: 'ts',
 			context,
 		});
-		const differentLanguage = getTwoslashCacheKey({
-			code: 'const value = 1;',
-			lang: 'tsx',
-			context,
-		});
-		const differentEnvironment = getTwoslashCacheKey({
-			code: 'const value = 1;',
-			lang: 'ts',
-			context: makeContext(root, 'local-b', 'environment-b'),
-		});
-		const differentVersions = getTwoslashCacheKey({
-			code: 'const value = 1;',
-			lang: 'ts',
-			context: {
-				...context,
-				versions: {...context.versions, shikiTwoslash: '2.0.0'},
-			},
-		});
-
-		expect(differentLanguage).not.toBe(base);
-		expect(differentEnvironment).not.toBe(base);
-		expect(differentVersions).not.toBe(base);
-	});
-});
-
-describe('shared Twoslash cache', () => {
-	test('uses the same root for all Git worktrees', () => {
-		const root = makeTemporaryDirectory();
-		const repository = join(root, 'repository');
-		const worktree = join(root, 'worktree');
-		mkdirSync(repository);
-		execFileSync('git', ['init', '--quiet', repository]);
-		execFileSync('git', [
-			'-C',
-			repository,
-			'config',
-			'user.email',
-			'test@example.com',
-		]);
-		execFileSync('git', ['-C', repository, 'config', 'user.name', 'Test']);
-		writeFileSync(join(repository, 'file'), 'content', 'utf8');
-		execFileSync('git', ['-C', repository, 'add', 'file']);
-		execFileSync('git', [
-			'-C',
-			repository,
-			'commit',
-			'--quiet',
-			'-m',
-			'Initial',
-		]);
-		execFileSync('git', [
-			'-C',
-			repository,
-			'worktree',
-			'add',
-			'--quiet',
-			'--detach',
-			worktree,
-		]);
-
-		expect(getSharedTwoslashCacheRoot(worktree)).toBe(
-			getSharedTwoslashCacheRoot(repository),
-		);
-	});
-
-	test('hydrates another worktree and does not replace immutable entries', () => {
-		const root = makeTemporaryDirectory();
-		const first = makeContext(root, 'local-a');
-		const second = makeContext(root, 'local-b');
-		const third = makeContext(root, 'local-c');
-		const key = getTwoslashCacheKey({
-			code: 'const value = 1;',
-			lang: 'ts',
-			context: first,
-		});
-
-		writeTwoslashCacheEntry({context: first, key, html: '<pre>first</pre>'});
-		expect(readTwoslashCacheEntry({context: second, key})).toBe(
-			'<pre>first</pre>',
-		);
-
-		writeTwoslashCacheEntry({context: second, key, html: '<pre>second</pre>'});
-		expect(readTwoslashCacheEntry({context: third, key})).toBe(
-			'<pre>first</pre>',
-		);
-	});
-
-	test('publishes one complete entry when processes race', async () => {
-		const root = makeTemporaryDirectory();
-		const context = makeContext(root, 'local-parent');
-		const key = getTwoslashCacheKey({
-			code: 'const value = 1;',
-			lang: 'ts',
-			context,
-		});
-		const candidates = Array.from(
-			{length: 6},
-			(_, index) => `<pre>worker-${index}</pre>`,
-		);
-		const moduleUrl = pathToFileURL(join(__dirname, 'twoslash-cache.ts')).href;
-		const script = `
-			import {writeTwoslashCacheEntry} from ${JSON.stringify(moduleUrl)};
-			const context = JSON.parse(process.env.TWOSLASH_TEST_CONTEXT);
-			writeTwoslashCacheEntry({
-				context,
-				key: process.env.TWOSLASH_TEST_KEY,
-				html: process.env.TWOSLASH_TEST_HTML,
-			});
-		`;
-		const processes = candidates.map((html, index) =>
-			Bun.spawn({
-				cmd: [process.execPath, '-e', script],
-				env: {
-					...process.env,
-					TWOSLASH_TEST_CONTEXT: JSON.stringify({
-						...context,
-						localRoot: join(root, `local-worker-${index}`),
-					}),
-					TWOSLASH_TEST_KEY: key,
-					TWOSLASH_TEST_HTML: html,
-				},
-				stderr: 'pipe',
-				stdout: 'ignore',
-			}),
-		);
-		const exitCodes = await Promise.all(
-			processes.map((process) => process.exited),
-		);
-
-		expect(exitCodes).toEqual(candidates.map(() => 0));
-		const cached = readTwoslashCacheEntry({
-			context: makeContext(root, 'local-reader'),
-			key,
-		});
-		expect(cached).not.toBeNull();
-		if (cached === null) {
-			throw new Error('Expected a shared cache entry');
-		}
-
-		expect(candidates).toContain(cached);
 		expect(
-			readdirSync(context.sharedRoot!).filter(
-				(file) => file.endsWith('.tmp') || file.endsWith('.lock'),
-			),
-		).toEqual([]);
-	});
-
-	test('rejects and repairs corrupt shared entries', () => {
-		const root = makeTemporaryDirectory();
-		const first = makeContext(root, 'local-a');
-		const second = makeContext(root, 'local-b');
-		const third = makeContext(root, 'local-c');
-		const key = getTwoslashCacheKey({
-			code: 'const value = 1;',
-			lang: 'ts',
-			context: first,
-		});
-		const sharedPath = join(first.sharedRoot!, `${key}.json`);
-
-		writeTwoslashCacheEntry({context: first, key, html: '<pre>first</pre>'});
-		writeFileSync(sharedPath, 'corrupt', 'utf8');
-		expect(readTwoslashCacheEntry({context: second, key})).toBeNull();
-
-		writeTwoslashCacheEntry({
-			context: second,
-			key,
-			html: '<pre>repaired</pre>',
-		});
-		expect(readTwoslashCacheEntry({context: third, key})).toBe(
-			'<pre>repaired</pre>',
-		);
-	});
-
-	test('garbage-collects old shared entries without deleting local entries', () => {
-		const root = makeTemporaryDirectory();
-		const context = makeContext(root, 'local-a');
-		const key = getTwoslashCacheKey({
-			code: 'const value = 1;',
-			lang: 'ts',
-			context,
-		});
-		const sharedPath = join(context.sharedRoot!, `${key}.json`);
-		const localPath = join(context.localRoot, `${key}.json`);
-
-		writeTwoslashCacheEntry({context, key, html: '<pre>cached</pre>'});
-		const old = new Date(Date.now() - 10_000);
-		utimesSync(sharedPath, old, old);
-		process.env.TWOSLASH_SHARED_CACHE_GC_INTERVAL_MS = '0';
-		process.env.TWOSLASH_SHARED_CACHE_MAX_AGE_MS = '1';
-
-		garbageCollectSharedTwoslashCache(context);
-
-		expect(existsSync(sharedPath)).toBeFalse();
-		expect(readFileSync(localPath, 'utf8')).toBe('<pre>cached</pre>');
+			getTwoslashCacheKey({
+				code: 'const value = 1;',
+				lang: 'tsx',
+				context,
+			}),
+		).not.toBe(base);
+		expect(
+			getTwoslashCacheKey({
+				code: 'const value = 1;',
+				lang: 'ts',
+				context: {...context, environmentHash: 'environment-b'},
+			}),
+		).not.toBe(base);
+		for (const dependency of Object.keys(
+			versions,
+		) as (keyof typeof versions)[]) {
+			expect(
+				getTwoslashCacheKey({
+					code: 'const value = 1;',
+					lang: 'ts',
+					context: {
+						...context,
+						versions: {...context.versions, [dependency]: '2.0.0'},
+					},
+				}),
+			).not.toBe(base);
+		}
 	});
 });
