@@ -802,9 +802,13 @@ export type DeleteJsxNodeResponse =
 			stack: string;
 	  };
 
-export type DuplicateJsxNodeRequest = {
+export type DuplicateJsxNodeRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
+};
+
+export type DuplicateJsxNodeRequest = {
+	nodes: DuplicateJsxNodeRequestItem[];
 };
 
 export type DuplicateJsxNodeResponse =

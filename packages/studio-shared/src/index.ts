@@ -50,6 +50,7 @@ export {
 	DuplicateEffectRequestItem,
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
+	DuplicateJsxNodeRequestItem,
 	DuplicateJsxNodeResponse,
 	EditorPickerId,
 	ElementInstallDestination,

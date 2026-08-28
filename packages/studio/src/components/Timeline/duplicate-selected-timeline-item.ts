@@ -35,15 +35,7 @@ const confirmDuplicatingProgrammaticallyDuplicatedSequences = (
 	});
 };
 
-const duplicateSequence = (nodePathInfo: SequenceNodePathInfo) => {
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
-	return duplicateJsxNode({
-		fileName: nodePath.absolutePath,
-		nodePath: nodePath.nodePath,
-	});
-};
-
-export const duplicateSequencesFromSource = (
+export const duplicateSequencesFromSource = async (
 	nodePathInfos: readonly SequenceNodePathInfo[],
 	confirm: ConfirmationDialogFunction,
 ): Promise<void> => {
@@ -54,30 +46,36 @@ export const duplicateSequencesFromSource = (
 		(nodePathInfo) => nodePathInfo.numberOfSequencesWithThisNodePath <= 1,
 	);
 
-	return confirmDuplicatingProgrammaticallyDuplicatedSequences(
-		programmaticallyDuplicated,
-		confirm,
-	).then((shouldDuplicateProgrammaticSequences) => {
-		const toDuplicate = [...regular];
-		if (shouldDuplicateProgrammaticSequences) {
-			toDuplicate.push(...programmaticallyDuplicated);
-		}
+	const shouldDuplicateProgrammaticSequences =
+		await confirmDuplicatingProgrammaticallyDuplicatedSequences(
+			programmaticallyDuplicated,
+			confirm,
+		);
+	const toDuplicate = [...regular];
+	if (shouldDuplicateProgrammaticSequences) {
+		toDuplicate.push(...programmaticallyDuplicated);
+	}
 
-		if (toDuplicate.length === 0) {
-			return Promise.resolve();
-		}
-
-		return Promise.all(toDuplicate.map(duplicateSequence))
-			.then((results) => {
-				const failedResult = results.find((result) => !result.success);
-				if (failedResult && !failedResult.success) {
-					showNotification(failedResult.reason, 4000);
-				}
-			})
-			.catch((err) => {
-				showNotification((err as Error).message, 4000);
-			});
+	const nodes = toDuplicate.map((nodePathInfo) => {
+		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		return {
+			fileName: nodePath.absolutePath,
+			nodePath: nodePath.nodePath,
+		};
 	});
+
+	try {
+		if (nodes.length === 0) {
+			return;
+		}
+
+		const result = await duplicateJsxNode({nodes});
+		if (!result.success) {
+			showNotification(result.reason, 4000);
+		}
+	} catch (err) {
+		showNotification((err as Error).message, 4000);
+	}
 };
 
 export const isDuplicatableSequenceRowSelection = (

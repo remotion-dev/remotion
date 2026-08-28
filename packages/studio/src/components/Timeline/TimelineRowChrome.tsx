@@ -136,9 +136,11 @@ export const TimelineRowChrome: React.FC<{
 	const onContextMenu = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			e.stopPropagation();
-			onSelect();
+			if (!selected) {
+				onSelect();
+			}
 		},
-		[onSelect],
+		[onSelect, selected],
 	);
 
 	const onDoubleClickIfNotInteractive = useCallback(

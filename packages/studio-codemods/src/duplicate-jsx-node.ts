@@ -161,6 +161,71 @@ export const duplicateJsxElementAtPath = (
 	jsxPath.replace(makeFragment(jsxNode, clone));
 };
 
+export const duplicateJsxNodes = async ({
+	input,
+	nodePaths,
+	formatFile,
+	prettierConfigOverride,
+}: {
+	input: string;
+	nodePaths: SequenceNodePath[];
+	formatFile: (input: {
+		contents: string;
+		prettierConfigOverride: Record<string, unknown> | null;
+	}) => Promise<{output: string; formatted: boolean}>;
+	prettierConfigOverride?: Record<string, unknown> | null;
+}): Promise<{
+	output: string;
+	formatted: boolean;
+	nodeLabels: string[];
+	logLines: number[];
+	nodePathRemappings: SequenceNodePathRemapping[];
+}> => {
+	const ast = parseAst(input);
+	const capturedNodePaths = captureJsxNodePaths(ast);
+	const targets = nodePaths.map((nodePath) => {
+		const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
+		if (!jsxPath) {
+			throw new Error(
+				'Could not find a JSX element at the specified location to duplicate',
+			);
+		}
+
+		const jsxElement = jsxPath.node as JSXElement;
+		return {
+			jsxPath,
+			nodeLabel: getJsxElementTagLabel(jsxElement),
+			logLine:
+				jsxElement.openingElement.loc?.start.line ??
+				jsxElement.loc?.start.line ??
+				1,
+		};
+	});
+
+	for (const target of targets) {
+		duplicateJsxElementAtPath(target.jsxPath);
+	}
+
+	const finalFile = serializeAst(ast);
+	const {output, formatted} = await formatFile({
+		contents: finalFile,
+		prettierConfigOverride: prettierConfigOverride ?? null,
+	});
+	const {nodePathRemappings} = getNodePathRemappings({
+		ast,
+		captured: capturedNodePaths,
+		output,
+	});
+
+	return {
+		output,
+		formatted,
+		nodeLabels: targets.map((target) => target.nodeLabel),
+		logLines: targets.map((target) => target.logLine),
+		nodePathRemappings,
+	};
+};
+
 export const duplicateJsxNode = async ({
 	input,
 	nodePath,
@@ -181,40 +246,16 @@ export const duplicateJsxNode = async ({
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
-	const ast = parseAst(input);
-	const capturedNodePaths = captureJsxNodePaths(ast);
-	const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
-	if (!jsxPath) {
-		throw new Error(
-			'Could not find a JSX element at the specified location to duplicate',
-		);
-	}
-
-	const jsxElement = jsxPath.node as JSXElement;
-	const nodeLabel = getJsxElementTagLabel(jsxElement);
-	const logLine =
-		jsxElement.openingElement.loc?.start.line ??
-		jsxElement.loc?.start.line ??
-		1;
-
-	duplicateJsxElementAtPath(jsxPath);
-
-	const finalFile = serializeAst(ast);
-	const {output, formatted} = await formatFile({
-		contents: finalFile,
-		prettierConfigOverride: prettierConfigOverride ?? null,
-	});
-	const {nodePathRemappings} = getNodePathRemappings({
-		ast,
-		captured: capturedNodePaths,
-		output,
+	const {nodeLabels, logLines, ...result} = await duplicateJsxNodes({
+		input,
+		nodePaths: [nodePath],
+		formatFile,
+		prettierConfigOverride,
 	});
 
 	return {
-		output,
-		formatted,
-		nodeLabel,
-		logLine,
-		nodePathRemappings,
+		...result,
+		nodeLabel: nodeLabels[0],
+		logLine: logLines[0],
 	};
 };
