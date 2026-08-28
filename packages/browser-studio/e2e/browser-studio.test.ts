@@ -194,6 +194,7 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await expect(
 				studio.locator('.remotion-studio-composition-container'),
 			).toBeVisible();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
 			await studio.locator('button:has(svg[viewBox="0 0 415 426"])').click();
 			const popupPromise = page.waitForEvent('popup');
 			await studio.getByText('About Remotion', {exact: true}).click();
@@ -327,6 +328,14 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await expect(
 				studio.getByTitle('/project').getByText('MyComp1'),
 			).toBeVisible();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp1');
+			await page.goBack();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
+			await studio.getByRole('button', {name: 'Render on web'}).click();
+			await expect(
+				studio.getByText('Render MyComp', {exact: true}),
+			).toBeVisible();
+			await studio.locator('body').press('Escape');
 			await expect
 				.poll(() =>
 					page.evaluate(() => {
@@ -462,6 +471,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	await expect(
 		studio.getByTitle('/project').getByText('OpfsComp'),
 	).toBeVisible();
+	await expect.poll(() => new URL(page.url()).search).toBe('?/OpfsComp');
 	await studio.locator('[data-compname="OpfsComp"]').click();
 	await expect(
 		studio.locator('.remotion-studio-composition-container img'),
@@ -635,7 +645,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	await secondPage.close();
 
 	const previousDirectoryName = projectStorage.storage?.directoryName;
-	await page.reload();
+	await page.goto('/?github=1');
 	await expect(
 		studio.getByTitle('/project').getByText('OpfsComp'),
 	).toBeVisible();

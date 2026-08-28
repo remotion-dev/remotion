@@ -36,15 +36,22 @@ test('replaces the current Studio URL', () => {
 
 test('uses query-string routing in Browser Studio', () => {
 	const replaceStateCalls: unknown[][] = [];
+	const parentWindow = {
+		history: {
+			replaceState: (...args: unknown[]) => replaceStateCalls.push(args),
+		},
+		location: {
+			pathname: '/experimental_new',
+			search: '?source=release',
+		},
+	};
 
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,
 		value: {
-			history: {
-				replaceState: (...args: unknown[]) => replaceStateCalls.push(args),
-			},
+			parent: parentWindow,
 			location: {
-				pathname: '/experimental_new',
+				pathname: 'blank',
 				search: '?source=release',
 			},
 			remotion_browserStudio: {},
