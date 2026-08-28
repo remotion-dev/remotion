@@ -4,25 +4,6 @@ import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
 import {elementRegistry} from './src/components/Elements/element-registry';
 
-const lowMemoryBuild =
-	process.env.VERCEL === '1' ||
-	process.env.VERCEL === 'true' ||
-	process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
-
-const fasterConfig = lowMemoryBuild
-	? {
-			swcJsLoader: true,
-			swcJsMinimizer: true,
-			swcHtmlMinimizer: true,
-			lightningCssMinimizer: true,
-			mdxCrossCompilerCache: false,
-			rspackBundler: false,
-			rspackPersistentCache: false,
-			ssgWorkerThreads: false,
-			gitEagerVcs: false,
-		}
-	: true;
-
 const showGitLastUpdate =
 	process.env.REMOTION_DOCS_DISABLE_GIT_LAST_UPDATE !== '1';
 
@@ -42,7 +23,7 @@ const config: Config = {
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.
 	projectName: 'remotion', // Usually your repo name.
 	future: {
-		faster: fasterConfig,
+		faster: true,
 		v4: {
 			removeLegacyPostBuildHeadAttribute: true,
 		},

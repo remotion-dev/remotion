@@ -1,8 +1,7 @@
 import {spawn} from 'child_process';
 
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
-const lowMemoryBuild =
-	isVercel || process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
+const lowMemoryBuild = process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
 const heartbeatIntervalMs = process.env.REMOTION_DOCS_BUILD_HEARTBEAT_MS
 	? parseInt(process.env.REMOTION_DOCS_BUILD_HEARTBEAT_MS, 10)
 	: isVercel
