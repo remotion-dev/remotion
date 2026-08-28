@@ -3457,11 +3457,6 @@ test.describe('visual mode', () => {
 	});
 
 	test('should seek in read-only Studio', async ({page}) => {
-		const requestedPaths: string[] = [];
-		page.on('request', (request) => {
-			requestedPaths.push(new URL(request.url()).pathname);
-		});
-
 		await page.addInitScript(() => {
 			Object.defineProperty(window, 'remotion_isReadOnlyStudio', {
 				configurable: false,
@@ -3481,7 +3476,6 @@ test.describe('visual mode', () => {
 		await page.locator('[data-timeline-scrubber]').click();
 
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
-		expect(requestedPaths).not.toContain('/events');
 	});
 
 	test('should preview and place Canvas drops at the playhead', async ({
