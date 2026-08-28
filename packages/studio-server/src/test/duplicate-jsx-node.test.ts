@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
-import {duplicateJsxNode} from '../codemods/duplicate-jsx-node';
+import {
+	duplicateJsxNode,
+	duplicateJsxNodes,
+} from '../codemods/duplicate-jsx-node';
 import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
 const sample = `import React from 'react';
@@ -48,6 +51,29 @@ test('duplicateJsxNode remaps following JSX siblings', async () => {
 			newNodePath: lineContainingToNodePath(output, 'name="duplicate-copy"'),
 		},
 	]);
+});
+
+test('duplicateJsxNodes duplicates each requested JSX element once', async () => {
+	const input = `export const X = () => (
+	<div>
+		<span name="first" />
+		<span name="second" />
+		<span name="untouched" />
+	</div>
+);
+`;
+	const {output} = await duplicateJsxNodes({
+		input,
+		nodePaths: [
+			lineContainingToNodePath(input, 'name="first"'),
+			lineContainingToNodePath(input, 'name="second"'),
+		],
+	});
+
+	expect(output.match(/name="first-copy"/g)).toHaveLength(1);
+	expect(output.match(/name="second-copy"/g)).toHaveLength(1);
+	expect(output).not.toContain('name="first-copy-copy"');
+	expect(output.match(/name="untouched"/g)).toHaveLength(1);
 });
 
 const onlyReturn = `import React from 'react';

@@ -875,8 +875,12 @@ registerRoot(Root);`,
 	}
 
 	const failure = await operations.duplicateJsxNode({
-		fileName: 'src/Composition.tsx',
-		nodePath: [...subscription.nodePath.nodePath, 'missing'],
+		nodes: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: [...subscription.nodePath.nodePath, 'missing'],
+			},
+		],
 	});
 	expect(failure).toMatchObject({
 		success: false,
@@ -887,8 +891,12 @@ registerRoot(Root);`,
 	expect(getProject().files[fileName]).toBe(initialContents);
 
 	const result = await operations.duplicateJsxNode({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
+		nodes: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+			},
+		],
 	});
 	if (!result.success) {
 		throw new Error(result.reason);

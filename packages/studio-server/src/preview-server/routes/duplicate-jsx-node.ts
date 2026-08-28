@@ -4,7 +4,7 @@ import type {
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
 } from '@remotion/studio-shared';
-import {duplicateJsxNode} from '../../codemods/duplicate-jsx-node';
+import {duplicateJsxNodes} from '../../codemods/duplicate-jsx-node';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -12,7 +12,7 @@ import {formatLogFileLocation} from '../format-log-file-location';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
-	pushToUndoStack,
+	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
@@ -24,70 +24,111 @@ import {
 export const duplicateJsxNodeHandler: ApiHandler<
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse
-> = ({input: {fileName, nodePath}, remotionRoot, logLevel}) => {
+> = ({input: {nodes}, remotionRoot, logLevel}) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
+			if (nodes.length === 0) {
+				throw new Error('No JSX nodes were specified for duplication');
+			}
+
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[duplicate-jsx-node] Received request for fileName="${fileName}"`,
+				`[duplicate-jsx-node] Received request to duplicate ${nodes.length} JSX node${nodes.length === 1 ? '' : 's'}`,
 			);
-			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
-				remotionRoot,
-				fileName,
-				action: 'modify',
-			});
 
-			const fileContents = readFileSync(absolutePath, 'utf-8');
+			const itemsByFileName = new Map<string, typeof nodes>();
+			for (const item of nodes) {
+				const fileItems = itemsByFileName.get(item.fileName) ?? [];
+				fileItems.push(item);
+				itemsByFileName.set(item.fileName, fileItems);
+			}
 
-			const {output, formatted, nodeLabel, logLine, nodePathRemappings} =
-				await duplicateJsxNode({input: fileContents, nodePath});
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath,
-					remappings: nodePathRemappings,
-				},
-			]);
+			const updates = await Promise.all(
+				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
+					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+						remotionRoot,
+						fileName,
+						action: 'modify',
+					});
+					const fileContents = readFileSync(absolutePath, 'utf-8');
+					const {output, formatted, nodeLabels, logLines, nodePathRemappings} =
+						await duplicateJsxNodes({
+							input: fileContents,
+							nodePaths: fileItems.map((item) => item.nodePath),
+						});
 
-			pushToUndoStack({
-				filePath: absolutePath,
-				oldContents: fileContents,
-				newContents: null,
+					return {
+						absolutePath,
+						fileRelativeToRoot,
+						fileContents,
+						formatted,
+						logLine: Math.min(...logLines),
+						nodeLabels,
+						nodePathRemappings,
+						output,
+					};
+				}),
+			);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				updates.map((update) => ({
+					absolutePath: update.absolutePath,
+					remappings: update.nodePathRemappings,
+				})),
+			);
+			const duplicatedNodeDescription =
+				nodes.length === 1
+					? updates[0].nodeLabels[0]
+					: `${nodes.length} JSX nodes`;
+
+			pushTransactionToUndoStack({
+				snapshots: updates.map((update) => ({
+					filePath: update.absolutePath,
+					oldContents: update.fileContents,
+					newContents: null,
+					logLine: update.logLine,
+					nodePathRemappings: update.nodePathRemappings,
+				})),
 				logLevel,
 				remotionRoot,
-				logLine,
 				description: {
-					undoMessage: `↩️  Duplication of ${nodeLabel}`,
-					redoMessage: `↪️  Duplication of ${nodeLabel}`,
+					undoMessage: `↩️  Duplication of ${duplicatedNodeDescription}`,
+					redoMessage: `↪️  Duplication of ${duplicatedNodeDescription}`,
 				},
 				entryType: 'duplicate-jsx-node',
 				suppressHmrOnFileRestore: false,
-				nodePathRemappings,
-			});
-			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers({
-				file: absolutePath,
-				content: output,
-				originatorClientId: undefined,
-				metadata: {skipSequencePropsUpdate: true},
 			});
 
-			const locationLabel = formatLogFileLocation({
-				remotionRoot,
-				absolutePath,
-				line: logLine,
-			});
-			RenderInternals.Log.info(
-				{indent: false, logLevel},
-				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${nodeLabel}`,
-			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
+			for (const update of updates) {
+				suppressUndoStackInvalidation(update.absolutePath);
+				writeFileAndNotifyFileWatchers({
+					file: update.absolutePath,
+					content: update.output,
+					originatorClientId: undefined,
+					metadata: {skipSequencePropsUpdate: true},
+				});
+
+				const locationLabel = formatLogFileLocation({
+					remotionRoot,
+					absolutePath: update.absolutePath,
+					line: update.logLine,
+				});
+				const fileDescription =
+					update.nodeLabels.length === 1
+						? update.nodeLabels[0]
+						: `${update.nodeLabels.length} JSX nodes`;
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${fileDescription}`,
+				);
+				if (!update.formatted) {
+					warnAboutPrettierOnce(logLevel);
+				}
+
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel},
+					`[duplicate-jsx-node] Wrote ${update.fileRelativeToRoot}${update.formatted ? ' (formatted)' : ''}`,
+				);
 			}
-
-			RenderInternals.Log.verbose(
-				{indent: false, logLevel},
-				`[duplicate-jsx-node] Wrote ${fileRelativeToRoot}${formatted ? ' (formatted)' : ''}`,
-			);
 
 			printUndoHint(logLevel);
 

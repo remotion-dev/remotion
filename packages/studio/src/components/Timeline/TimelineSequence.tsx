@@ -40,9 +40,13 @@ import {deleteJsxNode} from '../delete-jsx-node-api';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
+import {deleteSequencesFromSource} from './delete-selected-timeline-item';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
-import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
+import {
+	getMultiSequenceContextMenuItems,
+	getSequenceContextMenuItems,
+} from './get-sequence-context-menu-items';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -481,7 +485,22 @@ const TimelineSequenceInner: React.FC<{
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
-	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
+	const {onSelect, selectable, selected} =
+		useTimelineRowSelection(nodePathInfo);
+	const {selectedItems} = useTimelineSelection();
+	const selectedSequenceNodePathInfos = useMemo(() => {
+		if (
+			!selected ||
+			selectedItems.length < 2 ||
+			selectedItems.some((item) => item.type !== 'sequence')
+		) {
+			return null;
+		}
+
+		return selectedItems.flatMap((item) =>
+			item.type === 'sequence' ? [item.nodePathInfo] : [],
+		);
+	}, [selected, selectedItems]);
 	const onSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (isTimelineSelectionModifierEvent(e)) {
@@ -553,6 +572,15 @@ const TimelineSequenceInner: React.FC<{
 			() => undefined,
 		);
 	}, [confirm, duplicateDisabled, nodePathInfo, validatedLocation?.source]);
+	const onDuplicateSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+			return;
+		}
+
+		duplicateSequencesFromSource(selectedSequenceNodePathInfos, confirm).catch(
+			() => undefined,
+		);
+	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath || deleteDisabled) {
 			return;
@@ -594,6 +622,15 @@ const TimelineSequenceInner: React.FC<{
 		nodePathInfo,
 		validatedLocation?.source,
 	]);
+	const onDeleteSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+			return;
+		}
+
+		deleteSequencesFromSource(selectedSequenceNodePathInfos, confirm).catch(
+			() => undefined,
+		);
+	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
 	const onDisableSequenceInteractivity = useCallback(() => {
 		if (
 			disableInteractivityDisabled ||
@@ -618,8 +655,17 @@ const TimelineSequenceInner: React.FC<{
 		validatedLocation?.source,
 	]);
 	const getContextMenuItems = useCallback(() => {
-		if (selectable) {
+		if (selectable && !selected) {
 			onSelect({shiftKey: false, toggleKey: false});
+		}
+
+		if (selectedSequenceNodePathInfos !== null) {
+			return getMultiSequenceContextMenuItems({
+				deleteDisabled: !previewInteractive,
+				duplicateDisabled: !previewInteractive,
+				onDeleteSelectedSequences,
+				onDuplicateSelectedSequences,
+			});
 		}
 
 		const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
@@ -682,8 +728,10 @@ const TimelineSequenceInner: React.FC<{
 		nodePath,
 		onSelect,
 		onDeleteSequenceFromSource,
+		onDeleteSelectedSequences,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
+		onDuplicateSelectedSequences,
 		openInCodingAgent,
 		openInEditor,
 		originalLocation,
@@ -693,6 +741,8 @@ const TimelineSequenceInner: React.FC<{
 		s,
 		selectAsset,
 		selectable,
+		selected,
+		selectedSequenceNodePathInfos,
 		sequenceFrameOffset,
 		setPropStatuses,
 		setSelectedModal,
