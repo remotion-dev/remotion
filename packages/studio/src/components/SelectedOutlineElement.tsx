@@ -478,6 +478,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				onDoubleClickTarget={onDoubleClickTarget}
 				scale={scale}
 				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
+				translateWithCommandKey={
+					layoutTarget?.selectedForRotation === true &&
+					Boolean(controlTarget?.rotationDrag)
+				}
 			/>
 			{layoutTarget?.selectedForRotation && controlTarget?.rotationDrag ? (
 				<SelectedOutlineCanvasRotation
