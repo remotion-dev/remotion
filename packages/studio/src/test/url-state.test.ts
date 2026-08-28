@@ -36,15 +36,22 @@ test('replaces the current Studio URL', () => {
 
 test('uses query-string routing in Browser Studio', () => {
 	const replaceStateCalls: unknown[][] = [];
+	const parentWindow = {
+		history: {
+			replaceState: (...args: unknown[]) => replaceStateCalls.push(args),
+		},
+		location: {
+			pathname: '/experimental_new',
+			search: '?source=release',
+		},
+	};
 
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,
 		value: {
-			history: {
-				replaceState: (...args: unknown[]) => replaceStateCalls.push(args),
-			},
+			parent: parentWindow,
 			location: {
-				pathname: '/experimental_new',
+				pathname: 'blank',
 				search: '?source=release',
 			},
 			remotion_browserStudio: {},
@@ -55,6 +62,10 @@ test('uses query-string routing in Browser Studio', () => {
 	expect(getRoute()).toBe('');
 	replaceUrl('/assets/other.mp4');
 	expect(replaceStateCalls).toEqual([
-		[{}, 'Studio', '/experimental_new?/assets/other.mp4'],
+		[
+			{},
+			'Studio',
+			'/experimental_new?source=release&remotion-route=%2Fassets%2Fother.mp4',
+		],
 	]);
 });

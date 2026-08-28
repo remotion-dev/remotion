@@ -51,7 +51,6 @@ registerRoot(RemotionRoot);
 					? ({name, version}) => (name === 'react' ? version : null)
 					: undefined
 			}
-			iframeSrc="/frame.html"
 			initialElement={
 				initialElementPayload === null
 					? null
