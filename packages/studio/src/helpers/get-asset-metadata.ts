@@ -143,7 +143,9 @@ export const getAssetMetadata = async (
 		const fetchedAt = Date.now();
 		const srcWithTime = addTime ? addAssetCacheBust({fetchedAt, src}) : src;
 
-		const fileType = getPreviewFileType(src);
+		const fileType = getPreviewFileType(
+			canvasContent.type === 'asset' ? canvasContent.asset : src,
+		);
 
 		if (fileType === 'video' || fileType === 'audio') {
 			const mediaMetadata = await getMediaMetadata(srcWithTime);
