@@ -72,6 +72,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 				},
 				entryType: 'default-props',
 				suppressHmrOnFileRestore: true,
+				invalidatedNodePaths: [],
 				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(projectInfo.rootFile);

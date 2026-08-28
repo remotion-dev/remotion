@@ -218,6 +218,7 @@ export const insertElementHandler: ApiHandler<
 						? [
 								{
 									filePath: plan.elementFileName,
+									invalidatedNodePaths: [],
 									oldContents: plan.existingElementSource,
 									newContents: element.sourceCode,
 									logLine: 1,
@@ -227,6 +228,7 @@ export const insertElementHandler: ApiHandler<
 						: []),
 					{
 						filePath: inserted.fileName,
+						invalidatedNodePaths: [],
 						oldContents: inserted.oldContents,
 						newContents: inserted.output,
 						logLine: inserted.logLine,

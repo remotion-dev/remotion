@@ -290,6 +290,7 @@ export const moveKeyframes = async ({
 	pushTransactionToUndoStack({
 		snapshots: snapshots.map((snapshot) => ({
 			...snapshot,
+			invalidatedNodePaths: [],
 			nodePathRemappings: null,
 		})),
 		logLevel,

@@ -118,6 +118,7 @@ export const applyVisualControlHandler: ApiHandler<
 			},
 			entryType: 'visual-control',
 			suppressHmrOnFileRestore: true,
+			invalidatedNodePaths: [],
 			nodePathRemappings: null,
 		});
 		suppressUndoStackInvalidation(absolutePath);

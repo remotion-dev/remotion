@@ -217,6 +217,7 @@ export const batchUpdateKeyframeSettings = async ({
 	pushTransactionToUndoStack({
 		snapshots: snapshots.map((snapshot) => ({
 			...snapshot,
+			invalidatedNodePaths: [],
 			nodePathRemappings: null,
 		})),
 		logLevel,

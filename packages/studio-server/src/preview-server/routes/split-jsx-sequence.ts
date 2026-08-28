@@ -51,15 +51,21 @@ export const splitJsxSequenceHandler: ApiHandler<
 						action: 'modify',
 					});
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const {output, formatted, nodeLabels, logLines, nodePathRemappings} =
-						await splitJsxSequences({
-							input: fileContents,
-							splits: fileItems.map(({nodePath, sequenceKeys}) => ({
-								nodePath,
-								sequenceKeys,
-							})),
-							splitFrame,
-						});
+					const {
+						output,
+						formatted,
+						nodeLabels,
+						logLines,
+						nodePathRemappings,
+						invalidatedNodePathsAfterMutation,
+					} = await splitJsxSequences({
+						input: fileContents,
+						splits: fileItems.map(({nodePath, sequenceKeys}) => ({
+							nodePath,
+							sequenceKeys,
+						})),
+						splitFrame,
+					});
 
 					return {
 						absolutePath,
@@ -67,6 +73,7 @@ export const splitJsxSequenceHandler: ApiHandler<
 						fileRelativeToRoot,
 						formatted,
 						invalidatedNodePaths: fileItems.map(({nodePath}) => nodePath),
+						invalidatedNodePathsAfterMutation,
 						logLine: Math.min(...logLines),
 						nodeLabels,
 						nodePathRemappings,
@@ -103,6 +110,9 @@ export const splitJsxSequenceHandler: ApiHandler<
 					},
 					entryType: 'split-jsx-sequence',
 					suppressHmrOnFileRestore: false,
+					invalidatedNodePaths: update.invalidatedNodePaths,
+					invalidatedNodePathsAfterMutation:
+						update.invalidatedNodePathsAfterMutation,
 					nodePathRemappings: update.nodePathRemappings,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);

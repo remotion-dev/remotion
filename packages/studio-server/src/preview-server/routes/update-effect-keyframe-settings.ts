@@ -100,6 +100,7 @@ export const updateEffectKeyframeSettingsHandler: ApiHandler<
 			},
 			entryType: 'effect-props',
 			suppressHmrOnFileRestore: true,
+			invalidatedNodePaths: [],
 			nodePathRemappings: null,
 		});
 		suppressUndoStackInvalidation(absolutePath);

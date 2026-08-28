@@ -40,6 +40,7 @@ test('undo and redo restore every file in a transaction', () => {
 					oldContents: 'old first',
 					newContents: 'new first',
 					logLine: 1,
+					invalidatedNodePaths: [],
 					nodePathRemappings: null,
 				},
 				{
@@ -47,6 +48,7 @@ test('undo and redo restore every file in a transaction', () => {
 					oldContents: 'old second',
 					newContents: 'new second',
 					logLine: 1,
+					invalidatedNodePaths: [],
 					nodePathRemappings: null,
 				},
 			],

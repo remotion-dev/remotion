@@ -618,6 +618,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		pushTransactionToUndoStack({
 			snapshots: snapshots.map((snapshot) => ({
 				...snapshot,
+				invalidatedNodePaths: [],
 				nodePathRemappings: null,
 			})),
 			logLevel,

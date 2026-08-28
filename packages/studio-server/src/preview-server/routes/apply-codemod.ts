@@ -268,6 +268,7 @@ export const applyCodemodHandler: ApiHandler<
 				>[0]['snapshots'] = [
 					{
 						filePath,
+						invalidatedNodePaths: [],
 						oldContents: input,
 						newContents: null,
 						logLine,
@@ -286,6 +287,7 @@ export const applyCodemodHandler: ApiHandler<
 					componentFileContents = await formatNewCompositionFile(codemod);
 					snapshots.push({
 						filePath: componentFilePath,
+						invalidatedNodePaths: [],
 						oldContents: null,
 						newContents: componentFileContents,
 						logLine: 1,
@@ -305,6 +307,7 @@ export const applyCodemodHandler: ApiHandler<
 				} else {
 					pushToUndoStack({
 						filePath,
+						invalidatedNodePaths: [],
 						oldContents: input,
 						newContents: null,
 						logLevel,

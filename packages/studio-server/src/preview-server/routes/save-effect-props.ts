@@ -136,6 +136,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			},
 			entryType: 'effect-props',
 			suppressHmrOnFileRestore: true,
+			invalidatedNodePaths: [],
 			nodePathRemappings: null,
 		});
 		suppressUndoStackInvalidation(absolutePath);

@@ -73,6 +73,7 @@ export const reorderSequenceHandler: ApiHandler<
 				},
 				entryType: 'reorder-sequence',
 				suppressHmrOnFileRestore: false,
+				invalidatedNodePaths: [],
 				nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(absolutePath);

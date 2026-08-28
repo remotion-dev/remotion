@@ -63,6 +63,7 @@ export const reorderEffectHandler: ApiHandler<
 				},
 				entryType: 'reorder-effect',
 				suppressHmrOnFileRestore: false,
+				invalidatedNodePaths: [],
 				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(absolutePath);

@@ -72,6 +72,7 @@ export const addEffectHandler: ApiHandler<
 				},
 				entryType: 'add-effect',
 				suppressHmrOnFileRestore: false,
+				invalidatedNodePaths: [],
 				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(absolutePath);

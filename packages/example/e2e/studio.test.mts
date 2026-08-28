@@ -505,7 +505,7 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should settle every timeline clip after splitting multiple selections', async ({
+	test('should settle timeline clips after splitting and undoing multiple selections', async ({
 		page,
 	}) => {
 		const originalSource = fs.readFileSync(barChartFile, 'utf-8');
@@ -569,6 +569,34 @@ test.describe('visual mode', () => {
 					};
 					return result.selectionType;
 				});
+			const getSplitSequences = () =>
+				page.evaluate(async () => {
+					const tools = (
+						window as typeof window & {
+							readonly __remotion_webmcp_tools: Map<
+								string,
+								{readonly execute: () => Promise<unknown>}
+							>;
+						}
+					).__remotion_webmcp_tools;
+					const result = (await tools.get('get_sequences')?.execute()) as {
+						readonly sequences: readonly {
+							readonly durationInFrames: number;
+							readonly name: string;
+							readonly startFrame: number;
+						}[];
+					};
+					return result.sequences
+						.filter(
+							(sequence) =>
+								sequence.name === 'Ambient glow' || sequence.name === 'Eyebrow',
+						)
+						.map(({durationInFrames, name, startFrame}) => ({
+							durationInFrames,
+							name,
+							startFrame,
+						}));
+				});
 
 			await expect(async () => {
 				await ambientGlow.click();
@@ -597,44 +625,23 @@ test.describe('visual mode', () => {
 				.toEqual({ambientGlow: 2, eyebrow: 2});
 			await expect(ambientGlow).toHaveCount(2, {timeout: 30_000});
 			await expect(eyebrow).toHaveCount(2);
+			await expect.poll(getSplitSequences).toEqual([
+				{durationInFrames: 38, name: 'Ambient glow', startFrame: 0},
+				{durationInFrames: 142, name: 'Ambient glow', startFrame: 38},
+				{durationInFrames: 38, name: 'Eyebrow', startFrame: 0},
+				{durationInFrames: 142, name: 'Eyebrow', startFrame: 38},
+			]);
+
+			await page.reload();
+			await expect(ambientGlow).toHaveCount(2, {timeout: 30_000});
+			await page.keyboard.press('ControlOrMeta+z');
 			await expect
-				.poll(async () => {
-					const result = await page.evaluate(async () => {
-						const tools = (
-							window as typeof window & {
-								readonly __remotion_webmcp_tools: Map<
-									string,
-									{readonly execute: () => Promise<unknown>}
-								>;
-							}
-						).__remotion_webmcp_tools;
-						return tools.get('get_sequences')?.execute();
-					});
-					return (
-						result as {
-							readonly sequences: readonly {
-								readonly durationInFrames: number;
-								readonly name: string;
-								readonly startFrame: number;
-							}[];
-						}
-					).sequences
-						.filter(
-							(sequence) =>
-								sequence.name === 'Ambient glow' || sequence.name === 'Eyebrow',
-						)
-						.map(({durationInFrames, name, startFrame}) => ({
-							durationInFrames,
-							name,
-							startFrame,
-						}));
-				})
-				.toEqual([
-					{durationInFrames: 38, name: 'Ambient glow', startFrame: 0},
-					{durationInFrames: 142, name: 'Ambient glow', startFrame: 38},
-					{durationInFrames: 38, name: 'Eyebrow', startFrame: 0},
-					{durationInFrames: 142, name: 'Eyebrow', startFrame: 38},
-				]);
+				.poll(() => fs.readFileSync(barChartFile, 'utf-8'))
+				.toBe(originalSource);
+			await expect.poll(getSplitSequences).toEqual([
+				{durationInFrames: 180, name: 'Ambient glow', startFrame: 0},
+				{durationInFrames: 180, name: 'Eyebrow', startFrame: 0},
+			]);
 		} finally {
 			fs.writeFileSync(barChartFile, originalSource);
 		}

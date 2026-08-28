@@ -277,6 +277,7 @@ export const insertJsxElementHandler: ApiHandler<
 
 			pushToUndoStack({
 				filePath: fileName,
+				invalidatedNodePaths: [],
 				oldContents,
 				newContents: output,
 				logLevel,

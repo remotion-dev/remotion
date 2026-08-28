@@ -87,6 +87,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 			},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: true,
+			invalidatedNodePaths: [],
 			nodePathRemappings: null,
 		});
 		suppressUndoStackInvalidation(absolutePath);

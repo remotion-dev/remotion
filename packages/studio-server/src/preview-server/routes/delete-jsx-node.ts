@@ -116,6 +116,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 					},
 					entryType: 'delete-jsx-node',
 					suppressHmrOnFileRestore: false,
+					invalidatedNodePaths: [],
 					nodePathRemappings: update.nodePathRemappings,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);

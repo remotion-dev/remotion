@@ -55,6 +55,8 @@ type UndoEntryType =
 
 type UndoEntrySnapshot = {
 	filePath: string;
+	invalidatedNodePaths: SequenceNodePath[];
+	invalidatedNodePathsAfterMutation: SequenceNodePath[];
 	oldContents: string | null;
 	newContents: string | null;
 	/** 1-based source line for terminal/IDE file links (e.g. path:line). */
@@ -141,6 +143,8 @@ export function pushToUndoStack({
 	entryType,
 	suppressHmrOnFileRestore,
 	nodePathRemappings,
+	invalidatedNodePaths,
+	invalidatedNodePathsAfterMutation = [],
 }: {
 	filePath: string;
 	oldContents: string;
@@ -152,11 +156,15 @@ export function pushToUndoStack({
 	entryType: UndoEntryType;
 	suppressHmrOnFileRestore: boolean;
 	nodePathRemappings: SequenceNodePathRemapping[] | null;
+	invalidatedNodePaths: SequenceNodePath[];
+	invalidatedNodePathsAfterMutation?: SequenceNodePath[];
 }) {
 	pushTransactionToUndoStack({
 		snapshots: [
 			{
 				filePath,
+				invalidatedNodePaths,
+				invalidatedNodePathsAfterMutation,
 				oldContents,
 				newContents,
 				logLine,
@@ -185,6 +193,8 @@ export function pushTransactionToUndoStack({
 		newContents: string | null;
 		logLine: number;
 		nodePathRemappings: SequenceNodePathRemapping[] | null;
+		invalidatedNodePaths: SequenceNodePath[];
+		invalidatedNodePathsAfterMutation?: SequenceNodePath[];
 	}>;
 	logLevel: LogLevel;
 	remotionRoot: string;
@@ -196,7 +206,11 @@ export function pushTransactionToUndoStack({
 	storedRemotionRoot = remotionRoot;
 
 	const entry = makeUndoEntry({
-		snapshots,
+		snapshots: snapshots.map((snapshot) => ({
+			...snapshot,
+			invalidatedNodePathsAfterMutation:
+				snapshot.invalidatedNodePathsAfterMutation ?? [],
+		})),
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
@@ -254,6 +268,8 @@ export function pushToRedoStack({
 		snapshots: [
 			{
 				filePath,
+				invalidatedNodePaths: [],
+				invalidatedNodePathsAfterMutation: [],
 				oldContents,
 				newContents,
 				logLine,
@@ -445,7 +461,7 @@ export function popUndo(): UndoResponse {
 		return [
 			{
 				absolutePath: snapshot.filePath,
-				invalidatedNodePaths: [],
+				invalidatedNodePaths: snapshot.invalidatedNodePathsAfterMutation,
 				remappings: snapshot.nodePathRemappings.flatMap(
 					(remapping): SequenceNodePathRemapping[] => {
 						if (remapping.newNodePath === null) {
@@ -555,7 +571,7 @@ export function popRedo(): RedoResponse {
 		return [
 			{
 				absolutePath: snapshot.filePath,
-				invalidatedNodePaths: [],
+				invalidatedNodePaths: snapshot.invalidatedNodePaths,
 				remappings: snapshot.nodePathRemappings,
 				restoredNodePaths: [],
 			},

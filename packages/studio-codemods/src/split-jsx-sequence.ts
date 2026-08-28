@@ -8,6 +8,7 @@ import type {
 	JSXIdentifier,
 	JSXMemberExpression,
 	JSXNamespacedName,
+	JSXOpeningElement,
 	Node,
 	ReturnStatement,
 } from '@babel/types';
@@ -354,6 +355,7 @@ export const splitJsxSequences = async ({
 	nodeLabels: string[];
 	logLines: number[];
 	nodePathRemappings: SequenceNodePathRemapping[];
+	invalidatedNodePathsAfterMutation: SequenceNodePath[];
 }> => {
 	if (splits.length === 0) {
 		throw new Error('No JSX sequences were specified for splitting');
@@ -396,8 +398,13 @@ export const splitJsxSequences = async ({
 		return {jsxElement, jsxPath, timing, finiteEnd};
 	});
 
+	const splitNodesAfterMutation: JSXOpeningElement[] = [];
 	for (const {jsxElement, jsxPath, timing, finiteEnd} of pathsToSplit) {
 		const right = cloneJsxElement(jsxElement);
+		splitNodesAfterMutation.push(
+			jsxElement.openingElement,
+			right.openingElement,
+		);
 		const leftDuration = splitFrame - timing.from;
 		const rightDuration =
 			timing.durationInFrames === Infinity ? Infinity : finiteEnd - splitFrame;
@@ -445,15 +452,26 @@ export const splitJsxSequences = async ({
 		contents: finalFile,
 		prettierConfigOverride: prettierConfigOverride ?? null,
 	});
-	const {nodePathRemappings} = getNodePathRemappings({
+	const {finalNodePathByNode, nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
 		output,
 	});
+	const invalidatedNodePathsAfterMutation = splitNodesAfterMutation.map(
+		(node) => {
+			const nodePath = finalNodePathByNode.get(node);
+			if (!nodePath) {
+				throw new Error('Could not determine a split sequence node path');
+			}
+
+			return nodePath;
+		},
+	);
 
 	return {
 		output,
 		formatted,
+		invalidatedNodePathsAfterMutation,
 		nodeLabels: pathsToSplit.map(({jsxElement}) =>
 			getJsxElementTagLabel(jsxElement),
 		),
@@ -490,15 +508,22 @@ export const splitJsxSequence = async ({
 	nodeLabel: string;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
+	invalidatedNodePathsAfterMutation: SequenceNodePath[];
 }> => {
-	const {output, formatted, nodeLabels, logLines, nodePathRemappings} =
-		await splitJsxSequences({
-			input,
-			splits: [{nodePath, sequenceKeys}],
-			splitFrame,
-			formatFile,
-			prettierConfigOverride,
-		});
+	const {
+		output,
+		formatted,
+		nodeLabels,
+		logLines,
+		nodePathRemappings,
+		invalidatedNodePathsAfterMutation,
+	} = await splitJsxSequences({
+		input,
+		splits: [{nodePath, sequenceKeys}],
+		splitFrame,
+		formatFile,
+		prettierConfigOverride,
+	});
 
 	return {
 		output,
@@ -506,5 +531,6 @@ export const splitJsxSequence = async ({
 		nodeLabel: nodeLabels[0],
 		logLine: logLines[0],
 		nodePathRemappings,
+		invalidatedNodePathsAfterMutation,
 	};
 };

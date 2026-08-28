@@ -99,6 +99,7 @@ export const duplicateEffectHandler: ApiHandler<
 					},
 					entryType: 'duplicate-effect',
 					suppressHmrOnFileRestore: false,
+					invalidatedNodePaths: [],
 					nodePathRemappings: null,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);

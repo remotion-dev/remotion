@@ -264,6 +264,7 @@ export const addKeyframes = async ({
 	pushTransactionToUndoStack({
 		snapshots: snapshots.map((snapshot) => ({
 			...snapshot,
+			invalidatedNodePaths: [],
 			nodePathRemappings: null,
 		})),
 		logLevel,

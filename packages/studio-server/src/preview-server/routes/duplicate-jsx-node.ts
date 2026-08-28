@@ -63,6 +63,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 				},
 				entryType: 'duplicate-jsx-node',
 				suppressHmrOnFileRestore: false,
+				invalidatedNodePaths: [],
 				nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(absolutePath);

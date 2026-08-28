@@ -55,6 +55,7 @@ export const splitVideoFromAudioHandler: ApiHandler<
 
 			pushToUndoStack({
 				filePath: absolutePath,
+				invalidatedNodePaths: [],
 				oldContents: fileContents,
 				newContents: null,
 				logLevel,

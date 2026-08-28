@@ -107,6 +107,7 @@ export const deleteEffectHandler: ApiHandler<
 					},
 					entryType: 'delete-effect',
 					suppressHmrOnFileRestore: false,
+					invalidatedNodePaths: [],
 					nodePathRemappings: null,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);

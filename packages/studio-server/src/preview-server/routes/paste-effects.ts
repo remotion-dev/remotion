@@ -86,6 +86,7 @@ export const pasteEffectsHandler: ApiHandler<
 				},
 				entryType: 'paste-effects',
 				suppressHmrOnFileRestore: false,
+				invalidatedNodePaths: [],
 				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(absolutePath);
