@@ -471,9 +471,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	await expect(
 		studio.getByTitle('/project').getByText('OpfsComp'),
 	).toBeVisible();
-	await expect
-		.poll(() => new URL(page.url()).search)
-		.toBe('?/OpfsComp&github=1');
+	await expect.poll(() => new URL(page.url()).search).toBe('?/OpfsComp');
 	await studio.locator('[data-compname="OpfsComp"]').click();
 	await expect(
 		studio.locator('.remotion-studio-composition-container img'),
@@ -647,7 +645,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	await secondPage.close();
 
 	const previousDirectoryName = projectStorage.storage?.directoryName;
-	await page.reload();
+	await page.goto('/?github=1');
 	await expect(
 		studio.getByTitle('/project').getByText('OpfsComp'),
 	).toBeVisible();
