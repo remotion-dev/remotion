@@ -15,6 +15,7 @@ import {
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
+import {CanvasCaptureAnnouncement} from './CanvasCaptureAnnouncement/CanvasCaptureAnnouncement';
 import {CanvasCaptureComposition} from './CanvasCapturePreview';
 import {Checker} from './Checker';
 import {CloseUp1} from './CloseUp1';
@@ -173,6 +174,16 @@ export const RemotionRoot: React.FC = () => {
 				height={520}
 			/>
 			<Folder name="announcements">
+				<Folder name="canvas-capture-announcement">
+					<Composition
+						id="CanvasCaptureAnnouncement"
+						component={CanvasCaptureAnnouncement}
+						durationInFrames={5248}
+						fps={30}
+						width={1920}
+						height={1080}
+					/>
+				</Folder>
 				<Composition
 					id="Skills2CodeChange"
 					component={Skills2CodeChange}
