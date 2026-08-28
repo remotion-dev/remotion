@@ -313,11 +313,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			s.type !== 'video' &&
 			s.type !== 'image' &&
 			s.loopDisplay === undefined &&
-			(isInRange || isPremounting || isPostmounting) ? (
+			(frozenFrame !== null || isInRange || isPremounting || isPostmounting) ? (
 				<div
 					style={{
-						paddingLeft:
-							5 + (negativeStart?.width ?? 0) + (premount?.width ?? 0),
+						paddingLeft: 5 + negativeStartEnd + (premount?.width ?? 0),
 						height: '100%',
 						display: 'flex',
 						alignItems: 'center',
