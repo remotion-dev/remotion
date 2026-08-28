@@ -28,17 +28,26 @@ const Mesh: React.FC = () => {
 
 const ThreeTestComponent: React.FC = () => {
 	const {width, height} = useVideoConfig();
+	const frame = useCurrentFrame();
 	return (
-		<ThreeCanvas
-			width={width}
-			height={height}
-			style={{backgroundColor: 'white'}}
-			camera={{fov: 75, position: [0, 0, 470]}}
+		<div
+			style={{
+				width,
+				height,
+				transform: `scale(${frame === 0 ? 0 : 1})`,
+			}}
 		>
-			<ambientLight intensity={0.15} />
-			<pointLight args={[undefined, 0.4]} position={[200, 200, 0]} />
-			<Mesh />
-		</ThreeCanvas>
+			<ThreeCanvas
+				width={width}
+				height={height}
+				style={{backgroundColor: 'white'}}
+				camera={{fov: 75, position: [0, 0, 470]}}
+			>
+				<ambientLight intensity={0.15} />
+				<pointLight args={[undefined, 0.4]} position={[200, 200, 0]} />
+				<Mesh />
+			</ThreeCanvas>
+		</div>
 	);
 };
 
@@ -82,7 +91,7 @@ const framesAreIdentical = (a: Uint8Array, b: Uint8Array): boolean => {
 };
 
 test(
-	'ThreeCanvas should not produce duplicate frames at 60fps',
+	'ThreeCanvas should render under a scale(0) ancestor without duplicate frames',
 	{timeout: 60_000},
 	async (t) => {
 		if (t.task.file.projectName === 'webkit') {
@@ -111,6 +120,7 @@ test(
 		});
 
 		const duplicates: number[] = [];
+		expect(framePixelData).toHaveLength(30);
 		for (let i = 1; i < framePixelData.length; i++) {
 			if (framesAreIdentical(framePixelData[i - 1], framePixelData[i])) {
 				duplicates.push(i);
