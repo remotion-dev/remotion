@@ -12,6 +12,7 @@ import type {
 	JSXElement,
 	JSXOpeningElement,
 	JSXSpreadAttribute,
+	NullLiteral,
 	ObjectProperty,
 	VariableDeclaration,
 } from '@babel/types';
@@ -30,16 +31,13 @@ import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from './get-node-path-remappings';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {
 	ensureNamedImport,
 	getImportedName,
 	insertImportDeclaration,
 } from './sequence-props/imports';
-import {
-	parseAst,
-	parseAstForReadOnly,
-	serializeAst,
-} from './sequence-props/parse-ast';
+import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
 import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 import {parseValueExpression} from './update-nested-prop';
 
@@ -175,6 +173,17 @@ export const makeInMemoryInsertJsxElementCodemodEnvironment = ({
 type SourceLocation = {
 	line: number;
 	column: number;
+};
+
+type SourceEdit = {
+	end: number;
+	replacement: string;
+	start: number;
+};
+
+type ImportSnapshot = {
+	declaration: ImportDeclaration;
+	specifiers: NonNullable<ImportDeclaration['specifiers']>;
 };
 
 type NodeWithLocation = {
@@ -2037,6 +2046,830 @@ const addElementToComponentRoot = ({
 	return rootNode.loc?.start.line ?? 1;
 };
 
+const getNullRootFromFunctionLike = (
+	fn: FunctionLikeNode,
+): NullLiteral | null => {
+	if (fn.type === 'ArrowFunctionExpression' && fn.body.type === 'NullLiteral') {
+		return fn.body as NullLiteral;
+	}
+
+	if (fn.body.type !== 'BlockStatement') {
+		return null;
+	}
+
+	const returnStatement = getTopLevelReturnStatement(fn.body.body);
+	return returnStatement?.argument?.type === 'NullLiteral'
+		? (returnStatement.argument as NullLiteral)
+		: null;
+};
+
+const getNullComponentRoot = (
+	declaration: LocalComponentDeclaration | DefaultExportDeclaration,
+): NullLiteral | null => {
+	if (declaration.type === 'VariableDeclarator') {
+		if (
+			!declaration.init ||
+			(declaration.init.type !== 'ArrowFunctionExpression' &&
+				declaration.init.type !== 'FunctionExpression')
+		) {
+			return null;
+		}
+
+		return getNullRootFromFunctionLike(declaration.init);
+	}
+
+	if (
+		declaration.type === 'ArrowFunctionExpression' ||
+		declaration.type === 'FunctionExpression' ||
+		declaration.type === 'FunctionDeclaration'
+	) {
+		return getNullRootFromFunctionLike(declaration);
+	}
+
+	if (declaration.type !== 'ClassDeclaration') {
+		return null;
+	}
+
+	const renderMethod = findRenderMethod(declaration);
+	if (!renderMethod) {
+		return null;
+	}
+
+	const returnStatement = getTopLevelReturnStatement(renderMethod.body.body);
+	return returnStatement?.argument?.type === 'NullLiteral'
+		? (returnStatement.argument as NullLiteral)
+		: null;
+};
+
+const getLineIndent = (input: string, offset: number) => {
+	const lineStart = input.lastIndexOf('\n', offset - 1) + 1;
+	return input.slice(lineStart, offset).match(/^\s*/)?.[0] ?? '';
+};
+
+const getIndentationUnit = (
+	input: string,
+	prettierConfigOverride: Record<string, unknown> | null,
+) => {
+	if (/^\t+/m.test(input)) {
+		return '\t';
+	}
+
+	const indentation = input.match(/^([ ]+)\S/m)?.[1].length;
+	if (indentation) {
+		return ' '.repeat(indentation > 1 ? indentation : 2);
+	}
+
+	if (prettierConfigOverride?.useTabs === true) {
+		return '\t';
+	}
+
+	const tabWidth = prettierConfigOverride?.tabWidth;
+	return ' '.repeat(
+		typeof tabWidth === 'number' && Number.isInteger(tabWidth) && tabWidth > 0
+			? tabWidth
+			: 2,
+	);
+};
+
+const renderImportSpecifier = (
+	specifier: NonNullable<ImportDeclaration['specifiers']>[number],
+) => {
+	if (specifier.type === 'ImportDefaultSpecifier') {
+		return specifier.local.name;
+	}
+
+	if (specifier.type === 'ImportNamespaceSpecifier') {
+		return `* as ${specifier.local.name}`;
+	}
+
+	const importedName = getImportedName(specifier);
+	const localName = specifier.local?.name ?? importedName;
+	const rendered =
+		importedName === localName
+			? importedName
+			: `${importedName} as ${localName}`;
+	return specifier.importKind === 'type' ? `type ${rendered}` : rendered;
+};
+
+const renderImportDeclaration = ({
+	bracketSpacing,
+	declaration,
+	quote,
+	semicolon,
+}: {
+	bracketSpacing: boolean;
+	declaration: ImportDeclaration;
+	quote: '"' | "'";
+	semicolon: string;
+}) => {
+	const specifiers = declaration.specifiers ?? [];
+	const defaultSpecifier = specifiers.find(
+		(specifier) => specifier.type === 'ImportDefaultSpecifier',
+	);
+	const namespaceSpecifier = specifiers.find(
+		(specifier) => specifier.type === 'ImportNamespaceSpecifier',
+	);
+	const namedSpecifiers = specifiers.filter(
+		(specifier) => specifier.type === 'ImportSpecifier',
+	);
+	const parts = [
+		...(defaultSpecifier ? [renderImportSpecifier(defaultSpecifier)] : []),
+		...(namespaceSpecifier ? [renderImportSpecifier(namespaceSpecifier)] : []),
+		...(namedSpecifiers.length
+			? [
+					`{${bracketSpacing ? ' ' : ''}${namedSpecifiers
+						.map(renderImportSpecifier)
+						.join(', ')}${bracketSpacing ? ' ' : ''}}`,
+				]
+			: []),
+	];
+	const source =
+		quote === '"'
+			? JSON.stringify(declaration.source.value)
+			: `'${declaration.source.value.replaceAll("'", "\\'")}'`;
+	return `import ${parts.join(', ')} from ${source}${semicolon}`;
+};
+
+const getImportBracketSpacing = ({
+	declaration,
+	input,
+	prettierConfigOverride,
+}: {
+	declaration: ImportDeclaration | null;
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+}) => {
+	if (declaration?.loc) {
+		const source = input.slice(
+			recastLocToOffset(input, declaration.loc.start),
+			recastLocToOffset(input, declaration.loc.end),
+		);
+		const openingBrace = source.indexOf('{');
+		const closingBrace = source.lastIndexOf('}');
+		if (openingBrace !== -1 && closingBrace > openingBrace) {
+			return (
+				/\s/.test(source[openingBrace + 1]) &&
+				/\s/.test(source[closingBrace - 1])
+			);
+		}
+	}
+
+	return prettierConfigOverride?.bracketSpacing !== false;
+};
+
+const getInsertImportSourceEdits = ({
+	ast,
+	input,
+	prettierConfigOverride,
+	snapshots,
+}: {
+	ast: File;
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+	snapshots: ImportSnapshot[];
+}): SourceEdit[] => {
+	const edits: SourceEdit[] = [];
+	const snapshotByDeclaration = new Map(
+		snapshots.map((snapshot) => [snapshot.declaration, snapshot]),
+	);
+	const importWithNamedSpecifiers =
+		snapshots.find((snapshot) =>
+			snapshot.specifiers.some(
+				(specifier) => specifier.type === 'ImportSpecifier',
+			),
+		)?.declaration ?? null;
+	const fallbackBracketSpacing = getImportBracketSpacing({
+		declaration: importWithNamedSpecifiers,
+		input,
+		prettierConfigOverride,
+	});
+	const newDeclarations: ImportDeclaration[] = [];
+
+	for (const statement of ast.program.body) {
+		if (statement.type !== 'ImportDeclaration') {
+			continue;
+		}
+
+		const snapshot = snapshotByDeclaration.get(statement);
+		if (!snapshot) {
+			newDeclarations.push(statement);
+			continue;
+		}
+
+		const addedSpecifiers = (statement.specifiers ?? []).filter(
+			(specifier) => !snapshot.specifiers.includes(specifier),
+		);
+		if (addedSpecifiers.length === 0) {
+			continue;
+		}
+
+		if (
+			addedSpecifiers.every(
+				(specifier) => specifier.type === 'ImportDefaultSpecifier',
+			) &&
+			statement.loc
+		) {
+			const importStart = recastLocToOffset(input, statement.loc.start);
+			const importPrefix = input.slice(importStart).match(/^import\s+/)?.[0];
+			if (!importPrefix) {
+				throw new Error('Could not locate the import prefix to update');
+			}
+
+			const offset = importStart + importPrefix.length;
+			edits.push({
+				end: offset,
+				replacement: `${addedSpecifiers.map(renderImportSpecifier).join(', ')}, `,
+				start: offset,
+			});
+			continue;
+		}
+
+		if (
+			addedSpecifiers.some((specifier) => specifier.type !== 'ImportSpecifier')
+		) {
+			if (!statement.loc) {
+				throw new Error('Could not locate the import to update');
+			}
+
+			const fullImportStart = recastLocToOffset(input, statement.loc.start);
+			const fullImportEnd = recastLocToOffset(input, statement.loc.end);
+			const fullImport = input.slice(fullImportStart, fullImportEnd);
+			edits.push({
+				end: fullImportEnd,
+				replacement: renderImportDeclaration({
+					bracketSpacing: getImportBracketSpacing({
+						declaration: statement,
+						input,
+						prettierConfigOverride,
+					}),
+					declaration: statement,
+					quote: fullImport.includes('"') ? '"' : "'",
+					semicolon: fullImport.trimEnd().endsWith(';') ? ';' : '',
+				}),
+				start: fullImportStart,
+			});
+			continue;
+		}
+
+		const rendered = addedSpecifiers.map(renderImportSpecifier).join(', ');
+		const lastNamedSpecifier = snapshot.specifiers.findLast(
+			(specifier) => specifier.type === 'ImportSpecifier',
+		);
+		if (lastNamedSpecifier?.loc) {
+			const offset = recastLocToOffset(input, lastNamedSpecifier.loc.end);
+			edits.push({
+				end: offset,
+				replacement: `, ${rendered}`,
+				start: offset,
+			});
+			continue;
+		}
+
+		const defaultSpecifier = snapshot.specifiers.find(
+			(specifier) => specifier.type === 'ImportDefaultSpecifier',
+		);
+		if (defaultSpecifier?.loc) {
+			const offset = recastLocToOffset(input, defaultSpecifier.loc.end);
+			edits.push({
+				end: offset,
+				replacement: `, {${fallbackBracketSpacing ? ' ' : ''}${rendered}${fallbackBracketSpacing ? ' ' : ''}}`,
+				start: offset,
+			});
+			continue;
+		}
+
+		if (!statement.loc) {
+			throw new Error('Could not locate the import to update');
+		}
+
+		const start = recastLocToOffset(input, statement.loc.start);
+		const end = recastLocToOffset(input, statement.loc.end);
+		const original = input.slice(start, end);
+		edits.push({
+			end,
+			replacement: renderImportDeclaration({
+				bracketSpacing: fallbackBracketSpacing,
+				declaration: statement,
+				quote: original.includes('"') ? '"' : "'",
+				semicolon: original.trimEnd().endsWith(';') ? ';' : '',
+			}),
+			start,
+		});
+	}
+
+	if (newDeclarations.length > 0) {
+		const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+		const firstImport = snapshots[0]?.declaration;
+		const firstImportSource = firstImport?.source.loc
+			? input.slice(
+					recastLocToOffset(input, firstImport.source.loc.start),
+					recastLocToOffset(input, firstImport.source.loc.end),
+				)
+			: null;
+		const quote = firstImportSource?.startsWith('"')
+			? ('"' as const)
+			: firstImportSource?.startsWith("'") ||
+				  prettierConfigOverride?.singleQuote === true
+				? ("'" as const)
+				: ('"' as const);
+		const semicolon = firstImport?.loc
+			? input
+					.slice(
+						recastLocToOffset(input, firstImport.loc.start),
+						recastLocToOffset(input, firstImport.loc.end),
+					)
+					.trimEnd()
+					.endsWith(';')
+				? ';'
+				: ''
+			: ';';
+		const rendered = newDeclarations
+			.map((declaration) =>
+				renderImportDeclaration({
+					bracketSpacing: fallbackBracketSpacing,
+					declaration,
+					quote,
+					semicolon,
+				}),
+			)
+			.join(endOfLine);
+		if (firstImport?.loc) {
+			const offset = recastLocToOffset(input, firstImport.loc.start);
+			edits.push({
+				end: offset,
+				replacement: `${rendered}${endOfLine}`,
+				start: offset,
+			});
+		} else {
+			edits.push({end: 0, replacement: `${rendered}${endOfLine}`, start: 0});
+		}
+	}
+
+	return edits;
+};
+
+const indentExistingJsx = ({
+	indent,
+	original,
+	originalIndent,
+}: {
+	indent: string;
+	original: string;
+	originalIndent: string;
+}) => {
+	return original
+		.split(/\r?\n/)
+		.map((line, index) => {
+			if (index === 0) {
+				return `${indent}${line}`;
+			}
+
+			return `${indent}${line.startsWith(originalIndent) ? line.slice(originalIndent.length) : line.trimStart()}`;
+		})
+		.join(original.includes('\r\n') ? '\r\n' : '\n');
+};
+
+const getJsxIdentifierName = (element: namedTypes.JSXElement) => {
+	const {name} = element.openingElement;
+	if (name.type !== 'JSXIdentifier') {
+		throw new Error('Expected the inserted Solid to have an identifier name');
+	}
+
+	return name.name;
+};
+
+const getPositionStyleSource = (
+	position: InsertableCompositionElementPosition | null,
+	prettierConfigOverride: Record<string, unknown> | null,
+) => {
+	const quote = prettierConfigOverride?.singleQuote === true ? "'" : '"';
+	const spacing = prettierConfigOverride?.bracketSpacing === false ? '' : ' ';
+	const translate = position
+		? `, translate: ${quote}${formatTranslateValue(position)}${quote}`
+		: '';
+	return `style={{${spacing}position: ${quote}absolute${quote}${translate}${spacing}}}`;
+};
+
+const getSolidInsertionSource = ({
+	element,
+	finalElement,
+	height,
+	input,
+	position,
+	prettierConfigOverride,
+	sequenceWrapper,
+	width,
+}: {
+	element: namedTypes.JSXElement;
+	finalElement: namedTypes.JSXElement;
+	height: number;
+	input: string;
+	position: InsertableCompositionElementPosition | null;
+	prettierConfigOverride: Record<string, unknown> | null;
+	sequenceWrapper: {
+		dimensions: {width: number; height: number} | null;
+		durationInFrames: number | null;
+		from: number | null;
+		name: string | null;
+		position: InsertableCompositionElementPosition | null;
+	} | null;
+	width: number;
+}) => {
+	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+	const unit = getIndentationUnit(input, prettierConfigOverride);
+	const solid = [
+		`<${getJsxIdentifierName(element)}`,
+		`${unit}width={${width}}`,
+		`${unit}height={${height}}`,
+		`${unit}color="gray"`,
+		`${unit}${getPositionStyleSource(position, prettierConfigOverride)}`,
+		'/>',
+	].join(endOfLine);
+	if (finalElement === element) {
+		return solid;
+	}
+
+	if (sequenceWrapper === null) {
+		throw new Error('Expected insertion Sequence metadata');
+	}
+
+	const attributes = [
+		...(sequenceWrapper.from === null
+			? []
+			: [`from={${sequenceWrapper.from}}`]),
+		...(sequenceWrapper.name === null
+			? []
+			: [`name=${JSON.stringify(sequenceWrapper.name)}`]),
+		...(sequenceWrapper.dimensions === null
+			? []
+			: [
+					`width={${sequenceWrapper.dimensions.width}}`,
+					`height={${sequenceWrapper.dimensions.height}}`,
+				]),
+		...(sequenceWrapper.durationInFrames === null
+			? []
+			: [`durationInFrames={${sequenceWrapper.durationInFrames}}`]),
+		getPositionStyleSource(sequenceWrapper.position, prettierConfigOverride),
+	];
+	const sequenceName = getJsxIdentifierName(finalElement);
+	return [
+		`<${sequenceName} ${attributes.join(' ')}>`,
+		...solid.split(/\r?\n/).map((line) => `${unit}${line}`),
+		`</${sequenceName}>`,
+	].join(endOfLine);
+};
+
+const indentInsertedJsx = ({
+	indent,
+	insertion,
+}: {
+	indent: string;
+	insertion: string;
+}) => {
+	return insertion
+		.split(/\r?\n/)
+		.map((line) => `${indent}${line}`)
+		.join(insertion.includes('\r\n') ? '\r\n' : '\n');
+};
+
+const printInsertedJsx = ({
+	element,
+	input,
+	prettierConfigOverride,
+}: {
+	element: namedTypes.JSXElement | namedTypes.JSXFragment;
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+}): string => {
+	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+	const unit = getIndentationUnit(input, prettierConfigOverride);
+	const printWidth = prettierConfigOverride?.printWidth;
+	const configuredTabWidth = prettierConfigOverride?.tabWidth;
+	const tabWidth =
+		typeof configuredTabWidth === 'number' &&
+		Number.isInteger(configuredTabWidth) &&
+		configuredTabWidth > 0
+			? configuredTabWidth
+			: 2;
+	recast.types.visit(element, {
+		visitObjectProperty(path) {
+			const {node} = path;
+			if (
+				!node.computed &&
+				node.key.type === 'StringLiteral' &&
+				identifierRegex.test(node.key.value)
+			) {
+				node.key = recast.types.builders.identifier(node.key.value);
+			}
+
+			this.traverse(path);
+			return undefined;
+		},
+	});
+	const printNode = (node: namedTypes.Node) => {
+		return recast.prettyPrint(node, {
+			objectCurlySpacing: prettierConfigOverride?.bracketSpacing !== false,
+			quote: prettierConfigOverride?.singleQuote === true ? 'single' : 'double',
+			tabWidth,
+			useTabs: false,
+			wrapColumn: typeof printWidth === 'number' ? printWidth : 80,
+		}).code;
+	};
+
+	const normalizeIndentation = (code: string) => {
+		return code
+			.split(/\r?\n/)
+			.map((line) => {
+				const spaces = line.match(/^ */)?.[0].length ?? 0;
+				const indentationLevels = Math.floor(spaces / tabWidth);
+				const remainingSpaces = spaces % tabWidth;
+				return `${unit.repeat(indentationLevels)}${' '.repeat(remainingSpaces)}${line.slice(spaces)}`;
+			})
+			.join(endOfLine);
+	};
+
+	const printOpeningElement = (opening: namedTypes.JSXOpeningElement) => {
+		const name = printNode(opening.name);
+		const attributes = (opening.attributes ?? []).map((attribute) => {
+			if (
+				attribute.type === 'JSXAttribute' &&
+				attribute.name.type === 'JSXIdentifier' &&
+				attribute.value?.type === 'StringLiteral'
+			) {
+				return `${attribute.name.name}=${JSON.stringify(attribute.value.value)}`;
+			}
+
+			return normalizeIndentation(printNode(attribute));
+		});
+		const suffix = opening.selfClosing ? ' />' : '>';
+		const singleLine = `<${name}${attributes.length === 0 ? '' : ` ${attributes.join(' ')}`}${suffix}`;
+		if (
+			!attributes.some((attribute) => attribute.includes(endOfLine)) &&
+			singleLine.length <= (typeof printWidth === 'number' ? printWidth : 80)
+		) {
+			return singleLine;
+		}
+
+		return [
+			`<${name}`,
+			...attributes.map((attribute) =>
+				indentInsertedJsx({indent: unit, insertion: attribute}),
+			),
+			opening.selfClosing ? '/>' : '>',
+		].join(endOfLine);
+	};
+
+	const printElement = (
+		node: namedTypes.JSXElement | namedTypes.JSXFragment,
+	): string => {
+		if (node.type === 'JSXFragment') {
+			const fragmentChildren = (node.children ?? []).flatMap((child) => {
+				if (child.type === 'JSXElement' || child.type === 'JSXFragment') {
+					return [printElement(child)];
+				}
+
+				if (child.type === 'JSXText' && child.value.trim() === '') {
+					return [];
+				}
+
+				return [normalizeIndentation(printNode(child))];
+			});
+			return [
+				'<>',
+				...fragmentChildren.map((child) =>
+					indentInsertedJsx({indent: unit, insertion: child}),
+				),
+				'</>',
+			].join(endOfLine);
+		}
+
+		const opening = printOpeningElement(node.openingElement);
+		if (node.openingElement.selfClosing) {
+			return opening;
+		}
+
+		const closing = node.closingElement
+			? normalizeIndentation(printNode(node.closingElement))
+			: '';
+		const children = node.children ?? [];
+		if (
+			children.length === 1 &&
+			children[0].type === 'JSXText' &&
+			!children[0].value.includes('\n')
+		) {
+			return `${opening}${children[0].value}${closing}`;
+		}
+
+		const printedChildren = children.flatMap((child) => {
+			if (child.type === 'JSXElement' || child.type === 'JSXFragment') {
+				return [printElement(child)];
+			}
+
+			if (child.type === 'JSXText' && child.value.trim() === '') {
+				return [];
+			}
+
+			return [normalizeIndentation(printNode(child))];
+		});
+		if (printedChildren.length === 0) {
+			return `${opening}${closing}`;
+		}
+
+		return [
+			opening,
+			...printedChildren.map((child) =>
+				indentInsertedJsx({indent: unit, insertion: child}),
+			),
+			closing,
+		].join(endOfLine);
+	};
+
+	return printElement(element);
+};
+
+const getInsertionSource = ({
+	element,
+	elementToInsert,
+	finalElementToInsert,
+	input,
+	prettierConfigOverride,
+	sequenceWrapper,
+}: {
+	element: InsertableCompositionElement;
+	elementToInsert: namedTypes.JSXElement;
+	finalElementToInsert: namedTypes.JSXElement;
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+	sequenceWrapper: {
+		dimensions: {width: number; height: number} | null;
+		durationInFrames: number | null;
+		from: number | null;
+		name: string | null;
+		position: InsertableCompositionElementPosition | null;
+	} | null;
+}) => {
+	if (element.type === 'solid') {
+		return getSolidInsertionSource({
+			element: elementToInsert,
+			finalElement: finalElementToInsert,
+			height: element.height,
+			input,
+			position: element.position,
+			prettierConfigOverride,
+			sequenceWrapper,
+			width: element.width,
+		});
+	}
+
+	return printInsertedJsx({
+		element: finalElementToInsert,
+		input,
+		prettierConfigOverride,
+	});
+};
+
+const getInsertionRootSourceEdit = ({
+	input,
+	insertion,
+	nullRoot,
+	prettierConfigOverride,
+	root,
+	sequenceLocalName,
+}: {
+	input: string;
+	insertion: string;
+	nullRoot: NullLiteral | null;
+	prettierConfigOverride: Record<string, unknown> | null;
+	root: namedTypes.JSXElement | namedTypes.JSXFragment | null;
+	sequenceLocalName: string | null;
+}): SourceEdit => {
+	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+	const unit = getIndentationUnit(input, prettierConfigOverride);
+
+	if (nullRoot) {
+		if (!nullRoot.loc) {
+			throw new Error('Could not locate the null component root');
+		}
+
+		const nullStart = recastLocToOffset(input, nullRoot.loc.start);
+		const nullEnd = recastLocToOffset(input, nullRoot.loc.end);
+		const nullIndent = getLineIndent(input, nullStart);
+		return {
+			end: nullEnd,
+			replacement: [
+				'(',
+				`${nullIndent}${unit}<>`,
+				indentInsertedJsx({
+					indent: `${nullIndent}${unit}${unit}`,
+					insertion,
+				}),
+				`${nullIndent}${unit}</>`,
+				`${nullIndent})`,
+			].join(endOfLine),
+			start: nullStart,
+		};
+	}
+
+	if (!root?.loc) {
+		throw new Error('Could not locate the composition component root');
+	}
+
+	if (root.type === 'JSXFragment') {
+		if (!root.closingFragment.loc) {
+			throw new Error('Could not locate the composition fragment closing tag');
+		}
+
+		const closingStart = recastLocToOffset(
+			input,
+			root.closingFragment.loc.start,
+		);
+		const lineStart = input.lastIndexOf('\n', closingStart - 1) + 1;
+		const beforeClosing = input.slice(lineStart, closingStart);
+		const closingIndent = /^\s*$/.test(beforeClosing)
+			? beforeClosing
+			: getLineIndent(input, recastLocToOffset(input, root.loc.start));
+		if (/^\s*$/.test(beforeClosing) && lineStart > 0) {
+			return {
+				end: closingStart,
+				replacement: `${indentInsertedJsx({
+					indent: `${closingIndent}${unit}`,
+					insertion,
+				})}${endOfLine}${closingIndent}`,
+				start: lineStart,
+			};
+		}
+
+		return {
+			end: closingStart,
+			replacement: `${endOfLine}${indentInsertedJsx({
+				indent: `${closingIndent}${unit}`,
+				insertion,
+			})}${endOfLine}${closingIndent}`,
+			start: closingStart,
+		};
+	}
+
+	const start = recastLocToOffset(input, root.loc.start);
+	const end = recastLocToOffset(input, root.loc.end);
+	const indent = getLineIndent(input, start);
+	const original = input.slice(start, end);
+	const existingRoot = root.openingElement.selfClosing
+		? [
+				`${indent}${unit}<${sequenceLocalName}>`,
+				indentExistingJsx({
+					indent: `${indent}${unit}${unit}`,
+					original,
+					originalIndent: indent,
+				}),
+				`${indent}${unit}</${sequenceLocalName}>`,
+			]
+		: [
+				indentExistingJsx({
+					indent: `${indent}${unit}`,
+					original,
+					originalIndent: indent,
+				}),
+			];
+
+	if (root.openingElement.selfClosing && sequenceLocalName === null) {
+		throw new Error('Expected a Sequence import for a self-closing root');
+	}
+
+	return {
+		end,
+		replacement: [
+			'<>',
+			...existingRoot,
+			indentInsertedJsx({indent: `${indent}${unit}`, insertion}),
+			`${indent}</>`,
+		].join(endOfLine),
+		start,
+	};
+};
+
+const applySourceEdits = ({
+	edits,
+	input,
+}: {
+	edits: SourceEdit[];
+	input: string;
+}) => {
+	const sorted = edits.slice().sort((left, right) => right.start - left.start);
+	let output = input;
+	let previousStart = input.length + 1;
+	for (const edit of sorted) {
+		if (edit.end > previousStart) {
+			throw new Error('Overlapping JSX insertion source ranges');
+		}
+
+		output =
+			output.slice(0, edit.start) + edit.replacement + output.slice(edit.end);
+		previousStart = edit.start;
+	}
+
+	return output;
+};
+
 const canAddSequenceToComponent = ({
 	ast,
 	exportName,
@@ -2541,6 +3374,27 @@ export const insertJsxElementIntoComposition = async ({
 	});
 	const ast = parseAst(input);
 	const capturedNodePaths = captureJsxNodePaths(ast);
+	const componentDeclaration = getDeclarationByExportName({
+		ast,
+		exportName: location.exportName,
+	});
+	const rootBeforeInsertion = componentDeclaration
+		? getComponentRootNode(componentDeclaration)
+		: null;
+	const nullRootBeforeInsertion = componentDeclaration
+		? getNullComponentRoot(componentDeclaration)
+		: null;
+	const importSnapshots: ImportSnapshot[] = ast.program.body.flatMap(
+		(statement) =>
+			statement.type === 'ImportDeclaration'
+				? [
+						{
+							declaration: statement,
+							specifiers: [...(statement.specifiers ?? [])],
+						},
+					]
+				: [],
+	);
 	if (
 		element.type === 'composition' &&
 		element.compositionId === compositionId
@@ -2593,12 +3447,48 @@ export const insertJsxElementIntoComposition = async ({
 		exportName: location.exportName,
 		element: finalElementToInsert,
 	});
-	const finalFile = serializeAst(ast);
-
-	const {output, formatted} = await environment.formatFile({
-		contents: finalFile,
-		prettierConfigOverride,
+	const finalRoot = componentDeclaration
+		? getComponentRootNode(componentDeclaration)
+		: null;
+	const firstFinalRootChild =
+		finalRoot?.type === 'JSXFragment'
+			? (finalRoot.children?.[0] ?? null)
+			: null;
+	const sequenceLocalName =
+		rootBeforeInsertion?.type === 'JSXElement' &&
+		rootBeforeInsertion.openingElement.selfClosing &&
+		firstFinalRootChild?.type === 'JSXElement' &&
+		firstFinalRootChild.openingElement.name.type === 'JSXIdentifier'
+			? firstFinalRootChild.openingElement.name.name
+			: null;
+	const output = applySourceEdits({
+		edits: [
+			...getInsertImportSourceEdits({
+				ast,
+				input,
+				prettierConfigOverride,
+				snapshots: importSnapshots,
+			}),
+			getInsertionRootSourceEdit({
+				input,
+				insertion: getInsertionSource({
+					element,
+					elementToInsert,
+					finalElementToInsert,
+					input,
+					prettierConfigOverride,
+					sequenceWrapper,
+				}),
+				nullRoot: nullRootBeforeInsertion,
+				prettierConfigOverride,
+				root: rootBeforeInsertion,
+				sequenceLocalName,
+			}),
+		],
+		input,
 	});
+	const formatted = true;
+
 	const {finalNodePathByNode, nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,

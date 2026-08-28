@@ -465,11 +465,11 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import { staticFile, Sequence } from 'remotion';",
+			"import {staticFile, Sequence} from 'remotion';",
 		);
 		expect(result.output).toContain('<Sequence>');
 		expect(result.output).toContain(
-			"<Video src={staticFile('background.mov')} />",
+			'<Video src={staticFile("background.mov")} />',
 		);
 		expect(result.output).toContain('</Sequence>');
 		expect(result.output).toContain("<Audio src={staticFile('music.mp3')} />");
@@ -795,7 +795,7 @@ test('inserts a Solid into the resolved composition component', async () => {
 
 		expect(result.source).toBe('MyComp.tsx');
 		expect(result.output).toContain(
-			"import { AbsoluteFill, Solid } from 'remotion';",
+			"import {AbsoluteFill, Solid} from 'remotion';",
 		);
 		expect(result.output).toContain('<Solid');
 		expect(result.output).toContain('width={1280}');
@@ -950,7 +950,7 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, Solid as RemotionSolid } from 'remotion';",
+			"import {AbsoluteFill, Solid as RemotionSolid} from 'remotion';",
 		);
 		expect(result.output).toContain('<RemotionSolid');
 		expect(result.output).toContain('width={1920}');
@@ -1072,7 +1072,7 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, Interactive } from 'remotion';",
+			"import {AbsoluteFill, Interactive} from 'remotion';",
 		);
 		expect(result.output).toContain('<Interactive.Svg');
 		expect(result.output).toContain('from={42}');
@@ -1138,7 +1138,7 @@ test('inserts a CanvasImage asset at a timeline frame', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
+			"import {AbsoluteFill, staticFile, CanvasImage} from 'remotion';",
 		);
 		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('from={42}');
@@ -1204,7 +1204,7 @@ test('inserts a CanvasImage asset with a translate style', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
+			"import {AbsoluteFill, staticFile, CanvasImage} from 'remotion';",
 		);
 		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
@@ -1261,7 +1261,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, AnimatedImage } from 'remotion';",
+			"import {AbsoluteFill, staticFile, AnimatedImage} from 'remotion';",
 		);
 		expect(result.output).toContain('<AnimatedImage');
 		expect(result.output).toContain("src={staticFile('animated-png.png')}");
@@ -1323,9 +1323,9 @@ test('inserts a Video asset with its duration and CSS dimensions', async () => {
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
-		expect(result.output).toContain("import { Video } from '@remotion/media';");
+		expect(result.output).toContain("import {Video} from '@remotion/media';");
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile } from 'remotion';",
+			"import {AbsoluteFill, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).toContain('from={42}');
@@ -1437,9 +1437,9 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
-		expect(result.output).toContain("import { Gif } from '@remotion/gif';");
+		expect(result.output).toContain("import {Gif} from '@remotion/gif';");
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile } from 'remotion';",
+			"import {AbsoluteFill, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('<Gif');
 		expect(result.output).toContain("src={staticFile('animation.gif')}");
@@ -1498,9 +1498,9 @@ test('inserts an Audio asset into the resolved composition component', async () 
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
-		expect(result.output).toContain("import { Audio } from '@remotion/media';");
+		expect(result.output).toContain("import {Audio} from '@remotion/media';");
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile } from 'remotion';",
+			"import {AbsoluteFill, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain("src={staticFile('audio.mp3')}");
@@ -1556,8 +1556,8 @@ test('inserts a remote audio asset with a literal URL', async () => {
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
-		expect(result.output).toContain("import { Audio } from '@remotion/media';");
-		expect(result.output).toContain("import { AbsoluteFill } from 'remotion';");
+		expect(result.output).toContain("import {Audio} from '@remotion/media';");
+		expect(result.output).toContain("import {AbsoluteFill} from 'remotion';");
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain('src="https://example.com/whip.wav"');
 		expect(result.output).not.toContain('staticFile');
@@ -1665,9 +1665,7 @@ test('inserts a component into the resolved composition component', async () => 
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
-		expect(result.output).toContain(
-			"import { Circle } from '@remotion/shapes';",
-		);
+		expect(result.output).toContain("import {Circle} from '@remotion/shapes';");
 		expect(result.output).toContain('<Circle');
 		expect(result.output).toContain('fill="#0b84ff"');
 		expect(result.output).toContain('dataShapeIndex={1}');
@@ -1761,7 +1759,7 @@ test('rejects type-only component imports instead of using them as values', asyn
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 		expect(result.output).toContain(
-			"import { LowerThird } from './lower-third.element';",
+			"import {LowerThird} from './lower-third.element';",
 		);
 		expect(result.output).toContain('<LowerThird');
 	} finally {
@@ -1818,10 +1816,10 @@ test('wraps a component in a dimensionless Sequence', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, Sequence } from 'remotion';",
+			"import {AbsoluteFill, Sequence} from 'remotion';",
 		);
 		expect(result.output).toContain(
-			"import { LowerThird } from './lower-third.element';",
+			"import {LowerThird} from './lower-third.element';",
 		);
 		expect(result.output).toContain('<Sequence');
 		expect(result.output).toContain('from={42}');
@@ -1900,7 +1898,7 @@ test('inserts a composition as a duration-aware Sequence', async () => {
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
-		expect(result.output).toContain("import { Source } from './Source';");
+		expect(result.output).toContain("import {Source} from './Source';");
 		expect(result.output).toContain('Sequence');
 		expect(result.output).toContain('<Sequence');
 		expect(result.output).toContain('width={1080}');

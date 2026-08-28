@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
-import {insertSolidIntoSource} from '..';
+import {
+	insertJsxElementIntoProjectWithNodePathRemappings,
+	insertSolidIntoSource,
+} from '..';
 
 test('inserts a Solid into a component source file', () => {
 	const result = insertSolidIntoSource({
@@ -57,4 +60,149 @@ test('inserts a Solid as a sibling of a component root', () => {
 	expect(result.output).toContain('<>');
 	expect(rootEnd).toBeGreaterThan(-1);
 	expect(solidStart).toBeGreaterThan(rootEnd);
+});
+
+test('the Add Solid insertion preserves source formatting without calling Prettier', async () => {
+	const source = `import {Composition, AbsoluteFill} from 'remotion';
+
+// Keep the deliberately non-Prettier formatting in this file.
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <div>Existing</div>
+    </AbsoluteFill>
+  )
+}
+
+export const Root = () => <Composition id = "MyComp" component={MyComposition}/>;
+`;
+	let formatCalls = 0;
+	const result = await insertJsxElementIntoProjectWithNodePathRemappings({
+		formatFile: () => {
+			formatCalls++;
+			throw new Error('Prettier should not be called when inserting a Solid');
+		},
+		project: {
+			files: {'/project/src/index.tsx': source},
+			rootDir: '/project',
+		},
+		request: {
+			compositionFile: '/project/src/index.tsx',
+			compositionId: 'MyComp',
+			element: {
+				height: 720,
+				position: null,
+				type: 'solid',
+				width: 1280,
+			},
+			from: null,
+		},
+		svgMarkupToJsx: () => {
+			throw new Error(
+				'SVG conversion should not be called when inserting a Solid',
+			);
+		},
+		wrapInSequence: null,
+	});
+
+	expect(formatCalls).toBe(0);
+	expect(result.project.files['/project/src/index.tsx'])
+		.toBe(`import {Composition, AbsoluteFill, Solid} from 'remotion';
+
+// Keep the deliberately non-Prettier formatting in this file.
+export const MyComposition = () => {
+  return (
+    <>
+      <AbsoluteFill>
+        <div>Existing</div>
+      </AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        color="gray"
+        style={{ position: "absolute" }}
+      />
+    </>
+  )
+}
+
+export const Root = () => <Composition id = "MyComp" component={MyComposition}/>;
+`);
+	expect(result.insertedNodePath).not.toBeNull();
+});
+
+test('asset and component insertions also avoid the full-file formatter', async () => {
+	const source = `import {Composition, AbsoluteFill} from 'remotion';
+
+export const MyComposition = () => <><AbsoluteFill /></>;
+export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
+`;
+	let formatCalls = 0;
+	const assetResult = await insertJsxElementIntoProjectWithNodePathRemappings({
+		formatFile: () => {
+			formatCalls++;
+			throw new Error('The full-file formatter should not be called');
+		},
+		project: {
+			files: {'/project/src/index.tsx': source},
+			rootDir: '/project',
+		},
+		request: {
+			compositionFile: '/project/src/index.tsx',
+			compositionId: 'MyComp',
+			element: {
+				assetType: 'image',
+				dimensions: {height: 720, width: 1280},
+				durationInFrames: null,
+				position: null,
+				src: 'image.png',
+				srcType: 'static',
+				type: 'asset',
+			},
+			from: null,
+		},
+		svgMarkupToJsx: () => {
+			throw new Error('SVG conversion should not be called');
+		},
+		wrapInSequence: null,
+	});
+	const componentResult =
+		await insertJsxElementIntoProjectWithNodePathRemappings({
+			formatFile: () => {
+				formatCalls++;
+				throw new Error('The full-file formatter should not be called');
+			},
+			project: {
+				files: {'/project/src/index.tsx': source},
+				rootDir: '/project',
+			},
+			request: {
+				compositionFile: '/project/src/index.tsx',
+				compositionId: 'MyComp',
+				element: {
+					componentName: 'Chart',
+					importName: 'Chart',
+					importPath: './Chart',
+					position: null,
+					props: [{name: 'title', value: 'Revenue'}],
+					type: 'component',
+				},
+				from: null,
+			},
+			svgMarkupToJsx: () => {
+				throw new Error('SVG conversion should not be called');
+			},
+			wrapInSequence: null,
+		});
+
+	expect(formatCalls).toBe(0);
+	expect(assetResult.project.files['/project/src/index.tsx']).toContain(
+		'<CanvasImage\n',
+	);
+	expect(componentResult.project.files['/project/src/index.tsx']).toContain(
+		'<Chart\n',
+	);
+	expect(componentResult.project.files['/project/src/index.tsx']).toContain(
+		'title="Revenue"',
+	);
 });
