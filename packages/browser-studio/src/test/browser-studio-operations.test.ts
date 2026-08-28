@@ -216,9 +216,12 @@ registerRoot(Root);
 	);
 	expect(output).toContain('<RemotionSequence>');
 	expect(output).toContain('<RemotionSolid width={1280}');
-	expect(nodePathRemappings).toHaveLength(1);
-	expect(nodePathRemappings[0].newNodePath).not.toEqual(
-		nodePathRemappings[0].oldNodePath,
+	expect(nodePathRemappings).toHaveLength(3);
+	expect(nodePathRemappings).toEqual(
+		expect.arrayContaining([
+			expect.objectContaining({oldNodePath: expect.any(Array)}),
+			expect.objectContaining({oldNodePath: null}),
+		]),
 	);
 });
 
@@ -288,13 +291,16 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	expect(result.nodePathMutation.files).toEqual([
 		{
 			absolutePath: fileName,
-			remappings: [
+			remappings: expect.arrayContaining([
 				{
 					oldNodePath: subscription.nodePath.nodePath,
 					newNodePath: expect.any(Array),
 				},
-			],
-			restoredNodePaths: [],
+				{
+					oldNodePath: null,
+					newNodePath: expect.any(Array),
+				},
+			]),
 		},
 	]);
 	expect(
@@ -796,7 +802,6 @@ registerRoot(Root);`,
 		{
 			absolutePath: fileName,
 			remappings: expect.any(Array),
-			restoredNodePaths: [],
 		},
 	]);
 
@@ -870,8 +875,12 @@ registerRoot(Root);`,
 	}
 
 	const failure = await operations.duplicateJsxNode({
-		fileName: 'src/Composition.tsx',
-		nodePath: [...subscription.nodePath.nodePath, 'missing'],
+		nodes: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: [...subscription.nodePath.nodePath, 'missing'],
+			},
+		],
 	});
 	expect(failure).toMatchObject({
 		success: false,
@@ -882,8 +891,12 @@ registerRoot(Root);`,
 	expect(getProject().files[fileName]).toBe(initialContents);
 
 	const result = await operations.duplicateJsxNode({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
+		nodes: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+			},
+		],
 	});
 	if (!result.success) {
 		throw new Error(result.reason);
@@ -896,7 +909,6 @@ registerRoot(Root);`,
 		{
 			absolutePath: fileName,
 			remappings: expect.any(Array),
-			restoredNodePaths: [],
 		},
 	]);
 	expect(
@@ -1461,7 +1473,6 @@ registerRoot(Root);`,
 		{
 			absolutePath: fileName,
 			remappings: expect.any(Array),
-			restoredNodePaths: [],
 		},
 	]);
 	expect(

@@ -24,6 +24,7 @@ import type {
 	TSAsExpression,
 	VariableDeclarator,
 } from '@babel/types';
+import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {
@@ -541,10 +542,7 @@ export const deleteJsxNodes = ({
 	formatted: boolean;
 	nodeLabels: string[];
 	logLines: number[];
-	nodePathRemappings: Array<{
-		oldNodePath: SequenceNodePath;
-		newNodePath: SequenceNodePath | null;
-	}>;
+	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
 	if (nodePaths.length === 0) {
 		throw new Error('No JSX nodes were specified for deletion');

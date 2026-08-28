@@ -39,6 +39,49 @@ const normalizeMenuDividers = (items: ComboboxValue[]): ComboboxValue[] => {
 
 const interactiveSvgComponentIdentity = 'dev.remotion.remotion.Interactive.Svg';
 
+export const getMultiSequenceContextMenuItems = ({
+	deleteDisabled,
+	duplicateDisabled,
+	onDeleteSelectedSequences,
+	onDuplicateSelectedSequences,
+}: {
+	readonly deleteDisabled: boolean;
+	readonly duplicateDisabled: boolean;
+	readonly onDeleteSelectedSequences: () => void;
+	readonly onDuplicateSelectedSequences: () => void;
+}): ComboboxValue[] => {
+	return [
+		{
+			type: 'item',
+			id: 'duplicate-selected-sequences',
+			keyHint: null,
+			label: 'Duplicate selected',
+			leftItem: null,
+			disabled: duplicateDisabled,
+			onClick: onDuplicateSelectedSequences,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			value: 'duplicate-selected-sequences',
+		},
+		{
+			type: 'divider',
+			id: 'duplicate-delete-selected-sequences-divider',
+		},
+		{
+			type: 'item',
+			id: 'delete-selected-sequences',
+			keyHint: null,
+			label: 'Delete selected',
+			leftItem: null,
+			disabled: deleteDisabled,
+			onClick: onDeleteSelectedSequences,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			value: 'delete-selected-sequences',
+		},
+	];
+};
+
 export const getSequenceContextMenuItems = ({
 	assetLinkInfo,
 	canOpenInEditor,

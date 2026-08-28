@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useState} from 'react';
-import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 
 const svgStyle: React.CSSProperties = {
 	width: '11px',

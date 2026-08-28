@@ -16,7 +16,7 @@ const container: React.CSSProperties = {
 	marginLeft: 'auto',
 	marginRight: 'auto',
 	fontFamily: 'SF Pro Text, sans-serif',
-	paddingTop: '5vh',
+	paddingTop: 14,
 	boxSizing: 'border-box',
 };
 

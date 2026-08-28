@@ -93,7 +93,6 @@ export const deleteJsxNodeHandler: ApiHandler<
 				updates.map((update) => ({
 					absolutePath: update.absolutePath,
 					remappings: update.nodePathRemappings,
-					restoredNodePaths: [],
 				})),
 			);
 

@@ -16,6 +16,12 @@ import {
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const macCursorsFile = path.join(exampleDir, 'src', 'MacCursors', 'index.tsx');
+const sequenceShiftFile = path.join(
+	exampleDir,
+	'src',
+	'VisualModeTests',
+	'SequenceShiftRepro.tsx',
+);
 const outlineSelectionCasesFile = path.join(
 	exampleDir,
 	'src',
@@ -1614,6 +1620,130 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
+	test('should apply a timeline context menu action to multiple selected sequences', async ({
+		page,
+	}) => {
+		const sourceBefore = fs.readFileSync(sequenceShiftFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/sequence-shift-repro`);
+			await page.waitForFunction(
+				() => !document.body.innerText.includes('Loading...'),
+				{timeout: 30_000},
+			);
+			await page.keyboard.press('g');
+			const currentFrameInput = page.locator('input:focus');
+			await currentFrameInput.fill('22');
+			await currentFrameInput.press('Enter');
+			const outer = page.getByText('Outer frame descendant', {exact: true});
+			const local = page.getByText('Local frame descendant', {exact: true});
+			const localBar = page.locator(
+				'[data-timeline-marquee-item][title="Local frame descendant"]',
+			);
+			await expect(outer).toBeVisible({timeout: 15_000});
+			await expect(local).toBeVisible();
+
+			await outer.click();
+			await local.click({modifiers: ['Meta']});
+			await localBar.click({button: 'right'});
+			await expect(outer.locator('../../..')).toHaveCSS(
+				'background-color',
+				'rgb(59, 63, 66)',
+			);
+			await expect(
+				page
+					.locator('[data-remotion-menu-tree-id]')
+					.last()
+					.getByRole('button', {
+						name: 'Duplicate selected',
+						exact: true,
+					}),
+			).toBeVisible();
+			await page.keyboard.press('Escape');
+			await local.click({button: 'right'});
+			await expect(outer.locator('../../..')).toHaveCSS(
+				'background-color',
+				'rgb(59, 63, 66)',
+			);
+
+			const contextMenu = page.locator('[data-remotion-menu-tree-id]').last();
+			await expect(
+				contextMenu.getByRole('button', {
+					name: 'Duplicate selected',
+					exact: true,
+				}),
+			).toBeVisible();
+			await contextMenu
+				.getByRole('button', {name: 'Delete selected', exact: true})
+				.click();
+
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(sequenceShiftFile, 'utf-8');
+					return [
+						source.includes('name="Outer frame descendant"'),
+						source.includes('name="Local frame descendant"'),
+					];
+				})
+				.toEqual([false, false]);
+		} finally {
+			fs.writeFileSync(sequenceShiftFile, sourceBefore);
+		}
+	});
+
+	test('should duplicate each selected timeline sequence once', async ({
+		page,
+	}) => {
+		const sourceBefore = fs.readFileSync(sequenceShiftFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/sequence-shift-repro`);
+			await page.waitForFunction(
+				() => !document.body.innerText.includes('Loading...'),
+				{timeout: 30_000},
+			);
+			await page.keyboard.press('g');
+			const currentFrameInput = page.locator('input:focus');
+			await currentFrameInput.fill('22');
+			await currentFrameInput.press('Enter');
+			const outer = page.getByText('Outer frame descendant', {exact: true});
+			const nestedParent = page.getByText('Nested timing parent', {
+				exact: true,
+			});
+			await expect(outer).toBeVisible({timeout: 15_000});
+			await expect(nestedParent).toBeVisible();
+
+			await outer.click();
+			await nestedParent.click({modifiers: ['Meta']});
+			await nestedParent.click({button: 'right'});
+			await page
+				.locator('[data-remotion-menu-tree-id]')
+				.last()
+				.getByRole('button', {name: 'Duplicate selected', exact: true})
+				.click();
+
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(sequenceShiftFile, 'utf-8');
+					return [
+						source.match(/name="Outer frame descendant-copy"/g)?.length ?? 0,
+						source.match(/name="Nested timing parent-copy"/g)?.length ?? 0,
+						source.match(/name="Outer frame descendant-copy-copy"/g)?.length ??
+							0,
+						source.match(/<LocalFrameDescendant \/>/g)?.length ?? 0,
+					];
+				})
+				.toEqual([1, 1, 0, 1]);
+
+			await page.keyboard.press('ControlOrMeta+z');
+			await expect
+				.poll(() => fs.readFileSync(sequenceShiftFile, 'utf-8'))
+				.toBe(sourceBefore);
+		} finally {
+			fs.writeFileSync(sequenceShiftFile, sourceBefore);
+		}
+	});
+
 	test('should keep selected canvas outlines visible outside the canvas', async ({
 		page,
 	}) => {
@@ -3162,7 +3292,7 @@ test.describe('visual mode', () => {
 			await timelineGridline.click({button: 'right'});
 			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
 			await page
-				.getByRole('button', {name: 'Change default apps...', exact: true})
+				.getByRole('button', {name: 'Configure default apps...', exact: true})
 				.click();
 
 			const settings = page.getByRole('dialog');
@@ -3384,16 +3514,16 @@ test.describe('visual mode', () => {
 		const openInAnotherApp = page
 			.getByTitle(exampleDir)
 			.getByRole('button', {name: 'Open in another app'});
-		const changeDefaultApps = page.getByRole('button', {
-			name: 'Change default apps...',
+		const configureDefaultApps = page.getByRole('button', {
+			name: 'Configure default apps...',
 		});
 
 		await openInAnotherApp.click();
-		await expect(changeDefaultApps).toBeVisible();
+		await expect(configureDefaultApps).toBeVisible();
 		// The menu overlay intercepts pointerleave; clicking it closes the menu
 		// through the same outside-click path a user would take.
 		await page.mouse.click(10, 100);
-		await expect(changeDefaultApps).toBeHidden();
+		await expect(configureDefaultApps).toBeHidden();
 		await expect(openInAnotherApp).toHaveCSS(
 			'background-color',
 			'rgba(0, 0, 0, 0)',

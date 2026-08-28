@@ -8,6 +8,7 @@ import type {
 	Node,
 	ReturnStatement,
 } from '@babel/types';
+import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {
@@ -208,10 +209,7 @@ export const splitVideoFromAudio = async ({
 	formatted: boolean;
 	nodeLabel: string;
 	logLine: number;
-	nodePathRemappings: Array<{
-		oldNodePath: SequenceNodePath;
-		newNodePath: SequenceNodePath | null;
-	}>;
+	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
 	const ast = parseAst(input);
 	const capturedNodePaths = captureJsxNodePaths(ast);

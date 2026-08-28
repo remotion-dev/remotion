@@ -25,6 +25,35 @@ const menuLabel: React.CSSProperties = {
 	lineHeight: '16px',
 };
 
+export const getConfigureDefaultAppsMenuItems = ({
+	hasPreviousItems,
+	onConfigureApps,
+}: {
+	readonly hasPreviousItems: boolean;
+	readonly onConfigureApps: (() => void) | null;
+}): ComboboxValue[] => {
+	if (!onConfigureApps) {
+		return [];
+	}
+
+	return [
+		...(hasPreviousItems
+			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
+			: []),
+		{
+			id: 'change-default-apps',
+			keyHint: null,
+			label: <span style={menuLabel}>Configure default apps...</span>,
+			leftItem: null,
+			onClick: onConfigureApps,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: 'change-default-apps',
+		},
+	];
+};
+
 export const getOpenInMenuItems = ({
 	codingAgentInfo,
 	editorDisabled,
@@ -215,21 +244,9 @@ export const getOpenInMenuItems = ({
 					...systemApps,
 				]
 			: []),
-		...(onConfigureApps && (hasCategorizedApps || systemApps.length > 0)
-			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
-			: []),
-		onConfigureApps
-			? {
-					id: 'change-default-apps',
-					keyHint: null,
-					label: <span style={menuLabel}>Change default apps...</span>,
-					leftItem: null,
-					onClick: onConfigureApps,
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item' as const,
-					value: 'change-default-apps',
-				}
-			: null,
+		...getConfigureDefaultAppsMenuItems({
+			hasPreviousItems: hasCategorizedApps || systemApps.length > 0,
+			onConfigureApps,
+		}),
 	].filter(NoReactInternals.truthy);
 };

@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
-import {duplicateJsxNode} from '../codemods/duplicate-jsx-node';
+import {
+	duplicateJsxNode,
+	duplicateJsxNodes,
+} from '../codemods/duplicate-jsx-node';
 import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
 const sample = `import React from 'react';
@@ -28,22 +31,49 @@ test('duplicateJsxNode inserts a sibling JSX element', async () => {
 test('duplicateJsxNode remaps following JSX siblings', async () => {
 	const input = `export const X = () => (
 	<div>
-		<span data-name="duplicate" />
-		<span data-name="following" />
+		<span name="duplicate" />
+		<span name="following" />
 	</div>
 );
 `;
 	const {output, nodePathRemappings} = await duplicateJsxNode({
 		input,
-		nodePath: lineContainingToNodePath(input, 'data-name="duplicate"'),
+		nodePath: lineContainingToNodePath(input, 'name="duplicate"'),
 	});
 
 	expect(nodePathRemappings).toEqual([
 		{
-			oldNodePath: lineContainingToNodePath(input, 'data-name="following"'),
-			newNodePath: lineContainingToNodePath(output, 'data-name="following"'),
+			oldNodePath: lineContainingToNodePath(input, 'name="following"'),
+			newNodePath: lineContainingToNodePath(output, 'name="following"'),
+		},
+		{
+			oldNodePath: null,
+			newNodePath: lineContainingToNodePath(output, 'name="duplicate-copy"'),
 		},
 	]);
+});
+
+test('duplicateJsxNodes duplicates each requested JSX element once', async () => {
+	const input = `export const X = () => (
+	<div>
+		<span name="first" />
+		<span name="second" />
+		<span name="untouched" />
+	</div>
+);
+`;
+	const {output} = await duplicateJsxNodes({
+		input,
+		nodePaths: [
+			lineContainingToNodePath(input, 'name="first"'),
+			lineContainingToNodePath(input, 'name="second"'),
+		],
+	});
+
+	expect(output.match(/name="first-copy"/g)).toHaveLength(1);
+	expect(output.match(/name="second-copy"/g)).toHaveLength(1);
+	expect(output).not.toContain('name="first-copy-copy"');
+	expect(output.match(/name="untouched"/g)).toHaveLength(1);
 });
 
 const onlyReturn = `import React from 'react';

@@ -8,6 +8,7 @@ import {
 } from '../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../helpers/drag-aware-double-click';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {isMac} from '../helpers/is-mac';
 import {
 	startCapturedPointerSession,
 	type PointerSessionEndReason,
@@ -93,6 +94,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	) => boolean;
 	readonly scale: number;
 	readonly showSelectedOutline: boolean;
+	readonly translateWithCommandKey: boolean;
 }> = ({
 	compositionHeight,
 	compositionWidth,
@@ -113,6 +115,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	onDoubleClickTarget,
 	scale,
 	showSelectedOutline,
+	translateWithCommandKey,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const dragAwareDoubleClick = useMemo(
@@ -168,7 +171,13 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 
-			const interaction = getOutlineSelectionInteraction(event);
+			const temporaryTranslate =
+				translateWithCommandKey &&
+				(selected || containsSelection) &&
+				(isMac ? event.metaKey : event.ctrlKey);
+			const interaction = temporaryTranslate
+				? {shiftKey: false, toggleKey: false}
+				: getOutlineSelectionInteraction(event);
 			const shouldUpdateSelection =
 				!selected || interaction.shiftKey || interaction.toggleKey;
 			const ownerSvg = polygonRef.current?.ownerSVGElement;
@@ -252,7 +261,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			let currentPointerY = startPointerY;
 			let axisLocked = false;
 			let dragStarted = false;
-			let snappingDisabled = event.metaKey || event.ctrlKey;
+			let snappingDisabled =
+				!temporaryTranslate && (event.metaKey || event.ctrlKey);
 			let snapTargets: ReturnType<typeof getSelectedOutlineSnapTargets> | null =
 				null;
 
@@ -357,7 +367,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				currentPointerX = moveEvent.clientX;
 				currentPointerY = moveEvent.clientY;
 				axisLocked = moveEvent.shiftKey;
-				snappingDisabled = moveEvent.metaKey || moveEvent.ctrlKey;
+				snappingDisabled =
+					!temporaryTranslate && (moveEvent.metaKey || moveEvent.ctrlKey);
 				updateDragOverrides();
 			};
 
@@ -476,6 +487,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			scale,
 			setPropStatuses,
 			setDragOverrides,
+			translateWithCommandKey,
 		],
 	);
 

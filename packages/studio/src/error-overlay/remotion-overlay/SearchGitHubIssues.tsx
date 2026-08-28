@@ -40,7 +40,7 @@ export const SearchGithubIssues: React.FC<{
 
 	return (
 		<Button onClick={openInBrowser}>
-			Search GitHub Issues{' '}
+			Search Issues{' '}
 			{canHaveKeyboardShortcuts ? (
 				<ShortcutHint keyToPress="g" cmdOrCtrl />
 			) : null}

@@ -796,20 +796,16 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 		],
 	);
 
-	const outlineTargetsRef =
-		useRef<readonly SelectedOutlineLayoutTarget[]>(outlineTargets);
-	const getOutlineTargets = useCallback(() => outlineTargetsRef.current, []);
 	useLayoutEffect(() => {
-		outlineTargetsRef.current = outlineTargets;
 		updateOutlinesRef.current();
-	}, [outlineTargets, scale, translationX, translationY]);
+	}, [scale, translationX, translationY]);
 	return (
 		<SelectedOutlineRenderer
 			compositionHeight={compositionHeight}
 			compositionWidth={compositionWidth}
 			dragging={draggingOutline}
 			getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
-			getOutlineTargets={getOutlineTargets}
+			outlineTargets={outlineTargets}
 			onDraggingChange={onDraggingChange}
 			onContextMenuOpenChange={onContextMenuOpenChange}
 			onSelect={onSelect}
@@ -950,9 +946,6 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 			],
 		);
 
-	const calculateOutlineTargetsRef = useRef(
-		calculateOutlineTargetsForCurrentState,
-	);
 	const getSelectableOutlinesRef = useRef(getSelectableOutlines);
 	const selectableOutlinesCacheRef = useRef<{
 		readonly getSelectableOutlines: typeof getSelectableOutlines;
@@ -962,9 +955,8 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		readonly timelinePosition: number;
 	} | null>(null);
 	useLayoutEffect(() => {
-		calculateOutlineTargetsRef.current = calculateOutlineTargetsForCurrentState;
 		getSelectableOutlinesRef.current = getSelectableOutlines;
-	}, [calculateOutlineTargetsForCurrentState, getSelectableOutlines]);
+	}, [getSelectableOutlines]);
 	const getSelectableOutlinesAtFrame = useCallback(
 		(timelinePosition: number) => {
 			const currentGetSelectableOutlines = getSelectableOutlinesRef.current;
@@ -989,7 +981,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	const getLatestOutlineTargetByKey = useCallback(
 		(key: string) => {
 			const timelinePosition = getCurrentFrame();
-			const target = calculateOutlineTargetsRef.current({
+			const target = calculateOutlineTargetsForCurrentState({
 				mode: 'controls',
 				runtimeValuesByStore: new Map(),
 				selectableOutlines: getSelectableOutlinesAtFrame(timelinePosition),
@@ -998,7 +990,11 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 			})[0];
 			return target as SelectedOutlineTarget | undefined;
 		},
-		[getCurrentFrame, getSelectableOutlinesAtFrame],
+		[
+			calculateOutlineTargetsForCurrentState,
+			getCurrentFrame,
+			getSelectableOutlinesAtFrame,
+		],
 	);
 	const getCurrentSelectableOutlines = useCallback(
 		() => getSelectableOutlinesAtFrame(getCurrentFrame()),

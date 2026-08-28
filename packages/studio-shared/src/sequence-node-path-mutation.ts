@@ -1,7 +1,9 @@
 import type {SequenceNodePath} from 'remotion';
 
 export type SequenceNodePathRemapping = {
-	oldNodePath: SequenceNodePath;
+	/** `null` means the JSX node was inserted by this mutation. */
+	oldNodePath: SequenceNodePath | null;
+	/** `null` means the JSX node was deleted by this mutation. */
 	newNodePath: SequenceNodePath | null;
 };
 
@@ -10,6 +12,5 @@ export type SequenceNodePathMutation = {
 	files: Array<{
 		absolutePath: string;
 		remappings: SequenceNodePathRemapping[];
-		restoredNodePaths: SequenceNodePath[];
 	}>;
 };

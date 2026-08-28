@@ -6,7 +6,6 @@ import type {
 	SequenceNodePathRemapping,
 	UndoResponse,
 } from '@remotion/studio-shared';
-import type {SequenceNodePath} from 'remotion';
 import {parseAst} from '../codemods/parse-ast';
 import {readVisualControlValues} from '../codemods/read-visual-control-values';
 import {
@@ -445,23 +444,11 @@ export function popUndo(): UndoResponse {
 		return [
 			{
 				absolutePath: snapshot.filePath,
-				remappings: snapshot.nodePathRemappings.flatMap(
-					(remapping): SequenceNodePathRemapping[] => {
-						if (remapping.newNodePath === null) {
-							return [];
-						}
-
-						return [
-							{
-								oldNodePath: remapping.newNodePath,
-								newNodePath: remapping.oldNodePath,
-							},
-						];
-					},
-				),
-				restoredNodePaths: snapshot.nodePathRemappings.flatMap(
-					(remapping): SequenceNodePath[] =>
-						remapping.newNodePath === null ? [remapping.oldNodePath] : [],
+				remappings: snapshot.nodePathRemappings.map(
+					(remapping): SequenceNodePathRemapping => ({
+						oldNodePath: remapping.newNodePath,
+						newNodePath: remapping.oldNodePath,
+					}),
 				),
 			},
 		];
@@ -555,7 +542,6 @@ export function popRedo(): RedoResponse {
 			{
 				absolutePath: snapshot.filePath,
 				remappings: snapshot.nodePathRemappings,
-				restoredNodePaths: [],
 			},
 		];
 	});

@@ -54,7 +54,6 @@ export const splitJsxSequenceHandler: ApiHandler<
 				{
 					absolutePath,
 					remappings: nodePathRemappings,
-					restoredNodePaths: [],
 				},
 			]);
 

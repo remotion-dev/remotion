@@ -47,16 +47,6 @@ const outlineContainer: React.CSSProperties = {
 	overflow: 'visible',
 };
 
-type SelectedOutlineRenderState = {
-	readonly outlines: readonly SelectedOutline[];
-	readonly targets: readonly SelectedOutlineLayoutTarget[];
-};
-
-const emptyRenderState: SelectedOutlineRenderState = {
-	outlines: [],
-	targets: [],
-};
-
 const SelectedOutlineRendererUnmemoized: React.FC<{
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
@@ -64,7 +54,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	readonly getLatestOutlineTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
-	readonly getOutlineTargets: () => readonly SelectedOutlineLayoutTarget[];
+	readonly outlineTargets: readonly SelectedOutlineLayoutTarget[];
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onSelect: (
@@ -81,7 +71,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	compositionWidth,
 	dragging,
 	getLatestOutlineTargetByKey,
-	getOutlineTargets,
+	outlineTargets,
 	onDraggingChange,
 	onContextMenuOpenChange,
 	onSelect,
@@ -89,8 +79,10 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	sequences,
 	updateOutlinesRef,
 }) => {
-	const [renderState, setRenderState] =
-		useState<SelectedOutlineRenderState>(emptyRenderState);
+	// Targets are derived props and can receive a new identity on every render.
+	// Keep only measured geometry in state to avoid layout-effect update loops.
+	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
+	const outlinesRef = useRef<readonly SelectedOutline[]>(outlines);
 	const overlayRef = useRef<SVGSVGElement>(null);
 	const resizeObserverRef = useRef<ResizeObserver | null>(null);
 	const resizeObserverAnimationFrameRef = useRef<number | null>(null);
@@ -137,30 +129,28 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		hoveredSequence?.source === 'timeline' ? hoveredNodePathKey : null;
 
 	const updateOutlines = useCallback(() => {
-		const targets = getOutlineTargets();
-		if (overlayRef.current === null || targets.length === 0) {
-			setRenderState((prevState) =>
-				prevState.targets.length === 0 ? prevState : emptyRenderState,
-			);
+		if (overlayRef.current === null || outlineTargets.length === 0) {
+			if (outlinesRef.current.length === 0) {
+				return;
+			}
+
+			outlinesRef.current = [];
+			setOutlines(outlinesRef.current);
 			return;
 		}
 
 		const nextOutlines = measureOutlines(
 			overlayRef.current,
-			targets,
+			outlineTargets,
 			hoveredTimelineNodePathKey,
 		);
-		setRenderState((prevState) => {
-			const outlines = outlinesAreEqual(prevState.outlines, nextOutlines)
-				? prevState.outlines
-				: nextOutlines;
-			if (prevState.targets === targets && prevState.outlines === outlines) {
-				return prevState;
-			}
+		if (outlinesAreEqual(outlinesRef.current, nextOutlines)) {
+			return;
+		}
 
-			return {outlines, targets};
-		});
-	}, [getOutlineTargets, hoveredTimelineNodePathKey]);
+		outlinesRef.current = nextOutlines;
+		setOutlines(nextOutlines);
+	}, [hoveredTimelineNodePathKey, outlineTargets]);
 
 	useLayoutEffect(() => {
 		updateOutlinesRef.current = updateOutlines;
@@ -212,7 +202,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			nextObservedElements.add(overlayRef.current);
 		}
 
-		for (const target of renderState.targets) {
+		for (const target of outlineTargets) {
 			if (target.ref.current !== null) {
 				nextObservedElements.add(target.ref.current);
 			}
@@ -231,27 +221,27 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		}
 
 		observedOutlineElementsRef.current = nextObservedElements;
-	}, [renderState.targets]);
+	}, [outlineTargets]);
 
 	const targetsByKey = useMemo(() => {
-		return new Map(renderState.targets.map((target) => [target.key, target]));
-	}, [renderState.targets]);
+		return new Map(outlineTargets.map((target) => [target.key, target]));
+	}, [outlineTargets]);
 	useEffect(() => {
 		if (
 			hoveredSequence?.source === 'canvas' &&
-			!renderState.targets.some((target) => target.key === hoveredSequence.key)
+			!outlineTargets.some((target) => target.key === hoveredSequence.key)
 		) {
 			setHoveredSequence((currentHover) =>
 				currentHover?.source === 'canvas' ? null : currentHover,
 			);
 		}
-	}, [hoveredSequence, renderState.targets, setHoveredSequence]);
+	}, [hoveredSequence, outlineTargets, setHoveredSequence]);
 	// Reordering a captured SVG target can cancel the active pointer session.
 	const outlineRenderingOrderRef = useRef<readonly string[]>([]);
 	const outlinesForRendering = useMemo(() => {
 		if (!dragging || outlineRenderingOrderRef.current.length === 0) {
 			const orderedOutlines = orderOutlinesForRendering({
-				outlines: renderState.outlines,
+				outlines,
 				sequences,
 				targetsByKey,
 			});
@@ -262,10 +252,10 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		}
 
 		const currentOutlinesByKey = new Map(
-			renderState.outlines.map((outline) => [outline.key, outline]),
+			outlines.map((outline) => [outline.key, outline]),
 		);
 		const frozenKeys = new Set(outlineRenderingOrderRef.current);
-		const newOutlines = renderState.outlines.filter(
+		const newOutlines = outlines.filter(
 			(outline) => !frozenKeys.has(outline.key),
 		);
 		outlineRenderingOrderRef.current = [
@@ -276,12 +266,10 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			const outline = currentOutlinesByKey.get(key);
 			return outline === undefined ? [] : [outline];
 		});
-	}, [dragging, renderState.outlines, sequences, targetsByKey]);
+	}, [dragging, outlines, sequences, targetsByKey]);
 	const outlinesByKey = useMemo(() => {
-		return new Map(
-			renderState.outlines.map((outline) => [outline.key, outline]),
-		);
-	}, [renderState.outlines]);
+		return new Map(outlines.map((outline) => [outline.key, outline]));
+	}, [outlines]);
 	const {
 		outlinesForEditingHandles,
 		outlinesForTransformOrigin,
@@ -320,12 +308,12 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			outlinesForUvHandles: uvHandles,
 		};
 	}, [hoveredNodePathKey, outlinesForRendering, targetsByKey]);
-	const targetsRef = useRef(renderState.targets);
+	const targetsRef = useRef(outlineTargets);
 	const outlinesByKeyRef = useRef(outlinesByKey);
 	useLayoutEffect(() => {
-		targetsRef.current = renderState.targets;
+		targetsRef.current = outlineTargets;
 		outlinesByKeyRef.current = outlinesByKey;
-	}, [outlinesByKey, renderState.targets]);
+	}, [outlineTargets, outlinesByKey]);
 	const getAllDragTargets = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {

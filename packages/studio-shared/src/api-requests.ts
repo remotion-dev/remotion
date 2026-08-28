@@ -802,9 +802,13 @@ export type DeleteJsxNodeResponse =
 			stack: string;
 	  };
 
-export type DuplicateJsxNodeRequest = {
+export type DuplicateJsxNodeRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
+};
+
+export type DuplicateJsxNodeRequest = {
+	nodes: DuplicateJsxNodeRequestItem[];
 };
 
 export type DuplicateJsxNodeResponse =
@@ -1065,6 +1069,20 @@ export type UpdateAvailableResponse = {
 	skillsUpdateAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
+};
+
+export type GetReleaseNotesRequest = {
+	currentVersion: string;
+	latestVersion: string;
+};
+
+export type GetReleaseNotesResponse = {
+	hasMore: boolean;
+	releases: {
+		publishedAt: string | null;
+		releaseNotesHtml: string | null;
+		version: string;
+	}[];
 };
 
 export type GetRemotionSkillsInfoRequest = {};
@@ -1335,6 +1353,10 @@ export type ApiRoutes = {
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,
 		UpdateAvailableResponse
+	>;
+	'/api/release-notes': ReqAndRes<
+		GetReleaseNotesRequest,
+		GetReleaseNotesResponse
 	>;
 	'/api/remotion-skills-info': ReqAndRes<
 		GetRemotionSkillsInfoRequest,

@@ -445,7 +445,6 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 						newNodePath: lineColumnToNodePath(output, 7),
 					},
 				],
-				restoredNodePaths: [],
 			},
 		]);
 		expect(
@@ -476,6 +475,10 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 				absolutePath: filePath,
 				remappings: [
 					{
+						oldNodePath: null,
+						newNodePath: lineColumnToNodePath(interactiveSiblings, 6),
+					},
+					{
 						oldNodePath: lineColumnToNodePath(output, 6),
 						newNodePath: lineColumnToNodePath(interactiveSiblings, 7),
 					},
@@ -484,7 +487,6 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 						newNodePath: lineColumnToNodePath(interactiveSiblings, 8),
 					},
 				],
-				restoredNodePaths: [lineColumnToNodePath(interactiveSiblings, 6)],
 			},
 		]);
 		expect(

@@ -12,7 +12,6 @@
 		"start": "bun copy-raw-docs.ts && bun fetch-prompt-submissions.ts && bun update-prompt.ts && cd .. && bun run build && cd docs && bun prepare-browser-studio-workspace.ts && if [ \"$REMOTION_DOCS_ENABLE_TWOSLASH\" = \"1\" ]; then echo \"🧪 Twoslash is enabled in development.\"; else echo \"⚡ Twoslash is disabled in development for faster startup.\"; echo \"   Enable it with: REMOTION_DOCS_ENABLE_TWOSLASH=1 bun run start\"; fi && REMOTION_DOCS_DISABLE_TWOSLASH=1 docusaurus start --host 0.0.0.0",
 		"build-docs": "bun build-docs.ts",
 		"build-browser-studio": "bun prepare-browser-studio-workspace.ts && bun build-browser-studio-standalone.ts",
-		"prewarm-twoslash": "bun prewarm-twoslash.ts",
 		"swizzle": "docusaurus swizzle",
 		"deploy": "docusaurus deploy",
 		"serve": "docusaurus serve",

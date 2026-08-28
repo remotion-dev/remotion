@@ -316,8 +316,8 @@ test('installs an Element with a component-owned Sequence', async () => {
 		expect(composition).toContain('durationInFrames={72}');
 		expect(composition).toContain('from={30}');
 		expect(composition).toContain('name="Lower Third"');
-		expect(composition).toContain("position: 'absolute'");
-		expect(composition).toContain("translate: '120px 80px'");
+		expect(composition).toContain('position: "absolute"');
+		expect(composition).toContain('translate: "120px 80px"');
 	} finally {
 		fixture.cleanup();
 	}

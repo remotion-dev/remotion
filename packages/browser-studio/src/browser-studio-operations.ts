@@ -6,7 +6,7 @@ import {
 	deleteEffects as deleteEffectsCodemod,
 	duplicateEffects as duplicateEffectsCodemod,
 	duplicateCompositionInSource,
-	duplicateJsxNode as duplicateJsxNodeCodemod,
+	duplicateJsxNodes as duplicateJsxNodesCodemod,
 	findProjectFile,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
@@ -1275,7 +1275,6 @@ export const createBrowserStudioOperations = ({
 				nodePathMutationFiles: updates.map(({fileName, result}) => ({
 					absolutePath: fileName,
 					remappings: result.nodePathRemappings,
-					restoredNodePaths: [],
 				})),
 			});
 			if (nodePathMutation === null) {
@@ -1293,33 +1292,54 @@ export const createBrowserStudioOperations = ({
 	};
 
 	const duplicateJsxNode: BrowserStudioOperations['duplicateJsxNode'] = async ({
-		fileName,
-		nodePath,
+		nodes,
 	}) => {
 		try {
+			if (nodes.length === 0) {
+				throw new Error('No JSX nodes were specified for duplication');
+			}
+
 			const project = getProject();
-			const absolutePath = findProjectFile({
-				filePath: fileName,
-				project,
-			});
-			const result = await duplicateJsxNodeCodemod({
-				input: project.files[absolutePath],
-				nodePath,
-				formatFile: formatCodemodFile,
-			});
+			const nodesByFile = new Map<
+				string,
+				(typeof nodes)[number]['nodePath'][]
+			>();
+			for (const node of nodes) {
+				const fileName = findProjectFile({
+					filePath: node.fileName,
+					project,
+				});
+				const fileNodes = nodesByFile.get(fileName) ?? [];
+				fileNodes.push(node.nodePath);
+				nodesByFile.set(fileName, fileNodes);
+			}
+
+			const updates = await Promise.all(
+				[...nodesByFile].map(async ([fileName, nodePaths]) => ({
+					fileName,
+					result: await duplicateJsxNodesCodemod({
+						input: project.files[fileName],
+						nodePaths,
+						formatFile: formatCodemodFile,
+					}),
+				})),
+			);
+			const nextProject = {
+				...project,
+				files: {
+					...project.files,
+					...Object.fromEntries(
+						updates.map(({fileName, result}) => [fileName, result.output]),
+					),
+				},
+			};
 			const nodePathMutation = controller.applyMutation({
-				fileName: absolutePath,
-				mutate: () => ({
-					...project,
-					files: {...project.files, [absolutePath]: result.output},
-				}),
-				nodePathMutationFiles: [
-					{
-						absolutePath,
-						remappings: result.nodePathRemappings,
-						restoredNodePaths: [],
-					},
-				],
+				fileName: updates.map(({fileName}) => fileName).join(', '),
+				mutate: () => nextProject,
+				nodePathMutationFiles: updates.map(({fileName, result}) => ({
+					absolutePath: fileName,
+					remappings: result.nodePathRemappings,
+				})),
 			});
 			if (nodePathMutation === null) {
 				throw new Error('Could not duplicate JSX node');
@@ -1360,7 +1380,6 @@ export const createBrowserStudioOperations = ({
 					{
 						absolutePath,
 						remappings: result.nodePathRemappings,
-						restoredNodePaths: [],
 					},
 				],
 			});
@@ -1478,7 +1497,6 @@ export const createBrowserStudioOperations = ({
 					{
 						absolutePath,
 						remappings: result.nodePathRemappings,
-						restoredNodePaths: [],
 					},
 				],
 			});
@@ -1851,7 +1869,6 @@ export const createBrowserStudioOperations = ({
 						{
 							absolutePath,
 							remappings: result.nodePathRemappings,
-							restoredNodePaths: [],
 						},
 					],
 				});
@@ -1900,7 +1917,6 @@ export const createBrowserStudioOperations = ({
 					{
 						absolutePath: result.filePath,
 						remappings: result.nodePathRemappings,
-						restoredNodePaths: [],
 					},
 				],
 			});
@@ -2084,7 +2100,6 @@ export const createBrowserStudioOperations = ({
 						{
 							absolutePath: insertion.filePath,
 							remappings: insertion.nodePathRemappings,
-							restoredNodePaths: [],
 						},
 					],
 				});

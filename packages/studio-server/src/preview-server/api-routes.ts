@@ -39,6 +39,7 @@ import {prepareElementInstallHandler} from './routes/prepare-element-install';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
+import {getReleaseNotesHandler} from './routes/release-notes';
 import {remotionSkillsInfoHandler} from './routes/remotion-skills-info';
 import {handleRemoveRender} from './routes/remove-render';
 import {renameStaticFileHandler} from './routes/rename-static-file';
@@ -118,6 +119,7 @@ export const allApiRoutes: {
 	'/api/split-jsx-sequence': splitJsxSequenceHandler,
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/update-available': handleUpdate,
+	'/api/release-notes': getReleaseNotesHandler,
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,

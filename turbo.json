@@ -103,26 +103,15 @@
 			"outputs": [],
 			"outputLogs": "new-only"
 		},
-		"prewarm-twoslash": {
-			"dependsOn": ["^make"],
-			"inputs": [
-				"$TURBO_ROOT$/bun.lock",
-				"$TURBO_ROOT$/package.json",
-				"$TURBO_ROOT$/packages/**/package.json",
-				"$TURBO_ROOT$/packages/**/*.d.ts",
-				"$TURBO_ROOT$/packages/**/*.d.mts",
-				"$TURBO_ROOT$/packages/**/*.d.cts",
-				"docs/**",
-				"blog/**",
-				"learn/**",
-				"new-docs/**",
-				"elements/**",
-				"plugins/element-source-utils.js",
-				"prewarm-twoslash.ts",
-				"twoslash-worker.mjs",
-				"package.json"
+		"build-docs": {
+			"dependsOn": [
+				"^make",
+				"make",
+				"@remotion/convert#build-spa",
+				"@remotion/brand#bundle",
+				"@remotion/example#bundle-testbed"
 			],
-			"outputs": ["node_modules/.cache/twoslash/**"],
+			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
 			"env": [
 				"REMOTION_DOCS_DISABLE_TWOSLASH",
 				"REMOTION_DOCS_ENABLE_TWOSLASH"
@@ -138,22 +127,6 @@
 				"TWOSLASH_STALL_TIMEOUT_MS",
 				"TWOSLASH_WORKER_COUNT",
 				"VERCEL"
-			],
-			"outputLogs": "new-only"
-		},
-		"build-docs": {
-			"dependsOn": [
-				"^make",
-				"make",
-				"prewarm-twoslash",
-				"@remotion/convert#build-spa",
-				"@remotion/brand#bundle",
-				"@remotion/example#bundle-testbed"
-			],
-			"outputs": [".docusaurus", "build"],
-			"env": [
-				"REMOTION_DOCS_DISABLE_TWOSLASH",
-				"REMOTION_DOCS_ENABLE_TWOSLASH"
 			],
 			"outputLogs": "new-only"
 		},

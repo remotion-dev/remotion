@@ -207,7 +207,6 @@ export const insertElementHandler: ApiHandler<
 				{
 					absolutePath: inserted.fileName,
 					remappings: inserted.nodePathRemappings,
-					restoredNodePaths: [],
 				},
 			]);
 
