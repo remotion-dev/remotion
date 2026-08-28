@@ -82,6 +82,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	// Targets are derived props and can receive a new identity on every render.
 	// Keep only measured geometry in state to avoid layout-effect update loops.
 	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
+	const outlinesRef = useRef<readonly SelectedOutline[]>(outlines);
 	const overlayRef = useRef<SVGSVGElement>(null);
 	const resizeObserverRef = useRef<ResizeObserver | null>(null);
 	const resizeObserverAnimationFrameRef = useRef<number | null>(null);
@@ -129,9 +130,12 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 
 	const updateOutlines = useCallback(() => {
 		if (overlayRef.current === null || outlineTargets.length === 0) {
-			setOutlines((previousOutlines) =>
-				previousOutlines.length === 0 ? previousOutlines : [],
-			);
+			if (outlinesRef.current.length === 0) {
+				return;
+			}
+
+			outlinesRef.current = [];
+			setOutlines(outlinesRef.current);
 			return;
 		}
 
@@ -140,11 +144,12 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			outlineTargets,
 			hoveredTimelineNodePathKey,
 		);
-		setOutlines((previousOutlines) =>
-			outlinesAreEqual(previousOutlines, nextOutlines)
-				? previousOutlines
-				: nextOutlines,
-		);
+		if (outlinesAreEqual(outlinesRef.current, nextOutlines)) {
+			return;
+		}
+
+		outlinesRef.current = nextOutlines;
+		setOutlines(nextOutlines);
 	}, [hoveredTimelineNodePathKey, outlineTargets]);
 
 	useLayoutEffect(() => {
