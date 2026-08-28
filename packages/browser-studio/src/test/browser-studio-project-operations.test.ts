@@ -455,7 +455,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		element.sourceCode,
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		"import {LowerThird} from './lower-third.element';",
+		'import {LowerThird} from "./lower-third.element";',
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain('<Sequence');
 	expect(project.files['/project/src/Composition.tsx']).toContain('from={12}');
@@ -463,7 +463,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		'name="Lower Third"',
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		"translate: '24px 48px'",
+		'translate: "24px 48px"',
 	);
 	const packageJson = JSON.parse(project.files['/project/package.json']) as {
 		dependencies: Record<string, string>;
@@ -582,7 +582,7 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 	}
 
 	expect(project.files['/project/src/Composition.tsx']).toContain(
-		"from '@remotion/media'",
+		'from "@remotion/media"',
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain('<Video');
 	const packageJson = JSON.parse(project.files['/project/package.json']) as {
