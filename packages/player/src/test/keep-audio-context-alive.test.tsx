@@ -228,3 +228,38 @@ test('_experimentalKeepAudioContextAlive resumes immediately after buffering', a
 
 	expect(gainValuesDuringBufferResume).toContain(1);
 });
+
+test('a synchronous play() + pause() still suspends the AudioContext', async () => {
+	// Both state updates batch into one commit, so the use-playback effect
+	// never observes playing=true; the pause() method's own intent
+	// declaration must cover this.
+	const originalAudioContext = globalThis.AudioContext;
+	globalThis.AudioContext =
+		TrackedAudioContext as unknown as typeof AudioContext;
+	try {
+		nativeSuspendCalls = 0;
+		const playerRef = createRef<PlayerRef>();
+		render(
+			<Player
+				ref={playerRef}
+				component={AudioComposition}
+				durationInFrames={300}
+				compositionWidth={1920}
+				compositionHeight={1080}
+				fps={30}
+			/>,
+		);
+		nativeSuspendCalls = 0;
+
+		await act(async () => {
+			playerRef.current?.play();
+			playerRef.current?.pause();
+			await Promise.resolve();
+		});
+
+		expect(playerRef.current?.isPlaying()).toBe(false);
+		expect(nativeSuspendCalls).toBeGreaterThan(0);
+	} finally {
+		globalThis.AudioContext = originalAudioContext;
+	}
+});
