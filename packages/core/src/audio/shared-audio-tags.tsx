@@ -19,6 +19,7 @@ import type {RemotionAudioContextState} from './use-audio-context.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
 import {
 	type AudioContextResumeResult,
+	waitUntilAudioContextRunning,
 	waitUntilActuallyResumed,
 } from './wait-until-actually-resumed.js';
 
@@ -398,7 +399,20 @@ export const SharedAudioContextProvider: React.FC<{
 		}
 
 		if (audioContextIsPlayingEventually.current) {
-			return Promise.resolve();
+			if (
+				!_experimentalKeepAudioContextAlive ||
+				ctxAndGain.getState() === 'running'
+			) {
+				return Promise.resolve();
+			}
+
+			return ctxAndGain.resume().catch((err) => {
+				Log.warn(
+					{logLevel, tag: 'audio'},
+					'AudioContext resume rejected; keeping playback buffered until the next resume attempt',
+					err,
+				);
+			});
 		}
 
 		audioContextIsPlayingEventually.current = true;
@@ -435,17 +449,31 @@ export const SharedAudioContextProvider: React.FC<{
 		const resumeAttemptId = nextResumeAttemptId.current++;
 
 		const waitPromise = new Promise<AudioContextResumeResult>((resolve) => {
-			waitUntilActuallyResumed(
-				ctxAndGain.audioContext,
-				logLevel,
-				abortController.signal,
-			).then(resolve);
+			if (_experimentalKeepAudioContextAlive) {
+				waitUntilAudioContextRunning(
+					ctxAndGain.audioContext,
+					abortController.signal,
+				).then(resolve);
+			} else {
+				waitUntilActuallyResumed(
+					ctxAndGain.audioContext,
+					logLevel,
+					abortController.signal,
+				).then(resolve);
+			}
+
 			resumePromise.catch((err) => {
 				Log.warn(
 					{logLevel, tag: 'audio'},
-					'AudioContext resume rejected, muting playback and continuing without audio',
+					_experimentalKeepAudioContextAlive
+						? 'AudioContext resume rejected; keeping playback buffered until the next resume attempt'
+						: 'AudioContext resume rejected, muting playback and continuing without audio',
 					err,
 				);
+				if (_experimentalKeepAudioContextAlive) {
+					return;
+				}
+
 				abortController.abort();
 				resolve('failed');
 			});
@@ -499,6 +527,31 @@ export const SharedAudioContextProvider: React.FC<{
 		}
 
 		return ctxAndGain.suspend();
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
+
+	// A resume() that settles after pause already suspended, or an OS audio
+	// interruption ending, can flip the native context back to running while
+	// playback intent is paused. Re-assert the paused intent when the state
+	// contradicts it. Keep-alive mode deliberately leaves the context running.
+	useEffect(() => {
+		if (!ctxAndGain || _experimentalKeepAudioContextAlive) {
+			return;
+		}
+
+		const {audioContext} = ctxAndGain;
+		const onStateChange = () => {
+			if (
+				audioContext.state === 'running' &&
+				!audioContextIsPlayingEventually.current
+			) {
+				ctxAndGain.suspend();
+			}
+		};
+
+		audioContext.addEventListener('statechange', onStateChange);
+		return () => {
+			audioContext.removeEventListener('statechange', onStateChange);
+		};
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
 
 	// With _experimentalKeepAudioContextAlive, start the context as early as
