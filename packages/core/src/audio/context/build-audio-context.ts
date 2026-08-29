@@ -53,11 +53,8 @@ export const buildAudioContext = ({
 		sampleRate,
 	});
 
-	const gainNode = audioContext.createGain();
-	gainNode.connect(audioContext.destination);
 	Log.trace({logLevel, tag: 'audio'}, 'Creating new audio context');
-
 	audioContext.suspend();
 
-	return {audioContext, gainNode};
+	return audioContext;
 };

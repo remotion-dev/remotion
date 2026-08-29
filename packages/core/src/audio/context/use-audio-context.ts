@@ -31,7 +31,7 @@ export const useSingletonAudioContext = ({
 	}
 
 	const context = useMemo(() => {
-		const built = buildAudioContext({
+		const audioContext = buildAudioContext({
 			isRendering: env.isRendering,
 			audioEnabled,
 			logLevel,
@@ -39,11 +39,12 @@ export const useSingletonAudioContext = ({
 			sampleRate,
 		});
 
-		if (!built) {
+		if (!audioContext) {
 			return null;
 		}
 
-		const {audioContext, gainNode} = built;
+		const gainNode = audioContext.createGain();
+		gainNode.connect(audioContext.destination);
 
 		// Tracks the state we are transitioning towards while resume()/suspend()
 		// have been called but the native state has not updated yet.
