@@ -13,6 +13,8 @@ import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
+import type {PlaybackTransport} from './playback-transport.js';
+import {makePlaybackTransport} from './playback-transport.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
 import type {RemotionAudioContextState} from './use-audio-context.js';
@@ -84,6 +86,7 @@ type SharedAudioContextValue = {
 	gainNode: GainNode | null;
 	audioSyncAnchor: {value: number};
 	audioSyncAnchorEmitter: AudioSyncAnchorEmitter;
+	playbackTransport: PlaybackTransport;
 	scheduleAudioNode: (
 		options: ScheduleAudioNodeOptions,
 	) => ScheduleAudioNodeResult;
@@ -231,7 +234,7 @@ export const SharedAudioContextProvider: React.FC<{
 		audioEnabled,
 		sampleRate,
 	});
-	const audioContextIsPlayingEventually = useRef(false);
+	const playbackTransport = useMemo(() => makePlaybackTransport(), []);
 	const initialExperimentalKeepAudioContextAlive = useRef(
 		_experimentalKeepAudioContextAlive,
 	);
@@ -311,8 +314,7 @@ export const SharedAudioContextProvider: React.FC<{
 			// the gain ramps back up.
 			const saveForLater =
 				shouldSaveForLater(currentState) ||
-				(_experimentalKeepAudioContextAlive &&
-					!audioContextIsPlayingEventually.current);
+				(_experimentalKeepAudioContextAlive && !playbackTransport.getPlaying());
 
 			if (duration > 0) {
 				if (saveForLater) {
@@ -390,18 +392,23 @@ export const SharedAudioContextProvider: React.FC<{
 						reason: 'missed ' + Math.abs(offset).toFixed(2) + 's',
 					};
 		};
-	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
+	}, [
+		ctxAndGain,
+		_experimentalKeepAudioContextAlive,
+		logLevel,
+		playbackTransport,
+	]);
 
 	const resume = useCallback(() => {
 		if (!ctxAndGain) {
 			return Promise.resolve();
 		}
 
-		if (audioContextIsPlayingEventually.current) {
+		if (playbackTransport.getPlaying()) {
 			return Promise.resolve();
 		}
 
-		audioContextIsPlayingEventually.current = true;
+		playbackTransport.dispatch('play');
 
 		ctxAndGain.gainNode.gain.cancelScheduledValues(
 			ctxAndGain.audioContext.currentTime,
@@ -464,7 +471,12 @@ export const SharedAudioContextProvider: React.FC<{
 			// Already logged above; swallow to avoid unhandled rejection
 			// since callers (e.g. use-playback.ts) do not await this.
 		});
-	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
+	}, [
+		ctxAndGain,
+		_experimentalKeepAudioContextAlive,
+		logLevel,
+		playbackTransport,
+	]);
 
 	const getIsResumingAudioContext = useCallback(() => {
 		return isResuming.current?.promise ?? null;
@@ -477,11 +489,11 @@ export const SharedAudioContextProvider: React.FC<{
 			return Promise.resolve();
 		}
 
-		if (!audioContextIsPlayingEventually.current) {
+		if (!playbackTransport.getPlaying()) {
 			return Promise.resolve();
 		}
 
-		audioContextIsPlayingEventually.current = false;
+		playbackTransport.dispatch('pause');
 
 		if (_experimentalKeepAudioContextAlive) {
 			// Silence through the gain instead of suspending, so the context
@@ -499,7 +511,7 @@ export const SharedAudioContextProvider: React.FC<{
 		}
 
 		return ctxAndGain.suspend();
-	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive, playbackTransport]);
 
 	// With _experimentalKeepAudioContextAlive, start the context as early as
 	// possible so the first play never waits on the suspended→running transition. Where
@@ -554,6 +566,7 @@ export const SharedAudioContextProvider: React.FC<{
 			gainNode: ctxAndGain?.gainNode ?? null,
 			audioSyncAnchor,
 			audioSyncAnchorEmitter,
+			playbackTransport,
 			scheduleAudioNode,
 			resume,
 			suspend,
@@ -565,6 +578,7 @@ export const SharedAudioContextProvider: React.FC<{
 		ctxAndGain,
 		audioSyncAnchor,
 		audioSyncAnchorEmitter,
+		playbackTransport,
 		scheduleAudioNode,
 		resume,
 		suspend,
