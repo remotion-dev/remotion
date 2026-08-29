@@ -35,6 +35,7 @@ import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
+	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {
@@ -104,6 +105,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
+	const {clearSelection} = useTimelineSelection();
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
 		useSelectedOutlineControlTarget({
 			getLatestTargetByKey,
@@ -276,7 +278,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					});
 					if (!result.success) {
 						showNotification(result.reason, 4000);
+						return;
 					}
+
+					clearSelection();
 				} catch (err) {
 					showNotification((err as Error).message, 4000);
 				}
@@ -435,6 +440,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		});
 	}, [
 		canConfigureApps,
+		clearSelection,
 		codingAgentInfo,
 		confirm,
 		editorInfo,

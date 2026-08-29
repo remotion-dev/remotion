@@ -487,7 +487,7 @@ const TimelineSequenceInner: React.FC<{
 	const confirm = useConfirmationDialog();
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
-	const {selectedItems} = useTimelineSelection();
+	const {clearSelection, selectedItems} = useTimelineSelection();
 	const selectedSequenceNodePathInfos = useMemo(() => {
 		if (
 			!selected ||
@@ -611,11 +611,15 @@ const TimelineSequenceInner: React.FC<{
 			});
 			if (!result.success) {
 				showNotification(result.reason, 4000);
+				return;
 			}
+
+			clearSelection();
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
 	}, [
+		clearSelection,
 		confirm,
 		deleteDisabled,
 		nodePath,
@@ -627,10 +631,19 @@ const TimelineSequenceInner: React.FC<{
 			return;
 		}
 
-		deleteSequencesFromSource(selectedSequenceNodePathInfos, confirm).catch(
-			() => undefined,
-		);
-	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
+		deleteSequencesFromSource(selectedSequenceNodePathInfos, confirm)
+			.then((deleted) => {
+				if (deleted) {
+					clearSelection();
+				}
+			})
+			.catch(() => undefined);
+	}, [
+		clearSelection,
+		confirm,
+		previewInteractive,
+		selectedSequenceNodePathInfos,
+	]);
 	const onDisableSequenceInteractivity = useCallback(() => {
 		if (
 			disableInteractivityDisabled ||

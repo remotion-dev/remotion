@@ -130,6 +130,7 @@ const SequenceSourceQuickActions: React.FC<{
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const confirm = useConfirmationDialog();
+	const {clearSelection} = useTimelineSelection();
 	const propStatusesForOverride = useMemo(
 		() =>
 			Internals.getPropStatusesCtx(
@@ -167,10 +168,14 @@ const SequenceSourceQuickActions: React.FC<{
 			return;
 		}
 
-		deleteSequencesFromSource([selection.nodePathInfo], confirm).catch(
-			() => undefined,
-		);
-	}, [confirm, selection.nodePathInfo, sourceActionsDisabled]);
+		deleteSequencesFromSource([selection.nodePathInfo], confirm)
+			.then((deleted) => {
+				if (deleted) {
+					clearSelection();
+				}
+			})
+			.catch(() => undefined);
+	}, [clearSelection, confirm, selection.nodePathInfo, sourceActionsDisabled]);
 	const splitVideoFromAudioDisabledReason = sourceActionsDisabled
 		? 'Studio is read-only'
 		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1

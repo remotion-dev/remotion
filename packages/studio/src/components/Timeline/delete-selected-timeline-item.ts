@@ -73,11 +73,11 @@ export const deleteSequencesFromSource = async (
 				showNotification(result.reason, 4000);
 			}
 
-			return true;
+			return result.success;
 		})
 		.catch((err) => {
 			showNotification((err as Error).message, 4000);
-			return true;
+			return false;
 		});
 };
 

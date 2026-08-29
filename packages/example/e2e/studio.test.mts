@@ -1766,11 +1766,57 @@ test.describe('visual mode', () => {
 		await expect(visibleOutlines.first()).toBeVisible();
 	});
 
-	test('should preserve following interactive elements after deleting a sibling', async ({
+	test('should clear selection after context-menu deletion and preserve following interactive elements', async ({
 		context,
 		page,
 	}) => {
+		await context.addInitScript(() => {
+			type RegisteredTool = {
+				readonly name: string;
+				readonly execute: (input: Record<string, unknown>) => Promise<unknown>;
+			};
+			const tools = new Map<string, RegisteredTool>();
+			Object.defineProperty(window, '__remotion_webmcp_tools', {
+				value: tools,
+			});
+			Object.defineProperty(document, 'modelContext', {
+				value: {
+					registerTool: async (
+						tool: RegisteredTool,
+						options: {readonly signal: AbortSignal},
+					) => {
+						tools.set(tool.name, tool);
+						options.signal.addEventListener('abort', () => {
+							if (tools.get(tool.name) === tool) {
+								tools.delete(tool.name);
+							}
+						});
+					},
+				},
+			});
+		});
 		await navigateToLostNodePathE2e(page);
+		const getWebMcpSelection = () =>
+			page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools?: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				if (!tools) {
+					return null;
+				}
+
+				const tool = tools.get('get_selection');
+				if (!tool) {
+					return null;
+				}
+
+				return tool.execute();
+			});
 		const otherPage = await context.newPage();
 		await navigateToLostNodePathE2e(otherPage);
 		const canvas = page.locator('.remotion-studio-composition-container');
@@ -1860,8 +1906,14 @@ test.describe('visual mode', () => {
 		const eyebrow = page.locator(
 			'[data-timeline-marquee-item][title="Eyebrow"]',
 		);
-		await eyebrow.click();
-		await page.keyboard.press('Delete');
+		await eyebrow.click({button: 'right'});
+		await expect.poll(getWebMcpSelection).toEqual(
+			expect.objectContaining({
+				selectionType: 'sequence',
+				selectedSequence: expect.objectContaining({name: 'Eyebrow'}),
+			}),
+		);
+		await page.getByRole('button', {name: 'Delete', exact: true}).click();
 
 		await expect
 			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
@@ -1887,6 +1939,13 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 		await expect(gridlineVisibilityToggle).toBeVisible();
 		await expect(otherGridlineVisibilityToggle).toBeVisible();
+		await expect.poll(getWebMcpSelection).toEqual(
+			expect.objectContaining({
+				currentSelection: null,
+				selectionType: null,
+				selectedSequence: null,
+			}),
+		);
 
 		await page.getByRole('button', {name: /^Undo/}).click();
 		await expect
