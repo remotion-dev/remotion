@@ -264,6 +264,14 @@ export const SharedAudioContextProvider: React.FC<{
 	const logLevel = useLogLevel();
 	const sampleRate = previewSampleRate ?? 48000;
 
+	useEffect(() => {
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		window.remotion_sampleRate = sampleRate;
+	}, [sampleRate]);
+
 	const ctxAndGain = useSingletonAudioContext({
 		latencyHint: audioLatencyHint,
 		audioEnabled,
