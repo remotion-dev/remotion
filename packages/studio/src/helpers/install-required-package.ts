@@ -1,41 +1,50 @@
+import type {PackageInstallSpec} from '@remotion/studio-shared';
 import {installPackages} from '../api/install-package';
 import {showNotification} from '../components/Notifications/NotificationCenter';
 
 let installQueue: Promise<void> = Promise.resolve();
 
-export const getMissingPackages = (packageNames: string[]) => {
-	const uniquePackageNames = Array.from(new Set(packageNames));
-	const installedPackages = window.remotion_installedPackages ?? [];
+const uniqueDependencies = (
+	dependencies: readonly PackageInstallSpec[],
+): PackageInstallSpec[] =>
+	Array.from(
+		new Map(
+			dependencies.map((dependency) => [dependency.name, dependency] as const),
+		).values(),
+	);
 
-	return uniquePackageNames.filter(
-		(packageName) => !installedPackages.includes(packageName),
+export const getMissingPackages = (
+	dependencies: readonly PackageInstallSpec[],
+) => {
+	const installedPackages = window.remotion_installedPackages ?? [];
+	return uniqueDependencies(dependencies).filter(
+		(dependency) =>
+			dependency.version !== null ||
+			!installedPackages.includes(dependency.name),
 	);
 };
 
-const addInstalledPackages = (packageNames: string[]) => {
+const addInstalledPackages = (dependencies: readonly PackageInstallSpec[]) => {
 	const installedPackages = window.remotion_installedPackages ?? [];
 	window.remotion_installedPackages = Array.from(
-		new Set([...installedPackages, ...packageNames]),
+		new Set([
+			...installedPackages,
+			...uniqueDependencies(dependencies).map((dependency) => dependency.name),
+		]),
 	);
 };
 
-const formatPackageList = (packageNames: string[]) => {
-	if (packageNames.length === 1) {
-		return packageNames[0];
-	}
-
-	return `${packageNames.length} packages`;
-};
+const formatPackageList = (dependencies: PackageInstallSpec[]) =>
+	dependencies.length === 1
+		? dependencies[0]!.name
+		: `${dependencies.length} packages`;
 
 export const installRequiredPackages = async (
-	packageNames: string[],
+	dependencies: readonly PackageInstallSpec[],
 ): Promise<void> => {
 	const runInstall = async () => {
-		const missingPackages = getMissingPackages(packageNames);
-		if (missingPackages.length === 0) {
-			return;
-		}
-
+		const missingPackages = getMissingPackages(dependencies);
+		if (missingPackages.length === 0) return;
 		showNotification(
 			`Installing ${formatPackageList(missingPackages)}...`,
 			3000,

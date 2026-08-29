@@ -1,7 +1,10 @@
-import React, {useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {WHITE_ALPHA_80} from '../../helpers/colors';
-import {SCHEMA_FIELD_ROW_HEIGHT} from '../../helpers/timeline-layout';
-import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
+import {
+	getTimelineFieldLabelRowStyle,
+	TIMELINE_STACKED_FIELD_HEADER_HEIGHT,
+} from './timeline-field-row-layout';
+import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
@@ -9,6 +12,7 @@ import {
 
 const fieldNameBase: React.CSSProperties = {
 	fontSize: 12,
+	lineHeight: `${TIMELINE_STACKED_FIELD_HEADER_HEIGHT}px`,
 	color: WHITE_ALPHA_80,
 	userSelect: 'none',
 	whiteSpace: 'nowrap',
@@ -24,14 +28,22 @@ export const TimelineFieldLabel: React.FC<{
 	readonly label: string;
 	readonly stacked?: boolean;
 }> = ({rowDepth, selected, label, stacked = false}) => {
+	const {basePadding, highlightSelectedLabel} = useContext(
+		TimelineRowLayoutContext,
+	);
 	const labelRowStyle = useMemo(
 		(): React.CSSProperties => ({
-			...getTimelineFieldLabelRowStyle(rowDepth),
-			...getTimelineSelectedLabelStyle(selected, true),
-			...(stacked ? {flex: `0 0 ${SCHEMA_FIELD_ROW_HEIGHT}px`} : null),
+			...getTimelineFieldLabelRowStyle(rowDepth, basePadding),
+			...getTimelineSelectedLabelStyle(
+				selected && highlightSelectedLabel,
+				true,
+			),
+			...(stacked
+				? {flex: `0 0 ${TIMELINE_STACKED_FIELD_HEADER_HEIGHT}px`}
+				: null),
 			alignSelf: 'stretch',
 		}),
-		[rowDepth, selected, stacked],
+		[basePadding, highlightSelectedLabel, rowDepth, selected, stacked],
 	);
 
 	const fieldNameStyle = useMemo(

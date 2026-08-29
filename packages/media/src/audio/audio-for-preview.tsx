@@ -28,6 +28,7 @@ const {
 } = Internals;
 
 type NewAudioForPreviewProps = {
+	readonly style: React.CSSProperties | null;
 	readonly src: string;
 	readonly playbackRate: number;
 	readonly logLevel: LogLevel;
@@ -39,7 +40,7 @@ type NewAudioForPreviewProps = {
 	readonly trimBefore: number | undefined;
 	readonly name: string | undefined;
 	readonly showInTimeline: boolean;
-	readonly stack: string | null;
+	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToHtml5Audio: boolean;
 	readonly toneFrequency: number | undefined;
 	readonly audioStreamIndex: number | undefined;
@@ -62,7 +63,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	trimBefore,
 	name,
 	showInTimeline,
-	stack,
+	_remotionInternalStack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
 	audioStreamIndex,
@@ -71,6 +72,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	credentials,
 	requestInit,
 	setMediaDurationInSeconds,
+	style,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -140,6 +142,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
 	const initialMuted = useRef(effectiveMuted);
+	const initialVolume = useRef(userPreferredVolume);
 	const initialDurationInFrames = useRef(videoConfig.durationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
 
@@ -220,7 +223,11 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 			mediaPlayerRef.current = player;
 
 			player
-				.initialize(currentTimeRef.current, initialMuted.current)
+				.initialize(
+					currentTimeRef.current,
+					initialMuted.current,
+					initialVolume.current,
+				)
 				.then((result) => {
 					if (result.type === 'disposed') {
 						return;
@@ -375,7 +382,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				name={name}
 				loop={loop}
 				showInTimeline={showInTimeline}
-				stack={stack ?? undefined}
+				style={style ?? undefined}
+				_remotionInternalStack={_remotionInternalStack ?? undefined}
 				toneFrequency={toneFrequency}
 				audioStreamIndex={audioStreamIndex}
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
@@ -389,6 +397,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 };
 
 type InnerAudioProps = {
+	readonly style: React.CSSProperties | null;
 	readonly loop?: boolean;
 	readonly src: string;
 	readonly logLevel?: LogLevel;
@@ -407,7 +416,7 @@ type InnerAudioProps = {
 	readonly showInTimeline?: boolean;
 	readonly trimAfter?: number | undefined;
 	readonly trimBefore?: number | undefined;
-	readonly stack: string | null;
+	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToHtml5Audio?: boolean;
 	readonly toneFrequency?: number;
 	readonly audioStreamIndex?: number;
@@ -430,7 +439,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	trimAfter,
 	trimBefore,
 	showInTimeline,
-	stack,
+	_remotionInternalStack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
 	audioStreamIndex,
@@ -439,6 +448,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	credentials,
 	requestInit,
 	setMediaDurationInSeconds,
+	style,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -493,7 +503,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			trimBefore={trimBefore}
 			name={name}
 			showInTimeline={showInTimeline ?? true}
-			stack={stack}
+			_remotionInternalStack={_remotionInternalStack}
 			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
 			toneFrequency={toneFrequency}
 			onError={onError}
@@ -501,6 +511,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			requestInit={requestInit}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
+			style={style}
 		/>
 	);
 };

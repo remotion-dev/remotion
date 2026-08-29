@@ -6,6 +6,7 @@ import {
 	COLOR_PICKER_SATURATION_BLACK_GRADIENT,
 	COLOR_PICKER_SATURATION_VALUE_GRADIENT,
 } from '../../helpers/colors';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 
 const AREA_HEIGHT = 140;
 
@@ -72,21 +73,26 @@ export const SaturationValueArea: React.FC<{
 			}
 
 			e.preventDefault();
-			(e.target as HTMLElement).setPointerCapture?.(e.pointerId);
 			updateFromEvent(e.clientX, e.clientY, false);
+			let lastPosition = {clientX: e.clientX, clientY: e.clientY};
 
-			const onMove = (ev: PointerEvent) => {
-				updateFromEvent(ev.clientX, ev.clientY, false);
-			};
-
-			const onUp = (ev: PointerEvent) => {
-				window.removeEventListener('pointermove', onMove);
-				window.removeEventListener('pointerup', onUp);
-				updateFromEvent(ev.clientX, ev.clientY, true);
-			};
-
-			window.addEventListener('pointermove', onMove);
-			window.addEventListener('pointerup', onUp);
+			startCapturedPointerSession({
+				event: e.nativeEvent,
+				captureTarget: e.currentTarget,
+				onMove: (ev) => {
+					lastPosition = {clientX: ev.clientX, clientY: ev.clientY};
+					updateFromEvent(ev.clientX, ev.clientY, false);
+				},
+				onEnd: (reason, ev) => {
+					const shouldUseEndEvent =
+						reason === 'pointerup' || reason === 'buttons-released';
+					updateFromEvent(
+						shouldUseEndEvent && ev ? ev.clientX : lastPosition.clientX,
+						shouldUseEndEvent && ev ? ev.clientY : lastPosition.clientY,
+						true,
+					);
+				},
+			});
 		},
 		[updateFromEvent],
 	);

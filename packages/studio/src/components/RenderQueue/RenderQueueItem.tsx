@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
@@ -30,6 +31,7 @@ import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 import {RenderQueueRepeatItem} from './RenderQueueRepeat';
 import {RenderQueueSavingMessage} from './RenderQueueSavingMessage';
+import {useRenderOutputFileDrag} from './use-render-output-file-drag';
 
 const container: React.CSSProperties = {
 	padding: 12,
@@ -37,6 +39,10 @@ const container: React.CSSProperties = {
 	flexDirection: 'row',
 	paddingBottom: 10,
 	paddingRight: 4,
+	marginBottom: 1,
+	marginLeft: 4,
+	borderRadius: 4,
+	width: 'calc(100% - 4px)',
 };
 
 const title: React.CSSProperties = {
@@ -69,6 +75,9 @@ export const RenderQueueItem: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const isClientJob = isClientRenderJob(job);
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const {canDrag, isDragging, onDragEnd, onDragStart} =
+		useRenderOutputFileDrag(job);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -184,11 +193,15 @@ export const RenderQueueItem: React.FC<{
 
 	return (
 		<Row
+			data-render-queue-item={job.id}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={containerStyle}
 			align="center"
 			onClick={onClick}
+			draggable={canDrag}
+			onDragStart={onDragStart}
+			onDragEnd={onDragEnd}
 			className={selected ? SELECTED_CLASSNAME : undefined}
 		>
 			<RenderQueueItemStatus job={job} />
@@ -210,21 +223,25 @@ export const RenderQueueItem: React.FC<{
 				</div>
 			</div>
 			<Spacing x={1} />
-			{canCopyToClipboard ? (
-				<RenderQueueCopyToClipboard job={job as RenderJob} />
-			) : null}
-			{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
-			{job.status === 'running' ? (
-				<RenderQueueCancelButton job={job} />
-			) : (
-				<RenderQueueRemoveItem job={job} />
-			)}
-			{job.status === 'done' ? (
-				clientBlobInfo ? (
-					<RenderQueueDownloadItem job={job as ClientRenderJob} />
-				) : (
-					<RenderQueueOpenInFinderItem job={job} />
-				)
+			{!isDragging ? (
+				<>
+					{canCopyToClipboard ? (
+						<RenderQueueCopyToClipboard job={job as RenderJob} />
+					) : null}
+					{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
+					{job.status === 'running' ? (
+						<RenderQueueCancelButton job={job} />
+					) : isBrowserStudio ? null : (
+						<RenderQueueRemoveItem job={job} />
+					)}
+					{job.status === 'done' ? (
+						clientBlobInfo ? (
+							<RenderQueueDownloadItem job={job as ClientRenderJob} />
+						) : isBrowserStudio ? null : (
+							<RenderQueueOpenInFinderItem job={job} />
+						)
+					) : null}
+				</>
 			) : null}
 		</Row>
 	);

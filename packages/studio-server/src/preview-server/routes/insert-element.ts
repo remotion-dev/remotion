@@ -1,222 +1,234 @@
-import {existsSync, readFileSync} from 'node:fs';
-import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
-import {
-	getElementComponentNameFromSourceCode,
-	makeElementFileNameFromSlug,
-	type InsertElementRequest,
-	type InsertElementResponse,
-	type InsertableCompositionElementPosition,
+import type {
+	ElementInstallExpectedFileState,
+	InsertElementRequest,
+	InsertElementResponse,
 } from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
-import {
-	insertJsxElementIntoComposition,
-	resolveCompositionComponentWithFile,
-} from '../../helpers/resolve-composition-component';
+import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
+import {
+	getElementInstallPlan,
+	normalizeElementSourceForComparison,
+	validateElementInstallPosition,
+} from './element-install-plan';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
-const validatePosition = (
-	position: InsertableCompositionElementPosition | null,
-) => {
-	if (position === null) {
-		return;
-	}
-
-	if (!Number.isFinite(position.x) || !Number.isFinite(position.y)) {
-		throw new Error('Position must be finite');
-	}
-};
-
-const isInside = ({child, parent}: {child: string; parent: string}) => {
-	const relative = path.relative(parent, child);
-	return (
-		relative === '' ||
-		(!relative.startsWith('..') && !path.isAbsolute(relative))
-	);
-};
-
-const withoutTsxExtension = (fileName: string) => {
-	return fileName.replace(/\.tsx$/, '');
-};
-
-const normalizeSourceForComparison = (source: string) => {
-	return source.replace(/\r\n/g, '\n').trim();
-};
-
-const makeRelativeImportPath = ({
-	fromFile,
-	toFile,
+const hasExpectedFileState = ({
+	expected,
+	actual,
 }: {
-	fromFile: string;
-	toFile: string;
+	expected: ElementInstallExpectedFileState;
+	actual: ElementInstallExpectedFileState;
 }) => {
-	const withoutExtension = withoutTsxExtension(toFile);
-	let relative = path
-		.relative(path.dirname(fromFile), withoutExtension)
-		.split(path.sep)
-		.join('/');
-
-	if (!relative.startsWith('.')) {
-		relative = `./${relative}`;
+	if (expected.exists !== actual.exists) {
+		return false;
 	}
 
-	return relative;
-};
-
-const validateDimensions = (
-	dimensions: InsertElementRequest['element']['dimensions'],
-) => {
-	if (dimensions === null) {
-		return;
+	if (!expected.exists) {
+		return true;
 	}
 
-	if (
-		!Number.isFinite(dimensions.width) ||
-		!Number.isFinite(dimensions.height) ||
-		dimensions.width <= 0 ||
-		dimensions.height <= 0
-	) {
-		throw new Error('Element dimensions must be positive finite numbers');
-	}
-};
-
-const validateElement = (element: InsertElementRequest['element']) => {
-	if (makeElementFileNameFromSlug(element.slug) === null) {
-		throw new Error(
-			'Element slug must produce a safe lowercase .tsx file name',
-		);
+	if (!actual.exists) {
+		return false;
 	}
 
-	if (
-		typeof element.sourceCode !== 'string' ||
-		element.sourceCode.trim().length === 0 ||
-		element.sourceCode.length > 200000
-	) {
-		throw new Error('Unsupported Element source code');
-	}
-
-	if (getElementComponentNameFromSourceCode(element.sourceCode) === null) {
-		throw new Error('Element source must export exactly one named component');
-	}
-
-	validateDimensions(element.dimensions);
+	return actual.sourceHash === expected.sourceHash;
 };
 
 export const insertElementHandler: ApiHandler<
 	InsertElementRequest,
 	InsertElementResponse
 > = ({
-	input: {compositionFile, compositionId, element, position},
+	input: {
+		compositionFile,
+		compositionId,
+		element,
+		expectedFileState,
+		from,
+		position,
+		overwriteExisting,
+	},
+	entryPoint,
 	remotionRoot,
 	logLevel,
 }) =>
 	withSourceFileWriteQueue(async () => {
 		try {
-			validateElement(element);
-			validatePosition(position);
-			const componentName = getElementComponentNameFromSourceCode(
-				element.sourceCode,
-			);
-			if (componentName === null) {
-				throw new Error(
-					'Element source must export exactly one named component',
-				);
+			validateElementInstallPosition(position);
+			if (
+				from !== null &&
+				(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
+			) {
+				throw new Error('from must be a non-negative integer');
 			}
+
+			const installationMode = element.installationMode ?? 'wrapped';
+			const componentOwnsSequence =
+				installationMode === 'component-owned-sequence';
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
 				`[insert-element] Received request for compositionFile="${compositionFile}" compositionId="${compositionId}" element="${element.slug}"`,
 			);
 
-			const location = await resolveCompositionComponentWithFile({
+			const plan = await getElementInstallPlan({
+				destination: {
+					type: 'current-composition',
+					compositionFile,
+					compositionId,
+				},
+				element,
+				entryPoint,
 				remotionRoot,
-				compositionFile,
-				compositionId,
 			});
-			if (!location.canAddSequence) {
-				throw new Error(
-					'Cannot insert Element into this composition component',
-				);
-			}
-
-			const derivedElementFileName = makeElementFileNameFromSlug(element.slug);
-			if (derivedElementFileName === null) {
-				throw new Error(
-					'Element slug must produce a safe lowercase .tsx file name',
-				);
-			}
-
-			const elementFileName = path.resolve(
-				path.dirname(location.fileName),
-				derivedElementFileName,
-			);
-			if (!isInside({child: elementFileName, parent: remotionRoot})) {
-				throw new Error('Element file must stay inside the Remotion project');
-			}
-
-			const elementFileExists = existsSync(elementFileName);
-			if (elementFileExists) {
-				const existingSource = readFileSync(elementFileName, 'utf-8');
-				if (
-					normalizeSourceForComparison(existingSource) !==
-					normalizeSourceForComparison(element.sourceCode)
-				) {
-					throw new Error(
-						`Element file already exists with different contents: ${derivedElementFileName}`,
-					);
+			if (
+				expectedFileState !== null &&
+				!hasExpectedFileState({
+					actual: plan.expectedFileState,
+					expected: expectedFileState,
+				})
+			) {
+				const {existingElementSource} = plan;
+				if (existingElementSource !== null) {
+					return {
+						success: false,
+						type: 'file-conflict',
+						conflict: {
+							filePath: plan.filePath,
+							existingSource: existingElementSource,
+							incomingSource: element.sourceCode,
+						},
+					};
 				}
+
+				throw new Error('Element source changed during installation');
 			}
 
-			const importPath = makeRelativeImportPath({
-				fromFile: location.fileName,
-				toFile: elementFileName,
-			});
+			const elementSourcesDiffer =
+				plan.existingElementSource !== null &&
+				normalizeElementSourceForComparison(plan.existingElementSource) !==
+					normalizeElementSourceForComparison(element.sourceCode);
 
+			if (
+				elementSourcesDiffer &&
+				!overwriteExisting &&
+				plan.existingElementSource !== null
+			) {
+				return {
+					success: false,
+					type: 'file-conflict',
+					conflict: {
+						filePath: plan.filePath,
+						existingSource: plan.existingElementSource,
+						incomingSource: element.sourceCode,
+					},
+				};
+			}
+
+			const shouldWriteElementFile =
+				!plan.elementFileExists || elementSourcesDiffer;
 			const inserted = await insertJsxElementIntoComposition({
 				remotionRoot,
 				compositionFile,
 				compositionId,
 				element: {
 					type: 'component',
-					componentName,
-					importName: componentName,
-					importPath,
-					props: [],
-					position: null,
+					componentName: plan.componentName,
+					importName: plan.componentName,
+					importPath: plan.importPath,
+					props: componentOwnsSequence
+						? [
+								...(element.durationInFrames === undefined
+									? []
+									: [
+											{
+												name: 'durationInFrames',
+												value: element.durationInFrames,
+											},
+										]),
+								{name: 'name', value: element.displayName},
+							]
+						: [],
+					position: componentOwnsSequence ? position : null,
 				},
+				from: componentOwnsSequence ? from : null,
 				prettierConfigOverride: null,
-				wrapInSequence: {
-					dimensions: element.dimensions,
-					name: element.displayName,
-					position,
-				},
+				wrapInSequence: componentOwnsSequence
+					? null
+					: {
+							dimensions: element.dimensions,
+							durationInFrames: element.durationInFrames ?? null,
+							from,
+							name: element.displayName,
+							position,
+						},
 			});
+			const finalPlan = await getElementInstallPlan({
+				destination: {
+					type: 'current-composition',
+					compositionFile,
+					compositionId,
+				},
+				element,
+				entryPoint,
+				remotionRoot,
+			});
+			if (
+				finalPlan.safePaths.compositionFileName !==
+				plan.safePaths.compositionFileName
+			) {
+				throw new Error(
+					'Composition source changed during Element installation',
+				);
+			}
+
+			if (
+				!hasExpectedFileState({
+					actual: finalPlan.expectedFileState,
+					expected: plan.expectedFileState,
+				})
+			) {
+				throw new Error('Element source changed during installation');
+			}
+
+			const nodePathMutation = broadcastSequenceNodePathMutation([
+				{
+					absolutePath: inserted.fileName,
+					remappings: inserted.nodePathRemappings,
+				},
+			]);
 
 			pushTransactionToUndoStack({
 				snapshots: [
-					...(elementFileExists
-						? []
-						: [
+					...(shouldWriteElementFile
+						? [
 								{
-									filePath: elementFileName,
-									oldContents: null,
+									filePath: plan.elementFileName,
+									oldContents: plan.existingElementSource,
 									newContents: element.sourceCode,
 									logLine: 1,
+									nodePathRemappings: null,
 								},
-							]),
+							]
+						: []),
 					{
 						filePath: inserted.fileName,
 						oldContents: inserted.oldContents,
 						newContents: inserted.output,
 						logLine: inserted.logLine,
+						nodePathRemappings: inserted.nodePathRemappings,
 					},
 				],
 				logLevel,
@@ -228,25 +240,27 @@ export const insertElementHandler: ApiHandler<
 				entryType: 'insert-jsx-element',
 				suppressHmrOnFileRestore: false,
 			});
-			if (!elementFileExists) {
-				suppressUndoStackInvalidation(elementFileName);
+			if (shouldWriteElementFile) {
+				suppressUndoStackInvalidation(plan.elementFileName);
 			}
 
 			suppressUndoStackInvalidation(inserted.fileName);
 
-			if (!elementFileExists) {
-				writeFileAndNotifyFileWatchers(
-					elementFileName,
-					element.sourceCode,
-					undefined,
-				);
+			if (shouldWriteElementFile) {
+				writeFileAndNotifyFileWatchers({
+					file: plan.elementFileName,
+					content: element.sourceCode,
+					originatorClientId: undefined,
+					metadata: null,
+				});
 			}
 
-			writeFileAndNotifyFileWatchers(
-				inserted.fileName,
-				inserted.output,
-				undefined,
-			);
+			writeFileAndNotifyFileWatchers({
+				file: inserted.fileName,
+				content: inserted.output,
+				originatorClientId: undefined,
+				metadata: {skipSequencePropsUpdate: true},
+			});
 
 			const compositionLocationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -255,16 +269,21 @@ export const insertElementHandler: ApiHandler<
 			});
 			const elementLocationLabel = formatLogFileLocation({
 				remotionRoot,
-				absolutePath: elementFileName,
+				absolutePath: plan.elementFileName,
 				line: 1,
 			});
+			const elementFileAction = elementSourcesDiffer
+				? 'Overwrote existing Element source'
+				: plan.elementFileExists
+					? 'Reused existing Element source'
+					: 'Created Element source';
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(elementLocationLabel)} ${elementFileExists ? 'Reused existing Element source' : 'Created Element source'}`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(elementLocationLabel)} ${elementFileAction}`,
 			);
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${componentName}>`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${plan.componentName}>`,
 			);
 			if (!inserted.formatted) {
 				warnAboutPrettierOnce(logLevel);
@@ -272,12 +291,11 @@ export const insertElementHandler: ApiHandler<
 
 			printUndoHint(logLevel);
 
-			return {
-				success: true,
-			};
+			return {success: true, nodePathMutation};
 		} catch (err) {
 			return {
 				success: false,
+				type: 'error',
 				reason: (err as Error).message,
 				stack: (err as Error).stack as string,
 			};

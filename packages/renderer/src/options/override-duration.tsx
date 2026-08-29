@@ -45,5 +45,8 @@ export const overrideDurationOption = {
 		});
 		currentDuration = duration;
 	},
+	reset: () => {
+		currentDuration = null;
+	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<number | null>;

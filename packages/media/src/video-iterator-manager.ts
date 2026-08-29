@@ -17,6 +17,30 @@ import {
 
 const {runEffectChain} = Internals;
 
+export const isSequentialMediaTimeAdvance = ({
+	previousTime,
+	newTime,
+	fps,
+	playbackRate,
+	isPlaying,
+}: {
+	previousTime: number;
+	newTime: number;
+	fps: number;
+	playbackRate: number;
+	isPlaying: boolean;
+}) => {
+	if (!isPlaying || newTime < previousTime) {
+		return false;
+	}
+
+	const maximumSequentialAdvance = Math.abs(playbackRate) / fps;
+	return (
+		roundTo4Digits(newTime - previousTime) <=
+		roundTo4Digits(maximumSequentialAdvance)
+	);
+};
+
 export const videoIteratorManager = async ({
 	delayPlaybackHandleIfNotPremounting,
 	canvas,
@@ -162,6 +186,13 @@ export const videoIteratorManager = async ({
 		}
 
 		if (nonce.isStale()) {
+			// During a paused scrub, every seek goes stale before its decode
+			// lands, so returning undrawn would discard every frame and freeze
+			// the preview. Painting is safe: the newer seek always lands last.
+			if (!videoFrameIterator.isDestroyed() && iterator.initialFrame) {
+				await drawFrame(iterator.initialFrame);
+			}
+
 			return;
 		}
 
@@ -177,7 +208,19 @@ export const videoIteratorManager = async ({
 		await drawFrame(iterator.initialFrame);
 	};
 
-	const seek = async ({newTime, nonce}: {newTime: number; nonce: Nonce}) => {
+	const seek = async ({
+		newTime,
+		nonce,
+		fps,
+		playbackRate,
+		isPlaying,
+	}: {
+		newTime: number;
+		nonce: Nonce;
+		fps: number;
+		playbackRate: number;
+		isPlaying: boolean;
+	}) => {
 		if (!videoFrameIterator) {
 			return;
 		}
@@ -189,6 +232,7 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
+		const previousTime = currentSeek;
 		currentSeek = newTime;
 
 		if (getIsLooping()) {
@@ -200,8 +244,24 @@ export const videoIteratorManager = async ({
 			}
 		}
 
-		const videoSatisfyResult =
-			await videoFrameIterator.tryToSatisfySeek(newTime);
+		const pendingFrameBehavior =
+			previousTime !== null &&
+			isSequentialMediaTimeAdvance({
+				previousTime,
+				newTime,
+				fps,
+				playbackRate,
+				isPlaying,
+			})
+				? 'wait'
+				: 'restart-iterator';
+		const videoSatisfyResult = await videoFrameIterator.tryToSatisfySeek(
+			newTime,
+			{
+				pendingFrameBehavior,
+				shouldContinue: () => !nonce.isStale(),
+			},
+		);
 
 		// Doing this before the staleness check, because
 		// frame might be better than what we currently have

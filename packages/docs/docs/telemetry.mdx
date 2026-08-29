@@ -1,0 +1,226 @@
+---
+image: /generated/articles-docs-telemetry.png
+crumb: 'License and terms'
+sidebar_label: Telemetry
+title: Telemetry
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Remotion sometimes sends telemetry that reports when a render has been made, using the [`@remotion/licensing`](/docs/licensing) package.  
+Telemetry never blocks or fails a render - even if the telemetry request fails, the render will still complete successfully.
+
+## Why Remotion has telemetry
+
+Remotion is [free for individuals and small companies](/docs/license) but requires a [paid license](https://remotion.pro) for bigger companies.
+The price depends on the amount of renders.
+
+Telemetry makes it easier to track renders and ensure accountability.  
+We do not use telemetry for any other purposes than ensuring proper licensing.
+
+## Telemetry in server-side rendering
+
+Server-side rendering APIs only send telemetry when the `licenseKey` option is set, and only for successful renders:
+
+- [`@remotion/renderer`](/docs/renderer): [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey)
+- [`@remotion/lambda`](/docs/lambda): [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey)
+- [`@remotion/vercel`](/docs/vercel/api): [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#licensekey)
+
+## Telemetry in client-side rendering
+
+[Client-side rendering](/docs/client-side-rendering) APIs always send a telemetry event for every render, even if no `licenseKey` is set:
+
+- [`@remotion/web-renderer`](/docs/web-renderer): [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#licensekey) and [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#licensekey)
+
+An event is sent whether the render succeeded or failed.  
+If the render is aborted, no event is sent.
+
+## Obligation to set a license key
+
+In Remotion 5.0, it becomes obligatory for companies which are under the "Remotion for Automators" option to set the `licenseKey` field and opt into telemetry.
+
+This obligation does not apply to companies under the "Remotion for Creators" option. Setting a `licenseKey` is not required, but Creators should still set one in the [Remotion Studio](/docs/studio) to avoid a warning being shown. A `licenseKey` also lets Creators track their own usage.
+
+Customers who cannot enable telemetry due to company policy must arrange an alternative reporting method with Remotion.
+
+## Sent information
+
+The following information is sent:
+
+- License key (if set)
+- IP address of the machine triggering the render
+- Whether this render was a video or a still image
+- Whether this render was in production or development
+
+For [client-side rendering](/docs/client-side-rendering), the following additional information is sent:
+
+- Domain name (e.g. `https://www.remotion.dev`) - the value of `window.location.origin` of the page performing the render. Server-side rendering does not send a domain name.
+- Whether the render succeeded or failed - server-side rendering only sends events for successful renders.
+
+No content or metadata of the video rendered, or any user data is collected.
+
+:::note
+If you utilize client-side rendering, the end user's IP address is transmitted to Remotion strictly for license verification and billing metrics. You should ensure your app's privacy policy reflects that limited operational telemetry is shared with technical service providers under Legitimate Interest.
+:::
+
+## Setting a license key
+
+If you [qualify for the free license](/docs/license), pass `"free-license"` to `licenseKey` to declare your eligibility for the free license.  
+For client-side rendering, this also disables the warning in the console.
+
+If you have a Remotion Company License or Enterprise License, go to [remotion.pro](https://remotion.pro) and get your license key from the License keys page.
+
+<Tabs
+defaultValue="server-side-rendering"
+values={[
+{ label: 'Server-side rendering', value: 'server-side-rendering', },
+{ label: 'Client-side rendering', value: 'client-side-rendering', },
+]
+}>
+<TabItem value="server-side-rendering">
+
+For tracking server-side renders, you should use the private key.
+
+Pass the `licenseKey` option to [`renderMedia()`](/docs/renderer/render-media#licensekey), [`renderStill()`](/docs/renderer/render-still#licensekey) or the equivalent APIs of [`@remotion/lambda`](/docs/lambda) and [`@remotion/vercel`](/docs/vercel/api):
+
+```ts twoslash title="Declare eligibility for the free license" {7}
+const serveUrl = '/path/to/bundle';
+const outputLocation = '/path/to/video.mp4';
+
+import {renderMedia, selectComposition} from '@remotion/renderer';
+
+const inputProps = {};
+
+const composition = await selectComposition({
+  serveUrl,
+  id: 'my-video',
+  inputProps,
+});
+
+// ---cut---
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: 'h264',
+  outputLocation,
+  inputProps,
+  licenseKey: 'free-license',
+});
+```
+
+```ts twoslash title="Set a license key" {7}
+const serveUrl = '/path/to/bundle';
+const outputLocation = '/path/to/video.mp4';
+
+import {renderMedia, selectComposition} from '@remotion/renderer';
+
+const inputProps = {};
+
+const composition = await selectComposition({
+  serveUrl,
+  id: 'my-video',
+  inputProps,
+});
+
+// ---cut---
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: 'h264',
+  outputLocation,
+  inputProps,
+  licenseKey: process.env.REMOTION_PRIVATE_LICENSE_KEY,
+});
+```
+
+</TabItem>
+<TabItem value="client-side-rendering">
+
+For tracking client-side renders, you should use the public key.  
+We recommend limiting which domains can send telemetry in your dashboard.
+
+Pass the `licenseKey` option to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#licensekey) or [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#licensekey):
+
+```tsx twoslash title="Declare eligibility for the free license" {6}
+import React from 'react';
+const Component: React.FC = () => {
+  return (
+    <svg viewBox="0 0 100 100" width="100" height="100" style={{transform: 'rotate(45deg)'}}>
+      <polygon points="50,10 90,90 10,90" fill="orange" />
+    </svg>
+  );
+};
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  calculateMetadata: null,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+await renderMediaOnWeb({
+  composition,
+  inputProps: {},
+  licenseKey: 'free-license',
+});
+```
+
+```tsx twoslash title="Set a license key" {6}
+import React from 'react';
+const Component: React.FC = () => {
+  return (
+    <svg viewBox="0 0 100 100" width="100" height="100" style={{transform: 'rotate(45deg)'}}>
+      <polygon points="50,10 90,90 10,90" fill="orange" />
+    </svg>
+  );
+};
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  calculateMetadata: null,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+await renderMediaOnWeb({
+  composition,
+  inputProps: {},
+  licenseKey: 'rm_pub_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+});
+```
+
+</TabItem>
+</Tabs>
+
+## Tracking usage
+
+After you set up the license key, you can now track your usage on the same Usage tab.
+
+Usage is not (yet) tied to billing.  
+You will need to update your render count manually periodically to reflect your usage.
+
+To check the usage programmatically, for example to implement spend controls, use [`getUsage()`](/docs/licensing/get-usage) from the [`@remotion/licensing`](/docs/licensing) package.
+
+## Data retention
+
+Telemetry data is currently retained indefinitely and is not regularly deleted.  
+It is not shared with any third parties and is only used internally by Remotion for license accountability.
+
+## See also
+
+- [`@remotion/licensing`](/docs/licensing)
+- [License](/docs/license)
+- [Terms](/docs/terms)

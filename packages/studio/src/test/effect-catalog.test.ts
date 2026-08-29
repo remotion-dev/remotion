@@ -15,6 +15,9 @@ test('effect catalog exposes documentation links for picker context menu', () =>
 	expect(links.get('brightness()')).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
 	);
+	expect(links.get('colorCorrection()')).toBe(
+		'https://www.remotion.dev/docs/effects/color-correction',
+	);
 	expect(links.get('xyTranslate()')).toBe(
 		'https://www.remotion.dev/docs/effects/xy-translate',
 	);
@@ -34,9 +37,9 @@ test('effect catalog exposes documentation links for picker context menu', () =>
 		'https://www.remotion.dev/docs/effects/shrinkwrap',
 	);
 	expect(links.get('lightLeak()')).toBe(
-		'https://www.remotion.dev/docs/light-leaks/light-leak-effect',
+		'https://www.remotion.dev/docs/effects/light-leak',
 	);
 	expect(links.get('starburst()')).toBe(
-		'https://www.remotion.dev/docs/starburst/starburst-effect',
+		'https://www.remotion.dev/docs/effects/starburst',
 	);
 });

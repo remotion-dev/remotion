@@ -148,36 +148,40 @@ When you update your Remotion code in the future, redeploy your site. Pass the s
 </TabItem>
 <TabItem value="node">
 
-First, you need to create an S3 bucket in your preferred region. If one already exists, it will be used instead:
+First, create an S3 bucket in your preferred region. If one already exists, it will be used instead:
 
 ```ts twoslash
-import path from 'path';
-import {deploySite, getOrCreateBucket} from '@remotion/lambda';
+import {getOrCreateBucket} from '@remotion/lambda';
 
 const {bucketName} = await getOrCreateBucket({
   region: 'us-east-1',
 });
 ```
 
-Next, upload your Remotion project to an S3 bucket. Specify the entry point of your Remotion project, this is the file where [`registerRoot()`](/docs/register-root) is called.
+Next, build your Remotion project and upload the resulting bundle to the bucket. The entry point is the file where [`registerRoot()`](/docs/register-root) is called.
 
 ```ts twoslash
 import path from 'path';
-import {deploySite, getOrCreateBucket} from '@remotion/lambda';
+import {bundle} from '@remotion/bundler';
+import {deploySiteFromBundle, getOrCreateBucket} from '@remotion/lambda';
 
 const {bucketName} = await getOrCreateBucket({
   region: 'us-east-1',
 });
 // ---cut---
-const {serveUrl} = await deploySite({
-  bucketName,
+const bundleDir = await bundle({
   entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+});
+
+const {serveUrl} = await deploySiteFromBundle({
+  bucketName,
+  bundleDir,
   region: 'us-east-1',
   siteName: 'my-video',
 });
 ```
 
-When you update your Remotion code in the future, redeploy your site. Pass the same [`siteName`](/docs/lambda/deploysite#sitename) to overwrite the previous deploy. If you don't pass [`siteName`](/docs/lambda/deploysite#sitename), a unique URL will be generated on every deploy.
+When you update your Remotion code, create and deploy a new bundle. Pass the same [`siteName`](/docs/lambda/deploysitefrombundle#sitename) to overwrite the previous deployment. If you don't pass [`siteName`](/docs/lambda/deploysitefrombundle#sitename), a unique URL will be generated on every deployment.
 
 </TabItem>
 </Tabs>
@@ -190,7 +194,7 @@ Check the concurrency limit that AWS has given to your account:
 npx remotion lambda quotas
 ```
 
-By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit#new-accounts-using-aws-lambda). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [you might want to request an increase right away](/docs/lambda/troubleshooting/rate-limit#request-an-increase).
+By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit#new-accounts-using-aws-lambda). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [request an increase](/docs/lambda/troubleshooting/rate-limit#request-an-increase). You can use [single-function rendering](/docs/lambda/troubleshooting/rate-limit#render-with-one-function) while waiting for the increase.
 
 ## 11. Render a video
 

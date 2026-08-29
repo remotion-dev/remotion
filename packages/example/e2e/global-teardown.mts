@@ -1,15 +1,19 @@
 import fs from 'fs';
 import {
 	ORIGINAL_CONTENT_FILE,
+	ORIGINAL_EFFECT_KEYFRAME_E2E_FILE,
 	ORIGINAL_ERROR_OVERLAY_E2E_FILE,
 	ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE,
 	ORIGINAL_LOST_NODE_PATH_E2E_FILE,
 	ORIGINAL_VISUAL_CONTROLS_FILE,
+	ORIGINAL_VISUAL_MODE_3D_FILE,
+	effectKeyframeE2eFile,
 	errorOverlayE2eFile,
 	hookOrderChangeE2eFile,
 	lostNodePathE2eFile,
 	rootFile,
 	visualControlsFile,
+	visualMode3DFile,
 } from './constants.mts';
 
 export default async function globalTeardown(): Promise<void> {
@@ -24,6 +28,22 @@ export default async function globalTeardown(): Promise<void> {
 			fs.readFileSync(ORIGINAL_VISUAL_CONTROLS_FILE, 'utf-8'),
 		);
 		fs.unlinkSync(ORIGINAL_VISUAL_CONTROLS_FILE);
+	}
+
+	if (fs.existsSync(ORIGINAL_VISUAL_MODE_3D_FILE)) {
+		fs.writeFileSync(
+			visualMode3DFile,
+			fs.readFileSync(ORIGINAL_VISUAL_MODE_3D_FILE, 'utf-8'),
+		);
+		fs.unlinkSync(ORIGINAL_VISUAL_MODE_3D_FILE);
+	}
+
+	if (fs.existsSync(ORIGINAL_EFFECT_KEYFRAME_E2E_FILE)) {
+		fs.writeFileSync(
+			effectKeyframeE2eFile,
+			fs.readFileSync(ORIGINAL_EFFECT_KEYFRAME_E2E_FILE, 'utf-8'),
+		);
+		fs.unlinkSync(ORIGINAL_EFFECT_KEYFRAME_E2E_FILE);
 	}
 
 	if (fs.existsSync(ORIGINAL_LOST_NODE_PATH_E2E_FILE)) {

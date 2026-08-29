@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {BLUE, WHITE} from '../helpers/colors';
+import {BLUE} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -33,8 +33,12 @@ const getTooltipText = (pointType: string, key: string) =>
 		.join(' ');
 
 const style: React.CSSProperties = {
-	width: 16,
-	height: 16,
+	width: 17,
+	height: 17,
+};
+
+const buttonStyle: React.CSSProperties = {
+	width: 18,
 };
 
 export const inOutHandles = createRef<{
@@ -50,8 +54,11 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
-	const {getCurrentFrame, isFirstFrame, isLastFrame} =
-		PlayerInternals.usePlayer();
+	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const isFirstFrame = timelinePosition === 0;
+	const isLastFrame =
+		timelinePosition === (videoConfig?.durationInFrames ?? 1) - 1;
 
 	const onInOutClear = useCallback(
 		(composition: string) => {
@@ -300,26 +307,32 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			<ControlButton
 				title={getTooltipText('In', 'I')}
 				aria-label={getTooltipText('In', 'I')}
+				style={buttonStyle}
 				onClick={onInMark}
 				onContextMenu={clearInMark}
 				disabled={!videoConfig || isFirstFrame}
 			>
-				<TimelineInPointer
-					color={inFrame === null ? WHITE : BLUE}
-					style={style}
-				/>
+				{(color) => (
+					<TimelineInPointer
+						color={inFrame === null ? color : BLUE}
+						style={style}
+					/>
+				)}
 			</ControlButton>
 			<ControlButton
 				title={getTooltipText('Out', 'O')}
 				aria-label={getTooltipText('Out', 'O')}
+				style={buttonStyle}
 				onClick={onOutMark}
 				onContextMenu={clearOutMark}
 				disabled={!videoConfig || isLastFrame}
 			>
-				<TimelineOutPointer
-					color={outFrame === null ? WHITE : BLUE}
-					style={style}
-				/>
+				{(color) => (
+					<TimelineOutPointer
+						color={outFrame === null ? color : BLUE}
+						style={style}
+					/>
+				)}
 			</ControlButton>
 		</>
 	);

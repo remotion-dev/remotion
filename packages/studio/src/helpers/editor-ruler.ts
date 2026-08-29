@@ -1,6 +1,11 @@
 import type {Size} from '@remotion/player';
 import {MINIMUM_VISIBLE_CANVAS_SIZE} from '../state/editor-rulers';
-import {BACKGROUND, BACKGROUND__TRANSPARENT, RULER_COLOR} from './colors';
+import {
+	BACKGROUND,
+	BACKGROUND__TRANSPARENT,
+	LIGHT_TEXT,
+	WHITE_ALPHA_15,
+} from './colors';
 import type {RulerGuideHighlight} from './editor-guide-selection';
 
 type Orientation = 'horizontal' | 'vertical';
@@ -85,7 +90,8 @@ const drawGuide = ({
 			scale,
 		}) +
 		originOffset -
-		startMarking * scale;
+		startMarking * scale +
+		0.5;
 	drawGradient({
 		canvasHeight,
 		context,
@@ -165,11 +171,11 @@ export const drawMarkingOnRulerCanvas = ({
 
 	context.clearRect(0, 0, canvasWidth, canvasHeight);
 
-	context.strokeStyle = RULER_COLOR;
+	context.strokeStyle = WHITE_ALPHA_15;
 	context.lineWidth = 1;
 	context.beginPath();
 	points.forEach((point) => {
-		context.strokeStyle = RULER_COLOR;
+		context.strokeStyle = WHITE_ALPHA_15;
 		context.lineWidth = 1;
 		const originDistance = point.position + originOffset - startMarking * scale;
 		context.beginPath();
@@ -196,14 +202,14 @@ export const drawMarkingOnRulerCanvas = ({
 		context.stroke();
 		context.font = '10px Arial, Helvetica, sans-serif';
 		context.textAlign = 'left';
-		context.fillStyle = RULER_COLOR;
+		context.fillStyle = LIGHT_TEXT;
 
 		drawLabel({
 			orientation,
 			context,
 			label: point.value.toString(),
 			originDistance,
-			color: RULER_COLOR,
+			color: LIGHT_TEXT,
 		});
 	});
 

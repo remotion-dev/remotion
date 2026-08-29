@@ -21,6 +21,7 @@ export const RoughNotationPosterizedSeedDemo: React.FC = () => {
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
+				backgroundColor: '#fff',
 			}}
 		>
 			<Interactive.Div

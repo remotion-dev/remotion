@@ -6,9 +6,17 @@ sidebar_label: Passing props
 crumb: "How To"
 ---
 
+import {TableOfContents} from './parameterized-rendering/TableOfContents';
+
+![Editing default props in Remotion Studio](/img/parameterized-rendering-default-props.png)
+
 Remotion allows for [ingesting](/docs/passing-props), [validating](/docs/schemas), [visually editing](/docs/visual-editing), and transforming data that may be used to parametrize a video.
 
 Data may [influence the content](/docs/data-fetching) of the video, or the [metadata](/docs/dynamic-metadata) such as width, height, duration or framerate.
+
+## Table of contents
+
+<TableOfContents />
 
 ## High-level overview
 
@@ -27,7 +35,7 @@ The default props define the shape of the data.
 A schema can be defined and validated.
 </li>
 <li>
-In absence of data, default props can be edited in the Remotion Studio.
+In absence of data, default props can be edited in the Remotion Studio. [Basic controls are inferred from their values](/docs/default-props-inference).
 </li>
 </ul>
 <Step>2</Step> <strong>Input props</strong> may be specified when rendering a video to override the default props.<br/>
@@ -55,15 +63,6 @@ The component may dynamically render content based on the props.
 </ul>
 
 See [here](/docs/props-resolution) for a visual explanation and more details of how the resolution process works.
-
-## Table of contents
-
-- [Passing props](/docs/passing-props)
-- [Defining a Schema](/docs/schemas)
-- [Visual editing](/docs/visual-editing)
-- [Data fetching](/docs/data-fetching)
-- [Variable metadata](/docs/dynamic-metadata)
-- [How props get resolved](/docs/props-resolution)
 
 ## See also
 

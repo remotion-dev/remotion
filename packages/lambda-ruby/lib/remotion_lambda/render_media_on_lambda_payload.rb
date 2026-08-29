@@ -1,5 +1,11 @@
 require_relative 'version'
 
+def resolve_overwrite(overwrite, version)
+  return overwrite unless overwrite.nil?
+
+  version.split('.', 2).first.to_i >= 5
+end
+
 def get_render_media_on_lambda_payload(
   bucket_name: nil,
   codec:,
@@ -13,6 +19,7 @@ def get_render_media_on_lambda_payload(
   crf: nil,
   delete_after: nil,
   download_behavior: nil,
+  enable_cancellation: false,
   encoding_buffer_size: nil,
   encoding_max_rate: nil,
   env_variables: {},
@@ -38,7 +45,7 @@ def get_render_media_on_lambda_payload(
   media_cache_size_in_bytes: nil,
   offthread_video_threads: nil,
   out_name: nil,
-  overwrite: false,
+  overwrite: nil,
   pixel_format: nil,
   prefer_lossless: false,
   privacy: "public",
@@ -73,6 +80,7 @@ payload = {
     crf: crf,
     deleteAfter: delete_after,
     downloadBehavior: download_behavior,
+    enableCancellation: enable_cancellation,
     encodingBufferSize: encoding_buffer_size,
     encodingMaxRate: encoding_max_rate,
     envVariables: env_variables,
@@ -100,7 +108,7 @@ payload = {
     mediaCacheSizeInBytes: media_cache_size_in_bytes,
     offthreadVideoThreads: offthread_video_threads,
     outName: out_name,
-    overwrite: overwrite,
+    overwrite: resolve_overwrite(overwrite, VERSION),
     pixelFormat: pixel_format,
     preferLossless: prefer_lossless,
     sampleRate: sample_rate,

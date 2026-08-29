@@ -9,13 +9,21 @@ import React, {
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import type {InteractiveBaseProps} from '../Interactive.js';
+import type {
+	InteractiveBaseProps,
+	InteractiveCropProps,
+} from '../Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
+	borderSchema,
+	cropSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
+import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp} from './effect-types.js';
@@ -61,7 +69,9 @@ type InnerSolidProps = MandatoryProps &
 	OptionalProps & {
 		overrideId: string | null;
 	};
-export type SolidProps = MandatoryProps & Partial<OptionalProps>;
+export type SolidProps = MandatoryProps &
+	Partial<OptionalProps> &
+	InteractiveCropProps;
 
 export const solidSchema = {
 	...baseSchema,
@@ -96,6 +106,10 @@ export const solidSchema = {
 		hiddenFromList: false,
 	},
 	...transformSchema,
+	...backgroundSchema,
+	...borderSchema,
+	...borderRadiusSchema,
+	...cropSchema,
 } as const satisfies InteractivitySchema;
 
 const SolidInner: React.FC<
@@ -259,6 +273,10 @@ const SolidOuter = forwardRef<
 			hidden,
 			showInTimeline,
 			pixelDensity,
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
 			...props
 		},
 		ref,
@@ -271,6 +289,14 @@ const SolidOuter = forwardRef<
 		useImperativeHandle(ref, () => {
 			return actualRef.current as HTMLCanvasElement;
 		}, []);
+		const croppedStyle = useCropStyle({
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style: style ?? null,
+			componentName: '<Solid />',
+		});
 
 		return (
 			<Sequence
@@ -286,7 +312,6 @@ const SolidOuter = forwardRef<
 				name={name ?? '<Solid>'}
 				outlineRef={actualRef}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
-				// 'stack' is in props
 				{...props}
 			>
 				<SolidInner
@@ -296,7 +321,7 @@ const SolidOuter = forwardRef<
 					height={height}
 					width={width}
 					className={className}
-					style={style}
+					style={croppedStyle ?? undefined}
 					effects={effects}
 					pixelDensity={pixelDensity}
 				/>

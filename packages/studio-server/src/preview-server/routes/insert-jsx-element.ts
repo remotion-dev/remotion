@@ -1,9 +1,7 @@
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
-	areComponentProps,
-	isComponentIdentifier,
-	isComponentImportPath,
 	isUrl,
 	type InsertJsxElementRequest,
 	type InsertJsxElementResponse,
@@ -14,13 +12,17 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const validateDimension = (name: string, value: number) => {
 	if (!Number.isFinite(value) || value < 1) {
@@ -90,6 +92,14 @@ const validateElement = (
 		return;
 	}
 
+	if (element.type === 'svg') {
+		if (typeof element.markup !== 'string' || element.markup.trim() === '') {
+			throw new Error('SVG markup must be a non-empty string');
+		}
+
+		return;
+	}
+
 	if (element.type === 'asset') {
 		if (element.srcType === 'remote') {
 			if (!isUrl(element.src)) {
@@ -104,23 +114,27 @@ const validateElement = (
 			validateDimension('height', element.dimensions.height);
 		}
 
+		if (element.durationInFrames !== null) {
+			validateDimension('durationInFrames', element.durationInFrames);
+		}
+
 		return;
 	}
 
 	if (element.type === 'component') {
-		if (!isComponentIdentifier(element.componentName)) {
+		if (!StudioProtocolInternals.isComponentIdentifier(element.componentName)) {
 			throw new Error('Unsupported component name');
 		}
 
-		if (!isComponentIdentifier(element.importName)) {
+		if (!StudioProtocolInternals.isComponentIdentifier(element.importName)) {
 			throw new Error('Unsupported component import name');
 		}
 
-		if (!isComponentImportPath(element.importPath)) {
+		if (!StudioProtocolInternals.isComponentImportPath(element.importPath)) {
 			throw new Error('Unsupported component import path');
 		}
 
-		if (!areComponentProps(element.props)) {
+		if (!StudioProtocolInternals.areComponentProps(element.props)) {
 			throw new Error('Unsupported component props');
 		}
 
@@ -167,9 +181,13 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 		return '<Solid>';
 	}
 
+	if (element.type === 'svg') {
+		return '<Interactive.Svg>';
+	}
+
 	if (element.type === 'asset') {
 		if (element.assetType === 'image') {
-			return '<Img>';
+			return '<CanvasImage>';
 		}
 
 		if (element.assetType === 'video') {
@@ -204,13 +222,20 @@ export const insertJsxElementHandler: ApiHandler<
 	InsertJsxElementRequest,
 	InsertJsxElementResponse
 > = ({
-	input: {compositionFile, compositionId, element},
+	input: {compositionFile, compositionId, element, from},
 	remotionRoot,
 	logLevel,
 }) =>
 	withSourceFileWriteQueue(async () => {
 		try {
 			validateElement(element, remotionRoot);
+			if (
+				from !== null &&
+				(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
+			) {
+				throw new Error('from must be a non-negative integer');
+			}
+
 			const elementLabel = getElementLabel(element);
 
 			RenderInternals.Log.trace(
@@ -218,14 +243,35 @@ export const insertJsxElementHandler: ApiHandler<
 				`[insert-jsx-element] Received request for compositionFile="${compositionFile}" compositionId="${compositionId}" element="${element.type}"`,
 			);
 
-			const {fileName, source, oldContents, output, formatted, logLine} =
-				await insertJsxElementIntoComposition({
-					remotionRoot,
-					compositionFile,
-					compositionId,
-					element,
-					prettierConfigOverride: null,
-				});
+			const {
+				fileName,
+				source,
+				oldContents,
+				output,
+				formatted,
+				insertedNodePath,
+				logLine,
+				nodePathRemappings,
+			} = await insertJsxElementIntoComposition({
+				remotionRoot,
+				compositionFile,
+				compositionId,
+				element,
+				from,
+				prettierConfigOverride: null,
+			});
+			const nodePathMutation = broadcastSequenceNodePathMutation([
+				{
+					absolutePath: fileName,
+					remappings: nodePathRemappings,
+				},
+			]);
+			if (insertedNodePath === null) {
+				RenderInternals.Log.warn(
+					{indent: false, logLevel},
+					'Could not determine the inserted JSX element node path. Skipping automatic selection.',
+				);
+			}
 
 			pushToUndoStack({
 				filePath: fileName,
@@ -240,9 +286,15 @@ export const insertJsxElementHandler: ApiHandler<
 				},
 				entryType: 'insert-jsx-element',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(fileName);
-			writeFileAndNotifyFileWatchers(fileName, output, undefined);
+			writeFileAndNotifyFileWatchers({
+				file: fileName,
+				content: output,
+				originatorClientId: undefined,
+				metadata: {skipSequencePropsUpdate: true},
+			});
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -251,7 +303,7 @@ export const insertJsxElementHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${elementLabel}`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${elementLabel}`,
 			);
 			if (!formatted) {
 				warnAboutPrettierOnce(logLevel);
@@ -266,6 +318,11 @@ export const insertJsxElementHandler: ApiHandler<
 
 			return {
 				success: true,
+				insertedNodePath:
+					insertedNodePath === null
+						? null
+						: {absolutePath: fileName, nodePath: insertedNodePath},
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {

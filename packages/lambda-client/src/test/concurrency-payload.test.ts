@@ -4,6 +4,7 @@ import {makeLambdaRenderMediaPayload} from '../make-lambda-payload';
 
 test('Should include concurrency field in payload', async () => {
 	const payload = await makeLambdaRenderMediaPayload({
+		enableCancellation: false,
 		region: 'us-east-1',
 		functionName: 'test-function',
 		serveUrl: 'https://example.com',
@@ -68,6 +69,7 @@ test('Should include concurrency field in payload', async () => {
 
 test('Should handle null concurrency', async () => {
 	const payload = await makeLambdaRenderMediaPayload({
+		enableCancellation: false,
 		region: 'us-east-1',
 		functionName: 'test-function',
 		serveUrl: 'https://example.com',

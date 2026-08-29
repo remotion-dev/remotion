@@ -34,5 +34,8 @@ export const imageSequencePatternOption = {
 	setConfig: (pattern: string | null) => {
 		currentImageSequencePattern = pattern;
 	},
+	reset: () => {
+		currentImageSequencePattern = null;
+	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

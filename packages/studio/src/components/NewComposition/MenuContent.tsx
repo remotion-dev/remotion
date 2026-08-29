@@ -1,12 +1,21 @@
 import type {PointerEvent, SetStateAction} from 'react';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {BLACK_ALPHA_60} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {getNextMenuTreeId, MenuTreeContext} from '../Menu/menu-tree-context';
 import {MenuDivider} from '../Menu/MenuDivider';
 import type {MenuId} from '../Menu/MenuItem';
+import {MenuSectionHeader} from '../Menu/MenuSectionHeader';
 import type {SubMenuActivated} from '../Menu/MenuSubItem';
 import {MenuSubItem} from '../Menu/MenuSubItem';
 import {
@@ -32,7 +41,7 @@ const container: React.CSSProperties = {
 };
 
 export const MenuContent: React.FC<{
-	readonly values: ComboboxValue[];
+	readonly values: readonly ComboboxValue[];
 	readonly onHide: () => void;
 	readonly onNextMenu: () => void;
 	readonly onPreviousMenu: () => void;
@@ -52,6 +61,9 @@ export const MenuContent: React.FC<{
 }) => {
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
+	const inheritedMenuTreeId = useContext(MenuTreeContext);
+	const localMenuTreeId = useRef(getNextMenuTreeId());
+	const menuTreeId = inheritedMenuTreeId ?? localMenuTreeId.current;
 	const isMobileLayout = useMobileLayout();
 
 	const [subMenuActivated, setSubMenuActivated] =
@@ -86,7 +98,7 @@ export const MenuContent: React.FC<{
 	}, []);
 
 	const isItemSelectable = useCallback((v: ComboboxValue) => {
-		return v.type !== 'divider' && !v.disabled;
+		return v.type === 'item' && !v.disabled;
 	}, []);
 
 	const onArrowUp = useCallback(() => {
@@ -147,8 +159,8 @@ export const MenuContent: React.FC<{
 			throw new Error('cannot find item');
 		}
 
-		if (item.type === 'divider') {
-			throw new Error('cannot find divider');
+		if (item.type !== 'item') {
+			throw new Error('cannot select non-interactive menu item');
 		}
 
 		if (item.disabled) {
@@ -173,8 +185,8 @@ export const MenuContent: React.FC<{
 			throw new Error('cannot find item');
 		}
 
-		if (item.type === 'divider') {
-			throw new Error('cannot find divider');
+		if (item.type !== 'item') {
+			throw new Error('cannot select non-interactive menu item');
 		}
 
 		if (!item.subMenu) {
@@ -363,8 +375,8 @@ export const MenuContent: React.FC<{
 			return;
 		}
 
-		if (item.type === 'divider') {
-			throw new Error('should not select divider');
+		if (item.type !== 'item') {
+			throw new Error('should not select non-interactive menu item');
 		}
 
 		if (!item.subMenu && subMenuActivated) {
@@ -391,45 +403,54 @@ export const MenuContent: React.FC<{
 	}, [onHide, subMenuActivated]);
 
 	return (
-		<div
-			ref={containerRef}
-			style={containerWithHeight}
-			className={VERTICAL_SCROLLBAR_CLASSNAME}
-		>
-			{values.map((item) => {
-				if (item.type === 'divider') {
-					return <MenuDivider key={item.id} />;
-				}
-
-				const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
-					item.onClick(id, e);
-					if (item.subMenu) {
-						return null;
+		<MenuTreeContext.Provider value={menuTreeId}>
+			<div
+				ref={containerRef}
+				data-remotion-menu-tree-id={menuTreeId}
+				style={containerWithHeight}
+				className={VERTICAL_SCROLLBAR_CLASSNAME}
+			>
+				{values.map((item) => {
+					if (item.type === 'divider') {
+						return <MenuDivider key={item.id} />;
 					}
 
-					onHide();
-				};
+					if (item.type === 'section-header') {
+						return (
+							<MenuSectionHeader key={item.id}>{item.label}</MenuSectionHeader>
+						);
+					}
 
-				return (
-					<MenuSubItem
-						key={item.id}
-						selected={item.id === selectedItem}
-						onActionChosen={onClick}
-						onItemSelected={onItemSelected}
-						label={item.label}
-						id={item.id}
-						keyHint={item.keyHint}
-						leaveLeftSpace={leaveLeftSpace}
-						leftItem={item.leftItem}
-						subMenu={item.subMenu}
-						onQuitMenu={onHide}
-						onNextMenu={onNextMenu}
-						subMenuActivated={subMenuActivated}
-						setSubMenuActivated={setSubMenuActivated}
-						disabled={item.disabled}
-					/>
-				);
-			})}
-		</div>
+					const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
+						item.onClick(id, e);
+						if (item.subMenu) {
+							return null;
+						}
+
+						onHide();
+					};
+
+					return (
+						<MenuSubItem
+							key={item.id}
+							selected={item.id === selectedItem}
+							onActionChosen={onClick}
+							onItemSelected={onItemSelected}
+							label={item.label}
+							id={item.id}
+							keyHint={item.keyHint}
+							leaveLeftSpace={leaveLeftSpace}
+							leftItem={item.leftItem}
+							subMenu={item.subMenu}
+							onQuitMenu={onHide}
+							onNextMenu={onNextMenu}
+							subMenuActivated={subMenuActivated}
+							setSubMenuActivated={setSubMenuActivated}
+							disabled={item.disabled}
+						/>
+					);
+				})}
+			</div>
+		</MenuTreeContext.Provider>
 	);
 };

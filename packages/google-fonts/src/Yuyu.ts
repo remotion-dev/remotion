@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yuyu',
 	importName: 'Yuyu',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Yuyu:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,8 +15,8 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yuyu/v1/cY9Kfj2VT1Zd2UrkM-_L.woff2',
-				latin: 'https://fonts.gstatic.com/s/yuyu/v1/cY9Kfj2VT1Zd2UTkMw.woff2',
+					'https://fonts.gstatic.com/s/yuyu/v2/cY9Kfj2VT1Zd2UrkM-_L.woff2',
+				latin: 'https://fonts.gstatic.com/s/yuyu/v2/cY9Kfj2VT1Zd2UTkMw.woff2',
 			},
 		},
 	},

@@ -1,3 +1,4 @@
+import type {CanvasCaptureData} from './canvas-capture';
 import type {EnumPath} from './stringify-default-props';
 
 export type VisualControlChange = {
@@ -24,6 +25,13 @@ export type RecastCodemod =
 			newWidth: number;
 			newFps: number;
 			newDurationInFrames: number;
+			canvasCapture: {
+				readonly videoFileName: string;
+				readonly videoHeight: number;
+				readonly videoWidth: number;
+				readonly keyframeFps: number;
+				readonly data: CanvasCaptureData;
+			} | null;
 	  }
 	| {
 			type: 'duplicate-composition';
@@ -39,6 +47,14 @@ export type RecastCodemod =
 			type: 'rename-composition';
 			idToRename: string;
 			newId: string;
+	  }
+	| {
+			type: 'update-composition-metadata';
+			idToUpdate: string;
+			newDurationInFrames: number | null;
+			newFps: number | null;
+			newHeight: number | null;
+			newWidth: number | null;
 	  }
 	| {
 			type: 'delete-composition';

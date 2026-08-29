@@ -24,7 +24,7 @@ const ColumnLinkItem = ({item}) => {
 
 const Column = ({column}) => {
 	return (
-		<div className="col footer__col">
+		<div className="footer__col remotion-footer__column">
 			<div style={footerTitle} className="footer__title">
 				{column.title}
 			</div>
@@ -36,14 +36,6 @@ const Column = ({column}) => {
 			</ul>
 		</div>
 	);
-};
-
-const copyright: React.CSSProperties = {
-	textAlign: 'left',
-	color: 'var(--ifm-footer-link-color)',
-	fontSize: '0.8em',
-	marginTop: 15,
-	marginRight: 38,
 };
 
 export default ({columns}) => {
@@ -59,30 +51,25 @@ export default ({columns}) => {
 	}, [colorMode]);
 
 	return (
-		<div className="row footer__links">
-			<div
-				style={{
-					padding: '0 var(--ifm-spacing-horizontal)',
-					marginBottom: 20,
-				}}
-			>
+		<div className="footer__links remotion-footer__links">
+			<div className="remotion-footer__brand">
 				<img
 					key={colorMode}
 					src={src}
-					style={{
-						height: 32,
-						marginRight: 80,
-					}}
+					alt="Remotion"
+					className="remotion-footer__logo"
 				/>
-				<p style={copyright}>
+				<p className="remotion-footer__copyright">
 					© Copyright {new Date().getFullYear()} Remotion AG. <br /> Website
 					created with Docusaurus.
 				</p>
 			</div>
-			{columns.map((column, i) => (
-				// eslint-disable-next-line react/no-array-index-key
-				<Column key={i} column={column} />
-			))}
+			<div className="remotion-footer__categories">
+				{columns.map((column, i) => (
+					// eslint-disable-next-line react/no-array-index-key
+					<Column key={i} column={column} />
+				))}
+			</div>
 		</div>
 	);
 };

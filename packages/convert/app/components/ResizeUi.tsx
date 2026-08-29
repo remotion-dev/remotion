@@ -40,8 +40,11 @@ export const ResizeUi: React.FC<{
 	readonly dimensions: Dimensions;
 	readonly originalDimensions: Dimensions;
 	readonly dimensionsBeforeCrop: Dimensions;
+	readonly sourceDimensions: Dimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly rotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
 	readonly setResizeMode: React.Dispatch<
 		React.SetStateAction<MediabunnyResize | null>
 	>;
@@ -58,24 +61,13 @@ export const ResizeUi: React.FC<{
 	cropRect,
 	crop,
 	dimensionsBeforeCrop,
+	sourceDimensions,
+	mirrorHorizontal,
+	mirrorVertical,
 }) => {
 	const outer: React.CSSProperties = useMemo(() => {
 		return {...getThumbnailDimensions(dimensions), outlineStyle: 'solid'};
 	}, [dimensions]);
-
-	const rotatedDimensions = useMemo(() => {
-		if (rotation % 360 === 90 || rotation % 360 === 270) {
-			return {
-				height: originalDimensions.width,
-				width: originalDimensions.height,
-			};
-		}
-
-		return {
-			height: originalDimensions.height,
-			width: originalDimensions.width,
-		};
-	}, [originalDimensions, rotation]);
 
 	const onChangeHeight = useCallback(
 		(height: number) => {
@@ -107,7 +99,7 @@ export const ResizeUi: React.FC<{
 	return (
 		<div className="mt-6 mb-6">
 			<ResizeShortcuts
-				originalDimensions={rotatedDimensions}
+				originalDimensions={originalDimensions}
 				resolvedDimensions={dimensions}
 				setResizeMode={setResizeMode}
 			/>
@@ -119,16 +111,18 @@ export const ResizeUi: React.FC<{
 					className="rounded bg-white flex justify-center items-center outline-2 outline-slate-300"
 				>
 					<ResizeThumbnail
-						dimensions={rotatedDimensions}
+						dimensions={originalDimensions}
 						thumbnailRef={thumbnailRef}
 						rotation={rotation}
-						scale={dimensions.width / rotatedDimensions.width}
+						scale={dimensions.width / originalDimensions.width}
 						setResizeMode={setResizeMode}
-						unrotatedDimensions={originalDimensions}
 						inputFocused={widthFocused || heightFocused}
 						cropRect={cropRect}
 						crop={crop}
 						dimensionsBeforeCrop={dimensionsBeforeCrop}
+						sourceDimensions={sourceDimensions}
+						mirrorHorizontal={mirrorHorizontal}
+						mirrorVertical={mirrorVertical}
 					/>
 				</div>
 				<div className="flex-1 flex flex-row items-center ml-[2px]">

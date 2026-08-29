@@ -2,6 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {BACKGROUND, LIGHT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
+import {InspectorQuickAction} from './InspectorPanel/common';
 import {getOriginalSourceAttribution} from './Timeline/TimelineStack/source-attribution';
 
 const sourceLocationStyle: React.CSSProperties = {
@@ -24,8 +25,13 @@ const sourceLocationStyle: React.CSSProperties = {
 	textAlign: 'left',
 	textDecoration: 'none',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
 	whiteSpace: 'nowrap',
 	width: 'fit-content',
+};
+
+const quickActionStyle: React.CSSProperties = {
+	userSelect: 'none',
 };
 
 const sourceLocationLabelStyle: React.CSSProperties = {
@@ -45,7 +51,8 @@ export const InspectorSourceLocation: React.FC<{
 	readonly canOpen: boolean;
 	readonly onOpen: () => void;
 	readonly renderIcon?: (color: string) => React.ReactNode;
-}> = ({location, canOpen, onOpen, renderIcon}) => {
+	readonly size?: 'default' | 'quick-action';
+}> = ({location, canOpen, onOpen, renderIcon, size = 'default'}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const validLocation = useMemo((): OriginalPosition | null => {
@@ -94,6 +101,20 @@ export const InspectorSourceLocation: React.FC<{
 
 	if (!label) {
 		return null;
+	}
+
+	if (size === 'quick-action') {
+		return (
+			<InspectorQuickAction
+				disabled={!canOpen}
+				onClick={onClick}
+				renderIcon={(iconColor) => renderIcon?.(iconColor)}
+				style={quickActionStyle}
+				title={fileLocation ?? undefined}
+			>
+				{label}
+			</InspectorQuickAction>
+		);
 	}
 
 	return (

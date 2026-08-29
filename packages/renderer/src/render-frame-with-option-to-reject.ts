@@ -68,7 +68,10 @@ export const renderFrameWithOptionToReject = async ({
 	indent: boolean;
 	logLevel: LogLevel;
 	outputDir: string | null;
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void) | undefined;
+	onFrameBuffer:
+		| null
+		| ((buffer: Buffer, frame: number) => void | Promise<void>)
+		| undefined;
 	imageFormat: VideoImageFormat;
 	onError: (err: Error) => void;
 	lastFrame: number;
@@ -188,7 +191,7 @@ export const renderFrameWithOptionToReject = async ({
 			throw new Error('unexpected null buffer');
 		}
 
-		onFrameBuffer(buffer, frame);
+		await onFrameBuffer(buffer, frame);
 	}
 
 	const onlyAvailableAssets = assets.filter(truthy);
@@ -226,6 +229,8 @@ export const renderFrameWithOptionToReject = async ({
 	});
 
 	const inlineAudioAssets = onlyInlineAudio(collectedAssets);
+	const outputFrame =
+		allFramesAndExtraFrames[0] + allFramesAndExtraFrames.indexOf(frame);
 
 	assets.push({
 		audioAndVideoAssets: compressedAssets,
@@ -263,7 +268,7 @@ export const renderFrameWithOptionToReject = async ({
 
 	for (const renderAsset of inlineAudioAssets) {
 		downloadMap.inlineAudioMixing.addAsset({
-			asset: renderAsset,
+			asset: {...renderAsset, frame: outputFrame},
 			fps,
 			totalNumberOfFrames: allFramesAndExtraFrames.length,
 			firstFrame: allFramesAndExtraFrames[0],

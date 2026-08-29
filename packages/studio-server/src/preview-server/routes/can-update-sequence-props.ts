@@ -7,6 +7,7 @@ import type {
 	JSXElement,
 	JSXOpeningElement,
 	NewExpression,
+	Node,
 	ObjectExpression,
 	ObjectProperty,
 	TSAsExpression,
@@ -32,10 +33,15 @@ import type {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../../codemods/parse-ast';
+import {getCssShorthandForLonghand} from '../../helpers/css-shorthand-properties';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
+import {parseBorderRadiusShorthand} from '../../helpers/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
-import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {
+	FileOutsideProjectError,
+	resolveFileInsideProject,
+} from '../../helpers/resolve-file-inside-project';
 import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
 import {
 	getVideoConfigIdentifierValues,
@@ -58,11 +64,66 @@ type PropPosterize = KeyframedPropStatus['posterize'];
 type PropOutput = KeyframedPropStatus['output'];
 type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
+// A file write synchronously notifies every sequence subscription. Status
+// computation is read-only, so all subscribers can share one parsed snapshot
+// until the notification burst has finished.
+let cachedSequencePropsStatusAst: {
+	fileContents: string;
+	ast: File;
+	videoConfigIdentifierValues: Map<string, VideoConfigIdentifierValues>;
+} | null = null;
+
+// A subsequent save can consume the last read-only snapshot if the file has
+// not changed. The save mutates the AST, so it must only be reused once.
+let reusableSequencePropsStatusAst: {
+	fileContents: string;
+	ast: File;
+} | null = null;
+
+const getCachedSequencePropsStatusAst = (fileContents: string) => {
+	if (cachedSequencePropsStatusAst?.fileContents !== fileContents) {
+		const snapshot = {
+			fileContents,
+			ast: parseAst(fileContents),
+			videoConfigIdentifierValues: new Map<
+				string,
+				VideoConfigIdentifierValues
+			>(),
+		};
+		cachedSequencePropsStatusAst = snapshot;
+		reusableSequencePropsStatusAst = snapshot;
+		queueMicrotask(() => {
+			if (cachedSequencePropsStatusAst === snapshot) {
+				cachedSequencePropsStatusAst = null;
+			}
+		});
+	}
+
+	return cachedSequencePropsStatusAst;
+};
+
+export const takeCachedSequencePropsStatusAst = (
+	fileContents: string,
+): File | null => {
+	if (reusableSequencePropsStatusAst?.fileContents !== fileContents) {
+		return null;
+	}
+
+	const {ast} = reusableSequencePropsStatusAst;
+	reusableSequencePropsStatusAst = null;
+	if (cachedSequencePropsStatusAst?.ast === ast) {
+		cachedSequencePropsStatusAst = null;
+	}
+
+	return ast;
+};
+
 const staticStatus = (
 	codeValue: unknown,
 	numericExpression: VideoConfigNumericExpression | null,
 ): CanUpdatePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue,
 	...(numericExpression === null || numericExpression.type === 'literal'
 		? {}
@@ -492,6 +553,7 @@ const getInterpolationKeyframes = (
 			posterize: PropPosterize;
 			output: PropOutput;
 			interpolationFunction: PropInterpolationFunction;
+			keyframeDisplayOffsetAdjustment: number | null;
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
@@ -549,12 +611,20 @@ const getInterpolationKeyframes = (
 	if (
 		!frameArg ||
 		frameArg.type === 'SpreadElement' ||
-		!isCurrentFrameIdentifier(frameArg as Expression, ast) ||
 		!inputArg ||
 		!outputArg ||
 		inputArg.type !== 'ArrayExpression' ||
 		outputArg.type !== 'ArrayExpression'
 	) {
+		return undefined;
+	}
+
+	const frameDisplayOffset = getCurrentFrameDisplayOffsetAdjustment({
+		node: frameArg as Expression,
+		ast,
+		videoConfigValues,
+	});
+	if (frameDisplayOffset === null) {
 		return undefined;
 	}
 
@@ -610,48 +680,403 @@ const getInterpolationKeyframes = (
 		clamping: metadata.clamping,
 		posterize: metadata.posterize,
 		output: metadata.output,
+		keyframeDisplayOffsetAdjustment: frameDisplayOffset.hasEnclosingElement
+			? frameDisplayOffset.adjustment
+			: null,
 	};
 };
 
-const isUseCurrentFrameCall = (node: Expression): boolean => {
-	return (
-		node.type === 'CallExpression' &&
-		node.callee.type === 'Identifier' &&
-		node.callee.name === 'useCurrentFrame' &&
-		node.arguments.length === 0
-	);
-};
+const getRemotionImportNames = ({
+	ast,
+	importedName,
+}: {
+	ast: File;
+	importedName: string;
+}): {direct: Set<string>; namespaces: Set<string>} => {
+	const direct = new Set<string>();
+	const namespaces = new Set<string>();
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.source.value !== 'remotion'
+		) {
+			continue;
+		}
 
-const isCurrentFrameIdentifier = (node: Expression, ast: File): boolean => {
-	if (node.type === 'TSAsExpression') {
-		return isCurrentFrameIdentifier(node.expression as Expression, ast);
+		for (const specifier of statement.specifiers ?? []) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				((specifier.imported.type === 'Identifier' &&
+					specifier.imported.name === importedName) ||
+					(specifier.imported.type === 'StringLiteral' &&
+						specifier.imported.value === importedName))
+			) {
+				direct.add(specifier.local?.name ?? importedName);
+			}
+
+			if (specifier.type === 'ImportNamespaceSpecifier') {
+				namespaces.add(specifier.local.name);
+			}
+		}
 	}
 
-	if (node.type !== 'Identifier') {
+	return {direct, namespaces};
+};
+
+const isUseCurrentFrameCall = (node: Expression, ast: File): boolean => {
+	if (node.type !== 'CallExpression' || node.arguments.length !== 0) {
 		return false;
 	}
 
-	let hasUseCurrentFrameDeclaration = false;
-	let hasOtherDeclaration = false;
+	const imports = getRemotionImportNames({
+		ast,
+		importedName: 'useCurrentFrame',
+	});
+	if (node.callee.type === 'Identifier') {
+		return imports.direct.has(node.callee.name);
+	}
 
+	return (
+		node.callee.type === 'MemberExpression' &&
+		!node.callee.computed &&
+		node.callee.object.type === 'Identifier' &&
+		node.callee.property.type === 'Identifier' &&
+		imports.namespaces.has(node.callee.object.name) &&
+		node.callee.property.name === 'useCurrentFrame'
+	);
+};
+
+const findNodePath = (
+	ast: File,
+	target: Node,
+): recast.types.NodePath | null => {
+	let found: recast.types.NodePath | null = null;
 	recast.types.visit(ast, {
+		visitNode(p) {
+			if (p.node === target) {
+				found = p as unknown as recast.types.NodePath;
+				return false;
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	return found;
+};
+
+const getJsxNumericAttribute = ({
+	openingElement,
+	name,
+	defaultValue,
+	videoConfigValues,
+}: {
+	openingElement: JSXOpeningElement;
+	name: string;
+	defaultValue: number;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): number | null => {
+	if (
+		openingElement.attributes.some(
+			(attribute) => attribute.type === 'JSXSpreadAttribute',
+		)
+	) {
+		return null;
+	}
+
+	for (let index = openingElement.attributes.length - 1; index >= 0; index--) {
+		const attribute = openingElement.attributes[index];
+		if (
+			attribute.type !== 'JSXAttribute' ||
+			attribute.name.type !== 'JSXIdentifier' ||
+			attribute.name.name !== name
+		) {
+			continue;
+		}
+
+		if (
+			attribute.value?.type !== 'JSXExpressionContainer' ||
+			attribute.value.expression.type === 'JSXEmptyExpression'
+		) {
+			return null;
+		}
+
+		return (
+			parseVideoConfigNumericExpression({
+				node: attribute.value.expression,
+				videoConfigValues,
+			})?.value ?? null
+		);
+	}
+
+	return defaultValue;
+};
+
+const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
+	startPath,
+	endPath,
+	videoConfigValues,
+}: {
+	startPath: recast.types.NodePath;
+	endPath: recast.types.NodePath;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): {
+	readonly adjustment: number;
+	readonly hasEnclosingElement: boolean;
+} | null => {
+	let current: recast.types.NodePath | null = startPath;
+	let hasSeenControlledElement = false;
+	let hasEnclosingElement = false;
+	let adjustment = 0;
+	while (current && current.value !== endPath.value) {
+		const currentNode = current.value as Node;
+		if (
+			currentNode.type === 'FunctionDeclaration' ||
+			currentNode.type === 'FunctionExpression' ||
+			currentNode.type === 'ArrowFunctionExpression'
+		) {
+			return null;
+		}
+
+		if (currentNode.type === 'JSXElement') {
+			if (!hasSeenControlledElement) {
+				hasSeenControlledElement = true;
+			} else {
+				hasEnclosingElement = true;
+				// Sequence-backed built-ins and userland components can both shift
+				// their children, so the prop names are the semantic boundary.
+				const from = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'from',
+					defaultValue: 0,
+					videoConfigValues,
+				});
+				const trimBefore = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'trimBefore',
+					defaultValue: 0,
+					videoConfigValues,
+				});
+				if (from === null || trimBefore === null) {
+					return null;
+				}
+
+				adjustment -= from - trimBefore;
+			}
+		}
+
+		current = current.parentPath;
+	}
+
+	return current ? {adjustment, hasEnclosingElement} : null;
+};
+
+const getDefaultFrameDisplayOffsetAdjustment = ({
+	jsxPath,
+	videoConfigValues,
+}: {
+	jsxPath: recast.types.NodePath;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): number | null => {
+	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
+	while (functionPath) {
+		const node = functionPath.value as Node;
+		if (
+			node.type === 'FunctionDeclaration' ||
+			node.type === 'FunctionExpression' ||
+			node.type === 'ArrowFunctionExpression'
+		) {
+			break;
+		}
+
+		functionPath = functionPath.parentPath;
+	}
+
+	if (!functionPath) {
+		return null;
+	}
+
+	const result = getFrameDisplayOffsetAdjustmentBetweenPaths({
+		startPath: jsxPath,
+		endPath: functionPath,
+		videoConfigValues,
+	});
+	return result?.adjustment ?? null;
+};
+
+type ResolvedCurrentFrameExpression = {
+	readonly bindingScopePath: recast.types.NodePath;
+	readonly offset: number;
+};
+
+const resolveCurrentFrameExpression = ({
+	node,
+	ast,
+	seenDeclarations,
+}: {
+	node: Expression;
+	ast: File;
+	seenDeclarations: Set<object>;
+}): ResolvedCurrentFrameExpression | null => {
+	if (node.type === 'TSAsExpression') {
+		return resolveCurrentFrameExpression({
+			node: node.expression as Expression,
+			ast,
+			seenDeclarations,
+		});
+	}
+
+	if (
+		node.type === 'BinaryExpression' &&
+		(node.operator === '+' || node.operator === '-')
+	) {
+		const rightValue = getNumericValue(node.right as Expression);
+		if (rightValue !== null && Number.isFinite(rightValue)) {
+			const resolvedLeft = resolveCurrentFrameExpression({
+				node: node.left as Expression,
+				ast,
+				seenDeclarations,
+			});
+			if (resolvedLeft !== null) {
+				return {
+					...resolvedLeft,
+					offset:
+						resolvedLeft.offset +
+						(node.operator === '+' ? rightValue : -rightValue),
+				};
+			}
+		}
+
+		if (node.operator === '+') {
+			const leftValue = getNumericValue(node.left as Expression);
+			if (leftValue !== null && Number.isFinite(leftValue)) {
+				const resolvedRight = resolveCurrentFrameExpression({
+					node: node.right as Expression,
+					ast,
+					seenDeclarations,
+				});
+				if (resolvedRight !== null) {
+					return {
+						...resolvedRight,
+						offset: resolvedRight.offset + leftValue,
+					};
+				}
+			}
+		}
+
+		return null;
+	}
+
+	if (node.type !== 'Identifier') {
+		return null;
+	}
+
+	const nodePath = findNodePath(ast, node);
+	const bindingScope = nodePath?.scope?.lookup(node.name);
+	if (!nodePath || !bindingScope) {
+		return null;
+	}
+
+	let matchingDeclarations = 0;
+	let matchingDeclaration: object | null = null;
+	let initializer: Expression | null = null;
+	let isConstDeclaration = false;
+	recast.types.visit(bindingScope.path, {
 		visitVariableDeclarator(p) {
 			const {id, init} = p.node;
-			if (id.type !== 'Identifier' || id.name !== node.name) {
+			if (
+				id.type !== 'Identifier' ||
+				id.name !== node.name ||
+				p.scope.lookup(node.name)?.path.node !== bindingScope.path.node
+			) {
 				return this.traverse(p);
 			}
 
-			if (init && isUseCurrentFrameCall(init as Expression)) {
-				hasUseCurrentFrameDeclaration = true;
-			} else {
-				hasOtherDeclaration = true;
+			matchingDeclarations++;
+			const declaration = p.parentPath.node;
+			if (init) {
+				matchingDeclaration = p.node;
+				initializer = init as Expression;
+				isConstDeclaration =
+					declaration.type === 'VariableDeclaration' &&
+					declaration.kind === 'const';
 			}
 
 			return false;
 		},
 	});
 
-	return hasUseCurrentFrameDeclaration && !hasOtherDeclaration;
+	if (
+		matchingDeclarations !== 1 ||
+		matchingDeclaration === null ||
+		initializer === null ||
+		seenDeclarations.has(matchingDeclaration)
+	) {
+		return null;
+	}
+
+	if (isUseCurrentFrameCall(initializer, ast)) {
+		return {bindingScopePath: bindingScope.path, offset: 0};
+	}
+
+	if (!isConstDeclaration) {
+		return null;
+	}
+
+	const nextSeenDeclarations = new Set(seenDeclarations);
+	nextSeenDeclarations.add(matchingDeclaration);
+	return resolveCurrentFrameExpression({
+		node: initializer,
+		ast,
+		seenDeclarations: nextSeenDeclarations,
+	});
+};
+
+const getCurrentFrameDisplayOffsetAdjustment = ({
+	node,
+	ast,
+	videoConfigValues,
+}: {
+	node: Expression;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): {
+	readonly adjustment: number;
+	readonly hasEnclosingElement: boolean;
+} | null => {
+	if (node.type === 'TSAsExpression') {
+		return getCurrentFrameDisplayOffsetAdjustment({
+			node: node.expression as Expression,
+			ast,
+			videoConfigValues,
+		});
+	}
+
+	const nodePath = findNodePath(ast, node);
+	const resolved = resolveCurrentFrameExpression({
+		node,
+		ast,
+		seenDeclarations: new Set(),
+	});
+	if (!nodePath || resolved === null) {
+		return null;
+	}
+
+	const frameDisplayOffset = getFrameDisplayOffsetAdjustmentBetweenPaths({
+		startPath: nodePath,
+		endPath: resolved.bindingScopePath,
+		videoConfigValues,
+	});
+	if (frameDisplayOffset === null) {
+		return null;
+	}
+
+	return {
+		...frameDisplayOffset,
+		// interpolate(frame + offset, [keyframe], ...) reaches the keyframe at
+		// composition frame `keyframe - offset`.
+		adjustment: frameDisplayOffset.adjustment - resolved.offset,
+	};
 };
 
 export const getComputedStatus = (
@@ -667,6 +1092,8 @@ export const getComputedStatus = (
 	return {
 		status: 'keyframed',
 		interpolationFunction: interpolation.interpolationFunction,
+		keyframeDisplayOffsetAdjustment:
+			interpolation.keyframeDisplayOffsetAdjustment,
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,
@@ -679,11 +1106,17 @@ const getPropsStatus = (
 	jsxElement: JSXOpeningElement,
 	ast: File,
 	videoConfigValues: VideoConfigIdentifierValues,
+	assetKeys: string[],
 ): Record<string, CanUpdatePropStatus> => {
 	const props: Record<string, CanUpdatePropStatus> = {};
 
 	for (const attr of jsxElement.attributes) {
 		if (attr.type === 'JSXSpreadAttribute') {
+			// The spread may override every prop written before it
+			for (const key of Object.keys(props)) {
+				props[key] = computedStatus();
+			}
+
 			continue;
 		}
 
@@ -710,12 +1143,15 @@ const getPropsStatus = (
 
 		if (value.type === 'JSXExpressionContainer') {
 			const {expression} = value;
+			const staticValueOptions = {
+				allowSpecialValues: assetKeys.includes(name),
+			};
 			if (expression.type === 'JSXEmptyExpression') {
 				props[name] = computedStatus();
 				continue;
 			}
 
-			if (!isStaticValue(expression)) {
+			if (!isStaticValue(expression, staticValueOptions)) {
 				const numericExpression = parseVideoConfigNumericExpression({
 					node: expression,
 					videoConfigValues,
@@ -726,7 +1162,10 @@ const getPropsStatus = (
 				continue;
 			}
 
-			props[name] = staticStatus(extractStaticValue(expression), null);
+			props[name] = staticStatus(
+				extractStaticValue(expression, staticValueOptions),
+				null,
+			);
 			continue;
 		}
 
@@ -736,7 +1175,7 @@ const getPropsStatus = (
 	return props;
 };
 
-const getNodePathForRecastPath = (
+export const getNodePathForRecastPath = (
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	recastPath: any,
 	ast: File,
@@ -781,20 +1220,22 @@ export const findJsxElementAtNodePath = (
 	return current ? (current.value as unknown as JSXOpeningElement) : null;
 };
 
+const getJsxElementNodeFromJsxPath = (
+	jsxPath: recast.types.NodePath,
+): JSXElement | null => {
+	if (recast.types.namedTypes.JSXElement.check(jsxPath.parentPath?.value)) {
+		return jsxPath.parentPath.value as unknown as JSXElement;
+	}
+
+	return null;
+};
+
 export const findJsxElementNodeAtNodePath = (
 	ast: File,
 	nodePath: SequenceNodePath,
 ): JSXElement | null => {
 	const current = findJsxElementPathAtNodePath(ast, nodePath);
-	if (!current) {
-		return null;
-	}
-
-	if (recast.types.namedTypes.JSXElement.check(current.parentPath?.value)) {
-		return current.parentPath.value as unknown as JSXElement;
-	}
-
-	return null;
+	return current ? getJsxElementNodeFromJsxPath(current) : null;
 };
 
 export type StaticJsxTextContent =
@@ -899,32 +1340,142 @@ export const findNodePathForJsxElement = (
 	return foundPath;
 };
 
+const RECAST_TAB_WIDTH = 4;
+
+const sourceColumnToRecastColumn = ({
+	sourceLine,
+	column,
+}: {
+	sourceLine: string | undefined;
+	column: number;
+}) => {
+	if (sourceLine === undefined) {
+		return column;
+	}
+
+	let recastColumn = 0;
+	for (let index = 0; index < column; index++) {
+		if (sourceLine[index] === '\t') {
+			recastColumn += RECAST_TAB_WIDTH - (recastColumn % RECAST_TAB_WIDTH);
+		} else {
+			recastColumn++;
+		}
+	}
+
+	return recastColumn;
+};
+
 export const lineColumnToNodePath = (
 	ast: File,
 	targetLine: number,
+	targetColumn?: number,
+	fileContents?: string,
 ): SequenceNodePath | null => {
-	let foundPath: SequenceNodePath | null = null;
+	const lineMatches: SequenceNodePath[] = [];
+	const exactMatches: SequenceNodePath[] = [];
+	const recastTargetColumn =
+		targetColumn === undefined || fileContents === undefined
+			? targetColumn
+			: sourceColumnToRecastColumn({
+					sourceLine: fileContents.split('\n')[targetLine - 1],
+					column: targetColumn,
+				});
 
 	recast.types.visit(ast, {
 		visitJSXOpeningElement(p) {
 			const {node} = p;
 			if (node.loc && node.loc.start.line === targetLine) {
-				foundPath = getNodePathForRecastPath(p, ast);
-				return false;
+				const nodePath = getNodePathForRecastPath(p, ast);
+				lineMatches.push(nodePath);
+				if (node.loc.start.column === recastTargetColumn) {
+					exactMatches.push(nodePath);
+				}
 			}
 
 			return this.traverse(p);
 		},
 	});
 
-	return foundPath;
+	if (exactMatches.length === 1) {
+		return exactMatches[0];
+	}
+
+	return lineMatches.at(-1) ?? null;
+};
+
+export const lineColumnsToNodePaths = ({
+	ast,
+	targets,
+	fileContents,
+}: {
+	ast: File;
+	targets: {line: number; column: number}[];
+	fileContents: string;
+}): (SequenceNodePath | null)[] => {
+	const sourceLines = fileContents.split('\n');
+	const targetIndicesByLine = new Map<number, number[]>();
+	const recastTargetColumns = targets.map(({line, column}, index) => {
+		const indices = targetIndicesByLine.get(line) ?? [];
+		indices.push(index);
+		targetIndicesByLine.set(line, indices);
+		return sourceColumnToRecastColumn({
+			sourceLine: sourceLines[line - 1],
+			column,
+		});
+	});
+	const lineMatches: (SequenceNodePath | null)[] = targets.map(() => null);
+	const exactMatches: (SequenceNodePath | null)[] = targets.map(() => null);
+	const exactMatchCounts = targets.map(() => 0);
+
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(p) {
+			const {node} = p;
+			const line = node.loc?.start.line;
+			const targetIndices = line ? targetIndicesByLine.get(line) : undefined;
+			if (targetIndices) {
+				const nodePath = getNodePathForRecastPath(p, ast);
+				for (const index of targetIndices) {
+					lineMatches[index] = nodePath;
+					if (node.loc?.start.column === recastTargetColumns[index]) {
+						exactMatches[index] = nodePath;
+						exactMatchCounts[index]++;
+					}
+				}
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	return targets.map((_, index) =>
+		exactMatchCounts[index] === 1 ? exactMatches[index] : lineMatches[index],
+	);
+};
+
+export const resolveSequencePropsNodePathsFromFilename = ({
+	fileName,
+	targets,
+	remotionRoot,
+}: {
+	fileName: string;
+	targets: {line: number; column: number}[];
+	remotionRoot: string;
+}) => {
+	const {absolutePath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName,
+		action: 'read',
+	});
+	const fileContents = readFileSync(absolutePath, 'utf-8');
+	const {ast} = getCachedSequencePropsStatusAst(fileContents);
+	return lineColumnsToNodePaths({ast, targets, fileContents});
 };
 
 const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
 
 const isSupportedTranslateValue = (value: string): boolean => {
 	const parts = value.split(/\s+/);
-	if (parts.length === 1 || parts.length === 2) {
+	if (parts.length >= 1 && parts.length <= 3) {
 		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
 	}
 
@@ -939,28 +1490,158 @@ const validateStyleValue = (childKey: string, value: unknown): boolean => {
 	return true;
 };
 
+const getObjectPropertyName = (property: ObjectProperty): string | null => {
+	if (property.key.type === 'Identifier') {
+		return property.key.name;
+	}
+
+	if (property.key.type === 'StringLiteral') {
+		return property.key.value;
+	}
+
+	return null;
+};
+
+const BORDER_RADIUS_SHORTHAND = 'borderRadius';
+const BORDER_RADIUS_LONGHANDS = [
+	'borderTopLeftRadius',
+	'borderTopRightRadius',
+	'borderBottomRightRadius',
+	'borderBottomLeftRadius',
+] as const;
+const BORDER_RADIUS_PROPERTIES = new Set<string>([
+	BORDER_RADIUS_SHORTHAND,
+	...BORDER_RADIUS_LONGHANDS,
+]);
+
+const hasMixedBorderRadiusRepresentation = (
+	jsxElement: JSXOpeningElement,
+): boolean => {
+	const style = jsxElement.attributes.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type !== 'JSXNamespacedName' &&
+			attribute.name.name === 'style',
+	);
+	if (
+		!style ||
+		style.type !== 'JSXAttribute' ||
+		style.value?.type !== 'JSXExpressionContainer' ||
+		style.value.expression.type !== 'ObjectExpression'
+	) {
+		return false;
+	}
+
+	let hasShorthand = false;
+	let hasLonghand = false;
+	for (const property of style.value.expression.properties) {
+		if (property.type !== 'ObjectProperty') {
+			continue;
+		}
+
+		const name = getObjectPropertyName(property);
+		hasShorthand ||= name === BORDER_RADIUS_SHORTHAND;
+		hasLonghand ||= BORDER_RADIUS_LONGHANDS.some(
+			(longhand) => longhand === name,
+		);
+	}
+
+	return hasShorthand && hasLonghand;
+};
+
+const getUniformBorderRadius = (value: unknown): number | null => {
+	const parsed = parseBorderRadiusShorthand(value);
+	if (!parsed) {
+		return null;
+	}
+
+	const values = Object.values(parsed);
+	return values.every((radius) => radius === values[0]) ? values[0] : null;
+};
+
+const getBorderRadiusShorthandStatus = ({
+	propValue,
+	ast,
+	videoConfigValues,
+}: {
+	propValue: Expression;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): CanUpdatePropStatus => {
+	if (isStaticValue(propValue)) {
+		const uniform = getUniformBorderRadius(extractStaticValue(propValue));
+		return uniform === null ? computedStatus() : staticStatus(uniform, null);
+	}
+
+	const numericExpression = parseVideoConfigNumericExpression({
+		node: propValue,
+		videoConfigValues,
+	});
+	if (numericExpression !== null && numericExpression.value >= 0) {
+		return staticStatus(numericExpression.value, numericExpression);
+	}
+
+	const computed = getComputedStatus(propValue, ast, videoConfigValues);
+	if (
+		computed.status === 'keyframed' &&
+		computed.interpolationFunction === 'interpolate' &&
+		computed.keyframes.every(
+			(keyframe) =>
+				typeof keyframe.value === 'number' &&
+				Number.isFinite(keyframe.value) &&
+				keyframe.value >= 0,
+		)
+	) {
+		return computed;
+	}
+
+	return computedStatus();
+};
+
 const getNestedPropStatus = ({
 	jsxElement,
 	ast,
 	parentKey,
 	childKey,
 	videoConfigValues,
+	allowSpecialValues,
+	lastSpreadIndex,
 }: {
 	jsxElement: JSXOpeningElement;
 	ast: File;
 	parentKey: string;
 	childKey: string;
 	videoConfigValues: VideoConfigIdentifierValues;
+	allowSpecialValues: boolean;
+	lastSpreadIndex: number;
 }): CanUpdatePropStatus => {
-	const attr = jsxElement.attributes.find(
+	const attrIndex = jsxElement.attributes.findIndex(
 		(a) =>
 			a.type !== 'JSXSpreadAttribute' &&
 			a.name.type !== 'JSXNamespacedName' &&
 			a.name.name === parentKey,
-	) as JSXAttribute | undefined;
+	);
+	const attr =
+		attrIndex === -1
+			? undefined
+			: (jsxElement.attributes[attrIndex] as JSXAttribute);
 
-	if (!attr || !attr.value) {
+	if (attrIndex !== -1 && attrIndex < lastSpreadIndex) {
+		// A later spread may replace the whole parent object
+		return computedStatus();
+	}
+
+	if (!attr) {
+		if (lastSpreadIndex !== -1) {
+			// The spread may provide the parent object
+			return computedStatus();
+		}
+
 		// Parent attribute doesn't exist, nested prop can be added
+		return staticStatus(undefined, null);
+	}
+
+	if (!attr.value) {
 		return staticStatus(undefined, null);
 	}
 
@@ -978,12 +1659,60 @@ const getNestedPropStatus = ({
 	}
 
 	const objExpr = expression as ObjectExpression;
-	const prop = objExpr.properties.find(
-		(p) =>
-			p.type === 'ObjectProperty' &&
-			((p.key.type === 'Identifier' && p.key.name === childKey) ||
-				(p.key.type === 'StringLiteral' && p.key.value === childKey)),
-	) as ObjectProperty | undefined;
+	const cssShorthand = getCssShorthandForLonghand({
+		parentKey,
+		longhand: childKey,
+	});
+	if (
+		cssShorthand &&
+		objExpr.properties.some((property) => {
+			if (property.type !== 'ObjectProperty') {
+				return false;
+			}
+
+			const propertyName = getObjectPropertyName(property);
+			return (
+				propertyName !== null &&
+				cssShorthand.isUnsupportedProperty(propertyName)
+			);
+		})
+	) {
+		return computedStatus();
+	}
+
+	let prop: ObjectProperty | undefined;
+	for (let index = objExpr.properties.length - 1; index >= 0; index--) {
+		const candidate = objExpr.properties[index];
+		if (candidate.type === 'SpreadElement') {
+			return computedStatus();
+		}
+
+		if (
+			candidate.type === 'ObjectProperty' &&
+			(getObjectPropertyName(candidate) === childKey ||
+				getObjectPropertyName(candidate) === cssShorthand?.shorthand)
+		) {
+			prop = candidate;
+			break;
+		}
+	}
+
+	if (
+		prop &&
+		cssShorthand &&
+		getObjectPropertyName(prop) === cssShorthand.shorthand
+	) {
+		const shorthandValue = prop.value as Expression;
+		if (!isStaticValue(shorthandValue, {allowSpecialValues: false})) {
+			return computedStatus();
+		}
+
+		const staticShorthandValue = extractStaticValue(shorthandValue, {
+			allowSpecialValues: false,
+		});
+		const parsed = cssShorthand.parse(staticShorthandValue);
+		return parsed ? staticStatus(parsed[childKey], null) : computedStatus();
+	}
 
 	if (!prop) {
 		// Property not set in the object, can be added
@@ -991,7 +1720,16 @@ const getNestedPropStatus = ({
 	}
 
 	const propValue = prop.value as Expression;
-	if (!isStaticValue(propValue)) {
+	if (parentKey === 'style' && childKey === BORDER_RADIUS_SHORTHAND) {
+		return getBorderRadiusShorthandStatus({
+			propValue,
+			ast,
+			videoConfigValues,
+		});
+	}
+
+	const staticValueOptions = {allowSpecialValues};
+	if (!isStaticValue(propValue, staticValueOptions)) {
 		const numericExpression = parseVideoConfigNumericExpression({
 			node: propValue,
 			videoConfigValues,
@@ -1001,7 +1739,7 @@ const getNestedPropStatus = ({
 			: getComputedStatus(propValue, ast, videoConfigValues);
 	}
 
-	const propStatus = extractStaticValue(propValue);
+	const propStatus = extractStaticValue(propValue, staticValueOptions);
 	if (!validateStyleValue(childKey, propStatus)) {
 		return computedStatus();
 	}
@@ -1036,18 +1774,58 @@ const computeSequenceOnlyPropsRecord = ({
 	jsxElementNode,
 	ast,
 	keys,
+	assetKeys,
 	videoConfigValues,
 }: {
 	jsxElement: JSXOpeningElement;
 	jsxElementNode: JSXElement;
 	ast: File;
 	keys: string[];
+	assetKeys: string[];
 	videoConfigValues: VideoConfigIdentifierValues;
 }): Record<string, CanUpdatePropStatus> => {
-	const allProps = getPropsStatus(jsxElement, ast, videoConfigValues);
+	// A JSX spread attribute ({...props}) is invisible to the parser and may
+	// set or override every prop that is not explicitly written after it.
+	// Affected props are treated as computed so the runtime values pass
+	// through untouched and Visual Mode does not offer to edit them.
+	// Attributes written after the last spread win at runtime and can be
+	// parsed as usual.
+	const lastSpreadIndex = jsxElement.attributes.reduce(
+		(highest, attr, index) =>
+			attr.type === 'JSXSpreadAttribute' ? index : highest,
+		-1,
+	);
+	const allProps = getPropsStatus(
+		jsxElement,
+		ast,
+		videoConfigValues,
+		assetKeys,
+	);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
+	const mixedBorderRadius = hasMixedBorderRadiusRepresentation(jsxElement);
 	for (const key of keys) {
+		if (
+			mixedBorderRadius &&
+			key.startsWith('style.') &&
+			BORDER_RADIUS_PROPERTIES.has(key.slice('style.'.length))
+		) {
+			filteredProps[key] = computedStatus();
+			continue;
+		}
+
 		if (key === 'children') {
+			const childrenAttrIndex = jsxElement.attributes.findIndex(
+				(attr) =>
+					attr.type === 'JSXAttribute' &&
+					attr.name.type === 'JSXIdentifier' &&
+					attr.name.name === 'children',
+			);
+			if (childrenAttrIndex !== -1 && childrenAttrIndex < lastSpreadIndex) {
+				// A later spread may override the children attribute
+				filteredProps[key] = computedStatus();
+				continue;
+			}
+
 			const staticChildrenAttribute = getStaticJsxChildrenAttribute(jsxElement);
 			if (staticChildrenAttribute) {
 				filteredProps[key] = staticStatus(staticChildrenAttribute.value, null);
@@ -1055,6 +1833,18 @@ const computeSequenceOnlyPropsRecord = ({
 			}
 
 			if (hasJsxChildrenAttribute(jsxElement)) {
+				filteredProps[key] = computedStatus();
+				continue;
+			}
+
+			// JSX element children are compiled after any spread and win over
+			// it. Only if the element body is empty may the spread provide the
+			// children.
+			const hasMeaningfulJsxChildren = jsxElementNode.children.some(
+				(candidate) =>
+					!(candidate.type === 'JSXText' && candidate.value.trim() === ''),
+			);
+			if (!hasMeaningfulJsxChildren && lastSpreadIndex !== -1) {
 				filteredProps[key] = computedStatus();
 				continue;
 			}
@@ -1074,9 +1864,14 @@ const computeSequenceOnlyPropsRecord = ({
 				parentKey: key.slice(0, dotIndex),
 				childKey: key.slice(dotIndex + 1),
 				videoConfigValues,
+				allowSpecialValues: assetKeys.includes(key),
+				lastSpreadIndex,
 			});
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
+		} else if (lastSpreadIndex !== -1) {
+			// The spread may provide this prop
+			filteredProps[key] = computedStatus();
 		} else {
 			filteredProps[key] = staticStatus(undefined, null);
 		}
@@ -1085,31 +1880,28 @@ const computeSequenceOnlyPropsRecord = ({
 	return filteredProps;
 };
 
-export const computeSequencePropsStatusFromContent = ({
-	fileContents,
+const computeSequencePropsStatusFromAstAndIdentifiers = ({
+	ast,
 	nodePath,
 	componentIdentity,
 	keys,
+	assetKeys,
 	effects,
-	videoConfigValues,
+	videoConfigIdentifierValues,
 }: {
-	fileContents: string;
+	ast: File;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys: string[];
 	effects: string[][];
-	videoConfigValues: VideoConfigValues | null;
+	videoConfigIdentifierValues: VideoConfigIdentifierValues;
 }): CanUpdateSequencePropsResponseTrue => {
-	const ast = parseAst(fileContents);
-	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
-		ast,
-		videoConfigValues,
-	});
-
-	const jsxElementNode = findJsxElementNodeAtNodePath(ast, nodePath);
+	const jsxPath = findJsxElementPathAtNodePath(ast, nodePath);
+	const jsxElementNode = jsxPath ? getJsxElementNodeFromJsxPath(jsxPath) : null;
 	const jsxElement = jsxElementNode?.openingElement ?? null;
 
-	if (!jsxElement || !jsxElementNode) {
+	if (!jsxPath || !jsxElement || !jsxElementNode) {
 		throw new JsxElementNotFoundAtLocationError();
 	}
 
@@ -1127,6 +1919,7 @@ export const computeSequencePropsStatusFromContent = ({
 		jsxElementNode,
 		ast,
 		keys,
+		assetKeys,
 		videoConfigValues: videoConfigIdentifierValues,
 	});
 	const effectsStatuses = computeEffectsForJsx({
@@ -1135,12 +1928,129 @@ export const computeSequencePropsStatusFromContent = ({
 		effects,
 		videoConfigValues: videoConfigIdentifierValues,
 	});
+	const defaultKeyframeDisplayOffsetAdjustment =
+		getDefaultFrameDisplayOffsetAdjustment({
+			jsxPath,
+			videoConfigValues: videoConfigIdentifierValues,
+		});
+	const addDefaultKeyframeDisplayOffsetAdjustment = (
+		status: CanUpdateSequencePropStatus,
+	): CanUpdateSequencePropStatus => {
+		if (status.status !== 'static') {
+			return status;
+		}
+
+		if (defaultKeyframeDisplayOffsetAdjustment === null) {
+			return computedStatus();
+		}
+
+		if (defaultKeyframeDisplayOffsetAdjustment === 0) {
+			return status;
+		}
+
+		return {
+			...status,
+			keyframeDisplayOffsetAdjustment: defaultKeyframeDisplayOffsetAdjustment,
+		};
+	};
 
 	return {
 		canUpdate: true as const,
-		props: filteredProps,
-		effects: effectsStatuses,
+		props: Object.fromEntries(
+			Object.entries(filteredProps).map(([key, status]) => [
+				key,
+				addDefaultKeyframeDisplayOffsetAdjustment(status),
+			]),
+		),
+		effects: effectsStatuses.map((effectStatus) =>
+			effectStatus.canUpdate
+				? {
+						...effectStatus,
+						props: Object.fromEntries(
+							Object.entries(effectStatus.props).map(([key, status]) => [
+								key,
+								addDefaultKeyframeDisplayOffsetAdjustment(status),
+							]),
+						),
+					}
+				: effectStatus,
+		),
 	};
+};
+
+export const computeSequencePropsStatusFromAst = ({
+	ast,
+	nodePath,
+	componentIdentity,
+	keys,
+	assetKeys = [],
+	effects,
+	videoConfigValues,
+}: {
+	ast: File;
+	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys?: string[];
+	effects: string[][];
+	videoConfigValues: VideoConfigValues | null;
+}): CanUpdateSequencePropsResponseTrue => {
+	return computeSequencePropsStatusFromAstAndIdentifiers({
+		ast,
+		nodePath,
+		componentIdentity,
+		keys,
+		assetKeys,
+		effects,
+		videoConfigIdentifierValues: getVideoConfigIdentifierValues({
+			ast,
+			videoConfigValues,
+		}),
+	});
+};
+
+export const computeSequencePropsStatusFromContent = ({
+	fileContents,
+	nodePath,
+	componentIdentity,
+	keys,
+	assetKeys = [],
+	effects,
+	videoConfigValues,
+}: {
+	fileContents: string;
+	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys?: string[];
+	effects: string[][];
+	videoConfigValues: VideoConfigValues | null;
+}): CanUpdateSequencePropsResponseTrue => {
+	const cachedAst = getCachedSequencePropsStatusAst(fileContents);
+	const {ast} = cachedAst;
+	const videoConfigCacheKey = JSON.stringify(videoConfigValues);
+	let videoConfigIdentifierValues =
+		cachedAst.videoConfigIdentifierValues.get(videoConfigCacheKey);
+	if (videoConfigIdentifierValues === undefined) {
+		videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+			ast,
+			videoConfigValues,
+		});
+		cachedAst.videoConfigIdentifierValues.set(
+			videoConfigCacheKey,
+			videoConfigIdentifierValues,
+		);
+	}
+
+	return computeSequencePropsStatusFromAstAndIdentifiers({
+		ast,
+		nodePath,
+		componentIdentity,
+		keys,
+		assetKeys,
+		effects,
+		videoConfigIdentifierValues,
+	});
 };
 
 export const computeSequencePropsStatus = ({
@@ -1148,6 +2058,7 @@ export const computeSequencePropsStatus = ({
 	nodePath,
 	componentIdentity,
 	keys,
+	assetKeys = [],
 	effects,
 	remotionRoot,
 	videoConfigValues,
@@ -1156,6 +2067,7 @@ export const computeSequencePropsStatus = ({
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys?: string[];
 	effects: string[][];
 	remotionRoot: string;
 	videoConfigValues: VideoConfigValues | null;
@@ -1172,16 +2084,19 @@ export const computeSequencePropsStatus = ({
 		nodePath,
 		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
 		videoConfigValues,
 	});
 };
 
-export const computeSequencePropsStatusFromFilenameByLine = ({
+export const computeSequencePropsStatusFromFilenameByLocation = ({
 	fileName,
 	line,
+	column,
 	componentIdentity,
 	keys,
+	assetKeys = [],
 	effects,
 	remotionRoot,
 	logLevel,
@@ -1189,8 +2104,10 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 }: {
 	fileName: string;
 	line: number;
+	column: number;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys?: string[];
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
@@ -1204,9 +2121,14 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 		});
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
-		const ast = parseAst(fileContents);
+		const {ast} = getCachedSequencePropsStatusAst(fileContents);
 
-		const resolvedNodePath = lineColumnToNodePath(ast, line);
+		const resolvedNodePath = lineColumnToNodePath(
+			ast,
+			line,
+			column,
+			fileContents,
+		);
 		if (!resolvedNodePath) {
 			return {
 				status: {
@@ -1223,6 +2145,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 				nodePath: resolvedNodePath,
 				componentIdentity,
 				keys,
+				assetKeys,
 				effects,
 				remotionRoot,
 				videoConfigValues,
@@ -1237,6 +2160,20 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 			success: true,
 		};
 	} catch (err) {
+		if (
+			err instanceof FileOutsideProjectError ||
+			err instanceof JsxElementIdentityMismatchError ||
+			err instanceof JsxElementNotFoundAtLocationError
+		) {
+			return {
+				status: {
+					canUpdate: false as const,
+					reason: 'not-found',
+				},
+				success: false,
+			};
+		}
+
 		RenderInternals.Log.error({indent: false, logLevel}, err);
 		return {
 			status: {

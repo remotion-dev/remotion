@@ -13,17 +13,13 @@ The [`@remotion/sfx`](/docs/sfx) package provides a collection of ready-to-use s
 
 ```tsx twoslash title="MyComp.tsx"
 import {whoosh, whip} from '@remotion/sfx';
-import {Audio, Sequence} from 'remotion';
+import {Audio} from '@remotion/media';
 
 const MyVideo = () => {
   return (
     <>
-      <Sequence from={0} durationInFrames={30}>
-        <Audio src={whip} />
-      </Sequence>
-      <Sequence from={30} durationInFrames={30}>
-        <Audio src={whoosh} />
-      </Sequence>
+      <Audio from={0} durationInFrames={30} src={whip} />
+      <Audio from={30} durationInFrames={30} src={whoosh} />
     </>
   );
 };
@@ -36,7 +32,7 @@ See the [full list of available sounds](/docs/sfx).
 You can also use the [`remotion.media`](https://remotion.media/#category-sound-effects) CDN URLs directly without installing the package:
 
 ```tsx twoslash title="MyComp.tsx"
-import {Audio} from 'remotion';
+import {Audio} from '@remotion/media';
 
 const MyVideo = () => {
   return <Audio src="https://remotion.media/whoosh.wav" />;

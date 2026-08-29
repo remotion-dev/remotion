@@ -1,9 +1,9 @@
 import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {parseCanvasCaptureCursorData} from '~/lib/canvas-capture-metadata';
 import type {Source} from '~/lib/convert-state';
-import type {RotateOrMirrorOrCropState} from '~/lib/default-ui';
-import {defaultRotateOrMirorState} from '~/lib/default-ui';
+import {getDefaultVideoEditState} from '~/lib/default-ui';
 import {isAudioOnly} from '~/lib/is-audio-container';
 import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
@@ -12,7 +12,6 @@ import {Footer} from './Footer';
 import {VideoPlayer} from './MediaPlayer';
 import {Page} from './Page';
 import {Probe} from './Probe';
-import {ReplaceVideo} from './ReplaceVideo';
 import Transcribe from './transcribe/App';
 import {useProbe} from './use-probe';
 import type {VideoThumbnailRef} from './VideoThumbnail';
@@ -28,10 +27,9 @@ export const FileAvailable: React.FC<{
 
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
-	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
-		useState<RotateOrMirrorOrCropState>(() =>
-			defaultRotateOrMirorState(routeAction),
-		);
+	const [videoEditState, setVideoEditState] = useState(() =>
+		getDefaultVideoEditState(routeAction),
+	);
 	const [enableTrim, setEnableTrim] = useState(
 		() =>
 			routeAction.type === 'generic-trim' || routeAction.type === 'trim-format',
@@ -54,22 +52,28 @@ export const FileAvailable: React.FC<{
 	});
 	const [trimInFrame, setTrimInFrame] = useState<number | null>(null);
 	const [trimOutFrame, setTrimOutFrame] = useState<number | null>(null);
+	const [showCursor, setShowCursor] = useState(true);
+	const [cursorScale, setCursorScale] = useState(1);
+	const [cursorPressedScale, setCursorPressedScale] = useState(0.8);
 
 	const [waveform, setWaveform] = useState<number[]>([]);
 
 	const actualUserRotation = useMemo(() => {
-		if (enableRotateOrMirrow !== 'rotate') {
+		if (!videoEditState.rotate) {
 			return 0;
 		}
 
 		return normalizeVideoRotation(userRotation);
-	}, [enableRotateOrMirrow, userRotation]);
+	}, [videoEditState.rotate, userRotation]);
 
 	const onWaveformBars = useCallback((bars: number[]) => {
 		setWaveform(bars);
 	}, []);
 	const isAudio = isAudioOnly({tracks: probeResult.tracks});
 	const [playbackTime, setPlaybackTime] = useState(0);
+	const cursorData = useMemo(() => {
+		return parseCanvasCaptureCursorData(probeResult.metadata);
+	}, [probeResult.metadata]);
 
 	return (
 		<Page className="lg:justify-center pt-6 pb-10 px-4 lg:flex">
@@ -82,7 +86,7 @@ export const FileAvailable: React.FC<{
 							src={src}
 							isAudio={isAudio}
 							waveform={waveform}
-							crop={enableRotateOrMirrow === 'crop'}
+							crop={videoEditState.crop}
 							trim={enableTrim}
 							trimInFrame={trimInFrame}
 							trimOutFrame={trimOutFrame}
@@ -93,6 +97,13 @@ export const FileAvailable: React.FC<{
 							dimensions={probeResult.dimensions}
 							durationInSeconds={probeResult.durationInSeconds}
 							fps={probeResult.fps}
+							rotation={actualUserRotation}
+							mirrorHorizontal={flipHorizontal && videoEditState.mirror}
+							mirrorVertical={flipVertical && videoEditState.mirror}
+							cursorData={cursorData}
+							showCursor={showCursor}
+							cursorScale={cursorScale}
+							cursorPressedScale={cursorPressedScale}
 							onPlaybackTimeChange={setPlaybackTime}
 						/>
 						<div className="h-8" />
@@ -107,10 +118,8 @@ export const FileAvailable: React.FC<{
 						probeResult={probeResult}
 						videoThumbnailRef={videoThumbnailRef}
 						userRotation={actualUserRotation}
-						mirrorHorizontal={
-							flipHorizontal && enableRotateOrMirrow === 'mirror'
-						}
-						mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
+						mirrorHorizontal={flipHorizontal && videoEditState.mirror}
+						mirrorVertical={flipVertical && videoEditState.mirror}
 						onWaveformBars={onWaveformBars}
 					/>
 					{routeAction.type !== 'generic-probe' &&
@@ -128,7 +137,7 @@ export const FileAvailable: React.FC<{
 										data-hidden={probeDetails}
 									>
 										<ConvertUI
-											crop={enableRotateOrMirrow === 'crop'}
+											videoEditState={videoEditState}
 											inputContainer={probeResult.container}
 											currentVideoCodec={probeResult.videoCodec ?? null}
 											tracks={probeResult.tracks}
@@ -141,8 +150,7 @@ export const FileAvailable: React.FC<{
 											trimInFrame={trimInFrame}
 											trimOutFrame={trimOutFrame}
 											fps={probeResult.fps}
-											enableRotateOrMirror={enableRotateOrMirrow}
-											setEnableRotateOrMirror={setEnableRotateOrMirror}
+											setVideoEditState={setVideoEditState}
 											userRotation={actualUserRotation}
 											setRotation={setRotation}
 											flipHorizontal={flipHorizontal}
@@ -150,11 +158,17 @@ export const FileAvailable: React.FC<{
 											flipVertical={flipVertical}
 											setFlipVertical={setFlipVertical}
 											videoThumbnailRef={videoThumbnailRef}
-											rotation={probeResult.rotation}
 											sampleRate={probeResult.sampleRate}
 											name={probeResult.name}
 											input={probeResult.input}
 											cropRect={cropOperation}
+											cursorData={cursorData}
+											showCursor={showCursor}
+											setShowCursor={setShowCursor}
+											cursorScale={cursorScale}
+											setCursorScale={setCursorScale}
+											cursorPressedScale={cursorPressedScale}
+											setCursorPressedScale={setCursorPressedScale}
 										/>
 									</div>
 								) : null}
@@ -171,7 +185,6 @@ export const FileAvailable: React.FC<{
 				</div>
 				<div className="h-16" />
 				<Footer routeAction={routeAction} />
-				<ReplaceVideo setSrc={setSrc} />
 			</div>
 		</Page>
 	);

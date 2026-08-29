@@ -69,6 +69,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		body: JSON.stringify(
 			makeInitialOverallRenderProgress(
 				options.timeoutInMilliseconds + Date.now(),
+				params.enableCancellation ?? false,
 			),
 		),
 		expectedBucketOwner: options.expectedBucketOwner,
@@ -81,6 +82,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 	});
 
 	const payload: ServerlessPayload<Provider> = {
+		enableCancellation: params.enableCancellation ?? false,
 		type: ServerlessRoutines.launch,
 		framesPerFunction: params.framesPerLambda,
 		concurrency: params.concurrency,
@@ -95,7 +97,11 @@ export const startHandler = async <Provider extends CloudProvider>({
 		envVariables: params.envVariables,
 		pixelFormat: params.pixelFormat ?? null,
 		proResProfile: params.proResProfile ?? null,
-		x264Preset: params.x264Preset,
+		x264Preset:
+			params.x264Preset ??
+			(params.codec === 'h264'
+				? insideFunctionSpecifics.defaultX264Preset
+				: null),
 		gopSize: params.gopSize ?? null,
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,

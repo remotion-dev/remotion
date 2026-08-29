@@ -88,6 +88,11 @@ const makeEasingExpression = ({
 				b.identifier(easingLocalName),
 				b.identifier('linear'),
 			) as ExpressionKind;
+		case 'step1':
+			return b.memberExpression(
+				b.identifier(easingLocalName),
+				b.identifier('step1'),
+			) as ExpressionKind;
 		case 'spring':
 			return b.callExpression(
 				b.memberExpression(

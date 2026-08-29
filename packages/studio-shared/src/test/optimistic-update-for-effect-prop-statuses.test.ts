@@ -11,8 +11,16 @@ test('optimisticUpdateForEffectPropStatuses updates the matching effect prop', (
 				canUpdate: true,
 				effectIndex: 0,
 				props: {
-					color: {status: 'static', codeValue: 'red'},
-					opacity: {status: 'static', codeValue: 0.5},
+					color: {
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 'red',
+					},
+					opacity: {
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 0.5,
+					},
 				},
 				callee: 'tint',
 				importPath: null,
@@ -39,10 +47,12 @@ test('optimisticUpdateForEffectPropStatuses updates the matching effect prop', (
 
 	expect(effect.props.opacity).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 0.8,
 	});
 	expect(effect.props.color).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'red',
 	});
 });
@@ -93,7 +103,11 @@ test('optimisticUpdateForEffectPropStatuses applies when effect props are unset 
 				callee: 'tint',
 				importPath: null,
 				props: {
-					amount: {status: 'static', codeValue: undefined},
+					amount: {
+						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: undefined,
+					},
 				},
 			},
 		],
@@ -118,6 +132,7 @@ test('optimisticUpdateForEffectPropStatuses applies when effect props are unset 
 
 	expect(effect.props.amount).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 0.5,
 	});
 });

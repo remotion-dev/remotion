@@ -5,11 +5,11 @@ import type {
 	BrowserSafeApis,
 	ChromiumOptions,
 	DownloadBehavior,
-	FrameRange,
 	OutNameInput,
 	PixelFormat,
 	Privacy,
 	ServerlessCodec,
+	SingleFrameRange,
 	ToOptions,
 	VideoImageFormat,
 	WebhookOption,
@@ -32,6 +32,7 @@ import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
 
 export type RenderMediaOnLambdaInput = {
+	enableCancellation?: boolean;
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
@@ -52,7 +53,7 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	concurrency?: number;
-	frameRange?: FrameRange;
+	frameRange?: SingleFrameRange;
 	outName?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
@@ -160,6 +161,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 	options: RenderMediaOnLambdaInput,
 ): InnerRenderMediaOnLambdaInput => {
 	return {
+		enableCancellation: options.enableCancellation ?? false,
 		offthreadVideoThreads: options.offthreadVideoThreads ?? null,
 		audioBitrate: options.audioBitrate ?? null,
 		audioCodec: options.audioCodec ?? null,
@@ -192,7 +194,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		offthreadVideoCacheSizeInBytes:
 			options.offthreadVideoCacheSizeInBytes ?? null,
 		outName: options.outName ?? null,
-		overwrite: options.overwrite ?? false,
+		overwrite: options.overwrite,
 		pixelFormat: options.pixelFormat ?? undefined,
 		privacy: options.privacy ?? 'public',
 		proResProfile: options.proResProfile ?? undefined,
@@ -229,6 +231,15 @@ const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
 export const renderMediaOnLambda = (
 	options: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
+	if (
+		Array.isArray(options.frameRange) &&
+		Array.isArray(options.frameRange[0])
+	) {
+		throw new Error(
+			'Multiple frame ranges are not supported on Lambda. Use renderMedia() locally to render multiple ranges.',
+		);
+	}
+
 	if (options.quality) {
 		throw new Error(
 			'quality has been renamed to jpegQuality. Please rename the option.',

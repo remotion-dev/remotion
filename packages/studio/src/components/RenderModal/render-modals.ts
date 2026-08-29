@@ -1,15 +1,10 @@
 import type React from 'react';
-import {
-	BLUE,
-	BORDER_BLACK,
-	CURRENT_COLOR_LOWERCASE,
-	WHITE,
-} from '../../helpers/colors';
+import {BLUE, BORDER_BLACK, WHITE} from '../../helpers/colors';
 import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
 
 export const outerModalStyle: React.CSSProperties = {
-	width: getMaxModalWidth(1000),
-	height: getMaxModalHeight(640),
+	width: getMaxModalWidth(800),
+	height: getMaxModalHeight(490),
 	overflow: 'hidden',
 	display: 'flex',
 	flexDirection: 'column',
@@ -25,45 +20,52 @@ export const container: React.CSSProperties = {
 
 export const optionsPanel: React.CSSProperties = {
 	display: 'flex',
-	width: '100%',
+	flex: 1,
+	minHeight: 0,
+	minWidth: 0,
+	overflowY: 'auto',
 };
 
 export const horizontalLayout: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	overflowY: 'auto',
 	flex: 1,
+	minHeight: 0,
+	overflow: 'hidden',
 };
 
 export const leftSidebar: React.CSSProperties = {
-	padding: 12,
+	flexShrink: 0,
+	padding: 6,
 };
 
 export const horizontalTab: React.CSSProperties = {
-	width: 250,
+	width: 150,
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
 	textAlign: 'left',
-	fontSize: 16,
-	fontWeight: 'bold',
-	paddingLeft: 15,
-	paddingTop: 12,
-	paddingBottom: 12,
+	fontSize: 14,
+	fontWeight: 'normal',
+	paddingLeft: 8,
+	paddingTop: 6,
+	paddingBottom: 6,
+	borderRadius: 4,
 };
 
 export const iconContainer: React.CSSProperties = {
-	width: 20,
-	height: 20,
-	marginRight: 15,
+	width: 18,
+	height: 18,
+	marginRight: 8,
+	color: 'inherit',
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
 };
 
 export const icon: React.CSSProperties = {
-	color: CURRENT_COLOR_LOWERCASE,
-	height: 20,
+	color: 'inherit',
+	height: 18,
 };
 
 export const buttonStyle: React.CSSProperties = {

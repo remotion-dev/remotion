@@ -63,7 +63,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly loop: boolean;
 	readonly trimAfter: number | undefined;
 	readonly trimBefore: number | undefined;
-	readonly stack: string | null;
+	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
@@ -97,7 +97,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	loop,
 	trimAfter,
 	trimBefore,
-	stack,
+	_remotionInternalStack,
 	disallowFallbackToOffthreadVideo,
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
@@ -205,6 +205,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
 	const initialMuted = useRef(effectiveMuted);
+	const initialVolume = useRef(userPreferredVolume);
 	const initialSequenceDuration = useRef(videoConfig.durationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
 	const hasDrawnRealFrameRef = useRef(false);
@@ -230,7 +231,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		canvas.height = cached.height;
 		const ctx = canvas.getContext('2d', {
 			alpha: true,
-			desynchronized: true,
 		});
 		if (!ctx) {
 			return;
@@ -302,7 +302,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 			mediaPlayerRef.current = player;
 			player
-				.initialize(currentTimeRef.current, initialMuted.current)
+				.initialize(
+					currentTimeRef.current,
+					initialMuted.current,
+					initialVolume.current,
+				)
 				.then((result) => {
 					if (result.type === 'disposed') {
 						return;
@@ -538,7 +542,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				name={'<Html5Video> (fallback)'}
 				loop={loop}
 				showInTimeline={showInTimeline}
-				stack={stack ?? undefined}
+				_remotionInternalStack={_remotionInternalStack ?? undefined}
 				{...fallbackOffthreadVideoProps}
 			/>
 		);

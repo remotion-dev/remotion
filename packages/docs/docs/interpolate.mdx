@@ -166,6 +166,21 @@ All values in one interpolation must have the same type.
 For each component, units must match.
 For missing dimensions, CSS defaults are used: scale defaults to `1`, translate and rotate default to `0`, and transform origin defaults to `50% 50% 0`.
 
+## Example: Discrete string values<AvailableFrom v="4.0.509" />
+
+Use `Easing.step1` to switch between strings that cannot be blended. The previous value is held until the next keyframe.
+
+```tsx twoslash title="MyComposition.tsx"
+import {Easing, interpolate, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const cursor = interpolate(frame, [0, 100], ['default', 'ne-resize'], {
+  easing: Easing.step1,
+});
+```
+
+Every segment must use `Easing.step1`. If `easing` is an array, each entry must be `Easing.step1`.
+
 ## Example: Numeric tuples<AvailableFrom v="4.0.473" />
 
 `outputRange` may contain numeric tuples.

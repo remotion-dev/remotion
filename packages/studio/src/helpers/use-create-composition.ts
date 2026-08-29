@@ -1,11 +1,12 @@
 import type {
+	CanvasCaptureData,
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {useCallback, useContext, useMemo} from 'react';
-import {Internals, type _InternalTypes} from 'remotion';
+import {useCallback, useMemo} from 'react';
+import type {_InternalTypes} from 'remotion';
+import {useSelectComposition} from '../components/InitialCompositionLoader';
 import {applyCodemod} from '../components/RenderQueue/actions';
-import {pushUrl} from './url-state';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -26,22 +27,6 @@ const toPascalCase = (value: string) => {
 	}
 
 	return candidate;
-};
-
-const waitForComposition = (compositionId: string) => {
-	return new Promise<void>((resolve) => {
-		const started = Date.now();
-		const interval = window.setInterval(() => {
-			const compositionNames = window.remotion_getCompositionNames?.() ?? [];
-			if (
-				compositionNames.includes(compositionId) ||
-				Date.now() - started > 10000
-			) {
-				window.clearInterval(interval);
-				resolve();
-			}
-		}, 100);
-	});
 };
 
 export const getUniqueCompositionName = (
@@ -68,6 +53,7 @@ export const useCreateComposition = ({
 	parentName,
 	selectedFrameRate,
 	size,
+	canvasCapture,
 }: {
 	compositions: _InternalTypes['AnyComposition'][];
 	durationInFrames: number;
@@ -79,8 +65,14 @@ export const useCreateComposition = ({
 		width: number;
 		height: number;
 	};
+	canvasCapture: {
+		readonly data: CanvasCaptureData;
+		readonly videoFileName: string;
+		readonly videoHeight: number;
+		readonly videoWidth: number;
+	} | null;
 }) => {
-	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+	const selectComposition = useSelectComposition();
 	const componentName = useMemo(() => toPascalCase(newId), [newId]);
 
 	const nameValidationMessage = useMemo(() => {
@@ -107,8 +99,19 @@ export const useCreateComposition = ({
 			componentImportPath: `./${componentName}`,
 			folderName,
 			parentName,
+			canvasCapture:
+				canvasCapture === null
+					? null
+					: {
+							data: canvasCapture.data,
+							keyframeFps: Number(selectedFrameRate),
+							videoFileName: canvasCapture.videoFileName,
+							videoHeight: canvasCapture.videoHeight,
+							videoWidth: canvasCapture.videoWidth,
+						},
 		};
 	}, [
+		canvasCapture,
 		componentName,
 		durationInFrames,
 		folderName,
@@ -140,14 +143,19 @@ export const useCreateComposition = ({
 			});
 
 			if (result.success) {
-				await waitForComposition(newId);
-				setCanvasContent({type: 'composition', compositionId: newId});
-				pushUrl(`/${newId}`);
+				selectComposition(
+					{
+						id: newId,
+						folderName,
+						parentFolderName: parentName,
+					},
+					true,
+				);
 			}
 
 			return result;
 		},
-		[codemod, newId, setCanvasContent],
+		[codemod, folderName, newId, parentName, selectComposition],
 	);
 
 	return {

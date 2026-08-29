@@ -10,6 +10,8 @@ import {
 	registerClientRender,
 	saveOutputFile,
 } from '../../api/save-render-output';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {downloadBlob} from '../../helpers/download-blob';
 import type {
 	ClientRenderJob,
 	ClientRenderJobProgress,
@@ -23,18 +25,6 @@ type RenderResult = {
 	getBlob: GetBlobCallback;
 	width: number;
 	height: number;
-};
-
-export const downloadBlob = (blob: Blob, filename: string): void => {
-	const url = URL.createObjectURL(blob);
-	const a = document.createElement('a');
-	a.href = url;
-	const cleanFilename = filename.includes('/')
-		? filename.substring(filename.lastIndexOf('/') + 1)
-		: filename;
-	a.download = cleanFilename;
-	a.click();
-	URL.revokeObjectURL(url);
 };
 
 export const ClientRenderQueueProcessor: React.FC = () => {
@@ -79,6 +69,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 					licenseKey: job.licenseKey ?? undefined,
 					scale: job.scale,
 					signal,
+					allowHtmlInCanvas: job.allowHtmlInCanvas,
 				})
 			).blob({format: job.imageFormat});
 
@@ -146,6 +137,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				outputTarget: 'web-fs',
 				licenseKey: job.licenseKey ?? undefined,
 				pageResponsiveness: job.pageResponsiveness,
+				allowHtmlInCanvas: job.allowHtmlInCanvas,
 			});
 
 			return {
@@ -195,7 +187,10 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 					markClientJobDone(job.id, metadata, getBlob);
 				};
 
-				if (window.remotion_isReadOnlyStudio) {
+				if (
+					window.remotion_isReadOnlyStudio ||
+					getBrowserStudioOperations() !== null
+				) {
 					downloadAndFinish();
 				} else {
 					try {

@@ -37,6 +37,8 @@ const makeStableFramePool = () => {
 			throw new Error('Could not create canvas context');
 		}
 
+		context.clearRect(0, 0, stableCanvas.width, stableCanvas.height);
+
 		// CanvasSink may reuse canvases in a ring buffer when poolSize is set.
 		// Since callers retain WrappedCanvas objects as the current/peeked frame,
 		// copy the pixels before another decoded frame can overwrite the source.

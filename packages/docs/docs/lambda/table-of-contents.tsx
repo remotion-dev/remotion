@@ -34,9 +34,13 @@ export const TableOfContents: React.FC = () => {
 					<strong>deleteSite()</strong>
 					<div>Delete a bundle from S3</div>
 				</TOCItem>
+				<TOCItem link="/docs/lambda/deploysitefrombundle">
+					<strong>deploySiteFromBundle()</strong>
+					<div>Upload an existing bundle to S3</div>
+				</TOCItem>
 				<TOCItem link="/docs/lambda/deploysite">
 					<strong>deploySite()</strong>
-					<div>Bundle and upload a site to S3</div>
+					<div>Deprecated: Bundle and upload a site to S3</div>
 				</TOCItem>
 				<TOCItem link="/docs/lambda/getawsclient">
 					<strong>getAwsClient()</strong>
@@ -53,6 +57,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/lambda/downloadmedia">
 					<strong>downloadMedia()</strong>
 					<div>Download a render artifact from S3</div>
+				</TOCItem>
+				<TOCItem link="/docs/lambda/cancelrenderonlambda">
+					<strong>cancelRenderOnLambda()</strong>
+					<div>Cancel an in-progress render</div>
 				</TOCItem>
 				<TOCItem link="/docs/lambda/getuserpolicy">
 					<strong>getUserPolicy()</strong>

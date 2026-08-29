@@ -1,19 +1,26 @@
-import {writeFileSync} from 'fs';
+import {createWriteStream, writeFileSync} from 'fs';
+import {pipeline} from 'node:stream/promises';
 import {join} from 'path';
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	CloudProvider,
+	GetBinaryPayloadSink,
 	OnMessage,
 	ProviderSpecifics,
 	ServerlessPayload,
 } from '@remotion/serverless-client';
 import {
 	deserializeArtifact,
+	parseS3RendererStatus,
+	rendererTransportStatusKey,
 	ServerlessRoutines,
+	streamToString,
 } from '@remotion/serverless-client';
+import type {OnArtifactFromRenderer} from './artifact-registry';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {InsideFunctionSpecifics} from './provider-implementation';
+import {artifactFromS3} from './s3-renderer-output';
 
 type StreamRendererResponse =
 	| {
@@ -43,16 +50,46 @@ const streamRenderer = <Provider extends CloudProvider>({
 	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	onArtifact: OnArtifactFromRenderer;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
+	expectedBucketOwner: string;
 }) => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}
 
 	return new Promise<StreamRendererResponse>((resolve) => {
+		const chunkFilename = (type: 'video' | 'audio') =>
+			join(outdir, `chunk:${String(payload.chunk).padStart(8, '0')}:${type}`);
+
+		// Stream the chunks to disk as they arrive instead of buffering them
+		// in memory. With many chunks arriving concurrently, buffering can
+		// exhaust the memory of the main function.
+		const getBinaryPayloadSink: GetBinaryPayloadSink = ({messageType}) => {
+			const filename = chunkFilename(
+				messageType === 'video-chunk-rendered' ? 'video' : 'audio',
+			);
+			const writeStream = createWriteStream(filename);
+			return {
+				write: (data) =>
+					new Promise<void>((resolve_, reject) => {
+						writeStream.write(data, (err) => {
+							if (err) {
+								reject(err);
+							} else {
+								resolve_();
+							}
+						});
+					}),
+				end: () =>
+					new Promise<void>((resolve_) => {
+						writeStream.end(resolve_);
+					}),
+			};
+		};
+
 		const receivedStreamingPayload: OnMessage<Provider> = ({message}) => {
 			if (message.type === 'lambda-invoked') {
 				overallProgress.setLambdaInvoked(payload.chunk);
@@ -69,11 +106,12 @@ const streamRenderer = <Provider extends CloudProvider>({
 			}
 
 			if (message.type === 'video-chunk-rendered') {
-				const filename = join(
-					outdir,
-					`chunk:${String(payload.chunk).padStart(8, '0')}:video`,
-				);
-				writeFileSync(filename, new Uint8Array(message.payload));
+				const filename = chunkFilename('video');
+				// An empty payload means the chunk was already streamed to disk
+				if (message.payload.length > 0) {
+					writeFileSync(filename, message.payload);
+				}
+
 				files.push(filename);
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
@@ -84,12 +122,12 @@ const streamRenderer = <Provider extends CloudProvider>({
 			}
 
 			if (message.type === 'audio-chunk-rendered') {
-				const filename = join(
-					outdir,
-					`chunk:${String(payload.chunk).padStart(8, '0')}:audio`,
-				);
+				const filename = chunkFilename('audio');
+				// An empty payload means the chunk was already streamed to disk
+				if (message.payload.length > 0) {
+					writeFileSync(filename, message.payload);
+				}
 
-				writeFileSync(filename, new Uint8Array(message.payload));
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
 					`Received audio chunk for chunk ${payload.chunk}`,
@@ -119,13 +157,24 @@ const streamRenderer = <Provider extends CloudProvider>({
 					artifact.filename,
 					artifact.content.length + 'bytes.',
 				);
-				const {alreadyExisted} = onArtifact(artifact);
-				if (alreadyExisted) {
+				const artifactRegistration = onArtifact({
+					artifact,
+					chunk: payload.chunk,
+					attempt: payload.attempt,
+				});
+				if (artifactRegistration.type === 'conflict') {
 					return resolve({
 						type: 'error',
 						error: `Chunk ${payload.chunk} emitted an asset filename ${message.payload.artifact.filename} at frame ${message.payload.artifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
 						shouldRetry: false,
 					});
+				}
+
+				if (artifactRegistration.type === 'retry-replay') {
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						`Ignoring artifact ${artifact.filename} replayed by attempt ${payload.attempt} of chunk ${payload.chunk}`,
+					);
 				}
 
 				return;
@@ -175,6 +224,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 				type: ServerlessRoutines.renderer,
 				receivedStreamingPayload,
 				requestHandler,
+				getBinaryPayloadSink,
 			})
 			.then(() => {
 				resolve({
@@ -198,7 +248,311 @@ const streamRenderer = <Provider extends CloudProvider>({
 	});
 };
 
-export const streamRendererFunctionWithRetry = async <
+const wait = (duration: number) =>
+	new Promise<void>((resolve) => setTimeout(resolve, duration));
+
+const isMissingObjectError = (err: unknown) => {
+	const error = err as {name?: string; Code?: string; code?: string};
+	return (
+		error.name === 'NoSuchKey' ||
+		error.name === 'NotFound' ||
+		error.Code === 'NoSuchKey' ||
+		error.code === 'NoSuchKey'
+	);
+};
+
+const readStreamAsBytes = async (
+	stream: NodeJS.ReadableStream,
+): Promise<Uint8Array> => {
+	const chunks: Uint8Array[] = [];
+	for await (const chunk of stream) {
+		chunks.push(
+			typeof chunk === 'string'
+				? new TextEncoder().encode(chunk)
+				: new Uint8Array(chunk),
+		);
+	}
+
+	const size = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+	const result = new Uint8Array(size);
+	let offset = 0;
+	for (const chunk of chunks) {
+		result.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
+
+	return result;
+};
+
+const s3Renderer = async <Provider extends CloudProvider>({
+	payload,
+	functionName,
+	outdir,
+	overallProgress,
+	files,
+	logLevel,
+	onArtifact,
+	providerSpecifics,
+	insideFunctionSpecifics,
+	requestHandler,
+	expectedBucketOwner,
+}: {
+	payload: ServerlessPayload<Provider>;
+	functionName: string;
+	outdir: string;
+	overallProgress: OverallProgressHelper<Provider>;
+	files: string[];
+	logLevel: LogLevel;
+	onArtifact: OnArtifactFromRenderer;
+	providerSpecifics: ProviderSpecifics<Provider>;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	requestHandler: Provider['requestHandler'] | null;
+	expectedBucketOwner: string;
+}): Promise<StreamRendererResponse> => {
+	if (payload.type !== ServerlessRoutines.renderer) {
+		throw new Error('Expected renderer type');
+	}
+
+	const region = insideFunctionSpecifics.getCurrentRegionInFunction();
+	try {
+		await providerSpecifics.callFunctionAsync({
+			functionName,
+			payload,
+			region,
+			timeoutInTest: 12000,
+			type: ServerlessRoutines.renderer,
+			requestHandler,
+		});
+	} catch (err) {
+		return {
+			type: 'error',
+			error: (err as Error).stack ?? (err as Error).message,
+			shouldRetry: providerSpecifics.isFlakyError(err as Error),
+		};
+	}
+
+	const statusKey = rendererTransportStatusKey({
+		renderId: payload.renderId,
+		chunk: payload.chunk,
+		attempt: payload.attempt,
+	});
+	let lastRendered = 0;
+	let lastEncoded = 0;
+	let lambdaInvoked = false;
+	let pollingInterval = 250;
+	const timeoutTimestamp = overallProgress.get().timeoutTimestamp - 1000;
+
+	while (Date.now() < timeoutTimestamp) {
+		try {
+			const statusStream = await providerSpecifics.readFile({
+				bucketName: payload.bucketName,
+				key: statusKey,
+				region,
+				expectedBucketOwner,
+				forcePathStyle: payload.forcePathStyle,
+				requestHandler,
+			});
+			const status = parseS3RendererStatus({
+				value: JSON.parse(await streamToString(statusStream)),
+				expectedChunk: payload.chunk,
+				expectedAttempt: payload.attempt,
+			});
+
+			if (status.lambdaInvoked && !lambdaInvoked) {
+				lambdaInvoked = true;
+				overallProgress.setLambdaInvoked(payload.chunk);
+			}
+
+			if (
+				status.renderedFrames > lastRendered ||
+				status.encodedFrames > lastEncoded
+			) {
+				lastRendered = Math.max(lastRendered, status.renderedFrames);
+				lastEncoded = Math.max(lastEncoded, status.encodedFrames);
+				overallProgress.setFrames({
+					index: payload.chunk,
+					rendered: lastRendered,
+					encoded: lastEncoded,
+				});
+			}
+
+			if (status.state === 'failed') {
+				overallProgress.addErrorWithoutUpload(status.errorInfo);
+				overallProgress.setFrames({
+					encoded: 0,
+					index: payload.chunk,
+					rendered: 0,
+				});
+				await providerSpecifics
+					.deleteFile({
+						bucketName: payload.bucketName,
+						key: statusKey,
+						region,
+						customCredentials: null,
+						forcePathStyle: payload.forcePathStyle,
+						requestHandler,
+					})
+					.catch(() => undefined);
+				return {
+					type: 'error',
+					error: status.errorInfo.stack,
+					shouldRetry: status.shouldRetry,
+				};
+			}
+
+			if (status.state === 'completed') {
+				const downloadedKeys: string[] = [];
+				const emittedArtifacts: EmittedArtifact[] = [];
+				for (const artifact of status.artifacts) {
+					let artifactStream;
+					try {
+						artifactStream = await providerSpecifics.readFile({
+							bucketName: payload.bucketName,
+							key: artifact.key,
+							region,
+							expectedBucketOwner,
+							forcePathStyle: payload.forcePathStyle,
+							requestHandler,
+						});
+					} catch (err) {
+						if (isMissingObjectError(err)) {
+							throw new Error(
+								`Renderer completed manifest references missing artifact object ${artifact.key}`,
+							);
+						}
+
+						throw err;
+					}
+
+					emittedArtifacts.push(
+						artifactFromS3({
+							metadata: artifact.metadata,
+							content: await readStreamAsBytes(artifactStream),
+						}),
+					);
+					downloadedKeys.push(artifact.key);
+				}
+
+				const downloadedFiles: string[] = [];
+				for (const [type, key] of [
+					['video', status.videoKey],
+					['audio', status.audioKey],
+				] as const) {
+					if (!key) {
+						continue;
+					}
+
+					const filename = join(
+						outdir,
+						`chunk-${String(payload.chunk).padStart(8, '0')}-${type}`,
+					);
+					let media;
+					try {
+						media = await providerSpecifics.readFile({
+							bucketName: payload.bucketName,
+							key,
+							region,
+							expectedBucketOwner,
+							forcePathStyle: payload.forcePathStyle,
+							requestHandler,
+						});
+					} catch (err) {
+						if (isMissingObjectError(err)) {
+							throw new Error(
+								`Renderer completed manifest references missing media object ${key}`,
+							);
+						}
+
+						throw err;
+					}
+
+					await pipeline(media, createWriteStream(filename));
+					downloadedFiles.push(filename);
+					downloadedKeys.push(key);
+				}
+
+				for (const emittedArtifact of emittedArtifacts) {
+					const artifactRegistration = onArtifact({
+						artifact: emittedArtifact,
+						chunk: payload.chunk,
+						attempt: payload.attempt,
+					});
+					if (artifactRegistration.type === 'conflict') {
+						return {
+							type: 'error',
+							error: `Chunk ${payload.chunk} emitted an asset filename ${emittedArtifact.filename} at frame ${emittedArtifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
+							shouldRetry: false,
+						};
+					}
+
+					if (artifactRegistration.type === 'retry-replay') {
+						RenderInternals.Log.info(
+							{indent: false, logLevel},
+							`Ignoring artifact ${emittedArtifact.filename} replayed by attempt ${payload.attempt} of chunk ${payload.chunk}`,
+						);
+					}
+				}
+
+				files.push(...downloadedFiles);
+				overallProgress.addChunkCompleted(
+					payload.chunk,
+					status.startedAt,
+					status.completedAt,
+				);
+				for (const key of [...downloadedKeys, statusKey]) {
+					await providerSpecifics
+						.deleteFile({
+							bucketName: payload.bucketName,
+							key,
+							region,
+							customCredentials: null,
+							forcePathStyle: payload.forcePathStyle,
+							requestHandler,
+						})
+						.catch((err) => {
+							RenderInternals.Log.warn(
+								{indent: false, logLevel},
+								`Could not clean up renderer transport object ${key}`,
+								err,
+							);
+						});
+				}
+
+				return {type: 'success'};
+			}
+		} catch (err) {
+			if (
+				!isMissingObjectError(err) &&
+				!providerSpecifics.isFlakyError(err as Error)
+			) {
+				return {
+					type: 'error',
+					error: (err as Error).stack ?? (err as Error).message,
+					shouldRetry: false,
+				};
+			}
+		}
+
+		await wait(pollingInterval);
+		pollingInterval = Math.min(2000, Math.round(pollingInterval * 1.5));
+	}
+
+	return {
+		type: 'error',
+		error: `Renderer chunk ${payload.chunk}, attempt ${payload.attempt} did not publish a status before the launcher deadline. Logs: ${providerSpecifics.getLoggingUrlForRendererFunction(
+			{
+				region,
+				functionName,
+				rendererFunctionName: functionName,
+				renderId: payload.renderId,
+				chunk: payload.chunk,
+			},
+		)}`,
+		shouldRetry: false,
+	};
+};
+
+export const renderRendererFunctionWithRetry = async <
 	Provider extends CloudProvider,
 >({
 	payload,
@@ -211,6 +565,7 @@ export const streamRendererFunctionWithRetry = async <
 	providerSpecifics,
 	insideFunctionSpecifics,
 	requestHandler,
+	expectedBucketOwner,
 }: {
 	payload: ServerlessPayload<Provider>;
 	functionName: string;
@@ -218,16 +573,20 @@ export const streamRendererFunctionWithRetry = async <
 	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	onArtifact: OnArtifactFromRenderer;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
+	expectedBucketOwner: string;
 }): Promise<unknown> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}
 
-	const result = await streamRenderer({
+	const transport = providerSpecifics.getRendererFunctionTransport(
+		insideFunctionSpecifics.getCurrentRegionInFunction(),
+	);
+	const result = await (transport === 's3' ? s3Renderer : streamRenderer)({
 		files,
 		functionName,
 		outdir,
@@ -238,10 +597,11 @@ export const streamRendererFunctionWithRetry = async <
 		providerSpecifics,
 		insideFunctionSpecifics,
 		requestHandler,
+		expectedBucketOwner,
 	});
 
 	if (result.type === 'error') {
-		if (!result.shouldRetry) {
+		if (!result.shouldRetry || payload.retriesLeft <= 0) {
 			throw new Error(result.error);
 		}
 
@@ -251,7 +611,7 @@ export const streamRendererFunctionWithRetry = async <
 			chunk: payload.chunk,
 		});
 
-		return streamRendererFunctionWithRetry({
+		return renderRendererFunctionWithRetry({
 			files,
 			functionName,
 			outdir,
@@ -266,6 +626,7 @@ export const streamRendererFunctionWithRetry = async <
 			providerSpecifics,
 			insideFunctionSpecifics,
 			requestHandler,
+			expectedBucketOwner,
 		});
 	}
 };

@@ -218,7 +218,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		scale: params.scale,
 	};
 
-	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
+	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds, false);
 	still.renderMetadata = renderMetadata;
 
 	await providerSpecifics.writeFile({
@@ -395,7 +395,12 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		size,
 		sizeInBytes: size,
 		bucketName,
-		estimatedPrice: formatCostsInfo(estimatedPrice),
+		estimatedPrice: formatCostsInfo(
+			estimatedPrice,
+			providerSpecifics.getBillingCurrency(
+				insideFunctionSpecifics.getCurrentRegionInFunction(),
+			),
+		),
 		renderId,
 		outKey,
 		receivedArtifacts: receivedArtifact,

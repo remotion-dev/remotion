@@ -1,14 +1,18 @@
-import type {StaticFile} from 'remotion';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
+	StaticFile,
 } from 'remotion';
 import type {
 	CanUpdateDefaultPropsResponse,
 	ElementInstallRequest,
 } from './api-requests';
+import type {ConfigFileChangeType} from './config-file-change';
 import type {HotMiddlewareMessage} from './hot-middleware';
+import type {RenderDefaults} from './render-defaults';
 import type {CompletedClientRender, RenderJob} from './render-job';
+import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
+import type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type EventSourceEvent =
 	| {
@@ -24,6 +28,18 @@ export type EventSourceEvent =
 	| {
 			type: 'new-env-variables';
 			newEnvVariables: Record<string, string>;
+	  }
+	| {
+			type: 'config-file-changed';
+			changeType: ConfigFileChangeType;
+			originatorClientId: string | null;
+			renderDefaults: RenderDefaults;
+			studioRuntimeConfig: StudioRuntimeConfig;
+			editorName: string | null;
+	  }
+	| {
+			type: 'config-file-reload-failed';
+			errorMessage: string;
 	  }
 	| {
 			type: 'root-file-changed';
@@ -61,6 +77,10 @@ export type EventSourceEvent =
 			result: CanUpdateSequencePropsResponse;
 	  }
 	| {
+			type: 'sequence-node-paths-remapped';
+			mutation: SequenceNodePathMutation;
+	  }
+	| {
 			type: 'lost-node-path';
 			fileName: string;
 			line: number;
@@ -83,6 +103,16 @@ export type EventSourceEvent =
 	| {
 			type: 'element-install-request';
 			request: ElementInstallRequest;
+	  }
+	| {
+			type: 'license-key-install-request';
+			licenseKey: string;
+	  }
+	| {
+			type: 'element-library-add-request';
+			url: string;
+			displayName: string | null;
+			origin: string;
 	  }
 	| {
 			type: 'visual-control-values-changed';

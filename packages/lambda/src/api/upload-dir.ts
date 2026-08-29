@@ -7,6 +7,8 @@ import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {Privacy, UploadDirProgress} from '@remotion/serverless';
 import mimeTypes from 'mime-types';
 import {makeS3Key} from '../shared/make-s3-key';
+import {multipartUploadPartSize} from '../shared/multipart-upload-part-size';
+import {waitForPromisesToFinish} from '../shared/wait-for-promises-to-finish';
 
 type FileInfo = {
 	name: string;
@@ -109,7 +111,7 @@ export const uploadDir = async ({
 		const parallelUploadsS3 = new Upload({
 			client,
 			queueSize: 2,
-			partSize: 40 * 1024 * 1024,
+			partSize: multipartUploadPartSize,
 			params: {
 				Key,
 				Bucket: bucket,
@@ -140,14 +142,11 @@ export const uploadDir = async ({
 		}
 	};
 
-	const uploadAll = (async () => {
-		const uploads = files.map((filePath) =>
-			limit(async () => {
-				await uploadWithRetry(filePath);
-			}),
-		);
-		await Promise.all(uploads);
-	})();
+	const uploads = files.map((filePath) =>
+		limit(async () => {
+			await uploadWithRetry(filePath);
+		}),
+	);
 
 	const interval = setInterval(() => {
 		onProgress({
@@ -157,6 +156,10 @@ export const uploadDir = async ({
 			filesUploaded: files.filter((f) => progresses[f.name] === f.size).length,
 		});
 	}, 1000);
-	await uploadAll;
-	clearInterval(interval);
+
+	try {
+		await waitForPromisesToFinish(uploads);
+	} finally {
+		clearInterval(interval);
+	}
 };

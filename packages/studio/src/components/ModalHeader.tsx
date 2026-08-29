@@ -1,6 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {BORDER_BLACK, WHITE} from '../helpers/colors';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {Flex} from './layout';
 import {CancelButton} from './NewComposition/CancelButton';
 
@@ -27,7 +27,7 @@ export const ModalHeader: React.FC<{
 	readonly title: string;
 	readonly onClose?: () => void;
 }> = ({title, onClose}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const onPress = useCallback(() => {
 		setSelectedModal(null);

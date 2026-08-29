@@ -10,13 +10,16 @@
 	"include": ["src"],
 	"references": [
 		{
+			"path": "../canvas"
+		},
+		{
 			"path": "../core"
 		},
 		{
-			"path": "../canvas-capture"
+			"path": "../media-utils"
 		},
 		{
-			"path": "../media-utils"
+			"path": "../studio-protocol"
 		},
 		{
 			"path": "../studio-shared"

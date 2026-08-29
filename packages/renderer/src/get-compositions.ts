@@ -38,7 +38,7 @@ type InternalGetCompositionsOptions = {
 	onLog: OnLog;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
-export type GetCompositionsOptions = RequiredInputPropsInV5 & {
+type SharedGetCompositionsOptions = {
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -46,6 +46,56 @@ export type GetCompositionsOptions = RequiredInputPropsInV5 & {
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
 } & Partial<ToOptions<typeof optionsMap.getCompositions>>;
+
+type V4LegacyGetCompositionsOptions = {
+	inputProps?: Record<string, unknown>;
+} & SharedGetCompositionsOptions;
+
+export type LegacyGetCompositionsOptions =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? never
+		: V4LegacyGetCompositionsOptions;
+
+export type GetCompositionsOptions = RequiredInputPropsInV5 &
+	SharedGetCompositionsOptions & {
+		serveUrl: string;
+	};
+
+type V4GetCompositionsArguments =
+	| [options: GetCompositionsOptions]
+	| [serveUrlOrWebpackUrl: string, config?: V4LegacyGetCompositionsOptions];
+
+type GetCompositionsArguments =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? [options: GetCompositionsOptions]
+		: V4GetCompositionsArguments;
+
+export const convertGetCompositionsArgumentsToOptions = (
+	args: V4GetCompositionsArguments,
+	enableV5BreakingChanges: boolean,
+): GetCompositionsOptions => {
+	if ((args.length as number) === 0) {
+		throw new Error(
+			'No serve URL or webpack bundle directory was passed to getCompositions().',
+		);
+	}
+
+	const firstArg = args[0];
+	if (typeof firstArg === 'string') {
+		if (enableV5BreakingChanges) {
+			throw new TypeError(
+				'getCompositions() no longer supports the legacy positional arguments. Pass an options object instead: getCompositions({serveUrl, ...options}).',
+			);
+		}
+
+		return {
+			...(args[1] ?? {}),
+			serveUrl: firstArg,
+		} as GetCompositionsOptions;
+	}
+
+	return firstArg;
+};
 
 type InnerGetCompositionsParams = {
 	serializedInputPropsWithCustomSchema: string;
@@ -281,10 +331,14 @@ export const internalGetCompositions = wrapWithErrorHandling(
  * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
  */
 export const getCompositions = (
-	serveUrlOrWebpackUrl: string,
-	config?: GetCompositionsOptions,
+	...args: GetCompositionsArguments
 ): Promise<VideoConfig[]> => {
-	if (!serveUrlOrWebpackUrl) {
+	const options = convertGetCompositionsArgumentsToOptions(
+		args,
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
+	);
+
+	if (typeof options?.serveUrl !== 'string' || !options.serveUrl) {
 		throw new Error(
 			'No serve URL or webpack bundle directory was passed to getCompositions().',
 		);
@@ -306,7 +360,8 @@ export const getCompositions = (
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
-	} = config ?? {};
+		serveUrl,
+	} = options;
 
 	const indent = false;
 	const logLevel = passedLogLevel ?? 'info';
@@ -325,7 +380,7 @@ export const getCompositions = (
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? undefined,
-		serveUrlOrWebpackUrl,
+		serveUrlOrWebpackUrl: serveUrl,
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel,

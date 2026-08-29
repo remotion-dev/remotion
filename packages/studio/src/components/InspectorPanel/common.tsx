@@ -1,6 +1,14 @@
 import React from 'react';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
-import {InlineAction} from '../InlineAction';
+import {
+	CURRENT_COLOR,
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	getBackgroundFromHoverState,
+} from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {COMPACT_CONTROL_ROW_HEIGHT, COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {RenderModalWarning} from '../RenderModal/DataEditor';
 import {
@@ -9,65 +17,70 @@ import {
 	detailLabel,
 	detailRow,
 	detailValue,
-	inspectorSectionDivider,
+	inspectorQuickActionsSection,
+	inspectorSectionBody,
 	resolveLinkStyle,
 	sectionHeader,
-	sectionHeaderRow,
-	sectionHeaderStart,
 } from './styles';
 
 export const InspectorSectionHeader: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => <div style={sectionHeader}>{children}</div>;
 
-const backIcon: React.CSSProperties = {
-	alignItems: 'center',
-	display: 'flex',
-	height: 12,
-	justifyContent: 'center',
-	width: 12,
+export const InspectorQuickActionsSection: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => <div style={inspectorQuickActionsSection}>{children}</div>;
+
+export const InspectorSection: React.FC<{
+	readonly children: React.ReactNode;
+	readonly header: React.ReactNode;
+}> = ({children, header}) => {
+	return (
+		<>
+			<InspectorSectionHeader>{header}</InspectorSectionHeader>
+			{children === null ? null : (
+				<div style={inspectorSectionBody}>{children}</div>
+			)}
+		</>
+	);
 };
 
-const BackChevron: React.FC<{
+const backArrowIcon: React.CSSProperties = {
+	display: 'block',
+	height: 15,
+	width: 15,
+};
+
+const BackArrow: React.FC<{
 	readonly color: string;
 }> = ({color}) => {
 	return (
-		<svg viewBox="0 0 8 12" style={backIcon}>
+		<svg viewBox="0 0 512 512" style={backArrowIcon}>
 			<path
-				d="M6 1L2 6L6 11"
-				fill="none"
-				stroke={color}
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth="1.5"
+				d="M7 239c-9.4 9.4-9.4 24.6 0 33.9L175 441c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L81.9 280 488 280c13.3 0 24-10.7 24-24s-10.7-24-24-24L81.9 232 209 105c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L7 239z"
+				fill={color}
 			/>
 		</svg>
 	);
 };
 
-export const InspectorBackHeaderWithDivider: React.FC<{
+export const InspectorBackAction: React.FC<{
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly title: string;
 }> = ({children, disabled, onClick, title}) => {
 	return (
-		<>
-			<InspectorSectionHeader>
-				<div style={sectionHeaderRow}>
-					<div style={sectionHeaderStart}>
-						<InlineAction
-							disabled={disabled}
-							onClick={onClick}
-							title={title}
-							renderAction={(color) => <BackChevron color={color} />}
-						/>
-						{children}
-					</div>
-				</div>
-			</InspectorSectionHeader>
-			<div style={inspectorSectionDivider} />
-		</>
+		<div style={inspectorQuickActionsSection}>
+			<InspectorQuickAction
+				disabled={disabled}
+				onClick={onClick}
+				renderIcon={(color) => <BackArrow color={color} />}
+				title={title}
+			>
+				{children}
+			</InspectorQuickAction>
+		</div>
 	);
 };
 
@@ -76,29 +89,44 @@ export const InspectorMessage: React.FC<{
 }> = ({children}) => <div style={centeredMessage}>{children}</div>;
 
 export const InspectorDetailRow: React.FC<{
-	readonly label: string;
+	readonly label: React.ReactNode | ((hovered: boolean) => React.ReactNode);
 	readonly children: React.ReactNode;
-}> = ({label, children}) => (
-	<div style={detailRow}>
-		<div style={detailLabel}>{label}</div>
-		<div style={detailValue}>{children}</div>
-	</div>
-);
+}> = ({label, children}) => {
+	const [hovered, setHovered] = React.useState(false);
+
+	return (
+		<div
+			style={detailRow}
+			onPointerEnter={() => setHovered(true)}
+			onPointerLeave={() => setHovered(false)}
+		>
+			<div style={detailLabel}>
+				{typeof label === 'function' ? label(hovered) : label}
+			</div>
+			<div style={detailValue}>{children}</div>
+		</div>
+	);
+};
+
+const INLINE_LABEL_BUTTON_MARGIN = 4;
 
 const inlineLabelButton: React.CSSProperties = {
 	alignItems: 'center',
 	appearance: 'none',
-	backgroundColor: TRANSPARENT,
 	border: 'none',
-	color: LIGHT_TEXT,
+	borderRadius: 4,
+	boxSizing: 'border-box',
 	cursor: 'default',
 	display: 'flex',
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	gap: 8,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	lineHeight: '18px',
-	margin: 0,
-	padding: '10px 0 0',
+	margin: `0 ${INLINE_LABEL_BUTTON_MARGIN}px`,
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - INLINE_LABEL_BUTTON_MARGIN}px`,
+	textAlign: 'left',
+	width: `calc(100% - ${INLINE_LABEL_BUTTON_MARGIN * 2}px)`,
 };
 
 const inlineLabelButtonDisabled: React.CSSProperties = {
@@ -106,65 +134,98 @@ const inlineLabelButtonDisabled: React.CSSProperties = {
 	opacity: 0.35,
 };
 
+const compactInlineLabelButton: React.CSSProperties = {
+	height: COMPACT_INLINE_ROW_HEIGHT,
+};
+
 const inlineLabelText: React.CSSProperties = {
-	color: LIGHT_TEXT,
+	flex: 1,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	lineHeight: '18px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	whiteSpace: 'nowrap',
 };
 
 const inlineLabelIcon: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
-	height: 13,
+	height: 18,
 	justifyContent: 'center',
-	width: 13,
+	width: 18,
 };
 
-export const InspectorInlineAction: React.FC<{
+export type InspectorQuickActionProps = {
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
-	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
-	readonly renderIcon: (color: string) => React.ReactNode;
-}> = ({children, disabled, onClick, renderIcon}) => {
-	const [hovered, setHovered] = React.useState(false);
-	const color = hovered && !disabled ? WHITE : LIGHT_TEXT;
+	readonly iconContainerStyle?: React.CSSProperties;
+	readonly onClick: React.MouseEventHandler<HTMLButtonElement> | null;
+	readonly renderIcon?: (color: string) => React.ReactNode;
+	readonly size?: 'default' | 'compact';
+	readonly style?: React.CSSProperties;
+	readonly title?: string;
+};
+
+export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
+	children,
+	disabled,
+	iconContainerStyle,
+	onClick,
+	renderIcon,
+	size = 'default',
+	style,
+	title,
+}) => {
+	const showsHover = !disabled && onClick !== null;
 	const buttonStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...(disabled ? inlineLabelButtonDisabled : inlineLabelButton),
-			color,
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: showsHover
+					? getBackgroundFromHoverState({hovered: true, selected: false})
+					: TRANSPARENT,
+				idleColor: LIGHT_TEXT,
+				hoverColor: showsHover ? WHITE : LIGHT_TEXT,
+			}),
+			...(size === 'compact' ? compactInlineLabelButton : null),
+			...style,
 		}),
-		[color, disabled],
-	);
-	const textStyle = React.useMemo(
-		(): React.CSSProperties => ({
-			...inlineLabelText,
-			color,
-		}),
-		[color],
+		[disabled, showsHover, size, style],
 	);
 
-	const onPointerEnter = React.useCallback(() => {
-		setHovered(true);
-	}, []);
-	const onPointerLeave = React.useCallback(() => {
-		setHovered(false);
-	}, []);
-
-	return (
+	const mainContent = (
+		<>
+			{renderIcon ? (
+				<span style={{...inlineLabelIcon, ...iconContainerStyle}}>
+					{renderIcon(CURRENT_COLOR)}
+				</span>
+			) : null}
+			<span style={inlineLabelText}>{children}</span>
+		</>
+	);
+	const mainAction = onClick ? (
 		<button
+			className={`__remotion-inspector-quick-action ${HOVERABLE_CLASS_NAME}`}
 			type="button"
 			disabled={disabled}
 			style={buttonStyle}
+			title={title}
 			onClick={onClick}
-			onPointerEnter={disabled ? undefined : onPointerEnter}
-			onPointerLeave={onPointerLeave}
 		>
-			<span style={inlineLabelIcon}>{renderIcon(color)}</span>
-			<span style={textStyle}>{children}</span>
+			{mainContent}
 		</button>
+	) : (
+		<div className={HOVERABLE_CLASS_NAME} style={buttonStyle} title={title}>
+			{mainContent}
+		</div>
 	);
+
+	return mainAction;
 };
 
 export const InspectorDefaultPropsWarnings: React.FC<{

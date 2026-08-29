@@ -1,8 +1,9 @@
-import {getVideoMetadata} from '@remotion/media-utils';
 import type {CanvasContent} from 'remotion';
 import {staticFile} from 'remotion';
+import {addAssetCacheBust} from './add-asset-cache-bust';
 import {getPreviewFileType} from './get-preview-file-type';
 import type {Dimensions} from './is-current-selected-still';
+import {getMediaMetadata, type MediaMetadata} from './use-media-metadata';
 
 export const remotion_outputsBase = window.remotion_staticBase.replace(
 	'static',
@@ -32,7 +33,60 @@ export type AssetMetadata =
 			size: number;
 			dimensions: Dimensions | 'none' | null;
 			fetchedAt: number;
+			mediaMetadata: MediaMetadata | null;
 	  };
+
+export const getAssetPreviewMetadata = ({
+	canvasContent,
+	metadata,
+}: {
+	canvasContent: CanvasContent;
+	metadata: AssetMetadata;
+}) => {
+	if (
+		canvasContent.type !== 'asset' ||
+		metadata.type !== 'found' ||
+		metadata.mediaMetadata === null ||
+		!Number.isFinite(metadata.mediaMetadata.duration) ||
+		metadata.mediaMetadata.duration <= 0
+	) {
+		return null;
+	}
+
+	const fileType = getPreviewFileType(canvasContent.asset);
+	if (fileType !== 'audio' && fileType !== 'video') {
+		return null;
+	}
+
+	const {dimensions} = metadata;
+	if (dimensions === null || dimensions === 'none') {
+		return null;
+	}
+
+	const detectedFps = metadata.mediaMetadata.fps;
+	const fps =
+		detectedFps !== null && Number.isFinite(detectedFps) && detectedFps > 0
+			? detectedFps
+			: 30;
+
+	return {
+		asset: canvasContent.asset,
+		width: dimensions.width,
+		height: dimensions.height,
+		fps,
+		durationInFrames: Math.max(
+			1,
+			Math.ceil(metadata.mediaMetadata.duration * fps),
+		),
+		props: {},
+		defaultCodec: null,
+		defaultOutName: null,
+		defaultVideoImageFormat: null,
+		defaultPixelFormat: null,
+		defaultProResProfile: null,
+		defaultSampleRate: metadata.mediaMetadata.sampleRate,
+	};
+};
 
 export const getAssetMetadata = async (
 	canvasContent: CanvasContent,
@@ -44,6 +98,7 @@ export const getAssetMetadata = async (
 			size: canvasContent.sizeInBytes,
 			dimensions: {width: canvasContent.width, height: canvasContent.height},
 			fetchedAt: Date.now(),
+			mediaMetadata: null,
 		};
 	}
 
@@ -53,39 +108,59 @@ export const getAssetMetadata = async (
 
 	try {
 		const src = getSrcFromCanvasContent(canvasContent);
+		const listedStaticFile =
+			canvasContent.type === 'asset'
+				? window.remotion_staticFiles.find(
+						(file) => file.name === canvasContent.asset && file.src === src,
+					)
+				: null;
+		let size = listedStaticFile?.sizeInBytes ?? null;
 
-		const file = await fetch(src, {
-			method: 'HEAD',
-		});
+		if (size === null) {
+			const file = await fetch(src, {
+				method: 'HEAD',
+			});
 
-		if (file.status === 404) {
-			return {type: 'not-found'};
-		}
+			if (file.status === 404) {
+				return {type: 'not-found'};
+			}
 
-		if (file.status !== 200) {
-			throw new Error(
-				`Expected status code 200 or 404 for file, got ${file.status}`,
-			);
-		}
+			if (file.status !== 200) {
+				throw new Error(
+					`Expected status code 200 or 404 for file, got ${file.status}`,
+				);
+			}
 
-		const size = file.headers.get('content-length');
+			const contentLength = file.headers.get('content-length');
 
-		if (!size) {
-			throw new Error('Unexpected error: content-length is null');
+			if (!contentLength) {
+				throw new Error('Unexpected error: content-length is null');
+			}
+
+			size = Number(contentLength);
 		}
 
 		const fetchedAt = Date.now();
-		const srcWithTime = addTime ? `${src}?date=${fetchedAt}` : src;
+		const srcWithTime = addTime ? addAssetCacheBust({fetchedAt, src}) : src;
 
-		const fileType = getPreviewFileType(src);
+		const fileType = getPreviewFileType(
+			canvasContent.type === 'asset' ? canvasContent.asset : src,
+		);
 
-		if (fileType === 'video') {
-			const resolution = await getVideoMetadata(srcWithTime);
+		if (fileType === 'video' || fileType === 'audio') {
+			const mediaMetadata = await getMediaMetadata(srcWithTime);
+			if (mediaMetadata === null) {
+				throw new Error(`Could not read media metadata for ${src}`);
+			}
+
+			const width = mediaMetadata.width ?? 1920;
+			const height = mediaMetadata.height ?? 1080;
 			return {
 				type: 'found',
-				size: Number(size),
-				dimensions: {width: resolution.width, height: resolution.height},
+				size,
+				dimensions: {width, height},
 				fetchedAt,
+				mediaMetadata,
 			};
 		}
 
@@ -95,9 +170,10 @@ export const getAssetMetadata = async (
 				img.onload = () => {
 					resolve({
 						type: 'found',
-						size: Number(size),
+						size,
 						dimensions: {width: img.width, height: img.height},
 						fetchedAt,
+						mediaMetadata: null,
 					});
 				};
 
@@ -113,8 +189,9 @@ export const getAssetMetadata = async (
 		return {
 			type: 'found',
 			dimensions: 'none',
-			size: Number(size),
+			size,
 			fetchedAt,
+			mediaMetadata: null,
 		};
 	} catch (err) {
 		return {

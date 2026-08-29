@@ -3,9 +3,9 @@ import {buildPackage} from '../.monorepo/builder';
 const external = [
 	'react',
 	'remotion',
+	'@remotion/canvas',
 	'react-dom',
 	'react',
-	'@remotion/canvas-capture',
 	'@remotion/media-utils',
 	'@remotion/studio-shared',
 	'@remotion/timeline-utils',

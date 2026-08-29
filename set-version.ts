@@ -10,7 +10,10 @@ import {
 } from 'fs';
 import path from 'path';
 import {FEATURED_TEMPLATES} from './packages/create-video/src/templates.ts';
-import {SHOW_BROWSER_RENDERING} from './packages/studio/src/helpers/show-browser-rendering.ts';
+import {
+	moveRemovedDependenciesToDevDependencies,
+	shouldReleasePackage,
+} from './packages/studio-shared/src/release-package-policy';
 
 let version = process.argv[2];
 let noCommit = process.argv.includes('--no-commit');
@@ -30,10 +33,6 @@ const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
 
 if (currentBranch !== 'main') {
 	throw new Error('Please be on the main branch');
-}
-
-if (SHOW_BROWSER_RENDERING) {
-	throw new Error('Dont publish browser rendering');
 }
 
 const dirs = readdirSync('packages')
@@ -68,7 +67,23 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 		unlinkSync(tsconfigBuildPath);
 	}
 
-	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+	let packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+	if (
+		!shouldReleasePackage({
+			packageName: packageJson.name,
+			releaseVersion: version,
+		})
+	) {
+		continue;
+	}
+
+	if (!packageJson.private) {
+		packageJson = moveRemovedDependenciesToDevDependencies({
+			packageJson,
+			releaseVersion: version,
+		});
+	}
+
 	packageJson.version = version;
 	writeFileSync(
 		packageJsonPath,
@@ -79,6 +94,46 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 	} catch (e) {
 		// console.log(e.message);
 	}
+}
+
+const skillsRoot = path.join(process.cwd(), 'packages', 'skills', 'skills');
+for (const skillName of readdirSync(skillsRoot)) {
+	const skillFile = path.join(skillsRoot, skillName, 'SKILL.md');
+	if (!existsSync(skillFile)) {
+		continue;
+	}
+
+	const contents = readFileSync(skillFile, 'utf8');
+	const frontmatterEnd = contents.indexOf('\n---', 4);
+	if (frontmatterEnd === -1) {
+		throw new Error(`No frontmatter found in ${skillFile}`);
+	}
+
+	const frontmatter = contents.slice(0, frontmatterEnd);
+	const versionPattern = /^version:.*$/m;
+	const updatedFrontmatter = versionPattern.test(frontmatter)
+		? frontmatter.replace(versionPattern, `version: ${version}`)
+		: `${frontmatter}\nversion: ${version}`;
+	writeFileSync(skillFile, updatedFrontmatter + contents.slice(frontmatterEnd));
+	console.log('setting version for', path.join('skills', skillName));
+}
+
+const pluginManifestPaths = [
+	path.join('codex-plugin', 'plugin.json'),
+	path.join('codex-plugin', '.codex-plugin', 'plugin.json'),
+	path.join('claude-code-plugin', '.claude-plugin', 'plugin.json'),
+	path.join('kimi-code-plugin', '.kimi-plugin', 'plugin.json'),
+];
+for (const pluginManifestPath of pluginManifestPaths) {
+	const manifestPath = path.join(process.cwd(), 'packages', pluginManifestPath);
+	if (!existsSync(manifestPath)) {
+		continue;
+	}
+
+	const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+	manifest.version = version;
+	writeFileSync(manifestPath, JSON.stringify(manifest, null, '\t') + '\n');
+	console.log('setting version for', pluginManifestPath);
 }
 
 execSync('bun ensure-correct-version.ts', {

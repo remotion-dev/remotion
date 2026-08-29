@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Audit Masterplan Issues'
+  short_description: 'Audit and clean masterplan issue trees'
+  default_prompt: 'Use $find-unplanned-issues to audit masterplan coverage or prune closed issues from the Remotion masterplan tree.'

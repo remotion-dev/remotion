@@ -5,6 +5,12 @@ import {MultiRangeSlider} from './MultiRangeSlider';
 
 const INPUT_WIDTH = 40;
 
+const startFrameInputContainer: React.CSSProperties = {
+	display: 'flex',
+	justifyContent: 'flex-end',
+	width: INPUT_WIDTH,
+};
+
 export const FrameRangeSetting: React.FC<{
 	readonly startFrame: number;
 	readonly endFrame: number;
@@ -47,7 +53,7 @@ export const FrameRangeSetting: React.FC<{
 		<div style={optionRow}>
 			<div style={label}>Frame range</div>
 			<div style={rightRow}>
-				<div style={{width: INPUT_WIDTH}}>
+				<div style={startFrameInputContainer}>
 					<InputDragger
 						min={minStartFrame}
 						max={endFrame - 1}

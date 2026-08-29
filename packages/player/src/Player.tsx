@@ -31,6 +31,8 @@ import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
+import type {TimelineSequenceObserver} from './timeline-sequence-observer-context.js';
+import {TimelineSequenceObserverContext} from './timeline-sequence-observer-context.js';
 import {acknowledgeRemotionLicenseMessage} from './use-remotion-license-acknowledge.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
@@ -100,6 +102,7 @@ export type PlayerProps<
 	readonly sampleRate?: number;
 	readonly volumePersistenceKey?: string;
 	readonly initialVolume?: number;
+	readonly _experimentalKeepAudioContextAlive?: boolean;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -112,6 +115,18 @@ export const componentOrNullIfLazy = <Props,>(
 	if ('component' in props) {
 		return props.component as ComponentType<Props>;
 	}
+
+	return null;
+};
+
+const TimelineSequenceObserverComponent: React.FC<{
+	readonly onTimelineSequenceChange: TimelineSequenceObserver;
+}> = ({onTimelineSequenceChange}) => {
+	const {sequences} = React.useContext(Internals.SequenceManager);
+
+	useEffect(() => {
+		onTimelineSequenceChange(sequences);
+	}, [onTimelineSequenceChange, sequences]);
 
 	return null;
 };
@@ -172,6 +187,7 @@ const PlayerFn = <
 		sampleRate = 48000,
 		volumePersistenceKey,
 		initialVolume,
+		_experimentalKeepAudioContextAlive = false,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: RefObject<PlayerRef>,
@@ -179,6 +195,10 @@ const PlayerFn = <
 	if (typeof window !== 'undefined') {
 		window.remotion_isPlayer = true;
 	}
+
+	const onTimelineSequenceChange = React.useContext(
+		TimelineSequenceObserverContext,
+	);
 
 	// @ts-expect-error
 	if (componentProps.defaultProps !== undefined) {
@@ -223,7 +243,6 @@ const PlayerFn = <
 		[PLAYER_COMP_ID]: initialFrame ?? 0,
 	}));
 	const [playing, setPlaying] = useState<boolean>(false);
-	const [rootId] = useState<string>('player-comp');
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const imperativePlaying = useRef(false);
@@ -392,11 +411,10 @@ const PlayerFn = <
 		return {
 			frame,
 			playing,
-			rootId,
 			imperativePlaying,
 			audioAndVideoTags,
 		};
-	}, [frame, playing, rootId]);
+	}, [frame, playing]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -436,7 +454,7 @@ const PlayerFn = <
 			);
 		}, [passedBrowserMediaControlsBehavior]);
 
-	return (
+	const player = (
 		<Internals.IsPlayerContextProvider>
 			<SharedPlayerContexts
 				timelineContext={timelineContextValue}
@@ -451,6 +469,7 @@ const PlayerFn = <
 				logLevel={logLevel}
 				audioLatencyHint={audioLatencyHint}
 				sampleRate={sampleRate}
+				_experimentalKeepAudioContextAlive={_experimentalKeepAudioContextAlive}
 				volumePersistenceKey={volumePersistenceKey}
 				initialVolume={initialVolume}
 				inputProps={actualInputProps}
@@ -513,6 +532,21 @@ const PlayerFn = <
 				</Internals.SetTimelineContext.Provider>
 			</SharedPlayerContexts>
 		</Internals.IsPlayerContextProvider>
+	);
+
+	if (!onTimelineSequenceChange) {
+		return player;
+	}
+
+	return (
+		<Internals.SequenceRegistrationContext.Provider value>
+			<Internals.SequenceManagerProvider>
+				<TimelineSequenceObserverComponent
+					onTimelineSequenceChange={onTimelineSequenceChange}
+				/>
+				{player}
+			</Internals.SequenceManagerProvider>
+		</Internals.SequenceRegistrationContext.Provider>
 	);
 };
 

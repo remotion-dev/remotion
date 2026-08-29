@@ -1,14 +1,20 @@
-import type {OverrideIdToNodePaths, TSequence} from 'remotion';
+import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
+import {useCache as resetBoxQuadsCache} from '../helpers/get-box-quads-polyfill-internals.js';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
+import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
 import {mixPoint} from './selected-outline-geometry';
 import type {
-	SelectedOutlineTarget,
+	SelectedOutlineLayoutTarget,
 	SequenceWithSelectedOutline,
 } from './selected-outline-types';
-import {transformOriginFieldKey} from './selected-outline-types';
+import {
+	cropFieldKeys,
+	rotateFieldKey,
+	transformOriginFieldKey,
+} from './selected-outline-types';
 import {getUvHandlePosition} from './selected-outline-uv';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
@@ -17,8 +23,8 @@ import {
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {
-	parseTransformOrigin,
 	parsedTransformOriginToUv,
+	parseTransformOrigin,
 } from './Timeline/transform-origin-utils';
 
 export const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
@@ -288,10 +294,21 @@ const getSvgSvgElementOutlinePoints = (
 const getElementOutlinePoints = (
 	element: Element,
 	containerRect: DOMRect,
+	includeOutsideContainer: boolean,
 ): SelectedOutline['points'] | null => {
 	const elementRect = element.getBoundingClientRect();
 
 	if (elementRect.width === 0 && elementRect.height === 0) {
+		return null;
+	}
+
+	if (
+		!includeOutsideContainer &&
+		(elementRect.right <= containerRect.left ||
+			elementRect.left >= containerRect.right ||
+			elementRect.bottom <= containerRect.top ||
+			elementRect.top >= containerRect.bottom)
+	) {
 		return null;
 	}
 
@@ -308,6 +325,31 @@ const getElementOutlinePoints = (
 	}
 
 	return quadToPoints(quad, containerRect);
+};
+
+export const cropOutlinePoints = (
+	points: SelectedOutline['points'],
+	crop: SelectedOutlineLayoutTarget['crop'],
+): SelectedOutline['points'] => {
+	if (
+		crop.left === 0 &&
+		crop.right === 0 &&
+		crop.top === 0 &&
+		crop.bottom === 0
+	) {
+		return points;
+	}
+
+	const {left, top} = crop;
+	const right = 1 - crop.right;
+	const bottom = 1 - crop.bottom;
+
+	return [
+		getUvHandlePosition(points, [left, top]),
+		getUvHandlePosition(points, [right, top]),
+		getUvHandlePosition(points, [right, bottom]),
+		getUvHandlePosition(points, [left, bottom]),
+	];
 };
 
 export const getSelectedSequenceKeys = (
@@ -342,15 +384,6 @@ export const getOutlineSelectionInteraction = ({
 	shiftKey,
 	toggleKey: metaKey || ctrlKey,
 });
-
-export const getOutlineDoubleClickAction = ({
-	button,
-	canOpenInEditor,
-}: {
-	readonly button: number;
-	readonly canOpenInEditor: boolean;
-}): 'open-in-editor' | null =>
-	button === 0 && canOpenInEditor ? 'open-in-editor' : null;
 
 type SelectedEffectFields = {
 	allFields: boolean;
@@ -440,6 +473,55 @@ type SelectedTransformOriginInfo = {
 	readonly displayFrame: number | null;
 };
 
+export type SelectedRotationInfo = {
+	readonly sequenceKey: string;
+	readonly displayFrame: number | null;
+};
+
+export type SelectedCropInfo = {
+	readonly sequenceKey: string;
+	readonly displayFrame: number | null;
+};
+
+const isCropFieldKey = (key: string): boolean =>
+	Object.values(cropFieldKeys).some((cropFieldKey) => cropFieldKey === key);
+
+export const getSelectedCropInfo = (
+	selectedItems: readonly TimelineSelection[],
+): SelectedCropInfo | null => {
+	if (selectedItems.length !== 1) {
+		return null;
+	}
+
+	const [selectedItem] = selectedItems;
+	if (
+		selectedItem.type === 'sequence-prop' &&
+		isCropFieldKey(selectedItem.key)
+	) {
+		return {
+			sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+			displayFrame: null,
+		};
+	}
+
+	if (selectedItem.type !== 'keyframe' && selectedItem.type !== 'easing') {
+		return null;
+	}
+
+	const field = getKeyframeOrEasingField(selectedItem);
+	if (field?.type !== 'sequence' || !isCropFieldKey(field.fieldKey)) {
+		return null;
+	}
+
+	return {
+		sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+		displayFrame:
+			selectedItem.type === 'keyframe'
+				? selectedItem.frame
+				: selectedItem.fromFrame,
+	};
+};
+
 export const getSelectedTransformOriginInfo = (
 	selectedItems: readonly TimelineSelection[],
 ): SelectedTransformOriginInfo | null => {
@@ -479,16 +561,57 @@ export const getSelectedTransformOriginInfo = (
 	};
 };
 
+export const getSelectedRotationInfo = (
+	selectedItems: readonly TimelineSelection[],
+): SelectedRotationInfo | null => {
+	if (selectedItems.length !== 1) {
+		return null;
+	}
+
+	const [selectedItem] = selectedItems;
+	if (
+		selectedItem.type === 'sequence-prop' &&
+		selectedItem.key === rotateFieldKey
+	) {
+		return {
+			sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+			displayFrame: null,
+		};
+	}
+
+	if (selectedItem.type !== 'keyframe' && selectedItem.type !== 'easing') {
+		return null;
+	}
+
+	const field = getKeyframeOrEasingField(selectedItem);
+	if (field?.type !== 'sequence' || field.fieldKey !== rotateFieldKey) {
+		return null;
+	}
+
+	return {
+		sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+		displayFrame:
+			selectedItem.type === 'keyframe'
+				? selectedItem.frame
+				: selectedItem.fromFrame,
+	};
+};
+
 export const getSequencesWithSelectableOutlines = ({
 	sequences,
 	overrideIdsToNodePaths,
+	compositions = [],
+	timelinePosition,
 }: {
 	readonly sequences: readonly TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly compositions?: readonly _InternalTypes['AnyComposition'][];
+	readonly timelinePosition: number;
 }): SequenceWithSelectedOutline[] => {
 	return calculateTimeline({
 		sequences: [...sequences],
 		overrideIdsToNodePaths,
+		compositions,
 	})
 		.filter((track) => {
 			if (track.nodePathInfo === null) {
@@ -497,6 +620,8 @@ export const getSequencesWithSelectableOutlines = ({
 
 			return (
 				track.sequence.showInTimeline &&
+				timelinePosition >= track.sequence.from &&
+				timelinePosition < track.sequence.from + track.sequence.duration &&
 				track.nodePathInfo.auxiliaryKeys.length === 0
 			);
 		})
@@ -519,8 +644,35 @@ export const getSequencesWithSelectableOutlines = ({
 
 export const measureOutlines = (
 	container: SVGSVGElement,
-	targets: readonly SelectedOutlineTarget[],
+	targets: readonly SelectedOutlineLayoutTarget[],
+	hoveredTimelineNodePathKey: string | null,
 ): SelectedOutline[] => {
+	return measureOutlineTargets(
+		container,
+		targets.map((target) => ({
+			crop: target.crop,
+			includeOutsideContainer:
+				target.showSelectedOutline ||
+				timelineSequenceNodePathToKey(
+					target.nodePathInfo.sequenceSubscriptionKey,
+				) === hoveredTimelineNodePathKey,
+			key: target.key,
+			ref: target.ref,
+		})),
+	);
+};
+
+export const measureOutlineTargets = (
+	container: Element,
+	targets: readonly {
+		readonly crop: SelectedOutlineLayoutTarget['crop'];
+		readonly includeOutsideContainer: boolean;
+		readonly key: string;
+		readonly ref: React.RefObject<Element | null>;
+	}[],
+): SelectedOutline[] => {
+	// Reuse shared ancestor geometry within this synchronous batch only.
+	resetBoxQuadsCache();
 	const containerRect = container.getBoundingClientRect();
 	const outlines: SelectedOutline[] = [];
 
@@ -530,10 +682,16 @@ export const measureOutlines = (
 			continue;
 		}
 
-		const points = getElementOutlinePoints(element, containerRect);
-		if (points === null) {
+		const uncroppedPoints = getElementOutlinePoints(
+			element,
+			containerRect,
+			target.includeOutsideContainer,
+		);
+		if (uncroppedPoints === null) {
 			continue;
 		}
+
+		const points = cropOutlinePoints(uncroppedPoints, target.crop);
 
 		outlines.push({
 			key: target.key,
@@ -549,6 +707,7 @@ export const measureOutlines = (
 								height: element.height.baseVal.value,
 							}
 						: null,
+			uncroppedPoints,
 			points,
 		});
 	}
@@ -574,6 +733,23 @@ export const outlinesAreEqual = (
 			a[i].dimensions?.height !== b[i].dimensions?.height
 		) {
 			return false;
+		}
+
+		const aUncropped = a[i].uncroppedPoints;
+		const bUncropped = b[i].uncroppedPoints;
+		if ((aUncropped === null) !== (bUncropped === null)) {
+			return false;
+		}
+
+		if (aUncropped !== null && bUncropped !== null) {
+			for (let j = 0; j < aUncropped.length; j++) {
+				if (
+					Math.abs(aUncropped[j].x - bUncropped[j].x) > 0.01 ||
+					Math.abs(aUncropped[j].y - bUncropped[j].y) > 0.01
+				) {
+					return false;
+				}
+			}
 		}
 
 		for (let j = 0; j < a[i].points.length; j++) {

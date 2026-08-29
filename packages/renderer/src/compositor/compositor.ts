@@ -57,6 +57,62 @@ export const startLongRunningCompositor = ({
 	});
 };
 
+export const makeLazyCompositor = ({
+	maximumFrameCacheItemsInBytes,
+	logLevel,
+	indent,
+	binariesDirectory,
+	extraThreads,
+}: {
+	maximumFrameCacheItemsInBytes: number | null;
+	logLevel: LogLevel;
+	indent: boolean;
+	binariesDirectory: string | null;
+	extraThreads: number;
+}): Compositor => {
+	let compositor: Compositor | null = null;
+	let shutDown = false;
+
+	const getCompositor = () => {
+		if (shutDown) {
+			throw new Error('Compositor has already been shut down');
+		}
+
+		if (!compositor) {
+			compositor = startLongRunningCompositor({
+				maximumFrameCacheItemsInBytes,
+				logLevel,
+				indent,
+				binariesDirectory,
+				extraThreads,
+			});
+		}
+
+		return compositor;
+	};
+
+	return {
+		executeCommand: (type, payload) => {
+			return Promise.resolve().then(() => {
+				return getCompositor().executeCommand(type, payload);
+			});
+		},
+		finishCommands: () => {
+			return compositor?.finishCommands() ?? Promise.resolve();
+		},
+		waitForDone: () => {
+			return compositor?.waitForDone() ?? Promise.resolve();
+		},
+		shutDownOrKill: () => {
+			shutDown = true;
+			return compositor?.shutDownOrKill() ?? Promise.resolve();
+		},
+		get pid() {
+			return compositor?.pid ?? null;
+		},
+	};
+};
+
 type RunningStatus =
 	| {
 			type: 'running';

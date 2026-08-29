@@ -88,6 +88,10 @@ export const renderHumanReadableAudioCodec = (
 		return 'E-AC3';
 	}
 
+	if (codec === 'dts') {
+		return 'DTS';
+	}
+
 	if (codec === 'aiff') {
 		return 'AIFF';
 	}

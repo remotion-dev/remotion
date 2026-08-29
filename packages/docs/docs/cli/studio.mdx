@@ -57,9 +57,29 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 <Options id="disable-interactivity" />
 
-### `--experimental-rspack`<AvailableFrom v="4.0.426" />
+### `--allow-html-in-canvas`<AvailableFrom v="4.0.447" />
 
-<Options id="experimental-rspack" />
+<Options id="allow-html-in-canvas" />
+
+### `--editor`<AvailableFrom v="4.0.503" />
+
+<Options id="editor" cli />
+
+```sh title="Terminal"
+npx remotion studio --editor=cursor
+```
+
+### `--coding-agent`<AvailableFrom v="4.0.506" />
+
+<Options id="coding-agent" cli />
+
+```sh title="Terminal"
+npx remotion studio --coding-agent=codex
+```
+
+### `--rspack`<AvailableFrom v="4.0.502" />
+
+<Options id="rspack" />
 
 ### `--webpack-poll`<AvailableFrom v="3.3.11" />
 
@@ -109,6 +129,18 @@ npx remotion studio --ipv4
 
 ```sh
 npx remotion studio --number-of-shared-audio-tags=5
+```
+
+### `--experimental-keep-audio-context-alive`<AvailableFrom v="4.0.508" />
+
+<ExperimentalBadge>
+  <p>We are currently testing this prop. We might either remove the functionality or rename the prop to a stable name.</p>
+</ExperimentalBadge>
+
+<Options id="experimental-keep-audio-context-alive" />
+
+```sh
+npx remotion studio --experimental-keep-audio-context-alive
 ```
 
 ### `--preview-sample-rate`

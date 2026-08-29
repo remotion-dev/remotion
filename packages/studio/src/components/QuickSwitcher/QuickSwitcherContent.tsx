@@ -7,21 +7,26 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import type {_InternalTypes} from 'remotion';
+import type {StaticFile} from '../../api/get-static-files';
 import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {getPreviewFileType} from '../../helpers/get-preview-file-type';
 import {isCompositionStill} from '../../helpers/is-composition-still';
+import {pushUrl} from '../../helpers/url-state';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
 	makeSearchResults,
 	useMenuStructure,
 } from '../../helpers/use-menu-structure';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
-import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RemotionInput} from '../NewComposition/RemInput';
+import {useSelectAsset} from '../use-select-asset';
+import {useStaticFiles} from '../use-static-files';
 import {algoliaSearch} from './algolia-search';
-import {AlgoliaCredit} from './AlgoliaCredit';
+import {filterAssetsByType} from './asset-search';
 import {fuzzySearch} from './fuzzy-search';
 import type {QuickSwitcherMode} from './NoResults';
 import {QuickSwitcherNoResults} from './NoResults';
@@ -31,6 +36,12 @@ import {loopIndex} from './shared';
 
 const input: React.CSSProperties = {
 	width: '100%',
+	borderRadius: 4,
+};
+
+const touchscreenInput: React.CSSProperties = {
+	...input,
+	fontSize: 16,
 };
 
 const modeSelector: React.CSSProperties = {
@@ -49,6 +60,7 @@ const modeItem: React.CSSProperties = {
 	padding: 0,
 	fontSize: 13,
 	cursor: 'pointer',
+	userSelect: 'none',
 };
 
 const modeInactive: React.CSSProperties = {
@@ -59,7 +71,6 @@ const modeInactive: React.CSSProperties = {
 const modeActive: React.CSSProperties = {
 	...modeItem,
 	color: WHITE,
-	fontWeight: 'bold',
 };
 
 const content: React.CSSProperties = {
@@ -72,8 +83,23 @@ const content: React.CSSProperties = {
 	alignItems: 'center',
 };
 
+const contentWithoutModeSelector: React.CSSProperties = {
+	...content,
+	paddingTop: 16,
+};
+
+const container: React.CSSProperties = {
+	width: 400,
+	maxWidth: 'calc(100vw - 40px)',
+};
+
+const results: React.CSSProperties = {
+	overflowY: 'auto',
+	height: 300,
+};
+
 const stripQuery = (query: string) => {
-	if (query.startsWith('>') || query.startsWith('?')) {
+	if (query.startsWith('$') || query.startsWith('>') || query.startsWith('?')) {
 		return query.substring(1).trim();
 	}
 
@@ -85,10 +111,16 @@ const mapQueryToMode = (query: string): QuickSwitcherMode => {
 		? 'commands'
 		: query.startsWith('?')
 			? 'docs'
-			: 'compositions';
+			: query.startsWith('$')
+				? 'assets'
+				: 'compositions';
 };
 
 const mapModeToQuery = (mode: QuickSwitcherMode): string => {
+	if (mode === 'assets') {
+		return '$ ';
+	}
+
 	if (mode === 'commands') {
 		return '> ';
 	}
@@ -124,34 +156,69 @@ export const QuickSwitcherContent: React.FC<{
 	readonly initialMode: QuickSwitcherMode;
 	readonly invocationTimestamp: number;
 	readonly readOnlyStudio: boolean;
-}> = ({initialMode, invocationTimestamp, readOnlyStudio}) => {
+	readonly assetSelection: {
+		readonly initialQuery: string;
+		readonly onSelectFile: () => void;
+		readonly onSelected: (asset: StaticFile) => void;
+	} | null;
+	readonly compositionSelection: {
+		readonly excludeCompositionId: string;
+		readonly onSelected: (
+			composition: _InternalTypes['AnyComposition'],
+		) => void;
+	} | null;
+}> = ({
+	initialMode,
+	invocationTimestamp,
+	readOnlyStudio,
+	assetSelection,
+	compositionSelection,
+}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
+	const staticFiles = useStaticFiles();
 	const [state, setState] = useState(() => {
 		return {
-			query: mapModeToQuery(initialMode),
+			query:
+				assetSelection === null
+					? compositionSelection === null
+						? mapModeToQuery(initialMode)
+						: ''
+					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		};
 	});
 
 	useEffect(() => {
 		setState({
-			query: mapModeToQuery(initialMode),
+			query:
+				assetSelection === null
+					? compositionSelection === null
+						? mapModeToQuery(initialMode)
+						: ''
+					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		});
-	}, [initialMode, invocationTimestamp]);
+	}, [assetSelection, compositionSelection, initialMode, invocationTimestamp]);
 
 	const inputRef = useRef<HTMLInputElement>(null);
+	const isTouchscreen = navigator.maxTouchPoints > 0;
 	const selectComposition = useSelectComposition();
+	const selectAsset = useSelectAsset();
 
 	const closeMenu = useCallback(() => undefined, []);
 	const actions = useMenuStructure(closeMenu, readOnlyStudio);
 	const [docResults, setDocResults] = useState<AlgoliaState>({type: 'initial'});
 
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const keybindings = useKeybinding();
 
-	const mode: QuickSwitcherMode = mapQueryToMode(state.query);
+	const mode: QuickSwitcherMode =
+		assetSelection !== null
+			? 'assets'
+			: compositionSelection !== null
+				? 'compositions'
+				: mapQueryToMode(state.query);
 
 	const actualQuery = useMemo(() => {
 		return stripQuery(state.query);
@@ -165,38 +232,94 @@ export const QuickSwitcherContent: React.FC<{
 		return makeSearchResults(actions, setSelectedModal);
 	}, [actions, mode, setSelectedModal]);
 
+	const assetSearch = useMemo(() => {
+		return filterAssetsByType({
+			assets: staticFiles,
+			query: actualQuery,
+		});
+	}, [actualQuery, staticFiles]);
+
 	const resultsArray = useMemo((): TQuickSwitcherResult[] => {
 		if (mode === 'commands') {
 			return fuzzySearch(actualQuery, menuActions);
 		}
 
-		if (mode === 'docs' && docResults.type === 'results') {
-			return docResults.results;
+		if (mode === 'docs') {
+			return docResults.type === 'results' ? docResults.results : [];
+		}
+
+		if (mode === 'assets') {
+			const assetResults = fuzzySearch(
+				assetSearch.query,
+				assetSearch.assets.map((asset) => {
+					return {
+						id: 'asset-' + asset.name,
+						title: asset.name,
+						type: 'asset',
+						fileType: getPreviewFileType(asset.name),
+						onSelected: () => {
+							if (assetSelection !== null) {
+								assetSelection.onSelected(asset);
+							} else {
+								selectAsset(asset.name);
+								pushUrl(`/assets/${asset.name}`);
+							}
+
+							setSelectedModal(null);
+						},
+					};
+				}),
+			);
+
+			if (assetSelection === null) {
+				return assetResults;
+			}
+
+			return [
+				{
+					id: 'select-file',
+					title: 'Select file...',
+					type: 'select-file',
+					onSelected: () => {
+						assetSelection.onSelectFile();
+						setSelectedModal(null);
+					},
+				},
+				...assetResults,
+			];
 		}
 
 		return fuzzySearch(
 			actualQuery,
-			compositions.map((c) => {
-				return {
-					id: 'composition-' + c.id,
-					title: c.id,
-					type: 'composition',
-					onSelected: () => {
-						selectComposition(c, true);
-						setSelectedModal(null);
+			compositions
+				.filter((c) => c.id !== compositionSelection?.excludeCompositionId)
+				.map((c) => {
+					return {
+						id: 'composition-' + c.id,
+						title: c.id,
+						type: 'composition',
+						onSelected: () => {
+							if (compositionSelection !== null) {
+								compositionSelection.onSelected(c);
+								setSelectedModal(null);
+								return;
+							}
 
-						const selector = `.__remotion-composition[data-compname="${c.id}"]`;
+							selectComposition(c, true);
+							setSelectedModal(null);
 
-						Internals.compositionSelectorRef.current?.expandComposition(c.id);
-						waitForElm(selector).then(() => {
-							document
-								.querySelector(selector)
-								?.scrollIntoView({block: 'center'});
-						});
-					},
-					compositionType: isCompositionStill(c) ? 'still' : 'composition',
-				};
-			}),
+							const selector = `.__remotion-composition[data-compname="${c.id}"]`;
+
+							Internals.compositionSelectorRef.current?.expandComposition(c.id);
+							waitForElm(selector).then(() => {
+								document
+									.querySelector(selector)
+									?.scrollIntoView({block: 'center'});
+							});
+						},
+						compositionType: isCompositionStill(c) ? 'still' : 'composition',
+					};
+				}),
 		);
 	}, [
 		mode,
@@ -204,6 +327,10 @@ export const QuickSwitcherContent: React.FC<{
 		compositions,
 		menuActions,
 		docResults,
+		assetSearch,
+		assetSelection,
+		compositionSelection,
+		selectAsset,
 		selectComposition,
 		setSelectedModal,
 	]);
@@ -306,22 +433,35 @@ export const QuickSwitcherContent: React.FC<{
 		state.selectedIndex,
 		resultsArray.length,
 	);
+	const focusInput = useCallback(() => {
+		if (!isTouchscreen) {
+			inputRef.current?.focus();
+		}
+	}, [isTouchscreen]);
 
 	const onActionsSelected = useCallback(() => {
 		setState((s) => ({
 			query: `> ${stripQuery(s.query)}`,
 			selectedIndex: 0,
 		}));
-		inputRef.current?.focus();
-	}, []);
+		focusInput();
+	}, [focusInput]);
 
 	const onCompositionsSelected = useCallback(() => {
 		setState((s) => ({
 			query: stripQuery(s.query),
 			selectedIndex: 0,
 		}));
-		inputRef.current?.focus();
-	}, []);
+		focusInput();
+	}, [focusInput]);
+
+	const onAssetsSelected = useCallback(() => {
+		setState((s) => ({
+			query: `$ ${stripQuery(s.query)}`,
+			selectedIndex: 0,
+		}));
+		focusInput();
+	}, [focusInput]);
 
 	const onDocSearchSelected = useCallback(() => {
 		setState((s) => ({
@@ -329,82 +469,80 @@ export const QuickSwitcherContent: React.FC<{
 			selectedIndex: 0,
 		}));
 		setDocResults({type: 'initial'});
-		inputRef.current?.focus();
-	}, []);
+		focusInput();
+	}, [focusInput]);
 
-	const showKeyboardShortcuts = mode === 'docs' && actualQuery.trim() === '';
 	const showSearchLoadingState =
 		mode === 'docs' && docResults.type === 'loading';
-
-	const container: React.CSSProperties = useMemo(() => {
-		return {
-			width: showKeyboardShortcuts ? 800 : 500,
-		};
-	}, [showKeyboardShortcuts]);
-
-	const results: React.CSSProperties = useMemo(() => {
-		if (showKeyboardShortcuts) {
-			return {
-				maxHeight: 600,
-				overflowY: 'auto',
-			};
-		}
-
-		return {
-			overflowY: 'auto',
-			height: 300,
-		};
-	}, [showKeyboardShortcuts]);
+	const showEmptyDocSearch = mode === 'docs' && actualQuery.trim() === '';
+	const placeholder =
+		mode === 'assets'
+			? 'Search assets...'
+			: mode === 'commands'
+				? 'Search actions...'
+				: mode === 'docs'
+					? 'Search documentation...'
+					: 'Search compositions...';
 
 	return (
 		<div style={container}>
-			<div style={modeSelector}>
-				<button
-					onClick={onCompositionsSelected}
-					style={mode === 'compositions' ? modeActive : modeInactive}
-					type="button"
-				>
-					Compositions
-				</button>
-				<Spacing x={1} />
-				<button
-					onClick={onActionsSelected}
-					style={mode === 'commands' ? modeActive : modeInactive}
-					type="button"
-				>
-					Actions
-				</button>
-				<Spacing x={1} />
-				<button
-					onClick={onDocSearchSelected}
-					style={mode === 'docs' ? modeActive : modeInactive}
-					type="button"
-				>
-					Documentation
-				</button>
-			</div>
-			<div style={content}>
+			{assetSelection === null && compositionSelection === null && (
+				<div style={modeSelector}>
+					<button
+						onClick={onCompositionsSelected}
+						style={mode === 'compositions' ? modeActive : modeInactive}
+						type="button"
+					>
+						Compositions
+					</button>
+					<Spacing x={1} />
+					<button
+						onClick={onAssetsSelected}
+						style={mode === 'assets' ? modeActive : modeInactive}
+						type="button"
+					>
+						Assets
+					</button>
+					<Spacing x={1} />
+					<button
+						onClick={onActionsSelected}
+						style={mode === 'commands' ? modeActive : modeInactive}
+						type="button"
+					>
+						Actions
+					</button>
+					<Spacing x={1} />
+					<button
+						onClick={onDocSearchSelected}
+						style={mode === 'docs' ? modeActive : modeInactive}
+						type="button"
+					>
+						Documentation
+					</button>
+				</div>
+			)}
+			<div
+				style={
+					assetSelection === null && compositionSelection === null
+						? content
+						: contentWithoutModeSelector
+				}
+			>
 				<RemotionInput
 					ref={inputRef}
 					type="text"
-					style={input}
-					autoFocus
+					style={isTouchscreen ? touchscreenInput : input}
+					autoFocus={!isTouchscreen}
 					status="ok"
 					value={state.query}
 					onChange={onTextChange}
-					placeholder="Search compositions..."
+					placeholder={placeholder}
 					rightAlign={false}
 				/>
-				{showKeyboardShortcuts ? (
-					<>
-						<Spacing x={2} /> <AlgoliaCredit />
-					</>
-				) : null}
 			</div>
 			<div style={results} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-				{showKeyboardShortcuts ? (
-					<KeyboardShortcutsExplainer />
-				) : showSearchLoadingState ? null : resultsArray.length === 0 ? (
+				{showEmptyDocSearch ||
+				showSearchLoadingState ? null : resultsArray.length === 0 ? (
 					<QuickSwitcherNoResults mode={mode} query={actualQuery} />
 				) : (
 					resultsArray.map((result, i) => {

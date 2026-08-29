@@ -1,20 +1,20 @@
-import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
+import type {
+	EditorPickerId,
+	SymbolicatedStackFrame,
+} from '@remotion/studio-shared';
 import React, {useCallback, useState} from 'react';
 import {Button} from '../../components/Button';
-import {
-	BLACK,
-	BORDER_STACK_FRAME_BLUE,
-	WHITE_ALPHA_60,
-} from '../../helpers/colors';
+import {BORDER_WHITE_ALPHA_12, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {openInEditor} from '../../helpers/open-in-editor';
-import {CaretDown, CaretRight} from './carets';
+import {CaretDown} from '../../icons/caret';
 import {CodeFrame} from './CodeFrame';
 import {formatLocation} from './format-location';
 
 const location: React.CSSProperties = {
-	color: WHITE_ALPHA_60,
+	color: LIGHT_TEXT,
 	fontFamily: 'monospace',
 	fontSize: 14,
+	overflowWrap: 'anywhere',
 };
 
 const header: React.CSSProperties = {
@@ -25,13 +25,12 @@ const header: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	borderBottom: BORDER_STACK_FRAME_BLUE,
-	backgroundColor: BLACK,
 };
 
 const left: React.CSSProperties = {
 	paddingRight: 14,
 	flex: 1,
+	minWidth: 0,
 };
 
 const fnName: React.CSSProperties = {
@@ -45,7 +44,8 @@ export const StackElement: React.FC<{
 	readonly lineNumberWidth: number;
 	readonly isFirst: boolean;
 	readonly defaultFunctionName: string;
-}> = ({s, lineNumberWidth, isFirst, defaultFunctionName}) => {
+	readonly editorId: EditorPickerId | null;
+}> = ({s, lineNumberWidth, isFirst, defaultFunctionName, editorId}) => {
 	const [showCodeFrame, setShowCodeFrame] = useState(
 		() =>
 			(!s.originalFileName?.includes('node_modules') &&
@@ -53,25 +53,32 @@ export const StackElement: React.FC<{
 			isFirst,
 	);
 	const [locationHovered, setLocationHovered] = useState(false);
-	const canOpenFileLocation = Boolean(
-		window.remotion_editorName && s.originalFileName,
-	);
+	const canOpenFileLocation = Boolean(editorId && s.originalFileName);
 	const onOpenFileLocation = useCallback(() => {
 		if (!canOpenFileLocation) {
 			return;
 		}
 
-		openInEditor(s).catch((err: unknown) => {
+		if (!editorId) {
+			return;
+		}
+
+		openInEditor(s, editorId).catch((err: unknown) => {
 			// eslint-disable-next-line no-console
 			console.log('Could not open in editor', err);
 		});
-	}, [canOpenFileLocation, s]);
+	}, [canOpenFileLocation, editorId, s]);
 	const toggleCodeFrame = useCallback(() => {
 		setShowCodeFrame((f) => !f);
 	}, []);
 	return (
 		<div className="css-reset">
-			<div style={header}>
+			<div
+				style={{
+					...header,
+					borderBottom: showCodeFrame ? 'none' : BORDER_WHITE_ALPHA_12,
+				}}
+			>
 				<div style={left}>
 					<div style={fnName}>
 						{s.originalFunctionName ?? defaultFunctionName}
@@ -89,9 +96,8 @@ export const StackElement: React.FC<{
 									}}
 									style={{
 										...location,
+										color: locationHovered ? WHITE : LIGHT_TEXT,
 										cursor: 'pointer',
-										textDecoration: locationHovered ? 'underline' : 'none',
-										textUnderlineOffset: locationHovered ? 4 : undefined,
 									}}
 								>
 									{formatLocation(s.originalFileName as string)}:
@@ -108,7 +114,14 @@ export const StackElement: React.FC<{
 				</div>
 				{s.originalScriptCode && s.originalScriptCode.length > 0 ? (
 					<Button onClick={toggleCodeFrame}>
-						{showCodeFrame ? <CaretDown invert={false} /> : <CaretRight />}
+						<div
+							style={{
+								display: 'flex',
+								transform: showCodeFrame ? undefined : 'rotate(-90deg)',
+							}}
+						>
+							<CaretDown />
+						</div>
 					</Button>
 				) : null}
 			</div>

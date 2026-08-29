@@ -30,6 +30,7 @@ h6 {
 	word-spacing: -0.025em;
 	font-family: 'GTPlanar';
 	font-feature-settings: 'ss03' on;
+	text-wrap: balance;
 }
 
 @font-face {
@@ -63,18 +64,34 @@ h6 {
 	display: none;
 }
 
-@media (min-width: 1200px) {
-	.plugin-id-elements main > .container {
-		max-width: 1440px;
-	}
+.plugin-id-elements main > .container {
+	max-width: 1440px;
+}
 
-	.plugin-id-elements main > .container > .row > .col {
-		max-width: 100% !important;
-	}
+.plugin-id-elements main > .container > .row > .col {
+	max-width: 100% !important;
 }
 
 .plugin-id-elements .theme-doc-markdown > h1:first-child {
 	margin-bottom: 0.75rem;
+}
+
+.elements-sidebar-root > .menu__list {
+	padding-left: 0;
+}
+
+.elements-sidebar-root > .menu__list-item-collapsible > .menu__caret {
+	display: none;
+}
+
+.elements-sidebar-root > .menu__list-item-collapsible--active > .menu__link {
+	pointer-events: none;
+}
+
+.elements-sidebar-root
+	> .menu__list-item-collapsible:not(.menu__list-item-collapsible--active)
+	> .menu__link--active {
+	color: var(--ifm-menu-color);
 }
 
 :root {
@@ -95,6 +112,7 @@ h6 {
 
 [data-theme='light'] {
 	--background: #fff;
+	--ifm-background-color: #fff;
 	--footer-background: #fcfcfc;
 	--footer-border: #eaeaea;
 	--text-color: #000;
@@ -223,8 +241,9 @@ code {
 }
 
 .deprecated-item > div > a::after,
+.unmaintained-item > div > a::after,
+.unmaintained-item > a::after,
 .deprecated-item > a::after {
-	content: 'Deprecated';
 	font-size: 12px;
 	opacity: 0.4;
 	border: 1px solid;
@@ -235,6 +254,16 @@ code {
 	margin-left: 6px;
 	border-radius: 4px;
 	transform: none !important;
+}
+
+.deprecated-item > div > a::after,
+.deprecated-item > a::after {
+	content: 'Deprecated';
+}
+
+.unmaintained-item > div > a::after,
+.unmaintained-item > a::after {
+	content: 'Unmaintained';
 }
 
 .wip-item > div > a::after,
@@ -297,5 +326,65 @@ code {
 @media screen and (max-width: 996px) {
 	.copy-markdown-btn {
 		display: none !important;
+	}
+}
+
+.remotion-footer__links {
+	display: grid;
+	grid-template-columns: minmax(12rem, 1.35fr) minmax(0, 5fr);
+	gap: 2.5rem;
+	align-items: start;
+}
+
+.remotion-footer__brand {
+	min-width: 0;
+}
+
+.remotion-footer__logo {
+	display: block;
+	height: 32px;
+	margin-bottom: 20px;
+}
+
+.remotion-footer__copyright {
+	margin: 0;
+	color: var(--ifm-footer-link-color);
+	font-size: 0.8em;
+}
+
+.remotion-footer__categories {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 2rem clamp(1rem, 2.5vw, 3rem);
+	min-width: 0;
+}
+
+.remotion-footer__column {
+	min-width: 0;
+	margin-bottom: 0;
+}
+
+.remotion-footer__column .footer__items {
+	font-family: 'GTPlanar';
+}
+
+@media screen and (max-width: 1199px) {
+	.remotion-footer__links {
+		grid-template-columns: 1fr;
+	}
+
+	.remotion-footer__categories {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media screen and (max-width: 767px) {
+	.remotion-footer__links {
+		gap: 2rem;
+	}
+
+	.remotion-footer__categories {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 2rem 1.25rem;
 	}
 }

@@ -1,15 +1,12 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
-import {persistPlaybackRate} from '../state/playbackrate';
-import {CONTROL_BUTTON_PADDING} from './ControlButton';
+import {PlaybackRateIcon} from '../icons/playback-rate';
+import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {Combobox} from './NewComposition/ComboBox';
-
-const commonPlaybackRates: number[] = [
-	-4, -2, -1, -0.5, -0.25, 0.25, 0.5, 1, 1.5, 2, 4,
-];
+import {TimelineCombobox} from './TimelineCombobox';
 
 const getPlaybackRateLabel = (playbackRate: number) => {
 	return `${playbackRate}x`;
@@ -17,20 +14,15 @@ const getPlaybackRateLabel = (playbackRate: number) => {
 
 const accessibilityLabel = 'Change the playback rate';
 
-const comboStyle: React.CSSProperties = {width: 80};
-
-export const PlaybackRateSelector: React.FC<{
+type PlaybackRateMenuItemsProps = {
 	readonly playbackRate: number;
 	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
-}> = ({playbackRate, setPlaybackRate}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
-	const isStill = useIsStill();
-	const style = useMemo(() => {
-		return {
-			padding: CONTROL_BUTTON_PADDING,
-		};
-	}, []);
+};
 
+export const usePlaybackRateMenuItems = ({
+	playbackRate,
+	setPlaybackRate,
+}: PlaybackRateMenuItemsProps) => {
 	const items: ComboboxValue[] = useMemo(() => {
 		const divider: ComboboxValue = {
 			type: 'divider',
@@ -61,18 +53,37 @@ export const PlaybackRateSelector: React.FC<{
 		return [...values.slice(0, middle), divider, ...values.slice(middle)];
 	}, [playbackRate, setPlaybackRate]);
 
-	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
+	return {
+		items,
+		selectedId: String(playbackRate),
+	};
+};
+
+export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
+	playbackRate,
+	setPlaybackRate,
+}) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const isStill = useIsStill();
+	const {items, selectedId} = usePlaybackRateMenuItems({
+		playbackRate,
+		setPlaybackRate,
+	});
+
+	if (isStill || canvasContent === null) {
 		return null;
 	}
 
 	return (
-		<div style={style} aria-label={accessibilityLabel}>
-			<Combobox
-				title={accessibilityLabel}
-				style={comboStyle}
-				selectedId={String(playbackRate)}
-				values={items}
-			/>
-		</div>
+		<TimelineCombobox
+			title={accessibilityLabel}
+			labelWidth={30}
+			selectedId={selectedId}
+			values={items}
+			renderLeftItem={(color) => (
+				<PlaybackRateIcon color={color} playbackRate={playbackRate} />
+			)}
+			unhoveredIconColor={WHITE_ALPHA_80}
+		/>
 	);
 };

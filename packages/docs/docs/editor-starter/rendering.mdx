@@ -1,12 +1,14 @@
 ---
 image: /generated/articles-docs-editor-starter-rendering.png
-title: Rendering in the Editor Starter
-sidebar_label: Rendering
+title: Rendering with Remotion Lambda in the Editor Starter
+sidebar_label: Lambda rendering
 id: rendering
 crumb: Editor Starter
 ---
 
-Rendering videos to MP4 works using [Remotion Lambda](/docs/lambda), a distributed renderer on AWS Lambda.
+By default, videos are rendered using [Remotion Lambda](/docs/lambda), a distributed renderer on AWS Lambda.
+
+You can instead enable [client-side rendering](/docs/editor-starter/client-side-rendering) to render videos in the user's browser without Remotion Lambda.
 
 ## Setup
 
@@ -70,7 +72,7 @@ export const SITE_NAME = process.env.VERCEL_ENV === 'production' ? 'remotion-edi
 
 ## Rendering
 
-Is very simple: When no item is selected in the Editor Starter, a Render button shows up in the [inspector](/docs/editor-starter/tracks-items-assets#inspectors) (i.e., composition inspector).
+When no item is selected in the Editor Starter, a Render button shows up in the [inspector](/docs/editor-starter/tracks-items-assets#inspectors) (i.e., composition inspector).
 
 The backend endpoint [`/api/render`](/docs/editor-starter/backend-routes#post-apirender) is invoked to trigger a render.  
 Once triggered, [`/api/progress`](/docs/editor-starter/backend-routes#post-apiprogress) is polled to check the progress of the render.
@@ -81,5 +83,6 @@ Tweak the params you pass to [`renderMediaOnLambda()`](/docs/lambda/rendermediao
 ## See also
 
 - [Remotion Lambda](/docs/lambda)
+- [Client-side rendering](/docs/editor-starter/client-side-rendering)
 - [Setup](/docs/editor-starter/setup)
 - [Asset uploads](/docs/editor-starter/asset-uploads)

@@ -1,19 +1,26 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
+	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../helpers/hoverable';
 import {useZIndex} from '../state/z-index';
 
 export type RenderInlineAction = (color: string) => React.ReactNode;
 
-export type InlineActionProps = {
+export type InlineActionProps = Omit<
+	React.ButtonHTMLAttributes<HTMLButtonElement>,
+	'children' | 'onClick' | 'style'
+> & {
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
-	readonly disabled?: boolean;
 	readonly renderAction: RenderInlineAction;
-	readonly title?: string;
+	readonly hoveredColor?: string;
+	readonly unhoveredColor?: string;
+	readonly variant: 'compact' | null;
+	readonly style?: React.CSSProperties;
 };
 
 export const InlineAction = ({
@@ -21,47 +28,73 @@ export const InlineAction = ({
 	onClick,
 	disabled,
 	title,
+	hoveredColor = WHITE,
+	unhoveredColor = LIGHT_TEXT,
+	variant,
+	style: customStyle,
+	className,
+	onPointerDown: onPointerDownProp,
+	...buttonProps
 }: InlineActionProps) => {
 	const {tabIndex} = useZIndex();
+	const onPointerDown = useCallback(
+		(event: React.PointerEvent<HTMLButtonElement>) => {
+			onPointerDownProp?.(event);
+			if (event.button !== 0) {
+				return;
+			}
 
-	const [hovered, setHovered] = useState(false);
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
 
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
+			event.preventDefault();
+		},
+		[onPointerDownProp],
+	);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			border: 'none',
-			background: disabled
-				? TRANSPARENT
-				: getBackgroundFromHoverState({hovered, selected: false}),
 			height: 24,
-			width: 24,
+			width: variant === 'compact' ? 14 : 24,
 			padding: 0,
 			display: 'inline-flex',
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderRadius: 3,
+			opacity: disabled ? 0.5 : 1,
 			pointerEvents: disabled ? 'none' : 'auto',
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: disabled
+					? TRANSPARENT
+					: getBackgroundFromHoverState({hovered: true, selected: false}),
+				idleColor: unhoveredColor,
+				hoverColor: disabled ? unhoveredColor : hoveredColor,
+			}),
+			...customStyle,
 		};
-	}, [disabled, hovered]);
+	}, [customStyle, disabled, hoveredColor, unhoveredColor, variant]);
 
 	return (
 		<button
+			{...buttonProps}
 			type="button"
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
+			className={
+				className
+					? `${HOVERABLE_CLASS_NAME} ${className}`
+					: HOVERABLE_CLASS_NAME
+			}
+			disabled={disabled}
 			onClick={onClick}
+			onPointerDown={onPointerDown}
 			style={style}
 			tabIndex={tabIndex}
 			title={title}
+			aria-label={buttonProps['aria-label'] ?? title}
 		>
-			{renderAction(hovered ? WHITE : LIGHT_TEXT)}
+			{renderAction(CURRENT_COLOR)}
 		</button>
 	);
 };

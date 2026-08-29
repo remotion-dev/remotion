@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-speed.png
 id: optimizing-speed
 title: Optimizing for speed
 slug: /lambda/optimizing-speed
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 On this page, a few strategies are presented for making a render on Lambda as fast as possible.
@@ -21,9 +21,23 @@ Adding more memory on Lambda will also scale up the CPU power on Lambda proporti
 
 The [`concurrencyPerLambda`](/docs/lambda/rendermediaonlambda#concurrencyperlambda) property in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) allows you to open multiple browser tabs in a single Lambda function, therefore opening an opportunity to do more work at once. If the Lambda function is too busy, increasing the concurrency might also be counterproductive.
 
+## Use `<Video>` from `@remotion/media`
+
+We made a new [`<Video>`](/docs/media/video) that we now generally recommend.  
+It can start decoding before the full video is downloaded and avoids full asset downloads too, speeding up the render.
+
+## Enable `overwrite` in `renderMediaOnLambda()`
+
+The [`overwrite`](/docs/lambda/rendermediaonlambda#overwrite) options skips a check and overwrites any existing files in the S3 bucket.  
+If you are not concerned, enable this option and save some time.
+
 ## Use `speculateFunctionName()`
 
 Instead of calling [`getFunctions()`](/docs/lambda/getfunctions), you can call [`speculateFunctionName()`](/docs/lambda/speculatefunctionname) to calculate the name of the function you are about to call to save an API call and save up to 1 second.
+
+## Faster progress polling
+
+[`getRenderProgress()`](/docs/lambda/getrenderprogress) can read progress directly from S3 instead of invoking a Lambda function for every poll. See [Faster progress polling](/docs/lambda/faster-progress-polling) for the benefits and requirements.
 
 ## Bucket naming
 

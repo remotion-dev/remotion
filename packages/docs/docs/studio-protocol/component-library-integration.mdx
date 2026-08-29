@@ -1,0 +1,108 @@
+---
+image: /generated/articles-docs-studio-protocol-component-library-integration.png
+title: 'Integrating a component library with Studio'
+sidebar_label: 'Component library integration'
+crumb: '@remotion/studio-protocol'
+---
+
+# Integrating a component library with Studio
+
+An Element contains the source code for one component. It also contains the data that Studio needs to insert the component.
+
+Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list. You do not have to publish or install the component library in the target project.
+
+A component that follows the [Element guidelines](/elements/contributing#element-guidelines) is usually ready for Studio.
+
+Use this procedure to preview and deliver a component:
+
+<Step>1</Step> Show the component in a [`<Player>`](/docs/player).<br />
+<Step>2</Step> Pass the component source code to [`createElementPayload()`](/docs/studio-protocol/create-element-payload).<br />
+<Step>3</Step> Use the payload to install the Element or drag the Element into Studio.
+
+The website can reuse, combine, or change source code before the website creates the payload. The website can also let users change the source code. Studio receives only the final payload.
+
+## Show a Player preview
+
+Show each component in a [`<Player>`](/docs/player). The preview lets users examine the component before they send it to Studio.
+
+Import the component normally for the preview. The website bundler then compiles the component.
+
+Use the same dimensions and duration in the Player and the Element payload. Use the same initial values in the preview and the source code. This configuration helps the installed Element match the preview.
+
+## Reuse component code
+
+Use the same implementation in the Player preview and the installed Element. Import the component module for the Player. Load the component source as a string for the payload.
+
+For a self-contained `.tsx` component, both imports can point to the same file. This avoids a separate Element implementation.
+
+### Vite
+
+Vite lets you import file content with [`?raw`](https://vite.dev/guide/assets#importing-asset-as-string). The following imports load the same `.tsx` file in two forms. The normal import provides the component and its Element definition. The `?raw` import provides the source code string.
+
+```tsx title="LowerThirdGalleryItem.tsx"
+import {Player} from '@remotion/player';
+import {InstallActions} from './InstallActions';
+import LowerThirdElement, {
+  lowerThirdElementDefinition,
+} from './LowerThirdElement';
+import lowerThirdSourceCode from './LowerThirdElement.tsx?raw';
+
+export const LowerThirdGalleryItem = () => {
+  return (
+    <>
+      <Player
+        component={LowerThirdElement}
+        compositionWidth={lowerThirdElementDefinition.dimensions.width}
+        compositionHeight={lowerThirdElementDefinition.dimensions.height}
+        durationInFrames={lowerThirdElementDefinition.durationInFrames}
+        fps={lowerThirdElementDefinition.fps}
+      />
+      <InstallActions
+        definition={lowerThirdElementDefinition}
+        sourceCode={lowerThirdSourceCode}
+      />
+    </>
+  );
+};
+```
+
+The shape of `lowerThirdElementDefinition` is specific to the component library. The Studio Protocol does not require this object.
+
+### Next.js
+
+Next.js can use Webpack or Turbopack. The method that gets the source code string depends on the selected bundler.
+
+The Studio Protocol does not require a specific method. It requires only that the browser receives the final source code string.
+
+With Webpack, an [`asset/source` rule](https://webpack.js.org/guides/asset-modules/#source-assets) can provide `?raw` imports.
+
+With Turbopack, a script could create a module that exports the same component source as a string.
+
+## Add install actions
+
+Create one payload for both install actions. Run the actions in the browser.
+
+- Let users click an Install in Studio button. Use [`installInStudio()`](/docs/studio-protocol/install-in-studio) for this action.
+- Let users drag the component into Studio. Use [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) for this action.
+
+When Studio embeds the library through Browse Elements, use [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio) to hide actions that are redundant inside the Studio iframe.
+
+## Test the integration
+
+- Compare the Player preview with the installed Element.
+- Validate each payload with `createElementPayload()`.
+- Test installation and cross-tab drag-and-drop from the production website.
+- Install the Element in a clean Remotion project. Check for unresolved imports, package dependencies, and assets.
+- Treat the source code as public. The browser receives it, and Studio shows it.
+- Serve the production website through HTTPS. HTTP is supported only on `localhost` and `127.0.0.1`.
+
+## See also
+
+- [Libraries that integrate with Studio Protocol](/elements/libraries)
+- [Element guidelines](/elements/contributing#element-guidelines)
+- [`<Player>`](/docs/player)
+- [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
+- [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
+- [`installInStudio()`](/docs/studio-protocol/install-in-studio)
+- [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio)
+- [Studio Protocol security](/docs/studio-protocol/security)

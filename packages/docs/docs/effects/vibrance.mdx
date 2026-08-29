@@ -1,0 +1,58 @@
+---
+image: /generated/articles-docs-effects-vibrance.png
+slug: /effects/vibrance
+title: vibrance()
+sidebar_label: vibrance()
+crumb: '@remotion/effects'
+---
+
+# vibrance()<AvailableFrom v="4.0.508" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adjusts muted colors more strongly than colors that are already saturated.
+
+## Preview
+
+<EffectsDemo type="effects-vibrance" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {vibrance} from '@remotion/effects/vibrance';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[vibrance({amount: 0.4})]}
+    />
+  );
+};
+```
+
+## API
+
+You can call `vibrance()` without arguments or pass an object with the following properties.
+
+### `amount?`
+
+The vibrance adjustment from `-1` to `1`. Positive values increase HSL saturation, with a larger adjustment for colors that have more saturation available. Negative values reduce saturation, and `-1` produces grayscale. Defaults to `0`.
+
+The calculation uses unpremultiplied sRGB values and preserves HSL lightness. Grayscale pixels remain unchanged because they have no hue.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`saturation()`](/docs/effects/saturation)
+- [`whiteBalance()`](/docs/effects/white-balance)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/vibrance.ts)

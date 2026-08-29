@@ -26,6 +26,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	internalParams := renderInternalOptions{
+		EnableCancellation:             options.EnableCancellation,
 		ServeUrl:                       options.ServeUrl,
 		InputProps:                     inputProps,
 		Composition:                    options.Composition,
@@ -132,7 +133,9 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.TimeoutInMilliseconds = options.TimeoutInMilliseconds
 	}
-	internalParams.NumberOfGifLoops = options.NumberOfGifLoops
+	if internalParams.Codec == "gif" {
+		internalParams.NumberOfGifLoops = &options.NumberOfGifLoops
+	}
 
 	if options.DownloadBehavior == nil {
 		internalParams.DownloadBehavior = map[string]interface{}{

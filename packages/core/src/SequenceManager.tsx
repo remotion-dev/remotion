@@ -37,6 +37,8 @@ export const SequenceManagerRefContext =
 		current: [],
 	});
 
+export const SequenceRegistrationContext = React.createContext(false);
+
 export type VisualModePropStatuses = {
 	propStatuses: PropStatuses;
 };
@@ -48,6 +50,12 @@ export type VisualModePropStatusesRef = {
 export type VisualModeDragOverrides = {
 	getDragOverrides: GetDragOverrides;
 	getEffectDragOverrides: GetEffectDragOverrides;
+};
+
+export type SequencePropsStatusRemapping = {
+	previousNodePath: SequencePropsSubscriptionKey;
+	nodePath: SequencePropsSubscriptionKey | null;
+	result: CanUpdateSequencePropsResponse | null;
 };
 
 export type VisualModeSetters = {
@@ -72,6 +80,9 @@ export type VisualModeSetters = {
 		values: (
 			prev: CanUpdateSequencePropsResponse,
 		) => CanUpdateSequencePropsResponse,
+	) => void;
+	remapPropStatuses: (
+		remappings: readonly SequencePropsStatusRemapping[],
 	) => void;
 };
 
@@ -118,7 +129,7 @@ export type CanUpdateSequencePropsResponse =
 export const makeSequencePropsSubscriptionKey = (
 	key: SequencePropsSubscriptionKey,
 ): string => {
-	return `${key.nodePath.join('.')}.${key.sequenceKeys.join('.')}.${key.effectKeys.map((keys) => keys.join('.')).join('.')}`;
+	return `${key.absolutePath}\0${key.nodePath.join('.')}\0${key.sequenceKeys.join('.')}\0${key.effectKeys.map((keys) => keys.join('.')).join('.')}`;
 };
 
 export const VisualModePropStatusesContext =
@@ -155,6 +166,9 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 		throw new Error('VisualModeSettersContext not initialized');
 	},
 	setPropStatuses: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
+	remapPropStatuses: () => {
 		throw new Error('VisualModeSettersContext not initialized');
 	},
 });
@@ -287,6 +301,28 @@ export const SequenceManagerProvider: React.FC<{
 		},
 		[],
 	);
+	const remapPropStatuses = useCallback(
+		(remappings: readonly SequencePropsStatusRemapping[]) => {
+			setPropStatusesMapState((prev) => {
+				const next = {...prev};
+				for (const remapping of remappings) {
+					delete next[
+						makeSequencePropsSubscriptionKey(remapping.previousNodePath)
+					];
+				}
+
+				for (const remapping of remappings) {
+					if (remapping.nodePath !== null && remapping.result !== null) {
+						next[makeSequencePropsSubscriptionKey(remapping.nodePath)] =
+							remapping.result;
+					}
+				}
+
+				return next;
+			});
+		},
+		[],
+	);
 
 	const registerSequence = useCallback((seq: TSequence) => {
 		setSequences((seqs) => {
@@ -344,6 +380,7 @@ export const SequenceManagerProvider: React.FC<{
 			setEffectDragOverrides,
 			clearEffectDragOverrides,
 			setPropStatuses,
+			remapPropStatuses,
 		};
 	}, [
 		setDragOverrides,
@@ -351,6 +388,7 @@ export const SequenceManagerProvider: React.FC<{
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
 		setPropStatuses,
+		remapPropStatuses,
 	]);
 
 	return (

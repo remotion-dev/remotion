@@ -1,17 +1,8 @@
 import type {Size} from '@remotion/player';
-import {
-	ASSET_DRAG_MIME_TYPE,
-	COMPONENT_DRAG_MIME_TYPE,
-	COMPOSITION_DRAG_MIME_TYPE,
-	ELEMENT_DRAG_MIME_TYPE,
-	parseAssetDragData,
-	parseComponentDragData,
-	parseCompositionDragData,
-	parseSfxDragData,
-	SFX_DRAG_MIME_TYPE,
-	type ComponentDragData,
-	type CompositionDragData,
-	type ElementInstallRequest,
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import type {
+	ElementInstallExpectedFileState,
+	ElementInstallRequest,
 } from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -23,94 +14,96 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
+import {getStaticFiles} from '../api/get-static-files';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND} from '../helpers/colors';
-import type {AssetMetadata} from '../helpers/get-asset-metadata';
-import {getAssetMetadata} from '../helpers/get-asset-metadata';
+import {getClipboardFigmaHtml} from '../helpers/clipboard-figma';
+import {getClipboardImageFiles} from '../helpers/clipboard-images';
+import {getClipboardSvgMarkup} from '../helpers/clipboard-svg';
+import {
+	BACKGROUND,
+	BORDER_TIMELINE_DROP_BLUE,
+	TIMELINE_DROP_BLUE_ALPHA_16,
+} from '../helpers/colors';
+import {
+	getAssetMetadata,
+	getAssetPreviewMetadata,
+	type AssetMetadata,
+} from '../helpers/get-asset-metadata';
 import {
 	applyZoomAroundFocalPoint,
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
+	getUnboundedCenterPointWhileScrolling,
 } from '../helpers/get-effective-translation';
 import {getMissingPackages} from '../helpers/install-required-package';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
-import {
-	getRemoteAssetUrlFromDataTransfer,
-	hasRemoteAssetDragData,
-} from '../helpers/remote-asset-drag';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
 	smoothenZoom,
 	unsmoothenZoom,
 } from '../helpers/smooth-zoom';
-import {useKeybinding} from '../helpers/use-keybinding';
+import {calculateStudioScale} from '../helpers/studio-fit-padding';
+import {
+	areKeyboardShortcutsDisabled,
+	useKeybinding,
+} from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
+import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
-import {useConfirmationDialog} from './ConfirmationDialog';
+import {handleCanvasCaptureDrop} from './canvas-capture-drop';
+import {
+	getCompositionDropPreviewBox,
+	snapCompositionDropPosition,
+	type CompositionDropPreview,
+} from './composition-drop-preview';
+import {isFileDragEvent, isSupportedDropEvent} from './drop-handler-data';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
-import {getElementDragData} from './element-drag-and-drop';
+import {prepareElementInstall} from './element-install-api';
 import {
+	enqueueElementInstallRequest,
+	subscribeToElementInstallRequests,
+} from './element-install-request';
+import {ElementInstallConfirmation} from './ElementInstallConfirmation';
+import {handleDrop} from './handle-drop';
+import {
+	getFromForDrop,
+	hasSvgFile,
 	importAssets,
-	importRemoteAsset,
-	insertComponent,
-	insertComposition,
-	insertElement,
-	insertExistingAssets,
-	insertRemoteAudio,
+	importFigmaClipboard,
+	insertSvgMarkup,
 	type InsertElementDropPosition,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
+import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
+import {useSvgImportDialog} from './SvgImportDialog';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
-const elementInstallCompositionIdStyle: React.CSSProperties = {
-	fontFamily: 'monospace',
-	fontSize: 13,
+const elementInstallDependencyIgnoreList = ['react', 'react-dom', 'remotion'];
+
+type ElementInstallPlan = {
+	readonly compositionFile: string;
+	readonly filePath: string;
+	readonly expectedFileState: ElementInstallExpectedFileState;
 };
 
-const elementInstallDependencyListStyle: React.CSSProperties = {
-	marginTop: 8,
-	marginBottom: 0,
-	paddingLeft: 24,
-	listStyleType: 'disc',
-};
-
-const elementInstallDependencyStyle: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'monospace',
-	fontSize: 13,
-	lineHeight: 1.5,
-};
-
-const elementInstallCodeDetailsStyle: React.CSSProperties = {
-	marginTop: 12,
-	fontSize: 13,
-};
-
-const elementInstallCodeSummaryStyle: React.CSSProperties = {
-	cursor: 'pointer',
-	fontSize: 13,
-	fontWeight: 500,
-};
-
-const elementInstallCodeBlockStyle: React.CSSProperties = {
-	marginTop: 8,
-	marginBottom: 0,
-	maxHeight: 240,
-	overflow: 'auto',
-	padding: 12,
-	borderRadius: 6,
-	backgroundColor: 'rgba(255, 255, 255, 0.06)',
-	fontSize: 12,
-	lineHeight: 1.5,
-	whiteSpace: 'pre',
+type ElementInstallReview = {
+	readonly currentPlan: ElementInstallPlan | null;
+	readonly dependenciesToReview: string[];
+	readonly missingPackages: string[];
+	readonly newPlan: ElementInstallPlan;
+	readonly sourceIsUnverified: boolean;
+	readonly sourceLabel: string;
 };
 
 const getContainerStyle = (
@@ -138,123 +131,45 @@ type WebKitGestureEvent = UIEvent & {
 	clientY: number;
 };
 
-const isFileDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes('Files');
-};
+const calculateCanvasScale = ({
+	addFitPadding,
+	canvasSize,
+	compositionHeight,
+	compositionWidth,
+	previewSize,
+}: {
+	readonly addFitPadding: boolean;
+	readonly canvasSize: Size;
+	readonly compositionHeight: number;
+	readonly compositionWidth: number;
+	readonly previewSize: PreviewSize['size'];
+}) => {
+	const options = {
+		canvasSize,
+		compositionHeight,
+		compositionWidth,
+		previewSize,
+	};
 
-const isAssetDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		ASSET_DRAG_MIME_TYPE,
-	);
-};
-
-const isComponentDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		COMPONENT_DRAG_MIME_TYPE,
-	);
-};
-
-const isCompositionDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		COMPOSITION_DRAG_MIME_TYPE,
-	);
-};
-
-const isElementDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		ELEMENT_DRAG_MIME_TYPE,
-	);
-};
-
-const isSfxDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		SFX_DRAG_MIME_TYPE,
-	);
-};
-
-const isRemoteAssetDragEvent = (event: DragEvent): boolean => {
-	return (
-		!isFileDragEvent(event) &&
-		!isAssetDragEvent(event) &&
-		!isCompositionDragEvent(event) &&
-		!isComponentDragEvent(event) &&
-		!isElementDragEvent(event) &&
-		!isSfxDragEvent(event) &&
-		hasRemoteAssetDragData(event.dataTransfer)
-	);
-};
-
-const getAssetDragPath = (event: DragEvent): string | null => {
-	const value = event.dataTransfer?.getData(ASSET_DRAG_MIME_TYPE);
-	if (!value) {
-		return null;
-	}
-
-	return parseAssetDragData(value)?.assetPath ?? null;
-};
-
-const getCompositionDragData = (
-	event: DragEvent,
-): CompositionDragData | null => {
-	const value = event.dataTransfer?.getData(COMPOSITION_DRAG_MIME_TYPE);
-	if (!value) {
-		return null;
-	}
-
-	return parseCompositionDragData(value);
-};
-
-const getComponentDragData = (event: DragEvent): ComponentDragData | null => {
-	for (const type of [
-		COMPONENT_DRAG_MIME_TYPE,
-		'application/json',
-		'text/plain',
-	]) {
-		const value = event.dataTransfer?.getData(type);
-		if (!value) {
-			continue;
-		}
-
-		const parsed = parseComponentDragData(value);
-		if (parsed) {
-			return parsed;
-		}
-	}
-
-	return null;
-};
-
-const getSfxDragUrl = (event: DragEvent): string | null => {
-	const {dataTransfer} = event;
-	if (!dataTransfer) {
-		return null;
-	}
-
-	for (const type of [SFX_DRAG_MIME_TYPE, 'application/json', 'text/plain']) {
-		const value = dataTransfer.getData(type);
-		if (!value) {
-			continue;
-		}
-
-		const parsed = parseSfxDragData(value);
-		if (parsed) {
-			return parsed.sfx.url;
-		}
-	}
-
-	return null;
+	return addFitPadding
+		? calculateStudioScale(options)
+		: Internals.calculateScale(options);
 };
 
 const getDropPosition = ({
+	addFitPadding,
 	clientX,
 	clientY,
 	contentDimensions,
+	unbounded,
 	previewSize,
 	size,
 }: {
+	addFitPadding: boolean;
 	clientX: number;
 	clientY: number;
 	contentDimensions: {width: number; height: number} | 'none' | null;
+	unbounded: boolean;
 	previewSize: PreviewSize;
 	size: Size;
 }): InsertElementDropPosition | null => {
@@ -262,13 +177,17 @@ const getDropPosition = ({
 		return null;
 	}
 
-	const scale = Internals.calculateScale({
+	const scale = calculateCanvasScale({
+		addFitPadding,
 		canvasSize: size,
 		compositionHeight: contentDimensions.height,
 		compositionWidth: contentDimensions.width,
 		previewSize: previewSize.size,
 	});
-	const {centerX, centerY} = getCenterPointWhileScrolling({
+	const getCenterPoint = unbounded
+		? getUnboundedCenterPointWhileScrolling
+		: getCenterPointWhileScrolling;
+	const {centerX, centerY} = getCenterPoint({
 		size,
 		clientX,
 		clientY,
@@ -319,11 +238,14 @@ export const Canvas: React.FC<{
 		initialZoom: number;
 	} | null>(null);
 	const keybindings = useKeybinding();
-	const confirm = useConfirmationDialog();
+	const chooseSvgImportMode = useSvgImportDialog();
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {compositions} = useContext(Internals.CompositionManager);
+	const {setCurrentAssetMetadata} = useContext(Internals.CompositionSetters);
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
 	);
@@ -332,6 +254,8 @@ export const Canvas: React.FC<{
 			? previewServerState.clientId
 			: null;
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
+	const [compositionDropPreview, setCompositionDropPreview] =
+		useState<CompositionDropPreview | null>(null);
 	const [installingElementName, setInstallingElementName] = useState<
 		string | null
 	>(null);
@@ -339,6 +263,8 @@ export const Canvas: React.FC<{
 		useState<ElementInstallRequest[]>([]);
 	const [activeElementInstallRequest, setActiveElementInstallRequest] =
 		useState<ElementInstallRequest | null>(null);
+	const [elementInstallReview, setElementInstallReview] =
+		useState<ElementInstallReview | null>(null);
 	const lastFocusedAtRef = useRef<number | null>(
 		typeof document === 'undefined' || document.hasFocus() ? Date.now() : null,
 	);
@@ -346,6 +272,7 @@ export const Canvas: React.FC<{
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
 	);
+	const metadataRequestRef = useRef(0);
 
 	const currentCompositionId =
 		canvasContent.type === 'composition' ? canvasContent.compositionId : null;
@@ -368,14 +295,16 @@ export const Canvas: React.FC<{
 		compositionFile,
 		compositionId: currentCompositionId,
 	});
-	const canInstallElements =
+	const canReceiveElementInstallRequest =
 		previewServerClientId !== null &&
 		!window.remotion_isReadOnlyStudio &&
-		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null;
-	const canDropAssets = canInstallElements && !isAddingAsset;
-
+	const canInsertIntoCurrentComposition =
+		canReceiveElementInstallRequest &&
+		compositionComponentInfo?.canAddSequence === true;
+	const canDropAssets = canInsertIntoCurrentComposition && !isAddingAsset;
+	const cannotAddSequence = compositionComponentInfo?.canAddSequence === false;
 	const contentDimensions = useMemo(() => {
 		if (
 			(canvasContent.type === 'asset' ||
@@ -395,6 +324,7 @@ export const Canvas: React.FC<{
 	}, [assetResolution, config, canvasContent]);
 
 	const isFit = previewSize.size === 'auto';
+	const addFitPadding = canvasContent.type === 'composition';
 
 	previewSnapshotRef.current = {
 		previewSize,
@@ -431,7 +361,8 @@ export const Canvas: React.FC<{
 			ev.preventDefault();
 
 			setSize((prevSize) => {
-				const scale = Internals.calculateScale({
+				const scale = calculateCanvasScale({
+					addFitPadding,
 					canvasSize: size,
 					compositionHeight: contentDimensions.height,
 					compositionWidth: contentDimensions.width,
@@ -445,6 +376,7 @@ export const Canvas: React.FC<{
 					const unsmoothened = unsmoothenZoom(added);
 
 					return applyZoomAroundFocalPoint({
+						addFitPadding,
 						canvasSize: size,
 						contentDimensions,
 						previewSizeBefore: prevSize,
@@ -478,7 +410,14 @@ export const Canvas: React.FC<{
 				};
 			});
 		},
-		[editorZoomGestures, contentDimensions, isFit, setSize, size],
+		[
+			addFitPadding,
+			editorZoomGestures,
+			contentDimensions,
+			isFit,
+			setSize,
+			size,
+		],
 	);
 
 	useEffect(() => {
@@ -520,7 +459,8 @@ export const Canvas: React.FC<{
 			e.preventDefault();
 			suppressWheelFromWebKitPinchRef.current = true;
 
-			const fitted = Internals.calculateScale({
+			const fitted = calculateCanvasScale({
+				addFitPadding,
 				canvasSize: canvasSz,
 				compositionHeight: cdim.height,
 				compositionWidth: cdim.width,
@@ -545,7 +485,8 @@ export const Canvas: React.FC<{
 			e.preventDefault();
 
 			setSize((prevSize) => {
-				const scale = Internals.calculateScale({
+				const scale = calculateCanvasScale({
+					addFitPadding,
 					canvasSize: canvasSz,
 					compositionHeight: dimensions.height,
 					compositionWidth: dimensions.width,
@@ -554,6 +495,7 @@ export const Canvas: React.FC<{
 				const oldNumeric = prevSize.size === 'auto' ? scale : prevSize.size;
 
 				return applyZoomAroundFocalPoint({
+					addFitPadding,
 					canvasSize: canvasSz,
 					contentDimensions: dimensions,
 					previewSizeBefore: prevSize,
@@ -584,7 +526,7 @@ export const Canvas: React.FC<{
 			current.removeEventListener('gestureend', onGestureEnd);
 			current.removeEventListener('gesturecancel', onGestureEnd);
 		};
-	}, [editorZoomGestures, setSize, supportsWebKitPinch]);
+	}, [addFitPadding, editorZoomGestures, setSize, supportsWebKitPinch]);
 
 	useEffect(() => {
 		const {current} = canvasRef;
@@ -616,7 +558,8 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			const fitted = Internals.calculateScale({
+			const fitted = calculateCanvasScale({
+				addFitPadding,
 				canvasSize: snap.canvasSize,
 				compositionHeight: snap.contentDimensions.height,
 				compositionWidth: snap.contentDimensions.width,
@@ -655,7 +598,8 @@ export const Canvas: React.FC<{
 					width: number;
 					height: number;
 				};
-				const scale = Internals.calculateScale({
+				const scale = calculateCanvasScale({
+					addFitPadding,
 					canvasSize: canvasSz,
 					compositionHeight: cdim.height,
 					compositionWidth: cdim.width,
@@ -664,6 +608,7 @@ export const Canvas: React.FC<{
 				const oldNumeric = prevSize.size === 'auto' ? scale : prevSize.size;
 
 				return applyZoomAroundFocalPoint({
+					addFitPadding,
 					canvasSize: canvasSz,
 					contentDimensions: cdim,
 					previewSizeBefore: prevSize,
@@ -692,7 +637,7 @@ export const Canvas: React.FC<{
 			current.removeEventListener('touchend', onTouchEnd);
 			current.removeEventListener('touchcancel', onTouchEnd);
 		};
-	}, [editorZoomGestures, setSize]);
+	}, [addFitPadding, editorZoomGestures, setSize]);
 
 	const onReset = useCallback(() => {
 		setSize(() => {
@@ -716,7 +661,8 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = Internals.calculateScale({
+			const scale = calculateCanvasScale({
+				addFitPadding,
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,
@@ -730,7 +676,7 @@ export const Canvas: React.FC<{
 				size: Math.min(MAX_ZOOM, scale * 2),
 			};
 		});
-	}, [contentDimensions, setSize, size]);
+	}, [addFitPadding, contentDimensions, setSize, size]);
 
 	const onZoomOut = useCallback(() => {
 		if (!contentDimensions || contentDimensions === 'none') {
@@ -742,7 +688,8 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = Internals.calculateScale({
+			const scale = calculateCanvasScale({
+				addFitPadding,
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,
@@ -756,7 +703,7 @@ export const Canvas: React.FC<{
 				size: Math.max(MIN_ZOOM, scale / 2),
 			};
 		});
-	}, [contentDimensions, setSize, size]);
+	}, [addFitPadding, contentDimensions, setSize, size]);
 
 	useEffect(() => {
 		const resetBinding = keybindings.registerKeybinding({
@@ -797,8 +744,10 @@ export const Canvas: React.FC<{
 	}, [keybindings, onReset, onZoomIn, onZoomOut]);
 
 	const fetchMetadata = useCallback(async () => {
+		const request = ++metadataRequestRef.current;
 		setAssetResolution(null);
 		if (canvasContent.type === 'composition') {
+			setCurrentAssetMetadata(null);
 			return;
 		}
 
@@ -806,8 +755,13 @@ export const Canvas: React.FC<{
 			canvasContent,
 			canvasContent.type === 'asset',
 		);
+		if (request !== metadataRequestRef.current) {
+			return;
+		}
+
 		setAssetResolution(metadata);
-	}, [canvasContent]);
+		setCurrentAssetMetadata(getAssetPreviewMetadata({canvasContent, metadata}));
+	}, [canvasContent, setCurrentAssetMetadata]);
 
 	useEffect(() => {
 		if (canvasContent.type !== 'asset') {
@@ -835,15 +789,19 @@ export const Canvas: React.FC<{
 			callApi('/api/update-element-install-target', {
 				requestId,
 				clientId: previewServerClientId,
-				compositionFile: canInstallElements ? compositionFile : null,
-				compositionId: canInstallElements ? currentCompositionId : null,
-				canInstall: canInstallElements,
+				compositionFile: canReceiveElementInstallRequest
+					? compositionFile
+					: null,
+				compositionId: canReceiveElementInstallRequest
+					? currentCompositionId
+					: null,
 				lastFocusedAt: lastFocusedAtRef.current,
 				readOnly: window.remotion_isReadOnlyStudio,
+				studioUrl: window.location.href,
 			}).catch(() => undefined);
 		},
 		[
-			canInstallElements,
+			canReceiveElementInstallRequest,
 			compositionFile,
 			currentCompositionId,
 			previewServerClientId,
@@ -900,12 +858,60 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			setPendingElementInstallRequests((requests) => [
-				...requests,
-				event.request,
-			]);
+			enqueueElementInstallRequest(event.request);
 		});
 	}, [previewServerClientId, subscribeToEvent]);
+
+	useEffect(() => {
+		return subscribeToElementInstallRequests((request) => {
+			const requestWithFrom =
+				request.source.type === 'drag-and-drop' || request.from !== null
+					? request
+					: {
+							...request,
+							from: getFromForDrop({
+								durationInFrames: request.element.durationInFrames,
+								from: getCurrentFrame(),
+								preferCompositionStart: true,
+							}),
+						};
+			setPendingElementInstallRequests((requests) => [
+				...requests,
+				requestWithFrom,
+			]);
+		});
+	}, []);
+
+	useEffect(() => {
+		if (
+			!canReceiveElementInstallRequest ||
+			compositionFile === null ||
+			currentCompositionId === null
+		) {
+			return;
+		}
+
+		const initialElement =
+			getBrowserStudioOperations()?.consumeInitialElement() ?? null;
+		if (initialElement === null) {
+			return;
+		}
+
+		enqueueElementInstallRequest({
+			clientId: 'browser-studio',
+			compositionFile,
+			compositionId: currentCompositionId,
+			createdAt: Date.now(),
+			element: initialElement.element,
+			from: null,
+			id: crypto.randomUUID(),
+			position: null,
+			source: {
+				origin: initialElement.sourceOrigin,
+				type: 'browser-studio-link',
+			},
+		});
+	}, [canReceiveElementInstallRequest, compositionFile, currentCompositionId]);
 
 	useEffect(() => {
 		if (
@@ -930,118 +936,290 @@ export const Canvas: React.FC<{
 		}
 
 		let canceled = false;
-
 		const handleInstallRequest = async () => {
 			setInstallingElementName(activeElementInstallRequest.element.displayName);
-			const missingPackages = getMissingPackages(
-				activeElementInstallRequest.element.dependencies,
-			);
-			const accepted = await confirm({
-				title: 'Install Element',
-				message: (
-					<>
-						Install “{activeElementInstallRequest.element.displayName}” into{' '}
-						<code style={elementInstallCompositionIdStyle}>
-							{activeElementInstallRequest.compositionId}
-						</code>{' '}
-						composition? This will create an Element source file and update the
-						composition source.
-						{missingPackages.length > 0 ? (
-							<>
-								<br />
-								<br />
-								The following dependencies will also be installed:
-								<ul style={elementInstallDependencyListStyle}>
-									{missingPackages.map((packageName) => (
-										<li key={packageName} style={elementInstallDependencyStyle}>
-											{packageName}
-										</li>
-									))}
-								</ul>
-							</>
-						) : null}
-						<details style={elementInstallCodeDetailsStyle}>
-							<summary style={elementInstallCodeSummaryStyle}>
-								Preview Element source
-							</summary>
-							<pre style={elementInstallCodeBlockStyle}>
-								<code>{activeElementInstallRequest.element.sourceCode}</code>
-							</pre>
-						</details>
-					</>
-				),
-				confirmLabel: 'Install',
-				cancelLabel: 'Cancel',
-			});
-
-			if (accepted && !canceled) {
-				await insertElement({
-					element: activeElementInstallRequest.element,
-					compositionFile: activeElementInstallRequest.compositionFile,
-					compositionId: activeElementInstallRequest.compositionId,
-					dropPosition: null,
-				});
-			}
-		};
-
-		handleInstallRequest()
-			.finally(() => {
+			try {
+				const [newPreflight, currentPreflight] = await Promise.all([
+					prepareElementInstall({
+						destination: {
+							type: 'new-composition',
+							compositionFile: null,
+						},
+						element: activeElementInstallRequest.element,
+					}),
+					prepareElementInstall({
+						destination: {
+							type: 'current-composition',
+							compositionFile: activeElementInstallRequest.compositionFile,
+							compositionId: activeElementInstallRequest.compositionId,
+						},
+						element: activeElementInstallRequest.element,
+					}),
+				]);
 				if (canceled) {
 					return;
 				}
 
+				if (!newPreflight.success) {
+					showNotification(
+						`Could not review Element installation: ${newPreflight.reason}`,
+						4000,
+					);
+					setInstallingElementName(null);
+					setActiveElementInstallRequest(null);
+					return;
+				}
+
+				const declaredDependencies = Array.from(
+					new Map(
+						activeElementInstallRequest.element.dependencies.map(
+							(dependency) => [dependency.name, dependency],
+						),
+					).values(),
+				);
+				const missingPackages = getMissingPackages(declaredDependencies).map(
+					(dependency) => dependency.name,
+				);
+				const ignoredDependencies = declaredDependencies.filter(
+					(dependency) =>
+						elementInstallDependencyIgnoreList.includes(dependency.name) &&
+						!missingPackages.includes(dependency.name),
+				);
+				const dependenciesToReview = declaredDependencies
+					.filter((dependency) => !ignoredDependencies.includes(dependency))
+					.map((dependency) =>
+						dependency.version === null
+							? dependency.name
+							: `${dependency.name}@${dependency.version}`,
+					);
+				const {source} = activeElementInstallRequest;
+				const sourceLabel =
+					source.type === 'studio-protocol'
+						? source.origin
+						: source.type === 'browser-studio-link'
+							? (source.origin ?? 'Unverified Browser Studio link')
+							: 'Unverified drag-and-drop payload';
+				const sourceIsUnverified =
+					source.type === 'drag-and-drop' ||
+					(source.type === 'browser-studio-link' && source.origin === null);
+				const currentPlan = currentPreflight.success
+					? currentPreflight.plan
+					: null;
+				setSelectedModal(null);
+				setElementInstallReview({
+					currentPlan,
+					dependenciesToReview,
+					missingPackages,
+					newPlan: newPreflight.plan,
+					sourceIsUnverified,
+					sourceLabel,
+				});
+			} catch (error) {
+				if (canceled) {
+					return;
+				}
+
+				showNotification(
+					`Could not review Element installation: ${
+						error instanceof Error ? error.message : String(error)
+					}`,
+					4000,
+				);
 				setInstallingElementName(null);
 				setActiveElementInstallRequest(null);
-			})
-			.catch((err) => {
-				setTimeout(() => {
-					throw err;
-				}, 0);
-			});
+			}
+		};
 
+		handleInstallRequest();
 		return () => {
 			canceled = true;
 		};
-	}, [activeElementInstallRequest, confirm]);
+	}, [activeElementInstallRequest, setSelectedModal]);
+
+	const closeElementInstallDialog = useCallback(() => {
+		setElementInstallReview(null);
+		setInstallingElementName(null);
+		setActiveElementInstallRequest(null);
+	}, []);
 
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
-			if (
-				!canDropAssets ||
-				(!isFileDragEvent(event) &&
-					!isAssetDragEvent(event) &&
-					!isCompositionDragEvent(event) &&
-					!isComponentDragEvent(event) &&
-					!isElementDragEvent(event) &&
-					!isSfxDragEvent(event) &&
-					!isRemoteAssetDragEvent(event)) ||
-				!isDragEventInsideCanvas(event)
-			) {
+			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			const mayBeCanvasCapture =
+				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
+			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
+				setCompositionDropPreview(null);
 				return;
 			}
 
 			event.preventDefault();
 			if (event.dataTransfer) {
-				event.dataTransfer.dropEffect = 'copy';
+				event.dataTransfer.dropEffect =
+					canDropAssets || mayBeCanvasCapture ? 'copy' : 'none';
 			}
+
+			if (
+				!canDropAssets ||
+				contentDimensions === null ||
+				contentDimensions === 'none'
+			) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			const metadata = StudioProtocolInternals.getDragPreviewMetadata(
+				event.dataTransfer?.types ?? [],
+			);
+			if (
+				(metadata?.type !== 'composition' && metadata?.type !== 'element') ||
+				metadata.width === undefined ||
+				metadata.height === undefined
+			) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			let dropPosition = getDropPosition({
+				addFitPadding,
+				clientX: event.clientX,
+				clientY: event.clientY,
+				contentDimensions,
+				unbounded: metadata.type === 'composition',
+				previewSize,
+				size,
+			});
+			if (dropPosition === null) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			const compositionDimensions = {
+				width: metadata.width,
+				height: metadata.height,
+			};
+			if (
+				metadata.type === 'composition' &&
+				editorSnapping &&
+				!event.metaKey &&
+				!event.ctrlKey
+			) {
+				dropPosition = snapCompositionDropPosition({
+					compositionDimensions,
+					destinationDimensions: contentDimensions,
+					dropPosition,
+					scale: calculateCanvasScale({
+						addFitPadding,
+						canvasSize: size,
+						compositionHeight: contentDimensions.height,
+						compositionWidth: contentDimensions.width,
+						previewSize: previewSize.size,
+					}),
+				});
+			}
+
+			setCompositionDropPreview((currentPreview) => {
+				if (
+					currentPreview?.compositionDimensions.width ===
+						compositionDimensions.width &&
+					currentPreview.compositionDimensions.height ===
+						compositionDimensions.height &&
+					currentPreview.dropPosition.centerX === dropPosition.centerX &&
+					currentPreview.dropPosition.centerY === dropPosition.centerY
+				) {
+					return currentPreview;
+				}
+
+				return {
+					compositionDimensions,
+					dropPosition,
+				};
+			});
 		},
-		[canDropAssets],
+		[
+			addFitPadding,
+			canDropAssets,
+			cannotAddSequence,
+			contentDimensions,
+			editorSnapping,
+			previewSize,
+			size,
+		],
 	);
+
+	const onDragLeave = useCallback((event: DragEvent) => {
+		const canvas = canvasRef.current;
+		if (canvas !== null) {
+			const rect = canvas.getBoundingClientRect();
+			if (
+				(event.clientX >= rect.left &&
+					event.clientX <= rect.right &&
+					event.clientY >= rect.top &&
+					event.clientY <= rect.bottom) ||
+				(event.relatedTarget instanceof Node &&
+					canvas.contains(event.relatedTarget))
+			) {
+				return;
+			}
+		}
+
+		setCompositionDropPreview(null);
+	}, []);
+
+	const onDragEnd = useCallback(() => {
+		setCompositionDropPreview(null);
+	}, []);
 
 	const onDrop = useCallback(
 		async (event: DragEvent) => {
+			setCompositionDropPreview(null);
+
+			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
+				return;
+			}
+
+			const localFiles = isFileDragEvent(event)
+				? Array.from(event.dataTransfer?.files ?? [])
+				: null;
+
+			if (localFiles !== null && !window.remotion_isReadOnlyStudio) {
+				event.preventDefault();
+				event.stopPropagation();
+				if (localFiles.length === 1) {
+					setIsAddingAsset(true);
+					try {
+						if (
+							await handleCanvasCaptureDrop({
+								files: localFiles,
+								setSelectedModal,
+							})
+						) {
+							return;
+						}
+					} finally {
+						setIsAddingAsset(false);
+					}
+				}
+			}
+
+			if (cannotAddSequence) {
+				event.preventDefault();
+				event.stopPropagation();
+				showNotification(
+					'Cannot insert items into this composition component',
+					3000,
+				);
+				return;
+			}
+
 			if (
 				!canDropAssets ||
 				compositionFile === null ||
 				currentCompositionId === null ||
-				(!isFileDragEvent(event) &&
-					!isAssetDragEvent(event) &&
-					!isCompositionDragEvent(event) &&
-					!isComponentDragEvent(event) &&
-					!isElementDragEvent(event) &&
-					!isSfxDragEvent(event) &&
-					!isRemoteAssetDragEvent(event)) ||
-				!isDragEventInsideCanvas(event)
+				config === null
 			) {
 				return;
 			}
@@ -1059,123 +1237,242 @@ export const Canvas: React.FC<{
 
 			setIsAddingAsset(true);
 			try {
-				const dropPosition = getDropPosition({
+				const metadata = StudioProtocolInternals.getDragPreviewMetadata(
+					event.dataTransfer?.types ?? [],
+				);
+				const isComposition = metadata?.type === 'composition';
+				let dropPosition = getDropPosition({
+					addFitPadding,
 					clientX: event.clientX,
 					clientY: event.clientY,
 					contentDimensions,
+					unbounded: isComposition,
 					previewSize,
 					size,
 				});
-
-				if (isFileDragEvent(event)) {
-					const files = Array.from(event.dataTransfer?.files ?? []);
-					if (files.length === 0) {
-						return;
-					}
-
-					await importAssets({
-						files,
-						compositionFile,
-						compositionId: currentCompositionId,
+				if (
+					dropPosition !== null &&
+					isComposition &&
+					metadata.width !== undefined &&
+					metadata.height !== undefined &&
+					contentDimensions !== null &&
+					contentDimensions !== 'none' &&
+					editorSnapping &&
+					!event.metaKey &&
+					!event.ctrlKey
+				) {
+					dropPosition = snapCompositionDropPosition({
+						compositionDimensions: {
+							width: metadata.width,
+							height: metadata.height,
+						},
+						destinationDimensions: contentDimensions,
 						dropPosition,
-					});
-				} else if (isAssetDragEvent(event)) {
-					const assetPath = getAssetDragPath(event);
-					if (assetPath === null) {
-						return;
-					}
-
-					await insertExistingAssets({
-						assetPaths: [assetPath],
-						compositionFile,
-						compositionId: currentCompositionId,
-						dropPosition,
-					});
-				} else if (isSfxDragEvent(event)) {
-					const url = getSfxDragUrl(event);
-					if (url === null) {
-						return;
-					}
-
-					await insertRemoteAudio({
-						url,
-						compositionFile,
-						compositionId: currentCompositionId,
-					});
-				} else if (isCompositionDragEvent(event)) {
-					const compositionDragData = getCompositionDragData(event);
-					if (compositionDragData === null) {
-						return;
-					}
-
-					await insertComposition({
-						composition: compositionDragData,
-						compositionFile,
-						compositionId: currentCompositionId,
-						dropPosition,
-					});
-				} else {
-					const elementDragData = getElementDragData(event.dataTransfer);
-					if (elementDragData !== null) {
-						await insertElement({
-							element: elementDragData.element,
-							compositionFile,
-							compositionId: currentCompositionId,
-							dropPosition,
-						});
-						return;
-					}
-
-					const componentDragData = getComponentDragData(event);
-					if (componentDragData !== null) {
-						await insertComponent({
-							component: componentDragData.component,
-							compositionFile,
-							compositionId: currentCompositionId,
-							dropPosition,
-						});
-						return;
-					}
-
-					const url = getRemoteAssetUrlFromDataTransfer(event.dataTransfer);
-					if (url === null) {
-						return;
-					}
-
-					await importRemoteAsset({
-						url,
-						compositionFile,
-						compositionId: currentCompositionId,
-						dropPosition,
+						scale: calculateCanvasScale({
+							addFitPadding,
+							canvasSize: size,
+							compositionHeight: contentDimensions.height,
+							compositionWidth: contentDimensions.width,
+							previewSize: previewSize.size,
+						}),
 					});
 				}
+
+				await handleDrop({
+					chooseSvgImportMode,
+					compositionFile,
+					compositionId: currentCompositionId,
+					destinationDimensions:
+						contentDimensions === 'none' ? null : contentDimensions,
+					dropPosition,
+					event,
+					fps: config.fps,
+					from: getCurrentFrame(),
+					localFiles,
+					preferCompositionStart: true,
+				});
+			} finally {
+				setIsAddingAsset(false);
+			}
+		},
+		[
+			addFitPadding,
+			canDropAssets,
+			cannotAddSequence,
+			chooseSvgImportMode,
+			compositionFile,
+			config,
+			contentDimensions,
+			currentCompositionId,
+			editorSnapping,
+			previewSize,
+			size,
+			setSelectedModal,
+		],
+	);
+
+	const onPaste = useCallback(
+		async (event: ClipboardEvent) => {
+			const {activeElement} = document;
+			if (
+				!canDropAssets ||
+				compositionFile === null ||
+				currentCompositionId === null ||
+				config === null ||
+				event.clipboardData === null ||
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement ||
+				(activeElement instanceof HTMLElement &&
+					activeElement.isContentEditable)
+			) {
+				return;
+			}
+
+			const dropPosition =
+				contentDimensions === null || contentDimensions === 'none'
+					? null
+					: {
+							centerX: contentDimensions.width / 2,
+							centerY: contentDimensions.height / 2,
+						};
+			const figmaHtml = getClipboardFigmaHtml(event.clipboardData);
+			if (figmaHtml !== null) {
+				event.preventDefault();
+				setIsAddingAsset(true);
+				try {
+					await importFigmaClipboard({
+						compositionFile,
+						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
+						dropPosition,
+						html: figmaHtml,
+					});
+				} finally {
+					setIsAddingAsset(false);
+				}
+
+				return;
+			}
+
+			const svgMarkup = getClipboardSvgMarkup(event.clipboardData);
+			if (svgMarkup !== null) {
+				event.preventDefault();
+				setIsAddingAsset(true);
+				try {
+					await insertSvgMarkup({
+						compositionFile,
+						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
+						dropPosition,
+						markup: svgMarkup,
+					});
+				} finally {
+					setIsAddingAsset(false);
+				}
+
+				return;
+			}
+
+			const files = getClipboardImageFiles({
+				clipboardData: event.clipboardData,
+				existingFileNames: getStaticFiles().map((file) => file.name),
+			});
+			if (files.length === 0) {
+				return;
+			}
+
+			event.preventDefault();
+			const svgImportMode = hasSvgFile(files)
+				? await chooseSvgImportMode()
+				: 'image';
+			if (svgImportMode === null) {
+				return;
+			}
+
+			setIsAddingAsset(true);
+			try {
+				await importAssets({
+					files,
+					fps: config.fps,
+					compositionFile,
+					compositionId: currentCompositionId,
+					destinationDimensions:
+						contentDimensions === 'none' ? null : contentDimensions,
+					dropPosition,
+					from: null,
+					preferCompositionStart: null,
+					svgImportMode,
+				});
 			} finally {
 				setIsAddingAsset(false);
 			}
 		},
 		[
 			canDropAssets,
+			chooseSvgImportMode,
 			compositionFile,
+			config,
 			contentDimensions,
 			currentCompositionId,
-			previewSize,
-			size,
 		],
 	);
 
 	useEffect(() => {
-		if (!canDropAssets) {
-			return;
-		}
-
 		document.addEventListener('dragover', onDragOver, {capture: true});
+		document.addEventListener('dragleave', onDragLeave, {capture: true});
+		document.addEventListener('dragend', onDragEnd, {capture: true});
 		document.addEventListener('drop', onDrop, {capture: true});
 
 		return () => {
 			document.removeEventListener('dragover', onDragOver, {capture: true});
+			document.removeEventListener('dragleave', onDragLeave, {capture: true});
+			document.removeEventListener('dragend', onDragEnd, {capture: true});
 			document.removeEventListener('drop', onDrop, {capture: true});
 		};
-	}, [canDropAssets, onDragOver, onDrop]);
+	}, [onDragEnd, onDragLeave, onDragOver, onDrop]);
+
+	useEffect(() => {
+		if (
+			!canDropAssets ||
+			!keybindings.isHighestContext ||
+			areKeyboardShortcutsDisabled()
+		) {
+			return;
+		}
+
+		document.addEventListener('paste', onPaste);
+		return () => document.removeEventListener('paste', onPaste);
+	}, [canDropAssets, keybindings.isHighestContext, onPaste]);
+
+	const compositionDropPreviewStyle =
+		useMemo((): React.CSSProperties | null => {
+			if (
+				compositionDropPreview === null ||
+				contentDimensions === null ||
+				contentDimensions === 'none'
+			) {
+				return null;
+			}
+
+			const box = getCompositionDropPreviewBox({
+				canvasSize: size,
+				destinationDimensions: contentDimensions,
+				preview: compositionDropPreview,
+				previewSize,
+			});
+
+			return {
+				...box,
+				position: 'absolute',
+				boxSizing: 'border-box',
+				border: BORDER_TIMELINE_DROP_BLUE,
+				backgroundColor: TIMELINE_DROP_BLUE_ALPHA_16,
+				pointerEvents: 'none',
+				zIndex: 1,
+			};
+		}, [compositionDropPreview, contentDimensions, previewSize, size]);
 
 	return (
 		<>
@@ -1189,6 +1486,13 @@ export const Canvas: React.FC<{
 						onRetryAssetMetadata={fetchMetadata}
 					/>
 				) : null}
+				{compositionDropPreviewStyle === null ? null : (
+					<div
+						className="css-reset"
+						data-testid="composition-drop-preview"
+						style={compositionDropPreviewStyle}
+					/>
+				)}
 				{isFit ? null : (
 					<div style={resetZoom} className="css-reset">
 						<ResetZoomButton onClick={onReset} />
@@ -1204,10 +1508,38 @@ export const Canvas: React.FC<{
 			</div>
 			{areRulersVisible && (
 				<EditorRulers
+					canCreateGuides={canvasContent.type === 'composition'}
 					contentDimensions={contentDimensions}
 					canvasSize={size}
 					assetMetadata={assetResolution}
 					containerRef={canvasRef}
+				/>
+			)}
+			{activeElementInstallRequest === null ||
+			elementInstallReview === null ? null : (
+				<ElementInstallConfirmation
+					currentCompositionMetadata={
+						config === null ||
+						currentCompositionId !== activeElementInstallRequest.compositionId
+							? null
+							: {
+									durationInFrames: config.durationInFrames,
+									fps: config.fps,
+									height: config.height,
+									width: config.width,
+								}
+					}
+					currentPlan={elementInstallReview.currentPlan}
+					dependenciesToReview={elementInstallReview.dependenciesToReview}
+					missingPackages={elementInstallReview.missingPackages}
+					newPlan={elementInstallReview.newPlan}
+					onClose={closeElementInstallDialog}
+					request={activeElementInstallRequest}
+					sourceIsUnverified={elementInstallReview.sourceIsUnverified}
+					sourceLabel={elementInstallReview.sourceLabel}
+					usesBrowserDependencyResolution={
+						getBrowserStudioOperations() !== null
+					}
 				/>
 			)}
 		</>

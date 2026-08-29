@@ -178,5 +178,8 @@ export const videoCodecOption = {
 		return {value: DEFAULT_CODEC, source: 'default'};
 	},
 	setConfig: setCodec,
+	reset: () => {
+		codec = undefined;
+	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<Codec>;

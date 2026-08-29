@@ -7,13 +7,13 @@ export const optionRow: React.CSSProperties = {
 	minHeight: 40,
 	paddingLeft: 16,
 	paddingRight: 16,
-	paddingTop: 8,
-	paddingBottom: 8,
+	paddingTop: 4,
+	paddingBottom: 4,
 };
 
 export const label: React.CSSProperties = {
-	width: 290,
-	fontSize: 15,
+	minWidth: 0,
+	fontSize: 14,
 	lineHeight: '40px',
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
@@ -25,13 +25,15 @@ export const label: React.CSSProperties = {
 export const rightRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
+	alignItems: 'center',
 	justifyContent: 'flex-end',
 	alignSelf: 'center',
 	flex: 1,
+	minWidth: 0,
 };
 
 export const input: React.CSSProperties = {
-	minWidth: 250,
+	minWidth: 0,
 };
 
 export const fieldSetText: React.CSSProperties = {

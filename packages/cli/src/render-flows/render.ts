@@ -2,6 +2,11 @@ import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
+import type {
 	AudioCodec,
 	Browser,
 	BrowserExecutable,
@@ -88,6 +93,7 @@ export const renderVideoFlow = async ({
 	quiet,
 	concurrency,
 	frameRange,
+	selectedFrames,
 	everyNthFrame,
 	outputLocationFromUI,
 	jpegQuality,
@@ -131,6 +137,10 @@ export const renderVideoFlow = async ({
 	keyboardShortcutsEnabled,
 	shouldCache,
 	sampleRate,
+	bundlerOverride,
+	rspackOverride,
+	webpackOverride,
+	licenseKey,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -158,6 +168,7 @@ export const renderVideoFlow = async ({
 	quiet: boolean;
 	concurrency: number | string | null;
 	frameRange: FrameRange | null;
+	selectedFrames: number[] | null;
 	everyNthFrame: number;
 	jpegQuality: number | undefined;
 	onProgress: JobProgressCallback;
@@ -199,6 +210,10 @@ export const renderVideoFlow = async ({
 	keyboardShortcutsEnabled: boolean;
 	shouldCache: boolean;
 	sampleRate: number;
+	bundlerOverride: BundlerOverrideFn | null;
+	rspackOverride: RspackOverrideFn | null;
+	webpackOverride: WebpackOverrideFn | null;
+	licenseKey: string | null;
 }) => {
 	RenderInternals.validateConcurrency({
 		value: concurrency,
@@ -240,13 +255,23 @@ export const renderVideoFlow = async ({
 		logLevel,
 		quiet: quietFlagProvided(),
 	});
-	await RenderInternals.internalEnsureBrowser({
-		browserExecutable,
-		indent,
-		logLevel,
-		onBrowserDownload,
-		chromeMode,
-	});
+	try {
+		await RenderInternals.internalEnsureBrowser({
+			browserExecutable,
+			indent,
+			logLevel,
+			onBrowserDownload,
+			chromeMode,
+		});
+	} catch (err) {
+		updateBrowserProgress({
+			progress: browserState.progress,
+			doneIn: null,
+			alreadyAvailable: false,
+			error: true,
+		});
+		throw err;
+	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
@@ -285,7 +310,9 @@ export const renderVideoFlow = async ({
 		};
 
 		onProgress({
-			message: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
+			message: progress.error
+				? `Failed to download ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'}`
+				: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
 			value: 0,
 			...aggregateRenderProgress,
 		});
@@ -350,6 +377,9 @@ export const renderVideoFlow = async ({
 			keyboardShortcutsEnabled,
 			rspack,
 			shouldCache,
+			bundlerOverride,
+			rspackOverride,
+			webpackOverride,
 		},
 	);
 
@@ -521,14 +551,15 @@ export const renderVideoFlow = async ({
 		? existsSync(absoluteSeparateAudioTo)
 		: false;
 
-	const realFrameRange = RenderInternals.getRealFrameRange(
-		config.durationInFrames,
-		frameRange,
-	);
-	const totalFrames: number[] = RenderInternals.getFramesToRender(
-		realFrameRange,
-		everyNthFrame,
-	);
+	const totalFrames: number[] = selectedFrames
+		? RenderInternals.validateSelectedFrames({
+				frames: selectedFrames,
+				durationInFrames: config.durationInFrames,
+			})
+		: RenderInternals.getFramesToRender(
+				RenderInternals.getRealFrameRanges(config.durationInFrames, frameRange),
+				everyNthFrame,
+			);
 
 	renderingProgress = {
 		frames: 0,
@@ -610,6 +641,8 @@ export const renderVideoFlow = async ({
 			everyNthFrame,
 			envVariables,
 			frameRange,
+			frames: selectedFrames,
+			outputFramesInSequence: false,
 			concurrency: resolvedConcurrency,
 			puppeteerInstance,
 			jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
@@ -764,7 +797,7 @@ export const renderVideoFlow = async ({
 		chromeMode,
 		mediaCacheSizeInBytes,
 		onLog,
-		licenseKey: null,
+		licenseKey,
 		isProduction: null,
 		sampleRate: resolvedSampleRate,
 	});

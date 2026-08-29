@@ -1,8 +1,4 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
-import {ensureNamedImport} from '../helpers/imports';
-import {parseAst, serializeAst} from './parse-ast';
-import type {Change} from './recast-mods';
-import {applyCodemod} from './recast-mods';
+export {parseAndApplyCodemod} from '@remotion/studio-codemods';
 
 const getPrettier = async () => {
 	try {
@@ -37,62 +33,4 @@ export const formatOutput = async (tsContent: string) => {
 	});
 
 	return newContents;
-};
-
-export const parseAndApplyCodemod = ({
-	input,
-	codeMod,
-}: {
-	input: string;
-	codeMod: RecastCodemod;
-}): {newContents: string; changesMade: Change[]} => {
-	const ast = parseAst(input);
-
-	const {newAst, changesMade} = applyCodemod({
-		file: ast,
-		codeMod,
-	});
-
-	if (changesMade.length === 0) {
-		throw new Error(
-			'Unable to calculate the changes needed for this file. Edit the file manually.',
-		);
-	}
-
-	if (codeMod.type === 'duplicate-composition' && codeMod.tag) {
-		ensureNamedImport({
-			ast: newAst,
-			importedName: codeMod.tag,
-			sourcePath: 'remotion',
-			localName: codeMod.tag,
-		});
-	}
-
-	if (codeMod.type === 'new-composition') {
-		ensureNamedImport({
-			ast: newAst,
-			importedName: 'Composition',
-			sourcePath: 'remotion',
-			localName: 'Composition',
-		});
-		ensureNamedImport({
-			ast: newAst,
-			importedName: codeMod.componentName,
-			sourcePath: codeMod.componentImportPath,
-			localName: codeMod.componentName,
-		});
-	}
-
-	if (codeMod.type === 'new-folder') {
-		ensureNamedImport({
-			ast: newAst,
-			importedName: 'Folder',
-			sourcePath: 'remotion',
-			localName: 'Folder',
-		});
-	}
-
-	const output = serializeAst(newAst);
-
-	return {changesMade, newContents: output};
 };

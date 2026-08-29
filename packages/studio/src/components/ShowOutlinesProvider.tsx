@@ -4,12 +4,20 @@ import {
 	loadEditorShowOutlinesOption,
 	persistEditorShowOutlinesOption,
 } from '../state/editor-outlines';
+import {
+	createTimelineSequenceHoverStore,
+	TimelineSequenceHoverContext,
+} from '../state/timeline-sequence-hover';
 
 export const ShowOutlinesProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [editorShowOutlines, setEditorShowOutlinesState] = useState(() =>
 		loadEditorShowOutlinesOption(),
+	);
+	const timelineSequenceHoverStore = useMemo(
+		() => createTimelineSequenceHoverStore(),
+		[],
 	);
 
 	const setEditorShowOutlines = useCallback(
@@ -29,10 +37,11 @@ export const ShowOutlinesProvider: React.FC<{
 			setEditorShowOutlines,
 		};
 	}, [editorShowOutlines, setEditorShowOutlines]);
-
 	return (
 		<EditorShowOutlinesContext.Provider value={editorShowOutlinesCtx}>
-			{children}
+			<TimelineSequenceHoverContext.Provider value={timelineSequenceHoverStore}>
+				{children}
+			</TimelineSequenceHoverContext.Provider>
 		</EditorShowOutlinesContext.Provider>
 	);
 };

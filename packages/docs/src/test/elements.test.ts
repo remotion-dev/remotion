@@ -1,22 +1,49 @@
 import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import elementSidebars from '../../elements-sidebars';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
+	getRemotionElementSourceMap,
 } from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
+import {createElementPayloadFromDefinition} from '../components/Elements/element-drag-data';
+import {
+	getElementDocumentationUrl,
+	getElementLibrarySections,
+} from '../components/Elements/element-library-data';
+import {
+	elementCategories,
+	elementRegistry,
+} from '../components/Elements/element-registry';
 import {
 	getElementCompositionId,
 	getElementDimensionsLabel,
-	getElementPreviewUrls,
 } from '../components/Elements/element-utils';
-import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
+import {ElementLibrary} from '../components/Elements/ElementLibrary';
+import {ElementPreview} from '../components/Elements/ElementPreview';
+import {
+	ElementPreviewComposition,
+	getElementPreviewDimensions,
+} from '../components/Elements/ElementPreviewComposition';
+import {Seo} from '../components/Seo';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
+const staticElementsRoot = path.join(
+	__dirname,
+	'..',
+	'..',
+	'static',
+	'elements',
+);
 const elementDefinitionList = Object.values(elementDefinitions);
+const exactVersionPattern =
+	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 type Element = {
 	name: string;
@@ -86,7 +113,7 @@ describe('Elements must follow the colocated single-file format', () => {
 		};
 		const tree = {type: 'root', children: [elementPage]};
 
-		remarkElementSource()(tree, {path: element.mdxPath});
+		remarkElementSource({elementRegistry})(tree, {path: element.mdxPath});
 
 		expect(tree.children).toHaveLength(1);
 		expect(elementPage.children).toHaveLength(1);
@@ -100,20 +127,18 @@ describe('Elements must follow the colocated single-file format', () => {
 		expect(
 			elementPage.attributes.some((attr) => attr.name === 'sourceCode'),
 		).toBe(true);
-		const dependencies = elementPage.attributes.find(
-			(attribute) => attribute.name === 'dependencies',
-		);
-		expect(dependencies?.value.value).toBe(
-			JSON.stringify(
-				getRemotionElementDependencies(readFileSync(element.tsxPath, 'utf8')),
+		expect(
+			elementPage.attributes.some(
+				(attribute) => attribute.name === 'dependencies',
 			),
-		);
+		).toBe(false);
 	});
 
 	test('extracts dependencies using the TypeScript parser', () => {
 		expect(
 			getRemotionElementDependencies(`
 				import type {FC} from 'react';
+				import {createRoot} from 'react-dom/client';
 				import {loadFont} from '@remotion/google-fonts/Inter';
 				import {AbsoluteFill} from 'remotion';
 				// import value from 'comment-dependency';
@@ -124,12 +149,7 @@ describe('Elements must follow the colocated single-file format', () => {
 
 				export const Element: FC = () => <AbsoluteFill />;
 			`),
-		).toEqual([
-			'react',
-			'@remotion/google-fonts',
-			'actual-reexport',
-			'actual-dynamic',
-		]);
+		).toEqual(['@remotion/google-fonts', 'actual-reexport', 'actual-dynamic']);
 	});
 
 	for (const element of allElements) {
@@ -137,14 +157,13 @@ describe('Elements must follow the colocated single-file format', () => {
 			const tsx = readFileSync(element.tsxPath, 'utf8');
 			const mdx = readFileSync(element.mdxPath, 'utf8');
 
-			test('source file is an Element, not a composition or wrapper Sequence', () => {
+			test('source file is an Element, not a composition', () => {
 				expect(tsx).not.toContain('export const durationInFrames');
 				expect(tsx).not.toContain('export const fps');
 				expect(tsx).not.toContain('export const width');
 				expect(tsx).not.toContain('export const height');
 				expect(tsx).not.toContain('export const RemotionRoot');
-				expect(tsx).not.toContain('<Composition');
-				expect(tsx).not.toContain('<Sequence');
+				expect(tsx).not.toMatch(/<Composition(?:\s|\/?>)/);
 			});
 
 			test('MDX uses the ElementPage template', () => {
@@ -203,7 +222,430 @@ describe('Elements must follow the colocated single-file format', () => {
 	}
 });
 
+describe('Element library', () => {
+	test('injects the exact source files needed by each listing', () => {
+		const completeSourceCodeBySlug = getRemotionElementSourceMap({
+			elementsRoot,
+		});
+		expect(Object.keys(completeSourceCodeBySlug).sort()).toEqual(
+			productionElements.map((element) => element.name).sort(),
+		);
+		for (const element of productionElements) {
+			expect(completeSourceCodeBySlug[element.name]).toBe(
+				readFileSync(element.tsxPath, 'utf8').trimEnd(),
+			);
+		}
+
+		const makeLibraryNode = (category: string | null) => ({
+			type: 'mdxJsxFlowElement',
+			name: 'ElementLibrary',
+			attributes: [
+				{
+					type: 'mdxJsxAttribute',
+					name: 'category',
+					value:
+						category === null
+							? {
+									type: 'mdxJsxAttributeValueExpression',
+									value: 'null',
+								}
+							: category,
+				},
+			],
+			children: [],
+		});
+		const getInjectedSourceCodeBySlug = (node: {
+			attributes: readonly {readonly name?: string; readonly value?: unknown}[];
+		}) => {
+			const attribute = node.attributes.find(
+				(candidate) => candidate.name === 'sourceCodeBySlug',
+			);
+			if (
+				typeof attribute?.value !== 'object' ||
+				attribute.value === null ||
+				!('value' in attribute.value) ||
+				typeof attribute.value.value !== 'string'
+			) {
+				throw new Error('ElementLibrary source map was not injected');
+			}
+
+			return JSON.parse(attribute.value.value) as Record<string, string>;
+		};
+
+		const overview = makeLibraryNode(null);
+		remarkElementSource({elementRegistry})(
+			{type: 'root', children: [overview]},
+			{path: path.join(elementsRoot, 'index.mdx')},
+		);
+		expect(getInjectedSourceCodeBySlug(overview)).toEqual(
+			completeSourceCodeBySlug,
+		);
+
+		const storytelling = makeLibraryNode('storytelling');
+		remarkElementSource({elementRegistry})(
+			{type: 'root', children: [storytelling]},
+			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
+		);
+		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
+			'storytelling/on-screen-messages':
+				completeSourceCodeBySlug['storytelling/on-screen-messages'],
+			'storytelling/polaroid-pictures':
+				completeSourceCodeBySlug['storytelling/polaroid-pictures'],
+			'text/news-article-highlight':
+				completeSourceCodeBySlug['text/news-article-highlight'],
+		});
+
+		const missingSource = makeLibraryNode(null);
+		expect(() =>
+			remarkElementSource({
+				elementRegistry: {
+					...elementRegistry,
+					'missing/source': {
+						category: 'text',
+						displayName: 'Missing Source',
+					},
+				},
+			})(
+				{type: 'root', children: [missingSource]},
+				{path: path.join(elementsRoot, 'index.mdx')},
+			),
+		).toThrow('Missing source pages: missing/source.');
+	});
+
+	test('renders draggable cards and filters the real category entry points', () => {
+		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		const overviewMarkup = renderToStaticMarkup(
+			React.createElement(ElementLibrary, {
+				category: null,
+				sourceCodeBySlug,
+			}),
+		);
+		const sections = getElementLibrarySections(null);
+
+		for (const definition of elementDefinitionList) {
+			expect(
+				overviewMarkup.split(`>${definition.displayName}</span>`),
+			).toHaveLength(2);
+			expect(overviewMarkup).not.toContain(`>${definition.displayName}</h2>`);
+			expect(overviewMarkup).not.toContain(`>${definition.displayName}</h3>`);
+			expect(overviewMarkup).toContain(definition.description);
+			expect(overviewMarkup).toContain(definition.preview.posterUrl);
+			expect(overviewMarkup).toContain(getElementDocumentationUrl(definition));
+		}
+
+		expect(overviewMarkup).not.toContain('.mp4');
+		expect(overviewMarkup).toContain('>YouTube</h2>');
+		expect(overviewMarkup.match(/draggable="true"/g)).toHaveLength(
+			elementDefinitionList.length,
+		);
+		expect(overviewMarkup).toContain(
+			'title="Click to view details, or drag this Element into Remotion Studio"',
+		);
+
+		for (const section of sections) {
+			const categoryMarkup = renderToStaticMarkup(
+				React.createElement(ElementLibrary, {
+					category: section.category,
+					sourceCodeBySlug,
+				}),
+			);
+			const categoryIndex = readFileSync(
+				path.join(elementsRoot, section.category, 'index.mdx'),
+				'utf8',
+			);
+
+			expect(categoryIndex).toContain(
+				`<ElementLibrary category="${section.category}" />`,
+			);
+
+			if (section.category === 'backgrounds') {
+				const backgroundNames = [
+					'Notebook Paper',
+					'Paper Texture',
+					'Rotating Starburst',
+					'Liquid Contours',
+				];
+				for (let index = 1; index < backgroundNames.length; index++) {
+					expect(
+						categoryMarkup.indexOf(backgroundNames[index - 1]),
+					).toBeLessThan(categoryMarkup.indexOf(backgroundNames[index]));
+				}
+			}
+
+			for (const definition of elementDefinitionList) {
+				if (definition.category === section.category) {
+					expect(categoryMarkup).toContain(definition.displayName);
+					expect(categoryMarkup).toContain(
+						getElementDocumentationUrl(definition),
+					);
+				} else {
+					expect(categoryMarkup).not.toContain(definition.displayName);
+				}
+			}
+		}
+	});
+
+	test('creates canonical fixed-size and adaptive drag payloads', () => {
+		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		for (const slug of [
+			'overlays/name-lower-third',
+			'backgrounds/paper-texture',
+		] as const) {
+			const definition = elementDefinitions[slug];
+			const sourceCode = sourceCodeBySlug[slug];
+			const payload = createElementPayloadFromDefinition({
+				definition,
+				sourceCode,
+			});
+
+			expect(payload).toMatchObject({
+				type: 'remotion-element',
+				version: 1,
+				durationInFrames: definition.durationInFrames,
+				element: {
+					dependencies: definition.dependencies,
+					displayName: definition.displayName,
+					durationInFrames: definition.durationInFrames,
+					installationMode: definition.installationMode,
+					slug,
+					sourceCode,
+				},
+			});
+			const expectedDimensions =
+				definition.elementWidth !== null && definition.elementHeight !== null
+					? {
+							width: definition.elementWidth,
+							height: definition.elementHeight,
+						}
+					: null;
+			expect(payload.element.dimensions).toEqual(expectedDimensions);
+		}
+	});
+});
+
+describe('Element social previews', () => {
+	test('uses the matching poster in each Element page frontmatter', () => {
+		for (const definition of elementDefinitionList) {
+			const mdx = readFileSync(
+				path.join(elementsRoot, definition.slug, 'index.mdx'),
+				'utf8',
+			);
+			expect(mdx).toContain(`image: ${definition.preview.posterUrl}`);
+		}
+	});
+
+	test('renders Open Graph video metadata for previews', () => {
+		for (const definition of elementDefinitionList) {
+			const url = definition.preview.videoUrl;
+			const markup = renderToStaticMarkup(
+				React.createElement(
+					React.Fragment,
+					null,
+					...Seo.renderVideo({
+						height: 420,
+						url,
+						width: 1140,
+					}),
+				),
+			);
+
+			expect(markup).toContain(`<meta property="og:video" content="${url}"/>`);
+			expect(markup).toContain(
+				`<meta property="og:video:secure_url" content="${url}"/>`,
+			);
+			expect(markup).toContain(
+				'<meta property="og:video:type" content="video/mp4"/>',
+			);
+			expect(markup).toContain(
+				'<meta property="og:video:width" content="1140"/>',
+			);
+			expect(markup).toContain(
+				'<meta property="og:video:height" content="420"/>',
+			);
+		}
+	});
+});
+
+describe('Elements sidebar', () => {
+	test('lists every registered Element exactly once in deterministic order', () => {
+		const sidebar = elementSidebars.elementsSidebar;
+		if (!Array.isArray(sidebar)) {
+			throw new Error('Elements sidebar must be an array');
+		}
+
+		expect(sidebar).toHaveLength(1);
+		const elementsCategory = sidebar[0];
+		if (
+			typeof elementsCategory !== 'object' ||
+			elementsCategory === null ||
+			elementsCategory.type !== 'category'
+		) {
+			throw new Error('Elements sidebar must have an Elements root category');
+		}
+
+		expect(elementsCategory).toMatchObject({
+			type: 'category',
+			label: 'Elements',
+			className: 'elements-sidebar-root',
+			link: {type: 'doc', id: 'index'},
+			collapsible: true,
+			collapsed: false,
+		});
+		if (!Array.isArray(elementsCategory.items)) {
+			throw new Error('Elements root category must contain sidebar items');
+		}
+
+		expect(elementsCategory.items.slice(0, 3)).toEqual([
+			'libraries',
+			'contributing',
+			{
+				type: 'html',
+				value:
+					'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+				defaultStyle: true,
+			},
+		]);
+
+		const categories = elementsCategory.items.slice(3);
+		const expectedCategories = [
+			{
+				category: 'audio',
+				label: 'Audio',
+				items: [
+					'audio/oscilloscope/index',
+					'audio/waveform-progress/index',
+					'audio/mirrored-spectrum/index',
+				],
+			},
+			{
+				category: 'backgrounds',
+				label: 'Backgrounds',
+				items: [
+					'backgrounds/liquid-contours/index',
+					'backgrounds/notebook-paper/index',
+					'backgrounds/paper-texture/index',
+					'backgrounds/rotating-starburst/index',
+				],
+			},
+			{
+				category: 'captions',
+				label: 'Captions',
+				items: [
+					'captions/moving-pill-captions/index',
+					'captions/popping-word-captions/index',
+					'captions/word-highlight-captions/index',
+				],
+			},
+			{
+				category: 'data',
+				label: 'Charts & Data',
+				items: [
+					'data/horizontal-bar-chart/index',
+					'data/line-chart/index',
+					'data/number-counter/index',
+					'data/pie-chart/index',
+					'data/vertical-bar-chart/index',
+				],
+			},
+			{
+				category: 'commerce',
+				label: 'Commerce',
+				items: [
+					'commerce/product-collection/index',
+					'commerce/product-discount-callout/index',
+					'commerce/product-offer/index',
+				],
+			},
+			{
+				category: 'maps',
+				label: 'Maps',
+				items: ['maps/map-flyover/index', 'maps/watercolor-map/index'],
+			},
+			{
+				category: 'overlays',
+				label: 'Overlays',
+				items: [
+					'overlays/location-lower-third/index',
+					'overlays/name-lower-third/index',
+					'overlays/social-safe-zones/index',
+				],
+			},
+			{
+				category: 'storytelling',
+				label: 'Storytelling',
+				items: [
+					'text/news-article-highlight/index',
+					'storytelling/on-screen-messages/index',
+					'storytelling/polaroid-pictures/index',
+				],
+			},
+			{
+				category: 'text',
+				label: 'Text Effects',
+				items: [
+					'text/circle-marker/index',
+					'text/crossed-off/index',
+					'text/spinning-text-wheel/index',
+					'text/strike-through/index',
+					'text/text-marker/index',
+				],
+			},
+			{
+				category: 'youtube',
+				label: 'YouTube',
+				items: [
+					'youtube/youtube-comment-highlight/index',
+					'youtube/youtube-end-card/index',
+					'youtube/youtube-subscribe-nudge/index',
+				],
+			},
+		] as const;
+
+		expect(categories).toEqual(
+			expectedCategories.map(({category, label, items}) => ({
+				type: 'category',
+				label,
+				link: {type: 'doc', id: `${category}/index`},
+				collapsible: true,
+				collapsed: true,
+				items,
+			})),
+		);
+		expect(elementCategories).toEqual(
+			expectedCategories.map(({category, label}) => ({category, label})),
+		);
+
+		const listedElementPages = expectedCategories.flatMap(({items}) => items);
+		const registeredElementPages = Object.keys(elementRegistry).map(
+			(slug) => `${slug}/index`,
+		);
+		expect([...listedElementPages].sort()).toEqual(
+			registeredElementPages.sort(),
+		);
+		expect(new Set(listedElementPages).size).toBe(listedElementPages.length);
+	});
+});
+
 describe('Element preview definitions', () => {
+	test('does not publish local preview URLs', () => {
+		const localPreviewUrls = elementDefinitionList
+			.flatMap((definition) => [
+				{
+					slug: definition.slug,
+					type: 'poster',
+					url: definition.preview.posterUrl,
+				},
+				{
+					slug: definition.slug,
+					type: 'video',
+					url: definition.preview.videoUrl,
+				},
+			])
+			.filter(({url}) => url.startsWith('/'));
+
+		expect(localPreviewUrls).toEqual([]);
+	});
+
 	test('contains every production Element exactly once', () => {
 		const elementSlugs = productionElements
 			.map((element) => element.name)
@@ -219,6 +661,94 @@ describe('Element preview definitions', () => {
 
 		for (const [slug, definition] of Object.entries(elementDefinitions)) {
 			expect(definition.slug).toBe(slug);
+		}
+	});
+
+	test('publishes caption treatments as separate Elements', () => {
+		const captionSlugs = elementDefinitionList
+			.map((definition) => definition.slug)
+			.filter((slug) => slug.startsWith('captions/'))
+			.sort();
+
+		expect(captionSlugs).toEqual([
+			'captions/moving-pill-captions',
+			'captions/popping-word-captions',
+			'captions/word-highlight-captions',
+		]);
+
+		for (const slug of captionSlugs) {
+			const element = productionElements.find((entry) => entry.name === slug);
+			if (!element) {
+				throw new Error(`Missing caption Element for ${slug}`);
+			}
+
+			const source = readFileSync(element.tsxPath, 'utf8');
+			expect(source).not.toContain('readonly mode');
+			expect(source).not.toContain('TimedCaptionsMode');
+			expect(source).not.toContain("translate: '109.5px -36px'");
+		}
+	});
+
+	test('only Elements with one interactive timeline item own their Sequence', () => {
+		const componentOwnedSequenceSlugs = new Set([
+			'audio/oscilloscope',
+			'audio/waveform-progress',
+			'audio/mirrored-spectrum',
+			'captions/moving-pill-captions',
+			'captions/popping-word-captions',
+			'captions/word-highlight-captions',
+			'maps/map-flyover',
+			'maps/watercolor-map',
+			'overlays/social-safe-zones',
+			'text/spinning-text-wheel',
+		]);
+
+		for (const definition of elementDefinitionList) {
+			expect(definition.installationMode).toBe(
+				componentOwnedSequenceSlugs.has(definition.slug)
+					? 'component-owned-sequence'
+					: 'wrapped',
+			);
+		}
+	});
+
+	test('declares every external source dependency centrally with a valid version', () => {
+		for (const element of productionElements) {
+			const definition = elementDefinitionList.find(
+				(entry) => entry.slug === element.name,
+			);
+			if (!definition) {
+				throw new Error(`Missing definition for ${element.name}`);
+			}
+
+			expect(
+				definition.dependencies.map((dependency) => dependency.name).sort(),
+			).toEqual(
+				getRemotionElementDependencies(
+					readFileSync(element.tsxPath, 'utf8'),
+				).sort(),
+			);
+
+			for (const dependency of definition.dependencies) {
+				if (dependency.name.startsWith('@remotion/')) {
+					if (dependency.version !== null) {
+						throw new Error(
+							`${definition.slug} must use version: null for ${dependency.name}`,
+						);
+					}
+
+					continue;
+				}
+
+				if (
+					dependency.version === null ||
+					!exactVersionPattern.test(dependency.version)
+				) {
+					throw new Error(
+						`${definition.slug} must declare an exact version for ${dependency.name}`,
+					);
+				}
+			}
 		}
 	});
 
@@ -255,11 +785,11 @@ describe('Element preview definitions', () => {
 			width: 1920,
 		});
 
-		const fixedDefinition = elementDefinitions['overlays/lower-third'];
-		expect(getElementDimensionsLabel(fixedDefinition)).toBe('680 × 138px');
+		const fixedDefinition = elementDefinitions['overlays/name-lower-third'];
+		expect(getElementDimensionsLabel(fixedDefinition)).toBe('534 × 132px');
 		expect(getElementPreviewDimensions(fixedDefinition)).toEqual({
-			height: 738,
-			width: 1280,
+			height: 732,
+			width: 1134,
 		});
 	});
 
@@ -283,18 +813,111 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('derives stable composition IDs and preview URLs', () => {
+	test('Social Safe Zones keeps its calibrated 9:16 dimensions in Studio and the docs preview', () => {
+		const slug = 'overlays/social-safe-zones';
+		const definition = elementDefinitions[slug];
+		const element = productionElements.find((entry) => entry.name === slug);
+		if (!element) {
+			throw new Error(`Could not find Element source for ${slug}`);
+		}
+
+		const source = readFileSync(element.tsxPath, 'utf8');
+		const payload = createElementPayloadFromDefinition({
+			definition,
+			sourceCode: source,
+		});
+		const preview = renderToStaticMarkup(
+			React.createElement(ElementPreview, {
+				component: () =>
+					React.createElement(ElementPreviewComposition, {definition}),
+				durationInFrames: definition.durationInFrames,
+				elementHeight: definition.elementHeight,
+				elementWidth: definition.elementWidth,
+				fps: definition.fps,
+				previewLayout: definition.preview.previewLayout,
+				safeArea: definition.safeArea,
+			}),
+		);
+
+		expect(definition.elementWidth).toBe(1080);
+		expect(definition.elementHeight).toBe(1920);
+		expect(payload.element.dimensions).toEqual({width: 1080, height: 1920});
+		expect(definition.preview.previewLayout).toBe('vertical');
+		expect(preview).toContain('aspect-ratio:1920 / 1080');
+		expect(preview).toContain('width:31.640625%');
+		expect(preview).toContain('height:1080px;position:relative;width:607.5px');
+		expect(preview).toContain(
+			'transform:scale(0.5625);transform-origin:top left',
+		);
+		expect(source).not.toContain('useVideoConfig');
+		expect(source).toContain('width: 1080');
+		expect(source).toContain('height: 1920');
+	});
+
+	test('uses stable composition IDs and flat review or published preview paths', () => {
 		const compositionIds = elementDefinitionList.map((definition) =>
 			getElementCompositionId(definition.slug),
 		);
 		expect(new Set(compositionIds).size).toBe(compositionIds.length);
 
 		for (const definition of elementDefinitionList) {
-			expect(getElementPreviewUrls(definition.slug)).toEqual({
-				mp4: `https://remotion.media/elements/${definition.slug}/preview.mp4`,
-				png: `https://remotion.media/elements/${definition.slug}/preview.png`,
-			});
+			// Preserve preview URLs published before an Element slug changes.
+			const assetSlug =
+				definition.slug === 'youtube/youtube-end-card'
+					? 'overlays-social-endcard'
+					: definition.slug.replaceAll('/', '-');
+			const localPosterUrl = `/elements/${assetSlug}-preview.png`;
+			const localVideoUrl = `/elements/${assetSlug}-preview.mp4`;
+			const publicPosterUrl = `https://remotion.media${localPosterUrl}`;
+			const publicVideoUrl = `https://remotion.media${localVideoUrl}`;
+			const posterPath = path.join(
+				staticElementsRoot,
+				`${assetSlug}-preview.png`,
+			);
+			const videoPath = path.join(
+				staticElementsRoot,
+				`${assetSlug}-preview.mp4`,
+			);
+			const usesReviewUrls = definition.preview.posterUrl === localPosterUrl;
+
+			if (usesReviewUrls) {
+				expect(String(definition.preview.videoUrl)).toBe(localVideoUrl);
+
+				const isRegistered = definition.slug in elementRegistry;
+				expect(existsSync(posterPath)).toBe(isRegistered);
+				expect(existsSync(videoPath)).toBe(isRegistered);
+				if (isRegistered) {
+					const poster = readFileSync(posterPath);
+					const video = readFileSync(videoPath);
+					expect(Array.from(poster.subarray(0, 8))).toEqual([
+						0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+					]);
+					expect(video.subarray(4, 8).toString('ascii')).toBe('ftyp');
+					expect(
+						statSync(posterPath).size + statSync(videoPath).size,
+					).toBeLessThanOrEqual(10 * 1024 * 1024);
+				}
+			} else {
+				expect(String(definition.preview.posterUrl)).toBe(publicPosterUrl);
+				expect(String(definition.preview.videoUrl)).toBe(publicVideoUrl);
+				expect(existsSync(posterPath)).toBe(false);
+				expect(existsSync(videoPath)).toBe(false);
+			}
 		}
+	});
+
+	test('the Element template includes explicit defaults and local preview URLs', () => {
+		const template = readFileSync(path.join(templateRoot, 'index.mdx'), 'utf8');
+		expect(template).toContain("installationMode: 'wrapped'");
+		expect(template).toContain(
+			'image: /elements/category-element-title-preview.png',
+		);
+		expect(template).toContain(
+			"posterUrl: '/elements/category-element-title-preview.png'",
+		);
+		expect(template).toContain(
+			"videoUrl: '/elements/category-element-title-preview.mp4'",
+		);
 	});
 
 	test('registers Element compositions in a Folder', () => {

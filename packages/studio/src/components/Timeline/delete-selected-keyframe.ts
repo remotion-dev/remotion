@@ -1,13 +1,18 @@
-import type {OverrideIdToNodePaths, TSequence} from 'remotion';
+import type {
+	CanUpdateSequencePropStatus,
+	OverrideIdToNodePaths,
+	PropStatuses,
+	TSequence,
+} from 'remotion';
+import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
-	callDeleteEffectKeyframe,
 	callDeleteKeyframes,
-	callDeleteSequenceKeyframe,
 	type DeleteEffectKeyframeChange,
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -15,16 +20,40 @@ type SelectedKeyframeDeletion =
 	| ({type: 'sequence'} & DeleteSequenceKeyframeChange)
 	| ({type: 'effect'} & DeleteEffectKeyframeChange);
 
+const getValueWhenLastKeyframeDeleted = ({
+	propStatus,
+	playheadSourceFrame,
+}: {
+	propStatus: CanUpdateSequencePropStatus | null | undefined;
+	playheadSourceFrame: number;
+}): unknown | null => {
+	if (propStatus?.status !== 'keyframed') {
+		return null;
+	}
+
+	return (
+		Internals.interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: playheadSourceFrame,
+			status: propStatus,
+		}) ?? null
+	);
+};
+
 const getSelectedKeyframeDeletion = ({
 	nodePathInfo,
 	frame,
 	sequences,
 	overrideIdsToNodePaths,
+	propStatuses,
+	timelinePosition,
 }: {
 	nodePathInfo: SequenceNodePathInfo;
 	frame: number;
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	propStatuses: PropStatuses;
+	timelinePosition: number;
 }): SelectedKeyframeDeletion | null => {
 	const field = parseKeyframeFieldFromNodePath(nodePathInfo.auxiliaryKeys);
 	if (field === null) {
@@ -41,7 +70,6 @@ const getSelectedKeyframeDeletion = ({
 		return null;
 	}
 
-	const sourceFrame = frame - (track?.keyframeDisplayOffset ?? 0);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const fileName = nodePath.absolutePath;
 
@@ -51,16 +79,53 @@ const getSelectedKeyframeDeletion = ({
 			return null;
 		}
 
+		const effectStatus = Internals.getEffectPropStatusesCtx({
+			propStatuses,
+			nodePath,
+			effectIndex: field.effectIndex,
+		});
+		const effectPropStatus =
+			effectStatus?.type === 'can-update-effect'
+				? effectStatus.props[field.fieldKey]
+				: null;
+		const effectKeyframeDisplayOffset = getKeyframeDisplayOffset({
+			propStatus: effectPropStatus,
+			keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+		});
+		const effectSourceFrame = frame - effectKeyframeDisplayOffset;
+		const effectPlayheadSourceFrame =
+			timelinePosition - effectKeyframeDisplayOffset;
+		const effectValueWhenLastKeyframeDeleted = getValueWhenLastKeyframeDeleted({
+			propStatus: effectPropStatus,
+			playheadSourceFrame: effectPlayheadSourceFrame,
+		});
+
 		return {
 			type: 'effect',
 			fileName,
 			nodePath,
 			effectIndex: field.effectIndex,
 			fieldKey: field.fieldKey,
-			sourceFrame,
+			sourceFrame: effectSourceFrame,
 			schema: effect.schema,
+			valueWhenLastKeyframeDeleted: effectValueWhenLastKeyframeDeleted,
 		};
 	}
+
+	const sequencePropStatus = Internals.getPropStatusesCtx(
+		propStatuses,
+		nodePath,
+	)?.[field.fieldKey];
+	const keyframeDisplayOffset = getKeyframeDisplayOffset({
+		propStatus: sequencePropStatus,
+		keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+	});
+	const sourceFrame = frame - keyframeDisplayOffset;
+	const playheadSourceFrame = timelinePosition - keyframeDisplayOffset;
+	const sequenceValueWhenLastKeyframeDeleted = getValueWhenLastKeyframeDeleted({
+		propStatus: sequencePropStatus,
+		playheadSourceFrame,
+	});
 
 	return {
 		type: 'sequence',
@@ -69,47 +134,8 @@ const getSelectedKeyframeDeletion = ({
 		fieldKey: field.fieldKey,
 		sourceFrame,
 		schema: sequence.controls.schema,
+		valueWhenLastKeyframeDeleted: sequenceValueWhenLastKeyframeDeleted,
 	};
-};
-
-export const deleteSelectedKeyframe = ({
-	nodePathInfo,
-	frame,
-	sequences,
-	overrideIdsToNodePaths,
-	setPropStatuses,
-	clientId,
-}: {
-	nodePathInfo: SequenceNodePathInfo;
-	frame: number;
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	setPropStatuses: SetPropStatuses;
-	clientId: string;
-}): Promise<void> | null => {
-	const deletion = getSelectedKeyframeDeletion({
-		nodePathInfo,
-		frame,
-		sequences,
-		overrideIdsToNodePaths,
-	});
-	if (deletion === null) {
-		return null;
-	}
-
-	if (deletion.type === 'effect') {
-		return callDeleteEffectKeyframe({
-			...deletion,
-			setPropStatuses,
-			clientId,
-		});
-	}
-
-	return callDeleteSequenceKeyframe({
-		...deletion,
-		setPropStatuses,
-		clientId,
-	});
 };
 
 export const deleteSelectedKeyframes = ({
@@ -118,6 +144,8 @@ export const deleteSelectedKeyframes = ({
 	overrideIdsToNodePaths,
 	setPropStatuses,
 	clientId,
+	propStatuses,
+	timelinePosition,
 }: {
 	keyframes: {
 		nodePathInfo: SequenceNodePathInfo;
@@ -127,6 +155,8 @@ export const deleteSelectedKeyframes = ({
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
+	propStatuses: PropStatuses;
+	timelinePosition: number;
 }): Promise<void> | null => {
 	const deletions = keyframes
 		.map((keyframe) =>
@@ -135,6 +165,8 @@ export const deleteSelectedKeyframes = ({
 				frame: keyframe.frame,
 				sequences,
 				overrideIdsToNodePaths,
+				propStatuses,
+				timelinePosition,
 			}),
 		)
 		.filter(

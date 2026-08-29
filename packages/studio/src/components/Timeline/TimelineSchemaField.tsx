@@ -1,28 +1,34 @@
-import React from 'react';
+import React, {useCallback, useContext} from 'react';
 import type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusStatic,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {LIGHT_TEXT, WHITE_ALPHA_40} from '../../helpers/colors';
+import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_40,
+} from '../../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
-import {getComputedStatusLabel} from './get-timeline-keyframes';
+import {SetSelectedModalContext} from '../../state/modals';
+import {useSettings} from '../SettingsContext';
+import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {TimelineArrayField} from './TimelineArrayField';
 import {
 	isTimelinePrimitiveFieldInfo,
 	TimelinePrimitiveFieldValue,
 } from './TimelinePrimitiveFieldValue';
-
-const INTERACTIVITY_BEST_PRACTICES_DOCS =
-	'https://www.remotion.dev/docs/studio/interactivity-best-practices';
-
-const TIMELINE_COMPUTED_VALUE_FIX_LINK = `${INTERACTIVITY_BEST_PRACTICES_DOCS}#keep-editable-values-visible`;
-
-export const TIMELINE_COMPUTED_EFFECT_FIX_LINK = `${INTERACTIVITY_BEST_PRACTICES_DOCS}#keep-effects-editable`;
 
 const unsupportedStatusWrapper: React.CSSProperties = {
 	alignItems: 'center',
@@ -38,8 +44,21 @@ const unsupportedLabel: React.CSSProperties = {
 	fontStyle: 'italic',
 };
 
+const computedValue: React.CSSProperties = {
+	color: WHITE_ALPHA_40,
+	fontFamily: 'Arial, Helvetica, sans-serif',
+	fontSize: 12,
+	lineHeight: '18px',
+	pointerEvents: 'none',
+};
+
 const fixLinkBase: React.CSSProperties = {
-	color: LIGHT_TEXT,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 	display: 'inline-block',
 	fontSize: 10,
 	fontStyle: 'normal',
@@ -47,12 +66,18 @@ const fixLinkBase: React.CSSProperties = {
 	lineHeight: 1,
 	textDecoration: 'none',
 	width: 17,
+	appearance: 'none',
+	background: 'none',
+	border: 'none',
+	cursor: 'default',
+	padding: 0,
 };
 
 export const UnsupportedStatus: React.FC<{
-	readonly label: string;
-	readonly fixHref?: string;
-}> = ({label, fixHref}) => {
+	readonly label: React.ReactNode;
+	readonly onFix?: () => void;
+	readonly formattedValue: boolean;
+}> = ({label, onFix, formattedValue}) => {
 	const [hovered, setHovered] = React.useState(false);
 	const [focused, setFocused] = React.useState(false);
 	const visible = hovered || focused;
@@ -65,13 +90,13 @@ export const UnsupportedStatus: React.FC<{
 		};
 	}, [visible]);
 
-	const stopMousePropagation: React.MouseEventHandler<HTMLAnchorElement> = (
+	const stopMousePropagation: React.MouseEventHandler<HTMLButtonElement> = (
 		event,
 	) => {
 		event.stopPropagation();
 	};
 
-	const stopPointerPropagation: React.PointerEventHandler<HTMLAnchorElement> = (
+	const stopPointerPropagation: React.PointerEventHandler<HTMLButtonElement> = (
 		event,
 	) => {
 		event.stopPropagation();
@@ -83,15 +108,22 @@ export const UnsupportedStatus: React.FC<{
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
 		>
-			<span style={unsupportedLabel}>{label}</span>
-			{fixHref ? (
-				<a
-					href={fixHref}
-					target="_blank"
-					rel="noreferrer"
+			<span
+				style={formattedValue ? computedValue : unsupportedLabel}
+				inert={formattedValue}
+			>
+				{label}
+			</span>
+			{onFix ? (
+				<button
+					type="button"
+					className={`${FOCUS_VISIBLE_ONLY_CLASS_NAME} ${HOVERABLE_CLASS_NAME}`}
 					style={fixLink}
-					title="Open docs to fix computed Studio values"
-					onClick={stopMousePropagation}
+					title="Fix computed Studio value"
+					onClick={(event) => {
+						stopMousePropagation(event);
+						onFix();
+					}}
 					onDoubleClick={stopMousePropagation}
 					onPointerDown={stopPointerPropagation}
 					onFocus={() => setFocused(true)}
@@ -99,7 +131,7 @@ export const UnsupportedStatus: React.FC<{
 					tabIndex={visible ? 0 : -1}
 				>
 					Fix
-				</a>
+				</button>
 			) : null}
 		</span>
 	);
@@ -107,12 +139,31 @@ export const UnsupportedStatus: React.FC<{
 
 export const TimelineNonEditableStatus: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
-}> = ({propStatus}) => {
+	readonly field: SchemaFieldInfo;
+	readonly runtimeValue: unknown;
+	readonly validatedLocation: CodePosition;
+}> = ({propStatus, field, runtimeValue, validatedLocation}) => {
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {remotionSkillsInfo} = useSettings();
+	const onFix = useCallback(() => {
+		setSelectedModal({
+			type: 'fix-computed-value',
+			prop: field.key,
+			context: `${validatedLocation.source}:${validatedLocation.line}:${validatedLocation.column}`,
+			remotionInteractivitySkillAvailable:
+				remotionSkillsInfo?.remotionInteractivitySkillAvailable ?? false,
+		});
+	}, [field.key, remotionSkillsInfo, setSelectedModal, validatedLocation]);
+
 	if (propStatus.status === 'computed') {
 		return (
 			<UnsupportedStatus
-				label={getComputedStatusLabel(propStatus)}
-				fixHref={TIMELINE_COMPUTED_VALUE_FIX_LINK}
+				label={formatTimelineFieldValueForDisplay({
+					fieldSchema: field.fieldSchema,
+					value: runtimeValue,
+				})}
+				onFix={onFix}
+				formattedValue
 			/>
 		);
 	}

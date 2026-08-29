@@ -30,7 +30,8 @@ pub fn extract_frame(
     frame_cache_manager: &mut FrameCacheManager,
     max_cache_size: u64,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
-    // Don't allow previous frame, but allow for some flexibility
+    // Do not return a previous frame until a frame after the requested timestamp
+    // is cached as well, so its presentation interval is known.
     let cache_item = match manager.get_position_and_threshold_of_video(time, &src) {
         Ok(Some((position, threshold))) => frame_cache_manager.get_cache_item_id(
             &src,

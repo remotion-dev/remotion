@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Sequence} from 'remotion';
+import {AbsoluteFill, Sequence, useVideoConfig} from 'remotion';
 import type {ElementDefinition} from './element-definitions';
 import {getElementDefinition} from './element-utils';
 
@@ -11,12 +11,12 @@ export const getElementPreviewDimensions = (definition: ElementDefinition) => {
 
 	return {
 		height:
-			hasElementDimensions && definition.previewPadding > 0
-				? definition.elementHeight! + definition.previewPadding * 2
+			hasElementDimensions && definition.safeArea > 0
+				? definition.elementHeight! + definition.safeArea * 2
 				: definition.height,
 		width:
-			hasElementDimensions && definition.previewPadding > 0
-				? definition.elementWidth! + definition.previewPadding * 2
+			hasElementDimensions && definition.safeArea > 0
+				? definition.elementWidth! + definition.safeArea * 2
 				: definition.width,
 	};
 };
@@ -28,41 +28,53 @@ export const ElementPreviewComposition: React.FC<{
 		component: Component,
 		elementHeight,
 		elementWidth,
-		previewPadding,
+		safeArea,
 	} = definition;
+	const {height, width} = useVideoConfig();
 	const hasElementDimensions = elementWidth !== null && elementHeight !== null;
 
 	if (!hasElementDimensions) {
 		return <Component />;
 	}
 
-	if (previewPadding > 0) {
-		return (
-			<AbsoluteFill
-				style={{
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				<Sequence height={elementHeight} layout="none" width={elementWidth}>
+	const scale = Math.min(
+		1,
+		(width - safeArea * 2) / elementWidth,
+		(height - safeArea * 2) / elementHeight,
+	);
+
+	return (
+		<AbsoluteFill
+			style={{
+				alignItems: 'center',
+				justifyContent: 'center',
+			}}
+			showInTimeline={false}
+		>
+			<Sequence height={elementHeight} layout="none" width={elementWidth}>
+				<div
+					style={{
+						height: elementHeight * scale,
+						position: 'relative',
+						width: elementWidth * scale,
+					}}
+				>
 					<div
 						style={{
 							height: elementHeight,
-							position: 'relative',
+							left: 0,
+							position: 'absolute',
+							top: 0,
+							transform: `scale(${scale})`,
+							transformOrigin: 'top left',
 							width: elementWidth,
 						}}
 					>
 						<Component />
 					</div>
-				</Sequence>
-			</AbsoluteFill>
-		);
-	}
-
-	return (
-		<Sequence height={elementHeight} width={elementWidth}>
-			<Component />
-		</Sequence>
+				</div>
+			</Sequence>
+		</AbsoluteFill>
 	);
 };
 
@@ -72,7 +84,10 @@ export const ElementAssetComposition: React.FC<{
 	const definition = getElementDefinition(slug);
 
 	return (
-		<AbsoluteFill style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}>
+		<AbsoluteFill
+			style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}
+			showInTimeline={false}
+		>
 			<ElementPreviewComposition definition={definition} />
 		</AbsoluteFill>
 	);

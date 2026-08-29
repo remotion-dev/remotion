@@ -6,7 +6,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {random} from './random';
 import {
 	getInitialFrameState,
 	type PlayableMediaTag,
@@ -16,7 +15,12 @@ import {useDelayRender} from './use-delay-render';
 export type TimelineContextValue = {
 	frame: Record<string, number>;
 	playing: boolean;
-	rootId: string;
+	imperativePlaying: RefObject<boolean>;
+	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
+};
+
+export type TimelineImperativeContextValue = {
+	frameRef: RefObject<Record<string, number>>;
 	imperativePlaying: RefObject<boolean>;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
@@ -42,6 +46,9 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 
 export const TimelineContext = createContext<TimelineContextValue | null>(null);
 
+export const TimelineImperativeContext =
+	createContext<TimelineImperativeContextValue | null>(null);
+
 export const PlaybackRateContext =
 	createContext<PlaybackRateContextValue | null>(null);
 
@@ -58,12 +65,13 @@ export const TimelineContextProvider: React.FC<{
 
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
-	const [remotionRootId] = useState(() => String(random(null)));
 	const [_frame, setFrame] = useState<Record<string, number>>(() =>
 		getInitialFrameState(),
 	);
 
 	const frame = frameState ?? _frame;
+	const frameRef = useRef(frame);
+	frameRef.current = frame;
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -107,10 +115,18 @@ export const TimelineContextProvider: React.FC<{
 			frame,
 			playing,
 			imperativePlaying,
-			rootId: remotionRootId,
 			audioAndVideoTags,
 		};
-	}, [frame, playing, remotionRootId]);
+	}, [frame, playing]);
+
+	const timelineImperativeContextValue =
+		useMemo((): TimelineImperativeContextValue => {
+			return {
+				frameRef,
+				imperativePlaying,
+				audioAndVideoTags,
+			};
+		}, []);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -129,11 +145,15 @@ export const TimelineContextProvider: React.FC<{
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>
 			<PlaybackRateContext.Provider value={playbackRateContextValue}>
-				<TimelineContext.Provider value={timelineContextValue}>
-					<SetTimelineContext.Provider value={setTimelineContextValue}>
-						{children}
-					</SetTimelineContext.Provider>
-				</TimelineContext.Provider>
+				<TimelineImperativeContext.Provider
+					value={timelineImperativeContextValue}
+				>
+					<TimelineContext.Provider value={timelineContextValue}>
+						<SetTimelineContext.Provider value={setTimelineContextValue}>
+							{children}
+						</SetTimelineContext.Provider>
+					</TimelineContext.Provider>
+				</TimelineImperativeContext.Provider>
 			</PlaybackRateContext.Provider>
 		</AbsoluteTimeContext.Provider>
 	);

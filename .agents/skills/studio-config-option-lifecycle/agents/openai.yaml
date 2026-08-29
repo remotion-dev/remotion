@@ -1,0 +1,4 @@
+interface:
+  display_name: "Studio Config Option Lifecycle"
+  short_description: "Classify Studio options by reload behavior"
+  default_prompt: "Use $studio-config-option-lifecycle to wire a Studio config option with explicit reload behavior."

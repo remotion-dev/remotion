@@ -1,4 +1,9 @@
-import {ALL_FORMATS, BlobSource, Input} from 'mediabunny';
+import {
+	ALL_FORMATS,
+	BlobSource,
+	Input,
+	type StreamTargetChunk,
+} from 'mediabunny';
 import {interpolateColors, useCurrentFrame} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
@@ -50,6 +55,69 @@ test('should render media on web', async (t) => {
 		},
 		inputProps: {},
 	});
+});
+
+test('should render media to a writable stream', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
+	const chunks: StreamTargetChunk[] = [];
+	let streamClosed = false;
+	let firstFrameRendered = false;
+	let receivedChunkBeforeFirstFrame = false;
+	const outputWritable = new WritableStream<StreamTargetChunk>({
+		write: (chunk) => {
+			if (!firstFrameRendered) {
+				receivedChunkBeforeFirstFrame = true;
+			}
+
+			chunks.push(chunk);
+		},
+		close: () => {
+			streamClosed = true;
+		},
+	});
+
+	const result = await renderMediaOnWeb({
+		composition: {
+			component: () => null,
+			id: 'writable-stream-test',
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 1,
+		},
+		inputProps: {},
+		outputWritable,
+		onFrame: (frame) => {
+			firstFrameRendered = true;
+			return frame;
+		},
+	});
+
+	expect(streamClosed).toBe(true);
+	expect(chunks.length).toBeGreaterThan(0);
+	expect(receivedChunkBeforeFirstFrame).toBe(true);
+
+	const size = Math.max(
+		...chunks.map((chunk) => chunk.position + chunk.data.byteLength),
+	);
+	const output = new Uint8Array(size);
+	for (const chunk of chunks) {
+		output.set(chunk.data, chunk.position);
+	}
+
+	expect(output.byteLength).toBeGreaterThan(0);
+	using input = new Input({
+		formats: ALL_FORMATS,
+		source: new BlobSource(new Blob([output])),
+	});
+	expect(await input.getPrimaryVideoTrack()).not.toBeNull();
+	await expect(result.getBlob()).rejects.toThrow(
+		'getBlob() is unavailable when outputWritable is used',
+	);
 });
 
 test('should reject invalid page responsiveness values', async () => {
@@ -254,7 +322,7 @@ test(
 	},
 );
 
-test('should include "Made with Remotion" metadata', async (t) => {
+test('should include custom metadata and "Made with Remotion"', async (t) => {
 	if (t.task.file.projectName === 'webkit') {
 		t.skip();
 		return;
@@ -272,6 +340,11 @@ test('should include "Made with Remotion" metadata', async (t) => {
 			durationInFrames: 5,
 		},
 		inputProps: {},
+		metadata: {
+			title: 'My video',
+			artist: 'Remotion user',
+			comment: 'My comment',
+		},
 	});
 
 	const blob = await result.getBlob();
@@ -282,7 +355,9 @@ test('should include "Made with Remotion" metadata', async (t) => {
 	});
 
 	const tags = await input.getMetadataTags();
-	expect(tags.comment).toBe(`Made with Remotion ${VERSION}`);
+	expect(tags.title).toBe('My video');
+	expect(tags.artist).toBe('Remotion user');
+	expect(tags.comment).toBe(`Made with Remotion ${VERSION}; My comment`);
 });
 
 test('should not fire stale progress callbacks after render completes', async (t) => {

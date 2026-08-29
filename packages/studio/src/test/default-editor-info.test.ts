@@ -1,0 +1,128 @@
+import {afterEach, expect, test} from 'bun:test';
+import {
+	canOpenInEditor,
+	getPreferredEditorId,
+} from '../components/use-default-editor-info';
+
+const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
+	globalThis,
+	'window',
+);
+
+afterEach(() => {
+	if (originalWindowDescriptor) {
+		Object.defineProperty(globalThis, 'window', originalWindowDescriptor);
+	} else {
+		Reflect.deleteProperty(globalThis, 'window');
+	}
+});
+
+const installTestWindow = (editorName: string | null) => {
+	const testWindow: Pick<Window, 'remotion_editorName'> = {
+		remotion_editorName: editorName,
+	};
+
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: testWindow,
+	});
+};
+
+test('prefers the running editor when one is detected', () => {
+	installTestWindow('Cursor Editor');
+
+	expect(
+		getPreferredEditorId({
+			defaultEditor: null,
+			installedEditors: [
+				{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
+				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
+			],
+		}),
+	).toBe('cursor');
+});
+
+test('falls back if the detected editor is not in the installed list', () => {
+	installTestWindow('Custom Editor');
+
+	expect(
+		getPreferredEditorId({
+			defaultEditor: null,
+			installedEditors: [
+				{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
+				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
+			],
+		}),
+	).toBe('zed');
+});
+
+test('prefers the configured default editor before the detected editor', () => {
+	installTestWindow('Zed');
+
+	expect(
+		getPreferredEditorId({
+			defaultEditor: 'cursor',
+			installedEditors: [
+				{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
+				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
+			],
+		}),
+	).toBe('cursor');
+});
+
+test('returns null when no editor is installed', () => {
+	installTestWindow('Custom Editor');
+
+	expect(
+		getPreferredEditorId({
+			defaultEditor: null,
+			installedEditors: [],
+		}),
+	).toBe(null);
+});
+
+test('requires a preview server connection', () => {
+	installTestWindow(null);
+
+	expect(canOpenInEditor(false)).toBe(false);
+	expect(canOpenInEditor(true)).toBe(true);
+});
+
+test('falls back to Zed, VS Code, Cursor, then alphabetical order', () => {
+	installTestWindow(null);
+
+	expect(
+		getPreferredEditorId({
+			defaultEditor: null,
+			installedEditors: [
+				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
+				{id: 'vscode', name: 'Code', nameWithType: 'Code'},
+				{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
+			],
+		}),
+	).toBe('zed');
+
+	expect(
+		getPreferredEditorId({
+			defaultEditor: null,
+			installedEditors: [
+				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
+				{id: 'vscode', name: 'Code', nameWithType: 'Code'},
+			],
+		}),
+	).toBe('vscode');
+
+	expect(
+		getPreferredEditorId({
+			defaultEditor: null,
+			installedEditors: [
+				{id: 'webstorm', name: 'WebStorm', nameWithType: 'WebStorm'},
+				{
+					id: 'sublime-text',
+					name: 'Sublime Text',
+					nameWithType: 'Sublime Text',
+				},
+			],
+		}),
+	).toBe('sublime-text');
+});

@@ -4,6 +4,11 @@ import ReactDOM from 'react-dom';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
+import {
+	getNextMenuTreeId,
+	isNodeInMenuTree,
+	MenuTreeContext,
+} from './Menu/menu-tree-context';
 import {getPortal} from './Menu/portals';
 import {
 	MAX_MENU_WIDTH,
@@ -23,15 +28,27 @@ type OpenState =
 			type: 'open';
 			left: number;
 			top: number;
+			values: readonly ComboboxValue[];
 	  };
 
 type OpenedState = Extract<OpenState, {type: 'open'}>;
 
-type ContextMenuOpenHandler = () => false | void;
-type ContextMenuTargetOpenResult = false | void | readonly ComboboxValue[];
-type ContextMenuTargetOpenHandler = (
+type ContextMenuItemsResult = false | readonly ComboboxValue[];
+export type ContextMenuItemsFactory = (
 	event: MouseEvent,
-) => ContextMenuTargetOpenResult | Promise<ContextMenuTargetOpenResult>;
+) => ContextMenuItemsResult | Promise<ContextMenuItemsResult>;
+
+export const resolveContextMenuItems = async (
+	getItems: ContextMenuItemsFactory,
+	event: MouseEvent,
+): Promise<readonly ComboboxValue[] | null> => {
+	const result = await getItems(event);
+	if (result === false || result.length === 0) {
+		return null;
+	}
+
+	return [...result];
+};
 
 type ContextMenuSizeSource =
 	| React.RefObject<HTMLElement | null>
@@ -40,8 +57,7 @@ type ContextMenuSizeSource =
 
 type ContextMenuProps = {
 	readonly children: React.ReactNode;
-	readonly values: ComboboxValue[];
-	readonly onOpen: ContextMenuOpenHandler | null;
+	readonly getItems: ContextMenuItemsFactory;
 	// eslint-disable-next-line react/require-default-props
 	readonly style?: React.CSSProperties;
 	// eslint-disable-next-line react/require-default-props
@@ -50,12 +66,9 @@ type ContextMenuProps = {
 	readonly onPointerDown?: React.PointerEventHandler<HTMLDivElement>;
 };
 
-const CONTEXT_MENU_Z_INDEX = 1001;
-
 const contextMenuFullScreenOverlay: React.CSSProperties = {
 	...fullScreenOverlay,
 	pointerEvents: 'none',
-	zIndex: CONTEXT_MENU_Z_INDEX,
 };
 
 const contextMenuOuterPortal: React.CSSProperties = {
@@ -75,13 +88,12 @@ const notifyContextMenuOpened = (id: number) => {
 };
 
 const ContextMenuPortal: React.FC<{
+	readonly menuTreeId: number;
 	readonly sizeSource: ContextMenuSizeSource;
 	readonly currentZIndex: number;
 	readonly onHide: () => void;
 	readonly opened: OpenedState;
-	readonly values: ComboboxValue[];
-}> = ({sizeSource, currentZIndex, onHide, opened, values}) => {
-	const menuRef = useRef<HTMLDivElement>(null);
+}> = ({menuTreeId, sizeSource, currentZIndex, onHide, opened}) => {
 	const size = PlayerInternals.useElementSize(sizeSource, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
@@ -165,7 +177,8 @@ const ContextMenuPortal: React.FC<{
 				return;
 			}
 
-			if (menuRef.current?.contains(event.target as Node)) {
+			const target = event.target as Node;
+			if (isNodeInMenuTree(target, menuTreeId)) {
 				return;
 			}
 
@@ -184,7 +197,7 @@ const ContextMenuPortal: React.FC<{
 				true,
 			);
 		};
-	}, [onHide]);
+	}, [menuTreeId, onHide]);
 
 	// Prevent deselection of a selected item
 	const onMenuPointerDown = useCallback(
@@ -207,20 +220,22 @@ const ContextMenuPortal: React.FC<{
 					outsideClickButton="primary"
 				>
 					<div
-						ref={menuRef}
+						data-remotion-menu-tree-id={menuTreeId}
 						style={portalStyle}
 						onPointerDown={onMenuPointerDown}
 					>
-						<MenuContent
-							onNextMenu={noop}
-							onPreviousMenu={noop}
-							values={values}
-							onHide={onHide}
-							leaveLeftSpace
-							preselectIndex={false}
-							topItemCanBeUnselected={false}
-							fixedHeight={null}
-						/>
+						<MenuTreeContext.Provider value={menuTreeId}>
+							<MenuContent
+								onNextMenu={noop}
+								onPreviousMenu={noop}
+								values={opened.values}
+								onHide={onHide}
+								leaveLeftSpace
+								preselectIndex={false}
+								topItemCanBeUnselected={false}
+								fixedHeight={null}
+							/>
+						</MenuTreeContext.Provider>
 					</div>
 				</HigherZIndex>
 			</div>
@@ -233,8 +248,7 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 	(
 		{
 			children,
-			values,
-			onOpen,
+			getItems,
 			style = undefined,
 			className = undefined,
 			onPointerDown = undefined,
@@ -243,6 +257,10 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 	) => {
 		const ref = useRef<HTMLDivElement>(null);
 		const idRef = useRef(nextContextMenuId++);
+		const menuTreeIdRef = useRef(getNextMenuTreeId());
+		const invocationRef = useRef(0);
+		const getItemsRef = useRef(getItems);
+		getItemsRef.current = getItems;
 		const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
 		const {currentZIndex} = useZIndex();
 
@@ -268,15 +286,23 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 				return;
 			}
 
-			const onClick = (e: MouseEvent) => {
+			const onClick = async (e: MouseEvent) => {
 				e.preventDefault();
 				e.stopPropagation();
-				if (onOpen?.() === false) {
+
+				const currentInvocation = ++invocationRef.current;
+				const values = await resolveContextMenuItems(getItemsRef.current, e);
+				if (currentInvocation !== invocationRef.current || values === null) {
 					return false;
 				}
 
 				notifyContextMenuOpened(idRef.current);
-				setOpened({type: 'open', left: e.clientX, top: e.clientY});
+				setOpened({
+					type: 'open',
+					left: e.clientX,
+					top: e.clientY,
+					values,
+				});
 
 				return false;
 			};
@@ -286,7 +312,14 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 			return () => {
 				current.removeEventListener('contextmenu', onClick);
 			};
-		}, [onOpen]);
+		}, []);
+
+		useEffect(() => {
+			const invocation = invocationRef;
+			return () => {
+				invocation.current++;
+			};
+		}, []);
 
 		const onHide = useCallback(() => {
 			setOpened({type: 'not-open'});
@@ -324,11 +357,11 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 				</div>
 				{opened.type === 'open' ? (
 					<ContextMenuPortal
+						menuTreeId={menuTreeIdRef.current}
 						sizeSource={ref}
 						currentZIndex={currentZIndex}
 						onHide={onHide}
 						opened={opened}
-						values={values}
 					/>
 				) : null}
 			</>
@@ -340,15 +373,28 @@ ContextMenu.displayName = 'ContextMenu';
 
 export const ContextMenuForTarget: React.FC<{
 	readonly triggerRef: React.RefObject<HTMLElement | SVGElement | null>;
-	readonly values: ComboboxValue[];
-	readonly onOpen: ContextMenuTargetOpenHandler | null;
-}> = ({triggerRef, values, onOpen}) => {
+	readonly getItems: ContextMenuItemsFactory;
+	readonly onOpenChange?: (open: boolean) => void;
+}> = ({triggerRef, getItems, onOpenChange = undefined}) => {
 	const idRef = useRef(nextContextMenuId++);
+	const menuTreeIdRef = useRef(getNextMenuTreeId());
+	const invocationRef = useRef(0);
+	const isOpenRef = useRef(false);
+	const getItemsRef = useRef(getItems);
+	const onOpenChangeRef = useRef(onOpenChange);
+	getItemsRef.current = getItems;
+	onOpenChangeRef.current = onOpenChange;
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
-	const [openedValues, setOpenedValues] =
-		useState<readonly ComboboxValue[]>(values);
 	const [body, setBody] = useState<HTMLElement | null>(null);
 	const {currentZIndex} = useZIndex();
+	const setOpenLifecycleState = useCallback((open: boolean) => {
+		if (isOpenRef.current === open) {
+			return;
+		}
+
+		isOpenRef.current = open;
+		onOpenChangeRef.current?.(open);
+	}, []);
 
 	useEffect(() => {
 		// Access document.body after mount so importing this component stays safe
@@ -367,19 +413,34 @@ export const ContextMenuForTarget: React.FC<{
 			e.preventDefault();
 			e.stopPropagation();
 
-			const result = await onOpen?.(e);
-			if (result === false) {
-				return false;
+			const currentInvocation = ++invocationRef.current;
+			setOpenLifecycleState(true);
+			let values: readonly ComboboxValue[] | null;
+			try {
+				values = await resolveContextMenuItems(getItemsRef.current, e);
+			} catch (err) {
+				if (currentInvocation === invocationRef.current) {
+					setOpenLifecycleState(false);
+				}
+
+				throw err;
 			}
 
-			const nextValues = Array.isArray(result) ? result : values;
-			if (nextValues.length === 0) {
+			if (currentInvocation !== invocationRef.current || values === null) {
+				if (currentInvocation === invocationRef.current) {
+					setOpenLifecycleState(false);
+				}
+
 				return false;
 			}
 
 			notifyContextMenuOpened(idRef.current);
-			setOpenedValues(nextValues);
-			setOpened({type: 'open', left: e.clientX, top: e.clientY});
+			setOpened({
+				type: 'open',
+				left: e.clientX,
+				top: e.clientY,
+				values,
+			});
 
 			return false;
 		};
@@ -389,11 +450,21 @@ export const ContextMenuForTarget: React.FC<{
 		return () => {
 			current.removeEventListener('contextmenu', onClick);
 		};
-	}, [onOpen, triggerRef, values]);
+	}, [setOpenLifecycleState, triggerRef]);
+
+	useEffect(() => {
+		const invocation = invocationRef;
+		return () => {
+			invocation.current++;
+			setOpenLifecycleState(false);
+		};
+	}, [setOpenLifecycleState]);
 
 	const onHide = useCallback(() => {
+		invocationRef.current++;
+		setOpenLifecycleState(false);
 		setOpened({type: 'not-open'});
-	}, []);
+	}, [setOpenLifecycleState]);
 
 	useEffect(() => {
 		const onOtherContextMenuOpened = (event: Event) => {
@@ -416,11 +487,11 @@ export const ContextMenuForTarget: React.FC<{
 
 	return opened.type === 'open' ? (
 		<ContextMenuPortal
+			menuTreeId={menuTreeIdRef.current}
 			sizeSource={body}
 			currentZIndex={currentZIndex}
 			onHide={onHide}
 			opened={opened}
-			values={[...openedValues]}
 		/>
 	) : null;
 };

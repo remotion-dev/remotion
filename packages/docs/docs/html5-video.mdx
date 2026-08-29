@@ -87,13 +87,13 @@ Removes a portion of the video at the end (right side). See [`trimBefore`](#trim
 
 ### ~~`startFrom?`~~
 
-:::note Deprecated
+:::info Deprecated
 This prop has been renamed to [`trimBefore`](#trimbefore) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
 :::
 
 ### ~~`endAt?`~~
 
-:::note Deprecated
+:::info Deprecated
 This prop has been renamed to [`trimAfter`](#trimafter) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
 :::
 
@@ -185,7 +185,7 @@ Controls whether the audio pitch is preserved when [`playbackRate`](#playbackrat
 
 Accepts `true`, `false`, or `undefined`. Default: `true`, matching the browser default for [`HTMLMediaElement.preservesPitch`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/preservesPitch).
 
-Note: `preservePitch` only affects preview playback. During render, audio is processed via [`toneFrequency`](/docs/audio/pitch) for render-time pitch control.
+`preservePitch` only affects preview playback. During server-side rendering, [`playbackRate`](#playbackrate) always preserves the audio pitch, regardless of this prop. Use [`toneFrequency`](/docs/audio/pitch) to change the pitch during server-side rendering.
 
 ### `muted?`
 
@@ -232,7 +232,7 @@ In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/play
 
 ### `toneFrequency?`<AvailableFrom v="4.0.47"/>
 
-Adjust the pitch of the audio - will only be applied during rendering.
+Adjust the pitch of the audio during server-side rendering. This prop is not supported during preview.
 
 Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
 
@@ -271,7 +271,7 @@ Handle an error playing the video. From v3.3.89, if you pass an `onError` callba
 
 ### `pauseWhenBuffering?`<AvailableFrom v="4.0.100"/>
 
-If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
+If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false` in Remotion 4.0 and `true` in Remotion 5.0.
 
 ### `showInTimeline?`<AvailableFrom v="4.0.122"/>
 
@@ -311,12 +311,15 @@ Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
 
 Enables the Web Audio API for the video tag, allowing volume values above `1` and volume control on iOS Safari. Set `crossOrigin="anonymous"` and ensure the video source supports CORS. On Safari, this cannot be combined with [`playbackRate`](#playbackrate); otherwise, volume changes are ignored.
 
-### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
+### ~~`allowAmplificationDuringRender?`~~<AvailableFrom v="3.3.17" />
 
+:::info Deprecated
 Deprecated since v4.0.279: This prop intended to opt into setting the volume to a value higher than one, even though it would only apply during render.
 
-The option does not make sense anymore, because it is now possible to set the volume higher than `1`.  
 To prevent synthetic amplification, set a volume not higher than 1.
+:::
+
+The option does not make sense anymore, because it is now possible to set the volume higher than `1`.
 
 ## Speed up renders for video with silent audio
 

@@ -1,3 +1,4 @@
+import {hasSequenceTimingTraits} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatus,
 	OverrideIdToNodePaths,
@@ -6,8 +7,8 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {callApi} from '../call-api';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {splitJsxSequence} from '../split-jsx-sequence-api';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -27,19 +28,6 @@ type SplitPropStatuses = Partial<
 		CanUpdateSequencePropStatus
 	>
 >;
-
-export const getTimelineSequenceSplitUnsupportedReason = (
-	componentName: string | null | undefined,
-): string | null => {
-	if (
-		componentName === '<TransitionSeries.Sequence>' ||
-		componentName === '<TransitionSeries.Overlay>'
-	) {
-		return `${componentName} cannot be split from source`;
-	}
-
-	return null;
-};
 
 const staticNumberish = (
 	status: CanUpdateSequencePropStatus | undefined,
@@ -93,13 +81,14 @@ export const getTimelineSequenceSplitEligibility = ({
 		};
 	}
 
-	const unsupportedReason = getTimelineSequenceSplitUnsupportedReason(
-		sequence.controls?.componentName,
-	);
-	if (unsupportedReason) {
+	if (
+		!hasSequenceTimingTraits(
+			selection.nodePathInfo.sequenceSubscriptionKey.sequenceKeys,
+		)
+	) {
 		return {
 			canSplit: false,
-			reason: unsupportedReason,
+			reason: 'Sequence does not expose timing traits that can be split',
 		};
 	}
 
@@ -164,14 +153,14 @@ export const splitTimelineSequenceFromSource = ({
 }): Promise<boolean> => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 
-	return callApi('/api/split-jsx-sequence', {
+	return splitJsxSequence({
 		fileName: nodePath.absolutePath,
 		nodePath: nodePath.nodePath,
+		sequenceKeys: nodePath.sequenceKeys,
 		splitFrame,
 	})
 		.then((result) => {
 			if (result.success) {
-				showNotification('Split sequence', 2000);
 				return true;
 			}
 

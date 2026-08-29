@@ -3,6 +3,7 @@ import type {
 	ServerlessRoutines,
 } from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
+import {getAwsRegionMetadata} from './aws-region-metadata';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
 import type {AwsRegion} from './regions';
 
@@ -15,7 +16,8 @@ const cloudWatchUrlWithQuery = ({
 	functionNameToUse: string;
 	query: string;
 }) => {
-	return `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:log-groups/log-group/$252Faws$252Flambda$252F${functionNameToUse}/log-events$3FfilterPattern$3D${encodeAwsUrlParams(
+	const {consoleDomain} = getAwsRegionMetadata(region);
+	return `https://${region}.${consoleDomain}/cloudwatch/home?region=${region}#logsV2:log-groups/log-group/$252Faws$252Flambda$252F${functionNameToUse}/log-events$3FfilterPattern$3D${encodeAwsUrlParams(
 		query,
 	)}`;
 };
@@ -46,7 +48,8 @@ export const getLambdaInsightsUrl = ({
 	region: AwsRegion;
 	functionName: string;
 }) => {
-	return `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#lambda-insights:functions/${functionName}`;
+	const {consoleDomain} = getAwsRegionMetadata(region);
+	return `https://${region}.${consoleDomain}/cloudwatch/home?region=${region}#lambda-insights:functions/${functionName}`;
 };
 
 export const getCloudwatchRendererUrl: GetLoggingUrlForRendererFunction<
@@ -69,7 +72,10 @@ export const getS3RenderUrl = ({
 	region: AwsRegion;
 	bucketName: string;
 }) => {
-	return `https://s3.console.aws.amazon.com/s3/buckets/${bucketName}?region=${region}&prefix=renders/${renderId}/`;
+	const {consoleDomain, partition} = getAwsRegionMetadata(region);
+	const consoleHost =
+		partition === 'aws' ? `s3.${consoleDomain}` : `${region}.${consoleDomain}`;
+	return `https://${consoleHost}/s3/buckets/${bucketName}?region=${region}&prefix=renders/${renderId}/`;
 };
 
 export const getProgressJsonUrl = ({
@@ -81,5 +87,28 @@ export const getProgressJsonUrl = ({
 	bucketName: string;
 	renderId: string;
 }) => {
-	return `https://${region}.console.aws.amazon.com/s3/object/${bucketName}?region=${region}&bucketType=general&prefix=renders/${renderId}/progress.json`;
+	const {consoleDomain} = getAwsRegionMetadata(region);
+	return `https://${region}.${consoleDomain}/s3/object/${bucketName}?region=${region}&bucketType=general&prefix=renders/${renderId}/progress.json`;
+};
+
+export const getLambdaFunctionUrl = ({
+	region,
+	functionName,
+}: {
+	region: AwsRegion;
+	functionName: string;
+}) => {
+	const {consoleDomain} = getAwsRegionMetadata(region);
+	return `https://${region}.${consoleDomain}/lambda/home#/functions/${functionName}?tab=code`;
+};
+
+export const getS3BucketUrl = ({
+	region,
+	bucketName,
+}: {
+	region: AwsRegion;
+	bucketName: string;
+}) => {
+	const {consoleDomain} = getAwsRegionMetadata(region);
+	return `https://${region}.${consoleDomain}/s3/buckets/${bucketName}/?region=${region}`;
 };

@@ -9,20 +9,21 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/ai/coding-agents">
 					<strong>{'Coding Agents'}</strong>
 					<div>
-						Use Claude Code, Codex or OpenCode to prompt Remotion videos
+						Use Claude Code, Codex, Kimi Code or OpenCode to prompt Remotion
+						videos
 					</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/skills">
 					<strong>{'Agent Skills'}</strong>
 					<div>Give coding agents current Remotion guidance</div>
 				</TOCItem>
-				<TOCItem link="/docs/ai/claude-code-plugin">
-					<strong>{'Claude Code plugin'}</strong>
-					<div>Use the Remotion plugin in Claude Code</div>
+				<TOCItem link="/docs/ai/plugins">
+					<strong>{'Plugins'}</strong>
+					<div>Use Remotion with Codex, Claude Code, Cursor or Kimi Code</div>
 				</TOCItem>
-				<TOCItem link="/docs/ai/codex-plugin">
-					<strong>{'Codex plugin'}</strong>
-					<div>Use the Remotion plugin in the ChatGPT Codex app</div>
+				<TOCItem link="/docs/ai/webmcp">
+					<strong>{'WebMCP'}</strong>
+					<div>Control Remotion Studio with an AI agent</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/chatbot">
 					<strong>{'Chatbot'}</strong>

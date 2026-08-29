@@ -29,7 +29,8 @@ const serveUrl = await bundle({
   entryPoint: require.resolve('./src/index.ts'),
 });
 
-const comps = await getCompositions(serveUrl, {
+const comps = await getCompositions({
+  serveUrl,
   inputProps: {
     custom: 'data',
   },
@@ -177,7 +178,7 @@ _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### ~`headless?`~
+#### `headless?`
 
 <Options id="disable-headless" />
 
@@ -229,13 +230,17 @@ _default `true`_
 
 ### ~~`apiKey?`<AvailableFrom v="4.0.375"/>~~
 
-_deprecated in v4.0.409_
+:::info Deprecated
+Use [`licenseKey`](#licensekey) instead.
+:::
 
 <Options id="api-key" />
 
 ### ~~`dumpBrowserLogs?`~~
 
-Deprecated in v4.0 in favor of [`logLevel`](#loglevel).
+:::info Deprecated
+Use [`logLevel`](#loglevel) instead.
+:::
 
 ### ~~`quality?`~~
 

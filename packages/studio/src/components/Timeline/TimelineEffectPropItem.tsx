@@ -1,24 +1,32 @@
 import {
+	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 	optimisticUpdateForEffectPropStatuses,
 } from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	RuntimeValueStore,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {Internals, useVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
-import {callApi} from '../call-api';
+import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {ContextMenu} from '../ContextMenu';
+import {saveEffectProps} from '../effect-operations-api';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
-import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
-import {getComputedStatusLabel} from './get-timeline-keyframes';
+import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -32,15 +40,11 @@ import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
-	TIMELINE_COMPUTED_EFFECT_FIX_LINK,
 	TimelineFieldValue,
+	TimelineNonEditableStatus,
 	UnsupportedStatus,
 } from './TimelineSchemaField';
-import {
-	useTimelineRowSelection,
-	useTimelineSelection,
-} from './TimelineSelection';
-import {canEditEasingForInterpolationFunction} from './update-selected-easing';
+import {useTimelineRowSelection} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -73,12 +77,31 @@ const isResettableStatus = ({
 	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
 };
 
+const TimelineComputedEffectPropValue: React.FC<{
+	readonly field: EffectSchemaFieldInfo;
+	readonly propStatus: CanUpdateSequencePropStatusFalse;
+	readonly runtimeValueStore: RuntimeValueStore | null;
+	readonly validatedLocation: CodePosition;
+}> = ({field, propStatus, runtimeValueStore, validatedLocation}) => {
+	const runtimeValue = useRuntimeStoreValue(runtimeValueStore, field.key);
+
+	return (
+		<TimelineNonEditableStatus
+			propStatus={propStatus}
+			field={field}
+			runtimeValue={runtimeValue}
+			validatedLocation={validatedLocation}
+		/>
+	);
+};
+
 export const TimelineEffectPropValue: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly sourceFrame: number;
-}> = ({field, nodePath, validatedLocation, sourceFrame}) => {
+	readonly runtimeValueStore: RuntimeValueStore | null;
+}> = ({field, nodePath, validatedLocation, sourceFrame, runtimeValueStore}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
 
@@ -115,6 +138,12 @@ export const TimelineEffectPropValue: React.FC<{
 							status: propStatus,
 							frame: sourceFrame,
 							value,
+							defaultEasing: isSchemaFieldHoldOnly({
+								schema: field.effectSchema,
+								key: field.key,
+							})
+								? {type: 'step1'}
+								: undefined,
 						})
 					: Internals.makeStaticDragOverride(value);
 
@@ -127,6 +156,7 @@ export const TimelineEffectPropValue: React.FC<{
 		},
 		[
 			field.effectIndex,
+			field.effectSchema,
 			field.key,
 			nodePath,
 			propStatus,
@@ -192,7 +222,7 @@ export const TimelineEffectPropValue: React.FC<{
 						schema: field.effectSchema,
 					}),
 				apiCall: () =>
-					callApi('/api/save-effect-props', {
+					saveEffectProps({
 						type: 'value',
 						fileName: validatedLocation.source,
 						sequenceNodePath: nodePath,
@@ -256,22 +286,30 @@ export const TimelineEffectPropValue: React.FC<{
 		throw new Error(`Effects do not support scale fields: ${field.key}`);
 	}
 
+	if (!canUseEffectOperations()) {
+		return <UnsupportedStatus label="read only" formattedValue={false} />;
+	}
+
 	if (effectStatus.type === 'cannot-update-effect') {
 		if (effectStatus.reason === 'computed') {
 			return (
-				<UnsupportedStatus
-					label="computed"
-					fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+				<TimelineComputedEffectPropValue
+					propStatus={{status: 'computed'}}
+					field={field}
+					runtimeValueStore={runtimeValueStore}
+					validatedLocation={validatedLocation}
 				/>
 			);
 		}
 
 		if (effectStatus.reason === 'not-call-expression') {
-			return <UnsupportedStatus label="not inline" />;
+			return <UnsupportedStatus label="not inline" formattedValue={false} />;
 		}
 
 		if (effectStatus.reason === 'not-found') {
-			return <UnsupportedStatus label="not found in code" />;
+			return (
+				<UnsupportedStatus label="not found in code" formattedValue={false} />
+			);
 		}
 
 		throw new Error(
@@ -281,11 +319,13 @@ export const TimelineEffectPropValue: React.FC<{
 
 	if (effectStatus.type === 'cannot-update-sequence') {
 		if (effectStatus.reason === 'not-found') {
-			return <UnsupportedStatus label="not found in code" />;
+			return (
+				<UnsupportedStatus label="not found in code" formattedValue={false} />
+			);
 		}
 
 		if (effectStatus.reason === 'error') {
-			return <UnsupportedStatus label="error" />;
+			return <UnsupportedStatus label="error" formattedValue={false} />;
 		}
 
 		throw new Error(
@@ -314,9 +354,11 @@ export const TimelineEffectPropValue: React.FC<{
 
 	if (propStatus.status === 'computed') {
 		return (
-			<UnsupportedStatus
-				label={getComputedStatusLabel(propStatus)}
-				fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+			<TimelineComputedEffectPropValue
+				propStatus={propStatus}
+				field={field}
+				runtimeValueStore={runtimeValueStore}
+				validatedLocation={validatedLocation}
 			/>
 		);
 	}
@@ -342,6 +384,32 @@ export const TimelineEffectPropValue: React.FC<{
 	);
 };
 
+const TimelineEffectPropValueAtCurrentFrame: React.FC<{
+	readonly field: EffectSchemaFieldInfo;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly validatedLocation: CodePosition;
+	readonly keyframeDisplayOffset: number;
+	readonly runtimeValueStore: RuntimeValueStore | null;
+}> = ({
+	field,
+	nodePath,
+	validatedLocation,
+	keyframeDisplayOffset,
+	runtimeValueStore,
+}) => {
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+
+	return (
+		<TimelineEffectPropValue
+			field={field}
+			nodePath={nodePath}
+			validatedLocation={validatedLocation}
+			sourceFrame={timelinePosition - keyframeDisplayOffset}
+			runtimeValueStore={runtimeValueStore}
+		/>
+	);
+};
+
 export const TimelineEffectPropItem: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
@@ -349,7 +417,8 @@ export const TimelineEffectPropItem: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
+	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
 	validatedLocation,
@@ -357,20 +426,19 @@ export const TimelineEffectPropItem: React.FC<{
 	nodePath,
 	nodePathInfo,
 	keyframeDisplayOffset,
-	keyframeControlsMode = 'timeline',
+	keyframeControlsMode,
+	runtimeValueStore,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
+		previewServerState.type === 'connected',
+	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
 	const selection = useTimelineRowSelection(nodePathInfo);
-	const {selectItems} = useTimelineSelection();
-	const setFrame = Internals.useTimelineSetFrame();
-	const videoConfig = useVideoConfig();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 	const style = useMemo((): React.CSSProperties => {
 		return field.typeName === 'text-content'
 			? fieldRowBase
@@ -391,6 +459,10 @@ export const TimelineEffectPropItem: React.FC<{
 		effectStatus.type === 'can-update-effect'
 			? (effectStatus.props?.[field.key] ?? null)
 			: null;
+	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
+		propStatus,
+		keyframeDisplayOffset,
+	});
 
 	const dragOverrideValue = useMemo(() => {
 		const overrides = getEffectDragOverrides(nodePath, field.effectIndex);
@@ -482,8 +554,23 @@ export const TimelineEffectPropItem: React.FC<{
 		validatedLocation.source,
 	]);
 
-	const contextMenuValues = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
+		if (selection.selectable) {
+			selection.onSelect({shiftKey: false, toggleKey: false});
+		}
+
 		return [
+			getCopyContextForAgentsMenuItem({
+				contextForAgents: formatContextForAgents({
+					location: validatedLocation,
+					name: `Effect property "${field.key}"`,
+					root: window.remotion_cwd,
+				}),
+			}),
+			{
+				type: 'divider',
+				id: 'copy-context-for-agents-divider',
+			},
 			{
 				type: 'item',
 				id: 'reset-effect-field',
@@ -497,101 +584,24 @@ export const TimelineEffectPropItem: React.FC<{
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canShowReset, onReset]);
-
-	const seekToDisplayFrame = useCallback(
-		(frame: number) => {
-			setFrame((current) => {
-				const next = {...current, [videoConfig.id]: frame};
-				Internals.persistCurrentFrame(next);
-				return next;
-			});
-		},
-		[setFrame, videoConfig.id],
-	);
+	}, [canShowReset, field.key, onReset, selection, validatedLocation]);
 
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
 	>(
 		(event) => {
-			if (propStatus === null || propStatus.status === 'computed') {
-				return;
-			}
-
-			const keyframeSelection = {
-				type: 'keyframe' as const,
-				nodePathInfo,
-				frame: sourceFrame + keyframeDisplayOffset,
-			};
-
-			if (propStatus.status === 'static') {
-				if (!keyframable || previewServerState.type !== 'connected') {
-					return;
-				}
-
-				const value = Internals.getEffectiveVisualModeValue({
-					propStatus,
-					dragOverrideValue,
-					frame: sourceFrame,
-					defaultValue: field.fieldSchema.default,
-					shouldResortToDefaultValueIfUndefined: true,
-				});
-
-				event.stopPropagation();
-				callAddEffectKeyframe({
-					fileName: validatedLocation.source,
-					nodePath,
-					effectIndex: field.effectIndex,
-					fieldKey: field.key,
-					sourceFrame,
-					value,
-					schema: field.effectSchema,
-					setPropStatuses,
-					clientId: previewServerState.clientId,
-				}).catch(() => undefined);
-				selectItems([keyframeSelection], {reveal: true});
-				seekToDisplayFrame(keyframeSelection.frame);
-				return;
-			}
-
-			const targetSelection = getAnimationItemSelectionForSourceFrame({
-				includeEasings: canEditEasingForInterpolationFunction(
-					propStatus.interpolationFunction,
-				),
-				keyframeDisplayOffset,
-				keyframes: propStatus.keyframes,
-				nodePathInfo,
-				sourceFrame,
-			});
-
-			if (targetSelection === null) {
+			if (!canOpenInEditor || !defaultEditorId) {
 				return;
 			}
 
 			event.stopPropagation();
-			selectItems([targetSelection], {reveal: true});
-			if (targetSelection.type === 'keyframe') {
-				seekToDisplayFrame(targetSelection.frame);
-			}
+			openOriginalPositionInEditorAtProperty({
+				editorId: defaultEditorId,
+				originalPosition: validatedLocation,
+				property: field.key,
+			}).catch(() => undefined);
 		},
-		[
-			dragOverrideValue,
-			field.effectIndex,
-			field.effectSchema,
-			field.fieldSchema.default,
-			field.key,
-			keyframeDisplayOffset,
-			keyframable,
-			nodePath,
-			nodePathInfo,
-			previewServerState,
-			propStatus,
-			seekToDisplayFrame,
-			selectItems,
-			setPropStatuses,
-			sourceFrame,
-			validatedLocation.source,
-		],
+		[canOpenInEditor, defaultEditorId, field.key, validatedLocation],
 	);
 
 	const row = (
@@ -603,7 +613,6 @@ export const TimelineEffectPropItem: React.FC<{
 			style={style}
 			selected={selection.selected}
 			selectable={selection.selectable}
-			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
@@ -615,22 +624,16 @@ export const TimelineEffectPropItem: React.FC<{
 				rowDepth={rowDepth}
 				selected={selection.selected}
 			>
-				<TimelineEffectPropValue
+				<TimelineEffectPropValueAtCurrentFrame
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
-					sourceFrame={sourceFrame}
+					keyframeDisplayOffset={resolvedKeyframeDisplayOffset}
+					runtimeValueStore={runtimeValueStore}
 				/>
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>
 	);
 
-	return (
-		<ContextMenu
-			values={contextMenuValues}
-			onOpen={selection.selectable ? selection.onSelect : null}
-		>
-			{row}
-		</ContextMenu>
-	);
+	return <ContextMenu getItems={getContextMenuItems}>{row}</ContextMenu>;
 };

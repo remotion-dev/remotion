@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {MediaPlayer} from '../media-player';
 import type {SharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
 
@@ -33,12 +33,14 @@ const makeSharedAudioContext = (): SharedAudioContextForMediaPlayer => {
 	};
 };
 
-test('audio-only file should initialize without `audioStreamIndex` (regression for #7210)', async () => {
-	const player = new MediaPlayer({
+const makeAudioPlayer = (
+	sharedAudioContext: SharedAudioContextForMediaPlayer,
+) => {
+	return new MediaPlayer({
 		canvas: null,
 		src: '/voice-note.m4a',
 		logLevel: 'error',
-		sharedAudioContext: makeSharedAudioContext(),
+		sharedAudioContext,
 		loop: false,
 		trimBefore: undefined,
 		trimAfter: undefined,
@@ -60,12 +62,48 @@ test('audio-only file should initialize without `audioStreamIndex` (regression f
 		getEffects: () => [],
 		getEffectChainState: () => null,
 	});
+};
 
-	const result = await player.initialize(0, false);
+test('audio-only file should initialize without `audioStreamIndex` (regression for #7210)', async () => {
+	const player = makeAudioPlayer(makeSharedAudioContext());
+
+	const result = await player.initialize(0, false, 1);
 
 	expect(result.type).toBe('success');
 
 	await player.dispose();
+});
+
+test('uses the initial volume before audio playback is ready', async () => {
+	const sharedAudioContext = makeSharedAudioContext();
+	const mediaGainNodes: GainNode[] = [];
+	const createGain = sharedAudioContext.audioContext.createGain.bind(
+		sharedAudioContext.audioContext,
+	);
+	const createGainSpy = vi
+		.spyOn(sharedAudioContext.audioContext, 'createGain')
+		.mockImplementation(() => {
+			const gainNode = createGain();
+			mediaGainNodes.push(gainNode);
+			return gainNode;
+		});
+	const player = makeAudioPlayer(sharedAudioContext);
+
+	try {
+		const result = await player.initialize(0, false, 0.25);
+
+		expect(result.type).toBe('success');
+		expect(mediaGainNodes).toHaveLength(1);
+		expect(mediaGainNodes[0].gain.value).toBe(0.25);
+
+		player.setMuted(true);
+		expect(mediaGainNodes[0].gain.value).toBe(0);
+		player.setMuted(false);
+		expect(mediaGainNodes[0].gain.value).toBe(0.25);
+	} finally {
+		createGainSpy.mockRestore();
+		await player.dispose();
+	}
 });
 
 test('dispose should immediately unblock playback delays', async () => {
@@ -127,7 +165,7 @@ test('dispose should immediately unblock playback delays', async () => {
 		getEffectChainState: () => null,
 	});
 
-	await player.initialize(0, false);
+	await player.initialize(0, false, 1);
 
 	const seekDelayPromise = new Promise<void>((resolve) => {
 		delayPlaybackCalled = resolve;

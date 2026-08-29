@@ -47,7 +47,7 @@ const Pill: React.FC<{
 		<div
 			className={cn(
 				className,
-				'card leading-none flex flex-wrap justify-center items-center min-w-[200px] min-h-[80px] max-h-[110px] flex-1 p-0',
+				'leading-none flex flex-wrap justify-center items-center min-w-[200px] min-h-[80px] max-h-[110px] flex-1 p-0',
 			)}
 		>
 			{children}
@@ -176,7 +176,7 @@ export const GitHubStars: React.FC = () => {
 					width="45px"
 				/>
 				<StatItemContent
-					content="53K"
+					content="57K"
 					width="80px"
 					fontSize="2.5rem"
 					fontWeight="bold"

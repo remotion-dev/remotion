@@ -52,9 +52,9 @@ export const BackgroundAnimation: React.FC = () => {
 	}, [css]);
 
 	return (
-		<div className=" w-full h-full min-w-0 m-auto lg:relative lg:min-w-[700px] lg:max-w-[1200px] lg:ml-auto lg:left-auto pointer-events-none">
+		<div className="w-full h-full min-w-0 m-auto min-[900px]:relative min-[900px]:min-w-[700px] min-[900px]:max-w-[1200px] min-[900px]:ml-auto min-[900px]:left-auto pointer-events-none">
 			<svg
-				className="translate-y-[-30%] lg:translate-y-[-50%]"
+				className="translate-y-[-30%] min-[900px]:translate-y-[-50%]"
 				viewBox="0 0 1 1"
 				style={{
 					width: '100%',
@@ -66,7 +66,7 @@ export const BackgroundAnimation: React.FC = () => {
 					fill="none"
 					stroke="var(--ifm-color-primary)"
 					strokeLinecap="round"
-					className="stroke-[0.04] lg:stroke-[0.035]"
+					className="stroke-[0.04] min-[900px]:stroke-[0.035]"
 					style={{
 						transformOrigin: 'center center',
 						transform: `rotate(120deg)`,
@@ -80,7 +80,7 @@ export const BackgroundAnimation: React.FC = () => {
 					stroke="var(--ifm-color-primary)"
 					strokeLinecap="round"
 					strokeWidth={strokeWidth}
-					className="stroke-[0.04] lg:stroke-[0.035]"
+					className="stroke-[0.04] min-[900px]:stroke-[0.035]"
 					style={{
 						transformOrigin: 'center center',
 						transform: `rotate(0deg)`,
@@ -94,7 +94,7 @@ export const BackgroundAnimation: React.FC = () => {
 					stroke="var(--ifm-color-primary)"
 					strokeLinecap="round"
 					strokeWidth={strokeWidth}
-					className="stroke-[0.04] lg:stroke-[0.035]"
+					className="stroke-[0.04] min-[900px]:stroke-[0.035]"
 					style={{
 						transformOrigin: 'center center',
 						transform: `rotate(240deg)`,

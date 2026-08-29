@@ -1,8 +1,37 @@
 import {expect, test} from 'bun:test';
-import {
-	makeCompositionDragData,
-	parseCompositionDragData,
-} from '../composition-drag-data';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {compositionDragDataToSymbolicatedStack} from '../composition-drag-data';
+
+const compositionMimeType = StudioProtocolInternals.makeDragData({
+	type: 'composition',
+	compositionFile: null,
+	compositionId: 'Test',
+	width: null,
+	height: null,
+	durationInFrames: null,
+}).mimeType;
+const makeCompositionDragData = ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string | null;
+	compositionId: string;
+}) =>
+	StudioProtocolInternals.makeDragData({
+		type: 'composition',
+		compositionFile,
+		compositionId,
+		width: null,
+		height: null,
+		durationInFrames: null,
+	}).data;
+const parseCompositionDragData = (payload: string) => {
+	const parsed = StudioProtocolInternals.parseDragData({
+		mimeType: compositionMimeType,
+		payload,
+	});
+	return parsed?.type === 'composition' ? parsed.data : null;
+};
 
 test('parses composition drag data', () => {
 	expect(
@@ -38,6 +67,32 @@ test('allows a missing composition file', () => {
 		compositionFile: null,
 		compositionId: 'MyVideo',
 	});
+});
+
+test('converts composition drag data to a symbolicated stack', () => {
+	expect(
+		compositionDragDataToSymbolicatedStack(
+			makeCompositionDragData({
+				compositionFile: 'src/Root.tsx',
+				compositionId: 'MyVideo',
+			}),
+		),
+	).toEqual({
+		originalColumnNumber: null,
+		originalFileName: 'src/Root.tsx',
+		originalFunctionName: null,
+		originalLineNumber: null,
+		originalScriptCode: null,
+	});
+
+	expect(
+		compositionDragDataToSymbolicatedStack(
+			makeCompositionDragData({
+				compositionFile: null,
+				compositionId: 'MyVideo',
+			}),
+		),
+	).toBe(null);
 });
 
 test('rejects invalid composition drag data', () => {

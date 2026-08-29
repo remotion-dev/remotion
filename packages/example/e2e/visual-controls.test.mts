@@ -15,29 +15,30 @@ test.describe('visual controls', () => {
 		await stopStudio();
 	});
 
-	test('should edit rotation and update source file', async ({page}) => {
+	test('should edit rotation, label, nullable subtitle, and optional extra-rotation', async ({
+		page,
+	}) => {
+		test.setTimeout(90_000);
 		await openVisualControlsPanel(page);
 
-		// Find the rotation control's fieldset via the data-json-path label
 		const rotationFieldset = page
 			.locator('[data-json-path="rotation"]')
 			.locator('..');
 		await expect(rotationFieldset).toBeVisible({timeout: 10_000});
 
-		// Click the dragger button to activate the number input
-		const dragger = rotationFieldset.locator('button.__remotion_input_dragger');
-		await expect(dragger).toBeVisible({timeout: 5_000});
-		await dragger.click();
+		const rotationDragger = rotationFieldset.locator(
+			'button.__remotion_input_dragger',
+		);
+		await expect(rotationDragger).toBeVisible({timeout: 5_000});
+		await rotationDragger.click();
 
-		// Fill the now-visible input with a new value
-		const input = rotationFieldset.locator('input');
-		await expect(input).toBeVisible({timeout: 5_000});
+		const rotationInput = rotationFieldset.locator('input');
+		await expect(rotationInput).toBeVisible({timeout: 5_000});
 
 		const newRotation = '42';
-		await input.fill(newRotation);
-		await input.press('Enter');
+		await rotationInput.fill(newRotation);
+		await rotationInput.press('Enter');
 
-		// Wait for the source file to be updated on disk
 		await expect
 			.poll(
 				() => {
@@ -50,12 +51,7 @@ test.describe('visual controls', () => {
 				},
 			)
 			.toBe(true);
-	});
 
-	test('should edit label string and update source file', async ({page}) => {
-		await openVisualControlsPanel(page);
-
-		// Find the label string input by its name attribute
 		const labelInput = page.locator('input[name="label"]');
 		await expect(labelInput).toBeVisible({timeout: 10_000});
 
@@ -63,7 +59,6 @@ test.describe('visual controls', () => {
 		await labelInput.fill(newLabel);
 		await labelInput.blur();
 
-		// Wait for the source file to be updated on disk
 		await expect
 			.poll(
 				() => {
@@ -76,14 +71,7 @@ test.describe('visual controls', () => {
 				},
 			)
 			.toBe(true);
-	});
 
-	test('should edit nullable subtitle and update source file', async ({
-		page,
-	}) => {
-		await openVisualControlsPanel(page);
-
-		// Edit the subtitle text (nullable string, default 'A subtitle')
 		const subtitleInput = page.locator(
 			'input[name="subtitle"]:not([type="checkbox"])',
 		);
@@ -106,7 +94,6 @@ test.describe('visual controls', () => {
 			)
 			.toBe(true);
 
-		// Now toggle to null via the checkbox
 		const nullCheckbox = page.locator(
 			'input[name="subtitle"][type="checkbox"]',
 		);
@@ -126,41 +113,34 @@ test.describe('visual controls', () => {
 				},
 			)
 			.toBe(true);
-	});
 
-	test('should edit optional extra-rotation and update source file', async ({
-		page,
-	}) => {
-		await openVisualControlsPanel(page);
-
-		// The extra-rotation control defaults to undefined.
-		// First, enable it by unchecking the "undefined" checkbox.
 		const undefinedToggle = page.locator(
 			'input[name="extra-rotation"][type="checkbox"]',
 		);
 		await expect(undefinedToggle).toBeVisible({timeout: 10_000});
 		await undefinedToggle.uncheck();
 
-		// Now find the dragger and interact with it
-		const fieldset = page
+		const extraRotationFieldset = page
 			.locator('[data-json-path="extra-rotation"]')
 			.locator('..');
-		const dragger = fieldset.locator('button.__remotion_input_dragger');
-		await expect(dragger).toBeVisible({timeout: 10_000});
-		await dragger.click();
+		const extraRotationDragger = extraRotationFieldset.locator(
+			'button.__remotion_input_dragger',
+		);
+		await expect(extraRotationDragger).toBeVisible({timeout: 10_000});
+		await extraRotationDragger.click();
 
-		const input = fieldset.locator('input[type="number"]');
-		await expect(input).toBeVisible({timeout: 5_000});
+		const extraRotationInput =
+			extraRotationFieldset.locator('input[type="text"]');
+		await expect(extraRotationInput).toBeVisible({timeout: 5_000});
 
 		const newValue = '90';
-		await input.fill(newValue);
-		await input.press('Enter');
+		await extraRotationInput.fill(newValue);
+		await extraRotationInput.press('Enter');
 
 		await expect
 			.poll(
 				() => {
 					const content = fs.readFileSync(visualControlsFile, 'utf-8');
-					// The codemod may format the value on the next line
 					const match = content.match(/'extra-rotation',\s*(\d+)/);
 					return match?.[1] === newValue;
 				},
@@ -171,7 +151,6 @@ test.describe('visual controls', () => {
 			)
 			.toBe(true);
 
-		// Now toggle back to undefined via the checkbox
 		await expect(undefinedToggle).toBeVisible({timeout: 5_000});
 		await undefinedToggle.check();
 

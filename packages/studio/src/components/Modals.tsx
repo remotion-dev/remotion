@@ -1,11 +1,15 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
-import {ModalsContext} from '../state/modals';
+import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
-import {ConfirmationDialog} from './ConfirmationDialog';
+import {callApi} from './call-api';
+import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
-import {InstallPackageModal} from './InstallPackage';
+import {ElementLibraryAddConfirmation} from './ElementInstallConfirmation';
+import {ElementLibraryModal} from './ElementLibraryModal';
+import {FixComputedValueModal} from './FixComputedValueModal';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -14,20 +18,103 @@ import {NewFolder} from './NewComposition/NewFolder';
 import {RenameComposition} from './NewComposition/RenameComposition';
 import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
+import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideInputPropsModal} from './OverrideInputProps';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
-import {UpdateModal} from './UpdateModal/UpdateModal';
+import {SettingsModal} from './SettingsModal';
+import {SvgImportDialog} from './SvgImportDialog';
 
 export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
-	const {selectedModal: modalContextType} = useContext(ModalsContext);
-	const canRender =
-		useContext(StudioServerConnectionCtx).previewServerState.type ===
-		'connected';
+	const modalContextType = useContext(SelectedModalContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {previewServerState, subscribeToEvent} = useContext(
+		StudioServerConnectionCtx,
+	);
+	const canRender = previewServerState.type === 'connected';
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const confirm = useConfirmationDialog();
+
+	useEffect(() => {
+		if (isBrowserStudio) {
+			return;
+		}
+
+		return subscribeToEvent('license-key-install-request', (event) => {
+			if (event.type !== 'license-key-install-request') {
+				return;
+			}
+
+			setSelectedModal({
+				type: 'settings',
+				initialTab: 'license',
+				initialPublicLicenseKey: event.licenseKey,
+			});
+		});
+	}, [isBrowserStudio, setSelectedModal, subscribeToEvent]);
+
+	useEffect(() => {
+		if (isBrowserStudio) {
+			return;
+		}
+
+		return subscribeToEvent('element-library-add-request', (event) => {
+			if (event.type !== 'element-library-add-request') {
+				return;
+			}
+
+			(async () => {
+				const confirmed = await confirm({
+					title: 'Add Element catalog',
+					message: (
+						<ElementLibraryAddConfirmation
+							displayName={event.displayName}
+							origin={event.origin}
+							url={event.url}
+						/>
+					),
+					confirmLabel: 'Add catalog',
+					cancelLabel: 'Cancel',
+				});
+				if (!confirmed) {
+					return;
+				}
+
+				if (previewServerState.type !== 'connected') {
+					showNotification('Could not add catalog: Studio disconnected', 4000);
+					return;
+				}
+
+				try {
+					const result = await callApi('/api/update-config', {
+						clientId: previewServerState.clientId,
+						updates: [
+							{
+								setter: 'addElementLibrary',
+								type: 'set',
+								value:
+									event.displayName === null
+										? {url: event.url}
+										: {url: event.url, displayName: event.displayName},
+							},
+						],
+					});
+					if (!result.success) {
+						showNotification(`Could not add catalog: ${result.reason}`, 4000);
+					}
+				} catch (error) {
+					showNotification(
+						`Could not add catalog: ${(error as Error).message}`,
+						4000,
+					);
+				}
+			})();
+		});
+	}, [confirm, isBrowserStudio, previewServerState, subscribeToEvent]);
 
 	return (
 		<>
@@ -36,6 +123,7 @@ export const Modals: React.FC<{
 					folderName={modalContextType.folderName}
 					parentName={modalContextType.parentName}
 					stack={modalContextType.stack}
+					canvasCapture={modalContextType.canvasCapture}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'new-folder' && (
@@ -76,6 +164,17 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
+			{modalContextType &&
+			modalContextType.type === 'settings' &&
+			(!isBrowserStudio ||
+				modalContextType.initialTab === 'packages' ||
+				modalContextType.initialTab === 'shortcuts') ? (
+				<SettingsModal
+					key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
+					initialTab={modalContextType.initialTab}
+					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
+				/>
+			) : null}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
 			)}
@@ -158,21 +257,22 @@ export const Modals: React.FC<{
 				<RenderStatusModal jobId={modalContextType.jobId} />
 			)}
 
-			{modalContextType && modalContextType.type === 'update' && (
-				<UpdateModal
-					info={modalContextType.info}
-					knownBugs={modalContextType.knownBugs}
-				/>
+			{modalContextType && modalContextType.type === 'fix-computed-value' && (
+				<FixComputedValueModal state={modalContextType} />
 			)}
-			{modalContextType && modalContextType.type === 'install-packages' && (
-				<InstallPackageModal packageManager={modalContextType.packageManager} />
-			)}
-
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher
 					readOnlyStudio={readOnlyStudio}
 					invocationTimestamp={modalContextType.invocationTimestamp}
 					initialMode={modalContextType.mode}
+					assetSelection={modalContextType.assetSelection}
+					compositionSelection={modalContextType.compositionSelection}
+				/>
+			)}
+			{modalContextType && modalContextType.type === 'element-library' && (
+				<ElementLibraryModal
+					name={modalContextType.name}
+					url={modalContextType.url}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'add-effect' && (
@@ -180,6 +280,9 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
 				<ConfirmationDialog state={modalContextType} />
+			)}
+			{modalContextType && modalContextType.type === 'svg-import-dialog' && (
+				<SvgImportDialog state={modalContextType} />
 			)}
 			{getStudioAskAIEnabled() && <AskAiModal />}
 		</>

@@ -1,6 +1,5 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
 import React, {useEffect, useState} from 'react';
-import {WHITE} from '../../helpers/colors';
 import {wasErrorLoggedByServer} from '../error-origin';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {getErrorRecord} from '../react-overlay/listen-to-runtime-errors';
@@ -17,20 +16,8 @@ const container: React.CSSProperties = {
 	marginLeft: 'auto',
 	marginRight: 'auto',
 	fontFamily: 'SF Pro Text, sans-serif',
-	paddingTop: '5vh',
-};
-
-const errorWhileErrorStyle: React.CSSProperties = {
-	color: WHITE,
-	lineHeight: 1.5,
-	whiteSpace: 'pre',
-};
-
-const errorWhileSymbolicatingStyle: React.CSSProperties = {
-	color: WHITE,
-	lineHeight: 1.5,
-	marginTop: 24,
-	opacity: 0.7,
+	paddingTop: 14,
+	boxSizing: 'border-box',
 };
 
 type State =
@@ -155,19 +142,14 @@ export const ErrorLoader: React.FC<{
 	if (state.type === 'error') {
 		return (
 			<div style={container}>
-				<ErrorTitle
-					symbolicating={false}
-					name={error.name}
-					message={error.message}
+				<ErrorDisplay
+					keyboardShortcuts={keyboardShortcuts}
+					display={{error, contextSize: 0, stackFrames: []}}
+					onRetry={onRetry}
 					canHaveDismissButton={canHaveDismissButton}
+					calculateMetadata={calculateMetadata}
+					symbolicationFailure={`Could not symbolicate the stack trace: ${state.err.message}`}
 				/>
-				<div style={errorWhileErrorStyle}>
-					{error.stack ??
-						'Check the Terminal and browser console for error messages.'}
-				</div>
-				<div style={errorWhileSymbolicatingStyle}>
-					Could not symbolicate the stack trace: {state.err.message}
-				</div>
 			</div>
 		);
 	}
@@ -175,15 +157,14 @@ export const ErrorLoader: React.FC<{
 	if (state.type === 'no-record') {
 		return (
 			<div style={container}>
-				<ErrorTitle
-					symbolicating={false}
-					name={error.name}
-					message={error.message}
+				<ErrorDisplay
+					keyboardShortcuts={keyboardShortcuts}
+					display={{error, contextSize: 0, stackFrames: []}}
+					onRetry={onRetry}
 					canHaveDismissButton={canHaveDismissButton}
+					calculateMetadata={calculateMetadata}
+					symbolicationFailure="Could not symbolicate the stack trace."
 				/>
-				<div style={errorWhileErrorStyle}>
-					Check the Terminal and browser console for error messages.
-				</div>
 			</div>
 		);
 	}
@@ -196,6 +177,7 @@ export const ErrorLoader: React.FC<{
 				onRetry={onRetry}
 				canHaveDismissButton={canHaveDismissButton}
 				calculateMetadata={calculateMetadata}
+				symbolicationFailure={null}
 			/>
 		</div>
 	);

@@ -1,35 +1,55 @@
 import React from 'react';
 import {BACKGROUND} from '../../helpers/colors';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {TimelineSequenceItem} from './TimelineSequenceItem';
-import {TimelineTimePadding} from './TimelineTimeIndicators';
+import {
+	type TimelineVirtualRow,
+	useTimelineVirtualization,
+} from './TimelineVirtualization';
 
 const container: React.CSSProperties = {
 	flex: 1,
 	background: BACKGROUND,
+	position: 'relative',
 };
 
-export const TimelineList: React.FC<{
-	readonly timeline: TrackWithHash[];
-}> = ({timeline}) => {
+const TimelineListTrack: React.FC<{
+	readonly row: TimelineVirtualRow;
+}> = ({row}) => {
+	const {afterDropLineOffset, siblingIndex, track} = row;
+
 	return (
-		<div style={container}>
-			<TimelineTimePadding />
-			{timeline.map((track, trackIndex) => {
-				return (
-					<div key={track.sequence.id}>
-						<TimelineSequenceItem
-							key={track.sequence.id}
-							trackIndex={trackIndex}
-							nestedDepth={track.depth}
-							sequence={track.sequence}
-							nodePathInfo={track.nodePathInfo}
-							keyframeDisplayOffset={track.keyframeDisplayOffset}
-							sequenceFrameOffset={track.sequenceFrameOffset}
-						/>
-					</div>
-				);
-			})}
+		<TimelineSequenceItem
+			afterDropLineOffset={afterDropLineOffset}
+			siblingIndex={siblingIndex}
+			connectedCompositions={track.connectedCompositions ?? []}
+			nestedDepth={track.depth}
+			sequence={track.sequence}
+			nodePathInfo={track.nodePathInfo}
+			keyframeDisplayOffset={track.keyframeDisplayOffset}
+			sequenceFrameOffset={track.sequenceFrameOffset}
+		/>
+	);
+};
+
+export const TimelineList: React.FC = () => {
+	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();
+
+	return (
+		<div style={{...container, height: tracksEnd}}>
+			{virtualItems.map((virtualItem) => (
+				<div
+					key={virtualItem.key}
+					style={{
+						height: virtualItem.size,
+						left: 0,
+						position: 'absolute',
+						top: virtualItem.start,
+						width: '100%',
+					}}
+				>
+					<TimelineListTrack row={rows[virtualItem.index]} />
+				</div>
+			))}
 		</div>
 	);
 };

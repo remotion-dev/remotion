@@ -6,10 +6,14 @@ import {
 	CompositionSetters,
 	type CompositionManagerSetters,
 } from '../CompositionManagerContext.js';
+import {setComponentIdentityResolver} from '../enable-sequence-stack-traces.js';
 import {Internals} from '../internals.js';
 import {Still} from '../Still.js';
 
-afterEach(cleanup);
+afterEach(() => {
+	cleanup();
+	setComponentIdentityResolver(null);
+});
 
 const AnyComp: React.FC = () => null;
 
@@ -23,6 +27,7 @@ const makeCompositionSetters = (
 	registerFolder: () => undefined,
 	unregisterFolder: () => undefined,
 	setCanvasContent: () => undefined,
+	setCurrentAssetMetadata: () => undefined,
 	onlyRenderComposition: null,
 });
 
@@ -45,12 +50,41 @@ test('Still forwards its stack to the registered composition', async () => {
 				component={AnyComp}
 				width={100}
 				height={100}
-				{...({stack: stillStack} as {readonly stack: string})}
+				{...({
+					_remotionInternalStack: stillStack,
+				} as {readonly _remotionInternalStack: string})}
 			/>
 		</CompositionSetters.Provider>,
 	);
 
 	await waitFor(() => {
 		expect(registeredCompositions[0]?.stack).toBe(stillStack);
+	});
+});
+
+test('Still registers the stable component identity', async () => {
+	const family = {};
+	const registeredCompositions: AnyComposition[] = [];
+	setComponentIdentityResolver((component) => {
+		return component === AnyComp ? family : component;
+	});
+
+	render(
+		<CompositionSetters.Provider
+			value={makeCompositionSetters((composition) => {
+				registeredCompositions.push(composition);
+			})}
+		>
+			<Still
+				id="still-component-identity-test"
+				component={AnyComp}
+				width={100}
+				height={100}
+			/>
+		</CompositionSetters.Provider>,
+	);
+
+	await waitFor(() => {
+		expect(registeredCompositions[0]?.componentFromProps).toBe(family);
 	});
 });

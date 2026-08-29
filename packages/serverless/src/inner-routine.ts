@@ -23,6 +23,7 @@ import {getWarm, setWarm} from './is-warm';
 import {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 import {printLoggingGrepHelper} from './print-logging-grep-helper';
 import type {InsideFunctionSpecifics} from './provider-implementation';
+import {makeS3RendererOutput} from './s3-renderer-output';
 import type {ResponseStreamWriter} from './streaming/stream-writer';
 
 export const innerHandler = async <Provider extends CloudProvider>({
@@ -128,6 +129,15 @@ export const innerHandler = async <Provider extends CloudProvider>({
 					insideFunctionSpecifics,
 				})
 					.then((r) => {
+						if (!params.streamed && r.type === 'error') {
+							return responseWriter
+								.write(new TextEncoder().encode(JSON.stringify(r)))
+								.then(() => r);
+						}
+
+						return r;
+					})
+					.then((r) => {
 						resolve(r);
 					})
 					.catch((err) => {
@@ -181,11 +191,15 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		} catch (err) {
 			// eslint-disable-next-line no-console
 			console.log({err});
+			const response: OrError<0> = {
+				type: 'error',
+				message: (err as Error).message,
+				stack: (err as Error).stack as string,
+			};
 			await responseWriter.write(
-				new TextEncoder().encode(
-					JSON.stringify({type: 'error', message: (err as Error).stack}),
-				),
+				new TextEncoder().encode(JSON.stringify(response)),
 			);
+			await responseWriter.end();
 			return;
 		}
 	}
@@ -208,6 +222,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			options: {
 				expectedBucketOwner: currentUserId,
 				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
+				requestContext: context,
 			},
 			providerSpecifics,
 			insideFunctionSpecifics,
@@ -265,6 +280,19 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			);
 		}
 
+		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
+		const transport = providerSpecifics.getRendererFunctionTransport(region);
+		const s3Output =
+			transport === 's3'
+				? makeS3RendererOutput({
+						params,
+						expectedBucketOwner: currentUserId,
+						region,
+						providerSpecifics,
+					})
+				: null;
+		await s3Output?.initialize();
+
 		await new Promise((resolve, reject) => {
 			rendererHandler({
 				params,
@@ -272,24 +300,28 @@ export const innerHandler = async <Provider extends CloudProvider>({
 					expectedBucketOwner: currentUserId,
 					isWarm,
 				},
-				onStream: (payload) => {
-					const message = makeStreamPayload({
-						message: payload,
-					});
-
-					const writeProm = responseWriter.write(message);
-
-					return new Promise<void>((innerResolve, innerReject) => {
-						writeProm
-							.then(() => {
-								innerResolve();
-							})
-							.catch((err) => {
-								reject(err);
-								innerReject(err);
+				onStream: s3Output
+					? s3Output.onStream
+					: (payload) => {
+							const message = makeStreamPayload({
+								message: payload,
 							});
-					});
-				},
+
+							const writeProm = responseWriter.write(message);
+
+							return new Promise<void>((innerResolve, innerReject) => {
+								writeProm
+									.then(() => {
+										innerResolve();
+									})
+									.catch((err) => {
+										reject(err);
+										innerReject(err);
+									});
+							});
+						},
+				onMediaFiles: s3Output?.uploadMediaAndComplete ?? null,
+				executionMode: 'invoked',
 				requestContext: context,
 				providerSpecifics,
 				insideFunctionSpecifics,

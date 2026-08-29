@@ -8,24 +8,29 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {setCurrentFrame} from './imperative-state';
 import {
 	scrollableRef,
 	sliderAreaRef,
 	timelineVerticalScroll,
 } from './timeline-refs';
+import type {
+	TimelineEdgeAutoScroller,
+	TimelineEdgeScrollDirections,
+} from './timeline-scroll-logic';
 import {
-	canScrollTimelineIntoDirection,
 	getFrameFromX,
 	getFrameWhileScrollingLeft,
 	getFrameWhileScrollingRight,
 	getScrollPositionForCursorOnLeftEdge,
 	getScrollPositionForCursorOnRightEdge,
 	scrollToTimelineXOffset,
+	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
 import {TIMELINE_SCRUBBER_ATTR} from './TimelineSelection';
 import {redrawTimelineSliderFast} from './TimelineSlider';
@@ -60,14 +65,19 @@ export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
 
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {canvasContent, currentAssetMetadata} = useContext(
+		Internals.CompositionManager,
+	);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!canvasContent || canvasContent.type !== 'composition') {
+		if (!canvasContent) {
 			return {};
 		}
 
-		const zoom = zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
+		const zoom =
+			canvasContent.type === 'composition'
+				? (zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM)
+				: TIMELINE_MIN_ZOOM;
 		return {
 			...container,
 			width: 100 * zoom + '%',
@@ -75,7 +85,11 @@ export const TimelineDragHandler: React.FC = () => {
 		};
 	}, [canvasContent, zoomMap]);
 
-	if (!canvasContent || canvasContent.type !== 'composition') {
+	const hasPlayableContent =
+		canvasContent?.type === 'composition' ||
+		(canvasContent?.type === 'asset' &&
+			currentAssetMetadata?.asset === canvasContent.asset);
+	if (!hasPlayableContent) {
 		return null;
 	}
 
@@ -85,7 +99,7 @@ export const TimelineDragHandler: React.FC = () => {
 			style={containerStyle}
 			{...{[TIMELINE_SCRUBBER_ATTR]: true}}
 		>
-			{video && studioInteractivityEnabled ? (
+			{video && isStudioSelectionEnabled() ? (
 				<TimelineDragHandlerInnerMemo />
 			) : null}
 		</div>
@@ -111,20 +125,16 @@ const TimelineDragHandlerInner: React.FC = () => {
 		| {
 				dragging: true;
 				wasPlaying: boolean;
+				button: number;
+				pointerId: number;
+				target: HTMLDivElement;
 		  }
 	>({
 		dragging: false,
 	});
-	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
+	const {isPlaying, play, pause, seek} = PlayerInternals.usePlayerMethods();
 
-	const scroller = useRef<Timer | null>(null);
-
-	const stopInterval = () => {
-		if (scroller.current) {
-			clearInterval(scroller.current);
-			scroller.current = null;
-		}
-	};
+	const autoScroller = useRef<TimelineEdgeAutoScroller | null>(null);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -136,7 +146,6 @@ const TimelineDragHandlerInner: React.FC = () => {
 				return;
 			}
 
-			stopInterval();
 			if (!videoConfig) {
 				return;
 			}
@@ -155,11 +164,55 @@ const TimelineDragHandlerInner: React.FC = () => {
 			seek(frame);
 			setDragging({
 				dragging: true,
-				wasPlaying: playing,
+				wasPlaying: isPlaying(),
+				button: e.button,
+				pointerId: e.pointerId,
+				target: e.currentTarget,
 			});
+			e.currentTarget.setPointerCapture?.(e.pointerId);
 			pause();
 		},
-		[isHighestContext, videoConfig, left, width, seek, playing, pause],
+		[isHighestContext, videoConfig, left, width, seek, isPlaying, pause],
+	);
+
+	const onEdgeScrollTick = useCallback(
+		(directions: TimelineEdgeScrollDirections) => {
+			if (!videoConfig || directions.x === null) {
+				return;
+			}
+
+			const nextFrame =
+				directions.x === 'left'
+					? getFrameWhileScrollingLeft({
+							durationInFrames: videoConfig.durationInFrames,
+							width,
+						})
+					: getFrameWhileScrollingRight({
+							durationInFrames: videoConfig.durationInFrames,
+							width,
+						});
+
+			const scrollPos =
+				directions.x === 'left'
+					? getScrollPositionForCursorOnLeftEdge({
+							nextFrame,
+							durationInFrames: videoConfig.durationInFrames,
+						})
+					: getScrollPositionForCursorOnRightEdge({
+							nextFrame,
+							durationInFrames: videoConfig.durationInFrames,
+						});
+
+			// Update the imperative frame and apply the scroll before drawing, so
+			// every redraw (including the scroll event listener in TimelineSlider)
+			// sees a consistent (frame, scrollLeft) pair. Otherwise the playhead
+			// flickers between stale combinations while React commits the seek.
+			setCurrentFrame(nextFrame);
+			scrollToTimelineXOffset(scrollPos);
+			redrawTimelineSliderFast.current?.draw(nextFrame);
+			seek(nextFrame);
+		},
+		[videoConfig, width, seek],
 	);
 
 	const onPointerMoveScrubbing = useCallback(
@@ -172,13 +225,15 @@ const TimelineDragHandlerInner: React.FC = () => {
 				return;
 			}
 
-			const isRightOfArea =
-				e.clientX >=
-				(scrollableRef.current?.clientWidth as number) +
-					left -
-					TIMELINE_PADDING;
+			const directions = autoScroller.current?.update(e) ?? {
+				x: null,
+				y: null,
+			};
 
-			const isLeftOfArea = e.clientX <= left;
+			// While edge auto-scrolling is active, the tick owns seeking
+			if (directions.x !== null) {
+				return;
+			}
 
 			const frame = getFrameFromX({
 				clientX: getClientXWithScroll(e.clientX) - left,
@@ -187,81 +242,14 @@ const TimelineDragHandlerInner: React.FC = () => {
 				extrapolate: 'clamp',
 			});
 
-			if (isLeftOfArea && canScrollTimelineIntoDirection().canScrollLeft) {
-				if (scroller.current) {
-					return;
-				}
-
-				const scrollEvery = () => {
-					if (!canScrollTimelineIntoDirection().canScrollLeft) {
-						stopInterval();
-						return;
-					}
-
-					const nextFrame = getFrameWhileScrollingLeft({
-						durationInFrames: videoConfig.durationInFrames,
-						width,
-					});
-
-					const scrollPos = getScrollPositionForCursorOnLeftEdge({
-						nextFrame,
-						durationInFrames: videoConfig.durationInFrames,
-					});
-
-					redrawTimelineSliderFast.current?.draw(nextFrame);
-					seek(nextFrame);
-					scrollToTimelineXOffset(scrollPos);
-				};
-
-				scrollEvery();
-				scroller.current = setInterval(() => {
-					scrollEvery();
-				}, 100);
-			} else if (
-				isRightOfArea &&
-				canScrollTimelineIntoDirection().canScrollRight
-			) {
-				if (scroller.current) {
-					return;
-				}
-
-				const scrollEvery = () => {
-					if (!canScrollTimelineIntoDirection().canScrollRight) {
-						stopInterval();
-						return;
-					}
-
-					const nextFrame = getFrameWhileScrollingRight({
-						durationInFrames: videoConfig.durationInFrames,
-						width,
-					});
-
-					const scrollPos = getScrollPositionForCursorOnRightEdge({
-						nextFrame,
-						durationInFrames: videoConfig.durationInFrames,
-					});
-
-					redrawTimelineSliderFast.current?.draw(nextFrame);
-					seek(nextFrame);
-					scrollToTimelineXOffset(scrollPos);
-				};
-
-				scrollEvery();
-
-				scroller.current = setInterval(() => {
-					scrollEvery();
-				}, 100);
-			} else {
-				stopInterval();
-				seek(frame);
-			}
+			seek(frame);
 		},
 		[videoConfig, dragging.dragging, left, width, seek],
 	);
 
 	const onPointerUpScrubbing = useCallback(
 		(e: PointerEvent) => {
-			stopInterval();
+			autoScroller.current?.stop();
 			document.body.style.userSelect = '';
 			document.body.style.webkitUserSelect = '';
 
@@ -285,6 +273,10 @@ const TimelineDragHandlerInner: React.FC = () => {
 			});
 
 			setFrame((c) => {
+				if (c[videoConfig.id] === frame) {
+					return c;
+				}
+
 				const newObj = {...c, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(newObj);
 				return newObj;
@@ -297,18 +289,64 @@ const TimelineDragHandlerInner: React.FC = () => {
 		[dragging, left, play, videoConfig, setFrame, width],
 	);
 
+	const onPointerCancelScrubbing = useCallback(() => {
+		autoScroller.current?.stop();
+		document.body.style.userSelect = '';
+		document.body.style.webkitUserSelect = '';
+		if (!dragging.dragging) {
+			return;
+		}
+
+		setDragging({dragging: false});
+		if (dragging.wasPlaying) {
+			play();
+		}
+	}, [dragging, play]);
+
 	useEffect(() => {
 		if (!dragging.dragging) {
 			return;
 		}
 
-		window.addEventListener('pointermove', onPointerMoveScrubbing);
-		window.addEventListener('pointerup', onPointerUpScrubbing);
+		const scroller = startTimelineEdgeAutoScroll({
+			includeHorizontal: true,
+			includeVertical: false,
+			verticalTopOffset: 0,
+			onTick: onEdgeScrollTick,
+		});
+		autoScroller.current = scroller;
+
+		const endSession = startCapturedPointerSession({
+			event: dragging,
+			captureTarget: dragging.target,
+			onMove: onPointerMoveScrubbing,
+			onEnd: (reason, endEvent) => {
+				if (
+					(reason === 'pointerup' || reason === 'buttons-released') &&
+					endEvent
+				) {
+					onPointerUpScrubbing(endEvent);
+				} else {
+					onPointerCancelScrubbing();
+				}
+			},
+		});
+
 		return () => {
-			window.removeEventListener('pointermove', onPointerMoveScrubbing);
-			window.removeEventListener('pointerup', onPointerUpScrubbing);
+			scroller.stop();
+			if (autoScroller.current === scroller) {
+				autoScroller.current = null;
+			}
+
+			endSession();
 		};
-	}, [dragging.dragging, onPointerMoveScrubbing, onPointerUpScrubbing]);
+	}, [
+		dragging,
+		onEdgeScrollTick,
+		onPointerCancelScrubbing,
+		onPointerMoveScrubbing,
+		onPointerUpScrubbing,
+	]);
 
 	const ref = useRef<HTMLDivElement>(null);
 

@@ -1,12 +1,20 @@
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import {
 	BundlerInternals,
 	WatchIgnoreNextChangePlugin,
 	webpack,
 } from '@remotion/bundler';
-import type {LogLevel} from '@remotion/renderer';
+import type {
+	DefaultCodingAgent,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	GitSource,
@@ -40,14 +48,13 @@ export type StartServerResult =
 export const startServer = async (options: {
 	entry: string;
 	userDefinedComponent: string;
+	bundlerOverride: BundlerOverrideFn;
+	rspackOverride: RspackOverrideFn;
 	webpackOverride: WebpackOverrideFn;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	port: number | null;
-	maxTimelineTracks: number | null;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
-	keyboardShortcutsEnabled: boolean;
 	publicDir: string;
 	poll: number | null;
 	staticHash: string;
@@ -57,19 +64,21 @@ export const startServer = async (options: {
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
+	getNumberOfAudioTags: () => number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultCodingAgent: () => DefaultCodingAgent | null;
+	getDefaultEditor: () => DefaultEditor | null;
+	configFile: string | null;
 }): Promise<StartServerResult> => {
 	const desiredPort =
 		options?.port ??
@@ -78,134 +87,102 @@ export const startServer = async (options: {
 
 	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
 
-	const onPortUnavailable = options.forceNew
-		? undefined
-		: async (port: number): Promise<'continue' | 'stop'> => {
-				const detection = await detectRemotionServer({
-					port,
-					cwd: options.remotionRoot,
-					hostname: portConfig.hostsToTry[0],
-				});
-				return detection.type === 'match' ? 'stop' : 'continue';
-			};
-
-	const watchIgnorePlugin = new WatchIgnoreNextChangePlugin((...args) => {
-		RenderInternals.Log.trace(
-			{indent: false, logLevel: options.logLevel},
-			...args,
-		);
-	});
-
-	const configArgs = {
-		entry: options.entry,
-		userDefinedComponent: options.userDefinedComponent,
-		outDir: null,
-		environment: 'development' as const,
-		webpackOverride: options?.webpackOverride,
-		maxTimelineTracks: options?.maxTimelineTracks ?? null,
-		remotionRoot: options.remotionRoot,
-		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
-		poll: options.poll,
-		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
-		askAIEnabled: options.askAIEnabled,
-		interactivityEnabled: options.interactivityEnabled,
-		extraPlugins: [watchIgnorePlugin],
-	};
-
-	let compiler: webpack.Compiler;
-	if (options.rspack) {
-		const [, rspackConf] = await BundlerInternals.rspackConfig(configArgs);
-		compiler = BundlerInternals.createRspackCompiler(
-			rspackConf,
-		) as unknown as webpack.Compiler;
-	} else {
-		const [, webpackConf] = await BundlerInternals.webpackConfig(configArgs);
-		compiler = webpack(webpackConf);
-	}
-
-	setWatchIgnoreNextChangePlugin(watchIgnorePlugin);
-
-	const wdmMiddleware = wdm(compiler, options.logLevel);
-	const liveEventsServer = makeLiveEventsRouter(options.logLevel, () => {
-		const undoStack = getUndoStack();
-		const redoStack = getRedoStack();
-		return {
-			undoFile:
-				undoStack.length > 0 ? undoStack[undoStack.length - 1].filePath : null,
-			redoFile:
-				redoStack.length > 0 ? redoStack[redoStack.length - 1].filePath : null,
-		};
-	});
-	setupWebpackHmr(compiler, options.logLevel, liveEventsServer);
-	compiler.hooks.done.tap('remotion-node-path-cache', () => {
-		clearNodePathCache();
-	});
-
-	const server = http.createServer((request, response) => {
-		if (options.enableCrossSiteIsolation) {
-			response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-			response.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+	const onPortUnavailable = async (
+		port: number,
+	): Promise<'continue' | 'stop'> => {
+		if (!options.forceNew) {
+			const detection = await detectRemotionServer({
+				port,
+				cwd: options.remotionRoot,
+				hostname: portConfig.hostsToTry[0],
+			});
+			if (detection.type === 'match') {
+				return 'stop';
+			}
 		}
 
-		new Promise<void>((resolve) => {
-			wdmMiddleware(request as IncomingMessage, response, () => {
-				resolve();
-			});
-		})
-			.then(() => {
-				return handleRoutes({
-					staticHash: options.staticHash,
-					staticHashPrefix: options.staticHashPrefix,
-					outputHash: options.outputHash,
-					outputHashPrefix: options.outputHashPrefix,
-					request: request as IncomingMessage,
-					response,
-					liveEventsServer,
-					getCurrentInputProps: options.getCurrentInputProps,
-					getEnvVariables: options.getEnvVariables,
-					remotionRoot: options.remotionRoot,
-					entryPoint: options.userDefinedComponent,
-					publicDir: options.publicDir,
-					logLevel: options.logLevel,
-					getRenderQueue: options.getRenderQueue,
-					getRenderDefaults: options.getRenderDefaults,
-					numberOfAudioTags: options.numberOfAudioTags,
-					queueMethods: options.queueMethods,
-					gitSource: options.gitSource,
-					binariesDirectory: options.binariesDirectory,
-					audioLatencyHint: options.audioLatencyHint,
-					previewSampleRate: options.previewSampleRate,
-					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
-					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
-				});
-			})
-			.catch((err) => {
-				RenderInternals.Log.error(
-					{indent: false, logLevel: options.logLevel},
-					`Error while calling ${request.url}`,
-					err,
-				);
-				if (!response.headersSent) {
-					response.setHeader('content-type', 'application/json');
-					response.writeHead(500);
-				}
+		RenderInternals.Log.info(
+			{indent: false, logLevel: options.logLevel},
+			RenderInternals.chalk.gray(`Port ${port} is busy, trying another.`),
+		);
+		return 'continue';
+	};
 
-				if (!response.writableEnded) {
-					response.end(
-						JSON.stringify({
-							err: (err as Error).message,
-						}),
-					);
-				}
-			});
+	let portSelection = await RenderInternals.getDesiredPort({
+		desiredPort,
+		from: 3000,
+		to: 3100,
+		hostsToTry: portConfig.hostsToTry,
+		onPortUnavailable,
 	});
 
+	if (portSelection.didUsePort) {
+		portSelection.unlockPort();
+		return {
+			type: 'already-running' as const,
+			port: portSelection.port,
+		};
+	}
+
+	const handleRequestBeforeReady: http.RequestListener = (
+		_request,
+		response,
+	) => {
+		response.writeHead(503);
+		response.end('Studio is starting...');
+	};
+
+	const server = http.createServer(handleRequestBeforeReady);
 	const maxTries = 5;
+	let selectedPort: number | null = null;
 
 	for (let i = 0; i < maxTries; i++) {
 		try {
-			const {port, unlockPort, didUsePort} =
-				await RenderInternals.getDesiredPort({
+			const {port, unlockPort} = portSelection;
+
+			selectedPort = await new Promise<number>((resolve, reject) => {
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel: options.logLevel},
+					`Binding server to host ${portConfig.host}, port ${port}`,
+				);
+				const onListening = () => {
+					server.off('error', onError);
+					unlockPort();
+					resolve(port);
+				};
+
+				const onError = (error: Error) => {
+					server.off('listening', onListening);
+					reject(error);
+				};
+
+				server.once('listening', onListening);
+				server.once('error', onError);
+				server.listen({
+					port,
+					host: portConfig.host,
+				});
+			});
+			break;
+		} catch (err) {
+			if (!(err instanceof Error)) {
+				portSelection.unlockPort();
+				throw err;
+			}
+
+			const codedError = err as Error & {code: string; port: number};
+
+			if (codedError.code === 'EADDRINUSE') {
+				portSelection.unlockPort();
+				RenderInternals.Log.error(
+					{indent: false, logLevel: options.logLevel},
+					`Port ${codedError.port} is already in use. Trying another port...`,
+				);
+				if (i === maxTries - 1) {
+					break;
+				}
+
+				portSelection = await RenderInternals.getDesiredPort({
 					desiredPort,
 					from: 3000,
 					to: 3100,
@@ -213,77 +190,176 @@ export const startServer = async (options: {
 					onPortUnavailable,
 				});
 
-			if (didUsePort) {
-				unlockPort();
-				await Promise.all([
-					new Promise<void>((resolve) => {
-						server.close(() => resolve());
-					}),
-					new Promise<void>((resolve) => {
-						compiler.close(() => resolve());
-					}),
-				]);
-				return {
-					type: 'already-running' as const,
-					port,
-				};
-			}
-
-			const selectedPort = await new Promise<number>((resolve, reject) => {
-				RenderInternals.Log.verbose(
-					{indent: false, logLevel: options.logLevel},
-					`Binding server to host ${portConfig.host}, port ${port}`,
-				);
-				server.listen({
-					port,
-					host: portConfig.host,
-				});
-				server.on('listening', () => {
-					resolve(port);
-					return unlockPort();
-				});
-				server.on('error', (err) => {
-					reject(err);
-				});
-			});
-
-			return {
-				type: 'started' as const,
-				port: selectedPort as number,
-				liveEventsServer,
-				close: async () => {
-					server.closeAllConnections();
-					await Promise.all([
-						new Promise<void>((resolve) => {
-							server.close(() => {
-								resolve();
-							});
-						}),
-						new Promise<void>((resolve) => {
-							compiler.close(() => {
-								resolve();
-							});
-						}),
-					]);
-				},
-			};
-		} catch (err) {
-			if (!(err instanceof Error)) {
-				throw err;
-			}
-
-			const codedError = err as Error & {code: string; port: number};
-
-			if (codedError.code === 'EADDRINUSE') {
-				RenderInternals.Log.error(
-					{indent: false, logLevel: options.logLevel},
-					`Port ${codedError.port} is already in use. Trying another port...`,
-				);
+				if (portSelection.didUsePort) {
+					portSelection.unlockPort();
+					return {
+						type: 'already-running' as const,
+						port: portSelection.port,
+					};
+				}
 			} else {
+				portSelection.unlockPort();
 				throw err;
 			}
 		}
 	}
 
-	throw new Error(`Tried ${maxTries} times to find a free port. Giving up.`);
+	if (selectedPort === null) {
+		throw new Error(`Tried ${maxTries} times to find a free port. Giving up.`);
+	}
+
+	let compiler: webpack.Compiler | null = null;
+	try {
+		const watchIgnorePlugin = new WatchIgnoreNextChangePlugin((...args) => {
+			RenderInternals.Log.trace(
+				{indent: false, logLevel: options.logLevel},
+				...args,
+			);
+		});
+
+		const configArgs = {
+			entry: options.entry,
+			userDefinedComponent: options.userDefinedComponent,
+			outDir: null,
+			environment: 'development' as const,
+			bundlerOverride: options.bundlerOverride,
+			rspackOverride: options.rspackOverride,
+			webpackOverride: options?.webpackOverride,
+			remotionRoot: options.remotionRoot,
+			poll: options.poll,
+			extraPlugins: [watchIgnorePlugin],
+		};
+
+		if (options.rspack) {
+			const [, rspackConf] = await BundlerInternals.rspackConfig(configArgs);
+			compiler = BundlerInternals.createRspackCompiler(
+				rspackConf,
+			) as unknown as webpack.Compiler;
+		} else {
+			const [, webpackConf] = await BundlerInternals.webpackConfig(configArgs);
+			compiler = webpack(webpackConf);
+		}
+
+		setWatchIgnoreNextChangePlugin(watchIgnorePlugin);
+
+		const wdmMiddleware = wdm(compiler, options.logLevel);
+		const liveEventsServer = makeLiveEventsRouter(options.logLevel, () => {
+			const undoStack = getUndoStack();
+			const redoStack = getRedoStack();
+			return {
+				undoFile:
+					undoStack.length > 0
+						? undoStack[undoStack.length - 1].filePath
+						: null,
+				redoFile:
+					redoStack.length > 0
+						? redoStack[redoStack.length - 1].filePath
+						: null,
+			};
+		});
+		setupWebpackHmr(compiler, options.logLevel, liveEventsServer);
+		compiler.hooks.done.tap('remotion-node-path-cache', () => {
+			clearNodePathCache();
+		});
+
+		server.off('request', handleRequestBeforeReady);
+		server.on('request', (request, response) => {
+			if (options.enableCrossSiteIsolation) {
+				response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+				response.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+			}
+
+			new Promise<void>((resolve) => {
+				wdmMiddleware(request as IncomingMessage, response, () => {
+					resolve();
+				});
+			})
+				.then(() => {
+					return handleRoutes({
+						staticHash: options.staticHash,
+						staticHashPrefix: options.staticHashPrefix,
+						outputHash: options.outputHash,
+						outputHashPrefix: options.outputHashPrefix,
+						request: request as IncomingMessage,
+						response,
+						liveEventsServer,
+						getCurrentInputProps: options.getCurrentInputProps,
+						getEnvVariables: options.getEnvVariables,
+						remotionRoot: options.remotionRoot,
+						entryPoint: options.userDefinedComponent,
+						publicDir: options.publicDir,
+						logLevel: options.logLevel,
+						getRenderQueue: options.getRenderQueue,
+						getRenderDefaults: options.getRenderDefaults,
+						getNumberOfAudioTags: options.getNumberOfAudioTags,
+						queueMethods: options.queueMethods,
+						gitSource: options.gitSource,
+						binariesDirectory: options.binariesDirectory,
+						getAudioLatencyHint: options.getAudioLatencyHint,
+						getExperimentalKeepAudioContextAlive:
+							options.getExperimentalKeepAudioContextAlive,
+						getPreviewSampleRate: options.getPreviewSampleRate,
+						enableCrossSiteIsolation: options.enableCrossSiteIsolation,
+						getStudioRuntimeConfig: options.getStudioRuntimeConfig,
+						getDefaultCodingAgent: options.getDefaultCodingAgent,
+						getDefaultEditor: options.getDefaultEditor,
+						configFile: options.configFile,
+					});
+				})
+				.catch((err) => {
+					RenderInternals.Log.error(
+						{indent: false, logLevel: options.logLevel},
+						`Error while calling ${request.url}`,
+						err,
+					);
+					if (!response.headersSent) {
+						response.setHeader('content-type', 'application/json');
+						response.writeHead(500);
+					}
+
+					if (!response.writableEnded) {
+						response.end(
+							JSON.stringify({
+								err: (err as Error).message,
+							}),
+						);
+					}
+				});
+		});
+
+		const initializedCompiler = compiler;
+		return {
+			type: 'started' as const,
+			port: selectedPort,
+			liveEventsServer,
+			close: async () => {
+				server.closeAllConnections();
+				await Promise.all([
+					new Promise<void>((resolve) => {
+						server.close(() => {
+							resolve();
+						});
+					}),
+					new Promise<void>((resolve) => {
+						initializedCompiler.close(() => {
+							resolve();
+						});
+					}),
+				]);
+			},
+		};
+	} catch (error) {
+		server.closeAllConnections();
+		await Promise.all([
+			new Promise<void>((resolve) => {
+				server.close(() => resolve());
+			}),
+			compiler
+				? new Promise<void>((resolve) => {
+						compiler?.close(() => resolve());
+					})
+				: Promise.resolve(),
+		]);
+		throw error;
+	}
 };

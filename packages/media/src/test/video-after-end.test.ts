@@ -1,5 +1,9 @@
 import {assert, expect, test} from 'vitest';
-import {getMaxVideoCacheSize, keyframeManager} from '../caches';
+import {
+	getMaxVideoCacheSize,
+	globalMediaCache,
+	keyframeManager,
+} from '../caches';
 import {extractFrame} from '../video-extraction/extract-frame';
 
 test('Should render last frame for timestamps after video end', async () => {
@@ -16,6 +20,7 @@ test('Should render last frame for timestamps after video end', async () => {
 		fps: 24,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 
 	assert(result.type === 'success');

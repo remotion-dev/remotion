@@ -1,10 +1,10 @@
 import React, {useCallback, useMemo} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
+import {downloadBlob} from '../../helpers/download-blob';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {ClientRenderJob} from './client-side-render-types';
-import {downloadBlob} from './ClientRenderQueueProcessor';
 
 export const RenderQueueDownloadItem: React.FC<{
 	readonly job: ClientRenderJob;
@@ -55,6 +55,7 @@ export const RenderQueueDownloadItem: React.FC<{
 
 	return (
 		<InlineAction
+			variant={null}
 			renderAction={renderAction}
 			onClick={onClick}
 			title="Download"

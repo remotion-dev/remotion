@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 If you are using the player, a common desire is to share the code with your Remotion Studio and/or server-side rendering. With the correct setup, you can write the component once and use it for previewing, displaying and rendering.
 
 :::note
-Remotion and your React app use a different Webpack config. Therefore, if you want to override your [Webpack configuration](/docs/webpack), you need to override both the Remotion one and the React app one.
+Remotion and your React app use different bundler configurations. Therefore, if you want to override your [bundler configuration](/docs/bundlers), you need to override both the Remotion one and the React app one.
 :::
 
 ## Template
@@ -197,13 +197,15 @@ In any Node.JS context, you can call [`bundle()`](/docs/bundle) to bundle your v
 import path from 'path';
 import {bundle} from '@remotion/bundler';
 
-const bundled = await bundle(path.join(process.cwd(), 'src', 'remotion', 'index.ts'));
+const bundled = await bundle({
+  entryPoint: path.join(process.cwd(), 'src', 'remotion', 'index.ts'),
+});
 ```
 
 See [Server-side rendering](/docs/ssr) for a full example.
 
 :::tip
-When using Lambda, you don't need this, you can use the CLI or [`deploySite()`](/docs/lambda/deploysite) which will bundle the video for you.
+When using Lambda, pass the resulting directory to [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle). Alternatively, use the Lambda CLI, which bundles and deploys the project in one command.
 :::
 
 ## See also

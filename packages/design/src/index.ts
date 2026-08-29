@@ -18,6 +18,7 @@ export {
 	SelectTrigger,
 	SelectValue,
 } from './Select';
+export {Slider, type SliderProps} from './Slider';
 export {Switch} from './Switch';
 export {Tabs, TabsContent, TabsList, TabsTrigger} from './Tabs';
 export {Textarea} from './Textarea';

@@ -33,7 +33,7 @@ const rowLabel: React.CSSProperties = {
 	userSelect: 'none',
 };
 
-export const TimelineExpandedRow: React.FC<{
+type TimelineExpandedRowProps = {
 	readonly node: TimelineTreeNode;
 	readonly depth: number;
 	readonly nestedDepth: number;
@@ -44,8 +44,10 @@ export const TimelineExpandedRow: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
-}> = ({
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
+};
+
+const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 	node,
 	depth,
 	nestedDepth,
@@ -60,6 +62,7 @@ export const TimelineExpandedRow: React.FC<{
 }) => {
 	const rowDepth =
 		(rowDepthBase ?? getExpandedRowDepth({nestedDepth, treeDepth: 0})) + depth;
+	const isInspector = keyframeControlsMode === 'inspector';
 	const selection = useTimelineRowSelection(node.nodePathInfo);
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
@@ -89,6 +92,7 @@ export const TimelineExpandedRow: React.FC<{
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
+					labelNextToToggle={isInspector}
 					getIsExpanded={getIsExpanded}
 					toggleTrack={toggleTrack}
 				/>
@@ -114,7 +118,6 @@ export const TimelineExpandedRow: React.FC<{
 				}}
 				selected={selection.selected}
 				selectable={selection.selectable}
-				selectionItem={selection.selectionItem}
 				onSelect={selection.onSelect}
 				showSelectedBackground
 				containsSelection={false}
@@ -131,11 +134,12 @@ export const TimelineExpandedRow: React.FC<{
 				<TimelineEffectPropItem
 					field={node.field}
 					validatedLocation={validatedLocation}
-					rowDepth={rowDepth}
+					rowDepth={isInspector ? rowDepth - 1 : rowDepth}
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 					keyframeControlsMode={keyframeControlsMode}
+					runtimeValueStore={node.runtimeValueStore}
 				/>
 			);
 		}
@@ -151,6 +155,7 @@ export const TimelineExpandedRow: React.FC<{
 					schema={schema}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 					keyframeControlsMode={keyframeControlsMode}
+					runtimeValue={node.runtimeValue}
 				/>
 			);
 		}
@@ -170,7 +175,6 @@ export const TimelineExpandedRow: React.FC<{
 			}}
 			selected={selection.selected}
 			selectable={selection.selectable}
-			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}
@@ -180,3 +184,5 @@ export const TimelineExpandedRow: React.FC<{
 		</TimelineRowChrome>
 	);
 };
+
+export const TimelineExpandedRow = React.memo(TimelineExpandedRowInner);

@@ -69,6 +69,14 @@ export const MyComposition = () => {
 };
 ```
 
+### `premountFor?`<AvailableFrom v="4.0.495" />
+
+Mounts the audio for the specified number of frames before its `from` frame, allowing it to buffer before playback starts. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.495" />
+
+Keeps the audio mounted for the specified number of frames after its duration has ended.
+
 ### `trimBefore?`
 
 Will remove a portion of the audio at the beginning (left side).
@@ -185,7 +193,9 @@ export const MyComposition = () => {
 ```
 
 :::note
-Playing a audio in reverse is not supported.
+Playing audio in reverse is not supported.
+
+Changing `playbackRate` also changes the audio pitch. Pitch-preserving speed changes are not supported by the Mediabunny and WebCodecs path. If the audio [falls back to `<Html5Audio>`](/docs/media/fallback) during preview or server-side rendering, audio pitch is preserved by default.
 :::
 
 ### `loop?`<AvailableFrom v="3.2.29" />
@@ -251,7 +261,7 @@ export const MyComposition = () => {
 
 ### ~~`credentials?`<AvailableFrom v="4.0.437" />~~
 
-:::note Deprecated
+:::info Deprecated
 Use [`requestInit`](#requestinit) instead.
 :::
 

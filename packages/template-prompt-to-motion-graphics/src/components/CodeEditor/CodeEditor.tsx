@@ -54,7 +54,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     if (!isStreaming || !monacoRef.current) return;
 
     const clearAllMarkers = () => {
-      monacoRef.current?.editor.getModels().forEach((model) => {
+      const models = monacoRef.current?.editor.getModels() ?? [];
+      models.forEach((model: editor.ITextModel) => {
         monacoRef.current?.editor.setModelMarkers(model, "javascript", []);
         monacoRef.current?.editor.setModelMarkers(model, "typescript", []);
         monacoRef.current?.editor.setModelMarkers(model, "owner", []);
@@ -242,7 +243,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
     // Override marker setting to suppress during streaming
     const originalSetModelMarkers = monaco.editor.setModelMarkers;
-    monaco.editor.setModelMarkers = (mdl, owner, markers) => {
+    monaco.editor.setModelMarkers = (
+      mdl: editor.ITextModel,
+      owner: string,
+      markers: editor.IMarkerData[],
+    ) => {
       if (isStreamingRef.current) {
         return;
       }

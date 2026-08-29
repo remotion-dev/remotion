@@ -39,5 +39,8 @@ export const overrideFpsOption = {
 		validateFps(fps, 'in Config.overrideFps()', false);
 		currentFps = fps;
 	},
+	reset: () => {
+		currentFps = null;
+	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<number | null>;

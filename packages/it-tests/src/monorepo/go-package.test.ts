@@ -32,11 +32,12 @@ test(
 
 		const nativeVersion =
 			await LambdaClientInternals.makeLambdaRenderMediaPayload({
+				enableCancellation: false,
 				region: 'us-east-1',
 				composition: 'react-svg',
 				functionName: 'remotion-render',
 				serveUrl: 'testbed',
-				codec: 'h264',
+				codec: 'gif',
 				audioBitrate: null,
 				audioCodec: null,
 				chromiumOptions: {},

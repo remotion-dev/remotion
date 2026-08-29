@@ -1,12 +1,18 @@
 import {blur} from '@remotion/effects/blur';
 import {halftone} from '@remotion/effects/halftone';
+import {lightLeak} from '@remotion/effects/light-leak';
+import {starburst} from '@remotion/effects/starburst';
 import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
-import {lightLeak} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
-import {starburst} from '@remotion/starburst';
 import React from 'react';
-import {AbsoluteFill, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	interpolate,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 const SAMPLE_VIDEO = 'https://remotion.media/bigbuckbunny.mp4';
 
@@ -102,7 +108,6 @@ const AnimatedWaveVideo: React.FC = () => {
 const AnimatedLightLeakSolid: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
-	const progress = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
 
 	return (
 		<Solid
@@ -114,7 +119,10 @@ const AnimatedLightLeakSolid: React.FC = () => {
 				lightLeak({
 					seed: 1,
 					hueShift: 30,
-					progress,
+					progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 				}),
 			]}
 		/>

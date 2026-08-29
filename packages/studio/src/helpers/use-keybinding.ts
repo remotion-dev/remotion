@@ -2,6 +2,7 @@ import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import type {KeyEventType, RegisteredKeybinding} from '../state/keybindings';
 import {KeybindingContext} from '../state/keybindings';
 import {useZIndex} from '../state/z-index';
+import {isMac} from './is-mac';
 import {getStudioKeyboardShortcutsEnabled} from './studio-runtime-config';
 
 if (!getStudioKeyboardShortcutsEnabled()) {
@@ -43,9 +44,7 @@ export const useKeybinding = () => {
 			}
 
 			const listener = (e: KeyboardEvent) => {
-				const commandKey = window.navigator.platform.startsWith('Mac')
-					? e.metaKey
-					: e.ctrlKey;
+				const commandKey = isMac ? e.metaKey : e.ctrlKey;
 
 				// Apparently, e.key can be undefined in Edge:
 				// https://github.com/remotion-dev/remotion/issues/5637

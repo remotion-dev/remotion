@@ -14,17 +14,23 @@ test('Should point to production remotion.pro', () => {
 	expect(REMOTION_PRO_ORIGIN).toBe('https://www.remotion.pro');
 });
 
-test('Should register the ProRes decoder', () => {
+test('Should register extension-backed decoders', () => {
 	const entryClient = readPackageFile('../app/entry.client.tsx');
 	expect(entryClient).toContain(
 		"import {registerProresDecoder} from '@mediabunny/prores';",
 	);
 	expect(entryClient).toContain('registerProresDecoder();');
+	expect(entryClient).toContain(
+		"import {registerDtsDecoder, registerDtsEncoder} from '@mediabunny/dts';",
+	);
+	expect(entryClient).toContain('registerDtsDecoder();');
+	expect(entryClient).toContain('registerDtsEncoder();');
 
 	const packageJson = JSON.parse(readPackageFile('../package.json')) as {
 		dependencies: Record<string, string>;
 	};
 	expect(packageJson.dependencies['@mediabunny/prores']).toBe('catalog:');
+	expect(packageJson.dependencies['@mediabunny/dts']).toBe('catalog:');
 });
 
 test('Should use Mediabunny-backed preview components', () => {

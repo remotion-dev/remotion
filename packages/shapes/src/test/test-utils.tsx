@@ -46,6 +46,7 @@ const resolveCompositionContext = {
 	'shape-test': {
 		result: videoConfig,
 		type: 'success' as const,
+		metadataSource: null,
 	},
 };
 
@@ -63,6 +64,7 @@ const AllTheProviders: FC<{
 			onlyRenderComposition="shape-test"
 		>
 			<Internals.RemotionRootContexts
+				_experimentalKeepAudioContextAlive={false}
 				audioEnabled
 				audioLatencyHint="interactive"
 				frameState={null}

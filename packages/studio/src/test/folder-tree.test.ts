@@ -2,16 +2,20 @@ import {expect, test} from 'bun:test';
 import type {ComponentType} from 'react';
 import React from 'react';
 import {getZodIfPossible} from '../components/get-zod-if-possible';
-import {createFolderTree, getKeysToExpand} from '../helpers/create-folder-tree';
+import {
+	createFolderTree,
+	getKeysToExpand,
+	sortFolderTreeAlphabetically,
+} from '../helpers/create-folder-tree';
 
 const SampleComp: React.FC<{}> = () => null;
 const component = React.lazy(() =>
 	Promise.resolve({default: SampleComp as ComponentType<unknown>}),
 );
-const testFolder = (name: string, parent: string | null) => ({
+const testFolder = (name: string, parent: string | null, nonce = 0) => ({
 	name,
 	parent,
-	nonce: [[0, 0]] as [[number, number]],
+	nonce: [[0, nonce]] as [[number, number]],
 	stack: null,
 });
 
@@ -203,6 +207,80 @@ test('Should handle nested folders well', async () => {
 	]);
 });
 
+test('Should interleave folders and compositions in render order', async () => {
+	const z = await getZ();
+	const obj = z.object({});
+	const composition = {
+		component,
+		defaultProps: {},
+		durationInFrames: 200,
+		fps: 30,
+		height: 1080,
+		width: 1080,
+		calculateMetadata: null,
+		schema: obj,
+		stack: null,
+	};
+
+	const tree = createFolderTree(
+		[
+			{
+				...composition,
+				id: 'root-before',
+				folderName: null,
+				parentFolderName: null,
+				nonce: [[0, 0]],
+			},
+			{
+				...composition,
+				id: 'inside-before',
+				folderName: 'group',
+				parentFolderName: null,
+				nonce: [[0, 2]],
+			},
+			{
+				...composition,
+				id: 'inside-nested',
+				folderName: 'nested',
+				parentFolderName: 'group',
+				nonce: [[0, 4]],
+			},
+			{
+				...composition,
+				id: 'inside-after',
+				folderName: 'group',
+				parentFolderName: null,
+				nonce: [[0, 5]],
+			},
+			{
+				...composition,
+				id: 'root-after',
+				folderName: null,
+				parentFolderName: null,
+				nonce: [[0, 6]],
+			},
+		],
+		[testFolder('group', null, 1), testFolder('nested', 'group', 3)],
+		{},
+	);
+
+	expect(tree.map((item) => item.key)).toEqual([
+		'root-before',
+		'group',
+		'root-after',
+	]);
+	const group = tree[1];
+	if (group.type !== 'folder') {
+		throw new Error('Expected group to be a folder');
+	}
+
+	expect(group.items.map((item) => item.key)).toEqual([
+		'inside-before',
+		'nested',
+		'inside-after',
+	]);
+});
+
 test('getKeysToExpand lists nested folder keys from leaf to root', () => {
 	expect(
 		getKeysToExpand('my-folder', 'my-third-folder/my-second-folder'),
@@ -230,4 +308,60 @@ test('Should throw if two folders with the same name', () => {
 	).toThrow(
 		/Multiple folders with the name my-folder exist. Folder names must be unique./,
 	);
+});
+
+test('sortFolderTreeAlphabetically sorts every level and keeps folders on top', async () => {
+	const z = await getZ();
+	const obj = z.object({});
+
+	const testComp = (id: string, folderName: string | null) => ({
+		component,
+		defaultProps: {},
+		durationInFrames: 200,
+		folderName,
+		parentFolderName: null,
+		fps: 30,
+		height: 1080,
+		id,
+		nonce: [[0, 0]] as [[number, number]],
+		width: 1080,
+		calculateMetadata: null,
+		schema: obj,
+		stack: null,
+	});
+
+	const tree = createFolderTree(
+		[
+			testComp('Zebra', null),
+			testComp('Scene10', 'zoo'),
+			testComp('Scene2', 'zoo'),
+			testComp('Apple', null),
+		],
+		[
+			testFolder('zoo', null),
+			testFolder('animals', null),
+			testFolder('zulu', 'zoo'),
+			testFolder('alpha', 'zoo'),
+		],
+		{},
+	);
+
+	const sorted = sortFolderTreeAlphabetically(tree);
+
+	expect(
+		sorted.map((item) =>
+			item.type === 'folder' ? item.folderName : item.composition.id,
+		),
+	).toEqual(['animals', 'zoo', 'Apple', 'Zebra']);
+
+	const zoo = sorted[1];
+	if (zoo.type !== 'folder') {
+		throw new Error('expected a folder');
+	}
+
+	expect(
+		zoo.items.map((item) =>
+			item.type === 'folder' ? item.folderName : item.composition.id,
+		),
+	).toEqual(['alpha', 'zulu', 'Scene2', 'Scene10']);
 });

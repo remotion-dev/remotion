@@ -8,7 +8,7 @@ import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
 import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
-import {usePlayer} from './use-player.js';
+import {type UsePlayerMethods, usePlayerMethods} from './use-player-methods.js';
 
 const shouldForceAnchorChange = (newState: RemotionAudioContextState) => {
 	if (newState === 'suspended' || newState === 'running-to-suspended') {
@@ -45,14 +45,16 @@ export const usePlayback = ({
 	inFrame: number | null;
 	outFrame: number | null;
 	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
-	getCurrentFrame: ReturnType<typeof usePlayer>['getCurrentFrame'];
+	getCurrentFrame: UsePlayerMethods['getCurrentFrame'];
 	muted: boolean;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
-	const {playing, pause, emitter, isPlaying} = usePlayer();
+	const [playing] = Internals.Timeline.usePlayingState();
+	const {pause, emitter, isPlaying} = usePlayerMethods();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
+	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
 	const logLevel = Internals.useLogLevel();
 
 	// requestAnimationFrame() does not work if the tab is not active.
@@ -160,7 +162,34 @@ export const usePlayback = ({
 			return;
 		}
 
+		if (
+			sharedAudioContext?._experimentalKeepAudioContextAlive &&
+			sharedAudioContext.audioContext &&
+			!muted
+		) {
+			// With _experimentalKeepAudioContextAlive, the context clock keeps
+			// running while frames are not advancing (pauses, buffering, muted playback), so
+			// the anchor is stale by the length of the stall. Without this mode,
+			// the 'statechange' listener above re-anchors on the
+			// suspended-to-running transition, but that transition never happens
+			// here. Re-anchor from the current frame instead, and tell the audio
+			// iterators so they drop the nodes they queued against the old
+			// anchor and reschedule.
+			const changed = setGlobalTimeAnchor({
+				audioContext: sharedAudioContext.audioContext,
+				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+				absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+				globalPlaybackRate: playbackRate,
+				logLevel,
+				force: true,
+			});
+			if (changed) {
+				sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+			}
+		}
+
 		let hasBeenStopped = false;
+		let audioContextFailed = false;
 		let reqAnimFrameCall:
 			| {
 					type: 'raf';
@@ -199,7 +228,7 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (!muted && !context.buffering.current) {
+			if (!muted && !audioContextFailed && !context.buffering.current) {
 				sharedAudioContext?.resume?.();
 			}
 
@@ -240,10 +269,25 @@ export const usePlayback = ({
 		};
 
 		const queueNextFrame = () => {
-			const getIsResumingAudioContext =
-				sharedAudioContext?.getIsResumingAudioContext?.() ?? null;
+			if (hasBeenStopped) {
+				return;
+			}
+
+			const getIsResumingAudioContext = audioContextFailed
+				? null
+				: (sharedAudioContext?.getIsResumingAudioContext?.() ?? null);
 			if (getIsResumingAudioContext !== null && !muted) {
-				getIsResumingAudioContext.then(() => {
+				getIsResumingAudioContext.then((result) => {
+					if (hasBeenStopped) {
+						return;
+					}
+
+					if (result === 'failed') {
+						audioContextFailed = true;
+						sharedAudioContext?.suspend();
+						setPlayerMuted(true);
+					}
+
 					startedTime = performance.now();
 					framesAdvanced = 0;
 					queueNextFrame();
@@ -253,12 +297,20 @@ export const usePlayback = ({
 			}
 
 			if (context.buffering.current) {
-				if (!muted) {
+				if (!muted && !audioContextFailed) {
 					sharedAudioContext?.suspend?.();
 				}
 
 				const stopListening = context.listenForResume(() => {
 					stopListening.remove();
+					if (
+						!muted &&
+						!audioContextFailed &&
+						sharedAudioContext?._experimentalKeepAudioContextAlive
+					) {
+						sharedAudioContext.resume();
+					}
+
 					startedTime = performance.now();
 					framesAdvanced = 0;
 					queueNextFrame();
@@ -313,6 +365,7 @@ export const usePlayback = ({
 		context,
 		isPlaying,
 		sharedAudioContext,
+		setPlayerMuted,
 		logLevel,
 		muted,
 	]);

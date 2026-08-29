@@ -1,10 +1,18 @@
-import type {WebpackConfiguration} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackConfiguration,
+	RspackOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
 	ChromeMode,
 	CodecOrUndefined,
 	ColorSpace,
 	Crf,
+	DefaultCodingAgent,
+	DefaultEditor,
 	DeleteAfter,
 	FrameRange,
 	NumberOfGifLoops,
@@ -14,43 +22,71 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {Log} from '../log';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
+	resetBufferStateDelayInMilliseconds,
 	setBufferStateDelayInMilliseconds,
 } from './buffer-state-delay-in-milliseconds';
-import {getConcurrency} from './concurrency';
 import type {Concurrency} from './concurrency';
-import {getEntryPoint, setEntryPoint} from './entry-point';
+import {getConcurrency} from './concurrency';
+import type {AddElementLibraryOptions} from './element-libraries';
+import {
+	addElementLibrary,
+	getElementLibraries,
+	resetElementLibraries,
+} from './element-libraries';
+import {getEntryPoint, resetEntryPoint, setEntryPoint} from './entry-point';
 import {getDotEnvLocation} from './env-file';
 import {
 	getFfmpegOverrideFunction,
+	resetFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {getShouldOutputImageSequence} from './image-sequence';
-import {getMetadata, setMetadata} from './metadata';
-import {getOutputLocation} from './output-location';
-import {setOutputLocation} from './output-location';
+import {getMetadata, resetMetadata, setMetadata} from './metadata';
 import {
+	getOutputLocation,
+	resetOutputLocation,
+	setOutputLocation,
+} from './output-location';
+import {
+	defaultBundlerOverrideFunction,
 	defaultOverrideFunction,
+	defaultRspackOverrideFunction,
+	getBundlerOverrideFn,
+	getRspackOverrideFn,
 	getWebpackOverrideFn,
+	overrideBundlerConfig,
+	overrideRspackConfig,
+	overrideWebpackConfig,
+	resetBundlerOverrides,
 } from './override-webpack';
-import type {WebpackOverrideFn} from './override-webpack';
-import {overrideWebpackConfig} from './override-webpack';
 import {
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getStudioPort,
+	resetPreviewServerPorts,
+	setPort,
+	setRendererPort,
+	setStudioPort,
 } from './preview-server';
-import {setPort, setRendererPort, setStudioPort} from './preview-server';
-import {getStillFrame, setStillFrame} from './still-frame';
+import {getStillFrame, resetStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
 
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
+export type {
+	AddElementLibraryOptions,
+	BundlerOverrideFn,
+	Concurrency,
+	RspackConfiguration,
+	RspackOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+};
 
 const {
+	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	concurrencyOption,
 	offthreadVideoCacheSizeInBytesOption,
@@ -69,6 +105,7 @@ const {
 	disallowParallelEncodingOption,
 	deleteAfterOption,
 	folderExpiryOption,
+	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	gopSizeOption,
@@ -93,11 +130,14 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
+	defaultCodingAgentOption,
+	defaultEditorOption,
 	askAIOption,
 	publicLicenseKeyOption,
 	interactivityOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
+	experimentalKeepAudioContextAliveOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -163,6 +203,8 @@ declare global {
 		 * You can set an absolute path or a relative path that will be resolved from the closest package.json location.
 		 */
 		readonly setPublicDir: (publicDir: string | null) => void;
+		readonly overrideBundlerConfig: (f: BundlerOverrideFn) => void;
+		readonly overrideRspackConfig: (f: RspackOverrideFn) => void;
 		readonly overrideWebpackConfig: (f: WebpackOverrideFn) => void;
 	}
 	// Legacy config format: New options to not need to be added here.
@@ -186,13 +228,18 @@ declare global {
 		 */
 		readonly setInteractivityEnabled: (enabled: boolean) => void;
 		/**
-		 * @deprecated HTML-in-canvas is now enabled by default when supported. This method is a no-op and can be removed.
+		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
+		 * @default false
 		 */
 		readonly setAllowHtmlInCanvasEnabled: (enabled: boolean) => void;
 		/**
-		 * Enable experimental Rspack bundler instead of Webpack.
+		 * Enable the Rspack bundler instead of Webpack.
 		 * @param enabled Boolean whether to enable the Rspack bundler
 		 * @default false
+		 */
+		readonly setRspack: (enabled: boolean) => void;
+		/**
+		 * @deprecated Use `setRspack()` instead: https://www.remotion.dev/docs/config#setrspack
 		 */
 		readonly setExperimentalRspackEnabled: (enabled: boolean) => void;
 		/**
@@ -201,6 +248,12 @@ declare global {
 		 * @default 0
 		 */
 		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
+		/**
+		 * Keep the shared AudioContext running while the Remotion Studio is paused.
+		 * @param enabled Whether to keep the AudioContext alive.
+		 * @default false
+		 */
+		readonly setExperimentalKeepAudioContextAlive: (enabled: boolean) => void;
 		/**
 		 * Enable Webpack polling instead of file system listeners for hot reloading in the Studio.
 		 * This is useful if you are using a remote directory or a virtual machine.
@@ -571,6 +624,10 @@ declare global {
 type FlatConfig = RemotionConfigObject &
 	RemotionBundlingOptions & {
 		/**
+		 * Add an Element library to the Remotion Studio.
+		 */
+		addElementLibrary: (options: AddElementLibraryOptions) => void;
+		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
 		 */
@@ -581,12 +638,23 @@ type FlatConfig = RemotionConfigObject &
 		 * Default: false
 		 */
 		setForceNewStudioEnabled: (forceNew: boolean) => void;
-
+		/**
+		 * Set the editor used when opening files from Remotion Studio.
+		 */
+		setDefaultEditor: (editor: DefaultEditor) => void;
+		/**
+		 * Set the coding agent used by Remotion Studio.
+		 */
+		setDefaultCodingAgent: (codingAgent: DefaultCodingAgent) => void;
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
 		 * Set whether S3 buckets should be allowed to expire.
 		 */
 		setEnableFolderExpiry: (value: boolean | null) => void;
+		/**
+		 * Allow `npx remotion lambda render` to cancel a render when Ctrl+C is pressed.
+		 */
+		setEnableCancellation: (value: boolean) => void;
 		/**
 		 * Set whether Lambda Insights should be enabled when deploying a function.
 		 */
@@ -667,13 +735,6 @@ type FlatConfig = RemotionConfigObject &
 		Output: void;
 	};
 
-const setAllowHtmlInCanvasEnabled = (_enabled: boolean) => {
-	Log.warn(
-		{indent: false, logLevel: 'info'},
-		'Config.setAllowHtmlInCanvasEnabled() is now a no-op because HTML-in-canvas is enabled by default when supported. You can remove this option from your config file.',
-	);
-};
-
 export const Config: FlatConfig = {
 	get Bundling() {
 		throw new Error(
@@ -705,15 +766,21 @@ export const Config: FlatConfig = {
 			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.',
 		);
 	},
+	addElementLibrary,
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setInteractivityEnabled: interactivityOption.setConfig,
-	setAllowHtmlInCanvasEnabled,
+	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
+	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
+	setExperimentalKeepAudioContextAlive:
+		experimentalKeepAudioContextAliveOption.setConfig,
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
 	setShouldOpenBrowser: noOpenOption.setConfig,
 	setBufferStateDelayInMilliseconds,
+	overrideBundlerConfig,
+	overrideRspackConfig,
 	overrideWebpackConfig,
 	setCachingEnabled: bundleCacheOption.setConfig,
 	setPort,
@@ -785,6 +852,7 @@ export const Config: FlatConfig = {
 	setDisallowParallelEncoding: disallowParallelEncodingOption.setConfig,
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
+	setEnableCancellation: enableCancellationOption.setConfig,
 	setRepro: reproOption.setConfig,
 	setLambdaInsights: enableLambdaInsights.setConfig,
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
@@ -795,6 +863,8 @@ export const Config: FlatConfig = {
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
+	setDefaultCodingAgent: defaultCodingAgentOption.setConfig,
+	setDefaultEditor: defaultEditorOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,
@@ -802,6 +872,70 @@ export const Config: FlatConfig = {
 	setBenchmarkConcurrencies: benchmarkConcurrenciesOption.setConfig,
 	setSampleRate: sampleRateOption.setConfig,
 	setPreviewSampleRate: previewSampleRateOption.setConfig,
+};
+
+type BrowserSafeConfigOption = {
+	cliFlag: string;
+	getValue: (values: {commandLine: Record<string, unknown>}) => {
+		value: unknown;
+		source: string;
+	};
+	setConfig: (value: never) => void;
+	reset?: () => void;
+};
+
+const getDefaultConfigValue = (option: BrowserSafeConfigOption) => {
+	for (const cliValue of [undefined, null]) {
+		const result = option.getValue({
+			commandLine: {[option.cliFlag]: cliValue},
+		});
+		if (result.source !== 'cli') {
+			return result.value;
+		}
+	}
+
+	throw new Error(`Could not determine the default for --${option.cliFlag}`);
+};
+
+const configSetters = new Set(
+	Object.values(Object.getOwnPropertyDescriptors(Config))
+		.map((descriptor) => descriptor.value)
+		.filter(
+			(value): value is (...args: never[]) => unknown =>
+				typeof value === 'function',
+		),
+);
+
+const browserSafeConfigOptionResets = Object.values(BrowserSafeApis.options)
+	.filter((option) => configSetters.has(option.setConfig))
+	.map((untypedOption): (() => void) => {
+		const option = untypedOption as unknown as BrowserSafeConfigOption;
+		if (option.reset) {
+			return option.reset;
+		}
+
+		const defaultValue = getDefaultConfigValue(option);
+		return () => option.setConfig(defaultValue as never);
+	});
+
+const resetBrowserSafeConfigOptions = () => {
+	for (const reset of browserSafeConfigOptionResets) {
+		reset();
+	}
+};
+
+const resetConfigOptions = () => {
+	resetBrowserSafeConfigOptions();
+	StudioServerInternals.resetMaxTimelineTracks();
+	resetBufferStateDelayInMilliseconds();
+	resetElementLibraries();
+	resetEntryPoint();
+	resetFfmpegOverrideFunction();
+	resetMetadata();
+	resetOutputLocation();
+	resetBundlerOverrides();
+	resetPreviewServerPorts();
+	resetStillFrame();
 };
 
 export const ConfigInternals = {
@@ -813,16 +947,22 @@ export const ConfigInternals = {
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,
+	getBundlerOverrideFn,
+	getRspackOverrideFn,
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
+	defaultBundlerOverrideFunction,
+	defaultRspackOverrideFunction,
 	getFfmpegOverrideFunction,
 	getMetadata,
 	getEntryPoint,
 	getWebpackPolling,
 	getBufferStateDelayInMilliseconds,
+	getElementLibraries,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
+	resetConfigOptions,
 };

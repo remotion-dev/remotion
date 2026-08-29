@@ -15,20 +15,29 @@ import {
 	useMemoizedEffects,
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {Freeze} from '../freeze.js';
 import {
+	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
+	borderSchema,
+	cropSchema,
+	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
+import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {usePremounting} from '../use-premounting.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {AnimatedImageCanvasRef} from './canvas';
 import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
+import {getCurrentTime} from './get-current-time.js';
 import type {
 	AnimatedImageCanvasProps,
 	AnimatedImageProps,
@@ -37,8 +46,16 @@ import type {
 import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
-const animatedImageSchema = {
+export const animatedImageSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...baseSchema,
+	...cropSchema,
+	...premountSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,
@@ -50,6 +67,9 @@ const animatedImageSchema = {
 		keyframable: false,
 	},
 	...transformSchema,
+	...backgroundSchema,
+	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 const getCanvasPropsFromSequenceProps = (
@@ -106,7 +126,7 @@ const AnimatedImageContent = forwardRef<
 
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
-		const currentTime = frame / playbackRate / fps;
+		const currentTime = getCurrentTime({frame, playbackRate, fps});
 		const currentTimeRef = useRef<number>(currentTime);
 		currentTimeRef.current = currentTime;
 		const requestInitKey = serializeRequestInit(requestInit);
@@ -133,6 +153,18 @@ const AnimatedImageContent = forwardRef<
 
 		useEffect(() => {
 			const controller = new AbortController();
+			let cancelled = false;
+			let continued = false;
+
+			const continueRenderOnce = () => {
+				if (continued) {
+					return;
+				}
+
+				continued = true;
+				continueRender(decodeHandle);
+			};
+
 			decodeImage({
 				resolvedSrc,
 				signal: controller.signal,
@@ -141,26 +173,37 @@ const AnimatedImageContent = forwardRef<
 				initialLoopBehavior,
 			})
 				.then((d) => {
+					if (cancelled) {
+						d.close();
+						return;
+					}
+
 					setImageDecoder(d);
-					continueRender(decodeHandle);
+					continueRenderOnce();
 				})
 				.catch((err) => {
+					if (cancelled) {
+						return;
+					}
+
 					if ((err as Error).name === 'AbortError') {
-						continueRender(decodeHandle);
+						continueRenderOnce();
 
 						return;
 					}
 
 					if (onError) {
 						onError?.(err as Error);
-						continueRender(decodeHandle);
+						continueRenderOnce();
 					} else {
 						cancelRender(err);
 					}
 				});
 
 			return () => {
+				cancelled = true;
 				controller.abort();
+				continueRenderOnce();
 			};
 		}, [
 			resolvedSrc,
@@ -170,6 +213,12 @@ const AnimatedImageContent = forwardRef<
 			initialLoopBehavior,
 			continueRender,
 		]);
+
+		useEffect(() => {
+			return () => {
+				imageDecoder?.close();
+			};
+		}, [imageDecoder]);
 
 		useLayoutEffect(() => {
 			if (!imageDecoder) {
@@ -258,6 +307,15 @@ const AnimatedImageInner = ({
 	className,
 	style,
 	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	cropLeft,
+	cropRight,
+	cropTop,
+	cropBottom,
 	requestInit,
 	effects = [],
 	controls,
@@ -267,8 +325,6 @@ const AnimatedImageInner = ({
 	readonly controls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
-	const {durationInFrames: videoDuration} = useVideoConfig();
-	const resolvedDuration = durationInFrames ?? videoDuration;
 	const actualRef = useRef<HTMLCanvasElement | null>(null);
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
@@ -276,6 +332,32 @@ const AnimatedImageInner = ({
 	useImperativeHandle(ref, () => {
 		return actualRef.current as HTMLCanvasElement;
 	}, []);
+	const {
+		effectivePostmountFor,
+		effectivePremountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		postmountingActive,
+		premountingActive,
+		premountingStyle,
+	} = usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'display-none',
+	});
+	const croppedStyle = useCropStyle({
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
+		style: premountingStyle,
+		componentName: '<AnimatedImage />',
+	});
 
 	const canvasProps = getCanvasPropsFromSequenceProps(sequenceProps);
 
@@ -289,29 +371,36 @@ const AnimatedImageInner = ({
 		loopBehavior,
 		id,
 		className,
-		style,
+		style: croppedStyle ?? undefined,
 		requestInit,
 		...canvasProps,
 	};
 
 	return (
-		<Sequence
-			layout="none"
-			durationInFrames={resolvedDuration}
-			name="<AnimatedImage>"
-			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"
-			controls={controls}
-			_remotionInternalEffects={memoizedEffectDefinitions}
-			{...sequenceProps}
-			outlineRef={actualRef}
-		>
-			<AnimatedImageContent
-				{...animatedImageProps}
-				ref={actualRef}
-				effects={effects}
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				durationInFrames={durationInFrames ?? Infinity}
+				name="<AnimatedImage>"
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"
 				controls={controls}
-			/>
-		</Sequence>
+				_remotionInternalEffects={memoizedEffectDefinitions}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				{...sequenceProps}
+				outlineRef={actualRef}
+			>
+				<AnimatedImageContent
+					{...animatedImageProps}
+					ref={actualRef}
+					effects={effects}
+					controls={controls}
+				/>
+			</Sequence>
+		</Freeze>
 	);
 };
 

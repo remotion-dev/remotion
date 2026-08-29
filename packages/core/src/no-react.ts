@@ -25,7 +25,7 @@ import {
 	DELAY_RENDER_CLEAR_TOKEN,
 	DELAY_RENDER_RETRIES_LEFT,
 	DELAY_RENDER_RETRY_TOKEN,
-} from './delay-render';
+} from './delay-render-constants';
 import {findPropsToDelete} from './find-props-to-delete';
 import {
 	deserializeJSONWithSpecialTypes,
@@ -66,8 +66,9 @@ export const NoReactInternals = {
 	getOffthreadVideoSource,
 	getExpectedMediaFrameUncorrected,
 	ENABLE_V5_BREAKING_CHANGES,
-	MIN_NODE_VERSION: ENABLE_V5_BREAKING_CHANGES ? 18 : 16,
+	MIN_NODE_VERSION: ENABLE_V5_BREAKING_CHANGES ? 22 : 16,
 	MIN_BUN_VERSION: ENABLE_V5_BREAKING_CHANGES ? '1.1.3' : '1.0.3',
+	MIN_ESLINT_VERSION: ENABLE_V5_BREAKING_CHANGES ? '8.57.0' : '7.15.0',
 	colorNames,
 	DATE_TOKEN,
 	FILE_TOKEN,

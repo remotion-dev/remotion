@@ -2161,14 +2161,19 @@ export function getElementCombinedTransform(element, iframes) {
 		m.multiplySelf(new DOMMatrix('translate(' + tr.replaceAll(' ', ',') + ')'));
 	}
 	if (hasRotate) {
-		m.multiplySelf(
-			new DOMMatrix('rotate(' + s.rotate.replaceAll(' ', ',') + ')'),
-		);
+		const rotateParts = s.rotate.trim().split(/\s+/);
+		const rotateTransform =
+			rotateParts.length === 1
+				? `rotate(${rotateParts[0]})`
+				: rotateParts.length === 2 && /^[xyz]$/i.test(rotateParts[0])
+					? `rotate${rotateParts[0].toUpperCase()}(${rotateParts[1]})`
+					: `rotate3d(${rotateParts.join(',')})`;
+		m.multiplySelf(new DOMMatrix(rotateTransform));
 	}
 	if (hasScale) {
-		m.multiplySelf(
-			new DOMMatrix('scale(' + s.scale.replaceAll(' ', ',') + ')'),
-		);
+		const scaleParts = s.scale.trim().split(/\s+/);
+		const scaleFunction = scaleParts.length === 3 ? 'scale3d' : 'scale';
+		m.multiplySelf(new DOMMatrix(`${scaleFunction}(${scaleParts.join(',')})`));
 	}
 	if (hasOffsetPath) {
 		m.multiplySelf(computeOffsetTransformMatrix(element));

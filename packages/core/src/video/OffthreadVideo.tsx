@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Sequence} from '../Sequence.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
+import {resolveV5Default} from '../v5-flag.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {
 	resolveTrimProps,
@@ -26,11 +27,12 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 		trimAfter,
 		name,
 		pauseWhenBuffering,
-		stack,
+		_remotionInternalStack,
 		showInTimeline,
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
+	const shouldPauseWhenBuffering = resolveV5Default(pauseWhenBuffering);
 
 	if (environment.isClientSideRendering) {
 		throw new Error(
@@ -70,13 +72,13 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 				name={name}
 			>
 				<InnerOffthreadVideo
-					pauseWhenBuffering={pauseWhenBuffering ?? false}
+					pauseWhenBuffering={shouldPauseWhenBuffering}
 					{...otherProps}
 					trimAfter={undefined}
 					name={undefined}
 					showInTimeline={showInTimeline}
 					trimBefore={undefined}
-					stack={undefined}
+					_remotionInternalStack={undefined}
 					startFrom={undefined}
 					endAt={undefined}
 				/>
@@ -89,13 +91,13 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 	if (environment.isRendering) {
 		return (
 			<OffthreadVideoForRendering
-				pauseWhenBuffering={pauseWhenBuffering ?? false}
+				pauseWhenBuffering={shouldPauseWhenBuffering}
 				{...otherProps}
 				trimAfter={undefined}
 				name={undefined}
 				showInTimeline={showInTimeline}
 				trimBefore={undefined}
-				stack={undefined}
+				_remotionInternalStack={undefined}
 				startFrom={undefined}
 				endAt={undefined}
 			/>
@@ -115,10 +117,10 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 
 	return (
 		<VideoForPreview
-			_remotionInternalStack={stack ?? null}
+			_remotionInternalStack={_remotionInternalStack ?? null}
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
-			pauseWhenBuffering={pauseWhenBuffering ?? false}
+			pauseWhenBuffering={shouldPauseWhenBuffering}
 			showInTimeline={showInTimeline ?? true}
 			onAutoPlayError={onAutoPlayError ?? undefined}
 			onVideoFrame={onVideoFrame ?? null}
@@ -162,7 +164,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 	volume,
 	_remotionInternalNativeLoopPassed,
 	endAt,
-	stack,
+	_remotionInternalStack,
 	startFrom,
 	imageFormat,
 	...props
@@ -187,13 +189,13 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 			onAutoPlayError={onAutoPlayError ?? null}
 			onError={onError}
 			onVideoFrame={onVideoFrame}
-			pauseWhenBuffering={pauseWhenBuffering ?? true}
+			pauseWhenBuffering={resolveV5Default(pauseWhenBuffering)}
 			playbackRate={playbackRate ?? 1}
 			preservePitch={preservePitch}
 			toneFrequency={toneFrequency ?? 1}
 			showInTimeline={showInTimeline ?? true}
 			src={src}
-			stack={stack}
+			_remotionInternalStack={_remotionInternalStack}
 			startFrom={startFrom}
 			_remotionInternalNativeLoopPassed={
 				_remotionInternalNativeLoopPassed ?? false

@@ -1,0 +1,48 @@
+---
+image: /generated/articles-docs-whisper-webgpu-load-whisper-model.png
+title: loadWhisperModel()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# loadWhisperModel()<AvailableFrom v="4.0.518" />
+
+Downloads and initializes a timestamped Whisper model. Calling it before [`transcribe()`](/docs/whisper-webgpu/transcribe) lets you show model-loading progress.
+
+```ts twoslash title="load-model.ts"
+import {loadWhisperModel} from '@remotion/whisper-webgpu';
+
+const result = await loadWhisperModel({
+  model: 'small.en',
+  onProgress: ({progress}) => {
+    console.log(progress);
+  },
+});
+
+console.log(result.alreadyLoaded);
+```
+
+## Options
+
+### model
+
+One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models).
+
+### onProgress?
+
+Called while model files are resolved and downloaded. `progress` is the aggregate download progress between `0` and `1` and never decreases.
+
+## Return value
+
+Returns whether the same model pipeline was already loaded in memory.
+
+The browser manages its persistent [Transformers.js](https://huggingface.co/docs/transformers.js) cache. This function also retains the initialized model in memory until [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) is called or the page closes.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model)
+- [`isWhisperModelCached()`](/docs/whisper-webgpu/is-whisper-model-cached)
+- [`transcribe()`](/docs/whisper-webgpu/transcribe)

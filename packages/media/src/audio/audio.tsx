@@ -1,5 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {
+	Freeze,
 	Internals,
 	Interactive,
 	Sequence,
@@ -15,8 +16,15 @@ import type {AudioProps} from './props';
 
 const {validateMediaProps} = Internals;
 
-const audioSchema = {
+export const audioSchema: InteractivitySchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...Internals.baseSchema,
+	...Internals.premountSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -35,6 +43,7 @@ const audioSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	muted: {type: 'boolean', default: false, description: 'Muted'},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 } as const satisfies InteractivitySchema;
 
@@ -47,16 +56,19 @@ const AudioInner: React.FC<
 	// rest gets drilled down
 	const {
 		name,
-		stack,
 		showInTimeline,
 		controls,
 		from,
 		durationInFrames,
 		freeze,
 		hidden,
+		style,
+		premountFor,
+		postmountFor,
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
+	const sourceStack = controls ? Internals.getStackForControls(controls) : null;
 
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
@@ -78,6 +90,7 @@ const AudioInner: React.FC<
 		mediaVolume,
 		mediaStartsAt,
 		loop: props.loop ?? false,
+		muted: props.muted ?? false,
 	});
 
 	// TODO: Redundant with what we do in the Studio
@@ -114,6 +127,24 @@ const AudioInner: React.FC<
 		}),
 		[basicInfo],
 	);
+	const {
+		effectivePostmountFor,
+		effectivePremountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		postmountingActive,
+		premountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: basicInfo.duration,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'display-none',
+	});
 
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
@@ -133,35 +164,44 @@ const AudioInner: React.FC<
 	}
 
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			durationInFrames={basicInfo.duration}
-			freeze={freeze}
-			_remotionInternalStack={stack}
-			_remotionInternalIsMedia={isMedia}
-			name={name ?? '<Audio>'}
-			_remotionInternalDocumentationLink={
-				name === undefined
-					? 'https://www.remotion.dev/docs/media/audio'
-					: undefined
-			}
-			controls={controls}
-			_remotionInternalLoopDisplay={loopDisplay}
-			showInTimeline={showInTimeline ?? true}
-			hidden={hidden}
-		>
-			{environment.isRendering ? (
-				<AudioForRendering {...otherProps} />
-			) : (
-				<AudioForPreview
-					name={name}
-					{...otherProps}
-					stack={stack ?? null}
-					setMediaDurationInSeconds={setMediaDurationInSeconds}
-				/>
-			)}
-		</Sequence>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				durationInFrames={basicInfo.duration}
+				freeze={freeze}
+				_remotionInternalIsMedia={isMedia}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				name={name ?? '<Audio>'}
+				_remotionInternalDocumentationLink={
+					name === undefined
+						? 'https://www.remotion.dev/docs/media/audio'
+						: undefined
+				}
+				controls={controls}
+				_remotionInternalLoopDisplay={loopDisplay}
+				showInTimeline={showInTimeline ?? true}
+				hidden={hidden}
+			>
+				{environment.isRendering ? (
+					<AudioForRendering
+						{...otherProps}
+						style={premountingStyle ?? undefined}
+					/>
+				) : (
+					<AudioForPreview
+						name={name}
+						{...otherProps}
+						style={premountingStyle}
+						_remotionInternalStack={sourceStack}
+						setMediaDurationInSeconds={setMediaDurationInSeconds}
+					/>
+				)}
+			</Sequence>
+		</Freeze>
 	);
 };
 

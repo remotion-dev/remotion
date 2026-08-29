@@ -1,17 +1,25 @@
 import type {SetStateAction} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {canShowUpdates} from '../helpers/can-show-updates';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useMenuStructure} from '../helpers/use-menu-structure';
-import {Row, Spacing} from './layout';
+import {SearchIcon} from '../icons/search';
+import {SetSelectedModalContext} from '../state/modals';
+import type {RenderInlineAction} from './InlineAction';
+import {InlineAction} from './InlineAction';
+import {Row} from './layout';
+import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
-import {SidebarCollapserControls} from './SidebarCollapserControls';
+import {SidebarCollapserControl} from './SidebarCollapserControls';
 import {UndoRedoButtons} from './UndoRedoButtons';
 import {UpdateCheck} from './UpdateCheck';
-
-export const MENU_TOOLBAR_HEIGHT = 30;
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
@@ -23,7 +31,7 @@ const row: React.CSSProperties = {
 	fontSize: 13,
 	height: MENU_TOOLBAR_HEIGHT,
 	paddingLeft: 6,
-	paddingRight: 10,
+	paddingRight: 6,
 	backgroundColor: BACKGROUND,
 };
 
@@ -31,10 +39,27 @@ const flex: React.CSSProperties = {
 	flex: 1,
 };
 
+const menuItems: React.CSSProperties = {
+	display: 'inline-flex',
+	height: 24,
+};
+
 export const MenuToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const browserStudioOperations = getBrowserStudioOperations();
+	const canUndoAndRedo =
+		!readOnlyStudio ||
+		(previewServerState.type === 'connected' &&
+			browserStudioOperations !== null);
+	const showUpdates = canShowUpdates({
+		connectionStatus: previewServerState.type,
+		isBrowserStudio: browserStudioOperations !== null,
+		readOnlyStudio,
+	});
 
 	const mobileLayout = useMobileLayout();
 
@@ -123,6 +148,24 @@ export const MenuToolbar: React.FC<{
 		e.stopPropagation();
 	}, []);
 
+	const openQuickSwitcher = useCallback(() => {
+		setSelectedModal({
+			type: 'quick-switcher',
+			mode: 'compositions',
+			invocationTimestamp: Date.now(),
+			assetSelection: null,
+			compositionSelection: null,
+		});
+	}, [setSelectedModal]);
+
+	const renderSearchIcon: RenderInlineAction = useCallback((color) => {
+		return <SearchIcon color={color} width={18} height={18} />;
+	}, []);
+
+	const searchTooltip = areKeyboardShortcutsDisabled()
+		? 'Quick Switcher'
+		: `Quick Switcher (${cmdOrCtrlCharacter}+K)`;
+
 	return (
 		<Row
 			align="center"
@@ -131,33 +174,44 @@ export const MenuToolbar: React.FC<{
 			onPointerDown={onPointerDown}
 		>
 			<div style={fixedWidthLeft}>
-				{structure.map((s) => {
-					return (
-						<MenuItem
-							key={s.id}
-							selected={selected === s.id}
-							onItemSelected={itemClicked}
-							onItemHovered={itemHovered}
-							id={s.id}
-							label={s.label}
-							onItemQuit={onItemQuit}
-							menu={s}
-							onPreviousMenu={onPreviousMenu}
-							onNextMenu={onNextMenu}
-							leaveLeftPadding={s.leaveLeftPadding}
-						/>
-					);
-				})}
-				{readOnlyStudio ? null : <UpdateCheck />}
+				{mobileLayout ? (
+					<InlineAction
+						variant={null}
+						onClick={openQuickSwitcher}
+						renderAction={renderSearchIcon}
+						title={searchTooltip}
+					/>
+				) : (
+					<SidebarCollapserControl side="left" />
+				)}
+				<div style={menuItems}>
+					{structure.map((s) => {
+						return (
+							<MenuItem
+								key={s.id}
+								selected={selected === s.id}
+								onItemSelected={itemClicked}
+								onItemHovered={itemHovered}
+								id={s.id}
+								label={s.label}
+								onItemQuit={onItemQuit}
+								menu={s}
+								onPreviousMenu={onPreviousMenu}
+								onNextMenu={onNextMenu}
+								leaveLeftPadding={s.leaveLeftPadding}
+							/>
+						);
+					})}
+				</div>
+				{showUpdates ? <UpdateCheck /> : null}
 			</div>
-			<div style={flex} />
-			<MenuBuildIndicator />
+			{mobileLayout ? null : <div style={flex} />}
+			<MenuBuildIndicator mobileLayout={mobileLayout} />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
-				{readOnlyStudio ? null : <UndoRedoButtons />}
-				<SidebarCollapserControls />
+				{canUndoAndRedo ? <UndoRedoButtons /> : null}
+				<SidebarCollapserControl side="right" />
 			</div>
-			<Spacing x={1} />
 		</Row>
 	);
 };

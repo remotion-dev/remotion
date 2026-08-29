@@ -1,5 +1,6 @@
 import type {
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	VolumeProp,
@@ -25,10 +26,6 @@ export type AudioProps = {
 	playbackRate?: number;
 	muted?: boolean;
 	style?: React.CSSProperties;
-	/**
-	 * @deprecated For internal use only
-	 */
-	stack?: string;
 	logLevel?: LogLevel;
 	loop?: boolean;
 	audioStreamIndex?: number;
@@ -45,4 +42,5 @@ export type AudioProps = {
 	 */
 	credentials?: RequestCredentials;
 	requestInit?: MediaRequestInit;
-} & InteractiveBaseProps;
+} & InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'>;

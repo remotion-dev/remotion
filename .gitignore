@@ -37,6 +37,7 @@ packages/example/build
 packages/example/build-testbed
 packages/example-without-zod/build
 packages/docs/out
+/out/
 packages/cloudrun/container/ensure-browser.mjs
 packages/skills-evals/.runs
 packages/skills-evals/.site

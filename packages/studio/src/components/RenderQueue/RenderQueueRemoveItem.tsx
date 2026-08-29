@@ -33,17 +33,12 @@ export const RenderQueueRemoveItem: React.FC<{
 
 				removeClientJob(job.id);
 				unregisterClientRender(job.id).catch(() => {});
-				showNotification('Removed job', 2000);
 				return;
 			}
 
-			removeRenderJob(job)
-				.then(() => {
-					showNotification('Removed job', 2000);
-				})
-				.catch((err) => {
-					showNotification(`Could not remove item: ${err.message}`, 2000);
-				});
+			removeRenderJob(job).catch((err) => {
+				showNotification(`Could not remove item: ${err.message}`, 2000);
+			});
 		},
 		[job, isClientJob, removeClientJob, canvasContent, setCanvasContent],
 	);
@@ -73,5 +68,12 @@ export const RenderQueueRemoveItem: React.FC<{
 		[icon],
 	);
 
-	return <InlineAction renderAction={renderAction} onClick={onClick} />;
+	return (
+		<InlineAction
+			renderAction={renderAction}
+			onClick={onClick}
+			title="Remove"
+			variant={null}
+		/>
+	);
 };

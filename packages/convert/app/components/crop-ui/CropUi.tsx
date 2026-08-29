@@ -1,6 +1,7 @@
 import type {CropRectangle} from 'mediabunny';
 import type React from 'react';
 import {useRef, useState} from 'react';
+import {getVisibleCropRectangle} from '~/lib/apply-crop';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {CropBackdrop} from './Backdrop';
 import {DragHandle} from './DragHandle';
@@ -22,27 +23,10 @@ export const CropUI: React.FC<{
 
 	const ref = useRef<HTMLDivElement>(null);
 
-	const rect = (() => {
-		const width = Math.min(
-			(dimensions?.width ?? 0) - unclampedRect.left,
-			Number.isFinite(unclampedRect.width)
-				? unclampedRect.width
-				: (dimensions?.width ?? 0),
-		);
-		const height = Math.min(
-			(dimensions?.height ?? 0) - unclampedRect.top,
-			Number.isFinite(unclampedRect.height)
-				? unclampedRect.height
-				: (dimensions?.height ?? 0),
-		);
-
-		return {
-			left: unclampedRect.left,
-			top: unclampedRect.top,
-			width,
-			height,
-		};
-	})();
+	const rect = getVisibleCropRectangle({
+		cropRect: unclampedRect,
+		dimensions,
+	});
 
 	return (
 		<div

@@ -8,6 +8,7 @@ test('interpolates linear numeric keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -22,12 +23,75 @@ test('interpolates linear numeric keyframes', () => {
 	expect(result).toBe(50);
 });
 
+test('holds the previous keyframe value until the segment ends', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 60, value: 100},
+		],
+		easing: [{type: 'step1'}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+		output: undefined,
+	};
+
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 59,
+			status,
+		}),
+	).toBe(0);
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 60,
+			status,
+		}),
+	).toBe(100);
+});
+
+test('holds non-numeric string keyframes until the segment ends', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 'default'},
+			{frame: 60, value: 'ne-resize'},
+		],
+		easing: [{type: 'step1'}],
+		clamping: {left: 'clamp', right: 'clamp'},
+		posterize: undefined,
+		output: undefined,
+	};
+
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 59,
+			status,
+		}),
+	).toBe('default');
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 60,
+			status,
+		}),
+	).toBe('ne-resize');
+});
+
 test('interpolates numeric keyframes with perceptual-scale output', () => {
 	const result = interpolateKeyframedStatus({
 		forceSpringAllowTail: null,
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -48,6 +112,7 @@ test('interpolates linear tuple keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: [0, 0.5]},
@@ -68,6 +133,7 @@ test('sorts keyframes before interpolating numeric values', () => {
 		frame: 75,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 100, value: 100},
@@ -89,6 +155,7 @@ test('clamps when extrapolation is clamp', () => {
 		frame: 120,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -109,6 +176,7 @@ test('posterizes the frame before interpolating numeric keyframes', () => {
 		frame: 17,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -129,6 +197,7 @@ test('returns single keyframe value', () => {
 		frame: 100,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [{frame: 0, value: 7}],
 			easing: [],
@@ -146,6 +215,7 @@ test('interpolates colors', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
 				{frame: 0, value: '#000000'},
@@ -167,6 +237,7 @@ test('interpolates color keyframes with easing', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
 				{frame: 0, value: 'black'},
@@ -187,6 +258,7 @@ test('posterizes the frame before interpolating color keyframes', () => {
 		frame: 17,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
 				{frame: 0, value: 'black'},
@@ -207,6 +279,7 @@ test('interpolates translate keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: '0px 0px'},
@@ -229,6 +302,7 @@ test('can force spring allowTail off for timeline value previews', () => {
 
 	const status: CanUpdateSequencePropStatusKeyframed = {
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: '0px 1000px'},
@@ -290,6 +364,7 @@ test('interpolates rotate keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: '0deg'},
@@ -310,6 +385,7 @@ test('uses bezier easing', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -331,6 +407,7 @@ test('interpolates scale strings component-wise', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 2},
@@ -343,4 +420,25 @@ test('interpolates scale strings component-wise', () => {
 		},
 	});
 	expect(result).toBe('3 5 2');
+});
+
+test('interpolates 3D rotation keyframes as one property', () => {
+	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: '0deg'},
+				{frame: 60, value: '1 0 0 90deg'},
+			],
+			easing: [{type: 'linear'}],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+			output: undefined,
+		},
+	});
+	expect(result).toBe('1 0 0 45deg');
 });

@@ -41,6 +41,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	functionName: string;
 	requestHandler: Provider['requestHandler'] | null;
 }): Promise<GenericRenderProgress<Provider>> => {
+	const billingCurrency = providerSpecifics.getBillingCurrency(region);
 	const overallProgress = await getOverallProgressFromStorage({
 		renderId,
 		bucketName,
@@ -158,7 +159,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 				timeToCombine: overallProgress.timeToCombine,
 			},
 			timeToRenderFrames: overallProgress.timeToRenderFrames,
-			costs: formatCostsInfo(0),
+			costs: formatCostsInfo(0, billingCurrency),
 			renderId,
 			renderMetadata,
 			bucket: bucketName,
@@ -293,8 +294,8 @@ export const getProgress = async <Provider extends CloudProvider>({
 					minFilesToDelete: 0,
 				},
 				costs: priceFromBucket
-					? formatCostsInfo(priceFromBucket.accruedSoFar)
-					: formatCostsInfo(0),
+					? formatCostsInfo(priceFromBucket.accruedSoFar, billingCurrency)
+					: formatCostsInfo(0, billingCurrency),
 				currentTime: now,
 				done: true,
 				encodingStatus: {
@@ -358,8 +359,8 @@ export const getProgress = async <Provider extends CloudProvider>({
 		},
 		timeToRenderFrames: overallProgress.timeToRenderFrames,
 		costs: priceFromBucket
-			? formatCostsInfo(priceFromBucket.accruedSoFar)
-			: formatCostsInfo(0),
+			? formatCostsInfo(priceFromBucket.accruedSoFar, billingCurrency)
+			: formatCostsInfo(0, billingCurrency),
 		renderId,
 		renderMetadata,
 		bucket: bucketName,
@@ -383,8 +384,12 @@ export const getProgress = async <Provider extends CloudProvider>({
 				? (overallProgress.framesEncoded ?? 0) / frameCount
 				: 0,
 			invoking:
-				(overallProgress.lambdasInvoked ?? 0) /
-				renderMetadata.estimatedRenderLambdaInvokations,
+				renderMetadata.estimatedRenderLambdaInvokations === 0
+					? (overallProgress.lambdasInvoked ?? 0) > 0
+						? 1
+						: 0
+					: (overallProgress.lambdasInvoked ?? 0) /
+						renderMetadata.estimatedRenderLambdaInvokations,
 			frames: (overallProgress.framesRendered ?? 0) / (frameCount ?? 1),
 			gotComposition: overallProgress.compositionValidated,
 			visitedServeUrl: overallProgress.serveUrlOpened,

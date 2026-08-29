@@ -42,6 +42,35 @@ test(
 	{timeout: 10000},
 );
 
+test(
+	'Should be able to extract a frame with zero extra threads',
+	async () => {
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: null,
+			logLevel: 'info',
+			indent: false,
+			binariesDirectory: null,
+			extraThreads: 0,
+		});
+
+		const data = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.bigBuckBunny,
+			original_src: exampleVideos.bigBuckBunny,
+			time: 40,
+			transparent: false,
+			tone_mapped: true,
+		});
+		expect(data.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
+		const header = data.subarray(0, BMP_HEADER_SIZE);
+		expect(Buffer.from([...header.subarray(18, 22)]).readInt32LE(0)).toBe(1280);
+		expect(Buffer.from([...header.subarray(22, 26)]).readInt32LE(0)).toBe(720);
+
+		await compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{timeout: 10000},
+);
+
 test('Should be able to start two compositors', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
@@ -461,35 +490,6 @@ test('Should get from broken webcam video', async () => {
 	await compositor.waitForDone();
 });
 
-test(
-	'Should get from iPhone video',
-	async () => {
-		const compositor = startLongRunningCompositor({
-			maximumFrameCacheItemsInBytes: null,
-			logLevel: 'info',
-			indent: false,
-			binariesDirectory: null,
-			extraThreads: 2,
-		});
-
-		const data = await compositor.executeCommand('ExtractFrame', {
-			src: exampleVideos.iphonevideo,
-			original_src: exampleVideos.iphonevideo,
-			time: 1,
-			transparent: false,
-			tone_mapped: true,
-		});
-
-		expect(data.length).toBe(24883254);
-
-		await compositor.finishCommands();
-		await compositor.waitForDone();
-	},
-	{
-		timeout: 30000,
-	},
-);
-
 test('Should get from AV1 video', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
@@ -726,7 +726,7 @@ const getExpectedMediaFrameUncorrected = ({
 };
 
 test(
-	'Should not duplicate frames for iphoneVideo',
+	'Should extract distinct frames from an iPhone video',
 	async () => {
 		const frame30 =
 			getExpectedMediaFrameUncorrected({
@@ -765,6 +765,8 @@ test(
 			tone_mapped: true,
 		});
 
+		expect(firstFrame.length).toBe(24883254);
+
 		const hundredRandomPixels = new Array(100).fill(true).map(() => {
 			return Math.round(Math.random() * firstFrame.length);
 		});
@@ -778,6 +780,9 @@ test(
 		}
 
 		expect(isSame).toBe(false);
+
+		await compositor.finishCommands();
+		await compositor.waitForDone();
 	},
 	{
 		timeout: 30000,

@@ -2,7 +2,10 @@ import {afterEach, describe, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 import {Composition} from '../Composition.js';
-import {resolveVideoConfig} from '../resolve-video-config.js';
+import {
+	resolveVideoConfig,
+	resolveVideoConfigWithMetadata,
+} from '../resolve-video-config.js';
 import {expectToThrow} from './expect-to-throw.js';
 
 afterEach(() => {
@@ -414,4 +417,28 @@ test('should resolve props correctly with no calculateMetadata()', async () => {
 		a: 'b',
 		c: 'd',
 	});
+});
+
+test('should track which metadata was returned by calculateMetadata()', async () => {
+	const resolved = await resolveVideoConfigWithMetadata({
+		calculateMetadata: () =>
+			Promise.resolve({durationInFrames: 100, fps: 30, width: 1920}),
+		compositionDurationInFrames: 100,
+		compositionFps: 30,
+		compositionHeight: 1080,
+		compositionId: 'test',
+		compositionWidth: 1920,
+		inputProps: {},
+		signal: new AbortController().signal,
+		defaultProps: {},
+	});
+
+	expect(resolved.metadataSource).toEqual({
+		durationInFrames: 'calculate-metadata',
+		fps: 'calculate-metadata',
+		height: 'composition',
+		width: 'calculate-metadata',
+	});
+	expect(resolved.videoConfig.width).toBe(1920);
+	expect(resolved.videoConfig.height).toBe(1080);
 });

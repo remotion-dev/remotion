@@ -22,9 +22,7 @@ import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -35,8 +33,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? null
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -73,10 +76,14 @@ export const Root: React.FC = () => {
         src: 'https://remotion.media/BigBuckBunny.mp4',
       }}
       calculateMetadata={async ({props}) => {
-        const {durationInSeconds} = await getMediaMetadata(props.src);
+        const {durationInSeconds, fps} = await getMediaMetadata(props.src);
+        const compositionFps = fps ?? 30;
 
         return {
-          durationInFrames: Math.floor(durationInSeconds * 30),
+          durationInFrames: Math.floor(
+            durationInSeconds * compositionFps,
+          ),
+          fps: compositionFps,
         };
       }}
     />
@@ -86,6 +93,7 @@ export const Root: React.FC = () => {
 
 :::note
 See [Getting metadata using Mediabunny](/docs/mediabunny/metadata) for the snippet for `get-media-metadata.ts`.
+It uses Mediabunny's [`computeFrameRateMetrics()`](https://mediabunny.dev/api/InputVideoTrack#computeframeratemetrics) method to match the composition FPS to the source video.
 :::
 
 The `props` defaults to the `defaultProps` specified, but may be overriden by [passing input props to the render](/docs/props-resolution).
@@ -108,9 +116,7 @@ import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -121,8 +127,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? null
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -142,12 +153,19 @@ import {getMediaMetadata} from './get-media-metadata';
 
 export const Index: React.FC = () => {
   const [handle] = useState(() => delayRender());
-  const [duration, setDuration] = useState(1);
+  const [metadata, setMetadata] = useState({
+    durationInFrames: 1,
+    fps: 30,
+  });
 
   useEffect(() => {
     getMediaMetadata('https://remotion.media/video.mp4')
-      .then(({durationInSeconds}) => {
-        setDuration(Math.round(durationInSeconds * 30));
+      .then(({durationInSeconds, fps}) => {
+        const compositionFps = fps ?? 30;
+        setMetadata({
+          durationInFrames: Math.round(durationInSeconds * compositionFps),
+          fps: compositionFps,
+        });
         continueRender(handle);
       })
       .catch((err) => {
@@ -155,7 +173,7 @@ export const Index: React.FC = () => {
       });
   }, [handle]);
 
-  return <Composition id="dynamic-duration" component={VideoTesting} width={1080} height={1080} fps={30} durationInFrames={duration} />;
+  return <Composition id="dynamic-duration" component={VideoTesting} width={1080} height={1080} fps={metadata.fps} durationInFrames={metadata.durationInFrames} />;
 };
 ```
 
@@ -205,9 +223,7 @@ import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -218,8 +234,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? null
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -237,19 +258,26 @@ import {Player} from '@remotion/player';
 import {getMediaMetadata} from './get-media-metadata';
 
 export const Index: React.FC = () => {
-  const [duration, setDuration] = useState(1);
+  const [metadata, setMetadata] = useState({
+    durationInFrames: 1,
+    fps: 30,
+  });
 
   useEffect(() => {
     getMediaMetadata('https://remotion.media/video.mp4')
-      .then(({durationInSeconds}) => {
-        setDuration(Math.round(durationInSeconds * 30));
+      .then(({durationInSeconds, fps}) => {
+        const compositionFps = fps ?? 30;
+        setMetadata({
+          durationInFrames: Math.round(durationInSeconds * compositionFps),
+          fps: compositionFps,
+        });
       })
       .catch((err) => {
         console.log(`Error fetching metadata: ${err}`);
       });
   }, []);
 
-  return <Player component={VideoTesting} compositionWidth={1080} compositionHeight={1080} fps={30} durationInFrames={duration} />;
+  return <Player component={VideoTesting} compositionWidth={1080} compositionHeight={1080} fps={metadata.fps} durationInFrames={metadata.durationInFrames} />;
 };
 ```
 

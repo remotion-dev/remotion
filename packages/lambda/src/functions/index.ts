@@ -5,7 +5,12 @@ import type {
 	ResponseStream,
 	ServerlessPayload,
 } from '@remotion/serverless';
-import {innerHandler, streamWriter} from '@remotion/serverless';
+import {
+	innerHandler,
+	innerRoutine,
+	ServerlessRoutines,
+	streamWriter,
+} from '@remotion/serverless';
 import {serverAwsImplementation} from './aws-server-implementation';
 import {streamifyResponse} from './helpers/streamify-response';
 
@@ -16,7 +21,14 @@ export const routine = (
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 
-	return innerHandler({
+	const handle =
+		params.type === ServerlessRoutines.info ||
+		params.type === ServerlessRoutines.start ||
+		params.type === ServerlessRoutines.compositions
+			? innerRoutine
+			: innerHandler;
+
+	return handle({
 		params,
 		responseWriter,
 		context,

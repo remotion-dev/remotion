@@ -97,6 +97,7 @@ class Semantic
 		const toParse = output[5];
 		const nativeVersion =
 			await LambdaClientInternals.makeLambdaRenderMediaPayload({
+				enableCancellation: false,
 				region: 'us-east-1',
 				composition: 'react-svg',
 				functionName: 'remotion-render',
@@ -158,7 +159,10 @@ class Semantic
 				isProduction: null,
 				sampleRate: 48000,
 			});
-		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
+		const jsonOutput = toParse.substring(
+			toParse.indexOf('{'),
+			toParse.lastIndexOf('}') + 1,
+		);
 		const parsedJson = JSON.parse(jsonOutput);
 
 		expect({

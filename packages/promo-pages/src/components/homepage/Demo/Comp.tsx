@@ -15,10 +15,7 @@ export type RemoteData = {
 	date: string | number;
 	temperatureInCelsius: number;
 	countryLabel: string;
-	countryPaths: {
-		d: string;
-		class: string;
-	}[];
+	countryFlag: string;
 };
 
 export type LocationAndTrending = {
@@ -41,7 +38,7 @@ export const getDataAndProps = async () => {
 				date: data.trending.dateFetched,
 				temperatureInCelsius: Math.round(data.temperature),
 				countryLabel: data.countryLabel,
-				countryPaths: data.countryPaths,
+				countryFlag: data.countryFlag,
 			};
 		});
 

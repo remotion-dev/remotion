@@ -1,23 +1,43 @@
 import {Composition, Folder, staticFile} from 'remotion';
+import {ThreeDCheck} from './3DCheck';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
 import {AnimatedMaster} from './animated-logo/AnimatedMaster';
 import {ExplodingLogo} from './animated-logo/ExplodingLogo';
+import {AppIcons} from './AppIcons';
+import {
+	ApplicationRenderButton,
+	ApplicationSimpleApp,
+	ApplicationVideoEditor,
+	Applications,
+} from './Applications';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
-import {
-	CanvasCapturePreview,
-	calculateCanvasCapturePreviewMetadata,
-	canvasCapturePreviewSchema,
-} from './CanvasCapturePreview';
+import {CanvasCaptureAnnouncement} from './CanvasCaptureAnnouncement/CanvasCaptureAnnouncement';
+import {CanvasCaptureComposition} from './CanvasCapturePreview';
+import {CanvasCaptureShort} from './CanvasCaptureShort/CanvasCaptureShort';
+import {Checker} from './Checker';
+import {CloseUp1} from './CloseUp1';
+import {CloseUp2} from './CloseUp2';
+import {CloseUp3} from './CloseUp3';
+import {CloseUp4} from './CloseUp4';
+import {CloseUp5} from './CloseUp5';
+import {CloseUp6} from './CloseUp6';
+import {CloseUp7} from './CloseUp7';
+import {CloseUp8} from './CloseUp8';
+import {CloseUpsSeries} from './CloseUpsSeries';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
-import {DesignSystems} from './DesignSystems';
+import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
+import {
+	DesignSystemsResponsive,
+	designSystemsResponsiveDurationInFrames,
+} from './DesignSystemsResponsive';
 import {
 	DocsPagesShowcase,
 	INSTAGRAM_POST_HEIGHT,
@@ -59,12 +79,17 @@ import {
 } from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
+import {
+	ExpertsGraphic,
+	expertsGraphicDurationInFrames,
+} from './HomepageAssets/ExpertsGraphic';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
+import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
 import {Map} from './HomepageAssets/Map';
 import {
 	HomepageAssetMaster,
-	homepageAssetMasterSchema,
 	homepageAssetMasterDurationInFrames,
+	homepageAssetMasterSchema,
 } from './HomepageAssets/Master';
 import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
 import {RemotionTriangleComposition} from './HomepageAssets/RemotionTriangle';
@@ -79,11 +104,13 @@ import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import NewSticker from './NewSticker';
+import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {
 	RulesEnumeration,
 	rulesEnumerationSchema,
 } from './RulesEnumeration/RulesEnumeration';
 import {ProductHuntLogo} from './ScalingLogo';
+import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
 import {ShipCard, shipCardDurationInFrames} from './ShipCard';
 import {
 	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
@@ -92,6 +119,17 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
+import {
+	Skills2AnnouncementComposition,
+	skills2AnnouncementSchema,
+} from './Skills2Announcement';
+import {Skills2CodeChange} from './Skills2CodeChange';
+import {Skills2CrazyContext} from './Skills2CrazyContext';
+import {Skills2Gesture} from './Skills2Gesture';
+import {Skills2Pick} from './Skills2Pick';
+import {Skills2Router} from './Skills2Router';
+import {Skills2TableBang} from './Skills2TableBang';
+import {Skills2TableBangComp} from './Skills2TableBangComp';
 import {SvgLogoCompositions} from './SvgLogos';
 import {
 	FlyingCardsLeft,
@@ -109,10 +147,121 @@ import {Prompt, PromptSchema} from './video-elements/Prompt';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
+import {
+	MacBookAppScene,
+	MacBookDesktopScene,
+	MacBookLoopScene,
+	MacBookScene,
+} from './WebMCPPromo/MacBookScene';
+import {WebMCPPromo2} from './WebMCPPromo2';
 
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="app-icons"
+				component={AppIcons}
+				durationInFrames={1}
+				fps={30}
+				width={2048}
+				height={720}
+			/>
+			<Composition
+				id="preview-toolbar-icons"
+				component={PreviewToolbarIcons}
+				durationInFrames={1}
+				fps={30}
+				width={3200}
+				height={520}
+			/>
+			<Folder name="announcements">
+				<Folder name="canvas-capture-announcement">
+					<Composition
+						id="CanvasCaptureAnnouncement"
+						component={CanvasCaptureAnnouncement}
+						durationInFrames={5248}
+						fps={30}
+						width={1920}
+						height={1080}
+					/>
+					<Composition
+						id="CanvasCaptureShort"
+						component={CanvasCaptureShort}
+						durationInFrames={1250}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+				</Folder>
+				<Composition
+					id="Skills2CodeChange"
+					component={Skills2CodeChange}
+					durationInFrames={180}
+					fps={30}
+					width={1920}
+					height={1920}
+				/>
+				<Composition
+					id="Skills2CrazyContext"
+					component={Skills2CrazyContext}
+					durationInFrames={120}
+					fps={30}
+					width={1920}
+					height={1400}
+				/>
+				<Composition
+					id="Skills2Announcement"
+					component={Skills2AnnouncementComposition}
+					durationInFrames={180}
+					fps={30}
+					width={1071}
+					height={102}
+					schema={skills2AnnouncementSchema}
+					defaultProps={{
+						title: '/react-best-practices',
+					}}
+				/>
+				<Composition
+					id="Skills2Gesture"
+					component={Skills2Gesture}
+					durationInFrames={456}
+					fps={30}
+					width={1344}
+					height={1700}
+				/>
+				<Composition
+					id="Skills2Pick"
+					component={Skills2Pick}
+					durationInFrames={78}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="Skills2Hand"
+					component={Skills2TableBang}
+					durationInFrames={78}
+					fps={10}
+					width={1344}
+					height={1126}
+				/>
+				<Composition
+					id="Skills2TableBangComp"
+					component={Skills2TableBangComp}
+					durationInFrames={120}
+					fps={30}
+					width={1344}
+					height={1700}
+				/>
+				<Composition
+					id="Skills2Router"
+					component={Skills2Router}
+					durationInFrames={456}
+					fps={30}
+					width={1344}
+					height={1700}
+				/>
+			</Folder>
 			<Folder name="docs">
 				<Composition
 					id="1000-documentation-pages"
@@ -164,6 +313,22 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<SvgLogoCompositions />
 			<Folder name="homepage-assets">
+				<Composition
+					id="ExpertsGraphic"
+					component={ExpertsGraphic}
+					durationInFrames={expertsGraphicDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="LicenseQuestionsGraphic"
+					component={LicenseQuestionsGraphic}
+					durationInFrames={180}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
 				<Composition
 					id="NpmInitVideo"
 					component={NpmIniVideo}
@@ -239,7 +404,47 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="DesignSystems"
 					component={DesignSystems}
-					durationInFrames={150}
+					durationInFrames={designSystemsDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="DesignSystemsResponsive"
+					component={DesignSystemsResponsive}
+					durationInFrames={designSystemsResponsiveDurationInFrames}
+					fps={30}
+					width={1350}
+					height={796}
+				/>
+				<Composition
+					id="ApplicationSimpleApp"
+					component={ApplicationSimpleApp}
+					durationInFrames={240}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="ApplicationVideoEditor"
+					component={ApplicationVideoEditor}
+					durationInFrames={240}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="ApplicationRenderButton"
+					component={ApplicationRenderButton}
+					durationInFrames={240}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="Applications"
+					component={Applications}
+					durationInFrames={180}
 					fps={30}
 					width={1080}
 					height={1080}
@@ -255,6 +460,14 @@ export const RemotionRoot: React.FC = () => {
 			/>
 			<Folder name="showcase">
 				<Composition
+					id="sfx-showcase"
+					component={SfxShowcase}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={sfxShowcaseDurationInFrames}
+				/>
+				<Composition
 					id="html-in-canvas-all-effects"
 					component={HtmlInCanvasAllEffects}
 					fps={30}
@@ -265,23 +478,7 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={htmlInCanvasAllEffectsDefaultProps}
 					calculateMetadata={calculateHtmlInCanvasAllEffectsMetadata}
 				/>
-				<Composition
-					id="canvas-capture-promo"
-					component={CanvasCapturePreview}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={120}
-					defaultProps={{
-						videoFile: staticFile('remotion-studio-canvas-recording.webm'),
-						cursorScale: 2.5,
-						hidden: null,
-						width: null,
-						height: null,
-					}}
-					schema={canvasCapturePreviewSchema}
-					calculateMetadata={calculateCanvasCapturePreviewMetadata}
-				/>
+				<CanvasCaptureComposition />
 				<Composition
 					id="canvas-capture-new-sticker"
 					component={NewSticker}
@@ -637,6 +834,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="brand-assets">
 				<Composition
+					id="3DCheck"
+					component={ThreeDCheck}
+					width={300}
+					height={300}
+					fps={30}
+					durationInFrames={1000}
+				/>
+				<Composition
 					id="logo-horn"
 					component={LogoHorn}
 					width={1080}
@@ -701,6 +906,68 @@ export const RemotionRoot: React.FC = () => {
 				width={EFFECT_SHOWCASE_WIDTH}
 				height={EFFECT_SHOWCASE_HEIGHT}
 			/>
+			<Composition
+				id="Checker"
+				component={Checker}
+				durationInFrames={1000}
+				fps={30}
+				width={900}
+				height={900}
+			/>
+
+			<Folder name="CloseUps">
+				<CloseUp1 />
+				<CloseUp2 />
+				<CloseUp3 />
+				<CloseUp4 />
+				<CloseUp5 />
+				<CloseUp6 />
+				<CloseUp7 />
+				<CloseUp8 />
+			</Folder>
+			<Composition
+				id="CloseUpsSeries"
+				component={CloseUpsSeries}
+				durationInFrames={637}
+				fps={60}
+				width={1920}
+				height={1080}
+			/>
+			<Folder name="WebMCPPromo-Scenes">
+				<Composition
+					id="WebMCPPromo-MacBook-Loop"
+					component={MacBookLoopScene}
+					durationInFrames={800}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="WebMCPPromo-MacBook"
+					component={MacBookScene}
+					durationInFrames={800}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="WebMCPPromo-MacBook-Desktop"
+					component={MacBookDesktopScene}
+					durationInFrames={1200}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="WebMCPPromo-MacBook-App"
+					component={MacBookAppScene}
+					durationInFrames={1200}
+					fps={60}
+					width={1320}
+					height={827}
+				/>
+				<WebMCPPromo2 />
+			</Folder>
 		</>
 	);
 };

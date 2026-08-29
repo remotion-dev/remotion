@@ -39,5 +39,8 @@ export const overrideWidthOption = {
 		validateDimension(width, 'width', 'in Config.overrideWidth()');
 		currentWidth = width;
 	},
+	reset: () => {
+		currentWidth = null;
+	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<number | null>;

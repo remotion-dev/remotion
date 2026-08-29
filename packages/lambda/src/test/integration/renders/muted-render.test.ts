@@ -4,11 +4,13 @@ import {tmpdir} from 'node:os';
 import path from 'path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless';
+import {rendersPrefix, ServerlessRoutines} from '@remotion/serverless';
+import {makeProgressString} from '../../../cli/commands/render/progress';
 import {mockImplementation} from '../../mocks/mock-implementation';
+import {getMockInvocationTypesForRender} from '../../mocks/mock-invocations';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
-test('Should make muted render audio', async () => {
+test('Should directly render final media with one Lambda', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'h264',
 		composition: 'framer',
@@ -17,7 +19,8 @@ test('Should make muted render audio', async () => {
 		logLevel: 'verbose',
 		region: 'eu-central-1',
 		inputProps: {},
-		muted: true,
+		muted: false,
+		concurrency: 1,
 	});
 
 	const tmpfile = path.join(tmpdir(), 'out.mp4');
@@ -32,14 +35,35 @@ test('Should make muted render audio', async () => {
 
 	const out = await RenderInternals.callFf({
 		bin: 'ffprobe',
-		args: [tmpfile],
+		args: [
+			'-v',
+			'error',
+			'-show_entries',
+			'stream=codec_type',
+			'-of',
+			'json',
+			tmpfile,
+		],
 		indent: false,
 		binariesDirectory: null,
 		cancelSignal: undefined,
 		logLevel: 'error',
 	});
 
-	expect(out.stdout).not.toContain('Audio');
+	expect(out.stdout).toContain('"codec_type": "video"');
+	expect(out.stdout).toContain('"codec_type": "audio"');
+	expect(getMockInvocationTypesForRender(renderId)).toEqual([
+		ServerlessRoutines.launch,
+	]);
+	expect(progress.renderMetadata?.estimatedTotalLambdaInvokations).toBe(1);
+	expect(progress.renderMetadata?.estimatedRenderLambdaInvokations).toBe(0);
+	expect(progress.timeToCombine).toBeNull();
+	const progressString = makeProgressString({
+		downloadInfo: null,
+		overall: progress,
+	});
+	expect(progressString).toContain('Invoked lambdas');
+	expect(progressString).not.toContain('1/0');
 
 	unlinkSync(tmpfile);
 

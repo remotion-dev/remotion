@@ -1,0 +1,39 @@
+---
+image: /generated/articles-docs-ai-cursor-plugin.png
+crumb: 'AI'
+title: Cursor plugin
+---
+
+Remotion maintains a [plugin for Cursor](https://github.com/remotion-dev/cursor-plugin).
+
+It can help you create and edit Remotion projects and includes [Remotion Agent Skills](/docs/ai/skills).
+
+## Installation
+
+[Install the Remotion plugin from the Cursor Marketplace](https://cursor.com/marketplace/remotion).
+
+Alternatively, clone the plugin into Cursor's local plugin directory:
+
+```bash title="Terminal"
+mkdir -p ~/.cursor/plugins/local
+git clone https://github.com/remotion-dev/cursor-plugin.git ~/.cursor/plugins/local/remotion
+```
+
+Restart Cursor or run **Developer: Reload Window** after installing the plugin.
+
+## Usage
+
+Ask Cursor to create or edit a Remotion video. Cursor automatically loads the relevant skills.
+
+You can also invoke the main skill directly:
+
+<SuggestedPrompt prompt="/remotion-best-practices Make a promo video for a record store" />
+
+## See also
+
+- [Claude Code plugin](/docs/ai/claude-code-plugin)
+- [Codex plugin](/docs/ai/codex-plugin)
+- [Kimi Code plugin](/docs/ai/kimi-code-plugin)
+- [Remotion Agent Skills](/docs/ai/skills)
+- [Prompting videos with coding agents](/docs/ai/coding-agents)
+- [Plugin source code](https://github.com/remotion-dev/cursor-plugin)

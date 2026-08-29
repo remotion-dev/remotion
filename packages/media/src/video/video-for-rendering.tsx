@@ -21,7 +21,7 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
-import {useMaxMediaCacheSize} from '../caches';
+import {useMaxMediaCacheSize, useRenderMediaCache} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -52,7 +52,7 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
 	readonly disallowFallbackToOffthreadVideo: boolean;
-	readonly stack: string | undefined;
+	readonly _remotionInternalStack: string | undefined;
 	readonly toneFrequency: number;
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
@@ -84,7 +84,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 	disallowFallbackToOffthreadVideo,
-	stack,
+	_remotionInternalStack,
 	toneFrequency,
 	trimAfterValue,
 	trimBeforeValue,
@@ -109,6 +109,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	);
 	const startsAt = Internals.useMediaStartsAt();
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const startInVideo = sequenceContext
+		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
+		: 0;
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -138,6 +141,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const videoEnabled = Internals.useVideoEnabled();
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
+	const mediaCache = useRenderMediaCache(logLevel);
 	const effectChainState = Internals.useEffectChainState();
 
 	const [error, setError] = useState<Error | null>(null);
@@ -203,8 +207,17 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			maxCacheSize,
 			credentials,
 			requestInit: initialRequestInit,
+			mediaCache,
 		})
 			.then(async (result) => {
+				if (mediaCache.isDisposed()) {
+					if (result.type === 'success') {
+						result.frame?.close();
+					}
+
+					return;
+				}
+
 				const handleError = (
 					err: Error,
 					clientSideError: Error,
@@ -333,7 +346,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 								height: imageBitmap.height,
 							});
 
-							if (!completed) {
+							if (!completed || mediaCache.isDisposed()) {
 								imageBitmap.close();
 								return;
 							}
@@ -383,6 +396,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 							? audio.data
 							: Array.from(audio.data),
 						frame: absoluteFrame,
+						startInVideo,
 						timestamp: audio.timestamp,
 						duration:
 							(audio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
@@ -393,6 +407,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				continueRender(newHandle);
 			})
 			.catch((err) => {
+				if (mediaCache.isDisposed()) {
+					return;
+				}
+
 				cancelRender(err);
 			});
 
@@ -418,6 +436,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		playbackRate,
 		registerRenderAsset,
 		src,
+		startInVideo,
 		startsAt,
 		unregisterRenderAsset,
 		volumeProp,
@@ -437,6 +456,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		effectChainState,
 		effects,
 		initialRequestInit,
+		mediaCache,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
@@ -494,7 +514,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				preservePitch={fallbackOffthreadVideoProps?.preservePitch ?? true}
 				startFrom={undefined}
 				endAt={undefined}
-				stack={stack}
+				_remotionInternalStack={_remotionInternalStack}
 				_remotionInternalNativeLoopPassed={false}
 			/>
 		);

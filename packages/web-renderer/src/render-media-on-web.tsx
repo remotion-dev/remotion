@@ -1,4 +1,9 @@
-import {BufferTarget, StreamTarget} from 'mediabunny';
+import {
+	BufferTarget,
+	StreamTarget,
+	type MetadataTags,
+	type StreamTargetChunk,
+} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import {VERSION} from 'remotion/version';
@@ -12,7 +17,7 @@ import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createAudioSampleSource} from './create-audio-sample-source';
 import {checkForError, createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
-import {supportsNestedHtmlInCanvas} from './html-in-canvas';
+import {supportsNativeHtmlInCanvas} from './html-in-canvas';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import {
@@ -41,7 +46,7 @@ import {
 	type WebRendererPageResponsiveness,
 } from './page-responsiveness';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
-import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
+import {onlyOneMediaRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
 import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
@@ -133,11 +138,14 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	onFrame: OnFrameCallback | null;
 	pageResponsiveness: WebRendererPageResponsiveness;
 	outputTarget: WebRendererOutputTarget | null;
+	outputWritable: WritableStream<StreamTargetChunk> | null;
 	licenseKey: string | null;
 	isProduction: boolean;
 	muted: boolean;
 	scale: number;
 	sampleRate: number;
+	allowHtmlInCanvas: boolean;
+	metadata: MetadataTags | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -182,11 +190,14 @@ const internalRenderMediaOnWeb = async <
 	onFrame,
 	pageResponsiveness,
 	outputTarget: userDesiredOutputTarget,
+	outputWritable,
 	licenseKey,
 	muted,
 	scale,
 	isProduction,
 	sampleRate,
+	allowHtmlInCanvas,
+	metadata,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
@@ -205,7 +216,7 @@ const internalRenderMediaOnWeb = async <
 		if (outcome.native) {
 			Internals.Log.warn(
 				{logLevel, tag: '@remotion/web-renderer'},
-				'Using Chromium experimental HTML-in-canvas (drawElementImage) for video frames. See https://remotion.dev/docs/client-side-rendering/html-in-canvas',
+				'Using Chromium experimental HTML-in-canvas (drawElementImage) for video frames. Pixels may differ from the built-in DOM composer. Set allowHtmlInCanvas: false to force software rasterization. See https://remotion.dev/docs/client-side-rendering/html-in-canvas',
 			);
 		} else if (outcome.shouldWarn) {
 			Internals.Log.warn(
@@ -216,11 +227,13 @@ const internalRenderMediaOnWeb = async <
 	};
 
 	const outputTarget =
-		userDesiredOutputTarget === null
-			? (await canUseWebFsWriter())
-				? 'web-fs'
-				: 'arraybuffer'
-			: userDesiredOutputTarget;
+		outputWritable !== null
+			? null
+			: userDesiredOutputTarget === null
+				? (await canUseWebFsWriter())
+					? 'web-fs'
+					: 'arraybuffer'
+				: userDesiredOutputTarget;
 
 	if (outputTarget === 'web-fs') {
 		await cleanupStaleOpfsFiles();
@@ -311,8 +324,6 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
-	const useHtmlInCanvas = await supportsNestedHtmlInCanvas();
-
 	using scaffold = createScaffold({
 		width: resolved.width,
 		height: resolved.height,
@@ -330,7 +341,7 @@ const internalRenderMediaOnWeb = async <
 		initialFrame: 0,
 		defaultCodec: resolved.defaultCodec,
 		defaultOutName: resolved.defaultOutName,
-		useHtmlInCanvas,
+		useHtmlInCanvas: allowHtmlInCanvas,
 		pixelDensity: scale,
 	});
 
@@ -343,7 +354,34 @@ const internalRenderMediaOnWeb = async <
 		htmlInCanvasContext,
 	} = scaffold;
 
-	using internalState = makeInternalState();
+	if (allowHtmlInCanvas && !htmlInCanvasContext) {
+		if (!supportsNativeHtmlInCanvas()) {
+			onHtmlInCanvasLayerOutcome({
+				native: false,
+				reason:
+					'This browser does not expose CanvasRenderingContext2D.prototype.drawElementImage. In Chromium, enable chrome://flags/#canvas-draw-element and use a version that ships the API.',
+				shouldWarn: false,
+			});
+		} else {
+			onHtmlInCanvasLayerOutcome({
+				native: false,
+				reason:
+					'drawElementImage is available but canvas.requestPaint() is missing. Use a Chromium version that ships requestPaint.',
+				shouldWarn: true,
+			});
+		}
+	} else if (!allowHtmlInCanvas) {
+		onHtmlInCanvasLayerOutcome({
+			native: false,
+			reason: 'allowHtmlInCanvas is false; using the built-in DOM composer.',
+			shouldWarn: false,
+		});
+	}
+
+	using internalState = makeInternalState({
+		signal,
+		maskImageTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+	});
 	const pageResponsivenessController = createPageResponsivenessController({
 		intervalInMilliseconds: pageResponsivenessIntervalInMilliseconds,
 		now: () => performance.now(),
@@ -381,17 +419,24 @@ const internalRenderMediaOnWeb = async <
 	const webFsTarget =
 		outputTarget === 'web-fs' ? await createWebFsTarget() : null;
 
-	const target = webFsTarget
-		? new StreamTarget(webFsTarget.stream)
-		: new BufferTarget()!;
+	const target = outputWritable
+		? new StreamTarget(outputWritable)
+		: webFsTarget
+			? new StreamTarget(webFsTarget.stream)
+			: new BufferTarget()!;
 
 	using outputWithCleanup = makeOutputWithCleanup({
 		format,
 		target,
 	});
 
+	const defaultComment = `Made with Remotion ${VERSION}`;
 	outputWithCleanup.output.setMetadataTags({
-		comment: `Made with Remotion ${VERSION}`,
+		...(metadata ?? {}),
+		comment:
+			metadata?.comment === undefined
+				? defaultComment
+				: `${defaultComment}; ${metadata.comment}`,
 	});
 
 	using throttledProgress = createThrottledProgressCallback(onProgress);
@@ -522,7 +567,6 @@ const internalRenderMediaOnWeb = async <
 						? onHtmlInCanvasLayerOutcome
 						: undefined,
 					waitForPageResponsiveness,
-					waitForRenderReady,
 				});
 				internalState.addCreateFrameTime(performance.now() - createFrameStart);
 				layerCanvas = layer.canvas;
@@ -643,6 +687,24 @@ const internalRenderMediaOnWeb = async <
 			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms, audioMixing=${internalState.getAudioMixingTime().toFixed(2)}ms`,
 		);
 
+		if (outputWritable) {
+			sendUsageEvent({
+				licenseKey: licenseKey ?? null,
+				succeeded: true,
+				apiName: 'renderMediaOnWeb',
+				isStill: false,
+				isProduction: isProduction ?? true,
+			});
+
+			return {
+				getBlob: () =>
+					Promise.reject(
+						new Error('getBlob() is unavailable when outputWritable is used'),
+					),
+				internalState,
+			};
+		}
+
 		if (webFsTarget) {
 			sendUsageEvent({
 				licenseKey: licenseKey ?? null,
@@ -717,7 +779,7 @@ export const renderMediaOnWeb = <
 	const codec =
 		options.videoCodec ?? getDefaultVideoCodecForContainer(container) ?? null;
 
-	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
+	onlyOneMediaRenderAtATimeQueue.ref = onlyOneMediaRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderMediaOnWeb<Schema, Props>({
@@ -742,13 +804,16 @@ export const renderMediaOnWeb = <
 				onFrame: options.onFrame ?? null,
 				pageResponsiveness: options.pageResponsiveness ?? 'medium',
 				outputTarget: options.outputTarget ?? null,
+				outputWritable: options.outputWritable ?? null,
 				licenseKey: options.licenseKey ?? null,
 				muted: options.muted ?? false,
 				scale: options.scale ?? 1,
 				isProduction: options.isProduction ?? true,
+				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
 				sampleRate: options.sampleRate ?? 48000,
+				metadata: options.metadata ?? null,
 			}),
 		);
 
-	return onlyOneRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
+	return onlyOneMediaRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
 };

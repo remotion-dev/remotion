@@ -1,4 +1,3 @@
-import { zColor } from "@remotion/zod-types";
 import {
   AbsoluteFill,
   interpolate,
@@ -7,19 +6,18 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { z } from "zod";
 import { Logo } from "./HelloWorld/Logo";
 import { Subtitle } from "./HelloWorld/Subtitle";
 import { Title } from "./HelloWorld/Title";
 
-export const myCompSchema = z.object({
-  titleText: z.string(),
-  titleColor: zColor(),
-  logoColor1: zColor(),
-  logoColor2: zColor(),
-});
+export type HelloWorldProps = {
+  readonly titleText: string;
+  readonly titleColor: string;
+  readonly logoColor1: string;
+  readonly logoColor2: string;
+};
 
-export const HelloWorld: React.FC<z.infer<typeof myCompSchema>> = ({
+export const HelloWorld: React.FC<HelloWorldProps> = ({
   titleText: propOne,
   titleColor: propTwo,
   logoColor1,

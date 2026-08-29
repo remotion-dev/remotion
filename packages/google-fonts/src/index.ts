@@ -642,6 +642,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./AsapCondensed') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Asap Sharp',
+		importName: 'AsapSharp',
+		load: () => import('./AsapSharp') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Asar',
 		importName: 'Asar',
 		load: () => import('./Asar') as Promise<GoogleFont>,
@@ -1425,6 +1430,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Bytesized',
 		importName: 'Bytesized',
 		load: () => import('./Bytesized') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Caacupe One',
+		importName: 'CaacupeOne',
+		load: () => import('./CaacupeOne') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Cabin',
@@ -7723,6 +7733,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./ScopeOne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Scoutie Sans',
+		importName: 'ScoutieSans',
+		load: () => import('./ScoutieSans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Seaweed Script',
 		importName: 'SeaweedScript',
 		load: () => import('./SeaweedScript') as Promise<GoogleFont>,
@@ -8731,6 +8746,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'VT323',
 		importName: 'VT323',
 		load: () => import('./VT323') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Valley Sans',
+		importName: 'ValleySans',
+		load: () => import('./ValleySans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Vampiro One',

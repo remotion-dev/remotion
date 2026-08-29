@@ -10,7 +10,8 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
-import {saveEffectProp} from './save-effect-prop';
+import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
+import {saveMultipleEffectProps} from './save-effect-prop';
 import type {SetPropStatuses} from './save-sequence-prop';
 import {saveSequenceProps} from './save-sequence-prop';
 import type {TimelineSelection} from './TimelineSelection';
@@ -169,7 +170,7 @@ export const getTimelinePropResetTargets = ({
 			const {merged: sequenceValuesDotNotation} =
 				Internals.computeEffectiveSchemaValuesDotNotation({
 					schema: sequence.controls.schema,
-					currentValue: sequence.controls.currentRuntimeValueDotNotation,
+					currentValue: sequence.controls.runtimeValues.getSnapshot(),
 					overrideValues: {},
 					propStatus: sequencePropStatus,
 					frame: null,
@@ -286,14 +287,11 @@ export const resetSelectedTimelineProps = ({
 	if (sequencePropTargets.length > 0) {
 		resetPromises.push(
 			saveSequenceProps({
-				changes: sequencePropTargets.map((target) => ({
-					fileName: target.fileName,
-					nodePath: target.nodePath,
-					fieldKey: target.fieldKey,
-					value: target.value,
-					defaultValue: target.defaultValue,
-					schema: target.schema,
-				})),
+				addedKeyframes: null,
+				movedKeyframes: null,
+				changes: sequencePropTargets.flatMap((target) =>
+					getSequencePropResetChanges(target),
+				),
 				setPropStatuses,
 				clientId,
 				undoLabel:
@@ -308,19 +306,29 @@ export const resetSelectedTimelineProps = ({
 		);
 	}
 
-	for (const target of effectPropTargets) {
+	if (effectPropTargets.length > 0) {
 		resetPromises.push(
-			saveEffectProp({
-				type: 'value',
-				fileName: target.fileName,
-				nodePath: target.nodePath,
-				effectIndex: target.effectIndex,
-				fieldKey: target.fieldKey,
-				value: target.value,
-				defaultValue: target.defaultValue,
-				schema: target.schema,
+			saveMultipleEffectProps({
+				changes: effectPropTargets.map((target) => ({
+					type: 'value',
+					fileName: target.fileName,
+					nodePath: target.nodePath,
+					effectIndex: target.effectIndex,
+					fieldKey: target.fieldKey,
+					value: target.value,
+					defaultValue: target.defaultValue,
+					schema: target.schema,
+				})),
 				setPropStatuses,
 				clientId,
+				undoLabel:
+					effectPropTargets.length > 1
+						? 'Reset selected effect props'
+						: 'Reset effect prop',
+				redoLabel:
+					effectPropTargets.length > 1
+						? 'Reapply selected effect props'
+						: 'Reapply effect prop',
 			}),
 		);
 	}

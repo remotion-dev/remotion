@@ -31,6 +31,7 @@ import {LinearBlurDocsDemo} from './LinearBlurDemo';
 import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
+import {PushCutDocsDemo} from './PushCutDemo';
 import {RectDemo} from './Rect';
 import {RippleDocsDemo} from './RippleDemo';
 import {RoughNotationAnimatedSeedDemo} from './RoughNotationAnimatedSeedDemo';
@@ -898,6 +899,19 @@ export const fadePresentationDemo: DemoType = {
 	options: [],
 };
 
+export const pushCutPresentationDemo: DemoType = {
+	comp: PushCutDocsDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'push-cut',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
 export const slidePresentationDemo: DemoType = {
 	comp: SlideDemo,
 	compHeight: 280,
@@ -1542,68 +1556,13 @@ export const starburstDemo: DemoType = {
 	comp: StarburstDemoComp,
 	compHeight: 720,
 	compWidth: 1280,
-	durationInFrames: 90,
+	durationInFrames: 180,
 	fps: 30,
 	id: 'starburst',
-	autoPlay: false,
+	autoPlay: true,
 	controls: false,
 	logLevel: 'info',
-	options: [
-		{
-			name: 'rays',
-			type: 'numeric',
-			default: 12,
-			min: 2,
-			max: 100,
-			step: 1,
-			optional: 'no',
-		},
-		{
-			name: 'rotation',
-			type: 'numeric',
-			default: 0,
-			min: 0,
-			max: 360,
-			step: 1,
-			optional: 'no',
-		},
-		{
-			name: 'smoothness',
-			type: 'numeric',
-			default: 0,
-			min: 0,
-			max: 1,
-			step: 0.01,
-			optional: 'no',
-		},
-		{
-			name: 'vignette',
-			type: 'numeric',
-			default: 1,
-			min: 0,
-			max: 1,
-			step: 0.01,
-			optional: 'no',
-		},
-		{
-			name: 'originOffsetX',
-			type: 'numeric',
-			default: 0,
-			min: -1,
-			max: 1,
-			step: 0.01,
-			optional: 'no',
-		},
-		{
-			name: 'originOffsetY',
-			type: 'numeric',
-			default: 0,
-			min: -1,
-			max: 1,
-			step: 0.01,
-			optional: 'no',
-		},
-	],
+	options: [],
 };
 
 export const transitionSeriesTransitionDemo: DemoType = {

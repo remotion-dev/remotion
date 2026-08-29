@@ -1,4 +1,4 @@
-import type {AwsProvider} from '@remotion/lambda-client';
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import type {MakeArtifactWithDetails} from '@remotion/serverless';
 
 export const makeAwsArtifact: MakeArtifactWithDetails<AwsProvider> = ({
@@ -7,10 +7,11 @@ export const makeAwsArtifact: MakeArtifactWithDetails<AwsProvider> = ({
 	storageKey,
 	artifact,
 }) => {
+	const {dnsSuffix} = LambdaClientInternals.getAwsRegionMetadata(region);
 	return {
 		filename: artifact.filename,
 		sizeInBytes: artifact.content.length,
-		s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${storageKey}`,
+		s3Url: `https://s3.${region}.${dnsSuffix}/${renderBucketName}/${storageKey}`,
 		s3Key: storageKey,
 	};
 };

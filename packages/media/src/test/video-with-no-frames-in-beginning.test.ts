@@ -1,7 +1,11 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import {assert, expect, test} from 'vitest';
 import {audioIteratorManager} from '../audio-iterator-manager';
-import {getMaxVideoCacheSize, keyframeManager} from '../caches';
+import {
+	getMaxVideoCacheSize,
+	globalMediaCache,
+	keyframeManager,
+} from '../caches';
 import {makeNonceManager} from '../nonce-manager';
 import {extractFrame} from '../video-extraction/extract-frame';
 import {videoIteratorManager} from '../video-iterator-manager';
@@ -50,14 +54,23 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	await manager.seek({
 		newTime: 0.03,
 		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
+		isPlaying: false,
 	});
 	await manager.seek({
 		newTime: 1,
 		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
+		isPlaying: false,
 	});
 	await manager.seek({
 		newTime: 2,
 		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
+		isPlaying: false,
 	});
 
 	const iteratorsCreated = manager.getVideoIteratorsCreated();
@@ -66,6 +79,9 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	await manager.seek({
 		newTime: 4.5,
 		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
+		isPlaying: false,
 	});
 
 	const iteratorsCreated2 = manager.getVideoIteratorsCreated();
@@ -109,14 +125,8 @@ test('same goes for audio', async () => {
 		getSequenceDurationInSeconds: () => 10,
 		getStartTime: () => 0,
 		initialMuted: false,
+		initialVolume: 1,
 		drawDebugOverlay: () => {},
-		initialPlaybackRate: 1,
-		initialTrimBefore: undefined,
-		initialTrimAfter: undefined,
-		initialSequenceOffset: 0,
-		initialSequenceDurationInFrames: 10,
-		initialLoop: false,
-		initialFps: 30,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -182,6 +192,7 @@ test('in rendering, should also be smart', async (t) => {
 			fps: 30,
 			maxCacheSize: getMaxVideoCacheSize('info'),
 			credentials: undefined,
+			mediaCache: globalMediaCache,
 		});
 		assert(frame.type === 'success');
 		if (lastFrame) {
@@ -205,6 +216,7 @@ test('in rendering, should also be smart', async (t) => {
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 
 	assert(firstRealFrame.type === 'success');

@@ -3,6 +3,7 @@ import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity} from '../caches';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import {renderTimestampRange} from '../render-timestamp-range';
+import {makeSerializedQueue} from '../serialized-queue';
 import {getAllocationSize} from './get-allocation-size';
 
 // duration can be wrong! we shall not rely on it, but calculate it ourselves
@@ -33,6 +34,7 @@ export type KeyframeBank = {
 		timestamps: number[];
 	};
 	getLastUsed: () => number;
+	isBusy: () => boolean;
 	canSatisfyTimestamp: (timestamp: number) => boolean;
 	getRangeOfTimestamps: () => {
 		firstTimestamp: number;
@@ -64,6 +66,7 @@ export const makeKeyframeBank = async ({
 
 	let lastUsed = Date.now();
 	let allocationSize = 0;
+	let pendingOperations = 0;
 
 	const getMeasuredDurationOfFrame = (timestamp: number) => {
 		const index = frameTimestamps.indexOf(timestamp);
@@ -283,7 +286,7 @@ export const makeKeyframeBank = async ({
 		return lastUsed;
 	};
 
-	let queue = Promise.resolve<unknown>(undefined);
+	const enqueue = makeSerializedQueue();
 
 	const firstFrame = await sampleIterator.next();
 	if (!firstFrame.value) {
@@ -384,19 +387,26 @@ export const makeKeyframeBank = async ({
 
 	const keyframeBank: KeyframeBank = {
 		getFrameFromTimestamp: (timestamp: number, fps: number) => {
-			queue = queue.then(() => getFrameFromTimestamp(timestamp, fps));
-			return queue as Promise<VideoSample | null>;
+			pendingOperations++;
+			return enqueue(() => getFrameFromTimestamp(timestamp, fps)).finally(
+				() => {
+					pendingOperations--;
+				},
+			);
 		},
 		prepareForDeletion,
 		hasTimestampInSecond: (timestamp: number, fps: number) => {
-			queue = queue.then(() => hasTimestampInSecond(timestamp, fps));
-			return queue as Promise<boolean>;
+			pendingOperations++;
+			return enqueue(() => hasTimestampInSecond(timestamp, fps)).finally(() => {
+				pendingOperations--;
+			});
 		},
 		addFrame,
 		deleteFramesBeforeTimestamp,
 		src,
 		getOpenFrameCount,
 		getLastUsed,
+		isBusy: () => pendingOperations > 0,
 		canSatisfyTimestamp,
 		getRangeOfTimestamps,
 	};

@@ -9,9 +9,15 @@ import {SequenceSelectionInspector} from './SequenceSelectionInspector';
 
 export const SelectedInspector: React.FC<{
 	readonly selection: TimelineSelection;
-}> = ({selection}) => {
+	readonly readOnlyStudio: boolean;
+}> = ({selection, readOnlyStudio}) => {
 	if (isSequenceSectionSelection(selection)) {
-		return <SequenceSelectionInspector selection={selection} />;
+		return (
+			<SequenceSelectionInspector
+				selection={selection}
+				readOnlyStudio={readOnlyStudio}
+			/>
+		);
 	}
 
 	if (selection.type === 'keyframe') {

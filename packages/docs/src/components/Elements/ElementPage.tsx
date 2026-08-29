@@ -1,17 +1,27 @@
+import Head from '@docusaurus/Head';
 import {
-	makeElementDragData,
-	type ComponentDimensions,
-} from '@remotion/studio-shared';
+	installInStudio,
+	isInsideStudio,
+	setStudioDragData,
+	StudioProtocolInternals,
+} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
+	useEffect,
 	useId,
+	useLayoutEffect,
 	useMemo,
+	useRef,
 	useState,
 	type ReactNode,
 } from 'react';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
-import {setElementDragData, setElementDragImage} from './element-drag-data';
+import {
+	createElementPayloadFromDefinition,
+	setElementDragImage,
+} from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
 import {ElementPreview} from './ElementPreview';
 import {
@@ -23,187 +33,115 @@ import styles from './ElementPage.module.css';
 type ElementPageProps = {
 	readonly children?: ReactNode;
 	readonly definition: ElementDefinition;
-	readonly dependencies: string[];
 	readonly sourceCode?: string;
-};
-
-type ElementInstallTarget = {
-	type: 'remotion-studio';
-	projectName: string | null;
-	port: number | null;
-	lastFocusedAt: number | null;
-	canInstall: boolean;
-	activeCompositionId: string | null;
-	readOnly: boolean;
 };
 
 type InstallStatus =
 	| {type: 'idle'}
 	| {type: 'installing'}
-	| {type: 'success'; message: string; studioUrl: string}
+	| {type: 'success'; message: string}
 	| {type: 'error'; message: string};
-
-const probePorts = [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009];
-const focusedStudioMaxAge = 5 * 60 * 1000;
-
-const fetchWithTimeout = async (url: string, options: RequestInit = {}) => {
-	const controller = new AbortController();
-	const timeout = window.setTimeout(() => controller.abort(), 700);
-	try {
-		return await fetch(url, {...options, signal: controller.signal});
-	} finally {
-		window.clearTimeout(timeout);
-	}
-};
-
-const findBestInstallTarget = async (): Promise<
-	(ElementInstallTarget & {origin: string}) | null
-> => {
-	const targets = await Promise.all(
-		probePorts.map(async (port) => {
-			const origin = `http://localhost:${port}`;
-			try {
-				const response = await fetchWithTimeout(
-					`${origin}/api/element-install-target`,
-				);
-				if (!response.ok) {
-					return null;
-				}
-
-				const target = (await response.json()) as ElementInstallTarget;
-				if (target.type !== 'remotion-studio') {
-					return null;
-				}
-
-				return {...target, origin};
-			} catch {
-				return null;
-			}
-		}),
-	);
-
-	const now = Date.now();
-	const installableTargets = targets.filter(
-		(target): target is ElementInstallTarget & {origin: string} =>
-			target !== null &&
-			target.canInstall &&
-			target.lastFocusedAt !== null &&
-			now - target.lastFocusedAt < focusedStudioMaxAge,
-	);
-
-	return (
-		installableTargets.sort((a, b) => b.lastFocusedAt! - a.lastFocusedAt!)[0] ??
-		null
-	);
-};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	definition,
-	dependencies,
 	sourceCode,
 }) => {
-	const {
-		contributors,
-		description,
-		displayName,
-		durationInFrames,
-		elementHeight,
-		elementWidth,
-		fps,
-		slug,
-	} = definition;
+	const {contributors, description, durationInFrames, fps} = definition;
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
+	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
+		useState(false);
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
+	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
 
-	const dragData = useMemo(() => {
+	const elementPayload = useMemo(() => {
 		if (!sourceCode) {
 			return null;
 		}
 
-		const dimensions: ComponentDimensions | null =
-			elementWidth !== null && elementHeight !== null
-				? {
-						width: elementWidth,
-						height: elementHeight,
-					}
-				: null;
+		return createElementPayloadFromDefinition({definition, sourceCode});
+	}, [definition, sourceCode]);
 
-		return makeElementDragData({
-			dependencies,
-			dimensions,
-			displayName,
-			slug,
-			sourceCode,
-		});
-	}, [
-		dependencies,
-		displayName,
-		elementHeight,
-		elementWidth,
-		slug,
-		sourceCode,
-	]);
+	useLayoutEffect(() => {
+		setIsEmbeddedInStudio(isInsideStudio());
+	}, []);
+
+	useEffect(() => {
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (
+				event.repeat ||
+				!event.altKey ||
+				!event.shiftKey ||
+				event.ctrlKey ||
+				event.metaKey ||
+				event.code !== 'KeyB'
+			) {
+				return;
+			}
+
+			const {target} = event;
+			if (
+				target instanceof HTMLElement &&
+				(target.isContentEditable ||
+					target.tagName === 'INPUT' ||
+					target.tagName === 'SELECT' ||
+					target.tagName === 'TEXTAREA')
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			setIsBrowserStudioActionVisible(true);
+		};
+
+		window.addEventListener('keydown', onKeyDown);
+		return () => window.removeEventListener('keydown', onKeyDown);
+	}, []);
 
 	const installElement = useCallback(async () => {
-		if (dragData === null) {
+		if (elementPayload === null) {
 			return;
 		}
 
 		setInstallStatus({type: 'installing'});
-		try {
-			const target = await findBestInstallTarget();
-			if (target === null) {
-				setInstallStatus({
-					type: 'error',
-					message:
-						'Focus the Remotion Studio you want to install into, then click again.',
-				});
-				return;
-			}
-
-			const response = await fetchWithTimeout(
-				`${target.origin}/api/request-element-install`,
-				{
-					method: 'POST',
-					headers: {'Content-Type': 'application/json'},
-					body: JSON.stringify({element: dragData.element}),
-				},
-			);
-			const result = (await response.json()) as
-				| {success: true; status: 'sent'}
-				| {success: false; reason: string};
-
-			if (!response.ok || !result.success) {
-				setInstallStatus({
-					type: 'error',
-					message:
-						'success' in result && result.success === false
-							? result.reason
-							: 'Could not send Element to Remotion Studio.',
-				});
-				return;
-			}
-
-			setInstallStatus({
-				type: 'success',
-				message: `Sent to ${target.projectName ?? 'Remotion Studio'}${
-					target.activeCompositionId ? ` / ${target.activeCompositionId}` : ''
-				}. Confirm the install in Studio.`,
-				studioUrl: target.origin,
-			});
-		} catch (err) {
+		const result = await installInStudio({payload: elementPayload});
+		if (!result.success) {
 			setInstallStatus({
 				type: 'error',
-				message: err instanceof Error ? err.message : String(err),
+				message: result.message,
 			});
+			return;
 		}
-	}, [dragData]);
+
+		const {target} = result;
+		setInstallStatus({
+			type: 'success',
+			message: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
+		});
+
+		if (window.location.origin === 'https://www.remotion.dev') {
+			navigator.sendBeacon(
+				`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
+			);
+		}
+	}, [definition.slug, elementPayload]);
+
+	const openInBrowserStudio = useCallback(() => {
+		if (elementPayload === null) {
+			return;
+		}
+
+		StudioProtocolInternals.openInBrowserStudio({
+			endpoint: null,
+			payload: elementPayload,
+		});
+	}, [elementPayload]);
 
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
@@ -211,14 +149,31 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 	return (
 		<div className={styles.workbench}>
+			<img
+				ref={posterRef}
+				alt=""
+				decoding="async"
+				draggable={false}
+				hidden
+				src={definition.preview.posterUrl}
+			/>
+			<Head>
+				{Seo.renderVideo({
+					height: previewHeight,
+					url: definition.preview.videoUrl,
+					width: previewWidth,
+				})}
+			</Head>
 			<section aria-label="Preview" className={styles.previewColumn}>
 				<div className={styles.previewAndSource}>
 					<ElementPreview
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
+						elementHeight={definition.elementHeight}
+						elementWidth={definition.elementWidth}
 						fps={fps}
-						height={previewHeight}
-						width={previewWidth}
+						previewLayout={definition.preview.previewLayout}
+						safeArea={definition.safeArea}
 					/>
 					{children ? (
 						<div className={styles.sourceArea}>
@@ -255,8 +210,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				aria-label="Element details and actions"
 				className={styles.actionsColumn}
 			>
-				<div className={styles.useIt}>
-					{dragData === null ? null : (
+				<div>
+					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
 								<BlueButton
@@ -265,30 +220,45 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									onClick={installElement}
 									size="sm"
 									style={{padding: '7px 12px'}}
-									title="Install into the most recently focused Remotion Studio"
+									title="Install in the most recently focused Remotion Studio"
 								>
 									{installStatus.type === 'installing'
 										? 'Finding Studio…'
-										: 'Install Element'}
+										: 'Install in Studio'}
 								</BlueButton>
-								<PlainButton
-									draggable
-									fullWidth
-									loading={false}
-									onDragStart={(event) => {
-										setElementDragData({
-											dataTransfer: event.dataTransfer,
-											dragData,
-										});
-										setElementDragImage(event.dataTransfer);
-									}}
-									size="sm"
-									style={{cursor: 'grab', padding: '7px 12px'}}
-									title="Drag into Remotion Studio"
-								>
-									Drag into Studio
-								</PlainButton>
+								{isBrowserStudioActionVisible ? (
+									<PlainButton
+										fullWidth
+										loading={false}
+										onClick={openInBrowserStudio}
+										size="sm"
+										style={{padding: '7px 12px'}}
+									>
+										Open in Browser Studio
+									</PlainButton>
+								) : null}
 							</div>
+							{isEmbeddedInStudio === false ? (
+								<div
+									className={styles.dragHandle}
+									draggable
+									onDragStart={(event) => {
+										setStudioDragData({
+											dataTransfer: event.dataTransfer,
+											payload: elementPayload,
+										});
+										setElementDragImage(event.dataTransfer, posterRef.current);
+									}}
+									title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
+								>
+									<span aria-hidden="true" className={styles.dragHandleIcon}>
+										⠿
+									</span>
+									<span className={styles.dragHandleText}>
+										<strong>Drag into Studio</strong>
+									</span>
+								</div>
+							) : null}
 							{installStatus.type === 'success' ||
 							installStatus.type === 'error' ? (
 								<p
@@ -299,16 +269,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											: styles.errorStatus
 									}
 								>
-									{installStatus.message}{' '}
-									{installStatus.type === 'success' ? (
-										<a
-											href={installStatus.studioUrl}
-											rel="noreferrer"
-											target="_blank"
-										>
-											Open Studio
-										</a>
-									) : null}
+									{installStatus.message}
 								</p>
 							) : null}
 						</>
@@ -320,6 +281,38 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							<div>
 								<dt>Dimensions</dt>
 								<dd>{getElementDimensionsLabel(definition)}</dd>
+							</div>
+							<div>
+								<dt>Preview FPS</dt>
+								<dd>{fps}</dd>
+							</div>
+							<div>
+								<dt>Duration</dt>
+								<dd>{(durationInFrames / fps).toFixed(2)}s</dd>
+							</div>
+							<div className={styles.dependenciesMetadata}>
+								<dt>Dependencies</dt>
+								<dd>
+									{definition.dependencies.length === 0 ? (
+										'None'
+									) : (
+										<ul className={styles.dependencyList}>
+											{definition.dependencies.map((dependency) => (
+												<li key={dependency.name}>
+													<a
+														href={`https://www.npmjs.com/package/${dependency.name}`}
+														rel="noopener noreferrer"
+														target="_blank"
+													>
+														{dependency.version === null
+															? dependency.name
+															: `${dependency.name}@${dependency.version}`}
+													</a>
+												</li>
+											))}
+										</ul>
+									)}
+								</dd>
 							</div>
 						</dl>
 					</div>

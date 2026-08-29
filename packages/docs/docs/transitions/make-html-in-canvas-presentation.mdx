@@ -81,7 +81,7 @@ const myShader: HtmlInCanvasShader<{}> = (canvas) => {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, prevTex);
       if (prevImage) {
-        gl.texElementImage2D(
+        gl.texImage2D(
           gl.TEXTURE_2D,
           0,
           gl.RGBA,
@@ -96,7 +96,7 @@ const myShader: HtmlInCanvasShader<{}> = (canvas) => {
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, nextTex);
       if (nextImage) {
-        gl.texElementImage2D(
+        gl.texImage2D(
           gl.TEXTURE_2D,
           0,
           gl.RGBA,
@@ -193,7 +193,7 @@ const myShader: HtmlInCanvasShader<{}> = (canvas) => {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, prevTex);
       if (prevImage) {
-        gl.texElementImage2D(
+        gl.texImage2D(
           gl.TEXTURE_2D,
           0,
           gl.RGBA,
@@ -208,7 +208,7 @@ const myShader: HtmlInCanvasShader<{}> = (canvas) => {
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, nextTex);
       if (nextImage) {
-        gl.texElementImage2D(
+        gl.texImage2D(
           gl.TEXTURE_2D,
           0,
           gl.RGBA,
@@ -260,11 +260,13 @@ Has the type [`HtmlInCanvasShaderDraw<Props>`](#htmlincanvasshaderdraw); the arg
 
 ##### `prevImage`
 
-[`ElementImage`](https://github.com/WICG/html-in-canvas#idl-changes)` | null` — the captured exiting scene. `null` while it has not yet rendered (e.g. at the very start).
+`OffscreenCanvas | null` — the rasterized exiting scene. `null` while it has not yet rendered (e.g. at the very start).
 
 ##### `nextImage`
 
-[`ElementImage`](https://github.com/WICG/html-in-canvas#idl-changes)` | null` — the captured entering scene. `null` after the entering scene has unmounted.
+`OffscreenCanvas | null` — the rasterized entering scene. `null` after the entering scene has unmounted.
+
+Upload these sources to WebGL textures using [`texImage2D()`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D).
 
 ##### `width` / `height`
 

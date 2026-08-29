@@ -4,7 +4,7 @@ title: '<Video>'
 crumb: 'API - @remotion/media'
 ---
 
-[`<Video>` from `@remotion/media`](/docs/media/video) is the recommended component for embedding videos in Remotion.
+`<Video>` from `@remotion/media` is the recommended component for embedding videos in Remotion.
 
 During rendering, it extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag. This keeps the video in sync with Remotion's timeline.
 
@@ -67,6 +67,22 @@ The URL of the video to be rendered. Can be a remote URL or a local file referen
 
 Apply [effects](/docs/effects/api) to the video frame after it has been drawn to the canvas.
 
+### `cropLeft?`<AvailableFrom v="4.0.500" />
+
+Crops the video from the left by a ratio between `0` and `1`. See [`cropLeft`](/docs/sequence#cropleft).
+
+### `cropRight?`<AvailableFrom v="4.0.500" />
+
+Crops the video from the right by a ratio between `0` and `1`. See [`cropRight`](/docs/sequence#cropright).
+
+### `cropTop?`<AvailableFrom v="4.0.500" />
+
+Crops the video from the top by a ratio between `0` and `1`. See [`cropTop`](/docs/sequence#croptop).
+
+### `cropBottom?`<AvailableFrom v="4.0.500" />
+
+Crops the video from the bottom by a ratio between `0` and `1`. See [`cropBottom`](/docs/sequence#cropbottom).
+
 ### `from?`<AvailableFrom v="4.0.445" />
 
 At which frame this clip should start relative to the parent timeline. Default is `0`. Same meaning as [`from`](/docs/sequence#from) on [`<Sequence>`](/docs/sequence).
@@ -91,6 +107,24 @@ export const MyComposition = () => {
   );
 };
 ```
+
+### `premountFor?`<AvailableFrom v="4.0.495" />
+
+Mounts the video for the specified number of frames before its `from` frame. The video carries `display: none` and is frozen at its first frame while premounted, so it does not affect layout.
+
+Use this prop to let the video buffer before it becomes visible. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.495" />
+
+Keeps the video mounted for the specified number of frames after its duration has ended. The video is invisible and frozen at its final frame while postmounted.
+
+### `styleWhilePremounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the video while it is premounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
+### `styleWhilePostmounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the video while it is postmounted. These styles override the default `display: none` and `pointer-events: none` styles.
 
 ### `trimBefore?`
 
@@ -210,6 +244,8 @@ export const MyComposition = () => {
 
 :::note
 Playing a video in reverse is not supported.
+
+Changing `playbackRate` also changes the pitch of the video's audio. Pitch-preserving speed changes are not supported by the Mediabunny and WebCodecs path. If the video [falls back to `<OffthreadVideo>`](/docs/media/fallback) during preview or server-side rendering, audio pitch is preserved by default.
 :::
 
 ### `muted?`
@@ -344,7 +380,7 @@ export const MyComposition = () => {
 
 ### ~~`credentials?`<AvailableFrom v="4.0.437" />~~
 
-:::note Deprecated
+:::info Deprecated
 Use [`requestInit`](#requestinit) instead.
 :::
 

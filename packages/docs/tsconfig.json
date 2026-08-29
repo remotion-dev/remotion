@@ -25,6 +25,7 @@
 	"references": [
 		{"path": "../player"},
 		{"path": "../core"},
+		{"path": "../studio-protocol"},
 		{"path": "../media-utils"},
 		{"path": "../browser-studio"},
 		{"path": "../docusaurus-plugin"},
@@ -55,8 +56,11 @@
 		{"path": "../cli"}
 	],
 	"exclude": [
+		"build-browser-studio-standalone.ts",
 		"copy-convert.ts",
+		"prepare-browser-studio-workspace.ts",
 		"render-cards.ts",
-		"render-element-previews.ts"
+		"render-element-previews.ts",
+		"upload-element-preview.ts"
 	]
 }

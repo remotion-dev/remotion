@@ -5,6 +5,10 @@ import {brightness} from '../brightness.js';
 import {burlap} from '../burlap.js';
 import {checkerboard} from '../checkerboard.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
+import {
+	colorCorrection,
+	type ColorCorrectionParams,
+} from '../color-correction.js';
 import {colorKey} from '../color-key.js';
 import {contourLines} from '../contour-lines.js';
 import {contrast} from '../contrast.js';
@@ -14,7 +18,9 @@ import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
 import {emboss} from '../emboss.js';
 import {evolve} from '../evolve.js';
+import {exposure} from '../exposure.js';
 import {fisheye} from '../fisheye/index.js';
+import {flannel} from '../flannel.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
 import {gridlines} from '../gridlines.js';
@@ -22,41 +28,56 @@ import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {levels} from '../levels.js';
+import {lightLeak} from '../light-leak.js';
 import {lightTrail} from '../light-trail/index.js';
 import {linearGradientTint} from '../linear-gradient-tint.js';
 import {linearGradient} from '../linear-gradient.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {linearProgressivePixelate} from '../linear-progressive-pixelate/index.js';
 import {lines} from '../lines.js';
+import {liquidContours, liquidContoursSchema} from '../liquid-contours.js';
 import {mirror} from '../mirror.js';
 import {
 	noiseDisplacement,
 	type NoiseDisplacementParams,
 } from '../noise-displacement.js';
 import {noise} from '../noise.js';
+import {outline} from '../outline.js';
 import {paper} from '../paper.js';
 import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {pixelate} from '../pixelate.js';
 import {radialProgressiveBlur} from '../radial-progressive-blur/index.js';
 import {radialProgressivePixelate} from '../radial-progressive-pixelate/index.js';
+import {
+	regionBlur,
+	regionBlurSchema,
+	type RegionBlurParams,
+} from '../region-blur/index.js';
 import {rings} from '../rings.js';
 import {roughenEdges} from '../roughen-edges.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
+import {shadowsHighlights} from '../shadows-highlights.js';
 import {shine} from '../shine.js';
 import {shrinkwrap} from '../shrinkwrap.js';
+import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
+import {starburst} from '../starburst.js';
 import {thermalVision} from '../thermal-vision.js';
+import {tile} from '../tile.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {tvSignalOff} from '../tv-signal-off.js';
 import {publicUvToShaderUv} from '../uv-coordinate.js';
 import {venetianBlinds} from '../venetian-blinds.js';
+import {vibrance} from '../vibrance.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
+import {whiteBalance} from '../white-balance.js';
 import {whiteNoise} from '../white-noise.js';
 import {zigzag} from '../zigzag.js';
 import {zoomBlur} from '../zoom-blur/index.js';
@@ -95,6 +116,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(colorKey().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/color-key',
 	);
+	expect(colorCorrection().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/color-correction',
+	);
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
 	);
@@ -119,11 +143,17 @@ test('@remotion/effects expose documentation links', () => {
 	expect(evolve().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/evolve',
 	);
+	expect(exposure().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/exposure',
+	);
 	expect(dropShadow().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/drop-shadow',
 	);
 	expect(fisheye().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/fisheye',
+	);
+	expect(flannel().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/flannel',
 	);
 	expect(cornerPin().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/corner-pin',
@@ -152,8 +182,17 @@ test('@remotion/effects expose documentation links', () => {
 	expect(invert().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/invert',
 	);
+	expect(levels().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/levels',
+	);
+	expect(shadowsHighlights().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/shadows-highlights',
+	);
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
+	);
+	expect(liquidContours().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/liquid-contours',
 	);
 	expect(linearGradient().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-gradient',
@@ -166,6 +205,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(linearProgressivePixelate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
+	);
+	expect(lightLeak().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/light-leak',
 	);
 	expect(lightTrail().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/light-trail',
@@ -183,6 +225,9 @@ test('@remotion/effects expose documentation links', () => {
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition
 			.documentationLink,
 	).toBe('https://www.remotion.dev/docs/effects/noise-displacement');
+	expect(outline().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/outline',
+	);
 	expect(paper().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/paper',
 	);
@@ -194,6 +239,13 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(radialProgressiveBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/radial-progressive-blur',
+	);
+	expect(
+		regionBlur({topLeft: [0.25, 0.25], bottomRight: [0.75, 0.75]}).definition
+			.documentationLink,
+	).toBe('https://www.remotion.dev/docs/effects/region-blur');
+	expect(tile().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/tile',
 	);
 	expect(radialProgressivePixelate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
@@ -213,12 +265,19 @@ test('@remotion/effects expose documentation links', () => {
 	expect(shine().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shine',
 	);
+	expect(skew().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/skew',
+	);
 	expect(shrinkwrap().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shrinkwrap',
 	);
 	expect(speckle().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/speckle',
 	);
+	expect(
+		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).definition
+			.documentationLink,
+	).toBe('https://www.remotion.dev/docs/effects/starburst');
 	expect(thermalVision().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/thermal-vision',
 	);
@@ -230,6 +289,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(venetianBlinds().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/venetian-blinds',
+	);
+	expect(vibrance().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/vibrance',
 	);
 	expect(uvTranslate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/uv-translate',
@@ -252,6 +314,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(whiteNoise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/white-noise',
 	);
+	expect(whiteBalance().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/white-balance',
+	);
 	expect(zoomBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/zoom-blur',
 	);
@@ -262,16 +327,20 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(blur({radius: 1}).definition.label).toBe('blur()');
 	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
 	expect(colorKey().definition.label).toBe('colorKey()');
+	expect(colorCorrection().definition.label).toBe('colorCorrection()');
 	expect(brightness().definition.label).toBe('brightness()');
 	expect(burlap().definition.label).toBe('burlap()');
 	expect(checkerboard().definition.label).toBe('checkerboard()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(contourLines().definition.label).toBe('contourLines()');
+	expect(liquidContours().definition.label).toBe('liquidContours()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
+	expect(exposure().definition.label).toBe('exposure()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(emboss().definition.label).toBe('emboss()');
 	expect(fisheye().definition.label).toBe('fisheye()');
+	expect(flannel().definition.label).toBe('flannel()');
 	expect(cornerPin().definition.label).toBe('cornerPin()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
@@ -283,6 +352,8 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(pixelDissolve().definition.label).toBe('pixelDissolve()');
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
+	expect(levels().definition.label).toBe('levels()');
+	expect(shadowsHighlights().definition.label).toBe('shadowsHighlights()');
 	expect(lines().definition.label).toBe('lines()');
 	expect(linearGradient().definition.label).toBe('linearGradient()');
 	expect(linearGradientTint().definition.label).toBe('linearGradientTint()');
@@ -296,6 +367,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
+	expect(outline().definition.label).toBe('outline()');
 	expect(
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
 	).toBe('noiseDisplacement()');
@@ -308,23 +380,27 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(radialProgressivePixelate().definition.label).toBe(
 		'radialProgressivePixelate()',
 	);
+	expect(tile().definition.label).toBe('tile()');
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
+	expect(skew().definition.label).toBe('skew()');
 	expect(shrinkwrap().definition.label).toBe('shrinkwrap()');
 	expect(speckle().definition.label).toBe('speckle()');
 	expect(thermalVision().definition.label).toBe('thermalVision()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(tvSignalOff().definition.label).toBe('tvSignalOff()');
 	expect(venetianBlinds().definition.label).toBe('venetianBlinds()');
+	expect(vibrance().definition.label).toBe('vibrance()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
 	expect(wave().definition.label).toBe('wave()');
 	expect(waves().definition.label).toBe('waves()');
 	expect(zigzag().definition.label).toBe('zigzag()');
+	expect(whiteBalance().definition.label).toBe('whiteBalance()');
 	expect(whiteNoise().definition.label).toBe('whiteNoise()');
 	expect(zoomBlur().definition.label).toBe('zoomBlur()');
 });
@@ -553,6 +629,66 @@ test('colorKey() parameters produce distinct effect keys', () => {
 			moreSpill.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('outline() accepts default params', () => {
+	expect(() => outline()).not.toThrow();
+});
+
+test('outline() rejects invalid width', () => {
+	expect(() => outline({width: Number.NaN})).toThrow(
+		'"width" must be a finite number',
+	);
+	expect(() => outline({width: -1})).toThrow('"width" must be >= 0');
+});
+
+test('outline() rejects invalid edgeSimplification', () => {
+	expect(() => outline({edgeSimplification: Number.NaN})).toThrow(
+		'"edgeSimplification" must be a finite number',
+	);
+	expect(() => outline({edgeSimplification: -1})).toThrow(
+		'"edgeSimplification" must be >= 0',
+	);
+});
+
+test('outline() rejects invalid color', () => {
+	expect(() => outline({color: ''})).toThrow(
+		'"color" must be a non-empty string',
+	);
+});
+
+test('outline() rejects invalid opacity', () => {
+	expect(() => outline({opacity: Number.NaN})).toThrow(
+		'"opacity" must be a finite number',
+	);
+	expect(() => outline({opacity: -0.1})).toThrow('"opacity" must be >= 0');
+	expect(() => outline({opacity: 1.1})).toThrow('"opacity" must be <= 1');
+});
+
+test('outline() rejects invalid outlineOnly', () => {
+	expect(() => outline({outlineOnly: 'yes' as unknown as boolean})).toThrow(
+		'"outlineOnly" must be a boolean',
+	);
+});
+
+test('outline() parameters produce distinct effect keys', () => {
+	const defaults = outline();
+	const wider = outline({width: 16});
+	const polygonal = outline({edgeSimplification: 8});
+	const colored = outline({color: '#00ffff'});
+	const transparent = outline({opacity: 0.5});
+	const outlineOnly = outline({outlineOnly: true});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			wider.effectKey,
+			polygonal.effectKey,
+			colored.effectKey,
+			transparent.effectKey,
+			outlineOnly.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('tint() throws when color is not passed', () => {
@@ -909,6 +1045,237 @@ test('brightness() amount produces distinct effect keys', () => {
 	expect(
 		new Set([darker.effectKey, neutral.effectKey, brighter.effectKey]).size,
 	).toBe(3);
+});
+
+test('exposure() accepts default params', () => {
+	expect(() => exposure()).not.toThrow();
+});
+
+test('exposure() rejects non-finite stops', () => {
+	expect(() => exposure({stops: Number.NaN})).toThrow(
+		'"stops" must be a finite number',
+	);
+});
+
+test('exposure() rejects stops below range', () => {
+	expect(() => exposure({stops: -5.1})).toThrow('"stops" must be >= -5');
+});
+
+test('exposure() rejects stops above range', () => {
+	expect(() => exposure({stops: 5.1})).toThrow('"stops" must be <= 5');
+});
+
+test('exposure() stops produce distinct effect keys', () => {
+	const darker = exposure({stops: -1});
+	const neutral = exposure();
+	const brighter = exposure({stops: 1});
+	expect(
+		new Set([darker.effectKey, neutral.effectKey, brighter.effectKey]).size,
+	).toBe(3);
+});
+
+test('whiteBalance() accepts default params', () => {
+	expect(() => whiteBalance()).not.toThrow();
+});
+
+test('whiteBalance() rejects non-finite parameters', () => {
+	expect(() => whiteBalance({temperature: Number.NaN})).toThrow(
+		'"temperature" must be a finite number',
+	);
+	expect(() => whiteBalance({tint: Number.POSITIVE_INFINITY})).toThrow(
+		'"tint" must be a finite number',
+	);
+});
+
+test('whiteBalance() rejects parameters outside the signed unit interval', () => {
+	expect(() => whiteBalance({temperature: -1.1})).toThrow(
+		'"temperature" must be >= -1',
+	);
+	expect(() => whiteBalance({temperature: 1.1})).toThrow(
+		'"temperature" must be <= 1',
+	);
+	expect(() => whiteBalance({tint: -1.1})).toThrow('"tint" must be >= -1');
+	expect(() => whiteBalance({tint: 1.1})).toThrow('"tint" must be <= 1');
+});
+
+test('whiteBalance() parameters produce distinct effect keys', () => {
+	const neutral = whiteBalance();
+	const warmer = whiteBalance({temperature: 0.5});
+	const moreMagenta = whiteBalance({tint: 0.5});
+	expect(
+		new Set([neutral.effectKey, warmer.effectKey, moreMagenta.effectKey]).size,
+	).toBe(3);
+});
+
+test('vibrance() accepts default params', () => {
+	expect(() => vibrance()).not.toThrow();
+});
+
+test('vibrance() rejects non-finite amount', () => {
+	expect(() => vibrance({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('vibrance() rejects amount outside the signed unit interval', () => {
+	expect(() => vibrance({amount: -1.1})).toThrow('"amount" must be >= -1');
+	expect(() => vibrance({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('vibrance() amount produces distinct effect keys', () => {
+	const muted = vibrance({amount: -0.5});
+	const neutral = vibrance();
+	const vivid = vibrance({amount: 0.5});
+	expect(
+		new Set([muted.effectKey, neutral.effectKey, vivid.effectKey]).size,
+	).toBe(3);
+});
+
+test('levels() accepts default params', () => {
+	expect(() => levels()).not.toThrow();
+});
+
+test('levels() rejects non-finite parameters', () => {
+	expect(() => levels({blackPoint: Number.NaN})).toThrow(
+		'"blackPoint" must be a finite number',
+	);
+	expect(() => levels({whitePoint: Number.POSITIVE_INFINITY})).toThrow(
+		'"whitePoint" must be a finite number',
+	);
+	expect(() => levels({gamma: Number.NaN})).toThrow(
+		'"gamma" must be a finite number',
+	);
+});
+
+test('levels() validates black and white points', () => {
+	expect(() => levels({blackPoint: -0.1})).toThrow('"blackPoint" must be >= 0');
+	expect(() => levels({whitePoint: 1.1})).toThrow('"whitePoint" must be <= 1');
+	expect(() => levels({blackPoint: 0.5, whitePoint: 0.5})).toThrow(
+		'"blackPoint" must be less than "whitePoint"',
+	);
+	expect(() => levels({blackPoint: 0.6, whitePoint: 0.5})).toThrow(
+		'"blackPoint" must be less than "whitePoint"',
+	);
+});
+
+test('levels() validates gamma', () => {
+	expect(() => levels({gamma: 0})).toThrow('"gamma" must be >= 0.01');
+	expect(() => levels({gamma: 10.1})).toThrow('"gamma" must be <= 10');
+});
+
+test('levels() parameters produce distinct effect keys', () => {
+	const neutral = levels();
+	const clipped = levels({blackPoint: 0.1, whitePoint: 0.9});
+	const brighterMidtones = levels({gamma: 2});
+	expect(
+		new Set([neutral.effectKey, clipped.effectKey, brighterMidtones.effectKey])
+			.size,
+	).toBe(3);
+});
+
+test('shadowsHighlights() accepts default params', () => {
+	expect(() => shadowsHighlights()).not.toThrow();
+});
+
+test('shadowsHighlights() rejects non-finite parameters', () => {
+	expect(() => shadowsHighlights({shadows: Number.NaN})).toThrow(
+		'"shadows" must be a finite number',
+	);
+	expect(() =>
+		shadowsHighlights({highlights: Number.POSITIVE_INFINITY}),
+	).toThrow('"highlights" must be a finite number');
+});
+
+test('shadowsHighlights() rejects parameters outside the signed unit interval', () => {
+	expect(() => shadowsHighlights({shadows: -1.1})).toThrow(
+		'"shadows" must be >= -1',
+	);
+	expect(() => shadowsHighlights({shadows: 1.1})).toThrow(
+		'"shadows" must be <= 1',
+	);
+	expect(() => shadowsHighlights({highlights: -1.1})).toThrow(
+		'"highlights" must be >= -1',
+	);
+	expect(() => shadowsHighlights({highlights: 1.1})).toThrow(
+		'"highlights" must be <= 1',
+	);
+});
+
+test('shadowsHighlights() parameters produce distinct effect keys', () => {
+	const neutral = shadowsHighlights();
+	const liftedShadows = shadowsHighlights({shadows: 0.5});
+	const recoveredHighlights = shadowsHighlights({highlights: -0.5});
+	expect(
+		new Set([
+			neutral.effectKey,
+			liftedShadows.effectKey,
+			recoveredHighlights.effectKey,
+		]).size,
+	).toBe(3);
+});
+
+test('colorCorrection() accepts neutral defaults', () => {
+	expect(() => colorCorrection()).not.toThrow();
+});
+
+test('colorCorrection() validates exposure, contrast, pivot, and saturation', () => {
+	expect(() => colorCorrection({exposure: Number.NaN})).toThrow(
+		'"exposure" must be a finite number',
+	);
+	expect(() => colorCorrection({exposure: -5.1})).toThrow(
+		'"exposure" must be >= -5',
+	);
+	expect(() => colorCorrection({exposure: 5.1})).toThrow(
+		'"exposure" must be <= 5',
+	);
+	expect(() => colorCorrection({contrast: -0.1})).toThrow(
+		'"contrast" must be >= 0',
+	);
+	expect(() => colorCorrection({pivot: 1.1})).toThrow('"pivot" must be <= 1');
+	expect(() => colorCorrection({saturation: -0.1})).toThrow(
+		'"saturation" must be >= 0',
+	);
+});
+
+test('colorCorrection() validates signed adjustments', () => {
+	const names = [
+		'shadows',
+		'highlights',
+		'whites',
+		'blacks',
+		'temperature',
+		'tint',
+		'vibrance',
+	] as const satisfies readonly (keyof ColorCorrectionParams)[];
+
+	for (const name of names) {
+		expect(() => colorCorrection({[name]: -1.1})).toThrow(
+			`"${name}" must be >= -1`,
+		);
+		expect(() => colorCorrection({[name]: 1.1})).toThrow(
+			`"${name}" must be <= 1`,
+		);
+	}
+});
+
+test('colorCorrection() parameters produce distinct effect keys', () => {
+	const effects = [
+		colorCorrection(),
+		colorCorrection({exposure: 1}),
+		colorCorrection({contrast: 1.2}),
+		colorCorrection({pivot: 0.4}),
+		colorCorrection({shadows: 0.2}),
+		colorCorrection({highlights: -0.2}),
+		colorCorrection({whites: 0.2}),
+		colorCorrection({blacks: -0.2}),
+		colorCorrection({temperature: 0.2}),
+		colorCorrection({tint: -0.2}),
+		colorCorrection({saturation: 1.2}),
+		colorCorrection({vibrance: 0.2}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
+		effects.length,
+	);
 });
 
 test('contrast() accepts default params', () => {
@@ -2230,6 +2597,53 @@ test('burlap() parameters produce distinct effect keys', () => {
 	).toBe(6);
 });
 
+test('flannel() accepts default and valid params', () => {
+	expect(() => flannel()).not.toThrow();
+	expect(() =>
+		flannel({
+			amount: 0.8,
+			size: 72,
+			softness: 0.25,
+			baseColor: '#b51f2e',
+			stripeColor: '#16233f',
+		}),
+	).not.toThrow();
+});
+
+test('flannel() uses a red palette by default', () => {
+	expect(flannel().definition.schema.baseColor).toMatchObject({
+		default: '#c92f3d',
+	});
+	expect(flannel().definition.schema.stripeColor).toMatchObject({
+		default: '#241015',
+	});
+});
+
+test('flannel() rejects invalid params', () => {
+	expect(() => flannel({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+	expect(() => flannel({amount: 1.1})).toThrow('"amount" must be <= 1');
+	expect(() => flannel({size: 0})).toThrow('"size" must be greater than 0');
+	expect(() => flannel({softness: -0.1})).toThrow('"softness" must be >= 0');
+	expect(() => flannel({baseColor: ''})).toThrow(
+		'"baseColor" must be a non-empty string',
+	);
+});
+
+test('flannel() parameters produce distinct effect keys', () => {
+	const keys = [
+		flannel(),
+		flannel({amount: 0.8}),
+		flannel({size: 72}),
+		flannel({softness: 0.3}),
+		flannel({baseColor: '#224422'}),
+		flannel({stripeColor: '#eee8d5'}),
+	].map((effect) => effect.effectKey);
+
+	expect(new Set(keys).size).toBe(keys.length);
+});
+
 test('emboss() accepts default params', () => {
 	expect(() => emboss()).not.toThrow();
 });
@@ -2667,6 +3081,37 @@ test('pattern() parameters produce distinct effect keys', () => {
 	).toBe(10);
 });
 
+test('tile() accepts default params', () => {
+	expect(() => tile()).not.toThrow();
+});
+
+test('tile() accepts axis params', () => {
+	expect(() => tile({horizontal: false, vertical: true})).not.toThrow();
+});
+
+test('tile() rejects invalid axis params', () => {
+	expect(() => tile({horizontal: 'yes' as unknown as boolean})).toThrow(
+		'"horizontal" must be a boolean',
+	);
+	expect(() => tile({vertical: 1 as unknown as boolean})).toThrow(
+		'"vertical" must be a boolean',
+	);
+});
+
+test('tile() parameters produce distinct effect keys', () => {
+	const defaults = tile();
+	const horizontalOnly = tile({vertical: false});
+	const verticalOnly = tile({horizontal: false});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			horizontalOnly.effectKey,
+			verticalOnly.effectKey,
+		]).size,
+	).toBe(3);
+});
+
 test('saturation() accepts default params', () => {
 	expect(() => saturation()).not.toThrow();
 });
@@ -3002,6 +3447,85 @@ test('linearProgressiveBlur() parameters produce distinct effect keys', () => {
 			moreEndBlur.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('regionBlur() accepts required params and defaults', () => {
+	const effect = regionBlur({
+		topLeft: [0.2, 0.3],
+		bottomRight: [0.8, 0.9],
+	});
+
+	expect(effect).toBeDefined();
+	expect(regionBlurSchema.blurRadius.default).toBe(40);
+	expect(regionBlurSchema.feather.default).toBe(0);
+	expect(regionBlurSchema.roundness.default).toBe(0);
+});
+
+test('regionBlur() rejects missing coordinates', () => {
+	expect(() =>
+		regionBlur({bottomRight: [0.8, 0.9]} as unknown as RegionBlurParams),
+	).toThrow('"topLeft" must be a [number, number] tuple');
+	expect(() =>
+		regionBlur({topLeft: [0.2, 0.3]} as unknown as RegionBlurParams),
+	).toThrow('"bottomRight" must be a [number, number] tuple');
+});
+
+test('regionBlur() rejects invalid coordinates', () => {
+	expect(() =>
+		regionBlur({
+			topLeft: [0.2, Number.NaN],
+			bottomRight: [0.8, 0.9],
+		}),
+	).toThrow('"topLeft" must be a [number, number] tuple');
+	expect(() =>
+		regionBlur({topLeft: [0.8, 0.3], bottomRight: [0.2, 0.9]}),
+	).toThrow('"topLeft" must be above and to the left of "bottomRight"');
+});
+
+test('regionBlur() accepts coordinates outside the canvas', () => {
+	expect(() =>
+		regionBlur({topLeft: [-0.2, -0.1], bottomRight: [1.2, 1.1]}),
+	).not.toThrow();
+});
+
+test('regionBlur() rejects invalid styling params', () => {
+	expect(() =>
+		regionBlur({
+			topLeft: [0.2, 0.3],
+			bottomRight: [0.8, 0.9],
+			blurRadius: -1,
+		}),
+	).toThrow('"blurRadius" must be >= 0');
+	expect(() =>
+		regionBlur({
+			topLeft: [0.2, 0.3],
+			bottomRight: [0.8, 0.9],
+			feather: Number.NaN,
+		}),
+	).toThrow('"feather" must be a finite number');
+	expect(() =>
+		regionBlur({
+			topLeft: [0.2, 0.3],
+			bottomRight: [0.8, 0.9],
+			roundness: 1.1,
+		}),
+	).toThrow('"roundness" must be <= 1');
+});
+
+test('regionBlur() parameters produce distinct effect keys', () => {
+	const params = {topLeft: [0.2, 0.3], bottomRight: [0.8, 0.9]} as const;
+	const effects = [
+		regionBlur(params),
+		regionBlur({...params, topLeft: [0.1, 0.3]}),
+		regionBlur({...params, bottomRight: [0.9, 0.9]}),
+		regionBlur({...params, blurRadius: 80}),
+		regionBlur({...params, feather: 12}),
+		regionBlur({...params, roundness: 1}),
+	];
+
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
+		effects.length,
+	);
 });
 
 test('radialProgressiveBlur() accepts default params', () => {
@@ -3465,6 +3989,52 @@ test('shine() parameters produce distinct effect keys', () => {
 	).toBe(6);
 });
 
+test('skew() accepts default and valid params', () => {
+	expect(() => skew()).not.toThrow();
+	expect(() => skew({x: -30, y: 15, origin: [0.25, 0.75]})).not.toThrow();
+});
+
+test('skew() exposes the origin as a UV coordinate', () => {
+	expect(skew().definition.schema.origin).toMatchObject({
+		type: 'uv-coordinate',
+		default: [0.5, 0.5],
+		min: 0,
+		max: 1,
+	});
+});
+
+test('skew() rejects invalid angles', () => {
+	expect(() => skew({x: Number.NaN})).toThrow('"x" must be a finite number');
+	expect(() => skew({x: 89})).toThrow(
+		'"x" must be greater than -89 and less than 89',
+	);
+	expect(() => skew({y: -89})).toThrow(
+		'"y" must be greater than -89 and less than 89',
+	);
+});
+
+test('skew() rejects invalid origins', () => {
+	expect(() => skew({origin: [0.5] as unknown as [number, number]})).toThrow(
+		'"origin" must be a [number, number] tuple',
+	);
+	expect(() => skew({origin: [-0.1, 0.5]})).toThrow(
+		'"origin[0]" must be between 0 and 1',
+	);
+	expect(() => skew({origin: [0.5, 1.1]})).toThrow(
+		'"origin[1]" must be between 0 and 1',
+	);
+});
+
+test('skew() parameters produce distinct effect keys', () => {
+	const keys = [
+		skew(),
+		skew({x: 10}),
+		skew({y: 10}),
+		skew({origin: [0.25, 0.75]}),
+	].map((effect) => effect.effectKey);
+	expect(new Set(keys).size).toBe(keys.length);
+});
+
 test('shrinkwrap() accepts default params', () => {
 	expect(() => shrinkwrap()).not.toThrow();
 });
@@ -3725,4 +4295,55 @@ test('uvTranslate() offsets produce distinct effect keys', () => {
 	expect(
 		new Set([centered.effectKey, shiftedU.effectKey, shiftedV.effectKey]).size,
 	).toBe(3);
+});
+
+test('liquidContours() accepts default params', () => {
+	expect(() => liquidContours()).not.toThrow();
+	expect(liquidContoursSchema.scale.default).toBe(300);
+});
+
+test('liquidContours() validates colors', () => {
+	expect(() => liquidContours({firstColor: ''})).toThrow(
+		'"firstColor" must be a non-empty string',
+	);
+	expect(() => liquidContours({secondColor: ''})).toThrow(
+		'"secondColor" must be a non-empty string',
+	);
+});
+
+test('liquidContours() validates positive dimensions', () => {
+	expect(() => liquidContours({spacing: 0})).toThrow(
+		'"spacing" must be greater than 0',
+	);
+	expect(() => liquidContours({scale: 0})).toThrow(
+		'"scale" must be greater than 0',
+	);
+});
+
+test('liquidContours() validates unit interval params', () => {
+	expect(() => liquidContours({complexity: -0.1})).toThrow(
+		'"complexity" must be >= 0',
+	);
+	expect(() => liquidContours({smoothness: 1.1})).toThrow(
+		'"smoothness" must be <= 1',
+	);
+});
+
+test('liquidContours() parameters produce distinct effect keys', () => {
+	const effects = [
+		liquidContours(),
+		liquidContours({firstColor: 'blue'}),
+		liquidContours({secondColor: 'white'}),
+		liquidContours({spacing: 64}),
+		liquidContours({scale: 400}),
+		liquidContours({complexity: 0.6}),
+		liquidContours({smoothness: 0.2}),
+		liquidContours({seed: 2}),
+		liquidContours({offsetX: 10}),
+		liquidContours({offsetY: 10}),
+		liquidContours({phase: 0.5}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
+		effects.length,
+	);
 });

@@ -2,6 +2,7 @@ import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {act, cleanup, render, waitFor} from '@testing-library/react';
 import React from 'react';
 import {BufferingContextReact} from '../buffering.js';
+import {canvasImageSchema} from '../canvas-image/CanvasImage.js';
 import {CanvasImage} from '../canvas-image/index.js';
 import type {TSequence} from '../CompositionManager.js';
 import type {
@@ -151,10 +152,15 @@ const BufferingEvents: React.FC<{
 	return null;
 };
 
-const wrapCanvasImage = (element: React.ReactElement) => {
+const wrapCanvasImage = (
+	element: React.ReactElement,
+	currentFrame: number = 0,
+) => {
 	return (
 		<Internals.RemotionEnvironmentContext value={studioEnv}>
-			<WrapSequenceContext>{element}</WrapSequenceContext>
+			<WrapSequenceContext currentFrame={currentFrame}>
+				{element}
+			</WrapSequenceContext>
 		</Internals.RemotionEnvironmentContext>
 	);
 };
@@ -268,6 +274,155 @@ test('<CanvasImage> registers its canvas as the outline ref', async () => {
 			'CANVAS',
 		);
 	});
+});
+
+test('<CanvasImage> schema exposes src and non-keyframable premounting fields', () => {
+	expect(canvasImageSchema.src).toEqual({
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	});
+	expect(canvasImageSchema.premountFor.keyframable).toBe(false);
+	expect(canvasImageSchema.postmountFor.keyframable).toBe(false);
+});
+
+test('<CanvasImage> applies crop props to the canvas', async () => {
+	const {container} = render(
+		wrapCanvasImage(
+			<CanvasImage
+				src="test.png"
+				width={120}
+				height={80}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+				cropBottom={0.4}
+			/>,
+		),
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+
+	await waitFor(() => {
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+});
+
+test('<CanvasImage> hides the canvas while premounted and postmounted', async () => {
+	const premounted = render(
+		wrapCanvasImage(
+			<CanvasImage
+				src="test.png"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				style={{opacity: 0.5}}
+			/>,
+		),
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: none');
+	expect(premountedStyle).toContain('pointer-events: none');
+	expect(premountedStyle).toContain('opacity: 0.5');
+	await waitFor(() => {
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+	premounted.unmount();
+
+	const postmounted = render(
+		wrapCanvasImage(
+			<CanvasImage
+				src="test.png"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+			/>,
+			35,
+		),
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: none');
+	expect(postmountedStyle).toContain('pointer-events: none');
+	await waitFor(() => {
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+});
+
+test('<CanvasImage> allows overriding the premount and postmount styles', async () => {
+	const premounted = render(
+		wrapCanvasImage(
+			<CanvasImage
+				src="test.png"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				styleWhilePremounted={{display: 'block', opacity: 0.25}}
+			/>,
+		),
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: block');
+	expect(premountedStyle).toContain('opacity: 0.25');
+	await waitFor(() => {
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+	premounted.unmount();
+
+	const postmounted = render(
+		wrapCanvasImage(
+			<CanvasImage
+				src="test.png"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+				styleWhilePostmounted={{display: 'block', opacity: 0.75}}
+			/>,
+			35,
+		),
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: block');
+	expect(postmountedStyle).toContain('opacity: 0.75');
+	await waitFor(() => {
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+});
+
+test('<CanvasImage> registers premount and postmount ranges once', async () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceRegistrationWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<CanvasImage
+				src="test.png"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				postmountFor={5}
+			/>
+		</SequenceRegistrationWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(registeredSequences).toHaveLength(1);
+	});
+	expect(registeredSequences[0].type).toBe('image');
+	expect(registeredSequences[0].premountDisplay).toBe(10);
+	expect(registeredSequences[0].postmountDisplay).toBe(5);
 });
 
 test('<CanvasImage> applies contain fit when drawing into the source canvas', async () => {

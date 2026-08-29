@@ -240,7 +240,16 @@ export const Example: React.FC = () => {
 		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
-		updates: [{key: 'style.opacity', operation: {type: 'remove', frame: 50}}],
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {
+					type: 'remove',
+					frame: 50,
+					valueWhenLastKeyframeDeleted: null,
+				},
+			},
+		],
 	});
 
 	expect(serialized).not.toContain('useCurrentFrame');
@@ -507,7 +516,16 @@ export const Comp = () => {
 			getLine(input, '<HtmlInCanvas'),
 		),
 		effectIndex: 0,
-		updates: [{key: 'amount', operation: {type: 'remove', frame: 50}}],
+		updates: [
+			{
+				key: 'amount',
+				operation: {
+					type: 'remove',
+					frame: 50,
+					valueWhenLastKeyframeDeleted: null,
+				},
+			},
+		],
 	});
 	const after = (serialized.match(/const frame = useCurrentFrame/g) ?? [])
 		.length;

@@ -2,9 +2,9 @@ import type {Readable} from 'stream';
 import {
 	type AudioCodec,
 	type ChromiumOptions,
-	type FrameRange,
 	type LogLevel,
 	type PixelFormat,
+	type SingleFrameRange,
 	type ToOptions,
 	type VideoImageFormat,
 } from '@remotion/renderer';
@@ -52,7 +52,7 @@ type InternalRenderMediaOnCloudrun = {
 	pixelFormat: PixelFormat | undefined;
 	imageFormat: VideoImageFormat | undefined;
 	everyNthFrame: number | undefined;
-	frameRange: FrameRange | undefined;
+	frameRange: SingleFrameRange | undefined;
 	envVariables: Record<string, string> | undefined;
 	chromiumOptions: ChromiumOptions | undefined;
 	forceWidth: number | null;
@@ -91,7 +91,7 @@ export type RenderMediaOnCloudrunInput = {
 	pixelFormat?: PixelFormat;
 	imageFormat?: VideoImageFormat;
 	everyNthFrame?: number;
-	frameRange?: FrameRange;
+	frameRange?: SingleFrameRange;
 	envVariables?: Record<string, string>;
 	chromiumOptions?: ChromiumOptions;
 	forceWidth?: number | null;
@@ -366,6 +366,12 @@ export const renderMediaOnCloudrun = ({
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
+	if (Array.isArray(frameRange) && Array.isArray(frameRange[0])) {
+		throw new Error(
+			'Multiple frame ranges are not supported on Cloud Run. Use renderMedia() locally to render multiple ranges.',
+		);
+	}
+
 	return internalRenderMediaOnCloudrun({
 		cloudRunUrl: cloudRunUrl ?? undefined,
 		serviceName: serviceName ?? undefined,

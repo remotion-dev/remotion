@@ -282,6 +282,11 @@ const innerSetPropsAndEnv = async ({
 		timeoutInMilliseconds: actualTimeout,
 	});
 
+	// Increment this value when the generated bundle format or behavior changes
+	// in a backwards-incompatible way. It is not the Remotion package version and
+	// should not be bumped for every generated HTML change. Keep it synchronized
+	// with window.siteVersion in packages/studio-shared/src/studio-html.ts by
+	// incrementing both values.
 	const requiredVersion: typeof window.siteVersion = '11';
 
 	if (siteVersion !== requiredVersion) {
@@ -293,7 +298,7 @@ const innerSetPropsAndEnv = async ({
 				'When using the Remotion Lambda:',
 				' ▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
 				' ℹ Use --site-name with the same name as before to overwrite your site.',
-				' ▸ Use `deploySite()` if you are using the Node.JS APIs.',
+				' ▸ Use `bundle()` and `deploySiteFromBundle()` if you are using the Node.js APIs.',
 			].join('\n'),
 		);
 	}
@@ -310,7 +315,7 @@ const innerSetPropsAndEnv = async ({
 					`To resolve this warning:`,
 					'▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
 					'  ℹ Use --site-name with the same name as before to overwrite your site.',
-					'▸ Use `deploySite()` if you are using the Node.JS APIs.',
+					'▸ Use `bundle()` and `deploySiteFromBundle()` if you are using the Node.js APIs.',
 				].join('\n'),
 			);
 		} else {

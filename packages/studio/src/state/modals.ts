@@ -11,7 +11,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {PackageManager, RenderDefaults} from '@remotion/studio-shared';
+import type {CanvasCaptureData, RenderDefaults} from '@remotion/studio-shared';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
@@ -24,10 +24,10 @@ import type {
 import type React from 'react';
 import {createContext} from 'react';
 import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
+import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type WebRenderModalState = {
 	type: 'web-render';
@@ -50,8 +50,8 @@ export type WebRenderModalState = {
 	initialKeyframeIntervalInSeconds: number | null;
 	initialTransparent: boolean | null;
 	initialMuted: boolean | null;
-	initialLicenseKey: string | null;
 	initialMediaCacheSizeInBytes: number | null;
+	initialAllowHtmlInCanvas: boolean;
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
@@ -120,11 +120,27 @@ export type ConfirmationDialogState = {
 	onCancel: () => void;
 };
 
+export type SvgImportDialogState = {
+	type: 'svg-import-dialog';
+	id: string;
+	onImage: () => void;
+	onInline: () => void;
+	onDismiss: () => void;
+};
+
 export type AddEffectModalState = {
 	type: 'add-effect';
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	clientId: string;
+};
+
+export type CanvasCaptureImport = {
+	readonly data: CanvasCaptureData;
+	readonly durationInSeconds: number;
+	readonly file: File;
+	readonly height: number;
+	readonly width: number;
 };
 
 export type ModalState =
@@ -133,6 +149,7 @@ export type ModalState =
 			folderName: string | null;
 			parentName: string | null;
 			stack: string | null;
+			canvasCapture: CanvasCaptureImport | null;
 	  }
 	| {
 			type: 'new-folder';
@@ -171,6 +188,19 @@ export type ModalState =
 	| {
 			type: 'input-props-override';
 	  }
+	| {
+			type: 'settings';
+			initialTab:
+				| 'apps'
+				| 'rendering'
+				| 'studio'
+				| 'packages'
+				| 'shortcuts'
+				| 'skills'
+				| 'updates'
+				| 'license';
+			initialPublicLicenseKey: string | null;
+	  }
 	| RenderModalState
 	| WebRenderModalState
 	| {
@@ -178,28 +208,43 @@ export type ModalState =
 			jobId: string;
 	  }
 	| {
-			type: 'update';
-			info: UpdateInfo;
-			knownBugs: Bug[];
-	  }
-	| {
-			type: 'install-packages';
-			packageManager: PackageManager;
+			type: 'fix-computed-value';
+			prop: string;
+			context: string;
+			remotionInteractivitySkillAvailable: boolean;
 	  }
 	| {
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
+			assetSelection: {
+				initialQuery: string;
+				onSelectFile: () => void;
+				onSelected: (asset: StaticFile) => void;
+			} | null;
+			compositionSelection: {
+				excludeCompositionId: string;
+				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
+			} | null;
+	  }
+	| {
+			type: 'element-library';
+			name: string;
+			url: string;
 	  }
 	| AddEffectModalState
-	| ConfirmationDialogState;
+	| ConfirmationDialogState
+	| SvgImportDialogState;
 
-export type ModalContextType = {
-	selectedModal: ModalState | null;
+export type SetSelectedModalContextType = {
 	setSelectedModal: React.Dispatch<React.SetStateAction<ModalState | null>>;
 };
 
-export const ModalsContext = createContext<ModalContextType>({
-	selectedModal: null,
-	setSelectedModal: () => undefined,
-});
+// Keep modal state separate from its stable setter so opening a modal only
+// updates consumers that need to render the selected modal.
+export const SelectedModalContext = createContext<ModalState | null>(null);
+
+export const SetSelectedModalContext =
+	createContext<SetSelectedModalContextType>({
+		setSelectedModal: () => undefined,
+	});

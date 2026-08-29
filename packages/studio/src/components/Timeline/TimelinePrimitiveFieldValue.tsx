@@ -10,6 +10,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {TimelineAssetField} from './TimelineAssetField';
 import {TimelineBooleanField} from './TimelineBooleanField';
 import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
@@ -26,12 +27,29 @@ const inlineWrapper: React.CSSProperties = {
 	fontSize: 12,
 };
 
+const assetInlineWrapper: React.CSSProperties = {
+	...inlineWrapper,
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
+};
+
+type CaptionsFieldSchema = Extract<
+	VisibleFieldSchema,
+	{type: 'remotion-captions'}
+>;
+
+type PrimitiveFieldSchema = Exclude<
+	VisibleFieldSchema,
+	ArrayFieldSchema | CaptionsFieldSchema
+>;
+
 export type TimelinePrimitiveFieldInfo = Omit<
 	SchemaFieldInfo,
 	'fieldSchema' | 'typeName'
 > & {
-	readonly fieldSchema: Exclude<VisibleFieldSchema, ArrayFieldSchema>;
-	readonly typeName: Exclude<VisibleFieldSchema['type'], 'array'>;
+	readonly fieldSchema: PrimitiveFieldSchema;
+	readonly typeName: PrimitiveFieldSchema['type'];
 };
 
 export const isTimelinePrimitiveFieldInfo = (
@@ -39,8 +57,8 @@ export const isTimelinePrimitiveFieldInfo = (
 ): field is TimelinePrimitiveFieldInfo => {
 	return (
 		field.typeName !== 'array' &&
-		field.typeName !== 'hidden' &&
-		field.fieldSchema.type !== 'array'
+		field.fieldSchema.type !== 'array' &&
+		field.fieldSchema.type !== 'remotion-captions'
 	);
 };
 
@@ -63,16 +81,14 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 }) => {
 	if (field.typeName === 'number') {
 		return (
-			<span>
-				<TimelineNumberField
-					effectiveValue={effectiveValue}
-					field={field}
-					onDragEnd={onDragEnd}
-					onDragValueChange={onDragValueChange}
-					onSave={onSave}
-					propStatus={propStatus}
-				/>
-			</span>
+			<TimelineNumberField
+				effectiveValue={effectiveValue}
+				field={field}
+				onDragEnd={onDragEnd}
+				onDragValueChange={onDragValueChange}
+				onSave={onSave}
+				propStatus={propStatus}
+			/>
 		);
 	}
 
@@ -220,6 +236,21 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 		return (
 			<span style={inlineWrapper}>
 				<TimelineFontFamilyField
+					effectiveValue={effectiveValue}
+					field={field}
+					onDragEnd={onDragEnd}
+					onDragValueChange={onDragValueChange}
+					onSave={onSave}
+					propStatus={propStatus}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'asset') {
+		return (
+			<span style={assetInlineWrapper}>
+				<TimelineAssetField
 					effectiveValue={effectiveValue}
 					field={field}
 					onDragEnd={onDragEnd}

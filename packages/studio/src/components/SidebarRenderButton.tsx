@@ -11,20 +11,26 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {useMobileLayout} from '../helpers/mobile-layout';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVER_GROUP_REVEAL_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
+} from '../helpers/hoverable';
 import {ThinRenderIcon} from '../icons/render';
-import {ModalsContext} from '../state/modals';
-import {SidebarContext} from '../state/sidebar';
+import {SetSelectedModalContext} from '../state/modals';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
+
+const revealStyle: React.CSSProperties = {
+	display: 'flex',
+};
 
 export const SidebarRenderButton: React.FC<{
 	readonly composition: _InternalTypes['AnyCompMetadata'];
 	readonly visible: boolean;
-}> = ({composition, visible}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
-	const {setSidebarCollapsedState} = useContext(SidebarContext);
-	const isMobileLayout = useMobileLayout();
+	readonly readOnlyStudio: boolean;
+}> = ({composition, visible, readOnlyStudio}) => {
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
@@ -100,20 +106,15 @@ export const SidebarRenderButton: React.FC<{
 				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
 				renderDefaults: defaults,
 				initialDarkMode: defaults.darkMode,
-				readOnlyStudio: false,
+				readOnlyStudio,
 			});
-
-			if (isMobileLayout) {
-				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
-			}
 		},
 		[
 			composition.defaultProps,
 			composition.id,
-			isMobileLayout,
 			props,
+			readOnlyStudio,
 			setSelectedModal,
-			setSidebarCollapsedState,
 		],
 	);
 
@@ -124,9 +125,19 @@ export const SidebarRenderButton: React.FC<{
 		[iconStyle],
 	);
 
-	if (!visible || connectionStatus !== 'connected') {
+	if (!visible || (connectionStatus !== 'connected' && !readOnlyStudio)) {
 		return null;
 	}
 
-	return <InlineAction renderAction={renderAction} onClick={onClick} />;
+	return (
+		<div className={HOVER_GROUP_REVEAL_CLASS_NAME} style={revealStyle}>
+			<InlineAction
+				renderAction={renderAction}
+				onClick={onClick}
+				variant={null}
+				style={NO_HOVER_BACKGROUND_STYLE}
+				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+			/>
+		</div>
+	);
 };

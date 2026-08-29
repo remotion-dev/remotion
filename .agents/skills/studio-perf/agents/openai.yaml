@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Studio Performance'
+  short_description: 'Optimize Remotion Studio render performance'
+  default_prompt: 'Use $studio-perf to diagnose and optimize unnecessary Remotion Studio renders.'

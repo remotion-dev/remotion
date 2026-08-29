@@ -1,8 +1,44 @@
-import React from 'react';
+import React, {useCallback} from 'react';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {WHITE} from '../../helpers/colors';
+import {getFileManagerName} from '../../helpers/get-file-manager-name';
+import {ExpandedFolderIconSolid} from '../../icons/folder';
+import type {RenderInlineAction} from '../InlineAction';
+import {InlineAction} from '../InlineAction';
 import {Column, Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {showNotification} from '../Notifications/NotificationCenter';
+import {openInFileExplorer} from '../RenderQueue/actions';
 import {label, optionRow, rightRow} from './layout';
+
+const existsMessageStyle: React.CSSProperties = {
+	display: 'inline-flex',
+	alignItems: 'center',
+	minWidth: 0,
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '18px',
+	color: WHITE,
+	whiteSpace: 'nowrap',
+};
+
+const openIconStyle: React.CSSProperties = {
+	width: 12,
+	height: 12,
+	flexShrink: 0,
+};
+
+const outputNameRow: React.CSSProperties = {
+	...optionRow,
+	columnGap: 16,
+};
+
+const outputNameInputContainer: React.CSSProperties = {
+	flex: 1,
+	minWidth: 0,
+	maxWidth: 280,
+};
 
 type Props = {
 	readonly existence: boolean;
@@ -21,13 +57,28 @@ export const RenderModalOutputName = ({
 	validationMessage,
 	label: labelText,
 }: Props) => {
+	const openExistingOutput = useCallback(() => {
+		openInFileExplorer({directory: outName}).catch((err) => {
+			showNotification(`Could not open file: ${err.message}`, 2000);
+		});
+	}, [outName]);
+
+	const renderOpenIcon: RenderInlineAction = useCallback((color) => {
+		return <ExpandedFolderIconSolid style={openIconStyle} color={color} />;
+	}, []);
+
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+
 	return (
-		<div style={optionRow}>
+		<div style={outputNameRow}>
 			<Column>
 				<div style={label}>{labelText}</div>
 			</Column>
 			<div style={rightRow}>
-				<div>
+				<div style={outputNameInputContainer}>
 					<RemotionInput
 						status={validationMessage ? 'error' : existence ? 'warning' : 'ok'}
 						style={inputStyle}
@@ -50,7 +101,19 @@ export const RenderModalOutputName = ({
 							<Spacing y={1} block />
 							<ValidationMessage
 								align="flex-end"
-								message="Will be overwritten"
+								message={
+									<span style={existsMessageStyle}>
+										{isBrowserStudio ? null : (
+											<InlineAction
+												variant={null}
+												onClick={openExistingOutput}
+												renderAction={renderOpenIcon}
+												title={`Open in ${fileManagerName}`}
+											/>
+										)}
+										Exists, will be overwritten
+									</span>
+								}
 								type={'warning'}
 							/>
 						</>

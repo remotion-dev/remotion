@@ -9,17 +9,12 @@ import {DoneCheckmark} from './DoneCheckmark';
 import {Progress} from './Progress';
 import {Spinner} from './Spinner';
 
-const countryPath = z.object({
-	d: z.string(),
-	class: z.string(),
-});
-
 const remoteData = z.object({
 	repos: z.array(z.string()),
 	date: z.string().or(z.number()),
 	temperatureInCelsius: z.number(),
 	countryLabel: z.string(),
-	countryPaths: z.array(countryPath),
+	countryFlag: z.string(),
 });
 
 const location = z.object({

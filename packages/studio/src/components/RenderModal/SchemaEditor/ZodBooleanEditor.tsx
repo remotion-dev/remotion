@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import {Checkbox} from '../../Checkbox';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
+import {getUserFacingDescription, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 
@@ -15,7 +16,8 @@ export const ZodBooleanEditor: React.FC<{
 	readonly setValue: UpdaterFunction<boolean>;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({jsonPath, value, setValue, onRemove, mayPad}) => {
+	readonly schema: AnyZodSchema;
+}> = ({jsonPath, value, setValue, onRemove, mayPad, schema}) => {
 	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setValue(() => e.target.checked, {shouldSave: true});
@@ -31,6 +33,7 @@ export const ZodBooleanEditor: React.FC<{
 				onRemove={onRemove}
 				valid
 				suffix={null}
+				description={getUserFacingDescription(schema)}
 			/>
 			<div style={fullWidth}>
 				<Checkbox

@@ -7,6 +7,7 @@ import {
 	WHITE,
 } from '../../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 
 export const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -20,26 +21,23 @@ export const container: React.CSSProperties = {
 
 export const scrollableContainer: React.CSSProperties = {
 	...container,
+	overflowX: 'hidden',
 	overflowY: 'auto',
 };
 
-export const defaultPropsSection: React.CSSProperties = {
+export const compositionDefaultPropsSection: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 };
 
-export const visualControlsSection: React.CSSProperties = {
+export const compositionVisualControlsSection: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 };
 
-export const compositionSection: React.CSSProperties = {
+export const inspectorOverviewSection: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
-};
-
-export const inspectorSectionDivider: React.CSSProperties = {
-	borderBottom: `1px solid ${LINE_COLOR}`,
 };
 
 export const sequenceHeaderDivider: React.CSSProperties = {
@@ -51,37 +49,19 @@ export const sequenceHeaderDivider: React.CSSProperties = {
 
 export const sectionHeader: React.CSSProperties = {
 	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontWeight: 'bold',
-	padding: `8px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	lineHeight: '24px',
+	padding: `4px 0 4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	userSelect: 'none',
 };
 
-export const sequenceHeader: React.CSSProperties = {
-	backgroundColor: BACKGROUND,
+export const inspectorSectionBody: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	minWidth: 0,
-	padding: `6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 4px`,
-};
-
-export const sequenceHeaderTitle: React.CSSProperties = {
-	alignSelf: 'stretch',
-	backgroundColor: BACKGROUND,
-	border: 'none',
-	color: WHITE,
-	display: 'flex',
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	lineHeight: '18px',
-	margin: 0,
-	maxWidth: '100%',
-	minWidth: 0,
-	overflow: 'hidden',
-	padding: 0,
-	textAlign: 'left',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
+	paddingBottom: 8,
 };
 
 export const sequenceHeaderSubtitle: React.CSSProperties = {
@@ -112,11 +92,15 @@ export const sectionHeaderRow: React.CSSProperties = {
 };
 
 export const sectionHeaderTitle: React.CSSProperties = {
+	alignItems: 'center',
 	color: LIGHT_TEXT,
+	display: 'flex',
 	flexShrink: 0,
+	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontWeight: 'bold',
 	lineHeight: '16px',
+	minHeight: 24,
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
@@ -163,6 +147,7 @@ export const selectedContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	flex: 1,
 	minHeight: 0,
+	overflowX: 'hidden',
 	overflowY: 'auto',
 };
 
@@ -181,6 +166,18 @@ export const detailsContainer: React.CSSProperties = {
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
+export const detailsWithInlineAction: React.CSSProperties = {
+	paddingBottom: INSPECTOR_PANEL_HORIZONTAL_PADDING,
+};
+
+export const inspectorQuickActionsSection: React.CSSProperties = {
+	padding: '4px 0',
+};
+
+export const detailsBeforeInlineAction: React.CSSProperties = {
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
 export const guideDetailsContainer: React.CSSProperties = {
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
@@ -190,40 +187,34 @@ export const detailRow: React.CSSProperties = {
 	display: 'flex',
 	gap: 12,
 	justifyContent: 'space-between',
-	padding: '10px 0',
+	minHeight: COMPACT_CONTROL_ROW_HEIGHT,
 };
 
 export const detailLabel: React.CSSProperties = {
 	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
 	fontSize: 13,
+	lineHeight: '20px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	whiteSpace: 'nowrap',
 };
 
 export const detailValue: React.CSSProperties = {
 	color: WHITE,
+	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontVariantNumeric: 'tabular-nums',
+	lineHeight: '20px',
 	minWidth: 0,
 	textAlign: 'right',
 	wordBreak: 'break-word',
 };
 
 export const keyframeEditorRow: React.CSSProperties = {
-	alignItems: 'flex-start',
-	display: 'flex',
-	gap: 12,
-	justifyContent: 'space-between',
-	minWidth: 0,
 	padding: '10px 0',
-};
-
-export const keyframeEditorLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontSize: 13,
-	lineHeight: '22px',
-	minWidth: 0,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
 };
 
 export const keyframeEditorValue: React.CSSProperties = {

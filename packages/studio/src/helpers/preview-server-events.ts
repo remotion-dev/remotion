@@ -2,6 +2,11 @@
 /// <reference lib="dom.iterable" />
 
 import type {EventSourceEvent} from '@remotion/studio-shared';
+import {
+	BROWSER_STUDIO_OPERATIONS_READY_EVENT,
+	getBrowserStudioOperations,
+} from './browser-studio-operations';
+import {queueSequenceNodePathMutation} from './sequence-node-path-mutations';
 
 export type PreviewServerConnectionState =
 	| {
@@ -19,8 +24,11 @@ type MessageListener = (event: EventSourceEvent) => void;
 type ConnectionStateListener = (state: PreviewServerConnectionState) => void;
 
 let source: EventSource | null = null;
+let unsubscribeFromBrowserStudio: (() => void) | null = null;
+let browserStudioReadyListenerInstalled = false;
 let connectionState: PreviewServerConnectionState = {type: 'init'};
 let lastInitEvent: Extract<EventSourceEvent, {type: 'init'}> | null = null;
+let pendingHmrEvent: Extract<EventSourceEvent, {type: 'hmr'}> | null = null;
 const messageListeners = new Set<MessageListener>();
 const connectionStateListeners = new Set<ConnectionStateListener>();
 
@@ -31,9 +39,46 @@ const notifyConnectionState = () => {
 };
 
 const dispatch = (event: EventSourceEvent) => {
+	if (event.type === 'sequence-node-paths-remapped') {
+		queueSequenceNodePathMutation(event.mutation);
+	}
+
+	if (event.type === 'init') {
+		lastInitEvent = event;
+		connectionState = {
+			type: 'connected',
+			clientId: event.clientId,
+		};
+		notifyConnectionState();
+	}
+
+	if (event.type === 'hmr' && messageListeners.size === 0) {
+		pendingHmrEvent = event;
+	}
+
 	for (const listener of messageListeners) {
 		listener(event);
 	}
+};
+
+const connectToBrowserStudio = () => {
+	if (unsubscribeFromBrowserStudio) {
+		return true;
+	}
+
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return false;
+	}
+
+	if (source) {
+		source.close();
+		source = null;
+	}
+
+	unsubscribeFromBrowserStudio =
+		browserStudioOperations.subscribeToEvent(dispatch);
+	return true;
 };
 
 const openEventSource = () => {
@@ -46,15 +91,6 @@ const openEventSource = () => {
 	source.addEventListener('message', (event) => {
 		try {
 			const newEvent = JSON.parse(event.data) as EventSourceEvent;
-			if (newEvent.type === 'init') {
-				lastInitEvent = newEvent;
-				connectionState = {
-					type: 'connected',
-					clientId: newEvent.clientId,
-				};
-				notifyConnectionState();
-			}
-
 			dispatch(newEvent);
 		} catch {
 			// Ignore parse errors
@@ -80,7 +116,27 @@ const openEventSource = () => {
 };
 
 export const ensurePreviewServerEventSource = () => {
-	if (typeof window === 'undefined' || typeof EventSource === 'undefined') {
+	if (typeof window === 'undefined') {
+		return;
+	}
+
+	if (!browserStudioReadyListenerInstalled) {
+		browserStudioReadyListenerInstalled = true;
+		window.addEventListener(
+			BROWSER_STUDIO_OPERATIONS_READY_EVENT,
+			connectToBrowserStudio,
+		);
+	}
+
+	if (connectToBrowserStudio()) {
+		return;
+	}
+
+	if (window.remotion_isReadOnlyStudio) {
+		return;
+	}
+
+	if (typeof EventSource === 'undefined') {
 		return;
 	}
 
@@ -95,6 +151,11 @@ export const subscribeToPreviewServerEvents = (
 
 	if (lastInitEvent && connectionState.type === 'connected') {
 		listener(lastInitEvent);
+	}
+
+	if (pendingHmrEvent) {
+		listener(pendingHmrEvent);
+		pendingHmrEvent = null;
 	}
 
 	return () => {

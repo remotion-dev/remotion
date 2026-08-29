@@ -5,6 +5,7 @@ import type {
 	GetDragOverrides,
 	GetEffectDragOverrides,
 	InteractivitySchema,
+	InteractivitySchemaField,
 	PropStatuses,
 	SequenceControls,
 	SequencePropsSubscriptionKey,
@@ -12,6 +13,10 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {
+	BORDER_RADIUS_LONGHAND_KEYS,
+	BORDER_RADIUS_SHORTHAND_KEY,
+} from './style-property-relations';
 
 export type {DragOverrides, PropStatuses, SequenceControls};
 
@@ -40,7 +45,16 @@ export type AnySchemaFieldInfo =
 
 export const SCHEMA_FIELD_ROW_HEIGHT = 22;
 
-export type SchemaFieldGroup = 'controls' | 'transforms' | 'text';
+export type SchemaFieldGroup =
+	| 'source'
+	| 'controls'
+	| 'transforms'
+	| 'background'
+	| 'border'
+	| 'border-radius'
+	| 'crop'
+	| 'text'
+	| 'layout';
 
 export type SchemaFieldGroupInfo = {
 	readonly id: SchemaFieldGroup;
@@ -48,9 +62,15 @@ export type SchemaFieldGroupInfo = {
 };
 
 export const SCHEMA_FIELD_GROUPS = [
+	{id: 'source', label: 'Source'},
 	{id: 'controls', label: 'Controls'},
 	{id: 'transforms', label: 'Transform'},
 	{id: 'text', label: 'Text'},
+	{id: 'background', label: 'Background'},
+	{id: 'border', label: 'Border'},
+	{id: 'border-radius', label: 'Border radius'},
+	{id: 'crop', label: 'Crop'},
+	{id: 'layout', label: 'Layout'},
 ] as const satisfies readonly SchemaFieldGroupInfo[];
 
 const schemaFieldGroupOrder = SCHEMA_FIELD_GROUPS.reduce(
@@ -69,6 +89,73 @@ const TRANSFORM_FIELD_KEYS = new Set([
 	'style.opacity',
 ]);
 
+const CROP_FIELD_KEYS = new Set([
+	'cropLeft',
+	'cropRight',
+	'cropTop',
+	'cropBottom',
+]);
+
+const BORDER_RADIUS_FIELD_KEYS = new Set([
+	'style.borderRadius',
+	'style.borderTopLeftRadius',
+	'style.borderTopRightRadius',
+	'style.borderBottomRightRadius',
+	'style.borderBottomLeftRadius',
+]);
+
+const getBorderRadiusFieldKeysToShow = ({
+	activeSchema,
+	propStatuses,
+	nodePath,
+}: {
+	activeSchema: InteractivitySchema;
+	propStatuses: PropStatuses;
+	nodePath: SequencePropsSubscriptionKey;
+}): ReadonlySet<string> | null => {
+	if (!(BORDER_RADIUS_SHORTHAND_KEY in activeSchema)) {
+		return null;
+	}
+
+	const statuses = Internals.getPropStatusesCtx(propStatuses, nodePath);
+	const shorthand = statuses?.[BORDER_RADIUS_SHORTHAND_KEY];
+	const longhands = BORDER_RADIUS_LONGHAND_KEYS.map((key) => statuses?.[key]);
+
+	// A supported shorthand is canonical even though the server also reports its
+	// expanded longhand values. This keeps one Inspector row and one keyframe track.
+	if (shorthand?.status === 'keyframed') {
+		return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+	}
+
+	if (shorthand?.status === 'static' && shorthand.codeValue !== undefined) {
+		return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+	}
+
+	const hasEditableLonghand = longhands.some(
+		(status) =>
+			status?.status === 'keyframed' ||
+			(status?.status === 'static' && status.codeValue !== undefined),
+	);
+	if (hasEditableLonghand) {
+		return new Set(BORDER_RADIUS_LONGHAND_KEYS);
+	}
+
+	// No radius has been authored, an unsupported dynamic shorthand was authored,
+	// or shorthand and longhands were mixed. In all three cases, only show the
+	// shorthand row so duplicate representations never reach the Inspector/timeline.
+	return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+};
+
+const BORDER_FIELD_KEYS = new Set([
+	'style.borderWidth',
+	'style.borderStyle',
+	'style.borderColor',
+]);
+
+const BACKGROUND_FIELD_KEYS = new Set(['style.backgroundColor']);
+
+const LAYOUT_FIELD_KEYS = new Set(['layout', 'premountFor']);
+
 const TEXT_FIELD_KEYS = new Set([
 	'children',
 	'style.color',
@@ -82,8 +169,32 @@ const TEXT_FIELD_KEYS = new Set([
 ]);
 
 export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
+	if (key === 'src') {
+		return 'source';
+	}
+
 	if (TRANSFORM_FIELD_KEYS.has(key)) {
 		return 'transforms';
+	}
+
+	if (CROP_FIELD_KEYS.has(key)) {
+		return 'crop';
+	}
+
+	if (BORDER_RADIUS_FIELD_KEYS.has(key)) {
+		return 'border-radius';
+	}
+
+	if (BORDER_FIELD_KEYS.has(key)) {
+		return 'border';
+	}
+
+	if (BACKGROUND_FIELD_KEYS.has(key)) {
+		return 'background';
+	}
+
+	if (LAYOUT_FIELD_KEYS.has(key)) {
+		return 'layout';
 	}
 
 	if (TEXT_FIELD_KEYS.has(key)) {
@@ -105,24 +216,44 @@ const sortSchemaFields = <T extends SchemaFieldInfo>(fields: T[]): T[] => {
 		.map(({field}) => field);
 };
 
-const SUPPORTED_SCHEMA_TYPES = [
-	'number',
-	'boolean',
-	'rotation-css',
-	'rotation-degrees',
-	'translate',
-	'transform-origin',
-	'scale',
-	'uv-coordinate',
-	'color',
-	'text-content',
-	'font-family',
-	'array',
-	'enum',
-	'hidden',
-] as const;
+// Keep this exhaustive so every schema field requires an explicit timeline UI
+// support decision.
+const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
+	array: true,
+	asset: true,
+	boolean: true,
+	'remotion-captions': false,
+	color: true,
+	enum: true,
+	'font-family': true,
+	hidden: false,
+	number: true,
+	'rotation-css': true,
+	'rotation-degrees': true,
+	scale: true,
+	'text-content': true,
+	'transform-origin': true,
+	translate: true,
+	'uv-coordinate': true,
+} as const satisfies Record<InteractivitySchemaField['type'], boolean>;
 
-type SupportedSchemaType = (typeof SUPPORTED_SCHEMA_TYPES)[number];
+type TimelineSchemaFieldTypeSupport = typeof TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT;
+
+type SupportedSchemaType = {
+	[FieldType in keyof TimelineSchemaFieldTypeSupport]: TimelineSchemaFieldTypeSupport[FieldType] extends true
+		? FieldType
+		: never;
+}[keyof TimelineSchemaFieldTypeSupport];
+
+type SupportedSchemaField = Extract<
+	InteractivitySchemaField,
+	{type: SupportedSchemaType}
+>;
+
+const isTimelineSchemaFieldSupported = (
+	field: InteractivitySchemaField,
+): field is SupportedSchemaField =>
+	TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT[field.type];
 
 const getArrayRowCount = ({
 	fieldSchema,
@@ -213,17 +344,27 @@ export const getFieldsToShow = ({
 		schema,
 		(key) => valuesDotNotation[key],
 	);
+	const borderRadiusFieldKeysToShow = getBorderRadiusFieldKeysToShow({
+		activeSchema,
+		propStatuses,
+		nodePath,
+	});
 
 	const fields = Object.entries(activeSchema)
 		.map(([key, fieldSchema]): InteractivitySchemaFieldInfo | null => {
-			const typeName = fieldSchema.type;
-			if (SUPPORTED_SCHEMA_TYPES.indexOf(typeName) === -1) {
-				throw new Error(`Unsupported field type: ${typeName}`);
-			}
-
-			if (typeName === 'hidden') {
+			if (
+				BORDER_RADIUS_FIELD_KEYS.has(key) &&
+				borderRadiusFieldKeysToShow !== null &&
+				!borderRadiusFieldKeysToShow.has(key)
+			) {
 				return null;
 			}
+
+			if (!isTimelineSchemaFieldSupported(fieldSchema)) {
+				return null;
+			}
+
+			const typeName = fieldSchema.type;
 
 			if (fieldSchema.type === 'number' && fieldSchema.hiddenFromList) {
 				return null;
@@ -286,10 +427,11 @@ export const getEffectFieldsToShow = ({
 
 	const fields = Object.entries(activeSchema)
 		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
-			const typeName = fieldSchema.type;
-			if (typeName === 'hidden') {
+			if (!isTimelineSchemaFieldSupported(fieldSchema)) {
 				return null;
 			}
+
+			const typeName = fieldSchema.type;
 
 			if (fieldSchema.type === 'number' && fieldSchema.hiddenFromList) {
 				return null;
@@ -299,10 +441,6 @@ export const getEffectFieldsToShow = ({
 			// so we don't render it as a regular field in the expanded section.
 			if (key === 'disabled') {
 				return null;
-			}
-
-			if (SUPPORTED_SCHEMA_TYPES.indexOf(typeName) === -1) {
-				throw new Error(`Unsupported field type: ${typeName}`);
 			}
 
 			return {

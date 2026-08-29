@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, spyOn, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -27,6 +27,14 @@ const starSchema = {
 		default: 5,
 		description: 'Points',
 		hiddenFromList: false,
+	},
+} satisfies InteractivitySchema;
+
+const captionsSchema = {
+	captions: {
+		type: 'remotion-captions',
+		default: undefined,
+		keyframable: false,
 	},
 } satisfies InteractivitySchema;
 
@@ -68,6 +76,114 @@ test('saveSequenceProps does not suppress HMR for Google Font source edits', () 
 	).toBe(false);
 });
 
+test('saveSequenceProps pastes a keyframed property into source', async () => {
+	clearUndoStackForTests();
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => true,
+	});
+	const dir = mkdtempSync(join(tmpdir(), 'remotion-save-sequence-props-'));
+	const fileName = 'Comp.tsx';
+	const filePath = join(dir, fileName);
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Comp = () => {
+	return <AbsoluteFill style={{rotate: '0deg'}} />;
+};
+`;
+	const nodePath = {
+		absolutePath: fileName,
+		nodePath: lineColumnToNodePath(input, 4),
+		sequenceKeys: ['style.rotate'],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+	const consoleSpy = spyOn(console, 'log').mockImplementation(() => undefined);
+
+	try {
+		writeFileSync(filePath, input);
+		await saveSequencePropsHandler({
+			input: {
+				edits: [
+					{
+						fileName,
+						nodePath,
+						key: 'style.rotate',
+						value: {type: 'undefined'},
+						defaultValue: JSON.stringify('0deg'),
+						schema: NoReactInternals.sequenceSchema,
+						sourceEdit: {
+							type: 'clipboard-param',
+							param: {
+								type: 'keyframed',
+								interpolationFunction: 'interpolate',
+								keyframes: [
+									{frame: 0, value: '0deg'},
+									{frame: 30, value: '90deg'},
+								],
+								easing: [{type: 'linear'}],
+								clamping: {left: 'extend', right: 'extend'},
+							},
+						},
+					},
+				],
+				addedKeyframes: null,
+				movedKeyframes: null,
+				clientId: 'test-client',
+				undoLabel: 'Paste property',
+				redoLabel: 'Reapply property paste',
+			},
+			entryPoint: '',
+			remotionRoot: dir,
+			request: {} as never,
+			response: {} as never,
+			logLevel: 'trace',
+			methods: {
+				addJob: () => undefined,
+				cancelJob: () => undefined,
+				removeJob: () => undefined,
+			},
+			publicDir: '',
+			binariesDirectory: null,
+			configFile: null,
+			getDefaultCodingAgent: () => null,
+			getDefaultEditor: () => null,
+		});
+
+		const output = readFileSync(filePath, 'utf-8');
+		expect(output).toMatch(
+			/import \{[^}]*\binterpolate\b[^}]*\} from 'remotion';/,
+		);
+		expect(output).toMatch(
+			/import \{[^}]*\buseCurrentFrame\b[^}]*\} from 'remotion';/,
+		);
+		expect(output).toContain('const frame = useCurrentFrame();');
+		expect(output).toContain(
+			"rotate: interpolate(frame, [0, 30], ['0deg', '90deg'])",
+		);
+		const completionLog = consoleSpy.mock.calls
+			.map((call) => call.join(' '))
+			.find((line) => line.includes('Comp.tsx:4'));
+		expect(completionLog).toMatch(/^\[\d+ms\] /);
+		expect(completionLog).toContain('Comp.tsx:4');
+		expect(getUndoStack()).toHaveLength(1);
+		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(readFileSync(filePath, 'utf-8')).toBe(input);
+	} finally {
+		clearUndoStackForTests();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		consoleSpy.mockRestore();
+		rmSync(dir, {force: true, recursive: true});
+	}
+});
+
 test('saveSequenceProps forwards element schemas to the codemod', () => {
 	const change = convertSequencePropEditToCodemodChange({
 		nodePath: {
@@ -92,11 +208,116 @@ test('saveSequenceProps forwards element schemas to the codemod', () => {
 				value: 7,
 				defaultValue: 5,
 				googleFont: null,
+				clipboardParam: null,
 			},
 		],
 		schema: starSchema,
 		videoConfigValues: null,
 	});
+});
+
+test('saveSequenceProps saves inline caption patches as an undoable source edit', async () => {
+	clearUndoStackForTests();
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => true,
+	});
+	const dir = mkdtempSync(join(tmpdir(), 'remotion-save-sequence-props-'));
+	const fileName = 'Comp.tsx';
+	const filePath = join(dir, fileName);
+	const input = `export const Comp = () => {
+	return (
+		<Captions
+			captions={[
+				{
+					text: 'First',
+					startMs: 0,
+					endMs: 1000,
+					timestampMs: 500,
+					confidence: null,
+				},
+			]}
+		/>
+	);
+};
+`;
+	const nodePath = {
+		absolutePath: fileName,
+		nodePath: lineColumnToNodePath(input, 3),
+		sequenceKeys: ['captions'],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+
+	try {
+		writeFileSync(filePath, input);
+
+		await saveSequencePropsHandler({
+			input: {
+				edits: [],
+				captionPatches: [
+					{
+						fileName,
+						nodePath,
+						schema: captionsSchema,
+						patches: [
+							{
+								index: 0,
+								before: {
+									text: 'First',
+									startMs: 0,
+									endMs: 1000,
+									timestampMs: 500,
+									confidence: null,
+									pageBreakAfter: null,
+								},
+								changes: {text: 'Updated', pageBreakAfter: true},
+							},
+						],
+					},
+				],
+				addedKeyframes: null,
+				movedKeyframes: null,
+				clientId: 'test-client',
+				undoLabel: 'Edit caption',
+				redoLabel: 'Edit caption',
+			},
+			entryPoint: '',
+			remotionRoot: dir,
+			request: {} as never,
+			response: {} as never,
+			logLevel: 'error',
+			methods: {
+				addJob: () => undefined,
+				cancelJob: () => undefined,
+				removeJob: () => undefined,
+			},
+			publicDir: '',
+			binariesDirectory: null,
+			configFile: null,
+			getDefaultCodingAgent: () => null,
+			getDefaultEditor: () => null,
+		});
+
+		expect(readFileSync(filePath, 'utf-8')).toContain("text: 'Updated'");
+		expect(readFileSync(filePath, 'utf-8')).toContain('pageBreakAfter: true');
+		expect(getUndoStack()).toHaveLength(1);
+		expect(getUndoStack()[0]?.suppressHmrOnFileRestore).toBe(false);
+
+		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(readFileSync(filePath, 'utf-8')).toBe(input);
+	} finally {
+		clearUndoStackForTests();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(dir, {force: true, recursive: true});
+	}
 });
 
 test('saveSequenceProps batches sequence movement and keyframe movement into one undo entry', async () => {
@@ -139,6 +360,7 @@ export const Comp = () => {
 
 		await saveSequencePropsHandler({
 			input: {
+				addedKeyframes: null,
 				edits: [
 					{
 						fileName,
@@ -187,6 +409,9 @@ export const Comp = () => {
 			},
 			publicDir: '',
 			binariesDirectory: null,
+			configFile: null,
+			getDefaultCodingAgent: () => null,
+			getDefaultEditor: () => null,
 		});
 
 		const output = readFileSync(filePath, 'utf-8');
@@ -194,7 +419,122 @@ export const Comp = () => {
 		expect(output).toContain('interpolate(frame, [10, 30], [0, 1])');
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({success: true});
+		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(readFileSync(filePath, 'utf-8')).toBe(input);
+	} finally {
+		clearUndoStackForTests();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(dir, {force: true, recursive: true});
+	}
+});
+
+test('saveSequenceProps batches a static edit and added keyframes into one undo entry', async () => {
+	clearUndoStackForTests();
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => true,
+	});
+	const dir = mkdtempSync(join(tmpdir(), 'remotion-save-sequence-props-'));
+	const fileName = 'Comp.tsx';
+	const filePath = join(dir, fileName);
+	const input = `import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Comp = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence
+\t\t\tstyle={{
+\t\t\t\ttransformOrigin: '50% 50%',
+\t\t\t\ttranslate: interpolate(
+\t\t\t\t\tframe,
+\t\t\t\t\t[0, 20],
+\t\t\t\t\t['0px 0px', '20px 40px'],
+\t\t\t\t),
+\t\t\t}}
+\t\t/>
+\t);
+};
+`;
+	const nodePath = {
+		absolutePath: fileName,
+		nodePath: lineColumnToNodePath(input, 6),
+		sequenceKeys: ['style.transformOrigin', 'style.translate'],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+
+	try {
+		writeFileSync(filePath, input);
+
+		await saveSequencePropsHandler({
+			input: {
+				edits: [
+					{
+						fileName,
+						nodePath,
+						key: 'style.transformOrigin',
+						value: {
+							type: 'json',
+							serialized: JSON.stringify('25% 75%'),
+						},
+						defaultValue: JSON.stringify('50% 50%'),
+						schema: NoReactInternals.sequenceSchema,
+						sourceEdit: null,
+					},
+				],
+				addedKeyframes: [
+					{
+						fileName,
+						nodePath,
+						key: 'style.translate',
+						frame: 0,
+						value: JSON.stringify('3px 4px'),
+						schema: NoReactInternals.sequenceSchema,
+					},
+					{
+						fileName,
+						nodePath,
+						key: 'style.translate',
+						frame: 20,
+						value: JSON.stringify('23px 44px'),
+						schema: NoReactInternals.sequenceSchema,
+					},
+				],
+				movedKeyframes: null,
+				clientId: 'test-client',
+				undoLabel: 'Move transform origin',
+				redoLabel: 'Move transform origin back',
+			},
+			entryPoint: '',
+			remotionRoot: dir,
+			request: {} as never,
+			response: {} as never,
+			logLevel: 'error',
+			methods: {
+				addJob: () => undefined,
+				cancelJob: () => undefined,
+				removeJob: () => undefined,
+			},
+			publicDir: '',
+			binariesDirectory: null,
+			configFile: null,
+			getDefaultCodingAgent: () => null,
+			getDefaultEditor: () => null,
+		});
+
+		const output = readFileSync(filePath, 'utf-8');
+		expect(output).toContain("transformOrigin: '25% 75%'");
+		expect(output).toContain("['3px 4px', '23px 44px']");
+		expect(getUndoStack()).toHaveLength(1);
+
+		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 	} finally {
 		clearUndoStackForTests();

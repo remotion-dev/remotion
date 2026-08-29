@@ -130,11 +130,17 @@ const { width } = measureText({
   ...fontStyle,
 });
 
-return <div style={fontStyle}>Hello</div>;
+return (
+  <div style={fontStyle}>
+    Hello
+  </div>
+);
 ```
 
 **Avoid padding and border:** Use `outline` instead of `border` to prevent layout differences:
 
 ```tsx
-<div style={{ outline: "2px solid red" }}>Text</div>
+<div style={{ outline: "2px solid red" }}>
+  Text
+</div>
 ```

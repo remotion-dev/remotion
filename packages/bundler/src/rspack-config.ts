@@ -1,8 +1,12 @@
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
-import type {Configuration} from '@rspack/core';
-import {DefinePlugin, ProgressPlugin, rspack} from '@rspack/core';
+import {ProgressPlugin, rspack} from '@rspack/core';
 import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
-import {getDefinePluginDefinitions} from './define-plugin-definitions';
+import type {
+	BundlerOverrideFn,
+	RspackConfiguration,
+	RspackOverrideFn,
+} from './override-types';
+import {getReactScanEntryPoint} from './react-scan-entry-point';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
@@ -10,55 +14,36 @@ import {
 	getResolveConfig,
 	getSharedModuleRules,
 } from './shared-bundler-config';
-import type {WebpackOverrideFn} from './webpack-config';
 
-export type RspackConfiguration = Configuration;
+export type {RspackConfiguration, RspackOverrideFn} from './override-types';
 
 export const rspackConfig = async ({
 	entry,
 	userDefinedComponent,
 	outDir,
 	environment,
-	webpackOverride = (f) => f,
+	bundlerOverride = (f) => f,
+	rspackOverride = (f) => f,
 	onProgress,
 	enableCaching = true,
-	maxTimelineTracks,
 	remotionRoot,
-	keyboardShortcutsEnabled,
-	bufferStateDelayInMilliseconds,
 	poll,
-	askAIEnabled,
-	interactivityEnabled,
 	extraPlugins,
 }: {
 	entry: string;
 	userDefinedComponent: string;
 	outDir: string | null;
 	environment: 'development' | 'production';
-	webpackOverride: WebpackOverrideFn;
+	bundlerOverride: BundlerOverrideFn;
+	rspackOverride: RspackOverrideFn;
 	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
-	maxTimelineTracks: number | null;
-	keyboardShortcutsEnabled: boolean;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	extraPlugins: any[];
 }): Promise<[string, RspackConfiguration]> => {
 	let lastProgress = 0;
-
-	const define = new DefinePlugin(
-		getDefinePluginDefinitions({
-			maxTimelineTracks,
-			askAIEnabled,
-			interactivityEnabled,
-			keyboardShortcutsEnabled,
-			bufferStateDelayInMilliseconds,
-		}),
-	);
 
 	const swcLoaderRule = {
 		loader: 'builtin:swc-loader',
@@ -94,22 +79,29 @@ export const rspackConfig = async ({
 		},
 	};
 
-	// Rspack config is structurally compatible with webpack config at runtime,
-	// but the TypeScript types differ. Cast through `any` for the override.
-	const conf = (await webpackOverride({
+	const baseConfig = {
 		...getBaseConfig(environment, poll),
+		// Remove once https://github.com/huggingface/transformers.js/issues/1759 is resolved.
+		ignoreWarnings: [
+			{
+				module:
+					/[\\/]@huggingface[\\/]transformers[\\/]dist[\\/]transformers\.web\.js$/,
+				message: /Accessing import\.meta directly is unsupported/,
+			},
+		],
 		node: {
 			// Suppress the warning in `source-map`
 			__dirname: 'mock',
 			__filename: 'mock',
 		},
 		entry: getStudioEntryPoints({
-			fastRefreshRuntime: null,
-			environmentSetup: require.resolve('./setup-environment'),
-			sequenceStackTraces:
+			fastRefreshRuntime:
 				environment === 'development'
-					? require.resolve('./setup-sequence-stack-traces')
+					? require.resolve('./fast-refresh/notify-on-refresh.js')
 					: null,
+			reactScan: getReactScanEntryPoint(environment),
+			environmentSetup: require.resolve('./setup-environment'),
+			sequenceStackTraces: require.resolve('./setup-sequence-stack-traces'),
 			userDefinedComponent,
 			reactShim: require.resolve('../react-shim.js'),
 			studioRenderEntry: entry,
@@ -120,7 +112,6 @@ export const rspackConfig = async ({
 				? [
 						new ReactRefreshPlugin({overlay: false}),
 						new rspack.HotModuleReplacementPlugin(),
-						define,
 						...extraPlugins,
 					]
 				: [
@@ -132,13 +123,23 @@ export const rspackConfig = async ({
 								}
 							}
 						}),
-						define,
 					],
 		output: getOutputConfig(environment),
 		resolve: getResolveConfig(),
 		module: {
 			rules: [
 				...getSharedModuleRules(),
+				...(environment === 'development'
+					? [
+							{
+								test: /[\\/]@rspack[\\/]plugin-react-refresh[\\/]client[\\/]refreshUtils\.js$/,
+								enforce: 'pre' as const,
+								use: [
+									require.resolve('./fast-refresh/zero-delay-rspack-refresh-loader.js'),
+								],
+							},
+						]
+					: []),
 				{
 					// Emscripten's main.js spawns Workers of itself via
 					// new Worker(new URL('./main.js', import.meta.url)).
@@ -162,8 +163,9 @@ export const rspackConfig = async ({
 				},
 			],
 		},
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	} as any)) as RspackConfiguration;
+	} as RspackConfiguration;
+	const sharedConfig = await bundlerOverride(baseConfig, {bundler: 'rspack'});
+	const conf = await rspackOverride(sharedConfig as RspackConfiguration);
 
 	const [hash, finalConf] = computeHashAndFinalConfig(conf, {
 		enableCaching,

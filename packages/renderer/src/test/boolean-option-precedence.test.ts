@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {beepOnFinishOption} from '../options/beep-on-finish';
 import {disableWebSecurityOption} from '../options/disable-web-security';
 import {disallowParallelEncodingOption} from '../options/disallow-parallel-encoding';
+import {enableCancellationOption} from '../options/enable-cancellation';
 import {forceNewStudioOption} from '../options/force-new-studio';
 import {headlessOption} from '../options/headless';
 import {ignoreCertificateErrorsOption} from '../options/ignore-certificate-errors';
@@ -11,6 +12,7 @@ import {isProductionOption} from '../options/is-production';
 import {keyboardShortcutsOption} from '../options/keyboard-shortcuts';
 import {overwriteOption} from '../options/overwrite';
 import {reproOption} from '../options/repro';
+import {rspackOption} from '../options/rspack';
 
 test('boolean options respect config if CLI flag is absent', () => {
 	overwriteOption.setConfig(false);
@@ -108,6 +110,19 @@ test('boolean options respect config if CLI flag is absent', () => {
 	).toEqual(false);
 	disallowParallelEncodingOption.setConfig(false);
 
+	enableCancellationOption.setConfig(true);
+	expect(
+		enableCancellationOption.getValue({
+			commandLine: {'enable-cancellation': null},
+		}).value,
+	).toEqual(true);
+	expect(
+		enableCancellationOption.getValue({
+			commandLine: {'enable-cancellation': false},
+		}).value,
+	).toEqual(false);
+	enableCancellationOption.setConfig(false);
+
 	reproOption.setConfig(true);
 	expect(reproOption.getValue({commandLine: {repro: null}}).value).toEqual(
 		true,
@@ -134,4 +149,13 @@ test('boolean options respect config if CLI flag is absent', () => {
 		forceNewStudioOption.getValue({commandLine: {'force-new': false}}).value,
 	).toEqual(false);
 	forceNewStudioOption.setConfig(false);
+
+	rspackOption.setConfig(true);
+	expect(rspackOption.getValue({commandLine: {rspack: null}}).value).toEqual(
+		true,
+	);
+	expect(rspackOption.getValue({commandLine: {rspack: false}}).value).toEqual(
+		false,
+	);
+	rspackOption.setConfig(false);
 });
