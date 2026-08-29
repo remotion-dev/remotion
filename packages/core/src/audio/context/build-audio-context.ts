@@ -1,0 +1,63 @@
+import type {LogLevel} from '../../log';
+import {Log} from '../../log';
+
+let warned = false;
+
+const warnOnce = (logLevel: LogLevel) => {
+	if (warned) {
+		return;
+	}
+
+	warned = true;
+
+	// Don't pullute logs if in SSR
+	if (typeof window !== 'undefined') {
+		Log.warn(
+			{logLevel, tag: null},
+			'AudioContext is not supported in this browser',
+		);
+	}
+};
+
+export const buildAudioContext = ({
+	isRendering,
+	audioEnabled,
+	logLevel,
+	latencyHint,
+	sampleRate,
+}: {
+	isRendering: boolean;
+	audioEnabled: boolean;
+	logLevel: LogLevel;
+	latencyHint: AudioContextLatencyCategory;
+	sampleRate: number;
+}) => {
+	if (isRendering) {
+		return null;
+	}
+
+	if (!audioEnabled) {
+		return null;
+	}
+
+	if (typeof AudioContext === 'undefined') {
+		warnOnce(logLevel);
+		return null;
+	}
+
+	const audioContext = new AudioContext({
+		latencyHint,
+		// By default, this can end up being 44100Hz.
+		// Playing a 48000Hz file in a 44100Hz context, such as https://remotion.media/video.mp4 in a @remotion/media tag
+		// we observe some issues that seem to go away when we set the sample rate to 48000 with Sony LinkBuds Bluetooth headphones.
+		sampleRate,
+	});
+
+	const gainNode = audioContext.createGain();
+	gainNode.connect(audioContext.destination);
+	Log.trace({logLevel, tag: 'audio'}, 'Creating new audio context');
+
+	audioContext.suspend();
+
+	return {audioContext, gainNode};
+};

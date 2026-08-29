@@ -1,6 +1,7 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
+import type {RemotionAudioContextState} from './audio/context/use-audio-context.js';
 import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
@@ -9,7 +10,6 @@ import {
 	SharedAudioTagsContextProvider,
 	type ScheduleAudioNodeOptions,
 } from './audio/shared-audio-tags.js';
-import type {RemotionAudioContextState} from './audio/use-audio-context.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,

@@ -3,20 +3,21 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
-	useEffect,
 	useMemo,
 	useRef,
 	useState,
 	type AudioHTMLAttributes,
 } from 'react';
+import {getAbsoluteSrc} from '../absolute-src.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
-import {Log} from '../log.js';
+import {Log, type LogLevel} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
+import type {RemotionAudioContextState} from './context/use-audio-context.js';
+import {useSingletonAudioContext} from './context/use-audio-context.js';
+import {Html5AudioTagsError} from './html5-audio-tags-error.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
-import type {RemotionAudioContextState} from './use-audio-context.js';
-import {useSingletonAudioContext} from './use-audio-context.js';
 import {waitUntilActuallyResumed} from './wait-until-actually-resumed.js';
 
 /**
@@ -134,26 +135,6 @@ const compareProps = (
 	return true;
 };
 
-const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
-	// /music.mp3 and http://localhost:3000/music.mp3 are the same
-	if (
-		key === 'src' &&
-		!(prevProp as string).startsWith('data:') &&
-		!(newProp as string).startsWith('data:')
-	) {
-		return (
-			new URL(prevProp as string, window.origin).toString() !==
-			new URL(newProp as string, window.origin).toString()
-		);
-	}
-
-	if (prevProp === newProp) {
-		return false;
-	}
-
-	return true;
-};
-
 type Ref = {
 	id: number;
 	ref: React.RefObject<HTMLAudioElement | null>;
@@ -191,6 +172,71 @@ const shouldSaveForLater = (
 	throw new Error(`Unexpected audio context state: ${state satisfies never}`);
 };
 
+function logVerboseAudioTagInfo({
+	logLevel,
+	scheduledMismatch,
+	scheduledTime,
+	scheduledEndTime,
+	mediaMismatch,
+	mediaTime,
+	mediaEndTime,
+	duration,
+	offset,
+	timeDiff,
+	currentTime,
+	latency,
+	contextState,
+	originalUnloopedMediaTimestamp,
+	saveForLater,
+}: {
+	logLevel: LogLevel;
+	scheduledMismatch: boolean;
+	scheduledTime: number;
+	scheduledEndTime: number;
+	mediaMismatch: boolean;
+	mediaTime: number;
+	mediaEndTime: number;
+	duration: number;
+	offset: number;
+	timeDiff: number;
+	currentTime: number;
+	latency: number;
+	contextState: AudioContextState;
+	originalUnloopedMediaTimestamp: number;
+	saveForLater: boolean;
+}) {
+	Log.verbose(
+		{logLevel, tag: 'audio-scheduling'},
+		'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s %s %s',
+		scheduledMismatch ? 'color: red; font-weight: bold' : '',
+		scheduledTime.toFixed(4),
+		'',
+		scheduledEndTime.toFixed(4),
+		mediaMismatch ? 'color: red; font-weight: bold' : '',
+		mediaTime.toFixed(4),
+		'',
+		mediaEndTime.toFixed(4),
+		duration < 0
+			? 'color: red; font-weight: bold'
+			: timeDiff < 0
+				? 'color: red; font-weight: bold'
+				: 'color: blue; font-weight: bold',
+		duration < 0
+			? 'missed ' + Math.abs(offset).toFixed(2) + 's'
+			: Math.abs(timeDiff).toFixed(2) + (timeDiff < 0 ? ' delay' : ' ahead'),
+		'',
+		'current=' + currentTime.toFixed(4),
+		'offset=' + offset.toFixed(4),
+		'latency=' + latency.toFixed(4),
+		'state=' + contextState,
+		originalUnloopedMediaTimestamp !== mediaTime
+			? 'original_ts=' + originalUnloopedMediaTimestamp.toFixed(4)
+			: '',
+		'action=' + (saveForLater ? 'schedule' : 'start'),
+		'',
+	);
+}
+
 export const SharedAudioContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
@@ -200,16 +246,7 @@ export const SharedAudioContextProvider: React.FC<{
 	const logLevel = useLogLevel();
 	const sampleRate = previewSampleRate ?? 48000;
 
-	useEffect(() => {
-		if (typeof window === 'undefined') {
-			return;
-		}
-
-		window.remotion_sampleRate = sampleRate;
-	}, [sampleRate]);
-
 	const ctxAndGain = useSingletonAudioContext({
-		logLevel,
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 		sampleRate,
@@ -306,37 +343,23 @@ export const SharedAudioContextProvider: React.FC<{
 				prev.mediaEndTime !== null &&
 				Math.abs(mediaTime - prev.mediaEndTime) > 0.001;
 
-			Log.verbose(
-				{logLevel, tag: 'audio-scheduling'},
-				'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s %s %s',
-				scheduledMismatch ? 'color: red; font-weight: bold' : '',
-				scheduledTime.toFixed(4),
-				'',
-				scheduledEndTime.toFixed(4),
-				mediaMismatch ? 'color: red; font-weight: bold' : '',
-				mediaTime.toFixed(4),
-				'',
-				mediaEndTime.toFixed(4),
-				duration < 0
-					? 'color: red; font-weight: bold'
-					: timeDiff < 0
-						? 'color: red; font-weight: bold'
-						: 'color: blue; font-weight: bold',
-				duration < 0
-					? 'missed ' + Math.abs(offset).toFixed(2) + 's'
-					: Math.abs(timeDiff).toFixed(2) +
-							(timeDiff < 0 ? ' delay' : ' ahead'),
-				'',
-				'current=' + ctxAndGain.audioContext.currentTime.toFixed(4),
-				'offset=' + offset.toFixed(4),
-				'latency=' + latency.toFixed(4),
-				'state=' + ctxAndGain.audioContext.state,
-				originalUnloopedMediaTimestamp !== mediaTime
-					? 'original_ts=' + originalUnloopedMediaTimestamp.toFixed(4)
-					: '',
-				'action=' + (saveForLater ? 'schedule' : 'start'),
-				'',
-			);
+			logVerboseAudioTagInfo({
+				logLevel,
+				scheduledMismatch,
+				scheduledTime,
+				scheduledEndTime,
+				mediaMismatch,
+				mediaTime,
+				mediaEndTime,
+				duration,
+				offset,
+				timeDiff,
+				currentTime: ctxAndGain.audioContext.currentTime,
+				latency,
+				contextState: ctxAndGain.audioContext.state,
+				originalUnloopedMediaTimestamp,
+				saveForLater,
+			});
 
 			prev.scheduledEndTime = scheduledEndTime;
 			prev.mediaEndTime = mediaEndTime;
@@ -534,10 +557,15 @@ export const SharedAudioTagsContextProvider: React.FC<{
 			}
 
 			Object.keys(data.props).forEach((key) => {
-				// @ts-expect-error
-				if (didPropChange(key, data.props[key], current[key])) {
-					// @ts-expect-error
-					current[key] = data.props[key];
+				const next = data.props[key as keyof typeof data.props];
+				const prev = current[key as keyof HTMLAudioElement];
+				const changed =
+					key === 'src' && typeof next === 'string' && typeof prev === 'string'
+						? getAbsoluteSrc(next) !== getAbsoluteSrc(prev)
+						: next !== prev;
+
+				if (changed) {
+					Object.assign(current, {[key]: next});
 				}
 			});
 		});
@@ -558,11 +586,7 @@ export const SharedAudioTagsContextProvider: React.FC<{
 
 			const firstFreeAudio = takenAudios.current.findIndex((a) => a === false);
 			if (firstFreeAudio === -1) {
-				throw new Error(
-					`Tried to simultaneously mount ${
-						numberOfAudioTags + 1
-					} <Html5Audio /> tags at the same time. With the current settings, the maximum amount of <Html5Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop for more information on how to increase this limit.`,
-				);
+				throw new Html5AudioTagsError(numberOfAudioTags);
 			}
 
 			const {id, ref, mediaElementSourceNode} = refs[firstFreeAudio];
