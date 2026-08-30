@@ -87,7 +87,7 @@ const ThumbnailFn = <
 
 	const timelineState: TimelineContextValue = useMemo(() => {
 		const value: TimelineContextValue = {
-			playbackStore: Internals.createRuntimeValueStore({playing: false}),
+			isPlaying: () => false,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
 			},

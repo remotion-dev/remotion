@@ -1,11 +1,9 @@
-import {useSyncExternalStore} from 'react';
+import {useSyncExternalStore, useContext} from 'react';
 import {useTimelineContext} from './timeline-position-state.js';
+import {SetTimelineContext} from './TimelineContext.js';
 
 export const usePlaying = () => {
-	const {playbackStore} = useTimelineContext();
-	return useSyncExternalStore(
-		playbackStore.store.subscribe,
-		() => playbackStore.store.getSnapshot().playing as boolean,
-		() => playbackStore.store.getSnapshot().playing as boolean,
-	);
+	const {isPlaying} = useTimelineContext();
+	const {subscribePlaying} = useContext(SetTimelineContext);
+	return useSyncExternalStore(subscribePlaying, isPlaying, isPlaying);
 };

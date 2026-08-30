@@ -22,6 +22,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
 	const timelineContext = useContext(Internals.TimelineContext);
+	const {setPlaying} = useContext(Internals.SetTimelineContext);
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const audioTagsContext = useContext(Internals.SharedAudioTagsContext);
 	const environment = useRemotionEnvironment();
@@ -47,6 +48,8 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
 		);
 	}
+
+	const {isPlaying: readIsPlaying} = timelineContext;
 
 	const getCurrentFrame = useCallback(() => {
 		if (!video) {
@@ -103,7 +106,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 
 	const play = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
-			if (timelineContext.playbackStore.store.getSnapshot().playing) {
+			if (readIsPlaying()) {
 				return;
 			}
 
@@ -129,7 +132,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				tag.play('player play() was called and playing audio from a click'),
 			);
 
-			timelineContext.playbackStore.setSnapshot({playing: true});
+			setPlaying(true);
 			playStart.current = getCurrentFrame();
 			emitter.dispatchPlay();
 		},
@@ -139,23 +142,25 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			config?.durationInFrames,
 			emitter,
 			getCurrentFrame,
+			readIsPlaying,
 			seek,
-			timelineContext,
+			setPlaying,
+			timelineContext.audioAndVideoTags,
 		],
 	);
 
 	const pause = useCallback(() => {
-		if (timelineContext.playbackStore.store.getSnapshot().playing) {
-			timelineContext.playbackStore.setSnapshot({playing: false});
+		if (readIsPlaying()) {
+			setPlaying(false);
 
 			emitter.dispatchPause();
 			audioContext?.suspend();
 		}
-	}, [audioContext, emitter, timelineContext]);
+	}, [audioContext, emitter, readIsPlaying, setPlaying]);
 
 	const pauseAndReturnToPlayStart = useCallback(() => {
-		if (timelineContext.playbackStore.store.getSnapshot().playing) {
-			timelineContext.playbackStore.setSnapshot({playing: false});
+		if (readIsPlaying()) {
+			setPlaying(false);
 			fallbackFrame.current = playStart.current;
 			if (config) {
 				timelineContext.frame = {
@@ -169,7 +174,14 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				emitter.dispatchPause();
 			}
 		}
-	}, [config, emitter, setTimelinePosition, timelineContext]);
+	}, [
+		config,
+		emitter,
+		readIsPlaying,
+		setPlaying,
+		setTimelinePosition,
+		timelineContext,
+	]);
 
 	const videoId = video?.id;
 	const lastFrame = (config?.durationInFrames ?? 1) - 1;
@@ -180,7 +192,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return null;
 			}
 
-			if (timelineContext.playbackStore.store.getSnapshot().playing) {
+			if (readIsPlaying()) {
 				return;
 			}
 
@@ -201,7 +213,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 					: {...currentFrames, [videoId]: newFrame},
 			);
 		},
-		[setFrame, timelineContext, videoId],
+		[readIsPlaying, setFrame, timelineContext, videoId],
 	);
 
 	const frameForward = useCallback(
@@ -210,7 +222,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return null;
 			}
 
-			if (timelineContext.playbackStore.store.getSnapshot().playing) {
+			if (readIsPlaying()) {
 				return;
 			}
 
@@ -231,23 +243,23 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 					: {...currentFrames, [videoId]: newFrame},
 			);
 		},
-		[lastFrame, setFrame, timelineContext, videoId],
+		[lastFrame, readIsPlaying, setFrame, timelineContext, videoId],
 	);
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
-			if (timelineContext.playbackStore.store.getSnapshot().playing) {
+			if (readIsPlaying()) {
 				pause();
 			} else {
 				play(e);
 			}
 		},
-		[pause, play, timelineContext],
+		[pause, play, readIsPlaying],
 	);
 
 	const isPlaying = useCallback(() => {
-		return timelineContext.playbackStore.store.getSnapshot().playing as boolean;
-	}, [timelineContext]);
+		return readIsPlaying();
+	}, [readIsPlaying]);
 
 	const isBuffering = useCallback(() => {
 		return bufferingContext.buffering.current;

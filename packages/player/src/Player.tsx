@@ -244,8 +244,8 @@ const PlayerFn = <
 	}));
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
-	const playbackStore = useMemo(
-		() => Internals.createRuntimeValueStore({playing: false}),
+	const playingController = useMemo(
+		() => Internals.createPlayingController(false),
 		[],
 	);
 	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
@@ -412,10 +412,10 @@ const PlayerFn = <
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			playbackStore,
+			isPlaying: playingController.isPlaying,
 			audioAndVideoTags,
 		};
-	}, [frame, playbackStore]);
+	}, [frame, playingController.isPlaying, audioAndVideoTags]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -429,17 +429,14 @@ const PlayerFn = <
 			setFrame,
 			setPlaying: (updater) => {
 				if (typeof updater === 'function') {
-					playbackStore.setSnapshot({
-						playing: updater(
-							playbackStore.store.getSnapshot().playing as boolean,
-						),
-					});
+					playingController.setPlaying(updater(playingController.isPlaying()));
 				} else {
-					playbackStore.setSnapshot({playing: updater});
+					playingController.setPlaying(updater);
 				}
 			},
+			subscribePlaying: playingController.subscribePlaying,
 		};
-	}, [playbackStore, setFrame]);
+	}, [playingController, setFrame]);
 
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks

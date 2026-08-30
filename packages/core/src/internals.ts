@@ -131,6 +131,7 @@ import {
 import type {NonceHistory} from './nonce.js';
 import {NonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
+import {createPlayingController} from './playing-state.js';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
@@ -310,6 +311,7 @@ export const Internals = {
 	makeRenderResourceManager,
 	RenderResourceManagerContext,
 	createRuntimeValueStore,
+	createPlayingController,
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,

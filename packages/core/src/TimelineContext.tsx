@@ -6,10 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {
-	createRuntimeValueStore,
-	type RuntimeValueStoreController,
-} from './runtime-value-store.js';
+import {createPlayingController} from './playing-state.js';
 import {
 	getInitialFrameState,
 	type PlayableMediaTag,
@@ -18,7 +15,7 @@ import {useDelayRender} from './use-delay-render';
 
 export type TimelineContextValue = {
 	frame: Record<string, number>;
-	playbackStore: RuntimeValueStoreController;
+	isPlaying: () => boolean;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
@@ -30,6 +27,7 @@ export type PlaybackRateContextValue = {
 export type SetTimelineContextValue = {
 	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
+	subscribePlaying: (listener: () => void) => () => void;
 };
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({
@@ -37,6 +35,9 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 		throw new Error('default');
 	},
 	setPlaying: () => {
+		throw new Error('default');
+	},
+	subscribePlaying: () => {
 		throw new Error('default');
 	},
 });
@@ -54,10 +55,7 @@ export const TimelineContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly frameState: Record<string, number> | null;
 }> = ({children, frameState}) => {
-	const playbackStore = useMemo(
-		() => createRuntimeValueStore({playing: false}),
-		[],
-	);
+	const playingController = useMemo(() => createPlayingController(false), []);
 
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
@@ -109,10 +107,10 @@ export const TimelineContextProvider: React.FC<{
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			playbackStore,
+			isPlaying: playingController.isPlaying,
 			audioAndVideoTags,
 		};
-	}, [frame, playbackStore]);
+	}, [frame, playingController.isPlaying, audioAndVideoTags]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -126,14 +124,14 @@ export const TimelineContextProvider: React.FC<{
 			setFrame,
 			setPlaying: (updater) => {
 				if (typeof updater === 'function') {
-					const current = playbackStore.store.getSnapshot().playing as boolean;
-					playbackStore.setSnapshot({playing: updater(current)});
+					playingController.setPlaying(updater(playingController.isPlaying()));
 				} else {
-					playbackStore.setSnapshot({playing: updater});
+					playingController.setPlaying(updater);
 				}
 			},
+			subscribePlaying: playingController.subscribePlaying,
 		};
-	}, [playbackStore]);
+	}, [playingController]);
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>

@@ -5,7 +5,6 @@ import type {CompositionManagerContext} from '../CompositionManagerContext.js';
 import {CompositionManager} from '../CompositionManagerContext.js';
 import type {LoggingContextValue} from '../log-level-context.js';
 import {LogLevelContext} from '../log-level-context.js';
-import {createRuntimeValueStore} from '../runtime-value-store.js';
 import {SequenceManagerProvider} from '../SequenceManager.js';
 import type {
 	PlaybackRateContextValue,
@@ -116,7 +115,7 @@ export const WrapSequenceContext: React.FC<{
 	const timelineContext = useMemo<TimelineContextValue>(
 		() => ({
 			frame: {'my-comp': currentFrame},
-			playbackStore: createRuntimeValueStore({playing: false}),
+			isPlaying: () => false,
 			audioAndVideoTags: {current: []},
 		}),
 		[currentFrame],

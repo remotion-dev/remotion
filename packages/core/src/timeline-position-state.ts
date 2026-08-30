@@ -126,7 +126,7 @@ type PlayingReturnType = readonly [
 ];
 
 export const usePlayingState = (): PlayingReturnType => {
-	const {playbackStore} = useTimelineContext();
+	const {isPlaying} = useTimelineContext();
 	const playing = usePlaying();
 	const {setPlaying} = useContext(SetTimelineContext);
 
@@ -136,14 +136,14 @@ export const usePlayingState = (): PlayingReturnType => {
 			setPlaying,
 			{
 				get current() {
-					return playbackStore.store.getSnapshot().playing as boolean;
+					return isPlaying();
 				},
 				set current(val) {
-					playbackStore.setSnapshot({playing: val});
+					setPlaying(val);
 				},
 			},
 		],
-		[playbackStore, playing, setPlaying],
+		[isPlaying, playing, setPlaying],
 	);
 };
 
