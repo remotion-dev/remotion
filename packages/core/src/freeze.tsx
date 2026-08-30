@@ -1,4 +1,5 @@
 import React, {useContext, useMemo} from 'react';
+import {createRuntimeValueStore} from './runtime-value-store.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useTimelineContext} from './timeline-position-state.js';
@@ -69,12 +70,11 @@ export const Freeze: React.FC<FreezeProps> = ({
 			return timelineContext;
 		}
 
+		const frozenStore = createRuntimeValueStore({playing: false});
+
 		return {
 			...timelineContext,
-			playing: false,
-			imperativePlaying: {
-				current: false,
-			},
+			playbackStore: frozenStore,
 			frame: {
 				[videoConfig.id]: frameToFreeze + relativeFrom,
 			},

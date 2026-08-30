@@ -3,6 +3,7 @@ import {cleanup, render} from '@testing-library/react';
 import {useEffect} from 'react';
 import {AbsoluteFill} from '../AbsoluteFill.js';
 import {getTimelineDuration} from '../get-timeline-duration.js';
+import {createRuntimeValueStore} from '../runtime-value-store.js';
 import {Sequence} from '../Sequence.js';
 import {TimelineContext} from '../TimelineContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -18,10 +19,7 @@ const getForFrame = (frame: number, content: React.ReactNode) => {
 					frame: {
 						'my-comp': frame,
 					},
-					playing: false,
-					imperativePlaying: {
-						current: false,
-					},
+					playbackStore: createRuntimeValueStore({playing: false}),
 					audioAndVideoTags: {
 						current: [],
 					},
@@ -258,10 +256,7 @@ test('Sequence freeze pins the child frame without remounting the sequence', () 
 					frame: {
 						'my-comp': 15,
 					},
-					playing: false,
-					imperativePlaying: {
-						current: false,
-					},
+					playbackStore: createRuntimeValueStore({playing: false}),
 					audioAndVideoTags: {
 						current: [],
 					},
@@ -282,10 +277,7 @@ test('Sequence freeze pins the child frame without remounting the sequence', () 
 					frame: {
 						'my-comp': 25,
 					},
-					playing: false,
-					imperativePlaying: {
-						current: false,
-					},
+					playbackStore: createRuntimeValueStore({playing: false}),
 					audioAndVideoTags: {
 						current: [],
 					},

@@ -157,6 +157,7 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
+import {createRuntimeValueStore} from './runtime-value-store.js';
 import {resolveSequenceCrop} from './sequence-crop.js';
 import type {
 	OverrideIdToNodePaths,
@@ -206,10 +207,8 @@ import {
 	PlaybackRateContext,
 	SetTimelineContext,
 	TimelineContext,
-	TimelineImperativeContext,
 	type PlaybackRateContextValue,
 	type SetTimelineContextValue,
-	type TimelineImperativeContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {truthy} from './truthy.js';
@@ -227,6 +226,7 @@ import {
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import {PixelDensityContext} from './use-pixel-density.js';
+import {usePlaying} from './use-playing.js';
 import {usePremounting} from './use-premounting.js';
 import type {
 	CanUpdateSequencePropStatusFalse,
@@ -309,6 +309,7 @@ export const Internals = {
 	MEDIABUNNY_DURATION_VALUE_KEY,
 	makeRenderResourceManager,
 	RenderResourceManagerContext,
+	createRuntimeValueStore,
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
@@ -439,7 +440,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
-	TimelineImperativeContext,
+	usePlaying,
 	PlaybackRateContext,
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
@@ -528,7 +529,6 @@ export type {
 	TCompMetadata,
 	TComposition,
 	TimelineContextValue,
-	TimelineImperativeContextValue,
 	TRenderAsset,
 	TSequence,
 	VisibleFieldSchema,

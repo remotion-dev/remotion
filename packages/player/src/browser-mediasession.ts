@@ -23,7 +23,7 @@ export const useBrowserMediaSession = ({
 	videoConfig: VideoConfig | null;
 	playbackRate: number;
 }) => {
-	const [playing] = Internals.Timeline.usePlayingState();
+	const playing = Internals.usePlaying();
 	const {pause, play, emitter, getCurrentFrame, seek} = usePlayerMethods();
 	const hasEverPlayed = useRef(false);
 

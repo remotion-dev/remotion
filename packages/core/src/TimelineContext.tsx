@@ -7,6 +7,10 @@ import React, {
 	useState,
 } from 'react';
 import {
+	createRuntimeValueStore,
+	type RuntimeValueStoreController,
+} from './runtime-value-store.js';
+import {
 	getInitialFrameState,
 	type PlayableMediaTag,
 } from './timeline-position-state';
@@ -14,14 +18,7 @@ import {useDelayRender} from './use-delay-render';
 
 export type TimelineContextValue = {
 	frame: Record<string, number>;
-	playing: boolean;
-	imperativePlaying: RefObject<boolean>;
-	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
-};
-
-export type TimelineImperativeContextValue = {
-	frameRef: RefObject<Record<string, number>>;
-	imperativePlaying: RefObject<boolean>;
+	playbackStore: RuntimeValueStoreController;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
@@ -46,9 +43,6 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 
 export const TimelineContext = createContext<TimelineContextValue | null>(null);
 
-export const TimelineImperativeContext =
-	createContext<TimelineImperativeContextValue | null>(null);
-
 export const PlaybackRateContext =
 	createContext<PlaybackRateContextValue | null>(null);
 
@@ -60,8 +54,10 @@ export const TimelineContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly frameState: Record<string, number> | null;
 }> = ({children, frameState}) => {
-	const [playing, setPlaying] = useState<boolean>(false);
-	const imperativePlaying = useRef<boolean>(false);
+	const playbackStore = useMemo(
+		() => createRuntimeValueStore({playing: false}),
+		[],
+	);
 
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
@@ -113,20 +109,10 @@ export const TimelineContextProvider: React.FC<{
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			playing,
-			imperativePlaying,
+			playbackStore,
 			audioAndVideoTags,
 		};
-	}, [frame, playing]);
-
-	const timelineImperativeContextValue =
-		useMemo((): TimelineImperativeContextValue => {
-			return {
-				frameRef,
-				imperativePlaying,
-				audioAndVideoTags,
-			};
-		}, []);
+	}, [frame, playbackStore]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -138,22 +124,25 @@ export const TimelineContextProvider: React.FC<{
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
 			setFrame,
-			setPlaying,
+			setPlaying: (updater) => {
+				if (typeof updater === 'function') {
+					const current = playbackStore.store.getSnapshot().playing as boolean;
+					playbackStore.setSnapshot({playing: updater(current)});
+				} else {
+					playbackStore.setSnapshot({playing: updater});
+				}
+			},
 		};
-	}, []);
+	}, [playbackStore]);
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>
 			<PlaybackRateContext.Provider value={playbackRateContextValue}>
-				<TimelineImperativeContext.Provider
-					value={timelineImperativeContextValue}
-				>
-					<TimelineContext.Provider value={timelineContextValue}>
-						<SetTimelineContext.Provider value={setTimelineContextValue}>
-							{children}
-						</SetTimelineContext.Provider>
-					</TimelineContext.Provider>
-				</TimelineImperativeContext.Provider>
+				<TimelineContext.Provider value={timelineContextValue}>
+					<SetTimelineContext.Provider value={setTimelineContextValue}>
+						{children}
+					</SetTimelineContext.Provider>
+				</TimelineContext.Provider>
 			</PlaybackRateContext.Provider>
 		</AbsoluteTimeContext.Provider>
 	);

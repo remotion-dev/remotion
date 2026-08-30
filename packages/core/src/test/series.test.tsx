@@ -4,6 +4,7 @@ import {renderToString} from 'react-dom/server';
 import {AbsoluteFill} from '../AbsoluteFill.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Internals} from '../internals.js';
+import {createRuntimeValueStore} from '../runtime-value-store.js';
 import {Sequence} from '../Sequence.js';
 import {Series} from '../series/index.js';
 import type {TimelineContextValue} from '../TimelineContext.js';
@@ -50,10 +51,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 		frame: {
 			'my-comp': frame,
 		},
-		playing: false,
-		imperativePlaying: {
-			current: false,
-		},
+		playbackStore: createRuntimeValueStore({playing: false}),
 		audioAndVideoTags: {current: []},
 	};
 

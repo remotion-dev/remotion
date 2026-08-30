@@ -250,6 +250,7 @@ export * from './Still.js';
 export type {PlayableMediaTag} from './timeline-position-state.js';
 export {useBufferState} from './use-buffer-state';
 export {useCurrentFrame} from './use-current-frame.js';
+export {usePlaying} from './use-playing.js';
 export {
 	CurrentScaleContextType,
 	PreviewSize,

@@ -129,7 +129,7 @@ export const WebMcp: FC = () => {
 		useContext(Internals.CompositionManager);
 	const {playbackRate: currentPlaybackRate, setPlaybackRate} =
 		Internals.usePlaybackRate();
-	const [, , imperativePlaying] = Internals.Timeline.usePlayingState();
+	const {playbackStore} = Internals.Timeline.useTimelineContext();
 	const {mediaVolume, playerMuted} = useContext(Internals.MediaVolumeContext);
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
 	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
@@ -688,7 +688,7 @@ export const WebMcp: FC = () => {
 						return Promise.resolve({
 							currentComposition: compositionId,
 							currentFrame: getCurrentFrame(),
-							playing: imperativePlaying.current,
+							playing: playbackStore.store.getSnapshot().playing as boolean,
 							muted: playerMutedRef.current,
 							volume: mediaVolumeRef.current,
 							playbackRate: playbackRateRef.current,
@@ -1218,7 +1218,7 @@ export const WebMcp: FC = () => {
 		};
 	}, [
 		clearSelection,
-		imperativePlaying,
+		playbackStore,
 		selectComposition,
 		selectItems,
 		setEditorShowGuides,
