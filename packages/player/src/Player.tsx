@@ -495,7 +495,10 @@ const PlayerFn = <
 				audioEnabled
 			>
 				<Internals.SetTimelineContext.Provider value={setTimelineContextValue}>
-					<PlayerEmitterProvider currentPlaybackRate={currentPlaybackRate}>
+					<PlayerEmitterProvider
+						currentPlaybackRate={currentPlaybackRate}
+						playingStore={playingStore}
+					>
 						<PlayerUI
 							ref={rootRef}
 							posterFillMode={posterFillMode}
