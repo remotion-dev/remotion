@@ -3,6 +3,7 @@ import React, {createRef, useRef} from 'react';
 import {Html5Audio, Internals, useCurrentFrame} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
+import {Thumbnail} from '../Thumbnail.js';
 import type {UsePlayerMethods} from '../use-player-methods.js';
 import {usePlayerMethods} from '../use-player-methods.js';
 import {act, cleanup, fireEvent, render} from './test-utils.js';
@@ -15,6 +16,26 @@ test('It should throw an error if not being used inside a RemotionRoot', () => {
 	expect(() => {
 		usePlayerMethods();
 	}).toThrow();
+});
+
+const ThumbnailPlayingProbe = () => {
+	const playing = Internals.usePlaying();
+	return React.createElement('div', null, playing ? 'playing' : 'paused');
+};
+
+test('Thumbnail provides playback context to its composition', () => {
+	const view = render(
+		React.createElement(Thumbnail, {
+			component: ThumbnailPlayingProbe,
+			durationInFrames: 100,
+			compositionWidth: 1920,
+			compositionHeight: 1080,
+			fps: 30,
+			frameToDisplay: 0,
+		}),
+	);
+
+	expect(view.getByText('paused')).toBeTruthy();
 });
 
 test('Seeking to the current frame does not rerender the composition', () => {
