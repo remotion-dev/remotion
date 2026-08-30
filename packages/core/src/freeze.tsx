@@ -65,21 +65,43 @@ export const Freeze: React.FC<FreezeProps> = ({
 
 	const relativeFrom = sequenceContext?.relativeFrom ?? 0;
 
+	const frozenStore = useMemo(
+		() => createRuntimeValueStore({playing: false}),
+		[],
+	);
+
+	const registerPlaybackListener = useMemo(() => {
+		return (listener: (playing: boolean) => void) => {
+			return frozenStore.store.subscribe((newSnap, oldSnap) => {
+				if (newSnap.playing !== oldSnap.playing) {
+					listener(newSnap.playing as boolean);
+				}
+			});
+		};
+	}, [frozenStore]);
+
 	const timelineValue: TimelineContextValue = useMemo(() => {
 		if (!isActive) {
 			return timelineContext;
 		}
 
-		const frozenStore = createRuntimeValueStore({playing: false});
-
 		return {
 			...timelineContext,
 			playbackStore: frozenStore,
+			registerPlaybackListener,
 			frame: {
 				[videoConfig.id]: frameToFreeze + relativeFrom,
 			},
 		};
-	}, [isActive, timelineContext, videoConfig.id, frameToFreeze, relativeFrom]);
+	}, [
+		isActive,
+		timelineContext,
+		frozenStore,
+		registerPlaybackListener,
+		videoConfig.id,
+		frameToFreeze,
+		relativeFrom,
+	]);
 
 	const newSequenceContext: SequenceContextType | null = useMemo(() => {
 		if (!sequenceContext) {
