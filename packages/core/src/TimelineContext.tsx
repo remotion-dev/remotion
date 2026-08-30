@@ -41,9 +41,7 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	setPlaying: () => {
 		throw new Error('default');
 	},
-	subscribePlaying: () => {
-		throw new Error('default');
-	},
+	subscribePlaying: () => () => undefined,
 	frameRef: {current: {}},
 	isPlaying: () => {
 		throw new Error('default');

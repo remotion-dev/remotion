@@ -18,7 +18,6 @@ import type {
 	LogLevel,
 	PlayableMediaTag,
 	PlaybackRateContextValue,
-	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -97,19 +96,6 @@ const ThumbnailFn = <
 
 		return value;
 	}, [frameToDisplay]);
-	const frameRef = useRef(timelineState.frame);
-	frameRef.current = timelineState.frame;
-
-	const setTimelineContext = useMemo((): SetTimelineContextValue => {
-		return {
-			setFrame: () => undefined,
-			setPlaying: () => undefined,
-			subscribePlaying: () => () => undefined,
-			frameRef,
-			isPlaying: () => false,
-			audioAndVideoTags,
-		};
-	}, []);
 
 	const playbackRateContext: PlaybackRateContextValue = useMemo(() => {
 		return {
@@ -153,21 +139,19 @@ const ThumbnailFn = <
 				audioEnabled={false}
 				_experimentalKeepAudioContextAlive={false}
 			>
-				<Internals.SetTimelineContext.Provider value={setTimelineContext}>
-					<ThumbnailEmitterContext.Provider value={emitter}>
-						<ThumbnailUI
-							ref={rootRef}
-							className={className}
-							errorFallback={errorFallback}
-							inputProps={passedInputProps}
-							renderLoading={renderLoading}
-							style={style}
-							overflowVisible={overflowVisible}
-							overrideInternalClassName={overrideInternalClassName}
-							noSuspense={Boolean(noSuspense)}
-						/>
-					</ThumbnailEmitterContext.Provider>
-				</Internals.SetTimelineContext.Provider>
+				<ThumbnailEmitterContext.Provider value={emitter}>
+					<ThumbnailUI
+						ref={rootRef}
+						className={className}
+						errorFallback={errorFallback}
+						inputProps={passedInputProps}
+						renderLoading={renderLoading}
+						style={style}
+						overflowVisible={overflowVisible}
+						overrideInternalClassName={overrideInternalClassName}
+						noSuspense={Boolean(noSuspense)}
+					/>
+				</ThumbnailEmitterContext.Provider>
 			</SharedPlayerContexts>
 		</Internals.IsPlayerContextProvider>
 	);

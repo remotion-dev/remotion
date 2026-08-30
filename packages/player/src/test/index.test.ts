@@ -23,7 +23,7 @@ const ThumbnailPlayingProbe = () => {
 	return React.createElement('div', null, playing ? 'playing' : 'paused');
 };
 
-test('Thumbnail provides playback context to its composition', () => {
+test('Thumbnail supports usePlaying in its composition', () => {
 	const view = render(
 		React.createElement(Thumbnail, {
 			component: ThumbnailPlayingProbe,
