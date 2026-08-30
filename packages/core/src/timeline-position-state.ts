@@ -86,11 +86,6 @@ export const useTimelineContext = (options?: {
 
 	const subscriber = options?.subscriber;
 
-	// In React, side-effects during render (like setting up subscriptions) are an
-	// anti-pattern. The correct and canonical way to subscribe to external stores
-	// is via useEffect, which runs after the render phase. The click stack remains
-	// perfectly preserved because the callback execution itself inside the store's
-	// setSnapshot is fully synchronous.
 	useEffect(() => {
 		if (subscriber) {
 			return state.registerPlaybackListener(subscriber);
