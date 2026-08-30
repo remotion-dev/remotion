@@ -1,4 +1,5 @@
 import React, {useContext, useMemo} from 'react';
+import {createRuntimeValueStore} from './runtime-value-store.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useTimelineContext} from './timeline-position-state.js';
@@ -64,6 +65,24 @@ export const Freeze: React.FC<FreezeProps> = ({
 
 	const relativeFrom = sequenceContext?.relativeFrom ?? 0;
 
+	const frozenStore = useMemo(
+		() => createRuntimeValueStore({playing: false}),
+		[],
+	);
+
+	const registerPlaybackListener = useMemo(() => {
+		return (listener: (playing: boolean) => void) => {
+			let previous = frozenStore.store.getSnapshot().playing;
+			return frozenStore.store.subscribe(() => {
+				const next = frozenStore.store.getSnapshot().playing;
+				if (next !== previous) {
+					previous = next;
+					listener(next);
+				}
+			});
+		};
+	}, [frozenStore]);
+
 	const timelineValue: TimelineContextValue = useMemo(() => {
 		if (!isActive) {
 			return timelineContext;
@@ -72,11 +91,20 @@ export const Freeze: React.FC<FreezeProps> = ({
 		return {
 			...timelineContext,
 			isPlaying: () => false,
+			registerPlaybackListener,
 			frame: {
 				[videoConfig.id]: frameToFreeze + relativeFrom,
 			},
 		};
-	}, [isActive, timelineContext, videoConfig.id, frameToFreeze, relativeFrom]);
+	}, [
+		isActive,
+		timelineContext,
+		frozenStore,
+		registerPlaybackListener,
+		videoConfig.id,
+		frameToFreeze,
+		relativeFrom,
+	]);
 
 	const newSequenceContext: SequenceContextType | null = useMemo(() => {
 		if (!sequenceContext) {

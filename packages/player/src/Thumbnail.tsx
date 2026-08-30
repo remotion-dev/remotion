@@ -85,28 +85,36 @@ const ThumbnailFn = <
 	const rootRef = useRef<ThumbnailMethods>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
+	const playbackStore = useMemo(
+		() => Internals.createRuntimeValueStore({playing: false}),
+		[],
+	);
+
+	const registerPlaybackListener = useMemo(() => {
+		return (listener: (playing: boolean) => void) => {
+			let previous = playbackStore.store.getSnapshot().playing;
+			return playbackStore.store.subscribe(() => {
+				const next = playbackStore.store.getSnapshot().playing;
+				if (next !== previous) {
+					previous = next;
+					listener(next);
+				}
+			});
+		};
+	}, [playbackStore]);
+
 	const timelineState: TimelineContextValue = useMemo(() => {
-		const playbackStore = Internals.createRuntimeValueStore({playing: false});
 		const value: TimelineContextValue = {
 			isPlaying: () => false,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
 			},
 			audioAndVideoTags,
-			registerPlaybackListener: (listener: (playing: boolean) => void) => {
-				let previous = playbackStore.store.getSnapshot().playing;
-				return playbackStore.store.subscribe(() => {
-					const next = playbackStore.store.getSnapshot().playing;
-					if (next !== previous) {
-						previous = next;
-						listener(next);
-					}
-				});
-			},
+			registerPlaybackListener,
 		};
 
 		return value;
-	}, [frameToDisplay]);
+	}, [frameToDisplay, playbackStore, registerPlaybackListener]);
 
 	const playbackRateContext: PlaybackRateContextValue = useMemo(() => {
 		return {
