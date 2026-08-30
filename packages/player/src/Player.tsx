@@ -1,6 +1,7 @@
 import type {ComponentType, LazyExoticComponent, RefObject} from 'react';
 import React, {
 	forwardRef,
+	useCallback,
 	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
@@ -242,11 +243,17 @@ const PlayerFn = <
 	const [frame, setFrame] = useState<Record<string, number>>(() => ({
 		[PLAYER_COMP_ID]: initialFrame ?? 0,
 	}));
+	const frameRef = useRef(frame);
+	frameRef.current = frame;
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const playingStore = useMemo(
 		() => Internals.createRuntimeValueStore({playing: false}),
 		[],
+	);
+	const readIsPlaying = useCallback(
+		() => playingStore.store.getSnapshot().playing,
+		[playingStore],
 	);
 	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
@@ -412,10 +419,10 @@ const PlayerFn = <
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			isPlaying: () => playingStore.store.getSnapshot().playing as boolean,
+			isPlaying: readIsPlaying,
 			audioAndVideoTags,
 		};
-	}, [frame, playingStore, audioAndVideoTags]);
+	}, [frame, readIsPlaying]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -429,15 +436,18 @@ const PlayerFn = <
 			setFrame,
 			setPlaying: (updater) => {
 				if (typeof updater === 'function') {
-					const current = playingStore.store.getSnapshot().playing as boolean;
+					const current = playingStore.store.getSnapshot().playing;
 					playingStore.setSnapshot({playing: updater(current)});
 				} else {
 					playingStore.setSnapshot({playing: updater});
 				}
 			},
 			subscribePlaying: playingStore.store.subscribe,
+			frameRef,
+			isPlaying: readIsPlaying,
+			audioAndVideoTags,
 		};
-	}, [playingStore, setFrame]);
+	}, [playingStore, setFrame, frameRef, readIsPlaying]);
 
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks

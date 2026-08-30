@@ -158,9 +158,6 @@ export const SharedPlayerContexts: React.FC<{
 		};
 	}, []);
 
-	const frameRef = useRef(timelineContext.frame);
-	frameRef.current = timelineContext.frame;
-
 	return (
 		<Internals.RemotionEnvironmentContext.Provider value={env}>
 			<Internals.LogLevelContext.Provider value={logLevelContext}>

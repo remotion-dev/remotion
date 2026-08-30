@@ -1,6 +1,7 @@
 import type {RefObject} from 'react';
 import React, {
 	createContext,
+	useCallback,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -28,6 +29,9 @@ export type SetTimelineContextValue = {
 	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
 	subscribePlaying: (listener: () => void) => () => void;
+	frameRef: RefObject<Record<string, number>>;
+	isPlaying: () => boolean;
+	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({
@@ -40,6 +44,11 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	subscribePlaying: () => {
 		throw new Error('default');
 	},
+	frameRef: {current: {}},
+	isPlaying: () => {
+		throw new Error('default');
+	},
+	audioAndVideoTags: {current: []},
 });
 
 export const TimelineContext = createContext<TimelineContextValue | null>(null);
@@ -50,6 +59,8 @@ export const PlaybackRateContext =
 export const AbsoluteTimeContext = createContext<TimelineContextValue | null>(
 	null,
 );
+
+const studioFrameRef: RefObject<Record<string, number>> = {current: {}};
 
 export const TimelineContextProvider: React.FC<{
 	readonly children: React.ReactNode;
@@ -67,8 +78,11 @@ export const TimelineContextProvider: React.FC<{
 	);
 
 	const frame = frameState ?? _frame;
-	const frameRef = useRef(frame);
-	frameRef.current = frame;
+
+	const readIsPlaying = useCallback(
+		() => playingStore.store.getSnapshot().playing,
+		[playingStore],
+	);
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -110,10 +124,10 @@ export const TimelineContextProvider: React.FC<{
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			isPlaying: () => playingStore.store.getSnapshot().playing as boolean,
+			isPlaying: readIsPlaying,
 			audioAndVideoTags,
 		};
-	}, [frame, playingStore, audioAndVideoTags]);
+	}, [frame, readIsPlaying]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -127,15 +141,18 @@ export const TimelineContextProvider: React.FC<{
 			setFrame,
 			setPlaying: (updater) => {
 				if (typeof updater === 'function') {
-					const current = playingStore.store.getSnapshot().playing as boolean;
+					const current = playingStore.store.getSnapshot().playing;
 					playingStore.setSnapshot({playing: updater(current)});
 				} else {
 					playingStore.setSnapshot({playing: updater});
 				}
 			},
 			subscribePlaying: playingStore.store.subscribe,
+			frameRef: studioFrameRef,
+			isPlaying: readIsPlaying,
+			audioAndVideoTags,
 		};
-	}, [playingStore]);
+	}, [playingStore, readIsPlaying]);
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>

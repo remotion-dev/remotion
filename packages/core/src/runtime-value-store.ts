@@ -1,22 +1,26 @@
 export type RuntimeValueSnapshot = Readonly<Record<string, unknown>>;
 
-export type RuntimeValueStore = {
-	getSnapshot: () => RuntimeValueSnapshot;
+export type RuntimeValueStore<
+	TSnapshot extends RuntimeValueSnapshot = RuntimeValueSnapshot,
+> = {
+	getSnapshot: () => TSnapshot;
 	subscribe: (listener: () => void) => () => void;
 };
 
-export type RuntimeValueStoreController = {
-	store: RuntimeValueStore;
-	setSnapshot: (newSnapshot: RuntimeValueSnapshot) => void;
+export type RuntimeValueStoreController<
+	TSnapshot extends RuntimeValueSnapshot = RuntimeValueSnapshot,
+> = {
+	store: RuntimeValueStore<TSnapshot>;
+	setSnapshot: (newSnapshot: TSnapshot) => void;
 };
 
-export const createRuntimeValueStore = (
-	initialSnapshot: RuntimeValueSnapshot,
-): RuntimeValueStoreController => {
+export const createRuntimeValueStore = <TSnapshot extends RuntimeValueSnapshot>(
+	initialSnapshot: TSnapshot,
+): RuntimeValueStoreController<TSnapshot> => {
 	let snapshot = initialSnapshot;
 	const listeners = new Set<() => void>();
 
-	const store: RuntimeValueStore = {
+	const store: RuntimeValueStore<TSnapshot> = {
 		getSnapshot: () => snapshot,
 		subscribe: (listener) => {
 			listeners.add(listener);
