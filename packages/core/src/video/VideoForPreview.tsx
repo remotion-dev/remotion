@@ -9,7 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import type {IsExact} from '../audio/props.js';
-import {SharedAudioContext} from '../audio/shared-audio-tags.js';
+import {SharedAudioContext} from '../audio/shared-audio-context.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';

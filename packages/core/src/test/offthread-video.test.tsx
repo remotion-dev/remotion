@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, test} from 'bun:test';
 import {cleanup, fireEvent, render} from '@testing-library/react';
 import type React from 'react';
-import {SharedAudioContextProvider} from '../audio/shared-audio-tags.js';
+import {SharedAudioContextProvider} from '../audio/shared-audio-context.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
 import {OffthreadVideo} from '../video/index.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';

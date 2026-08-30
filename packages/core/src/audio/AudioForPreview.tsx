@@ -25,7 +25,7 @@ import {
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {IsExact, NativeAudioProps, RemotionAudioProps} from './props.js';
-import {useSharedAudio} from './shared-audio-tags.js';
+import {useSharedAudio} from './shared-audio-tags-context.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForPreviewProps = RemotionAudioProps & {

@@ -5,7 +5,7 @@ import {useContext} from 'react';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
-} from '../audio/shared-audio-tags.js';
+} from '../audio/shared-audio-context.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 

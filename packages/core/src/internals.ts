@@ -3,14 +3,16 @@ import {getAbsoluteSrc} from './absolute-src.js';
 import {AbsoluteFillElement} from './AbsoluteFillElement.js';
 import {getAnimatedImageDurationInSeconds} from './animated-image/get-duration-in-seconds.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
-import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
+import type {ScheduleAudioNodeResult} from './audio/shared-audio-context.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
+	type ScheduleAudioNodeOptions,
+} from './audio/shared-audio-context.js';
+import {
 	SharedAudioTagsContext,
 	SharedAudioTagsContextProvider,
-	type ScheduleAudioNodeOptions,
-} from './audio/shared-audio-tags.js';
+} from './audio/shared-audio-tags-context.js';
 import type {RemotionAudioContextState} from './audio/use-audio-context.js';
 import {
 	useFrameForVolumeProp,

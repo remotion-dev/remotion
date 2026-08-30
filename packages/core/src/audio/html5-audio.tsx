@@ -19,7 +19,7 @@ import {DurationsContext} from '../video/duration-state.js';
 import {AudioForPreview} from './AudioForPreview.js';
 import {AudioForRendering} from './AudioForRendering.js';
 import type {RemotionAudioProps, RemotionMainAudioProps} from './props.js';
-import {SharedAudioTagsContext} from './shared-audio-tags.js';
+import {SharedAudioTagsContext} from './shared-audio-tags-context.js';
 
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,

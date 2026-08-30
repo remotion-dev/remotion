@@ -1,8 +1,6 @@
 import React, {useMemo} from 'react';
-import {
-	SharedAudioContextProvider,
-	SharedAudioTagsContextProvider,
-} from './audio/shared-audio-tags.js';
+import {SharedAudioContextProvider} from './audio/shared-audio-context.js';
+import {SharedAudioTagsContextProvider} from './audio/shared-audio-tags-context.js';
 import {BufferingProvider} from './buffering.js';
 import {EditorPropsProvider} from './EditorProps.js';
 import type {LoggingContextValue} from './log-level-context.js';

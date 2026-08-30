@@ -1,5 +1,5 @@
 import {useContext, useLayoutEffect, useRef, type RefObject} from 'react';
-import {SharedAudioContext} from './audio/shared-audio-tags';
+import {SharedAudioContext} from './audio/shared-audio-context.js';
 import type {SharedElementSourceNode} from './audio/shared-element-source-node';
 import {isApproximatelyTheSame} from './is-approximately-the-same';
 import type {LogLevel} from './log';
