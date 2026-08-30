@@ -132,13 +132,11 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 
 			timelineContext.playbackStore.setSnapshot({playing: true});
 			playStart.current = getCurrentFrame();
-			emitter.dispatchPlay();
 		},
 		[
 			audioContext,
 			audioTagsContext,
 			config?.durationInFrames,
-			emitter,
 			getCurrentFrame,
 			seek,
 			setPlaying,
@@ -150,10 +148,9 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 		if (timelineContext.playbackStore.store.getSnapshot().playing) {
 			timelineContext.playbackStore.setSnapshot({playing: false});
 
-			emitter.dispatchPause();
 			audioContext?.suspend();
 		}
-	}, [audioContext, emitter, timelineContext]);
+	}, [audioContext, timelineContext]);
 
 	const pauseAndReturnToPlayStart = useCallback(() => {
 		if (timelineContext.playbackStore.store.getSnapshot().playing) {
@@ -168,10 +165,9 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 					...currentFrames,
 					[config.id]: playStart.current,
 				}));
-				emitter.dispatchPause();
 			}
 		}
-	}, [config, emitter, setTimelinePosition, timelineContext]);
+	}, [config, setTimelinePosition, timelineContext]);
 
 	const videoId = video?.id;
 	const lastFrame = (config?.durationInFrames ?? 1) - 1;

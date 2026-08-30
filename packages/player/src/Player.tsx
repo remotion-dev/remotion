@@ -424,14 +424,6 @@ const PlayerFn = <
 		};
 	}, [currentPlaybackRate]);
 
-	const setPlaying = (updater: React.SetStateAction<boolean>) => {
-		if (typeof updater === 'function') {
-			playbackStore.setPlaying(updater(playbackStore.getSnapshot()));
-		} else {
-			playbackStore.setPlaying(updater);
-		}
-	};
-
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
 			setFrame,
@@ -495,7 +487,10 @@ const PlayerFn = <
 				audioEnabled
 			>
 				<Internals.SetTimelineContext.Provider value={setTimelineContextValue}>
-					<PlayerEmitterProvider currentPlaybackRate={currentPlaybackRate}>
+					<PlayerEmitterProvider
+						currentPlaybackRate={currentPlaybackRate}
+						playbackStore={playbackStore}
+					>
 						<PlayerUI
 							ref={rootRef}
 							posterFillMode={posterFillMode}

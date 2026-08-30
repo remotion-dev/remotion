@@ -76,6 +76,20 @@ type ThumbnailListeners = {
 };
 
 export class PlayerEmitter {
+	constructor(
+		subscribeToPlayState?: (listener: (playing: boolean) => void) => void,
+	) {
+		if (subscribeToPlayState) {
+			subscribeToPlayState((playing) => {
+				if (playing) {
+					this.dispatchEvent('play', undefined);
+				} else {
+					this.dispatchEvent('pause', undefined);
+				}
+			});
+		}
+	}
+
 	listeners: PlayerListeners = {
 		ended: [],
 		error: [],

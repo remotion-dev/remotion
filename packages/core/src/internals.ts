@@ -290,6 +290,10 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
 export type {EffectChainState} from './effects/run-effect-chain.js';
+export type {
+	RuntimeValueSnapshot,
+	RuntimeValueStoreController,
+} from './runtime-value-store.js';
 
 // needs to be in core package so gets deduplicated in studio
 const compositionSelectorRef = createRef<{

@@ -2,7 +2,12 @@ export type RuntimeValueSnapshot = Readonly<Record<string, unknown>>;
 
 export type RuntimeValueStore = {
 	getSnapshot: () => RuntimeValueSnapshot;
-	subscribe: (listener: () => void) => () => void;
+	subscribe: (
+		listener: (
+			newSnapshot: RuntimeValueSnapshot,
+			oldSnapshot: RuntimeValueSnapshot,
+		) => void,
+	) => () => void;
 };
 
 export type RuntimeValueStoreController = {
@@ -14,7 +19,12 @@ export const createRuntimeValueStore = (
 	initialSnapshot: RuntimeValueSnapshot,
 ): RuntimeValueStoreController => {
 	let snapshot = initialSnapshot;
-	const listeners = new Set<() => void>();
+	const listeners = new Set<
+		(
+			newSnapshot: RuntimeValueSnapshot,
+			oldSnapshot: RuntimeValueSnapshot,
+		) => void
+	>();
 
 	const store: RuntimeValueStore = {
 		getSnapshot: () => snapshot,
@@ -33,9 +43,10 @@ export const createRuntimeValueStore = (
 				return;
 			}
 
+			const oldSnapshot = snapshot;
 			snapshot = newSnapshot;
 			for (const listener of listeners) {
-				listener();
+				listener(newSnapshot, oldSnapshot);
 			}
 		},
 	};
