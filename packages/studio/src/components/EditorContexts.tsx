@@ -1,6 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
 import React from 'react';
-import {Internals} from 'remotion';
 import {PreviewServerConnection} from '../helpers/client-id';
 import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
@@ -28,8 +27,6 @@ import {ZoomGesturesProvider} from './ZoomGesturesProvider';
 export const EditorContexts: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const timelineContext = Internals.Timeline.useTimelineContext();
-
 	return (
 		<ZodProvider>
 			<VisualControlsProvider>
@@ -51,9 +48,6 @@ export const EditorContexts: React.FC<{
 																	<MediaVolumeProvider>
 																		<PlayerInternals.PlayerEmitterProvider
 																			currentPlaybackRate={null}
-																			playbackStore={
-																				timelineContext.playbackStore
-																			}
 																		>
 																			<SidebarContextProvider>
 																				<FolderContextProvider>

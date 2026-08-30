@@ -7,16 +7,31 @@ import {useBufferStateEmitter} from './use-buffer-state-emitter.js';
 export const PlayerEmitterProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly currentPlaybackRate: number | null;
-	readonly playingStore: Internals.RuntimeValueStoreController<{
-		playing: boolean;
-	}>;
+	readonly playingStore?: ReturnType<
+		typeof Internals.createRuntimeValueStore<{playing: boolean}>
+	>;
 }> = ({children, currentPlaybackRate, playingStore}) => {
+	const {subscribePlaying, isPlaying} = useContext(
+		Internals.SetTimelineContext,
+	);
 	const [emitter] = useState(
 		() =>
 			new PlayerEmitter((listener) => {
-				let previous = playingStore.store.getSnapshot().playing;
-				playingStore.store.subscribe(() => {
-					const next = playingStore.store.getSnapshot().playing;
+				if (playingStore) {
+					let previous = playingStore.store.getSnapshot().playing;
+					playingStore.store.subscribe(() => {
+						const next = playingStore.store.getSnapshot().playing;
+						if (next !== previous) {
+							previous = next;
+							listener(next);
+						}
+					});
+					return;
+				}
+
+				let previous = isPlaying();
+				subscribePlaying(() => {
+					const next = isPlaying();
 					if (next !== previous) {
 						previous = next;
 						listener(next);
