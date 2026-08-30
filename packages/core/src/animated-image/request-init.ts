@@ -11,6 +11,8 @@ export const serializeRequestInit = (
 
 	return JSON.stringify({
 		...rest,
-		headers: headers ? Array.from(new Headers(headers).entries()) : null,
+		headers: headers
+			? Array.from((new Headers(headers) as any).entries())
+			: null,
 	});
 };

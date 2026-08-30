@@ -245,7 +245,18 @@ const PlayerFn = <
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const playbackStore = useMemo(
-		() => Internals.createRuntimeValueStore({playing: false}),
+		() =>
+			Internals.createRuntimeValueStore({playing: false}, [
+				(newSnap, oldSnap) => {
+					if (newSnap.playing !== oldSnap.playing) {
+						if (newSnap.playing) {
+							audioAndVideoTags.current.forEach((tag) =>
+								tag.play('playbackStore playing state became true'),
+							);
+						}
+					}
+				},
+			]),
 		[],
 	);
 
@@ -259,15 +270,6 @@ const PlayerFn = <
 		};
 	}, [playbackStore]);
 
-	useMemo(() => {
-		registerPlaybackListener((playing) => {
-			if (playing) {
-				audioAndVideoTags.current.forEach((tag) =>
-					tag.play('playbackStore playing state became true'),
-				);
-			}
-		});
-	}, [registerPlaybackListener]);
 	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
 	if (typeof compositionHeight !== 'number') {

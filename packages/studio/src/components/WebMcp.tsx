@@ -131,7 +131,8 @@ export const WebMcp: FC = () => {
 		Internals.usePlaybackRate();
 	const imperativePlaying = {
 		current:
-			Internals.Timeline.useTimelineContext().playbackStore.getSnapshot(),
+			Internals.Timeline.useTimelineContext().playbackStore.store.getSnapshot()
+				.playing as boolean,
 	};
 	const {mediaVolume, playerMuted} = useContext(Internals.MediaVolumeContext);
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);

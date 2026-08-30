@@ -55,8 +55,21 @@ export const TimelineContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly frameState: Record<string, number> | null;
 }> = ({children, frameState}) => {
+	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
+
 	const playbackStore = useMemo(
-		() => createRuntimeValueStore({playing: false}),
+		() =>
+			createRuntimeValueStore({playing: false}, [
+				(newSnap, oldSnap) => {
+					if (newSnap.playing !== oldSnap.playing) {
+						if (newSnap.playing) {
+							audioAndVideoTags.current.forEach((tag) =>
+								tag.play('playbackStore playing state became true'),
+							);
+						}
+					}
+				},
+			]),
 		[],
 	);
 
@@ -70,18 +83,7 @@ export const TimelineContextProvider: React.FC<{
 		};
 	}, [playbackStore]);
 
-	useMemo(() => {
-		registerPlaybackListener((playing) => {
-			if (playing) {
-				audioAndVideoTags.current.forEach((tag) =>
-					tag.play('playbackStore playing state became true'),
-				);
-			}
-		});
-	}, [registerPlaybackListener]);
-
 	const [playbackRate, setPlaybackRate] = useState(1);
-	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const [_frame, setFrame] = useState<Record<string, number>>(() =>
 		getInitialFrameState(),
 	);

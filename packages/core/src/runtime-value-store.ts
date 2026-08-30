@@ -1,13 +1,13 @@
 export type RuntimeValueSnapshot = Readonly<Record<string, unknown>>;
 
+type RuntimeValueStoreListener = (
+	newSnapshot: RuntimeValueSnapshot,
+	oldSnapshot: RuntimeValueSnapshot,
+) => void;
+
 export type RuntimeValueStore = {
 	getSnapshot: () => RuntimeValueSnapshot;
-	subscribe: (
-		listener: (
-			newSnapshot: RuntimeValueSnapshot,
-			oldSnapshot: RuntimeValueSnapshot,
-		) => void,
-	) => () => void;
+	subscribe: (listener: RuntimeValueStoreListener) => () => void;
 };
 
 export type RuntimeValueStoreController = {
@@ -17,14 +17,10 @@ export type RuntimeValueStoreController = {
 
 export const createRuntimeValueStore = (
 	initialSnapshot: RuntimeValueSnapshot,
+	initialSubscribers: RuntimeValueStoreListener[] = [],
 ): RuntimeValueStoreController => {
 	let snapshot = initialSnapshot;
-	const listeners = new Set<
-		(
-			newSnapshot: RuntimeValueSnapshot,
-			oldSnapshot: RuntimeValueSnapshot,
-		) => void
-	>();
+	const listeners = new Set<RuntimeValueStoreListener>(initialSubscribers);
 
 	const store: RuntimeValueStore = {
 		getSnapshot: () => snapshot,

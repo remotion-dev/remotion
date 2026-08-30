@@ -216,6 +216,7 @@
       "name": "@remotion/canvas-capture-extension",
       "version": "4.0.518",
       "dependencies": {
+        "@remotion/design": "workspace:*",
         "mediabunny": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",

@@ -86,12 +86,20 @@ const ThumbnailFn = <
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
+		const playbackStore = Internals.createRuntimeValueStore({playing: false});
 		const value: TimelineContextValue = {
-			playbackStore: Internals.createRuntimeValueStore({playing: false}),
+			playbackStore,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
 			},
 			audioAndVideoTags,
+			registerPlaybackListener: (listener: (playing: boolean) => void) => {
+				return playbackStore.store.subscribe((newSnap, oldSnap) => {
+					if (newSnap.playing !== oldSnap.playing) {
+						listener(newSnap.playing as boolean);
+					}
+				});
+			},
 		};
 
 		return value;
