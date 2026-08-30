@@ -40,6 +40,12 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 		throw new TypeError('Expected Player event emitter context');
 	}
 
+	if (!frameRef || !readIsPlaying || !audioAndVideoTags) {
+		throw new Error(
+			'Player timeline context is not available. This hook must be used inside a <Player>.',
+		);
+	}
+
 	const bufferingContext = useContext(Internals.BufferingContextReact);
 	if (!bufferingContext) {
 		throw new Error(
