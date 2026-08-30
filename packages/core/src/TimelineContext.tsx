@@ -28,7 +28,9 @@ export type PlaybackRateContextValue = {
 export type SetTimelineContextValue = {
 	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
-	subscribePlaying: (listener: () => void) => () => void;
+	subscribePlaying: (
+		listener: (state: Readonly<{playing: boolean}>) => void,
+	) => () => void;
 	frameRef: RefObject<Record<string, number>>;
 	isPlaying: () => boolean;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
