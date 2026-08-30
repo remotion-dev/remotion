@@ -140,11 +140,11 @@ export const TimelineContextProvider: React.FC<{
 		return {
 			setFrame,
 			setPlaying: (updater) => {
-				if (typeof updater === 'function') {
-					const current = playingStore.store.getSnapshot().playing;
-					playingStore.setSnapshot({playing: updater(current)});
-				} else {
-					playingStore.setSnapshot({playing: updater});
+				const current = playingStore.store.getSnapshot().playing;
+				const next = typeof updater === 'function' ? updater(current) : updater;
+
+				if (current !== next) {
+					playingStore.setSnapshot({playing: next});
 				}
 			},
 			subscribePlaying: playingStore.store.subscribe,
