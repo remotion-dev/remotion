@@ -244,8 +244,8 @@ const PlayerFn = <
 	}));
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
-	const playingController = useMemo(
-		() => Internals.createPlayingController(false),
+	const playingStore = useMemo(
+		() => Internals.createRuntimeValueStore({playing: false}),
 		[],
 	);
 	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
@@ -412,10 +412,10 @@ const PlayerFn = <
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			isPlaying: playingController.isPlaying,
+			isPlaying: () => playingStore.store.getSnapshot().playing as boolean,
 			audioAndVideoTags,
 		};
-	}, [frame, playingController.isPlaying, audioAndVideoTags]);
+	}, [frame, playingStore, audioAndVideoTags]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -429,14 +429,15 @@ const PlayerFn = <
 			setFrame,
 			setPlaying: (updater) => {
 				if (typeof updater === 'function') {
-					playingController.setPlaying(updater(playingController.isPlaying()));
+					const current = playingStore.store.getSnapshot().playing as boolean;
+					playingStore.setSnapshot({playing: updater(current)});
 				} else {
-					playingController.setPlaying(updater);
+					playingStore.setSnapshot({playing: updater});
 				}
 			},
-			subscribePlaying: playingController.subscribePlaying,
+			subscribePlaying: playingStore.store.subscribe,
 		};
-	}, [playingController, setFrame]);
+	}, [playingStore, setFrame]);
 
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks

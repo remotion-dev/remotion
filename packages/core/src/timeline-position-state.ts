@@ -1,5 +1,4 @@
-import type {RefObject} from 'react';
-import {useContext, useMemo} from 'react';
+import {useContext} from 'react';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -8,7 +7,6 @@ import {
 	type PlaybackRateContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
-import {usePlaying} from './use-playing.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideo} from './use-video.js';
 
@@ -117,34 +115,6 @@ export const useTimelineSetFrame = (): ((
 ) => void) => {
 	const {setFrame} = useContext(SetTimelineContext);
 	return setFrame;
-};
-
-type PlayingReturnType = readonly [
-	boolean,
-	(u: React.SetStateAction<boolean>) => void,
-	RefObject<boolean>,
-];
-
-export const usePlayingState = (): PlayingReturnType => {
-	const {isPlaying} = useTimelineContext();
-	const playing = usePlaying();
-	const {setPlaying} = useContext(SetTimelineContext);
-
-	return useMemo(
-		() => [
-			playing,
-			setPlaying,
-			{
-				get current() {
-					return isPlaying();
-				},
-				set current(val) {
-					setPlaying(val);
-				},
-			},
-		],
-		[isPlaying, playing, setPlaying],
-	);
 };
 
 export {usePlaying} from './use-playing.js';

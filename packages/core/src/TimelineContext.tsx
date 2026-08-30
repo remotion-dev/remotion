@@ -6,7 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {createPlayingController} from './playing-state.js';
+import {createRuntimeValueStore} from './runtime-value-store.js';
 import {
 	getInitialFrameState,
 	type PlayableMediaTag,
@@ -55,7 +55,10 @@ export const TimelineContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly frameState: Record<string, number> | null;
 }> = ({children, frameState}) => {
-	const playingController = useMemo(() => createPlayingController(false), []);
+	const playingStore = useMemo(
+		() => createRuntimeValueStore({playing: false}),
+		[],
+	);
 
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
@@ -107,10 +110,10 @@ export const TimelineContextProvider: React.FC<{
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			isPlaying: playingController.isPlaying,
+			isPlaying: () => playingStore.store.getSnapshot().playing as boolean,
 			audioAndVideoTags,
 		};
-	}, [frame, playingController.isPlaying, audioAndVideoTags]);
+	}, [frame, playingStore, audioAndVideoTags]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -124,14 +127,15 @@ export const TimelineContextProvider: React.FC<{
 			setFrame,
 			setPlaying: (updater) => {
 				if (typeof updater === 'function') {
-					playingController.setPlaying(updater(playingController.isPlaying()));
+					const current = playingStore.store.getSnapshot().playing as boolean;
+					playingStore.setSnapshot({playing: updater(current)});
 				} else {
-					playingController.setPlaying(updater);
+					playingStore.setSnapshot({playing: updater});
 				}
 			},
-			subscribePlaying: playingController.subscribePlaying,
+			subscribePlaying: playingStore.store.subscribe,
 		};
-	}, [playingController]);
+	}, [playingStore]);
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>
