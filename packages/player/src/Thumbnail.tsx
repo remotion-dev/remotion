@@ -86,12 +86,23 @@ const ThumbnailFn = <
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
+		const playbackStore = Internals.createRuntimeValueStore({playing: false});
 		const value: TimelineContextValue = {
 			isPlaying: () => false,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
 			},
 			audioAndVideoTags,
+			registerPlaybackListener: (listener: (playing: boolean) => void) => {
+				let previous = playbackStore.store.getSnapshot().playing;
+				return playbackStore.store.subscribe(() => {
+					const next = playbackStore.store.getSnapshot().playing;
+					if (next !== previous) {
+						previous = next;
+						listener(next);
+					}
+				});
+			},
 		};
 
 		return value;

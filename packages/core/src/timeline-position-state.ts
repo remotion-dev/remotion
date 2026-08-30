@@ -83,12 +83,13 @@ export const useTimelineContext = (options?: {
 	}
 
 	const subscriber = options?.subscriber;
+	const registerPlaybackListener = state.registerPlaybackListener;
 
 	useEffect(() => {
 		if (subscriber) {
-			return state.registerPlaybackListener(subscriber);
+			return registerPlaybackListener(subscriber);
 		}
-	}, [subscriber, state]);
+	}, [subscriber, registerPlaybackListener]);
 
 	return state;
 };
