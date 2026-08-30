@@ -23,8 +23,6 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
 	const {setPlaying} = useContext(Internals.SetTimelineContext);
 	const timelineContext = useContext(Internals.TimelineContext);
-	const audioContext = useContext(Internals.SharedAudioContext);
-	const audioTagsContext = useContext(Internals.SharedAudioTagsContext);
 	const environment = useRemotionEnvironment();
 	const video = Internals.useVideo();
 	const config = Internals.useUnsafeVideoConfig();
@@ -103,7 +101,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	);
 
 	const play = useCallback(
-		(e?: SyntheticEvent | PointerEvent) => {
+		(_e?: SyntheticEvent | PointerEvent) => {
 			if (timelineContext.playbackStore.store.getSnapshot().playing) {
 				return;
 			}
@@ -113,29 +111,10 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				seek(0);
 			}
 
-			audioContext?.resume();
-
-			/**
-			 * Play silent audio tags to warm them up for autoplay
-			 */
-			if (audioTagsContext && audioTagsContext.numberOfAudioTags > 0 && e) {
-				audioTagsContext.playAllAudios();
-			}
-
-			/**
-			 * Play audios and videos directly here so they can benefit from
-			 * being triggered by a click
-			 */
-			timelineContext.audioAndVideoTags.current.forEach((tag) =>
-				tag.play('player play() was called and playing audio from a click'),
-			);
-
 			timelineContext.playbackStore.setSnapshot({playing: true});
 			playStart.current = getCurrentFrame();
 		},
 		[
-			audioContext,
-			audioTagsContext,
 			config?.durationInFrames,
 			getCurrentFrame,
 			seek,
@@ -147,10 +126,8 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const pause = useCallback(() => {
 		if (timelineContext.playbackStore.store.getSnapshot().playing) {
 			timelineContext.playbackStore.setSnapshot({playing: false});
-
-			audioContext?.suspend();
 		}
-	}, [audioContext, timelineContext]);
+	}, [timelineContext]);
 
 	const pauseAndReturnToPlayStart = useCallback(() => {
 		if (timelineContext.playbackStore.store.getSnapshot().playing) {

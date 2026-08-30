@@ -12,6 +12,7 @@ import React, {
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
+import {useTimelineContext} from '../timeline-position-state.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
@@ -547,6 +548,19 @@ export const SharedAudioContextProvider: React.FC<{
 		};
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
 
+	useTimelineContext({
+		subscriber: useCallback(
+			(playing: boolean) => {
+				if (playing) {
+					resume();
+				} else {
+					suspend();
+				}
+			},
+			[resume, suspend],
+		),
+	});
+
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
 			audioContext: ctxAndGain?.audioContext ?? null,
@@ -823,6 +837,17 @@ export const SharedAudioTagsContextProvider: React.FC<{
 		});
 		resume?.();
 	}, [logLevel, mountTime, refs, env.isPlayer, resume]);
+
+	useTimelineContext({
+		subscriber: useCallback(
+			(playing: boolean) => {
+				if (playing) {
+					playAllAudios();
+				}
+			},
+			[playAllAudios],
+		),
+	});
 
 	const audioTagsValue: SharedAudioTagsContextValue = useMemo(() => {
 		return {

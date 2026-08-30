@@ -248,6 +248,26 @@ const PlayerFn = <
 		() => Internals.createRuntimeValueStore({playing: false}),
 		[],
 	);
+
+	const registerPlaybackListener = useMemo(() => {
+		return (listener: (playing: boolean) => void) => {
+			return playbackStore.store.subscribe((newSnap, oldSnap) => {
+				if (newSnap.playing !== oldSnap.playing) {
+					listener(newSnap.playing as boolean);
+				}
+			});
+		};
+	}, [playbackStore]);
+
+	useMemo(() => {
+		registerPlaybackListener((playing) => {
+			if (playing) {
+				audioAndVideoTags.current.forEach((tag) =>
+					tag.play('playbackStore playing state became true'),
+				);
+			}
+		});
+	}, [registerPlaybackListener]);
 	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
 	if (typeof compositionHeight !== 'number') {
@@ -414,8 +434,9 @@ const PlayerFn = <
 			frame,
 			playbackStore,
 			audioAndVideoTags,
+			registerPlaybackListener,
 		};
-	}, [frame, playbackStore]);
+	}, [frame, playbackStore, registerPlaybackListener]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {

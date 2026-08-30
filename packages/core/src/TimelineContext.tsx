@@ -20,6 +20,7 @@ export type TimelineContextValue = {
 	frame: Record<string, number>;
 	playbackStore: RuntimeValueStoreController;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
+	registerPlaybackListener: (listener: (playing: boolean) => void) => void;
 };
 
 export type PlaybackRateContextValue = {
@@ -58,6 +59,26 @@ export const TimelineContextProvider: React.FC<{
 		() => createRuntimeValueStore({playing: false}),
 		[],
 	);
+
+	const registerPlaybackListener = useMemo(() => {
+		return (listener: (playing: boolean) => void) => {
+			return playbackStore.store.subscribe((newSnap, oldSnap) => {
+				if (newSnap.playing !== oldSnap.playing) {
+					listener(newSnap.playing as boolean);
+				}
+			});
+		};
+	}, [playbackStore]);
+
+	useMemo(() => {
+		registerPlaybackListener((playing) => {
+			if (playing) {
+				audioAndVideoTags.current.forEach((tag) =>
+					tag.play('playbackStore playing state became true'),
+				);
+			}
+		});
+	}, [registerPlaybackListener]);
 
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
@@ -111,8 +132,9 @@ export const TimelineContextProvider: React.FC<{
 			frame,
 			playbackStore,
 			audioAndVideoTags,
+			registerPlaybackListener,
 		};
-	}, [frame, playbackStore]);
+	}, [frame, playbackStore, registerPlaybackListener]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {

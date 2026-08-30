@@ -118,6 +118,7 @@ export const WrapSequenceContext: React.FC<{
 			frame: {'my-comp': currentFrame},
 			playbackStore: createRuntimeValueStore({playing: false}),
 			audioAndVideoTags: {current: []},
+			registerPlaybackListener: () => {},
 		}),
 		[currentFrame],
 	);

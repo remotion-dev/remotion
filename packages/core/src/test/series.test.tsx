@@ -53,6 +53,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 		},
 		playbackStore: createRuntimeValueStore({playing: false}),
 		audioAndVideoTags: {current: []},
+		registerPlaybackListener: () => {},
 	};
 
 	return renderToString(

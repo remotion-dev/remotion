@@ -1,5 +1,5 @@
 import type {RefObject} from 'react';
-import {useContext, useMemo} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -74,13 +74,27 @@ const useTimelinePositionFromContext = (
 	return clampFrameToCompositionRange(unclamped, videoConfig.durationInFrames);
 };
 
-export const useTimelineContext = (): TimelineContextValue => {
+export const useTimelineContext = (options?: {
+	subscriber?: (playing: boolean) => void;
+}): TimelineContextValue => {
 	const state = useContext(TimelineContext);
 	if (state === null) {
 		throw new Error(
 			'TimelineContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
 		);
 	}
+
+	const subscriber = options?.subscriber;
+
+	// We register the listener synchronously during the first render via useState's
+	// initializer. We avoid useEffect because we need the listener attached synchronously
+	// before any user interaction could possibly happen, and because these singleton
+	// providers do not unmount independently of the store, we can safely omit cleanup.
+	useState(() => {
+		if (subscriber) {
+			state.registerPlaybackListener(subscriber);
+		}
+	});
 
 	return state;
 };
