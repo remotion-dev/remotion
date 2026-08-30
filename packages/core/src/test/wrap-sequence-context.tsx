@@ -128,6 +128,7 @@ export const WrapSequenceContext: React.FC<{
 			frame: {'my-comp': currentFrame},
 			isPlaying: () => false,
 			audioAndVideoTags: {current: []},
+			registerPlaybackListener: () => {},
 		}),
 		[currentFrame],
 	);

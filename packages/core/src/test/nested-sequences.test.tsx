@@ -22,6 +22,7 @@ const getForFrame = (frame: number, content: React.ReactNode) => {
 					audioAndVideoTags: {
 						current: [],
 					},
+					registerPlaybackListener: () => {},
 				}}
 			>
 				{content}
@@ -259,6 +260,7 @@ test('Sequence freeze pins the child frame without remounting the sequence', () 
 					audioAndVideoTags: {
 						current: [],
 					},
+					registerPlaybackListener: () => {},
 				}}
 			>
 				{content}
@@ -280,6 +282,7 @@ test('Sequence freeze pins the child frame without remounting the sequence', () 
 					audioAndVideoTags: {
 						current: [],
 					},
+					registerPlaybackListener: () => {},
 				}}
 			>
 				{content}

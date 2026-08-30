@@ -25,10 +25,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 		setPlaying,
 		frameRef,
 		isPlaying: readIsPlaying,
-		audioAndVideoTags,
 	} = useContext(Internals.SetTimelineContext);
-	const audioContext = useContext(Internals.SharedAudioContext);
-	const audioTagsContext = useContext(Internals.SharedAudioTagsContext);
 	const environment = useRemotionEnvironment();
 	const video = Internals.useVideo();
 	const config = Internals.useUnsafeVideoConfig();
@@ -101,7 +98,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	);
 
 	const play = useCallback(
-		(e?: SyntheticEvent | PointerEvent) => {
+		(_e?: SyntheticEvent | PointerEvent) => {
 			if (readIsPlaying()) {
 				return;
 			}
@@ -111,33 +108,11 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				seek(0);
 			}
 
-			audioContext?.resume();
-
-			/**
-			 * Play silent audio tags to warm them up for autoplay
-			 */
-			if (audioTagsContext && audioTagsContext.numberOfAudioTags > 0 && e) {
-				audioTagsContext.playAllAudios();
-			}
-
-			/**
-			 * Play audios and videos directly here so they can benefit from
-			 * being triggered by a click
-			 */
-			audioAndVideoTags.current.forEach((tag) =>
-				tag.play('player play() was called and playing audio from a click'),
-			);
-
 			setPlaying(true);
 			playStart.current = getCurrentFrame();
-			emitter.dispatchPlay();
 		},
 		[
-			audioAndVideoTags,
-			audioContext,
-			audioTagsContext,
 			config?.durationInFrames,
-			emitter,
 			getCurrentFrame,
 			readIsPlaying,
 			seek,
@@ -148,11 +123,8 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const pause = useCallback(() => {
 		if (readIsPlaying()) {
 			setPlaying(false);
-
-			emitter.dispatchPause();
-			audioContext?.suspend();
 		}
-	}, [audioContext, emitter, readIsPlaying, setPlaying]);
+	}, [readIsPlaying, setPlaying]);
 
 	const pauseAndReturnToPlayStart = useCallback(() => {
 		if (readIsPlaying()) {

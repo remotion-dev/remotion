@@ -255,6 +255,29 @@ const PlayerFn = <
 		() => playingStore.store.getSnapshot().playing,
 		[playingStore],
 	);
+
+	const registerPlaybackListener = useMemo(() => {
+		return (listener: (playing: boolean) => void) => {
+			let previous = playingStore.store.getSnapshot().playing;
+			return playingStore.store.subscribe(() => {
+				const next = playingStore.store.getSnapshot().playing;
+				if (next !== previous) {
+					previous = next;
+					listener(next);
+				}
+			});
+		};
+	}, [playingStore]);
+
+	useMemo(() => {
+		registerPlaybackListener((playing) => {
+			if (playing) {
+				audioAndVideoTags.current.forEach((tag) =>
+					tag.play('playingStore playing state became true'),
+				);
+			}
+		});
+	}, [registerPlaybackListener]);
 	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
 	if (typeof compositionHeight !== 'number') {
@@ -421,8 +444,9 @@ const PlayerFn = <
 			frame,
 			isPlaying: readIsPlaying,
 			audioAndVideoTags,
+			registerPlaybackListener,
 		};
-	}, [frame, readIsPlaying]);
+	}, [frame, readIsPlaying, registerPlaybackListener]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
