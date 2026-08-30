@@ -29,9 +29,9 @@ export type SetTimelineContextValue = {
 	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
 	subscribePlaying: (listener: () => void) => () => void;
-	frameRef: RefObject<Record<string, number>> | null;
-	isPlaying: (() => boolean) | null;
-	audioAndVideoTags: RefObject<PlayableMediaTag[]> | null;
+	frameRef: RefObject<Record<string, number>>;
+	isPlaying: () => boolean;
+	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({
@@ -44,9 +44,11 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	subscribePlaying: () => {
 		throw new Error('default');
 	},
-	frameRef: null,
-	isPlaying: null,
-	audioAndVideoTags: null,
+	frameRef: {current: {}},
+	isPlaying: () => {
+		throw new Error('default');
+	},
+	audioAndVideoTags: {current: []},
 });
 
 export const TimelineContext = createContext<TimelineContextValue | null>(null);
@@ -74,6 +76,8 @@ export const TimelineContextProvider: React.FC<{
 	);
 
 	const frame = frameState ?? _frame;
+	const frameRef = useRef(frame);
+	frameRef.current = frame;
 
 	const readIsPlaying = useCallback(
 		() => playingStore.store.getSnapshot().playing,
@@ -144,11 +148,11 @@ export const TimelineContextProvider: React.FC<{
 				}
 			},
 			subscribePlaying: playingStore.store.subscribe,
-			frameRef: null,
-			isPlaying: null,
-			audioAndVideoTags: null,
+			frameRef,
+			isPlaying: readIsPlaying,
+			audioAndVideoTags,
 		};
-	}, [playingStore]);
+	}, [playingStore, readIsPlaying]);
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>
