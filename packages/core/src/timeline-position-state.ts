@@ -1,5 +1,5 @@
 import type {RefObject} from 'react';
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo} from 'react';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -86,15 +86,16 @@ export const useTimelineContext = (options?: {
 
 	const subscriber = options?.subscriber;
 
-	// We register the listener synchronously during the first render via useState's
-	// initializer. We avoid useEffect because we need the listener attached synchronously
-	// before any user interaction could possibly happen, and because these singleton
-	// providers do not unmount independently of the store, we can safely omit cleanup.
-	useState(() => {
+	// In React, side-effects during render (like setting up subscriptions) are an
+	// anti-pattern. The correct and canonical way to subscribe to external stores
+	// is via useEffect, which runs after the render phase. The click stack remains
+	// perfectly preserved because the callback execution itself inside the store's
+	// setSnapshot is fully synchronous.
+	useEffect(() => {
 		if (subscriber) {
-			state.registerPlaybackListener(subscriber);
+			return state.registerPlaybackListener(subscriber);
 		}
-	});
+	}, [subscriber, state]);
 
 	return state;
 };
