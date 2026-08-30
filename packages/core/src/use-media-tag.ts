@@ -21,7 +21,7 @@ export const useMediaTag = ({
 	isPremounting: boolean;
 	isPostmounting: boolean;
 }) => {
-	const {audioAndVideoTags, imperativePlaying} = useTimelineContext();
+	const {audioAndVideoTags, playbackStore} = useTimelineContext();
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 	const env = useRemotionEnvironment();
@@ -30,7 +30,7 @@ export const useMediaTag = ({
 		const tag: PlayableMediaTag = {
 			id,
 			play: (reason) => {
-				if (!imperativePlaying.current) {
+				if (!playbackStore.store.getSnapshot().playing) {
 					// Don't play if for example in a <Freeze> state.
 					return;
 				}
@@ -63,7 +63,7 @@ export const useMediaTag = ({
 		mediaRef,
 		mediaType,
 		onAutoPlayError,
-		imperativePlaying,
+		playbackStore,
 		isPremounting,
 		isPostmounting,
 		logLevel,

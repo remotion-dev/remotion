@@ -8,6 +8,7 @@ import {
 	type PlaybackRateContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
+import {usePlaying} from './use-playing.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideo} from './use-video.js';
 
@@ -125,11 +126,25 @@ type PlayingReturnType = readonly [
 ];
 
 export const usePlayingState = (): PlayingReturnType => {
-	const {playing, imperativePlaying} = useTimelineContext();
+	const {playbackStore} = useTimelineContext();
+	const playing = usePlaying();
 	const {setPlaying} = useContext(SetTimelineContext);
 
 	return useMemo(
-		() => [playing, setPlaying, imperativePlaying],
-		[imperativePlaying, playing, setPlaying],
+		() => [
+			playing,
+			setPlaying,
+			{
+				get current() {
+					return playbackStore.store.getSnapshot().playing as boolean;
+				},
+				set current(val) {
+					playbackStore.setSnapshot({playing: val});
+				},
+			},
+		],
+		[playbackStore, playing, setPlaying],
 	);
 };
+
+export {usePlaying} from './use-playing.js';

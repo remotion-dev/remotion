@@ -242,10 +242,12 @@ const PlayerFn = <
 	const [frame, setFrame] = useState<Record<string, number>>(() => ({
 		[PLAYER_COMP_ID]: initialFrame ?? 0,
 	}));
-	const [playing, setPlaying] = useState<boolean>(false);
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
-	const imperativePlaying = useRef(false);
+	const playbackStore = useMemo(
+		() => Internals.createRuntimeValueStore({playing: false}),
+		[],
+	);
 	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
 	if (typeof compositionHeight !== 'number') {
@@ -410,11 +412,10 @@ const PlayerFn = <
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			playing,
-			imperativePlaying,
+			playbackStore,
 			audioAndVideoTags,
 		};
-	}, [frame, playing]);
+	}, [frame, playbackStore]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -423,12 +424,30 @@ const PlayerFn = <
 		};
 	}, [currentPlaybackRate]);
 
+	const setPlaying = (updater: React.SetStateAction<boolean>) => {
+		if (typeof updater === 'function') {
+			playbackStore.setPlaying(updater(playbackStore.getSnapshot()));
+		} else {
+			playbackStore.setPlaying(updater);
+		}
+	};
+
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
 			setFrame,
-			setPlaying,
+			setPlaying: (updater) => {
+				if (typeof updater === 'function') {
+					playbackStore.setSnapshot({
+						playing: updater(
+							playbackStore.store.getSnapshot().playing as boolean,
+						),
+					});
+				} else {
+					playbackStore.setSnapshot({playing: updater});
+				}
+			},
 		};
-	}, [setFrame]);
+	}, [playbackStore, setFrame]);
 
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks

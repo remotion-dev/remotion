@@ -85,7 +85,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const [shouldFallbackToNativeAudio, setShouldFallbackToNativeAudio] =
 		useState(false);
 
-	const [playing] = Timeline.usePlayingState();
+	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
