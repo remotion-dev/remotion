@@ -8,11 +8,13 @@ import {LogLevelContext} from '../log-level-context.js';
 import {SequenceManagerProvider} from '../SequenceManager.js';
 import type {
 	PlaybackRateContextValue,
+	SetTimelineContextValue,
 	TimelineContextValue,
 } from '../TimelineContext.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
+	SetTimelineContext,
 	TimelineContext,
 } from '../TimelineContext.js';
 
@@ -66,6 +68,15 @@ const mockPlaybackRateContext: PlaybackRateContextValue = {
 	setPlaybackRate: () => {
 		throw new Error('not implemented');
 	},
+};
+
+const mockSetTimelineContext: SetTimelineContextValue = {
+	setFrame: () => undefined,
+	setPlaying: () => undefined,
+	subscribePlaying: () => () => undefined,
+	frameRef: {current: {}},
+	isPlaying: () => false,
+	audioAndVideoTags: {current: []},
 };
 
 const MaybeTimelineProvider: React.FC<{
@@ -126,13 +137,15 @@ export const WrapSequenceContext: React.FC<{
 			<BufferingProvider>
 				<CanUseRemotionHooksProvider>
 					<MaybeTimelineProvider timelineContext={timelineContext}>
-						<MaybePlaybackRateProvider>
-							<SequenceManagerProvider>
-								<CompositionManager.Provider value={compositionContext}>
-									{children}
-								</CompositionManager.Provider>
-							</SequenceManagerProvider>
-						</MaybePlaybackRateProvider>
+						<SetTimelineContext.Provider value={mockSetTimelineContext}>
+							<MaybePlaybackRateProvider>
+								<SequenceManagerProvider>
+									<CompositionManager.Provider value={compositionContext}>
+										{children}
+									</CompositionManager.Provider>
+								</SequenceManagerProvider>
+							</MaybePlaybackRateProvider>
+						</SetTimelineContext.Provider>
 					</MaybeTimelineProvider>
 				</CanUseRemotionHooksProvider>
 			</BufferingProvider>
