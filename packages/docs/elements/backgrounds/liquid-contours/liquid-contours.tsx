@@ -8,10 +8,13 @@ export const LiquidContours: React.FC = () => {
 
 	return (
 		<Solid
+			color="#dff4ff"
 			width={width}
 			height={height}
 			effects={[
 				liquidContours({
+					firstColor: '#dff4ff',
+					secondColor: '#7cc6ff',
 					phase: interpolate(frame, [0, 240], [3.23, 4.23]),
 				}),
 			]}
