@@ -103,7 +103,7 @@ export const HtmlInCanvasPresentation = <
 	}, [instance]);
 
 	const chainState = Internals.useEffectChainState();
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const draw: DrawFunction = useCallback(
 		async (prevImage, nextImage, progress) => {
@@ -126,6 +126,7 @@ export const HtmlInCanvasPresentation = <
 				if (!prevImage && !nextImage) {
 					instance.clear();
 					clearOutput();
+					continueRender(handle);
 					return;
 				}
 
@@ -135,6 +136,7 @@ export const HtmlInCanvasPresentation = <
 				if (width === 0 || height === 0) {
 					instance.clear();
 					clearOutput();
+					continueRender(handle);
 					return;
 				}
 
@@ -158,11 +160,19 @@ export const HtmlInCanvasPresentation = <
 					height,
 					output: outputCanvas,
 				});
-			} finally {
 				continueRender(handle);
+			} catch (error) {
+				cancelRender(error);
 			}
 		},
-		[chainState, continueRender, delayRender, instance, shaderCanvas],
+		[
+			cancelRender,
+			chainState,
+			continueRender,
+			delayRender,
+			instance,
+			shaderCanvas,
+		],
 	);
 
 	const passThrough =
