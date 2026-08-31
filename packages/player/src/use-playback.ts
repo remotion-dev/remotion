@@ -55,6 +55,9 @@ export const usePlayback = ({
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
+	const {isBuffering, subscribeBuffering} = useContext(
+		Internals.SetTimelineContext,
+	);
 	const logLevel = Internals.useLogLevel();
 
 	// requestAnimationFrame() does not work if the tab is not active.
@@ -63,13 +66,6 @@ export const usePlayback = ({
 	const isBackgroundedRef = useIsBackgrounded();
 
 	const lastTimeUpdateTimestamp = useRef<number>(0);
-
-	const context = useContext(Internals.BufferingContextReact);
-	if (!context) {
-		throw new Error(
-			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
-		);
-	}
 
 	useBrowserMediaSession({
 		browserMediaControlsBehavior,
@@ -228,7 +224,7 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (!muted && !audioContextFailed && !context.buffering.current) {
+			if (!muted && !audioContextFailed && !isBuffering()) {
 				sharedAudioContext?.resume?.();
 			}
 
@@ -253,7 +249,7 @@ export const usePlayback = ({
 			if (
 				nextFrame !== getCurrentFrame() &&
 				(!hasEnded || moveToBeginningWhenEnded) &&
-				!context.buffering.current
+				!isBuffering()
 			) {
 				setFrame((c) => ({...c, [config.id]: nextFrame}));
 			}
@@ -296,13 +292,17 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (context.buffering.current) {
+			if (isBuffering()) {
 				if (!muted && !audioContextFailed) {
 					sharedAudioContext?.suspend?.();
 				}
 
-				const stopListening = context.listenForResume(() => {
-					stopListening.remove();
+				const unsubscribe = subscribeBuffering((state) => {
+					if (state.buffering) {
+						return;
+					}
+
+					unsubscribe();
 					if (
 						!muted &&
 						!audioContextFailed &&
@@ -362,10 +362,11 @@ export const usePlayback = ({
 		moveToBeginningWhenEnded,
 		isBackgroundedRef,
 		getCurrentFrame,
-		context,
+		isBuffering,
 		isPlaying,
 		sharedAudioContext,
 		setPlayerMuted,
+		subscribeBuffering,
 		logLevel,
 		muted,
 	]);

@@ -1,14 +1,7 @@
 import type {RefObject} from 'react';
-import {
-	useCallback,
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
-import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
 import {getMediaSyncAction} from './get-media-sync-action.js';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {Log} from './log.js';
@@ -21,6 +14,7 @@ import {
 	usePlaybackRate,
 	useTimelinePosition,
 } from './timeline-position-state.js';
+import {useBuffering} from './use-buffering.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -28,6 +22,33 @@ import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js'
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
+
+// In Safari, amplified media can lag behind by around 0.4 seconds.
+const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION = 0.65;
+
+const getPauseReason = ({
+	reason,
+	isPremounting,
+	isPostmounting,
+}: {
+	reason: 'not-playing' | 'buffering';
+	isPremounting: boolean;
+	isPostmounting: boolean;
+}) => {
+	if (reason === 'buffering') {
+		return 'player is buffering but media tag is not';
+	}
+
+	if (isPremounting) {
+		return 'media is premounting';
+	}
+
+	if (isPostmounting) {
+		return 'media is postmounting';
+	}
+
+	return 'Player is not playing';
+};
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -58,19 +79,13 @@ export const useMediaPlayback = ({
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
 	const playing = usePlaying();
-	const buffering = useContext(BufferingContextReact);
+	const playerBuffering = useBuffering();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 	const lastSeekDueToShift = useRef<number | null>(null);
 	const lastSeek = useRef<number | null>(null);
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
-
-	if (!buffering) {
-		throw new Error(
-			'useMediaPlayback must be used inside a <BufferingContext>',
-		);
-	}
 
 	const isVariableFpsVideoMap = useRef<Record<string, boolean>>({});
 
@@ -130,69 +145,18 @@ export const useMediaPlayback = ({
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
 	const acceptableTimeShiftButLessThanDuration = (() => {
-		// In Safari, it seems to lag behind mostly around ~0.4 seconds
-		const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK = 0.45;
-
-		// If there is amplification, the acceptable timeshift is higher
-		const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION =
-			DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK + 0.2;
-
-		const defaultAcceptableTimeshift =
-			DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION;
 		// For short audio, a lower acceptable time shift is used
 		if (mediaRef.current?.duration) {
 			return Math.min(
 				mediaRef.current.duration,
-				acceptableTimeshift ?? defaultAcceptableTimeshift,
+				acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION,
 			);
 		}
 
-		return acceptableTimeshift ?? defaultAcceptableTimeshift;
+		return (
+			acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION
+		);
 	})();
-
-	const isPlayerBuffering = useIsPlayerBuffering(buffering);
-
-	useEffect(() => {
-		if (mediaRef.current?.paused) {
-			return;
-		}
-
-		if (!playing) {
-			playbackLogging({
-				logLevel,
-				tag: 'pause',
-				message: `Pausing ${mediaRef.current?.src} because ${isPremounting ? 'media is premounting' : isPostmounting ? 'media is postmounting' : 'Player is not playing'}`,
-				mountTime,
-			});
-			mediaRef.current?.pause();
-			return;
-		}
-
-		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
-
-		const playerBufferingNotStateButLive = buffering.buffering.current;
-		if (playerBufferingNotStateButLive && !isMediaTagBufferingOrStalled) {
-			playbackLogging({
-				logLevel,
-				tag: 'pause',
-				message: `Pausing ${mediaRef.current?.src} because player is buffering but media tag is not`,
-				mountTime,
-			});
-			mediaRef.current?.pause();
-		}
-	}, [
-		isBuffering,
-		isMediaTagBuffering,
-		buffering,
-		isPlayerBuffering,
-		isPremounting,
-		logLevel,
-		mediaRef,
-		mediaType,
-		mountTime,
-		playing,
-		isPostmounting,
-	]);
 
 	const env = useRemotionEnvironment();
 
@@ -225,6 +189,27 @@ export const useMediaPlayback = ({
 		}
 
 		const {current} = mediaRef;
+		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
+		let pauseReason: 'not-playing' | 'buffering' | null = null;
+		if (!playing) {
+			pauseReason = 'not-playing';
+		} else if (playerBuffering && !isMediaTagBufferingOrStalled) {
+			pauseReason = 'buffering';
+		}
+
+		if (!current.paused && pauseReason !== null) {
+			playbackLogging({
+				logLevel,
+				tag: 'pause',
+				message: `Pausing ${current.src} because ${getPauseReason({
+					reason: pauseReason,
+					isPremounting,
+					isPostmounting,
+				})}`,
+				mountTime,
+			});
+			current.pause();
+		}
 
 		const action = getMediaSyncAction({
 			duration: current.duration,
@@ -241,8 +226,8 @@ export const useMediaPlayback = ({
 			lastSeekDueToShift: lastSeekDueToShift.current,
 			playing,
 			playbackRate,
-			mediaTagBufferingOrStalled: isMediaTagBuffering || isBuffering(),
-			playerBuffering: buffering.buffering.current,
+			mediaTagBufferingOrStalled: isMediaTagBufferingOrStalled,
+			playerBuffering,
 			absoluteFrame,
 			onlyWarnForMediaSeekingError,
 			isPremounting,
@@ -328,7 +313,6 @@ export const useMediaPlayback = ({
 		absoluteFrame,
 		acceptableTimeShiftButLessThanDuration,
 		bufferUntilFirstFrame,
-		buffering.buffering,
 		rvcCurrentTime,
 		logLevel,
 		desiredUnclampedTime,
@@ -338,6 +322,7 @@ export const useMediaPlayback = ({
 		mediaType,
 		onlyWarnForMediaSeekingError,
 		playbackRate,
+		playerBuffering,
 		playing,
 		src,
 		onAutoPlayError,

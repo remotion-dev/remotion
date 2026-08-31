@@ -118,3 +118,4 @@ export const useTimelineSetFrame = (): ((
 };
 
 export {usePlaying} from './use-playing.js';
+export {useBuffering} from './use-buffering.js';

@@ -219,6 +219,67 @@ const AudioComposition = () => {
 	);
 };
 
+test('Player.pause() pauses mounted HTML5 media synchronously', () => {
+	const originalPlay = HTMLMediaElement.prototype.play;
+	const originalPause = HTMLMediaElement.prototype.pause;
+	const originalPaused = Object.getOwnPropertyDescriptor(
+		HTMLMediaElement.prototype,
+		'paused',
+	);
+	const playerRef = createRef<PlayerRef>();
+	let pauseCalls = 0;
+	let paused = true;
+
+	Object.defineProperty(HTMLMediaElement.prototype, 'paused', {
+		configurable: true,
+		get: () => paused,
+	});
+	HTMLMediaElement.prototype.play = () => {
+		paused = false;
+		return Promise.resolve();
+	};
+
+	HTMLMediaElement.prototype.pause = () => {
+		paused = true;
+		pauseCalls++;
+	};
+
+	try {
+		render(
+			React.createElement(Player, {
+				ref: playerRef,
+				component: AudioComposition,
+				durationInFrames: 300,
+				compositionWidth: 1920,
+				compositionHeight: 1080,
+				fps: 30,
+			}),
+		);
+
+		act(() => playerRef.current?.play());
+		pauseCalls = 0;
+
+		act(() => {
+			playerRef.current?.pause();
+			expect(pauseCalls).toBe(1);
+		});
+
+		expect(pauseCalls).toBe(1);
+	} finally {
+		HTMLMediaElement.prototype.play = originalPlay;
+		HTMLMediaElement.prototype.pause = originalPause;
+		if (originalPaused) {
+			Object.defineProperty(
+				HTMLMediaElement.prototype,
+				'paused',
+				originalPaused,
+			);
+		} else {
+			delete (HTMLMediaElement.prototype as {paused?: boolean}).paused;
+		}
+	}
+});
+
 const PlayerWithMuteButton = ({
 	onError,
 	initiallyMuted = false,

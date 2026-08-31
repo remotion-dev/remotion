@@ -78,23 +78,8 @@ const PlayPauseInner: React.FC<{
 		frameForward,
 		emitter,
 		getCurrentFrame,
-		isPlaying,
 	} = PlayerInternals.usePlayerMethods();
-	const [playing, setPlaying] = useState(isPlaying);
-
-	useEffect(() => {
-		const onPlay = () => setPlaying(true);
-		const onPause = () => setPlaying(false);
-
-		setPlaying(isPlaying());
-		emitter.addEventListener('play', onPlay);
-		emitter.addEventListener('pause', onPause);
-
-		return () => {
-			emitter.removeEventListener('play', onPlay);
-			emitter.removeEventListener('pause', onPause);
-		};
-	}, [emitter, isPlaying]);
+	const playing = Internals.usePlaying();
 
 	const isStill = useIsStill();
 

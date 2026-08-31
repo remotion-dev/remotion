@@ -47,6 +47,7 @@ const {
 	SequenceContext,
 	useEffectChainState,
 	usePlaying,
+	useBuffering,
 } = Internals;
 
 type VideoForPreviewProps = NativeVideoProps & {
@@ -187,18 +188,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
-	const buffering = useContext(Internals.BufferingContextReact);
-
-	if (!buffering) {
-		throw new Error(
-			'useMediaPlayback must be used inside a <BufferingContext>',
-		);
-	}
-
 	// TODO: Consider Sequence hidden
 	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
 
-	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
+	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);

@@ -31,9 +31,7 @@ export const useBrowserMediaSession = ({
 		if (playing) {
 			hasEverPlayed.current = true;
 		}
-	}, [playing]);
 
-	useEffect(() => {
 		if (!navigator.mediaSession) {
 			return;
 		}

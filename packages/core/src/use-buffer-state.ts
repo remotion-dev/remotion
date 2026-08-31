@@ -34,9 +34,7 @@ export const useBufferState = (): UseBufferState => {
 					new Error().stack,
 				);
 
-				const {unblock} = addBlock({
-					id: String(Math.random()),
-				});
+				const {unblock} = addBlock();
 
 				let unblocked = false;
 
