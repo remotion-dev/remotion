@@ -16,6 +16,7 @@ Agents can:
 - See which items you currently have selected
 - See selectable items and select them
 - See available compositions and navigate to them
+- Read the error currently shown in the Studio error overlay
 - Get the current HTML of your composition
 - See current outlines of elements and their geometry
 - Get your current playhead position and playback state
@@ -40,6 +41,37 @@ The shape of inputs and outputs is not currently stable.
 :::
 
 Tools that modify the timeline, playback or guides require a composition to be open.
+
+### `get_current_error`<AvailableFrom v="4.0.520" />
+
+Returns the error currently shown in the Studio error overlay. It waits for source map symbolication and includes symbolicated stack frames when available, while preserving the raw stack as a fallback. Returns `null` when the error overlay is not visible.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+type ScriptLine = {
+  lineNumber: number;
+  content: string;
+  highlight: boolean;
+};
+
+type SymbolicatedStackFrame = {
+  originalFunctionName: string | null;
+  originalFileName: string | null;
+  originalLineNumber: number | null;
+  originalColumnNumber: number | null;
+  originalScriptCode: ScriptLine[] | null;
+};
+
+null | {
+  name: string;
+  message: string;
+  stack: string | null;
+  symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
+}
+```
 
 ### `get_compositions`
 
@@ -481,6 +513,7 @@ Seeks to a zero-based frame. Values beyond the duration are clamped to the final
 You can ask a browser agent:
 
 - "What is currently selected in the Studio?"
+- "Fix the error"
 - "List all mounted compositions and their folders."
 - "Open the `Shapes` composition."
 - "List the sequences and select the `Title` sequence."

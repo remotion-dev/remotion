@@ -17,7 +17,7 @@ import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.
 import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
 import {
-	usePlayingState,
+	usePlaying,
 	usePlaybackRate,
 	useTimelinePosition,
 } from './timeline-position-state.js';
@@ -57,7 +57,7 @@ export const useMediaPlayback = ({
 	const {playbackRate: globalPlaybackRate} = usePlaybackRate();
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
-	const [playing] = usePlayingState();
+	const playing = usePlaying();
 	const buffering = useContext(BufferingContextReact);
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();

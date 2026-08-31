@@ -3,13 +3,16 @@ import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {
 	setCurrentCanvasContentId,
+	setCurrentModal,
 	setRenderJobs,
 } from '../helpers/document-title';
+import {SelectedModalContext} from '../state/modals';
 import {RenderQueueContext} from './RenderQueue/context';
 
 export const TitleUpdater: React.FC = () => {
 	const renderQueue = useContext(RenderQueueContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
+	const selectedModal = useContext(SelectedModalContext);
 	const {jobs} = renderQueue;
 
 	useEffect(() => {
@@ -39,6 +42,10 @@ export const TitleUpdater: React.FC = () => {
 	useEffect(() => {
 		setRenderJobs(jobs);
 	}, [jobs]);
+
+	useEffect(() => {
+		setCurrentModal(selectedModal);
+	}, [selectedModal]);
 
 	return null;
 };

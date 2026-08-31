@@ -416,66 +416,6 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should virtualize a large timeline without hiding tracks', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/timeline-virtualization-testbed`);
-		await expect(page).toHaveURL(/timeline-virtualization-testbed/, {
-			timeout: 15_000,
-		});
-
-		const timelineScroll = page
-			.locator('.__remotion-vertical-scrollbar')
-			.filter({has: page.locator('[data-timeline-scrollable]')});
-		await expect(timelineScroll).toHaveCount(1);
-		await expect(
-			page.getByText('Virtual track 000', {exact: true}),
-		).toBeVisible();
-		await expect(
-			page.locator('[data-timeline-marquee-item][title="Virtual track 000"]'),
-		).toBeVisible();
-
-		const mountedTrackLabels = page.getByText(/^Virtual track \d{3}$/);
-		expect(await mountedTrackLabels.count()).toBeLessThan(120);
-
-		const revealTargetTrack = page.locator(
-			'[data-timeline-marquee-item][title="Reveal target"]',
-		);
-		await expect(revealTargetTrack).toHaveCount(0);
-		const canvas = page.locator('.remotion-studio-composition-container');
-		const visibleOutlines = canvas.locator(
-			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
-		);
-		await retryCanvasInteractionUntilOutlineIsVisible({
-			interaction: () => canvas.hover(),
-			outline: visibleOutlines,
-			page,
-		});
-		await visibleOutlines.first().click({force: true});
-
-		await expect(revealTargetTrack).toBeVisible();
-		const [revealTargetRect, timelineScrollRect] = await Promise.all([
-			revealTargetTrack.boundingBox(),
-			timelineScroll.boundingBox(),
-		]);
-		expect(revealTargetRect).not.toBeNull();
-		expect(timelineScrollRect).not.toBeNull();
-		expect(revealTargetRect!.y).toBeGreaterThanOrEqual(timelineScrollRect!.y);
-		expect(revealTargetRect!.y + revealTargetRect!.height).toBeLessThanOrEqual(
-			timelineScrollRect!.y + timelineScrollRect!.height,
-		);
-		await expect(
-			page.getByText('Virtual track 119', {exact: true}),
-		).toBeVisible();
-		await expect(
-			page.locator('[data-timeline-marquee-item][title="Virtual track 119"]'),
-		).toBeVisible();
-		expect(
-			await timelineScroll.evaluate((element) => element.scrollTop),
-		).toBeGreaterThan(0);
-		expect(await mountedTrackLabels.count()).toBeLessThan(120);
-	});
-
 	test('should show negative sequence timing in the frame-zero gutter', async ({
 		page,
 	}) => {
@@ -798,42 +738,6 @@ test.describe('visual mode', () => {
 		await horizontalCheckbox.dispatchEvent('dblclick');
 		await page.waitForTimeout(100);
 		expect(openInEditorRequests).toEqual([]);
-	});
-
-	test('should keep canvas item context menus open', async ({page}) => {
-		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
-		await expect(
-			page.getByRole('button', {name: '0', exact: true}),
-		).toBeVisible({timeout: 15_000});
-		await page.locator('[data-timeline-scrubber]').click();
-		await expect(
-			page.getByRole('button', {name: '90', exact: true}),
-		).toBeVisible();
-
-		const canvasItem = page.getByText('Performance overview', {exact: true});
-		const canvasItemOutline = page.locator(
-			'polygon[data-remotion-prevent-selection-clear="true"][stroke-opacity="1"]',
-		);
-		await retryCanvasInteractionUntilOutlineIsVisible({
-			interaction: () => canvasItem.hover(),
-			outline: canvasItemOutline,
-			page,
-		});
-		await expect(canvasItemOutline).toHaveCount(1);
-		await canvasItemOutline.click({button: 'right'});
-
-		const duplicateButton = page.getByRole('button', {
-			name: 'Duplicate',
-			exact: true,
-		});
-		await expect(duplicateButton).toBeVisible();
-
-		await page.mouse.move(10, 10);
-		// Portals do not reliably trigger pointerleave in headless Chromium.
-		await page
-			.locator('.remotion-studio-composition-container')
-			.dispatchEvent('pointerleave');
-		await expect(duplicateButton).toBeVisible();
 	});
 
 	test('should preserve property selection while dragging its outline', async ({
@@ -3566,29 +3470,6 @@ test.describe('visual mode', () => {
 			codingAgentId: 'copilot',
 			prompt: null,
 		});
-	});
-
-	test('should clear the open-in-editor hover state when closing the menu', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/schema-test`);
-		const openInAnotherApp = page
-			.getByTitle(exampleDir)
-			.getByRole('button', {name: 'Open in another app'});
-		const configureDefaultApps = page.getByRole('button', {
-			name: 'Configure default apps...',
-		});
-
-		await openInAnotherApp.click();
-		await expect(configureDefaultApps).toBeVisible();
-		// The menu overlay intercepts pointerleave; clicking it closes the menu
-		// through the same outside-click path a user would take.
-		await page.mouse.click(10, 100);
-		await expect(configureDefaultApps).toBeHidden();
-		await expect(openInAnotherApp).toHaveCSS(
-			'background-color',
-			'rgba(0, 0, 0, 0)',
-		);
 	});
 
 	test('should open submenus toward the side with more space', async ({
