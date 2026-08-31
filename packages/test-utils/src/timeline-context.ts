@@ -6,10 +6,7 @@ export const makeTimelineContext = (frame: number): TimelineContextValue => {
 		frame: {
 			[ID]: frame,
 		},
-		playing: false,
-		imperativePlaying: {
-			current: false,
-		},
+		isPlaying: () => false,
 		audioAndVideoTags: {current: []},
 	};
 };

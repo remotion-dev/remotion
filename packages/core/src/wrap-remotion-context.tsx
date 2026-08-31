@@ -17,16 +17,11 @@ import {
 	SequenceManagerRefContext,
 	VisualModePropStatusesRefContext,
 } from './SequenceManager.js';
-import {
-	SetTimelineContext,
-	TimelineContext,
-	TimelineImperativeContext,
-} from './TimelineContext.js';
+import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
 
 export function useRemotionContexts() {
 	const compositionManagerCtx = React.useContext(CompositionManager);
 	const timelineContext = React.useContext(TimelineContext);
-	const timelineImperativeContext = React.useContext(TimelineImperativeContext);
 	const setTimelineContext = React.useContext(SetTimelineContext);
 	const sequenceContext = React.useContext(SequenceContext);
 	const nonceContext = React.useContext(NonceContext);
@@ -46,7 +41,6 @@ export function useRemotionContexts() {
 		() => ({
 			compositionManagerCtx,
 			timelineContext,
-			timelineImperativeContext,
 			setTimelineContext,
 			sequenceContext,
 			nonceContext,
@@ -66,7 +60,6 @@ export function useRemotionContexts() {
 			sequenceContext,
 			setTimelineContext,
 			timelineContext,
-			timelineImperativeContext,
 			canUseRemotionHooksContext,
 			preloadContext,
 			resolveCompositionContext,
@@ -110,27 +103,23 @@ export const RemotionContextProvider = (
 											<ResolveCompositionContext.Provider
 												value={contexts.resolveCompositionContext}
 											>
-												<TimelineImperativeContext.Provider
-													value={contexts.timelineImperativeContext}
+												<TimelineContext.Provider
+													value={contexts.timelineContext}
 												>
-													<TimelineContext.Provider
-														value={contexts.timelineContext}
+													<SetTimelineContext.Provider
+														value={contexts.setTimelineContext}
 													>
-														<SetTimelineContext.Provider
-															value={contexts.setTimelineContext}
+														<SequenceContext.Provider
+															value={contexts.sequenceContext}
 														>
-															<SequenceContext.Provider
-																value={contexts.sequenceContext}
+															<BufferingContextReact.Provider
+																value={contexts.bufferManagerContext}
 															>
-																<BufferingContextReact.Provider
-																	value={contexts.bufferManagerContext}
-																>
-																	{children}
-																</BufferingContextReact.Provider>
-															</SequenceContext.Provider>
-														</SetTimelineContext.Provider>
-													</TimelineContext.Provider>
-												</TimelineImperativeContext.Provider>
+																{children}
+															</BufferingContextReact.Provider>
+														</SequenceContext.Provider>
+													</SetTimelineContext.Provider>
+												</TimelineContext.Provider>
 											</ResolveCompositionContext.Provider>
 										</RenderAssetManager.Provider>
 									</VisualModePropStatusesRefContext.Provider>
