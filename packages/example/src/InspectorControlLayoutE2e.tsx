@@ -3,11 +3,17 @@ import {
 	AbsoluteFill,
 	Interactive,
 	Sequence,
+	staticFile,
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
 
 const inspectorControlLayoutSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+	},
 	first: {
 		type: 'array',
 		item: {type: 'number', step: 0.0001},
@@ -49,6 +55,7 @@ const inspectorControlLayoutSchema = {
 
 type InspectorControlLayoutProps = {
 	readonly name: string;
+	readonly src: string;
 	readonly first: readonly number[];
 	readonly second: readonly number[];
 	readonly label: string;
@@ -80,6 +87,7 @@ export const InspectorControlLayoutE2e: React.FC = () => {
 	return (
 		<InteractiveInspectorControlLayout
 			name="Inspector control layout"
+			src={staticFile('tablet.mp4')}
 			first={[-0.1276, 51.5072]}
 			second={[139.6917, 35.6895]}
 			label="London"

@@ -29,6 +29,7 @@ const sourceActions: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	gap: 4,
+	margin: '0 4px',
 	minWidth: 0,
 };
 
