@@ -41,7 +41,6 @@ import {Transform3DModeStateContext} from '../../state/transform-3d-mode';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
-import {deleteJsxNode} from '../delete-jsx-node-api';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
@@ -62,7 +61,6 @@ import {
 	rotateFieldKey,
 } from '../selected-outline-types';
 import {useSelectAsset} from '../use-select-asset';
-import {deleteSequencesFromSource} from './delete-selected-timeline-item';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {
@@ -90,6 +88,7 @@ import {
 	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
+import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {useRenameSequence} from './use-rename-sequence';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
@@ -304,6 +303,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
+	const deleteTimelineItems = useDeleteTimelineItems();
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
 	const {selectItem, selectedItems} = useTimelineSelection();
@@ -422,43 +422,20 @@ const TimelineSequenceItemInner: React.FC<{
 		);
 	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
 
-	const onDeleteSequenceFromSource = useCallback(async () => {
-		if (deleteDisabled || !validatedLocation?.source || !nodePath) {
+	const onDeleteSequenceFromSource = useCallback(() => {
+		if (
+			deleteDisabled ||
+			!validatedLocation?.source ||
+			!nodePath ||
+			!nodePathInfo
+		) {
 			return;
 		}
 
-		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
-			const shouldDelete = await confirm({
-				title: 'Delete sequence?',
-				message:
-					'This sequence is programmatically duplicated ' +
-					nodePathInfo.numberOfSequencesWithThisNodePath +
-					' times in the code. Deleting removes all instances. Continue?',
-				confirmLabel: 'Delete',
-			});
-			if (!shouldDelete) {
-				return;
-			}
-		}
-
-		try {
-			const result = await deleteJsxNode({
-				nodes: [
-					{
-						fileName: validatedLocation.source,
-						nodePath: nodePath.nodePath,
-					},
-				],
-			});
-			if (!result.success) {
-				showNotification(result.reason, 4000);
-			}
-		} catch (err) {
-			showNotification((err as Error).message, 4000);
-		}
+		deleteTimelineItems([{type: 'sequence', nodePathInfo}]);
 	}, [
-		confirm,
 		deleteDisabled,
+		deleteTimelineItems,
 		nodePath,
 		validatedLocation?.source,
 		nodePathInfo,
@@ -468,10 +445,13 @@ const TimelineSequenceItemInner: React.FC<{
 			return;
 		}
 
-		deleteSequencesFromSource(selectedSequenceNodePathInfos, confirm).catch(
-			() => undefined,
+		deleteTimelineItems(
+			selectedSequenceNodePathInfos.map((selectedNodePathInfo) => ({
+				type: 'sequence',
+				nodePathInfo: selectedNodePathInfo,
+			})),
 		);
-	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
+	}, [deleteTimelineItems, previewInteractive, selectedSequenceNodePathInfos]);
 
 	const onDisableSequenceInteractivity = useCallback(() => {
 		if (
