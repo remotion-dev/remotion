@@ -1180,6 +1180,33 @@ test.describe('visual mode', () => {
 		await page.getByRole('button', {name: 'Compositions', exact: true}).click();
 
 		await page.keyboard.press('ControlOrMeta+k');
+		const folderSearch = page.getByRole('dialog');
+		await folderSearch
+			.getByPlaceholder('Search compositions...')
+			.fill('visual-controls');
+		await expect(
+			folderSearch.getByText('visual-controls', {exact: true}),
+		).toHaveCount(2);
+		await expect(
+			folderSearch.getByText('effect-keyframe-e2e', {exact: true}),
+		).toBeVisible();
+		await page.keyboard.press('Enter');
+		await expect(page).toHaveURL(/visual-controls/);
+
+		await page.keyboard.press('ControlOrMeta+k');
+		const compositionSearch = page.getByRole('dialog');
+		await compositionSearch
+			.getByPlaceholder('Search compositions...')
+			.fill('effect-keyframe-e2e');
+		await expect(
+			compositionSearch.getByText('visual-controls', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			compositionSearch.getByText('effect-keyframe-e2e', {exact: true}),
+		).toBeVisible();
+		await page.keyboard.press('Escape');
+
+		await page.keyboard.press('ControlOrMeta+k');
 		await page
 			.getByPlaceholder('Search compositions...')
 			.fill('timeline virtualization');

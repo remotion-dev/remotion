@@ -7,6 +7,7 @@ import {
 } from '../../helpers/colors';
 import type {AssetFileType} from '../../helpers/get-preview-file-type';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {ExpandedFolderIcon} from '../../icons/folder';
 import {StillIcon} from '../../icons/still';
 import {UploadIcon} from '../../icons/upload';
 import {FilmIcon} from '../../icons/video';
@@ -25,6 +26,7 @@ type QuickSwitcherResultDetail =
 	| {
 			type: 'composition';
 			compositionType: 'composition' | 'still';
+			level: number;
 	  }
 	| {
 			type: 'menu-item';
@@ -38,11 +40,24 @@ type QuickSwitcherResultDetail =
 			subtitleLine: string;
 	  };
 
-export type TQuickSwitcherResult = {
-	title: string;
-	id: string;
-	onSelected: () => void;
-} & QuickSwitcherResultDetail;
+export type TQuickSwitcherResult =
+	| ({
+			title: string;
+			id: string;
+			onSelected: () => void;
+	  } & QuickSwitcherResultDetail)
+	| {
+			title: string;
+			id: string;
+			type: 'folder';
+			level: number;
+	  };
+
+export const isQuickSwitcherResultSelectable = (
+	result: TQuickSwitcherResult,
+): result is Exclude<TQuickSwitcherResult, {type: 'folder'}> => {
+	return result.type !== 'folder';
+};
 
 const container: React.CSSProperties = {
 	paddingLeft: 16,
@@ -94,8 +109,13 @@ export const QuickSwitcherResult: React.FC<{
 	const [hovered, setIsHovered] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 	const keybindings = useKeybinding();
+	const onSelected = result.type === 'folder' ? null : result.onSelected;
 
 	useEffect(() => {
+		if (result.type === 'folder') {
+			return;
+		}
+
 		const {current} = ref;
 		if (!current) {
 			return;
@@ -111,16 +131,16 @@ export const QuickSwitcherResult: React.FC<{
 			current.removeEventListener('mouseenter', onMouseEnter);
 			current.removeEventListener('mouseleave', onMouseLeave);
 		};
-	}, []);
+	}, [result.type]);
 
 	useEffect(() => {
-		if (!selected) {
+		if (!selected || onSelected === null) {
 			return;
 		}
 
 		const binding = keybindings.registerKeybinding({
 			key: 'Enter',
-			callback: result.onSelected,
+			callback: onSelected,
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
@@ -132,22 +152,29 @@ export const QuickSwitcherResult: React.FC<{
 		return () => {
 			binding.unregister();
 		};
-	}, [keybindings, result.onSelected, selected]);
+	}, [keybindings, onSelected, selected]);
 
 	useScrollIntoViewOnSelected(ref, selected);
 
 	const style = useMemo(() => {
 		return {
 			...container,
-			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
+			paddingLeft:
+				result.type === 'folder' || result.type === 'composition'
+					? 16 + result.level * 8
+					: container.paddingLeft,
+			backgroundColor:
+				result.type !== 'folder' && (hovered || selected)
+					? WHITE_ALPHA_06
+					: TRANSPARENT,
 		};
-	}, [hovered, selected]);
+	}, [hovered, result, selected]);
 
 	const labelStyle = useMemo(() => {
 		return {
 			...(result.type === 'search-result' ? searchLabel : label),
 			color:
-				result.type === 'search-result'
+				result.type === 'search-result' || result.type === 'folder'
 					? LIGHT_TEXT
 					: selected || hovered
 						? WHITE
@@ -157,7 +184,12 @@ export const QuickSwitcherResult: React.FC<{
 	}, [hovered, result.type, selected]);
 
 	return (
-		<div ref={ref} key={result.id} style={style} onClick={result.onSelected}>
+		<div
+			ref={ref}
+			key={result.id}
+			style={style}
+			onClick={onSelected ?? undefined}
+		>
 			{result.type === 'composition' ? (
 				result.compositionType === 'still' ? (
 					<StillIcon
@@ -170,6 +202,8 @@ export const QuickSwitcherResult: React.FC<{
 						style={iconStyle}
 					/>
 				)
+			) : result.type === 'folder' ? (
+				<ExpandedFolderIcon color={LIGHT_TEXT} style={iconStyle} />
 			) : result.type === 'asset' ? (
 				<AssetFileIcon
 					fileType={result.fileType}
