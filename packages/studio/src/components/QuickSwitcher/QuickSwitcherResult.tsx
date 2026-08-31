@@ -1,4 +1,13 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import type {_InternalTypes} from 'remotion';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	LIGHT_TEXT,
 	TRANSPARENT,
@@ -6,12 +15,20 @@ import {
 	WHITE_ALPHA_06,
 } from '../../helpers/colors';
 import type {AssetFileType} from '../../helpers/get-preview-file-type';
+import {noop} from '../../helpers/noop';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {ExpandedFolderIcon} from '../../icons/folder';
 import {StillIcon} from '../../icons/still';
 import {UploadIcon} from '../../icons/upload';
 import {FilmIcon} from '../../icons/video';
+import {SetSelectedModalContext} from '../../state/modals';
 import {AssetFileIcon} from '../AssetFileIcon';
+import {getCompositionContextMenuItems} from '../composition-menu-items';
+import {ContextMenu} from '../ContextMenu';
 import {Spacing} from '../layout';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {useResolvedStack} from '../Timeline/use-resolved-stack';
+import {useEditorOpening} from '../use-default-editor-info';
 import {
 	QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
 	useScrollIntoViewOnSelected,
@@ -24,7 +41,9 @@ type QuickSwitcherResultDetail =
 	  }
 	| {
 			type: 'composition';
+			composition: _InternalTypes['AnyComposition'];
 			compositionType: 'composition' | 'still';
+			level: number;
 	  }
 	| {
 			type: 'menu-item';
@@ -38,11 +57,24 @@ type QuickSwitcherResultDetail =
 			subtitleLine: string;
 	  };
 
-export type TQuickSwitcherResult = {
-	title: string;
-	id: string;
-	onSelected: () => void;
-} & QuickSwitcherResultDetail;
+export type TQuickSwitcherResult =
+	| ({
+			title: string;
+			id: string;
+			onSelected: () => void;
+	  } & QuickSwitcherResultDetail)
+	| {
+			title: string;
+			id: string;
+			type: 'folder';
+			level: number;
+	  };
+
+export const isQuickSwitcherResultSelectable = (
+	result: TQuickSwitcherResult,
+): result is Exclude<TQuickSwitcherResult, {type: 'folder'}> => {
+	return result.type !== 'folder';
+};
 
 const container: React.CSSProperties = {
 	paddingLeft: 16,
@@ -94,8 +126,45 @@ export const QuickSwitcherResult: React.FC<{
 	const [hovered, setIsHovered] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 	const keybindings = useKeybinding();
+	const onSelected = result.type === 'folder' ? null : result.onSelected;
+	const composition = result.type === 'composition' ? result.composition : null;
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
+	const {defaultEditorId, defaultEditorName} = useEditorOpening(
+		connectionStatus === 'connected',
+	);
+	const resolvedLocation = useResolvedStack(composition?.stack ?? null);
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
+		if (composition === null) {
+			return [];
+		}
+
+		return getCompositionContextMenuItems({
+			closeMenu: noop,
+			composition,
+			connectionStatus,
+			editorId: defaultEditorId,
+			editorName: defaultEditorName,
+			includeCompositionManagementItems: true,
+			resolvedLocation,
+			setSelectedModal,
+			readOnlyStudio: window.remotion_isReadOnlyStudio,
+		});
+	}, [
+		composition,
+		connectionStatus,
+		defaultEditorId,
+		defaultEditorName,
+		resolvedLocation,
+		setSelectedModal,
+	]);
 
 	useEffect(() => {
+		if (result.type === 'folder') {
+			return;
+		}
+
 		const {current} = ref;
 		if (!current) {
 			return;
@@ -111,16 +180,16 @@ export const QuickSwitcherResult: React.FC<{
 			current.removeEventListener('mouseenter', onMouseEnter);
 			current.removeEventListener('mouseleave', onMouseLeave);
 		};
-	}, []);
+	}, [result.type]);
 
 	useEffect(() => {
-		if (!selected) {
+		if (!selected || onSelected === null) {
 			return;
 		}
 
 		const binding = keybindings.registerKeybinding({
 			key: 'Enter',
-			callback: result.onSelected,
+			callback: onSelected,
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
@@ -132,22 +201,29 @@ export const QuickSwitcherResult: React.FC<{
 		return () => {
 			binding.unregister();
 		};
-	}, [keybindings, result.onSelected, selected]);
+	}, [keybindings, onSelected, selected]);
 
 	useScrollIntoViewOnSelected(ref, selected);
 
 	const style = useMemo(() => {
 		return {
 			...container,
-			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
+			paddingLeft:
+				result.type === 'folder' || result.type === 'composition'
+					? 16 + result.level * 8
+					: container.paddingLeft,
+			backgroundColor:
+				result.type !== 'folder' && (hovered || selected)
+					? WHITE_ALPHA_06
+					: TRANSPARENT,
 		};
-	}, [hovered, selected]);
+	}, [hovered, result, selected]);
 
 	const labelStyle = useMemo(() => {
 		return {
 			...(result.type === 'search-result' ? searchLabel : label),
 			color:
-				result.type === 'search-result'
+				result.type === 'search-result' || result.type === 'folder'
 					? LIGHT_TEXT
 					: selected || hovered
 						? WHITE
@@ -156,8 +232,13 @@ export const QuickSwitcherResult: React.FC<{
 		};
 	}, [hovered, result.type, selected]);
 
-	return (
-		<div ref={ref} key={result.id} style={style} onClick={result.onSelected}>
+	const row = (
+		<div
+			ref={ref}
+			key={result.id}
+			style={style}
+			onClick={onSelected ?? undefined}
+		>
 			{result.type === 'composition' ? (
 				result.compositionType === 'still' ? (
 					<StillIcon
@@ -170,6 +251,8 @@ export const QuickSwitcherResult: React.FC<{
 						style={iconStyle}
 					/>
 				)
+			) : result.type === 'folder' ? (
+				<ExpandedFolderIcon color={LIGHT_TEXT} style={iconStyle} />
 			) : result.type === 'asset' ? (
 				<AssetFileIcon
 					fileType={result.fileType}
@@ -207,4 +290,10 @@ export const QuickSwitcherResult: React.FC<{
 			</div>
 		</div>
 	);
+
+	if (composition === null) {
+		return row;
+	}
+
+	return <ContextMenu getItems={getContextMenuItems}>{row}</ContextMenu>;
 };

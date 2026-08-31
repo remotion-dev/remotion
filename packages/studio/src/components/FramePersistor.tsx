@@ -3,7 +3,7 @@ import {useEffect} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 
 export const FramePersistor: React.FC = () => {
-	const [playing] = Internals.Timeline.usePlayingState();
+	const playing = Internals.usePlaying();
 	const config = useVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.useTimelineSetFrame();

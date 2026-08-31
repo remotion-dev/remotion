@@ -16,7 +16,6 @@ import {
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {splitVideoFromAudio} from '../split-video-from-audio-api';
-import {deleteSequencesFromSource} from '../Timeline/delete-selected-timeline-item';
 import {duplicateSequencesFromSource} from '../Timeline/duplicate-selected-timeline-item';
 import {
 	getTimelineSequenceSplitEligibility,
@@ -27,6 +26,7 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
+import {useDeleteTimelineItems} from '../Timeline/use-delete-timeline-items';
 import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
 import {
@@ -130,6 +130,7 @@ const SequenceSourceQuickActions: React.FC<{
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const confirm = useConfirmationDialog();
+	const deleteTimelineItems = useDeleteTimelineItems();
 	const propStatusesForOverride = useMemo(
 		() =>
 			Internals.getPropStatusesCtx(
@@ -167,10 +168,8 @@ const SequenceSourceQuickActions: React.FC<{
 			return;
 		}
 
-		deleteSequencesFromSource([selection.nodePathInfo], confirm).catch(
-			() => undefined,
-		);
-	}, [confirm, selection.nodePathInfo, sourceActionsDisabled]);
+		deleteTimelineItems([selection]);
+	}, [deleteTimelineItems, selection, sourceActionsDisabled]);
 	const splitVideoFromAudioDisabledReason = sourceActionsDisabled
 		? 'Studio is read-only'
 		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1

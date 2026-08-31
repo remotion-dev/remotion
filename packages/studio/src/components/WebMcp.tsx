@@ -3,6 +3,7 @@ import {Internals} from 'remotion';
 import {pause} from '../api/pause';
 import {play} from '../api/play';
 import {seek} from '../api/seek';
+import {getCurrentError} from '../error-overlay/current-error';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {
@@ -129,7 +130,7 @@ export const WebMcp: FC = () => {
 		useContext(Internals.CompositionManager);
 	const {playbackRate: currentPlaybackRate, setPlaybackRate} =
 		Internals.usePlaybackRate();
-	const [, , imperativePlaying] = Internals.Timeline.usePlayingState();
+	const {isPlaying} = Internals.Timeline.useTimelineContext();
 	const {mediaVolume, playerMuted} = useContext(Internals.MediaVolumeContext);
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
 	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
@@ -296,6 +297,42 @@ export const WebMcp: FC = () => {
 		};
 
 		Promise.all([
+			modelContext.registerTool(
+				{
+					name: 'get_current_error',
+					title: 'Get current Studio error',
+					description:
+						'Read the error currently shown in the Remotion Studio error overlay. Returns null when the overlay is not visible and includes symbolicated stack frames when symbolication succeeds.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: async () => {
+						const currentError = getCurrentError();
+						if (currentError === null) {
+							return null;
+						}
+
+						let symbolicatedStackFrames = null;
+						try {
+							const record = await currentError.symbolication;
+							symbolicatedStackFrames = record?.stackFrames ?? null;
+						} catch {
+							// Fall back to the original stack if symbolication fails.
+						}
+
+						return {
+							name: currentError.error.name,
+							message: currentError.error.message,
+							stack: currentError.error.stack ?? null,
+							symbolicatedStackFrames,
+						};
+					},
+				},
+				{signal: controller.signal},
+			),
 			modelContext.registerTool(
 				{
 					name: 'get_compositions',
@@ -688,7 +725,7 @@ export const WebMcp: FC = () => {
 						return Promise.resolve({
 							currentComposition: compositionId,
 							currentFrame: getCurrentFrame(),
-							playing: imperativePlaying.current,
+							playing: isPlaying(),
 							muted: playerMutedRef.current,
 							volume: mediaVolumeRef.current,
 							playbackRate: playbackRateRef.current,
@@ -1218,7 +1255,7 @@ export const WebMcp: FC = () => {
 		};
 	}, [
 		clearSelection,
-		imperativePlaying,
+		isPlaying,
 		selectComposition,
 		selectItems,
 		setEditorShowGuides,

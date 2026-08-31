@@ -422,7 +422,7 @@ test('canAddSequence=true for self-closing root JSX return', async () => {
 	}
 });
 
-test('wraps a self-closing root in a Sequence before inserting', async () => {
+test('inserts a Solid next to a self-closing root without wrapping it', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -452,12 +452,9 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
 			element: {
-				type: 'asset',
-				assetType: 'audio',
-				src: 'music.mp3',
-				srcType: 'static',
-				dimensions: null,
-				durationInFrames: null,
+				type: 'solid',
+				width: 1920,
+				height: 1080,
 				position: null,
 			},
 			from: null,
@@ -465,14 +462,14 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import {staticFile, Sequence} from 'remotion';",
+			"import {staticFile, Solid} from 'remotion';",
 		);
-		expect(result.output).toContain('<Sequence>');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain(
 			'<Video src={staticFile("background.mov")} />',
 		);
-		expect(result.output).toContain('</Sequence>');
-		expect(result.output).toContain("<Audio src={staticFile('music.mp3')} />");
+		expect(result.output).toContain('<Solid');
+		expect(result.output).toMatch(/style=\{\{\s*position: 'absolute'\s*\}\}/);
 		expect(result.nodePathRemappings).toEqual([
 			{
 				oldNodePath: lineContainingToNodePath(componentInput, '<Video'),
@@ -480,11 +477,7 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 			},
 			{
 				oldNodePath: null,
-				newNodePath: lineContainingToNodePath(result.output, '<Sequence>'),
-			},
-			{
-				oldNodePath: null,
-				newNodePath: lineContainingToNodePath(result.output, '<Audio'),
+				newNodePath: lineContainingToNodePath(result.output, '<Solid'),
 			},
 		]);
 	} finally {
@@ -550,7 +543,7 @@ test('inserts an asset as a sibling of a connected composition', async () => {
 	}
 });
 
-test('removes parentheses when wrapping a self-closing root in a Sequence', async () => {
+test('inserts beside a parenthesized self-closing root without wrapping it', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -596,8 +589,12 @@ test('removes parentheses when wrapping a self-closing root in a Sequence', asyn
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
-		expect(result.output).toContain('<Sequence>\n\t\t\t\t<Video');
-		expect(result.output).not.toContain('<Sequence>\n\t\t\t(');
+		const videoStart = result.output.indexOf('<Video');
+		const imageStart = result.output.indexOf('<CanvasImage');
+		expect(result.output).toContain('<>');
+		expect(result.output).not.toContain('<Sequence');
+		expect(videoStart).toBeGreaterThan(-1);
+		expect(imageStart).toBeGreaterThan(videoStart);
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

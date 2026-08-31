@@ -70,6 +70,7 @@ class TrackedAudioContext {
 const sequenceManager = {
 	registerSequence: () => undefined,
 	unregisterSequence: () => undefined,
+	updateSequence: null,
 	sequences: [],
 };
 

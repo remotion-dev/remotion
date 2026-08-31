@@ -195,6 +195,10 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 				studio.locator('.remotion-studio-composition-container'),
 			).toBeVisible();
 			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
+			await expect(page).toHaveTitle(
+				'MyComp / template-blank - Remotion Studio',
+				{timeout: 5000},
+			);
 			await studio.locator('button:has(svg[viewBox="0 0 415 426"])').click();
 			const popupPromise = page.waitForEvent('popup');
 			await studio.getByText('About Remotion', {exact: true}).click();
@@ -329,8 +333,16 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 				studio.getByTitle('/project').getByText('MyComp1'),
 			).toBeVisible();
 			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp1');
+			await expect(page).toHaveTitle(
+				'MyComp1 / template-blank - Remotion Studio',
+				{timeout: 5000},
+			);
 			await page.goBack();
 			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
+			await expect(page).toHaveTitle(
+				'MyComp / template-blank - Remotion Studio',
+				{timeout: 5000},
+			);
 			await studio.getByRole('button', {name: 'Render on web'}).click();
 			await expect(
 				studio.getByText('Render MyComp', {exact: true}),
@@ -1089,6 +1101,10 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 	await expect(
 		studio.getByText('Install Element', {exact: true}),
 	).toBeVisible();
+	await expect(page).toHaveTitle(
+		'📦 Install Linked Element - Remotion Studio',
+		{timeout: 5000},
+	);
 	await expect(
 		studio.getByText('Unverified Browser Studio link'),
 	).toBeVisible();
@@ -1146,6 +1162,9 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 				).__browserStudioInstallPreservedIframe,
 		),
 	).toBe(true);
+	await expect(page).toHaveTitle('MyComp / template-blank - Remotion Studio', {
+		timeout: 5000,
+	});
 });
 
 test('reports inline SVG imports as unsupported without changing the project', async ({

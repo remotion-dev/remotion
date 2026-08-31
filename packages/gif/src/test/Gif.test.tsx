@@ -107,8 +107,7 @@ const compositionContext = {
 
 const timelineContext = {
 	frame: {},
-	playing: false,
-	imperativePlaying: {current: false},
+	isPlaying: () => false,
 	audioAndVideoTags: {current: []},
 } as React.ContextType<typeof Internals.TimelineContext>;
 
@@ -139,6 +138,7 @@ const SequenceRegistrationWrapper: React.FC<{
 			({
 				registerSequence,
 				unregisterSequence,
+				updateSequence: registerSequence,
 				sequences: [],
 			}) as React.ContextType<typeof Internals.SequenceManager>,
 		[registerSequence, unregisterSequence],

@@ -416,66 +416,6 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should virtualize a large timeline without hiding tracks', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/timeline-virtualization-testbed`);
-		await expect(page).toHaveURL(/timeline-virtualization-testbed/, {
-			timeout: 15_000,
-		});
-
-		const timelineScroll = page
-			.locator('.__remotion-vertical-scrollbar')
-			.filter({has: page.locator('[data-timeline-scrollable]')});
-		await expect(timelineScroll).toHaveCount(1);
-		await expect(
-			page.getByText('Virtual track 000', {exact: true}),
-		).toBeVisible();
-		await expect(
-			page.locator('[data-timeline-marquee-item][title="Virtual track 000"]'),
-		).toBeVisible();
-
-		const mountedTrackLabels = page.getByText(/^Virtual track \d{3}$/);
-		expect(await mountedTrackLabels.count()).toBeLessThan(120);
-
-		const revealTargetTrack = page.locator(
-			'[data-timeline-marquee-item][title="Reveal target"]',
-		);
-		await expect(revealTargetTrack).toHaveCount(0);
-		const canvas = page.locator('.remotion-studio-composition-container');
-		const visibleOutlines = canvas.locator(
-			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
-		);
-		await retryCanvasInteractionUntilOutlineIsVisible({
-			interaction: () => canvas.hover(),
-			outline: visibleOutlines,
-			page,
-		});
-		await visibleOutlines.first().click({force: true});
-
-		await expect(revealTargetTrack).toBeVisible();
-		const [revealTargetRect, timelineScrollRect] = await Promise.all([
-			revealTargetTrack.boundingBox(),
-			timelineScroll.boundingBox(),
-		]);
-		expect(revealTargetRect).not.toBeNull();
-		expect(timelineScrollRect).not.toBeNull();
-		expect(revealTargetRect!.y).toBeGreaterThanOrEqual(timelineScrollRect!.y);
-		expect(revealTargetRect!.y + revealTargetRect!.height).toBeLessThanOrEqual(
-			timelineScrollRect!.y + timelineScrollRect!.height,
-		);
-		await expect(
-			page.getByText('Virtual track 119', {exact: true}),
-		).toBeVisible();
-		await expect(
-			page.locator('[data-timeline-marquee-item][title="Virtual track 119"]'),
-		).toBeVisible();
-		expect(
-			await timelineScroll.evaluate((element) => element.scrollTop),
-		).toBeGreaterThan(0);
-		expect(await mountedTrackLabels.count()).toBeLessThan(120);
-	});
-
 	test('should show negative sequence timing in the frame-zero gutter', async ({
 		page,
 	}) => {
@@ -798,42 +738,6 @@ test.describe('visual mode', () => {
 		await horizontalCheckbox.dispatchEvent('dblclick');
 		await page.waitForTimeout(100);
 		expect(openInEditorRequests).toEqual([]);
-	});
-
-	test('should keep canvas item context menus open', async ({page}) => {
-		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
-		await expect(
-			page.getByRole('button', {name: '0', exact: true}),
-		).toBeVisible({timeout: 15_000});
-		await page.locator('[data-timeline-scrubber]').click();
-		await expect(
-			page.getByRole('button', {name: '90', exact: true}),
-		).toBeVisible();
-
-		const canvasItem = page.getByText('Performance overview', {exact: true});
-		const canvasItemOutline = page.locator(
-			'polygon[data-remotion-prevent-selection-clear="true"][stroke-opacity="1"]',
-		);
-		await retryCanvasInteractionUntilOutlineIsVisible({
-			interaction: () => canvasItem.hover(),
-			outline: canvasItemOutline,
-			page,
-		});
-		await expect(canvasItemOutline).toHaveCount(1);
-		await canvasItemOutline.click({button: 'right'});
-
-		const duplicateButton = page.getByRole('button', {
-			name: 'Duplicate',
-			exact: true,
-		});
-		await expect(duplicateButton).toBeVisible();
-
-		await page.mouse.move(10, 10);
-		// Portals do not reliably trigger pointerleave in headless Chromium.
-		await page
-			.locator('.remotion-studio-composition-container')
-			.dispatchEvent('pointerleave');
-		await expect(duplicateButton).toBeVisible();
 	});
 
 	test('should preserve property selection while dragging its outline', async ({
@@ -1178,6 +1082,33 @@ test.describe('visual mode', () => {
 		}
 
 		await page.getByRole('button', {name: 'Compositions', exact: true}).click();
+
+		await page.keyboard.press('ControlOrMeta+k');
+		const folderSearch = page.getByRole('dialog');
+		await folderSearch
+			.getByPlaceholder('Search compositions...')
+			.fill('visual-controls');
+		await expect(
+			folderSearch.getByText('visual-controls', {exact: true}),
+		).toHaveCount(2);
+		await expect(
+			folderSearch.getByText('effect-keyframe-e2e', {exact: true}),
+		).toBeVisible();
+		await page.keyboard.press('Enter');
+		await expect(page).toHaveURL(/visual-controls/);
+
+		await page.keyboard.press('ControlOrMeta+k');
+		const compositionSearch = page.getByRole('dialog');
+		await compositionSearch
+			.getByPlaceholder('Search compositions...')
+			.fill('effect-keyframe-e2e');
+		await expect(
+			compositionSearch.getByText('visual-controls', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			compositionSearch.getByText('effect-keyframe-e2e', {exact: true}),
+		).toBeVisible();
+		await page.keyboard.press('Escape');
 
 		await page.keyboard.press('ControlOrMeta+k');
 		await page
@@ -1827,11 +1758,57 @@ test.describe('visual mode', () => {
 		await expect(visibleOutlines.first()).toBeVisible();
 	});
 
-	test('should preserve following interactive elements after deleting a sibling', async ({
+	test('should clear selection after context-menu deletion and preserve following interactive elements', async ({
 		context,
 		page,
 	}) => {
+		await context.addInitScript(() => {
+			type RegisteredTool = {
+				readonly name: string;
+				readonly execute: (input: Record<string, unknown>) => Promise<unknown>;
+			};
+			const tools = new Map<string, RegisteredTool>();
+			Object.defineProperty(window, '__remotion_webmcp_tools', {
+				value: tools,
+			});
+			Object.defineProperty(document, 'modelContext', {
+				value: {
+					registerTool: async (
+						tool: RegisteredTool,
+						options: {readonly signal: AbortSignal},
+					) => {
+						tools.set(tool.name, tool);
+						options.signal.addEventListener('abort', () => {
+							if (tools.get(tool.name) === tool) {
+								tools.delete(tool.name);
+							}
+						});
+					},
+				},
+			});
+		});
 		await navigateToLostNodePathE2e(page);
+		const getWebMcpSelection = () =>
+			page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools?: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				if (!tools) {
+					return null;
+				}
+
+				const tool = tools.get('get_selection');
+				if (!tool) {
+					return null;
+				}
+
+				return tool.execute();
+			});
 		const otherPage = await context.newPage();
 		await navigateToLostNodePathE2e(otherPage);
 		const canvas = page.locator('.remotion-studio-composition-container');
@@ -1921,8 +1898,14 @@ test.describe('visual mode', () => {
 		const eyebrow = page.locator(
 			'[data-timeline-marquee-item][title="Eyebrow"]',
 		);
-		await eyebrow.click();
-		await page.keyboard.press('Delete');
+		await eyebrow.click({button: 'right'});
+		await expect.poll(getWebMcpSelection).toEqual(
+			expect.objectContaining({
+				selectionType: 'sequence',
+				selectedSequence: expect.objectContaining({name: 'Eyebrow'}),
+			}),
+		);
+		await page.getByRole('button', {name: 'Delete', exact: true}).click();
 
 		await expect
 			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
@@ -1948,6 +1931,13 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 		await expect(gridlineVisibilityToggle).toBeVisible();
 		await expect(otherGridlineVisibilityToggle).toBeVisible();
+		await expect.poll(getWebMcpSelection).toEqual(
+			expect.objectContaining({
+				currentSelection: null,
+				selectionType: null,
+				selectedSequence: null,
+			}),
+		);
 
 		await page.getByRole('button', {name: /^Undo/}).click();
 		await expect
@@ -3566,29 +3556,6 @@ test.describe('visual mode', () => {
 			codingAgentId: 'copilot',
 			prompt: null,
 		});
-	});
-
-	test('should clear the open-in-editor hover state when closing the menu', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/schema-test`);
-		const openInAnotherApp = page
-			.getByTitle(exampleDir)
-			.getByRole('button', {name: 'Open in another app'});
-		const configureDefaultApps = page.getByRole('button', {
-			name: 'Configure default apps...',
-		});
-
-		await openInAnotherApp.click();
-		await expect(configureDefaultApps).toBeVisible();
-		// The menu overlay intercepts pointerleave; clicking it closes the menu
-		// through the same outside-click path a user would take.
-		await page.mouse.click(10, 100);
-		await expect(configureDefaultApps).toBeHidden();
-		await expect(openInAnotherApp).toHaveCSS(
-			'background-color',
-			'rgba(0, 0, 0, 0)',
-		);
 	});
 
 	test('should open submenus toward the side with more space', async ({

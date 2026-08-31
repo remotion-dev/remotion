@@ -12,7 +12,6 @@ import {
 import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
-import {deleteJsxNode} from './delete-jsx-node-api';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutline} from './selected-outline-geometry';
@@ -37,6 +36,7 @@ import {
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
+import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -99,6 +99,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		Internals.SequenceStackTracesUpdateContext,
 	);
 	const confirm = useConfirmationDialog();
+	const deleteTimelineItems = useDeleteTimelineItems();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
@@ -244,42 +245,17 @@ const SelectedOutlineElementUnmemoized: React.FC<
 						});
 					}
 				: null,
-			onDeleteSequenceFromSource: async () => {
+			onDeleteSequenceFromSource: () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
 				}
 
-				if (
-					contextMenuTarget.nodePathInfo.numberOfSequencesWithThisNodePath > 1
-				) {
-					const shouldDelete = await confirm({
-						title: 'Delete sequence?',
-						message:
-							'This sequence is programmatically duplicated ' +
-							contextMenuTarget.nodePathInfo.numberOfSequencesWithThisNodePath +
-							' times in the code. Deleting removes all instances. Continue?',
-						confirmLabel: 'Delete',
-					});
-					if (!shouldDelete) {
-						return;
-					}
-				}
-
-				try {
-					const result = await deleteJsxNode({
-						nodes: [
-							{
-								fileName: nodePath.absolutePath,
-								nodePath: nodePath.nodePath,
-							},
-						],
-					});
-					if (!result.success) {
-						showNotification(result.reason, 4000);
-					}
-				} catch (err) {
-					showNotification((err as Error).message, 4000);
-				}
+				deleteTimelineItems([
+					{
+						type: 'sequence',
+						nodePathInfo: contextMenuTarget.nodePathInfo,
+					},
+				]);
 			},
 			onDisableSequenceInteractivity: () => {
 				if (
@@ -437,6 +413,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		canConfigureApps,
 		codingAgentInfo,
 		confirm,
+		deleteTimelineItems,
 		editorInfo,
 		getTarget,
 		onSelect,

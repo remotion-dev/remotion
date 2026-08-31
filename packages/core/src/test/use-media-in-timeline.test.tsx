@@ -44,6 +44,7 @@ afterAll(() => {
 
 test('useMediaInTimeline registers muted changes and unregisters the sequence', () => {
 	const registerSequence = mock();
+	const updateSequence = mock();
 	const unregisterSequence = mock();
 	const wrapper: React.FC<{
 		children: React.ReactNode;
@@ -53,6 +54,7 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 			return {
 				registerSequence,
 				unregisterSequence,
+				updateSequence,
 				sequences: [],
 			};
 		}, []);
@@ -97,7 +99,8 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 	});
 
 	rerender({muted: true});
-	expect(registerSequence.mock.calls.at(-1)?.[0]).toMatchObject({muted: true});
+	expect(registerSequence).toHaveBeenCalledTimes(1);
+	expect(updateSequence.mock.calls.at(-1)?.[0]).toMatchObject({muted: true});
 
 	unmount();
 	expect(unregisterSequence).toHaveBeenCalled();
@@ -114,6 +117,7 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 			return {
 				registerSequence,
 				unregisterSequence,
+				updateSequence: null,
 				sequences: [],
 			};
 		}, []);

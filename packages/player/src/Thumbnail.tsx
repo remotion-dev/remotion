@@ -83,16 +83,14 @@ const ThumbnailFn = <
 	}
 
 	const rootRef = useRef<ThumbnailMethods>(null);
-	const imperativePlaying = useRef(false);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
 		const value: TimelineContextValue = {
-			playing: false,
+			isPlaying: () => false,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
 			},
-			imperativePlaying,
 			audioAndVideoTags,
 		};
 

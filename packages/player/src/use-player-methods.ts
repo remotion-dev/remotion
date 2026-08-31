@@ -3,7 +3,6 @@ import {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useRemotionEnvironment} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import type {PlayerEmitter} from './event-emitter.js';
-import {getTimelineImperativeContext} from './timeline-imperative-context.js';
 
 export type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
@@ -22,8 +21,12 @@ export type UsePlayerMethods = {
 export const usePlayerMethods = (): UsePlayerMethods => {
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
-	const {setPlaying} = useContext(Internals.SetTimelineContext);
-	const timelineImperativeContext = useContext(getTimelineImperativeContext());
+	const {
+		setPlaying,
+		frameRef,
+		isPlaying: readIsPlaying,
+		audioAndVideoTags,
+	} = useContext(Internals.SetTimelineContext);
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const audioTagsContext = useContext(Internals.SharedAudioTagsContext);
 	const environment = useRemotionEnvironment();
@@ -32,12 +35,6 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const emitter = useContext(PlayerEventEmitterContext);
 	const playStart = useRef(0);
 	const fallbackFrame = useRef<number | null>(null);
-
-	if (!timelineImperativeContext) {
-		throw new Error(
-			'Timeline imperative context is not available. This hook must be used inside a <Player> or the Remotion Studio.',
-		);
-	}
 
 	if (!emitter) {
 		throw new TypeError('Expected Player event emitter context');
@@ -61,7 +58,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 		}
 
 		const unclamped =
-			timelineImperativeContext.frameRef.current[video.id] ??
+			frameRef.current[video.id] ??
 			(environment.isPlayer
 				? 0
 				: Internals.Timeline.getFrameForComposition(video.id));
@@ -70,7 +67,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			unclamped,
 			video.durationInFrames,
 		);
-	}, [environment.isPlayer, timelineImperativeContext, video]);
+	}, [environment.isPlayer, frameRef, video]);
 
 	const seek = useCallback(
 		(newFrame: number) => {
@@ -84,11 +81,9 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			fallbackFrame.current = frameToSeekTo;
 
 			if (video?.id) {
-				if (
-					timelineImperativeContext.frameRef.current[video.id] !== frameToSeekTo
-				) {
-					timelineImperativeContext.frameRef.current = {
-						...timelineImperativeContext.frameRef.current,
+				if (frameRef.current[video.id] !== frameToSeekTo) {
+					frameRef.current = {
+						...frameRef.current,
 						[video.id]: frameToSeekTo,
 					};
 				}
@@ -102,18 +97,12 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 
 			emitter.dispatchSeek(frameToSeekTo);
 		},
-		[
-			config,
-			emitter,
-			setTimelinePosition,
-			timelineImperativeContext,
-			video?.id,
-		],
+		[config, emitter, frameRef, setTimelinePosition, video?.id],
 	);
 
 	const play = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
-			if (timelineImperativeContext.imperativePlaying.current) {
+			if (readIsPlaying()) {
 				return;
 			}
 
@@ -135,60 +124,59 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			 * Play audios and videos directly here so they can benefit from
 			 * being triggered by a click
 			 */
-			timelineImperativeContext.audioAndVideoTags.current.forEach((tag) =>
+			audioAndVideoTags.current.forEach((tag) =>
 				tag.play('player play() was called and playing audio from a click'),
 			);
 
-			timelineImperativeContext.imperativePlaying.current = true;
 			setPlaying(true);
 			playStart.current = getCurrentFrame();
 			emitter.dispatchPlay();
 		},
 		[
+			audioAndVideoTags,
 			audioContext,
 			audioTagsContext,
 			config?.durationInFrames,
 			emitter,
 			getCurrentFrame,
+			readIsPlaying,
 			seek,
 			setPlaying,
-			timelineImperativeContext,
 		],
 	);
 
 	const pause = useCallback(() => {
-		if (timelineImperativeContext.imperativePlaying.current) {
-			timelineImperativeContext.imperativePlaying.current = false;
-
+		if (readIsPlaying()) {
 			setPlaying(false);
+
 			emitter.dispatchPause();
 			audioContext?.suspend();
 		}
-	}, [audioContext, emitter, setPlaying, timelineImperativeContext]);
+	}, [audioContext, emitter, readIsPlaying, setPlaying]);
 
 	const pauseAndReturnToPlayStart = useCallback(() => {
-		if (timelineImperativeContext.imperativePlaying.current) {
-			timelineImperativeContext.imperativePlaying.current = false;
+		if (readIsPlaying()) {
+			setPlaying(false);
 			fallbackFrame.current = playStart.current;
 			if (config) {
-				timelineImperativeContext.frameRef.current = {
-					...timelineImperativeContext.frameRef.current,
+				frameRef.current = {
+					...frameRef.current,
 					[config.id]: playStart.current,
 				};
 				setTimelinePosition((currentFrames) => ({
 					...currentFrames,
 					[config.id]: playStart.current,
 				}));
-				setPlaying(false);
 				emitter.dispatchPause();
 			}
 		}
 	}, [
 		config,
 		emitter,
+		frameRef,
+		readIsPlaying,
 		setPlaying,
 		setTimelinePosition,
-		timelineImperativeContext,
 	]);
 
 	const videoId = video?.id;
@@ -200,21 +188,19 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return null;
 			}
 
-			if (timelineImperativeContext.imperativePlaying.current) {
+			if (readIsPlaying()) {
 				return;
 			}
 
 			const previousFrame =
-				timelineImperativeContext.frameRef.current[videoId] ??
-				window.remotion_initialFrame ??
-				0;
+				frameRef.current[videoId] ?? window.remotion_initialFrame ?? 0;
 			const newFrame = Math.max(0, previousFrame - frames);
 			if (previousFrame === newFrame) {
 				return;
 			}
 
-			timelineImperativeContext.frameRef.current = {
-				...timelineImperativeContext.frameRef.current,
+			frameRef.current = {
+				...frameRef.current,
 				[videoId]: newFrame,
 			};
 			setFrame((currentFrames) =>
@@ -223,7 +209,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 					: {...currentFrames, [videoId]: newFrame},
 			);
 		},
-		[setFrame, timelineImperativeContext, videoId],
+		[frameRef, readIsPlaying, setFrame, videoId],
 	);
 
 	const frameForward = useCallback(
@@ -232,21 +218,19 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return null;
 			}
 
-			if (timelineImperativeContext.imperativePlaying.current) {
+			if (readIsPlaying()) {
 				return;
 			}
 
 			const previousFrame =
-				timelineImperativeContext.frameRef.current[videoId] ??
-				window.remotion_initialFrame ??
-				0;
+				frameRef.current[videoId] ?? window.remotion_initialFrame ?? 0;
 			const newFrame = Math.min(lastFrame, previousFrame + frames);
 			if (previousFrame === newFrame) {
 				return;
 			}
 
-			timelineImperativeContext.frameRef.current = {
-				...timelineImperativeContext.frameRef.current,
+			frameRef.current = {
+				...frameRef.current,
 				[videoId]: newFrame,
 			};
 			setFrame((currentFrames) =>
@@ -255,23 +239,23 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 					: {...currentFrames, [videoId]: newFrame},
 			);
 		},
-		[lastFrame, setFrame, timelineImperativeContext, videoId],
+		[frameRef, lastFrame, readIsPlaying, setFrame, videoId],
 	);
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
-			if (timelineImperativeContext.imperativePlaying.current) {
+			if (readIsPlaying()) {
 				pause();
 			} else {
 				play(e);
 			}
 		},
-		[pause, play, timelineImperativeContext],
+		[pause, play, readIsPlaying],
 	);
 
 	const isPlaying = useCallback(() => {
-		return timelineImperativeContext.imperativePlaying.current;
-	}, [timelineImperativeContext]);
+		return readIsPlaying();
+	}, [readIsPlaying]);
 
 	const isBuffering = useCallback(() => {
 		return bufferingContext.buffering.current;

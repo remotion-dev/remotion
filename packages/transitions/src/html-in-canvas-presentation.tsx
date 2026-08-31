@@ -103,7 +103,7 @@ export const HtmlInCanvasPresentation = <
 	}, [instance]);
 
 	const chainState = Internals.useEffectChainState();
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const draw: DrawFunction = useCallback(
 		async (prevImage, nextImage, progress) => {
@@ -113,55 +113,66 @@ export const HtmlInCanvasPresentation = <
 			}
 
 			const handle = delayRender('onPaint');
-			const clearOutput = () => {
-				const context = outputCanvas.getContext('2d');
-				if (!context) {
-					throw new Error('Failed to create output canvas context');
+			try {
+				const clearOutput = () => {
+					const context = outputCanvas.getContext('2d');
+					if (!context) {
+						throw new Error('Failed to create output canvas context');
+					}
+
+					context.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
+				};
+
+				if (!prevImage && !nextImage) {
+					instance.clear();
+					clearOutput();
+					continueRender(handle);
+					return;
 				}
 
-				context.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
-			};
+				const width = prevImage?.width ?? nextImage?.width ?? 0;
+				const height = prevImage?.height ?? nextImage?.height ?? 0;
 
-			if (!prevImage && !nextImage) {
-				instance.clear();
-				clearOutput();
+				if (width === 0 || height === 0) {
+					instance.clear();
+					clearOutput();
+					continueRender(handle);
+					return;
+				}
+
+				shaderCanvas.width = width;
+				shaderCanvas.height = height;
+
+				instance.draw({
+					prevImage,
+					nextImage,
+					width,
+					height,
+					time: progress,
+					passedProps: passedPropsRef.current,
+				});
+
+				await Internals.runEffectChain({
+					state: chainState.get(width, height)!,
+					source: shaderCanvas,
+					effects: effectsRef.current ?? [],
+					width,
+					height,
+					output: outputCanvas,
+				});
 				continueRender(handle);
-				return;
+			} catch (error) {
+				cancelRender(error);
 			}
-
-			const width = prevImage?.width ?? nextImage?.width ?? 0;
-			const height = prevImage?.height ?? nextImage?.height ?? 0;
-
-			if (width === 0 || height === 0) {
-				instance.clear();
-				clearOutput();
-				continueRender(handle);
-				return;
-			}
-
-			shaderCanvas.width = width;
-			shaderCanvas.height = height;
-
-			instance.draw({
-				prevImage,
-				nextImage,
-				width,
-				height,
-				time: progress,
-				passedProps: passedPropsRef.current,
-			});
-
-			await Internals.runEffectChain({
-				state: chainState.get(width, height)!,
-				source: shaderCanvas,
-				effects: effectsRef.current ?? [],
-				width,
-				height,
-				output: outputCanvas,
-			});
-			continueRender(handle);
 		},
-		[chainState, continueRender, delayRender, instance, shaderCanvas],
+		[
+			cancelRender,
+			chainState,
+			continueRender,
+			delayRender,
+			instance,
+			shaderCanvas,
+		],
 	);
 
 	const passThrough =

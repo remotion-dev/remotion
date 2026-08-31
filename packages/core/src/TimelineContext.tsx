@@ -1,11 +1,13 @@
 import type {RefObject} from 'react';
 import React, {
 	createContext,
+	useCallback,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
+import {createRuntimeValueStore} from './runtime-value-store.js';
 import {
 	getInitialFrameState,
 	type PlayableMediaTag,
@@ -14,14 +16,7 @@ import {useDelayRender} from './use-delay-render';
 
 export type TimelineContextValue = {
 	frame: Record<string, number>;
-	playing: boolean;
-	imperativePlaying: RefObject<boolean>;
-	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
-};
-
-export type TimelineImperativeContextValue = {
-	frameRef: RefObject<Record<string, number>>;
-	imperativePlaying: RefObject<boolean>;
+	isPlaying: () => boolean;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
@@ -33,6 +28,12 @@ export type PlaybackRateContextValue = {
 export type SetTimelineContextValue = {
 	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
+	subscribePlaying: (
+		listener: (state: Readonly<{playing: boolean}>) => void,
+	) => () => void;
+	frameRef: RefObject<Record<string, number>>;
+	isPlaying: () => boolean;
+	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({
@@ -42,12 +43,15 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	setPlaying: () => {
 		throw new Error('default');
 	},
+	subscribePlaying: () => () => undefined,
+	frameRef: {current: {}},
+	isPlaying: () => {
+		throw new Error('default');
+	},
+	audioAndVideoTags: {current: []},
 });
 
 export const TimelineContext = createContext<TimelineContextValue | null>(null);
-
-export const TimelineImperativeContext =
-	createContext<TimelineImperativeContextValue | null>(null);
 
 export const PlaybackRateContext =
 	createContext<PlaybackRateContextValue | null>(null);
@@ -60,8 +64,10 @@ export const TimelineContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly frameState: Record<string, number> | null;
 }> = ({children, frameState}) => {
-	const [playing, setPlaying] = useState<boolean>(false);
-	const imperativePlaying = useRef<boolean>(false);
+	const playingStore = useMemo(
+		() => createRuntimeValueStore({playing: false}),
+		[],
+	);
 
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
@@ -72,6 +78,11 @@ export const TimelineContextProvider: React.FC<{
 	const frame = frameState ?? _frame;
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
+
+	const readIsPlaying = useCallback(
+		() => playingStore.store.getSnapshot().playing,
+		[playingStore],
+	);
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -113,20 +124,10 @@ export const TimelineContextProvider: React.FC<{
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			playing,
-			imperativePlaying,
+			isPlaying: readIsPlaying,
 			audioAndVideoTags,
 		};
-	}, [frame, playing]);
-
-	const timelineImperativeContextValue =
-		useMemo((): TimelineImperativeContextValue => {
-			return {
-				frameRef,
-				imperativePlaying,
-				audioAndVideoTags,
-			};
-		}, []);
+	}, [frame, readIsPlaying]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -138,22 +139,29 @@ export const TimelineContextProvider: React.FC<{
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
 			setFrame,
-			setPlaying,
+			setPlaying: (updater) => {
+				const current = playingStore.store.getSnapshot().playing;
+				const next = typeof updater === 'function' ? updater(current) : updater;
+
+				if (current !== next) {
+					playingStore.setSnapshot({playing: next});
+				}
+			},
+			subscribePlaying: playingStore.store.subscribe,
+			frameRef,
+			isPlaying: readIsPlaying,
+			audioAndVideoTags,
 		};
-	}, []);
+	}, [playingStore, readIsPlaying]);
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>
 			<PlaybackRateContext.Provider value={playbackRateContextValue}>
-				<TimelineImperativeContext.Provider
-					value={timelineImperativeContextValue}
-				>
-					<TimelineContext.Provider value={timelineContextValue}>
-						<SetTimelineContext.Provider value={setTimelineContextValue}>
-							{children}
-						</SetTimelineContext.Provider>
-					</TimelineContext.Provider>
-				</TimelineImperativeContext.Provider>
+				<TimelineContext.Provider value={timelineContextValue}>
+					<SetTimelineContext.Provider value={setTimelineContextValue}>
+						{children}
+					</SetTimelineContext.Provider>
+				</TimelineContext.Provider>
 			</PlaybackRateContext.Provider>
 		</AbsoluteTimeContext.Provider>
 	);
