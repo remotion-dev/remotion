@@ -1,8 +1,8 @@
 import {afterEach, expect, test} from 'bun:test';
 import {Internals} from 'remotion';
 import {
-	collectSequenceOrderFromFiber,
-	installFiberSequenceOrderObserver,
+	collectCommitOrderFromFiber,
+	installFiberCommitOrderObserver,
 } from '../helpers/install-fiber-sequence-order-observer';
 
 type TestFiber = {
@@ -51,22 +51,45 @@ afterEach(() => {
 	}
 });
 
-test('collects sequence IDs in committed Fiber sibling order per manager', () => {
-	const ManagerMarker = makeMarker(
-		Internals.SequenceOrderInternals.managerMarker,
+test('collects sequence, composition, and folder order per manager', () => {
+	const SequenceManagerMarker = makeMarker(
+		Internals.CommitOrderInternals.sequenceManagerMarker,
+	);
+	const CompositionManagerMarker = makeMarker(
+		Internals.CommitOrderInternals.compositionManagerMarker,
 	);
 	const SequenceMarker = makeMarker(
-		Internals.SequenceOrderInternals.sequenceMarker,
+		Internals.CommitOrderInternals.sequenceMarker,
 	);
+	const CompositionMarker = makeMarker(
+		Internals.CommitOrderInternals.compositionMarker,
+	);
+	const FolderMarker = makeMarker(Internals.CommitOrderInternals.folderMarker);
 	const root = {
 		current: makeFiber({
 			children: [
 				makeFiber({
-					type: ManagerMarker,
-					props: {managerId: 'manager-a'},
+					type: CompositionManagerMarker,
+					props: {managerId: 'compositions'},
 					children: [
 						makeFiber({
+							type: SequenceManagerMarker,
+							props: {managerId: 'sequences'},
 							children: [
+								makeFiber({
+									type: FolderMarker,
+									props: {folderId: 'group'},
+									children: [
+										makeFiber({
+											type: CompositionMarker,
+											props: {compositionId: 'inside'},
+										}),
+									],
+								}),
+								makeFiber({
+									type: CompositionMarker,
+									props: {compositionId: 'outside'},
+								}),
 								makeFiber({
 									type: SequenceMarker,
 									props: {sequenceId: 'left'},
@@ -83,17 +106,29 @@ test('collects sequence IDs in committed Fiber sibling order per manager', () =>
 		}),
 	};
 
-	expect(collectSequenceOrderFromFiber(root)).toEqual([
-		{managerId: 'manager-a', sequenceIds: ['left', 'right']},
-	]);
+	expect(collectCommitOrderFromFiber(root)).toEqual({
+		sequenceManagers: [
+			{managerId: 'sequences', sequenceIds: ['left', 'right']},
+		],
+		compositionManagers: [
+			{
+				managerId: 'compositions',
+				compositionAndFolderOrder: [
+					{type: 'folder', id: 'group'},
+					{type: 'composition', id: 'inside'},
+					{type: 'composition', id: 'outside'},
+				],
+			},
+		],
+	});
 });
 
 test('chains the existing commit hook and emits the committed order once', () => {
 	const ManagerMarker = makeMarker(
-		Internals.SequenceOrderInternals.managerMarker,
+		Internals.CommitOrderInternals.sequenceManagerMarker,
 	);
 	const SequenceMarker = makeMarker(
-		Internals.SequenceOrderInternals.sequenceMarker,
+		Internals.CommitOrderInternals.sequenceMarker,
 	);
 	const root = {
 		current: makeFiber({
@@ -125,19 +160,24 @@ test('chains the existing commit hook and emits the committed order once', () =>
 		events.push((event as CustomEvent).detail);
 	};
 
-	window.addEventListener(Internals.SequenceOrderInternals.eventName, onOrder);
+	window.addEventListener(Internals.CommitOrderInternals.eventName, onOrder);
 
 	try {
-		expect(installFiberSequenceOrderObserver(window)).toBe(true);
-		expect(installFiberSequenceOrderObserver(window)).toBe(true);
+		expect(installFiberCommitOrderObserver(window)).toBe(true);
+		expect(installFiberCommitOrderObserver(window)).toBe(true);
 		hook.onCommitFiberRoot(1, root, null, false);
 	} finally {
 		window.removeEventListener(
-			Internals.SequenceOrderInternals.eventName,
+			Internals.CommitOrderInternals.eventName,
 			onOrder,
 		);
 	}
 
 	expect(previousHookCalls).toBe(1);
-	expect(events).toEqual([[{managerId: 'manager-a', sequenceIds: ['first']}]]);
+	expect(events).toEqual([
+		{
+			sequenceManagers: [{managerId: 'manager-a', sequenceIds: ['first']}],
+			compositionManagers: [],
+		},
+	]);
 });

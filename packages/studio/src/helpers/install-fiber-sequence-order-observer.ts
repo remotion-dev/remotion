@@ -30,8 +30,12 @@ type HookTarget = Window &
 	};
 
 const installationMarker = Symbol.for(
-	'remotion.sequence-order-observer-installed',
+	'remotion.commit-order-observer-installed',
 );
+
+type CompositionAndFolderOrderItem =
+	| {readonly type: 'composition'; readonly id: string}
+	| {readonly type: 'folder'; readonly id: string};
 
 const hasMarker = (candidate: unknown, marker: symbol): boolean => {
 	return (
@@ -50,61 +54,108 @@ const getStringProp = (props: unknown, key: string): string | null => {
 	return typeof value === 'string' ? value : null;
 };
 
-export const collectSequenceOrderFromFiber = (
-	root: FiberRoot,
-): readonly {
-	readonly managerId: string;
-	readonly sequenceIds: readonly string[];
-}[] => {
-	const orderByManager = new Map<string, string[]>();
+const hasFiberMarker = (fiber: Fiber, marker: symbol) =>
+	hasMarker(fiber.type, marker) || hasMarker(fiber.elementType, marker);
 
-	const visit = (fiber: Fiber, currentManagerId: string | null) => {
-		const isManagerMarker =
-			hasMarker(fiber.type, Internals.SequenceOrderInternals.managerMarker) ||
-			hasMarker(
-				fiber.elementType,
-				Internals.SequenceOrderInternals.managerMarker,
-			);
-		const managerId = isManagerMarker
+export const collectCommitOrderFromFiber = (root: FiberRoot) => {
+	const sequencesByManager = new Map<string, string[]>();
+	const compositionsAndFoldersByManager = new Map<
+		string,
+		CompositionAndFolderOrderItem[]
+	>();
+
+	const visit = (
+		fiber: Fiber,
+		currentSequenceManagerId: string | null,
+		currentCompositionManagerId: string | null,
+	) => {
+		const isSequenceManagerMarker = hasFiberMarker(
+			fiber,
+			Internals.CommitOrderInternals.sequenceManagerMarker,
+		);
+		const sequenceManagerId = isSequenceManagerMarker
 			? getStringProp(fiber.memoizedProps, 'managerId')
-			: currentManagerId;
+			: currentSequenceManagerId;
 
 		if (
-			isManagerMarker &&
-			managerId !== null &&
-			!orderByManager.has(managerId)
+			isSequenceManagerMarker &&
+			sequenceManagerId !== null &&
+			!sequencesByManager.has(sequenceManagerId)
 		) {
-			orderByManager.set(managerId, []);
+			sequencesByManager.set(sequenceManagerId, []);
 		}
 
-		const isSequenceMarker =
-			hasMarker(fiber.type, Internals.SequenceOrderInternals.sequenceMarker) ||
-			hasMarker(
-				fiber.elementType,
-				Internals.SequenceOrderInternals.sequenceMarker,
-			);
-		if (isSequenceMarker && managerId !== null) {
+		const isCompositionManagerMarker = hasFiberMarker(
+			fiber,
+			Internals.CommitOrderInternals.compositionManagerMarker,
+		);
+		const compositionManagerId = isCompositionManagerMarker
+			? getStringProp(fiber.memoizedProps, 'managerId')
+			: currentCompositionManagerId;
+		if (
+			isCompositionManagerMarker &&
+			compositionManagerId !== null &&
+			!compositionsAndFoldersByManager.has(compositionManagerId)
+		) {
+			compositionsAndFoldersByManager.set(compositionManagerId, []);
+		}
+
+		if (
+			hasFiberMarker(fiber, Internals.CommitOrderInternals.sequenceMarker) &&
+			sequenceManagerId !== null
+		) {
 			const sequenceId = getStringProp(fiber.memoizedProps, 'sequenceId');
 			if (sequenceId !== null) {
-				orderByManager.get(managerId)?.push(sequenceId);
+				sequencesByManager.get(sequenceManagerId)?.push(sequenceId);
+			}
+		}
+
+		if (
+			hasFiberMarker(fiber, Internals.CommitOrderInternals.compositionMarker) &&
+			compositionManagerId !== null
+		) {
+			const id = getStringProp(fiber.memoizedProps, 'compositionId');
+			if (id !== null) {
+				compositionsAndFoldersByManager
+					.get(compositionManagerId)
+					?.push({type: 'composition', id});
+			}
+		}
+
+		if (
+			hasFiberMarker(fiber, Internals.CommitOrderInternals.folderMarker) &&
+			compositionManagerId !== null
+		) {
+			const id = getStringProp(fiber.memoizedProps, 'folderId');
+			if (id !== null) {
+				compositionsAndFoldersByManager
+					.get(compositionManagerId)
+					?.push({type: 'folder', id});
 			}
 		}
 
 		let {child} = fiber;
 		while (child !== null) {
-			visit(child, managerId);
+			visit(child, sequenceManagerId, compositionManagerId);
 			child = child.sibling;
 		}
 	};
 
-	visit(root.current, null);
-	return [...orderByManager].map(([managerId, sequenceIds]) => ({
-		managerId,
-		sequenceIds,
-	}));
+	visit(root.current, null, null);
+	return {
+		sequenceManagers: [...sequencesByManager].map(
+			([managerId, sequenceIds]) => ({managerId, sequenceIds}),
+		),
+		compositionManagers: [...compositionsAndFoldersByManager].map(
+			([managerId, compositionAndFolderOrder]) => ({
+				managerId,
+				compositionAndFolderOrder,
+			}),
+		),
+	};
 };
 
-export const installFiberSequenceOrderObserver = (
+export const installFiberCommitOrderObserver = (
 	target: HookTarget,
 ): boolean => {
 	const hook = target.__REACT_DEVTOOLS_GLOBAL_HOOK__;
@@ -120,9 +171,9 @@ export const installFiberSequenceOrderObserver = (
 	hook.onCommitFiberRoot = function (...args) {
 		try {
 			const [, root] = args;
-			const order = collectSequenceOrderFromFiber(root);
+			const order = collectCommitOrderFromFiber(root);
 			target.dispatchEvent(
-				new CustomEvent(Internals.SequenceOrderInternals.eventName, {
+				new CustomEvent(Internals.CommitOrderInternals.eventName, {
 					detail: order,
 				}),
 			);

@@ -3,7 +3,6 @@ import {createContext} from 'react';
 import type {AnyZodObject} from './any-zod-type.js';
 import type {AnyComposition, TComposition} from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
-import type {NonceHistory} from './nonce.js';
 import type {VideoConfig} from './video-config.js';
 
 export type BaseMetadata = Pick<
@@ -60,7 +59,6 @@ export type CompositionManagerSetters = {
 	registerFolder: (
 		name: string,
 		parent: string | null,
-		nonce: NonceHistory,
 		stack: string | null,
 	) => void;
 	unregisterFolder: (name: string, parent: string | null) => void;

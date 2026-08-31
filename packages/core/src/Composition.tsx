@@ -17,12 +17,12 @@ import {FolderContext} from './Folder.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
-import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
+import {CompositionOrderMarker} from './sequence-order-marker.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -155,8 +155,6 @@ const InnerComposition = <
 		noSuspense: false,
 	});
 
-	const nonce = useNonce();
-
 	const isPlayer = useIsPlayer();
 	const environment = useRemotionEnvironment();
 
@@ -209,7 +207,7 @@ const InnerComposition = <
 			defaultProps: serializeThenDeserializeInStudio(
 				(defaultProps ?? {}) as z.output<Schema> & Props,
 			) as InferProps<Schema, Props>,
-			nonce: nonce.get(),
+			order: null,
 			parentFolderName: parentName,
 			componentFromProps,
 			schema: schema ?? null,
@@ -229,7 +227,6 @@ const InnerComposition = <
 		folderName,
 		defaultProps,
 		width,
-		nonce,
 		parentName,
 		componentFromProps,
 		schema,
@@ -330,11 +327,19 @@ export const Composition = <
 	props: CompositionProps<Schema, Props>,
 ) => {
 	const {onlyRenderComposition} = useContext(CompositionSetters);
+	const environment = useRemotionEnvironment();
 
 	if (onlyRenderComposition && onlyRenderComposition !== props.id) {
 		return null;
 	}
 
 	// @ts-expect-error
-	return <InnerComposition {...props} />;
+	const composition = <InnerComposition {...props} />;
+	return environment.isStudio ? (
+		<CompositionOrderMarker compositionId={props.id}>
+			{composition}
+		</CompositionOrderMarker>
+	) : (
+		composition
+	);
 };

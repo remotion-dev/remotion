@@ -279,7 +279,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 											id,
 											// @ts-expect-error
 											component: Component,
-											nonce: [[0, 0]],
+											order: null,
 											defaultProps: {},
 											folderName: null,
 											parentFolderName: null,

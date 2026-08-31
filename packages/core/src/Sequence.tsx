@@ -21,7 +21,6 @@ import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 } from './interactivity-schema.js';
-import {useNonce} from './nonce.js';
 import type {RuntimeValueStore} from './runtime-value-store.js';
 import {
 	getSequenceCropClipPath,
@@ -175,8 +174,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
-	const nonce = useNonce();
-
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
 			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`,
@@ -473,7 +470,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					trimBefore: registeredTrimBefore,
 					id,
 					loopDisplay,
-					nonce: nonce.get(),
 					parent: parentSequence?.id ?? null,
 					postmountDisplay: postmountDisplay ?? null,
 					premountDisplay: premountDisplay ?? null,
@@ -501,7 +497,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				trimBefore: registeredTrimBefore,
 				id,
 				loopDisplay,
-				nonce: nonce.get(),
 				parent: parentSequence?.id ?? null,
 				playbackRate: isMedia.data.playbackRate,
 				postmountDisplay: postmountDisplay ?? null,
@@ -533,7 +528,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			type: 'sequence',
 			showInTimeline,
 			timelineOrder: null,
-			nonce: nonce.get(),
 			loopDisplay,
 			getStack: () => stackRef.current,
 			premountDisplay: premountDisplay ?? null,
@@ -554,7 +548,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		from,
 		registeredTrimBefore,
 		showInTimeline,
-		nonce,
 		loopDisplay,
 		premountDisplay,
 		postmountDisplay,

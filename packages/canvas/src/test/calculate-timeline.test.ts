@@ -6,12 +6,10 @@ const makeSequence = ({
 	id,
 	parent,
 	from,
-	nonce,
 }: {
 	id: string;
 	parent: string | null;
 	from: number;
-	nonce: number;
 }): TSequence => ({
 	controls: null,
 	displayName: id,
@@ -25,7 +23,6 @@ const makeSequence = ({
 	id,
 	isInsideSeries: false,
 	loopDisplay: undefined,
-	nonce: [[0, nonce]],
 	parent,
 	postmountDisplay: null,
 	premountDisplay: null,
@@ -46,8 +43,8 @@ test('normalizes nesting and visible starts', () => {
 	const timeline = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [
-			makeSequence({id: 'child', parent: 'parent', from: -10, nonce: 1}),
-			makeSequence({id: 'parent', parent: null, from: 20, nonce: 0}),
+			makeSequence({id: 'child', parent: 'parent', from: -10}),
+			makeSequence({id: 'parent', parent: null, from: 20}),
 		],
 	});
 
@@ -64,18 +61,16 @@ test('normalizes nesting and visible starts', () => {
 	]);
 });
 
-test('committed Fiber order takes precedence over nonce order', () => {
+test('committed Fiber order takes precedence over internal order', () => {
 	const right = makeSequence({
 		id: 'right',
 		parent: null,
 		from: 10,
-		nonce: 0,
 	});
 	const left = makeSequence({
 		id: 'left',
 		parent: null,
 		from: 0,
-		nonce: 1,
 	});
 	right.timelineOrder = 1;
 	left.timelineOrder = 0;

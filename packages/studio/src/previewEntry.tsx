@@ -5,11 +5,11 @@ import {NoReactInternals} from 'remotion/no-react';
 import {NoRegisterRoot} from './components/NoRegisterRoot';
 import {startErrorOverlay} from './error-overlay/entry-basic';
 import {BACKGROUND_HEX} from './helpers/colors';
-import {installFiberSequenceOrderObserver} from './helpers/install-fiber-sequence-order-observer';
+import {installFiberCommitOrderObserver} from './helpers/install-fiber-sequence-order-observer';
 import {enableHotMiddleware} from './hot-middleware-client/client';
 import {Studio} from './Studio';
 
-installFiberSequenceOrderObserver(window);
+installFiberCommitOrderObserver(window);
 
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultPreviewCSS(null, BACKGROUND_HEX),

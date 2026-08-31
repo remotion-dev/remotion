@@ -242,6 +242,7 @@ const makeTimelineSequence = ({
 	type = 'sequence',
 	showInTimeline = true,
 	singleChildComponent,
+	timelineOrder = null,
 }: {
 	readonly schema: InteractivitySchema;
 	readonly effects?: readonly {readonly schema: InteractivitySchema}[];
@@ -261,6 +262,7 @@ const makeTimelineSequence = ({
 	readonly type?: TSequence['type'];
 	readonly showInTimeline?: boolean;
 	readonly singleChildComponent?: unknown;
+	readonly timelineOrder?: number | null;
 }): TSequence =>
 	({
 		type,
@@ -272,8 +274,8 @@ const makeTimelineSequence = ({
 		documentationLink: null,
 		parent: parentId,
 		showInTimeline,
+		timelineOrder,
 		singleChildComponent,
-		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
 		premountDisplay,
@@ -1974,6 +1976,7 @@ test('TransitionSeries.Sequence resize clamps to adjacent transition durations',
 		id: string,
 		duration: number,
 		overrideId: string,
+		timelineOrder: number,
 	) =>
 		makeTimelineSequence({
 			schema,
@@ -1982,21 +1985,23 @@ test('TransitionSeries.Sequence resize clamps to adjacent transition durations',
 			duration,
 			componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
 			isInsideSeries: true,
+			timelineOrder,
 		});
-	const transition = (id: string, duration: number) =>
+	const transition = (id: string, duration: number, timelineOrder: number) =>
 		makeTimelineSequence({
 			schema: {},
 			id,
 			duration,
 			componentIdentity: 'dev.remotion.transitions.TransitionSeries.Transition',
 			isInsideSeries: true,
+			timelineOrder,
 		});
 	const sequences = [
-		transitionSeriesSequence('first', 30, 'first'),
-		transition('previous-transition', 8),
-		transitionSeriesSequence('target', 40, 'target'),
-		transition('next-transition', 12),
-		transitionSeriesSequence('last', 30, 'last'),
+		transition('previous-transition', 8, 1),
+		transitionSeriesSequence('first', 30, 'first', 0),
+		transitionSeriesSequence('target', 40, 'target', 2),
+		transitionSeriesSequence('last', 30, 'last', 4),
+		transition('next-transition', 12, 3),
 	];
 	const propStatuses = makeLeftEdgePropStatuses(
 		[nodePathInfo.sequenceSubscriptionKey],

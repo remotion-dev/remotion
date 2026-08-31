@@ -81,7 +81,7 @@ const compositionContext = {
 			height: 1080,
 			width: 1920,
 			parentFolderName: null,
-			nonce: [[0, 0]],
+			order: null,
 			calculateMetadata: null,
 			schema: null,
 			stack: null,

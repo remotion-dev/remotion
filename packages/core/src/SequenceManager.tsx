@@ -1,9 +1,9 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {TSequence} from './CompositionManager.js';
 import {
-	SEQUENCE_ORDER_EVENT,
+	COMMIT_ORDER_EVENT,
 	SequenceManagerOrderMarker,
-	type SequenceOrderEventDetail,
+	type CommitOrderEventDetail,
 } from './sequence-order-marker.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
@@ -345,9 +345,9 @@ export const SequenceManagerProvider: React.FC<{
 		}
 
 		let unmounted = false;
-		const onSequenceOrder = (event: Event) => {
-			const {detail} = event as CustomEvent<SequenceOrderEventDetail>;
-			const managerOrder = detail.find(
+		const onCommitOrder = (event: Event) => {
+			const {detail} = event as CustomEvent<CommitOrderEventDetail>;
+			const managerOrder = detail.sequenceManagers.find(
 				(item) => item.managerId === sequenceManagerId,
 			);
 			if (!managerOrder) {
@@ -395,10 +395,10 @@ export const SequenceManagerProvider: React.FC<{
 			});
 		};
 
-		window.addEventListener(SEQUENCE_ORDER_EVENT, onSequenceOrder);
+		window.addEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
 		return () => {
 			unmounted = true;
-			window.removeEventListener(SEQUENCE_ORDER_EVENT, onSequenceOrder);
+			window.removeEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
 		};
 	}, [isStudio, sequenceManagerId]);
 
