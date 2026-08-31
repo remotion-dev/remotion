@@ -73,6 +73,7 @@ const SequenceTestWrapper: React.FC<{
 		() => ({
 			registerSequence,
 			unregisterSequence: () => undefined,
+			updateSequence: registerSequence,
 			sequences: [],
 		}),
 		[registerSequence],
