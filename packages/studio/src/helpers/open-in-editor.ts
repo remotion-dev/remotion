@@ -7,7 +7,6 @@ import type {
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {useEffect} from 'react';
-import {Internals} from 'remotion';
 import {callApi} from '../components/call-api';
 import {getSourceMapFilesForSource} from '../components/Timeline/TimelineStack/get-stack';
 import type {
@@ -15,6 +14,7 @@ import type {
 	OriginalPosition,
 } from '../error-overlay/react-overlay/utils/get-source-map';
 import {getBrowserStudioOperations} from './browser-studio-operations';
+import {useSyncExternalStore} from './use-sync-external-store';
 
 export const openInEditor = (
 	stack: SymbolicatedStackFrame,
@@ -167,7 +167,7 @@ export const useCachedCompositionComponentInfo = ({
 	compositionFile: string | null;
 	compositionId: string | null;
 }) => {
-	const result = Internals.useSyncExternalStore(
+	const result = useSyncExternalStore(
 		subscribeToCompositionComponentInfo,
 		() => {
 			if (compositionFile === null || compositionId === null) {

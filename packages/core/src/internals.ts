@@ -311,7 +311,6 @@ export const Internals = {
 	makeRenderResourceManager,
 	RenderResourceManagerContext,
 	createRuntimeValueStore,
-	useSyncExternalStore,
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
@@ -476,6 +475,10 @@ export const Internals = {
 	resolveSequenceCrop,
 	useCropStyle,
 } as const;
+
+// Keep this available to other Remotion packages without adding it to the
+// public type of Internals.
+Object.assign(Internals, {useSyncExternalStore});
 
 export type {
 	ArrayFieldSchema,
