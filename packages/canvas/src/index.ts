@@ -32,9 +32,5 @@ export type {
 	CanvasSelectionInteraction,
 	CanvasSelectionSnapshot,
 } from './selection';
-export {
-	compareNonceHistories,
-	sortItemsByNonceHistory,
-} from './sort-by-nonce-history';
 export {sortItemsByCommitOrder} from './sort-by-commit-order';
 export {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-key';

@@ -128,8 +128,6 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
-import type {NonceHistory} from './nonce.js';
-import {NonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -393,7 +391,6 @@ export const Internals = {
 	EditorPropsProvider,
 	EditorPropsContext,
 	usePreload,
-	NonceContext,
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
 	resolveVideoConfigWithMetadataOrCatch,
@@ -511,7 +508,6 @@ export type {
 	JsxComponentIdentity,
 	LoggingContextValue,
 	MediaVolumeContextValue,
-	NonceHistory,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	OverrideIdToNodePaths,

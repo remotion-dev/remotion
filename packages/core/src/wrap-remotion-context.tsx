@@ -7,7 +7,6 @@ import {BufferingContextReact} from './buffering.js';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {LogLevelContext} from './log-level-context.js';
-import {NonceContext} from './nonce.js';
 import {PreloadContext} from './prefetch-state.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
@@ -24,7 +23,6 @@ export function useRemotionContexts() {
 	const timelineContext = React.useContext(TimelineContext);
 	const setTimelineContext = React.useContext(SetTimelineContext);
 	const sequenceContext = React.useContext(SequenceContext);
-	const nonceContext = React.useContext(NonceContext);
 	const canUseRemotionHooksContext = React.useContext(CanUseRemotionHooks);
 	const preloadContext = React.useContext(PreloadContext);
 	const resolveCompositionContext = React.useContext(ResolveCompositionContext);
@@ -43,7 +41,6 @@ export function useRemotionContexts() {
 			timelineContext,
 			setTimelineContext,
 			sequenceContext,
-			nonceContext,
 			canUseRemotionHooksContext,
 			preloadContext,
 			resolveCompositionContext,
@@ -56,7 +53,6 @@ export function useRemotionContexts() {
 		}),
 		[
 			compositionManagerCtx,
-			nonceContext,
 			sequenceContext,
 			setTimelineContext,
 			timelineContext,
@@ -85,49 +81,45 @@ export const RemotionContextProvider = (
 	return (
 		<LogLevelContext.Provider value={contexts.logLevelContext}>
 			<CanUseRemotionHooks.Provider value={contexts.canUseRemotionHooksContext}>
-				<NonceContext.Provider value={contexts.nonceContext}>
-					<PreloadContext.Provider value={contexts.preloadContext}>
-						<CompositionManager.Provider value={contexts.compositionManagerCtx}>
-							<SequenceManagerRefContext.Provider
-								value={contexts.sequenceManagerRefContext}
-							>
-								<SequenceManager.Provider
-									value={contexts.sequenceManagerContext}
+				<PreloadContext.Provider value={contexts.preloadContext}>
+					<CompositionManager.Provider value={contexts.compositionManagerCtx}>
+						<SequenceManagerRefContext.Provider
+							value={contexts.sequenceManagerRefContext}
+						>
+							<SequenceManager.Provider value={contexts.sequenceManagerContext}>
+								<VisualModePropStatusesRefContext.Provider
+									value={contexts.visualModePropStatusesRefContext}
 								>
-									<VisualModePropStatusesRefContext.Provider
-										value={contexts.visualModePropStatusesRefContext}
+									<RenderAssetManager.Provider
+										value={contexts.renderAssetManagerContext}
 									>
-										<RenderAssetManager.Provider
-											value={contexts.renderAssetManagerContext}
+										<ResolveCompositionContext.Provider
+											value={contexts.resolveCompositionContext}
 										>
-											<ResolveCompositionContext.Provider
-												value={contexts.resolveCompositionContext}
+											<TimelineContext.Provider
+												value={contexts.timelineContext}
 											>
-												<TimelineContext.Provider
-													value={contexts.timelineContext}
+												<SetTimelineContext.Provider
+													value={contexts.setTimelineContext}
 												>
-													<SetTimelineContext.Provider
-														value={contexts.setTimelineContext}
+													<SequenceContext.Provider
+														value={contexts.sequenceContext}
 													>
-														<SequenceContext.Provider
-															value={contexts.sequenceContext}
+														<BufferingContextReact.Provider
+															value={contexts.bufferManagerContext}
 														>
-															<BufferingContextReact.Provider
-																value={contexts.bufferManagerContext}
-															>
-																{children}
-															</BufferingContextReact.Provider>
-														</SequenceContext.Provider>
-													</SetTimelineContext.Provider>
-												</TimelineContext.Provider>
-											</ResolveCompositionContext.Provider>
-										</RenderAssetManager.Provider>
-									</VisualModePropStatusesRefContext.Provider>
-								</SequenceManager.Provider>
-							</SequenceManagerRefContext.Provider>
-						</CompositionManager.Provider>
-					</PreloadContext.Provider>
-				</NonceContext.Provider>
+															{children}
+														</BufferingContextReact.Provider>
+													</SequenceContext.Provider>
+												</SetTimelineContext.Provider>
+											</TimelineContext.Provider>
+										</ResolveCompositionContext.Provider>
+									</RenderAssetManager.Provider>
+								</VisualModePropStatusesRefContext.Provider>
+							</SequenceManager.Provider>
+						</SequenceManagerRefContext.Provider>
+					</CompositionManager.Provider>
+				</PreloadContext.Provider>
 			</CanUseRemotionHooks.Provider>
 		</LogLevelContext.Provider>
 	);

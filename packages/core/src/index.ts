@@ -232,7 +232,6 @@ export {
 	random,
 	RandomSeed,
 } from './no-react';
-export type {NonceHistory} from './nonce.js';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export type {PixelFormat, VideoImageFormat} from './render-types.js';
