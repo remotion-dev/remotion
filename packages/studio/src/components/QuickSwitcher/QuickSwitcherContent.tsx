@@ -314,6 +314,7 @@ export const QuickSwitcherContent: React.FC<{
 					id: 'composition-' + composition.id,
 					title: composition.id,
 					type: 'composition',
+					composition,
 					level: result.level,
 					onSelected: () => {
 						if (compositionSelection !== null) {
