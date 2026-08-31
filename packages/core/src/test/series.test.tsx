@@ -50,10 +50,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 		frame: {
 			'my-comp': frame,
 		},
-		playing: false,
-		imperativePlaying: {
-			current: false,
-		},
+		isPlaying: () => false,
 		audioAndVideoTags: {current: []},
 	};
 

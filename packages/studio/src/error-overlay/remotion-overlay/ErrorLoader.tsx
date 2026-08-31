@@ -1,5 +1,6 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
 import React, {useEffect, useState} from 'react';
+import {registerCurrentError} from '../current-error';
 import {wasErrorLoggedByServer} from '../error-origin';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {getErrorRecord} from '../react-overlay/listen-to-runtime-errors';
@@ -93,7 +94,9 @@ export const ErrorLoader: React.FC<{
 	});
 
 	useEffect(() => {
-		getErrorRecord(error)
+		const symbolication = getErrorRecord(error);
+		const unregister = registerCurrentError({error, symbolication});
+		symbolication
 			.then((record) => {
 				if (record) {
 					if (shouldLogError(error)) {
@@ -124,6 +127,8 @@ export const ErrorLoader: React.FC<{
 					type: 'error',
 				});
 			});
+
+		return unregister;
 	}, [error]);
 
 	if (state.type === 'loading') {

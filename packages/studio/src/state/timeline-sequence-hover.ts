@@ -1,16 +1,11 @@
 import type {Dispatch, SetStateAction} from 'react';
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useSyncExternalStore,
-} from 'react';
+import {createContext, useCallback, useContext, useMemo} from 'react';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	timelineNodePathInfoToKey,
 	timelineSequenceNodePathToKey,
 } from '../helpers/timeline-node-path-key';
+import {useSyncExternalStore} from '../helpers/use-sync-external-store';
 
 export type TimelineSequenceHover = {
 	readonly key: string;

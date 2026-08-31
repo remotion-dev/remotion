@@ -169,7 +169,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	const player = usePlayerMethods();
-	const [playing] = Internals.Timeline.usePlayingState();
+	const playing = Internals.usePlaying();
 	const frame = Internals.Timeline.useTimelinePosition();
 
 	const play = useCallback(

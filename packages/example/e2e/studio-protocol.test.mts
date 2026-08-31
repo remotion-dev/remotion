@@ -82,11 +82,7 @@ export const MyComponent = () => {
 };
 `,
 	);
-	const closeupDirectory = path.join(
-		temporaryProject,
-		'src',
-		'closeups',
-	);
+	const closeupDirectory = path.join(temporaryProject, 'src', 'closeups');
 	fs.mkdirSync(closeupDirectory);
 	fs.writeFileSync(
 		path.join(closeupDirectory, 'Closeup.tsx'),
@@ -443,16 +439,18 @@ const CloseupPlaceholder = () => {
 			closeupDirectory,
 			'ProtocolElementScene.tsx',
 		);
+		const newCompositionElementFile = path.join(
+			closeupDirectory,
+			'protocol-element.element.tsx',
+		);
 		await waitForFile(newCompositionFile);
+		await waitForFile(newCompositionElementFile);
 		await expect
 			.poll(() => fs.readFileSync(newCompositionFile, 'utf8'))
 			.toContain('ProtocolElement');
-		expect(
-			fs.readFileSync(
-				path.join(closeupDirectory, 'protocol-element.element.tsx'),
-				'utf8',
-			),
-		).toContain('export const ProtocolElement');
+		expect(fs.readFileSync(newCompositionElementFile, 'utf8')).toContain(
+			'export const ProtocolElement',
+		);
 		const sourceWithNewComposition = fs.readFileSync(
 			path.join(closeupDirectory, 'Closeup.tsx'),
 			'utf8',

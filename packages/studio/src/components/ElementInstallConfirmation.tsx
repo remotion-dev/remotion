@@ -1,8 +1,4 @@
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import type {
-	ElementInstallExpectedFileState,
-	ElementInstallRequest,
-} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -14,6 +10,7 @@ import React, {
 import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
@@ -30,6 +27,10 @@ import {
 import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
 import {useCreateComposition} from '../helpers/use-create-composition';
 import {validateCompositionName} from '../helpers/validate-new-comp-data';
+import type {
+	ElementInstallModalState,
+	ElementInstallPlan,
+} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {Button} from './Button';
 import {prepareElementInstall} from './element-install-api';
@@ -351,12 +352,6 @@ export const ElementLibraryAddConfirmation: React.FC<{
 	);
 };
 
-type ElementInstallPlan = {
-	readonly compositionFile: string;
-	readonly filePath: string;
-	readonly expectedFileState: ElementInstallExpectedFileState;
-};
-
 type NewCompositionPlanState =
 	| {
 			readonly type: 'loading';
@@ -373,37 +368,35 @@ type NewCompositionPlanState =
 			readonly reason: string;
 	  };
 
-type CurrentCompositionMetadata = {
-	readonly durationInFrames: number;
-	readonly fps: number;
-	readonly height: number;
-	readonly width: number;
-};
-
 export const ElementInstallConfirmation: React.FC<{
-	readonly currentCompositionMetadata: CurrentCompositionMetadata | null;
-	readonly currentPlan: ElementInstallPlan | null;
-	readonly dependenciesToReview: string[];
-	readonly missingPackages: string[];
-	readonly newPlan: ElementInstallPlan;
-	readonly onClose: () => void;
-	readonly request: ElementInstallRequest;
-	readonly sourceIsUnverified: boolean;
-	readonly sourceLabel: string;
-	readonly usesBrowserDependencyResolution: boolean;
-}> = ({
-	currentCompositionMetadata,
-	currentPlan,
-	dependenciesToReview,
-	missingPackages,
-	newPlan,
-	onClose,
-	request,
-	sourceIsUnverified,
-	sourceLabel,
-	usesBrowserDependencyResolution,
-}) => {
-	const {compositions} = useContext(Internals.CompositionManager);
+	readonly state: ElementInstallModalState;
+}> = ({state}) => {
+	const {
+		currentPlan,
+		dependenciesToReview,
+		missingPackages,
+		newPlan,
+		onClose,
+		request,
+		sourceIsUnverified,
+		sourceLabel,
+	} = state;
+	const config = Internals.useUnsafeVideoConfig();
+	const {canvasContent, compositions} = useContext(
+		Internals.CompositionManager,
+	);
+	const currentCompositionMetadata =
+		config === null ||
+		canvasContent?.type !== 'composition' ||
+		canvasContent.compositionId !== request.compositionId
+			? null
+			: {
+					durationInFrames: config.durationInFrames,
+					fps: config.fps,
+					height: config.height,
+					width: config.width,
+				};
+	const usesBrowserDependencyResolution = getBrowserStudioOperations() !== null;
 	const {currentZIndex} = useZIndex();
 	const [mode, setMode] = useState<'current-composition' | 'new-composition'>(
 		currentPlan === null ? 'new-composition' : 'current-composition',

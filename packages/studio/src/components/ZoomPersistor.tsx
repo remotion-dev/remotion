@@ -18,7 +18,7 @@ export const getZoomFromLocalStorage = (): Record<string, number> => {
 };
 
 export const ZoomPersistor: React.FC = () => {
-	const [playing] = Internals.Timeline.usePlayingState();
+	const playing = Internals.usePlaying();
 	const {zoom} = useContext(TimelineZoomCtx);
 
 	const {canvasContent} = useContext(Internals.CompositionManager);
