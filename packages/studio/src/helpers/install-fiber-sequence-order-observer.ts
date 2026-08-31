@@ -172,11 +172,16 @@ export const installFiberCommitOrderObserver = (
 		try {
 			const [, root] = args;
 			const order = collectCommitOrderFromFiber(root);
-			target.dispatchEvent(
-				new CustomEvent(Internals.CommitOrderInternals.eventName, {
-					detail: order,
-				}),
-			);
+			if (
+				order.sequenceManagers.length > 0 ||
+				order.compositionManagers.length > 0
+			) {
+				target.dispatchEvent(
+					new CustomEvent(Internals.CommitOrderInternals.eventName, {
+						detail: order,
+					}),
+				);
+			}
 		} catch {
 			// Fiber is private React API. An unsupported shape must not break Studio.
 		}

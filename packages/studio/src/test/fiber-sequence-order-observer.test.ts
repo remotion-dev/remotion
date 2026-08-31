@@ -165,6 +165,7 @@ test('chains the existing commit hook and emits the committed order once', () =>
 	try {
 		expect(installFiberCommitOrderObserver(window)).toBe(true);
 		expect(installFiberCommitOrderObserver(window)).toBe(true);
+		hook.onCommitFiberRoot(1, {current: makeFiber()}, null, false);
 		hook.onCommitFiberRoot(1, root, null, false);
 	} finally {
 		window.removeEventListener(
@@ -173,7 +174,7 @@ test('chains the existing commit hook and emits the committed order once', () =>
 		);
 	}
 
-	expect(previousHookCalls).toBe(1);
+	expect(previousHookCalls).toBe(2);
 	expect(events).toEqual([
 		{
 			sequenceManagers: [{managerId: 'manager-a', sequenceIds: ['first']}],
