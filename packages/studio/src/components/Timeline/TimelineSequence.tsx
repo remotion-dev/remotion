@@ -54,7 +54,6 @@ import {
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
-	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 	useTimelineSelection,
 } from './TimelineSelection';
@@ -207,8 +206,6 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
-	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
-	const {selectedItems} = useTimelineSelection();
 	useTimelineMarqueeSelectableItem(selectionItem, ref);
 
 	const onPointerDown = useCallback(
@@ -259,17 +256,13 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		: 0;
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
-		const hasSelectedTrack = selectedItems.some(
-			(item) => item.type !== 'guide',
-		);
-
 		return {
 			...style,
 			background: negativeStart ? TRANSPARENT : style.background,
 			border: negativeStart ? 'none' : style.border,
-			opacity: hasSelectedTrack && !selected && !containsSelection ? 0.75 : 1,
+			opacity: selected ? 1 : 0.75,
 		};
-	}, [containsSelection, negativeStart, selected, selectedItems, style]);
+	}, [negativeStart, selected, style]);
 
 	const content = (
 		<>
