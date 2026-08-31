@@ -11,7 +11,12 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {CanvasCaptureData, RenderDefaults} from '@remotion/studio-shared';
+import type {
+	CanvasCaptureData,
+	ElementInstallExpectedFileState,
+	ElementInstallRequest,
+	RenderDefaults,
+} from '@remotion/studio-shared';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
@@ -143,6 +148,24 @@ export type CanvasCaptureImport = {
 	readonly width: number;
 };
 
+export type ElementInstallPlan = {
+	readonly compositionFile: string;
+	readonly filePath: string;
+	readonly expectedFileState: ElementInstallExpectedFileState;
+};
+
+export type ElementInstallModalState = {
+	readonly type: 'element-install';
+	readonly currentPlan: ElementInstallPlan | null;
+	readonly dependenciesToReview: string[];
+	readonly missingPackages: string[];
+	readonly newPlan: ElementInstallPlan;
+	readonly onClose: () => void;
+	readonly request: ElementInstallRequest;
+	readonly sourceIsUnverified: boolean;
+	readonly sourceLabel: string;
+};
+
 export type ModalState =
 	| {
 			type: 'new-comp';
@@ -232,6 +255,7 @@ export type ModalState =
 			name: string;
 			url: string;
 	  }
+	| ElementInstallModalState
 	| AddEffectModalState
 	| ConfirmationDialogState
 	| SvgImportDialogState;

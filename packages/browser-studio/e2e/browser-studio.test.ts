@@ -1101,6 +1101,10 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 	await expect(
 		studio.getByText('Install Element', {exact: true}),
 	).toBeVisible();
+	await expect(page).toHaveTitle(
+		'📦 Install Linked Element - Remotion Studio',
+		{timeout: 5000},
+	);
 	await expect(
 		studio.getByText('Unverified Browser Studio link'),
 	).toBeVisible();
@@ -1158,6 +1162,9 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 				).__browserStudioInstallPreservedIframe,
 		),
 	).toBe(true);
+	await expect(page).toHaveTitle('MyComp / template-blank - Remotion Studio', {
+		timeout: 5000,
+	});
 });
 
 test('reports inline SVG imports as unsupported without changing the project', async ({

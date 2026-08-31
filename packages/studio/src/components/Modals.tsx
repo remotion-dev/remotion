@@ -7,7 +7,10 @@ import {AskAiModal} from './AskAiModal';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
-import {ElementLibraryAddConfirmation} from './ElementInstallConfirmation';
+import {
+	ElementInstallConfirmation,
+	ElementLibraryAddConfirmation,
+} from './ElementInstallConfirmation';
 import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
@@ -274,6 +277,9 @@ export const Modals: React.FC<{
 					name={modalContextType.name}
 					url={modalContextType.url}
 				/>
+			)}
+			{modalContextType && modalContextType.type === 'element-install' && (
+				<ElementInstallConfirmation state={modalContextType} />
 			)}
 			{modalContextType && modalContextType.type === 'add-effect' && (
 				<EffectPickerModal state={modalContextType} />

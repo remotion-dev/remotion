@@ -1,9 +1,6 @@
 import type {Size} from '@remotion/player';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import type {
-	ElementInstallExpectedFileState,
-	ElementInstallRequest,
-} from '@remotion/studio-shared';
+import type {ElementInstallRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -71,7 +68,6 @@ import {
 	enqueueElementInstallRequest,
 	subscribeToElementInstallRequests,
 } from './element-install-request';
-import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {handleDrop} from './handle-drop';
 import {
 	getFromForDrop,
@@ -90,21 +86,6 @@ import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const elementInstallDependencyIgnoreList = ['react', 'react-dom', 'remotion'];
-
-type ElementInstallPlan = {
-	readonly compositionFile: string;
-	readonly filePath: string;
-	readonly expectedFileState: ElementInstallExpectedFileState;
-};
-
-type ElementInstallReview = {
-	readonly currentPlan: ElementInstallPlan | null;
-	readonly dependenciesToReview: string[];
-	readonly missingPackages: string[];
-	readonly newPlan: ElementInstallPlan;
-	readonly sourceIsUnverified: boolean;
-	readonly sourceLabel: string;
-};
 
 const getContainerStyle = (
 	editorZoomGestures: boolean,
@@ -256,15 +237,10 @@ export const Canvas: React.FC<{
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [compositionDropPreview, setCompositionDropPreview] =
 		useState<CompositionDropPreview | null>(null);
-	const [installingElementName, setInstallingElementName] = useState<
-		string | null
-	>(null);
 	const [pendingElementInstallRequests, setPendingElementInstallRequests] =
 		useState<ElementInstallRequest[]>([]);
 	const [activeElementInstallRequest, setActiveElementInstallRequest] =
 		useState<ElementInstallRequest | null>(null);
-	const [elementInstallReview, setElementInstallReview] =
-		useState<ElementInstallReview | null>(null);
 	const lastFocusedAtRef = useRef<number | null>(
 		typeof document === 'undefined' || document.hasFocus() ? Date.now() : null,
 	);
@@ -833,19 +809,6 @@ export const Canvas: React.FC<{
 	}, [subscribeToEvent, updateElementInstallTarget]);
 
 	useEffect(() => {
-		if (installingElementName === null) {
-			return;
-		}
-
-		const previousTitle = document.title;
-		document.title = `📦 Install ${installingElementName} - Remotion Studio`;
-
-		return () => {
-			document.title = previousTitle;
-		};
-	}, [installingElementName]);
-
-	useEffect(() => {
 		if (previewServerClientId === null) {
 			return;
 		}
@@ -930,6 +893,11 @@ export const Canvas: React.FC<{
 		setPendingElementInstallRequests(remainingRequests);
 	}, [activeElementInstallRequest, pendingElementInstallRequests]);
 
+	const closeElementInstallDialog = useCallback(() => {
+		setSelectedModal(null);
+		setActiveElementInstallRequest(null);
+	}, [setSelectedModal]);
+
 	useEffect(() => {
 		if (activeElementInstallRequest === null) {
 			return;
@@ -937,7 +905,6 @@ export const Canvas: React.FC<{
 
 		let canceled = false;
 		const handleInstallRequest = async () => {
-			setInstallingElementName(activeElementInstallRequest.element.displayName);
 			try {
 				const [newPreflight, currentPreflight] = await Promise.all([
 					prepareElementInstall({
@@ -965,7 +932,6 @@ export const Canvas: React.FC<{
 						`Could not review Element installation: ${newPreflight.reason}`,
 						4000,
 					);
-					setInstallingElementName(null);
 					setActiveElementInstallRequest(null);
 					return;
 				}
@@ -1005,12 +971,14 @@ export const Canvas: React.FC<{
 				const currentPlan = currentPreflight.success
 					? currentPreflight.plan
 					: null;
-				setSelectedModal(null);
-				setElementInstallReview({
+				setSelectedModal({
+					type: 'element-install',
 					currentPlan,
 					dependenciesToReview,
 					missingPackages,
 					newPlan: newPreflight.plan,
+					onClose: closeElementInstallDialog,
+					request: activeElementInstallRequest,
 					sourceIsUnverified,
 					sourceLabel,
 				});
@@ -1025,7 +993,6 @@ export const Canvas: React.FC<{
 					}`,
 					4000,
 				);
-				setInstallingElementName(null);
 				setActiveElementInstallRequest(null);
 			}
 		};
@@ -1034,13 +1001,11 @@ export const Canvas: React.FC<{
 		return () => {
 			canceled = true;
 		};
-	}, [activeElementInstallRequest, setSelectedModal]);
-
-	const closeElementInstallDialog = useCallback(() => {
-		setElementInstallReview(null);
-		setInstallingElementName(null);
-		setActiveElementInstallRequest(null);
-	}, []);
+	}, [
+		activeElementInstallRequest,
+		closeElementInstallDialog,
+		setSelectedModal,
+	]);
 
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
@@ -1513,33 +1478,6 @@ export const Canvas: React.FC<{
 					canvasSize={size}
 					assetMetadata={assetResolution}
 					containerRef={canvasRef}
-				/>
-			)}
-			{activeElementInstallRequest === null ||
-			elementInstallReview === null ? null : (
-				<ElementInstallConfirmation
-					currentCompositionMetadata={
-						config === null ||
-						currentCompositionId !== activeElementInstallRequest.compositionId
-							? null
-							: {
-									durationInFrames: config.durationInFrames,
-									fps: config.fps,
-									height: config.height,
-									width: config.width,
-								}
-					}
-					currentPlan={elementInstallReview.currentPlan}
-					dependenciesToReview={elementInstallReview.dependenciesToReview}
-					missingPackages={elementInstallReview.missingPackages}
-					newPlan={elementInstallReview.newPlan}
-					onClose={closeElementInstallDialog}
-					request={activeElementInstallRequest}
-					sourceIsUnverified={elementInstallReview.sourceIsUnverified}
-					sourceLabel={elementInstallReview.sourceLabel}
-					usesBrowserDependencyResolution={
-						getBrowserStudioOperations() !== null
-					}
 				/>
 			)}
 		</>
