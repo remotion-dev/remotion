@@ -15,18 +15,8 @@ import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {getFrameFromTimelineDrop} from './timeline-scroll-logic';
 import {useResolvedStack} from './use-resolved-stack';
 
-const isEventInsideElement = (event: DragEvent, element: HTMLElement) => {
-	if (event.target instanceof Node && element.contains(event.target)) {
-		return true;
-	}
-
-	const rect = element.getBoundingClientRect();
-	return (
-		event.clientX >= rect.left &&
-		event.clientX <= rect.right &&
-		event.clientY >= rect.top &&
-		event.clientY <= rect.bottom
-	);
+const isEventTargetInsideElement = (event: DragEvent, element: HTMLElement) => {
+	return event.target instanceof Node && element.contains(event.target);
 };
 
 export const useTimelineAssetDrop = () => {
@@ -76,7 +66,8 @@ export const useTimelineAssetDrop = () => {
 			}
 
 			const scrollable = scrollableRef.current;
-			return scrollable !== null && isEventInsideElement(event, scrollable)
+			return scrollable !== null &&
+				isEventTargetInsideElement(event, scrollable)
 				? getFrameFromTimelineDrop({
 						clientX: event.clientX,
 						durationInFrames: videoConfig.durationInFrames,
@@ -97,7 +88,7 @@ export const useTimelineAssetDrop = () => {
 				timeline === null ||
 				dataTransfer === null ||
 				!isSupportedDropEvent(event) ||
-				!isEventInsideElement(event, timeline)
+				!isEventTargetInsideElement(event, timeline)
 			) {
 				setAssetDropFrame(null);
 				return;
@@ -110,7 +101,7 @@ export const useTimelineAssetDrop = () => {
 			const shouldShowDropFrame =
 				canInsertAsset &&
 				scrollable !== null &&
-				isEventInsideElement(event, scrollable);
+				isEventTargetInsideElement(event, scrollable);
 			setAssetDropFrame(shouldShowDropFrame ? getDropFrame(event) : null);
 		},
 		[canInsertAsset, getDropFrame],
@@ -125,7 +116,7 @@ export const useTimelineAssetDrop = () => {
 				timeline === null ||
 				dataTransfer === null ||
 				!isSupportedDropEvent(event) ||
-				!isEventInsideElement(event, timeline)
+				!isEventTargetInsideElement(event, timeline)
 			) {
 				return;
 			}

@@ -42,7 +42,7 @@ const desiredFontSize = 80;
 const maximumTextWidth = 800;
 const fontWeight = '700';
 const textColor = '#ffffff';
-const highlightColor = '#18ff0e';
+const highlightColor = '#4da3ff';
 const defaultCombineTokensWithinMilliseconds = 800;
 const defaultCaptions: Caption[] = [
 	{
