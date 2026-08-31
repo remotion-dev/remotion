@@ -99,8 +99,7 @@ const getCanvasDragPreviewMetadata = (mimeTypes: ArrayLike<string>) => {
 		};
 	}
 
-	const protocol = StudioProtocolInternals.getDragPreviewMetadata(mimeTypes);
-	return protocol?.type === 'composition' ? null : protocol;
+	return StudioProtocolInternals.getDragPreviewMetadata(mimeTypes);
 };
 
 const getContainerStyle = (
