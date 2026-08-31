@@ -8,11 +8,13 @@ import {LogLevelContext} from '../log-level-context.js';
 import {SequenceManagerProvider} from '../SequenceManager.js';
 import type {
 	PlaybackRateContextValue,
+	SetTimelineContextValue,
 	TimelineContextValue,
 } from '../TimelineContext.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
+	SetTimelineContext,
 	TimelineContext,
 } from '../TimelineContext.js';
 
@@ -68,6 +70,15 @@ const mockPlaybackRateContext: PlaybackRateContextValue = {
 	},
 };
 
+const mockSetTimelineContext: SetTimelineContextValue = {
+	setFrame: () => undefined,
+	setPlaying: () => undefined,
+	subscribePlaying: () => () => undefined,
+	frameRef: {current: {}},
+	isPlaying: () => false,
+	audioAndVideoTags: {current: []},
+};
+
 const MaybeTimelineProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly timelineContext: TimelineContextValue;
@@ -115,8 +126,7 @@ export const WrapSequenceContext: React.FC<{
 	const timelineContext = useMemo<TimelineContextValue>(
 		() => ({
 			frame: {'my-comp': currentFrame},
-			playing: false,
-			imperativePlaying: {current: false},
+			isPlaying: () => false,
 			audioAndVideoTags: {current: []},
 		}),
 		[currentFrame],
@@ -127,13 +137,15 @@ export const WrapSequenceContext: React.FC<{
 			<BufferingProvider>
 				<CanUseRemotionHooksProvider>
 					<MaybeTimelineProvider timelineContext={timelineContext}>
-						<MaybePlaybackRateProvider>
-							<SequenceManagerProvider>
-								<CompositionManager.Provider value={compositionContext}>
-									{children}
-								</CompositionManager.Provider>
-							</SequenceManagerProvider>
-						</MaybePlaybackRateProvider>
+						<SetTimelineContext.Provider value={mockSetTimelineContext}>
+							<MaybePlaybackRateProvider>
+								<SequenceManagerProvider>
+									<CompositionManager.Provider value={compositionContext}>
+										{children}
+									</CompositionManager.Provider>
+								</SequenceManagerProvider>
+							</MaybePlaybackRateProvider>
+						</SetTimelineContext.Provider>
 					</MaybeTimelineProvider>
 				</CanUseRemotionHooksProvider>
 			</BufferingProvider>

@@ -157,6 +157,7 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
+import {createRuntimeValueStore} from './runtime-value-store.js';
 import {resolveSequenceCrop} from './sequence-crop.js';
 import type {
 	OverrideIdToNodePaths,
@@ -206,10 +207,8 @@ import {
 	PlaybackRateContext,
 	SetTimelineContext,
 	TimelineContext,
-	TimelineImperativeContext,
 	type PlaybackRateContextValue,
 	type SetTimelineContextValue,
-	type TimelineImperativeContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {truthy} from './truthy.js';
@@ -227,6 +226,7 @@ import {
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import {PixelDensityContext} from './use-pixel-density.js';
+import {usePlaying} from './use-playing.js';
 import {usePremounting} from './use-premounting.js';
 import type {
 	CanUpdateSequencePropStatusFalse,
@@ -250,6 +250,7 @@ import {
 	type EffectDragOverrides,
 	type PropStatuses,
 } from './use-schema.js';
+import {useSyncExternalStore} from './use-sync-external-store.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
@@ -309,6 +310,7 @@ export const Internals = {
 	MEDIABUNNY_DURATION_VALUE_KEY,
 	makeRenderResourceManager,
 	RenderResourceManagerContext,
+	createRuntimeValueStore,
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
@@ -439,7 +441,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
-	TimelineImperativeContext,
+	usePlaying,
 	PlaybackRateContext,
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
@@ -473,6 +475,10 @@ export const Internals = {
 	resolveSequenceCrop,
 	useCropStyle,
 } as const;
+
+// Keep this available to other Remotion packages without adding it to the
+// public type of Internals.
+Object.assign(Internals, {useSyncExternalStore});
 
 export type {
 	ArrayFieldSchema,
@@ -528,7 +534,6 @@ export type {
 	TCompMetadata,
 	TComposition,
 	TimelineContextValue,
-	TimelineImperativeContextValue,
 	TRenderAsset,
 	TSequence,
 	VisibleFieldSchema,

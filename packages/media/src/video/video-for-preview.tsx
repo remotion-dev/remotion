@@ -37,7 +37,6 @@ import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
 const {
 	useUnsafeVideoConfig,
-	Timeline,
 	SharedAudioContext,
 	usePlayerMutedState,
 	useMediaVolumeState,
@@ -47,6 +46,7 @@ const {
 	usePreload,
 	SequenceContext,
 	useEffectChainState,
+	usePlaying,
 } = Internals;
 
 type VideoForPreviewProps = NativeVideoProps & {
@@ -128,7 +128,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
 		useState(false);
 
-	const [playing] = Timeline.usePlayingState();
+	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();

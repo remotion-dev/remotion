@@ -1,6 +1,7 @@
 import type {ComponentType, LazyExoticComponent, RefObject} from 'react';
 import React, {
 	forwardRef,
+	useCallback,
 	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
@@ -242,10 +243,18 @@ const PlayerFn = <
 	const [frame, setFrame] = useState<Record<string, number>>(() => ({
 		[PLAYER_COMP_ID]: initialFrame ?? 0,
 	}));
-	const [playing, setPlaying] = useState<boolean>(false);
+	const frameRef = useRef(frame);
+	frameRef.current = frame;
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
-	const imperativePlaying = useRef(false);
+	const playingStore = useMemo(
+		() => Internals.createRuntimeValueStore({playing: false}),
+		[],
+	);
+	const readIsPlaying = useCallback(
+		() => playingStore.store.getSnapshot().playing,
+		[playingStore],
+	);
 	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
 	if (typeof compositionHeight !== 'number') {
@@ -410,11 +419,10 @@ const PlayerFn = <
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			playing,
-			imperativePlaying,
+			isPlaying: readIsPlaying,
 			audioAndVideoTags,
 		};
-	}, [frame, playing]);
+	}, [frame, readIsPlaying]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -426,9 +434,20 @@ const PlayerFn = <
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
 			setFrame,
-			setPlaying,
+			setPlaying: (updater) => {
+				const current = playingStore.store.getSnapshot().playing;
+				const next = typeof updater === 'function' ? updater(current) : updater;
+
+				if (current !== next) {
+					playingStore.setSnapshot({playing: next});
+				}
+			},
+			subscribePlaying: playingStore.store.subscribe,
+			frameRef,
+			isPlaying: readIsPlaying,
+			audioAndVideoTags,
 		};
-	}, [setFrame]);
+	}, [playingStore, setFrame, frameRef, readIsPlaying]);
 
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks

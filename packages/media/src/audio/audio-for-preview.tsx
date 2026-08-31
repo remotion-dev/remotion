@@ -16,7 +16,6 @@ import type {FallbackHtml5AudioProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
-	Timeline,
 	SharedAudioContext,
 	usePlayerMutedState,
 	useMediaVolumeState,
@@ -25,6 +24,7 @@ const {
 	warnAboutTooHighVolume,
 	usePreload,
 	SequenceContext,
+	usePlaying,
 } = Internals;
 
 type NewAudioForPreviewProps = {
@@ -85,7 +85,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const [shouldFallbackToNativeAudio, setShouldFallbackToNativeAudio] =
 		useState(false);
 
-	const [playing] = Timeline.usePlayingState();
+	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();

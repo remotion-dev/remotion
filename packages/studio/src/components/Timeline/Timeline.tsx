@@ -6,7 +6,6 @@ import React, {
 	useMemo,
 	useRef,
 	useState,
-	useSyncExternalStore,
 } from 'react';
 import {Internals} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
@@ -25,6 +24,7 @@ import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
 import {timelineSequenceNodePathToKey} from '../../helpers/timeline-node-path-key';
+import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';

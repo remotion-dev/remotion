@@ -1,5 +1,5 @@
 import type {RefObject} from 'react';
-import {useEffect} from 'react';
+import {useEffect, useRef} from 'react';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
@@ -21,7 +21,9 @@ export const useMediaTag = ({
 	isPremounting: boolean;
 	isPostmounting: boolean;
 }) => {
-	const {audioAndVideoTags, imperativePlaying} = useTimelineContext();
+	const {audioAndVideoTags, isPlaying} = useTimelineContext();
+	const isPlayingRef = useRef(isPlaying);
+	isPlayingRef.current = isPlaying;
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 	const env = useRemotionEnvironment();
@@ -30,7 +32,7 @@ export const useMediaTag = ({
 		const tag: PlayableMediaTag = {
 			id,
 			play: (reason) => {
-				if (!imperativePlaying.current) {
+				if (!isPlayingRef.current()) {
 					// Don't play if for example in a <Freeze> state.
 					return;
 				}
@@ -63,7 +65,6 @@ export const useMediaTag = ({
 		mediaRef,
 		mediaType,
 		onAutoPlayError,
-		imperativePlaying,
 		isPremounting,
 		isPostmounting,
 		logLevel,

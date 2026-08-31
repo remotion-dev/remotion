@@ -3,6 +3,7 @@ import React, {createRef, useRef} from 'react';
 import {Html5Audio, Internals, useCurrentFrame} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
+import {Thumbnail} from '../Thumbnail.js';
 import type {UsePlayerMethods} from '../use-player-methods.js';
 import {usePlayerMethods} from '../use-player-methods.js';
 import {act, cleanup, fireEvent, render} from './test-utils.js';
@@ -15,6 +16,26 @@ test('It should throw an error if not being used inside a RemotionRoot', () => {
 	expect(() => {
 		usePlayerMethods();
 	}).toThrow();
+});
+
+const ThumbnailPlayingProbe = () => {
+	const playing = Internals.usePlaying();
+	return React.createElement('div', null, playing ? 'playing' : 'paused');
+};
+
+test('Thumbnail supports usePlaying in its composition', () => {
+	const view = render(
+		React.createElement(Thumbnail, {
+			component: ThumbnailPlayingProbe,
+			durationInFrames: 100,
+			compositionWidth: 1920,
+			compositionHeight: 1080,
+			fps: 30,
+			frameToDisplay: 0,
+		}),
+	);
+
+	expect(view.getByText('paused')).toBeTruthy();
 });
 
 test('Seeking to the current frame does not rerender the composition', () => {
@@ -102,44 +123,6 @@ test('Imperative player methods do not rerender when the frame changes', () => {
 
 	expect(playerRef.current?.getCurrentFrame()).toBe(33);
 	expect(methodRenders).toBe(rendersAfterMount);
-});
-
-test('Player methods fall back when core has no timeline imperative context', () => {
-	const internalsWithOptionalContext = Internals as {
-		TimelineImperativeContext?: typeof Internals.TimelineImperativeContext;
-	};
-	const timelineImperativeContext =
-		internalsWithOptionalContext.TimelineImperativeContext;
-	delete internalsWithOptionalContext.TimelineImperativeContext;
-
-	try {
-		const methodsRef: {current: UsePlayerMethods | null} = {current: null};
-		const renderCustomControls = () =>
-			React.createElement(PlayerMethodsProbe, {
-				onRender: (methods) => {
-					methodsRef.current = methods;
-				},
-			});
-
-		render(
-			React.createElement(Player, {
-				component: () => null,
-				durationInFrames: 100,
-				compositionWidth: 1920,
-				compositionHeight: 1080,
-				fps: 30,
-				controls: true,
-				renderCustomControls,
-			}),
-		);
-
-		expect(methodsRef.current?.getCurrentFrame()).toBe(0);
-		act(() => methodsRef.current?.seek(20));
-		expect(methodsRef.current?.getCurrentFrame()).toBe(20);
-	} finally {
-		internalsWithOptionalContext.TimelineImperativeContext =
-			timelineImperativeContext;
-	}
 });
 
 test('Playing from the last frame resets playback and dismisses the unplayed poster', () => {
