@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.518",
+	"version": "4.0.519",
 	"scripts": {
 		"formatting": "oxfmt src standalone --check",
 		"format": "oxfmt src standalone",
@@ -44,6 +44,7 @@
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/animation-utils": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
+		"@remotion/brand": "workspace:*",
 		"@remotion/browser-studio": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/captions": "workspace:*",

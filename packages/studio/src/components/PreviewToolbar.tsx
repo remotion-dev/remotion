@@ -227,7 +227,7 @@ export const PreviewToolbar: React.FC<{
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
-				<FpsCounter playbackSpeed={playbackRate} />
+				{isMobileLayout ? null : <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
 				<PreviewToolbarControl>
 					<RenderButton

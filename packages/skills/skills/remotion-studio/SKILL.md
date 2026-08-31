@@ -1,7 +1,7 @@
 ---
 name: remotion-studio
 description: Preview a Remotion video
-version: 4.0.518
+version: 4.0.519
 ---
 
 Execute the following command:
