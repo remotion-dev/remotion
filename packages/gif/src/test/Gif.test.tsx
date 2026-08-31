@@ -138,6 +138,7 @@ const SequenceRegistrationWrapper: React.FC<{
 			({
 				registerSequence,
 				unregisterSequence,
+				updateSequence: registerSequence,
 				sequences: [],
 			}) as React.ContextType<typeof Internals.SequenceManager>,
 		[registerSequence, unregisterSequence],

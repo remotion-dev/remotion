@@ -67,6 +67,7 @@ class FrozenAudioContext {
 const sequenceManager = {
 	registerSequence: () => undefined,
 	unregisterSequence: () => undefined,
+	updateSequence: null,
 	sequences: [],
 };
 

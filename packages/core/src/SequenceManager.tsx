@@ -12,6 +12,7 @@ import type {
 
 export type SequenceManagerContext = {
 	registerSequence: (seq: TSequence) => void;
+	updateSequence: ((seq: TSequence) => void) | null;
 	unregisterSequence: (id: string) => void;
 	sequences: TSequence[];
 };
@@ -26,6 +27,7 @@ export const SequenceManager = React.createContext<SequenceManagerContext>({
 	registerSequence: () => {
 		throw new Error('SequenceManagerContext not initialized');
 	},
+	updateSequence: null,
 	unregisterSequence: () => {
 		throw new Error('SequenceManagerContext not initialized');
 	},
@@ -329,6 +331,18 @@ export const SequenceManagerProvider: React.FC<{
 			return [...seqs, seq];
 		});
 	}, []);
+	const updateSequence = useCallback((seq: TSequence) => {
+		setSequences((seqs) => {
+			const index = seqs.findIndex((item) => item.id === seq.id);
+			if (index === -1 || seqs[index] === seq) {
+				return seqs;
+			}
+
+			const next = [...seqs];
+			next[index] = seq;
+			return next;
+		});
+	}, []);
 
 	const unregisterSequence = useCallback((seq: string) => {
 		setSequences((seqs) => seqs.filter((s) => s.id !== seq));
@@ -338,9 +352,10 @@ export const SequenceManagerProvider: React.FC<{
 		return {
 			registerSequence,
 			sequences,
+			updateSequence,
 			unregisterSequence,
 		};
-	}, [registerSequence, sequences, unregisterSequence]);
+	}, [registerSequence, sequences, unregisterSequence, updateSequence]);
 
 	const getDragOverrides = useCallback(
 		(nodePath: SequencePropsSubscriptionKey) => {
