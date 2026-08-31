@@ -1,4 +1,4 @@
-import {isRecord} from './validation';
+import * as z from 'zod/mini';
 
 export type ComponentProp = {
 	name: string;
@@ -22,75 +22,69 @@ export type ComponentDragData = {
 	};
 };
 
-export const isComponentIdentifier = (value: unknown): value is string => {
-	return typeof value === 'string' && /^[A-Z_$][A-Za-z0-9_$]*$/.test(value);
-};
-
-export const isComponentImportPath = (value: unknown): value is string => {
-	return (
-		typeof value === 'string' &&
-		value.length > 0 &&
-		value.length < 200 &&
-		!value.includes('\\') &&
-		!value.includes('\0') &&
-		!value.startsWith('/') &&
-		/^[A-Za-z0-9@._/-]+$/.test(value)
+const componentIdentifierSchema = z
+	.string()
+	.check(z.regex(/^[A-Z_$][A-Za-z0-9_$]*$/));
+const componentImportPathSchema = z
+	.string()
+	.check(
+		z.refine(
+			(value) =>
+				value.length > 0 &&
+				value.length < 200 &&
+				!value.includes('\\') &&
+				!value.includes('\0') &&
+				!value.startsWith('/') &&
+				/^[A-Za-z0-9@._/-]+$/.test(value),
+		),
 	);
-};
-
-export const isComponentPropName = (value: unknown): value is string => {
-	return (
-		typeof value === 'string' &&
-		value !== 'style' &&
-		/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(value)
+const componentPropNameSchema = z
+	.string()
+	.check(
+		z.refine(
+			(value) => value !== 'style' && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(value),
+		),
 	);
-};
+const componentPropSchema = z.object({
+	name: componentPropNameSchema,
+	value: z.union([z.string(), z.number(), z.boolean()]),
+});
+const componentPropsSchema = z.array(componentPropSchema).check(
+	z.refine((props) => {
+		const names = props.map((prop) => prop.name);
+		return new Set(names).size === names.length;
+	}),
+);
+const componentDimensionsSchema = z.object({
+	width: z.number().check(z.nonnegative()),
+	height: z.number().check(z.nonnegative()),
+});
+const componentDragDataSchema = z.object({
+	type: z.literal('remotion-component'),
+	version: z.literal(1),
+	component: z.object({
+		componentName: componentIdentifierSchema,
+		dimensions: z.optional(componentDimensionsSchema),
+		importName: componentIdentifierSchema,
+		importPath: componentImportPathSchema,
+		props: componentPropsSchema,
+	}),
+});
 
-export const isComponentProp = (value: unknown): value is ComponentProp => {
-	if (!isRecord(value) || !isComponentPropName(value.name)) {
-		return false;
-	}
+export const isComponentIdentifier = (value: unknown): value is string =>
+	z.safeParse(componentIdentifierSchema, value).success;
 
-	return (
-		typeof value.value === 'string' ||
-		typeof value.value === 'boolean' ||
-		(typeof value.value === 'number' && Number.isFinite(value.value))
-	);
-};
+export const isComponentImportPath = (value: unknown): value is string =>
+	z.safeParse(componentImportPathSchema, value).success;
 
-export const areComponentProps = (value: unknown): value is ComponentProp[] => {
-	if (!Array.isArray(value)) {
-		return false;
-	}
+export const isComponentPropName = (value: unknown): value is string =>
+	z.safeParse(componentPropNameSchema, value).success;
 
-	const seen = new Set<string>();
-	for (const prop of value) {
-		if (!isComponentProp(prop) || seen.has(prop.name)) {
-			return false;
-		}
+export const isComponentProp = (value: unknown): value is ComponentProp =>
+	z.safeParse(componentPropSchema, value).success;
 
-		seen.add(prop.name);
-	}
-
-	return true;
-};
-
-const isComponentDimensions = (
-	value: unknown,
-): value is ComponentDimensions => {
-	if (!isRecord(value)) {
-		return false;
-	}
-
-	return (
-		typeof value.width === 'number' &&
-		Number.isFinite(value.width) &&
-		value.width >= 0 &&
-		typeof value.height === 'number' &&
-		Number.isFinite(value.height) &&
-		value.height >= 0
-	);
-};
+export const areComponentProps = (value: unknown): value is ComponentProp[] =>
+	z.safeParse(componentPropsSchema, value).success;
 
 export const makeComponentDragData = ({
 	componentName,
@@ -122,34 +116,17 @@ export const parseComponentDragData = (
 	value: string,
 ): ComponentDragData | null => {
 	try {
-		const parsed: unknown = JSON.parse(value);
-		if (
-			!isRecord(parsed) ||
-			parsed.type !== 'remotion-component' ||
-			parsed.version !== 1 ||
-			!isRecord(parsed.component)
-		) {
-			return null;
-		}
-
-		const {componentName, dimensions, importName, importPath, props} =
-			parsed.component;
-		if (
-			!isComponentIdentifier(componentName) ||
-			!isComponentIdentifier(importName) ||
-			!isComponentImportPath(importPath) ||
-			!areComponentProps(props) ||
-			(typeof dimensions !== 'undefined' && !isComponentDimensions(dimensions))
-		) {
+		const parsed = z.safeParse(componentDragDataSchema, JSON.parse(value));
+		if (!parsed.success) {
 			return null;
 		}
 
 		return makeComponentDragData({
-			componentName,
-			dimensions: dimensions ?? null,
-			importName,
-			importPath,
-			props,
+			componentName: parsed.data.component.componentName,
+			dimensions: parsed.data.component.dimensions ?? null,
+			importName: parsed.data.component.importName,
+			importPath: parsed.data.component.importPath,
+			props: parsed.data.component.props,
 		});
 	} catch {
 		return null;

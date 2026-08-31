@@ -1,4 +1,7 @@
-import {addElementLibraryToStudioWithDependencies} from './add-element-library-to-studio';
+import {
+	addElementLibraryToStudioWithDependencies,
+	parseStudioProtocolAddElementLibraryRequest,
+} from './add-element-library-to-studio';
 import {
 	makeBrowserStudioUrl,
 	openInBrowserStudio,
@@ -16,9 +19,16 @@ import {
 	makeElementFileNameFromSlug,
 } from './element-drag-data';
 import {parseStudioElementPayload} from './element-payload';
-import {installInStudioWithDependencies} from './install-in-studio';
+import {
+	installInStudioWithDependencies,
+	parseStudioProtocolInstallRequest,
+} from './install-in-studio';
 import {isValidPublicLicenseKey} from './license-key';
-import {setLicenseKeyInStudio} from './set-license-key-in-studio';
+import {
+	parseStudioProtocolSetLicenseKeyRequest,
+	setLicenseKeyInStudio,
+} from './set-license-key-in-studio';
+import {parseStudioProtocolDescriptor} from './studio-discovery';
 
 export {
 	addElementLibraryToStudio,
@@ -57,7 +67,11 @@ export type {
 	SfxDragPreviewMetadata,
 } from './drag-preview-metadata';
 export {setStudioDragData} from './drag-transport';
-export type {EffectDragData} from './effect-drag-data';
+export type {
+	EffectConfig,
+	EffectConfigValue,
+	EffectDragData,
+} from './effect-drag-data';
 export type {
 	ElementDependency,
 	ElementDragData,
@@ -97,5 +111,9 @@ export const StudioProtocolInternals = {
 	parseBrowserStudioHash,
 	parseDragData,
 	parseStudioElementPayload,
+	parseStudioProtocolAddElementLibraryRequest,
+	parseStudioProtocolDescriptor,
+	parseStudioProtocolInstallRequest,
+	parseStudioProtocolSetLicenseKeyRequest,
 	setLicenseKeyInStudio,
 };

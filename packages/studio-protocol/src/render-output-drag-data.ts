@@ -1,4 +1,4 @@
-import {isRecord} from './validation';
+import * as z from 'zod/mini';
 
 export type RenderOutputDragData = {
 	type: 'remotion-render-output';
@@ -6,6 +6,20 @@ export type RenderOutputDragData = {
 	outputPath: string;
 	fileName: string;
 };
+
+const renderOutputDragDataSchema = z.object({
+	type: z.literal('remotion-render-output'),
+	version: z.literal(1),
+	outputPath: z.string().check(z.minLength(1)),
+	fileName: z
+		.string()
+		.check(
+			z.refine(
+				(value) =>
+					value.length > 0 && !value.includes('/') && !value.includes('\\'),
+			),
+		),
+});
 
 export const makeRenderOutputDragData = ({
 	outputPath,
@@ -26,25 +40,13 @@ export const parseRenderOutputDragData = (
 	value: string,
 ): RenderOutputDragData | null => {
 	try {
-		const parsed: unknown = JSON.parse(value);
-		if (
-			!isRecord(parsed) ||
-			parsed.type !== 'remotion-render-output' ||
-			parsed.version !== 1 ||
-			typeof parsed.outputPath !== 'string' ||
-			parsed.outputPath.length === 0 ||
-			typeof parsed.fileName !== 'string' ||
-			parsed.fileName.length === 0 ||
-			parsed.fileName.includes('/') ||
-			parsed.fileName.includes('\\')
-		) {
-			return null;
-		}
-
-		return makeRenderOutputDragData({
-			outputPath: parsed.outputPath,
-			fileName: parsed.fileName,
-		});
+		const parsed = z.safeParse(renderOutputDragDataSchema, JSON.parse(value));
+		return parsed.success
+			? makeRenderOutputDragData({
+					outputPath: parsed.data.outputPath,
+					fileName: parsed.data.fileName,
+				})
+			: null;
 	} catch {
 		return null;
 	}

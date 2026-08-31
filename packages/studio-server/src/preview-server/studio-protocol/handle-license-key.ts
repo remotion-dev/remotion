@@ -1,6 +1,5 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {z} from 'zod';
 import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
@@ -11,14 +10,6 @@ import {
 import {writeStudioProtocolError} from './protocol-response';
 
 type FocusStudioTab = (studioUrl: string) => void;
-
-const studioProtocolLicenseKeyRequestSchema = z.object({
-	operation: z.literal('set-license-key'),
-	protocol: z.literal('remotion-studio-protocol'),
-	protocolVersion: z.literal(1),
-	targetId: z.string().min(1),
-	licenseKey: z.string(),
-});
 
 const MAX_STUDIO_PROTOCOL_LICENSE_KEY_BODY_SIZE = 4096;
 
@@ -82,8 +73,9 @@ export const handleStudioProtocolLicenseKey = async ({
 		return;
 	}
 
-	const parsedRequest = studioProtocolLicenseKeyRequestSchema.safeParse(body);
-	if (!parsedRequest.success) {
+	const parsedRequest =
+		StudioProtocolInternals.parseStudioProtocolSetLicenseKeyRequest(body);
+	if (parsedRequest === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-protocol',
 			message: 'Invalid Remotion Studio Protocol request.',
@@ -94,9 +86,7 @@ export const handleStudioProtocolLicenseKey = async ({
 	}
 
 	if (
-		!StudioProtocolInternals.isValidPublicLicenseKey(
-			parsedRequest.data.licenseKey,
-		)
+		!StudioProtocolInternals.isValidPublicLicenseKey(parsedRequest.licenseKey)
 	) {
 		writeStudioProtocolError({
 			code: 'invalid-license-key',
@@ -111,7 +101,7 @@ export const handleStudioProtocolLicenseKey = async ({
 		now: Date.now(),
 		origin: requestOrigin,
 		purpose: 'set-license-key',
-		targetId: parsedRequest.data.targetId,
+		targetId: parsedRequest.targetId,
 	});
 	if (target === null) {
 		writeStudioProtocolError({
@@ -135,7 +125,7 @@ export const handleStudioProtocolLicenseKey = async ({
 
 	const delivered = liveEventsServer.sendEventToClientId(target.clientId, {
 		type: 'license-key-install-request',
-		licenseKey: parsedRequest.data.licenseKey,
+		licenseKey: parsedRequest.licenseKey,
 	});
 	if (!delivered) {
 		writeStudioProtocolError({

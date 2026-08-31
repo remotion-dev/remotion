@@ -1,3 +1,4 @@
+import * as z from 'zod/mini';
 import {isValidPublicLicenseKey} from './license-key';
 import type {StudioProtocolFetcher} from './studio-discovery';
 import {
@@ -9,7 +10,10 @@ import {
 	isAbortError,
 	studioProtocolProbePorts,
 } from './studio-discovery';
-import {isRecord} from './validation';
+import {
+	isAwaitingConfirmationResponse,
+	parseStudioProtocolError,
+} from './studio-response';
 
 export type SetLicenseKeyInStudioErrorCode =
 	| 'invalid-license-key'
@@ -52,6 +56,21 @@ export type StudioProtocolSetLicenseKeyRequest = {
 	readonly protocolVersion: 1;
 	readonly targetId: string;
 	readonly licenseKey: string;
+};
+
+const studioProtocolSetLicenseKeyRequestSchema = z.object({
+	operation: z.literal('set-license-key'),
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	targetId: z.string().check(z.minLength(1)),
+	licenseKey: z.string(),
+});
+
+export const parseStudioProtocolSetLicenseKeyRequest = (
+	value: unknown,
+): StudioProtocolSetLicenseKeyRequest | null => {
+	const parsed = z.safeParse(studioProtocolSetLicenseKeyRequestSchema, value);
+	return parsed.success ? parsed.data : null;
 };
 
 export const setLicenseKeyInStudioWithDependencies = async (
@@ -182,13 +201,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 		};
 	}
 
-	if (
-		response.ok &&
-		isRecord(result) &&
-		result.protocol === 'remotion-studio-protocol' &&
-		result.protocolVersion === 1 &&
-		result.status === 'awaiting-confirmation'
-	) {
+	if (response.ok && isAwaitingConfirmationResponse(result)) {
 		return {
 			success: true,
 			status: 'awaiting-confirmation',
@@ -200,23 +213,17 @@ export const setLicenseKeyInStudioWithDependencies = async (
 		};
 	}
 
-	if (
-		isRecord(result) &&
-		result.status === 'error' &&
-		isRecord(result.error) &&
-		typeof result.error.code === 'string' &&
-		typeof result.error.message === 'string'
-	) {
-		const {code, message} = result.error;
+	const protocolError = parseStudioProtocolError(result);
+	if (protocolError !== null) {
 		return {
 			success: false,
 			code:
-				code === 'target-expired'
+				protocolError.code === 'target-expired'
 					? 'target-expired'
-					: code === 'no-config-file'
+					: protocolError.code === 'no-config-file'
 						? 'no-config-file'
 						: 'request-rejected',
-			message,
+			message: protocolError.message,
 		};
 	}
 

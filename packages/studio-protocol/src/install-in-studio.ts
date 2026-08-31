@@ -1,4 +1,8 @@
-import type {StudioElementPayload} from './element-payload';
+import * as z from 'zod/mini';
+import {
+	parseStudioElementPayload,
+	type StudioElementPayload,
+} from './element-payload';
 import type {StudioProtocolFetcher} from './studio-discovery';
 import {
 	discoverStudios,
@@ -9,7 +13,10 @@ import {
 	isAbortError,
 	studioProtocolProbePorts,
 } from './studio-discovery';
-import {isRecord} from './validation';
+import {
+	isAwaitingConfirmationResponse,
+	parseStudioProtocolError,
+} from './studio-response';
 
 export type InstallInStudioErrorCode =
 	| 'unsupported-origin'
@@ -53,6 +60,44 @@ export type StudioProtocolInstallRequest = {
 	readonly protocolVersion: 1;
 	readonly targetId: string;
 	readonly payload: StudioElementPayload;
+};
+
+const studioProtocolInstallRequestEnvelopeSchema = z.object({
+	operation: z.literal('install-element'),
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	targetId: z.string(),
+	payload: z.unknown(),
+});
+
+export const parseStudioProtocolInstallRequest = (
+	value: unknown,
+):
+	| {readonly status: 'valid'; readonly request: StudioProtocolInstallRequest}
+	| {readonly status: 'invalid-request' | 'invalid-payload'} => {
+	const envelope = z.safeParse(
+		studioProtocolInstallRequestEnvelopeSchema,
+		value,
+	);
+	if (!envelope.success) {
+		return {status: 'invalid-request'};
+	}
+
+	const payload = parseStudioElementPayload(envelope.data.payload);
+	if (payload === null) {
+		return {status: 'invalid-payload'};
+	}
+
+	return {
+		status: 'valid',
+		request: {
+			operation: envelope.data.operation,
+			protocol: envelope.data.protocol,
+			protocolVersion: envelope.data.protocolVersion,
+			targetId: envelope.data.targetId,
+			payload,
+		},
+	};
 };
 
 const failure = (
@@ -195,13 +240,7 @@ export const installInStudioWithDependencies = async (
 		);
 	}
 
-	if (
-		response.ok &&
-		isRecord(result) &&
-		result.protocol === 'remotion-studio-protocol' &&
-		result.protocolVersion === 1 &&
-		result.status === 'awaiting-confirmation'
-	) {
+	if (response.ok && isAwaitingConfirmationResponse(result)) {
 		return {
 			success: true,
 			status: 'awaiting-confirmation',
@@ -214,17 +253,13 @@ export const installInStudioWithDependencies = async (
 		};
 	}
 
-	if (
-		isRecord(result) &&
-		result.status === 'error' &&
-		isRecord(result.error) &&
-		typeof result.error.code === 'string' &&
-		typeof result.error.message === 'string'
-	) {
-		const {code} = result.error;
+	const protocolError = parseStudioProtocolError(result);
+	if (protocolError !== null) {
 		return failure(
-			code === 'target-expired' ? 'target-expired' : 'request-rejected',
-			result.error.message,
+			protocolError.code === 'target-expired'
+				? 'target-expired'
+				: 'request-rejected',
+			protocolError.message,
 		);
 	}
 

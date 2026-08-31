@@ -1,8 +1,9 @@
+import * as z from 'zod/mini';
 import {
 	isComponentIdentifier,
 	type ComponentDimensions,
 } from './component-drag-data';
-import {isRecord, isValidPackageName} from './validation';
+import {isValidPackageName} from './validation';
 
 export type ElementInstallationMode = 'wrapped' | 'component-owned-sequence';
 
@@ -30,31 +31,40 @@ export type ElementDragData = {
 	};
 };
 
-export const isLowercaseElementFileName = (value: unknown): value is string => {
-	return (
-		typeof value === 'string' &&
-		value.length > 0 &&
-		value.length < 120 &&
-		value === value.toLowerCase() &&
-		value.endsWith('.tsx') &&
-		!value.includes('/') &&
-		!value.includes('\\') &&
-		!value.includes('\0') &&
-		!value.includes('..') &&
-		/^[a-z0-9][a-z0-9.-]*\.tsx$/.test(value)
+const lowercaseElementFileNameSchema = z
+	.string()
+	.check(
+		z.refine(
+			(value) =>
+				value.length > 0 &&
+				value.length < 120 &&
+				value === value.toLowerCase() &&
+				value.endsWith('.tsx') &&
+				!value.includes('/') &&
+				!value.includes('\\') &&
+				!value.includes('\0') &&
+				!value.includes('..') &&
+				/^[a-z0-9][a-z0-9.-]*\.tsx$/.test(value),
+		),
 	);
-};
+const slugSchema = z
+	.string()
+	.check(
+		z.refine(
+			(value) =>
+				value.length > 0 &&
+				value.length < 120 &&
+				/^[a-z0-9][a-z0-9/-]*$/.test(value) &&
+				!value.includes('..') &&
+				!value.includes('//'),
+		),
+	);
 
-const isSlug = (value: unknown): value is string => {
-	return (
-		typeof value === 'string' &&
-		value.length > 0 &&
-		value.length < 120 &&
-		/^[a-z0-9][a-z0-9/-]*$/.test(value) &&
-		!value.includes('..') &&
-		!value.includes('//')
-	);
-};
+export const isLowercaseElementFileName = (value: unknown): value is string =>
+	z.safeParse(lowercaseElementFileNameSchema, value).success;
+
+const isSlug = (value: unknown): value is string =>
+	z.safeParse(slugSchema, value).success;
 
 export const makeElementFileNameFromSlug = (slug: string) => {
 	if (!isSlug(slug)) return null;
@@ -83,35 +93,42 @@ const packagesProvidedByRemotionProjects = new Set([
 	'remotion',
 ]);
 
-const isExactVersion = (value: unknown): value is string =>
-	typeof value === 'string' &&
-	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(
-		value,
+const exactVersionSchema = z
+	.string()
+	.check(
+		z.regex(
+			/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/,
+		),
 	);
+const elementDependencyEnvelopeSchema = z.looseObject({
+	name: z.string().check(z.refine(isValidPackageName)),
+	version: z.unknown(),
+});
 
 const getElementDependencyError = (value: unknown): string | null => {
-	if (
-		!isRecord(value) ||
-		typeof value.name !== 'string' ||
-		!isValidPackageName(value.name)
-	) {
+	const parsed = z.safeParse(elementDependencyEnvelopeSchema, value);
+	if (!parsed.success) {
 		return `Invalid Element dependency: ${JSON.stringify(value)}`;
 	}
 
-	if (packagesProvidedByRemotionProjects.has(value.name)) {
-		return `${JSON.stringify(value.name)} is provided by Remotion projects and must not be declared as an Element dependency.`;
+	if (packagesProvidedByRemotionProjects.has(parsed.data.name)) {
+		return `${JSON.stringify(parsed.data.name)} is provided by Remotion projects and must not be declared as an Element dependency.`;
 	}
 
-	if (value.name.startsWith('@remotion/')) {
-		return value.version === null
+	if (parsed.data.name.startsWith('@remotion/')) {
+		return parsed.data.version === null
 			? null
-			: `Remotion Element dependency ${JSON.stringify(value.name)} must use version: null.`;
+			: `Remotion Element dependency ${JSON.stringify(parsed.data.name)} must use version: null.`;
 	}
 
-	return isExactVersion(value.version)
+	return z.safeParse(exactVersionSchema, parsed.data.version).success
 		? null
-		: `Non-Remotion Element dependency ${JSON.stringify(value.name)} must declare an exact version.`;
+		: `Non-Remotion Element dependency ${JSON.stringify(parsed.data.name)} must declare an exact version.`;
 };
+
+const elementDependencySchema = elementDependencyEnvelopeSchema.check(
+	z.refine((value) => getElementDependencyError(value) === null),
+);
 
 export function assertElementDependency(
 	value: unknown,
@@ -124,7 +141,8 @@ export function assertElementDependency(
 
 export const isElementDependency = (
 	value: unknown,
-): value is ElementDependency => getElementDependencyError(value) === null;
+): value is ElementDependency =>
+	z.safeParse(elementDependencySchema, value).success;
 
 export const makeElementDragData = ({
 	dependencies,
@@ -162,77 +180,67 @@ export const makeElementDragData = ({
 	};
 };
 
-const isDimensions = (value: unknown): value is ComponentDimensions =>
-	isRecord(value) &&
-	typeof value.width === 'number' &&
-	Number.isFinite(value.width) &&
-	value.width > 0 &&
-	typeof value.height === 'number' &&
-	Number.isFinite(value.height) &&
-	value.height > 0;
-
-const isElementInstallationMode = (
-	value: unknown,
-): value is ElementInstallationMode =>
-	value === 'wrapped' || value === 'component-owned-sequence';
-
-const isDuration = (value: unknown): value is number =>
-	typeof value === 'number' &&
-	Number.isInteger(value) &&
-	value > 0 &&
-	value <= 100_000_000;
+const dimensionsSchema = z.object({
+	width: z.number().check(z.positive()),
+	height: z.number().check(z.positive()),
+});
+const elementInstallationModeSchema = z.union([
+	z.literal('wrapped'),
+	z.literal('component-owned-sequence'),
+]);
+const durationSchema = z
+	.number()
+	.check(z.int(), z.positive(), z.lte(100_000_000));
+const elementDragDataSchema = z.object({
+	type: z.literal('remotion-element'),
+	version: z.literal(1),
+	element: z.object({
+		dependencies: z.array(z.unknown()).check(z.maxLength(100)),
+		durationInFrames: z.optional(durationSchema),
+		installationMode: z.optional(elementInstallationModeSchema),
+		slug: slugSchema,
+		displayName: z.string().check(z.minLength(1), z.maxLength(119)),
+		sourceCode: z
+			.string()
+			.check(
+				z.refine(
+					(value) =>
+						value.trim().length > 0 &&
+						value.length < 200_000 &&
+						getElementComponentNameFromSourceCode(value) !== null,
+				),
+			),
+		dimensions: z.optional(z.nullable(dimensionsSchema)),
+	}),
+});
 
 export const parseElementDragData = (value: string): ElementDragData | null => {
 	try {
-		const parsed: unknown = JSON.parse(value);
+		const parsed = z.safeParse(elementDragDataSchema, JSON.parse(value));
 		if (
-			!isRecord(parsed) ||
-			parsed.type !== 'remotion-element' ||
-			parsed.version !== 1 ||
-			!isRecord(parsed.element)
-		)
+			!parsed.success ||
+			makeElementFileNameFromSlug(parsed.data.element.slug) === null
+		) {
 			return null;
-		const {
-			dependencies,
-			dimensions,
-			displayName,
-			durationInFrames,
-			slug,
-			sourceCode,
-			installationMode,
-		} = parsed.element;
-		const validDependencies =
-			Array.isArray(dependencies) && dependencies.length <= 100
-				? dependencies
-				: null;
-		if (
-			!isSlug(slug) ||
-			typeof displayName !== 'string' ||
-			displayName.length === 0 ||
-			displayName.length >= 120 ||
-			typeof sourceCode !== 'string' ||
-			sourceCode.trim().length === 0 ||
-			sourceCode.length >= 200000 ||
-			getElementComponentNameFromSourceCode(sourceCode) === null ||
-			makeElementFileNameFromSlug(slug) === null ||
-			validDependencies === null ||
-			!validDependencies.every(isElementDependency) ||
-			(durationInFrames !== undefined && !isDuration(durationInFrames)) ||
-			(installationMode !== undefined &&
-				!isElementInstallationMode(installationMode)) ||
-			(dimensions !== undefined &&
-				dimensions !== null &&
-				!isDimensions(dimensions))
-		)
-			return null;
+		}
+
+		const dependencies: ElementDependency[] = [];
+		for (const dependency of parsed.data.element.dependencies) {
+			if (!isElementDependency(dependency)) {
+				return null;
+			}
+
+			dependencies.push(dependency);
+		}
+
 		return makeElementDragData({
-			dependencies: validDependencies,
-			dimensions: dimensions ?? null,
-			displayName,
-			durationInFrames,
-			slug,
-			sourceCode,
-			installationMode,
+			dependencies,
+			dimensions: parsed.data.element.dimensions ?? null,
+			displayName: parsed.data.element.displayName,
+			durationInFrames: parsed.data.element.durationInFrames,
+			slug: parsed.data.element.slug,
+			sourceCode: parsed.data.element.sourceCode,
+			installationMode: parsed.data.element.installationMode,
 		});
 	} catch {
 		return null;

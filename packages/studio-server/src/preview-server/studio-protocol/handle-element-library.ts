@@ -1,5 +1,5 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
-import {z} from 'zod';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
@@ -10,15 +10,6 @@ import {
 import {writeStudioProtocolError} from './protocol-response';
 
 type FocusStudioTab = (studioUrl: string) => void;
-
-const studioProtocolElementLibraryRequestSchema = z.object({
-	operation: z.literal('add-element-library'),
-	protocol: z.literal('remotion-studio-protocol'),
-	protocolVersion: z.literal(1),
-	targetId: z.string().min(1),
-	url: z.string(),
-	displayName: z.string().nullable(),
-});
 
 const MAX_STUDIO_PROTOCOL_ELEMENT_LIBRARY_BODY_SIZE = 16 * 1024;
 
@@ -83,8 +74,8 @@ export const handleStudioProtocolElementLibrary = async ({
 	}
 
 	const parsedRequest =
-		studioProtocolElementLibraryRequestSchema.safeParse(body);
-	if (!parsedRequest.success) {
+		StudioProtocolInternals.parseStudioProtocolAddElementLibraryRequest(body);
+	if (parsedRequest === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-protocol',
 			message: 'Invalid Remotion Studio Protocol request.',
@@ -96,7 +87,7 @@ export const handleStudioProtocolElementLibrary = async ({
 
 	let normalizedUrl: string;
 	try {
-		const parsedUrl = new URL(parsedRequest.data.url);
+		const parsedUrl = new URL(parsedRequest.url);
 		if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
 			throw new Error('Unsupported protocol');
 		}
@@ -112,7 +103,7 @@ export const handleStudioProtocolElementLibrary = async ({
 		return;
 	}
 
-	const displayName = parsedRequest.data.displayName?.trim() ?? null;
+	const displayName = parsedRequest.displayName?.trim() ?? null;
 	if (displayName === '') {
 		writeStudioProtocolError({
 			code: 'invalid-display-name',
@@ -127,7 +118,7 @@ export const handleStudioProtocolElementLibrary = async ({
 		now: Date.now(),
 		origin: requestOrigin,
 		purpose: 'add-element-library',
-		targetId: parsedRequest.data.targetId,
+		targetId: parsedRequest.targetId,
 	});
 	if (target === null) {
 		writeStudioProtocolError({
