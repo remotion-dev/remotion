@@ -1,6 +1,5 @@
 import {
 	type ComponentDragData,
-	type CompositionDragData,
 	type ComponentProp,
 	type ElementDragData,
 } from '@remotion/studio-protocol';
@@ -25,6 +24,7 @@ import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {getMediaMetadata} from '../helpers/use-media-metadata';
 import {callApi} from './call-api';
+import type {CompositionDragData} from './composition-drag-data';
 import {installElement} from './element-install-api';
 import {showNotification} from './Notifications/NotificationCenter';
 

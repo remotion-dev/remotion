@@ -1,7 +1,6 @@
 import {expect, test} from 'bun:test';
 import {
 	StudioProtocolInternals,
-	type MakeCompositionDragDataInput,
 	type MakeDragDataInput,
 	type MakeElementDragDataInput,
 	type MakeAssetDragDataInput,
@@ -22,14 +21,6 @@ const inputs: MakeDragDataInput[] = [
 		importName: 'Circle',
 		importPath: '@remotion/shapes',
 		props: [{name: 'radius', value: 100}],
-	},
-	{
-		type: 'composition',
-		compositionFile: 'src/Root.tsx',
-		compositionId: 'MyVideo',
-		width: 1920,
-		height: 1080,
-		durationInFrames: 150,
 	},
 	{
 		type: 'effect',
@@ -73,16 +64,16 @@ test('constructs and parses all drag data families', () => {
 
 test('puts preview metadata in the same MIME type as the payload', () => {
 	const constructed = StudioProtocolInternals.makeDragData({
-		type: 'composition',
-		compositionFile: 'src/Root.tsx',
-		compositionId: 'MyVideo',
-		width: 1920,
-		height: 1080,
-		durationInFrames: 150,
+		type: 'component',
+		componentName: 'Circle',
+		dimensions: {width: 200, height: 200},
+		importName: 'Circle',
+		importPath: '@remotion/shapes',
+		props: [],
 	});
 
 	expect(constructed.mimeType).toBe(
-		'application/vnd.remotion.drag+json;v=1;type=composition;width=1920;height=1080;duration=150',
+		'application/vnd.remotion.drag+json;v=1;type=component;width=200;height=200',
 	);
 	expect(
 		StudioProtocolInternals.getDragPreviewMetadata([
@@ -90,62 +81,11 @@ test('puts preview metadata in the same MIME type as the payload', () => {
 			constructed.mimeType,
 		]),
 	).toEqual({
-		type: 'composition',
+		type: 'component',
 		mimeType: constructed.mimeType,
-		width: 1920,
-		height: 1080,
-		durationInFrames: 150,
+		width: 200,
+		height: 200,
 	});
-	expect(StudioProtocolInternals.parseDragData(constructed)).toEqual({
-		type: 'composition',
-		data: {
-			type: 'remotion-composition',
-			version: 1,
-			compositionFile: 'src/Root.tsx',
-			compositionId: 'MyVideo',
-		},
-		preview: {
-			type: 'composition',
-			width: 1920,
-			height: 1080,
-			durationInFrames: 150,
-		},
-	});
-});
-
-test('accepts explicit null composition metadata', () => {
-	const constructed = StudioProtocolInternals.makeDragData({
-		type: 'composition',
-		compositionFile: null,
-		compositionId: 'UnresolvedVideo',
-		width: null,
-		height: null,
-		durationInFrames: null,
-	});
-
-	expect(constructed.mimeType).toBe(
-		'application/vnd.remotion.drag+json;v=1;type=composition',
-	);
-	expect(StudioProtocolInternals.parseDragData(constructed)?.preview).toEqual({
-		type: 'composition',
-	});
-	expect(() =>
-		StudioProtocolInternals.makeDragData({
-			type: 'composition',
-			compositionFile: null,
-			compositionId: 'MissingMetadata',
-		} as MakeCompositionDragDataInput),
-	).toThrow('must be set to a value or null');
-	expect(() =>
-		StudioProtocolInternals.makeDragData({
-			type: 'composition',
-			compositionFile: null,
-			compositionId: 'PartiallyResolvedDimensions',
-			width: 1920,
-			height: null,
-			durationInFrames: null,
-		}),
-	).toThrow('must either both be numbers or both be null');
 });
 
 test('requires asset metadata and accepts explicit null values', () => {
@@ -242,7 +182,8 @@ test('rejects malformed and mismatched drag data', () => {
 	).toBe(null);
 
 	const invalidMimeTypes = [
-		'application/vnd.remotion.drag+json;v=2;type=composition',
+		'application/vnd.remotion.drag+json;v=2;type=component',
+		'application/vnd.remotion.drag+json;v=1;type=composition',
 		'application/vnd.remotion.drag+json;v=1;type=unknown',
 		'application/vnd.remotion.drag+json;v=1;type=element;width=1920',
 		'application/vnd.remotion.drag+json;v=1;type=effect;duration=10',

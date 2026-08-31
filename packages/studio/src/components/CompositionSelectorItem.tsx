@@ -1,5 +1,3 @@
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import type {DragEvent, KeyboardEvent, MouseEvent} from 'react';
 import React, {
 	useCallback,
@@ -31,6 +29,12 @@ import {
 } from '../helpers/sidebar-scroll-into-view';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {SetSelectedModalContext} from '../state/modals';
+import {
+	compositionDragDataToSymbolicatedStack,
+	getCompositionDragPreviewMetadata,
+	makeCompositionDragData,
+	parseCompositionDragData,
+} from './composition-drag-data';
 import {getCompositionContextMenuItems} from './composition-menu-items';
 import {CompositionContextButton} from './CompositionContextButton';
 import {CompositionOrStillIcon} from './CompositionOrStillIcon';
@@ -238,8 +242,7 @@ export const CompositionSelectorItem: React.FC<{
 
 			setIsDragging(true);
 			event.dataTransfer.effectAllowed = 'copyMove';
-			const dragData = StudioProtocolInternals.makeDragData({
-				type: 'composition',
+			const dragData = makeCompositionDragData({
 				compositionFile: resolvedLocation?.source ?? null,
 				compositionId: item.composition.id,
 				width: item.composition.width ?? null,
@@ -259,8 +262,7 @@ export const CompositionSelectorItem: React.FC<{
 			if (
 				item.type !== 'folder' ||
 				window.remotion_isReadOnlyStudio ||
-				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
-					?.type !== 'composition'
+				getCompositionDragPreviewMetadata(event.dataTransfer.types) === null
 			) {
 				return;
 			}
@@ -283,8 +285,7 @@ export const CompositionSelectorItem: React.FC<{
 			if (
 				item.type !== 'folder' ||
 				window.remotion_isReadOnlyStudio ||
-				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
-					?.type !== 'composition'
+				getCompositionDragPreviewMetadata(event.dataTransfer.types) === null
 			) {
 				return;
 			}
@@ -303,12 +304,10 @@ export const CompositionSelectorItem: React.FC<{
 				return;
 			}
 
-			const parsed = StudioProtocolInternals.parseDragData(event.dataTransfer);
-			if (parsed?.type !== 'composition') {
+			const compositionDragData = parseCompositionDragData(event.dataTransfer);
+			if (compositionDragData === null) {
 				return;
 			}
-
-			const compositionDragData = parsed.data;
 
 			event.preventDefault();
 			event.stopPropagation();

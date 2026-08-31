@@ -1,10 +1,14 @@
 import {
 	StudioProtocolInternals,
 	type ComponentDragData,
-	type CompositionDragData,
 	type DragPreviewMetadata,
 } from '@remotion/studio-protocol';
 import {hasRemoteAssetDragData} from '../helpers/remote-asset-drag';
+import {
+	getCompositionDragPreviewMetadata,
+	parseCompositionDragData,
+	type CompositionDragData,
+} from './composition-drag-data';
 
 export const isFileDragEvent = (event: DragEvent): boolean => {
 	return Array.from(event.dataTransfer?.types ?? []).includes('Files');
@@ -30,7 +34,9 @@ export const isComponentDragEvent = (event: DragEvent) => {
 };
 
 export const isCompositionDragEvent = (event: DragEvent) => {
-	return isRemotionDragEvent(event, 'composition');
+	return (
+		getCompositionDragPreviewMetadata(event.dataTransfer?.types ?? []) !== null
+	);
 };
 
 export const isElementDragEvent = (event: DragEvent) => {
@@ -75,10 +81,9 @@ export const getAssetDragPath = (event: DragEvent): string | null => {
 export const getCompositionDragData = (
 	event: DragEvent,
 ): CompositionDragData | null => {
-	const parsed = event.dataTransfer
-		? StudioProtocolInternals.parseDragData(event.dataTransfer)
+	return event.dataTransfer
+		? parseCompositionDragData(event.dataTransfer)
 		: null;
-	return parsed?.type === 'composition' ? parsed.data : null;
 };
 
 export const getComponentDragData = (

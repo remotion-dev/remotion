@@ -53,6 +53,7 @@ import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {handleCanvasCaptureDrop} from './canvas-capture-drop';
+import {getCompositionDragPreviewMetadata} from './composition-drag-data';
 import {
 	getCompositionDropPreviewBox,
 	snapCompositionDropPosition,
@@ -86,6 +87,20 @@ import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const elementInstallDependencyIgnoreList = ['react', 'react-dom', 'remotion'];
+
+const getCanvasDragPreviewMetadata = (mimeTypes: ArrayLike<string>) => {
+	const composition = getCompositionDragPreviewMetadata(mimeTypes);
+	if (composition !== null) {
+		return {
+			...composition,
+			width: composition.width ?? undefined,
+			height: composition.height ?? undefined,
+			durationInFrames: composition.durationInFrames ?? undefined,
+		};
+	}
+
+	return StudioProtocolInternals.getDragPreviewMetadata(mimeTypes);
+};
 
 const getContainerStyle = (
 	editorZoomGestures: boolean,
@@ -1036,7 +1051,7 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			const metadata = StudioProtocolInternals.getDragPreviewMetadata(
+			const metadata = getCanvasDragPreviewMetadata(
 				event.dataTransfer?.types ?? [],
 			);
 			if (
@@ -1202,7 +1217,7 @@ export const Canvas: React.FC<{
 
 			setIsAddingAsset(true);
 			try {
-				const metadata = StudioProtocolInternals.getDragPreviewMetadata(
+				const metadata = getCanvasDragPreviewMetadata(
 					event.dataTransfer?.types ?? [],
 				);
 				const isComposition = metadata?.type === 'composition';
