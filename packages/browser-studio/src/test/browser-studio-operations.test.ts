@@ -179,7 +179,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	);
 });
 
-test('wraps a self-closing root, aliases bindings, and remaps the root', () => {
+test('inserts beside a self-closing root, aliases bindings, and remaps the root', () => {
 	const project: VirtualProject = {
 		rootDir: '/project',
 		entryPoint: '/project/src/index.tsx',
@@ -212,11 +212,12 @@ registerRoot(Root);
 	const output = updated.files['/project/src/index.tsx'];
 
 	expect(output).toContain(
-		"import {AbsoluteFill, Composition, registerRoot, Solid as RemotionSolid, Sequence as RemotionSequence} from 'remotion';",
+		"import {AbsoluteFill, Composition, registerRoot, Solid as RemotionSolid} from 'remotion';",
 	);
-	expect(output).toContain('<RemotionSequence>');
+	expect(output).not.toContain('<RemotionSequence>');
+	expect(output).toContain('<AbsoluteFill />');
 	expect(output).toContain('<RemotionSolid width={1280}');
-	expect(nodePathRemappings).toHaveLength(3);
+	expect(nodePathRemappings).toHaveLength(2);
 	expect(nodePathRemappings).toEqual(
 		expect.arrayContaining([
 			expect.objectContaining({oldNodePath: expect.any(Array)}),

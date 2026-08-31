@@ -790,39 +790,24 @@ const replaceNullRoot = ({
 const replaceJsxElementRoot = ({
 	element,
 	root,
-	sequenceLocalName,
 	source,
 	unit,
-	wrapRootInSequence,
 }: {
 	element: string;
 	root: AstNode;
-	sequenceLocalName: string | null;
 	source: string;
 	unit: string;
-	wrapRootInSequence: boolean;
 }): TextEdit => {
 	const start = getPosition(root, 'start');
 	const indent = lineIndentAt(source, start);
 	const original = source.slice(start, getPosition(root, 'end'));
-	if (wrapRootInSequence && sequenceLocalName === null) {
-		throw new Error('Expected a Sequence import for a self-closing root');
-	}
-
-	const existingRoot = wrapRootInSequence
-		? [
-				`${indent}${unit}<${sequenceLocalName}>`,
-				`${indent}${unit}${unit}${original}`,
-				`${indent}${unit}</${sequenceLocalName}>`,
-			]
-		: [`${indent}${unit}${original}`];
 
 	return {
 		start,
 		end: getPosition(root, 'end'),
 		text: [
 			'<>',
-			...existingRoot,
+			`${indent}${unit}${original}`,
 			`${indent}${unit}${element}`,
 			`${indent}</>`,
 		].join('\n'),
@@ -882,11 +867,8 @@ export const insertSolidIntoSource = ({
 		candidates: ['Solid', 'RemotionSolid'],
 		importedName: 'Solid',
 	});
-	const openingElement =
-		root.type === 'JSXElement' ? getNode(root, 'openingElement') : null;
-	const isSelfClosing = openingElement?.selfClosing === true;
 	const sequenceImport =
-		isSelfClosing || from !== null
+		from !== null
 			? chooseLocalName({
 					ast,
 					candidates: ['Sequence', 'RemotionSequence'],
@@ -922,10 +904,8 @@ export const insertSolidIntoSource = ({
 				? replaceJsxElementRoot({
 						element,
 						root,
-						sequenceLocalName: sequenceImport?.localName ?? null,
 						source,
 						unit,
-						wrapRootInSequence: isSelfClosing,
 					})
 				: appendToJsxRoot({
 						element,
