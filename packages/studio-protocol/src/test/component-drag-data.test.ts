@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {
 	StudioProtocolInternals,
 	type MakeComponentDragDataInput,
-} from '@remotion/studio-protocol';
+} from '../index';
 
 const makeComponentDragData = (
 	input: Omit<MakeComponentDragDataInput, 'type'>,

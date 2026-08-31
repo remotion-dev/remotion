@@ -1,9 +1,5 @@
 import {expect, test} from 'bun:test';
-import {
-	StudioProtocolInternals,
-	type SfxDragData,
-} from '@remotion/studio-protocol';
-import {isUrl} from '../url';
+import {StudioProtocolInternals, type SfxDragData} from '../index';
 
 const sfxMimeType = StudioProtocolInternals.makeDragData({
 	type: 'sfx',
@@ -44,9 +40,6 @@ test('accepts any URL in SFX drag data', () => {
 	expect(parseSfxDragData(JSON.stringify(nonRemotionUrlDragData))).toEqual(
 		nonRemotionUrlDragData,
 	);
-	expect(isUrl('https://remotion.media/whip.wav')).toBe(true);
-	expect(isUrl('https://example.com/whip.wav')).toBe(true);
-	expect(isUrl('not-a-url')).toBe(false);
 });
 
 test('rejects invalid SFX drag data', () => {

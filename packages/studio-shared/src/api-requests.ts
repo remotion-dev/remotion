@@ -12,7 +12,6 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {ComponentProp, ElementDragData} from '@remotion/studio-protocol';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
@@ -45,6 +44,54 @@ import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 import type {TerminalId} from './terminal';
+
+export type ComponentProp = {
+	name: string;
+	value: string | number | boolean;
+};
+
+export type EffectConfigValue =
+	| string
+	| number
+	| boolean
+	| null
+	| EffectConfig
+	| readonly EffectConfigValue[];
+
+export type EffectConfig = {
+	readonly [key: string]: EffectConfigValue;
+};
+
+export type EffectDefinition = {
+	readonly name: string;
+	readonly importPath: string;
+	readonly config: EffectConfig;
+};
+
+export type ElementInstallationMode = 'wrapped' | 'component-owned-sequence';
+
+export type ElementDependency =
+	| {
+			readonly name: `@remotion/${string}`;
+			readonly version: null;
+	  }
+	| {
+			readonly name: string;
+			readonly version: string;
+	  };
+
+export type InstallableElement = {
+	dependencies: ElementDependency[];
+	durationInFrames: number | null;
+	installationMode: ElementInstallationMode | null;
+	slug: string;
+	displayName: string;
+	sourceCode: string;
+	dimensions: {
+		height: number;
+		width: number;
+	} | null;
+};
 
 type KeyframeEasing = Extract<
 	CanUpdateSequencePropStatus,
@@ -508,7 +555,7 @@ export type AddEffectRequest = {
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectName: string;
 	effectImportPath: string;
-	effectConfig: Record<string, unknown>;
+	effectConfig: EffectConfig;
 	clientId: string;
 };
 
@@ -962,7 +1009,7 @@ export type ElementInstallDestination =
 
 export type PrepareElementInstallRequest = {
 	destination: ElementInstallDestination;
-	element: ElementDragData['element'];
+	element: InstallableElement;
 };
 
 export type PrepareElementInstallResponse =
@@ -983,7 +1030,7 @@ export type PrepareElementInstallResponse =
 export type InsertElementRequest = {
 	compositionFile: string;
 	compositionId: string;
-	element: ElementDragData['element'];
+	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
@@ -1032,7 +1079,7 @@ export type ElementInstallRequest = {
 	createdAt: number;
 	compositionFile: string;
 	compositionId: string;
-	element: ElementDragData['element'];
+	element: InstallableElement;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 	source: ElementInstallSource;

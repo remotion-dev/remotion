@@ -54,6 +54,7 @@ const element: InsertElementRequest['element'] = {
 	dependencies: [],
 	dimensions: {width: 900, height: 260},
 	durationInFrames: 72,
+	installationMode: null,
 	displayName: 'Lower Third',
 	slug: 'overlays/lower-third',
 	sourceCode: incomingElementSource,
