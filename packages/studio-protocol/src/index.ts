@@ -42,13 +42,11 @@ export type {
 	ComponentDragData,
 	ComponentProp,
 } from './component-drag-data';
-export type {CompositionDragData} from './composition-drag-data';
 export type {
 	ConstructedDragData,
 	DragDataTransfer,
 	MakeAssetDragDataInput,
 	MakeComponentDragDataInput,
-	MakeCompositionDragDataInput,
 	MakeDragDataInput,
 	MakeEffectDragDataInput,
 	MakeElementDragDataInput,
@@ -61,7 +59,6 @@ export type {
 export type {
 	AssetDragPreviewMetadata,
 	ComponentDragPreviewMetadata,
-	CompositionDragPreviewMetadata,
 	DragPreviewMetadata,
 	DragPreviewMetadataWithMimeType,
 	EffectDragPreviewMetadata,

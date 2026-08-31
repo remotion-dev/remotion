@@ -11,17 +11,11 @@ import {
 	type ComponentProp,
 } from './component-drag-data';
 import {
-	makeCompositionDragData,
-	parseCompositionDragData,
-	type CompositionDragData,
-} from './composition-drag-data';
-import {
 	getDragPreviewMetadata,
 	makeDragMimeType,
 	parseDragMimeType,
 	type AssetDragPreviewMetadata,
 	type ComponentDragPreviewMetadata,
-	type CompositionDragPreviewMetadata,
 	type DragPreviewMetadata,
 	type EffectDragPreviewMetadata,
 	type ElementDragPreviewMetadata,
@@ -66,18 +60,6 @@ export type MakeComponentDragDataInput = {
 	readonly props: ComponentProp[];
 };
 
-/**
- * @deprecated Composition dragging is internal to Remotion Studio and is not supported by Studio Protocol.
- */
-export type MakeCompositionDragDataInput = {
-	readonly type: 'composition';
-	readonly compositionFile: string | null;
-	readonly compositionId: string;
-	readonly width: number | null;
-	readonly height: number | null;
-	readonly durationInFrames: number | null;
-};
-
 export type MakeEffectDragDataInput = EffectDragData['effect'] & {
 	readonly type: 'effect';
 };
@@ -100,7 +82,6 @@ export type MakeRenderOutputDragDataInput = {
 export type MakeDragDataInput =
 	| MakeAssetDragDataInput
 	| MakeComponentDragDataInput
-	| MakeCompositionDragDataInput
 	| MakeEffectDragDataInput
 	| MakeElementDragDataInput
 	| MakeRenderOutputDragDataInput
@@ -127,7 +108,6 @@ export type DragDataTransfer = {
 export type RemotionDragData =
 	| AssetDragData
 	| ComponentDragData
-	| CompositionDragData
 	| EffectDragData
 	| ElementDragData
 	| RenderOutputDragData
@@ -143,11 +123,6 @@ export type ParsedDragData =
 			readonly type: 'component';
 			readonly data: ComponentDragData;
 			readonly preview: ComponentDragPreviewMetadata;
-	  }
-	| {
-			readonly type: 'composition';
-			readonly data: CompositionDragData;
-			readonly preview: CompositionDragPreviewMetadata;
 	  }
 	| {
 			readonly type: 'effect';
@@ -181,33 +156,6 @@ const construct = <TData extends RemotionDragData>(
 	};
 };
 
-const makeCompositionPreview = (
-	input: MakeCompositionDragDataInput,
-): CompositionDragPreviewMetadata => {
-	if (
-		input.width === undefined ||
-		input.height === undefined ||
-		input.durationInFrames === undefined
-	) {
-		throw new TypeError(
-			'width, height, and durationInFrames must be set to a value or null',
-		);
-	}
-
-	if ((input.width === null) !== (input.height === null)) {
-		throw new TypeError(
-			'width and height must either both be numbers or both be null',
-		);
-	}
-
-	return {
-		type: input.type,
-		width: input.width ?? undefined,
-		height: input.height ?? undefined,
-		durationInFrames: input.durationInFrames ?? undefined,
-	};
-};
-
 const makeAssetPreview = (
 	input: MakeAssetDragDataInput,
 ): AssetDragPreviewMetadata => {
@@ -238,9 +186,6 @@ const makeAssetPreview = (
 type MakeDragData = {
 	(input: MakeAssetDragDataInput): ConstructedDragData<AssetDragData>;
 	(input: MakeComponentDragDataInput): ConstructedDragData<ComponentDragData>;
-	(
-		input: MakeCompositionDragDataInput,
-	): ConstructedDragData<CompositionDragData>;
 	(input: MakeEffectDragDataInput): ConstructedDragData<EffectDragData>;
 	(input: MakeElementDragDataInput): ConstructedDragData<ElementDragData>;
 	(
@@ -272,14 +217,6 @@ export const makeDragData = ((
 					type: input.type,
 					...(input.dimensions ?? {}),
 				},
-			);
-		case 'composition':
-			return construct(
-				makeCompositionDragData({
-					compositionFile: input.compositionFile,
-					compositionId: input.compositionId,
-				}),
-				makeCompositionPreview(input),
 			);
 		case 'effect':
 			return construct(
@@ -376,12 +313,6 @@ export const parseDragData = (
 			}
 
 			return {type: preview.type, data, preview};
-		}
-
-		case 'composition': {
-			const data = parseCompositionDragData(payload);
-
-			return data === null ? null : {type: preview.type, data, preview};
 		}
 
 		case 'effect': {

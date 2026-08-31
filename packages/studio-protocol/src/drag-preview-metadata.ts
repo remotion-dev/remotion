@@ -19,14 +19,6 @@ export type ComponentDragPreviewMetadata = Dimensions & {
 	readonly type: 'component';
 };
 
-/**
- * @deprecated Composition dragging is internal to Remotion Studio and is not supported by Studio Protocol.
- */
-export type CompositionDragPreviewMetadata = Dimensions & {
-	readonly type: 'composition';
-	readonly durationInFrames?: number;
-};
-
 export type EffectDragPreviewMetadata = {
 	readonly type: 'effect';
 };
@@ -47,7 +39,6 @@ export type RenderOutputDragPreviewMetadata = {
 export type DragPreviewMetadata =
 	| AssetDragPreviewMetadata
 	| ComponentDragPreviewMetadata
-	| CompositionDragPreviewMetadata
 	| EffectDragPreviewMetadata
 	| ElementDragPreviewMetadata
 	| RenderOutputDragPreviewMetadata
@@ -105,16 +96,6 @@ const assertDuration = (metadata: DragPreviewMetadata) => {
 	}
 
 	if (
-		metadata.type === 'composition' &&
-		metadata.durationInFrames !== undefined &&
-		!isBoundedInteger(metadata.durationInFrames, MAX_DURATION_IN_FRAMES)
-	) {
-		throw new TypeError(
-			`durationInFrames must be an integer between 1 and ${MAX_DURATION_IN_FRAMES}`,
-		);
-	}
-
-	if (
 		metadata.type === 'element' &&
 		!isBoundedInteger(metadata.durationInFrames, MAX_DURATION_IN_FRAMES)
 	) {
@@ -129,7 +110,7 @@ const getDuration = (metadata: DragPreviewMetadata) => {
 		return metadata.durationInSeconds;
 	}
 
-	if (metadata.type === 'composition' || metadata.type === 'element') {
+	if (metadata.type === 'element') {
 		return metadata.durationInFrames;
 	}
 
@@ -219,7 +200,6 @@ export const parseDragMimeType = (
 	if (
 		type !== 'asset' &&
 		type !== 'component' &&
-		type !== 'composition' &&
 		type !== 'effect' &&
 		type !== 'element' &&
 		type !== 'render-output' &&
@@ -254,12 +234,7 @@ export const parseDragMimeType = (
 	}
 
 	const durationValue = values.get('duration');
-	if (
-		durationValue !== undefined &&
-		type !== 'asset' &&
-		type !== 'composition' &&
-		type !== 'element'
-	) {
+	if (durationValue !== undefined && type !== 'asset' && type !== 'element') {
 		return null;
 	}
 
@@ -292,14 +267,6 @@ export const parseDragMimeType = (
 			type,
 			...dimensions,
 			durationInFrames: duration,
-		};
-	}
-
-	if (type === 'composition') {
-		return {
-			type,
-			...dimensions,
-			...(duration === undefined ? {} : {durationInFrames: duration}),
 		};
 	}
 
