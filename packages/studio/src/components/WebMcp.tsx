@@ -3,6 +3,7 @@ import {Internals} from 'remotion';
 import {pause} from '../api/pause';
 import {play} from '../api/play';
 import {seek} from '../api/seek';
+import {getCurrentError} from '../error-overlay/current-error';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {
@@ -296,6 +297,42 @@ export const WebMcp: FC = () => {
 		};
 
 		Promise.all([
+			modelContext.registerTool(
+				{
+					name: 'get_current_error',
+					title: 'Get current Studio error',
+					description:
+						'Read the error currently shown in the Remotion Studio error overlay. Returns null when the overlay is not visible and includes symbolicated stack frames when symbolication succeeds.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: async () => {
+						const currentError = getCurrentError();
+						if (currentError === null) {
+							return null;
+						}
+
+						let symbolicatedStackFrames = null;
+						try {
+							const record = await currentError.symbolication;
+							symbolicatedStackFrames = record?.stackFrames ?? null;
+						} catch {
+							// Fall back to the original stack if symbolication fails.
+						}
+
+						return {
+							name: currentError.error.name,
+							message: currentError.error.message,
+							stack: currentError.error.stack ?? null,
+							symbolicatedStackFrames,
+						};
+					},
+				},
+				{signal: controller.signal},
+			),
 			modelContext.registerTool(
 				{
 					name: 'get_compositions',

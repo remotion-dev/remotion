@@ -119,7 +119,44 @@ test.describe('error overlay dismissal', () => {
 		});
 		await page.addInitScript(() => {
 			Object.defineProperty(window.navigator, 'platform', {value: 'Win32'});
+			type RegisteredTool = {
+				readonly name: string;
+				readonly execute: (input: Record<string, unknown>) => Promise<unknown>;
+			};
+			const tools = new Map<string, RegisteredTool>();
+			Object.defineProperty(window, '__remotion_webmcp_tools', {
+				value: tools,
+			});
+			Object.defineProperty(document, 'modelContext', {
+				value: {
+					registerTool: async (
+						tool: RegisteredTool,
+						options: {readonly signal: AbortSignal},
+					) => {
+						tools.set(tool.name, tool);
+						options.signal.addEventListener('abort', () => {
+							if (tools.get(tool.name) === tool) {
+								tools.delete(tool.name);
+							}
+						});
+					},
+				},
+			});
 		});
+		const getCurrentError = () => {
+			return page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_current_error');
+				return tool ? tool.execute() : 'not-registered';
+			});
+		};
 		await page.goto(`${STUDIO_URL}/error-overlay-unsymbolicated-e2e`);
 		await expect(page.getByText('Expected defaults').first()).toBeVisible({
 			timeout: 15_000,
@@ -246,6 +283,14 @@ test.describe('error overlay dismissal', () => {
 				(element) => element.scrollWidth > element.clientWidth,
 			),
 		).toBe(true);
+		await expect.poll(getCurrentError).toEqual({
+			name: 'TypeError',
+			message: 'Expected defaults',
+			stack: expect.stringContaining(
+				'webpack-internal:///cannot-symbolicate.js',
+			),
+			symbolicatedStackFrames: null,
+		});
 
 		await page.getByRole('button', {name: 'Copy stack'}).click();
 		await expect(page.getByRole('button', {name: 'Copied!'})).toBeVisible();
@@ -258,6 +303,7 @@ test.describe('error overlay dismissal', () => {
 
 		// Sanity check: no error visible initially.
 		await expect(errorMessage).toHaveCount(0);
+		await expect.poll(getCurrentError).toBe(null);
 
 		// 1. Introduce the bug: remove the `radius: 24` argument.
 		await writeAndWaitForRebuild(buggyContent, 'introducing the bug');
@@ -265,6 +311,19 @@ test.describe('error overlay dismissal', () => {
 		await expect(
 			page.getByText('ErrorOverlayRepro', {exact: true}),
 		).toBeVisible();
+		await expect.poll(getCurrentError).toEqual({
+			name: 'TypeError',
+			message: '"radius" must be a finite number, but got undefined',
+			stack: expect.any(String),
+			symbolicatedStackFrames: expect.arrayContaining([
+				expect.objectContaining({
+					originalFunctionName: 'ErrorOverlayRepro',
+					originalFileName: expect.stringContaining(
+						'src/ErrorOverlayE2e/ErrorOverlayRepro.tsx',
+					),
+				}),
+			]),
+		});
 		await expect(
 			page.getByText('react_stack_bottom_frame', {exact: true}),
 		).toHaveCount(0);
@@ -333,6 +392,7 @@ test.describe('error overlay dismissal', () => {
 		//    dismiss once HMR applies the fix.
 		await writeAndWaitForRebuild(originalContent, 'fixing the bug');
 		await expect(errorMessage).toHaveCount(0, {timeout: 15_000});
+		await expect.poll(getCurrentError).toBe(null);
 
 		// 3. Re-introduce the bug: the error UI should come back. This guards
 		//    against the boundary getting permanently stuck in the success state
