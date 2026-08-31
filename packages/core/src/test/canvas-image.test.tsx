@@ -193,6 +193,7 @@ const SequenceRegistrationWrapper: React.FC<{
 		() => ({
 			registerSequence,
 			unregisterSequence,
+			updateSequence: registerSequence,
 			sequences: [],
 		}),
 		[registerSequence, unregisterSequence],

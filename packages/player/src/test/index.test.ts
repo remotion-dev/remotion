@@ -212,6 +212,7 @@ const AudioComposition = () => {
 			value: {
 				registerSequence: () => undefined,
 				unregisterSequence: () => undefined,
+				updateSequence: null,
 				sequences: [],
 			},
 		},

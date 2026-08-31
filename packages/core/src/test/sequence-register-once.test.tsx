@@ -109,7 +109,12 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	const unregisterSequence = useCallback(() => undefined, []);
 
 	const ctx: SequenceManagerContext = useMemo(
-		() => ({registerSequence, unregisterSequence, sequences: []}),
+		() => ({
+			registerSequence,
+			unregisterSequence,
+			updateSequence: registerSequence,
+			sequences: [],
+		}),
 		[registerSequence, unregisterSequence],
 	);
 
@@ -272,6 +277,54 @@ test('Sequence registration preserves durations beyond the composition end', () 
 	expect(loop?.from).toBe(20);
 	expect(loop?.loopDisplay?.startOffset).toBe(-20);
 	expect(loop?.unclippedDuration).toBe(50);
+});
+
+test('Sequence timing changes update its registration without changing order', async () => {
+	let getSequences = (): TSequence[] => {
+		throw new Error('Sequence manager has not mounted');
+	};
+
+	const CaptureSequences = () => {
+		const sequencesRef = React.useContext(SequenceManagerRefContext);
+		getSequences = () => sequencesRef.current;
+		return null;
+	};
+
+	const renderSequences = (firstDuration: number) => (
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: false,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<SequenceManagerProvider>
+					<CaptureSequences />
+					<Sequence name="First" durationInFrames={firstDuration} />
+					<Sequence name="Second" durationInFrames={20} />
+				</SequenceManagerProvider>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>
+	);
+
+	const rendered = render(renderSequences(10));
+	await waitFor(() => {
+		expect(getSequences()).toHaveLength(2);
+	});
+	const initialIds = getSequences().map((sequence) => sequence.id);
+
+	rendered.rerender(renderSequences(15));
+	await waitFor(() => {
+		expect(getSequences()[0]?.duration).toBe(15);
+	});
+	expect(getSequences().map((sequence) => sequence.displayName)).toEqual([
+		'First',
+		'Second',
+	]);
+	expect(getSequences().map((sequence) => sequence.id)).toEqual(initialIds);
 });
 
 test('Interactive runtime values update mounted consumers without re-registering the sequence', () => {
