@@ -1,17 +1,15 @@
-import {
-	type ComponentDragData,
-	type ComponentProp,
-	type ElementDragData,
-} from '@remotion/studio-protocol';
+import type {ComponentDragData} from '@remotion/studio-protocol';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
+	type ComponentProp,
 	type DownloadRemoteAssetResponse,
 	type ElementInstallExpectedFileState,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
+	type InstallableElement,
 } from '@remotion/studio-shared';
 import {Internals, staticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -1330,7 +1328,7 @@ export const insertElement = async ({
 }: {
 	compositionFile: string;
 	compositionId: string;
-	element: ElementDragData['element'];
+	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState;
 	position: InsertableCompositionElementPosition | null;
 	from: number | null;

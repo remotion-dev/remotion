@@ -52,7 +52,11 @@ test('consumes an initial Element payload only once', () => {
 	});
 
 	expect(operations.consumeInitialElement()).toEqual({
-		element: payload.element,
+		element: {
+			...payload.element,
+			durationInFrames: 60,
+			installationMode: 'wrapped',
+		},
 		sourceOrigin: 'https://elements.example.test',
 	});
 	expect(operations.consumeInitialElement()).toBe(null);

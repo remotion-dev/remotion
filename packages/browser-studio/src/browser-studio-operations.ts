@@ -1952,7 +1952,11 @@ export const createBrowserStudioOperations = ({
 			return value === null
 				? null
 				: {
-						element: value.payload.element,
+						element: {
+							...value.payload.element,
+							durationInFrames: value.payload.element.durationInFrames ?? null,
+							installationMode: value.payload.element.installationMode ?? null,
+						},
 						sourceOrigin: value.sourceOrigin,
 					};
 		},

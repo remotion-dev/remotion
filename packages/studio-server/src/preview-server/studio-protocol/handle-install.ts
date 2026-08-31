@@ -1,5 +1,8 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {
+	StudioProtocolInternals,
+	type StudioElementPayload,
+} from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import type {getElementInstallTarget} from '../element-install-state';
 import {consumeStudioProtocolTarget} from '../element-install-state';
@@ -24,7 +27,7 @@ const deliverElementInstall = ({
 	origin,
 	target,
 }: {
-	readonly element: ElementInstallRequest['element'];
+	readonly element: StudioElementPayload['element'];
 	readonly focusStudioTab: FocusStudioTab;
 	readonly liveEventsServer: LiveEventsServer;
 	readonly origin: string;
@@ -40,7 +43,11 @@ const deliverElementInstall = ({
 		createdAt: Date.now(),
 		compositionFile: target.compositionFile,
 		compositionId: target.compositionId,
-		element,
+		element: {
+			...element,
+			durationInFrames: element.durationInFrames ?? null,
+			installationMode: element.installationMode ?? null,
+		},
 		from: null,
 		position: null,
 		source: {

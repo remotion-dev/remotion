@@ -1,8 +1,5 @@
 import {expect, test} from 'bun:test';
-import {
-	StudioProtocolInternals,
-	type ElementDragData,
-} from '@remotion/studio-protocol';
+import {StudioProtocolInternals, type ElementDragData} from '../index';
 
 type ElementInput = Omit<ElementDragData['element'], 'durationInFrames'>;
 

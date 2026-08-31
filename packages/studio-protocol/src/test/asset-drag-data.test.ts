@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {StudioProtocolInternals} from '../index';
 
 const assetMimeType = StudioProtocolInternals.makeDragData({
 	type: 'asset',

@@ -74,7 +74,10 @@ export const insertElementHandler: ApiHandler<
 				throw new Error('from must be a non-negative integer');
 			}
 
-			const installationMode = element.installationMode ?? 'wrapped';
+			const installationMode =
+				element.installationMode === null
+					? 'wrapped'
+					: element.installationMode;
 			const componentOwnsSequence =
 				installationMode === 'component-owned-sequence';
 
@@ -150,7 +153,7 @@ export const insertElementHandler: ApiHandler<
 					importPath: plan.importPath,
 					props: componentOwnsSequence
 						? [
-								...(element.durationInFrames === undefined
+								...(element.durationInFrames === null
 									? []
 									: [
 											{
@@ -169,7 +172,7 @@ export const insertElementHandler: ApiHandler<
 					? null
 					: {
 							dimensions: element.dimensions,
-							durationInFrames: element.durationInFrames ?? null,
+							durationInFrames: element.durationInFrames,
 							from,
 							name: element.displayName,
 							position,

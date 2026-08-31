@@ -1,11 +1,11 @@
-import type {EffectDragData} from '@remotion/studio-protocol';
+import type {EffectDefinition} from './api-requests';
 
 export type EffectCatalogItem = {
 	readonly id: string;
 	readonly category: string;
 	readonly label: string;
 	readonly description: string;
-	readonly effect: EffectDragData['effect'];
+	readonly effect: EffectDefinition;
 };
 
 export type EffectCatalogCategory = {

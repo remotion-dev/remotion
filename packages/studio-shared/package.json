@@ -21,7 +21,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/studio-protocol": "workspace:*",
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {

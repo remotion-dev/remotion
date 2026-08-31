@@ -1901,7 +1901,6 @@
       "name": "@remotion/studio-shared",
       "version": "4.0.519",
       "dependencies": {
-        "@remotion/studio-protocol": "workspace:*",
         "remotion": "workspace:*",
       },
       "devDependencies": {

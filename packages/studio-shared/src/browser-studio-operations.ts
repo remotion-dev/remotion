@@ -1,4 +1,3 @@
-import type {ElementDragData} from '@remotion/studio-protocol';
 import type {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
@@ -35,6 +34,7 @@ import type {
 	InsertElementRequest,
 	InsertElementResponse,
 	InstallPackageRequest,
+	InstallableElement,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	PasteEffectsRequest,
@@ -160,7 +160,7 @@ export type BrowserStudioPackageInstallationOperations = {
 
 export type BrowserStudioOperations = {
 	consumeInitialElement: () => {
-		element: ElementDragData['element'];
+		element: InstallableElement;
 		sourceOrigin: string | null;
 	} | null;
 	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
