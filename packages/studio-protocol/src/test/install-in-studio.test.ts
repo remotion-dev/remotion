@@ -53,8 +53,14 @@ const dependencies = {
 	ports: [3000, 3001],
 };
 
-test('delivers the payload to the exact most recently focused Studio target', async () => {
+test('delivers the payload when a newer Studio advertises an unknown capability', async () => {
 	const requests: Array<{url: string; options?: RequestInit}> = [];
+	const newestStudio = descriptor({
+		compositionId: 'Main',
+		lastFocusedAt: 950_000,
+		projectName: 'Newest project',
+		targetId: 'newest-target',
+	});
 	const fetchFn = (input: string | URL | Request, options?: RequestInit) => {
 		const url = String(input);
 		requests.push({url, options});
@@ -73,14 +79,13 @@ test('delivers the payload to the exact most recently focused Studio target', as
 
 		if (url === 'http://localhost:3001/api/studio-protocol') {
 			return Promise.resolve(
-				jsonResponse(
-					descriptor({
-						compositionId: 'Main',
-						lastFocusedAt: 950_000,
-						projectName: 'Newest project',
-						targetId: 'newest-target',
-					}),
-				),
+				jsonResponse({
+					...newestStudio,
+					capabilities: [
+						...newestStudio.capabilities,
+						{type: 'future-capability'},
+					],
+				}),
 			);
 		}
 
