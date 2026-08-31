@@ -898,25 +898,6 @@ const createSequenceElement = (): namedTypes.JSXElement => {
 	);
 };
 
-const createSequenceWithChild = ({
-	child,
-	sequenceLocalName,
-}: {
-	child: namedTypes.JSXElement;
-	sequenceLocalName: string;
-}): namedTypes.JSXElement => {
-	return recast.types.builders.jsxElement(
-		recast.types.builders.jsxOpeningElement(
-			recast.types.builders.jsxIdentifier(sequenceLocalName),
-			[],
-		),
-		recast.types.builders.jsxClosingElement(
-			recast.types.builders.jsxIdentifier(sequenceLocalName),
-		),
-		[child],
-	);
-};
-
 const createNumberAttribute = (
 	name: string,
 	value: number,
@@ -2007,12 +1988,7 @@ const addElementToComponentRoot = ({
 	}
 
 	if (rootNode.type === 'JSXElement') {
-		const existingRoot = rootNode.openingElement.selfClosing
-			? createSequenceWithChild({
-					child: stripParenthesizedExtra(rootNode),
-					sequenceLocalName: ensureSequenceImport(ast),
-				})
-			: stripParenthesizedExtra(rootNode);
+		const existingRoot = stripParenthesizedExtra(rootNode);
 		const fragment = recast.types.builders.jsxFragment(
 			recast.types.builders.jsxOpeningFragment(),
 			recast.types.builders.jsxClosingFragment(),
@@ -2734,14 +2710,12 @@ const getInsertionRootSourceEdit = ({
 	nullRoot,
 	prettierConfigOverride,
 	root,
-	sequenceLocalName,
 }: {
 	input: string;
 	insertion: string;
 	nullRoot: NullLiteral | null;
 	prettierConfigOverride: Record<string, unknown> | null;
 	root: namedTypes.JSXElement | namedTypes.JSXFragment | null;
-	sequenceLocalName: string | null;
 }): SourceEdit => {
 	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
 	const unit = getIndentationUnit(input, prettierConfigOverride);
@@ -2813,33 +2787,17 @@ const getInsertionRootSourceEdit = ({
 	const end = recastLocToOffset(input, root.loc.end);
 	const indent = getLineIndent(input, start);
 	const original = input.slice(start, end);
-	const existingRoot = root.openingElement.selfClosing
-		? [
-				`${indent}${unit}<${sequenceLocalName}>`,
-				indentExistingJsx({
-					indent: `${indent}${unit}${unit}`,
-					original,
-					originalIndent: indent,
-				}),
-				`${indent}${unit}</${sequenceLocalName}>`,
-			]
-		: [
-				indentExistingJsx({
-					indent: `${indent}${unit}`,
-					original,
-					originalIndent: indent,
-				}),
-			];
-
-	if (root.openingElement.selfClosing && sequenceLocalName === null) {
-		throw new Error('Expected a Sequence import for a self-closing root');
-	}
+	const existingRoot = indentExistingJsx({
+		indent: `${indent}${unit}`,
+		original,
+		originalIndent: indent,
+	});
 
 	return {
 		end,
 		replacement: [
 			'<>',
-			...existingRoot,
+			existingRoot,
 			indentInsertedJsx({indent: `${indent}${unit}`, insertion}),
 			`${indent}</>`,
 		].join(endOfLine),
@@ -3447,20 +3405,6 @@ export const insertJsxElementIntoComposition = async ({
 		exportName: location.exportName,
 		element: finalElementToInsert,
 	});
-	const finalRoot = componentDeclaration
-		? getComponentRootNode(componentDeclaration)
-		: null;
-	const firstFinalRootChild =
-		finalRoot?.type === 'JSXFragment'
-			? (finalRoot.children?.[0] ?? null)
-			: null;
-	const sequenceLocalName =
-		rootBeforeInsertion?.type === 'JSXElement' &&
-		rootBeforeInsertion.openingElement.selfClosing &&
-		firstFinalRootChild?.type === 'JSXElement' &&
-		firstFinalRootChild.openingElement.name.type === 'JSXIdentifier'
-			? firstFinalRootChild.openingElement.name.name
-			: null;
 	const output = applySourceEdits({
 		edits: [
 			...getInsertImportSourceEdits({
@@ -3482,7 +3426,6 @@ export const insertJsxElementIntoComposition = async ({
 				nullRoot: nullRootBeforeInsertion,
 				prettierConfigOverride,
 				root: rootBeforeInsertion,
-				sequenceLocalName,
 			}),
 		],
 		input,
