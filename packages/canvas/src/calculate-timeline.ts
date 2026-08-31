@@ -49,7 +49,27 @@ export const calculateTimeline = ({
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	compositions?: readonly _InternalTypes['AnyComposition'][];
 }): TimelineTrackData[] => {
-	const sortedSequences = sortItemsByNonceHistory(sequences);
+	const nonceSortedSequences = sortItemsByNonceHistory(sequences);
+	const hasCommittedSequenceOrder = nonceSortedSequences.some(
+		(sequence) => sequence.timelineOrder !== null,
+	);
+	const sortedSequences = hasCommittedSequenceOrder
+		? nonceSortedSequences.slice().sort((a, b) => {
+				if (a.timelineOrder === null && b.timelineOrder === null) {
+					return 0;
+				}
+
+				if (a.timelineOrder === null) {
+					return 1;
+				}
+
+				if (b.timelineOrder === null) {
+					return -1;
+				}
+
+				return a.timelineOrder - b.timelineOrder;
+			})
+		: nonceSortedSequences;
 	const tracks: TimelineTrackWithOriginalTimings[] = [];
 
 	if (sortedSequences.length === 0) {

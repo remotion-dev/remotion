@@ -212,6 +212,7 @@ export const useMediaInTimeline = ({
 			volume: volumes,
 			muted,
 			showInTimeline: true,
+			timelineOrder: null,
 			nonce: nonce.get(),
 			startMediaFrom: 0 - startsAt,
 			mediaFrameAtSequenceZero: null,

@@ -28,6 +28,7 @@ import {
 	resolveSequenceCrop,
 	validateSequenceCrop,
 } from './sequence-crop.js';
+import {SequenceOrderMarker} from './sequence-order-marker.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
@@ -477,6 +478,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					postmountDisplay: postmountDisplay ?? null,
 					premountDisplay: premountDisplay ?? null,
 					showInTimeline,
+					timelineOrder: null,
 					src: isMedia.src,
 					getStack: () => stackRef.current,
 					refForOutline: refForOutline ?? null,
@@ -505,6 +507,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				postmountDisplay: postmountDisplay ?? null,
 				premountDisplay: premountDisplay ?? null,
 				showInTimeline,
+				timelineOrder: null,
 				src: isMedia.data.src,
 				getStack: () => stackRef.current,
 				startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
@@ -529,6 +532,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
 			showInTimeline,
+			timelineOrder: null,
 			nonce: nonce.get(),
 			loopDisplay,
 			getStack: () => stackRef.current,
@@ -634,10 +638,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	if (hidden) {
-		return null;
+		return env.isStudio ? (
+			<SequenceOrderMarker sequenceId={id}>{null}</SequenceOrderMarker>
+		) : null;
 	}
 
-	return (
+	const sequence = (
 		<SequenceContext.Provider value={contextValue}>
 			{frozenContent === null ? null : other.layout === 'none' ? (
 				frozenContent
@@ -651,6 +657,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				</AbsoluteFillElement>
 			)}
 		</SequenceContext.Provider>
+	);
+
+	return env.isStudio ? (
+		<SequenceOrderMarker sequenceId={id}>{sequence}</SequenceOrderMarker>
+	) : (
+		sequence
 	);
 };
 

@@ -71,6 +71,7 @@ const makeSequence = ({
 	documentationLink: null,
 	parent,
 	showInTimeline: true,
+	timelineOrder: null,
 	nonce: [[0, nonce]],
 	loopDisplay: undefined,
 	getStack,

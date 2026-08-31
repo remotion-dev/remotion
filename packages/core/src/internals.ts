@@ -168,6 +168,7 @@ import {
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 } from './sequence-node-path.js';
+import {SequenceOrderInternals} from './sequence-order-marker.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceWithoutSchema} from './Sequence.js';
@@ -334,6 +335,7 @@ export const Internals = {
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
 	SequenceRegistrationContext,
+	SequenceOrderInternals,
 	SequenceStackTracesUpdateContext,
 	baseSchema,
 	sequenceSchema,

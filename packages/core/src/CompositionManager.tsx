@@ -130,6 +130,7 @@ export type TSequence = {
 	documentationLink: string | null;
 	parent: string | null;
 	showInTimeline: boolean;
+	timelineOrder: number | null;
 	nonce: NonceHistory;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;

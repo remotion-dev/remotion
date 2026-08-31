@@ -31,6 +31,7 @@ const makeSequence = ({
 	premountDisplay: null,
 	refForOutline: null,
 	showInTimeline: true,
+	timelineOrder: null,
 	trimBefore: null,
 	type: 'sequence',
 });
@@ -61,4 +62,28 @@ test('normalizes nesting and visible starts', () => {
 		{id: 'parent', depth: 0, from: 20, sequenceFrameOffset: 0},
 		{id: 'child', depth: 1, from: 20, sequenceFrameOffset: 10},
 	]);
+});
+
+test('committed Fiber order takes precedence over nonce order', () => {
+	const right = makeSequence({
+		id: 'right',
+		parent: null,
+		from: 10,
+		nonce: 0,
+	});
+	const left = makeSequence({
+		id: 'left',
+		parent: null,
+		from: 0,
+		nonce: 1,
+	});
+	right.timelineOrder = 1;
+	left.timelineOrder = 0;
+
+	const timeline = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [right, left],
+	});
+
+	expect(timeline.map((track) => track.sequence.id)).toEqual(['left', 'right']);
 });
