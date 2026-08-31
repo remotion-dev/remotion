@@ -1,6 +1,7 @@
 import {NoReactInternals} from 'remotion/no-react';
 import type {AnyRenderJob} from '../components/RenderQueue/context';
 import {isClientRenderJob} from '../components/RenderQueue/context';
+import {getNavigationWindow} from './url-state';
 
 let currentItemName: string | null = null;
 let renderJobs: AnyRenderJob[] = [];
@@ -27,13 +28,13 @@ const suffix = `- ${productName}`;
 
 const updateTitle = () => {
 	if (!currentItemName) {
-		document.title = productName;
+		getNavigationWindow().document.title = productName;
 		return;
 	}
 
 	const currentCompTitle = `${currentItemName} / ${window.remotion_projectName}`;
 
-	document.title = [
+	getNavigationWindow().document.title = [
 		getProgressInBrackets(currentItemName, renderJobs),
 		`${currentCompTitle} ${suffix}`,
 	]
