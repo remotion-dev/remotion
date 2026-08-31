@@ -1856,6 +1856,9 @@
     "packages/studio-protocol": {
       "name": "@remotion/studio-protocol",
       "version": "4.0.519",
+      "dependencies": {
+        "zod": "catalog:",
+      },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",

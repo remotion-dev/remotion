@@ -1,7 +1,6 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
-import {z} from 'zod';
 import type {getElementInstallTarget} from '../element-install-state';
 import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
@@ -13,14 +12,6 @@ import {
 import {writeStudioProtocolError} from './protocol-response';
 
 type FocusStudioTab = (studioUrl: string) => void;
-
-const studioProtocolInstallRequestSchema = z.object({
-	operation: z.literal('install-element'),
-	protocol: z.literal('remotion-studio-protocol'),
-	protocolVersion: z.literal(1),
-	targetId: z.string(),
-	payload: z.unknown(),
-});
 
 // A valid payload may contain 250,000 JSON characters. Allow room for its
 // UTF-8 representation and the protocol envelope while keeping memory bounded.
@@ -127,24 +118,18 @@ export const handleStudioProtocolInstall = async ({
 		return;
 	}
 
-	const parsedRequest = studioProtocolInstallRequestSchema.safeParse(body);
-	if (!parsedRequest.success) {
+	const parsedRequest =
+		StudioProtocolInternals.parseStudioProtocolInstallRequest(body);
+	if (parsedRequest.status !== 'valid') {
 		writeStudioProtocolError({
-			code: 'unsupported-protocol',
-			message: 'Invalid Remotion Studio Protocol request.',
-			response,
-			status: 400,
-		});
-		return;
-	}
-
-	const payload = StudioProtocolInternals.parseStudioElementPayload(
-		parsedRequest.data.payload,
-	);
-	if (payload === null) {
-		writeStudioProtocolError({
-			code: 'invalid-payload',
-			message: 'Invalid Element payload.',
+			code:
+				parsedRequest.status === 'invalid-payload'
+					? 'invalid-payload'
+					: 'unsupported-protocol',
+			message:
+				parsedRequest.status === 'invalid-payload'
+					? 'Invalid Element payload.'
+					: 'Invalid Remotion Studio Protocol request.',
 			response,
 			status: 400,
 		});
@@ -155,7 +140,7 @@ export const handleStudioProtocolInstall = async ({
 		now: Date.now(),
 		origin: requestOrigin,
 		purpose: 'install-element',
-		targetId: parsedRequest.data.targetId,
+		targetId: parsedRequest.request.targetId,
 	});
 	if (target === null) {
 		writeStudioProtocolError({
@@ -169,7 +154,7 @@ export const handleStudioProtocolInstall = async ({
 
 	if (
 		!deliverElementInstall({
-			element: payload.element,
+			element: parsedRequest.request.payload.element,
 			focusStudioTab,
 			liveEventsServer,
 			origin: requestOrigin,

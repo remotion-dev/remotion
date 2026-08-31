@@ -1,3 +1,4 @@
+import * as z from 'zod/mini';
 import type {ComponentDimensions} from './component-drag-data';
 import {makeDragData} from './drag-data';
 import {
@@ -9,7 +10,6 @@ import {
 	type ElementDragData,
 	type ElementInstallationMode,
 } from './element-drag-data';
-import {isRecord} from './validation';
 
 const MAX_PAYLOAD_SIZE = 250_000;
 const MAX_SOURCE_CODE_SIZE = 200_000;
@@ -29,11 +29,16 @@ export type StudioElementPayload = ElementDragData & {
 	readonly durationInFrames: number;
 };
 
+const durationSchema = z.int().check(z.positive(), z.lte(100_000_000));
+const studioElementPayloadEnvelopeSchema = z.object({
+	type: z.literal('remotion-element'),
+	version: z.literal(1),
+	durationInFrames: durationSchema,
+	element: z.unknown(),
+});
+
 const isDuration = (value: unknown): value is number =>
-	typeof value === 'number' &&
-	Number.isInteger(value) &&
-	value >= 1 &&
-	value <= 100_000_000;
+	z.safeParse(durationSchema, value).success;
 
 const assertCreateElementPayloadInput = (
 	input: CreateElementPayloadInput,
@@ -112,19 +117,16 @@ export const createElementPayload = (
 export const parseStudioElementPayload = (
 	value: unknown,
 ): StudioElementPayload | null => {
-	if (
-		!isRecord(value) ||
-		value.type !== 'remotion-element' ||
-		value.version !== 1 ||
-		!isDuration(value.durationInFrames) ||
-		!isRecord(value.element)
-	)
+	const parsed = z.safeParse(studioElementPayloadEnvelopeSchema, value);
+	if (!parsed.success) {
 		return null;
+	}
+
 	const element = parseElementDragData(
 		JSON.stringify({
-			type: value.type,
-			version: value.version,
-			element: value.element,
+			type: parsed.data.type,
+			version: parsed.data.version,
+			element: parsed.data.element,
 		}),
 	);
 	if (element === null) return null;
@@ -132,9 +134,9 @@ export const parseStudioElementPayload = (
 		...element,
 		element: {
 			...element.element,
-			durationInFrames: value.durationInFrames,
+			durationInFrames: parsed.data.durationInFrames,
 		},
-		durationInFrames: value.durationInFrames,
+		durationInFrames: parsed.data.durationInFrames,
 	};
 	return JSON.stringify(payload).length <= MAX_PAYLOAD_SIZE ? payload : null;
 };

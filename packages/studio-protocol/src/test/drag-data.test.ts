@@ -35,7 +35,11 @@ const inputs: MakeDragDataInput[] = [
 		type: 'effect',
 		name: 'brightness',
 		importPath: '@remotion/effects/brightness',
-		config: {brightness: 1.2},
+		config: {
+			brightness: 1.2,
+			channels: ['red', 'green', 'blue'],
+			settings: {enabled: true, fallback: null},
+		},
 	},
 	{
 		type: 'element',
@@ -64,6 +68,7 @@ test('constructs and parses all drag data families', () => {
 		const parsed = StudioProtocolInternals.parseDragData(constructed);
 
 		expect(parsed?.type).toBe(input.type);
+		expect(parsed?.data).toEqual(constructed.data);
 		expect(constructed.mimeType).toStartWith(
 			'application/vnd.remotion.drag+json;v=1;type=',
 		);
@@ -211,6 +216,22 @@ test('requires a duration for element drags', () => {
 });
 
 test('rejects malformed and mismatched drag data', () => {
+	expect(() =>
+		StudioProtocolInternals.makeDragData({
+			type: 'effect',
+			name: 'brightness',
+			importPath: '@remotion/effects/brightness',
+			config: {brightness: Number.POSITIVE_INFINITY},
+		}),
+	).toThrow('Effect config must contain only finite JSON values');
+	expect(
+		StudioProtocolInternals.parseDragData({
+			mimeType: 'application/vnd.remotion.drag+json;v=1;type=effect',
+			payload:
+				'{"type":"remotion-effect","version":1,"effect":{"name":"brightness","importPath":"@remotion/effects/brightness","config":{"brightness":1e400}}}',
+		}),
+	).toBe(null);
+
 	const renderOutput = StudioProtocolInternals.makeDragData({
 		type: 'render-output',
 		outputPath: 'out/video.mp4',

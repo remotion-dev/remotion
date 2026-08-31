@@ -1,4 +1,4 @@
-import {isRecord} from './validation';
+import * as z from 'zod/mini';
 
 export type StudioProtocolTarget = {
 	readonly id: string;
@@ -57,6 +57,67 @@ export const studioProtocolProbePorts = [
 export const focusedStudioMaxAge = 5 * 60 * 1000;
 const requestTimeout = 2_000;
 
+const targetSchema = z.looseObject({
+	id: z.string().check(z.minLength(1)),
+	expiresAt: z.number(),
+	lastFocusedAt: z.number(),
+});
+const installTargetSchema = z.looseObject({
+	id: z.string().check(z.minLength(1)),
+	expiresAt: z.number(),
+	lastFocusedAt: z.number(),
+	compositionId: z.string().check(z.minLength(1)),
+});
+const installCapabilitySchema = z.looseObject({
+	type: z.literal('install-element'),
+	payloadType: z.literal('remotion-element'),
+	payloadVersions: z.array(z.number()),
+	target: z.nullable(installTargetSchema),
+});
+const setLicenseKeyCapabilitySchema = z.looseObject({
+	type: z.literal('set-license-key'),
+	target: z.nullable(targetSchema),
+});
+const addElementLibraryCapabilitySchema = z.looseObject({
+	type: z.literal('add-element-library'),
+	target: z.nullable(targetSchema),
+});
+const capabilitySchema = z.union([
+	installCapabilitySchema,
+	setLicenseKeyCapabilitySchema,
+	addElementLibraryCapabilitySchema,
+]);
+const descriptorEnvelopeSchema = z.looseObject({
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	studioVersion: z.string(),
+	projectName: z.nullable(z.string()),
+	capabilities: z.array(z.unknown()),
+});
+const descriptorSchema = z
+	.looseObject({
+		protocol: z.literal('remotion-studio-protocol'),
+		protocolVersion: z.literal(1),
+		studioVersion: z.string(),
+		projectName: z.nullable(z.string()),
+		capabilities: z.array(capabilitySchema),
+	})
+	.check(
+		z.refine((descriptor) => {
+			const capabilityTypes = descriptor.capabilities.map(
+				(capability) => capability.type,
+			);
+			return new Set(capabilityTypes).size === capabilityTypes.length;
+		}),
+	);
+const protocolVersionEnvelopeSchema = z.looseObject({
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.unknown(),
+});
+const legacyStudioSchema = z.looseObject({
+	type: z.literal('remotion-studio'),
+});
+
 export const fetchWithTimeout = async ({
 	fetchFn,
 	options,
@@ -78,90 +139,32 @@ export const fetchWithTimeout = async ({
 	}
 };
 
-const isNullableString = (value: unknown): value is string | null =>
-	value === null || typeof value === 'string';
-
-const isTarget = (value: unknown): value is StudioProtocolTarget =>
-	isRecord(value) &&
-	typeof value.id === 'string' &&
-	value.id.length > 0 &&
-	typeof value.expiresAt === 'number' &&
-	Number.isFinite(value.expiresAt) &&
-	typeof value.lastFocusedAt === 'number' &&
-	Number.isFinite(value.lastFocusedAt);
-
-const isInstallTarget = (
-	value: unknown,
-): value is StudioProtocolInstallTarget => {
-	if (!isRecord(value)) {
-		return false;
-	}
-
-	const {compositionId} = value;
-	return (
-		isTarget(value) &&
-		typeof compositionId === 'string' &&
-		compositionId.length > 0
-	);
-};
-
-const isCapability = (value: unknown): value is StudioProtocolCapability => {
-	if (!isRecord(value)) {
-		return false;
-	}
-
-	if (value.type === 'install-element') {
-		return (
-			value.payloadType === 'remotion-element' &&
-			Array.isArray(value.payloadVersions) &&
-			value.payloadVersions.every((version) => typeof version === 'number') &&
-			(value.target === null || isInstallTarget(value.target))
-		);
-	}
-
-	if (value.type === 'set-license-key') {
-		return value.target === null || isTarget(value.target);
-	}
-
-	return (
-		value.type === 'add-element-library' &&
-		(value.target === null || isTarget(value.target))
-	);
-};
-
 export const isStudioProtocolDescriptor = (
 	value: unknown,
-): value is StudioProtocolDescriptor => {
-	if (
-		!isRecord(value) ||
-		value.protocol !== 'remotion-studio-protocol' ||
-		value.protocolVersion !== 1 ||
-		typeof value.studioVersion !== 'string' ||
-		!isNullableString(value.projectName) ||
-		!Array.isArray(value.capabilities) ||
-		!value.capabilities.every(isCapability)
-	) {
-		return false;
-	}
+): value is StudioProtocolDescriptor =>
+	z.safeParse(descriptorSchema, value).success;
 
-	const capabilityTypes = value.capabilities.map(
-		(capability) => capability.type,
-	);
-	return new Set(capabilityTypes).size === capabilityTypes.length;
-};
-
-const parseStudioProtocolDescriptor = (
+export const parseStudioProtocolDescriptor = (
 	value: unknown,
 ): StudioProtocolDescriptor | null => {
-	if (!isRecord(value) || !Array.isArray(value.capabilities)) {
+	const envelope = z.safeParse(descriptorEnvelopeSchema, value);
+	if (!envelope.success) {
 		return null;
 	}
 
-	const descriptor = {
-		...value,
-		capabilities: value.capabilities.filter(isCapability),
-	};
-	return isStudioProtocolDescriptor(descriptor) ? descriptor : null;
+	const capabilities: StudioProtocolCapability[] = [];
+	for (const capability of envelope.data.capabilities) {
+		const parsedCapability = z.safeParse(capabilitySchema, capability);
+		if (parsedCapability.success) {
+			capabilities.push(parsedCapability.data);
+		}
+	}
+
+	const descriptor = z.safeParse(descriptorSchema, {
+		...envelope.data,
+		capabilities,
+	});
+	return descriptor.success ? descriptor.data : null;
 };
 
 export const getInstallCapability = (
@@ -229,10 +232,13 @@ export const discoverStudios = async (
 				return null;
 			}
 
+			const protocolVersionEnvelope = z.safeParse(
+				protocolVersionEnvelopeSchema,
+				value,
+			);
 			if (
-				isRecord(value) &&
-				value.protocol === 'remotion-studio-protocol' &&
-				value.protocolVersion !== 1
+				protocolVersionEnvelope.success &&
+				protocolVersionEnvelope.data.protocolVersion !== 1
 			) {
 				foundUnsupportedProtocol = true;
 				return null;
@@ -276,8 +282,7 @@ export const hasLegacyStudio = async (
 					return false;
 				}
 
-				const value: unknown = await response.json();
-				return isRecord(value) && value.type === 'remotion-studio';
+				return z.safeParse(legacyStudioSchema, await response.json()).success;
 			} catch {
 				return false;
 			}

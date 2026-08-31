@@ -1,3 +1,4 @@
+import * as z from 'zod/mini';
 import {isAllowedStudioProtocolPageOrigin} from './install-in-studio';
 import type {StudioProtocolFetcher} from './studio-discovery';
 import {
@@ -9,7 +10,10 @@ import {
 	isAbortError,
 	studioProtocolProbePorts,
 } from './studio-discovery';
-import {isRecord} from './validation';
+import {
+	isAwaitingConfirmationResponse,
+	parseStudioProtocolError,
+} from './studio-response';
 
 export type AddElementLibraryToStudioInput = {
 	readonly url: string;
@@ -61,6 +65,25 @@ export type StudioProtocolAddElementLibraryRequest = {
 	readonly targetId: string;
 	readonly url: string;
 	readonly displayName: string | null;
+};
+
+const studioProtocolAddElementLibraryRequestSchema = z.object({
+	operation: z.literal('add-element-library'),
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	targetId: z.string().check(z.minLength(1)),
+	url: z.string(),
+	displayName: z.nullable(z.string()),
+});
+
+export const parseStudioProtocolAddElementLibraryRequest = (
+	value: unknown,
+): StudioProtocolAddElementLibraryRequest | null => {
+	const parsed = z.safeParse(
+		studioProtocolAddElementLibraryRequestSchema,
+		value,
+	);
+	return parsed.success ? parsed.data : null;
 };
 
 const failure = (
@@ -227,13 +250,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 		);
 	}
 
-	if (
-		response.ok &&
-		isRecord(result) &&
-		result.protocol === 'remotion-studio-protocol' &&
-		result.protocolVersion === 1 &&
-		result.status === 'awaiting-confirmation'
-	) {
+	if (response.ok && isAwaitingConfirmationResponse(result)) {
 		return {
 			success: true,
 			status: 'awaiting-confirmation',
@@ -245,21 +262,15 @@ export const addElementLibraryToStudioWithDependencies = async (
 		};
 	}
 
-	if (
-		isRecord(result) &&
-		result.status === 'error' &&
-		isRecord(result.error) &&
-		typeof result.error.code === 'string' &&
-		typeof result.error.message === 'string'
-	) {
-		const {code, message} = result.error;
+	const protocolError = parseStudioProtocolError(result);
+	if (protocolError !== null) {
 		return failure(
-			code === 'target-expired'
+			protocolError.code === 'target-expired'
 				? 'target-expired'
-				: code === 'no-config-file'
+				: protocolError.code === 'no-config-file'
 					? 'no-config-file'
 					: 'request-rejected',
-			message,
+			protocolError.message,
 		);
 	}
 
