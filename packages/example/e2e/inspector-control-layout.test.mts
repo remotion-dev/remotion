@@ -61,7 +61,7 @@ test.describe('Inspector control layout', () => {
 		await stopStudio();
 	});
 
-	test('does not indent controls after array fields', async ({page}) => {
+	test('keeps inspector controls aligned', async ({page}) => {
 		await page.goto(`${STUDIO_URL}/inspector-control-layout-e2e`);
 		await expect(page).toHaveURL(/inspector-control-layout-e2e/, {
 			timeout: 15_000,
@@ -92,6 +92,18 @@ test.describe('Inspector control layout', () => {
 			.getByRole('button', {name: 'Add keyframe'})
 			.first();
 		const colorButton = page.getByRole('button', {name: '#ff5c4d'});
+		const sourceAction = page.getByRole('button', {name: 'tablet.mp4'});
+		const duplicateAction = page.getByRole('button', {
+			name: 'Duplicate',
+			exact: true,
+		});
+		const [sourceActionBox, duplicateActionBox] = await Promise.all([
+			getBox(sourceAction),
+			getBox(duplicateAction),
+		]);
+		expect(
+			Math.abs(sourceActionBox.x - duplicateActionBox.x),
+		).toBeLessThanOrEqual(1);
 
 		await expectInspectorControlsToUseAvailableWidth(
 			origin,
