@@ -66,6 +66,9 @@ export type MakeComponentDragDataInput = {
 	readonly props: ComponentProp[];
 };
 
+/**
+ * @deprecated Composition dragging is internal to Remotion Studio and is not supported by Studio Protocol.
+ */
 export type MakeCompositionDragDataInput = {
 	readonly type: 'composition';
 	readonly compositionFile: string | null;

@@ -1,5 +1,8 @@
 import {isRecord} from './validation';
 
+/**
+ * @deprecated Composition dragging is internal to Remotion Studio and is not supported by Studio Protocol.
+ */
 export type CompositionDragData = {
 	type: 'remotion-composition';
 	version: 1;

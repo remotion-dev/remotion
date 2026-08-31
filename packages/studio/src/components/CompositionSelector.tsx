@@ -1,5 +1,3 @@
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -19,6 +17,11 @@ import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
+import {
+	compositionDragDataToSymbolicatedStack,
+	getCompositionDragPreviewMetadata,
+	parseCompositionDragData,
+} from './composition-drag-data';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
@@ -240,8 +243,7 @@ export const CompositionSelector: React.FC = () => {
 		(event: React.DragEvent<HTMLElement>) => {
 			if (
 				window.remotion_isReadOnlyStudio ||
-				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
-					?.type !== 'composition'
+				getCompositionDragPreviewMetadata(event.dataTransfer.types) === null
 			) {
 				stopCompositionListAutoScroll();
 				return;
@@ -267,8 +269,7 @@ export const CompositionSelector: React.FC = () => {
 	const onRootDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
 		if (
 			window.remotion_isReadOnlyStudio ||
-			StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
-				?.type !== 'composition'
+			getCompositionDragPreviewMetadata(event.dataTransfer.types) === null
 		) {
 			return;
 		}
@@ -300,12 +301,10 @@ export const CompositionSelector: React.FC = () => {
 				return;
 			}
 
-			const parsed = StudioProtocolInternals.parseDragData(event.dataTransfer);
-			if (parsed?.type !== 'composition') {
+			const compositionDragData = parseCompositionDragData(event.dataTransfer);
+			if (compositionDragData === null) {
 				return;
 			}
-
-			const compositionDragData = parsed.data;
 
 			event.preventDefault();
 			event.stopPropagation();

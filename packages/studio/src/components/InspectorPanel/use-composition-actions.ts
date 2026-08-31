@@ -1,4 +1,3 @@
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
@@ -8,6 +7,7 @@ import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled'
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {SetSelectedModalContext} from '../../state/modals';
 import {callApi} from '../call-api';
+import type {CompositionDragData} from '../composition-drag-data';
 import {
 	importAssets,
 	insertComposition as insertCompositionFromDrop,
@@ -227,14 +227,12 @@ export const useCompositionActions = () => {
 					resolvedLocation?.source ??
 					browserStudioOperations?.getCompositionFile(composition.id) ??
 					null;
-				const compositionDragData = StudioProtocolInternals.makeDragData({
-					type: 'composition',
+				const compositionDragData: CompositionDragData = {
+					type: 'remotion-composition',
+					version: 1,
 					compositionFile: selectedCompositionFile,
 					compositionId: composition.id,
-					width: composition.width ?? null,
-					height: composition.height ?? null,
-					durationInFrames: composition.durationInFrames ?? null,
-				}).data;
+				};
 
 				await insertCompositionFromDrop({
 					composition: compositionDragData,

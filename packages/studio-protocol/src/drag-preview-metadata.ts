@@ -19,6 +19,9 @@ export type ComponentDragPreviewMetadata = Dimensions & {
 	readonly type: 'component';
 };
 
+/**
+ * @deprecated Composition dragging is internal to Remotion Studio and is not supported by Studio Protocol.
+ */
 export type CompositionDragPreviewMetadata = Dimensions & {
 	readonly type: 'composition';
 	readonly durationInFrames?: number;
