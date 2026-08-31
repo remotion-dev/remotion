@@ -250,6 +250,7 @@ import {
 	type EffectDragOverrides,
 	type PropStatuses,
 } from './use-schema.js';
+import {useSyncExternalStore} from './use-sync-external-store.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
@@ -310,6 +311,7 @@ export const Internals = {
 	makeRenderResourceManager,
 	RenderResourceManagerContext,
 	createRuntimeValueStore,
+	useSyncExternalStore,
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,

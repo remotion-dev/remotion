@@ -6,7 +6,6 @@ import React, {
 	useMemo,
 	useRef,
 	useState,
-	useSyncExternalStore,
 } from 'react';
 import {Internals} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
@@ -348,7 +347,7 @@ const TimelineInner: React.FC = () => {
 		overrideIdToNodePathMappings,
 		compositions,
 	]);
-	const pendingInsertedElementSelection = useSyncExternalStore(
+	const pendingInsertedElementSelection = Internals.useSyncExternalStore(
 		subscribeToInsertedElementSelection,
 		getInsertedElementSelection,
 		getInsertedElementSelection,

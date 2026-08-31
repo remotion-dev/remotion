@@ -1,5 +1,9 @@
-import {useCallback, useMemo, useSyncExternalStore} from 'react';
-import type {RuntimeValueStore, SequenceRegistrationControls} from 'remotion';
+import {useCallback, useMemo} from 'react';
+import {
+	Internals,
+	type RuntimeValueStore,
+	type SequenceRegistrationControls,
+} from 'remotion';
 
 const EMPTY_RUNTIME_VALUES: Readonly<Record<string, unknown>> = {};
 const EMPTY_RUNTIME_VALUE_STORE = {
@@ -11,7 +15,7 @@ export const useRuntimeValues = (
 	controls: SequenceRegistrationControls | null,
 ): Readonly<Record<string, unknown>> => {
 	const store = controls?.runtimeValues ?? EMPTY_RUNTIME_VALUE_STORE;
-	return useSyncExternalStore(
+	return Internals.useSyncExternalStore(
 		store.subscribe,
 		store.getSnapshot,
 		store.getSnapshot,
@@ -32,7 +36,11 @@ export const useRuntimeStoreValue = (
 	const store = storeOrNull ?? EMPTY_RUNTIME_VALUE_STORE;
 	const getSnapshot = useCallback(() => store.getSnapshot()[key], [key, store]);
 
-	return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
+	return Internals.useSyncExternalStore(
+		store.subscribe,
+		getSnapshot,
+		getSnapshot,
+	);
 };
 
 export const useRuntimeValueSelector = <T>({
@@ -70,7 +78,7 @@ export const useRuntimeValueSelector = <T>({
 		};
 	}, [isEqual, selector, store]);
 
-	return useSyncExternalStore(
+	return Internals.useSyncExternalStore(
 		selectedStore.subscribe,
 		selectedStore.getSnapshot,
 		selectedStore.getSnapshot,
@@ -114,7 +122,7 @@ export const useRuntimeValueSnapshots = (
 		};
 	}, [stores]);
 
-	return useSyncExternalStore(
+	return Internals.useSyncExternalStore(
 		aggregateStore.subscribe,
 		aggregateStore.getSnapshot,
 		aggregateStore.getSnapshot,

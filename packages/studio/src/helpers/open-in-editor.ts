@@ -6,7 +6,8 @@ import type {
 	OpenInTerminalResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {useEffect, useSyncExternalStore} from 'react';
+import {useEffect} from 'react';
+import {Internals} from 'remotion';
 import {callApi} from '../components/call-api';
 import {getSourceMapFilesForSource} from '../components/Timeline/TimelineStack/get-stack';
 import type {
@@ -166,7 +167,7 @@ export const useCachedCompositionComponentInfo = ({
 	compositionFile: string | null;
 	compositionId: string | null;
 }) => {
-	const result = useSyncExternalStore(
+	const result = Internals.useSyncExternalStore(
 		subscribeToCompositionComponentInfo,
 		() => {
 			if (compositionFile === null || compositionId === null) {

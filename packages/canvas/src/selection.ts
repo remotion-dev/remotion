@@ -1,4 +1,5 @@
-import {useState, useSyncExternalStore} from 'react';
+import {useState} from 'react';
+import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
 export type CanvasSelectionItem =
@@ -326,7 +327,7 @@ export const useCanvasSelectionController = (): CanvasSelectionController => {
 export const useCanvasSelection = (
 	controller: CanvasSelectionController,
 ): CanvasSelectionSnapshot => {
-	return useSyncExternalStore(
+	return Internals.useSyncExternalStore(
 		controller.subscribe,
 		controller.getSnapshot,
 		controller.getSnapshot,

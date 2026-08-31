@@ -1,11 +1,6 @@
 import type {Dispatch, SetStateAction} from 'react';
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useSyncExternalStore,
-} from 'react';
+import {createContext, useCallback, useContext, useMemo} from 'react';
+import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	timelineNodePathInfoToKey,
@@ -57,7 +52,7 @@ export const TimelineSequenceHoverContext =
 
 export const useTimelineSequenceHoverState = () => {
 	const store = useContext(TimelineSequenceHoverContext);
-	return useSyncExternalStore(
+	return Internals.useSyncExternalStore(
 		store.subscribe,
 		store.getSnapshot,
 		store.getSnapshot,
@@ -76,7 +71,11 @@ export const useIsTimelineSequenceHovered = (nodePathKey: string | null) => {
 		[nodePathKey, store],
 	);
 
-	return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
+	return Internals.useSyncExternalStore(
+		store.subscribe,
+		getSnapshot,
+		getSnapshot,
+	);
 };
 
 export const useTimelineSequenceHover = (
