@@ -89,11 +89,28 @@ const assertNoDevFilesPublished = async (pkgPath: string) => {
 	}
 };
 
-for (const pkg of packages) {
-	test.concurrent(
-		'should not publish any dev files for @remotion/' + pkg.pkg,
-		async () => {
-			await assertNoDevFilesPublished(pkg.path);
-		},
-	);
-}
+test(
+	'should not publish any dev files',
+	async () => {
+		const results = await Promise.allSettled(
+			packages.map((pkg) => assertNoDevFilesPublished(pkg.path)),
+		);
+		const errors = results.flatMap((result, index) => {
+			if (result.status === 'fulfilled') {
+				return [];
+			}
+
+			return [
+				`@remotion/${packages[index].pkg}: ${
+					result.reason instanceof Error
+						? result.reason.message
+						: String(result.reason)
+				}`,
+			];
+		});
+		if (errors.length > 0) {
+			throw new Error(errors.join('\n'));
+		}
+	},
+	{timeout: 40000},
+);

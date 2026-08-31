@@ -150,6 +150,20 @@ export const isStudioProtocolDescriptor = (
 	return new Set(capabilityTypes).size === capabilityTypes.length;
 };
 
+const parseStudioProtocolDescriptor = (
+	value: unknown,
+): StudioProtocolDescriptor | null => {
+	if (!isRecord(value) || !Array.isArray(value.capabilities)) {
+		return null;
+	}
+
+	const descriptor = {
+		...value,
+		capabilities: value.capabilities.filter(isCapability),
+	};
+	return isStudioProtocolDescriptor(descriptor) ? descriptor : null;
+};
+
 export const getInstallCapability = (
 	descriptor: StudioProtocolDescriptor,
 ): StudioProtocolInstallCapability | null =>
@@ -224,13 +238,14 @@ export const discoverStudios = async (
 				return null;
 			}
 
-			if (!isStudioProtocolDescriptor(value)) {
+			const descriptor = parseStudioProtocolDescriptor(value);
+			if (descriptor === null) {
 				foundInvalidResponse = true;
 				return null;
 			}
 
 			return {
-				descriptor: value,
+				descriptor,
 				discoveredAt: dependencies.now(),
 				origin,
 			};
