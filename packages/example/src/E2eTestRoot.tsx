@@ -17,6 +17,7 @@ import {Issue8216} from './Issue8216/Issue8216';
 import {LightLeakExample} from './LightLeak';
 import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
 import {MacCursorsExample} from './MacCursors';
+import {MovingPillCaptionsComposition} from './MovingPillCaptionsComposition';
 import {NewVideoComp} from './NewVideo';
 import {RotationKeyframeE2e} from './RotationKeyframeE2e';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
@@ -108,6 +109,14 @@ export const E2eTestRoot: React.FC = () => {
 				fps={30}
 				width={1080}
 				height={CAPTIONS_HEIGHT}
+			/>
+			<Composition
+				id="default-captions-inspector-e2e"
+				component={MovingPillCaptionsComposition}
+				durationInFrames={210}
+				fps={30}
+				width={1920}
+				height={1080}
 			/>
 			<Folder name="visual-controls">
 				<Composition

@@ -636,7 +636,7 @@ export const InspectorSequenceSection: React.FC<{
 	);
 	const inlineCaptionValue =
 		schema.captions?.type === 'remotion-captions'
-			? runtimeValues.captions
+			? (runtimeValues.captions ?? schema.captions.default)
 			: null;
 	const inlineCaptions = Array.isArray(inlineCaptionValue)
 		? (inlineCaptionValue as Caption[])
