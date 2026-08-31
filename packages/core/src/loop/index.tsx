@@ -94,6 +94,7 @@ export const Loop: React.FC<LoopProps> & {
 		<LoopContext.Provider value={loopContext}>
 			<Sequence
 				durationInFrames={durationInFrames}
+				_remotionInternalUnclippedDuration={durationInFrames * times}
 				from={from}
 				name={name ?? '<Loop>'}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/loop"

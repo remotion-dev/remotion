@@ -1,6 +1,14 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
+import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {WHITE_ALPHA_40} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
@@ -13,6 +21,7 @@ import {
 } from '../NewComposition/InputDragger';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {applyCodemod} from '../RenderQueue/actions';
+import {getTimelineMatchingDuration} from '../Timeline/get-timeline-matching-duration';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {InspectorDetailRow} from './common';
 import {
@@ -253,6 +262,11 @@ export const CompositionMetadata: React.FC<{
 	readonly stack: string | null;
 }> = ({compositionId, disabled, stack}) => {
 	const video = Internals.useVideo();
+	const {sequences} = useContext(Internals.SequenceManager);
+	const {compositions} = useContext(Internals.CompositionManager);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
 	const resolvedVideoConfig = Internals.useResolvedVideoConfig(compositionId);
 	const resolvedConfig =
 		resolvedVideoConfig?.type === 'success' ||
@@ -418,6 +432,15 @@ export const CompositionMetadata: React.FC<{
 			symbolicatedStack,
 		],
 	);
+	const timeline = useMemo(
+		() =>
+			calculateTimeline({
+				sequences,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				compositions,
+			}),
+		[compositions, overrideIdToNodePathMappings, sequences],
+	);
 
 	if (video === null || resolvedConfig === null) {
 		return null;
@@ -434,6 +457,10 @@ export const CompositionMetadata: React.FC<{
 	const durationIsComputed =
 		metadataSource?.durationInFrames === 'calculate-metadata';
 	const isStill = isCompositionStill(video);
+	const timelineMatchingDuration = getTimelineMatchingDuration({
+		currentDuration: video.durationInFrames,
+		timeline,
+	});
 	const dimensionPresetValues = dimensionPresets.flatMap(
 		(preset, index): ComboboxValue[] => [
 			...(index === 2 || index === 4
@@ -469,6 +496,28 @@ export const CompositionMetadata: React.FC<{
 			quickSwitcherLabel: null,
 		}),
 	);
+	const durationPresetValues: ComboboxValue[] =
+		timelineMatchingDuration === null
+			? []
+			: [
+					{
+						type: 'item',
+						id: 'match-timeline',
+						label: `Match timeline (${timelineMatchingDuration} frames)`,
+						value: timelineMatchingDuration,
+						onClick: () => {
+							saveMetadata({durationInFrames: timelineMatchingDuration});
+						},
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: null,
+					},
+				];
+	const durationPresetIsApplicable =
+		timelineMatchingDuration !== null &&
+		timelineMatchingDuration !==
+			(pendingValues.durationInFrames?.value ?? video.durationInFrames);
 
 	return (
 		<div style={compositionMetadataContainer}>
@@ -537,7 +586,23 @@ export const CompositionMetadata: React.FC<{
 							/>
 						</div>
 					</InspectorDetailRow>
-					<InspectorDetailRow label="Duration">
+					<InspectorDetailRow
+						label={(hovered) => (
+							<div style={metadataLabelControls}>
+								<span style={metadataLabelText}>Duration</span>
+								{disabled ||
+								durationIsComputed ||
+								!durationPresetIsApplicable ? null : (
+									<PresetDropdown
+										disabled={pendingValues.durationInFrames !== undefined}
+										title="Choose duration preset"
+										values={durationPresetValues}
+										visible={hovered}
+									/>
+								)}
+							</div>
+						)}
+					>
 						<CompositionMetadataValue
 							computed={durationIsComputed}
 							disabled={disabled}

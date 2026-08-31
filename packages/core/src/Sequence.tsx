@@ -88,6 +88,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalUnclippedDuration?: number;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalPremountDisplay?: number | null;
 	/**
 	 * @deprecated For internal use only.
@@ -154,6 +158,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		controls,
 		_remotionInternalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
+		_remotionInternalUnclippedDuration: unclippedDuration,
 		_remotionInternalStack: stack,
 		_remotionInternalDocumentationLink: documentationLink,
 		_remotionInternalSingleChildComponent: singleChildComponent,
@@ -475,6 +480,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
+					unclippedDuration: unclippedDuration ?? durationInFrames,
 					from,
 					trimBefore: registeredTrimBefore,
 					id,
@@ -501,6 +507,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					documentationLink: resolvedDocumentationLink,
 					doesVolumeChange: isMedia.data.doesVolumeChange,
 					duration: actualDurationInFrames,
+					unclippedDuration: unclippedDuration ?? durationInFrames,
 					from,
 					trimBefore: registeredTrimBefore,
 					id,
@@ -534,6 +541,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			from,
 			trimBefore: registeredTrimBefore,
 			duration: actualDurationInFrames,
+			unclippedDuration: unclippedDuration ?? durationInFrames,
 			id,
 			displayName: timelineClipName,
 			documentationLink: resolvedDocumentationLink,
@@ -558,6 +566,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		durationInFrames,
+		unclippedDuration,
 		id,
 		name,
 		registerSequence,

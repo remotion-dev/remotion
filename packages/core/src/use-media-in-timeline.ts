@@ -219,6 +219,7 @@ export const useMediaInTimeline = ({
 			src,
 			id,
 			duration,
+			unclippedDuration: duration,
 			from: 0,
 			trimBefore: null,
 			parent: parentSequence?.id ?? null,

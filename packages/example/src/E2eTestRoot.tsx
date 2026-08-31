@@ -1,5 +1,11 @@
 import React from 'react';
-import {AbsoluteFill, Composition, Folder, useCurrentScale} from 'remotion';
+import {
+	AbsoluteFill,
+	Composition,
+	Folder,
+	Sequence,
+	useCurrentScale,
+} from 'remotion';
 import {BarChart} from './BarChart';
 import {
 	CAPTIONS_DURATION_IN_FRAMES,
@@ -55,9 +61,25 @@ const UseCurrentScaleOnLoad: React.FC = () => {
 	);
 };
 
+const DurationPresetE2e: React.FC = () => {
+	return (
+		<Sequence name="Duration preset layer" from={20} durationInFrames={100}>
+			<AbsoluteFill style={{backgroundColor: 'black'}} />
+		</Sequence>
+	);
+};
+
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="duration-preset-e2e"
+				component={DurationPresetE2e}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={60}
+			/>
 			<Composition
 				id="use-current-scale-on-load"
 				component={UseCurrentScaleOnLoad}

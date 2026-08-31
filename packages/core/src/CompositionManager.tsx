@@ -125,6 +125,7 @@ export type TSequence = {
 	from: number;
 	trimBefore: number | null;
 	duration: number;
+	unclippedDuration?: number;
 	id: string;
 	displayName: string;
 	documentationLink: string | null;

@@ -19,6 +19,7 @@ import {Img, imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {Internals} from '../internals.js';
 import {Loading} from '../loading-indicator.js';
+import {Loop} from '../loop/index.js';
 import type {OverrideIdToNodePaths} from '../sequence-node-path.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import {Sequence} from '../Sequence.js';
@@ -240,6 +241,37 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 	);
 
 	expect(registerCalls).toBe(1);
+});
+
+test('Sequence registration preserves durations beyond the composition end', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			compositionDurationInFrames={30}
+			currentFrame={25}
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence name="Clipped" from={10} durationInFrames={100} />
+			<Loop name="Loop" durationInFrames={10} times={5}>
+				Loop
+			</Loop>
+		</SequenceTestWrapper>,
+	);
+
+	const clipped = registeredSequences.find(
+		(sequence) => sequence.displayName === 'Clipped',
+	);
+	const loop = registeredSequences.find(
+		(sequence) => sequence.displayName === 'Loop',
+	);
+	expect(clipped?.duration).toBe(20);
+	expect(clipped?.unclippedDuration).toBe(100);
+	expect(loop?.from).toBe(20);
+	expect(loop?.loopDisplay?.startOffset).toBe(-20);
+	expect(loop?.unclippedDuration).toBe(50);
 });
 
 test('Interactive runtime values update mounted consumers without re-registering the sequence', () => {
