@@ -348,6 +348,67 @@ test.describe('visual mode', () => {
 			await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
 			const timeline = page.locator('[data-timeline-scrollable]');
 			await expect(timeline).toBeVisible();
+			const timelineBox = await timeline.boundingBox();
+			if (timelineBox === null) {
+				throw new Error('Expected timeline to have a bounding box');
+			}
+
+			const dragData = StudioProtocolInternals.makeDragData({
+				type: 'asset',
+				assetPath: 'quick.mov',
+				durationInSeconds: 5.866667,
+				height: null,
+				width: null,
+			});
+			const dragAssetOver = (target: Locator) => {
+				return target.evaluate(
+					(element, {coordinates, data}) => {
+						const dataTransfer = new DataTransfer();
+						dataTransfer.setData(data.mimeType, data.payload);
+						element.dispatchEvent(
+							new DragEvent('dragover', {
+								bubbles: true,
+								cancelable: true,
+								clientX: coordinates.clientX,
+								clientY: coordinates.clientY,
+								dataTransfer,
+							}),
+						);
+					},
+					{
+						coordinates: {
+							clientX: timelineBox.x + timelineBox.width / 2,
+							clientY: timelineBox.y + timelineBox.height / 2,
+						},
+						data: dragData,
+					},
+				);
+			};
+			const dropIndicator = page.locator(
+				'[data-timeline-asset-drop-indicator]',
+			);
+			await dragAssetOver(timeline);
+			await expect(dropIndicator).toBeVisible();
+			await page.evaluate(() => {
+				document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
+			});
+			await expect(dropIndicator).toBeHidden();
+
+			await page.getByRole('button', {name: /Search\.\.\./}).click();
+			const quickSwitcher = page.getByRole('dialog');
+			await quickSwitcher.getByRole('textbox').fill('> Settings');
+			await quickSwitcher.getByText('Settings...', {exact: true}).click();
+			const settings = page.getByRole('dialog');
+			await expect(
+				settings.getByText('Default codec', {exact: true}),
+			).toBeVisible();
+			await dragAssetOver(settings);
+			await expect(dropIndicator).toBeHidden();
+			await expect(
+				settings.getByText('Default codec', {exact: true}),
+			).toBeVisible();
+			await page.keyboard.press('Escape');
+
 			expect(await dropFile({...file, target: timeline})).toBe(true);
 			await expect(modalTitle).toBeVisible();
 		} finally {
