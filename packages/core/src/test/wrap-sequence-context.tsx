@@ -20,6 +20,7 @@ import {
 } from '../TimelineContext.js';
 
 const Comp: React.FC = () => null;
+const initialLastSeekState = {frame: null, sequence: 0} as const;
 
 const makeMockCompositionContext = (
 	durationInFrames: number,
@@ -136,10 +137,13 @@ export const WrapSequenceContext: React.FC<{
 					bufferingStore.setSnapshot({buffering});
 				}
 			},
+			setLastSeek: () => undefined,
 			subscribePlaying: () => () => undefined,
 			subscribeBuffering: bufferingStore.store.subscribe,
+			subscribeLastSeek: () => () => undefined,
 			isPlaying: () => false,
 			isBuffering: () => bufferingStore.store.getSnapshot().buffering,
+			getLastSeek: () => initialLastSeekState,
 			frameRef: {current: {}},
 			audioAndVideoTags: {current: []},
 		}),

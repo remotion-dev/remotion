@@ -33,14 +33,24 @@ export type BufferingState = Readonly<{
 	buffering: boolean;
 }>;
 
+export type LastSeekState = Readonly<{
+	frame: number | null;
+	sequence: number;
+}>;
+
+const initialLastSeekState: LastSeekState = {frame: null, sequence: 0};
+
 export type SetTimelineContextValue = {
 	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
 	setBuffering: (buffering: boolean) => void;
+	setLastSeek: (frame: number) => void;
 	subscribePlaying: (listener: (state: PlayingState) => void) => () => void;
 	subscribeBuffering: (listener: (state: BufferingState) => void) => () => void;
+	subscribeLastSeek: (listener: (state: LastSeekState) => void) => () => void;
 	isPlaying: () => boolean;
 	isBuffering: () => boolean;
+	getLastSeek: () => LastSeekState;
 	frameRef: RefObject<Record<string, number>>;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
@@ -55,10 +65,13 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	setFrame: missingSetTimelineContext,
 	setPlaying: missingSetTimelineContext,
 	setBuffering: missingSetTimelineContext,
+	setLastSeek: missingSetTimelineContext,
 	subscribePlaying: () => () => undefined,
 	subscribeBuffering: () => () => undefined,
+	subscribeLastSeek: () => () => undefined,
 	isPlaying: () => false,
 	isBuffering: missingSetTimelineContext,
+	getLastSeek: () => initialLastSeekState,
 	frameRef: {current: {}},
 	audioAndVideoTags: {current: []},
 });
@@ -84,7 +97,6 @@ export const TimelineContextProvider: React.FC<{
 		() => createRuntimeValueStore({buffering: false}),
 		[],
 	);
-
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const [_frame, setFrame] = useState<Record<string, number>>(() =>
@@ -103,7 +115,6 @@ export const TimelineContextProvider: React.FC<{
 		() => bufferingStore.store.getSnapshot().buffering,
 		[bufferingStore],
 	);
-
 	const {delayRender, continueRender} = useDelayRender();
 
 	if (typeof window !== 'undefined') {
@@ -171,10 +182,13 @@ export const TimelineContextProvider: React.FC<{
 					bufferingStore.setSnapshot({buffering});
 				}
 			},
+			setLastSeek: () => undefined,
 			subscribePlaying: playingStore.store.subscribe,
 			subscribeBuffering: bufferingStore.store.subscribe,
+			subscribeLastSeek: () => () => undefined,
 			isPlaying: readIsPlaying,
 			isBuffering: readIsBuffering,
+			getLastSeek: () => initialLastSeekState,
 			frameRef,
 			audioAndVideoTags,
 		};
