@@ -45,7 +45,6 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		documentationLink: null,
 		parent: null,
 		showInTimeline: true,
-		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
 		premountDisplay: null,

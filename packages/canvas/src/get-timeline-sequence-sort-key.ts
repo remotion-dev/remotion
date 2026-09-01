@@ -30,9 +30,9 @@ export type TimelineTrackWithOriginalTimings = TimelineTrackData & {
 export const getTimelineSequenceSortKey = (
 	track: TimelineTrackData,
 	tracks: TimelineTrackData[],
-	nonceRanks: Map<string, number>,
+	sequenceRanks: Map<string, number>,
 ): string => {
-	const rank = nonceRanks.get(track.sequence.id) ?? 0;
+	const rank = sequenceRanks.get(track.sequence.id) ?? 0;
 	const id = String(rank).padStart(6, '0');
 	if (!track.sequence.parent) {
 		return id;
@@ -45,5 +45,5 @@ export const getTimelineSequenceSortKey = (
 		return id;
 	}
 
-	return `${getTimelineSequenceSortKey(parent, tracks, nonceRanks)}-${id}`;
+	return `${getTimelineSequenceSortKey(parent, tracks, sequenceRanks)}-${id}`;
 };

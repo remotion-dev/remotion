@@ -3,7 +3,6 @@ import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import type {LoopDisplay, TSequence} from './CompositionManager.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getTimelineDuration} from './get-timeline-duration.js';
-import {useNonce} from './nonce.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -102,7 +101,6 @@ export const useBasicMediaInTimeline = ({
 
 	const doesVolumeChange = typeof volume === 'function';
 
-	const nonce = useNonce();
 	const startMediaFrom = 0 - mediaStartsAt + (trimBefore ?? 0);
 
 	const memoizedResult = useMemo(() => {
@@ -110,7 +108,6 @@ export const useBasicMediaInTimeline = ({
 			volumes,
 			duration,
 			doesVolumeChange,
-			nonce,
 			finalDisplayName: displayName ?? getAssetDisplayName(src),
 			startMediaFrom,
 			src,
@@ -121,7 +118,6 @@ export const useBasicMediaInTimeline = ({
 		volumes,
 		duration,
 		doesVolumeChange,
-		nonce,
 		displayName,
 		src,
 		startMediaFrom,
@@ -175,7 +171,7 @@ export const useMediaInTimeline = ({
 	const {durationInFrames} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {volumes, duration, doesVolumeChange, nonce, finalDisplayName} =
+	const {volumes, duration, doesVolumeChange, finalDisplayName} =
 		useBasicMediaInTimeline({
 			volume,
 			mediaVolume,
@@ -212,7 +208,7 @@ export const useMediaInTimeline = ({
 			volume: volumes,
 			muted,
 			showInTimeline: true,
-			nonce: nonce.get(),
+			timelineOrder: null,
 			startMediaFrom: 0 - startsAt,
 			mediaFrameAtSequenceZero: null,
 			doesVolumeChange,
@@ -235,7 +231,6 @@ export const useMediaInTimeline = ({
 		src,
 		volumes,
 		doesVolumeChange,
-		nonce,
 		mediaType,
 		startsAt,
 		playbackRate,

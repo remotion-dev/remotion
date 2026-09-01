@@ -8,8 +8,6 @@ import {EditorPropsProvider} from './EditorProps.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext} from './log-level-context.js';
 import type {LogLevel} from './log.js';
-import type {TNonceContext} from './nonce.js';
-import {NonceContext} from './nonce.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
 import {TimelineContextProvider} from './TimelineContext.js';
@@ -37,52 +35,43 @@ export const RemotionRootContexts: React.FC<{
 	frameState,
 	_experimentalKeepAudioContextAlive,
 }) => {
-	const nonceContext = useMemo((): TNonceContext => {
-		let counter = 0;
-		return {
-			getNonce: () => counter++,
-		};
-	}, []);
-
 	const logging: LoggingContextValue = useMemo(() => {
 		return {logLevel, mountTime: Date.now()};
 	}, [logLevel]);
 
 	return (
 		<LogLevelContext.Provider value={logging}>
-			<NonceContext.Provider value={nonceContext}>
-				<TimelineContextProvider frameState={frameState}>
-					<MediaEnabledProvider
-						videoEnabled={videoEnabled}
-						audioEnabled={audioEnabled}
-					>
-						<EditorPropsProvider>
-							<PrefetchProvider>
-								<SequenceManagerProvider>
-									<DurationsContextProvider>
-										<BufferingProvider>
-											<SharedAudioContextProvider
-												audioLatencyHint={audioLatencyHint}
-												audioEnabled={audioEnabled}
-												previewSampleRate={previewSampleRate}
-												_experimentalKeepAudioContextAlive={
-													_experimentalKeepAudioContextAlive
-												}
+			<TimelineContextProvider frameState={frameState}>
+				<MediaEnabledProvider
+					videoEnabled={videoEnabled}
+					audioEnabled={audioEnabled}
+				>
+					<EditorPropsProvider>
+						<PrefetchProvider>
+							<SequenceManagerProvider>
+								<DurationsContextProvider>
+									<BufferingProvider>
+										<SharedAudioContextProvider
+											audioLatencyHint={audioLatencyHint}
+											audioEnabled={audioEnabled}
+											previewSampleRate={previewSampleRate}
+											_experimentalKeepAudioContextAlive={
+												_experimentalKeepAudioContextAlive
+											}
+										>
+											<SharedAudioTagsContextProvider
+												numberOfAudioTags={numberOfAudioTags}
 											>
-												<SharedAudioTagsContextProvider
-													numberOfAudioTags={numberOfAudioTags}
-												>
-													{children}
-												</SharedAudioTagsContextProvider>
-											</SharedAudioContextProvider>
-										</BufferingProvider>
-									</DurationsContextProvider>
-								</SequenceManagerProvider>
-							</PrefetchProvider>
-						</EditorPropsProvider>
-					</MediaEnabledProvider>
-				</TimelineContextProvider>
-			</NonceContext.Provider>
+												{children}
+											</SharedAudioTagsContextProvider>
+										</SharedAudioContextProvider>
+									</BufferingProvider>
+								</DurationsContextProvider>
+							</SequenceManagerProvider>
+						</PrefetchProvider>
+					</EditorPropsProvider>
+				</MediaEnabledProvider>
+			</TimelineContextProvider>
 		</LogLevelContext.Provider>
 	);
 };

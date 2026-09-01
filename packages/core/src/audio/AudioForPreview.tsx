@@ -13,11 +13,13 @@ import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
+import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {
 	usePlayerMutedState,
 	useMediaVolumeState,
@@ -105,6 +107,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const preloadedSrc = usePreload(src);
 
 	const sequenceContext = useContext(SequenceContext);
+	const {isStudio} = useRemotionEnvironment();
 
 	const [timelineId] = useState(() => String(Math.random()));
 
@@ -275,16 +278,24 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	}, [audioRef, src]);
 
 	if (initialShouldPreMountAudioElements) {
-		return null;
+		return isStudio ? (
+			<SequenceOrderMarker sequenceId={timelineId}>{null}</SequenceOrderMarker>
+		) : null;
 	}
 
-	return (
+	const audio = (
 		<audio
 			ref={audioRef}
 			preload="metadata"
 			crossOrigin={crossOriginValue}
 			{...propsToPass}
 		/>
+	);
+
+	return isStudio ? (
+		<SequenceOrderMarker sequenceId={timelineId}>{audio}</SequenceOrderMarker>
+	) : (
+		audio
 	);
 };
 

@@ -1,3 +1,4 @@
+import {sortItemsByCommitOrder} from '@remotion/canvas';
 import {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
@@ -25,7 +26,6 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TRANSPARENT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
-import {sortItemsByNonceHistory} from '../../helpers/sort-by-nonce-history';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {EditorSnappingContext} from '../../state/editor-snapping';
 import {
@@ -275,13 +275,14 @@ const getMinimumSequenceDuration = ({
 		return 1;
 	}
 
-	const siblings = sortItemsByNonceHistory(
+	const siblings = sortItemsByCommitOrder(
 		sequences.filter(
 			(candidate) =>
 				candidate.parent === sequence.parent &&
 				(isTransitionSeriesSequence(candidate) ||
 					isTransitionSeriesTransition(candidate)),
 		),
+		(candidate) => candidate.timelineOrder,
 	);
 	const sequenceIndex = siblings.findIndex(
 		(candidate) => candidate.id === sequence.id,

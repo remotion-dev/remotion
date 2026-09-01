@@ -1,15 +1,15 @@
 import type {FC, ReactNode} from 'react';
 import {createContext, useContext, useEffect, useMemo} from 'react';
 import {CompositionSetters} from './CompositionManagerContext.js';
-import type {NonceHistory} from './nonce.js';
-import {useNonce} from './nonce.js';
+import {FolderOrderMarker, getFolderOrderId} from './sequence-order-marker.js';
 import {truthy} from './truthy.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {validateFolderName} from './validation/validate-folder-name.js';
 
 export type TFolder = {
 	name: string;
 	parent: string | null;
-	nonce: NonceHistory;
+	order: number | null;
 	stack: string | null;
 };
 
@@ -34,7 +34,7 @@ export const Folder: FC<{
 	const {name, children} = props;
 	const parent = useContext(FolderContext);
 	const {registerFolder, unregisterFolder} = useContext(CompositionSetters);
-	const nonce = useNonce();
+	const environment = useRemotionEnvironment();
 	const stack =
 		(props as {readonly _remotionInternalStack?: string})
 			._remotionInternalStack ?? null;
@@ -54,7 +54,7 @@ export const Folder: FC<{
 	}, [name, parentName]);
 
 	useEffect(() => {
-		registerFolder(name, parentName, nonce.get(), stack);
+		registerFolder(name, parentName, stack);
 
 		return () => {
 			unregisterFolder(name, parentName);
@@ -65,11 +65,17 @@ export const Folder: FC<{
 		parentName,
 		registerFolder,
 		unregisterFolder,
-		nonce,
 		stack,
 	]);
 
-	return (
+	const folder = (
 		<FolderContext.Provider value={value}>{children}</FolderContext.Provider>
+	);
+	return environment.isStudio ? (
+		<FolderOrderMarker folderId={getFolderOrderId({name, parent: parentName})}>
+			{folder}
+		</FolderOrderMarker>
+	) : (
+		folder
 	);
 };

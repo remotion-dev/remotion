@@ -128,8 +128,6 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
-import type {NonceHistory} from './nonce.js';
-import {NonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -168,6 +166,7 @@ import {
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 } from './sequence-node-path.js';
+import {CommitOrderInternals} from './sequence-order-marker.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceWithoutSchema} from './Sequence.js';
@@ -334,6 +333,7 @@ export const Internals = {
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
 	SequenceRegistrationContext,
+	CommitOrderInternals,
 	SequenceStackTracesUpdateContext,
 	baseSchema,
 	sequenceSchema,
@@ -391,7 +391,6 @@ export const Internals = {
 	EditorPropsProvider,
 	EditorPropsContext,
 	usePreload,
-	NonceContext,
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
 	resolveVideoConfigWithMetadataOrCatch,
@@ -509,7 +508,6 @@ export type {
 	JsxComponentIdentity,
 	LoggingContextValue,
 	MediaVolumeContextValue,
-	NonceHistory,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	OverrideIdToNodePaths,

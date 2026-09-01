@@ -1,3 +1,4 @@
+import {sortItemsByCommitOrder} from '@remotion/canvas';
 import type {
 	ChangeEventHandler,
 	Dispatch,
@@ -18,7 +19,6 @@ import {writeStaticFile} from '../../api/write-static-file';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {getFolderId} from '../../helpers/get-folder-id';
 import {installRequiredPackages} from '../../helpers/install-required-package';
-import {sortItemsByNonceHistory} from '../../helpers/sort-by-nonce-history';
 import {
 	getUniqueCompositionName,
 	useCreateComposition,
@@ -149,7 +149,7 @@ export const NewCompositionFields: React.FC<{
 						.sort((a, b) =>
 							a.name.localeCompare(b.name, undefined, {numeric: true}),
 						)
-				: sortItemsByNonceHistory(folders);
+				: sortItemsByCommitOrder(folders, (folder) => folder.order);
 		const appendFolders = (parent: string | null) => {
 			sortedFolders
 				.filter((folder) => folder.parent === parent)

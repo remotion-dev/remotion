@@ -21,13 +21,13 @@ import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 } from './interactivity-schema.js';
-import {useNonce} from './nonce.js';
 import type {RuntimeValueStore} from './runtime-value-store.js';
 import {
 	getSequenceCropClipPath,
 	resolveSequenceCrop,
 	validateSequenceCrop,
 } from './sequence-crop.js';
+import {SequenceOrderMarker} from './sequence-order-marker.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
@@ -174,8 +174,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
-	const nonce = useNonce();
-
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
 			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`,
@@ -472,11 +470,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					trimBefore: registeredTrimBefore,
 					id,
 					loopDisplay,
-					nonce: nonce.get(),
 					parent: parentSequence?.id ?? null,
 					postmountDisplay: postmountDisplay ?? null,
 					premountDisplay: premountDisplay ?? null,
 					showInTimeline,
+					timelineOrder: null,
 					src: isMedia.src,
 					getStack: () => stackRef.current,
 					refForOutline: refForOutline ?? null,
@@ -499,12 +497,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				trimBefore: registeredTrimBefore,
 				id,
 				loopDisplay,
-				nonce: nonce.get(),
 				parent: parentSequence?.id ?? null,
 				playbackRate: isMedia.data.playbackRate,
 				postmountDisplay: postmountDisplay ?? null,
 				premountDisplay: premountDisplay ?? null,
 				showInTimeline,
+				timelineOrder: null,
 				src: isMedia.data.src,
 				getStack: () => stackRef.current,
 				startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
@@ -529,7 +527,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
 			showInTimeline,
-			nonce: nonce.get(),
+			timelineOrder: null,
 			loopDisplay,
 			getStack: () => stackRef.current,
 			premountDisplay: premountDisplay ?? null,
@@ -550,7 +548,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		from,
 		registeredTrimBefore,
 		showInTimeline,
-		nonce,
 		loopDisplay,
 		premountDisplay,
 		postmountDisplay,
@@ -634,10 +631,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	if (hidden) {
-		return null;
+		return env.isStudio ? (
+			<SequenceOrderMarker sequenceId={id}>{null}</SequenceOrderMarker>
+		) : null;
 	}
 
-	return (
+	const sequence = (
 		<SequenceContext.Provider value={contextValue}>
 			{frozenContent === null ? null : other.layout === 'none' ? (
 				frozenContent
@@ -651,6 +650,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				</AbsoluteFillElement>
 			)}
 		</SequenceContext.Provider>
+	);
+
+	return env.isStudio ? (
+		<SequenceOrderMarker sequenceId={id}>{sequence}</SequenceOrderMarker>
+	) : (
+		sequence
 	);
 };
 

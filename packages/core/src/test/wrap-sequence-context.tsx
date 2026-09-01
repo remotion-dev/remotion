@@ -34,7 +34,7 @@ const makeMockCompositionContext = (
 			height: 1080,
 			width: 1080,
 			parentFolderName: null,
-			nonce: [[0, 0]],
+			order: null,
 			calculateMetadata: null,
 			schema: null,
 			stack: null,

@@ -5,7 +5,6 @@ import type {CalculateMetadataFunction} from './Composition.js';
 import type {DownloadBehavior} from './download-behavior.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import type {InteractivitySchema} from './interactivity-schema.js';
-import type {NonceHistory} from './nonce.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import type {
 	RuntimeValueSnapshot,
@@ -25,7 +24,7 @@ export type TComposition<
 	parentFolderName: string | null;
 	component: LazyExoticComponent<ComponentType<Props>> | ComponentType<Props>;
 	componentFromProps?: unknown;
-	nonce: NonceHistory;
+	order: number | null;
 	schema: Schema | null;
 	calculateMetadata: CalculateMetadataFunction<
 		InferProps<Schema, Props>
@@ -130,7 +129,7 @@ export type TSequence = {
 	documentationLink: string | null;
 	parent: string | null;
 	showInTimeline: boolean;
-	nonce: NonceHistory;
+	timelineOrder: number | null;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
 	premountDisplay: number | null;
