@@ -394,16 +394,9 @@ export const splitJsxSequence = ({
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
-	// Kept optional for compatibility with callers from before source edits
-	// replaced the full-file formatting pass.
-	formatFile?: (input: {
-		contents: string;
-		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
-	formatted: boolean;
 	nodeLabel: string;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
@@ -505,7 +498,6 @@ export const splitJsxSequence = ({
 
 	return Promise.resolve({
 		output,
-		formatted: true,
 		nodeLabel: getJsxElementTagLabel(jsxElement),
 		logLine:
 			jsxElement.openingElement.loc?.start.line ??

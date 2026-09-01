@@ -132,19 +132,13 @@ export const Comp = () => {
   )
 }
 `;
-	let formatCalls = 0;
 	const {output} = await splitJsxSequenceCodemod({
 		input,
 		nodePath: lineContainingToNodePath(input, '<Sequence'),
 		sequenceKeys: sequenceTimingKeys,
 		splitFrame: 30,
-		formatFile: () => {
-			formatCalls++;
-			throw new Error('Prettier should not be called when splitting a clip');
-		},
 	});
 
-	expect(formatCalls).toBe(0);
 	expect(output).toStartWith(
 		'const deliberatelyUnformatted = {value : true}\n',
 	);

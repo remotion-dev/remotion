@@ -95,7 +95,6 @@ export const insertJsxElementIntoComposition = ({
 	source: string;
 	oldContents: string;
 	output: string;
-	formatted: boolean;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
 	insertedNodePath: SequenceNodePath | null;

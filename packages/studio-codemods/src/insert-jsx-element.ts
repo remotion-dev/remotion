@@ -56,12 +56,6 @@ export type InsertJsxElementCodemodEnvironment = {
 	dirname: (fileName: string) => string;
 	extname: (fileName: string) => string;
 	fileExists: (fileName: string) => boolean;
-	// Kept optional for compatibility with callers from before source edits
-	// replaced the full-file formatting pass.
-	formatFile?: (input: {
-		contents: string;
-		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
 	isAbsolute: (fileName: string) => boolean;
 	join: (...parts: string[]) => string;
 	pathSeparator: string;
@@ -132,11 +126,9 @@ const relativeVirtualPath = (from: string, to: string) => {
 };
 
 export const makeInMemoryInsertJsxElementCodemodEnvironment = ({
-	formatFile,
 	project,
 	svgMarkupToJsx,
 }: {
-	formatFile?: InsertJsxElementCodemodEnvironment['formatFile'];
 	project: {files: Record<string, string>; rootDir: string};
 	svgMarkupToJsx: InsertJsxElementCodemodEnvironment['svgMarkupToJsx'];
 }): InsertJsxElementCodemodEnvironment => {
@@ -156,7 +148,6 @@ export const makeInMemoryInsertJsxElementCodemodEnvironment = ({
 		},
 		fileExists: (fileName) =>
 			filesByNormalizedPath.has(normalizeVirtualPath(fileName)),
-		formatFile,
 		isAbsolute: (fileName) => fileName.startsWith('/'),
 		join: (...parts) => resolveVirtualPath(...parts),
 		pathSeparator: '/',
@@ -3109,7 +3100,6 @@ export const insertJsxElementIntoComposition = async ({
 	source: string;
 	oldContents: string;
 	output: string;
-	formatted: boolean;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
 	insertedNodePath: SequenceNodePath | null;
@@ -3244,8 +3234,6 @@ export const insertJsxElementIntoComposition = async ({
 		],
 		input,
 	});
-	const formatted = true;
-
 	const {finalNodePathByNode, nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
@@ -3261,7 +3249,6 @@ export const insertJsxElementIntoComposition = async ({
 		source: location.source,
 		oldContents: input,
 		output,
-		formatted,
 		insertedNodePath,
 		logLine,
 		nodePathRemappings,
@@ -3273,13 +3260,11 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async <
 >({
 	project,
 	request,
-	formatFile,
 	svgMarkupToJsx,
 	wrapInSequence,
 }: {
 	project: Project;
 	request: InsertJsxElementRequest;
-	formatFile?: InsertJsxElementCodemodEnvironment['formatFile'];
 	svgMarkupToJsx: InsertJsxElementCodemodEnvironment['svgMarkupToJsx'];
 	wrapInSequence: {
 		dimensions: {width: number; height: number} | null;
@@ -3299,7 +3284,6 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async <
 		compositionId: request.compositionId,
 		element: request.element,
 		environment: makeInMemoryInsertJsxElementCodemodEnvironment({
-			formatFile,
 			project,
 			svgMarkupToJsx,
 		}),
