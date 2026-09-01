@@ -3,8 +3,10 @@ import type {AudioHTMLAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
+	useEffect,
 	useImperativeHandle,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
@@ -78,7 +80,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		onError,
 		onNativeError,
 		audioStreamIndex,
-		onLoadedMetadata,
 		...nativeProps
 	} = props;
 
@@ -86,10 +87,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	// to the DOM
 	const _propsValid: IsExact<
 		typeof nativeProps,
-		Omit<
-			NativeAudioProps,
-			'crossOrigin' | 'src' | 'name' | 'muted' | 'onLoadedMetadata'
-		>
+		Omit<NativeAudioProps, 'crossOrigin' | 'src' | 'name' | 'muted'>
 	> = true;
 	if (!_propsValid) {
 		throw new Error('typecheck error');
@@ -134,10 +132,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			loop: _remotionInternalNativeLoopPassed,
 			crossOrigin: crossOriginValue,
 			...nativeProps,
-			onLoadedMetadata: (event) => {
-				onLoadedMetadata?.(event);
-				onDuration(event.currentTarget.src, event.currentTarget.duration);
-			},
 		};
 	}, [
 		_remotionInternalNativeLoopPassed,
@@ -147,8 +141,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		preloadedSrc,
 		userPreferredVolume,
 		crossOriginValue,
-		onDuration,
-		onLoadedMetadata,
 	]);
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time deterministic. We use it to combat strict mode issues.
@@ -259,6 +251,31 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => {
 		return audioRef.current as HTMLAudioElement;
 	}, [audioRef]);
+
+	const currentOnDurationCallback =
+		useRef<AudioForPreviewProps['onDuration']>(onDuration);
+	currentOnDurationCallback.current = onDuration;
+
+	useEffect(() => {
+		const {current} = audioRef;
+		if (!current) {
+			return;
+		}
+
+		if (current.duration) {
+			currentOnDurationCallback.current?.(current.src, current.duration);
+			return;
+		}
+
+		const onLoadedMetadata = () => {
+			currentOnDurationCallback.current?.(current.src, current.duration);
+		};
+
+		current.addEventListener('loadedmetadata', onLoadedMetadata);
+		return () => {
+			current.removeEventListener('loadedmetadata', onLoadedMetadata);
+		};
+	}, [audioRef, src]);
 
 	if (initialShouldPreMountAudioElements) {
 		return isStudio ? (
