@@ -88,6 +88,7 @@ type SharedAudioContextValue = {
 		options: ScheduleAudioNodeOptions,
 	) => ScheduleAudioNodeResult;
 	resume: () => Promise<void>;
+	resumeAsAutoPlay: () => Promise<void>;
 	suspend: () => Promise<void>;
 	getIsResumingAudioContext: () => Promise<AudioContextResumeResult> | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
@@ -247,6 +248,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const isResuming = useRef<AudioContextResumeAttempt | null>(null);
 	const nextResumeAttemptId = useRef(0);
+	const nextResumeIsAutoPlayAttempt = useRef(false);
 
 	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
 
@@ -393,6 +395,8 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
 
 	const resume = useCallback(() => {
+		const isAutoPlayAttempt = nextResumeIsAutoPlayAttempt.current;
+		nextResumeIsAutoPlayAttempt.current = false;
 		if (!ctxAndGain) {
 			return Promise.resolve();
 		}
@@ -439,6 +443,7 @@ export const SharedAudioContextProvider: React.FC<{
 				ctxAndGain.audioContext,
 				logLevel,
 				abortController.signal,
+				isAutoPlayAttempt,
 			).then(resolve);
 			resumePromise.catch((err) => {
 				Log.warn(
@@ -465,6 +470,11 @@ export const SharedAudioContextProvider: React.FC<{
 			// since callers (e.g. use-playback.ts) do not await this.
 		});
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
+
+	const resumeAsAutoPlay = useCallback(() => {
+		nextResumeIsAutoPlayAttempt.current = true;
+		return resume();
+	}, [resume]);
 
 	const getIsResumingAudioContext = useCallback(() => {
 		return isResuming.current?.promise ?? null;
@@ -556,6 +566,7 @@ export const SharedAudioContextProvider: React.FC<{
 			audioSyncAnchorEmitter,
 			scheduleAudioNode,
 			resume,
+			resumeAsAutoPlay,
 			suspend,
 			getIsResumingAudioContext,
 			unscheduleAudioNode,
@@ -567,6 +578,7 @@ export const SharedAudioContextProvider: React.FC<{
 		audioSyncAnchorEmitter,
 		scheduleAudioNode,
 		resume,
+		resumeAsAutoPlay,
 		suspend,
 		getIsResumingAudioContext,
 		unscheduleAudioNode,
