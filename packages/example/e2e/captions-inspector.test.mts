@@ -12,7 +12,12 @@ const inlineCaptionsFile = path.join(
 	'CaptionsTester',
 	'InlineAnimatedCaptions.tsx',
 );
-const defaultCaptionsFile = path.join(
+const elementCaptionsFile = path.join(
+	exampleDir,
+	'src',
+	'moving-pill-captions.element.tsx',
+);
+const elementCallSiteFile = path.join(
 	exampleDir,
 	'src',
 	'MovingPillCaptionsComposition.tsx',
@@ -20,21 +25,24 @@ const defaultCaptionsFile = path.join(
 
 test.describe('captions inspector', () => {
 	let inlineSourceBefore: string;
-	let defaultSourceBefore: string;
+	let elementSourceBefore: string;
+	let elementCallSiteSourceBefore: string;
 
 	test.beforeEach(async () => {
 		inlineSourceBefore = fs.readFileSync(inlineCaptionsFile, 'utf-8');
-		defaultSourceBefore = fs.readFileSync(defaultCaptionsFile, 'utf-8');
+		elementSourceBefore = fs.readFileSync(elementCaptionsFile, 'utf-8');
+		elementCallSiteSourceBefore = fs.readFileSync(elementCallSiteFile, 'utf-8');
 		await startStudio();
 	});
 
 	test.afterEach(async () => {
 		await stopStudio();
 		fs.writeFileSync(inlineCaptionsFile, inlineSourceBefore);
-		fs.writeFileSync(defaultCaptionsFile, defaultSourceBefore);
+		fs.writeFileSync(elementCaptionsFile, elementSourceBefore);
+		fs.writeFileSync(elementCallSiteFile, elementCallSiteSourceBefore);
 	});
 
-	test('persists inline and default caption edits', async ({page}) => {
+	test('persists caption edits at their inline definitions', async ({page}) => {
 		await page.goto(`${STUDIO_URL}/captions-inspector-e2e`);
 		await expect(page).toHaveURL(/captions-inspector-e2e/, {timeout: 15_000});
 		await page.waitForFunction(
@@ -97,9 +105,12 @@ test.describe('captions inspector', () => {
 		await expect
 			.poll(() => {
 				return /text:\s*['"]Editable captions['"]/.test(
-					fs.readFileSync(defaultCaptionsFile, 'utf-8'),
+					fs.readFileSync(elementCaptionsFile, 'utf-8'),
 				);
 			})
 			.toBe(true);
+		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).toBe(
+			elementCallSiteSourceBefore,
+		);
 	});
 });

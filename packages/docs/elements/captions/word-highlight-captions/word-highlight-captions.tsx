@@ -44,64 +44,10 @@ const fontWeight = '700';
 const textColor = '#ffffff';
 const highlightColor = '#4da3ff';
 const defaultCombineTokensWithinMilliseconds = 800;
-const defaultCaptions: Caption[] = [
-	{
-		text: 'Captions',
-		startMs: 0,
-		endMs: 800,
-		timestampMs: 400,
-		confidence: null,
-	},
-	{
-		text: ' can',
-		startMs: 800,
-		endMs: 1500,
-		timestampMs: 1150,
-		confidence: null,
-	},
-	{
-		text: ' move',
-		startMs: 1500,
-		endMs: 2300,
-		timestampMs: 1900,
-		confidence: null,
-	},
-	{
-		text: ' with',
-		startMs: 2300,
-		endMs: 3100,
-		timestampMs: 2700,
-		confidence: null,
-	},
-	{
-		text: ' every',
-		startMs: 3100,
-		endMs: 4000,
-		timestampMs: 3550,
-		confidence: null,
-	},
-	{
-		text: ' spoken',
-		startMs: 4000,
-		endMs: 5100,
-		timestampMs: 4550,
-		confidence: null,
-	},
-	{
-		text: ' word.',
-		startMs: 5100,
-		endMs: 6500,
-		timestampMs: 5800,
-		confidence: null,
-	},
-];
 
 const wordHighlightCaptionsSchema = {
 	...Interactive.baseSchema,
-	captions: {
-		...Interactive.captionsSchema.captions,
-		default: defaultCaptions,
-	},
+	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
 		min: 1,
@@ -398,16 +344,25 @@ const WordHighlightCaptionsInner = forwardRef<
 	},
 );
 
-const WordHighlightCaptionsWithControls: React.FC<
-	WordHighlightCaptionsProps & {readonly controls: SequenceControls | undefined}
-> = ({captions, controls, style, ...props}) => {
+const WordHighlightCaptionsLayer = Interactive.withSchema({
+	Component: WordHighlightCaptionsInner,
+	componentName: '<WordHighlightCaptions>',
+	componentIdentity: null,
+	schema: wordHighlightCaptionsSchema,
+	supportsEffects: false,
+}) as React.FC<WordHighlightCaptionsLayerProps>;
+
+export const WordHighlightCaptions: React.FC<WordHighlightCaptionsProps> = ({
+	captions,
+	style,
+	...props
+}) => {
 	if (captions) {
 		return (
-			<WordHighlightCaptionsInner
+			<WordHighlightCaptionsLayer
 				{...props}
 				callerStyle={style ?? null}
 				captions={captions}
-				controls={controls}
 				style={{translate: '0px 0px'}}
 			/>
 		);
@@ -423,11 +378,60 @@ const WordHighlightCaptionsWithControls: React.FC<
 				width: 900,
 			}}
 		>
-			<WordHighlightCaptionsInner
+			<WordHighlightCaptionsLayer
 				{...props}
 				callerStyle={style ?? null}
-				captions={defaultCaptions}
-				controls={controls}
+				captions={[
+					{
+						text: 'Captions',
+						startMs: 0,
+						endMs: 800,
+						timestampMs: 400,
+						confidence: null,
+					},
+					{
+						text: ' can',
+						startMs: 800,
+						endMs: 1500,
+						timestampMs: 1150,
+						confidence: null,
+					},
+					{
+						text: ' move',
+						startMs: 1500,
+						endMs: 2300,
+						timestampMs: 1900,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 2300,
+						endMs: 3100,
+						timestampMs: 2700,
+						confidence: null,
+					},
+					{
+						text: ' every',
+						startMs: 3100,
+						endMs: 4000,
+						timestampMs: 3550,
+						confidence: null,
+					},
+					{
+						text: ' spoken',
+						startMs: 4000,
+						endMs: 5100,
+						timestampMs: 4550,
+						confidence: null,
+					},
+					{
+						text: ' word.',
+						startMs: 5100,
+						endMs: 6500,
+						timestampMs: 5800,
+						confidence: null,
+					},
+				]}
 				width={props.width ?? 681}
 				height={props.height ?? 252}
 				style={{translate: '0px 0px'}}
@@ -435,11 +439,3 @@ const WordHighlightCaptionsWithControls: React.FC<
 		</div>
 	);
 };
-
-export const WordHighlightCaptions = Interactive.withSchema({
-	Component: WordHighlightCaptionsWithControls,
-	componentName: '<WordHighlightCaptions>',
-	componentIdentity: null,
-	schema: wordHighlightCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<WordHighlightCaptionsProps>;

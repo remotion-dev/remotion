@@ -51,64 +51,10 @@ const pillVerticalPadding = 12;
 const pillBorderRadius = 10;
 const pillMoveDurationInFrames = 5;
 const defaultCombineTokensWithinMilliseconds = 800;
-const defaultCaptions: Caption[] = [
-	{
-		text: 'Captions',
-		startMs: 0,
-		endMs: 800,
-		timestampMs: 400,
-		confidence: null,
-	},
-	{
-		text: ' can',
-		startMs: 800,
-		endMs: 1500,
-		timestampMs: 1150,
-		confidence: null,
-	},
-	{
-		text: ' move',
-		startMs: 1500,
-		endMs: 2300,
-		timestampMs: 1900,
-		confidence: null,
-	},
-	{
-		text: ' with',
-		startMs: 2300,
-		endMs: 3100,
-		timestampMs: 2700,
-		confidence: null,
-	},
-	{
-		text: ' every',
-		startMs: 3100,
-		endMs: 4000,
-		timestampMs: 3550,
-		confidence: null,
-	},
-	{
-		text: ' spoken',
-		startMs: 4000,
-		endMs: 5100,
-		timestampMs: 4550,
-		confidence: null,
-	},
-	{
-		text: ' word.',
-		startMs: 5100,
-		endMs: 6500,
-		timestampMs: 5800,
-		confidence: null,
-	},
-];
 
 const movingPillCaptionsSchema = {
 	...Interactive.baseSchema,
-	captions: {
-		...Interactive.captionsSchema.captions,
-		default: defaultCaptions,
-	},
+	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
 		min: 1,
@@ -530,16 +476,25 @@ const MovingPillCaptionsInner = forwardRef<
 	},
 );
 
-const MovingPillCaptionsWithControls: React.FC<
-	MovingPillCaptionsProps & {readonly controls: SequenceControls | undefined}
-> = ({captions, controls, style, ...props}) => {
+const MovingPillCaptionsLayer = Interactive.withSchema({
+	Component: MovingPillCaptionsInner,
+	componentName: '<MovingPillCaptions>',
+	componentIdentity: null,
+	schema: movingPillCaptionsSchema,
+	supportsEffects: false,
+}) as React.FC<MovingPillCaptionsLayerProps>;
+
+export const MovingPillCaptions: React.FC<MovingPillCaptionsProps> = ({
+	captions,
+	style,
+	...props
+}) => {
 	if (captions) {
 		return (
-			<MovingPillCaptionsInner
+			<MovingPillCaptionsLayer
 				{...props}
 				callerStyle={style ?? null}
 				captions={captions}
-				controls={controls}
 				style={{translate: '0px 0px'}}
 			/>
 		);
@@ -555,11 +510,60 @@ const MovingPillCaptionsWithControls: React.FC<
 				width: 900,
 			}}
 		>
-			<MovingPillCaptionsInner
+			<MovingPillCaptionsLayer
 				{...props}
 				callerStyle={style ?? null}
-				captions={defaultCaptions}
-				controls={controls}
+				captions={[
+					{
+						text: 'Captions',
+						startMs: 0,
+						endMs: 800,
+						timestampMs: 400,
+						confidence: null,
+					},
+					{
+						text: ' can',
+						startMs: 800,
+						endMs: 1500,
+						timestampMs: 1150,
+						confidence: null,
+					},
+					{
+						text: ' move',
+						startMs: 1500,
+						endMs: 2300,
+						timestampMs: 1900,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 2300,
+						endMs: 3100,
+						timestampMs: 2700,
+						confidence: null,
+					},
+					{
+						text: ' every',
+						startMs: 3100,
+						endMs: 4000,
+						timestampMs: 3550,
+						confidence: null,
+					},
+					{
+						text: ' spoken',
+						startMs: 4000,
+						endMs: 5100,
+						timestampMs: 4550,
+						confidence: null,
+					},
+					{
+						text: ' word.',
+						startMs: 5100,
+						endMs: 6500,
+						timestampMs: 5800,
+						confidence: null,
+					},
+				]}
 				width={props.width ?? 681}
 				height={props.height ?? 252}
 				style={{translate: '0px 0px'}}
@@ -567,11 +571,3 @@ const MovingPillCaptionsWithControls: React.FC<
 		</div>
 	);
 };
-
-export const MovingPillCaptions = Interactive.withSchema({
-	Component: MovingPillCaptionsWithControls,
-	componentName: '<MovingPillCaptions>',
-	componentIdentity: null,
-	schema: movingPillCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<MovingPillCaptionsProps>;

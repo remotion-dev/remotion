@@ -15,10 +15,7 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CaptionInspector} from './CaptionInspector';
-import {
-	saveInlineCaptionPatches,
-	saveSequenceProps,
-} from './Timeline/save-sequence-prop';
+import {saveInlineCaptionPatches} from './Timeline/save-sequence-prop';
 
 const serializeCaptions = (captions: Caption[]): string => {
 	return JSON.stringify(captions);
@@ -98,8 +95,6 @@ export const InlineCaptionInspector: React.FC<{
 			: null;
 	const canSave =
 		!readOnlyStudio && clientId !== null && captionStatus?.status === 'static';
-	const captionsAreOmitted =
-		captionStatus?.status === 'static' && captionStatus.codeValue === undefined;
 	const [draftCaptions, setDraftCaptions] = useState(captions);
 	const savedCaptions = useRef(captions);
 	const runtimeSignature = serializeCaptions(captions);
@@ -152,51 +147,21 @@ export const InlineCaptionInspector: React.FC<{
 			}
 
 			savedCaptions.current = nextCaptions;
-			if (captionsAreOmitted) {
-				const defaultCaptions =
-					controls.schema.captions?.type === 'remotion-captions'
-						? controls.schema.captions.default
-						: undefined;
-				saveSequenceProps({
-					changes: [
-						{
-							fileName: validatedLocation.source,
-							nodePath,
-							fieldKey: 'captions',
-							value: nextCaptions,
-							defaultValue:
-								defaultCaptions === undefined
-									? null
-									: JSON.stringify(defaultCaptions),
-							schema: controls.schema,
-						},
-					],
-					addedKeyframes: null,
-					movedKeyframes: null,
-					setPropStatuses,
-					clientId,
-					undoLabel: 'Update captions',
-					redoLabel: 'Update captions again',
-				});
-			} else {
-				saveInlineCaptionPatches({
-					fileName: validatedLocation.source,
-					nodePath,
-					schema: controls.schema,
-					patches,
-					nextCaptions,
-					setPropStatuses,
-					clientId,
-					undoLabel: 'Update captions',
-					redoLabel: 'Update captions again',
-				});
-			}
-
+			saveInlineCaptionPatches({
+				fileName: validatedLocation.source,
+				nodePath,
+				schema: controls.schema,
+				patches,
+				nextCaptions,
+				setPropStatuses,
+				clientId,
+				undoLabel: 'Update captions',
+				redoLabel: 'Update captions again',
+			});
 			clearDragOverrides(nodePath);
 		},
 		[
 			canSave,
-			captionsAreOmitted,
 			clearDragOverrides,
 			clientId,
 			controls.schema,
