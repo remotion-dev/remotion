@@ -1665,9 +1665,19 @@ test.describe('visual mode', () => {
 					exact: true,
 				}),
 			).toBeVisible();
-			await contextMenu
-				.getByRole('button', {name: 'Delete selected', exact: true})
-				.click();
+			const deleteSelected = contextMenu.getByRole('button', {
+				name: 'Delete selected',
+				exact: true,
+			});
+			await deleteSelected.dispatchEvent('pointerup', {button: 2});
+			await expect(deleteSelected).toBeVisible();
+			expect(fs.readFileSync(sequenceShiftFile, 'utf-8')).toContain(
+				'name="Outer frame descendant"',
+			);
+			expect(fs.readFileSync(sequenceShiftFile, 'utf-8')).toContain(
+				'name="Local frame descendant"',
+			);
+			await deleteSelected.click();
 
 			await expect
 				.poll(() => {
