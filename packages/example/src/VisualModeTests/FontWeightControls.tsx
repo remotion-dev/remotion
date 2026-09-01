@@ -7,7 +7,7 @@ const rowStyle: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	fontFamily: 'sans-serif',
-	fontSize: 64,
+	fontSize: 48,
 	justifyContent: 'center',
 };
 
@@ -17,10 +17,20 @@ export const FontWeightControls: React.FC = () => {
 			style={{
 				backgroundColor: '#0f172a',
 				color: '#f8fafc',
-				gap: 24,
-				padding: 80,
+				gap: 16,
+				padding: 60,
 			}}
 		>
+			<Interactive.Div
+				name="Hundreds font weight"
+				style={{
+					...rowStyle,
+					backgroundColor: '#0369a1',
+					fontWeight: 700,
+				}}
+			>
+				Hundreds: 700
+			</Interactive.Div>
 			<Interactive.Div
 				name="Numeric font weight"
 				style={{

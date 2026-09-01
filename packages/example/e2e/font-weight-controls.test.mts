@@ -32,6 +32,21 @@ test.describe('font weight controls', () => {
 			await expect(page).toHaveURL(/font-weight-controls/, {timeout: 15_000});
 
 			await page
+				.locator('[data-timeline-marquee-item][title="Hundreds font weight"]')
+				.click();
+			const hundredsControl = page.getByRole('button', {
+				name: '700',
+				exact: true,
+			});
+			await expect(hundredsControl).toBeVisible();
+			await hundredsControl.click();
+			await page.locator('input[value="700"]').press('ArrowUp');
+			await page.keyboard.press('Enter');
+			await expect
+				.poll(() => fs.readFileSync(compositionFile, 'utf-8'))
+				.toContain('fontWeight: 800');
+
+			await page
 				.locator('[data-timeline-marquee-item][title="Numeric font weight"]')
 				.click();
 			const numericControl = page.getByRole('button', {
@@ -40,11 +55,11 @@ test.describe('font weight controls', () => {
 			});
 			await expect(numericControl).toBeVisible();
 			await numericControl.click();
-			await page.locator('input[value="650"]').fill('675');
+			await page.locator('input[value="650"]').fill('450');
 			await page.keyboard.press('Enter');
 			await expect
 				.poll(() => fs.readFileSync(compositionFile, 'utf-8'))
-				.toContain('fontWeight: 675');
+				.toContain('fontWeight: 450');
 
 			await page
 				.locator('[data-timeline-marquee-item][title="String font weight"]')
