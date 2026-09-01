@@ -93,12 +93,16 @@ export const TimelineNumberField: React.FC<{
 			min={
 				field.fieldSchema.type === 'number'
 					? (field.fieldSchema.min ?? -Infinity)
-					: -Infinity
+					: field.fieldSchema.type === 'font-weight'
+						? 1
+						: -Infinity
 			}
 			max={
 				field.fieldSchema.type === 'number'
 					? (field.fieldSchema.max ?? Infinity)
-					: Infinity
+					: field.fieldSchema.type === 'font-weight'
+						? 1000
+						: Infinity
 			}
 			step={step}
 			formatter={formatter}

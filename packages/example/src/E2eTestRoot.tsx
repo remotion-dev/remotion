@@ -25,6 +25,7 @@ import {TimelineVirtualizationTestbed} from './TimelineVirtualizationTestbed';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
 import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
+import {FontWeightControls} from './VisualModeTests/FontWeightControls';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 
@@ -205,6 +206,14 @@ export const E2eTestRoot: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={60}
+			/>
+			<Composition
+				id="font-weight-controls"
+				component={FontWeightControls}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={90}
 			/>
 			<Composition
 				id="outline-selection-cases"

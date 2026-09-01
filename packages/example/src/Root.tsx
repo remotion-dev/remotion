@@ -312,6 +312,7 @@ import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
 import {ConstantMultiplication} from './VisualModeTests/ConstantMultiplication';
 import {FastUpdates} from './VisualModeTests/FastUpdates';
 import {FastUpdatesNested} from './VisualModeTests/FastUpdatesNested';
+import {FontWeightControls} from './VisualModeTests/FontWeightControls';
 import {
 	InteractiveHtmlElements,
 	InteractiveSvgElements,
@@ -3057,6 +3058,14 @@ export const Index: React.FC = () => {
 					component={InteractiveHtmlElements}
 					width={1080}
 					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="font-weight-controls"
+					component={FontWeightControls}
+					width={1280}
+					height={720}
 					fps={30}
 					durationInFrames={90}
 				/>
