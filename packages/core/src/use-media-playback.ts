@@ -2,10 +2,8 @@ import type {RefObject} from 'react';
 import {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
-import {
-	getMediaSyncAction,
-	type MediaSyncAction,
-} from './get-media-sync-action.js';
+import {getMediaSyncAction} from './get-media-sync-action.js';
+import type {MediaSyncAction} from './get-media-sync-action.js';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {Log} from './log.js';
 import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-time-timestamp.js';
@@ -356,7 +354,5 @@ export const useMediaPlayback = ({
 		pauseMedia,
 	]);
 
-	useEffect(() => {
-		synchronizeMedia();
-	}, [synchronizeMedia]);
+	useEffect(synchronizeMedia, [synchronizeMedia]);
 };
