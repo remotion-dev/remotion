@@ -7,6 +7,7 @@ import {
 	effectKeyframeE2eFile,
 	exampleDir,
 	lostNodePathE2eFile,
+	rootFile,
 } from './constants.mts';
 import {
 	navigateToLostNodePathE2e,
@@ -28,6 +29,81 @@ const outlineSelectionCasesFile = path.join(
 	'VisualModeTests',
 	'OutlineSelectionCases.tsx',
 );
+
+const dragCompositionSelectorItem = async ({
+	page,
+	sourceTitle,
+	targetTitle,
+	position,
+	drop,
+}: {
+	page: Page;
+	sourceTitle: string;
+	targetTitle: string;
+	position: 'before' | 'inside' | 'after';
+	drop: boolean;
+}) => {
+	return page.evaluate(
+		({
+			sourceTitle: source,
+			targetTitle: target,
+			position: dropPosition,
+			drop: shouldDrop,
+		}) => {
+			const items = Array.from(
+				document.querySelectorAll<HTMLElement>(
+					'.__remotion-composition-selector-item',
+				),
+			);
+			const sourceElement = items.find((element) => element.title === source);
+			const targetElement = items.find((element) => element.title === target);
+			if (!sourceElement || !targetElement) {
+				throw new Error(
+					`Could not find drag source ${source} or target ${target}`,
+				);
+			}
+
+			const dataTransfer = new DataTransfer();
+			sourceElement.dispatchEvent(
+				new DragEvent('dragstart', {
+					bubbles: true,
+					cancelable: true,
+					dataTransfer,
+				}),
+			);
+			const rect = targetElement.getBoundingClientRect();
+			const clientY =
+				dropPosition === 'before'
+					? rect.top + 1
+					: dropPosition === 'after'
+						? rect.bottom - 1
+						: rect.top + rect.height / 2;
+			const dragOver = new DragEvent('dragover', {
+				bubbles: true,
+				cancelable: true,
+				clientY,
+				dataTransfer,
+			});
+			targetElement.dispatchEvent(dragOver);
+			if (shouldDrop) {
+				targetElement.dispatchEvent(
+					new DragEvent('drop', {
+						bubbles: true,
+						cancelable: true,
+						clientY,
+						dataTransfer,
+					}),
+				);
+				sourceElement.dispatchEvent(
+					new DragEvent('dragend', {bubbles: true, dataTransfer}),
+				);
+			}
+
+			return dragOver.defaultPrevented;
+		},
+		{sourceTitle, targetTitle, position, drop},
+	);
+};
 
 const dropAssetOnCanvas = async ({
 	assetPath,
@@ -1116,6 +1192,166 @@ test.describe('visual mode', () => {
 			.fill('timeline virtualization');
 		await page.keyboard.press('Enter');
 		await expect(page).toHaveURL(/timeline-virtualization-testbed/);
+	});
+
+	test('should visually reorder and nest compositions and folders', async ({
+		page,
+	}) => {
+		test.setTimeout(60_000);
+		const initialContents = fs.readFileSync(rootFile, 'utf8');
+		await page.goto(STUDIO_URL);
+		await expect(
+			page.getByTitle('AnimatedBarChart', {exact: true}),
+		).toBeVisible({
+			timeout: 15_000,
+		});
+		const firstItemTitle = await page
+			.locator('.__remotion-composition-selector-item')
+			.first()
+			.getAttribute('title');
+		expect(firstItemTitle).not.toBeNull();
+		const beforeNoOpDrags = fs.readFileSync(rootFile, 'utf8');
+		expect(
+			await dragCompositionSelectorItem({
+				page,
+				sourceTitle: firstItemTitle!,
+				targetTitle: firstItemTitle!,
+				position: 'before',
+				drop: true,
+			}),
+		).toBe(false);
+		expect(
+			await dragCompositionSelectorItem({
+				page,
+				sourceTitle: firstItemTitle!,
+				targetTitle: firstItemTitle!,
+				position: 'after',
+				drop: true,
+			}),
+		).toBe(false);
+		await expect(page.locator('[data-composition-reorder-line]')).toHaveCount(
+			0,
+		);
+		await page.waitForTimeout(250);
+		expect(fs.readFileSync(rootFile, 'utf8')).toBe(beforeNoOpDrags);
+
+		expect(
+			await dragCompositionSelectorItem({
+				page,
+				sourceTitle: 'AnimatedBarChart',
+				targetTitle: 'Schema',
+				position: 'before',
+				drop: false,
+			}),
+		).toBe(true);
+		const reorderLine = page.locator('[data-composition-reorder-line]');
+		await expect(reorderLine).toBeVisible();
+		await expect(reorderLine).toHaveCSS('height', '2px');
+		await expect(reorderLine).toHaveCSS(
+			'background-color',
+			'rgb(11, 132, 255)',
+		);
+		const lineBox = await reorderLine.boundingBox();
+		const targetBox = await page
+			.getByTitle('Schema', {exact: true})
+			.boundingBox();
+		expect(lineBox).not.toBeNull();
+		expect(targetBox).not.toBeNull();
+		expect(Math.abs(lineBox!.y - targetBox!.y)).toBeLessThanOrEqual(2);
+		expect(lineBox!.width).toBeGreaterThan(targetBox!.width);
+
+		await dragCompositionSelectorItem({
+			page,
+			sourceTitle: 'AnimatedBarChart',
+			targetTitle: 'Schema',
+			position: 'before',
+			drop: true,
+		});
+		await expect
+			.poll(() => {
+				const contents = fs.readFileSync(rootFile, 'utf8');
+				return (
+					contents.indexOf('id="AnimatedBarChart"') <
+					contents.indexOf('<Folder name="Schema">')
+				);
+			})
+			.toBe(true);
+		const afterCompositionReorder = fs.readFileSync(rootFile, 'utf8');
+		await expect
+			.poll(async () => {
+				const compositionBox = await page
+					.getByTitle('AnimatedBarChart', {exact: true})
+					.boundingBox();
+				const folderBox = await page
+					.getByTitle('Schema', {exact: true})
+					.boundingBox();
+				return (
+					compositionBox !== null &&
+					folderBox !== null &&
+					compositionBox.y < folderBox.y
+				);
+			})
+			.toBe(true);
+		expect(
+			await dragCompositionSelectorItem({
+				page,
+				sourceTitle: 'AnimatedBarChart',
+				targetTitle: 'Schema',
+				position: 'before',
+				drop: true,
+			}),
+		).toBe(false);
+		await page.waitForTimeout(250);
+		expect(fs.readFileSync(rootFile, 'utf8')).toBe(afterCompositionReorder);
+
+		await dragCompositionSelectorItem({
+			page,
+			sourceTitle: 'Schema',
+			targetTitle: 'use-current-scale-on-load',
+			position: 'before',
+			drop: true,
+		});
+		await expect
+			.poll(() => {
+				const contents = fs.readFileSync(rootFile, 'utf8');
+				return (
+					contents.indexOf('<Folder name="Schema">') <
+					contents.indexOf('id="use-current-scale-on-load"')
+				);
+			})
+			.toBe(true);
+		const afterFolderReorder = fs.readFileSync(rootFile, 'utf8');
+
+		await dragCompositionSelectorItem({
+			page,
+			sourceTitle: 'AnimatedBarChart',
+			targetTitle: 'Schema',
+			position: 'inside',
+			drop: true,
+		});
+		await expect
+			.poll(() => {
+				const contents = fs.readFileSync(rootFile, 'utf8');
+				const folderStart = contents.indexOf('<Folder name="Schema">');
+				const folderEnd = contents.indexOf('</Folder>', folderStart);
+				const composition = contents.indexOf('id="AnimatedBarChart"');
+				return composition > folderStart && composition < folderEnd;
+			})
+			.toBe(true);
+
+		const undoButton = page.getByRole('button', {name: /^Undo/});
+		await undoButton.click();
+		await expect
+			.poll(() => fs.readFileSync(rootFile, 'utf8'))
+			.toBe(afterFolderReorder);
+		await undoButton.click();
+		await expect
+			.poll(() => fs.readFileSync(rootFile, 'utf8'))
+			.toBe(afterCompositionReorder);
+		await undoButton.click();
+		await expect
+			.poll(() => fs.readFileSync(rootFile, 'utf8'))
+			.toBe(initialContents);
 	});
 
 	test('should play when a composition in the sidebar is focused', async ({

@@ -235,6 +235,13 @@ const getCodemodTargetCompositionId = (
 		return codemod.idToMove;
 	}
 
+	if (
+		codemod.type === 'move-composition-or-folder' &&
+		codemod.source.type === 'composition'
+	) {
+		return codemod.source.compositionId;
+	}
+
 	return null;
 };
 
@@ -271,6 +278,21 @@ const resolveCodemodTargetFile = ({
 		});
 		if (folderFile === null) {
 			throw new Error(`Could not find folder "${codemod.folderName}"`);
+		}
+
+		return findProjectFile({filePath: folderFile, project});
+	}
+
+	if (
+		codemod.type === 'move-composition-or-folder' &&
+		codemod.source.type === 'folder'
+	) {
+		const folderFile = getFolderFile({
+			folderName: codemod.source.folderName,
+			project,
+		});
+		if (folderFile === null) {
+			throw new Error(`Could not find folder "${codemod.source.folderName}"`);
 		}
 
 		return findProjectFile({filePath: folderFile, project});

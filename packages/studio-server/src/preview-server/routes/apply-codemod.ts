@@ -92,6 +92,14 @@ export const getCodemodLogMessage = (
 		return `Moved composition "${codemod.idToMove}" ${destination}`;
 	}
 
+	if (codemod.type === 'move-composition-or-folder') {
+		const source =
+			codemod.source.type === 'composition'
+				? `composition "${codemod.source.compositionId}"`
+				: `folder "${getFolderPath(codemod.source.parentName, codemod.source.folderName)}"`;
+		return `Moved ${source}`;
+	}
+
 	if (codemod.type === 'rename-folder') {
 		const oldName = getFolderPath(codemod.parentName, codemod.folderName);
 		const newName = getFolderPath(codemod.parentName, codemod.newName);
@@ -157,6 +165,18 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 				? 'to root'
 				: `into folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`;
 		const label = `composition "${codemod.idToMove}" ${destination}`;
+		return {
+			undoMessage: `↩️  Move of ${label}`,
+			redoMessage: `↪️  Move of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
+	if (codemod.type === 'move-composition-or-folder') {
+		const label =
+			codemod.source.type === 'composition'
+				? `composition "${codemod.source.compositionId}"`
+				: `folder "${getFolderPath(codemod.source.parentName, codemod.source.folderName)}"`;
 		return {
 			undoMessage: `↩️  Move of ${label}`,
 			redoMessage: `↪️  Move of ${label}`,

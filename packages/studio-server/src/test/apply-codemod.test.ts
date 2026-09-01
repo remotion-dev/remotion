@@ -234,6 +234,29 @@ test('formats precise log messages for all codemods', () => {
 		},
 		{
 			codemod: {
+				type: 'move-composition-or-folder',
+				source: {type: 'composition', compositionId: 'MoveMe'},
+				destination: {
+					type: 'before',
+					target: {type: 'folder', folderName: 'Shared', parentName: null},
+				},
+			},
+			expected: 'Moved composition "MoveMe"',
+		},
+		{
+			codemod: {
+				type: 'move-composition-or-folder',
+				source: {
+					type: 'folder',
+					folderName: 'Shared',
+					parentName: 'Parent',
+				},
+				destination: {type: 'root'},
+			},
+			expected: 'Moved folder "Parent/Shared"',
+		},
+		{
+			codemod: {
 				type: 'rename-folder',
 				folderName: 'Old',
 				parentName: 'Parent',
@@ -958,6 +981,106 @@ test('moves a composition to root', () => {
 		newContents.indexOf('id="NestedA"'),
 	);
 	expect(newContents.match(/id="NestedA"/g)?.length).toBe(1);
+});
+
+test('visually reorders compositions and folders', () => {
+	const compositionBeforeFolder = parseAndApplyCodemod({
+		input: selfClosingFolderRootContents,
+		codeMod: {
+			type: 'move-composition-or-folder',
+			source: {type: 'composition', compositionId: 'KeepMe'},
+			destination: {
+				type: 'before',
+				target: {type: 'folder', folderName: 'Empty', parentName: null},
+			},
+		},
+	});
+
+	expect(compositionBeforeFolder.changesMade).toHaveLength(1);
+	expect(
+		compositionBeforeFolder.newContents.indexOf('id="KeepMe"'),
+	).toBeLessThan(
+		compositionBeforeFolder.newContents.indexOf('<Folder name="Empty"'),
+	);
+
+	const folderAfterComposition = parseAndApplyCodemod({
+		input: selfClosingFolderRootContents,
+		codeMod: {
+			type: 'move-composition-or-folder',
+			source: {type: 'folder', folderName: 'Empty', parentName: null},
+			destination: {
+				type: 'after',
+				target: {type: 'composition', compositionId: 'KeepMe'},
+			},
+		},
+	});
+
+	expect(folderAfterComposition.changesMade).toHaveLength(1);
+	expect(
+		folderAfterComposition.newContents.indexOf('id="KeepMe"'),
+	).toBeLessThan(
+		folderAfterComposition.newContents.indexOf('<Folder name="Empty"'),
+	);
+});
+
+test('moves a folder into another folder with its descendants', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootContents,
+		codeMod: {
+			type: 'move-composition-or-folder',
+			source: {type: 'folder', folderName: 'Parent', parentName: null},
+			destination: {
+				type: 'folder',
+				folderName: 'Shared',
+				parentName: 'Other',
+			},
+		},
+	});
+
+	expect(changesMade).toHaveLength(1);
+	expect(newContents.match(/<Folder name="Parent">/g)).toHaveLength(1);
+	expect(newContents.match(/id="NestedA"/g)).toHaveLength(1);
+	expect(newContents.indexOf('id="NestedB"')).toBeLessThan(
+		newContents.indexOf('<Folder name="Parent">'),
+	);
+});
+
+test('rejects moving a folder into its descendant', () => {
+	expect(() =>
+		parseAndApplyCodemod({
+			input: folderRootContents,
+			codeMod: {
+				type: 'move-composition-or-folder',
+				source: {type: 'folder', folderName: 'Parent', parentName: null},
+				destination: {
+					type: 'folder',
+					folderName: 'Shared',
+					parentName: 'Parent',
+				},
+			},
+		}),
+	).toThrow('A folder cannot be moved inside itself');
+});
+
+test('rejects duplicate folder names at the destination', () => {
+	expect(() =>
+		parseAndApplyCodemod({
+			input: folderRootContents,
+			codeMod: {
+				type: 'move-composition-or-folder',
+				source: {
+					type: 'folder',
+					folderName: 'Shared',
+					parentName: 'Parent',
+				},
+				destination: {
+					type: 'folder',
+					folderName: 'Other',
+					parentName: null,
+				},
+			},
+		}),
+	).toThrow('A folder named "Shared" already exists in the destination');
 });
 
 test('does not use folders inside JSX attributes as move targets', () => {
