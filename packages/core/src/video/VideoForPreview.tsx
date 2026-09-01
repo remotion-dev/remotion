@@ -49,7 +49,7 @@ type VideoForPreviewProps = Omit<RemotionVideoProps, 'onVideoFrame'> & {
 
 type Expected = Omit<
 	NativeVideoProps,
-	'crossOrigin' | 'src' | 'name' | 'muted' | 'style'
+	'crossOrigin' | 'src' | 'name' | 'muted' | 'style' | 'onLoadedMetadata'
 >;
 
 const handleVideoError = ({
@@ -152,6 +152,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onAutoPlayError,
 		onVideoFrame,
 		crossOrigin,
+		onLoadedMetadata,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		allowAmplificationDuringRender,
@@ -280,32 +281,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		}),
 	);
 
-	const currentOnDurationCallback =
-		useRef<VideoForPreviewProps['onDuration']>(onDuration);
-	currentOnDurationCallback.current = onDuration;
-
 	useEmitVideoFrame({ref: videoRef, onVideoFrame});
-
-	useEffect(() => {
-		const {current} = videoRef;
-		if (!current) {
-			return;
-		}
-
-		if (current.duration) {
-			currentOnDurationCallback.current?.(src as string, current.duration);
-			return;
-		}
-
-		const onLoadedMetadata = () => {
-			currentOnDurationCallback.current?.(src as string, current.duration);
-		};
-
-		current.addEventListener('loadedmetadata', onLoadedMetadata);
-		return () => {
-			current.removeEventListener('loadedmetadata', onLoadedMetadata);
-		};
-	}, [src]);
 
 	useEffect(() => {
 		const {current} = videoRef;
@@ -342,6 +318,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const video = (
 		<video
+			onLoadedMetadata={(event) => {
+				onLoadedMetadata?.(event);
+				onDuration(src, event.currentTarget.duration);
+			}}
 			onError={(event) =>
 				handleVideoError({
 					error: event.currentTarget.error,
