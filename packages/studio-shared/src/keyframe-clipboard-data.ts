@@ -15,6 +15,7 @@ const KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT = {
 	color: true,
 	enum: false,
 	'font-family': false,
+	'font-weight': false,
 	hidden: false,
 	number: true,
 	'rotation-css': true,
