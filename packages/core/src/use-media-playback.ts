@@ -27,16 +27,24 @@ import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
 const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION = 0.65;
 
 const getPauseReason = ({
-	reason,
+	playing,
+	buffering,
+	isMediaTagBufferingOrStalled,
 	isPremounting,
 	isPostmounting,
 }: {
-	reason: 'not-playing' | 'buffering';
+	playing: boolean;
+	buffering: boolean;
+	isMediaTagBufferingOrStalled: boolean;
 	isPremounting: boolean;
 	isPostmounting: boolean;
 }) => {
-	if (reason === 'buffering') {
+	if (buffering && playing && !isMediaTagBufferingOrStalled) {
 		return 'player is buffering but media tag is not';
+	}
+
+	if (playing) {
+		return null;
 	}
 
 	if (isPremounting) {
@@ -79,7 +87,7 @@ export const useMediaPlayback = ({
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
 	const playing = usePlaying();
-	const playerBuffering = useBuffering();
+	const buffering = useBuffering();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 	const lastSeekDueToShift = useRef<number | null>(null);
@@ -133,14 +141,15 @@ export const useMediaPlayback = ({
 		src: src ?? null,
 	});
 
-	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
-		mediaRef,
-		mediaType,
-		onVariableFpsVideoDetected,
-		pauseWhenBuffering,
-		logLevel,
-		mountTime,
-	});
+	const {bufferUntilFirstFrame, isBuffering: isBufferingUntilFirstFrame} =
+		useBufferUntilFirstFrame({
+			mediaRef,
+			mediaType,
+			onVariableFpsVideoDetected,
+			pauseWhenBuffering,
+			logLevel,
+			mountTime,
+		});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
@@ -189,23 +198,21 @@ export const useMediaPlayback = ({
 		}
 
 		const {current} = mediaRef;
-		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
-		let pauseReason: 'not-playing' | 'buffering' | null = null;
-		if (!playing) {
-			pauseReason = 'not-playing';
-		} else if (playerBuffering && !isMediaTagBufferingOrStalled) {
-			pauseReason = 'buffering';
-		}
+		const isMediaTagBufferingOrStalled =
+			isMediaTagBuffering || isBufferingUntilFirstFrame();
+		const pauseReason = getPauseReason({
+			playing,
+			buffering,
+			isMediaTagBufferingOrStalled,
+			isPremounting,
+			isPostmounting,
+		});
 
 		if (!current.paused && pauseReason !== null) {
 			playbackLogging({
 				logLevel,
 				tag: 'pause',
-				message: `Pausing ${current.src} because ${getPauseReason({
-					reason: pauseReason,
-					isPremounting,
-					isPostmounting,
-				})}`,
+				message: `Pausing ${current.src} because ${pauseReason}`,
 				mountTime,
 			});
 			current.pause();
@@ -227,7 +234,7 @@ export const useMediaPlayback = ({
 			playing,
 			playbackRate,
 			mediaTagBufferingOrStalled: isMediaTagBufferingOrStalled,
-			playerBuffering,
+			playerBuffering: buffering,
 			absoluteFrame,
 			onlyWarnForMediaSeekingError,
 			isPremounting,
@@ -316,13 +323,13 @@ export const useMediaPlayback = ({
 		rvcCurrentTime,
 		logLevel,
 		desiredUnclampedTime,
-		isBuffering,
+		isBufferingUntilFirstFrame,
 		isMediaTagBuffering,
 		mediaRef,
 		mediaType,
 		onlyWarnForMediaSeekingError,
 		playbackRate,
-		playerBuffering,
+		buffering,
 		playing,
 		src,
 		onAutoPlayError,
