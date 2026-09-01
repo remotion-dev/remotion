@@ -167,16 +167,18 @@ export const useMediaPlayback = ({
 	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
 	// and it is also in a useLayoutEffect.
 	useLayoutEffect(() => {
-		const playbackRateToSet = Math.max(0, playbackRate);
-		if (
-			mediaRef.current &&
-			mediaRef.current.playbackRate !== playbackRateToSet
-		) {
-			mediaRef.current.playbackRate = playbackRateToSet;
+		const {current} = mediaRef;
+		if (!current) {
+			return;
 		}
 
-		if (mediaRef.current && mediaRef.current.preservesPitch !== preservePitch) {
-			mediaRef.current.preservesPitch = preservePitch;
+		const playbackRateToSet = Math.max(0, playbackRate);
+		if (current.playbackRate !== playbackRateToSet) {
+			current.playbackRate = playbackRateToSet;
+		}
+
+		if (current.preservesPitch !== preservePitch) {
+			current.preservesPitch = preservePitch;
 		}
 	}, [mediaRef, playbackRate, preservePitch]);
 
