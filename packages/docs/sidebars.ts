@@ -1751,6 +1751,11 @@ const sidebars: SidebarsConfig = {
 			label: 'Recorder',
 		},
 		{
+			type: 'link',
+			href: '/docs/canvas-capture',
+			label: 'Canvas Capture',
+		},
+		{
 			type: 'html',
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
@@ -1965,6 +1970,17 @@ const sidebars: SidebarsConfig = {
 				'recorder/our-recorder',
 				'recorder/support',
 			],
+		},
+	],
+	canvasCaptureSidebar: [
+		{
+			type: 'category',
+			label: 'Canvas Capture',
+			link: {
+				type: 'doc',
+				id: 'canvas-capture/index',
+			},
+			items: ['canvas-capture/installation'],
 		},
 	],
 };

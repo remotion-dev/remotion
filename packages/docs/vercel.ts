@@ -377,6 +377,9 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/recorder', '/docs/recorder', {permanent: false}),
+		routes.redirect('/canvas-capture', '/docs/canvas-capture', {
+			permanent: false,
+		}),
 		routes.redirect('/install-whisper-cpp', '/docs/install-whisper-cpp', {
 			permanent: false,
 		}),
