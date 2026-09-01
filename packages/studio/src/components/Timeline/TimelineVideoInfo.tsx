@@ -37,6 +37,7 @@ const filmstripContainerStyle: React.CSSProperties = {
 	height: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 	backgroundColor: BLACK_ALPHA_30,
 	display: 'flex',
+	overflow: 'hidden',
 	borderTopLeftRadius: 2,
 	fontSize: 10,
 	fontFamily: 'Arial, Helvetica',
@@ -111,8 +112,8 @@ const TimelineVideoInfoSegment: React.FC<{
 		const canvas = document.createElement('canvas');
 		canvas.width = Math.ceil(visualizationWidth * pixelRatio);
 		canvas.height = Math.ceil(TIMELINE_LAYER_FILMSTRIP_HEIGHT * pixelRatio);
-		canvas.style.width = visualizationWidth + 'px';
-		canvas.style.height = TIMELINE_LAYER_FILMSTRIP_HEIGHT + 'px';
+		canvas.style.width = canvas.width / pixelRatio + 'px';
+		canvas.style.height = canvas.height / pixelRatio + 'px';
 		const ctx = canvas.getContext('2d');
 		if (!ctx) {
 			return;
@@ -251,7 +252,10 @@ const TimelineVideoInfoSegment: React.FC<{
 		const filledSlots = new Map<number, number | undefined>();
 
 		const {fromSeconds, toSeconds} = times;
-		const targetWidth = targetCanvas.width;
+		// Keep the time-to-pixel scale independent of the integer canvas backing size.
+		const targetWidth = tiledLoop
+			? tiledLoop.loopWidth * pixelRatio
+			: visualizationWidth * pixelRatio;
 		const repeatTarget = () => {
 			if (!tiledLoop) {
 				return;
