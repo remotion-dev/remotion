@@ -386,16 +386,25 @@ const PoppingWordCaptionsInner = forwardRef<
 	},
 );
 
-const PoppingWordCaptionsWithControls: React.FC<
-	PoppingWordCaptionsProps & {readonly controls: SequenceControls | undefined}
-> = ({captions, controls, style, ...props}) => {
+const PoppingWordCaptionsLayer = Interactive.withSchema({
+	Component: PoppingWordCaptionsInner,
+	componentName: '<PoppingWordCaptions>',
+	componentIdentity: null,
+	schema: poppingWordCaptionsSchema,
+	supportsEffects: false,
+}) as React.FC<PoppingWordCaptionsLayerProps>;
+
+export const PoppingWordCaptions: React.FC<PoppingWordCaptionsProps> = ({
+	captions,
+	style,
+	...props
+}) => {
 	if (captions) {
 		return (
-			<PoppingWordCaptionsInner
+			<PoppingWordCaptionsLayer
 				{...props}
 				callerStyle={style ?? null}
 				captions={captions}
-				controls={controls}
 				style={{translate: '0px 0px'}}
 			/>
 		);
@@ -411,7 +420,7 @@ const PoppingWordCaptionsWithControls: React.FC<
 				width: 900,
 			}}
 		>
-			<PoppingWordCaptionsInner
+			<PoppingWordCaptionsLayer
 				{...props}
 				callerStyle={style ?? null}
 				captions={[
@@ -465,7 +474,6 @@ const PoppingWordCaptionsWithControls: React.FC<
 						confidence: null,
 					},
 				]}
-				controls={controls}
 				width={props.width ?? 681}
 				height={props.height ?? 252}
 				style={{translate: '0px 0px'}}
@@ -473,11 +481,3 @@ const PoppingWordCaptionsWithControls: React.FC<
 		</div>
 	);
 };
-
-export const PoppingWordCaptions = Interactive.withSchema({
-	Component: PoppingWordCaptionsWithControls,
-	componentName: '<PoppingWordCaptions>',
-	componentIdentity: null,
-	schema: poppingWordCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<PoppingWordCaptionsProps>;
