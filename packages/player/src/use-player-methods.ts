@@ -24,8 +24,9 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const {
 		setPlaying,
 		frameRef,
-		isPlaying: readIsPlaying,
 		audioAndVideoTags,
+		isPlaying: readIsPlaying,
+		isBuffering,
 	} = useContext(Internals.SetTimelineContext);
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const audioTagsContext = useContext(Internals.SharedAudioTagsContext);
@@ -38,13 +39,6 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 
 	if (!emitter) {
 		throw new TypeError('Expected Player event emitter context');
-	}
-
-	const bufferingContext = useContext(Internals.BufferingContextReact);
-	if (!bufferingContext) {
-		throw new Error(
-			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
-		);
 	}
 
 	const getCurrentFrame = useCallback(() => {
@@ -253,14 +247,6 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 		[pause, play, readIsPlaying],
 	);
 
-	const isPlaying = useCallback(() => {
-		return readIsPlaying();
-	}, [readIsPlaying]);
-
-	const isBuffering = useCallback(() => {
-		return bufferingContext.buffering.current;
-	}, [bufferingContext.buffering]);
-
 	return useMemo(() => {
 		return {
 			frameBack,
@@ -270,7 +256,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			pause,
 			seek,
 			getCurrentFrame,
-			isPlaying,
+			isPlaying: readIsPlaying,
 			isBuffering,
 			pauseAndReturnToPlayStart,
 			toggle,
@@ -280,11 +266,11 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 		frameBack,
 		frameForward,
 		getCurrentFrame,
-		isBuffering,
-		isPlaying,
+		readIsPlaying,
 		pause,
 		pauseAndReturnToPlayStart,
 		play,
+		isBuffering,
 		seek,
 		toggle,
 	]);

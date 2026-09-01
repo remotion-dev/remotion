@@ -25,29 +25,41 @@ export type PlaybackRateContextValue = {
 	setPlaybackRate: (u: React.SetStateAction<number>) => void;
 };
 
+export type PlayingState = Readonly<{
+	playing: boolean;
+}>;
+
+export type BufferingState = Readonly<{
+	buffering: boolean;
+}>;
+
 export type SetTimelineContextValue = {
 	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
-	subscribePlaying: (
-		listener: (state: Readonly<{playing: boolean}>) => void,
-	) => () => void;
-	frameRef: RefObject<Record<string, number>>;
+	setBuffering: (buffering: boolean) => void;
+	subscribePlaying: (listener: (state: PlayingState) => void) => () => void;
+	subscribeBuffering: (listener: (state: BufferingState) => void) => () => void;
 	isPlaying: () => boolean;
+	isBuffering: () => boolean;
+	frameRef: RefObject<Record<string, number>>;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
+const missingSetTimelineContext = (): never => {
+	throw new Error(
+		'SetTimelineContext is missing. This is likely caused by a Remotion version mismatch.',
+	);
+};
+
 export const SetTimelineContext = createContext<SetTimelineContextValue>({
-	setFrame: () => {
-		throw new Error('default');
-	},
-	setPlaying: () => {
-		throw new Error('default');
-	},
+	setFrame: missingSetTimelineContext,
+	setPlaying: missingSetTimelineContext,
+	setBuffering: missingSetTimelineContext,
 	subscribePlaying: () => () => undefined,
+	subscribeBuffering: () => () => undefined,
+	isPlaying: () => false,
+	isBuffering: missingSetTimelineContext,
 	frameRef: {current: {}},
-	isPlaying: () => {
-		throw new Error('default');
-	},
 	audioAndVideoTags: {current: []},
 });
 
@@ -68,6 +80,10 @@ export const TimelineContextProvider: React.FC<{
 		() => createRuntimeValueStore({playing: false}),
 		[],
 	);
+	const bufferingStore = useMemo(
+		() => createRuntimeValueStore({buffering: false}),
+		[],
+	);
 
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
@@ -82,6 +98,10 @@ export const TimelineContextProvider: React.FC<{
 	const readIsPlaying = useCallback(
 		() => playingStore.store.getSnapshot().playing,
 		[playingStore],
+	);
+	const readIsBuffering = useCallback(
+		() => bufferingStore.store.getSnapshot().buffering,
+		[bufferingStore],
 	);
 
 	const {delayRender, continueRender} = useDelayRender();
@@ -142,17 +162,23 @@ export const TimelineContextProvider: React.FC<{
 			setPlaying: (updater) => {
 				const current = playingStore.store.getSnapshot().playing;
 				const next = typeof updater === 'function' ? updater(current) : updater;
-
 				if (current !== next) {
 					playingStore.setSnapshot({playing: next});
 				}
 			},
+			setBuffering: (buffering) => {
+				if (readIsBuffering() !== buffering) {
+					bufferingStore.setSnapshot({buffering});
+				}
+			},
 			subscribePlaying: playingStore.store.subscribe,
-			frameRef,
+			subscribeBuffering: bufferingStore.store.subscribe,
 			isPlaying: readIsPlaying,
+			isBuffering: readIsBuffering,
+			frameRef,
 			audioAndVideoTags,
 		};
-	}, [playingStore, readIsPlaying]);
+	}, [bufferingStore, playingStore, readIsBuffering, readIsPlaying]);
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>

@@ -1,7 +1,6 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {act, cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import React from 'react';
-import {BufferingContextReact} from '../buffering.js';
 import type {
 	EffectApplyParams,
 	EffectDefinition,
@@ -12,6 +11,7 @@ import type {RemotionEnvironment} from '../remotion-environment-context.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
 import type {SequenceContextType} from '../SequenceContext.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {SetTimelineContext} from '../TimelineContext.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const drawImageCalls: unknown[][] = [];
@@ -154,25 +154,13 @@ const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
 const BufferingEvents: React.FC<{
 	readonly events: string[];
 }> = ({events}) => {
-	const manager = React.useContext(BufferingContextReact);
+	const {subscribeBuffering} = React.useContext(SetTimelineContext);
 
 	React.useLayoutEffect(() => {
-		if (!manager) {
-			throw new Error('Expected BufferingContextReact');
-		}
-
-		const buffering = manager.listenForBuffering(() => {
-			events.push('waiting');
+		return subscribeBuffering((state) => {
+			events.push(state.buffering ? 'waiting' : 'resume');
 		});
-		const resume = manager.listenForResume(() => {
-			events.push('resume');
-		});
-
-		return () => {
-			buffering.remove();
-			resume.remove();
-		};
-	}, [events, manager]);
+	}, [events, subscribeBuffering]);
 
 	return null;
 };

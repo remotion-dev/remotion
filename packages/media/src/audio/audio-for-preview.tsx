@@ -25,6 +25,7 @@ const {
 	usePreload,
 	SequenceContext,
 	usePlaying,
+	useBuffering,
 } = Internals;
 
 type NewAudioForPreviewProps = {
@@ -125,17 +126,9 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
-	const bufferingContext = useContext(Internals.BufferingContextReact);
-
-	if (!bufferingContext) {
-		throw new Error(
-			'useMediaPlayback must be used inside a <BufferingContext>',
-		);
-	}
-
 	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
 
-	const isPlayerBuffering = Internals.useIsPlayerBuffering(bufferingContext);
+	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);

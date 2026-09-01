@@ -16,11 +16,7 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
-import {
-	BufferingContextReact,
-	BufferingProvider,
-	useIsPlayerBuffering,
-} from './buffering.js';
+import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {calculateMediaDuration} from './calculate-media-duration.js';
 import {
 	CanUseRemotionHooks,
@@ -211,6 +207,7 @@ import {
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {truthy} from './truthy.js';
+import {useBuffering} from './use-buffering.js';
 import {useCropStyle} from './use-crop-style.js';
 import {
 	calculateScale,
@@ -436,7 +433,7 @@ export const Internals = {
 	setInputPropsOverride,
 	useVideoEnabled,
 	useAudioEnabled,
-	useIsPlayerBuffering,
+	useBuffering,
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
