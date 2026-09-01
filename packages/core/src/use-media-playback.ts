@@ -89,6 +89,7 @@ export const useMediaPlayback = ({
 	isPostmounting: boolean;
 	onAutoPlayError: null | (() => void);
 }) => {
+	const tagName = mediaType === 'audio' ? '<Html5Audio>' : '<Html5Video>';
 	const {playbackRate: globalPlaybackRate} = usePlaybackRate();
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
@@ -192,7 +193,6 @@ export const useMediaPlayback = ({
 	}, [mediaRef, playbackRate, preservePitch]);
 
 	useEffect(() => {
-		const tagName = mediaType === 'audio' ? '<Html5Audio>' : '<Html5Video>';
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}
@@ -347,5 +347,6 @@ export const useMediaPlayback = ({
 		mountTime,
 		mediaTagCurrentTime,
 		env.isPlayer,
+		tagName,
 	]);
 };
