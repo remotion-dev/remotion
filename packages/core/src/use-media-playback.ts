@@ -26,36 +26,42 @@ import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
 // In Safari, amplified media can lag behind by around 0.4 seconds.
 const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION = 0.65;
 
+type PauseReason = 'not-playing' | 'buffering';
+
 const getPauseReason = ({
 	playing,
 	buffering,
-	isMediaTagBufferingOrStalled,
-	isPremounting,
-	isPostmounting,
+	mediaTagBuffering,
 }: {
 	playing: boolean;
 	buffering: boolean;
-	isMediaTagBufferingOrStalled: boolean;
+	mediaTagBuffering: boolean;
+}): PauseReason | null => {
+	if (!playing) {
+		return 'not-playing';
+	}
+
+	return buffering && !mediaTagBuffering ? 'buffering' : null;
+};
+
+const getPauseReasonText = ({
+	pauseReason,
+	isPremounting,
+	isPostmounting,
+}: {
+	pauseReason: PauseReason;
 	isPremounting: boolean;
 	isPostmounting: boolean;
 }) => {
-	if (buffering && playing && !isMediaTagBufferingOrStalled) {
+	if (pauseReason === 'buffering') {
 		return 'player is buffering but media tag is not';
-	}
-
-	if (playing) {
-		return null;
 	}
 
 	if (isPremounting) {
 		return 'media is premounting';
 	}
 
-	if (isPostmounting) {
-		return 'media is postmounting';
-	}
-
-	return 'Player is not playing';
+	return isPostmounting ? 'media is postmounting' : 'Player is not playing';
 };
 
 export const useMediaPlayback = ({
@@ -203,16 +209,18 @@ export const useMediaPlayback = ({
 		const pauseReason = getPauseReason({
 			playing,
 			buffering,
-			isMediaTagBufferingOrStalled,
-			isPremounting,
-			isPostmounting,
+			mediaTagBuffering: isMediaTagBufferingOrStalled,
 		});
 
 		if (!current.paused && pauseReason !== null) {
 			playbackLogging({
 				logLevel,
 				tag: 'pause',
-				message: `Pausing ${current.src} because ${pauseReason}`,
+				message: `Pausing ${current.src} because ${getPauseReasonText({
+					pauseReason,
+					isPremounting,
+					isPostmounting,
+				})}`,
 				mountTime,
 			});
 			current.pause();
