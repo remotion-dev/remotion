@@ -2,6 +2,7 @@ import type {
 	AudioWaveformWorkerLoadMessage,
 	AudioWaveformWorkerOutgoingMessage,
 } from './audio-waveform-worker-types';
+import {TARGET_SAMPLE_RATE} from './constants';
 import {loadWaveformPeaks} from './load-waveform-peaks';
 import {makeAudioWaveformWorker} from './make-audio-waveform-worker';
 
@@ -12,6 +13,8 @@ type WaveformPeaksListener = {
 
 type InFlightLoad = {
 	readonly src: string;
+	readonly cacheKey: string;
+	readonly waveformSampleRate: number;
 	readonly listeners: Set<WaveformPeaksListener>;
 	latestPeaks: Float32Array | null;
 	requestId: number | null;
@@ -21,7 +24,7 @@ type InFlightLoad = {
 // so remounts (timeline virtualization, zoom window cropping) and multiple
 // clips with the same src never re-fetch or re-decode the audio.
 const peaksCache = new Map<string, Float32Array>();
-const inFlightBySrc = new Map<string, InFlightLoad>();
+const inFlightByCacheKey = new Map<string, InFlightLoad>();
 const inFlightByRequestId = new Map<number, InFlightLoad>();
 
 let worker: Worker | null = null;
@@ -30,8 +33,8 @@ let nextRequestId = 0;
 
 const emitPeaks = (load: InFlightLoad, peaks: Float32Array, final: boolean) => {
 	if (final) {
-		peaksCache.set(load.src, peaks);
-		inFlightBySrc.delete(load.src);
+		peaksCache.set(load.cacheKey, peaks);
+		inFlightByCacheKey.delete(load.cacheKey);
 		if (load.requestId !== null) {
 			inFlightByRequestId.delete(load.requestId);
 		}
@@ -45,7 +48,7 @@ const emitPeaks = (load: InFlightLoad, peaks: Float32Array, final: boolean) => {
 };
 
 const emitError = (load: InFlightLoad, error: Error) => {
-	inFlightBySrc.delete(load.src);
+	inFlightByCacheKey.delete(load.cacheKey);
 	if (load.requestId !== null) {
 		inFlightByRequestId.delete(load.requestId);
 	}
@@ -63,6 +66,7 @@ const startMainThreadLoad = (load: InFlightLoad) => {
 	const controller = new AbortController();
 
 	loadWaveformPeaks(load.src, controller.signal, {
+		waveformSampleRate: load.waveformSampleRate,
 		onProgress: ({peaks, final}) => {
 			if (final) {
 				return;
@@ -141,14 +145,17 @@ const getOrCreateWorker = (): Worker | null => {
 
 export const subscribeToWaveformPeaks = ({
 	src,
+	waveformSampleRate = TARGET_SAMPLE_RATE,
 	onPeaks,
 	onError,
 }: {
 	readonly src: string;
+	readonly waveformSampleRate?: number;
 	readonly onPeaks: (peaks: Float32Array, final: boolean) => void;
 	readonly onError: (error: Error) => void;
 }): (() => void) => {
-	const cached = peaksCache.get(src);
+	const cacheKey = `${waveformSampleRate}:${src}`;
+	const cached = peaksCache.get(cacheKey);
 	if (cached) {
 		onPeaks(cached, true);
 		return () => undefined;
@@ -156,7 +163,7 @@ export const subscribeToWaveformPeaks = ({
 
 	const listener: WaveformPeaksListener = {onPeaks, onError};
 
-	const existing = inFlightBySrc.get(src);
+	const existing = inFlightByCacheKey.get(cacheKey);
 	if (existing) {
 		existing.listeners.add(listener);
 		if (existing.latestPeaks) {
@@ -170,11 +177,13 @@ export const subscribeToWaveformPeaks = ({
 
 	const load: InFlightLoad = {
 		src,
+		cacheKey,
+		waveformSampleRate,
 		listeners: new Set([listener]),
 		latestPeaks: null,
 		requestId: null,
 	};
-	inFlightBySrc.set(src, load);
+	inFlightByCacheKey.set(cacheKey, load);
 
 	const workerInstance = getOrCreateWorker();
 	if (workerInstance) {
@@ -185,6 +194,7 @@ export const subscribeToWaveformPeaks = ({
 			type: 'load',
 			requestId,
 			src,
+			waveformSampleRate,
 		};
 		workerInstance.postMessage(message);
 	} else {
