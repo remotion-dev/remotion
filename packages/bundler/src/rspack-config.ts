@@ -85,6 +85,7 @@ export const rspackConfig = async ({
 		experiments: {
 			...sharedBaseConfig.experiments,
 			...(environment === 'development'
+				// Makes the first HMR event faster. 
 				? {incremental: {buildChunkGraph: true}}
 				: {}),
 		},
