@@ -34,6 +34,7 @@ let nextRequestId = 0;
 const emitPeaks = (load: InFlightLoad, peaks: Float32Array, final: boolean) => {
 	if (final) {
 		peaksCache.set(load.cacheKey, peaks);
+		load.latestPeaks = null;
 		inFlightByCacheKey.delete(load.cacheKey);
 		if (load.requestId !== null) {
 			inFlightByRequestId.delete(load.requestId);
