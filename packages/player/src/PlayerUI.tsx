@@ -589,10 +589,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	useEffect(() => {
 		if (shouldAutoplay) {
-			play();
+			setHasPlayed(true);
+			player.playAsAutoPlay();
 			setShouldAutoPlay(false);
 		}
-	}, [play, shouldAutoplay]);
+	}, [player, shouldAutoplay]);
 
 	const loadingMarkup = useMemo(() => {
 		return renderLoading

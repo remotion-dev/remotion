@@ -397,6 +397,7 @@ export const formatTimelineFieldValueForDisplay = ({
 		case 'color':
 		case 'enum':
 		case 'font-family':
+		case 'font-weight':
 		case 'hidden':
 			return formatUnknownTimelineValueForDisplay(value);
 

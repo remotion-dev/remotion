@@ -22,19 +22,17 @@ const getContainerStyle = (height: number): React.CSSProperties => {
 		position: 'relative',
 		width: '100%',
 		height,
+		overflow: 'hidden',
 	};
 };
 
 const waveformCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
-	width: '100%',
-	height: '100%',
+	flexShrink: 0,
 };
 
 const volumeCanvasStyle: React.CSSProperties = {
 	position: 'absolute',
-	width: '100%',
-	height: '100%',
 };
 
 const parseVolume = (volume: string | number): WaveformVolume => {
@@ -161,16 +159,19 @@ const AudioWaveformInner: React.FC<{
 		const pixelRatio = window.devicePixelRatio;
 		const h = Math.ceil(height * pixelRatio);
 		const w = Math.ceil(visualizationWidth * pixelRatio);
+		const drawingWidth = visualizationWidth * pixelRatio;
 
 		canvasElement.width = w;
 		canvasElement.height = h;
+		canvasElement.style.width = w / pixelRatio + 'px';
+		canvasElement.style.height = h / pixelRatio + 'px';
 
 		drawBars({
 			canvas: canvasElement,
 			peaks: portionPeaks ?? EMPTY_PEAKS,
 			color: WHITE_ALPHA_60,
 			volume: visibleVolume,
-			width: w,
+			width: drawingWidth,
 		});
 	}, [height, portionPeaks, visibleVolume, visualizationWidth]);
 
@@ -187,6 +188,7 @@ const AudioWaveformInner: React.FC<{
 		const pixelRatio = window.devicePixelRatio;
 		const h = Math.ceil(height * pixelRatio);
 		const w = Math.ceil(visualizationWidth * pixelRatio);
+		const drawingWidth = visualizationWidth * pixelRatio;
 		const context = volumeCanvasElement.getContext('2d');
 		if (!context) {
 			return;
@@ -194,6 +196,8 @@ const AudioWaveformInner: React.FC<{
 
 		volumeCanvasElement.width = w;
 		volumeCanvasElement.height = h;
+		volumeCanvasElement.style.width = w / pixelRatio + 'px';
+		volumeCanvasElement.style.height = h / pixelRatio + 'px';
 
 		context.clearRect(0, 0, w, h);
 		if (!Array.isArray(visibleVolume)) {
@@ -206,7 +210,7 @@ const AudioWaveformInner: React.FC<{
 			const x =
 				visibleVolume.length <= 1
 					? 0
-					: (index / (visibleVolume.length - 1)) * w;
+					: (index / (visibleVolume.length - 1)) * drawingWidth;
 			const y = (1 - v) * (h - TIMELINE_BORDER * 2 * pixelRatio) + pixelRatio;
 			if (index === 0) {
 				context.moveTo(x, y);

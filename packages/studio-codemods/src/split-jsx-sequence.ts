@@ -15,6 +15,7 @@ import {
 	hasSequenceTimingTraits,
 	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
+import type {namedTypes as AstNamedTypes} from 'ast-types';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {
@@ -25,11 +26,9 @@ import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from './get-node-path-remappings';
-import {
-	parseAst,
-	parseAstForReadOnly,
-	serializeAst,
-} from './sequence-props/parse-ast';
+import {printInsertedJsx} from './print-jsx';
+import {recastLocToOffset} from './recast-loc-to-offset';
+import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
 
 const {builders: b, namedTypes} = recast.types;
 
@@ -330,26 +329,74 @@ const insertAfter = (
 	return false;
 };
 
-export const splitJsxSequence = async ({
+const indentContinuationLines = ({
+	indent,
+	source,
+}: {
+	indent: string;
+	source: string;
+}) => {
+	const endOfLine = source.includes('\r\n') ? '\r\n' : '\n';
+	return source.split(/\r?\n/).join(`${endOfLine}${indent}`);
+};
+
+const getSplitSourceEdit = ({
+	input,
+	left,
+	prettierConfigOverride,
+	right,
+	wrapInFragment,
+}: {
+	input: string;
+	left: JSXElement;
+	prettierConfigOverride: Record<string, unknown> | null;
+	right: JSXElement;
+	wrapInFragment: boolean;
+}) => {
+	if (!left.loc) {
+		throw new Error('Cannot split a JSX sequence without a source location');
+	}
+
+	const start = recastLocToOffset(input, left.loc.start);
+	const end = recastLocToOffset(input, left.loc.end);
+	const lineStart = input.lastIndexOf('\n', start - 1) + 1;
+	const beforeElement = input.slice(lineStart, start);
+	const lineIndent = beforeElement.match(/^\s*/)?.[0] ?? '';
+	const isOnlyElementOnLine = beforeElement.trim() === '';
+	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+	const formattingConfig = prettierConfigOverride ?? null;
+	const print = (element: JSXElement | JSXFragment) =>
+		indentContinuationLines({
+			indent: lineIndent,
+			source: printInsertedJsx({
+				element: element as unknown as
+					| AstNamedTypes.JSXElement
+					| AstNamedTypes.JSXFragment,
+				input,
+				prettierConfigOverride: formattingConfig,
+			}),
+		});
+	const replacement = wrapInFragment
+		? print(makeFragment(left, right))
+		: `${print(left)}${isOnlyElementOnLine ? `${endOfLine}${lineIndent}` : ' '}${print(right)}`;
+
+	return {end, replacement, start};
+};
+
+export const splitJsxSequence = ({
 	input,
 	nodePath,
 	sequenceKeys,
 	splitFrame,
-	formatFile,
 	prettierConfigOverride,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
-	formatFile: (input: {
-		contents: string;
-		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
-	formatted: boolean;
 	nodeLabel: string;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
@@ -425,29 +472,37 @@ export const splitJsxSequence = async ({
 		throw new Error('Cannot split JSX sequence with no parent');
 	}
 
+	const isJsxChild =
+		namedTypes.JSXElement.check(parentPath.node) ||
+		namedTypes.JSXFragment.check(parentPath.node);
 	if (!insertAfter(parentPath.node, jsxElement, right)) {
 		jsxPath.replace(makeFragment(jsxElement, right));
 	}
 
-	const finalFile = serializeAst(ast);
-	const {output, formatted} = await formatFile({
-		contents: finalFile,
+	const sourceEdit = getSplitSourceEdit({
+		input,
+		left: jsxElement,
 		prettierConfigOverride: prettierConfigOverride ?? null,
+		right,
+		wrapInFragment: !isJsxChild,
 	});
+	const output =
+		input.slice(0, sourceEdit.start) +
+		sourceEdit.replacement +
+		input.slice(sourceEdit.end);
 	const {nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
 		output,
 	});
 
-	return {
+	return Promise.resolve({
 		output,
-		formatted,
 		nodeLabel: getJsxElementTagLabel(jsxElement),
 		logLine:
 			jsxElement.openingElement.loc?.start.line ??
 			jsxElement.loc?.start.line ??
 			1,
 		nodePathRemappings,
-	};
+	});
 };

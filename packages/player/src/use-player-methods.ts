@@ -9,6 +9,7 @@ export type UsePlayerMethods = {
 	frameForward: (frames: number) => void;
 	emitter: PlayerEmitter;
 	play: (e?: SyntheticEvent | PointerEvent) => void;
+	playAsAutoPlay: () => void;
 	pause: () => void;
 	pauseAndReturnToPlayStart: () => void;
 	seek: (newFrame: number) => void;
@@ -36,6 +37,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const emitter = useContext(PlayerEventEmitterContext);
 	const playStart = useRef(0);
 	const fallbackFrame = useRef<number | null>(null);
+	const nextPlayIsAutoPlayAttempt = useRef(false);
 
 	if (!emitter) {
 		throw new TypeError('Expected Player event emitter context');
@@ -96,6 +98,8 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 
 	const play = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
+			const isAutoPlayAttempt = nextPlayIsAutoPlayAttempt.current;
+			nextPlayIsAutoPlayAttempt.current = false;
 			if (readIsPlaying()) {
 				return;
 			}
@@ -105,7 +109,11 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				seek(0);
 			}
 
-			audioContext?.resume();
+			if (isAutoPlayAttempt) {
+				audioContext?.resumeAsAutoPlay();
+			} else {
+				audioContext?.resume();
+			}
 
 			/**
 			 * Play silent audio tags to warm them up for autoplay
@@ -138,6 +146,10 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			setPlaying,
 		],
 	);
+	const playAsAutoPlay = useCallback(() => {
+		nextPlayIsAutoPlayAttempt.current = true;
+		play();
+	}, [play]);
 
 	const pause = useCallback(() => {
 		if (readIsPlaying()) {
@@ -253,6 +265,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			frameForward,
 			emitter,
 			play,
+			playAsAutoPlay,
 			pause,
 			seek,
 			getCurrentFrame,
@@ -270,6 +283,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 		pause,
 		pauseAndReturnToPlayStart,
 		play,
+		playAsAutoPlay,
 		isBuffering,
 		seek,
 		toggle,

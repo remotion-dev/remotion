@@ -76,12 +76,7 @@ export const MyComposition = () => {
 
 export const Root = () => <Composition id = "MyComp" component={MyComposition}/>;
 `;
-	let formatCalls = 0;
 	const result = await insertJsxElementIntoProjectWithNodePathRemappings({
-		formatFile: () => {
-			formatCalls++;
-			throw new Error('Prettier should not be called when inserting a Solid');
-		},
 		project: {
 			files: {'/project/src/index.tsx': source},
 			rootDir: '/project',
@@ -105,7 +100,6 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 		wrapInSequence: null,
 	});
 
-	expect(formatCalls).toBe(0);
 	expect(result.project.files['/project/src/index.tsx'])
 		.toBe(`import {Composition, AbsoluteFill, Solid} from 'remotion';
 
@@ -137,12 +131,7 @@ test('asset and component insertions also avoid the full-file formatter', async 
 export const MyComposition = () => <><AbsoluteFill /></>;
 export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
 `;
-	let formatCalls = 0;
 	const assetResult = await insertJsxElementIntoProjectWithNodePathRemappings({
-		formatFile: () => {
-			formatCalls++;
-			throw new Error('The full-file formatter should not be called');
-		},
 		project: {
 			files: {'/project/src/index.tsx': source},
 			rootDir: '/project',
@@ -168,10 +157,6 @@ export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
 	});
 	const componentResult =
 		await insertJsxElementIntoProjectWithNodePathRemappings({
-			formatFile: () => {
-				formatCalls++;
-				throw new Error('The full-file formatter should not be called');
-			},
 			project: {
 				files: {'/project/src/index.tsx': source},
 				rootDir: '/project',
@@ -195,7 +180,6 @@ export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
 			wrapInSequence: null,
 		});
 
-	expect(formatCalls).toBe(0);
 	expect(assetResult.project.files['/project/src/index.tsx']).toContain(
 		'<CanvasImage\n',
 	);

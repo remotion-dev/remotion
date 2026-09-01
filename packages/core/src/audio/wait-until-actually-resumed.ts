@@ -8,6 +8,7 @@ export const waitUntilActuallyResumed = (
 	audioContext: AudioContext,
 	logLevel: LogLevel,
 	signal: AbortSignal,
+	isAutoPlayAttempt: boolean,
 ): Promise<AudioContextResumeResult> => {
 	return new Promise((resolve) => {
 		const startCurrentTime = audioContext.currentTime;
@@ -86,23 +87,26 @@ export const waitUntilActuallyResumed = (
 		}
 
 		signal.addEventListener('abort', onAbort, {once: true});
-		timeout = setTimeout(() => {
-			// The success check is scheduled with requestAnimationFrame, which can
-			// be starved while the main thread is busy. Re-check once before
-			// declaring failure so a resume that actually completed is not
-			// reported as failed - the Player would otherwise mute itself even
-			// though playback was started by a user gesture and audio is running.
-			if (hasAudiblyStarted(startOutputPerformanceTime)) {
-				finish('resumed');
-				return;
-			}
+		if (isAutoPlayAttempt) {
+			timeout = setTimeout(() => {
+				// The success check is scheduled with requestAnimationFrame, which can
+				// be starved while the main thread is busy. Re-check once before
+				// declaring failure so a resume that actually completed is not
+				// reported as failed - the Player would otherwise mute itself even
+				// though playback was started by a user gesture and audio is running.
+				if (hasAudiblyStarted(startOutputPerformanceTime)) {
+					finish('resumed');
+					return;
+				}
 
-			Log.warn(
-				{logLevel, tag: 'audio'},
-				'WARNING: You enabled autoPlay on an unmuted <Player /> and the browser did not allow the video to be started. Remotion muted the <Player /> so it can play. To properly handle this, either set the `muted` prop or remove the `autoPlay` prop',
-			);
-			finish('failed');
-		}, RESUME_WAIT_TIMEOUT);
+				Log.warn(
+					{logLevel, tag: 'audio'},
+					'WARNING: You enabled autoPlay on an unmuted <Player /> and the browser did not allow the video to be started. Remotion muted the <Player /> so it can play. To properly handle this, either set the `muted` prop or remove the `autoPlay` prop',
+				);
+				finish('failed');
+			}, RESUME_WAIT_TIMEOUT);
+		}
+
 		animationFrame = requestAnimationFrame(check);
 	});
 };

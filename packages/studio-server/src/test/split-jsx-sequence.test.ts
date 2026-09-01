@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {splitJsxSequence as splitJsxSequenceCodemod} from '@remotion/studio-codemods';
 import {splitJsxSequence} from '../codemods/split-jsx-sequence';
 import {
 	createFileWatcherRegistry,
@@ -111,6 +112,69 @@ test('splitJsxSequence splits finite duration and trimBefore', async () => {
 	expect(output).toContain(
 		'<Sequence from={30} durationInFrames={30} trimBefore={25} />',
 	);
+});
+
+test('splitJsxSequence preserves surrounding formatting without calling Prettier', async () => {
+	const input = `const deliberatelyUnformatted = {value : true}
+
+export const Comp = () => {
+  return (
+    <>
+      <Sequence
+        name="clip"
+        from={0}
+        durationInFrames={50}
+      >
+        <div>Child</div>
+      </Sequence>
+      <Keep prop = {1}/>
+    </>
+  )
+}
+`;
+	const {output} = await splitJsxSequenceCodemod({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Sequence'),
+		sequenceKeys: sequenceTimingKeys,
+		splitFrame: 30,
+	});
+
+	expect(output).toStartWith(
+		'const deliberatelyUnformatted = {value : true}\n',
+	);
+	expect(output).toContain(
+		'<Sequence name="clip" from={0} durationInFrames={30}>\n',
+	);
+	expect(output).toContain(
+		'<Sequence name="clip" from={30} durationInFrames={20} trimBefore={30}>\n',
+	);
+	expect(output).toContain('      <Keep prop = {1}/>');
+	expect(output).toEndWith('  )\n}\n');
+});
+
+test('splitJsxSequence formats a split component root as a fragment', async () => {
+	const input = `export const Comp = () => <Sequence from={0} durationInFrames={50}><span>Hi</span></Sequence>;
+
+const keep = { value : true }
+`;
+	const {output} = await splitJsxSequenceCodemod({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Sequence'),
+		sequenceKeys: sequenceTimingKeys,
+		splitFrame: 30,
+	});
+
+	expect(output).toBe(`export const Comp = () => <>
+  <Sequence from={0} durationInFrames={30}>
+    <span>Hi</span>
+  </Sequence>
+  <Sequence from={30} durationInFrames={20} trimBefore={30}>
+    <span>Hi</span>
+  </Sequence>
+</>;
+
+const keep = { value : true }
+`);
 });
 
 test('splitJsxSequence splits a video with a negative from', async () => {

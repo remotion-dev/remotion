@@ -226,6 +226,7 @@ const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
 	color: true,
 	enum: true,
 	'font-family': true,
+	'font-weight': true,
 	hidden: false,
 	number: true,
 	'rotation-css': true,

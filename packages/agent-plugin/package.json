@@ -19,9 +19,10 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"devDependencies": {
+		"@microsoft/vally": "0.12.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",

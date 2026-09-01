@@ -273,7 +273,7 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await secondQuickSwitcherInput.press('Escape');
 
 			await studio.locator('[data-compname="MyComp"]').click();
-			await studio.getByRole('button', {name: 'Render on web'}).click();
+			await studio.getByRole('button', {name: 'Render in browser'}).click();
 			await expect(
 				studio.getByText('Input Props', {exact: true}),
 			).toBeVisible();
@@ -343,9 +343,9 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 				'MyComp / template-blank - Remotion Studio',
 				{timeout: 5000},
 			);
-			await studio.getByRole('button', {name: 'Render on web'}).click();
+			await studio.getByRole('button', {name: 'Render in browser'}).click();
 			await expect(
-				studio.getByText('Render MyComp', {exact: true}),
+				studio.getByText('Render MyComp in the browser', {exact: true}),
 			).toBeVisible();
 			await studio.locator('body').press('Escape');
 			await expect

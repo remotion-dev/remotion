@@ -358,19 +358,12 @@ test('textSchema exposes common text style fields', () => {
 		step: 0.05,
 		hiddenFromList: false,
 	});
-	expect(Object.keys(textSchema['style.fontWeight'].variants)).toEqual([
-		'100',
-		'200',
-		'300',
-		'400',
-		'500',
-		'600',
-		'700',
-		'800',
-		'900',
-		'normal',
-		'bold',
-	]);
+	expect(textSchema['style.fontWeight']).toEqual({
+		type: 'font-weight',
+		default: 400,
+		description: 'Font weight',
+		keyframable: false,
+	});
 	expect(Object.keys(textSchema['style.fontStyle'].variants)).toEqual([
 		'normal',
 		'italic',
