@@ -216,6 +216,18 @@ export const useMediaPlayback = ({
 				});
 			};
 
+			const playMedia = (reason: string) => {
+				playAndHandleNotAllowedError({
+					mediaRef,
+					mediaType,
+					onAutoPlayError,
+					logLevel,
+					mountTime,
+					reason,
+					isPlayer: env.isPlayer,
+				});
+			};
+
 			if (action.type === 'none') {
 				return;
 			}
@@ -229,15 +241,7 @@ export const useMediaPlayback = ({
 				}
 
 				if (action.playReason !== null) {
-					playAndHandleNotAllowedError({
-						mediaRef,
-						mediaType,
-						onAutoPlayError,
-						logLevel,
-						mountTime,
-						reason: action.playReason,
-						isPlayer: env.isPlayer,
-					});
+					playMedia(action.playReason);
 				}
 
 				if (action.warnAboutNonSeekable) {
@@ -259,15 +263,7 @@ export const useMediaPlayback = ({
 				seekTo(action.shouldBeTime, action.why);
 			}
 
-			playAndHandleNotAllowedError({
-				mediaRef,
-				mediaType,
-				onAutoPlayError,
-				logLevel,
-				mountTime,
-				reason: action.playReason,
-				isPlayer: env.isPlayer,
-			});
+			playMedia(action.playReason);
 			if (action.bufferUntilFirstFrame) {
 				bufferUntilFirstFrame(action.shouldBeTime);
 			}
