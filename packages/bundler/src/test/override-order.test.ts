@@ -59,6 +59,17 @@ test('applies the shared override before the Rspack override', async () => {
 	expect(config.name).toBe('shared-rspack-rspack');
 });
 
+test('enables incremental chunk graphs for Rspack development builds', async () => {
+	const [, config] = await rspackConfig({
+		...baseOptions,
+		environment: 'development',
+		bundlerOverride: (configuration) => configuration,
+		rspackOverride: (configuration) => configuration,
+	});
+
+	expect(config.experiments?.incremental).toEqual({buildChunkGraph: true});
+});
+
 test('includes React Scan only in an explicitly enabled development bundle', async () => {
 	const previousEndpoint = process.env.REMOTION_REACT_SCAN_ENDPOINT;
 	const previousEntryPoint = process.env.REMOTION_REACT_SCAN_ENTRY_POINT;
