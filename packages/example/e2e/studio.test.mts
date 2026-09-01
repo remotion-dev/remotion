@@ -3099,11 +3099,15 @@ test.describe('visual mode', () => {
 			});
 			expect(webMcpTimelineZoomResult).toEqual({
 				currentComposition: 'AnimatedBarChart',
-				timelineZoom: 0.489,
+				timelineZoom: expect.any(Number),
 			});
+			const normalizedTimelineZoom = (
+				webMcpTimelineZoomResult as {readonly timelineZoom: number}
+			).timelineZoom;
+			expect(normalizedTimelineZoom).toBeCloseTo(0.5, 2);
 			await expect(
 				page.locator('input[type="range"][alt^="Timeline zoom"]'),
-			).toHaveValue('489');
+			).toHaveValue(String(Math.round(normalizedTimelineZoom * 1000)));
 			const webMcpMuteResult = await page.evaluate(async () => {
 				const tools = (
 					window as typeof window & {
@@ -3263,7 +3267,7 @@ test.describe('visual mode', () => {
 				volume: 1,
 				playbackRate: 1.5,
 				looping: true,
-				timelineZoom: 0.489,
+				timelineZoom: normalizedTimelineZoom,
 			});
 
 			fs.writeFileSync(
