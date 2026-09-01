@@ -121,9 +121,8 @@ typed as `number`, not `number | null`.
 
 The context value is memoized on `[logLevel]`. Changing the level creates a new
 `mountTime`, so playback elapsed-time prefixes restart when the configured log
-level changes. Long-lived media callbacks copy the latest context values into a
-ref. This lets the callback use the current logging configuration without
-making logging configuration part of its dependency list. Context-preserving
+level changes. Hooks pass the context values into lower-level media helpers and
+include them in callbacks and effect dependency lists. Context-preserving
 wrappers in `wrap-remotion-context.tsx` copy the complete logging context.
 
 Render setup writes the externally selected level to

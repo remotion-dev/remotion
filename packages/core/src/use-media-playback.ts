@@ -86,8 +86,6 @@ export const useMediaPlayback = ({
 	const lastSeek = useRef<number | null>(null);
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
-	const loggingRef = useRef({logLevel, mountTime});
-	loggingRef.current = {logLevel, mountTime};
 
 	const isVariableFpsVideoMap = useRef<Record<string, boolean>>({});
 
@@ -101,12 +99,12 @@ export const useMediaPlayback = ({
 		}
 
 		Log.verbose(
-			{logLevel: loggingRef.current.logLevel, tag: null},
+			{logLevel, tag: null},
 			`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
 		);
 
 		isVariableFpsVideoMap.current[src] = true;
-	}, [src]);
+	}, [logLevel, src]);
 
 	const rvcCurrentTime = useRequestVideoCallbackTime({
 		mediaRef,
@@ -130,6 +128,8 @@ export const useMediaPlayback = ({
 		shouldBuffer: pauseWhenBuffering,
 		isPremounting,
 		isPostmounting,
+		logLevel,
+		mountTime,
 		src: src ?? null,
 	});
 
@@ -138,6 +138,8 @@ export const useMediaPlayback = ({
 		mediaType,
 		onVariableFpsVideoDetected,
 		pauseWhenBuffering,
+		logLevel,
+		mountTime,
 	});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
@@ -197,14 +199,14 @@ export const useMediaPlayback = ({
 
 		if (!current.paused && pauseReason !== null) {
 			playbackLogging({
-				logLevel: loggingRef.current.logLevel,
+				logLevel,
 				tag: 'pause',
 				message: `Pausing ${current.src} because ${getPauseReason({
 					reason: pauseReason,
 					isPremounting,
 					isPostmounting,
 				})}`,
-				mountTime: loggingRef.current.mountTime,
+				mountTime,
 			});
 			current.pause();
 		}
@@ -241,9 +243,9 @@ export const useMediaPlayback = ({
 			lastSeek.current = seek({
 				mediaRef: current,
 				time: action.shouldBeTime,
-				logLevel: loggingRef.current.logLevel,
+				logLevel,
 				why: action.why,
-				mountTime: loggingRef.current.mountTime,
+				mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
 
@@ -256,8 +258,8 @@ export const useMediaPlayback = ({
 					mediaRef,
 					mediaType,
 					onAutoPlayError,
-					logLevel: loggingRef.current.logLevel,
-					mountTime: loggingRef.current.mountTime,
+					logLevel,
+					mountTime,
 					reason: action.playReason,
 					isPlayer: env.isPlayer,
 				});
@@ -275,9 +277,9 @@ export const useMediaPlayback = ({
 				lastSeek.current = seek({
 					mediaRef: current,
 					time: action.shouldBeTime,
-					logLevel: loggingRef.current.logLevel,
+					logLevel,
 					why: action.why,
-					mountTime: loggingRef.current.mountTime,
+					mountTime,
 				});
 			}
 
@@ -289,9 +291,9 @@ export const useMediaPlayback = ({
 			lastSeek.current = seek({
 				mediaRef: current,
 				time: action.shouldBeTime,
-				logLevel: loggingRef.current.logLevel,
+				logLevel,
 				why: action.why,
-				mountTime: loggingRef.current.mountTime,
+				mountTime,
 			});
 		}
 
@@ -299,8 +301,8 @@ export const useMediaPlayback = ({
 			mediaRef,
 			mediaType,
 			onAutoPlayError,
-			logLevel: loggingRef.current.logLevel,
-			mountTime: loggingRef.current.mountTime,
+			logLevel,
+			mountTime,
 			reason: action.playReason,
 			isPlayer: env.isPlayer,
 		});
@@ -312,6 +314,7 @@ export const useMediaPlayback = ({
 		acceptableTimeShiftButLessThanDuration,
 		bufferUntilFirstFrame,
 		rvcCurrentTime,
+		logLevel,
 		desiredUnclampedTime,
 		isBuffering,
 		isMediaTagBuffering,
@@ -326,6 +329,7 @@ export const useMediaPlayback = ({
 		isPremounting,
 		isPostmounting,
 		pauseWhenBuffering,
+		mountTime,
 		mediaTagCurrentTime,
 		env.isPlayer,
 	]);
