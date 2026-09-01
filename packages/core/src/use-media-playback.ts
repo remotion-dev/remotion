@@ -159,6 +159,15 @@ export const useMediaPlayback = ({
 		});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
+	const acceptableTimeShift =
+		acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION;
+	const acceptableTimeShiftButLessThanDuration = (() => {
+		if (mediaRef.current?.duration) {
+			return Math.min(mediaRef.current.duration, acceptableTimeShift);
+		}
+
+		return acceptableTimeShift;
+	})();
 
 	const env = useRemotionEnvironment();
 
@@ -292,11 +301,6 @@ export const useMediaPlayback = ({
 		}
 
 		const {current} = mediaRef;
-		const acceptableTimeShift =
-			acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION;
-		const acceptableTimeShiftButLessThanDuration = current.duration
-			? Math.min(current.duration, acceptableTimeShift)
-			: acceptableTimeShift;
 		const isMediaTagBufferingOrStalled =
 			isMediaTagBuffering || isBufferingUntilFirstFrame();
 		const pauseReason = getPauseReason({
@@ -334,7 +338,7 @@ export const useMediaPlayback = ({
 		executeMediaSyncAction(current, action);
 	}, [
 		absoluteFrame,
-		acceptableTimeshift,
+		acceptableTimeShiftButLessThanDuration,
 		rvcCurrentTime,
 		desiredUnclampedTime,
 		executeMediaSyncAction,
