@@ -1234,6 +1234,27 @@ test.describe('visual mode', () => {
 		);
 		await page.waitForTimeout(250);
 		expect(fs.readFileSync(rootFile, 'utf8')).toBe(beforeNoOpDrags);
+		const schemaFolder = page.getByTitle('Schema', {exact: true});
+		const schemaComposition = page.getByTitle('schema-test', {exact: true});
+		if ((await schemaFolder.getAttribute('aria-expanded')) === 'true') {
+			await schemaFolder.click();
+		}
+
+		await expect(schemaFolder).toHaveAttribute('aria-expanded', 'false');
+		await expect(schemaComposition).not.toBeVisible();
+		expect(
+			await dragCompositionSelectorItem({
+				page,
+				sourceTitle: 'AnimatedBarChart',
+				targetTitle: 'Schema',
+				position: 'inside',
+				drop: false,
+			}),
+		).toBe(true);
+		await page.waitForTimeout(500);
+		await expect(schemaFolder).toHaveAttribute('aria-expanded', 'false');
+		await expect(schemaComposition).toBeVisible({timeout: 500});
+		await expect(schemaFolder).toHaveAttribute('aria-expanded', 'true');
 
 		expect(
 			await dragCompositionSelectorItem({

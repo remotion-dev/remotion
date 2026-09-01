@@ -8,6 +8,7 @@ import type {
 import React, {
 	useCallback,
 	useContext,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -108,6 +109,8 @@ const reorderLineBase: React.CSSProperties = {
 	right: 0,
 	zIndex: 1,
 };
+
+const folderAutoExpansionDelay = 700;
 
 type DropPosition = 'before' | 'inside' | 'after';
 
@@ -245,6 +248,27 @@ export const CompositionSelectorItem: React.FC<{
 	}, [item, currentComposition]);
 	const [isDragging, setIsDragging] = useState(false);
 	const [dropPosition, setDropPosition] = useState<DropPosition | null>(null);
+	const folderExpansionTimer = useRef<number | null>(null);
+	const folderExpansionRequested = useRef(false);
+
+	const cancelFolderExpansion = useCallback(() => {
+		if (folderExpansionTimer.current !== null) {
+			window.clearTimeout(folderExpansionTimer.current);
+			folderExpansionTimer.current = null;
+		}
+	}, []);
+
+	useEffect(() => {
+		return cancelFolderExpansion;
+	}, [cancelFolderExpansion]);
+
+	const folderIsExpanded = item.type === 'folder' && item.expanded;
+	useEffect(() => {
+		if (folderIsExpanded) {
+			folderExpansionRequested.current = false;
+			cancelFolderExpansion();
+		}
+	}, [cancelFolderExpansion, folderIsExpanded]);
 
 	const compositionRowRef = useRef<HTMLAnchorElement>(null);
 	const compositionId =
@@ -399,9 +423,10 @@ export const CompositionSelectorItem: React.FC<{
 	);
 	const onItemDragEnd = useCallback(() => {
 		activeDragRef.current = null;
+		cancelFolderExpansion();
 		setIsDragging(false);
 		setDropPosition(null);
-	}, [activeDragRef]);
+	}, [activeDragRef, cancelFolderExpansion]);
 
 	const getDropPosition = useCallback(
 		(event: DragEvent<HTMLElement>): DropPosition | null => {
@@ -482,6 +507,45 @@ export const CompositionSelectorItem: React.FC<{
 		],
 	);
 
+	const scheduleFolderExpansion = useCallback(() => {
+		if (
+			item.type !== 'folder' ||
+			item.expanded ||
+			folderExpansionTimer.current !== null ||
+			folderExpansionRequested.current
+		) {
+			return;
+		}
+
+		const activeDrag = activeDragRef.current;
+		if (
+			activeDrag === null ||
+			!canMoveIntoFolder({
+				activeDrag,
+				destinationFolderPath: getFolderPath(item),
+			})
+		) {
+			return;
+		}
+
+		folderExpansionTimer.current = window.setTimeout(() => {
+			folderExpansionTimer.current = null;
+			const currentActiveDrag = activeDragRef.current;
+			if (
+				currentActiveDrag === null ||
+				!canMoveIntoFolder({
+					activeDrag: currentActiveDrag,
+					destinationFolderPath: getFolderPath(item),
+				})
+			) {
+				return;
+			}
+
+			folderExpansionRequested.current = true;
+			toggleFolder(item.folderName, item.parentName);
+		}, folderAutoExpansionDelay);
+	}, [activeDragRef, item, toggleFolder]);
+
 	const onRowDragOver = useCallback(
 		(event: DragEvent<HTMLElement>) => {
 			if (
@@ -493,8 +557,16 @@ export const CompositionSelectorItem: React.FC<{
 
 			const position = getDropPosition(event);
 			if (position === null) {
+				cancelFolderExpansion();
+				setDropPosition(null);
 				event.stopPropagation();
 				return;
+			}
+
+			if (position === 'inside') {
+				scheduleFolderExpansion();
+			} else {
+				cancelFolderExpansion();
 			}
 
 			event.preventDefault();
@@ -503,12 +575,18 @@ export const CompositionSelectorItem: React.FC<{
 			clearRootDragHover();
 			setDropPosition(position);
 		},
-		[clearRootDragHover, getDropPosition],
+		[
+			cancelFolderExpansion,
+			clearRootDragHover,
+			getDropPosition,
+			scheduleFolderExpansion,
+		],
 	);
 
 	const onRowDragLeave = useCallback(() => {
+		cancelFolderExpansion();
 		setDropPosition(null);
-	}, []);
+	}, [cancelFolderExpansion]);
 
 	const moveItem = useCallback(
 		async ({
@@ -565,6 +643,7 @@ export const CompositionSelectorItem: React.FC<{
 
 	const onRowDrop = useCallback(
 		async (event: DragEvent<HTMLElement>) => {
+			cancelFolderExpansion();
 			const dragData = parseCompositionSelectorDragData(event.dataTransfer);
 			const position = getDropPosition(event);
 			if (dragData === null) {
@@ -595,7 +674,13 @@ export const CompositionSelectorItem: React.FC<{
 							},
 			});
 		},
-		[clearRootDragHover, getDropPosition, item, moveItem],
+		[
+			cancelFolderExpansion,
+			clearRootDragHover,
+			getDropPosition,
+			item,
+			moveItem,
+		],
 	);
 
 	const onFolderChildListDragOver = useCallback(
@@ -690,6 +775,7 @@ export const CompositionSelectorItem: React.FC<{
 								onDrop={onRowDrop}
 								title={item.folderName}
 								role="button"
+								aria-expanded={item.expanded}
 							>
 								{item.expanded ? (
 									<ExpandedFolderIcon style={iconStyle} color={CURRENT_COLOR} />
