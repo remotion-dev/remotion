@@ -9,6 +9,7 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {LintConsoleReporter, runLint} from '@microsoft/vally';
 
 const packageRoot = path.resolve(import.meta.dir, '..');
 const generatedSkillsRoot = path.join(packageRoot, 'skills');
@@ -71,6 +72,23 @@ const getMarkdownFiles = (directory: string): string[] => {
 		return file.endsWith('.md') ? [file] : [];
 	});
 };
+
+const expectVallyLintToPass = async (
+	rootPath: string,
+	expectedSkillsRoot: string,
+) => {
+	const result = await runLint({rootPath});
+	await new LintConsoleReporter({verbose: true}).report(result);
+
+	expect(result.skillResults.map(({skill}) => skill.name).sort()).toEqual(
+		getDirectories(expectedSkillsRoot),
+	);
+	expect(result.passed).toBe(true);
+};
+
+test('generated Agent Plugin passes Vally lint', async () => {
+	await expectVallyLintToPass(packageRoot, generatedSkillsRoot);
+});
 
 test('only top-level skills use the discovery filename', () => {
 	const topLevelSkillNames = getDirectories(generatedSkillsRoot);
@@ -180,7 +198,7 @@ test('Codex troubleshooting does not open the system browser', () => {
 	expect(remotionSkill).not.toMatch(/^npx remotion studio$/m);
 });
 
-test('Cursor build omits Codex troubleshooting', () => {
+test('portable build passes Vally lint and omits Codex troubleshooting', async () => {
 	const cursorSkillsRoot = mkdtempSync(
 		path.join(tmpdir(), 'remotion-cursor-plugin-skills-'),
 	);
@@ -211,6 +229,7 @@ test('Cursor build omits Codex troubleshooting', () => {
 		);
 		expect(remotionSkill).not.toContain('## Codex troubleshooting');
 		expect(remotionSkill).not.toContain('## Agent client troubleshooting');
+		await expectVallyLintToPass(cursorSkillsRoot, cursorSkillsRoot);
 	} finally {
 		rmSync(cursorSkillsRoot, {recursive: true});
 	}
