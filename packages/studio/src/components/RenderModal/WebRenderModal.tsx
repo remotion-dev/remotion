@@ -632,7 +632,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	return (
 		<div style={outerModalStyle}>
-			<ModalHeader title={`Render ${resolvedComposition.id} in browser`} />
+			<ModalHeader title={`Render ${resolvedComposition.id} in the browser`} />
 			<div style={containerStyle}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
 				<div style={flexer} />

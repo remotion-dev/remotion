@@ -1404,7 +1404,7 @@ const RenderModal: React.FC<
 	return (
 		<div style={outerModalStyle}>
 			<ModalHeader
-				title={`Render ${resolvedComposition.id} ${readOnlyStudio ? 'via CLI' : 'on server'}`}
+				title={`Render ${resolvedComposition.id} ${readOnlyStudio ? 'via CLI' : 'on the server'}`}
 			/>
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
