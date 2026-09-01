@@ -264,7 +264,7 @@ const getRenderMenuItems = ({
 		{
 			id: 'render-on-web',
 			value: 'render-on-web',
-			label: 'Render on web...',
+			label: 'Render in browser...',
 			onClick: () => {
 				closeMenu();
 
@@ -278,7 +278,7 @@ const getRenderMenuItems = ({
 			keyHint: null,
 			leftItem: null,
 			subMenu: null,
-			quickSwitcherLabel: 'Render on web...',
+			quickSwitcherLabel: 'Render in browser...',
 		},
 		{
 			type: 'divider' as const,
