@@ -54,6 +54,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
 	readonly playbackRate: number;
+	readonly toneFrequency: number;
 	readonly logLevel: LogLevel;
 	readonly className: string | undefined;
 	readonly muted: boolean;
@@ -88,6 +89,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	src: unpreloadedSrc,
 	style,
 	playbackRate,
+	toneFrequency,
 	logLevel,
 	className,
 	muted,
@@ -197,6 +199,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
+	const initialToneFrequency = useRef(toneFrequency);
 	const initialMuted = useRef(effectiveMuted);
 	const initialVolume = useRef(userPreferredVolume);
 	const initialSequenceDuration = useRef(videoConfig.durationInFrames);
@@ -275,6 +278,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				trimBefore: initialTrimBeforeRef.current,
 				fps: videoConfig.fps,
 				playbackRate: initialPlaybackRate.current,
+				toneFrequency: initialToneFrequency.current,
 				audioStreamIndex,
 				debugOverlay,
 				bufferState: buffer,
@@ -467,6 +471,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		effectiveMuted,
 		userPreferredVolume,
 		playbackRate,
+		toneFrequency,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
@@ -531,6 +536,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				trimAfter={trimAfter}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				toneFrequency={toneFrequency}
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 				name={'<Html5Video> (fallback)'}
 				loop={loop}

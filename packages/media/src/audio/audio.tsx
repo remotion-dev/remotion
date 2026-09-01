@@ -10,6 +10,7 @@ import {
 	type InteractivitySchema,
 } from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
+import {validateToneFrequency} from '../validate-tone-frequency';
 import {AudioForPreview} from './audio-for-preview';
 import {AudioForRendering} from './audio-for-rendering';
 import type {AudioProps} from './props';
@@ -40,6 +41,16 @@ export const audioSchema: InteractivitySchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Playback rate',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	toneFrequency: {
+		type: 'number',
+		min: 0.01,
+		max: 2,
+		step: 0.01,
+		default: 1,
+		description: 'Pitch',
 		hiddenFromList: false,
 		keyframable: false,
 	},
@@ -158,6 +169,10 @@ const AudioInner: React.FC<
 		{playbackRate: props.playbackRate, volume: props.volume},
 		'Audio',
 	);
+	validateToneFrequency({
+		toneFrequency: props.toneFrequency,
+		component: 'Audio',
+	});
 
 	if (sequenceDurationInFrames === 0) {
 		return null;

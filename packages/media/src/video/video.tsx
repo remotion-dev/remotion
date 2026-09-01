@@ -10,6 +10,7 @@ import {
 	type InteractivitySchema,
 } from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
+import {validateToneFrequency} from '../validate-tone-frequency';
 import {getVideoSequenceDuration} from './get-video-sequence-duration';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
@@ -46,6 +47,16 @@ export const videoSchema: InteractivitySchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Playback rate',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	toneFrequency: {
+		type: 'number',
+		min: 0.01,
+		max: 2,
+		step: 0.01,
+		default: 1,
+		description: 'Pitch',
 		hiddenFromList: false,
 		keyframable: false,
 	},
@@ -123,6 +134,7 @@ const InnerVideo: React.FC<
 	});
 
 	validateMediaProps({playbackRate, volume}, 'Video');
+	validateToneFrequency({toneFrequency, component: 'Video'});
 
 	if (environment.isRendering) {
 		return (
@@ -173,6 +185,7 @@ const InnerVideo: React.FC<
 			muted={muted}
 			onVideoFrame={onVideoFrame}
 			playbackRate={playbackRate}
+			toneFrequency={toneFrequency ?? 1}
 			src={src}
 			style={style}
 			volume={volume}

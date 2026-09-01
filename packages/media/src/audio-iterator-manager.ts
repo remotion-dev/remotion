@@ -13,6 +13,7 @@ import {
 	type QueuedPeriod,
 } from './audio/audio-preview-iterator';
 import {getScheduledTime} from './audio/get-scheduled-time';
+import {pitchShiftAudioIterator} from './audio/pitch-shift';
 import {
 	processNext,
 	StaleWaiterError,
@@ -78,6 +79,7 @@ export const audioIteratorManager = ({
 	getStartTime,
 	initialMuted,
 	initialVolume,
+	toneFrequency,
 	drawDebugOverlay,
 }: {
 	audioTrack: InputAudioTrack;
@@ -89,10 +91,12 @@ export const audioIteratorManager = ({
 	getStartTime: () => number;
 	initialMuted: boolean;
 	initialVolume: number;
+	toneFrequency: number;
 	drawDebugOverlay: () => void;
 }) => {
 	let muted = initialMuted;
 	let currentVolume = Math.max(0, initialVolume);
+	let currentToneFrequency = toneFrequency;
 	let currentSeek: {
 		time: number;
 		playbackRate: number;
@@ -431,7 +435,7 @@ export const audioIteratorManager = ({
 
 		const maximumContinuousTimestamp =
 			startFromSecond + getSequenceDurationInSeconds() * playbackRate;
-		const source = loop
+		const unshiftedSource = loop
 			? makeLoopingIterator({
 					audioSink,
 					seekTimeInSeconds: startFromSecond,
@@ -444,6 +448,10 @@ export const audioIteratorManager = ({
 					timeToSeek: startFromSecond,
 					maximumTimestamp,
 				});
+		const source = pitchShiftAudioIterator({
+			iterator: unshiftedSource,
+			toneFrequency: currentToneFrequency,
+		});
 		const iterator = makeAudioIterator({
 			startFromSecond,
 			iterator: source,
@@ -659,6 +667,9 @@ export const audioIteratorManager = ({
 		setVolume: (volume: number) => {
 			currentVolume = Math.max(0, volume);
 			gainNode.gain.value = muted ? 0 : currentVolume;
+		},
+		setToneFrequency: (newToneFrequency: number) => {
+			currentToneFrequency = newToneFrequency;
 		},
 		scheduleAudioChunk,
 		waitForNScheduledNodes,
