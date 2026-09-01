@@ -79,6 +79,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
+	const initialToneFrequencyRef = useRef(toneFrequency ?? 1);
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
@@ -158,6 +159,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		effectiveMuted,
 		userPreferredVolume,
 		playbackRate,
+		toneFrequency: toneFrequency ?? 1,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
@@ -203,6 +205,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				fps: videoConfig.fps,
 				canvas: null,
 				playbackRate: initialPlaybackRate.current,
+				toneFrequency: initialToneFrequencyRef.current,
 				audioStreamIndex: audioStreamIndex ?? null,
 				debugOverlay: false,
 				bufferState: buffer,

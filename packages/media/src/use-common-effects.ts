@@ -16,6 +16,7 @@ export const useCommonEffects = ({
 	effectiveMuted,
 	userPreferredVolume,
 	playbackRate,
+	toneFrequency,
 	globalPlaybackRate,
 	fps,
 	sequenceOffset,
@@ -38,6 +39,7 @@ export const useCommonEffects = ({
 	readonly effectiveMuted: boolean;
 	readonly userPreferredVolume: number;
 	readonly playbackRate: number;
+	readonly toneFrequency: number;
 	readonly globalPlaybackRate: number;
 	readonly fps: number;
 	readonly sequenceOffset: number;
@@ -127,6 +129,15 @@ export const useCommonEffects = ({
 
 		mediaPlayer.setPlaybackRate(playbackRate, currentTimeRef.current);
 	}, [playbackRate, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setToneFrequency(toneFrequency, currentTimeRef.current);
+	}, [toneFrequency, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

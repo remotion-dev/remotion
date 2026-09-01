@@ -77,6 +77,7 @@ const prepare = async (options?: {
 		getStartTime: () => startTime,
 		initialMuted: false,
 		initialVolume: 1,
+		toneFrequency: 1,
 		drawDebugOverlay: () => {},
 	});
 

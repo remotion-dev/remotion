@@ -430,12 +430,11 @@ Accepts a number between `0.01` and `2`, where `1` represents the original pitch
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
-The value must stay the same across the entire time the video tag is mounted.
+The value can be changed while previewing. It must stay constant across the composition timeline during rendering.
 
-:::warning
-Only works in server-side rendering.  
-Does not currently work in preview or in [client-side rendering](/docs/client-side-rendering/).
-:::
+Works during preview and server-side rendering. It is not supported during [client-side rendering](/docs/client-side-rendering/).
+
+If the component [falls back to `<OffthreadVideo>`](/docs/media/fallback) during preview, pitch shifting is not applied.
 
 ### `headless?`<AvailableFrom v="4.0.387" />
 
