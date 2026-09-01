@@ -148,7 +148,7 @@ export const useMediaPlayback = ({
 		src: src ?? null,
 	});
 
-	const {bufferUntilFirstFrame, isBuffering: isBufferingUntilFirstFrame} =
+	const {bufferUntilFirstFrame, isBufferingUntilFirstFrame} =
 		useBufferUntilFirstFrame({
 			mediaRef,
 			mediaType,
