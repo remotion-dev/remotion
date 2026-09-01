@@ -4,49 +4,81 @@ import {
 	getTimelineMaxZoom,
 	normalizedToTimelineZoom,
 	sliderValueToTimelineZoom,
-	TIMELINE_FRAMES_VISIBLE_AT_MAX_ZOOM,
-	TIMELINE_MAX_ZOOM_FLOOR,
+	TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
 	TIMELINE_MIN_ZOOM,
 	TIMELINE_ZOOM_SLIDER_PROPS,
 	timelineZoomToNormalized,
 	timelineZoomToSliderValue,
 } from '../helpers/get-timeline-max-zoom';
+import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 
-test('keeps the previous max zoom for short compositions', () => {
-	expect(getTimelineMaxZoom(1)).toBe(TIMELINE_MAX_ZOOM_FLOOR);
-	expect(getTimelineMaxZoom(30)).toBe(TIMELINE_MAX_ZOOM_FLOOR);
-	expect(getTimelineMaxZoom(150)).toBe(TIMELINE_MAX_ZOOM_FLOOR);
+test('max zoom gives every frame a fixed width', () => {
+	const durationInFrames = 60 * 60 * 30;
+	const timelineViewportWidth = 1200;
+	const maxZoom = getTimelineMaxZoom({
+		durationInFrames,
+		timelineViewportWidth,
+	});
+	const usableTimelineWidth =
+		maxZoom * timelineViewportWidth - TIMELINE_PADDING * 2;
+
+	expect(usableTimelineWidth / durationInFrames).toBe(
+		TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+	);
 });
 
-test('raises max zoom so longer compositions can still show individual frames', () => {
-	expect(getTimelineMaxZoom(151)).toBe(5.1);
-	expect(getTimelineMaxZoom(300)).toBe(10);
-	expect(getTimelineMaxZoom(60 * 60 * 30)).toBe(3600);
-	expect(getTimelineMaxZoom(2 * 60 * 60 * 30)).toBe(7200);
-});
-
-test('max zoom shows a fixed number of frames in the viewport', () => {
-	const oneHourInFrames = 60 * 60 * 30;
-	const maxZoom = getTimelineMaxZoom(oneHourInFrames);
-
-	expect(oneHourInFrames / maxZoom).toBe(TIMELINE_FRAMES_VISIBLE_AT_MAX_ZOOM);
+test('short compositions stay fitted to the viewport', () => {
+	expect(
+		getTimelineMaxZoom({durationInFrames: 10, timelineViewportWidth: 1200}),
+	).toBe(TIMELINE_MIN_ZOOM);
 });
 
 test('clamps and rounds timeline zoom', () => {
-	expect(clampTimelineZoom({zoom: 0.2, durationInFrames: 150})).toBe(
-		TIMELINE_MIN_ZOOM,
-	);
-	expect(clampTimelineZoom({zoom: 3.16, durationInFrames: 150})).toBe(3.2);
-	expect(clampTimelineZoom({zoom: 9999, durationInFrames: 150})).toBe(
-		TIMELINE_MAX_ZOOM_FLOOR,
-	);
-	expect(clampTimelineZoom({zoom: 9999, durationInFrames: 60 * 60 * 30})).toBe(
-		3600,
+	const timelineViewportWidth = 1200;
+	expect(
+		clampTimelineZoom({
+			zoom: 0.2,
+			durationInFrames: 150,
+			timelineViewportWidth,
+		}),
+	).toBe(TIMELINE_MIN_ZOOM);
+	expect(
+		clampTimelineZoom({
+			zoom: 3.16,
+			durationInFrames: 300,
+			timelineViewportWidth,
+		}),
+	).toBe(3.2);
+	const maxZoom = getTimelineMaxZoom({
+		durationInFrames: 150,
+		timelineViewportWidth,
+	});
+	expect(
+		clampTimelineZoom({
+			zoom: 9999,
+			durationInFrames: 150,
+			timelineViewportWidth,
+		}),
+	).toBe(maxZoom);
+	expect(
+		clampTimelineZoom({
+			zoom: 9999,
+			durationInFrames: 60 * 60 * 30,
+			timelineViewportWidth,
+		}),
+	).toBe(
+		getTimelineMaxZoom({
+			durationInFrames: 60 * 60 * 30,
+			timelineViewportWidth,
+		}),
 	);
 });
 
 test('timeline zoom slider maps min and max', () => {
-	const maxZoom = getTimelineMaxZoom(60 * 60 * 30);
+	const maxZoom = getTimelineMaxZoom({
+		durationInFrames: 60 * 60 * 30,
+		timelineViewportWidth: 1200,
+	});
 
 	expect(timelineZoomToSliderValue({zoom: TIMELINE_MIN_ZOOM, maxZoom})).toBe(0);
 	expect(timelineZoomToSliderValue({zoom: maxZoom, maxZoom})).toBe(
@@ -79,7 +111,10 @@ test('normalized timeline zoom maps min, midpoint and max', () => {
 });
 
 test('timeline zoom slider increases with zoom', () => {
-	const maxZoom = getTimelineMaxZoom(60 * 60 * 30);
+	const maxZoom = getTimelineMaxZoom({
+		durationInFrames: 60 * 60 * 30,
+		timelineViewportWidth: 1200,
+	});
 
 	expect(timelineZoomToSliderValue({zoom: 100, maxZoom})).toBeGreaterThan(
 		timelineZoomToSliderValue({zoom: 5, maxZoom}),

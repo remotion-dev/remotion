@@ -36,6 +36,7 @@ import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info
 import {getCurrentDuration, getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {shouldShowTrackInTimeline} from './Timeline/should-show-track-in-timeline';
+import {scrollableRef} from './Timeline/timeline-refs';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	useTimelineSelection,
@@ -733,7 +734,11 @@ export const WebMcp: FC = () => {
 							timelineZoom: timelineZoomToNormalized({
 								zoom:
 									timelineZoomRef.current[compositionId] ?? TIMELINE_MIN_ZOOM,
-								maxZoom: getTimelineMaxZoom(getCurrentDuration()),
+								maxZoom: getTimelineMaxZoom({
+									durationInFrames: getCurrentDuration(),
+									timelineViewportWidth:
+										scrollableRef.current?.clientWidth ?? 0,
+								}),
 							}),
 						});
 					},
@@ -1137,13 +1142,19 @@ export const WebMcp: FC = () => {
 							);
 						}
 
-						const maxZoom = getTimelineMaxZoom(durationInFrames);
+						const timelineViewportWidth =
+							scrollableRef.current?.clientWidth ?? 0;
+						const maxZoom = getTimelineMaxZoom({
+							durationInFrames,
+							timelineViewportWidth,
+						});
 						const timelineZoom = clampTimelineZoom({
 							zoom: normalizedToTimelineZoom({
 								normalized: zoom,
 								maxZoom,
 							}),
 							durationInFrames,
+							timelineViewportWidth,
 						});
 						setTimelineZoom(compositionId, () => timelineZoom, {
 							anchorFrame: null,

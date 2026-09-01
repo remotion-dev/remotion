@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import {createContext, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {getTimelineMaxZoom} from '../../helpers/get-timeline-max-zoom';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 
@@ -18,6 +19,7 @@ export const TimelineWidthProvider: React.FC<{
 	});
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {canvasContent} = useContext(Internals.CompositionManager);
+	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const width = useMemo(() => {
 		const zoom =
@@ -30,8 +32,13 @@ export const TimelineWidthProvider: React.FC<{
 			return sliderAreaRef.current?.clientWidth ?? null;
 		}
 
-		return scrollableWidth * zoom;
-	}, [canvasContent, size?.width, zoomMap]);
+		const maxZoom = getTimelineMaxZoom({
+			durationInFrames: videoConfig?.durationInFrames ?? 1,
+			timelineViewportWidth: scrollableWidth,
+		});
+
+		return scrollableWidth * Math.min(zoom, maxZoom);
+	}, [canvasContent, size?.width, videoConfig?.durationInFrames, zoomMap]);
 
 	return (
 		<TimelineWidthContext.Provider value={width}>

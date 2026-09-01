@@ -1,32 +1,50 @@
-export const TIMELINE_MIN_ZOOM = 1;
-export const TIMELINE_MAX_ZOOM_FLOOR = 5;
+import {TIMELINE_PADDING} from './timeline-layout';
 
-/**
- * How many frames fill the timeline viewport at max zoom.
- * 30 frames matches the previous 5x cap on a 150-frame composition
- * (5 seconds at 30fps) and keeps a single frame wide enough to trim.
- */
-export const TIMELINE_FRAMES_VISIBLE_AT_MAX_ZOOM = 30;
+export const TIMELINE_MIN_ZOOM = 1;
+export const TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM = 30;
 
 const TIMELINE_ZOOM_SLIDER_MAX = 1000;
 
-export const getTimelineMaxZoom = (durationInFrames: number): number => {
-	const frameLevelZoom = durationInFrames / TIMELINE_FRAMES_VISIBLE_AT_MAX_ZOOM;
-	return Math.max(TIMELINE_MAX_ZOOM_FLOOR, Math.ceil(frameLevelZoom * 10) / 10);
+export const getTimelineMaxZoom = ({
+	durationInFrames,
+	timelineViewportWidth,
+}: {
+	readonly durationInFrames: number;
+	readonly timelineViewportWidth: number;
+}): number => {
+	if (timelineViewportWidth <= 0) {
+		return TIMELINE_MIN_ZOOM;
+	}
+
+	const timelineWidthAtMaxZoom =
+		durationInFrames * TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM + TIMELINE_PADDING * 2;
+
+	return Math.max(
+		TIMELINE_MIN_ZOOM,
+		timelineWidthAtMaxZoom / timelineViewportWidth,
+	);
 };
 
 export const clampTimelineZoom = ({
 	zoom,
 	durationInFrames,
+	timelineViewportWidth,
 }: {
-	zoom: number;
-	durationInFrames: number;
+	readonly zoom: number;
+	readonly durationInFrames: number;
+	readonly timelineViewportWidth: number;
 }): number => {
-	const clamped = Math.min(
-		getTimelineMaxZoom(durationInFrames),
-		Math.max(TIMELINE_MIN_ZOOM, zoom),
-	);
-	return Math.round(clamped * 10) / 10;
+	const maxZoom = getTimelineMaxZoom({
+		durationInFrames,
+		timelineViewportWidth,
+	});
+	const clamped = Math.min(maxZoom, Math.max(TIMELINE_MIN_ZOOM, zoom));
+
+	if (clamped === maxZoom) {
+		return maxZoom;
+	}
+
+	return Math.min(maxZoom, Math.round(clamped * 10) / 10);
 };
 
 export const timelineZoomToNormalized = ({

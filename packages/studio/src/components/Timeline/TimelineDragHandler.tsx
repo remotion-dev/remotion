@@ -8,6 +8,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
+import {getTimelineMaxZoom} from '../../helpers/get-timeline-max-zoom';
 import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
@@ -63,6 +64,10 @@ const getClientXWithScroll = (x: number) => {
 
 export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
+	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
 
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {canvasContent, currentAssetMetadata} = useContext(
@@ -78,12 +83,17 @@ export const TimelineDragHandler: React.FC = () => {
 			canvasContent.type === 'composition'
 				? (zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM)
 				: TIMELINE_MIN_ZOOM;
+		const maxZoom = getTimelineMaxZoom({
+			durationInFrames: video?.durationInFrames ?? 1,
+			timelineViewportWidth:
+				timelineSize?.width ?? scrollableRef.current?.clientWidth ?? 0,
+		});
 		return {
 			...container,
-			width: 100 * zoom + '%',
+			width: 100 * Math.min(zoom, maxZoom) + '%',
 			height: TIMELINE_TIME_INDICATOR_HEIGHT,
 		};
-	}, [canvasContent, zoomMap]);
+	}, [canvasContent, timelineSize?.width, video?.durationInFrames, zoomMap]);
 
 	const hasPlayableContent =
 		canvasContent?.type === 'composition' ||

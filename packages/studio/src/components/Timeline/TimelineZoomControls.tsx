@@ -1,3 +1,4 @@
+import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {BLACK} from '../../helpers/colors';
@@ -14,6 +15,7 @@ import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ControlButton} from '../ControlButton';
 import {Spacing} from '../layout';
+import {scrollableRef} from './timeline-refs';
 
 const TIMELINE_ZOOM_BUTTON_FACTOR = 1.2;
 
@@ -92,7 +94,15 @@ const TimelineZoomControlsInner: React.FC<{
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom} = useContext(TimelineZoomCtx);
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const maxZoom = getTimelineMaxZoom(videoConfig?.durationInFrames ?? 1);
+	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
+	const maxZoom = getTimelineMaxZoom({
+		durationInFrames: videoConfig?.durationInFrames ?? 1,
+		timelineViewportWidth:
+			timelineSize?.width ?? scrollableRef.current?.clientWidth ?? 0,
+	});
 
 	const onMinusClicked = useCallback(() => {
 		if (canvasContent === null || canvasContent.type !== 'composition') {
