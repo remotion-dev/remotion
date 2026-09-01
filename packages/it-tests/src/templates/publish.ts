@@ -167,7 +167,11 @@ const publishBuiltAgentPlugin = async ({
 	}
 
 	await $`git commit -m ${commitMessage}`.cwd(workingDir);
-	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
+	const versionTag = `v${packageJson.version}`;
+	await $`git tag ${versionTag}`.cwd(workingDir);
+	await $`git push --atomic origin ${defaultBranch.trim()} ${versionTag}`.cwd(
+		workingDir,
+	);
 };
 
 const publishAgentPlugins = async () => {
