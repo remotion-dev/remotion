@@ -3099,11 +3099,46 @@ test.describe('visual mode', () => {
 			});
 			expect(webMcpTimelineZoomResult).toEqual({
 				currentComposition: 'AnimatedBarChart',
-				timelineZoom: 0.489,
+				timelineZoom: expect.any(Number),
+			});
+			const normalizedTimelineZoom = (
+				webMcpTimelineZoomResult as {readonly timelineZoom: number}
+			).timelineZoom;
+			expect(normalizedTimelineZoom).toBeCloseTo(0.5, 2);
+			await expect(
+				page.locator('input[type="range"][alt^="Timeline zoom"]'),
+			).toHaveValue(String(Math.round(normalizedTimelineZoom * 1000)));
+			const webMcpMaximumTimelineZoomResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_timeline_zoom');
+				if (!tool) {
+					throw new Error('set_timeline_zoom was not registered');
+				}
+
+				return tool.execute({zoom: 1});
+			});
+			expect(webMcpMaximumTimelineZoomResult).toEqual({
+				currentComposition: 'AnimatedBarChart',
+				timelineZoom: 1,
 			});
 			await expect(
 				page.locator('input[type="range"][alt^="Timeline zoom"]'),
-			).toHaveValue('489');
+			).toHaveValue('1000');
+			const maximumTimelineWidth = await page
+				.locator('[data-timeline-scrubber]')
+				.evaluate((element) => element.getBoundingClientRect().width);
+			expect((maximumTimelineWidth - 32) / 180).toBe(30);
 			const webMcpMuteResult = await page.evaluate(async () => {
 				const tools = (
 					window as typeof window & {
@@ -3263,7 +3298,7 @@ test.describe('visual mode', () => {
 				volume: 1,
 				playbackRate: 1.5,
 				looping: true,
-				timelineZoom: 0.489,
+				timelineZoom: 1,
 			});
 
 			fs.writeFileSync(

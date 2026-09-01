@@ -8,7 +8,7 @@ import React, {
 import {Internals, useVideoConfig} from 'remotion';
 import {TIMELINE_PLAYHEAD_COLOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {getCurrentDuration, getCurrentFrame} from './imperative-state';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
@@ -90,8 +90,8 @@ const TimelineSliderInner: React.FC = () => {
 
 	const zoomLevel =
 		canvasContent?.type === 'composition'
-			? (zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM)
-			: TIMELINE_MIN_ZOOM;
+			? (zoomMap[canvasContent.compositionId] ?? null)
+			: null;
 
 	useLayoutEffect(() => {
 		const el = ref.current;

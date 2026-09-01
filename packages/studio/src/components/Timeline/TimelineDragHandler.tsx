@@ -8,9 +8,13 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
+import {
+	getTimelineWidth,
+	getTimelineZoom,
+} from '../../helpers/get-timeline-max-zoom';
 import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {setCurrentFrame} from './imperative-state';
@@ -29,6 +33,7 @@ import {
 	getFrameWhileScrollingRight,
 	getScrollPositionForCursorOnLeftEdge,
 	getScrollPositionForCursorOnRightEdge,
+	getTimelineContentWidth,
 	scrollToTimelineXOffset,
 	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
@@ -63,6 +68,10 @@ const getClientXWithScroll = (x: number) => {
 
 export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
+	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
 
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {canvasContent, currentAssetMetadata} = useContext(
@@ -74,16 +83,22 @@ export const TimelineDragHandler: React.FC = () => {
 			return {};
 		}
 
-		const zoom =
-			canvasContent.type === 'composition'
-				? (zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM)
-				: TIMELINE_MIN_ZOOM;
+		const durationInFrames = video?.durationInFrames ?? 1;
+		const zoom = getTimelineZoom({
+			durationInFrames,
+			timelineViewportWidth:
+				timelineSize?.width ?? scrollableRef.current?.clientWidth ?? 0,
+			zoom:
+				canvasContent.type === 'composition'
+					? (zoomMap[canvasContent.compositionId] ?? null)
+					: null,
+		});
 		return {
 			...container,
-			width: 100 * zoom + '%',
+			width: getTimelineWidth({durationInFrames, zoom}),
 			height: TIMELINE_TIME_INDICATOR_HEIGHT,
 		};
-	}, [canvasContent, zoomMap]);
+	}, [canvasContent, timelineSize?.width, video?.durationInFrames, zoomMap]);
 
 	const hasPlayableContent =
 		canvasContent?.type === 'composition' ||
@@ -115,7 +130,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 	const {isHighestContext} = useZIndex();
 	const setFrame = Internals.useTimelineSetFrame();
 
-	const width = scrollableRef.current?.scrollWidth ?? 0;
+	const width = getTimelineContentWidth();
 	const left = size?.left ?? 0;
 
 	const [dragging, setDragging] = useState<

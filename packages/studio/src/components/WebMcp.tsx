@@ -12,9 +12,9 @@ import {
 } from '../helpers/format-file-location';
 import {
 	clampTimelineZoom,
-	getTimelineMaxZoom,
+	getTimelineMinZoom,
+	getTimelineZoom,
 	normalizedToTimelineZoom,
-	TIMELINE_MIN_ZOOM,
 	timelineZoomToNormalized,
 } from '../helpers/get-timeline-max-zoom';
 import type {TimelineTrackData} from '../helpers/get-timeline-sequence-sort-key';
@@ -36,6 +36,7 @@ import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info
 import {getCurrentDuration, getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {shouldShowTrackInTimeline} from './Timeline/should-show-track-in-timeline';
+import {scrollableRef} from './Timeline/timeline-refs';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	useTimelineSelection,
@@ -722,6 +723,19 @@ export const WebMcp: FC = () => {
 							});
 						}
 
+						const durationInFrames = getCurrentDuration();
+						const timelineViewportWidth =
+							scrollableRef.current?.clientWidth ?? 0;
+						const minZoom = getTimelineMinZoom({
+							durationInFrames,
+							timelineViewportWidth,
+						});
+						const timelineZoom = getTimelineZoom({
+							durationInFrames,
+							timelineViewportWidth,
+							zoom: timelineZoomRef.current[compositionId] ?? null,
+						});
+
 						return Promise.resolve({
 							currentComposition: compositionId,
 							currentFrame: getCurrentFrame(),
@@ -731,9 +745,8 @@ export const WebMcp: FC = () => {
 							playbackRate: playbackRateRef.current,
 							looping: loadLoopOption(),
 							timelineZoom: timelineZoomToNormalized({
-								zoom:
-									timelineZoomRef.current[compositionId] ?? TIMELINE_MIN_ZOOM,
-								maxZoom: getTimelineMaxZoom(getCurrentDuration()),
+								zoom: timelineZoom,
+								minZoom,
 							}),
 						});
 					},
@@ -1137,13 +1150,19 @@ export const WebMcp: FC = () => {
 							);
 						}
 
-						const maxZoom = getTimelineMaxZoom(durationInFrames);
+						const timelineViewportWidth =
+							scrollableRef.current?.clientWidth ?? 0;
+						const minZoom = getTimelineMinZoom({
+							durationInFrames,
+							timelineViewportWidth,
+						});
 						const timelineZoom = clampTimelineZoom({
 							zoom: normalizedToTimelineZoom({
 								normalized: zoom,
-								maxZoom,
+								minZoom,
 							}),
 							durationInFrames,
+							timelineViewportWidth,
 						});
 						setTimelineZoom(compositionId, () => timelineZoom, {
 							anchorFrame: null,
@@ -1154,7 +1173,7 @@ export const WebMcp: FC = () => {
 							currentComposition: compositionId,
 							timelineZoom: timelineZoomToNormalized({
 								zoom: timelineZoom,
-								maxZoom,
+								minZoom,
 							}),
 						});
 					},

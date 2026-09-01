@@ -5,7 +5,7 @@ import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {deriveCanvasContentFromUrl} from './load-canvas-content-from-url';
 
 const makeKey = () => {
-	return `remotion.zoom-map`;
+	return `remotion.zoom-map-pixels-per-frame`;
 };
 
 const persistCurrentZoom = (zoom: Record<string, number>) => {

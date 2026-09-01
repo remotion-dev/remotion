@@ -1,10 +1,15 @@
 import {expect, test} from 'bun:test';
-import {timelineVerticalScroll} from '../components/Timeline/timeline-refs';
+import {
+	scrollableRef,
+	sliderAreaRef,
+	timelineVerticalScroll,
+} from '../components/Timeline/timeline-refs';
 import {
 	getFrameFromX,
 	getFrameFromTimelineDrop,
 	getFrameIncrementFromWidth,
 	getScrollLeftToKeepCursorInPlace,
+	getTimelineContentWidth,
 	startTimelineEdgeAutoScroll,
 } from '../components/Timeline/timeline-scroll-logic';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
@@ -58,6 +63,16 @@ test('gets a timeline drop frame from viewport coordinates and scroll position',
 
 test('getFrameIncrementFromWidth never returns a negative increment', () => {
 	expect(getFrameIncrementFromWidth(100, 0)).toBe(0.01);
+});
+
+test('uses the timeline content width when it is narrower than the viewport', () => {
+	scrollableRef.current = {scrollWidth: 1200} as HTMLDivElement;
+	sliderAreaRef.current = {clientWidth: 332} as HTMLDivElement;
+
+	expect(getTimelineContentWidth()).toBe(332);
+
+	scrollableRef.current = null;
+	sliderAreaRef.current = null;
 });
 
 test('keeps the same timeline position under the cursor after zooming', () => {
