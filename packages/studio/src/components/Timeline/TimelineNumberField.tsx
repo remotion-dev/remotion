@@ -110,6 +110,9 @@ export const TimelineNumberField: React.FC<{
 						: Infinity
 			}
 			step={step}
+			dragSensitivity={
+				field.fieldSchema.type === 'font-weight' && step === 100 ? 0.1 : 1
+			}
 			formatter={formatter}
 			rightAlign={false}
 			allowStepMismatch={allowStepMismatch}
