@@ -79,8 +79,16 @@ export const rspackConfig = async ({
 		},
 	};
 
+	const sharedBaseConfig = getBaseConfig(environment, poll);
 	const baseConfig = {
-		...getBaseConfig(environment, poll),
+		...sharedBaseConfig,
+		experiments: {
+			...sharedBaseConfig.experiments,
+			...(environment === 'development'
+				// Makes the first HMR event faster. 
+				? {incremental: {buildChunkGraph: true}}
+				: {}),
+		},
 		// Remove once https://github.com/huggingface/transformers.js/issues/1759 is resolved.
 		ignoreWarnings: [
 			{
