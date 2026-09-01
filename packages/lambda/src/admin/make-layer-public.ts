@@ -82,7 +82,7 @@ const makeLayerPublic = async () => {
 	const skipRegions = parseSkipFlag();
 	const regions = onlyRegion
 		? [onlyRegion]
-		: getRegions().filter((r) => !skipRegions.includes(r));
+		: getRegions().filter((r) => r in layerInfo && !skipRegions.includes(r));
 	if (onlyRegion) {
 		console.log(`Filtering to region: ${onlyRegion}`);
 	}
@@ -92,6 +92,11 @@ const makeLayerPublic = async () => {
 	}
 
 	for (const region of regions) {
+		if (!(region in layerInfo)) {
+			throw new Error(`Remotion-hosted Layers are not supported in ${region}.`);
+		}
+
+		const hostedLayerRegion = region as keyof HostedLayers;
 		for (const layer of layers) {
 			const layerName = `remotion-binaries-${layer}-arm64`;
 			const {Version, LayerArn} = await LambdaClientInternals.getLambdaClient(
@@ -132,10 +137,6 @@ const makeLayerPublic = async () => {
 					StatementId: 'public-layer',
 				}),
 			);
-			if (!layerInfo[region as AwsRegion]) {
-				layerInfo[region as AwsRegion] = [];
-			}
-
 			if (!LayerArn) {
 				throw new Error('layerArn is null');
 			}
@@ -144,7 +145,7 @@ const makeLayerPublic = async () => {
 				throw new Error('Version is null');
 			}
 
-			layerInfo[region].push({
+			layerInfo[hostedLayerRegion].push({
 				layerArn: LayerArn,
 				version: Version,
 			});

@@ -12,16 +12,17 @@ import {CompositionRenderErrorContext} from './composition-render-error-context.
 import {CompositionErrorBoundary} from './CompositionErrorBoundary.js';
 import type {TComposition} from './CompositionManager.js';
 import {CompositionSetters} from './CompositionManagerContext.js';
+import {resolveComponentIdentity} from './enable-sequence-stack-traces.js';
 import {FolderContext} from './Folder.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
-import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
+import {CompositionOrderMarker} from './sequence-order-marker.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -139,7 +140,9 @@ const InnerComposition = <
 	defaultProps,
 	schema,
 	...compProps
-}: CompositionProps<Schema, Props> & {readonly stack?: string}) => {
+}: CompositionProps<Schema, Props> & {
+	readonly _remotionInternalStack?: string;
+}) => {
 	const compManager = useContext(CompositionSetters);
 
 	const {registerComposition, unregisterComposition} = compManager;
@@ -151,8 +154,6 @@ const InnerComposition = <
 		componentName: 'Composition',
 		noSuspense: false,
 	});
-
-	const nonce = useNonce();
 
 	const isPlayer = useIsPlayer();
 	const environment = useRemotionEnvironment();
@@ -179,7 +180,13 @@ const InnerComposition = <
 	}
 
 	const {folderName, parentName} = useContext(FolderContext);
-	const stack = (compProps as {stack?: string}).stack ?? null;
+	const stack =
+		(compProps as {readonly _remotionInternalStack?: string})
+			._remotionInternalStack ?? null;
+	const componentFromProps =
+		'component' in compProps
+			? resolveComponentIdentity(compProps.component)
+			: null;
 
 	useEffect(() => {
 		// Ensure it's a URL safe id
@@ -200,8 +207,9 @@ const InnerComposition = <
 			defaultProps: serializeThenDeserializeInStudio(
 				(defaultProps ?? {}) as z.output<Schema> & Props,
 			) as InferProps<Schema, Props>,
-			nonce: nonce.get(),
+			order: null,
 			parentFolderName: parentName,
+			componentFromProps,
 			schema: schema ?? null,
 			calculateMetadata: compProps.calculateMetadata ?? null,
 			stack,
@@ -219,8 +227,8 @@ const InnerComposition = <
 		folderName,
 		defaultProps,
 		width,
-		nonce,
 		parentName,
+		componentFromProps,
 		schema,
 		compProps.calculateMetadata,
 		stack,
@@ -319,11 +327,19 @@ export const Composition = <
 	props: CompositionProps<Schema, Props>,
 ) => {
 	const {onlyRenderComposition} = useContext(CompositionSetters);
+	const environment = useRemotionEnvironment();
 
 	if (onlyRenderComposition && onlyRenderComposition !== props.id) {
 		return null;
 	}
 
 	// @ts-expect-error
-	return <InnerComposition {...props} />;
+	const composition = <InnerComposition {...props} />;
+	return environment.isStudio ? (
+		<CompositionOrderMarker compositionId={props.id}>
+			{composition}
+		</CompositionOrderMarker>
+	) : (
+		composition
+	);
 };

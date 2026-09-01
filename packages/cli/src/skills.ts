@@ -1,7 +1,9 @@
 import {spawn} from 'node:child_process';
 import type {LogLevel} from '@remotion/renderer';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {chalk} from './chalk';
 import {Log} from './log';
+import {remotionSkillNames} from './remotion-skill-names';
 
 export const printSkillsHelp = (logLevel: LogLevel) => {
 	Log.info({indent: false, logLevel}, chalk.blue('remotion skills'));
@@ -25,7 +27,17 @@ export const printSkillsHelp = (logLevel: LogLevel) => {
 	);
 };
 
-export const skillsCommand = (args: string[], logLevel: LogLevel) => {
+export const skillsCommand = (
+	args: string[],
+	logLevel: LogLevel,
+	{
+		cwd,
+		environment,
+	}: {
+		cwd: string;
+		environment: NodeJS.ProcessEnv;
+	},
+) => {
 	const subcommand = args[0];
 	const restArgs = args.slice(1);
 
@@ -35,17 +47,30 @@ export const skillsCommand = (args: string[], logLevel: LogLevel) => {
 	}
 
 	const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-	const fullArgs = [
-		'-y',
-		'--loglevel=error',
-		'skills@1.2.0',
-		subcommand,
-		'remotion-dev/skills',
-		...restArgs,
-	];
+	const fullArgs =
+		subcommand === 'add'
+			? [
+					'--loglevel=error',
+					'skills@1.5.20',
+					'add',
+					'remotion-dev/skills',
+					...restArgs,
+					'--yes',
+				]
+			: [
+					'--loglevel=error',
+					'skills',
+					'update',
+					...remotionSkillNames,
+					...restArgs,
+					'--yes',
+				];
 
 	const child = spawn(command, fullArgs, {
+		cwd,
+		env: environment,
 		stdio: 'inherit',
+		...StudioServerInternals.getPackageManagerSpawnOptions(),
 	});
 
 	return new Promise<void>((resolve, reject) => {

@@ -123,6 +123,8 @@ export const useRenameSequence = ({
 			}
 
 			await saveSequenceProps({
+				addedKeyframes: null,
+				movedKeyframes: null,
 				changes: [
 					{
 						fileName: validatedLocation.source,

@@ -1,7 +1,6 @@
 import React, {useMemo} from 'react';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_BACKGROUND} from './TimelineSelection';
-import {useTimelineHeight} from './use-timeline-height';
+import {useTimelineVirtualization} from './TimelineVirtualization';
 
 const baseStyle: React.CSSProperties = {
 	display: 'flex',
@@ -12,15 +11,13 @@ const baseStyle: React.CSSProperties = {
 };
 
 const TimelineHeightContainerInner: React.FC<{
-	readonly shown: TrackWithHash[];
-	readonly hasBeenCut: boolean;
 	readonly children: React.ReactNode;
-}> = ({shown, hasBeenCut, children}) => {
-	const height = useTimelineHeight({shown, hasBeenCut});
+}> = ({children}) => {
+	const {totalSize} = useTimelineVirtualization();
 
 	const style = useMemo<React.CSSProperties>(
-		() => ({...baseStyle, height}),
-		[height],
+		() => ({...baseStyle, height: totalSize}),
+		[totalSize],
 	);
 
 	return <div style={style}>{children}</div>;

@@ -22,6 +22,15 @@ export type ThreeCanvasProps = React.ComponentProps<typeof Canvas> & {
 	readonly children: React.ReactNode;
 };
 
+export type ThreeCanvasFrameRendererProps = {
+	readonly onRendered: () => void;
+};
+
+type ThreeCanvasInternalsProps = ThreeCanvasProps & {
+	readonly FrameRenderer: React.ComponentType<ThreeCanvasFrameRendererProps>;
+	readonly advanceOnCreated: boolean;
+};
+
 const Scale = ({
 	width,
 	height,
@@ -39,11 +48,7 @@ const Scale = ({
 	return null;
 };
 
-const ManualFrameRenderer = ({
-	onRendered,
-}: {
-	readonly onRendered: () => void;
-}) => {
+const ManualFrameRenderer = ({onRendered}: ThreeCanvasFrameRendererProps) => {
 	const {advance} = useThree();
 	const frame = useCurrentFrame();
 
@@ -55,12 +60,19 @@ const ManualFrameRenderer = ({
 	return null;
 };
 
-/*
- * @description A wrapper for React Three Fiber's <Canvas /> which synchronizes with Remotion's useCurrentFrame().
- * @see [Documentation](https://www.remotion.dev/docs/three-canvas)
- */
-export const ThreeCanvas = (props: ThreeCanvasProps) => {
-	const {children, width, height, style, frameloop, onCreated, ...rest} = props;
+export const ThreeCanvasInternals = (props: ThreeCanvasInternalsProps) => {
+	const {
+		children,
+		width,
+		height,
+		style,
+		resize,
+		frameloop,
+		onCreated,
+		FrameRenderer,
+		advanceOnCreated,
+		...rest
+	} = props;
 	const {isRendering} = useRemotionEnvironment();
 	const {delayRender, continueRender} = useDelayRender();
 	const contexts = Internals.useRemotionContexts();
@@ -82,14 +94,14 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 
 	const remotion_onCreated: typeof onCreated = useCallback(
 		(state: RootState) => {
-			if (isRendering) {
+			if (isRendering && advanceOnCreated) {
 				state.advance(performance.now());
 			}
 
 			continueRender(waitForCreated);
 			onCreated?.(state);
 		},
-		[onCreated, waitForCreated, continueRender, isRendering],
+		[onCreated, waitForCreated, continueRender, isRendering, advanceOnCreated],
 	);
 
 	useLayoutEffect(() => {
@@ -120,15 +132,30 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 			<Canvas
 				style={actualStyle}
 				{...rest}
+				resize={{offsetSize: true, ...resize}}
 				frameloop={isRendering ? 'never' : (frameloop ?? 'always')}
 				onCreated={remotion_onCreated}
 			>
 				<Scale width={width} height={height} />
 				<Internals.RemotionContextProvider contexts={contexts}>
-					{isRendering && <ManualFrameRenderer onRendered={handleRendered} />}
+					{isRendering && <FrameRenderer onRendered={handleRendered} />}
 					{children}
 				</Internals.RemotionContextProvider>
 			</Canvas>
 		</SuspenseLoader>
+	);
+};
+
+/*
+ * @description A wrapper for React Three Fiber's <Canvas /> which synchronizes with Remotion's useCurrentFrame().
+ * @see [Documentation](https://www.remotion.dev/docs/three-canvas)
+ */
+export const ThreeCanvas = (props: ThreeCanvasProps) => {
+	return (
+		<ThreeCanvasInternals
+			{...props}
+			FrameRenderer={ManualFrameRenderer}
+			advanceOnCreated
+		/>
 	);
 };

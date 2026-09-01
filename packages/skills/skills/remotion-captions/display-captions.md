@@ -54,7 +54,11 @@ export const MyComponent: React.FC = () => {
     return null;
   }
 
-  return <AbsoluteFill>{/* Render captions here */}</AbsoluteFill>;
+  return (
+    <AbsoluteFill>
+      {/* Render captions here */}
+    </AbsoluteFill>
+  );
 };
 ```
 
@@ -79,6 +83,8 @@ const { pages } = useMemo(() => {
   });
 }, [captions]);
 ```
+
+If a caption has `pageBreakAfter: true`, the current page ends after that caption and the next caption starts a new page.
 
 ## Rendering with Sequences
 
@@ -152,13 +158,13 @@ const CaptionPage: React.FC<{ page: TikTokPage }> = ({ page }) => {
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
       <div style={{ fontSize: 80, fontWeight: "bold", whiteSpace: "pre" }}>
-        {page.tokens.map((token) => {
+        {page.tokens.map((token, tokenIndex) => {
           const isActive =
             token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
 
           return (
             <span
-              key={token.fromMs}
+              key={`${token.fromMs}-${tokenIndex}`}
               style={{ color: isActive ? HIGHLIGHT_COLOR : "white" }}
             >
               {token.text}

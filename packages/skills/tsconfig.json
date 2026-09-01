@@ -9,5 +9,6 @@
 		"noEmit": true
 	},
 	"include": ["./src", "./skills"],
+	"exclude": ["./skills/**/assets"],
 	"references": []
 }

@@ -10,15 +10,21 @@ import type {
 	JsxComponentIdentity,
 	LoopDisplay,
 	SequenceControls,
+	SequenceRegistrationControls,
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
-import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {
+	addSequenceStackTraces,
+	setSequenceComponent,
+} from './enable-sequence-stack-traces.js';
 import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
 import type {
+	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	CaptionsFieldSchema,
 	InteractivitySchemaField,
 	InteractivitySchema,
 } from './interactivity-schema.js';
@@ -28,6 +34,10 @@ import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
+import type {
+	RuntimeValueSnapshot,
+	RuntimeValueStore,
+} from './runtime-value-store.js';
 import {Sequence} from './Sequence.js';
 import type {UseBufferState} from './use-buffer-state';
 import type {VideoConfig} from './video-config.js';
@@ -71,6 +81,7 @@ declare global {
 		remotion_logLevel: LogLevel | undefined;
 		remotion_projectName: string;
 		remotion_cwd: string;
+		remotion_fileSystemPlatform: string | null;
 		remotion_studioServerCommand: string;
 		remotion_setFrame: (
 			frame: number,
@@ -95,6 +106,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isStudio: boolean;
 		remotion_isReadOnlyStudio: boolean;
+		remotion_enableSequenceStackTraces: (() => void) | null;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '11';
@@ -197,6 +209,7 @@ export {Img, ImgProps} from './Img.js';
 export {
 	Interactive,
 	type InteractiveBaseProps,
+	type InteractiveCropProps,
 	type InteractivePremountProps,
 	type InteractiveProps,
 	type InteractiveTransformProps,
@@ -219,7 +232,6 @@ export {
 	random,
 	RandomSeed,
 } from './no-react';
-export type {NonceHistory} from './nonce.js';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export type {PixelFormat, VideoImageFormat} from './render-types.js';
@@ -316,6 +328,7 @@ export const Config = new Proxy(proxyObj, {
 
 Sequence.displayName = 'Sequence';
 addSequenceStackTraces(Sequence);
+setSequenceComponent(Sequence);
 addSequenceStackTraces(Composition);
 addSequenceStackTraces(Folder);
 
@@ -333,12 +346,17 @@ export type _InternalTypes = {
 
 export type {
 	AnyComposition,
+	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	CaptionsFieldSchema,
 	DelayRenderScope,
 	JsxComponentIdentity,
 	LoopDisplay,
+	RuntimeValueSnapshot,
+	RuntimeValueStore,
 	SequenceControls,
+	SequenceRegistrationControls,
 	InteractivitySchemaField,
 	InteractivitySchema,
 	UseBufferState,

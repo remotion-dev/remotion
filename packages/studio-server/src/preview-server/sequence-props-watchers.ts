@@ -18,32 +18,41 @@ import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
 import {
 	computeSequencePropsStatus,
 	computeSequencePropsStatusFromContent,
-	computeSequencePropsStatusFromFilenameByLine,
+	computeSequencePropsStatusFromFilenameByLocation,
 } from './routes/can-update-sequence-props';
 
 type WatcherInfo = {
 	unwatch: () => void;
 	refCount: number;
+	currentNodePath: Extract<
+		SubscribeToSequencePropsResponse,
+		{success: true}
+	>['nodePath'];
 };
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
 
-const getWatcherKey = (nodePath: {
-	absolutePath: string;
-	nodePath: SequenceNodePath;
-	sequenceKeys: string[];
-	effectKeys: string[][];
-	videoConfigValues: VideoConfigValues | null;
-}) =>
-	`${stringifySequenceSubscriptionKey(nodePath)}:${JSON.stringify(nodePath.videoConfigValues)}`;
+const getWatcherKey = (
+	nodePath: {
+		absolutePath: string;
+		nodePath: SequenceNodePath;
+		sequenceKeys: string[];
+		effectKeys: string[][];
+		videoConfigValues: VideoConfigValues | null;
+	},
+	assetKeys: string[],
+) =>
+	`${stringifySequenceSubscriptionKey(nodePath)}:${assetKeys.join('\0')}:${JSON.stringify(nodePath.videoConfigValues)}`;
 
 const getSequencePropsStatus = ({
 	fileName,
 	line,
 	column,
 	preferredNodePath,
+	resolvedNodePath,
 	componentIdentity,
 	keys,
+	assetKeys,
 	effects,
 	remotionRoot,
 	logLevel,
@@ -53,8 +62,10 @@ const getSequencePropsStatus = ({
 	line: number;
 	column: number;
 	preferredNodePath: SequenceNodePath | null;
+	resolvedNodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys: string[];
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
@@ -67,6 +78,7 @@ const getSequencePropsStatus = ({
 				nodePath: preferredNodePath,
 				componentIdentity,
 				keys,
+				assetKeys,
 				effects,
 				remotionRoot,
 				videoConfigValues,
@@ -105,6 +117,7 @@ const getSequencePropsStatus = ({
 					nodePath: cachedNodePath,
 					componentIdentity,
 					keys,
+					assetKeys,
 					effects,
 					remotionRoot,
 					videoConfigValues,
@@ -136,11 +149,47 @@ const getSequencePropsStatus = ({
 		}
 	}
 
-	const status = computeSequencePropsStatusFromFilenameByLine({
+	if (resolvedNodePath) {
+		try {
+			return {
+				status: computeSequencePropsStatus({
+					fileName,
+					nodePath: resolvedNodePath,
+					componentIdentity,
+					keys,
+					assetKeys,
+					effects,
+					remotionRoot,
+					videoConfigValues,
+				}),
+				nodePath: {
+					absolutePath: path.resolve(remotionRoot, fileName),
+					nodePath: resolvedNodePath,
+					sequenceKeys: keys,
+					effectKeys: effects,
+					videoConfigValues,
+				},
+				success: true,
+			};
+		} catch (error) {
+			if (
+				!(
+					error instanceof JsxElementIdentityMismatchError ||
+					error instanceof JsxElementNotFoundAtLocationError
+				)
+			) {
+				throw error;
+			}
+		}
+	}
+
+	const status = computeSequencePropsStatusFromFilenameByLocation({
 		fileName,
 		line,
+		column,
 		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
 		remotionRoot,
 		logLevel,
@@ -155,8 +204,10 @@ export const subscribeToSequencePropsWatchers = ({
 	line,
 	column,
 	nodePath: preferredNodePath,
+	resolvedNodePath = null,
 	componentIdentity,
 	keys,
+	assetKeys,
 	effects,
 	remotionRoot,
 	clientId,
@@ -167,8 +218,10 @@ export const subscribeToSequencePropsWatchers = ({
 	line: number;
 	column: number;
 	nodePath: SequenceNodePath | null;
+	resolvedNodePath?: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys: string[];
 	effects: string[][];
 	remotionRoot: string;
 	clientId: string;
@@ -180,8 +233,10 @@ export const subscribeToSequencePropsWatchers = ({
 		line,
 		column,
 		preferredNodePath,
+		resolvedNodePath,
 		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
 		remotionRoot,
 		logLevel,
@@ -198,14 +253,19 @@ export const subscribeToSequencePropsWatchers = ({
 	setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
 
 	const {nodePath} = initialResult;
-	const watcherKey = getWatcherKey(nodePath);
+	const watcherKey = getWatcherKey(nodePath, assetKeys);
 
-	// If a watcher already exists for this key, just bump the ref count
-	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
-		sequencePropsWatchers[clientId][watcherKey].refCount++;
+	const existingWatcher = sequencePropsWatchers[clientId]?.[watcherKey];
+	if (existingWatcher) {
+		existingWatcher.refCount++;
 		return initialResult;
 	}
 
+	const watcherInfo: WatcherInfo = {
+		unwatch: () => undefined,
+		refCount: 1,
+		currentNodePath: nodePath,
+	};
 	const {unwatch} = installFileWatcher({
 		file: absolutePath,
 		existenceOnly: false,
@@ -218,12 +278,17 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
+			if (event.type === 'changed' && event.skipSequencePropsUpdate) {
+				return;
+			}
+
 			try {
 				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
-					nodePath: nodePath.nodePath,
+					nodePath: watcherInfo.currentNodePath.nodePath,
 					componentIdentity,
 					keys,
+					assetKeys,
 					effects,
 					videoConfigValues,
 				});
@@ -247,7 +312,7 @@ export const subscribeToSequencePropsWatchers = ({
 					listener.sendEventToClientId(clientId, {
 						type: 'sequence-props-updated',
 						fileName,
-						nodePath,
+						nodePath: watcherInfo.currentNodePath,
 						result,
 					});
 				});
@@ -271,12 +336,13 @@ export const subscribeToSequencePropsWatchers = ({
 			}
 		},
 	});
+	watcherInfo.unwatch = unwatch;
 
 	if (!sequencePropsWatchers[clientId]) {
 		sequencePropsWatchers[clientId] = {};
 	}
 
-	sequencePropsWatchers[clientId][watcherKey] = {unwatch, refCount: 1};
+	sequencePropsWatchers[clientId][watcherKey] = watcherInfo;
 
 	return initialResult;
 };
@@ -287,6 +353,7 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	remotionRoot,
 	clientId,
 	sequenceKeys,
+	assetKeys,
 	effectKeys,
 	videoConfigValues,
 }: {
@@ -295,17 +362,21 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	remotionRoot: string;
 	clientId: string;
 	sequenceKeys: string[];
+	assetKeys: string[];
 	effectKeys: string[][];
 	videoConfigValues: VideoConfigValues | null;
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
-	const watcherKey = getWatcherKey({
-		absolutePath,
-		nodePath,
-		sequenceKeys,
-		effectKeys,
-		videoConfigValues,
-	});
+	const watcherKey = getWatcherKey(
+		{
+			absolutePath,
+			nodePath,
+			sequenceKeys,
+			effectKeys,
+			videoConfigValues,
+		},
+		assetKeys,
+	);
 
 	if (
 		!sequencePropsWatchers[clientId] ||

@@ -39,12 +39,12 @@
     "connect": "3.7.0",
     "eslint": "9.19.0",
     "lucide-react": "0.516.0",
-    "mediabunny": "1.50.8",
+    "mediabunny": "1.55.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "1.14.0",
     "tailwindcss-animate": "1.0.7",
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
@@ -52,7 +52,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react-swc": "3.11.0",
     "autoprefixer": "10.4.16",
-    "postcss": "8.5.10",
+    "postcss": "8.5.23",
     "tailwindcss": "3.3.5",
     "typescript": "5.9.3",
     "vite": "6.4.3",

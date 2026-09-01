@@ -1,0 +1,540 @@
+---
+image: /generated/articles-docs-ai-webmcp.png
+crumb: 'AI'
+title: WebMCP
+sidebar_label: WebMCP
+---
+
+# WebMCP<AvailableFrom v="4.0.518" />
+
+Remotion Studio exposes WebMCP tools that allow an AI agent to inspect and steer it.
+
+## Capabilities
+
+Agents can:
+
+- See which items you currently have selected
+- See selectable items and select them
+- See available compositions and navigate to them
+- Read the error currently shown in the Studio error overlay
+- Get the current HTML of your composition
+- See current outlines of elements and their geometry
+- Get your current playhead position and playback state
+- Play, pause and seek
+- Set timeline zoom, playback rate, and mute state
+- See, add and remove guides
+
+## Requirements
+
+Start the [Remotion Studio](/docs/studio) and open it in a browser with an AI agent that supports [WebMCP](https://webmcp.dev/).
+
+## Compatible agents
+
+Out of the major harnesses, only ChatGPT Codex supports WebMCP. We hope more agents add support soon.
+
+## Available tools
+
+:::note
+
+The shape of inputs and outputs is not currently stable.
+
+:::
+
+Tools that modify the timeline, playback or guides require a composition to be open.
+
+### `get_current_error`<AvailableFrom v="4.0.520" />
+
+Returns the error currently shown in the Studio error overlay. It waits for source map symbolication and includes symbolicated stack frames when available, while preserving the raw stack as a fallback. Returns `null` when the error overlay is not visible.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+type ScriptLine = {
+  lineNumber: number;
+  content: string;
+  highlight: boolean;
+};
+
+type SymbolicatedStackFrame = {
+  originalFunctionName: string | null;
+  originalFileName: string | null;
+  originalLineNumber: number | null;
+  originalColumnNumber: number | null;
+  originalScriptCode: ScriptLine[] | null;
+};
+
+null | {
+  name: string;
+  message: string;
+  stack: string | null;
+  symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
+}
+```
+
+### `get_compositions`
+
+Returns the mounted compositions in the same nested folder hierarchy shown in the Studio sidebar.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+type CompositionTreeItem =
+  | {
+      type: 'composition';
+      compositionName: string;
+    }
+  | {
+      type: 'folder';
+      folderName: string;
+      children: CompositionTreeItem[];
+    };
+
+{
+  compositions: CompositionTreeItem[];
+}
+```
+
+### `select_composition`
+
+Opens a registered composition by name.
+
+```ts title="Input"
+{
+  compositionName: string;
+}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+}
+```
+
+### `get_sequences`
+
+Returns the timeline sequences mounted for the current composition, including their hierarchy, timing, source stack and selection support.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentComposition: string | null;
+  sequences: Array<{
+    sequenceId: string;
+    name: string | null;
+    type: 'sequence' | 'audio' | 'video' | 'image';
+    parentSequenceId: string | null;
+    depth: number;
+    startFrame: number;
+    endFrame: number;
+    durationInFrames: number;
+    stack: string | null;
+    selectable: boolean;
+  }>;
+}
+```
+
+### `select_sequence`
+
+Selects and reveals a sequence using a `sequenceId` returned by `get_sequences`.
+
+```ts title="Input"
+{
+  sequenceId: string;
+}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+  selectedSequence: {
+    sequenceId: string;
+    name: string | null;
+    type: 'sequence' | 'audio' | 'video' | 'image';
+    parentSequenceId: string | null;
+    depth: number;
+    startFrame: number;
+    endFrame: number;
+    durationInFrames: number;
+    stack: string | null;
+    selectable: boolean;
+  };
+}
+```
+
+### `get_composition`
+
+Returns metadata and the current frame for the open composition. All fields are `null` when the canvas is showing an asset or other non-composition content.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  compositionName: string | null;
+  stack: string | null;
+  durationInFrames: number | null;
+  height: number | null;
+  width: number | null;
+  fps: number | null;
+  currentFrame: number | null;
+}
+```
+
+### `get_canvas_html`
+
+Returns the rendered composition HTML at the current frame without the surrounding Studio interface. The returned HTML is capped at 100,000 characters. Canvas and WebGL pixels are not represented.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentComposition: string | null;
+  currentFrame: number | null;
+  html: string | null;
+  htmlLength: number | null;
+  truncated: boolean;
+}
+```
+
+### `get_outlines`
+
+Returns the measurable selectable component outlines active at the current frame. Coordinates use composition pixels and do not change with the Studio canvas zoom.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentComposition: string | null;
+  currentFrame: number | null;
+  outlines: Array<{
+    sequenceId: string;
+    parentSequenceId: string | null;
+    name: string | null;
+    location: {
+      filename: string;
+      line: number;
+    } | null;
+    geometry: {
+      points: [
+        {x: number; y: number},
+        {x: number; y: number},
+        {x: number; y: number},
+        {x: number; y: number},
+      ];
+      boundingBox: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
+    };
+  }>;
+}
+```
+
+### `get_playback_state`
+
+Returns the current playhead, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` when the canvas is not showing a composition.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentComposition: string | null;
+  currentFrame: number | null;
+  playing: boolean | null;
+  muted: boolean | null;
+  volume: number | null;
+  playbackRate: number | null;
+  looping: boolean | null;
+  timelineZoom: number | null;
+}
+```
+
+### `get_selection`
+
+Returns source-code context when exactly one supported timeline item is selected. `currentSelection` is `null` when there is no selection, multiple items are selected, a guide is selected or the source location cannot be resolved. `selectedSequence` identifies the owning sequence when a property, effect or keyframe is selected.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentFrame: number;
+  currentComposition: string | null;
+  currentSelection: string | null;
+  selectionType:
+    | 'guide'
+    | 'sequence'
+    | 'sequence-prop'
+    | 'sequence-all-effects'
+    | 'sequence-effect'
+    | 'sequence-effect-prop'
+    | 'keyframe'
+    | 'easing'
+    | null;
+  selectedSequence: {
+    sequenceId: string;
+    name: string | null;
+    type: 'sequence' | 'audio' | 'video' | 'image';
+    parentSequenceId: string | null;
+    depth: number;
+    startFrame: number;
+    endFrame: number;
+    durationInFrames: number;
+    stack: string | null;
+    selectable: boolean;
+  } | null;
+}
+```
+
+### `get_guides`
+
+Returns guides for the current composition. Vertical positions are x-coordinates from the left edge; horizontal positions are y-coordinates from the top edge.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentComposition: string | null;
+  guidesVisible: boolean;
+  guides: Array<{
+    id: string;
+    orientation: 'horizontal' | 'vertical';
+    position: number;
+    visible: boolean;
+  }>;
+}
+```
+
+### `set_guides_visible`
+
+Shows or hides every guide in the current composition.
+
+```ts title="Input"
+{
+  visible: boolean;
+}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+  guidesVisible: boolean;
+}
+```
+
+### `add_guide`
+
+Adds and shows a guide in the current composition. Positions use composition pixels.
+
+```ts title="Input"
+{
+  orientation: 'horizontal' | 'vertical';
+  position: number;
+}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+  guide: {
+    id: string;
+    orientation: 'horizontal' | 'vertical';
+    position: number;
+    visible: true;
+  };
+}
+```
+
+### `remove_guide`
+
+Removes a guide using an ID returned by `get_guides` or `add_guide`.
+
+```ts title="Input"
+{
+  guideId: string;
+}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+  guideId: string;
+  removed: true;
+}
+```
+
+### `play`
+
+Starts playback from the current frame. Still compositions cannot be played.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+  playing: true;
+}
+```
+
+### `pause`
+
+Pauses playback at the current frame.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+  playing: false;
+}
+```
+
+### `mute`
+
+Mutes audio playback.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+  muted: true;
+}
+```
+
+### `unmute`
+
+Unmutes audio playback.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+  muted: false;
+}
+```
+
+### `set_timeline_zoom`
+
+Sets the timeline zoom using a normalized value between `0` (fully zoomed out) and `1` (maximum zoom). The output contains the effective normalized zoom after Studio applies its supported zoom step. Still compositions do not have timeline zoom.
+
+```ts title="Input"
+{
+  zoom: number;
+}
+```
+
+`zoom` must be a positive finite number.
+
+```ts title="Output"
+{
+  currentComposition: string;
+  timelineZoom: number;
+}
+```
+
+### `set_playback_rate`
+
+Sets the playback multiplier. Negative values play backwards.
+
+```ts title="Input"
+{
+  playbackRate:
+    | -4
+    | -2
+    | -1
+    | -0.5
+    | -0.25
+    | 0.25
+    | 0.5
+    | 1
+    | 1.5
+    | 2
+    | 4;
+}
+```
+
+```ts title="Output"
+{
+  currentComposition: string;
+  playbackRate: number;
+}
+```
+
+### `seek_to_frame`
+
+Seeks to a zero-based frame. Values beyond the duration are clamped to the final frame.
+
+```ts title="Input"
+{
+  frame: number;
+}
+```
+
+`frame` must be a non-negative integer.
+
+```ts title="Output"
+{
+  currentComposition: string;
+  currentFrame: number;
+}
+```
+
+## Example prompts
+
+You can ask a browser agent:
+
+- "What is currently selected in the Studio?"
+- "Fix the error"
+- "List all mounted compositions and their folders."
+- "Open the `Shapes` composition."
+- "List the sequences and select the `Title` sequence."
+- "Inspect the HTML rendered on the canvas."
+- "List the visible components and their canvas geometry."
+- "What is the current playback state?"
+- "Set the timeline zoom to 2.5x."
+- "Seek to frame 90, set the playback rate to 0.5x and play."
+- "List the guides in the current composition."
+- "Hide the guides."
+- "Add a vertical guide at 640 pixels."
+- "Mute the preview."
+
+The agent chooses and invokes the matching tools. Tool calls affect the open Studio tab immediately.
+
+## Browser support
+
+WebMCP is a draft web platform API. Refer to the [WebMCP specification](https://webmachinelearning.github.io/webmcp/) and [Chrome's WebMCP documentation](https://developer.chrome.com/docs/ai/agents) for current browser and agent support.
+
+## See also
+
+- [Prompting videos with coding agents](/docs/ai/coding-agents)
+- [Remotion Agent Skills](/docs/ai/skills)
+- [Remotion Studio](/docs/studio)

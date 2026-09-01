@@ -1,8 +1,12 @@
 import {createContext, createRef, useContext, useMemo} from 'react';
 import type {AnyComposition} from './CompositionManager.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	CompositionManager,
+	getAssetPreviewCompositionId,
+} from './CompositionManagerContext.js';
 import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
+import type {VideoConfigMetadataSource} from './resolve-video-config.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
@@ -30,10 +34,12 @@ type VideoConfigState =
 	| {
 			type: 'success';
 			result: VideoConfig;
+			metadataSource: VideoConfigMetadataSource | null;
 	  }
 	| {
 			type: 'success-and-refreshing';
 			result: VideoConfig;
+			metadataSource: VideoConfigMetadataSource | null;
 	  }
 	| {
 			type: 'error';
@@ -51,8 +57,12 @@ export const useResolvedVideoConfig = (
 
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
-	const {compositions, canvasContent, currentCompositionMetadata} =
-		useContext(CompositionManager);
+	const {
+		compositions,
+		canvasContent,
+		currentCompositionMetadata,
+		currentAssetMetadata,
+	} = useContext(CompositionManager);
 	const currentComposition =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const compositionId = preferredCompositionId ?? currentComposition;
@@ -65,6 +75,22 @@ export const useResolvedVideoConfig = (
 	const env = useRemotionEnvironment();
 
 	return useMemo(() => {
+		if (
+			preferredCompositionId === null &&
+			canvasContent?.type === 'asset' &&
+			currentAssetMetadata?.asset === canvasContent.asset
+		) {
+			return {
+				type: 'success',
+				metadataSource: null,
+				result: {
+					...currentAssetMetadata,
+					id: getAssetPreviewCompositionId(canvasContent.asset),
+					defaultProps: {},
+				},
+			} as const;
+		}
+
 		if (!composition) {
 			return null;
 		}
@@ -72,6 +98,7 @@ export const useResolvedVideoConfig = (
 		if (currentCompositionMetadata) {
 			return {
 				type: 'success',
+				metadataSource: null,
 				result: {
 					...currentCompositionMetadata,
 					id: composition.id,
@@ -103,6 +130,7 @@ export const useResolvedVideoConfig = (
 
 			return {
 				type: 'success',
+				metadataSource: null,
 				result: {
 					width: composition.width as number,
 					height: composition.height as number,
@@ -143,8 +171,11 @@ export const useResolvedVideoConfig = (
 		return context[composition.id] as VideoConfigState;
 	}, [
 		composition,
+		canvasContent,
 		context,
+		currentAssetMetadata,
 		currentCompositionMetadata,
+		preferredCompositionId,
 		selectedEditorProps,
 		env.isPlayer,
 	]);

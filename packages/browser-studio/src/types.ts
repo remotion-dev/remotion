@@ -1,9 +1,30 @@
+import type {StudioElementPayload} from '@remotion/studio-protocol';
+import type {HotMiddlewareMessage} from '@remotion/studio-shared';
+
 export type VirtualProject = {
 	rootDir: string;
 	entryPoint: string;
 	files: Record<string, string>;
-	publicFiles?: Record<string, Uint8Array | string>;
+	publicFiles?: Record<string, VirtualProjectPublicFile>;
+	publicFileStorage?: BrowserStudioProjectStorage;
 };
+
+export type BrowserStudioProjectStorage = {
+	directoryName: string;
+	type: 'opfs';
+};
+
+export type BrowserStudioStoredPublicFile = {
+	key: string;
+	lastModified: number;
+	sizeInBytes: number;
+	type: 'stored';
+};
+
+export type VirtualProjectPublicFile =
+	| Uint8Array
+	| string
+	| BrowserStudioStoredPublicFile;
 
 export type VirtualFileSystem = {
 	readFile: (path: string) => Promise<string> | string;
@@ -49,22 +70,68 @@ export type CompileState =
 
 export type BrowserStudioProps = {
 	project: VirtualProject;
-	readOnly: true;
+	readOnly: boolean;
+	initialElement: {
+		payload: StudioElementPayload;
+		sourceOrigin: string | null;
+	} | null;
 	iframeSrc?: string;
+	remotionPackageSource?: BrowserStudioRemotionPackageSource;
 	dependencyResolver?: BrowserStudioDependencyResolver;
 	onCompileStateChange?: (state: CompileState) => void;
+	onProjectChange?: (project: VirtualProject) => void;
 };
 
-export type BrowserStudioWorkerCompileRequest = {
-	type: 'compile';
-	project: VirtualProject;
-	dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
+export type BrowserStudioRemotionPackageSource =
+	| {
+			readonly type: 'workspace';
+			readonly baseUrl: string;
+			readonly commit: string;
+	  }
+	| {
+			readonly type: 'release';
+			readonly baseUrl: string;
+			readonly version: string;
+	  };
+
+export type BrowserStudioWorkerCompileRequest =
+	| {
+			type: 'init';
+			project: VirtualProject;
+			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
+			remotionPackageSource: BrowserStudioRemotionPackageSource | null;
+			useVendorBundle: boolean;
+	  }
+	| {
+			type: 'update-project';
+			project: VirtualProject;
+			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
+	  };
+
+export type BrowserStudioHmrAsset = {
+	content: string;
+	name: string;
 };
 
 export type BrowserStudioWorkerCompileResponse =
 	| {
-			type: 'compiled';
+			type: 'initial-compiled';
 			bundle: string;
+			warnings: string[];
+	  }
+	| {
+			type: 'load-progress';
+			asset: 'rspack-wasm';
+			loadedBytes: number;
+			totalBytes: number | null;
+	  }
+	| {
+			type: 'building';
+	  }
+	| {
+			type: 'hmr-update';
+			assets: BrowserStudioHmrAsset[];
+			hmrEvent: HotMiddlewareMessage;
 			warnings: string[];
 	  }
 	| {

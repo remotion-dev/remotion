@@ -1,26 +1,41 @@
 import {PlayerInternals} from '@remotion/player';
 import type {SetStateAction} from 'react';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef} from 'react';
 import ReactDOM from 'react-dom';
-import {WHITE, getBackgroundFromHoverState} from '../../helpers/colors';
+import {
+	WHITE,
+	WHITE_ALPHA_80,
+	getBackgroundFromHoverState,
+} from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
+import {MENU_TOOLBAR_HEIGHT} from '../menu-toolbar-height';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './is-menu-item';
 import {getPortal} from './portals';
 import {menuContainerTowardsBottom, outerPortal} from './styles';
 
+const MENU_ITEM_HEIGHT = 24;
+const MENU_ITEM_VERTICAL_MARGIN = (MENU_TOOLBAR_HEIGHT - MENU_ITEM_HEIGHT) / 2;
+
 const container: React.CSSProperties = {
+	alignItems: 'center',
+	boxSizing: 'border-box',
+	display: 'inline-flex',
 	fontSize: 13,
-	color: WHITE,
-	paddingLeft: 10,
-	paddingRight: 10,
+	height: MENU_ITEM_HEIGHT,
+	justifyContent: 'center',
+	paddingLeft: 8,
+	paddingRight: 8,
 	cursor: 'default',
-	paddingTop: 6,
-	paddingBottom: 6,
+	paddingTop: 0,
+	paddingBottom: 0,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 	border: 'none',
+	borderRadius: 3,
 };
 
 export type MenuId =
@@ -60,7 +75,6 @@ export const MenuItem: React.FC<{
 	onNextMenu,
 	menu,
 }) => {
-	const [hovered, setHovered] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
@@ -71,12 +85,20 @@ export const MenuItem: React.FC<{
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
 			...container,
-			backgroundColor: getBackgroundFromHoverState({
-				hovered,
-				selected,
+			...hoverableStyle({
+				idleBackground: getBackgroundFromHoverState({
+					hovered: false,
+					selected,
+				}),
+				hoverBackground: getBackgroundFromHoverState({
+					hovered: true,
+					selected,
+				}),
+				idleColor: selected ? WHITE : WHITE_ALPHA_80,
+				hoverColor: WHITE,
 			}),
 		};
-	}, [hovered, selected]);
+	}, [selected]);
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!selected || !size) {
@@ -86,18 +108,15 @@ export const MenuItem: React.FC<{
 		return {
 			...menuContainerTowardsBottom,
 			left: size.left,
-			top: size.top + size.height,
+			top: size.top + size.height + MENU_ITEM_VERTICAL_MARGIN,
 		};
 	}, [selected, size]);
 
+	// Not for styling (which is done via CSS :hover), but for switching
+	// between menus when a menu is already open.
 	const onPointerEnter = useCallback(() => {
 		onItemHovered(id);
-		setHovered(true);
 	}, [id, onItemHovered]);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
 
 	const onPointerDown: React.PointerEventHandler<HTMLButtonElement> =
 		useCallback(
@@ -110,17 +129,24 @@ export const MenuItem: React.FC<{
 
 				onItemSelected(id);
 
-				window.addEventListener(
-					'pointerup',
-					(evt) => {
-						if (!isMenuItem(evt.target as HTMLElement)) {
-							onItemQuit();
+				startCapturedPointerSession({
+					event: e.nativeEvent,
+					captureTarget: e.currentTarget,
+					onEnd: (reason, evt) => {
+						if (
+							(reason === 'pointerup' || reason === 'buttons-released') &&
+							evt
+						) {
+							const target = document.elementFromPoint(
+								evt.clientX,
+								evt.clientY,
+							);
+							if (!target || !isMenuItem(target as HTMLElement)) {
+								onItemQuit();
+							}
 						}
 					},
-					{
-						once: true,
-					},
-				);
+				});
 			},
 			[id, onItemQuit, onItemSelected],
 		);
@@ -152,7 +178,7 @@ export const MenuItem: React.FC<{
 	const outerStyle = useMemo(() => {
 		return {
 			...outerPortal,
-			top: (size?.top ?? 0) + (size?.height ?? 0),
+			top: (size?.top ?? 0) + (size?.height ?? 0) + MENU_ITEM_VERTICAL_MARGIN,
 		};
 	}, [size]);
 
@@ -163,12 +189,11 @@ export const MenuItem: React.FC<{
 				role="button"
 				tabIndex={tabIndex}
 				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
 				onPointerDown={onPointerDown}
 				onClick={onClick}
 				style={containerStyle}
 				type="button"
-				className={MENU_INITIATOR_CLASSNAME}
+				className={`${MENU_INITIATOR_CLASSNAME} ${HOVERABLE_CLASS_NAME}`}
 			>
 				{itemName}
 			</button>

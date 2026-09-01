@@ -29,7 +29,11 @@ import { loadFont } from "@remotion/google-fonts/Lobster";
 const { fontFamily } = loadFont();
 
 export const MyComposition = () => {
-  return <div style={{ fontFamily }}>Hello World</div>;
+  return (
+    <div style={{ fontFamily }}>
+      Hello World
+    </div>
+  );
 };
 ```
 

@@ -1,5 +1,9 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
-import type {LogLevel} from '@remotion/renderer';
+import type {
+	DefaultCodingAgent,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
 import type {ApiHandler, QueueMethods} from './api-types';
 import {parseRequestBody} from './parse-body';
 import {validateSameOrigin} from './validate-same-origin';
@@ -14,6 +18,9 @@ export const handleRequest = async <Req, Res>({
 	methods,
 	binariesDirectory,
 	publicDir,
+	configFile,
+	getDefaultCodingAgent,
+	getDefaultEditor,
 }: {
 	remotionRoot: string;
 	publicDir: string;
@@ -21,6 +28,9 @@ export const handleRequest = async <Req, Res>({
 	response: ServerResponse;
 	entryPoint: string;
 	binariesDirectory: string | null;
+	configFile: string | null;
+	getDefaultCodingAgent: () => DefaultCodingAgent | null;
+	getDefaultEditor: () => DefaultEditor | null;
 	handler: ApiHandler<Req, Res>;
 	logLevel: LogLevel;
 	methods: QueueMethods;
@@ -37,7 +47,7 @@ export const handleRequest = async <Req, Res>({
 	response.writeHead(200);
 
 	try {
-		const body = (await parseRequestBody(request)) as Req;
+		const body = (await parseRequestBody(request, {maxBytes: null})) as Req;
 
 		const outputData = await handler({
 			entryPoint,
@@ -49,6 +59,9 @@ export const handleRequest = async <Req, Res>({
 			methods,
 			binariesDirectory,
 			publicDir,
+			configFile,
+			getDefaultCodingAgent,
+			getDefaultEditor,
 		});
 
 		response.end(

@@ -1,31 +1,54 @@
 import type {RefObject} from 'react';
-import {
-	useCallback,
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
-import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
 import {getMediaSyncAction} from './get-media-sync-action.js';
+import {useLogLevel, useMountTime} from './log-level-context.js';
+import {Log} from './log.js';
 import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-time-timestamp.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
+import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
 import {
-	usePlayingState,
+	usePlaying,
 	usePlaybackRate,
 	useTimelinePosition,
 } from './timeline-position-state.js';
+import {useBuffering} from './use-buffering.js';
 import {useCurrentFrame} from './use-current-frame.js';
-import {useLogger} from './use-logger.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
+
+// In Safari, amplified media can lag behind by around 0.4 seconds.
+const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION = 0.65;
+
+const getPauseReason = ({
+	reason,
+	isPremounting,
+	isPostmounting,
+}: {
+	reason: 'not-playing' | 'buffering';
+	isPremounting: boolean;
+	isPostmounting: boolean;
+}) => {
+	if (reason === 'buffering') {
+		return 'player is buffering but media tag is not';
+	}
+
+	if (isPremounting) {
+		return 'media is premounting';
+	}
+
+	if (isPostmounting) {
+		return 'media is postmounting';
+	}
+
+	return 'Player is not playing';
+};
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -55,19 +78,16 @@ export const useMediaPlayback = ({
 	const {playbackRate: globalPlaybackRate} = usePlaybackRate();
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
-	const [playing] = usePlayingState();
-	const buffering = useContext(BufferingContextReact);
+	const playing = usePlaying();
+	const playerBuffering = useBuffering();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 	const lastSeekDueToShift = useRef<number | null>(null);
 	const lastSeek = useRef<number | null>(null);
-	const logger = useLogger();
-
-	if (!buffering) {
-		throw new Error(
-			'useMediaPlayback must be used inside a <BufferingContext>',
-		);
-	}
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
+	const loggingRef = useRef({logLevel, mountTime});
+	loggingRef.current = {logLevel, mountTime};
 
 	const isVariableFpsVideoMap = useRef<Record<string, boolean>>({});
 
@@ -80,14 +100,12 @@ export const useMediaPlayback = ({
 			return;
 		}
 
-		logger.verbose(
-			null,
+		Log.verbose(
+			{logLevel: loggingRef.current.logLevel, tag: null},
 			`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
 		);
 
 		isVariableFpsVideoMap.current[src] = true;
-		// The logger has stable identity and reads the latest context.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [src]);
 
 	const rvcCurrentTime = useRequestVideoCallbackTime({
@@ -125,65 +143,18 @@ export const useMediaPlayback = ({
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
 	const acceptableTimeShiftButLessThanDuration = (() => {
-		// In Safari, it seems to lag behind mostly around ~0.4 seconds
-		const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK = 0.45;
-
-		// If there is amplification, the acceptable timeshift is higher
-		const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION =
-			DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK + 0.2;
-
-		const defaultAcceptableTimeshift =
-			DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION;
 		// For short audio, a lower acceptable time shift is used
 		if (mediaRef.current?.duration) {
 			return Math.min(
 				mediaRef.current.duration,
-				acceptableTimeshift ?? defaultAcceptableTimeshift,
+				acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION,
 			);
 		}
 
-		return acceptableTimeshift ?? defaultAcceptableTimeshift;
+		return (
+			acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION
+		);
 	})();
-
-	const isPlayerBuffering = useIsPlayerBuffering(buffering);
-
-	useEffect(() => {
-		if (mediaRef.current?.paused) {
-			return;
-		}
-
-		if (!playing) {
-			logger.playback(
-				'pause',
-				`Pausing ${mediaRef.current?.src} because ${isPremounting ? 'media is premounting' : isPostmounting ? 'media is postmounting' : 'Player is not playing'}`,
-			);
-			mediaRef.current?.pause();
-			return;
-		}
-
-		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
-
-		const playerBufferingNotStateButLive = buffering.buffering.current;
-		if (playerBufferingNotStateButLive && !isMediaTagBufferingOrStalled) {
-			logger.playback(
-				'pause',
-				`Pausing ${mediaRef.current?.src} because player is buffering but media tag is not`,
-			);
-			mediaRef.current?.pause();
-		}
-		// The logger has stable identity and reads the latest context.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [
-		isBuffering,
-		isMediaTagBuffering,
-		buffering,
-		isPlayerBuffering,
-		isPremounting,
-		mediaRef,
-		mediaType,
-		playing,
-		isPostmounting,
-	]);
 
 	const env = useRemotionEnvironment();
 
@@ -216,6 +187,27 @@ export const useMediaPlayback = ({
 		}
 
 		const {current} = mediaRef;
+		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
+		let pauseReason: 'not-playing' | 'buffering' | null = null;
+		if (!playing) {
+			pauseReason = 'not-playing';
+		} else if (playerBuffering && !isMediaTagBufferingOrStalled) {
+			pauseReason = 'buffering';
+		}
+
+		if (!current.paused && pauseReason !== null) {
+			playbackLogging({
+				logLevel: loggingRef.current.logLevel,
+				tag: 'pause',
+				message: `Pausing ${current.src} because ${getPauseReason({
+					reason: pauseReason,
+					isPremounting,
+					isPostmounting,
+				})}`,
+				mountTime: loggingRef.current.mountTime,
+			});
+			current.pause();
+		}
 
 		const action = getMediaSyncAction({
 			duration: current.duration,
@@ -232,8 +224,8 @@ export const useMediaPlayback = ({
 			lastSeekDueToShift: lastSeekDueToShift.current,
 			playing,
 			playbackRate,
-			mediaTagBufferingOrStalled: isMediaTagBuffering || isBuffering(),
-			playerBuffering: buffering.buffering.current,
+			mediaTagBufferingOrStalled: isMediaTagBufferingOrStalled,
+			playerBuffering,
 			absoluteFrame,
 			onlyWarnForMediaSeekingError,
 			isPremounting,
@@ -249,8 +241,9 @@ export const useMediaPlayback = ({
 			lastSeek.current = seek({
 				mediaRef: current,
 				time: action.shouldBeTime,
-				logger,
+				logLevel: loggingRef.current.logLevel,
 				why: action.why,
+				mountTime: loggingRef.current.mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
 
@@ -263,7 +256,8 @@ export const useMediaPlayback = ({
 					mediaRef,
 					mediaType,
 					onAutoPlayError,
-					logger,
+					logLevel: loggingRef.current.logLevel,
+					mountTime: loggingRef.current.mountTime,
 					reason: action.playReason,
 					isPlayer: env.isPlayer,
 				});
@@ -281,8 +275,9 @@ export const useMediaPlayback = ({
 				lastSeek.current = seek({
 					mediaRef: current,
 					time: action.shouldBeTime,
-					logger,
+					logLevel: loggingRef.current.logLevel,
 					why: action.why,
+					mountTime: loggingRef.current.mountTime,
 				});
 			}
 
@@ -294,8 +289,9 @@ export const useMediaPlayback = ({
 			lastSeek.current = seek({
 				mediaRef: current,
 				time: action.shouldBeTime,
-				logger,
+				logLevel: loggingRef.current.logLevel,
 				why: action.why,
+				mountTime: loggingRef.current.mountTime,
 			});
 		}
 
@@ -303,20 +299,18 @@ export const useMediaPlayback = ({
 			mediaRef,
 			mediaType,
 			onAutoPlayError,
-			logger,
+			logLevel: loggingRef.current.logLevel,
+			mountTime: loggingRef.current.mountTime,
 			reason: action.playReason,
 			isPlayer: env.isPlayer,
 		});
 		if (action.bufferUntilFirstFrame) {
 			bufferUntilFirstFrame(action.shouldBeTime);
 		}
-		// The logger has stable identity and reads the latest context.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		absoluteFrame,
 		acceptableTimeShiftButLessThanDuration,
 		bufferUntilFirstFrame,
-		buffering.buffering,
 		rvcCurrentTime,
 		desiredUnclampedTime,
 		isBuffering,
@@ -325,6 +319,7 @@ export const useMediaPlayback = ({
 		mediaType,
 		onlyWarnForMediaSeekingError,
 		playbackRate,
+		playerBuffering,
 		playing,
 		src,
 		onAutoPlayError,

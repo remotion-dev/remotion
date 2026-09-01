@@ -1,12 +1,25 @@
+import type {DefaultCodingAgent} from '@remotion/renderer';
+import type {GitClientId, TerminalId} from '@remotion/studio-shared';
 import type {
 	CompositionComponentInfoResponse,
+	EditorPickerId,
+	OpenInTerminalResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {useSyncExternalStore} from 'react';
+import {useEffect} from 'react';
 import {callApi} from '../components/call-api';
-import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
+import {getSourceMapFilesForSource} from '../components/Timeline/TimelineStack/get-stack';
+import type {
+	CodePosition,
+	OriginalPosition,
+} from '../error-overlay/react-overlay/utils/get-source-map';
+import {getBrowserStudioOperations} from './browser-studio-operations';
+import {useSyncExternalStore} from './use-sync-external-store';
 
-export const openInEditor = (stack: SymbolicatedStackFrame) => {
+export const openInEditor = (
+	stack: SymbolicatedStackFrame,
+	editorId: EditorPickerId,
+) => {
 	const {
 		originalFileName,
 		originalLineNumber,
@@ -16,6 +29,7 @@ export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	} = stack;
 
 	return callApi('/api/open-in-editor', {
+		editorId,
 		stack: {
 			originalFileName,
 			originalLineNumber,
@@ -26,16 +40,71 @@ export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	});
 };
 
+export const openInCodingAgent = (
+	codingAgentId: DefaultCodingAgent,
+	prompt: string | null,
+) => {
+	return callApi('/api/open-in-coding-agent', {codingAgentId, prompt});
+};
+
+export const openInTerminal = (
+	terminalId: TerminalId,
+	directory: string,
+): Promise<OpenInTerminalResponse> => {
+	return callApi('/api/open-in-terminal', {directory, terminalId});
+};
+
+export const openInGitClient = (gitClientId: GitClientId) => {
+	return callApi('/api/open-in-git-client', {gitClientId});
+};
+
 export const openOriginalPositionInEditor = async (
 	originalPosition: OriginalPosition,
+	editorId: EditorPickerId,
 ) => {
-	await openInEditor({
-		originalColumnNumber: originalPosition.column,
-		originalFileName: originalPosition.source,
-		originalFunctionName: null,
-		originalLineNumber: originalPosition.line,
-		originalScriptCode: null,
-	});
+	const response = await openInEditor(
+		{
+			originalColumnNumber: originalPosition.column,
+			originalFileName: originalPosition.source,
+			originalFunctionName: null,
+			originalLineNumber: originalPosition.line,
+			originalScriptCode: null,
+		},
+		editorId,
+	);
+	if (!response.success) {
+		throw new Error('Could not open the file in the editor.');
+	}
+};
+
+export const openOriginalPositionInEditorAtProperty = async ({
+	editorId,
+	originalPosition,
+	property,
+}: {
+	editorId: EditorPickerId;
+	originalPosition: CodePosition;
+	property: string;
+}) => {
+	const request = {
+		fileName: originalPosition.source,
+		lineNumber: originalPosition.line,
+		columnNumber: originalPosition.column,
+		search: property,
+	};
+	const browserStudioOperations = getBrowserStudioOperations();
+	const position = browserStudioOperations
+		? await browserStudioOperations.findInFile(request)
+		: await callApi('/api/find-in-file', request);
+
+	await openOriginalPositionInEditor(
+		{
+			source: originalPosition.source,
+			line: position.lineNumber,
+			column: position.columnNumber,
+		},
+		editorId,
+	);
 };
 
 type ResolvedCompositionComponentInfo = {
@@ -98,7 +167,7 @@ export const useCachedCompositionComponentInfo = ({
 	compositionFile: string | null;
 	compositionId: string | null;
 }) => {
-	return useSyncExternalStore(
+	const result = useSyncExternalStore(
 		subscribeToCompositionComponentInfo,
 		() => {
 			if (compositionFile === null || compositionId === null) {
@@ -112,6 +181,23 @@ export const useCachedCompositionComponentInfo = ({
 		},
 		() => null,
 	);
+
+	useEffect(() => {
+		if (
+			!getBrowserStudioOperations() ||
+			compositionFile === null ||
+			compositionId === null
+		) {
+			return;
+		}
+
+		preloadCompositionComponentInfo({
+			compositionFile,
+			compositionId,
+		});
+	}, [compositionFile, compositionId]);
+
+	return result;
 };
 
 export const loadCompositionComponentInfo = async ({
@@ -131,10 +217,34 @@ export const loadCompositionComponentInfo = async ({
 	}
 
 	const promise = (async () => {
-		const body = await callApi('/api/composition-component-info', {
+		const request = {
 			compositionFile,
 			compositionId,
-		});
+		};
+		const browserStudioOperations = getBrowserStudioOperations();
+		const body = browserStudioOperations
+			? await browserStudioOperations.getCompositionComponentInfo(request)
+			: typeof window !== 'undefined' && window.remotion_isReadOnlyStudio
+				? await (async () => {
+						const files = getSourceMapFilesForSource(compositionFile);
+						if (files === null) {
+							throw new Error(
+								`Could not find source map contents for ${compositionFile}`,
+							);
+						}
+
+						const {resolveCompositionComponentLocation} =
+							await import('@remotion/studio-codemods/resolve-composition-component-location');
+						return {
+							canAddSequence: false,
+							location: resolveCompositionComponentLocation({
+								compositionFile,
+								compositionId,
+								project: {files, rootDir: '.'},
+							}),
+						};
+					})()
+				: await callApi('/api/composition-component-info', request);
 
 		const result = {
 			location: body.location,
@@ -173,13 +283,15 @@ export const preloadCompositionComponentInfo = ({
 export const openCompositionComponentInEditor = async ({
 	compositionFile,
 	compositionId,
+	editorId,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	editorId: EditorPickerId;
 }) => {
 	const info = await loadCompositionComponentInfo({
 		compositionFile,
 		compositionId,
 	});
-	await openOriginalPositionInEditor(info.location);
+	await openOriginalPositionInEditor(info.location, editorId);
 };

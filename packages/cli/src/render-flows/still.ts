@@ -3,6 +3,11 @@
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
+import type {
 	Browser,
 	BrowserExecutable,
 	CancelSignal,
@@ -88,6 +93,10 @@ export const renderStillFlow = async ({
 	askAIEnabled,
 	keyboardShortcutsEnabled,
 	shouldCache,
+	bundlerOverride,
+	rspackOverride,
+	webpackOverride,
+	licenseKey,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -128,6 +137,10 @@ export const renderStillFlow = async ({
 	askAIEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	shouldCache: boolean;
+	bundlerOverride: BundlerOverrideFn | null;
+	rspackOverride: RspackOverrideFn | null;
+	webpackOverride: WebpackOverrideFn | null;
+	licenseKey: string | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -167,7 +180,9 @@ export const renderStillFlow = async ({
 	function updateBrowserProgress(progress: BrowserDownloadState) {
 		aggregate.browser = progress;
 		onProgress({
-			message: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
+			message: progress.error
+				? `Failed to download ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'}`
+				: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
 			value: 0,
 			...aggregate,
 		});
@@ -180,13 +195,23 @@ export const renderStillFlow = async ({
 		onProgress: updateBrowserProgress,
 	});
 
-	await RenderInternals.internalEnsureBrowser({
-		browserExecutable,
-		indent,
-		logLevel,
-		onBrowserDownload,
-		chromeMode,
-	});
+	try {
+		await RenderInternals.internalEnsureBrowser({
+			browserExecutable,
+			indent,
+			logLevel,
+			onBrowserDownload,
+			chromeMode,
+		});
+	} catch (err) {
+		updateBrowserProgress({
+			progress: aggregate.browser.progress,
+			doneIn: null,
+			alreadyAvailable: false,
+			error: true,
+		});
+		throw err;
+	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
@@ -233,6 +258,9 @@ export const renderStillFlow = async ({
 			keyboardShortcutsEnabled,
 			rspack,
 			shouldCache,
+			bundlerOverride,
+			rspackOverride,
+			webpackOverride,
 		},
 	);
 
@@ -432,7 +460,7 @@ export const renderStillFlow = async ({
 				printToConsole: true,
 			});
 		},
-		licenseKey: null,
+		licenseKey,
 		isProduction: null,
 	});
 

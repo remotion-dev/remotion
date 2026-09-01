@@ -1,24 +1,29 @@
-import type {Logger} from './logger.js';
+import type {LogLevel} from './log';
+import {playbackLogging} from './playback-logging';
 import {isIosSafari} from './video/video-fragment';
 
 export const seek = ({
 	mediaRef,
 	time,
-	logger,
+	logLevel,
 	why,
+	mountTime,
 }: {
 	mediaRef: HTMLVideoElement | HTMLAudioElement;
 	time: number;
-	logger: Logger;
+	logLevel: LogLevel;
 	why: string;
+	mountTime: number;
 }): number => {
 	// iOS seeking does not support multiple decimals
 	const timeToSet = isIosSafari() ? Number(time.toFixed(1)) : time;
 
-	logger.playback(
-		'seek',
-		`Seeking from ${mediaRef.currentTime} to ${timeToSet}. src= ${mediaRef.src} Reason: ${why}`,
-	);
+	playbackLogging({
+		logLevel,
+		tag: 'seek',
+		message: `Seeking from ${mediaRef.currentTime} to ${timeToSet}. src= ${mediaRef.src} Reason: ${why}`,
+		mountTime,
+	});
 
 	mediaRef.currentTime = timeToSet;
 	return timeToSet;

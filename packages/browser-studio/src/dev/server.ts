@@ -1,14 +1,21 @@
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'bun';
+import {browserStudioPackageJsonArtifactFilename} from '../workspace-package-exports';
 import {getBrowserStudioDependencyVersionsForBuild} from './get-dependency-versions-for-build';
+import {getBrowserStudioReactRefreshFilesForBuild} from './get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './get-setup-environment-for-build';
+import {getBrowserStudioWorkspacePackageExportsForBuild} from './get-workspace-package-exports-for-build';
+import {studioRenderEntryExternal} from './studio-render-entry-external';
 
 const port = Number(process.env.PORT ?? 62338);
 const outDir = path.join(import.meta.dir, '..', '..', 'dist', 'dev');
+const repoDir = path.join(import.meta.dir, '..', '..', '..', '..');
+const workspacePackagesDir = path.join(repoDir, 'packages');
+const workspacePackagePath = '/__remotion_browser_studio_workspace__/';
 
 const headers = {
-	'Cross-Origin-Embedder-Policy': 'credentialless',
+	'Cross-Origin-Embedder-Policy': 'require-corp',
 	'Cross-Origin-Opener-Policy': 'same-origin',
 };
 
@@ -64,13 +71,53 @@ const frameHtml = `<!DOCTYPE html>
 
 const buildDevAssets = async () => {
 	const dependencyVersions = getBrowserStudioDependencyVersionsForBuild();
+	const reactRefreshFiles = getBrowserStudioReactRefreshFilesForBuild();
 	const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
+	const workspacePackageExports =
+		getBrowserStudioWorkspacePackageExportsForBuild();
+	const rspackBrowserEntry = fileURLToPath(
+		import.meta.resolve('@rspack/browser'),
+	);
+	const rspackBrowserDist = path.dirname(rspackBrowserEntry);
+	const vendorOutput = await build({
+		define: {'process.env.NODE_ENV': JSON.stringify('development')},
+		entrypoints: ['src/browser-studio-vendor-entry.ts'],
+		format: 'iife',
+		naming: '[name].mjs',
+		outdir: outDir,
+		sourcemap: 'linked',
+		target: 'browser',
+	});
+
+	if (!vendorOutput.success) {
+		process.stderr.write(`${vendorOutput.logs.join('\n')}\n`);
+		process.exit(1);
+	}
+
+	const vendorEntryArtifact = vendorOutput.outputs.find(
+		(file) => path.basename(file.path) === 'browser-studio-vendor-entry.mjs',
+	);
+	if (!vendorEntryArtifact) {
+		throw new Error('Browser Studio vendor entry was not generated');
+	}
+
+	const browserStudioAssetSizes = {
+		rspackWasm: Bun.file(
+			path.join(rspackBrowserDist, 'rspack.wasm32-wasi.wasm'),
+		).size,
+		vendorBundle: vendorEntryArtifact.size,
+	};
 	const output = await build({
 		entrypoints: ['src/dev/index.tsx', 'src/browser-studio-worker.ts'],
 		define: {
+			__BROWSER_STUDIO_ASSET_SIZES__: JSON.stringify(browserStudioAssetSizes),
 			__BROWSER_STUDIO_DEPENDENCY_VERSIONS__:
 				JSON.stringify(dependencyVersions),
+			__BROWSER_STUDIO_REACT_REFRESH_FILES__: JSON.stringify(reactRefreshFiles),
 			__BROWSER_STUDIO_SETUP_ENVIRONMENT__: JSON.stringify(setupEnvironment),
+			__BROWSER_STUDIO_WORKSPACE_PACKAGE_EXPORTS__: JSON.stringify(
+				workspacePackageExports,
+			),
 		},
 		format: 'esm',
 		naming: '[name].mjs',
@@ -84,10 +131,20 @@ const buildDevAssets = async () => {
 		process.exit(1);
 	}
 
-	const rspackBrowserEntry = fileURLToPath(
-		import.meta.resolve('@rspack/browser'),
-	);
-	const rspackBrowserDist = path.dirname(rspackBrowserEntry);
+	const studioPreviewEntryOutput = await build({
+		entrypoints: ['src/browser-studio-preview-entry.ts'],
+		external: studioRenderEntryExternal,
+		format: 'esm',
+		naming: '[name].mjs',
+		outdir: outDir,
+		sourcemap: 'linked',
+		target: 'browser',
+	});
+
+	if (!studioPreviewEntryOutput.success) {
+		process.stderr.write(`${studioPreviewEntryOutput.logs.join('\n')}\n`);
+		process.exit(1);
+	}
 
 	for (const asset of ['rspack.wasm32-wasi.wasm', 'wasi-worker-browser.mjs']) {
 		await Bun.write(
@@ -126,6 +183,39 @@ const start = async () => {
 			if (url.pathname === '/frame.html') {
 				return responseWithHeaders(frameHtml, {
 					headers: {'Content-Type': contentTypes['.html']},
+				});
+			}
+
+			if (url.pathname.startsWith(workspacePackagePath)) {
+				const requestedRelativePath = url.pathname.slice(
+					workspacePackagePath.length,
+				);
+				const relativePath = requestedRelativePath.endsWith(
+					`/${browserStudioPackageJsonArtifactFilename}`,
+				)
+					? `${requestedRelativePath.slice(0, -browserStudioPackageJsonArtifactFilename.length)}package.json`
+					: requestedRelativePath;
+				const workspaceAssetPath = path.join(
+					repoDir,
+					path.normalize(relativePath),
+				);
+				if (
+					!workspaceAssetPath.startsWith(`${workspacePackagesDir}${path.sep}`)
+				) {
+					return responseWithHeaders('Not found', {status: 404});
+				}
+
+				const workspaceFile = Bun.file(workspaceAssetPath);
+				if (!(await workspaceFile.exists())) {
+					return responseWithHeaders('Not found', {status: 404});
+				}
+
+				const workspaceContentType =
+					contentTypes[path.extname(workspaceAssetPath)];
+				return responseWithHeaders(workspaceFile, {
+					headers: workspaceContentType
+						? {'Content-Type': workspaceContentType}
+						: undefined,
 				});
 			}
 

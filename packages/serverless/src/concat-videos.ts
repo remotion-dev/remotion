@@ -4,7 +4,7 @@ import type {
 	AudioCodec,
 	CancelSignal,
 	CombineChunksOnProgress,
-	FrameRange,
+	SingleFrameRange,
 	LogLevel,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -50,7 +50,7 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	compositionDurationInFrames: number;
 	everyNthFrame: number;
-	frameRange: FrameRange | null;
+	frameRange: SingleFrameRange | null;
 	sampleRate: number;
 }) => {
 	const outfile = join(

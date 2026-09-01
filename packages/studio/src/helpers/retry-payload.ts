@@ -208,7 +208,6 @@ export const makeClientRetryPayload = (
 		compositionId: job.compositionId,
 		initialFrame: job.type === 'client-still' ? job.frame : 0,
 		initialLogLevel: job.logLevel,
-		initialLicenseKey: job.licenseKey,
 		defaultProps: job.inputProps,
 		inFrameMark: job.type === 'client-video' ? job.startFrame : null,
 		outFrameMark: job.type === 'client-video' ? job.endFrame : null,
@@ -231,6 +230,7 @@ export const makeClientRetryPayload = (
 			job.type === 'client-video' ? job.keyframeIntervalInSeconds : null,
 		initialMuted: job.type === 'client-video' ? job.muted : null,
 		initialTransparent: job.type === 'client-video' ? job.transparent : null,
+		initialAllowHtmlInCanvas: job.allowHtmlInCanvas,
 		initialPageResponsiveness:
 			job.type === 'client-video' ? job.pageResponsiveness : 'disabled',
 	};

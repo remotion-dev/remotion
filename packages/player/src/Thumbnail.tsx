@@ -16,10 +16,12 @@ import type {
 	AnyZodObject,
 	CompProps,
 	LogLevel,
+	PlayableMediaTag,
 	PlaybackRateContextValue,
+	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {Internals, random} from 'remotion';
+import {Internals} from 'remotion';
 import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
 import type {ThumbnailMethods} from './player-methods.js';
@@ -81,24 +83,24 @@ const ThumbnailFn = <
 		}, []);
 	}
 
-	const [thumbnailId] = useState(() => String(random(null)));
 	const rootRef = useRef<ThumbnailMethods>(null);
+	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
+	const bufferingStore = useMemo(
+		() => Internals.createRuntimeValueStore({buffering: false}),
+		[],
+	);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
 		const value: TimelineContextValue = {
-			playing: false,
+			isPlaying: () => false,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
 			},
-			rootId: thumbnailId,
-			imperativePlaying: {
-				current: false,
-			},
-			audioAndVideoTags: {current: []},
+			audioAndVideoTags,
 		};
 
 		return value;
-	}, [frameToDisplay, thumbnailId]);
+	}, [frameToDisplay]);
 
 	const playbackRateContext: PlaybackRateContextValue = useMemo(() => {
 		return {
@@ -108,6 +110,25 @@ const ThumbnailFn = <
 			},
 		};
 	}, []);
+	const frameRef = useRef(timelineState.frame);
+	frameRef.current = timelineState.frame;
+	const setTimelineContext: SetTimelineContextValue = useMemo(() => {
+		return {
+			setFrame: () => undefined,
+			setPlaying: () => undefined,
+			setBuffering: (buffering) => {
+				if (bufferingStore.store.getSnapshot().buffering !== buffering) {
+					bufferingStore.setSnapshot({buffering});
+				}
+			},
+			subscribePlaying: () => () => undefined,
+			subscribeBuffering: bufferingStore.store.subscribe,
+			isPlaying: () => false,
+			isBuffering: () => bufferingStore.store.getSnapshot().buffering,
+			frameRef,
+			audioAndVideoTags,
+		};
+	}, [bufferingStore]);
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
@@ -125,36 +146,39 @@ const ThumbnailFn = <
 
 	return (
 		<Internals.IsPlayerContextProvider>
-			<SharedPlayerContexts
-				timelineContext={timelineState}
-				playbackRateContext={playbackRateContext}
-				component={Component}
-				compositionHeight={compositionHeight}
-				compositionWidth={compositionWidth}
-				durationInFrames={durationInFrames}
-				fps={fps}
-				numberOfSharedAudioTags={0}
-				initiallyMuted
-				logLevel={logLevel}
-				audioLatencyHint="playback"
-				sampleRate={48000}
-				inputProps={passedInputProps}
-				audioEnabled={false}
-			>
-				<ThumbnailEmitterContext.Provider value={emitter}>
-					<ThumbnailUI
-						ref={rootRef}
-						className={className}
-						errorFallback={errorFallback}
-						inputProps={passedInputProps}
-						renderLoading={renderLoading}
-						style={style}
-						overflowVisible={overflowVisible}
-						overrideInternalClassName={overrideInternalClassName}
-						noSuspense={Boolean(noSuspense)}
-					/>
-				</ThumbnailEmitterContext.Provider>
-			</SharedPlayerContexts>
+			<Internals.SetTimelineContext.Provider value={setTimelineContext}>
+				<SharedPlayerContexts
+					timelineContext={timelineState}
+					playbackRateContext={playbackRateContext}
+					component={Component}
+					compositionHeight={compositionHeight}
+					compositionWidth={compositionWidth}
+					durationInFrames={durationInFrames}
+					fps={fps}
+					numberOfSharedAudioTags={0}
+					initiallyMuted
+					logLevel={logLevel}
+					audioLatencyHint="playback"
+					sampleRate={48000}
+					inputProps={passedInputProps}
+					audioEnabled={false}
+					_experimentalKeepAudioContextAlive={false}
+				>
+					<ThumbnailEmitterContext.Provider value={emitter}>
+						<ThumbnailUI
+							ref={rootRef}
+							className={className}
+							errorFallback={errorFallback}
+							inputProps={passedInputProps}
+							renderLoading={renderLoading}
+							style={style}
+							overflowVisible={overflowVisible}
+							overrideInternalClassName={overrideInternalClassName}
+							noSuspense={Boolean(noSuspense)}
+						/>
+					</ThumbnailEmitterContext.Provider>
+				</SharedPlayerContexts>
+			</Internals.SetTimelineContext.Provider>
 		</Internals.IsPlayerContextProvider>
 	);
 };

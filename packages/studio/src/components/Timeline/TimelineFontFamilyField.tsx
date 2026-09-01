@@ -19,7 +19,10 @@ import {CaretDown} from '../../icons/caret';
 import {Checkmark} from '../../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {Spacing} from '../layout';
-import {MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
+import {
+	MENU_INITIATOR_CLASSNAME,
+	VERTICAL_SCROLLBAR_CLASSNAME,
+} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
 import {
 	SHADOW_TOWARDS_BOTTOM,
@@ -86,7 +89,6 @@ type FontFamilyOption = {
 };
 
 const triggerStyle: React.CSSProperties = {
-	marginLeft: 8,
 	padding: '3px 4px',
 	display: 'inline-flex',
 	alignItems: 'center',
@@ -511,7 +513,9 @@ export const TimelineFontFamilyField: React.FC<{
 					return;
 				}
 
-				await installRequiredPackages(['@remotion/google-fonts']);
+				await installRequiredPackages([
+					{name: '@remotion/google-fonts', version: null},
+				]);
 				const googleFont = getGoogleFontSourceEdit({
 					fontFamily: option.value ?? option.label,
 					importName: option.googleFontImportName,
@@ -770,6 +774,7 @@ export const TimelineFontFamilyField: React.FC<{
 											<div
 												ref={listRef}
 												style={listStyle}
+												className={VERTICAL_SCROLLBAR_CLASSNAME}
 												onScroll={(event) => {
 													setScrollTop(event.currentTarget.scrollTop);
 												}}

@@ -16,11 +16,20 @@ import type {GitSource} from './git-source';
 import type {PackageManager} from './package-manager';
 import type {StudioRuntimeConfig} from './studio-runtime-config';
 
+export type ConfigFileRenderDefaults = {
+	codec: Codec | null;
+	proResProfile: _InternalTypes['ProResProfile'] | null;
+	stillImageFormat: StillImageFormat | null;
+	videoImageFormat: VideoImageFormat | null;
+	x264Preset: X264Preset | null;
+};
+
 export type RenderDefaults = {
 	jpegQuality: number;
 	scale: number;
 	logLevel: LogLevel;
 	codec: Codec;
+	crf: number | null;
 	concurrency: number;
 	minConcurrency: number;
 	muted: boolean;
@@ -59,7 +68,9 @@ export type RenderDefaults = {
 	chromeMode: ChromeMode;
 	publicLicenseKey: string | null;
 	outputLocation: string | null;
+	allowHtmlInCanvas: boolean;
 	sampleRate: number;
+	configFileRenderDefaults: ConfigFileRenderDefaults | null;
 };
 
 declare global {

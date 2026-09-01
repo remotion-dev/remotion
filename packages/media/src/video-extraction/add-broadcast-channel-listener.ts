@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import {globalMediaCache} from '../caches';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 import type {MediaRequestInit} from '../request-init';
@@ -112,6 +113,7 @@ export const addBroadcastChannelListener = () => {
 						maxCacheSize: data.maxCacheSize,
 						credentials: data.credentials,
 						requestInit: data.requestInit,
+						mediaCache: globalMediaCache,
 					});
 
 					if (result.type === 'cannot-decode') {
@@ -188,7 +190,13 @@ export const addBroadcastChannelListener = () => {
 						durationInSeconds: durationInSeconds ?? null,
 					};
 
-					window.remotion_broadcastChannel!.postMessage(response);
+					try {
+						window.remotion_broadcastChannel!.postMessage(response);
+					} finally {
+						// BroadcastChannel clones ImageBitmaps instead of transferring them.
+						// Release the sender-side GPU resource after synchronous serialization.
+						imageBitmap?.close();
+					}
 				} catch (error) {
 					const response: MessageFromMainTab = {
 						type: 'response-error',

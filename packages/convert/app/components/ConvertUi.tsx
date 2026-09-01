@@ -11,18 +11,21 @@ import {Conversion, Output, StreamTarget} from 'mediabunny';
 import React, {useCallback, useMemo, useState} from 'react';
 import {applyCrop} from '~/lib/apply-crop';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
-import {calculateNewDimensionsFromRotateAndScale} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {
+	calculateNewDimensionsFromRotate,
+	calculateNewSizeAfterResizing,
+} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
+import {makeCanvasCaptureVideoProcessor} from '~/lib/canvas-capture-conversion';
+import type {CanvasCaptureCursorData} from '~/lib/canvas-capture-metadata';
 import type {ConvertState, Source} from '~/lib/convert-state';
-import type {
-	ConvertSections,
-	RotateOrMirrorOrCropState,
-} from '~/lib/default-ui';
+import type {ConvertSections, VideoEditState} from '~/lib/default-ui';
 import {
 	getOrderOfSections,
 	isConvertEnabledByDefault,
 	isVideoOnlySection,
 } from '~/lib/default-ui';
+import {canOfferFileDrag} from '~/lib/file-drag';
 import {getNewName} from '~/lib/generate-new-name';
 import {
 	getActualAudioOperation,
@@ -48,6 +51,7 @@ import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ConvertUiSection} from './ConvertUiSection';
+import {CursorControls} from './CursorControls';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {makeCrop} from './make-crop';
@@ -69,8 +73,6 @@ const ConvertUI = ({
 	setTrim,
 	trimInFrame,
 	trimOutFrame,
-	enableRotateOrMirror,
-	setEnableRotateOrMirror,
 	userRotation,
 	setRotation,
 	flipHorizontal,
@@ -79,13 +81,20 @@ const ConvertUI = ({
 	setFlipVertical,
 	inputContainer,
 	videoThumbnailRef,
-	rotation,
 	dimensions,
 	sampleRate,
 	name,
 	input,
-	crop,
+	videoEditState,
+	setVideoEditState,
 	cropRect,
+	cursorData,
+	showCursor,
+	setShowCursor,
+	cursorScale,
+	setCursorScale,
+	cursorPressedScale,
+	setCursorPressedScale,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
@@ -94,7 +103,6 @@ const ConvertUI = ({
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null;
 	readonly fps: number | null | undefined;
-	readonly rotation: number | null;
 	readonly inputContainer: InputFormat;
 	readonly action: RouteAction;
 	readonly trim: boolean;
@@ -103,9 +111,9 @@ const ConvertUI = ({
 	readonly trimOutFrame: number | null;
 	readonly name: string;
 	readonly input: Input;
-	readonly enableRotateOrMirror: RotateOrMirrorOrCropState;
-	readonly setEnableRotateOrMirror: React.Dispatch<
-		React.SetStateAction<RotateOrMirrorOrCropState | null>
+	readonly videoEditState: VideoEditState;
+	readonly setVideoEditState: React.Dispatch<
+		React.SetStateAction<VideoEditState>
 	>;
 	readonly userRotation: number;
 	readonly setRotation: React.Dispatch<React.SetStateAction<number>>;
@@ -113,10 +121,17 @@ const ConvertUI = ({
 	readonly flipVertical: boolean;
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
-	readonly crop: boolean;
 	readonly sampleRate: number | null;
 	readonly cropRect: CropRectangle;
+	readonly cursorData: CanvasCaptureCursorData | null;
+	readonly showCursor: boolean;
+	readonly setShowCursor: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly cursorScale: number;
+	readonly setCursorScale: React.Dispatch<React.SetStateAction<number>>;
+	readonly cursorPressedScale: number;
+	readonly setCursorPressedScale: React.Dispatch<React.SetStateAction<number>>;
 }) => {
+	const {crop, mirror, rotate} = videoEditState;
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
@@ -124,10 +139,15 @@ const ConvertUI = ({
 		() => getDefaultEditOutputFormat(inputContainer),
 		[inputContainer],
 	);
-	const [convertOutputContainer, setConvertOutputContainer] =
-		useState<OutputContainer>(() =>
-			getDefaultConvertOutputFormat({inputContainer, action}),
-		);
+	const defaultConvertOutputContainer = getDefaultConvertOutputFormat({
+		inputContainer,
+		action,
+		cursorMetadataDetected: cursorData !== null,
+	});
+	const [convertOutputContainerOverride, setConvertOutputContainer] =
+		useState<OutputContainer | null>(null);
+	const convertOutputContainer =
+		convertOutputContainerOverride ?? defaultConvertOutputContainer;
 	const actualOutputContainer = enableConvert
 		? convertOutputContainer
 		: editOutputContainer;
@@ -176,8 +196,18 @@ const ConvertUI = ({
 		return resampleRate;
 	}, [resampleRate, canResample, resampleUserPreferenceActive]);
 
+	const renderCursor =
+		showCursor &&
+		cursorData !== null &&
+		dimensions !== null &&
+		dimensions !== undefined;
 	const disableVideoCopy =
-		enableRotateOrMirror !== null || trim || resizeOperation !== null;
+		crop ||
+		mirror ||
+		rotate ||
+		trim ||
+		resizeOperation !== null ||
+		renderCursor;
 
 	const supportedConfigs = useSupportedConfigs({
 		outputContainer: actualOutputContainer,
@@ -199,6 +229,37 @@ const ConvertUI = ({
 		});
 		return operation.type === 'reencode' && operation.videoCodec === 'avc';
 	});
+
+	const dimensionsAfterRotation = useMemo(() => {
+		if (!dimensions) {
+			return null;
+		}
+
+		return calculateNewDimensionsFromRotate({
+			...dimensions,
+			rotation: userRotation,
+		});
+	}, [dimensions, userRotation]);
+
+	const dimensionsAfterCrop = useMemo(() => {
+		if (dimensionsAfterRotation === null || !crop) {
+			return dimensionsAfterRotation;
+		}
+
+		return applyCrop(dimensionsAfterRotation, cropRect);
+	}, [crop, cropRect, dimensionsAfterRotation]);
+
+	const newDimensions = useMemo(() => {
+		if (dimensionsAfterCrop === null) {
+			return null;
+		}
+
+		return calculateNewSizeAfterResizing({
+			dimensions: dimensionsAfterCrop,
+			resizeOperation,
+			needsToBeMultipleOfTwo: isH264Reencode ?? false,
+		});
+	}, [dimensionsAfterCrop, isH264Reencode, resizeOperation]);
 
 	const setVideoConfigIndex = useCallback((trackId: number, key: string) => {
 		setVideoOperationKey((prev) => ({
@@ -238,8 +299,14 @@ const ConvertUI = ({
 
 		const run = async () => {
 			const filename = getNewName(name, format);
-			const {getBlob, stream, getWrittenByteCount, close} =
-				await makeWebFsTarget(filename);
+			const {
+				getBlob,
+				stream,
+				getWrittenByteCount,
+				getFileSize,
+				isFileSystemBacked,
+				close,
+			} = await makeWebFsTarget(filename, format.mimeType);
 
 			const output = new Output({
 				format,
@@ -270,6 +337,9 @@ const ConvertUI = ({
 				startTime,
 				newName: filename,
 			});
+			const cursorProcessors: Array<{
+				readonly dispose: () => Promise<void>;
+			}> = [];
 
 			try {
 				const conversion = await Conversion.init({
@@ -310,17 +380,55 @@ const ConvertUI = ({
 						}
 
 						progress.hasVideo = true;
-
-						const dimensionsAfterCrop =
-							dimensions && crop ? applyCrop(dimensions, cropRect) : dimensions;
+						const videoCrop = crop
+							? makeCrop({
+									cropRect,
+									dimensions: dimensionsAfterRotation!,
+									mirrorHorizontal: flipHorizontal && mirror,
+									mirrorVertical: flipVertical && mirror,
+									videoCodec: operation.videoCodec,
+								})
+							: undefined;
+						const cursorProcessor =
+							renderCursor && cursorData && dimensions
+								? makeCanvasCaptureVideoProcessor({
+										cursorData,
+										cursorScale,
+										cursorPressedScale,
+										sourceDimensions: dimensions,
+										rotation: userRotation,
+										crop: videoCrop ?? null,
+										mirrorHorizontal: flipHorizontal && mirror,
+										mirrorVertical: flipVertical && mirror,
+										timestampOffset:
+											trim && fps && trimInFrame !== null
+												? trimInFrame / fps
+												: 0,
+									})
+								: null;
+						if (cursorProcessor) {
+							cursorProcessors.push(cursorProcessor);
+						}
 
 						return {
-							process(sample) {
+							async process(sample) {
+								if (cursorProcessor) {
+									const samples = await cursorProcessor.process(sample);
+									if (videoFrames % 15 === 0 && samples[0]) {
+										const previewFrame = samples[0].toVideoFrame();
+										convertProgressRef.current?.draw(previewFrame);
+										previewFrame.close();
+									}
+
+									progress.millisecondsWritten = sample.timestamp * 1000;
+									videoFrames++;
+									return samples;
+								}
+
 								const flipped = flipVideoFrame({
 									frame: sample.toVideoFrame(),
-									horizontal:
-										flipHorizontal && enableRotateOrMirror === 'mirror',
-									vertical: flipVertical && enableRotateOrMirror === 'mirror',
+									horizontal: flipHorizontal && mirror,
+									vertical: flipVertical && mirror,
 								});
 								if (videoFrames % 15 === 0) {
 									convertProgressRef.current?.draw(flipped);
@@ -331,13 +439,7 @@ const ConvertUI = ({
 								videoFrames++;
 								return flipped;
 							},
-							crop: crop
-								? makeCrop({
-										cropRect,
-										dimensions: dimensions!,
-										videoCodec: operation.videoCodec,
-									})
-								: undefined,
+							crop: videoCrop,
 							rotate: userRotation as Rotation,
 							forceTranscode: true,
 							...calculateMediabunnyResizeOption(
@@ -417,14 +519,39 @@ const ConvertUI = ({
 
 				await conversion.execute();
 
-				close();
+				await close();
+				progress.bytesWritten = getWrittenByteCount();
+
+				let outputFilePromise: Promise<File> | null = null;
+				const download = () => {
+					if (outputFilePromise === null) {
+						outputFilePromise = getBlob().catch((error) => {
+							outputFilePromise = null;
+							throw error;
+						});
+					}
+
+					return outputFilePromise;
+				};
+
+				let draggableFile: File | null = null;
+				if (
+					canOfferFileDrag({
+						fileSize: getFileSize(),
+						isFileSystemBacked,
+					})
+				) {
+					try {
+						draggableFile = await download();
+					} catch {
+						draggableFile = null;
+					}
+				}
 
 				setState({
 					type: 'done',
-					download: async () => {
-						const blob = await getBlob();
-						return blob;
-					},
+					download,
+					draggableFile,
 					state: progress,
 					startTime,
 					completedTime: Date.now(),
@@ -435,6 +562,10 @@ const ConvertUI = ({
 					type: 'error',
 					error: error as Error,
 				});
+			} finally {
+				await Promise.all(
+					cursorProcessors.map((processor) => processor.dispose()),
+				);
 			}
 		};
 
@@ -446,9 +577,7 @@ const ConvertUI = ({
 	}, [
 		audioOperationSelection,
 		actualOutputContainer,
-		dimensions,
 		enableConvert,
-		enableRotateOrMirror,
 		flipHorizontal,
 		flipVertical,
 		input,
@@ -464,46 +593,56 @@ const ConvertUI = ({
 		videoOperationSelection,
 		crop,
 		cropRect,
+		dimensionsAfterCrop,
+		dimensionsAfterRotation,
+		mirror,
+		cursorData,
+		cursorScale,
+		cursorPressedScale,
+		dimensions,
+		renderCursor,
 	]);
 
 	const dimissError = useCallback(() => {
 		setState({type: 'idle'});
 	}, []);
 
-	const onMirrorClick = useCallback(() => {
-		setEnableRotateOrMirror((m) => {
-			if (m !== 'mirror') {
-				return 'mirror';
+	const onOutputNameChange = useCallback((newName: string) => {
+		setState((currentState) => {
+			if (currentState.type !== 'done') {
+				return currentState;
 			}
 
-			return null;
+			return {...currentState, newName};
 		});
-	}, [setEnableRotateOrMirror]);
+	}, []);
+
+	const onMirrorClick = useCallback(() => {
+		setVideoEditState((editState) => ({
+			...editState,
+			mirror: !editState.mirror,
+		}));
+	}, [setVideoEditState]);
 
 	const onRotateClick = useCallback(() => {
-		setEnableRotateOrMirror((m) => {
-			if (m !== 'rotate') {
-				return 'rotate';
-			}
-
-			return null;
-		});
-	}, [setEnableRotateOrMirror]);
+		setVideoEditState((editState) => ({
+			...editState,
+			rotate: !editState.rotate,
+		}));
+	}, [setVideoEditState]);
 
 	const onCropClick = useCallback(() => {
-		setEnableRotateOrMirror((m) => {
-			if (m !== 'crop') {
+		setVideoEditState((editState) => {
+			if (!editState.crop) {
 				// Scroll to top of the page when crop is activated
 				if (typeof window !== 'undefined') {
 					window.scrollTo({top: 0, behavior: 'smooth'});
 				}
-
-				return 'crop';
 			}
 
-			return null;
+			return {...editState, crop: !editState.crop};
 		});
-	}, [setEnableRotateOrMirror]);
+	}, [setVideoEditState]);
 
 	const onResizeClick = useCallback(() => {
 		setResizeOperation((r) => {
@@ -518,37 +657,6 @@ const ConvertUI = ({
 	const inputIsAudioExclusively = useMemo(() => {
 		return (tracks?.filter((t) => t.isVideoTrack()).length ?? 0) === 0;
 	}, [tracks]);
-
-	const unrotatedDimensions = useMemo(() => {
-		if (!dimensions) {
-			return null;
-		}
-
-		if (enableRotateOrMirror !== 'crop') {
-			return dimensions;
-		}
-
-		return applyCrop(dimensions, cropRect);
-	}, [dimensions, cropRect, enableRotateOrMirror]);
-
-	const newDimensions = useMemo(() => {
-		if (unrotatedDimensions === null) {
-			return null;
-		}
-
-		return calculateNewDimensionsFromRotateAndScale({
-			...unrotatedDimensions,
-			rotation: userRotation - (rotation ?? 0),
-			resizeOperation,
-			needsToBeMultipleOfTwo: isH264Reencode ?? false,
-		});
-	}, [
-		unrotatedDimensions,
-		isH264Reencode,
-		resizeOperation,
-		rotation,
-		userRotation,
-	]);
 
 	if (state.type === 'error') {
 		return (
@@ -568,6 +676,8 @@ const ConvertUI = ({
 				<ConvertProgress
 					state={state.state}
 					newName={state.newName}
+					draggableFile={null}
+					onNameChange={null}
 					done={false}
 					duration={durationInSeconds}
 					isReencoding={
@@ -596,6 +706,8 @@ const ConvertUI = ({
 					done
 					state={state.state}
 					newName={state.newName}
+					draggableFile={state.draggableFile}
+					onNameChange={onOutputNameChange}
 					duration={durationInSeconds}
 					isReencoding={
 						supportedConfigs !== null &&
@@ -622,8 +734,9 @@ const ConvertUI = ({
 		supportedConfigs,
 		videoConfigIndexSelection: videoOperationSelection,
 		enableConvert,
-		enableRotateOrMirror,
+		videoEditState,
 		enableTrim: trim,
+		enableResize: resizeOperation !== null,
 	});
 
 	const canPixelManipulate = canRotateOrMirror({
@@ -645,6 +758,15 @@ const ConvertUI = ({
 	return (
 		<>
 			<div className="w-full gap-4 flex flex-col">
+				<CursorControls
+					available={cursorData !== null}
+					showCursor={showCursor}
+					setShowCursor={setShowCursor}
+					cursorScale={cursorScale}
+					setCursorScale={setCursorScale}
+					cursorPressedScale={cursorPressedScale}
+					setCursorPressedScale={setCursorPressedScale}
+				/>
 				{order.map((section) => {
 					if (inputIsAudioExclusively && isVideoOnlySection(section)) {
 						return null;
@@ -687,13 +809,10 @@ const ConvertUI = ({
 					if (section === 'mirror') {
 						return (
 							<div key="mirror">
-								<ConvertUiSection
-									active={enableRotateOrMirror === 'mirror'}
-									setActive={onMirrorClick}
-								>
+								<ConvertUiSection active={mirror} setActive={onMirrorClick}>
 									Mirror
 								</ConvertUiSection>
-								{enableRotateOrMirror === 'mirror' ? (
+								{mirror ? (
 									<MirrorComponents
 										canPixelManipulate={canPixelManipulate}
 										flipHorizontal={flipHorizontal}
@@ -709,13 +828,10 @@ const ConvertUI = ({
 					if (section === 'rotate') {
 						return (
 							<div key="rotate">
-								<ConvertUiSection
-									active={enableRotateOrMirror === 'rotate'}
-									setActive={onRotateClick}
-								>
+								<ConvertUiSection active={rotate} setActive={onRotateClick}>
 									Rotate
 								</ConvertUiSection>
-								{enableRotateOrMirror === 'rotate' ? (
+								{rotate ? (
 									<RotateComponents
 										canPixelManipulate={canPixelManipulate}
 										rotation={userRotation}
@@ -792,21 +908,25 @@ const ConvertUI = ({
 								</ConvertUiSection>
 								{resizeOperation !== null &&
 								newDimensions !== null &&
-								unrotatedDimensions !== null &&
+								dimensionsAfterCrop !== null &&
+								dimensionsAfterRotation !== null &&
 								dimensions !== null &&
 								dimensions !== undefined ? (
 									<>
 										<div className="h-2" />
 										<ResizeUi
-											originalDimensions={unrotatedDimensions}
+											originalDimensions={dimensionsAfterCrop}
 											dimensions={newDimensions}
 											thumbnailRef={videoThumbnailRef}
-											rotation={userRotation - (rotation ?? 0)}
+											rotation={userRotation}
 											setResizeMode={setResizeOperation}
 											requireTwoStep={Boolean(isH264Reencode)}
-											crop={enableRotateOrMirror === 'crop'}
+											crop={crop}
 											cropRect={cropRect}
-											dimensionsBeforeCrop={dimensions}
+											dimensionsBeforeCrop={dimensionsAfterRotation}
+											sourceDimensions={dimensions}
+											mirrorHorizontal={flipHorizontal && mirror}
+											mirrorVertical={flipVertical && mirror}
 										/>
 									</>
 								) : null}

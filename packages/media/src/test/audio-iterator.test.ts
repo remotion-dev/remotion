@@ -4,10 +4,12 @@ import {expect, test} from 'vitest';
 import {
 	anchorToContinuousTime,
 	audioIteratorManager,
+	hasEnoughAudioToStartPlayback,
 } from '../audio-iterator-manager';
 import {makeNonceManager} from '../nonce-manager';
 
 const prepare = async (options?: {
+	src?: string;
 	fps?: number;
 	playbackRate?: number;
 	localPlaybackRate?: number;
@@ -18,6 +20,7 @@ const prepare = async (options?: {
 	loop?: boolean;
 }) => {
 	const {
+		src = 'https://remotion.media/video.mp4',
 		fps = 30,
 		playbackRate = 1,
 		localPlaybackRate = playbackRate,
@@ -28,7 +31,7 @@ const prepare = async (options?: {
 		loop = false,
 	} = options ?? {};
 	const input = new Input({
-		source: new UrlSource('https://remotion.media/video.mp4'),
+		source: new UrlSource(src),
 		formats: ALL_FORMATS,
 	});
 	const audioTrack = await input.getPrimaryAudioTrack();
@@ -51,11 +54,14 @@ const prepare = async (options?: {
 
 	const unscheduleAudioNode = () => {};
 	const audioSyncAnchor = {value: 0};
+	let playbackUnblocks = 0;
 
 	const manager = audioIteratorManager({
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
-			unblock: () => {},
+			unblock: () => {
+				playbackUnblocks++;
+			},
 			[Symbol.dispose]: () => {},
 		}),
 		sharedAudioContext: {
@@ -70,14 +76,9 @@ const prepare = async (options?: {
 		getSequenceDurationInSeconds: () => sequenceDurationInSeconds,
 		getStartTime: () => startTime,
 		initialMuted: false,
+		initialVolume: 1,
+		toneFrequency: 1,
 		drawDebugOverlay: () => {},
-		initialPlaybackRate: 1,
-		initialTrimBefore: undefined,
-		initialTrimAfter: undefined,
-		initialSequenceOffset: 0,
-		initialSequenceDurationInFrames: 10,
-		initialLoop: loop,
-		initialFps: 30,
 	});
 
 	const scheduledChunks: number[] = [];
@@ -140,6 +141,7 @@ const prepare = async (options?: {
 		scheduledStartOffsets,
 		seek,
 		audioContextCurrentTime,
+		getPlaybackUnblocks: () => playbackUnblocks,
 	};
 };
 
@@ -163,6 +165,54 @@ test('anchor maps unlooped time using the local playback rate', () => {
 			playbackRate: 2,
 		}),
 	).toBe(8);
+});
+
+test('audio startup buffering is based on duration instead of chunk count', () => {
+	expect(hasEnoughAudioToStartPlayback(0.099)).toBe(false);
+	expect(hasEnoughAudioToStartPlayback(0.1)).toBe(true);
+	expect(hasEnoughAudioToStartPlayback(0.5)).toBe(true);
+});
+
+test('PCM chunks unblock playback based on duration before six chunks or EOF', async () => {
+	const {manager, seek, scheduledChunks, getPlaybackUnblocks} = await prepare({
+		src: '/junk.wav',
+	});
+
+	seek({time: 0});
+	await manager.waitForNScheduledNodes(3);
+
+	expect(scheduledChunks).toEqual([
+		0, 0.046439909297052155, 0.09287981859410431,
+	]);
+	expect(getPlaybackUnblocks()).toBe(1);
+	manager.destroyIterator();
+});
+
+// https://github.com/remotion-dev/remotion/issues/10658
+test('silence before the next loop pass counts toward startup buffering', async () => {
+	const {
+		manager,
+		seek,
+		scheduledChunks,
+		audioContextCurrentTime,
+		getPlaybackUnblocks,
+	} = await prepare({
+		src: 'https://remotion.media/audio-shorter-than-video.mp4',
+		mediaEndTimestamp: 10,
+		sequenceDurationInSeconds: 12,
+		loop: true,
+	});
+
+	audioContextCurrentTime.current = 8;
+	seek({time: 8});
+	await manager.waitForNScheduledNodes(1);
+
+	expect(scheduledChunks[0]).toBeCloseTo(10);
+	expect(getPlaybackUnblocks()).toBe(1);
+
+	seek({time: 8 + 1 / 30});
+	expect(manager.getAudioIteratorsCreated()).toBe(1);
+	manager.destroyIterator();
 });
 
 test('media player should work', async () => {
@@ -376,4 +426,19 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 	}
 
 	expect(scheduledChunks.length).toBe(23);
+});
+
+test('seek to the same time after destroyIterator() starts a new iterator', async () => {
+	const {seek, manager} = await prepare();
+
+	seek({time: 2});
+	expect(manager.getAudioIteratorsCreated()).toBe(1);
+	expect(manager.getAudioBufferIterator()).not.toBe(null);
+
+	manager.destroyIterator();
+	expect(manager.getAudioBufferIterator()).toBe(null);
+
+	seek({time: 2});
+	expect(manager.getAudioIteratorsCreated()).toBe(2);
+	expect(manager.getAudioBufferIterator()).not.toBe(null);
 });

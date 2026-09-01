@@ -1,4 +1,4 @@
-import {binomialCoefficients, cValues, tValues} from './bezier-values';
+import {cValues, tValues} from './bezier-values';
 import type {Point} from './types';
 
 export const cubicPoint = (xs: number[], ys: number[], t: number): Point => {
@@ -16,45 +16,6 @@ export const cubicPoint = (xs: number[], ys: number[], t: number): Point => {
 	return {x, y};
 };
 
-/**
- * Compute the curve derivative (hodograph) at t.
- */
-const getDerivative = (derivative: number, t: number, vs: number[]): number => {
-	// the derivative of any 't'-less function is zero.
-	const n = vs.length - 1;
-	let value;
-
-	if (n === 0) {
-		return 0;
-	}
-
-	// direct values? compute!
-	if (derivative === 0) {
-		value = 0;
-		for (let k = 0; k <= n; k++) {
-			value += binomialCoefficients[n][k] * (1 - t) ** (n - k) * t ** k * vs[k];
-		}
-
-		return value;
-	}
-
-	// Still some derivative? go down one order, then try
-	// for the lower order curve's.
-	const _vs = new Array(n);
-	for (let k = 0; k < n; k++) {
-		_vs[k] = n * (vs[k + 1] - vs[k]);
-	}
-
-	return getDerivative(derivative - 1, t, _vs);
-};
-
-function bFunc(xs: number[], ys: number[], t: number) {
-	const xbase = getDerivative(1, t, xs);
-	const ybase = getDerivative(1, t, ys);
-	const combined = xbase * xbase + ybase * ybase;
-	return Math.sqrt(combined);
-}
-
 export const getCubicArcLength = ({
 	sx,
 	sy,
@@ -64,15 +25,25 @@ export const getCubicArcLength = ({
 	sy: number[];
 	t: number;
 }) => {
+	const v0x = 3 * (sx[1] - sx[0]);
+	const v1x = 3 * (sx[2] - sx[1]);
+	const v2x = 3 * (sx[3] - sx[2]);
+	const v0y = 3 * (sy[1] - sy[0]);
+	const v1y = 3 * (sy[2] - sy[1]);
+	const v2y = 3 * (sy[3] - sy[2]);
+
 	let correctedT: number;
-
 	const n = 20;
-
 	const z = t / 2;
 	let sum = 0;
 	for (let i = 0; i < n; i++) {
 		correctedT = z * tValues[n][i] + z;
-		sum += cValues[n][i] * bFunc(sx, sy, correctedT);
+		const mt = 1 - correctedT;
+		const xbase =
+			mt * mt * v0x + 2 * mt * correctedT * v1x + correctedT * correctedT * v2x;
+		const ybase =
+			mt * mt * v0y + 2 * mt * correctedT * v1y + correctedT * correctedT * v2y;
+		sum += cValues[n][i] * Math.sqrt(xbase * xbase + ybase * ybase);
 	}
 
 	return z * sum;
@@ -89,12 +60,17 @@ export const quadraticPoint = (
 };
 
 export const cubicDerivative = (xs: number[], ys: number[], t: number) => {
-	const derivative = quadraticPoint(
-		[3 * (xs[1] - xs[0]), 3 * (xs[2] - xs[1]), 3 * (xs[3] - xs[2])],
-		[3 * (ys[1] - ys[0]), 3 * (ys[2] - ys[1]), 3 * (ys[3] - ys[2])],
-		t,
-	);
-	return derivative;
+	const v0x = 3 * (xs[1] - xs[0]);
+	const v1x = 3 * (xs[2] - xs[1]);
+	const v2x = 3 * (xs[3] - xs[2]);
+	const v0y = 3 * (ys[1] - ys[0]);
+	const v1y = 3 * (ys[2] - ys[1]);
+	const v2y = 3 * (ys[3] - ys[2]);
+	const mt = 1 - t;
+	return {
+		x: mt * mt * v0x + 2 * mt * t * v1x + t * t * v2x,
+		y: mt * mt * v0y + 2 * mt * t * v1y + t * t * v2y,
+	};
 };
 
 export const getQuadraticArcLength = (

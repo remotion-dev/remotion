@@ -3,12 +3,14 @@ import {useCallback, useContext, useEffect} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {getKeysToExpand} from '../helpers/create-folder-tree';
-import {useMobileLayout} from '../helpers/mobile-layout';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
-import {getRoute, pushUrl} from '../helpers/url-state';
+import {getNavigationWindow, getRoute, pushUrl} from '../helpers/url-state';
+import {
+	CompositionListContext,
+	compositionListRenderedRef,
+} from '../state/composition-list';
 import {FolderContext} from '../state/folders';
-import {SidebarContext} from '../state/sidebar';
 import {explorerSidebarTabs} from './ExplorerPanelRef';
 import {deriveCanvasContentFromUrl} from './load-canvas-content-from-url';
 import {useSelectAsset} from './use-select-asset';
@@ -17,16 +19,25 @@ import {useStaticFiles} from './use-static-files';
 export const useSelectComposition = () => {
 	const {setCompositionFoldersExpanded} = useContext(FolderContext);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
-	const isMobileLayout = useMobileLayout();
-	const {setSidebarCollapsedState} = useContext(SidebarContext);
+	const setFrame = Internals.useTimelineSetFrame();
 
 	return useCallback(
-		(c: _InternalTypes['AnyComposition'], push: boolean) => {
+		(
+			c: Pick<
+				_InternalTypes['AnyComposition'],
+				'id' | 'folderName' | 'parentFolderName'
+			>,
+			push: boolean,
+			frame: number | null = null,
+		) => {
 			if (push) {
 				pushUrl(`/${c.id}`);
 			}
 
 			explorerSidebarTabs.current?.selectCompositionPanel();
+			if (frame !== null) {
+				setFrame((current) => ({...current, [c.id]: frame}));
+			}
 
 			setCanvasContent({type: 'composition', compositionId: c.id});
 
@@ -46,17 +57,9 @@ export const useSelectComposition = () => {
 
 					return newState;
 				});
-				if (isMobileLayout) {
-					setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
-				}
 			}
 		},
-		[
-			isMobileLayout,
-			setCanvasContent,
-			setCompositionFoldersExpanded,
-			setSidebarCollapsedState,
-		],
+		[setCanvasContent, setCompositionFoldersExpanded, setFrame],
 	);
 };
 
@@ -65,12 +68,19 @@ export const InitialCompositionLoader: React.FC = () => {
 		Internals.CompositionManager,
 	);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+	const {setCompositionListState} = useContext(CompositionListContext);
 	const selectComposition = useSelectComposition();
 	const selectAsset = useSelectAsset();
 	const staticFiles = useStaticFiles();
 
 	useEffect(() => {
 		const canvasContentFromUrl = deriveCanvasContentFromUrl();
+		const seenCompositionIds = window.remotion_seenCompositionIds ?? [];
+		const compositionListIsReady =
+			compositionListRenderedRef.current &&
+			seenCompositionIds.every((id) =>
+				compositions.some((composition) => composition.id === id),
+			);
 
 		if (canvasContent) {
 			// If the URL points to a different composition than the one currently
@@ -90,17 +100,24 @@ export const InitialCompositionLoader: React.FC = () => {
 				}
 			}
 
+			setCompositionListState('ready');
 			return;
 		}
 
 		if (canvasContentFromUrl && canvasContentFromUrl.type === 'composition') {
+			if (!compositionListIsReady) {
+				return;
+			}
+
 			const exists = compositions.find(
 				(c) => c.id === canvasContentFromUrl.compositionId,
 			);
 			if (exists) {
 				selectComposition(exists, false);
+				return;
 			}
 
+			setCompositionListState('ready');
 			return;
 		}
 
@@ -114,14 +131,21 @@ export const InitialCompositionLoader: React.FC = () => {
 			return;
 		}
 
+		if (!compositionListIsReady) {
+			return;
+		}
+
 		if (compositions.length > 0) {
 			selectComposition(compositions[0], true);
+		} else {
+			setCompositionListState('ready');
 		}
 	}, [
 		compositions,
 		canvasContent,
 		selectComposition,
 		setCanvasContent,
+		setCompositionListState,
 		selectAsset,
 	]);
 
@@ -153,9 +177,10 @@ export const InitialCompositionLoader: React.FC = () => {
 			setCanvasContent(newCanvas);
 		};
 
-		window.addEventListener('popstate', onchange);
+		const navigationWindow = getNavigationWindow();
+		navigationWindow.addEventListener('popstate', onchange);
 
-		return () => window.removeEventListener('popstate', onchange);
+		return () => navigationWindow.removeEventListener('popstate', onchange);
 	}, [
 		compositions,
 		selectAsset,

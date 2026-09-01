@@ -5,25 +5,15 @@ import type {PlayerEmitter, ThumbnailEmitter} from './event-emitter.js';
 export const useBufferStateEmitter = (
 	emitter: PlayerEmitter | ThumbnailEmitter,
 ) => {
-	const bufferManager = useContext(Internals.BufferingContextReact);
-
-	if (!bufferManager) {
-		throw new Error('BufferingContextReact not found');
-	}
+	const {subscribeBuffering} = useContext(Internals.SetTimelineContext);
 
 	useLayoutEffect(() => {
-		const clear1 = bufferManager.listenForBuffering(() => {
-			bufferManager.buffering.current = true;
-			emitter.dispatchWaiting({});
+		return subscribeBuffering((state) => {
+			if (state.buffering) {
+				emitter.dispatchWaiting({});
+			} else {
+				emitter.dispatchResume({});
+			}
 		});
-		const clear2 = bufferManager.listenForResume(() => {
-			bufferManager.buffering.current = false;
-			emitter.dispatchResume({});
-		});
-
-		return () => {
-			clear1.remove();
-			clear2.remove();
-		};
-	}, [bufferManager, emitter]);
+	}, [emitter, subscribeBuffering]);
 };

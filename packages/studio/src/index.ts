@@ -1,4 +1,8 @@
 import {createComposition, createStill} from './api/create-composition';
+import {CodingAgentIcon} from './components/CodingAgentIcon';
+import {EditorIcon} from './icons/editor';
+import {FinderIcon} from './icons/finder';
+import {TerminalIcon} from './icons/terminal';
 
 export {
 	deleteStaticFile,
@@ -22,6 +26,10 @@ export {watchStaticFile} from './api/watch-static-file';
 export {writeStaticFile} from './api/write-static-file';
 
 export const StudioInternals = {
+	CodingAgentIcon,
+	EditorIcon,
+	FinderIcon,
+	TerminalIcon,
 	createComposition,
 	createStill,
 };

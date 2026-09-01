@@ -1,0 +1,82 @@
+---
+image: /generated/articles-docs-studio-protocol-set-studio-drag-data.png
+title: 'setStudioDragData()'
+crumb: '@remotion/studio-protocol'
+---
+
+# setStudioDragData()<AvailableFrom v="4.0.502" />
+
+Writes an Element payload and its preview metadata to a browser `DataTransfer` object.
+
+## Example
+
+```tsx twoslash title="DraggableElement.tsx"
+import {
+  createElementPayload,
+  setStudioDragData,
+} from '@remotion/studio-protocol';
+
+const elementSourceCode = `
+export const MyElement = () => {
+  return <div>Hello world</div>;
+};
+`;
+
+const payload = createElementPayload({
+  displayName: 'My Element',
+  slug: 'my-element',
+  sourceCode: elementSourceCode,
+  dependencies: [],
+  dimensions: {width: 900, height: 260},
+  durationInFrames: 90,
+});
+
+export const DraggableElement = () => (
+  <button
+    draggable
+    onDragStart={(event) => {
+      setStudioDragData({
+        dataTransfer: event.dataTransfer,
+        payload,
+      });
+    }}
+  >
+    Drag into Studio
+  </button>
+);
+```
+
+## When to use drag-and-drop
+
+Drag-and-drop lets the user choose the exact Studio tab, timeline position, and canvas position. It is useful when multiple Studio tabs are open or placement should be decided visually.
+
+A drag event has no reliable website provenance. Studio therefore labels the Element source as unverified. Also offer [`installInStudio()`](/docs/studio-protocol/install-in-studio) when possible so the user can choose between precise placement and an installation request with a displayed source.
+
+## Arguments
+
+Pass an object with the following properties.
+
+### dataTransfer
+
+The `DataTransfer` from a browser `dragstart` event. `effectAllowed` is set to `copy`.
+
+### payload
+
+The value returned by [`createElementPayload()`](/docs/studio-protocol/create-element-payload).
+
+## Drag preview
+
+The protocol MIME type contains dimensions and duration metadata so Studio can show a preview before reading the payload.
+
+A `text/plain` fallback is also written so you can switch browser tabs while dragging an Element. The structured payload remains available through the protocol MIME type.
+
+`setStudioDragData()` does not call `setDragImage()`. The website owns the visual drag image.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+
+## See also
+
+- [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
+- [`installInStudio()`](/docs/studio-protocol/install-in-studio)

@@ -20,3 +20,13 @@ export const ErrorOverlayRepro: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const UnsymbolicatedErrorOverlayRepro: React.FC = () => {
+	const error = new TypeError('Expected defaults');
+	error.stack = [
+		'TypeError: Expected defaults',
+		'    at unsymbolicatedErrorOverlayRepro (webpack-internal:///cannot-symbolicate.js:1:1)',
+		'    at aDeliberatelyLongFunctionNameToTestHorizontalOverflow (webpack-internal:///this-is-a-deliberately-long-file-name-that-must-not-widen-the-error-overlay-beyond-the-viewport.js:2:3)',
+	].join('\n');
+	throw error;
+};

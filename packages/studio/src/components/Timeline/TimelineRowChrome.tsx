@@ -1,17 +1,20 @@
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {Padder} from './Padder';
 import {
-	TIMELINE_ROW_BASE_PADDING,
 	getTimelineRowIndentWidth,
 	getTimelineRowLeftChromeWidth,
 } from './timeline-row-layout';
+import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {
 	getTimelineRowHighlightBackground,
-	type TimelineSelection,
-	useTimelineFocusableItem,
+	TIMELINE_SELECTED_BACKGROUND,
 } from './TimelineSelection';
+
+export const TimelineRowSelectedBackgroundContext = React.createContext<string>(
+	TIMELINE_SELECTED_BACKGROUND,
+);
 
 const rowBase: React.CSSProperties = {
 	alignItems: 'stretch',
@@ -27,11 +30,33 @@ const leftChromeStyle: React.CSSProperties = {
 
 const keyframeControlsColumnBaseStyle: React.CSSProperties = {
 	alignItems: 'center',
-	boxSizing: 'border-box',
 	display: 'flex',
 	flexShrink: 0,
 	justifyContent: 'flex-start',
-	paddingLeft: TIMELINE_ROW_BASE_PADDING,
+};
+
+export const TimelineRowKeyframeControlsColumn: React.FC<{
+	readonly children: React.ReactNode;
+	readonly depth: number;
+}> = ({children, depth}) => {
+	const {basePadding, keyframeControlsPadding} = useContext(
+		TimelineRowLayoutContext,
+	);
+	const style = useMemo(
+		(): React.CSSProperties => ({
+			...keyframeControlsColumnBaseStyle,
+			boxSizing: keyframeControlsPadding === 0 ? undefined : 'border-box',
+			paddingLeft: keyframeControlsPadding,
+			width: getTimelineRowLeftChromeWidth(depth, basePadding),
+		}),
+		[basePadding, depth, keyframeControlsPadding],
+	);
+
+	return (
+		<div style={leftChromeStyle}>
+			<div style={style}>{children}</div>
+		</div>
+	);
 };
 
 export const TimelineRowChrome: React.FC<{
@@ -43,10 +68,10 @@ export const TimelineRowChrome: React.FC<{
 	readonly style: React.CSSProperties;
 	readonly selected: boolean;
 	readonly selectable: boolean;
-	readonly selectionItem: TimelineSelection | null;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly showSelectedBackground: boolean;
 	readonly containsSelection: boolean;
+	readonly hovered?: boolean;
 	// When set, the chrome is wrapped in an outer container of this height with a
 	// bottom track separator. The background highlight and click target span the
 	// outer (used by sequence rows whose layer is taller than the chrome row).
@@ -55,6 +80,8 @@ export const TimelineRowChrome: React.FC<{
 	readonly onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+	readonly onPointerEnter?: () => void;
+	readonly onPointerLeave?: () => void;
 }> = ({
 	depth,
 	eye,
@@ -64,27 +91,23 @@ export const TimelineRowChrome: React.FC<{
 	style,
 	selected,
 	selectable,
-	selectionItem,
 	onSelect,
 	showSelectedBackground,
 	containsSelection,
+	hovered = false,
 	outerHeight,
 	onDragLeave,
 	onDragOver,
 	onDrop,
 	onDoubleClick,
+	onPointerEnter,
+	onPointerLeave,
 }) => {
-	const ref = useRef<HTMLDivElement>(null);
-	const indentWidth = getTimelineRowIndentWidth(depth);
-	useTimelineFocusableItem(selectionItem, ref);
-
-	const keyframeControlsColumnStyle = useMemo(
-		(): React.CSSProperties => ({
-			...keyframeControlsColumnBaseStyle,
-			width: getTimelineRowLeftChromeWidth(depth),
-		}),
-		[depth],
+	const {basePadding, rowBorderRadius, rowHorizontalMargin} = useContext(
+		TimelineRowLayoutContext,
 	);
+	const selectedBackground = useContext(TimelineRowSelectedBackgroundContext);
+	const indentWidth = getTimelineRowIndentWidth(depth);
 
 	const chromeColumnStyle = useMemo(
 		(): React.CSSProperties => ({
@@ -92,9 +115,9 @@ export const TimelineRowChrome: React.FC<{
 			alignSelf: 'stretch',
 			display: 'flex',
 			flexShrink: 0,
-			paddingLeft: TIMELINE_ROW_BASE_PADDING,
+			paddingLeft: basePadding,
 		}),
-		[],
+		[basePadding],
 	);
 
 	const onPointerDown = useCallback(
@@ -113,15 +136,39 @@ export const TimelineRowChrome: React.FC<{
 	const onContextMenu = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			e.stopPropagation();
-			onSelect();
+			if (!selected) {
+				onSelect();
+			}
 		},
-		[onSelect],
+		[onSelect, selected],
+	);
+
+	const onDoubleClickIfNotInteractive = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			const {target} = e;
+			if (
+				target instanceof Element &&
+				e.currentTarget.contains(
+					target.closest(
+						'button, input, select, textarea, a, [contenteditable="true"]',
+					),
+				)
+			) {
+				e.stopPropagation();
+				return;
+			}
+
+			onDoubleClick?.(e);
+		},
+		[onDoubleClick],
 	);
 
 	const highlightBackground = getTimelineRowHighlightBackground({
 		showSelectedBackground,
 		selected,
 		containsSelection,
+		hovered,
+		selectedBackground,
 	});
 
 	const innerRowStyle = useMemo(
@@ -129,8 +176,16 @@ export const TimelineRowChrome: React.FC<{
 			...rowBase,
 			...style,
 			backgroundColor: outerHeight === null ? highlightBackground : undefined,
+			borderRadius: rowBorderRadius,
+			margin: `0 ${rowHorizontalMargin}px`,
 		}),
-		[style, outerHeight, highlightBackground],
+		[
+			style,
+			outerHeight,
+			highlightBackground,
+			rowBorderRadius,
+			rowHorizontalMargin,
+		],
 	);
 
 	const outerStyle = useMemo((): React.CSSProperties | undefined => {
@@ -150,17 +205,19 @@ export const TimelineRowChrome: React.FC<{
 
 	const chrome = (
 		<>
-			<div style={leftChromeStyle}>
-				{keyframeControls ? (
-					<div style={keyframeControlsColumnStyle}>{keyframeControls}</div>
-				) : (
+			{keyframeControls ? (
+				<TimelineRowKeyframeControlsColumn depth={depth}>
+					{keyframeControls}
+				</TimelineRowKeyframeControlsColumn>
+			) : (
+				<div style={leftChromeStyle}>
 					<div style={chromeColumnStyle}>
 						{eye}
 						{indentWidth > 0 ? <Padder depth={depth} /> : null}
 						{arrow}
 					</div>
-				)}
-			</div>
+				</div>
+			)}
 			{children}
 		</>
 	);
@@ -168,14 +225,15 @@ export const TimelineRowChrome: React.FC<{
 	if (outerStyle) {
 		return (
 			<div
-				ref={ref}
 				style={outerStyle}
 				onDragLeave={onDragLeave}
 				onDragOver={onDragOver}
 				onDrop={onDrop}
 				onPointerDown={selectable ? onPointerDown : undefined}
 				onContextMenu={selectable ? onContextMenu : undefined}
-				onDoubleClick={onDoubleClick}
+				onDoubleClick={onDoubleClickIfNotInteractive}
+				onPointerEnter={onPointerEnter}
+				onPointerLeave={onPointerLeave}
 			>
 				<div style={innerRowStyle}>{chrome}</div>
 			</div>
@@ -184,13 +242,14 @@ export const TimelineRowChrome: React.FC<{
 
 	return (
 		<div
-			ref={ref}
 			onDragLeave={onDragLeave}
 			onDragOver={onDragOver}
 			onDrop={onDrop}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onContextMenu={selectable ? onContextMenu : undefined}
-			onDoubleClick={onDoubleClick}
+			onDoubleClick={onDoubleClickIfNotInteractive}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 			style={innerRowStyle}
 		>
 			{chrome}

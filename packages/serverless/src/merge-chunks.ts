@@ -1,13 +1,11 @@
-import fs from 'fs';
 import type {
 	AudioCodec,
 	CombineChunksOnProgress,
-	FrameRange,
 	LogLevel,
+	SingleFrameRange,
 } from '@remotion/renderer';
 import type {DownloadBehavior} from '@remotion/serverless-client';
 import {
-	inspectErrors,
 	type CloudProvider,
 	type CustomCredentials,
 	type PostRenderData,
@@ -17,9 +15,8 @@ import {
 	type SerializedInputProps,
 	type ServerlessCodec,
 } from '@remotion/serverless-client';
-import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
-import {createPostRenderData} from './create-post-render-data';
+import {finishRender} from './finish-render';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
@@ -57,7 +54,7 @@ export const mergeChunksAndFinishRender = async <
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	forcePathStyle: boolean;
 	everyNthFrame: number;
-	frameRange: FrameRange | null;
+	frameRange: SingleFrameRange | null;
 	storageClass: Provider['storageClass'] | null;
 	requestHandler: Provider['requestHandler'] | null;
 	sampleRate: number;
@@ -99,68 +96,28 @@ export const mergeChunksAndFinishRender = async <
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
 
-	const outputSize = fs.statSync(outfile).size;
-
-	const writeToBucket = options.insideFunctionSpecifics.timer(
-		`Writing to bucket (${outputSize} bytes)`,
-		options.logLevel,
-	);
-
-	await options.providerSpecifics.writeFile({
-		bucketName: options.renderBucketName,
-		key: options.key,
-		body: fs.createReadStream(outfile),
-		region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
-		privacy: options.privacy,
+	const postRenderData = await finishRender({
 		expectedBucketOwner: options.expectedBucketOwner,
-		downloadBehavior: options.downloadBehavior,
+		renderBucketName: options.renderBucketName,
 		customCredentials: options.customCredentials,
+		downloadBehavior: options.downloadBehavior,
+		key: options.key,
+		privacy: options.privacy,
+		inputProps: options.inputProps,
+		serializedResolvedProps: options.serializedResolvedProps,
+		renderMetadata: options.renderMetadata,
+		logLevel: options.logLevel,
+		overallProgress: options.overallProgress,
+		startTime: options.startTime,
+		providerSpecifics: options.providerSpecifics,
+		insideFunctionSpecifics: options.insideFunctionSpecifics,
 		forcePathStyle: options.forcePathStyle,
 		storageClass: options.storageClass,
 		requestHandler: options.requestHandler,
-	});
-
-	writeToBucket.end();
-
-	const errorExplanations = inspectErrors({
-		errors: options.overallProgress.get().errors,
-	});
-
-	const cleanupProm = cleanupProps({
-		inputProps: options.inputProps,
-		serializedResolvedProps: options.serializedResolvedProps,
-		providerSpecifics: options.providerSpecifics,
-		forcePathStyle: options.forcePathStyle,
-		insideFunctionSpecifics: options.insideFunctionSpecifics,
-	});
-
-	const {url: outputUrl} = options.providerSpecifics.getOutputUrl({
-		bucketName: options.renderBucketName,
-		currentRegion: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
-		customCredentials: options.customCredentials,
-		renderMetadata: options.renderMetadata,
-	});
-
-	const postRenderData = createPostRenderData({
-		region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
-		memorySizeInMb: options.insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		renderMetadata: options.renderMetadata,
-		errorExplanations,
-		timeToDelete: (await cleanupProm).reduce((a, b) => Math.max(a, b), 0),
-		outputFile: {
-			sizeInBytes: outputSize,
-			url: outputUrl,
-		},
-		outputSize,
+		outputFile: outfile,
 		timeToCombine: encodingStop - encodingStart,
-		overallProgress: options.overallProgress.get(),
-		timeToFinish: Date.now() - options.startTime,
-		providerSpecifics: options.providerSpecifics,
 	});
 
-	await options.overallProgress.setPostRenderData(postRenderData);
-
-	fs.unlinkSync(outfile);
 	await cleanupChunksProm;
 	return postRenderData;
 };

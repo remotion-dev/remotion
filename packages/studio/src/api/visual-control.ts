@@ -1,11 +1,14 @@
-import {useSyncExternalStore} from 'react';
 import {getRemotionEnvironment} from 'remotion';
+import {useSyncExternalStore} from '../helpers/use-sync-external-store';
 import {visualControlStore} from '../visual-controls/visual-control-store';
 import {
 	visualControlRef,
 	type VisualControlRef,
 } from '../visual-controls/VisualControls';
 
+/**
+ * @deprecated Remotion Studio now has integrated interactivity for most components, and we will further develop this interactivity rather than visual controls.
+ */
 export const visualControl: VisualControlRef['globalVisualControl'] = (
 	key,
 	value,

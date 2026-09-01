@@ -1,10 +1,11 @@
 import React, {
 	createContext,
 	useContext,
-	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
+import {observePointerRelease} from '../helpers/pointer-session';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {HighestZIndexContext} from './highest-z-index';
 import {getClickLock} from './input-dragger-click-lock';
@@ -26,7 +27,7 @@ const EscapeHook: React.FC<{
 }> = ({onEscape}) => {
 	const keybindings = useKeybinding();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const escape = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'Escape',
@@ -61,30 +62,43 @@ export const HigherZIndex: React.FC<{
 }) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
+	const {registerZIndex, unregisterZIndex} = highestContext;
 	const containerRef = useRef<HTMLDivElement>(null);
+	const highestIndexRef = useRef(highestContext.highestIndex);
+	const onOutsideClickRef = useRef(onOutsideClick);
+	const outsideClickButtonRef = useRef(outsideClickButton);
 
 	const currentIndex = disabled
 		? context.currentIndex
 		: context.currentIndex + 1;
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		highestIndexRef.current = highestContext.highestIndex;
+		onOutsideClickRef.current = onOutsideClick;
+		outsideClickButtonRef.current = outsideClickButton;
+	}, [highestContext.highestIndex, onOutsideClick, outsideClickButton]);
+
+	useLayoutEffect(() => {
 		if (disabled) {
 			return;
 		}
 
-		highestContext.registerZIndex(currentIndex);
-		return () => highestContext.unregisterZIndex(currentIndex);
-	}, [currentIndex, highestContext, disabled]);
+		registerZIndex(currentIndex);
+		return () => unregisterZIndex(currentIndex);
+	}, [currentIndex, disabled, registerZIndex, unregisterZIndex]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (disabled) {
 			return;
 		}
 
-		let onUp: ((upEvent: MouseEvent) => void) | null = null;
+		let endPointerSession: (() => void) | null = null;
 
-		const listener = (downEvent: MouseEvent) => {
-			if (outsideClickButton === 'primary' && downEvent.button !== 0) {
+		const listener = (downEvent: PointerEvent) => {
+			if (
+				outsideClickButtonRef.current === 'primary' &&
+				downEvent.button !== 0
+			) {
 				return;
 			}
 
@@ -95,46 +109,42 @@ export const HigherZIndex: React.FC<{
 				return;
 			}
 
-			onUp = (upEvent: MouseEvent) => {
-				if (
-					highestContext.highestIndex === currentIndex &&
-					!getClickLock() &&
-					// Don't trigger if that click removed that node
-					document.contains(upEvent.target as Node)
-				) {
-					upEvent.stopPropagation();
-					onOutsideClick(upEvent.target as Node);
-				}
-			};
-
-			window.addEventListener('pointerup', onUp, {once: true});
-		};
-
-		// If a menu is opened, then this component will also still receive the pointerdown event.
-		// However we may not interpret it as a outside click, so we need to wait for the next tick
-		requestAnimationFrame(() => {
-			// The third argument `true` registers a capture-phase listener. Some Studio
-			// elements stop pointerdown propagation while still being outside the menu,
-			// so bubbling listeners would miss those clicks and keep the menu open.
-			window.addEventListener('pointerdown', listener, true);
-		});
-		return () => {
-			if (onUp) {
-				// @ts-expect-error
-				window.removeEventListener('pointerup', onUp, {once: true});
+			// The topmost layer owns the full pointer gesture. Layers may mount or
+			// unmount before pointerup, but that must not cancel or transfer dismissal.
+			if (highestIndexRef.current !== currentIndex) {
+				return;
 			}
 
-			onUp = null;
+			endPointerSession?.();
+			endPointerSession = observePointerRelease({
+				event: downEvent,
+				onEnd: (reason, upEvent) => {
+					endPointerSession = null;
+					if (
+						(reason === 'pointerup' || reason === 'buttons-released') &&
+						upEvent &&
+						!getClickLock()
+					) {
+						const target =
+							document.elementFromPoint(upEvent.clientX, upEvent.clientY) ??
+							(upEvent.target as Element);
+						if (document.contains(target)) {
+							upEvent.stopPropagation();
+							onOutsideClickRef.current(target);
+						}
+					}
+				},
+			});
+		};
+
+		window.addEventListener('pointerdown', listener, true);
+		return () => {
+			endPointerSession?.();
+			endPointerSession = null;
 
 			return window.removeEventListener('pointerdown', listener, true);
 		};
-	}, [
-		currentIndex,
-		disabled,
-		highestContext.highestIndex,
-		onOutsideClick,
-		outsideClickButton,
-	]);
+	}, [currentIndex, disabled]);
 
 	const value = useMemo((): ZIndex => {
 		return {

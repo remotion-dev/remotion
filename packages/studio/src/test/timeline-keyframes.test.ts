@@ -16,6 +16,7 @@ import {
 	getSchemaFieldGroup,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {makeRuntimeValueStore} from './make-runtime-value-store';
 
 const getStack = () => null;
 
@@ -39,7 +40,7 @@ const makeControls = (
 	overrideId: string,
 ): NonNullable<TSequence['controls']> => ({
 	schema: {},
-	currentRuntimeValueDotNotation: {},
+	runtimeValues: makeRuntimeValueStore({}),
 	overrideId,
 	supportsEffects: false,
 	componentIdentity: null,
@@ -52,14 +53,14 @@ const makeSequence = ({
 	trimBefore,
 	parent = null,
 	overrideId = null,
-	nonce,
+	timelineOrder,
 }: {
 	id: string;
 	from: number;
 	trimBefore: number | null;
 	parent?: string | null;
 	overrideId?: string | null;
-	nonce: number;
+	timelineOrder: number;
 }): TSequence => ({
 	type: 'sequence',
 	from,
@@ -69,9 +70,8 @@ const makeSequence = ({
 	displayName: id,
 	documentationLink: null,
 	parent,
-	rootId: 'root',
 	showInTimeline: true,
-	nonce: [[0, nonce]],
+	timelineOrder,
 	loopDisplay: undefined,
 	getStack,
 	refForOutline: null,
@@ -80,6 +80,7 @@ const makeSequence = ({
 	postmountDisplay: null,
 	controls: overrideId ? makeControls(overrideId) : null,
 	effects: [],
+	effectRuntimeValues: null,
 	frozenFrame: null,
 });
 
@@ -91,6 +92,7 @@ const numberFieldSchema = {
 
 const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 	status: 'keyframed',
+	keyframeDisplayOffsetAdjustment: null,
 	interpolationFunction: 'interpolate',
 	keyframes: [
 		{frame: 0, value: 2},
@@ -121,6 +123,8 @@ const makeSequenceFieldNode = (key: string): TimelineTreeNode => ({
 		fieldSchema: numberFieldSchema,
 		group: getSchemaFieldGroup(key),
 	},
+	runtimeValue: null,
+	runtimeValueStore: null,
 });
 
 const makeEffectFieldNode = (
@@ -149,6 +153,8 @@ const makeEffectFieldNode = (
 		},
 		group: getSchemaFieldGroup(key),
 	},
+	runtimeValue: null,
+	runtimeValueStore: null,
 });
 
 const makePropStatuses = (
@@ -181,25 +187,30 @@ test('keyframe display offsets follow the parent sequence context', () => {
 				from: 30,
 				trimBefore: null,
 				overrideId: 'root-style',
-				nonce: 0,
+				timelineOrder: 0,
 			}),
-			makeSequence({id: 'parent', from: 30, trimBefore: null, nonce: 1}),
+			makeSequence({
+				id: 'parent',
+				from: 30,
+				trimBefore: null,
+				timelineOrder: 1,
+			}),
 			makeSequence({
 				id: 'child',
 				from: 0,
 				trimBefore: null,
 				parent: 'parent',
 				overrideId: 'child',
-				nonce: 2,
+				timelineOrder: 2,
 			}),
-			makeSequence({id: 'outer', from: 10, trimBefore: null, nonce: 3}),
+			makeSequence({id: 'outer', from: 10, trimBefore: null, timelineOrder: 3}),
 			makeSequence({
 				id: 'own-from',
 				from: 20,
 				trimBefore: null,
 				parent: 'outer',
 				overrideId: 'own-from',
-				nonce: 4,
+				timelineOrder: 4,
 			}),
 			makeSequence({
 				id: 'grandchild',
@@ -207,7 +218,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 				trimBefore: null,
 				parent: 'own-from',
 				overrideId: 'grandchild',
-				nonce: 5,
+				timelineOrder: 5,
 			}),
 		],
 		overrideIdsToNodePaths: {
@@ -239,6 +250,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 		getTimelineKeyframes(
 			{
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 2},
@@ -264,7 +276,7 @@ test('track lookup survives effect key changes', () => {
 			from: 0,
 			trimBefore: null,
 			overrideId: 'sequence',
-			nonce: 0,
+			timelineOrder: 0,
 		}),
 	];
 	const currentNodePath = makeNodePathWithEffectKeys('sequence', [
@@ -297,7 +309,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 				id: 'parent',
 				from: 0,
 				trimBefore: 20,
-				nonce: 0,
+				timelineOrder: 0,
 			}),
 			makeSequence({
 				id: 'child',
@@ -305,7 +317,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 				trimBefore: null,
 				parent: 'parent',
 				overrideId: 'child',
-				nonce: 1,
+				timelineOrder: 1,
 			}),
 		],
 		overrideIdsToNodePaths: {
@@ -319,6 +331,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 		getTimelineKeyframes(
 			{
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 20, value: 2},
@@ -334,6 +347,54 @@ test('keyframe display offsets account for parent trimBefore', () => {
 	).toEqual([
 		{frame: 0, value: 2},
 		{frame: 100, value: 4},
+	]);
+});
+
+test('keyframe display offsets respect the useCurrentFrame coordinate space', () => {
+	const timeline = calculateTimeline({
+		sequences: [
+			makeSequence({
+				id: 'timing-wrapper',
+				from: -5,
+				trimBefore: null,
+				timelineOrder: 0,
+			}),
+			makeSequence({
+				id: 'controlled-element',
+				from: 0,
+				trimBefore: null,
+				parent: 'timing-wrapper',
+				overrideId: 'controlled-element',
+				timelineOrder: 1,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			'controlled-element': makeNodePath('controlled-element'),
+		},
+	});
+	const controlledElement = timeline.find(
+		(track) => track.sequence.id === 'controlled-element',
+	);
+	if (!controlledElement) {
+		throw new Error('Could not find controlled element');
+	}
+
+	expect(controlledElement.keyframeDisplayOffset).toBe(-5);
+
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		...makeKeyframedStatus(),
+		keyframeDisplayOffsetAdjustment: 5,
+		keyframes: [
+			{frame: 10, value: '0px 0px'},
+			{frame: 20, value: '500px 0px'},
+		],
+	};
+
+	expect(
+		getTimelineKeyframes(status, controlledElement.keyframeDisplayOffset),
+	).toEqual([
+		{frame: 10, value: '0px 0px'},
+		{frame: 20, value: '500px 0px'},
 	]);
 });
 

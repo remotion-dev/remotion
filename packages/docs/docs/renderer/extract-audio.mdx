@@ -13,12 +13,10 @@ Extracts the audio from a video source and saves it to the specified output path
 
 ```ts twoslash
 import {resolve} from 'node:path';
-import {extractAudio, getVideoMetadata} from '@remotion/renderer';
+import {extractAudio} from '@remotion/renderer';
 
 const videoSource = resolve(process.cwd(), '/Users/john/path-to-video.mp4');
-
-const videoMetadata = await getVideoMetadata(videoSource);
-const audioOutput = resolve(process.cwd(), `./output-audio-path.${videoMetadata.audioFileExtension}`);
+const audioOutput = resolve(process.cwd(), './output-audio-path.mp3');
 
 await extractAudio({
   videoSource,
@@ -40,11 +38,11 @@ _string_
 
 The path to the video source from which the audio will be extracted.
 
-### `outputPath`
+### `audioOutput`
 
 _string_
 
-The path where the extracted audio will be saved. The file extension must match the audio codec. To find the appropriate file extension, use [`getVideoMetadata()`](/docs/renderer/get-video-metadata) to read the field `audioFileExtension`.
+The path where the extracted audio will be saved. The file extension must match the audio codec. Use [Mediabunny to get video metadata](/docs/mediabunny/metadata) to determine the container and therefore the appropriate file extension.
 
 ### `logLevel?`
 
@@ -65,4 +63,4 @@ The function returns a `Promise<void>`, which resolves once the audio extraction
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/extract-audio.ts)
-- [`getVideoMetadata()`](/docs/renderer/get-video-metadata)
+- [Getting metadata using Mediabunny](/docs/mediabunny/metadata)

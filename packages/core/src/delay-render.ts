@@ -2,10 +2,24 @@ import {
 	cancelRenderInternal,
 	getErrorStackWithMessage,
 } from './cancel-render.js';
+import {
+	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_CLEAR_TOKEN,
+	DELAY_RENDER_RETRIES_LEFT,
+	DELAY_RENDER_RETRY_TOKEN,
+} from './delay-render-constants.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
-import {createLogger, type Logger} from './logger.js';
+import type {LogLevel} from './log.js';
+import {Log} from './log.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {truthy} from './truthy.js';
+
+export {
+	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_CLEAR_TOKEN,
+	DELAY_RENDER_RETRIES_LEFT,
+	DELAY_RENDER_RETRY_TOKEN,
+} from './delay-render-constants.js';
 
 export type DelayRenderScope = {
 	remotion_renderReady: boolean;
@@ -30,12 +44,6 @@ if (typeof window !== 'undefined') {
 
 	window.remotion_delayRenderHandles = [];
 }
-
-export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
-export const DELAY_RENDER_RETRIES_LEFT = 'Retries left: ';
-export const DELAY_RENDER_RETRY_TOKEN =
-	'- Rendering the frame will be retried.';
-export const DELAY_RENDER_CLEAR_TOKEN = 'handle was cleared after';
 
 const defaultTimeout = 30000;
 
@@ -140,14 +148,14 @@ type ContinueRenderInternalOptions = {
 	scope: DelayRenderScope;
 	handle: number;
 	environment: RemotionEnvironment;
-	logger: Logger;
+	logLevel: LogLevel;
 };
 
 export const continueRenderInternal = ({
 	scope,
 	handle,
 	environment,
-	logger,
+	logLevel,
 }: ContinueRenderInternalOptions): void => {
 	if (typeof handle === 'undefined') {
 		throw new TypeError(
@@ -174,7 +182,7 @@ export const continueRenderInternal = ({
 		]
 			.filter(truthy)
 			.join(' ');
-		logger.verbose('delayRender()', message);
+		Log.verbose({logLevel, tag: 'delayRender()'}, message);
 		delete scope.remotion_delayRenderTimeouts[handle];
 	}
 
@@ -200,9 +208,6 @@ export const continueRender = (handle: number): void => {
 		scope: window,
 		handle,
 		environment: getRemotionEnvironment(),
-		logger: createLogger({
-			logLevel: window.remotion_logLevel ?? 'info',
-			mountTime: null,
-		}),
+		logLevel: window.remotion_logLevel ?? 'info',
 	});
 };

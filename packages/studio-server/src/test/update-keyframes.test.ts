@@ -29,6 +29,54 @@ const videoConfigValues = {
 	width: 1920,
 };
 
+test('updateSequenceKeyframes preserves an affine frame alias', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const captureFrame = frame + 30;
+	return (
+		<AbsoluteFill from={-30}>
+			<Sequence style={{rotate: interpolate(captureFrame, [30, 60], ['0deg', '30deg'])}} />
+		</AbsoluteFill>
+	);
+};
+`;
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, 9),
+		updates: [
+			{
+				key: 'style.rotate',
+				operation: {type: 'add', frame: 45, value: '15deg'},
+			},
+		],
+		videoConfigValues,
+	});
+
+	expect(output).toMatch(
+		/interpolate\(\s*captureFrame,\s*\[30, 45, 60\],\s*\['0deg', '15deg', '30deg'\]/,
+	);
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.rotate'],
+		effects: [],
+		videoConfigValues,
+	});
+	expect(status.props['style.rotate']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
+		keyframes: [
+			{frame: 30, value: '0deg'},
+			{frame: 45, value: '15deg'},
+			{frame: 60, value: '30deg'},
+		],
+	});
+});
+
 test('updateSequenceKeyframes preserves representable video config frame expressions', async () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
@@ -82,6 +130,7 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.scale']).toMatchObject({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
 			{frame: 0, value: 2},
 			{frame: 50, value: 2.5},
@@ -132,9 +181,65 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.opacity']).toMatchObject({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
 			{frame: 1, value: 0.35},
 			{frame: 160, value: 1},
+		],
+	});
+});
+
+test('updateSequenceKeyframes updates a durationInFrames subtraction when moving a keyframe', async () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
+	return (
+		<Sequence style={{opacity: interpolate(frame, [0, durationInFrames - 1], [0.35, 1])}} />
+	);
+};
+`;
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, 8),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {
+					type: 'move',
+					moves: [{fromFrame: 119, toFrame: 118}],
+				},
+			},
+		],
+		videoConfigValues,
+	});
+
+	expect(output).toContain('[0, durationInFrames - 2]');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+		videoConfigValues,
+	});
+	expect(status.props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
+		keyframes: [
+			{frame: 0, value: 0.35},
+			{
+				frame: 118,
+				value: 1,
+				frameExpression: {
+					type: 'video-config-subtraction',
+					identifier: 'durationInFrames',
+					minuend: 120,
+					subtrahend: 2,
+				},
+			},
 		],
 	});
 });
@@ -563,6 +668,51 @@ export const Example: React.FC = () => {
 	);
 });
 
+test('updateSequenceKeyframes writes and recognizes hold easing', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill>
+			<div style={{scale: interpolate(frame, [0, 100], [2, 4])}} />
+		</AbsoluteFill>
+	);
+};
+`;
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 0,
+					easing: {type: 'step1'},
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('easing: [Easing.step1]');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+		videoConfigValues: null,
+	});
+	expect(status.props['style.scale']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
+		easing: [{type: 'step1'}],
+	});
+});
+
 test('updateSequenceKeyframes sets a spring easing segment', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
@@ -895,6 +1045,104 @@ test('updateSequenceKeyframes rejects enum fields', async () => {
 	).rejects.toThrow(/not keyframable/);
 });
 
+test('updateSequenceKeyframes authors enabled enum fields with hold easing', async () => {
+	const input = `import React from 'react';
+import {MacOSCursor} from '@remotion/mac-cursors';
+
+export const Example: React.FC = () => {
+	return <MacOSCursor cursor="default" />;
+};
+`;
+	const schema = {
+		cursor: {
+			type: 'enum',
+			default: 'default',
+			keyframable: true,
+			variants: {
+				default: {},
+				'ne-resize': {},
+			},
+		},
+	} satisfies InteractivitySchema;
+	const first = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'MacOSCursor cursor')),
+		schema,
+		updates: [
+			{
+				key: 'cursor',
+				operation: {type: 'add', frame: 0, value: 'default'},
+			},
+		],
+	});
+	const second = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input: first.output,
+		nodePath: first.updatedNodePath,
+		schema,
+		updates: [
+			{
+				key: 'cursor',
+				operation: {type: 'add', frame: 100, value: 'ne-resize'},
+			},
+		],
+	});
+
+	expect(second.output).toContain(
+		"cursor={interpolate(frame, [0, 100], ['default', 'ne-resize'], {",
+	);
+	expect(second.output).toContain('easing: [Easing.step1]');
+	expect(second.output).toContain('Easing');
+	expect(second.output).toContain('interpolate');
+	expect(second.output).toContain('useCurrentFrame');
+
+	await expect(
+		updateSequenceKeyframes({
+			videoConfigValues: null,
+			input: second.output,
+			nodePath: second.updatedNodePath,
+			schema,
+			updates: [
+				{
+					key: 'cursor',
+					operation: {
+						type: 'easing',
+						segmentIndex: 0,
+						easing: {type: 'linear'},
+					},
+				},
+			],
+		}),
+	).rejects.toThrow(/only supports Easing\.step1/);
+
+	const singleKeyframeInput = `import React from 'react';
+import {MacOSCursor} from '@remotion/mac-cursors';
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return <MacOSCursor cursor={interpolate(frame, [0], ['default'])} />;
+};
+`;
+	const fromSingleKeyframe = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input: singleKeyframeInput,
+		nodePath: lineColumnToNodePath(
+			singleKeyframeInput,
+			getLine(singleKeyframeInput, 'MacOSCursor cursor'),
+		),
+		schema,
+		updates: [
+			{
+				key: 'cursor',
+				operation: {type: 'add', frame: 100, value: 'ne-resize'},
+			},
+		],
+	});
+	expect(fromSingleKeyframe.output).toContain('easing: [Easing.step1]');
+});
+
 test('updateSequenceKeyframes converts a static value to a single-keyframe interpolation at frame 0', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		videoConfigValues: null,
@@ -1063,6 +1311,7 @@ export const Example: React.FC = () => {
 	});
 	expect(status.props['style.translate']).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 44, value: '100px 20px'}],
 		easing: [],
@@ -1158,7 +1407,7 @@ test('updateSequenceKeyframes migrates rotate away from interpolateColors', asyn
 });
 
 test('updateSequenceKeyframes returns a node path that still resolves after inserting a frame hook', async () => {
-	const input = `import {starburst} from '@remotion/starburst';
+	const input = `import {starburst} from '@remotion/effects/starburst';
 import React from 'react';
 import {AbsoluteFill, Solid} from 'remotion';
 
@@ -1213,6 +1462,7 @@ export default CenteredSolid;
 	});
 	expect(status.props.width).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 11, value: 240}],
 		easing: [],
@@ -1233,7 +1483,11 @@ test('updateSequenceKeyframes keeps an interpolation when one keyframe remains',
 		updates: [
 			{
 				key: 'style.scale',
-				operation: {type: 'remove', frame: 0},
+				operation: {
+					type: 'remove',
+					frame: 0,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1262,7 +1516,11 @@ export const Example: React.FC = () => {
 		updates: [
 			{
 				key: 'style.scale',
-				operation: {type: 'remove', frame: 91},
+				operation: {
+					type: 'remove',
+					frame: 91,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1291,7 +1549,11 @@ export const Example: React.FC = () => {
 		updates: [
 			{
 				key: 'style.scale',
-				operation: {type: 'remove', frame: 38},
+				operation: {
+					type: 'remove',
+					frame: 38,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1448,7 +1710,11 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 			updates: [
 				{
 					key: 'style.scale',
-					operation: {type: 'remove', frame: 12},
+					operation: {
+						type: 'remove',
+						frame: 12,
+						valueWhenLastKeyframeDeleted: null,
+					},
 				},
 			],
 		});
@@ -1466,8 +1732,64 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	});
 	expect(status.props['style.scale']).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 320,
 	});
+});
+
+test('updateSequenceKeyframes removes a default-valued prop with its last keyframe', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [12], [1])',
+	);
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			videoConfigValues: null,
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			schema: NoReactInternals.sequenceSchema,
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {
+						type: 'remove',
+						frame: 12,
+						valueWhenLastKeyframeDeleted: 1,
+					},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(['interpolate(frame, [12], [1])']);
+	expect(newValueStrings).toEqual(['1']);
+	expect(output).not.toContain('style={{scale: 1}}');
+	expect(output).toContain('<div />');
+});
+
+test('updateSequenceKeyframes preserves the playhead value when all keyframes are removed', async () => {
+	for (const frames of [
+		[0, 100],
+		[100, 0],
+	]) {
+		const {output} = await updateSequenceKeyframes({
+			videoConfigValues: null,
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, 'scale'),
+			),
+			updates: frames.map((frame) => ({
+				key: 'style.scale',
+				operation: {
+					type: 'remove' as const,
+					frame,
+					valueWhenLastKeyframeDeleted: 3,
+				},
+			})),
+		});
+
+		expect(output).toContain('style={{scale: 3}}');
+	}
 });
 
 test('updateSequenceKeyframes keeps a color interpolation when one keyframe remains', async () => {
@@ -1478,7 +1800,11 @@ test('updateSequenceKeyframes keeps a color interpolation when one keyframe rema
 		updates: [
 			{
 				key: 'color',
-				operation: {type: 'remove', frame: 0},
+				operation: {
+					type: 'remove',
+					frame: 0,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1626,7 +1952,11 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 			updates: [
 				{
 					key: 'color',
-					operation: {type: 'remove', frame: 15},
+					operation: {
+						type: 'remove',
+						frame: 15,
+						valueWhenLastKeyframeDeleted: null,
+					},
 				},
 			],
 		});
@@ -1644,6 +1974,7 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	});
 	expect(status.props.color).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'blue',
 	});
 });
@@ -1660,7 +1991,11 @@ test('updateEffectKeyframes removes a keyframe from an effect prop interpolation
 		updates: [
 			{
 				key: 'amount',
-				operation: {type: 'remove', frame: 50},
+				operation: {
+					type: 'remove',
+					frame: 50,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1749,7 +2084,11 @@ test('updateEffectKeyframes keeps an effect prop interpolation with one keyframe
 		updates: [
 			{
 				key: 'amount',
-				operation: {type: 'remove', frame: 100},
+				operation: {
+					type: 'remove',
+					frame: 100,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1774,7 +2113,11 @@ test('updateEffectKeyframes converts the last effect keyframe to a static value'
 			updates: [
 				{
 					key: 'amount',
-					operation: {type: 'remove', frame: 40},
+					operation: {
+						type: 'remove',
+						frame: 40,
+						valueWhenLastKeyframeDeleted: null,
+					},
 				},
 			],
 		});

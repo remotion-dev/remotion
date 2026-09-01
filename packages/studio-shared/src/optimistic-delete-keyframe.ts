@@ -24,9 +24,11 @@ const getEasingIndexToRemove = ({
 const removeKeyframeFromPropStatus = ({
 	status,
 	frame,
+	valueWhenLastKeyframeDeleted,
 }: {
 	status: CanUpdateSequencePropStatus;
 	frame: number;
+	valueWhenLastKeyframeDeleted: unknown | null;
 }): CanUpdateSequencePropStatus => {
 	if (status.status !== 'keyframed') {
 		return status;
@@ -41,7 +43,11 @@ const removeKeyframeFromPropStatus = ({
 	if (keyframes.length === 0) {
 		return {
 			status: 'static',
-			codeValue: status.keyframes[index].value,
+			keyframeDisplayOffsetAdjustment: status.keyframeDisplayOffsetAdjustment,
+			codeValue:
+				valueWhenLastKeyframeDeleted === null
+					? status.keyframes[index].value
+					: valueWhenLastKeyframeDeleted,
 		};
 	}
 
@@ -68,10 +74,12 @@ export const optimisticDeleteSequenceKeyframe = ({
 	previous,
 	fieldKey,
 	frame,
+	valueWhenLastKeyframeDeleted,
 }: {
 	previous: CanUpdateSequencePropsResponse;
 	fieldKey: string;
 	frame: number;
+	valueWhenLastKeyframeDeleted?: unknown;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
 		return previous;
@@ -86,7 +94,11 @@ export const optimisticDeleteSequenceKeyframe = ({
 		...previous,
 		props: {
 			...previous.props,
-			[fieldKey]: removeKeyframeFromPropStatus({status, frame}),
+			[fieldKey]: removeKeyframeFromPropStatus({
+				status,
+				frame,
+				valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+			}),
 		},
 	};
 };
@@ -96,7 +108,11 @@ export const optimisticDeleteSequenceKeyframes = ({
 	keyframes,
 }: {
 	previous: CanUpdateSequencePropsResponse;
-	keyframes: {fieldKey: string; frame: number}[];
+	keyframes: {
+		fieldKey: string;
+		frame: number;
+		valueWhenLastKeyframeDeleted?: unknown;
+	}[];
 }): CanUpdateSequencePropsResponse => {
 	return keyframes.reduce(
 		(current, keyframe) =>
@@ -104,6 +120,7 @@ export const optimisticDeleteSequenceKeyframes = ({
 				previous: current,
 				fieldKey: keyframe.fieldKey,
 				frame: keyframe.frame,
+				valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
 			}),
 		previous,
 	);
@@ -114,11 +131,13 @@ export const optimisticDeleteEffectKeyframe = ({
 	effectIndex,
 	fieldKey,
 	frame,
+	valueWhenLastKeyframeDeleted,
 }: {
 	previous: CanUpdateSequencePropsResponse;
 	effectIndex: number;
 	fieldKey: string;
 	frame: number;
+	valueWhenLastKeyframeDeleted?: unknown;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
 		return previous;
@@ -145,7 +164,11 @@ export const optimisticDeleteEffectKeyframe = ({
 		...target,
 		props: {
 			...target.props,
-			[fieldKey]: removeKeyframeFromPropStatus({status, frame}),
+			[fieldKey]: removeKeyframeFromPropStatus({
+				status,
+				frame,
+				valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+			}),
 		},
 	};
 
@@ -163,7 +186,12 @@ export const optimisticDeleteEffectKeyframes = ({
 	keyframes,
 }: {
 	previous: CanUpdateSequencePropsResponse;
-	keyframes: {effectIndex: number; fieldKey: string; frame: number}[];
+	keyframes: {
+		effectIndex: number;
+		fieldKey: string;
+		frame: number;
+		valueWhenLastKeyframeDeleted?: unknown;
+	}[];
 }): CanUpdateSequencePropsResponse => {
 	return keyframes.reduce(
 		(current, keyframe) =>
@@ -172,6 +200,7 @@ export const optimisticDeleteEffectKeyframes = ({
 				effectIndex: keyframe.effectIndex,
 				fieldKey: keyframe.fieldKey,
 				frame: keyframe.frame,
+				valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
 			}),
 		previous,
 	);

@@ -1,9 +1,9 @@
 import type {Size} from '@remotion/player';
-import {PlayerInternals} from '@remotion/player';
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import type {AssetMetadata} from './get-asset-metadata';
 import type {Dimensions} from './is-current-selected-still';
+import {calculateStudioCanvasTransformation} from './studio-fit-padding';
 
 export const useStudioCanvasDimensions = ({
 	canvasSize,
@@ -32,7 +32,7 @@ export const useStudioCanvasDimensions = ({
 			};
 		}
 
-		return PlayerInternals.calculateCanvasTransformation({
+		return calculateStudioCanvasTransformation({
 			canvasSize,
 			compositionHeight: contentDimensions.height,
 			compositionWidth: contentDimensions.width,

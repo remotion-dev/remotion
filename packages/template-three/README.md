@@ -4,13 +4,13 @@
     <img src="demo.gif" style="border-radius: 5px">
 </p>
 
-[This is a template repository, click "Use this template" to create a repository based off this template!](https://github.com/JonnyBurger/remotion-template-three/generate)
+[This is a template repository, click "Use this template" to create a repository based off this template!](https://github.com/remotion-dev/remotion-template-three/generate)
 
-This is a lightweight boilerplate for [Remotion](https://github.com/jonnyburger/remotion) with [React Three Fiber](https://github.com/pmndrs/react-three-fiber) and [@remotion/three](http://remotion.dev/docs/three) preinstalled.
+This is a lightweight boilerplate for [Remotion](https://github.com/remotion-dev/remotion) with [React Three Fiber](https://github.com/pmndrs/react-three-fiber) and [@remotion/three](https://remotion.dev/docs/three) preinstalled.
 
 - [Remotion documentation](https://remotion.dev)
 - [React Three Fiber documentation](https://docs.pmnd.rs/react-three-fiber)
-- [@remotion/three documentation](http://remotion.dev/docs/three)
+- [@remotion/three documentation](https://remotion.dev/docs/three)
 
 This example features a phone with a screen. You can easily switch out the video and change a series of parameters, like size, color, aspect ratio, corner radius etc. of the phone.
 
@@ -52,7 +52,7 @@ We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
 
 ## Issues
 
-Found an issue with Remotion? [File an issue here](https://github.com/JonnyBurger/remotion/issues/new).
+Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
 
 ## License
 

@@ -1,33 +1,32 @@
-import React, {useMemo} from 'react';
-import {useZIndex} from '../state/z-index';
+import React from 'react';
+import {WHITE_ALPHA_80} from '../helpers/colors';
+import type {RenderInlineAction} from './InlineAction';
+import {InlineAction} from './InlineAction';
 
 export const CONTROL_BUTTON_PADDING = 6;
-export const CONTROL_BUTTON_SIZE = 30;
 
 export const ControlButton = (
-	props: React.DetailedHTMLProps<
+	props: Omit<
 		React.ButtonHTMLAttributes<HTMLButtonElement>,
-		HTMLButtonElement
+		'children' | 'onClick' | 'title'
 	> & {
 		readonly title: string;
+		readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
+		readonly children: React.ReactNode | RenderInlineAction;
 	},
 ) => {
-	const style = useMemo((): React.CSSProperties => {
-		return {
-			opacity: props.disabled ? 0.5 : 1,
-			display: 'inline-flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-			width: CONTROL_BUTTON_SIZE,
-			height: CONTROL_BUTTON_SIZE,
-			background: 'none',
-			border: 'none',
-			padding: 0,
-		};
-	}, [props.disabled]);
+	const {children, onClick, title, ...buttonProps} = props;
+	const renderAction: RenderInlineAction =
+		typeof children === 'function' ? children : () => children;
 
-	const {tabIndex} = useZIndex();
 	return (
-		<button type={'button'} tabIndex={tabIndex} {...props} style={style} />
+		<InlineAction
+			{...buttonProps}
+			title={title}
+			onClick={onClick}
+			renderAction={renderAction}
+			variant={null}
+			unhoveredColor={WHITE_ALPHA_80}
+		/>
 	);
 };

@@ -67,6 +67,22 @@ The unsupported props include `ref`, `srcSet`, `sizes`, `loading`, `decoding`, `
 Canvas-compatible props such as `aria-*`, `data-*`, `role`, `title`, `tabIndex` and pointer or mouse event handlers are forwarded to the underlying `<canvas>`.
 When [`effects`](#effects) is a non-empty array, `style.objectFit` controls how the image is drawn into the canvas. Supported values are `"fill"`, `"contain"` and `"cover"`.
 
+### `cropLeft?`<AvailableFrom v="4.0.500" />
+
+Crops the image from the left by a ratio between `0` and `1`. See [`cropLeft`](/docs/sequence#cropleft).
+
+### `cropRight?`<AvailableFrom v="4.0.500" />
+
+Crops the image from the right by a ratio between `0` and `1`. See [`cropRight`](/docs/sequence#cropright).
+
+### `cropTop?`<AvailableFrom v="4.0.500" />
+
+Crops the image from the top by a ratio between `0` and `1`. See [`cropTop`](/docs/sequence#croptop).
+
+### `cropBottom?`<AvailableFrom v="4.0.500" />
+
+Crops the image from the bottom by a ratio between `0` and `1`. See [`cropBottom`](/docs/sequence#cropbottom).
+
 ### `onError`
 
 To use the `<Img>` tag in a resilient way, handle the error that occurs when an image can not be loaded:
@@ -99,7 +115,25 @@ An exponential backoff is being used, with 1000ms delay between the first and se
 
 ### `pauseWhenLoading?`<AvailableFrom v="4.0.111"/>
 
-If set to `true`, pause the Player when the image is loading. See: [Buffer state](/docs/player/buffer-state).
+If set to `true`, pause the Player when the image is loading. The default is `false` in Remotion 4.0 and `true` in Remotion 5.0. See: [Buffer state](/docs/player/buffer-state).
+
+### `premountFor?`<AvailableFrom v="4.0.497" />
+
+Mounts the image for the specified number of frames before its `from` frame. The image carries `display: none` and is frozen at its first frame while premounted.
+
+Use this prop to let the image load and decode before it becomes visible. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.497" />
+
+Keeps the image mounted for the specified number of frames after its duration has ended. The image is invisible and frozen at its final frame while postmounted.
+
+### `styleWhilePremounted?`<AvailableFrom v="4.0.497" />
+
+CSS styles applied to the image while it is premounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
+### `styleWhilePostmounted?`<AvailableFrom v="4.0.497" />
+
+CSS styles applied to the image while it is postmounted. These styles override the default `display: none` and `pointer-events: none` styles.
 
 ### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.140" />
 

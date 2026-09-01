@@ -9,7 +9,6 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
-import {getFolderId} from '../../helpers/get-folder-id';
 import {validateNewFolderName} from '../../helpers/validate-new-folder-name';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -92,8 +91,6 @@ export const NewFolder: React.FC<{
 		e.preventDefault();
 	}, []);
 
-	const folderId = getFolderId({folderName: newName, parentName});
-
 	return (
 		<DismissableModal>
 			<ModalHeader title="New folder" />
@@ -137,7 +134,6 @@ export const NewFolder: React.FC<{
 					<CodemodFooter
 						loadingNotification={'Creating folder...'}
 						errorNotification={'Could not create folder'}
-						successNotification={`Created folder ${folderId}`}
 						genericSubmitLabel={'Add to root file'}
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}
@@ -153,6 +149,7 @@ export const NewFolder: React.FC<{
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

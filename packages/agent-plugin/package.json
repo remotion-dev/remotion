@@ -1,0 +1,35 @@
+{
+	"name": "@remotion/agent-plugin",
+	"version": "4.0.520",
+	"private": true,
+	"type": "module",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/agent-plugin"
+	},
+	"scripts": {
+		"formatting": "oxfmt . --check",
+		"format": "oxfmt .",
+		"lint": "eslint .",
+		"build": "bun build.mts",
+		"test": "bun build.mts && SKILLS_ROOT=skills bun ../skills/scripts/validate-links.ts && bun test test"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "Remotion License",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"devDependencies": {
+		"@microsoft/vally": "0.12.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"agent-plugin",
+		"codex",
+		"cursor",
+		"plugin",
+		"skills"
+	]
+}

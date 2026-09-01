@@ -85,7 +85,12 @@ Any running instances, even if they are not performing a render, will be billabl
 
 ## `--maxInstances`
 
-The maximum number of service instances that can be create by GCP in response to incoming requests. Default: 100.
+The maximum number of service instances that can be create by GCP in response to incoming requests.
+
+| Remotion Version | Default |
+| ---------------- | ------- |
+| &lt;5.0.0        | 100     |
+| &gt;=5.0.0       | 5       |
 
 ## `--timeoutSeconds`
 

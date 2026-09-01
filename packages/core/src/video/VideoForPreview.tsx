@@ -13,13 +13,16 @@ import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
+import {useLogLevel, useMountTime} from '../log-level-context.js';
+import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
+import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
-import {useLogger} from '../use-logger.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
 import {
@@ -133,7 +136,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 	const {fps, durationInFrames} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
-	const logger = useLogger();
+	const {isStudio} = useRemotionEnvironment();
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
 
 	const [timelineId] = useState(() => String(Math.random()));
 
@@ -175,6 +180,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			? 'https://www.remotion.dev/docs/offthreadvideo'
 			: 'https://www.remotion.dev/docs/html5-video',
 		refForOutline: videoRef,
+		muted: muted ?? false,
 	});
 
 	// putting playback before useVolume
@@ -203,6 +209,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	});
 
 	useVolume({
+		logLevel,
 		mediaRef: videoRef,
 		volume: userPreferredVolume,
 		source: sharedSource,
@@ -228,12 +235,14 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, []);
 
 	useState(() =>
-		logger.playback(
-			'video',
-			`Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${
+		playbackLogging({
+			logLevel,
+			message: `Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${
 				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
 			}`,
-		),
+			tag: 'video',
+			mountTime,
+		}),
 	);
 
 	useEffect(() => {
@@ -345,7 +354,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isClientSideRendering: false,
 	});
 
-	return (
+	const video = (
 		<video
 			{...nativeProps}
 			ref={videoRef}
@@ -358,6 +367,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			crossOrigin={crossOriginValue}
 			controls={false}
 		/>
+	);
+
+	return isStudio ? (
+		<SequenceOrderMarker sequenceId={timelineId}>{video}</SequenceOrderMarker>
+	) : (
+		video
 	);
 };
 

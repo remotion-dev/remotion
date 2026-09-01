@@ -4,6 +4,7 @@ export type TikTokToken = {
 	text: string;
 	fromMs: number;
 	toMs: number;
+	pageBreakAfter?: boolean;
 };
 
 export type TikTokPage = {
@@ -16,6 +17,7 @@ export type TikTokPage = {
 export type CreateTikTokStyleCaptionsInput = {
 	captions: Caption[];
 	combineTokensWithinMilliseconds: number;
+	breakOnSilenceAfterMilliseconds?: number;
 };
 
 export type CreateTikTokStyleCaptionsOutput = {
@@ -25,6 +27,7 @@ export type CreateTikTokStyleCaptionsOutput = {
 export const createTikTokStyleCaptions = ({
 	captions,
 	combineTokensWithinMilliseconds,
+	breakOnSilenceAfterMilliseconds,
 }: CreateTikTokStyleCaptionsInput): CreateTikTokStyleCaptionsOutput => {
 	const tikTokStyleCaptions: TikTokPage[] = [];
 	let currentText = '';
@@ -33,8 +36,11 @@ export const createTikTokStyleCaptions = ({
 	let currentTo = 0;
 
 	const add = () => {
+		const text = currentText.endsWith('\n')
+			? currentText.slice(0, -1)
+			: currentText;
 		tikTokStyleCaptions.push({
-			text: currentText.trimStart(),
+			text: text.trimStart(),
 			startMs: currentFrom,
 			tokens: currentTokens,
 			durationMs: Infinity,
@@ -48,11 +54,16 @@ export const createTikTokStyleCaptions = ({
 
 	captions.forEach((item, index) => {
 		const {text} = item;
+		const exceedsDuration =
+			currentTo - currentFrom > combineTokensWithinMilliseconds;
+		// A pause between the previous caption and this one
+		const shouldBreakOnSilence =
+			breakOnSilenceAfterMilliseconds !== undefined &&
+			currentText !== '' &&
+			item.startMs - currentTo >= breakOnSilenceAfterMilliseconds;
+
 		// If text starts with a space, push the currentText (if it exists) and start a new one
-		if (
-			text.startsWith(' ') &&
-			currentTo - currentFrom > combineTokensWithinMilliseconds
-		) {
+		if (text.startsWith(' ') && (exceedsDuration || shouldBreakOnSilence)) {
 			if (currentText !== '') {
 				add();
 			}
@@ -60,7 +71,12 @@ export const createTikTokStyleCaptions = ({
 			// Start a new sentence
 			currentText = text.trimStart();
 			currentTokens = [
-				{text: currentText, fromMs: item.startMs, toMs: item.endMs},
+				{
+					text: text.trimStart(),
+					fromMs: item.startMs,
+					toMs: item.endMs,
+					...(item.pageBreakAfter ? {pageBreakAfter: true} : {}),
+				},
 			].filter((t) => t.text !== '');
 			currentFrom = item.startMs;
 			currentTo = item.endMs;
@@ -71,17 +87,26 @@ export const createTikTokStyleCaptions = ({
 				currentFrom = item.startMs;
 			}
 
-			currentText += text;
+			const textToAppend = text;
+			currentText += textToAppend;
 			currentText = currentText.trimStart();
 			if (text.trim() !== '') {
 				currentTokens.push({
-					text: currentTokens.length === 0 ? currentText.trimStart() : text,
+					text:
+						currentTokens.length === 0 ? currentText.trimStart() : textToAppend,
 					fromMs: item.startMs,
 					toMs: item.endMs,
+					...(item.pageBreakAfter ? {pageBreakAfter: true} : {}),
 				});
 			}
 
 			currentTo = item.endMs;
+		}
+
+		if (item.pageBreakAfter && currentText !== '') {
+			add();
+			currentText = '';
+			currentTokens = [];
 		}
 
 		// Ensure the last sentence is added
@@ -92,6 +117,11 @@ export const createTikTokStyleCaptions = ({
 				currentTo - tikTokStyleCaptions[tikTokStyleCaptions.length - 1].startMs;
 		}
 	});
+
+	const lastPage = tikTokStyleCaptions[tikTokStyleCaptions.length - 1];
+	if (lastPage && lastPage.durationMs === Infinity) {
+		lastPage.durationMs = currentTo - lastPage.startMs;
+	}
 
 	return {pages: tikTokStyleCaptions};
 };

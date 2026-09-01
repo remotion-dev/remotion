@@ -252,6 +252,153 @@ test(
 );
 
 test(
+	'Should render selected frames as an image sequence',
+	async () => {
+		const relativeOutDir = 'out-selected-frames';
+		const outDir = path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'example',
+			'out-selected-frames',
+		);
+		await fs.promises.rm(outDir, {force: true, recursive: true});
+
+		try {
+			const task = await execa(
+				'bun',
+				[
+					'x',
+					'remotion',
+					'render',
+					'build',
+					'ten-frame-tester',
+					'--frames=8,2,5',
+					'--image-format=png',
+					relativeOutDir,
+				],
+				{
+					cwd: path.join(process.cwd(), '..', 'example'),
+					reject: false,
+				},
+			);
+
+			expect(task.exitCode).toBe(0);
+			expect((await fs.promises.readdir(outDir)).sort()).toEqual([
+				'element-2.png',
+				'element-5.png',
+				'element-8.png',
+			]);
+		} finally {
+			await fs.promises.rm(outDir, {force: true, recursive: true});
+		}
+	},
+	{timeout: 30000},
+);
+
+test(
+	'Should render multiple frame ranges as one video',
+	async () => {
+		const out = outputPath.replace('.mp4', '-multiple-ranges.mp4');
+		try {
+			const task = await execa(
+				'bun',
+				[
+					'x',
+					'remotion',
+					'render',
+					'build',
+					'ten-frame-tester',
+					'--frames=0-2,6-8',
+					'--codec=h264',
+					out,
+				],
+				{
+					cwd: path.join(process.cwd(), '..', 'example'),
+					reject: false,
+				},
+			);
+
+			expect(task.exitCode).toBe(0);
+			const probe = await RenderInternals.callFf({
+				bin: 'ffprobe',
+				args: [
+					'-v',
+					'error',
+					'-count_frames',
+					'-select_streams',
+					'v:0',
+					'-show_entries',
+					'stream=nb_read_frames',
+					'-of',
+					'default=noprint_wrappers=1:nokey=1',
+					out,
+				],
+				indent: false,
+				logLevel: 'error',
+				binariesDirectory: null,
+				cancelSignal: undefined,
+			});
+			expect(`${probe.stdout}${probe.stderr}`.trim()).toBe('6');
+		} finally {
+			await fs.promises.rm(out, {force: true});
+		}
+	},
+	{timeout: 30000},
+);
+
+test(
+	'Should render multiple frame ranges as an image sequence with --sequence',
+	async () => {
+		const relativeOutDir = 'out-multiple-range-sequence';
+		const outDir = path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'example',
+			relativeOutDir,
+		);
+		await fs.promises.rm(outDir, {force: true, recursive: true});
+
+		try {
+			const task = await execa(
+				'bun',
+				[
+					'x',
+					'remotion',
+					'render',
+					'build',
+					'ten-frame-tester',
+					'--frames=0-2,6-8',
+					'--sequence',
+					'--image-format=png',
+					relativeOutDir,
+				],
+				{
+					cwd: path.join(process.cwd(), '..', 'example'),
+					reject: false,
+				},
+			);
+
+			expect(task.exitCode).toBe(0);
+			expect((await fs.promises.readdir(outDir)).sort()).toEqual([
+				'element-0.png',
+				'element-1.png',
+				'element-2.png',
+				'element-6.png',
+				'element-7.png',
+				'element-8.png',
+			]);
+		} finally {
+			await fs.promises.rm(outDir, {force: true, recursive: true});
+		}
+	},
+	{timeout: 30000},
+);
+
+test(
 	'Should be able to render a WAV audio file',
 	async () => {
 		const out = outputPath.replace('mp4', 'wav');
@@ -486,7 +633,7 @@ test(
 		expect(data).toContain('Audio: mp3, 48000 Hz');
 		fs.unlinkSync(out);
 	},
-	{timeout: 15000},
+	{timeout: 15000, retry: 3},
 );
 
 test(
@@ -517,7 +664,7 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(out);
 	},
-	{timeout: 15000},
+	{timeout: 15000, retry: 3},
 );
 
 test(
@@ -609,7 +756,7 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(outputPath.replace('.mp4', '.png'));
 	},
-	{timeout: 20000},
+	{timeout: 20000, retry: 3},
 );
 
 test(

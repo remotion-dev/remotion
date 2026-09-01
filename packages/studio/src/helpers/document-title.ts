@@ -1,8 +1,11 @@
 import {NoReactInternals} from 'remotion/no-react';
 import type {AnyRenderJob} from '../components/RenderQueue/context';
 import {isClientRenderJob} from '../components/RenderQueue/context';
+import type {ModalState} from '../state/modals';
+import {getNavigationWindow} from './url-state';
 
 let currentItemName: string | null = null;
+let currentModal: ModalState | null = null;
 let renderJobs: AnyRenderJob[] = [];
 
 export const setCurrentCanvasContentId = (id: string | null) => {
@@ -22,18 +25,28 @@ export const setRenderJobs = (jobs: AnyRenderJob[]) => {
 	updateTitle();
 };
 
+export const setCurrentModal = (modal: ModalState | null) => {
+	currentModal = modal;
+	updateTitle();
+};
+
 const productName = 'Remotion Studio';
 const suffix = `- ${productName}`;
 
 const updateTitle = () => {
+	if (currentModal?.type === 'element-install') {
+		getNavigationWindow().document.title = `📦 Install ${currentModal.request.element.displayName} - ${productName}`;
+		return;
+	}
+
 	if (!currentItemName) {
-		document.title = productName;
+		getNavigationWindow().document.title = productName;
 		return;
 	}
 
 	const currentCompTitle = `${currentItemName} / ${window.remotion_projectName}`;
 
-	document.title = [
+	getNavigationWindow().document.title = [
 		getProgressInBrackets(currentItemName, renderJobs),
 		`${currentCompTitle} ${suffix}`,
 	]

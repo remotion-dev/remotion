@@ -1,11 +1,63 @@
 import {expect, test} from 'bun:test';
 import type {InteractivitySchema} from 'remotion';
+import {Interactive} from 'remotion';
 import {
+	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	isInteractivitySchemaFieldKeyframable,
+	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 } from '../keyframe-interpolation-function';
 
-test('isSchemaFieldKeyframable rejects enum fields', () => {
+test('border longhand fields keyframe width and color, but not style', () => {
+	const schema = {
+		...Interactive.borderSchema,
+		...Interactive.borderRadiusSchema,
+	};
+
+	expect(isSchemaFieldKeyframable({schema, key: 'style.borderWidth'})).toBe(
+		true,
+	);
+	expect(isSchemaFieldKeyframable({schema, key: 'style.borderColor'})).toBe(
+		true,
+	);
+	expect(isSchemaFieldKeyframable({schema, key: 'style.borderStyle'})).toBe(
+		false,
+	);
+	expect(isSchemaFieldKeyframable({schema, key: 'style.borderRadius'})).toBe(
+		true,
+	);
+	expect(
+		isSchemaFieldKeyframable({schema, key: 'style.borderTopLeftRadius'}),
+	).toBe(true);
+});
+
+test('background color is keyframable', () => {
+	expect(
+		isSchemaFieldKeyframable({
+			schema: Interactive.backgroundSchema,
+			key: 'style.backgroundColor',
+		}),
+	).toBe(true);
+});
+
+test('known interpolation functions explicitly support easing', () => {
+	expect(canEditEasingForInterpolationFunction('interpolate')).toBe(true);
+	expect(canEditEasingForInterpolationFunction('interpolateColors')).toBe(true);
+	expect(canEditEasingForInterpolationFunction('unknown')).toBe(false);
+});
+
+test('field type keyframe support is explicit', () => {
+	expect(isInteractivitySchemaFieldKeyframable({type: 'hidden'})).toBe(true);
+	expect(
+		isInteractivitySchemaFieldKeyframable({
+			type: 'text-content',
+			default: '',
+		}),
+	).toBe(false);
+});
+
+test('enum fields are keyframable and hold-only when explicitly enabled', () => {
 	const schema = {
 		layout: {
 			type: 'enum',
@@ -18,7 +70,27 @@ test('isSchemaFieldKeyframable rejects enum fields', () => {
 		},
 	} satisfies InteractivitySchema;
 
+	expect(isSchemaFieldKeyframable({schema, key: 'layout'})).toBe(true);
+	expect(isSchemaFieldHoldOnly({schema, key: 'layout'})).toBe(true);
+	expect(
+		getKeyframeInterpolationFunctionForSchemaField({schema, key: 'layout'}),
+	).toBe('interpolate');
+});
+
+test('enum fields are not keyframable by default', () => {
+	const schema = {
+		layout: {
+			type: 'enum',
+			default: 'absolute-fill',
+			variants: {
+				'absolute-fill': {},
+				none: {},
+			},
+		},
+	} satisfies InteractivitySchema;
+
 	expect(isSchemaFieldKeyframable({schema, key: 'layout'})).toBe(false);
+	expect(isSchemaFieldHoldOnly({schema, key: 'layout'})).toBe(false);
 });
 
 test('isSchemaFieldKeyframable rejects explicitly disabled fields', () => {
@@ -57,6 +129,18 @@ test('isSchemaFieldKeyframable rejects font-family fields', () => {
 	expect(isSchemaFieldKeyframable({schema, key: 'style.fontFamily'})).toBe(
 		false,
 	);
+});
+
+test('isSchemaFieldKeyframable rejects asset fields', () => {
+	const schema = {
+		src: {
+			type: 'asset',
+			default: undefined,
+			keyframable: false,
+		},
+	} satisfies InteractivitySchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'src'})).toBe(false);
 });
 
 test('isSchemaFieldKeyframable rejects boolean fields in enum variants', () => {

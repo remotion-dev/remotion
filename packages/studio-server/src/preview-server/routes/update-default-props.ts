@@ -20,7 +20,10 @@ import {
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {checkIfTypeScriptFile} from './can-update-default-props';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
@@ -69,10 +72,16 @@ export const updateDefaultPropsHandler: ApiHandler<
 				},
 				entryType: 'default-props',
 				suppressHmrOnFileRestore: true,
+				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(projectInfo.rootFile);
 			suppressBundlerUpdateForFile(projectInfo.rootFile);
-			writeFileAndNotifyFileWatchers(projectInfo.rootFile, output, undefined);
+			writeFileAndNotifyFileWatchers({
+				file: projectInfo.rootFile,
+				content: output,
+				originatorClientId: undefined,
+				metadata: null,
+			});
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -81,7 +90,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Updated default props for "${compositionId}"`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Updated default props for "${compositionId}"`,
 			);
 			if (!formatted) {
 				warnAboutPrettierOnce(logLevel);

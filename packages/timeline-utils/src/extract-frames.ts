@@ -6,6 +6,8 @@ import {
 	UrlSource,
 	VideoSampleSink,
 } from 'mediabunny';
+import {Internals} from 'remotion';
+import {clampTimestampsToDuration} from './clamp-timestamps-to-duration';
 import {getDurationOrCompute} from './get-duration-or-compute';
 
 type Options = {
@@ -23,6 +25,7 @@ export type ExtractFramesProps = {
 	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
 	onVideoSample: (sample: VideoSample) => void;
 	signal?: AbortSignal;
+	repeatLastFrame?: boolean;
 };
 
 export async function extractFrames({
@@ -30,26 +33,41 @@ export async function extractFrames({
 	timestampsInSeconds,
 	onVideoSample,
 	signal,
+	repeatLastFrame = false,
 }: ExtractFramesProps): Promise<void> {
-	const input = new Input({
-		formats: ALL_FORMATS,
-		source: new UrlSource(src),
+	const lease = Internals.globalMediaResourceManager.acquire<Input>({
+		key: Internals.getMediabunnyInputResourceKey({
+			src,
+			credentials: null,
+			requestInitFingerprint: null,
+			revision: null,
+		}),
+		create: () => {
+			const createdInput = new Input({
+				formats: ALL_FORMATS,
+				source: new UrlSource(src),
+			});
+
+			return {
+				resource: createdInput,
+				dispose: () => createdInput.dispose(),
+			};
+		},
 	});
-
-	const dispose = () => {
-		input.dispose();
-	};
-
-	if (signal) {
-		signal.addEventListener('abort', dispose, {once: true});
-	}
+	const input = lease.resource;
 
 	try {
 		const [durationInSeconds, format, videoTrack] = await Promise.all([
-			getDurationOrCompute(input),
+			lease.getOrCreateValue(Internals.MEDIABUNNY_DURATION_VALUE_KEY, () =>
+				getDurationOrCompute(input),
+			),
 			input.getFormat(),
 			input.getPrimaryVideoTrack(),
 		]);
+		if (signal?.aborted) {
+			return;
+		}
+
 		if (!videoTrack) {
 			throw new Error('No video track found in the input');
 		}
@@ -68,7 +86,7 @@ export async function extractFrames({
 			);
 		}
 
-		const timestamps =
+		const requestedTimestamps =
 			typeof timestampsInSeconds === 'function'
 				? await timestampsInSeconds({
 						track: {
@@ -79,6 +97,12 @@ export async function extractFrames({
 						durationInSeconds,
 					})
 				: timestampsInSeconds;
+		const timestamps = repeatLastFrame
+			? clampTimestampsToDuration({
+					timestamps: requestedTimestamps,
+					durationInSeconds,
+				})
+			: requestedTimestamps;
 
 		if (timestamps.length === 0) {
 			return;
@@ -116,9 +140,6 @@ export async function extractFrames({
 
 		throw error;
 	} finally {
-		dispose();
-		if (signal) {
-			signal.removeEventListener('abort', dispose);
-		}
+		lease.release();
 	}
 }

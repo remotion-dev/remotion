@@ -4,11 +4,13 @@ import {
 	getCurrentDuration,
 	getCurrentFrame,
 } from '../components/Timeline/imperative-state';
-import {zoomAndPreserveCursor} from '../components/Timeline/timeline-scroll-logic';
+import {scrollableRef} from '../components/Timeline/timeline-refs';
+import {prepareToPreserveTimelineCursor} from '../components/Timeline/timeline-scroll-logic';
 import {getZoomFromLocalStorage} from '../components/ZoomPersistor';
-
-export const TIMELINE_MIN_ZOOM = 1;
-export const TIMELINE_MAX_ZOOM = 5;
+import {
+	clampTimelineZoom,
+	getTimelineZoom,
+} from '../helpers/get-timeline-max-zoom';
 
 export type TimelineSetZoomOptions = {
 	anchorFrame: number | null;
@@ -42,31 +44,36 @@ export const TimelineZoomContext: React.FC<{
 			callback: (prevZoomLevel: number) => number,
 			options?: TimelineSetZoomOptions,
 		) => {
+			// Capture the old geometry before committing the new timeline width.
+			const preserveTimelineCursor = prepareToPreserveTimelineCursor({
+				currentDurationInFrames: getCurrentDuration(),
+				currentFrame: getCurrentFrame(),
+				anchorFrame: options?.anchorFrame ?? null,
+				anchorContentX: options?.anchorContentX ?? null,
+			});
+
 			flushSync(() => {
 				setZoomState((prevZoomMap) => {
-					const newZoomWithFloatingPointErrors = Math.min(
-						TIMELINE_MAX_ZOOM,
-						Math.max(
-							TIMELINE_MIN_ZOOM,
-							callback(prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM),
-						),
-					);
-					const newZoom = Math.round(newZoomWithFloatingPointErrors * 10) / 10;
-
-					const anchorFrame = options?.anchorFrame ?? null;
-					const anchorContentX = options?.anchorContentX ?? null;
-
-					zoomAndPreserveCursor({
-						oldZoom: prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM,
-						newZoom,
-						currentDurationInFrames: getCurrentDuration(),
-						currentFrame: getCurrentFrame(),
-						anchorFrame,
-						anchorContentX,
+					const durationInFrames = getCurrentDuration();
+					const timelineViewportWidth = scrollableRef.current?.clientWidth ?? 0;
+					const previousZoom = getTimelineZoom({
+						durationInFrames,
+						timelineViewportWidth,
+						zoom: prevZoomMap[compositionId] ?? null,
 					});
+					const newZoom = clampTimelineZoom({
+						zoom: callback(previousZoom),
+						durationInFrames,
+						timelineViewportWidth,
+					});
+
 					return {...prevZoomMap, [compositionId]: newZoom};
 				});
 			});
+
+			// The new scroll range exists now, so the browser will not clamp the offset
+			// against the previous width.
+			preserveTimelineCursor();
 		},
 		[],
 	);

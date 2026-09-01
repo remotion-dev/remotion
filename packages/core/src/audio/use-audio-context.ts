@@ -1,6 +1,6 @@
 import {useMemo, useRef} from 'react';
-import type {Logger} from '../logger.js';
-import {useLogger} from '../use-logger.js';
+import type {LogLevel} from '../log';
+import {Log} from '../log';
 import {useRemotionEnvironment} from '../use-remotion-environment';
 
 // The native AudioContext.state can be 'closed' | 'interrupted' | 'running' | 'suspended'.
@@ -13,7 +13,7 @@ export type RemotionAudioContextState =
 
 let warned = false;
 
-const warnOnce = (logger: Logger) => {
+const warnOnce = (logLevel: LogLevel) => {
 	if (warned) {
 		return;
 	}
@@ -22,20 +22,24 @@ const warnOnce = (logger: Logger) => {
 
 	// Don't pullute logs if in SSR
 	if (typeof window !== 'undefined') {
-		logger.warn(null, 'AudioContext is not supported in this browser');
+		Log.warn(
+			{logLevel, tag: null},
+			'AudioContext is not supported in this browser',
+		);
 	}
 };
 
 export const useSingletonAudioContext = ({
+	logLevel,
 	latencyHint,
 	audioEnabled,
 	sampleRate,
 }: {
+	logLevel: LogLevel;
 	latencyHint: AudioContextLatencyCategory;
 	audioEnabled: boolean;
 	sampleRate: number;
 }) => {
-	const logger = useLogger();
 	const env = useRemotionEnvironment();
 	const initialSampleRate = useRef(sampleRate);
 
@@ -55,7 +59,7 @@ export const useSingletonAudioContext = ({
 		}
 
 		if (typeof AudioContext === 'undefined') {
-			warnOnce(logger);
+			warnOnce(logLevel);
 			return null;
 		}
 
@@ -69,7 +73,7 @@ export const useSingletonAudioContext = ({
 
 		const gainNode = audioContext.createGain();
 		gainNode.connect(audioContext.destination);
-		logger.trace('audio', 'Creating new audio context');
+		Log.trace({logLevel, tag: 'audio'}, 'Creating new audio context');
 
 		audioContext.suspend();
 
@@ -124,9 +128,7 @@ export const useSingletonAudioContext = ({
 			resume,
 			suspend,
 		};
-		// The logger has stable identity and reads the latest context.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [latencyHint, env.isRendering, audioEnabled, sampleRate]);
+	}, [logLevel, latencyHint, env.isRendering, audioEnabled, sampleRate]);
 
 	return context;
 };

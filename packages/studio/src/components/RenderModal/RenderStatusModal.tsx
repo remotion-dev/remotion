@@ -5,7 +5,7 @@ import {
 	makeClientRetryPayload,
 	makeRetryPayload,
 } from '../../helpers/retry-payload';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {Button} from '../Button';
 import {Flex, SPACING_UNIT} from '../layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -52,7 +52,7 @@ const buttonRow: React.CSSProperties = {
 export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 	jobId,
 }) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {jobs, removeClientJob, cancelClientJob} =
 		useContext(RenderQueueContext);
 
@@ -87,7 +87,6 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 		setSelectedModal(null);
 		if (isClientJob) {
 			removeClientJob(job.id);
-			showNotification('Removed render', 2000);
 		} else {
 			removeRenderJob(job).catch((err) => {
 				showNotification(`Could not remove job: ${err.message}`, 2000);
@@ -109,6 +108,13 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 		throw new Error('should not have rendered this modal');
 	}
 
+	const errorDetails =
+		job.status === 'failed'
+			? job.error.stack?.split('\n')[0].includes(job.error.message)
+				? job.error.stack
+				: [job.error.message, job.error.stack].filter(Boolean).join('\n')
+			: null;
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<ModalHeader title={`Render ${job.compositionId}`} />
@@ -117,7 +123,7 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 					<>
 						<p>The render failed because of the following error:</p>
 						<div className={HORIZONTAL_SCROLLBAR_CLASSNAME} style={codeBlock}>
-							{job.error.stack}
+							{errorDetails}
 						</div>
 					</>
 				) : null}

@@ -90,10 +90,16 @@ export const getDefaultEditOutputFormat = (
 export const getDefaultConvertOutputFormat = ({
 	inputContainer,
 	action,
+	cursorMetadataDetected,
 }: {
 	inputContainer: InputFormat;
 	action: RouteAction;
+	cursorMetadataDetected: boolean;
 }): OutputContainer => {
+	if (cursorMetadataDetected) {
+		return getDefaultEditOutputFormat(inputContainer);
+	}
+
 	if (action.type === 'convert') {
 		return action.output;
 	}

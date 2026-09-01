@@ -16,6 +16,7 @@ import type {
 	GetDragOverrides,
 	GetEffectDragOverrides,
 	InteractivitySchema as InteractivitySchemaShape,
+	RuntimeValueStore,
 	TSequence,
 } from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
@@ -81,6 +82,8 @@ export type TimelineTreeNode =
 			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly label: string;
 			readonly field: AnySchemaFieldInfo | null;
+			readonly runtimeValue: unknown;
+			readonly runtimeValueStore: RuntimeValueStore | null;
 	  };
 
 export const buildTimelineTree = ({
@@ -90,6 +93,8 @@ export const buildTimelineTree = ({
 	getEffectDragOverrides,
 	propStatuses,
 	includeTextContent,
+	includeSourceControls,
+	runtimeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
@@ -97,6 +102,8 @@ export const buildTimelineTree = ({
 	getEffectDragOverrides: GetEffectDragOverrides;
 	propStatuses: PropStatuses;
 	includeTextContent: boolean;
+	includeSourceControls: boolean;
+	runtimeValues: Readonly<Record<string, unknown>> | null;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
@@ -105,7 +112,9 @@ export const buildTimelineTree = ({
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
 		currentRuntimeValueDotNotation:
-			sequence.controls!.currentRuntimeValueDotNotation,
+			runtimeValues !== null
+				? runtimeValues
+				: sequence.controls!.runtimeValues.getSnapshot(),
 		getDragOverrides,
 		propStatuses,
 		nodePath: sequenceSubscriptionKey,
@@ -114,6 +123,10 @@ export const buildTimelineTree = ({
 
 	if (controlFields && controlFields.length > 0) {
 		for (const f of controlFields) {
+			if (!includeSourceControls && f.key === 'src') {
+				continue;
+			}
+
 			roots.push({
 				kind: 'field',
 				nodePathInfo: {
@@ -125,6 +138,8 @@ export const buildTimelineTree = ({
 				},
 				label: f.description ?? f.key,
 				field: f,
+				runtimeValue: runtimeValues?.[f.key],
+				runtimeValueStore: null,
 			});
 		}
 	}
@@ -181,6 +196,8 @@ export const buildTimelineTree = ({
 							},
 							label: f.description ?? f.key,
 							field: f,
+							runtimeValue: null,
+							runtimeValueStore: sequence.effectRuntimeValues?.[i] ?? null,
 						}),
 					),
 				};
@@ -249,6 +266,8 @@ export const getExpandedTrackHeight = ({
 		getEffectDragOverrides: () => ({}),
 		propStatuses,
 		includeTextContent: false,
+		includeSourceControls: false,
+		runtimeValues: null,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});
 
@@ -270,7 +289,6 @@ export const TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT = 17;
 export const TIMELINE_LAYER_HEIGHT_VIDEO =
 	2 + TIMELINE_LAYER_FILMSTRIP_HEIGHT + TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT;
 
-export const TIMELINE_LAYER_HEIGHT_IMAGE = 26;
 export const TIMELINE_LAYER_HEIGHT_AUDIO = 34;
 export const TIMELINE_LAYER_HEIGHT_DEFAULT = 21;
 // The horizontal row inside a timeline list item (eye + arrow + label).
@@ -281,10 +299,6 @@ export const getTimelineLayerHeight = (
 ) => {
 	if (type === 'video') {
 		return TIMELINE_LAYER_HEIGHT_VIDEO;
-	}
-
-	if (type === 'image') {
-		return TIMELINE_LAYER_HEIGHT_IMAGE;
 	}
 
 	if (type === 'audio') {

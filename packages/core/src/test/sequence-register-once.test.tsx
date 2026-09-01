@@ -1,11 +1,24 @@
 import {afterEach, expect, test} from 'bun:test';
-import {cleanup, render, waitFor} from '@testing-library/react';
+import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
-import {AnimatedImage} from '../animated-image/index.js';
-import type {TSequence} from '../CompositionManager.js';
-import {Img} from '../Img.js';
+import {AbsoluteFill} from '../AbsoluteFill.js';
+import {
+	AnimatedImage,
+	animatedImageSchema,
+} from '../animated-image/AnimatedImage.js';
+import type {
+	SequenceControls,
+	SequenceRegistrationControls,
+	TSequence,
+} from '../CompositionManager.js';
+import type {
+	EffectDefinition,
+	EffectDescriptor,
+} from '../effects/effect-types.js';
+import {Img, imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {Internals} from '../internals.js';
+import {Loading} from '../loading-indicator.js';
 import type {OverrideIdToNodePaths} from '../sequence-node-path.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import {Sequence} from '../Sequence.js';
@@ -34,12 +47,37 @@ type SequenceTestWrapperProps = {
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: TSequence) => void;
 	readonly rerenderOnRegister?: boolean;
+	readonly compositionDurationInFrames?: number;
+	readonly currentFrame?: number;
+	readonly readOnlyStudio?: boolean;
 };
 
 type VisualModeOverrides = {
 	readonly overrideIdToNodePathMappings: OverrideIdToNodePaths;
 	readonly propStatuses: PropStatuses;
 	readonly dragOverrides: DragOverrides;
+};
+
+const makeEffect = (): EffectDescriptor<unknown> => {
+	const definition: EffectDefinition<unknown> = {
+		type: 'test-effect',
+		label: 'Test effect',
+		documentationLink: null,
+		backend: '2d',
+		calculateKey: () => 'test-effect',
+		setup: () => ({}),
+		apply: () => undefined,
+		cleanup: () => undefined,
+		schema: {},
+		validateParams: () => undefined,
+	};
+
+	return {
+		definition,
+		effectKey: 'test-effect',
+		params: {},
+		memoized: false,
+	};
 };
 
 const SequenceTestWrapperWithVisualModeOverrides: React.FC<
@@ -51,6 +89,9 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	onRegisterSequence,
 	rerenderOnRegister = false,
 	visualModeOverrides,
+	compositionDurationInFrames,
+	currentFrame,
+	readOnlyStudio = false,
 }) => {
 	const [, setTick] = useState(0);
 
@@ -67,7 +108,12 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	const unregisterSequence = useCallback(() => undefined, []);
 
 	const ctx: SequenceManagerContext = useMemo(
-		() => ({registerSequence, unregisterSequence, sequences: []}),
+		() => ({
+			registerSequence,
+			unregisterSequence,
+			updateSequence: registerSequence,
+			sequences: [],
+		}),
 		[registerSequence, unregisterSequence],
 	);
 
@@ -103,20 +149,24 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 			clearDragOverrides: () => undefined,
 			setEffectDragOverrides: () => undefined,
 			clearEffectDragOverrides: () => undefined,
+			remapPropStatuses: () => undefined,
 			setPropStatuses: () => undefined,
 		}),
 		[],
 	);
 
 	return (
-		<WrapSequenceContext>
+		<WrapSequenceContext
+			compositionDurationInFrames={compositionDurationInFrames}
+			currentFrame={currentFrame}
+		>
 			<Internals.RemotionEnvironmentContext
 				value={{
 					isRendering: false,
 					isClientSideRendering: false,
 					isPlayer: false,
 					isStudio: true,
-					isReadOnlyStudio: false,
+					isReadOnlyStudio: readOnlyStudio,
 				}}
 			>
 				<OverrideIdsToNodePathsGettersContext.Provider
@@ -143,12 +193,18 @@ const SequenceTestWrapper: React.FC<SequenceTestWrapperProps> = ({
 	children,
 	onRegisterSequence,
 	rerenderOnRegister = false,
+	compositionDurationInFrames,
+	currentFrame,
+	readOnlyStudio,
 }) => {
 	return (
 		<SequenceTestWrapperWithVisualModeOverrides
 			onRegisterSequence={onRegisterSequence}
 			rerenderOnRegister={rerenderOnRegister}
 			visualModeOverrides={null}
+			compositionDurationInFrames={compositionDurationInFrames}
+			currentFrame={currentFrame}
+			readOnlyStudio={readOnlyStudio}
 		>
 			{children}
 		</SequenceTestWrapperWithVisualModeOverrides>
@@ -166,8 +222,7 @@ const makeMediaInTimelineData = ({
 		volumes: 1,
 		duration: 100,
 		doesVolumeChange: false,
-		nonce: {get: () => [[0, 0]]},
-		rootId: 'test-root',
+		muted: false,
 		finalDisplayName: 'video.mp4',
 		startMediaFrom,
 		src: 'video.mp4',
@@ -189,6 +244,141 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 	);
 
 	expect(registerCalls).toBe(1);
+});
+
+test('Sequence timing changes update its registration without changing order', async () => {
+	let getSequences = (): TSequence[] => {
+		throw new Error('Sequence manager has not mounted');
+	};
+
+	const CaptureSequences = () => {
+		const sequencesRef = React.useContext(SequenceManagerRefContext);
+		getSequences = () => sequencesRef.current;
+		return null;
+	};
+
+	const renderSequences = (firstDuration: number) => (
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: false,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<SequenceManagerProvider>
+					<CaptureSequences />
+					<Sequence name="First" durationInFrames={firstDuration} />
+					<Sequence name="Second" durationInFrames={20} />
+				</SequenceManagerProvider>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>
+	);
+
+	const rendered = render(renderSequences(10));
+	await waitFor(() => {
+		expect(getSequences()).toHaveLength(2);
+	});
+	const initialIds = getSequences().map((sequence) => sequence.id);
+
+	rendered.rerender(renderSequences(15));
+	await waitFor(() => {
+		expect(getSequences()[0]?.duration).toBe(15);
+	});
+	expect(getSequences().map((sequence) => sequence.displayName)).toEqual([
+		'First',
+		'Second',
+	]);
+	expect(getSequences().map((sequence) => sequence.id)).toEqual(initialIds);
+});
+
+test('Interactive runtime values update mounted consumers without re-registering the sequence', () => {
+	const registeredSequences: TSequence[] = [];
+	const onRegisterSequence = (sequence: TSequence) => {
+		registeredSequences.push(sequence);
+	};
+
+	const renderInteractiveDiv = (opacity: number, color: string) => (
+		<SequenceTestWrapper onRegisterSequence={onRegisterSequence}>
+			<Interactive.Div style={{color, opacity}}>Hello</Interactive.Div>
+		</SequenceTestWrapper>
+	);
+	const producer = render(renderInteractiveDiv(0.25, 'red'));
+	const controls = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	)?.controls;
+	if (!controls) {
+		throw new Error('Expected Interactive.Div controls');
+	}
+
+	let consumerRenders = 0;
+	const RuntimeOpacity: React.FC<{
+		readonly controls: SequenceRegistrationControls;
+	}> = ({controls: consumerControls}) => {
+		consumerRenders++;
+		const opacity = React.useSyncExternalStore(
+			consumerControls.runtimeValues.subscribe,
+			() => consumerControls.runtimeValues.getSnapshot()['style.opacity'],
+		);
+
+		return <output>{String(opacity)}</output>;
+	};
+
+	const consumer = render(<RuntimeOpacity controls={controls} />);
+
+	expect(consumer.getByText('0.25')).toBeTruthy();
+	expect(consumerRenders).toBe(1);
+	expect(registeredSequences).toHaveLength(1);
+
+	producer.rerender(renderInteractiveDiv(0.75, 'red'));
+	expect(consumer.getByText('0.75')).toBeTruthy();
+	expect(consumerRenders).toBe(2);
+	expect(registeredSequences).toHaveLength(1);
+
+	producer.rerender(renderInteractiveDiv(0.75, 'blue'));
+	expect(consumer.getByText('0.75')).toBeTruthy();
+	expect(consumerRenders).toBe(2);
+	expect(registeredSequences).toHaveLength(1);
+});
+
+test('Interactive runtime values are published only after a render commits', () => {
+	const registeredSequences: TSequence[] = [];
+	const onRegisterSequence = (sequence: TSequence) => {
+		registeredSequences.push(sequence);
+	};
+
+	const never = new Promise<never>(() => undefined);
+	const Suspend: React.FC<{readonly active: boolean}> = ({active}) => {
+		if (active) {
+			throw never;
+		}
+
+		return null;
+	};
+
+	const renderInteractiveDiv = (opacity: number, suspend: boolean) => (
+		<React.Suspense fallback={<span>Suspended</span>}>
+			<SequenceTestWrapper onRegisterSequence={onRegisterSequence}>
+				<Interactive.Div style={{opacity}}>
+					<Suspend active={suspend} />
+				</Interactive.Div>
+			</SequenceTestWrapper>
+		</React.Suspense>
+	);
+	const producer = render(renderInteractiveDiv(0.25, false));
+	const controls = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	)?.controls;
+	if (!controls) {
+		throw new Error('Expected Interactive.Div controls');
+	}
+
+	producer.rerender(renderInteractiveDiv(0.75, true));
+
+	expect(producer.getByText('Suspended')).toBeTruthy();
+	expect(controls.runtimeValues.getSnapshot()['style.opacity']).toBe(0.25);
 });
 
 test('Sequence registers its documentation link', () => {
@@ -269,10 +459,37 @@ test('Sequence layout="none" uses outlineRef for Studio outlines', () => {
 	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
 });
 
+test('Series inherits Sequence controls', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Series from={5} freeze={2}>
+				<Series.Sequence durationInFrames={10}>First</Series.Sequence>
+			</Series>
+		</SequenceTestWrapper>,
+	);
+
+	const series = registeredSequences.find(
+		(sequence) =>
+			sequence.controls?.componentIdentity === 'dev.remotion.remotion.Series',
+	);
+
+	expect(series?.controls?.schema).toHaveProperty('from');
+	expect(series?.controls?.schema).toHaveProperty('freeze');
+	expect(series?.controls?.schema).toHaveProperty('durationInFrames');
+	expect(series?.isInsideSeries).toBe(false);
+});
+
 test('Series.Sequence registers with its own visual controls', () => {
 	const registeredSequences: TSequence[] = [];
 	const firstStack = 'Error\n    at FirstSeriesSequence';
 	const secondStack = 'Error\n    at SecondSeriesSequence';
+	const ConnectedComposition: React.FC = () => null;
 
 	render(
 		<SequenceTestWrapper
@@ -284,13 +501,17 @@ test('Series.Sequence registers with its own visual controls', () => {
 				<Series.Sequence
 					durationInFrames={10}
 					premountFor={30}
-					{...({stack: firstStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: firstStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
-					First
+					<ConnectedComposition />
 				</Series.Sequence>
 				<Series.Sequence
 					durationInFrames={20}
-					{...({stack: secondStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: secondStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
 					Second
 				</Series.Sequence>
@@ -313,16 +534,110 @@ test('Series.Sequence registers with its own visual controls', () => {
 	expect(
 		seriesSequences.map(
 			(sequence) =>
-				sequence.controls?.currentRuntimeValueDotNotation.durationInFrames,
+				sequence.controls?.runtimeValues.getSnapshot().durationInFrames,
 		),
 	).toEqual([10, 20]);
 	expect(seriesSequences.map((sequence) => sequence.getStack())).toEqual([
 		firstStack,
 		secondStack,
 	]);
+	expect(seriesSequences[0]?.singleChildComponent).toBe(ConnectedComposition);
 });
 
-test('Series.Sequence duration overrides cascade to later sequences', async () => {
+test('Interactive.withSchema preserves source stacks through controls without consuming a public stack prop', () => {
+	const registeredSequences: TSequence[] = [];
+	const sourceStack = 'Error\n    at UserAuthoredComponent';
+	const received = {
+		stack: null as string | null,
+		internalStack: false,
+	};
+
+	type PublicProps = {readonly stack: string};
+	const Inner: React.FC<
+		PublicProps & {readonly controls: SequenceControls | undefined}
+	> = (props) => {
+		received.stack = props.stack;
+		received.internalStack = '_remotionInternalStack' in props;
+		return <Sequence controls={props.controls} name="<Component>" />;
+	};
+
+	const Component = Interactive.withSchema({
+		Component: Inner,
+		componentName: '<Component>',
+		componentIdentity: 'com.example.Component',
+		schema: {},
+		supportsEffects: false,
+	});
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Component
+				stack="application-stack"
+				{...({
+					_remotionInternalStack: sourceStack,
+				} as {readonly _remotionInternalStack: string})}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	expect(received.stack).toBe('application-stack');
+	expect(received.internalStack).toBe(false);
+	expect(registeredSequences).toHaveLength(1);
+	expect(registeredSequences[0]?.getStack()).toBe(sourceStack);
+	expect(registeredSequences[0]?.controls?.componentIdentity).toBe(
+		'com.example.Component',
+	);
+});
+
+test('read-only Studio registers visual controls without applying overrides', () => {
+	const registeredSequences: TSequence[] = [];
+	const nodePath = {
+		absolutePath: '/src/Composition.tsx',
+		nodePath: ['body', 0],
+		sequenceKeys: [],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
+
+	render(
+		<SequenceTestWrapperWithVisualModeOverrides
+			readOnlyStudio
+			onRegisterSequence={(registeredSequence) => {
+				registeredSequences.push(registeredSequence);
+			}}
+			visualModeOverrides={{
+				overrideIdToNodePathMappings: new Proxy(
+					{},
+					{get: () => nodePath},
+				) as OverrideIdToNodePaths,
+				propStatuses: {},
+				dragOverrides: {
+					[subscriptionKey]: {
+						durationInFrames: Internals.makeStaticDragOverride(20),
+					},
+				},
+			}}
+		>
+			<Interactive.Div durationInFrames={10}>Hello</Interactive.Div>
+		</SequenceTestWrapperWithVisualModeOverrides>,
+	);
+
+	const sequence = registeredSequences.find(
+		(item) => item.displayName === '<Interactive.Div>',
+	);
+	expect(sequence?.controls).not.toBe(null);
+	expect(sequence?.controls?.componentIdentity).toBe(
+		'dev.remotion.remotion.Interactive.Div',
+	);
+	expect(sequence?.duration).toBe(10);
+});
+
+test('Series.Sequence timing overrides cascade to later sequences', async () => {
 	const registeredSequences: TSequence[] = [];
 	const onRegisterSequence = (sequence: TSequence) => {
 		registeredSequences.push(sequence);
@@ -346,7 +661,7 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 			}}
 		>
 			<Series>
-				<Series.Sequence name="First" durationInFrames={10}>
+				<Series.Sequence name="First" durationInFrames={10} trimBefore={2}>
 					First
 				</Series.Sequence>
 				<Series.Sequence name="Second" durationInFrames={20}>
@@ -380,7 +695,13 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 		videoConfigValues: null,
 	};
 	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
-	const makeDurationOverride = (durationInFrames: number) => ({
+	const makeTimingOverride = ({
+		durationInFrames,
+		trimBefore,
+	}: {
+		durationInFrames: number;
+		trimBefore: number;
+	}) => ({
 		overrideIdToNodePathMappings: {
 			[firstSequenceControls.overrideId]: nodePath,
 		},
@@ -388,7 +709,16 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 			[subscriptionKey]: {
 				canUpdate: true as const,
 				props: {
-					durationInFrames: {status: 'static' as const, codeValue: 10},
+					durationInFrames: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 10,
+					},
+					trimBefore: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 2,
+					},
 				},
 				effects: [],
 			},
@@ -396,30 +726,37 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 		dragOverrides: {
 			[subscriptionKey]: {
 				durationInFrames: Internals.makeStaticDragOverride(durationInFrames),
+				trimBefore: Internals.makeStaticDragOverride(trimBefore),
 			},
 		},
 	});
 
 	registeredSequences.length = 0;
-	rendered.rerender(renderSeries(makeDurationOverride(15)));
+	rendered.rerender(
+		renderSeries(makeTimingOverride({durationInFrames: 7, trimBefore: 5})),
+	);
 	await waitFor(() => {
-		expect(
-			registeredSequences.find((sequence) => sequence.displayName === 'First')
-				?.duration,
-		).toBe(15);
+		const first = registeredSequences.find(
+			(sequence) => sequence.displayName === 'First',
+		);
+		expect(first?.duration).toBe(7);
+		expect(first?.trimBefore).toBe(5);
 		expect(
 			registeredSequences.find((sequence) => sequence.displayName === 'Second')
 				?.from,
-		).toBe(15);
+		).toBe(7);
 	});
 
 	registeredSequences.length = 0;
-	rendered.rerender(renderSeries(makeDurationOverride(18)));
+	rendered.rerender(
+		renderSeries(makeTimingOverride({durationInFrames: 18, trimBefore: 7})),
+	);
 	await waitFor(() => {
-		expect(
-			registeredSequences.find((sequence) => sequence.displayName === 'First')
-				?.duration,
-		).toBe(18);
+		const first = registeredSequences.find(
+			(sequence) => sequence.displayName === 'First',
+		);
+		expect(first?.duration).toBe(18);
+		expect(first?.trimBefore).toBe(7);
 		expect(
 			registeredSequences.find((sequence) => sequence.displayName === 'Second')
 				?.from,
@@ -463,6 +800,142 @@ test('Named Img components keep the default documentation link', () => {
 	);
 });
 
+test('Img exposes non-keyframable premounting schema fields', () => {
+	expect(imgSchema.premountFor.keyframable).toBe(false);
+	expect(imgSchema.postmountFor.keyframable).toBe(false);
+});
+
+test('Img hides the image while premounted and postmounted', () => {
+	const premounted = render(
+		<SequenceTestWrapper currentFrame={0} onRegisterSequence={() => undefined}>
+			<Img
+				src="test.png"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				style={{opacity: 0.5}}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('img')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: none');
+	expect(premountedStyle).toContain('pointer-events: none');
+	expect(premountedStyle).toContain('opacity: 0.5');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceTestWrapper currentFrame={35} onRegisterSequence={() => undefined}>
+			<Img src="test.png" from={10} durationInFrames={20} postmountFor={10} />
+		</SequenceTestWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('img')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: none');
+	expect(postmountedStyle).toContain('pointer-events: none');
+});
+
+test('Img allows overriding the premount and postmount styles', () => {
+	const premounted = render(
+		<SequenceTestWrapper currentFrame={0} onRegisterSequence={() => undefined}>
+			<Img
+				src="test.png"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				styleWhilePremounted={{display: 'block', opacity: 0.25}}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('img')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: block');
+	expect(premountedStyle).toContain('opacity: 0.25');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceTestWrapper currentFrame={35} onRegisterSequence={() => undefined}>
+			<Img
+				src="test.png"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+				styleWhilePostmounted={{display: 'block', opacity: 0.75}}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('img')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: block');
+	expect(postmountedStyle).toContain('opacity: 0.75');
+});
+
+test('Img registers premount and postmount ranges once', async () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Img
+				src="test.png"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				postmountFor={5}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(registeredSequences).toHaveLength(1);
+	});
+	expect(registeredSequences[0].premountDisplay).toBe(10);
+	expect(registeredSequences[0].postmountDisplay).toBe(5);
+});
+
+test('Img with effects delegates premounting to one CanvasImage owner', async () => {
+	const registeredSequences: TSequence[] = [];
+
+	const rendered = render(
+		<SequenceTestWrapper
+			currentFrame={0}
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Img
+				src="test.png"
+				width={100}
+				height={50}
+				effects={[makeEffect()]}
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				postmountFor={5}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(registeredSequences).toHaveLength(1);
+	});
+	expect(registeredSequences[0].premountDisplay).toBe(10);
+	expect(registeredSequences[0].postmountDisplay).toBe(5);
+	expect(registeredSequences[0].documentationLink).toBe(
+		'https://www.remotion.dev/docs/img',
+	);
+	expect(
+		rendered.container.querySelector('canvas')?.getAttribute('style'),
+	).toContain('display: none');
+});
+
 test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 	const registeredSequences: TSequence[] = [];
 	const ref = React.createRef<HTMLCanvasElement>();
@@ -482,6 +955,148 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 
 	expect(refForOutline.current).toBeInstanceOf(HTMLCanvasElement);
 	expect(ref.current).toBe(refForOutline.current);
+});
+
+test('AnimatedImage exposes non-keyframable premounting schema fields', () => {
+	expect(animatedImageSchema.premountFor.keyframable).toBe(false);
+	expect(animatedImageSchema.postmountFor.keyframable).toBe(false);
+});
+
+test('AnimatedImage applies crop props to its canvas', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				cropBottom={0.4}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+				onError={() => undefined}
+				src="test.gif"
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+});
+
+test('AnimatedImage hides the canvas while premounted and postmounted', () => {
+	const premounted = render(
+		<SequenceTestWrapper currentFrame={0} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				style={{opacity: 0.5}}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: none');
+	expect(premountedStyle).toContain('pointer-events: none');
+	expect(premountedStyle).toContain('opacity: 0.5');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceTestWrapper currentFrame={35} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: none');
+	expect(postmountedStyle).toContain('pointer-events: none');
+});
+
+test('AnimatedImage allows overriding the premount and postmount styles', () => {
+	const premounted = render(
+		<SequenceTestWrapper currentFrame={0} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				styleWhilePremounted={{display: 'block', opacity: 0.25}}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: block');
+	expect(premountedStyle).toContain('opacity: 0.25');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceTestWrapper currentFrame={35} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+				styleWhilePostmounted={{display: 'block', opacity: 0.75}}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: block');
+	expect(postmountedStyle).toContain('opacity: 0.75');
+});
+
+test('AnimatedImage registers premount and postmount ranges once', async () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				postmountFor={5}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(registeredSequences).toHaveLength(1);
+	});
+	expect(registeredSequences[0].premountDisplay).toBe(10);
+	expect(registeredSequences[0].postmountDisplay).toBe(5);
+});
+
+test('AnimatedImage remains visible with a negative offset', () => {
+	const {container} = render(
+		<SequenceTestWrapper
+			compositionDurationInFrames={100}
+			currentFrame={75}
+			onRegisterSequence={() => undefined}
+		>
+			<AnimatedImage from={-100} onError={() => undefined} src="test.gif" />
+		</SequenceTestWrapper>,
+	);
+
+	expect(container.querySelector('canvas')).not.toBeNull();
 });
 
 test('AnimatedImage forwards data and aria attributes to its canvas', () => {
@@ -694,6 +1309,7 @@ test('Img registers a refForOutline pointing to the rendered image element', () 
 test('Interactive elements register their rendered element for Studio outlines', () => {
 	const registeredSequences: TSequence[] = [];
 	const divRef = React.createRef<HTMLDivElement>();
+	const rectRef = React.createRef<SVGRectElement>();
 	const documentationLink = 'https://www.remotion.dev/docs/interactive';
 
 	render(
@@ -702,10 +1318,31 @@ test('Interactive elements register their rendered element for Studio outlines',
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Interactive.Div ref={divRef}>Hello</Interactive.Div>
+			<Interactive.Div
+				ref={divRef}
+				cropBottom={0.4}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+			>
+				Hello
+			</Interactive.Div>
 			<Interactive.Span>World</Interactive.Span>
 			<Interactive.Svg viewBox="0 0 100 100">
-				<Interactive.Rect width={100} height={100} />
+				<Interactive.Circle />
+				<Interactive.Ellipse />
+				<Interactive.G />
+				<Interactive.Line />
+				<Interactive.Path />
+				<Interactive.Rect
+					ref={rectRef}
+					cropLeft={0.25}
+					height={100}
+					width={100}
+				/>
+				<Interactive.Text x={50} y={50}>
+					Label
+				</Interactive.Text>
 			</Interactive.Svg>
 		</SequenceTestWrapper>,
 	);
@@ -713,10 +1350,16 @@ test('Interactive elements register their rendered element for Studio outlines',
 	expect(
 		registeredSequences.map((sequence) => sequence.displayName).sort(),
 	).toEqual([
+		'<Interactive.Circle>',
 		'<Interactive.Div>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
+		'<Interactive.Line>',
+		'<Interactive.Path>',
 		'<Interactive.Rect>',
 		'<Interactive.Span>',
 		'<Interactive.Svg>',
+		'<Interactive.Text>',
 	]);
 
 	const getByName = (displayName: string) =>
@@ -736,6 +1379,9 @@ test('Interactive elements register their rendered element for Studio outlines',
 	expect(getByName('<Interactive.Rect>')?.refForOutline?.current?.tagName).toBe(
 		'rect',
 	);
+	expect(getByName('<Interactive.Text>')?.refForOutline?.current?.tagName).toBe(
+		'text',
+	);
 	expect(getByName('<Interactive.Div>')?.documentationLink).toBe(
 		documentationLink,
 	);
@@ -746,6 +1392,186 @@ test('Interactive elements register their rendered element for Studio outlines',
 		divRef.current,
 	);
 	expect(getByName('<Interactive.Div>')?.controls).not.toBe(null);
+	expect(divRef.current?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+	expect(divRef.current?.getAttributeNames()).not.toContain('cropleft');
+	expect(rectRef.current?.style.clipPath).toBe('inset(0% 0% 0% 25%)');
+
+	for (const sequence of registeredSequences) {
+		for (const cropField of [
+			'cropLeft',
+			'cropRight',
+			'cropTop',
+			'cropBottom',
+		]) {
+			expect(sequence.controls?.schema).toHaveProperty(cropField);
+		}
+	}
+
+	for (const displayName of [
+		'<Interactive.Div>',
+		'<Interactive.Span>',
+		'<Interactive.Text>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty([
+			'style.fontSize',
+		]);
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('children');
+	}
+
+	for (const displayName of [
+		'<Interactive.Circle>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
+		'<Interactive.Line>',
+		'<Interactive.Path>',
+		'<Interactive.Rect>',
+		'<Interactive.Svg>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).not.toHaveProperty([
+			'style.fontSize',
+		]);
+		expect(getByName(displayName)?.controls?.schema).not.toHaveProperty(
+			'children',
+		);
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('stroke');
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty(
+			'strokeWidth',
+		);
+	}
+
+	for (const displayName of [
+		'<Interactive.Circle>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
+		'<Interactive.Line>',
+		'<Interactive.Path>',
+		'<Interactive.Rect>',
+		'<Interactive.Svg>',
+		'<Interactive.Text>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('color');
+	}
+
+	for (const displayName of [
+		'<Interactive.Circle>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
+		'<Interactive.Path>',
+		'<Interactive.Rect>',
+		'<Interactive.Svg>',
+		'<Interactive.Text>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('fill');
+	}
+
+	expect(getByName('<Interactive.Line>')?.controls?.schema).not.toHaveProperty(
+		'fill',
+	);
+});
+
+test('AbsoluteFill is an interactive sequence while preserving its div contract', () => {
+	const registeredSequences: TSequence[] = [];
+	const divRef = React.createRef<HTMLDivElement>();
+	let clickCount = 0;
+
+	const {container} = render(
+		<SequenceTestWrapper
+			currentFrame={4}
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<AbsoluteFill
+				ref={divRef}
+				id="interactive-fill"
+				from={4}
+				durationInFrames={12}
+				style={{backgroundColor: 'red'}}
+				onClick={() => {
+					clickCount++;
+				}}
+			>
+				Hello
+			</AbsoluteFill>
+		</SequenceTestWrapper>,
+	);
+
+	const element = container.querySelector<HTMLDivElement>('#interactive-fill');
+	if (!element) {
+		throw new Error('Expected AbsoluteFill to render its div');
+	}
+
+	fireEvent.click(element);
+
+	expect(container.querySelectorAll('#interactive-fill')).toHaveLength(1);
+	expect(divRef.current).toBe(element);
+	expect(clickCount).toBe(1);
+	expect(registeredSequences).toHaveLength(1);
+	expect(registeredSequences[0]).toMatchObject({
+		displayName: '<AbsoluteFill>',
+		documentationLink: 'https://www.remotion.dev/docs/absolute-fill',
+		from: 4,
+		duration: 12,
+		showInTimeline: true,
+	});
+	expect(registeredSequences[0]?.refForOutline?.current).toBe(element);
+	expect(registeredSequences[0]?.controls?.componentIdentity).toBe(
+		'dev.remotion.remotion.AbsoluteFill',
+	);
+	expect(registeredSequences[0]?.controls?.schema).toHaveProperty([
+		'style.backgroundColor',
+	]);
+	expect(registeredSequences[0]?.controls?.schema).toHaveProperty('children');
+});
+
+test('Loading indicator does not register an interactive sequence', () => {
+	const registeredSequences: TSequence[] = [];
+
+	const {container, getByText} = render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Loading />
+		</SequenceTestWrapper>,
+	);
+
+	expect(getByText('Resolving <Suspense>...')).toBeTruthy();
+	expect(getByText('Resolving <Suspense>...').style.color).toBe(
+		'rgba(255, 255, 255, 0.8)',
+	);
+	const loadingIndicator = container.querySelector<HTMLDivElement>(
+		'#remotion-comp-loading',
+	);
+	expect(loadingIndicator).toBeTruthy();
+	expect(loadingIndicator?.style.backgroundColor).toBe('#1f2428');
+	expect(loadingIndicator?.style.animation).toBe('');
+	const loadingContent = container.querySelector<HTMLDivElement>(
+		'#remotion-comp-loading-content',
+	);
+	expect(loadingContent?.style.animation).toBe('anim 2s');
+	expect(registeredSequences).toHaveLength(0);
+});
+
+test('Loading indicator compensates for the canvas scale', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<Internals.CurrentScaleContext.Provider value={{type: 'scale', scale: 2}}>
+				<Loading />
+			</Internals.CurrentScaleContext.Provider>
+		</SequenceTestWrapper>,
+	);
+
+	const loadingLabel = container.querySelector<HTMLParagraphElement>(
+		'#remotion-comp-loading-content p',
+	);
+	const loadingIcon = container.querySelector<SVGElement>(
+		'#remotion-comp-loading-content svg',
+	);
+	expect(loadingLabel?.style.fontSize).toBe('7px');
+	expect(loadingIcon?.getAttribute('width')).toBe('20');
+	expect(loadingIcon?.getAttribute('height')).toBe('20');
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {

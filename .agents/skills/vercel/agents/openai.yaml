@@ -1,4 +1,4 @@
 interface:
-  display_name: "Vercel Monitor"
-  short_description: "Monitor Vercel previews until ready"
-  default_prompt: "Use $vercel to set up a monitor for this Vercel deployment and tell me when the preview is ready."
+  display_name: 'Vercel Monitor'
+  short_description: 'Monitor Vercel previews until ready'
+  default_prompt: 'Use $vercel to monitor the remotion Vercel deployment and tell me when the preview is ready.'

@@ -1,5 +1,8 @@
 import type {Caption} from '@remotion/captions';
-import type {DownloadWhisperModelProgress} from '@remotion/whisper-web';
+import type {
+	WhisperWebGpuModelLoadProgress,
+	WhisperWebGpuTranscription,
+} from '@remotion/whisper-webgpu';
 
 export type TranscriptionState =
 	| {
@@ -10,12 +13,14 @@ export type TranscriptionState =
 	  }
 	| {
 			type: 'downloading-model';
-			progress: DownloadWhisperModelProgress;
+			progress: WhisperWebGpuModelLoadProgress;
 	  }
 	| {
 			type: 'transcribing';
-			result: Caption[];
-			progress: number;
 	  }
-	| {type: 'done'; result: Caption[]}
-	| {type: 'error'};
+	| {
+			type: 'done';
+			result: Caption[];
+			whisperWebGpuOutput: WhisperWebGpuTranscription;
+	  }
+	| {type: 'error'; message: string};

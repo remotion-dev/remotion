@@ -12,11 +12,14 @@ export const getGitSourceName = (gitSource: GitSource) => {
 
 export const getGitSourceBranchUrl = (gitSource: GitSource) => {
 	if (gitSource.type === 'github') {
+		const relativeFromGitRoot = gitSource.relativeFromGitRoot.replaceAll(
+			'\\',
+			'/',
+		);
+
 		return `https://github.com/${gitSource.org}/${gitSource.name}/tree/${
 			gitSource.ref
-		}${
-			gitSource.relativeFromGitRoot ? `/${gitSource.relativeFromGitRoot}` : ''
-		}`;
+		}${relativeFromGitRoot ? `/${relativeFromGitRoot}` : ''}`;
 	}
 
 	throw new Error('Unknown git source type');
@@ -25,16 +28,72 @@ export const getGitSourceBranchUrl = (gitSource: GitSource) => {
 export const getGitRefUrl = (
 	gitSource: GitSource,
 	originalLocation: OriginalPosition,
+	remotionRoot: string,
 ) => {
 	if (gitSource.type === 'github') {
-		return `https://github.com/${gitSource.org}/${gitSource.name}/tree/${
-			gitSource.ref
-		}/${
-			gitSource.relativeFromGitRoot ? `${gitSource.relativeFromGitRoot}/` : ''
-		}${originalLocation.source}#L${originalLocation.line}`;
+		if (!originalLocation.source) {
+			return getGitSourceBranchUrl(gitSource);
+		}
+
+		const source = originalLocation.source.replaceAll('\\', '/');
+		const root = remotionRoot.replaceAll('\\', '/').replace(/\/+$/, '');
+		const shouldCompareCaseInsensitive =
+			/^[a-z]:\//i.test(source) || /^[a-z]:\//i.test(root);
+		const comparableSource = shouldCompareCaseInsensitive
+			? source.toLowerCase()
+			: source;
+		const comparableRoot = shouldCompareCaseInsensitive
+			? root.toLowerCase()
+			: root;
+		const sourceIsInsideRoot =
+			root.length > 0 && comparableSource.startsWith(`${comparableRoot}/`);
+		const relativeSource = sourceIsInsideRoot
+			? source.slice(root.length + 1)
+			: source.replace(/^\.\/+/, '');
+
+		if (/^(?:[a-z]:\/|\/)/i.test(relativeSource)) {
+			return getGitSourceBranchUrl(gitSource);
+		}
+
+		const filePath = [
+			gitSource.relativeFromGitRoot.replaceAll('\\', '/'),
+			relativeSource,
+		]
+			.filter(Boolean)
+			.map((part) => part.replace(/^\/+|\/+$/g, ''))
+			.join('/');
+		const lineSuffix = originalLocation.line
+			? `#L${originalLocation.line}`
+			: '';
+
+		return `https://github.com/${gitSource.org}/${gitSource.name}/blob/${gitSource.ref}/${filePath}${lineSuffix}`;
 	}
 
 	throw new Error('Unknown git source type');
+};
+
+export const hasReadOnlyGitSource = () => {
+	return Boolean(window.remotion_isReadOnlyStudio && window.remotion_gitSource);
+};
+
+export const openGitSource = ({
+	folder,
+	location,
+}: {
+	folder: boolean;
+	location: OriginalPosition | null;
+}) => {
+	const gitSource = window.remotion_gitSource;
+	if (!gitSource) {
+		return;
+	}
+
+	window.open(
+		folder || !location
+			? getGitSourceBranchUrl(gitSource)
+			: getGitRefUrl(gitSource, location, window.remotion_cwd),
+		'_blank',
+	);
 };
 
 export const getGitMenuItem = (): ComboboxValue | null => {

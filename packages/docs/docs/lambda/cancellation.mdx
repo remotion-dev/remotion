@@ -1,0 +1,103 @@
+---
+image: /generated/articles-docs-lambda-cancellation.png
+id: cancellation
+title: Cancelling Lambda renders
+sidebar_label: Cancelling renders
+crumb: 'Lambda'
+---
+
+# Cancelling Lambda renders<AvailableFrom v="4.0.515" />
+
+By default, a Lambda render continues until it finishes or fails.
+
+To allow a render to be cancelled, polling to S3 needs to be enabled. Each active renderer then makes one S3 `HEAD` request per second.
+
+Set [`enableCancellation`](/docs/lambda/rendermediaonlambda#enablecancellation) to `true` when calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+
+Still renders cannot be cancelled because [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) only returns after the still has been rendered.
+
+```ts twoslash title="cancel-render.ts"
+import {
+  cancelRenderOnLambda,
+  renderMediaOnLambda,
+} from '@remotion/lambda/client';
+
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  codec: 'h264',
+  enableCancellation: true,
+});
+
+// Call this when the render should stop
+await cancelRenderOnLambda({
+  region: 'us-east-1',
+  bucketName,
+  renderId,
+});
+```
+
+Calling [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda) for a render that was not started with `enableCancellation: true` throws an error.
+
+## Cancelling from the CLI
+
+Pass `--enable-cancellation` to [`npx remotion lambda render`](/docs/lambda/cli/render):
+
+```bash title="Terminal"
+npx remotion lambda render <serve-url> <composition-id> --enable-cancellation
+```
+
+Press Ctrl+C to send the cancellation signal. The CLI exits after the signal has been written. Press Ctrl+C again to exit immediately without waiting for the signal to be written.
+
+Without `--enable-cancellation`, pressing Ctrl+C stops the CLI from waiting, but the Lambda render continues.
+
+## Cost
+
+Cancellation is opt-in because each [renderer function](/docs/lambda/how-lambda-works) checks S3 once per second for a cancellation signal.
+
+Each renderer makes approximately one additional S3 `HEAD` request for every second that it is active. Renderer functions stop polling when they finish or receive the cancellation signal.
+
+In the absolute worst case of 200 concurrent functions running for the full 15-minute Lambda limit, polling costs approximately $0.072.
+
+These estimates use the current US East (N. Virginia) ARM list prices and exclude the AWS Free Tier and volume discounts. Prices vary by region. See [AWS Lambda pricing](https://aws.amazon.com/lambda/pricing/) and [Amazon S3 pricing](https://aws.amazon.com/s3/pricing/).
+
+Leave `enableCancellation` at its default value of `false` if the render does not need to be cancellable.
+
+## How cancellation works
+
+[`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda) writes a cancellation signal to S3. Renderer functions stop after seeing the signal during their next poll.
+
+:::note
+Cancellation is asynchronous. The promise returned by `cancelRenderOnLambda()` resolves once the signal has been written, not once every renderer function has stopped.
+:::
+
+If the main function fails or times out, it also sends the cancellation signal to the remaining renderer functions.
+
+Cancelling a render does not delete its files from S3. After cancellation has propagated, use [`deleteRender()`](/docs/lambda/deleterender) to remove them. If the render has already finished, cancelling it does not remove or invalidate the output file.
+
+## Detecting a cancelled render
+
+There is currently no dedicated `cancelled` field. A renderer that receives the cancellation signal adds a fatal error named `CancelledError` to the render progress.
+
+```ts twoslash title="detect-cancellation.ts"
+import type {RenderProgress} from '@remotion/lambda/client';
+
+export const wasRenderCancelled = (progress: RenderProgress) => {
+  return progress.errors.some((error) => error.name === 'CancelledError');
+};
+```
+
+In the value returned by [`getRenderProgress()`](/docs/lambda/getrenderprogress), `fatalErrorEncountered` will also be `true`, while `done` remains `false`.
+
+The same `errors` array is stored in `progress.json`, so checking for `CancelledError` also works when reading the file directly. `fatalErrorEncountered` is derived by `getRenderProgress()` and is not stored in `progress.json`.
+
+If the main function fails or times out, the remaining renderer functions may also report `CancelledError`. The error indicates that a renderer received the cancellation signal, but not why the signal was sent.
+
+## See also
+
+- [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
+- [`getRenderProgress()`](/docs/lambda/getrenderprogress)
+- [How Remotion Lambda works](/docs/lambda/how-lambda-works)

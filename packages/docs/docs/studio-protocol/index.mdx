@@ -1,0 +1,51 @@
+---
+image: /generated/articles-docs-studio-protocol-index.png
+title: 'Remotion Studio Protocol'
+crumb: '@remotion/studio-protocol'
+---
+
+# Remotion Studio Protocol<AvailableFrom v="4.0.502" />
+
+A versioned protocol for providing content to Remotion Studio.
+
+<Installation pkg="@remotion/studio-protocol" />
+
+## Capabilities
+
+### Installing Remotion Elements
+
+A Remotion Element is a reusable React component distributed as source code, together with the metadata and dependencies needed to add it to a composition. Because its source code becomes part of the project, it can be edited and remixed by the user.
+
+Websites can provide Remotion Elements by drag-and-drop or request their installation into the active composition.
+
+<Step>1</Step> Create an Element payload with [`createElementPayload()`](/docs/studio-protocol/create-element-payload).<br />
+<Step>2</Step> Provide the payload to Studio: put it on a drag event with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data), or request installation into the active composition with [`installInStudio()`](/docs/studio-protocol/install-in-studio).
+
+If you publish reusable components, see [Integrating a component library with Studio](/docs/studio-protocol/component-library-integration) for recommendations on Player previews, representing components as Elements, and both delivery methods.
+
+Offer both delivery methods when possible. They use the same Element payload but suit different workflows.
+
+| Method                                                          | Benefits                                                                                                        | Tradeoffs                                                                                                                                        |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Drag-and-drop](/docs/studio-protocol/set-studio-drag-data)     | The user chooses the exact Studio tab, timeline position, and canvas position.                                  | Drag data has no reliable website provenance, so Studio labels the source as [unverified](/docs/studio-protocol/security#confirmation-boundary). |
+| [Installation request](/docs/studio-protocol/install-in-studio) | The requesting website is shown in Studio. On macOS, Studio attempts to bring the target tab to the foreground. | Local Studio ports are probed and the most recently focused compatible Studio is selected automatically.                                         |
+
+### Adding Element catalogs
+
+A website can use [`addElementLibraryToStudio()`](/docs/studio-protocol/add-element-library-to-studio) to request that its catalog is persisted in a Remotion project's config. Studio shows the requesting origin and catalog URL before changing `remotion.config.ts`.
+
+Adding a catalog does not install Element source code or dependencies. Each Element installation keeps its own confirmation.
+
+## APIs
+
+import {TableOfContents} from './table-of-contents';
+
+<TableOfContents />
+
+## Security
+
+Learn about the [confirmation and origin policy](/docs/studio-protocol/security).
+
+## License
+
+[Remotion License](/docs/license)

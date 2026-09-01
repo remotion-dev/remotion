@@ -62,6 +62,7 @@ const {
 	bundleCacheOption,
 	sampleRateOption,
 	stillFrameOption,
+	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -103,6 +104,7 @@ export const render = async (
 
 	const {
 		frameRange,
+		selectedFrames,
 		shouldOutputImageSequence,
 		inputProps,
 		envVariables,
@@ -133,6 +135,12 @@ export const render = async (
 	const everyNthFrame = everyNthFrameOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	if (selectedFrames !== null && everyNthFrame !== 1) {
+		throw new Error(
+			'Comma-separated `--frames` cannot be combined with `--every-nth-frame`.',
+		);
+	}
+
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
 	const disableWebSecurity = disableWebSecurityOption.getValue({
 		commandLine: parsedCli,
@@ -282,6 +290,7 @@ export const render = async (
 		concurrency,
 		everyNthFrame,
 		frameRange,
+		selectedFrames,
 		jpegQuality,
 		onProgress: () => undefined,
 		addCleanupCallback: (label, c) => {
@@ -325,5 +334,9 @@ export const render = async (
 		rspack,
 		sampleRate,
 		shouldCache,
+		bundlerOverride: null,
+		rspackOverride: null,
+		webpackOverride: null,
+		licenseKey: publicLicenseKeyOption.getValue({commandLine: parsedCli}).value,
 	});
 };

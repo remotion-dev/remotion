@@ -5,9 +5,10 @@ import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {CallbackListener, PlayerEventTypes} from './event-emitter.js';
 import {PlayerEmitter} from './event-emitter.js';
+import {TimelineSequenceObserverContext} from './timeline-sequence-observer-context.js';
 import {useHoverState} from './use-hover-state.js';
 import {usePlayback} from './use-playback.js';
-import {usePlayer} from './use-player.js';
+import {usePlayerMethods} from './use-player-methods.js';
 import {
 	updateAllElementsSizes,
 	useElementSize,
@@ -37,7 +38,7 @@ export type {CallbackListener, PlayerEventTypes as EventTypes};
 export const PlayerInternals = {
 	PlayerEventEmitterContext,
 	PlayerEmitter,
-	usePlayer,
+	usePlayerMethods,
 	usePlayback,
 	useElementSize,
 	calculateCanvasTransformation,
@@ -45,4 +46,5 @@ export const PlayerInternals = {
 	updateAllElementsSizes,
 	PlayerEmitterProvider,
 	BufferingIndicator,
+	TimelineSequenceObserverContext,
 };

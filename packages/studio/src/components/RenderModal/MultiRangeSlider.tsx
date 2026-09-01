@@ -1,18 +1,17 @@
 import type {ChangeEvent, FC} from 'react';
 import React, {useCallback, useMemo} from 'react';
-import {BLACK, BLUE, INPUT_BACKGROUND} from '../../helpers/colors';
+import {BLUE, WHITE_ALPHA_10} from '../../helpers/colors';
 
 const container: React.CSSProperties = {
-	borderColor: BLACK,
-	borderStyle: 'solid',
-	borderWidth: '2px',
-	height: 39,
-	width: 220,
+	height: 6,
+	flex: 1,
+	minWidth: 80,
+	maxWidth: 220,
 	position: 'relative',
-	backgroundColor: INPUT_BACKGROUND,
+	backgroundColor: WHITE_ALPHA_10,
 	marginLeft: 8,
 	marginRight: 8,
-	borderRadius: 2,
+	borderRadius: 3,
 };
 
 // blue slider
@@ -20,7 +19,8 @@ const sliderRange: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	backgroundColor: BLUE,
-	height: 35,
+	height: 6,
+	borderRadius: 3,
 };
 
 interface MultiRangeSliderProps {

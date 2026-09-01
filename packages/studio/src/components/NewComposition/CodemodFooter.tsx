@@ -13,7 +13,7 @@ import React, {
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalButton} from '../ModalButton';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -64,29 +64,29 @@ export const CodemodFooter: React.FC<{
 	readonly valid: boolean;
 	readonly codemod: RecastCodemod;
 	readonly stack: string | null;
-	readonly loadingNotification: React.ReactNode;
-	readonly successNotification: React.ReactNode;
+	readonly loadingNotification: React.ReactNode | null;
 	readonly errorNotification: string;
 	readonly genericSubmitLabel: string;
 	readonly submitLabel: (options: {relativeRootPath: string}) => string;
 	readonly onSuccess: (() => void) | null;
 	readonly fallbackToRootFile?: boolean;
 	readonly applyCodemod: ApplyCodemodAction;
+	readonly applyCodemodForPreview: ApplyCodemodAction | null;
 }> = ({
 	codemod,
 	stack,
 	valid,
 	loadingNotification,
-	successNotification,
 	errorNotification,
 	genericSubmitLabel,
 	submitLabel,
 	onSuccess,
 	fallbackToRootFile = false,
 	applyCodemod,
+	applyCodemodForPreview,
 }) => {
 	const [submitting, setSubmitting] = useState(false);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [codemodStatus, setCanApplyCodemod] = useState<CodemodStatus>({
 		type: 'loading',
 	});
@@ -102,7 +102,10 @@ export const CodemodFooter: React.FC<{
 	const trigger = useCallback(() => {
 		setSubmitting(true);
 		setSelectedModal(null);
-		const notification = showNotification(loadingNotification, null);
+		const notification =
+			loadingNotification === null
+				? null
+				: showNotification(loadingNotification, null);
 
 		applyCodemod({
 			symbolicatedStack,
@@ -110,21 +113,27 @@ export const CodemodFooter: React.FC<{
 		})
 			.then((result) => {
 				if (!result.success) {
-					notification.replaceContent(
-						`${errorNotification}: ${result.reason}`,
-						2000,
-					);
+					const message = `${errorNotification}: ${result.reason}`;
+					if (notification) {
+						notification.replaceContent(message, 2000);
+					} else {
+						showNotification(message, 2000);
+					}
+
 					return;
 				}
 
-				notification.replaceContent(successNotification, 2000);
+				notification?.dismiss();
+
 				onSuccess?.();
 			})
 			.catch((err) => {
-				notification.replaceContent(
-					`${errorNotification}: ${(err as Error).message}`,
-					2000,
-				);
+				const message = `${errorNotification}: ${(err as Error).message}`;
+				if (notification) {
+					notification.replaceContent(message, 2000);
+				} else {
+					showNotification(message, 2000);
+				}
 			});
 	}, [
 		applyCodemod,
@@ -132,18 +141,19 @@ export const CodemodFooter: React.FC<{
 		loadingNotification,
 		onSuccess,
 		setSelectedModal,
-		successNotification,
 		symbolicatedStack,
 	]);
 
 	const getCanApplyCodemod = useCallback(
 		async (signal: AbortSignal) => {
-			const res = await applyCodemodApi({
-				codemod,
-				dryRun: true,
-				symbolicatedStack,
-				signal,
-			});
+			const res = applyCodemodForPreview
+				? await applyCodemodForPreview({signal, symbolicatedStack})
+				: await applyCodemodApi({
+						codemod,
+						dryRun: true,
+						symbolicatedStack,
+						signal,
+					});
 
 			if (res.success) {
 				setCanApplyCodemod({type: 'success', diff: res.diff});
@@ -154,7 +164,7 @@ export const CodemodFooter: React.FC<{
 				});
 			}
 		},
-		[codemod, symbolicatedStack],
+		[applyCodemodForPreview, codemod, symbolicatedStack],
 	);
 
 	useEffect(() => {

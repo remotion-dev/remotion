@@ -64,8 +64,11 @@ export const ERROR_CODE_FRAME_LINE_BACKGROUND = '#121212';
 export const ERROR_LINK_COLOR = '#58a6ff';
 export const INFO_BLUE = '#60a5fa';
 export const SERVER_DISCONNECTED_BACKGROUND = '#e74c3c';
-export const STACK_FRAME_BORDER_BLUE = 'rgb(66, 144, 245)';
-export const TIMELINE_BACKGROUND_COLOR = '#0F1113';
+export const TIMELINE_BACKGROUND_COLOR = '#15181B';
+// WHITE_ALPHA_10 composited over TIMELINE_BACKGROUND_COLOR.
+export const TIMELINE_NEGATIVE_START_BACKGROUND_COLOR = '#2C2F32';
+// WHITE_ALPHA_10 composited over TIMELINE_NEGATIVE_START_BACKGROUND_COLOR.
+export const TIMELINE_NEGATIVE_START_BORDER_COLOR = '#414446';
 export const TIMELINE_SELECTED_BACKGROUND_COLOR = '#3B3F42';
 export const TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR = '#B0B0B0';
 export const TIMELINE_BLUE = '#0b84ff';
@@ -88,7 +91,6 @@ export const BORDER_BLACK_ALPHA_60 = `1px solid ${BLACK_ALPHA_60}`;
 export const BORDER_WHITE_ALPHA_12 = `1px solid ${WHITE_ALPHA_12}`;
 export const BORDER_WHITE_ALPHA_20 = `1px solid ${WHITE_ALPHA_20}`;
 export const BORDER_INFO_BLUE = '1px solid rgba(59, 130, 246, 0.4)';
-export const BORDER_STACK_FRAME_BLUE = `1px solid ${STACK_FRAME_BORDER_BLUE}`;
 export const BORDER_TIMELINE_DROP_BLUE = `1px solid ${TIMELINE_DROP_BLUE_ALPHA_75}`;
 export const BORDER_TIMELINE_MARQUEE_BLUE = `1px solid ${TIMELINE_MARQUEE_BLUE_ALPHA_75}`;
 export const SHADOW_BLACK = `0 0 4px ${BLACK}`;
@@ -140,8 +142,6 @@ export const TIMELINE_AUDIO_GRADIENT =
 	'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 export const TIMELINE_VIDEO_GRADIENT =
 	'linear-gradient(to top, #8e44ad, #9b59b6)';
-export const TIMELINE_IMAGE_GRADIENT =
-	'linear-gradient(to top, #2980b9, #3498db)';
 
 export const getBackgroundFromHoverState = ({
 	selected,

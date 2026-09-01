@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import AutomationsSection from './homepage/AutomationsSection';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
@@ -13,12 +12,14 @@ import {MakeVideosInteractively} from './homepage/MakeVideosInteractively';
 import {MakeVideosProgrammatically} from './homepage/MakeVideosProgrammatically';
 import {NewsletterButton} from './homepage/NewsletterButton';
 import {Pricing} from './homepage/Pricing';
+import {ReactSourceOfTruth} from './homepage/ReactSourceOfTruth';
 import TrustedByBanner from './homepage/TrustedByBanner';
 import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
-const makeVideosRowClassName = 'mt-4 md:mt-6 flex flex-col lg:flex-row gap-10';
+const makeVideosRowClassName =
+	'mt-4 min-[900px]:mt-6 flex flex-col min-[900px]:flex-row gap-10';
 
 export const NewLanding: React.FC<{
 	readonly colorMode: ColorMode;
@@ -35,7 +36,7 @@ export const NewLanding: React.FC<{
 					<br />
 					<br />
 					<br />
-					<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5 overflow-x-clip md:overflow-x-visible relative">
+					<div className="max-w-[500px] min-[900px]:max-w-[1000px] m-auto pl-5 pr-5 overflow-x-clip min-[900px]:overflow-x-visible relative">
 						<WriteInReact />
 						<br />
 						<div className={makeVideosRowClassName}>
@@ -51,14 +52,47 @@ export const NewLanding: React.FC<{
 								]}
 							/>
 						</div>
-						<br />
-						<br />
-						<br />
-						<div className="pt-6 md:pt-8">
-							<AutomationsSection />
+						<ReactSourceOfTruth />
+						<div className={makeVideosRowClassName}>
+							<MakeVideosProgrammatically
+								title="Parameterization"
+								description="Organize your assets and connect your data."
+								videoSrc="/img/design-systems.webm"
+								fallbackVideoSrc="/img/design-systems.mp4"
+								links={[
+									{
+										label: 'Parameterization',
+										href: '/docs/parameterized-rendering',
+									},
+									{label: 'Motion design systems', href: '/design-systems'},
+								]}
+							/>
+							<MakeVideosAgentically
+								title="Batch rendering"
+								description="Render millions of videos on your own infrastructure."
+								links={[
+									{
+										label: 'Server-side rendering',
+										href: '/docs/compare-ssr',
+									},
+									{
+										label: 'Client-side rendering',
+										href: '/docs/client-side-rendering',
+									},
+								]}
+							/>
+							<MakeVideosInteractively
+								title="Applications"
+								description="Publish a simple tool or a complex video editor."
+								videoSrc="/img/applications.webm"
+								fallbackVideoSrc="/img/applications.mp4"
+								links={[
+									{label: 'Player', href: '/docs/player'},
+									{label: 'Editor Starter', href: '/editor-starter'},
+								]}
+							/>
 						</div>
-						<br />
-						<br />
+
 						<Demo />
 						<br />
 						<br />
@@ -69,9 +103,10 @@ export const NewLanding: React.FC<{
 						<br />
 						<SectionTitle>Pricing</SectionTitle>
 						<Pricing />
-						<TrustedByBanner />
-						<br />
-						<EvaluateRemotionSection />
+						<div className={makeVideosRowClassName}>
+							<TrustedByBanner />
+							<EvaluateRemotionSection />
+						</div>
 						<br />
 						<br />
 						<br />

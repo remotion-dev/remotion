@@ -1,6 +1,7 @@
 import {useCallback, useMemo, useRef} from 'react';
+import {useLogLevel, useMountTime} from './log-level-context';
+import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
-import {useLogger} from './use-logger.js';
 
 const isSafariWebkit = () => {
 	const isSafari = /^((?!chrome|android).)*safari/i.test(
@@ -22,7 +23,10 @@ export const useBufferUntilFirstFrame = ({
 }) => {
 	const bufferingRef = useRef<boolean>(false);
 	const {delayPlayback} = useBufferState();
-	const logger = useLogger();
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
+	const loggingRef = useRef({logLevel, mountTime});
+	loggingRef.current = {logLevel, mountTime};
 
 	const bufferUntilFirstFrame = useCallback(
 		(requestedTime: number) => {
@@ -41,27 +45,33 @@ export const useBufferUntilFirstFrame = ({
 			}
 
 			if (current.readyState >= current.HAVE_FUTURE_DATA && !isSafariWebkit()) {
-				logger.playback(
-					'buffer',
-					`Not using buffer until first frame, because readyState is ${current.readyState} and is not Safari or Desktop Chrome`,
-				);
+				playbackLogging({
+					logLevel: loggingRef.current.logLevel,
+					message: `Not using buffer until first frame, because readyState is ${current.readyState} and is not Safari or Desktop Chrome`,
+					mountTime: loggingRef.current.mountTime,
+					tag: 'buffer',
+				});
 				return;
 			}
 
 			if (!current.requestVideoFrameCallback) {
-				logger.playback(
-					'buffer',
-					'Not using buffer until first frame, because requestVideoFrameCallback is not supported',
-				);
+				playbackLogging({
+					logLevel: loggingRef.current.logLevel,
+					message: `Not using buffer until first frame, because requestVideoFrameCallback is not supported`,
+					mountTime: loggingRef.current.mountTime,
+					tag: 'buffer',
+				});
 				return;
 			}
 
 			bufferingRef.current = true;
 
-			logger.playback(
-				'buffer',
-				`Buffering ${mediaRef.current?.src} until the first frame is received`,
-			);
+			playbackLogging({
+				logLevel: loggingRef.current.logLevel,
+				message: `Buffering ${mediaRef.current?.src} until the first frame is received`,
+				mountTime: loggingRef.current.mountTime,
+				tag: 'buffer',
+			});
 
 			const playback = delayPlayback();
 
@@ -99,8 +109,6 @@ export const useBufferUntilFirstFrame = ({
 				once: true,
 			});
 		},
-		// The logger has stable identity and reads the latest context.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[
 			delayPlayback,
 			mediaRef,

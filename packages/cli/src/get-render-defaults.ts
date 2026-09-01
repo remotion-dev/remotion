@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {RenderDefaults} from '@remotion/studio-shared';
@@ -5,6 +6,7 @@ import {ConfigInternals} from './config';
 import {parsedCli} from './parsed-cli';
 
 const {
+	allowHtmlInCanvasOption,
 	x264Option,
 	gopSizeOption,
 	audioBitrateOption,
@@ -14,6 +16,7 @@ const {
 	scaleOption,
 	jpegQualityOption,
 	videoBitrateOption,
+	crfOption,
 	enforceAudioOption,
 	mutedOption,
 	colorSpaceOption,
@@ -24,7 +27,6 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	reproOption,
-	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
 	forSeamlessAacConcatenationOption,
@@ -45,11 +47,10 @@ const {
 	sampleRateOption,
 } = BrowserSafeApis.options;
 
-export const getRenderDefaults = (): RenderDefaults => {
+export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 	const defaultJpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.resolveConcurrency(
 		concurrencyOption.getValue({commandLine: parsedCli}).value,
@@ -82,6 +83,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const videoBitrate = videoBitrateOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const crf = crfOption.getValue({commandLine: parsedCli}).value ?? null;
 	const enforceAudioTrack = enforceAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -159,9 +161,22 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
 	const metadata = ConfigInternals.getMetadata();
 	const outputLocation = ConfigInternals.getOutputLocation();
+	const allowHtmlInCanvas = allowHtmlInCanvasOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
+	const configFileRenderDefaults = {
+		codec: defaultCodec ?? null,
+		proResProfile:
+			proResProfileOption.getValue({commandLine: {}}).value ?? null,
+		stillImageFormat:
+			stillImageFormatOption.getValue({commandLine: {}}).value ?? null,
+		videoImageFormat:
+			videoImageFormatOption.getValue({commandLine: {}}).value ?? null,
+		x264Preset: x264Option.getValue({commandLine: {}}).value ?? null,
+	};
 
 	return {
 		darkMode,
@@ -169,6 +184,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 		scale: defaultScale ?? 1,
 		logLevel,
 		codec: defaultCodec ?? 'h264',
+		crf,
 		concurrency,
 		maxConcurrency,
 		minConcurrency,
@@ -208,6 +224,8 @@ export const getRenderDefaults = (): RenderDefaults => {
 		mediaCacheSizeInBytes,
 		publicLicenseKey,
 		outputLocation,
+		allowHtmlInCanvas,
 		sampleRate: sampleRateOption.getValue({commandLine: parsedCli}).value,
+		configFileRenderDefaults,
 	};
 };

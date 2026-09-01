@@ -1,7 +1,6 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {act, cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import React from 'react';
-import {BufferingContextReact} from '../buffering.js';
 import type {
 	EffectApplyParams,
 	EffectDefinition,
@@ -12,6 +11,7 @@ import type {RemotionEnvironment} from '../remotion-environment-context.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
 import type {SequenceContextType} from '../SequenceContext.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {SetTimelineContext} from '../TimelineContext.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const drawImageCalls: unknown[][] = [];
@@ -117,10 +117,13 @@ const previewEnvironment: RemotionEnvironment = {
 const wrapImg = (
 	element: React.ReactElement,
 	environment: RemotionEnvironment = previewEnvironment,
+	currentFrame: number = 0,
 ) => {
 	return (
 		<RemotionEnvironmentContext.Provider value={environment}>
-			<WrapSequenceContext>{element}</WrapSequenceContext>
+			<WrapSequenceContext currentFrame={currentFrame}>
+				{element}
+			</WrapSequenceContext>
 		</RemotionEnvironmentContext.Provider>
 	);
 };
@@ -151,25 +154,13 @@ const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
 const BufferingEvents: React.FC<{
 	readonly events: string[];
 }> = ({events}) => {
-	const manager = React.useContext(BufferingContextReact);
+	const {subscribeBuffering} = React.useContext(SetTimelineContext);
 
 	React.useLayoutEffect(() => {
-		if (!manager) {
-			throw new Error('Expected BufferingContextReact');
-		}
-
-		const buffering = manager.listenForBuffering(() => {
-			events.push('waiting');
+		return subscribeBuffering((state) => {
+			events.push(state.buffering ? 'waiting' : 'resume');
 		});
-		const resume = manager.listenForResume(() => {
-			events.push('resume');
-		});
-
-		return () => {
-			buffering.remove();
-			resume.remove();
-		};
-	}, [events, manager]);
+	}, [events, subscribeBuffering]);
 
 	return null;
 };
@@ -305,6 +296,93 @@ test('<Img> buffers playback when premounting ends before loading finishes', asy
 	}
 });
 
+test('<Img> does not pause playback while directly premounted', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	const events: string[] = [];
+	let decodeResolver: (() => void) | null = null;
+	HTMLImageElement.prototype.decode = () =>
+		new Promise<void>((resolve) => {
+			decodeResolver = resolve;
+		});
+	const img = (
+		<>
+			<BufferingEvents events={events} />
+			<Img
+				src="blob:http://localhost/test-image"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				pauseWhenLoading
+			/>
+		</>
+	);
+
+	try {
+		const {rerender} = render(wrapImg(img, previewEnvironment, 0));
+
+		await waitFor(() => {
+			expect(decodeResolver).not.toBeNull();
+		});
+		expect(events).toEqual([]);
+
+		rerender(wrapImg(img, previewEnvironment, 10));
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting']);
+		});
+
+		act(() => {
+			decodeResolver?.();
+		});
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting', 'resume']);
+		});
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
+});
+
+test('<Img> does not pause playback while directly postmounted', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	const events: string[] = [];
+	let decodeStarted = false;
+	HTMLImageElement.prototype.decode = () => {
+		decodeStarted = true;
+		return new Promise<void>(() => undefined);
+	};
+
+	try {
+		render(
+			wrapImg(
+				<>
+					<BufferingEvents events={events} />
+					<Img
+						src="blob:http://localhost/test-image"
+						from={10}
+						durationInFrames={20}
+						postmountFor={10}
+						pauseWhenLoading
+					/>
+				</>,
+				previewEnvironment,
+				35,
+			),
+		);
+
+		await waitFor(() => {
+			expect(decodeStarted).toBe(true);
+		});
+		expect(events).toEqual([]);
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
+});
+
 test('Img with effects renders through the canvas image path', async () => {
 	const applyCalls: EffectApplyParams<unknown, unknown>[] = [];
 	const {container} = renderImg(
@@ -327,8 +405,56 @@ test('Img with effects renders through the canvas image path', async () => {
 	expect(applyCalls[0].height).toBe(50);
 });
 
-test('<Img> schema does not expose fit', () => {
+test('<Img> schema exposes src and crop but not fit', () => {
+	expect(imgSchema.src).toEqual({
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	});
 	expect(Object.keys(imgSchema)).not.toContain('fit');
+	for (const field of ['cropLeft', 'cropRight', 'cropTop', 'cropBottom']) {
+		expect(field in imgSchema).toBe(true);
+	}
+});
+
+test('<Img> applies crop props to the native image', () => {
+	const {container} = renderImg(
+		<Img
+			cropBottom={0.4}
+			cropLeft={0.1}
+			cropRight={0.2}
+			cropTop={0.3}
+			src={testImgUrl}
+		/>,
+	);
+
+	const image = container.querySelector('img');
+	expect(image?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+});
+
+test('<Img> forwards crop props to the CanvasImage fallback', () => {
+	const {container} = renderImg(
+		<Img
+			cropBottom={0.4}
+			cropLeft={0.1}
+			cropRight={0.2}
+			cropTop={0.3}
+			effects={[makeEffect()]}
+			src={testImgUrl}
+		/>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+});
+
+test('<Img> keeps its component name in crop errors from the fallback', () => {
+	expect(() =>
+		renderImg(<Img cropLeft={101} effects={[makeEffect()]} src={testImgUrl} />),
+	).toThrow(
+		'The "cropLeft" prop of <Img /> must be between 0 and 1, but got 101. The crop range is 0 to 1, not 0 to 100.',
+	);
 });
 
 test('Img throws when native image props conflict with effects', () => {

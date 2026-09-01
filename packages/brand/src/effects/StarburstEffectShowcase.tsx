@@ -1,5 +1,6 @@
 import {halftone} from '@remotion/effects/halftone';
-import {starburst} from '@remotion/starburst';
+import {starburst} from '@remotion/effects/starburst';
+import {MacOSCursor} from '@remotion/mac-cursors';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -8,7 +9,6 @@ import {
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
-import {CursorGlyph} from '../CanvasCapturePreview';
 
 const WIDTH = 1080;
 const HEIGHT = 1350;
@@ -61,8 +61,6 @@ const ORIGIN_KNOB_RADIUS = 16;
 const ORIGIN_KNOB_STROKE_WIDTH = 4;
 const CURSOR_IN_FRAME = 0;
 const CURSOR_OUT_FRAME = HALFTONE_SHAPE_TWEAK_FRAME + 64;
-const RESIZE_CURSOR_LEAD = 5;
-const RESIZE_CURSOR_HOLD = 12;
 const VALUE_DRAG_START_X = 472;
 const VALUE_DRAG_END_X = 712;
 const STARBURST_TOGGLE_CURSOR_Y = TOP_HEIGHT + EFFECT_HEADER_HEIGHT / 2;
@@ -469,19 +467,6 @@ const isCursorDown = (frame: number) => {
 	);
 };
 
-const getCursor = (frame: number) => {
-	if (
-		(frame >= ROTATION_START - RESIZE_CURSOR_LEAD &&
-			frame <= ROTATION_START + ROTATION_DURATION + RESIZE_CURSOR_HOLD) ||
-		(frame >= HALFTONE_DOT_SIZE_TWEAK_START - RESIZE_CURSOR_LEAD &&
-			frame <= HALFTONE_DOT_SIZE_TWEAK_END + RESIZE_CURSOR_HOLD)
-	) {
-		return 'resizewesteast';
-	}
-
-	return 'default';
-};
-
 const ShowcaseCursor: React.FC<{
 	readonly frame: number;
 }> = ({frame}) => {
@@ -505,7 +490,19 @@ const ShowcaseCursor: React.FC<{
 				transform: `translate(${point.x}px, ${point.y}px) scale(${clickScale})`,
 			}}
 		>
-			<CursorGlyph cursor={getCursor(frame)} scale={1} cursorScale={2.5} />
+			<MacOSCursor
+				cursor={interpolate(
+					frame,
+					[0, 193, 283, 339, 453],
+					['default', 'resizewesteast', 'default', 'resizewesteast', 'default'],
+					{
+						easing: Easing.step1,
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				)}
+				style={{scale: 2.5}}
+			/>
 		</div>
 	);
 };

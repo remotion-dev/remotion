@@ -55,3 +55,7 @@ export const normalizeTimelineNumber = (value: number): number => {
 export const draggerStyle: React.CSSProperties = {
 	width: 80,
 };
+
+export const leftAlignedDraggerStyle: React.CSSProperties = {
+	paddingLeft: 0,
+};

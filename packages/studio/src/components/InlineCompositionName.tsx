@@ -62,7 +62,7 @@ export const InlineCompositionName: React.FC<{
 						return;
 					}
 
-					notification.replaceContent(`Renamed to ${newId}`, 2000);
+					notification.dismiss();
 				})
 				.catch((err) => {
 					notification.replaceContent(
@@ -85,6 +85,7 @@ export const InlineCompositionName: React.FC<{
 			value={compositionId}
 			canRename={canRename}
 			onCommit={commit}
+			size="inspector"
 		/>
 	);
 };

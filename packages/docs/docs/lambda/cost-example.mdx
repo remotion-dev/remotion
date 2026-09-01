@@ -27,6 +27,8 @@ Rendering the [`HelloWorld`](https://github.com/remotion-dev/template-helloworld
 
 ## Rendering a 1 minute Video in the same S3 bucket
 
+The video examples use Mediabunny's [`computeFrameRateMetrics()`](https://mediabunny.dev/api/InputVideoTrack#computeframeratemetrics) method to account for constant and variable frame rate videos.
+
 ```tsx twoslash title="OffthreadRemoteVideo.tsx"
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
@@ -34,9 +36,7 @@ import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -47,8 +47,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? null
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -69,10 +74,11 @@ const src = staticFile('bigbuckbunny.mp4');
 
 export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
   const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
+  const compositionFps = fps ?? 30;
 
   return {
-    durationInFrames: Math.round(durationInSeconds * fps!), // 1440
-    fps: fps!,
+    durationInFrames: Math.round(durationInSeconds * compositionFps), // 1440
+    fps: compositionFps,
     width: dimensions!.width,
     height: dimensions!.height,
   };
@@ -106,9 +112,7 @@ import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -119,8 +123,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? null
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -141,10 +150,11 @@ const src = 'https://remotion.media/BigBuckBunny.mp4';
 
 export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
   const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
+  const compositionFps = fps ?? 30;
 
   return {
-    durationInFrames: Math.round(durationInSeconds * fps!), // 14315
-    fps: fps!,
+    durationInFrames: Math.round(durationInSeconds * compositionFps), // 14315
+    fps: compositionFps,
     width: dimensions!.width,
     height: dimensions!.height,
   };
@@ -174,9 +184,7 @@ import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -187,8 +195,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? null
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -209,10 +222,11 @@ const src = 'https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160
 
 export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
   const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
+  const compositionFps = fps ?? 30;
 
   return {
-    durationInFrames: Math.round(durationInSeconds * fps!),
-    fps: fps!,
+    durationInFrames: Math.round(durationInSeconds * compositionFps),
+    fps: compositionFps,
     width: dimensions!.width,
     height: dimensions!.height,
   };

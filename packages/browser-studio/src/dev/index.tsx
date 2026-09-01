@@ -11,7 +11,16 @@ if (!root) {
 createRoot(root).render(
 	<BrowserStudio
 		iframeSrc="/frame.html"
+		initialElement={null}
 		project={createBlankTemplateProject()}
-		readOnly
+		readOnly={false}
+		remotionPackageSource={{
+			baseUrl: new URL(
+				'/__remotion_browser_studio_workspace__/',
+				window.location.href,
+			).href,
+			commit: 'local',
+			type: 'workspace',
+		}}
 	/>,
 );

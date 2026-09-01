@@ -1,5 +1,9 @@
 import {assert, expect, test} from 'vitest';
-import {getMaxVideoCacheSize, keyframeManager} from '../caches';
+import {
+	getMaxVideoCacheSize,
+	globalMediaCache,
+	keyframeManager,
+} from '../caches';
 import {extractFrame} from '../video-extraction/extract-frame';
 
 test('Should render first frame for videos starting after timestamp 0', async () => {
@@ -20,6 +24,7 @@ test('Should render first frame for videos starting after timestamp 0', async ()
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 
 	// Should successfully extract (no error thrown)

@@ -42,8 +42,9 @@ afterAll(() => {
 	mock.restore();
 });
 
-test('useMediaInTimeline registers and unregisters new sequence', () => {
+test('useMediaInTimeline registers muted changes and unregisters the sequence', () => {
 	const registerSequence = mock();
+	const updateSequence = mock();
 	const unregisterSequence = mock();
 	const wrapper: React.FC<{
 		children: React.ReactNode;
@@ -53,6 +54,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 			return {
 				registerSequence,
 				unregisterSequence,
+				updateSequence,
 				sequences: [],
 			};
 		}, []);
@@ -66,8 +68,8 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 		);
 	};
 
-	const {unmount} = renderHook(
-		() =>
+	const {rerender, unmount} = renderHook(
+		({muted}: {readonly muted: boolean}) =>
 			useMediaInTimeline({
 				volume: 1,
 				src: 'test',
@@ -83,15 +85,23 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				loopDisplay: undefined,
 				documentationLink: null,
 				refForOutline: null,
+				muted,
 			}),
 		{
 			wrapper,
+			initialProps: {muted: false},
 		},
 	);
 	expect(registerSequence).toHaveBeenCalled();
 	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
 		mediaFrameAtSequenceZero: null,
+		muted: false,
 	});
+
+	rerender({muted: true});
+	expect(registerSequence).toHaveBeenCalledTimes(1);
+	expect(updateSequence.mock.calls.at(-1)?.[0]).toMatchObject({muted: true});
+
 	unmount();
 	expect(unregisterSequence).toHaveBeenCalled();
 });
@@ -107,6 +117,7 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 			return {
 				registerSequence,
 				unregisterSequence,
+				updateSequence: null,
 				sequences: [],
 			};
 		}, []);
@@ -137,6 +148,7 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 				loopDisplay: undefined,
 				documentationLink: 'https://www.remotion.dev/docs/html5-video',
 				refForOutline: null,
+				muted: false,
 			}),
 		{
 			wrapper,

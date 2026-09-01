@@ -1,6 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
-import {Solid} from '../effects/Solid.js';
+import {Solid, solidSchema} from '../effects/Solid.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 // happy-dom doesn't implement canvas; install a no-op stub so the chain
@@ -66,6 +66,33 @@ test('<Solid> forwards className and style', () => {
 	const canvas = container.querySelector('canvas');
 	expect(canvas?.className).toBe('my-solid');
 	expect(canvas?.style.opacity).toBe('0.5');
+});
+
+test('<Solid> applies crop props to the canvas', () => {
+	const {container} = render(
+		<WrapSequenceContext>
+			<Solid
+				color="blue"
+				width={100}
+				height={100}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+				cropBottom={0.4}
+			/>
+		</WrapSequenceContext>,
+	);
+
+	expect(container.querySelector('canvas')?.style.clipPath).toBe(
+		'inset(30% 20% 40% 10%)',
+	);
+});
+
+test('<Solid> exposes crop controls', () => {
+	expect(solidSchema.cropLeft.keyframable).toBe(true);
+	expect(solidSchema.cropRight.keyframable).toBe(true);
+	expect(solidSchema.cropTop.keyframable).toBe(true);
+	expect(solidSchema.cropBottom.keyframable).toBe(true);
 });
 
 test('<Solid> renders without a color', () => {

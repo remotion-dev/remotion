@@ -131,6 +131,53 @@ export const getMissedFramesWithTrimApplied = async (
 	return missedFrames;
 };
 
+export const getMissedFramesWithFractionalTrimApplied = async () => {
+	const outputPath = await fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'remotion-'),
+	);
+	const filename = path.join(outputPath, 'fractional-trim.png');
+
+	await execa(
+		'node_modules/.bin/remotion',
+		[
+			'still',
+			'./build',
+			'video-testing-mp4-offthread',
+			filename,
+			'--frame',
+			'0',
+			'--props',
+			JSON.stringify({trimBefore: 20.75}),
+		],
+		{
+			cwd: path.join(process.cwd(), '..', 'example'),
+		},
+	);
+
+	const img = await sharp(filename).raw().toBuffer();
+	const actualColor = {
+		red: img.readUInt8(0),
+		green: img.readUInt8(1),
+		blue: img.readUInt8(2),
+	};
+	const expectedColor = {
+		red: selectColor('red', 20),
+		green: selectColor('green', 20),
+		blue: selectColor('blue', 20),
+	};
+
+	const missedFrames = missedFrameChecker(
+		expectedColor,
+		actualColor,
+		0,
+		20,
+		filename,
+	);
+	RenderInternals.deleteDirectory(outputPath);
+
+	return missedFrames;
+};
+
 function selectColor(color: string, frame: number) {
 	return Math.floor((random(`${color}-${frame}`) * 255) % 255);
 }

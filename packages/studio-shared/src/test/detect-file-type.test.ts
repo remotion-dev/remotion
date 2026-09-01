@@ -37,6 +37,41 @@ test('detects animated PNG dimensions', () => {
 	});
 });
 
+test('detects animated WebP files', () => {
+	const webp = new Uint8Array(44);
+	webp.set([0x52, 0x49, 0x46, 0x46, 36, 0, 0, 0], 0);
+	webp.set([0x57, 0x45, 0x42, 0x50], 8);
+	webp.set([0x56, 0x50, 0x38, 0x58, 10, 0, 0, 0], 12);
+	webp.set([0x02, 0, 0, 0, 0x3f, 0x01, 0, 0xb3, 0, 0], 20);
+	webp.set([0x41, 0x4e, 0x49, 0x4d, 6, 0, 0, 0], 30);
+
+	expect(detectFileType(webp)).toEqual({
+		type: 'webp',
+		animated: true,
+		dimensions: {
+			width: 320,
+			height: 180,
+		},
+	});
+});
+
+test('detects static WebP files', () => {
+	const webp = new Uint8Array(30);
+	webp.set([0x52, 0x49, 0x46, 0x46, 22, 0, 0, 0], 0);
+	webp.set([0x57, 0x45, 0x42, 0x50], 8);
+	webp.set([0x56, 0x50, 0x38, 0x58, 10, 0, 0, 0], 12);
+	webp.set([0, 0, 0, 0, 0x3f, 0x01, 0, 0xb3, 0, 0], 20);
+
+	expect(detectFileType(webp)).toEqual({
+		type: 'webp',
+		animated: false,
+		dimensions: {
+			width: 320,
+			height: 180,
+		},
+	});
+});
+
 test('detects GIF dimensions', () => {
 	const gif = new Uint8Array([
 		0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x20, 0x03, 0x58, 0x02,

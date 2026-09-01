@@ -9,7 +9,11 @@ import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {bundleCommand} from './bundle';
 import {chalk} from './chalk';
 import {checkForNpmRunFlagPass} from './check-for-npm-run-flag-pass';
-import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
+import {
+	cleanupBeforeQuit,
+	handleCtrlC,
+	registerCtrlCHandler,
+} from './cleanup-before-quit';
 import {cloudrunCommand} from './cloudrun-command';
 import {listCompositionsCommand} from './compositions';
 import {determineFinalStillImageFormat} from './determine-image-format';
@@ -49,7 +53,8 @@ import {
 	versionsCommand,
 } from './versions';
 
-const {packageManagerOption, versionFlagOption} = BrowserSafeApis.options;
+const {packageManagerOption, skipSkillsOption, versionFlagOption} =
+	BrowserSafeApis.options;
 
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
@@ -121,6 +126,7 @@ export const cli = async () => {
 				version:
 					versionFlagOption.getValue({commandLine: parsedCli}).value ??
 					undefined,
+				skipSkills: skipSkillsOption.getValue({commandLine: parsedCli}).value,
 				logLevel,
 				args,
 			});
@@ -144,7 +150,10 @@ export const cli = async () => {
 				args: additionalArgs,
 			});
 		} else if (command === 'skills') {
-			await skillsCommand(args, logLevel);
+			await skillsCommand(args, logLevel, {
+				cwd: process.cwd(),
+				environment: process.env,
+			});
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
@@ -202,4 +211,6 @@ export const CliInternals = {
 	makeHyperlink,
 	supportsHyperlink,
 	getGitSource,
+	handleCtrlC,
+	registerCtrlCHandler,
 };

@@ -1,7 +1,8 @@
 import {useContext} from 'react';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {LogLevel} from './log.js';
-import {createLogger} from './logger.js';
+import {Log} from './log.js';
+import {playbackLogging} from './playback-logging.js';
 import {PreloadContext, setPreloads} from './prefetch-state.js';
 
 export const removeAndGetHashFragment = (src: string) => {
@@ -121,7 +122,6 @@ export const prefetch = (
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
 	const logLevel = options?.logLevel ?? 'info';
-	const logger = createLogger({logLevel, mountTime: null});
 	const srcWithoutHash = getSrcWithoutHash(src);
 
 	if (getRemotionEnvironment().isRendering) {
@@ -131,7 +131,10 @@ export const prefetch = (
 		};
 	}
 
-	logger.verbose('prefetch', `Starting prefetch ${srcWithoutHash}`);
+	Log.verbose(
+		{logLevel, tag: 'prefetch'},
+		`Starting prefetch ${srcWithoutHash}`,
+	);
 
 	let canceled = false;
 	let objectUrl: string | null = null;
@@ -212,10 +215,12 @@ export const prefetch = (
 				return;
 			}
 
-			logger.playback(
-				'prefetch',
-				`Finished prefetch ${srcWithoutHash} with method ${method}`,
-			);
+			playbackLogging({
+				logLevel,
+				tag: 'prefetch',
+				message: `Finished prefetch ${srcWithoutHash} with method ${method}`,
+				mountTime: null,
+			});
 
 			objectUrl = url as string;
 
@@ -235,7 +240,12 @@ export const prefetch = (
 
 	return {
 		free: () => {
-			logger.playback('prefetch', `Freeing ${srcWithoutHash}`);
+			playbackLogging({
+				logLevel,
+				tag: 'prefetch',
+				message: `Freeing ${srcWithoutHash}`,
+				mountTime: null,
+			});
 			if (objectUrl) {
 				if (method === 'blob-url') {
 					URL.revokeObjectURL(objectUrl);

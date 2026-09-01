@@ -1,17 +1,18 @@
 import {useCallback, useContext, useEffect, useRef, type FC} from 'react';
 import {Internals} from 'remotion';
+import {getTimelineZoom} from '../../helpers/get-timeline-max-zoom';
 import {useIsVideoComposition} from '../../helpers/is-current-selected-still';
 import {EditorZoomGesturesContext} from '../../state/editor-zoom-gestures';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {viewportClientXToScrollContentX} from './timeline-scroll-logic';
 
 /**
- * Maps wheel deltaY to zoom delta. Must be large enough that typical ctrl+wheel
- * pinch steps change `TimelineZoomCtx` zoom by at least one 0.1 step after
- * `Math.round(z * 10) / 10` in `timeline-zoom.tsx` (0.005 was too small).
+ * Maps wheel deltaY to a multiplicative zoom change. Must be large enough that
+ * typical ctrl+wheel pinch steps change `TimelineZoomCtx` zoom by at least one
+ * 0.1 step after rounding in `clampTimelineZoom` (0.005 was too small at 1x).
  */
-const ZOOM_WHEEL_DELTA = 0.06;
+const ZOOM_WHEEL_SENSITIVITY = 0.06;
 
 type WebKitGestureEvent = UIEvent & {
 	scale: number;
@@ -28,6 +29,16 @@ export const TimelinePinchZoom: FC = () => {
 
 	const zoomRef = useRef(zoom);
 	zoomRef.current = zoom;
+	const getCurrentTimelineZoom = useCallback(
+		(compositionId: string) => {
+			return getTimelineZoom({
+				durationInFrames: videoConfig?.durationInFrames ?? 1,
+				timelineViewportWidth: scrollableRef.current?.clientWidth ?? 0,
+				zoom: zoomRef.current[compositionId] ?? null,
+			});
+		},
+		[videoConfig?.durationInFrames],
+	);
 
 	const pinchBaseZoomRef = useRef<number | null>(null);
 	const suppressWheelFromWebKitPinchRef = useRef(false);
@@ -82,7 +93,7 @@ export const TimelinePinchZoom: FC = () => {
 
 			setZoom(
 				canvasContent.compositionId,
-				(z) => z - scaledDeltaY * ZOOM_WHEEL_DELTA,
+				(z) => z * Math.exp(-scaledDeltaY * ZOOM_WHEEL_SENSITIVITY),
 				{anchorFrame: null, anchorContentX},
 			);
 		},
@@ -143,8 +154,9 @@ export const TimelinePinchZoom: FC = () => {
 			e.preventDefault();
 			suppressWheelFromWebKitPinchRef.current = true;
 
-			pinchBaseZoomRef.current =
-				zoomRef.current[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
+			pinchBaseZoomRef.current = getCurrentTimelineZoom(
+				canvasContent.compositionId,
+			);
 		};
 
 		const onGestureChange = (event: Event) => {
@@ -202,6 +214,7 @@ export const TimelinePinchZoom: FC = () => {
 		isVideoComposition,
 		videoConfig,
 		canvasContent,
+		getCurrentTimelineZoom,
 		setZoom,
 	]);
 
@@ -240,8 +253,7 @@ export const TimelinePinchZoom: FC = () => {
 
 			touchPinchRef.current = {
 				initialDistance,
-				initialZoom:
-					zoomRef.current[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM,
+				initialZoom: getCurrentTimelineZoom(canvasContent.compositionId),
 			};
 		};
 
@@ -305,6 +317,7 @@ export const TimelinePinchZoom: FC = () => {
 		isVideoComposition,
 		videoConfig,
 		canvasContent,
+		getCurrentTimelineZoom,
 		setZoom,
 	]);
 

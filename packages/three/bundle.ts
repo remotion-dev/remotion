@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const output = await build({
-	entrypoints: ['src/index.ts'],
+	entrypoints: ['src/index.ts', 'src/webgpu.tsx'],
 	naming: '[name].mjs',
 	external: [
 		'react',
@@ -14,14 +14,14 @@ const output = await build({
 		'remotion/no-react',
 		'react/jsx-runtime',
 		'@react-three/fiber',
+		'three/webgpu',
 		'three/src/textures/VideoTexture.js',
 		'three/src/loaders/TextureLoader.js',
 	],
 });
 
-const [file] = output.outputs;
-const text = await file.text();
-
-await Bun.write('dist/esm/index.mjs', text);
+for (const file of output.outputs) {
+	await Bun.write(`dist/esm/${file.path.split('/').pop()}`, await file.text());
+}
 
 export {};

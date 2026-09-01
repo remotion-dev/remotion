@@ -1,7 +1,9 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {AlignBottomIcon} from '../../icons/align-bottom';
 import {AlignCenterHorizontalIcon} from '../../icons/align-center-horizontal';
 import {AlignCenterVerticalIcon} from '../../icons/align-center-vertical';
@@ -13,6 +15,7 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
 import {translateFieldKey} from '../selected-outline-types';
 import {callAddSequenceKeyframe} from '../Timeline/call-add-keyframe';
+import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from '../Timeline/save-sequence-prop';
 import {
 	parseTranslate,
@@ -44,10 +47,9 @@ const iconStyle: React.CSSProperties = {
 	height: 16,
 };
 
-const verticalDivider: React.CSSProperties = {
+const verticalSpacer: React.CSSProperties = {
 	width: 1,
 	height: 16,
-	backgroundColor: 'rgba(255, 255, 255, 0.1)',
 	margin: '0 8px',
 };
 
@@ -59,6 +61,7 @@ const AlignmentButton: React.FC<{
 }> = ({onClick, title, Icon, disabled}) => {
 	return (
 		<InlineAction
+			variant={null}
 			title={title}
 			onClick={onClick}
 			renderAction={(color) => <Icon style={iconStyle} color={color} />}
@@ -68,8 +71,9 @@ const AlignmentButton: React.FC<{
 };
 
 export const AlignmentControls: React.FC<{
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }> = ({track}) => {
+	const runtimeValues = useRuntimeValues(track.sequence.controls);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides} = useContext(
@@ -93,6 +97,7 @@ export const AlignmentControls: React.FC<{
 			direction: 'left' | 'center-h' | 'right' | 'top' | 'center-v' | 'bottom',
 		) => {
 			if (
+				!isStudioInteractivityEnabled() ||
 				previewServerState.type !== 'connected' ||
 				!track.nodePathInfo ||
 				!track.sequence.controls
@@ -110,13 +115,20 @@ export const AlignmentControls: React.FC<{
 				propStatuses,
 				nodePath,
 			);
-			const sourceFrame = timelinePosition - track.keyframeDisplayOffset;
+			const firstKeyframedStatus = Object.values(nodePropStatuses ?? {}).find(
+				(status) => status.status === 'keyframed',
+			);
+			const sourceFrame =
+				timelinePosition -
+				getKeyframeDisplayOffset({
+					propStatus: firstKeyframedStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				});
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
 
 			const activeSchema = getSelectedOutlineActiveSchema({
 				schema: track.sequence.controls.schema,
-				currentRuntimeValueDotNotation:
-					track.sequence.controls.currentRuntimeValueDotNotation,
+				currentRuntimeValueDotNotation: runtimeValues,
 				dragOverrides,
 				propStatus: nodePropStatuses,
 				frame: sourceFrame,
@@ -166,7 +178,7 @@ export const AlignmentControls: React.FC<{
 					)
 				: String(fieldSchema.default ?? '0px 0px');
 
-			const [currentX, currentY] = parseTranslate(currentTranslate);
+			const [currentX, currentY, currentZ] = parseTranslate(currentTranslate);
 
 			const {x: newX, y: newY} = computeAlignedTranslate({
 				direction,
@@ -177,7 +189,7 @@ export const AlignmentControls: React.FC<{
 				scale,
 			});
 
-			const newValue = serializeTranslate(newX, newY);
+			const newValue = serializeTranslate([newX, newY, currentZ]);
 
 			const undoLabels = {
 				left: 'Align left',
@@ -192,6 +204,8 @@ export const AlignmentControls: React.FC<{
 
 			if (!propStatus || propStatus.status === 'static') {
 				saveSequenceProps({
+					addedKeyframes: null,
+					movedKeyframes: null,
 					changes: [
 						{
 							fileName: nodePath.absolutePath,
@@ -229,12 +243,14 @@ export const AlignmentControls: React.FC<{
 			currentCompositionMetadata,
 			timelinePosition,
 			propStatuses,
+			runtimeValues,
 			getDragOverrides,
 			setPropStatuses,
 		],
 	);
 
 	if (
+		!isStudioInteractivityEnabled() ||
 		previewServerState.type !== 'connected' ||
 		!track.nodePathInfo ||
 		!track.sequence.controls ||
@@ -248,13 +264,20 @@ export const AlignmentControls: React.FC<{
 		propStatuses,
 		renderNodePath,
 	);
-	const renderSourceFrame = timelinePosition - track.keyframeDisplayOffset;
+	const firstRenderKeyframedStatus = Object.values(
+		renderNodePropStatuses ?? {},
+	).find((status) => status.status === 'keyframed');
+	const renderSourceFrame =
+		timelinePosition -
+		getKeyframeDisplayOffset({
+			propStatus: firstRenderKeyframedStatus,
+			keyframeDisplayOffset: track.keyframeDisplayOffset,
+		});
 	const renderDragOverrides = getDragOverrides(renderNodePath) ?? {};
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({
 		schema: track.sequence.controls.schema,
-		currentRuntimeValueDotNotation:
-			track.sequence.controls.currentRuntimeValueDotNotation,
+		currentRuntimeValueDotNotation: runtimeValues,
 		dragOverrides: renderDragOverrides,
 		propStatus: renderNodePropStatuses,
 		frame: renderSourceFrame,
@@ -289,7 +312,7 @@ export const AlignmentControls: React.FC<{
 				Icon={AlignRightIcon}
 				disabled={alignmentDisabled}
 			/>
-			<div style={verticalDivider} />
+			<div style={verticalSpacer} />
 			<AlignmentButton
 				title="Align top"
 				onClick={() => handleAlign('top')}

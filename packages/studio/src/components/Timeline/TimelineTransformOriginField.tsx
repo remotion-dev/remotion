@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
@@ -7,14 +7,19 @@ import type {
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
-import {getTimelineDisplayDecimalPlaces} from './timeline-field-utils';
+import {
+	getTimelineDisplayDecimalPlaces,
+	normalizeTimelineNumber,
+} from './timeline-field-utils';
 import {UnsupportedStatus} from './TimelineSchemaField';
 import {
 	parseTransformOrigin,
+	parseTransformOriginZ,
 	parsedTransformOriginToPercent,
 	serializeTransformOrigin,
 	transformOriginPercentToUv,
 } from './transform-origin-utils';
+import {Transform3DModeContext} from './Transform3DModeContext';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
@@ -46,6 +51,8 @@ export const TimelineTransformOriginField: React.FC<{
 }) => {
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
+	const [dragZ, setDragZ] = useState<number | null>(null);
+	const transform3DMode = useContext(Transform3DModeContext);
 
 	const parsed = useMemo(
 		() => parseTransformOrigin(effectiveValue),
@@ -55,6 +62,14 @@ export const TimelineTransformOriginField: React.FC<{
 		() => (parsed === null ? null : parsedTransformOriginToPercent(parsed)),
 		[parsed],
 	);
+	const parsedZ = useMemo(
+		() =>
+			parsed?.z === null || parsed?.z === undefined
+				? null
+				: parseTransformOriginZ(parsed.z),
+		[parsed?.z],
+	);
+	const show3D = transform3DMode || (parsedZ !== null && parsedZ.value !== 0);
 
 	const configuredStep =
 		field.fieldSchema.type === 'transform-origin'
@@ -82,14 +97,20 @@ export const TimelineTransformOriginField: React.FC<{
 	);
 
 	const serialize = useCallback(
-		(x: number, y: number) => {
+		(x: number, y: number, z = parsed?.z ?? null) => {
 			return serializeTransformOrigin({
 				uv: transformOriginPercentToUv([x, y]),
-				z: parsed?.z ?? null,
+				z,
 				decimalPlaces,
 			});
 		},
 		[decimalPlaces, parsed?.z],
+	);
+	const serializeZ = useCallback(
+		(value: number) => {
+			return `${normalizeTimelineNumber(value)}${parsedZ?.unit ?? 'px'}`;
+		},
+		[parsedZ?.unit],
 	);
 
 	const onXChange = useCallback(
@@ -202,8 +223,87 @@ export const TimelineTransformOriginField: React.FC<{
 		[dragX, onSave, percent, propStatus.codeValue, serialize],
 	);
 
+	const onZChange = useCallback(
+		(newVal: number) => {
+			if (percent === null) {
+				return;
+			}
+
+			setDragZ(newVal);
+			onDragValueChange(
+				serialize(dragX ?? percent[0], dragY ?? percent[1], serializeZ(newVal)),
+			);
+		},
+		[dragX, dragY, onDragValueChange, percent, serialize, serializeZ],
+	);
+
+	const onZChangeEnd = useCallback(
+		(newVal: number) => {
+			if (percent === null) {
+				return;
+			}
+
+			const value = serialize(
+				dragX ?? percent[0],
+				dragY ?? percent[1],
+				serializeZ(newVal),
+			);
+			if (value !== propStatus.codeValue) {
+				onSave(value).finally(() => {
+					setDragZ(null);
+					onDragEnd();
+				});
+			} else {
+				setDragZ(null);
+				onDragEnd();
+			}
+		},
+		[
+			dragX,
+			dragY,
+			onDragEnd,
+			onSave,
+			percent,
+			propStatus.codeValue,
+			serialize,
+			serializeZ,
+		],
+	);
+
+	const onZTextChange = useCallback(
+		(newVal: string) => {
+			if (percent === null) {
+				return;
+			}
+
+			const parsedValue = Number(newVal);
+			if (!Number.isNaN(parsedValue)) {
+				const value = serialize(
+					dragX ?? percent[0],
+					dragY ?? percent[1],
+					serializeZ(parsedValue),
+				);
+				if (value !== propStatus.codeValue) {
+					setDragZ(parsedValue);
+					onSave(value).finally(() => setDragZ(null));
+				}
+			}
+		},
+		[
+			dragX,
+			dragY,
+			onSave,
+			percent,
+			propStatus.codeValue,
+			serialize,
+			serializeZ,
+		],
+	);
+
 	if (percent === null) {
-		return <UnsupportedStatus label="unsupported origin" />;
+		return (
+			<UnsupportedStatus label="unsupported origin" formattedValue={false} />
+		);
 	}
 
 	return (
@@ -211,6 +311,7 @@ export const TimelineTransformOriginField: React.FC<{
 			<InputDragger
 				type="number"
 				value={dragX ?? percent[0]}
+				buttonStyle={leftDraggerStyle}
 				style={leftDraggerStyle}
 				status="ok"
 				small
@@ -224,11 +325,13 @@ export const TimelineTransformOriginField: React.FC<{
 				rightAlign={false}
 				snapToStep={false}
 				dragDecimalPlaces={decimalPlaces}
+				aria-label="Transform origin X"
 			/>
 			<div style={{marginLeft: -6, marginRight: -6}} />
 			<InputDragger
 				type="number"
 				value={dragY ?? percent[1]}
+				buttonStyle={rightDraggerStyle}
 				style={rightDraggerStyle}
 				status="ok"
 				small
@@ -242,7 +345,32 @@ export const TimelineTransformOriginField: React.FC<{
 				rightAlign={false}
 				snapToStep={false}
 				dragDecimalPlaces={decimalPlaces}
+				aria-label="Transform origin Y"
 			/>
+			{show3D ? (
+				<>
+					<div style={{marginLeft: -6, marginRight: -6}} />
+					<InputDragger
+						type="number"
+						value={dragZ ?? parsedZ?.value ?? 0}
+						buttonStyle={rightDraggerStyle}
+						style={rightDraggerStyle}
+						status="ok"
+						small
+						onValueChange={onZChange}
+						onValueChangeEnd={onZChangeEnd}
+						onTextChange={onZTextChange}
+						min={-Infinity}
+						max={Infinity}
+						step={step}
+						formatter={(value) => `${value}${parsedZ?.unit ?? 'px'}`}
+						rightAlign={false}
+						snapToStep={false}
+						dragDecimalPlaces={decimalPlaces}
+						aria-label="Transform origin Z"
+					/>
+				</>
+			) : null}
 		</span>
 	);
 };

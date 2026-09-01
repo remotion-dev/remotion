@@ -28,6 +28,9 @@
 			"path": "./packages/browser-studio"
 		},
 		{
+			"path": "./packages/canvas"
+		},
+		{
 			"path": "./packages/cloudrun"
 		},
 		{
@@ -59,6 +62,9 @@
 		},
 		{
 			"path": "./packages/google-fonts"
+		},
+		{
+			"path": "./packages/gsap"
 		},
 		{
 			"path": "./packages/openai-whisper"
@@ -199,6 +205,9 @@
 			"path": "./packages/studio"
 		},
 		{
+			"path": "./packages/studio-codemods"
+		},
+		{
 			"path": "./packages/studio-server"
 		},
 		{
@@ -244,6 +253,9 @@
 			"path": "./packages/example-videos"
 		},
 		{
+			"path": "./packages/jonnys-videos"
+		},
+		{
 			"path": "./packages/zod-types"
 		},
 		{
@@ -259,10 +271,22 @@
 			"path": "./packages/rounded-text-box"
 		},
 		{
-			"path": "./packages/canvas-capture"
+			"path": "./packages/canvas-capture-extension"
+		},
+		{
+			"path": "./packages/studio-protocol"
 		},
 		{
 			"path": "./packages/light-leaks"
+		},
+		{
+			"path": "./packages/whisper-webgpu"
+		},
+		{
+			"path": "./packages/maptiler"
+		},
+		{
+			"path": "./packages/mac-cursors"
 		},
 		{
 			"path": "./packages/rough-notation"

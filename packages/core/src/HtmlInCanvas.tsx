@@ -8,7 +8,6 @@ import React, {
 	useRef,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
-import {delayRender} from './delay-render.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -17,17 +16,24 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import type {InteractiveBaseProps} from './Interactive.js';
+import type {
+	InteractiveBaseProps,
+	InteractiveCropProps,
+} from './Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
+	borderSchema,
+	cropSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
+import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
-import {useVideoConfig} from './use-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 // IDL: https://github.com/WICG/html-in-canvas#idl-changes
@@ -185,6 +191,31 @@ export type HtmlInCanvasOnPaintParams = {
 	readonly pixelDensity: number;
 };
 
+// `transferControlToOffscreen()` may only be called once per canvas — a second
+// call throws an `InvalidStateError`. The layout effect that needs the
+// `OffscreenCanvas` can run more than once for the same canvas element: its
+// dependencies (e.g. the paint callback) can change identity without the
+// canvas remounting, and React StrictMode intentionally double-invokes
+// effects. Cache the transferred `OffscreenCanvas` per canvas element so
+// re-runs reuse it instead of throwing.
+const transferredOffscreenCanvases = new WeakMap<
+	HTMLCanvasElement,
+	OffscreenCanvas
+>();
+
+const getTransferredOffscreenCanvas = (
+	canvas: HTMLCanvasElement,
+): OffscreenCanvas => {
+	const existing = transferredOffscreenCanvases.get(canvas);
+	if (existing) {
+		return existing;
+	}
+
+	const offscreen = canvas.transferControlToOffscreen();
+	transferredOffscreenCanvases.set(canvas, offscreen);
+	return offscreen;
+};
+
 // Memoize the support check across the session — neither the platform
 // capability nor the chrome://flags toggle can change between calls.
 // SSR results are not cached so the check runs again once `document` exists.
@@ -311,6 +342,7 @@ const defaultOnPaint = ({
 
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
 export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
+	InteractiveCropProps &
 	Omit<
 		AbsoluteFillLayout,
 		| 'layout'
@@ -330,13 +362,7 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 	};
 /* eslint-enable react/require-default-props */
 
-type HtmlInCanvasAncestor = {
-	readonly requestParentPaint: () => void;
-};
-
-const HtmlInCanvasAncestorContext = createContext<HtmlInCanvasAncestor | null>(
-	null,
-);
+const HtmlInCanvasAncestorContext = createContext(false);
 
 type HtmlInCanvasContentProps = {
 	readonly width: number;
@@ -368,12 +394,20 @@ const HtmlInCanvasContent = forwardRef<
 		},
 		ref,
 	) => {
-		const ancestor = useContext(HtmlInCanvasAncestorContext);
+		const isInsideAncestorHtmlInCanvas = useContext(
+			HtmlInCanvasAncestorContext,
+		);
 		assertHtmlInCanvasDimensions(width, height);
+		if (isInsideAncestorHtmlInCanvas) {
+			throw new Error(
+				'<HtmlInCanvas> components cannot be nested. Chrome does not reliably render nested HTML-in-canvas subtrees. Consider merging the effects into one <HtmlInCanvas> if you can.',
+			);
+		}
+
 		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(pixelDensity);
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
-		const {continueRender, cancelRender} = useDelayRender();
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
@@ -417,8 +451,6 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
-		const ancestorRef = useRef(ancestor);
-		ancestorRef.current = ancestor;
 
 		const onPaintCb = useCallback(async () => {
 			const element = divRef.current;
@@ -565,11 +597,6 @@ const HtmlInCanvasContent = forwardRef<
 					elImage.close();
 				}
 
-				// Effects may complete after Chromium has dispatched the parent's
-				// paint event. Repaint the direct parent so deeply nested canvases
-				// propagate their final pixels through every ancestor.
-				ancestorRef.current?.requestParentPaint();
-
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
@@ -580,13 +607,13 @@ const HtmlInCanvasContent = forwardRef<
 			chainState,
 			continueRender,
 			cancelRender,
+			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
 		]);
 
-		// Default paint handlers draw synchronously on the layout canvas itself so
-		// Chromium can include their final pixels during its deepest-first nested
-		// paint traversal. Custom handlers retain the transferred OffscreenCanvas API.
+		// Default paint handlers draw synchronously on the layout canvas itself.
+		// Custom handlers retain the transferred OffscreenCanvas API.
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current;
 			if (!placeholder) {
@@ -597,7 +624,7 @@ const HtmlInCanvasContent = forwardRef<
 
 			const paintTarget = usesDirectLayoutCanvas
 				? placeholder
-				: placeholder.transferControlToOffscreen();
+				: getTransferredOffscreenCanvas(placeholder);
 
 			paintTargetRef.current = paintTarget;
 			resizePaintTarget({
@@ -660,7 +687,7 @@ const HtmlInCanvasContent = forwardRef<
 			return () => {
 				continueRender(handle);
 			};
-		}, [width, height, continueRender, canvasSizeKey]);
+		}, [width, height, continueRender, delayRender, canvasSizeKey]);
 
 		const innerStyle = useMemo(() => {
 			return {
@@ -677,16 +704,8 @@ const HtmlInCanvasContent = forwardRef<
 			};
 		}, [height, style, width]);
 
-		const ancestorValue = useMemo<HtmlInCanvasAncestor>(() => {
-			return {
-				requestParentPaint: () => {
-					canvas2dRef.current?.requestPaint?.();
-				},
-			};
-		}, []);
-
 		return (
-			<HtmlInCanvasAncestorContext.Provider value={ancestorValue}>
+			<HtmlInCanvasAncestorContext.Provider value>
 				<canvas
 					key={canvasSizeKey}
 					ref={setLayoutCanvasRef}
@@ -722,15 +741,16 @@ const HtmlInCanvasInner = forwardRef<
 			pixelDensity,
 			controls,
 			style,
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
 			durationInFrames,
 			name,
 			...sequenceProps
 		},
 		ref,
 	) => {
-		const {durationInFrames: videoDuration} = useVideoConfig();
-		const resolvedDuration = durationInFrames ?? videoDuration;
-
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
 		const setCanvasRef = useCallback(
@@ -744,10 +764,18 @@ const HtmlInCanvasInner = forwardRef<
 			},
 			[ref],
 		);
+		const croppedStyle = useCropStyle({
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style: style ?? null,
+			componentName: '<HtmlInCanvas />',
+		});
 
 		return (
 			<Sequence
-				durationInFrames={resolvedDuration}
+				durationInFrames={durationInFrames}
 				name={name ?? '<HtmlInCanvas>'}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 				controls={controls}
@@ -765,7 +793,7 @@ const HtmlInCanvasInner = forwardRef<
 					onInit={onInit}
 					pixelDensity={pixelDensity}
 					controls={controls}
-					style={style}
+					style={croppedStyle ?? undefined}
 				>
 					{children}
 				</HtmlInCanvasContent>
@@ -788,6 +816,10 @@ export const htmlInCanvasSchema = {
 		hiddenFromList: false,
 	},
 	...transformSchema,
+	...backgroundSchema,
+	...borderSchema,
+	...borderRadiusSchema,
+	...cropSchema,
 } as const satisfies InteractivitySchema;
 
 const HtmlInCanvasWrapped = withInteractivitySchema({

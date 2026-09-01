@@ -7,12 +7,12 @@ import type {
 	ColorSpace,
 	DeleteAfter,
 	DownloadBehavior,
-	FrameRange,
 	LogLevel,
 	OutNameInput,
 	PixelFormat,
 	Privacy,
 	ServerlessCodec,
+	SingleFrameRange,
 	ServerlessPayloads,
 	ServerlessStartPayload,
 	ServerlessStatusPayload,
@@ -41,6 +41,7 @@ import {validateLambdaCodec} from './validate-lambda-codec';
 import {validateServeUrl} from './validate-serveurl';
 
 export type InnerRenderMediaOnLambdaInput = {
+	enableCancellation: boolean;
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
@@ -60,7 +61,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	framesPerLambda: number | null;
 	concurrency: number | null;
 	logLevel: LogLevel;
-	frameRange: FrameRange | null;
+	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<AwsProvider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
@@ -70,7 +71,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	concurrencyPerLambda: number;
 	downloadBehavior: DownloadBehavior;
 	muted: boolean;
-	overwrite: boolean;
+	overwrite: boolean | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;
@@ -96,6 +97,7 @@ export type InnerRenderMediaOnLambdaInput = {
 >;
 
 export const makeLambdaRenderMediaPayload = async ({
+	enableCancellation,
 	rendererFunctionName,
 	frameRange,
 	framesPerLambda,
@@ -183,6 +185,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		logLevel,
 	});
 	return {
+		enableCancellation,
 		rendererFunctionName,
 		framesPerLambda,
 		concurrency,
@@ -340,7 +343,9 @@ export const makeLambdaRenderStillPayload = async ({
 		offthreadVideoCacheSizeInBytes,
 		deleteAfter,
 		type: ServerlessRoutines.still,
-		streamed: true,
+		streamed:
+			awsImplementation.getRendererFunctionTransport(region) ===
+			'response-streaming',
 		forcePathStyle,
 		licenseKey: licenseKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,

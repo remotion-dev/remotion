@@ -229,8 +229,8 @@ const formatTranslateTimelineFieldValueForDisplay = ({
 		return formatTranslateCoordinateForDisplay(numericValue, decimalPlaces);
 	}
 
-	const [x, y] = parseTranslate(String(value ?? '0px 0px'));
-	return serializeTranslate(x, y, decimalPlaces);
+	const translate = parseTranslate(String(value ?? '0px 0px'));
+	return serializeTranslate(translate, decimalPlaces);
 };
 
 const formatTransformOriginAxisValueForDisplay = ({
@@ -390,14 +390,18 @@ export const formatTimelineFieldValueForDisplay = ({
 		case 'text-content':
 			return String(value);
 
+		case 'asset':
 		case 'array':
 		case 'boolean':
+		case 'remotion-captions':
 		case 'color':
 		case 'enum':
+		case 'font-family':
+		case 'font-weight':
 		case 'hidden':
 			return formatUnknownTimelineValueForDisplay(value);
 
 		default:
-			return formatUnknownTimelineValueForDisplay(value);
+			throw new Error(`Unsupported field type: ${fieldSchema satisfies never}`);
 	}
 };

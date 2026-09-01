@@ -1,6 +1,11 @@
 import {interpolate} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {scrollableRef} from './timeline-refs';
+import {setCurrentFrame} from './imperative-state';
+import {
+	scrollableRef,
+	sliderAreaRef,
+	timelineVerticalScroll,
+} from './timeline-refs';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 
 export const canScrollTimelineIntoDirection = () => {
@@ -12,7 +17,196 @@ export const canScrollTimelineIntoDirection = () => {
 	return {canScrollRight, canScrollLeft};
 };
 
-const SCROLL_INCREMENT = 200;
+export const SCROLL_INCREMENT = 200;
+
+export const getTimelineContentWidth = () => {
+	return (
+		sliderAreaRef.current?.clientWidth ??
+		scrollableRef.current?.scrollWidth ??
+		0
+	);
+};
+
+export const EDGE_SCROLL_VERTICAL_INCREMENT = 60;
+
+const EDGE_SCROLL_INTERVAL_MS = 100;
+
+// Once edge-scrolling has started, the pointer must move this many pixels
+// back inside the timeline to stop it. Prevents pixel jitter around the edge
+// threshold from rapidly cancelling and restarting the auto-scroll.
+const EDGE_SCROLL_EXIT_HYSTERESIS = 8;
+
+// The vertical edge zones extend this many pixels into the viewport, so the
+// auto-scroll already engages when dragging close to (not exactly onto) the
+// top or bottom edge.
+const EDGE_SCROLL_VERTICAL_INSET = 8;
+
+export type TimelineEdgeScrollDirections = {
+	x: 'left' | 'right' | null;
+	y: 'up' | 'down' | null;
+};
+
+export type TimelineEdgeAutoScroller = {
+	update: (e: {
+		clientX: number;
+		clientY: number;
+	}) => TimelineEdgeScrollDirections;
+	stop: () => void;
+};
+
+const canScrollTimelineVerticallyIntoDirection = () => {
+	const {current} = timelineVerticalScroll;
+	if (!current) {
+		return {canScrollUp: false, canScrollDown: false};
+	}
+
+	const {scrollTop, scrollHeight, clientHeight} = current;
+	return {
+		canScrollUp: scrollTop > 0,
+		canScrollDown: scrollHeight - scrollTop - clientHeight > 0,
+	};
+};
+
+const getEdgeScrollDirections = ({
+	clientX,
+	clientY,
+	includeHorizontal,
+	includeVertical,
+	verticalTopOffset,
+	active,
+}: {
+	clientX: number;
+	clientY: number;
+	includeHorizontal: boolean;
+	includeVertical: boolean;
+	verticalTopOffset: number;
+	active: TimelineEdgeScrollDirections;
+}): TimelineEdgeScrollDirections => {
+	let x: TimelineEdgeScrollDirections['x'] = null;
+	const scrollable = scrollableRef.current;
+	if (includeHorizontal && scrollable) {
+		const rect = scrollable.getBoundingClientRect();
+		const leftThreshold =
+			rect.left + (active.x === 'left' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
+		const rightThreshold =
+			rect.left +
+			scrollable.clientWidth -
+			TIMELINE_PADDING -
+			(active.x === 'right' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
+		const {canScrollLeft, canScrollRight} = canScrollTimelineIntoDirection();
+		if (clientX <= leftThreshold && canScrollLeft) {
+			x = 'left';
+		} else if (clientX >= rightThreshold && canScrollRight) {
+			x = 'right';
+		}
+	}
+
+	let y: TimelineEdgeScrollDirections['y'] = null;
+	const vertical = timelineVerticalScroll.current;
+	if (includeVertical && vertical) {
+		const rect = vertical.getBoundingClientRect();
+		const topThreshold =
+			rect.top +
+			verticalTopOffset +
+			EDGE_SCROLL_VERTICAL_INSET +
+			(active.y === 'up' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
+		const bottomThreshold =
+			rect.bottom -
+			EDGE_SCROLL_VERTICAL_INSET -
+			(active.y === 'down' ? EDGE_SCROLL_EXIT_HYSTERESIS : 0);
+		const {canScrollUp, canScrollDown} =
+			canScrollTimelineVerticallyIntoDirection();
+		if (clientY <= topThreshold && canScrollUp) {
+			y = 'up';
+		} else if (clientY >= bottomThreshold && canScrollDown) {
+			y = 'down';
+		}
+	}
+
+	return {x, y};
+};
+
+/**
+ * Shared edge auto-scroll loop for drag gestures on the timeline (playhead
+ * scrubbing, marquee selection, sequence reordering). Detects when the pointer
+ * is in an edge zone and repeatedly invokes `onTick` while it stays there. The
+ * consumer performs the actual scrolling (and any dependent updates) inside
+ * `onTick`, so it can read a settled scroll position afterwards.
+ */
+export const startTimelineEdgeAutoScroll = ({
+	includeHorizontal,
+	includeVertical,
+	verticalTopOffset,
+	onTick,
+}: {
+	includeHorizontal: boolean;
+	includeVertical: boolean;
+	verticalTopOffset: number;
+	onTick: (directions: TimelineEdgeScrollDirections) => void;
+}): TimelineEdgeAutoScroller => {
+	let active: TimelineEdgeScrollDirections = {x: null, y: null};
+	let lastPointer: {clientX: number; clientY: number} | null = null;
+	let interval: ReturnType<typeof setInterval> | null = null;
+
+	const stopInterval = () => {
+		if (interval !== null) {
+			clearInterval(interval);
+			interval = null;
+		}
+	};
+
+	const tick = () => {
+		if (lastPointer === null) {
+			return;
+		}
+
+		active = getEdgeScrollDirections({
+			clientX: lastPointer.clientX,
+			clientY: lastPointer.clientY,
+			includeHorizontal,
+			includeVertical,
+			verticalTopOffset,
+			active,
+		});
+		if (active.x === null && active.y === null) {
+			stopInterval();
+			return;
+		}
+
+		onTick(active);
+	};
+
+	const update = (e: {clientX: number; clientY: number}) => {
+		lastPointer = {clientX: e.clientX, clientY: e.clientY};
+		active = getEdgeScrollDirections({
+			clientX: e.clientX,
+			clientY: e.clientY,
+			includeHorizontal,
+			includeVertical,
+			verticalTopOffset,
+			active,
+		});
+
+		if (active.x !== null || active.y !== null) {
+			if (interval === null) {
+				onTick(active);
+				interval = setInterval(tick, EDGE_SCROLL_INTERVAL_MS);
+			}
+		} else {
+			stopInterval();
+		}
+
+		return active;
+	};
+
+	const stop = () => {
+		stopInterval();
+		lastPointer = null;
+		active = {x: null, y: null};
+	};
+
+	return {update, stop};
+};
 
 const calculateFrameWhileScrollingRight = ({
 	durationInFrames,
@@ -68,7 +262,7 @@ export const isCursorInViewport = ({
 	frame: number;
 	durationInFrames: number;
 }) => {
-	const width = scrollableRef.current?.scrollWidth ?? 0;
+	const width = getTimelineContentWidth();
 	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
 
 	const scrollPosOnRightEdge = getScrollPositionForCursorOnRightEdge({
@@ -104,8 +298,11 @@ export const ensureFrameIsInViewport = ({
 	durationInFrames: number;
 	frame: number;
 }) => {
+	// Sync the imperative frame first: scrolling below triggers the scroll
+	// listener in TimelineSlider, which reads the frame imperatively.
+	setCurrentFrame(frame);
 	redrawTimelineSliderFast.current?.draw(frame);
-	const width = scrollableRef.current?.scrollWidth ?? 0;
+	const width = getTimelineContentWidth();
 	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
 	if (direction === 'fit-left') {
 		const currentFrameLeft = getFrameFromX({
@@ -211,7 +408,7 @@ export const getScrollPositionForCursorOnRightEdge = ({
 	const fromRight = framesRemaining * frameIncrement + TIMELINE_PADDING;
 
 	const scrollPos =
-		(scrollableRef.current?.scrollWidth as number) -
+		getTimelineContentWidth() -
 		fromRight -
 		(scrollableRef.current?.clientWidth as number) +
 		TIMELINE_PADDING +
@@ -221,7 +418,7 @@ export const getScrollPositionForCursorOnRightEdge = ({
 };
 
 const getFrameIncrement = (durationInFrames: number) => {
-	const width = scrollableRef.current?.scrollWidth ?? 0;
+	const width = getTimelineContentWidth();
 	return getFrameIncrementFromWidth(durationInFrames, width);
 };
 
@@ -288,6 +485,27 @@ export const getFrameFromX = ({
 	return frame;
 };
 
+export const getFrameFromTimelineDrop = ({
+	clientX,
+	durationInFrames,
+	scrollLeft,
+	timelineLeft,
+	timelineWidth,
+}: {
+	clientX: number;
+	durationInFrames: number;
+	scrollLeft: number;
+	timelineLeft: number;
+	timelineWidth: number;
+}) => {
+	return getFrameFromX({
+		clientX: clientX - timelineLeft + scrollLeft,
+		durationInFrames,
+		width: timelineWidth,
+		extrapolate: 'clamp',
+	});
+};
+
 /**
  * Horizontal position inside the scrollable timeline content (0 … scrollWidth)
  * for a viewport `clientX`, so pinch-anchoring matches the pointer (not a
@@ -306,45 +524,71 @@ export const viewportClientXToScrollContentX = ({
 	return clampedClientX + scrollEl.scrollLeft - rect.left;
 };
 
-export const zoomAndPreserveCursor = ({
-	oldZoom,
-	newZoom,
+export const getScrollLeftToKeepCursorInPlace = ({
+	anchorContentX,
+	oldScrollLeft,
+	oldTimelineWidth,
+	newTimelineWidth,
+}: {
+	anchorContentX: number;
+	oldScrollLeft: number;
+	oldTimelineWidth: number;
+	newTimelineWidth: number;
+}) => {
+	const oldUsableWidth = getUsableTimelineWidth(oldTimelineWidth);
+	const newUsableWidth = getUsableTimelineWidth(newTimelineWidth);
+	const clampedAnchorContentX = Math.min(
+		Math.max(anchorContentX, TIMELINE_PADDING),
+		TIMELINE_PADDING + oldUsableWidth,
+	);
+	const cursorX = clampedAnchorContentX - oldScrollLeft;
+	const anchorInUsableWidth = clampedAnchorContentX - TIMELINE_PADDING;
+	const newAnchorContentX =
+		TIMELINE_PADDING + (anchorInUsableWidth / oldUsableWidth) * newUsableWidth;
+
+	return newAnchorContentX - cursorX;
+};
+
+export const prepareToPreserveTimelineCursor = ({
 	currentFrame,
 	currentDurationInFrames,
 	anchorFrame,
 	anchorContentX,
 }: {
-	oldZoom: number;
-	newZoom: number;
 	currentFrame: number;
 	currentDurationInFrames: number;
 	anchorFrame: number | null;
 	/** Prefer this over `anchorFrame` when not null (subpixel-accurate anchor). */
 	anchorContentX: number | null;
 }) => {
-	const ratio = newZoom / oldZoom;
-	if (ratio === 1) {
-		return;
-	}
-
 	const {current} = scrollableRef;
 
 	if (!current) {
-		return;
+		return () => undefined;
 	}
 
-	const frameIncrement = getFrameIncrement(currentDurationInFrames);
+	const oldTimelineWidth = getTimelineContentWidth();
+	const oldScrollLeft = current.scrollLeft;
+	const frameIncrement = getFrameIncrementFromWidth(
+		currentDurationInFrames,
+		oldTimelineWidth,
+	);
 	const frameForScroll = anchorFrame ?? currentFrame;
 	const prevCursorPosition =
 		anchorContentX !== null
-			? Math.min(Math.max(anchorContentX, 0), current.scrollWidth)
+			? anchorContentX
 			: frameIncrement * frameForScroll + TIMELINE_PADDING;
 
-	const newCursorPosition =
-		ratio * (prevCursorPosition - TIMELINE_PADDING) + TIMELINE_PADDING;
+	return () => {
+		if (scrollableRef.current !== current) {
+			return;
+		}
 
-	current.scrollLeft += newCursorPosition - prevCursorPosition;
-	// Playhead position is synced in `TimelineSlider` `useLayoutEffect` using
-	// measured `sliderAreaRef.clientWidth` so it matches layout after zoom
-	// (avoids fighting React `style` with stale `timelineWidth` during pinch).
+		current.scrollLeft = getScrollLeftToKeepCursorInPlace({
+			anchorContentX: prevCursorPosition,
+			oldScrollLeft,
+			oldTimelineWidth,
+			newTimelineWidth: getTimelineContentWidth(),
+		});
+	};
 };

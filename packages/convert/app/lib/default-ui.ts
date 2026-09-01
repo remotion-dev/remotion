@@ -1,77 +1,19 @@
 import type {RouteAction} from '~/seo';
 
-export type RotateOrMirrorOrCropState = 'rotate' | 'mirror' | 'crop' | null;
+export type VideoEditState = {
+	readonly crop: boolean;
+	readonly mirror: boolean;
+	readonly rotate: boolean;
+};
 
-export const defaultRotateOrMirorState = (
+export const getDefaultVideoEditState = (
 	action: RouteAction,
-): RotateOrMirrorOrCropState => {
-	if (action.type === 'convert') {
-		return null;
-	}
-
-	if (action.type === 'generic-probe') {
-		return null;
-	}
-
-	if (action.type === 'generic-convert') {
-		return null;
-	}
-
-	if (action.type === 'generic-rotate') {
-		return 'rotate';
-	}
-
-	if (action.type === 'rotate-format') {
-		return 'rotate';
-	}
-
-	if (action.type === 'mirror-format') {
-		return 'mirror';
-	}
-
-	if (action.type === 'generic-mirror') {
-		return 'mirror';
-	}
-
-	if (action.type === 'generic-resize') {
-		return null;
-	}
-
-	if (action.type === 'resize-format') {
-		return null;
-	}
-
-	if (action.type === 'report') {
-		return null;
-	}
-
-	if (action.type === 'transcribe') {
-		return null;
-	}
-
-	if (action.type === 'generic-crop') {
-		return 'crop';
-	}
-
-	if (action.type === 'crop-format') {
-		return 'crop';
-	}
-
-	if (action.type === 'generic-trim') {
-		return null;
-	}
-
-	if (action.type === 'trim-format') {
-		return null;
-	}
-
-	if (action.type === 'timing-editor') {
-		return null;
-	}
-
-	throw new Error(
-		'Rotate is not enabled by default ' + (action satisfies never),
-	);
+): VideoEditState => {
+	return {
+		crop: action.type === 'generic-crop' || action.type === 'crop-format',
+		mirror: action.type === 'generic-mirror' || action.type === 'mirror-format',
+		rotate: action.type === 'generic-rotate' || action.type === 'rotate-format',
+	};
 };
 
 export const isConvertEnabledByDefault = (action: RouteAction) => {

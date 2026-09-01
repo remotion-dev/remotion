@@ -6,190 +6,169 @@ crumb: "Remotion Studio"
 
 # Interactivity best practices
 
-Write editable Remotion components so the [Studio interactivity](/docs/studio/interactivity) can understand the values that should be changed visually.
+By writing Remotion markup in a specific way, the [Remotion Studio](/docs/studio) is able to recognize the structure of the code and makes it [interactive](/docs/studio/interactivity):
 
-When a value is shown as computed in the Studio, it often means that the value is hidden behind a variable, helper function, conditional expression or transform string.
+- Allowing items to be selected by clicking on them
+- Allowing drag+drop, resizing and rotation
+- Editing the CSS styles
+- Making keyframes and easing values editable
 
-## Quick checklist {#quick-checklist}
+If the markup is too complex for the Studio to make it interactive, then the values become grayed out.  
+Use the [`/remotion-interactivity` skill](/docs/ai/skills#remotion-interactivity) skill to instruct an agent to restructure the markup to make it editable.
 
-When converting a component for Studio interactivity, apply all of these rules together:
+## Make an HTML element interactive using `Interactive`
 
-- Use `Interactive.*` for editable HTML or SVG elements, or [`Interactive.withSchema()`](/docs/interactive-with-schema) for custom components.
-- Add a descriptive `name` prop to the editable element or custom component.
-- Keep every editable or keyframed value inline at the JSX prop that the Studio edits.
-- Write animations as inline `interpolate()` calls.
-- Keep `interpolate()` input and output ranges as hardcoded arrays, such as `[0, 30]`.
-- Use Studio-editable style props such as `translate`, `scale`, `rotate`, `transformOrigin` and `opacity` instead of hiding values in a `transform` string.
-- Use `translate` for animated movement and canvas dragging. Keep `top`, `left`, `right` and `bottom` for static anchoring.
-- Keep `<Composition>` metadata and `defaultProps` inline unless the value is truly dynamic.
-
-## Use `Interactive.*` for tweakable elements {#use-interactive-for-tweakable-elements}
-
-Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element should be selected, moved or edited in the Studio.
+Every HTML and SVG element such as `<div>` can be turned interactive using `Interactive`:
 
 ```tsx title="Interactive elements"
-// 👍 Selectable and editable in the Studio
 <Interactive.Div name="Greeting card" style={{fontSize: 80, padding: 24}}>
   Hello
 </Interactive.Div>
-
-// 👎 A regular element is not Studio-editable
-<div style={{fontSize: 80, padding: 24}}>Hello</div>
 ```
 
-For a custom component, see [Make a component interactive](/docs/studio/make-component-interactive).
+This allows styles and keyframes to be set in the Studio. Be sensible, if a component has many elements, the timeline might get messy.
 
-## Give interactive elements a descriptive name {#give-interactive-elements-a-descriptive-name}
+## Give interactive elements a descriptive name
 
-Add a `name` prop to interactive elements and custom interactive components.
-Use a short label that describes the element in the scene.
-
-The name is shown in the Studio timeline and helps agents identify the correct element when making visual edits.
+Add a `name` prop to elements to make them easily identifyable.
 
 ```tsx title="Interactive names"
-// 👍 Easy to find in the Studio timeline and by agents
-<Interactive.Div name="Hero title" style={{fontSize: 80}}>
-  Launch day
-</Interactive.Div>
+<>
+  <Interactive.Div name="Hero title" style={{fontSize: 80}}>
+    Launch day
+  </Interactive.Div>
+  <Img name="Avatar" src="https://remotion.media/image.jpeg" />
+  <Video name="Background" src="https://remotion.media/video.mp4" />
+  <Interactive.Div name="Title">
+    Launch day
+  </Interactive.Div>
+</>
+```
 
-// 👎 Omitted names are hard to identify in the Studio timeline and by agents
-<Interactive.Div style={{fontSize: 80}}>
-  Launch day
+## Keep all CSS styles inline
+
+The best way is to just pass a plain object to `style` - no referring to constants, no object spreading, no math.
+
+```tsx title="Interactive example"
+<Interactive.Div
+  style={{
+    fontSize: 80,
+    color: 'red',
+  }}
+>
+  Hello World!
 </Interactive.Div>
 ```
 
-## Keep editable values visible {#keep-editable-values-visible}
+```tsx title="❌ Bad for interactivity"
+const baseStyle = useMemo(() => {
+  return {
+    fontSize: 12 // ❌ Non-inline styles are not supported
+  }
+}, [])
+
+<Interactive.Div
+  style={{
+    ...baseStyle, // ❌ Spreading is not supported
+    color: RED, // ❌ Referring to constants is not supported
+    scale: frame * 10 // ❌ Math is not supported
+  }}
+>
+  Hello World!
+</Interactive.Div>
+```
+
+## Animate using `interpolate()`
 
 <SuggestedPrompt prompt="/remotion-interactivity Inline the values to make them editable." />
 
-Put values that should be edited in the Studio directly into the JSX.
-This applies to static style values, keyframes, easing and transform props.
+Write animations as inline `interpolate()` calls on the property that changes.  
+The output range, easing, extrapolation and `output` property should use hardcoded values.
 
-Write animations as inline `interpolate()` calls on the property that changes.
-Do not calculate the value in a local variable and pass the variable into `style`.
-Do not animate with frame math such as `frame * 2`, modulo expressions, helper functions or transform strings.
-Keep the input range and output range directly in the `interpolate()` call.
-The input range must use hardcoded numbers, not variables or expressions such as `[sendStartFrame, sendStartFrame + duration]`.
+The input range may additionally use `durationInFrames`, `fps`, `width` and `height` destructured directly from [`useVideoConfig()`](/docs/use-video-config). Bare identifiers such as `durationInFrames`, multiplication with a number such as `2 * fps` or `fps * 2`, and subtraction of a number such as `durationInFrames - 1` are supported.
 
 ```tsx title="Inline values"
+const {fps, durationInFrames} = useVideoConfig();
+
 // 👍 Inline values can be standardized and keyframed
 <Interactive.Div
   name="Product card"
   style={{
     color: 'white',
     fontSize: 80,
-    scale: interpolate(frame, [0, 30], [0, 1], {
+    scale: interpolate(frame, [0, fps], [0, 1], {
       easing: Easing.spring({damping: 200}),
+      output: 'perceptual-scale',
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp'
     }),
-    rotate: interpolate(frame, [0, 30], ['0deg', '20deg']),
-    translate: interpolate(frame, [0, 30], ['0px 0px', '0px 120px']),
+    rotate: interpolate(frame, [0, 1 * fps], ['0deg', '20deg'], {
+      easing: Easing.spring({damping: 200}),
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp'
+    }),
+    translate: interpolate(frame, [durationInFrames - 30, durationInFrames], ['0px 0px', '0px 120px'], {
+      easing: Easing.spring({damping: 200}),
+      output: 'perceptual-scale',
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp'
+    }),
   }}
 />
+```
 
-// 👎 Values hidden behind variables, helpers or strings become computed
-const container: React.CSSProperties = {
-  color: 'white',
-  fontSize: 80,
-};
-const translateY = interpolate(frame, [0, 30], [0, 120]);
-const rotation = interpolate(frame, [0, 30], [0, 20]);
+```tsx title="❌ Bad interactivity"
+const translateY = interpolate(frame, [0, 30], [0, 120]); // ❌ Math should be directly in the markup
 
 <Interactive.Div
   name="Product card"
   style={{
-    ...container,
-    transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
+    translate: translateY, // ❌ Only inline interpolate() calls are supported,
+    rotate: interpolate(frame, [start, start + 10], [0, Math.PI]), // ❌ Cannot use math with arbitrary variables, cannot use constants
+    scale: interpolate(anyVariable, [0, 30], [0, 1]) // ❌ Can only interpret the `frame` variable.
   }}
 />
 ```
 
-Use standalone [`spring()`](/docs/spring) only when the animation needs a frame-driven physical spring simulation.
-Use individual CSS transform properties such as `scale`, `rotate` and `translate` instead of composing a `transform` string.
-Pass easing to the same `interpolate()` call instead of nesting another `interpolate()` call to create an eased progress value.
+## Use `scale`, `translate`, `rotate` CSS properties
 
-```tsx title="Animated position"
-// 👍 Motion, opacity and scale are visible to the Studio
-<Interactive.Div
-  name="Prompt bubble"
-  style={{
-    position: 'absolute',
-    right: 56,
-    top: 96,
-    opacity: interpolate(frame, [30, 50], [0, 1], {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-    }),
-    translate: interpolate(frame, [30, 50], ['0px 32px', '0px 0px'], {
-      easing: Easing.out(Easing.cubic),
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-    }),
-    scale: interpolate(frame, [30, 50], [0.92, 1], {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-    }),
-    transformOrigin: '100% 100%',
-  }}
-/>
-
-// 👎 The Studio sees computed values instead of editable props
-const sendStartFrame = 30;
-const promptTravelDurationInFrames = 20;
-const promptBubbleTop = interpolate(frame, [30, 50], [128, 96]);
-const promptBubbleOpacity = interpolate(frame, [30, 50], [0, 1]);
-const easedProgress = Easing.out(Easing.cubic)(
-  interpolate(
-    frame,
-    [sendStartFrame, sendStartFrame + promptTravelDurationInFrames],
-    [0, 1],
-  ),
-);
-
-<Interactive.Div
-  name="Prompt bubble"
-  style={{
-    position: 'absolute',
-    right: 56,
-    top: promptBubbleTop,
-    opacity: promptBubbleOpacity,
-    translate: interpolate(easedProgress, [0, 1], ['0px 32px', '0px 0px']),
-    transformOrigin: '100% 100%',
-  }}
-/>
-```
-
-Use `top`, `left`, `right` and `bottom` for static layout anchors.
-When the value changes over time or should be draggable/keyframable in the Studio, put the moving part into `translate`.
+Avoid the `transform` CSS property.  
+If possible, use `scale`, `rotate` and `translate` instead because only they are interactively editable.
 
 ```txt title="Prompt"
 Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
-## Keep composition metadata inline {#keep-composition-metadata-inline}
+## Keep composition metadata inline
 
-When scaffolding a composition, keep the component and its [`<Composition>`](/docs/composition) registration in the same file.
-Keep static `width`, `height`, `fps`, `durationInFrames` and [`defaultProps`](/docs/composition#defaultprops) inline.
+When scaffolding a composition, keep `width`, `height`, `fps`, `durationInFrames` and [`defaultProps`](/docs/composition#defaultprops) inline and make no type assertions.
 
 The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or [`<Still>`](/docs/still).
-If the Studio shows `` `defaultProps` prop must be a hardcoded value in the <Composition/> tag ``, move the values into the JSX.
+Since <AvailableFrom v="4.0.516" inline />, it also [infers basic controls from these values](/docs/default-props-inference), so a Zod schema is not required.
 
-```tsx title="Composition metadata"
-// 👍 Static metadata and defaults are inline and nearby
+```tsx
+// 👍 Static values are in <Composition>, dynamic values are in calculateMetadata()
+const calculateMetadata = useMemo(async () => {
+  const dimensions = await getDimensions(); // just an example
+  return {width: dimensions.width, height: dimensions.height};
+});
+
 <Composition
   id="my-video"
   component={MyComponent}
   durationInFrames={150}
   fps={30}
-  width={1920}
-  height={1080}
+  calculateMetadata={calculateMetadata}
   defaultProps={{title: 'Hello', color: '#0b84ff'}}
 />
+```
 
-// 👎 Static metadata is hidden behind helpers or variables
-const defaultProps = {title: 'Hello', color: '#0b84ff'};
-const calculateMetadata = () => {
+```tsx title="Negative examples"
+const defaultProps = {title: 'Hello', color: '#0b84ff'}; // ❌ Don't extract defaultProps, must be inline
+const calculateMetadata = useMemo(() => {
+  // ❌ Unnecessary because no calculation is being done,
   return {durationInFrames: 150, fps: 30, width: 1920, height: 1080};
-};
+});
 
 <Composition
   id="my-video"
@@ -197,20 +176,20 @@ const calculateMetadata = () => {
   calculateMetadata={calculateMetadata}
   defaultProps={{
     title: 'Hello',
-  }}
+  } as Props} // ❌ Don't have type assertions, instead type MyComponent correctly
 />
 ```
 
-Use [`calculateMetadata()`](/docs/calculate-metadata) when metadata depends on dynamic input props, fetched data or asset metadata.
+Use only [`calculateMetadata()`](/docs/calculate-metadata) for the part of the metadata that is dynamic.
 
 ```txt title="Prompt"
 Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
-## Keep effects editable {#keep-effects-editable}
+## Effects should be inline too
 
-Keep editable effect parameters inline in the effect call and keep the effect array shape unconditional.
-If an effect parameter is animated, write it as an inline `interpolate()` call in the effect call.
+The effects array should not be computed.  
+The same rules for setting keyframes as `interpolate()` apply too here: All values should also be hardcoded: Input range, output range, easing, extrapolation, `output` property.
 
 ```tsx title="Effects"
 // 👍 Parameters are inline and the array shape is stable
@@ -224,20 +203,23 @@ If an effect parameter is animated, write it as an inline `interpolate()` call i
       width: 1.2,
       height: 0.8,
       start: 0.2,
+      disabled: true,
       rotation: interpolate(frame, [0, 120], [0, 180]),
     }),
   ]}
 />
 
-// 👎 Values are hidden and the effect only exists conditionally
 const center = [0.5, 0.5] as const;
 const rotation = frame * 1.5;
+
 <CanvasImage
   src={src}
   width={1280}
   height={720}
+  // ❌ Conditional effect is not animateable
   effects={enabled ? [
     radialProgressiveBlur({
+      // ❌ Not inline
       center,
       rotation,
     }),
@@ -250,6 +232,10 @@ Render separate elements if one version should have effects and another should n
 ```txt title="Prompt"
 Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
+
+## Make props of a custom component editable
+
+If you have a custom non-top-level component and want to make the props of that editable, see: [Make a component interactive](/docs/studio/make-component-interactive).
 
 ## See also
 

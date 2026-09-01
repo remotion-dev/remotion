@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {AnyRemotionOption} from './option';
 
 export const validOpenGlRenderers = [
@@ -11,7 +12,15 @@ export const validOpenGlRenderers = [
 
 export type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
-export const DEFAULT_OPENGL_RENDERER: OpenGlRenderer | null = null;
+export const getDefaultOpenGlRenderer = (
+	enableV5BreakingChanges: boolean,
+): OpenGlRenderer | null => {
+	return enableV5BreakingChanges ? 'angle' : null;
+};
+
+export const DEFAULT_OPENGL_RENDERER = getDefaultOpenGlRenderer(
+	NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
+);
 
 let openGlRenderer: OpenGlRenderer | null = DEFAULT_OPENGL_RENDERER;
 
@@ -37,6 +46,13 @@ const AngleChangelog: React.FC = () => {
 					however it turns out to have a small memory leak that could crash long
 					Remotion renders.
 				</li>
+				{NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? (
+					<li>
+						From Remotion v5.0, the default is <code>angle</code>. If no
+						compatible GPU is available, Chromium automatically falls back to
+						SwiftShader.
+					</li>
+				) : null}
 			</ul>
 		</details>
 	);
@@ -79,8 +95,16 @@ export const glOption = {
 					</li>
 				</ul>
 				<p>
-					The default is <code>null</code>, letting Chrome decide, except on
-					Lambda where the default is <code>{'"swangle"'}</code>
+					The default is{' '}
+					<code>
+						{DEFAULT_OPENGL_RENDERER === null
+							? 'null'
+							: `"${DEFAULT_OPENGL_RENDERER}"`}
+					</code>
+					{DEFAULT_OPENGL_RENDERER === null
+						? ', letting Chrome decide'
+						: ', with automatic fallback to SwiftShader if no compatible GPU is available'}
+					, except on Lambda where the default is <code>{'"swangle"'}</code>
 				</p>
 			</>
 		);

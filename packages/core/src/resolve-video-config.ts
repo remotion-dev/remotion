@@ -99,7 +99,73 @@ type ResolveVideoConfigParams = {
 	inputProps: Record<string, unknown>;
 };
 
-export const resolveVideoConfig = ({
+export type VideoConfigMetadataSource = {
+	readonly durationInFrames: 'calculate-metadata' | 'composition';
+	readonly fps: 'calculate-metadata' | 'composition';
+	readonly height: 'calculate-metadata' | 'composition';
+	readonly width: 'calculate-metadata' | 'composition';
+};
+
+export type VideoConfigWithMetadata = {
+	readonly metadataSource: VideoConfigMetadataSource;
+	readonly videoConfig: VideoConfig;
+};
+
+const makeVideoConfigWithMetadata = ({
+	calculated,
+	compositionDurationInFrames,
+	compositionFps,
+	compositionHeight,
+	compositionId,
+	compositionWidth,
+	defaultProps,
+	originalProps,
+}: Omit<
+	ResolveVideoConfigParams,
+	'calculateMetadata' | 'signal' | 'inputProps'
+> & {
+	readonly calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
+	readonly originalProps: Record<string, unknown>;
+}): VideoConfigWithMetadata => {
+	const data = validateCalculated({
+		calculated,
+		compositionDurationInFrames,
+		compositionFps,
+		compositionHeight,
+		compositionWidth,
+		compositionId,
+	});
+
+	return {
+		metadataSource: {
+			durationInFrames:
+				calculated?.durationInFrames === undefined
+					? 'composition'
+					: 'calculate-metadata',
+			fps: calculated?.fps === undefined ? 'composition' : 'calculate-metadata',
+			height:
+				calculated?.height === undefined ? 'composition' : 'calculate-metadata',
+			width:
+				calculated?.width === undefined ? 'composition' : 'calculate-metadata',
+		},
+		videoConfig: {
+			...data,
+			id: compositionId,
+			defaultProps: serializeThenDeserializeInStudio(defaultProps ?? {}),
+			props: serializeThenDeserializeInStudio(
+				calculated?.props ?? originalProps,
+			),
+			defaultCodec: data.defaultCodec ?? null,
+			defaultOutName: data.defaultOutName ?? null,
+			defaultVideoImageFormat: data.defaultVideoImageFormat ?? null,
+			defaultPixelFormat: data.defaultPixelFormat ?? null,
+			defaultProResProfile: data.defaultProResProfile ?? null,
+			defaultSampleRate: data.defaultSampleRate ?? null,
+		},
+	};
+};
+
+export const resolveVideoConfigWithMetadata = ({
 	calculateMetadata,
 	signal,
 	defaultProps,
@@ -109,7 +175,9 @@ export const resolveVideoConfig = ({
 	compositionFps,
 	compositionHeight,
 	compositionWidth,
-}: ResolveVideoConfigParams): VideoConfig | Promise<VideoConfig> => {
+}: ResolveVideoConfigParams):
+	| VideoConfigWithMetadata
+	| Promise<VideoConfigWithMetadata> => {
 	const calculatedProm = calculateMetadata
 		? calculateMetadata({
 				defaultProps,
@@ -126,81 +194,64 @@ export const resolveVideoConfig = ({
 		'then' in calculatedProm
 	) {
 		return calculatedProm.then((c) => {
-			const {
-				height,
-				width,
-				durationInFrames,
-				fps,
-				defaultCodec,
-				defaultOutName,
-				defaultVideoImageFormat,
-				defaultPixelFormat,
-				defaultProResProfile,
-				defaultSampleRate,
-			} = validateCalculated({
+			return makeVideoConfigWithMetadata({
 				calculated: c,
 				compositionDurationInFrames,
 				compositionFps,
 				compositionHeight,
 				compositionWidth,
 				compositionId,
+				defaultProps,
+				originalProps,
 			});
-			return {
-				width,
-				height,
-				fps,
-				durationInFrames,
-				id: compositionId,
-				defaultProps: serializeThenDeserializeInStudio(defaultProps),
-				props: serializeThenDeserializeInStudio(c.props ?? originalProps),
-				defaultCodec: defaultCodec ?? null,
-				defaultOutName: defaultOutName ?? null,
-				defaultVideoImageFormat: defaultVideoImageFormat ?? null,
-				defaultPixelFormat: defaultPixelFormat ?? null,
-				defaultProResProfile: defaultProResProfile ?? null,
-				defaultSampleRate: defaultSampleRate ?? null,
-			};
 		});
 	}
 
-	const data = validateCalculated({
+	return makeVideoConfigWithMetadata({
 		calculated: calculatedProm,
 		compositionDurationInFrames,
 		compositionFps,
 		compositionHeight,
 		compositionWidth,
 		compositionId,
+		defaultProps,
+		originalProps,
 	});
+};
 
-	if (calculatedProm === null) {
-		return {
-			...data,
-			id: compositionId,
-			defaultProps: serializeThenDeserializeInStudio(defaultProps ?? {}),
-			props: serializeThenDeserializeInStudio(originalProps),
-			defaultCodec: null,
-			defaultOutName: null,
-			defaultVideoImageFormat: null,
-			defaultPixelFormat: null,
-			defaultProResProfile: null,
-			defaultSampleRate: null,
-		};
+export const resolveVideoConfig = (
+	params: ResolveVideoConfigParams,
+): VideoConfig | Promise<VideoConfig> => {
+	const resolved = resolveVideoConfigWithMetadata(params);
+	if (typeof resolved === 'object' && 'then' in resolved) {
+		return resolved.then(({videoConfig}) => videoConfig);
 	}
 
-	return {
-		...data,
-		id: compositionId,
-		defaultProps: serializeThenDeserializeInStudio(defaultProps ?? {}),
-		props: serializeThenDeserializeInStudio(
-			calculatedProm.props ?? originalProps,
-		),
-		defaultCodec: calculatedProm.defaultCodec ?? null,
-		defaultOutName: calculatedProm.defaultOutName ?? null,
-		defaultVideoImageFormat: calculatedProm.defaultVideoImageFormat ?? null,
-		defaultPixelFormat: calculatedProm.defaultPixelFormat ?? null,
-		defaultProResProfile: calculatedProm.defaultProResProfile ?? null,
-		defaultSampleRate: calculatedProm.defaultSampleRate ?? null,
-	};
+	return resolved.videoConfig;
+};
+
+export const resolveVideoConfigWithMetadataOrCatch = (
+	params: ResolveVideoConfigParams,
+):
+	| {
+			type: 'success';
+			result: VideoConfigWithMetadata | Promise<VideoConfigWithMetadata>;
+	  }
+	| {
+			type: 'error';
+			error: Error;
+	  } => {
+	try {
+		return {
+			type: 'success',
+			result: resolveVideoConfigWithMetadata(params),
+		};
+	} catch (err) {
+		return {
+			type: 'error',
+			error: err as Error,
+		};
+	}
 };
 
 export const resolveVideoConfigOrCatch = (

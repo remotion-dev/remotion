@@ -13,14 +13,16 @@ export const mediaCacheSizeInBytesOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Specify the maximum size of the cache that <code>&lt;Video&gt;</code> and{' '}
-			<code>&lt;Audio&gt;</code> from <code>@remotion/media</code> may use
-			combined, in bytes. <br />
+			Specify the memory budget for decoded media cached by{' '}
+			<code>&lt;Video&gt;</code> and <code>&lt;Audio&gt;</code> from{' '}
+			<code>@remotion/media</code>, in bytes. This value also determines the
+			maximum read cache size for each distinct media source. It is not a limit
+			on total memory usage. <br />
 			The default is half of the available system memory when the render starts.
 		</>
 	),
 	ssrName: 'mediaCacheSizeInBytes' as const,
-	docLink: 'https://www.remotion.dev/docs/media/video#setting-the-cache-size',
+	docLink: 'https://www.remotion.dev/docs/media/cache',
 	type: 0 as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

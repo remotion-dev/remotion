@@ -1,12 +1,17 @@
 import React, {useContext, useMemo} from 'react';
 import type {PreviewSize} from 'remotion';
 import {Internals} from 'remotion';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import type {AssetFileType} from '../helpers/get-preview-file-type';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {
+	CanvasFitIcon,
+	CanvasZoomIcon,
+	CanvasZoomOutIcon,
+} from '../icons/canvas-zoom';
 import {Checkmark} from '../icons/Checkmark';
-import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {Combobox} from './NewComposition/ComboBox';
+import {TimelineCombobox} from './TimelineCombobox';
 
 const commonPreviewSizes: PreviewSize[] = [
 	{
@@ -49,8 +54,6 @@ export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
 
 const accessibilityLabel = 'Preview Size';
 
-const comboStyle: React.CSSProperties = {width: 80};
-
 export const getUniqueSizes = (size: PreviewSize) => {
 	const customPreviewSizes = [size, ...commonPreviewSizes];
 	const uniqueSizes: PreviewSize[] = [];
@@ -76,14 +79,9 @@ export const getUniqueSizes = (size: PreviewSize) => {
 
 const zoomableFileTypes: AssetFileType[] = ['video', 'image'];
 
-export const SizeSelector: React.FC = () => {
+export const usePreviewSizeMenuItems = () => {
 	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const style = useMemo(() => {
-		return {
-			padding: CONTROL_BUTTON_PADDING,
-		};
-	}, []);
 
 	const zoomable = useMemo(() => {
 		if (!canvasContent) {
@@ -132,18 +130,35 @@ export const SizeSelector: React.FC = () => {
 		});
 	}, [setSize, size]);
 
+	return {
+		items,
+		selectedId: String(size.size),
+		zoomable,
+	};
+};
+
+export const SizeSelector: React.FC = () => {
+	const {items, selectedId, zoomable} = usePreviewSizeMenuItems();
+
 	if (!zoomable) {
 		return null;
 	}
 
 	return (
-		<div style={style} aria-label={accessibilityLabel}>
-			<Combobox
-				title={accessibilityLabel}
-				style={comboStyle}
-				selectedId={String(size.size)}
-				values={items}
-			/>
-		</div>
+		<TimelineCombobox
+			title={accessibilityLabel}
+			selectedId={selectedId}
+			values={items}
+			renderLeftItem={(color) =>
+				selectedId === 'auto' ? (
+					<CanvasFitIcon color={color} />
+				) : Number(selectedId) < 1 ? (
+					<CanvasZoomOutIcon color={color} />
+				) : (
+					<CanvasZoomIcon color={color} />
+				)
+			}
+			unhoveredIconColor={WHITE_ALPHA_80}
+		/>
 	);
 };

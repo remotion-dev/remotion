@@ -15,6 +15,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 			opacity: {
 				status: 'static',
 				codeValue: 0.5,
+				keyframeDisplayOffsetAdjustment: 5,
 			},
 		},
 		effects: [],
@@ -39,6 +40,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 	expect(status.keyframes).toEqual([{frame: 25, value: 0.75}]);
 	expect(status.easing).toEqual([]);
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
+	expect(status.keyframeDisplayOffsetAdjustment).toBe(5);
 });
 
 test('optimisticAddSequenceKeyframe adds a missing prop before keyframing it', () => {
@@ -82,6 +84,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () =
 		props: {
 			'style.translate': {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: '0px 59px',
 			},
 		},
@@ -122,6 +125,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', (
 		props: {
 			'style.rotate': {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: '0deg',
 			},
 		},
@@ -162,6 +166,7 @@ test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 		props: {
 			playbackRate: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 1,
 			},
 		},
@@ -193,6 +198,7 @@ test('optimisticAddSequenceKeyframe ignores enum fields', () => {
 		props: {
 			layout: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'absolute-fill',
 			},
 		},
@@ -220,12 +226,68 @@ test('optimisticAddSequenceKeyframe ignores enum fields', () => {
 	expect(updated).toEqual(previous);
 });
 
+test('optimisticAddSequenceKeyframe uses hold easing for enabled enum fields', () => {
+	const schema = {
+		cursor: {
+			type: 'enum',
+			default: 'default',
+			keyframable: true,
+			variants: {
+				default: {},
+				'ne-resize': {},
+			},
+		},
+	} satisfies InteractivitySchema;
+	const initial: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			cursor: {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 'default',
+			},
+		},
+		effects: [],
+	};
+	const withFirstKeyframe = optimisticAddSequenceKeyframe({
+		previous: initial,
+		fieldKey: 'cursor',
+		frame: 0,
+		value: 'default',
+		schema,
+	});
+	const withSecondKeyframe = optimisticAddSequenceKeyframe({
+		previous: withFirstKeyframe,
+		fieldKey: 'cursor',
+		frame: 100,
+		value: 'ne-resize',
+		schema,
+	});
+
+	if (!withSecondKeyframe.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = withSecondKeyframe.props.cursor;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.interpolationFunction).toBe('interpolate');
+	expect(status.keyframes).toEqual([
+		{frame: 0, value: 'default'},
+		{frame: 100, value: 'ne-resize'},
+	]);
+	expect(status.easing).toEqual([{type: 'step1'}]);
+});
+
 test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolation', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {
 			scale: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -270,6 +332,7 @@ test('optimisticAddSequenceKeyframe duplicates the easing for the split segment'
 		props: {
 			scale: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -317,6 +380,7 @@ test('optimisticAddSequenceKeyframe uses linear easing outside the keyframe rang
 		props: {
 			scale: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -359,6 +423,7 @@ test('optimisticAddSequenceKeyframe updates an existing keyframe at the same fra
 		props: {
 			scale: {
 				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -409,6 +474,7 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 				props: {
 					amount: {
 						status: 'keyframed',
+						keyframeDisplayOffsetAdjustment: null,
 						interpolationFunction: 'interpolate',
 						keyframes: [{frame: 0, value: 0.2}],
 						easing: [],
@@ -462,6 +528,7 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 				props: {
 					amount: {
 						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
 						codeValue: 0.2,
 					},
 				},

@@ -1,4 +1,5 @@
 import {getRemotionEnvironment} from 'remotion';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {getStaticFiles, type StaticFile} from './get-static-files';
 
 type WatcherCallback = (newFiles: StaticFile[]) => void;
@@ -20,7 +21,7 @@ export const watchPublicFolder = (
 		return {cancel: () => undefined};
 	}
 
-	if (window.remotion_isReadOnlyStudio) {
+	if (window.remotion_isReadOnlyStudio && !getBrowserStudioOperations()) {
 		throw new Error('watchPublicFolder() is not available in read-only Studio');
 	}
 

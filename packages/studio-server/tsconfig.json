@@ -16,6 +16,9 @@
 			"path": "../core"
 		},
 		{
+			"path": "../studio-protocol"
+		},
+		{
 			"path": "../media-utils"
 		},
 		{
@@ -23,6 +26,9 @@
 		},
 		{
 			"path": "../studio-shared"
+		},
+		{
+			"path": "../studio-codemods"
 		},
 		{
 			"path": "../renderer"

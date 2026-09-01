@@ -10,7 +10,7 @@ import {
 	type DragOverrides,
 	type OverrideIdToNodePaths,
 	type PropStatuses,
-	type SequenceControls,
+	type SequenceRegistrationControls,
 } from 'remotion';
 import {linearTiming} from '../timings/linear-timing.js';
 import {TransitionSeries} from '../TransitionSeries.js';
@@ -22,9 +22,11 @@ afterEach(() => {
 type RegisteredSequence = {
 	readonly displayName: string;
 	readonly getStack: () => string | null;
-	readonly controls: SequenceControls | null;
+	readonly controls: SequenceRegistrationControls | null;
 	readonly duration: number;
 	readonly from: number;
+	readonly trimBefore: number | null;
+	readonly singleChildComponent?: unknown;
 };
 
 const remotionEnvironment = {
@@ -36,23 +38,25 @@ const remotionEnvironment = {
 };
 
 const compositionManagerContext = makeMockCompositionManagerContext();
-const timelineContext = makeTimelineContext(0);
 const visualModeSetters = {
 	setDragOverrides: () => undefined,
 	clearDragOverrides: () => undefined,
 	setEffectDragOverrides: () => undefined,
 	clearEffectDragOverrides: () => undefined,
+	remapPropStatuses: () => undefined,
 	setPropStatuses: () => undefined,
 };
 
 const SequenceTestWrapper: React.FC<{
 	readonly children: React.ReactNode;
+	readonly frame?: number;
 	readonly onRegisterSequence: (sequence: RegisteredSequence) => void;
 	readonly overrideIdToNodePathMappings: OverrideIdToNodePaths;
 	readonly propStatuses: PropStatuses;
 	readonly dragOverrides: DragOverrides;
 }> = ({
 	children,
+	frame = 0,
 	onRegisterSequence,
 	overrideIdToNodePathMappings,
 	propStatuses,
@@ -69,6 +73,7 @@ const SequenceTestWrapper: React.FC<{
 		() => ({
 			registerSequence,
 			unregisterSequence: () => undefined,
+			updateSequence: registerSequence,
 			sequences: [],
 		}),
 		[registerSequence],
@@ -101,7 +106,9 @@ const SequenceTestWrapper: React.FC<{
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<Internals.TimelineContext.Provider value={timelineContext}>
+					<Internals.TimelineContext.Provider
+						value={makeTimelineContext(frame)}
+					>
 						<Internals.OverrideIdsToNodePathsGettersContext.Provider
 							value={overrideIdToNodePathContext}
 						>
@@ -135,6 +142,7 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 	const transitionSeriesStack = 'Error\n    at UserAuthoredTransitionSeries';
 	const childSequenceStack =
 		'Error\n    at UserAuthoredTransitionSeriesSequence';
+	const ConnectedComposition: React.FC = () => null;
 
 	root.render(
 		<SequenceTestWrapper
@@ -146,13 +154,18 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 			dragOverrides={{}}
 		>
 			<TransitionSeries
-				{...({stack: transitionSeriesStack} as {readonly stack: string})}
+				{...({
+					_remotionInternalStack: transitionSeriesStack,
+				} as {readonly _remotionInternalStack: string})}
 			>
 				<TransitionSeries.Sequence
 					durationInFrames={10}
-					{...({stack: childSequenceStack} as {readonly stack: string})}
+					trimBefore={4}
+					{...({
+						_remotionInternalStack: childSequenceStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
-					First
+					<ConnectedComposition />
 				</TransitionSeries.Sequence>
 			</TransitionSeries>
 		</SequenceTestWrapper>,
@@ -186,8 +199,16 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 				sequence.getStack() === childSequenceStack &&
 				sequence.controls?.componentIdentity ===
 					'dev.remotion.transitions.TransitionSeries.Sequence' &&
-				sequence.controls.currentRuntimeValueDotNotation.durationInFrames ===
-					10,
+				sequence.controls.runtimeValues.getSnapshot().durationInFrames === 10 &&
+				sequence.controls.runtimeValues.getSnapshot().trimBefore === 4 &&
+				sequence.trimBefore === 4,
+		),
+	).toBe(true);
+	expect(
+		registeredSequences.some(
+			(sequence) =>
+				sequence.displayName === '<TS.Sequence>' &&
+				sequence.singleChildComponent === ConnectedComposition,
 		),
 	).toBe(true);
 });
@@ -198,11 +219,20 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 	const root = createRoot(div);
 	const transitionStack = 'Error\n    at UserAuthoredTransition';
 	const overlayStack = 'Error\n    at UserAuthoredOverlay';
+	const pendingRegistrationStacks = new Set([transitionStack, overlayStack]);
+	let resolveRegistrations: () => void = () => undefined;
+	const registrations = new Promise<void>((resolve) => {
+		resolveRegistrations = resolve;
+	});
 
 	root.render(
 		<SequenceTestWrapper
 			onRegisterSequence={(sequence) => {
 				registeredSequences.push(sequence);
+				pendingRegistrationStacks.delete(sequence.getStack() ?? '');
+				if (pendingRegistrationStacks.size === 0) {
+					resolveRegistrations();
+				}
 			}}
 			overrideIdToNodePathMappings={{}}
 			propStatuses={{}}
@@ -214,7 +244,9 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
 					timing={linearTiming({durationInFrames: 10})}
-					{...({stack: transitionStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: transitionStack,
+					} as {readonly _remotionInternalStack: string})}
 				/>
 				<TransitionSeries.Sequence durationInFrames={30}>
 					Second
@@ -222,7 +254,9 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 				<TransitionSeries.Overlay
 					durationInFrames={12}
 					offset={2}
-					{...({stack: overlayStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: overlayStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
 					Overlay
 				</TransitionSeries.Overlay>
@@ -233,7 +267,7 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 		</SequenceTestWrapper>,
 	);
 
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	await registrations;
 
 	const transition = registeredSequences.find(
 		(sequence) => sequence.getStack() === transitionStack,
@@ -263,15 +297,21 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 	expect((overlay?.from ?? 0) + (overlay?.duration ?? 0)).toBe(68);
 });
 
-test('TransitionSeries.Sequence duration overrides cascade to later sequences', async () => {
+test('TransitionSeries.Sequence timing overrides cascade to later sequences', async () => {
 	const registeredSequences: RegisteredSequence[] = [];
 	const div = document.createElement('div');
 	const root = createRoot(div);
 	const firstStack = 'Error\n    at FirstTransitionSeriesSequence';
 	const secondStack = 'Error\n    at SecondTransitionSeriesSequence';
 	const transitionStack = 'Error\n    at TransitionBetweenSequences';
+	let pendingRegistrationStacks = new Set<string>();
+	let resolveRegistrations: () => void = () => undefined;
 	const onRegisterSequence = (sequence: RegisteredSequence) => {
 		registeredSequences.push(sequence);
+		pendingRegistrationStacks.delete(sequence.getStack() ?? '');
+		if (pendingRegistrationStacks.size === 0) {
+			resolveRegistrations();
+		}
 	};
 
 	const renderTransitionSeries = ({
@@ -283,8 +323,17 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 		propStatuses: PropStatuses;
 		dragOverrides: DragOverrides;
 	}) => {
+		pendingRegistrationStacks = new Set([
+			firstStack,
+			secondStack,
+			transitionStack,
+		]);
+		const registrations = new Promise<void>((resolve) => {
+			resolveRegistrations = resolve;
+		});
 		root.render(
 			<SequenceTestWrapper
+				frame={7}
 				onRegisterSequence={onRegisterSequence}
 				overrideIdToNodePathMappings={overrideIdToNodePathMappings}
 				propStatuses={propStatuses}
@@ -293,31 +342,38 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 				<TransitionSeries>
 					<TransitionSeries.Sequence
 						durationInFrames={10}
-						{...({stack: firstStack} as {readonly stack: string})}
+						trimBefore={2}
+						{...({
+							_remotionInternalStack: firstStack,
+						} as {readonly _remotionInternalStack: string})}
 					>
 						First
 					</TransitionSeries.Sequence>
 					<TransitionSeries.Transition
 						timing={linearTiming({durationInFrames: 5})}
-						{...({stack: transitionStack} as {readonly stack: string})}
+						{...({
+							_remotionInternalStack: transitionStack,
+						} as {readonly _remotionInternalStack: string})}
 					/>
 					<TransitionSeries.Sequence
 						durationInFrames={20}
-						{...({stack: secondStack} as {readonly stack: string})}
+						{...({
+							_remotionInternalStack: secondStack,
+						} as {readonly _remotionInternalStack: string})}
 					>
 						Second
 					</TransitionSeries.Sequence>
 				</TransitionSeries>
 			</SequenceTestWrapper>,
 		);
+		return registrations;
 	};
 
-	renderTransitionSeries({
+	await renderTransitionSeries({
 		overrideIdToNodePathMappings: {},
 		propStatuses: {},
 		dragOverrides: {},
 	});
-	await new Promise((resolve) => setTimeout(resolve, 10));
 
 	const firstSequence = registeredSequences.find(
 		(sequence) => sequence.getStack() === firstStack,
@@ -336,7 +392,13 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 		videoConfigValues: null,
 	};
 	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
-	const makeDurationOverride = (durationInFrames: number) => ({
+	const makeTimingOverride = ({
+		durationInFrames,
+		trimBefore,
+	}: {
+		durationInFrames: number;
+		trimBefore: number;
+	}) => ({
 		overrideIdToNodePathMappings: {
 			[firstSequenceControls.overrideId]: nodePath,
 		},
@@ -344,7 +406,16 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 			[subscriptionKey]: {
 				canUpdate: true as const,
 				props: {
-					durationInFrames: {status: 'static' as const, codeValue: 10},
+					durationInFrames: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 10,
+					},
+					trimBefore: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 2,
+					},
 				},
 				effects: [],
 			},
@@ -352,34 +423,37 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 		dragOverrides: {
 			[subscriptionKey]: {
 				durationInFrames: Internals.makeStaticDragOverride(durationInFrames),
+				trimBefore: Internals.makeStaticDragOverride(trimBefore),
 			},
 		},
 	});
 
-	registeredSequences.length = 0;
-	renderTransitionSeries(makeDurationOverride(15));
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	await renderTransitionSeries(
+		makeTimingOverride({durationInFrames: 7, trimBefore: 5}),
+	);
 
-	const updatedFirstSequence = registeredSequences.find(
+	const updatedFirstSequence = registeredSequences.findLast(
 		(sequence) => sequence.getStack() === firstStack,
 	);
-	const updatedSecondSequence = registeredSequences.find(
+	const updatedSecondSequence = registeredSequences.findLast(
 		(sequence) => sequence.getStack() === secondStack,
 	);
-	const updatedTransition = registeredSequences.find(
+	const updatedTransition = registeredSequences.findLast(
 		(sequence) => sequence.getStack() === transitionStack,
 	);
 
-	expect(updatedFirstSequence?.duration).toBe(15);
+	expect(updatedFirstSequence?.duration).toBe(7);
+	expect(updatedFirstSequence?.trimBefore).toBe(5);
 	expect(updatedFirstSequence?.from).toBe(0);
-	expect(updatedTransition?.from).toBe(10);
+	expect(updatedTransition?.from).toBe(2);
 	expect(updatedTransition?.duration).toBe(5);
 	expect(updatedSecondSequence?.duration).toBe(20);
-	expect(updatedSecondSequence?.from).toBe(10);
+	expect(updatedSecondSequence?.from).toBe(2);
 
 	registeredSequences.length = 0;
-	renderTransitionSeries(makeDurationOverride(18));
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	await renderTransitionSeries(
+		makeTimingOverride({durationInFrames: 18, trimBefore: 7}),
+	);
 
 	const repeatedlyUpdatedFirstSequence = registeredSequences.find(
 		(sequence) => sequence.getStack() === firstStack,
@@ -391,6 +465,7 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 		(sequence) => sequence.getStack() === transitionStack,
 	);
 	expect(repeatedlyUpdatedFirstSequence?.duration).toBe(18);
+	expect(repeatedlyUpdatedFirstSequence?.trimBefore).toBe(7);
 	expect(repeatedlyUpdatedTransition?.from).toBe(13);
 	expect(repeatedlyUpdatedSecondSequence?.from).toBe(13);
 

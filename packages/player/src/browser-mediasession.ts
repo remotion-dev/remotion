@@ -1,6 +1,7 @@
 import {useEffect, useRef} from 'react';
 import type {VideoConfig} from 'remotion';
-import {usePlayer} from './use-player.js';
+import {Internals} from 'remotion';
+import {usePlayerMethods} from './use-player-methods.js';
 
 export type BrowserMediaControlsBehavior =
 	| {
@@ -22,16 +23,15 @@ export const useBrowserMediaSession = ({
 	videoConfig: VideoConfig | null;
 	playbackRate: number;
 }) => {
-	const {playing, pause, play, emitter, getCurrentFrame, seek} = usePlayer();
+	const playing = Internals.usePlaying();
+	const {pause, play, emitter, getCurrentFrame, seek} = usePlayerMethods();
 	const hasEverPlayed = useRef(false);
 
 	useEffect(() => {
 		if (playing) {
 			hasEverPlayed.current = true;
 		}
-	}, [playing]);
 
-	useEffect(() => {
 		if (!navigator.mediaSession) {
 			return;
 		}

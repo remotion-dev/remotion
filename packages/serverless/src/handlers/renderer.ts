@@ -3,10 +3,11 @@ import path from 'node:path';
 import type {
 	AudioCodec,
 	BrowserLog,
+	CancelSignal,
 	Codec,
 	OnArtifact,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import {makeCancelSignal, RenderInternals} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	CloudProvider,
@@ -23,6 +24,7 @@ import {
 	truthy,
 	VERSION,
 } from '@remotion/serverless-client';
+import {startCancellationPolling} from '../cancellation-polling';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {startLeakDetection} from '../leak-detection';
@@ -49,6 +51,8 @@ const renderHandler = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	insideFunctionSpecifics,
 	onBrowserInstance,
+	onMediaFiles,
+	cancelSignal,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -57,6 +61,15 @@ const renderHandler = async <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	onBrowserInstance: (browserInstance: LaunchedBrowser) => void;
+	onMediaFiles:
+		| ((options: {
+				videoOutputLocation: string;
+				audioOutputLocation: string | null;
+				isAudioOnly: boolean;
+				completedAt: number;
+		  }) => Promise<void>)
+		| null;
+	cancelSignal: CancelSignal | null;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -332,7 +345,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			audioCodec,
 			preferLossless: params.preferLossless,
 			browserExecutable: providerSpecifics.getChromiumPath(),
-			cancelSignal: undefined,
+			cancelSignal: cancelSignal ?? undefined,
 			disallowParallelEncoding: false,
 			ffmpegOverride: ({args}) => args,
 			indent: false,
@@ -381,19 +394,27 @@ const renderHandler = async <Provider extends CloudProvider>({
 		params.logLevel,
 	);
 
-	if (audioOutputLocation) {
-		const audioChunkTimer = insideFunctionSpecifics.timer(
-			'Sending audio chunk',
-			params.logLevel,
-		);
-		await onStream({
-			type: 'audio-chunk-rendered',
-			payload: new Uint8Array(fs.readFileSync(audioOutputLocation)),
+	const endRendered = Date.now();
+	if (onMediaFiles) {
+		await onMediaFiles({
+			videoOutputLocation,
+			audioOutputLocation,
+			isAudioOnly: NoReactAPIs.isAudioCodec(params.codec),
+			completedAt: endRendered,
 		});
-		audioChunkTimer.end();
-	}
+	} else {
+		if (audioOutputLocation) {
+			const audioChunkTimer = insideFunctionSpecifics.timer(
+				'Sending audio chunk',
+				params.logLevel,
+			);
+			await onStream({
+				type: 'audio-chunk-rendered',
+				payload: new Uint8Array(fs.readFileSync(audioOutputLocation)),
+			});
+			audioChunkTimer.end();
+		}
 
-	if (videoOutputLocation) {
 		const videoChunkTimer = insideFunctionSpecifics.timer(
 			'Sending main chunk',
 			params.logLevel,
@@ -406,8 +427,6 @@ const renderHandler = async <Provider extends CloudProvider>({
 		});
 		videoChunkTimer.end();
 	}
-
-	const endRendered = Date.now();
 
 	await onStream({
 		type: 'chunk-complete',
@@ -426,9 +445,9 @@ const renderHandler = async <Provider extends CloudProvider>({
 
 	await Promise.all(
 		[
-			fs.promises.rm(videoOutputLocation, {recursive: true}),
+			fs.promises.rm(videoOutputLocation, {recursive: true, force: true}),
 			audioOutputLocation
-				? fs.promises.rm(audioOutputLocation, {recursive: true})
+				? fs.promises.rm(audioOutputLocation, {recursive: true, force: true})
 				: null,
 			fs.promises.rm(outputPath, {recursive: true}),
 		].filter(truthy),
@@ -450,6 +469,8 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	requestContext,
 	insideFunctionSpecifics,
+	onMediaFiles,
+	executionMode,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -457,6 +478,15 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	requestContext: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	onMediaFiles:
+		| ((options: {
+				videoOutputLocation: string;
+				audioOutputLocation: string | null;
+				isAudioOnly: boolean;
+				completedAt: number;
+		  }) => Promise<void>)
+		| null;
+	executionMode: 'invoked' | 'direct';
 }): Promise<void> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -467,6 +497,23 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 	let shouldKeepBrowserOpen = true;
 	let instance: LaunchedBrowser | undefined;
+	let cancellationRequested = false;
+	const {cancel, cancelSignal} = makeCancelSignal();
+	const stopCancellationPolling = params.enableCancellation
+		? startCancellationPolling({
+				bucketName: params.bucketName,
+				renderId: params.renderId,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				providerSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				intervalInMilliseconds: 1000,
+				logLevel: params.logLevel,
+				onCancelled: () => {
+					cancellationRequested = true;
+					cancel();
+				},
+			})
+		: () => undefined;
 
 	try {
 		await renderHandler({
@@ -479,6 +526,8 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			onBrowserInstance: (browserInstance) => {
 				instance = browserInstance;
 			},
+			onMediaFiles,
+			cancelSignal: params.enableCancellation ? cancelSignal : null,
 		});
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
@@ -494,7 +543,8 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			shouldKeepBrowserOpen = false;
 		}
 
-		const shouldNotRetry = (err as Error).name === 'CancelledError';
+		const shouldNotRetry =
+			cancellationRequested || (err as Error).name === 'CancelledError';
 
 		const shouldRetry =
 			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
@@ -508,7 +558,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			(err as Error).stack,
 		);
 
-		onStream({
+		await onStream({
 			type: 'error-occurred',
 			payload: {
 				error: (err as Error).stack as string,
@@ -532,7 +582,12 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			},
 		});
 	} finally {
-		if (shouldKeepBrowserOpen && instance) {
+		stopCancellationPolling();
+		if (executionMode === 'direct') {
+			if (!shouldKeepBrowserOpen && instance) {
+				await instance.instance.close({silent: true});
+			}
+		} else if (shouldKeepBrowserOpen && instance) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,

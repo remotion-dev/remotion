@@ -1,44 +1,70 @@
-import fs, {createWriteStream} from 'fs';
-import {createReadStream, existsSync, statSync} from 'node:fs';
+import {
+	createReadStream,
+	createWriteStream,
+	existsSync,
+	statSync,
+} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import type {LogLevel} from '@remotion/renderer';
+import type {
+	DefaultCodingAgent,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
-	ElementInstallRequest,
 	GitSource,
 	RenderDefaults,
 	RenderJob,
 	StudioRuntimeConfig,
+	UpdateConfigRequest,
+	UpdateConfigResponse,
 } from '@remotion/studio-shared';
-import {getProjectName, parseElementDragData} from '@remotion/studio-shared';
+import {getProjectName} from '@remotion/studio-shared';
+import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
+import {openFileForWritingWithoutSymlinks} from './helpers/open-file-for-writing-without-symlinks';
 import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
-import {
-	ELEMENT_INSTALL_TARGET_MAX_AGE,
-	getElementInstallTarget,
-} from './preview-server/element-install-state';
 import {getPackageManager} from './preview-server/get-package-manager';
 import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallback-hint';
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
-import {parseRequestBody} from './preview-server/parse-body';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
+import {handleAppIcon} from './preview-server/routes/app-icon';
 import {getEditorName} from './preview-server/routes/open-in-editor';
+import {updateConfigHandler} from './preview-server/routes/update-config';
 import {serveStatic} from './preview-server/serve-static';
+import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
+import {handleStudioProtocolElementLibrary} from './preview-server/studio-protocol/handle-element-library';
+import {handleStudioProtocolInstall} from './preview-server/studio-protocol/handle-install';
+import {handleStudioProtocolLicenseKey} from './preview-server/studio-protocol/handle-license-key';
+import {handleStudioProtocolOptions} from './preview-server/studio-protocol/origin-policy';
 import {validateSameOrigin} from './preview-server/validate-same-origin';
 import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
 import type {RemotionConfigResponse} from './remotion-config-response';
 const loggedStaticFileHints = new Set<string>();
-const ELEMENT_INSTALL_FOCUS_MAX_AGE = 5 * 60 * 1000;
-const ELEMENT_INSTALL_TARGET_RESPONSE_WAIT = 250;
+const clientRenderOutputExtensions = new Set([
+	'aac',
+	'flac',
+	'jpeg',
+	'jpg',
+	'mkv',
+	'mov',
+	'mp3',
+	'mp4',
+	'ogg',
+	'png',
+	'wav',
+	'webm',
+	'webp',
+]);
 
 const static404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
@@ -72,218 +98,6 @@ const handleRemotionConfig = (
 	return Promise.resolve();
 };
 
-const isAllowedElementInstallOrigin = (origin: string | undefined) => {
-	if (!origin) {
-		return false;
-	}
-
-	try {
-		const url = new URL(origin);
-		return (
-			(url.protocol === 'https:' &&
-				(url.hostname === 'remotion.dev' ||
-					url.hostname === 'www.remotion.dev')) ||
-			(url.protocol === 'http:' &&
-				(url.hostname === 'localhost' || url.hostname === '127.0.0.1'))
-		);
-	} catch {
-		return false;
-	}
-};
-
-const setElementInstallCorsHeaders = ({
-	request,
-	response,
-}: {
-	request: IncomingMessage;
-	response: ServerResponse;
-}) => {
-	const {origin} = request.headers;
-	if (isAllowedElementInstallOrigin(origin)) {
-		response.setHeader('Access-Control-Allow-Origin', origin as string);
-		response.setHeader('Vary', 'Origin');
-		response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-		response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-		response.setHeader('Access-Control-Max-Age', '600');
-		response.setHeader('Access-Control-Allow-Private-Network', 'true');
-	}
-};
-
-const handleElementInstallOptions = ({
-	request,
-	response,
-}: {
-	request: IncomingMessage;
-	response: ServerResponse;
-}) => {
-	setElementInstallCorsHeaders({request, response});
-	response.writeHead(
-		isAllowedElementInstallOrigin(request.headers.origin) ? 204 : 403,
-	);
-	response.end();
-	return Promise.resolve();
-};
-
-const handleElementInstallTarget = ({
-	liveEventsServer,
-	request,
-	response,
-	remotionRoot,
-	gitSource,
-}: {
-	liveEventsServer: LiveEventsServer;
-	request: IncomingMessage;
-	response: ServerResponse;
-	remotionRoot: string;
-	gitSource: GitSource | null;
-}) => {
-	if (!isAllowedElementInstallOrigin(request.headers.origin)) {
-		response.writeHead(403);
-		response.end(
-			JSON.stringify({success: false, reason: 'Origin not allowed'}),
-		);
-		return Promise.resolve();
-	}
-
-	const requestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-	liveEventsServer.sendEventToClient({
-		type: 'request-element-install-target',
-		requestId,
-	});
-
-	return new Promise<void>((resolve) => {
-		setTimeout(() => {
-			const target = getElementInstallTarget(requestId);
-			const now = Date.now();
-			const targetIsLive =
-				target !== null &&
-				now - target.updatedAt < ELEMENT_INSTALL_TARGET_MAX_AGE;
-			const host = request.headers.host ?? null;
-			const port = host?.split(':').at(-1) ?? null;
-			setElementInstallCorsHeaders({request, response});
-			response.writeHead(200, {'Content-Type': 'application/json'});
-			response.end(
-				JSON.stringify({
-					type: 'remotion-studio',
-					projectName: getProjectName({
-						basename: path.basename,
-						gitSource,
-						resolvedRemotionRoot: remotionRoot,
-					}),
-					port: port === null ? null : Number(port),
-					lastFocusedAt: target?.lastFocusedAt ?? null,
-					canInstall: target !== null && target.canInstall && targetIsLive,
-					activeCompositionId: target?.compositionId ?? null,
-					readOnly: target?.readOnly ?? false,
-				}),
-			);
-			resolve();
-		}, ELEMENT_INSTALL_TARGET_RESPONSE_WAIT);
-	});
-};
-
-const handleRequestElementInstall = async ({
-	liveEventsServer,
-	request,
-	response,
-}: {
-	liveEventsServer: LiveEventsServer;
-	request: IncomingMessage;
-	response: ServerResponse;
-}) => {
-	if (!isAllowedElementInstallOrigin(request.headers.origin)) {
-		response.writeHead(403);
-		response.end(
-			JSON.stringify({success: false, reason: 'Origin not allowed'}),
-		);
-		return;
-	}
-
-	setElementInstallCorsHeaders({request, response});
-	response.setHeader('Content-Type', 'application/json');
-
-	try {
-		const body = await parseRequestBody(request);
-		const parsed = parseElementDragData(
-			JSON.stringify({
-				type: 'remotion-element',
-				version: 1,
-				element: (body as {element?: unknown}).element,
-			}),
-		);
-
-		if (parsed === null) {
-			response.writeHead(400);
-			response.end(
-				JSON.stringify({success: false, reason: 'Invalid Element payload'}),
-			);
-			return;
-		}
-
-		const target = getElementInstallTarget(null);
-		const now = Date.now();
-		const targetIsLive =
-			target !== null &&
-			now - target.updatedAt < ELEMENT_INSTALL_TARGET_MAX_AGE;
-		const targetWasRecentlyFocused =
-			target !== null &&
-			target.lastFocusedAt !== null &&
-			now - target.lastFocusedAt < ELEMENT_INSTALL_FOCUS_MAX_AGE;
-		if (
-			target === null ||
-			!target.canInstall ||
-			target.compositionFile === null ||
-			target.compositionId === null ||
-			!targetIsLive ||
-			!targetWasRecentlyFocused
-		) {
-			response.writeHead(409);
-			response.end(
-				JSON.stringify({
-					success: false,
-					reason: 'No focused writable Remotion Studio composition',
-				}),
-			);
-			return;
-		}
-
-		const installRequest: ElementInstallRequest = {
-			id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-			clientId: target.clientId,
-			createdAt: Date.now(),
-			compositionFile: target.compositionFile,
-			compositionId: target.compositionId,
-			element: parsed.element,
-			position: null,
-		};
-
-		const delivered = liveEventsServer.sendEventToClientId(target.clientId, {
-			type: 'element-install-request',
-			request: installRequest,
-		});
-
-		if (delivered === false) {
-			response.writeHead(409);
-			response.end(
-				JSON.stringify({
-					success: false,
-					reason: 'The selected Remotion Studio tab is no longer connected',
-				}),
-			);
-			return;
-		}
-
-		response.writeHead(200);
-		response.end(JSON.stringify({success: true, status: 'sent'}));
-	} catch (err) {
-		response.writeHead(500);
-		response.end(
-			JSON.stringify({success: false, reason: (err as Error).message}),
-		);
-	}
-};
-
 const handleFallback = async ({
 	remotionRoot,
 	hash,
@@ -294,13 +108,15 @@ const handleFallback = async ({
 	publicDir,
 	getRenderQueue,
 	getRenderDefaults,
-	numberOfAudioTags,
-	audioLatencyHint,
-	previewSampleRate,
+	getNumberOfAudioTags,
+	getAudioLatencyHint,
+	getExperimentalKeepAudioContextAlive,
+	getPreviewSampleRate,
 	gitSource,
 	logLevel,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultEditor,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -311,13 +127,15 @@ const handleFallback = async ({
 	getEnvVariables: () => Record<string, string>;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getNumberOfAudioTags: () => number;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
+	getPreviewSampleRate: () => number | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultEditor: () => DefaultEditor | null;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
 	if (request.method === 'GET' && acceptsHtml) {
@@ -347,7 +165,7 @@ const handleFallback = async ({
 		);
 	}
 
-	const displayName = await getEditorName();
+	const displayName = await getEditorName({getDefaultEditor, logLevel});
 
 	response.setHeader('content-type', 'text/html');
 	if (enableCrossSiteIsolation) {
@@ -377,12 +195,13 @@ const handleFallback = async ({
 				packageManager === 'unknown' ? null : packageManager.startCommand,
 			renderQueue: getRenderQueue(),
 			completedClientRenders: getCompletedClientRenders(),
-			numberOfAudioTags,
+			numberOfAudioTags: getNumberOfAudioTags(),
 			publicFiles: getFiles(),
 			includeFavicon: true,
 			title: 'Remotion Studio',
 			renderDefaults: getRenderDefaults(),
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
+			fileSystemPlatform: process.platform,
 			gitSource,
 			projectName: getProjectName({
 				basename: path.basename,
@@ -394,8 +213,9 @@ const handleFallback = async ({
 				packageManager === 'unknown' ? 'unknown' : packageManager.manager,
 			logLevel,
 			mode: 'dev',
-			audioLatencyHint: audioLatencyHint ?? 'playback',
-			sampleRate: previewSampleRate,
+			audioLatencyHint: getAudioLatencyHint() ?? 'playback',
+			experimentalKeepAudioContextAlive: getExperimentalKeepAudioContextAlive(),
+			sampleRate: getPreviewSampleRate(),
 			studioRuntimeConfig: getStudioRuntimeConfig(),
 		}),
 	);
@@ -467,9 +287,14 @@ const handleAddAsset = ({
 			throw new Error(`Not allowed to write to ${relativeToPublicDir}`);
 		}
 
-		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
-
-		const writeStream = createWriteStream(absolutePath);
+		const fileDescriptor = openFileForWritingWithoutSymlinks({
+			rootDirectory: publicDir,
+			absolutePath,
+		});
+		const writeStream = createWriteStream(absolutePath, {
+			fd: fileDescriptor,
+			autoClose: true,
+		});
 		writeStream.on('close', () => {
 			res.end(JSON.stringify({success: true}));
 		});
@@ -505,10 +330,21 @@ const handleUploadOutput = ({
 		}
 
 		const absolutePath = resolveOutputPath(remotionRoot, filePath);
+		const extension = path.extname(absolutePath).slice(1).toLowerCase();
+		if (!clientRenderOutputExtensions.has(extension)) {
+			throw new Error(
+				`Not allowed to upload a .${extension || 'unknown'} file`,
+			);
+		}
 
-		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
-
-		const writeStream = createWriteStream(absolutePath);
+		const fileDescriptor = openFileForWritingWithoutSymlinks({
+			rootDirectory: remotionRoot,
+			absolutePath,
+		});
+		const writeStream = createWriteStream(absolutePath, {
+			fd: fileDescriptor,
+			autoClose: true,
+		});
 		writeStream.on('close', () => {
 			res.end(JSON.stringify({success: true}));
 		});
@@ -583,14 +419,18 @@ export const handleRoutes = ({
 	logLevel,
 	getRenderQueue,
 	getRenderDefaults,
-	numberOfAudioTags,
+	getNumberOfAudioTags,
 	queueMethods: methods,
 	gitSource,
 	binariesDirectory,
-	audioLatencyHint,
-	previewSampleRate,
+	getAudioLatencyHint,
+	getExperimentalKeepAudioContextAlive,
+	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultCodingAgent,
+	getDefaultEditor,
+	configFile,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -607,14 +447,18 @@ export const handleRoutes = ({
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
+	getNumberOfAudioTags: () => number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultCodingAgent: () => DefaultCodingAgent | null;
+	getDefaultEditor: () => DefaultEditor | null;
+	configFile: string | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -646,28 +490,86 @@ export const handleRoutes = ({
 		});
 	}
 
+	if (url.pathname.startsWith('/api/app-icon/')) {
+		return handleAppIcon({
+			pathname: url.pathname,
+			request,
+			response,
+		});
+	}
+
 	if (
-		url.pathname === '/api/element-install-target' ||
-		url.pathname === '/api/request-element-install'
+		url.pathname === '/api/studio-protocol' ||
+		url.pathname === '/api/studio-protocol/install' ||
+		url.pathname === '/api/studio-protocol/license-key' ||
+		url.pathname === '/api/studio-protocol/element-library'
 	) {
 		if (request.method === 'OPTIONS') {
-			return handleElementInstallOptions({request, response});
-		}
-
-		if (url.pathname === '/api/element-install-target') {
-			return handleElementInstallTarget({
-				liveEventsServer,
+			return handleStudioProtocolOptions({
 				request,
 				response,
-				remotionRoot,
-				gitSource,
 			});
 		}
 
-		return handleRequestElementInstall({
+		if (url.pathname === '/api/studio-protocol') {
+			return handleStudioProtocolDiscovery({
+				gitSource,
+				liveEventsServer,
+				remotionRoot,
+				request,
+				response,
+			});
+		}
+
+		if (url.pathname === '/api/studio-protocol/license-key') {
+			return handleStudioProtocolLicenseKey({
+				configFile,
+				focusStudioTab: (studioUrl) => {
+					focusBrowserTab({url: studioUrl}).catch(() => undefined);
+				},
+				liveEventsServer,
+				request,
+				response,
+			});
+		}
+
+		if (url.pathname === '/api/studio-protocol/element-library') {
+			return handleStudioProtocolElementLibrary({
+				configFile,
+				focusStudioTab: (studioUrl) => {
+					focusBrowserTab({url: studioUrl}).catch(() => undefined);
+				},
+				liveEventsServer,
+				request,
+				response,
+			});
+		}
+
+		return handleStudioProtocolInstall({
+			focusStudioTab: (studioUrl) => {
+				focusBrowserTab({url: studioUrl}).catch(() => undefined);
+			},
 			liveEventsServer,
 			request,
 			response,
+		});
+	}
+
+	if (url.pathname === '/api/update-config') {
+		return handleRequest<UpdateConfigRequest, UpdateConfigResponse>({
+			remotionRoot,
+			entryPoint,
+			handler: (params) =>
+				updateConfigHandler({...params, getStudioRuntimeConfig}),
+			request,
+			response,
+			logLevel,
+			methods,
+			binariesDirectory,
+			publicDir,
+			configFile,
+			getDefaultCodingAgent,
+			getDefaultEditor,
 		});
 	}
 
@@ -686,6 +588,9 @@ export const handleRoutes = ({
 				methods,
 				binariesDirectory,
 				publicDir,
+				configFile,
+				getDefaultCodingAgent,
+				getDefaultEditor,
 			});
 		}
 	}
@@ -719,6 +624,7 @@ export const handleRoutes = ({
 			req: request,
 			res: response,
 			allowOutsidePublicFolder: false,
+			allowRemotionConvertCors: true,
 		});
 	}
 
@@ -739,6 +645,7 @@ export const handleRoutes = ({
 			req: request,
 			res: response,
 			allowOutsidePublicFolder: false,
+			allowRemotionConvertCors: false,
 		});
 	}
 
@@ -756,12 +663,14 @@ export const handleRoutes = ({
 		publicDir,
 		getRenderQueue,
 		getRenderDefaults,
-		numberOfAudioTags,
+		getNumberOfAudioTags,
 		gitSource,
 		logLevel,
-		audioLatencyHint,
-		previewSampleRate,
+		getAudioLatencyHint,
+		getExperimentalKeepAudioContextAlive,
+		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,
+		getDefaultEditor,
 	});
 };

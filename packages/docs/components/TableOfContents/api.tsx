@@ -9,12 +9,14 @@ import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-sc
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
 import {TableOfContents as GifTableOfContents} from '../../docs/gif/table-of-contents';
 import {TableOfContents as GoogleFontsTableOfContents} from '../../docs/google-fonts/TableOfContents';
+import {TableOfContents as GsapTableOfContents} from '../../docs/gsap/table-of-contents';
 import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
 import {TableOfContents as LambdaTableOfContents} from '../../docs/lambda/table-of-contents';
 import {TableOfContents as LayoutUtilsTableOfContents} from '../../docs/layout-utils/table-of-contents';
 import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
 import {TableOfContents as LightLeaksTableOfContents} from '../../docs/light-leaks/table-of-contents';
 import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-of-contents';
+import {TableOfContents as MacCursorsTableOfContents} from '../../docs/mac-cursors/table-of-contents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as MediaUtilsTableOfContents} from '../../docs/media-utils/table-of-contents';
 import {TableOfContents as NewVideoTableOfContents} from '../../docs/media/table-of-contents';
@@ -32,6 +34,7 @@ import {TableOfContents as SfxTableOfContents} from '../../docs/sfx/table-of-con
 import {TableOfContents as ShapesTableOfContents} from '../../docs/shapes/table-of-contents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StarburstTableOfContents} from '../../docs/starburst/table-of-contents';
+import {TableOfContents as StudioProtocolTableOfContents} from '../../docs/studio-protocol/table-of-contents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
 import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-v4/TableOfContents';
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
@@ -39,6 +42,7 @@ import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfC
 import {TableOfContents as TransitionsTableOfContents} from '../../docs/transitions/table-of-contents';
 import {TableOfContents as VercelTableOfContents} from '../../docs/vercel/table-of-contents';
 import {TableOfContents as WebcodecsTableOfContents} from '../../docs/webcodecs/TableOfContents';
+import {TableOfContents as WhisperWebGpuTableOfContents} from '../../docs/whisper-webgpu/table-of-contents';
 import {ZodTypesTableOfContents} from '../../docs/zod-types/TableOfContents';
 import {Grid} from './Grid';
 import {TOCItem} from './TOCItem';
@@ -85,7 +89,7 @@ export const TableOfContents: React.FC = () => {
 			<p>Work with transcriptions from ElevenLabs</p>
 			<ElevenLabsTableOfContents />
 			<h2>@remotion/enable-scss</h2>
-			<p>Webpack override for enabling SASS/SCSS</p>
+			<p>Bundler override for enabling SASS/SCSS</p>
 			<EnableScssTableOfContents />
 			<h2>@remotion/fonts</h2>
 			<p>Load font files onto a page.</p>
@@ -96,6 +100,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/google-fonts</h2>
 			<p>Load Google Fonts onto a page.</p>
 			<GoogleFontsTableOfContents />
+			<h2>@remotion/gsap</h2>
+			<p>Use GSAP timelines in Remotion.</p>
+			<GsapTableOfContents />
 			<h2>@remotion/install-whisper-cpp</h2>
 			<p>Whisper.cpp installation and transcription</p>
 			<InstallWhisperCppTableOfContents />
@@ -117,6 +124,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/lottie</h2>
 			<p>Include a Lottie animation in your video</p>
 			<LottieTableOfContents apisOnly />
+			<h2>@remotion/mac-cursors</h2>
+			<p>Render macOS and custom CSS cursors.</p>
+			<MacCursorsTableOfContents />
 			<h2>@remotion/media</h2>
 			<p>
 				An experimental <code>&lt;NewVideo /&gt;</code> tag for embedding
@@ -168,11 +178,14 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/studio</h2>
 			<p>APIs for controlling theRemotion Studio</p>
 			<StudioTableOfContents />
+			<h2>@remotion/studio-protocol</h2>
+			<p>Create Element payloads and send them into Remotion Studio</p>
+			<StudioProtocolTableOfContents />
 			<h2>@remotion/tailwind</h2>
-			<p>Webpack override for using TailwindCSS v3</p>
+			<p>Bundler override for using TailwindCSS v3</p>
 			<TailwindTableOfContents />
 			<h2>@remotion/tailwind-v4</h2>
-			<p>Webpack override for using TailwindCSS v4</p>
+			<p>Bundler override for using TailwindCSS v4</p>
 			<TailwindV4TableOfContents />
 			<h2>@remotion/three</h2>
 			<p>Create 3D videos using React Three Fiber</p>
@@ -186,6 +199,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/webcodecs</h2>
 			<p>Converting media using WebCodecs</p>
 			<WebcodecsTableOfContents />
+			<h2>@remotion/whisper-webgpu</h2>
+			<p>Transcribe audio in the browser using Whisper and WebGPU</p>
+			<WhisperWebGpuTableOfContents />
 			<h2>@remotion/zod-types</h2>
 			<p>Zod types enabling Remotion Studio UI</p>
 			<ZodTypesTableOfContents />

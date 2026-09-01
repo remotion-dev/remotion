@@ -9,14 +9,18 @@ import React, {
 	useState,
 	type AudioHTMLAttributes,
 } from 'react';
+import {useLogLevel, useMountTime} from '../log-level-context.js';
+import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
-import {useLogger} from '../use-logger.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
 import type {RemotionAudioContextState} from './use-audio-context.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
-import {waitUntilActuallyResumed} from './wait-until-actually-resumed.js';
+import {
+	type AudioContextResumeResult,
+	waitUntilActuallyResumed,
+} from './wait-until-actually-resumed.js';
 
 /**
  * This functionality of Remotion will keep a certain amount
@@ -84,9 +88,11 @@ type SharedAudioContextValue = {
 		options: ScheduleAudioNodeOptions,
 	) => ScheduleAudioNodeResult;
 	resume: () => Promise<void>;
+	resumeAsAutoPlay: () => Promise<void>;
 	suspend: () => Promise<void>;
-	getIsResumingAudioContext: () => Promise<void> | null;
+	getIsResumingAudioContext: () => Promise<AudioContextResumeResult> | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+	_experimentalKeepAudioContextAlive: boolean;
 };
 
 type SharedAudioTagsContextValue = {
@@ -172,6 +178,12 @@ type NodeToResume = {
 	duration: number;
 };
 
+type AudioContextResumeAttempt = {
+	abortController: AbortController;
+	id: number;
+	promise: Promise<AudioContextResumeResult>;
+};
+
 const shouldSaveForLater = (
 	state: Exclude<RemotionAudioContextState, 'closed'>,
 ) => {
@@ -195,8 +207,15 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly audioEnabled: boolean;
 	readonly previewSampleRate: number | null;
-}> = ({children, audioLatencyHint, audioEnabled, previewSampleRate}) => {
-	const logger = useLogger();
+	readonly _experimentalKeepAudioContextAlive: boolean;
+}> = ({
+	children,
+	audioLatencyHint,
+	audioEnabled,
+	previewSampleRate,
+	_experimentalKeepAudioContextAlive,
+}) => {
+	const logLevel = useLogLevel();
 	const sampleRate = previewSampleRate ?? 48000;
 
 	useEffect(() => {
@@ -208,12 +227,28 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [sampleRate]);
 
 	const ctxAndGain = useSingletonAudioContext({
+		logLevel,
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 		sampleRate,
 	});
 	const audioContextIsPlayingEventually = useRef(false);
-	const isResuming = useRef<Promise<void> | null>(null);
+	const initialExperimentalKeepAudioContextAlive = useRef(
+		_experimentalKeepAudioContextAlive,
+	);
+
+	if (
+		initialExperimentalKeepAudioContextAlive.current !==
+		_experimentalKeepAudioContextAlive
+	) {
+		throw new Error(
+			'`_experimentalKeepAudioContextAlive` cannot be changed dynamically.',
+		);
+	}
+
+	const isResuming = useRef<AudioContextResumeAttempt | null>(null);
+	const nextResumeAttemptId = useRef(0);
+	const nextResumeIsAutoPlayAttempt = useRef(false);
 
 	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
 
@@ -271,7 +306,15 @@ export const SharedAudioContextProvider: React.FC<{
 				};
 			}
 
-			const saveForLater = shouldSaveForLater(currentState);
+			// With _experimentalKeepAudioContextAlive, the native context stays
+			// `running` while silenced, so the state alone does not reveal that playback
+			// is paused. Queue the node like the suspend path does, otherwise it
+			// would start right away at a stale position and become audible when
+			// the gain ramps back up.
+			const saveForLater =
+				shouldSaveForLater(currentState) ||
+				(_experimentalKeepAudioContextAlive &&
+					!audioContextIsPlayingEventually.current);
 
 			if (duration > 0) {
 				if (saveForLater) {
@@ -304,8 +347,8 @@ export const SharedAudioContextProvider: React.FC<{
 				prev.mediaEndTime !== null &&
 				Math.abs(mediaTime - prev.mediaEndTime) > 0.001;
 
-			logger.verbose(
-				'audio-scheduling',
+			Log.verbose(
+				{logLevel, tag: 'audio-scheduling'},
 				'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s %s %s',
 				scheduledMismatch ? 'color: red; font-weight: bold' : '',
 				scheduledTime.toFixed(4),
@@ -349,11 +392,11 @@ export const SharedAudioContextProvider: React.FC<{
 						reason: 'missed ' + Math.abs(offset).toFixed(2) + 's',
 					};
 		};
-		// The logger has stable identity and reads the latest context.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ctxAndGain]);
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
 
 	const resume = useCallback(() => {
+		const isAutoPlayAttempt = nextResumeIsAutoPlayAttempt.current;
+		nextResumeIsAutoPlayAttempt.current = false;
 		if (!ctxAndGain) {
 			return Promise.resolve();
 		}
@@ -381,35 +424,65 @@ export const SharedAudioContextProvider: React.FC<{
 		});
 		nodesToResume.current.clear();
 
-		const resumePromise = ctxAndGain.resume();
+		if (
+			_experimentalKeepAudioContextAlive &&
+			ctxAndGain.audioContext.state === 'running'
+		) {
+			// The context was never suspended, so there is nothing to wait for:
+			// the resume-wait machinery, its timeout and the mute-on-failure
+			// path are not entered.
+			return Promise.resolve();
+		}
 
-		isResuming.current = new Promise<void>((resolve) => {
-			waitUntilActuallyResumed(ctxAndGain.audioContext, logger).then(resolve);
+		const resumePromise = ctxAndGain.resume();
+		const abortController = new AbortController();
+		const resumeAttemptId = nextResumeAttemptId.current++;
+
+		const waitPromise = new Promise<AudioContextResumeResult>((resolve) => {
+			waitUntilActuallyResumed(
+				ctxAndGain.audioContext,
+				logLevel,
+				abortController.signal,
+				isAutoPlayAttempt,
+			).then(resolve);
 			resumePromise.catch((err) => {
-				logger.warn(
-					'audio',
-					'AudioContext resume rejected, continuing without audio sync',
+				Log.warn(
+					{logLevel, tag: 'audio'},
+					'AudioContext resume rejected, muting playback and continuing without audio',
 					err,
 				);
-				resolve();
+				abortController.abort();
+				resolve('failed');
 			});
 		}).finally(() => {
-			isResuming.current = null;
+			if (isResuming.current?.id === resumeAttemptId) {
+				isResuming.current = null;
+			}
 		});
+		isResuming.current = {
+			abortController,
+			id: resumeAttemptId,
+			promise: waitPromise,
+		};
 
 		return resumePromise.catch(() => {
 			// Already logged above; swallow to avoid unhandled rejection
 			// since callers (e.g. use-playback.ts) do not await this.
 		});
-		// The logger has stable identity and reads the latest context.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ctxAndGain]);
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
+
+	const resumeAsAutoPlay = useCallback(() => {
+		nextResumeIsAutoPlayAttempt.current = true;
+		return resume();
+	}, [resume]);
 
 	const getIsResumingAudioContext = useCallback(() => {
-		return isResuming.current;
+		return isResuming.current?.promise ?? null;
 	}, []);
 
 	const suspend = useCallback(() => {
+		isResuming.current?.abortController.abort();
+
 		if (!ctxAndGain) {
 			return Promise.resolve();
 		}
@@ -419,8 +492,70 @@ export const SharedAudioContextProvider: React.FC<{
 		}
 
 		audioContextIsPlayingEventually.current = false;
+
+		if (_experimentalKeepAudioContextAlive) {
+			// Silence through the gain instead of suspending, so the context
+			// clock keeps running and the next resume() is instant. Audio that
+			// is already scheduled plays out silently; resume() ramps the gain
+			// back up.
+			ctxAndGain.gainNode.gain.cancelScheduledValues(
+				ctxAndGain.audioContext.currentTime,
+			);
+			ctxAndGain.gainNode.gain.setValueAtTime(
+				0,
+				ctxAndGain.audioContext.currentTime,
+			);
+			return Promise.resolve();
+		}
+
 		return ctxAndGain.suspend();
-	}, [ctxAndGain]);
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
+
+	// With _experimentalKeepAudioContextAlive, start the context as early as
+	// possible so the first play never waits on the suspended→running transition. Where
+	// no autoplay restriction applies (e.g. Electron with
+	// `no-user-gesture-required`), the mount attempt succeeds immediately;
+	// in a browser the first user gesture starts it. suspend() never reaches
+	// the native context in this mode, so once running it stays running.
+	// The cleanup suspends the native context, since Player contexts are
+	// not close()d and must not be left running after unmount.
+	useEffect(() => {
+		if (!_experimentalKeepAudioContextAlive) {
+			return;
+		}
+
+		if (!ctxAndGain) {
+			return;
+		}
+
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		const wake = () => {
+			if (ctxAndGain.audioContext.state === 'running') {
+				return;
+			}
+
+			ctxAndGain.resume().catch(() => {
+				// A rejection here means autoplay is still blocked; a later
+				// gesture will retry.
+			});
+		};
+
+		wake();
+		window.addEventListener('pointerdown', wake, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener('keydown', wake, {capture: true, passive: true});
+
+		return () => {
+			window.removeEventListener('pointerdown', wake, {capture: true});
+			window.removeEventListener('keydown', wake, {capture: true});
+			ctxAndGain.suspend().catch(() => {});
+		};
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
 
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
@@ -431,9 +566,11 @@ export const SharedAudioContextProvider: React.FC<{
 			audioSyncAnchorEmitter,
 			scheduleAudioNode,
 			resume,
+			resumeAsAutoPlay,
 			suspend,
 			getIsResumingAudioContext,
 			unscheduleAudioNode,
+			_experimentalKeepAudioContextAlive,
 		};
 	}, [
 		ctxAndGain,
@@ -441,9 +578,11 @@ export const SharedAudioContextProvider: React.FC<{
 		audioSyncAnchorEmitter,
 		scheduleAudioNode,
 		resume,
+		resumeAsAutoPlay,
 		suspend,
 		getIsResumingAudioContext,
 		unscheduleAudioNode,
+		_experimentalKeepAudioContextAlive,
 	]);
 
 	return (
@@ -466,27 +605,30 @@ export const SharedAudioTagsContextProvider: React.FC<{
 		);
 	}
 
-	const logger = useLogger();
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
 	const env = useRemotionEnvironment();
 	const audioCtx = useContext(SharedAudioContext);
 	const audioContext = audioCtx?.audioContext ?? null;
 	const resume = audioCtx?.resume;
 
-	const refs = useMemo(() => {
+	const [refs] = useState(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
 			const ref = createRef<HTMLAudioElement>();
 			return {
 				id: Math.random(),
 				ref,
-				mediaElementSourceNode: audioContext
-					? makeSharedElementSourceNode({
-							audioContext,
-							ref,
-						})
-					: null,
+				mediaElementSourceNode: makeSharedElementSourceNode({
+					audioContext,
+					ref,
+				}),
 			};
 		});
-	}, [audioContext, numberOfAudioTags]);
+	});
+
+	for (const {mediaElementSourceNode} of refs) {
+		mediaElementSourceNode?.setAudioContext(audioContext);
+	}
 
 	/**
 	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
@@ -526,7 +668,10 @@ export const SharedAudioTagsContextProvider: React.FC<{
 			}
 
 			if (data === undefined) {
-				current.src = EMPTY_AUDIO;
+				if (current.src !== EMPTY_AUDIO) {
+					current.src = EMPTY_AUDIO;
+				}
+
 				return;
 			}
 
@@ -596,7 +741,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 			const cloned = [...takenAudios.current];
 			const index = refs.findIndex((r) => r.id === id);
 			if (index === -1) {
-				throw new TypeError('Error occured in ');
+				throw new TypeError(
+					`Unknown audio ref ${id}; refs: ${refs.map((r) => r.id).join(', ')}`,
+				);
 			}
 
 			cloned[index] = false;
@@ -640,7 +787,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 						prevA.premounting === premounting &&
 						prevA.postmounting === postmounting;
 					if (isTheSame) {
-						return prevA;
+						return prevA.audioMounted === audioMounted
+							? prevA
+							: {...prevA, audioMounted};
 					}
 
 					changed = true;
@@ -655,7 +804,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 					};
 				}
 
-				return prevA;
+				return prevA.audioMounted === audioMounted
+					? prevA
+					: {...prevA, audioMounted};
 			});
 
 			if (changed) {
@@ -676,15 +827,14 @@ export const SharedAudioTagsContextProvider: React.FC<{
 				mediaRef: ref.ref,
 				mediaType: 'audio',
 				onAutoPlayError: null,
-				logger,
+				logLevel,
+				mountTime,
 				reason: 'playing all audios',
 				isPlayer: env.isPlayer,
 			});
 		});
 		resume?.();
-		// The logger has stable identity and reads the latest context.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [refs, env.isPlayer, resume]);
+	}, [logLevel, mountTime, refs, env.isPlayer, resume]);
 
 	const audioTagsValue: SharedAudioTagsContextValue = useMemo(() => {
 		return {
@@ -701,17 +851,20 @@ export const SharedAudioTagsContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 	]);
+	const sharedAudioTagElements = useMemo(() => {
+		return refs.map(({id, ref}) => {
+			return (
+				// Without preload="metadata", iOS will seek the time internally
+				// but not actually with sound. Adding `preload="metadata"` helps here.
+				// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
+				<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
+			);
+		});
+	}, [refs]);
 
 	return (
 		<SharedAudioTagsContext.Provider value={audioTagsValue}>
-			{refs.map(({id, ref}) => {
-				return (
-					// Without preload="metadata", iOS will seek the time internally
-					// but not actually with sound. Adding `preload="metadata"` helps here.
-					// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
-					<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
-				);
-			})}
+			{sharedAudioTagElements}
 			{children}
 		</SharedAudioTagsContext.Provider>
 	);
@@ -741,12 +894,10 @@ export const useSharedAudio = ({
 
 		// numberOfSharedAudioTags is 0
 		const el = React.createRef<HTMLAudioElement>();
-		const mediaElementSourceNode = audioCtx?.audioContext
-			? makeSharedElementSourceNode({
-					audioContext: audioCtx.audioContext,
-					ref: el,
-				})
-			: null;
+		const mediaElementSourceNode = makeSharedElementSourceNode({
+			audioContext: audioCtx?.audioContext ?? null,
+			ref: el,
+		});
 
 		return {
 			el,
@@ -762,6 +913,7 @@ export const useSharedAudio = ({
 			},
 		};
 	});
+	elem.mediaElementSourceNode?.setAudioContext(audioCtx?.audioContext ?? null);
 
 	/**
 	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.

@@ -1,7 +1,8 @@
 import type React from 'react';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
+import {useLogLevel, useMountTime} from './log-level-context';
+import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
-import {useLogger} from './use-logger.js';
 
 export const useMediaBuffering = ({
 	element,
@@ -17,8 +18,11 @@ export const useMediaBuffering = ({
 	src: string | null;
 }) => {
 	const buffer = useBufferState();
-	const logger = useLogger();
 	const [isBuffering, setIsBuffering] = useState(false);
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
+	const loggingRef = useRef({logLevel, mountTime});
+	loggingRef.current = {logLevel, mountTime};
 
 	// Buffer state based on `waiting` and `canplay`
 	useEffect(() => {
@@ -48,10 +52,12 @@ export const useMediaBuffering = ({
 				current.readyState < current.HAVE_FUTURE_DATA
 			) {
 				if (!navigator.userAgent.includes('Firefox/')) {
-					logger.playback(
-						'load',
-						`Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted ${current.playbackRate}`,
-					);
+					playbackLogging({
+						logLevel: loggingRef.current.logLevel,
+						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted ${current.playbackRate}`,
+						tag: 'load',
+						mountTime: loggingRef.current.mountTime,
+					});
 					const previousPlaybackRate = current.playbackRate;
 					current.load();
 					current.playbackRate = previousPlaybackRate;
@@ -77,19 +83,23 @@ export const useMediaBuffering = ({
 				return false;
 			});
 			if (didDoSomething) {
-				logger.playback(
-					'buffer',
-					`Unmarking as buffering: ${current.src}. Reason: ${reason}`,
-				);
+				playbackLogging({
+					logLevel: loggingRef.current.logLevel,
+					message: `Unmarking as buffering: ${current.src}. Reason: ${reason}`,
+					tag: 'buffer',
+					mountTime: loggingRef.current.mountTime,
+				});
 			}
 		};
 
 		const blockMedia = (reason: string) => {
 			setIsBuffering(true);
-			logger.playback(
-				'buffer',
-				`Marking as buffering: ${current.src}. Reason: ${reason}`,
-			);
+			playbackLogging({
+				logLevel: loggingRef.current.logLevel,
+				message: `Marking as buffering: ${current.src}. Reason: ${reason}`,
+				tag: 'buffer',
+				mountTime: loggingRef.current.mountTime,
+			});
 			const {unblock} = buffer.delayPlayback();
 			const onCanPlay = () => {
 				cleanup('"canplay" was fired');
@@ -117,10 +127,12 @@ export const useMediaBuffering = ({
 				current.removeEventListener('error', onError);
 			});
 			cleanupFns.push((cleanupReason) => {
-				logger.playback(
-					'buffer',
-					`Unblocking ${current.src} from buffer. Reason: ${cleanupReason}`,
-				);
+				playbackLogging({
+					logLevel: loggingRef.current.logLevel,
+					message: `Unblocking ${current.src} from buffer. Reason: ${cleanupReason}`,
+					tag: 'buffer',
+					mountTime: loggingRef.current.mountTime,
+				});
 				unblock();
 			});
 		};
@@ -141,10 +153,12 @@ export const useMediaBuffering = ({
 
 				// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
 				if (!navigator.userAgent.includes('Firefox/')) {
-					logger.playback(
-						'load',
-						`Calling .load() on ${src} because readyState is ${current.readyState} and it is not Firefox. ${current.playbackRate}`,
-					);
+					playbackLogging({
+						logLevel: loggingRef.current.logLevel,
+						message: `Calling .load() on ${src} because readyState is ${current.readyState} and it is not Firefox. ${current.playbackRate}`,
+						tag: 'load',
+						mountTime: loggingRef.current.mountTime,
+					});
 
 					const previousPlaybackRate = current.playbackRate;
 					current.load();
@@ -173,9 +187,14 @@ export const useMediaBuffering = ({
 		// it gives the chance to load the new source.
 
 		// https://github.com/remotion-dev/remotion/issues/5218
-		// The logger has stable identity and reads the latest context.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [buffer, src, element, isPremounting, isPostmounting, shouldBuffer]);
+	}, [
+		buffer,
+		src,
+		element,
+		isPremounting,
+		isPostmounting,
+		shouldBuffer,
+	]);
 
 	return isBuffering;
 };

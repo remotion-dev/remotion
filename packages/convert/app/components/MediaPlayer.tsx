@@ -1,12 +1,18 @@
 import {Audio, Video} from '@remotion/media';
 import {Player, type PlayerRef} from '@remotion/player';
 import type {CropRectangle} from 'mediabunny';
-import {useEffect, useRef, useState} from 'react';
+import {type CSSProperties, useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
-import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {
+	calculateNewDimensionsFromRotate,
+	type Dimensions,
+	normalizeVideoRotation,
+} from '~/lib/calculate-new-dimensions-from-dimensions';
+import type {CanvasCaptureCursorData} from '~/lib/canvas-capture-metadata';
 import type {Source} from '~/lib/convert-state';
 import {cn} from '~/lib/utils';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
+import {CanvasCaptureCursor} from './CanvasCaptureCursor';
 import {CropUI} from './crop-ui/CropUi';
 import {Filmstrip} from './player/filmstrip';
 
@@ -60,26 +66,100 @@ const useVideoSourceUrl = (source: Source) => {
 	return objectUrl;
 };
 
+export const getPlayerDimensions = ({
+	dimensions,
+	isAudio,
+	rotation,
+}: {
+	dimensions: Dimensions | null | undefined;
+	isAudio: boolean;
+	rotation: number;
+}): Dimensions | null => {
+	if (isAudio) {
+		return {width: 732, height: 197};
+	}
+
+	if (!dimensions) {
+		return null;
+	}
+
+	return calculateNewDimensionsFromRotate({
+		...dimensions,
+		rotation,
+	});
+};
+
+export const getVideoPreviewStyle = ({
+	width,
+	height,
+	rotation,
+	mirrorHorizontal,
+	mirrorVertical,
+}: Dimensions & {
+	rotation: number;
+	mirrorHorizontal: boolean;
+	mirrorVertical: boolean;
+}): CSSProperties => {
+	const normalizedRotation = normalizeVideoRotation(rotation);
+	const switchesDimensions =
+		normalizedRotation % 90 === 0 && normalizedRotation % 180 !== 0;
+
+	return {
+		position: 'absolute',
+		left: '50%',
+		top: '50%',
+		width: switchesDimensions ? height : width,
+		height: switchesDimensions ? width : height,
+		transform: `translate(-50%, -50%) scale(${mirrorHorizontal ? -1 : 1}, ${mirrorVertical ? -1 : 1}) rotate(${normalizedRotation}deg)`,
+	};
+};
+
 const RemotionMediaPreview: React.FC<{
 	readonly src: string;
 	readonly isAudio: boolean;
 	readonly waveform: number[];
-}> = ({src, isAudio, waveform}) => {
+	readonly rotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
+	readonly cursorData: CanvasCaptureCursorData | null;
+	readonly cursorScale: number;
+	readonly cursorPressedScale: number;
+}> = ({
+	src,
+	isAudio,
+	waveform,
+	rotation,
+	mirrorHorizontal,
+	mirrorVertical,
+	cursorData,
+	cursorScale,
+	cursorPressedScale,
+}) => {
 	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
+	const {durationInFrames, width, height} = useVideoConfig();
 	const progress = frame / Math.max(1, durationInFrames - 1);
 
 	if (!isAudio) {
 		return (
 			<AbsoluteFill style={{backgroundColor: 'black'}}>
-				<Video
-					src={src}
-					objectFit="contain"
-					style={{
-						width: '100%',
-						height: '100%',
-					}}
-				/>
+				<div
+					style={getVideoPreviewStyle({
+						width,
+						height,
+						rotation,
+						mirrorHorizontal,
+						mirrorVertical,
+					})}
+				>
+					<Video src={src} style={{width: '100%', height: '100%'}} />
+					{cursorData ? (
+						<CanvasCaptureCursor
+							cursorData={cursorData}
+							cursorScale={cursorScale}
+							cursorPressedScale={cursorPressedScale}
+						/>
+					) : null}
+				</div>
 			</AbsoluteFill>
 		);
 	}
@@ -109,6 +189,13 @@ export function VideoPlayer({
 	dimensions,
 	durationInSeconds,
 	fps,
+	rotation,
+	mirrorHorizontal,
+	mirrorVertical,
+	cursorData,
+	showCursor,
+	cursorScale,
+	cursorPressedScale,
 	onPlaybackTimeChange,
 }: {
 	readonly src: Source;
@@ -124,6 +211,13 @@ export function VideoPlayer({
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null | undefined;
 	readonly fps: number | null | undefined;
+	readonly rotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
+	readonly cursorData: CanvasCaptureCursorData | null;
+	readonly showCursor: boolean;
+	readonly cursorScale: number;
+	readonly cursorPressedScale: number;
 	readonly onPlaybackTimeChange: (timeInSeconds: number) => void;
 	readonly setUnclampedRect: React.Dispatch<
 		React.SetStateAction<CropRectangle>
@@ -131,6 +225,7 @@ export function VideoPlayer({
 }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const playerRef = useRef<PlayerRef>(null);
+	const trimFrameToSeekRef = useRef<number | null>(null);
 	const videoSourceUrl = useVideoSourceUrl(source);
 
 	const playerFps = getPlayerFps(fps);
@@ -138,9 +233,11 @@ export function VideoPlayer({
 		durationInSeconds,
 		fps: playerFps,
 	});
-	const playerDimensions = isAudio
-		? {width: 732, height: 197}
-		: (dimensions ?? null);
+	const playerDimensions = getPlayerDimensions({
+		dimensions,
+		isAudio,
+		rotation,
+	});
 	const actualInFrame =
 		trim &&
 		trimInFrame !== null &&
@@ -184,6 +281,16 @@ export function VideoPlayer({
 		};
 	}, [onPlaybackTimeChange, playerFps, videoSourceUrl]);
 
+	useEffect(() => {
+		const frameToSeek = trimFrameToSeekRef.current;
+		if (frameToSeek === null) {
+			return;
+		}
+
+		trimFrameToSeekRef.current = null;
+		playerRef.current?.seekTo(frameToSeek);
+	}, [trimInFrame, trimOutFrame]);
+
 	return (
 		<div
 			ref={containerRef}
@@ -210,7 +317,17 @@ export function VideoPlayer({
 						ref={playerRef}
 						key={videoSourceUrl}
 						component={RemotionMediaPreview}
-						inputProps={{src: videoSourceUrl, isAudio, waveform}}
+						inputProps={{
+							src: videoSourceUrl,
+							isAudio,
+							waveform,
+							rotation,
+							mirrorHorizontal,
+							mirrorVertical,
+							cursorData: showCursor ? cursorData : null,
+							cursorScale,
+							cursorPressedScale,
+						}}
 						durationInFrames={durationInFrames}
 						compositionWidth={playerDimensions.width}
 						compositionHeight={playerDimensions.height}
@@ -234,11 +351,11 @@ export function VideoPlayer({
 						Loading preview...
 					</div>
 				)}
-				{!isAudio && crop && dimensions ? (
+				{!isAudio && crop && playerDimensions ? (
 					<CropUI
 						setUnclampedRect={setUnclampedRect}
 						unclampedRect={unclampedRect}
-						dimensions={dimensions}
+						dimensions={playerDimensions}
 					/>
 				) : null}
 			</div>
@@ -253,7 +370,9 @@ export function VideoPlayer({
 					durationInFrames={durationInFrames}
 					inFrame={trimInFrame}
 					outFrame={trimOutFrame}
-					onTrim={(nextTrim) => {
+					onTrim={(nextTrim, seekToFrame) => {
+						playerRef.current?.pause();
+						trimFrameToSeekRef.current = seekToFrame;
 						setTrimInFrame(nextTrim.inFrame);
 						setTrimOutFrame(nextTrim.outFrame);
 					}}

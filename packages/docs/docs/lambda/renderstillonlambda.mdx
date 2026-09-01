@@ -52,7 +52,7 @@ Use [`deployFunction()`](/docs/lambda/deployfunction) to create a new function a
 
 ### `serveUrl`
 
-A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysite) to deploy a Remotion project.
+A URL pointing to a Remotion project. Create one by building with [`bundle()`](/docs/bundle) and deploying with [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
 
 ### `composition`
 
@@ -261,7 +261,9 @@ _default `true`_
 
 ### ~~`dumpBrowserLogs?`~~
 
-Deprecated in v4.0 in favor of [`logLevel`](#loglevel).
+:::info Deprecated
+Use [`logLevel`](#loglevel) instead.
+:::
 
 ## Return value
 

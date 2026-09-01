@@ -24,7 +24,9 @@ const style: React.CSSProperties = {
 	position: 'relative',
 };
 
-export const SidebarCollapserControls: React.FC<{}> = () => {
+export const SidebarCollapserControl: React.FC<{
+	readonly side: 'left' | 'right';
+}> = ({side}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
 	const keybindings = useKeybinding();
@@ -103,15 +105,32 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	]);
 
 	useEffect(() => {
-		const left = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'b',
-			commandCtrlKey: true,
-			callback: toggleLeft,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
+		if (side === 'left') {
+			const left = keybindings.registerKeybinding({
+				event: 'keydown',
+				key: 'b',
+				commandCtrlKey: true,
+				callback: toggleLeft,
+				preventDefault: true,
+				triggerIfInputFieldFocused: false,
+				keepRegisteredWhenNotHighestContext: false,
+			});
+
+			const zen = keybindings.registerKeybinding({
+				event: 'keydown',
+				key: 'g',
+				commandCtrlKey: true,
+				callback: toggleBoth,
+				preventDefault: true,
+				triggerIfInputFieldFocused: false,
+				keepRegisteredWhenNotHighestContext: false,
+			});
+
+			return () => {
+				left.unregister();
+				zen.unregister();
+			};
+		}
 
 		const right = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -123,22 +142,10 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 			keepRegisteredWhenNotHighestContext: false,
 		});
 
-		const zen = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'g',
-			commandCtrlKey: true,
-			callback: toggleBoth,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
-
 		return () => {
-			left.unregister();
 			right.unregister();
-			zen.unregister();
 		};
-	}, [keybindings, toggleBoth, toggleLeft, toggleRight]);
+	}, [keybindings, side, toggleBoth, toggleLeft, toggleRight]);
 
 	const toggleLeftTooltip = areKeyboardShortcutsDisabled()
 		? 'Toggle Left Sidebar'
@@ -158,7 +165,11 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	const toggleLeftAction: RenderInlineAction = useCallback(
 		(color) => {
 			return (
-				<div style={colorStyle(color)} title={toggleLeftTooltip}>
+				<div
+					data-sidebar-toggle="left"
+					style={colorStyle(color)}
+					title={toggleLeftTooltip}
+				>
 					<div style={leftIcon(color)} />
 				</div>
 			);
@@ -169,7 +180,11 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	const toggleRightAction: RenderInlineAction = useCallback(
 		(color) => {
 			return (
-				<div style={colorStyle(color)} title={toggleRightTooltip}>
+				<div
+					data-sidebar-toggle="right"
+					style={colorStyle(color)}
+					title={toggleRightTooltip}
+				>
 					<div style={rightIcon(color)} />
 				</div>
 			);
@@ -177,10 +192,22 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		[colorStyle, rightIcon, toggleRightTooltip],
 	);
 
+	if (side === 'left') {
+		return (
+			<InlineAction
+				variant={null}
+				onClick={toggleLeft}
+				renderAction={toggleLeftAction}
+				style={{marginRight: 4}}
+			/>
+		);
+	}
+
 	return (
-		<>
-			<InlineAction onClick={toggleLeft} renderAction={toggleLeftAction} />
-			<InlineAction onClick={toggleRight} renderAction={toggleRightAction} />
-		</>
+		<InlineAction
+			variant={null}
+			onClick={toggleRight}
+			renderAction={toggleRightAction}
+		/>
 	);
 };

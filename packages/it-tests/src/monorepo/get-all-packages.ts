@@ -3,6 +3,9 @@ import {readFileSync} from 'node:fs';
 import path from 'path';
 import {Pkgs, packages} from '@remotion/studio-shared';
 import {CreateVideoInternals} from 'create-video';
+import {packagesRemovedInV5} from '../../../studio-shared/src/release-package-policy';
+
+const workspaceOnlyPackages = ['canvas-capture-extension', 'jonnys-videos'];
 
 export const getAllPackages = () => {
 	const pkgDir = path.join(__dirname, '..', '..', '..');
@@ -20,14 +23,17 @@ export const getAllPackages = () => {
 		}))
 		.filter(({path}) => existsSync(path));
 
-	const packageAndTemplateNames = (
-		packages
-			.slice()
-			.sort()
-			.map((pkg) => pkg) as string[]
-	)
-		.concat(localTemplates)
-		.sort();
+	const packagesKeptForV4 = packagesRemovedInV5.map((pkg) =>
+		pkg.replace('@remotion/', ''),
+	);
+	const packageAndTemplateNames = [
+		...new Set([
+			...packages,
+			...localTemplates,
+			...packagesKeptForV4,
+			...workspaceOnlyPackages,
+		]),
+	].sort();
 
 	const packagesAndTemplates = folders.map((pkg) => pkg.pkg).sort() as string[];
 

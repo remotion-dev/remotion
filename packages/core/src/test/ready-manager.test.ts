@@ -5,7 +5,6 @@ import {
 	continueRenderInternal,
 	delayRender,
 } from '../delay-render.js';
-import {createLogger} from '../logger.js';
 
 describe('Ready Manager tests', () => {
 	let handle: number;
@@ -58,7 +57,7 @@ describe('Ready Manager tests', () => {
 				isStudio: false,
 			},
 			handle: unknownHandle,
-			logger: createLogger({logLevel: 'info', mountTime: null}),
+			logLevel: 'info',
 			scope,
 		});
 

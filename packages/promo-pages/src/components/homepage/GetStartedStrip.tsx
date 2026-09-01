@@ -6,8 +6,8 @@ export const GetStarted: React.FC = () => {
 	const [clicked, setClicked] = useState<number | null>(null);
 
 	return (
-		<div className="flex flex-col lg:flex-row items-center justify-center text-center w-full">
-			<div className="w-full lg:w-auto">
+		<div className="flex flex-col min-[900px]:flex-row items-center justify-center text-center w-full">
+			<div className="w-full min-[900px]:w-auto">
 				<div className="flex flex-row w-full relative">
 					{clicked ? (
 						<div
@@ -35,13 +35,13 @@ export const GetStarted: React.FC = () => {
 				</div>
 			</div>
 			<div style={{width: 10, height: 10}} />
-			<div className="w-full lg:w-auto">
+			<div className="w-full min-[900px]:w-auto">
 				<Button href="/docs" className="w-full">
 					Docs
 				</Button>
 			</div>
 			<div className="w-2 h-2" />
-			<div className="w-full lg:w-auto">
+			<div className="w-full min-[900px]:w-auto">
 				<Button
 					href="https://remotion.dev/discord"
 					target="_blank"
@@ -51,7 +51,7 @@ export const GetStarted: React.FC = () => {
 				</Button>
 			</div>
 			<div className="w-2 h-2" />
-			<div className="w-full lg:w-auto">
+			<div className="w-full min-[900px]:w-auto">
 				<Button
 					href="https://github.com/remotion-dev/remotion"
 					target="_blank"

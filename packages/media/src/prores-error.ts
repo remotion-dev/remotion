@@ -8,8 +8,7 @@ export const proresDecoderNotEnabledMessage = (src: string) => {
 		`Cannot decode "${src}": it is encoded with Apple ProRes, which WebCodecs does not support natively. ` +
 		`ProRes decoding is not enabled by default. Register the ProRes decoder by calling ` +
 		`registerProresDecoder() from "@mediabunny/prores" in your entry point, before registerRoot(). ` +
-		`See ${PRORES_DOCS_URL}. ` +
-		`(This is required to decode a ProRes source for both preview and rendering — it is unrelated to exporting a video as ProRes.)`
+		`See ${PRORES_DOCS_URL}.`
 	);
 };
 

@@ -1,4 +1,5 @@
 import {execSync, spawn} from 'node:child_process';
+import {homedir} from 'node:os';
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {
@@ -12,6 +13,23 @@ import {chalk} from './chalk';
 import {EXTRA_PACKAGES} from './extra-packages';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
+import {updateRemotionSkills} from './update-remotion-skills';
+
+export const resolveExtraPackageVersions = (
+	dependencies: Record<string, string>,
+): Record<string, string> => {
+	const extraVersions = {...EXTRA_PACKAGES};
+
+	for (const pkg of Object.keys(EXTRA_PACKAGES)) {
+		if (dependencies[pkg]) {
+			extraVersions[pkg] = dependencies[pkg];
+		} else if (pkg.startsWith('@mediabunny/') && dependencies.mediabunny) {
+			extraVersions[pkg] = dependencies.mediabunny;
+		}
+	}
+
+	return extraVersions;
+};
 
 const getExtraPackageVersionsForRemotionVersion = (
 	remotionVersion: string,
@@ -23,14 +41,7 @@ const getExtraPackageVersionsForRemotionVersion = (
 		);
 		const dependencies = JSON.parse(output) as Record<string, string>;
 
-		const extraVersions: Record<string, string> = {};
-		for (const pkg of Object.keys(EXTRA_PACKAGES)) {
-			if (dependencies[pkg]) {
-				extraVersions[pkg] = dependencies[pkg];
-			}
-		}
-
-		return extraVersions;
+		return resolveExtraPackageVersions(dependencies);
 	} catch {
 		// If we can't fetch the versions, return the default versions from EXTRA_PACKAGES
 		return EXTRA_PACKAGES;
@@ -81,7 +92,8 @@ export const getPackagesToUpgrade = ({
 
 	for (const pkg of allPackagesToUpgrade) {
 		const versionSpec = findVersionSpecifier(depsWithVersions, pkg);
-		const targetVersionForPkg = extraPackageVersions[pkg] ?? targetVersion;
+		const targetVersionForPkg =
+			extraPackageVersions[pkg] ?? EXTRA_PACKAGES[pkg] ?? targetVersion;
 
 		if (
 			(versionSpec && isCatalogProtocol(versionSpec)) ||
@@ -100,12 +112,14 @@ export const upgradeCommand = async ({
 	remotionRoot,
 	packageManager,
 	version,
+	skipSkills,
 	logLevel,
 	args,
 }: {
 	remotionRoot: string;
 	packageManager: string | undefined;
 	version: string | undefined;
+	skipSkills: boolean;
 	logLevel: LogLevel;
 	args: string[];
 }) => {
@@ -238,6 +252,15 @@ export const upgradeCommand = async ({
 		});
 	}
 
+	await updateRemotionSkills({
+		currentVersion: targetVersion,
+		cwd: remotionRoot,
+		homeDirectory: homedir(),
+		skipSkills,
+		logLevel,
+		environment: process.env,
+	});
+
 	Log.info({indent: false, logLevel}, '⏫ Remotion has been upgraded!');
 	Log.info({indent: false, logLevel}, 'https://remotion.dev/changelog');
 };
@@ -260,17 +283,23 @@ const runPackageManagerCommand = async ({
 		stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
 			? 'inherit'
 			: 'ignore',
+		...StudioServerInternals.getPackageManagerSpawnOptions(),
 	});
 
-	await new Promise<void>((resolve) => {
+	await new Promise<void>((resolve, reject) => {
+		task.on('error', (err) => {
+			reject(err);
+		});
 		task.on('close', (code) => {
 			if (code === 0) {
 				resolve();
 			} else if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
-				throw new Error('Failed to upgrade Remotion, see logs above');
+				reject(new Error('Failed to upgrade Remotion, see logs above'));
 			} else {
-				throw new Error(
-					'Failed to upgrade Remotion, run with --log=info info to see logs',
+				reject(
+					new Error(
+						'Failed to upgrade Remotion, run with --log=info info to see logs',
+					),
 				);
 			}
 		});

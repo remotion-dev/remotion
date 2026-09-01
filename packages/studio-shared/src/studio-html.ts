@@ -17,9 +17,11 @@ export type StudioHtmlOptions = {
 	completedClientRenders?: unknown | null;
 	numberOfAudioTags: number;
 	audioLatencyHint: AudioContextLatencyCategory;
+	experimentalKeepAudioContextAlive: boolean;
 	sampleRate: number | null;
 	publicFiles: StaticFile[];
 	publicFolderExists: string | null;
+	fileSystemPlatform: string | null;
 	includeFavicon: boolean;
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
@@ -30,6 +32,7 @@ export type StudioHtmlOptions = {
 	logLevel: LogLevel;
 	mode: 'dev' | 'bundle';
 	bundleScriptUrl?: string;
+	bundleScriptType?: 'classic' | 'module';
 	readOnlyStudio?: boolean;
 	studioRuntimeConfig?: StudioRuntimeConfig;
 };
@@ -50,19 +53,33 @@ export const studioHtml = ({
 	title,
 	renderDefaults,
 	publicFolderExists,
+	fileSystemPlatform,
 	gitSource,
 	projectName,
 	installedDependencies,
 	packageManager,
 	audioLatencyHint,
+	experimentalKeepAudioContextAlive,
 	sampleRate,
 	logLevel,
 	mode,
 	bundleScriptUrl,
+	bundleScriptType,
 	readOnlyStudio,
 	studioRuntimeConfig,
 }: StudioHtmlOptions) => {
 	const scriptUrl = bundleScriptUrl ?? `${publicPath}bundle.js`;
+	const isRelativeBundle = mode === 'bundle' && publicPath === './';
+	const staticBaseValue = isRelativeBundle
+		? `new URL(${JSON.stringify(staticHash)}, window.location.href).pathname`
+		: JSON.stringify(staticHash);
+	const staticFilesValue = isRelativeBundle
+		? `${JSON.stringify(publicFiles)}.map((file) => ({...file, src: new URL(file.src, window.location.href).pathname}))`
+		: JSON.stringify(publicFiles);
+	const publicFolderExistsValue =
+		isRelativeBundle && publicFolderExists
+			? `new URL(${JSON.stringify(publicFolderExists)}, window.location.href).pathname`
+			: JSON.stringify(publicFolderExists);
 
 	return `
 <!DOCTYPE html>
@@ -80,10 +97,11 @@ export const studioHtml = ({
 	<body>
 		<script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
 		<script>window.remotion_audioLatencyHint = "${audioLatencyHint}";</script>
+		<script>window.remotion_experimentalKeepAudioContextAlive = ${experimentalKeepAudioContextAlive};</script>
 		<script>window.remotion_sampleRate = ${sampleRate};</script>
 		<script>window.remotion_previewSampleRate = ${sampleRate};</script>
 		${mode === 'dev' ? `<script>window.remotion_logLevel = "${logLevel}";</script>` : ''}
-		<script>window.remotion_staticBase = "${staticHash}";</script>
+		<script>window.remotion_staticBase = ${staticBaseValue};</script>
 		${
 			editorName
 				? `<script>window.remotion_editorName = "${editorName}";</script>`
@@ -100,6 +118,7 @@ export const studioHtml = ({
 			renderDefaults,
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
+		<script>window.remotion_fileSystemPlatform = ${JSON.stringify(fileSystemPlatform)};</script>
 		<script>window.remotion_studioServerCommand = ${
 			studioServerCommand ? JSON.stringify(studioServerCommand) : 'null'
 		};</script>
@@ -145,11 +164,16 @@ export const studioHtml = ({
 		<script>window.remotion_isReadOnlyStudio = ${readOnlyStudio ? 'true' : 'false'};</script>`.trimStart()
 				: ''
 		}
-		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
+		<script>window.remotion_staticFiles = ${staticFilesValue}</script>
 		<script>window.remotion_installedPackages = ${JSON.stringify(installedDependencies)}</script>
 		<script>window.remotion_packageManager = ${JSON.stringify(packageManager)}</script>
-		<script>window.remotion_publicFolderExists = ${JSON.stringify(publicFolderExists)};</script>
+		<script>window.remotion_publicFolderExists = ${publicFolderExistsValue};</script>
 		<script>
+				// Increment this value when the generated bundle format or behavior changes
+				// in a backwards-incompatible way. It is not the Remotion package version
+				// and should not be bumped for every generated HTML change.
+				// Keep it synchronized with requiredVersion in
+				// packages/renderer/src/set-props-and-env.ts by incrementing both values.
 				window.siteVersion = '11';
 				window.remotion_version = '${VERSION}';
 		</script>
@@ -164,7 +188,7 @@ export const studioHtml = ({
 		<div id="menuportal-3"></div>
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
-		<script src="${scriptUrl}"></script>
+		<script${bundleScriptType === 'module' ? ' type="module"' : ''} src="${scriptUrl}"></script>
 	</body>
 </html>
 `.trim();

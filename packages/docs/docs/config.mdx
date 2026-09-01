@@ -23,9 +23,30 @@ Config.setPixelFormat('yuv444p');
 Config.setCodec('h265');
 ```
 
+## `overrideBundlerConfig()`<AvailableFrom v="4.0.498" />
+
+Overrides configuration shared by Webpack and Rspack.
+
+The callback receives the current configuration and a context object containing `bundler`, which is either `'webpack'` or `'rspack'`.
+
+Use this option only for changes that are compatible with both bundlers. Bundler-specific plugins and options should use `overrideWebpackConfig()` or `overrideRspackConfig()` instead.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.overrideBundlerConfig((currentConfiguration, {bundler}) => {
+  return {
+    ...currentConfiguration,
+    name: `remotion-${bundler}`,
+  };
+});
+```
+
+The shared override runs before the selected bundler's specific override.
+
 ## `overrideWebpackConfig()`<AvailableFrom v="1.1.0" />
 
-Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
+See [Webpack and Rspack](/docs/bundlers) for usage and examples.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -38,6 +59,23 @@ Config.overrideWebpackConfig((currentConfiguration) => {
   };
 });
 ```
+
+## `overrideRspackConfig()`<AvailableFrom v="4.0.498" />
+
+Overrides the Rspack configuration. It is only called when [Rspack](/docs/config#setrspack) is enabled.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.overrideRspackConfig((currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    // Rspack-specific configuration
+  };
+});
+```
+
+If `overrideBundlerConfig()` is also set, the shared override runs first.
 
 ## `setCachingEnabled()`<AvailableFrom v="2.0.0" />
 
@@ -155,9 +193,28 @@ Config.setLogLevel('verbose');
 
 The [command line flag](/docs/cli/render#--log) `--log` will take precedence over this option.
 
+## `addElementLibrary()`<AvailableFrom v="4.0.517" />
+
+Adds an externally hosted Element library to Remotion Studio.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.addElementLibrary({
+  url: 'https://example.com/elements',
+  displayName: 'Acme Elements',
+});
+```
+
+Call `addElementLibrary()` once for each external library. The `displayName` property is optional. If it is omitted, the URL host and path are shown instead.
+
+When at least one library is configured, Browse Elements shows a dropdown containing Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
+
+The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
+
 ## `setMaxTimelineTracks()`<AvailableFrom v="2.1.10" />
 
-Set how many tracks are being displayed in the timeline in the Studio at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
+Set how many tracks are displayed in the Studio timeline at most. This does not affect your video, only the number of tracks shown while previewing. From <AvailableFrom v="4.0.514" inline />, all tracks are available by default and the timeline is virtualized.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -189,21 +246,57 @@ Config.setInteractivityEnabled(false);
 
 The [command line flag](/docs/cli/studio#--disable-interactivity) `--disable-interactivity` will take precedence over this option.
 
-## ~~`setAllowHtmlInCanvasEnabled()`~~<AvailableFrom v="4.0.447" />
+## `setDefaultEditor()`<AvailableFrom v="4.0.503" />
 
-From Remotion v4.0.491, this method is a no-op and can be removed from your config file. [`@remotion/web-renderer`](/docs/web-renderer) automatically uses HTML-in-canvas when the browser supports nested captures.
+<Options id="editor" />
 
-## `setExperimentalRspackEnabled()`<AvailableFrom v="4.0.426" />
+See [Opening files in a code editor](/docs/studio/open-in-editor) for built-in editor IDs, custom editor configuration, and platform support.
 
-Use [Rspack](https://rspack.dev) instead of Webpack as the bundler for the Studio. Default `false`.
+## `setDefaultCodingAgent()`<AvailableFrom v="4.0.506" />
+
+<Options id="coding-agent" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setExperimentalRspackEnabled(true);
+Config.setDefaultCodingAgent('codex');
 ```
 
-The [command line flag](/docs/cli/studio#--experimental-rspack) `--experimental-rspack` will take precedence over this option.
+Available coding agents: `codex`, `cursor`, `copilot`, and `claude-code`.
+
+The [`--coding-agent`](/docs/cli/studio#--coding-agent) command line flag takes precedence over this option.
+
+## `setAllowHtmlInCanvasEnabled()`<AvailableFrom v="4.0.447" />
+
+<Options id="allow-html-in-canvas" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAllowHtmlInCanvasEnabled(true);
+```
+
+The [command line flag](/docs/cli/studio#--allow-html-in-canvas) `--allow-html-in-canvas` will take precedence over this option.
+
+## `setRspack()`<AvailableFrom v="4.0.502" />
+
+<Options id="rspack" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setRspack(true);
+```
+
+The [command line flag](/docs/cli/studio#--rspack) `--rspack` will take precedence over this option.
+
+## ~~`setExperimentalRspackEnabled()`~~<AvailableFrom v="4.0.426" />
+
+:::info Deprecated
+Use [`setRspack()`](/docs/config#setrspack) instead.
+:::
+
+`setExperimentalRspackEnabled()` is an alias for `setRspack()`.
 
 ## `setWebpackPollingInMilliseconds()`<AvailableFrom v="3.3.11" />
 
@@ -516,6 +609,17 @@ Config.setFrameRange([100, null]); // Render from frame 100 to the end of the co
 ```
 
 Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
+
+Pass multiple ordered, non-overlapping ranges to render discontinuous sections.<AvailableFrom v="4.0.502" inline />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setFrameRange([
+  [0, 100],
+  [150, 200],
+]);
+```
 
 The [command line flag](/docs/cli/render#--frames) `--frames` will take precedence over this option.
 
@@ -850,6 +954,26 @@ Config.setAudioLatencyHint('interactive');
 
 The `--audio-latency-hint` command line flag will take precedence over this option.
 
+## `setExperimentalKeepAudioContextAlive()`<AvailableFrom v="4.0.508" />
+
+<ExperimentalBadge>
+  <p>We are currently testing this prop. We might either remove the functionality or rename the prop to a stable name.</p>
+</ExperimentalBadge>
+
+<Options id="experimental-keep-audio-context-alive" />
+<br />
+<br />
+
+Keeps the shared [`AudioContext`](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) running while the Remotion Studio is paused. Pausing lowers the gain to zero rather than suspending the context, which can reduce latency when resuming playback.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalKeepAudioContextAlive(true);
+```
+
+Changing this option while the Studio is running reloads the page. The `--experimental-keep-audio-context-alive` command line flag will take precedence over this option.
+
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
 <Options id="enable-folder-expiry" />
@@ -860,6 +984,20 @@ import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setEnableFolderExpiry(true);
 ```
+
+## `setEnableCancellation()`<AvailableFrom v="4.0.515" />
+
+<Options id="enable-cancellation" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEnableCancellation(true);
+```
+
+The `--enable-cancellation` command line flag will take precedence over this option.
 
 ## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 
@@ -1092,8 +1230,9 @@ The [command line flag](/docs/cli/render#--ffprobe-executable-) `--ffprobe-execu
 
 ## ~~`setPort()`~~
 
-_deprecated in v4.0.61 - use [`setStudioPort()`](/docs/config#setstudioport)_
-and [`setRendererPort()`](/docs/config#setrendererport) instead.
+:::info Deprecated
+Use [`setStudioPort()`](/docs/config#setstudioport) and [`setRendererPort()`](/docs/config#setrendererport) instead.
+:::
 
 Define on which port Remotion should start it's HTTP servers.  
 By default, Remotion will try to find a free port.  

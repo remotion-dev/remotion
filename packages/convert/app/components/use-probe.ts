@@ -10,6 +10,10 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import {getDurationOrCompute} from '~/lib/get-duration-or-compute';
+import {
+	getVideoFrameRate,
+	type VideoFrameRate,
+} from '~/lib/get-video-frame-rate';
 
 export type ProbeResult = ReturnType<typeof useProbe>;
 
@@ -17,7 +21,9 @@ export const useProbe = ({src}: {src: Source}) => {
 	const [audioCodec, setAudioCodec] = useState<
 		InputAudioTrack['codec'] | null | undefined
 	>(undefined);
-	const [fps, setFps] = useState<number | null | undefined>(undefined);
+	const [frameRate, setFrameRate] = useState<VideoFrameRate | null | undefined>(
+		undefined,
+	);
 	const [isHdr, setHdr] = useState<boolean | undefined>(undefined);
 	const [durationInSeconds, setDurationInSeconds] = useState<
 		number | null | undefined
@@ -50,83 +56,95 @@ export const useProbe = ({src}: {src: Source}) => {
 	}, [src]);
 
 	const getStart = useCallback(() => {
+		let isDisposed = false;
+
 		const run = async () => {
-			input.getFormat().then((format) => setContainer(format));
-			input.source.getSize().then((s) => setSize(s));
-			getDurationOrCompute(input).then((duration) =>
-				setDurationInSeconds(duration),
-			);
-			input.getMetadataTags().then((tags) => setMetadata(tags));
+			await Promise.all([
+				input.getFormat().then((format) => setContainer(format)),
+				input.source.getSize().then((s) => setSize(s)),
+				getVideoFrameRate(input).then(setFrameRate),
+				getDurationOrCompute(input).then((duration) =>
+					setDurationInSeconds(duration),
+				),
+				input.getMetadataTags().then((tags) => setMetadata(tags)),
+				(async () => {
+					const trx = await input.getTracks();
+					for (const track of trx) {
+						if (await track.isLive()) {
+							throw new Error(
+								'Live streams are not currently supported by Remotion. Sorry!',
+							);
+						}
 
-			const trx = await input.getTracks();
-			for (const track of trx) {
-				if (await track.isLive()) {
-					throw new Error(
-						'Live streams are not currently supported by Remotion. Sorry!',
-					);
-				}
+						if (await track.isRelativeToUnixEpoch()) {
+							throw new Error(
+								'Streams with UNIX timestamps are not currently supported by Remotion. Sorry!',
+							);
+						}
+					}
 
-				if (await track.isRelativeToUnixEpoch()) {
-					throw new Error(
-						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry!',
-					);
-				}
-			}
+					let hasAudioTrack = false;
+					let hasVideoTrack = false;
+					for (const track of trx) {
+						if (track.isVideoTrack()) {
+							hasVideoTrack = true;
+							const codec = await track.getCodec();
+							setVideoCodec(codec);
+							const [displayWidth, displayHeight, trackRotation, hdr] =
+								await Promise.all([
+									track.getDisplayWidth(),
+									track.getDisplayHeight(),
+									track.getRotation(),
+									track.hasHighDynamicRange(),
+								]);
+							setDimensions({
+								width: displayWidth,
+								height: displayHeight,
+							});
+							setRotation(trackRotation);
+							setHdr(hdr);
+						} else if (track.isAudioTrack()) {
+							hasAudioTrack = true;
+							const [codec, sr] = await Promise.all([
+								track.getCodec(),
+								track.getSampleRate(),
+							]);
+							setAudioCodec(codec);
+							setSampleRate(sr);
+						}
+					}
 
-			let hasAudioTrack = false;
-			let hasVideoTrack = false;
-			for (const track of trx) {
-				if (track.isVideoTrack()) {
-					hasVideoTrack = true;
-					const codec = await track.getCodec();
-					setVideoCodec(codec);
-					track
-						.computePacketStats(50)
-						.then((stats) => setFps(stats.averagePacketRate));
-					const [displayWidth, displayHeight, trackRotation] =
-						await Promise.all([
-							track.getDisplayWidth(),
-							track.getDisplayHeight(),
-							track.getRotation(),
-						]);
-					setDimensions({
-						width: displayWidth,
-						height: displayHeight,
-					});
-					setRotation(trackRotation);
-					track.hasHighDynamicRange().then((hdr) => setHdr(hdr));
-				} else if (track.isAudioTrack()) {
-					hasAudioTrack = true;
-					const codec = await track.getCodec();
-					setAudioCodec(codec);
-					track.getSampleRate().then((sr) => setSampleRate(sr));
-				}
-			}
+					setTracks(trx);
 
-			setTracks(trx);
+					if (!hasAudioTrack) {
+						setAudioCodec(null);
+						setSampleRate(null);
+					}
 
-			if (!hasAudioTrack) {
-				setAudioCodec(null);
-				setSampleRate(null);
-			}
-
-			if (!hasVideoTrack) {
-				setVideoCodec(null);
-				setFps(null);
-				setDimensions(null);
-				setHdr(false);
-			}
+					if (!hasVideoTrack) {
+						setVideoCodec(null);
+						setFrameRate(null);
+						setDimensions(null);
+						setHdr(false);
+					}
+				})(),
+			]);
 		};
 
 		run()
 			.then(() => {
-				setDone(true);
+				if (!isDisposed) {
+					setDone(true);
+				}
 			})
 			.catch((e) => {
-				setError(e);
+				if (!isDisposed) {
+					setError(e);
+				}
 			});
 
 		return () => {
+			isDisposed = true;
 			input.dispose();
 		};
 	}, [input]);
@@ -138,11 +156,15 @@ export const useProbe = ({src}: {src: Source}) => {
 		};
 	}, [getStart]);
 
+	const fps =
+		frameRate === undefined || frameRate === null ? frameRate : frameRate.rate;
+
 	return useMemo(() => {
 		return {
 			tracks,
 			audioCodec,
 			fps,
+			frameRate,
 			name,
 			container,
 			dimensions,
@@ -161,6 +183,7 @@ export const useProbe = ({src}: {src: Source}) => {
 		tracks,
 		audioCodec,
 		fps,
+		frameRate,
 		name,
 		container,
 		dimensions,

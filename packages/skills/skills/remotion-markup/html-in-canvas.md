@@ -7,8 +7,7 @@ Give the user a notice.
 
 ## Nesting
 
-`<HtmlInCanvas>` components may be nested in Chrome 152.0.7944.0 and later.
-Older Chrome versions support a single `<HtmlInCanvas>`, but do not correctly paint nested HTML-in-canvas subtrees.
+Do not nest `<HtmlInCanvas>` components. Remotion rejects nesting because Chrome does not reliably render nested HTML-in-canvas subtrees.
 
 ## Enabling WebGL during renders
 
@@ -38,7 +37,9 @@ import { HtmlInCanvas } from "remotion";
 export const MyComp = () => {
   return (
     <HtmlInCanvas width={1280} height={720}>
-      <div style={{ fontSize: 80 }}>Hello</div>
+      <div style={{ fontSize: 80 }}>
+        Hello
+      </div>
     </HtmlInCanvas>
   );
 };
@@ -79,8 +80,16 @@ export const Blur = () => {
 
   return (
     <HtmlInCanvas width={width} height={height} onPaint={onPaint}>
-      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", fontSize: 120 }}>
-        <h1>Hello</h1>
+      <AbsoluteFill
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: 120,
+        }}
+      >
+        <h1>
+          Hello
+        </h1>
       </AbsoluteFill>
     </HtmlInCanvas>
   );

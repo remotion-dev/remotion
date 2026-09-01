@@ -3,7 +3,6 @@ import {createContext} from 'react';
 import type {AnyZodObject} from './any-zod-type.js';
 import type {AnyComposition, TComposition} from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
-import type {NonceHistory} from './nonce.js';
 import type {VideoConfig} from './video-config.js';
 
 export type BaseMetadata = Pick<
@@ -20,6 +19,12 @@ export type BaseMetadata = Pick<
 	| 'defaultProResProfile'
 	| 'defaultSampleRate'
 >;
+
+export type AssetPreviewMetadata = BaseMetadata & {
+	asset: string;
+};
+
+export const getAssetPreviewCompositionId = (asset: string) => `asset:${asset}`;
 
 export type CanvasContent =
 	| {
@@ -54,11 +59,13 @@ export type CompositionManagerSetters = {
 	registerFolder: (
 		name: string,
 		parent: string | null,
-		nonce: NonceHistory,
 		stack: string | null,
 	) => void;
 	unregisterFolder: (name: string, parent: string | null) => void;
 	setCanvasContent: React.Dispatch<React.SetStateAction<CanvasContent | null>>;
+	setCurrentAssetMetadata: React.Dispatch<
+		React.SetStateAction<AssetPreviewMetadata | null>
+	>;
 	// This is not a setter but also a value that does not change
 	onlyRenderComposition: string | null;
 };
@@ -66,6 +73,7 @@ export type CompositionManagerSetters = {
 export type CompositionManagerContext = {
 	compositions: AnyComposition[];
 	currentCompositionMetadata: BaseMetadata | null;
+	currentAssetMetadata: AssetPreviewMetadata | null;
 	folders: TFolder[];
 	canvasContent: CanvasContent | null;
 };
@@ -74,6 +82,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	compositions: [],
 	folders: [],
 	currentCompositionMetadata: null,
+	currentAssetMetadata: null,
 	canvasContent: null,
 });
 
@@ -83,5 +92,6 @@ export const CompositionSetters = createContext<CompositionManagerSetters>({
 	registerFolder: () => undefined,
 	unregisterFolder: () => undefined,
 	setCanvasContent: () => undefined,
+	setCurrentAssetMetadata: () => undefined,
 	onlyRenderComposition: null,
 });

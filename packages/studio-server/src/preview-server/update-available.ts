@@ -1,19 +1,43 @@
 import type {LogLevel} from '@remotion/renderer';
 import type {UpdateAvailableResponse} from '@remotion/studio-shared';
 import semver from 'semver';
+import {detectOutdatedRemotionSkills} from '../detect-outdated-remotion-skills';
 import {getLatestRemotionVersion} from '../get-latest-remotion-version';
 import {getPackageManager} from './get-package-manager';
 
-const isUpdateAvailable = async ({
+const getSkillsUpdateInfo = ({
+	remotionRoot,
+	currentVersion,
+}: {
+	remotionRoot: string;
+	currentVersion: string;
+}) => {
+	const projectSkills = detectOutdatedRemotionSkills({
+		cwd: remotionRoot,
+		currentVersion,
+	}).project;
+
+	return {
+		skillsUpdateAvailable: projectSkills.type === 'outdated',
+	};
+};
+
+export const isUpdateAvailable = async ({
 	remotionRoot,
 	currentVersion,
 	logLevel,
+	getLatestVersion,
 }: {
 	remotionRoot: string;
 	currentVersion: string;
 	logLevel: LogLevel;
+	getLatestVersion: (() => Promise<string>) | null;
 }): Promise<UpdateAvailableResponse> => {
-	const latest = await getLatestRemotionVersion();
+	const latest = await (getLatestVersion ?? getLatestRemotionVersion)();
+	const skillsUpdateInfo = getSkillsUpdateInfo({
+		remotionRoot,
+		currentVersion,
+	});
 
 	const pkgManager = getPackageManager({
 		remotionRoot,
@@ -24,6 +48,7 @@ const isUpdateAvailable = async ({
 
 	return {
 		updateAvailable: semver.lt(currentVersion, latest),
+		...skillsUpdateInfo,
 		currentVersion,
 		latestVersion: latest,
 		timedOut: false,
@@ -45,6 +70,10 @@ export const isUpdateAvailableWithTimeout = (
 	logLevel: LogLevel,
 ) => {
 	const version = getRemotionVersion();
+	const skillsUpdateInfo = getSkillsUpdateInfo({
+		remotionRoot,
+		currentVersion: version,
+	});
 	const threeSecTimeout = new Promise<UpdateAvailableResponse>((resolve) => {
 		const pkgManager = getPackageManager({
 			remotionRoot,
@@ -57,6 +86,7 @@ export const isUpdateAvailableWithTimeout = (
 				currentVersion: version,
 				latestVersion: version,
 				updateAvailable: false,
+				...skillsUpdateInfo,
 				timedOut: true,
 				packageManager:
 					pkgManager === 'unknown' ? 'unknown' : pkgManager.manager,
@@ -65,6 +95,11 @@ export const isUpdateAvailableWithTimeout = (
 	});
 	return Promise.race([
 		threeSecTimeout,
-		isUpdateAvailable({remotionRoot, currentVersion: version, logLevel}),
+		isUpdateAvailable({
+			remotionRoot,
+			currentVersion: version,
+			logLevel,
+			getLatestVersion: null,
+		}),
 	]);
 };

@@ -14,11 +14,12 @@ import {
 	splitSelectedTimelineItems,
 } from '../components/Timeline/split-selected-timeline-item';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {makeRuntimeValueStore} from './make-runtime-value-store';
 
 const makeKey = (nodePath: SequenceNodePath): SequencePropsSubscriptionKey => ({
 	absolutePath: '/tmp/Comp.tsx',
 	nodePath,
-	sequenceKeys: [],
+	sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 	effectKeys: [],
 	videoConfigValues: null,
 });
@@ -43,16 +44,14 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		displayName: 'Sequence',
 		documentationLink: null,
 		parent: null,
-		rootId: 'root',
 		showInTimeline: true,
-		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
 		premountDisplay: null,
 		postmountDisplay: null,
 		controls: {
 			schema: {},
-			currentRuntimeValueDotNotation: {},
+			runtimeValues: makeRuntimeValueStore({}),
 			overrideId: 'override',
 			supportsEffects: true,
 			componentIdentity: null,
@@ -60,6 +59,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		},
 		refForOutline: null,
 		effects: [],
+		effectRuntimeValues: null,
 		isInsideSeries: false,
 		frozenFrame: null,
 		type: 'sequence',
@@ -68,6 +68,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 
 const staticNumber = (value: number): CanUpdateSequencePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue: value,
 });
 
@@ -155,7 +156,7 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 			sequence: makeSequence({
 				controls: {
 					schema: {},
-					currentRuntimeValueDotNotation: {},
+					runtimeValues: makeRuntimeValueStore({}),
 					overrideId: 'override',
 					supportsEffects: true,
 					componentIdentity: 'dev.remotion.remotion.Solid',
@@ -167,6 +168,28 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 	).toEqual({
 		canSplit: true,
 		nodePathInfo: makeNodePathInfo(['body', 2]),
+	});
+});
+
+test('getTimelineSequenceSplitEligibility derives timing support from schema keys', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0]);
+	const withoutFrom = {
+		...nodePathInfo,
+		sequenceSubscriptionKey: {
+			...nodePathInfo.sequenceSubscriptionKey,
+			sequenceKeys: ['durationInFrames', 'trimBefore'],
+		},
+	};
+
+	expect(
+		getTimelineSequenceSplitEligibility({
+			selection: {type: 'sequence', nodePathInfo: withoutFrom},
+			sequence: makeSequence(),
+			splitFrame: 30,
+		}),
+	).toEqual({
+		canSplit: false,
+		reason: 'Sequence does not expose timing traits that can be split',
 	});
 });
 

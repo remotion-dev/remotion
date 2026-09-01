@@ -4,10 +4,10 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	ColorSpace,
-	FrameRange,
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
+	SingleFrameRange,
 	ToOptions,
 	VideoImageFormat,
 	X264Preset,
@@ -111,6 +111,7 @@ export type ServerlessStatusPayload<Provider extends CloudProvider> = {
 };
 
 export type ServerlessStartPayload<Provider extends CloudProvider> = {
+	enableCancellation: boolean | null;
 	rendererFunctionName: string | null;
 	type: ServerlessRoutines.start;
 	serveUrl: string;
@@ -131,7 +132,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	maxRetries: number;
 	privacy: Privacy;
 	logLevel: LogLevel;
-	frameRange: FrameRange | null;
+	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<Provider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
@@ -174,6 +175,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 	};
 	start: ServerlessStartPayload<Provider>;
 	launch: {
+		enableCancellation: boolean | null;
 		rendererFunctionName: string | null;
 		type: ServerlessRoutines.launch;
 		serveUrl: string;
@@ -196,7 +198,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		maxRetries: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
-		frameRange: FrameRange | null;
+		frameRange: SingleFrameRange | null;
 		outName: OutNameInput<Provider> | null;
 		timeoutInMilliseconds: number;
 		// Non-JS SDKs may not set chromiumOptions, may be undefined
@@ -232,6 +234,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 	};
 	status: ServerlessStatusPayload<Provider>;
 	renderer: {
+		enableCancellation: boolean | null;
 		concurrencyPerLambda: number;
 		type: ServerlessRoutines.renderer;
 		serveUrl: string;
@@ -381,6 +384,9 @@ export const customOutName = <Provider extends CloudProvider>(
 
 export const overallProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/progress.json`;
+
+export const cancellationKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/cancel.json`;
 
 export const artifactName = (renderId: string, name: string) =>
 	`${rendersPrefix(renderId)}/artifacts/${name}`;

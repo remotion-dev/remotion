@@ -190,12 +190,15 @@ export const deleteKeyframes = async ({
 			const result = await updateSequenceKeyframes({
 				input: output,
 				nodePath: firstSequenceKeyframe.nodePath.nodePath,
+				schema: firstSequenceKeyframe.schema,
 				videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {
 						type: 'remove',
 						frame: keyframe.frame,
+						valueWhenLastKeyframeDeleted:
+							keyframe.valueWhenLastKeyframeDeleted ?? null,
 					},
 				})),
 			});
@@ -228,6 +231,7 @@ export const deleteKeyframes = async ({
 				input: output,
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,
+				schema: firstEffectKeyframe.schema,
 				videoConfigValues:
 					firstEffectKeyframe.sequenceNodePath.videoConfigValues,
 				updates: keyframeGroup.map((keyframe) => ({
@@ -235,6 +239,8 @@ export const deleteKeyframes = async ({
 					operation: {
 						type: 'remove',
 						frame: keyframe.frame,
+						valueWhenLastKeyframeDeleted:
+							keyframe.valueWhenLastKeyframeDeleted ?? null,
 					},
 				})),
 			});
@@ -270,7 +276,10 @@ export const deleteKeyframes = async ({
 	}
 
 	pushTransactionToUndoStack({
-		snapshots,
+		snapshots: snapshots.map((snapshot) => ({
+			...snapshot,
+			nodePathRemappings: null,
+		})),
 		logLevel,
 		remotionRoot,
 		description: getBatchDescription({totalKeyframes, firstKeyframe}),
@@ -286,11 +295,12 @@ export const deleteKeyframes = async ({
 	for (const snapshot of snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
 		suppressBundlerUpdateForFile(snapshot.filePath);
-		writeFileAndNotifyFileWatchers(
-			snapshot.filePath,
-			snapshot.newContents,
-			clientId,
-		);
+		writeFileAndNotifyFileWatchers({
+			file: snapshot.filePath,
+			content: snapshot.newContents,
+			originatorClientId: clientId,
+			metadata: null,
+		});
 	}
 
 	for (const log of sequenceLogs) {

@@ -9,20 +9,18 @@ crumb: 'Audio'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Use a [`<Sequence>`](/docs/sequence) with a positive [`from`](/docs/sequence#from) value to delay the audio from playing.
+Use the [`from`](/docs/media/audio#from) prop to delay the audio from playing.
 
 In the following example, the audio will start playing after 100 frames.
 
 ```tsx twoslash {6-8}
-import {AbsoluteFill, Sequence, staticFile} from 'remotion';
+import {AbsoluteFill, staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
 
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Sequence from={100}>
-        <Audio src={staticFile('audio.mp3')} />
-      </Sequence>
+      <Audio from={100} src={staticFile('audio.mp3')} />
     </AbsoluteFill>
   );
 };

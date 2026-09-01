@@ -37,7 +37,6 @@ import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
 const {
 	useUnsafeVideoConfig,
-	Timeline,
 	SharedAudioContext,
 	usePlayerMutedState,
 	useMediaVolumeState,
@@ -47,12 +46,15 @@ const {
 	usePreload,
 	SequenceContext,
 	useEffectChainState,
+	usePlaying,
+	useBuffering,
 } = Internals;
 
 type VideoForPreviewProps = NativeVideoProps & {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
 	readonly playbackRate: number;
+	readonly toneFrequency: number;
 	readonly logLevel: LogLevel;
 	readonly className: string | undefined;
 	readonly muted: boolean;
@@ -63,7 +65,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly loop: boolean;
 	readonly trimAfter: number | undefined;
 	readonly trimBefore: number | undefined;
-	readonly stack: string | null;
+	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
@@ -87,6 +89,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	src: unpreloadedSrc,
 	style,
 	playbackRate,
+	toneFrequency,
 	logLevel,
 	className,
 	muted,
@@ -97,7 +100,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	loop,
 	trimAfter,
 	trimBefore,
-	stack,
+	_remotionInternalStack,
 	disallowFallbackToOffthreadVideo,
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
@@ -128,7 +131,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
 		useState(false);
 
-	const [playing] = Timeline.usePlayingState();
+	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
@@ -187,24 +190,18 @@ const VideoForPreviewAssertedShowing: React.FC<
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
-	const buffering = useContext(Internals.BufferingContextReact);
-
-	if (!buffering) {
-		throw new Error(
-			'useMediaPlayback must be used inside a <BufferingContext>',
-		);
-	}
-
 	// TODO: Consider Sequence hidden
 	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
 
-	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
+	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
+	const initialToneFrequency = useRef(toneFrequency);
 	const initialMuted = useRef(effectiveMuted);
+	const initialVolume = useRef(userPreferredVolume);
 	const initialSequenceDuration = useRef(videoConfig.durationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
 	const hasDrawnRealFrameRef = useRef(false);
@@ -230,7 +227,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		canvas.height = cached.height;
 		const ctx = canvas.getContext('2d', {
 			alpha: true,
-			desynchronized: true,
 		});
 		if (!ctx) {
 			return;
@@ -282,6 +278,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				trimBefore: initialTrimBeforeRef.current,
 				fps: videoConfig.fps,
 				playbackRate: initialPlaybackRate.current,
+				toneFrequency: initialToneFrequency.current,
 				audioStreamIndex,
 				debugOverlay,
 				bufferState: buffer,
@@ -302,7 +299,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 			mediaPlayerRef.current = player;
 			player
-				.initialize(currentTimeRef.current, initialMuted.current)
+				.initialize(
+					currentTimeRef.current,
+					initialMuted.current,
+					initialVolume.current,
+				)
 				.then((result) => {
 					if (result.type === 'disposed') {
 						return;
@@ -470,6 +471,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		effectiveMuted,
 		userPreferredVolume,
 		playbackRate,
+		toneFrequency,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
@@ -534,11 +536,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 				trimAfter={trimAfter}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				toneFrequency={toneFrequency}
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 				name={'<Html5Video> (fallback)'}
 				loop={loop}
 				showInTimeline={showInTimeline}
-				stack={stack ?? undefined}
+				_remotionInternalStack={_remotionInternalStack ?? undefined}
 				{...fallbackOffthreadVideoProps}
 			/>
 		);

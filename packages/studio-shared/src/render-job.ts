@@ -54,6 +54,7 @@ export type BrowserDownloadState = {
 	progress: number;
 	doneIn: number | null;
 	alreadyAvailable: boolean;
+	error?: boolean;
 };
 
 export type BrowserProgressLog = {
@@ -119,6 +120,7 @@ type RenderJobDynamicFields =
 			offthreadVideoCacheSizeInBytes: number | null;
 			mediaCacheSizeInBytes: number | null;
 			offthreadVideoThreads: number | null;
+			licenseKey: string | null;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'sequence';
@@ -164,6 +166,7 @@ type RenderJobDynamicFields =
 			separateAudioTo: string | null;
 			hardwareAcceleration: HardwareAccelerationOption;
 			sampleRate: number;
+			licenseKey: string | null;
 	  } & RenderJobDynamicStatus);
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';

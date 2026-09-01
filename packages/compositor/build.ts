@@ -214,6 +214,18 @@ for (const arch of archs) {
 	}
 
 	const filesInFfmpegFolder2 = readdirSync(ffmpegFolder);
+	if (arch === 'x86_64-pc-windows-gnu') {
+		for (const file of readdirSync(copyDestinations[arch].dir)) {
+			if (
+				file.endsWith('.dll') ||
+				file === 'ffmpeg.exe' ||
+				file === 'ffprobe.exe'
+			) {
+				rmSync(path.join(copyDestinations[arch].dir, file));
+			}
+		}
+	}
+
 	for (const file of filesInFfmpegFolder2) {
 		if (file === 'ffmpeg') {
 			renameSync(
@@ -290,8 +302,15 @@ for (const arch of archs) {
 		? `-C link-args=-Wl,-headerpad_max_install_names`
 		: '';
 
+	// mingw-w64 14 split the CRT: plain vsnprintf_s (and other secure CRT
+	// functions) now live in libmsvcrt-os.a rather than libmsvcrt.a. Rust's
+	// windows-gnu link passes -nodefaultlibs with -lmsvcrt but not
+	// -lmsvcrt-os, so link -lmsvcrt-os explicitly to resolve them.
+	const windowsCrtFix =
+		arch === 'x86_64-pc-windows-gnu' ? `-C link-arg=-lmsvcrt-os` : '';
+
 	const optimizations = all
-		? `-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ${rPathOrigin} ${macOSHeaderPad} ${windowsLinkerDirectory ? `-Lnative=${windowsLinkerDirectory}` : ''}`
+		? `-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ${rPathOrigin} ${macOSHeaderPad} ${windowsCrtFix} ${windowsLinkerDirectory ? `-Lnative=${windowsLinkerDirectory}` : ''}`
 		: macOSHeaderPad;
 
 	execSync(command, {

@@ -7,7 +7,7 @@ import {
 	isCatalogProtocol,
 	updateCatalogEntry,
 } from '../catalog-utils';
-import {getPackagesToUpgrade} from '../upgrade';
+import {getPackagesToUpgrade, resolveExtraPackageVersions} from '../upgrade';
 
 let tmpDir: string;
 
@@ -133,7 +133,7 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 		targetVersion: '4.0.462',
 		extraPackageVersions: {
 			mediabunny: '1.50.7',
-			zod: '4.3.6',
+			zod: '4.4.3',
 		},
 	});
 
@@ -145,6 +145,24 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 	]);
 });
 
+test('uses the Mediabunny version for extension packages', () => {
+	expect(
+		resolveExtraPackageVersions({
+			mediabunny: '1.50.8',
+			zod: '4.4.3',
+		}),
+	).toMatchObject({
+		mediabunny: '1.50.8',
+		'@mediabunny/ac3': '1.50.8',
+		'@mediabunny/dts': '1.50.8',
+		'@mediabunny/mp3-encoder': '1.50.8',
+		'@mediabunny/aac-encoder': '1.50.8',
+		'@mediabunny/flac-encoder': '1.50.8',
+		'@mediabunny/prores': '1.50.8',
+		zod: '4.4.3',
+	});
+});
+
 test('end-to-end: updates catalog in bun-style package.json and preserves catalog: references in sub-packages', () => {
 	fs.writeFileSync(
 		path.join(tmpDir, 'package.json'),
@@ -154,7 +172,7 @@ test('end-to-end: updates catalog in bun-style package.json and preserves catalo
 				workspaces: {
 					packages: ['packages/*'],
 					catalog: {
-						zod: '4.3.6',
+						zod: '4.4.3',
 						mediabunny: '1.34.4',
 						react: '19.2.3',
 					},
@@ -221,7 +239,7 @@ test('end-to-end: updates catalog in pnpm-workspace.yaml', () => {
 			'packages:',
 			'  - packages/*',
 			'catalog:',
-			'  zod: 4.3.6',
+			'  zod: 4.4.3',
 			'  mediabunny: 1.34.4',
 			'  react: ^19.0.0',
 			'',

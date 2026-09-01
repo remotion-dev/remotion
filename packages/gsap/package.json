@@ -1,0 +1,64 @@
+{
+	"name": "@remotion/gsap",
+	"version": "4.0.520",
+	"description": "Use GSAP timelines in Remotion",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/gsap"
+	},
+	"type": "module",
+	"scripts": {
+		"test": "bun test src/test",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"watch": "tsgo -w",
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Brayden Blackwell",
+	"contributors": [],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
+	"peerDependencies": {
+		"gsap": ">=3.12.0 <4",
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"devDependencies": {
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@happy-dom/global-registrator": "14.5.1",
+		"eslint": "catalog:",
+		"gsap": "3.15.0",
+		"@typescript/native-preview": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"gsap",
+		"animation",
+		"video",
+		"react"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/gsap"
+}

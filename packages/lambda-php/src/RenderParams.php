@@ -6,6 +6,7 @@ use stdClass;
 
 class RenderParams
 {
+    protected $enableCancellation = false;
     protected $data = null;
     protected $bucketName = null;
     protected $region = null;
@@ -38,7 +39,7 @@ class RenderParams
     ];
     protected $muted = false;
     protected $preferLossless = false;
-    protected $overwrite = false;
+    protected $overwrite = null;
     protected $audioBitrate = null;
     protected $videoBitrate = null;
     protected $encodingBufferSize = null;
@@ -88,7 +89,7 @@ class RenderParams
         ?int    $concurrency = null,
         ?array  $downloadBehavior = null,
         ?bool   $muted = false,
-        ?bool   $overwrite = false,
+        ?bool   $overwrite = null,
         ?int    $audioBitrate = null,
         ?int    $videoBitrate = null,
         ?string $webhook = null,
@@ -114,7 +115,8 @@ class RenderParams
         ?bool   $forcePathStyle = false,
         ?array  $metadata = null,
         ?bool   $isProduction = null,
-        ?int    $gopSize = null
+        ?int    $gopSize = null,
+        ?bool   $enableCancellation = false
     )
     {
         if ($chromiumOptions === null) {
@@ -171,6 +173,7 @@ class RenderParams
         $this->forcePathStyle = $forcePathStyle;
         $this->isProduction = $isProduction;
         $this->gopSize = $gopSize;
+        $this->enableCancellation = $enableCancellation;
     }
 
     private array $inputProps = array();
@@ -178,6 +181,7 @@ class RenderParams
     public function serializeParams()
     {
         $parameters = [
+            'enableCancellation' => $this->getEnableCancellation(),
             'rendererFunctionName' => $this->getRendererFunctionName(),
             'framesPerLambda' => $this->getFramesPerLambda(),
             'composition' => $this->getComposition(),
@@ -272,6 +276,18 @@ class RenderParams
         }
 
         return $parameters;
+    }
+
+    public function getEnableCancellation()
+    {
+        return $this->enableCancellation;
+    }
+
+    public function setEnableCancellation($enableCancellation)
+    {
+        $this->enableCancellation = $enableCancellation;
+
+        return $this;
     }
 
     public function getForcePathStyle()
@@ -816,7 +832,7 @@ class RenderParams
 
     public function getOverwrite()
     {
-        return $this->overwrite;
+        return $this->overwrite ?? version_compare(Semantic::VERSION, '5.0.0', '>=');
     }
 
     public function getAudioBitrate()

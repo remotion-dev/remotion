@@ -1,5 +1,6 @@
 import type {CanUpdateSequencePropStatusKeyframed} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {getKeyframeDisplayOffset as resolveKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
 import type {TimelineEasingSelection} from '../Timeline/TimelineSelection';
 
 export const getEasingSelectionFromCurrentKeyframes = ({
@@ -19,11 +20,16 @@ export const getEasingSelectionFromCurrentKeyframes = ({
 		return null;
 	}
 
+	const resolvedKeyframeDisplayOffset = resolveKeyframeDisplayOffset({
+		propStatus,
+		keyframeDisplayOffset,
+	});
+
 	return {
 		type: 'easing',
 		nodePathInfo,
-		fromFrame: fromKeyframe.frame + keyframeDisplayOffset,
-		toFrame: toKeyframe.frame + keyframeDisplayOffset,
+		fromFrame: fromKeyframe.frame + resolvedKeyframeDisplayOffset,
+		toFrame: toKeyframe.frame + resolvedKeyframeDisplayOffset,
 		segmentIndex,
 	};
 };

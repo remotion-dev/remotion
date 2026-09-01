@@ -72,6 +72,8 @@ const myFlag = myFlagOption.getValue({commandLine: parsedCli}).value;
 
 For Studio options, this is typically in `packages/cli/src/studio.ts`. For render options, in the relevant render command file.
 
+If the option is consumed by Studio, read [`../studio-config-option-lifecycle/SKILL.md`](../studio-config-option-lifecycle/SKILL.md) completely before wiring it. Classify the option as startup-fixed or reloadable across all Studio consumers; mixed behavior is not allowed. If any consumer requires startup-fixed behavior, pass the startup snapshot to every consumer. Add lifecycle tests that prove the classification.
+
 ## 5. Add to Config
 
 **`packages/cli/src/config/index.ts`**:

@@ -6,12 +6,14 @@ export const sliceWaveformPeaks = ({
 	peaks,
 	playbackRate,
 	startFrom,
+	waveformSampleRate = TARGET_SAMPLE_RATE,
 }: {
 	readonly peaks: Float32Array;
 	readonly startFrom: number;
 	readonly durationInFrames: number;
 	readonly fps: number;
 	readonly playbackRate: number;
+	readonly waveformSampleRate?: number;
 }) => {
 	if (peaks.length === 0) {
 		return peaks;
@@ -20,13 +22,32 @@ export const sliceWaveformPeaks = ({
 	const startTimeInSeconds = startFrom / fps;
 	const durationInSeconds = (durationInFrames / fps) * playbackRate;
 
-	const startPeakIndex = Math.floor(startTimeInSeconds * TARGET_SAMPLE_RATE);
+	const startPeakIndex = Math.floor(startTimeInSeconds * waveformSampleRate);
 	const endPeakIndex = Math.ceil(
-		(startTimeInSeconds + durationInSeconds) * TARGET_SAMPLE_RATE,
+		(startTimeInSeconds + durationInSeconds) * waveformSampleRate,
 	);
 
-	return peaks.subarray(
-		Math.max(0, startPeakIndex),
-		Math.min(peaks.length, endPeakIndex),
-	);
+	if (!Number.isFinite(startPeakIndex) || !Number.isFinite(endPeakIndex)) {
+		return peaks.subarray(
+			Math.max(0, startPeakIndex),
+			Math.min(peaks.length, endPeakIndex),
+		);
+	}
+
+	if (startPeakIndex >= 0 && endPeakIndex <= peaks.length) {
+		return peaks.subarray(startPeakIndex, endPeakIndex);
+	}
+
+	const portion = new Float32Array(Math.max(0, endPeakIndex - startPeakIndex));
+	const sourceStart = Math.max(0, startPeakIndex);
+	const sourceEnd = Math.min(peaks.length, endPeakIndex);
+
+	if (sourceStart < sourceEnd) {
+		portion.set(
+			peaks.subarray(sourceStart, sourceEnd),
+			sourceStart - startPeakIndex,
+		);
+	}
+
+	return portion;
 };

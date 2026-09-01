@@ -50,6 +50,21 @@ test('loadWaveformPeaks progress matches completed peak count for MP4 audio', as
 	expect(lastCompleted).toBe(peaks.length);
 });
 
+test('loadWaveformPeaks caches each requested fidelity separately', async () => {
+	const defaultPeaks = await loadWaveformPeaks(
+		SAMPLE_MEDIA_URL,
+		new AbortController().signal,
+	);
+	const detailedPeaks = await loadWaveformPeaks(
+		SAMPLE_MEDIA_URL,
+		new AbortController().signal,
+		{waveformSampleRate: 200},
+	);
+
+	expect(detailedPeaks.length).toBeGreaterThan(defaultPeaks.length * 1.9);
+	expect(detailedPeaks.length).toBeLessThan(defaultPeaks.length * 2.1);
+});
+
 test('loadWaveformPeaks draws a non-zero first peak for edts.mp4', async () => {
 	const peaks = await loadWaveformPeaks(
 		EDTS_MEDIA_URL,

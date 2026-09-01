@@ -10,13 +10,16 @@ import React, {
 	useState,
 } from 'react';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
+import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
+import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {
 	usePlayerMutedState,
 	useMediaVolumeState,
@@ -34,7 +37,6 @@ type AudioForPreviewProps = RemotionAudioProps & {
 	readonly _remotionInternalNativeLoopPassed: boolean;
 	readonly _remotionInternalStack: string | null;
 	readonly showInTimeline: boolean;
-	readonly stack?: string | undefined;
 	readonly onNativeError: React.ReactEventHandler<HTMLAudioElement>;
 };
 
@@ -50,6 +52,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			'Cannot change the behavior for pre-mounting audio tags dynamically.',
 		);
 	}
+
+	const logLevel = useLogLevel();
 
 	const {
 		volume,
@@ -68,7 +72,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		pauseWhenBuffering,
 		showInTimeline,
 		loopVolumeCurveBehavior,
-		stack,
 		crossOrigin,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
@@ -104,6 +107,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const preloadedSrc = usePreload(src);
 
 	const sequenceContext = useContext(SequenceContext);
+	const {isStudio} = useRemotionEnvironment();
 
 	const [timelineId] = useState(() => String(Math.random()));
 
@@ -187,6 +191,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		loopDisplay: undefined,
 		documentationLink: 'https://www.remotion.dev/docs/html5-audio',
 		refForOutline: null,
+		muted: muted ?? false,
 	});
 
 	// putting playback before useVolume
@@ -215,6 +220,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	});
 
 	useVolume({
+		logLevel,
 		mediaRef: audioRef,
 		source: mediaElementSourceNode,
 		volume: userPreferredVolume,
@@ -272,16 +278,24 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	}, [audioRef, src]);
 
 	if (initialShouldPreMountAudioElements) {
-		return null;
+		return isStudio ? (
+			<SequenceOrderMarker sequenceId={timelineId}>{null}</SequenceOrderMarker>
+		) : null;
 	}
 
-	return (
+	const audio = (
 		<audio
 			ref={audioRef}
 			preload="metadata"
 			crossOrigin={crossOriginValue}
 			{...propsToPass}
 		/>
+	);
+
+	return isStudio ? (
+		<SequenceOrderMarker sequenceId={timelineId}>{audio}</SequenceOrderMarker>
+	) : (
+		audio
 	);
 };
 

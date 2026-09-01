@@ -2,6 +2,7 @@ import {interpolate, NoReactInternals, random} from 'remotion/no-react';
 export * from './constants';
 export {
 	artifactName,
+	cancellationKey,
 	customOutName,
 	expiryDays,
 	MINIMUM_FRAMES_PER_FUNCTION,
@@ -44,6 +45,7 @@ export type {
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
+	SingleFrameRange,
 	ToOptions,
 	VideoImageFormat,
 	X264Preset,
@@ -99,10 +101,25 @@ export {OverallRenderProgress} from './overall-render-progress';
 export {getProgress} from './progress';
 export * from './provider-implementation';
 export {RenderMetadata} from './render-metadata';
+export {
+	parseS3RendererStatus,
+	rendererTransportArtifactKey,
+	rendererTransportAttemptPrefix,
+	rendererTransportAudioKey,
+	rendererTransportPrefix,
+	rendererTransportStatusKey,
+	rendererTransportVideoKey,
+	type RendererFunctionTransport,
+	type S3RendererArtifactMetadata,
+	type S3RendererStatus,
+} from './renderer-transport';
 export {OrError, ServerlessReturnValues} from './return-values';
 export {streamToString} from './stream-to-string';
 export {
+	BinaryMessageType,
+	binaryPayloadSinkForStreamer,
 	formatMap,
+	GetBinaryPayloadSink,
 	makeStreamPayload,
 	MessageTypeId,
 	messageTypeIdToMessageType,
@@ -117,6 +134,7 @@ export {validateBucketName} from './validate-bucket-name';
 export {validateOutname} from './validate-outname';
 export {validatePrivacy} from './validate-privacy';
 export {validateWebhook} from './validate-webhook';
+export {writeCancellationSignal} from './write-cancellation-signal';
 export * from './webhook-types';
 export {EnhancedErrorInfo, FunctionErrorInfo} from './write-error-to-storage';
 export {interpolate, random};

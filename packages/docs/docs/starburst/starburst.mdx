@@ -6,7 +6,11 @@ title: '<Starburst>'
 crumb: '@remotion/starburst'
 ---
 
-# &lt;Starburst><AvailableFrom v="4.0.435" />
+# ~~&lt;Starburst&gt;~~<AvailableFrom v="4.0.435" />
+
+:::info Deprecated
+`@remotion/starburst` is deprecated and will no longer be published starting with Remotion 5.0. Migrate to [`starburst()`](/docs/effects/starburst) from `@remotion/effects/starburst`. The `<Starburst>` component will not be moved to `@remotion/effects`.
+:::
 
 Renders a static WebGL-based retro starburst ray pattern.  
 Is a [`<Sequence>`](/docs/sequence) component under the hood and accepts its props.
@@ -77,6 +81,6 @@ Shifts the origin of the starburst pattern vertically. `-1` moves the origin to 
 
 ## See also
 
-- [`starburst()` effect](/docs/starburst/starburst-effect)
+- [`starburst()` effect from `@remotion/effects`](/docs/effects/starburst)
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/starburst/src/Starburst.tsx)
 - [`<Sequence>`](/docs/sequence)

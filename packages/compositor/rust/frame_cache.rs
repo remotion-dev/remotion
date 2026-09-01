@@ -226,13 +226,31 @@ impl FrameCache {
             }
         }
 
+        // A video frame is displayed from its PTS until the PTS of the next frame.
+        // Therefore, select the latest frame at or before the requested timestamp,
+        // instead of the frame with the nearest PTS. If the request is before the
+        // first frame, fall back to the earliest frame after the timestamp.
         for i in 0..self.items.len() {
-            let distance = (self.items[i].resolved_pts - time as i64).abs();
-            // LTE: IF multiple items have the same distance, we take the one with the last timestamp.
-            // This is because the last frame is more likely to have been decoded
-            if distance <= best_distance as i64 {
+            if self.items[i].resolved_pts > time {
+                continue;
+            }
+
+            let distance = time - self.items[i].resolved_pts;
+            // LTE: If multiple items have the same PTS, take the most recently
+            // decoded one.
+            if distance <= best_distance {
                 best_distance = distance;
                 best_item = Some(i);
+            }
+        }
+
+        if best_item.is_none() {
+            for i in 0..self.items.len() {
+                let distance = self.items[i].resolved_pts - time;
+                if distance >= 0 && distance <= best_distance {
+                    best_distance = distance;
+                    best_item = Some(i);
+                }
             }
         }
 

@@ -8,6 +8,7 @@ import {
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
+	getSchemaFieldGroup,
 } from '../schema-field-info';
 
 const effect = {
@@ -61,6 +62,69 @@ const nodePath: SequencePropsSubscriptionKey = {
 	videoConfigValues: null,
 };
 
+const borderRadiusSchema = {
+	'style.borderRadius': {
+		type: 'number' as const,
+		default: undefined,
+		hiddenFromList: false,
+	},
+	'style.borderTopLeftRadius': {
+		type: 'number' as const,
+		default: undefined,
+		hiddenFromList: false,
+	},
+	'style.borderTopRightRadius': {
+		type: 'number' as const,
+		default: undefined,
+		hiddenFromList: false,
+	},
+	'style.borderBottomRightRadius': {
+		type: 'number' as const,
+		default: undefined,
+		hiddenFromList: false,
+	},
+	'style.borderBottomLeftRadius': {
+		type: 'number' as const,
+		default: undefined,
+		hiddenFromList: false,
+	},
+};
+
+const getBorderRadiusFields = (
+	props: Record<
+		string,
+		| {
+				status: 'static';
+				keyframeDisplayOffsetAdjustment: null;
+				codeValue: unknown;
+		  }
+		| {status: 'computed'}
+		| {
+				status: 'keyframed';
+				keyframeDisplayOffsetAdjustment: null;
+				interpolationFunction: 'interpolate';
+				keyframes: {frame: number; value: number}[];
+				easing: [];
+				clamping: {left: 'extend'; right: 'extend'};
+				posterize: undefined;
+				output: undefined;
+		  }
+	>,
+) =>
+	getFieldsToShow({
+		schema: borderRadiusSchema,
+		currentRuntimeValueDotNotation: {},
+		getDragOverrides: () => ({}),
+		propStatuses: {
+			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+				canUpdate: true,
+				props,
+				effects: [],
+			},
+		},
+		nodePath,
+	})?.map((field) => field.key);
+
 test('getEffectFieldsToShow uses the active enum variant', () => {
 	const fields = getEffectFieldsToShow({
 		effect,
@@ -79,6 +143,7 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 						props: {
 							colorMode: {
 								status: 'static',
+								keyframeDisplayOffsetAdjustment: null,
 								codeValue: 'source',
 							},
 						},
@@ -145,6 +210,7 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 						props: {
 							colors: {
 								status: 'static',
+								keyframeDisplayOffsetAdjustment: null,
 								codeValue: ['red', 'green', 'blue'],
 							},
 						},
@@ -159,9 +225,32 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 	expect(colors?.rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 4);
 });
 
+test('getFieldsToShow leaves captions to the caption inspector', () => {
+	const fields = getFieldsToShow({
+		schema: {
+			captions: {
+				type: 'remotion-captions',
+				default: undefined,
+				keyframable: false,
+			},
+		},
+		currentRuntimeValueDotNotation: {captions: []},
+		getDragOverrides: () => ({}),
+		propStatuses: {},
+		nodePath,
+	});
+
+	expect(fields).toEqual([]);
+});
+
 test('getFieldsToShow sorts fields by inspector group order', () => {
 	const fields = getFieldsToShow({
 		schema: {
+			src: {
+				type: 'asset',
+				default: undefined,
+				keyframable: false,
+			},
 			'style.translate': {
 				type: 'translate',
 				default: '0px 0px',
@@ -194,9 +283,53 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 				default: 1,
 				hiddenFromList: false,
 			},
+			cropLeft: {
+				type: 'number',
+				default: 0,
+				hiddenFromList: false,
+			},
+			'style.backgroundColor': {
+				type: 'color',
+				default: 'transparent',
+			},
+			'style.borderWidth': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			'style.borderStyle': {
+				type: 'enum',
+				default: 'none',
+				variants: {
+					none: {},
+					solid: {},
+				},
+			},
+			'style.borderColor': {
+				type: 'color',
+				default: undefined,
+			},
+			'style.borderTopLeftRadius': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
 			volume: {
 				type: 'number',
 				default: 1,
+				hiddenFromList: false,
+			},
+			layout: {
+				type: 'enum',
+				default: 'absolute-fill',
+				variants: {
+					'absolute-fill': {},
+					none: {},
+				},
+			},
+			premountFor: {
+				type: 'number',
+				default: 0,
 				hiddenFromList: false,
 			},
 			'style.letterSpacing': {
@@ -220,6 +353,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 	});
 
 	expect(fields?.map((field) => field.key)).toEqual([
+		'src',
 		'playbackRate',
 		'volume',
 		'style.translate',
@@ -230,8 +364,17 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.fontFamily',
 		'style.letterSpacing',
 		'style.textAlign',
+		'style.backgroundColor',
+		'style.borderWidth',
+		'style.borderStyle',
+		'style.borderColor',
+		'style.borderTopLeftRadius',
+		'cropLeft',
+		'layout',
+		'premountFor',
 	]);
 	expect(fields?.map((field) => field.group)).toEqual([
+		'source',
 		'controls',
 		'controls',
 		'transforms',
@@ -242,6 +385,139 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'text',
 		'text',
 		'text',
+		'background',
+		'border',
+		'border',
+		'border',
+		'border-radius',
+		'crop',
+		'layout',
+		'layout',
+	]);
+});
+
+test('groups Sequence crop controls into the Crop inspector section', () => {
+	expect(
+		['cropLeft', 'cropRight', 'cropTop', 'cropBottom'].map(getSchemaFieldGroup),
+	).toEqual(['crop', 'crop', 'crop', 'crop']);
+});
+
+test('groups border radius controls into their own inspector section', () => {
+	expect(
+		[
+			'style.borderRadius',
+			'style.borderTopLeftRadius',
+			'style.borderTopRightRadius',
+			'style.borderBottomRightRadius',
+			'style.borderBottomLeftRadius',
+		].map(getSchemaFieldGroup),
+	).toEqual([
+		'border-radius',
+		'border-radius',
+		'border-radius',
+		'border-radius',
+		'border-radius',
+	]);
+});
+
+test('getFieldsToShow selects one border radius representation', () => {
+	expect(getBorderRadiusFields({})).toEqual(['style.borderRadius']);
+	expect(
+		getBorderRadiusFields({
+			'style.borderRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderTopLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderTopRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderBottomRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderBottomLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+		}),
+	).toEqual(['style.borderRadius']);
+	expect(
+		getBorderRadiusFields({
+			'style.borderRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: undefined,
+			},
+			'style.borderTopLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 4,
+			},
+			'style.borderTopRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 8,
+			},
+			'style.borderBottomRightRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 12,
+			},
+			'style.borderBottomLeftRadius': {
+				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
+				codeValue: 16,
+			},
+		}),
+	).toEqual([
+		'style.borderTopLeftRadius',
+		'style.borderTopRightRadius',
+		'style.borderBottomRightRadius',
+		'style.borderBottomLeftRadius',
+	]);
+	expect(
+		getBorderRadiusFields({
+			'style.borderRadius': {
+				status: 'keyframed',
+				keyframeDisplayOffsetAdjustment: null,
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: 0},
+					{frame: 30, value: 20},
+				],
+				easing: [],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+				output: undefined,
+			},
+		}),
+	).toEqual(['style.borderRadius']);
+	expect(
+		getBorderRadiusFields(
+			Object.fromEntries(
+				Object.keys(borderRadiusSchema).map((key) => [
+					key,
+					{status: 'computed'},
+				]),
+			),
+		),
+	).toEqual(['style.borderRadius']);
+});
+
+test('groups Sequence layout controls into the final Layout inspector section', () => {
+	expect(['layout', 'premountFor'].map(getSchemaFieldGroup)).toEqual([
+		'layout',
+		'layout',
 	]);
 });
 

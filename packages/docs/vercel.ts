@@ -1,7 +1,7 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
 const browserStudioIsolationHeaders = [
-	{key: 'Cross-Origin-Embedder-Policy', value: 'credentialless'},
+	{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 	{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 ];
 
@@ -15,6 +15,10 @@ export const config: VercelConfig = {
 		'cd .. && timeout 20m bunx turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
 		routes.header('/assets/(.*)', browserStudioAssetHeaders),
+		routes.header(
+			'/__remotion_browser_studio_workspace__/commits/(.*)',
+			browserStudioAssetHeaders,
+		),
 		routes.header('/_raw/docs/(.*).md', [
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
@@ -36,10 +40,6 @@ export const config: VercelConfig = {
 					'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
 			},
 		]),
-		routes.header('/transcribe(.*)', [
-			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
-			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
-		]),
 		routes.header('/experimental_new(.*)', browserStudioIsolationHeaders),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
@@ -47,6 +47,46 @@ export const config: VercelConfig = {
 		]),
 	],
 	redirects: [
+		routes.redirect(
+			'/elements/guidelines',
+			'/elements/contributing#element-guidelines',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/guidelines.md',
+			'/elements/contributing.md#element-guidelines',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/submit-an-element',
+			'/elements/contributing#submit-an-element',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/submit-an-element.md',
+			'/elements/contributing.md#submit-an-element',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/overlays/lower-third',
+			'/elements/overlays/name-lower-third',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/overlays/lower-third.md',
+			'/elements/overlays/name-lower-third.md',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/overlays/social-endcard',
+			'/elements/youtube/youtube-end-card',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/overlays/social-endcard.md',
+			'/elements/youtube/youtube-end-card.md',
+			{permanent: true},
+		),
 		routes.redirect(
 			'/changelog',
 			'https://github.com/remotion-dev/remotion/releases',
@@ -80,8 +120,15 @@ export const config: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/issues/new/choose',
 			{permanent: false},
 		),
+		routes.redirect(
+			'/vision',
+			'https://github.com/remotion-dev/remotion/issues/9081',
+			{permanent: false},
+		),
 		routes.redirect('/skia', '/docs/skia', {permanent: false}),
+		routes.redirect('/webmcp', '/docs/ai/webmcp', {permanent: false}),
 		routes.redirect('/gif', '/docs/gif', {permanent: false}),
+		routes.redirect('/gsap', '/docs/gsap', {permanent: false}),
 		routes.redirect('/lottie', '/docs/lottie', {permanent: false}),
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),
@@ -104,6 +151,7 @@ export const config: VercelConfig = {
 			'/docs/renderer/get-compositions',
 			{permanent: true},
 		),
+		routes.redirect('/docs/webpack', '/docs/bundlers', {permanent: true}),
 		routes.redirect(
 			'/docs/stitch-frames-to-video',
 			'/docs/renderer/stitch-frames-to-video',
@@ -124,6 +172,11 @@ export const config: VercelConfig = {
 		),
 		routes.redirect('/support', '/docs/support', {permanent: true}),
 		routes.redirect('/webcodecs', '/docs/webcodecs', {permanent: true}),
+		routes.redirect(
+			'/docs/miscellaneous/parse-media-vs-get-video-metadata',
+			'/docs/mediabunny/metadata',
+			{permanent: true},
+		),
 		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/hls', {
 			permanent: true,
 		}),
@@ -256,6 +309,12 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
+		routes.redirect('/plugins', '/docs/ai/plugins', {permanent: false}),
+		routes.redirect(
+			'/codex',
+			'https://chatgpt.com/plugins/plugins~Plugin_efd07789186881918253a50acfc32762?open_in_codex',
+			{permanent: false},
+		),
 		routes.redirect(
 			'/repro',
 			'https://stackblitz.com/fork/github/remotion-dev/template-helloworld',
@@ -322,6 +381,22 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/captions', '/docs/captions', {permanent: false}),
+		routes.redirect('/docs/animated-captions', '/elements/captions/', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/animated-captions/faq', '/elements/captions/', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/elements/data/product-offer',
+			'/elements/commerce/product-offer',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/text/news-article-headline-highlight',
+			'/elements/text/news-article-highlight',
+			{permanent: true},
+		),
 		routes.redirect(
 			'/docs/miscellaneous/snippets/adding-animations',
 			'/docs/animation-math',
@@ -376,12 +451,37 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/studio/code-edits', '/docs/studio/interactivity', {
 			permanent: true,
 		}),
-		routes.redirect('/terms', 'https://remotion.pro/terms', {
-			permanent: false,
+		routes.redirect('/terms', '/docs/terms', {permanent: true}),
+		routes.redirect('/privacy', '/docs/privacy', {permanent: true}),
+		routes.redirect('/telemetry', '/docs/telemetry', {permanent: true}),
+		routes.redirect('/dpa', '/docs/dpa', {permanent: true}),
+		routes.redirect('/dpia', '/docs/dpia', {permanent: true}),
+		routes.redirect('/docs/license/terms', '/docs/terms', {permanent: true}),
+		routes.redirect('/docs/license/privacy', '/docs/privacy', {
+			permanent: true,
 		}),
-		routes.redirect('/privacy', 'https://remotion.pro/privacy', {
-			permanent: false,
+		routes.redirect('/docs/license/telemetry', '/docs/telemetry', {
+			permanent: true,
 		}),
+		routes.redirect(
+			'/docs/client-side-rendering/telemetry',
+			'/docs/telemetry',
+			{
+				permanent: true,
+			},
+		),
+		routes.redirect('/docs/license/dpa', '/docs/dpa', {permanent: true}),
+		routes.redirect('/docs/license/dpia', '/docs/dpia', {permanent: true}),
+		routes.redirect(
+			'/docs/license/accessibility-statement-remotion-dev',
+			'/docs/accessibility/dev',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/license/accessibility-statement-remotion-pro',
+			'/docs/accessibility/pro',
+			{permanent: true},
+		),
 		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {
 			permanent: false,
 		}),

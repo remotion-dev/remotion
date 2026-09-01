@@ -1,26 +1,39 @@
-import {Glob} from 'bun';
 import type {ChildProcessWithoutNullStreams} from 'child_process';
 import {spawn} from 'child_process';
-import {createHash} from 'crypto';
 import {existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync} from 'fs';
 import {createRequire} from 'module';
 import {availableParallelism, cpus, totalmem} from 'os';
-import {join, resolve} from 'path';
+import {basename, dirname, join, resolve} from 'path';
 import {createInterface} from 'readline';
+import {Glob} from 'bun';
+import {
+	createTwoslashCacheContext,
+	getTwoslashCacheKey,
+	getTwoslashLocalCachePath,
+	getTwoslashVersions,
+	readTwoslashCacheEntry,
+} from '../docusaurus-plugin/src/twoslash-cache';
+import {isTwoslashEnabled} from '../docusaurus-plugin/src/twoslash-enabled';
 import {expandElementSourceReferences} from './plugins/element-source-utils';
 
 const DOCS_ROOT = resolve(import.meta.dirname);
-const CACHE_ROOT = join(DOCS_ROOT, 'node_modules', '.cache', 'twoslash');
-const WORKER_PATH = join(DOCS_ROOT, 'twoslash-worker.ts');
+const WORKER_SOURCE_PATH = join(DOCS_ROOT, 'twoslash-worker.mjs');
+const WORKER_PATH = join(
+	DOCS_ROOT,
+	'node_modules',
+	'.cache',
+	'twoslash-worker-bundle.mjs',
+);
 
 const GIB = 1024 * 1024 * 1024;
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+const lowMemoryBuild =
+	isVercel || process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
 const cpuCount =
 	typeof availableParallelism === 'function'
 		? availableParallelism()
 		: cpus().length;
-const cpuCap = process.env.VERCEL
-	? Math.max(1, cpuCount - 1)
-	: Math.max(1, cpuCount - 2);
+const cpuCap = Math.max(1, cpuCount - 1);
 // Each worker holds a TypeScript language service that can grow to >1GB.
 // Cap the worker count so the combined RSS leaves room for the OS and
 // other processes on low-memory machines.
@@ -31,25 +44,30 @@ const workerCountOverride = process.env.TWOSLASH_WORKER_COUNT
 const NUM_WORKERS =
 	workerCountOverride && Number.isFinite(workerCountOverride)
 		? Math.max(1, workerCountOverride)
-		: Math.min(cpuCap, memCap);
+		: lowMemoryBuild
+			? 2
+			: Math.min(cpuCap, memCap);
 
 // Per-worker RSS threshold after which a worker is replaced with a fresh
-// process. Derived from a global budget of half the machine's memory so the
-// combined RSS of all workers stays bounded even on long runs.
-const MEM_BUDGET = Math.max(2 * GIB, totalmem() / 2);
+// process. Derived from a global budget that leaves 25% of memory for the OS
+// and other processes so combined worker RSS stays bounded on long runs.
+const MEM_BUDGET = Math.max(2 * GIB, totalmem() * 0.75);
 const recycleLimitOverride = process.env.TWOSLASH_RECYCLE_LIMIT_BYTES
 	? parseInt(process.env.TWOSLASH_RECYCLE_LIMIT_BYTES, 10)
 	: null;
 const RECYCLE_LIMIT_BYTES =
 	recycleLimitOverride && Number.isFinite(recycleLimitOverride)
 		? recycleLimitOverride
-		: Math.round(
-				Math.min(1.5 * GIB, Math.max(0.75 * GIB, MEM_BUDGET / NUM_WORKERS)),
-			);
+		: lowMemoryBuild
+			? GIB
+			: Math.round(
+					Math.min(2.5 * GIB, Math.max(0.75 * GIB, MEM_BUDGET / NUM_WORKERS)),
+				);
 
 // Blocks per work unit handed to a worker at a time. Small enough for
 // fine-grained work stealing, large enough to amortize dispatch overhead.
 const MAX_UNIT_SIZE = 24;
+const MAX_UNIT_SOURCE_LENGTH = 16_000;
 
 // A worker is killed if it makes no progress for this long. Unfinished
 // items are requeued on a fresh worker.
@@ -61,15 +79,16 @@ const STALL_TIMEOUT_MS = process.env.TWOSLASH_STALL_TIMEOUT_MS
 const MAX_ATTEMPTS = 2;
 
 // Exit code by which a worker asks to be replaced (memory recycling).
-// Keep in sync with twoslash-worker.ts.
+// Keep in sync with twoslash-worker.mjs.
 const RECYCLE_EXIT_CODE = 42;
 
 const pluginDir = join(DOCS_ROOT, '..', 'docusaurus-plugin');
 const pluginRequire = createRequire(join(pluginDir, 'package.json'));
-const twoslashVersion = pluginRequire('twoslash/package.json')
-	.version as string;
-const shikiVersion = pluginRequire('shiki/package.json').version as string;
-const tsVersion = pluginRequire('typescript/package.json').version as string;
+const cacheContext = createTwoslashCacheContext({
+	docsRoot: DOCS_ROOT,
+	versions: getTwoslashVersions(pluginRequire.resolve),
+});
+const CACHE_ROOT = cacheContext.localRoot;
 
 interface TwoslashBlock {
 	code: string;
@@ -82,14 +101,12 @@ interface WorkUnit {
 	items: TwoslashBlock[];
 }
 
-function computeCachePath(code: string): string {
-	const shasum = createHash('sha1');
-	const codeSha = shasum
-		.update(
-			`${code}-${twoslashVersion}-${shikiVersion}-${tsVersion}-github-dark`,
-		)
-		.digest('hex');
-	return join(CACHE_ROOT, `${codeSha}.json`);
+function computeCacheLocation(
+	code: string,
+	lang: string,
+): {key: string; path: string} {
+	const key = getTwoslashCacheKey({code, lang, context: cacheContext});
+	return {key, path: getTwoslashLocalCachePath(cacheContext, key)};
 }
 
 function addIncludes(
@@ -194,7 +211,8 @@ function extractTwoslashBlocks(
 		}
 
 		const importedCode = replaceIncludes(includes, code);
-		const cachePath = computeCachePath(importedCode);
+		const cacheLocation = computeCacheLocation(importedCode, lang);
+		const cachePath = cacheLocation.path;
 		validCachePaths.add(cachePath);
 
 		// Track which files reference this cache path
@@ -204,7 +222,12 @@ function extractTwoslashBlocks(
 		}
 		cachePathToFiles.get(cachePath)!.push(relPath);
 
-		if (existsSync(cachePath)) {
+		if (
+			readTwoslashCacheEntry({
+				context: cacheContext,
+				key: cacheLocation.key,
+			}) !== null
+		) {
 			continue;
 		}
 
@@ -248,13 +271,33 @@ function buildWorkUnits(blocks: TwoslashBlock[]): WorkUnit[] {
 
 	const units: WorkUnit[] = [];
 	for (const [key, items] of groups) {
-		for (let i = 0; i < items.length; i += MAX_UNIT_SIZE) {
-			units.push({key, items: items.slice(i, i + MAX_UNIT_SIZE)});
+		let currentItems: TwoslashBlock[] = [];
+		let currentSourceLength = 0;
+		for (const item of items) {
+			if (
+				currentItems.length > 0 &&
+				(currentItems.length >= MAX_UNIT_SIZE ||
+					currentSourceLength + item.code.length > MAX_UNIT_SOURCE_LENGTH)
+			) {
+				units.push({key, items: currentItems});
+				currentItems = [];
+				currentSourceLength = 0;
+			}
+
+			currentItems.push(item);
+			currentSourceLength += item.code.length;
+		}
+
+		if (currentItems.length > 0) {
+			units.push({key, items: currentItems});
 		}
 	}
 
-	// Largest first so long-running groups start as early as possible
-	units.sort((a, b) => b.items.length - a.items.length);
+	// Put more source-heavy units first so expensive outliers do not become
+	// stragglers after most workers have exhausted the queue.
+	const estimatedCost = (unit: WorkUnit) =>
+		unit.items.reduce((total, item) => total + item.code.length, 0);
+	units.sort((a, b) => estimatedCost(b) - estimatedCost(a));
 	return units;
 }
 
@@ -276,6 +319,11 @@ interface WorkerHandle {
 }
 
 async function main() {
+	if (!isTwoslashEnabled()) {
+		console.log('Skipping Twoslash pre-warm because Twoslash is disabled');
+		return;
+	}
+
 	const startTime = performance.now();
 
 	const glob = new Glob('**/*.{mdx,md}');
@@ -293,19 +341,44 @@ async function main() {
 	const allBlocks: TwoslashBlock[] = [];
 	const validCachePaths = new Set<string>();
 	const cachePathToFiles = new Map<string, string[]>();
+	let bundlePromise: Promise<void> | null = null;
+	const startWorkerBundle = () => {
+		if (bundlePromise !== null) {
+			return;
+		}
+
+		bundlePromise = (async () => {
+			const result = await Bun.build({
+				entrypoints: [WORKER_SOURCE_PATH],
+				format: 'esm',
+				target: 'node',
+			});
+			if (!result.success || result.outputs.length !== 1) {
+				throw new Error(
+					`Could not bundle Twoslash worker: ${result.logs.join('\n')}`,
+				);
+			}
+
+			mkdirSync(dirname(WORKER_PATH), {recursive: true});
+			await Bun.write(WORKER_PATH, result.outputs[0]);
+		})();
+	};
+
 	for (const file of allFiles) {
 		const content = expandElementSourceReferences({
 			raw: readFileSync(file, 'utf8'),
 			sourceFilePath: file,
 		});
-		allBlocks.push(
-			...extractTwoslashBlocks(
-				content,
-				file,
-				validCachePaths,
-				cachePathToFiles,
-			),
+		const blocks = extractTwoslashBlocks(
+			content,
+			file,
+			validCachePaths,
+			cachePathToFiles,
 		);
+		if (blocks.length > 0) {
+			startWorkerBundle();
+			allBlocks.push(...blocks);
+		}
 	}
 
 	// Delete stale cache entries that no longer correspond to any twoslash block
@@ -343,6 +416,8 @@ async function main() {
 	if (!existsSync(CACHE_ROOT)) {
 		mkdirSync(CACHE_ROOT, {recursive: true});
 	}
+
+	await bundlePromise;
 
 	const unitQueue = buildWorkUnits(uncachedBlocks);
 	const numWorkers = Math.min(NUM_WORKERS, unitQueue.length);
@@ -514,8 +589,14 @@ async function main() {
 		if (unfinished.length > 0) {
 			const requeue: TwoslashBlock[] = [];
 			for (const item of unfinished) {
-				// Items that were written before the worker died are done
-				if (existsSync(item.cachePath)) {
+				// Workers publish cache files using an atomic rename, so a valid final
+				// entry is complete even when the completion message was lost.
+				if (
+					readTwoslashCacheEntry({
+						context: cacheContext,
+						key: basename(item.cachePath, '.json'),
+					}) !== null
+				) {
 					recordResult({cachePath: item.cachePath, ms: 0});
 					continue;
 				}
@@ -579,7 +660,7 @@ async function main() {
 	const spawnWorker = () => {
 		const worker: WorkerHandle = {
 			id: nextWorkerId++,
-			child: spawn('bun', ['run', WORKER_PATH], {
+			child: spawn('node', ['--no-warnings', WORKER_PATH], {
 				cwd: DOCS_ROOT,
 				stdio: ['pipe', 'pipe', 'pipe'],
 				env: {
@@ -604,9 +685,7 @@ async function main() {
 		rl.on('line', (line: string) => {
 			let message: {
 				type: string;
-				cachePath?: string;
-				ms?: number;
-				error?: string;
+				results?: TimingEntry[];
 				recycling?: boolean;
 				rss?: number;
 			};
@@ -621,18 +700,12 @@ async function main() {
 				return;
 			}
 
-			if (message.type === 'item' && message.cachePath) {
-				worker.pendingItems.delete(message.cachePath);
-				recordResult({
-					cachePath: message.cachePath,
-					ms: message.ms ?? 0,
-					error: message.error,
-				});
-				resetStallTimer(worker);
-				return;
-			}
-
 			if (message.type === 'unit-done') {
+				for (const result of message.results ?? []) {
+					worker.pendingItems.delete(result.cachePath);
+					recordResult(result);
+				}
+
 				worker.currentKey = null;
 				if (message.recycling) {
 					// The worker exits after this message; its exit handler

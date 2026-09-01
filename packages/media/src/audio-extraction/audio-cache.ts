@@ -1,5 +1,26 @@
 import type {AudioSample} from 'mediabunny';
 
+type AudioSampleFormat = AudioSample['format'];
+
+const BYTES_PER_SAMPLE: Record<AudioSampleFormat, number> = {
+	u8: 1,
+	s16: 2,
+	s32: 4,
+	f32: 4,
+	'u8-planar': 1,
+	's16-planar': 2,
+	's32-planar': 4,
+	'f32-planar': 4,
+};
+
+const getAudioSampleByteSize = (sample: AudioSample) => {
+	return (
+		sample.numberOfFrames *
+		sample.numberOfChannels *
+		BYTES_PER_SAMPLE[sample.format]
+	);
+};
+
 export const makeAudioCache = () => {
 	const timestamps: number[] = [];
 	const samples: Record<number, AudioSample> = {};
@@ -59,6 +80,15 @@ export const makeAudioCache = () => {
 		return timestamps;
 	};
 
+	const getTotalSize = () => {
+		let total = 0;
+		for (const timestamp of timestamps) {
+			total += getAudioSampleByteSize(samples[timestamp]);
+		}
+
+		return total;
+	};
+
 	const getOldestTimestamp = () => {
 		return timestamps[0];
 	};
@@ -80,6 +110,7 @@ export const makeAudioCache = () => {
 		getOldestTimestamp,
 		getNewestTimestamp,
 		getOpenTimestamps,
+		getTotalSize,
 	};
 };
 

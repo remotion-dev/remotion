@@ -11,11 +11,12 @@ import type {
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
+import {canUseKeyframeOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BLUE, LIGHT_GRAY, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import type {
 	SequenceNodePathInfo,
-	TrackWithHash,
+	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	buildTimelineTree,
@@ -38,7 +39,11 @@ import {
 	getPreviousKeyframeDisplayFrame,
 	hasKeyframeAtSourceFrame,
 } from './get-keyframe-navigation';
-import {getTimelineKeyframes} from './get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getTimelineKeyframes,
+} from './get-timeline-keyframes';
+import {ensureFrameIsInViewport} from './timeline-scroll-logic';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeTracks} from './TimelineKeyframeTracksContext';
 import {
@@ -49,12 +54,24 @@ import {
 } from './TimelineSelection';
 import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
+const NAV_BUTTON_SIZE = 14;
+const INSPECTOR_NAV_BUTTON_WIDTH = NAV_BUTTON_SIZE / 2;
+const INSPECTOR_PREVIOUS_BUTTON_EXTRA_GAP = 1;
+
 const controlsContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
 	gap: 1,
 	marginRight: 4,
+};
+
+const inspectorControlsContainerStyle: React.CSSProperties = {
+	...controlsContainerStyle,
+	paddingLeft:
+		NAV_BUTTON_SIZE -
+		INSPECTOR_NAV_BUTTON_WIDTH -
+		INSPECTOR_PREVIOUS_BUTTON_EXTRA_GAP,
 };
 
 const navButtonStyle: React.CSSProperties = {
@@ -65,13 +82,22 @@ const navButtonStyle: React.CSSProperties = {
 	cursor: 'pointer',
 	display: 'flex',
 	flexShrink: 0,
-	height: 14,
+	height: NAV_BUTTON_SIZE,
 	justifyContent: 'center',
 	lineHeight: 1,
 	outline: 'none',
 	padding: 0,
 	userSelect: 'none',
-	width: 14,
+	width: NAV_BUTTON_SIZE,
+};
+
+const inspectorNavButtonStyle: React.CSSProperties = {
+	width: INSPECTOR_NAV_BUTTON_WIDTH,
+};
+
+const inspectorPreviousNavButtonStyle: React.CSSProperties = {
+	...inspectorNavButtonStyle,
+	marginRight: INSPECTOR_PREVIOUS_BUTTON_EXTRA_GAP,
 };
 
 const isKeyframedStatus = (
@@ -85,7 +111,7 @@ const diamondButtonStyle: React.CSSProperties = {
 	background: 'none',
 };
 
-const svgStyle: React.CSSProperties = {display: 'block'};
+const svgStyle: React.CSSProperties = {display: 'block', flexShrink: 0};
 
 type KeyframeControlTarget = {
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -167,9 +193,9 @@ const findTrackForNodePathInfo = ({
 	tracks,
 	nodePathInfo,
 }: {
-	readonly tracks: readonly TrackWithHash[];
+	readonly tracks: readonly TimelineTrackData[];
 	readonly nodePathInfo: SequenceNodePathInfo;
-}): TrackWithHash | null => {
+}): TimelineTrackData | null => {
 	return (
 		tracks.find((track) => {
 			if (track.nodePathInfo === null) {
@@ -199,7 +225,7 @@ const resolveKeyframeControlTarget = ({
 	timelinePosition,
 }: {
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly tracks: readonly TrackWithHash[];
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 	readonly getDragOverrides: GetDragOverrides;
 	readonly getEffectDragOverrides: GetEffectDragOverrides;
@@ -221,6 +247,8 @@ const resolveKeyframeControlTarget = ({
 		getEffectDragOverrides,
 		propStatuses,
 		includeTextContent: false,
+		includeSourceControls: false,
+		runtimeValues: null,
 	});
 	const fieldNode = findFieldNode(
 		tree,
@@ -248,8 +276,16 @@ const resolveKeyframeControlTarget = ({
 			propStatus: sequenceSelectedPropStatus,
 			nodePath,
 			fileName: nodePath.absolutePath,
-			keyframeDisplayOffset: track.keyframeDisplayOffset,
-			sourceFrame: timelinePosition - track.keyframeDisplayOffset,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
+				propStatus: sequenceSelectedPropStatus,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+			}),
+			sourceFrame:
+				timelinePosition -
+				getKeyframeDisplayOffset({
+					propStatus: sequenceSelectedPropStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				}),
 			defaultValue: fieldNode.field.fieldSchema.default,
 			dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
 				fieldNode.field.key
@@ -278,8 +314,16 @@ const resolveKeyframeControlTarget = ({
 		propStatus: effectSelectedPropStatus,
 		nodePath,
 		fileName: nodePath.absolutePath,
-		keyframeDisplayOffset: track.keyframeDisplayOffset,
-		sourceFrame: timelinePosition - track.keyframeDisplayOffset,
+		keyframeDisplayOffset: getKeyframeDisplayOffset({
+			propStatus: effectSelectedPropStatus,
+			keyframeDisplayOffset: track.keyframeDisplayOffset,
+		}),
+		sourceFrame:
+			timelinePosition -
+			getKeyframeDisplayOffset({
+				propStatus: effectSelectedPropStatus,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+			}),
 		defaultValue: fieldNode.field.fieldSchema.default,
 		dragOverrideValue: getEffectDragOverrides(
 			nodePath,
@@ -314,7 +358,9 @@ const getAddChange = (
 
 	const value = getCurrentKeyframeValue({
 		propStatus: target.propStatus,
-		jsxFrame: target.sourceFrame,
+		jsxFrame:
+			target.sourceFrame +
+			(target.propStatus.keyframeDisplayOffsetAdjustment ?? 0),
 		defaultValue: target.defaultValue,
 		dragOverrideValue: target.dragOverrideValue,
 	});
@@ -354,6 +400,7 @@ const getDeleteChange = (
 		fieldKey: target.fieldKey,
 		sourceFrame: target.sourceFrame,
 		schema: target.schema,
+		valueWhenLastKeyframeDeleted: null,
 	};
 
 	if (target.effectIndex === null) {
@@ -439,6 +486,10 @@ export const shouldShowTimelineKeyframeNavigation = ({
 	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly selected: boolean;
 }) => {
+	if (propStatus.status === 'computed') {
+		return false;
+	}
+
 	if (selected) {
 		return true;
 	}
@@ -488,7 +539,11 @@ export const TimelineKeyframeControls: React.FC<{
 			? previewServerState.clientId
 			: null;
 
-	const jsxFrame = timelinePosition - keyframeDisplayOffset;
+	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
+		propStatus,
+		keyframeDisplayOffset,
+	});
+	const jsxFrame = timelinePosition - resolvedKeyframeDisplayOffset;
 	const keyframes = useMemo(
 		() => getTimelineKeyframes(propStatus, keyframeDisplayOffset),
 		[propStatus, keyframeDisplayOffset],
@@ -547,6 +602,7 @@ export const TimelineKeyframeControls: React.FC<{
 	});
 	const canAddKeyframe = keyframable;
 	const canToggleKeyframe =
+		canUseKeyframeOperations() &&
 		propStatus.status !== 'computed' &&
 		(hasKeyframeAtCurrentFrame || canAddKeyframe);
 
@@ -566,7 +622,7 @@ export const TimelineKeyframeControls: React.FC<{
 			propStatus,
 			nodePath,
 			fileName,
-			keyframeDisplayOffset,
+			keyframeDisplayOffset: resolvedKeyframeDisplayOffset,
 			sourceFrame: jsxFrame,
 			defaultValue,
 			dragOverrideValue,
@@ -580,7 +636,7 @@ export const TimelineKeyframeControls: React.FC<{
 			fieldKey,
 			fileName,
 			jsxFrame,
-			keyframeDisplayOffset,
+			resolvedKeyframeDisplayOffset,
 			nodePath,
 			nodePathInfo,
 			propStatus,
@@ -621,21 +677,26 @@ export const TimelineKeyframeControls: React.FC<{
 	]);
 
 	const seekToDisplayFrame = useCallback(
-		(frame: number) => {
+		(frame: number, direction: 'fit-left' | 'fit-right') => {
 			setFrame((current) => {
 				const next = {...current, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(next);
 				return next;
 			});
+			ensureFrameIsInViewport({
+				direction,
+				durationInFrames: videoConfig.durationInFrames,
+				frame,
+			});
 		},
-		[setFrame, videoConfig.id],
+		[setFrame, videoConfig.durationInFrames, videoConfig.id],
 	);
 
 	const onPrevious = useCallback(
 		(e: React.PointerEvent<HTMLButtonElement>) => {
 			e.stopPropagation();
 			if (previousDisplayFrame !== null) {
-				seekToDisplayFrame(previousDisplayFrame);
+				seekToDisplayFrame(previousDisplayFrame, 'fit-left');
 			}
 		},
 		[previousDisplayFrame, seekToDisplayFrame],
@@ -645,7 +706,7 @@ export const TimelineKeyframeControls: React.FC<{
 		(e: React.PointerEvent<HTMLButtonElement>) => {
 			e.stopPropagation();
 			if (nextDisplayFrame !== null) {
-				seekToDisplayFrame(nextDisplayFrame);
+				seekToDisplayFrame(nextDisplayFrame, 'fit-right');
 			}
 		},
 		[nextDisplayFrame, seekToDisplayFrame],
@@ -749,21 +810,23 @@ export const TimelineKeyframeControls: React.FC<{
 	const previousStyle = useMemo(
 		(): React.CSSProperties => ({
 			...navButtonStyle,
+			...(mode === 'inspector' ? inspectorPreviousNavButtonStyle : null),
 			cursor: previousDisabled ? 'default' : 'pointer',
 			opacity: previousDisabled ? 0.35 : 1,
 			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
-		[previousDisabled, showNavigationButtons],
+		[mode, previousDisabled, showNavigationButtons],
 	);
 
 	const nextStyle = useMemo(
 		(): React.CSSProperties => ({
 			...navButtonStyle,
+			...(mode === 'inspector' ? inspectorNavButtonStyle : null),
 			cursor: nextDisabled ? 'default' : 'pointer',
 			opacity: nextDisabled ? 0.35 : 1,
 			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
-		[nextDisabled, showNavigationButtons],
+		[mode, nextDisabled, showNavigationButtons],
 	);
 
 	const diamondStyle = useMemo(
@@ -778,7 +841,13 @@ export const TimelineKeyframeControls: React.FC<{
 	const diamondColor = hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT;
 
 	return (
-		<div style={controlsContainerStyle}>
+		<div
+			style={
+				mode === 'inspector'
+					? inspectorControlsContainerStyle
+					: controlsContainerStyle
+			}
+		>
 			<button
 				type="button"
 				style={previousStyle}

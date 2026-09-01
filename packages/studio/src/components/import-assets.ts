@@ -1,29 +1,59 @@
-import {getVideoMetadata} from '@remotion/media-utils';
+import type {ComponentDragData} from '@remotion/studio-protocol';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
-	type CompositionDragData,
-	type ComponentDragData,
 	type ComponentProp,
 	type DownloadRemoteAssetResponse,
-	type ElementDragData,
+	type ElementInstallExpectedFileState,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
+	type InstallableElement,
 } from '@remotion/studio-shared';
 import {Internals, staticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {formatFigmaClipboardErrorNotification} from '../helpers/clipboard-figma';
+import {requestInsertedElementSelection} from '../helpers/inserted-element-selection';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
+import {getMediaMetadata} from '../helpers/use-media-metadata';
 import {callApi} from './call-api';
+import type {CompositionDragData} from './composition-drag-data';
+import {installElement} from './element-install-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
 export type InsertElementDropPosition = {
 	readonly centerX: number;
 	readonly centerY: number;
+};
+
+export const getFromForDrop = ({
+	durationInFrames,
+	from,
+	preferCompositionStart,
+}: {
+	durationInFrames: number | null | undefined;
+	from: number | null;
+	preferCompositionStart: boolean | null;
+}): number | null => {
+	if (preferCompositionStart !== true) {
+		return from;
+	}
+
+	if (
+		durationInFrames !== null &&
+		durationInFrames !== undefined &&
+		from !== null &&
+		from >= durationInFrames
+	) {
+		return from;
+	}
+
+	return null;
 };
 
 type InsertableAssetElement = Extract<
@@ -38,6 +68,18 @@ export const getAssetElement = ({
 	fileType: FileType;
 	src: string;
 }): InsertableAssetElement | null => {
+	if (fileType.type === 'webp' && fileType.animated) {
+		return {
+			type: 'asset',
+			assetType: 'animated-image',
+			src,
+			srcType: 'static',
+			dimensions: fileType.dimensions,
+			durationInFrames: null,
+			position: null,
+		};
+	}
+
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
@@ -50,6 +92,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -61,6 +104,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -72,6 +116,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -88,6 +133,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -104,6 +150,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -123,13 +170,14 @@ export const getAssetElementFromPath = (
 		return null;
 	}
 
-	if (['png', 'jpg', 'jpeg', 'webp', 'bmp'].includes(extension)) {
+	if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'svg'].includes(extension)) {
 		return {
 			type: 'asset',
 			assetType: 'image',
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -141,6 +189,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -152,6 +201,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -163,6 +213,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -174,6 +225,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -181,37 +233,28 @@ export const getAssetElementFromPath = (
 	return null;
 };
 
-const getAssetLabel = (element: InsertableCompositionElement) => {
-	if (element.type !== 'asset') {
-		throw new Error('Expected asset element');
+export const getAssetElementForDroppedFile = ({
+	fileType,
+	src,
+}: {
+	fileType: FileType;
+	src: string;
+}): InsertableAssetElement | null => {
+	const detectedElement = getAssetElement({fileType, src});
+	if (detectedElement !== null) {
+		return detectedElement;
 	}
 
-	if (element.assetType === 'image') {
-		return '<Img>';
+	if (fileType.type !== 'unknown' || !src.toLowerCase().endsWith('.svg')) {
+		return null;
 	}
 
-	if (element.assetType === 'video') {
-		return '<Video>';
-	}
-
-	if (element.assetType === 'gif') {
-		return '<Gif>';
-	}
-
-	if (element.assetType === 'animated-image') {
-		return '<AnimatedImage>';
-	}
-
-	if (element.assetType === 'audio') {
-		return '<Audio>';
-	}
-
-	throw new Error('Unsupported asset type');
+	return getAssetElementFromPath(src);
 };
 
-const getComponentLabel = (component: ComponentDragData['component']) => {
-	return `<${component.componentName}>`;
-};
+const isSvgFile = (file: File) => file.name.toLowerCase().endsWith('.svg');
+
+export const hasSvgFile = (files: File[]) => files.some(isSvgFile);
 
 const getCenteredPosition = ({
 	dimensions,
@@ -249,6 +292,40 @@ export const getElementPositionForDrop = ({
 	}
 
 	return getCenteredPosition({dimensions, dropPosition});
+};
+
+export const getCompositionPositionForDrop = ({
+	compositionDimensions,
+	dropPosition,
+}: {
+	compositionDimensions: Dimensions;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	return getCenteredPosition({
+		dimensions: compositionDimensions,
+		dropPosition,
+	});
+};
+
+export const getAssetPositionForDrop = ({
+	assetDimensions,
+	destinationDimensions,
+	dropPosition,
+}: {
+	assetDimensions: Dimensions | null;
+	destinationDimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	if (
+		assetDimensions !== null &&
+		destinationDimensions !== null &&
+		assetDimensions.width === destinationDimensions.width &&
+		assetDimensions.height === destinationDimensions.height
+	) {
+		return null;
+	}
+
+	return getCenteredPosition({dimensions: assetDimensions, dropPosition});
 };
 
 const getComponentPropNumber = (props: ComponentProp[], name: string) => {
@@ -306,25 +383,68 @@ const getImageDimensions = ({
 	});
 };
 
-const getVideoDimensions = async (src: string): Promise<Dimensions> => {
-	const metadata = await getVideoMetadata(src);
-	return {width: metadata.width, height: metadata.height};
+type AssetMetadataForInsertion = {
+	dimensions: Dimensions | null;
+	durationInSeconds: number | null;
 };
 
-const getFileDimensions = async ({
+const getMediaAssetMetadata = async (
+	src: string,
+): Promise<AssetMetadataForInsertion> => {
+	const metadata = await getMediaMetadata(src);
+	return {
+		dimensions:
+			metadata?.width === null || metadata?.height === null || !metadata
+				? null
+				: {width: metadata.width, height: metadata.height},
+		durationInSeconds: metadata?.duration ?? null,
+	};
+};
+
+const getAnimatedImageAssetDuration = (
+	src: string,
+	contentType: string | null,
+) => {
+	return Internals.getAnimatedImageDurationInSeconds({
+		resolvedSrc: src,
+		signal: new AbortController().signal,
+		contentType,
+	});
+};
+
+const assetTypeHasDuration = (assetType: InsertableAssetElement['assetType']) =>
+	assetType !== 'image';
+
+const getFileMetadata = async ({
 	file,
 	fileType,
 }: {
 	file: File;
 	fileType: FileType;
-}): Promise<Dimensions | null> => {
+}): Promise<AssetMetadataForInsertion> => {
+	if (fileType.type === 'unknown' && file.name.toLowerCase().endsWith('.svg')) {
+		const objectUrl = URL.createObjectURL(file);
+		return {
+			dimensions: await getImageDimensions({
+				revokeObjectUrl: true,
+				src: objectUrl,
+			}),
+			durationInSeconds: null,
+		};
+	}
+
 	if (
 		fileType.type === 'wav' ||
 		fileType.type === 'mp3' ||
 		fileType.type === 'aac' ||
 		fileType.type === 'flac'
 	) {
-		return null;
+		const objectUrl = URL.createObjectURL(file);
+		try {
+			return await getMediaAssetMetadata(objectUrl);
+		} finally {
+			URL.revokeObjectURL(objectUrl);
+		}
 	}
 
 	if (
@@ -335,12 +455,32 @@ const getFileDimensions = async ({
 		fileType.type === 'apng' ||
 		fileType.type === 'gif'
 	) {
-		if (fileType.dimensions) {
-			return fileType.dimensions;
-		}
-
 		const objectUrl = URL.createObjectURL(file);
-		return getImageDimensions({revokeObjectUrl: true, src: objectUrl});
+		try {
+			const dimensions =
+				fileType.dimensions ??
+				(await getImageDimensions({revokeObjectUrl: false, src: objectUrl}));
+			const isAnimated =
+				fileType.type === 'gif' ||
+				fileType.type === 'apng' ||
+				(fileType.type === 'webp' && fileType.animated);
+
+			return {
+				dimensions,
+				durationInSeconds: isAnimated
+					? await getAnimatedImageAssetDuration(
+							objectUrl,
+							fileType.type === 'gif'
+								? 'image/gif'
+								: fileType.type === 'webp'
+									? 'image/webp'
+									: 'image/png',
+						)
+					: null,
+			};
+		} finally {
+			URL.revokeObjectURL(objectUrl);
+		}
 	}
 
 	if (
@@ -351,67 +491,102 @@ const getFileDimensions = async ({
 	) {
 		const objectUrl = URL.createObjectURL(file);
 		try {
-			return await getVideoDimensions(objectUrl);
+			return await getMediaAssetMetadata(objectUrl);
 		} finally {
 			URL.revokeObjectURL(objectUrl);
 		}
 	}
 
-	return null;
+	return {dimensions: null, durationInSeconds: null};
 };
 
-const getStaticAssetDimensions = (
+const getStaticAssetMetadata = (
 	assetPath: string,
-): Dimensions | Promise<Dimensions> | null => {
+	assetType: InsertableAssetElement['assetType'],
+): AssetMetadataForInsertion | Promise<AssetMetadataForInsertion> => {
 	const extension = assetPath.split('.').pop()?.toLowerCase();
 	const src = staticFile(assetPath);
 
 	if (
 		extension &&
-		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng'].includes(extension)
+		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng', 'svg'].includes(
+			extension,
+		)
 	) {
-		return getImageDimensions({revokeObjectUrl: false, src});
+		return Promise.all([
+			getImageDimensions({revokeObjectUrl: false, src}),
+			assetType === 'gif' || assetType === 'animated-image'
+				? getAnimatedImageAssetDuration(
+						src,
+						extension === 'gif'
+							? 'image/gif'
+							: extension === 'webp'
+								? 'image/webp'
+								: 'image/png',
+					)
+				: null,
+		]).then(([dimensions, durationInSeconds]) => ({
+			dimensions,
+			durationInSeconds,
+		}));
 	}
 
-	if (
-		extension &&
-		['mp4', 'm4v', 'mov', 'avi', 'webm', 'ts', 'm2ts'].includes(extension)
-	) {
-		return getVideoDimensions(src);
+	if (assetType === 'video' || assetType === 'audio') {
+		return getMediaAssetMetadata(src);
 	}
 
-	return null;
+	return {dimensions: null, durationInSeconds: null};
 };
 
-const getFileDimensionsOrNull = async ({
+const getFileMetadataOrNull = async ({
 	file,
 	fileType,
 }: {
 	file: File;
 	fileType: FileType;
-}): Promise<Dimensions | null> => {
+}): Promise<AssetMetadataForInsertion> => {
 	try {
-		return await getFileDimensions({file, fileType});
+		return await getFileMetadata({file, fileType});
 	} catch {
-		return null;
+		return {dimensions: null, durationInSeconds: null};
 	}
 };
 
-const getStaticAssetDimensionsOrNull = async (
+const getStaticAssetMetadataOrNull = async (
 	assetPath: string,
-): Promise<Dimensions | null> => {
+	assetType: InsertableAssetElement['assetType'],
+): Promise<AssetMetadataForInsertion> => {
 	try {
-		return await getStaticAssetDimensions(assetPath);
+		return await getStaticAssetMetadata(assetPath, assetType);
 	} catch {
+		return {dimensions: null, durationInSeconds: null};
+	}
+};
+
+export const getDurationInFrames = ({
+	durationInSeconds,
+	fps,
+}: {
+	durationInSeconds: number | null;
+	fps: number;
+}): number | null => {
+	if (
+		durationInSeconds === null ||
+		!Number.isFinite(durationInSeconds) ||
+		durationInSeconds <= 0
+	) {
 		return null;
 	}
+
+	const durationInFrames = Math.round(durationInSeconds * fps * 100) / 100;
+	return durationInFrames > 0 ? durationInFrames : null;
 };
 
 const getStaticAssetFileType = async (
 	assetPath: string,
 ): Promise<FileType | null> => {
 	const extension = assetPath.split('.').pop()?.toLowerCase();
-	if (extension !== 'png' && extension !== 'apng') {
+	if (extension !== 'png' && extension !== 'apng' && extension !== 'webp') {
 		return null;
 	}
 
@@ -441,11 +616,15 @@ const getAssetElementFromStaticAsset = async (
 	return getAssetElementFromPath(assetPath);
 };
 
-export const pickFilesToImport = (): Promise<File[]> => {
+export const pickFilesToImport = ({
+	multiple = true,
+}: {
+	readonly multiple?: boolean;
+} = {}): Promise<File[]> => {
 	return new Promise((resolve) => {
 		const input = document.createElement('input');
 		input.type = 'file';
-		input.multiple = true;
+		input.multiple = multiple;
 		input.style.display = 'none';
 
 		let didResolve = false;
@@ -471,17 +650,6 @@ export const pickFilesToImport = (): Promise<File[]> => {
 	});
 };
 
-const notifyInsertedAssets = (insertedLabels: string[]) => {
-	if (insertedLabels.length === 1) {
-		showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
-	} else if (insertedLabels.length > 1) {
-		showNotification(
-			`Added ${insertedLabels.length} assets to source file`,
-			2000,
-		);
-	}
-};
-
 const notifyUnsupportedFiles = (unsupportedFiles: string[]) => {
 	if (unsupportedFiles.length === 1) {
 		showNotification(
@@ -496,27 +664,40 @@ const notifyUnsupportedFiles = (unsupportedFiles: string[]) => {
 	}
 };
 
-const insertAssetElement = async ({
+const insertCompositionElement = async ({
 	compositionFile,
 	compositionId,
 	element,
+	from,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
+	from: number | null;
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
-	await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations === null) {
+		await installRequiredPackages(
+			requiredPackage ? [{name: requiredPackage, version: null}] : [],
+		);
+	}
 
-	const result = await callApi('/api/insert-jsx-element', {
-		compositionFile,
-		compositionId,
-		element,
-	});
+	const request = {compositionFile, compositionId, element, from};
+	const result = browserStudioOperations
+		? await browserStudioOperations.insertJsxElement(request)
+		: await callApi('/api/insert-jsx-element', request);
 
 	if (!result.success) {
 		showNotification(result.reason, 4000);
 		return false;
+	}
+
+	if (result.insertedNodePath !== null) {
+		requestInsertedElementSelection({
+			compositionId,
+			nodePath: result.insertedNodePath,
+		});
 	}
 
 	return true;
@@ -525,19 +706,34 @@ const insertAssetElement = async ({
 const downloadRemoteAsset = (
 	url: string,
 ): Promise<DownloadRemoteAssetResponse> => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations) {
+		return browserStudioOperations.downloadRemoteAsset({url});
+	}
+
 	return callApi('/api/download-remote-asset', {url});
 };
 
 export const importAssets = async ({
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
 	files,
+	fps,
+	from,
+	preferCompositionStart,
+	svgImportMode,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	files: File[];
+	fps: number;
+	from: number | null;
+	preferCompositionStart: boolean | null;
+	svgImportMode: 'image' | 'inline';
 }) => {
 	if (files.length === 0) {
 		return;
@@ -545,6 +741,10 @@ export const importAssets = async ({
 
 	const staticFiles = getStaticFiles();
 	const differentExistingFile = files.find((file) => {
+		if (isSvgFile(file) && svgImportMode === 'inline') {
+			return false;
+		}
+
 		return staticFiles.some(
 			(existingStaticFile) =>
 				existingStaticFile.name === file.name &&
@@ -559,7 +759,6 @@ export const importAssets = async ({
 		return;
 	}
 
-	const insertedLabels: string[] = [];
 	const addedStaticFiles: string[] = [];
 	const unsupportedFiles: string[] = [];
 	const notifyAddedStaticFiles = () => {
@@ -579,7 +778,37 @@ export const importAssets = async ({
 		for (const file of files) {
 			const contents = await file.arrayBuffer();
 			const fileType = detectFileType(new Uint8Array(contents));
-			const element = getAssetElement({
+			const metadata = await getFileMetadataOrNull({file, fileType});
+
+			if (isSvgFile(file) && svgImportMode === 'inline') {
+				const svgInserted = await insertCompositionElement({
+					compositionFile,
+					compositionId,
+					from: getFromForDrop({
+						durationInFrames: null,
+						from,
+						preferCompositionStart,
+					}),
+					element: {
+						type: 'svg',
+						markup: new TextDecoder().decode(contents),
+						position: getAssetPositionForDrop({
+							assetDimensions: metadata.dimensions,
+							destinationDimensions,
+							dropPosition,
+						}),
+					},
+				});
+
+				if (!svgInserted) {
+					notifyAddedStaticFiles();
+					return;
+				}
+
+				continue;
+			}
+
+			const element = getAssetElementForDroppedFile({
 				fileType,
 				src: file.name,
 			});
@@ -603,16 +832,30 @@ export const importAssets = async ({
 				addedStaticFiles.push(file.name);
 			}
 
-			const dimensions = await getFileDimensionsOrNull({file, fileType});
+			const resolvedDimensions = element.dimensions ?? metadata.dimensions;
 
-			const inserted = await insertAssetElement({
+			const durationInFrames = assetTypeHasDuration(element.assetType)
+				? getDurationInFrames({
+						durationInSeconds: metadata.durationInSeconds,
+						fps,
+					})
+				: null;
+
+			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
+				from: getFromForDrop({
+					durationInFrames,
+					from,
+					preferCompositionStart,
+				}),
 				element: {
 					...element,
-					dimensions: element.dimensions ?? dimensions,
-					position: getCenteredPosition({
-						dimensions,
+					dimensions: resolvedDimensions,
+					durationInFrames,
+					position: getAssetPositionForDrop({
+						assetDimensions: resolvedDimensions,
+						destinationDimensions,
 						dropPosition,
 					}),
 				},
@@ -622,12 +865,9 @@ export const importAssets = async ({
 				notifyAddedStaticFiles();
 				return;
 			}
-
-			insertedLabels.push(getAssetLabel(element));
 		}
 
 		notifyAddedStaticFiles();
-		notifyInsertedAssets(insertedLabels);
 		notifyUnsupportedFiles(unsupportedFiles);
 	} catch (error) {
 		showNotification(
@@ -639,15 +879,126 @@ export const importAssets = async ({
 	}
 };
 
+export const importFigmaClipboard = async ({
+	compositionFile,
+	compositionId,
+	destinationDimensions,
+	dropPosition,
+	html,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	destinationDimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+	html: string;
+}) => {
+	// Figma clipboard conversion requires the SVGR-based pipeline in
+	// @remotion/studio-server, which Browser Studio does not support.
+	if (getBrowserStudioOperations()) {
+		showNotification(
+			'Importing Figma clipboard data is not supported in Browser Studio',
+			4000,
+		);
+		return;
+	}
+
+	try {
+		const converted = await callApi('/api/convert-figma-clipboard-to-svg', {
+			html,
+		});
+		if (!converted.success) {
+			showNotification(
+				formatFigmaClipboardErrorNotification(converted.reason),
+				8000,
+			);
+			return;
+		}
+
+		await insertSvgMarkup({
+			compositionFile,
+			compositionId,
+			destinationDimensions,
+			dropPosition,
+			markup: converted.svg,
+		});
+	} catch (error) {
+		showNotification(
+			formatFigmaClipboardErrorNotification(
+				error instanceof Error ? error.message : String(error),
+			),
+			8000,
+		);
+	}
+};
+
+export const insertSvgMarkup = async ({
+	compositionFile,
+	compositionId,
+	destinationDimensions,
+	dropPosition,
+	markup,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	destinationDimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+	markup: string;
+}) => {
+	try {
+		const objectUrl = URL.createObjectURL(
+			new Blob([markup], {type: 'image/svg+xml'}),
+		);
+		let dimensions: Dimensions | null = null;
+		try {
+			dimensions = await getImageDimensions({
+				revokeObjectUrl: true,
+				src: objectUrl,
+			});
+		} catch {
+			dimensions = null;
+		}
+
+		await insertCompositionElement({
+			compositionFile,
+			compositionId,
+			from: null,
+			element: {
+				type: 'svg',
+				markup,
+				position: getAssetPositionForDrop({
+					assetDimensions: dimensions,
+					destinationDimensions,
+					dropPosition,
+				}),
+			},
+		});
+	} catch (error) {
+		showNotification(
+			`Could not add SVG: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
 export const importRemoteAsset = async ({
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
+	fps,
+	from,
+	preferCompositionStart,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
+	fps: number;
+	from: number | null;
+	preferCompositionStart: boolean | null;
 	url: string;
 }) => {
 	try {
@@ -662,23 +1013,37 @@ export const importRemoteAsset = async ({
 			return;
 		}
 
-		const inserted = await insertAssetElement({
+		const metadata = await getStaticAssetMetadataOrNull(
+			assetPath,
+			element.assetType,
+		);
+		const dimensions = element.dimensions ?? metadata.dimensions;
+
+		const durationInFrames = assetTypeHasDuration(element.assetType)
+			? getDurationInFrames({
+					durationInSeconds: metadata.durationInSeconds,
+					fps,
+				})
+			: null;
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
+			from: getFromForDrop({
+				durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
 			element: {
 				...element,
-				position: getCenteredPosition({
-					dimensions: element.dimensions,
+				dimensions,
+				durationInFrames,
+				position: getAssetPositionForDrop({
+					assetDimensions: dimensions,
+					destinationDimensions,
 					dropPosition,
 				}),
 			},
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		notifyInsertedAssets([getAssetLabel(element)]);
 	} catch (error) {
 		showNotification(
 			`Could not add remote asset: ${
@@ -692,10 +1057,16 @@ export const importRemoteAsset = async ({
 export const insertRemoteAudio = async ({
 	compositionFile,
 	compositionId,
+	fps,
+	from,
+	preferCompositionStart,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	fps: number;
+	from: number | null;
+	preferCompositionStart: boolean | null;
 	url: string;
 }) => {
 	if (!isUrl(url)) {
@@ -703,27 +1074,31 @@ export const insertRemoteAudio = async ({
 		return;
 	}
 
-	const element: InsertableCompositionElement = {
-		type: 'asset',
-		assetType: 'audio',
-		src: url,
-		srcType: 'remote',
-		dimensions: null,
-		position: null,
-	};
-
 	try {
-		const inserted = await insertAssetElement({
+		const metadata = await getMediaAssetMetadata(url);
+		const element: InsertableCompositionElement = {
+			type: 'asset',
+			assetType: 'audio',
+			src: url,
+			srcType: 'remote',
+			dimensions: null,
+			durationInFrames: getDurationInFrames({
+				durationInSeconds: metadata.durationInSeconds,
+				fps,
+			}),
+			position: null,
+		};
+
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			element,
+			from: getFromForDrop({
+				durationInFrames: element.durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		notifyInsertedAssets([getAssetLabel(element)]);
 	} catch (error) {
 		showNotification(
 			`Could not add sound effect: ${
@@ -738,18 +1113,25 @@ export const insertExistingAssets = async ({
 	assetPaths,
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
+	fps,
+	from,
+	preferCompositionStart,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
+	fps: number;
+	from: number | null;
+	preferCompositionStart: boolean | null;
 }) => {
 	if (assetPaths.length === 0) {
 		return;
 	}
 
-	const insertedLabels: string[] = [];
 	const unsupportedFiles: string[] = [];
 
 	try {
@@ -760,17 +1142,33 @@ export const insertExistingAssets = async ({
 				continue;
 			}
 
-			const dimensions =
-				element.dimensions ?? (await getStaticAssetDimensionsOrNull(assetPath));
+			const metadata = await getStaticAssetMetadataOrNull(
+				assetPath,
+				element.assetType,
+			);
+			const dimensions = element.dimensions ?? metadata.dimensions;
 
-			const inserted = await insertAssetElement({
+			const durationInFrames = assetTypeHasDuration(element.assetType)
+				? getDurationInFrames({
+						durationInSeconds: metadata.durationInSeconds,
+						fps,
+					})
+				: null;
+			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
+				from: getFromForDrop({
+					durationInFrames,
+					from,
+					preferCompositionStart,
+				}),
 				element: {
 					...element,
 					dimensions,
-					position: getCenteredPosition({
-						dimensions,
+					durationInFrames,
+					position: getAssetPositionForDrop({
+						assetDimensions: dimensions,
+						destinationDimensions,
 						dropPosition,
 					}),
 				},
@@ -779,11 +1177,8 @@ export const insertExistingAssets = async ({
 			if (!inserted) {
 				return;
 			}
-
-			insertedLabels.push(getAssetLabel(element));
 		}
 
-		notifyInsertedAssets(insertedLabels);
 		notifyUnsupportedFiles(unsupportedFiles);
 	} catch (error) {
 		showNotification(
@@ -800,16 +1195,25 @@ export const insertComponent = async ({
 	compositionFile,
 	compositionId,
 	dropPosition,
+	from,
+	preferCompositionStart,
 }: {
 	component: ComponentDragData['component'];
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
+	from: number | null;
+	preferCompositionStart: boolean | null;
 }) => {
 	try {
-		const inserted = await insertAssetElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
+			from: getFromForDrop({
+				durationInFrames: null,
+				from,
+				preferCompositionStart,
+			}),
 			element: {
 				type: 'component',
 				componentName: component.componentName,
@@ -822,15 +1226,6 @@ export const insertComponent = async ({
 				}),
 			},
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		showNotification(
-			`Added ${getComponentLabel(component)} to source file`,
-			2000,
-		);
 	} catch (error) {
 		showNotification(
 			`Could not add component: ${
@@ -856,11 +1251,15 @@ export const insertComposition = async ({
 	compositionFile,
 	compositionId,
 	dropPosition,
+	from,
+	preferCompositionStart,
 }: {
 	composition: CompositionDragData;
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
+	from: number | null;
+	preferCompositionStart: boolean | null;
 }) => {
 	if (composition.compositionId === compositionId) {
 		showNotification('Cannot add a composition to itself', 3000);
@@ -885,9 +1284,14 @@ export const insertComposition = async ({
 			width: calculated.width,
 			height: calculated.height,
 		};
-		const inserted = await insertAssetElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
+			from: getFromForDrop({
+				durationInFrames: calculated.durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
 			element: {
 				type: 'composition',
 				compositionId: composition.compositionId,
@@ -897,21 +1301,12 @@ export const insertComposition = async ({
 				height: calculated.height,
 				serializedResolvedPropsWithCustomSchema:
 					serializeResolvedPropsForSourceCode(calculated.props),
-				position: getCenteredPosition({
-					dimensions,
+				position: getCompositionPositionForDrop({
+					compositionDimensions: dimensions,
 					dropPosition,
 				}),
 			},
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		showNotification(
-			`Added ${composition.compositionId} to ${compositionId}`,
-			2000,
-		);
 	} catch (error) {
 		showNotification(
 			`Could not add composition: ${
@@ -925,33 +1320,42 @@ export const insertComposition = async ({
 export const insertElement = async ({
 	compositionFile,
 	compositionId,
-	dropPosition,
 	element,
+	expectedFileState,
+	position,
+	from,
+	overwriteExisting,
 }: {
 	compositionFile: string;
 	compositionId: string;
-	dropPosition: InsertElementDropPosition | null;
-	element: ElementDragData['element'];
+	element: InstallableElement;
+	expectedFileState: ElementInstallExpectedFileState;
+	position: InsertableCompositionElementPosition | null;
+	from: number | null;
+	overwriteExisting: boolean;
 }) => {
 	try {
-		await installRequiredPackages(element.dependencies);
+		if (getBrowserStudioOperations() === null) {
+			await installRequiredPackages(element.dependencies);
+		}
 
-		const response = await callApi('/api/insert-element', {
+		const response = await installElement({
 			compositionFile,
 			compositionId,
 			element,
-			position: getElementPositionForDrop({
-				dimensions: element.dimensions,
-				dropPosition,
-			}),
+			expectedFileState,
+			from,
+			overwriteExisting,
+			position,
 		});
 
 		if (!response.success) {
-			showNotification(`Could not add Element: ${response.reason}`, 4000);
-			return;
+			const reason =
+				response.type === 'error'
+					? response.reason
+					: `Element file changed: ${response.conflict.filePath}`;
+			showNotification(`Could not add Element: ${reason}`, 4000);
 		}
-
-		showNotification(`Added ${element.displayName} to source file`, 2000);
 	} catch (error) {
 		showNotification(
 			`Could not add Element: ${

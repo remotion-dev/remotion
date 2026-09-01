@@ -1,9 +1,10 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
-import {formatLocationForAgents} from '../helpers/format-file-location';
+import {formatContextForAgents} from '../helpers/format-file-location';
 import {ClipboardIcon} from '../icons/clipboard';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
+import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {showNotification} from './Notifications/NotificationCenter';
 
 const row: React.CSSProperties = {
@@ -23,10 +24,12 @@ const content: React.CSSProperties = {
 };
 
 const action: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
 	flexShrink: 0,
 	height: 24,
-	marginLeft: 4,
-	marginRight: -4,
+	marginLeft: 0,
+	marginRight: 4,
 };
 
 const icon: React.CSSProperties = {
@@ -39,11 +42,12 @@ export const InspectorLocationCopy: React.FC<{
 	readonly children: React.ReactNode;
 	readonly location: OriginalPosition | null;
 	readonly name: string | null;
-}> = ({children, location, name}) => {
+	readonly openInEditorLocation: OriginalPosition | null;
+}> = ({children, location, name, openInEditorLocation}) => {
 	const [hovered, setHovered] = useState(false);
 	const [focusedWithin, setFocusedWithin] = useState(false);
-	const textToCopy = useMemo(() => {
-		return formatLocationForAgents({
+	const contextForAgents = useMemo(() => {
+		return formatContextForAgents({
 			location,
 			name,
 			root: window.remotion_cwd,
@@ -57,24 +61,26 @@ export const InspectorLocationCopy: React.FC<{
 	const onCopy: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
-			if (!textToCopy) {
+			if (!contextForAgents) {
 				return;
 			}
 
-			navigator.clipboard.writeText(textToCopy).catch((err) => {
+			navigator.clipboard.writeText(contextForAgents).catch((err) => {
 				showNotification(
 					`Could not copy to clipboard: ${(err as Error).message}`,
 					2000,
 				);
 			});
 		},
-		[textToCopy],
+		[contextForAgents],
 	);
 
 	const showAction = hovered || focusedWithin;
 
 	return (
 		<div
+			aria-label="Inspector source location"
+			role="group"
 			style={row}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
@@ -82,7 +88,7 @@ export const InspectorLocationCopy: React.FC<{
 			onBlur={() => setFocusedWithin(false)}
 		>
 			<div style={content}>{children}</div>
-			{textToCopy ? (
+			{contextForAgents || openInEditorLocation ? (
 				<div
 					style={{
 						...action,
@@ -90,11 +96,19 @@ export const InspectorLocationCopy: React.FC<{
 						pointerEvents: showAction ? 'auto' : 'none',
 					}}
 				>
-					<InlineAction
-						onClick={onCopy}
-						renderAction={renderCopyAction}
-						title="Copy location for agents"
+					<InspectorOpenInEditor
+						locationType={null}
+						contextForAgents={contextForAgents}
+						location={openInEditorLocation}
 					/>
+					{contextForAgents ? (
+						<InlineAction
+							variant={null}
+							onClick={onCopy}
+							renderAction={renderCopyAction}
+							title="Copy context for agents"
+						/>
+					) : null}
 				</div>
 			) : null}
 		</div>

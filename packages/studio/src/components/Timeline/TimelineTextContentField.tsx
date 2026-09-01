@@ -154,6 +154,7 @@ export const TimelineTextContentField: React.FC<{
 			defaultValue={currentValue}
 			onBlur={commitPending}
 			onChange={onChange}
+			onDoubleClick={(event) => event.stopPropagation()}
 			onKeyDownCapture={onKeyDownCapture}
 			style={textAreaStyle}
 		/>

@@ -6,6 +6,7 @@ import {
 	getEffectFieldsToShow,
 	getFieldsToShow,
 } from '../../helpers/timeline-layout';
+import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {Plus} from '../../icons/plus';
 import {renderFrame} from '../../state/render-frame';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -14,6 +15,7 @@ import {
 	callAddSequenceKeyframe,
 } from '../Timeline/call-add-keyframe';
 import {EasingEditor} from '../Timeline/EasingEditorModal';
+import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
@@ -24,20 +26,16 @@ import {
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {
-	InspectorBackHeaderWithDivider,
-	InspectorInlineAction,
+	InspectorQuickActionsSection,
+	InspectorBackAction,
+	InspectorQuickAction,
 	InspectorMessage,
 } from './common';
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {KeyframeSettings} from './KeyframeSettings';
-import {SequenceInspectorHeaderWithDivider} from './SequenceInspectorHeader';
-import {
-	detailsContainer,
-	inspectorSectionDivider,
-	sectionHeaderTitle,
-	selectedContainer,
-} from './styles';
+import {SequenceInspectorSections} from './SequenceInspectorHeader';
+import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 type EasingInspectorDetails = {
@@ -48,14 +46,15 @@ type EasingInspectorDetails = {
 
 const addKeyframeIcon: React.CSSProperties = {
 	display: 'block',
-	height: 13,
-	width: 12,
+	height: 18,
+	width: 18,
 };
 
 export const EasingInspector: React.FC<{
 	readonly selection: EasingSelection;
 }> = ({selection}) => {
 	const track = useTrackForSelection(selection);
+	const runtimeValues = useRuntimeValues(track?.sequence.controls ?? null);
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {sequences} = useContext(Internals.SequenceManager);
@@ -104,8 +103,7 @@ export const EasingInspector: React.FC<{
 
 			const sequenceFields = getFieldsToShow({
 				schema: track.sequence.controls.schema,
-				currentRuntimeValueDotNotation:
-					track.sequence.controls.currentRuntimeValueDotNotation,
+				currentRuntimeValueDotNotation: runtimeValues,
 				getDragOverrides,
 				propStatuses,
 				nodePath: easingUpdate.nodePath,
@@ -161,6 +159,7 @@ export const EasingInspector: React.FC<{
 		getDragOverrides,
 		getEffectDragOverrides,
 		propStatuses,
+		runtimeValues,
 		track,
 	]);
 	const fieldLabel = easingDetails?.fieldLabel ?? null;
@@ -177,6 +176,13 @@ export const EasingInspector: React.FC<{
 			segmentIndex: easingUpdate.segmentIndex,
 		});
 	}, [easingUpdate, selection.nodePathInfo, track]);
+	const easingKeyframeDisplayOffset =
+		easingUpdate === null || track === null
+			? 0
+			: getKeyframeDisplayOffset({
+					propStatus: easingUpdate.propStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				});
 
 	const state = useMemo(() => {
 		if (initialEasing === null || currentEasingSelection === null) {
@@ -224,7 +230,7 @@ export const EasingInspector: React.FC<{
 				return;
 			}
 
-			const sourceFrame = timelinePosition - track.keyframeDisplayOffset;
+			const sourceFrame = timelinePosition - easingKeyframeDisplayOffset;
 			const value = Internals.getEffectiveVisualModeValue({
 				propStatus: easingUpdate.propStatus,
 				dragOverrideValue: easingDetails.dragOverrideValue,
@@ -275,26 +281,27 @@ export const EasingInspector: React.FC<{
 			setPropStatuses,
 			timelinePosition,
 			track,
+			easingKeyframeDisplayOffset,
 		],
 	);
 
 	const renderHeader = useCallback(
 		() => (
 			<>
-				<InspectorBackHeaderWithDivider
+				<InspectorBackAction
 					disabled={parentSelection === null}
 					onClick={onSelectParent}
 					title="Back to property"
 				>
-					<div style={sectionHeaderTitle}>{fieldLabel}</div>
-				</InspectorBackHeaderWithDivider>
+					{fieldLabel}
+				</InspectorBackAction>
 				{easingUpdate === null || track === null ? null : (
 					<KeyframeEasingNavigator
 						currentSelection={currentEasingSelection ?? selection}
 						includeEasings
 						keyframes={easingUpdate.propStatus.keyframes.map((keyframe) => ({
 							...keyframe,
-							frame: keyframe.frame + track.keyframeDisplayOffset,
+							frame: keyframe.frame + easingKeyframeDisplayOffset,
 						}))}
 						nodePathInfo={selection.nodePathInfo}
 					/>
@@ -309,6 +316,7 @@ export const EasingInspector: React.FC<{
 			parentSelection,
 			selection,
 			track,
+			easingKeyframeDisplayOffset,
 		],
 	);
 
@@ -323,7 +331,7 @@ export const EasingInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorHeaderWithDivider track={track} />
+			<SequenceInspectorSections track={track} />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
@@ -331,20 +339,17 @@ export const EasingInspector: React.FC<{
 			/>
 			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
-				<>
-					<div style={inspectorSectionDivider} />
-					<div style={detailsContainer}>
-						<InspectorInlineAction
-							disabled={addKeyframeDisabled}
-							onClick={onAddKeyframeAtPlayhead}
-							renderIcon={(color) => (
-								<Plus color={color} style={addKeyframeIcon} />
-							)}
-						>
-							{`Add keyframe at ${addKeyframeTime}`}
-						</InspectorInlineAction>
-					</div>
-				</>
+				<InspectorQuickActionsSection>
+					<InspectorQuickAction
+						disabled={addKeyframeDisabled}
+						onClick={onAddKeyframeAtPlayhead}
+						renderIcon={(color) => (
+							<Plus color={color} style={addKeyframeIcon} />
+						)}
+					>
+						{`Add keyframe at ${addKeyframeTime}`}
+					</InspectorQuickAction>
+				</InspectorQuickActionsSection>
 			) : null}
 		</div>
 	);

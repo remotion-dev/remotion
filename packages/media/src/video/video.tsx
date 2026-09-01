@@ -1,5 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {
+	Freeze,
 	Internals,
 	Interactive,
 	Sequence,
@@ -9,15 +10,28 @@ import {
 	type InteractivitySchema,
 } from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
+import {validateToneFrequency} from '../validate-tone-frequency';
+import {getVideoSequenceDuration} from './get-video-sequence-duration';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
 
-const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
-	Internals;
+const {
+	validateMediaTrimProps,
+	resolveTrimProps,
+	validateMediaProps,
+	useCropStyle,
+} = Internals;
 
-const videoSchema = {
+export const videoSchema: InteractivitySchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...Internals.baseSchema,
+	...Internals.premountSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -36,8 +50,23 @@ const videoSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	toneFrequency: {
+		type: 'number',
+		min: 0.01,
+		max: 2,
+		step: 0.01,
+		default: 1,
+		description: 'Pitch',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	muted: {type: 'boolean', default: false, description: 'Muted'},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.transformSchema,
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
+	...Interactive.cropSchema,
 } as const satisfies InteractivitySchema;
 
 const InnerVideo: React.FC<
@@ -64,7 +93,7 @@ const InnerVideo: React.FC<
 	trimAfter,
 	trimBefore,
 	volume,
-	stack,
+	_remotionInternalStack,
 	toneFrequency,
 	showInTimeline,
 	debugOverlay,
@@ -105,6 +134,7 @@ const InnerVideo: React.FC<
 	});
 
 	validateMediaProps({playbackRate, volume}, 'Video');
+	validateToneFrequency({toneFrequency, component: 'Video'});
 
 	if (environment.isRendering) {
 		return (
@@ -127,7 +157,7 @@ const InnerVideo: React.FC<
 				onVideoFrame={onVideoFrame}
 				playbackRate={playbackRate}
 				src={src}
-				stack={stack}
+				_remotionInternalStack={_remotionInternalStack}
 				style={style}
 				volume={volume}
 				toneFrequency={toneFrequency}
@@ -155,13 +185,14 @@ const InnerVideo: React.FC<
 			muted={muted}
 			onVideoFrame={onVideoFrame}
 			playbackRate={playbackRate}
+			toneFrequency={toneFrequency ?? 1}
 			src={src}
 			style={style}
 			volume={volume}
 			showInTimeline={showInTimeline}
 			trimAfter={trimAfterValue}
 			trimBefore={trimBeforeValue}
-			stack={stack ?? null}
+			_remotionInternalStack={_remotionInternalStack ?? null}
 			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 			debugOverlay={debugOverlay ?? false}
@@ -204,7 +235,6 @@ const VideoInner: React.FC<
 	trimAfter,
 	trimBefore,
 	volume,
-	stack,
 	toneFrequency,
 	debugOverlay,
 	headless,
@@ -219,8 +249,19 @@ const VideoInner: React.FC<
 	from,
 	freeze,
 	hidden,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	cropLeft,
+	cropRight,
+	cropTop,
+	cropBottom,
 	...props
 }) => {
+	const sourceStack = controls
+		? (Internals.getStackForControls(controls) ?? undefined)
+		: undefined;
 	const fallbackLogLevel = Internals.useLogLevel();
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
@@ -229,6 +270,13 @@ const VideoInner: React.FC<
 		durationInFrames ?? Infinity,
 		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
 	);
+	const videoSequenceDuration = getVideoSequenceDuration({
+		durationInFrames,
+		loop: loop ?? false,
+		playbackRate: playbackRate ?? 1,
+		trimAfter,
+		trimBefore,
+	});
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
 		src,
@@ -242,6 +290,7 @@ const VideoInner: React.FC<
 		mediaVolume,
 		mediaStartsAt,
 		loop: loop ?? false,
+		muted: muted ?? false,
 	});
 
 	// TODO: Redundant with what we do in the Studio
@@ -287,73 +336,104 @@ const VideoInner: React.FC<
 		effects ?? [],
 	);
 	const refForOutline = React.useRef<HTMLElement | null>(null);
+	const {
+		effectivePostmountFor,
+		effectivePremountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		postmountingActive,
+		premountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: videoSequenceDuration ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'display-none',
+	});
+	const croppedStyle = useCropStyle({
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
+		style: premountingStyle,
+		componentName: '<Video />',
+	});
 
 	if (sequenceDurationInFrames === 0) {
 		return null;
 	}
 
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			durationInFrames={basicInfo.duration}
-			freeze={freeze}
-			_remotionInternalStack={stack}
-			_remotionInternalIsMedia={isMedia}
-			name={name ?? '<Video>'}
-			_remotionInternalDocumentationLink={
-				name === undefined
-					? 'https://www.remotion.dev/docs/media/video'
-					: undefined
-			}
-			controls={controls}
-			_remotionInternalLoopDisplay={loopDisplay}
-			_remotionInternalEffects={memoizedEffectDefinitions}
-			outlineRef={refForOutline}
-			showInTimeline={showInTimeline ?? true}
-			hidden={hidden}
-		>
-			<InnerVideo
-				{...props}
-				audioStreamIndex={audioStreamIndex ?? 0}
-				className={className}
-				delayRenderRetries={delayRenderRetries ?? null}
-				delayRenderTimeoutInMilliseconds={
-					delayRenderTimeoutInMilliseconds ?? null
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				durationInFrames={videoSequenceDuration}
+				freeze={freeze}
+				_remotionInternalIsMedia={isMedia}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				name={name ?? '<Video>'}
+				_remotionInternalDocumentationLink={
+					name === undefined
+						? 'https://www.remotion.dev/docs/media/video'
+						: undefined
 				}
-				disallowFallbackToOffthreadVideo={
-					disallowFallbackToOffthreadVideo ?? false
-				}
-				fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
-				logLevel={logLevel ?? fallbackLogLevel}
-				loop={loop ?? false}
-				loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
-				muted={muted ?? false}
-				onVideoFrame={onVideoFrame}
-				playbackRate={playbackRate ?? 1}
-				showInTimeline={showInTimeline ?? true}
-				src={src}
-				style={style ?? {}}
-				trimAfter={trimAfter}
-				trimBefore={trimBefore}
-				volume={volume ?? 1}
-				toneFrequency={toneFrequency ?? 1}
-				stack={stack}
-				debugOverlay={debugOverlay ?? false}
-				headless={headless ?? false}
-				onError={onError}
-				credentials={credentials}
-				requestInit={requestInit}
 				controls={controls}
-				objectFit={objectFit ?? 'contain'}
-				_experimentalInitiallyDrawCachedFrame={
-					_experimentalInitiallyDrawCachedFrame ?? false
-				}
-				effects={memoizedEffects}
-				setMediaDurationInSeconds={setMediaDurationInSeconds}
-				refForOutline={refForOutline}
-			/>
-		</Sequence>
+				_remotionInternalLoopDisplay={loopDisplay}
+				_remotionInternalEffects={memoizedEffectDefinitions}
+				outlineRef={refForOutline}
+				showInTimeline={showInTimeline ?? true}
+				hidden={hidden}
+			>
+				<InnerVideo
+					{...props}
+					audioStreamIndex={audioStreamIndex ?? 0}
+					className={className}
+					delayRenderRetries={delayRenderRetries ?? null}
+					delayRenderTimeoutInMilliseconds={
+						delayRenderTimeoutInMilliseconds ?? null
+					}
+					disallowFallbackToOffthreadVideo={
+						disallowFallbackToOffthreadVideo ?? false
+					}
+					fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
+					logLevel={logLevel ?? fallbackLogLevel}
+					loop={loop ?? false}
+					loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
+					muted={muted ?? false}
+					onVideoFrame={onVideoFrame}
+					playbackRate={playbackRate ?? 1}
+					showInTimeline={showInTimeline ?? true}
+					src={src}
+					style={croppedStyle ?? {}}
+					trimAfter={trimAfter}
+					trimBefore={trimBefore}
+					volume={volume ?? 1}
+					toneFrequency={toneFrequency ?? 1}
+					_remotionInternalStack={sourceStack}
+					debugOverlay={debugOverlay ?? false}
+					headless={headless ?? false}
+					onError={onError}
+					credentials={credentials}
+					requestInit={requestInit}
+					controls={controls}
+					objectFit={objectFit ?? 'contain'}
+					_experimentalInitiallyDrawCachedFrame={
+						_experimentalInitiallyDrawCachedFrame ?? false
+					}
+					effects={memoizedEffects}
+					setMediaDurationInSeconds={setMediaDurationInSeconds}
+					refForOutline={refForOutline}
+				/>
+			</Sequence>
+		</Freeze>
 	);
 };
 

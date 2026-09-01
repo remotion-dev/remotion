@@ -184,10 +184,13 @@ export const Filmstrip: React.FC<{
 	readonly durationInFrames: number;
 	readonly inFrame: number | null;
 	readonly outFrame: number | null;
-	readonly onTrim: (trim: {
-		inFrame: number | null;
-		outFrame: number | null;
-	}) => void;
+	readonly onTrim: (
+		trim: {
+			inFrame: number | null;
+			outFrame: number | null;
+		},
+		seekToFrame: number,
+	) => void;
 }> = ({
 	src,
 	durationInSeconds,
@@ -222,7 +225,10 @@ export const Filmstrip: React.FC<{
 		const maxInFrame = currentOutFrame - minimumFrameDistance;
 		const nextInFrame = clamp(frame, 0, maxInFrame);
 
-		onTrim({inFrame: nextInFrame === 0 ? null : nextInFrame, outFrame});
+		onTrim(
+			{inFrame: nextInFrame === 0 ? null : nextInFrame, outFrame},
+			nextInFrame,
+		);
 	};
 
 	const setOutFrameFromPointer = (clientX: number) => {
@@ -240,24 +246,33 @@ export const Filmstrip: React.FC<{
 		const minOutFrame = currentInFrame + minimumFrameDistance;
 		const nextOutFrame = clamp(frame, minOutFrame, durationInFrames - 1);
 
-		onTrim({
-			inFrame,
-			outFrame: nextOutFrame === durationInFrames - 1 ? null : nextOutFrame,
-		});
+		onTrim(
+			{
+				inFrame,
+				outFrame: nextOutFrame === durationInFrames - 1 ? null : nextOutFrame,
+			},
+			nextOutFrame,
+		);
 	};
 
 	const setInFrame = (frame: number) => {
-		onTrim({
-			inFrame: frame === 0 ? null : frame,
-			outFrame,
-		});
+		onTrim(
+			{
+				inFrame: frame === 0 ? null : frame,
+				outFrame,
+			},
+			frame,
+		);
 	};
 
 	const setOutFrame = (frame: number) => {
-		onTrim({
-			inFrame,
-			outFrame: frame === durationInFrames - 1 ? null : frame,
-		});
+		onTrim(
+			{
+				inFrame,
+				outFrame: frame === durationInFrames - 1 ? null : frame,
+			},
+			frame,
+		);
 	};
 
 	const moveInFrame = (delta: number) => {

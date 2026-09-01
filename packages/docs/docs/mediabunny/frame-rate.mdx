@@ -1,0 +1,113 @@
+---
+image: /generated/articles-docs-mediabunny-frame-rate.png
+title: Getting the frame rate of a video
+crumb: 'Mediabunny'
+sidebar_label: Getting the frame rate
+---
+
+Videos can have one of two types of frame rates:
+
+- Constant frame rate: The time interval between frames is static.
+  30 FPS and 60 FPS are common values for constant frame rate videos.
+- Variable frame rate: The time interval between frames varies.
+  This is most common for screen recordings, where a frame is only sampled when the content has changed.
+
+## Getting the frame rate using Mediabunny
+
+Use Mediabunny's [`computeFrameRateMetrics()`](https://mediabunny.dev/api/InputVideoTrack#computeframeratemetrics) method to estimate the frame rate from the video's frame timestamps:
+
+```ts twoslash title="get-frame-rate.ts"
+import type {InputVideoTrack} from 'mediabunny';
+
+const getFrameRate = async (videoTrack: InputVideoTrack) => {
+  const metrics = await videoTrack.computeFrameRateMetrics();
+         // ^?
+
+  if (metrics.probedPacketCount < 2) {
+    return null;
+  }
+
+  return metrics.bestGuessFrameRate;
+};
+```
+
+With [`metrics.frameRateIsConstant`](https://mediabunny.dev/api/FrameRateMetrics#framerateisconstant) you can determine whether the frame rate is constant or variable.
+
+[`bestGuessFrameRate`](https://mediabunny.dev/api/FrameRateMetrics#bestguessframerate) is Mediabunny's estimate of the intended frame rate and recommendation for your timeline.<br />
+If Mediabunny detects a consistent underlying frame rate, this value is snapped to it.
+
+If [`underlyingFrameRate`](https://mediabunny.dev/api/FrameRateMetrics#underlyingframerate) is `null`, the video has no consistent underlying frame rate.<br />
+In this case, [`maxFrameRate`](https://mediabunny.dev/api/FrameRateMetrics#maxframerate) is the highest frame rate measured between two consecutive frames.
+
+<details>
+<summary>
+Don't use the average frame rate when dealing with variable frame rate videos
+</summary>
+
+Consider a 10-second screen recording where:
+
+- For the first 5 seconds there is no movement on the screen
+- For the next 5 seconds, as the mouse cursor starts moving, frames are written with up to 120 FPS.
+
+The average frame rate is 60 FPS.<br />
+Setting the timeline to 60 FPS would drop every second frame in the second half of the video.
+
+</details>
+
+By default, `computeFrameRateMetrics()` probes the first 256 packets. You can change the number using the [`targetPacketCount`](https://mediabunny.dev/api/FrameRateMetricsOptions#targetpacketcount) option. A larger sample can be more representative, but requires reading more of the file.
+
+## Matching a Remotion composition to the frame rate
+
+Align Remotion's timeline frame rate to the source video's [`bestGuessFrameRate`](https://mediabunny.dev/api/FrameRateMetrics#bestguessframerate).
+
+Remotion and most other video editors do not support variable frame rate timelines or outputting variable frame rate videos.
+You must specify a constant frame rate for your composition.
+
+Changing the frame rate is a lossy process.<br />
+While `bestGuessFrameRate` does its best to recommend a good frame rate, it may lead to dropped frames.<br />
+`maxFrameRate` is an alternative to consider, but may lead to some seriously high frame rate videos if there are just 2 samples which are very close to each other.
+
+### Usage example
+
+Use [`calculateMetadata()`](/docs/calculate-metadata) to match the composition FPS to the source video:
+
+```ts twoslash title="calculate-metadata.ts"
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import type {CalculateMetadataFunction} from 'remotion';
+
+type Props = {
+  src: string;
+};
+
+export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
+  props,
+}) => {
+  using input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(props.src),
+  });
+
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const [frameRateMetrics, durationInSeconds] = await Promise.all([
+    videoTrack?.computeFrameRateMetrics() ?? null,
+    input.computeDuration(),
+  ]);
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? 30 // Fallback if none or not enough video frames are available
+      : frameRateMetrics.bestGuessFrameRate;
+
+  return {
+    fps,
+    durationInFrames: Math.floor(durationInSeconds * fps),
+  };
+};
+```
+
+If the frame rate cannot be determined, decide which frame rate you want to fall back to, in this example 30.
+
+The `durationInFrames` is adjusted to preserve the duration of the source video.
+
+## See also
+
+- [Getting metadata from a video](/docs/mediabunny/metadata)

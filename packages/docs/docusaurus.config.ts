@@ -1,23 +1,22 @@
 import type {Config} from '@docusaurus/types';
+import elementSourceDependencies from './plugins/element-source-dependencies.js';
 import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
+import {elementRegistry} from './src/components/Elements/element-registry';
 
-const lowMemoryBuild =
-	process.env.VERCEL === '1' ||
-	process.env.VERCEL === 'true' ||
-	process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
-const fasterConfig = lowMemoryBuild
+const fasterConfig = isVercel
 	? {
 			swcJsLoader: true,
 			swcJsMinimizer: true,
 			swcHtmlMinimizer: true,
 			lightningCssMinimizer: true,
 			mdxCrossCompilerCache: false,
-			rspackBundler: false,
+			rspackBundler: true,
 			rspackPersistentCache: false,
 			ssgWorkerThreads: false,
-			gitEagerVcs: false,
+			gitEagerVcs: true,
 		}
 	: true;
 
@@ -79,6 +78,7 @@ const config: Config = {
 					label: 'Products',
 					position: 'left',
 					items: [
+						{to: '/docs/ai/plugins', label: 'Plugins'},
 						{to: '/player', label: 'Player'},
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
@@ -92,6 +92,7 @@ const config: Config = {
 					label: 'Resources',
 					position: 'left',
 					items: [
+						{to: '/elements', label: 'Elements'},
 						{to: '/templates', label: 'Templates'},
 						{to: 'https://remotion.dev/prompts', label: 'Prompts'},
 						{to: 'learn', label: 'Learn'},
@@ -151,6 +152,10 @@ const config: Config = {
 							to: '/docs/',
 						},
 						{
+							label: 'Elements',
+							to: '/elements',
+						},
+						{
 							label: 'Templates',
 							to: '/templates',
 						},
@@ -167,10 +172,6 @@ const config: Config = {
 							to: '/lambda',
 						},
 						{
-							label: 'Learn',
-							to: '/learn',
-						},
-						{
 							label: 'Convert a video',
 							to: 'https://convert.remotion.dev',
 						},
@@ -183,7 +184,11 @@ const config: Config = {
 							href: 'https://github.com/remotion-dev/remotion',
 						},
 						{
-							label: 'License + Pricing',
+							label: 'Changelog',
+							href: 'https://remotion.dev/changelog',
+						},
+						{
+							label: 'License & Pricing',
 							to: '/docs/license/pricing',
 						},
 					],
@@ -198,6 +203,10 @@ const config: Config = {
 						{
 							label: 'Showcase',
 							to: 'showcase',
+						},
+						{
+							label: 'Success Stories',
+							to: 'success-stories',
 						},
 						{
 							label: 'Experts',
@@ -230,53 +239,67 @@ const config: Config = {
 					],
 				},
 				{
-					title: 'More',
+					title: 'Company',
 					items: [
 						{
-							label: 'About us',
+							label: 'About Us',
 							to: 'about',
 						},
 						{
-							label: 'Contact us',
+							label: 'Contact Us',
 							to: 'contact',
 						},
 						{
-							label: 'Blog',
-							to: 'blog',
+							label: 'Investors',
+							to: '/docs/investors',
 						},
 						{
-							label: 'Success Stories',
-							to: 'success-stories',
+							label: 'Brand',
+							href: 'https://remotion.dev/brand',
+						},
+					],
+				},
+				{
+					title: 'Legal & Trust',
+					items: [
+						{
+							label: 'Terms and Conditions',
+							to: '/docs/terms',
+						},
+						{
+							label: 'Privacy Policy',
+							to: '/docs/privacy',
+						},
+						{
+							label: 'DPA Statement',
+							to: '/docs/dpa',
+						},
+						{
+							label: 'DPIA Statement',
+							to: '/docs/dpia',
+						},
+						{
+							label: 'Acknowledgments',
+							to: '/docs/acknowledgements',
+						},
+					],
+				},
+				{
+					title: 'More',
+					items: [
+						{
+							label: 'Blog',
+							to: 'blog',
 						},
 						{
 							label: 'Support',
 							to: '/docs/support',
 						},
 						{
-							label: 'Changelog',
-							href: 'https://remotion.dev/changelog',
+							label: 'Accessibility',
+							to: '/docs/accessibility',
 						},
-						{
-							label: 'Acknowledgements',
-							href: 'https://remotion.dev/acknowledgements',
-						},
-						{
-							label: 'License',
-							href: 'https://remotion.dev/license',
-						},
-						{
-							label: 'Terms and Conditions',
-							href: 'https://remotion.pro/terms',
-						},
-						{
-							label: 'Privacy Policy',
-							href: 'https://remotion.pro/privacy',
-						},
-						{
-							label: 'Brand',
-							href: 'https://remotion.dev/brand',
-						},
-					].filter(Boolean),
+					],
 				},
 			],
 		},
@@ -324,6 +347,7 @@ const config: Config = {
 		],
 	],
 	plugins: [
+		elementSourceDependencies,
 		[
 			'@docusaurus/plugin-content-docs',
 			{
@@ -334,7 +358,7 @@ const config: Config = {
 				editUrl:
 					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 				showLastUpdateTime: showGitLastUpdate,
-				beforeDefaultRemarkPlugins: [remarkElementSource],
+				beforeDefaultRemarkPlugins: [[remarkElementSource, {elementRegistry}]],
 				remarkPlugins: [remarkExportRaw],
 			},
 		],

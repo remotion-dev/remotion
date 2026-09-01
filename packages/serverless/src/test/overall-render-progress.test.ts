@@ -4,7 +4,10 @@ import type {
 	PostRenderData,
 	ProviderSpecifics,
 } from '@remotion/serverless-client';
-import {makeOverallRenderProgress} from '../overall-render-progress';
+import {
+	makeInitialOverallRenderProgress,
+	makeOverallRenderProgress,
+} from '../overall-render-progress';
 
 type MockProvider = CloudProvider<
 	'eu-central-1',
@@ -36,6 +39,9 @@ const makeProviderSpecifics = ({
 		getBuckets: () => Promise.resolve([]),
 		getChromiumPath: () => null,
 		getEphemeralStorageForPriceCalculation: () => 512,
+		getBillingCurrency: () => 'USD',
+		getRendererFunctionTransport: () => 'response-streaming',
+		getServiceDnsSuffix: () => 'example.com',
 		getFunctions: () => Promise.resolve([]),
 		getLoggingUrlForMethod: () => 'logs',
 		getLoggingUrlForRendererFunction: () => 'logs',
@@ -82,6 +88,11 @@ const postRenderData: PostRenderData<MockProvider> = {
 	timeToRenderFrames: 1,
 };
 
+test('stores whether cancellation is enabled', () => {
+	const progress = makeInitialOverallRenderProgress<MockProvider>(1, true);
+	expect(progress.cancellationEnabled).toBe(true);
+});
+
 test('setPostRenderData retries transient progress upload failures', async () => {
 	let attempts = 0;
 	let persistedBody: string | null = null;
@@ -97,6 +108,7 @@ test('setPostRenderData retries transient progress upload failures', async () =>
 		},
 	});
 	const overallProgress = makeOverallRenderProgress({
+		cancellationEnabled: false,
 		bucketName: 'bucket',
 		expectedBucketOwner: '123456789012',
 		forcePathStyle: false,

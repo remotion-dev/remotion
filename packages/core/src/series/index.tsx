@@ -5,7 +5,10 @@ import React, {
 	type PropsWithChildren,
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
-import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {
+	addSequenceStackTraces,
+	getSingleChildComponent,
+} from '../enable-sequence-stack-traces.js';
 import {Interactive} from '../Interactive.js';
 import {
 	sequenceSchemaDefaultLayoutNone,
@@ -30,7 +33,7 @@ type SeriesSequenceProps = PropsWithChildren<
 		readonly className?: string;
 	} & Pick<
 		SequenceProps,
-		'layout' | 'name' | 'hidden' | 'showInTimeline' | 'freeze'
+		'layout' | 'name' | 'hidden' | 'showInTimeline' | 'freeze' | 'trimBefore'
 	> &
 		LayoutAndStyle
 >;
@@ -38,7 +41,6 @@ type SeriesSequenceProps = PropsWithChildren<
 
 type ResolvedSeriesSequenceProps = SeriesSequenceProps & {
 	readonly controls: SequenceControls | null | undefined;
-	readonly stack: string | null;
 };
 
 type InternalSeriesSequenceProps = ResolvedSeriesSequenceProps & {
@@ -56,6 +58,7 @@ const seriesSequenceSchema = {
 	hidden: Interactive.sequenceSchema.hidden,
 	showInTimeline: Interactive.sequenceSchema.showInTimeline,
 	freeze: Interactive.baseSchema.freeze,
+	trimBefore: Interactive.sequenceSchema.trimBefore,
 	layout: Interactive.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 
@@ -64,19 +67,13 @@ const SeriesSequenceInner = forwardRef<
 	InternalSeriesSequenceProps
 >(
 	(
-		{
-			offset = 0,
-			className = '',
-			stack = null,
-			_remotionInternalRender = null,
-			...props
-		},
+		{offset = 0, className = '', _remotionInternalRender = null, ...props},
 		ref,
 	) => {
 		useRequireToBeInsideSeries();
 		if (_remotionInternalRender) {
 			return _remotionInternalRender(
-				{...props, offset, className: className || undefined, stack},
+				{...props, offset, className: className || undefined},
 				ref,
 			);
 		}
@@ -199,7 +196,6 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 						children: sequenceChildren,
 						offset: offsetProp,
 						controls,
-						stack,
 						from: _from,
 						name,
 						...passedProps
@@ -223,11 +219,13 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 								_remotionInternalDocumentationLink={
 									name ? undefined : 'https://www.remotion.dev/docs/series'
 								}
-								_remotionInternalStack={stack ?? undefined}
 								controls={controls ?? undefined}
 								from={currentStartFrame}
 								durationInFrames={durationInFramesProp}
 								{...passedProps}
+								_remotionInternalSingleChildComponent={getSingleChildComponent(
+									sequenceChildren,
+								)}
 							>
 								<IsNotInsideSeriesProvider>
 									{sequenceChildren}
@@ -244,16 +242,14 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 	}, [props.children]);
 
 	return (
-		<IsInsideSeriesContainer>
-			<Sequence
-				layout="none"
-				name="<Series>"
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
-				{...props}
-			>
-				{childrenValue}
-			</Sequence>
-		</IsInsideSeriesContainer>
+		<Sequence
+			layout="none"
+			name="<Series>"
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
+			{...props}
+		>
+			<IsInsideSeriesContainer>{childrenValue}</IsInsideSeriesContainer>
+		</Sequence>
 	);
 };
 

@@ -1,5 +1,11 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {TSequence} from './CompositionManager.js';
+import {
+	COMMIT_ORDER_EVENT,
+	SequenceManagerOrderMarker,
+	type CommitOrderEventDetail,
+} from './sequence-order-marker.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
 	CanUpdateSequencePropStatus,
 	DragOverrideValue,
@@ -10,8 +16,12 @@ import type {
 	PropStatuses,
 } from './use-schema.js';
 
+const useIsomorphicLayoutEffect =
+	typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+
 export type SequenceManagerContext = {
 	registerSequence: (seq: TSequence) => void;
+	updateSequence: ((seq: TSequence) => void) | null;
 	unregisterSequence: (id: string) => void;
 	sequences: TSequence[];
 };
@@ -26,6 +36,7 @@ export const SequenceManager = React.createContext<SequenceManagerContext>({
 	registerSequence: () => {
 		throw new Error('SequenceManagerContext not initialized');
 	},
+	updateSequence: null,
 	unregisterSequence: () => {
 		throw new Error('SequenceManagerContext not initialized');
 	},
@@ -36,6 +47,8 @@ export const SequenceManagerRefContext =
 	React.createContext<SequenceManagerRef>({
 		current: [],
 	});
+
+export const SequenceRegistrationContext = React.createContext(false);
 
 export type VisualModePropStatuses = {
 	propStatuses: PropStatuses;
@@ -48,6 +61,12 @@ export type VisualModePropStatusesRef = {
 export type VisualModeDragOverrides = {
 	getDragOverrides: GetDragOverrides;
 	getEffectDragOverrides: GetEffectDragOverrides;
+};
+
+export type SequencePropsStatusRemapping = {
+	previousNodePath: SequencePropsSubscriptionKey;
+	nodePath: SequencePropsSubscriptionKey | null;
+	result: CanUpdateSequencePropsResponse | null;
 };
 
 export type VisualModeSetters = {
@@ -72,6 +91,9 @@ export type VisualModeSetters = {
 		values: (
 			prev: CanUpdateSequencePropsResponse,
 		) => CanUpdateSequencePropsResponse,
+	) => void;
+	remapPropStatuses: (
+		remappings: readonly SequencePropsStatusRemapping[],
 	) => void;
 };
 
@@ -118,7 +140,7 @@ export type CanUpdateSequencePropsResponse =
 export const makeSequencePropsSubscriptionKey = (
 	key: SequencePropsSubscriptionKey,
 ): string => {
-	return `${key.nodePath.join('.')}.${key.sequenceKeys.join('.')}.${key.effectKeys.map((keys) => keys.join('.')).join('.')}`;
+	return `${key.absolutePath}\0${key.nodePath.join('.')}\0${key.sequenceKeys.join('.')}\0${key.effectKeys.map((keys) => keys.join('.')).join('.')}`;
 };
 
 export const VisualModePropStatusesContext =
@@ -157,6 +179,9 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 	setPropStatuses: () => {
 		throw new Error('VisualModeSettersContext not initialized');
 	},
+	remapPropStatuses: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
 });
 
 export type SequencePropsSubscriptionKey = {
@@ -183,6 +208,10 @@ const effectDragOverridesKey = (
 export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
+	const {isStudio} = useRemotionEnvironment();
+	const [sequenceManagerId] = useState(() => String(Math.random()));
+	const committedOrderRef = useRef<ReadonlyMap<string, number> | null>(null);
+	const committedOrderIdsRef = useRef<readonly string[] | null>(null);
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const sequencesRef = useRef(sequences);
 	sequencesRef.current = sequences;
@@ -287,10 +316,116 @@ export const SequenceManagerProvider: React.FC<{
 		},
 		[],
 	);
+	const remapPropStatuses = useCallback(
+		(remappings: readonly SequencePropsStatusRemapping[]) => {
+			setPropStatusesMapState((prev) => {
+				const next = {...prev};
+				for (const remapping of remappings) {
+					delete next[
+						makeSequencePropsSubscriptionKey(remapping.previousNodePath)
+					];
+				}
+
+				for (const remapping of remappings) {
+					if (remapping.nodePath !== null && remapping.result !== null) {
+						next[makeSequencePropsSubscriptionKey(remapping.nodePath)] =
+							remapping.result;
+					}
+				}
+
+				return next;
+			});
+		},
+		[],
+	);
+
+	useIsomorphicLayoutEffect(() => {
+		if (!isStudio) {
+			return;
+		}
+
+		let unmounted = false;
+		const onCommitOrder = (event: Event) => {
+			const {detail} = event as CustomEvent<CommitOrderEventDetail>;
+			const managerOrder = detail.sequenceManagers.find(
+				(item) => item.managerId === sequenceManagerId,
+			);
+			if (!managerOrder) {
+				return;
+			}
+
+			const previousOrder = committedOrderIdsRef.current;
+			if (
+				previousOrder !== null &&
+				previousOrder.length === managerOrder.sequenceIds.length &&
+				previousOrder.every(
+					(sequenceId, index) => sequenceId === managerOrder.sequenceIds[index],
+				)
+			) {
+				return;
+			}
+
+			const order = new Map(
+				managerOrder.sequenceIds.map((sequenceId, index) => [
+					sequenceId,
+					index,
+				]),
+			);
+			committedOrderIdsRef.current = managerOrder.sequenceIds;
+			committedOrderRef.current = order;
+			queueMicrotask(() => {
+				if (unmounted) {
+					return;
+				}
+
+				setSequences((currentSequences) => {
+					let changed = false;
+					const nextSequences = currentSequences.map((sequence) => {
+						const timelineOrder = order.get(sequence.id) ?? null;
+						if (sequence.timelineOrder === timelineOrder) {
+							return sequence;
+						}
+
+						changed = true;
+						return {...sequence, timelineOrder};
+					});
+
+					return changed ? nextSequences : currentSequences;
+				});
+			});
+		};
+
+		window.addEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
+		return () => {
+			unmounted = true;
+			window.removeEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
+		};
+	}, [isStudio, sequenceManagerId]);
 
 	const registerSequence = useCallback((seq: TSequence) => {
 		setSequences((seqs) => {
-			return [...seqs, seq];
+			return [
+				...seqs,
+				{
+					...seq,
+					timelineOrder: committedOrderRef.current?.get(seq.id) ?? null,
+				},
+			];
+		});
+	}, []);
+	const updateSequence = useCallback((seq: TSequence) => {
+		setSequences((seqs) => {
+			const index = seqs.findIndex((item) => item.id === seq.id);
+			if (index === -1) {
+				return seqs;
+			}
+
+			const next = [...seqs];
+			next[index] = {
+				...seq,
+				timelineOrder: committedOrderRef.current?.get(seq.id) ?? null,
+			};
+			return next;
 		});
 	}, []);
 
@@ -302,9 +437,10 @@ export const SequenceManagerProvider: React.FC<{
 		return {
 			registerSequence,
 			sequences,
+			updateSequence,
 			unregisterSequence,
 		};
-	}, [registerSequence, sequences, unregisterSequence]);
+	}, [registerSequence, sequences, unregisterSequence, updateSequence]);
 
 	const getDragOverrides = useCallback(
 		(nodePath: SequencePropsSubscriptionKey) => {
@@ -344,6 +480,7 @@ export const SequenceManagerProvider: React.FC<{
 			setEffectDragOverrides,
 			clearEffectDragOverrides,
 			setPropStatuses,
+			remapPropStatuses,
 		};
 	}, [
 		setDragOverrides,
@@ -351,9 +488,10 @@ export const SequenceManagerProvider: React.FC<{
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
 		setPropStatuses,
+		remapPropStatuses,
 	]);
 
-	return (
+	const providers = (
 		<SequenceManagerRefContext.Provider value={sequencesRef}>
 			<SequenceManager.Provider value={sequenceContext}>
 				<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
@@ -369,5 +507,13 @@ export const SequenceManagerProvider: React.FC<{
 				</VisualModePropStatusesRefContext.Provider>
 			</SequenceManager.Provider>
 		</SequenceManagerRefContext.Provider>
+	);
+
+	return isStudio ? (
+		<SequenceManagerOrderMarker managerId={sequenceManagerId}>
+			{providers}
+		</SequenceManagerOrderMarker>
+	) : (
+		providers
 	);
 };

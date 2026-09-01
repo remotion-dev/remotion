@@ -1,8 +1,13 @@
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
+	getFrameInKeyframedStatusClock,
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
+import {
+	FILE_TOKEN,
+	resolveFileTokenToUrl,
+} from './input-props-serialization.js';
 import type {
 	InteractivitySchema,
 	InteractivitySchemaField,
@@ -17,6 +22,7 @@ import type {
 export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
+	keyframeDisplayOffsetAdjustment: number | null;
 	numericExpression?: VideoConfigNumericExpression;
 };
 
@@ -43,10 +49,21 @@ export type VideoConfigNumericExpression =
 			multiplicand: number;
 			factorPosition: 'left' | 'right';
 			value: number;
+	  }
+	| {
+			type: 'video-config-subtraction';
+			identifier: string;
+			minuend: number;
+			subtrahend: number;
+			value: number;
 	  };
 
 export type CanUpdateSequencePropStatusLinearEasing = {
 	type: 'linear';
+};
+
+export type CanUpdateSequencePropStatusStep1Easing = {
+	type: 'step1';
 };
 
 export type CanUpdateSequencePropStatusBezierEasing = {
@@ -69,6 +86,7 @@ export type CanUpdateSequencePropStatusSpringEasing = {
 
 export type CanUpdateSequencePropStatusEasing =
 	| CanUpdateSequencePropStatusLinearEasing
+	| CanUpdateSequencePropStatusStep1Easing
 	| CanUpdateSequencePropStatusBezierEasing
 	| CanUpdateSequencePropStatusSpringEasing;
 
@@ -111,6 +129,13 @@ export type CanUpdateSequencePropStatusComputed = {
 export type CanUpdateSequencePropStatusKeyframed = {
 	status: 'keyframed';
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
+	/**
+	 * Added to the timeline track's keyframe display offset and subtracted from
+	 * the controlled element's local frame when evaluating the interpolation.
+	 * This is non-zero when the useCurrentFrame() call is outside a timing
+	 * element that wraps the controlled element.
+	 */
+	keyframeDisplayOffsetAdjustment: number | null;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
@@ -169,10 +194,12 @@ export const makeKeyframedDragOverride = ({
 	status,
 	frame,
 	value,
+	defaultEasing = DEFAULT_LINEAR_EASING,
 }: {
 	status: CanUpdateSequencePropStatusKeyframed;
 	frame: number;
 	value: unknown;
+	defaultEasing?: CanUpdateSequencePropStatusEasing;
 }): DragOverrideValue => {
 	const existingIndex = status.keyframes.findIndex(
 		(keyframe) => keyframe.frame === frame,
@@ -197,13 +224,13 @@ export const makeKeyframedDragOverride = ({
 		});
 		const easingToDuplicate =
 			easingIndexToDuplicate === null
-				? DEFAULT_LINEAR_EASING
+				? defaultEasing
 				: easing[easingIndexToDuplicate];
 		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
 	}
 
 	while (easing.length < keyframes.length - 1) {
-		easing.push(DEFAULT_LINEAR_EASING);
+		easing.push(defaultEasing);
 	}
 
 	if (easing.length > keyframes.length - 1) {
@@ -299,7 +326,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				} else if (frame !== null) {
 					const interpolated = interpolateKeyframedStatus({
 						forceSpringAllowTail: null,
-						frame,
+						frame: getFrameInKeyframedStatusClock({frame, status}),
 						status,
 					});
 					value = interpolated ?? currentValue[key];
@@ -317,6 +344,14 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				frame,
 				shouldResortToDefaultValueIfUndefined: false,
 			});
+		}
+
+		if (
+			field?.type === 'asset' &&
+			typeof value === 'string' &&
+			value.startsWith(FILE_TOKEN)
+		) {
+			value = resolveFileTokenToUrl(value);
 		}
 
 		if (value === undefined) {

@@ -1,0 +1,240 @@
+:root {
+	color-scheme: light;
+	font-family:
+		GTPlanar,
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		sans-serif;
+	background: #f5f7f9;
+	color: #000;
+	font-synthesis: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	width: 380px;
+	margin: 0;
+	background: #f5f7f9;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+button,
+input {
+	font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible {
+	outline: 2px solid #0b84f3;
+	outline-offset: 2px;
+}
+
+.app-shell {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 18px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.logo {
+	width: 34px;
+	height: 36px;
+}
+
+h1 {
+	margin: 0;
+}
+
+h1 {
+	font-size: 18px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+}
+
+.settings-panel {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+}
+
+.field {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	gap: 7px;
+}
+
+.field label,
+.section-label {
+	color: #555b61;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.format-value {
+	width: 100%;
+	height: 36px;
+	border: 2px solid #000;
+	border-bottom-width: 4px;
+	border-radius: 8px;
+	background: #fff;
+	color: #000;
+}
+
+.format-value {
+	display: flex;
+	align-items: center;
+	padding: 0 9px;
+}
+
+.scale-control {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: 36px;
+	padding: 0 4px;
+}
+
+.scale-control .remotion-design-slider {
+	min-width: 0;
+	width: auto;
+	flex: 1;
+}
+
+.scale-control output {
+	min-width: 28px;
+	color: #555b61;
+	font-weight: 700;
+	text-align: right;
+}
+
+.capture-section {
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+}
+
+.button-row,
+.completed-actions {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+}
+
+.secondary-button,
+.download-button,
+.convert-button,
+.record-button {
+	width: 100%;
+	height: 40px;
+	border: 2px solid #000;
+	border-bottom-width: 4px;
+	border-radius: 8px;
+	background: #fff;
+	color: #000;
+	font-size: 13px;
+	font-weight: 700;
+	padding: 0 10px;
+}
+
+.secondary-button:hover:not(:disabled),
+.download-button:hover:not(:disabled) {
+	background: #eef1f4;
+}
+
+.target-summary {
+	color: #6b7177;
+	font-size: 12px;
+	overflow-wrap: anywhere;
+}
+
+.target-summary.selected {
+	color: #000;
+}
+
+.status-dot {
+	width: 7px;
+	height: 7px;
+	flex: 0 0 auto;
+	border-radius: 50%;
+	background: #9aa0a6;
+}
+
+.actions {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.record-button,
+.convert-button {
+	height: 46px;
+	background: #0b84f3;
+	color: #fff;
+}
+
+.record-button:hover:not(:disabled),
+.convert-button:hover:not(:disabled) {
+	background: #2290f5;
+}
+
+.record-button.recording {
+	background: #ff3232;
+}
+
+.record-button.recording:hover:not(:disabled) {
+	background: #ff4b4b;
+}
+
+.completed-recording {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.completed-title {
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.completed-actions .convert-button,
+.completed-actions .download-button {
+	height: 42px;
+}
+
+.status {
+	display: flex;
+	min-height: 18px;
+	align-items: flex-start;
+	gap: 8px;
+	color: #555b61;
+	font-size: 12px;
+	overflow-wrap: anywhere;
+}
+
+.status-dot {
+	margin-top: 5px;
+	background: #0b84f3;
+}
+
+.status.error {
+	color: #c5221f;
+}
+
+.status.error .status-dot {
+	background: #ff3232;
+}

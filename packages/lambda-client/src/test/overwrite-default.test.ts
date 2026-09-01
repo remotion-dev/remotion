@@ -1,0 +1,46 @@
+import {expect, test} from 'bun:test';
+import {ENABLE_V5_BREAKING_CHANGES} from '@remotion/serverless-client';
+import {makeLambdaRenderMediaPayload} from '../make-lambda-payload';
+import {renderMediaOnLambdaOptionalToRequired} from '../render-media-on-lambda';
+
+const getOptions = () => ({
+	region: 'us-east-1' as const,
+	functionName: 'test-function',
+	serveUrl: 'https://example.com',
+	composition: 'test-composition',
+	codec: 'h264' as const,
+});
+
+test('keeps an omitted overwrite value unresolved', () => {
+	const options = renderMediaOnLambdaOptionalToRequired(getOptions());
+
+	expect(options.overwrite).toBeUndefined();
+	expect(options.enableCancellation).toBe(false);
+});
+
+test('preserves enableCancellation in the Lambda payload', async () => {
+	const options = renderMediaOnLambdaOptionalToRequired({
+		...getOptions(),
+		enableCancellation: true,
+	});
+
+	expect(options.enableCancellation).toBe(true);
+	const payload = await makeLambdaRenderMediaPayload(options);
+	expect(payload.enableCancellation).toBe(true);
+});
+
+test('preserves an explicit overwrite value', () => {
+	const options = renderMediaOnLambdaOptionalToRequired({
+		...getOptions(),
+		overwrite: false,
+	});
+
+	expect(options.overwrite).toBe(false);
+});
+
+test('resolves an omitted overwrite value using the v5 flag', async () => {
+	const options = renderMediaOnLambdaOptionalToRequired(getOptions());
+	const payload = await makeLambdaRenderMediaPayload(options);
+
+	expect(payload.overwrite).toBe(ENABLE_V5_BREAKING_CHANGES);
+});

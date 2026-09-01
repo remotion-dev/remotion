@@ -64,7 +64,7 @@ export const Page: React.FC<{
             ]),
           }}
         >
-          {page.tokens.map((t) => {
+          {page.tokens.map((t, index) => {
             const startRelativeToSequence = t.fromMs - page.startMs;
             const endRelativeToSequence = t.toMs - page.startMs;
 
@@ -74,7 +74,7 @@ export const Page: React.FC<{
 
             return (
               <span
-                key={t.fromMs}
+                key={`${t.fromMs}-${index}`}
                 style={{
                   display: "inline",
                   whiteSpace: "pre",

@@ -23,7 +23,11 @@ You have 2 options for trimming videos:
 ```tsx
 import {Video} from '@remotion/media';
 
-<Video src={staticFile('video.mp4')} trimBefore={5 * fps} trimAfter={10 * fps} />;
+<Video
+  src={staticFile('video.mp4')}
+  trimBefore={5 * fps}
+  trimAfter={10 * fps}
+/>;
 ```
 
 2. Use the FFmpeg command line. You MUST re-encode the video to avoid frozen frames at the start of the video. Only use this if you need a standalone trimmed file (e.g. for upload or external use).

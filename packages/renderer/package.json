@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/renderer"
 	},
 	"name": "@remotion/renderer",
-	"version": "4.0.490",
+	"version": "4.0.520",
 	"description": "Render Remotion videos using Node.js or Bun",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
 		"execa": "5.1.1",
 		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
-		"source-map": "0.8.0-beta.0",
+		"source-map": "0.8.0",
 		"ws": "8.21.0",
 		"@remotion/licensing": "workspace:*"
 	},

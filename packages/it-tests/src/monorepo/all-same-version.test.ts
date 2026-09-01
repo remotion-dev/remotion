@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {existsSync, readFileSync} from 'fs';
+import path from 'path';
 import {getAllPackages} from './get-all-packages';
 
 test('All monorepo packages need to have workspace:* as remotion version', () => {
@@ -57,4 +58,24 @@ test('All monorepo packages should have the same "version" field', () => {
 		console.log('Versions', versions);
 	}
 	expect(versions.size).toBe(1);
+});
+
+test('All agent plugin manifests should match the Remotion version', () => {
+	const packagesRoot = path.join(__dirname, '..', '..', '..');
+	const remotionVersion = JSON.parse(
+		readFileSync(path.join(packagesRoot, 'core', 'package.json'), 'utf-8'),
+	).version;
+	const pluginManifestPaths = [
+		path.join('agent-plugin', 'plugin.json'),
+		path.join('agent-plugin', '.codex-plugin', 'plugin.json'),
+		path.join('claude-code-plugin', '.claude-plugin', 'plugin.json'),
+		path.join('kimi-code-plugin', '.kimi-plugin', 'plugin.json'),
+	];
+
+	for (const pluginManifestPath of pluginManifestPaths) {
+		const manifest = JSON.parse(
+			readFileSync(path.join(packagesRoot, pluginManifestPath), 'utf-8'),
+		);
+		expect(manifest.version).toBe(remotionVersion);
+	}
 });

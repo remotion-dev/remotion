@@ -25,25 +25,45 @@ By establishing a standard data structure, we allow many operations that involve
 
 ### `text`
 
+_string_
+
 The text of the caption.
 
 ### `startMs`
+
+_number_
 
 The start time of the caption in milliseconds.
 
 ### `endMs`
 
+_number_
+
 The end time of the caption in milliseconds.
 
 ### `timestampMs`
 
-The timestamp of the caption as a singular timestamp in milliseconds.  
-When using [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp), this the `t_dtw` value.  
-Otherwise, it is not defined, but may be the average of the start and end timestamps.
+_number | null_
+
+The timestamp of the caption as a singular timestamp in milliseconds.
+When using [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp), this is the `t_dtw` value.
+Otherwise, it is `null`, but may be the average of the start and end timestamps.
 
 ### `confidence`
 
-A number between 0 and 1 that indicates how confident the transcription is.
+_number | null_
+
+A number between 0 and 1 that indicates how confident the transcription is, or `null` if no confidence value is available.
+
+### `pageBreakAfter?`<AvailableFrom v="4.0.517" />
+
+_boolean_
+
+When `true`, forces a page break after this caption.
+
+[`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions) ends the current page after this caption, so the next caption starts a new page. [`serializeSrt()`](/docs/captions/serialize-srt) starts a new subtitle cue.
+
+This field does not change caption timing. When it is `false` or omitted, page breaks are determined automatically.
 
 ## Whitespace sensitivity
 

@@ -1,24 +1,27 @@
 ---
 name: remotion-markup
-description: Best practices for writing Remotion React Markup
-metadata:
-  tags: remotion, react, markup
+description: Content, animation and effects best practices
+version: 4.0.520
 ---
 
 This is guidance for writing Remotion React Markup.
 If this is not relevant, load [Remotion Best Practices](../remotion-best-practices/SKILL.md) instead.
 
+## Preserve user changes
+
+Users may make edits in the code outside of the conversation.
+
+If you detect a surprising change made in the meanwhile, don't overwrite it, assume it was intentional or ask for confirmation.
+
 ## General rules
 
-Animate properties using `useCurrentFrame()` and `interpolate()`.
+Drive animations using `useCurrentFrame()` and `interpolate()`.  
+CSS `transition` or `animation` will not render correctly, they need to refactored.  
+Tailwind animation class will not render correctly, they need to be refactored.
 
-Use `interpolate()` over `spring()`.
+Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
-Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
-Use `Easing.spring()` if you want spring animations
-
-HTML Elements which make sense to be made interactive in the Studio should use `Interactive`: `<div>` -> `<Interactive.Div>`.  
-Set a descriptive `name` prop such as `name="Hero title"` for `Interactive`, `Solid`, `Sequence`.
+Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md)
 
 ```tsx
 import { useCurrentFrame, Easing, interpolate, Interactive } from "remotion";
@@ -30,7 +33,7 @@ export const FadeIn = () => {
     <Interactive.Div
       name="Title"
       style={{
-        opacity: interpolate(frame, [0, 60], [0, 1], {
+        opacity: interpolate(frame, [0, 2 * fps], [0, 1], {
           extrapolateRight: "clamp",
           extrapolateLeft: "clamp",
           easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -44,17 +47,30 @@ export const FadeIn = () => {
 ```
 
 Keep the `interpolate()` call inline in the `style` prop.
-Prefer `scale`, `translate`, `rotate` CSS properties over `transform`.
+Use `scale`, `translate`, `rotate` CSS properties over `transform`.
 
 ```tsx
 // 👍 Inline editable keyframes and transform shorthands
 style={{
-  scale: interpolate(frame, [0, 100], [0, 1]),
-  translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"]),
-  rotate: interpolate(frame, [0, 100], ["20deg", "90deg"]),
+  scale: interpolate(frame, [0, 100], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.spring({damping: 200}),
+    output: 'perceptual-scale' // For `scale` animations, use "output: 'perceptual-scale'"
+  }),
+  translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.spring({damping: 200}),
+  }),
+  rotate: interpolate(frame, [0, 100], ["20deg", "90deg"], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.spring({damping: 200}),
+  }),
 }}
 
-// 👎 Hidden values and transform strings become harder to edit in Studio
+// 👎 Non-inline values and transform strings become harder to edit in Studio
 const scale = interpolate(frame, [0, 100], [0, 1]);
 
 style={{
@@ -62,107 +78,169 @@ style={{
 }}
 ```
 
-CSS transitions or animations are FORBIDDEN - they will not render correctly.  
-Tailwind animation class names are FORBIDDEN - they will not render correctly.
+## Assets
 
 Place assets in the `public/` folder at your project root.
-
 Use `staticFile()` to reference files from the `public/` folder.
 
-Add video and audio using `@remotion/media`.  
-Add images using the `<Img>` component.
+## Media components
+
+Add video and audio using `<Video>` and `<Audio>` from `@remotion/media`.  
+Add images using the `<CanvasImage>` component.
+Add animated GIFs, APNG, WebP or AVIF images using `<AnimatedImage>`, use `@remotion/gif` if not using Chrome.
 Use `staticFile()` for files in `public/` or pass a remote URL directly:
 
 ```tsx
 import { Audio, Video } from "@remotion/media";
-import { staticFile } from "remotion";
+import { staticFile, CanvasImage, AnimatedImage } from "remotion";
 
 export const MyComposition = () => {
   return (
     <>
       <Video src={staticFile("video.mp4")} style={{ opacity: 0.5 }} />
       <Audio src={staticFile("audio.mp3")} />
-      <Img src={staticFile("logo.png")} style={{ width: 100, height: 100 }} />
+      <CanvasImage
+        src={staticFile("logo.png")}
+        style={{ width: 100, height: 100 }}
+      />
       <Video src="https://remotion.media/video.mp4" />
+      <AnimatedImage src={staticFile('nyancat.gif')} />
     </>
   );
 };
 ```
 
-To delay content wrap it in `<Sequence>` and use `from`.
-To limit the duration of an element, use `durationInFrames` of `<Sequence>`.
-`<Sequence>` by default is an absolute fill covering the scene.  
-For inline content, use `layout="none"`.
+## Example scene
 
 ```tsx
-const Main = () => {
+import {
+  AbsoluteFill,
+  Easing,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig
+} from "remotion";
+
+export const Empty = () => {
   const {fps} = useVideoConfig();
-
-  return (
-    <AbsoluteFill>
-      <Sequence name="Background">
-        <Background />
-      </Sequence>
-      <Sequence name="Title" from={30} durationInFrames={60} layout="none">
-        <Title />
-      </Sequence>
-      <Sequence name="Subtitle" from={60} durationInFrames={60} layout="none">
-        <Subtitle />
-      </Sequence>
-    </AbsoluteFill>
-  );
-}
-
-export const Title = () => {
   const frame = useCurrentFrame();
 
   return (
-    <div
+    <AbsoluteFill
+      name="Scene"
       style={{
-        opacity: interpolate(frame, [0, 60], [0, 1], {
-          extrapolateRight: "clamp",
-          extrapolateLeft: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
-        }),
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white'
       }}
     >
-      Title
-    </div>
+      <Interactive.Div
+        name="Title"
+        style={{
+          opacity: interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
+            extrapolateRight: "clamp",
+            extrapolateLeft: "clamp",
+            easing: Easing.bezier(0.16, 1, 0.3, 1),
+          }),
+          fontSize: 88
+        }}
+      >
+        Title
+      </Interactive.Div>
+      <Interactive.Div
+        name="Subtitle"
+        style={{
+          opacity: interpolate(frame, [2 * fps, 3 * fps, 8 * fps, 10 * fps], [0, 1, 1, 0], {
+            extrapolateRight: "clamp",
+            extrapolateLeft: "clamp",
+            easing: [Easing.bezier(0.16, 1, 0.3, 1), Easing.linear, Easing.bezier(0.16, 1, 0.3, 1)],
+          }),
+          fontSize: 32
+        }}
+      >
+        Subtitle
+      </Interactive.Div>
+    </AbsoluteFill>
   );
-};
-
-export const Subtitle = () => {
-  return <div>Subtitle</div>;
-};
+}
 ```
+
+## Delaying, trimming
+
+Most components (`<AbsoluteFill>`, `<Interactive.*>` `<Img>`, `<AnimatedImage>`, `<CanvasImage>`, `<HtmlInCanvas>`, `<Solid>`, `<Sequence>` from `remotion`, `<Video>` and `<Audio>` from `@remotion/media`, `<Gif>`, and more) support the following props:
+
+### from
+
+```tsx
+<Img from={1 * fps} {/* ... */}/>
+<Video from={1 * fps} {/* ... */}/>
+<Interactive.Div from={1 * fps} {/* ... */}/>
+```
+
+When the element starts appearing in the timelien.
+
+### durationInFrames
+
+```tsx
+<Img durationInFrames={20 * fps} {/* ... */}/>
+<Interactive.Div durationInFrames={20 * fps} {/* ... */}/>
+```
+
+For how long the layer plays in the timeline.  
+For media, pass the natural duration of the media: `<Video durationInFrames={29.322 * fps}/>`
+
+### `trimBefore`
+
+Useful for components whose internal clock should start later:
+
+```tsx
+// Trim away first 2 seconds of footage
+<Video trimBefore={2 * fps} {/* ... */} />
+
+// `useCurrenFrame()` for children starts at `10 * fps`
+<Sequence trimBefore={10 * fps} {/* ... */} />
+```
+
+### Fallback
+
+If a component does not support these props, wrap it in`<Sequence>` from `remotion`, which has them.
+
+- `layout="absolute-fill"` makes the Sequence behave like AbsoluteFill
+- `layout="none"` is "headless" mode, no wrapper element is used.
 
 ## Maps
 
-See [map.md](map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
+See [Remotion Maps](./remotion-maps/SKILL.md) if wanting to include maps in the video.
 
 ## Text highlights and annotations
 
-See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.
+See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes.
+
+## Multi-scene videos
+
+See [multi-scene-video.md](multi-scene-video.md) if planning to make a video with multiple subsequent scenes.
 
 ## Voiceover
 
-See [voiceover.md](voiceover.md) for adding AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
-
-## Trimming
-
-See [trimming.md](trimming.md) for trimming patterns - cutting the beginning or end of animations.
+See [voiceover.md](voiceover.md) for adding an AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
 
 ## Embedding Videos
 
 See [embedding-videos.md](embedding-videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
 
+## Embedding Audio
+
+See [audio.md](audio.md) for advanced audio features like trimming, volume, speed, pitch.
+
 ## Video editing
 
 See [video-editing.md](video-editing.md) for structuring editable video timelines in Remotion Studio.
 
-## Embedding Audio
+## Cropping
 
-See [audio.md](audio.md) for advanced audio features like trimming, volume, speed, pitch.
+See [cropping.md](cropping.md) if needing to crop the visible rectangle of a component.
 
 ## Transitions
 
@@ -170,15 +248,18 @@ See [transitions.md](transitions.md) for scene transition patterns.
 
 ## Visual and pixel effects
 
-When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/blend/mask animation, 2. a listed effect via [effects.md](effects.md), including on HTML rendered through `<HtmlInCanvas>`, 3. a custom `createEffect()` via [effects.md](effects.md) when the user asks for a reusable/project-specific effect, 4. custom `<HtmlInCanvas onPaint>` via [html-in-canvas.md](html-in-canvas.md) only if no effect fits.
+When creating a visual effect, consider whether it is feasible using CSS and HTML, or whether a shader is needed.  
+Order or preference:
 
-For light leak overlays, see [light-leaks.md](light-leaks.md). Docs: https://www.remotion.dev/docs/effects
+1. Regular HTML + CSS or other web techniques
+2. An effect applied to the element directly (`<Video>`, `<Img>`), or by wrapping the content in [`<HtmlInCanvas>`](html-in-canvas.md), which also accepts `effects`:
 
-Available effects: `brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `linearGradient()`, `linearGradientTint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `venetianBlinds()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `paper()`, `roughenEdges()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
+- A listed effect via [effects.md](effects.md)
+- A custom `createEffect()` via [effects.md](effects.md) when no preset is available.
 
 ## 3D content
 
-See [3d.md](3d.md) for 3D content in Remotion using Three.js and React Three Fiber.
+See [./3d.md](./3d.md) for 3D content in Remotion using Three.js and React Three Fiber.
 
 ## Sound effects
 
@@ -187,6 +268,10 @@ When needing to use sound effects, load the [./sfx.md](./sfx.md) file for more i
 ## Audio visualization
 
 When needing to visualize audio (spectrum bars, waveforms, bass-reactive effects), load the [./audio-visualization.md](./audio-visualization.md) file for more information.
+
+## Maps
+
+For static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, or 3D geographic flyovers, load [Remotion Maps](./remotion-maps/SKILL.md).
 
 ## Captions
 
@@ -212,9 +297,9 @@ See [images.md](images.md) for sizing and positioning images, dynamic image path
 
 See [lottie.md](lottie.md) for embedding Lottie animations in Remotion.
 
-## Advanced timing
+## Timing
 
-See [timing.md](timing.md) for advanced timing with `interpolate` and Bézier easing, and springs.
+See [timing.md](timing.md) for more timing techniques for `interpolate()`.
 
 ## Parameterized videos
 
@@ -260,14 +345,13 @@ This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, and `zod`.
 
 ## Previewing markup
 
-Only do this if you think the user wants to see the preview.
-
-```bash
+```
 npx remotion studio --no-open
 ```
 
 This will start a long-running process and print the server URL for the preview.  
-If already started, the URL will be printed.
+If server is already started, it will print the URL.
+You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
 
 ## Optional: one-frame render check
 

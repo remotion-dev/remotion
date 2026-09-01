@@ -1,11 +1,7 @@
+import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {flushSync} from 'react-dom';
 import {FastRefreshContext} from './fast-refresh-context';
-
-declare const __webpack_module__: {
-	hot: {
-		addStatusHandler(callback: (status: string) => void): void;
-	};
-};
 
 export const FastRefreshProvider: React.FC<{
 	readonly children: React.ReactNode;
@@ -18,15 +14,24 @@ export const FastRefreshProvider: React.FC<{
 	}, []);
 
 	useEffect(() => {
-		if (typeof __webpack_module__ !== 'undefined') {
-			if (__webpack_module__.hot) {
-				__webpack_module__.hot.addStatusHandler((status) => {
-					if (status === 'idle') {
-						setFastRefreshes((i) => i + 1);
-					}
-				});
-			}
-		}
+		const onReactRefreshFinished = () => {
+			// Commit consumers and their layout effects before the browser paints
+			// the refreshed composition with stale node-path statuses.
+			flushSync(() => {
+				setFastRefreshes((i) => i + 1);
+			});
+		};
+
+		window.addEventListener(
+			REACT_REFRESH_FINISHED_EVENT,
+			onReactRefreshFinished,
+		);
+		return () => {
+			window.removeEventListener(
+				REACT_REFRESH_FINISHED_EVENT,
+				onReactRefreshFinished,
+			);
+		};
 	}, []);
 
 	const value = useMemo(

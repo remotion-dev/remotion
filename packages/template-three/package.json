@@ -20,8 +20,8 @@
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
     "three": "0.178.0",
-    "zod": "4.3.6",
-    "mediabunny": "1.50.8"
+    "zod": "4.4.3",
+    "mediabunny": "1.55.5"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",

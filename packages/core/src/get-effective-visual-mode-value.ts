@@ -14,6 +14,14 @@ export type ResolvedDragOverrideValue =
 			readonly value: unknown;
 	  };
 
+export const getFrameInKeyframedStatusClock = ({
+	frame,
+	status,
+}: {
+	readonly frame: number;
+	readonly status: CanUpdateSequencePropStatusKeyframed;
+}) => frame - (status.keyframeDisplayOffsetAdjustment ?? 0);
+
 export const resolveDragOverrideValue = ({
 	dragOverrideValue,
 	frame,
@@ -35,7 +43,10 @@ export const resolveDragOverrideValue = ({
 
 	const interpolated = interpolateKeyframedStatus({
 		forceSpringAllowTail: null,
-		frame,
+		frame: getFrameInKeyframedStatusClock({
+			frame,
+			status: dragOverrideValue.status,
+		}),
 		status: dragOverrideValue.status,
 	});
 	if (interpolated === null) {
@@ -72,7 +83,7 @@ export const getEffectiveVisualModeValue = ({
 		if (frame !== null) {
 			return interpolateKeyframedStatus({
 				forceSpringAllowTail: null,
-				frame,
+				frame: getFrameInKeyframedStatusClock({frame, status: propStatus}),
 				status: propStatus,
 			});
 		}

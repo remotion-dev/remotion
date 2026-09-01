@@ -1,11 +1,4 @@
-import {
-	cpSync,
-	existsSync,
-	readdirSync,
-	readFileSync,
-	statSync,
-	writeFileSync,
-} from 'node:fs';
+import {cpSync, readFileSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
 import {$} from 'bun';
@@ -32,48 +25,6 @@ const skillsTemplate: MinimalTemplate = {
 };
 
 const templates = [skillsTemplate, ...folders];
-
-const rewriteEmbeddedBestPracticesLinks = (root: string) => {
-	const embeddedRoot = path.join(root, 'skills', 'remotion-best-practices');
-
-	if (!existsSync(embeddedRoot)) {
-		return;
-	}
-
-	const rewriteMarkdownFiles = (dir: string) => {
-		for (const entry of readdirSync(dir, {withFileTypes: true})) {
-			const file = path.join(dir, entry.name);
-			if (entry.isDirectory()) {
-				rewriteMarkdownFiles(file);
-				continue;
-			}
-
-			if (!entry.isFile() || !file.endsWith('.md')) {
-				continue;
-			}
-
-			const contents = readFileSync(file, 'utf-8');
-			const rewritten = contents.replaceAll(
-				'../remotion-best-practices/',
-				'../',
-			);
-			if (contents !== rewritten) {
-				writeFileSync(file, rewritten);
-			}
-		}
-	};
-
-	for (const entry of readdirSync(embeddedRoot, {withFileTypes: true})) {
-		const child = path.join(embeddedRoot, entry.name);
-		if (
-			entry.isDirectory() &&
-			entry.name !== 'rules' &&
-			statSync(path.join(child, 'SKILL.md'), {throwIfNoEntry: false})?.isFile()
-		) {
-			rewriteMarkdownFiles(child);
-		}
-	}
-};
 
 const publish = async (template: MinimalTemplate) => {
 	const folder = path.join(
@@ -122,7 +73,16 @@ const publish = async (template: MinimalTemplate) => {
 	}
 
 	if (template.templateInMonorepo === 'skills') {
-		rewriteEmbeddedBestPracticesLinks(workingDir);
+		const prepareEmbeddedSkillsScript = path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'skills',
+			'scripts',
+			'prepare-embedded-skills.ts',
+		);
+		await $`bun ${prepareEmbeddedSkillsScript} ${path.join(workingDir, 'skills')}`;
 	}
 
 	await $`git add .`.cwd(workingDir).nothrow();
@@ -136,16 +96,31 @@ const publish = async (template: MinimalTemplate) => {
 	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
 };
 
-const publishCodexPlugin = async () => {
-	const codexPluginDir = path.join(__dirname, '..', '..', '..', 'codex-plugin');
+type AgentPluginPublishTarget = {
+	commitMessage: string;
+	filesToCopy: string[];
+	manifestPaths: string[];
+	name: string;
+	readme?: string;
+	repoName: string;
+	skillsDir: string;
+};
 
-	// Run the build step to assemble skills
-	await $`bun build.mts`.cwd(codexPluginDir);
+const publishBuiltAgentPlugin = async ({
+	commitMessage,
+	filesToCopy,
+	manifestPaths,
+	name,
+	readme,
+	repoName,
+	skillsDir,
+}: AgentPluginPublishTarget) => {
+	const agentPluginDir = path.join(__dirname, '..', '..', '..', 'agent-plugin');
 
 	const tmpDir = tmpdir();
-	const workingDir = path.join(tmpDir, `codex-plugin-${Math.random()}`);
+	const workingDir = path.join(tmpDir, `${repoName}-${Math.random()}`);
 
-	await $`git clone git@github.com:remotion-dev/codex-plugin.git ${workingDir} --depth 1`;
+	await $`git clone git@github.com:remotion-dev/${repoName}.git ${workingDir} --depth 1`;
 
 	const defaultBranch = await $`git branch --show-current`
 		.cwd(workingDir)
@@ -159,22 +134,86 @@ const publishCodexPlugin = async () => {
 		await $`rm ${file}`.cwd(workingDir).quiet();
 	}
 
-	const filesToCopy = ['.codex-plugin', 'assets', 'skills', 'README.md'];
 	for (const entry of filesToCopy) {
-		const src = path.join(codexPluginDir, entry);
+		const src =
+			entry === 'skills' ? skillsDir : path.join(agentPluginDir, entry);
 		const dst = path.join(workingDir, entry);
 		cpSync(src, dst, {recursive: true});
+	}
+	if (readme) {
+		cpSync(
+			path.join(agentPluginDir, readme),
+			path.join(workingDir, 'README.md'),
+		);
+	}
+
+	const packageJson = JSON.parse(
+		readFileSync(path.join(agentPluginDir, 'package.json'), 'utf-8'),
+	);
+	for (const manifestPath of manifestPaths) {
+		const pluginJsonPath = path.join(workingDir, manifestPath);
+		const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
+		writeFileSync(
+			pluginJsonPath,
+			`${JSON.stringify({...pluginJson, version: packageJson.version}, null, '\t')}\n`,
+		);
 	}
 
 	await $`git add .`.cwd(workingDir).nothrow();
 	const hasChanges = await $`git status --porcelain`.cwd(workingDir).text();
 	if (!hasChanges) {
-		console.log('No changes in codex-plugin');
+		console.log(`No changes in ${name}`);
 		return;
 	}
 
-	await $`git commit -m "Update codex plugin"`.cwd(workingDir);
-	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
+	await $`git commit -m ${commitMessage}`.cwd(workingDir);
+	const versionTag = `v${packageJson.version}`;
+	await $`git tag ${versionTag}`.cwd(workingDir);
+	await $`git push --atomic origin ${defaultBranch.trim()} ${versionTag}`.cwd(
+		workingDir,
+	);
+};
+
+const publishAgentPlugins = async () => {
+	const agentPluginDir = path.join(__dirname, '..', '..', '..', 'agent-plugin');
+	const cursorSkillsDir = path.join(
+		tmpdir(),
+		`cursor-plugin-skills-${Math.random()}`,
+	);
+
+	await Promise.all([
+		$`bun build.mts`.cwd(agentPluginDir),
+		$`bun build.mts --client=cursor --output=${cursorSkillsDir}`.cwd(
+			agentPluginDir,
+		),
+	]);
+
+	await Promise.all([
+		publishBuiltAgentPlugin({
+			commitMessage: 'Update Codex plugin',
+			filesToCopy: [
+				'.codex-plugin',
+				'assets',
+				'LICENSE',
+				'plugin.json',
+				'skills',
+				'README.md',
+			],
+			manifestPaths: ['plugin.json', '.codex-plugin/plugin.json'],
+			name: 'codex-plugin',
+			repoName: 'codex-plugin',
+			skillsDir: path.join(agentPluginDir, 'skills'),
+		}),
+		publishBuiltAgentPlugin({
+			commitMessage: 'Update Cursor plugin',
+			filesToCopy: ['LICENSE', 'plugin.json', 'skills'],
+			manifestPaths: ['plugin.json'],
+			name: 'cursor-plugin',
+			readme: 'README.cursor.md',
+			repoName: 'cursor-plugin',
+			skillsDir: cursorSkillsDir,
+		}),
+	]);
 };
 
 const publishClaudeCodePlugin = async () => {
@@ -234,6 +273,63 @@ const publishClaudeCodePlugin = async () => {
 	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
 };
 
+const publishKimiCodePlugin = async () => {
+	const kimiCodePluginDir = path.join(
+		__dirname,
+		'..',
+		'..',
+		'..',
+		'kimi-code-plugin',
+	);
+
+	// Run the build step to assemble skills
+	await $`bun build.mts`.cwd(kimiCodePluginDir);
+
+	const tmpDir = tmpdir();
+	const workingDir = path.join(tmpDir, `kimi-code-plugin-${Math.random()}`);
+
+	await $`git clone git@github.com:remotion-dev/kimi-code-plugin.git ${workingDir} --depth 1`;
+
+	const defaultBranch = await $`git branch --show-current`
+		.cwd(workingDir)
+		.text();
+	const existingFilesInRepo = await $`git ls-files`.cwd(workingDir).quiet();
+	for (const file of existingFilesInRepo.stdout
+		.toString('utf-8')
+		.trim()
+		.split('\n')) {
+		if (file === '') continue;
+		await $`rm ${file}`.cwd(workingDir).quiet();
+	}
+
+	const filesToCopy = ['.kimi-plugin', 'skills', 'README.md'];
+	for (const entry of filesToCopy) {
+		const src = path.join(kimiCodePluginDir, entry);
+		const dst = path.join(workingDir, entry);
+		cpSync(src, dst, {recursive: true});
+	}
+
+	const packageJson = JSON.parse(
+		readFileSync(path.join(kimiCodePluginDir, 'package.json'), 'utf-8'),
+	);
+	const pluginJsonPath = path.join(workingDir, '.kimi-plugin', 'plugin.json');
+	const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
+	writeFileSync(
+		pluginJsonPath,
+		`${JSON.stringify({...pluginJson, version: packageJson.version}, null, '\t')}\n`,
+	);
+
+	await $`git add .`.cwd(workingDir).nothrow();
+	const hasChanges = await $`git status --porcelain`.cwd(workingDir).text();
+	if (!hasChanges) {
+		console.log('No changes in kimi-code-plugin');
+		return;
+	}
+
+	await $`git commit -m "Update Kimi Code plugin"`.cwd(workingDir);
+	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
+};
+
 const CONCURRENCY = 1;
 
 const results: PromiseSettledResult<void>[] = [];
@@ -248,8 +344,9 @@ for (let i = 0; i < templates.length; i += CONCURRENCY) {
 
 results.push(
 	...(await Promise.allSettled([
-		publishCodexPlugin(),
+		publishAgentPlugins(),
 		publishClaudeCodePlugin(),
+		publishKimiCodePlugin(),
 	])),
 );
 

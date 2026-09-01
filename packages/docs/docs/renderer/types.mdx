@@ -58,6 +58,16 @@ import type {FrameRange} from '@remotion/renderer';
 - A single number renders only that frame
 - A tuple `[start, end]` renders frames from `start` to `end` (inclusive)
 - A tuple `[start, null]` renders frames from `start` to the end of the composition<AvailableFrom v="4.0.421" inline />
+- An array of ordered, non-overlapping tuples renders multiple ranges<AvailableFrom v="4.0.502" inline />
+
+```ts twoslash title="frame-range.ts"
+import type {FrameRange} from '@remotion/renderer';
+// ---cut---
+const frameRange: FrameRange = [
+  [0, 100],
+  [150, 200],
+];
+```
 
 ## `Concurrency`
 

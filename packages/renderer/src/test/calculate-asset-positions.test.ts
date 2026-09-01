@@ -80,6 +80,30 @@ test('An asset that re-appears after a gap gets two positions', () => {
 	]);
 });
 
+test('A source-frame discontinuity splits a continuously mounted asset', () => {
+	const sourceFrames = [0, 1, 10, 11];
+	const frames = sourceFrames.map((frame) => [
+		makeAsset({
+			id: 'audio-1',
+			frame,
+			src: 'http://localhost:3000/music.mp3',
+			mediaFrame: frame,
+		}),
+	]);
+
+	const positions = calculateAssetPositions(frames, sourceFrames);
+	expect(
+		positions.map(({duration, startInVideo, trimLeft}) => ({
+			duration,
+			startInVideo,
+			trimLeft,
+		})),
+	).toEqual([
+		{duration: 2, startInVideo: 0, trimLeft: 0},
+		{duration: 2, startInVideo: 2, trimLeft: 10},
+	]);
+});
+
 test('A compressed asset resolves its src from the first occurrence', () => {
 	const longSrc = `data:audio/mp3;base64,${'A'.repeat(500)}`;
 

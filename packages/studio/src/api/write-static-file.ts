@@ -1,3 +1,5 @@
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+
 export const writeStaticFile = async ({
 	contents,
 	filePath,
@@ -5,6 +7,15 @@ export const writeStaticFile = async ({
 	contents: string | ArrayBuffer;
 	filePath: string;
 }): Promise<void> => {
+	if (filePath.includes('\\')) {
+		return Promise.reject(new Error('File path cannot contain backslashes'));
+	}
+
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations) {
+		return browserStudioOperations.writeStaticFile({contents, filePath});
+	}
+
 	if (window.remotion_isReadOnlyStudio) {
 		throw new Error('writeStaticFile() is not available in read-only Studio');
 	}
@@ -13,10 +24,6 @@ export const writeStaticFile = async ({
 		`${window.remotion_staticBase}/api/add-asset`,
 		window.location.origin,
 	);
-
-	if (filePath.includes('\\')) {
-		return Promise.reject(new Error('File path cannot contain backslashes'));
-	}
 
 	url.search = new URLSearchParams({
 		filePath,

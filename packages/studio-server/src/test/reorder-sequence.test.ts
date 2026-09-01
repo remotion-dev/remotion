@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {reorderSequence} from '../codemods/reorder-sequence';
-import {lineColumnToNodePath} from './test-utils';
+import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
 const buildInput = () => `import {Sequence} from 'remotion';
 
@@ -17,7 +17,7 @@ export const Comp = () => {
 
 test('reorderSequence moves a sequence forward', async () => {
 	const input = buildInput();
-	const {output, sequenceLabel} = await reorderSequence({
+	const {output, sequenceLabel, nodePathRemappings} = await reorderSequence({
 		input,
 		sourceNodePath: lineColumnToNodePath(input, 6),
 		targetNodePath: lineColumnToNodePath(input, 8),
@@ -27,6 +27,20 @@ test('reorderSequence moves a sequence forward', async () => {
 	expect(sequenceLabel).toBe('<Sequence>');
 	expect(output.indexOf('name="b"')).toBeLessThan(output.indexOf('name="c"'));
 	expect(output.indexOf('name="c"')).toBeLessThan(output.indexOf('name="a"'));
+	expect(nodePathRemappings).toEqual([
+		{
+			oldNodePath: lineContainingToNodePath(input, 'name="a"'),
+			newNodePath: lineContainingToNodePath(output, 'name="a"'),
+		},
+		{
+			oldNodePath: lineContainingToNodePath(input, 'name="b"'),
+			newNodePath: lineContainingToNodePath(output, 'name="b"'),
+		},
+		{
+			oldNodePath: lineContainingToNodePath(input, 'name="c"'),
+			newNodePath: lineContainingToNodePath(output, 'name="c"'),
+		},
+	]);
 });
 
 test('reorderSequence moves a sequence backward', async () => {

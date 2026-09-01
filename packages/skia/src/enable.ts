@@ -1,12 +1,15 @@
 import fs from 'fs';
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {BundlerConfiguration, BundlerName} from '@remotion/bundler';
 import {webpack} from '@remotion/bundler';
 
 /**
  * @description A function that modifies the default Webpack configuration to make the necessary changes to support Skia.
  * @see [Documentation](https://www.remotion.dev/docs/skia/enable-skia)
  */
-export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
+export const enableSkia = <Configuration extends BundlerConfiguration>(
+	currentConfiguration: Configuration,
+	{bundler}: {bundler: BundlerName} = {bundler: 'webpack'},
+): Configuration => {
 	const newExtensions = [
 		'.web.js',
 		'.web.ts',
@@ -18,6 +21,10 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 
 	return {
 		...currentConfiguration,
+		ignoreWarnings: [
+			...(currentConfiguration.ignoreWarnings ?? []),
+			...(bundler === 'rspack' ? [/react-native-reanimated/] : []),
+		],
 		plugins: [
 			...(currentConfiguration.plugins ?? []),
 			new (class CopySkiaPlugin {
@@ -59,11 +66,15 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 			extensions: deduplicatedExtensions,
 			alias: {
 				...currentConfiguration.resolve?.alias,
-				'react-native-reanimated': "require('react-native-reanimated')",
-				'react-native-reanimated/lib/reanimated2/core':
-					"require('react-native-reanimated/lib/reanimated2/core')",
+				...(bundler === 'webpack'
+					? {
+							'react-native-reanimated': "require('react-native-reanimated')",
+							'react-native-reanimated/lib/reanimated2/core':
+								"require('react-native-reanimated/lib/reanimated2/core')",
+						}
+					: {}),
 				'react-native/Libraries/Image/AssetRegistry': false,
 			},
 		},
-	};
+	} as Configuration;
 };

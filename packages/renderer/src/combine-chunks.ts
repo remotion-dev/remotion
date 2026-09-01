@@ -10,7 +10,7 @@ import type {Codec} from './codec';
 import {createCombinedAudio} from './combine-audio';
 import {combineVideoStreams} from './combine-video-streams';
 import {combineVideoStreamsSeamlessly} from './combine-video-streams-seamlessly';
-import type {FrameRange} from './frame-range';
+import type {SingleFrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getRealFrameRange} from './get-frame-to-render';
@@ -55,7 +55,7 @@ type OptionalCombineChunksOptions = {
 	audioCodec: AudioCodec | null;
 	cancelSignal: CancelSignal | undefined;
 	metadata: Record<string, string> | null;
-	frameRange: FrameRange | null;
+	frameRange: SingleFrameRange | null;
 	everyNthFrame: number;
 	sampleRate: number;
 };
@@ -65,21 +65,6 @@ type AllCombineChunksOptions = MandatoryCombineChunksOptions &
 
 export type CombineChunksOptions = MandatoryCombineChunksOptions &
 	Partial<OptionalCombineChunksOptions>;
-
-const codecSupportsFastStart: {[key in Codec]: boolean} = {
-	'h264-mkv': false,
-	'h264-ts': false,
-	h264: true,
-	h265: true,
-	av1: true,
-	aac: false,
-	gif: false,
-	mp3: false,
-	prores: false,
-	vp8: false,
-	vp9: false,
-	wav: false,
-};
 
 const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
@@ -124,14 +109,13 @@ export const internalCombineChunks = async ({
 		resolvedAudioCodec !== null && audioFiles.length > 0;
 
 	const seamlessVideo = canConcatVideoSeamlessly(codec);
-	const seamlessAudio = canConcatAudioSeamlessly(
-		resolvedAudioCodec,
-		framesPerChunk,
-	);
-
 	const realFrameRange = getRealFrameRange(
 		compositionDurationInFrames,
 		frameRange,
+	);
+	const seamlessAudio = canConcatAudioSeamlessly(
+		resolvedAudioCodec,
+		framesPerChunk,
 	);
 
 	const numberOfFrames = getFramesToRender(
@@ -251,7 +235,6 @@ export const internalCombineChunks = async ({
 			binariesDirectory,
 			fps,
 			cancelSignal,
-			addFaststart: codecSupportsFastStart[codec],
 			metadata,
 			numberOfGifLoops,
 		});

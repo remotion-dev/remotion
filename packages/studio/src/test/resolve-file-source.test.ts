@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {resolveFileSource} from '../error-overlay/react-overlay/effects/resolve-file-source';
+import {makeBrowserStudioOperations} from './make-browser-studio-operations';
 
 test('resolves file source using a GET request', async () => {
 	const previousFetch = globalThis.fetch;
@@ -39,5 +40,91 @@ test('resolves file source using a GET request', async () => {
 		]);
 	} finally {
 		globalThis.fetch = previousFetch;
+	}
+});
+
+test('resolves file source using a Browser Studio operation', async () => {
+	const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+	const previousFetch = globalThis.fetch;
+	let fetchCalled = false;
+	const operations = makeBrowserStudioOperations({
+		getFileSource: () => Promise.resolve('const fromBrowserStudio = true;'),
+	});
+
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: {remotion_browserStudio: operations},
+	});
+	globalThis.fetch = (() => {
+		fetchCalled = true;
+		throw new Error('fetch should not be called');
+	}) as unknown as typeof fetch;
+
+	try {
+		const resolved = await resolveFileSource(
+			{
+				columnNumber: 1,
+				fileName: 'webpack://remotion/./src/Composition.tsx',
+				lineNumber: 1,
+				message: 'Example error',
+			},
+			0,
+		);
+
+		expect(fetchCalled).toBe(false);
+		expect(resolved.originalScriptCode).toEqual([
+			{
+				content: 'const fromBrowserStudio = true;',
+				highlight: true,
+				lineNumber: 1,
+			},
+		]);
+	} finally {
+		globalThis.fetch = previousFetch;
+		if (previousWindow) {
+			Object.defineProperty(globalThis, 'window', previousWindow);
+		} else {
+			Reflect.deleteProperty(globalThis, 'window');
+		}
+	}
+});
+
+test('does not fall back to the server when Browser Studio cannot find a file', async () => {
+	const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+	const previousFetch = globalThis.fetch;
+	let fetchCalled = false;
+	const operations = makeBrowserStudioOperations({
+		getFileSource: () => Promise.resolve(null),
+	});
+
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: {remotion_browserStudio: operations},
+	});
+	globalThis.fetch = (() => {
+		fetchCalled = true;
+		throw new Error('fetch should not be called');
+	}) as unknown as typeof fetch;
+
+	try {
+		await expect(
+			resolveFileSource(
+				{
+					columnNumber: 1,
+					fileName: 'webpack://remotion/./src/missing.tsx',
+					lineNumber: 1,
+					message: 'Example error',
+				},
+				0,
+			),
+		).rejects.toThrow('Could not find webpack://remotion/./src/missing.tsx');
+		expect(fetchCalled).toBe(false);
+	} finally {
+		globalThis.fetch = previousFetch;
+		if (previousWindow) {
+			Object.defineProperty(globalThis, 'window', previousWindow);
+		} else {
+			Reflect.deleteProperty(globalThis, 'window');
+		}
 	}
 });

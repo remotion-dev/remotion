@@ -69,11 +69,21 @@ The `framesPerLambda` parameter cannot result in more than 200 functions being s
 When rendering transparent WebM videos, chunk boundaries can be visible in the alpha channel. See [Known problem: Rendering transparent WebM on Lambda](/docs/transparent-videos#known-problem-rendering-transparent-webm-on-lambda). Increase `framesPerLambda` to reduce boundaries, or render WebM in one pass if the artifact appears.
 :::
 
+### `enableCancellation?`<AvailableFrom v="4.0.515" />
+
+Enable the render to be cancelled using [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda). Default: `false`.
+
+When enabled, every renderer checks S3 once per second for a cancellation signal. This incurs additional S3 `HEAD` request charges for the duration of the render.
+
+See [Cancelling Lambda renders](/docs/lambda/cancellation) for the full workflow.
+
 ### `concurrency?`<AvailableFrom v="4.0.322" />
 
 Specify the number of Lambda functions to use for rendering. This is an alternative to `framesPerLambda` that allows you to set the concurrency directly without needing to know the video duration.
 
 The concurrency is defined as `frameCount / framesPerLambda`. Remotion will automatically calculate the appropriate `framesPerLambda` value based on your concurrency setting.
+
+From <AvailableFrom v="4.0.517" inline />, you can set `concurrency` to `1` to render the video on the main function.
 
 Maximum value: 200  
 Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
@@ -88,7 +98,7 @@ Specify a single frame (passing a `number`) or a range of frames (passing a tupl
 
 ### `serveUrl`
 
-A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysite) to deploy a Remotion project.
+A URL pointing to a Remotion project. Create one by building with [`bundle()`](/docs/bundle) and deploying with [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
 
 ### `composition`
 
@@ -182,6 +192,8 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 ### `x264Preset?`
 
 <Options id="x264-preset" />
+
+Starting in Remotion 5.0, the default for H.264 Lambda renders is `veryfast`. In Remotion 4.0, the default is `medium`.
 
 ### `gopSize?`<AvailableFrom v="4.0.466" />
 
@@ -284,7 +296,8 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 ### `overwrite?`<AvailableFrom v="3.2.25" />
 
-If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether the file should be overwritten. Default `false`.  
+If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether the file should be overwritten. The default is `false` in Remotion 4.0 and `true` in Remotion 5.0.
+
 If the file exists and `overwrite` is `false`, an error will be thrown.
 
 ### `rendererFunctionName?`<AvailableFrom v="3.3.38" />
@@ -377,17 +390,21 @@ _default `true`_
 
 ### ~~`apiKey?`<AvailableFrom v="4.0.253"/>~~
 
-_deprecated in v4.0.409_
+:::info Deprecated
+Use [`licenseKey`](#licensekey) instead.
+:::
 
 <Options id="api-key" />
 
 ### ~~`dumpBrowserLogs?`~~
 
-Deprecated in v4.0 in favor of [`logLevel`](#loglevel).
+:::info Deprecated
+Use [`logLevel`](#loglevel) instead.
+:::
 
 ## Return value
 
-Returns a promise resolving to an object containing four properties. Of these, `renderId`, `bucketName` are useful for passing to `getRenderProgress()`.
+Returns a promise resolving to an object. `renderId` and `bucketName` are useful for passing to [`getRenderProgress()`](/docs/lambda/getrenderprogress).
 
 ### `renderId`
 
@@ -399,15 +416,23 @@ The S3 bucket name in which all files are being saved.
 
 ### `cloudWatchLogs`<AvailableFrom v="3.2.10"/>
 
-A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
+A link to the CloudWatch logs of the renderer functions, if you have not disabled CloudWatch.
 
-### `lambdaInsightsUrl`<AvailableFrom v="4.0.61"/>
+### `cloudWatchMainLogs`<AvailableFrom v="4.0.174" />
+
+A link to the CloudWatch logs of the main function.
+
+### `lambdaInsightsLogs`<AvailableFrom v="4.0.61"/>
 
 A link to the [Lambda Insights](/docs/lambda/insights), if you enabled it.
 
 ### `folderInS3Console`<AvailableFrom v="3.2.43"/>
 
 A link to the folder in the AWS console where each chunk and render is located.
+
+### `progressJsonInConsole`<AvailableFrom v="4.0.182" />
+
+A link to the `progress.json` file in the AWS console.
 
 ## See also
 

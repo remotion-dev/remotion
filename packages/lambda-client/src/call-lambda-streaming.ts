@@ -7,18 +7,22 @@ import {
 import type {
 	CallFunctionOptions,
 	CloudProvider,
+	GetBinaryPayloadSink,
 	MessageTypeId,
 	OnMessage,
 	ServerlessRoutines,
 	StreamingMessage,
 } from '@remotion/serverless-client';
 import {
+	binaryPayloadSinkForStreamer,
 	formatMap,
 	makeStreamer,
 	messageTypeIdToMessageType,
 } from '@remotion/serverless-client';
 import {getLambdaClient} from './aws-clients';
+import {getAwsRegionMetadata} from './aws-region-metadata';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 const STREAM_STALL_TIMEOUT = 30000;
 const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
@@ -38,17 +42,19 @@ const invokeStreamOrTimeout = async <Provider extends CloudProvider>({
 	functionName,
 	type,
 	payload,
+	requestHandler,
 }: {
 	region: Provider['region'];
 	timeoutInTest: number;
 	functionName: string;
 	type: string;
 	payload: Record<string, unknown>;
+	requestHandler: Provider['requestHandler'] | null;
 }) => {
 	const resProm = getLambdaClient(
 		region as AwsRegion,
 		timeoutInTest,
-		null,
+		(requestHandler ?? null) as RequestHandler | null,
 	).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
@@ -88,8 +94,11 @@ const callLambdaWithStreamingWithoutRetry = async <
 	region,
 	timeoutInTest,
 	receivedStreamingPayload,
+	requestHandler,
+	getBinaryPayloadSink,
 }: CallFunctionOptions<T, Provider> & {
 	receivedStreamingPayload: OnMessage<Provider>;
+	getBinaryPayloadSink: GetBinaryPayloadSink | null;
 }): Promise<void> => {
 	const res = await invokeStreamOrTimeout({
 		functionName,
@@ -97,27 +106,33 @@ const callLambdaWithStreamingWithoutRetry = async <
 		region,
 		timeoutInTest,
 		type,
+		requestHandler,
 	});
 
-	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
-		const messageType = messageTypeIdToMessageType(
-			messageTypeId as MessageTypeId,
-		);
-		const innerPayload =
-			formatMap[messageType] === 'json'
-				? parseJsonOrThrowSource(data, messageType)
-				: data;
+	const {onData, clear} = makeStreamer(
+		(status, messageTypeId, data) => {
+			const messageType = messageTypeIdToMessageType(
+				messageTypeId as MessageTypeId,
+			);
+			const innerPayload =
+				formatMap[messageType] === 'json'
+					? parseJsonOrThrowSource(data, messageType)
+					: data;
 
-		const message: StreamingMessage<Provider> = {
-			successType: status,
-			message: {
-				type: messageType,
-				payload: innerPayload,
-			},
-		};
+			const message: StreamingMessage<Provider> = {
+				successType: status,
+				message: {
+					type: messageType,
+					payload: innerPayload,
+				},
+			};
 
-		receivedStreamingPayload(message);
-	});
+			receivedStreamingPayload(message);
+		},
+		getBinaryPayloadSink
+			? binaryPayloadSinkForStreamer(getBinaryPayloadSink)
+			: null,
+	);
 
 	const dumpBuffers = () => {
 		clear();
@@ -135,45 +150,52 @@ const callLambdaWithStreamingWithoutRetry = async <
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
 
-	for await (const event of events) {
-		// There are two types of events you can get on a stream.
+	try {
+		for await (const event of events) {
+			// There are two types of events you can get on a stream.
 
-		// `PayloadChunk`: These contain the actual raw bytes of the chunk
-		// It has a single property: `Payload`
-		if (event.PayloadChunk && event.PayloadChunk.Payload) {
-			onData(event.PayloadChunk.Payload);
-		}
+			// `PayloadChunk`: These contain the actual raw bytes of the chunk
+			// It has a single property: `Payload`
+			if (event.PayloadChunk && event.PayloadChunk.Payload) {
+				// Awaiting applies backpressure to the response stream when the
+				// payload is being streamed to a sink
+				await onData(event.PayloadChunk.Payload);
+			}
 
-		if (event.InvokeComplete) {
-			if (event.InvokeComplete.ErrorCode) {
-				const logs = `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:logs-insights$3FqueryDetail$3D~(end~0~start~-3600~timeType~'RELATIVE~unit~'seconds~editorString~'fields*20*40timestamp*2c*20*40requestId*2c*20*40message*0a*7c*20filter*20*40requestId*20like*20*${res.$metadata.requestId}*22*0a*7c*20sort*20*40timestamp*20asc~source~(~'*2faws*2flambda*2f${functionName}))`;
-				if (event.InvokeComplete.ErrorCode === 'Unhandled') {
+			if (event.InvokeComplete) {
+				if (event.InvokeComplete.ErrorCode) {
+					const {consoleDomain} = getAwsRegionMetadata(region as AwsRegion);
+					const logs = `https://${region}.${consoleDomain}/cloudwatch/home?region=${region}#logsV2:logs-insights$3FqueryDetail$3D~(end~0~start~-3600~timeType~'RELATIVE~unit~'seconds~editorString~'fields*20*40timestamp*2c*20*40requestId*2c*20*40message*0a*7c*20filter*20*40requestId*20like*20*${res.$metadata.requestId}*22*0a*7c*20sort*20*40timestamp*20asc~source~(~'*2faws*2flambda*2f${functionName}))`;
+					if (event.InvokeComplete.ErrorCode === 'Unhandled') {
+						throw new Error(
+							`Lambda function ${functionName} failed with an unhandled error: ${
+								event.InvokeComplete.ErrorDetails as string
+							} See ${logs} to see the logs of this invocation.`,
+						);
+					}
+
 					throw new Error(
-						`Lambda function ${functionName} failed with an unhandled error: ${
-							event.InvokeComplete.ErrorDetails as string
-						} See ${logs} to see the logs of this invocation.`,
+						`Lambda function ${functionName} failed with error code ${event.InvokeComplete.ErrorCode}: ${event.InvokeComplete.ErrorDetails}. See ${logs} to see the logs of this invocation.`,
 					);
 				}
-
-				throw new Error(
-					`Lambda function ${functionName} failed with error code ${event.InvokeComplete.ErrorCode}: ${event.InvokeComplete.ErrorDetails}. See ${logs} to see the logs of this invocation.`,
-				);
 			}
+
+			// Don't put a `break` statement here, as it will cause the socket to not properly exit.
+		}
+	} finally {
+		// @ts-expect-error - We are adding a listener to a global variable
+		if (globalThis._dumpUnreleasedBuffers) {
+			// @ts-expect-error - We are adding a listener to a global variable
+			(globalThis._dumpUnreleasedBuffers as EventEmitter).removeListener(
+				'dump-unreleased-buffers',
+				dumpBuffers,
+			);
 		}
 
-		// Don't put a `break` statement here, as it will cause the socket to not properly exit.
+		// Also closes the active payload sink if the stream aborted
+		// mid-payload, so no file descriptor is leaked
+		clear();
 	}
-
-	// @ts-expect-error - We are adding a listener to a global variable
-	if (globalThis._dumpUnreleasedBuffers) {
-		// @ts-expect-error - We are adding a listener to a global variable
-		(globalThis._dumpUnreleasedBuffers as EventEmitter).removeListener(
-			'dump-unreleased-buffers',
-			dumpBuffers,
-		);
-	}
-
-	clear();
 };
 
 export const callFunctionWithStreamingImplementation = async <
@@ -183,6 +205,7 @@ export const callFunctionWithStreamingImplementation = async <
 	options: CallFunctionOptions<T, Provider> & {
 		receivedStreamingPayload: OnMessage<Provider>;
 		retriesRemaining: number;
+		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
 ): Promise<void> => {
 	// As of August 2023, Lambda streaming sometimes misses parts of the JSON response.

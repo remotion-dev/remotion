@@ -5,16 +5,19 @@ import {
 } from '../../helpers/colors';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {scrollableRef} from './timeline-refs';
+import {TimelineAssetDropIndicator} from './TimelineAssetDropIndicator';
 import {
 	TIMELINE_BACKGROUND,
 	useTimelineMarqueeSelection,
 } from './TimelineSelection';
+import {TimelineViewportProvider} from './TimelineViewport';
 
 const outer: React.CSSProperties = {
 	width: '100%',
 	height: '100%',
 	overflowX: 'auto',
 	overflowY: 'hidden',
+	overscrollBehaviorX: 'none',
 	position: 'relative',
 	backgroundColor: TIMELINE_BACKGROUND,
 };
@@ -42,11 +45,15 @@ export const TimelineScrollable: React.FC<{
 	return (
 		<div
 			ref={scrollableRef}
+			data-timeline-scrollable="true"
 			style={outer}
 			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
 			onPointerDownCapture={onPointerDownCapture}
 		>
-			<div style={containerStyle}>{children}</div>
+			<TimelineViewportProvider scrollable={scrollableRef}>
+				<div style={containerStyle}>{children}</div>
+			</TimelineViewportProvider>
+			<TimelineAssetDropIndicator />
 			{marqueeRect === null ? null : (
 				<div
 					style={{

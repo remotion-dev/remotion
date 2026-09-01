@@ -9,7 +9,7 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
-import {useMaxMediaCacheSize} from '../caches';
+import {useMaxMediaCacheSize, useRenderMediaCache} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -68,6 +68,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const [initialRequestInit] = useState(requestInit);
 
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const startInVideo = sequenceContext
+		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
+		: 0;
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -85,6 +88,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	);
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
+	const mediaCache = useRenderMediaCache(logLevel);
 
 	const audioEnabled = Internals.useAudioEnabled();
 
@@ -134,8 +138,13 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			maxCacheSize,
 			credentials,
 			requestInit: initialRequestInit,
+			mediaCache,
 		})
 			.then((result) => {
+				if (mediaCache.isDisposed()) {
+					return;
+				}
+
 				const handleError = (
 					error: Error,
 					clientSideError: Error,
@@ -232,6 +241,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 							? audio.data
 							: Array.from(audio.data),
 						frame: absoluteFrame,
+						startInVideo,
 						timestamp: audio.timestamp,
 						duration:
 							(audio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
@@ -242,6 +252,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				continueRender(newHandle);
 			})
 			.catch((error) => {
+				if (mediaCache.isDisposed()) {
+					return;
+				}
+
 				cancelRender(error);
 			});
 
@@ -267,6 +281,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		playbackRate,
 		registerRenderAsset,
 		src,
+		startInVideo,
 		startsAt,
 		unregisterRenderAsset,
 		volumeProp,
@@ -280,6 +295,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		onError,
 		credentials,
 		initialRequestInit,
+		mediaCache,
 	]);
 
 	if (replaceWithHtml5Audio) {

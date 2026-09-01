@@ -1,0 +1,1 @@
+import '@remotion/studio/previewEntry';

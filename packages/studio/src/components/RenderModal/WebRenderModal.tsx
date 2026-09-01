@@ -17,14 +17,15 @@ import {
 } from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {AudioIcon} from '../../icons/audio';
 import {CertificateIcon} from '../../icons/certificate';
-import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
+import {InputPropsIcon} from '../../icons/input-props';
 import type {WebRenderModalState} from '../../state/modals';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -60,14 +61,12 @@ import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
-import {WebRenderModalLicense} from './WebRenderModalLicense';
 import {WebRenderModalPicture} from './WebRenderModalPicture';
 
 type WebRenderModalProps = {
 	readonly compositionId: string;
 	readonly initialFrame: number;
 	readonly initialLogLevel: LogLevel;
-	readonly initialLicenseKey: string | null;
 	readonly defaultProps: Record<string, unknown>;
 	readonly inFrameMark: number | null;
 	readonly outFrameMark: number | null;
@@ -85,18 +84,13 @@ type WebRenderModalProps = {
 	readonly initialTransparent: boolean | null;
 	readonly initialMuted: boolean | null;
 	readonly initialMediaCacheSizeInBytes: number | null;
+	readonly initialAllowHtmlInCanvas: boolean;
 	readonly initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
 export type RenderType = 'still' | 'video' | 'audio';
 
-type TabType =
-	| 'general'
-	| 'data'
-	| 'picture'
-	| 'audio'
-	| 'advanced'
-	| 'license';
+type TabType = 'general' | 'data' | 'picture' | 'audio' | 'advanced';
 
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
@@ -174,7 +168,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	inFrameMark,
 	outFrameMark,
 	initialLogLevel,
-	initialLicenseKey,
 	initialStillImageFormat,
 	initialDefaultOutName,
 	initialScale,
@@ -189,10 +182,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialKeyframeIntervalInSeconds,
 	initialTransparent,
 	initialMuted,
+	initialAllowHtmlInCanvas,
 	initialPageResponsiveness,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const {addClientStillJob, addClientVideoJob} = useContext(RenderQueueContext);
 	if (!context) {
@@ -200,6 +194,13 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			'Should not be able to render without resolving comp first',
 		);
 	}
+
+	const renderDefaults = window.remotion_renderDefaults;
+	if (!renderDefaults) {
+		throw new Error('Render defaults are not available');
+	}
+
+	const {publicLicenseKey} = renderDefaults;
 
 	const {
 		resolved: {result: resolvedComposition},
@@ -220,6 +221,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				: 'still',
 	);
 	const [tab, setTab] = useState<TabType>('general');
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const [imageFormat, setImageFormat] = useState<RenderStillOnWebImageFormat>(
 		() => initialStillImageFormat ?? 'png',
 	);
@@ -272,8 +274,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [transparent, setTransparent] = useState(initialTransparent ?? false);
 	const [muted, setMuted] = useState(initialMuted ?? false);
 	const [scale, setScale] = useState(initialScale ?? 1);
-
-	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
+	const [allowHtmlInCanvas, setAllowHtmlInCanvas] = useState(
+		initialAllowHtmlInCanvas ?? false,
+	);
 
 	const [pageResponsiveness, setPageResponsiveness] =
 		useState<WebRendererPageResponsiveness>(
@@ -547,8 +550,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					delayRenderTimeout,
 					mediaCacheSizeInBytes,
 					logLevel,
-					licenseKey,
+					licenseKey: publicLicenseKey,
 					scale,
+					allowHtmlInCanvas,
 				},
 				compositionRef,
 			);
@@ -575,8 +579,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					delayRenderTimeout,
 					mediaCacheSizeInBytes,
 					logLevel,
-					licenseKey,
+					licenseKey: publicLicenseKey,
 					scale,
+					allowHtmlInCanvas,
 					pageResponsiveness,
 				},
 				compositionRef,
@@ -605,7 +610,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		delayRenderTimeout,
 		mediaCacheSizeInBytes,
 		logLevel,
-		licenseKey,
+		publicLicenseKey,
 		container,
 		effectiveVideoCodec,
 		effectiveAudioCodec,
@@ -621,6 +626,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		addClientStillJob,
 		addClientVideoJob,
 		scale,
+		allowHtmlInCanvas,
 		pageResponsiveness,
 	]);
 
@@ -646,20 +652,24 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						style={horizontalTab}
 						selected={tab === 'general'}
 						onClick={() => setTab('general')}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<FileIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div style={iconContainer}>
-							<FileIcon style={icon} />
-						</div>
 						General
 					</VerticalTab>
 					<VerticalTab
 						style={horizontalTab}
 						selected={tab === 'data'}
 						onClick={() => setTab('data')}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<InputPropsIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div style={iconContainer}>
-							<DataIcon style={icon} />
-						</div>
 						Input Props
 					</VerticalTab>
 					{renderMode !== 'audio' ? (
@@ -667,10 +677,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							style={horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<PicIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<PicIcon style={icon} />
-							</div>
 							Picture
 						</VerticalTab>
 					) : null}
@@ -679,10 +691,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							style={horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<AudioIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<AudioIcon style={icon} />
-							</div>
 							Audio
 						</VerticalTab>
 					) : null}
@@ -690,22 +704,34 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						style={horizontalTab}
 						selected={tab === 'advanced'}
 						onClick={() => setTab('advanced')}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<GearIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div style={iconContainer}>
-							<GearIcon style={icon} />
-						</div>
 						Other
 					</VerticalTab>
-					<VerticalTab
-						style={horizontalTab}
-						selected={tab === 'license'}
-						onClick={() => setTab('license')}
-					>
-						<div style={iconContainer}>
-							<CertificateIcon style={icon} />
-						</div>
-						License
-					</VerticalTab>
+					{isBrowserStudio ? null : (
+						<VerticalTab
+							style={horizontalTab}
+							selected={false}
+							onClick={() =>
+								setSelectedModal({
+									type: 'settings',
+									initialTab: 'license',
+									initialPublicLicenseKey: publicLicenseKey,
+								})
+							}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<CertificateIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							License
+						</VerticalTab>
+					)}
 				</div>
 				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (
@@ -782,16 +808,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
 							hardwareAcceleration={hardwareAcceleration}
 							setHardwareAcceleration={setHardwareAcceleration}
+							allowHtmlInCanvas={allowHtmlInCanvas}
+							setAllowHtmlInCanvas={setAllowHtmlInCanvas}
 							pageResponsiveness={pageResponsiveness}
 							setPageResponsiveness={setPageResponsiveness}
 						/>
-					) : (
-						<WebRenderModalLicense
-							licenseKey={licenseKey}
-							setLicenseKey={setLicenseKey}
-							initialPublicLicenseKey={initialLicenseKey}
-						/>
-					)}
+					) : null}
 				</div>
 			</div>
 		</div>

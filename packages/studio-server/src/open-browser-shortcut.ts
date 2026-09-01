@@ -1,6 +1,7 @@
 import * as readline from 'node:readline';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {focusBrowserTabByOrigin} from './better-opn';
 import {maybeOpenBrowser} from './maybe-open-browser';
 import {clearPrintPortMessageTimeout} from './preview-server/live-events';
 
@@ -53,38 +54,49 @@ export const registerOpenBrowserShortcut = ({
 		}
 	};
 
-	const openStudio = () => {
+	const openStudio = async () => {
 		if (isOpeningBrowser) {
 			return;
 		}
 
 		isOpeningBrowser = true;
 		clearPrintPortMessageTimeout();
-		maybeOpenBrowser({
-			browserArgs,
-			browserFlag,
-			shouldOpenBrowser: true,
-			url,
-			logLevel,
-		})
-			.then((result) => {
-				if (result.didOpenBrowser) {
-					RenderInternals.Log.info(
-						{indent: false, logLevel},
-						`Opened ${url} in browser`,
-					);
-				}
-			})
-			.catch((err) => {
-				RenderInternals.Log.error(
-					{indent: false, logLevel},
-					'Could not open browser:',
-					err,
-				);
-			})
-			.finally(() => {
-				isOpeningBrowser = false;
+		try {
+			const didFocus = await focusBrowserTabByOrigin({
+				url,
+				browserArgs,
+				browserFlag,
 			});
+			if (didFocus) {
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					RenderInternals.chalk.blue(`Opened ${url} in browser`),
+				);
+				return;
+			}
+
+			const result = await maybeOpenBrowser({
+				browserArgs,
+				browserFlag,
+				shouldOpenBrowser: true,
+				url,
+				logLevel,
+			});
+			if (result.didOpenBrowser) {
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					RenderInternals.chalk.blue(`Opened ${url} in browser`),
+				);
+			}
+		} catch (err) {
+			RenderInternals.Log.error(
+				{indent: false, logLevel},
+				'Could not open browser:',
+				err,
+			);
+		} finally {
+			isOpeningBrowser = false;
+		}
 	};
 
 	function onKeypress(_str: string, key: Key | undefined) {
@@ -98,7 +110,7 @@ export const registerOpenBrowserShortcut = ({
 			return;
 		}
 
-		openStudio();
+		openStudio().catch(() => undefined);
 	}
 
 	readline.emitKeypressEvents(process.stdin);

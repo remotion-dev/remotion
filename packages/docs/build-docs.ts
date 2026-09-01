@@ -133,6 +133,9 @@ const docusaurusBuild = lowMemoryBuild
 
 await run('copy raw docs', 'bun', ['copy-raw-docs.ts']);
 await run('fetch prompt submissions', 'bun', ['fetch-prompt-submissions.ts']);
+await run('prepare Browser Studio workspace', 'bun', [
+	'prepare-browser-studio-workspace.ts',
+]);
 await run('prewarm twoslash', 'bun', ['prewarm-twoslash.ts'], twoslashEnv);
 await run(
 	'Docusaurus build',
@@ -140,5 +143,9 @@ await run(
 	docusaurusBuild.args,
 	docusaurusEnv,
 );
+await run('build standalone Browser Studio', 'bun', [
+	'build-browser-studio-standalone.ts',
+]);
 await run('copy convert assets', 'bun', ['copy-convert.ts']);
+await run('generate asset manifest', 'bun', ['generate-asset-manifest.ts']);
 await run('count generated pages', 'bun', ['count-pages.ts']);

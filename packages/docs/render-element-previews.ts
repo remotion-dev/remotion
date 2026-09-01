@@ -2,94 +2,68 @@ import {mkdirSync, rmSync} from 'fs';
 import path from 'path';
 import {bundle} from '@remotion/bundler';
 import {getCompositions, renderMedia, renderStill} from '@remotion/renderer';
-import {S3Client} from 'bun';
 import {elementDefinitions} from './src/components/Elements/element-definitions';
-import {
-	getElementCompositionId,
-	getElementPreviewUrls,
-} from './src/components/Elements/element-utils';
+import {getElementCompositionId} from './src/components/Elements/element-utils';
 
-const r2Endpoint =
-	'https://2fe488b3b0f4deee223aef7464784c46.r2.cloudflarestorage.com';
-const r2Bucket = 'parser-media';
-const upload = process.argv.includes('--upload');
+if (process.argv.includes('--upload')) {
+	throw new Error(
+		'Preview rendering no longer uploads. Use upload-element-preview after review.',
+	);
+}
+
 const outputDirectoryArgument = process.argv.find((argument) =>
 	argument.startsWith('--output-dir='),
 );
 const outputDirectory = outputDirectoryArgument
 	? path.resolve(outputDirectoryArgument.slice('--output-dir='.length))
 	: path.join(process.cwd(), '.element-previews');
+const elementArguments = process.argv.filter((argument) =>
+	argument.startsWith('--element='),
+);
+if (process.argv.includes('--element')) {
+	throw new Error('Use --element=<category>/<slug>');
+}
 
-const ensureUploadCredentials = () => {
-	if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
-		throw new Error(
-			'--upload requires AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY',
-		);
-	}
+if (elementArguments.length > 1) {
+	throw new Error('Only one --element argument may be specified');
+}
 
-	return {
-		accessKeyId: Bun.env.AWS_ACCESS_KEY_ID,
-		secretAccessKey: Bun.env.AWS_SECRET_ACCESS_KEY,
-	};
-};
-
-const uploadAsset = async ({
-	client,
-	contentType,
-	filePath,
-	key,
-	publicUrl,
-}: {
-	client: S3Client;
-	contentType: string;
-	filePath: string;
-	key: string;
-	publicUrl: string;
-}) => {
-	const file = Bun.file(filePath, {type: contentType});
-	await client.write(key, file);
-
-	const remote = await client.stat(key);
-	if (remote.size !== file.size) {
-		throw new Error(
-			`Uploaded size mismatch for ${key}: expected ${file.size}, got ${remote.size}`,
-		);
-	}
-
-	const response = await fetch(`${publicUrl}?verify=${Date.now()}`, {
-		method: 'HEAD',
-	});
-	if (!response.ok) {
-		throw new Error(`Could not verify ${publicUrl}: HTTP ${response.status}`);
-	}
-
-	const remoteContentType = response.headers.get('content-type');
-	if (remoteContentType !== contentType) {
-		throw new Error(
-			`Unexpected content type for ${publicUrl}: expected ${contentType}, got ${remoteContentType}`,
-		);
-	}
-
-	console.log(`Uploaded ${publicUrl} (${file.size} bytes)`);
-};
-
-const credentials = upload ? ensureUploadCredentials() : null;
-const client = credentials
-	? new S3Client({
-			...credentials,
-			bucket: r2Bucket,
-			endpoint: r2Endpoint,
-		})
+const selectedElementSlug = elementArguments[0]
+	? elementArguments[0].slice('--element='.length)
 	: null;
+const allElementDefinitions = Object.values(elementDefinitions);
+const selectedElementDefinition = selectedElementSlug
+	? allElementDefinitions.find(
+			(definition) => definition.slug === selectedElementSlug,
+		)
+	: null;
+if (selectedElementSlug !== null && !selectedElementDefinition) {
+	throw new Error(`Unknown Element: ${selectedElementSlug}`);
+}
 
-rmSync(outputDirectory, {force: true, recursive: true});
+const definitionsToRender = selectedElementDefinition
+	? [selectedElementDefinition]
+	: allElementDefinitions;
+
+if (selectedElementSlug === null) {
+	rmSync(outputDirectory, {force: true, recursive: true});
+} else {
+	rmSync(path.join(outputDirectory, ...selectedElementSlug.split('/')), {
+		force: true,
+		recursive: true,
+	});
+}
+
 mkdirSync(outputDirectory, {recursive: true});
 
 const serveUrl = await bundle({
 	entryPoint: path.join(process.cwd(), 'src', 'remotion', 'entry.ts'),
 	publicDir: path.join(process.cwd(), 'static'),
 });
-const compositions = await getCompositions(serveUrl);
+const compositions = await getCompositions({
+	serveUrl,
+	inputProps: {},
+});
 const elementCompositions = compositions.filter((composition) =>
 	composition.id.startsWith('element-'),
 );
@@ -115,7 +89,7 @@ for (const actualId of actualCompositionIds) {
 	}
 }
 
-for (const definition of Object.values(elementDefinitions)) {
+for (const definition of definitionsToRender) {
 	const compositionId = getElementCompositionId(definition.slug);
 	const composition = elementCompositions.find(
 		(candidate) => candidate.id === compositionId,
@@ -130,7 +104,7 @@ for (const definition of Object.values(elementDefinitions)) {
 	);
 	mkdirSync(elementOutputDirectory, {recursive: true});
 	const pngPath = path.join(elementOutputDirectory, 'preview.png');
-	const mp4Path = path.join(elementOutputDirectory, 'preview.mp4');
+	const videoPath = path.join(elementOutputDirectory, 'preview.mp4');
 
 	console.log(`Rendering ${definition.displayName} poster`);
 	await renderStill({
@@ -149,36 +123,16 @@ for (const definition of Object.values(elementDefinitions)) {
 		crf: 23,
 		imageFormat: 'png',
 		muted: true,
-		outputLocation: mp4Path,
+		outputLocation: videoPath,
 		pixelFormat: 'yuv420p',
 		serveUrl,
 	});
 
 	console.log(`Rendered ${pngPath}`);
-	console.log(`Rendered ${mp4Path}`);
-
-	if (client) {
-		const urls = getElementPreviewUrls(definition.slug);
-		const baseKey = `elements/${definition.slug}`;
-		await uploadAsset({
-			client,
-			contentType: 'image/png',
-			filePath: pngPath,
-			key: `${baseKey}/preview.png`,
-			publicUrl: urls.png,
-		});
-		await uploadAsset({
-			client,
-			contentType: 'video/mp4',
-			filePath: mp4Path,
-			key: `${baseKey}/preview.mp4`,
-			publicUrl: urls.mp4,
-		});
-	}
+	console.log(`Rendered ${videoPath}`);
 }
 
-console.log(
-	upload
-		? 'Rendered and uploaded all Element previews.'
-		: `Rendered all Element previews to ${outputDirectory}.`,
-);
+const renderedScope = selectedElementSlug
+	? `Element ${selectedElementSlug}`
+	: 'all Element previews';
+console.log(`Rendered ${renderedScope} to ${outputDirectory}.`);

@@ -1,10 +1,8 @@
 [
 	{
 		"label": "setup new worktree",
-		"command": "bun install && bun run build",
-		"hooks": [
-			"create_worktree"
-		],
+		"command": "./.githooks/copy-env-files && bun install && bun run build",
+		"hooks": ["create_worktree"],
 		"cwd": "$ZED_WORKTREE_ROOT",
 		"reveal": "no_focus",
 		"hide": "on_success"
@@ -29,6 +27,22 @@
 		"label": "start example app",
 		"command": "bun run dev",
 		"cwd": "$ZED_WORKTREE_ROOT/packages/example",
+		"reveal": "always",
+		"hide": "never",
+		"save": "all"
+	},
+	{
+		"label": "start docs dev server",
+		"command": "bun run start",
+		"cwd": "$ZED_WORKTREE_ROOT/packages/docs",
+		"reveal": "always",
+		"hide": "never",
+		"save": "all"
+	},
+	{
+		"label": "start docs studio",
+		"command": "bun remotion",
+		"cwd": "$ZED_WORKTREE_ROOT/packages/docs",
 		"reveal": "always",
 		"hide": "never",
 		"save": "all"

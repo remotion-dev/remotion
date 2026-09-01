@@ -1,96 +1,166 @@
 import {expect, test} from 'bun:test';
 import {
 	clearElementInstallStateForTests,
+	consumeStudioProtocolTarget,
 	getElementInstallTarget,
+	issueStudioProtocolTarget,
 	updateElementInstallTarget,
 } from '../preview-server/element-install-state';
 
+const updateTarget = ({
+	clientId = 'focused-tab',
+	compositionId = 'Main',
+	lastFocusedAt = Date.now(),
+	readOnly = false,
+	requestId = 'protocol-request',
+}: {
+	readonly clientId?: string;
+	readonly compositionId?: string | null;
+	readonly lastFocusedAt?: number;
+	readonly readOnly?: boolean;
+	readonly requestId?: string | null;
+}) => {
+	updateElementInstallTarget({
+		requestId,
+		clientId,
+		compositionFile:
+			compositionId === null ? null : `/project/src/${compositionId}.tsx`,
+		compositionId,
+		lastFocusedAt,
+		readOnly,
+		studioUrl: `http://localhost:3000/${compositionId ?? ''}`,
+	});
+};
+
 test('uses the most recently focused Studio target even when older tabs keep updating', () => {
 	clearElementInstallStateForTests();
-
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'older-tab',
-		compositionFile: '/project/src/older.tsx',
-		compositionId: 'older-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
-	});
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'focused-tab',
-		compositionFile: '/project/src/focused.tsx',
-		compositionId: 'focused-composition',
-		canInstall: true,
-		lastFocusedAt: 2000,
-		readOnly: false,
-	});
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'older-tab',
-		compositionFile: '/project/src/older.tsx',
-		compositionId: 'older-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
-	});
+	updateTarget({clientId: 'older-tab', lastFocusedAt: 1000, requestId: null});
+	updateTarget({clientId: 'focused-tab', lastFocusedAt: 2000, requestId: null});
+	updateTarget({clientId: 'older-tab', lastFocusedAt: 1000, requestId: null});
 
 	expect(getElementInstallTarget(null)?.clientId).toBe('focused-tab');
 });
 
-test('falls back to update recency when focus timestamps match', async () => {
+test('binds install tokens to one origin, purpose and composition', () => {
 	clearElementInstallStateForTests();
+	updateTarget({});
+	const selected = getElementInstallTarget('protocol-request');
+	if (selected === null) {
+		throw new Error('Expected an install target');
+	}
 
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'first-tab',
-		compositionFile: '/project/src/first.tsx',
-		compositionId: 'first-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
+	const wrongPurpose = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://example.com',
+		purpose: 'install-element',
+		target: selected,
 	});
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://example.com',
+			purpose: 'set-license-key',
+			targetId: wrongPurpose.id,
+		}),
+	).toBe(null);
 
-	await new Promise((resolve) => setTimeout(resolve, 2));
-
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'second-tab',
-		compositionFile: '/project/src/second.tsx',
-		compositionId: 'second-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
+	const changedComposition = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://example.com',
+		purpose: 'install-element',
+		target: selected,
 	});
+	updateTarget({compositionId: 'Other', requestId: null});
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://example.com',
+			purpose: 'install-element',
+			targetId: changedComposition.id,
+		}),
+	).toBe(null);
 
-	expect(getElementInstallTarget(null)?.clientId).toBe('second-tab');
+	updateTarget({});
+	const current = getElementInstallTarget('protocol-request');
+	if (current === null) {
+		throw new Error('Expected an install target');
+	}
+
+	const wrongOrigin = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://example.com',
+		purpose: 'install-element',
+		target: current,
+	});
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://other.example',
+			purpose: 'install-element',
+			targetId: wrongOrigin.id,
+		}),
+	).toBe(null);
 });
 
-test('can select a target for a specific request', () => {
+test('config targets are project-level, purpose-bound, single-use and invalidated by read-only mode', () => {
 	clearElementInstallStateForTests();
+	updateTarget({compositionId: null});
+	const selected = getElementInstallTarget('protocol-request');
+	if (selected === null) {
+		throw new Error('Expected a Studio target');
+	}
 
-	updateElementInstallTarget({
-		requestId: 'first-request',
-		clientId: 'first-tab',
-		compositionFile: '/project/src/first.tsx',
-		compositionId: 'first-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
+	const elementLibraryTarget = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://remotion.pro',
+		purpose: 'add-element-library',
+		target: selected,
 	});
-	updateElementInstallTarget({
-		requestId: 'second-request',
-		clientId: 'second-tab',
-		compositionFile: '/project/src/second.tsx',
-		compositionId: 'second-composition',
-		canInstall: true,
-		lastFocusedAt: 2000,
-		readOnly: false,
-	});
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://remotion.pro',
+			purpose: 'set-license-key',
+			targetId: elementLibraryTarget.id,
+		}),
+	).toBe(null);
 
-	expect(getElementInstallTarget('first-request')?.clientId).toBe('first-tab');
-	expect(getElementInstallTarget('second-request')?.clientId).toBe(
-		'second-tab',
-	);
+	const issued = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://remotion.pro',
+		purpose: 'set-license-key',
+		target: selected,
+	});
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://remotion.pro',
+			purpose: 'set-license-key',
+			targetId: issued.id,
+		})?.clientId,
+	).toBe('focused-tab');
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://remotion.pro',
+			purpose: 'set-license-key',
+			targetId: issued.id,
+		}),
+	).toBe(null);
+
+	const readOnlyToken = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://remotion.pro',
+		purpose: 'set-license-key',
+		target: selected,
+	});
+	updateTarget({compositionId: null, readOnly: true});
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://remotion.pro',
+			purpose: 'set-license-key',
+			targetId: readOnlyToken.id,
+		}),
+	).toBe(null);
 });

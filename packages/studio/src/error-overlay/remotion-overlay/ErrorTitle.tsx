@@ -14,6 +14,7 @@ const title: React.CSSProperties = {
 
 const left: React.CSSProperties = {
 	flex: 1,
+	paddingLeft: 14,
 	paddingRight: 14,
 	fontWeight: 'bold',
 	maxWidth: '100%',
@@ -44,15 +45,16 @@ export const ErrorTitle: React.FC<{
 	return (
 		<div style={title} className="css-reset">
 			<div style={left}>
-				<span style={errName}>{name}</span>
-				<br />
 				<div style={row}>
+					<span style={errName}>{name}</span>
 					{symbolicating ? (
 						<>
-							<Symbolicating />
 							<div style={spacer} />
+							<Symbolicating />
 						</>
 					) : null}
+				</div>
+				<div style={row}>
 					<ErrorMessage message={message} />
 				</div>
 			</div>

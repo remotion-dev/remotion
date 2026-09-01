@@ -46,6 +46,47 @@ test('Can interpolate a single keyframe', () => {
 	).toBe(9);
 });
 
+test('Can interpolate non-numeric strings in hold mode', () => {
+	expect(
+		interpolate(0, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
+			easing: [Easing.step1, Easing.step1],
+		}),
+	).toBe('default');
+	expect(
+		interpolate(99.999, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
+			easing: [Easing.step1, Easing.step1],
+		}),
+	).toBe('default');
+	expect(
+		interpolate(100, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
+			easing: [Easing.step1, Easing.step1],
+		}),
+	).toBe('ne-resize');
+	expect(
+		interpolate(200, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
+			easing: [Easing.step1, Easing.step1],
+		}),
+	).toBe('pointer');
+});
+
+test('Non-numeric strings require hold mode', () => {
+	expectToThrow(
+		() => interpolate(50, [0, 100], ['default', 'ne-resize']),
+		/Non-numeric strings can only be interpolated using Easing\.step1/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(50, [0, 100], ['default', 'ne-resize'], {
+				easing: Easing.linear,
+			}),
+		/Non-numeric strings can only be interpolated using Easing\.step1/,
+	);
+});
+
+test('A single non-numeric string keyframe does not require easing', () => {
+	expect(interpolate(100, [20], ['default'])).toBe('default');
+});
+
 test('Easing array with one keyframe accepts no entries', () => {
 	expect(
 		interpolate(0.5, [0], [1], {
@@ -477,6 +518,19 @@ test('Interpolates rotate strings', () => {
 		'50deg 25deg',
 	);
 	expect(interpolate(15, [0, 30], ['0turn', '0.5turn'])).toBe('0.25turn');
+	expect(interpolate(15, [0, 30], ['x 0deg', 'y 100deg'])).toBe(
+		'0.5 0.5 0 50deg',
+	);
+	expect(interpolate(15, [0, 30], ['0deg', '1 0 0 100deg'])).toBe(
+		'1 0 0 50deg',
+	);
+	expect(
+		interpolate(
+			15,
+			[0, 30],
+			['0deg', '0.901683 0.345591 -0.259873 25.880675deg'],
+		),
+	).toBe('0.901683 0.345591 -0.259873 12.940338deg');
 });
 
 test('String interpolation supports easing, extrapolation and posterization', () => {
@@ -513,6 +567,10 @@ test('String interpolation throws on type and unit mismatches', () => {
 	expectToThrow(
 		() => interpolate(15, [0, 30], ['0deg', '0.5turn']),
 		/different units on axis 1/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['x 0deg', '0 1 0 0.5turn']),
+		/different units on axis 4/,
 	);
 	expectToThrow(
 		() => interpolate(15, [0, 30], ['0px', '1px 2px 3px 4px']),
@@ -698,6 +756,90 @@ test('Allow tail spring keeps previous string segment settling while the next se
 	expect(yWithoutTail).toBe(0);
 	expect(yWithTail).toBeGreaterThan(0);
 	expect(yWithTail).toBeLessThan(10);
+});
+
+test('Allow tail spring stays continuous when followed by a hold segment', () => {
+	const easing = [
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+	] as const;
+	const options = {
+		easing,
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+		output: 'perceptual-scale',
+	} as const;
+
+	const immediatelyBeforeHold = interpolate(
+		169.999,
+		[21, 170, 591],
+		[1.26, 6.02, 6.02],
+		options,
+	);
+	const atHold = interpolate(170, [21, 170, 591], [1.26, 6.02, 6.02], options);
+
+	expect(immediatelyBeforeHold).toBeCloseTo(atHold, 5);
+});
+
+test('Allow tail axis rotation keeps its axis while settling into a hold segment', () => {
+	const axisRotation = '0.945221 -0.227695 0.233905 45.778028deg';
+	const easing = [
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+	] as const;
+	const options = {
+		easing,
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	} as const;
+	const atHold = interpolate(
+		170,
+		[21, 170, 591, 620],
+		['0deg', axisRotation, axisRotation, '0deg'],
+		options,
+	);
+	const afterHold = interpolate(
+		171,
+		[21, 170, 591, 620],
+		['0deg', axisRotation, axisRotation, '0deg'],
+		options,
+	);
+
+	expect(afterHold).toStartWith('0.945221 -0.227695 0.233905 ');
+	expect(Number(afterHold.split(' ')[3].replace('deg', ''))).toBeGreaterThan(
+		Number(atHold.split(' ')[3].replace('deg', '')),
+	);
 });
 
 test('Clamp left test', () => {

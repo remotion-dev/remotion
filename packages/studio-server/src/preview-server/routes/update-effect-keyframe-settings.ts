@@ -100,10 +100,16 @@ export const updateEffectKeyframeSettingsHandler: ApiHandler<
 			},
 			entryType: 'effect-props',
 			suppressHmrOnFileRestore: true,
+			nodePathRemappings: null,
 		});
 		suppressUndoStackInvalidation(absolutePath);
 		suppressBundlerUpdateForFile(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+		writeFileAndNotifyFileWatchers({
+			file: absolutePath,
+			content: output,
+			originatorClientId: clientId,
+			metadata: null,
+		});
 
 		logEffectUpdate({
 			fileRelativeToRoot,

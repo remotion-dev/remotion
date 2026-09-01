@@ -12,7 +12,12 @@ import {
 	getStsClient,
 } from './aws-clients';
 import {awsImplementation} from './aws-provider';
+import {
+	getAwsPartitionMetadata,
+	getAwsRegionMetadata,
+} from './aws-region-metadata';
 import {parseJsonOrThrowSource} from './call-lambda-streaming';
+import {internalCancelRenderOnLambda} from './cancel-render-on-lambda';
 import {cleanItems} from './clean-items';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
@@ -24,6 +29,8 @@ import {internalDeleteRender} from './delete-render';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
+	getLambdaFunctionUrl,
+	getS3BucketUrl,
 	getS3RenderUrl,
 } from './get-aws-urls';
 import {getEnvVariable} from './get-env-variable';
@@ -67,6 +74,15 @@ export type {
 } from '@remotion/serverless-client';
 export {appRouterWebhook, NextWebhookArgs} from './app-router-webhook';
 export {AwsProvider} from './aws-provider';
+export {
+	cancelRenderOnLambda,
+	type CancelRenderOnLambdaInput,
+} from './cancel-render-on-lambda';
+export type {
+	AwsBillingCurrency,
+	AwsPartition,
+	AwsRegionMetadata,
+} from './aws-region-metadata';
 export type {RenderProgress} from './constants';
 export {deleteFunction, DeleteFunctionInput} from './delete-function';
 export {deleteRender, type DeleteRenderInput} from './delete-render';
@@ -120,6 +136,8 @@ export const LambdaClientInternals: {
 	parseJsonOrThrowSource: typeof parseJsonOrThrowSource;
 	getCloudwatchMethodUrl: typeof getCloudwatchMethodUrl;
 	getCloudwatchRendererUrl: typeof getCloudwatchRendererUrl;
+	getLambdaFunctionUrl: typeof getLambdaFunctionUrl;
+	getS3BucketUrl: typeof getS3BucketUrl;
 	MAX_EPHEMERAL_STORAGE_IN_MB: typeof MAX_EPHEMERAL_STORAGE_IN_MB;
 	parseFunctionName: typeof parseFunctionName;
 	isFlakyError: typeof isFlakyError;
@@ -129,6 +147,7 @@ export const LambdaClientInternals: {
 	makeLambdaRenderMediaPayload: typeof makeLambdaRenderMediaPayload;
 	renderMediaOnLambdaOptionalToRequired: typeof renderMediaOnLambdaOptionalToRequired;
 	internalDeleteRender: typeof internalDeleteRender;
+	internalCancelRenderOnLambda: typeof internalCancelRenderOnLambda;
 	internalGetSites: typeof internalGetSites;
 	getLifeCycleRules: typeof getLifeCycleRules;
 	awsImplementation: typeof awsImplementation;
@@ -149,6 +168,8 @@ export const LambdaClientInternals: {
 	makeLambdaRenderStillPayload: typeof makeLambdaRenderStillPayload;
 	getRenderProgressPayload: typeof getRenderProgressPayload;
 	innerSpeculateFunctionName: typeof innerSpeculateFunctionName;
+	getAwsPartitionMetadata: typeof getAwsPartitionMetadata;
+	getAwsRegionMetadata: typeof getAwsRegionMetadata;
 } = {
 	generateRandomHashWithLifeCycleRule,
 	getLambdaClient,
@@ -161,6 +182,8 @@ export const LambdaClientInternals: {
 	parseJsonOrThrowSource,
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
+	getLambdaFunctionUrl,
+	getS3BucketUrl,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	parseFunctionName,
 	isFlakyError,
@@ -170,6 +193,7 @@ export const LambdaClientInternals: {
 	makeLambdaRenderMediaPayload,
 	renderMediaOnLambdaOptionalToRequired,
 	internalDeleteRender,
+	internalCancelRenderOnLambda,
 	internalGetSites,
 	getLifeCycleRules,
 	awsImplementation,
@@ -190,4 +214,6 @@ export const LambdaClientInternals: {
 	makeLambdaRenderStillPayload,
 	getRenderProgressPayload,
 	innerSpeculateFunctionName,
+	getAwsPartitionMetadata,
+	getAwsRegionMetadata,
 };

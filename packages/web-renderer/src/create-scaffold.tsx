@@ -5,7 +5,11 @@ import type {Codec, DelayRenderScope, LogLevel, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {$ZodObject} from 'zod/v4/core';
 import type {HtmlInCanvasContext} from './html-in-canvas';
-import {setupHtmlInCanvas, teardownHtmlInCanvas} from './html-in-canvas';
+import {
+	containsLayoutSubtreeCanvas,
+	setupHtmlInCanvas,
+	teardownHtmlInCanvas,
+} from './html-in-canvas';
 import type {TimeUpdaterRef} from './update-time';
 import {UpdateTime} from './update-time';
 
@@ -176,6 +180,9 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	wrapper.style.inset = '0';
 	wrapper.style.overflow = 'hidden';
 	wrapper.style.visibility = 'hidden';
+	// A filter keeps visible layout subtrees transparent on screen without
+	// suppressing the paint records that CSS opacity:0 would remove.
+	wrapper.style.filter = 'opacity(0)';
 	wrapper.style.pointerEvents = 'none';
 	wrapper.style.zIndex = '-9999';
 
@@ -203,6 +210,23 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	const htmlInCanvasContext = useHtmlInCanvas
 		? setupHtmlInCanvas({wrapper, div, width, height})
 		: null;
+	const updateFallbackScaffoldVisibility = () => {
+		if (htmlInCanvasContext) {
+			return;
+		}
+
+		// Chromium does not create paint records for a visibility:hidden subtree.
+		// Only expose the composition root when the DOM-composer fallback contains
+		// an <HtmlInCanvas>; keeping other scaffolds hidden avoids affecting canvas
+		// paint scheduling in compositions such as <ThreeCanvas>.
+		div.style.visibility = containsLayoutSubtreeCanvas(div) ? 'visible' : '';
+	};
+
+	const fallbackScaffoldObserver = htmlInCanvasContext
+		? null
+		: new MutationObserver(updateFallbackScaffoldVisibility);
+
+	fallbackScaffoldObserver?.observe(div, {childList: true, subtree: true});
 
 	const errorHolder: ErrorHolder = {error: null};
 
@@ -228,87 +252,94 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	const collectAssets = createRef<{
 		collectAssets: () => TRenderAsset[];
 	}>();
+	const renderResourceManager = Internals.makeRenderResourceManager();
 
 	flushSync(() => {
 		root.render(
-			<Internals.MaxMediaCacheSizeContext.Provider
-				value={mediaCacheSizeInBytes}
+			<Internals.RenderResourceManagerContext.Provider
+				value={renderResourceManager}
 			>
-				<Internals.RemotionEnvironmentContext.Provider
-					value={{
-						isStudio: false,
-						isRendering: true,
-						isPlayer: false,
-						isReadOnlyStudio: false,
-						isClientSideRendering: true,
-					}}
+				<Internals.MaxMediaCacheSizeContext.Provider
+					value={mediaCacheSizeInBytes}
 				>
-					<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
-						<Internals.CompositionManager.Provider
-							value={{
-								compositions: [
-									{
-										id,
-										// @ts-expect-error
-										component: Component,
-										nonce: [[0, 0]],
-										defaultProps: {},
-										folderName: null,
-										parentFolderName: null,
-										schema: schema ?? null,
-										calculateMetadata: null,
+					<Internals.RemotionEnvironmentContext.Provider
+						value={{
+							isStudio: false,
+							isRendering: true,
+							isPlayer: false,
+							isReadOnlyStudio: false,
+							isClientSideRendering: true,
+						}}
+					>
+						<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
+							<Internals.CompositionManager.Provider
+								value={{
+									compositions: [
+										{
+											id,
+											// @ts-expect-error
+											component: Component,
+											order: null,
+											defaultProps: {},
+											folderName: null,
+											parentFolderName: null,
+											schema: schema ?? null,
+											calculateMetadata: null,
+											durationInFrames,
+											fps,
+											height,
+											width,
+										},
+									],
+									canvasContent: {
+										type: 'composition',
+										compositionId: id,
+									},
+									currentAssetMetadata: null,
+									currentCompositionMetadata: {
+										props: resolvedProps,
 										durationInFrames,
 										fps,
 										height,
 										width,
+										defaultCodec: defaultCodec ?? null,
+										defaultOutName: defaultOutName ?? null,
+										defaultVideoImageFormat: null,
+										defaultPixelFormat: null,
+										defaultProResProfile: null,
+										defaultSampleRate: null,
 									},
-								],
-								canvasContent: {
-									type: 'composition',
-									compositionId: id,
-								},
-								currentCompositionMetadata: {
-									props: resolvedProps,
-									durationInFrames,
-									fps,
-									height,
-									width,
-									defaultCodec: defaultCodec ?? null,
-									defaultOutName: defaultOutName ?? null,
-									defaultVideoImageFormat: null,
-									defaultPixelFormat: null,
-									defaultProResProfile: null,
-									defaultSampleRate: null,
-								},
-								folders: [],
-							}}
-						>
-							<Internals.PixelDensityContext.Provider value={pixelDensity}>
-								<Internals.RenderAssetManagerProvider
-									collectAssets={collectAssets}
-								>
-									<UpdateTime
-										audioEnabled={audioEnabled}
-										videoEnabled={videoEnabled}
-										logLevel={logLevel}
-										compId={id}
-										initialFrame={initialFrame}
-										timeUpdater={timeUpdater}
+									folders: [],
+								}}
+							>
+								<Internals.PixelDensityContext.Provider value={pixelDensity}>
+									<Internals.RenderAssetManagerProvider
+										collectAssets={collectAssets}
 									>
-										<Internals.CanUseRemotionHooks.Provider value>
-											{/**
-											 * @ts-expect-error	*/}
-											<Component {...resolvedProps} />
-										</Internals.CanUseRemotionHooks.Provider>
-									</UpdateTime>
-								</Internals.RenderAssetManagerProvider>
-							</Internals.PixelDensityContext.Provider>
-						</Internals.CompositionManager.Provider>
-					</Internals.DelayRenderContextType.Provider>
-				</Internals.RemotionEnvironmentContext.Provider>
-			</Internals.MaxMediaCacheSizeContext.Provider>,
+										<UpdateTime
+											audioEnabled={audioEnabled}
+											videoEnabled={videoEnabled}
+											logLevel={logLevel}
+											compId={id}
+											initialFrame={initialFrame}
+											timeUpdater={timeUpdater}
+										>
+											<Internals.CanUseRemotionHooks.Provider value>
+												{/**
+												 * @ts-expect-error	*/}
+												<Component {...resolvedProps} />
+											</Internals.CanUseRemotionHooks.Provider>
+										</UpdateTime>
+									</Internals.RenderAssetManagerProvider>
+								</Internals.PixelDensityContext.Provider>
+							</Internals.CompositionManager.Provider>
+						</Internals.DelayRenderContextType.Provider>
+					</Internals.RemotionEnvironmentContext.Provider>
+				</Internals.MaxMediaCacheSizeContext.Provider>
+			</Internals.RenderResourceManagerContext.Provider>,
 		);
 	});
+	updateFallbackScaffoldVisibility();
 
 	return {
 		delayRenderScope,
@@ -316,14 +347,22 @@ export function createScaffold<Props extends Record<string, unknown>>({
 		errorHolder,
 		htmlInCanvasContext,
 		[Symbol.dispose]: () => {
-			root.unmount();
-			if (htmlInCanvasContext) {
-				teardownHtmlInCanvas({htmlInCanvasContext, wrapper, div});
-			}
+			fallbackScaffoldObserver?.disconnect();
+			try {
+				root.unmount();
+			} finally {
+				try {
+					renderResourceManager.dispose();
+				} finally {
+					if (htmlInCanvasContext) {
+						teardownHtmlInCanvas({htmlInCanvasContext, wrapper, div});
+					}
 
-			div.remove();
-			wrapper.remove();
-			cleanupCSS();
+					div.remove();
+					wrapper.remove();
+					cleanupCSS();
+				}
+			}
 		},
 		timeUpdater,
 		collectAssets,

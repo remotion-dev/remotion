@@ -9,10 +9,9 @@ not evaluate the logging architecture or propose a redesign.
 
 Core has two independent logging paths:
 
-1. `Log` in `src/log.ts` is the low-level, level-aware path. Most core callers
-   use a bound `Logger` from `src/logger.ts`; imperative callers can construct
-   one explicitly. It filters synchronously, maps the accepted call to a browser
-   console method, and adds renderer-only `Symbol` metadata.
+1. `Log` in `src/log.ts` is the low-level, level-aware path. Callers supply the
+   current level with each call. It filters synchronously, maps the accepted
+   call to a browser console method, and adds renderer-only `Symbol` metadata.
 2. Direct `console.*` calls are used for user-facing warnings, media errors,
    retry notices, migration output, and a few debugging/error reports. These do
    not consult the configured log level, do not receive renderer metadata, and
@@ -20,20 +19,6 @@ Core has two independent logging paths:
 
 `playbackLogging()` is not a separate transport. It formats an elapsed-time and
 topic prefix, then delegates to `Log.trace()`.
-
-### Bound logger
-
-`createLogger({logLevel, mountTime})` binds the repeated logging options and
-exposes `trace`, `verbose`, `info`, `warn`, `error`, and `playback` methods.
-Ordinary methods take a tag followed by console arguments. `playback` takes a
-tag and message and delegates to `playbackLogging()`.
-
-`useLogger()` in `src/use-logger.ts` creates one stable logger per hook instance.
-Its methods read the latest `LogLevelContext` value through a ref, so a log-level
-change affects the next emission without changing logger identity or
-retriggering effects and callbacks merely because logging configuration
-changed. The React hook is separate from the pure factory so `no-react` can
-continue importing `delay-render.ts` without pulling React into that entrypoint.
 
 ## 1. Level-aware logger
 
@@ -136,9 +121,10 @@ typed as `number`, not `number | null`.
 
 The context value is memoized on `[logLevel]`. Changing the level creates a new
 `mountTime`, so playback elapsed-time prefixes restart when the configured log
-level changes. The stable logger begins reading the new values immediately but
-does not become an effect dependency. Context-preserving wrappers in
-`wrap-remotion-context.tsx` copy the complete logging context.
+level changes. Long-lived media callbacks copy the latest context values into a
+ref. This lets the callback use the current logging configuration without
+making logging configuration part of its dependency list. Context-preserving
+wrappers in `wrap-remotion-context.tsx` copy the complete logging context.
 
 Render setup writes the externally selected level to
 `window.remotion_logLevel`; Studio development HTML also initializes that

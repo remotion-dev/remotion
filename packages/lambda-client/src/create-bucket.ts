@@ -7,6 +7,7 @@ import {
 } from '@aws-sdk/client-s3';
 import type {ProviderSpecifics} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
+import {getAwsRegionMetadata} from './aws-region-metadata';
 import {getS3Client} from './get-s3-client';
 
 export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
@@ -66,6 +67,7 @@ export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 
 		let usedBucketPolicy = false;
 		try {
+			const {partition} = getAwsRegionMetadata(region);
 			const policy = JSON.stringify({
 				Version: '2012-10-17',
 				Statement: [
@@ -74,7 +76,7 @@ export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 						Effect: 'Allow',
 						Principal: '*',
 						Action: 's3:GetObject',
-						Resource: `arn:aws:s3:::${bucketName}/*`,
+						Resource: `arn:${partition}:s3:::${bucketName}/*`,
 					},
 				],
 			});

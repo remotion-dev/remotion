@@ -1,6 +1,8 @@
 import {
 	BundlerInternals,
+	type BundlerOverrideFn,
 	type GitSource,
+	type RspackOverrideFn,
 	type WebpackOverrideFn,
 } from '@remotion/bundler';
 import type {ToOptions} from '@remotion/renderer';
@@ -21,6 +23,8 @@ import {uploadDir} from './upload-dir';
 type Options = {
 	onBundleProgress?: (progress: number) => void;
 	onUploadProgress?: (upload: UploadDirProgress) => void;
+	bundlerOverride?: BundlerOverrideFn;
+	rspackOverride?: RspackOverrideFn;
 	webpackOverride?: WebpackOverrideFn;
 	ignoreRegisterRootWarning?: boolean;
 	enableCaching?: boolean;
@@ -91,6 +95,8 @@ export const internalDeploySiteRaw = async ({
 		}),
 		BundlerInternals.internalBundle({
 			publicPath: `/${bucketName}/${subFolder}/`,
+			bundlerOverride: options?.bundlerOverride ?? ((f) => f),
+			rspackOverride: options?.rspackOverride ?? ((f) => f),
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
 			publicDir: options?.publicDir ?? null,
