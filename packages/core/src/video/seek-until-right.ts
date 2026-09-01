@@ -1,6 +1,5 @@
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
-import {type LogLevel} from '../log';
-import {seek} from '../seek';
+import type {Seek} from '../seek';
 
 const roundTo6Commas = (num: number) => {
 	return Math.round(num * 100_000) / 100_000;
@@ -9,13 +8,11 @@ const roundTo6Commas = (num: number) => {
 export const seekToTime = ({
 	element,
 	desiredTime,
-	logLevel,
-	mountTime,
+	seekMedia,
 }: {
 	element: HTMLVideoElement;
 	desiredTime: number;
-	logLevel: LogLevel;
-	mountTime: number;
+	seekMedia: Seek;
 }) => {
 	if (isApproximatelyTheSame(element.currentTime, desiredTime)) {
 		return {
@@ -24,12 +21,10 @@ export const seekToTime = ({
 		};
 	}
 
-	seek({
-		logLevel,
+	seekMedia({
 		mediaRef: element,
 		time: desiredTime,
 		why: 'Seeking during rendering',
-		mountTime,
 	});
 
 	let cancel: number;
@@ -77,14 +72,12 @@ export const seekToTimeMultipleUntilRight = ({
 	element,
 	desiredTime,
 	fps,
-	logLevel,
-	mountTime,
+	seekMedia,
 }: {
 	element: HTMLVideoElement;
 	desiredTime: number;
 	fps: number;
-	logLevel: LogLevel;
-	mountTime: number;
+	seekMedia: Seek;
 }) => {
 	const threshold = 1 / fps / 2;
 	let currentCancel: () => void = () => undefined;
@@ -104,8 +97,7 @@ export const seekToTimeMultipleUntilRight = ({
 		const firstSeek = seekToTime({
 			element,
 			desiredTime: desiredTime + threshold,
-			logLevel,
-			mountTime,
+			seekMedia,
 		});
 		firstSeek.wait.then((seekedTo) => {
 			const difference = Math.abs(desiredTime - seekedTo);
@@ -119,8 +111,7 @@ export const seekToTimeMultipleUntilRight = ({
 			const newSeek = seekToTime({
 				element,
 				desiredTime: seekedTo + threshold * sign,
-				logLevel,
-				mountTime,
+				seekMedia,
 			});
 			currentCancel = newSeek.cancel;
 			newSeek.wait
@@ -134,8 +125,7 @@ export const seekToTimeMultipleUntilRight = ({
 					const thirdSeek = seekToTime({
 						element,
 						desiredTime: desiredTime + threshold,
-						logLevel,
-						mountTime,
+						seekMedia,
 					});
 					currentCancel = thirdSeek.cancel;
 					return thirdSeek.wait

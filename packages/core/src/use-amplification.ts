@@ -2,8 +2,8 @@ import {useContext, useLayoutEffect, useRef, type RefObject} from 'react';
 import {SharedAudioContext} from './audio/shared-audio-tags';
 import type {SharedElementSourceNode} from './audio/shared-element-source-node';
 import {isApproximatelyTheSame} from './is-approximately-the-same';
-import type {LogLevel} from './log';
-import {Log} from './log';
+import {Log, type LogLevel} from './log';
+import {useLogging} from './log-level-context';
 import {isSafari} from './video/video-fragment';
 
 type AudioItems = {
@@ -41,17 +41,18 @@ const warnSafariOnce = (logLevel: LogLevel) => {
 export const useVolume = ({
 	mediaRef,
 	volume,
-	logLevel,
 	source,
 	shouldUseWebAudioApi,
 }: {
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
 	source: SharedElementSourceNode | null;
 	volume: number;
-	logLevel: LogLevel;
 	shouldUseWebAudioApi: boolean;
 }) => {
 	const audioStuffRef = useRef<AudioItems | null>(null);
+	const logging = useLogging();
+	const loggingRef = useRef(logging);
+	loggingRef.current = logging;
 	const currentVolumeRef = useRef(volume);
 	currentVolumeRef.current = volume;
 
@@ -81,7 +82,7 @@ export const useVolume = ({
 
 			// [1]
 			if (mediaRef.current.playbackRate !== 1 && isSafari()) {
-				warnSafariOnce(logLevel);
+				warnSafariOnce(loggingRef.current.logLevel);
 				return;
 			}
 
@@ -105,7 +106,7 @@ export const useVolume = ({
 			};
 
 			Log.trace(
-				{logLevel, tag: null},
+				{logLevel: loggingRef.current.logLevel, tag: null},
 				`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}, playbackRate = ${mediaRef.current?.playbackRate}`,
 			);
 
@@ -114,14 +115,7 @@ export const useVolume = ({
 				gainNode.disconnect();
 				source.get().disconnect();
 			};
-		}, [
-			logLevel,
-			mediaRef,
-			audioContext,
-			source,
-			shouldUseWebAudioApi,
-			masterGainNode,
-		]);
+		}, [mediaRef, audioContext, source, shouldUseWebAudioApi, masterGainNode]);
 	}
 
 	if (audioStuffRef.current) {
@@ -134,7 +128,7 @@ export const useVolume = ({
 		) {
 			audioStuffRef.current.gainNode.gain.value = valueToSet;
 			Log.trace(
-				{logLevel, tag: null},
+				{logLevel: loggingRef.current.logLevel, tag: null},
 				`Setting gain to ${valueToSet} for ${mediaRef.current?.src}`,
 			);
 		}

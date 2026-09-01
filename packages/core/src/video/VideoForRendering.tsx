@@ -14,9 +14,9 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
-import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {random} from '../random.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
+import {useSeek} from '../seek.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -70,8 +70,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 	const environment = useRemotionEnvironment();
-	const logLevel = useLogLevel();
-	const mountTime = useMountTime();
+	const seekMedia = useSeek();
 	const {delayRender, continueRender} = useDelayRender();
 
 	const {registerRenderAsset, unregisterRenderAsset} =
@@ -211,8 +210,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			element: current,
 			desiredTime: currentTime,
 			fps: videoConfig.fps,
-			logLevel,
-			mountTime,
+			seekMedia,
 		});
 
 		seek.prom.then(() => {
@@ -262,10 +260,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		onError,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
-		logLevel,
-		mountTime,
 		continueRender,
 		delayRender,
+		seekMedia,
 	]);
 
 	const {src} = props;

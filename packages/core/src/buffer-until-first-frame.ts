@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useRef} from 'react';
-import type {LogLevel} from './log';
+import {useLogging} from './log-level-context';
 import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
 
@@ -15,18 +15,17 @@ export const useBufferUntilFirstFrame = ({
 	mediaType,
 	onVariableFpsVideoDetected,
 	pauseWhenBuffering,
-	logLevel,
-	mountTime,
 }: {
 	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'video' | 'audio';
 	onVariableFpsVideoDetected: () => void;
 	pauseWhenBuffering: boolean;
-	logLevel: LogLevel;
-	mountTime: number | null;
 }) => {
 	const bufferingRef = useRef<boolean>(false);
 	const {delayPlayback} = useBufferState();
+	const logging = useLogging();
+	const loggingRef = useRef(logging);
+	loggingRef.current = logging;
 
 	const bufferUntilFirstFrame = useCallback(
 		(requestedTime: number) => {
@@ -46,9 +45,8 @@ export const useBufferUntilFirstFrame = ({
 
 			if (current.readyState >= current.HAVE_FUTURE_DATA && !isSafariWebkit()) {
 				playbackLogging({
-					logLevel,
+					...loggingRef.current,
 					message: `Not using buffer until first frame, because readyState is ${current.readyState} and is not Safari or Desktop Chrome`,
-					mountTime,
 					tag: 'buffer',
 				});
 				return;
@@ -56,9 +54,8 @@ export const useBufferUntilFirstFrame = ({
 
 			if (!current.requestVideoFrameCallback) {
 				playbackLogging({
-					logLevel,
+					...loggingRef.current,
 					message: `Not using buffer until first frame, because requestVideoFrameCallback is not supported`,
-					mountTime,
 					tag: 'buffer',
 				});
 				return;
@@ -67,9 +64,8 @@ export const useBufferUntilFirstFrame = ({
 			bufferingRef.current = true;
 
 			playbackLogging({
-				logLevel,
+				...loggingRef.current,
 				message: `Buffering ${mediaRef.current?.src} until the first frame is received`,
-				mountTime,
 				tag: 'buffer',
 			});
 
@@ -111,10 +107,8 @@ export const useBufferUntilFirstFrame = ({
 		},
 		[
 			delayPlayback,
-			logLevel,
 			mediaRef,
 			mediaType,
-			mountTime,
 			onVariableFpsVideoDetected,
 			pauseWhenBuffering,
 		],

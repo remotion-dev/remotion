@@ -1,12 +1,11 @@
 import type {RefObject} from 'react';
 import {useContext, useEffect, useRef} from 'react';
-import {useLogLevel, useMountTime} from './log-level-context.js';
-import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
+import {useLogging} from './log-level-context.js';
+import {usePlayMedia} from './play-media.js';
 import {playbackLogging} from './playback-logging.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
 import {useTimelineContext} from './timeline-position-state.js';
 import {SetTimelineContext} from './TimelineContext.js';
-import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 export const useMediaTag = ({
 	mediaRef,
@@ -27,9 +26,10 @@ export const useMediaTag = ({
 	const {subscribePlaying} = useContext(SetTimelineContext);
 	const isPlayingRef = useRef(isPlaying);
 	isPlayingRef.current = isPlaying;
-	const logLevel = useLogLevel();
-	const mountTime = useMountTime();
-	const env = useRemotionEnvironment();
+	const logging = useLogging();
+	const loggingRef = useRef(logging);
+	loggingRef.current = logging;
+	const playMedia = usePlayMedia();
 
 	useEffect(() => {
 		const tag: PlayableMediaTag = {
@@ -44,14 +44,11 @@ export const useMediaTag = ({
 					return;
 				}
 
-				return playAndHandleNotAllowedError({
+				return playMedia({
 					mediaRef,
 					mediaType,
 					onAutoPlayError,
-					logLevel,
-					mountTime,
 					reason,
-					isPlayer: env.isPlayer,
 				});
 			},
 		};
@@ -67,10 +64,9 @@ export const useMediaTag = ({
 			}
 
 			playbackLogging({
-				logLevel,
+				...loggingRef.current,
 				tag: 'pause',
 				message: `Pausing ${media.src} because Player is not playing`,
-				mountTime,
 			});
 			media.pause();
 		});
@@ -89,9 +85,7 @@ export const useMediaTag = ({
 		onAutoPlayError,
 		isPremounting,
 		isPostmounting,
-		logLevel,
-		mountTime,
-		env.isPlayer,
+		playMedia,
 		subscribePlaying,
 	]);
 };

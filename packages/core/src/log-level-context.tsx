@@ -21,11 +21,14 @@ export const useLogLevel = (): LogLevel => {
 	return logLevel;
 };
 
-export const useMountTime = (): number => {
-	const {mountTime} = React.useContext(LogLevelContext);
-	if (mountTime === null) {
-		throw new Error('useMountTime must be used within a LogLevelProvider');
+export const useLogging = (): {
+	logLevel: LogLevel;
+	mountTime: number;
+} => {
+	const logging = React.useContext(LogLevelContext);
+	if (logging.logLevel === null) {
+		throw new Error('useLogging must be used within a LogLevelProvider');
 	}
 
-	return mountTime;
+	return {logLevel: logging.logLevel, mountTime: logging.mountTime};
 };

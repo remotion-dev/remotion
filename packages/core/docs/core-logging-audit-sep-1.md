@@ -1,9 +1,11 @@
-# Remotion Core Logging Mechanics Audit
+# core-logging-audit-sep-1
 
 Scope: `packages/core`, including browser/runtime code in `src/` and the two
 package-maintenance scripts at the package root. This is a mechanics audit: it
 describes how messages are selected, shaped, emitted, and suppressed. It does
 not evaluate the logging architecture or propose a redesign.
+
+Engineering archive. Delete at any time.
 
 ## Executive summary
 
@@ -115,20 +117,26 @@ through `LogLevelContext`. The context default outside a provider is
 when there is no provider; it returns `info`. Its explicit `null` error is only
 reachable if a provider supplies `null`.
 
-`useMountTime()` similarly returns `0` outside a provider. Its null check is
-effectively unreachable with the declared context shape because `mountTime` is
-typed as `number`, not `number | null`.
+The `mountTime` field is read together with the level by `useLogging()`. It is
+typed as `number`, not `number | null`, and defaults to `0` outside a provider.
 
 The context value is memoized on `[logLevel]`. Changing the level creates a new
 `mountTime`, so playback elapsed-time prefixes restart when the configured log
-level changes. Hooks pass the context values into lower-level media helpers and
-include them in callbacks and effect dependency lists. Context-preserving
-wrappers in `wrap-remotion-context.tsx` copy the complete logging context.
+level changes. `useLogging()` reads both context values together. React-owned
+logging paths store that value in a local `useRef()` and read the ref when they
+emit, so changing logging configuration does not restart media effects or add
+logging-only dependencies. Context-preserving wrappers in
+`wrap-remotion-context.tsx` copy the complete logging context.
+
+React-owned play and seek operations expose `usePlayMedia()` and `useSeek()`.
+Those hooks resolve logging internally, so their callers pass only the media
+operation inputs. The underlying non-React helpers still receive explicit
+logging values.
 
 Render setup writes the externally selected level to
 `window.remotion_logLevel`; Studio development HTML also initializes that
 global. Most React runtime paths do not read the global directly: their level
-arrives through `RemotionRootContexts` and `useLogLevel()`.
+arrives through `RemotionRootContexts` and the logging context hooks.
 
 ## 3. Playback logging
 
@@ -188,7 +196,7 @@ the separate `player` topic.
 | `warn`    | none               | Emits three Safari volume/playback-rate warnings once per loaded module.                                                                                                 |
 | `warn`    | `audio`            | Reports a rejected `AudioContext.resume()` with the error, then the surrounding code resolves its synchronization wait and swallows the resumed promise rejection.       |
 
-There are no `logger.error()` consumers in current core runtime code;
+There are no `Log.error()` consumers in current core runtime code;
 error-level output currently uses direct `console.error()`.
 
 ## 5. Direct console logging
@@ -198,19 +206,19 @@ and never receive renderer level/tag symbols.
 
 ### Media loading and playback
 
-| File/path                              | Console call      | Exact emission condition                                                                                                                                     |
-| -------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `IFrame.tsx`                           | `error`           | An iframe emits `error` and no `onError` prop was supplied. Supplying `onError` suppresses the console message.                                              |
-| `Img.tsx`                              | `warn`            | An image load fails while its error count is within `maxRetries`; includes exponential backoff.                                                              |
-| `Img.tsx`                              | `info`            | An image later completes after one or more recorded failures.                                                                                                |
-| `Img.tsx`                              | `warn`            | `HTMLImageElement.decode()` rejects before fallback to the `load` event. This can be followed by normal completion.                                          |
-| `canvas-image/CanvasImage.tsx`         | `warn`            | Image decoding/loading fails while retry count is within `maxRetries`; includes exponential backoff.                                                         |
-| `audio/html5-audio.tsx`                | `log`             | Every native audio error, before deciding whether it is fatal. Prints `MediaError` directly.                                                                 |
-| `audio/html5-audio.tsx`                | `warn`            | A non-looping audio tag errors. It is emitted even when `onError` is also called.                                                                            |
-| `video/VideoForPreview.tsx`            | `error`           | A preview video error event has a non-null `current.error`; occurs before custom `onError` handling.                                                         |
-| `video/VideoForRendering.tsx`          | `error`           | A rendering video error event occurs; prints the current media error.                                                                                        |
-| `play-and-handle-not-allowed-error.ts` | `log`             | `.play()` rejects after known pause/abort/source-replacement/unmount cases are filtered out. This happens before custom autoplay handling or mute-and-retry. |
-| `warn-about-non-seekable-media.ts`     | `warn` or `error` | A media element has exactly one seekable range of `0..0`. Mode selects warning, error, or thrown exception. Console modes are deduplicated by source.        |
+| File/path                          | Console call      | Exact emission condition                                                                                                                                     |
+| ---------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `IFrame.tsx`                       | `error`           | An iframe emits `error` and no `onError` prop was supplied. Supplying `onError` suppresses the console message.                                              |
+| `Img.tsx`                          | `warn`            | An image load fails while its error count is within `maxRetries`; includes exponential backoff.                                                              |
+| `Img.tsx`                          | `info`            | An image later completes after one or more recorded failures.                                                                                                |
+| `Img.tsx`                          | `warn`            | `HTMLImageElement.decode()` rejects before fallback to the `load` event. This can be followed by normal completion.                                          |
+| `canvas-image/CanvasImage.tsx`     | `warn`            | Image decoding/loading fails while retry count is within `maxRetries`; includes exponential backoff.                                                         |
+| `audio/html5-audio.tsx`            | `log`             | Every native audio error, before deciding whether it is fatal. Prints `MediaError` directly.                                                                 |
+| `audio/html5-audio.tsx`            | `warn`            | A non-looping audio tag errors. It is emitted even when `onError` is also called.                                                                            |
+| `video/VideoForPreview.tsx`        | `error`           | A preview video error event has a non-null `current.error`; occurs before custom `onError` handling.                                                         |
+| `video/VideoForRendering.tsx`      | `error`           | A rendering video error event occurs; prints the current media error.                                                                                        |
+| `play-media.ts`                    | `log`             | `.play()` rejects after known pause/abort/source-replacement/unmount cases are filtered out. This happens before custom autoplay handling or mute-and-retry. |
+| `warn-about-non-seekable-media.ts` | `warn` or `error` | A media element has exactly one seekable range of `0..0`. Mode selects warning, error, or thrown exception. Console modes are deduplicated by source.        |
 
 The image retry delay is `1000 * 2 ** (errorCount - 1)` milliseconds. Retry
 messages are not deduplicated because each retry attempt is intentionally
@@ -218,15 +226,16 @@ reported.
 
 ### API usage and compatibility warnings
 
-| File/path                  | Console call       | Suppression and behavior                                                                                                                                                           |
-| -------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `config/input-props.ts`    | three `warn` calls | Server-side `getInputProps()` call; once per loaded module. Returns `{}`.                                                                                                          |
-| `get-static-files.ts`      | `warn`             | Server use and Player use have independent once-per-module flags. Returns `[]`.                                                                                                    |
-| `watch-static-file.ts`     | `warn`             | Every call made outside Studio. Returns a no-op cancel handle.                                                                                                                     |
-| `static-file.ts`           | `warn`             | Unsafe encoded-character guidance; deduplicated by the complete message string for the module lifetime.                                                                            |
-| `use-media-in-timeline.ts` | `warn`             | Media/timeline warning; deduplicated by complete message string for the module lifetime.                                                                                           |
-| `prefetch.ts`              | `warn`             | A fetched response lacks a usable media/image content type and no valid override was supplied. The prefetch continues.                                                             |
-| `index.ts` `Config` proxy  | nine `warn` calls  | Calling an extracted legacy CLI config method prints a migration block, then calls `process.exit(1)`. Property reads for known config namespaces return the proxy without logging. |
+| File/path                    | Console call       | Suppression and behavior                                                                                                                                                           |
+| ---------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `config/input-props.ts`      | three `warn` calls | Server-side `getInputProps()` call; once per loaded module. Returns `{}`.                                                                                                          |
+| `get-static-files.ts`        | `warn`             | Server use and Player use have independent once-per-module flags. Returns `[]`.                                                                                                    |
+| `watch-static-file.ts`       | `warn`             | Every call made outside Studio. Returns a no-op cancel handle.                                                                                                                     |
+| `static-file.ts`             | `warn`             | Unsafe encoded-character guidance; deduplicated by the complete message string for the module lifetime.                                                                            |
+| `use-media-in-timeline.ts`   | `warn`             | Media/timeline warning; deduplicated by complete message string for the module lifetime.                                                                                           |
+| `prefetch.ts`                | `warn`             | A fetched response lacks a usable media/image content type and no valid override was supplied. The prefetch continues.                                                             |
+| `use-sync-external-store.ts` | `error`            | Development only; once per loaded module when two consecutive `getSnapshot()` calls are not `Object.is`-equal, warning that the snapshot must be cached to avoid an infinite loop. |
+| `index.ts` `Config` proxy    | nine `warn` calls  | Calling an extracted legacy CLI config method prints a migration block, then calls `process.exit(1)`. Property reads for known config namespaces return the proxy without logging. |
 
 `warnAboutNonSeekableMedia()` only records its source as warned after it emits
 or throws. Module-level once maps and booleans persist for the lifetime of that
@@ -257,8 +266,8 @@ them.
    receives a trace-level symbol for them but no topic/tag symbol because
    `playbackLogging()` delegates with `tag: null`.
 4. **Changing log level resets elapsed playback timing, but not logging-related
-   effects.** `mountTime` is created in the same memo as `logLevel`, while the
-   stable logger reads the replacement context without changing identity.
+   effects.** `mountTime` is created in the same memo as `logLevel`, while
+   React-owned callbacks read the replacement context through stable refs.
 5. **Several handled errors are logged before handling.** Preview video errors,
    non-looping audio errors, and autoplay rejections can still print even when a
    user callback handles the condition. Iframe errors are the exception: its
@@ -274,8 +283,7 @@ them.
 ### Trace playback in Player or Studio
 
 ```text
-caller -> logger.playback()
-       -> playbackLogging()
+caller -> playbackLogging()
        -> computes "[123ms seek]"
        -> Log.trace({logLevel: "trace", tag: null}, prefix, message)
        -> passes threshold

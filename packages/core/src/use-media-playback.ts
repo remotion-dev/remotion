@@ -3,12 +3,12 @@ import {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {getMediaSyncAction} from './get-media-sync-action.js';
-import {useLogLevel, useMountTime} from './log-level-context.js';
+import {useLogging} from './log-level-context.js';
 import {Log} from './log.js';
 import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-time-timestamp.js';
-import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
+import {usePlayMedia} from './play-media.js';
 import {playbackLogging} from './playback-logging.js';
-import {seek} from './seek.js';
+import {useSeek} from './seek.js';
 import {
 	usePlaying,
 	usePlaybackRate,
@@ -17,7 +17,6 @@ import {
 import {useBuffering} from './use-buffering.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useMediaBuffering} from './use-media-buffering.js';
-import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
@@ -84,8 +83,11 @@ export const useMediaPlayback = ({
 	const mediaStartsAt = useMediaStartsAt();
 	const lastSeekDueToShift = useRef<number | null>(null);
 	const lastSeek = useRef<number | null>(null);
-	const logLevel = useLogLevel();
-	const mountTime = useMountTime();
+	const logging = useLogging();
+	const loggingRef = useRef(logging);
+	loggingRef.current = logging;
+	const seek = useSeek();
+	const playMedia = usePlayMedia();
 
 	const isVariableFpsVideoMap = useRef<Record<string, boolean>>({});
 
@@ -99,12 +101,12 @@ export const useMediaPlayback = ({
 		}
 
 		Log.verbose(
-			{logLevel, tag: null},
+			{logLevel: loggingRef.current.logLevel, tag: null},
 			`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
 		);
 
 		isVariableFpsVideoMap.current[src] = true;
-	}, [logLevel, src]);
+	}, [src]);
 
 	const rvcCurrentTime = useRequestVideoCallbackTime({
 		mediaRef,
@@ -128,8 +130,6 @@ export const useMediaPlayback = ({
 		shouldBuffer: pauseWhenBuffering,
 		isPremounting,
 		isPostmounting,
-		logLevel,
-		mountTime,
 		src: src ?? null,
 	});
 
@@ -138,8 +138,6 @@ export const useMediaPlayback = ({
 		mediaType,
 		onVariableFpsVideoDetected,
 		pauseWhenBuffering,
-		logLevel,
-		mountTime,
 	});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
@@ -157,8 +155,6 @@ export const useMediaPlayback = ({
 			acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION
 		);
 	})();
-
-	const env = useRemotionEnvironment();
 
 	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
 	// and it is also in a useLayoutEffect.
@@ -199,14 +195,13 @@ export const useMediaPlayback = ({
 
 		if (!current.paused && pauseReason !== null) {
 			playbackLogging({
-				logLevel,
+				...loggingRef.current,
 				tag: 'pause',
 				message: `Pausing ${current.src} because ${getPauseReason({
 					reason: pauseReason,
 					isPremounting,
 					isPostmounting,
 				})}`,
-				mountTime,
 			});
 			current.pause();
 		}
@@ -243,9 +238,7 @@ export const useMediaPlayback = ({
 			lastSeek.current = seek({
 				mediaRef: current,
 				time: action.shouldBeTime,
-				logLevel,
 				why: action.why,
-				mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
 
@@ -254,14 +247,11 @@ export const useMediaPlayback = ({
 			}
 
 			if (action.playReason !== null) {
-				playAndHandleNotAllowedError({
+				playMedia({
 					mediaRef,
 					mediaType,
 					onAutoPlayError,
-					logLevel,
-					mountTime,
 					reason: action.playReason,
-					isPlayer: env.isPlayer,
 				});
 			}
 
@@ -277,9 +267,7 @@ export const useMediaPlayback = ({
 				lastSeek.current = seek({
 					mediaRef: current,
 					time: action.shouldBeTime,
-					logLevel,
 					why: action.why,
-					mountTime,
 				});
 			}
 
@@ -291,20 +279,15 @@ export const useMediaPlayback = ({
 			lastSeek.current = seek({
 				mediaRef: current,
 				time: action.shouldBeTime,
-				logLevel,
 				why: action.why,
-				mountTime,
 			});
 		}
 
-		playAndHandleNotAllowedError({
+		playMedia({
 			mediaRef,
 			mediaType,
 			onAutoPlayError,
-			logLevel,
-			mountTime,
 			reason: action.playReason,
-			isPlayer: env.isPlayer,
 		});
 		if (action.bufferUntilFirstFrame) {
 			bufferUntilFirstFrame(action.shouldBeTime);
@@ -314,7 +297,6 @@ export const useMediaPlayback = ({
 		acceptableTimeShiftButLessThanDuration,
 		bufferUntilFirstFrame,
 		rvcCurrentTime,
-		logLevel,
 		desiredUnclampedTime,
 		isBuffering,
 		isMediaTagBuffering,
@@ -329,8 +311,8 @@ export const useMediaPlayback = ({
 		isPremounting,
 		isPostmounting,
 		pauseWhenBuffering,
-		mountTime,
 		mediaTagCurrentTime,
-		env.isPlayer,
+		seek,
+		playMedia,
 	]);
 };
