@@ -161,13 +161,11 @@ export const useMediaPlayback = ({
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 	const acceptableTimeShift =
 		acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION;
-	const acceptableTimeShiftButLessThanDuration = (() => {
-		if (mediaRef.current?.duration) {
-			return Math.min(mediaRef.current.duration, acceptableTimeShift);
-		}
-
-		return acceptableTimeShift;
-	})();
+	const mediaDuration = mediaRef.current?.duration;
+	// For short media, use its duration as the acceptable time shift.
+	const acceptableTimeShiftButLessThanDuration = mediaDuration
+		? Math.min(mediaDuration, acceptableTimeShift)
+		: acceptableTimeShift;
 
 	const env = useRemotionEnvironment();
 
@@ -188,30 +186,6 @@ export const useMediaPlayback = ({
 			current.preservesPitch = preservePitch;
 		}
 	}, [mediaRef, playbackRate, preservePitch]);
-
-	const pauseMedia = useCallback(
-		(
-			current: HTMLAudioElement | HTMLVideoElement,
-			pauseReason: PauseReason | null,
-		) => {
-			if (current.paused || pauseReason === null) {
-				return;
-			}
-
-			playbackLogging({
-				logLevel,
-				tag: 'pause',
-				message: `Pausing ${current.src} because ${getPauseReasonText({
-					pauseReason,
-					isPremounting,
-					isPostmounting,
-				})}`,
-				mountTime,
-			});
-			current.pause();
-		},
-		[isPostmounting, isPremounting, logLevel, mountTime],
-	);
 
 	const executeMediaSyncAction = useCallback(
 		(current: HTMLAudioElement | HTMLVideoElement, action: MediaSyncAction) => {
@@ -301,6 +275,24 @@ export const useMediaPlayback = ({
 		}
 
 		const {current} = mediaRef;
+		const pauseMedia = (reason: PauseReason | null) => {
+			if (current.paused || reason === null) {
+				return;
+			}
+
+			playbackLogging({
+				logLevel,
+				tag: 'pause',
+				message: `Pausing ${current.src} because ${getPauseReasonText({
+					pauseReason: reason,
+					isPremounting,
+					isPostmounting,
+				})}`,
+				mountTime,
+			});
+			current.pause();
+		};
+
 		const isMediaTagBufferingOrStalled =
 			isMediaTagBuffering || isBufferingUntilFirstFrame();
 		const pauseReason = getPauseReason({
@@ -309,7 +301,7 @@ export const useMediaPlayback = ({
 			mediaTagBuffering: isMediaTagBufferingOrStalled,
 		});
 
-		pauseMedia(current, pauseReason);
+		pauseMedia(pauseReason);
 
 		const action = getMediaSyncAction({
 			duration: current.duration,
@@ -355,7 +347,8 @@ export const useMediaPlayback = ({
 		isPostmounting,
 		pauseWhenBuffering,
 		mediaTagCurrentTime,
-		pauseMedia,
+		logLevel,
+		mountTime,
 	]);
 
 	useEffect(synchronizeMedia, [synchronizeMedia]);

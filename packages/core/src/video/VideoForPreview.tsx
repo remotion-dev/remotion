@@ -328,12 +328,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 	}, []);
 
-	const actualStyle: React.CSSProperties = useMemo(() => {
-		return {
-			...style,
-		};
-	}, [style]);
-
 	const crossOriginValue = getCrossOriginValue({
 		crossOrigin,
 		requestsVideoFrame: Boolean(onVideoFrame),
@@ -345,7 +339,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			onError={(event) =>
 				handleVideoError({
 					error: event.currentTarget.error,
-					src,
+					src: src as string,
 					onError,
 				})
 			}
@@ -355,7 +349,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}
-			style={actualStyle}
+			style={style}
 			disableRemotePlayback
 			crossOrigin={crossOriginValue}
 			controls={false}
