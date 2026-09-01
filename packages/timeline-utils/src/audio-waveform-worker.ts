@@ -39,6 +39,7 @@ self.addEventListener(
 		const controller = new AbortController();
 
 		loadWaveformPeaks(message.src, controller.signal, {
+			waveformSampleRate: message.waveformSampleRate,
 			onProgress: ({peaks, final}) => {
 				if (!final) {
 					postPeaks(message.requestId, peaks, false);

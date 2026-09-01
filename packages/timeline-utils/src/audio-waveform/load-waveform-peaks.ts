@@ -21,6 +21,7 @@ type Progress = {
 type LoadWaveformPeaksOptions = {
 	readonly onProgress?: (progress: Progress) => void;
 	readonly progressIntervalInMs?: number;
+	readonly waveformSampleRate?: number;
 };
 
 export async function loadWaveformPeaks(
@@ -28,7 +29,13 @@ export async function loadWaveformPeaks(
 	signal: AbortSignal,
 	options?: LoadWaveformPeaksOptions,
 ): Promise<Float32Array> {
-	const cached = peaksCache.get(url);
+	const waveformSampleRate = options?.waveformSampleRate ?? TARGET_SAMPLE_RATE;
+	if (!Number.isFinite(waveformSampleRate) || waveformSampleRate <= 0) {
+		throw new Error('The waveform sample rate must be a positive number.');
+	}
+
+	const cacheKey = `${waveformSampleRate}:${url}`;
+	const cached = peaksCache.get(cacheKey);
 	if (cached) {
 		emitWaveformProgress({
 			peaks: cached,
@@ -65,14 +72,14 @@ export async function loadWaveformPeaks(
 			);
 		}
 
-		const sampleRate = await audioTrack.getSampleRate();
+		const audioSampleRate = await audioTrack.getSampleRate();
 		const durationInSeconds =
 			(await audioTrack.getDurationFromMetadata({skipLiveWait: true})) ??
 			(await audioTrack.computeDuration({skipLiveWait: true}));
-		const totalPeaks = Math.ceil(durationInSeconds * TARGET_SAMPLE_RATE);
+		const totalPeaks = Math.ceil(durationInSeconds * waveformSampleRate);
 		const samplesPerPeak = Math.max(
 			1,
-			Math.floor(sampleRate / TARGET_SAMPLE_RATE),
+			Math.floor(audioSampleRate / waveformSampleRate),
 		);
 
 		const sink = new AudioSampleSink(audioTrack);
@@ -81,7 +88,9 @@ export async function loadWaveformPeaks(
 			samplesPerPeak,
 			onProgress: options?.onProgress,
 			progressIntervalInMs:
-				options?.progressIntervalInMs ?? DEFAULT_PROGRESS_INTERVAL_IN_MS,
+				options?.progressIntervalInMs ??
+				DEFAULT_PROGRESS_INTERVAL_IN_MS *
+					Math.max(1, waveformSampleRate / TARGET_SAMPLE_RATE),
 			now: () => Date.now(),
 		});
 
@@ -124,7 +133,7 @@ export async function loadWaveformPeaks(
 
 		processor.finalize();
 		const {peaks} = processor;
-		peaksCache.set(url, peaks);
+		peaksCache.set(cacheKey, peaks);
 		return peaks;
 	} finally {
 		input.dispose();

@@ -2,6 +2,7 @@ export type AudioWaveformWorkerLoadMessage = {
 	readonly type: 'load';
 	readonly requestId: number;
 	readonly src: string;
+	readonly waveformSampleRate: number;
 };
 
 export type AudioWaveformWorkerIncomingMessage = AudioWaveformWorkerLoadMessage;

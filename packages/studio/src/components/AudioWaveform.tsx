@@ -9,6 +9,7 @@ import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
 import {WHITE_ALPHA_70, WHITE_ALPHA_60} from '../helpers/colors';
+import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
 import {TIMELINE_BORDER} from '../helpers/timeline-layout';
 
 const EMPTY_PEAKS = new Float32Array(0);
@@ -78,6 +79,10 @@ const AudioWaveformInner: React.FC<{
 		throw new Error('Expected video config');
 	}
 
+	const waveformSampleRate = Math.ceil(
+		vidConf.fps * TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+	);
+
 	const waveformCanvas = useRef<HTMLCanvasElement>(null);
 	const volumeCanvas = useRef<HTMLCanvasElement>(null);
 	const shouldRenderVolumeOverlay =
@@ -110,10 +115,11 @@ const AudioWaveformInner: React.FC<{
 
 		return subscribeToWaveformPeaks({
 			src,
+			waveformSampleRate,
 			onPeaks: (p) => setPeaks(p),
 			onError: (err) => setError(err),
 		});
-	}, [src]);
+	}, [src, waveformSampleRate]);
 
 	const portionPeaks = useMemo(() => {
 		if (!peaks) {
@@ -129,6 +135,7 @@ const AudioWaveformInner: React.FC<{
 			peaks,
 			playbackRate,
 			startFrom,
+			waveformSampleRate,
 		});
 	}, [
 		displayDurationInFrames,
@@ -139,6 +146,7 @@ const AudioWaveformInner: React.FC<{
 		playbackRate,
 		startFrom,
 		vidConf.fps,
+		waveformSampleRate,
 	]);
 
 	// Drawing must happen in a layout effect: when the timeline zooms, the

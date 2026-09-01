@@ -11,6 +11,7 @@ export const sliceVisibleWaveformPeaks = ({
 	peaks,
 	playbackRate,
 	startFrom,
+	waveformSampleRate,
 }: {
 	readonly displayDurationInFrames: number;
 	readonly displayOffsetInFrames: number;
@@ -20,6 +21,7 @@ export const sliceVisibleWaveformPeaks = ({
 	readonly peaks: Float32Array;
 	readonly playbackRate: number;
 	readonly startFrom: number;
+	readonly waveformSampleRate?: number;
 }) => {
 	if (
 		!shouldTileLoopDisplay(loopDisplay) ||
@@ -34,6 +36,7 @@ export const sliceVisibleWaveformPeaks = ({
 			peaks,
 			playbackRate,
 			startFrom: startFrom + displayOffsetInFrames * playbackRate,
+			waveformSampleRate,
 		});
 	}
 
@@ -52,6 +55,7 @@ export const sliceVisibleWaveformPeaks = ({
 			peaks,
 			playbackRate,
 			startFrom: startFrom + segment.loopOffsetInFrames * playbackRate,
+			waveformSampleRate,
 		});
 		parts.push(part);
 		totalLength += part.length;
