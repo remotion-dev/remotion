@@ -16,7 +16,7 @@ import {
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {defaultInOutValue} from '../TimelineInOutToggle';
 import {scrollableRef} from './timeline-refs';
-import {getFrameFromX} from './timeline-scroll-logic';
+import {getFrameFromX, getTimelineContentWidth} from './timeline-scroll-logic';
 import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
 import {
 	TimelineInOutPointerHandle,
@@ -81,7 +81,7 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 		[timelineWidth, videoConfig.durationInFrames],
 	);
 
-	const width = scrollableRef.current?.scrollWidth ?? 0;
+	const width = getTimelineContentWidth();
 	const left = size?.left ?? 0;
 
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();

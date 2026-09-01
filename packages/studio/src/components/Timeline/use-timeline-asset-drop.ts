@@ -12,7 +12,10 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {useSvgImportDialog} from '../SvgImportDialog';
 import {getCurrentFrame} from './imperative-state';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
-import {getFrameFromTimelineDrop} from './timeline-scroll-logic';
+import {
+	getFrameFromTimelineDrop,
+	getTimelineContentWidth,
+} from './timeline-scroll-logic';
 import {useResolvedStack} from './use-resolved-stack';
 
 const isEventTargetInsideElement = (event: DragEvent, element: HTMLElement) => {
@@ -73,7 +76,7 @@ export const useTimelineAssetDrop = () => {
 						durationInFrames: videoConfig.durationInFrames,
 						scrollLeft: scrollable.scrollLeft,
 						timelineLeft: scrollable.getBoundingClientRect().left,
-						timelineWidth: scrollable.scrollWidth,
+						timelineWidth: getTimelineContentWidth(),
 					})
 				: getCurrentFrame();
 		},

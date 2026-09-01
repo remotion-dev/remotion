@@ -1,7 +1,8 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
+import {getTimelineZoom} from '../../helpers/get-timeline-max-zoom';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {
 	getCurrentDuration,
 	getCurrentFrame,
@@ -42,9 +43,11 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 			: null;
 	// Asset previews have a synthetic video config, but no composition ID
 	// with which to look up a persisted timeline zoom.
-	const zoom = compositionId
-		? (zoomMap[compositionId] ?? TIMELINE_MIN_ZOOM)
-		: TIMELINE_MIN_ZOOM;
+	const zoom = getTimelineZoom({
+		durationInFrames: video?.durationInFrames ?? 1,
+		timelineViewportWidth: scrollableRef.current?.clientWidth ?? 0,
+		zoom: compositionId ? (zoomMap[compositionId] ?? null) : null,
+	});
 
 	if (video) {
 		setCurrentFrame(timelinePosition);

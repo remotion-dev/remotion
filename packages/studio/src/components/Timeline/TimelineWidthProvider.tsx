@@ -1,8 +1,11 @@
 import {PlayerInternals} from '@remotion/player';
 import {createContext, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {getTimelineMaxZoom} from '../../helpers/get-timeline-max-zoom';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
+import {
+	getTimelineWidth,
+	getTimelineZoom,
+} from '../../helpers/get-timeline-max-zoom';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 
 type TimelineWidthContextType = number | null;
@@ -22,22 +25,22 @@ export const TimelineWidthProvider: React.FC<{
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const width = useMemo(() => {
-		const zoom =
-			canvasContent?.type === 'composition'
-				? (zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM)
-				: TIMELINE_MIN_ZOOM;
-
 		const scrollableWidth = size?.width ?? scrollableRef.current?.clientWidth;
 		if (scrollableWidth === undefined) {
 			return sliderAreaRef.current?.clientWidth ?? null;
 		}
 
-		const maxZoom = getTimelineMaxZoom({
-			durationInFrames: videoConfig?.durationInFrames ?? 1,
+		const durationInFrames = videoConfig?.durationInFrames ?? 1;
+		const zoom = getTimelineZoom({
+			durationInFrames,
 			timelineViewportWidth: scrollableWidth,
+			zoom:
+				canvasContent?.type === 'composition'
+					? (zoomMap[canvasContent.compositionId] ?? null)
+					: null,
 		});
 
-		return scrollableWidth * Math.min(zoom, maxZoom);
+		return getTimelineWidth({durationInFrames, zoom});
 	}, [canvasContent, size?.width, videoConfig?.durationInFrames, zoomMap]);
 
 	return (

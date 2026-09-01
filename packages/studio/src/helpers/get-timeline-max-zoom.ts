@@ -1,27 +1,25 @@
 import {TIMELINE_PADDING} from './timeline-layout';
 
-export const TIMELINE_MIN_ZOOM = 1;
+const TIMELINE_ZOOM_FALLBACK = 1;
 export const TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM = 30;
 
 const TIMELINE_ZOOM_SLIDER_MAX = 1000;
 
-export const getTimelineMaxZoom = ({
+export const getTimelineMinZoom = ({
 	durationInFrames,
 	timelineViewportWidth,
 }: {
 	readonly durationInFrames: number;
 	readonly timelineViewportWidth: number;
 }): number => {
-	if (timelineViewportWidth <= 0) {
-		return TIMELINE_MIN_ZOOM;
+	if (durationInFrames <= 0 || timelineViewportWidth <= 0) {
+		return TIMELINE_ZOOM_FALLBACK;
 	}
 
-	const timelineWidthAtMaxZoom =
-		durationInFrames * TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM + TIMELINE_PADDING * 2;
-
-	return Math.max(
-		TIMELINE_MIN_ZOOM,
-		timelineWidthAtMaxZoom / timelineViewportWidth,
+	return Math.min(
+		TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+		Math.max(1, timelineViewportWidth - TIMELINE_PADDING * 2) /
+			durationInFrames,
 	);
 };
 
@@ -34,34 +32,69 @@ export const clampTimelineZoom = ({
 	readonly durationInFrames: number;
 	readonly timelineViewportWidth: number;
 }): number => {
-	const maxZoom = getTimelineMaxZoom({
+	const minZoom = getTimelineMinZoom({
 		durationInFrames,
 		timelineViewportWidth,
 	});
-	const clamped = Math.min(maxZoom, Math.max(TIMELINE_MIN_ZOOM, zoom));
+	const clamped = Math.min(
+		TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+		Math.max(minZoom, zoom),
+	);
 
-	if (clamped === maxZoom) {
-		return maxZoom;
+	if (clamped === minZoom || clamped === TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM) {
+		return clamped;
 	}
 
-	return Math.min(maxZoom, Math.round(clamped * 10) / 10);
+	return Math.min(
+		TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+		Math.max(minZoom, Math.round(clamped * 1000) / 1000),
+	);
+};
+
+export const getTimelineZoom = ({
+	durationInFrames,
+	timelineViewportWidth,
+	zoom,
+}: {
+	readonly durationInFrames: number;
+	readonly timelineViewportWidth: number;
+	readonly zoom: number | null;
+}): number => {
+	return clampTimelineZoom({
+		durationInFrames,
+		timelineViewportWidth,
+		zoom: zoom ?? getTimelineMinZoom({durationInFrames, timelineViewportWidth}),
+	});
+};
+
+export const getTimelineWidth = ({
+	durationInFrames,
+	zoom,
+}: {
+	readonly durationInFrames: number;
+	readonly zoom: number;
+}): number => {
+	return durationInFrames * zoom + TIMELINE_PADDING * 2;
 };
 
 export const timelineZoomToNormalized = ({
 	zoom,
-	maxZoom,
+	minZoom,
 }: {
-	zoom: number;
-	maxZoom: number;
+	readonly zoom: number;
+	readonly minZoom: number;
 }): number => {
-	if (maxZoom <= TIMELINE_MIN_ZOOM) {
+	if (minZoom >= TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM) {
 		return 0;
 	}
 
-	const clampedZoom = Math.min(maxZoom, Math.max(TIMELINE_MIN_ZOOM, zoom));
+	const clampedZoom = Math.min(
+		TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+		Math.max(minZoom, zoom),
+	);
 	const normalized =
-		Math.log(clampedZoom / TIMELINE_MIN_ZOOM) /
-		Math.log(maxZoom / TIMELINE_MIN_ZOOM);
+		Math.log(clampedZoom / minZoom) /
+		Math.log(TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM / minZoom);
 	return (
 		Math.round(normalized * TIMELINE_ZOOM_SLIDER_MAX) / TIMELINE_ZOOM_SLIDER_MAX
 	);
@@ -69,41 +102,41 @@ export const timelineZoomToNormalized = ({
 
 export const timelineZoomToSliderValue = ({
 	zoom,
-	maxZoom,
+	minZoom,
 }: {
-	zoom: number;
-	maxZoom: number;
+	readonly zoom: number;
+	readonly minZoom: number;
 }): number => {
 	return Math.round(
-		timelineZoomToNormalized({zoom, maxZoom}) * TIMELINE_ZOOM_SLIDER_MAX,
+		timelineZoomToNormalized({zoom, minZoom}) * TIMELINE_ZOOM_SLIDER_MAX,
 	);
 };
 
 export const normalizedToTimelineZoom = ({
 	normalized,
-	maxZoom,
+	minZoom,
 }: {
-	normalized: number;
-	maxZoom: number;
+	readonly normalized: number;
+	readonly minZoom: number;
 }): number => {
-	if (maxZoom <= TIMELINE_MIN_ZOOM) {
-		return TIMELINE_MIN_ZOOM;
+	if (minZoom >= TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM) {
+		return TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM;
 	}
 
 	const t = Math.min(1, Math.max(0, normalized));
-	return TIMELINE_MIN_ZOOM * (maxZoom / TIMELINE_MIN_ZOOM) ** t;
+	return minZoom * (TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM / minZoom) ** t;
 };
 
 export const sliderValueToTimelineZoom = ({
 	sliderValue,
-	maxZoom,
+	minZoom,
 }: {
-	sliderValue: number;
-	maxZoom: number;
+	readonly sliderValue: number;
+	readonly minZoom: number;
 }): number => {
 	return normalizedToTimelineZoom({
 		normalized: sliderValue / TIMELINE_ZOOM_SLIDER_MAX,
-		maxZoom,
+		minZoom,
 	});
 };
 
