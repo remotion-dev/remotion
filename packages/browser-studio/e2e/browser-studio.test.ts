@@ -345,7 +345,7 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			);
 			await studio.getByRole('button', {name: 'Render on web'}).click();
 			await expect(
-				studio.getByText('Render MyComp', {exact: true}),
+				studio.getByText('Render MyComp in the browser', {exact: true}),
 			).toBeVisible();
 			await studio.locator('body').press('Escape');
 			await expect
