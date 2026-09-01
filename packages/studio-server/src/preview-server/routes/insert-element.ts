@@ -19,7 +19,6 @@ import {
 	normalizeElementSourceForComparison,
 	validateElementInstallPosition,
 } from './element-install-plan';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
@@ -288,10 +287,6 @@ export const insertElementHandler: ApiHandler<
 				{indent: false, logLevel},
 				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${plan.componentName}>`,
 			);
-			if (!inserted.formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
-
 			printUndoHint(logLevel);
 
 			return {success: true, nodePathMutation};
