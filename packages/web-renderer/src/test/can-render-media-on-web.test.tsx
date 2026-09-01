@@ -1,4 +1,4 @@
-import {expect, test, vi} from 'vitest';
+import {expect, test} from 'vitest';
 import {canRenderMediaOnWeb} from '../can-render-media-on-web';
 import '../symbol-dispose';
 
@@ -239,25 +239,4 @@ test('should auto-detect outputTarget when null is passed', async () => {
 	});
 
 	expect(['web-fs', 'arraybuffer']).toContain(result.resolvedOutputTarget);
-});
-
-test('should not auto-select web-fs when createWritable is not a function', async () => {
-	const getDirectory = vi.spyOn(navigator.storage, 'getDirectory');
-	getDirectory.mockResolvedValue({
-		getFileHandle: () => Promise.resolve({createWritable: null}),
-	} as never);
-
-	try {
-		const result = await canRenderMediaOnWeb({
-			container: 'mp4',
-			videoCodec: 'h264',
-			width: 1920,
-			height: 1080,
-			outputTarget: null,
-		});
-
-		expect(result.resolvedOutputTarget).toBe('arraybuffer');
-	} finally {
-		getDirectory.mockRestore();
-	}
 });

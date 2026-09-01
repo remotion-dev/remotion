@@ -16,7 +16,7 @@ export const canUseWebFsWriter = async () => {
 			},
 		);
 
-		const canUse = typeof fileHandle.createWritable === 'function';
+		const canUse = fileHandle.createWritable !== undefined;
 		return canUse;
 	} catch {
 		return false;
