@@ -319,7 +319,6 @@ const getElementInstallPlanForProject = async ({
 					compositionFile: destination.compositionFile,
 					compositionId: destination.compositionId,
 					environment: makeInMemoryInsertJsxElementCodemodEnvironment({
-						formatFile: formatCodemodFile,
 						project,
 						svgMarkupToJsx,
 					}),
@@ -1368,7 +1367,6 @@ export const createBrowserStudioOperations = ({
 				nodePath,
 				sequenceKeys,
 				splitFrame,
-				formatFile: formatCodemodFile,
 			});
 			const nodePathMutation = controller.applyMutation({
 				fileName: absolutePath,
@@ -1904,7 +1902,6 @@ export const createBrowserStudioOperations = ({
 				project: getProject(),
 			});
 			const result = await insertJsxElementIntoProjectWithNodePathRemappings({
-				formatFile: formatCodemodFile,
 				project,
 				request,
 				svgMarkupToJsx,
@@ -2048,7 +2045,6 @@ export const createBrowserStudioOperations = ({
 				const durationInFrames = request.element.durationInFrames ?? null;
 				const insertion =
 					await insertJsxElementIntoProjectWithNodePathRemappings({
-						formatFile: formatCodemodFile,
 						project,
 						request: {
 							compositionFile: request.compositionFile,

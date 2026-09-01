@@ -14,7 +14,6 @@ import type {
 	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
-import {formatFileContent} from '../codemods/format-file-content';
 import {svgMarkupToJsx} from './svg-to-jsx';
 
 const makeCodemodEnvironment = (
@@ -24,8 +23,6 @@ const makeCodemodEnvironment = (
 	extname: path.extname,
 	fileExists: (fileName) =>
 		fs.existsSync(fileName) && fs.statSync(fileName).isFile(),
-	formatFile: ({contents, prettierConfigOverride}) =>
-		formatFileContent({input: contents, prettierConfigOverride}),
 	isAbsolute: path.isAbsolute,
 	join: path.join,
 	pathSeparator: path.sep,

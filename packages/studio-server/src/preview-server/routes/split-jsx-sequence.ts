@@ -15,7 +15,6 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
@@ -43,7 +42,7 @@ export const splitJsxSequenceHandler: ApiHandler<
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
 
-			const {output, formatted, nodeLabel, logLine, nodePathRemappings} =
+			const {output, nodeLabel, logLine, nodePathRemappings} =
 				await splitJsxSequence({
 					input: fileContents,
 					nodePath,
@@ -91,15 +90,9 @@ export const splitJsxSequenceHandler: ApiHandler<
 					`${locationLabel}`,
 				)} Split ${nodeLabel}`,
 			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
-
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[split-jsx-sequence] Wrote ${fileRelativeToRoot}${
-					formatted ? ' (formatted)' : ''
-				}`,
+				`[split-jsx-sequence] Wrote ${fileRelativeToRoot}`,
 			);
 
 			printUndoHint(logLevel);
