@@ -107,7 +107,7 @@ export const MenuSubItem: React.FC<{
 
 	const onPointerUp = useCallback(
 		(e: PointerEvent<HTMLDivElement>) => {
-			if (disabled) {
+			if (disabled || e.button !== 0) {
 				return;
 			}
 
