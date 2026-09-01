@@ -82,6 +82,7 @@ For maximum performance, `@mediabunny/prores` uses shared-memory multithreading 
 - `'pcm-f64be'` - 64-bit big-endian float PCM
 - `'ulaw'` - μ-law PCM
 - `'alaw'` - A-law PCM
+- `'dts'` - DTS<AvailableFrom v="4.0.520" />
 
 ### AC-3 and E-AC-3<AvailableFrom v="4.0.427"/>
 
@@ -98,6 +99,23 @@ import {registerAc3Decoder, registerAc3Encoder} from '@mediabunny/ac3';
 
 registerAc3Decoder();
 registerAc3Encoder();
+```
+
+### DTS<AvailableFrom v="4.0.520" />
+
+DTS is not natively supported by WebCodecs and is not enabled by default in [`@remotion/media`](/docs/media).
+
+If you need DTS support, [you can enable it yourself](https://mediabunny.dev/guide/extensions/dts) by installing and registering the extension:
+
+```bash
+npx remotion add @mediabunny/dts
+```
+
+```tsx twoslash title="src/Root.tsx"
+import {registerDtsDecoder, registerDtsEncoder} from '@mediabunny/dts';
+
+registerDtsDecoder();
+registerDtsEncoder();
 ```
 
 ## Compatibility table
@@ -133,11 +151,14 @@ Not all codecs can be used with all containers. The following table specifies th
 |   `'alaw'`    |      |  ✓   |      |       |      |      |  ✓   |      |       |     |
 |    `'ac3'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |  ✓  |
 |   `'eac3'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |  ✓  |
+|    `'dts'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |  ✓  |
 
 :::note
 ProRes entries in the table above require [manual registration](#prores) of the `@mediabunny/prores` decoder.
 
 AC-3 and E-AC-3 entries in the table above require [manual registration](#ac-3-and-e-ac-3) of the `@mediabunny/ac3` decoder.
+
+DTS entries in the table above require [manual registration](#dts) of the `@mediabunny/dts` decoder.
 :::
 
 ## CORS

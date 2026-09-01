@@ -154,6 +154,7 @@ test('uses the Mediabunny version for extension packages', () => {
 	).toMatchObject({
 		mediabunny: '1.50.8',
 		'@mediabunny/ac3': '1.50.8',
+		'@mediabunny/dts': '1.50.8',
 		'@mediabunny/mp3-encoder': '1.50.8',
 		'@mediabunny/aac-encoder': '1.50.8',
 		'@mediabunny/flac-encoder': '1.50.8',
