@@ -1403,7 +1403,9 @@ const RenderModal: React.FC<
 	}, [availablePixelFormats, pixelFormat]);
 	return (
 		<div style={outerModalStyle}>
-			<ModalHeader title={`Render ${resolvedComposition.id}`} />
+			<ModalHeader
+				title={`Render ${resolvedComposition.id} ${readOnlyStudio ? 'via CLI' : 'on server'}`}
+			/>
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
 				<div style={flexer} />
