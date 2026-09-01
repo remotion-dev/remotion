@@ -6,7 +6,15 @@ id: pitch
 crumb: 'Audio'
 ---
 
-Use the `toneFrequency` prop to control the pitch of audio. During preview, it is supported by [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`. During [server-side rendering](/docs/ssr), it is also supported by [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), and [`<OffthreadVideo>`](/docs/offthreadvideo).
+Use the `toneFrequency` prop to control the pitch of audio.
+
+| Tag                                                        | Preview                                 | [Rendering](/docs/ssr)                  |
+| ---------------------------------------------------------- | --------------------------------------- | --------------------------------------- |
+| [`<Audio>`](/docs/media/audio) from `@remotion/media`      | ✅ <AvailableFrom v="4.0.520" inline /> | ✅ <AvailableFrom v="4.0.357" inline /> |
+| [`<Video>`](/docs/media/video) from `@remotion/media`      | ✅ <AvailableFrom v="4.0.520" inline /> | ✅ <AvailableFrom v="4.0.357" inline /> |
+| [`<Html5Audio>`](/docs/html5-audio) from `remotion`        | ❌                                      | ✅ <AvailableFrom v="4.0.47" inline />  |
+| [`<Html5Video>`](/docs/html5-video) from `remotion`        | ❌                                      | ✅ <AvailableFrom v="4.0.47" inline />  |
+| [`<OffthreadVideo>`](/docs/offthreadvideo) from `remotion` | ❌                                      | ✅ <AvailableFrom v="4.0.47" inline />  |
 
 `toneFrequency` is not supported during [client-side rendering](/docs/client-side-rendering).
 
