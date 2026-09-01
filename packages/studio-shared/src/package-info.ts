@@ -143,7 +143,7 @@ export const extraPackages: ExtraPackage[] = [
 		name: '@mediabunny/dts',
 		version: '1.55.5',
 		description: 'DTS audio codec support for Mediabunny',
-		docsUrl: 'https://mediabunny.dev/guide/extensions/dts',
+		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#dts',
 	},
 	{
 		name: '@mediabunny/prores',

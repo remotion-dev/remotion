@@ -13,7 +13,7 @@ export const EXTRA_PACKAGES_DOCS: Record<string, string> = {
 	mediabunny: 'https://www.remotion.dev/docs/mediabunny/version',
 	'@mediabunny/ac3':
 		'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
-	'@mediabunny/dts': 'https://mediabunny.dev/guide/extensions/dts',
+	'@mediabunny/dts': 'https://www.remotion.dev/docs/mediabunny/formats#dts',
 	'@mediabunny/mp3-encoder': 'https://www.remotion.dev/docs/mediabunny/version',
 	'@mediabunny/aac-encoder': 'https://www.remotion.dev/docs/mediabunny/version',
 	'@mediabunny/flac-encoder':
