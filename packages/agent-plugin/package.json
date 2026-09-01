@@ -1,10 +1,10 @@
 {
-	"name": "@remotion/codex-plugin",
+	"name": "@remotion/agent-plugin",
 	"version": "4.0.519",
 	"private": true,
 	"type": "module",
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/codex-plugin"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/agent-plugin"
 	},
 	"scripts": {
 		"formatting": "oxfmt . --check",
@@ -25,7 +25,9 @@
 	},
 	"keywords": [
 		"remotion",
+		"agent-plugin",
 		"codex",
+		"cursor",
 		"plugin",
 		"skills"
 	]

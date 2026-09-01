@@ -1,4 +1,4 @@
-# @remotion/codex-plugin
+# @remotion/agent-plugin
 
 ## Usage
 

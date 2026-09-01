@@ -13,7 +13,7 @@ export const listOfRemotionPackages = [
 	'@remotion/claude-code-plugin',
 	'@remotion/cli',
 	'@remotion/cloudrun',
-	'@remotion/codex-plugin',
+	'@remotion/agent-plugin',
 	'@remotion/kimi-code-plugin',
 	'@remotion/compositor-darwin-arm64',
 	'@remotion/compositor-darwin-x64',
