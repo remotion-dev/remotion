@@ -303,7 +303,7 @@ const RenderButtonInner: React.FC<{
 				{
 					type: 'item' as const,
 					id: 'client-render',
-					label: 'Render on web',
+					label: 'Render in browser',
 					value: 'client-render',
 					onClick: () => handleRenderTypeChange('client-render'),
 					keyHint: null,
@@ -360,7 +360,7 @@ const RenderButtonInner: React.FC<{
 			? 'Render'
 			: renderType === 'render-command'
 				? 'Render via CLI'
-				: 'Render on web';
+				: 'Render in browser';
 	const showRenderLabel = !narrow || renderType !== 'server-render';
 	const segments = useMemo((): SegmentedButtonSegment[] => {
 		return [
