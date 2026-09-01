@@ -1,11 +1,11 @@
 export const EXTRA_PACKAGES: Record<string, string> = {
-	mediabunny: '1.55.4',
-	'@mediabunny/ac3': '1.55.4',
-	'@mediabunny/dts': '1.55.4',
-	'@mediabunny/mp3-encoder': '1.55.4',
-	'@mediabunny/aac-encoder': '1.55.4',
-	'@mediabunny/flac-encoder': '1.55.4',
-	'@mediabunny/prores': '1.55.4',
+	mediabunny: '1.55.5',
+	'@mediabunny/ac3': '1.55.5',
+	'@mediabunny/dts': '1.55.5',
+	'@mediabunny/mp3-encoder': '1.55.5',
+	'@mediabunny/aac-encoder': '1.55.5',
+	'@mediabunny/flac-encoder': '1.55.5',
+	'@mediabunny/prores': '1.55.5',
 	zod: '4.4.3',
 };
 
