@@ -162,20 +162,6 @@ export const useMediaPlayback = ({
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
-	const acceptableTimeShiftButLessThanDuration = (() => {
-		// For short audio, a lower acceptable time shift is used
-		if (mediaRef.current?.duration) {
-			return Math.min(
-				mediaRef.current.duration,
-				acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION,
-			);
-		}
-
-		return (
-			acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION
-		);
-	})();
-
 	const env = useRemotionEnvironment();
 
 	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
@@ -310,6 +296,11 @@ export const useMediaPlayback = ({
 		}
 
 		const {current} = mediaRef;
+		const acceptableTimeShift =
+			acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION;
+		const acceptableTimeShiftButLessThanDuration = current.duration
+			? Math.min(current.duration, acceptableTimeShift)
+			: acceptableTimeShift;
 		const isMediaTagBufferingOrStalled =
 			isMediaTagBuffering || isBufferingUntilFirstFrame();
 		const pauseReason = getPauseReason({
@@ -347,7 +338,7 @@ export const useMediaPlayback = ({
 		executeMediaSyncAction(current, action);
 	}, [
 		absoluteFrame,
-		acceptableTimeShiftButLessThanDuration,
+		acceptableTimeshift,
 		rvcCurrentTime,
 		desiredUnclampedTime,
 		executeMediaSyncAction,
