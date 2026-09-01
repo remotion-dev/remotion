@@ -8,41 +8,30 @@ sidebar_label: Installation
 
 > Tip: Copy the URL of this page into an agent to let it install it for you.
 
-Canvas Capture currently requires an Apple Silicon Mac, [Bun](https://bun.com/) and a checkout of the Remotion repository.
+Canvas Capture currently requires an Apple Silicon Mac.
 
-## Install the dependencies
+## Download the extension
 
-From the root of the Remotion repository, install the dependencies:
+Clone the built extension to a durable location:
 
 ```bash title="Terminal"
-bun install
+git clone --depth=1 https://github.com/remotion-dev/canvas-capture.git \
+  "$HOME/Applications/Remotion Canvas Capture Extension"
 ```
+
+The repository contains a production build of Canvas Capture. You do not need to clone or build Remotion.
 
 ## Install Chrome for Testing
 
 Canvas Capture uses Chrome for Testing `150.0.7842.0` at revision `r1631007`. This is the exact version known to support the required HTML-in-canvas API.
 
-Install the browser using the bundled script:
+Install the browser using the script included with Canvas Capture:
 
 ```bash title="Terminal"
-.agents/skills/install-canvas-capture-browser/scripts/install-browser.sh \
-  --install-app "$HOME/Applications/Recorder Chrome.app"
+"$HOME/Applications/Remotion Canvas Capture Extension/install-browser.sh"
 ```
 
 This browser does not receive security updates. Only use it with websites you trust.
-
-## Build the extension
-
-Build Canvas Capture and copy it to a directory outside the repository:
-
-```bash title="Terminal"
-.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh \
-  --repo "$PWD" \
-  --install-dir "$HOME/Applications/Remotion Canvas Capture Extension" \
-  --browser-executable "$HOME/Applications/Recorder Chrome.app/Contents/MacOS/Google Chrome for Testing"
-```
-
-Keeping the extension outside the repository prevents it from breaking when the checkout or worktree is deleted.
 
 ## Launch the browser
 

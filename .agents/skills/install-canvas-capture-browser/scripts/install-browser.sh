@@ -6,7 +6,7 @@ expected_version="150.0.7842.0"
 expected_revision="r1631007"
 expected_sha256="86de7ffdb70d3f41714bf5b2b6fe3ef23cbf6c924eb407343418f31b9c721f7f"
 download_url="https://storage.googleapis.com/chrome-for-testing-per-commit-public/mac-arm64/r1631007/chrome-mac-arm64.zip"
-install_app="/Users/jonathanburger/Applications/Recorder Chrome.app"
+install_app="${HOME:?}/Applications/Recorder Chrome.app"
 
 usage() {
 	printf '%s\n' 'Usage: install-browser.sh [--install-app PATH]'
