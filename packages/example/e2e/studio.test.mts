@@ -35,12 +35,14 @@ const dragCompositionSelectorItem = async ({
 	sourceTitle,
 	targetTitle,
 	position,
+	dropAtPosition,
 	drop,
 }: {
 	page: Page;
 	sourceTitle: string;
 	targetTitle: string;
 	position: 'before' | 'inside' | 'after';
+	dropAtPosition: 'before' | 'inside' | 'after' | null;
 	drop: boolean;
 }) => {
 	return page.evaluate(
@@ -48,6 +50,7 @@ const dragCompositionSelectorItem = async ({
 			sourceTitle: source,
 			targetTitle: target,
 			position: dropPosition,
+			dropAtPosition: finalDropPosition,
 			drop: shouldDrop,
 		}) => {
 			const items = Array.from(
@@ -72,12 +75,13 @@ const dragCompositionSelectorItem = async ({
 				}),
 			);
 			const rect = targetElement.getBoundingClientRect();
-			const clientY =
-				dropPosition === 'before'
+			const getClientY = (position: 'before' | 'inside' | 'after') =>
+				position === 'before'
 					? rect.top + 1
-					: dropPosition === 'after'
+					: position === 'after'
 						? rect.bottom - 1
 						: rect.top + rect.height / 2;
+			const clientY = getClientY(dropPosition);
 			const dragOver = new DragEvent('dragover', {
 				bubbles: true,
 				cancelable: true,
@@ -86,7 +90,73 @@ const dragCompositionSelectorItem = async ({
 			});
 			targetElement.dispatchEvent(dragOver);
 			if (shouldDrop) {
+				const dropClientY = getClientY(finalDropPosition ?? dropPosition);
 				targetElement.dispatchEvent(
+					new DragEvent('drop', {
+						bubbles: true,
+						cancelable: true,
+						clientY: dropClientY,
+						dataTransfer,
+					}),
+				);
+				sourceElement.dispatchEvent(
+					new DragEvent('dragend', {bubbles: true, dataTransfer}),
+				);
+			}
+
+			return dragOver.defaultPrevented;
+		},
+		{sourceTitle, targetTitle, position, dropAtPosition, drop},
+	);
+};
+
+const dragCompositionSelectorItemToRoot = async ({
+	page,
+	sourceTitle,
+	drop,
+}: {
+	page: Page;
+	sourceTitle: string;
+	drop: boolean;
+}) => {
+	return page.evaluate(
+		({sourceTitle: source, drop: shouldDrop}) => {
+			const sourceElement = Array.from(
+				document.querySelectorAll<HTMLElement>(
+					'.__remotion-composition-selector-item',
+				),
+			).find((element) => element.title === source);
+			const root = Array.from(
+				document.querySelectorAll<HTMLElement>(
+					'.__remotion-vertical-scrollbar',
+				),
+			).find((element) =>
+				element.querySelector('.__remotion-composition-selector-item'),
+			);
+			if (!sourceElement || !root) {
+				throw new Error(`Could not find drag source ${source} or root list`);
+			}
+
+			const dataTransfer = new DataTransfer();
+			sourceElement.dispatchEvent(
+				new DragEvent('dragstart', {
+					bubbles: true,
+					cancelable: true,
+					dataTransfer,
+				}),
+			);
+			const rect = root.getBoundingClientRect();
+			root.scrollTop = root.scrollHeight;
+			const clientY = rect.bottom - 1;
+			const dragOver = new DragEvent('dragover', {
+				bubbles: true,
+				cancelable: true,
+				clientY,
+				dataTransfer,
+			});
+			root.dispatchEvent(dragOver);
+			if (shouldDrop) {
+				root.dispatchEvent(
 					new DragEvent('drop', {
 						bubbles: true,
 						cancelable: true,
@@ -101,7 +171,7 @@ const dragCompositionSelectorItem = async ({
 
 			return dragOver.defaultPrevented;
 		},
-		{sourceTitle, targetTitle, position, drop},
+		{sourceTitle, drop},
 	);
 };
 
@@ -1217,6 +1287,7 @@ test.describe('visual mode', () => {
 				sourceTitle: firstItemTitle!,
 				targetTitle: firstItemTitle!,
 				position: 'before',
+				dropAtPosition: null,
 				drop: true,
 			}),
 		).toBe(false);
@@ -1226,6 +1297,7 @@ test.describe('visual mode', () => {
 				sourceTitle: firstItemTitle!,
 				targetTitle: firstItemTitle!,
 				position: 'after',
+				dropAtPosition: null,
 				drop: true,
 			}),
 		).toBe(false);
@@ -1248,6 +1320,7 @@ test.describe('visual mode', () => {
 				sourceTitle: 'AnimatedBarChart',
 				targetTitle: 'Schema',
 				position: 'inside',
+				dropAtPosition: null,
 				drop: false,
 			}),
 		).toBe(true);
@@ -1262,6 +1335,7 @@ test.describe('visual mode', () => {
 				sourceTitle: 'AnimatedBarChart',
 				targetTitle: 'Schema',
 				position: 'before',
+				dropAtPosition: null,
 				drop: false,
 			}),
 		).toBe(true);
@@ -1286,6 +1360,7 @@ test.describe('visual mode', () => {
 			sourceTitle: 'AnimatedBarChart',
 			targetTitle: 'Schema',
 			position: 'before',
+			dropAtPosition: 'inside',
 			drop: true,
 		});
 		await expect
@@ -1319,6 +1394,7 @@ test.describe('visual mode', () => {
 				sourceTitle: 'AnimatedBarChart',
 				targetTitle: 'Schema',
 				position: 'before',
+				dropAtPosition: null,
 				drop: true,
 			}),
 		).toBe(false);
@@ -1330,6 +1406,7 @@ test.describe('visual mode', () => {
 			sourceTitle: 'Schema',
 			targetTitle: 'use-current-scale-on-load',
 			position: 'before',
+			dropAtPosition: null,
 			drop: true,
 		});
 		await expect
@@ -1348,6 +1425,7 @@ test.describe('visual mode', () => {
 			sourceTitle: 'AnimatedBarChart',
 			targetTitle: 'Schema',
 			position: 'inside',
+			dropAtPosition: null,
 			drop: true,
 		});
 		await expect
@@ -1359,8 +1437,70 @@ test.describe('visual mode', () => {
 				return composition > folderStart && composition < folderEnd;
 			})
 			.toBe(true);
+		const afterCompositionNested = fs.readFileSync(rootFile, 'utf8');
+		await expect
+			.poll(async () => {
+				const nestedCompositionBox = await page
+					.getByTitle('AnimatedBarChart', {exact: true})
+					.boundingBox();
+				const schemaCompositionBox = await schemaComposition.boundingBox();
+				return (
+					nestedCompositionBox !== null &&
+					schemaCompositionBox !== null &&
+					nestedCompositionBox.y > schemaCompositionBox.y
+				);
+			})
+			.toBe(true);
+
+		expect(
+			await dragCompositionSelectorItemToRoot({
+				page,
+				sourceTitle: 'AnimatedBarChart',
+				drop: false,
+			}),
+		).toBe(true);
+		const rootReorderLine = page.locator(
+			'[data-composition-root-reorder-line]',
+		);
+		await expect(rootReorderLine).toBeVisible();
+		await expect(rootReorderLine).toHaveCSS('height', '2px');
+		await expect(rootReorderLine).toHaveCSS(
+			'background-color',
+			'rgb(11, 132, 255)',
+		);
+		const rootLineBox = await rootReorderLine.boundingBox();
+		const lastItemBox = await page
+			.locator('.__remotion-composition-selector-item')
+			.last()
+			.boundingBox();
+		expect(rootLineBox).not.toBeNull();
+		expect(lastItemBox).not.toBeNull();
+		expect(rootLineBox!.y).toBeGreaterThanOrEqual(
+			lastItemBox!.y + lastItemBox!.height - 2,
+		);
+
+		expect(
+			await dragCompositionSelectorItemToRoot({
+				page,
+				sourceTitle: 'AnimatedBarChart',
+				drop: true,
+			}),
+		).toBe(true);
+		await expect
+			.poll(() => {
+				const contents = fs.readFileSync(rootFile, 'utf8');
+				const folderStart = contents.indexOf('<Folder name="Schema">');
+				const folderEnd = contents.indexOf('</Folder>', folderStart);
+				const composition = contents.indexOf('id="AnimatedBarChart"');
+				return composition > folderEnd;
+			})
+			.toBe(true);
 
 		const undoButton = page.getByRole('button', {name: /^Undo/});
+		await undoButton.click();
+		await expect
+			.poll(() => fs.readFileSync(rootFile, 'utf8'))
+			.toBe(afterCompositionNested);
 		await undoButton.click();
 		await expect
 			.poll(() => fs.readFileSync(rootFile, 'utf8'))

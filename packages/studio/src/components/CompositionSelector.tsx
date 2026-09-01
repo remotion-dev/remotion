@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND, WHITE_ALPHA_12} from '../helpers/colors';
+import {BACKGROUND, TIMELINE_BLUE} from '../helpers/colors';
 import {
 	createFolderTree,
 	sortFolderTreeAlphabetically,
@@ -97,6 +97,21 @@ const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
+const list: React.CSSProperties = {
+	flex: 1,
+	overflowY: 'auto',
+	paddingTop: 4,
+	paddingBottom: 4,
+	backgroundColor: BACKGROUND,
+};
+
+const rootReorderLine: React.CSSProperties = {
+	backgroundColor: TIMELINE_BLUE,
+	height: 2,
+	pointerEvents: 'none',
+	width: '100%',
+};
+
 const autoScrollThreshold = 70;
 const maxAutoScrollSpeed = 18;
 
@@ -169,16 +184,6 @@ export const CompositionSelector: React.FC = () => {
 			? sortFolderTreeAlphabetically(tree)
 			: tree;
 	}, [compositionSortOrder, compositions, folders, foldersExpanded]);
-
-	const list: React.CSSProperties = useMemo(() => {
-		return {
-			flex: 1,
-			overflowY: 'auto',
-			paddingTop: 4,
-			paddingBottom: 4,
-			backgroundColor: rootDragHovered ? WHITE_ALPHA_12 : BACKGROUND,
-		};
-	}, [rootDragHovered]);
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
@@ -409,6 +414,9 @@ export const CompositionSelector: React.FC = () => {
 						/>
 					);
 				})}
+				{rootDragHovered ? (
+					<div data-composition-root-reorder-line style={rootReorderLine} />
+				) : null}
 			</div>
 		</div>
 	);

@@ -248,6 +248,7 @@ export const CompositionSelectorItem: React.FC<{
 	}, [item, currentComposition]);
 	const [isDragging, setIsDragging] = useState(false);
 	const [dropPosition, setDropPosition] = useState<DropPosition | null>(null);
+	const dropPositionRef = useRef<DropPosition | null>(null);
 	const folderExpansionTimer = useRef<number | null>(null);
 	const folderExpansionRequested = useRef(false);
 
@@ -256,6 +257,10 @@ export const CompositionSelectorItem: React.FC<{
 			window.clearTimeout(folderExpansionTimer.current);
 			folderExpansionTimer.current = null;
 		}
+	}, []);
+	const updateDropPosition = useCallback((position: DropPosition | null) => {
+		dropPositionRef.current = position;
+		setDropPosition(position);
 	}, []);
 
 	useEffect(() => {
@@ -425,8 +430,8 @@ export const CompositionSelectorItem: React.FC<{
 		activeDragRef.current = null;
 		cancelFolderExpansion();
 		setIsDragging(false);
-		setDropPosition(null);
-	}, [activeDragRef, cancelFolderExpansion]);
+		updateDropPosition(null);
+	}, [activeDragRef, cancelFolderExpansion, updateDropPosition]);
 
 	const getDropPosition = useCallback(
 		(event: DragEvent<HTMLElement>): DropPosition | null => {
@@ -558,7 +563,7 @@ export const CompositionSelectorItem: React.FC<{
 			const position = getDropPosition(event);
 			if (position === null) {
 				cancelFolderExpansion();
-				setDropPosition(null);
+				updateDropPosition(null);
 				event.stopPropagation();
 				return;
 			}
@@ -573,20 +578,21 @@ export const CompositionSelectorItem: React.FC<{
 			event.stopPropagation();
 			event.dataTransfer.dropEffect = 'move';
 			clearRootDragHover();
-			setDropPosition(position);
+			updateDropPosition(position);
 		},
 		[
 			cancelFolderExpansion,
 			clearRootDragHover,
 			getDropPosition,
 			scheduleFolderExpansion,
+			updateDropPosition,
 		],
 	);
 
 	const onRowDragLeave = useCallback(() => {
 		cancelFolderExpansion();
-		setDropPosition(null);
-	}, [cancelFolderExpansion]);
+		updateDropPosition(null);
+	}, [cancelFolderExpansion, updateDropPosition]);
 
 	const moveItem = useCallback(
 		async ({
@@ -645,7 +651,7 @@ export const CompositionSelectorItem: React.FC<{
 		async (event: DragEvent<HTMLElement>) => {
 			cancelFolderExpansion();
 			const dragData = parseCompositionSelectorDragData(event.dataTransfer);
-			const position = getDropPosition(event);
+			const position = dropPositionRef.current;
 			if (dragData === null) {
 				return;
 			}
@@ -658,7 +664,7 @@ export const CompositionSelectorItem: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 			clearRootDragHover();
-			setDropPosition(null);
+			updateDropPosition(null);
 			await moveItem({
 				dragData,
 				destination:
@@ -677,9 +683,9 @@ export const CompositionSelectorItem: React.FC<{
 		[
 			cancelFolderExpansion,
 			clearRootDragHover,
-			getDropPosition,
 			item,
 			moveItem,
+			updateDropPosition,
 		],
 	);
 

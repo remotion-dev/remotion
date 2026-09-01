@@ -155,6 +155,31 @@ export const RemotionRoot: React.FC = () => {
 };
 `;
 
+const folderRootWithEarlierComponentContents = `import React from 'react';
+import {Composition, Folder} from 'remotion';
+
+const Component = () => {
+	return <><div>Content</div></>;
+};
+
+export const RemotionRoot: React.FC = () => {
+	return (
+		<>
+			<Folder name="Parent">
+				<Composition
+					id="Nested"
+					component={Component}
+					durationInFrames={120}
+					fps={30}
+					width={1280}
+					height={720}
+				/>
+			</Folder>
+		</>
+	);
+};
+`;
+
 const clearUndoRedoStacks = () => {
 	(getUndoStack() as unknown as unknown[]).length = 0;
 	(getRedoStack() as unknown as unknown[]).length = 0;
@@ -981,6 +1006,26 @@ test('moves a composition to root', () => {
 		newContents.indexOf('id="NestedA"'),
 	);
 	expect(newContents.match(/id="NestedA"/g)?.length).toBe(1);
+});
+
+test('moves a composition to its registration root when another component appears first', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootWithEarlierComponentContents,
+		codeMod: {
+			type: 'move-composition-or-folder',
+			source: {type: 'composition', compositionId: 'Nested'},
+			destination: {type: 'root'},
+		},
+	});
+
+	expect(changesMade).toHaveLength(1);
+	expect(newContents.match(/id="Nested"/g)).toHaveLength(1);
+	expect(newContents.indexOf('id="Nested"')).toBeGreaterThan(
+		newContents.indexOf('export const RemotionRoot'),
+	);
+	expect(newContents.indexOf('id="Nested"')).toBeGreaterThan(
+		newContents.indexOf('</Folder>'),
+	);
 });
 
 test('visually reorders compositions and folders', () => {

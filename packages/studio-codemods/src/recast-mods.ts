@@ -461,44 +461,42 @@ const appendElementToFolder = ({
 
 const appendElementToRoot = ({
 	element,
-	file,
+	returnStatement,
 }: {
 	element: JSXElement;
-	file: File;
+	returnStatement: ReturnStatement;
 }) => {
-	let appended = false;
-
-	recast.types.visit(file, {
-		visitReturnStatement(astPath) {
-			if (appended) {
-				return false;
-			}
-
-			const {argument} = astPath.node;
-			if (argument?.type !== 'JSXFragment' && argument?.type !== 'JSXElement') {
-				this.traverse(astPath);
-				return undefined;
-			}
-
-			if (argument.type === 'JSXFragment') {
-				(argument.children as JSXFragment['children']).push(
-					stripParenthesizedExtra(element),
-				);
-			} else {
-				astPath.node.argument = wrapInJsxFragment([
-					argument as unknown as JSXElement,
-					element,
-				]) as never;
-			}
-
-			appended = true;
-			return false;
-		},
-	});
-
-	if (!appended) {
+	const {argument} = returnStatement;
+	if (argument?.type !== 'JSXFragment' && argument?.type !== 'JSXElement') {
 		throw new Error('Could not find a root JSX element');
 	}
+
+	if (argument.type === 'JSXFragment') {
+		(argument.children as JSXFragment['children']).push(
+			stripParenthesizedExtra(element),
+		);
+	} else {
+		returnStatement.argument = wrapInJsxFragment([
+			argument as unknown as JSXElement,
+			element,
+		]) as never;
+	}
+};
+
+const getEnclosingReturnStatement = (path: recast.types.NodePath) => {
+	let currentPath: recast.types.NodePath | null = path;
+	while (currentPath !== null) {
+		if (
+			(currentPath.node as unknown as {type?: string} | null)?.type ===
+			'ReturnStatement'
+		) {
+			return currentPath.node as unknown as ReturnStatement;
+		}
+
+		currentPath = currentPath.parentPath ?? null;
+	}
+
+	throw new Error('Could not find a root JSX element');
 };
 
 const getCompositionOrFolderLabel = (item: CompositionOrFolder) => {
@@ -713,10 +711,11 @@ const moveCompositionOrFolder = ({
 		}
 	}
 
+	const sourceReturnStatement = getEnclosingReturnStatement(sourceItem.path);
 	deleteJsxElementAtPath(sourceItem.path);
 	const element = stripParenthesizedExtra(sourceItem.node);
 	if (transformation.destination.type === 'root') {
-		appendElementToRoot({element, file});
+		appendElementToRoot({element, returnStatement: sourceReturnStatement});
 	} else if (transformation.destination.type === 'folder') {
 		appendElementToFolder({
 			element,
@@ -833,9 +832,13 @@ const moveCompositionToFolder = ({
 
 	const compositionElement = (sourcePath as recast.types.NodePath)
 		.node as JSXElement;
+	const sourceReturnStatement = getEnclosingReturnStatement(sourcePath);
 	deleteJsxElementAtPath(sourcePath);
 	if (transformation.folderName === null) {
-		appendElementToRoot({element: compositionElement, file});
+		appendElementToRoot({
+			element: compositionElement,
+			returnStatement: sourceReturnStatement,
+		});
 		changesMade.push({description: 'Moved composition to root'});
 	} else {
 		if (targetFolder === null) {
