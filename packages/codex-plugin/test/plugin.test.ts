@@ -115,6 +115,30 @@ test('links to embedded skills use the renamed file', () => {
 	}
 });
 
+test('file links stay within each skill directory', () => {
+	for (const skillName of getDirectories(generatedSkillsRoot)) {
+		const skillRoot = path.join(generatedSkillsRoot, skillName);
+		for (const file of getMarkdownFiles(skillRoot)) {
+			const contents = readFileSync(file, 'utf-8');
+			for (const match of contents.matchAll(/!?\[[^\]]+]\(([^)]+)\)/g)) {
+				const target = match[1];
+				if (!target.startsWith('./') && !target.startsWith('../')) {
+					continue;
+				}
+
+				const targetWithoutFragment = target.split('#')[0];
+				const relativeTarget = path.relative(
+					skillRoot,
+					path.resolve(path.dirname(file), targetWithoutFragment),
+				);
+				expect(relativeTarget).not.toBe('..');
+				expect(relativeTarget.startsWith(`..${path.sep}`)).toBe(false);
+				expect(path.isAbsolute(relativeTarget)).toBe(false);
+			}
+		}
+	}
+});
+
 test('maps is available from either standalone parent skill', () => {
 	for (const parentSkill of ['remotion-best-practices', 'remotion-markup']) {
 		const parentRoot = path.join(generatedSkillsRoot, parentSkill);
