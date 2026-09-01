@@ -140,7 +140,7 @@ export const getMediaSyncAction = (
 		};
 	}
 
-	if (!playing || playerBuffering) {
+	if (playerBuffering) {
 		return {type: 'none'};
 	}
 
