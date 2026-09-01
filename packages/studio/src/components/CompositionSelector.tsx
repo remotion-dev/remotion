@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND, WHITE_ALPHA_12} from '../helpers/colors';
+import {BACKGROUND, TIMELINE_BLUE} from '../helpers/colors';
 import {
 	createFolderTree,
 	sortFolderTreeAlphabetically,
@@ -18,10 +18,11 @@ import {FolderContext} from '../state/folders';
 import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {
-	compositionDragDataToSymbolicatedStack,
-	getCompositionDragPreviewMetadata,
-	parseCompositionDragData,
-} from './composition-drag-data';
+	type CompositionSelectorActiveDrag,
+	compositionSelectorDragDataToSymbolicatedStack,
+	hasCompositionSelectorDragData,
+	parseCompositionSelectorDragData,
+} from './composition-selector-drag-data';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
@@ -96,6 +97,21 @@ const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
+const list: React.CSSProperties = {
+	flex: 1,
+	overflowY: 'auto',
+	paddingTop: 4,
+	paddingBottom: 4,
+	backgroundColor: BACKGROUND,
+};
+
+const rootReorderLine: React.CSSProperties = {
+	backgroundColor: TIMELINE_BLUE,
+	height: 2,
+	pointerEvents: 'none',
+	width: '100%',
+};
+
 const autoScrollThreshold = 70;
 const maxAutoScrollSpeed = 18;
 
@@ -153,6 +169,7 @@ export const CompositionSelector: React.FC = () => {
 		setSelectedModal,
 	]);
 	const [rootDragHovered, setRootDragHovered] = useState(false);
+	const activeDragRef = useRef<CompositionSelectorActiveDrag | null>(null);
 	const listRef = useRef<HTMLDivElement>(null);
 	const autoScrollAnimation = useRef<number | null>(null);
 	const autoScrollSpeed = useRef(0);
@@ -167,16 +184,6 @@ export const CompositionSelector: React.FC = () => {
 			? sortFolderTreeAlphabetically(tree)
 			: tree;
 	}, [compositionSortOrder, compositions, folders, foldersExpanded]);
-
-	const list: React.CSSProperties = useMemo(() => {
-		return {
-			flex: 1,
-			overflowY: 'auto',
-			paddingTop: 4,
-			paddingBottom: 4,
-			backgroundColor: rootDragHovered ? WHITE_ALPHA_12 : BACKGROUND,
-		};
-	}, [rootDragHovered]);
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
@@ -243,7 +250,7 @@ export const CompositionSelector: React.FC = () => {
 		(event: React.DragEvent<HTMLElement>) => {
 			if (
 				window.remotion_isReadOnlyStudio ||
-				getCompositionDragPreviewMetadata(event.dataTransfer.types) === null
+				!hasCompositionSelectorDragData(event.dataTransfer.types)
 			) {
 				stopCompositionListAutoScroll();
 				return;
@@ -269,8 +276,16 @@ export const CompositionSelector: React.FC = () => {
 	const onRootDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
 		if (
 			window.remotion_isReadOnlyStudio ||
-			getCompositionDragPreviewMetadata(event.dataTransfer.types) === null
+			!hasCompositionSelectorDragData(event.dataTransfer.types)
 		) {
+			return;
+		}
+
+		if (
+			activeDragRef.current === null ||
+			activeDragRef.current.parentFolderPath === null
+		) {
+			setRootDragHovered(false);
 			return;
 		}
 
@@ -301,8 +316,17 @@ export const CompositionSelector: React.FC = () => {
 				return;
 			}
 
-			const compositionDragData = parseCompositionDragData(event.dataTransfer);
-			if (compositionDragData === null) {
+			const dragData = parseCompositionSelectorDragData(event.dataTransfer);
+			if (dragData === null) {
+				return;
+			}
+
+			if (
+				activeDragRef.current === null ||
+				activeDragRef.current.parentFolderPath === null
+			) {
+				event.stopPropagation();
+				setRootDragHovered(false);
 				return;
 			}
 
@@ -310,16 +334,8 @@ export const CompositionSelector: React.FC = () => {
 			event.stopPropagation();
 			stopCompositionListAutoScroll();
 			setRootDragHovered(false);
-
-			const composition = compositions.find(
-				(c) => c.id === compositionDragData.compositionId,
-			);
-			if (!composition || composition.folderName === null) {
-				return;
-			}
-
 			const notification = showNotification(
-				`Moving ${compositionDragData.compositionId}...`,
+				`Moving ${dragData.item.type === 'composition' ? dragData.item.compositionId : dragData.item.folderName}...`,
 				null,
 			);
 			const controller = new AbortController();
@@ -327,15 +343,14 @@ export const CompositionSelector: React.FC = () => {
 			try {
 				const result = await applyCodemod({
 					codemod: {
-						type: 'move-composition-to-folder',
-						idToMove: compositionDragData.compositionId,
-						folderName: null,
-						parentName: null,
+						type: 'move-composition-or-folder',
+						source: dragData.item,
+						destination: {type: 'root'},
 					},
 					dryRun: false,
 					signal: controller.signal,
 					symbolicatedStack:
-						compositionDragDataToSymbolicatedStack(compositionDragData),
+						compositionSelectorDragDataToSymbolicatedStack(dragData),
 				});
 
 				if (result.success) {
@@ -350,7 +365,7 @@ export const CompositionSelector: React.FC = () => {
 				);
 			}
 		},
-		[compositions, stopCompositionListAutoScroll],
+		[stopCompositionListAutoScroll],
 	);
 
 	return (
@@ -376,7 +391,7 @@ export const CompositionSelector: React.FC = () => {
 				onDropCapture={stopCompositionListAutoScroll}
 				onDrop={onRootDrop}
 			>
-				{items.map((c) => {
+				{items.map((c, index) => {
 					return (
 						<CompositionSelectorItem
 							key={c.key + c.type}
@@ -389,11 +404,19 @@ export const CompositionSelector: React.FC = () => {
 							selectComposition={selectComposition}
 							toggleFolder={toggleFolder}
 							clearRootDragHover={clearRootDragHover}
+							canReorder={compositionSortOrder === 'registration'}
 							tabIndex={tabIndex}
 							item={c}
+							activeDragRef={activeDragRef}
+							parentFolderPath={null}
+							previousSibling={index === 0 ? null : items[index - 1]}
+							nextSibling={index === items.length - 1 ? null : items[index + 1]}
 						/>
 					);
 				})}
+				{rootDragHovered ? (
+					<div data-composition-root-reorder-line style={rootReorderLine} />
+				) : null}
 			</div>
 		</div>
 	);

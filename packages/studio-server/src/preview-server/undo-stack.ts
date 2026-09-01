@@ -48,6 +48,7 @@ type UndoEntryType =
 	| 'new-composition'
 	| 'duplicate-composition'
 	| 'move-composition-to-folder'
+	| 'move-composition-or-folder'
 	| 'new-folder'
 	| 'delete-folder'
 	| 'rename-folder';

@@ -18,7 +18,7 @@ import type {
 	VariableDeclaration,
 	VariableDeclarator,
 } from '@babel/types';
-import type {RecastCodemod} from '@remotion/studio-shared';
+import type {CompositionOrFolder, RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {applyVisualControl} from './apply-visual-control';
 import {deleteJsxElementAtPath} from './delete-jsx-node';
@@ -47,6 +47,14 @@ export const applyCodemod = ({
 
 	if (codeMod.type === 'move-composition-to-folder') {
 		return moveCompositionToFolder({
+			file,
+			transformation: codeMod,
+			changesMade,
+		});
+	}
+
+	if (codeMod.type === 'move-composition-or-folder') {
+		return moveCompositionOrFolder({
 			file,
 			transformation: codeMod,
 			changesMade,
@@ -436,11 +444,11 @@ const getChildFolderParentName = ({
 	return [parentFolderName, folderName].filter(Boolean).join('/');
 };
 
-const appendCompositionToFolder = ({
-	compositionElement,
+const appendElementToFolder = ({
+	element,
 	folderElement,
 }: {
-	compositionElement: JSXElement;
+	element: JSXElement;
 	folderElement: JSXElement;
 }) => {
 	folderElement.openingElement.selfClosing = false;
@@ -448,49 +456,289 @@ const appendCompositionToFolder = ({
 		type: 'JSXClosingElement',
 		name: folderElement.openingElement.name,
 	};
-	folderElement.children.push(stripParenthesizedExtra(compositionElement));
+	folderElement.children.push(stripParenthesizedExtra(element));
 };
 
-const appendCompositionToRoot = ({
-	compositionElement,
-	file,
+const appendElementToRoot = ({
+	element,
+	returnStatement,
 }: {
-	compositionElement: JSXElement;
-	file: File;
+	element: JSXElement;
+	returnStatement: ReturnStatement;
 }) => {
-	let appended = false;
+	const {argument} = returnStatement;
+	if (argument?.type !== 'JSXFragment' && argument?.type !== 'JSXElement') {
+		throw new Error('Could not find a root JSX element');
+	}
+
+	if (argument.type === 'JSXFragment') {
+		(argument.children as JSXFragment['children']).push(
+			stripParenthesizedExtra(element),
+		);
+	} else {
+		returnStatement.argument = wrapInJsxFragment([
+			argument as unknown as JSXElement,
+			element,
+		]) as never;
+	}
+};
+
+const getEnclosingReturnStatement = (path: recast.types.NodePath) => {
+	let currentPath: recast.types.NodePath | null = path;
+	while (currentPath !== null) {
+		if (
+			(currentPath.node as unknown as {type?: string} | null)?.type ===
+			'ReturnStatement'
+		) {
+			return currentPath.node as unknown as ReturnStatement;
+		}
+
+		currentPath = currentPath.parentPath ?? null;
+	}
+
+	throw new Error('Could not find a root JSX element');
+};
+
+const getCompositionOrFolderLabel = (item: CompositionOrFolder) => {
+	return item.type === 'composition'
+		? `composition "${item.compositionId}"`
+		: `folder "${[item.parentName, item.folderName].filter(Boolean).join('/')}"`;
+};
+
+const matchesCompositionOrFolder = ({
+	item,
+	node,
+	parentFolderName,
+}: {
+	item: CompositionOrFolder;
+	node: JSXElement;
+	parentFolderName: string | null;
+}) => {
+	if (item.type === 'composition') {
+		return getCompositionIdFromJSXElement(node) === item.compositionId;
+	}
+
+	return (
+		getFolderNameFromJSXElement(node) === item.folderName &&
+		parentFolderName === item.parentName
+	);
+};
+
+const moveCompositionOrFolder = ({
+	file,
+	transformation,
+	changesMade,
+}: {
+	file: File;
+	transformation: Extract<RecastCodemod, {type: 'move-composition-or-folder'}>;
+	changesMade: Change[];
+}): ApplyCodeModReturnType => {
+	type LocatedItem = {
+		node: JSXElement;
+		parent: JSXElement | JSXFragment;
+		parentFolderName: string | null;
+		path: recast.types.NodePath;
+	};
+
+	let source: LocatedItem | null = null;
+	let target: LocatedItem | null = null;
+	let destinationFolder: LocatedItem | null = null;
+	const folders: {
+		node: JSXElement;
+		name: string;
+		parentFolderName: string | null;
+	}[] = [];
+	const folderStack: string[] = [];
+
+	const visitJsxElement = (astPath: recast.types.NodePath) => {
+		const node = astPath.node as JSXElement;
+		const parent = astPath.parentPath?.node;
+		const parentFolderName = folderStack.join('/') || null;
+		const isDirectJsxChild =
+			(parent?.type === 'JSXElement' || parent?.type === 'JSXFragment') &&
+			parent.children.includes(node);
+
+		if (
+			isDirectJsxChild &&
+			matchesCompositionOrFolder({
+				item: transformation.source,
+				node,
+				parentFolderName,
+			})
+		) {
+			source = {
+				node,
+				parent,
+				parentFolderName,
+				path: astPath,
+			};
+		}
+
+		if (
+			isDirectJsxChild &&
+			(transformation.destination.type === 'before' ||
+				transformation.destination.type === 'after') &&
+			matchesCompositionOrFolder({
+				item: transformation.destination.target,
+				node,
+				parentFolderName,
+			})
+		) {
+			target = {
+				node,
+				parent,
+				parentFolderName,
+				path: astPath,
+			};
+		}
+
+		const folderName = getFolderNameFromJSXElement(node);
+		if (folderName !== null) {
+			folders.push({node, name: folderName, parentFolderName});
+		}
+
+		if (
+			isDirectJsxChild &&
+			transformation.destination.type === 'folder' &&
+			folderName === transformation.destination.folderName &&
+			parentFolderName === transformation.destination.parentName
+		) {
+			destinationFolder = {
+				node,
+				parent,
+				parentFolderName,
+				path: astPath,
+			};
+		}
+
+		if (folderName !== null) {
+			folderStack.push(folderName);
+		}
+
+		for (let index = 0; index < node.children.length; index++) {
+			if (node.children[index].type === 'JSXElement') {
+				visitJsxElement(
+					astPath.get('children', index) as recast.types.NodePath,
+				);
+			}
+		}
+
+		if (folderName !== null) {
+			folderStack.pop();
+		}
+	};
 
 	recast.types.visit(file, {
-		visitReturnStatement(astPath) {
-			if (appended) {
-				return false;
-			}
-
-			const {argument} = astPath.node;
-			if (argument?.type !== 'JSXFragment' && argument?.type !== 'JSXElement') {
-				this.traverse(astPath);
-				return undefined;
-			}
-
-			if (argument.type === 'JSXFragment') {
-				(argument.children as JSXFragment['children']).push(
-					stripParenthesizedExtra(compositionElement),
-				);
-			} else {
-				astPath.node.argument = wrapInJsxFragment([
-					argument as unknown as JSXElement,
-					compositionElement,
-				]) as never;
-			}
-
-			appended = true;
+		visitJSXElement(astPath) {
+			visitJsxElement(astPath as unknown as recast.types.NodePath);
 			return false;
 		},
 	});
 
-	if (!appended) {
-		throw new Error('Could not find a root JSX element');
+	if (source === null) {
+		throw new Error(
+			`Could not find ${getCompositionOrFolderLabel(transformation.source)} as a direct JSX child`,
+		);
 	}
+
+	const sourceItem = source as LocatedItem;
+	if (
+		(transformation.destination.type === 'before' ||
+			transformation.destination.type === 'after') &&
+		target === null
+	) {
+		throw new Error(
+			`Could not find ${getCompositionOrFolderLabel(transformation.destination.target)} as a reorder target`,
+		);
+	}
+
+	if (
+		transformation.destination.type === 'folder' &&
+		destinationFolder === null
+	) {
+		const folderPath = [
+			transformation.destination.parentName,
+			transformation.destination.folderName,
+		]
+			.filter(Boolean)
+			.join('/');
+		throw new Error(`Could not find folder "${folderPath}"`);
+	}
+
+	if (target !== null && (target as LocatedItem).node === sourceItem.node) {
+		return {newAst: file, changesMade};
+	}
+
+	const sourceFolderPath =
+		transformation.source.type === 'folder'
+			? [transformation.source.parentName, transformation.source.folderName]
+					.filter(Boolean)
+					.join('/')
+			: null;
+	const destinationParentFolderName =
+		transformation.destination.type === 'root'
+			? null
+			: transformation.destination.type === 'folder'
+				? [
+						transformation.destination.parentName,
+						transformation.destination.folderName,
+					]
+						.filter(Boolean)
+						.join('/')
+				: (target as unknown as LocatedItem).parentFolderName;
+	if (
+		sourceFolderPath !== null &&
+		destinationParentFolderName !== null &&
+		(destinationParentFolderName === sourceFolderPath ||
+			destinationParentFolderName.startsWith(`${sourceFolderPath}/`))
+	) {
+		throw new Error('A folder cannot be moved inside itself');
+	}
+
+	if (transformation.source.type === 'folder') {
+		const sourceFolderName = transformation.source.folderName;
+		if (
+			folders.some(
+				(folder) =>
+					folder.node !== sourceItem.node &&
+					folder.name === sourceFolderName &&
+					folder.parentFolderName === destinationParentFolderName,
+			)
+		) {
+			throw new Error(
+				`A folder named "${sourceFolderName}" already exists in the destination`,
+			);
+		}
+	}
+
+	const sourceReturnStatement = getEnclosingReturnStatement(sourceItem.path);
+	deleteJsxElementAtPath(sourceItem.path);
+	const element = stripParenthesizedExtra(sourceItem.node);
+	if (transformation.destination.type === 'root') {
+		appendElementToRoot({element, returnStatement: sourceReturnStatement});
+	} else if (transformation.destination.type === 'folder') {
+		appendElementToFolder({
+			element,
+			folderElement: (destinationFolder as unknown as LocatedItem).node,
+		});
+	} else {
+		const targetItem = target as unknown as LocatedItem;
+		const targetIndex = targetItem.parent.children.indexOf(targetItem.node);
+		if (targetIndex === -1) {
+			throw new Error('The reorder target is no longer available');
+		}
+
+		targetItem.parent.children.splice(
+			transformation.destination.type === 'before'
+				? targetIndex
+				: targetIndex + 1,
+			0,
+			element,
+		);
+	}
+
+	changesMade.push({description: 'Moved composition or folder'});
+	return {newAst: file, changesMade};
 };
 
 const moveCompositionToFolder = ({
@@ -584,17 +832,21 @@ const moveCompositionToFolder = ({
 
 	const compositionElement = (sourcePath as recast.types.NodePath)
 		.node as JSXElement;
+	const sourceReturnStatement = getEnclosingReturnStatement(sourcePath);
 	deleteJsxElementAtPath(sourcePath);
 	if (transformation.folderName === null) {
-		appendCompositionToRoot({compositionElement, file});
+		appendElementToRoot({
+			element: compositionElement,
+			returnStatement: sourceReturnStatement,
+		});
 		changesMade.push({description: 'Moved composition to root'});
 	} else {
 		if (targetFolder === null) {
 			throw new Error('Could not find target folder');
 		}
 
-		appendCompositionToFolder({
-			compositionElement,
+		appendElementToFolder({
+			element: compositionElement,
 			folderElement: targetFolder,
 		});
 		changesMade.push({description: 'Moved composition into folder'});

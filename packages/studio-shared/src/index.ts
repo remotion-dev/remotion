@@ -184,7 +184,11 @@ export type {
 	SequenceNodePathMutation,
 	SequenceNodePathRemapping,
 } from './sequence-node-path-mutation';
-export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
+export type {
+	ApplyVisualControlCodemod,
+	CompositionOrFolder,
+	RecastCodemod,
+} from './codemods';
 export {REACT_REFRESH_FINISHED_EVENT} from './react-refresh-event';
 export {hasSequenceTimingTraits} from './has-sequence-timing-traits';
 export {
