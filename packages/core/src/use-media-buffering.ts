@@ -1,27 +1,23 @@
 import type React from 'react';
 import {useEffect, useState} from 'react';
-import type {LogLevel} from './log';
-import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
+import {useLogger} from './use-logger.js';
 
 export const useMediaBuffering = ({
 	element,
 	shouldBuffer,
 	isPremounting,
 	isPostmounting,
-	logLevel,
-	mountTime,
 	src,
 }: {
 	element: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	shouldBuffer: boolean;
 	isPremounting: boolean;
 	isPostmounting: boolean;
-	logLevel: LogLevel;
-	mountTime: number;
 	src: string | null;
 }) => {
 	const buffer = useBufferState();
+	const logger = useLogger();
 	const [isBuffering, setIsBuffering] = useState(false);
 
 	// Buffer state based on `waiting` and `canplay`
@@ -52,12 +48,10 @@ export const useMediaBuffering = ({
 				current.readyState < current.HAVE_FUTURE_DATA
 			) {
 				if (!navigator.userAgent.includes('Firefox/')) {
-					playbackLogging({
-						logLevel,
-						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted ${current.playbackRate}`,
-						tag: 'load',
-						mountTime,
-					});
+					logger.playback(
+						'load',
+						`Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted ${current.playbackRate}`,
+					);
 					const previousPlaybackRate = current.playbackRate;
 					current.load();
 					current.playbackRate = previousPlaybackRate;
@@ -83,23 +77,19 @@ export const useMediaBuffering = ({
 				return false;
 			});
 			if (didDoSomething) {
-				playbackLogging({
-					logLevel,
-					message: `Unmarking as buffering: ${current.src}. Reason: ${reason}`,
-					tag: 'buffer',
-					mountTime,
-				});
+				logger.playback(
+					'buffer',
+					`Unmarking as buffering: ${current.src}. Reason: ${reason}`,
+				);
 			}
 		};
 
 		const blockMedia = (reason: string) => {
 			setIsBuffering(true);
-			playbackLogging({
-				logLevel,
-				message: `Marking as buffering: ${current.src}. Reason: ${reason}`,
-				tag: 'buffer',
-				mountTime,
-			});
+			logger.playback(
+				'buffer',
+				`Marking as buffering: ${current.src}. Reason: ${reason}`,
+			);
 			const {unblock} = buffer.delayPlayback();
 			const onCanPlay = () => {
 				cleanup('"canplay" was fired');
@@ -127,12 +117,10 @@ export const useMediaBuffering = ({
 				current.removeEventListener('error', onError);
 			});
 			cleanupFns.push((cleanupReason) => {
-				playbackLogging({
-					logLevel,
-					message: `Unblocking ${current.src} from buffer. Reason: ${cleanupReason}`,
-					tag: 'buffer',
-					mountTime,
-				});
+				logger.playback(
+					'buffer',
+					`Unblocking ${current.src} from buffer. Reason: ${cleanupReason}`,
+				);
 				unblock();
 			});
 		};
@@ -153,12 +141,10 @@ export const useMediaBuffering = ({
 
 				// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
 				if (!navigator.userAgent.includes('Firefox/')) {
-					playbackLogging({
-						logLevel,
-						message: `Calling .load() on ${src} because readyState is ${current.readyState} and it is not Firefox. ${current.playbackRate}`,
-						tag: 'load',
-						mountTime,
-					});
+					logger.playback(
+						'load',
+						`Calling .load() on ${src} because readyState is ${current.readyState} and it is not Firefox. ${current.playbackRate}`,
+					);
 
 					const previousPlaybackRate = current.playbackRate;
 					current.load();
@@ -187,16 +173,9 @@ export const useMediaBuffering = ({
 		// it gives the chance to load the new source.
 
 		// https://github.com/remotion-dev/remotion/issues/5218
-	}, [
-		buffer,
-		src,
-		element,
-		isPremounting,
-		isPostmounting,
-		logLevel,
-		shouldBuffer,
-		mountTime,
-	]);
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [buffer, src, element, isPremounting, isPostmounting, shouldBuffer]);
 
 	return isBuffering;
 };

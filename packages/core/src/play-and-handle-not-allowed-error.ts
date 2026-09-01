@@ -1,21 +1,18 @@
 import type {RefObject} from 'react';
-import {Log, type LogLevel} from './log';
-import {playbackLogging} from './playback-logging';
+import type {Logger} from './logger.js';
 
 export const playAndHandleNotAllowedError = ({
 	mediaRef,
 	mediaType,
 	onAutoPlayError,
-	logLevel,
-	mountTime,
+	logger,
 	reason,
 	isPlayer,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'audio' | 'video';
 	onAutoPlayError: null | (() => void);
-	logLevel: LogLevel;
-	mountTime: number;
+	logger: Logger;
 	reason: string;
 	isPlayer: boolean;
 }) => {
@@ -24,12 +21,10 @@ export const playAndHandleNotAllowedError = ({
 		return;
 	}
 
-	playbackLogging({
-		logLevel,
-		tag: 'play',
-		message: `Attempting to play ${current.src}. Reason: ${reason}`,
-		mountTime,
-	});
+	logger.playback(
+		'play',
+		`Attempting to play ${current.src}. Reason: ${reason}`,
+	);
 	const prom = current.play();
 	if (!prom.catch) {
 		return;
@@ -88,13 +83,13 @@ export const playAndHandleNotAllowedError = ({
 			}
 
 			if (mediaType === 'video' && isPlayer) {
-				Log.info(
-					{logLevel, tag: '<' + mediaType + '>'},
+				logger.info(
+					'<' + mediaType + '>',
 					`The video will be muted and we'll retry playing it.`,
 				);
 
-				Log.info(
-					{logLevel, tag: '<' + mediaType + '>'},
+				logger.info(
+					'<' + mediaType + '>',
 					'Use onAutoPlayError() to handle this error yourself.',
 				);
 				current.muted = true;

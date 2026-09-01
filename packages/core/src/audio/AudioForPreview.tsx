@@ -10,7 +10,6 @@ import React, {
 	useState,
 } from 'react';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
-import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
 import {SequenceContext} from '../SequenceContext.js';
@@ -51,8 +50,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			'Cannot change the behavior for pre-mounting audio tags dynamically.',
 		);
 	}
-
-	const logLevel = useLogLevel();
 
 	const {
 		volume,
@@ -218,7 +215,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	});
 
 	useVolume({
-		logLevel,
 		mediaRef: audioRef,
 		source: mediaElementSourceNode,
 		volume: userPreferredVolume,

@@ -3,8 +3,7 @@ import {
 	getErrorStackWithMessage,
 } from './cancel-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
-import type {LogLevel} from './log.js';
-import {Log} from './log.js';
+import {createLogger, type Logger} from './logger.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {truthy} from './truthy.js';
 
@@ -141,14 +140,14 @@ type ContinueRenderInternalOptions = {
 	scope: DelayRenderScope;
 	handle: number;
 	environment: RemotionEnvironment;
-	logLevel: LogLevel;
+	logger: Logger;
 };
 
 export const continueRenderInternal = ({
 	scope,
 	handle,
 	environment,
-	logLevel,
+	logger,
 }: ContinueRenderInternalOptions): void => {
 	if (typeof handle === 'undefined') {
 		throw new TypeError(
@@ -175,7 +174,7 @@ export const continueRenderInternal = ({
 		]
 			.filter(truthy)
 			.join(' ');
-		Log.verbose({logLevel, tag: 'delayRender()'}, message);
+		logger.verbose('delayRender()', message);
 		delete scope.remotion_delayRenderTimeouts[handle];
 	}
 
@@ -201,6 +200,9 @@ export const continueRender = (handle: number): void => {
 		scope: window,
 		handle,
 		environment: getRemotionEnvironment(),
-		logLevel: window.remotion_logLevel ?? 'info',
+		logger: createLogger({
+			logLevel: window.remotion_logLevel ?? 'info',
+			mountTime: null,
+		}),
 	});
 };

@@ -10,11 +10,8 @@ import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
 import {getMediaSyncAction} from './get-media-sync-action.js';
-import {useLogLevel, useMountTime} from './log-level-context.js';
-import {Log} from './log.js';
 import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-time-timestamp.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
-import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
 import {
 	usePlayingState,
@@ -22,6 +19,7 @@ import {
 	useTimelinePosition,
 } from './timeline-position-state.js';
 import {useCurrentFrame} from './use-current-frame.js';
+import {useLogger} from './use-logger.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
@@ -63,8 +61,7 @@ export const useMediaPlayback = ({
 	const mediaStartsAt = useMediaStartsAt();
 	const lastSeekDueToShift = useRef<number | null>(null);
 	const lastSeek = useRef<number | null>(null);
-	const logLevel = useLogLevel();
-	const mountTime = useMountTime();
+	const logger = useLogger();
 
 	if (!buffering) {
 		throw new Error(
@@ -83,13 +80,15 @@ export const useMediaPlayback = ({
 			return;
 		}
 
-		Log.verbose(
-			{logLevel, tag: null},
+		logger.verbose(
+			null,
 			`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
 		);
 
 		isVariableFpsVideoMap.current[src] = true;
-	}, [logLevel, src]);
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [src]);
 
 	const rvcCurrentTime = useRequestVideoCallbackTime({
 		mediaRef,
@@ -113,8 +112,6 @@ export const useMediaPlayback = ({
 		shouldBuffer: pauseWhenBuffering,
 		isPremounting,
 		isPostmounting,
-		logLevel,
-		mountTime,
 		src: src ?? null,
 	});
 
@@ -123,8 +120,6 @@ export const useMediaPlayback = ({
 		mediaType,
 		onVariableFpsVideoDetected,
 		pauseWhenBuffering,
-		logLevel,
-		mountTime,
 	});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
@@ -158,12 +153,10 @@ export const useMediaPlayback = ({
 		}
 
 		if (!playing) {
-			playbackLogging({
-				logLevel,
-				tag: 'pause',
-				message: `Pausing ${mediaRef.current?.src} because ${isPremounting ? 'media is premounting' : isPostmounting ? 'media is postmounting' : 'Player is not playing'}`,
-				mountTime,
-			});
+			logger.playback(
+				'pause',
+				`Pausing ${mediaRef.current?.src} because ${isPremounting ? 'media is premounting' : isPostmounting ? 'media is postmounting' : 'Player is not playing'}`,
+			);
 			mediaRef.current?.pause();
 			return;
 		}
@@ -172,24 +165,22 @@ export const useMediaPlayback = ({
 
 		const playerBufferingNotStateButLive = buffering.buffering.current;
 		if (playerBufferingNotStateButLive && !isMediaTagBufferingOrStalled) {
-			playbackLogging({
-				logLevel,
-				tag: 'pause',
-				message: `Pausing ${mediaRef.current?.src} because player is buffering but media tag is not`,
-				mountTime,
-			});
+			logger.playback(
+				'pause',
+				`Pausing ${mediaRef.current?.src} because player is buffering but media tag is not`,
+			);
 			mediaRef.current?.pause();
 		}
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		isBuffering,
 		isMediaTagBuffering,
 		buffering,
 		isPlayerBuffering,
 		isPremounting,
-		logLevel,
 		mediaRef,
 		mediaType,
-		mountTime,
 		playing,
 		isPostmounting,
 	]);
@@ -258,9 +249,8 @@ export const useMediaPlayback = ({
 			lastSeek.current = seek({
 				mediaRef: current,
 				time: action.shouldBeTime,
-				logLevel,
+				logger,
 				why: action.why,
-				mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
 
@@ -273,8 +263,7 @@ export const useMediaPlayback = ({
 					mediaRef,
 					mediaType,
 					onAutoPlayError,
-					logLevel,
-					mountTime,
+					logger,
 					reason: action.playReason,
 					isPlayer: env.isPlayer,
 				});
@@ -292,9 +281,8 @@ export const useMediaPlayback = ({
 				lastSeek.current = seek({
 					mediaRef: current,
 					time: action.shouldBeTime,
-					logLevel,
+					logger,
 					why: action.why,
-					mountTime,
 				});
 			}
 
@@ -306,9 +294,8 @@ export const useMediaPlayback = ({
 			lastSeek.current = seek({
 				mediaRef: current,
 				time: action.shouldBeTime,
-				logLevel,
+				logger,
 				why: action.why,
-				mountTime,
 			});
 		}
 
@@ -316,21 +303,21 @@ export const useMediaPlayback = ({
 			mediaRef,
 			mediaType,
 			onAutoPlayError,
-			logLevel,
-			mountTime,
+			logger,
 			reason: action.playReason,
 			isPlayer: env.isPlayer,
 		});
 		if (action.bufferUntilFirstFrame) {
 			bufferUntilFirstFrame(action.shouldBeTime);
 		}
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		absoluteFrame,
 		acceptableTimeShiftButLessThanDuration,
 		bufferUntilFirstFrame,
 		buffering.buffering,
 		rvcCurrentTime,
-		logLevel,
 		desiredUnclampedTime,
 		isBuffering,
 		isMediaTagBuffering,
@@ -344,7 +331,6 @@ export const useMediaPlayback = ({
 		isPremounting,
 		isPostmounting,
 		pauseWhenBuffering,
-		mountTime,
 		mediaTagCurrentTime,
 		env.isPlayer,
 	]);

@@ -1,15 +1,12 @@
 import React, {
 	useCallback,
-	useContext,
 	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import type {LogLevel} from './log';
-import {LogLevelContext} from './log-level-context';
-import {playbackLogging} from './playback-logging';
+import {useLogger} from './use-logger.js';
 import {useRemotionEnvironment} from './use-remotion-environment';
 
 type Block = {
@@ -38,10 +35,7 @@ type BufferManager = {
 	buffering: React.RefObject<boolean>;
 };
 
-const useBufferManager = (
-	logLevel: LogLevel,
-	mountTime: number | null,
-): BufferManager => {
+const useBufferManager = (): BufferManager => {
 	const [blocks, setBlocks] = useState<Block[]>([]);
 	const [onBufferingCallbacks, setOnBufferingCallbacks] = useState<
 		OnBufferingCallback[]
@@ -51,6 +45,7 @@ const useBufferManager = (
 	>([]);
 
 	const env = useRemotionEnvironment();
+	const logger = useLogger();
 	const rendering = env.isRendering;
 
 	const buffering = useRef(false);
@@ -124,12 +119,7 @@ const useBufferManager = (
 		if (blocks.length > 0 && !buffering.current) {
 			buffering.current = true;
 			onBufferingCallbacks.forEach((c) => c());
-			playbackLogging({
-				logLevel,
-				message: 'Player is entering buffer state',
-				mountTime,
-				tag: 'player',
-			});
+			logger.playback('player', 'Player is entering buffer state');
 		}
 
 		// Intentionally only firing when blocks change, not the callbacks
@@ -152,12 +142,7 @@ const useBufferManager = (
 			if (blocks.length === 0 && buffering.current) {
 				buffering.current = false;
 				onResumeCallbacks.forEach((c) => c());
-				playbackLogging({
-					logLevel,
-					message: 'Player is exiting buffer state',
-					mountTime,
-					tag: 'player',
-				});
+				logger.playback('player', 'Player is exiting buffer state');
 			}
 			// Intentionally only firing when blocks change, not the callbacks
 			// otherwise a resume callback might remove itself after being called
@@ -178,8 +163,7 @@ export const BufferingContextReact = React.createContext<BufferManager | null>(
 export const BufferingProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const {logLevel, mountTime} = useContext(LogLevelContext);
-	const bufferManager = useBufferManager(logLevel ?? 'info', mountTime);
+	const bufferManager = useBufferManager();
 
 	return (
 		<BufferingContextReact.Provider value={bufferManager}>

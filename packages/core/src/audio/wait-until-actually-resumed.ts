@@ -1,8 +1,8 @@
-import {Log, type LogLevel} from '../log.js';
+import type {Logger} from '../logger.js';
 
 export const waitUntilActuallyResumed = (
 	audioContext: AudioContext,
-	logLevel: LogLevel,
+	logger: Logger,
 ): Promise<void> => {
 	return new Promise((resolve) => {
 		const startCurrentTime = audioContext.currentTime;
@@ -22,8 +22,8 @@ export const waitUntilActuallyResumed = (
 				outputTimestamp.contextTime !== undefined &&
 				outputTimestamp.contextTime > startCurrentTime
 			) {
-				Log.verbose(
-					{logLevel, tag: 'audio'},
+				logger.verbose(
+					'audio',
 					`waitUntilActuallyResumed: getOutputTimestamp.performanceTime advanced from ${startOutputPerformanceTime.toFixed(
 						6,
 					)} to ${outputTimestamp.performanceTime.toFixed(

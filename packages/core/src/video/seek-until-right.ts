@@ -1,5 +1,5 @@
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
-import {type LogLevel} from '../log';
+import type {Logger} from '../logger.js';
 import {seek} from '../seek';
 
 const roundTo6Commas = (num: number) => {
@@ -9,13 +9,11 @@ const roundTo6Commas = (num: number) => {
 export const seekToTime = ({
 	element,
 	desiredTime,
-	logLevel,
-	mountTime,
+	logger,
 }: {
 	element: HTMLVideoElement;
 	desiredTime: number;
-	logLevel: LogLevel;
-	mountTime: number;
+	logger: Logger;
 }) => {
 	if (isApproximatelyTheSame(element.currentTime, desiredTime)) {
 		return {
@@ -25,11 +23,10 @@ export const seekToTime = ({
 	}
 
 	seek({
-		logLevel,
+		logger,
 		mediaRef: element,
 		time: desiredTime,
 		why: 'Seeking during rendering',
-		mountTime,
 	});
 
 	let cancel: number;
@@ -77,14 +74,12 @@ export const seekToTimeMultipleUntilRight = ({
 	element,
 	desiredTime,
 	fps,
-	logLevel,
-	mountTime,
+	logger,
 }: {
 	element: HTMLVideoElement;
 	desiredTime: number;
 	fps: number;
-	logLevel: LogLevel;
-	mountTime: number;
+	logger: Logger;
 }) => {
 	const threshold = 1 / fps / 2;
 	let currentCancel: () => void = () => undefined;
@@ -104,8 +99,7 @@ export const seekToTimeMultipleUntilRight = ({
 		const firstSeek = seekToTime({
 			element,
 			desiredTime: desiredTime + threshold,
-			logLevel,
-			mountTime,
+			logger,
 		});
 		firstSeek.wait.then((seekedTo) => {
 			const difference = Math.abs(desiredTime - seekedTo);
@@ -119,8 +113,7 @@ export const seekToTimeMultipleUntilRight = ({
 			const newSeek = seekToTime({
 				element,
 				desiredTime: seekedTo + threshold * sign,
-				logLevel,
-				mountTime,
+				logger,
 			});
 			currentCancel = newSeek.cancel;
 			newSeek.wait
@@ -134,8 +127,7 @@ export const seekToTimeMultipleUntilRight = ({
 					const thirdSeek = seekToTime({
 						element,
 						desiredTime: desiredTime + threshold,
-						logLevel,
-						mountTime,
+						logger,
 					});
 					currentCancel = thirdSeek.cancel;
 					return thirdSeek.wait

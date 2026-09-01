@@ -3,7 +3,7 @@ import type {cancelRender as cancelRenderOriginal} from './cancel-render.js';
 import {cancelRenderInternal} from './cancel-render.js';
 import type {DelayRenderOptions, DelayRenderScope} from './delay-render.js';
 import {continueRenderInternal, delayRenderInternal} from './delay-render.js';
-import {useLogLevel} from './log-level-context.js';
+import {useLogger} from './use-logger.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 type DelayRenderFn = (label?: string, options?: DelayRenderOptions) => number;
@@ -23,7 +23,7 @@ export const useDelayRender = (): {
 	const scope =
 		useContext(DelayRenderContextType) ??
 		(typeof window !== 'undefined' ? window : undefined);
-	const logLevel = useLogLevel();
+	const logger = useLogger();
 
 	const delayRender = useCallback<DelayRenderFn>(
 		(label?: string, options?: DelayRenderOptions) => {
@@ -38,6 +38,8 @@ export const useDelayRender = (): {
 				options: options ?? {},
 			});
 		},
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[environment, scope],
 	);
 
@@ -51,10 +53,10 @@ export const useDelayRender = (): {
 				scope,
 				handle,
 				environment,
-				logLevel,
+				logger,
 			});
 		},
-		[environment, logLevel, scope],
+		[environment, scope],
 	);
 
 	const cancelRender = useCallback<CancelRenderFn>(

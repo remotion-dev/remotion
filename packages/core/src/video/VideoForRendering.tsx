@@ -14,13 +14,13 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
-import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {random} from '../random.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useLogger} from '../use-logger.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -70,8 +70,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 	const environment = useRemotionEnvironment();
-	const logLevel = useLogLevel();
-	const mountTime = useMountTime();
+	const logger = useLogger();
 	const {delayRender, continueRender} = useDelayRender();
 
 	const {registerRenderAsset, unregisterRenderAsset} =
@@ -211,8 +210,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			element: current,
 			desiredTime: currentTime,
 			fps: videoConfig.fps,
-			logLevel,
-			mountTime,
+			logger,
 		});
 
 		seek.prom.then(() => {
@@ -252,6 +250,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			current.removeEventListener('error', errorHandler);
 			continueRender(handle);
 		};
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		volumePropsFrame,
 		props.src,
@@ -262,8 +262,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		onError,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
-		logLevel,
-		mountTime,
 		continueRender,
 		delayRender,
 	]);

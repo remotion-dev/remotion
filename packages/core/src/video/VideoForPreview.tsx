@@ -13,11 +13,10 @@ import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
-import {useLogLevel, useMountTime} from '../log-level-context.js';
-import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
+import {useLogger} from '../use-logger.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
@@ -134,8 +133,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 	const {fps, durationInFrames} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
-	const logLevel = useLogLevel();
-	const mountTime = useMountTime();
+	const logger = useLogger();
 
 	const [timelineId] = useState(() => String(Math.random()));
 
@@ -205,7 +203,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	});
 
 	useVolume({
-		logLevel,
 		mediaRef: videoRef,
 		volume: userPreferredVolume,
 		source: sharedSource,
@@ -231,14 +228,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, []);
 
 	useState(() =>
-		playbackLogging({
-			logLevel,
-			message: `Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${
+		logger.playback(
+			'video',
+			`Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${
 				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
 			}`,
-			tag: 'video',
-			mountTime,
-		}),
+		),
 	);
 
 	useEffect(() => {

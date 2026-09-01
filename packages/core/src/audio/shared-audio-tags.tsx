@@ -9,9 +9,8 @@ import React, {
 	useState,
 	type AudioHTMLAttributes,
 } from 'react';
-import {useLogLevel, useMountTime} from '../log-level-context.js';
-import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
+import {useLogger} from '../use-logger.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
@@ -197,7 +196,7 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly audioEnabled: boolean;
 	readonly previewSampleRate: number | null;
 }> = ({children, audioLatencyHint, audioEnabled, previewSampleRate}) => {
-	const logLevel = useLogLevel();
+	const logger = useLogger();
 	const sampleRate = previewSampleRate ?? 48000;
 
 	useEffect(() => {
@@ -209,7 +208,6 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [sampleRate]);
 
 	const ctxAndGain = useSingletonAudioContext({
-		logLevel,
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 		sampleRate,
@@ -306,8 +304,8 @@ export const SharedAudioContextProvider: React.FC<{
 				prev.mediaEndTime !== null &&
 				Math.abs(mediaTime - prev.mediaEndTime) > 0.001;
 
-			Log.verbose(
-				{logLevel, tag: 'audio-scheduling'},
+			logger.verbose(
+				'audio-scheduling',
 				'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s %s %s',
 				scheduledMismatch ? 'color: red; font-weight: bold' : '',
 				scheduledTime.toFixed(4),
@@ -351,7 +349,9 @@ export const SharedAudioContextProvider: React.FC<{
 						reason: 'missed ' + Math.abs(offset).toFixed(2) + 's',
 					};
 		};
-	}, [ctxAndGain, logLevel]);
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ctxAndGain]);
 
 	const resume = useCallback(() => {
 		if (!ctxAndGain) {
@@ -384,10 +384,10 @@ export const SharedAudioContextProvider: React.FC<{
 		const resumePromise = ctxAndGain.resume();
 
 		isResuming.current = new Promise<void>((resolve) => {
-			waitUntilActuallyResumed(ctxAndGain.audioContext, logLevel).then(resolve);
+			waitUntilActuallyResumed(ctxAndGain.audioContext, logger).then(resolve);
 			resumePromise.catch((err) => {
-				Log.warn(
-					{logLevel, tag: 'audio'},
+				logger.warn(
+					'audio',
 					'AudioContext resume rejected, continuing without audio sync',
 					err,
 				);
@@ -401,7 +401,9 @@ export const SharedAudioContextProvider: React.FC<{
 			// Already logged above; swallow to avoid unhandled rejection
 			// since callers (e.g. use-playback.ts) do not await this.
 		});
-	}, [ctxAndGain, logLevel]);
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ctxAndGain]);
 
 	const getIsResumingAudioContext = useCallback(() => {
 		return isResuming.current;
@@ -464,8 +466,7 @@ export const SharedAudioTagsContextProvider: React.FC<{
 		);
 	}
 
-	const logLevel = useLogLevel();
-	const mountTime = useMountTime();
+	const logger = useLogger();
 	const env = useRemotionEnvironment();
 	const audioCtx = useContext(SharedAudioContext);
 	const audioContext = audioCtx?.audioContext ?? null;
@@ -675,14 +676,15 @@ export const SharedAudioTagsContextProvider: React.FC<{
 				mediaRef: ref.ref,
 				mediaType: 'audio',
 				onAutoPlayError: null,
-				logLevel,
-				mountTime,
+				logger,
 				reason: 'playing all audios',
 				isPlayer: env.isPlayer,
 			});
 		});
 		resume?.();
-	}, [logLevel, mountTime, refs, env.isPlayer, resume]);
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [refs, env.isPlayer, resume]);
 
 	const audioTagsValue: SharedAudioTagsContextValue = useMemo(() => {
 		return {

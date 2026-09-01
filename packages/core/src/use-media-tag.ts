@@ -1,9 +1,9 @@
 import type {RefObject} from 'react';
 import {useEffect} from 'react';
-import {useLogLevel, useMountTime} from './log-level-context.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
 import {useTimelineContext} from './timeline-position-state.js';
+import {useLogger} from './use-logger.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 export const useMediaTag = ({
@@ -22,8 +22,7 @@ export const useMediaTag = ({
 	isPostmounting: boolean;
 }) => {
 	const {audioAndVideoTags, imperativePlaying} = useTimelineContext();
-	const logLevel = useLogLevel();
-	const mountTime = useMountTime();
+	const logger = useLogger();
 	const env = useRemotionEnvironment();
 
 	useEffect(() => {
@@ -43,8 +42,7 @@ export const useMediaTag = ({
 					mediaRef,
 					mediaType,
 					onAutoPlayError,
-					logLevel,
-					mountTime,
+					logger,
 					reason,
 					isPlayer: env.isPlayer,
 				});
@@ -57,6 +55,8 @@ export const useMediaTag = ({
 				(a) => a.id !== id,
 			);
 		};
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		audioAndVideoTags,
 		id,
@@ -66,8 +66,6 @@ export const useMediaTag = ({
 		imperativePlaying,
 		isPremounting,
 		isPostmounting,
-		logLevel,
-		mountTime,
 		env.isPlayer,
 	]);
 };

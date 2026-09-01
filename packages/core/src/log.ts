@@ -4,6 +4,7 @@ import {getRemotionEnvironment} from './get-remotion-environment';
 export const logLevels = ['trace', 'verbose', 'info', 'warn', 'error'] as const;
 
 export type LogLevel = (typeof logLevels)[number];
+export type LogArgs = Parameters<typeof console.log>;
 
 const getNumberForLogLevel = (level: LogLevel) => {
 	return logLevels.indexOf(level);
@@ -21,7 +22,7 @@ const transformArgs = ({
 	logLevel,
 	tag,
 }: {
-	args: Parameters<typeof console.log>;
+	args: LogArgs;
 	logLevel: LogLevel;
 	tag: string | null;
 }) => {
@@ -49,7 +50,7 @@ type Options = {
 	tag: string | null;
 };
 
-const verbose = (options: Options, ...args: Parameters<typeof console.log>) => {
+const verbose = (options: Options, ...args: LogArgs) => {
 	if (isEqualOrBelowLogLevel(options.logLevel, 'verbose')) {
 		return console.debug(
 			...transformArgs({args, logLevel: 'verbose', tag: options.tag}),
@@ -57,7 +58,7 @@ const verbose = (options: Options, ...args: Parameters<typeof console.log>) => {
 	}
 };
 
-const trace = (options: Options, ...args: Parameters<typeof console.log>) => {
+const trace = (options: Options, ...args: LogArgs) => {
 	if (isEqualOrBelowLogLevel(options.logLevel, 'trace')) {
 		return console.debug(
 			...transformArgs({args, logLevel: 'trace', tag: options.tag}),
@@ -65,7 +66,7 @@ const trace = (options: Options, ...args: Parameters<typeof console.log>) => {
 	}
 };
 
-const info = (options: Options, ...args: Parameters<typeof console.log>) => {
+const info = (options: Options, ...args: LogArgs) => {
 	if (isEqualOrBelowLogLevel(options.logLevel, 'info')) {
 		return console.log(
 			...transformArgs({args, logLevel: 'info', tag: options.tag}),
@@ -73,7 +74,7 @@ const info = (options: Options, ...args: Parameters<typeof console.log>) => {
 	}
 };
 
-const warn = (options: Options, ...args: Parameters<typeof console.log>) => {
+const warn = (options: Options, ...args: LogArgs) => {
 	if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
 		return console.warn(
 			...transformArgs({args, logLevel: 'warn', tag: options.tag}),
@@ -81,7 +82,7 @@ const warn = (options: Options, ...args: Parameters<typeof console.log>) => {
 	}
 };
 
-const error = (options: Options, ...args: Parameters<typeof console.log>) => {
+const error = (options: Options, ...args: LogArgs) => {
 	return console.error(
 		...transformArgs({args, logLevel: 'error', tag: options.tag}),
 	);

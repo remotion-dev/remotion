@@ -1,7 +1,6 @@
 import {useContext, useMemo} from 'react';
 import {BufferingContextReact} from './buffering';
-import {Log} from './log';
-import {useLogLevel} from './log-level-context';
+import {useLogger} from './use-logger.js';
 
 export type DelayPlaybackHandle = {
 	unblock: () => void;
@@ -13,7 +12,7 @@ export type UseBufferState = {
 
 export const useBufferState = (): UseBufferState => {
 	const buffer = useContext(BufferingContextReact);
-	const logLevel = useLogLevel();
+	const logger = useLogger();
 
 	// Allows <Img> tag to be rendered without a context
 	// https://github.com/remotion-dev/remotion/issues/4007
@@ -28,8 +27,8 @@ export const useBufferState = (): UseBufferState => {
 					);
 				}
 
-				Log.trace(
-					{logLevel, tag: '[buffer-state]'},
+				logger.trace(
+					'[buffer-state]',
 					'Adding buffer handle',
 					new Error().stack,
 				);
@@ -47,15 +46,14 @@ export const useBufferState = (): UseBufferState => {
 						}
 
 						unblocked = true;
-						Log.trace(
-							{logLevel, tag: '[buffer-state]'},
-							'Removing buffer handle',
-						);
+						logger.trace('[buffer-state]', 'Removing buffer handle');
 						unblock();
 					},
 				};
 			},
 		}),
-		[addBlock, logLevel],
+		// The logger has stable identity and reads the latest context.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[addBlock],
 	);
 };

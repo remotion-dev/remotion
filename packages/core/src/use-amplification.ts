@@ -2,8 +2,8 @@ import {useContext, useLayoutEffect, useRef, type RefObject} from 'react';
 import {SharedAudioContext} from './audio/shared-audio-tags';
 import type {SharedElementSourceNode} from './audio/shared-element-source-node';
 import {isApproximatelyTheSame} from './is-approximately-the-same';
-import type {LogLevel} from './log';
-import {Log} from './log';
+import type {Logger} from './logger.js';
+import {useLogger} from './use-logger.js';
 import {isSafari} from './video/video-fragment';
 
 type AudioItems = {
@@ -12,23 +12,19 @@ type AudioItems = {
 
 let warned = false;
 
-const warnSafariOnce = (logLevel: LogLevel) => {
+const warnSafariOnce = (logger: Logger) => {
 	if (warned) {
 		return;
 	}
 
 	warned = true;
-	Log.warn(
-		{logLevel, tag: null},
+	logger.warn(
+		null,
 		'In Safari, setting a volume and a playback rate at the same time is buggy.',
 	);
-	Log.warn(
-		{logLevel, tag: null},
-		'In Desktop Safari, only volumes <= 1 will be applied.',
-	);
-	Log.warn(
-		{logLevel, tag: null},
-		logLevel,
+	logger.warn(null, 'In Desktop Safari, only volumes <= 1 will be applied.');
+	logger.warn(
+		null,
 		'In Mobile Safari, the volume will be ignored and set to 1 if a playbackRate is set.',
 	);
 };
@@ -41,17 +37,16 @@ const warnSafariOnce = (logLevel: LogLevel) => {
 export const useVolume = ({
 	mediaRef,
 	volume,
-	logLevel,
 	source,
 	shouldUseWebAudioApi,
 }: {
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
 	source: SharedElementSourceNode | null;
 	volume: number;
-	logLevel: LogLevel;
 	shouldUseWebAudioApi: boolean;
 }) => {
 	const audioStuffRef = useRef<AudioItems | null>(null);
+	const logger = useLogger();
 	const currentVolumeRef = useRef(volume);
 	currentVolumeRef.current = volume;
 
@@ -81,7 +76,7 @@ export const useVolume = ({
 
 			// [1]
 			if (mediaRef.current.playbackRate !== 1 && isSafari()) {
-				warnSafariOnce(logLevel);
+				warnSafariOnce(logger);
 				return;
 			}
 
@@ -104,8 +99,8 @@ export const useVolume = ({
 				gainNode,
 			};
 
-			Log.trace(
-				{logLevel, tag: null},
+			logger.trace(
+				null,
 				`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}, playbackRate = ${mediaRef.current?.playbackRate}`,
 			);
 
@@ -114,14 +109,9 @@ export const useVolume = ({
 				gainNode.disconnect();
 				source.get().disconnect();
 			};
-		}, [
-			logLevel,
-			mediaRef,
-			audioContext,
-			source,
-			shouldUseWebAudioApi,
-			masterGainNode,
-		]);
+			// The logger has stable identity and reads the latest context.
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, [mediaRef, audioContext, source, shouldUseWebAudioApi, masterGainNode]);
 	}
 
 	if (audioStuffRef.current) {
@@ -133,8 +123,8 @@ export const useVolume = ({
 			)
 		) {
 			audioStuffRef.current.gainNode.gain.value = valueToSet;
-			Log.trace(
-				{logLevel, tag: null},
+			logger.trace(
+				null,
 				`Setting gain to ${valueToSet} for ${mediaRef.current?.src}`,
 			);
 		}

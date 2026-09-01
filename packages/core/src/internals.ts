@@ -194,6 +194,7 @@ import {
 } from './use-current-scale.js';
 import {DelayRenderContextType} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
+import {useLogger} from './use-logger.js';
 import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
@@ -373,6 +374,7 @@ export const Internals = {
 	Log,
 	LogLevelContext,
 	useLogLevel,
+	useLogger,
 	playbackLogging,
 	timeValueRef,
 	compositionSelectorRef,
