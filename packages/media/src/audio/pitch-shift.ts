@@ -1,5 +1,7 @@
 import type {AudioBufferSlice} from '../make-iterator-with-priming';
 
+// The pitch-shifting algorithm is adapted from Vanilagy's WSOLA audio
+// stretcher: https://gist.github.com/Vanilagy/05f7901f4c4398356657e3a86c7aee05
 const REFERENCE_SAMPLE_RATE = 48_000;
 const REFERENCE_HOP_SIZE = 512;
 
