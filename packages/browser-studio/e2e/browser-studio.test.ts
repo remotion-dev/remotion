@@ -13,7 +13,7 @@ import {
 import {strFromU8, unzipSync} from 'fflate';
 
 const localImagePath = fileURLToPath(
-	new URL('../../codex-plugin/assets/logo.png', import.meta.url),
+	new URL('../../agent-plugin/assets/logo.png', import.meta.url),
 );
 const localVideoPath = fileURLToPath(
 	new URL('../../example/public/framer.webm', import.meta.url),

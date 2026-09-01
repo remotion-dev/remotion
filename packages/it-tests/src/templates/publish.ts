@@ -115,7 +115,7 @@ const publishBuiltAgentPlugin = async ({
 	repoName,
 	skillsDir,
 }: AgentPluginPublishTarget) => {
-	const codexPluginDir = path.join(__dirname, '..', '..', '..', 'codex-plugin');
+	const agentPluginDir = path.join(__dirname, '..', '..', '..', 'agent-plugin');
 
 	const tmpDir = tmpdir();
 	const workingDir = path.join(tmpDir, `${repoName}-${Math.random()}`);
@@ -136,19 +136,19 @@ const publishBuiltAgentPlugin = async ({
 
 	for (const entry of filesToCopy) {
 		const src =
-			entry === 'skills' ? skillsDir : path.join(codexPluginDir, entry);
+			entry === 'skills' ? skillsDir : path.join(agentPluginDir, entry);
 		const dst = path.join(workingDir, entry);
 		cpSync(src, dst, {recursive: true});
 	}
 	if (readme) {
 		cpSync(
-			path.join(codexPluginDir, readme),
+			path.join(agentPluginDir, readme),
 			path.join(workingDir, 'README.md'),
 		);
 	}
 
 	const packageJson = JSON.parse(
-		readFileSync(path.join(codexPluginDir, 'package.json'), 'utf-8'),
+		readFileSync(path.join(agentPluginDir, 'package.json'), 'utf-8'),
 	);
 	for (const manifestPath of manifestPaths) {
 		const pluginJsonPath = path.join(workingDir, manifestPath);
@@ -175,16 +175,16 @@ const publishBuiltAgentPlugin = async ({
 };
 
 const publishAgentPlugins = async () => {
-	const codexPluginDir = path.join(__dirname, '..', '..', '..', 'codex-plugin');
+	const agentPluginDir = path.join(__dirname, '..', '..', '..', 'agent-plugin');
 	const cursorSkillsDir = path.join(
 		tmpdir(),
 		`cursor-plugin-skills-${Math.random()}`,
 	);
 
 	await Promise.all([
-		$`bun build.mts`.cwd(codexPluginDir),
+		$`bun build.mts`.cwd(agentPluginDir),
 		$`bun build.mts --client=cursor --output=${cursorSkillsDir}`.cwd(
-			codexPluginDir,
+			agentPluginDir,
 		),
 	]);
 
@@ -202,7 +202,7 @@ const publishAgentPlugins = async () => {
 			manifestPaths: ['plugin.json', '.codex-plugin/plugin.json'],
 			name: 'codex-plugin',
 			repoName: 'codex-plugin',
-			skillsDir: path.join(codexPluginDir, 'skills'),
+			skillsDir: path.join(agentPluginDir, 'skills'),
 		}),
 		publishBuiltAgentPlugin({
 			commitMessage: 'Update Cursor plugin',

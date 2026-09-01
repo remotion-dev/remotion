@@ -20,7 +20,7 @@ Restart Cursor after installing the local plugin.
 ## Development
 
 This repository is generated from the
-[`packages/codex-plugin`](https://github.com/remotion-dev/remotion/tree/main/packages/codex-plugin)
+[`packages/agent-plugin`](https://github.com/remotion-dev/remotion/tree/main/packages/agent-plugin)
 package in the Remotion monorepo. Changes made directly in this repository will
 be overwritten by the release pipeline.
 

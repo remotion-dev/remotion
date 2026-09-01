@@ -22,6 +22,15 @@
         "react-scan": "0.5.7",
       },
     },
+    "packages/agent-plugin": {
+      "name": "@remotion/agent-plugin",
+      "version": "4.0.519",
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
     "packages/animated-emoji": {
       "name": "@remotion/animated-emoji",
       "version": "4.0.519",
@@ -319,15 +328,6 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@types/minimist": "1.2.2",
         "@types/node": "catalog:",
-        "@typescript/native-preview": "catalog:",
-        "eslint": "catalog:",
-      },
-    },
-    "packages/codex-plugin": {
-      "name": "@remotion/codex-plugin",
-      "version": "4.0.519",
-      "devDependencies": {
-        "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
       },
@@ -4390,6 +4390,8 @@
 
     "@remotion-dev/cube-presentation": ["@remotion-dev/cube-presentation@https://www.remotion.pro/pkg/cube-transition/1.0.2/docs", { "peerDependencies": { "@remotion/transitions": "link:packages/transitions", "react": "19.0.0", "remotion": "link:packages/core" } }],
 
+    "@remotion/agent-plugin": ["@remotion/agent-plugin@workspace:packages/agent-plugin"],
+
     "@remotion/animated-emoji": ["@remotion/animated-emoji@workspace:packages/animated-emoji"],
 
     "@remotion/animation-utils": ["@remotion/animation-utils@workspace:packages/animation-utils"],
@@ -4415,8 +4417,6 @@
     "@remotion/cli": ["@remotion/cli@workspace:packages/cli"],
 
     "@remotion/cloudrun": ["@remotion/cloudrun@workspace:packages/cloudrun"],
-
-    "@remotion/codex-plugin": ["@remotion/codex-plugin@workspace:packages/codex-plugin"],
 
     "@remotion/compositor": ["@remotion/compositor@workspace:packages/compositor"],
 
