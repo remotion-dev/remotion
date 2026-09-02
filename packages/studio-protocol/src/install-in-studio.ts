@@ -70,6 +70,40 @@ const studioProtocolInstallRequestEnvelopeSchema = z.object({
 	payload: z.unknown(),
 });
 
+const studioProtocolIframeInstallRequestSchema = z.object({
+	operation: z.literal('install-element'),
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	payload: z.unknown(),
+});
+
+const installInStudioResultSchema = z.union([
+	z.object({
+		success: z.literal(true),
+		status: z.literal('awaiting-confirmation'),
+		target: z.object({
+			projectName: z.nullable(z.string()),
+			compositionId: z.string(),
+			studioOrigin: z.string(),
+			studioVersion: z.string(),
+		}),
+	}),
+	z.object({
+		success: z.literal(false),
+		code: z.literal('no-installable-target'),
+		message: z.string(),
+	}),
+]);
+
+export const parseStudioProtocolIframeInstallRequest = (
+	value: unknown,
+): StudioElementPayload | null => {
+	const envelope = z.safeParse(studioProtocolIframeInstallRequestSchema, value);
+	return envelope.success
+		? parseStudioElementPayload(envelope.data.payload)
+		: null;
+};
+
 export const parseStudioProtocolInstallRequest = (
 	value: unknown,
 ):
@@ -269,11 +303,59 @@ export const installInStudioWithDependencies = async (
 	);
 };
 
-export const installInStudio = ({
+const installInParentStudio = (
+	payload: StudioElementPayload,
+): Promise<InstallInStudioResult | null> => {
+	if (
+		typeof window === 'undefined' ||
+		window.parent === window ||
+		typeof MessageChannel === 'undefined'
+	) {
+		return Promise.resolve(null);
+	}
+
+	return new Promise((resolve) => {
+		const channel = new MessageChannel();
+		const timeout = setTimeout(() => {
+			channel.port1.close();
+			resolve(null);
+		}, 500);
+
+		channel.port1.onmessage = (event) => {
+			const response = z.safeParse(installInStudioResultSchema, event.data);
+			if (!response.success) {
+				return;
+			}
+
+			clearTimeout(timeout);
+			channel.port1.postMessage(null);
+			channel.port1.onmessage = null;
+			resolve(response.data);
+		};
+
+		window.parent.postMessage(
+			{
+				operation: 'install-element',
+				protocol: 'remotion-studio-protocol',
+				protocolVersion: 1,
+				payload,
+			},
+			'*',
+			[channel.port2],
+		);
+	});
+};
+
+export const installInStudio = async ({
 	payload,
 }: {
 	readonly payload: StudioElementPayload;
 }): Promise<InstallInStudioResult> => {
+	const parentResult = await installInParentStudio(payload);
+	if (parentResult !== null) {
+		return parentResult;
+	}
+
 	return installInStudioWithDependencies(payload, {
 		fetchFn: fetch,
 		now: Date.now,

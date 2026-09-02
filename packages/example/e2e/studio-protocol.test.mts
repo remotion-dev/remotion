@@ -214,7 +214,13 @@ const CloseupPlaceholder = () => {
 	const senderUrl = `http://127.0.0.1:${address.port}`;
 	const officialLibraryRequests: string[] = [];
 	const externalLibraryRequests: string[] = [];
+	const studioProtocolRequests: string[] = [];
 	const context = await browser.newContext();
+	context.on('request', (request) => {
+		if (new URL(request.url()).pathname.startsWith('/api/studio-protocol')) {
+			studioProtocolRequests.push(request.url());
+		}
+	});
 	await context.route(
 		'https://www.remotion.dev/elements?remotion-studio=true',
 		async (route) => {
@@ -346,6 +352,7 @@ const CloseupPlaceholder = () => {
 			name: 'Install in Studio',
 		});
 		await expect(installInStudio).toBeVisible();
+		studioProtocolRequests.length = 0;
 		await installInStudio.click();
 
 		const dialog = studioPage.getByRole('dialog');
@@ -354,6 +361,7 @@ const CloseupPlaceholder = () => {
 		await expect(dialog.getByText(senderUrl, {exact: true})).toBeVisible();
 		await expect(decoyStudioPage.getByText('Install Element')).toHaveCount(0);
 		await expect(elementsIframe).toHaveCount(0);
+		expect(studioProtocolRequests).toEqual([]);
 		await dialog.getByRole('button', {name: /Install/}).click();
 
 		const elementFile = path.join(

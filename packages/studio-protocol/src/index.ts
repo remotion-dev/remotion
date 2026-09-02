@@ -21,6 +21,8 @@ import {
 import {parseStudioElementPayload} from './element-payload';
 import {
 	installInStudioWithDependencies,
+	isAllowedStudioProtocolPageOrigin,
+	parseStudioProtocolIframeInstallRequest,
 	parseStudioProtocolInstallRequest,
 } from './install-in-studio';
 import {isValidPublicLicenseKey} from './license-key';
@@ -103,6 +105,7 @@ export const StudioProtocolInternals = {
 	isComponentIdentifier,
 	isComponentImportPath,
 	installInStudioWithDependencies,
+	isAllowedStudioProtocolPageOrigin,
 	isValidPublicLicenseKey,
 	makeBrowserStudioUrl,
 	makeDragData,
@@ -112,6 +115,7 @@ export const StudioProtocolInternals = {
 	parseDragData,
 	parseStudioElementPayload,
 	parseStudioProtocolAddElementLibraryRequest,
+	parseStudioProtocolIframeInstallRequest,
 	parseStudioProtocolDescriptor,
 	parseStudioProtocolInstallRequest,
 	parseStudioProtocolSetLicenseKeyRequest,

@@ -6,7 +6,7 @@ crumb: '@remotion/studio-protocol'
 
 # installInStudio()<AvailableFrom v="4.0.502" />
 
-Discovers a recently focused Remotion Studio and sends it an Element payload.
+Sends an Element payload to the containing Remotion Studio, or discovers a recently focused Studio when called outside one.
 
 ## Example
 
@@ -43,7 +43,7 @@ if (!result.success) {
 
 An installation request provides a one-click flow and shows the requesting website in Studio. On macOS, Studio attempts to bring the selected Studio tab to the foreground after delivering the request.
 
-The target is selected automatically: local Studio ports are probed and the most recently focused compatible Studio is used. Also offer drag-and-drop with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) when possible so the user can choose a specific Studio tab, timeline position, and canvas position.
+When the library is embedded in Studio, the containing Studio is selected. Otherwise, local Studio ports are probed and the most recently focused compatible Studio is used. Also offer drag-and-drop with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) when possible so the user can choose a specific Studio tab, timeline position, and canvas position.
 
 ## Arguments
 
@@ -88,7 +88,7 @@ A human-readable failure message. Use `code` for application logic.
 
 ## Discovery
 
-Ports 3000 through 3009 are probed in parallel. The most recently focused compatible target is selected. Discovery returns a short-lived, single-use token bound to that Studio tab and contextual composition.
+When called outside Studio, ports 3000 through 3009 are probed in parallel. The most recently focused compatible target is selected. Discovery returns a short-lived, single-use token bound to that Studio tab and contextual composition.
 
 Studios older than 4.0.502 are detected and return `studio-upgrade-required`. The Element is not sent through the legacy endpoint.
 

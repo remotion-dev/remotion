@@ -44,6 +44,7 @@ export const ElementLibraryModal: React.FC<{
 			<iframe
 				ref={iframeRef}
 				allow="local-network-access; loopback-network"
+				data-remotion-element-library=""
 				style={iframeStyle}
 				title={`${name} library`}
 			/>

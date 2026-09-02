@@ -1,5 +1,8 @@
 import type {Size} from '@remotion/player';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {
+	StudioProtocolInternals,
+	type InstallInStudioResult,
+} from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -839,6 +842,88 @@ export const Canvas: React.FC<{
 			enqueueElementInstallRequest(event.request);
 		});
 	}, [previewServerClientId, subscribeToEvent]);
+
+	useEffect(() => {
+		const onMessage = (event: MessageEvent) => {
+			const elementLibrary = document.querySelector<HTMLIFrameElement>(
+				'iframe[data-remotion-element-library]',
+			);
+			if (
+				event.source !== elementLibrary?.contentWindow ||
+				!StudioProtocolInternals.isAllowedStudioProtocolPageOrigin(event.origin)
+			) {
+				return;
+			}
+
+			const payload =
+				StudioProtocolInternals.parseStudioProtocolIframeInstallRequest(
+					event.data,
+				);
+			const responsePort = event.ports[0];
+			if (payload === null || responsePort === undefined) {
+				return;
+			}
+
+			const canInstall =
+				canReceiveElementInstallRequest &&
+				compositionFile !== null &&
+				currentCompositionId !== null &&
+				previewServerClientId !== null;
+			const request: ElementInstallRequest | null = canInstall
+				? {
+						clientId: previewServerClientId,
+						compositionFile,
+						compositionId: currentCompositionId,
+						createdAt: Date.now(),
+						element: {
+							...payload.element,
+							durationInFrames: payload.element.durationInFrames ?? null,
+							installationMode: payload.element.installationMode ?? null,
+						},
+						from: null,
+						id: crypto.randomUUID(),
+						position: null,
+						source: {origin: event.origin, type: 'studio-protocol'},
+					}
+				: null;
+			const result: InstallInStudioResult = canInstall
+				? {
+						success: true,
+						status: 'awaiting-confirmation',
+						target: {
+							compositionId: currentCompositionId,
+							projectName: window.remotion_projectName,
+							studioOrigin: window.location.origin,
+							studioVersion: window.remotion_version,
+						},
+					}
+				: {
+						success: false,
+						code: 'no-installable-target',
+						message:
+							'Focus a composition in a Remotion Studio that is not read-only, then try again.',
+					};
+
+			const timeout = window.setTimeout(() => responsePort.close(), 1000);
+			responsePort.onmessage = () => {
+				window.clearTimeout(timeout);
+				responsePort.close();
+				if (request !== null) {
+					enqueueElementInstallRequest(request);
+				}
+			};
+
+			responsePort.postMessage(result);
+		};
+
+		window.addEventListener('message', onMessage);
+		return () => window.removeEventListener('message', onMessage);
+	}, [
+		canReceiveElementInstallRequest,
+		compositionFile,
+		currentCompositionId,
+		previewServerClientId,
+	]);
 
 	useEffect(() => {
 		return subscribeToElementInstallRequests((request) => {
