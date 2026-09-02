@@ -125,6 +125,30 @@ test('requests confirmation in the most recently focused compatible Studio', asy
 	});
 });
 
+test('returns an actionable result when no Studio is running', async () => {
+	const requests: string[] = [];
+	const result = await addElementLibraryToStudioWithDependencies(
+		{url: 'https://catalog.example.com', displayName: null},
+		{
+			...dependencies,
+			fetchFn: (input) => {
+				requests.push(String(input));
+				return Promise.resolve(new Response(null, {status: 404}));
+			},
+		},
+	);
+
+	expect(result).toEqual({
+		success: false,
+		code: 'no-compatible-studio',
+		message: 'Start Remotion Studio, focus it, and try again.',
+	});
+	expect(requests).toEqual([
+		'http://localhost:3000/api/studio-protocol',
+		'http://localhost:3001/api/studio-protocol',
+	]);
+});
+
 test('validates the request before probing localhost', async () => {
 	for (const request of [
 		{url: '/relative', displayName: null},
