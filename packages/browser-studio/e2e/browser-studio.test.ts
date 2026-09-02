@@ -1017,16 +1017,17 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 	await canvas.dispatchEvent('drop', coordinates);
 
 	await expect(
-		studio.getByText('Install Element', {exact: true}),
+		studio.getByText('Install Browser Element', {exact: true}),
 	).toBeVisible();
 	await expect(
 		studio.getByText('Unverified drag-and-drop payload'),
 	).toBeVisible();
 	await expect(
-		studio.getByText(
-			'Dependencies are resolved in the browser; package lifecycle scripts do not run.',
-		),
-	).toHaveCount(0);
+		studio.getByText('Packages to install', {exact: true}),
+	).toBeVisible();
+	await expect(
+		studio.getByText('@remotion/shapes', {exact: true}),
+	).toBeVisible();
 	await studio.getByRole('button', {name: /^Install/}).click();
 
 	await expect
@@ -1099,7 +1100,7 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
 
 	await expect(
-		studio.getByText('Install Element', {exact: true}),
+		studio.getByText('Install Linked Element', {exact: true}),
 	).toBeVisible();
 	await expect(page).toHaveTitle(
 		'📦 Install Linked Element - Remotion Studio',

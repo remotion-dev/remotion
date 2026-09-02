@@ -19,7 +19,7 @@ Studio reflects only the requesting allowed origin in CORS. It does not use wild
 
 Elements delivered using [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) or [`installInStudio()`](/docs/studio-protocol/install-in-studio) require confirmation in Studio. A successful `installInStudio()` result only means the request reached Studio and is awaiting confirmation.
 
-Before confirming, Studio shows the target composition and destination file, source code, and every declared dependency with its installation status. For an installation request, Studio also shows the requesting website. Drag-and-drop data has no reliable website provenance and is labeled as unverified. Source code and package lifecycle scripts run with the project's file and network access.
+Before confirming, Studio shows the requesting source, destination choice, source code, packages that will be installed, and whether an existing Element source file will be replaced. Drag-and-drop data has no reliable website provenance and is labeled as unverified. Installed source code runs with the project's file and network access. Package lifecycle scripts may also run when packages are installed.
 
 Declining the confirmation does not write source files or install packages.
 
