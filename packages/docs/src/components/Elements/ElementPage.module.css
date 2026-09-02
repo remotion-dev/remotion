@@ -145,6 +145,44 @@
 	line-height: 1;
 }
 
+.studioGuidance {
+	margin-top: 12px;
+	padding: 12px;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 8px;
+	background: var(--ifm-color-emphasis-100);
+	font-size: 0.875rem;
+}
+
+.studioGuidanceTitle {
+	margin: 0;
+	font-weight: 600;
+}
+
+.studioGuidanceSteps {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 10px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.studioGuidanceSteps li {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	line-height: 1.5;
+}
+
+.studioGuidanceSteps li > div {
+	flex: none;
+}
+
+.studioGuidanceSteps li > span {
+	min-width: 0;
+}
+
 .installingStatus,
 .successStatus,
 .errorStatus {
@@ -296,6 +334,10 @@
 @media (max-width: 600px) {
 	.sourceViewportCollapsed {
 		height: 160px;
+	}
+
+	.studioGuidance {
+		font-size: 1rem;
 	}
 
 	.contributors {

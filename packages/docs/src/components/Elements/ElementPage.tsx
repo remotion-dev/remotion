@@ -1,6 +1,7 @@
 import Head from '@docusaurus/Head';
 import {
 	installInStudio,
+	type InstallInStudioErrorCode,
 	isInsideStudio,
 	setStudioDragData,
 	StudioProtocolInternals,
@@ -15,6 +16,7 @@ import React, {
 	useState,
 	type ReactNode,
 } from 'react';
+import {InlineStep} from '../../../components/InlineStep';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
@@ -40,7 +42,7 @@ type InstallStatus =
 	| {type: 'idle'}
 	| {type: 'installing'}
 	| {type: 'success'; message: string}
-	| {type: 'error'; message: string};
+	| {type: 'error'; code: InstallInStudioErrorCode; message: string};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
@@ -127,6 +129,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		if (!result.success) {
 			setInstallStatus({
 				type: 'error',
+				code: result.code,
 				message: result.message,
 			});
 			return;
@@ -283,8 +286,36 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							{installStatus.type !== 'idle' &&
-							(installStatus.type !== 'installing' || isInstallHintVisible) ? (
+							{installStatus.type === 'error' &&
+							installStatus.code === 'no-compatible-studio' ? (
+								<div aria-live="polite" className={styles.studioGuidance}>
+									<p className={styles.studioGuidanceTitle}>
+										Connect to Remotion Studio
+									</p>
+									<ol className={styles.studioGuidanceSteps} role="list">
+										<li>
+											<InlineStep>1</InlineStep>
+											<span>
+												Open your Remotion project, or{' '}
+												<a href="/docs/">create a new one</a>.
+											</span>
+										</li>
+										<li>
+											<InlineStep>2</InlineStep>
+											<span>Start Studio and open a composition.</span>
+										</li>
+										<li>
+											<InlineStep>3</InlineStep>
+											<span>
+												Return here and click <strong>Install in Studio</strong>{' '}
+												again.
+											</span>
+										</li>
+									</ol>
+								</div>
+							) : installStatus.type !== 'idle' &&
+							  (installStatus.type !== 'installing' ||
+									isInstallHintVisible) ? (
 								<p
 									aria-live="polite"
 									className={
