@@ -97,23 +97,31 @@
 
 .actionRow {
 	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
+	align-items: flex-start;
 	gap: 10px;
 }
 
+.actionButtons {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 10px;
+	min-width: 0;
+}
+
 .dragHandle {
-	position: relative;
 	display: flex;
 	align-items: center;
-	margin-top: 8px;
-	padding: 8px 40px;
+	justify-content: center;
+	width: 46px;
+	height: 46px;
+	flex: none;
 	border: 1px solid var(--ifm-color-emphasis-300);
-	border-radius: 8px;
+	border-radius: 50%;
 	background: var(--ifm-background-surface-color);
+	box-shadow: 0 2px 5px rgb(0 0 0 / 12%);
 	color: var(--ifm-color-emphasis-800);
 	cursor: grab;
-	font-size: 0.8125rem;
 	user-select: none;
 }
 
@@ -131,29 +139,12 @@
 }
 
 .dragHandleIcon {
-	position: absolute;
-	left: 12px;
-	top: 50%;
 	font-size: 1.5rem;
 	line-height: 1;
-	transform: translateY(-50%);
 }
 
 [data-theme='dark'] .dragHandleIcon {
 	color: var(--ifm-color-emphasis-500);
-}
-
-.dragHandleText {
-	display: flex;
-	flex: 1;
-	flex-direction: column;
-	line-height: 1.3;
-	text-align: center;
-	white-space: nowrap;
-}
-
-.dragHandleText strong {
-	font-weight: 600;
 }
 
 .successStatus,
@@ -171,9 +162,7 @@
 }
 
 .details {
-	margin-top: 16px;
-	padding-top: 16px;
-	border-top: 1px solid var(--ifm-color-emphasis-200);
+	margin-top: 32px;
 }
 
 .description {
@@ -223,11 +212,6 @@
 	max-width: 100%;
 	line-height: 1.45;
 	overflow-wrap: anywhere;
-}
-
-.dependencyList li::marker {
-	color: var(--ifm-color-primary);
-	font-size: 0.85em;
 }
 
 .dependencyList li + li {
@@ -301,7 +285,6 @@
 }
 
 @container actions-column (max-width: 400px) {
-	.actionsColumn .actionRow,
 	.actionsColumn .contributors,
 	.actionsColumn .contributorList {
 		align-items: stretch;
@@ -312,11 +295,6 @@
 @media (max-width: 600px) {
 	.sourceViewportCollapsed {
 		height: 160px;
-	}
-
-	.actionRow {
-		align-items: stretch;
-		flex-direction: column;
 	}
 
 	.contributors {
