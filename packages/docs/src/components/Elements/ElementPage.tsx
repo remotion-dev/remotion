@@ -16,6 +16,7 @@ import React, {
 	useState,
 	type ReactNode,
 } from 'react';
+import {InlineStep} from '../../../components/InlineStep';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
@@ -261,8 +262,35 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</span>
 								</div>
 							) : null}
-							{installStatus.type === 'success' ||
-							installStatus.type === 'error' ? (
+							{installStatus.type === 'error' &&
+							installStatus.code === 'no-compatible-studio' ? (
+								<div aria-live="polite" className={styles.studioGuidance}>
+									<p className={styles.studioGuidanceTitle}>
+										Connect to Remotion Studio
+									</p>
+									<ol className={styles.studioGuidanceSteps} role="list">
+										<li>
+											<InlineStep>1</InlineStep>
+											<span>
+												Open your Remotion project, or{' '}
+												<a href="/docs/">create a new one</a>.
+											</span>
+										</li>
+										<li>
+											<InlineStep>2</InlineStep>
+											<span>Start Studio and open a composition.</span>
+										</li>
+										<li>
+											<InlineStep>3</InlineStep>
+											<span>
+												Return here and click <strong>Install in Studio</strong>{' '}
+												again.
+											</span>
+										</li>
+									</ol>
+								</div>
+							) : installStatus.type === 'success' ||
+							  installStatus.type === 'error' ? (
 								<p
 									aria-live="polite"
 									className={
@@ -271,18 +299,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											: styles.errorStatus
 									}
 								>
-									{installStatus.type === 'error' &&
-									installStatus.code === 'no-compatible-studio' ? (
-										<>
-											Remotion Studio needs to be installed and running.{' '}
-											<a href="/docs/">
-												Follow the getting-started instructions
-											</a>
-											, then try again.
-										</>
-									) : (
-										installStatus.message
-									)}
+									{installStatus.message}
 								</p>
 							) : null}
 						</>
