@@ -194,6 +194,25 @@ test('returns an actionable result when no Studio is running', async () => {
 	]);
 });
 
+test('ignores a non-Studio development server on a probed port', async () => {
+	const result = await installInStudioWithDependencies(elementPayload, {
+		...dependencies,
+		ports: [3000],
+		fetchFn: () =>
+			Promise.resolve(
+				new Response('<!doctype html><html><body>Remotion docs</body></html>', {
+					headers: {'Content-Type': 'text/html'},
+				}),
+			),
+	});
+
+	expect(result).toEqual({
+		success: false,
+		code: 'no-compatible-studio',
+		message: 'Start Remotion Studio and open a composition, then try again.',
+	});
+});
+
 test('waits for Studio discovery while local network permission is pending', async () => {
 	const fetchFn = function (
 		this: void,
@@ -258,12 +277,13 @@ test('waits for Studio discovery while local network permission is pending', asy
 	});
 });
 
-test('reports malformed discovery JSON as an invalid response', async () => {
+test('reports malformed Studio Protocol data as an invalid response', async () => {
 	const fetchFn = (input: string | URL | Request) => {
 		if (String(input) === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
-				new Response('not JSON', {
-					headers: {'Content-Type': 'application/json'},
+				jsonResponse({
+					protocol: 'remotion-studio-protocol',
+					protocolVersion: 1,
 				}),
 			);
 		}
