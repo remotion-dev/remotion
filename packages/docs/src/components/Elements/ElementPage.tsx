@@ -227,18 +227,50 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
-								<BlueButton
-									fullWidth
-									loading={installStatus.type === 'installing'}
-									onClick={installElement}
-									size="sm"
-									style={{padding: '7px 12px'}}
-									title="Install in the most recently focused Remotion Studio"
-								>
-									{installStatus.type === 'installing'
-										? 'Finding Studio…'
-										: 'Install in Studio'}
-								</BlueButton>
+								<div className={styles.studioAction}>
+									<BlueButton
+										className={
+											isEmbeddedInStudio === false
+												? styles.installButtonWithDragHandle
+												: undefined
+										}
+										fullWidth
+										loading={installStatus.type === 'installing'}
+										onClick={installElement}
+										size="sm"
+										style={{padding: '7px 12px'}}
+										title="Install in the most recently focused Remotion Studio"
+									>
+										{installStatus.type === 'installing'
+											? 'Finding Studio…'
+											: 'Install in Studio'}
+									</BlueButton>
+									{isEmbeddedInStudio === false ? (
+										<div
+											aria-label="Drag into Studio"
+											className={styles.dragHandle}
+											draggable
+											onDragStart={(event) => {
+												setStudioDragData({
+													dataTransfer: event.dataTransfer,
+													payload: elementPayload,
+												});
+												setElementDragImage(
+													event.dataTransfer,
+													posterRef.current,
+												);
+											}}
+											title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
+										>
+											<span
+												aria-hidden="true"
+												className={styles.dragHandleIcon}
+											>
+												⠿
+											</span>
+										</div>
+									) : null}
+								</div>
 								{isBrowserStudioActionVisible ? (
 									<PlainButton
 										fullWidth
@@ -251,27 +283,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							{isEmbeddedInStudio === false ? (
-								<div
-									className={styles.dragHandle}
-									draggable
-									onDragStart={(event) => {
-										setStudioDragData({
-											dataTransfer: event.dataTransfer,
-											payload: elementPayload,
-										});
-										setElementDragImage(event.dataTransfer, posterRef.current);
-									}}
-									title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
-								>
-									<span aria-hidden="true" className={styles.dragHandleIcon}>
-										⠿
-									</span>
-									<span className={styles.dragHandleText}>
-										<strong>Drag into Studio</strong>
-									</span>
-								</div>
-							) : null}
 							{installStatus.type !== 'idle' &&
 							(installStatus.type !== 'installing' || isInstallHintVisible) ? (
 								<p
