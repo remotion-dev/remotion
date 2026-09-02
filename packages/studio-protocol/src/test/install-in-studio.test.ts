@@ -195,7 +195,12 @@ test('returns an actionable result when no Studio is running', async () => {
 });
 
 test('waits for Studio discovery while local network permission is pending', async () => {
-	const fetchFn = (input: string | URL | Request, options?: RequestInit) => {
+	const fetchFn = function (
+		this: void,
+		input: string | URL | Request,
+		options?: RequestInit,
+	) {
+		expect(this).toBeUndefined();
 		const url = String(input);
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return new Promise<Response>((resolve, reject) => {

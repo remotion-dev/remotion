@@ -202,12 +202,13 @@ export const discoverStudios = async (
 }> => {
 	let foundUnsupportedProtocol = false;
 	let foundInvalidResponse = false;
+	const {fetchFn} = dependencies;
 	const studios = await Promise.all(
 		dependencies.ports.map(async (port): Promise<DiscoveredStudio | null> => {
 			const origin = `http://localhost:${port}`;
 			let response: Response;
 			try {
-				response = await dependencies.fetchFn(`${origin}/api/studio-protocol`, {
+				response = await fetchFn(`${origin}/api/studio-protocol`, {
 					cache: 'no-store',
 				});
 			} catch {
