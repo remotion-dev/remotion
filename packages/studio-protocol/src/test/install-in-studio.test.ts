@@ -174,15 +174,87 @@ test('distinguishes a compatible Studio without an installable target', async ()
 });
 
 test('returns an actionable result when no Studio is running', async () => {
+	const requests: string[] = [];
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
-		fetchFn: () => Promise.resolve(new Response(null, {status: 404})),
+		fetchFn: (input) => {
+			requests.push(String(input));
+			return Promise.resolve(new Response(null, {status: 404}));
+		},
 	});
 
 	expect(result).toEqual({
 		success: false,
 		code: 'no-compatible-studio',
 		message: 'Start Remotion Studio and open a composition, then try again.',
+	});
+	expect(requests).toEqual([
+		'http://localhost:3000/api/studio-protocol',
+		'http://localhost:3001/api/studio-protocol',
+	]);
+});
+
+test('waits for Studio discovery while local network permission is pending', async () => {
+	const fetchFn = function (
+		this: void,
+		input: string | URL | Request,
+		options?: RequestInit,
+	) {
+		expect(this).toBeUndefined();
+		const url = String(input);
+		if (url === 'http://localhost:3000/api/studio-protocol') {
+			return new Promise<Response>((resolve, reject) => {
+				const timeout = setTimeout(() => {
+					resolve(
+						jsonResponse(
+							descriptor({
+								compositionId: 'Main',
+								lastFocusedAt: 950_000,
+								projectName: 'Project',
+								targetId: 'target',
+							}),
+						),
+					);
+				}, 2100);
+				options?.signal?.addEventListener(
+					'abort',
+					() => {
+						clearTimeout(timeout);
+						reject(options.signal?.reason);
+					},
+					{once: true},
+				);
+			});
+		}
+
+		if (url === 'http://localhost:3000/api/studio-protocol/install') {
+			return Promise.resolve(
+				jsonResponse({
+					protocol: 'remotion-studio-protocol',
+					protocolVersion: 1,
+					status: 'awaiting-confirmation',
+				}),
+			);
+		}
+
+		return Promise.resolve(new Response(null, {status: 404}));
+	};
+
+	expect(
+		await installInStudioWithDependencies(elementPayload, {
+			...dependencies,
+			ports: [3000],
+			fetchFn,
+		}),
+	).toEqual({
+		success: true,
+		status: 'awaiting-confirmation',
+		target: {
+			projectName: 'Project',
+			compositionId: 'Main',
+			studioOrigin: 'http://localhost:3000',
+			studioVersion: '4.0.502',
+		},
 	});
 });
 
@@ -210,36 +282,6 @@ test('reports malformed discovery JSON as an invalid response', async () => {
 		code: 'invalid-response',
 		message: 'Remotion Studio returned an invalid Studio Protocol response.',
 	});
-});
-
-test('reports a legacy Studio as requiring an upgrade without sending a payload', async () => {
-	const requests: string[] = [];
-	const fetchFn = (input: string | URL | Request) => {
-		const url = String(input);
-		requests.push(url);
-		if (url === 'http://localhost:3000/api/element-install-target') {
-			return Promise.resolve(
-				jsonResponse({type: 'remotion-studio', canInstall: true}),
-			);
-		}
-
-		return Promise.resolve(new Response(null, {status: 404}));
-	};
-
-	expect(
-		await installInStudioWithDependencies(elementPayload, {
-			...dependencies,
-			fetchFn,
-		}),
-	).toEqual({
-		success: false,
-		code: 'studio-upgrade-required',
-		message:
-			'This Remotion Studio does not support the Remotion Studio Protocol. Upgrade Remotion to 4.0.502 or newer.',
-	});
-	expect(
-		requests.some((url) => url.endsWith('/api/request-element-install')),
-	).toBe(false);
 });
 
 test('returns a structured error when the selected target expired', async () => {

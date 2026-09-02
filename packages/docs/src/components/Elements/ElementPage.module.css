@@ -145,10 +145,15 @@
 	line-height: 1;
 }
 
+.installingStatus,
 .successStatus,
 .errorStatus {
 	margin: 12px 0 0;
 	font-size: 0.875rem;
+}
+
+.installingStatus {
+	color: var(--ifm-color-emphasis-700);
 }
 
 .successStatus {
