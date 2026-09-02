@@ -110,6 +110,9 @@ const descriptorSchema = z
 			return new Set(capabilityTypes).size === capabilityTypes.length;
 		}),
 	);
+const protocolEnvelopeSchema = z.looseObject({
+	protocol: z.literal('remotion-studio-protocol'),
+});
 const protocolVersionEnvelopeSchema = z.looseObject({
 	protocol: z.literal('remotion-studio-protocol'),
 	protocolVersion: z.unknown(),
@@ -223,7 +226,11 @@ export const discoverStudios = async (
 			try {
 				value = await response.json();
 			} catch {
-				foundInvalidResponse = true;
+				return null;
+			}
+
+			const protocolEnvelope = z.safeParse(protocolEnvelopeSchema, value);
+			if (!protocolEnvelope.success) {
 				return null;
 			}
 
@@ -231,10 +238,12 @@ export const discoverStudios = async (
 				protocolVersionEnvelopeSchema,
 				value,
 			);
-			if (
-				protocolVersionEnvelope.success &&
-				protocolVersionEnvelope.data.protocolVersion !== 1
-			) {
+			if (!protocolVersionEnvelope.success) {
+				foundInvalidResponse = true;
+				return null;
+			}
+
+			if (protocolVersionEnvelope.data.protocolVersion !== 1) {
 				foundUnsupportedProtocol = true;
 				return null;
 			}
