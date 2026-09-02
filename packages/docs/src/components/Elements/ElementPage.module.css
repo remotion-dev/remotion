@@ -160,7 +160,7 @@
 }
 
 .details {
-	margin-top: 32px;
+	margin-top: 20px;
 }
 
 .description {
@@ -171,7 +171,7 @@
 }
 
 .metadata {
-	margin: 14px 0 0;
+	margin: 16px 0 0;
 	font-size: 0.8125rem;
 }
 
@@ -189,8 +189,8 @@
 
 .metadata dd {
 	margin: 0;
+	color: var(--ifm-color-emphasis-800);
 	font-variant-numeric: tabular-nums;
-	font-weight: 600;
 }
 
 .metadata > .dependenciesMetadata {
@@ -224,7 +224,7 @@
 }
 
 .contributors:not(:first-child) {
-	margin-top: 32px;
+	margin-top: 24px;
 }
 
 .contributorsLabel {
@@ -237,7 +237,7 @@
 .contributorList {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 12px;
+	gap: 8px;
 	min-width: 0;
 }
 
