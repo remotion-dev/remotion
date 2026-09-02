@@ -9,7 +9,6 @@ import {
 	fetchWithTimeout,
 	focusedStudioMaxAge,
 	getInstallCapability,
-	hasLegacyStudio,
 	isAbortError,
 	studioProtocolProbePorts,
 } from './studio-discovery';
@@ -175,13 +174,6 @@ export const installInStudioWithDependencies = async (
 			return failure(
 				'unsupported-protocol',
 				'The running Remotion Studio uses an unsupported Studio Protocol version.',
-			);
-		}
-
-		if (await hasLegacyStudio(dependencies)) {
-			return failure(
-				'studio-upgrade-required',
-				'This Remotion Studio does not support the Remotion Studio Protocol. Upgrade Remotion to 4.0.502 or newer.',
 			);
 		}
 
