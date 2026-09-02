@@ -73,6 +73,7 @@ On failure, one of:
 
 - `unsupported-origin`
 - `no-compatible-studio`
+- `loopback-network-permission-denied` <AvailableFrom v="4.0.521" inline />
 - `studio-upgrade-required`
 - `no-installable-target`
 - `unsupported-protocol`
@@ -89,8 +90,6 @@ A human-readable failure message. Use `code` for application logic.
 ## Discovery
 
 When called outside Studio, ports 3000 through 3009 are probed in parallel. The most recently focused compatible target is selected. Discovery returns a short-lived, single-use token bound to that Studio tab and contextual composition.
-
-Studios older than 4.0.502 are detected and return `studio-upgrade-required`. The Element is not sent through the legacy endpoint.
 
 ## Supported origins
 

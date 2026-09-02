@@ -53,6 +53,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
+	const [isInstallHintVisible, setIsInstallHintVisible] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
 		useState(false);
@@ -73,6 +74,17 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	useLayoutEffect(() => {
 		setIsEmbeddedInStudio(isInsideStudio());
 	}, []);
+
+	useEffect(() => {
+		if (installStatus.type !== 'installing') {
+			return;
+		}
+
+		const timeout = window.setTimeout(() => {
+			setIsInstallHintVisible(true);
+		}, 1000);
+		return () => window.clearTimeout(timeout);
+	}, [installStatus.type]);
 
 	useEffect(() => {
 		const onKeyDown = (event: KeyboardEvent) => {
@@ -111,6 +123,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			return;
 		}
 
+		setIsInstallHintVisible(false);
 		setInstallStatus({type: 'installing'});
 		const result = await installInStudio({payload: elementPayload});
 		if (!result.success) {
@@ -217,18 +230,50 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
-								<BlueButton
-									fullWidth
-									loading={installStatus.type === 'installing'}
-									onClick={installElement}
-									size="sm"
-									style={{padding: '7px 12px'}}
-									title="Install in the most recently focused Remotion Studio"
-								>
-									{installStatus.type === 'installing'
-										? 'Finding Studio…'
-										: 'Install in Studio'}
-								</BlueButton>
+								<div className={styles.studioAction}>
+									<BlueButton
+										className={
+											isEmbeddedInStudio === false
+												? styles.installButtonWithDragHandle
+												: undefined
+										}
+										fullWidth
+										loading={installStatus.type === 'installing'}
+										onClick={installElement}
+										size="sm"
+										style={{padding: '7px 12px'}}
+										title="Install in the most recently focused Remotion Studio"
+									>
+										{installStatus.type === 'installing'
+											? 'Finding Studio…'
+											: 'Install in Studio'}
+									</BlueButton>
+									{isEmbeddedInStudio === false ? (
+										<div
+											aria-label="Drag into Studio"
+											className={styles.dragHandle}
+											draggable
+											onDragStart={(event) => {
+												setStudioDragData({
+													dataTransfer: event.dataTransfer,
+													payload: elementPayload,
+												});
+												setElementDragImage(
+													event.dataTransfer,
+													posterRef.current,
+												);
+											}}
+											title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
+										>
+											<span
+												aria-hidden="true"
+												className={styles.dragHandleIcon}
+											>
+												⠿
+											</span>
+										</div>
+									) : null}
+								</div>
 								{isBrowserStudioActionVisible ? (
 									<PlainButton
 										fullWidth
@@ -241,27 +286,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							{isEmbeddedInStudio === false ? (
-								<div
-									className={styles.dragHandle}
-									draggable
-									onDragStart={(event) => {
-										setStudioDragData({
-											dataTransfer: event.dataTransfer,
-											payload: elementPayload,
-										});
-										setElementDragImage(event.dataTransfer, posterRef.current);
-									}}
-									title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
-								>
-									<span aria-hidden="true" className={styles.dragHandleIcon}>
-										⠿
-									</span>
-									<span className={styles.dragHandleText}>
-										<strong>Drag into Studio</strong>
-									</span>
-								</div>
-							) : null}
 							{installStatus.type === 'error' &&
 							installStatus.code === 'no-compatible-studio' ? (
 								<div aria-live="polite" className={styles.studioGuidance}>
@@ -289,17 +313,22 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										</li>
 									</ol>
 								</div>
-							) : installStatus.type === 'success' ||
-							  installStatus.type === 'error' ? (
+							) : installStatus.type !== 'idle' &&
+							  (installStatus.type !== 'installing' ||
+									isInstallHintVisible) ? (
 								<p
 									aria-live="polite"
 									className={
-										installStatus.type === 'success'
-											? styles.successStatus
-											: styles.errorStatus
+										installStatus.type === 'installing'
+											? styles.installingStatus
+											: installStatus.type === 'success'
+												? styles.successStatus
+												: styles.errorStatus
 									}
 								>
-									{installStatus.message}
+									{installStatus.type === 'installing'
+										? 'If your browser prompts you, allow local network access so this page can find Remotion Studio.'
+										: installStatus.message}
 								</p>
 							) : null}
 						</>

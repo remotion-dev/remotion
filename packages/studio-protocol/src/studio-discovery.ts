@@ -114,10 +114,6 @@ const protocolVersionEnvelopeSchema = z.looseObject({
 	protocol: z.literal('remotion-studio-protocol'),
 	protocolVersion: z.unknown(),
 });
-const legacyStudioSchema = z.looseObject({
-	type: z.literal('remotion-studio'),
-});
-
 export const fetchWithTimeout = async ({
 	fetchFn,
 	options,
@@ -206,15 +202,14 @@ export const discoverStudios = async (
 }> => {
 	let foundUnsupportedProtocol = false;
 	let foundInvalidResponse = false;
+	const {fetchFn} = dependencies;
 	const studios = await Promise.all(
 		dependencies.ports.map(async (port): Promise<DiscoveredStudio | null> => {
 			const origin = `http://localhost:${port}`;
 			let response: Response;
 			try {
-				response = await fetchWithTimeout({
-					fetchFn: dependencies.fetchFn,
-					options: {cache: 'no-store'},
-					url: `${origin}/api/studio-protocol`,
+				response = await fetchFn(`${origin}/api/studio-protocol`, {
+					cache: 'no-store',
 				});
 			} catch {
 				return null;
@@ -265,30 +260,6 @@ export const discoverStudios = async (
 		foundUnsupportedProtocol,
 		foundInvalidResponse,
 	};
-};
-
-export const hasLegacyStudio = async (
-	dependencies: StudioProtocolDiscoveryDependencies,
-): Promise<boolean> => {
-	const results = await Promise.all(
-		dependencies.ports.map(async (port) => {
-			try {
-				const response = await fetchWithTimeout({
-					fetchFn: dependencies.fetchFn,
-					options: {cache: 'no-store'},
-					url: `http://localhost:${port}/api/element-install-target`,
-				});
-				if (!response.ok) {
-					return false;
-				}
-
-				return z.safeParse(legacyStudioSchema, await response.json()).success;
-			} catch {
-				return false;
-			}
-		}),
-	);
-	return results.some(Boolean);
 };
 
 export const isAbortError = (error: unknown): boolean =>

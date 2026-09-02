@@ -9,7 +9,6 @@ import {
 	fetchWithTimeout,
 	focusedStudioMaxAge,
 	getInstallCapability,
-	hasLegacyStudio,
 	isAbortError,
 	studioProtocolProbePorts,
 } from './studio-discovery';
@@ -21,6 +20,7 @@ import {
 export type InstallInStudioErrorCode =
 	| 'unsupported-origin'
 	| 'no-compatible-studio'
+	| 'loopback-network-permission-denied'
 	| 'studio-upgrade-required'
 	| 'no-installable-target'
 	| 'unsupported-protocol'
@@ -47,11 +47,18 @@ export type InstallInStudioResult =
 			readonly message: string;
 	  };
 
+type LoopbackPermissionName = 'loopback-network' | 'local-network-access';
+
+type PermissionQueryFn = (descriptor: {
+	readonly name: LoopbackPermissionName;
+}) => Promise<{readonly state: PermissionState}>;
+
 export type InstallInStudioDependencies = {
 	readonly fetchFn: StudioProtocolFetcher;
 	readonly now: () => number;
 	readonly ports: readonly number[];
 	readonly pageOrigin: string | null;
+	readonly permissionQueryFn: PermissionQueryFn | null;
 };
 
 export type StudioProtocolInstallRequest = {
@@ -178,18 +185,32 @@ export const installInStudioWithDependencies = async (
 			);
 		}
 
-		if (await hasLegacyStudio(dependencies)) {
-			return failure(
-				'studio-upgrade-required',
-				'This Remotion Studio does not support the Remotion Studio Protocol. Upgrade Remotion to 4.0.502 or newer.',
-			);
-		}
-
 		if (discovery.foundInvalidResponse) {
 			return failure(
 				'invalid-response',
 				'Remotion Studio returned an invalid Studio Protocol response.',
 			);
+		}
+
+		if (dependencies.permissionQueryFn !== null) {
+			for (const name of [
+				'loopback-network',
+				'local-network-access',
+			] as const) {
+				try {
+					const permission = await dependencies.permissionQueryFn({name});
+					if (permission.state === 'denied') {
+						return failure(
+							'loopback-network-permission-denied',
+							'Access to localhost is blocked by your browser. Open the site settings, allow local network access for this site, then try again.',
+						);
+					}
+
+					break;
+				} catch {
+					// The compatibility alias may still be supported.
+				}
+			}
 		}
 
 		return failure(
@@ -363,6 +384,13 @@ export const installInStudio = async ({
 			typeof globalThis.location === 'undefined'
 				? null
 				: globalThis.location.origin,
+		permissionQueryFn:
+			typeof globalThis.navigator === 'undefined' ||
+			typeof globalThis.navigator.permissions?.query !== 'function'
+				? null
+				: (descriptor) =>
+						// @ts-expect-error Chromium's loopback permission names are not in lib.dom yet.
+						globalThis.navigator.permissions.query(descriptor),
 		ports: studioProtocolProbePorts,
 	});
 };
