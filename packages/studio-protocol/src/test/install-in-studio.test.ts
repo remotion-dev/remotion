@@ -50,6 +50,7 @@ const jsonResponse = (value: unknown, status = 200) =>
 const dependencies = {
 	now: () => 1_000_000,
 	pageOrigin: 'http://localhost:4000',
+	permissionQueryFn: null,
 	ports: [3000, 3001],
 };
 
@@ -192,6 +193,79 @@ test('returns an actionable result when no Studio is running', async () => {
 		'http://localhost:3000/api/studio-protocol',
 		'http://localhost:3001/api/studio-protocol',
 	]);
+});
+
+test('reports when loopback network access is explicitly denied after discovery', async () => {
+	const events: string[] = [];
+	const result = await installInStudioWithDependencies(elementPayload, {
+		...dependencies,
+		fetchFn: (input) => {
+			events.push(String(input));
+			return Promise.resolve(new Response(null, {status: 404}));
+		},
+		permissionQueryFn: ({name}) => {
+			events.push(`permission:${name}`);
+			return Promise.resolve({state: 'denied'});
+		},
+	});
+
+	expect(result).toEqual({
+		success: false,
+		code: 'loopback-network-permission-denied',
+		message:
+			'Access to localhost is blocked by your browser. Open the site settings, allow local network access for this site, then try again.',
+	});
+	expect(events).toEqual([
+		'http://localhost:3000/api/studio-protocol',
+		'http://localhost:3001/api/studio-protocol',
+		'permission:loopback-network',
+	]);
+});
+
+test('uses the legacy local network permission alias when necessary', async () => {
+	const queriedPermissions: string[] = [];
+	const result = await installInStudioWithDependencies(elementPayload, {
+		...dependencies,
+		fetchFn: () => Promise.resolve(new Response(null, {status: 404})),
+		permissionQueryFn: ({name}) => {
+			queriedPermissions.push(name);
+			if (name === 'loopback-network') {
+				return Promise.reject(new TypeError('Unsupported permission name'));
+			}
+
+			return Promise.resolve({state: 'denied'});
+		},
+	});
+
+	expect(result).toEqual({
+		success: false,
+		code: 'loopback-network-permission-denied',
+		message:
+			'Access to localhost is blocked by your browser. Open the site settings, allow local network access for this site, then try again.',
+	});
+	expect(queriedPermissions).toEqual([
+		'loopback-network',
+		'local-network-access',
+	]);
+});
+
+test('keeps the generic result when permission is not definitively denied', async () => {
+	for (const permissionQueryFn of [
+		() => Promise.resolve({state: 'prompt' as const}),
+		() => Promise.reject(new Error('Permissions API failed')),
+	]) {
+		const result = await installInStudioWithDependencies(elementPayload, {
+			...dependencies,
+			fetchFn: () => Promise.resolve(new Response(null, {status: 404})),
+			permissionQueryFn,
+		});
+
+		expect(result).toEqual({
+			success: false,
+			code: 'no-compatible-studio',
+			message: 'Start Remotion Studio and open a composition, then try again.',
+		});
+	}
 });
 
 test('waits for Studio discovery while local network permission is pending', async () => {
