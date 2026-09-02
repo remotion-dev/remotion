@@ -150,14 +150,12 @@ export type CanvasCaptureImport = {
 
 export type ElementInstallPlan = {
 	readonly compositionFile: string;
-	readonly filePath: string;
 	readonly expectedFileState: ElementInstallExpectedFileState;
 };
 
 export type ElementInstallModalState = {
 	readonly type: 'element-install';
 	readonly currentPlan: ElementInstallPlan | null;
-	readonly dependenciesToReview: string[];
 	readonly missingPackages: string[];
 	readonly newPlan: ElementInstallPlan;
 	readonly onClose: () => void;

@@ -356,10 +356,16 @@ const CloseupPlaceholder = () => {
 		await installInStudio.click();
 
 		const dialog = studioPage.getByRole('dialog');
-		await expect(dialog.getByText('Install Element')).toBeVisible();
-		await expect(dialog.getByText(/Protocol Element.*MyComp/)).toBeVisible();
+		await expect(
+			dialog.getByText('Install Protocol Element', {exact: true}),
+		).toBeVisible();
+		await expect(
+			dialog.getByRole('button', {name: 'Current composition'}),
+		).toHaveAttribute('aria-pressed', 'true');
 		await expect(dialog.getByText(senderUrl, {exact: true})).toBeVisible();
-		await expect(decoyStudioPage.getByText('Install Element')).toHaveCount(0);
+		await expect(
+			decoyStudioPage.getByText('Install Protocol Element', {exact: true}),
+		).toHaveCount(0);
 		await expect(elementsIframe).toHaveCount(0);
 		expect(studioProtocolRequests).toEqual([]);
 		await dialog.getByRole('button', {name: /Install/}).click();
@@ -391,7 +397,7 @@ const CloseupPlaceholder = () => {
 		await studioPage.bringToFront();
 		const newCompositionDialog = studioPage.getByRole('dialog');
 		await expect(
-			newCompositionDialog.getByText('Install Element'),
+			newCompositionDialog.getByText('Install Protocol Element', {exact: true}),
 		).toBeVisible();
 		await newCompositionDialog
 			.getByRole('button', {name: 'New composition'})

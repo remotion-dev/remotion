@@ -89,8 +89,6 @@ import {useSvgImportDialog} from './SvgImportDialog';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
-const elementInstallDependencyIgnoreList = ['react', 'react-dom', 'remotion'];
-
 const getCanvasDragPreviewMetadata = (mimeTypes: ArrayLike<string>) => {
 	const composition = getCompositionDragPreviewMetadata(mimeTypes);
 	if (composition !== null) {
@@ -1044,20 +1042,11 @@ export const Canvas: React.FC<{
 					).values(),
 				);
 				const missingPackages = getMissingPackages(declaredDependencies).map(
-					(dependency) => dependency.name,
-				);
-				const ignoredDependencies = declaredDependencies.filter(
 					(dependency) =>
-						elementInstallDependencyIgnoreList.includes(dependency.name) &&
-						!missingPackages.includes(dependency.name),
-				);
-				const dependenciesToReview = declaredDependencies
-					.filter((dependency) => !ignoredDependencies.includes(dependency))
-					.map((dependency) =>
 						dependency.version === null
 							? dependency.name
 							: `${dependency.name}@${dependency.version}`,
-					);
+				);
 				const {source} = activeElementInstallRequest;
 				const sourceLabel =
 					source.type === 'studio-protocol'
@@ -1074,7 +1063,6 @@ export const Canvas: React.FC<{
 				setSelectedModal({
 					type: 'element-install',
 					currentPlan,
-					dependenciesToReview,
 					missingPackages,
 					newPlan: newPreflight.plan,
 					onClose: closeElementInstallDialog,
