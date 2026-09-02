@@ -3,7 +3,7 @@ import path from 'node:path';
 import {Log} from './log';
 import type {Template} from './templates';
 
-export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
+export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | 'nub';
 
 const shouldUseBun = (): boolean => {
 	if (
@@ -41,6 +41,10 @@ const shouldUsePnpm = (): boolean => {
 };
 
 export const selectPackageManager = (): PackageManager => {
+	if (process.env.npm_config_user_agent?.includes('nub/')) {
+		return 'nub';
+	}
+
 	if (shouldUseYarn()) {
 		return 'yarn';
 	}
@@ -72,6 +76,10 @@ export const getInstallCommand = (manager: PackageManager) => {
 	if (manager === 'bun') {
 		return `bun install`;
 	}
+
+	if (manager === 'nub') {
+		return `nub install`;
+	}
 };
 
 const getStartCommand = (manager: PackageManager) => {
@@ -90,6 +98,10 @@ const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'bun') {
 		return `bun run dev`;
 	}
+
+	if (manager === 'nub') {
+		return `nub run dev`;
+	}
 };
 
 export const getRunCommand = (manager: PackageManager) => {
@@ -107,6 +119,10 @@ export const getRunCommand = (manager: PackageManager) => {
 
 	if (manager === 'bun') {
 		return `bun run`;
+	}
+
+	if (manager === 'nub') {
+		return `nub run`;
 	}
 
 	throw new TypeError('unknown package manager');
@@ -129,6 +145,10 @@ export const getRenderCommand = (manager: PackageManager) => {
 		return `bunx remotion render`;
 	}
 
+	if (manager === 'nub') {
+		return `nubx remotion render`;
+	}
+
 	throw new TypeError('unknown package manager');
 };
 
@@ -147,6 +167,10 @@ export const getUpgradeCommand = (manager: PackageManager) => {
 
 	if (manager === 'bun') {
 		return `bunx remotion upgrade`;
+	}
+
+	if (manager === 'nub') {
+		return `nubx remotion upgrade`;
 	}
 
 	throw new TypeError('unknown package manager');
