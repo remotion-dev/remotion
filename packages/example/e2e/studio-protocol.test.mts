@@ -355,13 +355,21 @@ const CloseupPlaceholder = () => {
 		studioProtocolRequests.length = 0;
 		await installInStudio.click();
 
-		const dialog = studioPage.getByRole('dialog');
-		await expect(
-			dialog.getByText('Install Protocol Element', {exact: true}),
-		).toBeVisible();
-		await expect(
-			dialog.getByRole('button', {name: 'Current composition'}),
-		).toHaveAttribute('aria-pressed', 'true');
+		const dialog = studioPage.getByRole('dialog', {
+			name: 'Install Protocol Element',
+		});
+		await expect(dialog).toBeVisible();
+		const currentDestination = dialog.getByRole('radio', {
+			name: 'Current composition',
+		});
+		const newDestination = dialog.getByRole('radio', {
+			name: 'New composition',
+		});
+		await expect(currentDestination).toBeChecked();
+		await currentDestination.press('ArrowRight');
+		await expect(newDestination).toBeChecked();
+		await newDestination.press('ArrowLeft');
+		await expect(currentDestination).toBeChecked();
 		await expect(dialog.getByText(senderUrl, {exact: true})).toBeVisible();
 		await expect(
 			decoyStudioPage.getByText('Install Protocol Element', {exact: true}),
@@ -395,12 +403,12 @@ const CloseupPlaceholder = () => {
 		await senderPage.goto(senderUrl);
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
 		await studioPage.bringToFront();
-		const newCompositionDialog = studioPage.getByRole('dialog');
-		await expect(
-			newCompositionDialog.getByText('Install Protocol Element', {exact: true}),
-		).toBeVisible();
+		const newCompositionDialog = studioPage.getByRole('dialog', {
+			name: 'Install Protocol Element',
+		});
+		await expect(newCompositionDialog).toBeVisible();
 		await newCompositionDialog
-			.getByRole('button', {name: 'New composition'})
+			.getByRole('radio', {name: 'New composition'})
 			.click();
 		await expect(
 			newCompositionDialog.getByPlaceholder('Composition ID'),

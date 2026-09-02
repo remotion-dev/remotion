@@ -68,7 +68,7 @@ const container: React.CSSProperties = {
 const dialogContent: React.CSSProperties = {
 	...container,
 	padding: 16,
-	width: 'min(600px, calc(100vw - 40px))',
+	width: 'min(520px, calc(100vw - 40px))',
 	maxHeight: 'min(720px, calc(100vh - 140px))',
 	overflowY: 'auto',
 };
@@ -130,6 +130,7 @@ const requestSourceStyle: React.CSSProperties = {
 
 const requestSourceDescriptionStyle: React.CSSProperties = {
 	...metadataDescriptionStyle,
+	color: LIGHT_TEXT,
 	textAlign: 'right',
 };
 
@@ -253,25 +254,31 @@ const destinationControlStyle: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'space-between',
-	gap: 16,
+	columnGap: 16,
+	rowGap: 10,
+	flexWrap: 'wrap',
 };
 
 const destinationOptionsStyle: React.CSSProperties = {
 	display: 'flex',
 	overflow: 'hidden',
+	maxWidth: '100%',
+	marginLeft: 'auto',
 	border: `1px solid ${WHITE_ALPHA_12}`,
 	borderRadius: 4,
 };
 
 const destinationOptionStyle: React.CSSProperties = {
 	appearance: 'none',
+	minHeight: 26,
 	border: 0,
 	cursor: 'default',
 	fontFamily: 'sans-serif',
-	fontSize: 11,
+	fontSize: 12,
 	fontWeight: 400,
-	lineHeight: 1.5,
-	padding: '2px 7px',
+	lineHeight: '18px',
+	padding: '4px 8px',
+	whiteSpace: 'nowrap',
 };
 
 const getDestinationOptionStyle = ({
@@ -298,6 +305,8 @@ const footerStyle: React.CSSProperties = {
 const cancelStyle: React.CSSProperties = {
 	minWidth: 90,
 };
+
+const elementInstallTitleId = 'remotion-element-install-title';
 
 const makeSourceControlsVisible = (sourceCode: string) => {
 	return sourceCode.replace(
@@ -397,6 +406,8 @@ export const ElementInstallConfirmation: React.FC<{
 	);
 	const [submitting, setSubmitting] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
+	const currentDestinationRef = useRef<HTMLButtonElement>(null);
+	const newDestinationRef = useRef<HTMLButtonElement>(null);
 	const [newCompositionValues, setNewCompositionValues] =
 		useState<NewCompositionFormValues>(() => {
 			const elementComponentName =
@@ -549,6 +560,7 @@ export const ElementInstallConfirmation: React.FC<{
 	const folderTargetIsReady =
 		selectedFolderStack === null ||
 		(hasResolvedStack(selectedFolderStack) && folderCompositionFile !== null);
+	const title = `Install ${request.element.displayName}${request.element.displayName.endsWith(' Element') ? '' : ' Element'}`;
 	const canSubmit =
 		!submitting &&
 		(mode === 'current-composition'
@@ -630,6 +642,35 @@ export const ElementInstallConfirmation: React.FC<{
 		}
 	}, [onClose, submitting]);
 
+	const onDestinationKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (
+				!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			if (currentPlan === null) {
+				return;
+			}
+
+			const nextMode =
+				mode === 'current-composition'
+					? 'new-composition'
+					: 'current-composition';
+			setMode(nextMode);
+			requestAnimationFrame(() => {
+				if (nextMode === 'current-composition') {
+					currentDestinationRef.current?.focus();
+				} else {
+					newDestinationRef.current?.focus();
+				}
+			});
+		},
+		[currentPlan, mode],
+	);
+
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
 		(event) => {
 			event.preventDefault();
@@ -639,11 +680,14 @@ export const ElementInstallConfirmation: React.FC<{
 	);
 
 	return createPortal(
-		<ModalContainer onOutsideClick={cancel} onEscape={cancel}>
-			<ModalHeader
-				title={`Install ${request.element.displayName}${request.element.displayName.endsWith(' Element') ? '' : ' Element'}`}
-				onClose={cancel}
-			/>
+		<ModalContainer
+			ariaLabelledBy={elementInstallTitleId}
+			onOutsideClick={cancel}
+			onEscape={cancel}
+		>
+			<div id={elementInstallTitleId}>
+				<ModalHeader title={title} onClose={cancel} />
+			</div>
 			<form onSubmit={onSubmit}>
 				<div style={dialogContent}>
 					<dl style={requestSourceStyle} aria-label="Request source">
@@ -663,29 +707,35 @@ export const ElementInstallConfirmation: React.FC<{
 						<div style={sectionTitleStyle}>Destination</div>
 						<div
 							aria-label="Installation destination"
-							role="group"
+							onKeyDown={onDestinationKeyDown}
+							role="radiogroup"
 							style={destinationOptionsStyle}
 						>
 							<button
-								aria-pressed={mode === 'current-composition'}
+								ref={currentDestinationRef}
+								aria-checked={mode === 'current-composition'}
 								className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 								disabled={currentPlan === null}
 								onClick={() => setMode('current-composition')}
+								role="radio"
 								style={getDestinationOptionStyle({
 									disabled: currentPlan === null,
 									selected: mode === 'current-composition',
 								})}
+								tabIndex={mode === 'current-composition' ? 0 : -1}
 								type="button"
 							>
 								Current composition
 							</button>
 							<button
-								aria-pressed={mode === 'new-composition'}
+								ref={newDestinationRef}
+								aria-checked={mode === 'new-composition'}
 								className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 								onClick={() => {
 									setMode('new-composition');
 									requestAnimationFrame(() => inputRef.current?.select());
 								}}
+								role="radio"
 								style={{
 									...getDestinationOptionStyle({
 										disabled: false,
@@ -693,6 +743,7 @@ export const ElementInstallConfirmation: React.FC<{
 									}),
 									borderLeft: `1px solid ${WHITE_ALPHA_12}`,
 								}}
+								tabIndex={mode === 'new-composition' ? 0 : -1}
 								type="button"
 							>
 								New composition
