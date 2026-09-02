@@ -211,10 +211,8 @@ export const discoverStudios = async (
 			const origin = `http://localhost:${port}`;
 			let response: Response;
 			try {
-				response = await fetchWithTimeout({
-					fetchFn: dependencies.fetchFn,
-					options: {cache: 'no-store'},
-					url: `${origin}/api/studio-protocol`,
+				response = await dependencies.fetchFn(`${origin}/api/studio-protocol`, {
+					cache: 'no-store',
 				});
 			} catch {
 				return null;
