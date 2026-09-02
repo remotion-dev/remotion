@@ -97,16 +97,22 @@
 
 .actionRow {
 	display: flex;
-	align-items: flex-start;
+	flex-direction: column;
 	gap: 10px;
 }
 
-.actionButtons {
+.studioAction {
 	display: flex;
-	flex: 1;
-	flex-direction: column;
-	gap: 10px;
-	min-width: 0;
+	align-items: stretch;
+	width: 100%;
+	border-radius: 8px;
+	background: var(--blue-underlay);
+}
+
+.studioAction .installButtonWithDragHandle {
+	border-top-right-radius: 0;
+	border-right-width: 0;
+	border-bottom-right-radius: 0;
 }
 
 .dragHandle {
@@ -114,37 +120,29 @@
 	align-items: center;
 	justify-content: center;
 	width: 46px;
-	height: 46px;
+	min-height: 46px;
 	flex: none;
-	border: 1px solid var(--ifm-color-emphasis-300);
-	border-radius: 50%;
-	background: var(--ifm-background-surface-color);
-	box-shadow: 0 2px 5px rgb(0 0 0 / 12%);
-	color: var(--ifm-color-emphasis-800);
+	border: 2px solid black;
+	border-bottom-width: 4px;
+	border-left: 1px solid rgb(0 0 0 / 30%);
+	border-radius: 0 8px 8px 0;
+	background: transparent;
+	color: white;
 	cursor: grab;
 	user-select: none;
 }
 
 .dragHandle:hover {
-	background: var(--ifm-color-emphasis-100);
+	background: rgb(0 0 0 / 8%);
 }
 
 .dragHandle:active {
 	cursor: grabbing;
 }
 
-[data-theme='dark'] .dragHandle {
-	border-color: var(--ifm-color-emphasis-200);
-	color: var(--ifm-color-emphasis-700);
-}
-
 .dragHandleIcon {
 	font-size: 1.5rem;
 	line-height: 1;
-}
-
-[data-theme='dark'] .dragHandleIcon {
-	color: var(--ifm-color-emphasis-500);
 }
 
 .successStatus,
@@ -226,9 +224,7 @@
 }
 
 .contributors:not(:first-child) {
-	margin-top: 16px;
-	padding-top: 16px;
-	border-top: 1px solid var(--ifm-color-emphasis-200);
+	margin-top: 32px;
 }
 
 .contributorsLabel {

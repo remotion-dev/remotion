@@ -214,8 +214,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
-								<div className={styles.actionButtons}>
+								<div className={styles.studioAction}>
 									<BlueButton
+										className={
+											isEmbeddedInStudio === false
+												? styles.installButtonWithDragHandle
+												: undefined
+										}
 										fullWidth
 										loading={installStatus.type === 'installing'}
 										onClick={installElement}
@@ -227,39 +232,42 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											? 'Finding Studio…'
 											: 'Install in Studio'}
 									</BlueButton>
-									{isBrowserStudioActionVisible ? (
-										<PlainButton
-											fullWidth
-											loading={false}
-											onClick={openInBrowserStudio}
-											size="sm"
-											style={{padding: '7px 12px'}}
+									{isEmbeddedInStudio === false ? (
+										<div
+											aria-label="Drag into Studio"
+											className={styles.dragHandle}
+											draggable
+											onDragStart={(event) => {
+												setStudioDragData({
+													dataTransfer: event.dataTransfer,
+													payload: elementPayload,
+												});
+												setElementDragImage(
+													event.dataTransfer,
+													posterRef.current,
+												);
+											}}
+											title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
 										>
-											Open in Browser Studio
-										</PlainButton>
+											<span
+												aria-hidden="true"
+												className={styles.dragHandleIcon}
+											>
+												⠿
+											</span>
+										</div>
 									) : null}
 								</div>
-								{isEmbeddedInStudio === false ? (
-									<div
-										aria-label="Drag into Studio"
-										className={styles.dragHandle}
-										draggable
-										onDragStart={(event) => {
-											setStudioDragData({
-												dataTransfer: event.dataTransfer,
-												payload: elementPayload,
-											});
-											setElementDragImage(
-												event.dataTransfer,
-												posterRef.current,
-											);
-										}}
-										title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
+								{isBrowserStudioActionVisible ? (
+									<PlainButton
+										fullWidth
+										loading={false}
+										onClick={openInBrowserStudio}
+										size="sm"
+										style={{padding: '7px 12px'}}
 									>
-										<span aria-hidden="true" className={styles.dragHandleIcon}>
-											⠿
-										</span>
-									</div>
+										Open in Browser Studio
+									</PlainButton>
 								) : null}
 							</div>
 							{installStatus.type === 'success' ||
