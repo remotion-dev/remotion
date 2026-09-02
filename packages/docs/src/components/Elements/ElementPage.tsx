@@ -1,6 +1,7 @@
 import Head from '@docusaurus/Head';
 import {
 	installInStudio,
+	type InstallInStudioErrorCode,
 	isInsideStudio,
 	setStudioDragData,
 	StudioProtocolInternals,
@@ -40,7 +41,7 @@ type InstallStatus =
 	| {type: 'idle'}
 	| {type: 'installing'}
 	| {type: 'success'; message: string}
-	| {type: 'error'; message: string};
+	| {type: 'error'; code: InstallInStudioErrorCode; message: string};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
@@ -114,6 +115,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		if (!result.success) {
 			setInstallStatus({
 				type: 'error',
+				code: result.code,
 				message: result.message,
 			});
 			return;
@@ -269,7 +271,18 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											: styles.errorStatus
 									}
 								>
-									{installStatus.message}
+									{installStatus.type === 'error' &&
+									installStatus.code === 'no-compatible-studio' ? (
+										<>
+											Remotion Studio needs to be installed and running.{' '}
+											<a href="/docs/">
+												Follow the getting-started instructions
+											</a>
+											, then try again.
+										</>
+									) : (
+										installStatus.message
+									)}
 								</p>
 							) : null}
 						</>
