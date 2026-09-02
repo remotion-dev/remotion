@@ -51,6 +51,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
+	const [isInstallHintVisible, setIsInstallHintVisible] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
 		useState(false);
@@ -71,6 +72,17 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	useLayoutEffect(() => {
 		setIsEmbeddedInStudio(isInsideStudio());
 	}, []);
+
+	useEffect(() => {
+		if (installStatus.type !== 'installing') {
+			return;
+		}
+
+		const timeout = window.setTimeout(() => {
+			setIsInstallHintVisible(true);
+		}, 1000);
+		return () => window.clearTimeout(timeout);
+	}, [installStatus.type]);
 
 	useEffect(() => {
 		const onKeyDown = (event: KeyboardEvent) => {
@@ -109,6 +121,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			return;
 		}
 
+		setIsInstallHintVisible(false);
 		setInstallStatus({type: 'installing'});
 		const result = await installInStudio({payload: elementPayload});
 		if (!result.success) {
@@ -259,17 +272,21 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</span>
 								</div>
 							) : null}
-							{installStatus.type === 'success' ||
-							installStatus.type === 'error' ? (
+							{installStatus.type !== 'idle' &&
+							(installStatus.type !== 'installing' || isInstallHintVisible) ? (
 								<p
 									aria-live="polite"
 									className={
-										installStatus.type === 'success'
-											? styles.successStatus
-											: styles.errorStatus
+										installStatus.type === 'installing'
+											? styles.installingStatus
+											: installStatus.type === 'success'
+												? styles.successStatus
+												: styles.errorStatus
 									}
 								>
-									{installStatus.message}
+									{installStatus.type === 'installing'
+										? 'If your browser prompts you, allow local network access so this page can find Remotion Studio.'
+										: installStatus.message}
 								</p>
 							) : null}
 						</>
