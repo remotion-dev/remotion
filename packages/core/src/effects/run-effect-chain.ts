@@ -31,8 +31,12 @@ export const createEffectChainState = (
 
 export const cleanupEffectChainState = (state: EffectChainState): void => {
 	state.currentRunId++;
-	for (const entry of state.cleanupRegistry) {
-		entry.definition.cleanup(entry.state);
+	try {
+		for (const entry of state.cleanupRegistry) {
+			entry.definition.cleanup(entry.state);
+		}
+	} finally {
+		state.pool.dispose();
 	}
 };
 
@@ -130,13 +134,14 @@ export const runEffectChain = async ({
 	// texture coordinates match clip-space output. `ImageBitmap` bridges below
 	// opt out because they are already oriented for upload.
 	let flipWebGLSourceY = true;
+	let lastRunWasWebGl2 = false;
 
 	for (let runIndex = 0; runIndex < runs.length; runIndex++) {
 		const run = runs[runIndex];
-		const [a, b] = state.pool.getPair(run.backend);
+		const a = state.pool.getCanvas(run.backend, 0);
 		let dst = a;
 
-		for (const eff of run.effects) {
+		for (const [effectIndex, eff] of run.effects.entries()) {
 			const def = eff.definition as EffectDefinition<unknown, unknown>;
 			const setupState = ensureSetup(state, def, dst);
 
@@ -160,10 +165,13 @@ export const runEffectChain = async ({
 			}
 
 			currentImage = dst;
-			dst = dst === a ? b : a;
+			if (effectIndex < run.effects.length - 1) {
+				dst = dst === a ? state.pool.getCanvas(run.backend, 1) : a;
+			}
 		}
 
 		lastTarget = (currentImage as HTMLCanvasElement | null) ?? lastTarget;
+		lastRunWasWebGl2 = run.backend === 'webgl2';
 
 		const nextRun = runs[runIndex + 1];
 		if (nextRun && nextRun.backend !== run.backend && lastTarget) {
@@ -195,6 +203,10 @@ export const runEffectChain = async ({
 
 	if (!lastTarget) {
 		return true;
+	}
+
+	if (lastRunWasWebGl2) {
+		state.pool.assertContextNotLost(lastTarget);
 	}
 
 	const outCtx = output.getContext('2d');
