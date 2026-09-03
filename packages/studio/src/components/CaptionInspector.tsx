@@ -1,11 +1,10 @@
 import type {Caption} from '@remotion/captions';
 import React, {useCallback, useRef, useState} from 'react';
-import {LIGHT_TEXT} from '../helpers/colors';
-import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
+import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {UploadIcon} from '../icons/upload';
+import {Button} from './Button';
 import {CaptionTextEditor} from './CaptionTextEditor';
 import {useConfirmationDialog} from './ConfirmationDialog';
-import {InlineAction} from './InlineAction';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
 import {InspectorSectionHeader} from './InspectorPanel/common';
 import {sectionHeaderEnd} from './InspectorPanel/styles';
@@ -119,22 +118,25 @@ export const CaptionInspector: React.FC<{
 										onChange={importCaptions}
 										type="file"
 									/>
-									<InlineAction
-										aria-label="Import captions"
-										className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+									<Button
+										buttonContainerStyle={{
+											alignItems: 'center',
+											display: 'flex',
+											gap: 4,
+										}}
 										disabled={isImporting}
 										onClick={() => fileInput.current?.click()}
-										renderAction={(color) => (
-											<UploadIcon
-												aria-hidden="true"
-												color={color}
-												focusable="false"
-												style={{height: 16, width: 16}}
-											/>
-										)}
+										size="condensed"
 										title={importTooltip}
-										variant={null}
-									/>
+									>
+										<UploadIcon
+											aria-hidden="true"
+											color={CURRENT_COLOR}
+											focusable="false"
+											style={{height: 12, width: 12}}
+										/>
+										{isImporting ? 'Importing…' : 'Import'}
+									</Button>
 								</>
 							)}
 							{readOnly ? (
