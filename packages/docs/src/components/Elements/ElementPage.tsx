@@ -124,7 +124,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		}
 
 		setIsInstallHintVisible(false);
-		setInstallStatus({type: 'installing'});
+		if (!isEmbeddedInStudio) {
+			setInstallStatus({type: 'installing'});
+		}
+
 		const result = await installInStudio({payload: elementPayload});
 		if (!result.success) {
 			setInstallStatus({
@@ -135,18 +138,22 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			return;
 		}
 
-		const {target} = result;
-		setInstallStatus({
-			type: 'success',
-			message: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
-		});
+		if (isEmbeddedInStudio) {
+			setInstallStatus({type: 'idle'});
+		} else {
+			const {target} = result;
+			setInstallStatus({
+				type: 'success',
+				message: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
+			});
+		}
 
 		if (window.location.origin === 'https://www.remotion.dev') {
 			navigator.sendBeacon(
 				`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
 			);
 		}
-	}, [definition.slug, elementPayload]);
+	}, [definition.slug, elementPayload, isEmbeddedInStudio]);
 
 	const openInBrowserStudio = useCallback(() => {
 		if (elementPayload === null) {
