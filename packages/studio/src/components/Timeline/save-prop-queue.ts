@@ -54,14 +54,17 @@ export type EnqueueSaveOptions<TResponse> = {
 	errorLabel: string;
 };
 
-export const enqueueSavePropChange = <TResponse>({
-	nodePath,
-	setPropStatuses,
-	applyOptimistic,
-	applyServerResponse,
-	apiCall,
-	errorLabel,
-}: EnqueueSaveOptions<TResponse>): Promise<void> => {
+const enqueueSavePropChangeInternal = <TResponse>(
+	{
+		nodePath,
+		setPropStatuses,
+		applyOptimistic,
+		applyServerResponse,
+		apiCall,
+		errorLabel,
+	}: EnqueueSaveOptions<TResponse>,
+	rejectOnError: boolean,
+): Promise<void> => {
 	const q = getQueue(nodePath);
 
 	if (q.cancelled) {
@@ -98,6 +101,10 @@ export const enqueueSavePropChange = <TResponse>({
 			myQueue.cancelled = true;
 
 			dropQueue(nodePath, myQueue);
+			if (rejectOnError) {
+				throw err;
+			}
+
 			showNotification(
 				`${errorLabel}: ${err instanceof Error ? err.message : String(err)}`,
 				4000,
@@ -107,4 +114,16 @@ export const enqueueSavePropChange = <TResponse>({
 
 	myQueue.chain = next;
 	return next;
+};
+
+export const enqueueSavePropChange = <TResponse>(
+	options: EnqueueSaveOptions<TResponse>,
+): Promise<void> => {
+	return enqueueSavePropChangeInternal(options, false);
+};
+
+export const enqueueSavePropChangeOrThrow = <TResponse>(
+	options: EnqueueSaveOptions<TResponse>,
+): Promise<void> => {
+	return enqueueSavePropChangeInternal(options, true);
 };

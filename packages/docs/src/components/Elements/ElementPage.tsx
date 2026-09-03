@@ -343,6 +343,14 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 					<div className={styles.details}>
 						<p className={styles.description}>{description}</p>
+						{definition.category === 'captions' ? (
+							<p className={styles.description} style={{marginTop: 8}}>
+								Have a transcript?{' '}
+								<a href="/elements/captions/#importing-captions-into-studio">
+									Import JSON or SRT from the Captions inspector in Studio.
+								</a>
+							</p>
+						) : null}
 						<dl className={styles.metadata}>
 							<div>
 								<dt>Dimensions</dt>

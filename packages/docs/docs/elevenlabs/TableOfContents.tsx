@@ -13,6 +13,10 @@ export const TableOfContents: React.FC = () => {
 						<code>Caption</code>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/elevenlabs/is-elevenlabs-transcript-json">
+					<strong>{'isElevenLabsTranscriptJson()'}</strong>
+					<div>Detect ElevenLabs Speech to Text JSON</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

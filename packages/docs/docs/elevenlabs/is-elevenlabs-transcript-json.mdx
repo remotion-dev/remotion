@@ -1,0 +1,52 @@
+---
+image: /generated/articles-docs-elevenlabs-is-elevenlabs-transcript-json.png
+title: isElevenLabsTranscriptJson()
+crumb: '@remotion/elevenlabs'
+---
+
+# isElevenLabsTranscriptJson()<AvailableFrom v="4.0.521" />
+
+Returns whether a value has the top-level fields of an ElevenLabs Speech to Text JSON response.
+
+Use it before [`elevenLabsTranscriptToCaptions()`](/docs/elevenlabs/elevenlabs-transcript-to-captions) when accepting JSON whose source is unknown.
+
+This function detects the format but does not validate every word. The converter validates the fields it uses and throws an actionable error if the recognized input is malformed.
+
+## Example
+
+```ts twoslash title="convert-upload.ts"
+import {
+  elevenLabsTranscriptToCaptions,
+  isElevenLabsTranscriptJson,
+} from '@remotion/elevenlabs';
+
+const contents = '{"language_code":"eng","text":"Hello","words":[]}';
+const json = JSON.parse(contents);
+
+if (isElevenLabsTranscriptJson(json)) {
+  const {captions} = elevenLabsTranscriptToCaptions({transcript: json});
+  console.log(captions);
+}
+```
+
+## API
+
+### `value`
+
+The value to inspect. It may have any JavaScript type.
+
+### Return value
+
+A boolean. It is `true` when the value is an object with `language_code` and either `words` or `text` as top-level fields.
+
+Additional fields do not affect detection.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`elevenLabsTranscriptToCaptions()`](/docs/elevenlabs/elevenlabs-transcript-to-captions)
+- [`isOpenAiWhisperJson()`](/docs/openai-whisper/is-open-ai-whisper-json)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/elevenlabs/src/elevenlabs-transcript-to-captions.ts)

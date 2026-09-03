@@ -100,17 +100,92 @@ test.describe('captions inspector', () => {
 		}).toPass({timeout: 30_000});
 		await expect(defaultCaption).toBeEnabled();
 
-		await defaultCaption.fill('Editable captions');
+		const importCaptionsButton = page.getByRole('button', {
+			name: 'Import captions',
+			exact: true,
+		});
+		const importCaptionsInput = page.getByLabel('Import captions file');
+		await expect(importCaptionsButton).toBeVisible();
+
+		const sourceBeforeFailedImport = fs.readFileSync(
+			elementCaptionsFile,
+			'utf-8',
+		);
+		await importCaptionsInput.setInputFiles({
+			name: 'broken.json',
+			mimeType: 'application/json',
+			buffer: Buffer.from(
+				JSON.stringify({
+					language_code: 'eng',
+					segments: [
+						{
+							text: 'Broken',
+							start_time: 0,
+							end_time: 1,
+							words: [{text: 'Broken', end_time: 1}],
+						},
+					],
+				}),
+			),
+		});
+		await expect(
+			page.getByText(
+				/broken\.json:.*segments\[0\]\.words\[0\]\.start_time must be a finite number/,
+			),
+		).toBeVisible();
+		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
+			sourceBeforeFailedImport,
+		);
+
+		await importCaptionsInput.setInputFiles({
+			name: 'captions.json',
+			mimeType: 'application/json',
+			buffer: Buffer.from(
+				JSON.stringify({
+					language_code: 'eng',
+					segments: [
+						{
+							text: 'Imported captions',
+							start_time: 0.1,
+							end_time: 0.9,
+							words: [
+								{text: 'Imported', start_time: 0.1, end_time: 0.4},
+								{text: ' ', start_time: 0.4, end_time: 0.5},
+								{text: 'captions', start_time: 0.5, end_time: 0.9},
+							],
+						},
+					],
+				}),
+			),
+		});
+		await expect(
+			page.getByText('Replace captions?', {exact: true}),
+		).toBeVisible();
+		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
+			sourceBeforeFailedImport,
+		);
+		await page.getByRole('button', {name: 'Replace captions'}).click();
+		await expect(
+			page.getByText(
+				'Imported 2 captions from ElevenLabs segmented JSON. Undo is available.',
+			),
+		).toBeVisible();
+		await expect(defaultCaption).toHaveValue('Imported');
+		await expect
+			.poll(() => fs.readFileSync(elementCaptionsFile, 'utf-8'))
+			.toMatch(/startMs:\s*100[\s\S]*text:\s*['"]Imported['"]/);
+		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).toBe(
+			elementCallSiteSourceBefore,
+		);
+
+		await defaultCaption.fill('Edited imported caption');
 		await defaultCaption.blur();
 		await expect
 			.poll(() => {
-				return /text:\s*['"]Editable captions['"]/.test(
+				return /text:\s*['"]Edited imported caption['"]/.test(
 					fs.readFileSync(elementCaptionsFile, 'utf-8'),
 				);
 			})
 			.toBe(true);
-		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).toBe(
-			elementCallSiteSourceBefore,
-		);
 	});
 });

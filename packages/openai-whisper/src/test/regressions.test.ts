@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
 import type {OpenAiVerboseTranscription} from '../openai-format';
-import {openAiWhisperApiToCaptions} from '../openai-whisper-api-to-captions';
+import {
+	isOpenAiWhisperJson,
+	openAiWhisperApiToCaptions,
+} from '../openai-whisper-api-to-captions';
 
 const transcript1: OpenAiVerboseTranscription = {
 	task: 'transcribe',
@@ -30,6 +33,15 @@ const transcript1: OpenAiVerboseTranscription = {
 	duration: 3,
 	language: 'english',
 };
+
+test('recognizes OpenAI Whisper JSON', () => {
+	expect(
+		isOpenAiWhisperJson({language: 'english', text: 'Hello', words: []}),
+	).toBe(true);
+	expect(
+		isOpenAiWhisperJson({language_code: 'eng', text: 'Hello', words: []}),
+	).toBe(false);
+});
 
 const transcript2: OpenAiVerboseTranscription = {
 	task: 'transcribe',
@@ -167,4 +179,70 @@ test('Issue 7298 - apostrophe variants', () => {
 			timestampMs: 150.00000000000003,
 		},
 	]);
+});
+
+test.each([
+	{
+		name: 'malformed word text',
+		words: [{word: 42, start: 0, end: 1}],
+		error: 'words[0].word must be a string',
+	},
+	{
+		name: 'malformed word timestamp',
+		words: [{word: 'Hello', start: Number.POSITIVE_INFINITY, end: 1}],
+		error: 'words[0].start must be a finite, non-negative number',
+	},
+	{
+		name: 'reversed timestamps',
+		words: [{word: 'Hello', start: 2, end: 1}],
+		error: 'words[0].end must not be earlier than words[0].start',
+	},
+	{
+		name: 'out-of-order words',
+		words: [
+			{word: 'Hello', start: 2, end: 3},
+			{word: 'world', start: 1, end: 2},
+		],
+		error: 'words[1].start is out of timestamp order',
+	},
+])('rejects $name', ({words, error}) => {
+	expect(() =>
+		openAiWhisperApiToCaptions({
+			transcription: {
+				text: 'Hello world',
+				words,
+			} as unknown as OpenAiVerboseTranscription,
+		}),
+	).toThrow(`Invalid OpenAI Whisper transcription: ${error}`);
+});
+
+test('accepts extra provider fields', () => {
+	expect(
+		openAiWhisperApiToCaptions({
+			transcription: {
+				duration: 1,
+				language: 'english',
+				text: 'Hello',
+				words: [
+					{
+						word: 'Hello',
+						start: 0,
+						end: 1,
+						provider_added_field: true,
+					},
+				],
+				provider_added_field: true,
+			} as unknown as OpenAiVerboseTranscription,
+		}),
+	).toEqual({
+		captions: [
+			{
+				confidence: null,
+				endMs: 1000,
+				startMs: 0,
+				text: 'Hello',
+				timestampMs: 500,
+			},
+		],
+	});
 });
