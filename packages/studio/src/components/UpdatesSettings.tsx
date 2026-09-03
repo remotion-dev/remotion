@@ -107,6 +107,7 @@ const commands: {
 	yarn: 'yarn remotion upgrade',
 	pnpm: 'pnpm exec remotion upgrade',
 	bun: 'bun remotion upgrade',
+	nub: 'nubx remotion upgrade',
 	unknown: 'npx remotion upgrade',
 };
 
