@@ -17,6 +17,23 @@ import {
 
 const {runEffectChain} = Internals;
 
+export type VideoIteratorPresentation = {
+	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
+	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
+	canvas: OffscreenCanvas | HTMLCanvasElement | null;
+	getOnVideoFrameCallback: () => null | ((frame: CanvasImageSource) => void);
+	logLevel: LogLevel;
+	drawDebugOverlay: () => void;
+	getLoopSegmentMediaEndTimestamp: () => number;
+	getStartTime: () => number;
+	getIsLooping: () => boolean;
+	getEffects: () => EffectDefinitionAndStack<unknown>[];
+	getEffectChainState: (
+		width: number,
+		height: number,
+	) => EffectChainState | null;
+};
+
 export const isSequentialMediaTimeAdvance = ({
 	previousTime,
 	newTime,
@@ -41,36 +58,14 @@ export const isSequentialMediaTimeAdvance = ({
 	);
 };
 
-export const videoIteratorManager = async ({
-	delayPlaybackHandleIfNotPremounting,
-	canvas,
-	context,
-	drawDebugOverlay,
-	logLevel,
-	getOnVideoFrameCallback,
-	videoTrack,
-	getLoopSegmentMediaEndTimestamp,
-	getStartTime,
-	getIsLooping,
-	getEffects,
-	getEffectChainState,
-}: {
-	videoTrack: InputVideoTrack;
-	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
-	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
-	canvas: OffscreenCanvas | HTMLCanvasElement | null;
-	getOnVideoFrameCallback: () => null | ((frame: CanvasImageSource) => void);
-	logLevel: LogLevel;
-	drawDebugOverlay: () => void;
-	getLoopSegmentMediaEndTimestamp: () => number;
-	getStartTime: () => number;
-	getIsLooping: () => boolean;
-	getEffects: () => EffectDefinitionAndStack<unknown>[];
-	getEffectChainState: (
-		width: number,
-		height: number,
-	) => EffectChainState | null;
-}) => {
+export const videoIteratorManager = async (
+	args:
+		| {videoTrack: InputVideoTrack}
+		| ({videoTrack: InputVideoTrack} & VideoIteratorPresentation),
+) => {
+	const {videoTrack} = args;
+	let presentation: VideoIteratorPresentation | null =
+		'canvas' in args ? args : null;
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
 	let framesRendered = 0;
@@ -82,14 +77,19 @@ export const videoIteratorManager = async ({
 		lastDrawnFrame = null;
 	};
 
-	if (canvas) {
+	const sizeCanvas = async () => {
+		const canvas = presentation?.canvas;
+		if (!canvas) {
+			return;
+		}
+
 		const displayWidth = await videoTrack.getDisplayWidth();
 		const displayHeight = await videoTrack.getDisplayHeight();
 		if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
 			canvas.width = displayWidth;
 			canvas.height = displayHeight;
 		}
-	}
+	};
 
 	const canvasSink = new CanvasSink(videoTrack, {
 		// Match the preview look-ahead buffer size. CanvasSink may reuse pooled
@@ -103,10 +103,17 @@ export const videoIteratorManager = async ({
 	const prewarmedVideoIteratorCache =
 		makePrewarmedVideoIteratorCache(canvasSink);
 
+	await sizeCanvas();
+
 	const paintFrame = async (frame: WrappedCanvas): Promise<void> => {
+		const canvas = presentation?.canvas;
+		const context = presentation?.context;
 		if (context && canvas) {
-			const effects = getEffects();
-			const chainState = getEffectChainState(canvas.width, canvas.height);
+			const effects = presentation?.getEffects() ?? [];
+			const chainState = presentation?.getEffectChainState(
+				canvas.width,
+				canvas.height,
+			);
 			if (
 				effects.length > 0 &&
 				chainState &&
@@ -133,14 +140,14 @@ export const videoIteratorManager = async ({
 
 		framesRendered++;
 
-		drawDebugOverlay();
-		const callback = getOnVideoFrameCallback();
+		presentation?.drawDebugOverlay();
+		const callback = presentation?.getOnVideoFrameCallback();
 		if (callback) {
 			callback(frame.canvas);
 		}
 
 		Internals.Log.trace(
-			{logLevel, tag: '@remotion/media'},
+			{logLevel: presentation?.logLevel ?? 'info', tag: '@remotion/media'},
 			`[MediaPlayer] Drew frame ${frame.timestamp.toFixed(3)}s`,
 		);
 	};
@@ -152,14 +159,14 @@ export const videoIteratorManager = async ({
 
 		await paintFrame(lastDrawnFrame);
 
-		drawDebugOverlay();
-		const callback = getOnVideoFrameCallback();
+		presentation?.drawDebugOverlay();
+		const callback = presentation?.getOnVideoFrameCallback();
 		if (callback) {
 			callback(lastDrawnFrame.canvas);
 		}
 
 		Internals.Log.trace(
-			{logLevel, tag: '@remotion/media'},
+			{logLevel: presentation?.logLevel ?? 'info', tag: '@remotion/media'},
 			`[MediaPlayer] Redrew frame ${lastDrawnFrame.timestamp.toFixed(3)}s with updated effects`,
 		);
 	};
@@ -170,7 +177,14 @@ export const videoIteratorManager = async ({
 	): Promise<void> => {
 		clearLastDrawnFrame();
 		videoFrameIterator?.destroy();
-		using delayHandle = delayPlaybackHandleIfNotPremounting();
+		videoFrameIterator = null;
+		const activePresentation = presentation;
+		if (!activePresentation) {
+			return;
+		}
+
+		using delayHandle =
+			activePresentation.delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 		currentSeek = timeToSeek;
 
@@ -235,11 +249,11 @@ export const videoIteratorManager = async ({
 		const previousTime = currentSeek;
 		currentSeek = newTime;
 
-		if (getIsLooping()) {
+		if (presentation?.getIsLooping()) {
 			// If less than 1 second from the end away, we pre-warm a new iterator
-			if (getLoopSegmentMediaEndTimestamp() - newTime < 1) {
+			if (presentation.getLoopSegmentMediaEndTimestamp() - newTime < 1) {
 				prewarmedVideoIteratorCache.prewarmIteratorForLooping({
-					timeToSeek: getStartTime(),
+					timeToSeek: presentation.getStartTime(),
 				});
 			}
 		}
@@ -278,14 +292,36 @@ export const videoIteratorManager = async ({
 		await startVideoIterator(newTime, nonce);
 	};
 
+	const resumeAt = async ({
+		newTime,
+		nonce,
+		fps,
+		playbackRate,
+		isPlaying,
+	}: {
+		newTime: number;
+		nonce: Nonce;
+		fps: number;
+		playbackRate: number;
+		isPlaying: boolean;
+	}) => {
+		if (!videoFrameIterator) {
+			await startVideoIterator(newTime, nonce);
+			return;
+		}
+
+		await seek({newTime, nonce, fps, playbackRate, isPlaying});
+	};
+
 	return {
-		startVideoIterator,
-		getVideoIteratorsCreated: () => videoIteratorsCreated,
-		seek,
-		destroy: () => {
-			clearLastDrawnFrame();
-			prewarmedVideoIteratorCache.destroy();
-			videoFrameIterator?.destroy();
+		attach: async (nextPresentation: VideoIteratorPresentation) => {
+			presentation = nextPresentation;
+			await sizeCanvas();
+			await redrawCurrentFrame();
+		},
+		detach: () => {
+			const canvas = presentation?.canvas;
+			const context = presentation?.context;
 			if (context && canvas) {
 				context.clearRect(0, 0, canvas.width, canvas.height);
 			}
@@ -295,6 +331,17 @@ export const videoIteratorManager = async ({
 				currentDelayHandle = null;
 			}
 
+			presentation = null;
+		},
+		startVideoIterator,
+		resumeAt,
+		getVideoIteratorsCreated: () => videoIteratorsCreated,
+		seek,
+		destroy: () => {
+			clearLastDrawnFrame();
+			prewarmedVideoIteratorCache.destroy();
+			videoFrameIterator?.destroy();
+			presentation = null;
 			videoFrameIterator = null;
 		},
 		getVideoFrameIterator: () => videoFrameIterator,

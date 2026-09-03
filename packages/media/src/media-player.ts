@@ -1,4 +1,4 @@
-import type {Input} from 'mediabunny';
+import type {Input, InputVideoTrack} from 'mediabunny';
 import type {
 	EffectChainState,
 	EffectDefinitionAndStack,
@@ -28,8 +28,63 @@ import {makeNonceManager} from './nonce-manager';
 import {PremountAwareDelayPlayback} from './premount-aware-delay-playback';
 import type {MediaRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
-import type {VideoIteratorManager} from './video-iterator-manager';
+import type {
+	VideoIteratorManager,
+	VideoIteratorPresentation,
+} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
+
+type VideoIteratorResource = {
+	track: InputVideoTrack;
+	manager: VideoIteratorManager;
+	releaseInput: () => void;
+};
+
+type IdleVideoIteratorResource = VideoIteratorResource & {
+	timer: ReturnType<typeof setTimeout>;
+};
+
+const idleVideoIteratorResources: IdleVideoIteratorResource[] = [];
+
+const destroyVideoIteratorResource = (resource: VideoIteratorResource) => {
+	resource.manager.destroy();
+	resource.releaseInput();
+};
+
+const takeIdleVideoIteratorResource = (track: InputVideoTrack) => {
+	const index = idleVideoIteratorResources.findIndex(
+		(candidate) => candidate.track === track,
+	);
+	if (index === -1) {
+		return null;
+	}
+
+	const [resource] = idleVideoIteratorResources.splice(index, 1);
+	clearTimeout(resource.timer);
+	return resource;
+};
+
+const releaseVideoIteratorResource = (resource: VideoIteratorResource) => {
+	const idleResource: IdleVideoIteratorResource = {
+		...resource,
+		timer: setTimeout(() => {
+			const index = idleVideoIteratorResources.indexOf(idleResource);
+			if (index !== -1) {
+				idleVideoIteratorResources.splice(index, 1);
+				destroyVideoIteratorResource(idleResource);
+			}
+		}, 5000),
+	};
+	idleVideoIteratorResources.push(idleResource);
+
+	while (idleVideoIteratorResources.length > 4) {
+		const oldest = idleVideoIteratorResources.shift();
+		if (oldest) {
+			clearTimeout(oldest.timer);
+			destroyVideoIteratorResource(oldest);
+		}
+	}
+};
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
@@ -59,6 +114,9 @@ export class MediaPlayer {
 
 	audioIteratorManager: AudioIteratorManager | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
+
+	private videoIteratorResource: VideoIteratorResource | null = null;
+	private inputLeaseOwnedByVideoIterator = false;
 
 	private playing = false;
 	private loop = false;
@@ -344,8 +402,7 @@ export class MediaPlayer {
 					return {type: 'disposed'};
 				}
 
-				this.videoIteratorManager = await videoIteratorManager({
-					videoTrack,
+				const presentation: VideoIteratorPresentation = {
 					delayPlaybackHandleIfNotPremounting:
 						this.delayPlaybackHandleIfNotPremounting,
 					context: this.context,
@@ -359,7 +416,27 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
-				});
+				};
+				const idleResource = takeIdleVideoIteratorResource(videoTrack);
+				const resource = idleResource ?? {
+					track: videoTrack,
+					manager: await videoIteratorManager({videoTrack}),
+					releaseInput: this.releaseInput,
+				};
+				if (idleResource) {
+					this.releaseInput();
+				}
+
+				this.inputLeaseOwnedByVideoIterator = true;
+				try {
+					await resource.manager.attach(presentation);
+				} catch (error) {
+					destroyVideoIteratorResource(resource);
+					throw error;
+				}
+
+				this.videoIteratorResource = resource;
+				this.videoIteratorManager = resource.manager;
 			}
 
 			const startTime = this.getTrimmedTime(startTimeUnresolved);
@@ -429,9 +506,13 @@ export class MediaPlayer {
 									this.sharedAudioContext!.audioContext.currentTime,
 							})
 						: Promise.resolve(),
-					this.videoIteratorManager
-						? this.videoIteratorManager.startVideoIterator(startTime, nonce)
-						: Promise.resolve(),
+					this.videoIteratorManager?.resumeAt({
+						newTime: startTime,
+						nonce,
+						fps: this.fps,
+						playbackRate: this.playbackRate,
+						isPlaying: this.playing,
+					}),
 				]);
 			} catch (error) {
 				if (this.isDisposalError()) {
@@ -734,11 +815,19 @@ export class MediaPlayer {
 
 		// Mark all async operations as stale
 		this.nonceManager.createAsyncOperation();
-		this.videoIteratorManager?.destroy();
+		this.videoIteratorResource?.manager.detach();
+		if (this.videoIteratorResource) {
+			releaseVideoIteratorResource(this.videoIteratorResource);
+		}
+
+		this.videoIteratorResource = null;
+		this.videoIteratorManager = null;
 		this.audioIteratorManager?.destroyIterator();
 		// Release our reference to the shared Input; it is only disposed once the
 		// last MediaPlayer using this src releases it.
-		this.releaseInput();
+		if (!this.inputLeaseOwnedByVideoIterator) {
+			this.releaseInput();
+		}
 	}
 
 	private getTargetTime = (
