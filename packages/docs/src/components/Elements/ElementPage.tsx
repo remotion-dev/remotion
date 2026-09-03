@@ -57,7 +57,9 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
 		useState(false);
-	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState<boolean | null>(
+		null,
+	);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
