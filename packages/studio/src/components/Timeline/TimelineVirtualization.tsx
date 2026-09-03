@@ -13,6 +13,8 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {Internals, type OverrideIdToNodePaths} from 'remotion';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
@@ -32,6 +34,11 @@ export type TimelineVirtualRow = {
 };
 
 type TimelineVirtualizationContextValue = {
+	readonly getPointerSessionState: () => {
+		readonly clientId: string | null;
+		readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	};
+	readonly registerPointerSession: (stop: () => void) => () => void;
 	readonly rows: readonly TimelineVirtualRow[];
 	readonly totalSize: number;
 	readonly tracksEnd: number;
@@ -55,6 +62,45 @@ export const TimelineVirtualizationProvider: React.FC<{
 	readonly isStill: boolean;
 	readonly timeline: readonly TimelineTrackData[];
 }> = ({children, hasBeenCut, isStill, timeline}) => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const pointerSessionStateRef = useRef({
+		clientId:
+			previewServerState.type === 'connected'
+				? previewServerState.clientId
+				: null,
+		overrideIdsToNodePaths: overrideIdToNodePathMappings,
+	});
+	pointerSessionStateRef.current = {
+		clientId:
+			previewServerState.type === 'connected'
+				? previewServerState.clientId
+				: null,
+		overrideIdsToNodePaths: overrideIdToNodePathMappings,
+	};
+	const getPointerSessionState = useCallback(
+		() => pointerSessionStateRef.current,
+		[],
+	);
+	const pointerSessionsRef = useRef(new Set<() => void>());
+	const registerPointerSession = useCallback((stop: () => void) => {
+		pointerSessionsRef.current.add(stop);
+		return () => pointerSessionsRef.current.delete(stop);
+	}, []);
+
+	useLayoutEffect(() => {
+		const pointerSessions = pointerSessionsRef.current;
+		return () => {
+			for (const stop of pointerSessions) {
+				stop();
+			}
+
+			pointerSessions.clear();
+		};
+	}, []);
+
 	const trackHeights = useTimelineTrackHeights({timeline});
 	const {revealRequest, selectedItems} = useTimelineSelection();
 	const paddingStart = isStill ? 0 : TIMELINE_TIME_INDICATOR_HEIGHT;
@@ -196,12 +242,21 @@ export const TimelineVirtualizationProvider: React.FC<{
 	const virtualItems = virtualizer.getVirtualItems();
 	const value = useMemo(
 		(): TimelineVirtualizationContextValue => ({
+			getPointerSessionState,
+			registerPointerSession,
 			rows: layout.rows,
 			totalSize: layout.tracksEnd + paddingEnd,
 			tracksEnd: layout.tracksEnd,
 			virtualItems,
 		}),
-		[layout.rows, layout.tracksEnd, paddingEnd, virtualItems],
+		[
+			getPointerSessionState,
+			layout.rows,
+			layout.tracksEnd,
+			paddingEnd,
+			registerPointerSession,
+			virtualItems,
+		],
 	);
 
 	return (

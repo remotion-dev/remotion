@@ -45,6 +45,7 @@ import {
 	useCurrentTimelineSelectionStateAsRef,
 	type TimelineSelection,
 } from './TimelineSelection';
+import {useTimelineVirtualization} from './TimelineVirtualization';
 
 const HANDLE_WIDTH = 6;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
@@ -85,6 +86,7 @@ export type TimelineSequenceFromDragTarget = {
 	readonly fileName: string;
 	readonly initialFrom: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly sequenceId: string;
 	readonly sequenceKeyframes: TimelineSequenceKeyframeDragTarget[];
 };
 
@@ -1008,12 +1010,58 @@ export const getTimelineSequenceFromDragTargets = ({
 				fileName: nodePath.absolutePath,
 				initialFrom: originalSequence.from,
 				nodePath,
+				sequenceId: originalSequence.id,
 				sequenceKeyframes,
 			});
 		}
 	}
 
 	return [...targets.values()];
+};
+
+export const areTimelineSequenceFromDragTargetsCurrent = ({
+	targets,
+	sequences,
+	overrideIdsToNodePaths,
+}: {
+	readonly targets: readonly TimelineSequenceFromDragTarget[];
+	readonly sequences: TSequence[];
+	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+}) => {
+	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
+	const currentNodePaths = new Set(
+		[
+			...tracks.flatMap((track) =>
+				track.nodePathInfo === null
+					? []
+					: [track.nodePathInfo.sequenceSubscriptionKey],
+			),
+			...Object.values(overrideIdsToNodePaths),
+		].map(stringifySequenceSubscriptionKey),
+	);
+
+	return targets.every((target) => {
+		const matchingTrack = tracks.find(
+			(track) => track.sequence.id === target.sequenceId,
+		);
+		if (
+			matchingTrack?.nodePathInfo === null ||
+			matchingTrack?.nodePathInfo === undefined ||
+			stringifySequenceSubscriptionKey(
+				matchingTrack.nodePathInfo.sequenceSubscriptionKey,
+			) !== stringifySequenceSubscriptionKey(target.nodePath)
+		) {
+			return false;
+		}
+
+		return [
+			target.nodePath,
+			...target.sequenceKeyframes.map((keyframe) => keyframe.nodePath),
+			...target.effectKeyframes.map((keyframe) => keyframe.nodePath),
+		].every((nodePath) =>
+			currentNodePaths.has(stringifySequenceSubscriptionKey(nodePath)),
+		);
+	});
 };
 
 const clearLeftEdgeDragOverrides = ({
@@ -1385,12 +1433,14 @@ export const useTimelineSequenceFromDrag = ({
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {editorSnapping} = useContext(EditorSnappingContext);
+	const {getPointerSessionState, registerPointerSession} =
+		useTimelineVirtualization();
 
 	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
+		clientId: string | null;
 		initialClientX: number;
 		latestDeltaFrames: number;
 		didMove: boolean;
@@ -1405,7 +1455,6 @@ export const useTimelineSequenceFromDrag = ({
 		clearDragOverrides,
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
-		previewServerState,
 		overrideIdToNodePathMappings,
 		editorSnapping,
 		onDragEnd,
@@ -1417,88 +1466,97 @@ export const useTimelineSequenceFromDrag = ({
 		clearDragOverrides,
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
-		previewServerState,
 		overrideIdToNodePathMappings,
 		editorSnapping,
 		onDragEnd,
 	};
 
-	const finishDrag = useCallback((commit: boolean) => {
-		const dragState = dragStateRef.current;
-		if (!dragState) {
-			return;
-		}
+	const finishDrag = useCallback(
+		(commit: boolean) => {
+			const dragState = dragStateRef.current;
+			if (!dragState) {
+				return;
+			}
 
-		dragStateRef.current = null;
-		latestRef.current.onDragEnd(dragState.didMove);
-		document.body.style.userSelect = '';
-		document.body.style.webkitUserSelect = '';
-		const {
-			setPropStatuses: latestSetPropStatuses,
-			clearDragOverrides: latestClear,
-			clearEffectDragOverrides: latestClearEffect,
-			previewServerState: latestServerState,
-		} = latestRef.current;
-
-		const changes = getTimelineSequenceFromDragChanges({
-			targets: dragState.targets,
-			deltaFrames: dragState.latestDeltaFrames,
-		});
-		const keyframeMoves = getTimelineSequenceFromDragKeyframeMoves({
-			targets: dragState.targets,
-			deltaFrames: dragState.latestDeltaFrames,
-		});
-
-		if (
-			!commit ||
-			latestServerState.type !== 'connected' ||
-			(changes.length === 0 &&
-				keyframeMoves.sequenceKeyframes.length === 0 &&
-				keyframeMoves.effectKeyframes.length === 0)
-		) {
-			clearFromDragOverrides({
+			dragStateRef.current = null;
+			latestRef.current.onDragEnd(dragState.didMove);
+			document.body.style.userSelect = '';
+			document.body.style.webkitUserSelect = '';
+			const {
+				setPropStatuses: latestSetPropStatuses,
 				clearDragOverrides: latestClear,
 				clearEffectDragOverrides: latestClearEffect,
+			} = latestRef.current;
+			const latestPointerSessionState = getPointerSessionState();
+
+			const changes = getTimelineSequenceFromDragChanges({
 				targets: dragState.targets,
+				deltaFrames: dragState.latestDeltaFrames,
 			});
-			return;
-		}
+			const keyframeMoves = getTimelineSequenceFromDragKeyframeMoves({
+				targets: dragState.targets,
+				deltaFrames: dragState.latestDeltaFrames,
+			});
 
-		const savePromise = saveSequenceProps({
-			addedKeyframes: null,
-			changes,
-			movedKeyframes: {
-				sequenceKeyframes: keyframeMoves.sequenceKeyframes,
-				effectKeyframes: keyframeMoves.effectKeyframes,
-			},
-			setPropStatuses: latestSetPropStatuses,
-			clientId: latestServerState.clientId,
-			undoLabel:
-				dragState.targets.length > 1
-					? 'Move selected sequences'
-					: 'Move sequence',
-			redoLabel:
-				dragState.targets.length > 1
-					? 'Move selected sequences back'
-					: 'Move sequence back',
-		});
-
-		savePromise
-			.catch((err) => {
-				Internals.Log.error(
-					{logLevel: 'error', tag: null},
-					'Could not save from',
-					err,
-				);
-			})
-			.finally(() => {
+			if (
+				!commit ||
+				dragState.clientId === null ||
+				dragState.clientId !== latestPointerSessionState.clientId ||
+				!areTimelineSequenceFromDragTargetsCurrent({
+					targets: dragState.targets,
+					sequences: sequencesRef.current,
+					overrideIdsToNodePaths:
+						latestPointerSessionState.overrideIdsToNodePaths,
+				}) ||
+				(changes.length === 0 &&
+					keyframeMoves.sequenceKeyframes.length === 0 &&
+					keyframeMoves.effectKeyframes.length === 0)
+			) {
 				clearFromDragOverrides({
 					clearDragOverrides: latestClear,
 					clearEffectDragOverrides: latestClearEffect,
 					targets: dragState.targets,
 				});
+				return;
+			}
+
+			const savePromise = saveSequenceProps({
+				addedKeyframes: null,
+				changes,
+				movedKeyframes: {
+					sequenceKeyframes: keyframeMoves.sequenceKeyframes,
+					effectKeyframes: keyframeMoves.effectKeyframes,
+				},
+				setPropStatuses: latestSetPropStatuses,
+				clientId: dragState.clientId,
+				undoLabel:
+					dragState.targets.length > 1
+						? 'Move selected sequences'
+						: 'Move sequence',
+				redoLabel:
+					dragState.targets.length > 1
+						? 'Move selected sequences back'
+						: 'Move sequence back',
 			});
-	}, []);
+
+			savePromise
+				.catch((err) => {
+					Internals.Log.error(
+						{logLevel: 'error', tag: null},
+						'Could not save from',
+						err,
+					);
+				})
+				.finally(() => {
+					clearFromDragOverrides({
+						clearDragOverrides: latestClear,
+						clearEffectDragOverrides: latestClearEffect,
+						targets: dragState.targets,
+					});
+				});
+		},
+		[getPointerSessionState, sequencesRef],
+	);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -1537,6 +1595,7 @@ export const useTimelineSequenceFromDrag = ({
 			stopPointerSessionRef.current?.();
 			e.preventDefault();
 			dragStateRef.current = {
+				clientId: getPointerSessionState().clientId,
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
 				didMove: false,
@@ -1547,9 +1606,11 @@ export const useTimelineSequenceFromDrag = ({
 			document.body.style.webkitUserSelect = 'none';
 			// Register before React commits so no pointer move can arrive before
 			// the global session listeners exist.
-			stopPointerSessionRef.current = startCapturedPointerSession({
+			let unregisterPointerSession: () => void = () => undefined;
+			const stopPointerSession = startCapturedPointerSession({
 				event: e.nativeEvent,
-				captureTarget: e.currentTarget,
+				// The sequence can unmount once it is dragged outside the timeline.
+				captureTarget: document.documentElement,
 				onMove: (moveEvent) => {
 					const dragState = dragStateRef.current;
 					if (!dragState) {
@@ -1611,6 +1672,7 @@ export const useTimelineSequenceFromDrag = ({
 					}
 				},
 				onEnd: (reason, endEvent) => {
+					unregisterPointerSession();
 					stopPointerSessionRef.current = null;
 					finishDrag(
 						(reason === 'pointerup' || reason === 'buttons-released') &&
@@ -1618,6 +1680,8 @@ export const useTimelineSequenceFromDrag = ({
 					);
 				},
 			});
+			stopPointerSessionRef.current = stopPointerSession;
+			unregisterPointerSession = registerPointerSession(stopPointerSession);
 		},
 		[
 			currentSelection,
@@ -1626,15 +1690,10 @@ export const useTimelineSequenceFromDrag = ({
 			sequencesRef,
 			timelineDurationInFrames,
 			windowWidth,
+			getPointerSessionState,
+			registerPointerSession,
 		],
 	);
-
-	useEffect(() => {
-		return () => {
-			stopPointerSessionRef.current?.();
-			stopPointerSessionRef.current = null;
-		};
-	}, []);
 
 	return {
 		onPointerDown,

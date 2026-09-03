@@ -486,6 +486,11 @@ const TimelineInner: React.FC = () => {
 			<TimelineKeyframeTracksProvider tracks={filtered}>
 				<TimelineSelectableItemsProvider timeline={shown}>
 					<TimelineVirtualizationProvider
+						key={
+							canvasContent?.type === 'composition'
+								? canvasContent.compositionId
+								: null
+						}
 						hasBeenCut={hasBeenCut}
 						isStill={isStill}
 						timeline={shown}

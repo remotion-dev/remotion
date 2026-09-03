@@ -29,6 +29,12 @@ const outlineSelectionCasesFile = path.join(
 	'VisualModeTests',
 	'OutlineSelectionCases.tsx',
 );
+const timelineNegativeFromResizeFile = path.join(
+	exampleDir,
+	'src',
+	'TimelineNegativeFromResize',
+	'index.tsx',
+);
 
 const dragCompositionSelectorItem = async ({
 	page,
@@ -594,6 +600,71 @@ test.describe('visual mode', () => {
 		expect(zeroSequenceRect!.x - negativeSequenceRect!.x).toBeLessThanOrEqual(
 			16,
 		);
+	});
+
+	test('should preserve a sequence drag beyond the left timeline edge', async ({
+		page,
+	}) => {
+		const sourceBefore = fs.readFileSync(
+			timelineNegativeFromResizeFile,
+			'utf-8',
+		);
+
+		try {
+			await page.goto(`${STUDIO_URL}/timeline-negative-start`);
+			await expect(page).toHaveURL(/timeline-negative-start/, {
+				timeout: 15_000,
+			});
+			await page.waitForFunction(
+				() => !document.body.innerText.includes('Loading...'),
+				{timeout: 30_000},
+			);
+
+			const timelineScrollable = page.locator('[data-timeline-scrollable]');
+			const draggableSequence = page.locator(
+				'[data-timeline-marquee-item][title="Drag outside"]',
+			);
+			await expect(draggableSequence).toBeVisible();
+
+			const [timelineRect, draggableSequenceRect] = await Promise.all([
+				timelineScrollable.boundingBox(),
+				draggableSequence.boundingBox(),
+			]);
+			expect(timelineRect).not.toBeNull();
+			expect(draggableSequenceRect).not.toBeNull();
+
+			await page.mouse.move(
+				draggableSequenceRect!.x + draggableSequenceRect!.width / 2,
+				draggableSequenceRect!.y + draggableSequenceRect!.height / 2,
+			);
+			await page.mouse.down();
+			try {
+				await page.mouse.move(
+					1,
+					draggableSequenceRect!.y + draggableSequenceRect!.height / 2,
+					{steps: 10},
+				);
+				await expect(draggableSequence).toBeHidden();
+			} finally {
+				await page.mouse.up();
+			}
+
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(
+						timelineNegativeFromResizeFile,
+						'utf-8',
+					);
+					const draggableSequenceSource = source.match(
+						/<Sequence(?=[^>]*name="Drag outside")[^>]*>/,
+					)?.[0];
+					const from = draggableSequenceSource?.match(/from=\{(-?\d+)\}/)?.[1];
+					return from ? Number(from) : 0;
+				})
+				.toBeLessThan(0);
+		} finally {
+			fs.writeFileSync(timelineNegativeFromResizeFile, sourceBefore);
+		}
 	});
 
 	test('should commit a color drag before the picker closes', async ({

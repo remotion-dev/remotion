@@ -23,6 +23,9 @@ export const TimelineNegativeFromResize: React.FC = () => {
 					<div />
 				</Sequence>
 			</AbsoluteFill>
+			<Sequence name="Drag outside" from={1} durationInFrames={36}>
+				<div />
+			</Sequence>
 			<Sequence name="Zero start" durationInFrames={36}>
 				<div />
 			</Sequence>
