@@ -88,13 +88,11 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		AssetSelectionContext,
 	);
 	const inlineSourceAction = useMemo(() => {
-		if (field.key !== 'src') {
-			return null;
+		if (typeof effectiveValue === 'string') {
+			return getSourceAction(effectiveValue);
 		}
 
-		return typeof effectiveValue === 'string'
-			? getSourceAction(effectiveValue)
-			: sourceAction;
+		return field.key === 'src' ? sourceAction : null;
 	}, [effectiveValue, field.key, getSourceAction, sourceAction]);
 
 	const onSelect = useCallback(
