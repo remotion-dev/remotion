@@ -126,7 +126,7 @@
 			"react-dom": "19.2.3",
 			"eslint": "9.19.0",
 			"prettier": "3.8.1",
-			"zod": "4.4.3",
+			"zod": "4.5.4",
 			"@types/react": "19.2.7",
 			"@types/react-dom": "19.2.3",
 			"@types/node": "20.12.14",
