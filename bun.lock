@@ -1982,7 +1982,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2027,7 +2027,7 @@
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
         "twoslash-cdn": "0.3.1",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2087,7 +2087,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2106,7 +2106,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2127,7 +2127,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2153,7 +2153,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@eslint/eslintrc": "3.1.0",
@@ -2193,7 +2193,7 @@
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
         "tailwind-merge": "3.0.1",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@eslint/eslintrc": "3.1.0",
@@ -2233,7 +2233,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@eslint/eslintrc": "3.1.0",
@@ -2311,7 +2311,7 @@
         "remotion": "workspace:*",
         "tailwind-merge": "3.4.0",
         "three": "0.178.0",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@eslint/eslintrc": "3.1.0",
@@ -2353,7 +2353,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@elevenlabs/elevenlabs-js": "2.20.0",
@@ -2398,7 +2398,7 @@
         "tailwindcss": "4.2.0",
         "vite": "7.3.6",
         "vite-tsconfig-paths": "4.3.2",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@react-router/dev": "8.3.0",
@@ -2451,7 +2451,7 @@
         "remotion": "workspace:*",
         "tailwind-merge": "1.14.0",
         "tailwindcss-animate": "1.0.7",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2485,7 +2485,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2510,7 +2510,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2531,7 +2531,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2562,7 +2562,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2586,7 +2586,7 @@
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
         "three": "0.178.0",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
@@ -2610,7 +2610,7 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@remotion/captions": "workspace:*",
@@ -2644,7 +2644,7 @@
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
         "tailwind-merge": "3.0.1",
-        "zod": "4.4.3",
+        "zod": "4.5.4",
       },
       "devDependencies": {
         "@eslint/eslintrc": "3.1.0",
@@ -2930,7 +2930,7 @@
     "sharp": "0.34.5",
     "three": "0.178.0",
     "vitest": "4.0.9",
-    "zod": "4.4.3",
+    "zod": "4.5.4",
   },
   "packages": {
     "@1natsu/wait-element": ["@1natsu/wait-element@4.2.0", "", { "dependencies": { "defu": "^6.1.4", "many-keys-map": "^3.0.0" } }, "sha512-Om0Q+WE9mNrpY4AwMTvkFiYHv8VM7TML3PvOqXy+w6kAjLjKhGYHYX+305+a6J8RVpds9s7IF2Z5aOPYwULFNw=="],
@@ -9097,7 +9097,7 @@
 
     "zip-stream": ["zip-stream@6.0.1", "", { "dependencies": { "archiver-utils": "5.0.2", "compress-commons": "6.0.2", "readable-stream": "4.7.0" } }, "sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA=="],
 
-    "zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
+    "zod": ["zod@4.5.4", "", {}, "sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA=="],
 
     "zod-to-json-schema": ["zod-to-json-schema@3.25.1", "", { "peerDependencies": { "zod": "^3.25 || ^4" } }, "sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA=="],
 
@@ -10035,6 +10035,8 @@
 
     "@floating-ui/react-dom/react-dom": ["react-dom@19.0.0", "", { "dependencies": { "scheduler": "0.25.0" }, "peerDependencies": { "react": "19.0.0" } }, "sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ=="],
 
+    "@github/copilot-sdk/zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
+
     "@google-cloud/common/google-auth-library": ["google-auth-library@9.11.0", "", { "dependencies": { "base64-js": "1.5.1", "ecdsa-sig-formatter": "1.0.11", "gaxios": "6.6.0", "gcp-metadata": "6.1.0", "gtoken": "7.1.0", "jws": "4.0.0" } }, "sha512-epX3ww/mNnhl6tL45EQ/oixsY8JLEgUFoT4A5E/5iAR4esld9Kqv6IJGk7EmGuOgDvaarwF95hU2+v7Irql9lw=="],
 
     "@google-cloud/common/html-entities": ["html-entities@2.5.2", "", {}, "sha512-K//PSRMQk4FZ78Kyau+mZurHn3FH0Vwr+H36eE0rPbeYkRRi9YxceYPhuN60UwWorxyKHhqoAJl2OFKa4BVtaA=="],
@@ -10158,6 +10160,8 @@
     "@mdx-js/react/@types/react": ["@types/react@19.0.0", "", { "dependencies": { "csstype": "3.1.3" } }, "sha512-MY3oPudxvMYyesqs/kW1Bh8y9VqSmf+tzqw3ae8a9DZW68pUe3zAdHeI1jc6iAysuRdACnVknHP8AhwD4/dxtg=="],
 
     "@mdx-js/react/react": ["react@19.0.0", "", {}, "sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ=="],
+
+    "@microsoft/vally/zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
 
     "@modelcontextprotocol/sdk/ajv": ["ajv@8.17.1", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g=="],
 
@@ -12124,6 +12128,8 @@
     "onnxruntime-web/onnxruntime-common": ["onnxruntime-common@1.24.0-dev.20251116-b39e144322", "", {}, "sha512-BOoomdHYmNRL5r4iQ4bMvsl2t0/hzVQ3OM3PHD0gxeXu1PmggqBv3puZicEUVOA3AtHHYmqZtjMj9FOfGrATTw=="],
 
     "openai/@types/node": ["@types/node@18.14.6", "", {}, "sha512-93+VvleD3mXwlLI/xASjw0FzKcwzl3OdTCzm1LaRfqgS21gfFtK3zDXM5Op9TeeMsJVOaJ2VRDpT9q4Y3d0AvA=="],
+
+    "openai/zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
 
     "ora/chalk": ["chalk@5.6.2", "", {}, "sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA=="],
 
@@ -17782,6 +17788,8 @@
     "react-doctor/eslint-plugin-react-hooks/@babel/core": ["@babel/core@7.29.7", "", { "dependencies": { "@babel/code-frame": "^7.29.7", "@babel/generator": "^7.29.7", "@babel/helper-compilation-targets": "^7.29.7", "@babel/helper-module-transforms": "^7.29.7", "@babel/helpers": "^7.29.7", "@babel/parser": "^7.29.7", "@babel/template": "^7.29.7", "@babel/traverse": "^7.29.7", "@babel/types": "^7.29.7", "@jridgewell/remapping": "^2.3.5", "convert-source-map": "^2.0.0", "debug": "^4.1.0", "gensync": "^1.0.0-beta.2", "json5": "^2.2.3", "semver": "^6.3.1" } }, "sha512-RgHBCvtjbOK2gXSNBNIkNoEc9qoVEtau3hj8gEqKQuL3HZAibKarWFEI3Lfm6EYKkLalOh8eSrj9b+ch9H/VBA=="],
 
     "react-doctor/eslint-plugin-react-hooks/@babel/parser": ["@babel/parser@7.29.7", "", { "dependencies": { "@babel/types": "^7.29.7" }, "bin": "./bin/babel-parser.js" }, "sha512-hnORnjP/1P/zFEndoeX+n+t1RwWRJiJpM/jO7FW32Kn9r5+sJB2JWOdYo4L6k78j15eCwY3Gm/7364B1EMwtNg=="],
+
+    "react-doctor/eslint-plugin-react-hooks/zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
 
     "react-doctor/magicast/@babel/parser": ["@babel/parser@7.29.7", "", { "dependencies": { "@babel/types": "^7.29.7" }, "bin": "./bin/babel-parser.js" }, "sha512-hnORnjP/1P/zFEndoeX+n+t1RwWRJiJpM/jO7FW32Kn9r5+sJB2JWOdYo4L6k78j15eCwY3Gm/7364B1EMwtNg=="],
 
