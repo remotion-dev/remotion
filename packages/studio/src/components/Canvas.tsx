@@ -74,6 +74,7 @@ import {
 } from './element-install-request';
 import {handleDrop} from './handle-drop';
 import {
+	getElementPositionForDrop,
 	getFromForDrop,
 	hasSvgFile,
 	importAssets,
@@ -925,23 +926,37 @@ export const Canvas: React.FC<{
 
 	useEffect(() => {
 		return subscribeToElementInstallRequests((request) => {
-			const requestWithFrom =
-				request.source.type === 'drag-and-drop' || request.from !== null
-					? request
-					: {
-							...request,
-							from: getFromForDrop({
+			const isDragAndDrop = request.source.type === 'drag-and-drop';
+			const requestWithDefaults = isDragAndDrop
+				? request
+				: {
+						...request,
+						from:
+							request.from ??
+							getFromForDrop({
 								durationInFrames: request.element.durationInFrames,
 								from: getCurrentFrame(),
 								preferCompositionStart: true,
 							}),
-						};
+						position:
+							request.position ??
+							getElementPositionForDrop({
+								dimensions: request.element.dimensions,
+								dropPosition:
+									contentDimensions === null || contentDimensions === 'none'
+										? null
+										: {
+												centerX: contentDimensions.width / 2,
+												centerY: contentDimensions.height / 2,
+											},
+							}),
+					};
 			setPendingElementInstallRequests((requests) => [
 				...requests,
-				requestWithFrom,
+				requestWithDefaults,
 			]);
 		});
-	}, []);
+	}, [contentDimensions]);
 
 	useEffect(() => {
 		if (
