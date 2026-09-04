@@ -163,9 +163,6 @@ test.describe('captions inspector', () => {
 			sourceBeforeFailedImport,
 		);
 		await page.getByRole('button', {name: 'Replace captions'}).click();
-		await expect(
-			page.getByText('Imported 2 captions. Undo is available.'),
-		).toBeVisible();
 		await expect(defaultCaption).toHaveValue('Imported');
 		await expect
 			.poll(() => fs.readFileSync(elementCaptionsFile, 'utf-8'))

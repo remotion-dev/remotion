@@ -30,7 +30,7 @@ export const CaptionInspector: React.FC<{
 	readonly onTextChange: (captions: Caption[]) => void;
 	readonly onTextSave: ((captions: Caption[]) => void) | null;
 	readonly onTextCancel: (() => void) | null;
-	readonly onReplaceCaptions: ((captions: Caption[]) => Promise<void>) | null;
+	readonly onReplaceCaptions: ((captions: Caption[]) => void) | null;
 	readonly onToggle: () => void;
 	readonly readOnly: boolean;
 	readonly readOnlyTitle: string | null;
@@ -75,13 +75,7 @@ export const CaptionInspector: React.FC<{
 					return;
 				}
 
-				await onReplaceCaptions(importedCaptions);
-				const captionLabel =
-					importedCaptions.length === 1 ? 'caption' : 'captions';
-				showNotification(
-					`Imported ${importedCaptions.length} ${captionLabel}. Undo is available.`,
-					4000,
-				);
+				onReplaceCaptions(importedCaptions);
 			} catch (error) {
 				showNotification(
 					`Could not import ${file.name}: ${error instanceof Error ? error.message : String(error)}`,

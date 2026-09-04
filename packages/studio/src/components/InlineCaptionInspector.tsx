@@ -17,7 +17,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CaptionInspector} from './CaptionInspector';
 import {
 	saveInlineCaptionPatches,
-	saveSequencePropsOrThrow,
+	saveSequenceProps,
 } from './Timeline/save-sequence-prop';
 
 const serializeCaptions = (captions: Caption[]): string => {
@@ -175,9 +175,9 @@ export const InlineCaptionInspector: React.FC<{
 	);
 
 	const replaceCaptions = useCallback(
-		async (nextCaptions: Caption[]) => {
+		(nextCaptions: Caption[]) => {
 			if (!canSave || clientId === null) {
-				throw new Error('Caption importing is unavailable');
+				return;
 			}
 
 			setDraftCaptions(nextCaptions);
@@ -186,33 +186,26 @@ export const InlineCaptionInspector: React.FC<{
 				'captions',
 				Internals.makeStaticDragOverride(nextCaptions),
 			);
-
-			try {
-				await saveSequencePropsOrThrow({
-					changes: [
-						{
-							fileName: validatedLocation.source,
-							nodePath,
-							fieldKey: 'captions',
-							value: nextCaptions,
-							defaultValue: null,
-							schema: controls.schema,
-						},
-					],
-					addedKeyframes: null,
-					movedKeyframes: null,
-					setPropStatuses,
-					clientId,
-					undoLabel: 'Import captions',
-					redoLabel: 'Import captions again',
-				});
-				savedCaptions.current = nextCaptions;
-			} catch (error) {
-				setDraftCaptions(savedCaptions.current);
-				throw error;
-			} finally {
-				clearDragOverrides(nodePath);
-			}
+			savedCaptions.current = nextCaptions;
+			saveSequenceProps({
+				changes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath,
+						fieldKey: 'captions',
+						value: nextCaptions,
+						defaultValue: null,
+						schema: controls.schema,
+					},
+				],
+				addedKeyframes: null,
+				movedKeyframes: null,
+				setPropStatuses,
+				clientId,
+				undoLabel: 'Import captions',
+				redoLabel: 'Import captions again',
+			});
+			clearDragOverrides(nodePath);
 		},
 		[
 			canSave,
