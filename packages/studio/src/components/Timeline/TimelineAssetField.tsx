@@ -40,17 +40,21 @@ const standaloneSourceActionStyle: React.CSSProperties = {
 	width: 'auto',
 };
 
+const assetTypeToAccept = {
+	audio: 'audio/*',
+	video: 'video/*',
+	image: 'image/*',
+} as const;
+
 export type InspectorSourceAction = InspectorQuickActionProps;
 
 type AssetSelectionContextValue = {
-	readonly initialQuery: string;
 	readonly getSourceAction: (src: string) => InspectorSourceAction | null;
 	readonly sourceAction: InspectorSourceAction | null;
 };
 
 export const AssetSelectionContext = createContext<AssetSelectionContextValue>({
 	getSourceAction: () => null,
-	initialQuery: '',
 	sourceAction: null,
 });
 
@@ -84,9 +88,9 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const staticFiles = useStaticFiles();
-	const {getSourceAction, initialQuery, sourceAction} = useContext(
-		AssetSelectionContext,
-	);
+	const {getSourceAction, sourceAction} = useContext(AssetSelectionContext);
+	const {assetType} = field.fieldSchema;
+	const initialQuery = assetType ? `type:${assetType} ` : '';
 	const inlineSourceAction = useMemo(() => {
 		if (typeof effectiveValue === 'string') {
 			return getSourceAction(effectiveValue);
@@ -111,7 +115,10 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	);
 
 	const selectFile = useCallback(async () => {
-		const [file] = await pickFilesToImport({multiple: false});
+		const [file] = await pickFilesToImport({
+			multiple: false,
+			accept: assetType ? assetTypeToAccept[assetType] : null,
+		});
 		if (!file) {
 			return;
 		}
@@ -147,7 +154,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 				4000,
 			);
 		}
-	}, [onSelect, staticFiles]);
+	}, [assetType, onSelect, staticFiles]);
 
 	const openAssetSelection = useCallback(() => {
 		setSelectedModal({

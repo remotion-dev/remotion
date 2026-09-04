@@ -36,7 +36,6 @@ import {
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
-import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -355,9 +354,6 @@ export const InspectorSequenceSection: React.FC<{
 		sequence.controls,
 		runtimeValues,
 	);
-	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
-		sequence.controls.componentIdentity,
-	);
 	const getSourceAction = useCallback(
 		(src: string): InspectorSourceAction | null => {
 			const linkInfo = getTimelineAssetLinkInfo(src);
@@ -406,10 +402,9 @@ export const InspectorSequenceSection: React.FC<{
 	const assetSelectionContextValue = useMemo(
 		() => ({
 			getSourceAction,
-			initialQuery: assetSelectionInitialQuery,
 			sourceAction,
 		}),
-		[assetSelectionInitialQuery, getSourceAction, sourceAction],
+		[getSourceAction, sourceAction],
 	);
 
 	const getIsExpanded = useCallback(

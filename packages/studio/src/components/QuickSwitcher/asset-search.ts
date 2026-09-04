@@ -1,8 +1,5 @@
 import type {StaticFile} from '../../api/get-static-files';
-import {
-	getPreviewFileType,
-	type AssetFileType,
-} from '../../helpers/get-preview-file-type';
+import {getPreviewFileType} from '../../helpers/get-preview-file-type';
 
 const typeFilterRegex = /(^|\s)type:([^\s]+)/gi;
 
@@ -38,23 +35,4 @@ export const filterAssetsByType = ({
 		}),
 		query: queryWithoutTypeFilters,
 	};
-};
-
-const componentAssetTypes: Record<string, AssetFileType> = {
-	'dev.remotion.media.Audio': 'audio',
-	'dev.remotion.media.Video': 'video',
-	'dev.remotion.remotion.AnimatedImage': 'image',
-	'dev.remotion.remotion.CanvasImage': 'image',
-	'dev.remotion.remotion.Img': 'image',
-};
-
-export const getAssetSearchQueryForComponent = (
-	componentIdentity: string | null,
-): string => {
-	if (componentIdentity === null) {
-		return '';
-	}
-
-	const assetType = componentAssetTypes[componentIdentity];
-	return assetType ? `type:${assetType} ` : '';
 };

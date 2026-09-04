@@ -20,6 +20,7 @@ const {validateMediaProps} = Internals;
 export const audioSchema: InteractivitySchema = {
 	src: {
 		type: 'asset',
+		assetType: 'audio',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,
