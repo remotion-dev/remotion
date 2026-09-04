@@ -156,13 +156,6 @@ test.describe('captions inspector', () => {
 				]),
 			),
 		});
-		await expect(
-			page.getByText('Replace captions?', {exact: true}),
-		).toBeVisible();
-		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
-			sourceBeforeFailedImport,
-		);
-		await page.getByRole('button', {name: 'Replace captions'}).click();
 		await expect(defaultCaption).toHaveValue('Imported');
 		await expect
 			.poll(() => fs.readFileSync(elementCaptionsFile, 'utf-8'))

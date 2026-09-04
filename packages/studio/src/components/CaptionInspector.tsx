@@ -4,7 +4,6 @@ import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {UploadIcon} from '../icons/upload';
 import {Button} from './Button';
 import {CaptionTextEditor} from './CaptionTextEditor';
-import {useConfirmationDialog} from './ConfirmationDialog';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
 import {InspectorSectionHeader} from './InspectorPanel/common';
 import {sectionHeaderEnd} from './InspectorPanel/styles';
@@ -47,7 +46,6 @@ export const CaptionInspector: React.FC<{
 }) => {
 	const fileInput = useRef<HTMLInputElement>(null);
 	const [isImporting, setIsImporting] = useState(false);
-	const confirm = useConfirmationDialog();
 
 	const importCaptions = useCallback(
 		async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,23 +57,12 @@ export const CaptionInspector: React.FC<{
 
 			setIsImporting(true);
 			try {
-				const importedCaptions = parseCaptionFile({
-					fileName: file.name,
-					contents: await file.text(),
-				});
-				if (
-					captions.length > 0 &&
-					!(await confirm({
-						title: 'Replace captions?',
-						message: `This will replace ${captions.length} existing ${captions.length === 1 ? 'caption' : 'captions'} with ${importedCaptions.length} imported ${importedCaptions.length === 1 ? 'caption' : 'captions'}. You can undo this action.`,
-						confirmLabel: 'Replace captions',
-						cancelLabel: 'Cancel',
-					}))
-				) {
-					return;
-				}
-
-				onReplaceCaptions(importedCaptions);
+				onReplaceCaptions(
+					parseCaptionFile({
+						fileName: file.name,
+						contents: await file.text(),
+					}),
+				);
 			} catch (error) {
 				showNotification(
 					`Could not import ${file.name}: ${error instanceof Error ? error.message : String(error)}`,
@@ -85,7 +72,7 @@ export const CaptionInspector: React.FC<{
 				setIsImporting(false);
 			}
 		},
-		[captions.length, confirm, onReplaceCaptions],
+		[onReplaceCaptions],
 	);
 
 	return (
