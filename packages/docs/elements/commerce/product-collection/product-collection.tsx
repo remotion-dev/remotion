@@ -25,7 +25,6 @@ type ProductCardProps = InteractiveBaseProps &
 		readonly count: number;
 		readonly discount: string;
 		readonly image: string;
-		readonly imageFit: 'contain' | 'cover';
 		readonly index: number;
 		readonly originalPrice: string;
 		readonly price: string;
@@ -45,15 +44,6 @@ const productCardSchema = {
 		default:
 			'https://remotion.media/elements/product-collection-cloudline-runner.png',
 		description: 'Product image',
-	},
-	imageFit: {
-		type: 'enum',
-		default: 'cover',
-		description: 'Image fit',
-		variants: {
-			contain: {},
-			cover: {},
-		},
 	},
 	price: {
 		type: 'text-content',
@@ -85,7 +75,6 @@ const ProductCardInner = forwardRef<
 			count,
 			discount,
 			image,
-			imageFit,
 			index,
 			name,
 			originalPrice,
@@ -194,6 +183,8 @@ const ProductCardInner = forwardRef<
 						style={{
 							...style,
 							backgroundColor: '#ffffff',
+							borderRadius: 6,
+							boxShadow: '0 2px 6px rgba(29, 29, 25, 0.12)',
 							boxSizing: 'border-box',
 							color: '#1d1d19',
 							display: 'flex',
@@ -218,7 +209,7 @@ const ProductCardInner = forwardRef<
 								src={image}
 								style={{
 									height: '100%',
-									objectFit: imageFit,
+									objectFit: 'cover',
 									objectPosition: '50% 50%',
 									scale: interpolate(
 										frame,
@@ -426,7 +417,6 @@ export const ProductCollection = () => {
 				count={5}
 				discount="20% off"
 				image="https://remotion.media/elements/product-collection-cloudline-runner.png"
-				imageFit="cover"
 				index={0}
 				name="Cloudline Runner card"
 				originalPrice="$148"
@@ -438,7 +428,6 @@ export const ProductCollection = () => {
 				count={5}
 				discount=""
 				image="https://remotion.media/elements/product-collection-minimal-steel-watch.png"
-				imageFit="cover"
 				index={1}
 				name="Minimal Steel Watch card"
 				originalPrice=""
@@ -450,7 +439,6 @@ export const ProductCollection = () => {
 				count={5}
 				discount="Save $31"
 				image="https://images.unsplash.com/photo-1511499767150-a48a237f0083?fm=jpg&fit=crop&w=900&q=90"
-				imageFit="cover"
 				index={2}
 				name="Studio Sunglasses card"
 				originalPrice="$125"
@@ -462,7 +450,6 @@ export const ProductCollection = () => {
 				count={5}
 				discount="New"
 				image="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?fm=jpg&fit=crop&w=900&q=90"
-				imageFit="cover"
 				index={3}
 				name="Studio Headset card"
 				originalPrice=""
@@ -474,7 +461,6 @@ export const ProductCollection = () => {
 				count={5}
 				discount=""
 				image="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?fm=jpg&fit=crop&w=900&q=90"
-				imageFit="cover"
 				index={4}
 				name="Sculptural Table Lamp card"
 				originalPrice=""
