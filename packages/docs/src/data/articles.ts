@@ -2529,15 +2529,6 @@ export const articles = [
 		slug: 'elevenlabs/index',
 	},
 	{
-		id: 'elevenlabs/is-elevenlabs-transcript-json',
-		title: 'isElevenLabsTranscriptJson()',
-		relativePath: 'docs/elevenlabs/is-elevenlabs-transcript-json.mdx',
-		compId: 'articles-docs-elevenlabs-is-elevenlabs-transcript-json',
-		crumb: '@remotion/elevenlabs',
-		noAi: false,
-		slug: 'elevenlabs/is-elevenlabs-transcript-json',
-	},
-	{
 		id: 'enable-scss/enable-scss',
 		title: 'enableScss()',
 		relativePath: 'docs/enable-scss/enable-scss.mdx',
@@ -5074,15 +5065,6 @@ export const articles = [
 		crumb: 'Subtitle videos',
 		noAi: false,
 		slug: 'openai-whisper/index',
-	},
-	{
-		id: 'openai-whisper/is-open-ai-whisper-json',
-		title: 'isOpenAiWhisperJson()',
-		relativePath: 'docs/openai-whisper/is-open-ai-whisper-json.mdx',
-		compId: 'articles-docs-openai-whisper-is-open-ai-whisper-json',
-		crumb: '@remotion/openai-whisper',
-		noAi: false,
-		slug: 'openai-whisper/is-open-ai-whisper-json',
 	},
 	{
 		id: 'openai-whisper/openai-whisper-api-to-captions',

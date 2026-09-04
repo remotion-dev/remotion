@@ -1,10 +1,10 @@
 import Head from '@docusaurus/Head';
 import {
 	installInStudio,
-	type InstallInStudioErrorCode,
 	isInsideStudio,
 	setStudioDragData,
 	StudioProtocolInternals,
+	type InstallInStudioErrorCode,
 } from '@remotion/studio-protocol';
 import React, {
 	useCallback,
@@ -345,9 +345,9 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						<p className={styles.description}>{description}</p>
 						{definition.category === 'captions' ? (
 							<p className={styles.description} style={{marginTop: 8}}>
-								Have a transcript?{' '}
+								Have captions?{' '}
 								<a href="/elements/captions/#importing-captions-into-studio">
-									Import JSON or SRT from the Captions inspector in Studio.
+									Import Remotion Caption[] JSON from Studio.
 								</a>
 							</p>
 						) : null}

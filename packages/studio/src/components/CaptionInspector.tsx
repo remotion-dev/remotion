@@ -9,19 +9,11 @@ import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleIns
 import {InspectorSectionHeader} from './InspectorPanel/common';
 import {sectionHeaderEnd} from './InspectorPanel/styles';
 import {showNotification} from './Notifications/NotificationCenter';
-import {parseCaptionFile, type ParsedCaptionFile} from './parse-caption-file';
+import {parseCaptionFile} from './parse-caption-file';
 
 const importTooltip = `Import captions
 
-Supports Remotion Caption[] JSON, ElevenLabs Speech-to-Text JSON, ElevenLabs segmented export JSON, OpenAI Whisper verbose JSON, and SRT subtitles. JSON transcripts need word-level timestamps. Files are processed locally.`;
-
-const formatLabels: Record<ParsedCaptionFile['format'], string> = {
-	remotion: 'Remotion JSON',
-	elevenlabs: 'ElevenLabs JSON',
-	'elevenlabs-segments': 'ElevenLabs segmented JSON',
-	'openai-whisper': 'OpenAI Whisper JSON',
-	srt: 'SRT',
-};
+Supports Remotion Caption[] JSON. Files are processed locally.`;
 
 const readOnlyStatus: React.CSSProperties = {
 	color: LIGHT_TEXT,
@@ -67,7 +59,7 @@ export const CaptionInspector: React.FC<{
 
 			setIsImporting(true);
 			try {
-				const parsed = parseCaptionFile({
+				const importedCaptions = parseCaptionFile({
 					fileName: file.name,
 					contents: await file.text(),
 				});
@@ -75,7 +67,7 @@ export const CaptionInspector: React.FC<{
 					captions.length > 0 &&
 					!(await confirm({
 						title: 'Replace captions?',
-						message: `This will replace ${captions.length} existing ${captions.length === 1 ? 'caption' : 'captions'} with ${parsed.captions.length} imported ${parsed.captions.length === 1 ? 'caption' : 'captions'}. You can undo this action.`,
+						message: `This will replace ${captions.length} existing ${captions.length === 1 ? 'caption' : 'captions'} with ${importedCaptions.length} imported ${importedCaptions.length === 1 ? 'caption' : 'captions'}. You can undo this action.`,
 						confirmLabel: 'Replace captions',
 						cancelLabel: 'Cancel',
 					}))
@@ -83,11 +75,11 @@ export const CaptionInspector: React.FC<{
 					return;
 				}
 
-				await onReplaceCaptions(parsed.captions);
+				await onReplaceCaptions(importedCaptions);
 				const captionLabel =
-					parsed.captions.length === 1 ? 'caption' : 'captions';
+					importedCaptions.length === 1 ? 'caption' : 'captions';
 				showNotification(
-					`Imported ${parsed.captions.length} ${captionLabel} from ${formatLabels[parsed.format]}. Undo is available.`,
+					`Imported ${importedCaptions.length} ${captionLabel}. Undo is available.`,
 					4000,
 				);
 			} catch (error) {
@@ -112,7 +104,7 @@ export const CaptionInspector: React.FC<{
 								<>
 									<input
 										ref={fileInput}
-										accept=".json,.srt"
+										accept=".json"
 										aria-label="Import captions file"
 										hidden
 										onChange={importCaptions}

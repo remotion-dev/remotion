@@ -9,12 +9,12 @@ import {ElementLibrary} from '@site/src/components/Elements/ElementLibrary';
 
 ## Importing captions into Studio<AvailableFrom v="4.0.521" />
 
-<Step>1</Step> Install an Element from the [Captions category](/elements/captions), or add [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema) to an interactive component that accepts [`Caption[]`](/docs/captions/caption).<br />
-<Step>2</Step> Select its caption layer in Studio.<br />
-<Step>3</Step> In the Captions inspector, click **Import captions** and choose the JSON or SRT file exported by ElevenLabs or your Whisper transcription tool.
+<Step>1</Step> Install an Element from the [Captions category](/elements/captions), or add [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema) to an interactive component that accepts [`Caption[]`](/docs/captions/caption).
+<br />
+<Step>2</Step> Select its caption layer in Studio.
+<br />
+<Step>3</Step> In the Captions inspector, click **Import** and choose a JSON file containing a Remotion [`Caption[]`](/docs/captions/caption).
 
-Studio detects and converts Remotion [`Caption[]`](/docs/captions/caption) JSON, ElevenLabs Speech-to-Text JSON, ElevenLabs segmented export JSON, OpenAI Whisper verbose JSON, and [SRT subtitles](/docs/captions/parse-srt). JSON transcripts must include word-level timestamps. SRT cue timestamps work, but cannot provide true word-by-word animation.
-
-Files are processed locally.
+Files are processed locally. Importing SRT and transcription service JSON is tracked in [#11062](https://github.com/remotion-dev/remotion/issues/11062).
 
 <ElementLibrary category="captions" />

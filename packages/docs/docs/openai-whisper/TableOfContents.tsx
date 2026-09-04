@@ -6,10 +6,6 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
-				<TOCItem link="/docs/openai-whisper/is-open-ai-whisper-json">
-					<strong>{'isOpenAiWhisperJson()'}</strong>
-					<div>Detect OpenAI Whisper verbose JSON</div>
-				</TOCItem>
 				<TOCItem link="/docs/openai-whisper/openai-whisper-api-to-captions">
 					<strong>{'openAiWhisperApiToCaptions()'}</strong>
 					<div>

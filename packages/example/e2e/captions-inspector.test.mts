@@ -115,22 +115,19 @@ test.describe('captions inspector', () => {
 			name: 'broken.json',
 			mimeType: 'application/json',
 			buffer: Buffer.from(
-				JSON.stringify({
-					language_code: 'eng',
-					segments: [
-						{
-							text: 'Broken',
-							start_time: 0,
-							end_time: 1,
-							words: [{text: 'Broken', end_time: 1}],
-						},
-					],
-				}),
+				JSON.stringify([
+					{
+						text: 'Broken',
+						endMs: 1000,
+						timestampMs: 500,
+						confidence: null,
+					},
+				]),
 			),
 		});
 		await expect(
 			page.getByText(
-				/broken\.json:.*segments\[0\]\.words\[0\]\.start_time must be a finite number/,
+				/broken\.json:.*captions\[0\]\.startMs must be a finite, non-negative number/,
 			),
 		).toBeVisible();
 		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
@@ -141,21 +138,22 @@ test.describe('captions inspector', () => {
 			name: 'captions.json',
 			mimeType: 'application/json',
 			buffer: Buffer.from(
-				JSON.stringify({
-					language_code: 'eng',
-					segments: [
-						{
-							text: 'Imported captions',
-							start_time: 0.1,
-							end_time: 0.9,
-							words: [
-								{text: 'Imported', start_time: 0.1, end_time: 0.4},
-								{text: ' ', start_time: 0.4, end_time: 0.5},
-								{text: 'captions', start_time: 0.5, end_time: 0.9},
-							],
-						},
-					],
-				}),
+				JSON.stringify([
+					{
+						text: 'Imported',
+						startMs: 100,
+						endMs: 400,
+						timestampMs: 250,
+						confidence: null,
+					},
+					{
+						text: ' captions',
+						startMs: 400,
+						endMs: 900,
+						timestampMs: 650,
+						confidence: null,
+					},
+				]),
 			),
 		});
 		await expect(
@@ -166,14 +164,12 @@ test.describe('captions inspector', () => {
 		);
 		await page.getByRole('button', {name: 'Replace captions'}).click();
 		await expect(
-			page.getByText(
-				'Imported 2 captions from ElevenLabs segmented JSON. Undo is available.',
-			),
+			page.getByText('Imported 2 captions. Undo is available.'),
 		).toBeVisible();
 		await expect(defaultCaption).toHaveValue('Imported');
 		await expect
 			.poll(() => fs.readFileSync(elementCaptionsFile, 'utf-8'))
-			.toMatch(/startMs:\s*100[\s\S]*text:\s*['"]Imported['"]/);
+			.toMatch(/text:\s*['"]Imported['"][\s\S]*startMs:\s*100/);
 		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).toBe(
 			elementCallSiteSourceBefore,
 		);

@@ -1,7 +1,6 @@
 export {
 	OpenAiToCaptionsInput,
 	OpenAiToCaptionsOutput,
-	isOpenAiWhisperJson,
 	openAiWhisperApiToCaptions,
 } from './openai-whisper-api-to-captions';
 
