@@ -222,7 +222,7 @@ const CloseupPlaceholder = () => {
 		}
 	});
 	await context.route(
-		'https://www.remotion.dev/elements?remotion-studio=true',
+		'https://www.remotion.dev/elements?remotion-studio=true&docusaurus-theme=dark',
 		async (route) => {
 			officialLibraryRequests.push(route.request().url());
 			await route.fulfill({
@@ -232,7 +232,7 @@ const CloseupPlaceholder = () => {
 		},
 	);
 	await context.route(
-		`${externalLibraryUrl}?remotion-studio=true`,
+		`${externalLibraryUrl}?remotion-studio=true&docusaurus-theme=dark`,
 		async (route) => {
 			externalLibraryRequests.push(route.request().url());
 			await route.fulfill({
@@ -311,7 +311,7 @@ const CloseupPlaceholder = () => {
 		);
 		await expect(officialElementsIframe).toBeVisible();
 		expect(officialLibraryRequests).toEqual([
-			'https://www.remotion.dev/elements?remotion-studio=true',
+			'https://www.remotion.dev/elements?remotion-studio=true&docusaurus-theme=dark',
 		]);
 		expect(context.pages()).toHaveLength(2);
 		await studioPage.keyboard.press('Escape');
@@ -339,7 +339,7 @@ const CloseupPlaceholder = () => {
 		);
 		await expect(elementsIframe).toHaveAttribute('credentialless', '');
 		expect(externalLibraryRequests).toEqual([
-			`${externalLibraryUrl}?remotion-studio=true`,
+			`${externalLibraryUrl}?remotion-studio=true&docusaurus-theme=dark`,
 		]);
 		expect(context.pages()).toHaveLength(2);
 		const elementsFrame = studioPage.frameLocator(
