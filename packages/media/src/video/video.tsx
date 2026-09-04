@@ -26,6 +26,7 @@ const {
 export const videoSchema: InteractivitySchema = {
 	src: {
 		type: 'asset',
+		assetType: 'video',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,

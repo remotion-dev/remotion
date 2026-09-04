@@ -408,6 +408,7 @@ test('Img with effects renders through the canvas image path', async () => {
 test('<Img> schema exposes src and crop but not fit', () => {
 	expect(imgSchema.src).toEqual({
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,

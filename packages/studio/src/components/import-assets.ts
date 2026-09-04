@@ -616,15 +616,23 @@ const getAssetElementFromStaticAsset = async (
 	return getAssetElementFromPath(assetPath);
 };
 
-export const pickFilesToImport = ({
-	multiple = true,
-}: {
-	readonly multiple?: boolean;
-} = {}): Promise<File[]> => {
+export const pickFilesToImport = (
+	{
+		multiple = true,
+		accept,
+	}: {
+		readonly multiple?: boolean;
+		readonly accept: string | null;
+	} = {accept: null},
+): Promise<File[]> => {
 	return new Promise((resolve) => {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.multiple = multiple;
+		if (accept !== null) {
+			input.accept = accept;
+		}
+
 		input.style.display = 'none';
 
 		let didResolve = false;
