@@ -377,6 +377,14 @@ const CloseupPlaceholder = () => {
 		await expect(elementsIframe).toHaveCount(0);
 		expect(studioProtocolRequests).toEqual([]);
 		await dialog.getByRole('button', {name: /Install/}).click();
+		await expect(
+			studioPage
+				.getByRole('group', {name: 'Inspector source location'})
+				.first(),
+		).toContainText('Protocol Element', {timeout: 30_000});
+		await expect(
+			studioPage.getByText('Installed Protocol Element', {exact: true}),
+		).toBeVisible();
 
 		const elementFile = path.join(
 			temporaryProject,

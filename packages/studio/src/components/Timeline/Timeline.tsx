@@ -368,10 +368,13 @@ const TimelineInner: React.FC = () => {
 
 		const matchesInsertedNodePath = (track: TimelineTrackData) =>
 			track.nodePathInfo !== null &&
-			track.nodePathInfo.sequenceSubscriptionKey.absolutePath ===
-				pendingInsertedElementSelection.nodePath.absolutePath &&
-			JSON.stringify(track.nodePathInfo.sequenceSubscriptionKey.nodePath) ===
-				JSON.stringify(pendingInsertedElementSelection.nodePath.nodePath);
+			(pendingInsertedElementSelection.nodePath === null ||
+				(track.nodePathInfo.sequenceSubscriptionKey.absolutePath ===
+					pendingInsertedElementSelection.nodePath.absolutePath &&
+					JSON.stringify(
+						track.nodePathInfo.sequenceSubscriptionKey.nodePath,
+					) ===
+						JSON.stringify(pendingInsertedElementSelection.nodePath.nodePath)));
 
 		if (
 			pendingSelectionStart.current?.selection !==
@@ -418,6 +421,9 @@ const TimelineInner: React.FC = () => {
 			{reveal: true},
 		);
 		clearInsertedElementSelection(pendingInsertedElementSelection);
+		if (pendingInsertedElementSelection.notification !== null) {
+			showNotification(pendingInsertedElementSelection.notification, 3000);
+		}
 	}, [
 		canvasContent,
 		fastRefreshes,

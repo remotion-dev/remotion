@@ -697,6 +697,7 @@ const insertCompositionElement = async ({
 		requestInsertedElementSelection({
 			compositionId,
 			nodePath: result.insertedNodePath,
+			notification: null,
 		});
 	}
 
@@ -1355,7 +1356,14 @@ export const insertElement = async ({
 					? response.reason
 					: `Element file changed: ${response.conflict.filePath}`;
 			showNotification(`Could not add Element: ${reason}`, 4000);
+			return;
 		}
+
+		requestInsertedElementSelection({
+			compositionId,
+			nodePath: null,
+			notification: `Installed ${element.displayName}`,
+		});
 	} catch (error) {
 		showNotification(
 			`Could not add Element: ${
