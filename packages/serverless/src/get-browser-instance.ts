@@ -7,6 +7,7 @@ import type {
 } from '@remotion/serverless-client';
 import {VERSION} from '@remotion/serverless-client';
 import type {
+	CloseBrowserInstance,
 	ForgetBrowserEventLoop,
 	GetBrowserInstance,
 	InsideFunctionSpecifics,
@@ -62,6 +63,16 @@ export const forgetBrowserEventLoopImplementation: ForgetBrowserEventLoop = ({
 	);
 	launchedBrowser.instance.runner.forgetEventLoop();
 	launchedBrowser.instance.runner.deleteBrowserCaches();
+};
+
+export const closeBrowserInstanceImplementation: CloseBrowserInstance = async ({
+	launchedBrowser,
+}) => {
+	if (_browserInstance === launchedBrowser) {
+		_browserInstance = null;
+	}
+
+	await launchedBrowser.instance.close({silent: true});
 };
 
 export const getBrowserInstanceImplementation: GetBrowserInstance = async <
@@ -132,31 +143,36 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 			},
 			chromeMode: 'headless-shell',
 		});
+		const launchedBrowser = {
+			instance,
+			configurationString,
+		};
+		_browserInstance = launchedBrowser;
 		instance.on('disconnected', () => {
+			if (_browserInstance !== launchedBrowser) {
+				return;
+			}
+
+			_browserInstance = null;
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
 				'Browser disconnected or crashed.',
 			);
 			insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel,
-				launchedBrowser: _browserInstance as LaunchedBrowser,
+				launchedBrowser,
 			});
-			_browserInstance?.instance?.close({silent: true}).catch((err) => {
+			launchedBrowser.instance.close({silent: true}).catch((err) => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
 					'Could not close browser instance',
 					err,
 				);
 			});
-			_browserInstance = null;
 		});
-		_browserInstance = {
-			instance,
-			configurationString,
-		};
 
 		launching = false;
-		return _browserInstance;
+		return launchedBrowser;
 	}
 
 	if (_browserInstance.configurationString !== configurationString) {

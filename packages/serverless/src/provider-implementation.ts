@@ -49,6 +49,10 @@ export type ForgetBrowserEventLoop = (options: {
 	launchedBrowser: LaunchedBrowser;
 }) => void;
 
+export type CloseBrowserInstance = (options: {
+	launchedBrowser: LaunchedBrowser;
+}) => Promise<void>;
+
 export type GenerateRenderId = (options: {
 	deleteAfter: DeleteAfter | null;
 	randomHashFn: () => string;
@@ -123,6 +127,7 @@ export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
 	defaultX264Preset: X264Preset | null;
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
+	closeBrowserInstance: CloseBrowserInstance;
 	timer: DebuggingTimer;
 	generateRandomId: GenerateRenderId;
 	deleteTmpDir: () => Promise<void>;

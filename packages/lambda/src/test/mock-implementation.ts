@@ -44,6 +44,10 @@ export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
 		);
 		launchedBrowser.instance.close({silent: false});
 	},
+	closeBrowserInstance: async ({launchedBrowser}) => {
+		browsersOpen.delete(launchedBrowser.instance.id);
+		await launchedBrowser.instance.close({silent: true});
+	},
 	getCurrentRegionInFunction: () => 'eu-central-1',
 	getBrowserInstance,
 	timer: () => ({
