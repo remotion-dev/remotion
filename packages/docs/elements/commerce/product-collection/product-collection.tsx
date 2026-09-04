@@ -183,9 +183,8 @@ const ProductCardInner = forwardRef<
 						style={{
 							...style,
 							backgroundColor: '#ffffff',
-							border: '2px solid rgba(29, 29, 25, 0.14)',
 							borderRadius: 6,
-							boxShadow: '0 1px 3px rgba(29, 29, 25, 0.06)',
+							boxShadow: '0 2px 6px rgba(29, 29, 25, 0.12)',
 							boxSizing: 'border-box',
 							color: '#1d1d19',
 							display: 'flex',
