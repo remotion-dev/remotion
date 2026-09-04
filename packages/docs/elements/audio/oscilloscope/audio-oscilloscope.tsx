@@ -29,6 +29,7 @@ const audioOscilloscopeSchema = {
 	...Interactive.baseSchema,
 	audioSrc: {
 		type: 'asset',
+		assetType: 'audio',
 		default:
 			'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 		description: 'Audio source',

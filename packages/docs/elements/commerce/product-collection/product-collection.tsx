@@ -41,6 +41,7 @@ const productCardSchema = {
 	},
 	image: {
 		type: 'asset',
+		assetType: 'image',
 		default:
 			'https://remotion.media/elements/product-collection-cloudline-runner.png',
 		description: 'Product image',
