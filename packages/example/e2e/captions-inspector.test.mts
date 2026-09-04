@@ -100,17 +100,78 @@ test.describe('captions inspector', () => {
 		}).toPass({timeout: 30_000});
 		await expect(defaultCaption).toBeEnabled();
 
-		await defaultCaption.fill('Editable captions');
+		const importCaptionsButton = page.getByRole('button', {
+			name: 'Import',
+			exact: true,
+		});
+		const importCaptionsInput = page.getByLabel('Import captions file');
+		await expect(importCaptionsButton).toBeVisible();
+
+		const sourceBeforeFailedImport = fs.readFileSync(
+			elementCaptionsFile,
+			'utf-8',
+		);
+		await importCaptionsInput.setInputFiles({
+			name: 'broken.json',
+			mimeType: 'application/json',
+			buffer: Buffer.from(
+				JSON.stringify([
+					{
+						text: 'Broken',
+						endMs: 1000,
+						timestampMs: 500,
+						confidence: null,
+					},
+				]),
+			),
+		});
+		await expect(
+			page.getByText(
+				/broken\.json:.*captions\[0\]\.startMs must be a finite, non-negative number/,
+			),
+		).toBeVisible();
+		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
+			sourceBeforeFailedImport,
+		);
+
+		await importCaptionsInput.setInputFiles({
+			name: 'captions.json',
+			mimeType: 'application/json',
+			buffer: Buffer.from(
+				JSON.stringify([
+					{
+						text: 'Imported',
+						startMs: 100,
+						endMs: 400,
+						timestampMs: 250,
+						confidence: null,
+					},
+					{
+						text: ' captions',
+						startMs: 400,
+						endMs: 900,
+						timestampMs: 650,
+						confidence: null,
+					},
+				]),
+			),
+		});
+		await expect(defaultCaption).toHaveValue('Imported');
+		await expect
+			.poll(() => fs.readFileSync(elementCaptionsFile, 'utf-8'))
+			.toMatch(/text:\s*['"]Imported['"][\s\S]*startMs:\s*100/);
+		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).toBe(
+			elementCallSiteSourceBefore,
+		);
+
+		await defaultCaption.fill('Edited imported caption');
 		await defaultCaption.blur();
 		await expect
 			.poll(() => {
-				return /text:\s*['"]Editable captions['"]/.test(
+				return /text:\s*['"]Edited imported caption['"]/.test(
 					fs.readFileSync(elementCaptionsFile, 'utf-8'),
 				);
 			})
 			.toBe(true);
-		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).toBe(
-			elementCallSiteSourceBefore,
-		);
 	});
 });
