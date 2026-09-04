@@ -17,15 +17,57 @@ const assets: StaticFile[] = [
 	},
 	{
 		lastModified: 0,
+		name: 'audio/podcast.m4a',
+		sizeInBytes: 1,
+		src: '/audio/podcast.m4a',
+	},
+	{
+		lastModified: 0,
+		name: 'audio/lossless.flac',
+		sizeInBytes: 1,
+		src: '/audio/lossless.flac',
+	},
+	{
+		lastModified: 0,
 		name: 'images/logo.png',
 		sizeInBytes: 1,
 		src: '/images/logo.png',
 	},
 	{
 		lastModified: 0,
+		name: 'images/vector.svg',
+		sizeInBytes: 1,
+		src: '/images/vector.svg',
+	},
+	{
+		lastModified: 0,
 		name: 'videos/intro.mp4',
 		sizeInBytes: 1,
 		src: '/videos/intro.mp4',
+	},
+	{
+		lastModified: 0,
+		name: 'videos/trailer.m4v',
+		sizeInBytes: 1,
+		src: '/videos/trailer.m4v',
+	},
+	{
+		lastModified: 0,
+		name: 'videos/stream.ts',
+		sizeInBytes: 1,
+		src: '/videos/stream.ts',
+	},
+	{
+		lastModified: 0,
+		name: 'videos/stream.m2ts',
+		sizeInBytes: 1,
+		src: '/videos/stream.m2ts',
+	},
+	{
+		lastModified: 0,
+		name: 'videos/playlist.m3u8',
+		sizeInBytes: 1,
+		src: '/videos/playlist.m3u8',
 	},
 ];
 
@@ -38,6 +80,10 @@ test('filters quick switcher assets by type', () => {
 	expect(result.query).toBe('intro clip');
 	expect(result.assets.map((asset) => asset.name)).toEqual([
 		'videos/intro.mp4',
+		'videos/trailer.m4v',
+		'videos/stream.ts',
+		'videos/stream.m2ts',
+		'videos/playlist.m3u8',
 	]);
 });
 
@@ -50,7 +96,10 @@ test('supports multiple asset type filters', () => {
 	expect(result.query).toBe('');
 	expect(result.assets.map((asset) => asset.name)).toEqual([
 		'audio/theme.mp3',
+		'audio/podcast.m4a',
+		'audio/lossless.flac',
 		'images/logo.png',
+		'images/vector.svg',
 	]);
 });
 
@@ -114,5 +163,21 @@ test('an audio asset field includes only audio files', () => {
 		query: modal.assetSelection.initialQuery,
 	});
 
-	expect(result.assets.map((asset) => asset.name)).toEqual(['audio/theme.mp3']);
+	expect(result.assets.map((asset) => asset.name)).toEqual([
+		'audio/theme.mp3',
+		'audio/podcast.m4a',
+		'audio/lossless.flac',
+	]);
+});
+
+test('an image asset filter includes SVG files', () => {
+	const result = filterAssetsByType({
+		assets,
+		query: 'type:image ',
+	});
+
+	expect(result.assets.map((asset) => asset.name)).toEqual([
+		'images/logo.png',
+		'images/vector.svg',
+	]);
 });
