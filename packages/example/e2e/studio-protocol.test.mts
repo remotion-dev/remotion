@@ -377,6 +377,14 @@ const CloseupPlaceholder = () => {
 		await expect(elementsIframe).toHaveCount(0);
 		expect(studioProtocolRequests).toEqual([]);
 		await dialog.getByRole('button', {name: /Install/}).click();
+		await expect(
+			studioPage
+				.getByRole('group', {name: 'Inspector source location'})
+				.first(),
+		).toContainText('Protocol Element', {timeout: 30_000});
+		await expect(
+			studioPage.getByText('Installed Protocol Element', {exact: true}),
+		).toBeVisible();
 
 		const elementFile = path.join(
 			temporaryProject,
@@ -502,9 +510,15 @@ const CloseupPlaceholder = () => {
 		await expect(studioPage).toHaveURL(/ProtocolElementScene/, {
 			timeout: 30_000,
 		});
+		await expect(
+			studioPage
+				.getByRole('group', {name: 'Inspector source location'})
+				.first(),
+		).toContainText('Protocol Element', {timeout: 30_000});
 
 		await studioPage.bringToFront();
-		await studioPage.mouse.click(500, 300);
+		await studioPage.keyboard.press('Escape');
+		await expect(browseElements).toBeVisible();
 		await expect
 			.poll(() =>
 				fetch(`${studioUrl}/api/studio-protocol`, {
