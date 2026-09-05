@@ -128,51 +128,54 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 		);
 		launching = true;
 
-		const execPath = providerSpecifics.getChromiumPath();
+		try {
+			const execPath = providerSpecifics.getChromiumPath();
 
-		const instance = await RenderInternals.internalOpenBrowser({
-			browser: 'chrome',
-			browserExecutable: execPath,
-			chromiumOptions: actualChromiumOptions,
-			forceDeviceScaleFactor: undefined,
-			indent: false,
-			viewport: null,
-			logLevel,
-			onBrowserDownload: () => {
-				throw new Error('Should not download a browser in serverless');
-			},
-			chromeMode: 'headless-shell',
-		});
-		const launchedBrowser = {
-			instance,
-			configurationString,
-		};
-		_browserInstance = launchedBrowser;
-		instance.on('disconnected', () => {
-			if (_browserInstance !== launchedBrowser) {
-				return;
-			}
-
-			_browserInstance = null;
-			RenderInternals.Log.info(
-				{indent: false, logLevel},
-				'Browser disconnected or crashed.',
-			);
-			insideFunctionSpecifics.forgetBrowserEventLoop({
+			const instance = await RenderInternals.internalOpenBrowser({
+				browser: 'chrome',
+				browserExecutable: execPath,
+				chromiumOptions: actualChromiumOptions,
+				forceDeviceScaleFactor: undefined,
+				indent: false,
+				viewport: null,
 				logLevel,
-				launchedBrowser,
+				onBrowserDownload: () => {
+					throw new Error('Should not download a browser in serverless');
+				},
+				chromeMode: 'headless-shell',
 			});
-			launchedBrowser.instance.close({silent: true}).catch((err) => {
+			const launchedBrowser = {
+				instance,
+				configurationString,
+			};
+			_browserInstance = launchedBrowser;
+			instance.on('disconnected', () => {
+				if (_browserInstance !== launchedBrowser) {
+					return;
+				}
+
+				_browserInstance = null;
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					'Could not close browser instance',
-					err,
+					'Browser disconnected or crashed.',
 				);
+				insideFunctionSpecifics.forgetBrowserEventLoop({
+					logLevel,
+					launchedBrowser,
+				});
+				launchedBrowser.instance.close({silent: true}).catch((err) => {
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						'Could not close browser instance',
+						err,
+					);
+				});
 			});
-		});
 
-		launching = false;
-		return launchedBrowser;
+			return launchedBrowser;
+		} finally {
+			launching = false;
+		}
 	}
 
 	if (_browserInstance.configurationString !== configurationString) {
