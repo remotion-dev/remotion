@@ -1346,3 +1346,106 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 		.poll(() => getBackgroundColor(fileMenu))
 		.toBe('rgba(0, 0, 0, 0)');
 });
+
+for (const target of ['canvas', 'timeline'] as const) {
+	test(`drops a sidebar composition onto the ${target} with undo and redo`, async ({
+		page,
+	}) => {
+		const studioApiRequests: string[] = [];
+		page.on('request', (request) => {
+			if (new URL(request.url()).pathname.startsWith('/api/')) {
+				studioApiRequests.push(request.url());
+			}
+		});
+		await page.goto('/?composition-drop');
+		const studio = page.frameLocator('iframe');
+		await studio.locator('[data-compname="Parent"]').click();
+		await waitForBrowserStudioOperations(studio);
+		const canvas = studio.locator('.remotion-studio-composition-container');
+		await expect(canvas).toBeVisible();
+		const before = await page.evaluate(
+			() => window.__browserStudioProject.files['/project/src/Parent.tsx'],
+		);
+		const child = studio.locator('[data-compname="Child"]');
+		const dataTransfer = await child.evaluateHandle(() => new DataTransfer());
+		await child.dispatchEvent('dragstart', {dataTransfer});
+		const dropTarget =
+			target === 'canvas'
+				? canvas
+				: studio.locator('[data-timeline-scrollable="true"]');
+		const coordinates = await dropTarget.evaluate((element) => {
+			const rect = element.getBoundingClientRect();
+			return {
+				clientX: rect.x + rect.width / 2,
+				clientY: rect.y + rect.height / 2,
+			};
+		});
+		await dropTarget.dispatchEvent('dragover', {...coordinates, dataTransfer});
+		const indicator =
+			target === 'canvas'
+				? studio.getByTestId('composition-drop-preview')
+				: studio.locator('[data-timeline-asset-drop-indicator="true"]');
+		await expect(indicator).toBeVisible();
+		const placementPreview = await indicator.boundingBox();
+		await dropTarget.dispatchEvent('drop', {...coordinates, dataTransfer});
+		await child.dispatchEvent('dragend', {dataTransfer});
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() => window.__browserStudioProject.files['/project/src/Parent.tsx'],
+				),
+			)
+			.toContain('<Child');
+		const source = await page.evaluate(
+			() => window.__browserStudioProject.files['/project/src/Parent.tsx'],
+		);
+		expect(source).toContain('durationInFrames={30}');
+		expect(source).toContain('Nested composition');
+		expect(source).toContain('width={320}');
+		expect(source).toContain('height={180}');
+		if (target === 'timeline') {
+			expect(Number(source.match(/from=\{(\d+)\}/)?.[1])).toBeGreaterThan(0);
+			await studio.locator('[data-timeline-scrollable="true"]').click({
+				position: {
+					x: await dropTarget.evaluate((element) => element.clientWidth / 2),
+					y: 5,
+				},
+			});
+		}
+
+		await expect(canvas.getByText('Nested composition')).toBeVisible();
+		if (target === 'canvas') {
+			const rendered = await canvas
+				.getByText('Nested composition')
+				.boundingBox();
+			expect(rendered).not.toBeNull();
+			expect(placementPreview).not.toBeNull();
+			for (const dimension of ['x', 'y', 'width', 'height'] as const) {
+				expect(rendered![dimension]).toBeCloseTo(
+					placementPreview![dimension],
+					0,
+				);
+			}
+		}
+
+		await studio.getByTitle(/^Undo/).click();
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() => window.__browserStudioProject.files['/project/src/Parent.tsx'],
+				),
+			)
+			.toBe(before);
+		await expect(canvas.getByText('Nested composition')).toBeHidden();
+		await studio.getByTitle(/^Redo/).click();
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() => window.__browserStudioProject.files['/project/src/Parent.tsx'],
+				),
+			)
+			.toBe(source);
+		await expect(canvas.getByText('Nested composition')).toBeVisible();
+		expect(studioApiRequests).toEqual([]);
+	});
+}
