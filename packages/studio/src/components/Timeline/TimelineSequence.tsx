@@ -176,6 +176,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly negativeStartClipped: boolean;
 	readonly style: React.CSSProperties;
 	readonly children: React.ReactNode;
+	readonly edgeDragHandles: React.ReactNode;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly sequenceFrameOffset: number;
 	readonly fromCanUpdate: boolean;
@@ -195,6 +196,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	negativeStartClipped,
 	style,
 	children,
+	edgeDragHandles,
 	nodePathInfo,
 	sequenceFrameOffset,
 	fromCanUpdate,
@@ -379,8 +381,18 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					</div>
 				</>
 			) : (
-				content
+				<div
+					style={{
+						position: 'absolute',
+						inset: 0,
+						overflow: 'hidden',
+						borderRadius: 'inherit',
+					}}
+				>
+					{content}
+				</div>
 			)}
+			{edgeDragHandles}
 		</div>
 	);
 };
@@ -824,7 +836,8 @@ const TimelineSequenceInner: React.FC<{
 			marginLeft: visibleLayout?.marginLeft ?? 0,
 			width: visibleLayout?.width ?? 0,
 			color: WHITE,
-			overflow: 'hidden',
+			// Edge handles extend outside the layer; media is clipped separately.
+			overflow: 'visible',
 		};
 	}, [negativeStartClipped, s.type, showLeftBorderRadius, visibleLayout]);
 
@@ -870,6 +883,33 @@ const TimelineSequenceInner: React.FC<{
 			frozenFrame={frozenFrame}
 			onMoveDragPointerDown={onMoveDragPointerDown}
 			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
+			edgeDragHandles={
+				<>
+					{showLeftEdgeDragHandle &&
+					visibleLayout.leftEdgeVisible &&
+					negativeStartWidth === 0 &&
+					nodePathInfo &&
+					validatedLocation ? (
+						<TimelineSequenceLeftEdgeDragHandle
+							nodePathInfo={nodePathInfo}
+							windowWidth={windowWidth}
+							timelineDurationInFrames={video.durationInFrames ?? 1}
+							onDragEnd={dragAwareDoubleClick.endPointerGesture}
+						/>
+					) : null}
+					{showRightEdgeDragHandle &&
+					visibleLayout.rightEdgeVisible &&
+					nodePathInfo &&
+					validatedLocation ? (
+						<TimelineSequenceRightEdgeDragHandle
+							nodePathInfo={nodePathInfo}
+							windowWidth={windowWidth}
+							timelineDurationInFrames={video.durationInFrames ?? 1}
+							onDragEnd={dragAwareDoubleClick.endPointerGesture}
+						/>
+					) : null}
+				</>
+			}
 			onDoubleClick={
 				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
 			}
@@ -927,29 +967,6 @@ const TimelineSequenceInner: React.FC<{
 					visibleWidth={visibleLayout.width}
 				/>
 			)}
-			{showLeftEdgeDragHandle &&
-			visibleLayout.leftEdgeVisible &&
-			negativeStartWidth === 0 &&
-			nodePathInfo &&
-			validatedLocation ? (
-				<TimelineSequenceLeftEdgeDragHandle
-					nodePathInfo={nodePathInfo}
-					windowWidth={windowWidth}
-					timelineDurationInFrames={video.durationInFrames ?? 1}
-					onDragEnd={dragAwareDoubleClick.endPointerGesture}
-				/>
-			) : null}
-			{showRightEdgeDragHandle &&
-			visibleLayout.rightEdgeVisible &&
-			nodePathInfo &&
-			validatedLocation ? (
-				<TimelineSequenceRightEdgeDragHandle
-					nodePathInfo={nodePathInfo}
-					windowWidth={windowWidth}
-					timelineDurationInFrames={video.durationInFrames ?? 1}
-					onDragEnd={dragAwareDoubleClick.endPointerGesture}
-				/>
-			) : null}
 		</TimelineSequenceCurrentFrame>
 	);
 
