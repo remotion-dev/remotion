@@ -27,8 +27,11 @@ const style: React.CSSProperties = {
 export const SidebarCollapserControl: React.FC<{
 	readonly side: 'left' | 'right';
 }> = ({side}) => {
-	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
-		useContext(SidebarContext);
+	const {
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+		sidebarCollapsedDuringDrag,
+	} = useContext(SidebarContext);
 	const keybindings = useKeybinding();
 	const leftSidebarStatus = useResponsiveSidebarStatus();
 
@@ -38,10 +41,14 @@ export const SidebarCollapserControl: React.FC<{
 				width: '35%',
 				height: '100%',
 				borderRight: '1px solid ' + color,
-				background: leftSidebarStatus === 'expanded' ? color : TRANSPARENT,
+				background:
+					leftSidebarStatus === 'expanded' &&
+					sidebarCollapsedDuringDrag !== 'left'
+						? color
+						: TRANSPARENT,
 			};
 		},
-		[leftSidebarStatus],
+		[leftSidebarStatus, sidebarCollapsedDuringDrag],
 	);
 
 	const rightIcon = useCallback(
@@ -53,10 +60,13 @@ export const SidebarCollapserControl: React.FC<{
 				position: 'absolute',
 				borderLeft: '1px solid ' + color,
 				background:
-					sidebarCollapsedStateRight === 'expanded' ? color : TRANSPARENT,
+					sidebarCollapsedStateRight === 'expanded' &&
+					sidebarCollapsedDuringDrag !== 'right'
+						? color
+						: TRANSPARENT,
 			};
 		},
-		[sidebarCollapsedStateRight],
+		[sidebarCollapsedStateRight, sidebarCollapsedDuringDrag],
 	);
 
 	const toggleLeft = useCallback(() => {

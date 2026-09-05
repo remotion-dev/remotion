@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef} from 'react';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {SidebarContext} from '../../state/sidebar';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -13,6 +14,11 @@ const containerRow: React.CSSProperties = {
 	height: SPLITTER_HANDLE_SIZE,
 };
 
+const collapsedContainer: React.CSSProperties = {
+	width: 0,
+	height: 0,
+};
+
 const containerColumn: React.CSSProperties = {
 	width: SPLITTER_HANDLE_SIZE,
 };
@@ -21,6 +27,7 @@ export const SplitterHandle: React.FC<{
 	readonly allowToCollapse: 'right' | 'left' | 'none';
 	readonly onCollapse: () => void;
 }> = ({allowToCollapse, onCollapse}) => {
+	const {setSidebarCollapsedDuringDrag} = useContext(SidebarContext);
 	const context = useContext(SplitterContext);
 	if (!context) {
 		throw new Error('Cannot find splitter context');
@@ -100,27 +107,41 @@ export const SplitterHandle: React.FC<{
 				return newFlex;
 			};
 
+			const getCollapsedSide = (ev: PointerEvent) => {
+				const collapse = latest.current.allowToCollapse;
+				const unclamped = getNewValue(ev, false);
+				if (collapse === 'left' && unclamped < dragContext.minFlex / 2) {
+					return 'left';
+				}
+
+				if (
+					collapse === 'right' &&
+					1 - unclamped < (1 - dragContext.maxFlex) / 2
+				) {
+					return 'right';
+				}
+
+				return null;
+			};
+
+			let lastFlex = startFlex;
+			let lastCollapsedSide: 'left' | 'right' | null = null;
+
 			const onPointerMove = (ev: PointerEvent) => {
 				if (!dragContext.isDragging.current) {
 					return;
 				}
 
-				dragContext.setFlexValue(getNewValue(ev, true));
-
-				const collapse = latest.current.allowToCollapse;
-				if (collapse === 'left') {
-					const unclamped = getNewValue(ev, false);
-					if (unclamped < dragContext.minFlex / 2) {
-						endDrag?.();
-						latest.current.onCollapse();
-					}
-				} else if (collapse === 'right') {
-					const unclamped = 1 - getNewValue(ev, false);
-					if (unclamped < (1 - dragContext.maxFlex) / 2) {
-						endDrag?.();
-						latest.current.onCollapse();
-					}
+				// Keep the handle mounted and captured until release, even while
+				// the panel is hidden, so moving inward can restore it.
+				lastCollapsedSide = getCollapsedSide(ev);
+				lastFlex = getNewValue(ev, true);
+				if (latest.current.allowToCollapse !== 'none') {
+					setSidebarCollapsedDuringDrag(lastCollapsedSide);
 				}
+
+				dragContext.setCollapsedDuringDrag(lastCollapsedSide);
+				dragContext.setFlexValue(lastFlex);
 			};
 
 			endDrag = startCapturedPointerSession({
@@ -130,12 +151,27 @@ export const SplitterHandle: React.FC<{
 				onEnd: (reason, endEvent) => {
 					if (
 						(reason === 'pointerup' || reason === 'buttons-released') &&
-						endEvent &&
-						dragContext.isDragging.current
+						endEvent
 					) {
-						dragContext.persistFlex(getNewValue(endEvent, true));
+						lastFlex = getNewValue(endEvent, true);
+						lastCollapsedSide = getCollapsedSide(endEvent);
 					}
 
+					// Capture loss and cancellation may have no usable coordinates.
+					// Commit the last displayed state instead of resetting the panel.
+					if (reason !== 'manual' && dragContext.isDragging.current) {
+						dragContext.setFlexValue(lastFlex);
+						dragContext.persistFlex(lastFlex);
+						if (lastCollapsedSide !== null) {
+							latest.current.onCollapse();
+						}
+					}
+
+					if (latest.current.allowToCollapse !== 'none') {
+						setSidebarCollapsedDuringDrag(null);
+					}
+
+					dragContext.setCollapsedDuringDrag(null);
 					dragContext.isDragging.current = false;
 					stopForcingSpecificCursor();
 					endDrag = null;
@@ -150,7 +186,7 @@ export const SplitterHandle: React.FC<{
 			current.removeEventListener('pointerdown', onPointerDown);
 			endDrag?.();
 		};
-	}, []);
+	}, [setSidebarCollapsedDuringDrag]);
 
 	return (
 		<div
@@ -162,7 +198,11 @@ export const SplitterHandle: React.FC<{
 					: 'remotion-splitter-vertical',
 			].join(' ')}
 			style={
-				context.orientation === 'horizontal' ? containerRow : containerColumn
+				context.collapsedDuringDrag !== null
+					? collapsedContainer
+					: context.orientation === 'horizontal'
+						? containerRow
+						: containerColumn
 			}
 		/>
 	);

@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
@@ -52,6 +52,10 @@ export const SplitterContainer: React.FC<{
 		initialTimelineFlex ?? defaultFlex,
 	);
 
+	const [collapsedDuringDrag, setCollapsedDuringDrag] = useState<
+		'left' | 'right' | null
+	>(null);
+
 	const ref = useRef<HTMLDivElement>(null);
 	const isDragging = useRef<SplitterDragState>(false);
 	const size = PlayerInternals.useElementSize(ref, {
@@ -76,6 +80,8 @@ export const SplitterContainer: React.FC<{
 	const value: TSplitterContext = useMemo(() => {
 		return {
 			flexValue: effectiveFlexValue,
+			collapsedDuringDrag,
+			setCollapsedDuringDrag,
 			ref,
 			setFlexValue,
 			isDragging,
@@ -92,6 +98,7 @@ export const SplitterContainer: React.FC<{
 		};
 	}, [
 		defaultFlex,
+		collapsedDuringDrag,
 		effectiveFlexValue,
 		id,
 		maxFlex,
@@ -105,14 +112,9 @@ export const SplitterContainer: React.FC<{
 		ref,
 	]);
 
-	useEffect(() => {
-		const frame = requestAnimationFrame(() => {
-			PlayerInternals.updateAllElementsSizes();
-		});
-
-		return () => {
-			cancelAnimationFrame(frame);
-		};
+	useLayoutEffect(() => {
+		// Update the canvas and nested splitters before the resized layout paints.
+		PlayerInternals.updateAllElementsSizes();
 	});
 
 	return (

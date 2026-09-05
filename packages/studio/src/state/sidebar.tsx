@@ -5,6 +5,8 @@ export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';
 type RightSidebarCollapsedState = Exclude<SidebarCollapsedState, 'responsive'>;
 
 type Context = {
+	sidebarCollapsedDuringDrag: Sidebars | null;
+	setSidebarCollapsedDuringDrag: (side: Sidebars | null) => void;
 	sidebarCollapsedStateLeft: SidebarCollapsedState;
 	setSidebarCollapsedState: (options: {
 		left: null | React.SetStateAction<SidebarCollapsedState>;
@@ -63,6 +65,8 @@ const saveCollapsedState = (type: SidebarCollapsedState, sidebar: Sidebars) => {
 };
 
 export const SidebarContext = createContext<Context>({
+	sidebarCollapsedDuringDrag: null,
+	setSidebarCollapsedDuringDrag: () => undefined,
 	sidebarCollapsedStateLeft: 'collapsed',
 	setSidebarCollapsedState: () => {
 		throw new Error('sidebar collapsed state');
@@ -85,8 +89,13 @@ export const SidebarContextProvider: React.FC<{
 			right: getSavedCollapsedStateRight(isMobileLayout),
 		}));
 
+	const [sidebarCollapsedDuringDrag, setSidebarCollapsedDuringDrag] =
+		useState<Sidebars | null>(null);
+
 	const value: Context = useMemo(() => {
 		return {
+			sidebarCollapsedDuringDrag,
+			setSidebarCollapsedDuringDrag,
 			sidebarCollapsedStateLeft: sidebarCollapsedState.left,
 			sidebarCollapsedStateRight: sidebarCollapsedState.right,
 			setSidebarCollapsedState: (options: {
@@ -114,7 +123,7 @@ export const SidebarContextProvider: React.FC<{
 				});
 			},
 		};
-	}, [sidebarCollapsedState]);
+	}, [sidebarCollapsedState, sidebarCollapsedDuringDrag]);
 
 	return (
 		<SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
