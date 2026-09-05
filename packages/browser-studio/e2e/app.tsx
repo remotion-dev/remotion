@@ -42,9 +42,11 @@ registerRoot(RemotionRoot);
 			`import {Composition} from 'remotion';
 import {Parent} from './Parent';
 import {Child} from './Child';
+const computedId = 'ComputedChild';
 export const RemotionRoot = () => <>
   <Composition id="Parent" component={Parent} width={1280} height={720} fps={30} durationInFrames={120} />
   <Composition id="Child" component={Child} width={320} height={180} fps={30} durationInFrames={30} defaultProps={{text: 'Nested composition'}} />
+  <Composition id={computedId} component={Child} width={320} height={180} fps={30} durationInFrames={30} defaultProps={{text: 'Computed composition'}} />
 </>;
 `;
 		project.files['/project/src/Parent.tsx'] =

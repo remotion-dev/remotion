@@ -1446,6 +1446,33 @@ for (const target of ['canvas', 'timeline'] as const) {
 			)
 			.toBe(source);
 		await expect(canvas.getByText('Nested composition')).toBeVisible();
+
+		const computedChild = studio.locator('[data-compname="ComputedChild"]');
+		const unresolvedTransfer = await computedChild.evaluateHandle(
+			() => new DataTransfer(),
+		);
+		await computedChild.dispatchEvent('dragstart', {
+			dataTransfer: unresolvedTransfer,
+		});
+		await dropTarget.dispatchEvent('dragover', {
+			...coordinates,
+			dataTransfer: unresolvedTransfer,
+		});
+		await dropTarget.dispatchEvent('drop', {
+			...coordinates,
+			dataTransfer: unresolvedTransfer,
+		});
+		await computedChild.dispatchEvent('dragend', {
+			dataTransfer: unresolvedTransfer,
+		});
+		await expect(
+			studio.getByText('Could not find composition source file', {exact: true}),
+		).toBeVisible({timeout: 5000});
+		expect(
+			await page.evaluate(
+				() => window.__browserStudioProject.files['/project/src/Parent.tsx'],
+			),
+		).toBe(source);
 		expect(studioApiRequests).toEqual([]);
 	});
 }

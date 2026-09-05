@@ -412,13 +412,12 @@ export const CompositionSelectorItem: React.FC<{
 			);
 
 			if (item.type === 'composition') {
+				const browserStudioOperations = getBrowserStudioOperations();
 				const compositionDragData = makeCompositionDragData({
 					compositionFile:
-						getBrowserStudioOperations()?.getCompositionFile(
-							item.composition.id,
-						) ??
-						resolvedLocation?.source ??
-						null,
+						browserStudioOperations === null
+							? (resolvedLocation?.source ?? null)
+							: browserStudioOperations.getCompositionFile(item.composition.id),
 					compositionId: item.composition.id,
 					width: item.composition.width ?? null,
 					height: item.composition.height ?? null,
