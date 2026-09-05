@@ -121,11 +121,8 @@ const html = `<!DOCTYPE html>
 </html>
 `;
 
-await Bun.write(
-	path.join(import.meta.dir, 'build', 'experimental_new', 'index.html'),
-	html,
-);
+await Bun.write(path.join(import.meta.dir, 'build', 'new', 'index.html'), html);
 
 process.stdout.write(
-	`Built standalone Browser Studio at /experimental_new with ${output.outputs.length + 4} assets.\n`,
+	`Built standalone Browser Studio at /new with ${output.outputs.length + 4} assets.\n`,
 );

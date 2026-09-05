@@ -41,7 +41,7 @@ test('uses query-string routing in Browser Studio', () => {
 			replaceState: (...args: unknown[]) => replaceStateCalls.push(args),
 		},
 		location: {
-			pathname: '/experimental_new',
+			pathname: '/new',
 			search: '?source=release',
 		},
 	};
@@ -61,7 +61,5 @@ test('uses query-string routing in Browser Studio', () => {
 
 	expect(getRoute()).toBe('');
 	replaceUrl('/assets/other.mp4');
-	expect(replaceStateCalls).toEqual([
-		[{}, 'Studio', '/experimental_new?/assets/other.mp4'],
-	]);
+	expect(replaceStateCalls).toEqual([[{}, 'Studio', '/new?/assets/other.mp4']]);
 });

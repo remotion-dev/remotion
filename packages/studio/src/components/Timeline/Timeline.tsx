@@ -49,6 +49,10 @@ import {TimelineHeightContainer} from './TimelineHeightContainer';
 import {TimelineInOutDragHandler} from './TimelineInOutDragHandler';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineKeyframeTracksProvider} from './TimelineKeyframeTracksContext';
+import {
+	TimelineLayerChildrenProvider,
+	useTimelineLayerChildren,
+} from './TimelineLayerChildren';
 import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
@@ -435,11 +439,25 @@ const TimelineInner: React.FC = () => {
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 	const filtered = useMemo(() => {
-		return timeline.filter((t) =>
-			shouldShowTrackInTimeline(t, durationInFrames),
-		);
-	}, [durationInFrames, timeline]);
+		return timeline.filter((t) => {
+			// Moving outside the composition can reduce the displayed duration to
+			// zero. Keep the drag owner mounted until its pending edit is saved.
+			if (
+				t.sequence.showInTimeline &&
+				t.nodePathInfo !== null &&
+				getDragOverrides(t.nodePathInfo.sequenceSubscriptionKey).from !==
+					undefined
+			) {
+				return true;
+			}
+
+			return shouldShowTrackInTimeline(t, durationInFrames);
+		});
+	}, [durationInFrames, getDragOverrides, timeline]);
 
 	// Keep `filtered` complete so a future toggle can show every programmatic
 	// instance without recalculating the timeline or losing its instance index.
@@ -462,14 +480,20 @@ const TimelineInner: React.FC = () => {
 		});
 	}, [filtered]);
 
+	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
+		collapsed,
+		sequences,
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
+	);
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
 	const shown = useMemo(() => {
-		return maxTimelineTracks !== null && collapsed.length > maxTimelineTracks
-			? collapsed.slice(0, maxTimelineTracks)
-			: collapsed;
-	}, [collapsed, maxTimelineTracks]);
+		return maxTimelineTracks !== null &&
+			visibleTracks.length > maxTimelineTracks
+			? visibleTracks.slice(0, maxTimelineTracks)
+			: visibleTracks;
+	}, [visibleTracks, maxTimelineTracks]);
 
-	const hasBeenCut = collapsed.length > shown.length;
+	const hasBeenCut = visibleTracks.length > shown.length;
 
 	return (
 		<TimelineContextMenuArea>
@@ -490,66 +514,71 @@ const TimelineInner: React.FC = () => {
 				);
 			})}
 			{isStudioInteractivityEnabled() ? <SequencePropsObserver /> : null}
-			<TimelineKeyframeTracksProvider tracks={filtered}>
-				<TimelineSelectableItemsProvider timeline={shown}>
-					<TimelineVirtualizationProvider
-						hasBeenCut={hasBeenCut}
-						isStill={isStill}
-						timeline={shown}
-					>
-						{isStudioInteractivityEnabled() ? (
-							<TimelineSelectAllKeybindings timeline={shown} />
-						) : null}
-						<TimelineHeightContainer>
-							{isStill ? (
-								<TimelineList />
-							) : (
-								<TimelineWidthProvider>
-									<TimelinePinchZoom />
-									<SplitterContainer
-										orientation="vertical"
-										defaultFlex={0.2}
-										id="names-to-timeline"
-										maxFlex={0.5}
-										minFlex={0.15}
-										maxFlexerSize={null}
-										minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
-										maxAntiFlexerSize={null}
-										minAntiFlexerSize={null}
-									>
-										<SplitterElement
-											type="flexer"
-											sticky={<TimelineTimePlaceholders />}
+			<TimelineLayerChildrenProvider value={layerChildrenValue}>
+				<TimelineKeyframeTracksProvider tracks={filtered}>
+					<TimelineSelectableItemsProvider timeline={shown}>
+						<TimelineVirtualizationProvider
+							hasBeenCut={hasBeenCut}
+							isStill={isStill}
+							timeline={shown}
+						>
+							{isStudioInteractivityEnabled() ? (
+								<TimelineSelectAllKeybindings timeline={shown} />
+							) : null}
+							<TimelineHeightContainer>
+								{isStill ? (
+									<TimelineList />
+								) : (
+									<TimelineWidthProvider>
+										<TimelinePinchZoom />
+										<SplitterContainer
+											orientation="vertical"
+											defaultFlex={0.2}
+											id="names-to-timeline"
+											maxFlex={0.5}
+											minFlex={0.15}
+											maxFlexerSize={null}
+											minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
+											maxAntiFlexerSize={null}
+											minAntiFlexerSize={null}
 										>
-											<TimelineList />
-										</SplitterElement>
-										<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-										<SplitterElement
-											type="anti-flexer"
-											sticky={
-												<>
-													<TimelineTimeIndicators />
-													<TimelineSlider />
-												</>
-											}
-										>
-											<TimelineScrollable>
-												<TimelineTracks hasBeenCut={hasBeenCut} />
-												<TimelinePlayCursorSyncer />
-												<TimelineInOutPointer />
-												<TimelineDragHandler />
-												{isStudioInteractivityEnabled() ? (
-													<TimelineInOutDragHandler />
-												) : null}
-											</TimelineScrollable>
-										</SplitterElement>
-									</SplitterContainer>
-								</TimelineWidthProvider>
-							)}
-						</TimelineHeightContainer>
-					</TimelineVirtualizationProvider>
-				</TimelineSelectableItemsProvider>
-			</TimelineKeyframeTracksProvider>
+											<SplitterElement
+												type="flexer"
+												sticky={<TimelineTimePlaceholders />}
+											>
+												<TimelineList />
+											</SplitterElement>
+											<SplitterHandle
+												onCollapse={noop}
+												allowToCollapse="none"
+											/>
+											<SplitterElement
+												type="anti-flexer"
+												sticky={
+													<>
+														<TimelineTimeIndicators />
+														<TimelineSlider />
+													</>
+												}
+											>
+												<TimelineScrollable>
+													<TimelineTracks hasBeenCut={hasBeenCut} />
+													<TimelinePlayCursorSyncer />
+													<TimelineInOutPointer />
+													<TimelineDragHandler />
+													{isStudioInteractivityEnabled() ? (
+														<TimelineInOutDragHandler />
+													) : null}
+												</TimelineScrollable>
+											</SplitterElement>
+										</SplitterContainer>
+									</TimelineWidthProvider>
+								)}
+							</TimelineHeightContainer>
+						</TimelineVirtualizationProvider>
+					</TimelineSelectableItemsProvider>
+				</TimelineKeyframeTracksProvider>
+			</TimelineLayerChildrenProvider>
 		</TimelineContextMenuArea>
 	);
 };
