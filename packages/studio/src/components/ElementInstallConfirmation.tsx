@@ -402,7 +402,9 @@ export const ElementInstallConfirmation: React.FC<{
 	const usesBrowserDependencyResolution = getBrowserStudioOperations() !== null;
 	const {currentZIndex} = useZIndex();
 	const [mode, setMode] = useState<'current-composition' | 'new-composition'>(
-		currentPlan === null ? 'new-composition' : 'current-composition',
+		currentPlan === null || request.source.type === 'browser-studio-link'
+			? 'new-composition'
+			: 'current-composition',
 	);
 	const [submitting, setSubmitting] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
