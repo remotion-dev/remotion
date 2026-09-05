@@ -2009,6 +2009,101 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
+	test('should split the right-clicked clip at the playhead from either timeline surface', async ({
+		page,
+	}) => {
+		const sourceBefore = fs.readFileSync(sequenceShiftFile, 'utf-8');
+		try {
+			fs.writeFileSync(
+				sequenceShiftFile,
+				`import {Sequence} from 'remotion';
+export const SequenceShiftRepro = () => {
+  return (
+    <>
+      <Sequence name="Split first" from={10} durationInFrames={50}>
+        <div />
+      </Sequence>
+      <Sequence name="Split second" from={10} durationInFrames={50}>
+        <div />
+      </Sequence>
+    </>
+  );
+};`,
+			);
+			await page.goto(`${STUDIO_URL}/sequence-shift-repro`);
+			const first = page.getByText('Split first', {exact: true});
+			const second = page.getByText('Split second', {exact: true});
+			await expect(first).toBeVisible({timeout: 30_000});
+			const menu = page.locator('[data-remotion-menu-tree-id]').last();
+			const split = menu.getByRole('button', {name: 'Split clip', exact: true});
+			await page.keyboard.press('g');
+			await page.locator('input:focus').fill('10');
+			await page.locator('input:focus').press('Enter');
+			await expect(async () => {
+				await page.keyboard.press('Escape');
+				await first.click({button: 'right'});
+				await expect(split.locator('span[title]')).toHaveAttribute(
+					'title',
+					'Cannot split at the sequence start',
+					{timeout: 500},
+				);
+			}).toPass({timeout: 15_000});
+			await split.click();
+			await expect(split).toBeVisible();
+			await page.keyboard.press('Escape');
+			await page.keyboard.press('g');
+			await page.locator('input:focus').fill('30');
+			await page.locator('input:focus').press('Enter');
+			await first.click();
+			await second.click({modifiers: ['Meta']});
+			await second.click({button: 'right'});
+			await expect(
+				menu.getByRole('button', {name: 'Duplicate selected', exact: true}),
+			).toBeVisible();
+			await expect(split).toHaveCount(0);
+			await page.keyboard.press('Escape');
+			await first.click();
+			// Right-click an unselected label: split that clip, not the old selection.
+			await second.click({button: 'right'});
+			await expect(split.locator('span[title]')).toHaveAttribute(
+				'title',
+				'Split at the playhead',
+			);
+			await split.click();
+			await expect
+				.poll(
+					() =>
+						fs
+							.readFileSync(sequenceShiftFile, 'utf-8')
+							.match(/name="Split second"/g)?.length,
+				)
+				.toBe(2);
+			await expect(second).toHaveCount(2);
+			// The clip bar exposes the same action and timing context.
+			await page
+				.locator('[data-timeline-marquee-item][title="Split first"]')
+				.click({button: 'right'});
+			await expect(split.locator('span[title]')).toHaveAttribute(
+				'title',
+				'Split at the playhead',
+			);
+			await split.click();
+			await expect
+				.poll(
+					() =>
+						fs
+							.readFileSync(sequenceShiftFile, 'utf-8')
+							.match(/name="Split first"/g)?.length,
+				)
+				.toBe(2);
+			const source = fs.readFileSync(sequenceShiftFile, 'utf-8');
+			expect(source.match(/durationInFrames=\{20\}/g)).toHaveLength(2);
+			expect(source.match(/trimBefore=\{20\}/g)).toHaveLength(2);
+		} finally {
+			fs.writeFileSync(sequenceShiftFile, sourceBefore);
+		}
+	});
+
 	test('should apply a timeline context menu action to multiple selected sequences', async ({
 		page,
 	}) => {

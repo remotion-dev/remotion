@@ -67,6 +67,7 @@ import {
 	getMultiSequenceContextMenuItems,
 	getSequenceContextMenuItems,
 } from './get-sequence-context-menu-items';
+import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
 import {getCurrentFrame} from './imperative-state';
 import {saveSequenceProps} from './save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
@@ -1007,6 +1008,15 @@ const TimelineSequenceItemInner: React.FC<{
 			});
 		}
 
+		const splitMenuItem = getSequenceSplitMenuItem({
+			nodePathInfo,
+			sequence,
+			propStatuses: propStatusesForOverride,
+			splitFrame: getCurrentFrame(),
+			canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+			hasMultipleSelection: selected && selectedItems.length > 1,
+		});
+
 		const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
 			clientId:
 				previewInteractive && previewServerState.type === 'connected'
@@ -1123,6 +1133,7 @@ const TimelineSequenceItemInner: React.FC<{
 							subMenu: null,
 							value: 'rename-sequence',
 						},
+						...(splitMenuItem ? [splitMenuItem] : []),
 						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
 					]
 				: [],
@@ -1142,7 +1153,7 @@ const TimelineSequenceItemInner: React.FC<{
 		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,
-		nodePathInfo?.supportsEffects,
+		nodePathInfo,
 		onAddEffect,
 		onCrop,
 		onRotate,
@@ -1162,6 +1173,7 @@ const TimelineSequenceItemInner: React.FC<{
 		selectAsset,
 		selectable,
 		selected,
+		selectedItems.length,
 		selectedSequenceNodePathInfos,
 		sequence,
 		sequenceFrameOffset,

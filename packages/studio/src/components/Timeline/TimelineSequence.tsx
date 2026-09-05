@@ -44,6 +44,7 @@ import {
 	getMultiSequenceContextMenuItems,
 	getSequenceContextMenuItems,
 } from './get-sequence-context-menu-items';
+import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -652,6 +653,15 @@ const TimelineSequenceInner: React.FC<{
 			});
 		}
 
+		const splitMenuItem = getSequenceSplitMenuItem({
+			nodePathInfo,
+			sequence: s,
+			propStatuses: propStatusesForOverride,
+			splitFrame: getCurrentFrame(),
+			canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+			hasMultipleSelection: selected && selectedItems.length > 1,
+		});
+
 		const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
 			clientId:
 				previewInteractive && previewServerState.type === 'connected'
@@ -694,10 +704,12 @@ const TimelineSequenceInner: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence: s,
-			sourceActions:
-				isStudioInteractivityEnabled() && freezeFrameMenuItem
-					? [freezeFrameMenuItem]
-					: [],
+			sourceActions: isStudioInteractivityEnabled()
+				? [
+						...(splitMenuItem ? [splitMenuItem] : []),
+						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
+					]
+				: [],
 		});
 	}, [
 		canOpenInEditor,
@@ -710,6 +722,7 @@ const TimelineSequenceInner: React.FC<{
 		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,
+		nodePathInfo,
 		onSelect,
 		onDeleteSequenceFromSource,
 		onDeleteSelectedSequences,
@@ -726,6 +739,7 @@ const TimelineSequenceInner: React.FC<{
 		selectAsset,
 		selectable,
 		selected,
+		selectedItems.length,
 		selectedSequenceNodePathInfos,
 		sequenceFrameOffset,
 		setPropStatuses,
