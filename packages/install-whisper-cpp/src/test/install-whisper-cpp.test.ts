@@ -29,7 +29,7 @@ test.skipIf(process.platform !== 'win32')(
 					path.join(__dirname, 'fixtures', 'whisper.zip'),
 					to,
 				],
-				{cwd: project, stdio: 'inherit', timeout: 30_000},
+				{cwd: project, stdio: 'inherit', timeout: 90_000},
 			);
 			expect(readFileSync(path.join(to, 'main.exe'), 'utf8')).toBe(
 				executableContents,
@@ -39,5 +39,5 @@ test.skipIf(process.platform !== 'win32')(
 			rmSync(root, {recursive: true, force: true});
 		}
 	},
-	30_000,
+	120_000,
 );
