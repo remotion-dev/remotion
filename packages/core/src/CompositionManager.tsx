@@ -121,6 +121,9 @@ export type SequenceControls = SequenceRegistrationControls & {
 };
 
 export type TSequence = {
+	// Optional for compatibility with consumers constructing this exported type.
+	// null means the layer has no explicit endpoint of its own.
+	explicitDurationInFrames?: number | null;
 	from: number;
 	trimBefore: number | null;
 	duration: number;

@@ -31,7 +31,7 @@ import {
 	TIMELINE_LAYER_HEIGHT_AUDIO,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
+import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {SetSelectedModalContext} from '../../state/modals';
 import {AudioWaveform} from '../AudioWaveform';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -44,6 +44,7 @@ import {
 	getMultiSequenceContextMenuItems,
 	getSequenceContextMenuItems,
 } from './get-sequence-context-menu-items';
+import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -425,9 +426,31 @@ const TimelineSequenceInner: React.FC<{
 		[],
 	);
 
-	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
-	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
+	const mediaMetadata = useMediaMetadata(
+		s.type === 'audio' || s.type === 'video' ? s.src : null,
+	);
 	const extendVideoLastFrame = isVideoWithLastFrameHold(s);
+	const naturalMediaDuration =
+		(s.type === 'audio' || s.type === 'video') &&
+		mediaMetadata !== null &&
+		s.playbackRate > 0
+			? Math.max(
+					0,
+					(mediaMetadata.duration * (video?.fps ?? 30) -
+						getTimelineMediaStartFrame({
+							startMediaFrom: s.startMediaFrom,
+							mediaFrameAtSequenceZero: s.mediaFrameAtSequenceZero,
+							sequenceFrameOffset,
+							playbackRate: s.playbackRate,
+						})) /
+						s.playbackRate,
+				)
+			: null;
+	const maxMediaDuration =
+		s.type === 'sequence' || s.type === 'image' || extendVideoLastFrame
+			? Infinity
+			: naturalMediaDuration;
+	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
 
 	const {
 		canOpenInEditor,
@@ -761,8 +784,8 @@ const TimelineSequenceInner: React.FC<{
 			durationInFrames: displayDurationInFrames,
 			startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
 			cascadedStart,
-			startFromMedia:
-				s.type === 'sequence' || s.type === 'image' ? 0 : s.startMediaFrom,
+			// The media duration cap already accounts for trimming and playback speed.
+			startFromMedia: 0,
 			maxMediaDuration: effectiveMaxMediaDuration,
 			video,
 			windowWidth,
@@ -811,6 +834,35 @@ const TimelineSequenceInner: React.FC<{
 		localStart >= 0 &&
 		(s.trimBefore ?? 0) === 0;
 
+	// Compare frame boundaries: fractional media durations still occupy the last frame.
+	const endsAtNaturalMediaDuration =
+		!s.loopDisplay &&
+		s.frozenFrame === null &&
+		(s.type === 'audio' || s.type === 'video') &&
+		s.frozenMediaFrame === null &&
+		naturalMediaDuration !== null &&
+		Number.isFinite(naturalMediaDuration) &&
+		naturalMediaDuration > 0 &&
+		Math.ceil(
+			Math.min(
+				s.duration,
+				video.durationInFrames - s.from,
+				maxMediaDuration ?? Infinity,
+			),
+		) === Math.ceil(naturalMediaDuration);
+
+	const endsAtExplicitDuration =
+		s.explicitDurationInFrames !== null &&
+		s.explicitDurationInFrames !== undefined &&
+		Number.isFinite(s.explicitDurationInFrames) &&
+		Math.ceil(s.explicitDurationInFrames - sequenceFrameOffset) <=
+			Math.ceil(
+				Math.min(displayDurationInFrames, video.durationInFrames - s.from),
+			);
+	const showRightBorderRadius =
+		visibleLayout?.rightEdgeVisible === true &&
+		(!endsAtExplicitDuration || endsAtNaturalMediaDuration);
+
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			background:
@@ -829,8 +881,8 @@ const TimelineSequenceInner: React.FC<{
 				: TRANSPARENT,
 			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
-			borderTopRightRadius: visibleLayout?.rightEdgeVisible ? 2 : 0,
-			borderBottomRightRadius: visibleLayout?.rightEdgeVisible ? 2 : 0,
+			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
+			borderBottomRightRadius: showRightBorderRadius ? 2 : 0,
 			position: 'absolute',
 			height: getTimelineLayerHeight(s.type),
 			marginLeft: visibleLayout?.marginLeft ?? 0,
@@ -839,7 +891,13 @@ const TimelineSequenceInner: React.FC<{
 			// Edge handles extend outside the layer; media is clipped separately.
 			overflow: 'visible',
 		};
-	}, [negativeStartClipped, s.type, showLeftBorderRadius, visibleLayout]);
+	}, [
+		negativeStartClipped,
+		s.type,
+		showLeftBorderRadius,
+		showRightBorderRadius,
+		visibleLayout,
+	]);
 
 	const showRightEdgeDragHandle =
 		isTimelineSequenceDurationDraggable(s) &&
