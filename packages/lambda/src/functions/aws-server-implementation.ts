@@ -1,6 +1,7 @@
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import type {InsideFunctionSpecifics} from '@remotion/serverless';
 import {
+	closeBrowserInstanceImplementation,
 	forgetBrowserEventLoopImplementation,
 	getBrowserInstanceImplementation,
 	invokeWebhook,
@@ -17,6 +18,7 @@ export const serverAwsImplementation: InsideFunctionSpecifics<AwsProvider> = {
 		? 'veryfast'
 		: null,
 	forgetBrowserEventLoop: forgetBrowserEventLoopImplementation,
+	closeBrowserInstance: closeBrowserInstanceImplementation,
 	getBrowserInstance: getBrowserInstanceImplementation,
 	timer,
 	getCurrentRegionInFunction: getCurrentRegionInFunctionImplementation,
