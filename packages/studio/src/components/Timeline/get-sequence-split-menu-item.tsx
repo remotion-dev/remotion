@@ -50,7 +50,17 @@ export const getSequenceSplitMenuItem = ({
 		type: 'item',
 		id: 'split-sequence',
 		label: (
-			<span title={disabledReason ?? 'Split at the playhead'}>Split clip</span>
+			<span
+				style={{
+					fontFamily: 'inherit',
+					fontSize: 'inherit',
+					lineHeight: 'inherit',
+					color: 'inherit',
+				}}
+				title={disabledReason ?? 'Split at the playhead'}
+			>
+				Split clip
+			</span>
 		),
 		value: 'split-sequence',
 		keyHint: null,
