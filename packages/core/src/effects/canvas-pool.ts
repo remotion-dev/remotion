@@ -1,8 +1,7 @@
 import type {Backend} from './effect-types.js';
 import {createWebGL2ContextError} from './webgl2-context-error.js';
 
-// A pair of scratch canvases for ping-ponging within a same-backend run.
-type CanvasPair = readonly [HTMLCanvasElement, HTMLCanvasElement];
+type CanvasSlots = [HTMLCanvasElement | null, HTMLCanvasElement | null];
 
 // Per-chain canvas pool. Each chain owns its own pool; pools are not shared
 // across chains because dimensions are chain-specific.
@@ -14,36 +13,67 @@ type CanvasPair = readonly [HTMLCanvasElement, HTMLCanvasElement];
 export class CanvasPool {
 	private readonly width: number;
 	private readonly height: number;
-	private readonly pairs: Map<Backend, CanvasPair> = new Map();
+	private readonly canvases: Map<Backend, CanvasSlots> = new Map();
 	private readonly lostContexts: Set<HTMLCanvasElement> = new Set();
+	private disposed = false;
 
 	public constructor(width: number, height: number) {
 		this.width = width;
 		this.height = height;
 	}
 
-	public getPair(backend: Backend): CanvasPair {
-		const existing = this.pairs.get(backend);
+	public getCanvas(backend: Backend, slot: 0 | 1): HTMLCanvasElement {
+		if (this.disposed) {
+			throw new Error('Cannot allocate a canvas from a disposed effect pool');
+		}
+
+		const canvases = this.canvases.get(backend) ?? [null, null];
+		const existing = canvases[slot];
 		if (existing) {
 			return existing;
 		}
 
-		const pair = [
-			this.allocateCanvas(backend),
-			this.allocateCanvas(backend),
-		] as const;
-		this.pairs.set(backend, pair);
-		return pair;
+		const canvas = this.allocateCanvas(backend);
+		canvases[slot] = canvas;
+		this.canvases.set(backend, canvases);
+		return canvas;
 	}
 
 	public assertContextNotLost(canvas: HTMLCanvasElement): void {
-		if (this.lostContexts.has(canvas)) {
+		const context = canvas.getContext('webgl2');
+		if (!context || context.isContextLost() || this.lostContexts.has(canvas)) {
 			throw new Error(
 				'WebGL context was lost during canvas effect rendering. ' +
 					'This typically happens in headless or memory-constrained environments (e.g. Remotion Lambda). ' +
 					'Try reducing concurrency or increasing the Lambda function memory.',
 			);
 		}
+	}
+
+	public dispose(): void {
+		if (this.disposed) {
+			return;
+		}
+
+		this.disposed = true;
+		for (const [backend, canvases] of this.canvases) {
+			for (const canvas of canvases) {
+				if (!canvas) {
+					continue;
+				}
+
+				if (backend === 'webgl2') {
+					const context = canvas.getContext('webgl2');
+					context?.getExtension('WEBGL_lose_context')?.loseContext();
+				}
+
+				canvas.width = 0;
+				canvas.height = 0;
+			}
+		}
+
+		this.canvases.clear();
+		this.lostContexts.clear();
 	}
 
 	private allocateCanvas(backend: Backend): HTMLCanvasElement {
@@ -74,10 +104,18 @@ export class CanvasPool {
 				}
 
 				canvas.addEventListener('webglcontextlost', (e) => {
+					if (this.disposed) {
+						return;
+					}
+
 					e.preventDefault();
 					this.lostContexts.add(canvas);
 				});
 				canvas.addEventListener('webglcontextrestored', () => {
+					if (this.disposed) {
+						return;
+					}
+
 					this.lostContexts.delete(canvas);
 				});
 
