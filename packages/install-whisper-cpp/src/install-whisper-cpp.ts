@@ -95,6 +95,8 @@ const installForWindows = async ({
 		args: [
 			'-NoProfile',
 			'-NonInteractive',
+			'-InputFormat',
+			'None',
 			'-Command',
 			'Expand-Archive -Force -LiteralPath $env:REMOTION_WHISPER_ARCHIVE -DestinationPath $env:REMOTION_WHISPER_DESTINATION -ErrorAction Stop',
 		],

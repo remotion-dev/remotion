@@ -32,7 +32,7 @@ test.skipIf(process.platform !== 'win32')(
 			process.chdir(project);
 
 			expect(
-				await installWhisperCpp({to, version: '1.5.5', printOutput: false}),
+				await installWhisperCpp({to, version: '1.5.5', printOutput: true}),
 			).toEqual({alreadyExisted: false});
 			expect(readFileSync(path.join(to, 'main.exe'), 'utf8')).toBe(
 				executableContents,
