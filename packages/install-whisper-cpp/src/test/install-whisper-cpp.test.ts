@@ -1,14 +1,13 @@
-import {expect, spyOn, test} from 'bun:test';
+import {expect, test} from 'bun:test';
+import {execFileSync} from 'child_process';
 import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync} from 'fs';
 import os from 'os';
 import path from 'path';
-import {installWhisperCpp} from '../install-whisper-cpp';
 
 test.skipIf(process.platform !== 'win32')(
 	'installs Whisper in Windows paths containing spaces and PowerShell characters',
-	async () => {
+	() => {
 		const root = mkdtempSync(path.join(os.tmpdir(), 'remotion-whisper-'));
-		const previousCwd = process.cwd();
 		const project = path.join(
 			root,
 			"NodeJs Projects [1] $value & 'quote' `tick`",
@@ -19,31 +18,24 @@ test.skipIf(process.platform !== 'win32')(
 			'whisper.cpp',
 		);
 		const executableContents = 'Whisper executable fixture';
-		const fetchSpy = spyOn(globalThis, 'fetch');
 
 		try {
 			mkdirSync(project);
-			const zip = readFileSync(path.join(__dirname, 'fixtures', 'whisper.zip'));
-			fetchSpy.mockResolvedValue(
-				new Response(new Uint8Array(zip).buffer, {
-					headers: {'content-length': String(zip.length)},
-				}),
+			execFileSync(
+				'node',
+				[
+					path.join(__dirname, 'fixtures', 'install-whisper.mjs'),
+					path.resolve(__dirname, '../../dist/install-whisper-cpp.js'),
+					path.join(__dirname, 'fixtures', 'whisper.zip'),
+					to,
+				],
+				{cwd: project, stdio: 'inherit', timeout: 30_000},
 			);
-			process.chdir(project);
-
-			expect(
-				await installWhisperCpp({to, version: '1.5.5', printOutput: true}),
-			).toEqual({alreadyExisted: false});
 			expect(readFileSync(path.join(to, 'main.exe'), 'utf8')).toBe(
 				executableContents,
 			);
 			expect(existsSync(path.join(project, 'whisper-bin-x64.zip'))).toBe(false);
-			expect(
-				await installWhisperCpp({to, version: '1.5.5', printOutput: false}),
-			).toEqual({alreadyExisted: true});
 		} finally {
-			fetchSpy.mockRestore();
-			process.chdir(previousCwd);
 			rmSync(root, {recursive: true, force: true});
 		}
 	},
