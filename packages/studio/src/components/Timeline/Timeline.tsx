@@ -550,6 +550,7 @@ const TimelineInner: React.FC = () => {
 											</SplitterElement>
 											<SplitterHandle
 												onCollapse={noop}
+												onCollapseDuringDrag={null}
 												allowToCollapse="none"
 											/>
 											<SplitterElement

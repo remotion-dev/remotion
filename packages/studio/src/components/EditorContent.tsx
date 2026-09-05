@@ -78,7 +78,11 @@ export const EditorContent: React.FC<{
 			<SplitterElement sticky={null} type="flexer">
 				{children}
 			</SplitterElement>
-			<SplitterHandle allowToCollapse="none" onCollapse={noop} />
+			<SplitterHandle
+				allowToCollapse="none"
+				onCollapse={noop}
+				onCollapseDuringDrag={null}
+			/>
 			<SplitterElement sticky={null} type="anti-flexer">
 				{showTimeline ? <Timeline /> : <TimelineEmptyState />}
 			</SplitterElement>

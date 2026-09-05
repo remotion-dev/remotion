@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef} from 'react';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {
@@ -13,6 +12,11 @@ const containerRow: React.CSSProperties = {
 	height: SPLITTER_HANDLE_SIZE,
 };
 
+const collapsedContainer: React.CSSProperties = {
+	width: 0,
+	height: 0,
+};
+
 const containerColumn: React.CSSProperties = {
 	width: SPLITTER_HANDLE_SIZE,
 };
@@ -20,7 +24,10 @@ const containerColumn: React.CSSProperties = {
 export const SplitterHandle: React.FC<{
 	readonly allowToCollapse: 'right' | 'left' | 'none';
 	readonly onCollapse: () => void;
-}> = ({allowToCollapse, onCollapse}) => {
+	readonly onCollapseDuringDrag:
+		| ((side: 'left' | 'right' | null) => void)
+		| null;
+}> = ({allowToCollapse, onCollapse, onCollapseDuringDrag}) => {
 	const context = useContext(SplitterContext);
 	if (!context) {
 		throw new Error('Cannot find splitter context');
@@ -30,8 +37,13 @@ export const SplitterHandle: React.FC<{
 
 	// Keep the latest props/context readable inside the long-lived pointerdown
 	// listener without re-subscribing it on every render.
-	const latest = useRef({context, allowToCollapse, onCollapse});
-	latest.current = {context, allowToCollapse, onCollapse};
+	const latest = useRef({
+		context,
+		allowToCollapse,
+		onCollapse,
+		onCollapseDuringDrag,
+	});
+	latest.current = {context, allowToCollapse, onCollapse, onCollapseDuringDrag};
 
 	useEffect(() => {
 		const {current} = ref;
@@ -100,27 +112,39 @@ export const SplitterHandle: React.FC<{
 				return newFlex;
 			};
 
+			const getCollapsedSide = (ev: PointerEvent) => {
+				const collapse = latest.current.allowToCollapse;
+				const unclamped = getNewValue(ev, false);
+				if (collapse === 'left' && unclamped < dragContext.minFlex / 2) {
+					return 'left';
+				}
+
+				if (
+					collapse === 'right' &&
+					1 - unclamped < (1 - dragContext.maxFlex) / 2
+				) {
+					return 'right';
+				}
+
+				return null;
+			};
+
+			let lastFlex = startFlex;
+			let lastCollapsedSide: 'left' | 'right' | null = null;
+
 			const onPointerMove = (ev: PointerEvent) => {
 				if (!dragContext.isDragging.current) {
 					return;
 				}
 
-				dragContext.setFlexValue(getNewValue(ev, true));
+				// Keep the handle mounted and captured until release, even while
+				// the panel is hidden, so moving inward can restore it.
+				lastCollapsedSide = getCollapsedSide(ev);
+				lastFlex = getNewValue(ev, true);
+				latest.current.onCollapseDuringDrag?.(lastCollapsedSide);
 
-				const collapse = latest.current.allowToCollapse;
-				if (collapse === 'left') {
-					const unclamped = getNewValue(ev, false);
-					if (unclamped < dragContext.minFlex / 2) {
-						endDrag?.();
-						latest.current.onCollapse();
-					}
-				} else if (collapse === 'right') {
-					const unclamped = 1 - getNewValue(ev, false);
-					if (unclamped < (1 - dragContext.maxFlex) / 2) {
-						endDrag?.();
-						latest.current.onCollapse();
-					}
-				}
+				dragContext.setCollapsedDuringDrag(lastCollapsedSide);
+				dragContext.setFlexValue(lastFlex);
 			};
 
 			endDrag = startCapturedPointerSession({
@@ -130,16 +154,29 @@ export const SplitterHandle: React.FC<{
 				onEnd: (reason, endEvent) => {
 					if (
 						(reason === 'pointerup' || reason === 'buttons-released') &&
-						endEvent &&
-						dragContext.isDragging.current
+						endEvent
 					) {
-						dragContext.persistFlex(getNewValue(endEvent, true));
+						lastFlex = getNewValue(endEvent, true);
+						lastCollapsedSide = getCollapsedSide(endEvent);
 					}
 
+					// Capture loss and cancellation may have no usable coordinates.
+					// Commit the last displayed state instead of resetting the panel.
+					if (reason !== 'manual' && dragContext.isDragging.current) {
+						const savedFlex = lastCollapsedSide === null ? lastFlex : startFlex;
+						dragContext.setFlexValue(savedFlex);
+						dragContext.persistFlex(savedFlex);
+						if (lastCollapsedSide !== null) {
+							latest.current.onCollapse();
+						}
+					}
+
+					latest.current.onCollapseDuringDrag?.(null);
+
+					dragContext.setCollapsedDuringDrag(null);
 					dragContext.isDragging.current = false;
 					stopForcingSpecificCursor();
 					endDrag = null;
-					PlayerInternals.updateAllElementsSizes();
 				},
 			});
 		};
@@ -162,7 +199,11 @@ export const SplitterHandle: React.FC<{
 					: 'remotion-splitter-vertical',
 			].join(' ')}
 			style={
-				context.orientation === 'horizontal' ? containerRow : containerColumn
+				context.collapsedDuringDrag !== null
+					? collapsedContainer
+					: context.orientation === 'horizontal'
+						? containerRow
+						: containerColumn
 			}
 		/>
 	);
