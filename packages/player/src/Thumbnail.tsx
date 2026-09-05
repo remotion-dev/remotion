@@ -30,6 +30,8 @@ import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
+const initialLastSeekState = {frame: null, sequence: 0} as const;
+
 export type ThumbnailProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -121,10 +123,13 @@ const ThumbnailFn = <
 					bufferingStore.setSnapshot({buffering});
 				}
 			},
+			setLastSeek: () => undefined,
 			subscribePlaying: () => () => undefined,
 			subscribeBuffering: bufferingStore.store.subscribe,
+			subscribeLastSeek: () => () => undefined,
 			isPlaying: () => false,
 			isBuffering: () => bufferingStore.store.getSnapshot().buffering,
+			getLastSeek: () => initialLastSeekState,
 			frameRef,
 			audioAndVideoTags,
 		};

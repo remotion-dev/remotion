@@ -255,6 +255,14 @@ const PlayerFn = <
 		() => Internals.createRuntimeValueStore({buffering: false}),
 		[],
 	);
+	const lastSeekStore = useMemo(
+		() =>
+			Internals.createRuntimeValueStore({
+				frame: null as number | null,
+				sequence: 0,
+			}),
+		[],
+	);
 	const readIsPlaying = useCallback(
 		() => playingStore.store.getSnapshot().playing,
 		[playingStore],
@@ -454,15 +462,22 @@ const PlayerFn = <
 					bufferingStore.setSnapshot({buffering});
 				}
 			},
+			setLastSeek: (frame) => {
+				const {sequence} = lastSeekStore.store.getSnapshot();
+				lastSeekStore.setSnapshot({frame, sequence: sequence + 1});
+			},
 			subscribePlaying: playingStore.store.subscribe,
 			subscribeBuffering: bufferingStore.store.subscribe,
+			subscribeLastSeek: lastSeekStore.store.subscribe,
 			isPlaying: readIsPlaying,
 			isBuffering: readIsBuffering,
+			getLastSeek: lastSeekStore.store.getSnapshot,
 			frameRef,
 			audioAndVideoTags,
 		};
 	}, [
 		bufferingStore,
+		lastSeekStore,
 		setFrame,
 		frameRef,
 		playingStore,

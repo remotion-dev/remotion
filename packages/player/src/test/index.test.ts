@@ -79,14 +79,24 @@ const PlayerMethodsProbe = React.memo(
 test('Imperative player methods do not rerender when the frame changes', () => {
 	const playerRef = createRef<PlayerRef>();
 	const methodsRef: {current: UsePlayerMethods | null} = {current: null};
+	let getLastSeek = () => ({frame: null as number | null, sequence: 0});
 	let methodRenders = 0;
 	const onRender = (methods: UsePlayerMethods) => {
 		methodsRef.current = methods;
 		methodRenders++;
 	};
 
+	const LastSeekProbe = () => {
+		getLastSeek = React.useContext(Internals.SetTimelineContext).getLastSeek;
+		return null;
+	};
 	const renderCustomControls = () =>
-		React.createElement(PlayerMethodsProbe, {onRender});
+		React.createElement(
+			React.Fragment,
+			null,
+			React.createElement(PlayerMethodsProbe, {onRender}),
+			React.createElement(LastSeekProbe),
+		);
 	const Composition = () => null;
 
 	render(
@@ -104,6 +114,7 @@ test('Imperative player methods do not rerender when the frame changes', () => {
 	);
 
 	expect(methodsRef.current?.getCurrentFrame()).toBe(12);
+	expect(getLastSeek()).toEqual({frame: null, sequence: 0});
 	const rendersAfterMount = methodRenders;
 
 	act(() => {
@@ -112,13 +123,18 @@ test('Imperative player methods do not rerender when the frame changes', () => {
 
 	expect(playerRef.current?.getCurrentFrame()).toBe(30);
 	expect(methodsRef.current?.getCurrentFrame()).toBe(30);
+	expect(getLastSeek()).toEqual({frame: 30, sequence: 1});
 	expect(methodRenders).toBe(rendersAfterMount);
 
 	act(() => {
 		methodsRef.current?.frameForward(5);
 		expect(methodsRef.current?.getCurrentFrame()).toBe(35);
+		expect(getLastSeek()).toEqual({frame: 35, sequence: 2});
 		methodsRef.current?.frameBack(2);
 		expect(methodsRef.current?.getCurrentFrame()).toBe(33);
+		expect(getLastSeek()).toEqual({frame: 33, sequence: 3});
+		methodsRef.current?.seek(33);
+		expect(getLastSeek()).toEqual({frame: 33, sequence: 4});
 	});
 
 	expect(playerRef.current?.getCurrentFrame()).toBe(33);
