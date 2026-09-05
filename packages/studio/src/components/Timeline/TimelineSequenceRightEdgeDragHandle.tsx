@@ -46,14 +46,15 @@ import {
 	type TimelineSelection,
 } from './TimelineSelection';
 
-const HANDLE_WIDTH = 6;
+const HANDLE_INSET = 6;
+const HANDLE_OUTSET = 4;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
 
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	bottom: 0,
-	width: HANDLE_WIDTH,
+	width: HANDLE_INSET + HANDLE_OUTSET,
 	cursor: 'ew-resize',
 	zIndex: 1,
 	touchAction: 'none',
@@ -1341,7 +1342,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		left: 0,
+		left: -HANDLE_OUTSET,
 		background: TRANSPARENT,
 	};
 
@@ -1895,7 +1896,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		right: 0,
+		right: -HANDLE_OUTSET,
 		background: TRANSPARENT,
 	};
 
