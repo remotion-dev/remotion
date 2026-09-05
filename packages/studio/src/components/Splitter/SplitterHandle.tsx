@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef} from 'react';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {SidebarContext} from '../../state/sidebar';
@@ -175,7 +174,6 @@ export const SplitterHandle: React.FC<{
 					dragContext.isDragging.current = false;
 					stopForcingSpecificCursor();
 					endDrag = null;
-					PlayerInternals.updateAllElementsSizes();
 				},
 			});
 		};

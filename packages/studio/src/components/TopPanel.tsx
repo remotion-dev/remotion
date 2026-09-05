@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
 	useContext,
@@ -10,6 +9,7 @@ import React, {
 import {Internals} from 'remotion';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
+import {RefreshCanvasSizeContext} from '../state/canvas-ref';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
@@ -73,6 +73,7 @@ const TopPanelInner: React.FC<{
 }> = ({readOnlyStudio, onMounted, drawRef, bufferStateDelayInMilliseconds}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
+	const refreshCanvas = useContext(RefreshCanvasSizeContext);
 	const rulersAreVisible = useIsRulerVisible();
 
 	const {canvasContent} = useContext(Internals.CompositionManager);
@@ -103,8 +104,8 @@ const TopPanelInner: React.FC<{
 			left: actualStateLeft,
 			right: actualStateRight,
 		};
-		PlayerInternals.updateAllElementsSizes();
-	}, [actualStateLeft, actualStateRight]);
+		refreshCanvas?.();
+	}, [actualStateLeft, actualStateRight, refreshCanvas]);
 
 	useEffect(() => {
 		onMounted();

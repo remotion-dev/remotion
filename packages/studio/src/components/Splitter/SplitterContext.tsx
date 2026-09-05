@@ -100,3 +100,6 @@ export const SplitterContext = React.createContext<TSplitterContext>({
 	id: '--',
 	persistFlex: () => undefined,
 });
+
+// Propagate layout changes only through the affected splitter subtree.
+export const SplitterLayoutContext = React.createContext<object | null>(null);

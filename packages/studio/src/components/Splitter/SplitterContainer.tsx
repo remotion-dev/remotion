@@ -1,12 +1,23 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import {drawRef, RefreshCanvasSizeContext} from '../../state/canvas-ref';
 import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
 	SplitterOrientation,
 	TSplitterContext,
 } from './SplitterContext';
-import {getClampedSplitterFlex, SplitterContext} from './SplitterContext';
+import {
+	getClampedSplitterFlex,
+	SplitterContext,
+	SplitterLayoutContext,
+} from './SplitterContext';
 import {SPLITTER_HANDLE_SIZE} from './SplitterHandle';
 
 const containerRow: React.CSSProperties = {
@@ -47,6 +58,8 @@ export const SplitterContainer: React.FC<{
 	minAntiFlexerSize,
 	id,
 }) => {
+	const parentLayout = useContext(SplitterLayoutContext);
+	const refreshCanvas = useContext(RefreshCanvasSizeContext);
 	const [initialTimelineFlex, persistFlex] = useTimelineFlex(id);
 	const [flexValue, setFlexValue] = useState(
 		initialTimelineFlex ?? defaultFlex,
@@ -112,19 +125,47 @@ export const SplitterContainer: React.FC<{
 		ref,
 	]);
 
+	const childCount = React.Children.toArray(children).length;
+	const layout = useMemo(
+		() => ({
+			parentLayout,
+			effectiveFlexValue,
+			collapsedDuringDrag,
+			orientation,
+			width: size?.width,
+			height: size?.height,
+			childCount,
+		}),
+		[
+			parentLayout,
+			effectiveFlexValue,
+			collapsedDuringDrag,
+			orientation,
+			size?.width,
+			size?.height,
+			childCount,
+		],
+	);
+	const refreshSize = size?.refresh;
+
 	useLayoutEffect(() => {
-		// Update the canvas and nested splitters before the resized layout paints.
-		PlayerInternals.updateAllElementsSizes();
-	});
+		// Remeasure only this splitter and its canvas before the layout paints.
+		refreshSize?.();
+		if (drawRef.current && ref.current?.contains(drawRef.current)) {
+			refreshCanvas?.();
+		}
+	}, [layout, refreshSize, refreshCanvas]);
 
 	return (
-		<SplitterContext.Provider value={value}>
-			<div
-				ref={ref}
-				style={orientation === 'horizontal' ? containerColumn : containerRow}
-			>
-				{children}
-			</div>
-		</SplitterContext.Provider>
+		<SplitterLayoutContext.Provider value={layout}>
+			<SplitterContext.Provider value={value}>
+				<div
+					ref={ref}
+					style={orientation === 'horizontal' ? containerColumn : containerRow}
+				>
+					{children}
+				</div>
+			</SplitterContext.Provider>
+		</SplitterLayoutContext.Provider>
 	);
 };
