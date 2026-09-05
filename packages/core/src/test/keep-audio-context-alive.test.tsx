@@ -43,8 +43,11 @@ class TrackedAudioContext {
 		return {
 			connect: () => undefined,
 			gain: {
+				value: 1,
 				cancelScheduledValues: () => undefined,
-				linearRampToValueAtTime: () => undefined,
+				linearRampToValueAtTime: (value: number) => {
+					gainValues.push(value);
+				},
 				setValueAtTime: (value: number) => {
 					gainValues.push(value);
 				},
@@ -81,6 +84,7 @@ const makeNode = (started: number[]) => {
 		start: (scheduledTime: number) => {
 			started.push(scheduledTime);
 		},
+		stop: () => undefined,
 	} as unknown as AudioBufferSourceNode;
 };
 
@@ -185,7 +189,7 @@ test('_experimentalKeepAudioContextAlive silences the gain instead of suspending
 	});
 });
 
-test('_experimentalKeepAudioContextAlive queues nodes scheduled while silenced', async () => {
+test('_experimentalKeepAudioContextAlive discards stale nodes queued while silenced', async () => {
 	await withMockedAudioContext(async () => {
 		const value = renderProvider(true);
 
@@ -213,6 +217,10 @@ test('_experimentalKeepAudioContextAlive queues nodes scheduled while silenced',
 			value.resume();
 			await Promise.resolve();
 		});
-		expect(startedWhileSilenced).toEqual([2]);
+		expect(startedWhileSilenced).toEqual([]);
+
+		const startedAfterResume: number[] = [];
+		scheduleAt(value, makeNode(startedAfterResume), 3);
+		expect(startedAfterResume).toEqual([3]);
 	});
 });

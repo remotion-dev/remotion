@@ -292,6 +292,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				credentials,
 				requestInit: initialRequestInit,
 				tagType: 'video',
+				requireCanvasForVideo: !headless,
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,

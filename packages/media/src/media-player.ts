@@ -68,6 +68,7 @@ export class MediaPlayer {
 	private trimAfter: number | undefined;
 	private sequenceDurationInFrames: number;
 	private sequenceOffset: number;
+	private requireCanvasForVideo: boolean;
 
 	private totalDuration: number | undefined;
 
@@ -115,6 +116,7 @@ export class MediaPlayer {
 		tagType,
 		getEffects,
 		getEffectChainState,
+		requireCanvasForVideo = false,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -144,6 +146,7 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
+		requireCanvasForVideo?: boolean;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -164,6 +167,7 @@ export class MediaPlayer {
 			isPostmounting,
 		});
 		this.sequenceDurationInFrames = durationInFrames;
+		this.requireCanvasForVideo = requireCanvasForVideo;
 		this.nonceManager = makeNonceManager();
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
@@ -359,6 +363,7 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
+					requireCanvasForVideo: this.requireCanvasForVideo,
 				});
 			}
 

@@ -1,3 +1,4 @@
+import {AudioScheduler} from './audio-scheduler/audio-scheduler';
 import {Audio} from './audio/audio';
 import {Video} from './video/video';
 /**
@@ -10,14 +11,19 @@ export const experimental_Audio = Audio;
  */
 export const experimental_Video = Video;
 
+export type {
+	AudioScheduleEntry,
+	AudioSchedulerProps,
+	AudioSchedulerSource,
+} from './audio-scheduler/audio-scheduler-types';
 export {AudioForPreview} from './audio/audio-for-preview';
-export {AudioProps, FallbackHtml5AudioProps} from './audio/props';
-export {MediaErrorAction} from './on-error';
+export type {AudioProps, FallbackHtml5AudioProps} from './audio/props';
+export {getTargetSampleRate} from './convert-audiodata/resample-audiodata';
+export type {MediaErrorAction} from './on-error';
 export type {MediaRequestInit} from './request-init';
-export {
+export type {
 	FallbackOffthreadVideoProps,
 	VideoObjectFit,
 	VideoProps,
 } from './video/props';
-export {getTargetSampleRate} from './convert-audiodata/resample-audiodata';
-export {Audio, Video};
+export {Audio, AudioScheduler, Video};

@@ -233,6 +233,9 @@ export const SharedAudioContextProvider: React.FC<{
 		sampleRate,
 	});
 	const audioContextIsPlayingEventually = useRef(false);
+	const resumeGainRampPending = useRef(false);
+	const resumeAwaitingAnchor = useRef(false);
+	const hasStartedPlayback = useRef(false);
 	const initialExperimentalKeepAudioContextAlive = useRef(
 		_experimentalKeepAudioContextAlive,
 	);
@@ -257,6 +260,12 @@ export const SharedAudioContextProvider: React.FC<{
 		return {
 			dispatch: (event) => {
 				audioSyncAnchorListeners.current.forEach((l) => l(event));
+				if (event === 'changed' && resumeAwaitingAnchor.current) {
+					// The listeners synchronously destroy their old iterators and
+					// schedule against the new anchor. Only allow new nodes to start
+					// after all listeners have seen the change.
+					resumeAwaitingAnchor.current = false;
+				}
 			},
 			subscribe: (listener) => {
 				audioSyncAnchorListeners.current.push(listener);
@@ -278,6 +287,16 @@ export const SharedAudioContextProvider: React.FC<{
 	const nodesToResume = useRef<Map<AudioBufferSourceNode, NodeToResume>>(
 		new Map(),
 	);
+	const discardQueuedAudioNodes = useCallback(() => {
+		nodesToResume.current.forEach((_r, node) => {
+			try {
+				node.stop();
+			} catch {
+				// The node may already have stopped or been disposed.
+			}
+		});
+		nodesToResume.current.clear();
+	}, []);
 
 	const unscheduleAudioNode = useCallback((node: AudioBufferSourceNode) => {
 		nodesToResume.current.delete(node);
@@ -314,7 +333,8 @@ export const SharedAudioContextProvider: React.FC<{
 			const saveForLater =
 				shouldSaveForLater(currentState) ||
 				(_experimentalKeepAudioContextAlive &&
-					!audioContextIsPlayingEventually.current);
+					(!audioContextIsPlayingEventually.current ||
+						resumeAwaitingAnchor.current));
 
 			if (duration > 0) {
 				if (saveForLater) {
@@ -324,6 +344,16 @@ export const SharedAudioContextProvider: React.FC<{
 						duration,
 					});
 				} else {
+					if (resumeGainRampPending.current) {
+						const resumeTime = ctxAndGain.audioContext.currentTime;
+						ctxAndGain.gainNode.gain.cancelScheduledValues(resumeTime);
+						ctxAndGain.gainNode.gain.setValueAtTime(0, resumeTime);
+						ctxAndGain.gainNode.gain.linearRampToValueAtTime(
+							1,
+							resumeTime + 0.03,
+						);
+						resumeGainRampPending.current = false;
+					}
 					node.start(scheduledTime, offset, duration);
 				}
 			}
@@ -405,20 +435,31 @@ export const SharedAudioContextProvider: React.FC<{
 			return Promise.resolve();
 		}
 
+		const keepAliveContextWasRunning =
+			_experimentalKeepAudioContextAlive &&
+			ctxAndGain.audioContext.state === 'running';
+		const hadStartedPlayback = hasStartedPlayback.current;
+		hasStartedPlayback.current = true;
 		audioContextIsPlayingEventually.current = true;
+		const resumeTime = ctxAndGain.audioContext.currentTime;
 
-		ctxAndGain.gainNode.gain.cancelScheduledValues(
-			ctxAndGain.audioContext.currentTime,
-		);
-		ctxAndGain.gainNode.gain.setValueAtTime(
-			0,
-			ctxAndGain.audioContext.currentTime,
-		);
-		ctxAndGain.gainNode.gain.linearRampToValueAtTime(
-			1,
-			ctxAndGain.audioContext.currentTime + 0.03,
-		);
+		ctxAndGain.gainNode.gain.cancelScheduledValues(resumeTime);
+		ctxAndGain.gainNode.gain.setValueAtTime(0, resumeTime);
+		if (keepAliveContextWasRunning) {
+			// The keep-alive context clock continues while playback is paused.
+			// Therefore every queued node has a stale start time by the time play
+			// is requested. Starting it here can expose a discontinuity and cause a
+			// click. Wait for the player to re-anchor and invalidate its iterators;
+			// the first fresh node applies the resume fade below.
+			discardQueuedAudioNodes();
+			resumeGainRampPending.current = true;
+			resumeAwaitingAnchor.current = hadStartedPlayback;
+			return Promise.resolve();
+		}
 
+		ctxAndGain.gainNode.gain.linearRampToValueAtTime(1, resumeTime + 0.03);
+		resumeGainRampPending.current = false;
+		resumeAwaitingAnchor.current = false;
 		nodesToResume.current.forEach((r, node) => {
 			node.start(r.scheduledTime, r.offset, r.duration);
 		});
@@ -469,7 +510,12 @@ export const SharedAudioContextProvider: React.FC<{
 			// Already logged above; swallow to avoid unhandled rejection
 			// since callers (e.g. use-playback.ts) do not await this.
 		});
-	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
+	}, [
+		ctxAndGain,
+		_experimentalKeepAudioContextAlive,
+		logLevel,
+		discardQueuedAudioNodes,
+	]);
 
 	const resumeAsAutoPlay = useCallback(() => {
 		nextResumeIsAutoPlayAttempt.current = true;
@@ -492,19 +538,21 @@ export const SharedAudioContextProvider: React.FC<{
 		}
 
 		audioContextIsPlayingEventually.current = false;
+		resumeGainRampPending.current = false;
+		resumeAwaitingAnchor.current = false;
 
 		if (_experimentalKeepAudioContextAlive) {
 			// Silence through the gain instead of suspending, so the context
 			// clock keeps running and the next resume() is instant. Audio that
 			// is already scheduled plays out silently; resume() ramps the gain
 			// back up.
-			ctxAndGain.gainNode.gain.cancelScheduledValues(
-				ctxAndGain.audioContext.currentTime,
-			);
+			const pauseTime = ctxAndGain.audioContext.currentTime;
+			ctxAndGain.gainNode.gain.cancelScheduledValues(pauseTime);
 			ctxAndGain.gainNode.gain.setValueAtTime(
-				0,
-				ctxAndGain.audioContext.currentTime,
+				ctxAndGain.gainNode.gain.value,
+				pauseTime,
 			);
+			ctxAndGain.gainNode.gain.linearRampToValueAtTime(0, pauseTime + 0.03);
 			return Promise.resolve();
 		}
 

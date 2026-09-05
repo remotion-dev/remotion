@@ -54,6 +54,7 @@ export const videoIteratorManager = async ({
 	getIsLooping,
 	getEffects,
 	getEffectChainState,
+	requireCanvasForVideo = false,
 }: {
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -70,11 +71,13 @@ export const videoIteratorManager = async ({
 		width: number,
 		height: number,
 	) => EffectChainState | null;
+	requireCanvasForVideo?: boolean;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
 	let framesRendered = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
+	let paintReadinessHandle: DelayPlaybackIfNotPremounting | null = null;
 	let lastDrawnFrame: WrappedCanvas | null = null;
 	let currentSeek: number | null = null;
 
@@ -103,8 +106,37 @@ export const videoIteratorManager = async ({
 	const prewarmedVideoIteratorCache =
 		makePrewarmedVideoIteratorCache(canvasSink);
 
-	const paintFrame = async (frame: WrappedCanvas): Promise<void> => {
-		if (context && canvas) {
+	const blockUntilVideoCanPaint = () => {
+		if (!requireCanvasForVideo || paintReadinessHandle) {
+			return;
+		}
+
+		paintReadinessHandle = delayPlaybackHandleIfNotPremounting();
+	};
+
+	const releaseVideoPaintReadiness = () => {
+		if (!paintReadinessHandle) {
+			return;
+		}
+
+		paintReadinessHandle.unblock();
+		paintReadinessHandle = null;
+	};
+
+	const paintFrame = async (frame: WrappedCanvas): Promise<boolean> => {
+		if (!context || !canvas) {
+			if (!requireCanvasForVideo) {
+				// Keep the low-level iterator manager usable for decode-only callers
+				// and headless tests. Visual MediaPlayer instances opt into the
+				// readiness contract through requireCanvasForVideo.
+				return true;
+			}
+
+			blockUntilVideoCanPaint();
+			return false;
+		}
+
+		try {
 			const effects = getEffects();
 			const chainState = getEffectChainState(canvas.width, canvas.height);
 			if (
@@ -124,11 +156,29 @@ export const videoIteratorManager = async ({
 				context.clearRect(0, 0, canvas.width, canvas.height);
 				context.drawImage(frame.canvas, 0, 0);
 			}
+		} catch (error) {
+			// A decoded frame is not ready for playback until the visual target has
+			// actually accepted it. Keep the global buffer blocked when painting
+			// fails, and allow a later frame to retry the same target.
+			blockUntilVideoCanPaint();
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				'[MediaPlayer] Could not paint decoded video frame; keeping playback buffered',
+				error,
+			);
+			return false;
 		}
+
+		releaseVideoPaintReadiness();
+		return true;
 	};
 
 	const drawFrame = async (frame: WrappedCanvas): Promise<void> => {
-		await paintFrame(frame);
+		const painted = await paintFrame(frame);
+		if (!painted) {
+			return;
+		}
+
 		lastDrawnFrame = frame;
 
 		framesRendered++;
@@ -150,7 +200,10 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
-		await paintFrame(lastDrawnFrame);
+		const painted = await paintFrame(lastDrawnFrame);
+		if (!painted) {
+			return;
+		}
 
 		drawDebugOverlay();
 		const callback = getOnVideoFrameCallback();
@@ -293,6 +346,11 @@ export const videoIteratorManager = async ({
 			if (currentDelayHandle) {
 				currentDelayHandle.unblock();
 				currentDelayHandle = null;
+			}
+
+			if (paintReadinessHandle) {
+				paintReadinessHandle.unblock();
+				paintReadinessHandle = null;
 			}
 
 			videoFrameIterator = null;

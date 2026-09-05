@@ -1,8 +1,8 @@
 import {useLayoutEffect} from 'react';
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {useContext, useEffect, useRef} from 'react';
-import {Internals} from 'remotion';
 import type {RemotionAudioContextState} from 'remotion';
+import {Internals} from 'remotion';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
@@ -66,6 +66,8 @@ export const usePlayback = ({
 	const isBackgroundedRef = useIsBackgrounded();
 
 	const lastTimeUpdateTimestamp = useRef<number>(0);
+	const needsAudioReanchorRef = useRef(false);
+	const wasPlayingRef = useRef(false);
 
 	useBrowserMediaSession({
 		browserMediaControlsBehavior,
@@ -154,23 +156,30 @@ export const usePlayback = ({
 		}
 
 		if (!playing) {
+			wasPlayingRef.current = false;
+			needsAudioReanchorRef.current = false;
 			sharedAudioContext?.suspend?.();
 			return;
 		}
+
+		const wasPlaying = wasPlayingRef.current;
+		wasPlayingRef.current = true;
 
 		if (
 			sharedAudioContext?._experimentalKeepAudioContextAlive &&
 			sharedAudioContext.audioContext &&
 			!muted
 		) {
+			// Resume first. In keep-alive mode this arms a short barrier: existing
+			// sources remain silent until the anchor change below has invalidated
+			// their iterators. This ordering prevents a paused source from being
+			// exposed at its stale waveform position.
+			sharedAudioContext.resume();
+
 			// With _experimentalKeepAudioContextAlive, the context clock keeps
-			// running while frames are not advancing (pauses, buffering, muted playback), so
-			// the anchor is stale by the length of the stall. Without this mode,
-			// the 'statechange' listener above re-anchors on the
-			// suspended-to-running transition, but that transition never happens
-			// here. Re-anchor from the current frame instead, and tell the audio
-			// iterators so they drop the nodes they queued against the old
-			// anchor and reschedule.
+			// running while frames are not advancing (pauses and buffering), so
+			// the anchor is stale by the length of the stall. Re-anchor from the
+			// current frame and tell the audio iterators to reschedule.
 			const changed = setGlobalTimeAnchor({
 				audioContext: sharedAudioContext.audioContext,
 				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
@@ -179,7 +188,10 @@ export const usePlayback = ({
 				logLevel,
 				force: true,
 			});
-			if (changed) {
+			// A pause followed by play can have the same numeric anchor when no
+			// time elapsed. It still needs a change notification to flush nodes
+			// that were scheduled before the pause.
+			if (changed || !wasPlaying) {
 				sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 			}
 		}
@@ -226,6 +238,22 @@ export const usePlayback = ({
 
 			if (!muted && !audioContextFailed && !isBuffering()) {
 				sharedAudioContext?.resume?.();
+				if (
+					needsAudioReanchorRef.current &&
+					sharedAudioContext?._experimentalKeepAudioContextAlive &&
+					sharedAudioContext.audioContext
+				) {
+					setGlobalTimeAnchor({
+						audioContext: sharedAudioContext.audioContext,
+						audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+						absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+						globalPlaybackRate: playbackRate,
+						logLevel,
+						force: true,
+					});
+					sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+					needsAudioReanchorRef.current = false;
+				}
 			}
 
 			const time = performance.now() - startedTime;
@@ -293,6 +321,10 @@ export const usePlayback = ({
 			}
 
 			if (isBuffering()) {
+				if (sharedAudioContext?._experimentalKeepAudioContextAlive && !muted) {
+					needsAudioReanchorRef.current = true;
+				}
+
 				if (!muted && !audioContextFailed) {
 					sharedAudioContext?.suspend?.();
 				}

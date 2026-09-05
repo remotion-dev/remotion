@@ -100,6 +100,62 @@ const makeManager = (
 		getEffectChainState: () => null,
 	});
 
+test('keeps visual video buffered when a decoded frame cannot be painted', async () => {
+	const {videoTrack} = await prepare();
+	let activeBlocks = 0;
+
+	const manager = await videoIteratorManager({
+		videoTrack,
+		delayPlaybackHandleIfNotPremounting: () => {
+			activeBlocks++;
+			let unblocked = false;
+			const unblock = () => {
+				if (unblocked) {
+					return;
+				}
+
+				unblocked = true;
+				activeBlocks--;
+			};
+
+			return {
+				unblock,
+				[Symbol.dispose]: unblock,
+			};
+		},
+		context: null,
+		canvas: null,
+		requireCanvasForVideo: true,
+		getOnVideoFrameCallback: () => null,
+		logLevel: 'error',
+		drawDebugOverlay: () => {},
+		getLoopSegmentMediaEndTimestamp: () => {
+			throw new Error('not implemented');
+		},
+		getStartTime: () => {
+			throw new Error('not implemented');
+		},
+		getIsLooping: () => false,
+		getEffects: () => [],
+		getEffectChainState: () => null,
+	});
+
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+
+		// The iterator has decoded a frame, but no frame was considered rendered
+		// because this visual player has no paint target.
+		expect(manager.getFramesRendered()).toBe(0);
+		expect(activeBlocks).toBe(1);
+	} finally {
+		manager.destroy();
+	}
+
+	expect(activeBlocks).toBe(0);
+});
+
 test('plays at a high playback rate without restarting the iterator', async () => {
 	const {videoTrack} = await prepare();
 	const manager = await makeManager(videoTrack);
