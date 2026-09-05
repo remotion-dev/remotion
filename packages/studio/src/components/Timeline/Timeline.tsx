@@ -60,6 +60,7 @@ import {
 } from './TimelineSelection';
 import {SEQUENCE_REORDER_MIME_TYPE} from './TimelineSequenceItem';
 import {TimelineSlider} from './TimelineSlider';
+import {TimelineTickFormatProvider} from './TimelineTickFormatProvider';
 import {
 	TIMELINE_TIME_INDICATOR_HEIGHT,
 	TimelineTimeIndicators,
@@ -553,4 +554,12 @@ const TimelineInner: React.FC = () => {
 	);
 };
 
-export const Timeline = React.memo(TimelineInner);
+const MemoizedTimelineInner = React.memo(TimelineInner);
+
+export const Timeline: React.FC = () => {
+	return (
+		<TimelineTickFormatProvider>
+			<MemoizedTimelineInner />
+		</TimelineTickFormatProvider>
+	);
+};
