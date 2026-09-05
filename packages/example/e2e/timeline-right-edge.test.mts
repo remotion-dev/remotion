@@ -46,6 +46,9 @@ const Layers = () => <>
   <Video name="Video natural end" src={staticFile('blush-1x.webm')} durationInFrames={80} muted />
   <Video name="Video cutoff" src={staticFile('blush-1x.webm')} durationInFrames={79} muted />
   <Video name="Video without cutoff" src={staticFile('blush-1x.webm')} muted />
+  <Video name="Video trimmed start" src={staticFile('blush-1x.webm')} from={20} trimBefore={20} muted />
+  <Video name="Video shifted start" src={staticFile('blush-1x.webm')} from={20} muted />
+  <Video name="Video fast trimmed start" src={staticFile('blush-1x.webm')} from={20} trimBefore={20} playbackRate={2} muted />
   <Video name="Video held frame" src={staticFile('blush-1x.webm')} durationInFrames={120} muted />
 </>;
 export const E2eTestRoot = () => <Composition id="timeline-edges" component={Layers} durationInFrames={180} fps={30} width={640} height={360} />;
@@ -89,6 +92,20 @@ export const E2eTestRoot = () => <Composition id="timeline-edges" component={Lay
 			await layer.scrollIntoViewIfNeeded();
 			await expect(layer).toHaveCSS('border-top-right-radius', radius);
 			await expect(layer).toHaveCSS('border-bottom-right-radius', radius);
+		}
+		for (const [name, radius] of [
+			['Video trimmed start', '0px'],
+			['Video shifted start', '2px'],
+			['Video fast trimmed start', '0px'],
+			['Trimmed start', '0px'],
+			['Natural end', '2px'],
+		]) {
+			const layer = page.locator(
+				`[data-timeline-marquee-item][title="${name}"]`,
+			);
+			await layer.scrollIntoViewIfNeeded();
+			await expect(layer).toHaveCSS('border-top-left-radius', radius);
+			await expect(layer).toHaveCSS('border-bottom-left-radius', radius);
 		}
 	} finally {
 		await stopStudio();

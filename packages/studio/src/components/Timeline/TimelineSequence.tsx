@@ -832,7 +832,15 @@ const TimelineSequenceInner: React.FC<{
 	const showLeftBorderRadius =
 		visibleLayout?.leftEdgeVisible === true &&
 		localStart >= 0 &&
-		(s.trimBefore ?? 0) === 0;
+		(s.trimBefore ?? 0) === 0 &&
+		(s.type === 'sequence' ||
+			s.type === 'image' ||
+			getTimelineMediaStartFrame({
+				startMediaFrom: s.startMediaFrom,
+				mediaFrameAtSequenceZero: s.mediaFrameAtSequenceZero,
+				sequenceFrameOffset,
+				playbackRate: s.playbackRate,
+			}) === 0);
 
 	// Compare frame boundaries: fractional media durations still occupy the last frame.
 	const endsAtNaturalMediaDuration =
