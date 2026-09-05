@@ -1423,6 +1423,8 @@ export type ApiRoutes = {
 		CopyRenderOutputToAssetRequest,
 		CopyRenderOutputToAssetResponse
 	>;
+	'/api/upgrade-remotion': ReqAndRes<{version: string}, {}>;
+	'/api/shutdown-studio': ReqAndRes<{}, {}>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
 	'/api/default-editor-info': ReqAndRes<
