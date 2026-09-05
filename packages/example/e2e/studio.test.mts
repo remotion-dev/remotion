@@ -596,6 +596,108 @@ test.describe('visual mode', () => {
 		);
 	});
 
+	test('should keep one frame visible when dragging past either end of the timeline', async ({
+		page,
+	}) => {
+		const sourceFile = path.join(
+			exampleDir,
+			'src',
+			'TimelineNegativeFromResize',
+			'index.tsx',
+		);
+		const originalSource = fs.readFileSync(sourceFile, 'utf-8');
+		const duration = Number(
+			originalSource.match(
+				/name="Negative start"[\s\S]*?durationInFrames=\{(\d+)\}/,
+			)![1],
+		);
+		try {
+			await page.goto(`${STUDIO_URL}/timeline-negative-start`);
+			const sequence = page.locator(
+				'[data-timeline-marquee-item][title="Negative start"]',
+			);
+			const zeroSequence = page.locator(
+				'[data-timeline-marquee-item][title="Zero start"]',
+			);
+			await expect(sequence).toBeVisible();
+			await expect(zeroSequence).toBeVisible();
+			await expect(
+				sequence.getByTitle('Drag to change duration'),
+			).toBeVisible();
+			const box = (await sequence.boundingBox())!;
+			const zeroBox = (await zeroSequence.boundingBox())!;
+			const pixelsPerFrame = zeroBox.width / 36;
+			const startX = box.x + box.width / 2;
+			const y = box.y + box.height / 2;
+			await page.mouse.move(startX, y);
+			await page.mouse.down();
+			try {
+				await page.mouse.move(startX - pixelsPerFrame * 20, y, {steps: 10});
+				await expect(sequence).toBeVisible();
+				// Further movement must not push the final frame out of the timeline.
+				await page.mouse.move(startX - pixelsPerFrame * 30, y, {steps: 10});
+			} finally {
+				await page.mouse.up();
+			}
+			await expect
+				.poll(() => fs.readFileSync(sourceFile, 'utf-8'))
+				.toContain(`from={${1 - duration}}`);
+			await page.reload();
+			await expect(zeroSequence).toBeVisible();
+			await expect(sequence).toBeVisible();
+			await expect
+				.poll(async () => (await sequence.boundingBox())!.width)
+				.toBeLessThanOrEqual(pixelsPerFrame + 17);
+
+			// Shrink past the minimum, then grow again without releasing the pointer.
+			const edge = sequence.getByTitle('Drag to change duration');
+			await expect(edge).toBeVisible();
+			const edgeBox = (await edge.boundingBox())!;
+			const edgeX = edgeBox.x + edgeBox.width / 2;
+			const edgeY = edgeBox.y + edgeBox.height / 2;
+			await page.mouse.move(edgeX, edgeY);
+			await page.mouse.down();
+			try {
+				await page.mouse.move(edgeX - pixelsPerFrame * 20, edgeY, {steps: 10});
+				await expect(sequence).toBeVisible();
+				await page.mouse.move(edgeX + pixelsPerFrame * 10, edgeY, {steps: 10});
+				await expect
+					.poll(async () => (await sequence.boundingBox())!.width)
+					.toBeGreaterThan(pixelsPerFrame * 10);
+			} finally {
+				await page.mouse.up();
+			}
+			await expect
+				.poll(() => fs.readFileSync(sourceFile, 'utf-8'))
+				.toContain(`durationInFrames={${duration + 10}}`);
+			await page.reload();
+			await expect(sequence).toBeVisible();
+
+			const rightBox = (await zeroSequence.boundingBox())!;
+			const rightStart = rightBox.x + rightBox.width / 2;
+			const rightY = rightBox.y + rightBox.height / 2;
+			await page.mouse.move(rightStart, rightY);
+			await page.mouse.down();
+			try {
+				await page.mouse.move(rightStart + pixelsPerFrame * 100, rightY, {
+					steps: 10,
+				});
+			} finally {
+				await page.mouse.up();
+			}
+			await expect
+				.poll(() => fs.readFileSync(sourceFile, 'utf-8'))
+				.toMatch(/name="Zero start"[^>]*from=\{89\}/);
+			await page.reload();
+			await expect(zeroSequence).toBeVisible();
+			await expect
+				.poll(async () => (await zeroSequence.boundingBox())!.width)
+				.toBeLessThanOrEqual(pixelsPerFrame + 1);
+		} finally {
+			fs.writeFileSync(sourceFile, originalSource);
+		}
+	});
+
 	test('should commit a color drag before the picker closes', async ({
 		page,
 	}) => {

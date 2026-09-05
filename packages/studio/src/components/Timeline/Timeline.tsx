@@ -435,11 +435,25 @@ const TimelineInner: React.FC = () => {
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 	const filtered = useMemo(() => {
-		return timeline.filter((t) =>
-			shouldShowTrackInTimeline(t, durationInFrames),
-		);
-	}, [durationInFrames, timeline]);
+		return timeline.filter((t) => {
+			// Moving outside the composition can reduce the displayed duration to
+			// zero. Keep the drag owner mounted until its pending edit is saved.
+			if (
+				t.sequence.showInTimeline &&
+				t.nodePathInfo !== null &&
+				getDragOverrides(t.nodePathInfo.sequenceSubscriptionKey).from !==
+					undefined
+			) {
+				return true;
+			}
+
+			return shouldShowTrackInTimeline(t, durationInFrames);
+		});
+	}, [durationInFrames, getDragOverrides, timeline]);
 
 	// Keep `filtered` complete so a future toggle can show every programmatic
 	// instance without recalculating the timeline or losing its instance index.
