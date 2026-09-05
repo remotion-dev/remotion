@@ -47,14 +47,15 @@ import {
 } from './TimelineSelection';
 
 const HANDLE_INSET = 6;
-const HANDLE_OUTSET = 4;
+const HANDLE_OUTSET = 8;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
 
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	bottom: 0,
-	width: HANDLE_INSET + HANDLE_OUTSET,
+	// Keep the middle half of narrow layers available for moving.
+	width: `calc(${HANDLE_OUTSET}px + min(${HANDLE_INSET}px, 25%))`,
 	cursor: 'ew-resize',
 	zIndex: 1,
 	touchAction: 'none',
