@@ -30,10 +30,12 @@ import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {
+	EffectsOutputSize,
 	FallbackOffthreadVideoProps,
 	NativeVideoProps,
 	VideoObjectFit,
 } from './props';
+import {resolveEffectsOutputSize} from './resolve-effects-output-size';
 import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
 type InnerVideoProps = NativeVideoProps & {
@@ -62,6 +64,7 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly effectsOutputSize: EffectsOutputSize | undefined;
 };
 
 type FallbackToOffthreadVideo = {
@@ -94,6 +97,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	requestInit,
 	objectFit: objectFitProp,
 	effects,
+	effectsOutputSize,
 	...props
 }) => {
 	if (!src) {
@@ -326,24 +330,39 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					});
 					// Could be in headless mode
 					if (context) {
-						context.canvas.width = imageBitmap.width;
-						context.canvas.height = imageBitmap.height;
+						const outputSize =
+							effects.length > 0
+								? resolveEffectsOutputSize({
+										sourceWidth: imageBitmap.width,
+										sourceHeight: imageBitmap.height,
+										effectsOutputSize: effectsOutputSize ?? null,
+									})
+								: {width: imageBitmap.width, height: imageBitmap.height};
+
+						context.canvas.width = outputSize.width;
+						context.canvas.height = outputSize.height;
 
 						context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
 
-						context.drawImage(imageBitmap, 0, 0);
+						context.drawImage(
+							imageBitmap,
+							0,
+							0,
+							outputSize.width,
+							outputSize.height,
+						);
 
 						if (effects.length > 0) {
 							const completed = await Internals.runEffectChain({
 								state: effectChainState.get(
-									imageBitmap.width,
-									imageBitmap.height,
+									outputSize.width,
+									outputSize.height,
 								)!,
 								source: context.canvas,
 								effects,
 								output: context.canvas,
-								width: imageBitmap.width,
-								height: imageBitmap.height,
+								width: outputSize.width,
+								height: outputSize.height,
 							});
 
 							if (!completed || mediaCache.isDisposed()) {
@@ -455,6 +474,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		credentials,
 		effectChainState,
 		effects,
+		effectsOutputSize?.height,
+		effectsOutputSize?.width,
 		initialRequestInit,
 		mediaCache,
 	]);

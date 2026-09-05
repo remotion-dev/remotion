@@ -106,6 +106,7 @@ const InnerVideo: React.FC<
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize,
 	setMediaDurationInSeconds,
 	refForOutline,
 	...props
@@ -170,6 +171,7 @@ const InnerVideo: React.FC<
 				requestInit={requestInit}
 				objectFit={objectFit}
 				effects={effects}
+				effectsOutputSize={effectsOutputSize}
 			/>
 		);
 	}
@@ -204,6 +206,7 @@ const InnerVideo: React.FC<
 			controls={controls}
 			objectFit={objectFit}
 			effects={effects}
+			effectsOutputSize={effectsOutputSize}
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
@@ -246,6 +249,7 @@ const VideoInner: React.FC<
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize,
 	durationInFrames,
 	from,
 	freeze,
@@ -430,6 +434,7 @@ const VideoInner: React.FC<
 						_experimentalInitiallyDrawCachedFrame ?? false
 					}
 					effects={memoizedEffects}
+					effectsOutputSize={effectsOutputSize}
 					setMediaDurationInSeconds={setMediaDurationInSeconds}
 					refForOutline={refForOutline}
 				/>
