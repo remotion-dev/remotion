@@ -2594,6 +2594,22 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	});
 
 	expect(targets?.map((target) => target.initialFrom)).toEqual([0, 10]);
+
+	for (const [deltaFrames, expected] of [
+		[-100, -24],
+		[100, 79],
+	]) {
+		expect(
+			getTimelineSequenceFromDragDelta({
+				deltaFrames,
+				timelineDurationInFrames: 90,
+				pxPerFrame: 10,
+				snappingEnabled: true,
+				targets: targets!,
+			}),
+		).toBe(expected);
+	}
+
 	expect(
 		getTimelineSequenceFromDragChanges({
 			targets: targets ?? [],
@@ -2925,6 +2941,8 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 	const nodePath = makeNodePathInfo(['body', 0], []).sequenceSubscriptionKey;
 	const target = {
 		canSnapToTimelineStart: true,
+		minimumDeltaFrames: -100,
+		initialTimelineStart: 8,
 		effectKeyframes: [],
 		fileName: nodePath.absolutePath,
 		initialFrom: 8,
@@ -2935,6 +2953,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 
 	expect(
 		getTimelineSequenceFromDragDelta({
+			timelineDurationInFrames: 90,
 			deltaFrames: -6,
 			pxPerFrame,
 			snappingEnabled: true,
@@ -2943,6 +2962,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 	).toBe(-8);
 	expect(
 		getTimelineSequenceFromDragDelta({
+			timelineDurationInFrames: 90,
 			deltaFrames: -6,
 			pxPerFrame,
 			snappingEnabled: false,
@@ -2951,6 +2971,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 	).toBe(-6);
 	expect(
 		getTimelineSequenceFromDragDelta({
+			timelineDurationInFrames: 90,
 			deltaFrames: -5,
 			pxPerFrame,
 			snappingEnabled: true,
@@ -2964,12 +2985,15 @@ test('Timeline from drag does not snap nested sequences to the timeline start', 
 
 	expect(
 		getTimelineSequenceFromDragDelta({
+			timelineDurationInFrames: 90,
 			deltaFrames: -6,
 			pxPerFrame: timelineSequenceFromDragSnapThresholdPx / 2,
 			snappingEnabled: true,
 			targets: [
 				{
 					canSnapToTimelineStart: false,
+					minimumDeltaFrames: -100,
+					initialTimelineStart: 8,
 					effectKeyframes: [],
 					fileName: nodePath.absolutePath,
 					initialFrom: 8,
@@ -3076,6 +3100,8 @@ test('Timeline from drag removes the prop at the default value', () => {
 		targets: [
 			{
 				canSnapToTimelineStart: true,
+				minimumDeltaFrames: -100,
+				initialTimelineStart: 8,
 				effectKeyframes: [],
 				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 				initialFrom: 5,
