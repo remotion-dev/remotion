@@ -164,6 +164,14 @@ export const useMediaPlayback = ({
 	// and it is also in a useLayoutEffect.
 	useLayoutEffect(() => {
 		const playbackRateToSet = Math.max(0, playbackRate);
+		// Loading a resource resets playbackRate to defaultPlaybackRate.
+		if (
+			mediaRef.current &&
+			mediaRef.current.defaultPlaybackRate !== playbackRateToSet
+		) {
+			mediaRef.current.defaultPlaybackRate = playbackRateToSet;
+		}
+
 		if (
 			mediaRef.current &&
 			mediaRef.current.playbackRate !== playbackRateToSet
