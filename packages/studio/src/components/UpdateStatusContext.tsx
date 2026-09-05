@@ -9,6 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import {VERSION} from 'remotion';
+import {shutDownStudio} from '../api/shut-down-studio';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -78,7 +79,7 @@ export const UpdateStatusProvider: React.FC<{
 		setUpgradeState('shutting-down');
 		setUpgradeError(null);
 		try {
-			await callApi('/api/shutdown-studio', {});
+			await shutDownStudio();
 			setUpgradeState('shutdown');
 		} catch (err) {
 			setUpgradeError((err as Error).message);

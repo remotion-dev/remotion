@@ -1148,6 +1148,8 @@ export type ProjectInfoResponse = {
 	projectInfo: ProjectInfo;
 };
 
+export type ShutdownStudioResponse = {};
+
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
@@ -1424,7 +1426,7 @@ export type ApiRoutes = {
 		CopyRenderOutputToAssetResponse
 	>;
 	'/api/upgrade-remotion': ReqAndRes<{version: string}, {}>;
-	'/api/shutdown-studio': ReqAndRes<{}, {}>;
+	'/api/shutdown-studio': ReqAndRes<{}, ShutdownStudioResponse>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
 	'/api/default-editor-info': ReqAndRes<
