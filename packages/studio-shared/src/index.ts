@@ -114,6 +114,7 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	ShutdownStudioResponse,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveInlineCaptionPatchesRequest,

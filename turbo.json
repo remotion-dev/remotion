@@ -131,6 +131,11 @@
 			"outputs": [],
 			"outputLogs": "new-only"
 		},
+		"@remotion/studio-server#test": {
+			"dependsOn": ["^make", "make", "@remotion/cli#make"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
 		"@remotion/browser-studio#test": {
 			"dependsOn": ["^make", "make"],
 			"inputs": [
