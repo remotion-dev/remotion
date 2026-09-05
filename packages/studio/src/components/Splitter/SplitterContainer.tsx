@@ -6,7 +6,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {drawRef, RefreshCanvasSizeContext} from '../../state/canvas-ref';
 import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
@@ -59,7 +58,6 @@ export const SplitterContainer: React.FC<{
 	id,
 }) => {
 	const parentLayout = useContext(SplitterLayoutContext);
-	const refreshCanvas = useContext(RefreshCanvasSizeContext);
 	const [initialTimelineFlex, persistFlex] = useTimelineFlex(id);
 	const [flexValue, setFlexValue] = useState(
 		initialTimelineFlex ?? defaultFlex,
@@ -149,12 +147,9 @@ export const SplitterContainer: React.FC<{
 	const refreshSize = size?.refresh;
 
 	useLayoutEffect(() => {
-		// Remeasure only this splitter and its canvas before the layout paints.
+		// Remeasure this splitter when its own or an ancestor's layout changes.
 		refreshSize?.();
-		if (drawRef.current && ref.current?.contains(drawRef.current)) {
-			refreshCanvas?.();
-		}
-	}, [layout, refreshSize, refreshCanvas]);
+	}, [layout, refreshSize]);
 
 	return (
 		<SplitterLayoutContext.Provider value={layout}>

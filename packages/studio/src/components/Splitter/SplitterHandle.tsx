@@ -1,6 +1,5 @@
 import React, {useContext, useEffect, useRef} from 'react';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
-import {SidebarContext} from '../../state/sidebar';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -25,8 +24,10 @@ const containerColumn: React.CSSProperties = {
 export const SplitterHandle: React.FC<{
 	readonly allowToCollapse: 'right' | 'left' | 'none';
 	readonly onCollapse: () => void;
-}> = ({allowToCollapse, onCollapse}) => {
-	const {setSidebarCollapsedDuringDrag} = useContext(SidebarContext);
+	readonly onCollapseDuringDrag:
+		| ((side: 'left' | 'right' | null) => void)
+		| null;
+}> = ({allowToCollapse, onCollapse, onCollapseDuringDrag}) => {
 	const context = useContext(SplitterContext);
 	if (!context) {
 		throw new Error('Cannot find splitter context');
@@ -36,8 +37,13 @@ export const SplitterHandle: React.FC<{
 
 	// Keep the latest props/context readable inside the long-lived pointerdown
 	// listener without re-subscribing it on every render.
-	const latest = useRef({context, allowToCollapse, onCollapse});
-	latest.current = {context, allowToCollapse, onCollapse};
+	const latest = useRef({
+		context,
+		allowToCollapse,
+		onCollapse,
+		onCollapseDuringDrag,
+	});
+	latest.current = {context, allowToCollapse, onCollapse, onCollapseDuringDrag};
 
 	useEffect(() => {
 		const {current} = ref;
@@ -135,9 +141,7 @@ export const SplitterHandle: React.FC<{
 				// the panel is hidden, so moving inward can restore it.
 				lastCollapsedSide = getCollapsedSide(ev);
 				lastFlex = getNewValue(ev, true);
-				if (latest.current.allowToCollapse !== 'none') {
-					setSidebarCollapsedDuringDrag(lastCollapsedSide);
-				}
+				latest.current.onCollapseDuringDrag?.(lastCollapsedSide);
 
 				dragContext.setCollapsedDuringDrag(lastCollapsedSide);
 				dragContext.setFlexValue(lastFlex);
@@ -159,16 +163,15 @@ export const SplitterHandle: React.FC<{
 					// Capture loss and cancellation may have no usable coordinates.
 					// Commit the last displayed state instead of resetting the panel.
 					if (reason !== 'manual' && dragContext.isDragging.current) {
-						dragContext.setFlexValue(lastFlex);
-						dragContext.persistFlex(lastFlex);
+						const savedFlex = lastCollapsedSide === null ? lastFlex : startFlex;
+						dragContext.setFlexValue(savedFlex);
+						dragContext.persistFlex(savedFlex);
 						if (lastCollapsedSide !== null) {
 							latest.current.onCollapse();
 						}
 					}
 
-					if (latest.current.allowToCollapse !== 'none') {
-						setSidebarCollapsedDuringDrag(null);
-					}
+					latest.current.onCollapseDuringDrag?.(null);
 
 					dragContext.setCollapsedDuringDrag(null);
 					dragContext.isDragging.current = false;
@@ -184,7 +187,7 @@ export const SplitterHandle: React.FC<{
 			current.removeEventListener('pointerdown', onPointerDown);
 			endDrag?.();
 		};
-	}, [setSidebarCollapsedDuringDrag]);
+	}, []);
 
 	return (
 		<div

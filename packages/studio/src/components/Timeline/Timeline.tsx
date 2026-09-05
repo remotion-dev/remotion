@@ -522,7 +522,11 @@ const TimelineInner: React.FC = () => {
 										>
 											<TimelineList />
 										</SplitterElement>
-										<SplitterHandle onCollapse={noop} allowToCollapse="none" />
+										<SplitterHandle
+											onCollapse={noop}
+											onCollapseDuringDrag={null}
+											allowToCollapse="none"
+										/>
 										<SplitterElement
 											type="anti-flexer"
 											sticky={

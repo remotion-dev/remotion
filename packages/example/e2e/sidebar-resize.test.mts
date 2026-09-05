@@ -105,6 +105,9 @@ test('sidebars can reopen during a resize and keep their last state when draggin
 			await page.locator(`[data-sidebar-toggle="${side}"]`).click();
 			await expect(content).toBeVisible();
 			await expect(icon).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+			await expect
+				.poll(async () => (await handle.boundingBox())?.x)
+				.toBeCloseTo(restoredBox.x, 1);
 		}
 
 		const finalBox = (await handle.boundingBox())!;
@@ -133,5 +136,8 @@ test('sidebars can reopen during a resize and keep their last state when draggin
 		await expect(content).toBeHidden();
 		await page.locator(`[data-sidebar-toggle="${side}"]`).click();
 		await expect(content).toBeVisible();
+		await expect
+			.poll(async () => (await handle.boundingBox())?.x)
+			.toBeCloseTo(finalBox.x, 1);
 	}
 });
