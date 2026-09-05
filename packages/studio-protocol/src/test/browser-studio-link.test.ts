@@ -20,7 +20,7 @@ test('round-trips a payload through the default Browser Studio URL', () => {
 	const parsedUrl = new URL(url);
 
 	expect(parsedUrl.origin).toBe('https://www.remotion.dev');
-	expect(parsedUrl.pathname).toBe('/experimental_new');
+	expect(parsedUrl.pathname).toBe('/new');
 	expect(url).not.toContain('Grüezi');
 	expect(
 		StudioProtocolInternals.parseBrowserStudioHash(parsedUrl.hash),

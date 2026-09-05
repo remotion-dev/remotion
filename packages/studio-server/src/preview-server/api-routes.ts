@@ -49,6 +49,7 @@ import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
+import {handleShutdownStudio} from './routes/shutdown-studio';
 import {splitJsxSequenceHandler} from './routes/split-jsx-sequence';
 import {splitVideoFromAudioHandler} from './routes/split-video-from-audio';
 import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
@@ -64,6 +65,7 @@ import {updateDefaultPropsHandler} from './routes/update-default-props';
 import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
+import {handleUpgradeRemotion} from './routes/upgrade-remotion';
 
 type StandardApiRoute = Exclude<keyof ApiRoutes, '/api/update-config'>;
 
@@ -124,6 +126,8 @@ export const allApiRoutes: {
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/rename-static-file': renameStaticFileHandler,
+	'/api/upgrade-remotion': handleUpgradeRemotion,
+	'/api/shutdown-studio': handleShutdownStudio,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/default-coding-agent-info': getDefaultCodingAgentInfoHandler,
 	'/api/default-editor-info': getDefaultEditorInfoHandler,
