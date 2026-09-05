@@ -1303,6 +1303,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				return;
 			}
 
+			// Include the release position even if the final pointermove was skipped.
+			onMove(e);
 			finishDrag(true);
 		};
 
@@ -1326,7 +1328,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			onMove,
 			onEnd: (reason, endEvent) => {
 				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
+					(reason === 'pointerup' ||
+						reason === 'buttons-released' ||
+						(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
 					endEvent
 				) {
 					onUp(endEvent);
@@ -1613,7 +1617,9 @@ export const useTimelineSequenceFromDrag = ({
 				onEnd: (reason, endEvent) => {
 					stopPointerSessionRef.current = null;
 					finishDrag(
-						(reason === 'pointerup' || reason === 'buttons-released') &&
+						(reason === 'pointerup' ||
+							reason === 'buttons-released' ||
+							(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
 							endEvent !== null,
 					);
 				},
@@ -1857,6 +1863,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				return;
 			}
 
+			// Include the release position even if the final pointermove was skipped.
+			onMove(e);
 			finishDrag(true);
 		};
 
@@ -1880,7 +1888,9 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			onMove,
 			onEnd: (reason, endEvent) => {
 				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
+					(reason === 'pointerup' ||
+						reason === 'buttons-released' ||
+						(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
 					endEvent
 				) {
 					onUp(endEvent);
