@@ -1130,6 +1130,9 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 			}
 		).__browserStudioInstallPreservedIframe = true;
 	});
+	await expect(
+		studio.getByRole('radio', {name: 'New composition'}),
+	).toBeChecked();
 	await studio.getByRole('button', {name: /^Install/}).click();
 	await expect
 		.poll(() =>
@@ -1140,7 +1143,7 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 				return {
 					composition:
 						browserWindow.__browserStudioProject.files[
-							'/project/src/Composition.tsx'
+							'/project/src/LinkedElementComposition.tsx'
 						],
 					element:
 						browserWindow.__browserStudioProject.files[
@@ -1163,9 +1166,12 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 				).__browserStudioInstallPreservedIframe,
 		),
 	).toBe(true);
-	await expect(page).toHaveTitle('MyComp / template-blank - Remotion Studio', {
-		timeout: 5000,
-	});
+	await expect(page).toHaveTitle(
+		'LinkedElementComposition / template-blank - Remotion Studio',
+		{
+			timeout: 5000,
+		},
+	);
 });
 
 test('reports inline SVG imports as unsupported without changing the project', async ({

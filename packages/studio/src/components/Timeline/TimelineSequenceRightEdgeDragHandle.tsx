@@ -83,6 +83,8 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 
 export type TimelineSequenceFromDragTarget = {
 	readonly canSnapToTimelineStart: boolean;
+	readonly minimumDeltaFrames: number;
+	readonly initialTimelineStart: number;
 	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
 	readonly fileName: string;
 	readonly initialFrom: number;
@@ -534,19 +536,17 @@ export const getTimelineSequenceFromDragValue = ({
 
 export const getTimelineSequenceFromDragDelta = ({
 	deltaFrames,
+	timelineDurationInFrames,
 	pxPerFrame,
 	snappingEnabled,
 	targets,
 }: {
 	readonly deltaFrames: number;
+	readonly timelineDurationInFrames: number;
 	readonly pxPerFrame: number;
 	readonly snappingEnabled: boolean;
 	readonly targets: readonly TimelineSequenceFromDragTarget[];
 }) => {
-	if (!snappingEnabled) {
-		return deltaFrames;
-	}
-
 	let closestSnap:
 		| {
 				readonly deltaFrames: number;
@@ -554,7 +554,7 @@ export const getTimelineSequenceFromDragDelta = ({
 		  }
 		| undefined;
 	for (const target of targets) {
-		if (!target.canSnapToTimelineStart) {
+		if (!snappingEnabled || !target.canSnapToTimelineStart) {
 			continue;
 		}
 
@@ -576,7 +576,19 @@ export const getTimelineSequenceFromDragDelta = ({
 		};
 	}
 
-	return closestSnap?.deltaFrames ?? deltaFrames;
+	const minimumDelta = Math.max(
+		...targets.map((target) => target.minimumDeltaFrames),
+	);
+	const maximumDelta = Math.min(
+		...targets.map(
+			(target) => timelineDurationInFrames - 1 - target.initialTimelineStart,
+		),
+	);
+	// Clamp the shared delta after snapping so every selected track retains a frame.
+	return Math.max(
+		minimumDelta,
+		Math.min(maximumDelta, closestSnap?.deltaFrames ?? deltaFrames),
+	);
 };
 
 export const getTimelineSequenceFromDragChanges = ({
@@ -759,10 +771,11 @@ export const getTimelineSequenceDurationDragTargets = ({
 			targets.set(key, {
 				fileName: nodePath.absolutePath,
 				initialDuration: originalSequence.duration,
-				minimumDuration: getMinimumSequenceDuration({
-					sequence: originalSequence,
-					sequences,
-				}),
+				// A negative start needs enough duration to retain one visible frame.
+				minimumDuration: Math.max(
+					1 - originalSequence.from,
+					getMinimumSequenceDuration({sequence: originalSequence, sequences}),
+				),
 				nodePath,
 				schema: controls.schema,
 			});
@@ -920,6 +933,7 @@ export const getTimelineSequenceFromDragTargets = ({
 			{
 				nodePath: track.nodePathInfo.sequenceSubscriptionKey,
 				originalSequence,
+				initialTimelineStart: track.cascadedStart,
 			},
 		];
 	});
@@ -950,6 +964,7 @@ export const getTimelineSequenceFromDragTargets = ({
 	for (const {
 		nodePath,
 		originalSequence,
+		initialTimelineStart,
 	} of sequencesWithoutSelectedAncestors) {
 		if (!isFromDraggableSequence(originalSequence)) {
 			return null;
@@ -1006,6 +1021,9 @@ export const getTimelineSequenceFromDragTargets = ({
 			);
 			targets.set(key, {
 				canSnapToTimelineStart: originalSequence.parent === null,
+				minimumDeltaFrames:
+					1 - originalSequence.duration - originalSequence.from,
+				initialTimelineStart,
 				effectKeyframes,
 				fileName: nodePath.absolutePath,
 				initialFrom: originalSequence.from,
@@ -1555,7 +1573,9 @@ export const useTimelineSequenceFromDrag = ({
 			// the global session listeners exist.
 			stopPointerSessionRef.current = startCapturedPointerSession({
 				event: e.nativeEvent,
-				captureTarget: e.currentTarget,
+				// The bar is removed when it leaves the visible timeline. Capture on
+				// a stable element so the move continues until the pointer is released.
+				captureTarget: e.currentTarget.ownerDocument.body,
 				onMove: (moveEvent) => {
 					const dragState = dragStateRef.current;
 					if (!dragState) {
@@ -1564,6 +1584,7 @@ export const useTimelineSequenceFromDrag = ({
 
 					const dx = moveEvent.clientX - dragState.initialClientX;
 					const deltaFrames = getTimelineSequenceFromDragDelta({
+						timelineDurationInFrames,
 						deltaFrames: Math.round(dx / dragState.pxPerFrame),
 						pxPerFrame: dragState.pxPerFrame,
 						snappingEnabled: latestRef.current.editorSnapping,
