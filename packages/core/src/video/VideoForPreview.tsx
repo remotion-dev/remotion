@@ -52,6 +52,41 @@ type Expected = Omit<
 	'crossOrigin' | 'src' | 'name' | 'muted' | 'style'
 >;
 
+const handleVideoError = ({
+	error,
+	src,
+	onError,
+}: {
+	error: MediaError | null;
+	src: string;
+	onError: VideoForPreviewProps['onError'];
+}) => {
+	if (error) {
+		// eslint-disable-next-line no-console
+		console.error('Error occurred in video', error);
+	}
+
+	const message = (() => {
+		if (!error) {
+			return onError
+				? `The browser threw an error while playing the video ${src}`
+				: 'The browser threw an error while playing the video';
+		}
+
+		return onError
+			? `Code ${error.code}: ${error.message}`
+			: `The browser threw an error while playing the video ${src}: Code ${error.code} - ${error.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`;
+	})();
+	const playbackError = new MediaPlaybackError({message, src});
+
+	if (onError) {
+		onError(playbackError);
+		return;
+	}
+
+	throw playbackError;
+};
+
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	VideoForPreviewProps
@@ -245,55 +280,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		}),
 	);
 
-	useEffect(() => {
-		const {current} = videoRef;
-		if (!current) {
-			return;
-		}
-
-		const errorHandler = () => {
-			if (current.error) {
-				// eslint-disable-next-line no-console
-				console.error('Error occurred in video', current?.error);
-
-				// If user is handling the error, we don't cause an unhandled exception
-				if (onError) {
-					const err = new MediaPlaybackError({
-						message: `Code ${current.error.code}: ${current.error.message}`,
-						src: src as string,
-					});
-					onError(err);
-					return;
-				}
-
-				throw new MediaPlaybackError({
-					message: `The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
-					src: src as string,
-				});
-			} else {
-				// If user is handling the error, we don't cause an unhandled exception
-				if (onError) {
-					const err = new MediaPlaybackError({
-						message: `The browser threw an error while playing the video ${src}`,
-						src: src as string,
-					});
-					onError(err);
-					return;
-				}
-
-				throw new MediaPlaybackError({
-					message: 'The browser threw an error while playing the video',
-					src: src as string,
-				});
-			}
-		};
-
-		current.addEventListener('error', errorHandler, {once: true});
-		return () => {
-			current.removeEventListener('error', errorHandler);
-		};
-	}, [onError, src]);
-
 	const currentOnDurationCallback =
 		useRef<VideoForPreviewProps['onDuration']>(onDuration);
 	currentOnDurationCallback.current = onDuration;
@@ -342,12 +328,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 	}, []);
 
-	const actualStyle: React.CSSProperties = useMemo(() => {
-		return {
-			...style,
-		};
-	}, [style]);
-
 	const crossOriginValue = getCrossOriginValue({
 		crossOrigin,
 		requestsVideoFrame: Boolean(onVideoFrame),
@@ -356,13 +336,20 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const video = (
 		<video
+			onError={(event) =>
+				handleVideoError({
+					error: event.currentTarget.error,
+					src: src as string,
+					onError,
+				})
+			}
 			{...nativeProps}
 			ref={videoRef}
 			muted={muted || playerMuted || userPreferredVolume <= 0}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}
-			style={actualStyle}
+			style={style}
 			disableRemotePlayback
 			crossOrigin={crossOriginValue}
 			controls={false}

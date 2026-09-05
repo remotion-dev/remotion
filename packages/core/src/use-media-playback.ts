@@ -3,6 +3,7 @@ import {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {getMediaSyncAction} from './get-media-sync-action.js';
+import type {MediaSyncAction} from './get-media-sync-action.js';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {Log} from './log.js';
 import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-time-timestamp.js';
@@ -26,16 +27,34 @@ import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
 // In Safari, amplified media can lag behind by around 0.4 seconds.
 const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION = 0.65;
 
+type PauseReason = 'not-playing' | 'buffering';
+
 const getPauseReason = ({
-	reason,
+	playing,
+	buffering,
+	mediaTagBuffering,
+}: {
+	playing: boolean;
+	buffering: boolean;
+	mediaTagBuffering: boolean;
+}): PauseReason | null => {
+	if (!playing) {
+		return 'not-playing';
+	}
+
+	return buffering && !mediaTagBuffering ? 'buffering' : null;
+};
+
+const getPauseReasonText = ({
+	pauseReason,
 	isPremounting,
 	isPostmounting,
 }: {
-	reason: 'not-playing' | 'buffering';
+	pauseReason: PauseReason;
 	isPremounting: boolean;
 	isPostmounting: boolean;
 }) => {
-	if (reason === 'buffering') {
+	if (pauseReason === 'buffering') {
 		return 'player is buffering but media tag is not';
 	}
 
@@ -43,11 +62,7 @@ const getPauseReason = ({
 		return 'media is premounting';
 	}
 
-	if (isPostmounting) {
-		return 'media is postmounting';
-	}
-
-	return 'Player is not playing';
+	return isPostmounting ? 'media is postmounting' : 'Player is not playing';
 };
 
 export const useMediaPlayback = ({
@@ -79,7 +94,7 @@ export const useMediaPlayback = ({
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
 	const playing = usePlaying();
-	const playerBuffering = useBuffering();
+	const buffering = useBuffering();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 	const lastSeekDueToShift = useRef<number | null>(null);
@@ -133,50 +148,121 @@ export const useMediaPlayback = ({
 		src: src ?? null,
 	});
 
-	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
-		mediaRef,
-		mediaType,
-		onVariableFpsVideoDetected,
-		pauseWhenBuffering,
-		logLevel,
-		mountTime,
-	});
+	const {bufferUntilFirstFrame, isBufferingUntilFirstFrame} =
+		useBufferUntilFirstFrame({
+			mediaRef,
+			mediaType,
+			onVariableFpsVideoDetected,
+			pauseWhenBuffering,
+			logLevel,
+			mountTime,
+		});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
-
-	const acceptableTimeShiftButLessThanDuration = (() => {
-		// For short audio, a lower acceptable time shift is used
-		if (mediaRef.current?.duration) {
-			return Math.min(
-				mediaRef.current.duration,
-				acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION,
-			);
-		}
-
-		return (
-			acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION
-		);
-	})();
+	const acceptableTimeShift =
+		acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION;
+	const mediaDuration = mediaRef.current?.duration;
+	// For short media, use its duration as the acceptable time shift.
+	const acceptableTimeShiftButLessThanDuration = mediaDuration
+		? Math.min(mediaDuration, acceptableTimeShift)
+		: acceptableTimeShift;
 
 	const env = useRemotionEnvironment();
 
 	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
 	// and it is also in a useLayoutEffect.
 	useLayoutEffect(() => {
-		const playbackRateToSet = Math.max(0, playbackRate);
-		if (
-			mediaRef.current &&
-			mediaRef.current.playbackRate !== playbackRateToSet
-		) {
-			mediaRef.current.playbackRate = playbackRateToSet;
+		const {current} = mediaRef;
+		if (!current) {
+			return;
 		}
 
-		if (mediaRef.current && mediaRef.current.preservesPitch !== preservePitch) {
-			mediaRef.current.preservesPitch = preservePitch;
+		const playbackRateToSet = Math.max(0, playbackRate);
+		if (current.playbackRate !== playbackRateToSet) {
+			current.playbackRate = playbackRateToSet;
+		}
+
+		if (current.preservesPitch !== preservePitch) {
+			current.preservesPitch = preservePitch;
 		}
 	}, [mediaRef, playbackRate, preservePitch]);
 
-	useEffect(() => {
+	const executeMediaSyncAction = useCallback(
+		(current: HTMLAudioElement | HTMLVideoElement, action: MediaSyncAction) => {
+			const seekTo = (time: number, why: string) => {
+				lastSeek.current = seek({
+					mediaRef: current,
+					time,
+					logLevel,
+					why,
+					mountTime,
+				});
+			};
+
+			const playMedia = (reason: string) => {
+				playAndHandleNotAllowedError({
+					mediaRef,
+					mediaType,
+					onAutoPlayError,
+					logLevel,
+					mountTime,
+					reason,
+					isPlayer: env.isPlayer,
+				});
+			};
+
+			if (action.type === 'none') {
+				return;
+			}
+
+			if (action.type === 'seek-due-to-shift') {
+				seekTo(action.shouldBeTime, action.why);
+				lastSeekDueToShift.current = lastSeek.current;
+
+				if (action.bufferUntilFirstFrame) {
+					bufferUntilFirstFrame(action.shouldBeTime);
+				}
+
+				if (action.playReason !== null) {
+					playMedia(action.playReason);
+				}
+
+				if (action.warnAboutNonSeekable) {
+					warnAboutNonSeekableMedia(current, 'console-error');
+				}
+
+				return;
+			}
+
+			if (action.type === 'seek-if-not-playing') {
+				if (action.why !== null) {
+					seekTo(action.shouldBeTime, action.why);
+				}
+
+				return;
+			}
+
+			if (action.why !== null) {
+				seekTo(action.shouldBeTime, action.why);
+			}
+
+			playMedia(action.playReason);
+			if (action.bufferUntilFirstFrame) {
+				bufferUntilFirstFrame(action.shouldBeTime);
+			}
+		},
+		[
+			bufferUntilFirstFrame,
+			env.isPlayer,
+			logLevel,
+			mediaRef,
+			mediaType,
+			mountTime,
+			onAutoPlayError,
+		],
+	);
+
+	const synchronizeMedia = useCallback(() => {
 		const tagName = mediaType === 'audio' ? '<Html5Audio>' : '<Html5Video>';
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
@@ -189,27 +275,33 @@ export const useMediaPlayback = ({
 		}
 
 		const {current} = mediaRef;
-		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
-		let pauseReason: 'not-playing' | 'buffering' | null = null;
-		if (!playing) {
-			pauseReason = 'not-playing';
-		} else if (playerBuffering && !isMediaTagBufferingOrStalled) {
-			pauseReason = 'buffering';
-		}
+		const pauseMedia = (reason: PauseReason | null) => {
+			if (current.paused || reason === null) {
+				return;
+			}
 
-		if (!current.paused && pauseReason !== null) {
 			playbackLogging({
 				logLevel,
 				tag: 'pause',
-				message: `Pausing ${current.src} because ${getPauseReason({
-					reason: pauseReason,
+				message: `Pausing ${current.src} because ${getPauseReasonText({
+					pauseReason: reason,
 					isPremounting,
 					isPostmounting,
 				})}`,
 				mountTime,
 			});
 			current.pause();
-		}
+		};
+
+		const isMediaTagBufferingOrStalled =
+			isMediaTagBuffering || isBufferingUntilFirstFrame();
+		const pauseReason = getPauseReason({
+			playing,
+			buffering,
+			mediaTagBuffering: isMediaTagBufferingOrStalled,
+		});
+
+		pauseMedia(pauseReason);
 
 		const action = getMediaSyncAction({
 			duration: current.duration,
@@ -227,7 +319,7 @@ export const useMediaPlayback = ({
 			playing,
 			playbackRate,
 			mediaTagBufferingOrStalled: isMediaTagBufferingOrStalled,
-			playerBuffering,
+			playerBuffering: buffering,
 			absoluteFrame,
 			onlyWarnForMediaSeekingError,
 			isPremounting,
@@ -235,102 +327,29 @@ export const useMediaPlayback = ({
 			pauseWhenBuffering,
 		});
 
-		if (action.type === 'none') {
-			return;
-		}
-
-		if (action.type === 'seek-due-to-shift') {
-			lastSeek.current = seek({
-				mediaRef: current,
-				time: action.shouldBeTime,
-				logLevel,
-				why: action.why,
-				mountTime,
-			});
-			lastSeekDueToShift.current = lastSeek.current;
-
-			if (action.bufferUntilFirstFrame) {
-				bufferUntilFirstFrame(action.shouldBeTime);
-			}
-
-			if (action.playReason !== null) {
-				playAndHandleNotAllowedError({
-					mediaRef,
-					mediaType,
-					onAutoPlayError,
-					logLevel,
-					mountTime,
-					reason: action.playReason,
-					isPlayer: env.isPlayer,
-				});
-			}
-
-			if (action.warnAboutNonSeekable) {
-				warnAboutNonSeekableMedia(current, 'console-error');
-			}
-
-			return;
-		}
-
-		if (action.type === 'seek-if-not-playing') {
-			if (action.why !== null) {
-				lastSeek.current = seek({
-					mediaRef: current,
-					time: action.shouldBeTime,
-					logLevel,
-					why: action.why,
-					mountTime,
-				});
-			}
-
-			return;
-		}
-
-		// action.type === 'play-and-seek'
-		if (action.why !== null) {
-			lastSeek.current = seek({
-				mediaRef: current,
-				time: action.shouldBeTime,
-				logLevel,
-				why: action.why,
-				mountTime,
-			});
-		}
-
-		playAndHandleNotAllowedError({
-			mediaRef,
-			mediaType,
-			onAutoPlayError,
-			logLevel,
-			mountTime,
-			reason: action.playReason,
-			isPlayer: env.isPlayer,
-		});
-		if (action.bufferUntilFirstFrame) {
-			bufferUntilFirstFrame(action.shouldBeTime);
-		}
+		executeMediaSyncAction(current, action);
 	}, [
 		absoluteFrame,
 		acceptableTimeShiftButLessThanDuration,
-		bufferUntilFirstFrame,
 		rvcCurrentTime,
-		logLevel,
 		desiredUnclampedTime,
-		isBuffering,
+		executeMediaSyncAction,
+		isBufferingUntilFirstFrame,
 		isMediaTagBuffering,
 		mediaRef,
 		mediaType,
 		onlyWarnForMediaSeekingError,
 		playbackRate,
-		playerBuffering,
+		buffering,
 		playing,
 		src,
-		onAutoPlayError,
 		isPremounting,
 		isPostmounting,
 		pauseWhenBuffering,
-		mountTime,
 		mediaTagCurrentTime,
-		env.isPlayer,
+		logLevel,
+		mountTime,
 	]);
+
+	useEffect(synchronizeMedia, [synchronizeMedia]);
 };
