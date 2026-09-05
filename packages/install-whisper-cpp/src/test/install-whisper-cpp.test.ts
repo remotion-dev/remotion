@@ -1,13 +1,5 @@
 import {expect, spyOn, test} from 'bun:test';
-import {execFileSync} from 'child_process';
-import {
-	existsSync,
-	mkdirSync,
-	mkdtempSync,
-	readFileSync,
-	rmSync,
-	writeFileSync,
-} from 'fs';
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync} from 'fs';
 import os from 'os';
 import path from 'path';
 import {installWhisperCpp} from '../install-whisper-cpp';
@@ -26,31 +18,12 @@ test.skipIf(process.platform !== 'win32')(
 			"data [2] $value & 'quote' `tick`",
 			'whisper.cpp',
 		);
-		const source = path.join(root, 'main.exe');
-		const archive = path.join(root, 'fixture.zip');
 		const executableContents = 'Whisper executable fixture';
 		const fetchSpy = spyOn(globalThis, 'fetch');
 
 		try {
 			mkdirSync(project);
-			writeFileSync(source, executableContents);
-			execFileSync(
-				'powershell.exe',
-				[
-					'-NoProfile',
-					'-NonInteractive',
-					'-Command',
-					'Compress-Archive -LiteralPath $env:WHISPER_TEST_SOURCE -DestinationPath $env:WHISPER_TEST_ARCHIVE -ErrorAction Stop',
-				],
-				{
-					env: {
-						...process.env,
-						WHISPER_TEST_SOURCE: source,
-						WHISPER_TEST_ARCHIVE: archive,
-					},
-				},
-			);
-			const zip = readFileSync(archive);
+			const zip = readFileSync(path.join(__dirname, 'fixtures', 'whisper.zip'));
 			fetchSpy.mockResolvedValue(
 				new Response(new Uint8Array(zip).buffer, {
 					headers: {'content-length': String(zip.length)},
