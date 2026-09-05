@@ -1,3 +1,7 @@
+import {
+	getTimelineVisibleDuration,
+	getTimelineVisibleStart,
+} from '@remotion/canvas';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import type {_InternalTypes, TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
@@ -420,6 +424,7 @@ const TimelineSequenceInner: React.FC<{
 	// if that is the case, it needs to be asynchronously determined
 
 	const video = Internals.useVideo();
+	const {sequences} = useContext(Internals.SequenceManager);
 	const renderWindow = useContext(TimelineViewportContext);
 	const dragAwareDoubleClick = useMemo(
 		() => createDragAwareDoubleClickTracker(),
@@ -859,17 +864,20 @@ const TimelineSequenceInner: React.FC<{
 			),
 		) === Math.ceil(naturalMediaDuration);
 
-	const endsAtExplicitDuration =
-		s.explicitDurationInFrames !== null &&
-		s.explicitDurationInFrames !== undefined &&
-		Number.isFinite(s.explicitDurationInFrames) &&
-		Math.ceil(s.explicitDurationInFrames - sequenceFrameOffset) <=
-			Math.ceil(
-				Math.min(displayDurationInFrames, video.durationInFrames - s.from),
-			);
+	const parentSequence = sequences.find(
+		(candidate) => candidate.id === s.parent,
+	);
+	const parentEnd = parentSequence
+		? getTimelineVisibleStart(parentSequence, sequences) +
+			getTimelineVisibleDuration(parentSequence, sequences)
+		: video.durationInFrames;
+	const endsAtContainerBoundary =
+		Math.ceil(s.from + displayDurationInFrames) >=
+		Math.ceil(Math.min(parentEnd, video.durationInFrames));
+
 	const showRightBorderRadius =
 		visibleLayout?.rightEdgeVisible === true &&
-		(!endsAtExplicitDuration || endsAtNaturalMediaDuration);
+		(endsAtContainerBoundary || endsAtNaturalMediaDuration);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {

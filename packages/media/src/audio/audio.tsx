@@ -185,17 +185,6 @@ const AudioInner: React.FC<
 				layout="none"
 				from={from ?? 0}
 				durationInFrames={basicInfo.duration}
-				_remotionInternalExplicitDurationInFrames={Math.min(
-					durationInFrames ?? Infinity,
-					props.trimAfter === undefined || props.loop
-						? Infinity
-						: Internals.calculateMediaDuration({
-								mediaDurationInFrames: Infinity,
-								trimBefore: props.trimBefore,
-								trimAfter: props.trimAfter,
-								playbackRate: props.playbackRate ?? 1,
-							}),
-				)}
 				freeze={freeze}
 				_remotionInternalIsMedia={isMedia}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}

@@ -64,10 +64,6 @@ export type LayoutAndStyle =
 	  };
 
 export type SequencePropsWithoutDuration = {
-	/**
-	 * @deprecated For internal use only.
-	 */
-	readonly _remotionInternalExplicitDurationInFrames?: number | null;
 	readonly children?: React.ReactNode;
 	readonly width?: number;
 	readonly height?: number;
@@ -162,7 +158,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
-		_remotionInternalExplicitDurationInFrames = durationInFrames,
 		outlineRef: passedRefForOutline,
 		cropLeft,
 		cropRight,
@@ -460,12 +455,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			controlsSupportsEffects,
 		]);
 
-	const explicitDurationInFrames = Number.isFinite(
-		_remotionInternalExplicitDurationInFrames,
-	)
-		? _remotionInternalExplicitDurationInFrames
-		: null;
-
 	const getSequenceForRegistration = useCallback((): TSequence => {
 		if (isMedia) {
 			if (isMedia.type === 'image') {
@@ -477,7 +466,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
-					explicitDurationInFrames,
 					from,
 					trimBefore: registeredTrimBefore,
 					id,
@@ -505,7 +493,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				documentationLink: resolvedDocumentationLink,
 				doesVolumeChange: isMedia.data.doesVolumeChange,
 				duration: actualDurationInFrames,
-				explicitDurationInFrames,
 				from,
 				trimBefore: registeredTrimBefore,
 				id,
@@ -534,7 +521,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			from,
 			trimBefore: registeredTrimBefore,
 			duration: actualDurationInFrames,
-			explicitDurationInFrames,
 			id,
 			displayName: timelineClipName,
 			documentationLink: resolvedDocumentationLink,
@@ -559,7 +545,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		timelineClipName,
 		parentSequence?.id,
 		actualDurationInFrames,
-		explicitDurationInFrames,
 		from,
 		registeredTrimBefore,
 		showInTimeline,

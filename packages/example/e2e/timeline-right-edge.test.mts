@@ -22,6 +22,7 @@ const Layers = () => <>
   <AbsoluteFill name="Fill clipped before own cutoff" durationInFrames={240} />
   <Sequence name="Fill parent" durationInFrames={30}>
     <AbsoluteFill name="Inherited fill" />
+  <AbsoluteFill name="Explicit parent match" durationInFrames={30} />
     <AbsoluteFill name="Child clipped before own cutoff" durationInFrames={60} />
   </Sequence>
   <Solid name="Solid cutoff" color="gray" width={100} height={100} from={27} durationInFrames={9} trimBefore={27} />
@@ -59,10 +60,11 @@ export const E2eTestRoot = () => <Composition id="timeline-edges" component={Lay
 		for (const [name, radius] of [
 			['Fill available time', '2px'],
 			['Explicit fill cutoff', '0px'],
-			['Explicit composition match', '0px'],
+			['Explicit composition match', '2px'],
 			['Fill clipped before own cutoff', '2px'],
 			['Fill parent', '0px'],
 			['Inherited fill', '2px'],
+			['Explicit parent match', '2px'],
 			['Child clipped before own cutoff', '2px'],
 			['Natural end', '2px'],
 			['Solid cutoff', '0px'],
