@@ -1,6 +1,6 @@
 import type React from 'react';
-import {useEffect, useState} from 'react';
-import type {LogLevel} from './log';
+import {useEffect, useRef, useState} from 'react';
+import {useLogging} from './log-level-context';
 import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
 
@@ -9,20 +9,19 @@ export const useMediaBuffering = ({
 	shouldBuffer,
 	isPremounting,
 	isPostmounting,
-	logLevel,
-	mountTime,
 	src,
 }: {
 	element: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	shouldBuffer: boolean;
 	isPremounting: boolean;
 	isPostmounting: boolean;
-	logLevel: LogLevel;
-	mountTime: number;
 	src: string | null;
 }) => {
 	const buffer = useBufferState();
 	const [isBuffering, setIsBuffering] = useState(false);
+	const logging = useLogging();
+	const loggingRef = useRef(logging);
+	loggingRef.current = logging;
 
 	// Buffer state based on `waiting` and `canplay`
 	useEffect(() => {
@@ -53,10 +52,9 @@ export const useMediaBuffering = ({
 			) {
 				if (!navigator.userAgent.includes('Firefox/')) {
 					playbackLogging({
-						logLevel,
+						...loggingRef.current,
 						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted ${current.playbackRate}`,
 						tag: 'load',
-						mountTime,
 					});
 					const previousPlaybackRate = current.playbackRate;
 					current.load();
@@ -84,10 +82,9 @@ export const useMediaBuffering = ({
 			});
 			if (didDoSomething) {
 				playbackLogging({
-					logLevel,
+					...loggingRef.current,
 					message: `Unmarking as buffering: ${current.src}. Reason: ${reason}`,
 					tag: 'buffer',
-					mountTime,
 				});
 			}
 		};
@@ -95,10 +92,9 @@ export const useMediaBuffering = ({
 		const blockMedia = (reason: string) => {
 			setIsBuffering(true);
 			playbackLogging({
-				logLevel,
+				...loggingRef.current,
 				message: `Marking as buffering: ${current.src}. Reason: ${reason}`,
 				tag: 'buffer',
-				mountTime,
 			});
 			const {unblock} = buffer.delayPlayback();
 			const onCanPlay = () => {
@@ -128,10 +124,9 @@ export const useMediaBuffering = ({
 			});
 			cleanupFns.push((cleanupReason) => {
 				playbackLogging({
-					logLevel,
+					...loggingRef.current,
 					message: `Unblocking ${current.src} from buffer. Reason: ${cleanupReason}`,
 					tag: 'buffer',
-					mountTime,
 				});
 				unblock();
 			});
@@ -154,10 +149,9 @@ export const useMediaBuffering = ({
 				// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
 				if (!navigator.userAgent.includes('Firefox/')) {
 					playbackLogging({
-						logLevel,
+						...loggingRef.current,
 						message: `Calling .load() on ${src} because readyState is ${current.readyState} and it is not Firefox. ${current.playbackRate}`,
 						tag: 'load',
-						mountTime,
 					});
 
 					const previousPlaybackRate = current.playbackRate;
@@ -187,16 +181,7 @@ export const useMediaBuffering = ({
 		// it gives the chance to load the new source.
 
 		// https://github.com/remotion-dev/remotion/issues/5218
-	}, [
-		buffer,
-		src,
-		element,
-		isPremounting,
-		isPostmounting,
-		logLevel,
-		shouldBuffer,
-		mountTime,
-	]);
+	}, [buffer, src, element, isPremounting, isPostmounting, shouldBuffer]);
 
 	return isBuffering;
 };

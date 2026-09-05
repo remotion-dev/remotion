@@ -1,6 +1,6 @@
 import {useMemo, useRef} from 'react';
-import type {LogLevel} from '../log';
-import {Log} from '../log';
+import {Log, type LogLevel} from '../log';
+import {useLogging} from '../log-level-context';
 import {useRemotionEnvironment} from '../use-remotion-environment';
 
 // The native AudioContext.state can be 'closed' | 'interrupted' | 'running' | 'suspended'.
@@ -30,17 +30,18 @@ const warnOnce = (logLevel: LogLevel) => {
 };
 
 export const useSingletonAudioContext = ({
-	logLevel,
 	latencyHint,
 	audioEnabled,
 	sampleRate,
 }: {
-	logLevel: LogLevel;
 	latencyHint: AudioContextLatencyCategory;
 	audioEnabled: boolean;
 	sampleRate: number;
 }) => {
 	const env = useRemotionEnvironment();
+	const logging = useLogging();
+	const loggingRef = useRef(logging);
+	loggingRef.current = logging;
 	const initialSampleRate = useRef(sampleRate);
 
 	if (sampleRate !== initialSampleRate.current) {
@@ -59,7 +60,7 @@ export const useSingletonAudioContext = ({
 		}
 
 		if (typeof AudioContext === 'undefined') {
-			warnOnce(logLevel);
+			warnOnce(loggingRef.current.logLevel);
 			return null;
 		}
 
@@ -73,7 +74,10 @@ export const useSingletonAudioContext = ({
 
 		const gainNode = audioContext.createGain();
 		gainNode.connect(audioContext.destination);
-		Log.trace({logLevel, tag: 'audio'}, 'Creating new audio context');
+		Log.trace(
+			{logLevel: loggingRef.current.logLevel, tag: 'audio'},
+			'Creating new audio context',
+		);
 
 		audioContext.suspend();
 
@@ -128,7 +132,7 @@ export const useSingletonAudioContext = ({
 			resume,
 			suspend,
 		};
-	}, [logLevel, latencyHint, env.isRendering, audioEnabled, sampleRate]);
+	}, [latencyHint, env.isRendering, audioEnabled, sampleRate]);
 
 	return context;
 };

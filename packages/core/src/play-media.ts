@@ -1,8 +1,19 @@
-import type {RefObject} from 'react';
+import {useCallback, useRef, type RefObject} from 'react';
 import {Log, type LogLevel} from './log';
+import {useLogging} from './log-level-context';
 import {playbackLogging} from './playback-logging';
+import {useRemotionEnvironment} from './use-remotion-environment';
 
-export const playAndHandleNotAllowedError = ({
+type PlayMediaOptions = {
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
+	mediaType: 'audio' | 'video';
+	onAutoPlayError: null | (() => void);
+	reason: string;
+};
+
+type PlayMedia = (options: PlayMediaOptions) => void;
+
+const playMedia = ({
 	mediaRef,
 	mediaType,
 	onAutoPlayError,
@@ -10,13 +21,9 @@ export const playAndHandleNotAllowedError = ({
 	mountTime,
 	reason,
 	isPlayer,
-}: {
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
-	mediaType: 'audio' | 'video';
-	onAutoPlayError: null | (() => void);
+}: PlayMediaOptions & {
 	logLevel: LogLevel;
 	mountTime: number;
-	reason: string;
 	isPlayer: boolean;
 }) => {
 	const {current} = mediaRef;
@@ -102,4 +109,21 @@ export const playAndHandleNotAllowedError = ({
 			}
 		}
 	});
+};
+
+export const usePlayMedia = (): PlayMedia => {
+	const logging = useLogging();
+	const loggingRef = useRef(logging);
+	loggingRef.current = logging;
+	const {isPlayer} = useRemotionEnvironment();
+
+	return useCallback(
+		(options) =>
+			playMedia({
+				...options,
+				...loggingRef.current,
+				isPlayer,
+			}),
+		[isPlayer],
+	);
 };

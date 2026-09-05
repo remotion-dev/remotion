@@ -1,13 +1,11 @@
 import React, {
 	useCallback,
-	useContext,
 	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
-import type {LogLevel} from './log';
-import {LogLevelContext} from './log-level-context';
+import {useLogging} from './log-level-context';
 import {playbackLogging} from './playback-logging';
 import {SetTimelineContext} from './TimelineContext.js';
 import {useRemotionEnvironment} from './use-remotion-environment';
@@ -17,14 +15,15 @@ type BufferManager = {
 };
 
 const useBufferManager = (
-	logLevel: LogLevel,
-	mountTime: number | null,
 	setBuffering: (buffering: boolean) => void,
 	isBuffering: () => boolean,
 ): BufferManager => {
 	const [blockCount, setBlockCount] = useState(0);
 
 	const env = useRemotionEnvironment();
+	const logging = useLogging();
+	const loggingRef = React.useRef(logging);
+	loggingRef.current = logging;
 	const rendering = env.isRendering;
 
 	const addBlock = useCallback(() => {
@@ -60,9 +59,8 @@ const useBufferManager = (
 		if (blockCount > 0 && !isBuffering()) {
 			setBuffering(true);
 			playbackLogging({
-				logLevel,
+				...loggingRef.current,
 				message: 'Player is entering buffer state',
-				mountTime,
 				tag: 'player',
 			});
 		}
@@ -83,9 +81,8 @@ const useBufferManager = (
 			if (blockCount === 0 && isBuffering()) {
 				setBuffering(false);
 				playbackLogging({
-					logLevel,
+					...loggingRef.current,
 					message: 'Player is exiting buffer state',
-					mountTime,
 					tag: 'player',
 				});
 			}
@@ -103,14 +100,8 @@ export const BufferingContextReact = React.createContext<BufferManager | null>(
 export const BufferingProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const {logLevel, mountTime} = useContext(LogLevelContext);
-	const {isBuffering, setBuffering} = useContext(SetTimelineContext);
-	const bufferManager = useBufferManager(
-		logLevel ?? 'info',
-		mountTime,
-		setBuffering,
-		isBuffering,
-	);
+	const {isBuffering, setBuffering} = React.useContext(SetTimelineContext);
+	const bufferManager = useBufferManager(setBuffering, isBuffering);
 
 	return (
 		<BufferingContextReact.Provider value={bufferManager}>
