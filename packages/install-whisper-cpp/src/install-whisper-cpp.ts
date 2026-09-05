@@ -14,14 +14,14 @@ const execute = ({
 	printOutput,
 	signal,
 	cwd,
-	shell,
+	env,
 	args,
 	bin,
 }: {
 	printOutput: boolean;
 	signal: AbortSignal | null;
 	cwd: string | null;
-	shell: string | null;
+	env: NodeJS.ProcessEnv | null;
 	bin: string;
 	args: string[];
 }) => {
@@ -32,7 +32,7 @@ const execute = ({
 			stdio,
 			signal: signal ?? undefined,
 			cwd: cwd ?? undefined,
-			shell: shell ?? undefined,
+			env: env ?? undefined,
 		});
 
 		child.on('exit', (code, exitSignal) => {
@@ -83,12 +83,21 @@ const installForWindows = async ({
 	});
 
 	await execute({
-		shell: 'powershell',
+		env: {
+			...process.env,
+			REMOTION_WHISPER_ARCHIVE: filePath,
+			REMOTION_WHISPER_DESTINATION: to,
+		},
 		printOutput,
 		signal,
 		cwd: null,
-		bin: 'Expand-Archive',
-		args: ['-Force', filePath, to],
+		bin: 'powershell.exe',
+		args: [
+			'-NoProfile',
+			'-NonInteractive',
+			'-Command',
+			'Expand-Archive -Force -LiteralPath $env:REMOTION_WHISPER_ARCHIVE -DestinationPath $env:REMOTION_WHISPER_DESTINATION -ErrorAction Stop',
+		],
 	});
 
 	rmSync(filePath);
@@ -111,7 +120,7 @@ const installWhisperForUnix = async ({
 		printOutput,
 		signal,
 		cwd: null,
-		shell: null,
+		env: null,
 	});
 
 	const ref = getIsSemVer(version) ? `v${version}` : version;
@@ -122,7 +131,7 @@ const installWhisperForUnix = async ({
 		printOutput,
 		cwd: to,
 		signal,
-		shell: null,
+		env: null,
 	});
 
 	await execute({
@@ -131,7 +140,7 @@ const installWhisperForUnix = async ({
 		cwd: to,
 		signal,
 		printOutput,
-		shell: null,
+		env: null,
 	});
 };
 
