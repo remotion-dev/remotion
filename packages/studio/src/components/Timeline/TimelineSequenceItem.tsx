@@ -76,6 +76,7 @@ import {
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
+import {TimelineLayerChildrenToggle} from './TimelineLayerChildren';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
@@ -1266,7 +1267,7 @@ const TimelineSequenceItemInner: React.FC<{
 					<TimelineLayerEyeSpacer />
 				)
 			}
-			arrow={<TimelineExpandArrowSpacer />}
+			arrow={<TimelineLayerChildrenToggle sequence={sequence} />}
 			style={rowStyle}
 			selected={selected}
 			selectable={selectable}

@@ -182,6 +182,18 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	);
 
 	useEffect(() => {
+		const onBeforeUnload = (event: BeforeUnloadEvent) => {
+			event.preventDefault();
+			event.returnValue = true;
+		};
+
+		window.addEventListener('beforeunload', onBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', onBeforeUnload);
+		};
+	}, []);
+
+	useEffect(() => {
 		return () => publicFileManager.dispose();
 	}, [publicFileManager]);
 	const hmrAssetManager = useMemo(

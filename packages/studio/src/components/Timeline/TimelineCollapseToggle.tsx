@@ -15,7 +15,7 @@ const Icon: React.FC<
 	}
 > = ({color, ...props}) => {
 	return (
-		<svg viewBox="0 0 8 10" {...props} style={{height: 10, width: 8}}>
+		<svg viewBox="0 0 8 10" {...props} style={{height: 8, width: 6.4}}>
 			<path d="M 0 0 L 8 5 L 0 10 z" fill={color} />
 		</svg>
 	);

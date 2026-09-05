@@ -40,13 +40,14 @@ export const config: VercelConfig = {
 					'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
 			},
 		]),
-		routes.header('/experimental_new(.*)', browserStudioIsolationHeaders),
+		routes.header('/new(.*)', browserStudioIsolationHeaders),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 		]),
 	],
 	redirects: [
+		routes.redirect('/experimental_new', '/new', {permanent: true}),
 		routes.redirect(
 			'/elements/guidelines',
 			'/elements/contributing#element-guidelines',

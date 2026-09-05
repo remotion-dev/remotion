@@ -345,7 +345,7 @@ export const studioCommand = async (
 		configFile,
 	});
 
-	if (result.type === 'already-running') {
+	if (result.type !== 'restarted') {
 		return;
 	}
 

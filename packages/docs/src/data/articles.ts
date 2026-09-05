@@ -7265,6 +7265,15 @@ export const articles = [
 		slug: 'studio/shortcuts',
 	},
 	{
+		id: 'studio/shut-down-studio',
+		title: 'shutDownStudio()',
+		relativePath: 'docs/studio/shut-down-studio.mdx',
+		compId: 'articles-docs-studio-shut-down-studio',
+		crumb: '@remotion/studio',
+		noAi: false,
+		slug: 'studio/shut-down-studio',
+	},
+	{
 		id: 'studio/studio',
 		title: 'Starting the Studio',
 		relativePath: 'docs/studio/studio.mdx',

@@ -15,6 +15,7 @@ import {TimeValue} from '../TimeValue';
 import {scrollableRef} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
+import {TimelineTickFormatContext} from './TimelineTickFormatProvider';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
@@ -242,6 +243,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 	readonly durationInFrames: number;
 }>(({windowWidth, durationInFrames, fps}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const {showFrames} = useContext(TimelineTickFormatContext);
 
 	useLayoutEffect(() => {
 		const canvas = canvasRef.current;
@@ -260,7 +262,10 @@ const TimelineTimeIndicatorsInner = React.memo<{
 			windowWidth,
 		);
 		const maxTickLabelWidth =
-			renderFrame(durationInFrames - 1, fps).length *
+			(showFrames
+				? `${durationInFrames - 1}f`
+				: renderFrame(durationInFrames - 1, fps)
+			).length *
 			TICK_LABEL_FONT_SIZE *
 			0.6;
 		const tickScale = getTimelineTickScale({
@@ -320,7 +325,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 					context.font = `${TICK_LABEL_FONT_SIZE}px ${getComputedStyle(canvas).fontFamily}`;
 					context.textBaseline = 'top';
 					context.fillText(
-						renderFrame(frame, fps),
+						showFrames ? `${Math.round(frame)}f` : renderFrame(frame, fps),
 						xForFrame(frame) + TICK_LABEL_MARGIN_LEFT,
 						7,
 					);
@@ -390,7 +395,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 			scrollable.removeEventListener('scroll', onScroll);
 			resizeObserver.disconnect();
 		};
-	}, [durationInFrames, fps, windowWidth]);
+	}, [durationInFrames, fps, showFrames, windowWidth]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {

@@ -801,6 +801,7 @@ const sidebars: SidebarsConfig = {
 				'studio/write-static-file',
 				'studio/delete-static-file',
 				'studio/restart-studio',
+				'studio/shut-down-studio',
 				'studio/save-default-props',
 				'studio/play',
 				'studio/pause',

@@ -46,14 +46,16 @@ import {
 	type TimelineSelection,
 } from './TimelineSelection';
 
-const HANDLE_WIDTH = 6;
+const HANDLE_INSET = 6;
+const HANDLE_OUTSET = 8;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
 
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	bottom: 0,
-	width: HANDLE_WIDTH,
+	// Keep the middle half of narrow layers available for moving.
+	width: `calc(${HANDLE_OUTSET}px + min(${HANDLE_INSET}px, 25%))`,
 	cursor: 'ew-resize',
 	zIndex: 1,
 	touchAction: 'none',
@@ -1303,6 +1305,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				return;
 			}
 
+			// Include the release position even if the final pointermove was skipped.
+			onMove(e);
 			finishDrag(true);
 		};
 
@@ -1326,7 +1330,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			onMove,
 			onEnd: (reason, endEvent) => {
 				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
+					(reason === 'pointerup' ||
+						reason === 'buttons-released' ||
+						(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
 					endEvent
 				) {
 					onUp(endEvent);
@@ -1341,7 +1347,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		left: 0,
+		left: -HANDLE_OUTSET,
 		background: TRANSPARENT,
 	};
 
@@ -1613,7 +1619,9 @@ export const useTimelineSequenceFromDrag = ({
 				onEnd: (reason, endEvent) => {
 					stopPointerSessionRef.current = null;
 					finishDrag(
-						(reason === 'pointerup' || reason === 'buttons-released') &&
+						(reason === 'pointerup' ||
+							reason === 'buttons-released' ||
+							(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
 							endEvent !== null,
 					);
 				},
@@ -1857,6 +1865,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				return;
 			}
 
+			// Include the release position even if the final pointermove was skipped.
+			onMove(e);
 			finishDrag(true);
 		};
 
@@ -1880,7 +1890,9 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			onMove,
 			onEnd: (reason, endEvent) => {
 				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
+					(reason === 'pointerup' ||
+						reason === 'buttons-released' ||
+						(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
 					endEvent
 				) {
 					onUp(endEvent);
@@ -1895,7 +1907,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		right: 0,
+		right: -HANDLE_OUTSET,
 		background: TRANSPARENT,
 	};
 

@@ -2,7 +2,9 @@ import {useContext, useEffect, useMemo, useRef, type FC} from 'react';
 import {Internals} from 'remotion';
 import {pause} from '../api/pause';
 import {play} from '../api/play';
+import {restartStudio} from '../api/restart-studio';
 import {seek} from '../api/seek';
+import {shutDownStudio} from '../api/shut-down-studio';
 import {getCurrentError} from '../error-overlay/current-error';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {createFolderTree} from '../helpers/create-folder-tree';
@@ -298,6 +300,38 @@ export const WebMcp: FC = () => {
 		};
 
 		Promise.all([
+			modelContext.registerTool(
+				{
+					name: 'restart_studio',
+					title: 'Restart Studio',
+					description:
+						'Restart the Studio server. The browser temporarily disconnects and reconnects when Studio is ready. Only available in a writable Studio with a server backend.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: () => restartStudio(),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'shut_down_studio',
+					title: 'Shut down Studio',
+					description:
+						'Gracefully shut down the Studio server. The browser disconnects. Start Studio again from the terminal to reconnect. Only available in a writable Studio with a server backend.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: () => shutDownStudio(),
+				},
+				{signal: controller.signal},
+			),
 			modelContext.registerTool(
 				{
 					name: 'get_current_error',

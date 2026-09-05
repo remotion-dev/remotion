@@ -23,6 +23,7 @@ Agents can:
 - Play, pause and seek
 - Set timeline zoom, playback rate, and mute state
 - See, add and remove guides
+- Restart or shut down the Studio server
 
 ## Requirements
 
@@ -41,6 +42,34 @@ The shape of inputs and outputs is not currently stable.
 :::
 
 Tools that modify the timeline, playback or guides require a composition to be open.
+
+### `restart_studio`<AvailableFrom v="4.0.521" />
+
+Restarts the Studio server using [`restartStudio()`](/docs/studio/restart-studio). Requires a writable Studio with a running server. No composition needs to be open. The browser temporarily disconnects and reconnects when Studio is ready.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{}
+```
+
+The output acknowledges the restart request; it does not wait for the restarted server to be ready.
+
+### `shut_down_studio`<AvailableFrom v="4.0.521" />
+
+Gracefully shuts down the Studio server using [`shutDownStudio()`](/docs/studio/shut-down-studio). Requires a writable Studio with a running server. No composition needs to be open. Start Studio again from the terminal to reconnect.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{}
+```
+
+The output acknowledges the shutdown request; the connection closes as Studio shuts down.
 
 ### `get_current_error`<AvailableFrom v="4.0.520" />
 
