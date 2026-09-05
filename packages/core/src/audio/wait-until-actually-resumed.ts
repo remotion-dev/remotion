@@ -1,6 +1,6 @@
 import {Log, type LogLevel} from '../log.js';
 
-const RESUME_WAIT_TIMEOUT = 1000;
+export const RESUME_WAIT_TIMEOUT = 1000;
 
 export type AudioContextResumeResult = 'resumed' | 'cancelled' | 'failed';
 

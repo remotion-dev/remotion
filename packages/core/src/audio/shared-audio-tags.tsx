@@ -19,6 +19,7 @@ import type {RemotionAudioContextState} from './use-audio-context.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
 import {
 	type AudioContextResumeResult,
+	RESUME_WAIT_TIMEOUT,
 	waitUntilActuallyResumed,
 } from './wait-until-actually-resumed.js';
 
@@ -182,6 +183,7 @@ type AudioContextResumeAttempt = {
 	abortController: AbortController;
 	id: number;
 	promise: Promise<AudioContextResumeResult>;
+	settle: (result: AudioContextResumeResult) => void;
 };
 
 const shouldSaveForLater = (
@@ -402,7 +404,24 @@ export const SharedAudioContextProvider: React.FC<{
 		}
 
 		if (audioContextIsPlayingEventually.current) {
-			return Promise.resolve();
+			if (!_experimentalKeepAudioContextAlive) {
+				return Promise.resolve();
+			}
+
+			if (ctxAndGain.getState() === 'running') {
+				return Promise.resolve();
+			}
+
+			// The playback loop calls resume() every frame. Without a recent
+			// user gesture a retry cannot succeed anyway, so skip it rather
+			// than piling one pending native resume per frame while blocked.
+			if (navigator.userActivation?.isActive === false) {
+				return Promise.resolve();
+			}
+
+			return ctxAndGain.resume().catch(() => {
+				// Still blocked; a later attempt retries. Callers do not await.
+			});
 		}
 
 		audioContextIsPlayingEventually.current = true;
@@ -426,7 +445,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 		if (
 			_experimentalKeepAudioContextAlive &&
-			ctxAndGain.audioContext.state === 'running'
+			ctxAndGain.getState() === 'running'
 		) {
 			// The context was never suspended, so there is nothing to wait for:
 			// the resume-wait machinery, its timeout and the mute-on-failure
@@ -438,7 +457,42 @@ export const SharedAudioContextProvider: React.FC<{
 		const abortController = new AbortController();
 		const resumeAttemptId = nextResumeAttemptId.current++;
 
+		let settle: (result: AudioContextResumeResult) => void = () => undefined;
 		const waitPromise = new Promise<AudioContextResumeResult>((resolve) => {
+			settle = resolve;
+
+			if (_experimentalKeepAudioContextAlive) {
+				// Settled with 'resumed' by the statechange listener below.
+				// Bounded like the default path so a blocked autoplay does not
+				// park the frame clock: 'cancelled' lets playback advance
+				// without muting, and the next gesture retries the resume.
+				const timeout = setTimeout(() => {
+					Log.warn(
+						{logLevel, tag: 'audio'},
+						'AudioContext did not resume in time, continuing silently until the next user gesture',
+					);
+					settle('cancelled');
+				}, RESUME_WAIT_TIMEOUT);
+				settle = (result) => {
+					clearTimeout(timeout);
+					resolve(result);
+				};
+
+				abortController.signal.addEventListener(
+					'abort',
+					() => settle('cancelled'),
+					{once: true},
+				);
+				resumePromise.catch((err) => {
+					Log.warn(
+						{logLevel, tag: 'audio'},
+						'AudioContext resume rejected; retrying on the next attempt',
+						err,
+					);
+				});
+				return;
+			}
+
 			waitUntilActuallyResumed(
 				ctxAndGain.audioContext,
 				logLevel,
@@ -463,6 +517,7 @@ export const SharedAudioContextProvider: React.FC<{
 			abortController,
 			id: resumeAttemptId,
 			promise: waitPromise,
+			settle,
 		};
 
 		return resumePromise.catch(() => {
@@ -479,6 +534,22 @@ export const SharedAudioContextProvider: React.FC<{
 	const getIsResumingAudioContext = useCallback(() => {
 		return isResuming.current?.promise ?? null;
 	}, []);
+
+	const syncContextState = useCallback(() => {
+		if (!ctxAndGain) {
+			return Promise.resolve();
+		}
+
+		const wantRunning =
+			_experimentalKeepAudioContextAlive ||
+			audioContextIsPlayingEventually.current;
+
+		if (!wantRunning && ctxAndGain.getState() === 'running') {
+			return ctxAndGain.suspend();
+		}
+
+		return Promise.resolve();
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
 
 	const suspend = useCallback(() => {
 		isResuming.current?.abortController.abort();
@@ -508,8 +579,39 @@ export const SharedAudioContextProvider: React.FC<{
 			return Promise.resolve();
 		}
 
-		return ctxAndGain.suspend();
-	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
+		return syncContextState();
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive, syncContextState]);
+
+	// The only place a non-keep-alive native suspend() is issued. Reacting to
+	// statechange covers what callers cannot: a resume() settling after pause
+	// already ran, an iOS interruption ending while paused, and a browser
+	// auto-starting a blocked context on a later gesture. Resuming stays in
+	// resume(), which runs on the user-gesture call chain.
+	useEffect(() => {
+		if (!ctxAndGain) {
+			return;
+		}
+
+		const {audioContext} = ctxAndGain;
+		const onStateChange = (): void => {
+			if (
+				_experimentalKeepAudioContextAlive &&
+				audioContext.state === 'running'
+			) {
+				isResuming.current?.settle('resumed');
+			}
+
+			syncContextState().catch(() => {
+				// A suspend() against a closed context rejects; there is
+				// nothing left to converge.
+			});
+		};
+
+		audioContext.addEventListener('statechange', onStateChange);
+		return () => {
+			audioContext.removeEventListener('statechange', onStateChange);
+		};
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive, syncContextState]);
 
 	// With _experimentalKeepAudioContextAlive, start the context as early as
 	// possible so the first play never waits on the suspended→running transition. Where
