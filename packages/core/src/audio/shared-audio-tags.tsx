@@ -53,6 +53,12 @@ export type ScheduleAudioNodeResult =
 	| {
 			type: 'started';
 			scheduledTime: number;
+			/**
+			 * False when the node was saved for a later resume instead of being
+			 * started by this call. Optional for compatibility with custom media
+			 * schedulers that implement the older result shape.
+			 */
+			startedImmediately?: boolean;
 	  }
 	| {
 			type: 'not-started';
@@ -202,6 +208,22 @@ const shouldSaveForLater = (
 	throw new Error(`Unexpected audio context state: ${state satisfies never}`);
 };
 
+const cancelAndHoldAudioParamAtTime = (
+	audioParam: AudioParam,
+	time: number,
+) => {
+	if (typeof audioParam.cancelAndHoldAtTime === 'function') {
+		audioParam.cancelAndHoldAtTime(time);
+		return;
+	}
+
+	// Older browsers may not expose cancelAndHoldAtTime(). Keep the best
+	// available fallback: cancel future automation and preserve the parameter's
+	// current base value instead of jumping to a new value.
+	audioParam.cancelScheduledValues(time);
+	audioParam.setValueAtTime(audioParam.value, time);
+};
+
 export const SharedAudioContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
@@ -346,14 +368,14 @@ export const SharedAudioContextProvider: React.FC<{
 				} else {
 					if (resumeGainRampPending.current) {
 						const resumeTime = ctxAndGain.audioContext.currentTime;
-						ctxAndGain.gainNode.gain.cancelScheduledValues(resumeTime);
-						ctxAndGain.gainNode.gain.setValueAtTime(0, resumeTime);
+						cancelAndHoldAudioParamAtTime(ctxAndGain.gainNode.gain, resumeTime);
 						ctxAndGain.gainNode.gain.linearRampToValueAtTime(
 							1,
 							resumeTime + 0.03,
 						);
 						resumeGainRampPending.current = false;
 					}
+
 					node.start(scheduledTime, offset, duration);
 				}
 			}
@@ -416,6 +438,7 @@ export const SharedAudioContextProvider: React.FC<{
 				? {
 						type: 'started',
 						scheduledTime,
+						startedImmediately: !saveForLater,
 					}
 				: {
 						type: 'not-started',
@@ -443,14 +466,14 @@ export const SharedAudioContextProvider: React.FC<{
 		audioContextIsPlayingEventually.current = true;
 		const resumeTime = ctxAndGain.audioContext.currentTime;
 
-		ctxAndGain.gainNode.gain.cancelScheduledValues(resumeTime);
-		ctxAndGain.gainNode.gain.setValueAtTime(0, resumeTime);
+		cancelAndHoldAudioParamAtTime(ctxAndGain.gainNode.gain, resumeTime);
 		if (keepAliveContextWasRunning) {
 			// The keep-alive context clock continues while playback is paused.
 			// Therefore every queued node has a stale start time by the time play
 			// is requested. Starting it here can expose a discontinuity and cause a
 			// click. Wait for the player to re-anchor and invalidate its iterators;
 			// the first fresh node applies the resume fade below.
+			ctxAndGain.gainNode.gain.linearRampToValueAtTime(0, resumeTime + 0.03);
 			discardQueuedAudioNodes();
 			resumeGainRampPending.current = true;
 			resumeAwaitingAnchor.current = hadStartedPlayback;

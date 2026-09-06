@@ -68,6 +68,7 @@ export const usePlayback = ({
 	const lastTimeUpdateTimestamp = useRef<number>(0);
 	const needsAudioReanchorRef = useRef(false);
 	const wasPlayingRef = useRef(false);
+	const pendingExplicitSeekFrameRef = useRef<number | null>(null);
 
 	useBrowserMediaSession({
 		browserMediaControlsBehavior,
@@ -78,19 +79,37 @@ export const usePlayback = ({
 	// Update time anchor when seeking:
 	// If the user clicked on a different time in the timeline, we need to re-sync the anchor
 	useLayoutEffect(() => {
+		const pendingExplicitSeekFrame = pendingExplicitSeekFrameRef.current;
+
 		if (!sharedAudioContext) {
+			pendingExplicitSeekFrameRef.current = null;
 			return;
 		}
 
 		if (!sharedAudioContext.audioContext) {
+			pendingExplicitSeekFrameRef.current = null;
 			return;
 		}
 
 		if (!config) {
+			pendingExplicitSeekFrameRef.current = null;
 			return;
 		}
 
 		if (muted) {
+			pendingExplicitSeekFrameRef.current = null;
+			return;
+		}
+
+		// In keep-alive mode, resume() below re-anchors and dispatches the change
+		// after arming the shared master-gain barrier. Do not let this layout effect
+		// dispatch a stale pre-resume anchor first; that would make schedulers tear
+		// down and rebuild their sources twice during one pause/resume cycle.
+		if (
+			playing &&
+			sharedAudioContext._experimentalKeepAudioContextAlive &&
+			!wasPlayingRef.current
+		) {
 			return;
 		}
 
@@ -100,12 +119,49 @@ export const usePlayback = ({
 			absoluteTimeInSeconds: frame / config.fps,
 			globalPlaybackRate: playbackRate,
 			logLevel,
-			force: false,
+			// A seek must always re-anchor, even when the destination is less than
+			// the normal frame-quantization threshold away from the old anchor.
+			force: pendingExplicitSeekFrame === frame,
 		});
 		if (changed) {
 			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 		}
-	}, [config, frame, logLevel, playbackRate, sharedAudioContext, muted]);
+
+		if (pendingExplicitSeekFrame === frame) {
+			needsAudioReanchorRef.current = false;
+			pendingExplicitSeekFrameRef.current = null;
+		} else if (pendingExplicitSeekFrame !== null) {
+			// The pending seek was superseded before React committed its frame.
+			pendingExplicitSeekFrameRef.current = null;
+		}
+	}, [
+		config,
+		frame,
+		logLevel,
+		playbackRate,
+		playing,
+		sharedAudioContext,
+		muted,
+	]);
+
+	// PlayerRef.seekTo() pauses before dispatching `seeked`, and dispatches the
+	// event before React has committed the new timeline frame. Only remember the
+	// seek here. The anchor effect above consumes it after the commit, when media
+	// schedulers read the new frame instead of the previous one.
+	useLayoutEffect(() => {
+		const onSeek = ({detail}: {detail: {frame: number}}) => {
+			// Keep the previous value as well as the live store value because
+			// seekTo() pauses before dispatching this event.
+			if (!isPlaying() && !wasPlayingRef.current) {
+				return;
+			}
+
+			pendingExplicitSeekFrameRef.current = detail.frame;
+		};
+
+		emitter.addEventListener('seeked', onSeek);
+		return () => emitter.removeEventListener('seeked', onSeek);
+	}, [emitter, isPlaying]);
 
 	// When the audio context is suspended, we use the opportunity to
 	// re-anchor the time to be exact.

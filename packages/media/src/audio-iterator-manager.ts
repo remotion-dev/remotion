@@ -647,8 +647,8 @@ export const audioIteratorManager = ({
 		startAudioIterator,
 		getAudioBufferIterator: () => audioBufferIterator,
 		getCurrentAnchor: () => currentAnchor,
-		destroyIterator: () => {
-			audioBufferIterator?.destroy();
+		destroyIterator: (stopAtTime?: number) => {
+			audioBufferIterator?.destroy(stopAtTime);
 			audioBufferIterator = null;
 			// Drop the anchor together with the iterator it described, so
 			// getCurrentAnchor() cannot hand out a stale mapping (from a previous

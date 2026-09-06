@@ -876,11 +876,11 @@ export class MediaPlayer {
 		}
 	};
 
-	public audioSyncAnchorChanged = () => {
+	public audioSyncAnchorChanged = (stopAtTime?: number) => {
 		if (!this.audioIteratorManager) {
 			return;
 		}
 
-		this.audioIteratorManager.destroyIterator();
+		this.audioIteratorManager.destroyIterator(stopAtTime);
 	};
 }

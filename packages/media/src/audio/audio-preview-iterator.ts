@@ -33,11 +33,15 @@ export const makeAudioIterator = ({
 	const queuedAudioNodes: QueuedNode[] = [];
 	let mostRecentTimestamp = -Infinity;
 
-	const cleanupAudioQueue = () => {
+	const cleanupAudioQueue = (stopAtTime?: number) => {
 		for (const {node} of queuedAudioNodes) {
 			unscheduleAudioNode(node);
 			try {
-				node.stop();
+				if (stopAtTime === undefined) {
+					node.stop();
+				} else {
+					node.stop(stopAtTime);
+				}
 			} catch {
 				// AudioBufferSourceNode.stop() throws if the node was never started.
 				// Cleanup is a safe boundary: it must continue stopping other nodes.
@@ -61,8 +65,8 @@ export const makeAudioIterator = ({
 	};
 
 	return {
-		destroy: () => {
-			cleanupAudioQueue();
+		destroy: (stopAtTime?: number) => {
+			cleanupAudioQueue(stopAtTime);
 			destroyed = true;
 			// Returning an async generator can reject if its underlying media input
 			// was disposed. Destruction is fire-and-forget and has no caller to
