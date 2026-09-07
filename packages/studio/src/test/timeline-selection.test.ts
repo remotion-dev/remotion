@@ -1793,6 +1793,7 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: firstNodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [
 			{type: 'sequence', nodePathInfo: firstNodePathInfo},
 			{type: 'sequence', nodePathInfo: secondNodePathInfo},
@@ -1825,12 +1826,85 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 	).toEqual([schema, schema]);
 });
 
+test('Timeline duration drag clamps each selected media item to its asset end', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'first',
+			overrideId: 'first',
+			duration: 40,
+			type: 'video',
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'second',
+			overrideId: 'second',
+			duration: 15,
+			type: 'audio',
+		}),
+	];
+	const common = {
+		draggedNodePathInfo: firstNodePathInfo,
+		draggedSequenceMediaDurationDragLimits: {
+			initialDuration: 40,
+			maximumDuration: 45,
+		},
+		selectedItems: [
+			{type: 'sequence' as const, nodePathInfo: firstNodePathInfo},
+			{type: 'sequence' as const, nodePathInfo: secondNodePathInfo},
+		],
+		sequences,
+		overrideIdsToNodePaths: {
+			first: firstNodePathInfo.sequenceSubscriptionKey,
+			second: secondNodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeDurationPropStatuses([
+			firstNodePathInfo.sequenceSubscriptionKey,
+			secondNodePathInfo.sequenceSubscriptionKey,
+		]),
+		timelineDurationInFrames: 1000,
+	};
+
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			...common,
+			selectedSequenceMediaDurationDragLimits: null,
+		}),
+	).toBe(null);
+
+	const targets = getTimelineSequenceDurationDragTargets({
+		...common,
+		selectedSequenceMediaDurationDragLimits: new Map([
+			[
+				getTimelineSequenceSelectionKey(secondNodePathInfo),
+				{initialDuration: 15, maximumDuration: 18},
+			],
+		]),
+	});
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 10,
+		}).map((change) => change.value),
+	).toEqual([45, 18]);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: -10,
+		}).map((change) => change.value),
+	).toEqual([30, 5]);
+});
+
 test('Timeline duration drag uses the declared duration for negative from values', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
 		sequences: [
 			makeTimelineSequence({
@@ -1863,6 +1937,7 @@ test('Timeline duration drag clamps to the composition end', () => {
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
 		sequences: [
 			makeTimelineSequence({
@@ -1905,6 +1980,7 @@ test('Timeline duration drag supports interactive video clips', () => {
 				initialDuration: 78,
 				maximumDuration: 1000,
 			},
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
 			sequences: [video],
 			overrideIdsToNodePaths: {
@@ -1992,6 +2068,7 @@ test('Timeline duration drag clamps explicit audio and video to the asset end', 
 				initialDuration: 200,
 				maximumDuration: 225,
 			},
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
 			sequences: [
 				makeTimelineSequence({
@@ -2025,6 +2102,7 @@ test('An overlong explicit Video is only saved once it reaches the asset end', (
 			initialDuration: 300,
 			maximumDuration: 225,
 		},
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
 		sequences: [
 			makeTimelineSequence({
@@ -2068,6 +2146,7 @@ test('Timeline duration drag trims audio and video without an explicit duration'
 				initialDuration: 78,
 				maximumDuration: 77,
 			},
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
 			sequences: [media],
 			overrideIdsToNodePaths: {
@@ -2123,6 +2202,7 @@ test('Timeline duration drag waits for an effective implicit media duration', ()
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: nodePathInfo,
 			draggedSequenceMediaDurationDragLimits: null,
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
 			sequences: [
 				makeTimelineSequence({
@@ -2160,6 +2240,7 @@ test('Implicit Video duration is only inserted below the media end', () => {
 			initialDuration: 300,
 			maximumDuration: 99,
 		},
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
 		sequences: [
 			makeTimelineSequence({
@@ -2297,6 +2378,7 @@ test('TransitionSeries.Sequence resize clamps to adjacent transition durations',
 	const durationTargets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems,
 		sequences,
 		overrideIdsToNodePaths,
@@ -2354,6 +2436,7 @@ test('Timeline duration drag is blocked if one selected sequence cannot update d
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: firstNodePathInfo,
 			draggedSequenceMediaDurationDragLimits: null,
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [
 				{type: 'sequence', nodePathInfo: firstNodePathInfo},
 				{type: 'sequence', nodePathInfo: secondNodePathInfo},
@@ -2417,6 +2500,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: firstNodePathInfo,
 			draggedSequenceMediaDurationDragLimits: null,
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [
 				{type: 'sequence', nodePathInfo: firstNodePathInfo},
 				{type: 'sequence', nodePathInfo: secondNodePathInfo},
@@ -2454,6 +2538,7 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: firstNodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [
 			{type: 'sequence', nodePathInfo: secondNodePathInfo},
 			{type: 'sequence', nodePathInfo: thirdNodePathInfo},

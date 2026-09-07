@@ -2,7 +2,13 @@ import {
 	getTimelineVisibleDuration,
 	getTimelineVisibleStart,
 } from '@remotion/canvas';
-import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import type {_InternalTypes, TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -56,6 +62,7 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
+	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
@@ -71,6 +78,7 @@ import {
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
 	TimelineSequenceLeftEdgeDragHandle,
+	TimelineSequenceMediaDurationDragLimitsContext,
 	TimelineSequenceRightEdgeDragHandle,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
@@ -428,6 +436,9 @@ const TimelineSequenceInner: React.FC<{
 	const video = Internals.useVideo();
 	const {sequences} = useContext(Internals.SequenceManager);
 	const renderWindow = useContext(TimelineViewportContext);
+	const mediaDurationDragLimitsRegistry = useContext(
+		TimelineSequenceMediaDurationDragLimitsContext,
+	);
 	const dragAwareDoubleClick = useMemo(
 		() => createDragAwareDoubleClickTracker(),
 		[],
@@ -924,6 +935,29 @@ const TimelineSequenceInner: React.FC<{
 				timelineDurationInFrames: video.durationInFrames,
 			})
 		: null;
+	const mediaDurationDragSelectionKey = nodePathInfo
+		? getTimelineSequenceSelectionKey(nodePathInfo)
+		: null;
+	useEffect(() => {
+		if (
+			mediaDurationDragLimitsRegistry === null ||
+			mediaDurationDragSelectionKey === null ||
+			!isMedia
+		) {
+			return;
+		}
+
+		const registry = mediaDurationDragLimitsRegistry.current;
+		registry.set(mediaDurationDragSelectionKey, mediaDurationDragLimits);
+		return () => {
+			registry.delete(mediaDurationDragSelectionKey);
+		};
+	}, [
+		isMedia,
+		mediaDurationDragLimits,
+		mediaDurationDragLimitsRegistry,
+		mediaDurationDragSelectionKey,
+	]);
 
 	const showRightBorderRadius =
 		visibleLayout?.rightEdgeVisible === true &&
