@@ -8,7 +8,7 @@ const container: React.CSSProperties = {
 };
 
 export const TEAR_PREVIEW_PARAMS = {
-	progress: 0.7,
+	progress: 0.95,
 	gap: 180,
 	jaggedness: 90,
 	frequency: 6,

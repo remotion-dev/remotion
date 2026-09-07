@@ -830,6 +830,7 @@ test('tear() preserves the source at zero progress and creates a transparent gap
 	}
 
 	expect(topDownContext.getImageData(16, 2, 1, 1).data[3]).toBe(0);
+	expect(topDownContext.getImageData(14, 2, 1, 1).data[3]).toBe(255);
 	expect(topDownContext.getImageData(16, 14, 1, 1).data[3]).toBe(255);
 
 	const bottomUpCanvas = await renderEffectChainToCanvas({
@@ -853,6 +854,7 @@ test('tear() preserves the source at zero progress and creates a transparent gap
 
 	expect(bottomUpContext.getImageData(16, 2, 1, 1).data[3]).toBe(255);
 	expect(bottomUpContext.getImageData(16, 14, 1, 1).data[3]).toBe(0);
+	expect(bottomUpContext.getImageData(14, 14, 1, 1).data[3]).toBe(255);
 });
 
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {

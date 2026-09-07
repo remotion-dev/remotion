@@ -275,22 +275,20 @@ vec2 inverseRotate(vec2 position, vec2 pivot, float angle) {
 
 void main() {
 	vec2 outputPosition = vec2(vUv.x, 1.0 - vUv.y);
-	float travel = uDirection == 0 ? outputPosition.y : 1.0 - outputPosition.y;
-	if (uProgress <= 0.000001 || travel > uProgress) {
+	float outputTravel = uDirection == 0
+		? outputPosition.y
+		: 1.0 - outputPosition.y;
+	if (uProgress <= 0.000001) {
 		fragColor = texture(uSource, vUv);
 		return;
 	}
 
 	float front = uDirection == 0 ? uProgress : 1.0 - uProgress;
-	float distanceBehindFront = uDirection == 0
-		? front - outputPosition.y
-		: outputPosition.y - front;
-	float tipAmount = uProgress >= 0.999999
-		? 1.0
-		: smoothstep(0.0, 0.08, max(distanceBehindFront, 0.0));
-	float transformAmount = uProgress * tipAmount;
-	float halfGap = transformAmount * uGap * 0.5 / max(uResolution.x, 1.0);
-	float angle = transformAmount * uRotation * PI / 180.0;
+	float openingProgress = smoothstep(0.85, 1.0, uProgress);
+	float initialHalfGap = min(uGap * 0.5, 1.0);
+	float halfGap = mix(initialHalfGap, uGap * 0.5, openingProgress) /
+		max(uResolution.x, 1.0);
+	float angle = openingProgress * uRotation * PI / 180.0;
 	vec2 pivot = vec2(uCenter, front);
 
 	vec2 leftPosition = inverseRotate(
@@ -318,7 +316,9 @@ void main() {
 		return;
 	}
 
-	fragColor = vec4(0.0);
+	fragColor = outputTravel <= uProgress
+		? vec4(0.0)
+		: sampleSource(outputPosition);
 }
 `;
 
