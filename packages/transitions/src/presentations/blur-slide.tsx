@@ -30,9 +30,15 @@ void main() {
 	gl_Position = vec4(a_pos, 0.0, 1.0);
 }`;
 
+// The blur is a box kernel spanning the full blur length, built from two
+// passes: pass 1 places SAMPLES coarse taps across the whole length, pass 2
+// places SAMPLES fine taps across exactly one coarse tap spacing. Together they
+// form SAMPLES² evenly spaced taps, which avoids the moiré a single pass with
+// widely spaced taps produces on detailed content.
+const SAMPLES = 32;
+
 // Pass 1: slide both scenes along u_direction, wrapping around the edges
-// (REPEAT), crossfade them around the midpoint and apply a box blur along
-// the direction of travel.
+// (REPEAT), crossfade them around the midpoint and apply the coarse blur.
 const SLIDE_FRAGMENT_SHADER = `#version 300 es
 precision highp float;
 
@@ -45,7 +51,7 @@ uniform float u_blur_length;
 in vec2 v_uv;
 out vec4 outColor;
 
-const int SAMPLES = 32;
+const int SAMPLES = ${SAMPLES};
 
 void main() {
 	// Both scenes travel together; the exiting scene wraps around the edges
@@ -63,9 +69,8 @@ void main() {
 	outColor = color / float(SAMPLES);
 }`;
 
-// Pass 2: blur the intermediate result along the same direction once more.
-// Two box blurs combine into a triangle kernel, which hides the banding a
-// single wide box blur would produce.
+// Pass 2: fill in the gaps between the coarse taps of pass 1.
+// u_blur_length is one coarse tap spacing here.
 const BLUR_FRAGMENT_SHADER = `#version 300 es
 precision highp float;
 
@@ -76,12 +81,12 @@ uniform float u_blur_length;
 in vec2 v_uv;
 out vec4 outColor;
 
-const int SAMPLES = 32;
+const int SAMPLES = ${SAMPLES};
 
 void main() {
 	vec4 color = vec4(0.0);
 	for (int i = 0; i < SAMPLES; i++) {
-		float t = (float(i) / float(SAMPLES - 1) - 0.5) * u_blur_length;
+		float t = ((float(i) + 0.5) / float(SAMPLES) - 0.5) * u_blur_length;
 		vec2 uv = v_uv + u_direction * t;
 		// The framebuffer texture is stored bottom-up, so flip Y when sampling it.
 		color += texture(u_source, vec2(uv.x, 1.0 - uv.y));
@@ -305,9 +310,8 @@ export const blurSlideShader = (
 		// halfway through, so the scenes stay sharp longer at both ends.
 		const progress = p * p * p * (p * (p * 6 - 15) + 10);
 		const velocity = (4 * p * (1 - p)) ** 2;
-		// Each pass covers half of the kernel; together they form a triangle
-		// kernel spanning `blur * velocity` of the frame.
-		const passBlurLength = (blur * velocity) / 2;
+		const blurLength = blur * velocity;
+		const coarseTapSpacing = blurLength / (SAMPLES - 1);
 		const [dirX, dirY] = getDirectionVector(direction);
 
 		gl.bindVertexArray(vao);
@@ -353,7 +357,7 @@ export const blurSlideShader = (
 		gl.uniform1i(uNext, 1);
 		gl.uniform1f(uProgress, progress);
 		gl.uniform2f(uSlideDirection, dirX, dirY);
-		gl.uniform1f(uSlideBlurLength, passBlurLength);
+		gl.uniform1f(uSlideBlurLength, blurLength);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 		// Pass 2: second blur into the output canvas.
@@ -367,7 +371,7 @@ export const blurSlideShader = (
 		gl.bindTexture(gl.TEXTURE_2D, intermediateTex);
 		gl.uniform1i(uSource, 0);
 		gl.uniform2f(uBlurDirection, dirX, dirY);
-		gl.uniform1f(uBlurBlurLength, passBlurLength);
+		gl.uniform1f(uBlurBlurLength, coarseTapSpacing);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	};
 
