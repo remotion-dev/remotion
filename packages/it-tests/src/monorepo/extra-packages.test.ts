@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {readFileSync} from 'fs';
 import path from 'path';
 
-test('@remotion/studio should have zod and mediabunny in dependencies', () => {
+test('@remotion/studio should have auxiliary modules in dependencies', () => {
 	const studioPackageJsonPath = path.resolve(
 		__dirname,
 		'..',
@@ -17,6 +17,7 @@ test('@remotion/studio should have zod and mediabunny in dependencies', () => {
 	const {dependencies} = packageJson;
 
 	expect(dependencies).toBeDefined();
-	expect(dependencies.zod).toBeDefined();
-	expect(dependencies.mediabunny).toBeDefined();
+	expect(dependencies['@huggingface/transformers']).toBe('catalog:');
+	expect(dependencies.zod).toBe('catalog:');
+	expect(dependencies.mediabunny).toBe('catalog:');
 });
