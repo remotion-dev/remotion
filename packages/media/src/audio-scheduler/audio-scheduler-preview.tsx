@@ -171,10 +171,23 @@ export const AudioSchedulerPreview: React.FC<{
 			unscheduleAudioNode,
 		} = sharedAudioContext;
 		const slots = new Map<string, PlayerSlot>();
+		const retiredSlots = new Map<PlayerSlot, number>();
 		const isDisposed = {value: false};
 		slotsRef.current = slots;
 
-		const disposeSlot = (slot: PlayerSlot) => {
+		const disconnectRetiredSlots = () => {
+			const now = audioContext.currentTime;
+			for (const [slot, disconnectAt] of retiredSlots) {
+				if (now < disconnectAt) {
+					continue;
+				}
+
+				slot.gainNode.disconnect();
+				retiredSlots.delete(slot);
+			}
+		};
+
+		const disposeSlot = (slot: PlayerSlot, immediate = false) => {
 			if (slot.disposed) {
 				return;
 			}
@@ -185,10 +198,29 @@ export const AudioSchedulerPreview: React.FC<{
 			}
 
 			const now = audioContext.currentTime;
-			slot.gainNode.gain.cancelScheduledValues(now);
-			slot.gainNode.gain.setValueAtTime(0, now);
+			if (immediate) {
+				slot.gainNode.gain.cancelScheduledValues(now);
+				slot.gainNode.gain.setValueAtTime(0, now);
+				slot.player.audioSyncAnchorChanged();
+			} else {
+				// A seek can evict a currently audible slot when it jumps outside the
+				// rolling window. Do not cut its gain synchronously: that creates a click.
+				// Stop queued source nodes at the same Web Audio-clock boundary so no old
+				// audio can play after the fade completes.
+				const fadeEndTime = now + AUDIO_SCHEDULER_SEEK_FADE_SECONDS;
+				slot.gainNode.gain.cancelScheduledValues(now);
+				slot.gainNode.gain.setValueAtTime(slot.gainNode.gain.value, now);
+				slot.gainNode.gain.linearRampToValueAtTime(0, fadeEndTime);
+				slot.seekGainMutedUntil = fadeEndTime;
+				slot.waitingForFirstAudio = false;
+				slot.player.audioSyncAnchorChanged(fadeEndTime);
+				retiredSlots.set(slot, fadeEndTime);
+			}
+
 			slot.player.dispose().catch(() => {});
-			slot.gainNode.disconnect();
+			if (immediate) {
+				slot.gainNode.disconnect();
+			}
 		};
 
 		const makePlayerForEntry = (
@@ -215,7 +247,9 @@ export const AudioSchedulerPreview: React.FC<{
 				if (
 					result.type === 'started' &&
 					result.startedImmediately !== false &&
-					slot?.waitingForFirstAudio
+					slot &&
+					!slot.disposed &&
+					slot.waitingForFirstAudio
 				) {
 					slot.waitingForFirstAudio = false;
 					applyGainEnvelopeAtAudioNodeStart({
@@ -343,6 +377,7 @@ export const AudioSchedulerPreview: React.FC<{
 			if (isDisposed.value) {
 				return;
 			}
+			disconnectRetiredSlots();
 
 			const entriesInWindow = new Set<string>();
 			for (const entry of schedule) {
@@ -384,8 +419,12 @@ export const AudioSchedulerPreview: React.FC<{
 			}
 
 			for (const slot of slots.values()) {
-				disposeSlot(slot);
+				disposeSlot(slot, true);
 			}
+			for (const slot of retiredSlots.keys()) {
+				slot.gainNode.disconnect();
+			}
+			retiredSlots.clear();
 
 			slots.clear();
 			if (slotsRef.current === slots) {
