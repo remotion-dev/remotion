@@ -56,6 +56,7 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		window,
 		'remotion_staticBase',
 	);
+	const originalStaticFiles = window.remotion_staticFiles;
 	const originalLocalStorageDescriptor = Object.getOwnPropertyDescriptor(
 		globalThis,
 		'localStorage',
@@ -84,6 +85,14 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		configurable: true,
 		value: '/static-test',
 	});
+	window.remotion_staticFiles = [
+		{
+			lastModified: 0,
+			name: 'captions/interview.json',
+			sizeInBytes: 2,
+			src: '/static-test/captions/interview.json',
+		},
+	];
 	Object.defineProperty(globalThis, 'localStorage', {
 		configurable: true,
 		value: localStorageMock,
@@ -96,6 +105,8 @@ test('serializes transcription modal settings into caption jobs', async () => {
 			await import('../components/RenderQueue/context');
 		const {SetSelectedModalContext} = await import('../state/modals');
 		const {SidebarContext} = await import('../state/sidebar');
+		const {StaticFilesProvider} =
+			await import('../components/use-static-files');
 		const submittedJobs: AddCaptionJobParams[] = [];
 		const requestInit = {
 			credentials: 'include',
@@ -126,13 +137,15 @@ test('serializes transcription modal settings into caption jobs', async () => {
 							} as never
 						}
 					>
-						<TranscriptionModal
-							type="transcribe"
-							audioStreamIndex={2}
-							displayName="interview.wav"
-							requestInit={requestInit}
-							src="/media/interview.wav"
-						/>
+						<StaticFilesProvider>
+							<TranscriptionModal
+								type="transcribe"
+								audioStreamIndex={2}
+								displayName="interview.wav"
+								requestInit={requestInit}
+								src="/media/interview.wav"
+							/>
+						</StaticFilesProvider>
 					</RenderQueueContext.Provider>
 				</SidebarContext.Provider>
 			</SetSelectedModalContext.Provider>,
@@ -204,6 +217,7 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		fireEvent.change(outputInput, {
 			target: {value: 'captions/interview.json'},
 		});
+		screen.getByText('Exists, will be overwritten');
 
 		const forceFullSequences = screen.getByRole('checkbox', {
 			name: 'Force full sequences',
@@ -291,6 +305,8 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		} else {
 			Reflect.deleteProperty(window, 'remotion_staticBase');
 		}
+
+		window.remotion_staticFiles = originalStaticFiles;
 
 		if (originalLocalStorageDescriptor) {
 			Object.defineProperty(
