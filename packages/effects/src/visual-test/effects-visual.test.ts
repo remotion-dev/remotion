@@ -904,6 +904,43 @@ test('tear() keeps the not-yet-torn seam visually connected', async () => {
 	}
 });
 
+test('tear() rotation angles the opening without moving source pixels', async () => {
+	const width = 64;
+	const height = 32;
+	const source = document.createElement('canvas');
+	source.width = width;
+	source.height = height;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.fillStyle = 'rgb(12, 34, 56)';
+	sourceContext.fillRect(0, 0, width, height);
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			tear({
+				progress: 0.5,
+				gap: 0,
+				jaggedness: 0,
+				rotation: 20,
+			}),
+		]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	expect(context.getImageData(29, 2, 1, 1).data[3]).toBe(0);
+	expect([...context.getImageData(29, 28, 1, 1).data]).toEqual([
+		12, 34, 56, 255,
+	]);
+});
+
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {
 	const canvas = await renderEffectChainToCanvas({
 		width: 32,

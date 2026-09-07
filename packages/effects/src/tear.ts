@@ -111,7 +111,7 @@ export type TearParams = {
 	readonly seed?: number;
 	/** Horizontal tear position from `0` to `1`. Defaults to `0.5`. */
 	readonly center?: number;
-	/** Outward rotation of each torn side in degrees. Defaults to `6`. */
+	/** Outward angle of the torn sides in degrees. Defaults to `6`. */
 	readonly rotation?: number;
 	/** Direction in which the rip travels. Defaults to `top-to-bottom`. */
 	readonly direction?: TearDirection;
@@ -254,23 +254,8 @@ float tearPosition(float y) {
 	);
 }
 
-bool insideTexture(vec2 position) {
-	return position.x >= 0.0 && position.x <= 1.0 &&
-		position.y >= 0.0 && position.y <= 1.0;
-}
-
 vec4 sampleSource(vec2 position) {
 	return texture(uSource, vec2(position.x, 1.0 - position.y));
-}
-
-vec2 inverseRotate(vec2 position, vec2 pivot, float angle) {
-	float sine = sin(angle);
-	float cosine = cos(angle);
-	vec2 relative = position - pivot;
-	return pivot + vec2(
-		cosine * relative.x + sine * relative.y,
-		-sine * relative.x + cosine * relative.y
-	);
 }
 
 void main() {
@@ -283,58 +268,35 @@ void main() {
 		return;
 	}
 
-	float front = uDirection == 0 ? uProgress : 1.0 - uProgress;
 	float halfGap = uProgress * uGap * 0.5 / max(uResolution.x, 1.0);
 	float angle = uProgress * uRotation * PI / 180.0;
-	vec2 pivot = vec2(uCenter, front);
 	float outputTearPosition = tearPosition(outputPosition.y);
-
-	vec2 leftPosition = inverseRotate(
-		outputPosition + vec2(halfGap, 0.0),
-		pivot,
-		-angle
-	);
-	vec2 rightPosition = inverseRotate(
-		outputPosition - vec2(halfGap, 0.0),
-		pivot,
-		angle
-	);
 	bool hasTorn = outputTravel <= uProgress;
-	float visibleHalfGap = hasTorn ? halfGap : 0.0;
+	float tearTipLength = max(
+		min(min(uProgress, 1.0 - uProgress), 0.1),
+		1.0 / max(uResolution.y, 1.0)
+	);
+	float openingStrength = uProgress >= 0.999999
+		? 1.0
+		: hasTorn
+			? smoothstep(
+				0.0,
+				tearTipLength,
+				uProgress - outputTravel
+			)
+			: 0.0;
+	float rotationGap = tan(angle) * max(uProgress - outputTravel, 0.0);
+	float visibleHalfGap = openingStrength * max(halfGap + rotationGap, 0.0);
 	bool showLeft = outputPosition.x <= outputTearPosition - visibleHalfGap;
 	bool showRight = outputPosition.x > outputTearPosition + visibleHalfGap;
-	float rotationOffset = abs(
-		sin(angle) * (outputPosition.y - front)
-	);
-	// Keep the two rigid samples from creating a visible tail while this row
-	// is still connected. The original source is only feathered near the join.
-	float connectionWidth = max(
-		(halfGap + rotationOffset) * 1.5,
-		2.0 / max(uResolution.x, 1.0)
-	);
-	float repairStrength = hasTorn
-		? 0.0
-		: 1.0 - smoothstep(
-			0.0,
-			connectionWidth,
-			abs(outputPosition.x - outputTearPosition)
-		);
 
-	if (showLeft && insideTexture(leftPosition)) {
-		fragColor = mix(
-			sampleSource(leftPosition),
-			sampleSource(outputPosition),
-			repairStrength
-		);
+	if (showLeft) {
+		fragColor = sampleSource(outputPosition);
 		return;
 	}
 
-	if (showRight && insideTexture(rightPosition)) {
-		fragColor = mix(
-			sampleSource(rightPosition),
-			sampleSource(outputPosition),
-			repairStrength
-		);
+	if (showRight) {
+		fragColor = sampleSource(outputPosition);
 		return;
 	}
 

@@ -10,7 +10,7 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Rips through a canvas source along a jagged vertical edge, moving and rotating the torn pieces apart as the rip front advances.
+Rips through a canvas source along a jagged vertical edge, opening and angling the torn sides apart as the rip front advances.
 
 ## Preview
 
@@ -60,7 +60,7 @@ Pass an object with the following properties. You can also call `tear()` without
 
 ### `progress?`
 
-How far the rip has traveled through the source, from `0` to `1`. At `0`, the source is unchanged. As the value increases, the rip front advances in the selected `direction` while the pieces move and rotate apart. Defaults to `0.5`.
+How far the rip has traveled through the source, from `0` to `1`. At `0`, the source is unchanged. As the value increases, the rip front advances in the selected `direction` while the opening expands behind it. Defaults to `0.5`.
 
 ### `gap?`
 
@@ -84,7 +84,7 @@ Horizontal position of the tear from `0` (left) to `1` (right). Defaults to `0.5
 
 ### `rotation?`
 
-Outward rotation of each torn side in degrees. Positive values make the outer edges rotate downward; negative values rotate them upward. Defaults to `6`. Must be between `-45` and `45`.
+Outward angle of the torn sides in degrees. Positive values angle the sides farther apart behind the rip front; negative values bring them inward. Defaults to `6`. Must be between `-45` and `45`.
 
 ### `direction?`
 
