@@ -14,6 +14,8 @@ export const TEAR_PREVIEW_PARAMS = {
 	frequency: 6,
 	seed: 3,
 	center: 0.5,
+	rotation: 6,
+	direction: 'top-to-bottom',
 } as const;
 
 export const EffectsTearPreview: React.FC<{
@@ -23,7 +25,18 @@ export const EffectsTearPreview: React.FC<{
 	readonly frequency: number;
 	readonly seed: number;
 	readonly center: number;
-}> = ({progress, gap, jaggedness, frequency, seed, center}) => {
+	readonly rotation: number;
+	readonly direction: 'top-to-bottom' | 'bottom-to-top';
+}> = ({
+	progress,
+	gap,
+	jaggedness,
+	frequency,
+	seed,
+	center,
+	rotation,
+	direction,
+}) => {
 	return (
 		<AbsoluteFill style={container}>
 			<CanvasImage
@@ -39,6 +52,8 @@ export const EffectsTearPreview: React.FC<{
 						frequency,
 						seed,
 						center,
+						rotation,
+						direction,
 					}),
 				]}
 			/>

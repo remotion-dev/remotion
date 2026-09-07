@@ -10,7 +10,7 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Splits a canvas source along a jagged vertical edge and moves the two pieces apart, leaving transparency between them.
+Rips through a canvas source along a jagged vertical edge, moving and rotating the torn pieces apart as the rip front advances.
 
 ## Preview
 
@@ -20,6 +20,7 @@ Splits a canvas source along a jagged vertical edge and moves the two pieces apa
 
 ```tsx twoslash title="MyComp.tsx"
 import {tear} from '@remotion/effects/tear';
+import {scale} from '@remotion/effects/scale';
 import {Video} from '@remotion/media';
 import {interpolate, staticFile, useCurrentFrame} from 'remotion';
 
@@ -34,6 +35,7 @@ export const MyComp: React.FC = () => {
     <Video
       src={staticFile('video.mp4')}
       effects={[
+        scale({scale: 1.12}),
         tear({
           progress,
           gap: 160,
@@ -41,6 +43,8 @@ export const MyComp: React.FC = () => {
           frequency: 6,
           seed: 0,
           center: 0.5,
+          rotation: 6,
+          direction: 'top-to-bottom',
         }),
       ]}
     />
@@ -48,13 +52,15 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+Effects run in array order, so `scale()` preprocesses the source before `tear()`.
+
 ## API
 
 Pass an object with the following properties. You can also call `tear()` without arguments.
 
 ### `progress?`
 
-How far the two pieces have moved apart, from `0` to `1`. At `0`, the source is unchanged. Defaults to `0.5`.
+How far the rip has traveled through the source, from `0` to `1`. At `0`, the source is unchanged. As the value increases, the rip front advances in the selected `direction`. Defaults to `0.5`.
 
 ### `gap?`
 
@@ -75,6 +81,14 @@ Changes the static shape of the torn edge. Defaults to `0`.
 ### `center?`
 
 Horizontal position of the tear from `0` (left) to `1` (right). Defaults to `0.5`.
+
+### `rotation?`
+
+Outward rotation of each torn side in degrees. Positive values make the outer edges rotate downward; negative values rotate them upward. Defaults to `6`. Must be between `-45` and `45`.
+
+### `direction?`
+
+Direction in which the rip front travels. Use `"top-to-bottom"` or `"bottom-to-top"`. Defaults to `"top-to-bottom"`.
 
 ### `disabled?`
 

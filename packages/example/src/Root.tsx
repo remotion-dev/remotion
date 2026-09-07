@@ -237,6 +237,7 @@ import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
 import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
+import {TearEffectTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {
@@ -2299,6 +2300,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="radial-progressive-blur-test"
 					component={RadialProgressiveBlurTest}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="tear-effect"
+					component={TearEffectTest}
 					width={1920}
 					height={1080}
 					fps={30}

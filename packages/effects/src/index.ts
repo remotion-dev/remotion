@@ -1,6 +1,6 @@
 export {checkerboard, type CheckerboardParams} from './checkerboard.js';
 export {pattern, type PatternOrigin, type PatternParams} from './pattern.js';
-export {tear, type TearParams} from './tear.js';
+export {tear, type TearDirection, type TearParams} from './tear.js';
 export {tile, type TileParams} from './tile.js';
 export {rings, type RingsCenter, type RingsParams} from './rings.js';
 export {

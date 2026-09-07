@@ -777,7 +777,7 @@ test('tear() preserves the source at zero progress and creates a transparent gap
 		width,
 		height,
 		effects: descriptorsToMemoizedEffects([
-			tear({progress: 0, gap: 8, jaggedness: 0}),
+			tear({progress: 0, gap: 8, jaggedness: 0, rotation: 0}),
 		]),
 	});
 	const intactContext = intactCanvas.getContext('2d');
@@ -794,7 +794,7 @@ test('tear() preserves the source at zero progress and creates a transparent gap
 		width,
 		height,
 		effects: descriptorsToMemoizedEffects([
-			tear({progress: 1, gap: 8, jaggedness: 0}),
+			tear({progress: 1, gap: 8, jaggedness: 0, rotation: 0}),
 		]),
 	});
 	const tornContext = tornCanvas.getContext('2d');
@@ -809,6 +809,50 @@ test('tear() preserves the source at zero progress and creates a transparent gap
 	expect([...tornContext.getImageData(28, 8, 1, 1).data]).toEqual([
 		12, 34, 56, 255,
 	]);
+
+	const topDownCanvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			tear({
+				progress: 0.5,
+				gap: 8,
+				jaggedness: 0,
+				rotation: 0,
+				direction: 'top-to-bottom',
+			}),
+		]),
+	});
+	const topDownContext = topDownCanvas.getContext('2d');
+	if (!topDownContext) {
+		throw new Error('Could not get top-to-bottom output context');
+	}
+
+	expect(topDownContext.getImageData(16, 2, 1, 1).data[3]).toBe(0);
+	expect(topDownContext.getImageData(16, 14, 1, 1).data[3]).toBe(255);
+
+	const bottomUpCanvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			tear({
+				progress: 0.5,
+				gap: 8,
+				jaggedness: 0,
+				rotation: 0,
+				direction: 'bottom-to-top',
+			}),
+		]),
+	});
+	const bottomUpContext = bottomUpCanvas.getContext('2d');
+	if (!bottomUpContext) {
+		throw new Error('Could not get bottom-to-top output context');
+	}
+
+	expect(bottomUpContext.getImageData(16, 2, 1, 1).data[3]).toBe(255);
+	expect(bottomUpContext.getImageData(16, 14, 1, 1).data[3]).toBe(0);
 });
 
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {

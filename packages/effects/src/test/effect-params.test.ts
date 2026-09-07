@@ -3000,6 +3000,8 @@ test('tear() accepts default and valid params', () => {
 			frequency: 8,
 			seed: 42,
 			center: 0.4,
+			rotation: 8,
+			direction: 'bottom-to-top',
 		}),
 	).not.toThrow();
 });
@@ -3012,6 +3014,8 @@ test('tear() exposes defaults in its schema', () => {
 		frequency: {default: 6},
 		seed: {default: 0},
 		center: {default: 0.5},
+		rotation: {default: 6},
+		direction: {default: 'top-to-bottom'},
 	});
 });
 
@@ -3032,6 +3036,11 @@ test('tear() rejects invalid params', () => {
 		'"seed" must be a finite number',
 	);
 	expect(() => tear({center: 1.1})).toThrow('"center" must be <= 1');
+	expect(() => tear({rotation: -46})).toThrow('"rotation" must be >= -45');
+	expect(() => tear({rotation: 46})).toThrow('"rotation" must be <= 45');
+	expect(() => tear({direction: 'left-to-right' as 'top-to-bottom'})).toThrow(
+		'"direction" must be "top-to-bottom" or "bottom-to-top"',
+	);
 });
 
 test('tear() parameters produce distinct effect keys', () => {
@@ -3043,9 +3052,11 @@ test('tear() parameters produce distinct effect keys', () => {
 		tear({frequency: 8}),
 		tear({seed: 42}),
 		tear({center: 0.4}),
+		tear({rotation: 8}),
+		tear({direction: 'bottom-to-top'}),
 	];
 
-	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(7);
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(9);
 });
 
 test('pattern() accepts default params', () => {

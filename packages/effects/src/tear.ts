@@ -9,15 +9,22 @@ import {assertEffectParamsObject} from './validate-effect-param.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
+const TEAR_DIRECTIONS = ['top-to-bottom', 'bottom-to-top'] as const;
+
 const DEFAULT_PROGRESS = 0.5 as const;
 const DEFAULT_GAP = 160 as const;
 const DEFAULT_JAGGEDNESS = 80 as const;
 const DEFAULT_FREQUENCY = 6 as const;
 const DEFAULT_SEED = 0 as const;
 const DEFAULT_CENTER = 0.5 as const;
+const DEFAULT_ROTATION = 6 as const;
+const DEFAULT_DIRECTION = 'top-to-bottom' as const;
 const MAX_GAP = 2000 as const;
 const MAX_JAGGEDNESS = 1000 as const;
 const MAX_FREQUENCY = 100 as const;
+const MAX_ROTATION = 45 as const;
+
+export type TearDirection = (typeof TEAR_DIRECTIONS)[number];
 
 const tearSchema = {
 	progress: {
@@ -71,10 +78,28 @@ const tearSchema = {
 		description: 'Center',
 		hiddenFromList: false,
 	},
+	rotation: {
+		type: 'number',
+		min: -MAX_ROTATION,
+		max: MAX_ROTATION,
+		step: 0.1,
+		default: DEFAULT_ROTATION,
+		description: 'Rotation',
+		hiddenFromList: false,
+	},
+	direction: {
+		type: 'enum',
+		variants: {
+			'top-to-bottom': {},
+			'bottom-to-top': {},
+		},
+		default: DEFAULT_DIRECTION,
+		description: 'Direction',
+	},
 } as const satisfies InteractivitySchema;
 
 export type TearParams = {
-	/** How far the two pieces have moved apart, from `0` to `1`. Defaults to `0.5`. */
+	/** How far the rip has traveled through the source, from `0` to `1`. Defaults to `0.5`. */
 	readonly progress?: number;
 	/** Distance between the two pieces in pixels at full progress. Defaults to `160`. */
 	readonly gap?: number;
@@ -86,6 +111,10 @@ export type TearParams = {
 	readonly seed?: number;
 	/** Horizontal tear position from `0` to `1`. Defaults to `0.5`. */
 	readonly center?: number;
+	/** Outward rotation of each torn side in degrees. Defaults to `6`. */
+	readonly rotation?: number;
+	/** Direction in which the rip travels. Defaults to `top-to-bottom`. */
+	readonly direction?: TearDirection;
 };
 
 type TearResolved = {
@@ -95,6 +124,8 @@ type TearResolved = {
 	readonly frequency: number;
 	readonly seed: number;
 	readonly center: number;
+	readonly rotation: number;
+	readonly direction: TearDirection;
 };
 
 type TearState = {
@@ -111,6 +142,8 @@ type TearState = {
 	readonly uFrequency: WebGLUniformLocation | null;
 	readonly uSeed: WebGLUniformLocation | null;
 	readonly uCenter: WebGLUniformLocation | null;
+	readonly uRotation: WebGLUniformLocation | null;
+	readonly uDirection: WebGLUniformLocation | null;
 };
 
 const resolve = (params: TearParams): TearResolved => ({
@@ -120,6 +153,8 @@ const resolve = (params: TearParams): TearResolved => ({
 	frequency: params.frequency ?? DEFAULT_FREQUENCY,
 	seed: params.seed ?? DEFAULT_SEED,
 	center: params.center ?? DEFAULT_CENTER,
+	rotation: params.rotation ?? DEFAULT_ROTATION,
+	direction: params.direction ?? DEFAULT_DIRECTION,
 });
 
 const validateAtMost = (value: number, max: number, name: string): void => {
@@ -138,6 +173,15 @@ const validateTearParams = (params: TearParams): void => {
 	assertOptionalFiniteNumber(params.frequency, 'frequency');
 	assertOptionalFiniteNumber(params.seed, 'seed');
 	assertOptionalFiniteNumber(params.center, 'center');
+	assertOptionalFiniteNumber(params.rotation, 'rotation');
+	if (
+		params.direction !== undefined &&
+		!TEAR_DIRECTIONS.includes(params.direction)
+	) {
+		throw new TypeError(
+			`"direction" must be "top-to-bottom" or "bottom-to-top", but got ${JSON.stringify(params.direction)}`,
+		);
+	}
 
 	const resolved = resolve(params);
 	validateUnitInterval(resolved.progress, 'progress');
@@ -153,6 +197,13 @@ const validateTearParams = (params: TearParams): void => {
 
 	validateAtMost(resolved.frequency, MAX_FREQUENCY, 'frequency');
 	validateUnitInterval(resolved.center, 'center');
+	if (resolved.rotation < -MAX_ROTATION) {
+		throw new TypeError(
+			`"rotation" must be >= -${MAX_ROTATION}, but got ${JSON.stringify(resolved.rotation)}`,
+		);
+	}
+
+	validateAtMost(resolved.rotation, MAX_ROTATION, 'rotation');
 };
 
 const VERTEX_SHADER = /* glsl */ `#version 300 es
@@ -180,6 +231,10 @@ uniform float uJaggedness;
 uniform float uFrequency;
 uniform float uSeed;
 uniform float uCenter;
+uniform float uRotation;
+uniform int uDirection;
+
+const float PI = 3.141592653589793;
 
 float random(float value) {
 	return fract(sin(value * 12.9898 + uSeed * 78.233) * 43758.5453);
@@ -199,24 +254,67 @@ float tearPosition(float y) {
 	);
 }
 
-bool insideTexture(vec2 uv) {
-	return uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0;
+bool insideTexture(vec2 position) {
+	return position.x >= 0.0 && position.x <= 1.0 &&
+		position.y >= 0.0 && position.y <= 1.0;
+}
+
+vec4 sampleSource(vec2 position) {
+	return texture(uSource, vec2(position.x, 1.0 - position.y));
+}
+
+vec2 inverseRotate(vec2 position, vec2 pivot, float angle) {
+	float sine = sin(angle);
+	float cosine = cos(angle);
+	vec2 relative = position - pivot;
+	return pivot + vec2(
+		cosine * relative.x + sine * relative.y,
+		-sine * relative.x + cosine * relative.y
+	);
 }
 
 void main() {
-	float halfGap = uProgress * uGap * 0.5 / max(uResolution.x, 1.0);
-	vec2 leftUv = vUv + vec2(halfGap, 0.0);
-	vec2 rightUv = vUv - vec2(halfGap, 0.0);
-	bool showLeft = insideTexture(leftUv) && leftUv.x <= tearPosition(leftUv.y);
-	bool showRight = insideTexture(rightUv) && rightUv.x > tearPosition(rightUv.y);
+	vec2 outputPosition = vec2(vUv.x, 1.0 - vUv.y);
+	float travel = uDirection == 0 ? outputPosition.y : 1.0 - outputPosition.y;
+	if (uProgress <= 0.000001 || travel > uProgress) {
+		fragColor = texture(uSource, vUv);
+		return;
+	}
+
+	float front = uDirection == 0 ? uProgress : 1.0 - uProgress;
+	float distanceBehindFront = uDirection == 0
+		? front - outputPosition.y
+		: outputPosition.y - front;
+	float tipAmount = uProgress >= 0.999999
+		? 1.0
+		: smoothstep(0.0, 0.08, max(distanceBehindFront, 0.0));
+	float transformAmount = uProgress * tipAmount;
+	float halfGap = transformAmount * uGap * 0.5 / max(uResolution.x, 1.0);
+	float angle = transformAmount * uRotation * PI / 180.0;
+	vec2 pivot = vec2(uCenter, front);
+
+	vec2 leftPosition = inverseRotate(
+		outputPosition + vec2(halfGap, 0.0),
+		pivot,
+		-angle
+	);
+	vec2 rightPosition = inverseRotate(
+		outputPosition - vec2(halfGap, 0.0),
+		pivot,
+		angle
+	);
+	bool showLeft = insideTexture(leftPosition) &&
+		leftPosition.x <= tearPosition(leftPosition.y);
+	bool showRight = insideTexture(rightPosition) &&
+		rightPosition.x > tearPosition(rightPosition.y);
 
 	if (showLeft) {
-		fragColor = texture(uSource, leftUv);
+		fragColor = sampleSource(leftPosition);
 		return;
 	}
 
 	if (showRight) {
-		fragColor = texture(uSource, rightUv);
+		fragColor = sampleSource(rightPosition);
 		return;
 	}
 
@@ -274,7 +372,7 @@ export const tear = createEffect<TearParams, TearState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
-		return `tear-${resolved.progress}-${resolved.gap}-${resolved.jaggedness}-${resolved.frequency}-${resolved.seed}-${resolved.center}`;
+		return `tear-${resolved.progress}-${resolved.gap}-${resolved.jaggedness}-${resolved.frequency}-${resolved.seed}-${resolved.center}-${resolved.rotation}-${resolved.direction}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -350,6 +448,8 @@ export const tear = createEffect<TearParams, TearState>({
 			uFrequency: gl.getUniformLocation(program, 'uFrequency'),
 			uSeed: gl.getUniformLocation(program, 'uSeed'),
 			uCenter: gl.getUniformLocation(program, 'uCenter'),
+			uRotation: gl.getUniformLocation(program, 'uRotation'),
+			uDirection: gl.getUniformLocation(program, 'uDirection'),
 		};
 	},
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -367,6 +467,8 @@ export const tear = createEffect<TearParams, TearState>({
 			uFrequency,
 			uSeed,
 			uCenter,
+			uRotation,
+			uDirection,
 		} = state;
 
 		gl.viewport(0, 0, width, height);
@@ -396,6 +498,9 @@ export const tear = createEffect<TearParams, TearState>({
 		if (uFrequency) gl.uniform1f(uFrequency, resolved.frequency);
 		if (uSeed) gl.uniform1f(uSeed, resolved.seed);
 		if (uCenter) gl.uniform1f(uCenter, resolved.center);
+		if (uRotation) gl.uniform1f(uRotation, resolved.rotation);
+		if (uDirection)
+			gl.uniform1i(uDirection, resolved.direction === 'top-to-bottom' ? 0 : 1);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 		gl.bindVertexArray(null);
