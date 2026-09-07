@@ -117,6 +117,7 @@ mock.module('@remotion/whisper-webgpu', () => ({
 		});
 		return {alreadyLoaded: false};
 	},
+	removeWhisperModel: () => Promise.resolve(),
 	toCaptions: () => ({
 		captions: [
 			{

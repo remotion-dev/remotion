@@ -996,6 +996,7 @@ const sidebars: SidebarsConfig = {
 				'whisper-webgpu/clear-stale-models',
 				'whisper-webgpu/is-whisper-model-cached',
 				'whisper-webgpu/load-whisper-model',
+				'whisper-webgpu/remove-whisper-model',
 				'whisper-webgpu/transcribe',
 				'whisper-webgpu/to-captions',
 				'whisper-webgpu/resample-to-16khz',

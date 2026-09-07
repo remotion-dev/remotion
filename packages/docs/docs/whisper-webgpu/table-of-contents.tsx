@@ -25,6 +25,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>loadWhisperModel()</strong>
 				<div>Download and initialize a model</div>
 			</TOCItem>
+			<TOCItem link="/docs/whisper-webgpu/remove-whisper-model">
+				<strong>removeWhisperModel()</strong>
+				<div>Remove a model from the browser cache</div>
+			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/transcribe">
 				<strong>transcribe()</strong>
 				<div>Transcribe a waveform with word-level timestamps</div>

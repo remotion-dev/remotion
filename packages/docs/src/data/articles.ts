@@ -9102,6 +9102,15 @@ export const articles = [
 		slug: 'whisper-webgpu/load-whisper-model',
 	},
 	{
+		id: 'whisper-webgpu/remove-whisper-model',
+		title: 'removeWhisperModel()',
+		relativePath: 'docs/whisper-webgpu/remove-whisper-model.mdx',
+		compId: 'articles-docs-whisper-webgpu-remove-whisper-model',
+		crumb: '@remotion/whisper-webgpu',
+		noAi: false,
+		slug: 'whisper-webgpu/remove-whisper-model',
+	},
+	{
 		id: 'whisper-webgpu/resample-to-16khz',
 		title: 'resampleTo16Khz()',
 		relativePath: 'docs/whisper-webgpu/resample-to-16khz.mdx',

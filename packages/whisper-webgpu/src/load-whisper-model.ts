@@ -27,6 +27,8 @@ type LoadedWhisperPipelineState = {
 	loading: Promise<LoadedWhisperPipeline>;
 	activeTranscriptions: number;
 	onIdle: Array<() => void>;
+	progressListeners: Set<OnWhisperWebGpuModelLoadProgress>;
+	latestProgress: WhisperWebGpuModelLoadProgress | null;
 };
 
 const pipelines = new Map<WhisperWebGpuModel, LoadedWhisperPipelineState>();
@@ -46,18 +48,52 @@ const getOrCreateWhisperPipeline = ({
 }: LoadWhisperModelOptions): {
 	state: LoadedWhisperPipelineState;
 	alreadyLoaded: boolean;
-	totalBytes: number;
+	unsubscribe: () => void;
 } => {
 	const modelInfo = getModelInfo(model);
 	const totalBytes = modelInfo.webGpuDownloadSize;
 	const existing = pipelines.get(model);
 	if (existing) {
-		return {state: existing, alreadyLoaded: true, totalBytes};
+		if (onProgress) {
+			existing.progressListeners.add(onProgress);
+			if (existing.latestProgress) {
+				onProgress(existing.latestProgress);
+			}
+		}
+
+		return {
+			state: existing,
+			alreadyLoaded: true,
+			unsubscribe: () => {
+				if (onProgress) {
+					existing.progressListeners.delete(onProgress);
+				}
+			},
+		};
 	}
+
+	const progressListeners = new Set<OnWhisperWebGpuModelLoadProgress>();
+	if (onProgress) {
+		progressListeners.add(onProgress);
+	}
+
+	const state: LoadedWhisperPipelineState = {
+		loading: Promise.resolve(null as never),
+		activeTranscriptions: 0,
+		onIdle: [],
+		progressListeners,
+		latestProgress: null,
+	};
+	const emitProgress = (progress: WhisperWebGpuModelLoadProgress) => {
+		state.latestProgress = progress;
+		for (const listener of state.progressListeners) {
+			listener(progress);
+		}
+	};
 
 	const loading = Promise.resolve().then(() => {
 		return withRemotionModelHost(({pipeline}) => {
-			onProgress?.({
+			emitProgress({
 				status: 'loading',
 				file: null,
 				progress: 0,
@@ -72,56 +108,50 @@ const getOrCreateWhisperPipeline = ({
 			return pipeline('automatic-speech-recognition', hostedModelId, {
 				device: 'webgpu',
 				dtype: WHISPER_WEBGPU_DTYPE,
-				progress_callback: onProgress
-					? (event) => {
-							const record = event as Record<string, unknown>;
-							if (
-								record.status === 'progress' &&
-								typeof record.file === 'string' &&
-								typeof record.loaded === 'number' &&
-								Number.isFinite(record.loaded)
-							) {
-								loadedByFile.set(
-									record.file,
-									Math.max(loadedByFile.get(record.file) ?? 0, record.loaded),
-								);
-								const loadedBytes = [...loadedByFile.values()].reduce(
-									(sum, loaded) => sum + loaded,
-									0,
-								);
-								lastProgress = Math.max(
-									lastProgress,
-									Math.min(loadedBytes / totalBytes, 0.99),
-								);
-								lastLoadedBytes = Math.max(lastLoadedBytes, loadedBytes);
-								onProgress({
-									status: 'loading',
-									file: null,
-									progress: lastProgress,
-									loadedBytes: lastLoadedBytes,
-									totalBytes,
-								});
-							}
+				progress_callback: (event) => {
+					const record = event as Record<string, unknown>;
+					if (
+						record.status === 'progress' &&
+						typeof record.file === 'string' &&
+						typeof record.loaded === 'number' &&
+						Number.isFinite(record.loaded)
+					) {
+						loadedByFile.set(
+							record.file,
+							Math.max(loadedByFile.get(record.file) ?? 0, record.loaded),
+						);
+						const loadedBytes = [...loadedByFile.values()].reduce(
+							(sum, loaded) => sum + loaded,
+							0,
+						);
+						lastProgress = Math.max(
+							lastProgress,
+							Math.min(loadedBytes / totalBytes, 0.99),
+						);
+						lastLoadedBytes = Math.max(lastLoadedBytes, loadedBytes);
+						emitProgress({
+							status: 'loading',
+							file: null,
+							progress: lastProgress,
+							loadedBytes: lastLoadedBytes,
+							totalBytes,
+						});
+					}
 
-							if (record.status === 'ready') {
-								onProgress({
-									status: 'ready',
-									file: null,
-									progress: 1,
-									loadedBytes: Math.max(lastLoadedBytes, totalBytes),
-									totalBytes,
-								});
-							}
-						}
-					: undefined,
+					if (record.status === 'ready') {
+						emitProgress({
+							status: 'ready',
+							file: null,
+							progress: 1,
+							loadedBytes: Math.max(lastLoadedBytes, totalBytes),
+							totalBytes,
+						});
+					}
+				},
 			}) as Promise<LoadedWhisperPipeline>;
 		});
 	});
-	const state: LoadedWhisperPipelineState = {
-		loading,
-		activeTranscriptions: 0,
-		onIdle: [],
-	};
+	state.loading = loading;
 	pipelines.set(model, state);
 	loading.catch(() => {
 		if (pipelines.get(model) === state) {
@@ -129,26 +159,29 @@ const getOrCreateWhisperPipeline = ({
 		}
 	});
 
-	return {state, alreadyLoaded: false, totalBytes};
+	return {
+		state,
+		alreadyLoaded: false,
+		unsubscribe: () => {
+			if (onProgress) {
+				state.progressListeners.delete(onProgress);
+			}
+		},
+	};
 };
 
 export const loadWhisperModel = async ({
 	model,
 	onProgress,
 }: LoadWhisperModelOptions): Promise<LoadWhisperModelResult> => {
-	const {state, alreadyLoaded, totalBytes} = getOrCreateWhisperPipeline({
+	const {state, alreadyLoaded, unsubscribe} = getOrCreateWhisperPipeline({
 		model,
 		onProgress,
 	});
-	await state.loading;
-	if (alreadyLoaded) {
-		onProgress?.({
-			status: 'ready',
-			file: null,
-			progress: 1,
-			loadedBytes: totalBytes,
-			totalBytes,
-		});
+	try {
+		await state.loading;
+	} finally {
+		unsubscribe();
 	}
 
 	return {alreadyLoaded};
@@ -163,25 +196,17 @@ export const withLoadedWhisperPipeline = async <ReturnValue>({
 	onProgress?: OnWhisperWebGpuModelLoadProgress;
 	run: (pipeline: LoadedWhisperPipeline) => Promise<ReturnValue>;
 }): Promise<ReturnValue> => {
-	const {state, alreadyLoaded, totalBytes} = getOrCreateWhisperPipeline({
+	const {state, unsubscribe} = getOrCreateWhisperPipeline({
 		model,
 		onProgress,
 	});
 	state.activeTranscriptions++;
 	try {
 		const loaded = await state.loading;
-		if (alreadyLoaded) {
-			onProgress?.({
-				status: 'ready',
-				file: null,
-				progress: 1,
-				loadedBytes: totalBytes,
-				totalBytes,
-			});
-		}
-
+		unsubscribe();
 		return await run(loaded);
 	} finally {
+		unsubscribe();
 		state.activeTranscriptions--;
 		if (state.activeTranscriptions === 0) {
 			for (const resolve of state.onIdle.splice(0)) {

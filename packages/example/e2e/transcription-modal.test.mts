@@ -62,13 +62,17 @@ test.describe('transcription modal', () => {
 		await dialog.getByRole('button', {name: 'Models', exact: true}).click();
 		await expect(
 			dialog.getByText(
-				'Models are downloaded in the background when a transcription job starts. Follow the download progress in Jobs.',
+				'Models are downloaded automatically when a transcription starts. You can also manage the browser cache here.',
 				{exact: true},
 			),
 		).toBeVisible();
+		await expect(dialog.getByText(/^Select/)).toHaveCount(0);
+		await expect(
+			dialog.getByRole('button', {name: 'Download tiny', exact: true}),
+		).toBeVisible();
 		await expect(
 			dialog.getByText('Output in public/', {exact: true}),
-		).toHaveCount(0);
+		).not.toBeVisible();
 		await dialog
 			.getByRole('button', {name: 'Transcribe', exact: true})
 			.last()

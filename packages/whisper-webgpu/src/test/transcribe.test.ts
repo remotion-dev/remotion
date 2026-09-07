@@ -46,6 +46,13 @@ let cacheCheckEnvironment:
 	  }
 	| undefined;
 let cacheCheckError: Error | null = null;
+let cacheClear:
+	| {
+			task: string;
+			modelId: string;
+			options: Record<string, unknown>;
+	  }
+	| undefined;
 
 const originalTransformersEnvironment = {
 	remoteHost: 'https://huggingface.co/',
@@ -80,6 +87,14 @@ const fakePipeline = Object.assign(
 mock.module('@huggingface/transformers', () => ({
 	env: transformersEnvironment,
 	ModelRegistry: {
+		clear_pipeline_cache: (
+			task: string,
+			modelId: string,
+			options: Record<string, unknown>,
+		) => {
+			cacheClear = {task, modelId, options};
+			return Promise.resolve({filesDeleted: 5, filesCached: 5, files: []});
+		},
 		is_pipeline_cached: (
 			task: string,
 			modelId: string,
@@ -584,8 +599,12 @@ test('validates and forwards transcription settings through transcribe()', async
 });
 
 test('shares concurrent initialization and keeps the model host scoped until every operation completes', async () => {
-	const {disposeWhisperModel, isWhisperModelCached, loadWhisperModel} =
-		await import('../index');
+	const {
+		disposeWhisperModel,
+		isWhisperModelCached,
+		loadWhisperModel,
+		transcribe,
+	} = await import('../index');
 	let releaseInitialization: () => void = () => {};
 	pipelineInitializationGate = new Promise<void>((resolve) => {
 		releaseInitialization = resolve;
@@ -595,10 +614,28 @@ test('shares concurrent initialization and keeps the model host scoped until eve
 	});
 	const initializationsBeforeLoading = pipelineInitializationCount;
 	const disposalsBeforeLoading = disposeCalls;
+	const firstProgress: number[] = [];
+	const secondProgress: number[] = [];
 
-	const firstLoad = loadWhisperModel({model: 'base'});
-	const secondLoad = loadWhisperModel({model: 'base'});
+	const firstLoad = loadWhisperModel({
+		model: 'base',
+		onProgress: ({progress}) => {
+			if (progress !== null) {
+				firstProgress.push(progress);
+			}
+		},
+	});
 	await initializationStarted;
+	const transcription = transcribe({
+		channelWaveform: new Float32Array(16_000),
+		language: 'en',
+		model: 'base',
+		onModelLoadProgress: ({progress}) => {
+			if (progress !== null) {
+				secondProgress.push(progress);
+			}
+		},
+	});
 	expect(pipelineInitializationCount - initializationsBeforeLoading).toBe(1);
 	expect(transformersEnvironment).toEqual({
 		remoteHost: 'https://remotion.media/',
@@ -626,15 +663,35 @@ test('shares concurrent initialization and keeps the model host scoped until eve
 	expect(disposeCalls).toBe(disposalsBeforeLoading);
 
 	releaseInitialization();
-	await expect(Promise.all([firstLoad, secondLoad])).resolves.toEqual([
-		{alreadyLoaded: false},
-		{alreadyLoaded: true},
-	]);
+	await expect(firstLoad).resolves.toEqual({alreadyLoaded: false});
+	await expect(transcription).resolves.toMatchObject({model: 'base'});
+	expect(firstProgress.at(-1)).toBe(1);
+	expect(secondProgress).toEqual(firstProgress);
 	await disposal;
 	expect(disposeCalls).toBe(disposalsBeforeLoading + 1);
 	expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
 	pipelineInitializationGate = null;
 	onPipelineInitializationStarted = null;
+});
+
+test('removes a downloaded model from memory and the persistent cache', async () => {
+	const {loadWhisperModel, removeWhisperModel} = await import('../index');
+	const disposalsBeforeRemoval = disposeCalls;
+	await loadWhisperModel({model: 'tiny.en'});
+	await removeWhisperModel({model: 'tiny.en'});
+
+	expect(disposeCalls).toBe(disposalsBeforeRemoval + 1);
+	expect(cacheClear).toEqual({
+		task: 'automatic-speech-recognition',
+		modelId: 'whisper-tiny.en_timestamped-v1',
+		options: {
+			device: 'webgpu',
+			dtype: {
+				decoder_model_merged: 'q4',
+				encoder_model: 'fp32',
+			},
+		},
+	});
 });
 
 test('only restores Transformers environment fields left unchanged by the consumer', async () => {
