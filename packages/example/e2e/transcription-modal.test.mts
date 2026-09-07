@@ -52,13 +52,8 @@ test.describe('transcription modal', () => {
 			dialog.getByText('Whisper model', {exact: true}),
 		).toBeVisible();
 		const model = dialog.getByTitle('Whisper model');
-		const task = dialog.getByRole('button', {
-			name: 'Task: Transcribe',
-			exact: true,
-		});
 		await expect(model).toContainText('small.en');
-		await expect(task).toContainText('Transcribe');
-		await expect(task).toBeDisabled();
+		await expect(dialog.getByTitle('Task')).toHaveCount(0);
 		await expect(
 			dialog.getByText(/Downloaded with transcription if needed/),
 		).toBeVisible();
@@ -70,7 +65,10 @@ test.describe('transcription modal', () => {
 		await model.click();
 		await page.getByRole('button', {name: /^tiny ·/}).click();
 		await expect(model).toContainText('tiny ·');
-		await expect(task).toBeEnabled();
+		const task = dialog.getByRole('button', {
+			name: 'Task: Transcribe',
+			exact: true,
+		});
 		await task.click();
 		await page
 			.getByRole('button', {name: 'Task: Translate to English', exact: true})

@@ -282,18 +282,20 @@ const ModelSettings: React.FC<{
 					</div>
 				</div>
 			) : null}
-			<div style={optionRow}>
-				<div style={label}>Task</div>
-				<div style={rightRow}>
-					<Combobox
-						values={taskOptions}
-						selectedId={effectiveTask}
-						title="Task"
-						disabled={!selectedModelInfo.supportsTranslation}
-						style={controlStyle}
-					/>
+			{selectedModelInfo.supportsTranslation ? (
+				<div style={optionRow}>
+					<div style={label}>Task</div>
+					<div style={rightRow}>
+						<Combobox
+							values={taskOptions}
+							selectedId={effectiveTask}
+							title="Task"
+							disabled={false}
+							style={controlStyle}
+						/>
+					</div>
 				</div>
-			</div>
+			) : null}
 			{effectiveTask === 'translate' ? (
 				<div
 					id={TRANSCRIPTION_TASK_MESSAGE_ID}

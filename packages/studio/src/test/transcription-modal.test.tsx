@@ -169,6 +169,7 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		screen.getByTitle('Learn more about Use sampling');
 		screen.getByTitle('Learn more about Repetition penalty');
 		screen.getByTitle('Learn more about No-repeat n-gram size');
+		expect(screen.queryByTitle('Task')).toBeNull();
 
 		await selectComboboxItem(screen.getByTitle('Whisper model'), /^tiny ·/);
 		await selectComboboxItem(screen.getByTitle('Spoken language'), 'German');
