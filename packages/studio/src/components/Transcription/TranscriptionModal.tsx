@@ -91,6 +91,18 @@ const settingsPanel: React.CSSProperties = {
 	paddingTop: 16,
 };
 
+const transcriptionModalStyle: React.CSSProperties = {
+	...outerModalStyle,
+	height: 'auto',
+	maxHeight: 'calc(100vh - 40px)',
+	outline: 'none',
+};
+
+const transcriptionLayout: React.CSSProperties = {
+	...horizontalLayout,
+	flex: '1 1 auto',
+};
+
 const controlStyle: React.CSSProperties = {
 	width: 330,
 	maxWidth: '100%',
@@ -111,6 +123,7 @@ const taskMessageRow: React.CSSProperties = {
 
 const outputRow: React.CSSProperties = {
 	...optionRow,
+	alignItems: 'flex-start',
 	paddingBottom: 12,
 };
 
@@ -908,7 +921,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 
 	return (
 		<DismissableModal ariaLabel={`Transcribe ${displayName}`}>
-			<div style={{...outerModalStyle, outline: 'none'}}>
+			<div style={transcriptionModalStyle}>
 				<ModalHeader title={`Transcribe ${displayName}`} />
 				<div style={container}>
 					<div style={flexer} />
@@ -926,7 +939,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						Transcribe
 					</Button>
 				</div>
-				<div style={horizontalLayout}>
+				<div style={transcriptionLayout}>
 					<div style={leftSidebar}>
 						<VerticalTab
 							autoFocus
