@@ -67,7 +67,7 @@ const baseJob = {
 	noRepeatNgramSize: 0,
 } as const;
 
-test('labels the renders tab as Jobs while a caption job is running', () => {
+test('labels the render queue tab as Jobs while a caption job is running', () => {
 	renderWithCaptionJob({
 		...baseJob,
 		status: 'running',
@@ -100,7 +100,7 @@ test('opens a completed caption output as an asset without showing its caption c
 			captionCount: 10,
 		});
 
-		expect(screen.getByText('Renders')).toBeTruthy();
+		expect(screen.getByText('Jobs')).toBeTruthy();
 		expect(screen.queryByText(/10 captions/)).toBeNull();
 		expect(screen.getByText('dialogue-captions.json')).toBeTruthy();
 		fireEvent.click(screen.getByText('dialogue-captions.json'));

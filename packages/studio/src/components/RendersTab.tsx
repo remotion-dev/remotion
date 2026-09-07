@@ -33,9 +33,6 @@ export const RendersTab: React.FC<{
 		(job) => job.status === 'failed',
 	).length;
 	const jobCount = jobs.length + captionJobs.length;
-	const hasRunningCaptionJob = captionJobs.some(
-		(job) => job.status === 'running',
-	);
 
 	const badgeStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -51,7 +48,7 @@ export const RendersTab: React.FC<{
 	return (
 		<Tab selected={selected} onClick={onClick}>
 			<div style={row}>
-				{hasRunningCaptionJob ? 'Jobs' : 'Renders'}
+				Jobs
 				{jobCount > 0 ? (
 					<>
 						<Flex />
