@@ -17,7 +17,9 @@ import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
+import {TranscriptionIcon} from '../icons/transcription';
 import {TrashIcon} from '../icons/trash';
+import {SetSelectedModalContext} from '../state/modals';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {InspectorInfoHeader} from './InspectorInfoHeader';
 import {
@@ -183,6 +185,7 @@ export const AssetInfo: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const browserStudioOperations = getBrowserStudioOperations();
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const staticFiles = useStaticFiles();
 	const renameFile = useRenameStaticFile({
@@ -203,6 +206,23 @@ export const AssetInfo: React.FC<{
 	const mediaMetadata = useMediaMetadata(src);
 	const imageSrc = getCurrentAssetImageMetadataSource(assetName);
 	const imageMetadata = useImageMetadata(imageSrc);
+	const mutationsDisabled =
+		browserStudioOperations === null &&
+		(readOnlyStudio || connectionStatus !== 'connected');
+	const fileName = assetName?.split('/').pop() ?? '';
+	const onTranscribe = useCallback(() => {
+		if (src === null || mutationsDisabled) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'transcribe',
+			src,
+			displayName: fileName,
+			audioStreamIndex: null,
+			requestInit: null,
+		});
+	}, [fileName, mutationsDisabled, setSelectedModal, src]);
 	const canRename =
 		onAssetClick === undefined &&
 		(browserStudioOperations !== null ||
@@ -243,7 +263,6 @@ export const AssetInfo: React.FC<{
 		);
 	}
 
-	const fileName = assetName.split('/').pop() ?? assetName;
 	const fileDetails: CurrentAssetDetail[] = [];
 	if (imageMetadata !== null) {
 		fileDetails.push({
@@ -272,10 +291,6 @@ export const AssetInfo: React.FC<{
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
-	const mutationsDisabled =
-		browserStudioOperations === null &&
-		(readOnlyStudio || connectionStatus !== 'connected');
-
 	return (
 		<>
 			<InspectorInfoHeader
@@ -336,6 +351,17 @@ export const AssetInfo: React.FC<{
 			) : null}
 			<InspectorSectionHeader>Actions</InspectorSectionHeader>
 			<InspectorQuickActionsSection>
+				{src ? (
+					<InspectorQuickAction
+						disabled={mutationsDisabled}
+						onClick={onTranscribe}
+						renderIcon={(color) => (
+							<TranscriptionIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Transcribe
+					</InspectorQuickAction>
+				) : null}
 				{src ? (
 					<InspectorQuickAction
 						disabled={false}

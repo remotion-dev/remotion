@@ -1,6 +1,5 @@
-import path from 'path';
 import {expect, test} from '@playwright/test';
-import {EXPANDED_SIDEBAR_STATE, STUDIO_URL, exampleDir} from './constants.mts';
+import {EXPANDED_SIDEBAR_STATE, STUDIO_URL} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
@@ -14,19 +13,13 @@ test.describe('transcription modal', () => {
 		await stopStudio();
 	});
 
-	test('supports Video and Audio and configures a Caption[] JSON output', async ({
+	test('supports video and audio assets and configures a Caption[] JSON output', async ({
 		page,
 	}) => {
 		await page.addInitScript(() => {
 			Object.defineProperty(navigator, 'gpu', {
 				configurable: true,
 				value: {requestAdapter: () => Promise.resolve({})},
-			});
-		});
-		await page.route('https://remotion.media/video.mp4', async (route) => {
-			await route.fulfill({
-				contentType: 'video/webm',
-				path: path.join(exampleDir, 'public', 'vp8-vorbis.webm'),
 			});
 		});
 		await page.goto(`${STUDIO_URL}/NewVideo`);
@@ -36,7 +29,9 @@ test.describe('transcription modal', () => {
 			{timeout: 30_000},
 		);
 
-		const video = page.getByText('<Video>', {exact: true}).first();
+		await page.getByRole('button', {name: 'Assets', exact: true}).click();
+		const assetSelector = page.locator('[data-asset-selector]');
+		const video = assetSelector.getByTitle('vp8-vorbis.webm', {exact: true});
 		const transcribe = page.getByRole('button', {
 			name: 'Transcribe',
 			exact: true,
@@ -52,7 +47,7 @@ test.describe('transcription modal', () => {
 			name: 'Transcribe',
 			exact: true,
 		});
-		await expect(dialog).toContainText('Transcribe <Video>');
+		await expect(dialog).toContainText('Transcribe vp8-vorbis.webm');
 		await expect(
 			dialog.getByText('Whisper model', {exact: true}),
 		).toBeVisible();
@@ -94,7 +89,6 @@ test.describe('transcription modal', () => {
 		).toBeVisible();
 		await expect(addToQueueButton).toBeEnabled();
 
-		await dialog.getByRole('button', {name: 'Other', exact: true}).click();
 		const chunkLength = dialog.getByRole('button', {
 			name: /^Chunk length:/,
 		});
@@ -177,30 +171,24 @@ test.describe('transcription modal', () => {
 		await strideLengthInput.press('Enter');
 		await expect(addToQueueButton).toBeEnabled();
 
-		await dialog.getByRole('button', {name: 'Output', exact: true}).click();
 		await expect(
 			dialog.getByText('Output in public/', {exact: true}),
 		).toBeVisible();
-		await expect(dialog).toContainText('Caption[]');
 
 		const output = dialog.getByRole('textbox', {
 			name: 'Caption output file',
 		});
-		await expect(output).toHaveValue('video-captions.json');
+		await expect(output).toHaveValue('vp8-vorbis-captions.json');
 		await output.fill('captions/new-video.json');
 		await expect(output).toHaveValue('captions/new-video.json');
 
 		await page.keyboard.press('Escape');
 		await expect(dialog).toBeHidden();
-		await page.goto(`${STUDIO_URL}/transcription-audio-e2e`);
-		await expect(page).toHaveURL(/transcription-audio-e2e/, {
-			timeout: 15_000,
-		});
-		const audio = page.getByText('<Audio>', {exact: true}).first();
-		await expect(async () => {
-			await audio.click();
-			await expect(transcribe).toBeVisible({timeout: 1_000});
-		}).toPass({timeout: 30_000});
+		await assetSelector.getByTitle('sine.wav', {exact: true}).click();
+		await expect(transcribe).toBeVisible();
+		await transcribe.click();
+		await expect(dialog).toContainText('Transcribe sine.wav');
+		await page.keyboard.press('Escape');
 
 		await page.goto(`${STUDIO_URL}/transcription-legacy-media-e2e`);
 		await expect(page).toHaveURL(/transcription-legacy-media-e2e/, {
