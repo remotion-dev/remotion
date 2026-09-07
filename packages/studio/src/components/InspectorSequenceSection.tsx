@@ -530,7 +530,7 @@ export const InspectorSequenceSection: React.FC<{
 			return;
 		}
 
-		selectedEffectRowRef.current.scrollIntoView({block: 'nearest'});
+		selectedEffectRowRef.current.scrollIntoView({block: 'center'});
 		scrolledEffectKey.current = selectedEffectKey;
 	}, [effectRows, selectedEffectKey]);
 
