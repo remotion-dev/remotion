@@ -10,14 +10,17 @@ import {
 import {MediaPlayer} from '../media-player';
 import type {SharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
 import {scheduleAudioScheduleEntryGain} from './audio-scheduler-gain';
-import {clampAudioSchedulerTime} from './audio-scheduler-timeline';
+import {
+	clampAudioSchedulerTime,
+	isAudioSchedulerEntryInWindow,
+} from './audio-scheduler-timeline';
 import type {NormalizedAudioScheduleEntry} from './audio-scheduler-types';
 
 const {SharedAudioContext, SequenceContext} = Internals;
 
 // AudioScheduler is managed outside Remotion's normal <Audio> buffering
-// lifecycle. Its entries are mounted for the lifetime of the scheduler and
-// are synchronized by the timeline and the shared audio anchor.
+// lifecycle. It keeps a rolling window of entries mounted and synchronizes
+// those players with the timeline and the shared audio anchor.
 const NO_OP_BUFFER_STATE = {
 	delayPlayback: () => ({unblock: () => {}}),
 };
@@ -57,15 +60,21 @@ type PlayerSlot = {
 	waitingForFirstAudio: boolean;
 	lastRequestedLocalTime: number | null;
 	seekGainMutedUntil: number | null;
+	disposed: boolean;
+};
+
+type AudioSchedulerController = {
+	syncToTime: (currentGlobalTime: number) => void;
 };
 
 /**
  * Preview implementation of AudioScheduler.
  *
- * Every entry gets one MediaPlayer and one scheduler-owned GainNode. The
- * players are created once and remain mounted while the timeline moves across
- * entry boundaries. This is important: remounting a MediaPlayer at a cut
- * destroys its AudioBufferSourceNode and is an audible click.
+ * Entries in the lookahead window get one MediaPlayer and one scheduler-owned
+ * GainNode. A stable entry-ID map prevents an entry from being initialized
+ * more than once while it remains in the window. Entries outside the rolling
+ * window are disposed to keep long schedules from creating hundreds of media
+ * iterators at once.
  */
 export const AudioSchedulerPreview: React.FC<{
 	readonly schedule: readonly NormalizedAudioScheduleEntry[];
@@ -82,7 +91,8 @@ export const AudioSchedulerPreview: React.FC<{
 	const holdGainUntilFirstAudio =
 		sharedAudioContext?._experimentalKeepAudioContextAlive ?? false;
 
-	const slotsRef = useRef<PlayerSlot[]>([]);
+	const slotsRef = useRef<Map<string, PlayerSlot>>(new Map());
+	const controllerRef = useRef<AudioSchedulerController | null>(null);
 
 	// The scheduler's outer gain is the only place where entry volume and the
 	// short fade envelope are applied. MediaPlayer remains at volume 1 so that
@@ -135,7 +145,6 @@ export const AudioSchedulerPreview: React.FC<{
 	const isEntryActiveAtTime = (
 		entry: NormalizedAudioScheduleEntry,
 		globalCompositionTime: number,
-		schedulerStartTimeInSeconds: number,
 	) => {
 		const entryStart = getGlobalEntryOffsetSeconds(
 			entry,
@@ -147,9 +156,8 @@ export const AudioSchedulerPreview: React.FC<{
 		);
 	};
 
-	// Create and dispose all players in one effect. Keeping this as one effect
-	// preserves the original scheduler's mount ordering and avoids a second
-	// effect disposing players while their initialization is still in flight.
+	// Create and dispose players from one controller. The full schedule remains
+	// metadata; only entries in the rolling window get a MediaPlayer.
 	useEffect(() => {
 		if (!sharedAudioContext?.audioContext || !sharedAudioContext.gainNode) {
 			return;
@@ -162,6 +170,27 @@ export const AudioSchedulerPreview: React.FC<{
 			scheduleAudioNode,
 			unscheduleAudioNode,
 		} = sharedAudioContext;
+		const slots = new Map<string, PlayerSlot>();
+		const isDisposed = {value: false};
+		slotsRef.current = slots;
+
+		const disposeSlot = (slot: PlayerSlot) => {
+			if (slot.disposed) {
+				return;
+			}
+
+			slot.disposed = true;
+			if (slots.get(slot.entry.id) === slot) {
+				slots.delete(slot.entry.id);
+			}
+
+			const now = audioContext.currentTime;
+			slot.gainNode.gain.cancelScheduledValues(now);
+			slot.gainNode.gain.setValueAtTime(0, now);
+			slot.player.dispose().catch(() => {});
+			slot.gainNode.disconnect();
+		};
+
 		const makePlayerForEntry = (
 			entry: NormalizedAudioScheduleEntry,
 			initialGlobalTime: number,
@@ -169,11 +198,7 @@ export const AudioSchedulerPreview: React.FC<{
 			const gainNode = audioContext.createGain();
 			gainNode.gain.value = 0;
 			gainNode.connect(masterGainNode);
-			const entryIsActive = isEntryActiveAtTime(
-				entry,
-				initialGlobalTime,
-				schedulerStartTimeInSeconds,
-			);
+			const entryIsActive = isEntryActiveAtTime(entry, initialGlobalTime);
 
 			// Future entries can use their normal timeline envelope immediately. An
 			// active entry must wait for its first real source node when the shared
@@ -258,32 +283,113 @@ export const AudioSchedulerPreview: React.FC<{
 				gainNode,
 				entry,
 				waitingForFirstAudio: holdGainUntilFirstAudio && entryIsActive,
-				lastRequestedLocalTime: null,
+				// initialize() already starts the iterator at this local time. Mark
+				// it as requested so the current timeline pass does not immediately
+				// issue a duplicate seek and restart the iterator.
+				lastRequestedLocalTime: initialLocalTime,
 				seekGainMutedUntil: null,
+				disposed: false,
 			};
 
-			player.initialize(initialLocalTime, false, 1).catch(() => {});
+			// Insert before starting initialization. This makes the entry visible to
+			// any subsequent timeline pass immediately and prevents duplicate players
+			// for the same schedule ID.
+			slots.set(entry.id, slot);
+
+			const handleInitializationFailure = (
+				failure: {result: unknown} | {error: unknown},
+			) => {
+				// Initialization can fail after the slot was inserted into the map.
+				// Remove only this exact slot: a later scheduling pass may already have
+				// created a replacement for the same schedule ID.
+				if (slots.get(entry.id) === slot) {
+					disposeSlot(slot);
+				}
+
+				if ('result' in failure) {
+					// eslint-disable-next-line no-console
+					console.error(
+						'[AudioScheduler] Audio entry initialization did not succeed',
+						{
+							entryId: entry.id,
+							src: entry.previewSrc,
+							initialLocalTime,
+							result: failure.result,
+						},
+					);
+				} else {
+					// eslint-disable-next-line no-console
+					console.error('[AudioScheduler] Failed to initialize audio entry', {
+						entryId: entry.id,
+						src: entry.previewSrc,
+						initialLocalTime,
+						error: failure.error,
+					});
+				}
+			};
+
+			player.initialize(initialLocalTime, false, 1).then((result) => {
+				if (result.type !== 'success') {
+					handleInitializationFailure({result});
+				}
+			}, (error) => {
+				handleInitializationFailure({error});
+			});
 
 			return slot;
 		};
 
-		const currentGlobalTime =
-			schedulerStartTimeInSeconds + frameRef.current / fps;
-		const slots = schedule.map((entry) =>
-			makePlayerForEntry(entry, currentGlobalTime),
-		);
-		slotsRef.current = slots;
+		const syncToTime = (currentGlobalTime: number) => {
+			if (isDisposed.value) {
+				return;
+			}
+
+			const entriesInWindow = new Set<string>();
+			for (const entry of schedule) {
+				const entryStartTimeInSeconds = getGlobalEntryOffsetSeconds(
+					entry,
+					schedulerStartTimeInSeconds,
+				);
+				if (
+					!isAudioSchedulerEntryInWindow({
+						entryStartTimeInSeconds,
+						entryDurationInSeconds: entry.durationInSeconds,
+						currentTimeInSeconds: currentGlobalTime,
+					})
+				) {
+					continue;
+				}
+
+				entriesInWindow.add(entry.id);
+				if (!slots.has(entry.id)) {
+					makePlayerForEntry(entry, currentGlobalTime);
+				}
+			}
+
+			for (const slot of slots.values()) {
+				if (!entriesInWindow.has(slot.entry.id)) {
+					disposeSlot(slot);
+				}
+			}
+		};
+
+		const controller: AudioSchedulerController = {syncToTime};
+		controllerRef.current = controller;
+		syncToTime(schedulerStartTimeInSeconds + frameRef.current / fps);
 
 		return () => {
-			const slotsToDispose = slots;
-			slotsRef.current = [];
+			isDisposed.value = true;
+			if (controllerRef.current === controller) {
+				controllerRef.current = null;
+			}
 
-			for (const slot of slotsToDispose) {
-				const now = audioContext.currentTime;
-				slot.gainNode.gain.cancelScheduledValues(now);
-				slot.gainNode.gain.setValueAtTime(0, now);
-				slot.player.dispose().catch(() => {});
-				slot.gainNode.disconnect();
+			for (const slot of slots.values()) {
+				disposeSlot(slot);
+			}
+
+			slots.clear();
+			if (slotsRef.current === slots) {
+				slotsRef.current = new Map();
 			}
 		};
 
@@ -297,6 +403,7 @@ export const AudioSchedulerPreview: React.FC<{
 		schedule,
 		schedulerStartTimeInSeconds,
 		sharedAudioContext,
+		holdGainUntilFirstAudio,
 	]);
 
 	// An anchor change invalidates every iterator's old scheduled source. Fade
@@ -317,12 +424,12 @@ export const AudioSchedulerPreview: React.FC<{
 
 			const currentGlobalTime =
 				schedulerStartTimeInSeconds + frameRef.current / fps;
+			controllerRef.current?.syncToTime(currentGlobalTime);
 
-			for (const slot of slotsRef.current) {
+			for (const slot of slotsRef.current.values()) {
 				const entryIsActive = isEntryActiveAtTime(
 					slot.entry,
 					currentGlobalTime,
-					schedulerStartTimeInSeconds,
 				);
 				slot.waitingForFirstAudio = holdGainUntilFirstAudio && entryIsActive;
 				const now = audioContext.currentTime;
@@ -371,7 +478,9 @@ export const AudioSchedulerPreview: React.FC<{
 		}
 
 		const currentGlobalTime = schedulerStartTimeInSeconds + frame / fps;
-		for (const slot of slotsRef.current) {
+		controllerRef.current?.syncToTime(currentGlobalTime);
+
+		for (const slot of slotsRef.current.values()) {
 			const localTime = getPlayerLocalTime({
 				globalCompositionTime: currentGlobalTime,
 				entry: slot.entry,
@@ -381,6 +490,7 @@ export const AudioSchedulerPreview: React.FC<{
 			if (slot.lastRequestedLocalTime === localTime) {
 				continue;
 			}
+
 			slot.lastRequestedLocalTime = localTime;
 			slot.player.seekTo(localTime).catch(() => {});
 		}

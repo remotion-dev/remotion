@@ -13,6 +13,36 @@ export const getAudioSchedulerRenderTiming = ({
 	};
 };
 
+// Keep enough entries mounted for MediaPlayer to schedule audio before it is
+// audible, while avoiding one MediaPlayer for every cut in a long schedule.
+// The audio iterator's priority queue starts work within a two-second horizon,
+// so four seconds gives it room to initialize the next entry.
+export const AUDIO_SCHEDULER_LOOKAHEAD_SECONDS = 4;
+export const AUDIO_SCHEDULER_RETAIN_BEHIND_SECONDS = 2;
+
+export const isAudioSchedulerEntryInWindow = ({
+	entryStartTimeInSeconds,
+	entryDurationInSeconds,
+	currentTimeInSeconds,
+	lookaheadSeconds = AUDIO_SCHEDULER_LOOKAHEAD_SECONDS,
+	retainBehindSeconds = AUDIO_SCHEDULER_RETAIN_BEHIND_SECONDS,
+}: {
+	entryStartTimeInSeconds: number;
+	entryDurationInSeconds: number;
+	currentTimeInSeconds: number;
+	lookaheadSeconds?: number;
+	retainBehindSeconds?: number;
+}) => {
+	const windowStart = currentTimeInSeconds - retainBehindSeconds;
+	const windowEnd = currentTimeInSeconds + lookaheadSeconds;
+	const entryEndTimeInSeconds =
+		entryStartTimeInSeconds + entryDurationInSeconds;
+
+	return (
+		entryStartTimeInSeconds < windowEnd && entryEndTimeInSeconds > windowStart
+	);
+};
+
 export const clampAudioSchedulerTime = ({
 	durationInSeconds,
 	timeInSeconds,
