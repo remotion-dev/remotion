@@ -30,6 +30,7 @@
 		}
 	},
 	"dependencies": {
+		"@huggingface/transformers": "catalog:",
 		"@tanstack/react-virtual": "3.14.9",
 		"@remotion/canvas": "workspace:*",
 		"@remotion/studio-protocol": "workspace:*",

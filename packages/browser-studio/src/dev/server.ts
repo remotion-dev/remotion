@@ -1,7 +1,6 @@
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'bun';
-import {BROWSER_STUDIO_WHISPER_TRANSFORMERS_PACKAGE} from '../browser-studio-import-map';
 import {browserStudioPackageJsonArtifactFilename} from '../workspace-package-exports';
 import {getBrowserStudioDependencyVersionsForBuild} from './get-dependency-versions-for-build';
 import {getBrowserStudioReactRefreshFilesForBuild} from './get-react-refresh-files-for-build';
@@ -83,10 +82,7 @@ const buildDevAssets = async () => {
 	const vendorOutput = await build({
 		define: {'process.env.NODE_ENV': JSON.stringify('development')},
 		entrypoints: ['src/browser-studio-vendor-entry.ts'],
-		external: [
-			'@huggingface/transformers',
-			BROWSER_STUDIO_WHISPER_TRANSFORMERS_PACKAGE,
-		],
+		external: ['@huggingface/transformers'],
 		format: 'iife',
 		naming: '[name].mjs',
 		outdir: outDir,

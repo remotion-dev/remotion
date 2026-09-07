@@ -1055,53 +1055,40 @@ test('loads the local Transformers bundle on demand from the vendor Blob bundle'
 	expect(
 		await studio.locator('script[type="module"]').getAttribute('src'),
 	).toMatch(/^blob:/);
-	const transformersUrls = await studio
+	const transformersUrl = await studio
 		.locator('script[type="importmap"]')
 		.evaluate((element) => {
 			const importMap = JSON.parse(element.textContent ?? '') as {
 				imports: Record<string, string>;
 			};
-			return {
-				consumer: importMap.imports['@huggingface/transformers'],
-				whisper:
-					importMap.imports['@remotion/whisper-webgpu/private-transformers'],
-			};
+			return importMap.imports['@huggingface/transformers'];
 		});
-	expect(transformersUrls.whisper).not.toBe(transformersUrls.consumer);
-	expect(requests).not.toContain(transformersUrls.consumer);
-	expect(requests).not.toContain(transformersUrls.whisper);
+	expect(requests).not.toContain(transformersUrl);
 
-	const loaded = await studio
-		.locator('body')
-		.evaluate(async (_body, privateTransformersPackage) => {
-			const loadTransformers = (
-				window as typeof window & {
-					__loadBrowserStudioTransformers: () => Promise<{
-						env: unknown;
-						pipeline: unknown;
-					}>;
-				}
-			).__loadBrowserStudioTransformers;
-			const consumerTransformers = await loadTransformers();
-			const whisperTransformers = (await import(
-				privateTransformersPackage
-			)) as {env: unknown; pipeline: unknown};
-			return {
-				consumerPipelineType: typeof consumerTransformers.pipeline,
-				environmentsAreIsolated:
-					consumerTransformers.env !== whisperTransformers.env,
-				whisperPipelineType: typeof whisperTransformers.pipeline,
-			};
-		}, '@remotion/whisper-webgpu/private-transformers');
+	const loaded = await studio.locator('body').evaluate(async () => {
+		const loadTransformers = (
+			window as typeof window & {
+				__loadBrowserStudioTransformers: () => Promise<{
+					env: unknown;
+					pipeline: unknown;
+				}>;
+			}
+		).__loadBrowserStudioTransformers;
+		const consumerTransformers = await loadTransformers();
+		const auxiliaryTransformers = await import('@huggingface/transformers');
+		return {
+			consumerPipelineType: typeof consumerTransformers.pipeline,
+			environmentsAreShared:
+				consumerTransformers.env === auxiliaryTransformers.env,
+			auxiliaryPipelineType: typeof auxiliaryTransformers.pipeline,
+		};
+	});
 
 	expect(loaded.consumerPipelineType).toBe('function');
-	expect(loaded.whisperPipelineType).toBe('function');
-	expect(loaded.environmentsAreIsolated).toBe(true);
+	expect(loaded.auxiliaryPipelineType).toBe('function');
+	expect(loaded.environmentsAreShared).toBe(true);
 	expect(
-		requests.filter((request) => request === transformersUrls.consumer),
-	).toHaveLength(1);
-	expect(
-		requests.filter((request) => request === transformersUrls.whisper),
+		requests.filter((request) => request === transformersUrl),
 	).toHaveLength(1);
 });
 

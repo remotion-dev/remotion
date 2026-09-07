@@ -1,7 +1,6 @@
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'bun';
-import {BROWSER_STUDIO_WHISPER_TRANSFORMERS_PACKAGE} from './src/browser-studio-import-map';
 import {getBrowserStudioDependencyVersionsForBuild} from './src/dev/get-dependency-versions-for-build';
 import {getBrowserStudioReactRefreshFilesForBuild} from './src/dev/get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './src/dev/get-setup-environment-for-build';
@@ -25,10 +24,7 @@ const workspacePackageExports =
 const vendorOutput = await build({
 	define: {'process.env.NODE_ENV': JSON.stringify('development')},
 	entrypoints: ['src/browser-studio-vendor-entry.ts'],
-	external: [
-		'@huggingface/transformers',
-		BROWSER_STUDIO_WHISPER_TRANSFORMERS_PACKAGE,
-	],
+	external: ['@huggingface/transformers'],
 	format: 'iife',
 	minify: true,
 	naming: '[name].mjs',
@@ -46,16 +42,6 @@ const vendorEntryOutput = vendorOutput.outputs.find(
 if (!vendorEntryOutput) {
 	throw new Error('Browser Studio vendor entry was not generated');
 }
-if (
-	!(await vendorEntryOutput.text()).includes(
-		BROWSER_STUDIO_WHISPER_TRANSFORMERS_PACKAGE,
-	)
-) {
-	throw new Error(
-		'The Browser Studio vendor entry must preserve the private Transformers import.',
-	);
-}
-
 const transformersOutput = await build({
 	entrypoints: ['src/browser-studio-transformers-entry.ts'],
 	format: 'esm',

@@ -2,8 +2,6 @@ import type {BrowserStudioDependencyResolution} from './types';
 
 export const BROWSER_STUDIO_TRANSFORMERS_PACKAGE =
 	'@huggingface/transformers' as const;
-export const BROWSER_STUDIO_WHISPER_TRANSFORMERS_PACKAGE =
-	'@remotion/whisper-webgpu/private-transformers' as const;
 
 const getEsmShUrl = (version: string) => {
 	const url = new URL(
@@ -35,10 +33,4 @@ export const getBrowserStudioTransformersUrl = ({
 	}
 
 	return localUrl;
-};
-
-export const getBrowserStudioWhisperTransformersUrl = (localUrl: string) => {
-	const url = new URL(localUrl);
-	url.searchParams.set('whisper-webgpu-private', '');
-	return url.href;
 };

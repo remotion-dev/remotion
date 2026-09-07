@@ -1803,6 +1803,7 @@
       "name": "@remotion/studio",
       "version": "4.0.522",
       "dependencies": {
+        "@huggingface/transformers": "catalog:",
         "@jridgewell/trace-mapping": "0.3.31",
         "@remotion/canvas": "workspace:*",
         "@remotion/captions": "workspace:*",
