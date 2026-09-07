@@ -100,7 +100,9 @@ export const RenderQueue: React.FC = () => {
 		return (
 			<div style={explainer}>
 				<Spacing y={5} />
-				<div style={errorExplanation}>No renders in the queue.</div>
+				<div style={errorExplanation}>
+					Renders, transcriptions and video matting jobs will show up here.
+				</div>
 				<Spacing y={2} block />
 			</div>
 		);
