@@ -279,16 +279,13 @@ void main() {
 		? outputPosition.y
 		: 1.0 - outputPosition.y;
 	if (uProgress <= 0.000001) {
-		fragColor = texture(uSource, vUv);
+		fragColor = sampleSource(outputPosition);
 		return;
 	}
 
 	float front = uDirection == 0 ? uProgress : 1.0 - uProgress;
-	float openingProgress = smoothstep(0.85, 1.0, uProgress);
-	float initialHalfGap = min(uGap * 0.5, 1.0);
-	float halfGap = mix(initialHalfGap, uGap * 0.5, openingProgress) /
-		max(uResolution.x, 1.0);
-	float angle = openingProgress * uRotation * PI / 180.0;
+	float halfGap = uProgress * uGap * 0.5 / max(uResolution.x, 1.0);
+	float angle = uProgress * uRotation * PI / 180.0;
 	vec2 pivot = vec2(uCenter, front);
 
 	vec2 leftPosition = inverseRotate(
@@ -301,24 +298,22 @@ void main() {
 		pivot,
 		angle
 	);
-	bool showLeft = insideTexture(leftPosition) &&
-		leftPosition.x <= tearPosition(leftPosition.y);
-	bool showRight = insideTexture(rightPosition) &&
-		rightPosition.x > tearPosition(rightPosition.y);
+	float outputTearPosition = tearPosition(outputPosition.y);
+	float visibleHalfGap = outputTravel <= uProgress ? halfGap : 0.0;
+	bool showLeft = outputPosition.x <= outputTearPosition - visibleHalfGap;
+	bool showRight = outputPosition.x > outputTearPosition + visibleHalfGap;
 
-	if (showLeft) {
+	if (showLeft && insideTexture(leftPosition)) {
 		fragColor = sampleSource(leftPosition);
 		return;
 	}
 
-	if (showRight) {
+	if (showRight && insideTexture(rightPosition)) {
 		fragColor = sampleSource(rightPosition);
 		return;
 	}
 
-	fragColor = outputTravel <= uProgress
-		? vec4(0.0)
-		: sampleSource(outputPosition);
+	fragColor = vec4(0.0);
 }
 `;
 
