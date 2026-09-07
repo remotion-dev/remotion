@@ -66,6 +66,7 @@ import {shrinkwrap} from '../shrinkwrap.js';
 import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
 import {starburst} from '../starburst.js';
+import {tear} from '../tear.js';
 import {thermalVision} from '../thermal-vision.js';
 import {tile} from '../tile.js';
 import {tint} from '../tint.js';
@@ -234,6 +235,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(roughenEdges().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/roughen-edges',
 	);
+	expect(tear().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/tear',
+	);
 	expect(pattern().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/pattern',
 	);
@@ -381,6 +385,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 		'radialProgressivePixelate()',
 	);
 	expect(tile().definition.label).toBe('tile()');
+	expect(tear().definition.label).toBe('tear()');
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
@@ -2983,6 +2988,64 @@ test('roughenEdges() parameters produce distinct effect keys', () => {
 			seeded.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('tear() accepts default and valid params', () => {
+	expect(() => tear()).not.toThrow();
+	expect(() =>
+		tear({
+			progress: 0.75,
+			gap: 240,
+			jaggedness: 120,
+			frequency: 8,
+			seed: 42,
+			center: 0.4,
+		}),
+	).not.toThrow();
+});
+
+test('tear() exposes defaults in its schema', () => {
+	expect(tear().definition.schema).toMatchObject({
+		progress: {default: 0.5},
+		gap: {default: 160},
+		jaggedness: {default: 80},
+		frequency: {default: 6},
+		seed: {default: 0},
+		center: {default: 0.5},
+	});
+});
+
+test('tear() rejects invalid params', () => {
+	expect(() => tear({progress: Number.NaN})).toThrow(
+		'"progress" must be a finite number',
+	);
+	expect(() => tear({progress: -0.1})).toThrow('"progress" must be >= 0');
+	expect(() => tear({gap: -1})).toThrow('"gap" must be >= 0');
+	expect(() => tear({gap: 2001})).toThrow('"gap" must be <= 2000');
+	expect(() => tear({jaggedness: -1})).toThrow('"jaggedness" must be >= 0');
+	expect(() => tear({jaggedness: 1001})).toThrow(
+		'"jaggedness" must be <= 1000',
+	);
+	expect(() => tear({frequency: 0})).toThrow('"frequency" must be >= 1');
+	expect(() => tear({frequency: 101})).toThrow('"frequency" must be <= 100');
+	expect(() => tear({seed: Number.POSITIVE_INFINITY})).toThrow(
+		'"seed" must be a finite number',
+	);
+	expect(() => tear({center: 1.1})).toThrow('"center" must be <= 1');
+});
+
+test('tear() parameters produce distinct effect keys', () => {
+	const effects = [
+		tear(),
+		tear({progress: 0.75}),
+		tear({gap: 240}),
+		tear({jaggedness: 120}),
+		tear({frequency: 8}),
+		tear({seed: 42}),
+		tear({center: 0.4}),
+	];
+
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(7);
 });
 
 test('pattern() accepts default params', () => {

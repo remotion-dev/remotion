@@ -12,6 +12,7 @@ import {pixelDissolve} from '../pixel-dissolve.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {shadowsHighlights} from '../shadows-highlights.js';
+import {tear} from '../tear.js';
 import {tile} from '../tile.js';
 import {vibrance} from '../vibrance.js';
 import {vignette} from '../vignette.js';
@@ -755,6 +756,59 @@ test('tile() does not leave transparent seams after scale()', async () => {
 	}
 
 	expect(alphas).toEqual(new Array(width * height).fill(255));
+});
+
+test('tear() preserves the source at zero progress and creates a transparent gap', async () => {
+	const width = 32;
+	const height = 16;
+	const source = document.createElement('canvas');
+	source.width = width;
+	source.height = height;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.fillStyle = 'rgb(12, 34, 56)';
+	sourceContext.fillRect(0, 0, width, height);
+
+	const intactCanvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			tear({progress: 0, gap: 8, jaggedness: 0}),
+		]),
+	});
+	const intactContext = intactCanvas.getContext('2d');
+	if (!intactContext) {
+		throw new Error('Could not get intact output context');
+	}
+
+	expect([...intactContext.getImageData(16, 8, 1, 1).data]).toEqual([
+		12, 34, 56, 255,
+	]);
+
+	const tornCanvas = await renderEffectChainToCanvas({
+		source,
+		width,
+		height,
+		effects: descriptorsToMemoizedEffects([
+			tear({progress: 1, gap: 8, jaggedness: 0}),
+		]),
+	});
+	const tornContext = tornCanvas.getContext('2d');
+	if (!tornContext) {
+		throw new Error('Could not get torn output context');
+	}
+
+	expect([...tornContext.getImageData(16, 8, 1, 1).data]).toEqual([0, 0, 0, 0]);
+	expect([...tornContext.getImageData(4, 8, 1, 1).data]).toEqual([
+		12, 34, 56, 255,
+	]);
+	expect([...tornContext.getImageData(28, 8, 1, 1).data]).toEqual([
+		12, 34, 56, 255,
+	]);
 });
 
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {

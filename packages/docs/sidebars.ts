@@ -330,6 +330,7 @@ const sidebars: SidebarsConfig = {
 				'effects/skew',
 				'effects/speckle',
 				'effects/starburst',
+				'effects/tear',
 				'effects/thermal-vision',
 				'effects/tile',
 				'effects/tint',

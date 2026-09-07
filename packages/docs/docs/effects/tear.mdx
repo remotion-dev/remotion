@@ -1,0 +1,92 @@
+---
+image: /generated/articles-docs-effects-tear.png
+slug: /effects/tear
+title: tear()
+sidebar_label: tear()
+crumb: '@remotion/effects'
+---
+
+# tear()<AvailableFrom v="4.0.523" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Splits a canvas source along a jagged vertical edge and moves the two pieces apart, leaving transparency between them.
+
+## Preview
+
+<EffectsDemo type="effects-tear" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {tear} from '@remotion/effects/tear';
+import {Video} from '@remotion/media';
+import {interpolate, staticFile, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, 30], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <Video
+      src={staticFile('video.mp4')}
+      effects={[
+        tear({
+          progress,
+          gap: 160,
+          jaggedness: 80,
+          frequency: 6,
+          seed: 0,
+          center: 0.5,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `tear()` without arguments.
+
+### `progress?`
+
+How far the two pieces have moved apart, from `0` to `1`. At `0`, the source is unchanged. Defaults to `0.5`.
+
+### `gap?`
+
+Distance between the two pieces in pixels when `progress` is `1`. Defaults to `160`. Must be between `0` and `2000`.
+
+### `jaggedness?`
+
+Maximum horizontal variation of the torn edge in pixels. Use `0` for a straight split. Defaults to `80`. Must be between `0` and `1000`.
+
+### `frequency?`
+
+Number of large edge segments from top to bottom. Defaults to `6`. Must be between `1` and `100`.
+
+### `seed?`
+
+Changes the static shape of the torn edge. Defaults to `0`.
+
+### `center?`
+
+Horizontal position of the tear from `0` (left) to `1` (right). Defaults to `0.5`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`tear()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`evolve()`](/docs/effects/evolve)
+- [`roughenEdges()`](/docs/effects/roughen-edges)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/tear.ts)

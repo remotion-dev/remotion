@@ -2367,6 +2367,15 @@ export const articles = [
 		slug: 'effects/starburst',
 	},
 	{
+		id: 'effects/tear',
+		title: 'tear()',
+		relativePath: 'docs/effects/tear.mdx',
+		compId: 'articles-docs-effects-tear',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/tear',
+	},
+	{
 		id: 'effects/thermal-vision',
 		title: 'thermalVision()',
 		relativePath: 'docs/effects/thermal-vision.mdx',

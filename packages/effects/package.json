@@ -319,6 +319,11 @@
 			"module": "./dist/esm/starburst.mjs",
 			"import": "./dist/esm/starburst.mjs"
 		},
+		"./tear": {
+			"types": "./dist/tear.d.ts",
+			"module": "./dist/esm/tear.mjs",
+			"import": "./dist/esm/tear.mjs"
+		},
 		"./thermal-vision": {
 			"types": "./dist/thermal-vision.d.ts",
 			"module": "./dist/esm/thermal-vision.mjs",
@@ -563,6 +568,9 @@
 			],
 			"starburst": [
 				"dist/starburst.d.ts"
+			],
+			"tear": [
+				"dist/tear.d.ts"
 			],
 			"thermal-vision": [
 				"dist/thermal-vision.d.ts"

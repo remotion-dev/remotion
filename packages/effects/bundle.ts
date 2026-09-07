@@ -64,6 +64,7 @@ const effectEntrypoints = [
 	'src/skew.ts',
 	'src/speckle.ts',
 	'src/starburst.ts',
+	'src/tear.ts',
 	'src/thermal-vision.ts',
 	'src/tile.ts',
 	'src/tint.ts',

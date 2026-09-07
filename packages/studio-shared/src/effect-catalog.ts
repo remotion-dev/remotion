@@ -521,6 +521,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-tear',
+		category: 'Distort',
+		label: 'tear()',
+		description: 'Split a source along a jagged edge',
+		effect: {
+			name: 'tear',
+			importPath: '@remotion/effects/tear',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-burlap',
 		category: 'Stylize',
 		label: 'burlap()',
