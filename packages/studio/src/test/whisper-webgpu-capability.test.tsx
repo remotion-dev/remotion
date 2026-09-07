@@ -51,11 +51,15 @@ test('opens transcription after installing Whisper without restarting', async ()
 	window.remotion_isStudio = true;
 	window.remotion_isReadOnlyStudio = false;
 	window.remotion_staticBase = '';
-	const fetchSpy = spyOn(globalThis, 'fetch').mockResolvedValue(
-		new Response(JSON.stringify({success: true, data: {}})),
+	let resolveInstall!: (response: Response) => void;
+	const fetchSpy = spyOn(globalThis, 'fetch').mockImplementation(
+		(() =>
+			new Promise<Response>((resolve) => {
+				resolveInstall = resolve;
+			})) as unknown as typeof fetch,
 	);
 	try {
-		const {container, getByRole} = render(
+		const {container, getByRole, getByText} = render(
 			<ModalsProvider>
 				<TranscriptionModalWithOptionalWhisper
 					state={{
@@ -70,6 +74,11 @@ test('opens transcription after installing Whisper without restarting', async ()
 		);
 
 		fireEvent.click(getByRole('button', {name: 'Continue'}));
+		const installing = getByText(`Installing ${WHISPER_WEBGPU_PACKAGE}…`);
+		expect(getComputedStyle(installing).fontFamily).toBe('sans-serif');
+		expect(getComputedStyle(installing).fontSize).toBe('14px');
+		expect(getComputedStyle(installing).lineHeight).toBe('1.5');
+		resolveInstall(new Response(JSON.stringify({success: true, data: {}})));
 		await waitFor(() => {
 			expect(window.remotion_installedPackages).toContain(
 				WHISPER_WEBGPU_PACKAGE,

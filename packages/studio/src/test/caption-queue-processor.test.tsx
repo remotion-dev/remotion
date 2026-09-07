@@ -83,6 +83,14 @@ mock.module('@remotion/whisper-webgpu', () => ({
 			supportsTranslation: false,
 			webGpuDownloadSize: 119_697_479,
 		},
+		{
+			name: 'small.en',
+			modelId: 'onnx-community/whisper-small.en_timestamped',
+			parameters: 244_000_000,
+			multilingual: false,
+			supportsTranslation: false,
+			webGpuDownloadSize: 614_690_756,
+		},
 	],
 	isWhisperModelCached: ({model}: {model: string}) => {
 		cacheCheck = {model};

@@ -47,7 +47,10 @@ const statusStyle: React.CSSProperties = {
 	alignItems: 'center',
 	color: LIGHT_TEXT,
 	display: 'flex',
+	fontFamily: 'sans-serif',
+	fontSize: 14,
 	gap: 10,
+	lineHeight: 1.5,
 };
 
 const errorStyle: React.CSSProperties = {
