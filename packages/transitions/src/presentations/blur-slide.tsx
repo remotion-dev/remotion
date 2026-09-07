@@ -299,11 +299,12 @@ export const blurSlideShader = (
 
 		// At time=0 the shader outputs nextImage. At time=1 the shader outputs prevImage.
 		const effectiveTime = !prevImage ? 0 : !nextImage ? 1 : time;
-		const linearProgress = 1 - effectiveTime;
-		// Ease the slide so that it starts and ends at rest. The blur is
-		// proportional to the speed of the slide, which peaks halfway through.
-		const progress = linearProgress * linearProgress * (3 - 2 * linearProgress);
-		const velocity = 4 * linearProgress * (1 - linearProgress);
+		const p = 1 - effectiveTime;
+		// Ease the slide with a quintic curve so that it starts and ends at rest.
+		// The blur follows the speed of that curve, normalized to peak at 1
+		// halfway through, so the scenes stay sharp longer at both ends.
+		const progress = p * p * p * (p * (p * 6 - 15) + 10);
+		const velocity = (4 * p * (1 - p)) ** 2;
 		// Each pass covers half of the kernel; together they form a triangle
 		// kernel spanning `blur * velocity` of the frame.
 		const passBlurLength = (blur * velocity) / 2;
