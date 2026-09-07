@@ -1955,6 +1955,33 @@ test('Media duration drag limits account for a negative from', () => {
 	).toEqual({initialDuration: 300, maximumDuration: 225});
 });
 
+test('Implicit media cannot be resized once its edge reaches the asset end', () => {
+	const common = {
+		cascadedStart: -34,
+		displayDurationInFrames: 266,
+		displayStart: 0,
+		effectiveMaxMediaDuration: null,
+		explicitDurationInFrames: null,
+		hasImplicitDuration: true,
+		timelineDurationInFrames: 300,
+	};
+
+	expect(
+		getTimelineSequenceMediaDurationDragLimits({
+			...common,
+			// The video holds its last frame until the composition ends.
+			naturalMediaDuration: 220,
+		}),
+	).toBe(null);
+	expect(
+		getTimelineSequenceMediaDurationDragLimits({
+			...common,
+			// The composition ends before the source video does.
+			naturalMediaDuration: 400,
+		}),
+	).toEqual({initialDuration: 300, maximumDuration: 433});
+});
+
 test('Timeline duration drag clamps explicit audio and video to the asset end', () => {
 	for (const type of ['audio', 'video'] as const) {
 		const nodePathInfo = makeNodePathInfo(['body', type], []);

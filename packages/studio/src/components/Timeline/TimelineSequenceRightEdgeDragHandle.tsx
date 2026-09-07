@@ -82,27 +82,31 @@ export const getTimelineSequenceMediaDurationDragLimits = ({
 		return null;
 	}
 
-	return {
-		initialDuration:
-			explicitDurationInFrames ??
-			Math.ceil(
-				displayStart +
-					Math.max(
-						0,
-						Math.min(
-							displayDurationInFrames,
-							timelineDurationInFrames - displayStart,
-							effectiveMaxMediaDuration ?? Infinity,
-						),
-					) -
-					cascadedStart,
-			),
-		maximumDuration:
-			// Keeping duration omitted represents the media's natural end. An
-			// explicit duration is only useful once its edge is before that end.
-			Math.ceil(displayStart + naturalMediaDuration - cascadedStart) -
-			(hasImplicitDuration ? 1 : 0),
-	};
+	const initialDuration =
+		explicitDurationInFrames ??
+		Math.ceil(
+			displayStart +
+				Math.max(
+					0,
+					Math.min(
+						displayDurationInFrames,
+						timelineDurationInFrames - displayStart,
+						effectiveMaxMediaDuration ?? Infinity,
+					),
+				) -
+				cascadedStart,
+		);
+	const maximumDuration =
+		// Keeping duration omitted represents the media's natural end. An
+		// explicit duration is only useful once its edge is before that end.
+		Math.ceil(displayStart + naturalMediaDuration - cascadedStart) -
+		(hasImplicitDuration ? 1 : 0);
+
+	if (hasImplicitDuration && initialDuration > maximumDuration) {
+		return null;
+	}
+
+	return {initialDuration, maximumDuration};
 };
 
 const getTimelineSequenceEdgeSelectionInteraction = ({
