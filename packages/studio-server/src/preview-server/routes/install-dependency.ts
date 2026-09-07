@@ -29,10 +29,14 @@ export const getPackageInstallSpec = (
 	return extraVersion === null ? name : `${name}@${extraVersion}`;
 };
 
-export const handleInstallPackage: ApiHandler<
-	InstallPackageRequest,
-	InstallPackageResponse
-> = async ({logLevel, remotionRoot, input: {dependencies}}) => {
+export const handleInstallPackage = async ({
+	logLevel,
+	remotionRoot,
+	input: {dependencies},
+	invalidateBundle,
+}: Parameters<ApiHandler<InstallPackageRequest, InstallPackageResponse>>[0] & {
+	readonly invalidateBundle: () => Promise<void>;
+}): Promise<InstallPackageResponse> => {
 	for (const dependency of dependencies) {
 		if (!isValidPackageName(dependency.name)) {
 			return Promise.reject(
@@ -110,6 +114,7 @@ export const handleInstallPackage: ApiHandler<
 						),
 			);
 		});
+		await invalidateBundle();
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			RenderInternals.chalk.gray('╰─ '),

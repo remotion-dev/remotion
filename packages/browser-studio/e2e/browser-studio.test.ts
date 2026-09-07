@@ -975,8 +975,10 @@ test('installs packages without a server API and preserves undo, redo, and HMR',
 test('fetches each HTTP module once when the vendor bundle is overridden', async ({
 	page,
 }) => {
+	const requests: string[] = [];
 	const workspacePackageRequests: string[] = [];
 	page.on('request', (request) => {
+		requests.push(request.url());
 		const requestUrl = new URL(request.url());
 		if (
 			requestUrl.pathname.startsWith('/__remotion_browser_studio_workspace__/')
@@ -1009,6 +1011,136 @@ test('fetches each HTTP module once when the vendor bundle is overridden', async
 	expect(workspacePackageRequests).toContain(
 		'/__remotion_browser_studio_workspace__/commits/e2e/packages/studio/dist/esm/previewEntry.mjs',
 	);
+	const transformersUrl = await studio
+		.locator('script[type="importmap"]')
+		.evaluate((element) => {
+			const importMap = JSON.parse(element.textContent ?? '') as {
+				imports: Record<string, string>;
+			};
+			return importMap.imports['@huggingface/transformers'];
+		});
+	expect(requests).not.toContain(transformersUrl);
+	const pipelineType = await studio.locator('body').evaluate(async () => {
+		const loadTransformers = (
+			window as typeof window & {
+				__loadBrowserStudioTransformers: () => Promise<{pipeline: unknown}>;
+			}
+		).__loadBrowserStudioTransformers;
+		const transformers = await loadTransformers();
+		return typeof transformers.pipeline;
+	});
+	expect(pipelineType).toBe('function');
+	expect(
+		requests.filter((request) => request === transformersUrl),
+	).toHaveLength(1);
+});
+
+test('loads the local Transformers bundle on demand from the vendor Blob bundle', async ({
+	page,
+}) => {
+	const requests: string[] = [];
+	const vendorBundleRequests: string[] = [];
+	page.on('request', (request) => {
+		requests.push(request.url());
+		const requestUrl = new URL(request.url());
+		if (requestUrl.searchParams.has('browserStudioVendor')) {
+			vendorBundleRequests.push(request.url());
+		}
+	});
+
+	await page.goto('/?source=transformers-vendor');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	expect(vendorBundleRequests).toHaveLength(1);
+	expect(
+		await studio.locator('script[type="module"]').getAttribute('src'),
+	).toMatch(/^blob:/);
+	const transformersUrls = await studio
+		.locator('script[type="importmap"]')
+		.evaluate((element) => {
+			const importMap = JSON.parse(element.textContent ?? '') as {
+				imports: Record<string, string>;
+			};
+			return {
+				consumer: importMap.imports['@huggingface/transformers'],
+				whisper:
+					importMap.imports['@remotion/whisper-webgpu/private-transformers'],
+			};
+		});
+	expect(transformersUrls.whisper).not.toBe(transformersUrls.consumer);
+	expect(requests).not.toContain(transformersUrls.consumer);
+	expect(requests).not.toContain(transformersUrls.whisper);
+
+	const loaded = await studio
+		.locator('body')
+		.evaluate(async (_body, privateTransformersPackage) => {
+			const loadTransformers = (
+				window as typeof window & {
+					__loadBrowserStudioTransformers: () => Promise<{
+						env: unknown;
+						pipeline: unknown;
+					}>;
+				}
+			).__loadBrowserStudioTransformers;
+			const consumerTransformers = await loadTransformers();
+			const whisperTransformers = (await import(
+				privateTransformersPackage
+			)) as {env: unknown; pipeline: unknown};
+			return {
+				consumerPipelineType: typeof consumerTransformers.pipeline,
+				environmentsAreIsolated:
+					consumerTransformers.env !== whisperTransformers.env,
+				whisperPipelineType: typeof whisperTransformers.pipeline,
+			};
+		}, '@remotion/whisper-webgpu/private-transformers');
+
+	expect(loaded.consumerPipelineType).toBe('function');
+	expect(loaded.whisperPipelineType).toBe('function');
+	expect(loaded.environmentsAreIsolated).toBe(true);
+	expect(
+		requests.filter((request) => request === transformersUrls.consumer),
+	).toHaveLength(1);
+	expect(
+		requests.filter((request) => request === transformersUrls.whisper),
+	).toHaveLength(1);
+});
+
+test('uses a custom Transformers resolution in the fallback bundle', async ({
+	page,
+}) => {
+	const fakeTransformersRequests: string[] = [];
+	const vendorBundleRequests: string[] = [];
+	page.on('request', (request) => {
+		const requestUrl = new URL(request.url());
+		if (requestUrl.pathname === '/fake-transformers.mjs') {
+			fakeTransformersRequests.push(request.url());
+		}
+
+		if (requestUrl.searchParams.has('browserStudioVendor')) {
+			vendorBundleRequests.push(request.url());
+		}
+	});
+
+	await page.goto('/?source=transformers-override');
+	const studio = page.frameLocator('iframe');
+	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	expect(vendorBundleRequests).toEqual([]);
+	expect(fakeTransformersRequests).toEqual([]);
+
+	const marker = await studio.locator('body').evaluate(async () => {
+		const loadTransformers = (
+			window as typeof window & {
+				__loadBrowserStudioTransformers: () => Promise<{
+					browserStudioOverrideMarker: number;
+				}>;
+			}
+		).__loadBrowserStudioTransformers;
+		const transformers = await loadTransformers();
+		return transformers.browserStudioOverrideMarker;
+	});
+
+	expect(marker).toBe(42);
+	expect(fakeTransformersRequests).toHaveLength(1);
 });
 
 test('drops and imports an Element payload with the deployment Remotion version', async ({

@@ -41,6 +41,7 @@ import {AudioWaveform} from '../AudioWaveform';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
+import {isTranscribableSequence} from '../Transcription/is-transcribable-sequence';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -606,6 +607,20 @@ const TimelineSequenceInner: React.FC<{
 		s.type === 'audio' || s.type === 'video' || s.type === 'image'
 			? s.src
 			: null;
+	const transcribableMedia = isTranscribableSequence(s) ? s : null;
+	const onTranscribe = useCallback(() => {
+		if (!previewInteractive || transcribableMedia === null) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'transcribe',
+			src: transcribableMedia.src,
+			displayName: transcribableMedia.displayName,
+			audioStreamIndex: transcribableMedia.audioStreamIndex,
+			requestInit: transcribableMedia.requestInit,
+		});
+	}, [previewInteractive, setSelectedModal, transcribableMedia]);
 	const onDuplicateSequenceFromSource = useCallback(() => {
 		if (!validatedLocation?.source || !nodePathInfo || duplicateDisabled) {
 			return;
@@ -737,6 +752,8 @@ const TimelineSequenceInner: React.FC<{
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
+			onTranscribe:
+				previewInteractive && transcribableMedia !== null ? onTranscribe : null,
 			openInCodingAgent,
 			openInEditor,
 			originalLocation,
@@ -767,6 +784,7 @@ const TimelineSequenceInner: React.FC<{
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		onDuplicateSelectedSequences,
+		onTranscribe,
 		openInCodingAgent,
 		openInEditor,
 		originalLocation,
@@ -782,6 +800,7 @@ const TimelineSequenceInner: React.FC<{
 		sequenceFrameOffset,
 		setPropStatuses,
 		setSelectedModal,
+		transcribableMedia,
 		validatedLocation?.source,
 	]);
 	const {frozenFrame} = s;

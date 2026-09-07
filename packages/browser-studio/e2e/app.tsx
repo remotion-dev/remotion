@@ -15,6 +15,7 @@ const initialElementPayload = StudioProtocolInternals.parseBrowserStudioHash(
 	window as typeof window & {__browserStudioRemotionVersion: string}
 ).__browserStudioRemotionVersion = VERSION;
 const render = async () => {
+	const source = new URLSearchParams(window.location.search).get('source');
 	const project = new URLSearchParams(window.location.search).has('github')
 		? await loadGitHubRepository({
 				repoUrl: 'https://github.com/remotion-dev/opfs-fixture',
@@ -34,6 +35,13 @@ import {RemotionRoot} from './Root';
 
 void fade;
 registerRoot(RemotionRoot);
+${
+	source === 'fallback' ||
+	source === 'transformers-override' ||
+	source === 'transformers-vendor'
+		? `(globalThis as typeof globalThis & {__loadBrowserStudioTransformers: () => Promise<unknown>}).__loadBrowserStudioTransformers = () => import('@huggingface/transformers');`
+		: ''
+}
 `;
 	}
 
@@ -42,14 +50,22 @@ registerRoot(RemotionRoot);
 		throw new Error('Could not find root element');
 	}
 
-	const source = new URLSearchParams(window.location.search).get('source');
-
 	createRoot(root).render(
 		<BrowserStudio
 			dependencyResolver={
 				source === 'fallback'
 					? ({name, version}) => (name === 'react' ? version : null)
-					: undefined
+					: source === 'transformers-override'
+						? ({name}) =>
+								name === '@huggingface/transformers'
+									? {
+											url: new URL(
+												'/fake-transformers.mjs',
+												window.location.href,
+											).href,
+										}
+									: null
+						: undefined
 			}
 			initialElement={
 				initialElementPayload === null

@@ -20,8 +20,14 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"peerDependencies": {
+		"@remotion/whisper-webgpu": "workspace:*",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
+	},
+	"peerDependenciesMeta": {
+		"@remotion/whisper-webgpu": {
+			"optional": true
+		}
 	},
 	"dependencies": {
 		"@tanstack/react-virtual": "3.14.9",
@@ -47,6 +53,7 @@
 	},
 	"devDependencies": {
 		"@happy-dom/global-registrator": "14.5.1",
+		"@remotion/whisper-webgpu": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"@testing-library/react": "16.1.0",

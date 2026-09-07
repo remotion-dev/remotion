@@ -98,6 +98,7 @@ test('installs without running dependency lifecycle scripts', async () => {
 		nub: 'nub.lock',
 	};
 	const temporaryDirectories: string[] = [];
+	let invalidations = 0;
 
 	try {
 		for (const manager of Object.keys(lockfiles) as PackageManager[]) {
@@ -118,6 +119,10 @@ test('installs without running dependency lifecycle scripts', async () => {
 					dependencies: [{name: 'lodash', version: '4.17.21'}],
 				},
 				logLevel: 'error',
+				invalidateBundle: () => {
+					invalidations++;
+					return Promise.resolve();
+				},
 				methods: {
 					addJob: () => undefined,
 					cancelJob: () => undefined,
@@ -143,6 +148,8 @@ test('installs without running dependency lifecycle scripts', async () => {
 			} else {
 				expect(call.args).toContain('--ignore-scripts');
 			}
+
+			expect(invalidations).toBe(temporaryDirectories.length);
 		}
 	} finally {
 		spawnSpy.mockRestore();

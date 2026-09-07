@@ -86,6 +86,11 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 				documentationLink: null,
 				refForOutline: null,
 				muted,
+				audioStreamIndex: 2,
+				requestInit: {
+					credentials: 'include',
+					headers: {'x-remotion-test': 'timeline'},
+				},
 			}),
 		{
 			wrapper,
@@ -94,6 +99,11 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 	);
 	expect(registerSequence).toHaveBeenCalled();
 	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
+		audioStreamIndex: 2,
+		requestInit: {
+			credentials: 'include',
+			headers: {'x-remotion-test': 'timeline'},
+		},
 		mediaFrameAtSequenceZero: null,
 		muted: false,
 	});
@@ -149,6 +159,8 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 				documentationLink: 'https://www.remotion.dev/docs/html5-video',
 				refForOutline: null,
 				muted: false,
+				audioStreamIndex: null,
+				requestInit: null,
 			}),
 		{
 			wrapper,

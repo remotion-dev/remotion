@@ -7,7 +7,9 @@ import {AudioIcon} from '../../icons/audio';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
+import {TranscriptionIcon} from '../../icons/transcription';
 import {TrashIcon} from '../../icons/trash';
+import {SetSelectedModalContext} from '../../state/modals';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {
 	hasSequenceControls,
@@ -28,11 +30,12 @@ import {
 } from '../Timeline/TimelineSelection';
 import {useDeleteTimelineItems} from '../Timeline/use-delete-timeline-items';
 import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
+import {isTranscribableSequence} from '../Transcription/is-transcribable-sequence';
 import {AlignmentControls} from './AlignmentControls';
 import {
-	InspectorQuickActionsSection,
-	InspectorQuickAction,
 	InspectorMessage,
+	InspectorQuickAction,
+	InspectorQuickActionsSection,
 	InspectorSectionHeader,
 } from './common';
 import {
@@ -129,8 +132,12 @@ const SequenceSourceQuickActions: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();
+	const transcribableMedia = isTranscribableSequence(track.sequence)
+		? track.sequence
+		: null;
 	const propStatusesForOverride = useMemo(
 		() =>
 			Internals.getPropStatusesCtx(
@@ -154,6 +161,25 @@ const SequenceSourceQuickActions: React.FC<{
 	});
 	const sourceActionsDisabled =
 		previewServerState.type !== 'connected' || !isStudioInteractivityEnabled();
+	const transcribeDisabledReason =
+		previewServerState.type !== 'connected'
+			? 'Transcription requires a Studio server connection'
+			: !isStudioInteractivityEnabled()
+				? 'Transcription is unavailable in read-only Studio'
+				: undefined;
+	const onTranscribe = useCallback(() => {
+		if (sourceActionsDisabled || transcribableMedia === null) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'transcribe',
+			src: transcribableMedia.src,
+			displayName: transcribableMedia.displayName,
+			audioStreamIndex: transcribableMedia.audioStreamIndex,
+			requestInit: transcribableMedia.requestInit,
+		});
+	}, [setSelectedModal, sourceActionsDisabled, transcribableMedia]);
 	const onDuplicate = useCallback(() => {
 		if (sourceActionsDisabled) {
 			return;
@@ -197,6 +223,18 @@ const SequenceSourceQuickActions: React.FC<{
 
 	return (
 		<>
+			{transcribableMedia ? (
+				<InspectorQuickAction
+					disabled={sourceActionsDisabled}
+					onClick={onTranscribe}
+					title={transcribeDisabledReason}
+					renderIcon={(color) => (
+						<TranscriptionIcon style={actionIconStyle} color={color} />
+					)}
+				>
+					Transcribe
+				</InspectorQuickAction>
+			) : null}
 			{freezeFrameMenuItem?.type === 'item' ? (
 				<InspectorQuickAction
 					disabled={Boolean(freezeFrameMenuItem.disabled)}

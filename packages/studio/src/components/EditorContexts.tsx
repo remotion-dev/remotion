@@ -12,6 +12,7 @@ import {ExpandedTracksProvider} from './ExpandedTracksProvider';
 import {ZodProvider} from './get-zod-if-possible';
 import {MediaVolumeProvider} from './MediaVolumeProvider';
 import {ModalsProvider} from './ModalsProvider';
+import {CaptionQueueProcessorLoader} from './RenderQueue/CaptionQueueProcessorLoader';
 import {ClientRenderQueueProcessor} from './RenderQueue/ClientRenderQueueProcessor';
 import {RenderQueueContextProvider} from './RenderQueue/context';
 import {SetTimelineInOutProvider} from './SetTimelineInOutProvider';
@@ -35,6 +36,7 @@ export const EditorContexts: React.FC<{
 						<VisualControlsUndoSync />
 						<RenderQueueContextProvider>
 							<ClientRenderQueueProcessor />
+							<CaptionQueueProcessorLoader />
 							<KeybindingContextProvider>
 								<CheckerboardProvider>
 									<ZoomGesturesProvider>

@@ -227,6 +227,8 @@ const makeMediaInTimelineData = ({
 		startMediaFrom,
 		src: 'video.mp4',
 		playbackRate,
+		audioStreamIndex: 3,
+		requestInit: {credentials: 'include'},
 	}) as unknown as BasicMediaInTimelineReturnType;
 
 test('Sequence calls registerSequence exactly once on mount', () => {
@@ -1171,6 +1173,8 @@ test('Video media registration accounts for its own negative from', () => {
 
 	expect(videoSequence?.startMediaFrom).toBe(15);
 	expect(videoSequence?.mediaFrameAtSequenceZero).toBe(5);
+	expect(videoSequence?.audioStreamIndex).toBe(3);
+	expect(videoSequence?.requestInit).toEqual({credentials: 'include'});
 });
 
 test('Video media registration keeps trimBefore at sequence frame zero', () => {

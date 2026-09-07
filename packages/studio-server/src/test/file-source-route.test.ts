@@ -77,6 +77,7 @@ test('serves file source from an origin-less GET request', async () => {
 			getCurrentInputProps: () => ({}),
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
+			invalidateBundle: () => Promise.resolve(),
 			getEnvVariables: () => ({}),
 			getRenderDefaults: () => ({}) as RenderDefaults,
 			getRenderQueue: () => [],

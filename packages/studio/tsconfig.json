@@ -41,6 +41,9 @@
 		},
 		{
 			"path": "../web-renderer"
+		},
+		{
+			"path": "../whisper-webgpu"
 		}
 	]
 }

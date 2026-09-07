@@ -8,6 +8,11 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {
+	AddCaptionJobParams,
+	CaptionJob,
+	CaptionJobProgress,
+} from './caption-job-types';
 import {
 	type AddClientStillJobParams,
 	type AddClientVideoJobParams,
@@ -55,6 +60,7 @@ type RenderQueueContextType = {
 	jobs: AnyRenderJob[];
 	serverJobs: RenderJob[];
 	clientJobs: ClientRenderJob[];
+	captionJobs: CaptionJob[];
 	addClientStillJob: (
 		params: AddClientStillJobParams,
 		compositionRef: CompositionRef,
@@ -80,6 +86,17 @@ type RenderQueueContextType = {
 	setProcessJobCallback: (
 		callback: ((job: ClientRenderJob) => Promise<void>) | null,
 	) => void;
+	addCaptionJob: (params: AddCaptionJobParams) => string;
+	updateCaptionJobProgress: (
+		jobId: string,
+		progress: CaptionJobProgress,
+	) => void;
+	markCaptionJobDone: (jobId: string, captionCount: number) => void;
+	markCaptionJobFailed: (jobId: string, error: Error) => void;
+	removeCaptionJob: (jobId: string) => void;
+	setProcessCaptionJobCallback: (
+		callback: ((job: CaptionJob) => Promise<void>) | null,
+	) => void;
 	getAbortController: (jobId: string) => AbortController;
 	getCompositionForJob: (jobId: string) => CompositionRef | undefined;
 };
@@ -91,6 +108,7 @@ export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	jobs: [],
 	serverJobs: [],
 	clientJobs: [],
+	captionJobs: [],
 	addClientStillJob: noopString,
 	addClientVideoJob: noopString,
 	updateClientJobProgress: noop,
@@ -101,6 +119,12 @@ export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	removeClientJob: noop,
 	cancelClientJob: noop,
 	setProcessJobCallback: noop,
+	addCaptionJob: noopString,
+	updateCaptionJobProgress: noop,
+	markCaptionJobDone: noop,
+	markCaptionJobFailed: noop,
+	removeCaptionJob: noop,
+	setProcessCaptionJobCallback: noop,
 	getAbortController: () => new AbortController(),
 	getCompositionForJob: () => undefined,
 });
@@ -119,21 +143,66 @@ export const RenderQueueContextProvider: React.FC<{
 	const [clientJobs, setClientJobs] = useState<ClientRenderJob[]>(
 		restorePersistedClientRenders,
 	);
+	const [captionJobs, setCaptionJobs] = useState<CaptionJob[]>([]);
 	const [currentlyProcessing, setCurrentlyProcessing] = useState<string | null>(
 		null,
+	);
+	const lastLocalJobStartedAt = useRef(
+		clientJobs.reduce((latest, job) => Math.max(latest, job.startedAt), 0),
 	);
 	const processJobCallbackRef = useRef<
 		((job: ClientRenderJob) => Promise<void>) | null
 	>(null);
+	const processCaptionJobCallbackRef = useRef<
+		((job: CaptionJob) => Promise<void>) | null
+	>(null);
+	const [processorCallbacksVersion, setProcessorCallbacksVersion] = useState(0);
 
-	// Process next job when state changes
+	const getLocalJobStartedAt = useCallback(() => {
+		const startedAt = Math.max(Date.now(), lastLocalJobStartedAt.current + 1);
+		lastLocalJobStartedAt.current = startedAt;
+		return startedAt;
+	}, []);
+
+	// Process the next local job when state changes. Server renders have their own
+	// queue and are intentionally independent from browser-local work.
 	useEffect(() => {
 		if (currentlyProcessing) {
 			return;
 		}
 
-		const nextJob = clientJobs.find((job) => job.status === 'idle');
-		if (!nextJob || !processJobCallbackRef.current) {
+		const nextJob = [...clientJobs, ...captionJobs]
+			.filter((job) => job.status === 'idle')
+			.sort((a, b) => a.startedAt - b.startedAt)[0];
+		if (!nextJob) {
+			return;
+		}
+
+		if (nextJob.type === 'caption') {
+			if (!processCaptionJobCallbackRef.current) {
+				return;
+			}
+
+			setCurrentlyProcessing(nextJob.id);
+			setCaptionJobs((prev) =>
+				prev.map((job) =>
+					job.id === nextJob.id
+						? {
+								...job,
+								status: 'running',
+								progress: {
+									message: 'Starting transcription...',
+									value: 0,
+								},
+							}
+						: job,
+				),
+			);
+			processCaptionJobCallbackRef.current(nextJob);
+			return;
+		}
+
+		if (!processJobCallbackRef.current) {
 			return;
 		}
 
@@ -156,7 +225,7 @@ export const RenderQueueContextProvider: React.FC<{
 			),
 		);
 		processJobCallbackRef.current(nextJob);
-	}, [clientJobs, currentlyProcessing]);
+	}, [captionJobs, clientJobs, currentlyProcessing, processorCallbacksVersion]);
 
 	const addClientStillJob = useCallback(
 		(
@@ -169,14 +238,14 @@ export const RenderQueueContextProvider: React.FC<{
 			const newJob: ClientStillRenderJob = {
 				...params,
 				id,
-				startedAt: Date.now(),
+				startedAt: getLocalJobStartedAt(),
 				status: 'idle',
 			};
 
 			setClientJobs((prev) => [...prev, newJob]);
 			return id;
 		},
-		[],
+		[getLocalJobStartedAt],
 	);
 
 	const addClientVideoJob = useCallback(
@@ -190,14 +259,14 @@ export const RenderQueueContextProvider: React.FC<{
 			const newJob: ClientVideoRenderJob = {
 				...params,
 				id,
-				startedAt: Date.now(),
+				startedAt: getLocalJobStartedAt(),
 				status: 'idle',
 			};
 
 			setClientJobs((prev) => [...prev, newJob]);
 			return id;
 		},
-		[],
+		[getLocalJobStartedAt],
 	);
 
 	const updateClientJobProgress = useCallback(
@@ -237,7 +306,7 @@ export const RenderQueueContextProvider: React.FC<{
 					job.id === jobId ? {...job, status: 'done', metadata, getBlob} : job,
 				),
 			);
-			setCurrentlyProcessing(null);
+			setCurrentlyProcessing((current) => (current === jobId ? null : current));
 		},
 		[],
 	);
@@ -258,7 +327,7 @@ export const RenderQueueContextProvider: React.FC<{
 						: job,
 				),
 			);
-			setCurrentlyProcessing(null);
+			setCurrentlyProcessing((current) => (current === jobId ? null : current));
 		},
 		[],
 	);
@@ -277,7 +346,7 @@ export const RenderQueueContextProvider: React.FC<{
 					: job,
 			),
 		);
-		setCurrentlyProcessing(null);
+		setCurrentlyProcessing((current) => (current === jobId ? null : current));
 	}, []);
 
 	const removeClientJob = useCallback((jobId: string): void => {
@@ -300,6 +369,90 @@ export const RenderQueueContextProvider: React.FC<{
 	const setProcessJobCallback = useCallback(
 		(callback: ((job: ClientRenderJob) => Promise<void>) | null): void => {
 			processJobCallbackRef.current = callback;
+			setProcessorCallbacksVersion((version) => version + 1);
+		},
+		[],
+	);
+
+	const addCaptionJob = useCallback(
+		(params: AddCaptionJobParams): string => {
+			const id = `caption-${Date.now()}-${Math.random()
+				.toString(36)
+				.substring(2, 11)}`;
+			const newJob: CaptionJob = {
+				...params,
+				id,
+				type: 'caption',
+				startedAt: getLocalJobStartedAt(),
+				status: 'idle',
+			};
+
+			setCaptionJobs((prev) => [...prev, newJob]);
+			return id;
+		},
+		[getLocalJobStartedAt],
+	);
+
+	const updateCaptionJobProgress = useCallback(
+		(jobId: string, progress: CaptionJobProgress): void => {
+			setCaptionJobs((prev) =>
+				prev.map((job) =>
+					job.id === jobId
+						? ({...job, status: 'running', progress} as CaptionJob)
+						: job,
+				),
+			);
+		},
+		[],
+	);
+
+	const markCaptionJobDone = useCallback(
+		(jobId: string, captionCount: number): void => {
+			setCaptionJobs((prev) =>
+				prev.map((job) =>
+					job.id === jobId
+						? ({...job, status: 'done', captionCount} as CaptionJob)
+						: job,
+				),
+			);
+			setCurrentlyProcessing((current) => (current === jobId ? null : current));
+		},
+		[],
+	);
+
+	const markCaptionJobFailed = useCallback(
+		(jobId: string, error: Error): void => {
+			setCaptionJobs((prev) =>
+				prev.map((job) =>
+					job.id === jobId
+						? ({
+								...job,
+								status: 'failed',
+								error: {message: error.message, stack: error.stack},
+							} as CaptionJob)
+						: job,
+				),
+			);
+			setCurrentlyProcessing((current) => (current === jobId ? null : current));
+		},
+		[],
+	);
+
+	const removeCaptionJob = useCallback((jobId: string): void => {
+		setCaptionJobs((prev) => {
+			const jobToRemove = prev.find((job) => job.id === jobId);
+			if (jobToRemove?.status === 'running') {
+				return prev;
+			}
+
+			return prev.filter((job) => job.id !== jobId);
+		});
+	}, []);
+
+	const setProcessCaptionJobCallback = useCallback(
+		(callback: ((job: CaptionJob) => Promise<void>) | null): void => {
+			processCaptionJobCallbackRef.current = callback;
+			setProcessorCallbacksVersion((version) => version + 1);
 		},
 		[],
 	);
@@ -344,6 +497,7 @@ export const RenderQueueContextProvider: React.FC<{
 			),
 			serverJobs,
 			clientJobs,
+			captionJobs,
 			addClientStillJob,
 			addClientVideoJob,
 			updateClientJobProgress,
@@ -354,12 +508,19 @@ export const RenderQueueContextProvider: React.FC<{
 			removeClientJob,
 			cancelClientJob,
 			setProcessJobCallback,
+			addCaptionJob,
+			updateCaptionJobProgress,
+			markCaptionJobDone,
+			markCaptionJobFailed,
+			removeCaptionJob,
+			setProcessCaptionJobCallback,
 			getAbortController,
 			getCompositionForJob,
 		};
 	}, [
 		serverJobs,
 		clientJobs,
+		captionJobs,
 		addClientStillJob,
 		addClientVideoJob,
 		updateClientJobProgress,
@@ -370,6 +531,12 @@ export const RenderQueueContextProvider: React.FC<{
 		removeClientJob,
 		cancelClientJob,
 		setProcessJobCallback,
+		addCaptionJob,
+		updateCaptionJobProgress,
+		markCaptionJobDone,
+		markCaptionJobFailed,
+		removeCaptionJob,
+		setProcessCaptionJobCallback,
 	]);
 
 	return (

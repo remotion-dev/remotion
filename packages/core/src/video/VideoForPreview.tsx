@@ -181,6 +181,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			: 'https://www.remotion.dev/docs/html5-video',
 		refForOutline: videoRef,
 		muted: muted ?? false,
+		audioStreamIndex: audioStreamIndex ?? 0,
+		requestInit: null,
 	});
 
 	// putting playback before useVolume

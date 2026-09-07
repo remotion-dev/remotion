@@ -116,6 +116,7 @@ export const Combobox: React.FC<{
 	readonly title: string;
 	readonly size?: ComboboxSize;
 	readonly unhoveredIconColor?: string;
+	readonly disabled?: boolean;
 }> = ({
 	values,
 	selectedId,
@@ -123,6 +124,7 @@ export const Combobox: React.FC<{
 	title,
 	size: controlSize = 'default',
 	unhoveredIconColor = LIGHT_TEXT,
+	disabled = false,
 }) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
@@ -294,8 +296,9 @@ export const Combobox: React.FC<{
 				: hovered
 					? WHITE_ALPHA_05
 					: BLACK_ALPHA_60,
+			opacity: disabled ? 0.5 : 1,
 		};
-	}, [controlSize, customStyle, hovered, opened]);
+	}, [controlSize, customStyle, disabled, hovered, opened]);
 
 	const selectedLabelStyle =
 		controlSize === 'small'
@@ -309,6 +312,7 @@ export const Combobox: React.FC<{
 			<button
 				ref={ref}
 				title={title}
+				disabled={disabled}
 				tabIndex={tabIndex}
 				type="button"
 				style={style}

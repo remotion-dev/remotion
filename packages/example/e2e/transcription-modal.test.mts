@@ -1,0 +1,227 @@
+import path from 'path';
+import {expect, test} from '@playwright/test';
+import {EXPANDED_SIDEBAR_STATE, STUDIO_URL, exampleDir} from './constants.mts';
+import {startStudio, stopStudio} from './studio-server.mts';
+
+test.use({storageState: EXPANDED_SIDEBAR_STATE});
+
+test.describe('transcription modal', () => {
+	test.beforeEach(async () => {
+		await startStudio();
+	});
+
+	test.afterEach(async () => {
+		await stopStudio();
+	});
+
+	test('supports Video and Audio and configures a Caption[] JSON output', async ({
+		page,
+	}) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(navigator, 'gpu', {
+				configurable: true,
+				value: {requestAdapter: () => Promise.resolve({})},
+			});
+		});
+		await page.route('https://remotion.media/video.mp4', async (route) => {
+			await route.fulfill({
+				contentType: 'video/webm',
+				path: path.join(exampleDir, 'public', 'vp8-vorbis.webm'),
+			});
+		});
+		await page.goto(`${STUDIO_URL}/NewVideo`);
+		await expect(page).toHaveURL(/NewVideo/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		const video = page.getByText('<Video>', {exact: true}).first();
+		const transcribe = page.getByRole('button', {
+			name: 'Transcribe',
+			exact: true,
+		});
+		await expect(async () => {
+			await video.click();
+			await expect(transcribe).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 30_000});
+
+		await transcribe.click();
+		const dialog = page.getByRole('dialog');
+		const addToQueueButton = dialog.getByRole('button', {
+			name: 'Transcribe',
+			exact: true,
+		});
+		await expect(dialog).toContainText('Transcribe <Video>');
+		await expect(
+			dialog.getByText('Whisper model', {exact: true}),
+		).toBeVisible();
+		const model = dialog.getByTitle('Whisper model');
+		const task = dialog.getByRole('button', {
+			name: 'Task: Transcribe',
+			exact: true,
+		});
+		await expect(model).toContainText('tiny.en');
+		await expect(task).toContainText('Transcribe');
+		await expect(task).toBeDisabled();
+		await expect(
+			dialog.getByText(/Downloaded with transcription if needed/),
+		).toBeVisible();
+		await expect(dialog.getByRole('button', {name: /^Download /})).toHaveCount(
+			0,
+		);
+		await expect(addToQueueButton).toBeEnabled();
+
+		await model.click();
+		await page.getByRole('button', {name: /^tiny ·/}).click();
+		await expect(model).toContainText('tiny ·');
+		await expect(task).toBeEnabled();
+		await task.click();
+		await page
+			.getByRole('button', {name: 'Task: Translate to English', exact: true})
+			.click();
+		await expect(
+			dialog.getByRole('button', {
+				name: 'Task: Translate to English',
+				exact: true,
+			}),
+		).toContainText('Translate to English');
+		await expect(
+			dialog.getByText(
+				'Word timings may be less accurate when translating to English.',
+				{exact: true},
+			),
+		).toBeVisible();
+		await expect(addToQueueButton).toBeEnabled();
+
+		await dialog.getByRole('button', {name: 'Other', exact: true}).click();
+		const chunkLength = dialog.getByRole('button', {
+			name: /^Chunk length:/,
+		});
+		const strideLength = dialog.getByRole('button', {
+			name: /^Stride length:/,
+		});
+		await expect(chunkLength).toHaveText('30s');
+		await expect(strideLength).toHaveText('5s');
+
+		const forceFullSequences = dialog.getByRole('checkbox', {
+			name: 'Force full sequences',
+		});
+		const useSampling = dialog.getByRole('checkbox', {
+			name: 'Use sampling',
+		});
+		const repetitionPenalty = dialog.getByRole('button', {
+			name: /^Repetition penalty:/,
+		});
+		const noRepeatNgramSize = dialog.getByRole('button', {
+			name: /^No-repeat n-gram size:/,
+		});
+		await expect(forceFullSequences).not.toBeChecked();
+		await expect(useSampling).not.toBeChecked();
+		await expect(
+			dialog.getByRole('button', {name: /^Temperature:/}),
+		).toHaveCount(0);
+		await expect(dialog.getByRole('button', {name: /^Top K:/})).toHaveCount(0);
+		await expect(repetitionPenalty).toHaveText('1');
+		await expect(noRepeatNgramSize).toHaveText('0');
+
+		await forceFullSequences.check();
+		await useSampling.check();
+		const temperature = dialog.getByRole('button', {
+			name: /^Temperature:/,
+		});
+		const topK = dialog.getByRole('button', {name: /^Top K:/});
+		await expect(temperature).toHaveText('1');
+		await expect(topK).toHaveText('50');
+
+		await topK.click();
+		const topKInput = dialog.getByRole('textbox', {name: /^Top K:/});
+		await topKInput.fill('1.5');
+		await expect(dialog).toContainText('Top K must be a non-negative integer');
+		await expect(addToQueueButton).toBeDisabled();
+		await topKInput.fill('25');
+		await topKInput.press('Enter');
+		await expect(topK).toHaveText('25');
+		await expect(addToQueueButton).toBeEnabled();
+
+		for (const [setting, inputName, value] of [
+			[temperature, /^Temperature:/, '0.7'],
+			[repetitionPenalty, /^Repetition penalty:/, '1.2'],
+			[noRepeatNgramSize, /^No-repeat n-gram size:/, '3'],
+		] as const) {
+			await setting.click();
+			const input = dialog.getByRole('textbox', {
+				name: inputName,
+			});
+			await input.fill(value);
+			await input.press('Enter');
+			await expect(setting).toHaveText(value);
+		}
+
+		await chunkLength.click();
+		const chunkLengthInput = dialog.getByRole('textbox', {
+			name: /^Chunk length:/,
+		});
+		await chunkLengthInput.fill('10');
+		await chunkLengthInput.press('Enter');
+		await expect(dialog).toContainText(
+			'Stride length must be less than half of chunk length',
+		);
+		await expect(addToQueueButton).toBeDisabled();
+
+		await strideLength.click();
+		const strideLengthInput = dialog.getByRole('textbox', {
+			name: /^Stride length:/,
+		});
+		await strideLengthInput.fill('4');
+		await strideLengthInput.press('Enter');
+		await expect(addToQueueButton).toBeEnabled();
+
+		await dialog.getByRole('button', {name: 'Output', exact: true}).click();
+		await expect(
+			dialog.getByText('Output in public/', {exact: true}),
+		).toBeVisible();
+		await expect(dialog).toContainText('Caption[]');
+
+		const output = dialog.getByRole('textbox', {
+			name: 'Caption output file',
+		});
+		await expect(output).toHaveValue('video-captions.json');
+		await output.fill('captions/new-video.json');
+		await expect(output).toHaveValue('captions/new-video.json');
+
+		await page.keyboard.press('Escape');
+		await expect(dialog).toBeHidden();
+		await page.goto(`${STUDIO_URL}/transcription-audio-e2e`);
+		await expect(page).toHaveURL(/transcription-audio-e2e/, {
+			timeout: 15_000,
+		});
+		const audio = page.getByText('<Audio>', {exact: true}).first();
+		await expect(async () => {
+			await audio.click();
+			await expect(transcribe).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 30_000});
+
+		await page.goto(`${STUDIO_URL}/transcription-legacy-media-e2e`);
+		await expect(page).toHaveURL(/transcription-legacy-media-e2e/, {
+			timeout: 15_000,
+		});
+
+		for (const name of ['vp8-vorbis.webm', '<Legacy Audio>']) {
+			const timelineItem = page.getByText(name, {exact: true}).first();
+			await expect(timelineItem).toBeVisible({timeout: 15_000});
+			await timelineItem.click({button: 'right'});
+			const menu = page.locator('[data-remotion-menu-tree-id]').last();
+			const contextMenuTranscribe = menu.getByRole('button', {
+				name: 'Transcribe',
+				exact: true,
+			});
+			await expect(contextMenuTranscribe).toBeVisible();
+			await contextMenuTranscribe.click();
+			await expect(page.getByRole('dialog')).toContainText(
+				`Transcribe ${name}`,
+			);
+			await page.keyboard.press('Escape');
+		}
+	});
+});

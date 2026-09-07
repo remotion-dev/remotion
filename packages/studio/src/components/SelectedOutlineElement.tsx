@@ -37,6 +37,7 @@ import {
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
+import {isTranscribableSequence} from './Transcription/is-transcribable-sequence';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -224,6 +225,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
 		const canRotate = !sourceEditDisabled;
+		const transcribableMedia = isTranscribableSequence(
+			contextMenuTarget.sequence,
+		)
+			? contextMenuTarget.sequence
+			: null;
 
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
@@ -282,6 +288,20 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					confirm,
 				).catch(() => undefined);
 			},
+			onTranscribe:
+				sourceEditingEnabled &&
+				previewServerState.type === 'connected' &&
+				transcribableMedia !== null
+					? () => {
+							setSelectedModal({
+								type: 'transcribe',
+								src: transcribableMedia.src,
+								displayName: transcribableMedia.displayName,
+								audioStreamIndex: transcribableMedia.audioStreamIndex,
+								requestInit: transcribableMedia.requestInit,
+							});
+						}
+					: null,
 			openInCodingAgent: (codingAgentId, codingAgentName, contextForAgents) => {
 				launchCodingAgent(codingAgentId, contextForAgents)
 					.then((response) => {

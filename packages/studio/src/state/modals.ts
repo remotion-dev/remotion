@@ -140,6 +140,14 @@ export type AddEffectModalState = {
 	clientId: string;
 };
 
+export type TranscriptionModalState = {
+	type: 'transcribe';
+	src: string;
+	displayName: string;
+	audioStreamIndex: number | null;
+	requestInit: Omit<RequestInit, 'signal'> | null;
+};
+
 export type CanvasCaptureImport = {
 	readonly data: CanvasCaptureData;
 	readonly durationInSeconds: number;
@@ -255,6 +263,7 @@ export type ModalState =
 	  }
 	| ElementInstallModalState
 	| AddEffectModalState
+	| TranscriptionModalState
 	| ConfirmationDialogState
 	| SvgImportDialogState;
 

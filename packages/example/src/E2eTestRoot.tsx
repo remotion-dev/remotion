@@ -23,6 +23,10 @@ import {RotationKeyframeE2e} from './RotationKeyframeE2e';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {TimelineVirtualizationTestbed} from './TimelineVirtualizationTestbed';
+import {
+	TranscriptionAudioE2e,
+	TranscriptionLegacyMediaE2e,
+} from './TranscriptionE2e';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
 import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
@@ -259,6 +263,22 @@ export const E2eTestRoot: React.FC = () => {
 			<Composition
 				id="inspector-control-layout-e2e"
 				component={InspectorControlLayoutE2e}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="transcription-audio-e2e"
+				component={TranscriptionAudioE2e}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="transcription-legacy-media-e2e"
+				component={TranscriptionLegacyMediaE2e}
 				width={1080}
 				height={1080}
 				fps={30}

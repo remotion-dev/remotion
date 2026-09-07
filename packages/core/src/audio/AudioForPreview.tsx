@@ -192,6 +192,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		documentationLink: 'https://www.remotion.dev/docs/html5-audio',
 		refForOutline: null,
 		muted: muted ?? false,
+		audioStreamIndex: audioStreamIndex ?? null,
+		requestInit: null,
 	});
 
 	// putting playback before useVolume

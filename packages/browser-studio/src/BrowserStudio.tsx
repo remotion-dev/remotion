@@ -5,6 +5,12 @@ import {
 	createBrowserStudioHmrAssetManager,
 	type BrowserStudioHmrBridge,
 } from './browser-studio-hmr-assets';
+import {
+	BROWSER_STUDIO_TRANSFORMERS_PACKAGE,
+	BROWSER_STUDIO_WHISPER_TRANSFORMERS_PACKAGE,
+	getBrowserStudioTransformersUrl,
+	getBrowserStudioWhisperTransformersUrl,
+} from './browser-studio-import-map';
 import {createBrowserStudioOperations} from './browser-studio-operations';
 import {
 	areBrowserStudioProjectsEqual,
@@ -45,6 +51,13 @@ const localVendorEntry = new URL(
 	'./browser-studio-vendor-entry.mjs',
 	import.meta.url,
 ).href;
+const localTransformersEntry = new URL(
+	'./browser-studio-transformers-entry.mjs',
+	import.meta.url,
+).href;
+const localWhisperTransformersEntry = getBrowserStudioWhisperTransformersUrl(
+	localTransformersEntry,
+);
 const localVendorEntryWithMarker = `${localVendorEntry}?browserStudioVendor`;
 const browserStudioPointerLeaveEvent = 'remotion-browser-studio-pointerleave';
 
@@ -377,6 +390,11 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			...configuredDependencyResolutions,
 			...installedDependencyResolutionsRef.current,
 		};
+		const transformersUrl = getBrowserStudioTransformersUrl({
+			localUrl: localTransformersEntry,
+			resolution:
+				dependencyResolutions[BROWSER_STUDIO_TRANSFORMERS_PACKAGE] ?? null,
+		});
 		const hasVendorOverride = Object.entries(dependencyResolutions).some(
 			([name, resolution]) =>
 				resolution !== null &&
@@ -618,6 +636,11 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				: bundleUrlRef.current;
 
 			const html = studioHtml({
+				importMap: {
+					[BROWSER_STUDIO_TRANSFORMERS_PACKAGE]: transformersUrl,
+					[BROWSER_STUDIO_WHISPER_TRANSFORMERS_PACKAGE]:
+						localWhisperTransformersEntry,
+				},
 				audioLatencyHint: 'playback',
 				experimentalKeepAudioContextAlive: false,
 				bundleScriptUrl,
