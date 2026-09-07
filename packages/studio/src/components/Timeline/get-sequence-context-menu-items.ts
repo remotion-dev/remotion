@@ -96,7 +96,6 @@ export const getSequenceContextMenuItems = ({
 	onDeleteSequenceFromSource,
 	onDisableSequenceInteractivity,
 	onDuplicateSequenceFromSource,
-	onTranscribe,
 	openInCodingAgent,
 	openInEditor,
 	originalLocation,
@@ -117,7 +116,6 @@ export const getSequenceContextMenuItems = ({
 	readonly onDeleteSequenceFromSource: () => void;
 	readonly onDisableSequenceInteractivity: () => void;
 	readonly onDuplicateSequenceFromSource: () => void;
-	readonly onTranscribe: (() => void) | null;
 	readonly openInCodingAgent: (
 		codingAgentId: DefaultCodingAgent,
 		codingAgentName: string,
@@ -253,21 +251,7 @@ export const getSequenceContextMenuItems = ({
 					value: 'show-asset',
 				}
 			: null,
-		onTranscribe
-			? {
-					type: 'item' as const,
-					id: 'transcribe',
-					keyHint: null,
-					label: 'Transcribe',
-					leftItem: null,
-					disabled: false,
-					onClick: onTranscribe,
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'transcribe',
-				}
-			: null,
-		assetLinkInfo || onTranscribe
+		assetLinkInfo
 			? {
 					type: 'divider' as const,
 					id: 'sequence-link-divider',

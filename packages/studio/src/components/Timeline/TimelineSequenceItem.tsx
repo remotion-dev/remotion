@@ -69,7 +69,6 @@ import {
 	cropFieldKeys,
 	rotateFieldKey,
 } from '../selected-outline-types';
-import {isTranscribableSequence} from '../Transcription/is-transcribable-sequence';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -813,23 +812,6 @@ const TimelineSequenceItemInner: React.FC<{
 		sequence.type === 'image'
 			? sequence.src
 			: null;
-	const transcribableMedia = isTranscribableSequence(sequence)
-		? sequence
-		: null;
-	const onTranscribe = useCallback(() => {
-		if (!previewInteractive || transcribableMedia === null) {
-			return;
-		}
-
-		setSelectedModal({
-			type: 'transcribe',
-			src: transcribableMedia.src,
-			displayName: transcribableMedia.displayName,
-			audioStreamIndex: transcribableMedia.audioStreamIndex,
-			requestInit: transcribableMedia.requestInit,
-		});
-	}, [previewInteractive, setSelectedModal, transcribableMedia]);
-
 	const isExpanded =
 		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
 
@@ -1203,8 +1185,6 @@ const TimelineSequenceItemInner: React.FC<{
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
-			onTranscribe:
-				previewInteractive && transcribableMedia !== null ? onTranscribe : null,
 			openInCodingAgent,
 			openInEditor,
 			originalLocation,
@@ -1315,7 +1295,6 @@ const TimelineSequenceItemInner: React.FC<{
 		onDuplicateSelectedSequences,
 		onRenameSequence,
 		onSelect,
-		onTranscribe,
 		openInCodingAgent,
 		openInEditor,
 		originalLocation,
@@ -1331,7 +1310,6 @@ const TimelineSequenceItemInner: React.FC<{
 		sequenceFrameOffset,
 		setSelectedModal,
 		setPropStatuses,
-		transcribableMedia,
 		validatedLocation?.source,
 	]);
 	const canDropEffect =

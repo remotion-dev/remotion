@@ -10,7 +10,6 @@ import {
 	isSequenceVisibleAtTimelinePosition,
 	shouldShowFreezeFrameMenuItem,
 } from '../components/Timeline/use-sequence-freeze-frame-menu-item';
-import {isTranscribableSequence} from '../components/Transcription/is-transcribable-sequence';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
@@ -69,44 +68,6 @@ const renameSequenceItem: ComboboxValue = {
 };
 
 const noop = () => undefined;
-
-test('recognizes current and legacy Audio and Video timeline sequences', () => {
-	for (const [type, componentIdentity, documentationLink] of [
-		[
-			'audio',
-			'dev.remotion.media.Audio',
-			'https://www.remotion.dev/docs/html5-audio',
-		],
-		[
-			'video',
-			'dev.remotion.media.Video',
-			'https://www.remotion.dev/docs/html5-video',
-		],
-	] as const) {
-		expect(
-			isTranscribableSequence({
-				type,
-				controls: {componentIdentity},
-				documentationLink: null,
-			} as unknown as TSequence),
-		).toBe(true);
-		expect(
-			isTranscribableSequence({
-				type,
-				controls: null,
-				documentationLink,
-			} as unknown as TSequence),
-		).toBe(true);
-	}
-
-	expect(
-		isTranscribableSequence({
-			type: 'video',
-			controls: null,
-			documentationLink: 'https://www.remotion.dev/docs/offthreadvideo',
-		} as unknown as TSequence),
-	).toBe(false);
-});
 
 test('copy context menu items write their agent context to the clipboard', () => {
 	const copiedTexts: string[] = [];
@@ -180,7 +141,6 @@ const expectNoExtraDividers = (items: ComboboxValue[]) => {
 
 test('sequence context menu normalizes dividers before source actions', () => {
 	installTestWindow();
-	let transcribed = false;
 
 	const items = getSequenceContextMenuItems({
 		assetLinkInfo: null,
@@ -196,9 +156,6 @@ test('sequence context menu normalizes dividers before source actions', () => {
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
-		onTranscribe: () => {
-			transcribed = true;
-		},
 		openInCodingAgent: noop,
 		openInEditor: noop,
 		originalLocation: null,
@@ -218,15 +175,7 @@ test('sequence context menu normalizes dividers before source actions', () => {
 
 	expect(
 		items.slice(copyContextIndex + 1, renameIndex).map((item) => item.type),
-	).toEqual(['item', 'divider']);
-
-	const transcribe = items.find((item) => item.id === 'transcribe');
-	if (transcribe?.type !== 'item') {
-		throw new Error('Expected Transcribe menu item');
-	}
-
-	transcribe.onClick('transcribe', null);
-	expect(transcribed).toBe(true);
+	).toEqual(['divider']);
 });
 
 test('sequence context menu shares alternate apps without repeating defaults', () => {
@@ -281,7 +230,6 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
-		onTranscribe: null,
 		openInCodingAgent: (codingAgentId, _codingAgentName, prompt) => {
 			openedCodingAgents.push({id: codingAgentId, prompt});
 		},
@@ -385,7 +333,6 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
-		onTranscribe: null,
 		openInCodingAgent: noop,
 		openInEditor: noop,
 		originalLocation: null,
@@ -430,7 +377,6 @@ test('programmatically duplicated sequence menus apply actions to all instances'
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
-		onTranscribe: null,
 		openInCodingAgent: noop,
 		openInEditor: noop,
 		originalLocation: null,
@@ -465,7 +411,6 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
-		onTranscribe: null,
 		openInCodingAgent: noop,
 		openInEditor: noop,
 		originalLocation: null,

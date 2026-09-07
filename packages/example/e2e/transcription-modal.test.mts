@@ -187,27 +187,5 @@ test.describe('transcription modal', () => {
 		await transcribe.click();
 		await expect(dialog).toContainText('Transcribe sine.wav');
 		await page.keyboard.press('Escape');
-
-		await page.goto(`${STUDIO_URL}/transcription-legacy-media-e2e`);
-		await expect(page).toHaveURL(/transcription-legacy-media-e2e/, {
-			timeout: 15_000,
-		});
-
-		for (const name of ['vp8-vorbis.webm', '<Legacy Audio>']) {
-			const timelineItem = page.getByText(name, {exact: true}).first();
-			await expect(timelineItem).toBeVisible({timeout: 15_000});
-			await timelineItem.click({button: 'right'});
-			const menu = page.locator('[data-remotion-menu-tree-id]').last();
-			const contextMenuTranscribe = menu.getByRole('button', {
-				name: 'Transcribe',
-				exact: true,
-			});
-			await expect(contextMenuTranscribe).toBeVisible();
-			await contextMenuTranscribe.click();
-			await expect(page.getByRole('dialog')).toContainText(
-				`Transcribe ${name}`,
-			);
-			await page.keyboard.press('Escape');
-		}
 	});
 });
