@@ -40,6 +40,15 @@ test.describe('transcription modal', () => {
 			await video.click();
 			await expect(transcribe).toBeVisible({timeout: 1_000});
 		}).toPass({timeout: 30_000});
+		const actions = page
+			.getByText('Actions', {exact: true})
+			.locator('xpath=following-sibling::div[1]');
+		await expect(actions.getByRole('button')).toHaveText([
+			/^Show in (Finder|File Explorer|File Manager)$/,
+			'Transcribe',
+			'Convert',
+			'Delete',
+		]);
 
 		await transcribe.click();
 		const dialog = page.getByRole('dialog');

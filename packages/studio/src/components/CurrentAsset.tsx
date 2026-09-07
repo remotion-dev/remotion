@@ -351,6 +351,17 @@ export const AssetInfo: React.FC<{
 			) : null}
 			<InspectorSectionHeader>Actions</InspectorSectionHeader>
 			<InspectorQuickActionsSection>
+				{fileManagerAvailable ? (
+					<InspectorQuickAction
+						disabled={fileManagerDisabled}
+						onClick={onShowInFileManager}
+						renderIcon={(color) => (
+							<ExpandedFolderIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Show in {fileManagerName}
+					</InspectorQuickAction>
+				) : null}
 				{src ? (
 					<InspectorQuickAction
 						disabled={mutationsDisabled}
@@ -385,17 +396,6 @@ export const AssetInfo: React.FC<{
 								strokeWidth="1.5"
 							/>
 						</svg>
-					</InspectorQuickAction>
-				) : null}
-				{fileManagerAvailable ? (
-					<InspectorQuickAction
-						disabled={fileManagerDisabled}
-						onClick={onShowInFileManager}
-						renderIcon={(color) => (
-							<ExpandedFolderIcon color={color} style={quickActionIconStyle} />
-						)}
-					>
-						Show in {fileManagerName}
 					</InspectorQuickAction>
 				) : null}
 				<InspectorQuickAction
