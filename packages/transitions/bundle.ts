@@ -25,6 +25,7 @@ const presentations = [
 	'cross-zoom',
 	'swap',
 	'push-cut',
+	'blur-slide',
 ];
 
 const output = await build({

@@ -1,0 +1,110 @@
+---
+crumb: '@remotion/transitions - Presentations'
+title: 'blurSlide()'
+---
+
+# blurSlide()<AvailableFrom v="4.0.523"/>
+
+A presentation that whips both scenes in one direction with a heavy motion blur, like a fast camera pan.
+
+The exiting scene slides out and wraps around the edges, and the entering scene slides in behind it. The blur is strongest halfway through the transition and both scenes are sharp at the start and the end.
+
+<Demo type="blur-slide" />
+
+:::warning
+This presentation is built with [HTML-in-canvas](/docs/remotion/html-in-canvas) and requires [Google Chrome](https://www.google.com/chrome/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
+:::
+
+## Example
+
+```tsx twoslash title="BlurSlideTransition.tsx"
+import {AbsoluteFill} from 'remotion';
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({children, color}) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 200,
+        color: 'white',
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {blurSlide} from '@remotion/transitions/blur-slide';
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={blurSlide({direction: 'from-left'})}
+        timing={linearTiming({durationInFrames: 20})}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+The slide is eased so that it starts and ends at rest. [`linearTiming()`](/docs/transitions/timings/lineartiming) is a good choice for this presentation.
+
+## API
+
+Accepts an object with the following options:
+
+### `direction?`
+
+One of `from-left`, `from-right`, `from-top`, `from-bottom`. Determines from which side the entering scene slides in.
+
+Defaults to `from-left`.
+
+```tsx twoslash title="TypeScript type"
+import {BlurSlideDirection} from '@remotion/transitions/blur-slide';
+
+const direction: BlurSlideDirection = 'from-left';
+```
+
+### `blur?`
+
+The maximum length of the motion blur, as a fraction of the frame size along the slide direction. `0.5` blurs across half of the frame at the midpoint of the transition. Must be `0` or greater.
+
+Defaults to `0.5`.
+
+## Compatibility
+
+<CompatibilityTable
+  chrome
+  firefox={false}
+  safari={false}
+  nodejs
+  bun
+  serverlessFunctions
+  clientSideRendering
+  serverSideRendering
+  player
+  studio
+/>
+
+For Preview, Chrome with the `chrome://flags/#canvas-draw-element` flag enabled is required.
+
+## See also
+
+- [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/blur-slide.tsx)
+- [`slide()`](/docs/transitions/presentations/slide) — the CSS-based slide without blur
+- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [Presentations](/docs/transitions/presentations)

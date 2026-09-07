@@ -914,6 +914,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/crosswarp',
 						'transitions/presentations/cross-zoom',
 						'transitions/presentations/swap',
+						'transitions/presentations/blur-slide',
 						'transitions/presentations/none',
 						{
 							type: 'doc',
