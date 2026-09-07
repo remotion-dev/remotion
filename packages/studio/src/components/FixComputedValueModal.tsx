@@ -1,12 +1,14 @@
 import React, {useCallback} from 'react';
-import {LIGHT_TEXT, SELECTED_BACKGROUND, WHITE} from '../helpers/colors';
+import {BLACK_ALPHA_30, BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
+import {SkillsIcon} from '../icons/skills';
 import type {ModalState} from '../state/modals';
 import {CodingAgentButton} from './CodingAgentButton';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
+import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
 import {ModalFooterContainer} from './ModalFooter';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
@@ -15,11 +17,18 @@ import {useSettings} from './SettingsContext';
 
 const panelStyle: React.CSSProperties = {
 	borderRadius: 6,
+	display: 'flex',
+	flexDirection: 'column',
+	width: getMaxModalWidth(560),
+	maxHeight: getMaxModalHeight(800),
+	minWidth: 0,
 	overflow: 'hidden',
 };
 
 const container: React.CSSProperties = {
-	padding: '12px 16px 18px',
+	padding: 16,
+	minHeight: 0,
+	overflowY: 'auto',
 };
 
 const text: React.CSSProperties = {
@@ -30,11 +39,12 @@ const text: React.CSSProperties = {
 };
 
 const commandField: React.CSSProperties = {
-	alignItems: 'center',
-	background: SELECTED_BACKGROUND,
+	alignItems: 'flex-start',
+	background: BLACK_ALPHA_30,
 	borderRadius: 6,
 	boxSizing: 'border-box',
 	display: 'flex',
+	gap: 8,
 	marginTop: 10,
 	padding: '8px 8px 8px 10px',
 	width: '100%',
@@ -44,12 +54,24 @@ const code: React.CSSProperties = {
 	color: WHITE,
 	flex: 1,
 	fontFamily: 'monospace',
-	fontSize: 14,
+	fontSize: 13,
 	lineHeight: 1.5,
 	margin: 0,
 	minWidth: 0,
-	overflowX: 'auto',
+	overflowWrap: 'anywhere',
 	whiteSpace: 'pre-wrap',
+};
+
+const copyAction: React.CSSProperties = {
+	flexShrink: 0,
+};
+
+const skillsIcon: React.CSSProperties = {
+	display: 'inline-block',
+	height: 18,
+	width: 18,
+	marginRight: 6,
+	verticalAlign: 'middle',
 };
 
 const copyIcon: React.CSSProperties = {
@@ -61,6 +83,8 @@ const copyIcon: React.CSSProperties = {
 const footer: React.CSSProperties = {
 	display: 'flex',
 	flex: 'none',
+	minWidth: 0,
+	padding: '12px 16px',
 	justifyContent: 'flex-end',
 };
 
@@ -73,7 +97,9 @@ export const FixComputedValueModal: React.FC<{
 	readonly state: FixComputedValueModalState;
 }> = ({state}) => {
 	const {codingAgentInfo} = useSettings();
-	const prompt = `/remotion-interactivity ${state.context} make "${state.prop}" interactive`;
+	const skillName = '/remotion-interactivity';
+	const promptDetails = ` ${state.context} make "${state.prop}" interactive`;
+	const prompt = `${skillName}${promptDetails}`;
 	const installCommand = 'npx remotion skills add';
 	const hasCodingAgent =
 		(codingAgentInfo?.installedCodingAgents.length ?? 0) > 0;
@@ -127,6 +153,7 @@ export const FixComputedValueModal: React.FC<{
 						<div style={commandField}>
 							<pre style={code}>{installCommand}</pre>
 							<InlineAction
+								style={copyAction}
 								variant={null}
 								onClick={onCopyInstallCommand}
 								renderAction={renderInstallCommandCopyAction}
@@ -146,8 +173,22 @@ export const FixComputedValueModal: React.FC<{
 						: 'Then, paste this prompt into your coding agent:'}
 				</div>
 				<div style={commandField}>
-					<pre style={code}>{prompt}</pre>
+					<pre style={code}>
+						<SkillsIcon color={BLUE} style={skillsIcon} aria-hidden />
+						<span
+							style={{
+								color: BLUE,
+								fontFamily: 'inherit',
+								fontSize: 'inherit',
+								lineHeight: 'inherit',
+							}}
+						>
+							{skillName}
+						</span>
+						{promptDetails}
+					</pre>
 					<InlineAction
+						style={copyAction}
 						variant={null}
 						onClick={onCopyPrompt}
 						renderAction={renderPromptCopyAction}
