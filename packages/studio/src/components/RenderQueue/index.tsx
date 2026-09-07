@@ -9,7 +9,7 @@ import {RenderQueueContext} from './context';
 import {RenderQueueItem} from './RenderQueueItem';
 
 const errorExplanation: React.CSSProperties = {
-	fontSize: 14,
+	fontSize: 13,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
