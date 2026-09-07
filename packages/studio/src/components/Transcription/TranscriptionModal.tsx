@@ -620,7 +620,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	src,
 }) => {
 	const [selectedModel, setSelectedModel] =
-		useState<WhisperWebGpuModel>('tiny.en');
+		useState<WhisperWebGpuModel>('small.en');
 	const [selectedLanguage, setSelectedLanguage] =
 		useState<WhisperLanguage>('en');
 	const [selectedTask, setSelectedTask] =

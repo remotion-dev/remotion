@@ -56,7 +56,7 @@ test.describe('transcription modal', () => {
 			name: 'Task: Transcribe',
 			exact: true,
 		});
-		await expect(model).toContainText('tiny.en');
+		await expect(model).toContainText('small.en');
 		await expect(task).toContainText('Transcribe');
 		await expect(task).toBeDisabled();
 		await expect(
