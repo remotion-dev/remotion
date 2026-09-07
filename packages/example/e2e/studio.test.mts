@@ -1871,6 +1871,7 @@ test.describe('visual mode', () => {
 			await playPauseActions.click();
 			await page.getByText('Remap shortcut', {exact: true}).click();
 			await expect(playPauseShortcut).toContainText('Press shortcut');
+			await expect(playPauseShortcut).toBeFocused();
 			await page.keyboard.press('q');
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
@@ -1882,6 +1883,7 @@ test.describe('visual mode', () => {
 			).toBeVisible();
 			await page.getByText('Remap shortcut', {exact: true}).click();
 			await expect(playPauseShortcut).toContainText('Press shortcut');
+			await expect(playPauseShortcut).toBeFocused();
 			await page.keyboard.press('Space');
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
