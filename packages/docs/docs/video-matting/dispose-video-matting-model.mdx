@@ -1,0 +1,36 @@
+---
+image: /generated/articles-docs-video-matting-dispose-video-matting-model.png
+title: disposeVideoMattingModel()
+crumb: '@remotion/video-matting'
+---
+
+# disposeVideoMattingModel()<AvailableFrom v="4.0.523" />
+
+Releases the memory used by initialized video matting models. Persistent browser-cached model files are not deleted.
+
+```ts twoslash title="dispose.ts"
+import {disposeVideoMattingModel} from '@remotion/video-matting';
+
+await disposeVideoMattingModel({model: 'modnet'});
+```
+
+## Options
+
+### model?
+
+Only dispose this model. Default: all loaded video matting models.
+
+If the model is in use, disposal waits until active separations using it have finished.
+
+## Return value
+
+A `Promise<void>` that resolves after the selected models have been disposed.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model)
+- [`isVideoMattingModelCached()`](/docs/video-matting/is-video-matting-model-cached)

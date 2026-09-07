@@ -798,7 +798,6 @@ export const CompositionSelectorItem: React.FC<{
 								)}
 								<Spacing x={1} />
 								<div style={labelStyle}>{item.folderName}</div>
-								<Spacing x={0.5} />
 								<CompositionContextButton
 									getItems={getContextMenuItems}
 									visible
@@ -873,7 +872,6 @@ export const CompositionSelectorItem: React.FC<{
 						/>
 						<Spacing x={1} />
 						<div style={labelStyle}>{item.composition.id}</div>
-						<Spacing x={0.5} />
 						<CompositionContextButton
 							getItems={getContextMenuItems}
 							visible={!isDragging}

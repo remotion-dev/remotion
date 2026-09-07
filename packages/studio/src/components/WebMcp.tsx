@@ -242,6 +242,21 @@ export const WebMcp: FC = () => {
 			) ?? null
 		);
 	}, [canvasContent, compositions]);
+	const currentContent = useMemo(() => {
+		if (canvasContent?.type === 'output-blob') {
+			return {
+				type: canvasContent.type,
+				displayName: canvasContent.displayName,
+				width: canvasContent.width,
+				height: canvasContent.height,
+				sizeInBytes: canvasContent.sizeInBytes,
+			};
+		}
+
+		return canvasContent;
+	}, [canvasContent]);
+	const currentContentRef = useRef(currentContent);
+	currentContentRef.current = currentContent;
 	const currentComposition = currentCompositionDefinition?.id ?? null;
 	const currentCompositionRef = useRef(currentComposition);
 	currentCompositionRef.current = currentComposition;
@@ -424,7 +439,12 @@ export const WebMcp: FC = () => {
 						}
 
 						selectComposition(composition, true);
-						return Promise.resolve({currentComposition: composition.id});
+						return Promise.resolve({
+							currentContent: {
+								type: 'composition',
+								compositionId: composition.id,
+							},
+						});
 					},
 				},
 				{signal: controller.signal},
@@ -444,7 +464,7 @@ export const WebMcp: FC = () => {
 					execute: () => {
 						const compositionId = currentCompositionRef.current;
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							sequences:
 								compositionId === null
 									? []
@@ -505,7 +525,7 @@ export const WebMcp: FC = () => {
 
 						selectItems([selection], {reveal: true});
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							selectedSequence: serializeSequence(timelineTrack),
 						});
 					},
@@ -571,7 +591,7 @@ export const WebMcp: FC = () => {
 						const compositionId = currentCompositionRef.current;
 						if (compositionId === null) {
 							return Promise.resolve({
-								currentComposition: null,
+								currentContent: currentContentRef.current,
 								currentFrame: null,
 								html: null,
 								htmlLength: null,
@@ -581,7 +601,7 @@ export const WebMcp: FC = () => {
 
 						const outerHtml = Internals.portalNode().outerHTML;
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							currentFrame: getCurrentFrame(),
 							html: outerHtml.slice(0, MAX_CANVAS_HTML_LENGTH),
 							htmlLength: outerHtml.length,
@@ -607,7 +627,7 @@ export const WebMcp: FC = () => {
 						const composition = currentCompositionDefinitionRef.current;
 						if (composition === null) {
 							return {
-								currentComposition: null,
+								currentContent: currentContentRef.current,
 								currentFrame: null,
 								outlines: [],
 							};
@@ -719,7 +739,7 @@ export const WebMcp: FC = () => {
 						);
 
 						return {
-							currentComposition: composition.id,
+							currentContent: currentContentRef.current,
 							currentFrame,
 							outlines: outlines.filter(
 								(outline): outline is NonNullable<typeof outline> =>
@@ -746,7 +766,7 @@ export const WebMcp: FC = () => {
 						const compositionId = currentCompositionRef.current;
 						if (compositionId === null) {
 							return Promise.resolve({
-								currentComposition: null,
+								currentContent: currentContentRef.current,
 								currentFrame: null,
 								playing: null,
 								muted: null,
@@ -771,7 +791,7 @@ export const WebMcp: FC = () => {
 						});
 
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							currentFrame: getCurrentFrame(),
 							playing: isPlaying(),
 							muted: playerMutedRef.current,
@@ -792,7 +812,7 @@ export const WebMcp: FC = () => {
 					name: 'get_selection',
 					title: 'Get Studio selection',
 					description:
-						'Read the current frame, composition, and source-code context for the item currently selected in Remotion Studio. The selection matches "Copy context for agents".',
+						'Read the current frame, canvas content (composition, asset, or output), and source-code context for the item currently selected in Remotion Studio. The selection matches "Copy context for agents".',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -803,7 +823,7 @@ export const WebMcp: FC = () => {
 						Promise.resolve({
 							currentFrame: getCurrentFrame(),
 							currentSelection: currentSelectionRef.current,
-							currentComposition: currentCompositionRef.current,
+							currentContent: currentContentRef.current,
 							selectionType:
 								selectedItemsRef.current.length === 1
 									? selectedItemsRef.current[0].type
@@ -830,7 +850,7 @@ export const WebMcp: FC = () => {
 						const guidesAreVisible = editorShowGuidesRef.current;
 
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							guidesVisible: guidesAreVisible,
 							guides:
 								compositionId === null
@@ -879,7 +899,7 @@ export const WebMcp: FC = () => {
 						editorShowGuidesRef.current = visible;
 						setEditorShowGuides(() => visible);
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							guidesVisible: visible,
 						});
 					},
@@ -941,7 +961,7 @@ export const WebMcp: FC = () => {
 						setEditorShowGuides(() => true);
 
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							guide: {
 								id: guide.id,
 								orientation: guide.orientation,
@@ -1009,7 +1029,7 @@ export const WebMcp: FC = () => {
 						}
 
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							guideId,
 							removed: true,
 						});
@@ -1047,7 +1067,7 @@ export const WebMcp: FC = () => {
 
 						play();
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							playing: true,
 						});
 					},
@@ -1078,7 +1098,7 @@ export const WebMcp: FC = () => {
 
 						pause();
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							playing: false,
 						});
 					},
@@ -1106,7 +1126,7 @@ export const WebMcp: FC = () => {
 						setPlayerMuted(true);
 						persistMuteOption(true);
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							muted: true,
 						});
 					},
@@ -1134,7 +1154,7 @@ export const WebMcp: FC = () => {
 						setPlayerMuted(false);
 						persistMuteOption(false);
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							muted: false,
 						});
 					},
@@ -1204,7 +1224,7 @@ export const WebMcp: FC = () => {
 						});
 
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							timelineZoom: timelineZoomToNormalized({
 								zoom: timelineZoom,
 								minZoom,
@@ -1252,7 +1272,7 @@ export const WebMcp: FC = () => {
 						setPlaybackRate(() => playbackRate);
 						persistPlaybackRate(playbackRate);
 						return Promise.resolve({
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 							playbackRate,
 						});
 					},
@@ -1295,7 +1315,7 @@ export const WebMcp: FC = () => {
 						seek(currentFrame);
 						return Promise.resolve({
 							currentFrame,
-							currentComposition: compositionId,
+							currentContent: currentContentRef.current,
 						});
 					},
 				},

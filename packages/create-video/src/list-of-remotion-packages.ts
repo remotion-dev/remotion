@@ -93,6 +93,7 @@ export const listOfRemotionPackages = [
 	'@remotion/example-videos',
 	'@remotion/whisper-web',
 	'@remotion/whisper-webgpu',
+	'@remotion/video-matting',
 	'@remotion/media',
 	'@remotion/remotion-media',
 	'@remotion/web-renderer',

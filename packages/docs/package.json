@@ -97,6 +97,7 @@
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@remotion/vercel": "workspace:*",
+		"@remotion/video-matting": "workspace:*",
 		"@remotion/web-renderer": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@remotion/whisper-web": "workspace:*",

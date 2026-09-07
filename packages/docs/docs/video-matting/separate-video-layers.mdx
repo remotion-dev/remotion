@@ -1,0 +1,218 @@
+---
+image: /generated/articles-docs-video-matting-separate-video-layers.png
+title: separateVideoLayers()
+crumb: '@remotion/video-matting'
+---
+
+# separateVideoLayers()<AvailableFrom v="4.0.523" />
+
+Separates a video into an opaque base WebM and a foreground WebM with alpha.
+
+```ts twoslash title="separate-video.ts"
+import {separateVideoLayers} from '@remotion/video-matting';
+
+const file = new File([], 'input.mp4');
+
+const result = await separateVideoLayers({
+  src: file,
+  model: 'modnet',
+  audio: 'base',
+  onProgress: (progress) => {
+    console.log(progress);
+  },
+});
+
+const baseBlob = await result.base.getBlob();
+const foregroundBlob = await result.foreground.getBlob();
+
+await Promise.all([result.base.dispose(), result.foreground.dispose()]);
+```
+
+Place inserted content between the base and foreground. The base remains opaque and includes the original subject; the foreground repeats the subject with alpha so it appears in front of the inserted content.
+
+## Options
+
+### src
+
+A `string`, `URL`, or `Blob` containing the input video. A `File` may be passed because it extends `Blob`.
+
+### model?
+
+The video matting model to use. Default: `modnet`.
+
+`modnet` is optimized for people. `ben2-base` supports more general foreground subjects, but is experimental and requires substantially more memory and a WebGPU adapter with `shader-f16` support.
+
+Use [`getAvailableModels()`](/docs/video-matting/get-available-models) to inspect the available models.
+
+### audio?
+
+Controls which output receives the input video's primary audio track. Default: `base`.
+
+- `base`: Include audio only in the base.
+- `foreground`: Include audio only in the foreground.
+- `both`: Include audio in both files. Playing both unmuted will duplicate the audio.
+- `none`: Produce two silent files.
+
+If the input has no audio, both outputs are silent.
+
+### outputs?
+
+Configures the destination of each output independently. Default: both layers use `web-fs` when available and fall back to `arraybuffer`.
+
+Each value has the exported `VideoLayerOutputOptions` type.
+
+#### base?
+
+Output options for the opaque base layer. Default: automatic target selection.
+
+#### foreground?
+
+Output options for the foreground layer with alpha. Default: automatic target selection.
+
+#### base.outputTarget?
+
+Set to `arraybuffer` to hold the base in memory, or `web-fs` to store it in the browser's origin-private file system. Default: automatically use `web-fs` when available and otherwise use `arraybuffer`.
+
+With `web-fs`, encoding is streamed to storage. Calling `base.getBlob()` materializes an independent Blob in memory so it remains usable after `base.dispose()`. For outputs that should never be materialized in memory, use `base.outputWritable`.
+
+Cannot be combined with `base.outputWritable`.
+
+#### base.outputWritable?
+
+A `WritableStream<StreamTargetChunk>` receiving the encoded base. [`StreamTargetChunk`](https://mediabunny.dev/api/StreamTargetChunk) is a Mediabunny primitive. Writes may target arbitrary byte positions through `chunk.position`; they are not guaranteed to be append-only. The stream is closed after the output is finalized.
+
+When `outputs.base.outputWritable` is set, `base.getBlob()` rejects because the encoded bytes were sent to the stream. Cannot be combined with `outputs.base.outputTarget`. Default: no custom stream.
+
+#### foreground.outputTarget?
+
+Set to `arraybuffer` to hold the foreground in memory, or `web-fs` to store it in the browser's origin-private file system. Default: automatically use `web-fs` when available and otherwise use `arraybuffer`.
+
+With `web-fs`, encoding is streamed to storage. Calling `foreground.getBlob()` materializes an independent Blob in memory so it remains usable after `foreground.dispose()`. For outputs that should never be materialized in memory, use `foreground.outputWritable`.
+
+Cannot be combined with `foreground.outputWritable`.
+
+#### foreground.outputWritable?
+
+A `WritableStream<StreamTargetChunk>` receiving the encoded foreground. [`StreamTargetChunk`](https://mediabunny.dev/api/StreamTargetChunk) is a Mediabunny primitive. Writes may target arbitrary byte positions through `chunk.position`; they are not guaranteed to be append-only. The stream is closed after the output is finalized.
+
+When `outputs.foreground.outputWritable` is set, `foreground.getBlob()` rejects because the encoded bytes were sent to the stream. Cannot be combined with `outputs.foreground.outputTarget`. Default: no custom stream.
+
+### videoBitrate?
+
+The VP9 bitrate for both video layers, either a positive integer in bits per second or `very-low`, `low`, `medium`, `high`, or `very-high`. Default: `very-high`.
+
+Higher bitrates preserve fine alpha edges more accurately and produce larger files.
+
+### audioBitrate?
+
+The Opus bitrate, either a positive integer in bits per second or `very-low`, `low`, `medium`, `high`, or `very-high`.
+
+When omitted, compatible Opus audio is copied without re-encoding. Audio that cannot be copied is encoded at `medium` quality. Setting this option forces Opus encoding at the selected bitrate or quality.
+
+This option has no effect when `audio` is `none` or the input has no audio.
+
+### keyframeIntervalInSeconds?
+
+Maximum interval between keyframes in both outputs. Must be a positive finite number. Default: `1`.
+
+### signal?
+
+An `AbortSignal` used to cancel processing. Default: no cancellation signal.
+
+Aborting rejects the promise and cancels both outputs. Model inference may finish the current frame before cancellation completes.
+
+### onModelLoadProgress?
+
+Called while model files are resolved and downloaded. Default: no callback.
+
+To load the model separately, use [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model).
+
+### onProgress?
+
+Called while the video is processed and the outputs are finalized. Default: no callback.
+
+During processing, the callback receives:
+
+#### stage
+
+`processing` while frames are being separated, followed by `finalizing` while the WebM files are finalized.
+
+#### progress
+
+A number between `0` and `1` during processing, and `null` while finalizing.
+
+#### processedFrames
+
+The number of video frames processed so far.
+
+#### processedDurationInSeconds
+
+The input media time processed so far, in seconds.
+
+#### durationInSeconds
+
+The total video duration in seconds.
+
+## Return value
+
+Returns a promise resolving to an object with these properties:
+
+Both `base` and `foreground` have the exported `VideoLayerOutput` type.
+
+### base
+
+The opaque base output.
+
+#### base.getBlob()
+
+Returns a promise resolving to a `Blob`, unless `outputs.base.outputWritable` was used.
+
+#### base.dispose()
+
+Releases temporary storage owned by the base output. Call it after `base.getBlob()` has resolved. The method is idempotent and has no effect for `arraybuffer` or custom writable outputs.
+
+### foreground
+
+The foreground output with alpha.
+
+#### foreground.getBlob()
+
+Returns a promise resolving to a `Blob`, unless `outputs.foreground.outputWritable` was used.
+
+#### foreground.dispose()
+
+Releases temporary storage owned by the foreground output. Call it after `foreground.getBlob()` has resolved. The method is idempotent and has no effect for `arraybuffer` or custom writable outputs.
+
+### model
+
+The model used for separation.
+
+### width
+
+The output width in pixels.
+
+### height
+
+The output height in pixels.
+
+### durationInSeconds
+
+The duration of the processed video in seconds.
+
+### processedFrames
+
+The number of video frames processed.
+
+## Output format
+
+Both layers are WebM files encoded with VP9. The foreground preserves alpha. Audio is encoded as Opus when included.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`getAvailableModels()`](/docs/video-matting/get-available-models)
+- [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model)
+- [`canUseVideoMatting()`](/docs/video-matting/can-use-video-matting)

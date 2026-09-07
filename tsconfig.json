@@ -283,6 +283,9 @@
 			"path": "./packages/whisper-webgpu"
 		},
 		{
+			"path": "./packages/video-matting"
+		},
+		{
 			"path": "./packages/maptiler"
 		},
 		{

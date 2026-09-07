@@ -1,0 +1,36 @@
+---
+image: /generated/articles-docs-video-matting-is-video-matting-model-cached.png
+title: isVideoMattingModelCached()
+crumb: '@remotion/video-matting'
+---
+
+# isVideoMattingModelCached()<AvailableFrom v="4.0.523" />
+
+Checks whether all files hosted on `remotion.media` for a video matting model are present in the browser cache. The check does not download or initialize the model.
+
+```ts twoslash title="model-cache.ts"
+import {isVideoMattingModelCached} from '@remotion/video-matting';
+
+const downloaded = await isVideoMattingModelCached({
+  model: 'modnet',
+});
+```
+
+## Options
+
+### model
+
+One of the names returned by [`getAvailableModels()`](/docs/video-matting/get-available-models).
+
+## Return value
+
+A `Promise<boolean>` resolving to `true` if every required model file is cached.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`getAvailableModels()`](/docs/video-matting/get-available-models)
+- [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model)

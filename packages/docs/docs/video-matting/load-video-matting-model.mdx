@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-video-matting-load-video-matting-model.png
+title: loadVideoMattingModel()
+crumb: '@remotion/video-matting'
+---
+
+# loadVideoMattingModel()<AvailableFrom v="4.0.523" />
+
+Downloads a video matting model from an immutable path on `remotion.media` and initializes it. Calling it before [`separateVideoLayers()`](/docs/video-matting/separate-video-layers) lets you show model-loading progress.
+
+```ts twoslash title="load-model.ts"
+import {loadVideoMattingModel} from '@remotion/video-matting';
+
+const result = await loadVideoMattingModel({
+  model: 'modnet',
+  onProgress: ({progress}) => {
+    console.log(progress);
+  },
+});
+
+console.log(result.alreadyLoaded);
+```
+
+## Options
+
+### model
+
+One of the names returned by [`getAvailableModels()`](/docs/video-matting/get-available-models).
+
+### onProgress?
+
+Called while model files are resolved and downloaded. Default: no callback.
+
+The callback receives these properties:
+
+#### status
+
+The current model-loading status.
+
+#### file
+
+The model file associated with the update, or `null` for aggregate progress.
+
+#### progress
+
+Download progress between `0` and `1`, or `null` when it cannot be calculated.
+
+#### loadedBytes
+
+The number of bytes downloaded, or `null` when it is unknown.
+
+#### totalBytes
+
+The total number of bytes, or `null` when it is unknown.
+
+## Return value
+
+Returns an object with this property:
+
+### alreadyLoaded
+
+Whether the same model was already initialized in memory.
+
+The browser manages the persistent [Transformers.js](https://huggingface.co/docs/transformers.js) cache. This function also retains the initialized model in memory until [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model) is called or the page closes.
+
+The hosted files are byte-identical to files from the pinned upstream Hugging Face revision.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model)
+- [`isVideoMattingModelCached()`](/docs/video-matting/is-video-matting-model-cached)
+- [`separateVideoLayers()`](/docs/video-matting/separate-video-layers)

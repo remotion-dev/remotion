@@ -139,7 +139,7 @@ Opens a registered composition by name.
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
 }
 ```
 
@@ -153,7 +153,7 @@ Returns the timeline sequences mounted for the current composition, including th
 
 ```ts title="Output"
 {
-  currentComposition: string | null;
+  currentContent: CurrentContent | null;
   sequences: Array<{
     sequenceId: string;
     name: string | null;
@@ -181,7 +181,7 @@ Selects and reveals a sequence using a `sequenceId` returned by `get_sequences`.
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   selectedSequence: {
     sequenceId: string;
     name: string | null;
@@ -227,7 +227,7 @@ Returns the rendered composition HTML at the current frame without the surroundi
 
 ```ts title="Output"
 {
-  currentComposition: string | null;
+  currentContent: CurrentContent | null;
   currentFrame: number | null;
   html: string | null;
   htmlLength: number | null;
@@ -245,7 +245,7 @@ Returns the measurable selectable component outlines active at the current frame
 
 ```ts title="Output"
 {
-  currentComposition: string | null;
+  currentContent: CurrentContent | null;
   currentFrame: number | null;
   outlines: Array<{
     sequenceId: string;
@@ -283,7 +283,7 @@ Returns the current playhead, playback, audio, looping and timeline zoom state. 
 
 ```ts title="Output"
 {
-  currentComposition: string | null;
+  currentContent: CurrentContent | null;
   currentFrame: number | null;
   playing: boolean | null;
   muted: boolean | null;
@@ -305,7 +305,7 @@ Returns source-code context when exactly one supported timeline item is selected
 ```ts title="Output"
 {
   currentFrame: number;
-  currentComposition: string | null;
+  currentContent: CurrentContent | null;
   currentSelection: string | null;
   selectionType:
     | 'guide'
@@ -342,7 +342,7 @@ Returns guides for the current composition. Vertical positions are x-coordinates
 
 ```ts title="Output"
 {
-  currentComposition: string | null;
+  currentContent: CurrentContent | null;
   guidesVisible: boolean;
   guides: Array<{
     id: string;
@@ -365,7 +365,7 @@ Shows or hides every guide in the current composition.
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   guidesVisible: boolean;
 }
 ```
@@ -383,7 +383,7 @@ Adds and shows a guide in the current composition. Positions use composition pix
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   guide: {
     id: string;
     orientation: 'horizontal' | 'vertical';
@@ -405,7 +405,7 @@ Removes a guide using an ID returned by `get_guides` or `add_guide`.
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   guideId: string;
   removed: true;
 }
@@ -421,7 +421,7 @@ Starts playback from the current frame. Still compositions cannot be played.
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   playing: true;
 }
 ```
@@ -436,7 +436,7 @@ Pauses playback at the current frame.
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   playing: false;
 }
 ```
@@ -451,7 +451,7 @@ Mutes audio playback.
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   muted: true;
 }
 ```
@@ -466,7 +466,7 @@ Unmutes audio playback.
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   muted: false;
 }
 ```
@@ -485,7 +485,7 @@ Sets the timeline zoom using a normalized value between `0` (fully zoomed out) a
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   timelineZoom: number;
 }
 ```
@@ -513,7 +513,7 @@ Sets the playback multiplier. Negative values play backwards.
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   playbackRate: number;
 }
 ```
@@ -532,7 +532,7 @@ Seeks to a zero-based frame. Values beyond the duration are clamped to the final
 
 ```ts title="Output"
 {
-  currentComposition: string;
+  currentContent: {type: 'composition'; compositionId: string};
   currentFrame: number;
 }
 ```
