@@ -674,6 +674,75 @@ test.describe('visual mode', () => {
 		}
 	});
 
+	test('reveals selected timeline effects and props in the inspector', async ({
+		page,
+	}) => {
+		fs.writeFileSync(
+			effectKeyframeE2eFile,
+			fs
+				.readFileSync(effectKeyframeE2eFile, 'utf-8')
+				.replace(
+					'wave({})',
+					'wave({phase: interpolate(frame, [0, 30], [0, 90])})',
+				),
+		);
+		await page.setViewportSize({width: 1280, height: 720});
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		const addEffectButton = page.getByTitle('Add effect', {exact: true});
+		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
+		await expect(async () => {
+			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await expect(addEffectButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		const inspector = page
+			.locator('.__remotion-vertical-scrollbar')
+			.filter({has: addEffectButton});
+		const inspectorWave = inspector.getByText('wave()', {exact: true});
+		await inspectorWave.click();
+		const timelineWave = page
+			.getByText('wave()', {exact: true})
+			.filter({visible: true})
+			.last();
+		await expect(page.getByText('wave()', {exact: true})).toHaveCount(2);
+		await page.getByTitle('Scale precision', {exact: true}).first().click();
+		await inspector.evaluate((element) => {
+			element.scrollTop = 0;
+		});
+		await timelineWave.click();
+		await expect(inspectorWave).toBeInViewport();
+		await expect
+			.poll(() => inspector.evaluate((element) => element.scrollTop))
+			.toBeGreaterThan(0);
+
+		await inspector
+			.getByRole('button', {name: 'Collapse wave() section', exact: true})
+			.click();
+		await page
+			.getByRole('button', {name: 'Expand wave() section', exact: true})
+			.last()
+			.click();
+		await page
+			.locator('.css-reset.__remotion-vertical-scrollbar')
+			.evaluate((element) => {
+				element.scrollTop += 200;
+			});
+		const timelinePhase = page.getByText('Phase', {exact: true});
+		await expect(timelinePhase).toHaveCount(1);
+		await inspector.evaluate((element) => {
+			element.scrollTop = 0;
+		});
+		await timelinePhase.click();
+		await expect(inspector.getByText('Phase', {exact: true})).toBeInViewport();
+		await expect(
+			inspector.getByRole('button', {
+				name: 'Collapse wave() section',
+				exact: true,
+			}),
+		).toBeVisible();
+	});
+
 	test('should keep Effects expanded and preserve the inspector scroll position when adding an effect', async ({
 		page,
 	}) => {
