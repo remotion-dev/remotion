@@ -72,19 +72,19 @@ test('labels the renders tab as Jobs while a caption job is running', () => {
 		...baseJob,
 		status: 'running',
 		progress: {
-			message: 'Downloading tiny.en… · 50% · 57.1 MB / 114.2 MB',
+			message: 'Downloading tiny.en 50%',
 			value: 0.165,
 		},
 	});
 
 	expect(screen.getByText('Jobs')).toBeTruthy();
-	expect(screen.getByText(/Downloading tiny\.en… · 50%/)).toBeTruthy();
+	expect(screen.getByText('Downloading tiny.en 50%')).toBeTruthy();
 	const progress = screen.getByRole('progressbar', {
 		name: 'Caption job progress',
 	});
 	expect(progress.getAttribute('aria-valuenow')).toBe('17');
-	expect(progress.getAttribute('aria-valuetext')).toContain(
-		'Downloading tiny.en… · 50%',
+	expect(progress.getAttribute('aria-valuetext')).toBe(
+		'Downloading tiny.en 50%',
 	);
 });
 

@@ -1,4 +1,3 @@
-import {formatBytes} from '@remotion/studio-shared';
 import {
 	canUseWhisperWebGpu,
 	clearStaleModels,
@@ -47,20 +46,10 @@ export const CaptionQueueProcessor: React.FC = () => {
 					onProgress: (progress) => {
 						const percentage =
 							progress.progress === null
-								? null
-								: `${Math.round(progress.progress * 100)}%`;
-						const bytes =
-							progress.loadedBytes === null || progress.totalBytes === null
-								? null
-								: `${formatBytes(progress.loadedBytes)} / ${formatBytes(progress.totalBytes)}`;
+								? ''
+								: ` ${Math.round(progress.progress * 100)}%`;
 						updateCaptionJobProgress(job.id, {
-							message: [
-								`${modelIsCached ? 'Loading' : 'Downloading'} ${job.model}…`,
-								percentage,
-								bytes,
-							]
-								.filter(Boolean)
-								.join(' · '),
+							message: `${modelIsCached ? 'Loading' : 'Downloading'} ${job.model}${percentage}`,
 							value: 0.03 + (progress.progress ?? 0) * 0.27,
 						});
 					},

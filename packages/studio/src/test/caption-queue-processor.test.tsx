@@ -268,8 +268,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 				throw new Error('Caption job is not running');
 			}
 
-			expect(job.progress.message).toContain('Downloading tiny…');
-			expect(job.progress.message).toContain('50%');
+			expect(job.progress.message).toBe('Downloading tiny 50%');
 			expect(job.progress.value).toBeCloseTo(0.165);
 		});
 		expect(resamplingCalls).toEqual([]);
