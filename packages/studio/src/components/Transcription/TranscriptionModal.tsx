@@ -12,15 +12,20 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {getFileManagerName} from '../../helpers/get-file-manager-name';
 import {Checkmark} from '../../icons/Checkmark';
 import {CubeIcon} from '../../icons/cube';
+import {ExpandedFolderIconSolid} from '../../icons/folder';
 import {TranscriptionIcon} from '../../icons/transcription';
 import type {TranscriptionModalState} from '../../state/modals';
 import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {Checkbox} from '../Checkbox';
+import type {RenderInlineAction} from '../InlineAction';
+import {InlineAction} from '../InlineAction';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
@@ -29,6 +34,7 @@ import {Combobox} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {optionsSidebarTabs} from '../options-sidebar-tabs';
 import {persistSelectedOptionsSidebarPanel} from '../OptionsPanel';
 import {InfoBubble} from '../RenderModal/InfoBubble';
@@ -47,6 +53,7 @@ import {
 	outerModalStyle,
 } from '../RenderModal/render-modals';
 import {RenderModalHr} from '../RenderModal/RenderModalHr';
+import {openInFileExplorer} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
 import {VerticalTab} from '../Tabs/vertical';
 import {useStaticFiles} from '../use-static-files';
@@ -154,6 +161,23 @@ const modelAction: React.CSSProperties = {
 const modelSize: React.CSSProperties = {
 	...modelDescription,
 	fontVariantNumeric: 'tabular-nums',
+};
+
+const existsMessageStyle: React.CSSProperties = {
+	display: 'inline-flex',
+	alignItems: 'center',
+	minWidth: 0,
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '18px',
+	color: WHITE,
+	whiteSpace: 'nowrap',
+};
+
+const openIconStyle: React.CSSProperties = {
+	width: 12,
+	height: 12,
+	flexShrink: 0,
 };
 
 const TranscriptionSettingLabel: React.FC<{
@@ -363,6 +387,28 @@ const OutputSettings: React.FC<{
 	readonly outName: string;
 	readonly validationMessage: string | null;
 }> = ({exists, onOutNameChange, outName, validationMessage}) => {
+	const openExistingOutput = useCallback(() => {
+		if (!window.remotion_publicFolderExists) {
+			showNotification('Could not find the public folder', 2000);
+			return;
+		}
+
+		openInFileExplorer({
+			directory: `${window.remotion_publicFolderExists}/${outName}`,
+		}).catch((err) => {
+			showNotification(`Could not open file: ${err.message}`, 2000);
+		});
+	}, [outName]);
+
+	const renderOpenIcon: RenderInlineAction = useCallback((color) => {
+		return <ExpandedFolderIconSolid style={openIconStyle} color={color} />;
+	}, []);
+
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+
 	return (
 		<div style={outputRow}>
 			<TranscriptionSettingLabel inputId={null} name="Output in public/">
@@ -392,7 +438,21 @@ const OutputSettings: React.FC<{
 							<Spacing y={1} block />
 							<ValidationMessage
 								align="flex-end"
-								message={validationMessage ?? 'Exists, will be overwritten'}
+								message={
+									validationMessage ?? (
+										<span style={existsMessageStyle}>
+											{isBrowserStudio ? null : (
+												<InlineAction
+													onClick={openExistingOutput}
+													renderAction={renderOpenIcon}
+													title={`Open in ${fileManagerName}`}
+													variant={null}
+												/>
+											)}
+											Exists, will be overwritten
+										</span>
+									)
+								}
 								type={validationMessage ? 'error' : 'warning'}
 							/>
 						</div>

@@ -224,6 +224,7 @@ test('serializes transcription modal settings into caption jobs', async () => {
 			target: {value: 'captions/interview.json'},
 		});
 		screen.getByText('Exists, will be overwritten');
+		screen.getByTitle(/^Open in (Finder|File Explorer|File Manager)$/);
 
 		const forceFullSequences = screen.getByRole('checkbox', {
 			name: 'Force full sequences',
