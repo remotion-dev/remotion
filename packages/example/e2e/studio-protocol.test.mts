@@ -371,6 +371,7 @@ const CloseupPlaceholder = () => {
 		await newDestination.press('ArrowLeft');
 		await expect(currentDestination).toBeChecked();
 		await expect(dialog.getByText(senderUrl, {exact: true})).toBeVisible();
+		await expect(dialog.getByLabel('Installation name')).toBeHidden();
 		await expect(
 			decoyStudioPage.getByText('Install Protocol Element', {exact: true}),
 		).toHaveCount(0);
@@ -405,6 +406,17 @@ const CloseupPlaceholder = () => {
 			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s*\/>\s*<\/Sequence>/,
 		);
 
+		const suppliedSource = fs.readFileSync(elementFile, 'utf8');
+		const customizedSource = `${suppliedSource}\n// My customizations\n`;
+		fs.writeFileSync(elementFile, customizedSource);
+		const existingCopies = [
+			'protocol-element-copy',
+			'protocol-element-copy-2',
+		].map((name) => path.join(temporaryProject, 'src', `${name}.element.tsx`));
+		for (const file of existingCopies) {
+			fs.writeFileSync(file, customizedSource);
+		}
+
 		await studioPage.bringToFront();
 		await studioPage.mouse.click(500, 300);
 		const senderPage = await context.newPage();
@@ -414,6 +426,119 @@ const CloseupPlaceholder = () => {
 		const newCompositionDialog = studioPage.getByRole('dialog', {
 			name: 'Install Protocol Element',
 		});
+		await expect(newCompositionDialog).toBeVisible();
+		await expect(
+			newCompositionDialog.getByRole('radio', {name: 'Create a copy'}),
+		).toBeChecked();
+		await expect(newCompositionDialog.getByPlaceholder('New name')).toHaveValue(
+			'protocol-element-copy-3',
+		);
+		await newCompositionDialog.screenshot({
+			path: test.info().outputPath('install-copy-desktop.png'),
+		});
+		const desktopViewport = studioPage.viewportSize();
+		await studioPage.setViewportSize({width: 390, height: 844});
+		await expect(
+			newCompositionDialog.getByPlaceholder('New name'),
+		).toBeVisible();
+		expect(
+			await newCompositionDialog.evaluate(
+				(node) => node.scrollWidth <= node.clientWidth,
+			),
+		).toBe(true);
+		await newCompositionDialog.screenshot({
+			path: test.info().outputPath('install-copy-mobile.png'),
+		});
+		if (desktopViewport) await studioPage.setViewportSize(desktopViewport);
+		await expect(
+			newCompositionDialog.getByRole('button', {name: /^Install/}),
+		).toBeEnabled();
+		await newCompositionDialog
+			.getByLabel('Installation name')
+			.fill('protocol-element-copy');
+		await expect(
+			newCompositionDialog.getByText('Name already taken.'),
+		).toBeVisible();
+		await expect(
+			newCompositionDialog.getByLabel('Installation name'),
+		).toHaveValue('protocol-element-copy');
+		await expect(
+			newCompositionDialog.getByRole('button', {name: /^Install/}),
+		).toBeDisabled();
+		await newCompositionDialog
+			.getByLabel('Installation name')
+			.fill('speaker-name');
+		await expect(
+			newCompositionDialog.getByRole('button', {name: /^Install/}),
+		).toBeEnabled();
+		await newCompositionDialog
+			.getByRole('radio', {name: 'Replace existing'})
+			.check();
+		await expect(
+			newCompositionDialog.getByLabel('Installation name'),
+		).toBeHidden();
+		await expect(
+			newCompositionDialog.getByRole('button', {name: /Replace and insert/}),
+		).toBeEnabled();
+		await newCompositionDialog
+			.getByRole('radio', {name: 'Create a copy', exact: true})
+			.check();
+		await expect(
+			newCompositionDialog.getByLabel('Installation name'),
+		).toHaveValue('speaker-name');
+		await newCompositionDialog.getByRole('button', {name: /^Install/}).click();
+		await expect(newCompositionDialog).toBeHidden();
+		const independentFile = path.join(
+			temporaryProject,
+			'src',
+			'speaker-name.element.tsx',
+		);
+		await waitForFile(independentFile);
+		expect(fs.readFileSync(independentFile, 'utf8')).toBe(suppliedSource);
+		expect(fs.readFileSync(elementFile, 'utf8')).toBe(customizedSource);
+		for (const file of existingCopies) {
+			expect(fs.readFileSync(file, 'utf8')).toBe(customizedSource);
+		}
+		expect(
+			fs.readFileSync(
+				path.join(temporaryProject, 'src', 'Composition.tsx'),
+				'utf8',
+			),
+		).toContain('ProtocolElement as ProtocolElement2');
+
+		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
+		await expect(newCompositionDialog).toBeVisible();
+		await newCompositionDialog
+			.getByRole('radio', {name: 'Replace existing'})
+			.check();
+		await expect(
+			newCompositionDialog.getByText(
+				'Overwrites customizations for all usages.',
+			),
+		).toBeVisible();
+		await expect(
+			newCompositionDialog.getByLabel('Installation name'),
+		).toBeHidden();
+		const changedSinceConfirmation = `${customizedSource}// Another edit\n`;
+		fs.writeFileSync(elementFile, changedSinceConfirmation);
+		await newCompositionDialog
+			.getByRole('button', {name: /Replace and insert/})
+			.click();
+		await expect(
+			newCompositionDialog.getByRole('radio', {name: 'Create a copy'}),
+		).toBeChecked();
+		expect(fs.readFileSync(elementFile, 'utf8')).toBe(changedSinceConfirmation);
+		await newCompositionDialog
+			.getByRole('radio', {name: 'Replace existing'})
+			.check();
+		await newCompositionDialog
+			.getByRole('button', {name: /Replace and insert/})
+			.click();
+		await expect(newCompositionDialog).toBeHidden();
+		expect(fs.readFileSync(elementFile, 'utf8')).toBe(suppliedSource);
+		expect(fs.readFileSync(independentFile, 'utf8')).toBe(suppliedSource);
+
+		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
 		await expect(newCompositionDialog).toBeVisible();
 		await newCompositionDialog
 			.getByRole('radio', {name: 'New composition'})

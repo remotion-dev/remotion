@@ -231,6 +231,7 @@ export const LicenseSettings: React.FC = () => {
 				<div aria-label="License type" role="radiogroup">
 					<RadioButton
 						checked={licenseType === 'free'}
+						disabled={false}
 						onClick={toggleFreeLicense}
 					>
 						I am eligible for the Free License
@@ -240,6 +241,7 @@ export const LicenseSettings: React.FC = () => {
 					) : null}
 					<RadioButton
 						checked={licenseType === 'company'}
+						disabled={false}
 						onClick={toggleCompanyLicense}
 					>
 						I need a Company License

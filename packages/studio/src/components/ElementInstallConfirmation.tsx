@@ -45,11 +45,13 @@ import {
 	NewCompositionFields,
 	type NewCompositionFormValues,
 } from './NewComposition/NewComposition';
+import {RemotionInput} from './NewComposition/RemInput';
 import {
 	ValidationMessage,
 	WarningTriangle,
 } from './NewComposition/ValidationMessage';
 import {showNotification} from './Notifications/NotificationCenter';
+import {RadioButton} from './RadioButton';
 import {
 	hasResolvedStack,
 	useResolvedStack,
@@ -356,6 +358,13 @@ export const ElementLibraryAddConfirmation: React.FC<{
 	);
 };
 
+type PreparedElementInstallation = {
+	basePlan: ElementInstallPlan;
+	name: string;
+	refresh: number;
+	plan: ElementInstallPlan & {filePath: string};
+};
+
 type NewCompositionPlanState =
 	| {
 			readonly type: 'loading';
@@ -493,6 +502,7 @@ export const ElementInstallConfirmation: React.FC<{
 			type: 'loading',
 		});
 		prepareElementInstall({
+			installationName: null,
 			destination: {
 				type: 'new-composition',
 				compositionFile: folderCompositionFile,
@@ -559,30 +569,145 @@ export const ElementInstallConfirmation: React.FC<{
 			: null;
 	const selectedPlan =
 		mode === 'current-composition' ? currentPlan : selectedNewCompositionPlan;
+	const elementBaseName = request.element.slug.split('/').at(-1) ?? '';
+	const [installationName, setInstallationName] = useState(elementBaseName);
+	const [nameEdited, setNameEdited] = useState(false);
+	const [refreshPlan, setRefreshPlan] = useState(0);
+	const [preparedInstallation, setPreparedInstallation] =
+		useState<PreparedElementInstallation | null>(null);
+	const [existingInstallation, setExistingInstallation] =
+		useState<PreparedElementInstallation | null>(null);
+	const existingDestination =
+		existingInstallation?.basePlan === selectedPlan &&
+		existingInstallation?.refresh === refreshPlan
+			? existingInstallation
+			: null;
+	const [planError, setPlanError] = useState<string | null>(null);
+	const [overwritePlan, setOverwritePlan] = useState<ElementInstallPlan | null>(
+		null,
+	);
+	const overwriteExisting =
+		existingDestination !== null && overwritePlan === existingDestination.plan;
+	const activePlan = overwriteExisting
+		? existingDestination.plan
+		: preparedInstallation?.basePlan === selectedPlan &&
+			  preparedInstallation?.name === installationName &&
+			  preparedInstallation?.refresh === refreshPlan
+			? preparedInstallation.plan
+			: null;
+	const [createdComposition, setCreatedComposition] = useState<string | null>(
+		null,
+	);
+	const creationKey = JSON.stringify(newCompositionValues);
+	const compositionAlreadyCreated = createdComposition === creationKey;
+
+	useEffect(() => {
+		setInstallationName(elementBaseName);
+		setNameEdited(false);
+	}, [elementBaseName, selectedPlan]);
+
+	useEffect(() => {
+		setOverwritePlan(null);
+		setPlanError(null);
+		if (selectedPlan === null) {
+			return;
+		}
+
+		let canceled = false;
+		prepareElementInstall({
+			installationName,
+			destination:
+				mode === 'current-composition'
+					? {
+							type: 'current-composition',
+							compositionFile: request.compositionFile,
+							compositionId: request.compositionId,
+						}
+					: {
+							type: 'new-composition',
+							compositionFile: selectedPlan.compositionFile,
+						},
+			element: request.element,
+		})
+			.then((result) => {
+				if (canceled) return;
+				if (result.success) {
+					const prepared = {
+						basePlan: selectedPlan,
+						name: installationName,
+						refresh: refreshPlan,
+						plan: result.plan,
+					};
+					setPreparedInstallation(prepared);
+					if (result.plan.expectedFileState.exists) {
+						setExistingInstallation((previous) =>
+							previous?.basePlan === selectedPlan &&
+							previous.refresh === refreshPlan
+								? previous
+								: prepared,
+						);
+						if (!nameEdited) {
+							let nextName = `${elementBaseName}-copy`;
+							if (installationName !== elementBaseName) {
+								const nextNumber =
+									installationName === nextName
+										? 2
+										: Number(installationName.slice(nextName.length + 1)) + 1;
+								nextName += `-${nextNumber}`;
+							}
+
+							setInstallationName(nextName);
+						}
+					}
+				} else {
+					setPlanError(result.reason);
+				}
+			})
+			.catch((error) => {
+				if (!canceled)
+					setPlanError(error instanceof Error ? error.message : String(error));
+			});
+		return () => {
+			canceled = true;
+		};
+	}, [
+		elementBaseName,
+		nameEdited,
+		installationName,
+		mode,
+		refreshPlan,
+		request,
+		selectedPlan,
+	]);
+
+	const installationNameError =
+		installationName.length > 0
+			? (planError ??
+				(nameEdited && activePlan?.expectedFileState.exists
+					? 'Name already taken.'
+					: null))
+			: null;
 	const folderTargetIsReady =
 		selectedFolderStack === null ||
 		(hasResolvedStack(selectedFolderStack) && folderCompositionFile !== null);
 	const title = `Install ${request.element.displayName}${request.element.displayName.endsWith(' Element') ? '' : ' Element'}`;
 	const canSubmit =
 		!submitting &&
+		activePlan !== null &&
+		(!activePlan.expectedFileState.exists || overwriteExisting) &&
 		(mode === 'current-composition'
 			? currentPlan !== null
-			: newCompositionValuesAreValid &&
+			: (newCompositionValuesAreValid || compositionAlreadyCreated) &&
 				folderTargetIsReady &&
 				selectedNewCompositionPlan !== null);
 
 	const submit = useCallback(async () => {
-		if (!canSubmit) {
+		if (!canSubmit || activePlan === null) {
 			return;
 		}
 
 		setSubmitting(true);
-		if (mode === 'new-composition') {
-			if (selectedNewCompositionPlan === null) {
-				setSubmitting(false);
-				return;
-			}
-
+		if (mode === 'new-composition' && !compositionAlreadyCreated) {
 			const created = await createComposition({
 				signal: new AbortController().signal,
 				symbolicatedStack:
@@ -597,45 +722,52 @@ export const ElementInstallConfirmation: React.FC<{
 				return;
 			}
 
-			await insertElement({
-				compositionFile: selectedNewCompositionPlan.compositionFile,
-				compositionId: newCompositionValues.id,
-				element: request.element,
-				expectedFileState: selectedNewCompositionPlan.expectedFileState,
-				from: null,
-				overwriteExisting: selectedNewCompositionPlan.expectedFileState.exists,
-				position: null,
-			});
-			onClose();
-			return;
+			setCreatedComposition(creationKey);
 		}
 
-		if (currentPlan === null) {
-			setSubmitting(false);
-			return;
-		}
-
-		await insertElement({
-			compositionFile: request.compositionFile,
-			compositionId: request.compositionId,
+		const installed = await insertElement({
+			installationName: overwriteExisting
+				? (existingDestination?.name ?? installationName)
+				: installationName,
+			compositionFile:
+				mode === 'new-composition'
+					? activePlan.compositionFile
+					: request.compositionFile,
+			compositionId:
+				mode === 'new-composition'
+					? newCompositionValues.id
+					: request.compositionId,
 			element: request.element,
-			expectedFileState: currentPlan.expectedFileState,
-			from: request.from,
-			overwriteExisting: currentPlan.expectedFileState.exists,
-			position: request.position,
+			expectedFileState: activePlan.expectedFileState,
+			from: mode === 'new-composition' ? null : request.from,
+			overwriteExisting,
+			position: mode === 'new-composition' ? null : request.position,
 		});
-		onClose();
+		if (installed) onClose();
+		else {
+			if (overwriteExisting && existingDestination !== null) {
+				setInstallationName(existingDestination.name);
+				setNameEdited(false);
+			}
+
+			setSubmitting(false);
+			setRefreshPlan((value) => value + 1);
+		}
 	}, [
+		activePlan,
+		existingDestination,
+		compositionAlreadyCreated,
+		creationKey,
+		installationName,
+		overwriteExisting,
 		canSubmit,
 		createComposition,
-		currentPlan,
 		folderSymbolicatedStack,
 		mode,
 		newCompositionValues.id,
 		onClose,
 		request,
 		selectedFolderStack,
-		selectedNewCompositionPlan,
 	]);
 
 	const cancel = useCallback(() => {
@@ -769,7 +901,9 @@ export const ElementInstallConfirmation: React.FC<{
 							<NewCompositionFields
 								heightValidationMessage={heightValidationMessage}
 								inputRef={inputRef}
-								nameValidationMessage={nameValidationMessage}
+								nameValidationMessage={
+									compositionAlreadyCreated ? null : nameValidationMessage
+								}
 								setValues={setNewCompositionValues}
 								values={newCompositionValues}
 								widthValidationMessage={widthValidationMessage}
@@ -784,11 +918,86 @@ export const ElementInstallConfirmation: React.FC<{
 						</section>
 					) : null}
 
-					{selectedPlan?.expectedFileState.exists ? (
-						<p style={overwriteStyle} role="status">
-							This will replace the existing Element source file.
-						</p>
-					) : null}
+					<section style={sectionStyle} aria-label="Element implementation">
+						{existingDestination ? (
+							<div
+								role="radiogroup"
+								aria-label="Existing Element file"
+								style={sectionStyle}
+							>
+								<RadioButton
+									checked={!overwriteExisting}
+									disabled={submitting}
+									onClick={() => setOverwritePlan(null)}
+								>
+									Create a copy
+								</RadioButton>
+								{!overwriteExisting ? (
+									<div
+										style={{
+											...sectionStyle,
+											paddingLeft: 28,
+											maxWidth: 320,
+											minWidth: 0,
+										}}
+									>
+										<RemotionInput
+											rightAlign={false}
+											status={installationNameError ? 'error' : 'ok'}
+											id="element-install-name"
+											name="installationName"
+											aria-label="Installation name"
+											placeholder="New name"
+											value={installationName}
+											disabled={submitting}
+											onChange={(event) => {
+												setNameEdited(true);
+												setInstallationName(event.target.value);
+											}}
+										/>
+										{installationNameError ? (
+											<ValidationMessage
+												align="flex-start"
+												message={installationNameError}
+												type="error"
+											/>
+										) : null}
+									</div>
+								) : null}
+								<div style={sectionStyle}>
+									<RadioButton
+										checked={overwriteExisting}
+										disabled={submitting}
+										onClick={() => setOverwritePlan(existingDestination.plan)}
+									>
+										Replace existing
+									</RadioButton>
+									<p
+										style={{
+											...warningDescriptionStyle,
+											paddingLeft: 28,
+											overflowWrap: 'anywhere',
+										}}
+									>
+										{existingDestination.plan.filePath}
+									</p>
+									{overwriteExisting ? (
+										<p style={{...overwriteStyle, paddingLeft: 28}}>
+											Overwrites customizations for all usages.
+										</p>
+									) : null}
+								</div>
+							</div>
+						) : activePlan ? (
+							<p style={metadataDescriptionStyle}>{activePlan.filePath}</p>
+						) : planError ? (
+							<ValidationMessage
+								align="flex-start"
+								message={planError}
+								type="error"
+							/>
+						) : null}
+					</section>
 
 					{missingPackages.length > 0 ? (
 						<section
@@ -840,7 +1049,11 @@ export const ElementInstallConfirmation: React.FC<{
 							disabled={!canSubmit}
 							onClick={submit}
 						>
-							{submitting ? 'Installing…' : 'Install'}
+							{submitting
+								? 'Installing…'
+								: overwriteExisting
+									? 'Replace and insert'
+									: 'Install'}
 							<ShortcutHint keyToPress="↵" cmdOrCtrl={false} />
 						</ModalButton>
 					</Row>

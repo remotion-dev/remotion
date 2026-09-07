@@ -1327,6 +1327,7 @@ export const insertComposition = async ({
 };
 
 export const insertElement = async ({
+	installationName,
 	compositionFile,
 	compositionId,
 	element,
@@ -1335,6 +1336,7 @@ export const insertElement = async ({
 	from,
 	overwriteExisting,
 }: {
+	installationName: string | null;
 	compositionFile: string;
 	compositionId: string;
 	element: InstallableElement;
@@ -1349,6 +1351,7 @@ export const insertElement = async ({
 		}
 
 		const response = await installElement({
+			installationName,
 			compositionFile,
 			compositionId,
 			element,
@@ -1364,7 +1367,7 @@ export const insertElement = async ({
 					? response.reason
 					: `Element file changed: ${response.conflict.filePath}`;
 			showNotification(`Could not add Element: ${reason}`, 4000);
-			return;
+			return false;
 		}
 
 		requestInsertedElementSelection({
@@ -1372,6 +1375,7 @@ export const insertElement = async ({
 			nodePath: null,
 			notification: `Installed ${element.displayName}`,
 		});
+		return true;
 	} catch (error) {
 		showNotification(
 			`Could not add Element: ${
@@ -1379,5 +1383,6 @@ export const insertElement = async ({
 			}`,
 			4000,
 		);
+		return false;
 	}
 };

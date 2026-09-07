@@ -187,9 +187,6 @@ const makeSequencePropsSubscriptionKey = ({
 		effectKeys,
 	});
 
-const normalizeElementSource = (source: string) =>
-	source.replace(/\r\n/g, '\n').trim();
-
 const getElementSourceHash = async (source: string) => {
 	const hash = await crypto.subtle.digest(
 		'SHA-256',
@@ -320,6 +317,7 @@ export const ${componentName}: React.FC = () => {
 const getElementInstallPlanForProject = async ({
 	destination,
 	element,
+	installationName,
 	project,
 }: Parameters<BrowserStudioOperations['prepareElementInstall']>[0] & {
 	project: VirtualProject;
@@ -329,9 +327,19 @@ const getElementInstallPlanForProject = async ({
 			element.sourceCode,
 		);
 	const elementFileName = StudioProtocolInternals.makeElementFileNameFromSlug(
-		element.slug,
+		installationName ?? element.slug,
 	);
-	if (componentName === null || elementFileName === null) {
+	if (
+		elementFileName === null ||
+		(typeof installationName === 'string' &&
+			elementFileName !== `${installationName}.element.tsx`)
+	) {
+		throw new Error(
+			'Use a lowercase installation name with letters, numbers and hyphens, without a file extension.',
+		);
+	}
+
+	if (componentName === null) {
 		throw new Error('Invalid Element source');
 	}
 
@@ -2008,6 +2016,7 @@ export const createBrowserStudioOperations = ({
 			try {
 				const project = getProject();
 				const plan = await getElementInstallPlanForProject({
+					installationName: request.installationName,
 					destination: {
 						type: 'current-composition',
 						compositionFile: request.compositionFile,
@@ -2038,15 +2047,7 @@ export const createBrowserStudioOperations = ({
 					throw new Error('Element source changed during installation');
 				}
 
-				const sourcesDiffer =
-					plan.existingSource !== null &&
-					normalizeElementSource(plan.existingSource) !==
-						normalizeElementSource(request.element.sourceCode);
-				if (
-					sourcesDiffer &&
-					!request.overwriteExisting &&
-					plan.existingSource !== null
-				) {
+				if (!request.overwriteExisting && plan.existingSource !== null) {
 					return {
 						success: false,
 						type: 'file-conflict',
@@ -2115,6 +2116,12 @@ export const createBrowserStudioOperations = ({
 					dependencies: installedDependencies,
 					project: projectWithElement,
 				});
+				if (getProject() !== project) {
+					throw new Error(
+						'Project changed during Element installation. Please try again.',
+					);
+				}
+
 				const nodePathMutation = controller.applyMutation({
 					fileName: insertion.filePath,
 					mutate: () => nextProject,

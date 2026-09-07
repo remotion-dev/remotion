@@ -1021,6 +1021,7 @@ export const Canvas: React.FC<{
 			try {
 				const [newPreflight, currentPreflight] = await Promise.all([
 					prepareElementInstall({
+						installationName: null,
 						destination: {
 							type: 'new-composition',
 							compositionFile: null,
@@ -1028,6 +1029,7 @@ export const Canvas: React.FC<{
 						element: activeElementInstallRequest.element,
 					}),
 					prepareElementInstall({
+						installationName: null,
 						destination: {
 							type: 'current-composition',
 							compositionFile: activeElementInstallRequest.compositionFile,
