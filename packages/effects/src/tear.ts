@@ -287,6 +287,7 @@ void main() {
 	float halfGap = uProgress * uGap * 0.5 / max(uResolution.x, 1.0);
 	float angle = uProgress * uRotation * PI / 180.0;
 	vec2 pivot = vec2(uCenter, front);
+	float outputTearPosition = tearPosition(outputPosition.y);
 
 	vec2 leftPosition = inverseRotate(
 		outputPosition + vec2(halfGap, 0.0),
@@ -298,22 +299,48 @@ void main() {
 		pivot,
 		angle
 	);
-	float outputTearPosition = tearPosition(outputPosition.y);
-	float visibleHalfGap = outputTravel <= uProgress ? halfGap : 0.0;
+	bool hasTorn = outputTravel <= uProgress;
+	float visibleHalfGap = hasTorn ? halfGap : 0.0;
 	bool showLeft = outputPosition.x <= outputTearPosition - visibleHalfGap;
 	bool showRight = outputPosition.x > outputTearPosition + visibleHalfGap;
+	float rotationOffset = abs(
+		sin(angle) * (outputPosition.y - front)
+	);
+	// Keep the two rigid samples from creating a visible tail while this row
+	// is still connected. The original source is only feathered near the join.
+	float connectionWidth = max(
+		(halfGap + rotationOffset) * 1.5,
+		2.0 / max(uResolution.x, 1.0)
+	);
+	float repairStrength = hasTorn
+		? 0.0
+		: 1.0 - smoothstep(
+			0.0,
+			connectionWidth,
+			abs(outputPosition.x - outputTearPosition)
+		);
 
 	if (showLeft && insideTexture(leftPosition)) {
-		fragColor = sampleSource(leftPosition);
+		fragColor = mix(
+			sampleSource(leftPosition),
+			sampleSource(outputPosition),
+			repairStrength
+		);
 		return;
 	}
 
 	if (showRight && insideTexture(rightPosition)) {
-		fragColor = sampleSource(rightPosition);
+		fragColor = mix(
+			sampleSource(rightPosition),
+			sampleSource(outputPosition),
+			repairStrength
+		);
 		return;
 	}
 
-	fragColor = vec4(0.0);
+	fragColor = outputTravel > uProgress
+		? sampleSource(outputPosition)
+		: vec4(0.0);
 }
 `;
 

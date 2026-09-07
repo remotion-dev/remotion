@@ -859,6 +859,51 @@ test('tear() preserves the source at zero progress and creates a transparent gap
 	expect(bottomUpContext.getImageData(14, 14, 1, 1).data[3]).toBe(0);
 });
 
+test('tear() keeps the not-yet-torn seam visually connected', async () => {
+	const width = 64;
+	const height = 32;
+	const source = document.createElement('canvas');
+	source.width = width;
+	source.height = height;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.fillStyle = 'rgb(255, 0, 0)';
+	sourceContext.fillRect(0, 0, width, height);
+	sourceContext.fillStyle = 'rgb(0, 255, 0)';
+	sourceContext.fillRect(width / 2 - 1, 0, 2, height);
+
+	for (const [direction, y] of [
+		['top-to-bottom', height - 4],
+		['bottom-to-top', 3],
+	] as const) {
+		const canvas = await renderEffectChainToCanvas({
+			source,
+			width,
+			height,
+			effects: descriptorsToMemoizedEffects([
+				tear({
+					progress: 0.5,
+					gap: 16,
+					jaggedness: 0,
+					rotation: 6,
+					direction,
+				}),
+			]),
+		});
+		const context = canvas.getContext('2d');
+		if (!context) {
+			throw new Error('Could not get output context');
+		}
+
+		const pixel = context.getImageData(width / 2, y, 1, 1).data;
+		expect(pixel[1]).toBeGreaterThan(200);
+		expect(pixel[3]).toBe(255);
+	}
+});
+
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {
 	const canvas = await renderEffectChainToCanvas({
 		width: 32,
