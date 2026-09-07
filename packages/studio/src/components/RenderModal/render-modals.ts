@@ -53,6 +53,14 @@ export const horizontalTab: React.CSSProperties = {
 	borderRadius: 4,
 };
 
+export const compactHorizontalTab: React.CSSProperties = {
+	...horizontalTab,
+	width: 42,
+	justifyContent: 'center',
+	paddingLeft: 6,
+	paddingRight: 6,
+};
+
 export const iconContainer: React.CSSProperties = {
 	width: 18,
 	height: 18,
@@ -61,6 +69,23 @@ export const iconContainer: React.CSSProperties = {
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
+};
+
+export const compactIconContainer: React.CSSProperties = {
+	...iconContainer,
+	marginRight: 0,
+};
+
+export const visuallyHiddenTabLabel: React.CSSProperties = {
+	position: 'absolute',
+	width: 1,
+	height: 1,
+	padding: 0,
+	margin: -1,
+	overflow: 'hidden',
+	clip: 'rect(0, 0, 0, 0)',
+	whiteSpace: 'nowrap',
+	border: 0,
 };
 
 export const icon: React.CSSProperties = {

@@ -18,6 +18,7 @@ import {
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {AudioIcon} from '../../icons/audio';
 import {CertificateIcon} from '../../icons/certificate';
 import {FileIcon} from '../../icons/file';
@@ -41,6 +42,8 @@ import {DataEditor} from './DataEditor';
 import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {
 	buttonStyle,
+	compactHorizontalTab,
+	compactIconContainer,
 	container as containerStyle,
 	flexer,
 	horizontalLayout,
@@ -50,6 +53,7 @@ import {
 	leftSidebar,
 	optionsPanel,
 	outerModalStyle,
+	visuallyHiddenTabLabel,
 } from './render-modals';
 import {
 	ResolveCompositionBeforeModal,
@@ -186,6 +190,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialPageResponsiveness,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
+	const hideTabLabels = useBreakpoint(600);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const {addClientStillJob, addClientVideoJob} = useContext(RenderQueueContext);
@@ -649,72 +654,86 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
 					<VerticalTab
-						style={horizontalTab}
+						style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 						selected={tab === 'general'}
 						onClick={() => setTab('general')}
 						renderIcon={(color) => (
-							<div style={iconContainer}>
+							<div style={hideTabLabels ? compactIconContainer : iconContainer}>
 								<FileIcon color={color} style={icon} />
 							</div>
 						)}
 					>
-						General
+						<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+							General
+						</span>
 					</VerticalTab>
 					<VerticalTab
-						style={horizontalTab}
+						style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 						selected={tab === 'data'}
 						onClick={() => setTab('data')}
 						renderIcon={(color) => (
-							<div style={iconContainer}>
+							<div style={hideTabLabels ? compactIconContainer : iconContainer}>
 								<InputPropsIcon color={color} style={icon} />
 							</div>
 						)}
 					>
-						Input Props
+						<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+							Input Props
+						</span>
 					</VerticalTab>
 					{renderMode !== 'audio' ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<PicIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							Picture
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								Picture
+							</span>
 						</VerticalTab>
 					) : null}
 					{renderMode === 'video' || renderMode === 'audio' ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<AudioIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							Audio
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								Audio
+							</span>
 						</VerticalTab>
 					) : null}
 					<VerticalTab
-						style={horizontalTab}
+						style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 						selected={tab === 'advanced'}
 						onClick={() => setTab('advanced')}
 						renderIcon={(color) => (
-							<div style={iconContainer}>
+							<div style={hideTabLabels ? compactIconContainer : iconContainer}>
 								<GearIcon color={color} style={icon} />
 							</div>
 						)}
 					>
-						Other
+						<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+							Other
+						</span>
 					</VerticalTab>
 					{isBrowserStudio ? null : (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={false}
 							onClick={() =>
 								setSelectedModal({
@@ -724,12 +743,16 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 								})
 							}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<CertificateIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							License
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								License
+							</span>
 						</VerticalTab>
 					)}
 				</div>

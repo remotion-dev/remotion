@@ -37,6 +37,7 @@ import {
 import {copyText} from '../../helpers/copy-text';
 import {makeReadOnlyStudioRenderCommand} from '../../helpers/make-render-command';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
+import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {AudioIcon} from '../../icons/audio';
 import {Checkmark} from '../../icons/Checkmark';
@@ -72,6 +73,8 @@ import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {validateOutnameGui} from './out-name-checker';
 import {
 	buttonStyle,
+	compactHorizontalTab,
+	compactIconContainer,
 	container,
 	flexer,
 	horizontalLayout,
@@ -81,6 +84,7 @@ import {
 	leftSidebar,
 	optionsPanel,
 	outerModalStyle,
+	visuallyHiddenTabLabel,
 } from './render-modals';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
@@ -254,6 +258,7 @@ const RenderModal: React.FC<
 	renderDefaults,
 }) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const hideTabLabels = useBreakpoint(600);
 
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -1432,114 +1437,146 @@ const RenderModal: React.FC<
 				<div style={leftSidebar}>
 					{shownTabs.includes('general') ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'general'}
 							onClick={() => setTab('general')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<FileIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							General
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								General
+							</span>
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('data') ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'data'}
 							onClick={() => setTab('data')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<InputPropsIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							Input Props
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								Input Props
+							</span>
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('picture') ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<PicIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							Picture
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								Picture
+							</span>
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('audio') ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<AudioIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							Audio
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								Audio
+							</span>
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('gif') ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'gif'}
 							onClick={() => setTab('gif')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<GifIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							GIF
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								GIF
+							</span>
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('encoding') ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'encoding'}
 							onClick={() => setTab('encoding')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<FilmIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							Encoding
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								Encoding
+							</span>
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('environment') ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'environment'}
 							onClick={() => setTab('environment')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<DataIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							Environment
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								Environment
+							</span>
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('advanced') ? (
 						<VerticalTab
-							style={horizontalTab}
+							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'advanced'}
 							onClick={() => setTab('advanced')}
 							renderIcon={(color) => (
-								<div style={iconContainer}>
+								<div
+									style={hideTabLabels ? compactIconContainer : iconContainer}
+								>
 									<GearIcon color={color} style={icon} />
 								</div>
 							)}
 						>
-							Other
+							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
+								Other
+							</span>
 						</VerticalTab>
 					) : null}
 				</div>
