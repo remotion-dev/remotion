@@ -52,11 +52,27 @@ test.describe('transcription modal', () => {
 
 		await transcribe.click();
 		const dialog = page.getByRole('dialog');
-		const addToQueueButton = dialog.getByRole('button', {
-			name: 'Transcribe',
-			exact: true,
-		});
+		const addToQueueButton = dialog
+			.getByRole('button', {
+				name: 'Transcribe',
+				exact: true,
+			})
+			.first();
 		await expect(dialog).toContainText('Transcribe vp8-vorbis.webm');
+		await dialog.getByRole('button', {name: 'Models', exact: true}).click();
+		await expect(
+			dialog.getByText(
+				'Models are downloaded in the background when a transcription job starts. Follow the download progress in Jobs.',
+				{exact: true},
+			),
+		).toBeVisible();
+		await expect(
+			dialog.getByText('Output in public/', {exact: true}),
+		).toHaveCount(0);
+		await dialog
+			.getByRole('button', {name: 'Transcribe', exact: true})
+			.last()
+			.click();
 		await expect(
 			dialog.getByText('Whisper model', {exact: true}),
 		).toBeVisible();

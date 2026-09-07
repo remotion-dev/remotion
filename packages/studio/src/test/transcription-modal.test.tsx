@@ -154,10 +154,16 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		screen.getByRole('dialog', {
 			name: 'Transcribe interview.wav',
 		});
-		const submit = screen.getByRole('button', {
+		const [submit, transcribeTab] = screen.getAllByRole('button', {
 			name: /^Transcribe$/,
-		}) as HTMLButtonElement;
+		}) as HTMLButtonElement[];
 		await waitFor(() => expect(submit.disabled).toBe(false));
+		fireEvent.click(screen.getByRole('button', {name: 'Models'}));
+		screen.getByText(
+			'Models are downloaded in the background when a transcription job starts. Follow the download progress in Jobs.',
+		);
+		expect(screen.queryByText('Output in public/')).toBeNull();
+		fireEvent.click(transcribeTab);
 		expect(
 			screen.queryByText('Runs locally as a background job using WebGPU'),
 		).toBeNull();

@@ -14,6 +14,8 @@ import React, {
 } from 'react';
 import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
+import {CubeIcon} from '../../icons/cube';
+import {TranscriptionIcon} from '../../icons/transcription';
 import type {TranscriptionModalState} from '../../state/modals';
 import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -36,11 +38,17 @@ import {
 	buttonStyle,
 	container,
 	flexer,
+	horizontalLayout,
+	horizontalTab,
+	icon,
+	iconContainer,
+	leftSidebar,
 	optionsPanel,
 	outerModalStyle,
 } from '../RenderModal/render-modals';
 import {RenderModalHr} from '../RenderModal/RenderModalHr';
 import {RenderQueueContext} from '../RenderQueue/context';
+import {VerticalTab} from '../Tabs/vertical';
 import {useStaticFiles} from '../use-static-files';
 import {
 	getDefaultCaptionOutputName,
@@ -60,6 +68,8 @@ const DEFAULT_TOP_K = 50;
 const DEFAULT_REPETITION_PENALTY = 1;
 const DEFAULT_NO_REPEAT_NGRAM_SIZE = 0;
 const MAX_CHUNK_LENGTH_IN_SECONDS = 30;
+
+type Tab = 'transcribe' | 'models';
 
 type SupportState =
 	| {type: 'checking'}
@@ -110,6 +120,40 @@ const tooltipInlineCode: React.CSSProperties = {
 	fontFamily: 'monospace',
 	fontSize: 'inherit',
 	lineHeight: 'inherit',
+};
+
+const modelsExplanation: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: 1.5,
+	margin: 0,
+	padding: '0 16px 12px',
+};
+
+const modelName: React.CSSProperties = {
+	color: WHITE,
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	lineHeight: 1.5,
+};
+
+const modelDescription: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	lineHeight: 1.5,
+};
+
+const modelAction: React.CSSProperties = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: 12,
+};
+
+const modelSize: React.CSSProperties = {
+	...modelDescription,
+	fontVariantNumeric: 'tabular-nums',
 };
 
 const TranscriptionSettingLabel: React.FC<{
@@ -594,12 +638,54 @@ const AdvancedSettings: React.FC<{
 	);
 };
 
+const Models: React.FC<{
+	readonly selectedModel: WhisperWebGpuModel;
+	readonly setSelectedModel: (model: WhisperWebGpuModel) => void;
+}> = ({selectedModel, setSelectedModel}) => {
+	return (
+		<div style={settingsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+			<p style={modelsExplanation}>
+				Models are downloaded in the background when a transcription job starts.
+				Follow the download progress in Jobs.
+			</p>
+			{AVAILABLE_MODELS.map((model) => {
+				const selected = model.name === selectedModel;
+				return (
+					<div key={model.name} style={optionRow}>
+						<div>
+							<div style={modelName}>{model.name}</div>
+							<div style={modelDescription}>
+								{model.multilingual ? 'Multilingual' : 'English only'}
+								{model.supportsTranslation ? ' · Supports translation' : null}
+							</div>
+						</div>
+						<div style={modelAction}>
+							<div style={modelSize}>
+								{formatBytes(model.webGpuDownloadSize)}
+							</div>
+							<Button
+								onClick={() => setSelectedModel(model.name)}
+								disabled={selected}
+								size="compact"
+								style={selected ? undefined : buttonStyle}
+							>
+								{selected ? 'Selected' : 'Select'}
+							</Button>
+						</div>
+					</div>
+				);
+			})}
+		</div>
+	);
+};
+
 export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	audioStreamIndex,
 	displayName,
 	requestInit,
 	src,
 }) => {
+	const [tab, setTab] = useState<Tab>('transcribe');
 	const [selectedModel, setSelectedModel] =
 		useState<WhisperWebGpuModel>('small.en');
 	const [selectedLanguage, setSelectedLanguage] =
@@ -780,44 +866,80 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						Transcribe
 					</Button>
 				</div>
-				<div style={settingsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-					<OutputSettings
-						exists={exists}
-						onOutNameChange={onOutNameChange}
-						outName={outName}
-						validationMessage={outputValidationMessage}
-					/>
-					<RenderModalHr />
-					<ModelSettings
-						selectedLanguage={selectedLanguage}
-						selectedModel={selectedModel}
-						selectedTask={selectedTask}
-						setSelectedLanguage={setSelectedLanguage}
-						setSelectedModel={setSelectedModel}
-						setSelectedTask={setSelectedTask}
-						supportState={supportState}
-					/>
-					<RenderModalHr />
-					<AdvancedSettings
-						chunkLengthInSeconds={chunkLengthInSeconds}
-						decodingValidationMessage={decodingValidationMessage}
-						doSample={doSample}
-						forceFullSequences={forceFullSequences}
-						noRepeatNgramSize={noRepeatNgramSize}
-						repetitionPenalty={repetitionPenalty}
-						setChunkLengthInSeconds={setChunkLengthInSeconds}
-						setDoSample={setDoSample}
-						setForceFullSequences={setForceFullSequences}
-						setNoRepeatNgramSize={setNoRepeatNgramSize}
-						setRepetitionPenalty={setRepetitionPenalty}
-						setStrideLengthInSeconds={setStrideLengthInSeconds}
-						setTemperature={setTemperature}
-						setTopK={setTopK}
-						strideLengthInSeconds={strideLengthInSeconds}
-						temperature={temperature}
-						topK={topK}
-						validationMessage={chunkValidationMessage}
-					/>
+				<div style={horizontalLayout}>
+					<div style={leftSidebar}>
+						<VerticalTab
+							autoFocus
+							style={horizontalTab}
+							selected={tab === 'transcribe'}
+							onClick={() => setTab('transcribe')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<TranscriptionIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Transcribe
+						</VerticalTab>
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'models'}
+							onClick={() => setTab('models')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<CubeIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Models
+						</VerticalTab>
+					</div>
+					{tab === 'transcribe' ? (
+						<div style={settingsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+							<OutputSettings
+								exists={exists}
+								onOutNameChange={onOutNameChange}
+								outName={outName}
+								validationMessage={outputValidationMessage}
+							/>
+							<RenderModalHr />
+							<ModelSettings
+								selectedLanguage={selectedLanguage}
+								selectedModel={selectedModel}
+								selectedTask={selectedTask}
+								setSelectedLanguage={setSelectedLanguage}
+								setSelectedModel={setSelectedModel}
+								setSelectedTask={setSelectedTask}
+								supportState={supportState}
+							/>
+							<RenderModalHr />
+							<AdvancedSettings
+								chunkLengthInSeconds={chunkLengthInSeconds}
+								decodingValidationMessage={decodingValidationMessage}
+								doSample={doSample}
+								forceFullSequences={forceFullSequences}
+								noRepeatNgramSize={noRepeatNgramSize}
+								repetitionPenalty={repetitionPenalty}
+								setChunkLengthInSeconds={setChunkLengthInSeconds}
+								setDoSample={setDoSample}
+								setForceFullSequences={setForceFullSequences}
+								setNoRepeatNgramSize={setNoRepeatNgramSize}
+								setRepetitionPenalty={setRepetitionPenalty}
+								setStrideLengthInSeconds={setStrideLengthInSeconds}
+								setTemperature={setTemperature}
+								setTopK={setTopK}
+								strideLengthInSeconds={strideLengthInSeconds}
+								temperature={temperature}
+								topK={topK}
+								validationMessage={chunkValidationMessage}
+							/>
+						</div>
+					) : (
+						<Models
+							selectedModel={selectedModel}
+							setSelectedModel={setSelectedModel}
+						/>
+					)}
 				</div>
 			</div>
 		</DismissableModal>
