@@ -50,6 +50,61 @@ const HANDLE_OUTSET = 8;
 const timelineSequenceEdgeDragThresholdPx = 4;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
 
+export type TimelineSequenceMediaDurationDragLimits = {
+	readonly initialDuration: number;
+	readonly maximumDuration: number;
+};
+
+export const getTimelineSequenceMediaDurationDragLimits = ({
+	cascadedStart,
+	displayDurationInFrames,
+	displayStart,
+	effectiveMaxMediaDuration,
+	explicitDurationInFrames,
+	hasImplicitDuration,
+	naturalMediaDuration,
+	timelineDurationInFrames,
+}: {
+	readonly cascadedStart: number;
+	readonly displayDurationInFrames: number;
+	readonly displayStart: number;
+	readonly effectiveMaxMediaDuration: number | null;
+	readonly explicitDurationInFrames: number | null;
+	readonly hasImplicitDuration: boolean;
+	readonly naturalMediaDuration: number | null;
+	readonly timelineDurationInFrames: number;
+}): TimelineSequenceMediaDurationDragLimits | null => {
+	if (
+		naturalMediaDuration === null ||
+		!Number.isFinite(naturalMediaDuration) ||
+		naturalMediaDuration <= 0
+	) {
+		return null;
+	}
+
+	return {
+		initialDuration:
+			explicitDurationInFrames ??
+			Math.ceil(
+				displayStart +
+					Math.max(
+						0,
+						Math.min(
+							displayDurationInFrames,
+							timelineDurationInFrames - displayStart,
+							effectiveMaxMediaDuration ?? Infinity,
+						),
+					) -
+					cascadedStart,
+			),
+		maximumDuration:
+			// Keeping duration omitted represents the media's natural end. An
+			// explicit duration is only useful once its edge is before that end.
+			Math.ceil(displayStart + naturalMediaDuration - cascadedStart) -
+			(hasImplicitDuration ? 1 : 0),
+	};
+};
+
 const getTimelineSequenceEdgeSelectionInteraction = ({
 	button,
 	selected,
@@ -95,6 +150,7 @@ export type TimelineSequenceDurationDragTarget = {
 	readonly maximumDuration: number;
 	readonly minimumDuration: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly onlyCommitDurationWithinMaximum: boolean;
 	readonly schema: InteractivitySchema;
 };
 
@@ -349,21 +405,11 @@ export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 };
 
 export const canResizeTimelineSequenceDuration = ({
-	sequence,
 	status,
 }: {
-	readonly sequence: TSequence;
 	readonly status: CanUpdateSequencePropStatus | undefined;
 }) => {
-	if (status?.status !== 'static') {
-		return false;
-	}
-
-	if (sequence.type === 'audio' || sequence.type === 'video') {
-		return status.codeValue !== undefined;
-	}
-
-	return true;
+	return status?.status === 'static';
 };
 
 export const isTimelineSequenceLeftEdgeDraggable = (sequence: TSequence) => {
@@ -422,6 +468,32 @@ export const getTimelineSequenceDurationDragValue = ({
 		maximumDuration,
 		Math.max(minimumDuration, initialDuration + deltaFrames),
 	);
+
+const getTimelineSequenceDurationDragValueForTarget = ({
+	target,
+	deltaFrames,
+}: {
+	readonly target: TimelineSequenceDurationDragTarget;
+	readonly deltaFrames: number;
+}) => {
+	const unclampedValue = Math.max(
+		target.minimumDuration,
+		target.initialDuration + deltaFrames,
+	);
+	if (
+		target.onlyCommitDurationWithinMaximum &&
+		unclampedValue > target.maximumDuration
+	) {
+		return null;
+	}
+
+	return getTimelineSequenceDurationDragValue({
+		initialDuration: target.initialDuration,
+		deltaFrames,
+		maximumDuration: target.maximumDuration,
+		minimumDuration: target.minimumDuration,
+	});
+};
 
 export const getTimelineSequenceLeftEdgeDragDelta = ({
 	initialDuration,
@@ -538,12 +610,13 @@ export const getTimelineSequenceDurationDragChanges = ({
 	readonly deltaFrames: number;
 }): SaveSequencePropChange[] => {
 	return targets.flatMap((target) => {
-		const nextValue = getTimelineSequenceDurationDragValue({
-			initialDuration: target.initialDuration,
+		const nextValue = getTimelineSequenceDurationDragValueForTarget({
+			target,
 			deltaFrames,
-			maximumDuration: target.maximumDuration,
-			minimumDuration: target.minimumDuration,
 		});
+		if (nextValue === null) {
+			return [];
+		}
 
 		if (nextValue === target.initialDuration) {
 			return [];
@@ -732,6 +805,7 @@ const findSequenceTrack = ({
 
 export const getTimelineSequenceDurationDragTargets = ({
 	draggedNodePathInfo,
+	draggedSequenceMediaDurationDragLimits,
 	selectedItems,
 	sequences,
 	overrideIdsToNodePaths,
@@ -739,6 +813,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 	timelineDurationInFrames,
 }: {
 	readonly draggedNodePathInfo: SequenceNodePathInfo;
+	readonly draggedSequenceMediaDurationDragLimits: TimelineSequenceMediaDurationDragLimits | null;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequences: TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
@@ -792,7 +867,6 @@ export const getTimelineSequenceDurationDragTargets = ({
 		)?.durationInFrames;
 		if (
 			!canResizeTimelineSequenceDuration({
-				sequence: originalSequence,
 				status: durationStatus,
 			})
 		) {
@@ -806,20 +880,55 @@ export const getTimelineSequenceDurationDragTargets = ({
 
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
+			const isMedia =
+				originalSequence.type === 'audio' || originalSequence.type === 'video';
+			const hasImplicitMediaDuration =
+				isMedia &&
+				durationStatus?.status === 'static' &&
+				durationStatus.codeValue === undefined;
+			const isDraggedSequence =
+				getTimelineSequenceSelectionKey(nodePathInfo) === draggedSelectionKey;
+			const mediaDurationDragLimits = isMedia
+				? isDraggedSequence
+					? draggedSequenceMediaDurationDragLimits
+					: hasImplicitMediaDuration
+						? null
+						: {
+								initialDuration: originalSequence.duration,
+								maximumDuration: originalSequence.duration,
+							}
+				: null;
+			if (isMedia && mediaDurationDragLimits === null) {
+				return null;
+			}
+
 			const minimumDuration = Math.max(
 				1 - originalSequence.from,
 				getMinimumSequenceDuration({sequence: originalSequence, sequences}),
 			);
+			const initialDuration =
+				mediaDurationDragLimits?.initialDuration ?? originalSequence.duration;
+			const constrainedMaximumDuration = Math.min(
+				mediaDurationDragLimits?.maximumDuration ?? Infinity,
+				timelineDurationInFrames - track.cascadedStart,
+			);
+			if (isMedia && constrainedMaximumDuration < minimumDuration) {
+				return null;
+			}
+
+			const maximumDuration = isMedia
+				? constrainedMaximumDuration
+				: Math.max(minimumDuration, constrainedMaximumDuration);
+
 			targets.set(key, {
 				fileName: nodePath.absolutePath,
-				initialDuration: originalSequence.duration,
-				maximumDuration: Math.max(
-					minimumDuration,
-					timelineDurationInFrames - track.cascadedStart,
-				),
+				initialDuration,
+				maximumDuration,
 				// A negative start needs enough duration to retain one visible frame.
 				minimumDuration,
 				nodePath,
+				onlyCommitDurationWithinMaximum:
+					hasImplicitMediaDuration || initialDuration > maximumDuration,
 				schema: controls.schema,
 			});
 		}
@@ -1741,6 +1850,7 @@ export const useTimelineSequenceFromDrag = ({
 
 const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly mediaDurationDragLimits: TimelineSequenceMediaDurationDragLimits | null;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
 	readonly onDragEnd: (wasDragged: boolean) => void;
@@ -1748,6 +1858,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly selected: boolean;
 }> = ({
 	nodePathInfo,
+	mediaDurationDragLimits,
 	windowWidth,
 	timelineDurationInFrames,
 	onDragEnd,
@@ -1781,6 +1892,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	// Keep latest props/setters available to window listeners installed once at pointerdown.
 	const latestRef = useRef({
 		nodePathInfo,
+		mediaDurationDragLimits,
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
@@ -1791,6 +1903,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	});
 	latestRef.current = {
 		nodePathInfo,
+		mediaDurationDragLimits,
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
@@ -1896,12 +2009,15 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 			const {
 				nodePathInfo: latestNodePathInfo,
+				mediaDurationDragLimits: latestMediaDurationDragLimits,
 				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
 			} = latestRef.current;
 			const {selectedItems: latestSelectedItems} = currentSelection.current;
 			const targets = canCalculateDelta
 				? (getTimelineSequenceDurationDragTargets({
 						draggedNodePathInfo: latestNodePathInfo,
+						draggedSequenceMediaDurationDragLimits:
+							latestMediaDurationDragLimits,
 						selectedItems: latestSelectedItems,
 						sequences: sequencesRef.current,
 						overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
@@ -1944,17 +2060,24 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				}
 
 				for (const target of dragState.targets) {
+					const committableValue =
+						getTimelineSequenceDurationDragValueForTarget({
+							target,
+							deltaFrames,
+						});
+					const previewValue =
+						committableValue ??
+						getTimelineSequenceDurationDragValue({
+							initialDuration: target.initialDuration,
+							deltaFrames,
+							maximumDuration: target.initialDuration,
+							minimumDuration: target.minimumDuration,
+						});
+
 					latestRef.current.setDragOverrides(
 						target.nodePath,
 						'durationInFrames',
-						Internals.makeStaticDragOverride(
-							getTimelineSequenceDurationDragValue({
-								initialDuration: target.initialDuration,
-								deltaFrames,
-								maximumDuration: target.maximumDuration,
-								minimumDuration: target.minimumDuration,
-							}),
-						),
+						Internals.makeStaticDragOverride(previewValue),
 					);
 				}
 			};
