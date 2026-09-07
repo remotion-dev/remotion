@@ -162,7 +162,6 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		expect(captionType.style.fontSize).toBe('inherit');
 		expect(captionType.style.lineHeight).toBe('inherit');
 		fireEvent.pointerUp(outputHelp);
-		screen.getByTitle('Learn more about Model download');
 		screen.getByTitle('Learn more about Chunk length');
 		screen.getByTitle('Learn more about Stride length');
 		screen.getByTitle('Learn more about Force full sequences');

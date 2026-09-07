@@ -112,15 +112,6 @@ const tooltipInlineCode: React.CSSProperties = {
 	lineHeight: 'inherit',
 };
 
-const statusText: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 13,
-	fontVariantNumeric: 'tabular-nums',
-	lineHeight: 1.5,
-	textAlign: 'right',
-};
-
 const TranscriptionSettingLabel: React.FC<{
 	readonly children: React.ReactNode;
 	readonly inputId: string | null;
@@ -309,18 +300,6 @@ const ModelSettings: React.FC<{
 					/>
 				</div>
 			) : null}
-			<div style={optionRow}>
-				<TranscriptionSettingLabel inputId={null} name="Model download">
-					If necessary, Studio downloads the model in the background when the
-					job starts. Follow its progress in Jobs. Transcription runs locally
-					using WebGPU; the media does not leave your device.
-				</TranscriptionSettingLabel>
-				<div style={rightRow}>
-					<div style={statusText}>
-						{`${formatBytes(selectedModelInfo.webGpuDownloadSize)} · Downloaded with transcription if needed`}
-					</div>
-				</div>
-			</div>
 			{supportState.type === 'unsupported' ? (
 				<div style={{padding: '0 16px'}}>
 					<ValidationMessage

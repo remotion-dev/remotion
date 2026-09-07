@@ -54,9 +54,6 @@ test.describe('transcription modal', () => {
 		const model = dialog.getByTitle('Whisper model');
 		await expect(model).toContainText('small.en');
 		await expect(dialog.getByTitle('Task')).toHaveCount(0);
-		await expect(
-			dialog.getByText(/Downloaded with transcription if needed/),
-		).toBeVisible();
 		await expect(dialog.getByRole('button', {name: /^Download /})).toHaveCount(
 			0,
 		);
