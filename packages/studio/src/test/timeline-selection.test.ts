@@ -1998,7 +1998,6 @@ test('Timeline duration drag supports interactive video clips', () => {
 			maximumDuration: 1000,
 			minimumDuration: 1,
 			nodePath: nodePathInfo.sequenceSubscriptionKey,
-			onlyCommitDurationWithinMaximum: false,
 			schema: Internals.baseSchema,
 		},
 	]);
@@ -2093,7 +2092,7 @@ test('Timeline duration drag clamps explicit audio and video to the asset end', 
 	}
 });
 
-test('An overlong explicit Video is only saved once it reaches the asset end', () => {
+test('An overlong explicit Video can be shortened without snapping', () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const targets = getTimelineSequenceDurationDragTargets({
@@ -2117,18 +2116,19 @@ test('An overlong explicit Video is only saved once it reaches the asset end', (
 		timelineDurationInFrames: 1000,
 	});
 
+	expect(targets?.[0].maximumDuration).toBe(300);
 	expect(
 		getTimelineSequenceDurationDragChanges({
 			targets: targets ?? [],
-			deltaFrames: -74,
+			deltaFrames: 1,
 		}),
 	).toEqual([]);
 	expect(
 		getTimelineSequenceDurationDragChanges({
 			targets: targets ?? [],
-			deltaFrames: -75,
+			deltaFrames: -1,
 		})[0].value,
-	).toBe(225);
+	).toBe(299);
 });
 
 test('Timeline duration drag trims audio and video without an explicit duration', () => {
@@ -2143,7 +2143,7 @@ test('Timeline duration drag trims audio and video without an explicit duration'
 		const targets = getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: nodePathInfo,
 			draggedSequenceMediaDurationDragLimits: {
-				initialDuration: 78,
+				initialDuration: 70,
 				maximumDuration: 77,
 			},
 			selectedSequenceMediaDurationDragLimits: null,
@@ -2169,14 +2169,14 @@ test('Timeline duration drag trims audio and video without an explicit duration'
 		});
 
 		expect(isTimelineSequenceDurationDraggable(media)).toBe(true);
-		expect(targets?.[0].initialDuration).toBe(78);
+		expect(targets?.[0].initialDuration).toBe(70);
 		expect(targets?.[0].maximumDuration).toBe(77);
 		expect(
 			getTimelineSequenceDurationDragChanges({
 				targets: targets ?? [],
 				deltaFrames: 10,
-			}),
-		).toEqual([]);
+			})[0].value,
+		).toBe(77);
 		expect(
 			getTimelineSequenceDurationDragChanges({
 				targets: targets ?? [],
@@ -2187,7 +2187,7 @@ test('Timeline duration drag trims audio and video without an explicit duration'
 				fileName: nodePath.absolutePath,
 				nodePath,
 				fieldKey: 'durationInFrames',
-				value: 68,
+				value: 60,
 				defaultValue: null,
 				schema: Internals.baseSchema,
 			},
@@ -2228,56 +2228,6 @@ test('Timeline duration drag waits for an effective implicit media duration', ()
 			timelineDurationInFrames: 1000,
 		}),
 	).toBe(null);
-});
-
-test('Implicit Video duration is only inserted below the media end', () => {
-	const nodePathInfo = makeNodePathInfo(['body', 0], []);
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
-	const targets = getTimelineSequenceDurationDragTargets({
-		draggedNodePathInfo: nodePathInfo,
-		draggedSequenceMediaDurationDragLimits: {
-			// <Video> holds its last frame and can therefore reach the composition end.
-			initialDuration: 300,
-			maximumDuration: 99,
-		},
-		selectedSequenceMediaDurationDragLimits: null,
-		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema: Internals.baseSchema,
-				type: 'video',
-				duration: Infinity,
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
-		propStatuses: {
-			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
-				canUpdate: true,
-				props: {
-					durationInFrames: {
-						status: 'static',
-						keyframeDisplayOffsetAdjustment: null,
-						codeValue: undefined,
-					},
-				},
-				effects: [],
-			},
-		},
-		timelineDurationInFrames: 300,
-	});
-
-	expect(
-		getTimelineSequenceDurationDragChanges({
-			targets: targets ?? [],
-			deltaFrames: -200,
-		}),
-	).toEqual([]);
-	expect(
-		getTimelineSequenceDurationDragChanges({
-			targets: targets ?? [],
-			deltaFrames: -201,
-		})[0].value,
-	).toBe(99);
 });
 
 test('Timeline duration drag supports interactive cascading sequence rows', () => {
