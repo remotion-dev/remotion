@@ -2,6 +2,7 @@ import {formatBytes} from '@remotion/studio-shared';
 import {
 	canUseWhisperWebGpu,
 	getAvailableModels,
+	isWhisperModelCached,
 	type WhisperWebGpuModel,
 	type WhisperWebGpuTask,
 } from '@remotion/whisper-webgpu';
@@ -56,6 +57,7 @@ import {RenderModalHr} from '../RenderModal/RenderModalHr';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
 import {VerticalTab} from '../Tabs/vertical';
+import {useModelCacheStatus} from '../use-model-cache-status';
 import {useStaticFiles} from '../use-static-files';
 import {
 	getDefaultCaptionOutputName,
@@ -187,6 +189,7 @@ const TranscriptionSettingLabel: React.FC<{
 };
 
 const ModelSettings: React.FC<{
+	readonly cachedModels: ReadonlySet<WhisperWebGpuModel>;
 	readonly selectedLanguage: WhisperLanguage;
 	readonly selectedModel: WhisperWebGpuModel;
 	readonly selectedTask: WhisperWebGpuTask;
@@ -195,6 +198,7 @@ const ModelSettings: React.FC<{
 	readonly setSelectedTask: (task: WhisperWebGpuTask) => void;
 	readonly supportState: SupportState;
 }> = ({
+	cachedModels,
 	selectedLanguage,
 	selectedModel,
 	selectedTask,
@@ -216,7 +220,7 @@ const ModelSettings: React.FC<{
 				type: 'item',
 				id: model.name,
 				value: model.name,
-				label: `${model.name} · ${formatBytes(model.webGpuDownloadSize)}`,
+				label: `${model.name} · ${formatBytes(model.webGpuDownloadSize)}${cachedModels.has(model.name) ? ' · Downloaded' : ''}`,
 				leftItem: model.name === selectedModel ? <Checkmark /> : null,
 				keyHint: null,
 				quickSwitcherLabel: null,
@@ -225,7 +229,7 @@ const ModelSettings: React.FC<{
 				onClick: () => setSelectedModel(model.name),
 			};
 		});
-	}, [selectedModel, setSelectedModel]);
+	}, [cachedModels, selectedModel, setSelectedModel]);
 
 	const languageOptions = useMemo((): ComboboxValue[] => {
 		return WHISPER_LANGUAGES.map(([languageCode, languageName]) => ({
@@ -689,6 +693,15 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	src,
 }) => {
 	const [tab, setTab] = useState<Tab>('transcribe');
+	const isModelCached = useCallback(
+		(model: WhisperWebGpuModel) => isWhisperModelCached({model}),
+		[],
+	);
+	const cachedModels = useModelCacheStatus({
+		isModelCached,
+		models: AVAILABLE_MODELS,
+		refreshKey: tab,
+	});
 	const [selectedModel, setSelectedModel] =
 		useState<WhisperWebGpuModel>('small.en');
 	const [selectedLanguage, setSelectedLanguage] =
@@ -909,6 +922,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						/>
 						<RenderModalHr />
 						<ModelSettings
+							cachedModels={cachedModels}
 							selectedLanguage={selectedLanguage}
 							selectedModel={selectedModel}
 							selectedTask={selectedTask}

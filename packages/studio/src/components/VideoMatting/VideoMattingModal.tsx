@@ -2,6 +2,7 @@ import {formatBytes} from '@remotion/studio-shared';
 import {
 	canUseVideoMatting,
 	getAvailableModels,
+	isVideoMattingModelCached,
 	type VideoLayerAudio,
 	type VideoMattingBitrate,
 	type VideoMattingModel,
@@ -50,6 +51,7 @@ import {RenderModalHr} from '../RenderModal/RenderModalHr';
 import {RenderModalOutputName} from '../RenderModal/RenderModalOutputName';
 import {RenderQueueContext} from '../RenderQueue/context';
 import {VerticalTab} from '../Tabs/vertical';
+import {useModelCacheStatus} from '../use-model-cache-status';
 import {useStaticFiles} from '../use-static-files';
 import {Models} from './Models';
 
@@ -109,6 +111,16 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 	src,
 }) => {
 	const [tab, setTab] = useState<Tab>('separate');
+	const isModelCached = useCallback(
+		(selectedModel: VideoMattingModel) =>
+			isVideoMattingModelCached({model: selectedModel}),
+		[],
+	);
+	const cachedModels = useModelCacheStatus({
+		isModelCached,
+		models: MODELS,
+		refreshKey: tab,
+	});
 	const baseName = useMemo(
 		() => getDefaultOutputBaseName(src, displayName, 'video'),
 		[displayName, src],
@@ -186,12 +198,12 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 			makeOptions({
 				items: MODELS.map((item) => ({
 					id: item.name,
-					label: `${item.name} · ${formatBytes(item.webGpuDownloadSize)}`,
+					label: `${item.name} · ${formatBytes(item.webGpuDownloadSize)}${cachedModels.has(item.name) ? ' · Downloaded' : ''}`,
 				})),
 				selected: model,
 				setSelected: setModel,
 			}),
-		[model],
+		[cachedModels, model],
 	);
 	const audioOptions = useMemo(
 		() =>
