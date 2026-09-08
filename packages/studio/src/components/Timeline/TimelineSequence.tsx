@@ -85,6 +85,7 @@ import {
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineViewportContext} from './TimelineViewport';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
@@ -220,6 +221,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	onPointerDownCapture,
 	onClick,
 }) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const isAsset = canvasContent?.type === 'asset';
 	const ref = useRef<HTMLDivElement>(null);
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
@@ -277,9 +280,9 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			...style,
 			background: negativeStart ? TRANSPARENT : style.background,
 			border: negativeStart ? 'none' : style.border,
-			opacity: selected ? 1 : 0.75,
+			opacity: selected || isAsset ? 1 : 0.75,
 		};
-	}, [negativeStart, selected, style]);
+	}, [isAsset, negativeStart, selected, style]);
 
 	const content = (
 		<>
@@ -526,6 +529,7 @@ const TimelineSequenceInner: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
+	const assetContextMenu = useAssetTimelineContextMenu();
 	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();
@@ -689,6 +693,10 @@ const TimelineSequenceInner: React.FC<{
 		validatedLocation?.source,
 	]);
 	const getContextMenuItems = useCallback(() => {
+		if (assetContextMenu !== null) {
+			return assetContextMenu;
+		}
+
 		if (selectable && !selected) {
 			onSelect({shiftKey: false, toggleKey: false});
 		}
@@ -761,6 +769,7 @@ const TimelineSequenceInner: React.FC<{
 				: [],
 		});
 	}, [
+		assetContextMenu,
 		canOpenInEditor,
 		canConfigureApps,
 		codingAgentInfo,
