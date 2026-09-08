@@ -22,12 +22,12 @@ const modelPanel: React.CSSProperties = {
 };
 const hiddenPanel: React.CSSProperties = {display: 'none'};
 const container: React.CSSProperties = {
-	alignSelf: 'flex-start',
 	boxSizing: 'border-box',
 	flex: 1,
 	fontFamily: 'sans-serif',
 	minWidth: 0,
 	padding: '16px 16px 0',
+	width: '100%',
 };
 const flushContainer: React.CSSProperties = {
 	...container,
