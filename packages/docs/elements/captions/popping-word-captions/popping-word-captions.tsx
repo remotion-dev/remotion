@@ -180,9 +180,6 @@ const CaptionPage: React.FC<{
 
 	return (
 		<div
-			aria-label={page.text}
-			aria-live="off"
-			role="group"
 			style={{
 				alignItems: 'center',
 				display: 'flex',
@@ -192,7 +189,6 @@ const CaptionPage: React.FC<{
 			}}
 		>
 			<div
-				aria-hidden="true"
 				style={{
 					color: textColor,
 					fontFamily,

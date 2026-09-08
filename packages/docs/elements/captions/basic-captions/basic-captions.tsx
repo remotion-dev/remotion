@@ -79,9 +79,6 @@ const BasicCaptionsContent: React.FC<{
 
 	return (
 		<div
-			aria-label={page.text}
-			aria-live="off"
-			role="group"
 			style={{
 				backgroundColor: 'rgba(64, 64, 64, 0.75)',
 				color: '#ffffff',
