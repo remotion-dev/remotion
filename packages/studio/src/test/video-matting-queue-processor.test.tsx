@@ -117,6 +117,7 @@ test('loads the model, separates the layers and writes both outputs', async () =
 		'dispose-model',
 	]);
 	expect(progress).toContain('Downloading modnet 100%');
+	expect(progress).toContain('Separating input.webm... 50%');
 	if (originalBrowserStudio) {
 		Object.defineProperty(
 			window,
