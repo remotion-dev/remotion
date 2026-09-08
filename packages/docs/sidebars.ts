@@ -957,6 +957,7 @@ const sidebars: SidebarsConfig = {
 				'video-matting/get-available-models',
 				'video-matting/is-video-matting-model-cached',
 				'video-matting/load-video-matting-model',
+				'video-matting/remove-video-matting-model',
 				'video-matting/separate-video-layers',
 				'video-matting/dispose-video-matting-model',
 			],

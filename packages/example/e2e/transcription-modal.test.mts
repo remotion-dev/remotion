@@ -62,20 +62,23 @@ test.describe('transcription modal', () => {
 		});
 		await expect(mattingDialog.getByTitle('Model')).toContainText('modnet');
 		await expect(
-			mattingDialog.getByRole('button', {name: 'Separate'}),
+			mattingDialog.getByRole('button', {name: 'Separate'}).first(),
 		).toBeVisible();
+		await mattingDialog.getByRole('button', {name: 'Models'}).click();
+		await expect(
+			mattingDialog
+				.getByRole('list', {name: 'Video matting models'})
+				.getByRole('listitem'),
+		).toHaveCount(2);
+		await mattingDialog.getByRole('button', {name: 'Separate'}).last().click();
 		await expect(
 			mattingDialog.getByRole('textbox', {name: 'Base video output file'}),
-		).toHaveValue(
-			'vp8-vorbis-base.webm',
-		);
+		).toHaveValue('vp8-vorbis-base.webm');
 		await expect(
 			mattingDialog.getByRole('textbox', {
 				name: 'Foreground video output file',
 			}),
-		).toHaveValue(
-			'vp8-vorbis-foreground.webm',
-		);
+		).toHaveValue('vp8-vorbis-foreground.webm');
 		await page.keyboard.press('Escape');
 		await expect(mattingDialog).toBeHidden();
 

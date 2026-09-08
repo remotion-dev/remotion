@@ -15,6 +15,8 @@ import React, {
 } from 'react';
 import {BLUE_DISABLED} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
+import {CubeIcon} from '../../icons/cube';
+import {EffectsIcon} from '../../icons/effects';
 import type {VideoMattingModalState} from '../../state/modals';
 import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -36,13 +38,20 @@ import {
 	buttonStyle,
 	container,
 	flexer,
+	horizontalLayout,
+	horizontalTab,
+	icon,
+	iconContainer,
+	leftSidebar,
 	optionsPanel,
 	outerModalStyle,
 } from '../RenderModal/render-modals';
 import {RenderModalHr} from '../RenderModal/RenderModalHr';
 import {RenderModalOutputName} from '../RenderModal/RenderModalOutputName';
 import {RenderQueueContext} from '../RenderQueue/context';
+import {VerticalTab} from '../Tabs/vertical';
 import {useStaticFiles} from '../use-static-files';
+import {Models} from './Models';
 
 const MODELS = getAvailableModels();
 const controlStyle: React.CSSProperties = {width: 330, maxWidth: '100%'};
@@ -57,6 +66,11 @@ const modalStyle: React.CSSProperties = {
 	maxHeight: 'calc(100vh - 40px)',
 	outline: 'none',
 };
+const modalLayout: React.CSSProperties = {
+	...horizontalLayout,
+	flex: '1 1 auto',
+};
+const hiddenPanel: React.CSSProperties = {display: 'none'};
 const validationStyle: React.CSSProperties = {padding: '0 16px 8px'};
 const outputInputContainerStyle: React.CSSProperties = {maxWidth: 330};
 
@@ -64,6 +78,8 @@ type SupportState =
 	| {type: 'checking'}
 	| {type: 'supported'}
 	| {type: 'unsupported'; message: string};
+
+type Tab = 'separate' | 'models';
 
 const makeOptions = <Value extends string>({
 	items,
@@ -91,6 +107,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 	displayName,
 	src,
 }) => {
+	const [tab, setTab] = useState<Tab>('separate');
 	const baseName = useMemo(
 		() => getDefaultOutputBaseName(src, displayName, 'video'),
 		[displayName, src],
@@ -254,83 +271,118 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 						Separate
 					</Button>
 				</div>
-				<div style={panelStyle} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-					<RenderModalOutputName
-						ariaLabel="Base video output file"
-						existingOutputPath={
-							window.remotion_publicFolderExists
-								? `${window.remotion_publicFolderExists}/${baseOutName}`
-								: null
-						}
-						existence={baseExists}
-						inputContainerStyle={outputInputContainerStyle}
-						inputStyle={{...input, ...controlStyle}}
-						label="Base output in public/"
-						onValueChange={(event) => setBaseOutName(event.target.value)}
-						outName={baseOutName}
-						validationMessage={baseError}
-					/>
-					<RenderModalOutputName
-						ariaLabel="Foreground video output file"
-						existingOutputPath={
-							window.remotion_publicFolderExists
-								? `${window.remotion_publicFolderExists}/${foregroundOutName}`
-								: null
-						}
-						existence={foregroundExists}
-						inputContainerStyle={outputInputContainerStyle}
-						inputStyle={{...input, ...controlStyle}}
-						label="Foreground output in public/"
-						onValueChange={(event) => setForegroundOutName(event.target.value)}
-						outName={foregroundOutName}
-						validationMessage={foregroundError}
-					/>
-					<RenderModalHr />
-					<div style={optionRow}>
-						<div style={label}>Model</div>
-						<div style={rightRow}>
-							<Combobox
-								values={modelOptions}
-								selectedId={model}
-								title="Model"
-								disabled={false}
-								style={controlStyle}
-							/>
+				<div style={modalLayout}>
+					<div style={leftSidebar}>
+						<VerticalTab
+							autoFocus
+							onClick={() => setTab('separate')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<EffectsIcon color={color} style={icon} />
+								</div>
+							)}
+							selected={tab === 'separate'}
+							style={horizontalTab}
+						>
+							Separate
+						</VerticalTab>
+						<VerticalTab
+							onClick={() => setTab('models')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<CubeIcon color={color} style={icon} />
+								</div>
+							)}
+							selected={tab === 'models'}
+							style={horizontalTab}
+						>
+							Models
+						</VerticalTab>
+					</div>
+					<div
+						style={tab === 'separate' ? panelStyle : hiddenPanel}
+						className={VERTICAL_SCROLLBAR_CLASSNAME}
+					>
+						<RenderModalOutputName
+							ariaLabel="Base video output file"
+							existingOutputPath={
+								window.remotion_publicFolderExists
+									? `${window.remotion_publicFolderExists}/${baseOutName}`
+									: null
+							}
+							existence={baseExists}
+							inputContainerStyle={outputInputContainerStyle}
+							inputStyle={{...input, ...controlStyle}}
+							label="Base output in public/"
+							onValueChange={(event) => setBaseOutName(event.target.value)}
+							outName={baseOutName}
+							validationMessage={baseError}
+						/>
+						<RenderModalOutputName
+							ariaLabel="Foreground video output file"
+							existingOutputPath={
+								window.remotion_publicFolderExists
+									? `${window.remotion_publicFolderExists}/${foregroundOutName}`
+									: null
+							}
+							existence={foregroundExists}
+							inputContainerStyle={outputInputContainerStyle}
+							inputStyle={{...input, ...controlStyle}}
+							label="Foreground output in public/"
+							onValueChange={(event) =>
+								setForegroundOutName(event.target.value)
+							}
+							outName={foregroundOutName}
+							validationMessage={foregroundError}
+						/>
+						<RenderModalHr />
+						<div style={optionRow}>
+							<div style={label}>Model</div>
+							<div style={rightRow}>
+								<Combobox
+									values={modelOptions}
+									selectedId={model}
+									title="Model"
+									disabled={false}
+									style={controlStyle}
+								/>
+							</div>
+						</div>
+						{support.type === 'unsupported' ? (
+							<div style={validationStyle}>
+								<ValidationMessage
+									align="flex-end"
+									message={support.message}
+									type="error"
+								/>
+							</div>
+						) : null}
+						<div style={optionRow}>
+							<div style={label}>Audio</div>
+							<div style={rightRow}>
+								<Combobox
+									values={audioOptions}
+									selectedId={audio}
+									title="Audio"
+									disabled={false}
+									style={controlStyle}
+								/>
+							</div>
+						</div>
+						<div style={optionRow}>
+							<div style={label}>Video quality</div>
+							<div style={rightRow}>
+								<Combobox
+									values={qualityOptions}
+									selectedId={String(videoBitrate)}
+									title="Video quality"
+									disabled={false}
+									style={controlStyle}
+								/>
+							</div>
 						</div>
 					</div>
-					{support.type === 'unsupported' ? (
-						<div style={validationStyle}>
-							<ValidationMessage
-								align="flex-end"
-								message={support.message}
-								type="error"
-							/>
-						</div>
-					) : null}
-					<div style={optionRow}>
-						<div style={label}>Audio</div>
-						<div style={rightRow}>
-							<Combobox
-								values={audioOptions}
-								selectedId={audio}
-								title="Audio"
-								disabled={false}
-								style={controlStyle}
-							/>
-						</div>
-					</div>
-					<div style={optionRow}>
-						<div style={label}>Video quality</div>
-						<div style={rightRow}>
-							<Combobox
-								values={qualityOptions}
-								selectedId={String(videoBitrate)}
-								title="Video quality"
-								disabled={false}
-								style={controlStyle}
-							/>
-						</div>
-					</div>
+					<Models visible={tab === 'models'} />
 				</div>
 			</div>
 		</DismissableModal>

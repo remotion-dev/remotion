@@ -1,11 +1,10 @@
 import {
-	clearStaleModels,
 	getAvailableModels,
-	isWhisperModelCached,
-	loadWhisperModel,
-	removeWhisperModel,
-	type WhisperWebGpuModel,
-} from '@remotion/whisper-webgpu';
+	isVideoMattingModelCached,
+	loadVideoMattingModel,
+	removeVideoMattingModel,
+	type VideoMattingModel,
+} from '@remotion/video-matting';
 import React, {useCallback} from 'react';
 import {ModelManager} from '../ModelManager';
 
@@ -13,33 +12,30 @@ const AVAILABLE_MODELS = getAvailableModels();
 
 export const Models: React.FC<{readonly visible: boolean}> = ({visible}) => {
 	const isModelCached = useCallback(
-		(model: WhisperWebGpuModel) => isWhisperModelCached({model}),
+		(model: VideoMattingModel) => isVideoMattingModelCached({model}),
 		[],
 	);
 	const loadModel = useCallback(
-		(
-			model: WhisperWebGpuModel,
-			onProgress: (progress: number | null) => void,
-		) =>
-			loadWhisperModel({
+		(model: VideoMattingModel, onProgress: (progress: number | null) => void) =>
+			loadVideoMattingModel({
 				model,
 				onProgress: (progress) => onProgress(progress.progress),
 			}),
 		[],
 	);
 	const removeModel = useCallback(
-		(model: WhisperWebGpuModel) => removeWhisperModel({model}),
+		(model: VideoMattingModel) => removeVideoMattingModel({model}),
 		[],
 	);
 
 	return (
 		<ModelManager
-			ariaLabel="Whisper models"
+			ariaLabel="Video matting models"
 			availableModels={AVAILABLE_MODELS}
-			description="Models are downloaded automatically when a transcription starts. You can also manage the browser cache here."
+			description="Models are downloaded automatically when video separation starts. You can also manage the browser cache here."
 			isModelCached={isModelCached}
 			loadModel={loadModel}
-			prepare={clearStaleModels}
+			prepare={null}
 			removeModel={removeModel}
 			visible={visible}
 		/>
