@@ -171,6 +171,19 @@ export const RenderQueueContextProvider: React.FC<{
 	const [videoMattingJobs, setVideoMattingJobs] = useState<VideoMattingJob[]>(
 		[],
 	);
+	const hasActiveLocalJob =
+		clientJobs.some(
+			(job) =>
+				job.status === 'idle' ||
+				job.status === 'running' ||
+				job.status === 'saving',
+		) ||
+		captionJobs.some(
+			(job) => job.status === 'idle' || job.status === 'running',
+		) ||
+		videoMattingJobs.some(
+			(job) => job.status === 'idle' || job.status === 'running',
+		);
 	const [currentlyProcessing, setCurrentlyProcessing] = useState<string | null>(
 		null,
 	);
@@ -187,6 +200,20 @@ export const RenderQueueContextProvider: React.FC<{
 		((job: VideoMattingJob) => Promise<void>) | null
 	>(null);
 	const [processorCallbacksVersion, setProcessorCallbacksVersion] = useState(0);
+
+	useEffect(() => {
+		if (!hasActiveLocalJob) {
+			return;
+		}
+
+		const preventClose = (event: BeforeUnloadEvent) => {
+			event.preventDefault();
+			event.returnValue = '';
+		};
+
+		window.addEventListener('beforeunload', preventClose);
+		return () => window.removeEventListener('beforeunload', preventClose);
+	}, [hasActiveLocalJob]);
 
 	const getLocalJobStartedAt = useCallback(() => {
 		const startedAt = Math.max(Date.now(), lastLocalJobStartedAt.current + 1);

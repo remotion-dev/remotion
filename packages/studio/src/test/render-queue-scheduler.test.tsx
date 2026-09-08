@@ -10,6 +10,7 @@ import {
 	RenderQueueContext,
 	RenderQueueContextProvider,
 } from '../components/RenderQueue/context';
+import type {AddVideoMattingJobParams} from '../components/RenderQueue/video-matting-job-types';
 
 afterEach(cleanup);
 
@@ -55,6 +56,80 @@ const makeStillParams = (compositionId: string): AddClientStillJobParams => ({
 	licenseKey: null,
 	scale: 1,
 	allowHtmlInCanvas: false,
+});
+
+const videoMattingParams: AddVideoMattingJobParams = {
+	audio: 'base',
+	baseOutName: 'video-base.webm',
+	displayName: 'video.mp4',
+	foregroundOutName: 'video-foreground.webm',
+	model: 'ben2-base',
+	src: '/video.mp4',
+	videoBitrate: 'very-high',
+};
+
+const closeIsPrevented = () => {
+	const event = new Event('beforeunload', {cancelable: true});
+	window.dispatchEvent(event);
+	return event.defaultPrevented;
+};
+
+test('prevents closing the tab while browser-local jobs are incomplete', async () => {
+	let currentContext: ContextType<typeof RenderQueueContext> | null = null;
+	const ReadContext = () => {
+		currentContext = useContext(RenderQueueContext);
+		return null;
+	};
+
+	render(
+		<RenderQueueContextProvider>
+			<ReadContext />
+		</RenderQueueContextProvider>,
+	);
+
+	const getContext = () => {
+		if (currentContext === null) {
+			throw new Error('Render queue context is not mounted');
+		}
+
+		return currentContext;
+	};
+
+	expect(closeIsPrevented()).toBe(false);
+	let captionId = '';
+	act(() => {
+		captionId = getContext().addCaptionJob(makeCaptionParams('audio.mp3'));
+	});
+	await waitFor(() => expect(closeIsPrevented()).toBe(true));
+	act(() => getContext().markCaptionJobDone(captionId, 1));
+	await waitFor(() => expect(closeIsPrevented()).toBe(false));
+
+	let videoMattingId = '';
+	act(() => {
+		videoMattingId = getContext().addVideoMattingJob(videoMattingParams);
+	});
+	await waitFor(() => expect(closeIsPrevented()).toBe(true));
+	act(() => getContext().markVideoMattingJobDone(videoMattingId));
+	await waitFor(() => expect(closeIsPrevented()).toBe(false));
+
+	let renderId = '';
+	act(() => {
+		renderId = getContext().addClientStillJob(
+			makeStillParams('composition'),
+			compositionRef,
+		);
+	});
+	await waitFor(() => expect(closeIsPrevented()).toBe(true));
+	act(() => getContext().markClientJobSaving(renderId));
+	expect(closeIsPrevented()).toBe(true);
+	act(() =>
+		getContext().markClientJobDone(renderId, {
+			height: 100,
+			sizeInBytes: 1,
+			width: 100,
+		}),
+	);
+	await waitFor(() => expect(closeIsPrevented()).toBe(false));
 });
 
 test('processes client renders and captions in one local FIFO', async () => {
