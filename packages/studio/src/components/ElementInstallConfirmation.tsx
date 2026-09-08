@@ -189,9 +189,9 @@ const warningStyle: React.CSSProperties = {
 };
 
 const warningIconStyle: React.CSSProperties = {
-	width: 16,
-	height: 16,
-	marginTop: 1,
+	width: 14,
+	height: 14,
+	marginTop: 2,
 	flexShrink: 0,
 	fill: WARNING_COLOR,
 };
