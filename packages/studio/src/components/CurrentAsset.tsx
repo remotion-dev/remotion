@@ -16,9 +16,9 @@ import {
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
-import {EffectsIcon} from '../icons/effects';
 import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
+import {SeparationIcon} from '../icons/separation';
 import {TranscriptionIcon} from '../icons/transcription';
 import {TrashIcon} from '../icons/trash';
 import {SetSelectedModalContext} from '../state/modals';
@@ -414,7 +414,7 @@ export const AssetInfo: React.FC<{
 						disabled={mutationsDisabled}
 						onClick={onTrackMatting}
 						renderIcon={(color) => (
-							<EffectsIcon color={color} style={quickActionIconStyle} />
+							<SeparationIcon color={color} style={quickActionIconStyle} />
 						)}
 					>
 						Separe foreground

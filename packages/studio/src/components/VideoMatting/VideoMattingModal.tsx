@@ -16,7 +16,7 @@ import React, {
 import {BLUE_DISABLED} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
 import {CubeIcon} from '../../icons/cube';
-import {EffectsIcon} from '../../icons/effects';
+import {SeparationIcon} from '../../icons/separation';
 import type {VideoMattingModalState} from '../../state/modals';
 import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -278,7 +278,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 							onClick={() => setTab('separate')}
 							renderIcon={(color) => (
 								<div style={iconContainer}>
-									<EffectsIcon color={color} style={icon} />
+									<SeparationIcon color={color} style={icon} />
 								</div>
 							)}
 							selected={tab === 'separate'}
