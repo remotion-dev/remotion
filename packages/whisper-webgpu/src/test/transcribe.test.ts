@@ -332,6 +332,7 @@ test('transcribes with word timestamps using WebGPU', async () => {
 		{
 			multilingual: true,
 			supportsTranslation: false,
+			webGpuDownloadSize: 1_608_611_679,
 		},
 	);
 	expect(await isWhisperModelCached({model: 'small.en'})).toBe(true);
@@ -434,6 +435,10 @@ test('loads every public model from its explicit immutable hosted path', async (
 		'onnx-community/whisper-medium.en_timestamped',
 		'onnx-community/whisper-large-v3-turbo_timestamped',
 	]);
+	expect(pipelineInitialization?.options).toMatchObject({
+		device: 'webgpu',
+		dtype: {encoder_model: 'fp16', decoder_model_merged: 'q4'},
+	});
 	expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
 });
 
@@ -677,18 +682,18 @@ test('shares concurrent initialization and keeps the model host scoped until eve
 test('removes a downloaded model from memory and the persistent cache', async () => {
 	const {loadWhisperModel, removeWhisperModel} = await import('../index');
 	const disposalsBeforeRemoval = disposeCalls;
-	await loadWhisperModel({model: 'tiny.en'});
-	await removeWhisperModel({model: 'tiny.en'});
+	await loadWhisperModel({model: 'large-v3-turbo'});
+	await removeWhisperModel({model: 'large-v3-turbo'});
 
 	expect(disposeCalls).toBe(disposalsBeforeRemoval + 1);
 	expect(cacheClear).toEqual({
 		task: 'automatic-speech-recognition',
-		modelId: 'whisper-tiny.en_timestamped-v1',
+		modelId: 'whisper-large-v3-turbo_timestamped-v1',
 		options: {
 			device: 'webgpu',
 			dtype: {
 				decoder_model_merged: 'q4',
-				encoder_model: 'fp32',
+				encoder_model: 'fp16',
 			},
 		},
 	});

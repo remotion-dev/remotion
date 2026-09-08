@@ -1,7 +1,7 @@
 import {
 	getHostedModelId,
 	getModelInfo,
-	WHISPER_WEBGPU_DTYPE,
+	getWhisperWebGpuDtype,
 	type WhisperWebGpuModel,
 } from './models';
 import {withRemotionModelHost} from './with-remotion-model-host';
@@ -107,7 +107,7 @@ const getOrCreateWhisperPipeline = ({
 			let lastLoadedBytes = 0;
 			return pipeline('automatic-speech-recognition', hostedModelId, {
 				device: 'webgpu',
-				dtype: WHISPER_WEBGPU_DTYPE,
+				dtype: getWhisperWebGpuDtype(model),
 				progress_callback: (event) => {
 					const record = event as Record<string, unknown>;
 					if (
