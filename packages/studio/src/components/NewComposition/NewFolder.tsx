@@ -72,20 +72,26 @@ export const NewFolder: React.FC<{
 		[],
 	);
 
-	const folderNameErrMessage = validateNewFolderName({
-		folders,
-		newName,
-		parentName,
-	});
+	const folderName = Internals.isFolderNameValid(newName)
+		? newName
+		: newName
+				.toLowerCase()
+				.normalize('NFD')
+				.replace(/[\u0300-\u036f]/g, '')
+				.replace(/[^a-z0-9\u4E00-\u9FFF-]+/g, '-')
+				.replace(/^-+|-+$/g, '');
+	const folderNameErrMessage = folderName
+		? validateNewFolderName({folders, newName: folderName, parentName})
+		: 'Enter a name containing letters or numbers.';
 	const valid = folderNameErrMessage === null;
 
 	const codemod: RecastCodemod = useMemo(() => {
 		return {
 			type: 'new-folder',
-			folderName: newName,
+			folderName,
 			parentName,
 		};
-	}, [newName, parentName]);
+	}, [folderName, parentName]);
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
@@ -116,6 +122,10 @@ export const NewFolder: React.FC<{
 									status="ok"
 									rightAlign
 								/>
+								<Spacing y={1} block />
+								<div aria-live="polite">
+									Folder name: {folderName || '(empty)'}
+								</div>
 								{folderNameErrMessage ? (
 									<>
 										<Spacing y={1} block />
