@@ -244,7 +244,11 @@ export const RenderQueueContextProvider: React.FC<{
 						? {
 								...job,
 								status: 'running',
-								progress: {message: 'Starting video matting...', value: 0},
+								progress: {
+									detail: null,
+									message: 'Starting video matting...',
+									value: 0,
+								},
 							}
 						: job,
 				),

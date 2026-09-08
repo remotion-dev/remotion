@@ -26,6 +26,7 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 			let processingError: Error | null = null;
 			try {
 				updateVideoMattingJobProgress(job.id, {
+					detail: null,
 					message: 'Checking WebGPU support...',
 					value: 0,
 				});
@@ -45,7 +46,10 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 							onProgress: (progress) => onProgress(progress.progress),
 						}),
 					updateProgress: (progress) =>
-						updateVideoMattingJobProgress(job.id, progress),
+						updateVideoMattingJobProgress(job.id, {
+							...progress,
+							detail: null,
+						}),
 				});
 
 				outputs = await separateVideoLayers({
@@ -55,16 +59,21 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 					videoBitrate: job.videoBitrate,
 					onProgress: (progress) => {
 						updateVideoMattingJobProgress(job.id, {
+							detail:
+								progress.stage === 'finalizing'
+									? `Processed ${progress.processedFrames} ${progress.processedFrames === 1 ? 'frame' : 'frames'}`
+									: `Processed ${progress.processedFrames} ${progress.processedFrames === 1 ? 'frame' : 'frames'} · ${Math.round(progress.progress * 100)}%`,
 							message:
 								progress.stage === 'finalizing'
 									? 'Finalizing video layers...'
-									: `Processed ${progress.processedFrames} ${progress.processedFrames === 1 ? 'frame' : 'frames'} · ${Math.round(progress.progress * 100)}%`,
+									: 'Separating foreground...',
 							value: 0.2 + (progress.progress ?? 1) * 0.65,
 						});
 					},
 				});
 
 				updateVideoMattingJobProgress(job.id, {
+					detail: null,
 					message: 'Saving video layers...',
 					value: 0.88,
 				});

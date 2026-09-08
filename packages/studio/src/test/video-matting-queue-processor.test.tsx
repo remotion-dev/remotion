@@ -2,7 +2,10 @@ import {afterEach, expect, mock, test} from 'bun:test';
 import {act, cleanup, render, waitFor} from '@testing-library/react';
 import type {ContextType} from 'react';
 import {RenderQueueContext} from '../components/RenderQueue/context';
-import type {VideoMattingJob} from '../components/RenderQueue/video-matting-job-types';
+import type {
+	VideoMattingJob,
+	VideoMattingJobProgress,
+} from '../components/RenderQueue/video-matting-job-types';
 import {makeBrowserStudioOperations} from './make-browser-studio-operations';
 
 const calls: string[] = [];
@@ -68,15 +71,18 @@ test('loads the model, separates the layers and writes both outputs', async () =
 			},
 		}),
 	});
-	const progress: string[] = [];
+	const progress: VideoMattingJobProgress[] = [];
 	let done = false;
 	let failed: Error | null = null;
 	const value = {
 		setProcessVideoMattingJobCallback: (callback: typeof processJob) => {
 			processJob = callback;
 		},
-		updateVideoMattingJobProgress: (_id: string, update: {message: string}) => {
-			progress.push(update.message);
+		updateVideoMattingJobProgress: (
+			_id: string,
+			update: VideoMattingJobProgress,
+		) => {
+			progress.push(update);
 		},
 		markVideoMattingJobDone: () => {
 			done = true;
@@ -120,8 +126,16 @@ test('loads the model, separates the layers and writes both outputs', async () =
 		'write:input-foreground.webm',
 		'dispose-model',
 	]);
-	expect(progress).toContain('Downloading modnet 100%');
-	expect(progress).toContain('Processed 42 frames · 50%');
+	expect(progress).toContainEqual({
+		detail: null,
+		message: 'Downloading modnet 100%',
+		value: 0.2,
+	});
+	expect(progress).toContainEqual({
+		detail: 'Processed 42 frames · 50%',
+		message: 'Separating foreground...',
+		value: 0.525,
+	});
 	if (originalBrowserStudio) {
 		Object.defineProperty(
 			window,

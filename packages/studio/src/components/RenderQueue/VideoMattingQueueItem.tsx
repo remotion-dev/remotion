@@ -40,6 +40,11 @@ const subtitle: React.CSSProperties = {
 	...renderQueueItemSubtitleStyle,
 	cursor: 'default',
 };
+const subtitles: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+	overflow: 'hidden',
+};
 const statusIcon: React.CSSProperties = {
 	height: RENDER_STATUS_INDICATOR_SIZE,
 	width: RENDER_STATUS_INDICATOR_SIZE,
@@ -102,14 +107,17 @@ export const VideoMattingQueueItem: React.FC<{
 		}),
 		[done, hovered, selected],
 	);
-	const message =
+	const messages =
 		job.status === 'idle'
-			? 'Queued for video matting'
+			? ['Queued for video matting']
 			: job.status === 'running'
-				? job.progress.message
+				? [job.progress.message, job.progress.detail].filter(
+						(message): message is string => message !== null,
+					)
 				: job.status === 'failed'
-					? job.error.message
-					: `${job.baseOutName} · ${job.foregroundOutName}`;
+					? [job.error.message]
+					: [job.baseOutName, job.foregroundOutName];
+	const tooltip = messages.join('\n');
 	const onClick = useCallback(() => {
 		if (!done) return;
 		selectAsset(job.foregroundOutName);
@@ -146,9 +154,13 @@ export const VideoMattingQueueItem: React.FC<{
 			<Spacing x={1} />
 			<div style={right}>
 				<div style={title}>{job.displayName}</div>
-				<span style={subtitle} title={message}>
-					{message}
-				</span>
+				<div style={subtitles} title={tooltip}>
+					{messages.map((message) => (
+						<span key={message} style={subtitle}>
+							{message}
+						</span>
+					))}
+				</div>
 			</div>
 			<Spacing x={1} />
 			{job.status === 'running' ? null : (

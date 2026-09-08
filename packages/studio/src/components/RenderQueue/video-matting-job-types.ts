@@ -5,6 +5,7 @@ import type {
 } from '@remotion/video-matting';
 
 export type VideoMattingJobProgress = {
+	detail: string | null;
 	message: string;
 	value: number;
 };
