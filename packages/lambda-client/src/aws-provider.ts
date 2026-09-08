@@ -53,7 +53,10 @@ import {randomHashImplementation} from './random-hash';
 import {lambdaReadFileImplementation} from './read-file';
 import type {RuntimePreference} from './runtime-preference';
 import type {RequestHandler} from './types';
-import {lambdaWriteFileImplementation} from './write-file';
+import {
+	lambdaWriteFileImplementation,
+	lambdaWriteFileIfNotExistsImplementation,
+} from './write-file';
 
 if (
 	/^AWS_Lambda_nodejs(?:18|20|24)[.]x$/.test(
@@ -112,6 +115,7 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	randomHash: randomHashImplementation,
 	readFile: lambdaReadFileImplementation,
 	writeFile: lambdaWriteFileImplementation,
+	writeFileIfNotExists: lambdaWriteFileIfNotExistsImplementation,
 	headFile: lambdaHeadFileImplementation,
 	convertToServeUrl: convertToServeUrlImplementation,
 	printLoggingHelper: true,

@@ -18,8 +18,11 @@ import {
 	mockBucketExists,
 	mockDeleteS3File,
 	readMockS3File,
+	streamToUint8Array,
 	writeMockS3File,
 } from './mock-store';
+
+const conditionalRenderIds = new Map<string, string>();
 
 export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	getAccountId: () =>
@@ -105,6 +108,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		return Promise.resolve(createReadStream(tmp));
 	},
 	writeFile: async ({body, bucketName, key, privacy, region}) => {
+		conditionalRenderIds.delete(`${region}/${bucketName}/${key}`);
 		await writeMockS3File({
 			body,
 			bucketName,
@@ -113,6 +117,24 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			region,
 		});
 		return Promise.resolve(undefined);
+	},
+	writeFileIfNotExists: async ({
+		body,
+		bucketName,
+		key,
+		privacy,
+		region,
+		renderId,
+	}) => {
+		const content = await streamToUint8Array(body);
+		if (readMockS3File({region, bucketName, key})) {
+			throw new Error(
+				`Output file "${key}" in bucket "${bucketName}" already exists.`,
+			);
+		}
+
+		await writeMockS3File({body: content, bucketName, key, privacy, region});
+		conditionalRenderIds.set(`${region}/${bucketName}/${key}`, renderId);
 	},
 	headFile: ({bucketName, key, region}) => {
 		const read = readMockS3File({
@@ -127,6 +149,8 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		}
 
 		return Promise.resolve({
+			renderId:
+				conditionalRenderIds.get(`${region}/${bucketName}/${key}`) ?? null,
 			ContentLength: read.content.toString().length,
 			LastModified: new Date(),
 		});

@@ -24,6 +24,7 @@ const bucketName = 'source-bucket';
 const startedDate = Date.now() - 30000;
 
 const renderMetadata: RenderMetadata<MockProvider> = {
+	outputFileIsConditional: null,
 	audioBitrate: null,
 	audioCodec: null,
 	codec: 'h264',
@@ -164,6 +165,7 @@ const makeProviderSpecifics = ({
 		serverStorageProductName: () => 'S3',
 		validateDeleteAfter: () => undefined,
 		writeFile: () => Promise.resolve(),
+		writeFileIfNotExists: null,
 		headFile: onHeadFile,
 	};
 };
@@ -174,7 +176,7 @@ test('getProgress treats an existing output file as finished if postRenderData w
 		billingCurrency: 'CNY',
 		onHeadFile: ({bucketName: headedBucketName, key}) => {
 			headedFiles.push({bucketName: headedBucketName, key});
-			return Promise.resolve({ContentLength: 1234});
+			return Promise.resolve({ContentLength: 1234, renderId: null});
 		},
 		renderProgress: null,
 	});
@@ -222,7 +224,7 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 				priceInputs.push(input);
 				return input.durationInMilliseconds;
 			},
-			onHeadFile: () => Promise.resolve({ContentLength: 0}),
+			onHeadFile: () => Promise.resolve({ContentLength: 0, renderId: null}),
 			renderProgress: null,
 		});
 
@@ -294,4 +296,122 @@ test('getProgress keeps direct render progress finite', async () => {
 		expect(renderProgress.overallProgress).toBeGreaterThanOrEqual(0);
 		expect(renderProgress.overallProgress).toBeLessThanOrEqual(1);
 	}
+});
+
+test('getProgress falls back to persisted progress when destination reads are denied', async () => {
+	let heads = 0;
+	const providerSpecifics = makeProviderSpecifics({
+		renderProgress: null,
+		onHeadFile: () => {
+			heads++;
+			return Promise.reject(
+				Object.assign(new Error('Forbidden'), {
+					$metadata: {httpStatusCode: 403},
+				}),
+			);
+		},
+	});
+	for (const timeoutInMilliseconds of [120000, 1000]) {
+		const result = await getProgress({
+			bucketName,
+			renderId,
+			customCredentials: null,
+			expectedBucketOwner: null,
+			forcePathStyle: false,
+			functionName: renderMetadata.functionName,
+			memorySizeInMb: 2048,
+			providerSpecifics,
+			region: 'eu-central-1',
+			requestHandler: null,
+			timeoutInMilliseconds,
+		});
+		expect(result.done).toBe(false);
+		expect(result.framesRendered).toBe(20);
+		expect(result.outputFile).toBeNull();
+		expect(result.fatalErrorEncountered).toBe(timeoutInMilliseconds === 1000);
+	}
+
+	expect(heads).toBe(2);
+});
+
+test('getProgress only recovers a conditional output belonging to this render', async () => {
+	for (const outputRenderId of [null, 'another-render', renderId]) {
+		const providerSpecifics = makeProviderSpecifics({
+			renderProgress: {
+				...progress,
+				renderMetadata: {...renderMetadata, outputFileIsConditional: true},
+			},
+			onHeadFile: () =>
+				Promise.resolve({renderId: outputRenderId, ContentLength: 1234}),
+		});
+		const result = await getProgress({
+			bucketName,
+			renderId,
+			customCredentials: null,
+			expectedBucketOwner: null,
+			forcePathStyle: false,
+			functionName: renderMetadata.functionName,
+			memorySizeInMb: 2048,
+			providerSpecifics,
+			region: 'eu-central-1',
+			requestHandler: null,
+			timeoutInMilliseconds: 120000,
+		});
+		expect(result.done).toBe(outputRenderId === renderId);
+		expect(result.outputSizeInBytes).toBe(
+			outputRenderId === renderId ? 1234 : null,
+		);
+	}
+});
+
+test('getProgress preserves upload failures and unexpected storage errors', async () => {
+	const uploadFailure = {
+		type: 'stitcher' as const,
+		message: 'Output already exists',
+		name: 'Error',
+		stack: '',
+		frame: null,
+		chunk: null,
+		isFatal: true,
+		attempt: 1,
+		willRetry: false,
+		totalAttempts: 1,
+		tmpDir: null,
+	};
+	let heads = 0;
+	const storageError = Object.assign(new Error('Storage unavailable'), {
+		$metadata: {httpStatusCode: 500},
+	});
+	for (const errors of [[uploadFailure], []]) {
+		const providerSpecifics = makeProviderSpecifics({
+			renderProgress: {...progress, errors},
+			onHeadFile: () => {
+				heads++;
+				return Promise.reject(storageError);
+			},
+		});
+		const pending = getProgress({
+			bucketName,
+			renderId,
+			customCredentials: null,
+			expectedBucketOwner: null,
+			forcePathStyle: false,
+			functionName: renderMetadata.functionName,
+			memorySizeInMb: 2048,
+			providerSpecifics,
+			region: 'eu-central-1',
+			requestHandler: null,
+			timeoutInMilliseconds: 120000,
+		});
+		if (errors.length) {
+			const result = await pending;
+			expect(result.done).toBe(false);
+			expect(result.fatalErrorEncountered).toBe(true);
+			expect(result.errors[0].message).toBe('Output already exists');
+		} else {
+			await expect(pending).rejects.toBe(storageError);
+		}
+	}
+
+	expect(heads).toBe(1);
 });

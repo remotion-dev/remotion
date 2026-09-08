@@ -48,7 +48,7 @@ const makeProviderSpecifics = ({
 		getMaxNonInlinePayloadSizePerFunction: () => 0,
 		getMaxStillInlinePayloadSize: () => 0,
 		getOutputUrl: () => ({key: 'out.mp4', url: 'https://example.com/out.mp4'}),
-		headFile: () => Promise.resolve({}),
+		headFile: () => Promise.resolve({renderId: null}),
 		isFlakyError: () => false,
 		listObjects: () => Promise.resolve([]),
 		parseFunctionName: () => null,
@@ -58,6 +58,7 @@ const makeProviderSpecifics = ({
 		serverStorageProductName: () => 'S3',
 		validateDeleteAfter: () => undefined,
 		writeFile,
+		writeFileIfNotExists: null,
 	};
 };
 

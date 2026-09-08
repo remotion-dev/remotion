@@ -50,6 +50,8 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	region: Provider['region'];
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
+	// Conditional outputs carry the render ID so recovery cannot use another render's file.
+	outputFileIsConditional: boolean | null;
 	privacy: Privacy;
 	deleteAfter: DeleteAfter | null;
 	numberOfGifLoops: number | null;

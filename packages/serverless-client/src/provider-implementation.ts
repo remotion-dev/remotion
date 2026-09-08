@@ -103,6 +103,7 @@ type ConvertToServeUrl<Provider extends CloudProvider> = (params: {
 }) => string;
 
 type HeadFileOutput = {
+	renderId: string | null;
 	LastModified?: Date | undefined;
 	ContentLength?: number | undefined;
 };
@@ -248,6 +249,9 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	randomHash: RandomHash;
 	readFile: ReadFile<Provider>;
 	writeFile: WriteFile<Provider>;
+	writeFileIfNotExists:
+		| ((params: WriteFileInput<Provider> & {renderId: string}) => Promise<void>)
+		| null;
 	headFile: HeadFile<Provider>;
 	convertToServeUrl: ConvertToServeUrl<Provider>;
 	printLoggingHelper: boolean;

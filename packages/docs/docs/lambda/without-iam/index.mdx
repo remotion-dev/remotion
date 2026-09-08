@@ -34,7 +34,7 @@ The steps below provide authorization for the Lambda function to execute `render
 - Click on JSON
 - Copy the JSON policy template below:
   <details>
-  <summary>Show full role permissions JSON file for latest Remotion Lambda version</summary>
+    <summary>Show full role permissions JSON file for latest Remotion Lambda version</summary>
   <UserPolicy />
 </details>
 - Click next. On the tags page, you don't need to fill in anything. Click next again.
@@ -104,22 +104,19 @@ In the example above, `renderMediaOnLambda()` is configured to output the render
   - Click "Create inline policy"
   - Click the "JSON" tab
 
-Add the policy below to grant `s3:PutObject` and `s3:GetObject` on the destination bucket's objects, and `s3:ListBucket` on the bucket itself.
+Add the policy below to grant `s3:PutObject` on the destination bucket's objects.
 
-Remotion checks whether the output file exists using an S3 `HeadObject` request. This requires `s3:GetObject`. The `s3:ListBucket` permission lets S3 return `404 Not Found` while the output file does not exist, instead of `403 Forbidden`. See the [S3 HeadObject permissions](https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html).
+From <AvailableFrom v="4.0.523" inline />, AWS S3 destinations can use a write-only policy. When [`overwrite`](/docs/lambda/rendermediaonlambda#overwrite) is `false`, a conditional upload prevents replacing an existing file. If the role cannot check whether the file exists before rendering, a conflict is reported when uploading the finished video.
+
+In versions 4.0.472–4.0.522, custom destination buckets also require `s3:GetObject` on `arn:aws:s3:::{bucketname}/*` and `s3:ListBucket` on `arn:aws:s3:::{bucketname}`. Upgrade to restore write-only access. These additional permissions remain useful for detecting existing files before rendering and recovering completion if the final progress update is missing. See the [S3 HeadObject permissions](https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html).
 
 ```json title="Destination bucket policy"
 {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Action": ["s3:PutObject", "s3:GetObject"],
+      "Action": ["s3:PutObject"],
       "Resource": ["arn:aws:s3:::{bucketname}/*"],
-      "Effect": "Allow"
-    },
-    {
-      "Action": ["s3:ListBucket"],
-      "Resource": ["arn:aws:s3:::{bucketname}"],
       "Effect": "Allow"
     }
   ]

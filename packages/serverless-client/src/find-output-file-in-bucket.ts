@@ -7,7 +7,10 @@ import type {CloudProvider} from './types';
 export type OutputFileMetadata = {
 	url: string;
 	sizeInBytes: number | null;
+	renderId: string | null;
 };
+
+export class OutputFileAccessDeniedError extends Error {}
 
 export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	region,
@@ -46,6 +49,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 		});
 
 		return {
+			renderId: metadata.renderId ?? null,
 			url: providerSpecifics.getOutputUrl({
 				renderMetadata,
 				bucketName,
@@ -64,7 +68,12 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 			(err as {$metadata: {httpStatusCode: number}}).$metadata
 				?.httpStatusCode === 403
 		) {
-			throw new Error(
+			const ErrorClass =
+				(err as {$metadata: {httpStatusCode: number} | undefined}).$metadata
+					?.httpStatusCode === 403
+					? OutputFileAccessDeniedError
+					: Error;
+			throw new ErrorClass(
 				`Unable to access item "${key}" from bucket "${renderBucketName}" ${
 					customCredentials?.endpoint
 						? `(S3 Endpoint = ${customCredentials?.endpoint})`

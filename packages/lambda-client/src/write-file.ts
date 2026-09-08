@@ -1,6 +1,9 @@
 /* eslint-disable no-console */
 import type {ObjectCannedACL, PutObjectCommandInput} from '@aws-sdk/client-s3';
-import {PutObjectCommand} from '@aws-sdk/client-s3';
+import {
+	AbortMultipartUploadCommand,
+	PutObjectCommand,
+} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import type {
 	CustomCredentials,
@@ -26,7 +29,8 @@ const tryLambdaWriteFile = async ({
 	forcePathStyle,
 	storageClass,
 	requestHandler,
-}: WriteFileInput<AwsProvider>): Promise<void> => {
+	renderId,
+}: WriteFileInput<AwsProvider> & {renderId: string | null}): Promise<void> => {
 	const client = getS3Client({
 		region,
 		customCredentials: customCredentials as CustomCredentials<AwsProvider>,
@@ -50,6 +54,8 @@ const tryLambdaWriteFile = async ({
 		ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
 		ContentDisposition: getContentDispositionHeader(downloadBehavior),
 		StorageClass: storageClass ?? undefined,
+		IfNoneMatch: renderId === null ? undefined : '*',
+		Metadata: renderId === null ? undefined : {'remotion-render-id': renderId},
 	};
 
 	// Determine file size
@@ -71,22 +77,60 @@ const tryLambdaWriteFile = async ({
 			partSize: 5 * 1024 * 1024, // chunk size of 5MB
 		});
 
-		await upload.done();
+		try {
+			await upload.done();
+		} catch (err) {
+			const status = (err as {$metadata: {httpStatusCode: number} | undefined})
+				.$metadata?.httpStatusCode;
+			// lib-storage does not abort when CompleteMultipartUpload rejects a condition.
+			if (
+				renderId !== null &&
+				upload.uploadId &&
+				(status === 412 || status === 409)
+			) {
+				await client
+					.send(
+						new AbortMultipartUploadCommand({
+							Bucket: bucketName,
+							Key: key,
+							UploadId: upload.uploadId,
+							ExpectedBucketOwner: params.ExpectedBucketOwner,
+						}),
+					)
+					.catch(() => {
+						// A write-only policy may not allow cleanup. Preserve the upload error.
+					});
+			}
+
+			throw err;
+		}
 	} else {
 		// Use regular PutObject for small files
 		await client.send(new PutObjectCommand(params));
 	}
 };
 
-export const lambdaWriteFileImplementation = async (
+const writeFileWithRetries = async (
 	params: WriteFileInput<AwsProvider> & {
 		retries?: number;
+		renderId: string | null;
 	},
 ): Promise<void> => {
 	const remainingRetries = params.retries ?? 2;
 	try {
 		await tryLambdaWriteFile(params);
 	} catch (err) {
+		if (
+			params.renderId !== null &&
+			(err as {$metadata: {httpStatusCode: number} | undefined}).$metadata
+				?.httpStatusCode === 412
+		) {
+			throw new Error(
+				`Output file "${params.key}" in bucket "${params.bucketName}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it.`,
+				{cause: err},
+			);
+		}
+
 		// A failed upload may have consumed a Readable, and we cannot recreate it here.
 		// Retrying it could upload an empty body and mask the original error.
 		const bodyCanBeRetried =
@@ -104,9 +148,23 @@ export const lambdaWriteFileImplementation = async (
 		console.warn(err);
 		console.warn(`Retrying (${remainingRetries} retries remaining)...`);
 
-		return lambdaWriteFileImplementation({
+		return writeFileWithRetries({
 			...params,
 			retries: remainingRetries - 1,
 		});
 	}
+};
+
+export const lambdaWriteFileImplementation = (
+	params: WriteFileInput<AwsProvider> & {retries?: number},
+): Promise<void> => writeFileWithRetries({...params, renderId: null});
+
+export const lambdaWriteFileIfNotExistsImplementation = (
+	params: WriteFileInput<AwsProvider> & {renderId: string},
+): Promise<void> => {
+	if (params.customCredentials !== null) {
+		throw new Error('Conditional output uploads are only supported for AWS S3');
+	}
+
+	return writeFileWithRetries(params);
 };

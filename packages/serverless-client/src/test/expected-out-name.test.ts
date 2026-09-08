@@ -17,6 +17,7 @@ type MockProvider = {
 };
 
 const testRenderMetadata: RenderMetadata<MockProvider> = {
+	outputFileIsConditional: null,
 	compositionId: 'react-svg',
 	estimatedRenderLambdaInvokations: 100,
 	estimatedTotalLambdaInvokations: 100,
