@@ -1,5 +1,5 @@
 import path from 'path';
-import {build} from 'bun';
+import {build, type BunPlugin} from 'bun';
 import {Exports, validateExports} from './validate-exports';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -83,6 +83,7 @@ export const buildPackage = async ({
 	external,
 	entrypoints,
 	filterExternal = (external) => external,
+	plugins = null,
 }: {
 	formats: {
 		esm: FormatAction;
@@ -91,6 +92,7 @@ export const buildPackage = async ({
 	external: 'dependencies' | string[];
 	filterExternal?: (external: string[]) => string[];
 	entrypoints: EntryPoint[];
+	plugins?: BunPlugin[] | null;
 }) => {
 	console.time(`Generated.`);
 	const pkg = await Bun.file(path.join(process.cwd(), 'package.json')).json();
@@ -128,6 +130,7 @@ export const buildPackage = async ({
 				const externalFinal = filterExternal(getExternal(external));
 				validateExternal(externalFinal);
 				const output = await build({
+					plugins: plugins ?? [],
 					entrypoints: batch.map(({path: entryPath}) => entryPath),
 					naming:
 						action === 'build-shared'

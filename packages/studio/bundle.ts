@@ -1,7 +1,6 @@
 import {buildPackage} from '../.monorepo/builder';
 
 const external = [
-	'prismjs',
 	'react',
 	'remotion',
 	'@remotion/canvas',
@@ -25,6 +24,19 @@ const external = [
 ];
 
 await buildPackage({
+	// Browser Studio's fallback compiler consumes this chunk without CSS loaders.
+	// Keep the theme in the lazy JS chunk instead of emitting a separate stylesheet.
+	plugins: [
+		{
+			name: 'inline-styles',
+			setup(builder) {
+				builder.onLoad({filter: /\.css$/}, async ({path}) => ({
+					loader: 'js',
+					contents: `const style = document.createElement('style'); style.textContent = ${JSON.stringify(await Bun.file(path).text())}; document.head.appendChild(style);`,
+				}));
+			},
+		},
+	],
 	formats: {
 		// Keep visual controls and other singleton state shared across entry points.
 		esm: 'build-shared',

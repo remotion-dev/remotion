@@ -1,12 +1,13 @@
 import Prism from 'prismjs';
-import 'prismjs/components/prism-jsx.js';
-import 'prismjs/components/prism-typescript.js';
-import 'prismjs/components/prism-tsx.js';
 import 'prismjs/themes/prism-tomorrow.css';
 import React, {useMemo} from 'react';
 
-// React owns this DOM. Prism's automatic highlighting would replace its nodes.
+// These CommonJS grammars read global Prism. Load them after initialization:
+// Bun hoists side-effect imports ahead of the CommonJS default import.
 Prism.manual = true;
+require('prismjs/components/prism-jsx.js');
+require('prismjs/components/prism-typescript.js');
+require('prismjs/components/prism-tsx.js');
 
 const tokenStyle: React.CSSProperties = {
 	fontFamily: 'inherit',
