@@ -297,6 +297,7 @@ const PoppingWordCaptionsInner = forwardRef<
 			name,
 			style,
 			width,
+			height,
 			...interactiveProps
 		},
 		ref,
@@ -329,8 +330,9 @@ const PoppingWordCaptionsInner = forwardRef<
 				<div
 					ref={outlineRef}
 					style={{
-						height: '100%',
-						width: '100%',
+						height,
+						marginInline: 'auto',
+						width,
 						...style,
 					}}
 				>

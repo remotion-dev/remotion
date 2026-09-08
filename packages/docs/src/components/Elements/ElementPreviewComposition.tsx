@@ -61,6 +61,13 @@ export const ElementPreviewComposition: React.FC<{
 				>
 					<div
 						style={{
+							...(definition.category === 'captions'
+								? {
+										alignItems: 'center',
+										display: 'flex',
+										justifyContent: 'center',
+									}
+								: {}),
 							height: elementHeight,
 							left: 0,
 							position: 'absolute',
