@@ -1,6 +1,7 @@
 import React, {Suspense, useCallback, useState} from 'react';
 import {BLUE, LIGHT_TEXT, WARNING_COLOR, WHITE} from '../helpers/colors';
 import {Button} from './Button';
+import {sectionHeader} from './InspectorPanel/styles';
 import {
 	installOptionalPackage,
 	useOptionalPackageInstalled,
@@ -37,11 +38,9 @@ const lastSection: React.CSSProperties = {
 };
 
 const title: React.CSSProperties = {
-	color: WHITE,
-	fontSize: 14,
-	fontWeight: 600,
-	lineHeight: 1.4,
+	...sectionHeader,
 	margin: 0,
+	padding: '4px 0',
 };
 
 const packageNameStyle: React.CSSProperties = {
