@@ -38,6 +38,7 @@ const descriptionStyle: React.CSSProperties = {
 	fontSize: 13,
 	lineHeight: 1.5,
 	margin: 0,
+	whiteSpace: 'pre-line',
 };
 const list: React.CSSProperties = {marginTop: 14};
 const modelRow: React.CSSProperties = {

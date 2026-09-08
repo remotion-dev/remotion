@@ -396,7 +396,9 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 						</div>
 					</div>
 					<Models
-						description="Models are downloaded automatically when needed. You can also manage the browser cache here."
+						description={
+							'Models are downloaded automatically when needed.\nYou can also manage the browser cache here.'
+						}
 						indent
 						visible={tab === 'models'}
 					/>
