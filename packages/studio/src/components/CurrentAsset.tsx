@@ -417,7 +417,7 @@ export const AssetInfo: React.FC<{
 							<SeparationIcon color={color} style={quickActionIconStyle} />
 						)}
 					>
-						Separe foreground
+						Separate foreground
 					</InspectorQuickAction>
 				) : null}
 				{src ? (
