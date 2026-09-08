@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
+import {slugifyName} from '../../helpers/slugify-name';
 import {validateNewFolderName} from '../../helpers/validate-new-folder-name';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -73,13 +74,7 @@ export const NewFolder: React.FC<{
 		[],
 	);
 
-	const folderName = Internals.isFolderNameValid(newName)
-		? newName
-		: newName
-				.normalize('NFD')
-				.replace(/[\u0300-\u036f]/g, '')
-				.replace(/[^a-zA-Z0-9\u4E00-\u9FFF-]+/g, '-')
-				.replace(/^-+|-+$/g, '');
+	const folderName = slugifyName(newName);
 	const folderNameErrMessage = folderName
 		? validateNewFolderName({folders, newName: folderName, parentName})
 		: 'Enter a name containing letters or numbers.';
