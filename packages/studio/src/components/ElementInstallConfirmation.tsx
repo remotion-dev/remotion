@@ -838,13 +838,18 @@ export const ElementInstallConfirmation: React.FC<{
 						</dd>
 					</dl>
 
+					{activePlan ? (
+						<dl style={requestSourceStyle}>
+							<dt style={sectionTitleStyle}>Destination</dt>
+							<dd style={requestSourceDescriptionStyle}>
+								{activePlan.filePath}
+							</dd>
+						</dl>
+					) : null}
+
 					<div style={destinationControlStyle}>
-						<div style={sectionTitleStyle}>Destination</div>
-						<div
-							aria-label="Installation destination"
-							role="group"
-							style={{marginLeft: 'auto'}}
-						>
+						<div style={sectionTitleStyle}>Add to</div>
+						<div aria-label="Add to" role="group" style={{marginLeft: 'auto'}}>
 							<SegmentedControl
 								items={destinationOptions}
 								needsWrapping={false}
@@ -970,9 +975,7 @@ export const ElementInstallConfirmation: React.FC<{
 									) : null}
 								</div>
 							</div>
-						) : activePlan ? (
-							<p style={metadataDescriptionStyle}>{activePlan.filePath}</p>
-						) : planError ? (
+						) : !activePlan && planError ? (
 							<ValidationMessage
 								align="flex-start"
 								message={planError}
