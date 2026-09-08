@@ -76,6 +76,14 @@ const status: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 const actionIcon: React.CSSProperties = {height: 14, width: 14};
+const actionSlot: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'inline-flex',
+	flexShrink: 0,
+	height: 24,
+	justifyContent: 'center',
+	width: 24,
+};
 
 type ModelInfo<Model extends string> = {
 	readonly name: Model;
@@ -288,7 +296,9 @@ export const ModelManager = <Model extends string>({
 									/>
 								) : null}
 								{processingThisModel ? (
-									<Spinner duration={0.5} size={14} />
+									<span style={actionSlot}>
+										<Spinner duration={0.5} size={14} />
+									</span>
 								) : cached ? (
 									<InlineAction
 										disabled={actionInProgress}
