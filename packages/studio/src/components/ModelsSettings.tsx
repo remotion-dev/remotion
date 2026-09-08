@@ -146,14 +146,14 @@ export const ModelsSettings: React.FC = () => {
 				packageName={WHISPER_WEBGPU_PACKAGE}
 				style={section}
 			>
-				<LazyWhisperModels visible />
+				<LazyWhisperModels indent={false} visible />
 			</OptionalModelPackage>
 			<OptionalModelPackage
 				label="Video matting"
 				packageName={VIDEO_MATTING_PACKAGE}
 				style={lastSection}
 			>
-				<LazyVideoMattingModels visible />
+				<LazyVideoMattingModels indent={false} visible />
 			</OptionalModelPackage>
 		</div>
 	);

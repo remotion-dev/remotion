@@ -939,7 +939,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							validationMessage={chunkValidationMessage}
 						/>
 					</div>
-					<Models visible={tab === 'models'} />
+					<Models indent visible={tab === 'models'} />
 				</div>
 			</div>
 		</DismissableModal>

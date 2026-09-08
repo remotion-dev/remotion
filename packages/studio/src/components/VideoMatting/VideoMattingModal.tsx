@@ -383,7 +383,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 							</div>
 						</div>
 					</div>
-					<Models visible={tab === 'models'} />
+					<Models indent visible={tab === 'models'} />
 				</div>
 			</div>
 		</DismissableModal>

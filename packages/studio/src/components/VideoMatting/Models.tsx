@@ -10,7 +10,10 @@ import {ModelManager} from '../ModelManager';
 
 const AVAILABLE_MODELS = getAvailableModels();
 
-export const Models: React.FC<{readonly visible: boolean}> = ({visible}) => {
+export const Models: React.FC<{
+	readonly indent: boolean;
+	readonly visible: boolean;
+}> = ({indent, visible}) => {
 	const isModelCached = useCallback(
 		(model: VideoMattingModel) => isVideoMattingModelCached({model}),
 		[],
@@ -33,6 +36,7 @@ export const Models: React.FC<{readonly visible: boolean}> = ({visible}) => {
 			ariaLabel="Video matting models"
 			availableModels={AVAILABLE_MODELS}
 			description="Models are downloaded automatically when video separation starts. You can also manage the browser cache here."
+			indent={indent}
 			isModelCached={isModelCached}
 			loadModel={loadModel}
 			prepare={null}

@@ -30,6 +30,10 @@ const container: React.CSSProperties = {
 	minWidth: 0,
 	padding: '16px 16px 0',
 };
+const flushContainer: React.CSSProperties = {
+	...container,
+	padding: '16px 0 0',
+};
 const descriptionStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 13,
@@ -89,6 +93,7 @@ export const ModelManager = <Model extends string>({
 	ariaLabel,
 	availableModels,
 	description,
+	indent,
 	isModelCached,
 	loadModel,
 	prepare,
@@ -98,6 +103,7 @@ export const ModelManager = <Model extends string>({
 	readonly ariaLabel: string;
 	readonly availableModels: readonly ModelInfo<Model>[];
 	readonly description: string;
+	readonly indent: boolean;
 	readonly isModelCached: (model: Model) => Promise<boolean>;
 	readonly loadModel: (
 		model: Model,
@@ -229,7 +235,7 @@ export const ModelManager = <Model extends string>({
 			style={visible ? modelPanel : hiddenPanel}
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			<div style={container}>
+			<div style={indent ? container : flushContainer}>
 				<p style={descriptionStyle}>{description}</p>
 				{cacheCheckError ? (
 					<ValidationMessage

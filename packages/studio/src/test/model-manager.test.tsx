@@ -15,6 +15,7 @@ test('downloads and removes models through the shared manager', async () => {
 			ariaLabel="Test models"
 			availableModels={[{name: 'test-model', webGpuDownloadSize: 100}]}
 			description="Manage models."
+			indent
 			isModelCached={() => Promise.resolve(false)}
 			loadModel={(_model, onProgress) => {
 				onProgress(0.5);

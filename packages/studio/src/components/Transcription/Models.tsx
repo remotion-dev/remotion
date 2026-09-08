@@ -11,7 +11,10 @@ import {ModelManager} from '../ModelManager';
 
 const AVAILABLE_MODELS = getAvailableModels();
 
-export const Models: React.FC<{readonly visible: boolean}> = ({visible}) => {
+export const Models: React.FC<{
+	readonly indent: boolean;
+	readonly visible: boolean;
+}> = ({indent, visible}) => {
 	const isModelCached = useCallback(
 		(model: WhisperWebGpuModel) => isWhisperModelCached({model}),
 		[],
@@ -37,6 +40,7 @@ export const Models: React.FC<{readonly visible: boolean}> = ({visible}) => {
 			ariaLabel="Whisper models"
 			availableModels={AVAILABLE_MODELS}
 			description="Models are downloaded automatically when a transcription starts. You can also manage the browser cache here."
+			indent={indent}
 			isModelCached={isModelCached}
 			loadModel={loadModel}
 			prepare={clearStaleModels}
