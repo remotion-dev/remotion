@@ -9,7 +9,9 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {getFolderId} from '../../helpers/get-folder-id';
+import {slugifyName} from '../../helpers/slugify-name';
 import {validateFolderRename} from '../../helpers/validate-folder-rename';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -52,23 +54,26 @@ export const RenameFolder: React.FC<{
 		[],
 	);
 
-	const folderNameErrMessage = validateFolderRename({
-		folders,
-		newName,
-		originalName: folderName,
-		parentName,
-	});
+	const slug = slugifyName(newName);
+	const folderNameErrMessage = slug
+		? validateFolderRename({
+				folders,
+				newName: slug,
+				originalName: folderName,
+				parentName,
+			})
+		: 'Enter a name containing letters or numbers.';
 
-	const valid = folderNameErrMessage === null && folderName !== newName;
+	const valid = folderNameErrMessage === null && folderName !== slug;
 
 	const codemod: RecastCodemod = useMemo(() => {
 		return {
 			type: 'rename-folder',
 			folderName,
 			parentName,
-			newName,
+			newName: slug,
 		};
-	}, [folderName, newName, parentName]);
+	}, [folderName, slug, parentName]);
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
@@ -95,6 +100,17 @@ export const RenameFolder: React.FC<{
 									status="ok"
 									rightAlign
 								/>
+								{slug && slug !== newName ? (
+									<>
+										<Spacing y={1} block />
+										<div
+											aria-live="polite"
+											style={{fontSize: 12, color: LIGHT_TEXT}}
+										>
+											Will be renamed to {slug}
+										</div>
+									</>
+								) : null}
 								{folderNameErrMessage ? (
 									<>
 										<Spacing y={1} block />

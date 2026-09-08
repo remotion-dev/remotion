@@ -9,6 +9,8 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
+import {LIGHT_TEXT} from '../../helpers/colors';
+import {slugifyName} from '../../helpers/slugify-name';
 import {validateNewFolderName} from '../../helpers/validate-new-folder-name';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -72,20 +74,19 @@ export const NewFolder: React.FC<{
 		[],
 	);
 
-	const folderNameErrMessage = validateNewFolderName({
-		folders,
-		newName,
-		parentName,
-	});
+	const folderName = slugifyName(newName);
+	const folderNameErrMessage = folderName
+		? validateNewFolderName({folders, newName: folderName, parentName})
+		: 'Enter a name containing letters or numbers.';
 	const valid = folderNameErrMessage === null;
 
 	const codemod: RecastCodemod = useMemo(() => {
 		return {
 			type: 'new-folder',
-			folderName: newName,
+			folderName,
 			parentName,
 		};
-	}, [newName, parentName]);
+	}, [folderName, parentName]);
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
@@ -116,6 +117,17 @@ export const NewFolder: React.FC<{
 									status="ok"
 									rightAlign
 								/>
+								{folderName && folderName !== newName ? (
+									<>
+										<Spacing y={1} block />
+										<div
+											aria-live="polite"
+											style={{fontSize: 12, color: LIGHT_TEXT}}
+										>
+											Will be created as {folderName}
+										</div>
+									</>
+								) : null}
 								{folderNameErrMessage ? (
 									<>
 										<Spacing y={1} block />
