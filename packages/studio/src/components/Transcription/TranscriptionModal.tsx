@@ -125,9 +125,22 @@ const taskMessageRow: React.CSSProperties = {
 };
 
 const outputRow: React.CSSProperties = {
-	...optionRow,
+	display: 'flex',
+	flexDirection: 'row',
 	alignItems: 'flex-start',
+	paddingLeft: 16,
+	paddingRight: 16,
+	paddingTop: 4,
 	paddingBottom: 12,
+};
+
+const outputRightRow: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'row',
+	alignItems: 'flex-start',
+	justifyContent: 'flex-end',
+	minWidth: 0,
 };
 
 const tooltipContent: React.CSSProperties = {
@@ -404,7 +417,7 @@ const OutputSettings: React.FC<{
 				<code style={tooltipInlineCode}>Caption[]</code>. Load it from your
 				composition with <code style={tooltipInlineCode}>staticFile()</code>.
 			</TranscriptionSettingLabel>
-			<div style={rightRow}>
+			<div style={outputRightRow}>
 				<div style={controlStyle}>
 					<RemotionInput
 						aria-label="Caption output file"
