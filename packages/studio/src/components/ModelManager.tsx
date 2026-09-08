@@ -8,7 +8,6 @@ import {
 } from '../helpers/colors';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
 import {CloudDownloadIcon} from '../icons/cloud-download';
-import {Minus} from '../icons/minus';
 import {TrashIcon} from '../icons/trash';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -278,7 +277,7 @@ export const ModelManager = <Model extends string>({
 										style={{...statusIcon, fill: BLUE}}
 									/>
 								) : (
-									<Minus aria-hidden color={LIGHT_TEXT} style={statusIcon} />
+									<span aria-hidden style={statusIcon} />
 								)}
 								<span style={modelName}>{model.name}</span>
 								<span style={status} title={modelStatus}>
