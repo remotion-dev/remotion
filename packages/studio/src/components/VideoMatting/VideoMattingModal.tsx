@@ -179,7 +179,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 		() =>
 			makeOptions({
 				items: [
-					{id: 'base' as const, label: 'Base layer'},
+					{id: 'base' as const, label: 'Background layer'},
 					{id: 'foreground' as const, label: 'Foreground layer'},
 					{id: 'both' as const, label: 'Both layers'},
 					{id: 'none' as const, label: 'No audio'},
