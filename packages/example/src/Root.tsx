@@ -68,6 +68,8 @@ import {
 	HourLongTimelineTestbed,
 } from './HourLongTimelineTestbed';
 import {
+	BlurSlideTransitionDoc,
+	BlurSlideTransitionDocThumb,
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
 	CrossZoomTransitionDoc,
@@ -1460,6 +1462,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="swap-transition-doc-thumb"
 						component={SwapTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="blur-slide-transition-doc"
+						component={BlurSlideTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="blur-slide-transition-doc-thumb"
+						component={BlurSlideTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}

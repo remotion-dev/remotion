@@ -19,6 +19,11 @@ export type {
 	HtmlInCanvasShaderDraw,
 	HtmlInCanvasShaderDrawParams,
 } from './html-in-canvas-presentation.js';
+export {blurSlide} from './presentations/blur-slide.js';
+export type {
+	BlurSlideDirection,
+	BlurSlideProps,
+} from './presentations/blur-slide.js';
 export {crossZoom} from './presentations/cross-zoom.js';
 export type {CrossZoomProps} from './presentations/cross-zoom.js';
 export {dreamyZoom} from './presentations/dreamy-zoom.js';

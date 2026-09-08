@@ -7760,6 +7760,15 @@ export const articles = [
 		slug: 'transitions/make-html-in-canvas-presentation',
 	},
 	{
+		id: 'transitions/presentations/blur-slide',
+		title: 'blurSlide()',
+		relativePath: 'docs/transitions/presentations/blur-slide.mdx',
+		compId: 'articles-docs-transitions-presentations-blur-slide',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/blur-slide',
+	},
+	{
 		id: 'transitions/presentations/book-flip',
 		title: 'bookFlip()',
 		relativePath: 'docs/transitions/presentations/book-flip.mdx',
