@@ -16,14 +16,9 @@ import {
 type BasicCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
-		readonly captions?: Caption[];
+		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
-
-type BasicCaptionsLayerProps = Omit<BasicCaptionsProps, 'captions'> & {
-	readonly callerStyle: React.CSSProperties | null;
-	readonly captions: Caption[];
-};
 
 const defaultCombineTokensWithinMilliseconds = 2000;
 const maximumTextWidth = 800;
@@ -55,7 +50,6 @@ const basicCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	callerStyle: {type: 'hidden'},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
@@ -118,17 +112,15 @@ const BasicCaptionsContent: React.FC<{
 
 const BasicCaptionsInner = forwardRef<
 	HTMLDivElement,
-	BasicCaptionsLayerProps & {
+	BasicCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
 		{
-			callerStyle,
 			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
-			height,
 			name,
 			style,
 			width,
@@ -137,16 +129,6 @@ const BasicCaptionsInner = forwardRef<
 		ref,
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
-		const {
-			rotate: callerRotate,
-			scale: callerScale,
-			transform: callerTransform,
-			transformBox: callerTransformBox,
-			transformOrigin: callerTransformOrigin,
-			transformStyle: callerTransformStyle,
-			translate: callerTranslate,
-			...callerContentStyle
-		} = callerStyle ?? {};
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -159,36 +141,21 @@ const BasicCaptionsInner = forwardRef<
 				outlineRef={outlineRef}
 			>
 				<div
+					ref={outlineRef}
 					style={{
-						height: height ?? '100%',
-						rotate: callerRotate,
-						scale: callerScale,
-						transform: callerTransform,
-						transformBox: callerTransformBox,
-						transformOrigin: callerTransformOrigin,
-						transformStyle: callerTransformStyle,
-						translate: callerTranslate,
-						width: width ?? '100%',
+						alignItems: 'center',
+						display: 'flex',
+						height: '100%',
+						justifyContent: 'center',
+						width: '100%',
+						...style,
 					}}
 				>
-					<div
-						ref={outlineRef}
-						style={{
-							alignItems: 'center',
-							display: 'flex',
-							height: '100%',
-							justifyContent: 'center',
-							width: '100%',
-							...style,
-							...callerContentStyle,
-						}}
-					>
-						<BasicCaptionsContent
-							captionAreaWidth={width ?? null}
-							captions={captions}
-							combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						/>
-					</div>
+					<BasicCaptionsContent
+						captionAreaWidth={width ?? null}
+						captions={captions}
+						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+					/>
 				</div>
 			</Sequence>
 		);
@@ -201,66 +168,38 @@ const BasicCaptionsLayer = Interactive.withSchema({
 	componentIdentity: null,
 	schema: basicCaptionsSchema,
 	supportsEffects: false,
-}) as React.FC<BasicCaptionsLayerProps>;
+}) as React.FC<BasicCaptionsProps>;
 
-export const BasicCaptions: React.FC<BasicCaptionsProps> = ({
-	captions,
-	style,
-	...props
-}) => {
-	if (captions) {
-		return (
-			<BasicCaptionsLayer
-				{...props}
-				callerStyle={style ?? null}
-				captions={captions}
-				style={{translate: '0px 0px'}}
-			/>
-		);
-	}
-
+export const BasicCaptions: React.FC = () => {
 	return (
-		<div
-			style={{
-				alignItems: 'center',
-				display: 'flex',
-				height: 220,
-				justifyContent: 'center',
-				width: 900,
-			}}
-		>
-			<BasicCaptionsLayer
-				{...props}
-				callerStyle={style ?? null}
-				captions={[
-					{
-						text: 'Simple captions,\nready for every video.',
-						startMs: 0,
-						endMs: 2200,
-						timestampMs: 1100,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: 'No animation,\njust clear text.',
-						startMs: 2200,
-						endMs: 4400,
-						timestampMs: 3300,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: 'Easy to read,\nand easy to customize.',
-						startMs: 4400,
-						endMs: 7000,
-						timestampMs: 5700,
-						confidence: null,
-					},
-				]}
-				height={props.height ?? 220}
-				width={props.width ?? 900}
-				style={{translate: '0px 0px'}}
-			/>
-		</div>
+		<BasicCaptionsLayer
+			captions={[
+				{
+					text: 'Simple captions,ready for every video.',
+					startMs: 0,
+					endMs: 2200,
+					timestampMs: 1100,
+					confidence: null,
+					pageBreakAfter: true,
+				},
+				{
+					text: 'No animation,\njust clear text.',
+					startMs: 2200,
+					endMs: 4400,
+					timestampMs: 3300,
+					confidence: null,
+					pageBreakAfter: true,
+				},
+				{
+					text: 'Easy to read,\nand easy to customize.',
+					startMs: 4400,
+					endMs: 7000,
+					timestampMs: 5700,
+					confidence: null,
+				},
+			]}
+			height={220}
+			width={900}
+		/>
 	);
 };

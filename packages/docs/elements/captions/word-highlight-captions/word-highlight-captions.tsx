@@ -26,17 +26,9 @@ import {
 type WordHighlightCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
-		readonly captions?: Caption[];
+		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
-
-type WordHighlightCaptionsLayerProps = Omit<
-	WordHighlightCaptionsProps,
-	'captions'
-> & {
-	readonly callerStyle: React.CSSProperties | null;
-	readonly captions: Caption[];
-};
 
 const desiredFontSize = 80;
 const maximumTextWidth = 800;
@@ -72,7 +64,6 @@ const wordHighlightCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	callerStyle: {type: 'hidden'},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
@@ -256,17 +247,15 @@ const WordHighlightCaptionsContent: React.FC<{
 
 const WordHighlightCaptionsInner = forwardRef<
 	HTMLDivElement,
-	WordHighlightCaptionsLayerProps & {
+	WordHighlightCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
 		{
-			callerStyle,
 			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
-			height,
 			name,
 			style,
 			width,
@@ -276,16 +265,6 @@ const WordHighlightCaptionsInner = forwardRef<
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
 		const [fontLoaded, setFontLoaded] = useState(false);
-		const {
-			rotate: callerRotate,
-			scale: callerScale,
-			transform: callerTransform,
-			transformBox: callerTransformBox,
-			transformOrigin: callerTransformOrigin,
-			transformStyle: callerTransformStyle,
-			translate: callerTranslate,
-			...callerContentStyle
-		} = callerStyle ?? {};
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -310,34 +289,19 @@ const WordHighlightCaptionsInner = forwardRef<
 				outlineRef={outlineRef}
 			>
 				<div
+					ref={outlineRef}
 					style={{
-						height: height ?? '100%',
-						rotate: callerRotate,
-						scale: callerScale,
-						transform: callerTransform,
-						transformBox: callerTransformBox,
-						transformOrigin: callerTransformOrigin,
-						transformStyle: callerTransformStyle,
-						translate: callerTranslate,
-						width: width ?? '100%',
+						height: '100%',
+						width: '100%',
+						...style,
 					}}
 				>
-					<div
-						ref={outlineRef}
-						style={{
-							height: '100%',
-							width: '100%',
-							...style,
-							...callerContentStyle,
-						}}
-					>
-						<WordHighlightCaptionsContent
-							captionAreaWidth={width ?? null}
-							captions={captions}
-							combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-							fontLoaded={fontLoaded}
-						/>
-					</div>
+					<WordHighlightCaptionsContent
+						captionAreaWidth={width ?? null}
+						captions={captions}
+						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+						fontLoaded={fontLoaded}
+					/>
 				</div>
 			</Sequence>
 		);
@@ -350,92 +314,64 @@ const WordHighlightCaptionsLayer = Interactive.withSchema({
 	componentIdentity: null,
 	schema: wordHighlightCaptionsSchema,
 	supportsEffects: false,
-}) as React.FC<WordHighlightCaptionsLayerProps>;
+}) as React.FC<WordHighlightCaptionsProps>;
 
-export const WordHighlightCaptions: React.FC<WordHighlightCaptionsProps> = ({
-	captions,
-	style,
-	...props
-}) => {
-	if (captions) {
-		return (
-			<WordHighlightCaptionsLayer
-				{...props}
-				callerStyle={style ?? null}
-				captions={captions}
-				style={{translate: '0px 0px'}}
-			/>
-		);
-	}
-
+export const WordHighlightCaptions: React.FC = () => {
 	return (
-		<div
-			style={{
-				alignItems: 'center',
-				display: 'flex',
-				height: 180,
-				justifyContent: 'center',
-				width: 900,
-			}}
-		>
-			<WordHighlightCaptionsLayer
-				{...props}
-				callerStyle={style ?? null}
-				captions={[
-					{
-						text: 'Captions',
-						startMs: 0,
-						endMs: 800,
-						timestampMs: 400,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 800,
-						endMs: 1500,
-						timestampMs: 1150,
-						confidence: null,
-					},
-					{
-						text: ' move',
-						startMs: 1500,
-						endMs: 2300,
-						timestampMs: 1900,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 2300,
-						endMs: 3100,
-						timestampMs: 2700,
-						confidence: null,
-					},
-					{
-						text: ' every',
-						startMs: 3100,
-						endMs: 4000,
-						timestampMs: 3550,
-						confidence: null,
-					},
-					{
-						text: ' spoken',
-						startMs: 4000,
-						endMs: 5100,
-						timestampMs: 4550,
-						confidence: null,
-					},
-					{
-						text: ' word.',
-						startMs: 5100,
-						endMs: 6500,
-						timestampMs: 5800,
-						confidence: null,
-					},
-				]}
-				width={props.width ?? 681}
-				height={props.height ?? 252}
-				style={{translate: '0px 0px'}}
-			/>
-		</div>
+		<WordHighlightCaptionsLayer
+			captions={[
+				{
+					text: 'Captions',
+					startMs: 0,
+					endMs: 800,
+					timestampMs: 400,
+					confidence: null,
+				},
+				{
+					text: ' can',
+					startMs: 800,
+					endMs: 1500,
+					timestampMs: 1150,
+					confidence: null,
+				},
+				{
+					text: ' move',
+					startMs: 1500,
+					endMs: 2300,
+					timestampMs: 1900,
+					confidence: null,
+				},
+				{
+					text: ' with',
+					startMs: 2300,
+					endMs: 3100,
+					timestampMs: 2700,
+					confidence: null,
+				},
+				{
+					text: ' every',
+					startMs: 3100,
+					endMs: 4000,
+					timestampMs: 3550,
+					confidence: null,
+				},
+				{
+					text: ' spoken',
+					startMs: 4000,
+					endMs: 5100,
+					timestampMs: 4550,
+					confidence: null,
+				},
+				{
+					text: ' word.',
+					startMs: 5100,
+					endMs: 6500,
+					timestampMs: 5800,
+					confidence: null,
+				},
+			]}
+			width={681}
+			height={252}
+		/>
 	);
 };
