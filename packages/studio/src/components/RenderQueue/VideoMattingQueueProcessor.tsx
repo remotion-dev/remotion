@@ -58,7 +58,7 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 							message:
 								progress.stage === 'finalizing'
 									? 'Finalizing video layers...'
-									: `Separating ${job.displayName}... ${Math.round(progress.progress * 100)}%`,
+									: `Processed ${progress.processedFrames} ${progress.processedFrames === 1 ? 'frame' : 'frames'} · ${Math.round(progress.progress * 100)}%`,
 							value: 0.2 + (progress.progress ?? 1) * 0.65,
 						});
 					},

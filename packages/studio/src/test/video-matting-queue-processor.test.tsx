@@ -23,10 +23,14 @@ mock.module('@remotion/video-matting', () => ({
 	separateVideoLayers: ({
 		onProgress,
 	}: {
-		onProgress: (progress: {stage: string; progress: number}) => void;
+		onProgress: (progress: {
+			stage: string;
+			progress: number;
+			processedFrames: number;
+		}) => void;
 	}) => {
 		calls.push('separate');
-		onProgress({stage: 'processing', progress: 0.5});
+		onProgress({stage: 'processing', progress: 0.5, processedFrames: 42});
 		return Promise.resolve({
 			base: {
 				getBlob: () => Promise.resolve(new Blob(['base'])),
@@ -117,7 +121,7 @@ test('loads the model, separates the layers and writes both outputs', async () =
 		'dispose-model',
 	]);
 	expect(progress).toContain('Downloading modnet 100%');
-	expect(progress).toContain('Separating input.webm... 50%');
+	expect(progress).toContain('Processed 42 frames · 50%');
 	if (originalBrowserStudio) {
 		Object.defineProperty(
 			window,
