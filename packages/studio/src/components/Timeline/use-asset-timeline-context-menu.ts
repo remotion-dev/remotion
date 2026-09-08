@@ -6,6 +6,7 @@ import {getFileManagerName} from '../../helpers/get-file-manager-name';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from '../RenderQueue/actions';
+import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 
 export const useAssetTimelineContextMenu = (): ComboboxValue[] | null => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
@@ -16,8 +17,14 @@ export const useAssetTimelineContextMenu = (): ComboboxValue[] | null => {
 			return null;
 		}
 
+		const copyContextItem = getCopyContextForAgentsMenuItem({
+			contextForAgents: window.remotion_publicFolderExists
+				? `Asset: ${window.remotion_publicFolderExists}/${canvasContent.asset}`
+				: `Asset: staticFile(${JSON.stringify(canvasContent.asset)})`,
+		});
+
 		if (getBrowserStudioOperations() !== null) {
-			return [];
+			return [copyContextItem];
 		}
 
 		return [
@@ -43,6 +50,7 @@ export const useAssetTimelineContextMenu = (): ComboboxValue[] | null => {
 					});
 				},
 			},
+			copyContextItem,
 		];
 	}, [canvasContent, previewServerState.type]);
 };
