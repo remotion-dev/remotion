@@ -84,7 +84,6 @@ import {
 	leftSidebar,
 	optionsPanel,
 	outerModalStyle,
-	visuallyHiddenTabLabel,
 } from './render-modals';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
@@ -1437,6 +1436,7 @@ const RenderModal: React.FC<
 				<div style={leftSidebar}>
 					{shownTabs.includes('general') ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'General' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'general'}
 							onClick={() => setTab('general')}
@@ -1448,13 +1448,12 @@ const RenderModal: React.FC<
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								General
-							</span>
+							{hideTabLabels ? null : <span>General</span>}
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('data') ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'Input Props' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'data'}
 							onClick={() => setTab('data')}
@@ -1466,13 +1465,12 @@ const RenderModal: React.FC<
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								Input Props
-							</span>
+							{hideTabLabels ? null : <span>Input Props</span>}
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('picture') ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'Picture' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
@@ -1484,13 +1482,12 @@ const RenderModal: React.FC<
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								Picture
-							</span>
+							{hideTabLabels ? null : <span>Picture</span>}
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('audio') ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'Audio' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
@@ -1502,13 +1499,12 @@ const RenderModal: React.FC<
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								Audio
-							</span>
+							{hideTabLabels ? null : <span>Audio</span>}
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('gif') ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'GIF' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'gif'}
 							onClick={() => setTab('gif')}
@@ -1520,13 +1516,12 @@ const RenderModal: React.FC<
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								GIF
-							</span>
+							{hideTabLabels ? null : <span>GIF</span>}
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('encoding') ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'Encoding' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'encoding'}
 							onClick={() => setTab('encoding')}
@@ -1538,13 +1533,12 @@ const RenderModal: React.FC<
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								Encoding
-							</span>
+							{hideTabLabels ? null : <span>Encoding</span>}
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('environment') ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'Environment' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'environment'}
 							onClick={() => setTab('environment')}
@@ -1556,13 +1550,12 @@ const RenderModal: React.FC<
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								Environment
-							</span>
+							{hideTabLabels ? null : <span>Environment</span>}
 						</VerticalTab>
 					) : null}
 					{shownTabs.includes('advanced') ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'Other' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'advanced'}
 							onClick={() => setTab('advanced')}
@@ -1574,9 +1567,7 @@ const RenderModal: React.FC<
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								Other
-							</span>
+							{hideTabLabels ? null : <span>Other</span>}
 						</VerticalTab>
 					) : null}
 				</div>

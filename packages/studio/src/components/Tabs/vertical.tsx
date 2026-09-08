@@ -23,12 +23,13 @@ const selectorButton: React.CSSProperties = {
 };
 
 export const VerticalTab: React.FC<{
+	readonly ariaLabel?: string;
 	readonly children: React.ReactNode;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly style?: React.CSSProperties;
 	readonly selected: boolean;
-}> = ({children, onClick, renderIcon, style, selected}) => {
+}> = ({ariaLabel, children, onClick, renderIcon, style, selected}) => {
 	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
 
@@ -54,6 +55,7 @@ export const VerticalTab: React.FC<{
 
 	return (
 		<button
+			aria-label={ariaLabel}
 			style={definiteStyle}
 			type="button"
 			onClick={onClick}

@@ -53,7 +53,6 @@ import {
 	leftSidebar,
 	optionsPanel,
 	outerModalStyle,
-	visuallyHiddenTabLabel,
 } from './render-modals';
 import {
 	ResolveCompositionBeforeModal,
@@ -654,6 +653,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
 					<VerticalTab
+						ariaLabel={hideTabLabels ? 'General' : undefined}
 						style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 						selected={tab === 'general'}
 						onClick={() => setTab('general')}
@@ -663,11 +663,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							</div>
 						)}
 					>
-						<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-							General
-						</span>
+						{hideTabLabels ? null : <span>General</span>}
 					</VerticalTab>
 					<VerticalTab
+						ariaLabel={hideTabLabels ? 'Input Props' : undefined}
 						style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 						selected={tab === 'data'}
 						onClick={() => setTab('data')}
@@ -677,12 +676,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							</div>
 						)}
 					>
-						<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-							Input Props
-						</span>
+						{hideTabLabels ? null : <span>Input Props</span>}
 					</VerticalTab>
 					{renderMode !== 'audio' ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'Picture' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
@@ -694,13 +692,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								Picture
-							</span>
+							{hideTabLabels ? null : <span>Picture</span>}
 						</VerticalTab>
 					) : null}
 					{renderMode === 'video' || renderMode === 'audio' ? (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'Audio' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
@@ -712,12 +709,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								Audio
-							</span>
+							{hideTabLabels ? null : <span>Audio</span>}
 						</VerticalTab>
 					) : null}
 					<VerticalTab
+						ariaLabel={hideTabLabels ? 'Other' : undefined}
 						style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 						selected={tab === 'advanced'}
 						onClick={() => setTab('advanced')}
@@ -727,12 +723,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							</div>
 						)}
 					>
-						<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-							Other
-						</span>
+						{hideTabLabels ? null : <span>Other</span>}
 					</VerticalTab>
 					{isBrowserStudio ? null : (
 						<VerticalTab
+							ariaLabel={hideTabLabels ? 'License' : undefined}
 							style={hideTabLabels ? compactHorizontalTab : horizontalTab}
 							selected={false}
 							onClick={() =>
@@ -750,9 +745,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 								</div>
 							)}
 						>
-							<span style={hideTabLabels ? visuallyHiddenTabLabel : undefined}>
-								License
-							</span>
+							{hideTabLabels ? null : <span>License</span>}
 						</VerticalTab>
 					)}
 				</div>
