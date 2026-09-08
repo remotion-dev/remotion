@@ -36,6 +36,10 @@ import {Button} from './Button';
 import {prepareElementInstall} from './element-install-api';
 import {insertElement} from './import-assets';
 import {Flex, Row, Spacing} from './layout';
+import {
+	HORIZONTAL_SCROLLBAR_CLASSNAME,
+	VERTICAL_SCROLLBAR_CLASSNAME,
+} from './Menu/is-menu-item';
 import {getPortal} from './Menu/portals';
 import {ModalButton} from './ModalButton';
 import {ModalContainer} from './ModalContainer';
@@ -59,7 +63,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	gap: 20,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	lineHeight: 1.5,
@@ -81,7 +85,7 @@ const sectionStyle: React.CSSProperties = {
 
 const sectionTitleStyle: React.CSSProperties = {
 	margin: 0,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontWeight: 600,
@@ -113,7 +117,7 @@ const metadataTermStyle: React.CSSProperties = {
 const metadataDescriptionStyle: React.CSSProperties = {
 	margin: 0,
 	minWidth: 0,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontWeight: 400,
@@ -162,11 +166,13 @@ const dependencyListStyle: React.CSSProperties = {
 	margin: 0,
 	padding: 0,
 	listStyleType: 'none',
+	textAlign: 'right',
+	minWidth: 0,
 };
 
 const dependencyNameStyle: React.CSSProperties = {
 	minWidth: 0,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	lineHeight: 1.5,
@@ -183,7 +189,7 @@ const warningStyle: React.CSSProperties = {
 const warningIconStyle: React.CSSProperties = {
 	width: 16,
 	height: 16,
-	marginTop: 1,
+	marginTop: 3,
 	flexShrink: 0,
 	fill: WARNING_COLOR,
 };
@@ -196,11 +202,6 @@ const warningDescriptionStyle: React.CSSProperties = {
 	fontSize: 13,
 	fontWeight: 400,
 	lineHeight: 1.5,
-};
-
-const installWarningDescriptionStyle: React.CSSProperties = {
-	...warningDescriptionStyle,
-	color: WHITE,
 };
 
 const browseElementsStyle: React.CSSProperties = {
@@ -220,7 +221,12 @@ const sourceDetailsStyle: React.CSSProperties = {
 
 const sourceSummaryStyle: React.CSSProperties = {
 	cursor: 'default',
-	color: WHITE,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontWeight: 500,
@@ -236,7 +242,7 @@ const sourceCodeBlockStyle: React.CSSProperties = {
 	border: `1px solid ${WHITE_ALPHA_12}`,
 	borderRadius: 6,
 	backgroundColor: INPUT_BACKGROUND,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'monospace',
 	fontSize: 12,
 	lineHeight: 1.5,
@@ -691,7 +697,7 @@ export const ElementInstallConfirmation: React.FC<{
 				<ModalHeader title={title} onClose={cancel} />
 			</div>
 			<form onSubmit={onSubmit}>
-				<div style={dialogContent}>
+				<div style={dialogContent} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					<dl style={requestSourceStyle} aria-label="Request source">
 						<dt style={sectionTitleStyle}>From</dt>
 						<dd
@@ -756,7 +762,7 @@ export const ElementInstallConfirmation: React.FC<{
 					{currentPlan === null ? (
 						<div style={warningStyle} role="status">
 							<WarningTriangle style={warningIconStyle} />
-							<p style={installWarningDescriptionStyle}>
+							<p style={warningDescriptionStyle}>
 								Studio could not find a safe place in “{request.compositionId}”
 								to insert the Element. Install it into a new composition
 								instead.
@@ -765,7 +771,10 @@ export const ElementInstallConfirmation: React.FC<{
 					) : null}
 
 					{mode === 'new-composition' ? (
-						<section style={sectionStyle} aria-label="New composition settings">
+						<section
+							style={{...sectionStyle, marginInline: -16}}
+							aria-label="New composition settings"
+						>
 							<NewCompositionFields
 								heightValidationMessage={heightValidationMessage}
 								inputRef={inputRef}
@@ -792,7 +801,7 @@ export const ElementInstallConfirmation: React.FC<{
 
 					{missingPackages.length > 0 ? (
 						<section
-							style={sectionStyle}
+							style={requestSourceStyle}
 							aria-labelledby="element-install-dependencies"
 						>
 							<h3 id="element-install-dependencies" style={sectionTitleStyle}>
@@ -810,7 +819,7 @@ export const ElementInstallConfirmation: React.FC<{
 
 					<div style={warningStyle}>
 						<WarningTriangle style={warningIconStyle} />
-						<p style={installWarningDescriptionStyle}>
+						<p style={warningDescriptionStyle}>
 							This adds executable source code to your project, with access to
 							your files and the network.
 							{usesBrowserDependencyResolution || missingPackages.length === 0
@@ -820,8 +829,16 @@ export const ElementInstallConfirmation: React.FC<{
 					</div>
 
 					<details style={sourceDetailsStyle}>
-						<summary style={sourceSummaryStyle}>Source code</summary>
-						<pre style={sourceCodeBlockStyle}>
+						<summary
+							className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+							style={sourceSummaryStyle}
+						>
+							Source code
+						</summary>
+						<pre
+							className={`${HORIZONTAL_SCROLLBAR_CLASSNAME} ${VERTICAL_SCROLLBAR_CLASSNAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+							style={sourceCodeBlockStyle}
+						>
 							<code style={sourceCodeStyle}>
 								{makeSourceControlsVisible(request.element.sourceCode)}
 							</code>
