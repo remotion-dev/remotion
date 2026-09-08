@@ -257,7 +257,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 								: BLUE_DISABLED,
 						}}
 					>
-						Track matting
+						Separate
 					</Button>
 				</div>
 				<div style={panelStyle} className={VERTICAL_SCROLLBAR_CLASSNAME}>

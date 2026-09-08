@@ -62,6 +62,9 @@ test.describe('transcription modal', () => {
 		});
 		await expect(mattingDialog.getByTitle('Model')).toContainText('modnet');
 		await expect(
+			mattingDialog.getByRole('button', {name: 'Separate'}),
+		).toBeVisible();
+		await expect(
 			mattingDialog.getByRole('textbox', {name: 'Base video output file'}),
 		).toHaveValue(
 			'vp8-vorbis-base.webm',
