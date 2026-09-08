@@ -26,6 +26,7 @@ import {
 	clearUndoStackForTests,
 	getUndoStack,
 	popUndo,
+	popRedo,
 } from '../preview-server/undo-stack';
 
 const compositionSource = `import React from 'react';
@@ -123,6 +124,7 @@ const makeFixture = () => {
 		expectedFileState: InsertElementRequest['expectedFileState'] = null,
 	) => {
 		return callHandlerWithInput({
+			installationName: null,
 			compositionFile: 'Root.tsx',
 			compositionId: 'target',
 			element,
@@ -142,6 +144,7 @@ const makeFixture = () => {
 		destination: PrepareElementInstallRequest['destination'],
 	) => {
 		const input: PrepareElementInstallRequest = {
+			installationName: null,
 			destination,
 			element,
 		};
@@ -298,6 +301,7 @@ test('installs an Element with a component-owned Sequence', async () => {
 	const fixture = makeFixture();
 	try {
 		const response = await fixture.callHandlerWithInput({
+			installationName: null,
 			compositionFile: 'Root.tsx',
 			compositionId: 'target',
 			element: {...element, installationMode: 'component-owned-sequence'},
@@ -324,18 +328,76 @@ test('installs an Element with a component-owned Sequence', async () => {
 	}
 });
 
-test('reuses an identical Element file without an overwrite conflict', async () => {
+test('installs independent named copies into the same and another composition', async () => {
 	const fixture = makeFixture();
 	try {
-		writeFileSync(fixture.elementFile, incomingElementSource);
-		const response = await fixture.callHandler(false);
-
-		expect(response.success).toBe(true);
-		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
-			incomingElementSource,
+		expect((await fixture.callHandler(false)).success).toBe(true);
+		// Even identical source must not be implicitly reused.
+		expect(await fixture.callHandler(false)).toMatchObject({
+			success: false,
+			type: 'file-conflict',
+		});
+		writeFileSync(fixture.elementFile, existingElementSource);
+		const firstComposition = readFileSync(fixture.compositionFile, 'utf-8');
+		const root = path.dirname(fixture.compositionFile);
+		const secondFile = path.join(root, 'speaker-name.element.tsx');
+		const thirdFile = path.join(root, 'guest-name.element.tsx');
+		const otherComposition = path.join(root, 'Interview.tsx');
+		writeFileSync(
+			otherComposition,
+			compositionSource.replace('id="target"', 'id="interview"'),
 		);
-		expect(readFileSync(fixture.compositionFile, 'utf-8')).toContain(
-			'<LowerThird',
+
+		const input: InsertElementRequest = {
+			installationName: 'speaker-name',
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+			element,
+			expectedFileState: {exists: false},
+			from: null,
+			position: null,
+			overwriteExisting: false,
+		};
+		expect((await fixture.callHandlerWithInput(input)).success).toBe(true);
+		const secondComposition = readFileSync(fixture.compositionFile, 'utf-8');
+		expect(secondComposition).toContain('LowerThird as LowerThird2');
+		expect(secondComposition).toContain('./speaker-name.element');
+		expect(secondComposition).toContain('<LowerThird2');
+		expect(secondComposition).toContain('<LowerThird ');
+		expect(readFileSync(secondFile, 'utf-8')).toBe(incomingElementSource);
+
+		expect(popUndo().success).toBe(true);
+		expect(existsSync(secondFile)).toBe(false);
+		expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
+			firstComposition,
+		);
+		expect(popRedo().success).toBe(true);
+		expect(readFileSync(secondFile, 'utf-8')).toBe(incomingElementSource);
+		expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
+			secondComposition,
+		);
+
+		expect(
+			(
+				await fixture.callHandlerWithInput({
+					...input,
+					installationName: 'guest-name',
+					compositionFile: 'Interview.tsx',
+					compositionId: 'interview',
+				})
+			).success,
+		).toBe(true);
+		expect(readFileSync(otherComposition, 'utf-8')).toContain(
+			'./guest-name.element',
+		);
+		expect(readFileSync(thirdFile, 'utf-8')).toBe(incomingElementSource);
+		writeFileSync(
+			secondFile,
+			'export const LowerThird = () => <div>Speaker</div>;',
+		);
+		expect(readFileSync(thirdFile, 'utf-8')).toBe(incomingElementSource);
+		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
+			existingElementSource,
 		);
 	} finally {
 		fixture.cleanup();
@@ -369,39 +431,72 @@ test('returns a structured conflict without changing the project', async () => {
 	}
 });
 
-test('does not overwrite a file that changed after planning', async () => {
-	const fixture = makeFixture();
-	try {
-		const planned = await fixture.prepareInstall(fixture.currentDestination);
-		if (!planned.success) {
-			throw new Error(planned.reason);
+test.each([null, incomingElementSource])(
+	'does not overwrite a file that changed after planning (previous source: %s)',
+	async (previousSource) => {
+		const fixture = makeFixture();
+		try {
+			if (previousSource !== null)
+				writeFileSync(fixture.elementFile, previousSource);
+			const planned = await fixture.prepareInstall(fixture.currentDestination);
+			if (!planned.success) {
+				throw new Error(planned.reason);
+			}
+
+			writeFileSync(fixture.elementFile, existingElementSource);
+			const response = await fixture.callHandler(
+				true,
+				planned.plan.expectedFileState,
+			);
+
+			expect(response).toEqual({
+				success: false,
+				type: 'file-conflict',
+				conflict: {
+					filePath: 'lower-third.element.tsx',
+					existingSource: existingElementSource,
+					incomingSource: incomingElementSource,
+				},
+			});
+			expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
+				existingElementSource,
+			);
+			expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
+				compositionSource,
+			);
+		} finally {
+			fixture.cleanup();
 		}
+	},
+);
 
-		writeFileSync(fixture.elementFile, existingElementSource);
-		const response = await fixture.callHandler(
-			true,
-			planned.plan.expectedFileState,
-		);
-
-		expect(response).toEqual({
-			success: false,
-			type: 'file-conflict',
-			conflict: {
-				filePath: 'lower-third.element.tsx',
-				existingSource: existingElementSource,
-				incomingSource: incomingElementSource,
-			},
-		});
-		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
-			existingElementSource,
-		);
-		expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
-			compositionSource,
-		);
-	} finally {
-		fixture.cleanup();
-	}
-});
+test.each(['../outside', 'nested/name', 'Uppercase', '', 'name.element.tsx'])(
+	'rejects unsafe installation name %s without changing the project',
+	async (installationName) => {
+		const fixture = makeFixture();
+		try {
+			expect(
+				await fixture.callHandlerWithInput({
+					installationName,
+					compositionFile: 'Root.tsx',
+					compositionId: 'target',
+					element,
+					expectedFileState: null,
+					from: null,
+					position: null,
+					overwriteExisting: false,
+				}),
+			).toMatchObject({success: false, type: 'error'});
+			expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
+				compositionSource,
+			);
+			expect(existsSync(fixture.elementFile)).toBe(false);
+			expect(getUndoStack()).toHaveLength(0);
+		} finally {
+			fixture.cleanup();
+		}
+	},
+);
 
 test('rejects an Element source symlink that escapes the project', async () => {
 	const fixture = makeFixture();

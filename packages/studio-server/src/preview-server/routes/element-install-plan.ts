@@ -11,10 +11,6 @@ import {resolveCompositionComponentWithFile} from '../../helpers/resolve-composi
 import {getProjectInfo} from '../project-info';
 import {getSafeElementInstallPaths} from './safe-element-install-path';
 
-export const normalizeElementSourceForComparison = (source: string) => {
-	return source.replace(/\r\n/g, '\n').trim();
-};
-
 export const getElementSourceHash = (source: string) => {
 	return createHash('sha256').update(source).digest('hex');
 };
@@ -114,6 +110,7 @@ const getExpectedFileState = (
 export const getElementInstallPlan = async ({
 	destination,
 	element,
+	installationName,
 	entryPoint,
 	remotionRoot,
 }: PrepareElementInstallRequest & {
@@ -143,10 +140,16 @@ export const getElementInstallPlan = async ({
 	}
 
 	const derivedElementFileName =
-		StudioProtocolInternals.makeElementFileNameFromSlug(element.slug);
-	if (derivedElementFileName === null) {
+		StudioProtocolInternals.makeElementFileNameFromSlug(
+			installationName ?? element.slug,
+		);
+	if (
+		derivedElementFileName === null ||
+		(typeof installationName === 'string' &&
+			derivedElementFileName !== `${installationName}.element.tsx`)
+	) {
 		throw new Error(
-			'Element slug must produce a safe lowercase .tsx file name',
+			'Use a lowercase installation name with letters, numbers and hyphens, without a file extension.',
 		);
 	}
 

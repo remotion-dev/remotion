@@ -16,7 +16,6 @@ import {
 } from '../undo-stack';
 import {
 	getElementInstallPlan,
-	normalizeElementSourceForComparison,
 	validateElementInstallPosition,
 } from './element-install-plan';
 import {
@@ -54,6 +53,7 @@ export const insertElementHandler: ApiHandler<
 		compositionFile,
 		compositionId,
 		element,
+		installationName,
 		expectedFileState,
 		from,
 		position,
@@ -86,6 +86,7 @@ export const insertElementHandler: ApiHandler<
 			);
 
 			const plan = await getElementInstallPlan({
+				installationName,
 				destination: {
 					type: 'current-composition',
 					compositionFile,
@@ -120,14 +121,9 @@ export const insertElementHandler: ApiHandler<
 
 			const elementSourcesDiffer =
 				plan.existingElementSource !== null &&
-				normalizeElementSourceForComparison(plan.existingElementSource) !==
-					normalizeElementSourceForComparison(element.sourceCode);
+				plan.existingElementSource !== element.sourceCode;
 
-			if (
-				elementSourcesDiffer &&
-				!overwriteExisting &&
-				plan.existingElementSource !== null
-			) {
+			if (!overwriteExisting && plan.existingElementSource !== null) {
 				return {
 					success: false,
 					type: 'file-conflict',
@@ -178,6 +174,7 @@ export const insertElementHandler: ApiHandler<
 						},
 			});
 			const finalPlan = await getElementInstallPlan({
+				installationName,
 				destination: {
 					type: 'current-composition',
 					compositionFile,
