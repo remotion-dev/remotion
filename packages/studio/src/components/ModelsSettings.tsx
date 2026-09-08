@@ -161,22 +161,14 @@ export const ModelsSettings: React.FC = () => {
 				packageName={WHISPER_WEBGPU_PACKAGE}
 				style={section}
 			>
-				<LazyWhisperModels
-					description="Select an audio or video asset to transcribe it."
-					indent={false}
-					visible
-				/>
+				<LazyWhisperModels description={null} indent={false} visible />
 			</OptionalModelPackage>
 			<OptionalModelPackage
 				label="Video matting"
 				packageName={VIDEO_MATTING_PACKAGE}
 				style={lastSection}
 			>
-				<LazyVideoMattingModels
-					description="Select a video asset to separate background and foreground."
-					indent={false}
-					visible
-				/>
+				<LazyVideoMattingModels description={null} indent={false} visible />
 			</OptionalModelPackage>
 		</div>
 	);

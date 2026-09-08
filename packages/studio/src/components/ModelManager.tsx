@@ -101,7 +101,7 @@ export const ModelManager = <Model extends string>({
 }: {
 	readonly ariaLabel: string;
 	readonly availableModels: readonly ModelInfo<Model>[];
-	readonly description: string;
+	readonly description: string | null;
 	readonly indent: boolean;
 	readonly isModelCached: (model: Model) => Promise<boolean>;
 	readonly loadModel: (
@@ -235,7 +235,9 @@ export const ModelManager = <Model extends string>({
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 		>
 			<div style={indent ? container : flushContainer}>
-				<p style={descriptionStyle}>{description}</p>
+				{description === null ? null : (
+					<p style={descriptionStyle}>{description}</p>
+				)}
 				{cacheCheckError ? (
 					<ValidationMessage
 						align="flex-start"
@@ -243,7 +245,11 @@ export const ModelManager = <Model extends string>({
 						type="error"
 					/>
 				) : null}
-				<div style={list} role="list" aria-label={ariaLabel}>
+				<div
+					style={description === null ? undefined : list}
+					role="list"
+					aria-label={ariaLabel}
+				>
 					{availableModels.map((model, index) => {
 						const cached = cachedModels?.has(model.name) ?? false;
 						const processingThisModel =

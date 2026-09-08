@@ -940,7 +940,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						/>
 					</div>
 					<Models
-						description="Select an audio or video asset to transcribe it. Models are downloaded automatically when needed. You can also manage the browser cache here."
+						description="Models are downloaded automatically when needed. You can also manage the browser cache here."
 						indent
 						visible={tab === 'models'}
 					/>

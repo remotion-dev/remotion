@@ -11,7 +11,7 @@ import {ModelManager} from '../ModelManager';
 const AVAILABLE_MODELS = getAvailableModels();
 
 export const Models: React.FC<{
-	readonly description: string;
+	readonly description: string | null;
 	readonly indent: boolean;
 	readonly visible: boolean;
 }> = ({description, indent, visible}) => {
