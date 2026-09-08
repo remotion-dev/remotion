@@ -406,7 +406,7 @@ export const PoppingWordCaptions: React.FC = () => {
 					confidence: null,
 				},
 			]}
-			width={681}
+			width={682}
 			height={252}
 		/>
 	);

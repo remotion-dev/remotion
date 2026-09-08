@@ -495,7 +495,7 @@ export const MovingPillCaptions: React.FC = () => {
 					confidence: null,
 				},
 			]}
-			width={681}
+			width={682}
 			height={252}
 		/>
 	);
