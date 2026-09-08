@@ -27,6 +27,7 @@ import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
 import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
 import {FontWeightControls} from './VisualModeTests/FontWeightControls';
+import {InteractiveHtmlElements} from './VisualModeTests/InteractiveComponents';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 
@@ -259,6 +260,14 @@ export const E2eTestRoot: React.FC = () => {
 			<Composition
 				id="inspector-control-layout-e2e"
 				component={InspectorControlLayoutE2e}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="interactive-html-elements"
+				component={InteractiveHtmlElements}
 				width={1080}
 				height={1080}
 				fps={30}
