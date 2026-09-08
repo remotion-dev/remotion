@@ -34,7 +34,6 @@ type MovingPillCaptionsProps = InteractiveBaseProps &
 	};
 
 const desiredFontSize = 80;
-const maximumTextWidth = 800;
 const fontWeight = '700';
 const textColor = '#ffffff';
 const backgroundColor = '#0b84f3';
@@ -124,11 +123,9 @@ const CaptionPage: React.FC<{
 	readonly page: TikTokPage;
 	readonly pageIndex: number;
 }> = ({captionAreaWidth, currentTimeMs, fps, page, pageIndex}) => {
+	const {width: compositionWidth} = useVideoConfig();
+	const availableWidth = captionAreaWidth ?? compositionWidth;
 	const fontSize = useMemo(() => {
-		const availableWidth = Math.min(
-			maximumTextWidth,
-			captionAreaWidth ?? maximumTextWidth,
-		);
 		const maximumTokenWidth = Math.max(
 			1,
 			availableWidth - pillHorizontalPadding * 2,
@@ -154,11 +151,11 @@ const CaptionPage: React.FC<{
 				fontWeight,
 				text: page.text,
 				validateFontIsLoaded: true,
-				withinWidth: maximumTextWidth,
+				withinWidth: availableWidth,
 			}).fontSize,
 			...tokenFontSizes,
 		);
-	}, [captionAreaWidth, page.text, page.tokens]);
+	}, [availableWidth, page.text, page.tokens]);
 	const textContainerRef = useRef<HTMLDivElement>(null);
 	const tokenRefs = useRef<Array<HTMLSpanElement | null>>([]);
 	const [tokenLayouts, setTokenLayouts] = useState<TokenLayout[]>([]);
@@ -275,7 +272,6 @@ const CaptionPage: React.FC<{
 					fontSize,
 					fontWeight,
 					lineHeight: 1.5,
-					maxWidth: maximumTextWidth,
 					paintOrder: 'stroke fill',
 					position: 'relative',
 					textAlign: 'center',

@@ -31,7 +31,6 @@ type WordHighlightCaptionsProps = InteractiveBaseProps &
 	};
 
 const desiredFontSize = 80;
-const maximumTextWidth = 800;
 const fontWeight = '700';
 const textColor = '#ffffff';
 const highlightColor = '#4da3ff';
@@ -107,11 +106,9 @@ const CaptionPage: React.FC<{
 	readonly page: TikTokPage;
 	readonly pageIndex: number;
 }> = ({captionAreaWidth, currentTimeMs, page, pageIndex}) => {
+	const {width: compositionWidth} = useVideoConfig();
+	const availableWidth = captionAreaWidth ?? compositionWidth;
 	const fontSize = useMemo(() => {
-		const availableWidth = Math.min(
-			maximumTextWidth,
-			captionAreaWidth ?? maximumTextWidth,
-		);
 		const maximumTokenWidth = Math.max(1, availableWidth);
 		const tokenFontSizes = page.tokens
 			.map((token) => token.text.trim())
@@ -134,11 +131,11 @@ const CaptionPage: React.FC<{
 				fontWeight,
 				text: page.text,
 				validateFontIsLoaded: true,
-				withinWidth: maximumTextWidth,
+				withinWidth: availableWidth,
 			}).fontSize,
 			...tokenFontSizes,
 		);
-	}, [captionAreaWidth, page.text, page.tokens]);
+	}, [availableWidth, page.text, page.tokens]);
 	const activeTokenIndex = getActiveTokenIndex(page.tokens, currentTimeMs);
 	const textStrokeWidth = fontSize / 7;
 
@@ -163,7 +160,6 @@ const CaptionPage: React.FC<{
 					fontSize,
 					fontWeight,
 					lineHeight: 1.5,
-					maxWidth: maximumTextWidth,
 					paintOrder: 'stroke fill',
 					textAlign: 'center',
 					WebkitTextStroke: `${textStrokeWidth}px #000000`,

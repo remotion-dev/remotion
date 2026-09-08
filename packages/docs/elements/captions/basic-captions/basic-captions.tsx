@@ -21,7 +21,6 @@ type BasicCaptionsProps = InteractiveBaseProps &
 	};
 
 const defaultCombineTokensWithinMilliseconds = 2000;
-const maximumTextWidth = 800;
 
 const basicCaptionsSchema = {
 	...Interactive.baseSchema,
@@ -54,10 +53,9 @@ const basicCaptionsSchema = {
 } as const satisfies InteractivitySchema;
 
 const BasicCaptionsContent: React.FC<{
-	readonly captionAreaWidth: number | null;
 	readonly captions: Caption[];
 	readonly combineTokensWithinMilliseconds: number;
-}> = ({captionAreaWidth, captions, combineTokensWithinMilliseconds}) => {
+}> = ({captions, combineTokensWithinMilliseconds}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -92,10 +90,6 @@ const BasicCaptionsContent: React.FC<{
 				fontSize: 64,
 				fontWeight: 400,
 				lineHeight: 1.2,
-				maxWidth: Math.min(
-					maximumTextWidth,
-					captionAreaWidth ?? maximumTextWidth,
-				),
 				overflow: 'hidden',
 				padding: '14px 22px',
 				textAlign: 'center',
@@ -124,6 +118,7 @@ const BasicCaptionsInner = forwardRef<
 			name,
 			style,
 			width,
+			height,
 			...interactiveProps
 		},
 		ref,
@@ -145,14 +140,14 @@ const BasicCaptionsInner = forwardRef<
 					style={{
 						alignItems: 'center',
 						display: 'flex',
-						height: '100%',
 						justifyContent: 'center',
-						width: '100%',
+						marginInline: 'auto',
+						width,
+						height,
 						...style,
 					}}
 				>
 					<BasicCaptionsContent
-						captionAreaWidth={width ?? null}
 						captions={captions}
 						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
 					/>
