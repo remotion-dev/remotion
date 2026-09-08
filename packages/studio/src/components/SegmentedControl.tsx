@@ -43,6 +43,13 @@ const compactItem: React.CSSProperties = {
 	padding: '2px 7px',
 };
 
+const mediumItem: React.CSSProperties = {
+	...item,
+	fontSize: 13,
+	fontWeight: 400,
+	padding: '3px 10px',
+};
+
 export type SegmentedControlItem = {
 	label: React.ReactNode;
 	onClick: (() => void) | null;
@@ -50,7 +57,7 @@ export type SegmentedControlItem = {
 	selected: boolean;
 };
 
-type SegmentedControlSize = 'default' | 'compact';
+type SegmentedControlSize = 'default' | 'medium' | 'compact';
 
 export const SegmentedControl: React.FC<{
 	readonly items: SegmentedControlItem[];
@@ -131,7 +138,11 @@ const Item: React.FC<
 
 	const itemStyle: React.CSSProperties = useMemo(() => {
 		return {
-			...(size === 'compact' ? compactItem : item),
+			...(size === 'compact'
+				? compactItem
+				: size === 'medium'
+					? mediumItem
+					: item),
 			opacity: onClick === null ? 0.5 : 1,
 			...hoverableStyle({
 				idleBackground: selected ? INPUT_BACKGROUND : TRANSPARENT,

@@ -853,7 +853,7 @@ export const ElementInstallConfirmation: React.FC<{
 							<SegmentedControl
 								items={destinationOptions}
 								needsWrapping={false}
-								size="compact"
+								size="medium"
 							/>
 						</div>
 					</div>
