@@ -158,12 +158,16 @@ export const TimelineNonEditableStatus: React.FC<{
 	if (propStatus.status === 'computed') {
 		return (
 			<UnsupportedStatus
-				label={formatTimelineFieldValueForDisplay({
-					fieldSchema: field.fieldSchema,
-					value: runtimeValue,
-				})}
+				label={
+					runtimeValue === undefined
+						? 'computed'
+						: formatTimelineFieldValueForDisplay({
+								fieldSchema: field.fieldSchema,
+								value: runtimeValue,
+							})
+				}
 				onFix={onFix}
-				formattedValue
+				formattedValue={runtimeValue !== undefined}
 			/>
 		);
 	}
