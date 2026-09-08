@@ -106,9 +106,9 @@ In the example above, `renderMediaOnLambda()` is configured to output the render
 
 Add the policy below to grant `s3:PutObject` on the destination bucket's objects.
 
-From <AvailableFrom v="4.0.523" inline />, AWS S3 destinations can use a write-only policy. When [`overwrite`](/docs/lambda/rendermediaonlambda#overwrite) is `false`, a conditional upload prevents replacing an existing file. If the role cannot check whether the file exists before rendering, a conflict is reported when uploading the finished video.
+AWS S3 destinations can use a write-only policy. When [`overwrite`](/docs/lambda/rendermediaonlambda#overwrite) is `false`, a conditional upload prevents replacing an existing file. If the role cannot check whether the file exists before rendering, a conflict is reported when uploading the finished video.
 
-In versions 4.0.472–4.0.522, custom destination buckets also require `s3:GetObject` on `arn:aws:s3:::{bucketname}/*` and `s3:ListBucket` on `arn:aws:s3:::{bucketname}`. Upgrade to restore write-only access. These additional permissions remain useful for detecting existing files before rendering and recovering completion if the final progress update is missing. See the [S3 HeadObject permissions](https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html).
+Optionally, grant `s3:GetObject` on `arn:aws:s3:::{bucketname}/*` and `s3:ListBucket` on `arn:aws:s3:::{bucketname}` to detect existing files before rendering and recover completion if the final progress update is missing. These permissions are not required for rendering to AWS S3. See the [S3 HeadObject permissions](https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html).
 
 ```json title="Destination bucket policy"
 {
