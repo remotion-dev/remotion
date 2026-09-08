@@ -7,6 +7,7 @@ import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
 import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	renderHumanReadableAudioCodec,
@@ -21,6 +22,7 @@ import {RemotionConvertIcon} from '../icons/remotion-convert';
 import {TranscriptionIcon} from '../icons/transcription';
 import {TrashIcon} from '../icons/trash';
 import {SetSelectedModalContext} from '../state/modals';
+import {AssetAudioVolume} from './AssetAudioVolume';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {InspectorInfoHeader} from './InspectorInfoHeader';
 import {
@@ -183,6 +185,9 @@ export const AssetInfo: React.FC<{
 	readonly onAssetClick?: () => void;
 	readonly readOnlyStudio: boolean;
 }> = ({assetName, contentSized = false, onAssetClick, readOnlyStudio}) => {
+	const {currentAssetMetadata} = useContext(Internals.CompositionManager);
+	const volumeMetadata =
+		currentAssetMetadata?.asset === assetName ? currentAssetMetadata : null;
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const browserStudioOperations = getBrowserStudioOperations();
@@ -358,6 +363,24 @@ export const AssetInfo: React.FC<{
 									<span style={assetMetadataValueStyle}>{detail.value}</span>
 								</InspectorDetailRow>
 							))}
+							{src ? (
+								<InspectorDetailRow label="Average volume">
+									<span style={assetMetadataValueStyle}>
+										<AssetAudioVolume
+											key={volumeMetadata?.src ?? src}
+											src={volumeMetadata?.src ?? null}
+											waveformSampleRate={
+												volumeMetadata
+													? Math.ceil(
+															volumeMetadata.fps *
+																TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+														)
+													: null
+											}
+										/>
+									</span>
+								</InspectorDetailRow>
+							) : null}
 						</div>
 					)}
 				</InspectorSection>

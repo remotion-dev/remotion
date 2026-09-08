@@ -12,6 +12,7 @@ export type AudioWaveformWorkerPeaksMessage = {
 	readonly requestId: number;
 	readonly peaks: Float32Array;
 	readonly final: boolean;
+	readonly averageVolume: number | null;
 };
 
 export type AudioWaveformWorkerErrorMessage = {

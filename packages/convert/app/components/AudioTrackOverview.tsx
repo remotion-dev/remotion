@@ -1,6 +1,7 @@
 import type {InputAudioTrack} from 'mediabunny';
 import {useEffect, useState} from 'react';
 import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
+import {AudioVolumeRow} from './AudioVolumeRow';
 import {PacketList} from './PacketList';
 import {TextButtonWithChevron} from './TexrButtonWithChevron';
 import {Table, TableBody, TableCell, TableRow} from './ui/table';
@@ -59,6 +60,7 @@ export const AudioTrackOverview: React.FC<{
 					<TableCell className="font-brand">Sample Rate</TableCell>
 					<TableCell className="text-right">{sampleRate ?? '...'}</TableCell>
 				</TableRow>
+				<AudioVolumeRow track={track} />
 			</TableBody>
 		</Table>
 	);

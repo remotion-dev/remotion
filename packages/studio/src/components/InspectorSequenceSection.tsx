@@ -4,6 +4,7 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {Internals, type TSequence} from 'remotion';
@@ -59,8 +60,10 @@ import {
 } from './Timeline/TimelineRowLayoutContext';
 import {
 	getTimelineSelectionFromNodePathInfo,
+	getTimelineSelectionKey,
 	getTimelineSequenceSelectionKey,
 	TimelineSelectionOrderProvider,
+	useTimelineSelection,
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
@@ -328,6 +331,17 @@ export const InspectorSequenceSection: React.FC<{
 		includeTextContent: true,
 		includeSourceControls: true,
 	});
+	const {selectedItems} = useTimelineSelection();
+	const selectedEffect =
+		selectedItems.length === 1 &&
+		(selectedItems[0].type === 'sequence-effect' ||
+			selectedItems[0].type === 'sequence-effect-prop')
+			? selectedItems[0]
+			: null;
+	const selectedEffectKey =
+		selectedEffect === null ? null : getTimelineSelectionKey(selectedEffect);
+	const selectedEffectRowRef = useRef<HTMLDivElement>(null);
+	const scrolledEffectKey = useRef<string | null>(null);
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
 		loadInspectorCollapsedKeys,
 	);
@@ -455,6 +469,70 @@ export const InspectorSequenceSection: React.FC<{
 						}),
 		};
 	}, [getIsExpanded, tree]);
+
+	useEffect(() => {
+		if (
+			selectedEffectKey === null ||
+			scrolledEffectKey.current === selectedEffectKey
+		) {
+			return;
+		}
+
+		const rows = flattenVisibleTreeNodes({
+			nodes: tree,
+			getIsExpanded: () => true,
+		});
+		const targetIndex = rows.findIndex(({node}) => {
+			const selection = getTimelineSelectionFromNodePathInfo(node.nodePathInfo);
+			return (
+				selection !== null &&
+				getTimelineSelectionKey(selection) === selectedEffectKey
+			);
+		});
+		if (targetIndex === -1) {
+			return;
+		}
+
+		const parentKeys: string[] = [];
+		let {depth} = rows[targetIndex];
+		for (let i = targetIndex - 1; i >= 0 && depth > 0; i--) {
+			if (rows[i].depth < depth) {
+				parentKeys.push(getInspectorExpansionKey(rows[i].node.nodePathInfo));
+				depth = rows[i].depth;
+			}
+		}
+
+		setCollapsedKeys((previous) => {
+			if (!parentKeys.some((key) => previous.has(key))) {
+				return previous;
+			}
+
+			const next = new Set(previous);
+			for (const key of parentKeys) {
+				next.delete(key);
+			}
+
+			persistInspectorCollapsedKeys(next);
+			return next;
+		});
+	}, [selectedEffectKey, tree]);
+
+	useEffect(() => {
+		if (selectedEffectKey === null) {
+			scrolledEffectKey.current = null;
+			return;
+		}
+
+		if (
+			scrolledEffectKey.current === selectedEffectKey ||
+			selectedEffectRowRef.current === null
+		) {
+			return;
+		}
+
+		selectedEffectRowRef.current.scrollIntoView({block: 'center'});
+		scrolledEffectKey.current = selectedEffectKey;
+	}, [effectRows, selectedEffectKey]);
 
 	const effectSelectableItems = useMemo(
 		() => getInspectorSelectableItems(effectRows),
@@ -857,7 +935,22 @@ export const InspectorSequenceSection: React.FC<{
 					<InspectorSection header={effectsHeader}>
 						{effectRows.length > 0 ? (
 							<TimelineSelectionOrderProvider items={effectSelectableItems}>
-								{effectRows.map(renderRow)}
+								{effectRows.map((row) => {
+									const selection = getTimelineSelectionFromNodePathInfo(
+										row.node.nodePathInfo,
+									);
+									const selected =
+										selection !== null &&
+										getTimelineSelectionKey(selection) === selectedEffectKey;
+									return (
+										<div
+											key={getInspectorExpansionKey(row.node.nodePathInfo)}
+											ref={selected ? selectedEffectRowRef : null}
+										>
+											{renderRow(row)}
+										</div>
+									);
+								})}
 							</TimelineSelectionOrderProvider>
 						) : null}
 					</InspectorSection>

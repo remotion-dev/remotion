@@ -22,6 +22,7 @@ export type BaseMetadata = Pick<
 
 export type AssetPreviewMetadata = BaseMetadata & {
 	asset: string;
+	src: string;
 };
 
 export const getAssetPreviewCompositionId = (asset: string) => `asset:${asset}`;

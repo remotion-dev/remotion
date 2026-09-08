@@ -133,6 +133,7 @@ import {
 	getTimelineSequenceDurationDragChanges,
 	getTimelineSequenceDurationDragTargets,
 	getTimelineSequenceDurationDragValue,
+	getTimelineSequenceMediaDurationDragLimits,
 	getTimelineSequenceFromDragChanges,
 	getTimelineSequenceFromDragDelta,
 	getTimelineSequenceFromDragKeyframeMoves,
@@ -1791,6 +1792,8 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 	];
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: firstNodePathInfo,
+		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [
 			{type: 'sequence', nodePathInfo: firstNodePathInfo},
 			{type: 'sequence', nodePathInfo: secondNodePathInfo},
@@ -1823,11 +1826,85 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 	).toEqual([schema, schema]);
 });
 
+test('Timeline duration drag clamps each selected media item to its asset end', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'first',
+			overrideId: 'first',
+			duration: 40,
+			type: 'video',
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'second',
+			overrideId: 'second',
+			duration: 15,
+			type: 'audio',
+		}),
+	];
+	const common = {
+		draggedNodePathInfo: firstNodePathInfo,
+		draggedSequenceMediaDurationDragLimits: {
+			initialDuration: 40,
+			maximumDuration: 45,
+		},
+		selectedItems: [
+			{type: 'sequence' as const, nodePathInfo: firstNodePathInfo},
+			{type: 'sequence' as const, nodePathInfo: secondNodePathInfo},
+		],
+		sequences,
+		overrideIdsToNodePaths: {
+			first: firstNodePathInfo.sequenceSubscriptionKey,
+			second: secondNodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeDurationPropStatuses([
+			firstNodePathInfo.sequenceSubscriptionKey,
+			secondNodePathInfo.sequenceSubscriptionKey,
+		]),
+		timelineDurationInFrames: 1000,
+	};
+
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			...common,
+			selectedSequenceMediaDurationDragLimits: null,
+		}),
+	).toBe(null);
+
+	const targets = getTimelineSequenceDurationDragTargets({
+		...common,
+		selectedSequenceMediaDurationDragLimits: new Map([
+			[
+				getTimelineSequenceSelectionKey(secondNodePathInfo),
+				{initialDuration: 15, maximumDuration: 18},
+			],
+		]),
+	});
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 10,
+		}).map((change) => change.value),
+	).toEqual([45, 18]);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: -10,
+		}).map((change) => change.value),
+	).toEqual([30, 5]);
+});
+
 test('Timeline duration drag uses the declared duration for negative from values', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
+		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
 		sequences: [
 			makeTimelineSequence({
@@ -1859,6 +1936,8 @@ test('Timeline duration drag clamps to the composition end', () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
+		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
 		sequences: [
 			makeTimelineSequence({
@@ -1897,6 +1976,11 @@ test('Timeline duration drag supports interactive video clips', () => {
 	expect(
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: nodePathInfo,
+			draggedSequenceMediaDurationDragLimits: {
+				initialDuration: 78,
+				maximumDuration: 1000,
+			},
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
 			sequences: [video],
 			overrideIdsToNodePaths: {
@@ -1919,24 +2003,215 @@ test('Timeline duration drag supports interactive video clips', () => {
 	]);
 });
 
-test('Timeline duration drag rejects media without an explicit duration', () => {
-	const nodePathInfo = makeNodePathInfo(['body', 0], []);
-	const audio = makeTimelineSequence({
-		schema: Internals.baseSchema,
-		type: 'audio',
-		duration: 78,
-	});
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+test('Media duration drag limits account for a negative from', () => {
+	const common = {
+		cascadedStart: -192,
+		displayDurationInFrames: 108,
+		displayStart: 0,
+		explicitDurationInFrames: 300,
+		hasImplicitDuration: false,
+		naturalMediaDuration: 33,
+		timelineDurationInFrames: 1000,
+	};
 
-	expect(isTimelineSequenceDurationDraggable(audio)).toBe(true);
 	expect(
-		getTimelineSequenceDurationDragTargets({
+		getTimelineSequenceMediaDurationDragLimits({
+			...common,
+			// <Video> keeps displaying its last frame.
+			effectiveMaxMediaDuration: null,
+		}),
+	).toEqual({initialDuration: 300, maximumDuration: 225});
+	expect(
+		getTimelineSequenceMediaDurationDragLimits({
+			...common,
+			// Audio and OffthreadVideo stop at the asset end.
+			effectiveMaxMediaDuration: 33,
+		}),
+	).toEqual({initialDuration: 300, maximumDuration: 225});
+});
+
+test('Implicit media cannot be resized once its edge reaches the asset end', () => {
+	const common = {
+		cascadedStart: -34,
+		displayDurationInFrames: 266,
+		displayStart: 0,
+		effectiveMaxMediaDuration: null,
+		explicitDurationInFrames: null,
+		hasImplicitDuration: true,
+		timelineDurationInFrames: 300,
+	};
+
+	expect(
+		getTimelineSequenceMediaDurationDragLimits({
+			...common,
+			// The video holds its last frame until the composition ends.
+			naturalMediaDuration: 220,
+		}),
+	).toBe(null);
+	expect(
+		getTimelineSequenceMediaDurationDragLimits({
+			...common,
+			// The composition ends before the source video does.
+			naturalMediaDuration: 400,
+		}),
+	).toEqual({initialDuration: 300, maximumDuration: 433});
+});
+
+test('Timeline duration drag clamps explicit audio and video to the asset end', () => {
+	for (const type of ['audio', 'video'] as const) {
+		const nodePathInfo = makeNodePathInfo(['body', type], []);
+		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const targets = getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: nodePathInfo,
+			draggedSequenceMediaDurationDragLimits: {
+				initialDuration: 200,
+				maximumDuration: 225,
+			},
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
-			sequences: [audio],
+			sequences: [
+				makeTimelineSequence({
+					schema: Internals.baseSchema,
+					type,
+					duration: 200,
+					from: -192,
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses: makeDurationPropStatuses([nodePath]),
+			timelineDurationInFrames: 1000,
+		});
+
+		expect(targets?.[0].maximumDuration).toBe(225);
+		expect(
+			getTimelineSequenceDurationDragChanges({
+				targets: targets ?? [],
+				deltaFrames: 100,
+			})[0].value,
+		).toBe(225);
+	}
+});
+
+test('An overlong explicit Video can be shortened without snapping', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const targets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		draggedSequenceMediaDurationDragLimits: {
+			initialDuration: 300,
+			maximumDuration: 225,
+		},
+		selectedSequenceMediaDurationDragLimits: null,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema: Internals.baseSchema,
+				type: 'video',
+				duration: 300,
+				from: -192,
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses: makeDurationPropStatuses([nodePath]),
+		timelineDurationInFrames: 1000,
+	});
+
+	expect(targets?.[0].maximumDuration).toBe(300);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 1,
+		}),
+	).toEqual([]);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: -1,
+		})[0].value,
+	).toBe(299);
+});
+
+test('Timeline duration drag trims audio and video without an explicit duration', () => {
+	for (const type of ['audio', 'video'] as const) {
+		const nodePathInfo = makeNodePathInfo(['body', type], []);
+		const media = makeTimelineSequence({
+			schema: Internals.baseSchema,
+			type,
+			duration: Infinity,
+		});
+		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const targets = getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			draggedSequenceMediaDurationDragLimits: {
+				initialDuration: 70,
+				maximumDuration: 77,
+			},
+			selectedSequenceMediaDurationDragLimits: null,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [media],
 			overrideIdsToNodePaths: {
 				override: nodePath,
 			},
+			propStatuses: {
+				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+					canUpdate: true,
+					props: {
+						durationInFrames: {
+							status: 'static',
+							keyframeDisplayOffsetAdjustment: null,
+							codeValue: undefined,
+						},
+					},
+					effects: [],
+				},
+			},
+			timelineDurationInFrames: 1000,
+		});
+
+		expect(isTimelineSequenceDurationDraggable(media)).toBe(true);
+		expect(targets?.[0].initialDuration).toBe(70);
+		expect(targets?.[0].maximumDuration).toBe(77);
+		expect(
+			getTimelineSequenceDurationDragChanges({
+				targets: targets ?? [],
+				deltaFrames: 10,
+			})[0].value,
+		).toBe(77);
+		expect(
+			getTimelineSequenceDurationDragChanges({
+				targets: targets ?? [],
+				deltaFrames: -10,
+			}),
+		).toEqual([
+			{
+				fileName: nodePath.absolutePath,
+				nodePath,
+				fieldKey: 'durationInFrames',
+				value: 60,
+				defaultValue: null,
+				schema: Internals.baseSchema,
+			},
+		]);
+	}
+});
+
+test('Timeline duration drag waits for an effective implicit media duration', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			draggedSequenceMediaDurationDragLimits: null,
+			selectedSequenceMediaDurationDragLimits: null,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [
+				makeTimelineSequence({
+					schema: Internals.baseSchema,
+					type: 'video',
+					duration: Infinity,
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
 			propStatuses: {
 				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 					canUpdate: true,
@@ -2052,6 +2327,8 @@ test('TransitionSeries.Sequence resize clamps to adjacent transition durations',
 	const selectedItems = [{type: 'sequence' as const, nodePathInfo}];
 	const durationTargets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
+		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems,
 		sequences,
 		overrideIdsToNodePaths,
@@ -2108,6 +2385,8 @@ test('Timeline duration drag is blocked if one selected sequence cannot update d
 	expect(
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: firstNodePathInfo,
+			draggedSequenceMediaDurationDragLimits: null,
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [
 				{type: 'sequence', nodePathInfo: firstNodePathInfo},
 				{type: 'sequence', nodePathInfo: secondNodePathInfo},
@@ -2170,6 +2449,8 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 	expect(
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: firstNodePathInfo,
+			draggedSequenceMediaDurationDragLimits: null,
+			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [
 				{type: 'sequence', nodePathInfo: firstNodePathInfo},
 				{type: 'sequence', nodePathInfo: secondNodePathInfo},
@@ -2206,6 +2487,8 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 	const thirdNodePathInfo = makeNodePathInfo(['body', 2], []);
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: firstNodePathInfo,
+		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [
 			{type: 'sequence', nodePathInfo: secondNodePathInfo},
 			{type: 'sequence', nodePathInfo: thirdNodePathInfo},

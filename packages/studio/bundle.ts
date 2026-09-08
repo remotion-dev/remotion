@@ -28,7 +28,8 @@ const external = [
 
 await buildPackage({
 	formats: {
-		esm: 'build',
+		// Keep visual controls and other singleton state shared across entry points.
+		esm: 'build-shared',
 		cjs: 'use-tsc',
 	},
 	external,

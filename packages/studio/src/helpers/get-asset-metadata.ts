@@ -71,6 +71,10 @@ export const getAssetPreviewMetadata = ({
 
 	return {
 		asset: canvasContent.asset,
+		src: addAssetCacheBust({
+			src: staticFile(canvasContent.asset),
+			fetchedAt: metadata.fetchedAt,
+		}),
 		width: dimensions.width,
 		height: dimensions.height,
 		fps,

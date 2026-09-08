@@ -1,5 +1,7 @@
+import type {InputAudioTrack} from 'mediabunny';
 import {ALL_FORMATS, AudioSampleSink, Input, UrlSource} from 'mediabunny';
 import {TARGET_SAMPLE_RATE} from './constants';
+import {getWaveformCacheKey} from './get-waveform-cache-key';
 import {getAudioSampleStartFrameAtTimelineZero} from './trim-audio-sample-before-zero';
 import {
 	createWaveformPeakProcessor,
@@ -7,11 +9,17 @@ import {
 } from './waveform-peak-processor';
 const DEFAULT_PROGRESS_INTERVAL_IN_MS = 50;
 
-const peaksCache = new Map<string, Float32Array>();
+export type WaveformResult = {
+	readonly peaks: Float32Array;
+	readonly averageVolume: number | null;
+};
+
+const peaksCache = new Map<string, WaveformResult>();
 
 export {TARGET_SAMPLE_RATE};
 
 type Progress = {
+	readonly averageVolume: number | null;
 	readonly peaks: Float32Array;
 	readonly completedPeaks: number;
 	readonly totalPeaks: number;
@@ -25,50 +33,52 @@ type LoadWaveformPeaksOptions = {
 };
 
 export async function loadWaveformPeaks(
-	url: string,
+	src: string | InputAudioTrack,
 	signal: AbortSignal,
 	options?: LoadWaveformPeaksOptions,
-): Promise<Float32Array> {
+): Promise<WaveformResult> {
 	const waveformSampleRate = options?.waveformSampleRate ?? TARGET_SAMPLE_RATE;
 	if (!Number.isFinite(waveformSampleRate) || waveformSampleRate <= 0) {
 		throw new Error('The waveform sample rate must be a positive number.');
 	}
 
-	const cacheKey = `${waveformSampleRate}:${url}`;
+	const cacheKey = getWaveformCacheKey(src, waveformSampleRate);
 	const cached = peaksCache.get(cacheKey);
 	if (cached) {
 		emitWaveformProgress({
-			peaks: cached,
-			completedPeaks: cached.length,
-			totalPeaks: cached.length,
+			peaks: cached.peaks,
+			averageVolume: cached.averageVolume,
+			completedPeaks: cached.peaks.length,
+			totalPeaks: cached.peaks.length,
 			final: true,
 			onProgress: options?.onProgress,
 		});
 		return cached;
 	}
 
-	const input = new Input({
-		formats: ALL_FORMATS,
-		source: new UrlSource(url),
-	});
+	const input =
+		typeof src === 'string'
+			? new Input({formats: ALL_FORMATS, source: new UrlSource(src)})
+			: null;
 
 	try {
-		const audioTrack = await input.getPrimaryAudioTrack();
+		const audioTrack =
+			typeof src === 'string' ? await input!.getPrimaryAudioTrack() : src;
 		if (!audioTrack) {
-			return new Float32Array(0);
+			return {peaks: new Float32Array(0), averageVolume: null};
 		}
 
 		if (await audioTrack.isLive()) {
 			throw new Error(
 				'Live streams are not currently supported by Remotion. Sorry! Source: ' +
-					url,
+					(typeof src === 'string' ? src : `audio track ${src.id}`),
 			);
 		}
 
 		if (await audioTrack.isRelativeToUnixEpoch()) {
 			throw new Error(
 				'Streams with UNIX timestamps are not currently supported by Remotion. Sorry! Source: ' +
-					url,
+					(typeof src === 'string' ? src : `audio track ${src.id}`),
 			);
 		}
 
@@ -97,7 +107,7 @@ export async function loadWaveformPeaks(
 		for await (const sample of sink.samples()) {
 			if (signal.aborted) {
 				sample.close();
-				return new Float32Array(0);
+				return {peaks: new Float32Array(0), averageVolume: null};
 			}
 
 			const startFrame = getAudioSampleStartFrameAtTimelineZero(sample);
@@ -126,16 +136,20 @@ export async function loadWaveformPeaks(
 				frameCount,
 			});
 			const channels = Math.max(1, sample.numberOfChannels);
+			const {sampleRate} = sample;
 			sample.close();
 
-			processor.processSampleChunk(floats, channels);
+			processor.processSampleChunk(floats, channels, sampleRate);
 		}
 
 		processor.finalize();
-		const {peaks} = processor;
-		peaksCache.set(cacheKey, peaks);
-		return peaks;
+		const result = {
+			peaks: processor.peaks,
+			averageVolume: processor.averageVolume,
+		};
+		peaksCache.set(cacheKey, result);
+		return result;
 	} finally {
-		input.dispose();
+		input?.dispose();
 	}
 }

@@ -10,7 +10,7 @@ beforeAll(() => {
 });
 
 test('loadWaveformPeaks decodes an MP4 audio track with @mediabunny/server', async () => {
-	const peaks = await loadWaveformPeaks(
+	const {peaks} = await loadWaveformPeaks(
 		SAMPLE_MEDIA_URL,
 		new AbortController().signal,
 	);
@@ -32,7 +32,7 @@ test('loadWaveformPeaks progress matches completed peak count for MP4 audio', as
 	let lastCompleted = 0;
 	let sawFinal = false;
 
-	const peaks = await loadWaveformPeaks(
+	const {peaks} = await loadWaveformPeaks(
 		SAMPLE_MEDIA_URL,
 		new AbortController().signal,
 		{
@@ -51,22 +51,21 @@ test('loadWaveformPeaks progress matches completed peak count for MP4 audio', as
 });
 
 test('loadWaveformPeaks caches each requested fidelity separately', async () => {
-	const defaultPeaks = await loadWaveformPeaks(
-		SAMPLE_MEDIA_URL,
-		new AbortController().signal,
-	);
-	const detailedPeaks = await loadWaveformPeaks(
-		SAMPLE_MEDIA_URL,
-		new AbortController().signal,
-		{waveformSampleRate: 200},
-	);
+	const {peaks: defaultPeaks, averageVolume: defaultVolume} =
+		await loadWaveformPeaks(SAMPLE_MEDIA_URL, new AbortController().signal);
+	const {peaks: detailedPeaks, averageVolume: detailedVolume} =
+		await loadWaveformPeaks(SAMPLE_MEDIA_URL, new AbortController().signal, {
+			waveformSampleRate: 200,
+		});
 
+	expect(defaultVolume).not.toBeNull();
+	expect(detailedVolume!).toBeCloseTo(defaultVolume!, 6);
 	expect(detailedPeaks.length).toBeGreaterThan(defaultPeaks.length * 1.9);
 	expect(detailedPeaks.length).toBeLessThan(defaultPeaks.length * 2.1);
 });
 
 test('loadWaveformPeaks draws a non-zero first peak for edts.mp4', async () => {
-	const peaks = await loadWaveformPeaks(
+	const {peaks} = await loadWaveformPeaks(
 		EDTS_MEDIA_URL,
 		new AbortController().signal,
 	);

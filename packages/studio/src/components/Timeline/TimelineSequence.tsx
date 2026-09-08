@@ -2,7 +2,13 @@ import {
 	getTimelineVisibleDuration,
 	getTimelineVisibleStart,
 } from '@remotion/canvas';
-import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import type {_InternalTypes, TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -56,6 +62,7 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
+	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
@@ -66,10 +73,12 @@ import {
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
 	canResizeTimelineSequenceDuration,
+	getTimelineSequenceMediaDurationDragLimits,
 	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
 	TimelineSequenceLeftEdgeDragHandle,
+	TimelineSequenceMediaDurationDragLimitsContext,
 	TimelineSequenceRightEdgeDragHandle,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
@@ -427,6 +436,9 @@ const TimelineSequenceInner: React.FC<{
 	const video = Internals.useVideo();
 	const {sequences} = useContext(Internals.SequenceManager);
 	const renderWindow = useContext(TimelineViewportContext);
+	const mediaDurationDragLimitsRegistry = useContext(
+		TimelineSequenceMediaDurationDragLimitsContext,
+	);
 	const dragAwareDoubleClick = useMemo(
 		() => createDragAwareDoubleClickTracker(),
 		[],
@@ -497,7 +509,6 @@ const TimelineSequenceInner: React.FC<{
 	const durationCanResize = Boolean(
 		isStudioInteractivityEnabled() &&
 		canResizeTimelineSequenceDuration({
-			sequence: s,
 			status: propStatusesForOverride?.durationInFrames,
 		}),
 	);
@@ -898,6 +909,55 @@ const TimelineSequenceInner: React.FC<{
 	const endsAtContainerBoundary =
 		Math.ceil(s.from + displayDurationInFrames) >=
 		Math.ceil(Math.min(parentEnd, video.durationInFrames));
+	const hasImplicitMediaDuration =
+		(s.type === 'audio' || s.type === 'video') &&
+		propStatusesForOverride?.durationInFrames?.status === 'static' &&
+		propStatusesForOverride.durationInFrames.codeValue === undefined;
+	const durationInFramesCodeValue =
+		propStatusesForOverride?.durationInFrames?.status === 'static'
+			? propStatusesForOverride.durationInFrames.codeValue
+			: null;
+	const explicitDurationInFrames =
+		typeof durationInFramesCodeValue === 'number' &&
+		Number.isFinite(durationInFramesCodeValue)
+			? durationInFramesCodeValue
+			: null;
+	const isMedia = s.type === 'audio' || s.type === 'video';
+	const mediaDurationDragLimits = isMedia
+		? getTimelineSequenceMediaDurationDragLimits({
+				cascadedStart,
+				displayDurationInFrames: s.duration,
+				displayStart: s.from,
+				effectiveMaxMediaDuration,
+				explicitDurationInFrames,
+				hasImplicitDuration: hasImplicitMediaDuration,
+				naturalMediaDuration,
+				timelineDurationInFrames: video.durationInFrames,
+			})
+		: null;
+	const mediaDurationDragSelectionKey = nodePathInfo
+		? getTimelineSequenceSelectionKey(nodePathInfo)
+		: null;
+	useEffect(() => {
+		if (
+			mediaDurationDragLimitsRegistry === null ||
+			mediaDurationDragSelectionKey === null ||
+			!isMedia
+		) {
+			return;
+		}
+
+		const registry = mediaDurationDragLimitsRegistry.current;
+		registry.set(mediaDurationDragSelectionKey, mediaDurationDragLimits);
+		return () => {
+			registry.delete(mediaDurationDragSelectionKey);
+		};
+	}, [
+		isMedia,
+		mediaDurationDragLimits,
+		mediaDurationDragLimitsRegistry,
+		mediaDurationDragSelectionKey,
+	]);
 
 	const showRightBorderRadius =
 		visibleLayout?.rightEdgeVisible === true &&
@@ -943,7 +1003,8 @@ const TimelineSequenceInner: React.FC<{
 		isTimelineSequenceDurationDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		durationCanResize;
+		durationCanResize &&
+		(!isMedia || mediaDurationDragLimits !== null);
 	const showLeftEdgeDragHandle =
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
@@ -1004,6 +1065,7 @@ const TimelineSequenceInner: React.FC<{
 					validatedLocation ? (
 						<TimelineSequenceRightEdgeDragHandle
 							nodePathInfo={nodePathInfo}
+							mediaDurationDragLimits={mediaDurationDragLimits}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
 							onDragEnd={dragAwareDoubleClick.endPointerGesture}

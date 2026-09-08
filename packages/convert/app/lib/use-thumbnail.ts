@@ -1,7 +1,8 @@
+import {subscribeToWaveformPeaks} from '@remotion/timeline-utils';
 import type {Input} from 'mediabunny';
 import {VideoSampleSink} from 'mediabunny';
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import {makeWaveformVisualizer} from './waveform-visualizer';
+import {AMOUNT_OF_BARS} from './waveform-visualizer';
 
 export const useThumbnailAndWaveform = ({
 	input,
@@ -16,18 +17,43 @@ export const useThumbnailAndWaveform = ({
 }) => {
 	const [err, setError] = useState<Error | null>(null);
 
-	const waveform = useMemo(() => {
-		return makeWaveformVisualizer({
-			onWaveformBars,
-		});
-	}, [onWaveformBars]);
+	useEffect(() => {
+		let cancelled = false;
+		let unsubscribe: (() => void) | null = null;
+		onWaveformBars([]);
+		input
+			.getPrimaryAudioTrack()
+			.then((track) => {
+				if (cancelled || !track) {
+					return;
+				}
+
+				unsubscribe = subscribeToWaveformPeaks({
+					src: track,
+					onPeaks: (peaks) => {
+						const bars = new Array<number>(AMOUNT_OF_BARS).fill(0);
+						for (let i = 0; i < peaks.length; i++) {
+							const bar = Math.floor((i * AMOUNT_OF_BARS) / peaks.length);
+							bars[bar] = Math.max(bars[bar], peaks[i]);
+						}
+
+						onWaveformBars(bars);
+					},
+					onError: () => onWaveformBars([]),
+				});
+			})
+			.catch(() => {
+				if (!cancelled) {
+					onWaveformBars([]);
+				}
+			});
+		return () => {
+			cancelled = true;
+			unsubscribe?.();
+		};
+	}, [input, onWaveformBars]);
 
 	const execute = useCallback(() => {
-		const getDuration = async () => {
-			const duration = await input.computeDuration();
-			waveform.setDuration(duration);
-		};
-
 		const setVideoTrack = async () => {
 			const videoTrack = await input.getPrimaryVideoTrack();
 
@@ -63,7 +89,7 @@ export const useThumbnailAndWaveform = ({
 		};
 
 		const run = async () => {
-			await getDuration().then(() => Promise.all([setVideoTrack()]));
+			await setVideoTrack();
 			onDone();
 		};
 
@@ -74,7 +100,7 @@ export const useThumbnailAndWaveform = ({
 		return () => {
 			input.dispose();
 		};
-	}, [onDone, onVideoThumbnail, waveform, input]);
+	}, [onDone, onVideoThumbnail, input]);
 
 	useEffect(() => {
 		execute();

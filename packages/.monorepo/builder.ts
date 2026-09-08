@@ -70,7 +70,7 @@ const sortObject = (obj: Record<string, string>) => {
 	};
 };
 
-type FormatAction = 'do-nothing' | 'build' | 'use-tsc';
+type FormatAction = 'do-nothing' | 'build' | 'build-shared' | 'use-tsc';
 
 type EntryPoint = {
 	target: 'node' | 'browser';
@@ -111,17 +111,35 @@ export const buildPackage = async ({
 		if (action === 'do-nothing') {
 			continue;
 		} else if (action === 'use-tsc') {
-		} else if (action === 'build') {
-			for (const {path: p, target, splitting} of entrypoints) {
+		} else if (action === 'build' || action === 'build-shared') {
+			if (
+				action === 'build-shared' &&
+				entrypoints.some(({target}) => target !== entrypoints[0].target)
+			) {
+				throw new Error('Shared entry points must use the same target');
+			}
+
+			const batches =
+				action === 'build-shared'
+					? [entrypoints]
+					: entrypoints.map((entrypoint) => [entrypoint]);
+			for (const batch of batches) {
+				const {target, splitting} = batch[0];
 				const externalFinal = filterExternal(getExternal(external));
 				validateExternal(externalFinal);
 				const output = await build({
-					entrypoints: [p],
-					naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
+					entrypoints: batch.map(({path: entryPath}) => entryPath),
+					naming:
+						action === 'build-shared'
+							? {
+									entry: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
+									chunk: `[name]-[hash].${format === 'esm' ? 'mjs' : 'js'}`,
+								}
+							: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
 					external: externalFinal,
 					target,
 					format,
-					splitting: splitting ?? false,
+					splitting: action === 'build-shared' || (splitting ?? false),
 				});
 
 				for (const file of output.outputs) {

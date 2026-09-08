@@ -1,18 +1,24 @@
+import type {InputAudioTrack} from 'mediabunny';
 import type {
 	AudioWaveformWorkerLoadMessage,
 	AudioWaveformWorkerOutgoingMessage,
 } from './audio-waveform-worker-types';
 import {TARGET_SAMPLE_RATE} from './constants';
-import {loadWaveformPeaks} from './load-waveform-peaks';
+import {getWaveformCacheKey} from './get-waveform-cache-key';
+import {type WaveformResult, loadWaveformPeaks} from './load-waveform-peaks';
 import {makeAudioWaveformWorker} from './make-audio-waveform-worker';
 
 type WaveformPeaksListener = {
-	readonly onPeaks: (peaks: Float32Array, final: boolean) => void;
+	readonly onPeaks: (
+		peaks: Float32Array,
+		final: boolean,
+		averageVolume: number | null,
+	) => void;
 	readonly onError: (error: Error) => void;
 };
 
 type InFlightLoad = {
-	readonly src: string;
+	readonly src: string | InputAudioTrack;
 	readonly cacheKey: string;
 	readonly waveformSampleRate: number;
 	readonly listeners: Set<WaveformPeaksListener>;
@@ -23,7 +29,7 @@ type InFlightLoad = {
 // All AudioWaveform instances share one decode worker and one peaks cache,
 // so remounts (timeline virtualization, zoom window cropping) and multiple
 // clips with the same src never re-fetch or re-decode the audio.
-const peaksCache = new Map<string, Float32Array>();
+const peaksCache = new Map<string, WaveformResult>();
 const inFlightByCacheKey = new Map<string, InFlightLoad>();
 const inFlightByRequestId = new Map<number, InFlightLoad>();
 
@@ -31,9 +37,14 @@ let worker: Worker | null = null;
 let workerFailed = false;
 let nextRequestId = 0;
 
-const emitPeaks = (load: InFlightLoad, peaks: Float32Array, final: boolean) => {
+const emitPeaks = (
+	load: InFlightLoad,
+	peaks: Float32Array,
+	final: boolean,
+	averageVolume: number | null,
+) => {
 	if (final) {
-		peaksCache.set(load.cacheKey, peaks);
+		peaksCache.set(load.cacheKey, {peaks, averageVolume});
 		load.latestPeaks = null;
 		inFlightByCacheKey.delete(load.cacheKey);
 		if (load.requestId !== null) {
@@ -44,7 +55,7 @@ const emitPeaks = (load: InFlightLoad, peaks: Float32Array, final: boolean) => {
 	}
 
 	for (const listener of load.listeners) {
-		listener.onPeaks(peaks, final);
+		listener.onPeaks(peaks, final, averageVolume);
 	}
 };
 
@@ -75,11 +86,11 @@ const startMainThreadLoad = (load: InFlightLoad) => {
 
 			// The processor mutates the same array in place; snapshot it so
 			// React state updates see a new reference.
-			emitPeaks(load, peaks.slice(), false);
+			emitPeaks(load, peaks.slice(), false, null);
 		},
 	})
-		.then((peaks) => {
-			emitPeaks(load, peaks, true);
+		.then(({peaks, averageVolume}) => {
+			emitPeaks(load, peaks, true, averageVolume);
 		})
 		.catch((error) => {
 			emitError(
@@ -133,7 +144,7 @@ const getOrCreateWorker = (): Worker | null => {
 				return;
 			}
 
-			emitPeaks(load, message.peaks, message.final);
+			emitPeaks(load, message.peaks, message.final, message.averageVolume);
 		},
 	);
 	worker.addEventListener('error', (event) => {
@@ -150,15 +161,19 @@ export const subscribeToWaveformPeaks = ({
 	onPeaks,
 	onError,
 }: {
-	readonly src: string;
+	readonly src: string | InputAudioTrack;
 	readonly waveformSampleRate?: number;
-	readonly onPeaks: (peaks: Float32Array, final: boolean) => void;
+	readonly onPeaks: (
+		peaks: Float32Array,
+		final: boolean,
+		averageVolume: number | null,
+	) => void;
 	readonly onError: (error: Error) => void;
 }): (() => void) => {
-	const cacheKey = `${waveformSampleRate}:${src}`;
+	const cacheKey = getWaveformCacheKey(src, waveformSampleRate);
 	const cached = peaksCache.get(cacheKey);
 	if (cached) {
-		onPeaks(cached, true);
+		onPeaks(cached.peaks, true, cached.averageVolume);
 		return () => undefined;
 	}
 
@@ -168,7 +183,7 @@ export const subscribeToWaveformPeaks = ({
 	if (existing) {
 		existing.listeners.add(listener);
 		if (existing.latestPeaks) {
-			onPeaks(existing.latestPeaks, false);
+			onPeaks(existing.latestPeaks, false, null);
 		}
 
 		return () => {
@@ -186,8 +201,8 @@ export const subscribeToWaveformPeaks = ({
 	};
 	inFlightByCacheKey.set(cacheKey, load);
 
-	const workerInstance = getOrCreateWorker();
-	if (workerInstance) {
+	const workerInstance = typeof src === 'string' ? getOrCreateWorker() : null;
+	if (workerInstance && typeof src === 'string') {
 		const requestId = nextRequestId++;
 		load.requestId = requestId;
 		inFlightByRequestId.set(requestId, load);
