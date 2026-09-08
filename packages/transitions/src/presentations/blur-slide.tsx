@@ -306,11 +306,10 @@ export const blurSlideShader = (
 		const effectiveTime = !prevImage ? 0 : !nextImage ? 1 : time;
 		const p = 1 - effectiveTime;
 		// Ease the slide with a quintic curve so that it starts and ends at rest.
-		// The blur follows the speed of that curve, normalized to peak at 1
-		// halfway through, so the scenes stay sharp longer at both ends.
+		// The blur follows the distance traveled until the midpoint, then the
+		// distance remaining, normalized to peak at 1 halfway through.
 		const progress = p * p * p * (p * (p * 6 - 15) + 10);
-		const velocity = (4 * p * (1 - p)) ** 2;
-		const blurLength = blur * velocity;
+		const blurLength = blur * 2 * Math.min(progress, 1 - progress);
 		const coarseTapSpacing = blurLength / (SAMPLES - 1);
 		const [dirX, dirY] = getDirectionVector(direction);
 
