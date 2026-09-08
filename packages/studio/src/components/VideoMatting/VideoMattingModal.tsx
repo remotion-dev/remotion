@@ -383,7 +383,11 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 							</div>
 						</div>
 					</div>
-					<Models indent visible={tab === 'models'} />
+					<Models
+						description="Select a video asset to separate background and foreground. Models are downloaded automatically when needed. You can also manage the browser cache here."
+						indent
+						visible={tab === 'models'}
+					/>
 				</div>
 			</div>
 		</DismissableModal>

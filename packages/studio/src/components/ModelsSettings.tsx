@@ -26,6 +26,13 @@ const container: React.CSSProperties = {
 	width: '100%',
 };
 
+const overview: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontSize: 13,
+	lineHeight: 1.5,
+	margin: '0 0 16px',
+};
+
 const section: React.CSSProperties = {
 	paddingBottom: 16,
 };
@@ -145,19 +152,31 @@ const OptionalModelPackage: React.FC<{
 export const ModelsSettings: React.FC = () => {
 	return (
 		<div style={container}>
+			<p style={overview}>
+				Models are downloaded automatically when needed. You can also manage the
+				browser cache here.
+			</p>
 			<OptionalModelPackage
 				label="Transcription"
 				packageName={WHISPER_WEBGPU_PACKAGE}
 				style={section}
 			>
-				<LazyWhisperModels indent={false} visible />
+				<LazyWhisperModels
+					description="Select an audio or video asset to transcribe it."
+					indent={false}
+					visible
+				/>
 			</OptionalModelPackage>
 			<OptionalModelPackage
 				label="Video matting"
 				packageName={VIDEO_MATTING_PACKAGE}
 				style={lastSection}
 			>
-				<LazyVideoMattingModels indent={false} visible />
+				<LazyVideoMattingModels
+					description="Select a video asset to separate background and foreground."
+					indent={false}
+					visible
+				/>
 			</OptionalModelPackage>
 		</div>
 	);
