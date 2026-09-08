@@ -466,6 +466,40 @@ const CloseupPlaceholder = () => {
 			newCompositionDialog.getByRole('button', {name: /^Install/}),
 		).toBeDisabled();
 		await newCompositionDialog
+			.getByRole('radio', {name: 'Replace existing'})
+			.check();
+		await newCompositionDialog
+			.getByRole('radio', {name: 'New composition', exact: true})
+			.check();
+		await newCompositionDialog
+			.getByRole('radio', {name: 'Current composition', exact: true})
+			.check();
+		await expect(
+			newCompositionDialog.getByRole('radio', {name: 'Create a copy'}),
+		).toBeChecked();
+		await expect(
+			newCompositionDialog.getByLabel('Installation name'),
+		).toHaveValue('protocol-element-copy-3');
+		await expect(
+			newCompositionDialog.getByText('Name already taken.'),
+		).toBeHidden();
+		const independentFile = path.join(
+			temporaryProject,
+			'src',
+			'speaker-name.element.tsx',
+		);
+		// Keep the real preflight response pending until installation finishes.
+		await studioPage.route('**/api/prepare-element-install', async (route) => {
+			if (route.request().postDataJSON().installationName !== 'speaker-name') {
+				await route.continue();
+				return;
+			}
+
+			const response = await route.fetch();
+			await waitForFile(independentFile);
+			await route.fulfill({response});
+		});
+		await newCompositionDialog
 			.getByLabel('Installation name')
 			.fill('speaker-name');
 		await expect(
@@ -488,11 +522,6 @@ const CloseupPlaceholder = () => {
 		).toHaveValue('speaker-name');
 		await newCompositionDialog.getByRole('button', {name: /^Install/}).click();
 		await expect(newCompositionDialog).toBeHidden();
-		const independentFile = path.join(
-			temporaryProject,
-			'src',
-			'speaker-name.element.tsx',
-		);
 		await waitForFile(independentFile);
 		expect(fs.readFileSync(independentFile, 'utf8')).toBe(suppliedSource);
 		expect(fs.readFileSync(elementFile, 'utf8')).toBe(customizedSource);

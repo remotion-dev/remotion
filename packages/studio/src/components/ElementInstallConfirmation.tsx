@@ -570,11 +570,52 @@ export const ElementInstallConfirmation: React.FC<{
 	const selectedPlan =
 		mode === 'current-composition' ? currentPlan : selectedNewCompositionPlan;
 	const elementBaseName = request.element.slug.split('/').at(-1) ?? '';
-	const [installationName, setInstallationName] = useState(elementBaseName);
-	const [nameEdited, setNameEdited] = useState(false);
 	const [refreshPlan, setRefreshPlan] = useState(0);
-	const [preparedInstallation, setPreparedInstallation] =
-		useState<PreparedElementInstallation | null>(null);
+	const [input, setInput] = useState<{
+		basePlan: ElementInstallPlan | null;
+		baseName: string;
+		refresh: number;
+		name: string | null;
+		overwritePlan: ElementInstallPlan | null;
+	}>({
+		basePlan: selectedPlan,
+		baseName: elementBaseName,
+		refresh: refreshPlan,
+		name: null,
+		overwritePlan: null,
+	});
+	if (
+		input.basePlan !== selectedPlan ||
+		input.baseName !== elementBaseName ||
+		input.refresh !== refreshPlan
+	) {
+		setInput({
+			basePlan: selectedPlan,
+			baseName: elementBaseName,
+			refresh: refreshPlan,
+			name: null,
+			overwritePlan: null,
+		});
+	}
+
+	const requestedName = input.name;
+	const [preparation, setPreparation] = useState<{
+		basePlan: ElementInstallPlan;
+		refresh: number;
+		requestedName: string | null;
+		installation: PreparedElementInstallation | null;
+		error: string | null;
+	} | null>(null);
+	const currentPreparation =
+		preparation?.basePlan === selectedPlan &&
+		preparation?.refresh === refreshPlan &&
+		preparation?.requestedName === requestedName
+			? preparation
+			: null;
+	const preparedInstallation = currentPreparation?.installation ?? null;
+	const planError = currentPreparation?.error ?? null;
+	const installationName =
+		requestedName ?? preparedInstallation?.name ?? elementBaseName;
 	const [existingInstallation, setExistingInstallation] =
 		useState<PreparedElementInstallation | null>(null);
 	const existingDestination =
@@ -582,19 +623,12 @@ export const ElementInstallConfirmation: React.FC<{
 		existingInstallation?.refresh === refreshPlan
 			? existingInstallation
 			: null;
-	const [planError, setPlanError] = useState<string | null>(null);
-	const [overwritePlan, setOverwritePlan] = useState<ElementInstallPlan | null>(
-		null,
-	);
 	const overwriteExisting =
-		existingDestination !== null && overwritePlan === existingDestination.plan;
+		existingDestination !== null &&
+		input.overwritePlan === existingDestination.plan;
 	const activePlan = overwriteExisting
 		? existingDestination.plan
-		: preparedInstallation?.basePlan === selectedPlan &&
-			  preparedInstallation?.name === installationName &&
-			  preparedInstallation?.refresh === refreshPlan
-			? preparedInstallation.plan
-			: null;
+		: (preparedInstallation?.plan ?? null);
 	const [createdComposition, setCreatedComposition] = useState<string | null>(
 		null,
 	);
@@ -602,78 +636,79 @@ export const ElementInstallConfirmation: React.FC<{
 	const compositionAlreadyCreated = createdComposition === creationKey;
 
 	useEffect(() => {
-		setInstallationName(elementBaseName);
-		setNameEdited(false);
-	}, [elementBaseName, selectedPlan]);
-
-	useEffect(() => {
-		setOverwritePlan(null);
-		setPlanError(null);
 		if (selectedPlan === null) {
 			return;
 		}
 
 		let canceled = false;
-		prepareElementInstall({
-			installationName,
-			destination:
-				mode === 'current-composition'
-					? {
-							type: 'current-composition',
-							compositionFile: request.compositionFile,
-							compositionId: request.compositionId,
-						}
-					: {
-							type: 'new-composition',
-							compositionFile: selectedPlan.compositionFile,
-						},
-			element: request.element,
-		})
-			.then((result) => {
+		(async () => {
+			let candidate = requestedName ?? elementBaseName;
+			let copyNumber = 1;
+			while (true) {
+				const result = await prepareElementInstall({
+					installationName: candidate,
+					destination:
+						mode === 'current-composition'
+							? {
+									type: 'current-composition',
+									compositionFile: request.compositionFile,
+									compositionId: request.compositionId,
+								}
+							: {
+									type: 'new-composition',
+									compositionFile: selectedPlan.compositionFile,
+								},
+					element: request.element,
+				});
 				if (canceled) return;
-				if (result.success) {
-					const prepared = {
-						basePlan: selectedPlan,
-						name: installationName,
-						refresh: refreshPlan,
-						plan: result.plan,
-					};
-					setPreparedInstallation(prepared);
-					if (result.plan.expectedFileState.exists) {
-						setExistingInstallation((previous) =>
-							previous?.basePlan === selectedPlan &&
-							previous.refresh === refreshPlan
-								? previous
-								: prepared,
-						);
-						if (!nameEdited) {
-							let nextName = `${elementBaseName}-copy`;
-							if (installationName !== elementBaseName) {
-								const nextNumber =
-									installationName === nextName
-										? 2
-										: Number(installationName.slice(nextName.length + 1)) + 1;
-								nextName += `-${nextNumber}`;
-							}
+				if (!result.success) throw new Error(result.reason);
 
-							setInstallationName(nextName);
-						}
+				const prepared = {
+					basePlan: selectedPlan,
+					name: candidate,
+					refresh: refreshPlan,
+					plan: result.plan,
+				};
+				if (result.plan.expectedFileState.exists) {
+					setExistingInstallation((previous) =>
+						previous?.basePlan === selectedPlan &&
+						previous.refresh === refreshPlan
+							? previous
+							: prepared,
+					);
+					if (requestedName === null) {
+						candidate = `${elementBaseName}-copy${copyNumber === 1 ? '' : `-${copyNumber}`}`;
+						copyNumber++;
+						continue;
 					}
-				} else {
-					setPlanError(result.reason);
 				}
-			})
-			.catch((error) => {
-				if (!canceled)
-					setPlanError(error instanceof Error ? error.message : String(error));
-			});
+
+				setPreparation({
+					basePlan: selectedPlan,
+					refresh: refreshPlan,
+					requestedName,
+					installation: prepared,
+					error: null,
+				});
+				return;
+			}
+		})().catch((error) => {
+			if (!canceled) {
+				setPreparation({
+					basePlan: selectedPlan,
+					refresh: refreshPlan,
+					requestedName,
+					installation: null,
+					error: error instanceof Error ? error.message : String(error),
+				});
+			}
+		});
 		return () => {
 			canceled = true;
 		};
 	}, [
 		elementBaseName,
-		nameEdited,
-		installationName,
+		requestedName,
 		mode,
 		refreshPlan,
 		request,
@@ -683,7 +718,7 @@ export const ElementInstallConfirmation: React.FC<{
 	const installationNameError =
 		installationName.length > 0
 			? (planError ??
-				(nameEdited && activePlan?.expectedFileState.exists
+				(requestedName !== null && activePlan?.expectedFileState.exists
 					? 'Name already taken.'
 					: null))
 			: null;
@@ -693,8 +728,14 @@ export const ElementInstallConfirmation: React.FC<{
 	const title = `Install ${request.element.displayName}${request.element.displayName.endsWith(' Element') ? '' : ' Element'}`;
 	const canSubmit =
 		!submitting &&
-		activePlan !== null &&
-		(!activePlan.expectedFileState.exists || overwriteExisting) &&
+		(overwriteExisting ||
+			(planError === null &&
+				StudioProtocolInternals.makeElementFileNameFromSlug(
+					installationName,
+				) === `${installationName}.element.tsx` &&
+				(activePlan !== null
+					? !activePlan.expectedFileState.exists
+					: requestedName !== null))) &&
 		(mode === 'current-composition'
 			? currentPlan !== null
 			: (newCompositionValuesAreValid || compositionAlreadyCreated) &&
@@ -702,7 +743,7 @@ export const ElementInstallConfirmation: React.FC<{
 				selectedNewCompositionPlan !== null);
 
 	const submit = useCallback(async () => {
-		if (!canSubmit || activePlan === null) {
+		if (!canSubmit || selectedPlan === null) {
 			return;
 		}
 
@@ -731,25 +772,21 @@ export const ElementInstallConfirmation: React.FC<{
 				: installationName,
 			compositionFile:
 				mode === 'new-composition'
-					? activePlan.compositionFile
+					? selectedPlan.compositionFile
 					: request.compositionFile,
 			compositionId:
 				mode === 'new-composition'
 					? newCompositionValues.id
 					: request.compositionId,
 			element: request.element,
-			expectedFileState: activePlan.expectedFileState,
+			// The insert operation revalidates this even if the name preflight is pending.
+			expectedFileState: activePlan?.expectedFileState ?? {exists: false},
 			from: mode === 'new-composition' ? null : request.from,
 			overwriteExisting,
 			position: mode === 'new-composition' ? null : request.position,
 		});
 		if (installed) onClose();
 		else {
-			if (overwriteExisting && existingDestination !== null) {
-				setInstallationName(existingDestination.name);
-				setNameEdited(false);
-			}
-
 			setSubmitting(false);
 			setRefreshPlan((value) => value + 1);
 		}
@@ -768,6 +805,7 @@ export const ElementInstallConfirmation: React.FC<{
 		onClose,
 		request,
 		selectedFolderStack,
+		selectedPlan,
 	]);
 
 	const cancel = useCallback(() => {
@@ -928,7 +966,9 @@ export const ElementInstallConfirmation: React.FC<{
 								<RadioButton
 									checked={!overwriteExisting}
 									disabled={submitting}
-									onClick={() => setOverwritePlan(null)}
+									onClick={() =>
+										setInput((previous) => ({...previous, overwritePlan: null}))
+									}
 								>
 									Create a copy
 								</RadioButton>
@@ -951,8 +991,12 @@ export const ElementInstallConfirmation: React.FC<{
 											value={installationName}
 											disabled={submitting}
 											onChange={(event) => {
-												setNameEdited(true);
-												setInstallationName(event.target.value);
+												const name = event.target.value;
+												setInput((previous) => ({
+													...previous,
+													name,
+													overwritePlan: null,
+												}));
 											}}
 										/>
 										{installationNameError ? (
@@ -968,7 +1012,12 @@ export const ElementInstallConfirmation: React.FC<{
 									<RadioButton
 										checked={overwriteExisting}
 										disabled={submitting}
-										onClick={() => setOverwritePlan(existingDestination.plan)}
+										onClick={() =>
+											setInput((previous) => ({
+												...previous,
+												overwritePlan: existingDestination.plan,
+											}))
+										}
 									>
 										Replace existing
 									</RadioButton>
