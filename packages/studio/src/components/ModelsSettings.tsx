@@ -9,15 +9,13 @@ import {
 import {WHISPER_WEBGPU_PACKAGE} from './Transcription/whisper-webgpu-capability';
 import {VIDEO_MATTING_PACKAGE} from './VideoMatting/video-matting-capability';
 
-const LazyWhisperModels = React.lazy(async () => {
-	const {Models} = await import('./Transcription/Models');
-	return {default: Models};
-});
+const LazyWhisperModels = React.lazy(
+	() => import('./Transcription/LazyModels'),
+);
 
-const LazyVideoMattingModels = React.lazy(async () => {
-	const {Models} = await import('./VideoMatting/Models');
-	return {default: Models};
-});
+const LazyVideoMattingModels = React.lazy(
+	() => import('./VideoMatting/LazyModels'),
+);
 
 const container: React.CSSProperties = {
 	alignSelf: 'flex-start',
