@@ -262,9 +262,7 @@ export const ModelManager = <Model extends string>({
 								: `Downloading${progress === null ? '…' : ` ${Math.round(progress * 100)}%`}`
 							: actionState.type === 'error' && actionState.model === model.name
 								? actionState.message
-								: cached
-									? `${formatBytes(model.webGpuDownloadSize)} · Downloaded`
-									: formatBytes(model.webGpuDownloadSize);
+								: formatBytes(model.webGpuDownloadSize);
 
 						return (
 							<div
