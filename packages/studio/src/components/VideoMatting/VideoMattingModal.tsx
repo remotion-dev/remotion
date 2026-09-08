@@ -1,0 +1,380 @@
+import {formatBytes} from '@remotion/studio-shared';
+import {
+	canUseVideoMatting,
+	getAvailableModels,
+	type VideoLayerAudio,
+	type VideoMattingBitrate,
+	type VideoMattingModel,
+} from '@remotion/video-matting';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import {BLUE_DISABLED, WHITE} from '../../helpers/colors';
+import {Checkmark} from '../../icons/Checkmark';
+import type {VideoMattingModalState} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
+import {SidebarContext} from '../../state/sidebar';
+import {Button} from '../Button';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {ModalHeader} from '../ModalHeader';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {Combobox} from '../NewComposition/ComboBox';
+import {DismissableModal} from '../NewComposition/DismissableModal';
+import {RemotionInput} from '../NewComposition/RemInput';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {optionsSidebarTabs} from '../options-sidebar-tabs';
+import {persistSelectedOptionsSidebarPanel} from '../OptionsPanel';
+import {
+	getDefaultOutputBaseName,
+	validatePublicOutputName,
+} from '../public-output-name';
+import {input, label, optionRow, rightRow} from '../RenderModal/layout';
+import {
+	buttonStyle,
+	container,
+	flexer,
+	optionsPanel,
+	outerModalStyle,
+} from '../RenderModal/render-modals';
+import {RenderModalHr} from '../RenderModal/RenderModalHr';
+import {RenderQueueContext} from '../RenderQueue/context';
+import {useStaticFiles} from '../use-static-files';
+
+const MODELS = getAvailableModels();
+const controlStyle: React.CSSProperties = {width: 330, maxWidth: '100%'};
+const panelStyle: React.CSSProperties = {
+	...optionsPanel,
+	flexDirection: 'column',
+	paddingTop: 16,
+};
+const modalStyle: React.CSSProperties = {
+	...outerModalStyle,
+	height: 'auto',
+	maxHeight: 'calc(100vh - 40px)',
+	outline: 'none',
+};
+const outputRow: React.CSSProperties = {...optionRow, alignItems: 'flex-start'};
+const fieldLabel: React.CSSProperties = {
+	color: WHITE,
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '32px',
+};
+const validationStyle: React.CSSProperties = {padding: '0 16px 8px'};
+
+type SupportState =
+	| {type: 'checking'}
+	| {type: 'supported'}
+	| {type: 'unsupported'; message: string};
+
+const makeOptions = <Value extends string>({
+	items,
+	selected,
+	setSelected,
+}: {
+	items: readonly {id: Value; label: React.ReactNode}[];
+	selected: Value;
+	setSelected: (value: Value) => void;
+}): ComboboxValue[] =>
+	items.map(({id, label: optionLabel}) => ({
+		type: 'item',
+		id,
+		value: id,
+		label: optionLabel,
+		leftItem: id === selected ? <Checkmark /> : null,
+		keyHint: null,
+		quickSwitcherLabel: null,
+		subMenu: null,
+		disabled: false,
+		onClick: () => setSelected(id),
+	}));
+
+export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
+	displayName,
+	src,
+}) => {
+	const baseName = useMemo(
+		() => getDefaultOutputBaseName(src, displayName, 'video'),
+		[displayName, src],
+	);
+	const [baseOutName, setBaseOutName] = useState(`${baseName}-base.webm`);
+	const [foregroundOutName, setForegroundOutName] = useState(
+		`${baseName}-foreground.webm`,
+	);
+	const [model, setModel] = useState<VideoMattingModel>('modnet');
+	const [audio, setAudio] = useState<VideoLayerAudio>('base');
+	const [videoBitrate, setVideoBitrate] =
+		useState<VideoMattingBitrate>('very-high');
+	const [support, setSupport] = useState<SupportState>({type: 'checking'});
+	const staticFiles = useStaticFiles();
+	const {addVideoMattingJob, videoMattingJobs} = useContext(RenderQueueContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
+
+	useEffect(() => {
+		let cancelled = false;
+		setSupport({type: 'checking'});
+		canUseVideoMatting({model}).then((result) => {
+			if (!cancelled) {
+				setSupport(
+					result.supported
+						? {type: 'supported'}
+						: {type: 'unsupported', message: result.detailedReason},
+				);
+			}
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [model]);
+
+	const normalizedBase = baseOutName.normalize('NFC').toLowerCase();
+	const normalizedForeground = foregroundOutName.normalize('NFC').toLowerCase();
+	const duplicateOutput = normalizedBase === normalizedForeground;
+	const queuedOutputs = new Set(
+		videoMattingJobs
+			.filter((job) => job.status === 'idle' || job.status === 'running')
+			.flatMap((job) => [job.baseOutName, job.foregroundOutName])
+			.map((name) => name.normalize('NFC').toLowerCase()),
+	);
+	const baseError =
+		validatePublicOutputName({extension: '.webm', outName: baseOutName}) ??
+		(duplicateOutput
+			? 'Base and foreground outputs must be different'
+			: queuedOutputs.has(normalizedBase)
+				? 'Another video matting job is using this output file'
+				: null);
+	const foregroundError =
+		validatePublicOutputName({
+			extension: '.webm',
+			outName: foregroundOutName,
+		}) ??
+		(duplicateOutput
+			? 'Base and foreground outputs must be different'
+			: queuedOutputs.has(normalizedForeground)
+				? 'Another video matting job is using this output file'
+				: null);
+	const baseExists = staticFiles.some(
+		(file) => file.name.normalize('NFC').toLowerCase() === normalizedBase,
+	);
+	const foregroundExists = staticFiles.some(
+		(file) => file.name.normalize('NFC').toLowerCase() === normalizedForeground,
+	);
+	const canSubmit =
+		support.type === 'supported' &&
+		baseError === null &&
+		foregroundError === null;
+
+	const modelOptions = useMemo(
+		() =>
+			makeOptions({
+				items: MODELS.map((item) => ({
+					id: item.name,
+					label: `${item.name} · ${formatBytes(item.webGpuDownloadSize)}`,
+				})),
+				selected: model,
+				setSelected: setModel,
+			}),
+		[model],
+	);
+	const audioOptions = useMemo(
+		() =>
+			makeOptions({
+				items: [
+					{id: 'base' as const, label: 'Base layer'},
+					{id: 'foreground' as const, label: 'Foreground layer'},
+					{id: 'both' as const, label: 'Both layers'},
+					{id: 'none' as const, label: 'No audio'},
+				],
+				selected: audio,
+				setSelected: setAudio,
+			}),
+		[audio],
+	);
+	const qualityOptions = useMemo(
+		() =>
+			makeOptions({
+				items: ['very-low', 'low', 'medium', 'high', 'very-high'].map((id) => ({
+					id: id as VideoMattingBitrate & string,
+					label: id
+						.split('-')
+						.map((part) => part[0]!.toUpperCase() + part.slice(1))
+						.join(' '),
+				})),
+				selected: videoBitrate as VideoMattingBitrate & string,
+				setSelected: setVideoBitrate,
+			}),
+		[videoBitrate],
+	);
+
+	const submit = useCallback(() => {
+		if (!canSubmit) return;
+		addVideoMattingJob({
+			src,
+			displayName,
+			baseOutName,
+			foregroundOutName,
+			model,
+			audio,
+			videoBitrate,
+		});
+		setSidebarCollapsedState({left: null, right: 'expanded'});
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
+		setSelectedModal(null);
+	}, [
+		addVideoMattingJob,
+		audio,
+		baseOutName,
+		canSubmit,
+		displayName,
+		foregroundOutName,
+		model,
+		setSelectedModal,
+		setSidebarCollapsedState,
+		src,
+		videoBitrate,
+	]);
+
+	return (
+		<DismissableModal ariaLabel={`Track matting ${displayName}`}>
+			<div style={modalStyle}>
+				<ModalHeader title={`Track matting ${displayName}`} />
+				<div style={container}>
+					<div style={flexer} />
+					<Button
+						disabled={!canSubmit}
+						onClick={submit}
+						title={support.type === 'unsupported' ? support.message : undefined}
+						style={{
+							...buttonStyle,
+							backgroundColor: canSubmit
+								? buttonStyle.backgroundColor
+								: BLUE_DISABLED,
+						}}
+					>
+						Track matting
+					</Button>
+				</div>
+				<div style={panelStyle} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+					<div style={outputRow}>
+						<div style={fieldLabel}>Base output in public/</div>
+						<div style={rightRow}>
+							<RemotionInput
+								aria-label="Base video output file"
+								status={baseError ? 'error' : baseExists ? 'warning' : 'ok'}
+								rightAlign
+								value={baseOutName}
+								onChange={(event) => setBaseOutName(event.target.value)}
+								style={{...input, ...controlStyle}}
+							/>
+						</div>
+					</div>
+					{baseError ? (
+						<div style={validationStyle}>
+							<ValidationMessage
+								align="flex-end"
+								message={baseError}
+								type="error"
+							/>
+						</div>
+					) : baseExists ? (
+						<div style={validationStyle}>
+							<ValidationMessage
+								align="flex-end"
+								message="Exists, will be overwritten"
+								type="warning"
+							/>
+						</div>
+					) : null}
+					<div style={outputRow}>
+						<div style={fieldLabel}>Foreground output in public/</div>
+						<div style={rightRow}>
+							<RemotionInput
+								aria-label="Foreground video output file"
+								status={
+									foregroundError
+										? 'error'
+										: foregroundExists
+											? 'warning'
+											: 'ok'
+								}
+								rightAlign
+								value={foregroundOutName}
+								onChange={(event) => setForegroundOutName(event.target.value)}
+								style={{...input, ...controlStyle}}
+							/>
+						</div>
+					</div>
+					{foregroundError ? (
+						<div style={validationStyle}>
+							<ValidationMessage
+								align="flex-end"
+								message={foregroundError}
+								type="error"
+							/>
+						</div>
+					) : foregroundExists ? (
+						<div style={validationStyle}>
+							<ValidationMessage
+								align="flex-end"
+								message="Exists, will be overwritten"
+								type="warning"
+							/>
+						</div>
+					) : null}
+					<RenderModalHr />
+					<div style={optionRow}>
+						<div style={label}>Model</div>
+						<div style={rightRow}>
+							<Combobox
+								values={modelOptions}
+								selectedId={model}
+								title="Model"
+								disabled={false}
+								style={controlStyle}
+							/>
+						</div>
+					</div>
+					{support.type === 'unsupported' ? (
+						<div style={validationStyle}>
+							<ValidationMessage
+								align="flex-end"
+								message={support.message}
+								type="error"
+							/>
+						</div>
+					) : null}
+					<div style={optionRow}>
+						<div style={label}>Audio</div>
+						<div style={rightRow}>
+							<Combobox
+								values={audioOptions}
+								selectedId={audio}
+								title="Audio"
+								disabled={false}
+								style={controlStyle}
+							/>
+						</div>
+					</div>
+					<div style={optionRow}>
+						<div style={label}>Video quality</div>
+						<div style={rightRow}>
+							<Combobox
+								values={qualityOptions}
+								selectedId={String(videoBitrate)}
+								title="Video quality"
+								disabled={false}
+								style={controlStyle}
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</DismissableModal>
+	);
+};

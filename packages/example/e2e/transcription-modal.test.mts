@@ -46,9 +46,35 @@ test.describe('transcription modal', () => {
 		await expect(actions.getByRole('button')).toHaveText([
 			/^Show in (Finder|File Explorer|File Manager)$/,
 			'Transcribe',
+			'Track matting',
 			'Convert',
 			'Delete',
 		]);
+		await page.evaluate(() => {
+			window.remotion_installedPackages = [
+				...(window.remotion_installedPackages ?? []),
+				'@remotion/video-matting',
+			];
+		});
+		await actions.getByRole('button', {name: 'Track matting'}).click();
+		const mattingDialog = page.getByRole('dialog', {
+			name: 'Track matting vp8-vorbis.webm',
+		});
+		await expect(mattingDialog.getByTitle('Model')).toContainText('modnet');
+		await expect(
+			mattingDialog.getByRole('textbox', {name: 'Base video output file'}),
+		).toHaveValue(
+			'vp8-vorbis-base.webm',
+		);
+		await expect(
+			mattingDialog.getByRole('textbox', {
+				name: 'Foreground video output file',
+			}),
+		).toHaveValue(
+			'vp8-vorbis-foreground.webm',
+		);
+		await page.keyboard.press('Escape');
+		await expect(mattingDialog).toBeHidden();
 
 		await transcribe.click();
 		const dialog = page.getByRole('dialog');

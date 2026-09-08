@@ -33,6 +33,11 @@ import type {
 	GetBlobCallback,
 	RestoredClientRenderJob,
 } from './client-side-render-types';
+import type {
+	AddVideoMattingJobParams,
+	VideoMattingJob,
+	VideoMattingJobProgress,
+} from './video-matting-job-types';
 
 declare global {
 	interface Window {
@@ -61,6 +66,7 @@ type RenderQueueContextType = {
 	serverJobs: RenderJob[];
 	clientJobs: ClientRenderJob[];
 	captionJobs: CaptionJob[];
+	videoMattingJobs: VideoMattingJob[];
 	addClientStillJob: (
 		params: AddClientStillJobParams,
 		compositionRef: CompositionRef,
@@ -97,6 +103,17 @@ type RenderQueueContextType = {
 	setProcessCaptionJobCallback: (
 		callback: ((job: CaptionJob) => Promise<void>) | null,
 	) => void;
+	addVideoMattingJob: (params: AddVideoMattingJobParams) => string;
+	updateVideoMattingJobProgress: (
+		jobId: string,
+		progress: VideoMattingJobProgress,
+	) => void;
+	markVideoMattingJobDone: (jobId: string) => void;
+	markVideoMattingJobFailed: (jobId: string, error: Error) => void;
+	removeVideoMattingJob: (jobId: string) => void;
+	setProcessVideoMattingJobCallback: (
+		callback: ((job: VideoMattingJob) => Promise<void>) | null,
+	) => void;
 	getAbortController: (jobId: string) => AbortController;
 	getCompositionForJob: (jobId: string) => CompositionRef | undefined;
 };
@@ -109,6 +126,7 @@ export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	serverJobs: [],
 	clientJobs: [],
 	captionJobs: [],
+	videoMattingJobs: [],
 	addClientStillJob: noopString,
 	addClientVideoJob: noopString,
 	updateClientJobProgress: noop,
@@ -125,6 +143,12 @@ export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	markCaptionJobFailed: noop,
 	removeCaptionJob: noop,
 	setProcessCaptionJobCallback: noop,
+	addVideoMattingJob: noopString,
+	updateVideoMattingJobProgress: noop,
+	markVideoMattingJobDone: noop,
+	markVideoMattingJobFailed: noop,
+	removeVideoMattingJob: noop,
+	setProcessVideoMattingJobCallback: noop,
 	getAbortController: () => new AbortController(),
 	getCompositionForJob: () => undefined,
 });
@@ -144,6 +168,9 @@ export const RenderQueueContextProvider: React.FC<{
 		restorePersistedClientRenders,
 	);
 	const [captionJobs, setCaptionJobs] = useState<CaptionJob[]>([]);
+	const [videoMattingJobs, setVideoMattingJobs] = useState<VideoMattingJob[]>(
+		[],
+	);
 	const [currentlyProcessing, setCurrentlyProcessing] = useState<string | null>(
 		null,
 	);
@@ -155,6 +182,9 @@ export const RenderQueueContextProvider: React.FC<{
 	>(null);
 	const processCaptionJobCallbackRef = useRef<
 		((job: CaptionJob) => Promise<void>) | null
+	>(null);
+	const processVideoMattingJobCallbackRef = useRef<
+		((job: VideoMattingJob) => Promise<void>) | null
 	>(null);
 	const [processorCallbacksVersion, setProcessorCallbacksVersion] = useState(0);
 
@@ -171,7 +201,7 @@ export const RenderQueueContextProvider: React.FC<{
 			return;
 		}
 
-		const nextJob = [...clientJobs, ...captionJobs]
+		const nextJob = [...clientJobs, ...captionJobs, ...videoMattingJobs]
 			.filter((job) => job.status === 'idle')
 			.sort((a, b) => a.startedAt - b.startedAt)[0];
 		if (!nextJob) {
@@ -202,6 +232,27 @@ export const RenderQueueContextProvider: React.FC<{
 			return;
 		}
 
+		if (nextJob.type === 'video-matting') {
+			if (!processVideoMattingJobCallbackRef.current) {
+				return;
+			}
+
+			setCurrentlyProcessing(nextJob.id);
+			setVideoMattingJobs((prev) =>
+				prev.map((job) =>
+					job.id === nextJob.id
+						? {
+								...job,
+								status: 'running',
+								progress: {message: 'Starting video matting...', value: 0},
+							}
+						: job,
+				),
+			);
+			processVideoMattingJobCallbackRef.current(nextJob);
+			return;
+		}
+
 		if (!processJobCallbackRef.current) {
 			return;
 		}
@@ -225,7 +276,13 @@ export const RenderQueueContextProvider: React.FC<{
 			),
 		);
 		processJobCallbackRef.current(nextJob);
-	}, [captionJobs, clientJobs, currentlyProcessing, processorCallbacksVersion]);
+	}, [
+		captionJobs,
+		clientJobs,
+		currentlyProcessing,
+		processorCallbacksVersion,
+		videoMattingJobs,
+	]);
 
 	const addClientStillJob = useCallback(
 		(
@@ -457,6 +514,81 @@ export const RenderQueueContextProvider: React.FC<{
 		[],
 	);
 
+	const addVideoMattingJob = useCallback(
+		(params: AddVideoMattingJobParams): string => {
+			const id = `video-matting-${Date.now()}-${Math.random()
+				.toString(36)
+				.substring(2, 11)}`;
+			setVideoMattingJobs((prev) => [
+				...prev,
+				{
+					...params,
+					id,
+					type: 'video-matting',
+					startedAt: getLocalJobStartedAt(),
+					status: 'idle',
+				},
+			]);
+			return id;
+		},
+		[getLocalJobStartedAt],
+	);
+
+	const updateVideoMattingJobProgress = useCallback(
+		(jobId: string, progress: VideoMattingJobProgress): void => {
+			setVideoMattingJobs((prev) =>
+				prev.map((job) =>
+					job.id === jobId ? {...job, status: 'running', progress} : job,
+				),
+			);
+		},
+		[],
+	);
+
+	const markVideoMattingJobDone = useCallback((jobId: string): void => {
+		setVideoMattingJobs((prev) =>
+			prev.map((job) => (job.id === jobId ? {...job, status: 'done'} : job)),
+		);
+		setCurrentlyProcessing((current) => (current === jobId ? null : current));
+	}, []);
+
+	const markVideoMattingJobFailed = useCallback(
+		(jobId: string, error: Error): void => {
+			setVideoMattingJobs((prev) =>
+				prev.map((job) =>
+					job.id === jobId
+						? {
+								...job,
+								status: 'failed',
+								error: {message: error.message, stack: error.stack},
+							}
+						: job,
+				),
+			);
+			setCurrentlyProcessing((current) => (current === jobId ? null : current));
+		},
+		[],
+	);
+
+	const removeVideoMattingJob = useCallback((jobId: string): void => {
+		setVideoMattingJobs((prev) => {
+			const jobToRemove = prev.find((job) => job.id === jobId);
+			if (jobToRemove?.status === 'running') {
+				return prev;
+			}
+
+			return prev.filter((job) => job.id !== jobId);
+		});
+	}, []);
+
+	const setProcessVideoMattingJobCallback = useCallback(
+		(callback: ((job: VideoMattingJob) => Promise<void>) | null): void => {
+			processVideoMattingJobCallbackRef.current = callback;
+			setProcessorCallbacksVersion((version) => version + 1);
+		},
+		[],
+	);
+
 	useImperativeHandle(
 		renderJobsRef,
 		() => ({
@@ -498,6 +630,7 @@ export const RenderQueueContextProvider: React.FC<{
 			serverJobs,
 			clientJobs,
 			captionJobs,
+			videoMattingJobs,
 			addClientStillJob,
 			addClientVideoJob,
 			updateClientJobProgress,
@@ -514,6 +647,12 @@ export const RenderQueueContextProvider: React.FC<{
 			markCaptionJobFailed,
 			removeCaptionJob,
 			setProcessCaptionJobCallback,
+			addVideoMattingJob,
+			updateVideoMattingJobProgress,
+			markVideoMattingJobDone,
+			markVideoMattingJobFailed,
+			removeVideoMattingJob,
+			setProcessVideoMattingJobCallback,
 			getAbortController,
 			getCompositionForJob,
 		};
@@ -521,6 +660,7 @@ export const RenderQueueContextProvider: React.FC<{
 		serverJobs,
 		clientJobs,
 		captionJobs,
+		videoMattingJobs,
 		addClientStillJob,
 		addClientVideoJob,
 		updateClientJobProgress,
@@ -537,6 +677,12 @@ export const RenderQueueContextProvider: React.FC<{
 		markCaptionJobFailed,
 		removeCaptionJob,
 		setProcessCaptionJobCallback,
+		addVideoMattingJob,
+		updateVideoMattingJobProgress,
+		markVideoMattingJobDone,
+		markVideoMattingJobFailed,
+		removeVideoMattingJob,
+		setProcessVideoMattingJobCallback,
 	]);
 
 	return (

@@ -44,6 +44,9 @@
 		},
 		{
 			"path": "../whisper-webgpu"
+		},
+		{
+			"path": "../video-matting"
 		}
 	]
 }

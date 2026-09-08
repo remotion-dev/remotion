@@ -12,6 +12,7 @@ import {writeStaticFile} from '../../api/write-static-file';
 import {resampleMediaTo16Khz} from '../Transcription/resample-media-to-16-khz';
 import type {CaptionJob} from './caption-job-types';
 import {RenderQueueContext} from './context';
+import {loadModelForJob} from './load-model-for-job';
 
 export const CaptionQueueProcessor: React.FC = () => {
 	const {
@@ -40,19 +41,18 @@ export const CaptionQueueProcessor: React.FC = () => {
 					value: 0.02,
 				});
 				await clearStaleModels();
-				const modelIsCached = await isWhisperModelCached({model: job.model});
-				await loadWhisperModel({
+				await loadModelForJob({
 					model: job.model,
-					onProgress: (progress) => {
-						const percentage =
-							progress.progress === null
-								? ''
-								: ` ${Math.round(progress.progress * 100)}%`;
-						updateCaptionJobProgress(job.id, {
-							message: `${modelIsCached ? 'Loading' : 'Downloading'} ${job.model}${percentage}`,
-							value: 0.03 + (progress.progress ?? 0) * 0.27,
-						});
-					},
+					progressStart: 0.03,
+					progressSpan: 0.27,
+					isModelCached: (model) => isWhisperModelCached({model}),
+					loadModel: (model, onProgress) =>
+						loadWhisperModel({
+							model,
+							onProgress: (progress) => onProgress(progress.progress),
+						}),
+					updateProgress: (progress) =>
+						updateCaptionJobProgress(job.id, progress),
 				});
 
 				updateCaptionJobProgress(job.id, {

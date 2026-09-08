@@ -6,6 +6,8 @@ import {
 	isWhisperWebGpuInstalled,
 	WHISPER_WEBGPU_PACKAGE,
 } from '../components/Transcription/whisper-webgpu-capability';
+import {VIDEO_MATTING_PACKAGE} from '../components/VideoMatting/video-matting-capability';
+import {VideoMattingModalWithOptionalPackage} from '../components/VideoMatting/VideoMattingModalWithOptionalPackage';
 
 const originalInstalledPackages = window.remotion_installedPackages;
 
@@ -39,6 +41,26 @@ test('asks before installing Whisper for transcription', () => {
 
 	expect(container.textContent).toContain(
 		'This requires installing @remotion/whisper-webgpu. Continue?',
+	);
+	expect(getByRole('button', {name: 'Continue'})).toBeDefined();
+});
+
+test('uses the same install confirmation for video matting', () => {
+	window.remotion_installedPackages = [];
+	const {container, getByRole} = render(
+		<ModalsProvider>
+			<VideoMattingModalWithOptionalPackage
+				state={{
+					type: 'video-matting',
+					src: '/video.webm',
+					displayName: 'video.webm',
+				}}
+			/>
+		</ModalsProvider>,
+	);
+
+	expect(container.textContent).toContain(
+		`This requires installing ${VIDEO_MATTING_PACKAGE}. Continue?`,
 	);
 	expect(getByRole('button', {name: 'Continue'})).toBeDefined();
 });

@@ -7,6 +7,8 @@ import {isCaptionJob} from './caption-job-types';
 import {CaptionQueueItem} from './CaptionQueueItem';
 import {RenderQueueContext} from './context';
 import {RenderQueueItem} from './RenderQueueItem';
+import {isVideoMattingJob} from './video-matting-job-types';
+import {VideoMattingQueueItem} from './VideoMattingQueueItem';
 
 const errorExplanation: React.CSSProperties = {
 	fontSize: 13,
@@ -35,11 +37,14 @@ const renderQueue: React.CSSProperties = {
 };
 
 export const RenderQueue: React.FC = () => {
-	const {jobs, captionJobs} = useContext(RenderQueueContext);
+	const {jobs, captionJobs, videoMattingJobs} = useContext(RenderQueueContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const allJobs = useMemo(
-		() => [...jobs, ...captionJobs].sort((a, b) => a.startedAt - b.startedAt),
-		[jobs, captionJobs],
+		() =>
+			[...jobs, ...captionJobs, ...videoMattingJobs].sort(
+				(a, b) => a.startedAt - b.startedAt,
+			),
+		[jobs, captionJobs, videoMattingJobs],
 	);
 	const previousJobCount = React.useRef(allJobs.length);
 	const jobCount = allJobs.length;
@@ -70,7 +75,7 @@ export const RenderQueue: React.FC = () => {
 		if (canvasContent.type === 'output') {
 			for (let i = 0; i < allJobs.length; i++) {
 				const job = allJobs[i];
-				if (isCaptionJob(job)) {
+				if (isCaptionJob(job) || isVideoMattingJob(job)) {
 					continue;
 				}
 
@@ -87,6 +92,15 @@ export const RenderQueue: React.FC = () => {
 					isCaptionJob(job) &&
 					job.status === 'done' &&
 					canvasContent.asset === job.outName
+				) {
+					return i;
+				}
+
+				if (
+					isVideoMattingJob(job) &&
+					job.status === 'done' &&
+					(canvasContent.asset === job.baseOutName ||
+						canvasContent.asset === job.foregroundOutName)
 				) {
 					return i;
 				}
@@ -117,6 +131,12 @@ export const RenderQueue: React.FC = () => {
 			{allJobs.map((job, index) => {
 				return isCaptionJob(job) ? (
 					<CaptionQueueItem
+						key={job.id}
+						job={job}
+						selected={selectedJob === index}
+					/>
+				) : isVideoMattingJob(job) ? (
+					<VideoMattingQueueItem
 						key={job.id}
 						job={job}
 						selected={selectedJob === index}

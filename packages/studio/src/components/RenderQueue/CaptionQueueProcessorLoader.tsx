@@ -1,5 +1,6 @@
 import React, {Suspense, useContext} from 'react';
-import {isWhisperWebGpuInstalled} from '../Transcription/whisper-webgpu-capability';
+import {useOptionalPackageInstalled} from '../OptionalPackageModal';
+import {WHISPER_WEBGPU_PACKAGE} from '../Transcription/whisper-webgpu-capability';
 import {RenderQueueContext} from './context';
 
 const LazyCaptionQueueProcessor = React.lazy(async () => {
@@ -9,7 +10,8 @@ const LazyCaptionQueueProcessor = React.lazy(async () => {
 
 export const CaptionQueueProcessorLoader: React.FC = () => {
 	const {captionJobs} = useContext(RenderQueueContext);
-	if (!isWhisperWebGpuInstalled() || captionJobs.length === 0) {
+	const installed = useOptionalPackageInstalled(WHISPER_WEBGPU_PACKAGE);
+	if (!installed || captionJobs.length === 0) {
 		return null;
 	}
 

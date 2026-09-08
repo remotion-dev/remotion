@@ -148,6 +148,12 @@ export type TranscriptionModalState = {
 	requestInit: Omit<RequestInit, 'signal'> | null;
 };
 
+export type VideoMattingModalState = {
+	type: 'video-matting';
+	src: string;
+	displayName: string;
+};
+
 export type CanvasCaptureImport = {
 	readonly data: CanvasCaptureData;
 	readonly durationInSeconds: number;
@@ -264,6 +270,7 @@ export type ModalState =
 	| ElementInstallModalState
 	| AddEffectModalState
 	| TranscriptionModalState
+	| VideoMattingModalState
 	| ConfirmationDialogState
 	| SvgImportDialogState;
 

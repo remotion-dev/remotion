@@ -15,6 +15,7 @@ import {ModalsProvider} from './ModalsProvider';
 import {CaptionQueueProcessorLoader} from './RenderQueue/CaptionQueueProcessorLoader';
 import {ClientRenderQueueProcessor} from './RenderQueue/ClientRenderQueueProcessor';
 import {RenderQueueContextProvider} from './RenderQueue/context';
+import {VideoMattingQueueProcessorLoader} from './RenderQueue/VideoMattingQueueProcessorLoader';
 import {SetTimelineInOutProvider} from './SetTimelineInOutProvider';
 import {SettingsProvider} from './SettingsContext';
 import {ShowGuidesProvider} from './ShowGuidesProvider';
@@ -37,6 +38,7 @@ export const EditorContexts: React.FC<{
 						<RenderQueueContextProvider>
 							<ClientRenderQueueProcessor />
 							<CaptionQueueProcessorLoader />
+							<VideoMattingQueueProcessorLoader />
 							<KeybindingContextProvider>
 								<CheckerboardProvider>
 									<ZoomGesturesProvider>

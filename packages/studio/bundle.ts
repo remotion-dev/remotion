@@ -17,6 +17,7 @@ const external = [
 	'@remotion/renderer/pure',
 	'@remotion/web-renderer',
 	'@remotion/whisper-webgpu',
+	'@remotion/video-matting',
 	'@remotion/renderer/error-handling',
 	'@jridgewell/trace-mapping',
 	'zod',

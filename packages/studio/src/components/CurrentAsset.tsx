@@ -15,6 +15,7 @@ import {
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {EffectsIcon} from '../icons/effects';
 import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
 import {TranscriptionIcon} from '../icons/transcription';
@@ -210,6 +211,7 @@ export const AssetInfo: React.FC<{
 		browserStudioOperations === null &&
 		(readOnlyStudio || connectionStatus !== 'connected');
 	const fileName = assetName?.split('/').pop() ?? '';
+	const fileType = assetName ? getPreviewFileType(assetName) : null;
 	const onTranscribe = useCallback(() => {
 		if (src === null || mutationsDisabled) {
 			return;
@@ -223,6 +225,17 @@ export const AssetInfo: React.FC<{
 			requestInit: null,
 		});
 	}, [fileName, mutationsDisabled, setSelectedModal, src]);
+	const onTrackMatting = useCallback(() => {
+		if (src === null || fileType !== 'video' || mutationsDisabled) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'video-matting',
+			src,
+			displayName: fileName,
+		});
+	}, [fileName, fileType, mutationsDisabled, setSelectedModal, src]);
 	const canRename =
 		onAssetClick === undefined &&
 		(browserStudioOperations !== null ||
@@ -371,6 +384,17 @@ export const AssetInfo: React.FC<{
 						)}
 					>
 						Transcribe
+					</InspectorQuickAction>
+				) : null}
+				{fileType === 'video' ? (
+					<InspectorQuickAction
+						disabled={mutationsDisabled}
+						onClick={onTrackMatting}
+						renderIcon={(color) => (
+							<EffectsIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Track matting
 					</InspectorQuickAction>
 				) : null}
 				{src ? (
