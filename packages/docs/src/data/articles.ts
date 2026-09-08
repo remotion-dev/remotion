@@ -180,6 +180,15 @@ export const articles = [
 		slug: 'ai/generate',
 	},
 	{
+		id: 'ai/github-copilot-plugin',
+		title: 'GitHub Copilot plugin',
+		relativePath: 'docs/ai/github-copilot-plugin.mdx',
+		compId: 'articles-docs-ai-github-copilot-plugin',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/github-copilot-plugin',
+	},
+	{
 		id: 'ai/index',
 		title: 'Building with Remotion and AI',
 		relativePath: 'docs/ai/index.mdx',

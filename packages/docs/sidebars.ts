@@ -1506,6 +1506,7 @@ const sidebars: SidebarsConfig = {
 						'ai/claude-code-plugin',
 						'ai/codex-plugin',
 						'ai/cursor-plugin',
+						'ai/github-copilot-plugin',
 						'ai/kimi-code-plugin',
 					],
 				},
