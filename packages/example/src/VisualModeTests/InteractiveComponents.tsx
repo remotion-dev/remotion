@@ -78,6 +78,7 @@ export const InteractiveHtmlElements: React.FC = () => {
 				Button
 			</Interactive.Button>
 			<Interactive.P
+				name="Editable text"
 				style={{
 					position: 'absolute',
 					left: 620,
@@ -116,6 +117,31 @@ export const InteractiveHtmlElements: React.FC = () => {
 					&lt;Interactive.Section /&gt;
 				</Interactive.Code>
 			</Interactive.Section>
+			<Interactive.Div
+				name="Mixed text (computed)"
+				style={{
+					position: 'absolute',
+					left: 110,
+					top: 750,
+					color: '#f8fafc',
+					fontSize: 72,
+					lineHeight: 1.03,
+					letterSpacing: -4,
+					fontWeight: 500,
+				}}
+			>
+				&lt;br /&gt;
+				<br />
+				<span
+					style={{
+						fontFamily: 'Georgia, serif',
+						fontStyle: 'italic',
+						color: '#698357',
+					}}
+				>
+					inside
+				</span>
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };
