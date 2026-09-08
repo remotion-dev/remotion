@@ -27,7 +27,6 @@ const container: React.CSSProperties = {
 };
 
 const section: React.CSSProperties = {
-	borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
 	paddingBottom: 16,
 };
 
