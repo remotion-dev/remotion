@@ -1,5 +1,4 @@
 import React, {useCallback, useContext} from 'react';
-import {cmdOrCtrlCharacter} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {
 	BLACK_HEX,
 	LIGHT_TEXT,
@@ -12,6 +11,7 @@ import {
 	hoverableStyle,
 } from '../../helpers/hoverable';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../../helpers/use-keyboard-shortcut-label';
 import {EllipsisIcon} from '../../icons/ellipsis';
 import {SetSelectedModalContext} from '../../state/modals';
 import type {RenderInlineAction} from '../InlineAction';
@@ -80,6 +80,7 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 	}, []);
 	const moreActionsTitle =
 		mode === 'assets' ? 'More asset actions' : 'More composition actions';
+	const quickSwitcherShortcut = useKeyboardShortcutLabel('quickSwitcher');
 
 	return (
 		<div style={quickSwitcherArea}>
@@ -91,8 +92,10 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 				className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			>
 				Search...
-				{showShortcut && !areKeyboardShortcutsDisabled() ? (
-					<span style={shortcutLabel}>{cmdOrCtrlCharacter}+K</span>
+				{showShortcut &&
+				!areKeyboardShortcutsDisabled() &&
+				quickSwitcherShortcut !== '' ? (
+					<span style={shortcutLabel}>{quickSwitcherShortcut}</span>
 				) : null}
 			</button>
 			<InlineDropdown

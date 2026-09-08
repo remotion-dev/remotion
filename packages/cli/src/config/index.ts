@@ -22,6 +22,7 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import type {StudioKeyboardShortcuts} from '@remotion/studio-shared';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -44,6 +45,11 @@ import {
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {getShouldOutputImageSequence} from './image-sequence';
+import {
+	getKeyboardShortcuts,
+	resetKeyboardShortcuts,
+	setKeyboardShortcuts,
+} from './keyboard-shortcuts';
 import {getMetadata, resetMetadata, setMetadata} from './metadata';
 import {
 	getOutputLocation,
@@ -81,6 +87,7 @@ export type {
 	Concurrency,
 	RspackConfiguration,
 	RspackOverrideFn,
+	StudioKeyboardShortcuts,
 	WebpackConfiguration,
 	WebpackOverrideFn,
 };
@@ -628,6 +635,11 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		addElementLibrary: (options: AddElementLibraryOptions) => void;
 		/**
+		 * Override keyboard shortcuts in the Remotion Studio.
+		 * Omitted actions use their default shortcut. Set an action to null to disable it.
+		 */
+		setKeyboardShortcuts: (shortcuts: StudioKeyboardShortcuts) => void;
+		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
 		 */
@@ -769,6 +781,7 @@ export const Config: FlatConfig = {
 	addElementLibrary,
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
+	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setRspack: rspackOption.setConfig,
@@ -929,6 +942,7 @@ const resetConfigOptions = () => {
 	StudioServerInternals.resetMaxTimelineTracks();
 	resetBufferStateDelayInMilliseconds();
 	resetElementLibraries();
+	resetKeyboardShortcuts();
 	resetEntryPoint();
 	resetFfmpegOverrideFunction();
 	resetMetadata();
@@ -963,6 +977,7 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getBufferStateDelayInMilliseconds,
 	getElementLibraries,
+	getKeyboardShortcuts,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
 	resetConfigOptions,
 };

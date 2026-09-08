@@ -74,6 +74,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 					absolutePath: update.absolutePath,
 					remappings: update.nodePathRemappings,
 				})),
+				null,
 			);
 			const duplicatedNodeDescription =
 				nodes.length === 1

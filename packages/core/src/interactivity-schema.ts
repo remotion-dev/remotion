@@ -121,6 +121,7 @@ export type FontWeightFieldSchema = {
 
 export type AssetFieldSchema = {
 	type: 'asset';
+	assetType?: 'audio' | 'video' | 'image';
 	default: string | undefined;
 	description?: string;
 	keyframable?: false;

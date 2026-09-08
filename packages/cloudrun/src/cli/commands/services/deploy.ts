@@ -17,7 +17,7 @@ import {makeConsoleUrl} from '../../helpers/make-console-url';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
-export const CLOUD_RUN_DEPLOY_SUBCOMMAND = 'deploy';
+export {CLOUD_RUN_DEPLOY_SUBCOMMAND} from '../command-names';
 
 export const cloudRunDeploySubcommand = async (logLevel: LogLevel) => {
 	const region = getGcpRegion();

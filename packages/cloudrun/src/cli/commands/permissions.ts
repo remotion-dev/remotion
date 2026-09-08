@@ -7,7 +7,7 @@ import {
 import {getProjectId} from '../../functions/helpers/is-in-cloud-task';
 import {Log} from '../log';
 
-export const PERMISSIONS_COMMAND = 'permissions';
+export {PERMISSIONS_COMMAND} from './command-names';
 
 export const permissionsCommand = async (logLevel: LogLevel) => {
 	try {

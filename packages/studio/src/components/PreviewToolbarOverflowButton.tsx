@@ -2,6 +2,7 @@ import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {WHITE_ALPHA_80} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {Checkmark} from '../icons/Checkmark';
 import {EllipsisIcon} from '../icons/ellipsis';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -41,6 +42,8 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	setLoop,
 }) => {
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
+	const fullscreenShortcut = useKeyboardShortcutLabel('enterFullscreen');
+	const checkerboardShortcut = useKeyboardShortcutLabel('toggleCheckerboard');
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
@@ -138,7 +141,10 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Transparency as checkerboard',
 				value: 'checkerboard',
 				onClick: () => setCheckerboard((current) => !current),
-				keyHint: keyboardShortcutsDisabled ? null : 'T',
+				keyHint:
+					keyboardShortcutsDisabled || checkerboardShortcut === ''
+						? null
+						: checkerboardShortcut,
 				leftItem: checkerboard ? <Checkmark /> : null,
 				subMenu: null,
 				quickSwitcherLabel: null,
@@ -194,7 +200,10 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Fullscreen',
 				value: 'fullscreen',
 				onClick: () => clickButton('fullscreen-toggle'),
-				keyHint: keyboardShortcutsDisabled ? null : 'F',
+				keyHint:
+					keyboardShortcutsDisabled || fullscreenShortcut === ''
+						? null
+						: fullscreenShortcut,
 				leftItem: null,
 				subMenu: null,
 				quickSwitcherLabel: null,
@@ -203,6 +212,8 @@ export const PreviewToolbarOverflowButton: React.FC<{
 
 		return items;
 	}, [
+		checkerboardShortcut,
+		fullscreenShortcut,
 		previewSizeItems,
 		playbackRateItems,
 		selectedPlaybackRate,

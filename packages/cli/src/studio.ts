@@ -160,6 +160,7 @@ export const studioCommand = async (
 
 		return {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			keyboardShortcuts: ConfigInternals.getKeyboardShortcuts(),
 			askAIEnabled: askAIOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -345,7 +346,7 @@ export const studioCommand = async (
 		configFile,
 	});
 
-	if (result.type === 'already-running') {
+	if (result.type !== 'restarted') {
 		return;
 	}
 

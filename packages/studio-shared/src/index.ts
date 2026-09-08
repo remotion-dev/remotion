@@ -114,6 +114,7 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	ShutdownStudioResponse,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveInlineCaptionPatchesRequest,
@@ -196,6 +197,14 @@ export {
 	type ConfigFileChangeType,
 } from './config-file-change';
 export {configMethodLifecycles} from './config-method-lifecycles';
+export {
+	studioKeyboardShortcutActions,
+	type StudioKeyboardShortcut,
+	type StudioKeyboardShortcutAction,
+	type StudioKeyboardShortcuts,
+	type StudioKeyboardShortcutValue,
+	validateStudioKeyboardShortcuts,
+} from './keyboard-shortcuts';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	detectFileType,

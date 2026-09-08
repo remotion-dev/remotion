@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {useStudioConfigRevision} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
@@ -22,15 +23,21 @@ import {
 	useTimelineSetInOutFramePosition,
 } from '../state/in-out';
 import {ControlButton} from './ControlButton';
+import {getKeyboardShortcutLabel} from './keyboard-shortcuts';
 
-const getTooltipText = (pointType: string, key: string) =>
-	[
+const getTooltipText = (
+	pointType: string,
+	action: 'setInPoint' | 'setOutPoint',
+) => {
+	const shortcut = getKeyboardShortcutLabel(action);
+	return [
 		`Mark ${pointType}`,
-		areKeyboardShortcutsDisabled() ? null : `(${key})`,
+		areKeyboardShortcutsDisabled() || shortcut === '' ? null : `(${shortcut})`,
 		'- right click to clear',
 	]
 		.filter(NoReactInternals.truthy)
 		.join(' ');
+};
 
 const style: React.CSSProperties = {
 	width: 17,
@@ -50,6 +57,7 @@ export const inOutHandles = createRef<{
 export const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
 
 export const TimelineInOutPointToggle: React.FC = () => {
+	useStudioConfigRevision();
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -249,34 +257,31 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		}
 
 		const iKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 'i',
+			event: 'keydown',
+			action: 'setInPoint',
 			callback: (e) => {
 				onInMark(e);
 			},
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const oKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 'o',
+			event: 'keydown',
+			action: 'setOutPoint',
 			callback: (e) => {
 				onOutMark(e);
 			},
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const xKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 'x',
+			event: 'keydown',
+			action: 'clearInOutPoints',
 			callback: () => {
 				onInOutClear(confId);
 			},
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -305,8 +310,8 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	return (
 		<>
 			<ControlButton
-				title={getTooltipText('In', 'I')}
-				aria-label={getTooltipText('In', 'I')}
+				title={getTooltipText('In', 'setInPoint')}
+				aria-label={getTooltipText('In', 'setInPoint')}
 				style={buttonStyle}
 				onClick={onInMark}
 				onContextMenu={clearInMark}
@@ -320,8 +325,8 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				)}
 			</ControlButton>
 			<ControlButton
-				title={getTooltipText('Out', 'O')}
-				aria-label={getTooltipText('Out', 'O')}
+				title={getTooltipText('Out', 'setOutPoint')}
+				aria-label={getTooltipText('Out', 'setOutPoint')}
 				style={buttonStyle}
 				onClick={onOutMark}
 				onContextMenu={clearOutMark}

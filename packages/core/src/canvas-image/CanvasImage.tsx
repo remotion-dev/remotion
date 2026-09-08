@@ -44,6 +44,7 @@ import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 export const canvasImageSchema = {
 	src: {
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,

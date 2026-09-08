@@ -49,6 +49,7 @@ import {resolveAnimatedImageSource} from './resolve-image-source';
 export const animatedImageSchema = {
 	src: {
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,

@@ -178,6 +178,11 @@ export const useMediaPlayback = ({
 		}
 
 		const playbackRateToSet = Math.max(0, playbackRate);
+		// Loading a resource resets playbackRate to defaultPlaybackRate.
+		if (current.defaultPlaybackRate !== playbackRateToSet) {
+			current.defaultPlaybackRate = playbackRateToSet;
+		}
+
 		if (current.playbackRate !== playbackRateToSet) {
 			current.playbackRate = playbackRateToSet;
 		}

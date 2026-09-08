@@ -95,6 +95,7 @@ const allPackages = [
 	'example-videos',
 	'whisper-web',
 	'whisper-webgpu',
+	'video-matting',
 	'media',
 	'remotion-media',
 	'web-renderer',
@@ -124,38 +125,52 @@ export type ExtraPackage = {
 	version: string;
 	description: string;
 	docsUrl: string;
+	versionDocsUrl: string;
 };
 
 export const extraPackages: ExtraPackage[] = [
+	{
+		name: '@huggingface/transformers',
+		version: '4.2.0',
+		description: 'Machine learning models in the browser',
+		docsUrl: 'https://huggingface.co/docs/transformers.js',
+		versionDocsUrl: 'https://www.remotion.dev/docs/whisper-webgpu',
+	},
 	{
 		name: 'mediabunny',
 		version: '1.55.5',
 		description: 'Multimedia library used by Remotion',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
+		versionDocsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
 	},
 	{
 		name: '@mediabunny/ac3',
 		version: '1.55.5',
 		description: 'AC-3 and E-AC-3 audio codec support for Mediabunny',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
+		versionDocsUrl:
+			'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
 	},
 	{
 		name: '@mediabunny/dts',
 		version: '1.55.5',
 		description: 'DTS audio codec support for Mediabunny',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#dts',
+		versionDocsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#dts',
 	},
 	{
 		name: '@mediabunny/prores',
 		version: '1.55.5',
 		description: 'Apple ProRes decoder support for Mediabunny',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats',
+		versionDocsUrl: 'https://www.remotion.dev/docs/mediabunny/formats',
 	},
 	{
 		name: 'zod',
-		version: '4.4.3',
+		version: '4.5.4',
 		description: 'TypeScript-first schema validation',
 		docsUrl: 'https://zod.dev',
+		versionDocsUrl: 'https://www.remotion.dev/docs/zod-types/',
 	},
 ];
 
@@ -178,6 +193,8 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'install-whisper-cpp': 'Helpers for installing and using Whisper.cpp',
 	'whisper-web': 'Helpers for using Whisper.cpp in browser using WASM',
 	'whisper-webgpu': 'Transcribe audio in the browser using Whisper and WebGPU',
+	'video-matting':
+		'Separate a video into a base layer and transparent foreground in the browser',
 	'google-fonts': 'Use Google Fonts in Remotion',
 	gsap: 'Use GSAP timelines in Remotion',
 	mcp: "Remotion's Model Context Protocol",
@@ -317,6 +334,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'install-whisper-cpp': true,
 	'whisper-web': true,
 	'whisper-webgpu': true,
+	'video-matting': true,
 	'it-tests': false,
 	'react18-tests': false,
 	'lambda-go-example': false,
@@ -417,6 +435,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'install-whisper-cpp': 'https://www.remotion.dev/docs/install-whisper-cpp',
 	'whisper-web': 'https://www.remotion.dev/docs/whisper-web',
 	'whisper-webgpu': 'https://www.remotion.dev/docs/whisper-webgpu',
+	'video-matting': 'https://www.remotion.dev/docs/video-matting',
 	'google-fonts': 'https://www.remotion.dev/docs/google-fonts',
 	gsap: 'https://www.remotion.dev/docs/gsap',
 	'media-utils': 'https://www.remotion.dev/docs/media-utils',

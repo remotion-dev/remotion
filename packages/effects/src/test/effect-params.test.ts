@@ -66,6 +66,7 @@ import {shrinkwrap} from '../shrinkwrap.js';
 import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
 import {starburst} from '../starburst.js';
+import {tear, type TearParams} from '../tear.js';
 import {thermalVision} from '../thermal-vision.js';
 import {tile} from '../tile.js';
 import {tint} from '../tint.js';
@@ -104,6 +105,9 @@ test('public UV coordinates convert to shader UV coordinates', () => {
 });
 
 test('@remotion/effects expose documentation links', () => {
+	expect(tear().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/tear',
+	);
 	expect(barrelDistortion().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/barrel-distortion',
 	);
@@ -4346,4 +4350,37 @@ test('liquidContours() parameters produce distinct effect keys', () => {
 	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
 		effects.length,
 	);
+});
+
+test('tear() resolves defaults and includes every parameter in its effect key', () => {
+	expect(tear().effectKey).toBe(
+		tear({progress: 0.5, rotation: 20, jaggedness: 20}).effectKey,
+	);
+	const effects = [
+		tear(),
+		tear({progress: 0.75}),
+		tear({progress: 2}),
+		tear({angle: 45}),
+		tear({rotation: 30}),
+		tear({jaggedness: 0}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(6);
+});
+
+test('tear() rejects invalid parameters', () => {
+	const cases: [TearParams, string][] = [
+		[{progress: -0.1}, '"progress" must be >= 0'],
+		[{rotation: -1}, '"rotation" must be between 0 and 90'],
+		[{rotation: 91}, '"rotation" must be between 0 and 90'],
+		[{jaggedness: -1}, '"jaggedness" must be >= 0'],
+	];
+	for (const name of ['progress', 'rotation', 'jaggedness', 'angle'] as const) {
+		for (const value of [NaN, Infinity, -Infinity]) {
+			cases.push([{[name]: value}, `"${name}" must be a finite number`]);
+		}
+	}
+
+	for (const [params, message] of cases) {
+		expect(() => tear(params)).toThrow(message);
+	}
 });

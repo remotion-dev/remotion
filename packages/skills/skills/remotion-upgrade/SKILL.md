@@ -1,7 +1,7 @@
 ---
 name: remotion-upgrade
 description: Upgrade Remotion, and related packages
-version: 4.0.520
+version: 4.0.522
 ---
 
 # Upgrade Remotion
@@ -18,7 +18,7 @@ version: 4.0.520
 3. If `@remotion/cli` is not available, upgrade manually:
    - Get the latest stable Remotion version with `npm view remotion version`.
    - Find every installed `remotion` and `@remotion/*` dependency across the project and upgrade them all to that exact version. Preserve their dependency sections and the project's workspace or catalog conventions.
-   - Read the current [Mediabunny compatibility page](https://www.remotion.dev/docs/mediabunny/version) and determine the Mediabunny version compatible with the target Remotion version. Upgrade every installed `mediabunny` and `@mediabunny/*` package to the documented compatible version.
+   - Read the `@remotion/studio` dependencies for the target Remotion version using `npm view @remotion/studio@<version> dependencies --json`. Align installed auxiliary packages such as `zod`, `mediabunny`, and `@huggingface/transformers` with the versions listed there. Use the `mediabunny` version for installed `@mediabunny/*` packages.
    - Run the project's package manager to update its lockfile.
 4. If `@remotion/cli` is not available, update the installed Remotion skills:
 
@@ -26,6 +26,6 @@ version: 4.0.520
    npx skills update remotion-best-practices remotion-captions remotion-create remotion-docs remotion-interactivity remotion-maps remotion-markup remotion-multimedia remotion-render remotion-saas remotion-studio remotion-upgrade --yes
    ```
 
-5. Review the manifest and lockfile diff. Ensure all Remotion packages use one version and all installed Mediabunny packages use the compatible version. If the CLI is available, run `npx remotion versions` as an additional check.
+5. Review the manifest and lockfile diff. Ensure all Remotion packages use one version and installed auxiliary packages use their recommended versions. If the CLI is available, run `npx remotion versions` as an additional check.
 
 The [Remotion releases](https://github.com/remotion-dev/remotion/releases) contain the changelog and may be useful for summarizing relevant changes after the upgrade.

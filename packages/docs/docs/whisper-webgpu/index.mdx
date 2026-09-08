@@ -12,7 +12,7 @@ import {TableOfContents} from './table-of-contents';
 
 ## Installation
 
-<Installation pkg="@remotion/whisper-webgpu" />
+<Installation pkg="@remotion/whisper-webgpu @huggingface/transformers" />
 
 ## Example
 
@@ -35,6 +35,10 @@ console.log(captions);
 ```
 
 The model is downloaded on the first call and cached by the browser. Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) first to display model download progress.
+
+## Model hosting
+
+We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face. Therefore, we mirrored the models to `remotion.media`, keeping them byte-identical.
 
 ## APIs
 

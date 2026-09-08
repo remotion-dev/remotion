@@ -89,6 +89,7 @@ import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
 } from '../../components/effects/effects-starburst-preview';
+import {EffectsTearPreview} from '../../components/effects/effects-tear-preview';
 import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
 import {EffectsTilePreview} from '../../components/effects/effects-tile-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
@@ -355,6 +356,18 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 0.8}}
+				/>
+				<Still
+					id="effects-tear-preview"
+					component={EffectsTearPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.75,
+						rotation: 20,
+						jaggedness: 20,
+						angle: 0,
+					}}
 				/>
 				<Still
 					id="effects-venetian-blinds-preview"

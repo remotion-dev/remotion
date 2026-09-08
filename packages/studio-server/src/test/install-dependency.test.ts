@@ -58,6 +58,12 @@ test('uses the supported version for unversioned catalogued packages', () => {
 	expect(getPackageInstallSpec({name: 'mediabunny', version: null})).toMatch(
 		/^mediabunny@\d/,
 	);
+	expect(
+		getPackageInstallSpec({
+			name: '@huggingface/transformers',
+			version: null,
+		}),
+	).toBe('@huggingface/transformers@4.2.0');
 });
 
 test('lets the package manager resolve other unversioned packages', () => {
@@ -89,6 +95,7 @@ test('installs without running dependency lifecycle scripts', async () => {
 		pnpm: 'pnpm-lock.yaml',
 		yarn: 'yarn.lock',
 		bun: 'bun.lock',
+		nub: 'nub.lock',
 	};
 	const temporaryDirectories: string[] = [];
 
@@ -125,6 +132,11 @@ test('installs without running dependency lifecycle scripts', async () => {
 			expect(spawnCalls).toHaveLength(1);
 			const [call] = spawnCalls;
 			expect(call.command).toBe(manager);
+			expect(call.args).toContain('lodash@4.17.21');
+			if (manager === 'nub') {
+				expect(call.args[0]).toBe('add');
+			}
+
 			if (manager === 'yarn') {
 				expect(call.args).not.toContain('--ignore-scripts');
 				expect(call.options.env?.YARN_ENABLE_SCRIPTS).toBe('false');

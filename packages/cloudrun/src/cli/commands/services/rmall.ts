@@ -7,7 +7,7 @@ import {confirmCli} from '../../helpers/confirm';
 import {Log} from '../../log';
 import {displayServiceInfo} from './index';
 
-export const SERVICES_RMALL_SUBCOMMAND = 'rmall';
+export {SERVICES_RMALL_SUBCOMMAND} from '../command-names';
 
 export const servicesRmallCommand = async (logLevel: LogLevel) => {
 	const region = getGcpRegion();

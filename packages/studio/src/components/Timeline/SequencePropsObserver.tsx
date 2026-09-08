@@ -10,6 +10,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {takePendingSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {refreshSequencePropsSubscription} from './sequence-props-subscription-store';
+import {useTimelineSelection} from './TimelineSelection';
 
 export const SequencePropsObserver = () => {
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
@@ -31,6 +32,7 @@ export const SequencePropsObserver = () => {
 	const {migrateExpandedTracksForSubscriptionKey} = useContext(
 		ExpandedTracksSetterContext,
 	);
+	const {remapSelectionNodePaths} = useTimelineSelection();
 	useEffect(() => {
 		const handleEvent = (event: EventSourceEvent) => {
 			if (event.type !== 'sequence-props-updated') {
@@ -52,6 +54,8 @@ export const SequencePropsObserver = () => {
 		if (mutations.length === 0) {
 			return;
 		}
+
+		remapSelectionNodePaths(mutations);
 
 		const statusRemappings: SequencePropsStatusRemapping[] = [];
 		const overrideUpdates: Array<{
@@ -182,6 +186,7 @@ export const SequencePropsObserver = () => {
 		fastRefreshes,
 		migrateExpandedTracksForSubscriptionKey,
 		propStatusesRef,
+		remapSelectionNodePaths,
 		remapPropStatuses,
 		setOverrideIdToNodePath,
 	]);

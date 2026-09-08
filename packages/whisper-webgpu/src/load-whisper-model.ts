@@ -1,8 +1,10 @@
 import {
+	getHostedModelId,
 	getModelInfo,
 	WHISPER_WEBGPU_DTYPE,
 	type WhisperWebGpuModel,
 } from './models';
+import {withRemotionModelHost} from './with-remotion-model-host';
 
 export type WhisperWebGpuModelLoadProgress = {
 	status: string;
@@ -53,67 +55,67 @@ const getOrCreateWhisperPipeline = ({
 		return {state: existing, alreadyLoaded: true, totalBytes};
 	}
 
-	const loading = Promise.resolve().then(async () => {
-		const {pipeline} = await import('@huggingface/transformers');
+	const loading = Promise.resolve().then(() => {
+		return withRemotionModelHost(({pipeline}) => {
+			onProgress?.({
+				status: 'loading',
+				file: null,
+				progress: 0,
+				loadedBytes: 0,
+				totalBytes,
+			});
 
-		onProgress?.({
-			status: 'loading',
-			file: null,
-			progress: 0,
-			loadedBytes: 0,
-			totalBytes,
+			const hostedModelId = getHostedModelId(model);
+			const loadedByFile = new Map<string, number>();
+			let lastProgress = 0;
+			let lastLoadedBytes = 0;
+			return pipeline('automatic-speech-recognition', hostedModelId, {
+				device: 'webgpu',
+				dtype: WHISPER_WEBGPU_DTYPE,
+				progress_callback: onProgress
+					? (event) => {
+							const record = event as Record<string, unknown>;
+							if (
+								record.status === 'progress' &&
+								typeof record.file === 'string' &&
+								typeof record.loaded === 'number' &&
+								Number.isFinite(record.loaded)
+							) {
+								loadedByFile.set(
+									record.file,
+									Math.max(loadedByFile.get(record.file) ?? 0, record.loaded),
+								);
+								const loadedBytes = [...loadedByFile.values()].reduce(
+									(sum, loaded) => sum + loaded,
+									0,
+								);
+								lastProgress = Math.max(
+									lastProgress,
+									Math.min(loadedBytes / totalBytes, 0.99),
+								);
+								lastLoadedBytes = Math.max(lastLoadedBytes, loadedBytes);
+								onProgress({
+									status: 'loading',
+									file: null,
+									progress: lastProgress,
+									loadedBytes: lastLoadedBytes,
+									totalBytes,
+								});
+							}
+
+							if (record.status === 'ready') {
+								onProgress({
+									status: 'ready',
+									file: null,
+									progress: 1,
+									loadedBytes: Math.max(lastLoadedBytes, totalBytes),
+									totalBytes,
+								});
+							}
+						}
+					: undefined,
+			}) as Promise<LoadedWhisperPipeline>;
 		});
-
-		const {modelId} = modelInfo;
-		const loadedByFile = new Map<string, number>();
-		let lastProgress = 0;
-		let lastLoadedBytes = 0;
-		return pipeline('automatic-speech-recognition', modelId, {
-			device: 'webgpu',
-			dtype: WHISPER_WEBGPU_DTYPE,
-			progress_callback: onProgress
-				? (event) => {
-						const record = event as Record<string, unknown>;
-						if (
-							record.status === 'progress' &&
-							typeof record.file === 'string' &&
-							typeof record.loaded === 'number' &&
-							Number.isFinite(record.loaded)
-						) {
-							loadedByFile.set(
-								record.file,
-								Math.max(loadedByFile.get(record.file) ?? 0, record.loaded),
-							);
-							const loadedBytes = [...loadedByFile.values()].reduce(
-								(sum, loaded) => sum + loaded,
-								0,
-							);
-							lastProgress = Math.max(
-								lastProgress,
-								Math.min(loadedBytes / totalBytes, 0.99),
-							);
-							lastLoadedBytes = Math.max(lastLoadedBytes, loadedBytes);
-							onProgress({
-								status: 'loading',
-								file: null,
-								progress: lastProgress,
-								loadedBytes: lastLoadedBytes,
-								totalBytes,
-							});
-						}
-
-						if (record.status === 'ready') {
-							onProgress({
-								status: 'ready',
-								file: null,
-								progress: 1,
-								loadedBytes: Math.max(lastLoadedBytes, totalBytes),
-								totalBytes,
-							});
-						}
-					}
-				: undefined,
-		}) as Promise<LoadedWhisperPipeline>;
 	});
 	const state: LoadedWhisperPipelineState = {
 		loading,

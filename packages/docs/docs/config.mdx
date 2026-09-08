@@ -234,6 +234,25 @@ Config.setKeyboardShortcutsEnabled(false);
 
 The [command line flag](/docs/cli/studio#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
 
+## `setKeyboardShortcuts()`<AvailableFrom v="4.0.523" />
+
+Override keyboard shortcuts for Studio commands. Shortcuts that are omitted keep their default binding. Set a command to `null` to disable its shortcut. See [Keyboard shortcuts](/docs/studio/shortcuts) for the available action IDs and defaults.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setKeyboardShortcuts({
+	playPause: {key: 'q'},
+	quickSwitcher: {key: 'p', commandOrControl: true},
+	toggleSnapping: {key: 's', shift: true},
+	render: null,
+});
+```
+
+The `commandOrControl` modifier uses Command on macOS and Control on other platforms. The `shift` and `alt` modifiers are also supported. Pass an array to assign multiple bindings to one command.
+
+Studio can also update these values from the Keyboard Shortcuts settings screen. Changes made there are written to `remotion.config.ts`.
+
 ## `setInteractivityEnabled()`<AvailableFrom v="4.0.487" />
 
 <Options id="disable-interactivity" />

@@ -16,6 +16,7 @@ export {pause} from './api/pause';
 export {play} from './api/play';
 export {reevaluateComposition} from './api/reevaluate-composition';
 export {restartStudio} from './api/restart-studio';
+export {shutDownStudio} from './api/shut-down-studio';
 export {saveDefaultProps} from './api/save-default-props';
 export {seek} from './api/seek';
 export {toggle} from './api/toggle';

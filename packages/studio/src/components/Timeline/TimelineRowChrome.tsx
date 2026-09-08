@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
 import {Padder} from './Padder';
 import {
 	getTimelineRowIndentWidth,
@@ -107,6 +108,10 @@ export const TimelineRowChrome: React.FC<{
 		TimelineRowLayoutContext,
 	);
 	const selectedBackground = useContext(TimelineRowSelectedBackgroundContext);
+	const doubleClickTracker = useMemo(
+		() => createDragAwareDoubleClickTracker(),
+		[],
+	);
 	const indentWidth = getTimelineRowIndentWidth(depth);
 
 	const chromeColumnStyle = useMemo(
@@ -143,7 +148,7 @@ export const TimelineRowChrome: React.FC<{
 		[onSelect, selected],
 	);
 
-	const onDoubleClickIfNotInteractive = useCallback(
+	const performDoubleClickIfNotInteractive = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			const {target} = e;
 			if (
@@ -161,6 +166,16 @@ export const TimelineRowChrome: React.FC<{
 			onDoubleClick?.(e);
 		},
 		[onDoubleClick],
+	);
+	const onClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (!doubleClickTracker.acceptClickAsDoubleClick(e)) {
+				return;
+			}
+
+			performDoubleClickIfNotInteractive(e);
+		},
+		[doubleClickTracker, performDoubleClickIfNotInteractive],
 	);
 
 	const highlightBackground = getTimelineRowHighlightBackground({
@@ -229,9 +244,10 @@ export const TimelineRowChrome: React.FC<{
 				onDragLeave={onDragLeave}
 				onDragOver={onDragOver}
 				onDrop={onDrop}
+				onPointerDownCapture={doubleClickTracker.beginPointerGesture}
 				onPointerDown={selectable ? onPointerDown : undefined}
+				onClick={onClick}
 				onContextMenu={selectable ? onContextMenu : undefined}
-				onDoubleClick={onDoubleClickIfNotInteractive}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
 			>
@@ -245,9 +261,10 @@ export const TimelineRowChrome: React.FC<{
 			onDragLeave={onDragLeave}
 			onDragOver={onDragOver}
 			onDrop={onDrop}
+			onPointerDownCapture={doubleClickTracker.beginPointerGesture}
 			onPointerDown={selectable ? onPointerDown : undefined}
+			onClick={onClick}
 			onContextMenu={selectable ? onContextMenu : undefined}
-			onDoubleClick={onDoubleClickIfNotInteractive}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={innerRowStyle}

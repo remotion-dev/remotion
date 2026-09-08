@@ -1,4 +1,5 @@
 # Download statistics
+
 Monthly downloads of Remotion packages  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/animated-emoji.svg?style=flat&color=black&label=@remotion/animated-emoji)](https://npmcharts.com/compare/@remotion/animated-emoji?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/animation-utils.svg?style=flat&color=black&label=@remotion/animation-utils)](https://npmcharts.com/compare/@remotion/animation-utils?minimal=true)  
@@ -72,9 +73,10 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/timeline-utils.svg?style=flat&color=black&label=@remotion/timeline-utils)](https://npmcharts.com/compare/@remotion/timeline-utils?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/transitions.svg?style=flat&color=black&label=@remotion/transitions)](https://npmcharts.com/compare/@remotion/transitions?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/vercel.svg?style=flat&color=black&label=@remotion/vercel)](https://npmcharts.com/compare/@remotion/vercel?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/video-matting.svg?style=flat&color=black&label=@remotion/video-matting)](https://npmcharts.com/compare/@remotion/video-matting?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/web-renderer.svg?style=flat&color=black&label=@remotion/web-renderer)](https://npmcharts.com/compare/@remotion/web-renderer?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/webcodecs.svg?style=flat&color=black&label=@remotion/webcodecs)](https://npmcharts.com/compare/@remotion/webcodecs?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/whisper-web.svg?style=flat&color=black&label=@remotion/whisper-web)](https://npmcharts.com/compare/@remotion/whisper-web?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/whisper-webgpu.svg?style=flat&color=black&label=@remotion/whisper-webgpu)](https://npmcharts.com/compare/@remotion/whisper-webgpu?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types.svg?style=flat&color=black&label=@remotion/zod-types)](https://npmcharts.com/compare/@remotion/zod-types?minimal=true)  
-[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types-v3.svg?style=flat&color=black&label=@remotion/zod-types-v3)](https://npmcharts.com/compare/@remotion/zod-types-v3?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types-v3.svg?style=flat&color=black&label=@remotion/zod-types-v3)](https://npmcharts.com/compare/@remotion/zod-types-v3?minimal=true)

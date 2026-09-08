@@ -82,6 +82,46 @@ test('runs Browser Studio in Safari', async ({page}) => {
 	).toBeVisible();
 });
 
+test('selects a composition inserted from the Add composition dialog', async ({
+	page,
+}) => {
+	await page.goto('/');
+	const studio = page.frameLocator('iframe');
+	const composition = studio.locator('[data-compname="MyComp"]');
+	await expect(composition).toBeVisible();
+	await studio.getByRole('button', {name: 'More composition actions'}).click();
+	await studio
+		.getByRole('button', {name: 'New composition...', exact: true})
+		.click();
+	await studio.getByPlaceholder('Composition ID').fill('MyComp1');
+	await studio.getByRole('button', {name: /^Add to /}).click();
+	await expect(studio.locator('[data-compname="MyComp1"]')).toBeVisible();
+
+	await page.goBack();
+	await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
+	await studio.locator('[data-sidebar-toggle="right"]').click();
+	await studio.getByRole('button', {name: 'Add composition...'}).click();
+	await studio.getByPlaceholder('Search compositions...').fill('MyComp1');
+	await page.keyboard.press('Enter');
+
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const browserWindow = window as typeof window & {
+					__browserStudioProject: {files: Record<string, string>};
+				};
+				return browserWindow.__browserStudioProject.files[
+					'/project/src/Composition.tsx'
+				];
+			}),
+		)
+		.toContain('name="MyComp1"');
+	const insertedComposition = studio
+		.locator('[data-timeline-marquee-item]')
+		.first();
+	await expect(insertedComposition).toHaveCSS('opacity', '1');
+});
+
 test('loads Browser Studio, opens external links, and can add, delete, and duplicate', async ({
 	page,
 }) => {
@@ -295,7 +335,9 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await expect(inspector).toBeVisible();
 			await inspector.click();
 			await studio.getByRole('button', {name: 'Add Solid'}).click();
-			const solid = studio.getByText('<Solid>', {exact: true});
+			const solid = studio.locator(
+				'[data-timeline-marquee-item][title="<Solid>"]',
+			);
 			await expect(solid).toBeVisible();
 			await expect(studio.locator('svg[viewBox="0 0 24 16"]')).toBeVisible();
 			await solid.click();
@@ -1017,16 +1059,17 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 	await canvas.dispatchEvent('drop', coordinates);
 
 	await expect(
-		studio.getByText('Install Element', {exact: true}),
+		studio.getByText('Install Browser Element', {exact: true}),
 	).toBeVisible();
 	await expect(
 		studio.getByText('Unverified drag-and-drop payload'),
 	).toBeVisible();
 	await expect(
-		studio.getByText(
-			'Dependencies are resolved in the browser; package lifecycle scripts do not run.',
-		),
-	).toHaveCount(0);
+		studio.getByText('Packages to install', {exact: true}),
+	).toBeVisible();
+	await expect(
+		studio.getByText('@remotion/shapes', {exact: true}),
+	).toBeVisible();
 	await studio.getByRole('button', {name: /^Install/}).click();
 
 	await expect
@@ -1072,7 +1115,9 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 		};
 	});
 	expect(versions.installed).toBe(versions.remotion);
-	await expect(studio.getByText('Browser Element')).toBeVisible();
+	await expect(
+		studio.getByText('Browser Element', {exact: true}),
+	).toBeVisible();
 });
 
 test('confirms and imports an Element payload from the URL fragment', async ({
@@ -1099,7 +1144,7 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
 
 	await expect(
-		studio.getByText('Install Element', {exact: true}),
+		studio.getByText('Install Linked Element', {exact: true}),
 	).toBeVisible();
 	await expect(page).toHaveTitle(
 		'📦 Install Linked Element - Remotion Studio',
@@ -1129,6 +1174,9 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 			}
 		).__browserStudioInstallPreservedIframe = true;
 	});
+	await expect(
+		studio.getByRole('radio', {name: 'New composition'}),
+	).toBeChecked();
 	await studio.getByRole('button', {name: /^Install/}).click();
 	await expect
 		.poll(() =>
@@ -1139,7 +1187,7 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 				return {
 					composition:
 						browserWindow.__browserStudioProject.files[
-							'/project/src/Composition.tsx'
+							'/project/src/LinkedElementComposition.tsx'
 						],
 					element:
 						browserWindow.__browserStudioProject.files[
@@ -1162,9 +1210,12 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 				).__browserStudioInstallPreservedIframe,
 		),
 	).toBe(true);
-	await expect(page).toHaveTitle('MyComp / template-blank - Remotion Studio', {
-		timeout: 5000,
-	});
+	await expect(page).toHaveTitle(
+		'LinkedElementComposition / template-blank - Remotion Studio',
+		{
+			timeout: 5000,
+		},
+	);
 });
 
 test('reports inline SVG imports as unsupported without changing the project', async ({
@@ -1253,6 +1304,18 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await expect
 		.poll(() => getBackgroundColor(addSolid))
 		.toBe('rgba(255, 255, 255, 0.06)');
+	const neutralArea = studio.locator('[data-sidebar-toggle="right"]');
+
+	await addSolid.click();
+	const solid = studio.locator('[data-timeline-marquee-item][title="<Solid>"]');
+	await expect(solid).toBeVisible();
+	await expect(studio.locator('svg[viewBox="0 0 24 16"]')).toBeVisible();
+	await studio.locator('body').press('Escape');
+	await solid.hover();
+	const hoveredOutline = studio.locator(
+		'polygon[data-remotion-studio-selected-outline-key]',
+	);
+	await expect(hoveredOutline).toHaveCount(1);
 
 	// Browsers can fail to deliver pointer leave events when the pointer
 	// exits the Studio <iframe>. Simulate this by suppressing them before
@@ -1271,7 +1334,9 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 		}
 	});
 
-	const neutralArea = studio.locator('[data-sidebar-toggle="right"]');
+	await page.locator('iframe').dispatchEvent('pointerout');
+	await expect(hoveredOutline).toHaveCount(0, {timeout: 5000});
+	await neutralArea.hover();
 
 	await studio.getByRole('button', {name: 'Assets', exact: true}).click();
 	const assetFolder = studio.getByTitle('hover-folder', {exact: true});

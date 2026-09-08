@@ -10,6 +10,7 @@ import type {
 	RuntimeValueSnapshot,
 	RuntimeValueStore,
 } from './runtime-value-store.js';
+import type {VideoConfigValues} from './video-config.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,
@@ -110,6 +111,7 @@ export type JsxComponentIdentity = string;
 export type SequenceRegistrationControls = {
 	schema: InteractivitySchema;
 	runtimeValues: RuntimeValueStore;
+	videoConfigValues: VideoConfigValues | null;
 	overrideId: string;
 	supportsEffects: boolean;
 	componentIdentity: JsxComponentIdentity | null;

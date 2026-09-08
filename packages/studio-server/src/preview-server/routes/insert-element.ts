@@ -205,12 +205,15 @@ export const insertElementHandler: ApiHandler<
 				throw new Error('Element source changed during installation');
 			}
 
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath: inserted.fileName,
-					remappings: inserted.nodePathRemappings,
-				},
-			]);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[
+					{
+						absolutePath: inserted.fileName,
+						remappings: inserted.nodePathRemappings,
+					},
+				],
+				null,
+			);
 
 			pushTransactionToUndoStack({
 				snapshots: [

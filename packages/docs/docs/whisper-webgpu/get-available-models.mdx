@@ -15,13 +15,43 @@ const models = getAvailableModels();
 console.log(models);
 ```
 
-Each item contains the short `name`, Hugging Face `modelId`, parameter count, whether the model is multilingual, and the estimated WebGPU download size.
+## Return value
+
+Returns an array with the following properties:
+
+### name
+
+The model name accepted by APIs in this package.
+
+### modelId
+
+The upstream Hugging Face model identifier.
+
+### parameters
+
+The number of parameters in the model.
+
+### multilingual
+
+Whether the model supports languages other than English.
+
+### supportsTranslation<AvailableFrom v="4.0.523" />
+
+Whether the model supports `task: 'translate'` in [`transcribe()`](/docs/whisper-webgpu/transcribe). Translation converts speech into English. It is supported by multilingual non-turbo models only.
+
+### webGpuDownloadSize
+
+The estimated model weight download size in bytes. Browser caches and supporting model files may add a small amount.
+
+## Available models
 
 Available sizes are `tiny`, `base`, `small`, `medium`, and `large-v3-turbo`. English-only `.en` variants are available through `medium`.
 
 The set of available models may change between versions as faster variants of these models are in development by Hugging Face. Call [`clearStaleModels()`](/docs/whisper-webgpu/clear-stale-models) to remove cached models that are no longer available after upgrading.
 
-The estimates cover model weights. Browser caches and supporting model files may add a small amount.
+## Model hosting
+
+We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face. Therefore, we mirrored the models to `remotion.media`, keeping them byte-identical.
 
 ## Compatibility
 

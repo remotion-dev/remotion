@@ -6,7 +6,7 @@ import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {getStudioCurrentScaleContext} from '../helpers/studio-fit-padding';
 import {getStudioBufferStateDelayInMilliseconds} from '../helpers/studio-runtime-config';
-import {drawRef} from '../state/canvas-ref';
+import {drawRef, RefreshCanvasSizeContext} from '../state/canvas-ref';
 import {compositionListRenderedRef} from '../state/composition-list';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
@@ -108,33 +108,37 @@ export const Editor: React.FC<{
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
 				<SequencePropsSubscriptionProvider>
-					<Internals.CurrentScaleContext.Provider value={value}>
-						<ForceSpecificCursor />
-						<CanvasCaptureDropHandler readOnlyStudio={readOnlyStudio} />
-						<ScaleLockProvider>
-							<div style={background}>
-								<Internals.CompositionRenderErrorContext.Provider
-									value={compositionRenderErrorContextValue}
-								>
-									{canvasMounted ? (
-										<RootCompositionLoader Root={MemoRoot} />
-									) : null}
-								</Internals.CompositionRenderErrorContext.Provider>
-								<Internals.CanUseRemotionHooksProvider>
-									<RenderErrorContext.Provider value={renderErrorContextValue}>
-										<EditorContent readOnlyStudio={readOnlyStudio}>
-											<TopPanel
-												drawRef={setDrawRef}
-												bufferStateDelayInMilliseconds={getStudioBufferStateDelayInMilliseconds()}
-												onMounted={onMounted}
-												readOnlyStudio={readOnlyStudio}
-											/>
-										</EditorContent>
-									</RenderErrorContext.Provider>
-								</Internals.CanUseRemotionHooksProvider>
-							</div>
-						</ScaleLockProvider>
-					</Internals.CurrentScaleContext.Provider>
+					<RefreshCanvasSizeContext.Provider value={size?.refresh ?? null}>
+						<Internals.CurrentScaleContext.Provider value={value}>
+							<ForceSpecificCursor />
+							<CanvasCaptureDropHandler readOnlyStudio={readOnlyStudio} />
+							<ScaleLockProvider>
+								<div style={background}>
+									<Internals.CompositionRenderErrorContext.Provider
+										value={compositionRenderErrorContextValue}
+									>
+										{canvasMounted ? (
+											<RootCompositionLoader Root={MemoRoot} />
+										) : null}
+									</Internals.CompositionRenderErrorContext.Provider>
+									<Internals.CanUseRemotionHooksProvider>
+										<RenderErrorContext.Provider
+											value={renderErrorContextValue}
+										>
+											<EditorContent readOnlyStudio={readOnlyStudio}>
+												<TopPanel
+													drawRef={setDrawRef}
+													bufferStateDelayInMilliseconds={getStudioBufferStateDelayInMilliseconds()}
+													onMounted={onMounted}
+													readOnlyStudio={readOnlyStudio}
+												/>
+											</EditorContent>
+										</RenderErrorContext.Provider>
+									</Internals.CanUseRemotionHooksProvider>
+								</div>
+							</ScaleLockProvider>
+						</Internals.CurrentScaleContext.Provider>
+					</RefreshCanvasSizeContext.Provider>
 					<Modals readOnlyStudio={readOnlyStudio} />
 					<NotificationCenter />
 				</SequencePropsSubscriptionProvider>

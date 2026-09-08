@@ -9,6 +9,7 @@ import {
 import {EllipsisIcon} from '../icons/ellipsis';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
+import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 
 const revealStyle: React.CSSProperties = {
@@ -44,6 +45,7 @@ export const CompositionContextButton: React.FC<{
 
 	return (
 		<div className={HOVER_GROUP_REVEAL_CLASS_NAME} style={revealStyle}>
+			<Spacing x={0.5} />
 			<InlineDropdown
 				renderAction={renderAction}
 				getItems={getItems}

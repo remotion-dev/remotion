@@ -58,27 +58,24 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 	useEffect(() => {
 		const jKey = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'j',
+			action: 'reversePlayback',
 			callback: onJKey,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const kKey = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'k',
+			action: 'pausePlayback',
 			callback: onKKey,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const lKey = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'l',
+			action: 'playForward',
 			callback: onLKey,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,

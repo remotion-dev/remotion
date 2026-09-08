@@ -36,6 +36,12 @@ One of the timestamped models returned by [`getAvailableModels()`](/docs/whisper
 
 The spoken language name or language code. This option is required for multilingual models because automatic language detection is not supported. Omit it for English-only models such as `small.en`.
 
+### task?<AvailableFrom v="4.0.523" />
+
+Either `transcribe` or `translate`. Default: `transcribe`.
+
+`translate` translates speech into English and is supported by multilingual non-turbo models only. Check the model's `supportsTranslation` property before using it. Word timestamps may be less reliable when translating.
+
 ### chunkLengthInSeconds?
 
 Length of long-audio chunks. Default: `30`. Must be a finite number greater than `0`.
@@ -43,6 +49,30 @@ Length of long-audio chunks. Default: `30`. Must be a finite number greater than
 ### strideLengthInSeconds?
 
 Overlap on both sides of a chunk. Default: `5`. Must be finite, non-negative, and less than half of `chunkLengthInSeconds`.
+
+### forceFullSequences?<AvailableFrom v="4.0.523" />
+
+Whether every sequence must end with a timestamp. Default: `false`. Must be a boolean. When set to `true`, transcription throws if the model returns a trailing sequence without an ending timestamp.
+
+### doSample?<AvailableFrom v="4.0.523" />
+
+Whether to sample tokens probabilistically instead of always choosing the most likely token. Default: `false`. Must be a boolean. Sampling can produce different results between runs.
+
+### temperature?<AvailableFrom v="4.0.523" />
+
+Controls randomness when `doSample` is `true`. Default: `1`. Must be a finite number greater than `0`; lower values favor more likely tokens.
+
+### topK?<AvailableFrom v="4.0.523" />
+
+Limits sampling to the tokens with the highest probabilities when `doSample` is `true`. Default: `50`. Must be a non-negative integer; `0` disables the limit.
+
+### repetitionPenalty?<AvailableFrom v="4.0.523" />
+
+Adjusts the probability of tokens that have already been generated. Default: `1`, which applies no penalty. Must be a finite number greater than `0`; values above `1` discourage repetition and values below `1` encourage it.
+
+### noRepeatNgramSize?<AvailableFrom v="4.0.523" />
+
+Prevents a generated token sequence of this length from occurring more than once. Default: `0`, which disables the constraint. Must be a non-negative integer.
 
 ### onModelLoadProgress?
 

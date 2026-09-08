@@ -12,6 +12,7 @@ import {
 import {
 	canEditEasingForInterpolationFunction,
 	stringifySequenceExpandedRowKey,
+	type SequenceNodePathMutation,
 } from '@remotion/studio-shared';
 import React, {
 	createContext,
@@ -452,6 +453,9 @@ type TimelineSelectionContextValue = {
 		readonly selectedItems: readonly TimelineSelection[];
 	};
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
+	readonly remapSelectionNodePaths: (
+		mutations: readonly SequenceNodePathMutation[],
+	) => void;
 	readonly clearSelection: () => void;
 };
 
@@ -468,6 +472,7 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 		selectedItems: [],
 	}),
 	containsSelection: () => false,
+	remapSelectionNodePaths: () => undefined,
 	clearSelection: () => undefined,
 };
 
@@ -780,7 +785,7 @@ export const TimelineSelectAllKeybindings: React.FC<{
 
 		const selectAll = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'a',
+			action: 'selectAllSequenceRows',
 			callback: () => {
 				const latestSelectableSequenceSelections =
 					selectableSequenceSelectionsRef.current;
@@ -792,7 +797,6 @@ export const TimelineSelectAllKeybindings: React.FC<{
 					latestSelectableSequenceSelections,
 				);
 			},
-			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -1171,6 +1175,81 @@ export const TimelineSelectionProvider: React.FC<{
 		[availableSelectedItems],
 	);
 
+	const remapSelectionNodePaths = useCallback(
+		(mutations: readonly SequenceNodePathMutation[]) => {
+			const remapItem = (
+				item: TimelineSelection | null,
+			): TimelineSelection | null => {
+				if (item === null || item.type === 'guide') {
+					return item;
+				}
+
+				const {sequenceSubscriptionKey} = item.nodePathInfo;
+				let {nodePath} = sequenceSubscriptionKey;
+				let wasRemapped = false;
+
+				for (const mutation of mutations) {
+					const file = mutation.files.find(
+						(candidate) =>
+							candidate.absolutePath === sequenceSubscriptionKey.absolutePath,
+					);
+					if (!file) {
+						continue;
+					}
+
+					const nodePathString = JSON.stringify(nodePath);
+					const remapping = file.remappings.find(
+						(candidate) =>
+							candidate.oldNodePath !== null &&
+							JSON.stringify(candidate.oldNodePath) === nodePathString,
+					);
+					if (!remapping) {
+						continue;
+					}
+
+					wasRemapped = true;
+					if (remapping.newNodePath === null) {
+						return null;
+					}
+
+					nodePath = remapping.newNodePath;
+				}
+
+				if (!wasRemapped) {
+					return item;
+				}
+
+				return {
+					...item,
+					nodePathInfo: {
+						...item.nodePathInfo,
+						sequenceSubscriptionKey: {
+							...sequenceSubscriptionKey,
+							nodePath,
+						},
+					},
+				};
+			};
+
+			const snapshot = selectionController.getSnapshot();
+			const selectedItems = snapshot.selectedItems
+				.map(remapItem)
+				.filter((item): item is TimelineSelection => item !== null);
+			const anchor = remapItem(snapshot.anchor);
+
+			if (
+				selectedItems.some(
+					(item, index) => item !== snapshot.selectedItems[index],
+				) ||
+				selectedItems.length !== snapshot.selectedItems.length ||
+				anchor !== snapshot.anchor
+			) {
+				selectionController.setSnapshot({selectedItems, anchor});
+			}
+		},
+		[selectionController],
+	);
+
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
@@ -1182,6 +1261,7 @@ export const TimelineSelectionProvider: React.FC<{
 			registerMarqueeSelectableItem,
 			getMarqueeSelection: getMarqueeSelectionForRect,
 			containsSelection,
+			remapSelectionNodePaths,
 			clearSelection,
 		}),
 		[
@@ -1194,6 +1274,7 @@ export const TimelineSelectionProvider: React.FC<{
 			registerMarqueeSelectableItem,
 			getMarqueeSelectionForRect,
 			containsSelection,
+			remapSelectionNodePaths,
 			clearSelection,
 		],
 	);

@@ -49,12 +49,15 @@ export const splitJsxSequenceHandler: ApiHandler<
 					sequenceKeys,
 					splitFrame,
 				});
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath,
-					remappings: nodePathRemappings,
-				},
-			]);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[
+					{
+						absolutePath,
+						remappings: nodePathRemappings,
+					},
+				],
+				null,
+			);
 
 			pushToUndoStack({
 				filePath: absolutePath,

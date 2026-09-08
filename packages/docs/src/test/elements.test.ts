@@ -372,6 +372,10 @@ describe('Element library', () => {
 				}
 			}
 
+			if (section.category === 'captions') {
+				expect(section.definitions[0].slug).toBe('captions/basic-captions');
+			}
+
 			for (const definition of elementDefinitionList) {
 				if (definition.category === section.category) {
 					expect(categoryMarkup).toContain(definition.displayName);
@@ -531,6 +535,7 @@ describe('Elements sidebar', () => {
 				category: 'captions',
 				label: 'Captions',
 				items: [
+					'captions/basic-captions/index',
 					'captions/moving-pill-captions/index',
 					'captions/popping-word-captions/index',
 					'captions/word-highlight-captions/index',
@@ -671,6 +676,7 @@ describe('Element preview definitions', () => {
 			.sort();
 
 		expect(captionSlugs).toEqual([
+			'captions/basic-captions',
 			'captions/moving-pill-captions',
 			'captions/popping-word-captions',
 			'captions/word-highlight-captions',
@@ -689,11 +695,27 @@ describe('Element preview definitions', () => {
 		}
 	});
 
+	test('keeps Basic Captions static and limited to two lines', () => {
+		const source = readFileSync(
+			path.join(elementsRoot, 'captions/basic-captions/basic-captions.tsx'),
+			'utf8',
+		);
+
+		expect(source).toContain("color: '#ffffff'");
+		expect(source).toContain("backgroundColor: 'rgba(64, 64, 64, 0.75)'");
+		expect(source).toContain('fontWeight: 400');
+		expect(source).toContain('WebkitLineClamp: 2');
+		expect(source).not.toContain('borderRadius');
+		expect(source).not.toContain('interpolate');
+		expect(source).not.toContain('spring');
+	});
+
 	test('only Elements with one interactive timeline item own their Sequence', () => {
 		const componentOwnedSequenceSlugs = new Set([
 			'audio/oscilloscope',
 			'audio/waveform-progress',
 			'audio/mirrored-spectrum',
+			'captions/basic-captions',
 			'captions/moving-pill-captions',
 			'captions/popping-word-captions',
 			'captions/word-highlight-captions',

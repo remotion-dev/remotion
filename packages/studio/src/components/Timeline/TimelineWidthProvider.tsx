@@ -21,7 +21,6 @@ export const TimelineWidthProvider: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const width = useMemo(() => {
@@ -34,14 +33,11 @@ export const TimelineWidthProvider: React.FC<{
 		const zoom = getTimelineZoom({
 			durationInFrames,
 			timelineViewportWidth: scrollableWidth,
-			zoom:
-				canvasContent?.type === 'composition'
-					? (zoomMap[canvasContent.compositionId] ?? null)
-					: null,
+			zoom: videoConfig ? (zoomMap[videoConfig.id] ?? null) : null,
 		});
 
 		return getTimelineWidth({durationInFrames, zoom});
-	}, [canvasContent, size?.width, videoConfig?.durationInFrames, zoomMap]);
+	}, [size?.width, videoConfig, zoomMap]);
 
 	return (
 		<TimelineWidthContext.Provider value={width}>

@@ -634,6 +634,7 @@ export const createBrowserStudioOperations = ({
 			effectMutations,
 		});
 		controller.applyMutation({
+			timelineSelection: null,
 			fileName: label,
 			mutate: () => result.project,
 			nodePathMutationFiles: null,
@@ -888,6 +889,7 @@ export const createBrowserStudioOperations = ({
 					sequenceNodePath: request.sequenceNodePath.nodePath,
 				});
 				controller.applyMutation({
+					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
 					mutate: () => ({
@@ -950,6 +952,7 @@ export const createBrowserStudioOperations = ({
 					})),
 				);
 				controller.applyMutation({
+					timelineSelection: null,
 					fileName: updates.map((update) => update.absolutePath).join(', '),
 					nodePathMutationFiles: null,
 					mutate: () => ({
@@ -1008,6 +1011,7 @@ export const createBrowserStudioOperations = ({
 					})),
 				);
 				controller.applyMutation({
+					timelineSelection: null,
 					fileName: updates.map((update) => update.absolutePath).join(', '),
 					nodePathMutationFiles: null,
 					mutate: () => ({
@@ -1058,6 +1062,7 @@ export const createBrowserStudioOperations = ({
 					type: request.type,
 				});
 				controller.applyMutation({
+					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
 					mutate: () => ({
@@ -1085,6 +1090,7 @@ export const createBrowserStudioOperations = ({
 					toIndex: request.toIndex,
 				});
 				controller.applyMutation({
+					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
 					mutate: () => ({
@@ -1133,6 +1139,7 @@ export const createBrowserStudioOperations = ({
 				files: {...project.files, [absolutePath]: result.output},
 			};
 			controller.applyMutation({
+				timelineSelection: null,
 				fileName: absolutePath,
 				nodePathMutationFiles: null,
 				mutate: () => nextProject,
@@ -1190,6 +1197,7 @@ export const createBrowserStudioOperations = ({
 				files: {...project.files, ...Object.fromEntries(outputByPath)},
 			};
 			controller.applyMutation({
+				timelineSelection: null,
 				fileName: request.undoLabel,
 				nodePathMutationFiles: null,
 				mutate: () => nextProject,
@@ -1237,6 +1245,7 @@ export const createBrowserStudioOperations = ({
 					project,
 				});
 				controller.applyMutation({
+					timelineSelection: null,
 					fileName: 'Install packages',
 					mutate: () => nextProject,
 					nodePathMutationFiles: null,
@@ -1291,6 +1300,7 @@ export const createBrowserStudioOperations = ({
 				},
 			};
 			const nodePathMutation = controller.applyMutation({
+				timelineSelection: null,
 				fileName: updates.map(({fileName}) => fileName).join(', '),
 				mutate: () => nextProject,
 				nodePathMutationFiles: updates.map(({fileName, result}) => ({
@@ -1355,6 +1365,7 @@ export const createBrowserStudioOperations = ({
 				},
 			};
 			const nodePathMutation = controller.applyMutation({
+				timelineSelection: null,
 				fileName: updates.map(({fileName}) => fileName).join(', '),
 				mutate: () => nextProject,
 				nodePathMutationFiles: updates.map(({fileName, result}) => ({
@@ -1391,6 +1402,7 @@ export const createBrowserStudioOperations = ({
 				splitFrame,
 			});
 			const nodePathMutation = controller.applyMutation({
+				timelineSelection: null,
 				fileName: absolutePath,
 				mutate: () => ({
 					...project,
@@ -1473,6 +1485,7 @@ export const createBrowserStudioOperations = ({
 
 			if (!dryRun) {
 				controller.applyMutation({
+					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
 					mutate: () => ({...project, files}),
@@ -1508,6 +1521,7 @@ export const createBrowserStudioOperations = ({
 				formatFile: formatCodemodFile,
 			});
 			const nodePathMutation = controller.applyMutation({
+				timelineSelection: null,
 				fileName: absolutePath,
 				mutate: () => ({
 					...project,
@@ -1811,6 +1825,7 @@ export const createBrowserStudioOperations = ({
 
 				if (!dryRun) {
 					controller.applyMutation({
+						timelineSelection: null,
 						fileName: absolutePath,
 						nodePathMutationFiles: null,
 						mutate: () => ({
@@ -1851,6 +1866,7 @@ export const createBrowserStudioOperations = ({
 					formatInline,
 				});
 				controller.applyMutation({
+					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
 					mutate: () => ({
@@ -1880,6 +1896,7 @@ export const createBrowserStudioOperations = ({
 					formatFile: formatCodemodFile,
 				});
 				const nodePathMutation = controller.applyMutation({
+					timelineSelection: null,
 					fileName: absolutePath,
 					mutate: () => ({
 						...project,
@@ -1930,6 +1947,14 @@ export const createBrowserStudioOperations = ({
 				wrapInSequence: null,
 			});
 			const nodePathMutation = controller.applyMutation({
+				timelineSelection:
+					result.insertedNodePath === null
+						? null
+						: {
+								absolutePath: result.filePath,
+								compositionId: request.compositionId,
+								nodePath: result.insertedNodePath,
+							},
 				fileName: result.filePath,
 				mutate: () => result.project,
 				nodePathMutationFiles: [
@@ -2116,6 +2141,7 @@ export const createBrowserStudioOperations = ({
 					project: projectWithElement,
 				});
 				const nodePathMutation = controller.applyMutation({
+					timelineSelection: null,
 					fileName: insertion.filePath,
 					mutate: () => nextProject,
 					nodePathMutationFiles: [
@@ -2249,6 +2275,7 @@ export const createBrowserStudioOperations = ({
 
 			const firstTarget = request.edits[0] ?? request.captionPatches?.[0];
 			controller.applyMutation({
+				timelineSelection: null,
 				fileName:
 					firstTarget?.fileName ??
 					sequenceMutations[0]?.fileName ??

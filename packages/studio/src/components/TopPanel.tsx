@@ -1,12 +1,4 @@
-import {PlayerInternals} from '@remotion/player';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
@@ -71,8 +63,11 @@ const TopPanelInner: React.FC<{
 	readonly drawRef: React.Ref<HTMLDivElement>;
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, onMounted, drawRef, bufferStateDelayInMilliseconds}) => {
-	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
-		useContext(SidebarContext);
+	const {
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+		setSidebarCollapsedDuringDrag,
+	} = useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
 
 	const {canvasContent} = useContext(Internals.CompositionManager);
@@ -86,26 +81,6 @@ const TopPanelInner: React.FC<{
 
 		return 'expanded';
 	}, [sidebarCollapsedStateRight]);
-	const previousSidebarState = useRef({
-		left: actualStateLeft,
-		right: actualStateRight,
-	});
-
-	useLayoutEffect(() => {
-		if (
-			previousSidebarState.current.left === actualStateLeft &&
-			previousSidebarState.current.right === actualStateRight
-		) {
-			return;
-		}
-
-		previousSidebarState.current = {
-			left: actualStateLeft,
-			right: actualStateRight,
-		};
-		PlayerInternals.updateAllElementsSizes();
-	}, [actualStateLeft, actualStateRight]);
-
 	useEffect(() => {
 		onMounted();
 	}, [onMounted]);
@@ -159,6 +134,7 @@ const TopPanelInner: React.FC<{
 							<SplitterHandle
 								allowToCollapse="left"
 								onCollapse={onCollapseLeft}
+								onCollapseDuringDrag={setSidebarCollapsedDuringDrag}
 							/>
 						) : null}
 						<SplitterElement sticky={null} type="anti-flexer">
@@ -182,6 +158,7 @@ const TopPanelInner: React.FC<{
 									<SplitterHandle
 										allowToCollapse="right"
 										onCollapse={onCollapseRight}
+										onCollapseDuringDrag={setSidebarCollapsedDuringDrag}
 									/>
 								) : null}
 								{actualStateRight === 'expanded' ? (

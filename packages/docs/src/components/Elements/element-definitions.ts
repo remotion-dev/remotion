@@ -10,6 +10,7 @@ import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liqu
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
+import {BasicCaptions} from '../../../elements/captions/basic-captions/basic-captions';
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
@@ -84,7 +85,7 @@ const elementImplementations = {
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
 		description:
-			'A glowing oscilloscope waveform for visualizing voices, podcasts, and other audio.',
+			'An oscilloscope waveform for visualizing voices, podcasts, and other audio.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},
@@ -813,6 +814,29 @@ const elementImplementations = {
 		},
 		safeArea: 120,
 		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'captions/basic-captions': {
+		component: BasicCaptions,
+		contributors: [{username: 'JonnyBurger', contribution: null}],
+		description:
+			'Simple synchronized captions with white text on a translucent gray background.',
+		dependencies: [{name: '@remotion/captions', version: null}],
+		durationInFrames: 210,
+		elementHeight: 220,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/captions-basic-captions-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/captions-basic-captions-preview.mp4',
+		},
+		safeArea: 120,
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	'captions/moving-pill-captions': {

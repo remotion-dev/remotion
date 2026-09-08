@@ -3,11 +3,12 @@ import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
+import {POLICIES_COMMAND} from '../command-names';
 import {ROLE_SUBCOMMAND, roleSubcommand} from './role';
 import {USER_SUBCOMMAND, userSubcommand} from './user';
 import {VALIDATE_SUBCOMMAND, validateSubcommand} from './validate';
 
-export const POLICIES_COMMAND = 'policies';
+export {POLICIES_COMMAND} from '../command-names';
 
 const printPoliciesHelp = (logLevel: LogLevel) => {
 	Log.info(

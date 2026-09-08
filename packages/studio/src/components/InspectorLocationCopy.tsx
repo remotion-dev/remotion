@@ -1,7 +1,8 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {formatContextForAgents} from '../helpers/format-file-location';
-import {ClipboardIcon} from '../icons/clipboard';
+import {useCopyFeedback} from '../helpers/use-copy-feedback';
+import {CopyIcon} from '../icons/copy';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
@@ -46,6 +47,7 @@ export const InspectorLocationCopy: React.FC<{
 }> = ({children, location, name, openInEditorLocation}) => {
 	const [hovered, setHovered] = useState(false);
 	const [focusedWithin, setFocusedWithin] = useState(false);
+	const {copied, markCopied} = useCopyFeedback();
 	const contextForAgents = useMemo(() => {
 		return formatContextForAgents({
 			location,
@@ -54,9 +56,12 @@ export const InspectorLocationCopy: React.FC<{
 		});
 	}, [location, name]);
 
-	const renderCopyAction: RenderInlineAction = useCallback((color) => {
-		return <ClipboardIcon style={icon} color={color} />;
-	}, []);
+	const renderCopyAction: RenderInlineAction = useCallback(
+		(color) => {
+			return <CopyIcon copied={copied} style={icon} color={color} />;
+		},
+		[copied],
+	);
 
 	const onCopy: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
@@ -65,14 +70,17 @@ export const InspectorLocationCopy: React.FC<{
 				return;
 			}
 
-			navigator.clipboard.writeText(contextForAgents).catch((err) => {
-				showNotification(
-					`Could not copy to clipboard: ${(err as Error).message}`,
-					2000,
-				);
-			});
+			navigator.clipboard
+				.writeText(contextForAgents)
+				.then(markCopied)
+				.catch((err) => {
+					showNotification(
+						`Could not copy to clipboard: ${(err as Error).message}`,
+						2000,
+					);
+				});
 		},
-		[contextForAgents],
+		[contextForAgents, markCopied],
 	);
 
 	const showAction = hovered || focusedWithin;

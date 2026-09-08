@@ -60,7 +60,7 @@ const matchCommand = ({
 	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 }) => {
 	if (parsedLambdaCli.help || args.length === 0) {
-		printHelp(logLevel);
+		printHelp(args, logLevel);
 		quit(0);
 	}
 
@@ -169,7 +169,7 @@ const matchCommand = ({
 	}
 
 	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);
-	printHelp(logLevel);
+	printHelp(args, logLevel);
 	quit(1);
 };
 

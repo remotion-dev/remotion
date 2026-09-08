@@ -2,15 +2,9 @@ import React, {useCallback, useContext} from 'react';
 import {NoReactInternals} from 'remotion/no-react';
 import {BLUE} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ControlButton} from './ControlButton';
-
-const accessibilityLabel = [
-	'Show transparency as checkerboard',
-	areKeyboardShortcutsDisabled() ? null : '(T)',
-]
-	.filter(NoReactInternals.truthy)
-	.join(' ');
 
 export const CheckboardToggle: React.FC = () => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
@@ -20,6 +14,13 @@ export const CheckboardToggle: React.FC = () => {
 			return !c;
 		});
 	}, [setCheckerboard]);
+	const shortcut = useKeyboardShortcutLabel('toggleCheckerboard');
+	const accessibilityLabel = [
+		'Show transparency as checkerboard',
+		areKeyboardShortcutsDisabled() || shortcut === '' ? null : `(${shortcut})`,
+	]
+		.filter(NoReactInternals.truthy)
+		.join(' ');
 
 	return (
 		<ControlButton

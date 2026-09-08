@@ -287,7 +287,7 @@ test('uses runtime catalogs for dynamic config deduplication and skips no-op wri
 	}
 });
 
-test('persists an arbitrary valid config setter through the route', async () => {
+test('persists Studio keyboard shortcuts through the config route', async () => {
 	const directory = mkdtempSync(join(tmpdir(), 'remotion-config-update-'));
 	const configFile = join(directory, 'remotion.config.ts');
 	const fileWatcherRegistry = createFileWatcherRegistry();
@@ -304,7 +304,7 @@ test('persists an arbitrary valid config setter through the route', async () => 
 		configFile,
 		[
 			"import {Config} from '@remotion/cli/config';",
-			'Config.setOverwriteOutput(false);',
+			"Config.setKeyboardShortcuts({playPause: {key: 'Space'}});",
 			'',
 		].join('\n'),
 	);
@@ -315,25 +315,28 @@ test('persists an arbitrary valid config setter through the route', async () => 
 			configFile,
 			input: {
 				clientId: 'settings-client',
-				updates: [{setter: 'setOverwriteOutput', type: 'set', value: true}],
+				updates: [
+					{
+						setter: 'setKeyboardShortcuts',
+						type: 'set',
+						value: {
+							playPause: {key: 'p'},
+							render: null,
+						},
+					},
+				],
 			},
 			remotionRoot: directory,
 		});
 
 		expect(response).toEqual({success: true});
-		expect(readFileSync(configFile, 'utf8')).toBe(
-			[
-				"import {Config} from '@remotion/cli/config';",
-				'Config.setOverwriteOutput(true);',
-				'',
-			].join('\n'),
-		);
+		const updatedConfig = readFileSync(configFile, 'utf8');
+		expect(updatedConfig).toContain('Config.setKeyboardShortcuts({');
+		expect(updatedConfig).toContain("'playPause': {");
+		expect(updatedConfig).toContain("'key': 'p'");
+		expect(updatedConfig).toContain("'render': null");
 		expect(configChangeEvent as FileChangeEvent | null).toEqual({
-			content: [
-				"import {Config} from '@remotion/cli/config';",
-				'Config.setOverwriteOutput(true);',
-				'',
-			].join('\n'),
+			content: updatedConfig,
 			originatorClientId: 'settings-client',
 			type: 'changed',
 			skipSequencePropsUpdate: false,
@@ -353,6 +356,13 @@ test('rejects invalid updates without changing the config', async () => {
 
 	try {
 		for (const updates of [
+			[
+				{
+					setter: 'setKeyboardShortcuts',
+					type: 'set' as const,
+					value: {notAnAction: {key: 'p'}},
+				},
+			],
 			[
 				{
 					setter: 'setNotARealOption',

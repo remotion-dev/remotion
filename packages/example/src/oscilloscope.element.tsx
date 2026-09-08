@@ -29,6 +29,7 @@ const audioOscilloscopeSchema = {
 	...Interactive.baseSchema,
 	audioSrc: {
 		type: 'asset',
+		assetType: 'audio',
 		default:
 			'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 		description: 'Audio source',
@@ -100,7 +101,7 @@ const AudioOscilloscopeContent: React.FC<{
 				dataOffsetInSeconds,
 				durationInSeconds: windowInSeconds,
 				normalize: false,
-				numberOfSamples: 128,
+				numberOfSamples: 64,
 				outputRange: 'minus-one-to-one',
 				startTimeInSeconds: frame / fps - windowInSeconds / 2,
 			}).map((sample) => sample.amplitude)
@@ -136,25 +137,14 @@ const AudioOscilloscopeContent: React.FC<{
 					strokeWidth={1}
 				/>
 				{path ? (
-					<>
-						<path
-							d={path}
-							fill="none"
-							stroke={lineColor}
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeOpacity={0.22}
-							strokeWidth={lineWidth * 4}
-						/>
-						<path
-							d={path}
-							fill="none"
-							stroke={lineColor}
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={lineWidth}
-						/>
-					</>
+					<path
+						d={path}
+						fill="none"
+						stroke={lineColor}
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={lineWidth}
+					/>
 				) : null}
 			</svg>
 		</div>

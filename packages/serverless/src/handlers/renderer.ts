@@ -583,32 +583,34 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		});
 	} finally {
 		stopCancellationPolling();
-		if (executionMode === 'direct') {
-			if (!shouldKeepBrowserOpen && instance) {
-				await instance.instance.close({silent: true});
+		if (!shouldKeepBrowserOpen && instance) {
+			try {
+				await insideFunctionSpecifics.closeBrowserInstance({
+					launchedBrowser: instance,
+				});
+			} catch (err) {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					'Could not close browser instance after flaky error',
+					err,
+				);
 			}
-		} else if (shouldKeepBrowserOpen && instance) {
+		} else if (
+			executionMode === 'invoked' &&
+			shouldKeepBrowserOpen &&
+			instance
+		) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,
 			});
-		} else {
+		}
+
+		if (!shouldKeepBrowserOpen) {
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
 				'Function did not succeed with flaky error, not keeping browser open.',
 			);
-			RenderInternals.Log.info(
-				{indent: false, logLevel: params.logLevel},
-				'Waiting 2 seconds to allow for response to be sent',
-			);
-
-			setTimeout(() => {
-				RenderInternals.Log.info(
-					{indent: false, logLevel: params.logLevel},
-					'Quitting Function forcefully now to force not keeping the Function warm.',
-				);
-				process.exit(0);
-			}, 2000);
 		}
 
 		if (ENABLE_SLOW_LEAK_DETECTION) {

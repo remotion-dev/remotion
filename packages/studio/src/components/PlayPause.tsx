@@ -162,36 +162,32 @@ const PlayPauseInner: React.FC<{
 		});
 		const space = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: ' ',
+			action: 'playPause',
 			callback: onSpace,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const enter = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'enter',
+			action: 'pauseAndReturnToPlaybackStart',
 			callback: onEnter,
-			commandCtrlKey: false,
 			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const a = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'a',
+			action: 'jumpToBeginning',
 			callback: jumpToStart,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const e = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'e',
+			action: 'jumpToEnd',
 			callback: jumpToEnd,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,

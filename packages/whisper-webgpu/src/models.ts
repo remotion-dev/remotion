@@ -17,6 +17,7 @@ export type WhisperWebGpuModelInfo = {
 	modelId: string;
 	parameters: number;
 	multilingual: boolean;
+	supportsTranslation: boolean;
 	webGpuDownloadSize: number;
 };
 
@@ -26,6 +27,7 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		modelId: 'onnx-community/whisper-tiny_timestamped',
 		parameters: 39_000_000,
 		multilingual: true,
+		supportsTranslation: true,
 		webGpuDownloadSize: 119_699_015,
 	},
 	'tiny.en': {
@@ -33,6 +35,7 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		modelId: 'onnx-community/whisper-tiny.en_timestamped',
 		parameters: 39_000_000,
 		multilingual: false,
+		supportsTranslation: false,
 		webGpuDownloadSize: 119_697_479,
 	},
 	base: {
@@ -40,6 +43,7 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		modelId: 'onnx-community/whisper-base_timestamped',
 		parameters: 74_000_000,
 		multilingual: true,
+		supportsTranslation: true,
 		webGpuDownloadSize: 206_190_057,
 	},
 	'base.en': {
@@ -47,6 +51,7 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		modelId: 'onnx-community/whisper-base.en_timestamped',
 		parameters: 74_000_000,
 		multilingual: false,
+		supportsTranslation: false,
 		webGpuDownloadSize: 206_188_009,
 	},
 	small: {
@@ -54,6 +59,7 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		modelId: 'onnx-community/whisper-small_timestamped',
 		parameters: 244_000_000,
 		multilingual: true,
+		supportsTranslation: true,
 		webGpuDownloadSize: 586_213_010,
 	},
 	'small.en': {
@@ -61,6 +67,7 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		modelId: 'onnx-community/whisper-small.en_timestamped',
 		parameters: 244_000_000,
 		multilingual: false,
+		supportsTranslation: false,
 		webGpuDownloadSize: 586_209_938,
 	},
 	medium: {
@@ -68,6 +75,7 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		modelId: 'onnx-community/whisper-medium_timestamped',
 		parameters: 769_000_000,
 		multilingual: true,
+		supportsTranslation: true,
 		webGpuDownloadSize: 1_698_508_143,
 	},
 	'medium.en': {
@@ -75,6 +83,7 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		modelId: 'onnx-community/whisper-medium.en_timestamped',
 		parameters: 769_000_000,
 		multilingual: false,
+		supportsTranslation: false,
 		webGpuDownloadSize: 1_698_504_047,
 	},
 	'large-v3-turbo': {
@@ -82,8 +91,21 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		modelId: 'onnx-community/whisper-large-v3-turbo_timestamped',
 		parameters: 809_000_000,
 		multilingual: true,
+		supportsTranslation: false,
 		webGpuDownloadSize: 2_882_584_170,
 	},
+};
+
+const HOSTED_MODEL_IDS: Record<WhisperWebGpuModel, string> = {
+	tiny: 'whisper-tiny_timestamped-v1',
+	'tiny.en': 'whisper-tiny.en_timestamped-v1',
+	base: 'whisper-base_timestamped-v1',
+	'base.en': 'whisper-base.en_timestamped-v1',
+	small: 'whisper-small_timestamped-v1',
+	'small.en': 'whisper-small.en_timestamped-v1',
+	medium: 'whisper-medium_timestamped-v1',
+	'medium.en': 'whisper-medium.en_timestamped-v1',
+	'large-v3-turbo': 'whisper-large-v3-turbo_timestamped-v1',
 };
 
 export const getAvailableModels = (): WhisperWebGpuModelInfo[] => {
@@ -94,6 +116,10 @@ export const getModelInfo = (
 	model: WhisperWebGpuModel,
 ): WhisperWebGpuModelInfo => {
 	return MODEL_INFO[model];
+};
+
+export const getHostedModelId = (model: WhisperWebGpuModel): string => {
+	return HOSTED_MODEL_IDS[model];
 };
 
 export const WHISPER_WEBGPU_DTYPE = {

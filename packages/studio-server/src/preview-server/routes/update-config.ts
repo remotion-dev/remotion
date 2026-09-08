@@ -5,6 +5,7 @@ import {
 	type ConfigUpdate,
 	type ConfigValue,
 	type StudioRuntimeConfig,
+	validateStudioKeyboardShortcuts,
 	type UpdateConfigRequest,
 	type UpdateConfigResponse,
 } from '@remotion/studio-shared';
@@ -278,6 +279,15 @@ export const updateConfigHandler = async ({
 	for (const update of input.updates) {
 		if (update.type === 'delete') {
 			continue;
+		}
+
+		if (update.setter === 'setKeyboardShortcuts') {
+			const keyboardShortcutsError = validateStudioKeyboardShortcuts(
+				update.value,
+			);
+			if (keyboardShortcutsError !== null) {
+				return {success: false, reason: keyboardShortcutsError};
+			}
 		}
 
 		if (

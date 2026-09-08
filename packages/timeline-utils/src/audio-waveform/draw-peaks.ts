@@ -1,6 +1,7 @@
 import {parseColor} from './parse-color';
 
 const CLIPPING_COLOR = '#FF7F50';
+const WAVEFORM_HEIGHT_SCALE = 0.8;
 
 export type WaveformVolume = number | readonly number[];
 
@@ -69,6 +70,7 @@ export const drawBars = ({
 	const imageData = ctx.createImageData(w, height);
 	const {data} = imageData;
 	const numBars = width;
+	const fullScaleHalfBar = (height * WAVEFORM_HEIGHT_SCALE) / 2;
 
 	for (let barIndex = 0; barIndex < numBars; barIndex++) {
 		const x = barIndex;
@@ -81,7 +83,7 @@ export const drawBars = ({
 		const scaledPeak = peak * barVolume;
 		const halfBar = Math.max(
 			0,
-			Math.min(height / 2, (scaledPeak * height) / 2),
+			Math.min(height / 2, scaledPeak * fullScaleHalfBar),
 		);
 		if (halfBar === 0) continue;
 
@@ -89,8 +91,13 @@ export const drawBars = ({
 		const barY = Math.round(mid - halfBar);
 		const barEnd = Math.round(mid + halfBar);
 		const isClipping = scaledPeak > 1;
-		const clipTopEnd = isClipping ? Math.min(barY + 2, barEnd) : barY;
-		const clipBotStart = isClipping ? Math.max(barEnd - 2, barY) : barEnd;
+		// Color the overflow above full scale, keeping tiny overshoots visible.
+		const clipTopEnd = isClipping
+			? Math.min(Math.max(barY + 2, Math.round(mid - fullScaleHalfBar)), barEnd)
+			: barY;
+		const clipBotStart = isClipping
+			? Math.max(Math.min(barEnd - 2, Math.round(mid + fullScaleHalfBar)), barY)
+			: barEnd;
 
 		for (let y = barY; y < clipTopEnd; y++) {
 			const idx = (y * w + x) * 4;

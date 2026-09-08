@@ -344,16 +344,25 @@ const WordHighlightCaptionsInner = forwardRef<
 	},
 );
 
-const WordHighlightCaptionsWithControls: React.FC<
-	WordHighlightCaptionsProps & {readonly controls: SequenceControls | undefined}
-> = ({captions, controls, style, ...props}) => {
+const WordHighlightCaptionsLayer = Interactive.withSchema({
+	Component: WordHighlightCaptionsInner,
+	componentName: '<WordHighlightCaptions>',
+	componentIdentity: null,
+	schema: wordHighlightCaptionsSchema,
+	supportsEffects: false,
+}) as React.FC<WordHighlightCaptionsLayerProps>;
+
+export const WordHighlightCaptions: React.FC<WordHighlightCaptionsProps> = ({
+	captions,
+	style,
+	...props
+}) => {
 	if (captions) {
 		return (
-			<WordHighlightCaptionsInner
+			<WordHighlightCaptionsLayer
 				{...props}
 				callerStyle={style ?? null}
 				captions={captions}
-				controls={controls}
 				style={{translate: '0px 0px'}}
 			/>
 		);
@@ -369,7 +378,7 @@ const WordHighlightCaptionsWithControls: React.FC<
 				width: 900,
 			}}
 		>
-			<WordHighlightCaptionsInner
+			<WordHighlightCaptionsLayer
 				{...props}
 				callerStyle={style ?? null}
 				captions={[
@@ -423,7 +432,6 @@ const WordHighlightCaptionsWithControls: React.FC<
 						confidence: null,
 					},
 				]}
-				controls={controls}
 				width={props.width ?? 681}
 				height={props.height ?? 252}
 				style={{translate: '0px 0px'}}
@@ -431,11 +439,3 @@ const WordHighlightCaptionsWithControls: React.FC<
 		</div>
 	);
 };
-
-export const WordHighlightCaptions = Interactive.withSchema({
-	Component: WordHighlightCaptionsWithControls,
-	componentName: '<WordHighlightCaptions>',
-	componentIdentity: null,
-	schema: wordHighlightCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<WordHighlightCaptionsProps>;

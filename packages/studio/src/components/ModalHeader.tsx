@@ -14,8 +14,12 @@ const container: React.CSSProperties = {
 };
 
 const titleStyle: React.CSSProperties = {
-	fontSize: 14,
 	color: WHITE,
+	fontSize: 14,
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 const icon: React.CSSProperties = {

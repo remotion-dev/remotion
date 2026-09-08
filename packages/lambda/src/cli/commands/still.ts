@@ -24,6 +24,7 @@ import {
 } from '../helpers/get-s3-output-provider-from-cli';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
+import {STILL_COMMAND} from './command-names';
 import {makeArtifactProgress} from './render/progress';
 
 const {
@@ -58,7 +59,7 @@ const {
 	getCompositionWithDimensionOverride,
 } = CliInternals;
 
-export const STILL_COMMAND = 'still';
+export {STILL_COMMAND} from './command-names';
 
 export const stillCommand = async ({
 	args,

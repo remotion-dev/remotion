@@ -1,1 +1,1 @@
-export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
+export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | 'nub';

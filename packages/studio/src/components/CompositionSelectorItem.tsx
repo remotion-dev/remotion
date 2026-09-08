@@ -15,6 +15,7 @@ import React, {
 	useState,
 } from 'react';
 import {type _InternalTypes} from 'remotion';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	CURRENT_COLOR,
@@ -411,8 +412,12 @@ export const CompositionSelectorItem: React.FC<{
 			);
 
 			if (item.type === 'composition') {
+				const browserStudioOperations = getBrowserStudioOperations();
 				const compositionDragData = makeCompositionDragData({
-					compositionFile: resolvedLocation?.source ?? null,
+					compositionFile:
+						browserStudioOperations === null
+							? (resolvedLocation?.source ?? null)
+							: browserStudioOperations.getCompositionFile(item.composition.id),
 					compositionId: item.composition.id,
 					width: item.composition.width ?? null,
 					height: item.composition.height ?? null,
@@ -793,7 +798,6 @@ export const CompositionSelectorItem: React.FC<{
 								)}
 								<Spacing x={1} />
 								<div style={labelStyle}>{item.folderName}</div>
-								<Spacing x={0.5} />
 								<CompositionContextButton
 									getItems={getContextMenuItems}
 									visible
@@ -868,7 +872,6 @@ export const CompositionSelectorItem: React.FC<{
 						/>
 						<Spacing x={1} />
 						<div style={labelStyle}>{item.composition.id}</div>
-						<Spacing x={0.5} />
 						<CompositionContextButton
 							getItems={getContextMenuItems}
 							visible={!isDragging}

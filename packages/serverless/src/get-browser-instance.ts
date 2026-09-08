@@ -7,6 +7,7 @@ import type {
 } from '@remotion/serverless-client';
 import {VERSION} from '@remotion/serverless-client';
 import type {
+	CloseBrowserInstance,
 	ForgetBrowserEventLoop,
 	GetBrowserInstance,
 	InsideFunctionSpecifics,
@@ -64,6 +65,16 @@ export const forgetBrowserEventLoopImplementation: ForgetBrowserEventLoop = ({
 	launchedBrowser.instance.runner.deleteBrowserCaches();
 };
 
+export const closeBrowserInstanceImplementation: CloseBrowserInstance = async ({
+	launchedBrowser,
+}) => {
+	if (_browserInstance === launchedBrowser) {
+		_browserInstance = null;
+	}
+
+	await launchedBrowser.instance.close({silent: true});
+};
+
 export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	Provider extends CloudProvider,
 >({
@@ -117,46 +128,54 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 		);
 		launching = true;
 
-		const execPath = providerSpecifics.getChromiumPath();
+		try {
+			const execPath = providerSpecifics.getChromiumPath();
 
-		const instance = await RenderInternals.internalOpenBrowser({
-			browser: 'chrome',
-			browserExecutable: execPath,
-			chromiumOptions: actualChromiumOptions,
-			forceDeviceScaleFactor: undefined,
-			indent: false,
-			viewport: null,
-			logLevel,
-			onBrowserDownload: () => {
-				throw new Error('Should not download a browser in serverless');
-			},
-			chromeMode: 'headless-shell',
-		});
-		instance.on('disconnected', () => {
-			RenderInternals.Log.info(
-				{indent: false, logLevel},
-				'Browser disconnected or crashed.',
-			);
-			insideFunctionSpecifics.forgetBrowserEventLoop({
+			const instance = await RenderInternals.internalOpenBrowser({
+				browser: 'chrome',
+				browserExecutable: execPath,
+				chromiumOptions: actualChromiumOptions,
+				forceDeviceScaleFactor: undefined,
+				indent: false,
+				viewport: null,
 				logLevel,
-				launchedBrowser: _browserInstance as LaunchedBrowser,
+				onBrowserDownload: () => {
+					throw new Error('Should not download a browser in serverless');
+				},
+				chromeMode: 'headless-shell',
 			});
-			_browserInstance?.instance?.close({silent: true}).catch((err) => {
+			const launchedBrowser = {
+				instance,
+				configurationString,
+			};
+			_browserInstance = launchedBrowser;
+			instance.on('disconnected', () => {
+				if (_browserInstance !== launchedBrowser) {
+					return;
+				}
+
+				_browserInstance = null;
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					'Could not close browser instance',
-					err,
+					'Browser disconnected or crashed.',
 				);
+				insideFunctionSpecifics.forgetBrowserEventLoop({
+					logLevel,
+					launchedBrowser,
+				});
+				launchedBrowser.instance.close({silent: true}).catch((err) => {
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						'Could not close browser instance',
+						err,
+					);
+				});
 			});
-			_browserInstance = null;
-		});
-		_browserInstance = {
-			instance,
-			configurationString,
-		};
 
-		launching = false;
-		return _browserInstance;
+			return launchedBrowser;
+		} finally {
+			launching = false;
+		}
 	}
 
 	if (_browserInstance.configurationString !== configurationString) {

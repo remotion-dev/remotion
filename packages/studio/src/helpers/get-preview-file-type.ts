@@ -12,9 +12,28 @@ export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 		return 'other';
 	}
 
-	const audioExtensions = ['mp3', 'wav', 'ogg', 'aac'];
-	const videoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'webm'];
-	const imageExtensions = ['jpg', 'jpeg', 'png', 'apng', 'gif', 'bmp', 'webp'];
+	const audioExtensions = ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac'];
+	const videoExtensions = [
+		'mp4',
+		'avi',
+		'mkv',
+		'mov',
+		'webm',
+		'm4v',
+		'ts',
+		'm2ts',
+		'm3u8',
+	];
+	const imageExtensions = [
+		'jpg',
+		'jpeg',
+		'png',
+		'apng',
+		'gif',
+		'bmp',
+		'webp',
+		'svg',
+	];
 	const fontExtensions = ['woff', 'woff2', 'ttf', 'otf', 'eot'];
 
 	const fileExtension = fileName.split('.').pop()?.toLowerCase();

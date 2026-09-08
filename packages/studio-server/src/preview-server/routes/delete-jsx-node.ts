@@ -94,6 +94,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 					absolutePath: update.absolutePath,
 					remappings: update.nodePathRemappings,
 				})),
+				null,
 			);
 
 			for (const update of updates) {

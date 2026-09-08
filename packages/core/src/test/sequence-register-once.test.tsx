@@ -343,6 +343,33 @@ test('Interactive runtime values update mounted consumers without re-registering
 	expect(registeredSequences).toHaveLength(1);
 });
 
+test('Interactive controls capture the video config from the surrounding sequence', () => {
+	const registeredSequences: TSequence[] = [];
+	const SequenceChild: React.FC = () => {
+		return <Interactive.Div>Hello</Interactive.Div>;
+	};
+
+	render(
+		<SequenceTestWrapper
+			compositionDurationInFrames={120}
+			currentFrame={30}
+			onRegisterSequence={(sequence) => registeredSequences.push(sequence)}
+		>
+			<Sequence from={30} durationInFrames={60}>
+				<SequenceChild />
+			</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	const interactiveSequence = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	);
+	expect(interactiveSequence?.controls?.videoConfigValues).toMatchObject({
+		durationInFrames: 60,
+		fps: 30,
+	});
+});
+
 test('Interactive runtime values are published only after a render commits', () => {
 	const registeredSequences: TSequence[] = [];
 	const onRegisterSequence = (sequence: TSequence) => {

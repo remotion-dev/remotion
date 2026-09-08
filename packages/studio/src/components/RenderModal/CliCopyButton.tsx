@@ -1,19 +1,13 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
-import {ClipboardIcon} from '../../icons/clipboard';
+import {copyText} from '../../helpers/copy-text';
+import {useCopyFeedback} from '../../helpers/use-copy-feedback';
+import {CopyIcon} from '../../icons/copy';
+import {showNotification} from '../Notifications/NotificationCenter';
 const svgStyle: React.CSSProperties = {
 	width: 16,
 	height: 16,
 	verticalAlign: 'sub',
-};
-
-const copiedStyle: React.CSSProperties = {
-	fontSize: '14px',
-	minHeight: '30px',
-	minWidth: '30px',
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center',
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -29,26 +23,15 @@ const buttonStyle: React.CSSProperties = {
 export const CliCopyButton: React.FC<{valueToCopy: string}> = ({
 	valueToCopy,
 }) => {
-	const [copied, setCopied] = useState<boolean>(false);
+	const {copied, markCopied} = useCopyFeedback();
 	const [hovered, setHovered] = useState<boolean>(false);
 
 	const fillColor = useMemo(() => {
 		return hovered ? WHITE : LIGHT_TEXT;
 	}, [hovered]);
 
-	const clipboardIcon = <ClipboardIcon color={fillColor} style={svgStyle} />;
-
-	const checkSvg = (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 448 512"
-			style={svgStyle}
-		>
-			<path
-				fill={fillColor}
-				d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"
-			/>
-		</svg>
+	const copyIcon = (
+		<CopyIcon copied={copied} color={fillColor} style={svgStyle} />
 	);
 
 	const onPointerEnter = useCallback(() => {
@@ -59,34 +42,21 @@ export const CliCopyButton: React.FC<{valueToCopy: string}> = ({
 		setHovered(false);
 	}, []);
 
-	useEffect(() => {
-		if (!copied) {
-			return;
-		}
-
-		const handleClear = () => {
-			setCopied(false);
-			setHovered(false);
-		};
-
-		const to = setTimeout(() => handleClear(), 2000);
-		return () => clearTimeout(to);
-	}, [copied]);
-
-	return copied ? (
-		<span style={copiedStyle}>{checkSvg}</span>
-	) : (
+	return (
 		<button
 			type="button"
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={buttonStyle}
 			onClick={() => {
-				navigator.clipboard.writeText(valueToCopy);
-				setCopied(true);
+				copyText(valueToCopy)
+					.then(markCopied)
+					.catch((err) => {
+						showNotification(`Could not copy: ${err.message}`, 2000);
+					});
 			}}
 		>
-			{clipboardIcon}
+			{copyIcon}
 		</button>
 	);
 };

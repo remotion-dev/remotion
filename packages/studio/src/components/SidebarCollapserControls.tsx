@@ -1,5 +1,4 @@
 import React, {useCallback, useContext, useEffect} from 'react';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
 	BORDER_CURRENT_COLOR,
 	CURRENT_COLOR,
@@ -9,6 +8,7 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {SidebarContext} from '../state/sidebar';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -27,8 +27,11 @@ const style: React.CSSProperties = {
 export const SidebarCollapserControl: React.FC<{
 	readonly side: 'left' | 'right';
 }> = ({side}) => {
-	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
-		useContext(SidebarContext);
+	const {
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+		sidebarCollapsedDuringDrag,
+	} = useContext(SidebarContext);
 	const keybindings = useKeybinding();
 	const leftSidebarStatus = useResponsiveSidebarStatus();
 
@@ -38,10 +41,14 @@ export const SidebarCollapserControl: React.FC<{
 				width: '35%',
 				height: '100%',
 				borderRight: '1px solid ' + color,
-				background: leftSidebarStatus === 'expanded' ? color : TRANSPARENT,
+				background:
+					leftSidebarStatus === 'expanded' &&
+					sidebarCollapsedDuringDrag !== 'left'
+						? color
+						: TRANSPARENT,
 			};
 		},
-		[leftSidebarStatus],
+		[leftSidebarStatus, sidebarCollapsedDuringDrag],
 	);
 
 	const rightIcon = useCallback(
@@ -53,10 +60,13 @@ export const SidebarCollapserControl: React.FC<{
 				position: 'absolute',
 				borderLeft: '1px solid ' + color,
 				background:
-					sidebarCollapsedStateRight === 'expanded' ? color : TRANSPARENT,
+					sidebarCollapsedStateRight === 'expanded' &&
+					sidebarCollapsedDuringDrag !== 'right'
+						? color
+						: TRANSPARENT,
 			};
 		},
-		[sidebarCollapsedStateRight],
+		[sidebarCollapsedStateRight, sidebarCollapsedDuringDrag],
 	);
 
 	const toggleLeft = useCallback(() => {
@@ -108,8 +118,7 @@ export const SidebarCollapserControl: React.FC<{
 		if (side === 'left') {
 			const left = keybindings.registerKeybinding({
 				event: 'keydown',
-				key: 'b',
-				commandCtrlKey: true,
+				action: 'toggleLeftSidebar',
 				callback: toggleLeft,
 				preventDefault: true,
 				triggerIfInputFieldFocused: false,
@@ -118,8 +127,7 @@ export const SidebarCollapserControl: React.FC<{
 
 			const zen = keybindings.registerKeybinding({
 				event: 'keydown',
-				key: 'g',
-				commandCtrlKey: true,
+				action: 'toggleBothSidebars',
 				callback: toggleBoth,
 				preventDefault: true,
 				triggerIfInputFieldFocused: false,
@@ -134,8 +142,7 @@ export const SidebarCollapserControl: React.FC<{
 
 		const right = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'j',
-			commandCtrlKey: true,
+			action: 'toggleRightSidebar',
 			callback: toggleRight,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
@@ -147,13 +154,17 @@ export const SidebarCollapserControl: React.FC<{
 		};
 	}, [keybindings, side, toggleBoth, toggleLeft, toggleRight]);
 
-	const toggleLeftTooltip = areKeyboardShortcutsDisabled()
-		? 'Toggle Left Sidebar'
-		: `Toggle Left Sidebar (${cmdOrCtrlCharacter}+B)`;
+	const leftShortcut = useKeyboardShortcutLabel('toggleLeftSidebar');
+	const rightShortcut = useKeyboardShortcutLabel('toggleRightSidebar');
+	const toggleLeftTooltip =
+		areKeyboardShortcutsDisabled() || leftShortcut === ''
+			? 'Toggle Left Sidebar'
+			: `Toggle Left Sidebar (${leftShortcut})`;
 
-	const toggleRightTooltip = areKeyboardShortcutsDisabled()
-		? 'Toggle Right Sidebar'
-		: `Toggle Right Sidebar (${cmdOrCtrlCharacter}+J)`;
+	const toggleRightTooltip =
+		areKeyboardShortcutsDisabled() || rightShortcut === ''
+			? 'Toggle Right Sidebar'
+			: `Toggle Right Sidebar (${rightShortcut})`;
 
 	const colorStyle = useCallback((color: string): React.CSSProperties => {
 		return {

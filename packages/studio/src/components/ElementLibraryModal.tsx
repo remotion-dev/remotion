@@ -13,6 +13,7 @@ const panelStyle: React.CSSProperties = {
 
 const iframeStyle: React.CSSProperties = {
 	border: 0,
+	colorScheme: 'dark',
 	flex: 1,
 	minHeight: 0,
 	width: '100%',
@@ -35,6 +36,7 @@ export const ElementLibraryModal: React.FC<{
 		iframe.setAttribute('credentialless', '');
 		const iframeUrl = new URL(url);
 		iframeUrl.searchParams.set('remotion-studio', 'true');
+		iframeUrl.searchParams.set('docusaurus-theme', 'dark');
 		iframe.src = iframeUrl.toString();
 	}, [url]);
 
@@ -44,6 +46,7 @@ export const ElementLibraryModal: React.FC<{
 			<iframe
 				ref={iframeRef}
 				allow="local-network-access; loopback-network"
+				data-remotion-element-library=""
 				style={iframeStyle}
 				title={`${name} library`}
 			/>

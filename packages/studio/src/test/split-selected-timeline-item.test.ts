@@ -157,6 +157,7 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 				controls: {
 					schema: {},
 					runtimeValues: makeRuntimeValueStore({}),
+					videoConfigValues: null,
 					overrideId: 'override',
 					supportsEffects: true,
 					componentIdentity: 'dev.remotion.remotion.Solid',

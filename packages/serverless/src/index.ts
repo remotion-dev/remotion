@@ -1,5 +1,6 @@
 export * from '@remotion/serverless-client';
 export {
+	closeBrowserInstanceImplementation,
 	forgetBrowserEventLoopImplementation,
 	getBrowserInstanceImplementation,
 } from './get-browser-instance';

@@ -1,9 +1,17 @@
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
+import type {
+	StudioKeyboardShortcut,
+	StudioKeyboardShortcutAction,
+	StudioKeyboardShortcuts,
+	StudioKeyboardShortcutValue,
+} from '@remotion/studio-shared';
 import {isMac} from '../helpers/is-mac';
+import {getStudioKeyboardShortcuts} from '../helpers/studio-runtime-config';
 
 export type KeyboardShortcut = {
 	readonly action: string;
-	readonly chords: readonly (readonly string[])[];
+	readonly actionId: StudioKeyboardShortcutAction | null;
+	readonly fixedChords?: readonly (readonly string[])[];
+	readonly fixedReason?: string;
 };
 
 export type KeyboardShortcutGroup = {
@@ -11,134 +19,303 @@ export type KeyboardShortcutGroup = {
 	readonly shortcuts: readonly KeyboardShortcut[];
 };
 
+const shortcut = (
+	action: string,
+	actionId: StudioKeyboardShortcutAction,
+): KeyboardShortcut => ({action, actionId});
+
+const fixedShortcut = (
+	action: string,
+	fixedChords: readonly (readonly string[])[],
+	fixedReason: string,
+): KeyboardShortcut => ({action, actionId: null, fixedChords, fixedReason});
+
+export const defaultKeyboardShortcuts: Record<
+	StudioKeyboardShortcutAction,
+	readonly StudioKeyboardShortcut[]
+> = {
+	playPause: [{key: 'Space'}],
+	jumpToBeginning: [{key: 'a'}],
+	jumpToEnd: [{key: 'e'}],
+	reversePlayback: [{key: 'j'}],
+	pausePlayback: [{key: 'k'}],
+	playForward: [{key: 'l'}],
+	goToFrame: [{key: 'g'}],
+	pauseAndReturnToPlaybackStart: [{key: 'Enter'}],
+	toggleLeftSidebar: [{key: 'b', commandOrControl: true}],
+	toggleRightSidebar: [{key: 'j', commandOrControl: true}],
+	toggleBothSidebars: [{key: 'g', commandOrControl: true}],
+	enterFullscreen: [{key: 'f'}],
+	toggleSnapping: [{key: 'm', shift: true}],
+	previousComposition: [{key: 'PageUp'}],
+	nextComposition: [{key: 'PageDown'}],
+	showKeyboardShortcuts: [{key: '?', shift: true}],
+	quickSwitcher: [{key: 'k', commandOrControl: true}],
+	render: [{key: 'r'}],
+	toggleCheckerboard: [{key: 't'}],
+	setInPoint: [{key: 'i'}],
+	setOutPoint: [{key: 'o'}],
+	clearInOutPoints: [{key: 'x'}],
+	zoomIn: [{key: '+', shift: true}, {key: '+'}],
+	zoomOut: [{key: '-'}],
+	resetZoom: [{key: '0'}],
+	undo: [{key: 'z', commandOrControl: true}],
+	redo: [
+		...(isMac ? [] : [{key: 'y', commandOrControl: true}]),
+		{key: 'z', commandOrControl: true, shift: true},
+	],
+	selectAllSequenceRows: [{key: 'a', commandOrControl: true}],
+	selectTranslateProp: [{key: 'p'}],
+	selectOpacityProp: [{key: 't'}],
+	selectRotateProp: [{key: 'r'}],
+	selectScaleProp: [{key: 's'}],
+	duplicateSequences: [{key: 'd', commandOrControl: true}],
+	copyEffectsAndValues: [{key: 'c', commandOrControl: true}],
+	cutEffects: [{key: 'x', commandOrControl: true}],
+	deleteSelection: [{key: 'Backspace'}, {key: 'Delete'}],
+	askAI: [{key: 'i', commandOrControl: true}],
+};
+
 export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 	{
 		name: 'Playback',
 		shortcuts: [
-			{action: '1 second back', chords: [['Shift', '←']]},
-			{action: 'Previous frame', chords: [['←']]},
-			{action: 'Play / Pause', chords: [['Space']]},
-			{action: 'Next frame', chords: [['→']]},
-			{action: '1 second forward', chords: [['Shift', '→']]},
-			{action: 'Jump to beginning', chords: [['A']]},
-			{action: 'Jump to end', chords: [['E']]},
-			{action: 'Reverse playback', chords: [['J']]},
-			{action: 'Pause', chords: [['K']]},
-			{action: 'Play / Speed up', chords: [['L']]},
-			{action: 'Go to frame', chords: [['G']]},
-			{
-				action: 'Pause & return to playback start',
-				chords: [['Enter']],
-			},
+			fixedShortcut(
+				'1 second back',
+				[['Shift', '←']],
+				'Context-sensitive timeline control',
+			),
+			fixedShortcut(
+				'Previous frame',
+				[['←']],
+				'Context-sensitive timeline control',
+			),
+			shortcut('Play / Pause', 'playPause'),
+			fixedShortcut(
+				'Next frame',
+				[['→']],
+				'Context-sensitive timeline control',
+			),
+			fixedShortcut(
+				'1 second forward',
+				[['Shift', '→']],
+				'Context-sensitive timeline control',
+			),
+			shortcut('Jump to beginning', 'jumpToBeginning'),
+			shortcut('Jump to end', 'jumpToEnd'),
+			shortcut('Reverse playback', 'reversePlayback'),
+			shortcut('Pause', 'pausePlayback'),
+			shortcut('Play / Speed up', 'playForward'),
+			shortcut('Go to frame', 'goToFrame'),
+			shortcut(
+				'Pause & return to playback start',
+				'pauseAndReturnToPlaybackStart',
+			),
 		],
 	},
 	{
 		name: 'Sidebar',
 		shortcuts: [
-			{
-				action: 'Toggle left sidebar',
-				chords: [[cmdOrCtrlCharacter, 'B']],
-			},
-			{
-				action: 'Toggle right sidebar',
-				chords: [[cmdOrCtrlCharacter, 'J']],
-			},
-			{
-				action: 'Toggle both sidebars',
-				chords: [[cmdOrCtrlCharacter, 'G']],
-			},
+			shortcut('Toggle left sidebar', 'toggleLeftSidebar'),
+			shortcut('Toggle right sidebar', 'toggleRightSidebar'),
+			shortcut('Toggle both sidebars', 'toggleBothSidebars'),
 		],
 	},
 	{
 		name: 'View',
 		shortcuts: [
-			{action: 'Enter fullscreen', chords: [['F']]},
-			{action: 'Exit fullscreen', chords: [['Esc']]},
-			{action: 'Enable snapping', chords: [['Shift', 'M']]},
+			shortcut('Enter fullscreen', 'enterFullscreen'),
+			fixedShortcut('Exit fullscreen', [['Esc']], 'Handled by the browser'),
+			shortcut('Enable snapping', 'toggleSnapping'),
 		],
 	},
 	{
 		name: 'Navigation',
 		shortcuts: [
-			{action: 'Previous composition', chords: [['PageUp']]},
-			{action: 'Next composition', chords: [['PageDown']]},
-			{
-				action: 'Render, unless a sequence or prop is selected',
-				chords: [['R']],
-			},
-			{
-				action: 'Checkerboard, unless a sequence or prop is selected',
-				chords: [['T']],
-			},
-			{action: 'Show keyboard shortcuts', chords: [['?']]},
-			{
-				action: 'Quick Switcher',
-				chords: [[cmdOrCtrlCharacter, 'K']],
-			},
+			shortcut('Previous composition', 'previousComposition'),
+			shortcut('Next composition', 'nextComposition'),
+			shortcut('Render, unless a sequence or prop is selected', 'render'),
+			shortcut(
+				'Checkerboard, unless a sequence or prop is selected',
+				'toggleCheckerboard',
+			),
+			shortcut('Show keyboard shortcuts', 'showKeyboardShortcuts'),
+			shortcut('Quick Switcher', 'quickSwitcher'),
 		],
 	},
 	{
 		name: 'Playback range',
 		shortcuts: [
-			{action: 'Set In Point', chords: [['I']]},
-			{action: 'Set Out Point', chords: [['O']]},
-			{action: 'Clear In/Out Points', chords: [['X']]},
+			shortcut('Set In Point', 'setInPoint'),
+			shortcut('Set Out Point', 'setOutPoint'),
+			shortcut('Clear In/Out Points', 'clearInOutPoints'),
 		],
 	},
 	{
 		name: 'Zoom',
 		shortcuts: [
-			{action: 'Zoom in', chords: [['+']]},
-			{action: 'Zoom out', chords: [['-']]},
-			{action: 'Reset zoom', chords: [['0']]},
+			shortcut('Zoom in', 'zoomIn'),
+			shortcut('Zoom out', 'zoomOut'),
+			shortcut('Reset zoom', 'resetZoom'),
 		],
 	},
 	{
 		name: 'Props Editor',
-		shortcuts: [
-			{action: 'Undo', chords: [[cmdOrCtrlCharacter, 'Z']]},
-			{
-				action: 'Redo',
-				chords: [
-					isMac
-						? [cmdOrCtrlCharacter, 'Shift', 'Z']
-						: [cmdOrCtrlCharacter, 'Y'],
-				],
-			},
-		],
+		shortcuts: [shortcut('Undo', 'undo'), shortcut('Redo', 'redo')],
 	},
 	{
 		name: 'Interactivity',
 		shortcuts: [
-			{action: 'Select range / axis lock drag', chords: [['Shift']]},
-			{action: 'Toggle selection', chords: [[cmdOrCtrlCharacter]]},
-			{
-				action: 'Select sequence rows',
-				chords: [[cmdOrCtrlCharacter, 'A']],
-			},
-			{action: 'Select translate prop', chords: [['P']]},
-			{action: 'Select opacity prop', chords: [['T']]},
-			{action: 'Select rotate prop', chords: [['R']]},
-			{action: 'Select scale prop', chords: [['S']]},
-			{
-				action: 'Duplicate sequences',
-				chords: [[cmdOrCtrlCharacter, 'D']],
-			},
-			{
-				action: 'Copy effects / values',
-				chords: [[cmdOrCtrlCharacter, 'C']],
-			},
-			{action: 'Cut effects', chords: [[cmdOrCtrlCharacter, 'X']]},
-			{
-				action: 'Paste effects / values',
-				chords: [[cmdOrCtrlCharacter, 'V']],
-			},
-			{action: 'Delete / reset selection', chords: [['Del'], ['⌫']]},
+			fixedShortcut(
+				'Select range / axis lock drag',
+				[['Shift']],
+				'Gesture modifier',
+			),
+			fixedShortcut(
+				'Toggle selection',
+				[[isMac ? '⌘' : 'Ctrl']],
+				'Gesture modifier',
+			),
+			shortcut('Select sequence rows', 'selectAllSequenceRows'),
+			shortcut('Select translate prop', 'selectTranslateProp'),
+			shortcut('Select opacity prop', 'selectOpacityProp'),
+			shortcut('Select rotate prop', 'selectRotateProp'),
+			shortcut('Select scale prop', 'selectScaleProp'),
+			shortcut('Duplicate sequences', 'duplicateSequences'),
+			shortcut('Copy effects / values', 'copyEffectsAndValues'),
+			shortcut('Cut effects', 'cutEffects'),
+			fixedShortcut(
+				'Paste effects / values',
+				[[isMac ? '⌘' : 'Ctrl', 'V']],
+				'Handled by the browser clipboard event',
+			),
+			shortcut('Delete / reset selection', 'deleteSelection'),
 		],
 	},
 ];
 
 export const askAIKeyboardShortcutGroup: KeyboardShortcutGroup = {
 	name: 'AI',
-	shortcuts: [{action: 'Ask AI', chords: [[cmdOrCtrlCharacter, 'I']]}],
+	shortcuts: [shortcut('Ask AI', 'askAI')],
+};
+
+export const getKeyboardShortcutsForAction = (
+	action: StudioKeyboardShortcutAction,
+	configured: StudioKeyboardShortcuts | null = getStudioKeyboardShortcuts(),
+): readonly StudioKeyboardShortcut[] => {
+	if (
+		configured !== null &&
+		Object.prototype.hasOwnProperty.call(configured, action)
+	) {
+		const value = configured[action];
+		if (value === null) {
+			return [];
+		}
+
+		return Array.isArray(value)
+			? value
+			: [
+					value as Exclude<
+						StudioKeyboardShortcutValue,
+						readonly StudioKeyboardShortcut[] | null
+					>,
+				];
+	}
+
+	return defaultKeyboardShortcuts[action];
+};
+
+const normalizeKey = (key: string) => (key === 'Space' ? ' ' : key);
+
+export const keyboardEventMatchesShortcut = ({
+	event,
+	shortcut: value,
+}: {
+	readonly event: KeyboardEvent;
+	readonly shortcut: StudioKeyboardShortcut;
+}) => {
+	const commandOrControl = isMac ? event.metaKey : event.ctrlKey;
+	return (
+		event.key.toLowerCase() === normalizeKey(value.key).toLowerCase() &&
+		commandOrControl === (value.commandOrControl ?? false) &&
+		(isMac ? !event.ctrlKey : !event.metaKey) &&
+		(!value.shift || event.shiftKey) &&
+		(!value.alt || event.altKey)
+	);
+};
+
+export const keyboardShortcutsOverlap = (
+	first: StudioKeyboardShortcut,
+	second: StudioKeyboardShortcut,
+) =>
+	first.key.toLowerCase() === second.key.toLowerCase() &&
+	(first.commandOrControl ?? false) === (second.commandOrControl ?? false);
+
+export const keyboardEventMatchesAction = (
+	event: KeyboardEvent,
+	action: StudioKeyboardShortcutAction,
+) =>
+	getKeyboardShortcutsForAction(action).some((value) =>
+		keyboardEventMatchesShortcut({event, shortcut: value}),
+	);
+
+const displayKey = (keyboardKey: string) => {
+	if (keyboardKey === 'ArrowLeft') return '←';
+	if (keyboardKey === 'ArrowRight') return '→';
+	if (keyboardKey === 'Delete') return 'Del';
+	if (keyboardKey === 'Backspace') return '⌫';
+	if (keyboardKey === 'Escape') return 'Esc';
+	return keyboardKey.length === 1 ? keyboardKey.toUpperCase() : keyboardKey;
+};
+
+export const formatKeyboardShortcut = (
+	value: StudioKeyboardShortcut,
+): readonly string[] => [
+	...(value.commandOrControl ? [isMac ? '⌘' : 'Ctrl'] : []),
+	...(value.alt ? [isMac ? 'Option' : 'Alt'] : []),
+	...(value.shift && !['+', '?'].includes(value.key) ? ['Shift'] : []),
+	displayKey(value.key),
+];
+
+export const formatKeyboardShortcutForAria = (value: StudioKeyboardShortcut) =>
+	[
+		...(value.commandOrControl ? [isMac ? 'Meta' : 'Control'] : []),
+		...(value.alt ? ['Alt'] : []),
+		...(value.shift ? ['Shift'] : []),
+		value.key,
+	].join('+');
+
+export const getKeyboardShortcutLabel = (
+	action: StudioKeyboardShortcutAction,
+) =>
+	getKeyboardShortcutsForAction(action)
+		.map((value) => formatKeyboardShortcut(value).join('+'))
+		.join(' / ');
+
+export const getKeyboardShortcutAriaKeyShortcuts = (
+	action: StudioKeyboardShortcutAction,
+) =>
+	getKeyboardShortcutsForAction(action)
+		.map(formatKeyboardShortcutForAria)
+		.join(' ');
+
+export const shortcutFromKeyboardEvent = (
+	event: KeyboardEvent,
+): StudioKeyboardShortcut | null => {
+	if (['Alt', 'Control', 'Meta', 'Shift'].includes(event.key)) {
+		return null;
+	}
+
+	if (isMac ? event.ctrlKey : event.metaKey) {
+		return null;
+	}
+
+	return {
+		key: event.key === ' ' ? 'Space' : event.key,
+		...((isMac ? event.metaKey : event.ctrlKey)
+			? {commandOrControl: true}
+			: {}),
+		...(event.shiftKey ? {shift: true} : {}),
+		...(event.altKey ? {alt: true} : {}),
+	};
 };

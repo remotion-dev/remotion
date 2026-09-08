@@ -2,7 +2,8 @@ import type {RenderJob} from '@remotion/studio-shared';
 import {useCallback} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
 import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
-import {ClipboardIcon} from '../../icons/clipboard';
+import {useCopyFeedback} from '../../helpers/use-copy-feedback';
+import {CopyIcon} from '../../icons/copy';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -35,9 +36,13 @@ export const supportsCopyingToClipboard = (job: RenderJob) => {
 export const RenderQueueCopyToClipboard: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
-	const renderCopyAction: RenderInlineAction = useCallback((color) => {
-		return <ClipboardIcon style={revealIconStyle} color={color} />;
-	}, []);
+	const {copied, markCopied} = useCopyFeedback();
+	const renderCopyAction: RenderInlineAction = useCallback(
+		(color) => {
+			return <CopyIcon copied={copied} style={revealIconStyle} color={color} />;
+		},
+		[copied],
+	);
 
 	const onClick: React.MouseEventHandler = useCallback(
 		async (e) => {
@@ -58,6 +63,7 @@ export const RenderQueueCopyToClipboard: React.FC<{
 						[contentType]: blob,
 					}),
 				]);
+				markCopied();
 				showNotification('Copied to clipboard!', 1000);
 			} catch (err) {
 				showNotification(
@@ -66,7 +72,7 @@ export const RenderQueueCopyToClipboard: React.FC<{
 				);
 			}
 		},
-		[job.outName],
+		[job.outName, markCopied],
 	);
 
 	return (

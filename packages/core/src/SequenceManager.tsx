@@ -15,6 +15,7 @@ import type {
 	GetEffectDragOverrides,
 	PropStatuses,
 } from './use-schema.js';
+import type {VideoConfigValues} from './video-config.js';
 
 const useIsomorphicLayoutEffect =
 	typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
@@ -192,12 +193,7 @@ export type SequencePropsSubscriptionKey = {
 	videoConfigValues: VideoConfigValues | null;
 };
 
-export type VideoConfigValues = {
-	durationInFrames: number;
-	fps: number;
-	height: number;
-	width: number;
-};
+export type {VideoConfigValues} from './video-config.js';
 
 const effectDragOverridesKey = (
 	nodePath: SequencePropsSubscriptionKey,

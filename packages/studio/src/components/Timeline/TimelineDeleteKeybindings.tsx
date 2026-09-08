@@ -7,7 +7,6 @@ import {useConfirmationDialog} from '../ConfirmationDialog';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {getCurrentFrame} from './imperative-state';
 import {
-	shouldHandleTimelineDuplicateShortcut,
 	shouldHandleTimelineSplitShortcut,
 	splitSelectedTimelineItems,
 } from './split-selected-timeline-item';
@@ -36,32 +35,18 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 			return;
 		}
 
-		const backspace = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'Backspace',
-			callback: () => deleteTimelineItems(null),
-			commandCtrlKey: false,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
 		const deleteKey = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'Delete',
+			action: 'deleteSelection',
 			callback: () => deleteTimelineItems(null),
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const duplicate = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'd',
-			callback: (event) => {
-				if (!shouldHandleTimelineDuplicateShortcut(event)) {
-					return;
-				}
-
+			action: 'duplicateSequences',
+			callback: () => {
 				const {selectedItems} = currentSelection.current;
 				if (selectedItems.length === 0) {
 					return;
@@ -78,7 +63,6 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 				duplicatePromise.catch(() => undefined);
 			},
-			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -117,7 +101,6 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		});
 
 		return () => {
-			backspace.unregister();
 			deleteKey.unregister();
 			duplicate.unregister();
 			split.unregister();

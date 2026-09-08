@@ -82,16 +82,12 @@ const TimelineSliderInner: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
-	const {canvasContent} = useContext(Internals.CompositionManager);
 
 	if (timelineWidth === null) {
 		throw new Error('Unexpectedly did not have timeline width');
 	}
 
-	const zoomLevel =
-		canvasContent?.type === 'composition'
-			? (zoomMap[canvasContent.compositionId] ?? null)
-			: null;
+	const zoomLevel = zoomMap[videoConfig.id] ?? null;
 
 	useLayoutEffect(() => {
 		const el = ref.current;

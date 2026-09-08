@@ -230,6 +230,15 @@ test('JSX structure routes broadcast and return node path mutations before writi
 
 		assertMutation({before, mutation: insertResponse.nodePathMutation});
 		forwardMutationFiles.push(insertResponse.nodePathMutation.files);
+		if (insertResponse.insertedNodePath === null) {
+			throw new Error('Expected the inserted node path');
+		}
+
+		expect(insertResponse.nodePathMutation.timelineSelection).toEqual({
+			absolutePath: filePath,
+			compositionId: 'insert',
+			nodePath: insertResponse.insertedNodePath.nodePath,
+		});
 
 		for (let i = 0; i < 4; i++) {
 			before = readFileSync(filePath, 'utf-8');
@@ -241,6 +250,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 			expect(undoResponse.nodePathMutation.files).toEqual(
 				invertMutationFiles(forwardMutationFiles[3 - i]),
 			);
+			expect(undoResponse.nodePathMutation.timelineSelection).toBeNull();
 			assertMutation({before, mutation: undoResponse.nodePathMutation});
 		}
 
@@ -256,6 +266,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 			expect(redoResponse.nodePathMutation.files).toEqual(
 				forwardMutationFiles[i],
 			);
+			expect(redoResponse.nodePathMutation.timelineSelection).toBeNull();
 			assertMutation({before, mutation: redoResponse.nodePathMutation});
 		}
 	} finally {

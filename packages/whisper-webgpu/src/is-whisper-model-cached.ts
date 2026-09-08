@@ -1,25 +1,25 @@
 import {
-	getModelInfo,
+	getHostedModelId,
 	WHISPER_WEBGPU_DTYPE,
 	type WhisperWebGpuModel,
 } from './models';
+import {withRemotionModelHost} from './with-remotion-model-host';
 
 export type IsWhisperModelCachedOptions = {
 	model: WhisperWebGpuModel;
 };
 
-export const isWhisperModelCached = async ({
+export const isWhisperModelCached = ({
 	model,
 }: IsWhisperModelCachedOptions): Promise<boolean> => {
-	const {ModelRegistry} = await import('@huggingface/transformers');
-	const {modelId} = getModelInfo(model);
-
-	return ModelRegistry.is_pipeline_cached(
-		'automatic-speech-recognition',
-		modelId,
-		{
-			device: 'webgpu',
-			dtype: WHISPER_WEBGPU_DTYPE,
-		},
-	);
+	return withRemotionModelHost(({ModelRegistry}) => {
+		return ModelRegistry.is_pipeline_cached(
+			'automatic-speech-recognition',
+			getHostedModelId(model),
+			{
+				device: 'webgpu',
+				dtype: WHISPER_WEBGPU_DTYPE,
+			},
+		);
+	});
 };

@@ -34,19 +34,12 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const playing = Internals.usePlaying();
 	const {playbackRate} = Internals.usePlaybackRate();
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 
-	const compositionId =
-		canvasContent && canvasContent.type === 'composition'
-			? canvasContent.compositionId
-			: null;
-	// Asset previews have a synthetic video config, but no composition ID
-	// with which to look up a persisted timeline zoom.
 	const zoom = getTimelineZoom({
 		durationInFrames: video?.durationInFrames ?? 1,
 		timelineViewportWidth: scrollableRef.current?.clientWidth ?? 0,
-		zoom: compositionId ? (zoomMap[compositionId] ?? null) : null,
+		zoom: video ? (zoomMap[video.id] ?? null) : null,
 	});
 
 	if (video) {

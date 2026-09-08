@@ -6,8 +6,9 @@ import {
 	WHITE,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
-import {ClipboardIcon} from '../icons/clipboard';
+import {CopyIcon} from '../icons/copy';
 import {Minus} from '../icons/minus';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -109,6 +110,7 @@ const loading: React.CSSProperties = {
 
 export const SkillsSettings: React.FC = () => {
 	const {error, remotionSkillsInfo} = useSettings();
+	const {copied, markCopied} = useCopyFeedback();
 	const installedSkills = useMemo(() => {
 		return (
 			remotionSkillsInfo?.skills.filter(
@@ -121,13 +123,18 @@ export const SkillsSettings: React.FC = () => {
 		(remotionSkillsInfo?.skills.length ?? 0) - installedSkills;
 
 	const onCopy = useCallback(() => {
-		copyText(INSTALL_COMMAND).catch((err) => {
-			showNotification(`Could not copy: ${err.message}`, 2000);
-		});
-	}, []);
-	const renderCopyAction: RenderInlineAction = useCallback((color) => {
-		return <ClipboardIcon color={color} style={copyIcon} />;
-	}, []);
+		copyText(INSTALL_COMMAND)
+			.then(markCopied)
+			.catch((err) => {
+				showNotification(`Could not copy: ${err.message}`, 2000);
+			});
+	}, [markCopied]);
+	const renderCopyAction: RenderInlineAction = useCallback(
+		(color) => {
+			return <CopyIcon copied={copied} color={color} style={copyIcon} />;
+		},
+		[copied],
+	);
 
 	return (
 		<div style={container}>

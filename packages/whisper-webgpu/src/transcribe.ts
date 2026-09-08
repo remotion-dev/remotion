@@ -16,12 +16,21 @@ export type WhisperWebGpuTranscription = {
 	model: WhisperWebGpuModel;
 };
 
+export type WhisperWebGpuTask = 'transcribe' | 'translate';
+
 export type TranscribeOptions = {
 	channelWaveform: Float32Array;
 	model: WhisperWebGpuModel;
 	language?: string;
+	task?: WhisperWebGpuTask;
 	chunkLengthInSeconds?: number;
 	strideLengthInSeconds?: number;
+	forceFullSequences?: boolean;
+	doSample?: boolean;
+	temperature?: number;
+	topK?: number;
+	repetitionPenalty?: number;
+	noRepeatNgramSize?: number;
 	onModelLoadProgress?: OnWhisperWebGpuModelLoadProgress;
 };
 
@@ -39,8 +48,15 @@ export const transcribe = async ({
 	channelWaveform,
 	model,
 	language,
+	task = 'transcribe',
 	chunkLengthInSeconds = 30,
 	strideLengthInSeconds = 5,
+	forceFullSequences = false,
+	doSample = false,
+	temperature = 1,
+	topK = 50,
+	repetitionPenalty = 1,
+	noRepeatNgramSize = 0,
 	onModelLoadProgress,
 }: TranscribeOptions): Promise<WhisperWebGpuTranscription> => {
 	if (channelWaveform.length === 0) {
@@ -63,7 +79,41 @@ export const transcribe = async ({
 		);
 	}
 
-	const {multilingual} = getModelInfo(model);
+	if (typeof forceFullSequences !== 'boolean') {
+		throw new TypeError('forceFullSequences must be a boolean.');
+	}
+
+	if (typeof doSample !== 'boolean') {
+		throw new TypeError('doSample must be a boolean.');
+	}
+
+	if (!Number.isFinite(temperature) || temperature <= 0) {
+		throw new TypeError('temperature must be a finite number greater than 0.');
+	}
+
+	if (!Number.isInteger(topK) || topK < 0) {
+		throw new TypeError('topK must be a non-negative integer.');
+	}
+
+	if (!Number.isFinite(repetitionPenalty) || repetitionPenalty <= 0) {
+		throw new TypeError(
+			'repetitionPenalty must be a finite number greater than 0.',
+		);
+	}
+
+	if (!Number.isInteger(noRepeatNgramSize) || noRepeatNgramSize < 0) {
+		throw new TypeError('noRepeatNgramSize must be a non-negative integer.');
+	}
+
+	if (task !== 'transcribe' && task !== 'translate') {
+		throw new TypeError('task must be either "transcribe" or "translate".');
+	}
+
+	const {multilingual, supportsTranslation} = getModelInfo(model);
+	if (task === 'translate' && !supportsTranslation) {
+		throw new Error(`The model "${model}" does not support translation.`);
+	}
+
 	if (multilingual && (language === undefined || language === 'auto')) {
 		throw new Error(
 			`The language option is required for the multilingual model "${model}" because automatic language detection is not supported.`,
@@ -90,7 +140,13 @@ export const transcribe = async ({
 				return_timestamps: 'word',
 				chunk_length_s: chunkLengthInSeconds,
 				stride_length_s: strideLengthInSeconds,
-				...(multilingual ? {language} : {}),
+				force_full_sequences: forceFullSequences,
+				do_sample: doSample,
+				temperature,
+				top_k: topK,
+				repetition_penalty: repetitionPenalty,
+				no_repeat_ngram_size: noRepeatNgramSize,
+				...(multilingual ? {language, task} : {}),
 			})) as TransformersJsTranscription;
 		},
 	});

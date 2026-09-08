@@ -46,6 +46,7 @@ const localVendorEntry = new URL(
 	import.meta.url,
 ).href;
 const localVendorEntryWithMarker = `${localVendorEntry}?browserStudioVendor`;
+const browserStudioPointerLeaveEvent = 'remotion-browser-studio-pointerleave';
 
 type BrowserStudioContentWindow = Window & {
 	remotion_browserStudioHmr: BrowserStudioHmrBridge;
@@ -168,6 +169,10 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const initialElementRef = useRef(initialElement);
 	const lastSentProjectRef = useRef<BrowserStudioProps['project'] | null>(null);
 	const bundleUrlRef = useRef<string | null>(null);
+	const notifyStudioOfPointerLeave = useCallback(() => {
+		const contentWindow = iframeRef.current?.contentWindow;
+		contentWindow?.dispatchEvent(new Event(browserStudioPointerLeaveEvent));
+	}, []);
 	const onCompileStateChangeRef = useRef(onCompileStateChange);
 	onCompileStateChangeRef.current = onCompileStateChange;
 	const dependencyResolverRef = useRef(dependencyResolver);
@@ -180,6 +185,18 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			}),
 		[],
 	);
+
+	useEffect(() => {
+		const onBeforeUnload = (event: BeforeUnloadEvent) => {
+			event.preventDefault();
+			event.returnValue = true;
+		};
+
+		window.addEventListener('beforeunload', onBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', onBeforeUnload);
+		};
+	}, []);
 
 	useEffect(() => {
 		return () => publicFileManager.dispose();
@@ -811,6 +828,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					ref={iframeRef}
 					allow="cross-origin-isolated"
 					onLoad={() => setIframeLoaded(true)}
+					onPointerOut={notifyStudioOfPointerLeave}
 					sandbox="allow-scripts allow-same-origin allow-downloads allow-popups allow-popups-to-escape-sandbox"
 					src={iframeSrc ?? 'about:blank'}
 					style={iframeStyle}

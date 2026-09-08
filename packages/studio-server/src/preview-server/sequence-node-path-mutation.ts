@@ -13,10 +13,12 @@ export const broadcastSequenceNodePathMutation = (
 		absolutePath: string;
 		remappings: SequenceNodePathRemapping[];
 	}>,
+	timelineSelection: SequenceNodePathMutation['timelineSelection'],
 ): SequenceNodePathMutation => {
 	mutationCounter++;
 	const mutation: SequenceNodePathMutation = {
 		mutationId: `${mutationSessionId}:${mutationCounter}`,
+		timelineSelection,
 		files,
 	};
 

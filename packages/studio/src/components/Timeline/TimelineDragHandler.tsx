@@ -77,6 +77,7 @@ export const TimelineDragHandler: React.FC = () => {
 	const {canvasContent, currentAssetMetadata} = useContext(
 		Internals.CompositionManager,
 	);
+	const videoId = video?.id;
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		if (!canvasContent) {
@@ -88,17 +89,20 @@ export const TimelineDragHandler: React.FC = () => {
 			durationInFrames,
 			timelineViewportWidth:
 				timelineSize?.width ?? scrollableRef.current?.clientWidth ?? 0,
-			zoom:
-				canvasContent.type === 'composition'
-					? (zoomMap[canvasContent.compositionId] ?? null)
-					: null,
+			zoom: videoId ? (zoomMap[videoId] ?? null) : null,
 		});
 		return {
 			...container,
 			width: getTimelineWidth({durationInFrames, zoom}),
 			height: TIMELINE_TIME_INDICATOR_HEIGHT,
 		};
-	}, [canvasContent, timelineSize?.width, video?.durationInFrames, zoomMap]);
+	}, [
+		canvasContent,
+		timelineSize?.width,
+		video?.durationInFrames,
+		videoId,
+		zoomMap,
+	]);
 
 	const hasPlayableContent =
 		canvasContent?.type === 'composition' ||

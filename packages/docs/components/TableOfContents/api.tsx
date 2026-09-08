@@ -41,6 +41,7 @@ import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/Ta
 import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfContents';
 import {TableOfContents as TransitionsTableOfContents} from '../../docs/transitions/table-of-contents';
 import {TableOfContents as VercelTableOfContents} from '../../docs/vercel/table-of-contents';
+import {TableOfContents as VideoMattingTableOfContents} from '../../docs/video-matting/table-of-contents';
 import {TableOfContents as WebcodecsTableOfContents} from '../../docs/webcodecs/TableOfContents';
 import {TableOfContents as WhisperWebGpuTableOfContents} from '../../docs/whisper-webgpu/table-of-contents';
 import {ZodTypesTableOfContents} from '../../docs/zod-types/TableOfContents';
@@ -196,6 +197,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/vercel</h2>
 			<p>Render videos on Vercel Sandbox</p>
 			<VercelTableOfContents />
+			<h2>@remotion/video-matting</h2>
+			<p>Separate video into base and foreground layers</p>
+			<VideoMattingTableOfContents />
 			<h2>@remotion/webcodecs</h2>
 			<p>Converting media using WebCodecs</p>
 			<WebcodecsTableOfContents />

@@ -43,6 +43,7 @@ import {SkillsSettings} from './SkillsSettings';
 import {StudioSettings} from './StudioSettings';
 import {VerticalTab} from './Tabs/vertical';
 import {UpdatesSettings} from './UpdatesSettings';
+import {useUpdateStatus} from './UpdateStatusContext';
 
 type SettingsTab =
 	| 'apps'
@@ -97,11 +98,14 @@ export const SettingsModal: React.FC<{
 	const {setPublicLicenseKey} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
-	const showUpdates = canShowUpdates({
-		connectionStatus: previewServerState.type,
-		isBrowserStudio,
-		readOnlyStudio: window.remotion_isReadOnlyStudio,
-	});
+	const {upgradeState} = useUpdateStatus();
+	const showUpdates =
+		upgradeState !== 'idle' ||
+		canShowUpdates({
+			connectionStatus: previewServerState.type,
+			isBrowserStudio,
+			readOnlyStudio: window.remotion_isReadOnlyStudio,
+		});
 	const packageManager =
 		window.remotion_packageManager === 'unknown'
 			? null

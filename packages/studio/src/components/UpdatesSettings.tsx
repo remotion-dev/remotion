@@ -5,17 +5,19 @@ import type {
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
 	BACKGROUND,
-	BORDER_WHITE_ALPHA_12,
 	BLUE,
+	BORDER_WHITE_ALPHA_12,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
 	WHITE,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
-import {ClipboardIcon} from '../icons/clipboard';
+import {useCopyFeedback} from '../helpers/use-copy-feedback';
+import {CopyIcon} from '../icons/copy';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {KnownBugs} from './KnownBugs';
+import {ModalButton} from './ModalButton';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getReleaseNotes} from './RenderQueue/actions';
@@ -107,6 +109,7 @@ const commands: {
 	yarn: 'yarn remotion upgrade',
 	pnpm: 'pnpm exec remotion upgrade',
 	bun: 'bun remotion upgrade',
+	nub: 'nubx remotion upgrade',
 	unknown: 'npx remotion upgrade',
 };
 
@@ -231,7 +234,15 @@ const RenderedReleaseNotes: React.FC<{
 
 export const UpdatesSettings: React.FC = () => {
 	const {remotionSkillsInfo} = useSettings();
-	const {error, info, knownBugs} = useUpdateStatus();
+	const {
+		error,
+		info,
+		knownBugs,
+		upgradeState,
+		upgradeError,
+		upgrade,
+		shutdown,
+	} = useUpdateStatus();
 	const [releaseNotes, setReleaseNotes] = useState<
 		| (GetReleaseNotesResponse & {
 				currentVersion: string;
@@ -282,20 +293,70 @@ export const UpdatesSettings: React.FC = () => {
 	const updateActionType = remotionSkillsInfo?.remotionUpgradeSkillAvailable
 		? 'skill'
 		: 'command';
+	const {copied, markCopied} = useCopyFeedback();
 
 	const onClick = useCallback(() => {
 		if (updateAction === null) {
 			return;
 		}
 
-		copyText(updateAction).catch((err) => {
-			showNotification('Could not copy: ' + err.message, 2000);
-		});
-	}, [updateAction]);
+		copyText(updateAction)
+			.then(markCopied)
+			.catch((err) => {
+				showNotification('Could not copy: ' + err.message, 2000);
+			});
+	}, [markCopied, updateAction]);
 
-	const renderCopyAction: RenderInlineAction = useCallback((color) => {
-		return <ClipboardIcon color={color} style={copyIcon} />;
-	}, []);
+	const renderCopyAction: RenderInlineAction = useCallback(
+		(color) => {
+			return <CopyIcon copied={copied} color={color} style={copyIcon} />;
+		},
+		[copied],
+	);
+
+	const onUpgrade = useCallback(() => {
+		if (info) {
+			upgrade(info.latestVersion);
+		}
+	}, [info, upgrade]);
+
+	if (upgradeState !== 'idle') {
+		return (
+			<div style={container}>
+				<div style={title}>
+					{upgradeState === 'upgrading'
+						? 'Upgrading Remotion...'
+						: 'Remotion has been upgraded.'}
+				</div>
+				<div style={text}>
+					{upgradeState === 'upgrading'
+						? 'This may take a few minutes. You can follow the progress in your terminal.'
+						: upgradeState === 'shutdown'
+							? 'Studio is shutting down. Run your Studio start command again in the terminal to use the new version.'
+							: 'Restart Studio to use the new version. Shut down the server below, then run your Studio start command again in the terminal.'}
+				</div>
+				{upgradeState === 'upgraded' || upgradeState === 'shutting-down' ? (
+					<div style={{marginTop: 12}}>
+						<ModalButton
+							onClick={shutdown}
+							disabled={upgradeState === 'shutting-down'}
+						>
+							{upgradeState === 'shutting-down'
+								? 'Shutting down...'
+								: 'Shut down Studio'}
+						</ModalButton>
+					</div>
+				) : null}
+				{upgradeError ? (
+					<ValidationMessage
+						message={upgradeError}
+						type="error"
+						align="flex-start"
+					/>
+				) : null}
+			</div>
+		);
+	}
 
 	if (info === null) {
 		return (
@@ -338,6 +399,23 @@ export const UpdatesSettings: React.FC = () => {
 
 	return (
 		<div style={container}>
+			{info.updateAvailable && info.packageManager !== 'unknown' ? (
+				<div style={{paddingTop: 12}}>
+					<ModalButton onClick={onUpgrade}>
+						Upgrade to {info.latestVersion}
+					</ModalButton>
+					<div style={{...text, marginTop: 8}}>
+						You will need to restart Studio after upgrading.
+					</div>
+				</div>
+			) : null}
+			{upgradeError ? (
+				<ValidationMessage
+					message={upgradeError}
+					type="error"
+					align="flex-start"
+				/>
+			) : null}
 			{hasKnownBugs && info.updateAvailable ? (
 				<>
 					<div style={title}>
@@ -346,13 +424,11 @@ export const UpdatesSettings: React.FC = () => {
 					</div>
 					<KnownBugs bugs={knownBugs ?? []} />
 					<div style={{height: '20px'}} />
-					<div style={text}>
-						To update, run the following {updateActionType}:
-					</div>
+					<div style={text}>Or run the following {updateActionType}:</div>
 				</>
 			) : info.updateAvailable ? (
 				<div style={titleBeforeCommand}>
-					A new Remotion update is available. Run the following{' '}
+					A new Remotion update is available. You can also run the following{' '}
 					{updateActionType}:
 				</div>
 			) : (

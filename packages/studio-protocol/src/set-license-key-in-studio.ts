@@ -6,7 +6,6 @@ import {
 	fetchWithTimeout,
 	focusedStudioMaxAge,
 	getSetLicenseKeyCapability,
-	hasLegacyStudio,
 	isAbortError,
 	studioProtocolProbePorts,
 } from './studio-discovery';
@@ -93,15 +92,6 @@ export const setLicenseKeyInStudioWithDependencies = async (
 				code: 'unsupported-protocol',
 				message:
 					'The running Remotion Studio uses an unsupported Studio Protocol version.',
-			};
-		}
-
-		if (await hasLegacyStudio(dependencies)) {
-			return {
-				success: false,
-				code: 'studio-upgrade-required',
-				message:
-					'This Remotion Studio cannot set a license key through Studio Protocol. Upgrade Remotion to 4.0.504 or newer.',
 			};
 		}
 

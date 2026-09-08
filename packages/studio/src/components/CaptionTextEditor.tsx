@@ -170,6 +170,7 @@ export const CaptionTextEditor: React.FC<{
 								{formatMilliseconds(caption.endMs)} ms
 							</div>
 							<RemotionInput
+								aria-label={`Caption ${index + 1}`}
 								data-caption-index={index}
 								disabled={readOnly}
 								onBlur={(event) => {

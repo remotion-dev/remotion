@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/browser-studio",
 	"private": true,
-	"version": "4.0.520",
+	"version": "4.0.522",
 	"description": "Run Remotion Studio in the browser",
 	"main": "dist/esm/index.mjs",
 	"types": "dist/index.d.ts",
@@ -31,7 +31,7 @@
 		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@rspack/browser": "2.1.1",
-		"fflate": "0.8.2",
+		"fflate": "0.8.3",
 		"prettier": "catalog:",
 		"react-refresh": "0.18.0",
 		"remotion": "workspace:*"

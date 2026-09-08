@@ -16,6 +16,7 @@ import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {WHITE_ALPHA_80} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
@@ -129,7 +130,11 @@ const RenderButtonInner: React.FC<{
 		return preferredRenderType;
 	}, [connectionStatus, isBrowserStudio, preferredRenderType, readOnlyStudio]);
 
-	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
+	const renderShortcut = useKeyboardShortcutLabel('render');
+	const shortcut =
+		areKeyboardShortcutsDisabled() || renderShortcut === ''
+			? ''
+			: `(${renderShortcut})`;
 	const tooltip =
 		renderType === 'render-command'
 			? 'Copy a CLI command to render this composition ' + shortcut

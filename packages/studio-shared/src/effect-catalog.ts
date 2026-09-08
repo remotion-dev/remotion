@@ -382,6 +382,13 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-tear',
+		category: 'Reveal',
+		label: 'tear()',
+		description: 'Progressive zigzag tear with outward rotation',
+		effect: {name: 'tear', importPath: '@remotion/effects/tear', config: {}},
+	},
+	{
 		id: 'effects-venetian-blinds',
 		category: 'Reveal',
 		label: 'venetianBlinds()',

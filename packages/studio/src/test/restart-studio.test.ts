@@ -1,5 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import {restartStudio} from '../api/restart-studio';
+import {shutDownStudio} from '../api/shut-down-studio';
 import {makeBrowserStudioOperations} from './make-browser-studio-operations';
 
 const originalFetch = globalThis.fetch;
@@ -18,24 +19,40 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('rejects restarting Browser Studio without making a server request', () => {
-	const fetchCalls: string[] = [];
-	globalThis.fetch = ((input) => {
-		fetchCalls.push(String(input));
-		return Promise.reject(new Error('Unexpected request'));
-	}) as typeof fetch;
-	Object.defineProperty(globalThis, 'window', {
-		configurable: true,
-		value: {
-			remotion_browserStudio: makeBrowserStudioOperations({}),
+test.each([
+	['restartStudio', restartStudio],
+	['shutDownStudio', shutDownStudio],
+] as const)(
+	'%s rejects unsupported environments before making a request',
+	(name, action) => {
+		const fetchCalls: string[] = [];
+		globalThis.fetch = ((input) => {
+			fetchCalls.push(String(input));
+			return Promise.reject(new Error('Unexpected request'));
+		}) as typeof fetch;
+		const studioWindow = {
+			remotion_browserStudio: null as ReturnType<
+				typeof makeBrowserStudioOperations
+			> | null,
 			remotion_isPlayer: false,
 			remotion_isReadOnlyStudio: false,
-			remotion_isStudio: true,
-		},
-	});
-
-	expect(() => restartStudio()).toThrow(
-		'restartStudio() is not supported in Browser Studio',
-	);
-	expect(fetchCalls).toEqual([]);
-});
+			remotion_isStudio: false,
+		};
+		Object.defineProperty(globalThis, 'window', {
+			configurable: true,
+			value: studioWindow,
+		});
+		expect(() => action()).toThrow(`${name}() is only available in the Studio`);
+		studioWindow.remotion_isStudio = true;
+		studioWindow.remotion_browserStudio = makeBrowserStudioOperations({});
+		expect(() => action()).toThrow(
+			`${name}() is not supported in Browser Studio`,
+		);
+		studioWindow.remotion_browserStudio = null;
+		studioWindow.remotion_isReadOnlyStudio = true;
+		expect(() => action()).toThrow(
+			`${name}() is not available in read-only Studio`,
+		);
+		expect(fetchCalls).toEqual([]);
+	},
+);

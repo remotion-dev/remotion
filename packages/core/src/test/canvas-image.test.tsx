@@ -267,6 +267,7 @@ test('<CanvasImage> registers its canvas as the outline ref', async () => {
 test('<CanvasImage> schema exposes src and non-keyframable premounting fields', () => {
 	expect(canvasImageSchema.src).toEqual({
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,

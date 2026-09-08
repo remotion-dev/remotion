@@ -2,6 +2,10 @@ import React, {useCallback, useContext} from 'react';
 import {NoReactInternals} from 'remotion/no-react';
 import {BLUE} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {MagnetIcon} from '../icons/magnet';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {ControlButton} from './ControlButton';
@@ -12,10 +16,13 @@ export const SnappingToggle: React.FC = () => {
 	const onClick = useCallback(() => {
 		setEditorSnapping((current) => !current);
 	}, [setEditorSnapping]);
+	const shortcut = useKeyboardShortcutLabel('toggleSnapping');
+	const ariaKeyShortcuts =
+		useKeyboardShortcutAriaKeyShortcuts('toggleSnapping');
 
 	const accessibilityLabel = [
 		editorSnapping ? 'Disable snapping' : 'Enable snapping',
-		areKeyboardShortcutsDisabled() ? null : '(Shift+M)',
+		areKeyboardShortcutsDisabled() || shortcut === '' ? null : `(${shortcut})`,
 	]
 		.filter(NoReactInternals.truthy)
 		.join(' ');
@@ -25,7 +32,7 @@ export const SnappingToggle: React.FC = () => {
 			title={accessibilityLabel}
 			aria-label={accessibilityLabel}
 			aria-pressed={editorSnapping}
-			aria-keyshortcuts="Shift+M"
+			aria-keyshortcuts={ariaKeyShortcuts || undefined}
 			onClick={onClick}
 		>
 			{(color) => (

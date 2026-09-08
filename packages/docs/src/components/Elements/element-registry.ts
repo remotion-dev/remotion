@@ -42,6 +42,10 @@ export const elementRegistry = {
 		category: 'backgrounds',
 		displayName: 'Rotating Starburst',
 	},
+	'captions/basic-captions': {
+		category: 'captions',
+		displayName: 'Basic Captions',
+	},
 	'captions/moving-pill-captions': {
 		category: 'captions',
 		displayName: 'Moving Pill Captions',

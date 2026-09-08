@@ -6,7 +6,7 @@ crumb: '@remotion/whisper-webgpu'
 
 # loadWhisperModel()<AvailableFrom v="4.0.518" />
 
-Downloads and initializes a timestamped Whisper model. Calling it before [`transcribe()`](/docs/whisper-webgpu/transcribe) lets you show model-loading progress.
+Downloads a timestamped Whisper model from `remotion.media` and initializes it. Calling it before [`transcribe()`](/docs/whisper-webgpu/transcribe) lets you show model-loading progress.
 
 ```ts twoslash title="load-model.ts"
 import {loadWhisperModel} from '@remotion/whisper-webgpu';
@@ -36,6 +36,8 @@ Called while model files are resolved and downloaded. `progress` is the aggregat
 Returns whether the same model pipeline was already loaded in memory.
 
 The browser manages its persistent [Transformers.js](https://huggingface.co/docs/transformers.js) cache. This function also retains the initialized model in memory until [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) is called or the page closes.
+
+Versions before 4.0.522 downloaded models from Hugging Face. A model cached by an earlier version is downloaded once more from `remotion.media`, then reused from the new cache entry when using the default Transformers.js cache settings.
 
 ## Compatibility
 

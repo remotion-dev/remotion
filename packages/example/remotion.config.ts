@@ -14,3 +14,7 @@ Config.addElementLibrary({
 	url: 'https://remocn.dev/docs/typography',
 	displayName: 'Remocn',
 });
+Config.addElementLibrary({
+	url: 'http://localhost:3002/elements',
+	displayName: 'Local Elements',
+});

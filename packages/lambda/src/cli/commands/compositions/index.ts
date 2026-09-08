@@ -13,8 +13,9 @@ import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
+import {COMPOSITIONS_COMMAND} from '../command-names';
 
-export const COMPOSITIONS_COMMAND = 'compositions';
+export {COMPOSITIONS_COMMAND} from '../command-names';
 
 const {
 	enableMultiprocessOnLinuxOption,

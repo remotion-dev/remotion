@@ -9,7 +9,6 @@ import {
 	fetchWithTimeout,
 	focusedStudioMaxAge,
 	getInstallCapability,
-	hasLegacyStudio,
 	isAbortError,
 	studioProtocolProbePorts,
 } from './studio-discovery';
@@ -21,6 +20,7 @@ import {
 export type InstallInStudioErrorCode =
 	| 'unsupported-origin'
 	| 'no-compatible-studio'
+	| 'loopback-network-permission-denied'
 	| 'studio-upgrade-required'
 	| 'no-installable-target'
 	| 'unsupported-protocol'
@@ -47,11 +47,18 @@ export type InstallInStudioResult =
 			readonly message: string;
 	  };
 
+type LoopbackPermissionName = 'loopback-network' | 'local-network-access';
+
+type PermissionQueryFn = (descriptor: {
+	readonly name: LoopbackPermissionName;
+}) => Promise<{readonly state: PermissionState}>;
+
 export type InstallInStudioDependencies = {
 	readonly fetchFn: StudioProtocolFetcher;
 	readonly now: () => number;
 	readonly ports: readonly number[];
 	readonly pageOrigin: string | null;
+	readonly permissionQueryFn: PermissionQueryFn | null;
 };
 
 export type StudioProtocolInstallRequest = {
@@ -69,6 +76,40 @@ const studioProtocolInstallRequestEnvelopeSchema = z.object({
 	targetId: z.string(),
 	payload: z.unknown(),
 });
+
+const studioProtocolIframeInstallRequestSchema = z.object({
+	operation: z.literal('install-element'),
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	payload: z.unknown(),
+});
+
+const installInStudioResultSchema = z.union([
+	z.object({
+		success: z.literal(true),
+		status: z.literal('awaiting-confirmation'),
+		target: z.object({
+			projectName: z.nullable(z.string()),
+			compositionId: z.string(),
+			studioOrigin: z.string(),
+			studioVersion: z.string(),
+		}),
+	}),
+	z.object({
+		success: z.literal(false),
+		code: z.literal('no-installable-target'),
+		message: z.string(),
+	}),
+]);
+
+export const parseStudioProtocolIframeInstallRequest = (
+	value: unknown,
+): StudioElementPayload | null => {
+	const envelope = z.safeParse(studioProtocolIframeInstallRequestSchema, value);
+	return envelope.success
+		? parseStudioElementPayload(envelope.data.payload)
+		: null;
+};
 
 export const parseStudioProtocolInstallRequest = (
 	value: unknown,
@@ -144,18 +185,32 @@ export const installInStudioWithDependencies = async (
 			);
 		}
 
-		if (await hasLegacyStudio(dependencies)) {
-			return failure(
-				'studio-upgrade-required',
-				'This Remotion Studio does not support the Remotion Studio Protocol. Upgrade Remotion to 4.0.502 or newer.',
-			);
-		}
-
 		if (discovery.foundInvalidResponse) {
 			return failure(
 				'invalid-response',
 				'Remotion Studio returned an invalid Studio Protocol response.',
 			);
+		}
+
+		if (dependencies.permissionQueryFn !== null) {
+			for (const name of [
+				'loopback-network',
+				'local-network-access',
+			] as const) {
+				try {
+					const permission = await dependencies.permissionQueryFn({name});
+					if (permission.state === 'denied') {
+						return failure(
+							'loopback-network-permission-denied',
+							'Access to localhost is blocked by your browser. Open the site settings, allow local network access for this site, then try again.',
+						);
+					}
+
+					break;
+				} catch {
+					// The compatibility alias may still be supported.
+				}
+			}
 		}
 
 		return failure(
@@ -269,11 +324,59 @@ export const installInStudioWithDependencies = async (
 	);
 };
 
-export const installInStudio = ({
+const installInParentStudio = (
+	payload: StudioElementPayload,
+): Promise<InstallInStudioResult | null> => {
+	if (
+		typeof window === 'undefined' ||
+		window.parent === window ||
+		typeof MessageChannel === 'undefined'
+	) {
+		return Promise.resolve(null);
+	}
+
+	return new Promise((resolve) => {
+		const channel = new MessageChannel();
+		const timeout = setTimeout(() => {
+			channel.port1.close();
+			resolve(null);
+		}, 500);
+
+		channel.port1.onmessage = (event) => {
+			const response = z.safeParse(installInStudioResultSchema, event.data);
+			if (!response.success) {
+				return;
+			}
+
+			clearTimeout(timeout);
+			channel.port1.postMessage(null);
+			channel.port1.onmessage = null;
+			resolve(response.data);
+		};
+
+		window.parent.postMessage(
+			{
+				operation: 'install-element',
+				protocol: 'remotion-studio-protocol',
+				protocolVersion: 1,
+				payload,
+			},
+			'*',
+			[channel.port2],
+		);
+	});
+};
+
+export const installInStudio = async ({
 	payload,
 }: {
 	readonly payload: StudioElementPayload;
 }): Promise<InstallInStudioResult> => {
+	const parentResult = await installInParentStudio(payload);
+	if (parentResult !== null) {
+		return parentResult;
+	}
+
 	return installInStudioWithDependencies(payload, {
 		fetchFn: fetch,
 		now: Date.now,
@@ -281,6 +384,13 @@ export const installInStudio = ({
 			typeof globalThis.location === 'undefined'
 				? null
 				: globalThis.location.origin,
+		permissionQueryFn:
+			typeof globalThis.navigator === 'undefined' ||
+			typeof globalThis.navigator.permissions?.query !== 'function'
+				? null
+				: (descriptor) =>
+						// @ts-expect-error Chromium's loopback permission names are not in lib.dom yet.
+						globalThis.navigator.permissions.query(descriptor),
 		ports: studioProtocolProbePorts,
 	});
 };

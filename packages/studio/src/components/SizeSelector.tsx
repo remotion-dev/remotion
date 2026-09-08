@@ -4,6 +4,8 @@ import {Internals} from 'remotion';
 import {WHITE_ALPHA_80} from '../helpers/colors';
 import type {AssetFileType} from '../helpers/get-preview-file-type';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {
 	CanvasFitIcon,
 	CanvasZoomIcon,
@@ -109,6 +111,10 @@ export const usePreviewSizeMenuItems = () => {
 		return false;
 	}, [canvasContent]);
 
+	const configuredResetZoomShortcut = useKeyboardShortcutLabel('resetZoom');
+	const resetZoomShortcut = areKeyboardShortcutsDisabled()
+		? ''
+		: configuredResetZoomShortcut;
 	const items: ComboboxValue[] = useMemo(() => {
 		return getUniqueSizes(size).map((newSize): ComboboxValue => {
 			return {
@@ -121,14 +127,17 @@ export const usePreviewSizeMenuItems = () => {
 				},
 				type: 'item',
 				value: newSize.size,
-				keyHint: newSize.size === 'auto' ? '0' : null,
+				keyHint:
+					newSize.size === 'auto' && resetZoomShortcut !== ''
+						? resetZoomShortcut
+						: null,
 				leftItem:
 					String(size.size) === String(newSize.size) ? <Checkmark /> : null,
 				subMenu: null,
 				quickSwitcherLabel: null,
 			};
 		});
-	}, [setSize, size]);
+	}, [resetZoomShortcut, setSize, size]);
 
 	return {
 		items,

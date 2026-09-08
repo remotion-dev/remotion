@@ -491,7 +491,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 		],
 	);
 
-	const onDoubleClick = React.useCallback(
+	const performDoubleClick = React.useCallback(
 		(event: React.MouseEvent<SVGPolygonElement>) => {
 			const target = getTarget();
 			if (target === undefined) {
@@ -512,6 +512,16 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			event.stopPropagation();
 		},
 		[dragAwareDoubleClick, getTarget, onDoubleClickTarget],
+	);
+	const onClick = React.useCallback(
+		(event: React.MouseEvent<SVGPolygonElement>) => {
+			if (!dragAwareDoubleClick.acceptClickAsDoubleClick(event)) {
+				return;
+			}
+
+			performDoubleClick(event);
+		},
+		[dragAwareDoubleClick, performDoubleClick],
 	);
 
 	const onEffectDragOver = React.useCallback(
@@ -610,7 +620,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			}}
 			onPointerDown={onPointerDown}
 			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
-			onDoubleClick={onDoubleClick}
+			onClick={onClick}
 			onDragOver={onEffectDragOver}
 			onDragLeave={onEffectDragLeave}
 			onDrop={onEffectDrop}

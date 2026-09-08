@@ -416,6 +416,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const controlsSupportsEffects = controls?.supportsEffects;
 	const controlsComponentIdentity = controls?.componentIdentity;
 	const controlsComponentName = controls?.componentName;
+	const controlsVideoConfigValues = controls?.videoConfigValues;
 	const effectRuntimeValues = useMemo(
 		() =>
 			(
@@ -433,7 +434,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				controlsOverrideId === undefined ||
 				controlsSupportsEffects === undefined ||
 				controlsComponentIdentity === undefined ||
-				controlsComponentName === undefined
+				controlsComponentName === undefined ||
+				controlsVideoConfigValues === undefined
 			) {
 				return null;
 			}
@@ -445,10 +447,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				supportsEffects: controlsSupportsEffects,
 				componentIdentity: controlsComponentIdentity,
 				componentName: controlsComponentName,
+				videoConfigValues: controlsVideoConfigValues,
 			};
 		}, [
 			controlsComponentIdentity,
 			controlsComponentName,
+			controlsVideoConfigValues,
 			controlsOverrideId,
 			controlsRuntimeValues,
 			controlsSchema,

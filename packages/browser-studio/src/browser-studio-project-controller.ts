@@ -33,6 +33,7 @@ type ProjectMutation = {
 	fileName: string;
 	mutate: (project: VirtualProject) => VirtualProject;
 	nodePathMutationFiles: ProjectNodePathMutationFiles | null;
+	timelineSelection: SequenceNodePathMutation['timelineSelection'];
 };
 
 const MAX_HISTORY_ENTRIES = 100;
@@ -489,10 +490,12 @@ export const createBrowserStudioProjectController = ({
 		previousProject,
 		nextProject,
 		nodePathMutationFiles,
+		timelineSelection,
 	}: {
 		previousProject: VirtualProject;
 		nextProject: VirtualProject;
 		nodePathMutationFiles: ProjectNodePathMutationFiles | null;
+		timelineSelection: SequenceNodePathMutation['timelineSelection'];
 	}): SequenceNodePathMutation | null => {
 		const publicFilesChanged = updatePublicFileRevisions(
 			previousProject,
@@ -502,6 +505,7 @@ export const createBrowserStudioProjectController = ({
 			? {
 					mutationId: `${nodePathMutationSessionId}:${++nodePathMutationCounter}`,
 					files: nodePathMutationFiles,
+					timelineSelection,
 				}
 			: null;
 		if (nodePathMutation) {
@@ -523,6 +527,7 @@ export const createBrowserStudioProjectController = ({
 		fileName,
 		mutate,
 		nodePathMutationFiles,
+		timelineSelection,
 	}: ProjectMutation) => {
 		const before = getProject();
 		const after = mutate(before);
@@ -549,6 +554,7 @@ export const createBrowserStudioProjectController = ({
 			previousProject: before,
 			nextProject: after,
 			nodePathMutationFiles,
+			timelineSelection,
 		});
 		queueProjectGarbageCollections(discardedProjects);
 
@@ -575,6 +581,7 @@ export const createBrowserStudioProjectController = ({
 			previousProject: getProject(),
 			nextProject: entry.before,
 			nodePathMutationFiles: files ?? null,
+			timelineSelection: null,
 		});
 		return Promise.resolve({success: true, nodePathMutation});
 	};
@@ -590,6 +597,7 @@ export const createBrowserStudioProjectController = ({
 			previousProject: getProject(),
 			nextProject: entry.after,
 			nodePathMutationFiles: entry.nodePathMutationFiles,
+			timelineSelection: null,
 		});
 		return Promise.resolve({success: true, nodePathMutation});
 	};
@@ -608,6 +616,7 @@ export const createBrowserStudioProjectController = ({
 				applyMutation({
 					fileName: canonicalPath,
 					nodePathMutationFiles: null,
+					timelineSelection: null,
 					mutate: (project) => {
 						const nextPublicFiles = getCanonicalPublicFiles(project);
 						delete nextPublicFiles[canonicalPath];
@@ -664,6 +673,7 @@ export const createBrowserStudioProjectController = ({
 				applyMutation({
 					fileName: oldPath,
 					nodePathMutationFiles: null,
+					timelineSelection: null,
 					mutate: (project) => {
 						const nextPublicFiles = getCanonicalPublicFiles(project);
 						nextPublicFiles[newPath] = nextPublicFiles[oldPath];
@@ -716,6 +726,7 @@ export const createBrowserStudioProjectController = ({
 				applyMutation({
 					fileName: canonicalPath,
 					nodePathMutationFiles: null,
+					timelineSelection: null,
 					mutate: (project) => ({
 						...project,
 						publicFileStorage: storage ?? project.publicFileStorage,

@@ -101,6 +101,29 @@ Shows an on/off control.
 
 Shows a color control. The value is a CSS color string.
 
+### `asset`
+
+Shows a control for selecting an asset source.
+
+#### `assetType?`<AvailableFrom v="4.0.521" />
+
+Set to `'audio'`, `'video'` or `'image'` to only show matching files when replacing this field's asset in Remotion Studio.
+
+`assetType` describes the intended content. It does not inspect or validate the current value or remote URLs.
+
+```ts twoslash title="schema.ts"
+import type {InteractivitySchema} from 'remotion';
+
+export const schema = {
+  audioSrc: {
+    type: 'asset',
+    assetType: 'audio',
+    default: 'https://example.com/audio.mp3',
+    description: 'Audio source',
+  },
+} as const satisfies InteractivitySchema;
+```
+
 ### `font-family`<AvailableFrom v="4.0.485" />
 
 Shows a font family control. The value is a CSS font family string.

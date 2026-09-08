@@ -6,7 +6,7 @@ import {parsedCloudrunCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
 import {Log} from '../../log';
 
-export const SITES_LS_SUBCOMMAND = 'ls';
+export {SITES_LS_SUBCOMMAND} from '../command-names';
 
 export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 	// check if --allRegions flag is provided

@@ -44,12 +44,15 @@ export const splitVideoFromAudioHandler: ApiHandler<
 					input: fileContents,
 					nodePath,
 				});
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath,
-					remappings: nodePathRemappings,
-				},
-			]);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[
+					{
+						absolutePath,
+						remappings: nodePathRemappings,
+					},
+				],
+				null,
+			);
 
 			pushToUndoStack({
 				filePath: absolutePath,

@@ -19,7 +19,10 @@ export const SplitterElement: React.FC<{
 			flex:
 				// Multiply by 1000 because if flex values don't add up to at least 1, they will not fill up the screen
 				(type === 'flexer' ? context.flexValue : 1 - context.flexValue) * 1000,
-			display: 'flex',
+			display:
+				context.collapsedDuringDrag === (type === 'flexer' ? 'left' : 'right')
+					? 'none'
+					: 'flex',
 			position: 'relative',
 			overflow: 'hidden',
 			flexDirection: 'column',
@@ -36,7 +39,14 @@ export const SplitterElement: React.FC<{
 					? (minSize ?? undefined)
 					: undefined,
 		};
-	}, [context.flexValue, context.orientation, maxSize, minSize, type]);
+	}, [
+		context.collapsedDuringDrag,
+		context.flexValue,
+		context.orientation,
+		maxSize,
+		minSize,
+		type,
+	]);
 
 	const stickStyle: React.CSSProperties = useMemo(() => {
 		return {

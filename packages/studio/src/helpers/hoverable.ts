@@ -63,6 +63,10 @@ export const makeHoverableCSS = () => `
     color: var(${COLOR_VARIABLE}, inherit);
   }
 
+  ${hoverGroup} ${reveal} {
+    flex-shrink: 0;
+  }
+
   @media (hover: hover) {
     ${hoverable}:hover {
       background-color: var(${HOVER_BG_VARIABLE}, var(${BG_VARIABLE}, ${TRANSPARENT}));
@@ -83,10 +87,14 @@ export const makeHoverableCSS = () => `
 
     ${hoverGroup} ${reveal} {
       opacity: 0;
+      width: 0;
+      overflow: hidden;
     }
 
     ${hoverGroup}:hover ${reveal} {
       opacity: 1;
+      width: auto;
+      overflow: visible;
     }
   }
 `;

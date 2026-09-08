@@ -55,6 +55,7 @@ import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
 import {starburst} from '@remotion/effects/starburst';
+import {tear} from '@remotion/effects/tear';
 import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tile} from '@remotion/effects/tile';
 import {tint} from '@remotion/effects/tint';
@@ -148,6 +149,7 @@ import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
 } from '../effects/effects-starburst-preview';
+import {EffectsTearPreview} from '../effects/effects-tear-preview';
 import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
 import {EffectsTilePreview} from '../effects/effects-tile-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
@@ -297,6 +299,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/vibrance',
 		comp: EffectsVibrancePreview,
 		schema: vibrance().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-tear',
+		effectName: 'tear',
+		effectImportPath: '@remotion/effects/tear',
+		comp: EffectsTearPreview,
+		schema: tear().definition.schema,
 	},
 	{
 		...defaults,

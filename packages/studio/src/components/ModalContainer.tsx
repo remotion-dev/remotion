@@ -39,12 +39,20 @@ const panel: React.CSSProperties = {
 };
 
 export const ModalContainer: React.FC<{
+	readonly ariaLabelledBy?: string;
 	readonly onEscape: () => void;
 	readonly onOutsideClick: () => void;
 	readonly children: React.ReactNode;
 	readonly noZIndex?: boolean;
 	readonly panelStyle?: React.CSSProperties;
-}> = ({children, onEscape, onOutsideClick, noZIndex, panelStyle}) => {
+}> = ({
+	ariaLabelledBy,
+	children,
+	onEscape,
+	onOutsideClick,
+	noZIndex,
+	panelStyle,
+}) => {
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
 		// Prevent deselection of currently selected items
 		e.stopPropagation();
@@ -52,10 +60,11 @@ export const ModalContainer: React.FC<{
 
 	return (
 		<div
-			className="css-reset"
-			style={backgroundOverlay}
-			role="dialog"
+			aria-labelledby={ariaLabelledBy ?? undefined}
 			aria-modal="true"
+			className="css-reset"
+			role="dialog"
+			style={backgroundOverlay}
 			onPointerDown={onPointerDown}
 		>
 			<HigherZIndex

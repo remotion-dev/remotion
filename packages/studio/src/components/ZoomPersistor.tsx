@@ -26,10 +26,13 @@ export const ZoomPersistor: React.FC = () => {
 
 	const isActive =
 		urlState &&
-		urlState.type === 'composition' &&
 		canvasContent &&
-		canvasContent.type === 'composition' &&
-		urlState.compositionId === canvasContent.compositionId;
+		((urlState.type === 'composition' &&
+			canvasContent.type === 'composition' &&
+			urlState.compositionId === canvasContent.compositionId) ||
+			(urlState.type === 'asset' &&
+				canvasContent.type === 'asset' &&
+				urlState.asset === canvasContent.asset));
 
 	useEffect(() => {
 		if (!isActive) {

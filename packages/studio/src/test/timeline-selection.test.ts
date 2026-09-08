@@ -1804,9 +1804,11 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 			firstNodePathInfo.sequenceSubscriptionKey,
 			secondNodePathInfo.sequenceSubscriptionKey,
 		]),
+		timelineDurationInFrames: 1000,
 	});
 
 	expect(targets?.map((target) => target.initialDuration)).toEqual([40, 15]);
+	expect(targets?.map((target) => target.maximumDuration)).toEqual([1000, 990]);
 	expect(
 		getTimelineSequenceDurationDragChanges({
 			targets: targets ?? [],
@@ -1840,6 +1842,7 @@ test('Timeline duration drag uses the declared duration for negative from values
 		propStatuses: makeDurationPropStatuses([
 			nodePathInfo.sequenceSubscriptionKey,
 		]),
+		timelineDurationInFrames: 1000,
 	});
 
 	expect(targets?.map((target) => target.initialDuration)).toEqual([36]);
@@ -1849,6 +1852,37 @@ test('Timeline duration drag uses the declared duration for negative from values
 			deltaFrames: 0,
 		}),
 	).toEqual([]);
+});
+
+test('Timeline duration drag clamps to the composition end', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const targets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				duration: 40,
+				from: 30,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeDurationPropStatuses([
+			nodePathInfo.sequenceSubscriptionKey,
+		]),
+		timelineDurationInFrames: 180,
+	});
+
+	expect(targets?.[0].maximumDuration).toBe(150);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 200,
+		})[0].value,
+	).toBe(150);
 });
 
 test('Timeline duration drag supports interactive video clips', () => {
@@ -1871,11 +1905,13 @@ test('Timeline duration drag supports interactive video clips', () => {
 			propStatuses: makeDurationPropStatuses([
 				nodePathInfo.sequenceSubscriptionKey,
 			]),
+			timelineDurationInFrames: 1000,
 		}),
 	).toEqual([
 		{
 			fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 			initialDuration: 78,
+			maximumDuration: 1000,
 			minimumDuration: 1,
 			nodePath: nodePathInfo.sequenceSubscriptionKey,
 			schema: Internals.baseSchema,
@@ -1914,6 +1950,7 @@ test('Timeline duration drag rejects media without an explicit duration', () => 
 					effects: [],
 				},
 			},
+			timelineDurationInFrames: 1000,
 		}),
 	).toBe(null);
 });
@@ -1959,12 +1996,14 @@ test('Timeline duration drag clamps each selected sequence to one frame', () => 
 		getTimelineSequenceDurationDragValue({
 			initialDuration: 4,
 			deltaFrames: -10,
+			maximumDuration: 1000,
 		}),
 	).toBe(1);
 	expect(
 		getTimelineSequenceDurationDragValue({
 			initialDuration: 20,
 			deltaFrames: -10,
+			maximumDuration: 1000,
 		}),
 	).toBe(10);
 });
@@ -2017,6 +2056,7 @@ test('TransitionSeries.Sequence resize clamps to adjacent transition durations',
 		sequences,
 		overrideIdsToNodePaths,
 		propStatuses,
+		timelineDurationInFrames: 1000,
 	});
 
 	expect(durationTargets?.[0].minimumDuration).toBe(12);
@@ -2092,6 +2132,7 @@ test('Timeline duration drag is blocked if one selected sequence cannot update d
 				second: secondNodePathInfo.sequenceSubscriptionKey,
 			},
 			propStatuses,
+			timelineDurationInFrames: 1000,
 		}),
 	).toBe(null);
 });
@@ -2153,6 +2194,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 				second: secondNodePathInfo.sequenceSubscriptionKey,
 			},
 			propStatuses,
+			timelineDurationInFrames: 1000,
 		}),
 	).toBe(null);
 });
@@ -2200,6 +2242,7 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 			secondNodePathInfo.sequenceSubscriptionKey,
 			thirdNodePathInfo.sequenceSubscriptionKey,
 		]),
+		timelineDurationInFrames: 1000,
 	});
 
 	expect(targets?.map((target) => target.nodePath)).toEqual([
@@ -2594,6 +2637,22 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	});
 
 	expect(targets?.map((target) => target.initialFrom)).toEqual([0, 10]);
+
+	for (const [deltaFrames, expected] of [
+		[-100, -24],
+		[100, 79],
+	]) {
+		expect(
+			getTimelineSequenceFromDragDelta({
+				deltaFrames,
+				timelineDurationInFrames: 90,
+				pxPerFrame: 10,
+				snappingEnabled: true,
+				targets: targets!,
+			}),
+		).toBe(expected);
+	}
+
 	expect(
 		getTimelineSequenceFromDragChanges({
 			targets: targets ?? [],
@@ -2925,6 +2984,8 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 	const nodePath = makeNodePathInfo(['body', 0], []).sequenceSubscriptionKey;
 	const target = {
 		canSnapToTimelineStart: true,
+		minimumDeltaFrames: -100,
+		initialTimelineStart: 8,
 		effectKeyframes: [],
 		fileName: nodePath.absolutePath,
 		initialFrom: 8,
@@ -2935,6 +2996,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 
 	expect(
 		getTimelineSequenceFromDragDelta({
+			timelineDurationInFrames: 90,
 			deltaFrames: -6,
 			pxPerFrame,
 			snappingEnabled: true,
@@ -2943,6 +3005,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 	).toBe(-8);
 	expect(
 		getTimelineSequenceFromDragDelta({
+			timelineDurationInFrames: 90,
 			deltaFrames: -6,
 			pxPerFrame,
 			snappingEnabled: false,
@@ -2951,6 +3014,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 	).toBe(-6);
 	expect(
 		getTimelineSequenceFromDragDelta({
+			timelineDurationInFrames: 90,
 			deltaFrames: -5,
 			pxPerFrame,
 			snappingEnabled: true,
@@ -2964,12 +3028,15 @@ test('Timeline from drag does not snap nested sequences to the timeline start', 
 
 	expect(
 		getTimelineSequenceFromDragDelta({
+			timelineDurationInFrames: 90,
 			deltaFrames: -6,
 			pxPerFrame: timelineSequenceFromDragSnapThresholdPx / 2,
 			snappingEnabled: true,
 			targets: [
 				{
 					canSnapToTimelineStart: false,
+					minimumDeltaFrames: -100,
+					initialTimelineStart: 8,
 					effectKeyframes: [],
 					fileName: nodePath.absolutePath,
 					initialFrom: 8,
@@ -3076,6 +3143,8 @@ test('Timeline from drag removes the prop at the default value', () => {
 		targets: [
 			{
 				canSnapToTimelineStart: true,
+				minimumDeltaFrames: -100,
+				initialTimelineStart: 8,
 				effectKeyframes: [],
 				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 				initialFrom: 5,

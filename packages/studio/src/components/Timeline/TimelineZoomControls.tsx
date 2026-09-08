@@ -9,7 +9,7 @@ import {
 	TIMELINE_ZOOM_SLIDER_PROPS,
 	timelineZoomToSliderValue,
 } from '../../helpers/get-timeline-max-zoom';
-import {useIsStill} from '../../helpers/is-current-selected-still';
+import {useIsVideoComposition} from '../../helpers/is-current-selected-still';
 import {CanvasZoomIcon, CanvasZoomOutIcon} from '../../icons/canvas-zoom';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
@@ -35,20 +35,19 @@ const TimelineZoomSlider: React.FC<{
 	readonly minZoom: number;
 	readonly timelineViewportWidth: number;
 }> = ({maxWidth, minZoom, timelineViewportWidth}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {tabIndex} = useZIndex();
-	const isStill = useIsStill();
+	const isVideoComposition = useIsVideoComposition();
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			if (canvasContent === null || canvasContent.type !== 'composition') {
+			if (videoConfig === null) {
 				return;
 			}
 
 			setZoom(
-				canvasContent.compositionId,
+				videoConfig.id,
 				() =>
 					sliderValueToTimelineZoom({
 						sliderValue: Number(e.target.value),
@@ -60,21 +59,17 @@ const TimelineZoomSlider: React.FC<{
 				},
 			);
 		},
-		[canvasContent, minZoom, setZoom],
+		[minZoom, setZoom, videoConfig],
 	);
 
-	if (
-		isStill ||
-		canvasContent === null ||
-		canvasContent.type !== 'composition'
-	) {
+	if (!isVideoComposition || videoConfig === null) {
 		return null;
 	}
 
 	const zoom = getTimelineZoom({
 		durationInFrames: videoConfig?.durationInFrames ?? 1,
 		timelineViewportWidth,
-		zoom: zoomMap[canvasContent.compositionId] ?? null,
+		zoom: zoomMap[videoConfig.id] ?? null,
 	});
 	const roundedZoom = Math.round(zoom * 100) / 100;
 
@@ -98,7 +93,6 @@ const TimelineZoomSlider: React.FC<{
 const TimelineZoomControlsInner: React.FC<{
 	readonly sliderMaxWidth?: number;
 }> = ({sliderMaxWidth}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom} = useContext(TimelineZoomCtx);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
@@ -113,36 +107,30 @@ const TimelineZoomControlsInner: React.FC<{
 	});
 
 	const onMinusClicked = useCallback(() => {
-		if (canvasContent === null || canvasContent.type !== 'composition') {
+		if (videoConfig === null) {
 			return;
 		}
 
-		setZoom(
-			canvasContent.compositionId,
-			(z) => z / TIMELINE_ZOOM_BUTTON_FACTOR,
-			{anchorFrame: null, anchorContentX: null},
-		);
-	}, [canvasContent, setZoom]);
+		setZoom(videoConfig.id, (z) => z / TIMELINE_ZOOM_BUTTON_FACTOR, {
+			anchorFrame: null,
+			anchorContentX: null,
+		});
+	}, [setZoom, videoConfig]);
 
 	const onPlusClicked = useCallback(() => {
-		if (canvasContent === null || canvasContent.type !== 'composition') {
+		if (videoConfig === null) {
 			return;
 		}
 
-		setZoom(
-			canvasContent.compositionId,
-			(z) => z * TIMELINE_ZOOM_BUTTON_FACTOR,
-			{anchorFrame: null, anchorContentX: null},
-		);
-	}, [canvasContent, setZoom]);
+		setZoom(videoConfig.id, (z) => z * TIMELINE_ZOOM_BUTTON_FACTOR, {
+			anchorFrame: null,
+			anchorContentX: null,
+		});
+	}, [setZoom, videoConfig]);
 
-	const isStill = useIsStill();
+	const isVideoComposition = useIsVideoComposition();
 
-	if (
-		isStill ||
-		canvasContent === null ||
-		canvasContent.type !== 'composition'
-	) {
+	if (!isVideoComposition || videoConfig === null) {
 		return null;
 	}
 

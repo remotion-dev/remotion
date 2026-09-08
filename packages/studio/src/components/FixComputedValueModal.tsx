@@ -1,7 +1,8 @@
 import React, {useCallback} from 'react';
 import {LIGHT_TEXT, SELECTED_BACKGROUND, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
-import {ClipboardIcon} from '../icons/clipboard';
+import {useCopyFeedback} from '../helpers/use-copy-feedback';
+import {CopyIcon} from '../icons/copy';
 import type {ModalState} from '../state/modals';
 import {CodingAgentButton} from './CodingAgentButton';
 import type {RenderInlineAction} from './InlineAction';
@@ -76,22 +77,45 @@ export const FixComputedValueModal: React.FC<{
 	const installCommand = 'npx remotion skills add';
 	const hasCodingAgent =
 		(codingAgentInfo?.installedCodingAgents.length ?? 0) > 0;
+	const {copied: promptCopied, markCopied: markPromptCopied} =
+		useCopyFeedback();
+	const {copied: installCommandCopied, markCopied: markInstallCommandCopied} =
+		useCopyFeedback();
 
 	const onCopyPrompt = useCallback(() => {
-		copyText(prompt).catch((err) => {
-			showNotification(`Could not copy: ${err.message}`, 2000);
-		});
-	}, [prompt]);
+		copyText(prompt)
+			.then(markPromptCopied)
+			.catch((err) => {
+				showNotification(`Could not copy: ${err.message}`, 2000);
+			});
+	}, [markPromptCopied, prompt]);
 
 	const onCopyInstallCommand = useCallback(() => {
-		copyText(installCommand).catch((err) => {
-			showNotification(`Could not copy: ${err.message}`, 2000);
-		});
-	}, [installCommand]);
+		copyText(installCommand)
+			.then(markInstallCommandCopied)
+			.catch((err) => {
+				showNotification(`Could not copy: ${err.message}`, 2000);
+			});
+	}, [installCommand, markInstallCommandCopied]);
 
-	const renderCopyAction: RenderInlineAction = useCallback((color) => {
-		return <ClipboardIcon color={color} style={copyIcon} />;
-	}, []);
+	const renderPromptCopyAction: RenderInlineAction = useCallback(
+		(color) => {
+			return <CopyIcon copied={promptCopied} color={color} style={copyIcon} />;
+		},
+		[promptCopied],
+	);
+	const renderInstallCommandCopyAction: RenderInlineAction = useCallback(
+		(color) => {
+			return (
+				<CopyIcon
+					copied={installCommandCopied}
+					color={color}
+					style={copyIcon}
+				/>
+			);
+		},
+		[installCommandCopied],
+	);
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
@@ -105,7 +129,7 @@ export const FixComputedValueModal: React.FC<{
 							<InlineAction
 								variant={null}
 								onClick={onCopyInstallCommand}
-								renderAction={renderCopyAction}
+								renderAction={renderInstallCommandCopyAction}
 								title="Copy command"
 							/>
 						</div>
@@ -126,7 +150,7 @@ export const FixComputedValueModal: React.FC<{
 					<InlineAction
 						variant={null}
 						onClick={onCopyPrompt}
-						renderAction={renderCopyAction}
+						renderAction={renderPromptCopyAction}
 						title="Copy prompt"
 					/>
 				</div>

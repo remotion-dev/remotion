@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.520",
+	"version": "4.0.522",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -319,6 +319,11 @@
 			"module": "./dist/esm/starburst.mjs",
 			"import": "./dist/esm/starburst.mjs"
 		},
+		"./tear": {
+			"types": "./dist/tear.d.ts",
+			"module": "./dist/esm/tear.mjs",
+			"import": "./dist/esm/tear.mjs"
+		},
 		"./thermal-vision": {
 			"types": "./dist/thermal-vision.d.ts",
 			"module": "./dist/esm/thermal-vision.mjs",
@@ -563,6 +568,9 @@
 			],
 			"starburst": [
 				"dist/starburst.d.ts"
+			],
+			"tear": [
+				"dist/tear.d.ts"
 			],
 			"thermal-vision": [
 				"dist/thermal-vision.d.ts"

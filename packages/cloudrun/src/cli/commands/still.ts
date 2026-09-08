@@ -9,9 +9,10 @@ import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
 import {validateServeUrl} from '../../shared/validate-serveurl';
 import {displayCrashLogs} from '../helpers/cloudrun-crash-logs';
 import {Log} from '../log';
+import {STILL_COMMAND} from './command-names';
 import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
-export const STILL_COMMAND = 'still';
+export {STILL_COMMAND} from './command-names';
 
 const {
 	offthreadVideoCacheSizeInBytesOption,

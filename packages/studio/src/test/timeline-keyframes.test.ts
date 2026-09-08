@@ -41,6 +41,7 @@ const makeControls = (
 ): NonNullable<TSequence['controls']> => ({
 	schema: {},
 	runtimeValues: makeRuntimeValueStore({}),
+	videoConfigValues: null,
 	overrideId,
 	supportsEffects: false,
 	componentIdentity: null,

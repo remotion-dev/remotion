@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.520
+version: 4.0.522
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -341,7 +341,7 @@ Use `npx remotion add` to add new packages with the right version:
 npx remotion add @remotion/media
 ```
 
-This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, and `zod`.
+This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, `zod`, and `@huggingface/transformers`.
 
 ## Previewing markup
 

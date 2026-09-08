@@ -18,7 +18,6 @@ import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {useEditorOpening} from '../components/use-default-editor-info';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {Checkmark} from '../icons/Checkmark';
 import {drawRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -45,6 +44,7 @@ import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {getStudioAskAIEnabled} from './studio-runtime-config';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
+import {useKeyboardShortcutLabel} from './use-keyboard-shortcut-label';
 
 type Structure = Menu[];
 
@@ -230,10 +230,12 @@ const getRenderMenuItems = ({
 	closeMenu,
 	previewServerState,
 	readOnlyStudio,
+	renderShortcut,
 }: {
 	closeMenu: () => void;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	readOnlyStudio: boolean;
+	renderShortcut: string;
 }): ComboboxValue[] => {
 	return [
 		readOnlyStudio
@@ -256,7 +258,9 @@ const getRenderMenuItems = ({
 						renderButton.click();
 					},
 					type: 'item' as const,
-					keyHint: 'R',
+					keyHint: areKeyboardShortcutsDisabled()
+						? null
+						: renderShortcut || null,
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'Render...',
@@ -315,6 +319,19 @@ export const useMenuStructure = (
 		type === 'connected',
 	);
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
+	const resetZoomShortcut = useKeyboardShortcutLabel('resetZoom');
+	const toggleSnappingShortcut = useKeyboardShortcutLabel('toggleSnapping');
+	const checkerboardShortcut = useKeyboardShortcutLabel('toggleCheckerboard');
+	const quickSwitcherShortcut = useKeyboardShortcutLabel('quickSwitcher');
+	const setInPointShortcut = useKeyboardShortcutLabel('setInPoint');
+	const setOutPointShortcut = useKeyboardShortcutLabel('setOutPoint');
+	const clearInOutPointsShortcut = useKeyboardShortcutLabel('clearInOutPoints');
+	const goToFrameShortcut = useKeyboardShortcutLabel('goToFrame');
+	const renderShortcut = useKeyboardShortcutLabel('render');
+	const askAIShortcut = useKeyboardShortcutLabel('askAI');
+	const showKeyboardShortcutsShortcut = useKeyboardShortcutLabel(
+		'showKeyboardShortcuts',
+	);
 	const studioAskAIEnabled = getStudioAskAIEnabled();
 	const {
 		setSidebarCollapsedState,
@@ -501,7 +518,10 @@ export const useMenuStructure = (
 							preselectIndex: sizePreselectIndex,
 							items: sizes.map((newSize) => ({
 								id: String(newSize.size),
-								keyHint: newSize.size === 1 ? '0' : null,
+								keyHint:
+									newSize.size === 1 && !keyboardShortcutsDisabled
+										? resetZoomShortcut || null
+										: null,
 								label: getPreviewSizeLabel(newSize),
 								leftItem:
 									String(newSize.size) === String(size.size) ? (
@@ -586,7 +606,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'enable-snapping',
-						keyHint: keyboardShortcutsDisabled ? null : 'Shift+M',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: toggleSnappingShortcut || null,
 						label: 'Enable Snapping',
 						onClick: () => {
 							closeMenu();
@@ -736,7 +758,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'checkerboard',
-						keyHint: 'T',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: checkerboardShortcut || null,
 						label: 'Transparency as checkerboard',
 						onClick: () => {
 							closeMenu();
@@ -756,7 +780,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'quick-switcher',
-						keyHint: `${cmdOrCtrlCharacter}+K`,
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: quickSwitcherShortcut || null,
 						label: 'Quick Switcher',
 						onClick: () => {
 							closeMenu();
@@ -780,7 +806,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'in-mark',
-						keyHint: 'I',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: setInPointShortcut || null,
 						label: 'In Mark',
 						leftItem: null,
 						onClick: () => {
@@ -794,7 +822,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'out-mark',
-						keyHint: 'O',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: setOutPointShortcut || null,
 						label: 'Out Mark',
 						leftItem: null,
 						onClick: () => {
@@ -808,7 +838,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'x-mark',
-						keyHint: 'X',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: clearInOutPointsShortcut || null,
 						label: 'Clear In/Out Marks',
 						leftItem: null,
 						onClick: () => {
@@ -822,7 +854,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'goto-time',
-						keyHint: 'G',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: goToFrameShortcut || null,
 						label: 'Go to frame',
 						leftItem: null,
 						onClick: () => {
@@ -865,6 +899,7 @@ export const useMenuStructure = (
 						closeMenu,
 						previewServerState: type,
 						readOnlyStudio,
+						renderShortcut,
 					}),
 					...getCompositionMenuItems({
 						closeMenu,
@@ -895,7 +930,9 @@ export const useMenuStructure = (
 									askAiModalRef.current?.toggle();
 								},
 								leftItem: null,
-								keyHint: `${cmdOrCtrlCharacter}+I`,
+								keyHint: keyboardShortcutsDisabled
+									? null
+									: askAIShortcut || null,
 								subMenu: null,
 								type: 'item' as const,
 								quickSwitcherLabel: 'Ask AI',
@@ -964,7 +1001,9 @@ export const useMenuStructure = (
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
 						},
-						keyHint: '?',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: showKeyboardShortcutsShortcut || null,
 						leftItem: null,
 						subMenu: null,
 						type: 'item' as const,
@@ -1144,6 +1183,17 @@ export const useMenuStructure = (
 		defaultEditorName,
 		keyboardShortcutsDisabled,
 		studioAskAIEnabled,
+		askAIShortcut,
+		checkerboardShortcut,
+		clearInOutPointsShortcut,
+		goToFrameShortcut,
+		quickSwitcherShortcut,
+		renderShortcut,
+		resetZoomShortcut,
+		setInPointShortcut,
+		setOutPointShortcut,
+		showKeyboardShortcutsShortcut,
+		toggleSnappingShortcut,
 		browserStudioOperations,
 		size.size,
 		setSize,

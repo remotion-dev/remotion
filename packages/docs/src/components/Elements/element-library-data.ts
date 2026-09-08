@@ -37,6 +37,10 @@ const backgroundOrder: Record<string, number> = {
 	'backgrounds/liquid-contours': 3,
 };
 
+const captionOrder: Record<string, number> = {
+	'captions/basic-captions': 0,
+};
+
 export const getElementCategoryLabel = (category: ElementCategory) => {
 	if (category === 'youtube') {
 		return 'YouTube';
@@ -65,6 +69,15 @@ export const getElementLibrarySections = (
 		definitions: definitions
 			.filter((definition) => definition.category === currentCategory)
 			.sort((a, b) => {
+				if (currentCategory === 'captions') {
+					const orderDifference =
+						(captionOrder[a.slug] ?? Number.MAX_SAFE_INTEGER) -
+						(captionOrder[b.slug] ?? Number.MAX_SAFE_INTEGER);
+					if (orderDifference !== 0) {
+						return orderDifference;
+					}
+				}
+
 				if (currentCategory === 'backgrounds') {
 					const orderDifference =
 						(backgroundOrder[a.slug] ?? Number.MAX_SAFE_INTEGER) -

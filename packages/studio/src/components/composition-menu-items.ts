@@ -263,7 +263,7 @@ export const getCompositionMenuItems = ({
 				navigator.clipboard
 					.writeText(composition.id)
 					.then(() => {
-						showNotification('Copied to clipboard', 1000);
+						showNotification('Copied composition name', 1000);
 					})
 					.catch((err) => {
 						showNotification(

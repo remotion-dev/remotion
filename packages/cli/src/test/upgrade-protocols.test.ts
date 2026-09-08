@@ -127,13 +127,15 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 		catalogEntries: {
 			remotion: '4.0.460',
 			'@remotion/player': '4.0.460',
+			'@huggingface/transformers': '4.1.0',
 			mediabunny: '1.44.0',
 			react: '19.0.0',
 		},
 		targetVersion: '4.0.462',
 		extraPackageVersions: {
+			'@huggingface/transformers': '4.2.0',
 			mediabunny: '1.50.7',
-			zod: '4.4.3',
+			zod: '4.5.4',
 		},
 	});
 
@@ -141,6 +143,7 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 	expect(result.catalogPackages).toEqual([
 		{pkg: 'remotion', version: '4.0.462'},
 		{pkg: '@remotion/player', version: '4.0.462'},
+		{pkg: '@huggingface/transformers', version: '4.2.0'},
 		{pkg: 'mediabunny', version: '1.50.7'},
 	]);
 });
@@ -148,10 +151,12 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 test('uses the Mediabunny version for extension packages', () => {
 	expect(
 		resolveExtraPackageVersions({
+			'@huggingface/transformers': '4.2.0',
 			mediabunny: '1.50.8',
-			zod: '4.4.3',
+			zod: '4.5.4',
 		}),
 	).toMatchObject({
+		'@huggingface/transformers': '4.2.0',
 		mediabunny: '1.50.8',
 		'@mediabunny/ac3': '1.50.8',
 		'@mediabunny/dts': '1.50.8',
@@ -159,7 +164,7 @@ test('uses the Mediabunny version for extension packages', () => {
 		'@mediabunny/aac-encoder': '1.50.8',
 		'@mediabunny/flac-encoder': '1.50.8',
 		'@mediabunny/prores': '1.50.8',
-		zod: '4.4.3',
+		zod: '4.5.4',
 	});
 });
 
@@ -172,7 +177,7 @@ test('end-to-end: updates catalog in bun-style package.json and preserves catalo
 				workspaces: {
 					packages: ['packages/*'],
 					catalog: {
-						zod: '4.4.3',
+						zod: '4.5.4',
 						mediabunny: '1.34.4',
 						react: '19.2.3',
 					},
@@ -239,7 +244,7 @@ test('end-to-end: updates catalog in pnpm-workspace.yaml', () => {
 			'packages:',
 			'  - packages/*',
 			'catalog:',
-			'  zod: 4.4.3',
+			'  zod: 4.5.4',
 			'  mediabunny: 1.34.4',
 			'  react: ^19.0.0',
 			'',

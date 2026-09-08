@@ -10,6 +10,8 @@ Removes cached model files that are no longer returned by [`getAvailableModels()
 
 Call this function when the page loads to remove models discontinued by a newer version of `@remotion/whisper-webgpu`.
 
+This also removes model files downloaded from Hugging Face by versions before 4.0.522. Current models downloaded from `remotion.media` and models used by other Transformers.js workflows are preserved.
+
 ```ts twoslash title="clear-stale-models.ts"
 import {clearStaleModels} from '@remotion/whisper-webgpu';
 

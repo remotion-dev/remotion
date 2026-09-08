@@ -616,15 +616,23 @@ const getAssetElementFromStaticAsset = async (
 	return getAssetElementFromPath(assetPath);
 };
 
-export const pickFilesToImport = ({
-	multiple = true,
-}: {
-	readonly multiple?: boolean;
-} = {}): Promise<File[]> => {
+export const pickFilesToImport = (
+	{
+		multiple = true,
+		accept,
+	}: {
+		readonly multiple?: boolean;
+		readonly accept: string | null;
+	} = {accept: null},
+): Promise<File[]> => {
 	return new Promise((resolve) => {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.multiple = multiple;
+		if (accept !== null) {
+			input.accept = accept;
+		}
+
 		input.style.display = 'none';
 
 		let didResolve = false;
@@ -691,13 +699,6 @@ const insertCompositionElement = async ({
 	if (!result.success) {
 		showNotification(result.reason, 4000);
 		return false;
-	}
-
-	if (result.insertedNodePath !== null) {
-		requestInsertedElementSelection({
-			compositionId,
-			nodePath: result.insertedNodePath,
-		});
 	}
 
 	return true;
@@ -1355,7 +1356,14 @@ export const insertElement = async ({
 					? response.reason
 					: `Element file changed: ${response.conflict.filePath}`;
 			showNotification(`Could not add Element: ${reason}`, 4000);
+			return;
 		}
+
+		requestInsertedElementSelection({
+			compositionId,
+			nodePath: null,
+			notification: `Installed ${element.displayName}`,
+		});
 	} catch (error) {
 		showNotification(
 			`Could not add Element: ${

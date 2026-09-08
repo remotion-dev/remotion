@@ -5,16 +5,10 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {FullscreenIcon} from '../icons/fullscreen';
 import {drawRef} from '../state/canvas-ref';
 import {ControlButton} from './ControlButton';
-
-const accessibilityLabel = [
-	'Enter fullscreen preview',
-	areKeyboardShortcutsDisabled() ? null : '(F)',
-]
-	.filter(NoReactInternals.truthy)
-	.join(' ');
 
 export const FullScreenToggle: React.FC<{
 	readonly hidden: boolean;
@@ -34,13 +28,19 @@ export const FullScreenToggle: React.FC<{
 				},
 			}));
 	}, [setSize]);
+	const shortcut = useKeyboardShortcutLabel('enterFullscreen');
+	const accessibilityLabel = [
+		'Enter fullscreen preview',
+		areKeyboardShortcutsDisabled() || shortcut === '' ? null : `(${shortcut})`,
+	]
+		.filter(NoReactInternals.truthy)
+		.join(' ');
 
 	useEffect(() => {
 		const f = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'f',
+			action: 'enterFullscreen',
 			callback: onClick,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,

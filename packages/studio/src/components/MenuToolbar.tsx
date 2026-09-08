@@ -1,12 +1,12 @@
 import type {SetStateAction} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {useMenuStructure} from '../helpers/use-menu-structure';
 import {SearchIcon} from '../icons/search';
 import {SetSelectedModalContext} from '../state/modals';
@@ -162,9 +162,11 @@ export const MenuToolbar: React.FC<{
 		return <SearchIcon color={color} width={18} height={18} />;
 	}, []);
 
-	const searchTooltip = areKeyboardShortcutsDisabled()
-		? 'Quick Switcher'
-		: `Quick Switcher (${cmdOrCtrlCharacter}+K)`;
+	const quickSwitcherShortcut = useKeyboardShortcutLabel('quickSwitcher');
+	const searchTooltip =
+		areKeyboardShortcutsDisabled() || quickSwitcherShortcut === ''
+			? 'Quick Switcher'
+			: `Quick Switcher (${quickSwitcherShortcut})`;
 
 	return (
 		<Row

@@ -182,6 +182,11 @@ export const VisualControlsProvider: React.FC<{
 	}, [visualControl]);
 
 	useEffect(() => {
+		// Controls may have rendered before the imperative API or Zod was ready.
+		visualControlStore.emitChange();
+	}, [visualControl]);
+
+	useEffect(() => {
 		const callback = () => {
 			if (imperativeHandles.current) {
 				updateHandles();

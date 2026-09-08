@@ -401,16 +401,32 @@ test.describe('visual mode', () => {
 		await mediaTrack.dblclick();
 		await expect(page.getByRole('textbox')).toHaveCount(0);
 
-		await page.goto(`${STUDIO_URL}/assets/whip.mp3`);
+		await page.goto(`${STUDIO_URL}/assets/podcast.wav`);
 		await expect(
 			page.getByRole('img', {name: 'Audio asset', exact: true}),
 		).toBeVisible();
 		await expect(page.getByTestId('asset-media-preview')).not.toBeInViewport();
 		await expect(page.locator('[data-timeline-scrollable]')).toBeVisible();
-		await expect(page.getByTitle('whip.mp3').last()).toBeVisible();
+		await expect(page.getByTitle('podcast.wav').last()).toBeVisible();
 		await expect(
 			page.getByRole('button', {name: 'Play', exact: true}),
 		).toBeEnabled();
+		const audioTimelineZoom = page.getByTitle(/^Timeline zoom \(/);
+		await expect(audioTimelineZoom).toBeVisible();
+		const audioTimelineScrubber = page.locator('[data-timeline-scrubber]');
+		const audioTimelineWidthBeforeZoom = await audioTimelineScrubber.evaluate(
+			(element) => element.getBoundingClientRect().width,
+		);
+		await page
+			.getByRole('button', {name: 'Zoom in timeline', exact: true})
+			.click();
+		await expect
+			.poll(() =>
+				audioTimelineScrubber.evaluate(
+					(element) => element.getBoundingClientRect().width,
+				),
+			)
+			.toBeGreaterThan(audioTimelineWidthBeforeZoom);
 		await expect(checkerboardToggle).toHaveCount(0);
 		await expect(rulersToggle).toHaveCount(0);
 		await expect(horizontalRuler).toHaveCount(0);
@@ -1823,9 +1839,54 @@ test.describe('visual mode', () => {
 			await expect(
 				dialog.getByText('Keyboard shortcuts', {exact: true}),
 			).toBeVisible();
+			const keyboardShortcutsEnabled = dialog.getByRole('checkbox', {
+				name: 'Keyboard shortcuts',
+			});
+			await expect(keyboardShortcutsEnabled).toBeChecked();
+			await keyboardShortcutsEnabled.uncheck();
+			await expect(
+				dialog.getByRole('list', {name: 'Playback', exact: true}),
+			).toHaveCount(0);
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain('Config.setKeyboardShortcutsEnabled(false);');
+			await keyboardShortcutsEnabled.check();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setKeyboardShortcutsEnabled');
 			await expect(
 				dialog.getByRole('list', {name: 'Playback', exact: true}),
 			).toBeVisible();
+			const fixedShortcutRow = dialog
+				.getByRole('listitem')
+				.filter({hasText: '1 second back'});
+			await expect(fixedShortcutRow.getByRole('button')).toHaveCount(0);
+			const playPauseShortcut = dialog.getByRole('button', {
+				name: 'Change shortcut for Play / Pause',
+			});
+			const playPauseActions = dialog.getByRole('button', {
+				name: 'Actions for Play / Pause',
+			});
+			await expect(playPauseActions).toBeVisible();
+			await playPauseActions.click();
+			await page.getByText('Remap shortcut', {exact: true}).click();
+			await expect(playPauseShortcut).toContainText('Press shortcut');
+			await page.keyboard.press('q');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain('Config.setKeyboardShortcuts({');
+			await expect(playPauseShortcut).toContainText('Q');
+			await playPauseActions.click();
+			await expect(
+				page.getByText('Reset to default', {exact: true}),
+			).toBeVisible();
+			await page.getByText('Remap shortcut', {exact: true}).click();
+			await expect(playPauseShortcut).toContainText('Press shortcut');
+			await page.keyboard.press('Space');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain("'playPause'");
+			await expect(playPauseShortcut).toContainText('Space');
 			await dialog.getByRole('button', {name: 'Studio', exact: true}).click();
 
 			const askAIEnabled = dialog.getByTitle('Ask AI enabled', {exact: true});
@@ -2009,7 +2070,102 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
-	test('should apply a timeline context menu action to multiple selected sequences', async ({
+	test('should split the right-clicked clip at the playhead from either timeline surface', async ({
+		page,
+	}) => {
+		const sourceBefore = fs.readFileSync(sequenceShiftFile, 'utf-8');
+		try {
+			fs.writeFileSync(
+				sequenceShiftFile,
+				`import {Sequence} from 'remotion';
+export const SequenceShiftRepro = () => {
+  return (
+    <>
+      <Sequence name="Split first" from={10} durationInFrames={50}>
+        <div />
+      </Sequence>
+      <Sequence name="Split second" from={10} durationInFrames={50}>
+        <div />
+      </Sequence>
+    </>
+  );
+};`,
+			);
+			await page.goto(`${STUDIO_URL}/sequence-shift-repro`);
+			const first = page.getByText('Split first', {exact: true});
+			const second = page.getByText('Split second', {exact: true});
+			await expect(first).toBeVisible({timeout: 30_000});
+			const menu = page.locator('[data-remotion-menu-tree-id]').last();
+			const split = menu.getByRole('button', {name: 'Split clip', exact: true});
+			await page.keyboard.press('g');
+			await page.locator('input:focus').fill('10');
+			await page.locator('input:focus').press('Enter');
+			await expect(async () => {
+				await page.keyboard.press('Escape');
+				await first.click({button: 'right'});
+				await expect(split.locator('span[title]')).toHaveAttribute(
+					'title',
+					'Cannot split at the sequence start',
+					{timeout: 500},
+				);
+			}).toPass({timeout: 15_000});
+			await split.click();
+			await expect(split).toBeVisible();
+			await page.keyboard.press('Escape');
+			await page.keyboard.press('g');
+			await page.locator('input:focus').fill('30');
+			await page.locator('input:focus').press('Enter');
+			await first.click();
+			await second.click({modifiers: ['Meta']});
+			await second.click({button: 'right'});
+			await expect(
+				menu.getByRole('button', {name: 'Duplicate selected', exact: true}),
+			).toBeVisible();
+			await expect(split).toHaveCount(0);
+			await page.keyboard.press('Escape');
+			await first.click();
+			// Right-click an unselected label: split that clip, not the old selection.
+			await second.click({button: 'right'});
+			await expect(split.locator('span[title]')).toHaveAttribute(
+				'title',
+				'Split at the playhead',
+			);
+			await split.click();
+			await expect
+				.poll(
+					() =>
+						fs
+							.readFileSync(sequenceShiftFile, 'utf-8')
+							.match(/name="Split second"/g)?.length,
+				)
+				.toBe(2);
+			await expect(second).toHaveCount(2);
+			// The clip bar exposes the same action and timing context.
+			await page
+				.locator('[data-timeline-marquee-item][title="Split first"]')
+				.click({button: 'right'});
+			await expect(split.locator('span[title]')).toHaveAttribute(
+				'title',
+				'Split at the playhead',
+			);
+			await split.click();
+			await expect
+				.poll(
+					() =>
+						fs
+							.readFileSync(sequenceShiftFile, 'utf-8')
+							.match(/name="Split first"/g)?.length,
+				)
+				.toBe(2);
+			const source = fs.readFileSync(sequenceShiftFile, 'utf-8');
+			expect(source.match(/durationInFrames=\{20\}/g)).toHaveLength(2);
+			expect(source.match(/trimBefore=\{20\}/g)).toHaveLength(2);
+		} finally {
+			fs.writeFileSync(sequenceShiftFile, sourceBefore);
+		}
+	});
+
+	test('should apply timeline context menu actions to multiple selected sequences', async ({
 		page,
 	}) => {
 		const sourceBefore = fs.readFileSync(sequenceShiftFile, 'utf-8');
@@ -2075,31 +2231,12 @@ test.describe('visual mode', () => {
 					];
 				})
 				.toEqual([false, false]);
-		} finally {
+
 			fs.writeFileSync(sequenceShiftFile, sourceBefore);
-		}
-	});
-
-	test('should duplicate each selected timeline sequence once', async ({
-		page,
-	}) => {
-		const sourceBefore = fs.readFileSync(sequenceShiftFile, 'utf-8');
-
-		try {
-			await page.goto(`${STUDIO_URL}/sequence-shift-repro`);
-			await page.waitForFunction(
-				() => !document.body.innerText.includes('Loading...'),
-				{timeout: 30_000},
-			);
-			await page.keyboard.press('g');
-			const currentFrameInput = page.locator('input:focus');
-			await currentFrameInput.fill('22');
-			await currentFrameInput.press('Enter');
-			const outer = page.getByText('Outer frame descendant', {exact: true});
+			await expect(outer).toBeVisible({timeout: 15_000});
 			const nestedParent = page.getByText('Nested timing parent', {
 				exact: true,
 			});
-			await expect(outer).toBeVisible({timeout: 15_000});
 			await expect(nestedParent).toBeVisible();
 
 			await outer.click();
@@ -2898,7 +3035,10 @@ test.describe('visual mode', () => {
 			expect(webMcpSelection).toEqual({
 				currentFrame: 3,
 				currentSelection: contextForAgents,
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				selectionType: 'sequence',
 				selectedSequence: expect.objectContaining({
 					sequenceId: expect.any(String),
@@ -2941,7 +3081,10 @@ test.describe('visual mode', () => {
 				}
 			).sequences;
 			expect(webMcpSequences).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				sequences: expect.arrayContaining([
 					expect.objectContaining({
 						sequenceId: selectedSequence.sequenceId,
@@ -2980,7 +3123,10 @@ test.describe('visual mode', () => {
 				{sequenceId: sequenceToSelect?.sequenceId ?? ''},
 			);
 			expect(webMcpSelectSequenceResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				selectedSequence: expect.objectContaining({
 					sequenceId: sequenceToSelect?.sequenceId,
 					selectable: true,
@@ -3062,7 +3208,10 @@ test.describe('visual mode', () => {
 				}
 			).html;
 			expect(webMcpCanvasHtml).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				currentFrame: 3,
 				html: expect.any(String),
 				htmlLength: canvasHtml.length,
@@ -3113,7 +3262,10 @@ test.describe('visual mode', () => {
 				}
 			).outlines.find((outline) => outline.name === '0% gridline');
 			expect(webMcpOutlines).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				currentFrame: 3,
 				outlines: expect.any(Array),
 			});
@@ -3206,7 +3358,10 @@ test.describe('visual mode', () => {
 				return tool.execute({compositionName: 'package-absolute-fill'});
 			});
 			expect(webMcpSelectCompositionResult).toEqual({
-				currentComposition: 'package-absolute-fill',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'package-absolute-fill',
+				},
 			});
 			await expect
 				.poll(() => new URL(page.url()).pathname)
@@ -3274,7 +3429,10 @@ test.describe('visual mode', () => {
 				return tool.execute({});
 			});
 			expect(webMcpGuides).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				guidesVisible: true,
 				guides: [
 					{
@@ -3313,7 +3471,10 @@ test.describe('visual mode', () => {
 				return tool.execute({visible: false});
 			});
 			expect(webMcpHideGuidesResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				guidesVisible: false,
 			});
 			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(0);
@@ -3345,7 +3506,10 @@ test.describe('visual mode', () => {
 				return tool.execute({visible: true});
 			});
 			expect(webMcpShowGuidesResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				guidesVisible: true,
 			});
 			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(2);
@@ -3377,7 +3541,10 @@ test.describe('visual mode', () => {
 				return tool.execute({orientation: 'vertical', position: 640});
 			});
 			expect(webMcpAddGuideResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				guide: {
 					id: expect.any(String),
 					orientation: 'vertical',
@@ -3426,7 +3593,10 @@ test.describe('visual mode', () => {
 				{guideId: addedGuideId},
 			);
 			expect(webMcpRemoveGuideResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				guideId: addedGuideId,
 				removed: true,
 			});
@@ -3465,7 +3635,10 @@ test.describe('visual mode', () => {
 				return tool.execute({playbackRate: 1.5});
 			});
 			expect(webMcpPlaybackRateResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				playbackRate: 1.5,
 			});
 			await expect(
@@ -3495,7 +3668,10 @@ test.describe('visual mode', () => {
 				return tool.execute({zoom: 0.5});
 			});
 			expect(webMcpTimelineZoomResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				timelineZoom: expect.any(Number),
 			});
 			const normalizedTimelineZoom = (
@@ -3526,7 +3702,10 @@ test.describe('visual mode', () => {
 				return tool.execute({zoom: 1});
 			});
 			expect(webMcpMaximumTimelineZoomResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				timelineZoom: 1,
 			});
 			await expect(
@@ -3557,7 +3736,10 @@ test.describe('visual mode', () => {
 				return tool.execute({});
 			});
 			expect(webMcpMuteResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				muted: true,
 			});
 			await expect(
@@ -3584,7 +3766,10 @@ test.describe('visual mode', () => {
 				return tool.execute({});
 			});
 			expect(webMcpUnmuteResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				muted: false,
 			});
 			await expect(
@@ -3611,7 +3796,10 @@ test.describe('visual mode', () => {
 				return tool.execute({});
 			});
 			expect(webMcpPlayResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				playing: true,
 			});
 			await expect(
@@ -3638,7 +3826,10 @@ test.describe('visual mode', () => {
 				return tool.execute({});
 			});
 			expect(webMcpPauseResult).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				playing: false,
 			});
 			await expect(
@@ -3666,7 +3857,10 @@ test.describe('visual mode', () => {
 			});
 			expect(webMcpSeekResult).toEqual({
 				currentFrame: 179,
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 			});
 			await expect(
 				page.getByRole('button', {name: '179', exact: true}),
@@ -3688,7 +3882,10 @@ test.describe('visual mode', () => {
 				return tool.execute();
 			});
 			expect(webMcpPlaybackState).toEqual({
-				currentComposition: 'AnimatedBarChart',
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
 				currentFrame: 179,
 				playing: false,
 				muted: false,
@@ -3827,7 +4024,7 @@ test.describe('visual mode', () => {
 					}),
 				)
 				.toEqual({
-					currentComposition: null,
+					currentContent: {type: 'asset', asset: 'test.gif'},
 					currentFrame: null,
 					playing: null,
 					muted: null,
@@ -3852,7 +4049,7 @@ test.describe('visual mode', () => {
 					}),
 				)
 				.toEqual({
-					currentComposition: null,
+					currentContent: {type: 'asset', asset: 'test.gif'},
 					currentFrame: null,
 					html: null,
 					htmlLength: null,
@@ -3874,10 +4071,37 @@ test.describe('visual mode', () => {
 					}),
 				)
 				.toEqual({
-					currentComposition: null,
+					currentContent: {type: 'asset', asset: 'test.gif'},
 					currentFrame: null,
 					outlines: [],
 				});
+			for (const preview of [
+				{
+					route: '/assets/test.gif',
+					content: {type: 'asset', asset: 'test.gif'},
+				},
+				{
+					route: '/outputs/public%2Ftest.gif',
+					content: {type: 'output', path: 'public/test.gif'},
+				},
+			]) {
+				await page.goto(`${STUDIO_URL}${preview.route}`);
+				await expect
+					.poll(() =>
+						page.evaluate(async () => {
+							const tools = (
+								window as typeof window & {
+									readonly __remotion_webmcp_tools: Map<
+										string,
+										{readonly execute: () => Promise<unknown>}
+									>;
+								}
+							).__remotion_webmcp_tools;
+							return tools.get('get_selection')?.execute() ?? null;
+						}),
+					)
+					.toMatchObject({currentContent: preview.content});
+			}
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);
 		}
@@ -4175,5 +4399,56 @@ test.describe('visual mode', () => {
 			'drums-drumsticks.mp4',
 		);
 		expect(shortVideoTag).toContain('from={45}');
+	});
+
+	test('should select an added composition before the codemod response arrives', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(
+			page.getByRole('button', {name: '0', exact: true}),
+		).toBeVisible({timeout: 15_000});
+		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
+
+		let releaseResponse = () => undefined;
+		const responseCanBeReleased = new Promise<void>((resolve) => {
+			releaseResponse = resolve;
+		});
+		let markResponseAsHeld = () => undefined;
+		const responseIsHeld = new Promise<void>((resolve) => {
+			markResponseAsHeld = resolve;
+		});
+		let markResponseAsReleased = () => undefined;
+		const responseIsReleased = new Promise<void>((resolve) => {
+			markResponseAsReleased = resolve;
+		});
+		await page.route('**/api/insert-jsx-element', async (route) => {
+			const response = await route.fetch();
+			markResponseAsHeld();
+			await responseCanBeReleased;
+			await route.fulfill({response});
+			markResponseAsReleased();
+		});
+
+		try {
+			await page.getByRole('button', {name: 'Add composition...'}).click();
+			await page
+				.getByPlaceholder('Search compositions...')
+				.fill('package-absolute-fill');
+			await page.keyboard.press('Enter');
+			await responseIsHeld;
+
+			await expect(
+				page.locator(
+					'[data-timeline-marquee-item][title="package-absolute-fill"]',
+				),
+			).toHaveCSS('opacity', '1', {timeout: 30_000});
+		} finally {
+			releaseResponse();
+			await responseIsReleased;
+			await page.unroute('**/api/insert-jsx-element');
+		}
 	});
 });

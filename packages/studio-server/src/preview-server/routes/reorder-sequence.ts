@@ -51,12 +51,15 @@ export const reorderSequenceHandler: ApiHandler<
 					targetNodePath: targetNodePath.nodePath,
 					position,
 				});
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath,
-					remappings: nodePathRemappings,
-				},
-			]);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[
+					{
+						absolutePath,
+						remappings: nodePathRemappings,
+					},
+				],
+				null,
+			);
 
 			pushToUndoStack({
 				filePath: absolutePath,

@@ -1,0 +1,56 @@
+{
+	"name": "@remotion/video-matting",
+	"version": "4.0.522",
+	"description": "Separate a video into a base layer and transparent foreground in the browser",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/video-matting"
+	},
+	"type": "module",
+	"scripts": {
+		"test": "bun test src/test",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"watch": "tsgo -w",
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"mediabunny": "catalog:"
+	},
+	"peerDependencies": {
+		"@huggingface/transformers": "4.2.0"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"devDependencies": {
+		"@huggingface/transformers": "catalog:",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"video-matting",
+		"background-removal",
+		"webgpu"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/video-matting"
+}

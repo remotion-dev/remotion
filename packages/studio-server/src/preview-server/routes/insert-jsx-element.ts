@@ -258,12 +258,21 @@ export const insertJsxElementHandler: ApiHandler<
 				from,
 				prettierConfigOverride: null,
 			});
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath: fileName,
-					remappings: nodePathRemappings,
-				},
-			]);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[
+					{
+						absolutePath: fileName,
+						remappings: nodePathRemappings,
+					},
+				],
+				insertedNodePath === null
+					? null
+					: {
+							absolutePath: fileName,
+							compositionId,
+							nodePath: insertedNodePath,
+						},
+			);
 			if (insertedNodePath === null) {
 				RenderInternals.Log.warn(
 					{indent: false, logLevel},

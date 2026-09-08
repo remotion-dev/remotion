@@ -1,0 +1,58 @@
+---
+image: /generated/articles-docs-video-matting-can-use-video-matting.png
+title: canUseVideoMatting()
+crumb: '@remotion/video-matting'
+---
+
+# canUseVideoMatting()<AvailableFrom v="4.0.523" />
+
+Checks whether a video matting model can run in the current browser.
+
+This function checks WebGPU and model-specific requirements. It does not inspect an input file or check video decoding and encoding support.
+
+```ts twoslash title="support.ts"
+import {canUseVideoMatting} from '@remotion/video-matting';
+
+const result = await canUseVideoMatting({model: 'modnet'});
+if (!result.supported) {
+  throw new Error(result.detailedReason);
+}
+```
+
+## Options
+
+### model?
+
+The model whose requirements should be checked. Default: `modnet`.
+
+## Return value
+
+A promise resolving to a discriminated result with these properties:
+
+### supported
+
+`true` if the selected model is supported and `false` otherwise.
+
+### reason?
+
+When `supported` is `false`, one of:
+
+- `window-undefined`
+- `webgpu-unavailable`
+- `webgpu-requires-secure-context`
+- `shader-f16-unavailable`
+
+`shader-f16-unavailable` applies to models such as `ben2-base` that require 16-bit shader support.
+
+### detailedReason?
+
+When `supported` is `false`, a human-readable explanation of the reason.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`separateVideoLayers()`](/docs/video-matting/separate-video-layers)
+- [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model)

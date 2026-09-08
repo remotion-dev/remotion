@@ -24,5 +24,6 @@ export {transcribe} from './transcribe';
 export type {
 	TranscribeOptions,
 	WhisperWebGpuTranscription,
+	WhisperWebGpuTask,
 	WhisperWebGpuWord,
 } from './transcribe';
