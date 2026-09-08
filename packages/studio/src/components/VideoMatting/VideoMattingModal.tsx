@@ -117,7 +117,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 	const [foregroundOutName, setForegroundOutName] = useState(
 		`${baseName}-foreground.webm`,
 	);
-	const [model, setModel] = useState<VideoMattingModel>('modnet');
+	const [model, setModel] = useState<VideoMattingModel>('ben2-base');
 	const [audio, setAudio] = useState<VideoLayerAudio>('base');
 	const [videoBitrate, setVideoBitrate] =
 		useState<VideoMattingBitrate>('very-high');

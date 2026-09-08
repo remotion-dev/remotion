@@ -60,7 +60,9 @@ test.describe('transcription modal', () => {
 		const mattingDialog = page.getByRole('dialog', {
 			name: 'Track matting vp8-vorbis.webm',
 		});
-		await expect(mattingDialog.getByTitle('Model')).toContainText('modnet');
+		await expect(
+			mattingDialog.getByTitle('Model', {exact: true}),
+		).toContainText('ben2-base');
 		await expect(
 			mattingDialog.getByRole('button', {name: 'Separate'}).first(),
 		).toBeVisible();
