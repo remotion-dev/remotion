@@ -408,6 +408,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 `,
 	} satisfies ElementDragData['element'];
 	const preflight = await operations.prepareElementInstall({
+		installationName: null,
 		destination: {
 			type: 'current-composition',
 			compositionFile: '/project/src/Composition.tsx',
@@ -425,6 +426,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		filePath: 'src/lower-third.element.tsx',
 	});
 	const newCompositionPreflight = await operations.prepareElementInstall({
+		installationName: null,
 		destination: {
 			type: 'new-composition',
 			compositionFile: null,
@@ -441,6 +443,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	});
 
 	const inserted = await operations.insertElement({
+		installationName: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element,
@@ -486,6 +489,67 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	);
 	expect((await operations.redo()).success).toBe(true);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
+		element.sourceCode,
+	);
+
+	const installRequest = {
+		installationName: null,
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element,
+		expectedFileState: null,
+		from: null,
+		overwriteExisting: false,
+		position: null,
+	};
+	expect(await operations.insertElement(installRequest)).toMatchObject({
+		success: false,
+		type: 'file-conflict',
+	});
+	const customizedSource = `${element.sourceCode}\n// Customized\n`;
+	project = {
+		...project,
+		files: {
+			...project.files,
+			'/project/src/lower-third.element.tsx': customizedSource,
+		},
+	};
+	expect(
+		(
+			await operations.insertElement({
+				...installRequest,
+				installationName: 'speaker-name',
+			})
+		).success,
+	).toBe(true);
+	expect(project.files['/project/src/speaker-name.element.tsx']).toBe(
+		element.sourceCode,
+	);
+	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
+		customizedSource,
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'LowerThird as LowerThird2',
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'<LowerThird2',
+	);
+	expect(
+		(
+			await operations.insertElement({
+				...installRequest,
+				overwriteExisting: true,
+			})
+		).success,
+	).toBe(true);
+	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
+		element.sourceCode,
+	);
+	expect((await operations.undo()).success).toBe(true);
+	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
+		customizedSource,
+	);
+	expect(project.files['/project/src/speaker-name.element.tsx']).toBe(
 		element.sourceCode,
 	);
 });

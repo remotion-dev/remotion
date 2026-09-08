@@ -1661,17 +1661,17 @@ const ensureComponentImport = ({
 		return existingLocalName;
 	}
 
-	if (hasTopLevelBinding({ast, name: componentName})) {
-		throw new Error(
-			`Cannot add <${componentName}> because ${componentName} is already defined`,
-		);
+	let localName = componentName;
+	let suffix = 2;
+	while (hasTopLevelBinding({ast, name: localName})) {
+		localName = `${componentName}${suffix++}`;
 	}
 
 	return ensureNamedImport({
 		ast,
 		importedName: importName,
 		sourcePath: importPath,
-		localName: componentName,
+		localName,
 	});
 };
 

@@ -1675,7 +1675,7 @@ test('inserts a component into the resolved composition component', async () => 
 	}
 });
 
-test('rejects type-only component imports instead of using them as values', async () => {
+test('adds value imports without reusing or colliding with type-only component imports', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -1707,25 +1707,24 @@ test('rejects type-only component imports instead of using them as values', asyn
 				].join('\n'),
 			);
 
-			await expect(
-				insertJsxElementIntoComposition({
-					remotionRoot: tempDir,
-					compositionFile: 'Root.tsx',
-					compositionId: 'test',
-					element: {
-						type: 'component',
-						componentName: 'LowerThird',
-						importName: 'LowerThird',
-						importPath: './lower-third.element',
-						props: [],
-						position: null,
-					},
-					from: null,
-					prettierConfigOverride: {singleQuote: true, useTabs: true},
-				}),
-			).rejects.toThrow(
-				'Cannot add <LowerThird> because LowerThird is already defined',
-			);
+			const aliasedResult = await insertJsxElementIntoComposition({
+				remotionRoot: tempDir,
+				compositionFile: 'Root.tsx',
+				compositionId: 'test',
+				element: {
+					type: 'component',
+					componentName: 'LowerThird',
+					importName: 'LowerThird',
+					importPath: './lower-third.element',
+					props: [],
+					position: null,
+				},
+				from: null,
+				prettierConfigOverride: {singleQuote: true, useTabs: true},
+			});
+			expect(aliasedResult.output).toContain('LowerThird as LowerThird2');
+			expect(aliasedResult.output).toContain('<LowerThird2');
+			expect(aliasedResult.output).toMatch(/\btype\s+(?:\{\s*)?LowerThird\b/);
 		}
 
 		await fs.writeFile(

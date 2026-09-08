@@ -68,12 +68,14 @@ const label: React.CSSProperties = {
 
 export const RadioButton: React.FC<{
 	readonly checked: boolean;
+	readonly disabled: boolean;
 	readonly children: React.ReactNode;
 	readonly onClick: () => void;
-}> = ({checked, children, onClick}) => {
+}> = ({checked, disabled, children, onClick}) => {
 	return (
 		<button
 			aria-checked={checked}
+			disabled={disabled}
 			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			onClick={onClick}
 			role="radio"
