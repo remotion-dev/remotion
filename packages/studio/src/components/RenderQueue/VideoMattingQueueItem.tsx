@@ -6,9 +6,12 @@ import {
 	LIGHT_TEXT,
 } from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
+import {EllipsisIcon} from '../../icons/ellipsis';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
+import {InlineDropdown} from '../InlineDropdown';
 import {Row, Spacing} from '../layout';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useSelectAsset} from '../use-select-asset';
 import {
 	CircularProgress,
@@ -50,6 +53,9 @@ const statusIcon: React.CSSProperties = {
 	width: RENDER_STATUS_INDICATOR_SIZE,
 };
 const removeIcon: React.CSSProperties = {color: CURRENT_COLOR, height: 16};
+const ellipsisIconStyle: React.SVGProps<SVGSVGElement> = {
+	style: {height: 12},
+};
 
 const Status: React.FC<{readonly job: VideoMattingJob}> = ({job}) => {
 	if (job.status === 'running') {
@@ -118,11 +124,45 @@ export const VideoMattingQueueItem: React.FC<{
 					? [job.error.message]
 					: [job.baseOutName, job.foregroundOutName];
 	const tooltip = messages.join('\n');
+	const revealAsset = useCallback(
+		(assetName: string) => {
+			selectAsset(assetName);
+			pushUrl(`/assets/${assetName}`);
+		},
+		[selectAsset],
+	);
 	const onClick = useCallback(() => {
 		if (!done) return;
-		selectAsset(job.foregroundOutName);
-		pushUrl(`/assets/${job.foregroundOutName}`);
-	}, [done, job.foregroundOutName, selectAsset]);
+		revealAsset(job.foregroundOutName);
+	}, [done, job.foregroundOutName, revealAsset]);
+	const revealItems = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				disabled: false,
+				id: 'reveal-foreground',
+				keyHint: null,
+				label: 'Reveal foreground',
+				leftItem: null,
+				onClick: () => revealAsset(job.foregroundOutName),
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'reveal-foreground',
+			},
+			{
+				disabled: false,
+				id: 'reveal-background',
+				keyHint: null,
+				label: 'Reveal background',
+				leftItem: null,
+				onClick: () => revealAsset(job.baseOutName),
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'reveal-background',
+			},
+		];
+	}, [job.baseOutName, job.foregroundOutName, revealAsset]);
 	const onRemove: React.MouseEventHandler = useCallback(
 		(event) => {
 			event.stopPropagation();
@@ -163,6 +203,16 @@ export const VideoMattingQueueItem: React.FC<{
 				</div>
 			</div>
 			<Spacing x={1} />
+			{done ? (
+				<InlineDropdown
+					renderAction={(color) => (
+						<EllipsisIcon fill={color} svgProps={ellipsisIconStyle} />
+					)}
+					title="Reveal video layer"
+					values={revealItems}
+					variant={null}
+				/>
+			) : null}
 			{job.status === 'running' ? null : (
 				<InlineAction
 					renderAction={renderRemove}
