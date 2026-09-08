@@ -48,12 +48,11 @@ const packageNameStyle: React.CSSProperties = {
 	margin: 0,
 };
 
-const missingRow: React.CSSProperties = {
+const headingRow: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	gap: 12,
 	justifyContent: 'space-between',
-	marginTop: 14,
 };
 
 const missingText: React.CSSProperties = {
@@ -61,6 +60,11 @@ const missingText: React.CSSProperties = {
 	fontSize: 13,
 	lineHeight: 1.5,
 	margin: 0,
+};
+
+const missingDescription: React.CSSProperties = {
+	...missingText,
+	marginTop: 14,
 };
 
 const installButton: React.CSSProperties = {
@@ -104,27 +108,31 @@ const OptionalModelPackage: React.FC<{
 
 	return (
 		<section style={style}>
-			<h3 style={title}>{label}</h3>
-			<p style={packageNameStyle}>{packageName}</p>
+			<div style={headingRow}>
+				<div>
+					<h3 style={title}>{label}</h3>
+					<p style={packageNameStyle}>{packageName}</p>
+				</div>
+				{installed ? null : (
+					<Button
+						disabled={installState.type === 'installing'}
+						onClick={install}
+						size="compact"
+						style={installButton}
+					>
+						{installState.type === 'installing' ? 'Installing…' : 'Install'}
+					</Button>
+				)}
+			</div>
 			{installed ? (
 				<Suspense fallback={<p style={missingText}>Loading models…</p>}>
 					{children}
 				</Suspense>
 			) : (
 				<>
-					<div style={missingRow}>
-						<p style={missingText}>
-							Install the package to download and manage its models.
-						</p>
-						<Button
-							disabled={installState.type === 'installing'}
-							onClick={install}
-							size="compact"
-							style={installButton}
-						>
-							{installState.type === 'installing' ? 'Installing…' : 'Install'}
-						</Button>
-					</div>
+					<p style={missingDescription}>
+						Install the package to download and manage its models.
+					</p>
 					{installState.type === 'error' ? (
 						<p style={errorStyle}>{installState.message}</p>
 					) : null}
