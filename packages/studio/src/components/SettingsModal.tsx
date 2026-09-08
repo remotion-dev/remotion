@@ -204,18 +204,6 @@ export const SettingsModal: React.FC<{
 								Packages
 							</VerticalTab>
 						) : null}
-						<VerticalTab
-							style={horizontalTab}
-							selected={tab === 'models'}
-							onClick={() => selectTab('models')}
-							renderIcon={(color) => (
-								<div style={iconContainer}>
-									<ModelsIcon color={color} style={icon} />
-								</div>
-							)}
-						>
-							Models
-						</VerticalTab>
 						{isBrowserStudio ? null : (
 							<VerticalTab
 								style={horizontalTab}
@@ -230,6 +218,18 @@ export const SettingsModal: React.FC<{
 								Skills
 							</VerticalTab>
 						)}
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'models'}
+							onClick={() => selectTab('models')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<ModelsIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Models
+						</VerticalTab>
 						{isBrowserStudio ? null : (
 							<VerticalTab
 								style={horizontalTab}
