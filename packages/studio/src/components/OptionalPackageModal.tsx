@@ -56,6 +56,22 @@ export const isOptionalPackageInstalled = (packageName: string) =>
 
 const OPTIONAL_PACKAGE_INSTALLED_EVENT = 'remotion-optional-package-installed';
 
+export const markOptionalPackageInstalled = (packageName: string) => {
+	window.remotion_installedPackages = Array.from(
+		new Set([...(window.remotion_installedPackages ?? []), packageName]),
+	);
+	window.dispatchEvent(
+		new CustomEvent(OPTIONAL_PACKAGE_INSTALLED_EVENT, {
+			detail: packageName,
+		}),
+	);
+};
+
+export const installOptionalPackage = async (packageName: string) => {
+	await installPackages([{name: packageName, version: null}]);
+	markOptionalPackageInstalled(packageName);
+};
+
 export const useOptionalPackageInstalled = (packageName: string) => {
 	const [installed, setInstalled] = useState(() =>
 		isOptionalPackageInstalled(packageName),
@@ -98,15 +114,7 @@ export const OptionalPackageModal: React.FC<{
 	const install = useCallback(async () => {
 		setInstallState({type: 'installing'});
 		try {
-			await installPackages([{name: packageName, version: null}]);
-			window.remotion_installedPackages = Array.from(
-				new Set([...(window.remotion_installedPackages ?? []), packageName]),
-			);
-			window.dispatchEvent(
-				new CustomEvent(OPTIONAL_PACKAGE_INSTALLED_EVENT, {
-					detail: packageName,
-				}),
-			);
+			await installOptionalPackage(packageName);
 		} catch (error) {
 			setInstallState({type: 'error', error: error as Error});
 		}

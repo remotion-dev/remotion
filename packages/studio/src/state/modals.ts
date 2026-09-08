@@ -230,6 +230,7 @@ export type ModalState =
 				| 'rendering'
 				| 'studio'
 				| 'packages'
+				| 'models'
 				| 'shortcuts'
 				| 'skills'
 				| 'updates'

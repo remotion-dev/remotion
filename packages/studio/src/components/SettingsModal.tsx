@@ -13,6 +13,7 @@ import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {AppsIcon} from '../icons/apps';
 import {CloudDownloadIcon} from '../icons/cloud-download';
+import {CubeIcon} from '../icons/cube';
 import {KeyboardIcon} from '../icons/keyboard';
 import {LicenseIcon} from '../icons/license';
 import {PackageIcon} from '../icons/package';
@@ -26,6 +27,7 @@ import {InstallPackageSettings} from './InstallPackage';
 import {KeyboardShortcutsSettings} from './KeyboardShortcutsSettings';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalHeader} from './ModalHeader';
+import {ModelsSettings} from './ModelsSettings';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {RenderingSettings} from './RenderingSettings';
 import {
@@ -50,6 +52,7 @@ type SettingsTab =
 	| 'rendering'
 	| 'studio'
 	| 'packages'
+	| 'models'
 	| 'shortcuts'
 	| 'skills'
 	| 'license'
@@ -201,6 +204,18 @@ export const SettingsModal: React.FC<{
 								Packages
 							</VerticalTab>
 						) : null}
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'models'}
+							onClick={() => selectTab('models')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<CubeIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Models
+						</VerticalTab>
 						{isBrowserStudio ? null : (
 							<VerticalTab
 								style={horizontalTab}
@@ -272,6 +287,14 @@ export const SettingsModal: React.FC<{
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<DefaultEditorSettings />
+						</div>
+					) : null}
+					{openedTabs.includes('models') ? (
+						<div
+							style={tab === 'models' ? settingsOptionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<ModelsSettings />
 						</div>
 					) : null}
 					{openedTabs.includes('license') ? (
