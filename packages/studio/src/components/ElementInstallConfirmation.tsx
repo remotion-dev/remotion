@@ -1,5 +1,7 @@
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import React, {
+	lazy,
+	Suspense,
 	useCallback,
 	useContext,
 	useEffect,
@@ -60,6 +62,10 @@ import {
 	hasResolvedStack,
 	useResolvedStack,
 } from './Timeline/use-resolved-stack';
+
+const HighlightedElementSource = lazy(
+	() => import('./HighlightedElementSource'),
+);
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -240,15 +246,17 @@ const sourceCodeContainerStyle: React.CSSProperties = {
 	overflow: 'hidden',
 	border: `1px solid ${WHITE_ALPHA_12}`,
 	borderRadius: 6,
-	backgroundColor: INPUT_BACKGROUND,
 };
 
 const sourceCodeBlockStyle: React.CSSProperties = {
+	backgroundColor: INPUT_BACKGROUND,
 	margin: 0,
+	border: 0,
+	borderRadius: 0,
+	maxWidth: 'none',
 	maxHeight: 240,
 	overflow: 'auto',
 	padding: 12,
-	color: LIGHT_TEXT,
 	fontFamily: 'monospace',
 	fontSize: 12,
 	lineHeight: 1.5,
@@ -364,6 +372,10 @@ export const ElementInstallConfirmation: React.FC<{
 		sourceIsUnverified,
 		sourceLabel,
 	} = state;
+	const sourcePreview = useMemo(
+		() => makeSourceControlsVisible(request.element.sourceCode),
+		[request.element.sourceCode],
+	);
 	const config = Internals.useUnsafeVideoConfig();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -1016,11 +1028,13 @@ export const ElementInstallConfirmation: React.FC<{
 						</summary>
 						<div style={sourceCodeContainerStyle}>
 							<pre
-								className={`${HORIZONTAL_SCROLLBAR_CLASSNAME} ${VERTICAL_SCROLLBAR_CLASSNAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+								className={`language-tsx ${HORIZONTAL_SCROLLBAR_CLASSNAME} ${VERTICAL_SCROLLBAR_CLASSNAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 								style={sourceCodeBlockStyle}
 							>
 								<code style={sourceCodeStyle}>
-									{makeSourceControlsVisible(request.element.sourceCode)}
+									<Suspense fallback={sourcePreview}>
+										<HighlightedElementSource source={sourcePreview} />
+									</Suspense>
 								</code>
 							</pre>
 						</div>

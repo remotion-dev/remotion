@@ -1,6 +1,6 @@
 import path from 'path';
 import {fileURLToPath} from 'url';
-import {build} from 'bun';
+import {build, type BunPlugin} from 'bun';
 import {getBrowserStudioDependencyVersionsForBuild} from './src/dev/get-dependency-versions-for-build';
 import {getBrowserStudioReactRefreshFilesForBuild} from './src/dev/get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './src/dev/get-setup-environment-for-build';
@@ -17,11 +17,27 @@ const reactRefreshFiles = getBrowserStudioReactRefreshFilesForBuild();
 const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
 const workspacePackageExports =
 	getBrowserStudioWorkspacePackageExportsForBuild();
+// Embed dependency styles in the JS-only vendor/preview artifacts. Importing a
+// lazy component then installs its styles without requiring a separate CSS URL.
+const inlineStyles: BunPlugin = {
+	name: 'inline-styles',
+	setup(builder) {
+		builder.onLoad({filter: /\.css$/}, async ({path: cssPath}) => {
+			const css = await Bun.file(cssPath).text();
+			return {
+				loader: 'js',
+				contents: `const style = document.createElement('style'); style.textContent = ${JSON.stringify(css)}; document.head.appendChild(style);`,
+			};
+		});
+	},
+};
+
 // These artifacts deliberately have different linkage contracts. The preview
 // entry is the compatibility fallback for custom dependency resolutions and
 // mismatched releases, so its shared dependencies must remain external. The
 // vendor entry is the fast path and must bundle the stable dependency graph.
 const vendorOutput = await build({
+	plugins: [inlineStyles],
 	define: {'process.env.NODE_ENV': JSON.stringify('development')},
 	entrypoints: ['src/browser-studio-vendor-entry.ts'],
 	format: 'iife',
@@ -53,6 +69,7 @@ const browserStudioAssetSizes = {
 	vendorBundle: vendorEntryOutput.size,
 };
 const output = await build({
+	plugins: [inlineStyles],
 	entrypoints: [
 		'src/index.tsx',
 		'src/browser-studio-worker.ts',

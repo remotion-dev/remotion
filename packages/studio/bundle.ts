@@ -1,6 +1,7 @@
 import {buildPackage} from '../.monorepo/builder';
 
 const external = [
+	'prismjs',
 	'react',
 	'remotion',
 	'@remotion/canvas',
