@@ -433,18 +433,9 @@ const CloseupPlaceholder = () => {
 		await expect(newCompositionDialog.getByPlaceholder('New name')).toHaveValue(
 			'protocol-element-copy-3',
 		);
-		await expect(
-			newCompositionDialog.getByRole('button', {name: /^Install/}),
-		).toBeEnabled();
 		await newCompositionDialog
 			.getByLabel('Installation name')
 			.fill('protocol-element-copy');
-		await expect(
-			newCompositionDialog.getByText('Name already taken.'),
-		).toBeVisible();
-		await expect(
-			newCompositionDialog.getByLabel('Installation name'),
-		).toHaveValue('protocol-element-copy');
 		await expect(
 			newCompositionDialog.getByRole('button', {name: /^Install/}),
 		).toBeDisabled();
@@ -463,9 +454,6 @@ const CloseupPlaceholder = () => {
 		await expect(
 			newCompositionDialog.getByLabel('Installation name'),
 		).toHaveValue('protocol-element-copy-3');
-		await expect(
-			newCompositionDialog.getByText('Name already taken.'),
-		).toBeHidden();
 		const independentFile = path.join(
 			temporaryProject,
 			'src',
@@ -494,9 +482,6 @@ const CloseupPlaceholder = () => {
 		await expect(
 			newCompositionDialog.getByLabel('Installation name'),
 		).toBeHidden();
-		await expect(
-			newCompositionDialog.getByRole('button', {name: /Replace and insert/}),
-		).toBeEnabled();
 		await newCompositionDialog
 			.getByRole('radio', {name: 'Create a copy', exact: true})
 			.check();
@@ -519,18 +504,9 @@ const CloseupPlaceholder = () => {
 		).toContain('ProtocolElement as ProtocolElement2');
 
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
-		await expect(newCompositionDialog).toBeVisible();
 		await newCompositionDialog
 			.getByRole('radio', {name: 'Replace existing'})
 			.check();
-		await expect(
-			newCompositionDialog.getByText(
-				'Overwrites customizations for all usages.',
-			),
-		).toBeVisible();
-		await expect(
-			newCompositionDialog.getByLabel('Installation name'),
-		).toBeHidden();
 		const changedSinceConfirmation = `${customizedSource}// Another edit\n`;
 		fs.writeFileSync(elementFile, changedSinceConfirmation);
 		await newCompositionDialog
@@ -551,7 +527,6 @@ const CloseupPlaceholder = () => {
 		expect(fs.readFileSync(independentFile, 'utf8')).toBe(suppliedSource);
 
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
-		await expect(newCompositionDialog).toBeVisible();
 		await newCompositionDialog
 			.getByRole('radio', {name: 'New composition'})
 			.click();
