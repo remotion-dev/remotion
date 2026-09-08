@@ -37,7 +37,7 @@ const lastSection: React.CSSProperties = {
 const title: React.CSSProperties = {
 	...sectionHeader,
 	margin: 0,
-	padding: '4px 0',
+	padding: '4px 0 0',
 };
 
 const packageNameStyle: React.CSSProperties = {
@@ -45,7 +45,7 @@ const packageNameStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
 	fontSize: 12,
 	lineHeight: 1.4,
-	margin: '2px 0 0',
+	margin: 0,
 };
 
 const missingRow: React.CSSProperties = {
