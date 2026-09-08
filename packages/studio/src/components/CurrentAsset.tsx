@@ -394,7 +394,7 @@ export const AssetInfo: React.FC<{
 							<EffectsIcon color={color} style={quickActionIconStyle} />
 						)}
 					>
-						Track matting
+						Separe foreground
 					</InspectorQuickAction>
 				) : null}
 				{src ? (

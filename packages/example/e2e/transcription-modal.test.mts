@@ -46,7 +46,7 @@ test.describe('transcription modal', () => {
 		await expect(actions.getByRole('button')).toHaveText([
 			/^Show in (Finder|File Explorer|File Manager)$/,
 			'Transcribe',
-			'Track matting',
+			'Separe foreground',
 			'Convert',
 			'Delete',
 		]);
@@ -56,7 +56,7 @@ test.describe('transcription modal', () => {
 				'@remotion/video-matting',
 			];
 		});
-		await actions.getByRole('button', {name: 'Track matting'}).click();
+		await actions.getByRole('button', {name: 'Separe foreground'}).click();
 		const mattingDialog = page.getByRole('dialog', {
 			name: 'Track matting vp8-vorbis.webm',
 		});
