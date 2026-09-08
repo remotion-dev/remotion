@@ -16,8 +16,8 @@ import {getBrowserStudioOperations} from '../../helpers/browser-studio-operation
 import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
 import {Checkmark} from '../../icons/Checkmark';
-import {CubeIcon} from '../../icons/cube';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
+import {ModelsIcon} from '../../icons/models';
 import {TranscriptionIcon} from '../../icons/transcription';
 import type {TranscriptionModalState} from '../../state/modals';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -890,7 +890,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							onClick={() => setTab('models')}
 							renderIcon={(color) => (
 								<div style={iconContainer}>
-									<CubeIcon color={color} style={icon} />
+									<ModelsIcon color={color} style={icon} />
 								</div>
 							)}
 						>

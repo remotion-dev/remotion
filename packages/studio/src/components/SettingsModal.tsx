@@ -13,9 +13,9 @@ import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {AppsIcon} from '../icons/apps';
 import {CloudDownloadIcon} from '../icons/cloud-download';
-import {CubeIcon} from '../icons/cube';
 import {KeyboardIcon} from '../icons/keyboard';
 import {LicenseIcon} from '../icons/license';
+import {ModelsIcon} from '../icons/models';
 import {PackageIcon} from '../icons/package';
 import {RemotionTriangleIcon} from '../icons/remotion-triangle';
 import {SkillsIcon} from '../icons/skills';
@@ -210,7 +210,7 @@ export const SettingsModal: React.FC<{
 							onClick={() => selectTab('models')}
 							renderIcon={(color) => (
 								<div style={iconContainer}>
-									<CubeIcon color={color} style={icon} />
+									<ModelsIcon color={color} style={icon} />
 								</div>
 							)}
 						>
