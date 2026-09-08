@@ -186,16 +186,14 @@ export const SkillsSettings: React.FC = () => {
 										: skillRow
 								}
 							>
+								<span style={skillName}>/{skill.name}</span>
+								<span style={status}>{installedLocation}</span>
 								{installed ? (
 									<CheckCircleFilled
 										aria-hidden
 										style={{...statusIcon, fill: BLUE}}
 									/>
-								) : (
-									<span aria-hidden style={statusIcon} />
-								)}
-								<span style={skillName}>/{skill.name}</span>
-								<span style={status}>{installedLocation}</span>
+								) : null}
 							</div>
 						);
 					})}

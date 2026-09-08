@@ -271,18 +271,16 @@ export const ModelManager = <Model extends string>({
 									index === availableModels.length - 1 ? lastModelRow : modelRow
 								}
 							>
+								<span style={modelName}>{model.name}</span>
+								<span style={status} title={modelStatus}>
+									{modelStatus}
+								</span>
 								{cached ? (
 									<CheckCircleFilled
 										aria-hidden
 										style={{...statusIcon, fill: BLUE}}
 									/>
-								) : (
-									<span aria-hidden style={statusIcon} />
-								)}
-								<span style={modelName}>{model.name}</span>
-								<span style={status} title={modelStatus}>
-									{modelStatus}
-								</span>
+								) : null}
 								{processingThisModel ? (
 									<Spinner duration={0.5} size={14} />
 								) : cached ? (
