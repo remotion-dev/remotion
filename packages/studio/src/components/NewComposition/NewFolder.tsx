@@ -9,6 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {validateNewFolderName} from '../../helpers/validate-new-folder-name';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -75,10 +76,9 @@ export const NewFolder: React.FC<{
 	const folderName = Internals.isFolderNameValid(newName)
 		? newName
 		: newName
-				.toLowerCase()
 				.normalize('NFD')
 				.replace(/[\u0300-\u036f]/g, '')
-				.replace(/[^a-z0-9\u4E00-\u9FFF-]+/g, '-')
+				.replace(/[^a-zA-Z0-9\u4E00-\u9FFF-]+/g, '-')
 				.replace(/^-+|-+$/g, '');
 	const folderNameErrMessage = folderName
 		? validateNewFolderName({folders, newName: folderName, parentName})
@@ -122,10 +122,17 @@ export const NewFolder: React.FC<{
 									status="ok"
 									rightAlign
 								/>
-								<Spacing y={1} block />
-								<div aria-live="polite">
-									Folder name: {folderName || '(empty)'}
-								</div>
+								{folderName && folderName !== newName ? (
+									<>
+										<Spacing y={1} block />
+										<div
+											aria-live="polite"
+											style={{fontSize: 12, color: LIGHT_TEXT}}
+										>
+											Will be created as {folderName}
+										</div>
+									</>
+								) : null}
 								{folderNameErrMessage ? (
 									<>
 										<Spacing y={1} block />
