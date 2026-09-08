@@ -13,7 +13,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {BLUE_DISABLED, WHITE} from '../../helpers/colors';
+import {BLUE_DISABLED} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
 import type {VideoMattingModalState} from '../../state/modals';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -24,7 +24,6 @@ import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
-import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {optionsSidebarTabs} from '../options-sidebar-tabs';
 import {persistSelectedOptionsSidebarPanel} from '../OptionsPanel';
@@ -41,6 +40,7 @@ import {
 	outerModalStyle,
 } from '../RenderModal/render-modals';
 import {RenderModalHr} from '../RenderModal/RenderModalHr';
+import {RenderModalOutputName} from '../RenderModal/RenderModalOutputName';
 import {RenderQueueContext} from '../RenderQueue/context';
 import {useStaticFiles} from '../use-static-files';
 
@@ -57,14 +57,8 @@ const modalStyle: React.CSSProperties = {
 	maxHeight: 'calc(100vh - 40px)',
 	outline: 'none',
 };
-const outputRow: React.CSSProperties = {...optionRow, alignItems: 'flex-start'};
-const fieldLabel: React.CSSProperties = {
-	color: WHITE,
-	fontFamily: 'sans-serif',
-	fontSize: 13,
-	lineHeight: '32px',
-};
 const validationStyle: React.CSSProperties = {padding: '0 16px 8px'};
+const outputInputContainerStyle: React.CSSProperties = {maxWidth: 330};
 
 type SupportState =
 	| {type: 'checking'}
@@ -261,72 +255,36 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 					</Button>
 				</div>
 				<div style={panelStyle} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-					<div style={outputRow}>
-						<div style={fieldLabel}>Base output in public/</div>
-						<div style={rightRow}>
-							<RemotionInput
-								aria-label="Base video output file"
-								status={baseError ? 'error' : baseExists ? 'warning' : 'ok'}
-								rightAlign
-								value={baseOutName}
-								onChange={(event) => setBaseOutName(event.target.value)}
-								style={{...input, ...controlStyle}}
-							/>
-						</div>
-					</div>
-					{baseError ? (
-						<div style={validationStyle}>
-							<ValidationMessage
-								align="flex-end"
-								message={baseError}
-								type="error"
-							/>
-						</div>
-					) : baseExists ? (
-						<div style={validationStyle}>
-							<ValidationMessage
-								align="flex-end"
-								message="Exists, will be overwritten"
-								type="warning"
-							/>
-						</div>
-					) : null}
-					<div style={outputRow}>
-						<div style={fieldLabel}>Foreground output in public/</div>
-						<div style={rightRow}>
-							<RemotionInput
-								aria-label="Foreground video output file"
-								status={
-									foregroundError
-										? 'error'
-										: foregroundExists
-											? 'warning'
-											: 'ok'
-								}
-								rightAlign
-								value={foregroundOutName}
-								onChange={(event) => setForegroundOutName(event.target.value)}
-								style={{...input, ...controlStyle}}
-							/>
-						</div>
-					</div>
-					{foregroundError ? (
-						<div style={validationStyle}>
-							<ValidationMessage
-								align="flex-end"
-								message={foregroundError}
-								type="error"
-							/>
-						</div>
-					) : foregroundExists ? (
-						<div style={validationStyle}>
-							<ValidationMessage
-								align="flex-end"
-								message="Exists, will be overwritten"
-								type="warning"
-							/>
-						</div>
-					) : null}
+					<RenderModalOutputName
+						ariaLabel="Base video output file"
+						existingOutputPath={
+							window.remotion_publicFolderExists
+								? `${window.remotion_publicFolderExists}/${baseOutName}`
+								: null
+						}
+						existence={baseExists}
+						inputContainerStyle={outputInputContainerStyle}
+						inputStyle={{...input, ...controlStyle}}
+						label="Base output in public/"
+						onValueChange={(event) => setBaseOutName(event.target.value)}
+						outName={baseOutName}
+						validationMessage={baseError}
+					/>
+					<RenderModalOutputName
+						ariaLabel="Foreground video output file"
+						existingOutputPath={
+							window.remotion_publicFolderExists
+								? `${window.remotion_publicFolderExists}/${foregroundOutName}`
+								: null
+						}
+						existence={foregroundExists}
+						inputContainerStyle={outputInputContainerStyle}
+						inputStyle={{...input, ...controlStyle}}
+						label="Foreground output in public/"
+						onValueChange={(event) => setForegroundOutName(event.target.value)}
+						outName={foregroundOutName}
+						validationMessage={foregroundError}
+					/>
 					<RenderModalHr />
 					<div style={optionRow}>
 						<div style={label}>Model</div>

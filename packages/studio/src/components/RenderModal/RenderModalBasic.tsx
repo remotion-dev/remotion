@@ -224,7 +224,10 @@ export const RenderModalBasic: React.FC<{
 			)}
 			{showOutputName ? (
 				<RenderModalOutputName
+					ariaLabel={null}
+					existingOutputPath={null}
 					existence={existence}
+					inputContainerStyle={null}
 					inputStyle={input}
 					outName={outName}
 					onValueChange={onValueChange}
