@@ -1,6 +1,6 @@
 import {expect, spyOn, test} from 'bun:test';
-import * as childProcess from 'node:child_process';
 import type {SpawnOptions} from 'node:child_process';
+import * as childProcess from 'node:child_process';
 import {EventEmitter} from 'node:events';
 import {mkdtemp, rm, writeFile} from 'node:fs/promises';
 import type {IncomingMessage, ServerResponse} from 'node:http';
@@ -90,6 +90,7 @@ test('always aligns Remotion package versions', () => {
 
 test('installs without running dependency lifecycle scripts', async () => {
 	const {calls: spawnCalls, spawnSpy} = mockPackageManagerSpawn();
+	const versionSpy = spyOn(childProcess, 'execFileSync').mockReturnValue('');
 	const lockfiles: Record<PackageManager, string> = {
 		npm: 'package-lock.json',
 		pnpm: 'pnpm-lock.yaml',
@@ -100,7 +101,14 @@ test('installs without running dependency lifecycle scripts', async () => {
 	const temporaryDirectories: string[] = [];
 
 	try {
-		for (const manager of Object.keys(lockfiles) as PackageManager[]) {
+		for (const {manager, version} of (
+			Object.keys(lockfiles) as PackageManager[]
+		).flatMap((packageManager) =>
+			(packageManager === 'yarn' ? ['1.22.22', '3.8.7', '4.9.2'] : ['']).map(
+				(yarnVersion) => ({manager: packageManager, version: yarnVersion}),
+			),
+		)) {
+			versionSpy.mockReturnValue(version);
 			const remotionRoot = await mkdtemp(
 				path.join(tmpdir(), `remotion-install-${manager}-`),
 			);
@@ -137,7 +145,9 @@ test('installs without running dependency lifecycle scripts', async () => {
 				expect(call.args[0]).toBe('add');
 			}
 
-			if (manager === 'yarn') {
+			expect(call.options.cwd).toBe(remotionRoot);
+			if (manager === 'yarn' && !version.startsWith('1.')) {
+				expect(call.args).toContain('--mode=skip-build');
 				expect(call.args).not.toContain('--ignore-scripts');
 				expect(call.options.env?.YARN_ENABLE_SCRIPTS).toBe('false');
 			} else {
@@ -146,6 +156,7 @@ test('installs without running dependency lifecycle scripts', async () => {
 		}
 	} finally {
 		spawnSpy.mockRestore();
+		versionSpy.mockRestore();
 		await Promise.all(
 			temporaryDirectories.map((directory) =>
 				rm(directory, {force: true, recursive: true}),
