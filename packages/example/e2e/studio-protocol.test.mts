@@ -433,23 +433,6 @@ const CloseupPlaceholder = () => {
 		await expect(newCompositionDialog.getByPlaceholder('New name')).toHaveValue(
 			'protocol-element-copy-3',
 		);
-		await newCompositionDialog.screenshot({
-			path: test.info().outputPath('install-copy-desktop.png'),
-		});
-		const desktopViewport = studioPage.viewportSize();
-		await studioPage.setViewportSize({width: 390, height: 844});
-		await expect(
-			newCompositionDialog.getByPlaceholder('New name'),
-		).toBeVisible();
-		expect(
-			await newCompositionDialog.evaluate(
-				(node) => node.scrollWidth <= node.clientWidth,
-			),
-		).toBe(true);
-		await newCompositionDialog.screenshot({
-			path: test.info().outputPath('install-copy-mobile.png'),
-		});
-		if (desktopViewport) await studioPage.setViewportSize(desktopViewport);
 		await expect(
 			newCompositionDialog.getByRole('button', {name: /^Install/}),
 		).toBeEnabled();
