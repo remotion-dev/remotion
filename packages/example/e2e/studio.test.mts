@@ -428,6 +428,7 @@ test.describe('visual mode', () => {
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('toggleLoop');
 			await page.keyboard.press('Escape');
+			await expect(dialog).toHaveCount(0);
 			await page.keyboard.press('m');
 			await expect(muteButton).toBeVisible();
 			await page.keyboard.press('Shift+L');
@@ -3547,7 +3548,7 @@ export const SequenceShiftRepro = () => {
 			});
 			expect(canvasHtml).toContain('Performance overview');
 			expect(canvasHtml).toContain('Regional growth');
-			expect(canvasHtml).not.toContain('Change the playback rate');
+			expect(canvasHtml).not.toContain('Playback rate');
 			const webMcpOutlines = await page.evaluate(async () => {
 				const tools = (
 					window as typeof window & {
@@ -3971,7 +3972,7 @@ export const SequenceShiftRepro = () => {
 			});
 			await expect(
 				page.getByRole('button', {
-					name: 'Change the playback rate',
+					name: 'Playback rate',
 					exact: true,
 				}),
 			).toContainText('1.5x');
