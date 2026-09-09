@@ -16,14 +16,14 @@ import {
 	Interactive,
 	Sequence,
 	interpolate,
-	type InteractiveBaseProps,
-	type InteractiveTransformProps,
-	type InteractivitySchema,
-	type SequenceControls,
 	useBufferState,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
+	type InteractiveBaseProps,
+	type InteractiveTransformProps,
+	type InteractivitySchema,
+	type SequenceControls,
 } from 'remotion';
 
 type MapFlyoverLayerProps = InteractiveBaseProps &
@@ -76,7 +76,7 @@ const mapFlyoverSchema = {
 		min: 2,
 		max: 24,
 		step: 1,
-		default: 8,
+		default: 24,
 		description: 'Route width',
 		hiddenFromList: false,
 	},
@@ -278,6 +278,336 @@ const projectFlyoverRoute = (
 	};
 };
 
+const MapFlyoverContent: React.FC<{
+	readonly destination: readonly [number, number];
+	readonly destinationLabel: string;
+	readonly lineWidth: number;
+	readonly origin: readonly [number, number];
+	readonly originLabel: string;
+	readonly outlineRef: React.RefObject<HTMLDivElement | null>;
+	readonly routeColor: string;
+	readonly style: React.CSSProperties | null;
+}> = ({
+	destination,
+	destinationLabel,
+	lineWidth,
+	origin,
+	originLabel,
+	outlineRef,
+	routeColor,
+	style,
+}) => {
+	const frame = useCurrentFrame();
+	const {height, width} = useVideoConfig();
+	const {continueRender, delayRender} = useDelayRender();
+	const {delayPlayback} = useBufferState();
+	const mapContainerRef = useRef<HTMLDivElement>(null);
+	const mapRef = useRef<Map | null>(null);
+	const [map, setMap] = useState<Map | null>(null);
+	const [loadingHandle] = useState(() =>
+		delayRender('Loading MapLibre flyover'),
+	);
+
+	const startCoordinates = useMemo(
+		() => [origin[0], origin[1]] as [number, number],
+		[origin],
+	);
+	const endCoordinates = useMemo(
+		() => [destination[0], destination[1]] as [number, number],
+		[destination],
+	);
+	const route = useMemo(
+		() => createFlyoverRoute(startCoordinates, endCoordinates),
+		[endCoordinates, startCoordinates],
+	);
+	const routeDistance = useMemo(() => turf.length(route), [route]);
+
+	const mapPlate = useMemo(
+		() => calculateMapPlate({height, route, routeDistance, width}),
+		[height, route, routeDistance, width],
+	);
+	const projectedOverlay = useMemo(
+		() => projectFlyoverRoute(route, mapPlate),
+		[mapPlate, route],
+	);
+	const travelStart = 0;
+	const travelEnd = 205;
+	const travelProgress = interpolate(frame, [travelStart, travelEnd], [0, 1], {
+		easing: Easing.inOut(Easing.quad),
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
+	const originLabelOpacity = interpolate(
+		frame,
+		[travelStart, travelStart + 14],
+		[1, 0],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+	const markerRadius = Math.max(14, lineWidth * 0.8);
+	const markerCenterRadius = markerRadius * 0.27;
+	const destinationMarkerScale = interpolate(
+		frame,
+		[travelEnd + 5, travelEnd + 17],
+		[lineWidth / 2 / markerRadius, 1],
+		{
+			easing: Easing.inOut(Easing.cubic),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+	const destinationMarkerCenterScale = interpolate(
+		frame,
+		[travelEnd + 19, travelEnd + 29],
+		[0, 1],
+		{
+			easing: Easing.inOut(Easing.cubic),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+	const destinationLabelOpacity = interpolate(
+		frame,
+		[travelEnd + 27, travelEnd + 35],
+		[0, 1],
+		{
+			easing: Easing.inOut(Easing.quad),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+	const currentPoint = projectedOverlay.pointAtProgress(travelProgress);
+	const plateTransform = `translate(${width / 2 - currentPoint.x}px, ${
+		height / 2 - currentPoint.y
+	}px)`;
+
+	useLayoutEffect(() => {
+		if (map) {
+			return;
+		}
+
+		return delayPlayback().unblock;
+	}, [delayPlayback, map]);
+
+	useEffect(() => {
+		if (!mapContainerRef.current || mapRef.current) {
+			return;
+		}
+
+		// Keep the worker URL same-origin so Webpack does not rewrite it.
+		maplibregl.setWorkerUrl(
+			URL.createObjectURL(
+				new Blob(
+					[
+						`import "https://unpkg.com/maplibre-gl@${maplibregl.getVersion()}/dist/maplibre-gl-worker.mjs";`,
+					],
+					{type: 'text/javascript'},
+				),
+			),
+		);
+
+		const mapInstance = new maplibregl.Map({
+			container: mapContainerRef.current,
+			style: {
+				version: 8,
+				sources: {
+					'nasa-blue-marble': {
+						type: 'raster',
+						tiles: [
+							'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
+						],
+						tileSize: 256,
+						maxzoom: 8,
+						attribution: 'NASA EOSDIS / GIBS',
+					},
+				},
+				layers: [
+					{
+						id: 'nasa-blue-marble',
+						type: 'raster',
+						source: 'nasa-blue-marble',
+						paint: {
+							'raster-fade-duration': 0,
+						},
+					},
+				],
+			},
+			center: mapPlate.center,
+			zoom: mapPlate.zoom,
+			interactive: false,
+			attributionControl: false,
+			fadeDuration: 0,
+			pixelRatio: 1,
+			renderWorldCopies: true,
+			canvasContextAttributes: {
+				preserveDrawingBuffer: true,
+			},
+		});
+		mapRef.current = mapInstance;
+
+		mapInstance.on('load', () => {
+			mapInstance.jumpTo({
+				bearing: 0,
+				center: mapPlate.center,
+				pitch: 0,
+				zoom: mapPlate.zoom,
+			});
+			mapInstance.once('idle', () => {
+				setMap(mapInstance);
+				continueRender(loadingHandle);
+			});
+			mapInstance.triggerRepaint();
+		});
+	}, [continueRender, loadingHandle, mapPlate]);
+
+	useEffect(() => {
+		if (!map) {
+			return;
+		}
+
+		const mapPlateHandle = delayRender('Reframing MapLibre map plate');
+		map.resize();
+		map.jumpTo({
+			bearing: 0,
+			center: mapPlate.center,
+			pitch: 0,
+			zoom: mapPlate.zoom,
+		});
+		map.once('idle', () => continueRender(mapPlateHandle));
+		map.triggerRepaint();
+	}, [continueRender, delayRender, map, mapPlate.center, mapPlate.zoom]);
+
+	return (
+		<div
+			ref={outlineRef}
+			style={{
+				backgroundColor: '#dbe4e8',
+				height,
+				overflow: 'hidden',
+				position: 'absolute',
+				width,
+				...style,
+			}}
+		>
+			<div
+				ref={mapContainerRef}
+				style={{
+					height: mapPlate.height,
+					opacity: map ? 1 : 0,
+					position: 'absolute',
+					transform: plateTransform,
+					transformOrigin: '0 0',
+					width: mapPlate.width,
+					willChange: 'transform',
+				}}
+			/>
+			<svg
+				viewBox={`0 0 ${mapPlate.width} ${mapPlate.height}`}
+				style={{
+					height: mapPlate.height,
+					opacity: map ? 1 : 0,
+					overflow: 'visible',
+					pointerEvents: 'none',
+					position: 'absolute',
+					transform: plateTransform,
+					transformOrigin: '0 0',
+					width: mapPlate.width,
+					willChange: 'transform',
+				}}
+			>
+				<path
+					d={projectedOverlay.routePath}
+					fill="none"
+					pathLength={1}
+					stroke={routeColor}
+					strokeDasharray={1}
+					strokeDashoffset={1 - travelProgress}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth={lineWidth}
+				/>
+				<g
+					transform={`translate(${projectedOverlay.start.x} ${projectedOverlay.start.y})`}
+				>
+					<circle fill={routeColor} r={markerRadius} />
+				</g>
+				<text
+					x={projectedOverlay.start.x}
+					y={projectedOverlay.start.y + markerRadius + 26}
+					fill="#ffffff"
+					fontFamily="sans-serif"
+					fontSize={26}
+					fontWeight={600}
+					opacity={originLabelOpacity}
+					style={{
+						filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9))',
+					}}
+					textAnchor="middle"
+				>
+					{originLabel}
+				</text>
+				{frame >= travelEnd + 5 ? (
+					<g
+						transform={`translate(${projectedOverlay.end.x} ${projectedOverlay.end.y})`}
+					>
+						<circle
+							fill={routeColor}
+							r={markerRadius}
+							transform={`scale(${destinationMarkerScale})`}
+						/>
+						<circle
+							fill="#ffffff"
+							r={markerCenterRadius}
+							transform={`scale(${destinationMarkerCenterScale})`}
+						/>
+					</g>
+				) : null}
+				<text
+					x={projectedOverlay.end.x}
+					y={projectedOverlay.end.y + markerRadius + 26}
+					fill="#ffffff"
+					fontFamily="sans-serif"
+					fontSize={26}
+					fontWeight={600}
+					opacity={destinationLabelOpacity}
+					style={{
+						filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9))',
+					}}
+					textAnchor="middle"
+				>
+					{destinationLabel}
+				</text>
+			</svg>
+			<div
+				style={{
+					background:
+						'radial-gradient(circle, transparent 45%, rgba(10, 20, 28, 0.22) 130%)',
+					inset: 0,
+					pointerEvents: 'none',
+					position: 'absolute',
+				}}
+			/>
+			<div
+				style={{
+					backgroundColor: 'rgba(255, 255, 255, 0.8)',
+					borderRadius: 4,
+					bottom: 8,
+					color: '#111827',
+					fontFamily: 'sans-serif',
+					fontSize: 12,
+					padding: '3px 6px',
+					position: 'absolute',
+					right: 8,
+				}}
+			>
+				NASA EOSDIS / GIBS
+			</div>
+		</div>
+	);
+};
+
 const MapFlyoverLayerInner = forwardRef<
 	HTMLDivElement,
 	MapFlyoverLayerProps & {readonly controls: SequenceControls | undefined}
@@ -287,372 +617,45 @@ const MapFlyoverLayerInner = forwardRef<
 			controls,
 			destination = [139.6917, 35.6895],
 			destinationLabel = 'Tokyo',
-			durationInFrames: sequenceDurationInFrames,
-			freeze,
-			from,
-			hidden,
-			lineWidth = 8,
+			lineWidth = 24,
 			name,
 			origin = [-0.1276, 51.5072],
 			originLabel = 'London',
 			routeColor = '#ff5c4d',
-			showInTimeline,
 			style,
-			trimBefore,
+			...sequenceProps
 		},
 		ref,
 	) => {
-		const frame = useCurrentFrame();
-		const {height, width} = useVideoConfig();
-		const {continueRender, delayRender} = useDelayRender();
-		const {delayPlayback} = useBufferState();
-		const mapContainerRef = useRef<HTMLDivElement>(null);
-		const mapRef = useRef<Map | null>(null);
 		const outlineRef = useRef<HTMLDivElement>(null);
-		const [map, setMap] = useState<Map | null>(null);
-		const [loadingHandle] = useState(() =>
-			delayRender('Loading MapLibre flyover'),
-		);
-
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
-		const startCoordinates = useMemo(
-			() => [origin[0], origin[1]] as [number, number],
-			[origin],
-		);
-		const endCoordinates = useMemo(
-			() => [destination[0], destination[1]] as [number, number],
-			[destination],
-		);
-		const route = useMemo(
-			() => createFlyoverRoute(startCoordinates, endCoordinates),
-			[endCoordinates, startCoordinates],
-		);
-		const routeDistance = useMemo(() => turf.length(route), [route]);
-
-		const mapPlate = useMemo(
-			() => calculateMapPlate({height, route, routeDistance, width}),
-			[height, route, routeDistance, width],
-		);
-		const projectedOverlay = useMemo(
-			() => projectFlyoverRoute(route, mapPlate),
-			[mapPlate, route],
-		);
-		const travelStart = 0;
-		const travelEnd = 205;
-		const travelProgress = interpolate(
-			frame,
-			[travelStart, travelEnd],
-			[0, 1],
-			{
-				easing: Easing.inOut(Easing.quad),
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			},
-		);
-		const originLabelOpacity = interpolate(
-			frame,
-			[travelStart, travelStart + 14],
-			[1, 0],
-			{
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			},
-		);
-		const markerRadius = Math.max(14, lineWidth * 0.8);
-		const markerCenterRadius = markerRadius * 0.27;
-		const destinationMarkerScale = interpolate(
-			frame,
-			[travelEnd + 5, travelEnd + 17],
-			[lineWidth / 2 / markerRadius, 1],
-			{
-				easing: Easing.inOut(Easing.cubic),
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			},
-		);
-		const destinationMarkerCenterScale = interpolate(
-			frame,
-			[travelEnd + 19, travelEnd + 29],
-			[0, 1],
-			{
-				easing: Easing.inOut(Easing.cubic),
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			},
-		);
-		const destinationLabelOpacity = interpolate(
-			frame,
-			[travelEnd + 27, travelEnd + 35],
-			[0, 1],
-			{
-				easing: Easing.inOut(Easing.quad),
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			},
-		);
-		const currentPoint = projectedOverlay.pointAtProgress(travelProgress);
-		const plateTransform = `translate(${width / 2 - currentPoint.x}px, ${
-			height / 2 - currentPoint.y
-		}px)`;
-
-		useLayoutEffect(() => {
-			if (map) {
-				return;
-			}
-
-			return delayPlayback().unblock;
-		}, [delayPlayback, map]);
-
-		useEffect(() => {
-			if (!mapContainerRef.current || mapRef.current) {
-				return;
-			}
-
-			// Keep the worker URL same-origin so Webpack does not rewrite it.
-			maplibregl.setWorkerUrl(
-				URL.createObjectURL(
-					new Blob(
-						[
-							`import "https://unpkg.com/maplibre-gl@${maplibregl.getVersion()}/dist/maplibre-gl-worker.mjs";`,
-						],
-						{type: 'text/javascript'},
-					),
-				),
-			);
-
-			const mapInstance = new maplibregl.Map({
-				container: mapContainerRef.current,
-				style: {
-					version: 8,
-					sources: {
-						'nasa-blue-marble': {
-							type: 'raster',
-							tiles: [
-								'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
-							],
-							tileSize: 256,
-							maxzoom: 8,
-							attribution: 'NASA EOSDIS / GIBS',
-						},
-					},
-					layers: [
-						{
-							id: 'nasa-blue-marble',
-							type: 'raster',
-							source: 'nasa-blue-marble',
-							paint: {
-								'raster-fade-duration': 0,
-							},
-						},
-					],
-				},
-				center: mapPlate.center,
-				zoom: mapPlate.zoom,
-				interactive: false,
-				attributionControl: false,
-				fadeDuration: 0,
-				pixelRatio: 1,
-				renderWorldCopies: true,
-				canvasContextAttributes: {
-					preserveDrawingBuffer: true,
-				},
-			});
-			mapRef.current = mapInstance;
-
-			mapInstance.on('load', () => {
-				mapInstance.jumpTo({
-					bearing: 0,
-					center: mapPlate.center,
-					pitch: 0,
-					zoom: mapPlate.zoom,
-				});
-				mapInstance.once('idle', () => {
-					setMap(mapInstance);
-					continueRender(loadingHandle);
-				});
-				mapInstance.triggerRepaint();
-			});
-		}, [continueRender, loadingHandle, mapPlate]);
-
-		useEffect(() => {
-			if (!map) {
-				return;
-			}
-
-			const mapPlateHandle = delayRender('Reframing MapLibre map plate');
-			map.resize();
-			map.jumpTo({
-				bearing: 0,
-				center: mapPlate.center,
-				pitch: 0,
-				zoom: mapPlate.zoom,
-			});
-			map.once('idle', () => continueRender(mapPlateHandle));
-			map.triggerRepaint();
-		}, [continueRender, delayRender, map, mapPlate.center, mapPlate.zoom]);
 
 		return (
 			<Sequence
 				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				durationInFrames={sequenceDurationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? '<MapFlyover>'}
-				showInTimeline={showInTimeline ?? true}
+				{...sequenceProps}
 				controls={controls}
+				name={name ?? 'A-to-B Map Flyover'}
 				outlineRef={outlineRef}
 			>
-				<div
-					ref={outlineRef}
-					style={{
-						backgroundColor: '#dbe4e8',
-						height,
-						overflow: 'hidden',
-						position: 'absolute',
-						width,
-						...style,
-					}}
-				>
-					<div
-						ref={mapContainerRef}
-						style={{
-							height: mapPlate.height,
-							opacity: map ? 1 : 0,
-							position: 'absolute',
-							transform: plateTransform,
-							transformOrigin: '0 0',
-							width: mapPlate.width,
-							willChange: 'transform',
-						}}
-					/>
-					<svg
-						viewBox={`0 0 ${mapPlate.width} ${mapPlate.height}`}
-						style={{
-							height: mapPlate.height,
-							opacity: map ? 1 : 0,
-							overflow: 'visible',
-							pointerEvents: 'none',
-							position: 'absolute',
-							transform: plateTransform,
-							transformOrigin: '0 0',
-							width: mapPlate.width,
-							willChange: 'transform',
-						}}
-					>
-						<path
-							d={projectedOverlay.routePath}
-							fill="none"
-							pathLength={1}
-							stroke={routeColor}
-							strokeDasharray={1}
-							strokeDashoffset={1 - travelProgress}
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={lineWidth}
-						/>
-						<g
-							transform={`translate(${projectedOverlay.start.x} ${projectedOverlay.start.y})`}
-						>
-							<circle fill={routeColor} r={markerRadius} />
-						</g>
-						<text
-							x={projectedOverlay.start.x}
-							y={projectedOverlay.start.y + markerRadius + 26}
-							fill="#ffffff"
-							fontFamily="sans-serif"
-							fontSize={26}
-							fontWeight={600}
-							opacity={originLabelOpacity}
-							style={{
-								filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9))',
-							}}
-							textAnchor="middle"
-						>
-							{originLabel}
-						</text>
-						{frame >= travelEnd + 5 ? (
-							<g
-								transform={`translate(${projectedOverlay.end.x} ${projectedOverlay.end.y})`}
-							>
-								<circle
-									fill={routeColor}
-									r={markerRadius}
-									transform={`scale(${destinationMarkerScale})`}
-								/>
-								<circle
-									fill="#ffffff"
-									r={markerCenterRadius}
-									transform={`scale(${destinationMarkerCenterScale})`}
-								/>
-							</g>
-						) : null}
-						<text
-							x={projectedOverlay.end.x}
-							y={projectedOverlay.end.y + markerRadius + 26}
-							fill="#ffffff"
-							fontFamily="sans-serif"
-							fontSize={26}
-							fontWeight={600}
-							opacity={destinationLabelOpacity}
-							style={{
-								filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9))',
-							}}
-							textAnchor="middle"
-						>
-							{destinationLabel}
-						</text>
-					</svg>
-					<div
-						style={{
-							background:
-								'radial-gradient(circle, transparent 45%, rgba(10, 20, 28, 0.22) 130%)',
-							inset: 0,
-							pointerEvents: 'none',
-							position: 'absolute',
-						}}
-					/>
-					<div
-						style={{
-							backgroundColor: 'rgba(255, 255, 255, 0.8)',
-							borderRadius: 4,
-							bottom: 8,
-							color: '#111827',
-							fontFamily: 'sans-serif',
-							fontSize: 12,
-							padding: '3px 6px',
-							position: 'absolute',
-							right: 8,
-						}}
-					>
-						NASA EOSDIS / GIBS
-					</div>
-				</div>
+				<MapFlyoverContent
+					destination={destination}
+					destinationLabel={destinationLabel}
+					lineWidth={lineWidth}
+					origin={origin}
+					originLabel={originLabel}
+					outlineRef={outlineRef}
+					routeColor={routeColor}
+					style={style ?? null}
+				/>
 			</Sequence>
 		);
 	},
 );
 
-const InteractiveMapFlyoverLayer = Interactive.withSchema({
+export const MapFlyover = Interactive.withSchema({
 	Component: MapFlyoverLayerInner,
 	componentName: '<MapFlyover>',
 	schema: mapFlyoverSchema,
 	supportsEffects: false,
 }) as React.FC<MapFlyoverLayerProps>;
-
-export const MapFlyover: React.FC<MapFlyoverLayerProps> = (props) => {
-	return (
-		<InteractiveMapFlyoverLayer
-			name="A-to-B Map Flyover"
-			origin={[-0.1276, 51.5072]}
-			destination={[139.6917, 35.6895]}
-			originLabel="London"
-			destinationLabel="Tokyo"
-			routeColor={'#ff5c4d'}
-			lineWidth={24}
-			{...props}
-		/>
-	);
-};

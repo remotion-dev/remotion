@@ -432,7 +432,7 @@ const WatercolorMapInner = forwardRef<
 				layout="none"
 				{...sequenceProps}
 				controls={controls}
-				name={name ?? '<WatercolorMap>'}
+				name={name ?? 'Watercolor map'}
 				outlineRef={outlineRef}
 			>
 				<WatercolorMapContent
@@ -450,24 +450,9 @@ const WatercolorMapInner = forwardRef<
 	},
 );
 
-const InteractiveWatercolorMap = Interactive.withSchema({
+export const WatercolorMap = Interactive.withSchema({
 	Component: WatercolorMapInner,
 	componentName: '<WatercolorMap>',
 	schema: watercolorMapSchema,
 	supportsEffects: false,
 }) as React.FC<WatercolorMapProps>;
-
-export const WatercolorMap: React.FC<WatercolorMapProps> = (props) => {
-	return (
-		<InteractiveWatercolorMap
-			destination={[8.5417, 47.3769]}
-			destinationLabel="Zurich"
-			name="Watercolor map"
-			origin={[-118.2437, 34.0522]}
-			originLabel="Los Angeles"
-			routeColor="#ff0041"
-			routeWidth={18}
-			{...props}
-		/>
-	);
-};
