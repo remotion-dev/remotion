@@ -44,7 +44,6 @@ type Props = {
 	readonly ariaLabel: string | null;
 	readonly existingOutputPath: string | null;
 	readonly existence: boolean;
-	readonly inputContainerStyle: React.CSSProperties | null;
 	readonly inputStyle: React.CSSProperties;
 	readonly outName: string;
 	readonly onValueChange: React.ChangeEventHandler<HTMLInputElement>;
@@ -56,7 +55,6 @@ export const RenderModalOutputName = ({
 	ariaLabel,
 	existingOutputPath,
 	existence,
-	inputContainerStyle,
 	inputStyle,
 	outName,
 	onValueChange,
@@ -86,7 +84,7 @@ export const RenderModalOutputName = ({
 				<div style={label}>{labelText}</div>
 			</Column>
 			<div style={rightRow}>
-				<div style={{...outputNameInputContainer, ...inputContainerStyle}}>
+				<div style={outputNameInputContainer}>
 					<RemotionInput
 						aria-label={ariaLabel ?? undefined}
 						status={validationMessage ? 'error' : existence ? 'warning' : 'ok'}

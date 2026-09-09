@@ -75,7 +75,6 @@ const modalLayout: React.CSSProperties = {
 };
 const hiddenPanel: React.CSSProperties = {display: 'none'};
 const validationStyle: React.CSSProperties = {padding: '0 16px 8px'};
-const outputInputContainerStyle: React.CSSProperties = {maxWidth: 330};
 
 type SupportState =
 	| {type: 'checking'}
@@ -324,8 +323,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 									: null
 							}
 							existence={baseExists}
-							inputContainerStyle={outputInputContainerStyle}
-							inputStyle={{...input, ...controlStyle}}
+							inputStyle={input}
 							label="Base output in public/"
 							onValueChange={(event) => setBaseOutName(event.target.value)}
 							outName={baseOutName}
@@ -339,8 +337,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 									: null
 							}
 							existence={foregroundExists}
-							inputContainerStyle={outputInputContainerStyle}
-							inputStyle={{...input, ...controlStyle}}
+							inputStyle={input}
 							label="Foreground output in public/"
 							onValueChange={(event) =>
 								setForegroundOutName(event.target.value)
