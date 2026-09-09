@@ -1,5 +1,5 @@
-import {$, build} from 'bun';
 import path from 'node:path';
+import {$, build} from 'bun';
 import {NoReactInternals} from 'remotion/no-react';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -25,6 +25,7 @@ await $`bunx tailwindcss -i src/index.css -o dist/tailwind.css`;
 
 const result = await build({
 	entrypoints: [
+		'./src/components/Automate.tsx',
 		'./src/components/Homepage.tsx',
 		'./src/components/homepage/Pricing.tsx',
 		'./src/components/team.tsx',
@@ -80,7 +81,10 @@ for (const output of result.outputs) {
 		throw new Error(`Unexpected build output path: ${output.path}`);
 	}
 
-	await Bun.write(path.join('dist', outputPathWithoutDistPrefix), await output.text());
+	await Bun.write(
+		path.join('dist', outputPathWithoutDistPrefix),
+		await output.text(),
+	);
 }
 
 export {};
