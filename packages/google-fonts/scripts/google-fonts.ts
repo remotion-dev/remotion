@@ -7,6 +7,8 @@ export type Font = {
 	version: string;
 	lastModified: string;
 	category: string;
+	axes?: {tag: string; start: number; end: number}[];
+	colorCapabilities?: unknown;
 	files?: unknown;
 	kind?: unknown;
 	menu?: unknown;
@@ -24830,6 +24832,10 @@ export const googleFonts: Font[] = [
 		],
 		version: 'v42',
 		lastModified: '2025-09-11',
+		axes: [
+			{tag: 'wdth', start: 62.5, end: 100},
+			{tag: 'wght', start: 100, end: 900},
+		],
 		files: {
 			'100':
 				'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9At9Y41P6zHtY.woff2',

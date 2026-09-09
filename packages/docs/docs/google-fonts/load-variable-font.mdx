@@ -1,0 +1,89 @@
+---
+image: /generated/articles-docs-google-fonts-load-variable-font.png
+title: loadVariableFont()
+crumb: '@remotion/google-fonts'
+---
+
+# loadVariableFont()<AvailableFrom v="4.0.524" />
+
+_Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_
+
+Loads a Google Font as a variable font. One font file can provide a continuous range of weights and other variation axes.
+
+This export is only available for fonts that Google Fonts provides as variable fonts.
+
+## Usage
+
+```tsx twoslash title="VariableFont.tsx"
+import {loadVariableFont} from '@remotion/google-fonts/NotoSans';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+const {axes, fontFamily} = loadVariableFont('normal', {
+  subsets: ['latin'],
+});
+
+export const VariableFont: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill
+      style={{
+        fontFamily,
+        fontWeight: interpolate(frame, [0, 90], [
+          axes.wght.min,
+          axes.wght.max,
+        ]),
+      }}
+    >
+      Variable font
+    </AbsoluteFill>
+  );
+};
+```
+
+Prefer CSS properties such as `fontWeight` and `fontStretch` for registered axes. Use `fontVariationSettings` for custom axes.
+
+Variable fonts combine variation axes, but Google may still provide separate files for styles and character subsets.
+
+## Arguments
+
+### style
+
+The style to load, such as `normal` or `italic`.
+
+### options
+
+#### subsets
+
+The character subsets to load. At least one subset is required.
+
+#### document?
+
+The document into which the font should be added. By default, the global `window.document` is used.
+
+#### ignoreTooManyRequestsWarning?
+
+Set this to `true` to disable the warning emitted when loading more than 20 subset files.
+
+## Return value
+
+### fontFamily
+
+The font family name, for use with the `fontFamily` CSS property.
+
+### axes
+
+The minimum and maximum value of each available variation axis.
+
+### waitUntilDone()
+
+Returns a promise that resolves once the font files have loaded.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`loadFont()`](/docs/google-fonts/load-font)
+- [`@remotion/google-fonts`](/docs/google-fonts)

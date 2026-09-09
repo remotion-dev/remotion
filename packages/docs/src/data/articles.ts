@@ -2835,6 +2835,15 @@ export const articles = [
 		slug: 'google-fonts/load-font',
 	},
 	{
+		id: 'google-fonts/load-variable-font',
+		title: 'loadVariableFont()',
+		relativePath: 'docs/google-fonts/load-variable-font.mdx',
+		compId: 'articles-docs-google-fonts-load-variable-font',
+		crumb: '@remotion/google-fonts',
+		noAi: false,
+		slug: 'google-fonts/load-variable-font',
+	},
+	{
 		id: 'gpu',
 		title: 'Using the GPU',
 		relativePath: 'docs/gpu.mdx',
