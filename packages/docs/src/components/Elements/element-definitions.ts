@@ -188,7 +188,7 @@ const elementImplementations = {
 			'An animated map flyover from point A to point B, with editable coordinates, location labels, and a camera that follows the route.',
 		dependencies: [
 			{name: '@turf/turf', version: '7.3.2'},
-			{name: 'maplibre-gl', version: '5.24.0'},
+			{name: 'maplibre-gl', version: '6.4.1'},
 		],
 		durationInFrames: 285,
 		elementHeight: null,
