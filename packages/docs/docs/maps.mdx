@@ -22,6 +22,10 @@ Import the MapLibre stylesheet once, either in the component that renders the ma
 import 'maplibre-gl/dist/maplibre-gl.css';
 ```
 
+MapLibre v6 requires WebGL2. Configure its worker before creating a map. The examples below load the worker from unpkg, using the installed MapLibre version. A same-origin Blob imports the CDN worker to avoid Webpack rewriting MapLibre's cross-origin URL handling.
+
+To serve the worker locally, copy the worker and its imported modules into your [public directory](/docs/staticfile) and pass the worker URL to `setWorkerUrl()`.
+
 ## Adding a map
 
 Use [`useDelayRender()`](/docs/use-delay-render) to wait for the map to load. The container element must have explicit dimensions and `position: "absolute"`.
@@ -29,7 +33,7 @@ Use [`useDelayRender()`](/docs/use-delay-render) to wait for the map to load. Th
 ```tsx twoslash
 import {useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, useDelayRender, useVideoConfig} from 'remotion';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const zurich: [number, number] = [8.5417, 47.3769];
@@ -44,6 +48,15 @@ export const MapComposition = () => {
     if (!ref.current) {
       return;
     }
+
+    maplibregl.setWorkerUrl(
+      URL.createObjectURL(
+        new Blob(
+          [`import "https://unpkg.com/maplibre-gl@${maplibregl.getVersion()}/dist/maplibre-gl-worker.mjs";`],
+          {type: 'text/javascript'},
+        ),
+      ),
+    );
 
     const map = new maplibregl.Map({
       container: ref.current,
@@ -81,8 +94,17 @@ For Remotion renders, do not add a `map.remove()` cleanup function. It can inter
 Use any valid MapLibre style JSON URL. The stock demo style works as a simple default:
 
 ```tsx twoslash
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 // ---cut---
+maplibregl.setWorkerUrl(
+  URL.createObjectURL(
+    new Blob(
+      [`import "https://unpkg.com/maplibre-gl@${maplibregl.getVersion()}/dist/maplibre-gl-worker.mjs";`],
+      {type: 'text/javascript'},
+    ),
+  ),
+);
+
 const map = new maplibregl.Map({
   container: document.createElement('div'),
   style: 'https://demotiles.maplibre.org/style.json',
@@ -100,7 +122,7 @@ If you need a custom look, prefer changing your own GeoJSON layers first. Only e
 Add a GeoJSON line source and layer:
 
 ```tsx twoslash
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 const map = {} as maplibregl.Map;
 const lineCoordinates: [number, number][] = [
   [0, 0],
@@ -170,7 +192,8 @@ const slicedLine = turf.lineSliceAlong(route, 0, currentDistance);
 Update the GeoJSON source for the current frame:
 
 ```tsx twoslash
-import maplibregl, {type GeoJSONSource} from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
+import {type GeoJSONSource} from 'maplibre-gl';
 import * as turf from '@turf/turf';
 
 const map = {} as maplibregl.Map | null;
@@ -194,7 +217,8 @@ import {useEffect} from 'react';
 import * as turf from '@turf/turf';
 import {useCurrentFrame, useVideoConfig, useDelayRender} from 'remotion';
 import {interpolate, Easing} from 'remotion';
-import maplibregl, {type Map} from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
+import {type Map} from 'maplibre-gl';
 
 const map = {} as Map | null;
 const targetRoute = turf.lineString([
@@ -249,7 +273,7 @@ Add circle markers with labels as map-native GeoJSON layers:
 
 ```tsx twoslash
 import * as turf from '@turf/turf';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 const map = {} as maplibregl.Map;
 const LA_COORDS: [number, number] = [-118.2437, 34.0522];
 // ---cut---

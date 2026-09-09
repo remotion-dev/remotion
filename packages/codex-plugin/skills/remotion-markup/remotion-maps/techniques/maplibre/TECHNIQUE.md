@@ -58,12 +58,16 @@ Import the MapLibre CSS once in the component or an app-level stylesheet:
 import 'maplibre-gl/dist/maplibre-gl.css';
 ```
 
+MapLibre v6 requires WebGL2. Configure its worker before creating a map. The examples below load the worker from unpkg, using the installed MapLibre version. A same-origin Blob imports the CDN worker to avoid Webpack rewriting MapLibre's cross-origin URL handling.
+
+To serve the worker locally, copy the worker and its imported modules into your public directory and pass the worker URL to `setWorkerUrl()`.
+
 ## Basic map example
 
 ```tsx
 import {useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, useDelayRender, useVideoConfig} from 'remotion';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const zurich: [number, number] = [8.5417, 47.3769];
@@ -78,6 +82,15 @@ export const MyComposition = () => {
 		if (!containerRef.current) {
 			return;
 		}
+
+		maplibregl.setWorkerUrl(
+			URL.createObjectURL(
+				new Blob(
+					[`import "https://unpkg.com/maplibre-gl@${maplibregl.getVersion()}/dist/maplibre-gl-worker.mjs";`],
+					{type: 'text/javascript'},
+				),
+			),
+		);
 
 		const mapInstance = new maplibregl.Map({
 			container: containerRef.current,
@@ -131,7 +144,8 @@ import {
 	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
-import maplibregl, {type GeoJSONSource, type Map} from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
+import {type GeoJSONSource, type Map} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const zurich: [number, number] = [8.5417, 47.3769];
@@ -213,6 +227,15 @@ export const MyComposition = () => {
 		if (!containerRef.current) {
 			return;
 		}
+
+		maplibregl.setWorkerUrl(
+			URL.createObjectURL(
+				new Blob(
+					[`import "https://unpkg.com/maplibre-gl@${maplibregl.getVersion()}/dist/maplibre-gl-worker.mjs";`],
+					{type: 'text/javascript'},
+				),
+			),
+		);
 
 		const mapInstance = new maplibregl.Map({
 			container: containerRef.current,
