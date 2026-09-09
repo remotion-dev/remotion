@@ -6,8 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 console.time('Generated.');
 const output = await build({
-	entrypoints: ['src/index.ts', 'src/internal.ts'],
-	splitting: true,
+	entrypoints: ['src/index.ts'],
 	naming: '[name].mjs',
 	external: [
 		'remotion',

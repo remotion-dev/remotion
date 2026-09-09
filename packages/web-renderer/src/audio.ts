@@ -1,5 +1,5 @@
-import {StreamingPitchShifter} from '@remotion/media/internal';
 import type {TRenderAsset} from 'remotion';
+import {StreamingPitchShifter} from './streaming-pitch-shifter';
 
 const TARGET_NUMBER_OF_CHANNELS = 2;
 
