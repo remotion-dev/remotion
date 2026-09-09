@@ -1,5 +1,4 @@
 import Prism from 'prismjs';
-import 'prismjs/themes/prism-tomorrow.css';
 import React, {useMemo} from 'react';
 
 // These CommonJS grammars read global Prism. Load them after initialization:
