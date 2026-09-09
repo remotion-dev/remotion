@@ -242,10 +242,10 @@ Override keyboard shortcuts for Studio commands. Shortcuts that are omitted keep
 import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setKeyboardShortcuts({
-	playPause: {key: 'q'},
-	quickSwitcher: {key: 'p', commandOrControl: true},
-	toggleSnapping: {key: 's', shift: true},
-	render: null,
+  playPause: {key: 'q'},
+  quickSwitcher: {key: 'p', commandOrControl: true},
+  toggleSnapping: {key: 's', shift: true},
+  render: null,
 });
 ```
 
@@ -555,7 +555,7 @@ The [command line flag](/docs/cli/render#--disallow-parallel-encoding) `--disall
 
 ## `setEnforceAudioTrack()`<AvailableFrom v="3.2.1" />
 
-Render a silent audio track if there would be none otherwise. Default `false`.
+<Options id="enforce-audio-track" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';

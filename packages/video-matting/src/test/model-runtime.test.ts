@@ -15,6 +15,9 @@ let disposeCalls = 0;
 let cacheCheck:
 	| {task: string; modelId: string; options: Record<string, unknown>}
 	| undefined;
+let cacheClear:
+	| {task: string; modelId: string; options: Record<string, unknown>}
+	| undefined;
 let cacheCheckEnvironment:
 	| {remoteHost: string; remotePathTemplate: string}
 	| undefined;
@@ -90,6 +93,14 @@ mock.module('@huggingface/transformers', () => ({
 	},
 	BackgroundRemovalPipeline,
 	ModelRegistry: {
+		clear_pipeline_cache: (
+			task: string,
+			modelId: string,
+			options: Record<string, unknown>,
+		) => {
+			cacheClear = {task, modelId, options};
+			return Promise.resolve();
+		},
 		is_pipeline_cached: (
 			task: string,
 			modelId: string,
@@ -118,6 +129,7 @@ beforeEach(async () => {
 	livePipelineCount = 0;
 	disposeCalls = 0;
 	cacheCheck = undefined;
+	cacheClear = undefined;
 	cacheCheckEnvironment = undefined;
 	preexistingWhisperModelHostState.activeOperations = 0;
 	preexistingWhisperModelHostState.previousRemoteConfiguration = null;
@@ -222,6 +234,21 @@ test('loads every public model from its immutable hosted model ID', async () => 
 		'Xenova/modnet',
 		'onnx-community/BEN2-ONNX',
 	]);
+});
+
+test('removes a model from memory and the persistent cache', async () => {
+	const {loadVideoMattingModel} = await getRuntime();
+	const {removeVideoMattingModel} =
+		await import('../remove-video-matting-model');
+	await loadVideoMattingModel({model: 'modnet'});
+	await removeVideoMattingModel({model: 'modnet'});
+
+	expect(disposeCalls).toBe(1);
+	expect(cacheClear).toEqual({
+		task: 'background-removal',
+		modelId: 'modnet-v1',
+		options: {device: 'webgpu', dtype: 'fp32'},
+	});
 });
 
 test('coordinates the shared Transformers environment across model loads', async () => {

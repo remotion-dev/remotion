@@ -15,6 +15,8 @@ const external = [
 	'@remotion/renderer/client',
 	'@remotion/renderer/pure',
 	'@remotion/web-renderer',
+	'@remotion/whisper-webgpu',
+	'@remotion/video-matting',
 	'@remotion/renderer/error-handling',
 	'@jridgewell/trace-mapping',
 	'zod',
@@ -43,10 +45,12 @@ await buildPackage({
 		{
 			path: 'src/internals.ts',
 			target: 'browser',
+			splitting: true,
 		},
 		{
 			path: 'src/previewEntry.tsx',
 			target: 'browser',
+			splitting: true,
 		},
 	],
 });

@@ -391,7 +391,11 @@ const TimelineDragHandlerInner: React.FC = () => {
 	}, []);
 
 	return (
-		<div ref={ref} style={style} onPointerDown={onPointerDown}>
+		<div
+			ref={ref}
+			style={{...style, minWidth: size?.width ?? 0}}
+			onPointerDown={onPointerDown}
+		>
 			<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />
 		</div>
 	);

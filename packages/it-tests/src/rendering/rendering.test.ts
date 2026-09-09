@@ -535,7 +535,15 @@ test(
 
 		const info = await RenderInternals.callFf({
 			bin: 'ffprobe',
-			args: [outputPath],
+			args: [
+				'-select_streams',
+				'v:0',
+				'-show_entries',
+				'stream=duration',
+				'-of',
+				'json',
+				outputPath,
+			],
 			indent: false,
 			logLevel: 'info',
 			binariesDirectory: null,
@@ -548,7 +556,7 @@ test(
 		} else {
 			expect(data).not.toContain('bt709');
 		}
-		expect(data).toContain('Duration: 00:00:01.60');
+		expect(Number(JSON.parse(info.stdout).streams[0].duration)).toBe(48 / 30);
 
 		fs.unlinkSync(outputPath);
 	},

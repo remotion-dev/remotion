@@ -15,6 +15,7 @@ import {AppsIcon} from '../icons/apps';
 import {CloudDownloadIcon} from '../icons/cloud-download';
 import {KeyboardIcon} from '../icons/keyboard';
 import {LicenseIcon} from '../icons/license';
+import {ModelsIcon} from '../icons/models';
 import {PackageIcon} from '../icons/package';
 import {RemotionTriangleIcon} from '../icons/remotion-triangle';
 import {SkillsIcon} from '../icons/skills';
@@ -26,6 +27,7 @@ import {InstallPackageSettings} from './InstallPackage';
 import {KeyboardShortcutsSettings} from './KeyboardShortcutsSettings';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalHeader} from './ModalHeader';
+import {ModelsSettings} from './ModelsSettings';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {RenderingSettings} from './RenderingSettings';
 import {
@@ -50,6 +52,7 @@ type SettingsTab =
 	| 'rendering'
 	| 'studio'
 	| 'packages'
+	| 'models'
 	| 'shortcuts'
 	| 'skills'
 	| 'license'
@@ -150,20 +153,6 @@ export const SettingsModal: React.FC<{
 						{isBrowserStudio ? null : (
 							<VerticalTab
 								style={horizontalTab}
-								selected={tab === 'rendering'}
-								onClick={() => selectTab('rendering')}
-								renderIcon={(color) => (
-									<div style={iconContainer}>
-										<FilmIcon color={color} style={icon} />
-									</div>
-								)}
-							>
-								Defaults
-							</VerticalTab>
-						)}
-						{isBrowserStudio ? null : (
-							<VerticalTab
-								style={horizontalTab}
 								selected={tab === 'studio'}
 								onClick={() => selectTab('studio')}
 								renderIcon={(color) => (
@@ -173,6 +162,20 @@ export const SettingsModal: React.FC<{
 								)}
 							>
 								Studio
+							</VerticalTab>
+						)}
+						{isBrowserStudio ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'rendering'}
+								onClick={() => selectTab('rendering')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<FilmIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Defaults
 							</VerticalTab>
 						)}
 						<VerticalTab
@@ -215,6 +218,18 @@ export const SettingsModal: React.FC<{
 								Skills
 							</VerticalTab>
 						)}
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'models'}
+							onClick={() => selectTab('models')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<ModelsIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Models
+						</VerticalTab>
 						{isBrowserStudio ? null : (
 							<VerticalTab
 								style={horizontalTab}
@@ -274,6 +289,14 @@ export const SettingsModal: React.FC<{
 							<DefaultEditorSettings />
 						</div>
 					) : null}
+					{openedTabs.includes('models') ? (
+						<div
+							style={tab === 'models' ? settingsOptionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<ModelsSettings />
+						</div>
+					) : null}
 					{openedTabs.includes('license') ? (
 						<div
 							style={tab === 'license' ? settingsOptionsPanel : hiddenPanel}
@@ -325,7 +348,7 @@ export const SettingsModal: React.FC<{
 				</div>
 				{tab === 'packages' ? (
 					<div ref={setPackagesFooterContainer} />
-				) : isBrowserStudio || tab === 'updates' ? null : (
+				) : isBrowserStudio || tab === 'models' || tab === 'updates' ? null : (
 					<SettingsModalFooter showLicenseFaq={tab === 'license'} />
 				)}
 			</>

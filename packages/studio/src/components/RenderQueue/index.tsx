@@ -3,11 +3,15 @@ import {Internals} from 'remotion';
 import {BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {isCaptionJob} from './caption-job-types';
+import {CaptionQueueItem} from './CaptionQueueItem';
 import {RenderQueueContext} from './context';
 import {RenderQueueItem} from './RenderQueueItem';
+import {isVideoMattingJob} from './video-matting-job-types';
+import {VideoMattingQueueItem} from './VideoMattingQueueItem';
 
 const errorExplanation: React.CSSProperties = {
-	fontSize: 14,
+	fontSize: 13,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
@@ -33,10 +37,17 @@ const renderQueue: React.CSSProperties = {
 };
 
 export const RenderQueue: React.FC = () => {
-	const {jobs} = useContext(RenderQueueContext);
+	const {jobs, captionJobs, videoMattingJobs} = useContext(RenderQueueContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const previousJobCount = React.useRef(jobs.length);
-	const jobCount = jobs.length;
+	const allJobs = useMemo(
+		() =>
+			[...jobs, ...captionJobs, ...videoMattingJobs].sort(
+				(a, b) => a.startedAt - b.startedAt,
+			),
+		[jobs, captionJobs, videoMattingJobs],
+	);
+	const previousJobCount = React.useRef(allJobs.length);
+	const jobCount = allJobs.length;
 
 	const divRef = React.useRef<HTMLDivElement>(null);
 
@@ -62,22 +73,50 @@ export const RenderQueue: React.FC = () => {
 		}
 
 		if (canvasContent.type === 'output') {
-			for (let i = 0; i < jobs.length; i++) {
-				const job = jobs[i];
+			for (let i = 0; i < allJobs.length; i++) {
+				const job = allJobs[i];
+				if (isCaptionJob(job) || isVideoMattingJob(job)) {
+					continue;
+				}
+
 				if (job.status === 'done' && canvasContent.path === `/${job.outName}`) {
 					return i;
 				}
 			}
 		}
 
+		if (canvasContent.type === 'asset') {
+			for (let i = 0; i < allJobs.length; i++) {
+				const job = allJobs[i];
+				if (
+					isCaptionJob(job) &&
+					job.status === 'done' &&
+					canvasContent.asset === job.outName
+				) {
+					return i;
+				}
+
+				if (
+					isVideoMattingJob(job) &&
+					job.status === 'done' &&
+					(canvasContent.asset === job.baseOutName ||
+						canvasContent.asset === job.foregroundOutName)
+				) {
+					return i;
+				}
+			}
+		}
+
 		return -1;
-	}, [canvasContent, jobs]);
+	}, [allJobs, canvasContent]);
 
 	if (jobCount === 0) {
 		return (
 			<div style={explainer}>
 				<Spacing y={5} />
-				<div style={errorExplanation}>No renders in the queue.</div>
+				<div style={errorExplanation}>
+					Renders, transcriptions and video matting jobs will show up here.
+				</div>
 				<Spacing y={2} block />
 			</div>
 		);
@@ -89,12 +128,24 @@ export const RenderQueue: React.FC = () => {
 			style={renderQueue}
 			className={['css-reset', VERTICAL_SCROLLBAR_CLASSNAME].join(' ')}
 		>
-			{jobs.map((j, index) => {
-				return (
-					<RenderQueueItem
-						key={j.id}
+			{allJobs.map((job, index) => {
+				return isCaptionJob(job) ? (
+					<CaptionQueueItem
+						key={job.id}
+						job={job}
 						selected={selectedJob === index}
-						job={j}
+					/>
+				) : isVideoMattingJob(job) ? (
+					<VideoMattingQueueItem
+						key={job.id}
+						job={job}
+						selected={selectedJob === index}
+					/>
+				) : (
+					<RenderQueueItem
+						key={job.id}
+						selected={selectedJob === index}
+						job={job}
 					/>
 				);
 			})}
