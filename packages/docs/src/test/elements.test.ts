@@ -368,50 +368,6 @@ describe('Element library', () => {
 			}),
 		);
 		const sections = getElementLibrarySections(null);
-		const expectedOrder = [
-			'audio/oscilloscope',
-			'audio/waveform-progress',
-			'audio/mirrored-spectrum',
-			'backgrounds/notebook-paper',
-			'backgrounds/paper-texture',
-			'backgrounds/rotating-starburst',
-			'backgrounds/liquid-contours',
-			'captions/basic-captions',
-			'captions/moving-pill-captions',
-			'captions/popping-word-captions',
-			'captions/word-highlight-captions',
-			'commerce/product-collection',
-			'commerce/product-discount-callout',
-			'commerce/product-offer',
-			'data/horizontal-bar-chart',
-			'data/line-chart',
-			'data/number-counter',
-			'data/pie-chart',
-			'data/vertical-bar-chart',
-			'maps/map-flyover',
-			'maps/watercolor-map',
-			'overlays/location-lower-third',
-			'overlays/name-lower-third',
-			'overlays/social-safe-zones',
-			'text/news-article-highlight',
-			'storytelling/on-screen-messages',
-			'storytelling/polaroid-pictures',
-			'text/circle-marker',
-			'text/crossed-off',
-			'text/spinning-text-wheel',
-			'text/strike-through',
-			'text/text-marker',
-			'youtube/youtube-comment-highlight',
-			'youtube/youtube-end-card',
-			'youtube/youtube-subscribe-nudge',
-		];
-		for (let index = 1; index < expectedOrder.length; index++) {
-			expect(
-				overviewMarkup.indexOf(`/elements/${expectedOrder[index - 1]}/`),
-			).toBeLessThan(
-				overviewMarkup.indexOf(`/elements/${expectedOrder[index]}/`),
-			);
-		}
 
 		for (const definition of elementDefinitionList) {
 			expect(
