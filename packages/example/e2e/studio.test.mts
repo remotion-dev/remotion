@@ -3305,10 +3305,10 @@ export const SequenceShiftRepro = () => {
 			await expect
 				.poll(() => page.evaluate(() => navigator.clipboard.readText()))
 				.toBe(contextForAgents);
-			await page.getByRole('button', {name: 'Jump to beginning'}).click();
+			await page.getByRole('button', {name: 'Go to beginning'}).click();
 			for (let i = 0; i < 3; i++) {
 				await page
-					.getByRole('button', {name: 'Step forward one frame'})
+					.getByRole('button', {name: 'Go forward 1 frame'})
 					.click();
 			}
 			await expect
