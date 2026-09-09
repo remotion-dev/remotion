@@ -29,19 +29,14 @@ export const getPackageInstallSpec = (
 	return extraVersion === null ? name : `${name}@${extraVersion}`;
 };
 
-export const handleInstallPackage: ApiHandler<
-	InstallPackageRequest,
-	InstallPackageResponse
-> = async ({
+export const handleInstallPackage = async ({
 	logLevel,
 	remotionRoot,
 	input: {dependencies},
 	invalidateBundle,
-}) => {
-	if (!invalidateBundle) {
-		throw new Error('Cannot install a package without a bundle invalidator.');
-	}
-
+}: Parameters<ApiHandler<InstallPackageRequest, InstallPackageResponse>>[0] & {
+	readonly invalidateBundle: () => Promise<void>;
+}): Promise<InstallPackageResponse> => {
 	for (const dependency of dependencies) {
 		if (!isValidPackageName(dependency.name)) {
 			return Promise.reject(

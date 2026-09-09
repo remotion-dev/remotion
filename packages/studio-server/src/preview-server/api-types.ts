@@ -35,5 +35,4 @@ export type ApiHandler<ReqData, ResData> = (params: {
 	configFile: string | null;
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
-	invalidateBundle?: () => Promise<void>;
 }) => Promise<ResData>;
