@@ -78,7 +78,6 @@ const InspectorControlLayoutInner: React.FC<
 const InteractiveInspectorControlLayout = Interactive.withSchema({
 	Component: InspectorControlLayoutInner,
 	componentName: '<InspectorControlLayout>',
-	componentIdentity: null,
 	schema: inspectorControlLayoutSchema,
 	supportsEffects: false,
 }) as React.FC<InspectorControlLayoutProps>;

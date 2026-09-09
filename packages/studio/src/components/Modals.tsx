@@ -29,6 +29,8 @@ import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
 import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
+import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
+import {VideoMattingModalWithOptionalPackage} from './VideoMatting/VideoMattingModalWithOptionalPackage';
 
 export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
@@ -259,6 +261,12 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'render-progress' && (
 				<RenderStatusModal jobId={modalContextType.jobId} />
 			)}
+			{modalContextType && modalContextType.type === 'transcribe' ? (
+				<TranscriptionModalWithOptionalWhisper state={modalContextType} />
+			) : null}
+			{modalContextType && modalContextType.type === 'video-matting' ? (
+				<VideoMattingModalWithOptionalPackage state={modalContextType} />
+			) : null}
 
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />

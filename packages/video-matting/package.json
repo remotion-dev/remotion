@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/video-matting",
-	"version": "4.0.522",
+	"version": "4.0.523",
 	"description": "Separate a video into a base layer and transparent foreground in the browser",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

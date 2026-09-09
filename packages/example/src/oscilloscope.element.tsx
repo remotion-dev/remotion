@@ -198,7 +198,6 @@ const AudioOscilloscopeInner = forwardRef<
 export const AudioOscilloscope = Interactive.withSchema({
 	Component: AudioOscilloscopeInner,
 	componentName: '<AudioOscilloscope>',
-	componentIdentity: null,
 	schema: audioOscilloscopeSchema,
 	supportsEffects: false,
 }) as React.FC<AudioOscilloscopeProps>;

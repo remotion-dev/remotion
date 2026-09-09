@@ -1,6 +1,7 @@
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import {ProgressPlugin, rspack} from '@rspack/core';
 import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
+import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 import type {
 	BundlerOverrideFn,
 	RspackConfiguration,
@@ -120,6 +121,7 @@ export const rspackConfig = async ({
 				? [
 						new ReactRefreshPlugin({overlay: false}),
 						new rspack.HotModuleReplacementPlugin(),
+						new AllowOptionalDependenciesPlugin(),
 						...extraPlugins,
 					]
 				: [
@@ -131,6 +133,7 @@ export const rspackConfig = async ({
 								}
 							}
 						}),
+						new AllowOptionalDependenciesPlugin(),
 					],
 		output: getOutputConfig(environment),
 		resolve: getResolveConfig(),

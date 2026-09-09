@@ -1,7 +1,7 @@
 ---
 name: remotion-create
 description: Create a new Remotion video
-version: 4.0.522
+version: 4.0.523
 ---
 
 These are instructions for making a new Remotion project and composition.  
@@ -12,15 +12,32 @@ If this is not the next task, see [Remotion Best Practices](../remotion-best-pra
 If a project already exists, skip this.
 Ensure Node.js and Git is installed, and the current folder is appropriate for starting a new project.
 
-Scaffold one using:
+Inspect the current folder, including hidden files, before choosing where to scaffold.
+
+### Empty folder
+
+If it is empty, or contains only disposable operating-system metadata such as `.DS_Store`, create the project directly in the current folder.
+Remove only those disposable metadata files first, since `create-video` rejects non-empty folders.
+Do not treat all hidden files as disposable: files such as `.env` and directories such as `.git` are meaningful contents.
+
+Scaffold in existing folder:
+
+```bash
+npx create-video@latest --yes --blank --no-tailwind .
+npm i
+```
+
+### Non-empty folder
+
+If the current folder contains meaningful contents and no project already exists, scaffold into a new subfolder.
+Replace `my-video` with a suitable project name.
+
 
 ```bash
 npx create-video@latest --yes --blank --no-tailwind my-video
 cd my-video
 npm i
 ```
-
-Replace `my-video` with a suitable project name.
 
 ## Designing a video
 

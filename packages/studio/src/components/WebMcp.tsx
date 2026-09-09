@@ -1,5 +1,7 @@
+import {isValidPackageName} from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo, useRef, type FC} from 'react';
-import {Internals} from 'remotion';
+import {Internals, staticFile} from 'remotion';
+import {installPackages} from '../api/install-package';
 import {pause} from '../api/pause';
 import {play} from '../api/play';
 import {restartStudio} from '../api/restart-studio';
@@ -12,6 +14,7 @@ import {
 	formatContextForAgents,
 	getRelativeFileLocation,
 } from '../helpers/format-file-location';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {
 	clampTimelineZoom,
 	getTimelineMinZoom,
@@ -31,6 +34,15 @@ import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {
+	isOptionalPackageInstalled,
+	markOptionalPackageInstalled,
+} from './OptionalPackageModal';
+import {
+	getDefaultOutputBaseName,
+	validatePublicOutputName,
+} from './public-output-name';
+import {RenderQueueContext} from './RenderQueue/context';
+import {
 	getSequencesWithSelectableOutlines,
 	measureOutlineTargets,
 } from './selected-outline-measurement';
@@ -45,6 +57,13 @@ import {
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useResolveStackAndReactToChange} from './Timeline/use-resolved-stack-react-to-change';
+import {
+	getDefaultCaptionOutputName,
+	validateCaptionOutputName,
+} from './Transcription/caption-output-name';
+import {WHISPER_WEBGPU_PACKAGE} from './Transcription/whisper-webgpu-capability';
+import {useStaticFiles} from './use-static-files';
+import {VIDEO_MATTING_PACKAGE} from './VideoMatting/video-matting-capability';
 
 type WebMcpTool = {
 	readonly name: string;
@@ -126,7 +145,49 @@ const serializeCompositionTree = (
 const getNoStack = () => null;
 const MAX_CANVAS_HTML_LENGTH = 100_000;
 
+const missingOptionalPackageResult = (packageName: string) => ({
+	error: `This requires ${packageName}. Call install_package with packageName set to ${packageName}, then retry.`,
+	installPackage: {
+		packageName,
+		tool: 'install_package',
+	},
+	success: false,
+});
+
+const resolveAssetPath = ({
+	assetPath,
+	currentContent,
+	staticFiles,
+}: {
+	readonly assetPath: unknown;
+	readonly currentContent: {
+		readonly asset?: string;
+		readonly type: string;
+	} | null;
+	readonly staticFiles: readonly {readonly name: string}[];
+}) => {
+	const resolvedAssetPath =
+		assetPath === undefined
+			? currentContent?.type === 'asset'
+				? (currentContent.asset ?? null)
+				: null
+			: assetPath;
+	if (typeof resolvedAssetPath !== 'string' || resolvedAssetPath.length === 0) {
+		throw new Error(
+			'assetPath must be a non-empty public-folder path, or an asset must be selected in Studio.',
+		);
+	}
+
+	if (!staticFiles.some((file) => file.name === resolvedAssetPath)) {
+		throw new Error(`Asset ${resolvedAssetPath} was not found in public/.`);
+	}
+
+	return resolvedAssetPath;
+};
+
 export const WebMcp: FC = () => {
+	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
+	const staticFiles = useStaticFiles();
 	const {canSelect, clearSelection, selectedItems, selectItems} =
 		useTimelineSelection();
 	const {canvasContent, compositions, currentCompositionMetadata, folders} =
@@ -257,6 +318,8 @@ export const WebMcp: FC = () => {
 	}, [canvasContent]);
 	const currentContentRef = useRef(currentContent);
 	currentContentRef.current = currentContent;
+	const staticFilesRef = useRef(staticFiles);
+	staticFilesRef.current = staticFiles;
 	const currentComposition = currentCompositionDefinition?.id ?? null;
 	const currentCompositionRef = useRef(currentComposition);
 	currentCompositionRef.current = currentComposition;
@@ -315,6 +378,411 @@ export const WebMcp: FC = () => {
 		};
 
 		Promise.all([
+			modelContext.registerTool(
+				{
+					name: 'install_package',
+					title: 'Install Studio package',
+					description:
+						'Install an npm package into the current Remotion project. Remotion packages are pinned to the current Remotion version, and known auxiliary packages are pinned to their recommended version.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							packageName: {
+								type: 'string',
+								description: 'The npm package name to install.',
+							},
+							version: {
+								type: 'string',
+								description:
+									'An optional exact semantic version. Omit it to use the recommended version.',
+							},
+						},
+						required: ['packageName'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: async ({packageName, version}) => {
+						if (
+							typeof packageName !== 'string' ||
+							!isValidPackageName(packageName)
+						) {
+							throw new Error('packageName must be a valid npm package name.');
+						}
+
+						if (
+							version !== undefined &&
+							(typeof version !== 'string' ||
+								!/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(
+									version,
+								))
+						) {
+							throw new Error('version must be an exact semantic version.');
+						}
+
+						await installPackages([
+							{
+								name: packageName,
+								version: typeof version === 'string' ? version : null,
+							},
+						]);
+						markOptionalPackageInstalled(packageName);
+						return {installed: true, packageName};
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'transcribe_asset',
+					title: 'Transcribe Studio asset',
+					description:
+						'Transcribe an audio or video asset from the public folder into Remotion Caption[] JSON and add the work to the Jobs queue. If assetPath is omitted, the asset currently open in Studio is used.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							assetPath: {
+								type: 'string',
+								description:
+									'Optional path relative to public/. Defaults to the asset currently open in Studio.',
+							},
+							outputPath: {
+								type: 'string',
+								description:
+									'Optional Caption[] JSON path relative to public/. Defaults to <asset>-captions.json.',
+							},
+							model: {
+								type: 'string',
+								default: 'small.en',
+								description: 'Whisper model. Defaults to small.en.',
+							},
+							language: {
+								type: 'string',
+								default: 'en',
+								description:
+									'Spoken language code for multilingual models. Defaults to en.',
+							},
+							task: {
+								type: 'string',
+								enum: ['transcribe', 'translate'],
+								default: 'transcribe',
+							},
+							chunkLengthInSeconds: {
+								type: 'number',
+								minimum: 1,
+								maximum: 30,
+								default: 30,
+							},
+							strideLengthInSeconds: {
+								type: 'number',
+								minimum: 0,
+								default: 5,
+							},
+							forceFullSequences: {type: 'boolean', default: false},
+							doSample: {type: 'boolean', default: false},
+							temperature: {type: 'number', exclusiveMinimum: 0, default: 1},
+							topK: {type: 'integer', minimum: 0, default: 50},
+							repetitionPenalty: {
+								type: 'number',
+								exclusiveMinimum: 0,
+								default: 1,
+							},
+							noRepeatNgramSize: {type: 'integer', minimum: 0, default: 0},
+						},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: async (input) => {
+						if (!isOptionalPackageInstalled(WHISPER_WEBGPU_PACKAGE)) {
+							return missingOptionalPackageResult(WHISPER_WEBGPU_PACKAGE);
+						}
+
+						const assetPath = resolveAssetPath({
+							assetPath: input.assetPath,
+							currentContent: currentContentRef.current,
+							staticFiles: staticFilesRef.current,
+						});
+						const fileType = getPreviewFileType(assetPath);
+						if (fileType !== 'audio' && fileType !== 'video') {
+							throw new Error(
+								'The transcription asset must be audio or video.',
+							);
+						}
+
+						const whisper = await import('@remotion/whisper-webgpu');
+						const modelName = input.model ?? 'small.en';
+						if (typeof modelName !== 'string') {
+							throw new Error('model must be a string.');
+						}
+
+						const model = whisper
+							.getAvailableModels()
+							.find((candidate) => candidate.name === modelName);
+						if (!model) {
+							throw new Error(`Unknown Whisper model: ${modelName}.`);
+						}
+
+						const task = input.task ?? 'transcribe';
+						if (task !== 'transcribe' && task !== 'translate') {
+							throw new Error('task must be transcribe or translate.');
+						}
+
+						if (task === 'translate' && !model.supportsTranslation) {
+							throw new Error(`${model.name} does not support translation.`);
+						}
+
+						const language = input.language ?? 'en';
+						if (typeof language !== 'string' || language.length === 0) {
+							throw new Error('language must be a non-empty string.');
+						}
+
+						const chunkLengthInSeconds = input.chunkLengthInSeconds ?? 30;
+						const strideLengthInSeconds = input.strideLengthInSeconds ?? 5;
+						const temperature = input.temperature ?? 1;
+						const topK = input.topK ?? 50;
+						const repetitionPenalty = input.repetitionPenalty ?? 1;
+						const noRepeatNgramSize = input.noRepeatNgramSize ?? 0;
+						if (
+							typeof chunkLengthInSeconds !== 'number' ||
+							!Number.isFinite(chunkLengthInSeconds) ||
+							chunkLengthInSeconds < 1 ||
+							chunkLengthInSeconds > 30
+						) {
+							throw new Error('chunkLengthInSeconds must be between 1 and 30.');
+						}
+
+						if (
+							typeof strideLengthInSeconds !== 'number' ||
+							!Number.isFinite(strideLengthInSeconds) ||
+							strideLengthInSeconds < 0 ||
+							strideLengthInSeconds * 2 >= chunkLengthInSeconds
+						) {
+							throw new Error(
+								'strideLengthInSeconds must be non-negative and less than half of chunkLengthInSeconds.',
+							);
+						}
+
+						if (
+							typeof temperature !== 'number' ||
+							!Number.isFinite(temperature) ||
+							temperature <= 0 ||
+							typeof repetitionPenalty !== 'number' ||
+							!Number.isFinite(repetitionPenalty) ||
+							repetitionPenalty <= 0 ||
+							typeof topK !== 'number' ||
+							!Number.isInteger(topK) ||
+							topK < 0 ||
+							typeof noRepeatNgramSize !== 'number' ||
+							!Number.isInteger(noRepeatNgramSize) ||
+							noRepeatNgramSize < 0
+						) {
+							throw new Error('Invalid transcription decoding settings.');
+						}
+
+						const forceFullSequences = input.forceFullSequences ?? false;
+						const doSample = input.doSample ?? false;
+						if (
+							typeof forceFullSequences !== 'boolean' ||
+							typeof doSample !== 'boolean'
+						) {
+							throw new Error(
+								'forceFullSequences and doSample must be booleans.',
+							);
+						}
+
+						const src = staticFile(assetPath);
+						const displayName = assetPath.split('/').at(-1) ?? assetPath;
+						const outputPath =
+							input.outputPath ?? getDefaultCaptionOutputName(src, displayName);
+						if (typeof outputPath !== 'string') {
+							throw new Error('outputPath must be a string.');
+						}
+
+						const outputError = validateCaptionOutputName(outputPath);
+						if (outputError !== null) {
+							throw new Error(outputError);
+						}
+
+						const jobId = addCaptionJob({
+							audioStreamIndex: null,
+							chunkLengthInSeconds,
+							displayName,
+							doSample,
+							forceFullSequences,
+							language: model.multilingual ? language : null,
+							model: model.name,
+							noRepeatNgramSize,
+							outName: outputPath,
+							repetitionPenalty,
+							requestInit: null,
+							src,
+							strideLengthInSeconds,
+							task,
+							temperature,
+							topK,
+						});
+						return {jobId, outputPath, success: true};
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'separate_video_layers',
+					title: 'Separate Studio video layers',
+					description:
+						'Separate a video asset from the public folder into background and foreground WebM files and add the work to the Jobs queue. If assetPath is omitted, the asset currently open in Studio is used.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							assetPath: {
+								type: 'string',
+								description:
+									'Optional path relative to public/. Defaults to the asset currently open in Studio.',
+							},
+							baseOutputPath: {
+								type: 'string',
+								description:
+									'Optional background output path relative to public/.',
+							},
+							foregroundOutputPath: {
+								type: 'string',
+								description:
+									'Optional foreground output path relative to public/.',
+							},
+							model: {
+								type: 'string',
+								default: 'ben2-base',
+							},
+							audio: {
+								type: 'string',
+								enum: ['base', 'foreground', 'both', 'none'],
+								default: 'base',
+							},
+							videoBitrate: {
+								oneOf: [
+									{
+										type: 'string',
+										enum: ['very-low', 'low', 'medium', 'high', 'very-high'],
+									},
+									{type: 'integer', minimum: 1},
+								],
+								default: 'very-high',
+							},
+						},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: async (input) => {
+						if (!isOptionalPackageInstalled(VIDEO_MATTING_PACKAGE)) {
+							return missingOptionalPackageResult(VIDEO_MATTING_PACKAGE);
+						}
+
+						const assetPath = resolveAssetPath({
+							assetPath: input.assetPath,
+							currentContent: currentContentRef.current,
+							staticFiles: staticFilesRef.current,
+						});
+						if (getPreviewFileType(assetPath) !== 'video') {
+							throw new Error('The separation asset must be a video.');
+						}
+
+						const videoMatting = await import('@remotion/video-matting');
+						const modelName = input.model ?? 'ben2-base';
+						if (typeof modelName !== 'string') {
+							throw new Error('model must be a string.');
+						}
+
+						const model = videoMatting
+							.getAvailableModels()
+							.find((candidate) => candidate.name === modelName)?.name;
+						if (!model) {
+							throw new Error(`Unknown video matting model: ${modelName}.`);
+						}
+
+						const audio = input.audio ?? 'base';
+						if (
+							audio !== 'base' &&
+							audio !== 'foreground' &&
+							audio !== 'both' &&
+							audio !== 'none'
+						) {
+							throw new Error('audio must be base, foreground, both, or none.');
+						}
+
+						const videoBitrate = input.videoBitrate ?? 'very-high';
+						if (
+							(typeof videoBitrate !== 'number' ||
+								!Number.isInteger(videoBitrate) ||
+								videoBitrate <= 0) &&
+							videoBitrate !== 'very-low' &&
+							videoBitrate !== 'low' &&
+							videoBitrate !== 'medium' &&
+							videoBitrate !== 'high' &&
+							videoBitrate !== 'very-high'
+						) {
+							throw new Error('videoBitrate is invalid.');
+						}
+
+						const src = staticFile(assetPath);
+						const displayName = assetPath.split('/').at(-1) ?? assetPath;
+						const baseName = getDefaultOutputBaseName(
+							src,
+							displayName,
+							'video',
+						);
+						const baseOutputPath =
+							input.baseOutputPath ?? `${baseName}-base.webm`;
+						const foregroundOutputPath =
+							input.foregroundOutputPath ?? `${baseName}-foreground.webm`;
+						if (
+							typeof baseOutputPath !== 'string' ||
+							typeof foregroundOutputPath !== 'string'
+						) {
+							throw new Error('Output paths must be strings.');
+						}
+
+						const baseError = validatePublicOutputName({
+							extension: '.webm',
+							outName: baseOutputPath,
+						});
+						const foregroundError = validatePublicOutputName({
+							extension: '.webm',
+							outName: foregroundOutputPath,
+						});
+						if (baseError !== null || foregroundError !== null) {
+							throw new Error(
+								baseError ?? foregroundError ?? 'Invalid output path.',
+							);
+						}
+
+						if (
+							baseOutputPath.normalize('NFC').toLowerCase() ===
+							foregroundOutputPath.normalize('NFC').toLowerCase()
+						) {
+							throw new Error(
+								'Background and foreground outputs must be different.',
+							);
+						}
+
+						const jobId = addVideoMattingJob({
+							audio,
+							baseOutName: baseOutputPath,
+							displayName,
+							foregroundOutName: foregroundOutputPath,
+							model,
+							src,
+							videoBitrate,
+						});
+						return {
+							baseOutputPath,
+							foregroundOutputPath,
+							jobId,
+							success: true,
+						};
+					},
+				},
+				{signal: controller.signal},
+			),
 			modelContext.registerTool(
 				{
 					name: 'restart_studio',
@@ -1327,6 +1795,8 @@ export const WebMcp: FC = () => {
 			controller.abort();
 		};
 	}, [
+		addCaptionJob,
+		addVideoMattingJob,
 		clearSelection,
 		isPlaying,
 		selectComposition,

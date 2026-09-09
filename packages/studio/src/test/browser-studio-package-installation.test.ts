@@ -1,7 +1,11 @@
 import {afterEach, expect, test} from 'bun:test';
-import type {BrowserStudioPackageInstallationOperations} from '@remotion/studio-shared';
+import type {
+	BrowserStudioPackageInstallationOperations,
+	PackageInstallSpec,
+} from '@remotion/studio-shared';
 import {installPackages} from '../api/install-package';
 import {canInstallPackages} from '../helpers/browser-studio-operations';
+import {TRANSFORMERS_PACKAGE} from '../helpers/optional-package-dependencies';
 import {makeBrowserStudioOperations} from './make-browser-studio-operations';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
@@ -19,10 +23,10 @@ afterEach(() => {
 });
 
 test('routes package installation through the explicit Browser Studio capability', async () => {
-	const requests: string[][] = [];
+	const requests: PackageInstallSpec[][] = [];
 	const packageInstallation: BrowserStudioPackageInstallationOperations = {
 		installPackages: ({dependencies}) => {
-			requests.push(dependencies.map((dependency) => dependency.name));
+			requests.push(dependencies);
 			return Promise.resolve({success: true});
 		},
 	};
@@ -42,7 +46,16 @@ test('routes package installation through the explicit Browser Studio capability
 	expect(
 		await installPackages([{name: '@remotion/google-fonts', version: null}]),
 	).toEqual({});
-	expect(requests).toEqual([['@remotion/google-fonts']]);
+	expect(
+		await installPackages([{name: '@remotion/video-matting', version: null}]),
+	).toEqual({});
+	expect(requests).toEqual([
+		[{name: '@remotion/google-fonts', version: null}],
+		[
+			{name: '@remotion/video-matting', version: null},
+			{name: TRANSFORMERS_PACKAGE, version: '4.2.0'},
+		],
+	]);
 });
 
 test('surfaces structured Browser Studio package installation failures', async () => {

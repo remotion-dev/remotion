@@ -30,15 +30,15 @@ test('upload-element-preview only overwrites the exact hosted preview URLs', () 
 		writeFileSync(runnerPath, runnerSource);
 		writeFileSync(
 			path.join(temporaryDirectory, 'element-definitions.ts'),
-			`export const elementDefinitions = {
-	fixture: {
+			`export const elementDefinitions = [
+	{
 		slug: 'test/example',
 		preview: {
 			posterUrl: process.env.TEST_POSTER_URL,
 			videoUrl: process.env.TEST_VIDEO_URL,
 		},
 	},
-};
+];
 `,
 		);
 

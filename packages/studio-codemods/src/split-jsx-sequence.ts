@@ -32,6 +32,11 @@ import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
 
 const {builders: b, namedTypes} = recast.types;
 
+// Remove arithmetic noise without rounding fractional frames to whole frames.
+const normalizeComputedTiming = (value: number): number => {
+	return Number.isInteger(value) ? value : Number(value.toPrecision(15));
+};
+
 type SequenceTiming = {
 	from: number;
 	durationInFrames: number;
@@ -435,10 +440,15 @@ export const splitJsxSequence = ({
 	}
 
 	const right = cloneJsxElement(jsxElement);
-	const leftDuration = splitFrame - timing.from;
+	// Match Studio's numeric dragger precision while retaining fractional frames.
+	const leftDuration = normalizeComputedTiming(splitFrame - timing.from);
 	const rightDuration =
-		timing.durationInFrames === Infinity ? Infinity : finiteEnd - splitFrame;
-	const rightTrimBefore = timing.trimBefore + leftDuration;
+		timing.durationInFrames === Infinity
+			? Infinity
+			: normalizeComputedTiming(finiteEnd - splitFrame);
+	const rightTrimBefore = normalizeComputedTiming(
+		timing.trimBefore + leftDuration,
+	);
 
 	setNumericAttribute({
 		element: jsxElement,

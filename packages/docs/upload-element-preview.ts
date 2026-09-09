@@ -41,7 +41,7 @@ if (source !== 'render' && source !== 'submission') {
 }
 
 const selectedElementSlug = elementArguments[0].slice('--element='.length);
-const definition = Object.values(elementDefinitions).find(
+const definition = elementDefinitions.find(
 	(candidate) => candidate.slug === selectedElementSlug,
 );
 if (!definition) {
