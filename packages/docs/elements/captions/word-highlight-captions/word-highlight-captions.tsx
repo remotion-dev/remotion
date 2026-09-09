@@ -305,7 +305,6 @@ const WordHighlightCaptionsInner = forwardRef<
 const WordHighlightCaptionsLayer = Interactive.withSchema({
 	Component: WordHighlightCaptionsInner,
 	componentName: '<WordHighlightCaptions>',
-	componentIdentity: null,
 	schema: wordHighlightCaptionsSchema,
 	supportsEffects: false,
 }) as React.FC<WordHighlightCaptionsProps>;

@@ -391,7 +391,6 @@ const MapRegionInner = forwardRef(MapRegionRefForwardingFunction);
 export const MapRegion = Interactive.withSchema({
 	Component: MapRegionInner,
 	componentName: '<MapRegion>',
-	componentIdentity: null,
 	schema: mapRegionSchema,
 	supportsEffects: false,
 });

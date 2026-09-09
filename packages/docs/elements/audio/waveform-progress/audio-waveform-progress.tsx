@@ -236,7 +236,6 @@ const AudioWaveformProgressInner = forwardRef<
 export const AudioWaveformProgress = Interactive.withSchema({
 	Component: AudioWaveformProgressInner,
 	componentName: '<AudioWaveformProgress>',
-	componentIdentity: null,
 	schema: audioWaveformProgressSchema,
 	supportsEffects: false,
 }) as React.FC<AudioWaveformProgressProps>;

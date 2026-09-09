@@ -555,7 +555,6 @@ export const MapViewport: ComponentType<MapViewportProps> =
 	Interactive.withSchema({
 		Component: MapViewportInner,
 		componentName: '<MapViewport>',
-		componentIdentity: null,
 		schema: mapViewportSchema,
 		supportsEffects: false,
 	});
