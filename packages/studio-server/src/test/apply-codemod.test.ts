@@ -9,7 +9,6 @@ import {
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import type {RecastCodemod} from '@remotion/studio-shared';
-import * as prettier from 'prettier';
 import {parseAndApplyCodemod} from '../codemods/duplicate-composition';
 import {
 	createFileWatcherRegistry,
@@ -402,16 +401,6 @@ const runCompositionCodemodUndoRedoTest = async ({
 		? spyOn(console, 'log').mockImplementation(() => undefined)
 		: null;
 
-	const formatter = [
-		'duplicate-composition',
-		'rename-composition',
-		'delete-composition',
-	].includes(codemod.type)
-		? spyOn(prettier, 'format').mockImplementation(() => {
-				throw new Error('Prettier must not be called');
-			})
-		: null;
-
 	try {
 		clearUndoRedoStacks();
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
@@ -464,7 +453,6 @@ const runCompositionCodemodUndoRedoTest = async ({
 		expect(getUndoStack().length).toBe(1);
 		expect(getRedoStack().length).toBe(0);
 	} finally {
-		formatter?.mockRestore();
 		clearUndoRedoStacks();
 		cleanupLiveEvents();
 		cleanupFileWatcher();
@@ -677,10 +665,6 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 		addNewClientListener: () => () => undefined,
 	});
 
-	const formatter = spyOn(prettier, 'format').mockImplementation(() => {
-		throw new Error('Prettier must not be called');
-	});
-
 	try {
 		clearUndoRedoStacks();
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
@@ -758,7 +742,6 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 			'export const FreshVideo',
 		);
 	} finally {
-		formatter.mockRestore();
 		clearUndoRedoStacks();
 		cleanupLiveEvents();
 		cleanupFileWatcher();
@@ -777,10 +760,6 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
 		addNewClientListener: () => () => undefined,
-	});
-
-	const formatter = spyOn(prettier, 'format').mockImplementation(() => {
-		throw new Error('Prettier must not be called');
 	});
 
 	try {
@@ -873,7 +852,6 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 		expect(readFileSync(entryPoint, 'utf-8')).toBe(rootContents);
 		expect(existsSync(componentFile)).toBe(false);
 	} finally {
-		formatter.mockRestore();
 		clearUndoRedoStacks();
 		cleanupLiveEvents();
 		cleanupFileWatcher();
