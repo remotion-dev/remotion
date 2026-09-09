@@ -1,8 +1,11 @@
 import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
+import {createRequire} from 'module';
 import path from 'path';
+import {pathToFileURL} from 'url';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
+import * as jsxRuntime from 'react/jsx-runtime';
 import elementSidebars from '../../elements-sidebars';
 import {
 	expandElementSourceReferences,
@@ -221,6 +224,49 @@ describe('Elements must follow the colocated single-file format', () => {
 			});
 		});
 	}
+});
+
+describe('Element MDX pages', () => {
+	test('resolves each page definition through its real MDX expression', async () => {
+		// Use the same MDX compiler as Docusaurus.
+		const requireFromDocusaurus = createRequire(
+			require.resolve('@docusaurus/core/package.json'),
+		);
+		const requireFromMdxLoader = createRequire(
+			requireFromDocusaurus.resolve('@docusaurus/mdx-loader'),
+		);
+		const {evaluate} = requireFromMdxLoader('@mdx-js/mdx');
+		for (const element of productionElements) {
+			const source = readFileSync(element.mdxPath, 'utf8')
+				.replace(/^---[\s\S]*?---\s*/, '')
+				// Keep the page's imports and definition expression real; replace only the
+				// Docusaurus UI, which requires its build-generated module aliases.
+				.replace(/import \{ElementPage\} from '[^']+';/, '')
+				.replaceAll(
+					'@site/',
+					pathToFileURL(path.join(elementsRoot, '..')).href + '/',
+				);
+			const {default: Page} = await evaluate(source, {
+				...jsxRuntime,
+				baseUrl: pathToFileURL(element.mdxPath),
+			});
+			const markup = renderToStaticMarkup(
+				React.createElement(Page, {
+					components: {
+						ElementPage: ({
+							definition,
+						}: {
+							readonly definition: (typeof elementDefinitions)[number];
+						}) => {
+							expect(definition.slug).toBe(element.name);
+							return React.createElement('span', null, definition.displayName);
+						},
+					},
+				}),
+			);
+			expect(markup).toContain(getElementDefinition(element.name).displayName);
+		}
+	});
 });
 
 describe('Element library', () => {

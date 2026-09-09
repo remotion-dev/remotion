@@ -5,6 +5,7 @@ import {
 	elementRegistry,
 } from './src/components/Elements/element-registry';
 
+// Keep navigation alphabetical; the library uses the curated definitions array order.
 const compareStrings = (a: string, b: string) => {
 	if (a < b) {
 		return -1;

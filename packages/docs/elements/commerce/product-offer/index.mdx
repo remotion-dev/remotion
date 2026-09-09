@@ -5,8 +5,8 @@ image: https://remotion.media/elements/commerce-product-offer-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Product Offer
 
-<ElementPage definition={elementDefinitions['commerce/product-offer']} sourceFile="./product-offer.tsx" />
+<ElementPage definition={getElementDefinition('commerce/product-offer')} sourceFile="./product-offer.tsx" />
