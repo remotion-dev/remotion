@@ -149,7 +149,13 @@ const ElementGrid: React.FC<{
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
 }> = ({definitions, prefersReducedMotion, sourceCodeBySlug}) => {
 	return (
-		<ul className={styles.grid} role="list">
+		// The Algolia recordExtractor must remove this subtree before extracting records.
+		// This marker requires explicit crawler configuration; it is not built in.
+		<ul
+			className={styles.grid}
+			role="list"
+			data-algolia-exclude="element-cards"
+		>
 			{definitions.map((definition) => {
 				const sourceCode = sourceCodeBySlug[definition.slug];
 				if (!sourceCode) {
