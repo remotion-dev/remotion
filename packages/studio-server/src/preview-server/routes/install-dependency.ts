@@ -103,7 +103,6 @@ export const handleInstallPackage = async ({
 						RenderInternals.Log.info({indent: true, logLevel}, line),
 					),
 			);
-			cmd.stdout.on('end', resolve);
 			cmd.on('close', (code, signal) =>
 				code === 0
 					? resolve()

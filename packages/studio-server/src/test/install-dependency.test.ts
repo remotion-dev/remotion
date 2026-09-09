@@ -22,6 +22,7 @@ type SpawnCall = {
 
 const mockPackageManagerSpawn = () => {
 	const calls: SpawnCall[] = [];
+	let closedProcesses = 0;
 	const replacement = (
 		command: string,
 		args: readonly string[],
@@ -33,7 +34,10 @@ const mockPackageManagerSpawn = () => {
 		child.stdout = stdout;
 		queueMicrotask(() => {
 			stdout.end();
-			child.emit('close', 0, null);
+			setTimeout(() => {
+				closedProcesses++;
+				child.emit('close', 0, null);
+			}, 0);
 		});
 		return child;
 	};
@@ -42,7 +46,7 @@ const mockPackageManagerSpawn = () => {
 		replacement as typeof childProcess.spawn,
 	);
 
-	return {calls, spawnSpy};
+	return {calls, getClosedProcesses: () => closedProcesses, spawnSpy};
 };
 
 test('uses the matching version for Remotion packages', () => {
@@ -89,7 +93,11 @@ test('always aligns Remotion package versions', () => {
 });
 
 test('installs without running dependency lifecycle scripts', async () => {
-	const {calls: spawnCalls, spawnSpy} = mockPackageManagerSpawn();
+	const {
+		calls: spawnCalls,
+		getClosedProcesses,
+		spawnSpy,
+	} = mockPackageManagerSpawn();
 	const lockfiles: Record<PackageManager, string> = {
 		npm: 'package-lock.json',
 		pnpm: 'pnpm-lock.yaml',
@@ -120,6 +128,7 @@ test('installs without running dependency lifecycle scripts', async () => {
 				},
 				logLevel: 'error',
 				invalidateBundle: () => {
+					expect(getClosedProcesses()).toBe(temporaryDirectories.length);
 					invalidations++;
 					return Promise.resolve();
 				},
