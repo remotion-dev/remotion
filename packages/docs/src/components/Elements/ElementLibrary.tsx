@@ -150,7 +150,7 @@ const ElementGrid: React.FC<{
 }> = ({definitions, prefersReducedMotion, sourceCodeBySlug}) => {
 	return (
 		// The Algolia recordExtractor must remove this subtree before extracting records.
-		// This marker requires crawler configuration; see packages/docs/README.md.
+		// This marker requires explicit crawler configuration; it is not built in.
 		<ul
 			className={styles.grid}
 			role="list"
