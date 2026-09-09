@@ -58,7 +58,7 @@ We're calling the machine which orchestrates the render the "main routine".
 - Ensure you are not caught by HTTP body payload limits that for example Lambda has. Otherwise, you might fail to invoke a render if the input props / resolved props payload is too big.
 - Pass the same [`inputProps`](/docs/renderer/render-media#inputprops) that you passed to [`selectComposition()`](/docs/renderer/select-composition#inputprops).
 - Set the [`numberOfGifLoops`](/docs/renderer/render-media#numberofgifloops) always to `null` for the chunk.
-- Set the [`enforceAudioTrack`](/docs/renderer/render-media#enforceaudiotrack) option always to `true`.
+- Set the [`enforceAudioTrack`](/docs/renderer/render-media#enforceaudiotrack) option always to `true`. This ensures that chunks without audio include a silent audio track, because other chunks may contain audio. If the entire render is muted, `muted: true` takes precedence.
 - Set the [`outputLocation`](/docs/renderer/render-media#outputlocation) to a
 - Set the [`compositionStart`](/docs/renderer/render-media#compositionstart) to the first frame of overall range of frames that are being rendered.
   - Example 1: If you are rendering a full composition, every [`renderMedia()`](/docs/renderer/render-media) invocation should have `0` as `compositionStart`.
