@@ -1,5 +1,4 @@
 import {spawn} from 'node:child_process';
-import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {
 	extraPackages,
@@ -13,7 +12,6 @@ import {getInstallCommand} from '../../helpers/install-command';
 import {getPackageManagerSpawnOptions} from '../../helpers/package-manager-spawn-options';
 import type {ApiHandler} from '../api-types';
 import {getPackageManager, lockFilePaths} from '../get-package-manager';
-import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 
 const getExtraPackageVersion = (packageName: string): string | null => {
 	const pkg = extraPackages.find((p) => p.name === packageName);
@@ -87,43 +85,35 @@ export const handleInstallPackage = async ({
 	);
 	const time = Date.now();
 	try {
-		const cancelPackageJsonSuppression = suppressBundlerUpdateForFile(
-			path.join(remotionRoot, 'package.json'),
-		);
-		try {
-			await new Promise<void>((resolve, reject) => {
-				const cmd = spawn(manager.manager, command, {
-					...getPackageManagerSpawnOptions(),
-					env: {
-						...process.env,
-						YARN_ENABLE_SCRIPTS: 'false',
-					},
-				});
-				cmd.on('error', reject);
-				cmd.stdout.on('data', (d: Buffer) =>
-					d
-						.toString()
-						.trim()
-						.split('\n')
-						.forEach((line) =>
-							RenderInternals.Log.info({indent: true, logLevel}, line),
-						),
-				);
-				cmd.on('close', (code, signal) =>
-					code === 0
-						? resolve()
-						: reject(
-								new Error(
-									`Command exited with code ${code} and signal ${signal}`,
-								),
-							),
-				);
+		await new Promise<void>((resolve, reject) => {
+			const cmd = spawn(manager.manager, command, {
+				...getPackageManagerSpawnOptions(),
+				env: {
+					...process.env,
+					YARN_ENABLE_SCRIPTS: 'false',
+				},
 			});
-		} catch (error) {
-			cancelPackageJsonSuppression();
-			throw error;
-		}
-
+			cmd.on('error', reject);
+			cmd.stdout.on('data', (d: Buffer) =>
+				d
+					.toString()
+					.trim()
+					.split('\n')
+					.forEach((line) =>
+						RenderInternals.Log.info({indent: true, logLevel}, line),
+					),
+			);
+			cmd.stdout.on('end', resolve);
+			cmd.on('close', (code, signal) =>
+				code === 0
+					? resolve()
+					: reject(
+							new Error(
+								`Command exited with code ${code} and signal ${signal}`,
+							),
+						),
+			);
+		});
 		await invalidateBundle();
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
