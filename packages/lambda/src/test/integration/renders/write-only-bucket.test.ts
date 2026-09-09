@@ -5,7 +5,10 @@ import path from 'node:path';
 import {bundle} from '@remotion/bundler';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless';
+import {
+	OutputFileAccessDeniedError,
+	ServerlessRoutines,
+} from '@remotion/serverless';
 import {mockImplementation} from '../../mocks/mock-implementation';
 import {readMockS3File} from '../../mocks/mock-store';
 import {waitUntilDone} from '../wait-until-done';
@@ -19,14 +22,16 @@ test.each([1, 2])(
 		const key = 'output.mp4';
 		const originalHead = mockImplementation.headFile;
 		const originalConditionalWrite = mockImplementation.writeFileIfNotExists;
+		const capabilitySpy = spyOn(
+			mockImplementation,
+			'supportsConditionalOutput',
+		);
 		let destinationChecks = 0;
 		const headSpy = spyOn(mockImplementation, 'headFile').mockImplementation(
 			(input) => {
 				if (input.bucketName === destination) {
 					destinationChecks++;
-					throw Object.assign(new Error('Forbidden'), {
-						$metadata: {httpStatusCode: 403},
-					});
+					throw new OutputFileAccessDeniedError('s3:GetObject access denied');
 				}
 
 				return originalHead(input);
@@ -102,6 +107,11 @@ test.each([1, 2])(
 			).toBe(false);
 			expect(destinationChecks).toBeGreaterThanOrEqual(2);
 
+			// The provider can reject a destination even when it implements conditional writes.
+			capabilitySpy.mockReturnValue(false);
+			await expect(render(false)).rejects.toThrow('s3:GetObject');
+			capabilitySpy.mockReturnValue(true);
+
 			// Without conditional uploads, denied preflight reads must remain fatal.
 			mockImplementation.writeFileIfNotExists = null;
 			await expect(render(false)).rejects.toThrow('s3:GetObject');
@@ -118,6 +128,7 @@ test.each([1, 2])(
 			}
 		} finally {
 			mockImplementation.writeFileIfNotExists = originalConditionalWrite;
+			capabilitySpy.mockRestore();
 			headSpy.mockRestore();
 			await close?.();
 			fs.rmSync(temp, {recursive: true, force: true});

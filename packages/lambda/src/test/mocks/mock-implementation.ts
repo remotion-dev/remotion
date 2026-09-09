@@ -118,6 +118,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		});
 		return Promise.resolve(undefined);
 	},
+	supportsConditionalOutput: () => true,
 	writeFileIfNotExists: async ({
 		body,
 		bucketName,

@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {Readable} from 'node:stream';
 import {overallProgressKey} from '../constants';
 import {getExpectedOutName} from '../expected-out-name';
+import {OutputFileAccessDeniedError} from '../find-output-file-in-bucket';
 import type {OverallRenderProgress} from '../overall-render-progress';
 import {getProgress} from '../progress';
 import type {
@@ -165,6 +166,7 @@ const makeProviderSpecifics = ({
 		serverStorageProductName: () => 'S3',
 		validateDeleteAfter: () => undefined,
 		writeFile: () => Promise.resolve(),
+		supportsConditionalOutput: () => true,
 		writeFileIfNotExists: null,
 		headFile: onHeadFile,
 	};
@@ -305,9 +307,7 @@ test('getProgress falls back to persisted progress when destination reads are de
 		onHeadFile: () => {
 			heads++;
 			return Promise.reject(
-				Object.assign(new Error('Forbidden'), {
-					$metadata: {httpStatusCode: 403},
-				}),
+				new OutputFileAccessDeniedError('Destination read access denied'),
 			);
 		},
 	});

@@ -58,6 +58,7 @@ const makeProviderSpecifics = ({
 		serverStorageProductName: () => 'S3',
 		validateDeleteAfter: () => undefined,
 		writeFile,
+		supportsConditionalOutput: () => true,
 		writeFileIfNotExists: null,
 	};
 };

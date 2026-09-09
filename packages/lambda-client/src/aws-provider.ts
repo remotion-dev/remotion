@@ -115,6 +115,8 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	randomHash: randomHashImplementation,
 	readFile: lambdaReadFileImplementation,
 	writeFile: lambdaWriteFileImplementation,
+	supportsConditionalOutput: ({customCredentials}) =>
+		customCredentials === null,
 	writeFileIfNotExists: lambdaWriteFileIfNotExistsImplementation,
 	headFile: lambdaHeadFileImplementation,
 	convertToServeUrl: convertToServeUrlImplementation,

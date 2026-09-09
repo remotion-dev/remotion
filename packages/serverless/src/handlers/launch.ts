@@ -348,7 +348,9 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	const renderMetadata: RenderMetadata<Provider> = {
 		outputFileIsConditional:
 			!params.overwrite &&
-			getCredentialsFromOutName(params.outName ?? null) === null &&
+			providerSpecifics.supportsConditionalOutput({
+				customCredentials: getCredentialsFromOutName(params.outName ?? null),
+			}) &&
 			providerSpecifics.writeFileIfNotExists !== null,
 		startedDate,
 		totalChunks: chunks.length,

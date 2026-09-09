@@ -249,9 +249,15 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	randomHash: RandomHash;
 	readFile: ReadFile<Provider>;
 	writeFile: WriteFile<Provider>;
+	// Whether this destination supports atomic create-only output uploads.
+	supportsConditionalOutput: (params: {
+		customCredentials: CustomCredentials<Provider> | null;
+	}) => boolean;
 	writeFileIfNotExists:
 		| ((params: WriteFileInput<Provider> & {renderId: string}) => Promise<void>)
 		| null;
+	// Normalize permission failures to OutputFileAccessDeniedError and missing files
+	// to an error named NotFound. Other errors must propagate unchanged.
 	headFile: HeadFile<Provider>;
 	convertToServeUrl: ConvertToServeUrl<Provider>;
 	printLoggingHelper: boolean;
