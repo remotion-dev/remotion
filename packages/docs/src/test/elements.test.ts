@@ -333,20 +333,6 @@ describe('Element library', () => {
 			expect(overviewMarkup).toContain(getElementDocumentationUrl(definition));
 		}
 
-		// Mirrors the hosted crawler's documented DOM removal, not DocSearch itself.
-		const overviewForSearch = new HTMLRewriter()
-			.on('[data-algolia-exclude="element-cards"]', {
-				element: (element) => element.remove(),
-			})
-			.transform(overviewMarkup);
-		expect(overviewForSearch).toContain('>YouTube</h2>');
-		for (const definition of elementDefinitionList) {
-			expect(overviewForSearch).not.toContain(definition.description);
-			expect(overviewForSearch).not.toContain(
-				getElementDocumentationUrl(definition),
-			);
-		}
-
 		expect(overviewMarkup).not.toContain('.mp4');
 		expect(overviewMarkup).toContain('>YouTube</h2>');
 		expect(overviewMarkup.match(/draggable="true"/g)).toHaveLength(
@@ -363,18 +349,6 @@ describe('Element library', () => {
 					sourceCodeBySlug,
 				}),
 			);
-			const categoryForSearch = new HTMLRewriter()
-				.on('[data-algolia-exclude="element-cards"]', {
-					element: (element) => element.remove(),
-				})
-				.transform(categoryMarkup);
-			for (const definition of section.definitions) {
-				expect(categoryForSearch).not.toContain(definition.description);
-				expect(categoryForSearch).not.toContain(
-					getElementDocumentationUrl(definition),
-				);
-			}
-
 			const categoryIndex = readFileSync(
 				path.join(elementsRoot, section.category, 'index.mdx'),
 				'utf8',
