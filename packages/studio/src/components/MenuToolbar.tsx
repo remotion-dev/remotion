@@ -17,9 +17,9 @@ import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
+import {SettingsButton} from './SettingsButton';
 import {SidebarCollapserControl} from './SidebarCollapserControls';
 import {UndoRedoButtons} from './UndoRedoButtons';
-import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
@@ -205,13 +205,13 @@ export const MenuToolbar: React.FC<{
 						);
 					})}
 				</div>
-				{showUpdates ? <UpdateCheck /> : null}
 			</div>
 			{mobileLayout ? null : <div style={flex} />}
 			<MenuBuildIndicator mobileLayout={mobileLayout} />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
 				{canUndoAndRedo ? <UndoRedoButtons /> : null}
+				<SettingsButton showUpdates={showUpdates} />
 				<SidebarCollapserControl side="right" />
 			</div>
 		</Row>
