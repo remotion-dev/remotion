@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -55,10 +56,18 @@ export const RenderQueueCancelButton: React.FC<{
 	);
 
 	return (
-		<InlineAction
-			renderAction={renderAction}
-			onClick={onClick}
-			variant={null}
-		/>
+		<ActionTooltip
+			label="Cancel render"
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
+			<InlineAction
+				aria-label="Cancel render"
+				renderAction={renderAction}
+				onClick={onClick}
+				variant={null}
+			/>
+		</ActionTooltip>
 	);
 };

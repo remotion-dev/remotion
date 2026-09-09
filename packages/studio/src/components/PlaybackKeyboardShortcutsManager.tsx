@@ -1,12 +1,49 @@
 import {PlayerInternals} from '@remotion/player';
 import type React from 'react';
 import {useCallback, useEffect} from 'react';
+import {useIsVideoComposition} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {toggleLoop} from './LoopToggle';
+import {toggleMute} from './MuteToggle';
 
 export const PlaybackKeyboardShortcutsManager: React.FC<{
 	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
-}> = ({setPlaybackRate}) => {
+	readonly setMuted: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setLoop: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({setPlaybackRate, setMuted, setLoop}) => {
 	const keybindings = useKeybinding();
+	const isVideoComposition = useIsVideoComposition();
+
+	useEffect(() => {
+		if (!isVideoComposition) {
+			return;
+		}
+
+		const mute = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'toggleMute',
+			callback: (event) => {
+				if (!event.repeat) toggleMute(setMuted);
+			},
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const loop = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'toggleLoop',
+			callback: (event) => {
+				if (!event.repeat) toggleLoop(setLoop);
+			},
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		return () => {
+			mute.unregister();
+			loop.unregister();
+		};
+	}, [isVideoComposition, keybindings, setLoop, setMuted]);
 
 	const {play, pause, isPlaying} = PlayerInternals.usePlayerMethods();
 

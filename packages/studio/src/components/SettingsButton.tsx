@@ -3,6 +3,7 @@ import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {WARNING_COLOR, WHITE_ALPHA_80} from '../helpers/colors';
 import {GearIcon} from '../icons/gear';
 import {SetSelectedModalContext} from '../state/modals';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {useUpdateStatus} from './UpdateStatusContext';
@@ -56,19 +57,22 @@ export const SettingsButton: React.FC<{
 		);
 	}, []);
 
+	const label = hasBugfixesAvailable
+		? 'Bugfixes available'
+		: updateAvailable
+			? 'Update available'
+			: 'Settings';
+
 	return (
-		<InlineAction
-			variant={null}
-			onClick={openModal}
-			renderAction={updateAvailable ? renderUpdateIcon : renderGearIcon}
-			unhoveredColor={hasBugfixesAvailable ? WARNING_COLOR : WHITE_ALPHA_80}
-			title={
-				hasBugfixesAvailable
-					? 'Bugfixes available'
-					: updateAvailable
-						? 'Update available'
-						: 'Settings'
-			}
-		/>
+		<ActionTooltip label={label} shortcut={null} delay={800} dismissOnClick>
+			<InlineAction
+				variant={null}
+				onClick={openModal}
+				renderAction={updateAvailable ? renderUpdateIcon : renderGearIcon}
+				unhoveredColor={hasBugfixesAvailable ? WARNING_COLOR : WHITE_ALPHA_80}
+				title=""
+				aria-label={label}
+			/>
+		</ActionTooltip>
 	);
 };

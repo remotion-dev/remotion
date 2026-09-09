@@ -34,6 +34,7 @@ export const WHITE_ALPHA_60 = 'rgba(255, 255, 255, 0.6)';
 export const WHITE_ALPHA_70 = 'rgba(255, 255, 255, 0.7)';
 export const WHITE_ALPHA_72 = 'rgba(255, 255, 255, 0.72)';
 export const WHITE_ALPHA_80 = 'rgba(255, 255, 255, 0.8)';
+export const WHITE_ALPHA_90 = 'rgba(255, 255, 255, 0.9)';
 export const BLACK_ALPHA_10 = 'rgba(0, 0, 0, 0.1)';
 export const BLACK_ALPHA_28 = 'rgba(0, 0, 0, 0.28)';
 export const BLACK_ALPHA_30 = 'rgba(0, 0, 0, 0.3)';

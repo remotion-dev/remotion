@@ -5,6 +5,7 @@ import {
 	formatKeyboardShortcutForAria,
 	keyboardEventMatchesShortcut,
 	keyboardShortcutsOverlap,
+	shortcutFromKeyboardEvent,
 } from '../components/keyboard-shortcuts';
 import {isMac} from '../helpers/is-mac';
 
@@ -89,6 +90,49 @@ test('detects overlapping shortcuts', () => {
 	expect(
 		keyboardShortcutsOverlap({key: 'a'}, {commandOrControl: true, key: 'a'}),
 	).toBe(false);
+});
+
+test('keeps shifted shortcuts distinct from their plain-key actions', () => {
+	for (const [key, plainAction, shiftedAction] of [
+		['m', 'toggleMute', 'toggleSnapping'],
+		['l', 'playForward', 'toggleLoop'],
+		['o', 'setOutPoint', 'toggleOutlines'],
+		['r', 'render', 'toggleRulersAndGuides'],
+		['r', 'selectRotateProp', 'toggleRulersAndGuides'],
+	] as const) {
+		const plainShortcut = defaultKeyboardShortcuts[plainAction][0];
+		const shiftedShortcut = defaultKeyboardShortcuts[shiftedAction][0];
+		for (const shiftKey of [false, true]) {
+			const keyEvent = event({
+				key: shiftKey ? key.toUpperCase() : key,
+				shiftKey,
+			});
+			expect(
+				keyboardEventMatchesShortcut({
+					event: keyEvent,
+					shortcut: plainShortcut,
+				}),
+			).toBe(!shiftKey);
+			expect(
+				keyboardEventMatchesShortcut({
+					event: keyEvent,
+					shortcut: shiftedShortcut,
+				}),
+			).toBe(shiftKey);
+		}
+
+		expect(keyboardShortcutsOverlap(plainShortcut, shiftedShortcut)).toBe(
+			false,
+		);
+		const recorded = shortcutFromKeyboardEvent(event({key}))!;
+		expect(keyboardShortcutsOverlap(recorded, shiftedShortcut)).toBe(false);
+		expect(
+			keyboardEventMatchesShortcut({
+				event: event({key, altKey: true}),
+				shortcut: recorded,
+			}),
+		).toBe(false);
+	}
 });
 
 test('formats a shortcut for display', () => {

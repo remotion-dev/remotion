@@ -291,6 +291,262 @@ test.describe('visual mode', () => {
 		await stopStudio();
 	});
 
+	test('customizes playback and view shortcuts and keeps modifiers distinct', async ({
+		page,
+	}) => {
+		const configFile = path.join(exampleDir, 'remotion.config.ts');
+		const originalConfig = fs.readFileSync(configFile, 'utf8');
+		try {
+			await page.goto(`${STUDIO_URL}/schema-test`);
+			const muteButton = page.getByRole('button', {
+				name: 'Mute video',
+				exact: true,
+			});
+			const unmuteButton = page.getByRole('button', {
+				name: 'Unmute video',
+				exact: true,
+			});
+			await expect(muteButton).toBeVisible();
+			await page.keyboard.press('m');
+			await expect(unmuteButton).toBeVisible();
+			await page.keyboard.press('Shift+M');
+			await expect(unmuteButton).toBeVisible();
+			await page.keyboard.press('m');
+			await expect(muteButton).toBeVisible();
+
+			const loopButton = page.getByRole('button', {name: 'Loop', exact: true});
+			if (
+				await page
+					.getByRole('button', {name: 'Loop', exact: true, pressed: true})
+					.count()
+			) {
+				await loopButton.click();
+			}
+			await page.keyboard.press('Shift+L');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: true}),
+			).toBeVisible();
+			await expect(
+				page.getByRole('button', {name: 'Play', exact: true}),
+			).toBeVisible();
+			await page.keyboard.press('l');
+			await expect(
+				page.getByRole('button', {name: 'Pause', exact: true}),
+			).toBeVisible();
+			await page.keyboard.press('k');
+			await expect(
+				page.getByRole('button', {name: 'Play', exact: true}),
+			).toBeVisible();
+
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			const dialog = page.getByRole('dialog');
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			for (const [name, key, action] of [
+				['Mute / Unmute', 'u', 'toggleMute'],
+				['Loop', 'y', 'toggleLoop'],
+			]) {
+				const control = dialog.getByRole('button', {
+					name: `Change shortcut for ${name}`,
+					exact: true,
+				});
+				await control.click();
+				await page.keyboard.press(key);
+				await expect(control).toContainText(key.toUpperCase());
+				await expect
+					.poll(() => fs.readFileSync(configFile, 'utf8'))
+					.toContain(action);
+				await expect(
+					page.getByRole('button', {
+						name: action === 'toggleMute' ? 'Mute video' : 'Loop',
+						exact: true,
+						includeHidden: true,
+					}),
+				).toHaveAttribute('aria-keyshortcuts', key);
+			}
+			await page.keyboard.press('Escape');
+			await expect(dialog).toHaveCount(0);
+			await page.reload();
+			await expect(muteButton).toBeVisible();
+			await page.keyboard.press('u');
+			await expect(unmuteButton).toBeVisible();
+			await page.keyboard.press('m');
+			await expect(unmuteButton).toBeVisible();
+			await unmuteButton.hover();
+			await expect(page.getByRole('tooltip')).toContainText('U');
+
+			await page.setViewportSize({width: 600, height: 800});
+			await page.keyboard.press('y');
+			await page.setViewportSize({width: 1280, height: 800});
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: false}),
+			).toBeVisible();
+			await page.keyboard.press('Shift+L');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: false}),
+			).toBeVisible();
+			await page.keyboard.press('y');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: true}),
+			).toBeVisible();
+
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			await dialog
+				.getByRole('button', {name: 'Actions for Mute / Unmute', exact: true})
+				.click();
+			await page.getByText('Disable shortcut', {exact: true}).click();
+			await expect(
+				dialog.getByRole('button', {
+					name: 'Change shortcut for Mute / Unmute',
+					exact: true,
+				}),
+			).toHaveText('Unassigned');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toMatch(/toggleMute['"]?: null/);
+			await page.keyboard.press('Escape');
+			await page.keyboard.press('u');
+			await expect(unmuteButton).toBeVisible();
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			for (const name of ['Mute / Unmute', 'Loop']) {
+				await dialog
+					.getByRole('button', {name: `Actions for ${name}`, exact: true})
+					.click();
+				await page.getByText('Reset to default', {exact: true}).click();
+			}
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('toggleMute');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('toggleLoop');
+			await page.keyboard.press('Escape');
+			await expect(dialog).toHaveCount(0);
+			await page.keyboard.press('m');
+			await expect(muteButton).toBeVisible();
+			await page.keyboard.press('Shift+L');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: false}),
+			).toBeVisible();
+
+			for (const [name, pattern, defaultKey, remappedKey, action] of [
+				[
+					'Outlines',
+					/^(Show|Hide) outlines$/,
+					'Shift+O',
+					'Shift+U',
+					'toggleOutlines',
+				],
+				[
+					'Rulers and guides',
+					/^(Show|Hide) rulers and guides$/,
+					'Shift+R',
+					'Shift+Y',
+					'toggleRulersAndGuides',
+				],
+			] as const) {
+				const button = page.getByRole('button', {name: pattern});
+				if (
+					await page.getByRole('button', {name: pattern, pressed: true}).count()
+				) {
+					await button.click();
+				}
+				await page.keyboard.press(defaultKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+				await expect(dialog).toHaveCount(0);
+				await button.hover();
+				await expect(page.getByRole('tooltip')).toContainText(
+					defaultKey.slice(-1),
+				);
+
+				await page.getByRole('button', {name: 'Settings', exact: true}).click();
+				await dialog
+					.getByRole('button', {name: 'Shortcuts', exact: true})
+					.click();
+				const control = dialog.getByRole('button', {
+					name: `Change shortcut for ${name}`,
+					exact: true,
+				});
+				await control.click();
+				await page.keyboard.press(remappedKey);
+				await expect(control).toContainText(remappedKey.slice(-1));
+				await expect
+					.poll(() => fs.readFileSync(configFile, 'utf8'))
+					.toContain(action);
+				await page.keyboard.press('Escape');
+				await expect(dialog).toHaveCount(0);
+				await page.reload();
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+				await page.keyboard.press(defaultKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+				await page.setViewportSize({width: 600, height: 800});
+				await page.keyboard.press(remappedKey);
+				await page.setViewportSize({width: 1280, height: 800});
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: false}),
+				).toBeVisible();
+				await button.hover();
+				await expect(page.getByRole('tooltip')).toContainText(
+					remappedKey.slice(-1),
+				);
+
+				await page.getByRole('button', {name: 'Settings', exact: true}).click();
+				await dialog
+					.getByRole('button', {name: 'Shortcuts', exact: true})
+					.click();
+				await dialog
+					.getByRole('button', {name: `Actions for ${name}`, exact: true})
+					.click();
+				await page.getByText('Disable shortcut', {exact: true}).click();
+				await expect(control).toHaveText('Unassigned');
+				await page.keyboard.press('Escape');
+				await expect(dialog).toHaveCount(0);
+				await expect(button).not.toHaveAttribute('aria-keyshortcuts');
+				await page.keyboard.press(remappedKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: false}),
+				).toBeVisible();
+				await page.getByRole('button', {name: 'Settings', exact: true}).click();
+				await dialog
+					.getByRole('button', {name: 'Shortcuts', exact: true})
+					.click();
+				await dialog
+					.getByRole('button', {name: `Actions for ${name}`, exact: true})
+					.click();
+				await page.getByText('Reset to default', {exact: true}).click();
+				await expect
+					.poll(() => fs.readFileSync(configFile, 'utf8'))
+					.not.toContain(action);
+				await expect(control).toContainText(defaultKey.slice(-1));
+				await page.keyboard.press('Escape');
+				await expect(dialog).toHaveCount(0);
+				await expect(button).toHaveAttribute(
+					'aria-keyshortcuts',
+					`Shift+${defaultKey.slice(-1).toLowerCase()}`,
+				);
+				await page.keyboard.press(defaultKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+			}
+		} finally {
+			fs.writeFileSync(configFile, originalConfig);
+		}
+	});
+
 	test('should load the studio without flashing a composition error', async ({
 		page,
 	}) => {
@@ -3045,10 +3301,10 @@ export const SequenceShiftRepro = () => {
 			await expect
 				.poll(() => page.evaluate(() => navigator.clipboard.readText()))
 				.toBe(contextForAgents);
-			await page.getByRole('button', {name: 'Jump to beginning'}).click();
+			await page.getByRole('button', {name: 'Go to beginning'}).click();
 			for (let i = 0; i < 3; i++) {
 				await page
-					.getByRole('button', {name: 'Step forward one frame'})
+					.getByRole('button', {name: 'Go forward 1 frame'})
 					.click();
 			}
 			await expect
@@ -3287,7 +3543,7 @@ export const SequenceShiftRepro = () => {
 			});
 			expect(canvasHtml).toContain('Performance overview');
 			expect(canvasHtml).toContain('Regional growth');
-			expect(canvasHtml).not.toContain('Change the playback rate');
+			expect(canvasHtml).not.toContain('Playback rate');
 			const webMcpOutlines = await page.evaluate(async () => {
 				const tools = (
 					window as typeof window & {
@@ -3711,7 +3967,7 @@ export const SequenceShiftRepro = () => {
 			});
 			await expect(
 				page.getByRole('button', {
-					name: 'Change the playback rate',
+					name: 'Playback rate',
 					exact: true,
 				}),
 			).toContainText('1.5x');

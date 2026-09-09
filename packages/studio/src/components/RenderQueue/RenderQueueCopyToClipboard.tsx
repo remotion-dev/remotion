@@ -4,6 +4,7 @@ import {CURRENT_COLOR} from '../../helpers/colors';
 import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
 import {useCopyFeedback} from '../../helpers/use-copy-feedback';
 import {CopyIcon} from '../../icons/copy';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -76,11 +77,18 @@ export const RenderQueueCopyToClipboard: React.FC<{
 	);
 
 	return (
-		<InlineAction
-			variant={null}
-			title="Copy to clipboard"
-			renderAction={renderCopyAction}
-			onClick={onClick}
-		/>
+		<ActionTooltip
+			label="Copy to clipboard"
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
+			<InlineAction
+				aria-label="Copy to clipboard"
+				variant={null}
+				renderAction={renderCopyAction}
+				onClick={onClick}
+			/>
+		</ActionTooltip>
 	);
 };

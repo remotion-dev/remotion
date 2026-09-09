@@ -7,6 +7,7 @@ import {
 } from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {EllipsisIcon} from '../../icons/ellipsis';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {InlineDropdown} from '../InlineDropdown';
@@ -204,22 +205,31 @@ export const VideoMattingQueueItem: React.FC<{
 			</div>
 			<Spacing x={1} />
 			{done ? (
-				<InlineDropdown
-					renderAction={(color) => (
-						<EllipsisIcon fill={color} svgProps={ellipsisIconStyle} />
-					)}
-					title="Reveal video layer"
-					values={revealItems}
-					variant={null}
-				/>
+				<ActionTooltip
+					label="Reveal video layer"
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+				>
+					<InlineDropdown
+						renderAction={(color) => (
+							<EllipsisIcon fill={color} svgProps={ellipsisIconStyle} />
+						)}
+						aria-label="Reveal video layer"
+						values={revealItems}
+						variant={null}
+					/>
+				</ActionTooltip>
 			) : null}
 			{job.status === 'running' ? null : (
-				<InlineAction
-					renderAction={renderRemove}
-					onClick={onRemove}
-					title="Remove"
-					variant={null}
-				/>
+				<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
+					<InlineAction
+						renderAction={renderRemove}
+						onClick={onRemove}
+						aria-label="Clear"
+						variant={null}
+					/>
+				</ActionTooltip>
 			)}
 		</Row>
 	);

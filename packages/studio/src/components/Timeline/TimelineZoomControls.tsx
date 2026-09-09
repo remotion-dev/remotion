@@ -13,6 +13,7 @@ import {useIsVideoComposition} from '../../helpers/is-current-selected-still';
 import {CanvasZoomIcon, CanvasZoomOutIcon} from '../../icons/canvas-zoom';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
+import {ActionTooltip} from '../ActionTooltip';
 import {ControlButton} from '../ControlButton';
 import {Spacing} from '../layout';
 import {scrollableRef} from './timeline-refs';
@@ -136,15 +137,22 @@ const TimelineZoomControlsInner: React.FC<{
 
 	return (
 		<div style={container}>
-			<ControlButton
-				onClick={onMinusClicked}
-				style={buttonStyle}
-				title="Zoom out timeline"
-				role={'ControlButton'}
-				type="button"
+			<ActionTooltip
+				label="Zoom out timeline"
+				shortcut={null}
+				delay={800}
+				dismissOnClick
 			>
-				{(color) => <CanvasZoomOutIcon color={color} />}
-			</ControlButton>
+				<ControlButton
+					onClick={onMinusClicked}
+					style={buttonStyle}
+					title=""
+					aria-label="Zoom out timeline"
+					type="button"
+				>
+					{(color) => <CanvasZoomOutIcon color={color} />}
+				</ControlButton>
+			</ActionTooltip>
 			<Spacing x={0.5} />
 			<TimelineZoomSlider
 				maxWidth={sliderMaxWidth}
@@ -152,15 +160,22 @@ const TimelineZoomControlsInner: React.FC<{
 				timelineViewportWidth={timelineViewportWidth}
 			/>
 			<Spacing x={0.5} />
-			<ControlButton
-				onClick={onPlusClicked}
-				style={buttonStyle}
-				title="Zoom in timeline"
-				role={'button'}
-				type="button"
+			<ActionTooltip
+				label="Zoom in timeline"
+				shortcut={null}
+				delay={800}
+				dismissOnClick
 			>
-				{(color) => <CanvasZoomIcon color={color} />}
-			</ControlButton>
+				<ControlButton
+					onClick={onPlusClicked}
+					style={buttonStyle}
+					title=""
+					aria-label="Zoom in timeline"
+					type="button"
+				>
+					{(color) => <CanvasZoomIcon color={color} />}
+				</ControlButton>
+			</ActionTooltip>
 		</div>
 	);
 };

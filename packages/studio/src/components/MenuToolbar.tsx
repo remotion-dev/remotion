@@ -6,10 +6,14 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
-import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {useMenuStructure} from '../helpers/use-menu-structure';
 import {SearchIcon} from '../icons/search';
 import {SetSelectedModalContext} from '../state/modals';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row} from './layout';
@@ -163,10 +167,9 @@ export const MenuToolbar: React.FC<{
 	}, []);
 
 	const quickSwitcherShortcut = useKeyboardShortcutLabel('quickSwitcher');
-	const searchTooltip =
-		areKeyboardShortcutsDisabled() || quickSwitcherShortcut === ''
-			? 'Quick Switcher'
-			: `Quick Switcher (${quickSwitcherShortcut})`;
+	const quickSwitcherAriaShortcut =
+		useKeyboardShortcutAriaKeyShortcuts('quickSwitcher');
+	const shortcutsDisabled = areKeyboardShortcutsDisabled();
 
 	return (
 		<Row
@@ -177,12 +180,24 @@ export const MenuToolbar: React.FC<{
 		>
 			<div style={fixedWidthLeft}>
 				{mobileLayout ? (
-					<InlineAction
-						variant={null}
-						onClick={openQuickSwitcher}
-						renderAction={renderSearchIcon}
-						title={searchTooltip}
-					/>
+					<ActionTooltip
+						label="Quick switcher"
+						shortcut={shortcutsDisabled ? null : quickSwitcherShortcut}
+						delay={800}
+						dismissOnClick
+					>
+						<InlineAction
+							variant={null}
+							onClick={openQuickSwitcher}
+							renderAction={renderSearchIcon}
+							aria-label="Quick switcher"
+							aria-keyshortcuts={
+								shortcutsDisabled
+									? undefined
+									: quickSwitcherAriaShortcut || undefined
+							}
+						/>
+					</ActionTooltip>
 				) : (
 					<SidebarCollapserControl side="left" />
 				)}

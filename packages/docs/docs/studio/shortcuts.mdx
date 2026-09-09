@@ -13,6 +13,8 @@ You can also press <kbd>?</kbd> to open this tab.
 | Action ID                       | Default                                    | Action                                                         |
 | ------------------------------- | ------------------------------------------ | -------------------------------------------------------------- |
 | `playPause`                     | `Space`                                    | Play or pause                                                  |
+| `toggleMute`                    | `M`                                        | Mute or unmute preview audio                                   |
+| `toggleLoop`                    | `Shift+L`                                  | Enable or disable looping                                      |
 | `jumpToBeginning`               | `A`                                        | Jump to the beginning                                          |
 | `jumpToEnd`                     | `E`                                        | Jump to the end                                                |
 | `reversePlayback`               | `J`                                        | Play in reverse                                                |
@@ -24,6 +26,8 @@ You can also press <kbd>?</kbd> to open this tab.
 | `toggleRightSidebar`            | `Cmd/Ctrl+J`                               | Toggle the right sidebar                                       |
 | `toggleBothSidebars`            | `Cmd/Ctrl+G`                               | Toggle both sidebars                                           |
 | `enterFullscreen`               | `F`                                        | Enter fullscreen                                               |
+| `toggleOutlines`                | `Shift+O`                                  | Show or hide outlines                                          |
+| `toggleRulersAndGuides`         | `Shift+R`                                  | Show or hide rulers and guides                                 |
 | `toggleSnapping`                | `Shift+M`                                  | Enable or disable snapping                                     |
 | `previousComposition`           | `PageUp`                                   | Select the previous composition                                |
 | `nextComposition`               | `PageDown`                                 | Select the next composition                                    |
@@ -83,10 +87,12 @@ You can also edit the configuration file directly:
 import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setKeyboardShortcuts({
-	playPause: {key: 'q'},
-	quickSwitcher: {key: 'p', commandOrControl: true},
-	toggleSnapping: {key: 's', shift: true},
-	render: null,
+  playPause: {key: 'q'},
+  toggleMute: {key: 'u'},
+  toggleLoop: {key: 'y'},
+  quickSwitcher: {key: 'p', commandOrControl: true},
+  toggleSnapping: {key: 's', shift: true},
+  render: null,
 });
 ```
 

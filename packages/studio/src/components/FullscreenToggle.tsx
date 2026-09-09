@@ -1,13 +1,16 @@
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {NoReactInternals} from 'remotion/no-react';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
-import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {FullscreenIcon} from '../icons/fullscreen';
 import {drawRef} from '../state/canvas-ref';
+import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 
 export const FullScreenToggle: React.FC<{
@@ -29,12 +32,10 @@ export const FullScreenToggle: React.FC<{
 			}));
 	}, [setSize]);
 	const shortcut = useKeyboardShortcutLabel('enterFullscreen');
-	const accessibilityLabel = [
-		'Enter fullscreen preview',
-		areKeyboardShortcutsDisabled() || shortcut === '' ? null : `(${shortcut})`,
-	]
-		.filter(NoReactInternals.truthy)
-		.join(' ');
+	const ariaKeyShortcuts =
+		useKeyboardShortcutAriaKeyShortcuts('enterFullscreen');
+	const accessibilityLabel = 'Enter fullscreen preview';
+	const shortcutsDisabled = areKeyboardShortcutsDisabled();
 
 	useEffect(() => {
 		const f = keybindings.registerKeybinding({
@@ -58,15 +59,25 @@ export const FullScreenToggle: React.FC<{
 			onClick={onClick}
 		/>
 	) : (
-		<ControlButton
-			id="fullscreen-toggle"
-			title={accessibilityLabel}
-			aria-label={accessibilityLabel}
-			onClick={onClick}
+		<ActionTooltip
+			label={accessibilityLabel}
+			shortcut={shortcutsDisabled ? null : shortcut}
+			delay={800}
+			dismissOnClick
 		>
-			{(color) => (
-				<FullscreenIcon color={color} style={{width: 18, height: 18}} />
-			)}
-		</ControlButton>
+			<ControlButton
+				id="fullscreen-toggle"
+				title=""
+				aria-label={accessibilityLabel}
+				aria-keyshortcuts={
+					shortcutsDisabled ? undefined : ariaKeyShortcuts || undefined
+				}
+				onClick={onClick}
+			>
+				{(color) => (
+					<FullscreenIcon color={color} style={{width: 18, height: 18}} />
+				)}
+			</ControlButton>
+		</ActionTooltip>
 	);
 };

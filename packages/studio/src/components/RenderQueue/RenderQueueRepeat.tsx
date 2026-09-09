@@ -6,6 +6,7 @@ import {
 	makeRetryPayload,
 } from '../../helpers/retry-payload';
 import {SetSelectedModalContext} from '../../state/modals';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import type {
@@ -61,10 +62,13 @@ export const RenderQueueRepeatItem: React.FC<{
 	);
 
 	return (
-		<InlineAction
-			onClick={onClick}
-			renderAction={renderAction}
-			variant={null}
-		/>
+		<ActionTooltip label="Retry" shortcut={null} delay={800} dismissOnClick>
+			<InlineAction
+				aria-label="Retry"
+				onClick={onClick}
+				renderAction={renderAction}
+				variant={null}
+			/>
+		</ActionTooltip>
 	);
 };

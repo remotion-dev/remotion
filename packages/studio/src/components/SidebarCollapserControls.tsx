@@ -8,8 +8,12 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
-import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {SidebarContext} from '../state/sidebar';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {useResponsiveSidebarStatus} from './TopPanel';
@@ -154,17 +158,14 @@ export const SidebarCollapserControl: React.FC<{
 		};
 	}, [keybindings, side, toggleBoth, toggleLeft, toggleRight]);
 
-	const leftShortcut = useKeyboardShortcutLabel('toggleLeftSidebar');
-	const rightShortcut = useKeyboardShortcutLabel('toggleRightSidebar');
-	const toggleLeftTooltip =
-		areKeyboardShortcutsDisabled() || leftShortcut === ''
-			? 'Toggle Left Sidebar'
-			: `Toggle Left Sidebar (${leftShortcut})`;
-
-	const toggleRightTooltip =
-		areKeyboardShortcutsDisabled() || rightShortcut === ''
-			? 'Toggle Right Sidebar'
-			: `Toggle Right Sidebar (${rightShortcut})`;
+	const action = side === 'left' ? 'toggleLeftSidebar' : 'toggleRightSidebar';
+	const shortcut = useKeyboardShortcutLabel(action);
+	const ariaShortcut = useKeyboardShortcutAriaKeyShortcuts(action);
+	const shortcutsDisabled = areKeyboardShortcutsDisabled();
+	const expanded =
+		(side === 'left' ? leftSidebarStatus : sidebarCollapsedStateRight) ===
+			'expanded' && sidebarCollapsedDuringDrag !== side;
+	const label = `${expanded ? 'Collapse' : 'Expand'} ${side} sidebar`;
 
 	const colorStyle = useCallback((color: string): React.CSSProperties => {
 		return {
@@ -176,49 +177,43 @@ export const SidebarCollapserControl: React.FC<{
 	const toggleLeftAction: RenderInlineAction = useCallback(
 		(color) => {
 			return (
-				<div
-					data-sidebar-toggle="left"
-					style={colorStyle(color)}
-					title={toggleLeftTooltip}
-				>
+				<div data-sidebar-toggle="left" style={colorStyle(color)}>
 					<div style={leftIcon(color)} />
 				</div>
 			);
 		},
-		[colorStyle, leftIcon, toggleLeftTooltip],
+		[colorStyle, leftIcon],
 	);
 
 	const toggleRightAction: RenderInlineAction = useCallback(
 		(color) => {
 			return (
-				<div
-					data-sidebar-toggle="right"
-					style={colorStyle(color)}
-					title={toggleRightTooltip}
-				>
+				<div data-sidebar-toggle="right" style={colorStyle(color)}>
 					<div style={rightIcon(color)} />
 				</div>
 			);
 		},
-		[colorStyle, rightIcon, toggleRightTooltip],
+		[colorStyle, rightIcon],
 	);
 
-	if (side === 'left') {
-		return (
+	return (
+		<ActionTooltip
+			label={label}
+			shortcut={shortcutsDisabled ? null : shortcut}
+			delay={800}
+			dismissOnClick
+		>
 			<InlineAction
 				variant={null}
-				onClick={toggleLeft}
-				renderAction={toggleLeftAction}
-				style={{marginRight: 4}}
+				onClick={side === 'left' ? toggleLeft : toggleRight}
+				renderAction={side === 'left' ? toggleLeftAction : toggleRightAction}
+				style={side === 'left' ? {marginRight: 4} : undefined}
+				aria-label={label}
+				aria-expanded={expanded}
+				aria-keyshortcuts={
+					shortcutsDisabled ? undefined : ariaShortcut || undefined
+				}
 			/>
-		);
-	}
-
-	return (
-		<InlineAction
-			variant={null}
-			onClick={toggleRight}
-			renderAction={toggleRightAction}
-		/>
+		</ActionTooltip>
 	);
 };
