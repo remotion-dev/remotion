@@ -27,7 +27,7 @@ export const handleStudioProtocolElementLibrary = async ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	const requestOrigin = getAllowedStudioProtocolOrigin(request);
 	if (requestOrigin === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-origin',
