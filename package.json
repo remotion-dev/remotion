@@ -140,7 +140,7 @@
 			"@mediabunny/prores": "1.55.5",
 			"@mediabunny/ac3": "1.55.5",
 			"@mediabunny/dts": "1.55.5",
-			"next": "16.2.11",
+			"next": "16.3.3",
 			"three": "0.178.0",
 			"sharp": "0.34.5",
 			"@react-three/fiber": "9.2.0",
