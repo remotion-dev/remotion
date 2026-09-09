@@ -1,4 +1,5 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BLUE,
 	BORDER_WHITE_ALPHA_12,
@@ -6,10 +7,12 @@ import {
 	WHITE,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import {NO_HOVER_BACKGROUND_STYLE} from '../helpers/hoverable';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
 import {CopyIcon} from '../icons/copy';
 import {Minus} from '../icons/minus';
+import {Button} from './Button';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
@@ -109,7 +112,17 @@ const loading: React.CSSProperties = {
 };
 
 export const SkillsSettings: React.FC = () => {
-	const {error, remotionSkillsInfo} = useSettings();
+	const {
+		error,
+		remotionSkillsInfo,
+		installSkill,
+		installingSkill,
+		skillInstallError,
+	} = useSettings();
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canInstall =
+		!window.remotion_isReadOnlyStudio &&
+		previewServerState.type === 'connected';
 	const {copied, markCopied} = useCopyFeedback();
 	const installedSkills = useMemo(() => {
 		return (
@@ -146,7 +159,21 @@ export const SkillsSettings: React.FC = () => {
 					<ValidationMessage message={error} align="flex-start" type="error" />
 				</div>
 			) : null}
-			{missingSkills > 0 ? (
+			{missingSkills > 0 && canInstall ? (
+				<p style={description}>
+					Install skills in this project to use them with your coding agent.
+				</p>
+			) : null}
+			{skillInstallError ? (
+				<div style={{marginTop: 14}}>
+					<ValidationMessage
+						message={skillInstallError}
+						align="flex-start"
+						type="error"
+					/>
+				</div>
+			) : null}
+			{missingSkills > 0 && !canInstall ? (
 				<div>
 					<p style={description}>
 						Not all skills are installed. Run this command in the project
@@ -196,7 +223,21 @@ export const SkillsSettings: React.FC = () => {
 									<Minus aria-hidden color={LIGHT_TEXT} style={statusIcon} />
 								)}
 								<span style={skillName}>/{skill.name}</span>
-								<span style={status}>{installedLocation}</span>
+								{!installed && canInstall ? (
+									<Button
+										size="compact"
+										style={NO_HOVER_BACKGROUND_STYLE}
+										title={`Install ${skill.name} in this project`}
+										disabled={installingSkill !== null}
+										onClick={() => installSkill(skill.name)}
+									>
+										{installingSkill === skill.name
+											? 'Installing...'
+											: 'Install'}
+									</Button>
+								) : (
+									<span style={status}>{installedLocation}</span>
+								)}
 							</div>
 						);
 					})}

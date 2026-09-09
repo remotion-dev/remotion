@@ -325,7 +325,7 @@ export const SettingsModal: React.FC<{
 				</div>
 				{tab === 'packages' ? (
 					<div ref={setPackagesFooterContainer} />
-				) : isBrowserStudio || tab === 'updates' ? null : (
+				) : isBrowserStudio || tab === 'updates' || tab === 'skills' ? null : (
 					<SettingsModalFooter showLicenseFaq={tab === 'license'} />
 				)}
 			</>

@@ -1676,6 +1676,91 @@ test.describe('visual mode', () => {
 		}
 	});
 
+	test('installs skills from settings and keeps progress when reopened', async ({
+		page,
+	}) => {
+		const skillsInfo = {
+			remotionUpgradeSkillAvailable: false,
+			remotionInteractivitySkillAvailable: false,
+			skills: ['remotion-captions', 'remotion-create'].map((name) => ({
+				name,
+				installedInProject: false,
+				installedGlobally: false,
+			})),
+		};
+		await page.route('**/api/remotion-skills-info', (route) =>
+			route.fulfill({json: {success: true, data: skillsInfo}}),
+		);
+		// The server integration test covers the real installer boundary and filesystem.
+		let installAttempts = 0;
+		let finishInstall: () => void = () => undefined;
+		const installFinished = new Promise<void>((resolve) => {
+			finishInstall = resolve;
+		});
+		await page.route('**/api/install-remotion-skill', async (route) => {
+			expect(route.request().postDataJSON()).toEqual({
+				skill: 'remotion-captions',
+			});
+			if (++installAttempts === 1) {
+				await route.fulfill({
+					json: {success: false, error: 'Could not download skills'},
+				});
+				return;
+			}
+			await installFinished;
+			skillsInfo.skills[0].installedInProject = true;
+			await route.fulfill({json: {success: true, data: skillsInfo}});
+		});
+		await page.goto(`${STUDIO_URL}/schema-test`);
+		const openSkills = async () => {
+			await page.getByRole('button', {name: /Search\.\.\./}).click();
+			const dialog = page.getByRole('dialog');
+			await dialog.getByRole('textbox').fill('> Settings');
+			await dialog.getByText('Settings...', {exact: true}).click();
+			await dialog.getByText('Skills', {exact: true}).click();
+		};
+		await openSkills();
+		const dialog = page.getByRole('dialog');
+		const captionsSkill = dialog
+			.getByRole('listitem')
+			.filter({hasText: '/remotion-captions'});
+		const installButton = captionsSkill.getByRole('button', {
+			name: 'Install',
+			exact: true,
+		});
+		await installButton.click();
+		await expect(
+			dialog.getByText('Could not download skills', {exact: true}),
+		).toBeVisible();
+		await installButton.click();
+		await expect(
+			captionsSkill.getByRole('button', {name: 'Installing...'}),
+		).toBeDisabled();
+		await expect(
+			dialog
+				.getByRole('listitem')
+				.filter({hasText: '/remotion-create'})
+				.getByRole('button'),
+		).toBeDisabled();
+		await page.keyboard.press('Escape');
+		await openSkills();
+		await expect(
+			captionsSkill.getByRole('button', {name: 'Installing...'}),
+		).toBeDisabled();
+		finishInstall();
+		await expect(
+			captionsSkill.getByText('Project', {exact: true}),
+		).toBeVisible();
+		await expect(
+			dialog.getByText('Could not download skills', {exact: true}),
+		).toBeHidden();
+		await page.keyboard.press('Escape');
+		await openSkills();
+		await expect(
+			captionsSkill.getByText('Project', {exact: true}),
+		).toBeVisible();
+	});
+
 	test('settings reuse reactive runtime config and license toggle', async ({
 		page,
 	}) => {
@@ -2018,7 +2103,7 @@ test.describe('visual mode', () => {
 			await dialog.getByText('Skills', {exact: true}).click();
 			await expect(
 				dialog.getByText(
-					'Not all skills are installed. Run this command in the project directory, then reload Studio and restart your coding agent.',
+					'Install skills in this project to use them with your coding agent.',
 					{exact: true},
 				),
 			).toBeVisible();
@@ -2034,13 +2119,7 @@ test.describe('visual mode', () => {
 			await expect(dialog.getByText('Project', {exact: true})).toBeVisible();
 			await expect(dialog.getByText('Global', {exact: true})).toBeVisible();
 			await expect(
-				dialog.getByText('Not installed', {exact: true}).first(),
-			).toBeVisible();
-			await expect(
-				dialog.getByText('npx remotion skills add', {exact: true}),
-			).toBeVisible();
-			await expect(
-				dialog.getByRole('button', {name: 'Copy install command'}),
+				dialog.getByRole('button', {name: 'Install', exact: true}).first(),
 			).toBeVisible();
 			const skillsList = dialog.getByRole('list', {
 				name: 'Remotion Agent Skills',
@@ -2062,7 +2141,7 @@ test.describe('visual mode', () => {
 			).toBeGreaterThanOrEqual(16);
 			await expect(
 				dialog.getByText('Changes save to', {exact: false}),
-			).toBeVisible();
+			).toBeHidden();
 
 			await dialog.getByText('Apps', {exact: true}).click();
 			await expect(
