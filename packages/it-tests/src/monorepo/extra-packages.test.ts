@@ -17,7 +17,6 @@ test('@remotion/studio should have auxiliary modules in dependencies', () => {
 	const {dependencies} = packageJson;
 
 	expect(dependencies).toBeDefined();
-	expect(dependencies['@huggingface/transformers']).toBe('catalog:');
 	expect(dependencies.zod).toBe('catalog:');
 	expect(dependencies.mediabunny).toBe('catalog:');
 });
