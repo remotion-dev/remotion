@@ -54,7 +54,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 }) => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -307,7 +307,7 @@ const s3Renderer = async <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 }): Promise<StreamRendererResponse> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -577,7 +577,7 @@ export const renderRendererFunctionWithRetry = async <
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 }): Promise<unknown> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');

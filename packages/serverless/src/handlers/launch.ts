@@ -18,9 +18,11 @@ import {
 	CONCAT_FOLDER_TOKEN,
 	decompressInputProps,
 	DOCS_URL,
+	getCredentialsFromOutName,
 	getExpectedOutName,
 	getNeedsToUpload,
 	MAX_FUNCTIONS_PER_RENDER,
+	OutputFileAccessDeniedError,
 	rendererTransportPrefix,
 	serializeOrThrow,
 	ServerlessRoutines,
@@ -37,7 +39,6 @@ import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
 import {finishRender} from '../finish-render';
 import type {LaunchedBrowser} from '../get-browser-instance';
-import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {mergeChunksAndFinishRender} from '../merge-chunks';
 import type {OverallProgressHelper} from '../overall-render-progress';
 import {makeOverallRenderProgress} from '../overall-render-progress';
@@ -51,7 +52,7 @@ import type {RequestContext} from './renderer';
 import {sendTelemetryEvent} from './send-telemetry-event';
 
 type Options = {
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	getRemainingTimeInMillis: () => number;
 	requestContext: RequestContext | null;
 };
@@ -79,15 +80,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
-	const chromiumParams = {...(params.chromiumOptions ?? {})};
-
-	if (params.chromiumOptions?.gl === 'angle') {
-		RenderInternals.Log.warn(
-			{indent: false, logLevel: params.logLevel},
-			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
-		);
-		chromiumParams.gl = 'swangle';
-	}
+	const chromiumParams = insideFunctionSpecifics.normalizeChromiumOptions?.({
+		chromiumOptions: params.chromiumOptions ?? {},
+		logLevel: params.logLevel,
+	}) ?? {...(params.chromiumOptions ?? {})};
 
 	const browserInstance = insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
@@ -344,6 +340,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		options.requestContext !== null;
 
 	const renderMetadata: RenderMetadata<Provider> = {
+		outputFileIsConditional:
+			!params.overwrite &&
+			providerSpecifics.supportsConditionalOutput({
+				customCredentials: getCredentialsFromOutName(params.outName ?? null),
+			}) &&
+			providerSpecifics.writeFileIfNotExists !== null,
 		startedDate,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
@@ -410,6 +412,16 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 			requestHandler: null,
+		}).catch((err) => {
+			if (
+				err instanceof OutputFileAccessDeniedError &&
+				renderMetadata.outputFileIsConditional
+			) {
+				// The final conditional upload still enforces overwrite: false.
+				return null;
+			}
+
+			throw err;
 		});
 		if (output) {
 			throw new TypeError(
@@ -931,10 +943,10 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			stack: (err as Error).stack as string,
 			type: 'stitcher',
 			isFatal: true,
-			tmpDir: getTmpDirStateIfENoSp(
-				(err as Error).stack as string,
-				insideFunctionSpecifics,
-			),
+			tmpDir:
+				insideFunctionSpecifics.getTmpDirState?.(
+					(err as Error).stack as string,
+				) ?? null,
 			attempt: 1,
 			totalAttempts: 1,
 			willRetry: false,

@@ -5,8 +5,8 @@ image: https://remotion.media/elements/overlays-name-lower-third-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Name Lower Third
 
-<ElementPage definition={elementDefinitions['overlays/name-lower-third']} sourceFile="./name-lower-third.tsx" />
+<ElementPage definition={getElementDefinition('overlays/name-lower-third')} sourceFile="./name-lower-third.tsx" />

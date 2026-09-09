@@ -1,5 +1,6 @@
 import * as turf from '@turf/turf';
-import maplibregl, {type Map} from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
+import {type Map} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import React, {
 	forwardRef,
@@ -408,6 +409,18 @@ const MapFlyoverLayerInner = forwardRef<
 				return;
 			}
 
+			// Keep the worker URL same-origin so Webpack does not rewrite it.
+			maplibregl.setWorkerUrl(
+				URL.createObjectURL(
+					new Blob(
+						[
+							`import "https://unpkg.com/maplibre-gl@${maplibregl.getVersion()}/dist/maplibre-gl-worker.mjs";`,
+						],
+						{type: 'text/javascript'},
+					),
+				),
+			);
+
 			const mapInstance = new maplibregl.Map({
 				container: mapContainerRef.current,
 				style: {
@@ -625,7 +638,6 @@ const MapFlyoverLayerInner = forwardRef<
 const InteractiveMapFlyoverLayer = Interactive.withSchema({
 	Component: MapFlyoverLayerInner,
 	componentName: '<MapFlyover>',
-	componentIdentity: null,
 	schema: mapFlyoverSchema,
 	supportsEffects: false,
 }) as React.FC<MapFlyoverLayerProps>;

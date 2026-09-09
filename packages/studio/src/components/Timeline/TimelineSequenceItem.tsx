@@ -105,6 +105,7 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
+import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {useRenameSequence} from './use-rename-sequence';
@@ -316,6 +317,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
+	const assetContextMenu = useAssetTimelineContextMenu();
 	const selectComposition = useSelectComposition();
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const {onSelect, selectable, selected} =
@@ -1126,6 +1128,10 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [canRotate, nodePathInfo, selectItem, setManuallyEnabled]);
 
 	const getContextMenuItems = useCallback(() => {
+		if (assetContextMenu !== null) {
+			return assetContextMenu;
+		}
+
 		if (selectable && !selected) {
 			onSelect({shiftKey: false, toggleKey: false});
 		}
@@ -1270,6 +1276,7 @@ const TimelineSequenceItemInner: React.FC<{
 				: [],
 		});
 	}, [
+		assetContextMenu,
 		canAddEffect,
 		canCrop,
 		canRotate,

@@ -134,7 +134,6 @@ LabelInner.displayName = '<Label>';
 const Label = Interactive.withSchema({
 	Component: LabelInner,
 	componentName: '<Label>',
-	componentIdentity: null,
 	schema: labelSchema,
 	supportsEffects: false,
 });

@@ -171,7 +171,6 @@ const MirroredAudioSpectrumInner = forwardRef<
 export const MirroredAudioSpectrum = Interactive.withSchema({
 	Component: MirroredAudioSpectrumInner,
 	componentName: '<MirroredAudioSpectrum>',
-	componentIdentity: null,
 	schema: mirroredAudioSpectrumSchema,
 	supportsEffects: false,
 }) as React.FC<MirroredAudioSpectrumProps>;

@@ -2792,6 +2792,30 @@ test('Timeline left edge drag clamps scaled trimBefore at zero', () => {
 	});
 });
 
+test('Timeline left edge drag reaches exact zero with fractional playback rates', () => {
+	for (const playbackRate of [0.7, 1.4, 1.55, 2.8]) {
+		expect(
+			getTimelineSequenceLeftEdgeDragValues({
+				initialDuration: 300,
+				initialFrom: 400,
+				initialTrimBefore: 252,
+				deltaFrames: -400,
+				playbackRate,
+			}).trimBefore,
+		).toBe(0);
+	}
+
+	expect(
+		getTimelineSequenceLeftEdgeDragValues({
+			initialDuration: 300,
+			initialFrom: 400,
+			initialTrimBefore: 252,
+			deltaFrames: -1,
+			playbackRate: 1.5,
+		}).trimBefore,
+	).toBe(250.5);
+});
+
 test('Timeline left edge drag adjusts and clamps media trimBefore', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);

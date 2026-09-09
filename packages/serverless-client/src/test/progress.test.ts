@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {Readable} from 'node:stream';
 import {overallProgressKey} from '../constants';
 import {getExpectedOutName} from '../expected-out-name';
+import {OutputFileAccessDeniedError} from '../find-output-file-in-bucket';
 import type {OverallRenderProgress} from '../overall-render-progress';
 import {getProgress} from '../progress';
 import type {
@@ -24,6 +25,7 @@ const bucketName = 'source-bucket';
 const startedDate = Date.now() - 30000;
 
 const renderMetadata: RenderMetadata<MockProvider> = {
+	outputFileIsConditional: null,
 	audioBitrate: null,
 	audioCodec: null,
 	codec: 'h264',
@@ -164,6 +166,8 @@ const makeProviderSpecifics = ({
 		serverStorageProductName: () => 'S3',
 		validateDeleteAfter: () => undefined,
 		writeFile: () => Promise.resolve(),
+		supportsConditionalOutput: () => true,
+		writeFileIfNotExists: null,
 		headFile: onHeadFile,
 	};
 };
@@ -294,4 +298,90 @@ test('getProgress keeps direct render progress finite', async () => {
 		expect(renderProgress.overallProgress).toBeGreaterThanOrEqual(0);
 		expect(renderProgress.overallProgress).toBeLessThanOrEqual(1);
 	}
+});
+
+test('getProgress falls back to persisted progress when destination reads are denied', async () => {
+	let heads = 0;
+	const providerSpecifics = makeProviderSpecifics({
+		renderProgress: null,
+		onHeadFile: () => {
+			heads++;
+			return Promise.reject(
+				new OutputFileAccessDeniedError('Destination read access denied'),
+			);
+		},
+	});
+	for (const timeoutInMilliseconds of [120000, 1000]) {
+		const result = await getProgress({
+			bucketName,
+			renderId,
+			customCredentials: null,
+			expectedBucketOwner: null,
+			forcePathStyle: false,
+			functionName: renderMetadata.functionName,
+			memorySizeInMb: 2048,
+			providerSpecifics,
+			region: 'eu-central-1',
+			requestHandler: null,
+			timeoutInMilliseconds,
+		});
+		expect(result.done).toBe(false);
+		expect(result.framesRendered).toBe(20);
+		expect(result.outputFile).toBeNull();
+		expect(result.fatalErrorEncountered).toBe(timeoutInMilliseconds === 1000);
+	}
+
+	expect(heads).toBe(2);
+});
+
+test('getProgress preserves upload failures and unexpected storage errors', async () => {
+	const uploadFailure = {
+		type: 'stitcher' as const,
+		message: 'Output already exists',
+		name: 'Error',
+		stack: '',
+		frame: null,
+		chunk: null,
+		isFatal: true,
+		attempt: 1,
+		willRetry: false,
+		totalAttempts: 1,
+		tmpDir: null,
+	};
+	let heads = 0;
+	const storageError = Object.assign(new Error('Storage unavailable'), {
+		$metadata: {httpStatusCode: 500},
+	});
+	for (const errors of [[uploadFailure], []]) {
+		const providerSpecifics = makeProviderSpecifics({
+			renderProgress: {...progress, errors},
+			onHeadFile: () => {
+				heads++;
+				return Promise.reject(storageError);
+			},
+		});
+		const pending = getProgress({
+			bucketName,
+			renderId,
+			customCredentials: null,
+			expectedBucketOwner: null,
+			forcePathStyle: false,
+			functionName: renderMetadata.functionName,
+			memorySizeInMb: 2048,
+			providerSpecifics,
+			region: 'eu-central-1',
+			requestHandler: null,
+			timeoutInMilliseconds: 120000,
+		});
+		if (errors.length) {
+			const result = await pending;
+			expect(result.done).toBe(false);
+			expect(result.fatalErrorEncountered).toBe(true);
+			expect(result.errors[0].message).toBe('Output already exists');
+		} else {
+			await expect(pending).rejects.toBe(storageError);
+		}
+	}
+
+	expect(heads).toBe(1);
 });

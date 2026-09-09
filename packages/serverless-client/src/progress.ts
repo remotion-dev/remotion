@@ -3,7 +3,10 @@ import {calculateChunkTimes} from './calculate-chunk-times';
 import type {CustomCredentials} from './constants';
 import {estimatePriceFromMetadata} from './estimate-price-from-bucket';
 import {getExpectedOutName} from './expected-out-name';
-import {findOutputFileInBucket} from './find-output-file-in-bucket';
+import {
+	findOutputFileInBucket,
+	OutputFileAccessDeniedError,
+} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
@@ -254,6 +257,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 
 	const shouldCheckForCompletedOutput =
 		allChunks &&
+		!errorExplanations.some((error) => error.isFatal && !error.willRetry) &&
 		(isBeyondTimeoutAndHasStitchTimeout ||
 			(overallProgress.combinedFrames >= frameCount &&
 				overallProgress.timeToCombine !== null));
@@ -268,6 +272,13 @@ export const getProgress = async <Provider extends CloudProvider>({
 			providerSpecifics,
 			forcePathStyle,
 			requestHandler,
+		}).catch((err) => {
+			if (err instanceof OutputFileAccessDeniedError) {
+				// Recovery is optional; normal progress remains authoritative.
+				return null;
+			}
+
+			throw err;
 		});
 
 		if (outputFile) {

@@ -24,7 +24,7 @@ const makeConfigurationString = (
 ): string => {
 	return [
 		`web-security-${Boolean(options.disableWebSecurity)}`,
-		`multi-process-${Boolean(options.enableMultiProcessOnLinux)}`,
+		`multi-process-${options.enableMultiProcessOnLinux ?? true}`,
 		`ignore-certificate-errors-${Boolean(options.ignoreCertificateErrors)}`,
 		`log-level-${logLevel}`,
 		`gl-${options.gl ?? null}`,
@@ -90,16 +90,13 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<LaunchedBrowser> => {
-	const actualChromiumOptions: Required<ChromiumOptions> = {
+	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,
 		darkMode: chromiumOptions.darkMode ?? false,
 		disableWebSecurity: chromiumOptions.disableWebSecurity ?? false,
 		headless: chromiumOptions.headless ?? true,
 		userAgent: chromiumOptions.userAgent ?? null,
 		ignoreCertificateErrors: chromiumOptions.ignoreCertificateErrors ?? false,
-		// Override the `null` value, which might come from CLI with swANGLE
-		gl: chromiumOptions.gl ?? 'swangle',
-		enableMultiProcessOnLinux: false,
 	};
 	const configurationString = makeConfigurationString(
 		actualChromiumOptions,

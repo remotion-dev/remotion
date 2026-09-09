@@ -169,6 +169,12 @@
 			"import": "./dist/esm/push-cut.mjs",
 			"require": "./dist/presentations/push-cut.js"
 		},
+		"./blur-slide": {
+			"types": "./dist/presentations/blur-slide.d.ts",
+			"module": "./dist/esm/blur-slide.mjs",
+			"import": "./dist/esm/blur-slide.mjs",
+			"require": "./dist/presentations/blur-slide.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -229,6 +235,9 @@
 			],
 			"push-cut": [
 				"dist/presentations/push-cut.d.ts"
+			],
+			"blur-slide": [
+				"dist/presentations/blur-slide.d.ts"
 			]
 		}
 	},

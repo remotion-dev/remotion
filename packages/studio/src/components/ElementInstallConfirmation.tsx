@@ -1,5 +1,7 @@
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import React, {
+	lazy,
+	Suspense,
 	useCallback,
 	useContext,
 	useEffect,
@@ -10,7 +12,6 @@ import React, {
 import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
-import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
@@ -36,6 +37,10 @@ import {Button} from './Button';
 import {prepareElementInstall} from './element-install-api';
 import {insertElement} from './import-assets';
 import {Flex, Row, Spacing} from './layout';
+import {
+	HORIZONTAL_SCROLLBAR_CLASSNAME,
+	VERTICAL_SCROLLBAR_CLASSNAME,
+} from './Menu/is-menu-item';
 import {getPortal} from './Menu/portals';
 import {ModalButton} from './ModalButton';
 import {ModalContainer} from './ModalContainer';
@@ -45,21 +50,28 @@ import {
 	NewCompositionFields,
 	type NewCompositionFormValues,
 } from './NewComposition/NewComposition';
+import {RemotionInput} from './NewComposition/RemInput';
 import {
 	ValidationMessage,
 	WarningTriangle,
 } from './NewComposition/ValidationMessage';
 import {showNotification} from './Notifications/NotificationCenter';
+import {RadioButton} from './RadioButton';
+import {SegmentedControl} from './SegmentedControl';
 import {
 	hasResolvedStack,
 	useResolvedStack,
 } from './Timeline/use-resolved-stack';
 
+const HighlightedElementSource = lazy(
+	() => import('./HighlightedElementSource'),
+);
+
 const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	gap: 20,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	lineHeight: 1.5,
@@ -81,7 +93,7 @@ const sectionStyle: React.CSSProperties = {
 
 const sectionTitleStyle: React.CSSProperties = {
 	margin: 0,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontWeight: 600,
@@ -113,7 +125,7 @@ const metadataTermStyle: React.CSSProperties = {
 const metadataDescriptionStyle: React.CSSProperties = {
 	margin: 0,
 	minWidth: 0,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontWeight: 400,
@@ -162,11 +174,13 @@ const dependencyListStyle: React.CSSProperties = {
 	margin: 0,
 	padding: 0,
 	listStyleType: 'none',
+	textAlign: 'right',
+	minWidth: 0,
 };
 
 const dependencyNameStyle: React.CSSProperties = {
 	minWidth: 0,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	lineHeight: 1.5,
@@ -181,9 +195,9 @@ const warningStyle: React.CSSProperties = {
 };
 
 const warningIconStyle: React.CSSProperties = {
-	width: 16,
-	height: 16,
-	marginTop: 1,
+	width: 14,
+	height: 14,
+	marginTop: 2,
 	flexShrink: 0,
 	fill: WARNING_COLOR,
 };
@@ -196,11 +210,6 @@ const warningDescriptionStyle: React.CSSProperties = {
 	fontSize: 13,
 	fontWeight: 400,
 	lineHeight: 1.5,
-};
-
-const installWarningDescriptionStyle: React.CSSProperties = {
-	...warningDescriptionStyle,
-	color: WHITE,
 };
 
 const browseElementsStyle: React.CSSProperties = {
@@ -220,23 +229,34 @@ const sourceDetailsStyle: React.CSSProperties = {
 
 const sourceSummaryStyle: React.CSSProperties = {
 	cursor: 'default',
-	color: WHITE,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontWeight: 500,
 	lineHeight: 1.5,
 };
 
-const sourceCodeBlockStyle: React.CSSProperties = {
+const sourceCodeContainerStyle: React.CSSProperties = {
 	marginTop: 10,
-	marginBottom: 0,
+	overflow: 'hidden',
+	border: `1px solid ${WHITE_ALPHA_12}`,
+	borderRadius: 6,
+};
+
+const sourceCodeBlockStyle: React.CSSProperties = {
+	backgroundColor: INPUT_BACKGROUND,
+	margin: 0,
+	border: 0,
+	borderRadius: 0,
+	maxWidth: 'none',
 	maxHeight: 240,
 	overflow: 'auto',
 	padding: 12,
-	border: `1px solid ${WHITE_ALPHA_12}`,
-	borderRadius: 6,
-	backgroundColor: INPUT_BACKGROUND,
-	color: WHITE,
 	fontFamily: 'monospace',
 	fontSize: 12,
 	lineHeight: 1.5,
@@ -258,45 +278,6 @@ const destinationControlStyle: React.CSSProperties = {
 	rowGap: 10,
 	flexWrap: 'wrap',
 };
-
-const destinationOptionsStyle: React.CSSProperties = {
-	display: 'flex',
-	overflow: 'hidden',
-	maxWidth: '100%',
-	marginLeft: 'auto',
-	border: `1px solid ${WHITE_ALPHA_12}`,
-	borderRadius: 4,
-};
-
-const destinationOptionStyle: React.CSSProperties = {
-	appearance: 'none',
-	minHeight: 26,
-	border: 0,
-	cursor: 'default',
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	fontWeight: 400,
-	lineHeight: '18px',
-	padding: '4px 8px',
-	whiteSpace: 'nowrap',
-};
-
-const getDestinationOptionStyle = ({
-	disabled,
-	selected,
-}: {
-	readonly disabled: boolean;
-	readonly selected: boolean;
-}): React.CSSProperties => ({
-	...destinationOptionStyle,
-	opacity: disabled ? 0.5 : 1,
-	...hoverableStyle({
-		idleBackground: selected ? INPUT_BACKGROUND : TRANSPARENT,
-		hoverBackground: selected ? INPUT_BACKGROUND : TRANSPARENT,
-		idleColor: selected ? WHITE : LIGHT_TEXT,
-		hoverColor: disabled ? LIGHT_TEXT : WHITE,
-	}),
-});
 
 const footerStyle: React.CSSProperties = {
 	minWidth: 0,
@@ -356,6 +337,13 @@ export const ElementLibraryAddConfirmation: React.FC<{
 	);
 };
 
+type PreparedElementInstallation = {
+	basePlan: ElementInstallPlan;
+	name: string;
+	refresh: number;
+	plan: ElementInstallPlan & {filePath: string};
+};
+
 type NewCompositionPlanState =
 	| {
 			readonly type: 'loading';
@@ -384,6 +372,10 @@ export const ElementInstallConfirmation: React.FC<{
 		sourceIsUnverified,
 		sourceLabel,
 	} = state;
+	const sourcePreview = useMemo(
+		() => makeSourceControlsVisible(request.element.sourceCode),
+		[request.element.sourceCode],
+	);
 	const config = Internals.useUnsafeVideoConfig();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -399,7 +391,6 @@ export const ElementInstallConfirmation: React.FC<{
 					height: config.height,
 					width: config.width,
 				};
-	const usesBrowserDependencyResolution = getBrowserStudioOperations() !== null;
 	const {currentZIndex} = useZIndex();
 	const [mode, setMode] = useState<'current-composition' | 'new-composition'>(
 		currentPlan === null || request.source.type === 'browser-studio-link'
@@ -408,8 +399,6 @@ export const ElementInstallConfirmation: React.FC<{
 	);
 	const [submitting, setSubmitting] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const currentDestinationRef = useRef<HTMLButtonElement>(null);
-	const newDestinationRef = useRef<HTMLButtonElement>(null);
 	const [newCompositionValues, setNewCompositionValues] =
 		useState<NewCompositionFormValues>(() => {
 			const elementComponentName =
@@ -493,6 +482,7 @@ export const ElementInstallConfirmation: React.FC<{
 			type: 'loading',
 		});
 		prepareElementInstall({
+			installationName: null,
 			destination: {
 				type: 'new-composition',
 				compositionFile: folderCompositionFile,
@@ -559,30 +549,186 @@ export const ElementInstallConfirmation: React.FC<{
 			: null;
 	const selectedPlan =
 		mode === 'current-composition' ? currentPlan : selectedNewCompositionPlan;
+	const elementBaseName = request.element.slug.split('/').at(-1) ?? '';
+	const [refreshPlan, setRefreshPlan] = useState(0);
+	const [input, setInput] = useState<{
+		basePlan: ElementInstallPlan | null;
+		baseName: string;
+		refresh: number;
+		name: string | null;
+		overwritePlan: ElementInstallPlan | null;
+	}>({
+		basePlan: selectedPlan,
+		baseName: elementBaseName,
+		refresh: refreshPlan,
+		name: null,
+		overwritePlan: null,
+	});
+	if (
+		input.basePlan !== selectedPlan ||
+		input.baseName !== elementBaseName ||
+		input.refresh !== refreshPlan
+	) {
+		setInput({
+			basePlan: selectedPlan,
+			baseName: elementBaseName,
+			refresh: refreshPlan,
+			name: null,
+			overwritePlan: null,
+		});
+	}
+
+	const requestedName = input.name;
+	const [preparation, setPreparation] = useState<{
+		basePlan: ElementInstallPlan;
+		refresh: number;
+		requestedName: string | null;
+		installation: PreparedElementInstallation | null;
+		error: string | null;
+	} | null>(null);
+	const currentPreparation =
+		preparation?.basePlan === selectedPlan &&
+		preparation?.refresh === refreshPlan &&
+		preparation?.requestedName === requestedName
+			? preparation
+			: null;
+	const preparedInstallation = currentPreparation?.installation ?? null;
+	const planError = currentPreparation?.error ?? null;
+	const installationName =
+		requestedName ?? preparedInstallation?.name ?? elementBaseName;
+	const [existingInstallation, setExistingInstallation] =
+		useState<PreparedElementInstallation | null>(null);
+	const existingDestination =
+		existingInstallation?.basePlan === selectedPlan &&
+		existingInstallation?.refresh === refreshPlan
+			? existingInstallation
+			: null;
+	const overwriteExisting =
+		existingDestination !== null &&
+		input.overwritePlan === existingDestination.plan;
+	const activePlan = overwriteExisting
+		? existingDestination.plan
+		: (preparedInstallation?.plan ?? null);
+	const [createdComposition, setCreatedComposition] = useState<string | null>(
+		null,
+	);
+	const creationKey = JSON.stringify(newCompositionValues);
+	const compositionAlreadyCreated = createdComposition === creationKey;
+
+	useEffect(() => {
+		if (selectedPlan === null) {
+			return;
+		}
+
+		let canceled = false;
+		(async () => {
+			let candidate = requestedName ?? elementBaseName;
+			let copyNumber = 1;
+			while (true) {
+				const result = await prepareElementInstall({
+					installationName: candidate,
+					destination:
+						mode === 'current-composition'
+							? {
+									type: 'current-composition',
+									compositionFile: request.compositionFile,
+									compositionId: request.compositionId,
+								}
+							: {
+									type: 'new-composition',
+									compositionFile: selectedPlan.compositionFile,
+								},
+					element: request.element,
+				});
+				if (canceled) return;
+				if (!result.success) throw new Error(result.reason);
+
+				const prepared = {
+					basePlan: selectedPlan,
+					name: candidate,
+					refresh: refreshPlan,
+					plan: result.plan,
+				};
+				if (result.plan.expectedFileState.exists) {
+					setExistingInstallation((previous) =>
+						previous?.basePlan === selectedPlan &&
+						previous.refresh === refreshPlan
+							? previous
+							: prepared,
+					);
+					if (requestedName === null) {
+						candidate = `${elementBaseName}-copy${copyNumber === 1 ? '' : `-${copyNumber}`}`;
+						copyNumber++;
+						continue;
+					}
+				}
+
+				setPreparation({
+					basePlan: selectedPlan,
+					refresh: refreshPlan,
+					requestedName,
+					installation: prepared,
+					error: null,
+				});
+				return;
+			}
+		})().catch((error) => {
+			if (!canceled) {
+				setPreparation({
+					basePlan: selectedPlan,
+					refresh: refreshPlan,
+					requestedName,
+					installation: null,
+					error: error instanceof Error ? error.message : String(error),
+				});
+			}
+		});
+		return () => {
+			canceled = true;
+		};
+	}, [
+		elementBaseName,
+		requestedName,
+		mode,
+		refreshPlan,
+		request,
+		selectedPlan,
+	]);
+
+	const installationNameError =
+		installationName.length > 0
+			? (planError ??
+				(requestedName !== null && activePlan?.expectedFileState.exists
+					? 'Name already taken.'
+					: null))
+			: null;
 	const folderTargetIsReady =
 		selectedFolderStack === null ||
 		(hasResolvedStack(selectedFolderStack) && folderCompositionFile !== null);
 	const title = `Install ${request.element.displayName}${request.element.displayName.endsWith(' Element') ? '' : ' Element'}`;
 	const canSubmit =
 		!submitting &&
+		(overwriteExisting ||
+			(planError === null &&
+				StudioProtocolInternals.makeElementFileNameFromSlug(
+					installationName,
+				) === `${installationName}.element.tsx` &&
+				(activePlan !== null
+					? !activePlan.expectedFileState.exists
+					: requestedName !== null))) &&
 		(mode === 'current-composition'
 			? currentPlan !== null
-			: newCompositionValuesAreValid &&
+			: (newCompositionValuesAreValid || compositionAlreadyCreated) &&
 				folderTargetIsReady &&
 				selectedNewCompositionPlan !== null);
 
 	const submit = useCallback(async () => {
-		if (!canSubmit) {
+		if (!canSubmit || selectedPlan === null) {
 			return;
 		}
 
 		setSubmitting(true);
-		if (mode === 'new-composition') {
-			if (selectedNewCompositionPlan === null) {
-				setSubmitting(false);
-				return;
-			}
-
+		if (mode === 'new-composition' && !compositionAlreadyCreated) {
 			const created = await createComposition({
 				signal: new AbortController().signal,
 				symbolicatedStack:
@@ -597,45 +743,49 @@ export const ElementInstallConfirmation: React.FC<{
 				return;
 			}
 
-			await insertElement({
-				compositionFile: selectedNewCompositionPlan.compositionFile,
-				compositionId: newCompositionValues.id,
-				element: request.element,
-				expectedFileState: selectedNewCompositionPlan.expectedFileState,
-				from: null,
-				overwriteExisting: selectedNewCompositionPlan.expectedFileState.exists,
-				position: null,
-			});
-			onClose();
-			return;
+			setCreatedComposition(creationKey);
 		}
 
-		if (currentPlan === null) {
-			setSubmitting(false);
-			return;
-		}
-
-		await insertElement({
-			compositionFile: request.compositionFile,
-			compositionId: request.compositionId,
+		const installed = await insertElement({
+			installationName: overwriteExisting
+				? (existingDestination?.name ?? installationName)
+				: installationName,
+			compositionFile:
+				mode === 'new-composition'
+					? selectedPlan.compositionFile
+					: request.compositionFile,
+			compositionId:
+				mode === 'new-composition'
+					? newCompositionValues.id
+					: request.compositionId,
 			element: request.element,
-			expectedFileState: currentPlan.expectedFileState,
-			from: request.from,
-			overwriteExisting: currentPlan.expectedFileState.exists,
-			position: request.position,
+			// The insert operation revalidates this even if the name preflight is pending.
+			expectedFileState: activePlan?.expectedFileState ?? {exists: false},
+			from: mode === 'new-composition' ? null : request.from,
+			overwriteExisting,
+			position: mode === 'new-composition' ? null : request.position,
 		});
-		onClose();
+		if (installed) onClose();
+		else {
+			setSubmitting(false);
+			setRefreshPlan((value) => value + 1);
+		}
 	}, [
+		activePlan,
+		existingDestination,
+		compositionAlreadyCreated,
+		creationKey,
+		installationName,
+		overwriteExisting,
 		canSubmit,
 		createComposition,
-		currentPlan,
 		folderSymbolicatedStack,
 		mode,
 		newCompositionValues.id,
 		onClose,
 		request,
 		selectedFolderStack,
-		selectedNewCompositionPlan,
+		selectedPlan,
 	]);
 
 	const cancel = useCallback(() => {
@@ -644,32 +794,25 @@ export const ElementInstallConfirmation: React.FC<{
 		}
 	}, [onClose, submitting]);
 
-	const onDestinationKeyDown = useCallback(
-		(event: React.KeyboardEvent<HTMLDivElement>) => {
-			if (
-				!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
-			) {
-				return;
-			}
-
-			event.preventDefault();
-			if (currentPlan === null) {
-				return;
-			}
-
-			const nextMode =
-				mode === 'current-composition'
-					? 'new-composition'
-					: 'current-composition';
-			setMode(nextMode);
-			requestAnimationFrame(() => {
-				if (nextMode === 'current-composition') {
-					currentDestinationRef.current?.focus();
-				} else {
-					newDestinationRef.current?.focus();
-				}
-			});
-		},
+	const destinationOptions = useMemo(
+		() => [
+			{
+				key: 'current-composition',
+				label: 'Current composition',
+				selected: mode === 'current-composition',
+				onClick:
+					currentPlan === null ? null : () => setMode('current-composition'),
+			},
+			{
+				key: 'new-composition',
+				label: 'New composition',
+				selected: mode === 'new-composition',
+				onClick: () => {
+					setMode('new-composition');
+					requestAnimationFrame(() => inputRef.current?.select());
+				},
+			},
+		],
 		[currentPlan, mode],
 	);
 
@@ -691,7 +834,7 @@ export const ElementInstallConfirmation: React.FC<{
 				<ModalHeader title={title} onClose={cancel} />
 			</div>
 			<form onSubmit={onSubmit}>
-				<div style={dialogContent}>
+				<div style={dialogContent} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					<dl style={requestSourceStyle} aria-label="Request source">
 						<dt style={sectionTitleStyle}>From</dt>
 						<dd
@@ -705,58 +848,30 @@ export const ElementInstallConfirmation: React.FC<{
 						</dd>
 					</dl>
 
+					{activePlan ? (
+						<dl style={requestSourceStyle}>
+							<dt style={sectionTitleStyle}>Destination</dt>
+							<dd style={requestSourceDescriptionStyle}>
+								{activePlan.filePath}
+							</dd>
+						</dl>
+					) : null}
+
 					<div style={destinationControlStyle}>
-						<div style={sectionTitleStyle}>Destination</div>
-						<div
-							aria-label="Installation destination"
-							onKeyDown={onDestinationKeyDown}
-							role="radiogroup"
-							style={destinationOptionsStyle}
-						>
-							<button
-								ref={currentDestinationRef}
-								aria-checked={mode === 'current-composition'}
-								className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-								disabled={currentPlan === null}
-								onClick={() => setMode('current-composition')}
-								role="radio"
-								style={getDestinationOptionStyle({
-									disabled: currentPlan === null,
-									selected: mode === 'current-composition',
-								})}
-								tabIndex={mode === 'current-composition' ? 0 : -1}
-								type="button"
-							>
-								Current composition
-							</button>
-							<button
-								ref={newDestinationRef}
-								aria-checked={mode === 'new-composition'}
-								className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-								onClick={() => {
-									setMode('new-composition');
-									requestAnimationFrame(() => inputRef.current?.select());
-								}}
-								role="radio"
-								style={{
-									...getDestinationOptionStyle({
-										disabled: false,
-										selected: mode === 'new-composition',
-									}),
-									borderLeft: `1px solid ${WHITE_ALPHA_12}`,
-								}}
-								tabIndex={mode === 'new-composition' ? 0 : -1}
-								type="button"
-							>
-								New composition
-							</button>
+						<div style={sectionTitleStyle}>Add to</div>
+						<div aria-label="Add to" role="group" style={{marginLeft: 'auto'}}>
+							<SegmentedControl
+								items={destinationOptions}
+								needsWrapping={false}
+								size="medium"
+							/>
 						</div>
 					</div>
 
 					{currentPlan === null ? (
 						<div style={warningStyle} role="status">
 							<WarningTriangle style={warningIconStyle} />
-							<p style={installWarningDescriptionStyle}>
+							<p style={warningDescriptionStyle}>
 								Studio could not find a safe place in “{request.compositionId}”
 								to insert the Element. Install it into a new composition
 								instead.
@@ -765,11 +880,16 @@ export const ElementInstallConfirmation: React.FC<{
 					) : null}
 
 					{mode === 'new-composition' ? (
-						<section style={sectionStyle} aria-label="New composition settings">
+						<section
+							style={{...sectionStyle, marginInline: -16}}
+							aria-label="New composition settings"
+						>
 							<NewCompositionFields
 								heightValidationMessage={heightValidationMessage}
 								inputRef={inputRef}
-								nameValidationMessage={nameValidationMessage}
+								nameValidationMessage={
+									compositionAlreadyCreated ? null : nameValidationMessage
+								}
 								setValues={setNewCompositionValues}
 								values={newCompositionValues}
 								widthValidationMessage={widthValidationMessage}
@@ -784,15 +904,99 @@ export const ElementInstallConfirmation: React.FC<{
 						</section>
 					) : null}
 
-					{selectedPlan?.expectedFileState.exists ? (
-						<p style={overwriteStyle} role="status">
-							This will replace the existing Element source file.
-						</p>
-					) : null}
+					<section style={sectionStyle} aria-label="Element implementation">
+						{existingDestination ? (
+							<div
+								role="radiogroup"
+								aria-label="Existing Element file"
+								style={sectionStyle}
+							>
+								<RadioButton
+									checked={!overwriteExisting}
+									disabled={submitting}
+									onClick={() =>
+										setInput((previous) => ({...previous, overwritePlan: null}))
+									}
+								>
+									Create a copy
+								</RadioButton>
+								{!overwriteExisting ? (
+									<div
+										style={{
+											...sectionStyle,
+											paddingLeft: 28,
+											maxWidth: 320,
+											minWidth: 0,
+										}}
+									>
+										<RemotionInput
+											rightAlign={false}
+											status={installationNameError ? 'error' : 'ok'}
+											id="element-install-name"
+											name="installationName"
+											aria-label="Installation name"
+											placeholder="New name"
+											value={installationName}
+											disabled={submitting}
+											onChange={(event) => {
+												const name = event.target.value;
+												setInput((previous) => ({
+													...previous,
+													name,
+													overwritePlan: null,
+												}));
+											}}
+										/>
+										{installationNameError ? (
+											<ValidationMessage
+												align="flex-start"
+												message={installationNameError}
+												type="error"
+											/>
+										) : null}
+									</div>
+								) : null}
+								<div style={sectionStyle}>
+									<RadioButton
+										checked={overwriteExisting}
+										disabled={submitting}
+										onClick={() =>
+											setInput((previous) => ({
+												...previous,
+												overwritePlan: existingDestination.plan,
+											}))
+										}
+									>
+										Replace existing
+									</RadioButton>
+									<p
+										style={{
+											...warningDescriptionStyle,
+											paddingLeft: 28,
+											overflowWrap: 'anywhere',
+										}}
+									>
+										{existingDestination.plan.filePath}
+									</p>
+									{overwriteExisting ? (
+										<p style={{...overwriteStyle, paddingLeft: 28}}>
+											Overwrites customizations for all usages.
+										</p>
+									) : null}
+								</div>
+							</div>
+						) : !activePlan && planError ? (
+							<ValidationMessage
+								align="flex-start"
+								message={planError}
+								type="error"
+							/>
+						) : null}
+					</section>
 
 					{missingPackages.length > 0 ? (
 						<section
-							style={sectionStyle}
+							style={requestSourceStyle}
 							aria-labelledby="element-install-dependencies"
 						>
 							<h3 id="element-install-dependencies" style={sectionTitleStyle}>
@@ -810,22 +1014,30 @@ export const ElementInstallConfirmation: React.FC<{
 
 					<div style={warningStyle}>
 						<WarningTriangle style={warningIconStyle} />
-						<p style={installWarningDescriptionStyle}>
-							This adds executable source code to your project, with access to
-							your files and the network.
-							{usesBrowserDependencyResolution || missingPackages.length === 0
-								? null
-								: ' Package lifecycle scripts may also run during installation.'}
+						<p style={warningDescriptionStyle}>
+							Installed code can access your files and network.
 						</p>
 					</div>
 
 					<details style={sourceDetailsStyle}>
-						<summary style={sourceSummaryStyle}>Source code</summary>
-						<pre style={sourceCodeBlockStyle}>
-							<code style={sourceCodeStyle}>
-								{makeSourceControlsVisible(request.element.sourceCode)}
-							</code>
-						</pre>
+						<summary
+							className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+							style={sourceSummaryStyle}
+						>
+							Source code
+						</summary>
+						<div style={sourceCodeContainerStyle}>
+							<pre
+								className={`language-tsx ${HORIZONTAL_SCROLLBAR_CLASSNAME} ${VERTICAL_SCROLLBAR_CLASSNAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+								style={sourceCodeBlockStyle}
+							>
+								<code style={sourceCodeStyle}>
+									<Suspense fallback={sourcePreview}>
+										<HighlightedElementSource source={sourcePreview} />
+									</Suspense>
+								</code>
+							</pre>
+						</div>
 					</details>
 				</div>
 				<ModalFooterContainer style={footerStyle}>
@@ -840,7 +1052,11 @@ export const ElementInstallConfirmation: React.FC<{
 							disabled={!canSubmit}
 							onClick={submit}
 						>
-							{submitting ? 'Installing…' : 'Install'}
+							{submitting
+								? 'Installing…'
+								: overwriteExisting
+									? 'Replace and insert'
+									: 'Install'}
 							<ShortcutHint keyToPress="↵" cmdOrCtrl={false} />
 						</ModalButton>
 					</Row>

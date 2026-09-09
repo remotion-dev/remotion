@@ -135,7 +135,7 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<Folder name="elements">
-				{Object.values(elementDefinitions).map((definition) => {
+				{elementDefinitions.map((definition) => {
 					const dimensions = getElementPreviewDimensions(definition);
 
 					return (

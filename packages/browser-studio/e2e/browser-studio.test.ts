@@ -1294,8 +1294,8 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 		).__browserStudioInstallPreservedIframe = true;
 	});
 	await expect(
-		studio.getByRole('radio', {name: 'New composition'}),
-	).toBeChecked();
+		studio.getByRole('button', {name: 'New composition'}),
+	).toHaveAttribute('aria-pressed', 'true');
 	await studio.getByRole('button', {name: /^Install/}).click();
 	await expect
 		.poll(() =>

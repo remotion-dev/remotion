@@ -97,7 +97,9 @@ Animate properties within the Element, such as translation, scale, and opacity; 
 
 ### Expose useful Studio controls
 
-Use Studio controls in the Element's `Interactive` schema, not React props on its public component, for user-facing customization. Expose only controls that meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
+Elements are source-code copies designed for direct editing, not managed dependencies. Expose useful Studio controls in the Element's `Interactive` schema, but there is no need to mirror every implementation detail as a public prop.
+
+Use [`Interactive.withSchema()`](/docs/interactive-with-schema) when you intentionally want an instance-level API. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
 
 Give editable objects clear names, using a generic name such as `Container` for the main object and child controls only for separate editing targets.
 

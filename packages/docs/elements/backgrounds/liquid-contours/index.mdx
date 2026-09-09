@@ -5,8 +5,8 @@ image: https://remotion.media/elements/backgrounds-liquid-contours-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Liquid Contours
 
-<ElementPage definition={elementDefinitions['backgrounds/liquid-contours']} sourceFile="./liquid-contours.tsx" />
+<ElementPage definition={getElementDefinition('backgrounds/liquid-contours')} sourceFile="./liquid-contours.tsx" />

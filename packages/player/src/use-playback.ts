@@ -124,7 +124,7 @@ export const usePlayback = ({
 		const callback = () => {
 			const newState = sharedAudioContext?.getAudioContextState();
 			if (newState && shouldForceAnchorChange(newState)) {
-				setGlobalTimeAnchor({
+				const changed = setGlobalTimeAnchor({
 					audioContext,
 					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
 					absoluteTimeInSeconds: getCurrentFrame() / config.fps,
@@ -132,6 +132,9 @@ export const usePlayback = ({
 					logLevel,
 					force: true,
 				});
+				if (changed) {
+					sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+				}
 			}
 		};
 

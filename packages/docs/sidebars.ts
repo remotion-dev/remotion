@@ -914,6 +914,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/crosswarp',
 						'transitions/presentations/cross-zoom',
 						'transitions/presentations/swap',
+						'transitions/presentations/blur-slide',
 						'transitions/presentations/none',
 						{
 							type: 'doc',
@@ -1508,6 +1509,7 @@ const sidebars: SidebarsConfig = {
 						'ai/claude-code-plugin',
 						'ai/codex-plugin',
 						'ai/cursor-plugin',
+						'ai/github-copilot-plugin',
 						'ai/kimi-code-plugin',
 					],
 				},

@@ -36,6 +36,11 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 			fs.mkdtempSync(path.join(testRoot, 'render-')),
 		);
 		const launchError = new Error(`Failed ${failure}`);
+		const diagnostics: string[] = [];
+		const tmpDirState = {
+			files: [{filename: 'provider-cache', size: 123}],
+			total: 123,
+		};
 		const browser = {
 			on: mock(() => undefined),
 			close: mock(() => Promise.resolve()),
@@ -78,7 +83,7 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 				rendererHandler<MockProvider>({
 					params: {
 						type: 'renderer',
-						chromiumOptions: {gl: null},
+						chromiumOptions: {gl: 'angle', enableMultiProcessOnLinux: true},
 						launchFunctionConfig: {version: VERSION},
 						inputProps: {type: 'payload', payload: '{}'},
 						resolvedProps: {type: 'payload', payload: '{}'},
@@ -114,11 +119,19 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 						},
 					} as unknown as ProviderSpecifics<MockProvider>,
 					requestContext: {
-						awsRequestId: currentInvocation,
-						invokedFunctionArn: 'arn',
+						requestId: currentInvocation,
+						expectedBucketOwner: null,
 						getRemainingTimeInMillis: () => 120_000,
 					},
 					insideFunctionSpecifics: {
+						normalizeChromiumOptions: null,
+						getTmpDirState: () => tmpDirState,
+						startRendererDiagnostics: (requestId) => {
+							diagnostics.push(`start-${requestId}`);
+							return () => {
+								diagnostics.push(`end-${requestId}`);
+							};
+						},
 						getCurrentRegionInFunction: () => 'mock-region',
 						getBrowserInstance: async (options) => {
 							launchedBrowser = await getBrowserInstanceImplementation(options);
@@ -138,7 +151,10 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 			expect(streamedMessages).toHaveLength(1);
 			expect(streamedMessages[0]).toMatchObject({
 				type: 'error-occurred',
-				payload: {shouldRetry: true, errorInfo: {message: launchError.message}},
+				payload: {
+					shouldRetry: true,
+					errorInfo: {message: launchError.message, tmpDir: tmpDirState},
+				},
 			});
 
 			currentInvocation = 'B';
@@ -154,6 +170,18 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 				failure === 'browser launch' ? 2 : 1,
 			);
 			expect(renderMediaSpy).toHaveBeenCalledTimes(1);
+			for (const spy of [openBrowserSpy, renderMediaSpy]) {
+				expect(spy).toHaveBeenLastCalledWith(
+					expect.objectContaining({
+						chromiumOptions: expect.objectContaining({
+							gl: 'angle',
+							enableMultiProcessOnLinux: true,
+						}),
+					}),
+				);
+			}
+
+			expect(diagnostics).toEqual(['start-A', 'end-A', 'start-B', 'end-B']);
 			expect(onMediaFiles).toHaveBeenCalledTimes(1);
 			expect(forgetBrowserEventLoop).toHaveBeenCalledTimes(1);
 			expect(exits).toEqual([]);
@@ -227,8 +255,8 @@ test('a flaky renderer invocation closes its browser before returning', async ()
 				isFlakyError: () => true,
 			} as unknown as ProviderSpecifics<MockProvider>,
 			requestContext: {
-				awsRequestId: 'invocation-a',
-				invokedFunctionArn: 'arn',
+				requestId: 'invocation-a',
+				expectedBucketOwner: null,
 				getRemainingTimeInMillis: () => 120_000,
 			},
 			insideFunctionSpecifics: {

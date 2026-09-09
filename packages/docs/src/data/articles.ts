@@ -180,6 +180,15 @@ export const articles = [
 		slug: 'ai/generate',
 	},
 	{
+		id: 'ai/github-copilot-plugin',
+		title: 'GitHub Copilot plugin',
+		relativePath: 'docs/ai/github-copilot-plugin.mdx',
+		compId: 'articles-docs-ai-github-copilot-plugin',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/github-copilot-plugin',
+	},
+	{
 		id: 'ai/index',
 		title: 'Building with Remotion and AI',
 		relativePath: 'docs/ai/index.mdx',
@@ -7749,6 +7758,15 @@ export const articles = [
 		crumb: '@remotion/transitions',
 		noAi: false,
 		slug: 'transitions/make-html-in-canvas-presentation',
+	},
+	{
+		id: 'transitions/presentations/blur-slide',
+		title: 'blurSlide()',
+		relativePath: 'docs/transitions/presentations/blur-slide.mdx',
+		compId: 'articles-docs-transitions-presentations-blur-slide',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/blur-slide',
 	},
 	{
 		id: 'transitions/presentations/book-flip',

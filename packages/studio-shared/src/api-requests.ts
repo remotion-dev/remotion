@@ -1008,6 +1008,7 @@ export type ElementInstallDestination =
 	  };
 
 export type PrepareElementInstallRequest = {
+	installationName: string | null;
 	destination: ElementInstallDestination;
 	element: InstallableElement;
 };
@@ -1028,6 +1029,7 @@ export type PrepareElementInstallResponse =
 	  };
 
 export type InsertElementRequest = {
+	installationName: string | null;
 	compositionFile: string;
 	compositionId: string;
 	element: InstallableElement;

@@ -10,6 +10,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 	const price = estimatePriceFromMetadata({
 		memorySizeInMb: 1024,
 		renderMetadata: {
+			outputFileIsConditional: null,
 			audioBitrate: null,
 			codec: 'h264',
 			compositionId: 'react-svg',

@@ -50,6 +50,8 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	region: Provider['region'];
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
+	// Whether the final upload must create a new object without overwriting.
+	outputFileIsConditional: boolean | null;
 	privacy: Privacy;
 	deleteAfter: DeleteAfter | null;
 	numberOfGifLoops: number | null;

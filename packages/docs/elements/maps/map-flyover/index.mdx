@@ -5,8 +5,8 @@ image: https://remotion.media/elements/maps-map-flyover-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # A-to-B Map Flyover
 
-<ElementPage definition={elementDefinitions['maps/map-flyover']} sourceFile="./a-to-b-map-flyover.tsx" />
+<ElementPage definition={getElementDefinition('maps/map-flyover')} sourceFile="./a-to-b-map-flyover.tsx" />

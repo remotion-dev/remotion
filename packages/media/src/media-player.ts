@@ -871,11 +871,14 @@ export class MediaPlayer {
 		}
 	};
 
-	public audioSyncAnchorChanged = () => {
+	public audioSyncAnchorChanged = async (unloopedTimeInSeconds: number) => {
 		if (!this.audioIteratorManager) {
 			return;
 		}
 
 		this.audioIteratorManager.destroyIterator();
+		// An anchor can change while paused, when no frame update will restart
+		// scheduling. Refill the queue against the new anchor immediately.
+		await this.seekTo(unloopedTimeInSeconds);
 	};
 }

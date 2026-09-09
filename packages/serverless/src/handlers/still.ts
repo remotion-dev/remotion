@@ -27,7 +27,6 @@ import {
 	VERSION,
 } from '@remotion/serverless-client';
 import {cleanupSerializedInputProps} from '../cleanup-serialized-input-props';
-import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
@@ -39,7 +38,7 @@ import {sendTelemetryEvent} from './send-telemetry-event';
 type Options<Provider extends CloudProvider> = {
 	params: ServerlessPayload<Provider>;
 	renderId: string;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
@@ -186,6 +185,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	});
 
 	const renderMetadata: RenderMetadata<Provider> = {
+		outputFileIsConditional: null,
 		startedDate: Date.now(),
 		codec: null,
 		compositionId: params.composition,
@@ -469,10 +469,10 @@ export const stillHandler = async <Provider extends CloudProvider>(
 						frame: params.frame,
 						type: 'renderer',
 						isFatal: false,
-						tmpDir: getTmpDirStateIfENoSp(
-							(err as Error).stack as string,
-							options.insideFunctionSpecifics,
-						),
+						tmpDir:
+							options.insideFunctionSpecifics.getTmpDirState?.(
+								(err as Error).stack as string,
+							) ?? null,
 						attempt: params.attempt,
 						totalAttempts: 1 + params.maxRetries,
 						willRetry,

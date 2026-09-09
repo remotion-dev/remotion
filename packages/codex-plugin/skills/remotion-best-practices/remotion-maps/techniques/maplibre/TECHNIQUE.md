@@ -63,7 +63,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 ```tsx
 import {useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, useDelayRender, useVideoConfig} from 'remotion';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const zurich: [number, number] = [8.5417, 47.3769];
@@ -78,6 +78,15 @@ export const MyComposition = () => {
 		if (!containerRef.current) {
 			return;
 		}
+
+		maplibregl.setWorkerUrl(
+			URL.createObjectURL(
+				new Blob(
+					[`import "https://unpkg.com/maplibre-gl@${maplibregl.getVersion()}/dist/maplibre-gl-worker.mjs";`],
+					{type: 'text/javascript'},
+				),
+			),
+		);
 
 		const mapInstance = new maplibregl.Map({
 			container: containerRef.current,
@@ -131,7 +140,8 @@ import {
 	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
-import maplibregl, {type GeoJSONSource, type Map} from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
+import {type GeoJSONSource, type Map} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const zurich: [number, number] = [8.5417, 47.3769];
@@ -213,6 +223,15 @@ export const MyComposition = () => {
 		if (!containerRef.current) {
 			return;
 		}
+
+		maplibregl.setWorkerUrl(
+			URL.createObjectURL(
+				new Blob(
+					[`import "https://unpkg.com/maplibre-gl@${maplibregl.getVersion()}/dist/maplibre-gl-worker.mjs";`],
+					{type: 'text/javascript'},
+				),
+			),
+		);
 
 		const mapInstance = new maplibregl.Map({
 			container: containerRef.current,
