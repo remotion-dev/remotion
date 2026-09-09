@@ -95,6 +95,11 @@ const settingsPanel: React.CSSProperties = {
 	paddingTop: 16,
 };
 
+const advancedPanel: React.CSSProperties = {
+	...settingsPanel,
+	paddingTop: 0,
+};
+
 const transcriptionModalStyle: React.CSSProperties = {
 	...outerModalStyle,
 	outline: 'none',
@@ -957,7 +962,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						/>
 					</div>
 					<div
-						style={tab === 'advanced' ? settingsPanel : hiddenPanel}
+						style={tab === 'advanced' ? advancedPanel : hiddenPanel}
 						className={VERTICAL_SCROLLBAR_CLASSNAME}
 					>
 						<AdvancedSettings
