@@ -150,20 +150,6 @@ export const SettingsModal: React.FC<{
 						{isBrowserStudio ? null : (
 							<VerticalTab
 								style={horizontalTab}
-								selected={tab === 'rendering'}
-								onClick={() => selectTab('rendering')}
-								renderIcon={(color) => (
-									<div style={iconContainer}>
-										<FilmIcon color={color} style={icon} />
-									</div>
-								)}
-							>
-								Defaults
-							</VerticalTab>
-						)}
-						{isBrowserStudio ? null : (
-							<VerticalTab
-								style={horizontalTab}
 								selected={tab === 'studio'}
 								onClick={() => selectTab('studio')}
 								renderIcon={(color) => (
@@ -173,6 +159,20 @@ export const SettingsModal: React.FC<{
 								)}
 							>
 								Studio
+							</VerticalTab>
+						)}
+						{isBrowserStudio ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'rendering'}
+								onClick={() => selectTab('rendering')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<FilmIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Defaults
 							</VerticalTab>
 						)}
 						<VerticalTab
