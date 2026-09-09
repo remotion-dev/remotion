@@ -157,7 +157,6 @@ const BasicCaptionsInner = forwardRef<
 const BasicCaptionsLayer = Interactive.withSchema({
 	Component: BasicCaptionsInner,
 	componentName: '<BasicCaptions>',
-	componentIdentity: null,
 	schema: basicCaptionsSchema,
 	supportsEffects: false,
 }) as React.FC<BasicCaptionsProps>;

@@ -359,17 +359,17 @@ const CloseupPlaceholder = () => {
 			name: 'Install Protocol Element',
 		});
 		await expect(dialog).toBeVisible();
-		const currentDestination = dialog.getByRole('radio', {
+		const currentDestination = dialog.getByRole('button', {
 			name: 'Current composition',
 		});
-		const newDestination = dialog.getByRole('radio', {
+		const newDestination = dialog.getByRole('button', {
 			name: 'New composition',
 		});
-		await expect(currentDestination).toBeChecked();
+		await expect(currentDestination).toHaveAttribute('aria-pressed', 'true');
 		await currentDestination.press('ArrowRight');
-		await expect(newDestination).toBeChecked();
+		await expect(newDestination).toHaveAttribute('aria-pressed', 'true');
 		await newDestination.press('ArrowLeft');
-		await expect(currentDestination).toBeChecked();
+		await expect(currentDestination).toHaveAttribute('aria-pressed', 'true');
 		await expect(dialog.getByText(senderUrl, {exact: true})).toBeVisible();
 		await expect(dialog.getByLabel('Installation name')).toBeHidden();
 		await expect(
@@ -443,11 +443,11 @@ const CloseupPlaceholder = () => {
 			.getByRole('radio', {name: 'Replace existing'})
 			.check();
 		await newCompositionDialog
-			.getByRole('radio', {name: 'New composition', exact: true})
-			.check();
+			.getByRole('button', {name: 'New composition', exact: true})
+			.click();
 		await newCompositionDialog
-			.getByRole('radio', {name: 'Current composition', exact: true})
-			.check();
+			.getByRole('button', {name: 'Current composition', exact: true})
+			.click();
 		await expect(
 			newCompositionDialog.getByRole('radio', {name: 'Create a copy'}),
 		).toBeChecked();
@@ -528,7 +528,7 @@ const CloseupPlaceholder = () => {
 
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
 		await newCompositionDialog
-			.getByRole('radio', {name: 'New composition'})
+			.getByRole('button', {name: 'New composition'})
 			.click();
 		await expect(
 			newCompositionDialog.getByPlaceholder('Composition ID'),

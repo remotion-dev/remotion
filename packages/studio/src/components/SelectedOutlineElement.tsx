@@ -224,7 +224,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
 		const canRotate = !sourceEditDisabled;
-
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,

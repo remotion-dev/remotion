@@ -401,6 +401,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 		return {
 			...container,
 			width: windowWidth,
+			minWidth: '100%',
 			overflow: 'hidden',
 			pointerEvents: 'none',
 		};

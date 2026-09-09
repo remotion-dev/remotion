@@ -6,8 +6,8 @@ image: https://remotion.media/elements/captions-popping-word-captions-preview.pn
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Popping Word Captions
 
-<ElementPage definition={elementDefinitions['captions/popping-word-captions']} sourceFile="./popping-word-captions.tsx" />
+<ElementPage definition={getElementDefinition('captions/popping-word-captions')} sourceFile="./popping-word-captions.tsx" />

@@ -1,6 +1,6 @@
 import {
 	getHostedModelId,
-	WHISPER_WEBGPU_DTYPE,
+	getWhisperWebGpuDtype,
 	type WhisperWebGpuModel,
 } from './models';
 import {withRemotionModelHost} from './with-remotion-model-host';
@@ -18,7 +18,7 @@ export const isWhisperModelCached = ({
 			getHostedModelId(model),
 			{
 				device: 'webgpu',
-				dtype: WHISPER_WEBGPU_DTYPE,
+				dtype: getWhisperWebGpuDtype(model),
 			},
 		);
 	});

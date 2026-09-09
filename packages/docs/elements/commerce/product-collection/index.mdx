@@ -5,8 +5,8 @@ image: https://remotion.media/elements/commerce-product-collection-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Product Collection
 
-<ElementPage definition={elementDefinitions['commerce/product-collection']} sourceFile="./product-collection.tsx" />
+<ElementPage definition={getElementDefinition('commerce/product-collection')} sourceFile="./product-collection.tsx" />

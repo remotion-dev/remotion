@@ -82,6 +82,7 @@ const buildDevAssets = async () => {
 	const vendorOutput = await build({
 		define: {'process.env.NODE_ENV': JSON.stringify('development')},
 		entrypoints: ['src/browser-studio-vendor-entry.ts'],
+		external: ['@huggingface/transformers'],
 		format: 'iife',
 		naming: '[name].mjs',
 		outdir: outDir,
@@ -99,6 +100,20 @@ const buildDevAssets = async () => {
 	);
 	if (!vendorEntryArtifact) {
 		throw new Error('Browser Studio vendor entry was not generated');
+	}
+
+	const transformersOutput = await build({
+		entrypoints: ['src/browser-studio-transformers-entry.ts'],
+		format: 'esm',
+		naming: '[name].mjs',
+		outdir: outDir,
+		sourcemap: 'linked',
+		target: 'browser',
+	});
+
+	if (!transformersOutput.success) {
+		process.stderr.write(`${transformersOutput.logs.join('\n')}\n`);
+		process.exit(1);
 	}
 
 	const browserStudioAssetSizes = {

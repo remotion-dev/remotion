@@ -341,7 +341,6 @@ const ProductCardInner = forwardRef<
 const ProductCard = Interactive.withSchema({
 	Component: ProductCardInner,
 	componentName: '<ProductCard>',
-	componentIdentity: null,
 	schema: productCardSchema,
 	supportsEffects: false,
 }) as React.FC<ProductCardProps>;

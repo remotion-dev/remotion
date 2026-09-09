@@ -436,7 +436,6 @@ const MovingPillCaptionsInner = forwardRef<
 const MovingPillCaptionsLayer = Interactive.withSchema({
 	Component: MovingPillCaptionsInner,
 	componentName: '<MovingPillCaptions>',
-	componentIdentity: null,
 	schema: movingPillCaptionsSchema,
 	supportsEffects: false,
 }) as React.FC<MovingPillCaptionsProps>;

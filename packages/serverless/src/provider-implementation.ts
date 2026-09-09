@@ -8,7 +8,7 @@ import type {
 import type {
 	CloudProvider,
 	DeleteAfter,
-	GetFolderFiles,
+	FunctionErrorInfo,
 	Privacy,
 	ProviderSpecifics,
 	ReceivedArtifact,
@@ -109,7 +109,7 @@ export type CreateFunction<Provider extends CloudProvider> = (
 ) => Promise<{FunctionName: string}>;
 
 export type InvokeWebhookOptions = {
-	payload: WebhookPayload;
+	payload: WebhookPayload<string | null>;
 	url: string;
 	secret: string | null;
 };
@@ -136,7 +136,14 @@ export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
 	invokeWebhook: InvokeWebhook;
 	getCurrentRegionInFunction: () => Provider['region'];
 	makeArtifactWithDetails: MakeArtifactWithDetails<Provider>;
-	getFolderFiles: GetFolderFiles;
+	normalizeChromiumOptions:
+		| ((options: {
+				chromiumOptions: ChromiumOptions;
+				logLevel: LogLevel;
+		  }) => ChromiumOptions)
+		| null;
+	getTmpDirState: ((error: string) => FunctionErrorInfo['tmpDir']) | null;
+	startRendererDiagnostics: ((requestId: string) => () => void) | null;
 };
 
 export type FullClientSpecifics<Provider extends CloudProvider> = {

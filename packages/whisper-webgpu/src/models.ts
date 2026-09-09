@@ -92,7 +92,7 @@ const MODEL_INFO: Record<WhisperWebGpuModel, WhisperWebGpuModelInfo> = {
 		parameters: 809_000_000,
 		multilingual: true,
 		supportsTranslation: false,
-		webGpuDownloadSize: 2_882_584_170,
+		webGpuDownloadSize: 1_608_611_679,
 	},
 };
 
@@ -122,7 +122,20 @@ export const getHostedModelId = (model: WhisperWebGpuModel): string => {
 	return HOSTED_MODEL_IDS[model];
 };
 
-export const WHISPER_WEBGPU_DTYPE = {
+const DEFAULT_WHISPER_WEBGPU_DTYPE = {
 	encoder_model: 'fp32',
 	decoder_model_merged: 'q4',
 } as const;
+
+// The FP32 encoder is 2.55 GB and Transformers.js reads it into one ArrayBuffer,
+// which exceeds the browser allocation limit.
+const LARGE_V3_TURBO_WHISPER_WEBGPU_DTYPE = {
+	encoder_model: 'fp16',
+	decoder_model_merged: 'q4',
+} as const;
+
+export const getWhisperWebGpuDtype = (model: WhisperWebGpuModel) => {
+	return model === 'large-v3-turbo'
+		? LARGE_V3_TURBO_WHISPER_WEBGPU_DTYPE
+		: DEFAULT_WHISPER_WEBGPU_DTYPE;
+};

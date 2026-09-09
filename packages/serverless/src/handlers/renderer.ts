@@ -26,21 +26,18 @@ import {
 } from '@remotion/serverless-client';
 import {startCancellationPolling} from '../cancellation-polling';
 import type {LaunchedBrowser} from '../get-browser-instance';
-import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
-import {startLeakDetection} from '../leak-detection';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
-import {enableNodeIntrospection} from '../why-is-node-running';
 
 type Options = {
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	isWarm: boolean;
 };
 
 export type RequestContext = {
-	invokedFunctionArn: string;
+	expectedBucketOwner: string | null;
 	getRemainingTimeInMillis: () => number;
-	awsRequestId: string;
+	requestId: string;
 };
 
 const renderHandler = async <Provider extends CloudProvider>({
@@ -75,13 +72,11 @@ const renderHandler = async <Provider extends CloudProvider>({
 		throw new Error('Params must be renderer');
 	}
 
-	if (params.chromiumOptions.gl === 'angle') {
-		RenderInternals.Log.warn(
-			{indent: false, logLevel: params.logLevel},
-			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
-		);
-		params.chromiumOptions.gl = 'swangle';
-	}
+	const chromiumOptions =
+		insideFunctionSpecifics.normalizeChromiumOptions?.({
+			chromiumOptions: params.chromiumOptions,
+			logLevel: params.logLevel,
+		}) ?? params.chromiumOptions;
 
 	if (params.launchFunctionConfig.version !== VERSION) {
 		throw new Error(
@@ -119,7 +114,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	const browserInstance = await insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
-		chromiumOptions: params.chromiumOptions,
+		chromiumOptions,
 		providerSpecifics,
 		insideFunctionSpecifics,
 	});
@@ -330,7 +325,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			gopSize: params.gopSize ?? null,
 			onDownload: onDownloadsHelper(params.logLevel),
 			overwrite: false,
-			chromiumOptions: params.chromiumOptions,
+			chromiumOptions,
 			scale: params.scale,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			port: null,
@@ -460,8 +455,6 @@ const renderHandler = async <Provider extends CloudProvider>({
 	return {};
 };
 
-const ENABLE_SLOW_LEAK_DETECTION = false;
-
 export const rendererHandler = async <Provider extends CloudProvider>({
 	onStream,
 	options,
@@ -494,7 +487,10 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 
 	const logs: BrowserLog[] = [];
 
-	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
+	const finishRendererDiagnostics =
+		insideFunctionSpecifics.startRendererDiagnostics?.(
+			requestContext.requestId,
+		) ?? null;
 	let shouldKeepBrowserOpen = true;
 	let instance: LaunchedBrowser | undefined;
 	let cancellationRequested = false;
@@ -571,10 +567,10 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 					frame: null,
 					type: 'renderer',
 					isFatal: !shouldRetry,
-					tmpDir: getTmpDirStateIfENoSp(
-						(err as Error).stack as string,
-						insideFunctionSpecifics,
-					),
+					tmpDir:
+						insideFunctionSpecifics.getTmpDirState?.(
+							(err as Error).stack as string,
+						) ?? null,
 					attempt: params.attempt,
 					totalAttempts: params.retriesLeft + params.attempt,
 					willRetry: shouldRetry,
@@ -613,8 +609,6 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			);
 		}
 
-		if (ENABLE_SLOW_LEAK_DETECTION) {
-			startLeakDetection(leakDetection, requestContext.awsRequestId);
-		}
+		finishRendererDiagnostics?.();
 	}
 };

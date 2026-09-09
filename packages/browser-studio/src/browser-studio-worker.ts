@@ -2,6 +2,7 @@ import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import type * as RspackBrowser from '@rspack/browser';
 import {makeBrowserStudioHttpClient} from './browser-studio-http-client';
+import {BROWSER_STUDIO_TRANSFORMERS_PACKAGE} from './browser-studio-import-map';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
 import type {
@@ -411,7 +412,17 @@ const createCompiler = async ({
 				}),
 			},
 		},
-		externals: useVendorBundle ? browserStudioVendorExternals : undefined,
+		externals: [
+			...(useVendorBundle ? [browserStudioVendorExternals] : []),
+			({request}, callback) => {
+				if (request === BROWSER_STUDIO_TRANSFORMERS_PACKAGE) {
+					callback(undefined, request, 'import');
+					return;
+				}
+
+				callback();
+			},
+		],
 		externalsType: useVendorBundle ? 'var' : undefined,
 		mode: 'development',
 		module: {

@@ -95,3 +95,34 @@ export const ShortAudioLoop = () => {
 
 	expect(output).toContain('from={-10 * fps}');
 });
+
+test('saves exact values when preserving config arithmetic would change them', () => {
+	for (const [expression, value] of [
+		['4 * fps', 123],
+		['fps * 4', 123],
+		['durationInFrames - 1', 0.1],
+	] as const) {
+		const input = `import {Sequence} from "remotion"; const fps = 30; const durationInFrames = 10; export const Comp = () => <Sequence from={${expression}} />;`;
+		const ast = parseAst(input);
+		let nodePath = null;
+		recast.types.visit(ast, {
+			visitJSXOpeningElement(path) {
+				nodePath = getNodePathForRecastPath(path, ast);
+				return false;
+			},
+		});
+		if (!nodePath) throw new Error('Could not find Sequence');
+		const {output} = updateMultipleSequenceProps({
+			input,
+			changes: [
+				{
+					nodePath,
+					updates: [{key: 'from', value, defaultValue: null}],
+					schema: NoReactInternals.sequenceSchema,
+					videoConfigValues: null,
+				},
+			],
+		});
+		expect(output).toContain(`from={${value}}`);
+	}
+});

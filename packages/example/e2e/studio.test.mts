@@ -1734,7 +1734,7 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 		await installButton.click();
 		await expect(
-			captionsSkill.getByRole('button', {name: 'Installing...'}),
+			captionsSkill.getByRole('button', {name: 'Installing…'}),
 		).toBeDisabled();
 		await expect(
 			dialog
@@ -1745,7 +1745,7 @@ test.describe('visual mode', () => {
 		await page.keyboard.press('Escape');
 		await openSkills();
 		await expect(
-			captionsSkill.getByRole('button', {name: 'Installing...'}),
+			captionsSkill.getByRole('button', {name: 'Installing…'}),
 		).toBeDisabled();
 		finishInstall();
 		await expect(
@@ -2382,6 +2382,8 @@ export const SequenceShiftRepro = () => {
 				})
 				.toEqual([false, false]);
 
+			await expect(outer).toBeHidden();
+			await expect(local).toBeHidden();
 			fs.writeFileSync(sequenceShiftFile, sourceBefore);
 			await expect(outer).toBeVisible({timeout: 15_000});
 			const nestedParent = page.getByText('Nested timing parent', {

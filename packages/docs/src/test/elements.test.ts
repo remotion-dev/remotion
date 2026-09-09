@@ -1,8 +1,11 @@
 import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
+import {createRequire} from 'module';
 import path from 'path';
+import {pathToFileURL} from 'url';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
+import * as jsxRuntime from 'react/jsx-runtime';
 import elementSidebars from '../../elements-sidebars';
 import {
 	expandElementSourceReferences,
@@ -22,6 +25,7 @@ import {
 } from '../components/Elements/element-registry';
 import {
 	getElementCompositionId,
+	getElementDefinition,
 	getElementDimensionsLabel,
 } from '../components/Elements/element-utils';
 import {ElementLibrary} from '../components/Elements/ElementLibrary';
@@ -41,7 +45,7 @@ const staticElementsRoot = path.join(
 	'static',
 	'elements',
 );
-const elementDefinitionList = Object.values(elementDefinitions);
+const elementDefinitionList = elementDefinitions;
 const exactVersionPattern =
 	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
@@ -222,6 +226,49 @@ describe('Elements must follow the colocated single-file format', () => {
 	}
 });
 
+describe('Element MDX pages', () => {
+	test('resolves each page definition through its real MDX expression', async () => {
+		// Use the same MDX compiler as Docusaurus.
+		const requireFromDocusaurus = createRequire(
+			require.resolve('@docusaurus/core/package.json'),
+		);
+		const requireFromMdxLoader = createRequire(
+			requireFromDocusaurus.resolve('@docusaurus/mdx-loader'),
+		);
+		const {evaluate} = requireFromMdxLoader('@mdx-js/mdx');
+		for (const element of productionElements) {
+			const source = readFileSync(element.mdxPath, 'utf8')
+				.replace(/^---[\s\S]*?---\s*/, '')
+				// Keep the page's imports and definition expression real; replace only the
+				// Docusaurus UI, which requires its build-generated module aliases.
+				.replace(/import \{ElementPage\} from '[^']+';/, '')
+				.replaceAll(
+					'@site/',
+					pathToFileURL(path.join(elementsRoot, '..')).href + '/',
+				);
+			const {default: Page} = await evaluate(source, {
+				...jsxRuntime,
+				baseUrl: pathToFileURL(element.mdxPath),
+			});
+			const markup = renderToStaticMarkup(
+				React.createElement(Page, {
+					components: {
+						ElementPage: ({
+							definition,
+						}: {
+							readonly definition: (typeof elementDefinitions)[number];
+						}) => {
+							expect(definition.slug).toBe(element.name);
+							return React.createElement('span', null, definition.displayName);
+						},
+					},
+				}),
+			);
+			expect(markup).toContain(getElementDefinition(element.name).displayName);
+		}
+	});
+});
+
 describe('Element library', () => {
 	test('injects the exact source files needed by each listing', () => {
 		const completeSourceCodeBySlug = getRemotionElementSourceMap({
@@ -395,7 +442,7 @@ describe('Element library', () => {
 			'overlays/name-lower-third',
 			'backgrounds/paper-texture',
 		] as const) {
-			const definition = elementDefinitions[slug];
+			const definition = getElementDefinition(slug);
 			const sourceCode = sourceCodeBySlug[slug];
 			const payload = createElementPayloadFromDefinition({
 				definition,
@@ -658,15 +705,9 @@ describe('Element preview definitions', () => {
 		const definitionSlugs = elementDefinitionList
 			.map((definition) => definition.slug)
 			.sort();
-		const definitionKeys = Object.keys(elementDefinitions).sort();
 
-		expect(definitionKeys).toEqual(elementSlugs);
 		expect(definitionSlugs).toEqual(elementSlugs);
 		expect(new Set(definitionSlugs).size).toBe(definitionSlugs.length);
-
-		for (const [slug, definition] of Object.entries(elementDefinitions)) {
-			expect(definition.slug).toBe(slug);
-		}
 	});
 
 	test('publishes caption treatments as separate Elements', () => {
@@ -798,7 +839,9 @@ describe('Element preview definitions', () => {
 	});
 
 	test('keeps displayed Element dimensions separate from preview dimensions', () => {
-		const adaptiveDefinition = elementDefinitions['backgrounds/paper-texture'];
+		const adaptiveDefinition = getElementDefinition(
+			'backgrounds/paper-texture',
+		);
 		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe(
 			'Adapts to composition',
 		);
@@ -807,7 +850,7 @@ describe('Element preview definitions', () => {
 			width: 1920,
 		});
 
-		const fixedDefinition = elementDefinitions['overlays/name-lower-third'];
+		const fixedDefinition = getElementDefinition('overlays/name-lower-third');
 		expect(getElementDimensionsLabel(fixedDefinition)).toBe('534 × 132px');
 		expect(getElementPreviewDimensions(fixedDefinition)).toEqual({
 			height: 732,
@@ -820,7 +863,7 @@ describe('Element preview definitions', () => {
 			'backgrounds/paper-texture',
 			'backgrounds/rotating-starburst',
 		] as const) {
-			const definition = elementDefinitions[slug];
+			const definition = getElementDefinition(slug);
 			const element = productionElements.find((entry) => entry.name === slug);
 			if (!element) {
 				throw new Error(`Could not find Element source for ${slug}`);
@@ -837,7 +880,7 @@ describe('Element preview definitions', () => {
 
 	test('Social Safe Zones keeps its calibrated 9:16 dimensions in Studio and the docs preview', () => {
 		const slug = 'overlays/social-safe-zones';
-		const definition = elementDefinitions[slug];
+		const definition = getElementDefinition(slug);
 		const element = productionElements.find((entry) => entry.name === slug);
 		if (!element) {
 			throw new Error(`Could not find Element source for ${slug}`);

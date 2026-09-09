@@ -40,8 +40,10 @@ const unsupportedStatusWrapper: React.CSSProperties = {
 
 const unsupportedLabel: React.CSSProperties = {
 	color: WHITE_ALPHA_40,
+	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
 	fontStyle: 'italic',
+	lineHeight: '18px',
 };
 
 const computedValue: React.CSSProperties = {

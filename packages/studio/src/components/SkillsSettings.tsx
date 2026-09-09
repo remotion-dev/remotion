@@ -7,11 +7,9 @@ import {
 	WHITE,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
-import {NO_HOVER_BACKGROUND_STYLE} from '../helpers/hoverable';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
 import {CopyIcon} from '../icons/copy';
-import {Minus} from '../icons/minus';
 import {Button} from './Button';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -104,6 +102,12 @@ const status: React.CSSProperties = {
 	fontSize: 12,
 	lineHeight: 1.4,
 	whiteSpace: 'nowrap',
+};
+
+const installButton: React.CSSProperties = {
+	backgroundColor: BLUE,
+	color: WHITE,
+	flexShrink: 0,
 };
 
 const loading: React.CSSProperties = {
@@ -214,30 +218,24 @@ export const SkillsSettings: React.FC = () => {
 										: skillRow
 								}
 							>
+								<span style={skillName}>/{skill.name}</span>
+								<span style={status}>{installedLocation}</span>
 								{installed ? (
 									<CheckCircleFilled
 										aria-hidden
 										style={{...statusIcon, fill: BLUE}}
 									/>
-								) : (
-									<Minus aria-hidden color={LIGHT_TEXT} style={statusIcon} />
-								)}
-								<span style={skillName}>/{skill.name}</span>
-								{!installed && canInstall ? (
+								) : canInstall ? (
 									<Button
 										size="compact"
-										style={NO_HOVER_BACKGROUND_STYLE}
+										style={installButton}
 										title={`Install ${skill.name} in this project`}
 										disabled={installingSkill !== null}
 										onClick={() => installSkill(skill.name)}
 									>
-										{installingSkill === skill.name
-											? 'Installing...'
-											: 'Install'}
+										{installingSkill === skill.name ? 'Installing…' : 'Install'}
 									</Button>
-								) : (
-									<span style={status}>{installedLocation}</span>
-								)}
+								) : null}
 							</div>
 						);
 					})}
