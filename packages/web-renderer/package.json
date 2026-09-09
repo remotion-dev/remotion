@@ -24,7 +24,8 @@
 		"@mediabunny/flac-encoder": "catalog:",
 		"@remotion/licensing": "workspace:*",
 		"remotion": "workspace:*",
-		"mediabunny": "catalog:"
+		"mediabunny": "catalog:",
+		"@remotion/media": "workspace:*"
 	},
 	"devDependencies": {
 		"@remotion/effects": "workspace:*",
@@ -32,7 +33,6 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
-		"@remotion/media": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",

@@ -1,5 +1,5 @@
-import {Internals} from 'remotion';
 import type {AudioBufferSlice} from '../make-iterator-with-priming';
+import {StreamingPitchShifter} from './streaming-pitch-shifter';
 
 const getPlanarSlice = (slice: AudioBufferSlice) => {
 	const {buffer} = slice.buffer;
@@ -60,8 +60,7 @@ export async function* pitchShiftAudioIterator({
 		return;
 	}
 
-	let shifter: InstanceType<typeof Internals.StreamingPitchShifter> | null =
-		null;
+	let shifter: StreamingPitchShifter | null = null;
 	let sampleRate = 0;
 	let numberOfChannels = 0;
 	let segmentStart = 0;
@@ -113,7 +112,7 @@ export async function* pitchShiftAudioIterator({
 			segmentStart = slice.timelineTimestamp;
 			segmentInputFrames = 0;
 			segmentOutputFrames = 0;
-			shifter = new Internals.StreamingPitchShifter({
+			shifter = new StreamingPitchShifter({
 				numberOfChannels,
 				sampleRate,
 				toneFrequency,

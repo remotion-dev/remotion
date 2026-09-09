@@ -1,4 +1,5 @@
-import {Internals, type TRenderAsset} from 'remotion';
+import {StreamingPitchShifter} from '@remotion/media/internal';
+import type {TRenderAsset} from 'remotion';
 
 const TARGET_NUMBER_OF_CHANNELS = 2;
 
@@ -9,7 +10,7 @@ type PendingAudioFrame = {
 };
 
 type PitchShiftState = {
-	shifter: InstanceType<typeof Internals.StreamingPitchShifter>;
+	shifter: StreamingPitchShifter;
 	pending: {frame: PendingAudioFrame; written: number}[];
 };
 
@@ -115,7 +116,7 @@ export const createAudioMixer = ({
 				let state = shifters.get(asset.id);
 				if (!state) {
 					state = {
-						shifter: new Internals.StreamingPitchShifter({
+						shifter: new StreamingPitchShifter({
 							numberOfChannels: TARGET_NUMBER_OF_CHANNELS,
 							sampleRate,
 							toneFrequency: asset.toneFrequency,

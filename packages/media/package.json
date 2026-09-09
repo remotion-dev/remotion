@@ -51,7 +51,12 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./internal": {
+			"types": "./dist/internal.d.ts",
+			"module": "./dist/esm/internal.mjs",
+			"import": "./dist/esm/internal.mjs"
+		}
 	},
 	"description": "Experimental WebCodecs-based media tags",
 	"homepage": "https://remotion.dev/docs/media"

@@ -6,6 +6,7 @@ await buildPackage({
 		esm: 'build',
 	},
 	external: [
+		'@remotion/media/internal',
 		'remotion',
 		'react',
 		'react-dom',

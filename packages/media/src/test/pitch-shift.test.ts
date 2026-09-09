@@ -1,5 +1,5 @@
-import {Internals} from 'remotion';
 import {expect, test} from 'vitest';
+import {StreamingPitchShifter} from '../audio/streaming-pitch-shifter';
 
 const makeSine = ({
 	frequency,
@@ -59,7 +59,7 @@ test('changes pitch while preserving the sample count', () => {
 	});
 
 	for (const toneFrequency of [0.75, 1.5]) {
-		const shifter = new Internals.StreamingPitchShifter({
+		const shifter = new StreamingPitchShifter({
 			numberOfChannels: 1,
 			sampleRate,
 			toneFrequency,

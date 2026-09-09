@@ -11,7 +11,6 @@ import {
 	SharedAudioTagsContextProvider,
 	type ScheduleAudioNodeOptions,
 } from './audio/shared-audio-tags.js';
-import {StreamingPitchShifter} from './audio/streaming-pitch-shifter.js';
 import type {RemotionAudioContextState} from './audio/use-audio-context.js';
 import {
 	useFrameForVolumeProp,
@@ -299,7 +298,6 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
-	StreamingPitchShifter,
 	AbsoluteFillElement,
 	MaxMediaCacheSizeContext,
 	getMediabunnyInputResourceKey,
