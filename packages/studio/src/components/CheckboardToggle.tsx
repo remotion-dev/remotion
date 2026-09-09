@@ -1,9 +1,12 @@
 import React, {useCallback, useContext} from 'react';
-import {NoReactInternals} from 'remotion/no-react';
 import {BLUE} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
-import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {CheckerboardContext} from '../state/checkerboard';
+import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 
 export const CheckboardToggle: React.FC = () => {
@@ -15,49 +18,60 @@ export const CheckboardToggle: React.FC = () => {
 		});
 	}, [setCheckerboard]);
 	const shortcut = useKeyboardShortcutLabel('toggleCheckerboard');
-	const accessibilityLabel = [
-		'Show transparency as checkerboard',
-		areKeyboardShortcutsDisabled() || shortcut === '' ? null : `(${shortcut})`,
-	]
-		.filter(NoReactInternals.truthy)
-		.join(' ');
+	const ariaKeyShortcuts =
+		useKeyboardShortcutAriaKeyShortcuts('toggleCheckerboard');
+	const accessibilityLabel = 'Show transparency as checkerboard';
+	const shortcutsDisabled = areKeyboardShortcutsDisabled();
 
 	return (
-		<ControlButton
-			title={accessibilityLabel}
-			aria-label={accessibilityLabel}
-			aria-pressed={checkerboard}
-			onClick={onClick}
+		<ActionTooltip
+			label={accessibilityLabel}
+			shortcut={shortcutsDisabled ? null : shortcut}
+			delay={800}
+			dismissOnClick={false}
 		>
-			{(color) => (
-				<svg
-					aria-hidden="true"
-					focusable="false"
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 512 512"
-					style={{width: 18, height: 18}}
-					fill="none"
+			{(describedBy) => (
+				<ControlButton
+					title=""
+					aria-label={accessibilityLabel}
+					aria-describedby={describedBy}
+					aria-pressed={checkerboard}
+					aria-keyshortcuts={
+						shortcutsDisabled ? undefined : ariaKeyShortcuts || undefined
+					}
+					onClick={onClick}
 				>
-					<path
-						fill={checkerboard ? BLUE : color}
-						d="M256 48h184c13.3 0 24 10.7 24 24v184H256V48zM48 256h208v208H72c-13.3 0-24-10.7-24-24V256z"
-					/>
-					<rect
-						x="48"
-						y="48"
-						width="416"
-						height="416"
-						rx="24"
-						stroke={checkerboard ? BLUE : color}
-						strokeWidth="32"
-					/>
-					<path
-						d="M256 48v416M48 256h416"
-						stroke={checkerboard ? BLUE : color}
-						strokeWidth="32"
-					/>
-				</svg>
+					{(color) => (
+						<svg
+							aria-hidden="true"
+							focusable="false"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 512 512"
+							style={{width: 18, height: 18}}
+							fill="none"
+						>
+							<path
+								fill={checkerboard ? BLUE : color}
+								d="M256 48h184c13.3 0 24 10.7 24 24v184H256V48zM48 256h208v208H72c-13.3 0-24-10.7-24-24V256z"
+							/>
+							<rect
+								x="48"
+								y="48"
+								width="416"
+								height="416"
+								rx="24"
+								stroke={checkerboard ? BLUE : color}
+								strokeWidth="32"
+							/>
+							<path
+								d="M256 48v416M48 256h416"
+								stroke={checkerboard ? BLUE : color}
+								strokeWidth="32"
+							/>
+						</svg>
+					)}
+				</ControlButton>
 			)}
-		</ControlButton>
+		</ActionTooltip>
 	);
 };

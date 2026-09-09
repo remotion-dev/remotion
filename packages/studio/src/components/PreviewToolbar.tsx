@@ -238,7 +238,11 @@ export const PreviewToolbar: React.FC<{
 				</PreviewToolbarControl>
 				<Spacing x={1.5} />
 			</div>
-			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
+			<PlaybackKeyboardShortcutsManager
+				setPlaybackRate={setPlaybackRate}
+				setMuted={setPlayerMuted}
+				setLoop={setLoop}
+			/>
 			<PlaybackRatePersistor />
 		</div>
 	);

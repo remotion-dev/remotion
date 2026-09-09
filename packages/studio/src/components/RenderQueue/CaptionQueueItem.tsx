@@ -12,6 +12,7 @@ import {
 	LIGHT_TEXT,
 } from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {Row, Spacing} from '../layout';
@@ -223,12 +224,17 @@ export const CaptionQueueItem: React.FC<{
 			</div>
 			<Spacing x={1} />
 			{job.status === 'running' ? null : (
-				<InlineAction
-					renderAction={renderRemoveAction}
-					onClick={onRemove}
-					title="Remove"
-					variant={null}
-				/>
+				<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
+					{(describedBy) => (
+						<InlineAction
+							renderAction={renderRemoveAction}
+							onClick={onRemove}
+							aria-label="Clear"
+							aria-describedby={describedBy}
+							variant={null}
+						/>
+					)}
+				</ActionTooltip>
 			)}
 		</Row>
 	);

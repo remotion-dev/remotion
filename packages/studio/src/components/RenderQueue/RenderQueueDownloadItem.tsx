@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
 import {downloadBlob} from '../../helpers/download-blob';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -54,11 +55,16 @@ export const RenderQueueDownloadItem: React.FC<{
 	);
 
 	return (
-		<InlineAction
-			variant={null}
-			renderAction={renderAction}
-			onClick={onClick}
-			title="Download"
-		/>
+		<ActionTooltip label="Download" shortcut={null} delay={800} dismissOnClick>
+			{(describedBy) => (
+				<InlineAction
+					aria-label="Download"
+					aria-describedby={describedBy}
+					variant={null}
+					renderAction={renderAction}
+					onClick={onClick}
+				/>
+			)}
+		</ActionTooltip>
 	);
 };

@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {unregisterClientRender} from '../../api/save-render-output';
 import {CURRENT_COLOR} from '../../helpers/colors';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -69,11 +70,16 @@ export const RenderQueueRemoveItem: React.FC<{
 	);
 
 	return (
-		<InlineAction
-			renderAction={renderAction}
-			onClick={onClick}
-			title="Remove"
-			variant={null}
-		/>
+		<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
+			{(describedBy) => (
+				<InlineAction
+					aria-label="Clear"
+					aria-describedby={describedBy}
+					renderAction={renderAction}
+					onClick={onClick}
+					variant={null}
+				/>
+			)}
+		</ActionTooltip>
 	);
 };

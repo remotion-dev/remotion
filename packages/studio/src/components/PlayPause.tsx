@@ -3,12 +3,17 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {JumpToStart} from '../icons/jump-to-start';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
+import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 import {getCurrentDuration} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
@@ -82,6 +87,12 @@ const PlayPauseInner: React.FC<{
 	const playing = Internals.usePlaying();
 
 	const isStill = useIsStill();
+	const jumpToBeginningShortcut = useKeyboardShortcutLabel('jumpToBeginning');
+	const jumpToBeginningAriaShortcut =
+		useKeyboardShortcutAriaKeyShortcuts('jumpToBeginning');
+	const playPauseShortcut = useKeyboardShortcutLabel('playPause');
+	const playPauseAriaShortcut =
+		useKeyboardShortcutAriaKeyShortcuts('playPause');
 
 	useEffect(() => {
 		if (isStill) {
@@ -264,54 +275,103 @@ const PlayPauseInner: React.FC<{
 				getCurrentFrame={getCurrentFrame}
 			/>
 			{hideNavigationControls ? null : (
-				<ControlButton
-					aria-label="Jump to beginning"
-					title="Jump to beginning"
-					disabled={!videoConfig}
-					onClick={jumpToStart}
+				<ActionTooltip
+					label="Go to beginning"
+					shortcut={jumpToBeginningShortcut}
+					delay={800}
+					dismissOnClick
 				>
-					{(color) => <JumpToStart style={backStyle} color={color} />}
-				</ControlButton>
+					{(describedBy) => (
+						<ControlButton
+							aria-label="Go to beginning"
+							aria-describedby={describedBy}
+							aria-keyshortcuts={jumpToBeginningAriaShortcut || undefined}
+							title=""
+							disabled={!videoConfig}
+							onClick={jumpToStart}
+						>
+							{(color) => <JumpToStart style={backStyle} color={color} />}
+						</ControlButton>
+					)}
+				</ActionTooltip>
 			)}
 			{hideNavigationControls ? null : (
-				<ControlButton
-					aria-label="Step back one frame"
-					title="Step back one frame"
-					disabled={!videoConfig}
-					onClick={oneFrameBack}
+				<ActionTooltip
+					label="Go back 1 frame"
+					shortcut="←"
+					delay={800}
+					dismissOnClick
 				>
-					{(color) => <StepBack style={forwardBackStyle} color={color} />}
-				</ControlButton>
+					{(describedBy) => (
+						<ControlButton
+							aria-label="Go back 1 frame"
+							aria-describedby={describedBy}
+							aria-keyshortcuts="ArrowLeft"
+							title=""
+							disabled={!videoConfig}
+							onClick={oneFrameBack}
+						>
+							{(color) => <StepBack style={forwardBackStyle} color={color} />}
+						</ControlButton>
+					)}
+				</ActionTooltip>
 			)}
 
-			<ControlButton
-				aria-label={playing ? 'Pause' : 'Play'}
-				title={playing ? 'Pause' : 'Play'}
-				onClick={playing ? pause : play}
-				disabled={!videoConfig}
+			<ActionTooltip
+				label={playing ? 'Pause' : 'Play'}
+				shortcut={playPauseShortcut}
+				delay={800}
+				dismissOnClick={false}
 			>
-				{(color) =>
-					playing ? (
-						showBufferIndicator ? (
-							<PlayerInternals.BufferingIndicator type="studio" color={color} />
-						) : (
-							<Pause style={iconButton} color={color} />
-						)
-					) : (
-						<Play style={iconButton} color={color} />
-					)
-				}
-			</ControlButton>
+				{(describedBy) => (
+					<ControlButton
+						aria-label={playing ? 'Pause' : 'Play'}
+						aria-describedby={describedBy}
+						aria-keyshortcuts={playPauseAriaShortcut || undefined}
+						title=""
+						onClick={playing ? pause : play}
+						disabled={!videoConfig}
+					>
+						{(color) =>
+							playing ? (
+								showBufferIndicator ? (
+									<PlayerInternals.BufferingIndicator
+										type="studio"
+										color={color}
+									/>
+								) : (
+									<Pause style={iconButton} color={color} />
+								)
+							) : (
+								<Play style={iconButton} color={color} />
+							)
+						}
+					</ControlButton>
+				)}
+			</ActionTooltip>
 
 			{hideNavigationControls ? null : (
-				<ControlButton
-					aria-label="Step forward one frame"
-					title="Step forward one frame"
-					disabled={!videoConfig}
-					onClick={oneFrameForward}
+				<ActionTooltip
+					label="Go forward 1 frame"
+					shortcut="→"
+					delay={800}
+					dismissOnClick
 				>
-					{(color) => <StepForward style={forwardBackStyle} color={color} />}
-				</ControlButton>
+					{(describedBy) => (
+						<ControlButton
+							aria-label="Go forward 1 frame"
+							aria-describedby={describedBy}
+							aria-keyshortcuts="ArrowRight"
+							title=""
+							disabled={!videoConfig}
+							onClick={oneFrameForward}
+						>
+							{(color) => (
+								<StepForward style={forwardBackStyle} color={color} />
+							)}
+						</ControlButton>
+					)}
+				</ActionTooltip>
 			)}
 		</>
 	);

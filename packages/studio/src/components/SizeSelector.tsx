@@ -54,7 +54,7 @@ export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
 	return `${(previewSize.size * 100).toFixed(0)}%`;
 };
 
-const accessibilityLabel = 'Preview Size';
+const accessibilityLabel = 'Zoom';
 
 export const getUniqueSizes = (size: PreviewSize) => {
 	const customPreviewSizes = [size, ...commonPreviewSizes];
@@ -156,6 +156,7 @@ export const SizeSelector: React.FC = () => {
 	return (
 		<TimelineCombobox
 			title={accessibilityLabel}
+			tooltipDelay={800}
 			selectedId={selectedId}
 			values={items}
 			renderLeftItem={(color) =>
