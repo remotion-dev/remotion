@@ -54,21 +54,6 @@ You can also press <kbd>?</kbd> to open this tab.
 | `deleteSelection`               | `Backspace` or `Delete`                    | Delete or reset the selection                                  |
 | `askAI`                         | `Cmd/Ctrl+I`                               | Open Ask AI when it is enabled                                 |
 
-Press <kbd>M</kbd> to mute or unmute preview audio, and <kbd>Shift</kbd> + <kbd>L</kbd> to toggle looping.
-These shortcuts also work when the controls are in the toolbar's overflow menu.
-
-<kbd>L</kbd> still plays forward or increases playback speed, and <kbd>Shift</kbd> + <kbd>M</kbd> toggles snapping.
-
-To change these shortcuts, open Settings → Shortcuts → Playback and select the shortcut next to "Mute / Unmute" or "Loop".
-Use the action menu beside a shortcut to disable it or reset it to its default. The toolbar tooltips reflect your configured shortcuts.
-
-Press <kbd>Shift</kbd> + <kbd>O</kbd> to toggle outlines, and <kbd>Shift</kbd> + <kbd>R</kbd> to toggle rulers and guides together.
-These shortcuts also work when the controls are in the toolbar's overflow menu. When previewing a video asset, the rulers shortcut toggles only rulers.
-
-Remap, disable, or reset either shortcut in Settings → Shortcuts → View. Their toolbar tooltips show the configured shortcuts.
-
-<kbd>O</kbd> still sets the Out Point, and <kbd>R</kbd> opens Render or selects the rotation property, depending on the current selection.
-
 ## Fixed shortcuts
 
 Some shortcuts are context-sensitive interactions or browser events and cannot be overridden:
@@ -114,5 +99,3 @@ Config.setKeyboardShortcuts({
 Omitted actions keep their default shortcut. Set an action to `null` to disable it, or pass an array to assign multiple shortcuts.
 
 `commandOrControl` uses Command on macOS and Control on other platforms. The `shift` and `alt` modifiers are also supported.
-
-Set `shift` or `alt` to `true` to require that modifier, or `false` to require it to be released. Omitting either modifier allows either state. Shortcuts recorded in Studio save both modifier states.
