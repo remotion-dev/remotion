@@ -72,9 +72,11 @@ The preferred duration shown while dragging. It must be a positive integer.
 
 Controls how Studio installs the Element. The default is `'wrapped'`.
 
-Use `'wrapped'` for a regular visual component. Studio generates a [`<Sequence>`](/docs/sequence) around the component to provide its timing, name, dimensions, and position.
+With `'wrapped'`, Studio generates a [`<Sequence>`](/docs/sequence) around the component to provide its timing, name, dimensions, and position.
 
-Use `'component-owned-sequence'` only if the component already owns the one Sequence that should appear in the timeline and be editable in Studio. The component must accept and forward `from`, `durationInFrames`, `name`, and `style` to that Sequence and its rendered outline. It must also define its own rendered dimensions. Studio places timing and absolute positioning props directly on the component call instead of generating an outer Sequence.
+With `'component-owned-sequence'`, Studio puts timing, name, and absolute positioning props on the component call without adding an outer Sequence. The component must provide its own Studio-editable Sequence and rendered dimensions.
+
+See [Design it for composition](/elements/contributing#design-it-for-composition) for guidance on choosing a mode and wiring the component.
 
 ## Return value
 
