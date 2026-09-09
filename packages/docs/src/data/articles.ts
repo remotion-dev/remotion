@@ -4690,10 +4690,10 @@ export const articles = [
 	},
 	{
 		id: 'mediabunny/index',
-		title: 'Remotion and Mediabunny',
+		title: 'Mediabunny',
 		relativePath: 'docs/mediabunny/index.mdx',
 		compId: 'articles-docs-mediabunny-index',
-		crumb: 'Migration',
+		crumb: 'Mediabunny',
 		noAi: false,
 		slug: 'mediabunny/index',
 	},
