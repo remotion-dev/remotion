@@ -21,6 +21,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>loadVideoMattingModel()</strong>
 				<div>Download and initialize a model</div>
 			</TOCItem>
+			<TOCItem link="/docs/video-matting/remove-video-matting-model">
+				<strong>removeVideoMattingModel()</strong>
+				<div>Remove a model from the browser cache</div>
+			</TOCItem>
 			<TOCItem link="/docs/video-matting/separate-video-layers">
 				<strong>separateVideoLayers()</strong>
 				<div>Create base and foreground WebM layers</div>

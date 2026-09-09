@@ -638,7 +638,6 @@ const MapFlyoverLayerInner = forwardRef<
 const InteractiveMapFlyoverLayer = Interactive.withSchema({
 	Component: MapFlyoverLayerInner,
 	componentName: '<MapFlyover>',
-	componentIdentity: null,
 	schema: mapFlyoverSchema,
 	supportsEffects: false,
 }) as React.FC<MapFlyoverLayerProps>;

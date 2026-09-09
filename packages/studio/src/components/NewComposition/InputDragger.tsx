@@ -18,8 +18,11 @@ import type {RemInputStatus} from './RemInput';
 import {RemotionInput, inputBaseStyle} from './RemInput';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
-	readonly onValueChange: (newVal: number) => void;
-	readonly onValueChangeEnd?: (newVal: number) => void;
+	readonly onValueChange: (newVal: number, source: 'input' | 'drag') => void;
+	readonly onValueChangeEnd?: (
+		newVal: number,
+		source: 'input' | 'drag',
+	) => void;
 	readonly onTextChange: (newVal: string) => void;
 	readonly status: RemInputStatus;
 	readonly formatter?: (str: number | string) => string;
@@ -589,7 +592,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					value: parsed,
 				})
 			) {
-				onValueChange(parsed);
+				onValueChange(parsed, 'input');
 			}
 		},
 		[_max, _min, onValueChange],
@@ -615,7 +618,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 		if (validation.valid) {
 			fallbackRef.current.setCustomValidity('');
-			onValueChangeEnd?.(validation.value);
+			onValueChangeEnd?.(validation.value, 'input');
 
 			setInputFallback(false);
 		} else {
@@ -659,7 +662,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 				e.currentTarget.value = String(nextValue);
 				e.currentTarget.setCustomValidity('');
-				onValueChange(nextValue);
+				onValueChange(nextValue, 'input');
 			},
 			[_max, _min, deriveStep, onValueChange, value],
 		);
@@ -713,7 +716,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 						? newValue
 						: roundToDecimalPlaces(newValue, dragDecimalPlaces);
 				lastDragValue = nextValue;
-				onValueChange(nextValue);
+				onValueChange(nextValue, 'drag');
 			};
 
 			startCapturedPointerSession({
@@ -727,7 +730,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					const commit =
 						reason === 'pointerup' || reason === 'buttons-released';
 					if (commit && lastDragValue !== null && onValueChangeEnd) {
-						onValueChangeEnd(lastDragValue);
+						onValueChangeEnd(lastDragValue, 'drag');
 					}
 
 					setTimeout(() => {
@@ -792,6 +795,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			ref={ref}
 			type="button"
 			aria-label={props['aria-label']}
+			title={props.title}
 			className={'__remotion_input_dragger'}
 			style={
 				buttonStyle

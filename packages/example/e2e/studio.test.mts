@@ -2298,6 +2298,8 @@ export const SequenceShiftRepro = () => {
 				})
 				.toEqual([false, false]);
 
+			await expect(outer).toBeHidden();
+			await expect(local).toBeHidden();
 			fs.writeFileSync(sequenceShiftFile, sourceBefore);
 			await expect(outer).toBeVisible({timeout: 15_000});
 			const nestedParent = page.getByText('Nested timing parent', {

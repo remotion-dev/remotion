@@ -27,7 +27,6 @@ import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {findInFileHandler} from './routes/find-in-file';
 import {insertElementHandler} from './routes/insert-element';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
-import {handleInstallPackage} from './routes/install-dependency';
 import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
@@ -67,7 +66,10 @@ import {updateElementInstallTargetHandler} from './routes/update-element-install
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 import {handleUpgradeRemotion} from './routes/upgrade-remotion';
 
-type StandardApiRoute = Exclude<keyof ApiRoutes, '/api/update-config'>;
+type StandardApiRoute = Exclude<
+	keyof ApiRoutes,
+	'/api/install-package' | '/api/update-config'
+>;
 
 export const allApiRoutes: {
 	[key in StandardApiRoute]: ApiHandler<
@@ -131,7 +133,6 @@ export const allApiRoutes: {
 	'/api/restart-studio': handleRestartStudio,
 	'/api/default-coding-agent-info': getDefaultCodingAgentInfoHandler,
 	'/api/default-editor-info': getDefaultEditorInfoHandler,
-	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/insert-element': insertElementHandler,
 	'/api/prepare-element-install': prepareElementInstallHandler,

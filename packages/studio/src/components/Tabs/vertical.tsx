@@ -28,7 +28,8 @@ export const VerticalTab: React.FC<{
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly style?: React.CSSProperties;
 	readonly selected: boolean;
-}> = ({children, onClick, renderIcon, style, selected}) => {
+	readonly autoFocus?: boolean;
+}> = ({children, onClick, renderIcon, style, selected, autoFocus}) => {
 	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
 
@@ -54,6 +55,7 @@ export const VerticalTab: React.FC<{
 
 	return (
 		<button
+			autoFocus={autoFocus}
 			style={definiteStyle}
 			type="button"
 			onClick={onClick}

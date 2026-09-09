@@ -3,8 +3,16 @@ import React, {useCallback} from 'react';
 import {Spacing} from '../layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RightAlignInput} from '../NewComposition/RemInput';
+import {InfoBubble} from './InfoBubble';
 import {label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
+
+type NumberSettingHint =
+	| AvailableOptions
+	| {
+			readonly content: React.ReactNode;
+			readonly title: string;
+	  };
 
 export const NumberSetting: React.FC<{
 	readonly name: string;
@@ -14,7 +22,7 @@ export const NumberSetting: React.FC<{
 	readonly min: number;
 	readonly step: number;
 	readonly formatter?: (value: string | number) => string;
-	readonly hint?: AvailableOptions;
+	readonly hint?: NumberSettingHint;
 }> = ({name, value, step, hint, onValueChanged, max, min, formatter}) => {
 	const onTextChanged = useCallback(
 		(e: string) => {
@@ -44,7 +52,11 @@ export const NumberSetting: React.FC<{
 				{hint ? (
 					<>
 						<Spacing x={0.5} />
-						<OptionExplainerBubble id={hint} />
+						{typeof hint === 'string' ? (
+							<OptionExplainerBubble id={hint} />
+						) : (
+							<InfoBubble title={hint.title}>{hint.content}</InfoBubble>
+						)}
 					</>
 				) : null}
 			</div>
@@ -53,6 +65,7 @@ export const NumberSetting: React.FC<{
 					<InputDragger
 						value={value}
 						name={name.toLowerCase()}
+						aria-label={`${name}: ${formatter ? formatter(value) : value}`}
 						onTextChange={onTextChanged}
 						onValueChange={onValueChange}
 						step={step}

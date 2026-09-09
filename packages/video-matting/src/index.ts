@@ -19,6 +19,8 @@ export type {
 } from './load-video-matting-model';
 export {isVideoMattingModelCached} from './is-video-matting-model-cached';
 export type {IsVideoMattingModelCachedOptions} from './is-video-matting-model-cached';
+export {removeVideoMattingModel} from './remove-video-matting-model';
+export type {RemoveVideoMattingModelOptions} from './remove-video-matting-model';
 export {getAvailableModels} from './models';
 export type {VideoMattingModel, VideoMattingModelInfo} from './models';
 export type {

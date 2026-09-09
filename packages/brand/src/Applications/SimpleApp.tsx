@@ -3,7 +3,7 @@ import {ExtrudeDiv} from '../3DContext/Div3D';
 import {KineticType} from './KineticType';
 
 export function ApplicationSimpleApp({
-	kineticTypeColor = '#4290f5',
+	kineticTypeColor = '#000000',
 	kineticTypeFrame,
 	kineticTypeSpeed = 1,
 }: {
@@ -106,7 +106,7 @@ export function ApplicationSimpleApp({
 						<div
 							style={{
 								alignItems: 'center',
-								backgroundColor: '#e5e7eb',
+								backgroundColor: '#f8fafc',
 								borderRadius: 18,
 								display: 'flex',
 								height: 332,
@@ -120,7 +120,7 @@ export function ApplicationSimpleApp({
 									alignItems: 'center',
 									color: kineticTypeColor,
 									fontSize: 64,
-									fontWeight: 500,
+									fontWeight: 700,
 									gap: 8,
 									justifyContent: 'center',
 									letterSpacing: 1,

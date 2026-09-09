@@ -17,6 +17,8 @@ import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
 	GitSource,
+	InstallPackageRequest,
+	InstallPackageResponse,
 	RenderDefaults,
 	RenderJob,
 	StudioRuntimeConfig,
@@ -38,6 +40,7 @@ import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {handleAppIcon} from './preview-server/routes/app-icon';
+import {handleInstallPackage} from './preview-server/routes/install-dependency';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {updateConfigHandler} from './preview-server/routes/update-config';
 import {serveStatic} from './preview-server/serve-static';
@@ -185,6 +188,7 @@ const handleFallback = async ({
 
 	response.end(
 		BundlerInternals.indexHtml({
+			importMap: null,
 			staticHash: hash,
 			publicPath: '/',
 			editorName: displayName,
@@ -431,6 +435,7 @@ export const handleRoutes = ({
 	getDefaultCodingAgent,
 	getDefaultEditor,
 	configFile,
+	invalidateBundle,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -459,6 +464,7 @@ export const handleRoutes = ({
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
+	invalidateBundle: () => Promise<void>;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -561,6 +567,23 @@ export const handleRoutes = ({
 			entryPoint,
 			handler: (params) =>
 				updateConfigHandler({...params, getStudioRuntimeConfig}),
+			request,
+			response,
+			logLevel,
+			methods,
+			binariesDirectory,
+			publicDir,
+			configFile,
+			getDefaultCodingAgent,
+			getDefaultEditor,
+		});
+	}
+
+	if (url.pathname === '/api/install-package') {
+		return handleRequest<InstallPackageRequest, InstallPackageResponse>({
+			remotionRoot,
+			entryPoint,
+			handler: (params) => handleInstallPackage({...params, invalidateBundle}),
 			request,
 			response,
 			logLevel,

@@ -168,7 +168,6 @@ const make3DTransform = <ValueKey extends string>({
 	const Wrapped = Interactive.withSchema({
 		Component: Inner,
 		componentName,
-		componentIdentity: null,
 		schema,
 		supportsEffects: false,
 	}) as unknown as React.FC<Props>;

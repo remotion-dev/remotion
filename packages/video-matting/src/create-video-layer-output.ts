@@ -5,6 +5,7 @@ import {
 	type OutputFormat,
 	type StreamTargetChunk,
 } from 'mediabunny';
+import {version} from '../package.json';
 import type {VideoLayerOutput, VideoLayerOutputOptions} from './output-target';
 import {
 	canUseWebFsWriter,
@@ -134,6 +135,9 @@ export const createVideoLayerOutput = async <F extends OutputFormat>({
 	}
 
 	const output = new Output({format, target});
+	output.setMetadataTags({
+		comment: `Separated with @remotion/video-matting ${version}`,
+	});
 	let finalizationPromise: Promise<VideoLayerOutput> | null = null;
 	let cancellationPromise: Promise<void> | null = null;
 	let finalized = false;

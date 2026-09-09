@@ -38,7 +38,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 	outputFile,
 	timeToCombine,
 }: {
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	renderBucketName: string;
 	customCredentials: CustomCredentials<Provider> | null;
 	downloadBehavior: DownloadBehavior;

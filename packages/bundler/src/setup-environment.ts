@@ -85,6 +85,11 @@ injectCSS(`
     color: #0584f2
   }
 
+  .__remotion-vertical-scrollbar::-webkit-scrollbar-corner,
+  .__remotion-horizontal-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   .__remotion-vertical-scrollbar {
     scrollbar-gutter: stable;
   }
