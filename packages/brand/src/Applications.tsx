@@ -17,6 +17,12 @@ loadFont({
 	weight: '500',
 });
 
+loadFont({
+	family: 'GT Planar',
+	url: staticFile('GT Planar/GT-Planar-Bold.woff2'),
+	weight: '700',
+});
+
 export function Applications() {
 	const frame = useCurrentFrame();
 
@@ -58,7 +64,7 @@ export function Applications() {
 				}}
 			>
 				<ApplicationSimpleApp
-					kineticTypeColor="#374151"
+					kineticTypeColor="#000000"
 					kineticTypeFrame={frame >= 167 ? 0 : frame}
 					kineticTypeSpeed={1.5}
 				/>
