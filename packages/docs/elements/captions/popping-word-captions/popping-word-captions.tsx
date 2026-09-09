@@ -347,7 +347,6 @@ const PoppingWordCaptionsInner = forwardRef<
 const PoppingWordCaptionsLayer = Interactive.withSchema({
 	Component: PoppingWordCaptionsInner,
 	componentName: '<PoppingWordCaptions>',
-	componentIdentity: null,
 	schema: poppingWordCaptionsSchema,
 	supportsEffects: false,
 }) as React.FC<PoppingWordCaptionsProps>;

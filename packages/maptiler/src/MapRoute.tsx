@@ -319,7 +319,6 @@ const MapRouteInner = forwardRef(MapRouteRefForwardingFunction);
 export const MapRoute = Interactive.withSchema({
 	Component: MapRouteInner,
 	componentName: '<MapRoute>',
-	componentIdentity: null,
 	schema: mapRouteSchema,
 	supportsEffects: false,
 });
