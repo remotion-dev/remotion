@@ -104,7 +104,7 @@ export const TimelineCombobox: React.FC<{
 			delay={tooltipDelay}
 			dismissOnClick
 		>
-			{() => button}
+			{button}
 		</ActionTooltip>
 	);
 };

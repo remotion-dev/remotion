@@ -65,17 +65,14 @@ export const SettingsButton: React.FC<{
 
 	return (
 		<ActionTooltip label={label} shortcut={null} delay={800} dismissOnClick>
-			{(describedBy) => (
-				<InlineAction
-					variant={null}
-					onClick={openModal}
-					renderAction={updateAvailable ? renderUpdateIcon : renderGearIcon}
-					unhoveredColor={hasBugfixesAvailable ? WARNING_COLOR : WHITE_ALPHA_80}
-					title=""
-					aria-label={label}
-					aria-describedby={describedBy}
-				/>
-			)}
+			<InlineAction
+				variant={null}
+				onClick={openModal}
+				renderAction={updateAvailable ? renderUpdateIcon : renderGearIcon}
+				unhoveredColor={hasBugfixesAvailable ? WARNING_COLOR : WHITE_ALPHA_80}
+				title=""
+				aria-label={label}
+			/>
 		</ActionTooltip>
 	);
 };

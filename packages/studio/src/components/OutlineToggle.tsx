@@ -33,55 +33,52 @@ export const OutlineToggle: React.FC = () => {
 			delay={800}
 			dismissOnClick={false}
 		>
-			{(describedBy) => (
-				<ControlButton
-					title=""
-					aria-label={accessibilityLabel}
-					aria-describedby={describedBy}
-					aria-keyshortcuts={
-						shortcutsDisabled ? undefined : ariaShortcut || undefined
-					}
-					aria-pressed={editorShowOutlines}
-					onClick={onClick}
-				>
-					{(color) => {
-						const iconColor = editorShowOutlines ? BLUE : color;
-						return (
-							<svg
-								style={{width: 17, height: 17}}
-								viewBox="0 0 512 512"
-								fill="none"
-								aria-hidden="true"
-								focusable="false"
-							>
-								<path
-									d="M64 64H448V448H64V64Z"
+			<ControlButton
+				title=""
+				aria-label={accessibilityLabel}
+				aria-keyshortcuts={
+					shortcutsDisabled ? undefined : ariaShortcut || undefined
+				}
+				aria-pressed={editorShowOutlines}
+				onClick={onClick}
+			>
+				{(color) => {
+					const iconColor = editorShowOutlines ? BLUE : color;
+					return (
+						<svg
+							style={{width: 17, height: 17}}
+							viewBox="0 0 512 512"
+							fill="none"
+							aria-hidden="true"
+							focusable="false"
+						>
+							<path
+								d="M64 64H448V448H64V64Z"
+								stroke={iconColor}
+								strokeWidth="36"
+							/>
+							{[
+								[16, 16],
+								[400, 16],
+								[16, 400],
+								[400, 400],
+							].map(([x, y]) => (
+								<rect
+									key={`${x}-${y}`}
+									x={x}
+									y={y}
+									width="96"
+									height="96"
+									rx="24"
+									fill={BACKGROUND_HEX}
 									stroke={iconColor}
-									strokeWidth="36"
+									strokeWidth="32"
 								/>
-								{[
-									[16, 16],
-									[400, 16],
-									[16, 400],
-									[400, 400],
-								].map(([x, y]) => (
-									<rect
-										key={`${x}-${y}`}
-										x={x}
-										y={y}
-										width="96"
-										height="96"
-										rx="24"
-										fill={BACKGROUND_HEX}
-										stroke={iconColor}
-										strokeWidth="32"
-									/>
-								))}
-							</svg>
-						);
-					}}
-				</ControlButton>
-			)}
+							))}
+						</svg>
+					);
+				}}
+			</ControlButton>
 		</ActionTooltip>
 	);
 };

@@ -32,27 +32,24 @@ export const SnappingToggle: React.FC = () => {
 			delay={800}
 			dismissOnClick={false}
 		>
-			{(describedBy) => (
-				<ControlButton
-					title=""
-					aria-label={accessibilityLabel}
-					aria-describedby={describedBy}
-					aria-pressed={editorSnapping}
-					aria-keyshortcuts={
-						shortcutsDisabled ? undefined : ariaKeyShortcuts || undefined
-					}
-					onClick={onClick}
-				>
-					{(color) => (
-						<MagnetIcon
-							style={{width: 18, height: 18, transform: 'translateY(1px)'}}
-							color={editorSnapping ? BLUE : color}
-							aria-hidden="true"
-							focusable="false"
-						/>
-					)}
-				</ControlButton>
-			)}
+			<ControlButton
+				title=""
+				aria-label={accessibilityLabel}
+				aria-pressed={editorSnapping}
+				aria-keyshortcuts={
+					shortcutsDisabled ? undefined : ariaKeyShortcuts || undefined
+				}
+				onClick={onClick}
+			>
+				{(color) => (
+					<MagnetIcon
+						style={{width: 18, height: 18, transform: 'translateY(1px)'}}
+						color={editorSnapping ? BLUE : color}
+						aria-hidden="true"
+						focusable="false"
+					/>
+				)}
+			</ControlButton>
 		</ActionTooltip>
 	);
 };

@@ -307,28 +307,25 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				delay={800}
 				dismissOnClick
 			>
-				{(describedBy) => (
-					<ControlButton
-						title=""
-						aria-label="In point"
-						aria-description="Right click to clear"
-						aria-describedby={describedBy}
-						aria-keyshortcuts={
-							shortcutsDisabled ? undefined : inAriaShortcut || undefined
-						}
-						style={buttonStyle}
-						onClick={onInMark}
-						onContextMenu={clearInMark}
-						disabled={!videoConfig || isFirstFrame}
-					>
-						{(color) => (
-							<TimelineInPointer
-								color={inFrame === null ? color : BLUE}
-								style={style}
-							/>
-						)}
-					</ControlButton>
-				)}
+				<ControlButton
+					title=""
+					aria-label="In point"
+					aria-description="Right click to clear"
+					aria-keyshortcuts={
+						shortcutsDisabled ? undefined : inAriaShortcut || undefined
+					}
+					style={buttonStyle}
+					onClick={onInMark}
+					onContextMenu={clearInMark}
+					disabled={!videoConfig || isFirstFrame}
+				>
+					{(color) => (
+						<TimelineInPointer
+							color={inFrame === null ? color : BLUE}
+							style={style}
+						/>
+					)}
+				</ControlButton>
 			</ActionTooltip>
 			<ActionTooltip
 				label="Out point"
@@ -336,28 +333,25 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				delay={800}
 				dismissOnClick
 			>
-				{(describedBy) => (
-					<ControlButton
-						title=""
-						aria-label="Out point"
-						aria-description="Right click to clear"
-						aria-describedby={describedBy}
-						aria-keyshortcuts={
-							shortcutsDisabled ? undefined : outAriaShortcut || undefined
-						}
-						style={buttonStyle}
-						onClick={onOutMark}
-						onContextMenu={clearOutMark}
-						disabled={!videoConfig || isLastFrame}
-					>
-						{(color) => (
-							<TimelineOutPointer
-								color={outFrame === null ? color : BLUE}
-								style={style}
-							/>
-						)}
-					</ControlButton>
-				)}
+				<ControlButton
+					title=""
+					aria-label="Out point"
+					aria-description="Right click to clear"
+					aria-keyshortcuts={
+						shortcutsDisabled ? undefined : outAriaShortcut || undefined
+					}
+					style={buttonStyle}
+					onClick={onOutMark}
+					onContextMenu={clearOutMark}
+					disabled={!videoConfig || isLastFrame}
+				>
+					{(color) => (
+						<TimelineOutPointer
+							color={outFrame === null ? color : BLUE}
+							style={style}
+						/>
+					)}
+				</ControlButton>
 			</ActionTooltip>
 		</>
 	);

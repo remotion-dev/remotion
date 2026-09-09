@@ -83,15 +83,12 @@ export const RenderQueueCopyToClipboard: React.FC<{
 			delay={800}
 			dismissOnClick
 		>
-			{(describedBy) => (
-				<InlineAction
-					aria-label="Copy to clipboard"
-					aria-describedby={describedBy}
-					variant={null}
-					renderAction={renderCopyAction}
-					onClick={onClick}
-				/>
-			)}
+			<InlineAction
+				aria-label="Copy to clipboard"
+				variant={null}
+				renderAction={renderCopyAction}
+				onClick={onClick}
+			/>
 		</ActionTooltip>
 	);
 };

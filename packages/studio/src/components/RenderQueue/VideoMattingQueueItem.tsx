@@ -211,30 +211,24 @@ export const VideoMattingQueueItem: React.FC<{
 					delay={800}
 					dismissOnClick
 				>
-					{(describedBy) => (
-						<InlineDropdown
-							renderAction={(color) => (
-								<EllipsisIcon fill={color} svgProps={ellipsisIconStyle} />
-							)}
-							aria-label="Reveal video layer"
-							aria-describedby={describedBy}
-							values={revealItems}
-							variant={null}
-						/>
-					)}
+					<InlineDropdown
+						renderAction={(color) => (
+							<EllipsisIcon fill={color} svgProps={ellipsisIconStyle} />
+						)}
+						aria-label="Reveal video layer"
+						values={revealItems}
+						variant={null}
+					/>
 				</ActionTooltip>
 			) : null}
 			{job.status === 'running' ? null : (
 				<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
-					{(describedBy) => (
-						<InlineAction
-							renderAction={renderRemove}
-							onClick={onRemove}
-							aria-label="Clear"
-							aria-describedby={describedBy}
-							variant={null}
-						/>
-					)}
+					<InlineAction
+						renderAction={renderRemove}
+						onClick={onRemove}
+						aria-label="Clear"
+						variant={null}
+					/>
 				</ActionTooltip>
 			)}
 		</Row>

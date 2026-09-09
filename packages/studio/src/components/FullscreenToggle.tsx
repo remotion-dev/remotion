@@ -65,22 +65,19 @@ export const FullScreenToggle: React.FC<{
 			delay={800}
 			dismissOnClick
 		>
-			{(describedBy) => (
-				<ControlButton
-					id="fullscreen-toggle"
-					title=""
-					aria-label={accessibilityLabel}
-					aria-describedby={describedBy}
-					aria-keyshortcuts={
-						shortcutsDisabled ? undefined : ariaKeyShortcuts || undefined
-					}
-					onClick={onClick}
-				>
-					{(color) => (
-						<FullscreenIcon color={color} style={{width: 18, height: 18}} />
-					)}
-				</ControlButton>
-			)}
+			<ControlButton
+				id="fullscreen-toggle"
+				title=""
+				aria-label={accessibilityLabel}
+				aria-keyshortcuts={
+					shortcutsDisabled ? undefined : ariaKeyShortcuts || undefined
+				}
+				onClick={onClick}
+			>
+				{(color) => (
+					<FullscreenIcon color={color} style={{width: 18, height: 18}} />
+				)}
+			</ControlButton>
 		</ActionTooltip>
 	);
 };

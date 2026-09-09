@@ -71,15 +71,12 @@ export const RenderQueueRemoveItem: React.FC<{
 
 	return (
 		<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
-			{(describedBy) => (
-				<InlineAction
-					aria-label="Clear"
-					aria-describedby={describedBy}
-					renderAction={renderAction}
-					onClick={onClick}
-					variant={null}
-				/>
-			)}
+			<InlineAction
+				aria-label="Clear"
+				renderAction={renderAction}
+				onClick={onClick}
+				variant={null}
+			/>
 		</ActionTooltip>
 	);
 };

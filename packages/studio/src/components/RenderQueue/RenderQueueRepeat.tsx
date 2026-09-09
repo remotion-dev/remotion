@@ -63,15 +63,12 @@ export const RenderQueueRepeatItem: React.FC<{
 
 	return (
 		<ActionTooltip label="Retry" shortcut={null} delay={800} dismissOnClick>
-			{(describedBy) => (
-				<InlineAction
-					aria-label="Retry"
-					aria-describedby={describedBy}
-					onClick={onClick}
-					renderAction={renderAction}
-					variant={null}
-				/>
-			)}
+			<InlineAction
+				aria-label="Retry"
+				onClick={onClick}
+				renderAction={renderAction}
+				variant={null}
+			/>
 		</ActionTooltip>
 	);
 };

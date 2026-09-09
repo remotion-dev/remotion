@@ -44,15 +44,12 @@ export const RenderQueueOpenInFinderItem: React.FC<{
 			delay={800}
 			dismissOnClick
 		>
-			{(describedBy) => (
-				<InlineAction
-					aria-label="Open in Folder"
-					aria-describedby={describedBy}
-					renderAction={renderAction}
-					onClick={onClick}
-					variant={null}
-				/>
-			)}
+			<InlineAction
+				aria-label="Open in Folder"
+				renderAction={renderAction}
+				onClick={onClick}
+				variant={null}
+			/>
 		</ActionTooltip>
 	);
 };

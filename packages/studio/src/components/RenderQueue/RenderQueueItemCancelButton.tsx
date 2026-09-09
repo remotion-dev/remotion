@@ -62,15 +62,12 @@ export const RenderQueueCancelButton: React.FC<{
 			delay={800}
 			dismissOnClick
 		>
-			{(describedBy) => (
-				<InlineAction
-					aria-label="Cancel render"
-					aria-describedby={describedBy}
-					renderAction={renderAction}
-					onClick={onClick}
-					variant={null}
-				/>
-			)}
+			<InlineAction
+				aria-label="Cancel render"
+				renderAction={renderAction}
+				onClick={onClick}
+				variant={null}
+			/>
 		</ActionTooltip>
 	);
 };

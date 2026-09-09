@@ -186,20 +186,17 @@ export const MenuToolbar: React.FC<{
 						delay={800}
 						dismissOnClick
 					>
-						{(describedBy) => (
-							<InlineAction
-								variant={null}
-								onClick={openQuickSwitcher}
-								renderAction={renderSearchIcon}
-								aria-label="Quick switcher"
-								aria-describedby={describedBy}
-								aria-keyshortcuts={
-									shortcutsDisabled
-										? undefined
-										: quickSwitcherAriaShortcut || undefined
-								}
-							/>
-						)}
+						<InlineAction
+							variant={null}
+							onClick={openQuickSwitcher}
+							renderAction={renderSearchIcon}
+							aria-label="Quick switcher"
+							aria-keyshortcuts={
+								shortcutsDisabled
+									? undefined
+									: quickSwitcherAriaShortcut || undefined
+							}
+						/>
 					</ActionTooltip>
 				) : (
 					<SidebarCollapserControl side="left" />

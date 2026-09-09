@@ -143,18 +143,15 @@ const TimelineZoomControlsInner: React.FC<{
 				delay={800}
 				dismissOnClick
 			>
-				{(describedBy) => (
-					<ControlButton
-						onClick={onMinusClicked}
-						style={buttonStyle}
-						title=""
-						aria-label="Zoom out timeline"
-						aria-describedby={describedBy}
-						type="button"
-					>
-						{(color) => <CanvasZoomOutIcon color={color} />}
-					</ControlButton>
-				)}
+				<ControlButton
+					onClick={onMinusClicked}
+					style={buttonStyle}
+					title=""
+					aria-label="Zoom out timeline"
+					type="button"
+				>
+					{(color) => <CanvasZoomOutIcon color={color} />}
+				</ControlButton>
 			</ActionTooltip>
 			<Spacing x={0.5} />
 			<TimelineZoomSlider
@@ -169,18 +166,15 @@ const TimelineZoomControlsInner: React.FC<{
 				delay={800}
 				dismissOnClick
 			>
-				{(describedBy) => (
-					<ControlButton
-						onClick={onPlusClicked}
-						style={buttonStyle}
-						title=""
-						aria-label="Zoom in timeline"
-						aria-describedby={describedBy}
-						type="button"
-					>
-						{(color) => <CanvasZoomIcon color={color} />}
-					</ControlButton>
-				)}
+				<ControlButton
+					onClick={onPlusClicked}
+					style={buttonStyle}
+					title=""
+					aria-label="Zoom in timeline"
+					type="button"
+				>
+					{(color) => <CanvasZoomIcon color={color} />}
+				</ControlButton>
 			</ActionTooltip>
 		</div>
 	);

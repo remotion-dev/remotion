@@ -52,7 +52,6 @@ const shortcutStyle: React.CSSProperties = {
 	flexShrink: 0,
 };
 
-let nextTooltipId = 0;
 let visibleTooltipCount = 0;
 let lastTooltipHiddenAt: number | null = null;
 const TOOLTIP_SKIP_DELAY_WINDOW = 300;
@@ -63,9 +62,8 @@ export const ActionTooltip: React.FC<{
 	/** Hover delay in milliseconds. Pass null to show immediately. */
 	readonly delay: number | null;
 	readonly dismissOnClick: boolean;
-	readonly children: (describedBy: string | undefined) => React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({label, shortcut, delay, dismissOnClick, children}) => {
-	const [id] = useState(() => `action-tooltip-${nextTooltipId++}`);
 	const triggerRef = useRef<HTMLSpanElement>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -197,13 +195,12 @@ export const ActionTooltip: React.FC<{
 				}}
 				onBlur={hide}
 			>
-				{children(visible ? id : undefined)}
+				{children}
 			</span>
 			{visible
 				? createPortal(
 						<div
 							ref={tooltipRef}
-							id={id}
 							role="tooltip"
 							className="css-reset"
 							style={{

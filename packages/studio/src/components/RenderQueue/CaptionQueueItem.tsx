@@ -225,15 +225,12 @@ export const CaptionQueueItem: React.FC<{
 			<Spacing x={1} />
 			{job.status === 'running' ? null : (
 				<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
-					{(describedBy) => (
-						<InlineAction
-							renderAction={renderRemoveAction}
-							onClick={onRemove}
-							aria-label="Clear"
-							aria-describedby={describedBy}
-							variant={null}
-						/>
-					)}
+					<InlineAction
+						renderAction={renderRemoveAction}
+						onClick={onRemove}
+						aria-label="Clear"
+						variant={null}
+					/>
 				</ActionTooltip>
 			)}
 		</Row>

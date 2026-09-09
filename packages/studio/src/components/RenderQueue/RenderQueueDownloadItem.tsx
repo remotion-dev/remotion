@@ -56,15 +56,12 @@ export const RenderQueueDownloadItem: React.FC<{
 
 	return (
 		<ActionTooltip label="Download" shortcut={null} delay={800} dismissOnClick>
-			{(describedBy) => (
-				<InlineAction
-					aria-label="Download"
-					aria-describedby={describedBy}
-					variant={null}
-					renderAction={renderAction}
-					onClick={onClick}
-				/>
-			)}
+			<InlineAction
+				aria-label="Download"
+				variant={null}
+				renderAction={renderAction}
+				onClick={onClick}
+			/>
 		</ActionTooltip>
 	);
 };

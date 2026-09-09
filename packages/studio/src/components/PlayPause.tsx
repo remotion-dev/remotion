@@ -281,18 +281,15 @@ const PlayPauseInner: React.FC<{
 					delay={800}
 					dismissOnClick
 				>
-					{(describedBy) => (
-						<ControlButton
-							aria-label="Go to beginning"
-							aria-describedby={describedBy}
-							aria-keyshortcuts={jumpToBeginningAriaShortcut || undefined}
-							title=""
-							disabled={!videoConfig}
-							onClick={jumpToStart}
-						>
-							{(color) => <JumpToStart style={backStyle} color={color} />}
-						</ControlButton>
-					)}
+					<ControlButton
+						aria-label="Go to beginning"
+						aria-keyshortcuts={jumpToBeginningAriaShortcut || undefined}
+						title=""
+						disabled={!videoConfig}
+						onClick={jumpToStart}
+					>
+						{(color) => <JumpToStart style={backStyle} color={color} />}
+					</ControlButton>
 				</ActionTooltip>
 			)}
 			{hideNavigationControls ? null : (
@@ -302,18 +299,15 @@ const PlayPauseInner: React.FC<{
 					delay={800}
 					dismissOnClick
 				>
-					{(describedBy) => (
-						<ControlButton
-							aria-label="Go back 1 frame"
-							aria-describedby={describedBy}
-							aria-keyshortcuts="ArrowLeft"
-							title=""
-							disabled={!videoConfig}
-							onClick={oneFrameBack}
-						>
-							{(color) => <StepBack style={forwardBackStyle} color={color} />}
-						</ControlButton>
-					)}
+					<ControlButton
+						aria-label="Go back 1 frame"
+						aria-keyshortcuts="ArrowLeft"
+						title=""
+						disabled={!videoConfig}
+						onClick={oneFrameBack}
+					>
+						{(color) => <StepBack style={forwardBackStyle} color={color} />}
+					</ControlButton>
 				</ActionTooltip>
 			)}
 
@@ -323,31 +317,28 @@ const PlayPauseInner: React.FC<{
 				delay={800}
 				dismissOnClick={false}
 			>
-				{(describedBy) => (
-					<ControlButton
-						aria-label={playing ? 'Pause' : 'Play'}
-						aria-describedby={describedBy}
-						aria-keyshortcuts={playPauseAriaShortcut || undefined}
-						title=""
-						onClick={playing ? pause : play}
-						disabled={!videoConfig}
-					>
-						{(color) =>
-							playing ? (
-								showBufferIndicator ? (
-									<PlayerInternals.BufferingIndicator
-										type="studio"
-										color={color}
-									/>
-								) : (
-									<Pause style={iconButton} color={color} />
-								)
+				<ControlButton
+					aria-label={playing ? 'Pause' : 'Play'}
+					aria-keyshortcuts={playPauseAriaShortcut || undefined}
+					title=""
+					onClick={playing ? pause : play}
+					disabled={!videoConfig}
+				>
+					{(color) =>
+						playing ? (
+							showBufferIndicator ? (
+								<PlayerInternals.BufferingIndicator
+									type="studio"
+									color={color}
+								/>
 							) : (
-								<Play style={iconButton} color={color} />
+								<Pause style={iconButton} color={color} />
 							)
-						}
-					</ControlButton>
-				)}
+						) : (
+							<Play style={iconButton} color={color} />
+						)
+					}
+				</ControlButton>
 			</ActionTooltip>
 
 			{hideNavigationControls ? null : (
@@ -357,20 +348,15 @@ const PlayPauseInner: React.FC<{
 					delay={800}
 					dismissOnClick
 				>
-					{(describedBy) => (
-						<ControlButton
-							aria-label="Go forward 1 frame"
-							aria-describedby={describedBy}
-							aria-keyshortcuts="ArrowRight"
-							title=""
-							disabled={!videoConfig}
-							onClick={oneFrameForward}
-						>
-							{(color) => (
-								<StepForward style={forwardBackStyle} color={color} />
-							)}
-						</ControlButton>
-					)}
+					<ControlButton
+						aria-label="Go forward 1 frame"
+						aria-keyshortcuts="ArrowRight"
+						title=""
+						disabled={!videoConfig}
+						onClick={oneFrameForward}
+					>
+						{(color) => <StepForward style={forwardBackStyle} color={color} />}
+					</ControlButton>
 				</ActionTooltip>
 			)}
 		</>

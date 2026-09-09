@@ -38,25 +38,22 @@ export const MuteToggle: React.FC<{
 			delay={800}
 			dismissOnClick={false}
 		>
-			{(describedBy) => (
-				<ControlButton
-					title=""
-					aria-label={accessibilityLabel}
-					aria-describedby={describedBy}
-					aria-keyshortcuts={
-						shortcutsDisabled ? undefined : ariaShortcut || undefined
-					}
-					onClick={onClick}
-				>
-					{(color) =>
-						muted ? (
-							<VolumeOffIcon color={BLUE} />
-						) : (
-							<VolumeOnIcon color={color} />
-						)
-					}
-				</ControlButton>
-			)}
+			<ControlButton
+				title=""
+				aria-label={accessibilityLabel}
+				aria-keyshortcuts={
+					shortcutsDisabled ? undefined : ariaShortcut || undefined
+				}
+				onClick={onClick}
+			>
+				{(color) =>
+					muted ? (
+						<VolumeOffIcon color={BLUE} />
+					) : (
+						<VolumeOnIcon color={color} />
+					)
+				}
+			</ControlButton>
 		</ActionTooltip>
 	);
 };

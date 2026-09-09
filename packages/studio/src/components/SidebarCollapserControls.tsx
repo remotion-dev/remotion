@@ -203,20 +203,17 @@ export const SidebarCollapserControl: React.FC<{
 			delay={800}
 			dismissOnClick
 		>
-			{(describedBy) => (
-				<InlineAction
-					variant={null}
-					onClick={side === 'left' ? toggleLeft : toggleRight}
-					renderAction={side === 'left' ? toggleLeftAction : toggleRightAction}
-					style={side === 'left' ? {marginRight: 4} : undefined}
-					aria-label={label}
-					aria-describedby={describedBy}
-					aria-expanded={expanded}
-					aria-keyshortcuts={
-						shortcutsDisabled ? undefined : ariaShortcut || undefined
-					}
-				/>
-			)}
+			<InlineAction
+				variant={null}
+				onClick={side === 'left' ? toggleLeft : toggleRight}
+				renderAction={side === 'left' ? toggleLeftAction : toggleRightAction}
+				style={side === 'left' ? {marginRight: 4} : undefined}
+				aria-label={label}
+				aria-expanded={expanded}
+				aria-keyshortcuts={
+					shortcutsDisabled ? undefined : ariaShortcut || undefined
+				}
+			/>
 		</ActionTooltip>
 	);
 };
