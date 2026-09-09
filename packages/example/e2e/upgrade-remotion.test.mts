@@ -94,11 +94,11 @@ test('upgrade progress survives closing settings and offers a graceful shutdown'
 		};
 		await openSettings();
 		const dialog = page.getByRole('dialog');
-		await dialog.getByRole('button', {name: 'Upgrade to 4.0.521'}).click();
+		await dialog.getByRole('button', {name: 'Upgrade to v4.0.521'}).click();
 		await expect(
 			dialog.getByText('Installation failed. Try again.', {exact: true}),
 		).toBeVisible();
-		await dialog.getByRole('button', {name: 'Upgrade to 4.0.521'}).click();
+		await dialog.getByRole('button', {name: 'Upgrade to v4.0.521'}).click();
 		await expect(
 			dialog.getByText('Upgrading Remotion...', {exact: true}),
 		).toBeVisible();

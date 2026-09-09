@@ -1,4 +1,4 @@
-import {spawn} from 'node:child_process';
+import {execFileSync, spawn} from 'node:child_process';
 import {RenderInternals} from '@remotion/renderer';
 import {
 	extraPackages,
@@ -29,10 +29,14 @@ export const getPackageInstallSpec = (
 	return extraVersion === null ? name : `${name}@${extraVersion}`;
 };
 
-export const handleInstallPackage: ApiHandler<
-	InstallPackageRequest,
-	InstallPackageResponse
-> = async ({logLevel, remotionRoot, input: {dependencies}}) => {
+export const handleInstallPackage = async ({
+	logLevel,
+	remotionRoot,
+	input: {dependencies},
+	invalidateBundle,
+}: Parameters<ApiHandler<InstallPackageRequest, InstallPackageResponse>>[0] & {
+	readonly invalidateBundle: () => Promise<void>;
+}): Promise<InstallPackageResponse> => {
 	for (const dependency of dependencies) {
 		if (!isValidPackageName(dependency.name)) {
 			return Promise.reject(
@@ -68,12 +72,25 @@ export const handleInstallPackage: ApiHandler<
 		);
 	}
 
+	const additionalArgs = ['--ignore-scripts'];
+	if (manager.manager === 'yarn') {
+		const version = execFileSync('yarn', ['--version'], {
+			...getPackageManagerSpawnOptions(),
+			cwd: remotionRoot,
+			encoding: 'utf8',
+			timeout: 10_000,
+		}).trim();
+		if (!/^1\./.test(version)) {
+			additionalArgs[0] = '--mode=skip-build';
+		}
+	}
+
 	const packagesWithVersions = dependencies.map(getPackageInstallSpec);
 	const command = getInstallCommand({
 		manager: manager.manager,
 		packages: packagesWithVersions,
 		version: '',
-		additionalArgs: manager.manager === 'yarn' ? [] : ['--ignore-scripts'],
+		additionalArgs,
 	});
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
@@ -84,6 +101,7 @@ export const handleInstallPackage: ApiHandler<
 		await new Promise<void>((resolve, reject) => {
 			const cmd = spawn(manager.manager, command, {
 				...getPackageManagerSpawnOptions(),
+				cwd: remotionRoot,
 				env: {
 					...process.env,
 					YARN_ENABLE_SCRIPTS: 'false',
@@ -110,6 +128,7 @@ export const handleInstallPackage: ApiHandler<
 						),
 			);
 		});
+		await invalidateBundle();
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			RenderInternals.chalk.gray('╰─ '),

@@ -176,7 +176,6 @@ const SocialSafeZonesInner = forwardRef<
 export const SocialSafeZones = Interactive.withSchema({
 	Component: SocialSafeZonesInner,
 	componentName: '<SocialSafeZones>',
-	componentIdentity: null,
 	schema: socialSafeZonesSchema,
 	supportsEffects: false,
 }) as React.FC<SocialSafeZonesProps>;

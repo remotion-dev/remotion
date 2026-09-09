@@ -66,12 +66,9 @@ export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
 		paramsArray.push(params);
 		return Promise.resolve();
 	},
-	getFolderFiles: () => [
-		{
-			filename: 'something',
-			size: 0,
-		},
-	],
+	normalizeChromiumOptions: serverAwsImplementation.normalizeChromiumOptions,
+	getTmpDirState: null,
+	startRendererDiagnostics: null,
 	makeArtifactWithDetails: () => ({
 		filename: 'something',
 		sizeInBytes: 0,

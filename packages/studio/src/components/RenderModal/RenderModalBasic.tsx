@@ -224,6 +224,8 @@ export const RenderModalBasic: React.FC<{
 			)}
 			{showOutputName ? (
 				<RenderModalOutputName
+					ariaLabel={null}
+					existingOutputPath={null}
 					existence={existence}
 					inputStyle={input}
 					outName={outName}

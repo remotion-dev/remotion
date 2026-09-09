@@ -100,7 +100,7 @@ import {renderMedia} from '@remotion/renderer';
 declare const options: Parameters<typeof renderMedia>[0];
 // ---cut---
 await renderMedia({
-	...options,
+  ...options,
   frameRange: [
     [0, 100],
     [150, 200],
@@ -227,7 +227,7 @@ If set to true, no audio is being rendered.
 
 _boolean_
 
-Render a silent audio track if there wouldn't be any otherwise.
+<Options id="enforce-audio-track" />
 
 ### `puppeteerInstance?`
 

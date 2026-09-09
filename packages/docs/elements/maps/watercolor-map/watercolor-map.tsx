@@ -453,7 +453,6 @@ const WatercolorMapInner = forwardRef<
 const InteractiveWatercolorMap = Interactive.withSchema({
 	Component: WatercolorMapInner,
 	componentName: '<WatercolorMap>',
-	componentIdentity: null,
 	schema: watercolorMapSchema,
 	supportsEffects: false,
 }) as React.FC<WatercolorMapProps>;

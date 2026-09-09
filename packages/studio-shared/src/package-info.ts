@@ -140,7 +140,7 @@ export const extraPackages: ExtraPackage[] = [
 		name: 'mediabunny',
 		version: '1.55.5',
 		description: 'Multimedia library used by Remotion',
-		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
+		docsUrl: 'https://www.remotion.dev/docs/mediabunny',
 		versionDocsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
 	},
 	{

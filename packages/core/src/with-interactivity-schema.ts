@@ -165,7 +165,8 @@ export type WithInteractivitySchemaOptions<
 		Props & {readonly controls: SequenceControls | undefined}
 	>;
 	componentName: string;
-	componentIdentity: JsxComponentIdentity | null;
+	/** @internal */
+	componentIdentity?: JsxComponentIdentity | null;
 	schema: S;
 	supportsEffects: boolean;
 };
@@ -188,7 +189,7 @@ export const withInteractivitySchema = <
 >({
 	Component,
 	componentName,
-	componentIdentity,
+	componentIdentity = null,
 	schema,
 	supportsEffects,
 }: WithInteractivitySchemaOptions<S, Props>): React.ComponentType<Props> => {

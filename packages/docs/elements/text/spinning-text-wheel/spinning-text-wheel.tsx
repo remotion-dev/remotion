@@ -175,7 +175,6 @@ const SpinningTextWheelInner = forwardRef<
 const InteractiveSpinningTextWheel = Interactive.withSchema({
 	Component: SpinningTextWheelInner,
 	componentName: '<SpinningTextWheel>',
-	componentIdentity: null,
 	schema: spinningTextWheelSchema,
 	supportsEffects: false,
 }) as React.FC<InteractiveSpinningTextWheelProps>;

@@ -18,7 +18,10 @@ import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
+import {SeparationIcon} from '../icons/separation';
+import {TranscriptionIcon} from '../icons/transcription';
 import {TrashIcon} from '../icons/trash';
+import {SetSelectedModalContext} from '../state/modals';
 import {AssetAudioVolume} from './AssetAudioVolume';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {InspectorInfoHeader} from './InspectorInfoHeader';
@@ -188,6 +191,7 @@ export const AssetInfo: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const browserStudioOperations = getBrowserStudioOperations();
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const staticFiles = useStaticFiles();
 	const renameFile = useRenameStaticFile({
@@ -208,6 +212,35 @@ export const AssetInfo: React.FC<{
 	const mediaMetadata = useMediaMetadata(src);
 	const imageSrc = getCurrentAssetImageMetadataSource(assetName);
 	const imageMetadata = useImageMetadata(imageSrc);
+	const mutationsDisabled =
+		browserStudioOperations === null &&
+		(readOnlyStudio || connectionStatus !== 'connected');
+	const fileName = assetName?.split('/').pop() ?? '';
+	const fileType = assetName ? getPreviewFileType(assetName) : null;
+	const onTranscribe = useCallback(() => {
+		if (src === null || mutationsDisabled) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'transcribe',
+			src,
+			displayName: fileName,
+			audioStreamIndex: null,
+			requestInit: null,
+		});
+	}, [fileName, mutationsDisabled, setSelectedModal, src]);
+	const onTrackMatting = useCallback(() => {
+		if (src === null || fileType !== 'video' || mutationsDisabled) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'video-matting',
+			src,
+			displayName: fileName,
+		});
+	}, [fileName, fileType, mutationsDisabled, setSelectedModal, src]);
 	const canRename =
 		onAssetClick === undefined &&
 		(browserStudioOperations !== null ||
@@ -248,7 +281,6 @@ export const AssetInfo: React.FC<{
 		);
 	}
 
-	const fileName = assetName.split('/').pop() ?? assetName;
 	const fileDetails: CurrentAssetDetail[] = [];
 	if (imageMetadata !== null) {
 		fileDetails.push({
@@ -277,10 +309,6 @@ export const AssetInfo: React.FC<{
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
-	const mutationsDisabled =
-		browserStudioOperations === null &&
-		(readOnlyStudio || connectionStatus !== 'connected');
-
 	return (
 		<>
 			<InspectorInfoHeader
@@ -359,6 +387,39 @@ export const AssetInfo: React.FC<{
 			) : null}
 			<InspectorSectionHeader>Actions</InspectorSectionHeader>
 			<InspectorQuickActionsSection>
+				{fileManagerAvailable ? (
+					<InspectorQuickAction
+						disabled={fileManagerDisabled}
+						onClick={onShowInFileManager}
+						renderIcon={(color) => (
+							<ExpandedFolderIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Show in {fileManagerName}
+					</InspectorQuickAction>
+				) : null}
+				{src ? (
+					<InspectorQuickAction
+						disabled={mutationsDisabled}
+						onClick={onTranscribe}
+						renderIcon={(color) => (
+							<TranscriptionIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Transcribe
+					</InspectorQuickAction>
+				) : null}
+				{fileType === 'video' ? (
+					<InspectorQuickAction
+						disabled={mutationsDisabled}
+						onClick={onTrackMatting}
+						renderIcon={(color) => (
+							<SeparationIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Separate foreground
+					</InspectorQuickAction>
+				) : null}
 				{src ? (
 					<InspectorQuickAction
 						disabled={false}
@@ -382,17 +443,6 @@ export const AssetInfo: React.FC<{
 								strokeWidth="1.5"
 							/>
 						</svg>
-					</InspectorQuickAction>
-				) : null}
-				{fileManagerAvailable ? (
-					<InspectorQuickAction
-						disabled={fileManagerDisabled}
-						onClick={onShowInFileManager}
-						renderIcon={(color) => (
-							<ExpandedFolderIcon color={color} style={quickActionIconStyle} />
-						)}
-					>
-						Show in {fileManagerName}
 					</InspectorQuickAction>
 				) : null}
 				<InspectorQuickAction

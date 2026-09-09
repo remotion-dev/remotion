@@ -21,6 +21,7 @@ import {Flex, Row} from './layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalButton} from './ModalButton';
 import {ModalFooterContainer} from './ModalFooter';
+import {markOptionalPackageInstalled} from './OptionalPackageModal';
 
 const container: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -110,12 +111,10 @@ export const InstallPackageSettings: React.FC<{
 		setState({type: 'installing'});
 		try {
 			await installPackages(selectedPackageSpecs);
-			window.remotion_installedPackages = Array.from(
-				new Set([
-					...(window.remotion_installedPackages ?? []),
-					...selectedPackages,
-				]),
-			);
+			for (const packageName of selectedPackages) {
+				markOptionalPackageInstalled(packageName);
+			}
+
 			setState({type: 'done'});
 		} catch (err) {
 			setState({type: 'error', error: err as Error});

@@ -5,8 +5,8 @@ image: https://remotion.media/elements/maps-watercolor-map-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Watercolor Map
 
-<ElementPage definition={elementDefinitions['maps/watercolor-map']} sourceFile="./watercolor-map.tsx" />
+<ElementPage definition={getElementDefinition('maps/watercolor-map')} sourceFile="./watercolor-map.tsx" />
