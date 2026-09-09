@@ -76,6 +76,15 @@ export const printInsertedJsx = ({
 		},
 	});
 	const printNode = (node: namedTypes.Node) => {
+		// The generic printer drops comments inside empty JSX expressions.
+		if (
+			node.type === 'JSXExpressionContainer' &&
+			(node as namedTypes.JSXExpressionContainer).expression.type ===
+				'JSXEmptyExpression'
+		) {
+			return recast.print(node).code;
+		}
+
 		return recast.prettyPrint(node, {
 			objectCurlySpacing: prettierConfigOverride?.bracketSpacing !== false,
 			quote: prettierConfigOverride?.singleQuote === true ? 'single' : 'double',

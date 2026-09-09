@@ -45,5 +45,15 @@ export const applyCodemodToFile = async ({
 		input,
 	});
 
-	return formatOutput(newContents);
+	if (
+		codeMod.type === 'new-composition' ||
+		codeMod.type === 'duplicate-composition' ||
+		codeMod.type === 'rename-composition' ||
+		codeMod.type === 'delete-composition'
+	) {
+		return newContents;
+	}
+
+	const formatted = await formatOutput(newContents);
+	return formatted;
 };

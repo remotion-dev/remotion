@@ -173,7 +173,7 @@ type SourceLocation = {
 	column: number;
 };
 
-type SourceEdit = {
+export type SourceEdit = {
 	end: number;
 	replacement: string;
 	start: number;
@@ -2166,7 +2166,7 @@ const getImportBracketSpacing = ({
 	return prettierConfigOverride?.bracketSpacing !== false;
 };
 
-const getInsertImportSourceEdits = ({
+export const getInsertImportSourceEdits = ({
 	ast,
 	input,
 	prettierConfigOverride,
@@ -2509,13 +2509,15 @@ const getInsertionSource = ({
 	});
 };
 
-const getInsertionRootSourceEdit = ({
+export const getInsertionRootSourceEdit = ({
+	insertInside,
 	input,
 	insertion,
 	nullRoot,
 	prettierConfigOverride,
 	root,
 }: {
+	insertInside: boolean;
 	input: string;
 	insertion: string;
 	nullRoot: NullLiteral | null;
@@ -2553,15 +2555,32 @@ const getInsertionRootSourceEdit = ({
 		throw new Error('Could not locate the composition component root');
 	}
 
-	if (root.type === 'JSXFragment') {
-		if (!root.closingFragment.loc) {
-			throw new Error('Could not locate the composition fragment closing tag');
+	if (insertInside) {
+		const closing =
+			root.type === 'JSXFragment' ? root.closingFragment : root.closingElement;
+		if (!closing?.loc) {
+			if (root.type !== 'JSXElement' || !root.openingElement.loc) {
+				throw new Error('Could not locate the composition closing tag');
+			}
+
+			const openingStart = recastLocToOffset(
+				input,
+				root.openingElement.loc.start,
+			);
+			const openingEnd = recastLocToOffset(input, root.openingElement.loc.end);
+			const openingIndent = getLineIndent(input, openingStart);
+			return {
+				start: openingStart,
+				end: openingEnd,
+				replacement: [
+					input.slice(openingStart, openingEnd).replace(/\s*\/>$/, '>'),
+					indentInsertedJsx({indent: `${openingIndent}${unit}`, insertion}),
+					`${openingIndent}</${recast.print(root.openingElement.name).code}>`,
+				].join(endOfLine),
+			};
 		}
 
-		const closingStart = recastLocToOffset(
-			input,
-			root.closingFragment.loc.start,
-		);
+		const closingStart = recastLocToOffset(input, closing.loc.start);
 		const lineStart = input.lastIndexOf('\n', closingStart - 1) + 1;
 		const beforeClosing = input.slice(lineStart, closingStart);
 		const closingIndent = /^\s*$/.test(beforeClosing)
@@ -2610,7 +2629,7 @@ const getInsertionRootSourceEdit = ({
 	};
 };
 
-const applySourceEdits = ({
+export const applySourceEdits = ({
 	edits,
 	input,
 }: {
@@ -3218,6 +3237,7 @@ export const insertJsxElementIntoComposition = async ({
 				snapshots: importSnapshots,
 			}),
 			getInsertionRootSourceEdit({
+				insertInside: rootBeforeInsertion?.type === 'JSXFragment',
 				input,
 				insertion: getInsertionSource({
 					element,

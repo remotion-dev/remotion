@@ -1,6 +1,7 @@
-import {expect, test} from 'bun:test';
+import {expect, spyOn, test} from 'bun:test';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
+import * as prettier from 'prettier/standalone';
 import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
@@ -1249,39 +1250,46 @@ test('creates a composition with a component file in the root file', async () =>
 		newDurationInFrames: 90,
 		canvasCapture: null,
 	};
-	const result = await operations.applyCodemod({
-		codemod,
-		dryRun: false,
-		symbolicatedStack: null,
+	const formatter = spyOn(prettier, 'format').mockImplementation(() => {
+		throw new Error('Prettier must not be called');
 	});
-	if (!result.success) {
-		throw new Error(result.reason);
+	try {
+		const result = await operations.applyCodemod({
+			codemod,
+			dryRun: false,
+			symbolicatedStack: null,
+		});
+		if (!result.success) {
+			throw new Error(result.reason);
+		}
+
+		const rootFile = getProject().files['/project/src/Root.tsx'];
+		expect(rootFile).toContain('id="FreshComp"');
+		expect(rootFile).toContain('import { Composition } from "remotion"');
+		expect(rootFile).toContain('import { FreshComp } from "./FreshComp"');
+		expect(getProject().files['/project/src/FreshComp.tsx']).toContain(
+			'export const FreshComp: React.FC',
+		);
+
+		const conflict = await operations.applyCodemod({
+			codemod: {...codemod, newId: 'FreshComp2'},
+			dryRun: false,
+			symbolicatedStack: null,
+		});
+		expect(conflict).toEqual({
+			success: false,
+			reason: 'Cannot create src/FreshComp.tsx because it already exists',
+		});
+
+		const undoResult = await operations.undo();
+		expect(undoResult.success).toBe(true);
+		expect(getProject().files['/project/src/FreshComp.tsx']).toBeUndefined();
+		expect(getProject().files['/project/src/Root.tsx']).not.toContain(
+			'id="FreshComp"',
+		);
+	} finally {
+		formatter.mockRestore();
 	}
-
-	const rootFile = getProject().files['/project/src/Root.tsx'];
-	expect(rootFile).toContain('id="FreshComp"');
-	expect(rootFile).toContain("import {Composition} from 'remotion'");
-	expect(rootFile).toContain("import {FreshComp} from './FreshComp'");
-	expect(getProject().files['/project/src/FreshComp.tsx']).toContain(
-		'export const FreshComp: React.FC',
-	);
-
-	const conflict = await operations.applyCodemod({
-		codemod: {...codemod, newId: 'FreshComp2'},
-		dryRun: false,
-		symbolicatedStack: null,
-	});
-	expect(conflict).toEqual({
-		success: false,
-		reason: 'Cannot create src/FreshComp.tsx because it already exists',
-	});
-
-	const undoResult = await operations.undo();
-	expect(undoResult.success).toBe(true);
-	expect(getProject().files['/project/src/FreshComp.tsx']).toBeUndefined();
-	expect(getProject().files['/project/src/Root.tsx']).not.toContain(
-		'id="FreshComp"',
-	);
 });
 
 test('creates, renames and deletes a folder in Browser Studio', async () => {

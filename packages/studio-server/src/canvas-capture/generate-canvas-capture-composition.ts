@@ -1,5 +1,5 @@
 import type {CanvasCaptureData} from '@remotion/studio-shared';
-import {formatOutput} from '../codemods/duplicate-composition';
+import * as recast from 'recast';
 
 type FramedMouseMovement = CanvasCaptureData['mouseMovements'][number] & {
 	readonly frame: number;
@@ -44,7 +44,19 @@ const getCursorName = (cursor: string) => {
 	return cursor.split(',').at(-1)?.trim().toLowerCase() || 'default';
 };
 
-const serialize = (value: unknown) => JSON.stringify(value);
+const serialize = (value: unknown): string => {
+	if (typeof value === 'string') {
+		return recast.prettyPrint(recast.types.builders.stringLiteral(value), {
+			quote: 'single',
+		}).code;
+	}
+
+	if (Array.isArray(value)) {
+		return `[${value.map(serialize).join(', ')}]`;
+	}
+
+	return JSON.stringify(value);
+};
 
 export const generateCanvasCaptureComposition = ({
 	componentName,
@@ -133,7 +145,7 @@ export const generateCanvasCaptureComposition = ({
 	)?.cursor;
 	const cursorProp =
 		cursorKeyframes.length === 1
-			? `cursor=${serialize(cursorKeyframes[0].value)}`
+			? `cursor={${serialize(cursorKeyframes[0].value)}}`
 			: `cursor={interpolate(
 					frame,
 					${serialize(cursorKeyframes.map((keyframe) => keyframe.frame))},
@@ -174,7 +186,7 @@ export const generateCanvasCaptureComposition = ({
 		? `${componentName.slice(0, -'Composition'.length)}Preview`
 		: `${componentName}Preview`;
 
-	return formatOutput(`import {MacOSCursor} from '@remotion/mac-cursors';
+	return `import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
@@ -218,7 +230,7 @@ ${customCursor === undefined ? '' : `\t\t\t\tcustomCursor={${serialize(customCur
 export const ${componentName} = () => {
 	return (
 		<Composition
-			id=${serialize(compositionId)}
+			id={${serialize(compositionId)}}
 			component={${previewComponentName}}
 			width={${width}}
 			height={${height}}
@@ -227,5 +239,5 @@ export const ${componentName} = () => {
 		/>
 	);
 };
-`);
+`;
 };
