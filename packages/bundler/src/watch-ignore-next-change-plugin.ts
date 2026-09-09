@@ -128,19 +128,6 @@ export class WatchIgnoreNextChangePlugin {
 		return files;
 	}
 
-	consumeSuppressedFilesForRebuild(): string[] {
-		// Include writes whose watcher event has not arrived yet.
-		const files = [
-			...new Set([...this.suppressedFilesHistory, ...this.filesToIgnore]),
-		];
-		this.suppressedFilesHistory.clear();
-		for (const file of files) {
-			this.unignoreNextChange(file);
-		}
-
-		return files;
-	}
-
 	apply(compiler: Compiler): void {
 		compiler.hooks.afterEnvironment.tap('WatchIgnoreNextChangePlugin', () => {
 			const wfs = compiler.watchFileSystem as unknown as NodeWatchFileSystem;

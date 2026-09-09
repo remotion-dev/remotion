@@ -1254,10 +1254,6 @@ export type LogStudioErrorResponse = {};
 // When adding a route, also update the Browser Studio parity checklist:
 // https://github.com/remotion-dev/remotion/issues/9807
 export type ApiRoutes = {
-	'/api/prepare-client-render': ReqAndRes<
-		Record<string, never>,
-		{hash: string}
-	>;
 	'/api/composition-component-info': ReqAndRes<
 		CompositionComponentInfoRequest,
 		CompositionComponentInfoResponse

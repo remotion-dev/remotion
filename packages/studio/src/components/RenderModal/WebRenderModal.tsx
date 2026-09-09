@@ -39,7 +39,6 @@ import {SegmentedControl} from '../SegmentedControl';
 import {VerticalTab} from '../Tabs/vertical';
 import {DataEditor} from './DataEditor';
 import {getStringBeforeSuffix} from './get-string-before-suffix';
-import {PrepareClientRender} from './PrepareClientRender';
 import {
 	buttonStyle,
 	container as containerStyle,
@@ -826,11 +825,9 @@ export const WebRenderModalWithLoader: React.FC<WebRenderModalState> = (
 ) => {
 	return (
 		<DismissableModal>
-			<PrepareClientRender>
-				<ResolveCompositionBeforeModal compositionId={props.compositionId}>
-					<WebRenderModal {...props} />
-				</ResolveCompositionBeforeModal>
-			</PrepareClientRender>
+			<ResolveCompositionBeforeModal compositionId={props.compositionId}>
+				<WebRenderModal {...props} />
+			</ResolveCompositionBeforeModal>
 		</DismissableModal>
 	);
 };
