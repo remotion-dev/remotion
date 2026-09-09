@@ -325,6 +325,7 @@ const innerStitchFramesToVideo = async (
 					trimRightOffset: assetsInfo.trimRightOffset,
 					forSeamlessAacConcatenation: assetsInfo.forSeamlessAacConcatenation,
 					sampleRate,
+					enforceAudioTrack: enforceAudioTrack || !shouldRenderVideo,
 				})
 			: null;
 
@@ -367,6 +368,14 @@ const innerStitchFramesToVideo = async (
 		assetsInfo.downloadMap.allowCleanup();
 
 		return Promise.resolve(file);
+	}
+
+	if (separateAudioTo && !audio) {
+		throw new Error(
+			`\`separateAudioTo\` was set to ${JSON.stringify(
+				separateAudioTo,
+			)}, but this render included no audio. Set \`enforceAudioTrack: true\` to render a silent audio file.`,
+		);
 	}
 
 	// Parallel encoding already resolved the encoder in the pre-stitcher.
@@ -480,15 +489,7 @@ const innerStitchFramesToVideo = async (
 		}
 	});
 
-	if (separateAudioTo) {
-		if (!audio) {
-			throw new Error(
-				`\`separateAudioTo\` was set to ${JSON.stringify(
-					separateAudioTo,
-				)}, but this render included no audio`,
-			);
-		}
-
+	if (separateAudioTo && audio) {
 		const finalDestination = path.resolve(remotionRoot, separateAudioTo);
 		cpSync(audio, finalDestination);
 		rmSync(audio);

@@ -14,7 +14,8 @@ export const enforceAudioOption = {
 			<p>
 				Defaults to <code>false</code>. If <code>true</code>, include a silent
 				audio track when the render contains no audio. If <code>false</code>,
-				omit the audio track when no audio is present.
+				omit the audio track when no audio is present. Audio-only exports still
+				produce an audio file, even when silent.
 			</p>
 			<p>
 				{mode === 'cli' ? (
@@ -33,6 +34,10 @@ export const enforceAudioOption = {
 				, because other chunks may contain audio.{' '}
 				<code>{mode === 'cli' ? '--muted' : 'muted: true'}</code> takes
 				precedence.
+			</p>
+			<p>
+				In Remotion 4, video renders may still include a silent audio track when
+				this option is <code>false</code>. This is fixed in Remotion 5.
 			</p>
 		</>
 	),
