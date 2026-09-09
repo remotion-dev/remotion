@@ -126,6 +126,7 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	position: 'absolute',
 	top: 0,
 	width: timelineWidth,
+	minWidth: `calc(100% + ${TIMELINE_PADDING * 2}px)`,
 });
 
 export const getTimelineRowHighlightBackground = ({
