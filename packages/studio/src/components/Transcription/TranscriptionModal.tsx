@@ -99,6 +99,7 @@ const transcriptionModalStyle: React.CSSProperties = {
 	...outerModalStyle,
 	height: 'auto',
 	maxHeight: 'calc(100vh - 40px)',
+	minHeight: outerModalStyle.height,
 	outline: 'none',
 };
 
