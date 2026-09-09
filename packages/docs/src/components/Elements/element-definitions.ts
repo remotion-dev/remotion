@@ -42,7 +42,11 @@ import {YouTubeCommentHighlight} from '../../../elements/youtube/youtube-comment
 import {YouTubeEndCard} from '../../../elements/youtube/youtube-end-card/youtube-end-card';
 import {YouTubeSubscribeNudge} from '../../../elements/youtube/youtube-subscribe-nudge/youtube-subscribe-nudge';
 import type {Contributor} from '../Credits';
-import {elementRegistry, type ElementCategory} from './element-registry';
+import {
+	elementRegistry,
+	type ElementCategory,
+	type ElementSlug,
+} from './element-registry';
 
 export type ElementPreviewLayout = 'composition' | 'vertical';
 
@@ -77,9 +81,8 @@ export type ElementDefinition = {
 };
 
 // Array order defines the order of categories and cards in the Element library.
-export const elementDefinitions = [
+const elementImplementations = [
 	{
-		...elementRegistry['audio/oscilloscope'],
 		slug: 'audio/oscilloscope',
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
@@ -107,7 +110,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['audio/waveform-progress'],
 		slug: 'audio/waveform-progress',
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
@@ -134,7 +136,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['audio/mirrored-spectrum'],
 		slug: 'audio/mirrored-spectrum',
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
@@ -162,7 +163,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['backgrounds/notebook-paper'],
 		slug: 'backgrounds/notebook-paper',
 		component: NotebookPaper,
 		contributors: [],
@@ -186,7 +186,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['backgrounds/paper-texture'],
 		slug: 'backgrounds/paper-texture',
 		component: PaperTexture,
 		contributors: [],
@@ -211,7 +210,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['backgrounds/rotating-starburst'],
 		slug: 'backgrounds/rotating-starburst',
 		component: RotatingStarburst,
 		contributors: [],
@@ -235,7 +233,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['backgrounds/liquid-contours'],
 		slug: 'backgrounds/liquid-contours',
 		component: LiquidContours,
 		contributors: [],
@@ -260,7 +257,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['captions/basic-captions'],
 		slug: 'captions/basic-captions',
 		component: BasicCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
@@ -285,7 +281,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['captions/moving-pill-captions'],
 		slug: 'captions/moving-pill-captions',
 		component: MovingPillCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
@@ -314,7 +309,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['captions/popping-word-captions'],
 		slug: 'captions/popping-word-captions',
 		component: PoppingWordCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
@@ -342,7 +336,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['captions/word-highlight-captions'],
 		slug: 'captions/word-highlight-captions',
 		component: WordHighlightCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
@@ -370,7 +363,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['commerce/product-collection'],
 		slug: 'commerce/product-collection',
 		component: ProductCollection,
 		contributors: [],
@@ -395,7 +387,6 @@ export const elementDefinitions = [
 		width: 1080,
 	},
 	{
-		...elementRegistry['commerce/product-discount-callout'],
 		slug: 'commerce/product-discount-callout',
 		component: ProductDiscountCallout,
 		contributors: [],
@@ -423,7 +414,6 @@ export const elementDefinitions = [
 		width: 1080,
 	},
 	{
-		...elementRegistry['commerce/product-offer'],
 		slug: 'commerce/product-offer',
 		component: ProductOffer,
 		contributors: [],
@@ -448,7 +438,6 @@ export const elementDefinitions = [
 		width: 1080,
 	},
 	{
-		...elementRegistry['data/horizontal-bar-chart'],
 		slug: 'data/horizontal-bar-chart',
 		component: HorizontalBarChart,
 		contributors: [],
@@ -472,7 +461,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['data/line-chart'],
 		slug: 'data/line-chart',
 		component: LineChart,
 		contributors: [],
@@ -494,7 +482,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['data/number-counter'],
 		slug: 'data/number-counter',
 		component: NumberCounter,
 		contributors: [
@@ -524,7 +511,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['data/pie-chart'],
 		slug: 'data/pie-chart',
 		component: PieChart,
 		contributors: [],
@@ -547,7 +533,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['data/vertical-bar-chart'],
 		slug: 'data/vertical-bar-chart',
 		component: VerticalBarChart,
 		contributors: [],
@@ -572,7 +557,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['maps/map-flyover'],
 		slug: 'maps/map-flyover',
 		component: MapFlyover,
 		contributors: [],
@@ -598,7 +582,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['maps/watercolor-map'],
 		slug: 'maps/watercolor-map',
 		component: WatercolorMap,
 		contributors: [
@@ -626,7 +609,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['overlays/location-lower-third'],
 		slug: 'overlays/location-lower-third',
 		component: LocationLowerThird,
 		contributors: [],
@@ -650,7 +632,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['overlays/name-lower-third'],
 		slug: 'overlays/name-lower-third',
 		component: NameLowerThird,
 		contributors: [],
@@ -675,7 +656,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['overlays/social-safe-zones'],
 		slug: 'overlays/social-safe-zones',
 		component: SocialSafeZones,
 		contributors: [],
@@ -700,7 +680,6 @@ export const elementDefinitions = [
 		width: 1080,
 	},
 	{
-		...elementRegistry['text/news-article-highlight'],
 		slug: 'text/news-article-highlight',
 		component: NewsArticleHighlight,
 		contributors: [],
@@ -725,7 +704,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['storytelling/on-screen-messages'],
 		slug: 'storytelling/on-screen-messages',
 		component: OnScreenMessages,
 		contributors: [],
@@ -750,7 +728,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['storytelling/polaroid-pictures'],
 		slug: 'storytelling/polaroid-pictures',
 		component: PolaroidPictures,
 		contributors: [],
@@ -775,7 +752,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['text/circle-marker'],
 		slug: 'text/circle-marker',
 		component: CircleMarker,
 		contributors: [],
@@ -803,7 +779,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['text/crossed-off'],
 		slug: 'text/crossed-off',
 		component: CrossedOffText,
 		contributors: [],
@@ -829,7 +804,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['text/spinning-text-wheel'],
 		slug: 'text/spinning-text-wheel',
 		component: SpinningTextWheel,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
@@ -854,7 +828,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['text/strike-through'],
 		slug: 'text/strike-through',
 		component: StrikeThroughText,
 		contributors: [],
@@ -882,7 +855,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['text/text-marker'],
 		slug: 'text/text-marker',
 		component: TextMarker,
 		contributors: [],
@@ -908,7 +880,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['youtube/youtube-comment-highlight'],
 		slug: 'youtube/youtube-comment-highlight',
 		component: YouTubeCommentHighlight,
 		contributors: [],
@@ -932,7 +903,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['youtube/youtube-end-card'],
 		slug: 'youtube/youtube-end-card',
 		component: YouTubeEndCard,
 		contributors: [],
@@ -957,7 +927,6 @@ export const elementDefinitions = [
 		width: 1920,
 	},
 	{
-		...elementRegistry['youtube/youtube-subscribe-nudge'],
 		slug: 'youtube/youtube-subscribe-nudge',
 		component: YouTubeSubscribeNudge,
 		contributors: [],
@@ -985,4 +954,14 @@ export const elementDefinitions = [
 		installationMode: 'wrapped',
 		width: 1920,
 	},
-] satisfies readonly ElementDefinition[];
+] satisfies readonly (Omit<
+	ElementDefinition,
+	'category' | 'displayName' | 'slug'
+> & {
+	readonly slug: ElementSlug;
+})[];
+
+export const elementDefinitions = elementImplementations.map((definition) => ({
+	...elementRegistry[definition.slug],
+	...definition,
+}));
