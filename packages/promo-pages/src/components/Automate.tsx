@@ -4,12 +4,14 @@ import React from 'react';
 import {AutomateTitle} from './automate/AutomateTitle';
 import {BuiltWithRemotionShowcase} from './automate/BuiltWithRemotionShowcase';
 import {Demo} from './homepage/Demo';
+import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import type {ColorMode} from './homepage/layout/use-color-mode';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
 import {MakeVideosAgentically} from './homepage/MakeVideosAgentically';
 import {MakeVideosInteractively} from './homepage/MakeVideosInteractively';
 import {MakeVideosProgrammatically} from './homepage/MakeVideosProgrammatically';
 import {Pricing} from './homepage/Pricing';
+import TrustedByBanner from './homepage/TrustedByBanner';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 
 export const AutomatePage: React.FC<{
@@ -73,6 +75,10 @@ export const AutomatePage: React.FC<{
 						pricing for companies.
 					</p>
 					<Pricing />
+					<div className="mt-4 min-[900px]:mt-6 flex flex-col min-[900px]:flex-row gap-10">
+						<TrustedByBanner />
+						<EvaluateRemotionSection />
+					</div>
 				</div>
 			</div>
 		</ColorModeProvider>
