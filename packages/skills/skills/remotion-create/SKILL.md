@@ -13,26 +13,31 @@ If a project already exists, skip this.
 Ensure Node.js and Git is installed, and the current folder is appropriate for starting a new project.
 
 Inspect the current folder, including hidden files, before choosing where to scaffold.
+
+### Empty folder
+
 If it is empty, or contains only disposable operating-system metadata such as `.DS_Store`, create the project directly in the current folder.
 Remove only those disposable metadata files first, since `create-video` rejects non-empty folders.
 Do not treat all hidden files as disposable: files such as `.env` and directories such as `.git` are meaningful contents.
 
-Use `.` as the directory argument to scaffold in the current folder, without creating or changing into a subfolder:
+Scaffold in existing folder:
 
 ```bash
 npx create-video@latest --yes --blank --no-tailwind .
 npm i
 ```
 
-If the current folder contains meaningful contents and no project already exists, scaffold into a new subfolder:
+### Non-empty folder
+
+If the current folder contains meaningful contents and no project already exists, scaffold into a new subfolder.
+Replace `my-video` with a suitable project name.
+
 
 ```bash
 npx create-video@latest --yes --blank --no-tailwind my-video
 cd my-video
 npm i
 ```
-
-Replace `my-video` with a suitable project name.
 
 ## Designing a video
 
