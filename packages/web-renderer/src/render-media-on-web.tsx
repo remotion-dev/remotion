@@ -11,7 +11,7 @@ import type {z} from 'zod';
 import type {$ZodObject} from 'zod/v4/core';
 import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type WebRendererOnArtifact} from './artifact';
-import {onlyInlineAudio} from './audio';
+import {createAudioMixer} from './audio';
 import {createBackgroundKeepalive} from './background-keepalive';
 import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createAudioSampleSource} from './create-audio-sample-source';
@@ -343,6 +343,7 @@ const internalRenderMediaOnWeb = async <
 		defaultOutName: resolved.defaultOutName,
 		useHtmlInCanvas: allowHtmlInCanvas,
 		pixelDensity: scale,
+		sampleRate,
 	});
 
 	const {
@@ -512,6 +513,24 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
+		const audioMixer = createAudioMixer({fps: resolved.fps, sampleRate});
+		const encodeReadyAudio = async () => {
+			if (!audioSampleSource) {
+				return;
+			}
+
+			let audio: AudioData | null;
+			while ((audio = audioMixer.getReadyAudio())) {
+				try {
+					await addAudioSample(audio, audioSampleSource.audioSampleSource);
+				} finally {
+					audio.close();
+				}
+
+				await waitForPageResponsiveness();
+			}
+		};
+
 		let timeOfLastFrame = Date.now();
 		const progress = {
 			renderedFrames: 0,
@@ -632,9 +651,14 @@ const internalRenderMediaOnWeb = async <
 
 			await waitForPageResponsiveness();
 
-			const audio = muted
-				? null
-				: onlyInlineAudio({assets, fps: resolved.fps, timestamp, sampleRate});
+			if (audioSampleSource) {
+				audioMixer.addFrame({
+					assets,
+					timestamp,
+					isLastFrame: frame === realFrameRange[1],
+				});
+			}
+
 			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
 
 			await waitForPageResponsiveness();
@@ -650,11 +674,7 @@ const internalRenderMediaOnWeb = async <
 				);
 			}
 
-			if (audio && audioSampleSource) {
-				encodingPromises.push(
-					addAudioSample(audio, audioSampleSource.audioSampleSource),
-				);
-			}
+			encodingPromises.push(encodeReadyAudio());
 
 			await Promise.all(encodingPromises);
 			internalState.addAddSampleTime(performance.now() - addSampleStart);

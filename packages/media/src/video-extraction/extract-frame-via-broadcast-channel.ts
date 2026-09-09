@@ -31,6 +31,7 @@ export type ExtractFrameViaBroadcastChannelResult =
 addBroadcastChannelListener();
 
 export const extractFrameViaBroadcastChannel = async ({
+	sampleRate,
 	src,
 	timeInSeconds,
 	logLevel,
@@ -49,6 +50,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	requestInit,
 	mediaCache,
 }: {
+	sampleRate: number;
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
@@ -69,6 +71,7 @@ export const extractFrameViaBroadcastChannel = async ({
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
+			sampleRate,
 			logLevel,
 			src,
 			timeInSeconds,
@@ -209,6 +212,7 @@ export const extractFrameViaBroadcastChannel = async ({
 
 	const request: ExtractFrameRequest = {
 		type: 'request',
+		sampleRate,
 		src,
 		timeInSeconds,
 		id: requestId,

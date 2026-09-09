@@ -46,6 +46,7 @@ export type MessageFromMainTab =
 
 export type ExtractFrameRequest = {
 	type: 'request';
+	sampleRate: number;
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
@@ -98,6 +99,7 @@ export const addBroadcastChannelListener = () => {
 			if (data.type === 'request') {
 				try {
 					const result = await extractFrameAndAudio({
+						sampleRate: data.sampleRate,
 						src: data.src,
 						timeInSeconds: data.timeInSeconds,
 						logLevel: data.logLevel,

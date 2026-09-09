@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {StreamingPitchShifter} from '../audio/pitch-shift';
+import {StreamingPitchShifter} from '../audio/streaming-pitch-shifter';
 
 const makeSine = ({
 	frequency,

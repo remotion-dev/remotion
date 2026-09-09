@@ -20,6 +20,7 @@ test('resamples Mediabunny AudioSamples as one continuous frame', async () => {
 
 	const source = new Int16Array(wav, dataOffset + 8);
 	const extracted = await extractAudio({
+		sampleRate: 48000,
 		audioStreamIndex: 0,
 		timeInSeconds: 0,
 		durationInSeconds: 1 / FPS,

@@ -63,6 +63,7 @@ import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
+import {pitchShiftAudio} from './fixtures/pitch-shift-audio';
 import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
@@ -203,6 +204,7 @@ export const Root: React.FC = () => {
 				<Composition {...filterText} />
 			</Folder>
 			<Folder name="Projects">
+				<Composition {...pitchShiftAudio} />
 				<Composition {...unwrapped} />
 				<Composition {...orthographic} />
 				<Composition {...withMargin} />

@@ -79,6 +79,7 @@ export type AudioSyncAnchorEmitter = {
 };
 
 type SharedAudioContextValue = {
+	sampleRate: number;
 	audioContext: AudioContext | null;
 	getAudioContextState: () => RemotionAudioContextState | null;
 	gainNode: GainNode | null;
@@ -217,14 +218,6 @@ export const SharedAudioContextProvider: React.FC<{
 }) => {
 	const logLevel = useLogLevel();
 	const sampleRate = previewSampleRate ?? 48000;
-
-	useEffect(() => {
-		if (typeof window === 'undefined') {
-			return;
-		}
-
-		window.remotion_sampleRate = sampleRate;
-	}, [sampleRate]);
 
 	const ctxAndGain = useSingletonAudioContext({
 		logLevel,
@@ -559,6 +552,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
+			sampleRate,
 			audioContext: ctxAndGain?.audioContext ?? null,
 			getAudioContextState: () => ctxAndGain?.getState() ?? null,
 			gainNode: ctxAndGain?.gainNode ?? null,
@@ -573,6 +567,7 @@ export const SharedAudioContextProvider: React.FC<{
 			_experimentalKeepAudioContextAlive,
 		};
 	}, [
+		sampleRate,
 		ctxAndGain,
 		audioSyncAnchor,
 		audioSyncAnchorEmitter,

@@ -10,8 +10,8 @@ Use the `toneFrequency` prop to control the pitch of audio.
 
 | Tag                                                        | Preview                                 | [Server-side rendering](/docs/ssr)      | [Client-side rendering](/docs/client-side-rendering) |
 | ---------------------------------------------------------- | --------------------------------------- | --------------------------------------- | ---------------------------------------------------- |
-| [`<Audio>`](/docs/media/audio) from `@remotion/media`      | ✅ <AvailableFrom v="4.0.520" inline /> | ✅ <AvailableFrom v="4.0.357" inline /> | ❌                                                   |
-| [`<Video>`](/docs/media/video) from `@remotion/media`      | ✅ <AvailableFrom v="4.0.520" inline /> | ✅ <AvailableFrom v="4.0.357" inline /> | ❌                                                   |
+| [`<Audio>`](/docs/media/audio) from `@remotion/media`      | ✅ <AvailableFrom v="4.0.520" inline /> | ✅ <AvailableFrom v="4.0.357" inline /> | ✅ <AvailableFrom v="4.0.523" inline />              |
+| [`<Video>`](/docs/media/video) from `@remotion/media`      | ✅ <AvailableFrom v="4.0.520" inline /> | ✅ <AvailableFrom v="4.0.357" inline /> | ✅ <AvailableFrom v="4.0.523" inline />              |
 | [`<Html5Audio>`](/docs/html5-audio) from `remotion`        | ❌                                      | ✅ <AvailableFrom v="4.0.47" inline />  | ❌                                                   |
 | [`<Html5Video>`](/docs/html5-video) from `remotion`        | ❌                                      | ✅ <AvailableFrom v="4.0.47" inline />  | ❌                                                   |
 | [`<OffthreadVideo>`](/docs/offthreadvideo) from `remotion` | ❌                                      | ✅ <AvailableFrom v="4.0.47" inline />  | ❌                                                   |
@@ -20,7 +20,7 @@ Values between `0.01` and `2` are accepted, where `1` represents the original pi
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
-The value can be changed while previewing, but it cannot be keyframed.
+The value must stay constant for each audio or video asset. Animating or keyframing `toneFrequency` is not supported.
 
 ```tsx twoslash {7} title="MyComp.tsx"
 import {Audio} from '@remotion/media';

@@ -177,6 +177,7 @@ test('does not create a nested HTML-in-canvas capture', async () => {
 
 test('keeps a scaffold without HTML-in-canvas hidden', () => {
 	const scaffold = createScaffold({
+		sampleRate: null,
 		Component: () => null,
 		audioEnabled: false,
 		defaultCodec: null,
@@ -212,6 +213,7 @@ test('keeps a scaffold without HTML-in-canvas hidden', () => {
 
 test('keeps the DOM composer scaffold paintable', () => {
 	const scaffold = createScaffold({
+		sampleRate: null,
 		Component: () => (
 			<canvas
 				ref={(node) => {
