@@ -14,7 +14,7 @@ export const writeCancellationSignal = async <Provider extends CloudProvider>({
 	bucketName: string;
 	renderId: string;
 	region: Provider['region'];
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
 	requestHandler: Provider['requestHandler'] | null;

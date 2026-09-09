@@ -1,4 +1,5 @@
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {RenderInternals} from '@remotion/renderer';
 import type {InsideFunctionSpecifics} from '@remotion/serverless';
 import {
 	closeBrowserInstanceImplementation,
@@ -9,9 +10,13 @@ import {
 import {NoReactInternals} from 'remotion/no-react';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
-import {getFolderFiles} from './helpers/get-folder-files';
+import {getTmpDirStateIfENoSp} from './helpers/get-tmp-dir';
+import {startLeakDetection} from './helpers/leak-detection';
 import {makeAwsArtifact} from './helpers/make-aws-artifact';
 import {timer} from './helpers/timer';
+import {enableNodeIntrospection} from './helpers/why-is-node-running';
+
+const ENABLE_SLOW_LEAK_DETECTION = false;
 
 export const serverAwsImplementation: InsideFunctionSpecifics<AwsProvider> = {
 	defaultX264Preset: NoReactInternals.ENABLE_V5_BREAKING_CHANGES
@@ -19,7 +24,16 @@ export const serverAwsImplementation: InsideFunctionSpecifics<AwsProvider> = {
 		: null,
 	forgetBrowserEventLoop: forgetBrowserEventLoopImplementation,
 	closeBrowserInstance: closeBrowserInstanceImplementation,
-	getBrowserInstance: getBrowserInstanceImplementation,
+	getBrowserInstance: (options) =>
+		getBrowserInstanceImplementation({
+			...options,
+			chromiumOptions: {
+				...options.chromiumOptions,
+				// The CLI can pass null; Lambda still needs software rendering.
+				gl: options.chromiumOptions.gl ?? 'swangle',
+				enableMultiProcessOnLinux: false,
+			},
+		}),
 	timer,
 	getCurrentRegionInFunction: getCurrentRegionInFunctionImplementation,
 
@@ -42,5 +56,22 @@ export const serverAwsImplementation: InsideFunctionSpecifics<AwsProvider> = {
 	},
 	invokeWebhook,
 	makeArtifactWithDetails: makeAwsArtifact,
-	getFolderFiles,
+	normalizeChromiumOptions: ({chromiumOptions, logLevel}) => {
+		if (chromiumOptions.gl !== 'angle') {
+			return chromiumOptions;
+		}
+
+		RenderInternals.Log.warn(
+			{indent: false, logLevel},
+			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
+		);
+		return {...chromiumOptions, gl: 'swangle'};
+	},
+	getTmpDirState: getTmpDirStateIfENoSp,
+	startRendererDiagnostics: ENABLE_SLOW_LEAK_DETECTION
+		? (requestId) => {
+				const diagnostics = enableNodeIntrospection(true);
+				return () => startLeakDetection(diagnostics, requestId);
+			}
+		: null,
 };
