@@ -20,8 +20,18 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"peerDependencies": {
+		"@remotion/video-matting": "workspace:*",
+		"@remotion/whisper-webgpu": "workspace:*",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
+	},
+	"peerDependenciesMeta": {
+		"@remotion/video-matting": {
+			"optional": true
+		},
+		"@remotion/whisper-webgpu": {
+			"optional": true
+		}
 	},
 	"dependencies": {
 		"@jridgewell/trace-mapping": "0.3.31",
@@ -49,6 +59,8 @@
 	"devDependencies": {
 		"@happy-dom/global-registrator": "14.5.1",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/video-matting": "workspace:*",
+		"@remotion/whisper-webgpu": "workspace:*",
 		"@testing-library/react": "16.1.0",
 		"@types/prismjs": "1.26.4",
 		"@types/semver": "7.5.3",

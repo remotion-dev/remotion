@@ -9,7 +9,6 @@ import {copyText} from '../helpers/copy-text';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
 import {CopyIcon} from '../icons/copy';
-import {Minus} from '../icons/minus';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
@@ -187,16 +186,14 @@ export const SkillsSettings: React.FC = () => {
 										: skillRow
 								}
 							>
+								<span style={skillName}>/{skill.name}</span>
+								<span style={status}>{installedLocation}</span>
 								{installed ? (
 									<CheckCircleFilled
 										aria-hidden
 										style={{...statusIcon, fill: BLUE}}
 									/>
-								) : (
-									<Minus aria-hidden color={LIGHT_TEXT} style={statusIcon} />
-								)}
-								<span style={skillName}>/{skill.name}</span>
-								<span style={status}>{installedLocation}</span>
+								) : null}
 							</div>
 						);
 					})}

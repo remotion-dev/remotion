@@ -814,7 +814,6 @@ const TimelineSequenceItemInner: React.FC<{
 		sequence.type === 'image'
 			? sequence.src
 			: null;
-
 	const isExpanded =
 		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
 

@@ -50,6 +50,7 @@
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {
+		"@huggingface/transformers": "catalog:",
 		"@playwright/test": "1.55.1",
 		"@rspack/core": "1.7.11",
 		"@rspack/plugin-react-refresh": "1.6.1",
