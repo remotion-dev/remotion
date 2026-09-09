@@ -18,6 +18,7 @@ import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
 import {Checkmark} from '../../icons/Checkmark';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
+import {GearIcon} from '../../icons/gear';
 import {ModelsIcon} from '../../icons/models';
 import {TranscriptionIcon} from '../../icons/transcription';
 import type {TranscriptionModalState} from '../../state/modals';
@@ -79,7 +80,7 @@ const DEFAULT_REPETITION_PENALTY = 1;
 const DEFAULT_NO_REPEAT_NGRAM_SIZE = 0;
 const MAX_CHUNK_LENGTH_IN_SECONDS = 30;
 
-type Tab = 'transcribe' | 'models';
+type Tab = 'transcribe' | 'advanced' | 'models';
 
 type SupportState =
 	| {type: 'checking'}
@@ -912,6 +913,18 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						</VerticalTab>
 						<VerticalTab
 							style={horizontalTab}
+							selected={tab === 'advanced'}
+							onClick={() => setTab('advanced')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<GearIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Advanced
+						</VerticalTab>
+						<VerticalTab
+							style={horizontalTab}
 							selected={tab === 'models'}
 							onClick={() => setTab('models')}
 							renderIcon={(color) => (
@@ -944,7 +957,11 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							setSelectedTask={setSelectedTask}
 							supportState={supportState}
 						/>
-						<RenderModalHr />
+					</div>
+					<div
+						style={tab === 'advanced' ? settingsPanel : hiddenPanel}
+						className={VERTICAL_SCROLLBAR_CLASSNAME}
+					>
 						<AdvancedSettings
 							chunkLengthInSeconds={chunkLengthInSeconds}
 							decodingValidationMessage={decodingValidationMessage}

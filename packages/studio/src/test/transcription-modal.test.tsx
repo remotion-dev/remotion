@@ -175,12 +175,9 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		expect(captionType.style.fontSize).toBe('inherit');
 		expect(captionType.style.lineHeight).toBe('inherit');
 		fireEvent.pointerUp(outputHelp);
-		screen.getByTitle('Learn more about Chunk length');
-		screen.getByTitle('Learn more about Stride length');
-		screen.getByTitle('Learn more about Force full sequences');
-		screen.getByTitle('Learn more about Use sampling');
-		screen.getByTitle('Learn more about Repetition penalty');
-		screen.getByTitle('Learn more about No-repeat n-gram size');
+		expect(
+			screen.queryByRole('checkbox', {name: 'Force full sequences'}),
+		).toBeNull();
 		expect(screen.queryByTitle('Task')).toBeNull();
 
 		await selectComboboxItem(screen.getByTitle('Whisper model'), /^tiny ·/);
@@ -219,6 +216,14 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		});
 		screen.getByText('Exists, will be overwritten');
 		screen.getByTitle(/^Open in (Finder|File Explorer|File Manager)$/);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Advanced'}));
+		screen.getByTitle('Learn more about Chunk length');
+		screen.getByTitle('Learn more about Stride length');
+		screen.getByTitle('Learn more about Force full sequences');
+		screen.getByTitle('Learn more about Use sampling');
+		screen.getByTitle('Learn more about Repetition penalty');
+		screen.getByTitle('Learn more about No-repeat n-gram size');
 
 		const forceFullSequences = screen.getByRole('checkbox', {
 			name: 'Force full sequences',
