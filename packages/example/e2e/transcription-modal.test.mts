@@ -84,6 +84,13 @@ test.describe('transcription modal', () => {
 		await page.keyboard.press('Escape');
 		await expect(mattingDialog).toBeHidden();
 
+		await page.evaluate(() => {
+			window.remotion_installedPackages = [
+				...(window.remotion_installedPackages ?? []),
+				'@remotion/whisper-webgpu',
+				'@huggingface/transformers',
+			];
+		});
 		await transcribe.click();
 		const dialog = page.getByRole('dialog');
 		const addToQueueButton = dialog
@@ -96,7 +103,7 @@ test.describe('transcription modal', () => {
 		await dialog.getByRole('button', {name: 'Models', exact: true}).click();
 		await expect(
 			dialog.getByText(
-				'Models are downloaded automatically when a transcription starts. You can also manage the browser cache here.',
+				'Models are downloaded automatically when needed. You can also manage the browser cache here.',
 				{exact: true},
 			),
 		).toBeVisible();
@@ -147,6 +154,7 @@ test.describe('transcription modal', () => {
 		).toBeVisible();
 		await expect(addToQueueButton).toBeEnabled();
 
+		await dialog.getByRole('button', {name: 'Advanced', exact: true}).click();
 		const chunkLength = dialog.getByRole('button', {
 			name: /^Chunk length:/,
 		});
@@ -229,6 +237,10 @@ test.describe('transcription modal', () => {
 		await strideLengthInput.press('Enter');
 		await expect(addToQueueButton).toBeEnabled();
 
+		await dialog
+			.getByRole('button', {name: 'Transcribe', exact: true})
+			.last()
+			.click();
 		await expect(
 			dialog.getByText('Output in public/', {exact: true}),
 		).toBeVisible();
