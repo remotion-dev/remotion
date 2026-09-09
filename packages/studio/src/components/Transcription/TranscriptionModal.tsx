@@ -914,18 +914,6 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						</VerticalTab>
 						<VerticalTab
 							style={horizontalTab}
-							selected={tab === 'advanced'}
-							onClick={() => setTab('advanced')}
-							renderIcon={(color) => (
-								<div style={iconContainer}>
-									<GearIcon color={color} style={icon} />
-								</div>
-							)}
-						>
-							Advanced
-						</VerticalTab>
-						<VerticalTab
-							style={horizontalTab}
 							selected={tab === 'models'}
 							onClick={() => setTab('models')}
 							renderIcon={(color) => (
@@ -935,6 +923,18 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							)}
 						>
 							Models
+						</VerticalTab>
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'advanced'}
+							onClick={() => setTab('advanced')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<GearIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							Advanced
 						</VerticalTab>
 					</div>
 					<div
