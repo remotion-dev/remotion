@@ -86,10 +86,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 			);
 		}
 
-		await providerSpecifics.writeFileIfNotExists({
-			...writeOptions,
-			renderId: renderMetadata.renderId,
-		});
+		await providerSpecifics.writeFileIfNotExists(writeOptions);
 	} else {
 		await providerSpecifics.writeFile(writeOptions);
 	}
@@ -122,7 +119,6 @@ export const finishRender = async <Provider extends CloudProvider>({
 		errorExplanations,
 		timeToDelete: (await cleanupProm).reduce((a, b) => Math.max(a, b), 0),
 		outputFile: {
-			renderId: renderMetadata.renderId,
 			sizeInBytes: outputSize,
 			url: outputUrl,
 		},

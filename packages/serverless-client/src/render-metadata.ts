@@ -50,7 +50,7 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	region: Provider['region'];
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
-	// Conditional outputs carry the render ID so recovery cannot use another render's file.
+	// Whether the final upload must create a new object without overwriting.
 	outputFileIsConditional: boolean | null;
 	privacy: Privacy;
 	deleteAfter: DeleteAfter | null;

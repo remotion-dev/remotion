@@ -13,7 +13,6 @@ export const lambdaHeadFileImplementation: ProviderSpecifics<AwsProvider>['headF
 		forcePathStyle,
 		requestHandler,
 	}): Promise<{
-		renderId: string | null;
 		LastModified?: Date | undefined;
 		ContentLength?: number | undefined;
 	}> => {
@@ -29,7 +28,7 @@ export const lambdaHeadFileImplementation: ProviderSpecifics<AwsProvider>['headF
 					Key: key,
 				}),
 			);
-			return {...head, renderId: head.Metadata?.['remotion-render-id'] ?? null};
+			return head;
 		} catch (err) {
 			if (
 				(err as Error).message === 'UnknownError' ||

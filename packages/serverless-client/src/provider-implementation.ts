@@ -103,7 +103,6 @@ type ConvertToServeUrl<Provider extends CloudProvider> = (params: {
 }) => string;
 
 type HeadFileOutput = {
-	renderId: string | null;
 	LastModified?: Date | undefined;
 	ContentLength?: number | undefined;
 };
@@ -253,9 +252,7 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	supportsConditionalOutput: (params: {
 		customCredentials: CustomCredentials<Provider> | null;
 	}) => boolean;
-	writeFileIfNotExists:
-		| ((params: WriteFileInput<Provider> & {renderId: string}) => Promise<void>)
-		| null;
+	writeFileIfNotExists: WriteFile<Provider> | null;
 	// Normalize permission failures to OutputFileAccessDeniedError and missing files
 	// to an error named NotFound. Other errors must propagate unchanged.
 	headFile: HeadFile<Provider>;

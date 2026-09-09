@@ -178,7 +178,7 @@ test('getProgress treats an existing output file as finished if postRenderData w
 		billingCurrency: 'CNY',
 		onHeadFile: ({bucketName: headedBucketName, key}) => {
 			headedFiles.push({bucketName: headedBucketName, key});
-			return Promise.resolve({ContentLength: 1234, renderId: null});
+			return Promise.resolve({ContentLength: 1234});
 		},
 		renderProgress: null,
 	});
@@ -226,7 +226,7 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 				priceInputs.push(input);
 				return input.durationInMilliseconds;
 			},
-			onHeadFile: () => Promise.resolve({ContentLength: 0, renderId: null}),
+			onHeadFile: () => Promise.resolve({ContentLength: 0}),
 			renderProgress: null,
 		});
 
@@ -332,36 +332,6 @@ test('getProgress falls back to persisted progress when destination reads are de
 	}
 
 	expect(heads).toBe(2);
-});
-
-test('getProgress only recovers a conditional output belonging to this render', async () => {
-	for (const outputRenderId of [null, 'another-render', renderId]) {
-		const providerSpecifics = makeProviderSpecifics({
-			renderProgress: {
-				...progress,
-				renderMetadata: {...renderMetadata, outputFileIsConditional: true},
-			},
-			onHeadFile: () =>
-				Promise.resolve({renderId: outputRenderId, ContentLength: 1234}),
-		});
-		const result = await getProgress({
-			bucketName,
-			renderId,
-			customCredentials: null,
-			expectedBucketOwner: null,
-			forcePathStyle: false,
-			functionName: renderMetadata.functionName,
-			memorySizeInMb: 2048,
-			providerSpecifics,
-			region: 'eu-central-1',
-			requestHandler: null,
-			timeoutInMilliseconds: 120000,
-		});
-		expect(result.done).toBe(outputRenderId === renderId);
-		expect(result.outputSizeInBytes).toBe(
-			outputRenderId === renderId ? 1234 : null,
-		);
-	}
 });
 
 test('getProgress preserves upload failures and unexpected storage errors', async () => {

@@ -281,11 +281,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 			throw err;
 		});
 
-		if (
-			outputFile &&
-			(!renderMetadata.outputFileIsConditional ||
-				outputFile.renderId === renderId)
-		) {
+		if (outputFile) {
 			const outData = getExpectedOutName({
 				renderMetadata,
 				bucketName,

@@ -7,7 +7,6 @@ import type {CloudProvider} from './types';
 export type OutputFileMetadata = {
 	url: string;
 	sizeInBytes: number | null;
-	renderId: string | null;
 };
 
 export class OutputFileAccessDeniedError extends Error {}
@@ -49,7 +48,6 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 		});
 
 		return {
-			renderId: metadata.renderId ?? null,
 			url: providerSpecifics.getOutputUrl({
 				renderMetadata,
 				bucketName,

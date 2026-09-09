@@ -22,8 +22,6 @@ import {
 	writeMockS3File,
 } from './mock-store';
 
-const conditionalRenderIds = new Map<string, string>();
-
 export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	getAccountId: () =>
 		Promise.resolve('aws:iam::123456789'.match(/aws:iam::([0-9]+)/)?.[1]!),
@@ -108,7 +106,6 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		return Promise.resolve(createReadStream(tmp));
 	},
 	writeFile: async ({body, bucketName, key, privacy, region}) => {
-		conditionalRenderIds.delete(`${region}/${bucketName}/${key}`);
 		await writeMockS3File({
 			body,
 			bucketName,
@@ -119,14 +116,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		return Promise.resolve(undefined);
 	},
 	supportsConditionalOutput: () => true,
-	writeFileIfNotExists: async ({
-		body,
-		bucketName,
-		key,
-		privacy,
-		region,
-		renderId,
-	}) => {
+	writeFileIfNotExists: async ({body, bucketName, key, privacy, region}) => {
 		const content = await streamToUint8Array(body);
 		if (readMockS3File({region, bucketName, key})) {
 			throw new Error(
@@ -135,7 +125,6 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		}
 
 		await writeMockS3File({body: content, bucketName, key, privacy, region});
-		conditionalRenderIds.set(`${region}/${bucketName}/${key}`, renderId);
 	},
 	headFile: ({bucketName, key, region}) => {
 		const read = readMockS3File({
@@ -150,8 +139,6 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		}
 
 		return Promise.resolve({
-			renderId:
-				conditionalRenderIds.get(`${region}/${bucketName}/${key}`) ?? null,
 			ContentLength: read.content.toString().length,
 			LastModified: new Date(),
 		});
