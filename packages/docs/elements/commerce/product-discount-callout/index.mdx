@@ -5,10 +5,10 @@ image: https://remotion.media/elements/commerce-product-discount-callout-preview
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Product Discount Callout
 
-<ElementPage definition={elementDefinitions['commerce/product-discount-callout']} sourceFile="./product-discount-callout.tsx" />
+<ElementPage definition={getElementDefinition('commerce/product-discount-callout')} sourceFile="./product-discount-callout.tsx" />
 
 The default product image is adapted from [a photo by Andrey Matveev on Pexels](https://www.pexels.com/photo/gray-shoe-on-gray-background-27361691/) under the [Pexels license](https://www.pexels.com/license/). The background was removed.

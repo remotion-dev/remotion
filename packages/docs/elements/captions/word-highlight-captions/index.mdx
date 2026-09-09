@@ -6,8 +6,8 @@ image: https://remotion.media/elements/captions-word-highlight-captions-preview.
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Word Highlight Captions
 
-<ElementPage definition={elementDefinitions['captions/word-highlight-captions']} sourceFile="./word-highlight-captions.tsx" />
+<ElementPage definition={getElementDefinition('captions/word-highlight-captions')} sourceFile="./word-highlight-captions.tsx" />
