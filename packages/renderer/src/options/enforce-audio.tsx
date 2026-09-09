@@ -38,10 +38,6 @@ export const enforceAudioOption = {
 				<code>{mode === 'cli' ? '--muted' : 'muted: true'}</code> takes
 				precedence.
 			</p>
-			<p>
-				Before Remotion 4.0.523, video renders could incorrectly include a
-				silent audio track when this option was <code>false</code>.
-			</p>
 		</>
 	),
 	ssrName: 'enforceAudioTrack',
