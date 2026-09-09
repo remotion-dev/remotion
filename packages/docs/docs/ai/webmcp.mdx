@@ -23,6 +23,9 @@ Agents can:
 - Play, pause and seek
 - Set timeline zoom, playback rate, and mute state
 - See, add and remove guides
+- Install packages into the current project
+- Transcribe audio and video assets
+- Separate video assets into background and foreground layers
 - Restart or shut down the Studio server
 
 ## Requirements
@@ -43,16 +46,140 @@ The shape of inputs and outputs is not currently stable.
 
 Tools that modify the timeline, playback or guides require a composition to be open.
 
+### `install_package`<AvailableFrom v="4.0.523" />
+
+Installs an npm package into the current Remotion project. Remotion packages use the current Remotion version. Auxiliary packages such as `@huggingface/transformers` use Remotion's recommended version.
+
+```ts title="Input"
+{
+  packageName: string;
+  version?: string;
+}
+```
+
+`version` must be an exact semantic version when specified.
+
+```ts title="Output"
+{
+  installed: true;
+  packageName: string;
+}
+```
+
+### `transcribe_asset`<AvailableFrom v="4.0.523" />
+
+Transcribes an audio or video asset from the `public/` folder and adds the work to the Jobs queue. The output is a JSON file containing a [`Caption[]`](/docs/captions/caption) array.
+
+If `assetPath` is omitted, the asset currently open in the Studio is used.
+
+```ts title="Input"
+{
+  assetPath?: string;
+  outputPath?: string;
+  model?: string;
+  language?: string;
+  task?: 'transcribe' | 'translate';
+  chunkLengthInSeconds?: number;
+  strideLengthInSeconds?: number;
+  forceFullSequences?: boolean;
+  doSample?: boolean;
+  temperature?: number;
+  topK?: number;
+  repetitionPenalty?: number;
+  noRepeatNgramSize?: number;
+}
+```
+
+The default model is `small.en`. The default output is `<asset>-captions.json`. See [`transcribe()`](/docs/whisper-webgpu/transcribe) for the Whisper options and their defaults.
+
+```ts title="Output"
+{
+  success: true;
+  jobId: string;
+  outputPath: string;
+}
+```
+
+The job continues in the background and can be followed in the Jobs panel.
+
+This tool is always exposed. If `@remotion/whisper-webgpu` is not installed, it returns:
+
+```ts title="Missing package output"
+{
+  success: false;
+  error: string;
+  installPackage: {
+    tool: 'install_package';
+    packageName: '@remotion/whisper-webgpu';
+  }
+}
+```
+
+Call `install_package` with the returned package name and retry. Studio also installs the recommended `@huggingface/transformers` version.
+
+### `separate_video_layers`<AvailableFrom v="4.0.523" />
+
+Separates a video asset from the `public/` folder into background and foreground WebM files and adds the work to the Jobs queue.
+
+If `assetPath` is omitted, the video asset currently open in the Studio is used.
+
+```ts title="Input"
+{
+  assetPath?: string;
+  baseOutputPath?: string;
+  foregroundOutputPath?: string;
+  model?: string;
+  audio?: 'base' | 'foreground' | 'both' | 'none';
+  videoBitrate?:
+    | 'very-low'
+    | 'low'
+    | 'medium'
+    | 'high'
+    | 'very-high'
+    | number;
+}
+```
+
+The default model is `ben2-base`, audio is kept in the background layer, and video quality defaults to `very-high`. Output names default to `<asset>-base.webm` and `<asset>-foreground.webm`.
+
+```ts title="Output"
+{
+  success: true;
+  jobId: string;
+  baseOutputPath: string;
+  foregroundOutputPath: string;
+}
+```
+
+The job continues in the background and can be followed in the Jobs panel.
+
+This tool is always exposed. If `@remotion/video-matting` is not installed, it returns:
+
+```ts title="Missing package output"
+{
+  success: false;
+  error: string;
+  installPackage: {
+    tool: 'install_package';
+    packageName: '@remotion/video-matting';
+  }
+}
+```
+
+Call `install_package` with the returned package name and retry. Studio also installs the recommended `@huggingface/transformers` version.
+
 ### `restart_studio`<AvailableFrom v="4.0.521" />
 
 Restarts the Studio server using [`restartStudio()`](/docs/studio/restart-studio). Requires a writable Studio with a running server. No composition needs to be open. The browser temporarily disconnects and reconnects when Studio is ready.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
-{}
+{
+}
 ```
 
 The output acknowledges the restart request; it does not wait for the restarted server to be ready.
@@ -62,11 +189,13 @@ The output acknowledges the restart request; it does not wait for the restarted 
 Gracefully shuts down the Studio server using [`shutDownStudio()`](/docs/studio/shut-down-studio). Requires a writable Studio with a running server. No composition needs to be open. Start Studio again from the terminal to reconnect.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
-{}
+{
+}
 ```
 
 The output acknowledges the shutdown request; the connection closes as Studio shuts down.
@@ -76,7 +205,8 @@ The output acknowledges the shutdown request; the connection closes as Studio sh
 Returns the error currently shown in the Studio error overlay. It waits for source map symbolication and includes symbolicated stack frames when available, while preserving the raw stack as a fallback. Returns `null` when the error overlay is not visible.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -107,7 +237,8 @@ null | {
 Returns the mounted compositions in the same nested folder hierarchy shown in the Studio sidebar.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -139,7 +270,10 @@ Opens a registered composition by name.
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
 }
 ```
 
@@ -148,7 +282,8 @@ Opens a registered composition by name.
 Returns the timeline sequences mounted for the current composition, including their hierarchy, timing, source stack and selection support.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -181,7 +316,10 @@ Selects and reveals a sequence using a `sequenceId` returned by `get_sequences`.
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   selectedSequence: {
     sequenceId: string;
     name: string | null;
@@ -193,7 +331,7 @@ Selects and reveals a sequence using a `sequenceId` returned by `get_sequences`.
     durationInFrames: number;
     stack: string | null;
     selectable: boolean;
-  };
+  }
 }
 ```
 
@@ -202,7 +340,8 @@ Selects and reveals a sequence using a `sequenceId` returned by `get_sequences`.
 Returns metadata and the current frame for the open composition. All fields are `null` when the canvas is showing an asset or other non-composition content.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -222,7 +361,8 @@ Returns metadata and the current frame for the open composition. All fields are 
 Returns the rendered composition HTML at the current frame without the surrounding Studio interface. The returned HTML is capped at 100,000 characters. Canvas and WebGL pixels are not represented.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -240,7 +380,8 @@ Returns the rendered composition HTML at the current frame without the surroundi
 Returns the measurable selectable component outlines active at the current frame. Coordinates use composition pixels and do not change with the Studio canvas zoom.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -256,12 +397,7 @@ Returns the measurable selectable component outlines active at the current frame
       line: number;
     } | null;
     geometry: {
-      points: [
-        {x: number; y: number},
-        {x: number; y: number},
-        {x: number; y: number},
-        {x: number; y: number},
-      ];
+      points: [{x: number; y: number}, {x: number; y: number}, {x: number; y: number}, {x: number; y: number}];
       boundingBox: {
         x: number;
         y: number;
@@ -278,7 +414,8 @@ Returns the measurable selectable component outlines active at the current frame
 Returns the current playhead, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` when the canvas is not showing a composition.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -299,7 +436,8 @@ Returns the current playhead, playback, audio, looping and timeline zoom state. 
 Returns source-code context when exactly one supported timeline item is selected. `currentSelection` is `null` when there is no selection, multiple items are selected, a guide is selected or the source location cannot be resolved. `selectedSequence` identifies the owning sequence when a property, effect or keyframe is selected.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -337,7 +475,8 @@ Returns source-code context when exactly one supported timeline item is selected
 Returns guides for the current composition. Vertical positions are x-coordinates from the left edge; horizontal positions are y-coordinates from the top edge.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -365,7 +504,10 @@ Shows or hides every guide in the current composition.
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   guidesVisible: boolean;
 }
 ```
@@ -383,13 +525,16 @@ Adds and shows a guide in the current composition. Positions use composition pix
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   guide: {
     id: string;
     orientation: 'horizontal' | 'vertical';
     position: number;
     visible: true;
-  };
+  }
 }
 ```
 
@@ -405,7 +550,10 @@ Removes a guide using an ID returned by `get_guides` or `add_guide`.
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   guideId: string;
   removed: true;
 }
@@ -416,12 +564,16 @@ Removes a guide using an ID returned by `get_guides` or `add_guide`.
 Starts playback from the current frame. Still compositions cannot be played.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   playing: true;
 }
 ```
@@ -431,12 +583,16 @@ Starts playback from the current frame. Still compositions cannot be played.
 Pauses playback at the current frame.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   playing: false;
 }
 ```
@@ -446,12 +602,16 @@ Pauses playback at the current frame.
 Mutes audio playback.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   muted: true;
 }
 ```
@@ -461,12 +621,16 @@ Mutes audio playback.
 Unmutes audio playback.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   muted: false;
 }
 ```
@@ -485,7 +649,10 @@ Sets the timeline zoom using a normalized value between `0` (fully zoomed out) a
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   timelineZoom: number;
 }
 ```
@@ -513,7 +680,10 @@ Sets the playback multiplier. Negative values play backwards.
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   playbackRate: number;
 }
 ```
@@ -532,7 +702,10 @@ Seeks to a zero-based frame. Values beyond the duration are clamped to the final
 
 ```ts title="Output"
 {
-  currentContent: {type: 'composition'; compositionId: string};
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
   currentFrame: number;
 }
 ```
@@ -555,6 +728,8 @@ You can ask a browser agent:
 - "Hide the guides."
 - "Add a vertical guide at 640 pixels."
 - "Mute the preview."
+- "Transcribe the audio asset that is currently open."
+- "Separate `product-shot.mp4` into background and foreground layers."
 
 The agent chooses and invokes the matching tools. Tool calls affect the open Studio tab immediately.
 

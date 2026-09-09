@@ -81,6 +81,18 @@ await Bun.write(
 	),
 );
 
+await Bun.write(
+	path.join(outputDir, 'browser-studio-transformers-entry.mjs'),
+	Bun.file(
+		path.join(
+			browserStudioDir,
+			'dist',
+			'esm',
+			'browser-studio-transformers-entry.mjs',
+		),
+	),
+);
+
 const rspackBrowserDist = path.join(
 	browserStudioDir,
 	'node_modules',
@@ -124,5 +136,5 @@ const html = `<!DOCTYPE html>
 await Bun.write(path.join(import.meta.dir, 'build', 'new', 'index.html'), html);
 
 process.stdout.write(
-	`Built standalone Browser Studio at /new with ${output.outputs.length + 4} assets.\n`,
+	`Built standalone Browser Studio at /new with ${output.outputs.length + 5} assets.\n`,
 );
