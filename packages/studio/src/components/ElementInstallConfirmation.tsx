@@ -36,6 +36,10 @@ import {Button} from './Button';
 import {prepareElementInstall} from './element-install-api';
 import {insertElement} from './import-assets';
 import {Flex, Row, Spacing} from './layout';
+import {
+	HORIZONTAL_SCROLLBAR_CLASSNAME,
+	VERTICAL_SCROLLBAR_CLASSNAME,
+} from './Menu/is-menu-item';
 import {getPortal} from './Menu/portals';
 import {ModalButton} from './ModalButton';
 import {ModalContainer} from './ModalContainer';
@@ -52,6 +56,7 @@ import {
 } from './NewComposition/ValidationMessage';
 import {showNotification} from './Notifications/NotificationCenter';
 import {RadioButton} from './RadioButton';
+import {SegmentedControl} from './SegmentedControl';
 import {
 	hasResolvedStack,
 	useResolvedStack,
@@ -61,7 +66,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	gap: 20,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	lineHeight: 1.5,
@@ -83,7 +88,7 @@ const sectionStyle: React.CSSProperties = {
 
 const sectionTitleStyle: React.CSSProperties = {
 	margin: 0,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontWeight: 600,
@@ -115,7 +120,7 @@ const metadataTermStyle: React.CSSProperties = {
 const metadataDescriptionStyle: React.CSSProperties = {
 	margin: 0,
 	minWidth: 0,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontWeight: 400,
@@ -164,11 +169,13 @@ const dependencyListStyle: React.CSSProperties = {
 	margin: 0,
 	padding: 0,
 	listStyleType: 'none',
+	textAlign: 'right',
+	minWidth: 0,
 };
 
 const dependencyNameStyle: React.CSSProperties = {
 	minWidth: 0,
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	lineHeight: 1.5,
@@ -200,11 +207,6 @@ const warningDescriptionStyle: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
-const installWarningDescriptionStyle: React.CSSProperties = {
-	...warningDescriptionStyle,
-	color: WHITE,
-};
-
 const browseElementsStyle: React.CSSProperties = {
 	color: 'inherit',
 	fontFamily: 'inherit',
@@ -222,23 +224,32 @@ const sourceDetailsStyle: React.CSSProperties = {
 
 const sourceSummaryStyle: React.CSSProperties = {
 	cursor: 'default',
-	color: WHITE,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontWeight: 500,
 	lineHeight: 1.5,
 };
 
-const sourceCodeBlockStyle: React.CSSProperties = {
+const sourceCodeContainerStyle: React.CSSProperties = {
 	marginTop: 10,
-	marginBottom: 0,
-	maxHeight: 240,
-	overflow: 'auto',
-	padding: 12,
+	overflow: 'hidden',
 	border: `1px solid ${WHITE_ALPHA_12}`,
 	borderRadius: 6,
 	backgroundColor: INPUT_BACKGROUND,
-	color: WHITE,
+};
+
+const sourceCodeBlockStyle: React.CSSProperties = {
+	margin: 0,
+	maxHeight: 240,
+	overflow: 'auto',
+	padding: 12,
+	color: LIGHT_TEXT,
 	fontFamily: 'monospace',
 	fontSize: 12,
 	lineHeight: 1.5,
@@ -260,45 +271,6 @@ const destinationControlStyle: React.CSSProperties = {
 	rowGap: 10,
 	flexWrap: 'wrap',
 };
-
-const destinationOptionsStyle: React.CSSProperties = {
-	display: 'flex',
-	overflow: 'hidden',
-	maxWidth: '100%',
-	marginLeft: 'auto',
-	border: `1px solid ${WHITE_ALPHA_12}`,
-	borderRadius: 4,
-};
-
-const destinationOptionStyle: React.CSSProperties = {
-	appearance: 'none',
-	minHeight: 26,
-	border: 0,
-	cursor: 'default',
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	fontWeight: 400,
-	lineHeight: '18px',
-	padding: '4px 8px',
-	whiteSpace: 'nowrap',
-};
-
-const getDestinationOptionStyle = ({
-	disabled,
-	selected,
-}: {
-	readonly disabled: boolean;
-	readonly selected: boolean;
-}): React.CSSProperties => ({
-	...destinationOptionStyle,
-	opacity: disabled ? 0.5 : 1,
-	...hoverableStyle({
-		idleBackground: selected ? INPUT_BACKGROUND : TRANSPARENT,
-		hoverBackground: selected ? INPUT_BACKGROUND : TRANSPARENT,
-		idleColor: selected ? WHITE : LIGHT_TEXT,
-		hoverColor: disabled ? LIGHT_TEXT : WHITE,
-	}),
-});
 
 const footerStyle: React.CSSProperties = {
 	minWidth: 0,
@@ -417,8 +389,6 @@ export const ElementInstallConfirmation: React.FC<{
 	);
 	const [submitting, setSubmitting] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const currentDestinationRef = useRef<HTMLButtonElement>(null);
-	const newDestinationRef = useRef<HTMLButtonElement>(null);
 	const [newCompositionValues, setNewCompositionValues] =
 		useState<NewCompositionFormValues>(() => {
 			const elementComponentName =
@@ -814,32 +784,25 @@ export const ElementInstallConfirmation: React.FC<{
 		}
 	}, [onClose, submitting]);
 
-	const onDestinationKeyDown = useCallback(
-		(event: React.KeyboardEvent<HTMLDivElement>) => {
-			if (
-				!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
-			) {
-				return;
-			}
-
-			event.preventDefault();
-			if (currentPlan === null) {
-				return;
-			}
-
-			const nextMode =
-				mode === 'current-composition'
-					? 'new-composition'
-					: 'current-composition';
-			setMode(nextMode);
-			requestAnimationFrame(() => {
-				if (nextMode === 'current-composition') {
-					currentDestinationRef.current?.focus();
-				} else {
-					newDestinationRef.current?.focus();
-				}
-			});
-		},
+	const destinationOptions = useMemo(
+		() => [
+			{
+				key: 'current-composition',
+				label: 'Current composition',
+				selected: mode === 'current-composition',
+				onClick:
+					currentPlan === null ? null : () => setMode('current-composition'),
+			},
+			{
+				key: 'new-composition',
+				label: 'New composition',
+				selected: mode === 'new-composition',
+				onClick: () => {
+					setMode('new-composition');
+					requestAnimationFrame(() => inputRef.current?.select());
+				},
+			},
+		],
 		[currentPlan, mode],
 	);
 
@@ -861,7 +824,7 @@ export const ElementInstallConfirmation: React.FC<{
 				<ModalHeader title={title} onClose={cancel} />
 			</div>
 			<form onSubmit={onSubmit}>
-				<div style={dialogContent}>
+				<div style={dialogContent} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					<dl style={requestSourceStyle} aria-label="Request source">
 						<dt style={sectionTitleStyle}>From</dt>
 						<dd
@@ -875,58 +838,30 @@ export const ElementInstallConfirmation: React.FC<{
 						</dd>
 					</dl>
 
+					{activePlan ? (
+						<dl style={requestSourceStyle}>
+							<dt style={sectionTitleStyle}>Destination</dt>
+							<dd style={requestSourceDescriptionStyle}>
+								{activePlan.filePath}
+							</dd>
+						</dl>
+					) : null}
+
 					<div style={destinationControlStyle}>
-						<div style={sectionTitleStyle}>Destination</div>
-						<div
-							aria-label="Installation destination"
-							onKeyDown={onDestinationKeyDown}
-							role="radiogroup"
-							style={destinationOptionsStyle}
-						>
-							<button
-								ref={currentDestinationRef}
-								aria-checked={mode === 'current-composition'}
-								className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-								disabled={currentPlan === null}
-								onClick={() => setMode('current-composition')}
-								role="radio"
-								style={getDestinationOptionStyle({
-									disabled: currentPlan === null,
-									selected: mode === 'current-composition',
-								})}
-								tabIndex={mode === 'current-composition' ? 0 : -1}
-								type="button"
-							>
-								Current composition
-							</button>
-							<button
-								ref={newDestinationRef}
-								aria-checked={mode === 'new-composition'}
-								className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-								onClick={() => {
-									setMode('new-composition');
-									requestAnimationFrame(() => inputRef.current?.select());
-								}}
-								role="radio"
-								style={{
-									...getDestinationOptionStyle({
-										disabled: false,
-										selected: mode === 'new-composition',
-									}),
-									borderLeft: `1px solid ${WHITE_ALPHA_12}`,
-								}}
-								tabIndex={mode === 'new-composition' ? 0 : -1}
-								type="button"
-							>
-								New composition
-							</button>
+						<div style={sectionTitleStyle}>Add to</div>
+						<div aria-label="Add to" role="group" style={{marginLeft: 'auto'}}>
+							<SegmentedControl
+								items={destinationOptions}
+								needsWrapping={false}
+								size="medium"
+							/>
 						</div>
 					</div>
 
 					{currentPlan === null ? (
 						<div style={warningStyle} role="status">
 							<WarningTriangle style={warningIconStyle} />
-							<p style={installWarningDescriptionStyle}>
+							<p style={warningDescriptionStyle}>
 								Studio could not find a safe place in “{request.compositionId}”
 								to insert the Element. Install it into a new composition
 								instead.
@@ -935,7 +870,10 @@ export const ElementInstallConfirmation: React.FC<{
 					) : null}
 
 					{mode === 'new-composition' ? (
-						<section style={sectionStyle} aria-label="New composition settings">
+						<section
+							style={{...sectionStyle, marginInline: -16}}
+							aria-label="New composition settings"
+						>
 							<NewCompositionFields
 								heightValidationMessage={heightValidationMessage}
 								inputRef={inputRef}
@@ -1037,9 +975,7 @@ export const ElementInstallConfirmation: React.FC<{
 									) : null}
 								</div>
 							</div>
-						) : activePlan ? (
-							<p style={metadataDescriptionStyle}>{activePlan.filePath}</p>
-						) : planError ? (
+						) : !activePlan && planError ? (
 							<ValidationMessage
 								align="flex-start"
 								message={planError}
@@ -1050,7 +986,7 @@ export const ElementInstallConfirmation: React.FC<{
 
 					{missingPackages.length > 0 ? (
 						<section
-							style={sectionStyle}
+							style={requestSourceStyle}
 							aria-labelledby="element-install-dependencies"
 						>
 							<h3 id="element-install-dependencies" style={sectionTitleStyle}>
@@ -1068,7 +1004,7 @@ export const ElementInstallConfirmation: React.FC<{
 
 					<div style={warningStyle}>
 						<WarningTriangle style={warningIconStyle} />
-						<p style={installWarningDescriptionStyle}>
+						<p style={warningDescriptionStyle}>
 							This adds executable source code to your project, with access to
 							your files and the network.
 							{usesBrowserDependencyResolution || missingPackages.length === 0
@@ -1078,12 +1014,22 @@ export const ElementInstallConfirmation: React.FC<{
 					</div>
 
 					<details style={sourceDetailsStyle}>
-						<summary style={sourceSummaryStyle}>Source code</summary>
-						<pre style={sourceCodeBlockStyle}>
-							<code style={sourceCodeStyle}>
-								{makeSourceControlsVisible(request.element.sourceCode)}
-							</code>
-						</pre>
+						<summary
+							className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+							style={sourceSummaryStyle}
+						>
+							Source code
+						</summary>
+						<div style={sourceCodeContainerStyle}>
+							<pre
+								className={`${HORIZONTAL_SCROLLBAR_CLASSNAME} ${VERTICAL_SCROLLBAR_CLASSNAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+								style={sourceCodeBlockStyle}
+							>
+								<code style={sourceCodeStyle}>
+									{makeSourceControlsVisible(request.element.sourceCode)}
+								</code>
+							</pre>
+						</div>
 					</details>
 				</div>
 				<ModalFooterContainer style={footerStyle}>
