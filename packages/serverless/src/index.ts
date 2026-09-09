@@ -13,7 +13,6 @@ export {stillHandler} from './handlers/still';
 export {infoHandler} from './info';
 export {innerHandler, innerRoutine} from './inner-routine';
 export {invokeWebhook} from './invoke-webhook';
-export {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 export * from './provider-implementation';
 export {ResponseStream} from './streaming/response-stream';
 export {

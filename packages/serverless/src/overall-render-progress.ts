@@ -95,7 +95,7 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 }: {
 	renderId: string;
 	bucketName: string;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	region: Provider['region'];
 	timeoutTimestamp: number;
 	logLevel: LogLevel;

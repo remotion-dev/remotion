@@ -24,7 +24,7 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 	providerSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {

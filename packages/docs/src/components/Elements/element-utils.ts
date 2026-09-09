@@ -16,8 +16,7 @@ export const getElementCompositionId = (slug: string) => {
 };
 
 export const getElementDefinition = (slug: string) => {
-	const definition =
-		elementDefinitions[slug as keyof typeof elementDefinitions];
+	const definition = elementDefinitions.find((entry) => entry.slug === slug);
 
 	if (!definition) {
 		throw new Error(`No Element definition found for ${slug}`);

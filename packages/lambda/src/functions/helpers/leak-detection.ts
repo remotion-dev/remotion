@@ -1,10 +1,9 @@
-/* eslint-disable no-console */
 import type {NodeIntrospection} from './why-is-node-running';
 import {whyIsNodeRunning} from './why-is-node-running';
 
 type LeakTimeout = {
 	timeout: Timer;
-	awsRequestId: string;
+	requestId: string;
 };
 
 let currentRequestId: string | null = null;
@@ -17,21 +16,21 @@ export const stopLeakDetection = () => {
 	}
 };
 
-export const setCurrentRequestId = (awsRequestId: string) => {
-	currentRequestId = awsRequestId;
+export const setCurrentRequestId = (requestId: string) => {
+	currentRequestId = requestId;
 };
 
 export const startLeakDetection = (
 	leakDetection: NodeIntrospection,
-	awsRequestId: string,
+	requestId: string,
 ) => {
-	currentRequestId = awsRequestId;
+	currentRequestId = requestId;
 	leakDetectionTimeout = {
-		awsRequestId,
+		requestId,
 		timeout: setTimeout(() => {
 			// First allow request ID to be set
 			setTimeout(() => {
-				if (currentRequestId !== awsRequestId) {
+				if (currentRequestId !== requestId) {
 					// New function, all good
 					return;
 				}

@@ -4,9 +4,9 @@ description: A hand-drawn animated text highlight.
 image: https://remotion.media/elements/text-text-marker-preview.png
 ---
 
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
 
 # Text Marker
 
-<ElementPage definition={elementDefinitions['text/text-marker']} sourceFile="./text-marker.tsx" />
+<ElementPage definition={getElementDefinition('text/text-marker')} sourceFile="./text-marker.tsx" />

@@ -6,8 +6,8 @@ image: https://remotion.media/elements/captions-basic-captions-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Basic Captions
 
-<ElementPage definition={elementDefinitions['captions/basic-captions']} sourceFile="./basic-captions.tsx" />
+<ElementPage definition={getElementDefinition('captions/basic-captions')} sourceFile="./basic-captions.tsx" />

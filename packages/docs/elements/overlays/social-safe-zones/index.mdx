@@ -5,11 +5,11 @@ image: https://remotion.media/elements/overlays-social-safe-zones-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Social Safe Zones
 
-<ElementPage definition={elementDefinitions['overlays/social-safe-zones']} sourceFile="./social-safe-zones.tsx" />
+<ElementPage definition={getElementDefinition('overlays/social-safe-zones')} sourceFile="./social-safe-zones.tsx" />
 
 ## Accuracy
 
