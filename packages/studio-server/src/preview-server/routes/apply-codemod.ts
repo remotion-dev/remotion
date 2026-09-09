@@ -11,7 +11,6 @@ import {
 	applyCodemodToFile,
 	resolveFilePathFromSymbolicatedStack,
 } from '../../codemods/apply-codemod-to-file';
-import {formatOutput} from '../../codemods/duplicate-composition';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
@@ -47,12 +46,12 @@ const formatNewCompositionFile = (
 		});
 	}
 
-	return formatOutput(`import React from 'react';
+	return `import React from 'react';
 
 export const ${codemod.componentName}: React.FC = () => {
 	return null;
 };
-`);
+`;
 };
 
 const getFolderPath = (parentName: string | null, folderName: string) => {

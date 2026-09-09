@@ -1260,8 +1260,8 @@ test('creates a composition with a component file in the root file', async () =>
 
 	const rootFile = getProject().files['/project/src/Root.tsx'];
 	expect(rootFile).toContain('id="FreshComp"');
-	expect(rootFile).toContain("import {Composition} from 'remotion'");
-	expect(rootFile).toContain("import {FreshComp} from './FreshComp'");
+	expect(rootFile).toContain('import { Composition } from "remotion"');
+	expect(rootFile).toContain('import { FreshComp } from "./FreshComp"');
 	expect(getProject().files['/project/src/FreshComp.tsx']).toContain(
 		'export const FreshComp: React.FC',
 	);

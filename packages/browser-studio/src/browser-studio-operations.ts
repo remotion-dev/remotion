@@ -1466,7 +1466,13 @@ export const createBrowserStudioOperations = ({
 			});
 			const input = project.files[absolutePath];
 			const {newContents} = parseAndApplyCodemod({input, codeMod: codemod});
-			const {output} = await formatCodemodFile({contents: newContents});
+			const output =
+				codemod.type === 'new-composition' ||
+				codemod.type === 'duplicate-composition' ||
+				codemod.type === 'rename-composition' ||
+				codemod.type === 'delete-composition'
+					? newContents
+					: (await formatCodemodFile({contents: newContents})).output;
 			const files: Record<string, string> = {
 				...project.files,
 				[absolutePath]: output,
@@ -1480,10 +1486,9 @@ export const createBrowserStudioOperations = ({
 					);
 				}
 
-				const componentFile = await formatCodemodFile({
-					contents: makeNewCompositionComponentSource(codemod.componentName),
-				});
-				files[componentFilePath] = componentFile.output;
+				files[componentFilePath] = makeNewCompositionComponentSource(
+					codemod.componentName,
+				);
 			}
 
 			const diff = simpleDiff({

@@ -151,7 +151,7 @@ export const CanvasCapturePreview = () => {
 export const CanvasCaptureComposition = () => {
 	return (
 		<Composition
-			id="canvas-capture-promo"
+			id={'canvas-capture-promo'}
 			component={CanvasCapturePreview}
 			width={1920}
 			height={1080}

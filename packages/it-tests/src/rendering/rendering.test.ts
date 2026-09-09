@@ -522,6 +522,7 @@ test(
 				'gif',
 				'--concurrency=1',
 				'--frames=0-47',
+				'--muted',
 				outputPath,
 			],
 			{

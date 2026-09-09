@@ -154,5 +154,5 @@ test("curly braces id={'seven'}", () => {
 	expect(changesMade.length).toBe(1);
 	expect(getCompositionCount(newContents)).toBe(compCount);
 	expect(newContents).not.toContain('"seven"');
-	expect(newContents).toContain('"mno"');
+	expect(newContents).toBe(contents.replace("id={'seven'}", "id={'mno'}"));
 });
