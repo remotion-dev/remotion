@@ -77,7 +77,11 @@ export const useCommonEffects = ({
 		const {remove} = sharedAudioContext.audioSyncAnchorEmitter.subscribe(
 			(event) => {
 				if (event === 'changed') {
-					mediaPlayerRef.current?.audioSyncAnchorChanged();
+					mediaPlayerRef.current
+						?.audioSyncAnchorChanged(currentTimeRef.current)
+						.catch(() => {
+							// Might be disposed
+						});
 				}
 			},
 		);
@@ -85,7 +89,7 @@ export const useCommonEffects = ({
 		return () => {
 			remove();
 		};
-	}, [sharedAudioContext, mediaPlayerRef]);
+	}, [sharedAudioContext, mediaPlayerRef, currentTimeRef]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
