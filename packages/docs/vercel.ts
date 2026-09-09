@@ -131,6 +131,7 @@ export const config: VercelConfig = {
 		routes.redirect('/gif', '/docs/gif', {permanent: false}),
 		routes.redirect('/gsap', '/docs/gsap', {permanent: false}),
 		routes.redirect('/lottie', '/docs/lottie', {permanent: false}),
+		routes.redirect('/mediabunny', '/docs/mediabunny', {permanent: false}),
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),
 		routes.redirect('/api', '/docs/api', {permanent: false}),
