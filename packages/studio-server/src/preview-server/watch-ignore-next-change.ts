@@ -9,8 +9,10 @@ export const setWatchIgnoreNextChangePlugin = (
 	currentPlugin = plugin;
 };
 
-export const suppressBundlerUpdateForFile = (absolutePath: string): void => {
-	currentPlugin?.ignoreNextChange(absolutePath);
+export const suppressBundlerUpdateForFile = (absolutePath: string) => {
+	const plugin = currentPlugin;
+	plugin?.ignoreNextChange(absolutePath);
+	return () => plugin?.unignoreNextChange(absolutePath);
 };
 
 // Why do we need this?
