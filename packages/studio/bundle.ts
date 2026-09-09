@@ -1,7 +1,6 @@
 import {buildPackage} from '../.monorepo/builder';
 
 const external = [
-	'@huggingface/transformers',
 	'react',
 	'remotion',
 	'@remotion/canvas',

@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {installPackages} from '../api/install-package';
 import {LIGHT_TEXT, WARNING_COLOR, WHITE} from '../helpers/colors';
+import {withRequiredAuxiliaryPackages} from '../helpers/optional-package-dependencies';
 import {SetSelectedModalContext} from '../state/modals';
 import {Button} from './Button';
 import {Flex, Row, Spacing} from './layout';
@@ -68,8 +69,13 @@ export const markOptionalPackageInstalled = (packageName: string) => {
 };
 
 export const installOptionalPackage = async (packageName: string) => {
-	await installPackages([{name: packageName, version: null}]);
-	markOptionalPackageInstalled(packageName);
+	const dependencies = withRequiredAuxiliaryPackages([
+		{name: packageName, version: null},
+	]);
+	await installPackages(dependencies);
+	for (const dependency of dependencies) {
+		markOptionalPackageInstalled(dependency.name);
+	}
 };
 
 export const useOptionalPackageInstalled = (packageName: string) => {
@@ -104,6 +110,10 @@ export const OptionalPackageModal: React.FC<{
 		type: 'idle',
 	});
 	const busy = installState.type === 'installing';
+	const packageNames = withRequiredAuxiliaryPackages([
+		{name: packageName, version: null},
+	]).map((dependency) => dependency.name);
+	const packagesLabel = packageNames.join(' and ');
 
 	const dismiss = useCallback(() => {
 		if (!busy) {
@@ -136,12 +146,18 @@ export const OptionalPackageModal: React.FC<{
 				{busy ? (
 					<div style={statusStyle}>
 						<Spinner duration={0.5} size={18} />
-						{`Installing ${packageName}…`}
+						{`Installing ${packagesLabel}…`}
 					</div>
 				) : (
 					<>
 						This requires installing{' '}
-						<code style={codeStyle}>{packageName}</code>.{' Continue?'}
+						{packageNames.map((name, index) => (
+							<React.Fragment key={name}>
+								{index > 0 ? ' and ' : null}
+								<code style={codeStyle}>{name}</code>
+							</React.Fragment>
+						))}
+						. Continue?
 						{installState.type === 'error' ? (
 							<div style={errorStyle}>{installState.error.message}</div>
 						) : null}

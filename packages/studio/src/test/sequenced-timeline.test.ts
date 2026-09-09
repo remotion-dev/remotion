@@ -145,8 +145,6 @@ test('Should calculate sequences correctly', () => {
 			nodePathInfo: null,
 			sequence: {
 				type: 'video',
-				audioStreamIndex: null,
-				requestInit: null,
 				src: 'http://localhost:5000/codep1-2.mp4',
 				id: '0.640722264073593',
 				duration: 486,
@@ -209,8 +207,6 @@ test('Should calculate sequences correctly', () => {
 			sequence: {
 				loopDisplay: undefined,
 				type: 'video',
-				audioStreamIndex: null,
-				requestInit: null,
 				src: 'http://localhost:5000/screen3.mp4',
 				id: '0.5529201074994525',
 				duration: 486,
@@ -291,8 +287,6 @@ const sequences: TSequence[] = [
 	},
 	{
 		type: 'video',
-		audioStreamIndex: null,
-		requestInit: null,
 		src: 'http://localhost:5000/codep1-2.mp4',
 		id: '0.640722264073593',
 		duration: 10736,
@@ -346,8 +340,6 @@ const sequences: TSequence[] = [
 	},
 	{
 		type: 'video',
-		audioStreamIndex: null,
-		requestInit: null,
 		src: 'http://localhost:5000/screen3.mp4',
 		id: '0.5529201074994525',
 		duration: 23066,

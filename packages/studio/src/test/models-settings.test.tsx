@@ -3,6 +3,7 @@ import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import {ModelsSettings} from '../components/ModelsSettings';
 import {WHISPER_WEBGPU_PACKAGE} from '../components/Transcription/whisper-webgpu-capability';
 import {VIDEO_MATTING_PACKAGE} from '../components/VideoMatting/video-matting-capability';
+import {TRANSFORMERS_PACKAGE} from '../helpers/optional-package-dependencies';
 
 const originalInstalledPackages = window.remotion_installedPackages;
 const originalIsStudio = window.remotion_isStudio;
@@ -37,6 +38,7 @@ test('offers to install missing model packages and loads models in place', async
 		expect(window.remotion_installedPackages).not.toContain(
 			VIDEO_MATTING_PACKAGE,
 		);
+		expect(window.remotion_installedPackages).toContain(TRANSFORMERS_PACKAGE);
 		expect(getAllByRole('button', {name: 'Install'})).toHaveLength(1);
 		expect(fetchSpy).toHaveBeenCalledTimes(1);
 	} finally {

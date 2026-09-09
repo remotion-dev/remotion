@@ -1,5 +1,6 @@
 import React, {Suspense, useCallback, useState} from 'react';
 import {BLUE, LIGHT_TEXT, WARNING_COLOR, WHITE} from '../helpers/colors';
+import {TRANSFORMERS_PACKAGE} from '../helpers/optional-package-dependencies';
 import {Button} from './Button';
 import {sectionHeader} from './InspectorPanel/styles';
 import {
@@ -138,7 +139,8 @@ const OptionalModelPackage: React.FC<{
 			) : (
 				<>
 					<p style={missingDescription}>
-						Install the package to download and manage its models.
+						Install the package and {TRANSFORMERS_PACKAGE} to download and
+						manage its models.
 					</p>
 					{installState.type === 'error' ? (
 						<p style={errorStyle}>{installState.message}</p>

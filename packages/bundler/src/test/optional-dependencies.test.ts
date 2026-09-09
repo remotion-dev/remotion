@@ -1,27 +1,40 @@
 import {expect, test} from 'bun:test';
 import {AllowOptionalDependenciesPlugin} from '../optional-dependencies';
 
-const missingWhisperError = (issuer: string) => {
+const missingOptionalPackageError = (packageName: string, issuer: string) => {
 	return Object.assign(
-		new Error("Can't resolve '@remotion/whisper-webgpu' in '/project'"),
+		new Error(`Can't resolve '${packageName}' in '/project'`),
 		{module: {resource: issuer}},
 	);
 };
 
-test('allows Studio to omit its optional Whisper WebGPU capability', () => {
+test('allows Studio to omit its optional AI capabilities', () => {
 	const plugin = new AllowOptionalDependenciesPlugin();
-	expect(
-		plugin.filter(
-			missingWhisperError(
-				'/project/node_modules/@remotion/studio/dist/esm/chunk.js',
+	for (const packageName of [
+		'@remotion/whisper-webgpu',
+		'@remotion/video-matting',
+	]) {
+		expect(
+			plugin.filter(
+				missingOptionalPackageError(
+					packageName,
+					'/project/node_modules/@remotion/studio/dist/esm/chunk.js',
+				),
 			),
-		),
-	).toBe(false);
+		).toBe(false);
+	}
 });
 
-test('does not hide missing Whisper WebGPU imports in user code', () => {
+test('does not hide missing optional AI package imports in user code', () => {
 	const plugin = new AllowOptionalDependenciesPlugin();
-	expect(plugin.filter(missingWhisperError('/project/src/Video.tsx'))).toBe(
-		true,
-	);
+	for (const packageName of [
+		'@remotion/whisper-webgpu',
+		'@remotion/video-matting',
+	]) {
+		expect(
+			plugin.filter(
+				missingOptionalPackageError(packageName, '/project/src/Video.tsx'),
+			),
+		).toBe(true);
+	}
 });

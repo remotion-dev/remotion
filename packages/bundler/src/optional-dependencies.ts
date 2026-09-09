@@ -9,7 +9,10 @@ const OPTIONAL_DEPENDENCIES = [
 	'react-native-reanimated/package.json',
 ];
 
-const STUDIO_OPTIONAL_DEPENDENCIES = ['@remotion/whisper-webgpu'];
+const STUDIO_OPTIONAL_DEPENDENCIES = [
+	'@remotion/whisper-webgpu',
+	'@remotion/video-matting',
+];
 
 const SOURCE_MAP_IGNORE = ['path', 'fs'];
 
