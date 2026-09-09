@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type {AudioOrVideoAsset, InlineAudioAsset} from 'remotion/no-react';
-import {NoReactInternals} from 'remotion/no-react';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {callFf} from '../call-ffmpeg';
 import type {Codec} from '../codec';
@@ -135,6 +134,30 @@ test(
 					codec: 'h264',
 					separate: true,
 				},
+				{
+					name: 'separate-video',
+					source: sourceVideo,
+					enforced: false,
+					muted: false,
+					codec: 'h264',
+					separate: true,
+				},
+				{
+					name: 'separate-audio',
+					source: path.join(examplePublic, 'audio-48000hz.wav'),
+					enforced: false,
+					muted: false,
+					codec: 'h264',
+					separate: true,
+				},
+				{
+					name: 'separate-muted',
+					source: null,
+					enforced: false,
+					muted: true,
+					codec: 'h264',
+					separate: true,
+				},
 			] satisfies {
 				name: string;
 				source: string | null;
@@ -228,12 +251,10 @@ test(
 							scenario.separate || scenario.codec === 'wav' ? 'pcm-16' : 'aac',
 					});
 
-					if (
-						NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
-						scenario.name === 'separate-empty'
-					) {
-						await expect(render).rejects.toThrow('enforceAudioTrack: true');
+					if (scenario.name === 'separate-muted') {
+						await expect(render).rejects.toThrow('Audio output is disabled');
 						expect(fs.existsSync(output)).toBe(false);
+						expect(fs.existsSync(separateAudioTo as string)).toBe(false);
 						continue;
 					}
 
@@ -255,13 +276,14 @@ test(
 						streams: {codec_type: string}[];
 					};
 					const hasSourceAudio =
-						scenario.name === 'audio' || scenario.name === 'inline';
+						(scenario.source !== null && scenario.source !== sourceVideo) ||
+						scenario.name === 'inline';
 					const hasAudio =
 						!scenario.muted &&
 						(scenario.enforced ||
 							hasSourceAudio ||
 							scenario.codec === 'wav' ||
-							!NoReactInternals.ENABLE_V5_BREAKING_CHANGES);
+							scenario.separate);
 					expect(
 						streams.map((stream) => stream.codec_type),
 						scenario.name,

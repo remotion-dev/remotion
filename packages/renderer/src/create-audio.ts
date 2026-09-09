@@ -1,5 +1,4 @@
 import path from 'path';
-import {NoReactInternals} from 'remotion/no-react';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -172,11 +171,7 @@ export const createAudio = async ({
 				]
 			: []),
 	];
-	if (
-		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
-		!enforceAudioTrack &&
-		preprocessed.length === 0
-	) {
+	if (!enforceAudioTrack && preprocessed.length === 0) {
 		deleteDirectory(downloadMap.audioMixing);
 		onProgress(1);
 		return null;

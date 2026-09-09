@@ -184,11 +184,13 @@ const innerStitchFramesToVideo = async (
 	const proResProfileName = getProResProfileName(codec, proResProfile);
 
 	const mediaSupport = codecSupportsMedia(codec);
+	const enforceAudioTrackForOutput =
+		enforceAudioTrack || Boolean(separateAudioTo);
 
 	const renderAudioEvaluation = getShouldRenderAudio({
 		assetsInfo,
 		codec,
-		enforceAudioTrack,
+		enforceAudioTrack: enforceAudioTrackForOutput,
 		muted,
 	});
 	if (renderAudioEvaluation === 'maybe') {
@@ -325,7 +327,7 @@ const innerStitchFramesToVideo = async (
 					trimRightOffset: assetsInfo.trimRightOffset,
 					forSeamlessAacConcatenation: assetsInfo.forSeamlessAacConcatenation,
 					sampleRate,
-					enforceAudioTrack: enforceAudioTrack || !shouldRenderVideo,
+					enforceAudioTrack: enforceAudioTrackForOutput || !shouldRenderVideo,
 				})
 			: null;
 
@@ -374,7 +376,7 @@ const innerStitchFramesToVideo = async (
 		throw new Error(
 			`\`separateAudioTo\` was set to ${JSON.stringify(
 				separateAudioTo,
-			)}, but this render included no audio. Set \`enforceAudioTrack: true\` to render a silent audio file.`,
+			)}, but this render included no audio. Audio output is disabled by the muted option or selected codec.`,
 		);
 	}
 

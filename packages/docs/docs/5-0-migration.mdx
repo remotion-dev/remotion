@@ -31,13 +31,6 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 
 Run `npm i `, `yarn`, `pnpm i` or `bun i` respectively afterwards.
 
-## Videos without audio no longer include a silent audio track
-
-In Remotion 4, video renders could include a silent audio track even when [`enforceAudioTrack`](/docs/renderer/render-media#enforceaudiotrack) was `false`.
-Remotion 5 omits the track when there are no audio assets, including renders whose only media sources are videos without audio streams. Audio-only exports still produce an audio file, even when silent.
-
-**Required action**: If you need a silent track, set `enforceAudioTrack: true` or pass [`--enforce-audio-track`](/docs/cli/render#--enforce-audio-track). This is also required when using `separateAudioTo` without audio or [rendering chunks for concatenation](/docs/distributed-rendering). Remotion Lambda already enforces audio tracks for its chunks. `muted: true` still takes precedence.
-
 ## Runtime requirements
 
 The minimum Node version is now <MinNodeVersion />. The minimum Bun version is <MinBunVersion />.
@@ -47,7 +40,7 @@ If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEsli
 ## Telemetry is now mandatory for Company License customers
 
 Previously, we had no idea how many renders our company license customers are making, leading to a lack of accountability.  
-If you upgrade to Remotion 5.0, you must [enable telemetry](/docs/telemetry) if you are a company license holder or contact Remotion to arrange a plausible delivery of render counts.
+If you upgrade to Remotion 5.0, you must [enable telemetry](/docs/telemetry) if you are a company license holder or contact Remotion to arrange a plausible delivery of render counts.  
 
 **Required action**: Pass license key to rendering APIs and in the [Remotion config file](/docs/config). If you are eligible for the free license, pass `"free-license"` as the license key.
 
@@ -170,8 +163,8 @@ When using `loadFonts()` from `@remotion/google-fonts`, you must now specify whi
 import {loadFont} from '@remotion/google-fonts/Roboto';
 
 loadFont('normal', {
-  weights: ['400', '700'],
-  subsets: ['latin'],
+	weights: ['400', '700'],
+	subsets: ['latin'],
 });
 ```
 
