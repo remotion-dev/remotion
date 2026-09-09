@@ -240,7 +240,7 @@ export const startServer = async (options: {
 			compiler = webpack(webpackConf);
 		}
 
-		setWatchIgnoreNextChangePlugin(watchIgnorePlugin);
+		setWatchIgnoreNextChangePlugin(watchIgnorePlugin, compiler);
 
 		const wdmMiddleware = wdm(compiler, options.logLevel);
 		const liveEventsServer = makeLiveEventsRouter(options.logLevel, () => {

@@ -35,6 +35,7 @@ import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {openInGitClientHandler} from './routes/open-in-git-client';
 import {openInTerminalHandler} from './routes/open-in-terminal';
 import {pasteEffectsHandler} from './routes/paste-effects';
+import {prepareClientRenderHandler} from './routes/prepare-client-render';
 import {prepareElementInstallHandler} from './routes/prepare-element-install';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
@@ -75,6 +76,7 @@ export const allApiRoutes: {
 		ApiRoutes[key]['Response']
 	>;
 } = {
+	'/api/prepare-client-render': prepareClientRenderHandler,
 	'/api/composition-component-info': compositionComponentInfoHandler,
 	'/api/copy-render-output-to-asset': copyRenderOutputToAssetHandler,
 	'/api/convert-figma-clipboard-to-svg': convertFigmaClipboardToSvgHandler,
