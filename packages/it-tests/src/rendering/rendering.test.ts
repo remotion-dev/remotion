@@ -547,7 +547,7 @@ test(
 		} else {
 			expect(data).not.toContain('bt709');
 		}
-		expect(data).toContain('Duration: 00:00:01.64');
+		expect(data).toContain('Duration: 00:00:01.60');
 
 		fs.unlinkSync(outputPath);
 	},

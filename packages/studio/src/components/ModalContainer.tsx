@@ -39,6 +39,7 @@ const panel: React.CSSProperties = {
 };
 
 export const ModalContainer: React.FC<{
+	readonly ariaLabel?: string;
 	readonly ariaLabelledBy?: string;
 	readonly onEscape: () => void;
 	readonly onOutsideClick: () => void;
@@ -46,6 +47,7 @@ export const ModalContainer: React.FC<{
 	readonly noZIndex?: boolean;
 	readonly panelStyle?: React.CSSProperties;
 }> = ({
+	ariaLabel,
 	ariaLabelledBy,
 	children,
 	onEscape,
@@ -60,6 +62,7 @@ export const ModalContainer: React.FC<{
 
 	return (
 		<div
+			aria-label={ariaLabel}
 			aria-labelledby={ariaLabelledBy ?? undefined}
 			aria-modal="true"
 			className="css-reset"

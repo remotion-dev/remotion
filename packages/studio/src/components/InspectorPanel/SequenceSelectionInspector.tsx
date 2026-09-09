@@ -30,9 +30,9 @@ import {useDeleteTimelineItems} from '../Timeline/use-delete-timeline-items';
 import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
 import {
-	InspectorQuickActionsSection,
-	InspectorQuickAction,
 	InspectorMessage,
+	InspectorQuickAction,
+	InspectorQuickActionsSection,
 	InspectorSectionHeader,
 } from './common';
 import {

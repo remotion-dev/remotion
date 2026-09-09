@@ -1,5 +1,4 @@
 # Download statistics
-
 Monthly downloads of Remotion packages  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/animated-emoji.svg?style=flat&color=black&label=@remotion/animated-emoji)](https://npmcharts.com/compare/@remotion/animated-emoji?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/animation-utils.svg?style=flat&color=black&label=@remotion/animation-utils)](https://npmcharts.com/compare/@remotion/animation-utils?minimal=true)  
@@ -79,4 +78,4 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/whisper-web.svg?style=flat&color=black&label=@remotion/whisper-web)](https://npmcharts.com/compare/@remotion/whisper-web?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/whisper-webgpu.svg?style=flat&color=black&label=@remotion/whisper-webgpu)](https://npmcharts.com/compare/@remotion/whisper-webgpu?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types.svg?style=flat&color=black&label=@remotion/zod-types)](https://npmcharts.com/compare/@remotion/zod-types?minimal=true)  
-[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types-v3.svg?style=flat&color=black&label=@remotion/zod-types-v3)](https://npmcharts.com/compare/@remotion/zod-types-v3?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types-v3.svg?style=flat&color=black&label=@remotion/zod-types-v3)](https://npmcharts.com/compare/@remotion/zod-types-v3?minimal=true)  

@@ -93,6 +93,12 @@ Bun.serve({
 			});
 		}
 
+		if (url.pathname === '/fake-transformers.mjs') {
+			return new Response('export const browserStudioOverrideMarker = 42;', {
+				headers: {...headers, 'Content-Type': 'text/javascript'},
+			});
+		}
+
 		const remotionPackagePath = remotionPackagePaths.find((prefix) =>
 			url.pathname.startsWith(prefix),
 		);

@@ -243,6 +243,25 @@ export const startServer = async (options: {
 		setWatchIgnoreNextChangePlugin(watchIgnorePlugin);
 
 		const wdmMiddleware = wdm(compiler, options.logLevel);
+		const invalidateBundle = () => {
+			return new Promise<void>((resolve, reject) => {
+				const watching = compiler?.watching;
+				if (!watching) {
+					reject(new Error('The Studio bundle is not being watched.'));
+					return;
+				}
+
+				watching.invalidate((error) => {
+					if (error) {
+						reject(error);
+						return;
+					}
+
+					resolve();
+				});
+			});
+		};
+
 		const liveEventsServer = makeLiveEventsRouter(options.logLevel, () => {
 			const undoStack = getUndoStack();
 			const redoStack = getRedoStack();
@@ -304,6 +323,7 @@ export const startServer = async (options: {
 						getDefaultCodingAgent: options.getDefaultCodingAgent,
 						getDefaultEditor: options.getDefaultEditor,
 						configFile: options.configFile,
+						invalidateBundle,
 					});
 				})
 				.catch((err) => {

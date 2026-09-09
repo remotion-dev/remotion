@@ -28,15 +28,22 @@ test('browser studio dependency versions are derived from package metadata', () 
 	const transitionsPackageJson = readPackageJson(
 		join(repoDir, 'packages', 'transitions', 'package.json'),
 	);
+	const whisperWebGpuPackageJson = readPackageJson(
+		join(repoDir, 'packages', 'whisper-webgpu', 'package.json'),
+	);
 	const dependencyVersions = getBrowserStudioDependencyVersionsForBuild();
 	const reactVersion = rootPackageJson.workspaces?.catalog?.react;
 	const reactDomVersion = rootPackageJson.workspaces?.catalog?.['react-dom'];
+	const transformersVersion =
+		rootPackageJson.workspaces?.catalog?.['@huggingface/transformers'];
 
 	if (
 		!studioPackageJson.version ||
 		!transitionsPackageJson.version ||
+		!whisperWebGpuPackageJson.version ||
 		!reactVersion ||
-		!reactDomVersion
+		!reactDomVersion ||
+		!transformersVersion
 	) {
 		throw new Error(
 			'Could not find package metadata for dependency version test',
@@ -48,6 +55,12 @@ test('browser studio dependency versions are derived from package metadata', () 
 	);
 	expect(dependencyVersions['@remotion/transitions']).toBe(
 		transitionsPackageJson.version,
+	);
+	expect(dependencyVersions['@remotion/whisper-webgpu']).toBe(
+		whisperWebGpuPackageJson.version,
+	);
+	expect(dependencyVersions['@huggingface/transformers']).toBe(
+		transformersVersion,
 	);
 	expect(dependencyVersions.react).toBe(reactVersion);
 	expect(dependencyVersions['react-dom']).toBe(reactDomVersion);
