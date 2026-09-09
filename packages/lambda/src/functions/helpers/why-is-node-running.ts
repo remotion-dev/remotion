@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import asyncHooks from 'async_hooks';
 import fs from 'fs';
 import {sep} from 'path';
