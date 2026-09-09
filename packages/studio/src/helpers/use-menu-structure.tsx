@@ -439,7 +439,7 @@ export const useMenuStructure = (
 							setSelectedModal({
 								type: 'settings',
 								initialTab:
-									browserStudioOperations === null ? 'rendering' : 'shortcuts',
+									browserStudioOperations === null ? 'studio' : 'shortcuts',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});

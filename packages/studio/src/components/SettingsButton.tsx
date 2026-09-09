@@ -25,7 +25,7 @@ export const SettingsButton: React.FC<{
 			initialTab: updateAvailable
 				? 'updates'
 				: getBrowserStudioOperations() === null
-					? 'rendering'
+					? 'studio'
 					: 'shortcuts',
 			initialPublicLicenseKey:
 				window.remotion_renderDefaults?.publicLicenseKey ?? null,

@@ -16,7 +16,17 @@ import {
 import {toggleBooleanMapKey} from '../../helpers/persist-boolean-map';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
-import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
+
+// Reserve the same space before and after children register or unregister.
+const toggleLayout: React.CSSProperties = {
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: 12,
+	height: 16,
+	marginRight: 0,
+	flexShrink: 0,
+};
 
 const STORAGE_KEY = 'remotion.editor.collapsedLayerChildren.v1';
 
@@ -148,7 +158,7 @@ export const TimelineLayerChildrenToggle: React.FC<{
 		[],
 	);
 	if (!context?.parents.has(sequence.id) || key === undefined) {
-		return <TimelineExpandArrowSpacer />;
+		return <div style={toggleLayout} />;
 	}
 
 	const label = `${isCollapsed ? 'Expand' : 'Collapse'} children of ${sequence.displayName}`;
@@ -169,16 +179,10 @@ export const TimelineLayerChildrenToggle: React.FC<{
 					idleColor: LIGHT_TEXT,
 					hoverColor: WHITE,
 				}),
+				...toggleLayout,
 				border: 'none',
 				padding: 0,
 				cursor: 'default',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				width: 12,
-				height: 16,
-				marginRight: 0,
-				flexShrink: 0,
 			}}
 		>
 			<TimelineCollapseToggle collapsed={isCollapsed} color="currentColor" />

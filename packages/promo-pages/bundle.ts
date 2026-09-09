@@ -1,5 +1,5 @@
-import {$, build} from 'bun';
 import path from 'node:path';
+import {$, build} from 'bun';
 import {NoReactInternals} from 'remotion/no-react';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -23,8 +23,27 @@ if (nodeVersion.trim() === 'undefined') {
 
 await $`bunx tailwindcss -i src/index.css -o dist/tailwind.css`;
 
-const result = await build({
-	entrypoints: [
+const external = [
+	'react',
+	'react/jsx-runtime',
+	'react-dom',
+	'lottie-web',
+	'hls.js',
+	'plyr',
+	'zod',
+	'@mux/upchunk',
+	'mediabunny',
+	'@mediabunny/ac3',
+	'@mediabunny/aac-encoder',
+	'@mediabunny/flac-encoder',
+	'@mediabunny/mp3-encoder',
+];
+
+// Keep Automate in a separate build. Newer Bun versions deduplicate identical
+// CSS outputs across entrypoints, which otherwise removes Homepage.css.
+const results = [
+	await build({
+		entrypoints: [
 		'./src/components/Homepage.tsx',
 		'./src/components/homepage/Pricing.tsx',
 		'./src/components/team.tsx',
@@ -37,50 +56,49 @@ const result = await build({
 		'./src/components/prompts/PromptsSubmit.tsx',
 		'./src/components/prompts/PromptsShow.tsx',
 		'./src/components/prompts/prompt-types.ts',
-	],
-	root: './src/components',
-	outdir: 'dist',
-	format: 'esm',
-	external: [
-		'react',
-		'react/jsx-runtime',
-		'react-dom',
-		'lottie-web',
-		'hls.js',
-		'plyr',
-		'zod',
-		'@mux/upchunk',
-		'mediabunny',
-		'@mediabunny/ac3',
-		'@mediabunny/aac-encoder',
-		'@mediabunny/flac-encoder',
-		'@mediabunny/mp3-encoder',
-	],
-});
-
-if (!result.success) {
-	console.log(result.logs.join('\n'));
-	process.exit(1);
-}
+		],
+		root: './src/components',
+		outdir: 'dist',
+		format: 'esm',
+		external,
+	}),
+	await build({
+		entrypoints: ['./src/components/Automate.tsx'],
+		root: './src/components',
+		outdir: 'dist',
+		format: 'esm',
+		external,
+	}),
+];
 
 const outdir = path.resolve('dist');
 
-for (const output of result.outputs) {
-	// On Windows, Bun may return absolute output paths here. Normalize them back
-	// into the local dist directory so we don't accidentally write invalid paths.
-	const relativeOutputPath = path.isAbsolute(output.path)
-		? path.relative(outdir, output.path)
-		: output.path;
-	const normalizedOutputPath = relativeOutputPath.replaceAll('\\', '/');
-	const outputPathWithoutDistPrefix = normalizedOutputPath.startsWith('dist/')
-		? normalizedOutputPath.slice('dist/'.length)
-		: normalizedOutputPath;
-
-	if (outputPathWithoutDistPrefix.startsWith('../')) {
-		throw new Error(`Unexpected build output path: ${output.path}`);
+for (const result of results) {
+	if (!result.success) {
+		console.log(result.logs.join('\n'));
+		process.exit(1);
 	}
 
-	await Bun.write(path.join('dist', outputPathWithoutDistPrefix), await output.text());
+	for (const output of result.outputs) {
+		// On Windows, Bun may return absolute output paths here. Normalize them back
+		// into the local dist directory so we don't accidentally write invalid paths.
+		const relativeOutputPath = path.isAbsolute(output.path)
+			? path.relative(outdir, output.path)
+			: output.path;
+		const normalizedOutputPath = relativeOutputPath.replaceAll('\\', '/');
+		const outputPathWithoutDistPrefix = normalizedOutputPath.startsWith('dist/')
+			? normalizedOutputPath.slice('dist/'.length)
+			: normalizedOutputPath;
+
+		if (outputPathWithoutDistPrefix.startsWith('../')) {
+			throw new Error(`Unexpected build output path: ${output.path}`);
+		}
+
+		await Bun.write(
+			path.join('dist', outputPathWithoutDistPrefix),
+			await output.text(),
+		);
+	}
 }
 
 export {};

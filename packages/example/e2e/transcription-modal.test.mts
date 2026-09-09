@@ -22,10 +22,8 @@ test.describe('transcription modal', () => {
 				value: {requestAdapter: () => Promise.resolve({})},
 			});
 		});
-		await page.goto(`${STUDIO_URL}/use-current-scale-on-load`);
-		await expect(page).toHaveURL(/use-current-scale-on-load/, {
-			timeout: 15_000,
-		});
+		await page.goto(`${STUDIO_URL}/schema-test`);
+		await expect(page).toHaveURL(/schema-test/, {timeout: 15_000});
 		await page.waitForFunction(
 			() => !document.body.innerText.includes('Loading...'),
 			{timeout: 30_000},
