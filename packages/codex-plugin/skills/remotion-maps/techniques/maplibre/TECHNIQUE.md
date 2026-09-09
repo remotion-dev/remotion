@@ -58,10 +58,6 @@ Import the MapLibre CSS once in the component or an app-level stylesheet:
 import 'maplibre-gl/dist/maplibre-gl.css';
 ```
 
-MapLibre v6 requires WebGL2. Configure its worker before creating a map. The examples below load the worker from unpkg, using the installed MapLibre version. A same-origin Blob imports the CDN worker to avoid Webpack rewriting MapLibre's cross-origin URL handling.
-
-To serve the worker locally, copy the worker and its imported modules into your public directory and pass the worker URL to `setWorkerUrl()`.
-
 ## Basic map example
 
 ```tsx
