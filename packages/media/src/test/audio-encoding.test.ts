@@ -24,6 +24,7 @@ test('Audio samples from MP3 should produce identical s16 output on Chrome and F
 	}
 
 	const a = await extractAudio({
+		sampleRate: 48000,
 		src: '/mp3-f32-audio.mp3',
 		timeInSeconds: 0.03333333333333333,
 		logLevel: 'info',

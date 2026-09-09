@@ -8,6 +8,7 @@ import type {ExtractFrameViaBroadcastChannelResult} from './video-extraction/ext
 import {rotateFrame} from './video-extraction/rotate-frame';
 
 export const extractFrameAndAudio = async ({
+	sampleRate,
 	src,
 	timeInSeconds,
 	logLevel,
@@ -25,6 +26,7 @@ export const extractFrameAndAudio = async ({
 	requestInit,
 	mediaCache,
 }: {
+	sampleRate: number;
 	src: string;
 	timeInSeconds: number;
 	logLevel: LogLevel;
@@ -62,6 +64,7 @@ export const extractFrameAndAudio = async ({
 				: null,
 			includeAudio
 				? extractAudio({
+						sampleRate,
 						src,
 						timeInSeconds,
 						durationInSeconds,

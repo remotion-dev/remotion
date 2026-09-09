@@ -324,15 +324,6 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
-	// Media extraction reads this value before the audio context effect runs.
-	const previousSampleRate = window.remotion_sampleRate;
-	using _sampleRateScope = {
-		[Symbol.dispose]: () => {
-			window.remotion_sampleRate = previousSampleRate;
-		},
-	};
-	window.remotion_sampleRate = sampleRate;
-
 	using scaffold = createScaffold({
 		width: resolved.width,
 		height: resolved.height,

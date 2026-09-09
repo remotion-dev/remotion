@@ -1,10 +1,10 @@
 import {
 	resampleAudioData,
 	TARGET_NUMBER_OF_CHANNELS,
-	getTargetSampleRate,
 } from './resample-audiodata';
 
 export type ConvertAudioDataOptions = {
+	targetSampleRate: number;
 	audioData: AudioData;
 	trimStartInSeconds: number;
 	trimEndInSeconds: number;
@@ -54,7 +54,7 @@ export const convertAudioDataToS16 = ({
 	isLast,
 }: Omit<
 	ConvertAudioDataOptions,
-	'playbackRate'
+	'playbackRate' | 'targetSampleRate'
 >): UnresampledPcmS16AudioData => {
 	const {
 		numberOfChannels: srcNumberOfChannels,
@@ -151,15 +151,17 @@ export const convertAudioDataToS16 = ({
 };
 
 export const resamplePcmS16AudioData = ({
+	targetSampleRate,
 	audioData,
 	playbackRate,
 	isLast,
 }: {
+	targetSampleRate: number;
 	audioData: UnresampledPcmS16AudioData;
 	playbackRate: number;
 	isLast: boolean;
 }): PcmS16AudioData => {
-	const ratio = audioData.sampleRate / getTargetSampleRate();
+	const ratio = audioData.sampleRate / targetSampleRate;
 	const newNumberOfFrames = isLast
 		? ceilButNotIfFloatingPointIssue(
 				audioData.numberOfFrames / ratio / playbackRate,
@@ -182,7 +184,7 @@ export const resamplePcmS16AudioData = ({
 			numberOfFrames: newNumberOfFrames,
 			timestamp: audioData.timestamp,
 			durationInMicroSeconds: fixFloatingPoint(
-				(newNumberOfFrames / getTargetSampleRate()) * 1_000_000,
+				(newNumberOfFrames / targetSampleRate) * 1_000_000,
 			),
 		};
 	}
@@ -203,7 +205,7 @@ export const resamplePcmS16AudioData = ({
 		numberOfFrames: newNumberOfFrames,
 		timestamp: audioData.timestamp,
 		durationInMicroSeconds: fixFloatingPoint(
-			(newNumberOfFrames / getTargetSampleRate()) * 1_000_000,
+			(newNumberOfFrames / targetSampleRate) * 1_000_000,
 		),
 	};
 
@@ -216,6 +218,7 @@ export const convertAudioData = (
 	const audioData = convertAudioDataToS16(options);
 
 	return resamplePcmS16AudioData({
+		targetSampleRate: options.targetSampleRate,
 		audioData,
 		playbackRate: options.playbackRate,
 		isLast: options.isLast,

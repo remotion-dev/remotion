@@ -100,7 +100,10 @@ test('Audio and Video update toneFrequency during preview', async () => {
 			return node;
 		});
 
-	const verify = async (component: React.ComponentType<ToneFrequencyProps>) => {
+	const verify = async (
+		component: React.ComponentType<ToneFrequencyProps>,
+		sampleRate: number,
+	) => {
 		createdNodes.length = 0;
 		const container = document.createElement('div');
 		document.body.appendChild(container);
@@ -121,6 +124,7 @@ test('Audio and Video update toneFrequency during preview', async () => {
 				compositionWidth={100}
 				durationInFrames={30}
 				fps={30}
+				sampleRate={sampleRate}
 				inputProps={{}}
 			/>,
 		);
@@ -130,6 +134,10 @@ test('Audio and Video update toneFrequency during preview', async () => {
 				() => createdNodes.filter((node) => node.buffer !== null).length >= 20,
 			);
 			const getScheduledFrequency = () => {
+				for (const node of createdNodes) {
+					expect(node.context.sampleRate).toBe(sampleRate);
+				}
+
 				const buffers = createdNodes
 					.map((node) => node.buffer)
 					.filter((buffer): buffer is AudioBuffer => buffer !== null);
@@ -184,8 +192,10 @@ test('Audio and Video update toneFrequency during preview', async () => {
 	);
 
 	try {
-		await verify(AudioComposition);
-		await verify(VideoComposition);
+		for (const sampleRate of [48000, 44100]) {
+			await verify(AudioComposition, sampleRate);
+			await verify(VideoComposition, sampleRate);
+		}
 	} finally {
 		createBufferSourceSpy.mockRestore();
 		URL.revokeObjectURL(src);

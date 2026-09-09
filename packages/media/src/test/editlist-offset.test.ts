@@ -5,6 +5,7 @@ import {getMaxVideoCacheSize, globalMediaCache} from '../caches';
 test('Audio extraction should be correct if there is edit list offset', async () => {
 	// Time: 0.00sec, should return null
 	const audio1 = await extractAudio({
+		sampleRate: 48000,
 		src: '/audio-with-64msoffset-editlist.mp4',
 		audioStreamIndex: 0,
 		durationInSeconds: 1 / 30,
@@ -27,6 +28,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 
 	// Time: 0.033sec, should return audio
 	const audio2 = await extractAudio({
+		sampleRate: 48000,
 		src: '/audio-with-64msoffset-editlist.mp4',
 		audioStreamIndex: 0,
 		durationInSeconds: 1 / 30,
@@ -52,6 +54,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 
 	// Time: 0.066sec, should return audio
 	const audio3 = await extractAudio({
+		sampleRate: 48000,
 		src: '/audio-with-64msoffset-editlist.mp4',
 		audioStreamIndex: 0,
 		durationInSeconds: 1 / 30,

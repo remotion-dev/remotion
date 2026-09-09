@@ -1,5 +1,8 @@
 import {Audio, Video} from '@remotion/media';
+import {Player} from '@remotion/player';
 import {ALL_FORMATS, AudioBufferSink, BlobSource, Input} from 'mediabunny';
+import {flushSync} from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import {useCurrentFrame} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
@@ -28,15 +31,47 @@ const amplitudeAt = (
 };
 
 test.each([48000, 44100])(
-	'renders pitch-shifted stereo audio at %i Hz with preserved timing',
+	'keeps %i Hz export audio correct when another Player mounts',
 	async (sampleRate) => {
+		const container = document.createElement('div');
+		document.body.appendChild(container);
+		const root = createRoot(container);
+		using _preview = {
+			[Symbol.dispose]: () => {
+				root.unmount();
+				container.remove();
+			},
+		};
+		let mountedPreview = false;
 		const result = await renderMediaOnWeb({
 			licenseKey: 'free-license',
 			composition: {...pitchShiftAudio, calculateMetadata: null},
 			container: 'wav',
 			outputTarget: 'arraybuffer',
 			sampleRate,
+			onProgress: ({renderedFrames}) => {
+				if (mountedPreview || renderedFrames === 0) {
+					return;
+				}
+
+				mountedPreview = true;
+				// Mount another root during export, using a different sample rate.
+				flushSync(() => {
+					root.render(
+						<Player
+							acknowledgeRemotionLicense
+							component={() => null}
+							compositionHeight={100}
+							compositionWidth={100}
+							durationInFrames={60}
+							fps={30}
+							sampleRate={sampleRate === 48000 ? 44100 : 48000}
+						/>,
+					);
+				});
+			},
 		});
+		expect(mountedPreview).toBe(true);
 		using input = new Input({
 			formats: ALL_FORMATS,
 			source: new BlobSource(await result.getBlob()),
