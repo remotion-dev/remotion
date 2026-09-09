@@ -51,11 +51,36 @@ const serialize = (value: unknown): string => {
 		}).code;
 	}
 
-	if (Array.isArray(value)) {
-		return `[${value.map(serialize).join(', ')}]`;
+	return JSON.stringify(value);
+};
+
+const serializeArray = (values: (string | number)[], indentation: number) => {
+	const items = values.map(serialize);
+	const inline = `[${items.join(', ')}]`;
+	if (indentation * 2 + inline.length + 1 <= 80) {
+		return inline;
 	}
 
-	return JSON.stringify(value);
+	const lines: string[] = [];
+	const numeric = values.every((value) => typeof value === 'number');
+	for (const item of items) {
+		const previous = lines.at(-1);
+		if (
+			numeric &&
+			previous &&
+			(indentation + 1) * 2 + previous.length + item.length + 2 <= 80
+		) {
+			lines[lines.length - 1] = `${previous} ${item},`;
+		} else {
+			lines.push(`${item},`);
+		}
+	}
+
+	return [
+		'[',
+		...lines.map((line) => `${'\t'.repeat(indentation + 1)}${line}`),
+		`${'\t'.repeat(indentation)}]`,
+	].join('\n');
 };
 
 export const generateCanvasCaptureComposition = ({
@@ -148,8 +173,14 @@ export const generateCanvasCaptureComposition = ({
 			? `cursor={${serialize(cursorKeyframes[0].value)}}`
 			: `cursor={interpolate(
 					frame,
-					${serialize(cursorKeyframes.map((keyframe) => keyframe.frame))},
-					${serialize(cursorKeyframes.map((keyframe) => keyframe.value))},
+					${serializeArray(
+						cursorKeyframes.map((keyframe) => keyframe.frame),
+						5,
+					)},
+					${serializeArray(
+						cursorKeyframes.map((keyframe) => keyframe.value),
+						5,
+					)},
 					{
 						easing: Easing.step1,
 						extrapolateLeft: 'clamp',
@@ -161,8 +192,14 @@ export const generateCanvasCaptureComposition = ({
 			? serialize(scaleKeyframes[0].value)
 			: `interpolate(
 						frame,
-						${serialize(scaleKeyframes.map((keyframe) => keyframe.frame))},
-						${serialize(scaleKeyframes.map((keyframe) => keyframe.value))},
+						${serializeArray(
+							scaleKeyframes.map((keyframe) => keyframe.frame),
+							6,
+						)},
+						${serializeArray(
+							scaleKeyframes.map((keyframe) => keyframe.value),
+							6,
+						)},
 						{
 							easing: Easing.step1,
 							extrapolateLeft: 'clamp',
@@ -174,8 +211,14 @@ export const generateCanvasCaptureComposition = ({
 			? serialize(positionKeyframes[0].value)
 			: `interpolate(
 						frame,
-						${serialize(positionKeyframes.map((keyframe) => keyframe.frame))},
-						${serialize(positionKeyframes.map((keyframe) => keyframe.value))},
+						${serializeArray(
+							positionKeyframes.map((keyframe) => keyframe.frame),
+							6,
+						)},
+						${serializeArray(
+							positionKeyframes.map((keyframe) => keyframe.value),
+							6,
+						)},
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
