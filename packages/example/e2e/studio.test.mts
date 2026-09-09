@@ -561,14 +561,10 @@ test.describe('visual mode', () => {
 			await quickSwitcher.getByRole('textbox').fill('> Settings');
 			await quickSwitcher.getByText('Settings...', {exact: true}).click();
 			const settings = page.getByRole('dialog');
-			await expect(
-				settings.getByText('Default codec', {exact: true}),
-			).toBeVisible();
+			await expect(settings.getByText('Bundler', {exact: true})).toBeVisible();
 			await dragAssetOver(settings);
 			await expect(dropIndicator).toBeHidden();
-			await expect(
-				settings.getByText('Default codec', {exact: true}),
-			).toBeVisible();
+			await expect(settings.getByText('Bundler', {exact: true})).toBeVisible();
 			await page.keyboard.press('Escape');
 
 			expect(await dropFile({...file, target: timeline})).toBe(true);
@@ -1824,6 +1820,7 @@ test.describe('visual mode', () => {
 			await quickSwitcher.getByRole('textbox').fill('> Settings');
 			await quickSwitcher.getByText('Settings...', {exact: true}).click();
 			const dialog = page.getByRole('dialog');
+			await dialog.getByRole('button', {name: 'Defaults', exact: true}).click();
 			await expect(
 				dialog.getByText('Default codec', {exact: true}),
 			).toBeVisible();
@@ -1889,7 +1886,6 @@ test.describe('visual mode', () => {
 			for (const setting of [
 				'Ask AI enabled',
 				'Interactivity enabled',
-				'Max timeline tracks',
 				'Audio latency hint',
 				'Number of shared audio tags',
 				'Beep on finish',
@@ -1960,42 +1956,41 @@ test.describe('visual mode', () => {
 			await expect(playPauseShortcut).toContainText('Space');
 			await dialog.getByRole('button', {name: 'Studio', exact: true}).click();
 
-			const askAIEnabled = dialog.getByTitle('Ask AI enabled', {exact: true});
-			await expect(askAIEnabled).toHaveText('Default (Enabled)');
-			await askAIEnabled.click();
-			await page
-				.getByRole('button', {name: 'Disabled', exact: true})
-				.last()
-				.click();
+			const askAIEnabled = dialog.getByRole('checkbox', {
+				name: 'Ask AI enabled',
+			});
+			await expect(askAIEnabled).toBeChecked();
+			await askAIEnabled.uncheck();
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.toContain('Config.setAskAIEnabled(false);');
-			await askAIEnabled.click();
-			await page
-				.getByRole('button', {name: 'Default (Enabled)', exact: true})
-				.last()
-				.click();
+			await askAIEnabled.check();
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.not.toContain('Config.setAskAIEnabled');
 
-			const maxTimelineTracks = dialog.getByRole('button', {
-				name: 'Max timeline tracks',
+			const numberOfSharedAudioTags = dialog.getByRole('button', {
+				name: 'Number of shared audio tags',
 			});
-			const maxTimelineTracksBounds = await maxTimelineTracks.boundingBox();
-			expect(maxTimelineTracksBounds).not.toBeNull();
+			await numberOfSharedAudioTags.scrollIntoViewIfNeeded();
+			const numberOfSharedAudioTagsBounds =
+				await numberOfSharedAudioTags.boundingBox();
+			expect(numberOfSharedAudioTagsBounds).not.toBeNull();
 			const requestsBeforeDrag = updateConfigRequests;
 			await page.mouse.move(
-				maxTimelineTracksBounds!.x + maxTimelineTracksBounds!.width / 2,
-				maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
+				numberOfSharedAudioTagsBounds!.x +
+					numberOfSharedAudioTagsBounds!.width / 2,
+				numberOfSharedAudioTagsBounds!.y +
+					numberOfSharedAudioTagsBounds!.height / 2,
 			);
 			await page.mouse.down();
 			for (let step = 1; step <= 6; step++) {
 				await page.mouse.move(
-					maxTimelineTracksBounds!.x +
-						maxTimelineTracksBounds!.width / 2 +
+					numberOfSharedAudioTagsBounds!.x +
+						numberOfSharedAudioTagsBounds!.width / 2 +
 						step * 3,
-					maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
+					numberOfSharedAudioTagsBounds!.y +
+						numberOfSharedAudioTagsBounds!.height / 2,
 				);
 				await page.waitForTimeout(80);
 			}
@@ -2008,12 +2003,12 @@ test.describe('visual mode', () => {
 			expect(updateConfigRequests).toBe(requestsBeforeDrag + 1);
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain('Config.setMaxTimelineTracks(');
-			await dialog.getByTitle('Use default (Unlimited)', {exact: true}).click();
+				.toContain('Config.setNumberOfSharedAudioTags(');
+			await dialog.getByTitle('Use default (0)', {exact: true}).click();
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setMaxTimelineTracks');
-			await expect(maxTimelineTracks).toHaveText('Default (Unlimited)');
+				.not.toContain('Config.setNumberOfSharedAudioTags');
+			await expect(numberOfSharedAudioTags).toHaveText('Default (0)');
 
 			await dialog.getByText('Skills', {exact: true}).click();
 			await expect(
