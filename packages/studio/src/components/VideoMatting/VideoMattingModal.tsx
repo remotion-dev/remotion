@@ -356,7 +356,6 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 									values={modelOptions}
 									selectedId={model}
 									title="Model"
-									disabled={false}
 									style={controlStyle}
 								/>
 							</div>
@@ -377,7 +376,6 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 									values={audioOptions}
 									selectedId={audio}
 									title="Audio"
-									disabled={false}
 									style={controlStyle}
 								/>
 							</div>
@@ -389,7 +387,6 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 									values={qualityOptions}
 									selectedId={String(videoBitrate)}
 									title="Video quality"
-									disabled={false}
 									style={controlStyle}
 								/>
 							</div>

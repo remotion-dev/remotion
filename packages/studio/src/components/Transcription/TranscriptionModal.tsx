@@ -327,7 +327,6 @@ const ModelSettings: React.FC<{
 						values={modelOptions}
 						selectedId={selectedModel}
 						title="Whisper model"
-						disabled={false}
 						style={controlStyle}
 					/>
 				</div>
@@ -340,7 +339,6 @@ const ModelSettings: React.FC<{
 							values={languageOptions}
 							selectedId={selectedLanguage}
 							title="Spoken language"
-							disabled={false}
 							style={controlStyle}
 						/>
 					</div>
@@ -354,7 +352,6 @@ const ModelSettings: React.FC<{
 							values={taskOptions}
 							selectedId={effectiveTask}
 							title="Task"
-							disabled={false}
 							style={controlStyle}
 						/>
 					</div>
