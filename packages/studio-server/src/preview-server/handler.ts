@@ -21,6 +21,7 @@ export const handleRequest = async <Req, Res>({
 	configFile,
 	getDefaultCodingAgent,
 	getDefaultEditor,
+	invalidateBundle,
 }: {
 	remotionRoot: string;
 	publicDir: string;
@@ -31,6 +32,7 @@ export const handleRequest = async <Req, Res>({
 	configFile: string | null;
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
+	invalidateBundle?: () => Promise<void>;
 	handler: ApiHandler<Req, Res>;
 	logLevel: LogLevel;
 	methods: QueueMethods;
@@ -62,6 +64,7 @@ export const handleRequest = async <Req, Res>({
 			configFile,
 			getDefaultCodingAgent,
 			getDefaultEditor,
+			invalidateBundle,
 		});
 
 		response.end(

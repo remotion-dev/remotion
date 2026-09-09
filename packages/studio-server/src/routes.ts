@@ -576,6 +576,7 @@ export const handleRoutes = ({
 			configFile,
 			getDefaultCodingAgent,
 			getDefaultEditor,
+			invalidateBundle,
 		});
 	}
 
@@ -583,7 +584,7 @@ export const handleRoutes = ({
 		return handleRequest<InstallPackageRequest, InstallPackageResponse>({
 			remotionRoot,
 			entryPoint,
-			handler: (params) => handleInstallPackage({...params, invalidateBundle}),
+			handler: handleInstallPackage,
 			request,
 			response,
 			logLevel,
@@ -593,6 +594,7 @@ export const handleRoutes = ({
 			configFile,
 			getDefaultCodingAgent,
 			getDefaultEditor,
+			invalidateBundle,
 		});
 	}
 
@@ -614,6 +616,7 @@ export const handleRoutes = ({
 				configFile,
 				getDefaultCodingAgent,
 				getDefaultEditor,
+				invalidateBundle,
 			});
 		}
 	}
