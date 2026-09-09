@@ -1,5 +1,12 @@
 import {afterEach, describe, expect, test} from 'bun:test';
-import {WebMOutputFormat, type StreamTargetChunk} from 'mediabunny';
+import {
+	ALL_FORMATS,
+	BlobSource,
+	Input,
+	WebMOutputFormat,
+	type StreamTargetChunk,
+} from 'mediabunny';
+import {version} from '../../package.json';
 import {createVideoLayerOutput} from '../create-video-layer-output';
 import type {VideoLayerOutputOptions} from '../output-target';
 
@@ -85,6 +92,14 @@ describe('video layer output targets', () => {
 
 		expect(blob.type).toBe('application/webm');
 		expect(blob.size).toBeGreaterThan(0);
+		const input = new Input({
+			formats: ALL_FORMATS,
+			source: new BlobSource(blob),
+		});
+		expect((await input.getMetadataTags()).comment).toBe(
+			`Separated with @remotion/video-matting ${version}`,
+		);
+		input.dispose();
 	});
 
 	test('writes to and closes a caller-provided stream', async () => {
