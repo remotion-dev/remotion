@@ -1,4 +1,4 @@
-import {loadFonts} from './base';
+import {loadFonts, loadVariableFonts} from './base';
 
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif',
@@ -342,6 +342,161 @@ export const getInfo = () => ({
 		'math',
 		'vietnamese',
 	],
+	variable: {
+		axes: {
+			wdth: {
+				min: 62.5,
+				max: 100,
+			},
+			wght: {
+				min: 100,
+				max: 900,
+			},
+		},
+		fontFaces: [
+			{
+				style: 'italic',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'cyrillic-ext',
+				unicodeRange:
+					'U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Kaw1J5X9T9RW6j9bNfFImZzC7TMQ.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'cyrillic',
+				unicodeRange: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Kaw1J5X9T9RW6j9bNfFImbjC7TMQ.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'greek-ext',
+				unicodeRange: 'U+1F00-1FFF',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Kaw1J5X9T9RW6j9bNfFImZjC7TMQ.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'greek',
+				unicodeRange:
+					'U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Kaw1J5X9T9RW6j9bNfFImaTC7TMQ.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'math',
+				unicodeRange:
+					'U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Kaw1J5X9T9RW6j9bNfFImFjC7TMQ.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'vietnamese',
+				unicodeRange:
+					'U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Kaw1J5X9T9RW6j9bNfFImZTC7TMQ.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'latin-ext',
+				unicodeRange:
+					'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Kaw1J5X9T9RW6j9bNfFImZDC7TMQ.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'latin',
+				unicodeRange:
+					'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Kaw1J5X9T9RW6j9bNfFImajC7.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'cyrillic-ext',
+				unicodeRange:
+					'U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Iaw1J5X9T9RW6j9bNfFoWaCi_.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'cyrillic',
+				unicodeRange: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Iaw1J5X9T9RW6j9bNfFMWaCi_.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'greek-ext',
+				unicodeRange: 'U+1F00-1FFF',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Iaw1J5X9T9RW6j9bNfFsWaCi_.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'greek',
+				unicodeRange:
+					'U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Iaw1J5X9T9RW6j9bNfFQWaCi_.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'math',
+				unicodeRange:
+					'U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Iaw1J5X9T9RW6j9bNfCsWaCi_.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'vietnamese',
+				unicodeRange:
+					'U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Iaw1J5X9T9RW6j9bNfFgWaCi_.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'latin-ext',
+				unicodeRange:
+					'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Iaw1J5X9T9RW6j9bNfFkWaCi_.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'latin',
+				unicodeRange:
+					'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+				src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6Iaw1J5X9T9RW6j9bNfFcWaA.woff2',
+			},
+		],
+		url: 'https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900',
+	},
 });
 
 export const fontFamily = 'Noto Serif' as const;
@@ -401,4 +556,40 @@ export const loadFont = <T extends keyof Variants>(
 	},
 ) => {
 	return loadFonts(getInfo(), style, options);
+};
+
+type VariableVariants = {
+	italic: {
+		subsets:
+			| 'cyrillic'
+			| 'cyrillic-ext'
+			| 'greek'
+			| 'greek-ext'
+			| 'latin'
+			| 'latin-ext'
+			| 'math'
+			| 'vietnamese';
+	};
+	normal: {
+		subsets:
+			| 'cyrillic'
+			| 'cyrillic-ext'
+			| 'greek'
+			| 'greek-ext'
+			| 'latin'
+			| 'latin-ext'
+			| 'math'
+			| 'vietnamese';
+	};
+};
+
+export const loadVariableFont = <T extends keyof VariableVariants>(
+	style: T,
+	options: {
+		subsets: VariableVariants[T]['subsets'][];
+		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
+	},
+) => {
+	return loadVariableFonts(getInfo(), style, options);
 };

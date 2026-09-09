@@ -1,4 +1,4 @@
-import {loadFonts} from './base';
+import {loadFonts, loadVariableFonts} from './base';
 
 export const getInfo = () => ({
 	fontFamily: 'Assistant',
@@ -74,6 +74,44 @@ export const getInfo = () => ({
 		},
 	},
 	subsets: ['hebrew', 'latin', 'latin-ext'],
+	variable: {
+		axes: {
+			wght: {
+				min: 200,
+				max: 800,
+			},
+		},
+		fontFaces: [
+			{
+				style: 'normal',
+				weight: '200 800',
+				stretch: null,
+				subset: 'hebrew',
+				unicodeRange:
+					'U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F',
+				src: 'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '200 800',
+				stretch: null,
+				subset: 'latin-ext',
+				unicodeRange:
+					'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+				src: 'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '200 800',
+				stretch: null,
+				subset: 'latin',
+				unicodeRange:
+					'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+				src: 'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
+			},
+		],
+		url: 'https://fonts.googleapis.com/css2?family=Assistant:wght@200..800',
+	},
 });
 
 export const fontFamily = 'Assistant' as const;
@@ -95,4 +133,21 @@ export const loadFont = <T extends keyof Variants>(
 	},
 ) => {
 	return loadFonts(getInfo(), style, options);
+};
+
+type VariableVariants = {
+	normal: {
+		subsets: 'hebrew' | 'latin' | 'latin-ext';
+	};
+};
+
+export const loadVariableFont = <T extends keyof VariableVariants>(
+	style: T,
+	options: {
+		subsets: VariableVariants[T]['subsets'][];
+		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
+	},
+) => {
+	return loadVariableFonts(getInfo(), style, options);
 };
