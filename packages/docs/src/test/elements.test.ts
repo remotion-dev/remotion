@@ -22,6 +22,7 @@ import {
 } from '../components/Elements/element-registry';
 import {
 	getElementCompositionId,
+	getElementDefinition,
 	getElementDimensionsLabel,
 } from '../components/Elements/element-utils';
 import {ElementLibrary} from '../components/Elements/ElementLibrary';
@@ -41,7 +42,7 @@ const staticElementsRoot = path.join(
 	'static',
 	'elements',
 );
-const elementDefinitionList = Object.values(elementDefinitions);
+const elementDefinitionList = elementDefinitions;
 const exactVersionPattern =
 	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
@@ -321,6 +322,50 @@ describe('Element library', () => {
 			}),
 		);
 		const sections = getElementLibrarySections(null);
+		const expectedOrder = [
+			'audio/oscilloscope',
+			'audio/waveform-progress',
+			'audio/mirrored-spectrum',
+			'backgrounds/notebook-paper',
+			'backgrounds/paper-texture',
+			'backgrounds/rotating-starburst',
+			'backgrounds/liquid-contours',
+			'captions/basic-captions',
+			'captions/moving-pill-captions',
+			'captions/popping-word-captions',
+			'captions/word-highlight-captions',
+			'commerce/product-collection',
+			'commerce/product-discount-callout',
+			'commerce/product-offer',
+			'data/horizontal-bar-chart',
+			'data/line-chart',
+			'data/number-counter',
+			'data/pie-chart',
+			'data/vertical-bar-chart',
+			'maps/map-flyover',
+			'maps/watercolor-map',
+			'overlays/location-lower-third',
+			'overlays/name-lower-third',
+			'overlays/social-safe-zones',
+			'text/news-article-highlight',
+			'storytelling/on-screen-messages',
+			'storytelling/polaroid-pictures',
+			'text/circle-marker',
+			'text/crossed-off',
+			'text/spinning-text-wheel',
+			'text/strike-through',
+			'text/text-marker',
+			'youtube/youtube-comment-highlight',
+			'youtube/youtube-end-card',
+			'youtube/youtube-subscribe-nudge',
+		];
+		for (let index = 1; index < expectedOrder.length; index++) {
+			expect(
+				overviewMarkup.indexOf(`/elements/${expectedOrder[index - 1]}/`),
+			).toBeLessThan(
+				overviewMarkup.indexOf(`/elements/${expectedOrder[index]}/`),
+			);
+		}
 
 		for (const definition of elementDefinitionList) {
 			expect(
@@ -395,7 +440,7 @@ describe('Element library', () => {
 			'overlays/name-lower-third',
 			'backgrounds/paper-texture',
 		] as const) {
-			const definition = elementDefinitions[slug];
+			const definition = getElementDefinition(slug);
 			const sourceCode = sourceCodeBySlug[slug];
 			const payload = createElementPayloadFromDefinition({
 				definition,
@@ -658,15 +703,9 @@ describe('Element preview definitions', () => {
 		const definitionSlugs = elementDefinitionList
 			.map((definition) => definition.slug)
 			.sort();
-		const definitionKeys = Object.keys(elementDefinitions).sort();
 
-		expect(definitionKeys).toEqual(elementSlugs);
 		expect(definitionSlugs).toEqual(elementSlugs);
 		expect(new Set(definitionSlugs).size).toBe(definitionSlugs.length);
-
-		for (const [slug, definition] of Object.entries(elementDefinitions)) {
-			expect(definition.slug).toBe(slug);
-		}
 	});
 
 	test('publishes caption treatments as separate Elements', () => {
@@ -798,7 +837,9 @@ describe('Element preview definitions', () => {
 	});
 
 	test('keeps displayed Element dimensions separate from preview dimensions', () => {
-		const adaptiveDefinition = elementDefinitions['backgrounds/paper-texture'];
+		const adaptiveDefinition = getElementDefinition(
+			'backgrounds/paper-texture',
+		);
 		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe(
 			'Adapts to composition',
 		);
@@ -807,7 +848,7 @@ describe('Element preview definitions', () => {
 			width: 1920,
 		});
 
-		const fixedDefinition = elementDefinitions['overlays/name-lower-third'];
+		const fixedDefinition = getElementDefinition('overlays/name-lower-third');
 		expect(getElementDimensionsLabel(fixedDefinition)).toBe('534 × 132px');
 		expect(getElementPreviewDimensions(fixedDefinition)).toEqual({
 			height: 732,
@@ -820,7 +861,7 @@ describe('Element preview definitions', () => {
 			'backgrounds/paper-texture',
 			'backgrounds/rotating-starburst',
 		] as const) {
-			const definition = elementDefinitions[slug];
+			const definition = getElementDefinition(slug);
 			const element = productionElements.find((entry) => entry.name === slug);
 			if (!element) {
 				throw new Error(`Could not find Element source for ${slug}`);
@@ -837,7 +878,7 @@ describe('Element preview definitions', () => {
 
 	test('Social Safe Zones keeps its calibrated 9:16 dimensions in Studio and the docs preview', () => {
 		const slug = 'overlays/social-safe-zones';
-		const definition = elementDefinitions[slug];
+		const definition = getElementDefinition(slug);
 		const element = productionElements.find((entry) => entry.name === slug);
 		if (!element) {
 			throw new Error(`Could not find Element source for ${slug}`);
