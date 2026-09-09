@@ -536,7 +536,11 @@ export const getTimelineSequenceLeftEdgeDragValues = ({
 	return {
 		durationInFrames: initialDuration - clampedDeltaFrames,
 		from: initialFrom + clampedDeltaFrames,
-		trimBefore: initialTrimBefore + clampedDeltaFrames * playbackRate,
+		// Division and multiplication by playbackRate may not cancel exactly.
+		trimBefore:
+			clampedDeltaFrames === -initialTrimBefore / playbackRate
+				? 0
+				: initialTrimBefore + clampedDeltaFrames * playbackRate,
 	};
 };
 
