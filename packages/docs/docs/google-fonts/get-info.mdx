@@ -41,7 +41,37 @@ console.log(getInfo());
 }
 ```
 
+## Variable font information
+
+### variable?<AvailableFrom v="4.0.524" />
+
+For fonts that support variable axes, this property contains the variable font metadata. It is omitted for non-variable fonts.
+
+```tsx twoslash title="Read variable font axes"
+import {getInfo} from '@remotion/google-fonts/NotoSans';
+
+const variable = getInfo().variable;
+
+if (variable) {
+  console.log(variable.axes.wght);
+  // {min: 100, max: 900}
+}
+```
+
+#### axes
+
+An object containing the minimum and maximum value of each variation axis.
+
+#### fontFaces
+
+The style, weight range, stretch range, character subset, Unicode range and source URL of each variable font face.
+
+#### url
+
+The Google Fonts CSS URL used to retrieve the variable font faces.
+
 ## See also
 
 - [Fonts](/docs/fonts)
 - [`@remotion/google-fonts`](/docs/google-fonts)
+- [`loadVariableFont()`](/docs/google-fonts/load-variable-font)

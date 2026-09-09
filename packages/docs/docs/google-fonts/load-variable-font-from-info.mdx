@@ -1,0 +1,69 @@
+---
+image: /generated/articles-docs-google-fonts-load-variable-font-from-info.png
+title: loadVariableFontFromInfo()
+crumb: '@remotion/google-fonts'
+---
+
+# loadVariableFontFromInfo()<AvailableFrom v="4.0.524" />
+
+Loads a variable Google Font from metadata obtained using [`getInfo()`](/docs/google-fonts/get-info).
+
+Because the metadata is pure JSON, it can be loaded from a server without including the generated font module in the client bundle.
+
+## Usage
+
+```tsx twoslash title="Load a variable font from metadata"
+import {getInfo} from '@remotion/google-fonts/NotoSans';
+import {loadVariableFontFromInfo} from '@remotion/google-fonts/from-info';
+
+const info = getInfo();
+
+const {axes, fontFamily, waitUntilDone} = loadVariableFontFromInfo(
+  info,
+  'normal',
+  {
+    subsets: ['latin'],
+  },
+);
+
+console.log(fontFamily, axes.wght);
+waitUntilDone();
+```
+
+## Arguments
+
+### info
+
+Font metadata returned by [`getInfo()`](/docs/google-fonts/get-info). The font must include variable font information.
+
+### style
+
+The variable font style to load, such as `normal` or `italic`.
+
+### options
+
+#### subsets
+
+The character subsets to load. At least one subset is required.
+
+#### document?
+
+The document into which the font should be added. By default, the global `window.document` is used.
+
+#### ignoreTooManyRequestsWarning?
+
+Set this to `true` to disable the warning emitted when loading more than 20 subset files.
+
+## Return value
+
+The return value is the same as [`loadVariableFont()`](/docs/google-fonts/load-variable-font).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`loadVariableFont()`](/docs/google-fonts/load-variable-font)
+- [`loadFontFromInfo()`](/docs/google-fonts/load-font-from-info)
+- [`getInfo()`](/docs/google-fonts/get-info)

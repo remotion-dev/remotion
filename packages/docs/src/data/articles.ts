@@ -2835,6 +2835,15 @@ export const articles = [
 		slug: 'google-fonts/load-font',
 	},
 	{
+		id: 'google-fonts/load-variable-font-from-info',
+		title: 'loadVariableFontFromInfo()',
+		relativePath: 'docs/google-fonts/load-variable-font-from-info.mdx',
+		compId: 'articles-docs-google-fonts-load-variable-font-from-info',
+		crumb: '@remotion/google-fonts',
+		noAi: false,
+		slug: 'google-fonts/load-variable-font-from-info',
+	},
+	{
 		id: 'google-fonts/load-variable-font',
 		title: 'loadVariableFont()',
 		relativePath: 'docs/google-fonts/load-variable-font.mdx',
