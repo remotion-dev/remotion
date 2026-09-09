@@ -20,7 +20,7 @@ Values between `0.01` and `2` are accepted, where `1` represents the original pi
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
-The value can be changed while previewing. During rendering, it must stay constant for each audio or video asset.
+The value must stay constant for each audio or video asset. Animating or keyframing `toneFrequency` is not supported.
 
 ```tsx twoslash {7} title="MyComp.tsx"
 import {Audio} from '@remotion/media';
