@@ -508,8 +508,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				showInTimeline,
 				timelineOrder: null,
 				src: isMedia.data.src,
-				audioStreamIndex: isMedia.data.audioStreamIndex,
-				requestInit: isMedia.data.requestInit,
 				getStack: () => stackRef.current,
 				startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
 				mediaFrameAtSequenceZero,

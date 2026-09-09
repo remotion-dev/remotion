@@ -9,7 +9,6 @@ import {
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
-import {resolveRequestInit} from '../request-init';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
 import {getVideoSequenceDuration} from './get-video-sequence-duration';
@@ -268,9 +267,6 @@ const VideoInner: React.FC<
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
 	const videoConfig = useVideoConfig();
-	const [resolvedRequestInit] = useState(
-		() => resolveRequestInit({credentials, requestInit}) ?? null,
-	);
 	const sequenceDurationInFrames = Math.min(
 		durationInFrames ?? Infinity,
 		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
@@ -296,8 +292,6 @@ const VideoInner: React.FC<
 		mediaStartsAt,
 		loop: loop ?? false,
 		muted: muted ?? false,
-		audioStreamIndex: audioStreamIndex ?? 0,
-		requestInit: resolvedRequestInit,
 	});
 
 	// TODO: Redundant with what we do in the Studio

@@ -72,8 +72,6 @@ type EnhancedTSequenceData =
 	| {
 			type: 'audio';
 			src: string;
-			audioStreamIndex: number | null;
-			requestInit: Omit<RequestInit, 'signal'> | null;
 			// Volume is represented as a comma separated list - if it's a string
 			// React can more efficiently update and will not rerender if anonymous functions
 			// are passed.
@@ -89,8 +87,6 @@ type EnhancedTSequenceData =
 	| {
 			type: 'video';
 			src: string;
-			audioStreamIndex: number | null;
-			requestInit: Omit<RequestInit, 'signal'> | null;
 			volume: string | number;
 			doesVolumeChange: boolean;
 			muted: boolean;
