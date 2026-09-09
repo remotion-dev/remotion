@@ -18,9 +18,11 @@ import {
 	CONCAT_FOLDER_TOKEN,
 	decompressInputProps,
 	DOCS_URL,
+	getCredentialsFromOutName,
 	getExpectedOutName,
 	getNeedsToUpload,
 	MAX_FUNCTIONS_PER_RENDER,
+	OutputFileAccessDeniedError,
 	rendererTransportPrefix,
 	serializeOrThrow,
 	ServerlessRoutines,
@@ -344,6 +346,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		options.requestContext !== null;
 
 	const renderMetadata: RenderMetadata<Provider> = {
+		outputFileIsConditional:
+			!params.overwrite &&
+			providerSpecifics.supportsConditionalOutput({
+				customCredentials: getCredentialsFromOutName(params.outName ?? null),
+			}) &&
+			providerSpecifics.writeFileIfNotExists !== null,
 		startedDate,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
@@ -410,6 +418,16 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 			requestHandler: null,
+		}).catch((err) => {
+			if (
+				err instanceof OutputFileAccessDeniedError &&
+				renderMetadata.outputFileIsConditional
+			) {
+				// The final conditional upload still enforces overwrite: false.
+				return null;
+			}
+
+			throw err;
 		});
 		if (output) {
 			throw new TypeError(

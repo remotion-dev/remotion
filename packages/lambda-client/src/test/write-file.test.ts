@@ -1,8 +1,11 @@
 import {beforeAll, expect, mock, test} from 'bun:test';
 import {Readable} from 'node:stream';
+import {OutputFileAccessDeniedError} from '@remotion/serverless-client';
+import {lambdaHeadFileImplementation} from '../head-file';
 import type {lambdaWriteFileImplementation as LambdaWriteFileImplementation} from '../write-file';
 
 const uploadDone = mock();
+const send = mock();
 
 mock.module('@aws-sdk/lib-storage', () => ({
 	Upload: class {
@@ -12,7 +15,7 @@ mock.module('@aws-sdk/lib-storage', () => ({
 
 mock.module('../get-s3-client', () => ({
 	getS3Client: () => ({
-		send: mock(),
+		send,
 	}),
 }));
 
@@ -49,4 +52,26 @@ test('does not retry a failed upload with a consumed Readable', async () => {
 
 	expect(thrownError).toBe(originalError);
 	expect(uploadDone).toHaveBeenCalledTimes(1);
+});
+
+test('normalizes denied destination reads without masking unexpected storage failures', async () => {
+	for (const status of [403, 500]) {
+		const error = Object.assign(new Error('Storage request failed'), {
+			$metadata: {httpStatusCode: status},
+		});
+		send.mockRejectedValueOnce(error);
+		const result = lambdaHeadFileImplementation({
+			bucketName: 'output-bucket',
+			key: 'video.mp4',
+			region: 'us-east-1',
+			customCredentials: null,
+			forcePathStyle: false,
+			requestHandler: null,
+		});
+		if (status === 403) {
+			await expect(result).rejects.toBeInstanceOf(OutputFileAccessDeniedError);
+		} else {
+			await expect(result).rejects.toBe(error);
+		}
+	}
 });
