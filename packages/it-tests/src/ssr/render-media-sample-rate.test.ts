@@ -320,6 +320,7 @@ test(
 			composition: comp,
 			frameRange: [0, 2],
 			sampleRate: 44100,
+			enforceAudioTrack: true,
 			logLevel: 'error',
 		});
 
@@ -610,6 +611,7 @@ test(
 			serveUrl: exampleBuild,
 			composition: comp,
 			frameRange: [0, 2],
+			enforceAudioTrack: true,
 			logLevel: 'error',
 		});
 
