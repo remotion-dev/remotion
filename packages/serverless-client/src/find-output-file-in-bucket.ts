@@ -9,6 +9,8 @@ export type OutputFileMetadata = {
 	sizeInBytes: number | null;
 };
 
+export class OutputFileAccessDeniedError extends Error {}
+
 export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	region,
 	renderMetadata,
@@ -57,21 +59,6 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	} catch (err) {
 		if ((err as Error).name === 'NotFound') {
 			return null;
-		}
-
-		if (
-			(err as Error).message === 'UnknownError' ||
-			(err as {$metadata: {httpStatusCode: number}}).$metadata
-				?.httpStatusCode === 403
-		) {
-			throw new Error(
-				`Unable to access item "${key}" from bucket "${renderBucketName}" ${
-					customCredentials?.endpoint
-						? `(S3 Endpoint = ${customCredentials?.endpoint})`
-						: ''
-				} - got a 403 error when heading the file. Check your credentials and permissions. The Lambda role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
-				{cause: err},
-			);
 		}
 
 		throw err;

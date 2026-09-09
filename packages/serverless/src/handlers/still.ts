@@ -186,6 +186,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	});
 
 	const renderMetadata: RenderMetadata<Provider> = {
+		outputFileIsConditional: null,
 		startedDate: Date.now(),
 		codec: null,
 		compositionId: params.composition,

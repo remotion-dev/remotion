@@ -8,6 +8,7 @@ import type {
 	Privacy,
 	ProviderSpecifics,
 	RenderMetadata,
+	WriteFileInput,
 	SerializedInputProps,
 } from '@remotion/serverless-client';
 import {inspectErrors} from '@remotion/serverless-client';
@@ -64,7 +65,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 		logLevel,
 	);
 
-	await providerSpecifics.writeFile({
+	const writeOptions: WriteFileInput<Provider> = {
 		bucketName: renderBucketName,
 		key,
 		body: fs.createReadStream(outputFile),
@@ -76,7 +77,19 @@ export const finishRender = async <Provider extends CloudProvider>({
 		forcePathStyle,
 		storageClass,
 		requestHandler,
-	});
+	};
+
+	if (renderMetadata.outputFileIsConditional) {
+		if (!providerSpecifics.writeFileIfNotExists) {
+			throw new Error(
+				'The provider does not support conditional output uploads',
+			);
+		}
+
+		await providerSpecifics.writeFileIfNotExists(writeOptions);
+	} else {
+		await providerSpecifics.writeFile(writeOptions);
+	}
 
 	writeToBucket.end();
 

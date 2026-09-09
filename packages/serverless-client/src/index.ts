@@ -79,6 +79,7 @@ export {
 } from './expected-out-name';
 export {
 	findOutputFileInBucket,
+	OutputFileAccessDeniedError,
 	type OutputFileMetadata,
 } from './find-output-file-in-bucket';
 export {formatCostsInfo} from './format-costs-info';

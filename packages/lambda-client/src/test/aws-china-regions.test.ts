@@ -115,6 +115,7 @@ test('AWS service and Console URLs use the region partition metadata', () => {
 			customCredentials: null,
 			currentRegion: 'cn-north-1',
 			renderMetadata: {
+				outputFileIsConditional: null,
 				outName: 'out.mp4',
 				privacy: 'public',
 				renderId: 'render-id',

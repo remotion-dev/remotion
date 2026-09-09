@@ -18,6 +18,7 @@ import {
 	mockBucketExists,
 	mockDeleteS3File,
 	readMockS3File,
+	streamToUint8Array,
 	writeMockS3File,
 } from './mock-store';
 
@@ -113,6 +114,17 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			region,
 		});
 		return Promise.resolve(undefined);
+	},
+	supportsConditionalOutput: () => true,
+	writeFileIfNotExists: async ({body, bucketName, key, privacy, region}) => {
+		const content = await streamToUint8Array(body);
+		if (readMockS3File({region, bucketName, key})) {
+			throw new Error(
+				`Output file "${key}" in bucket "${bucketName}" already exists.`,
+			);
+		}
+
+		await writeMockS3File({body: content, bucketName, key, privacy, region});
 	},
 	headFile: ({bucketName, key, region}) => {
 		const read = readMockS3File({
