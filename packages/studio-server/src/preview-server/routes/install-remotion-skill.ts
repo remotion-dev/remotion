@@ -1,4 +1,5 @@
 import {spawn} from 'node:child_process';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	GetRemotionSkillsInfoResponse,
 	InstallRemotionSkillRequest,
@@ -13,7 +14,7 @@ const installingInProjects = new Set<string>();
 export const installRemotionSkillHandler: ApiHandler<
 	InstallRemotionSkillRequest,
 	GetRemotionSkillsInfoResponse
-> = async ({remotionRoot, input: {skill}}) => {
+> = async ({remotionRoot, input: {skill}, logLevel}) => {
 	if (!remotionSkillNames.some((name) => name === skill)) {
 		throw new Error(`Unknown Remotion skill: ${JSON.stringify(skill)}`);
 	}
@@ -25,20 +26,26 @@ export const installRemotionSkillHandler: ApiHandler<
 	}
 
 	installingInProjects.add(remotionRoot);
+	const args = [
+		'--yes',
+		'--loglevel=error',
+		'skills@1.5.20',
+		'add',
+		'remotion-dev/skills',
+		'--skill',
+		skill,
+		'--yes',
+	];
+	RenderInternals.Log.info(
+		{indent: false, logLevel},
+		RenderInternals.chalk.gray(`╭─  npx ${args.join(' ')}`),
+	);
+	const time = Date.now();
 	try {
 		await new Promise<void>((resolve, reject) => {
 			const child = spawn(
 				process.platform === 'win32' ? 'npx.cmd' : 'npx',
-				[
-					'--yes',
-					'--loglevel=error',
-					'skills@1.5.20',
-					'add',
-					'remotion-dev/skills',
-					'--skill',
-					skill,
-					'--yes',
-				],
+				args,
 				{
 					cwd: remotionRoot,
 					stdio: ['ignore', 'pipe', 'pipe'],
@@ -48,6 +55,13 @@ export const installRemotionSkillHandler: ApiHandler<
 			let output = '';
 			const onData = (data: Buffer) => {
 				output = (output + data.toString()).slice(-8000);
+				data
+					.toString()
+					.trim()
+					.split('\n')
+					.forEach((line) =>
+						RenderInternals.Log.info({indent: true, logLevel}, line),
+					);
 			};
 
 			child.stdout.on('data', onData);
@@ -73,7 +87,19 @@ export const installRemotionSkillHandler: ApiHandler<
 			);
 		}
 
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			RenderInternals.chalk.gray('╰─ '),
+			`Done in ${Date.now() - time}ms`,
+		);
 		return info;
+	} catch (error) {
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			RenderInternals.chalk.gray('╰─ '),
+			RenderInternals.chalk.red(`Errored in ${Date.now() - time}ms`),
+		);
+		throw error;
 	} finally {
 		installingInProjects.delete(remotionRoot);
 	}
