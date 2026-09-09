@@ -200,7 +200,7 @@ const RenderedReleaseNotes: React.FC<{
 	return (
 		<>
 			<div style={releaseNotesTitle}>
-				{release.version}
+				v{release.version}
 				{formattedReleaseDate === null
 					? null
 					: ` \u2013\u00a0${formattedReleaseDate}`}
@@ -225,7 +225,7 @@ const RenderedReleaseNotes: React.FC<{
 					scrolling="no"
 					srcDoc={document}
 					style={{...releaseNotesFrame, height}}
-					title={`Release notes for Remotion ${release.version}`}
+					title={`Release notes for Remotion v${release.version}`}
 				/>
 			)}
 		</>
@@ -390,7 +390,7 @@ export const UpdatesSettings: React.FC = () => {
 			<div style={container}>
 				<div style={title}>You{"'re"} up to date.</div>
 				<div style={text}>
-					Remotion {info.currentVersion} and your Remotion Agent Skills are up
+					Remotion v{info.currentVersion} and your Remotion Agent Skills are up
 					to date.
 				</div>
 			</div>
@@ -399,14 +399,14 @@ export const UpdatesSettings: React.FC = () => {
 
 	return (
 		<div style={container}>
+			{info.updateAvailable ? (
+				<div style={title}>A new Remotion update is available.</div>
+			) : null}
 			{info.updateAvailable && info.packageManager !== 'unknown' ? (
-				<div style={{paddingTop: 12}}>
+				<div>
 					<ModalButton onClick={onUpgrade}>
-						Upgrade to {info.latestVersion}
+						Upgrade to v{info.latestVersion}
 					</ModalButton>
-					<div style={{...text, marginTop: 8}}>
-						You will need to restart Studio after upgrading.
-					</div>
 				</div>
 			) : null}
 			{upgradeError ? (
@@ -419,7 +419,7 @@ export const UpdatesSettings: React.FC = () => {
 			{hasKnownBugs && info.updateAvailable ? (
 				<>
 					<div style={title}>
-						The currently installed version {info.currentVersion} has the
+						The currently installed version v{info.currentVersion} has the
 						following known bugs:
 					</div>
 					<KnownBugs bugs={knownBugs ?? []} />
@@ -428,8 +428,7 @@ export const UpdatesSettings: React.FC = () => {
 				</>
 			) : info.updateAvailable ? (
 				<div style={titleBeforeCommand}>
-					A new Remotion update is available. You can also run the following{' '}
-					{updateActionType}:
+					You can also run the following {updateActionType}:
 				</div>
 			) : (
 				<div style={titleBeforeCommand}>
@@ -448,11 +447,7 @@ export const UpdatesSettings: React.FC = () => {
 			</div>
 			{info.updateAvailable ? (
 				<div style={text}>
-					This will update Remotion from {info.currentVersion} to{' '}
-					{info.latestVersion}
-					{info.skillsUpdateAvailable
-						? ' and update your project Remotion Agent Skills.'
-						: '.'}
+					You{"'re"} currently running Remotion v{info.currentVersion}.
 				</div>
 			) : null}
 			{info.updateAvailable ? (
@@ -460,7 +455,7 @@ export const UpdatesSettings: React.FC = () => {
 				releaseNotes.latestVersion === info.latestVersion ? (
 					releaseNotes.releases.length === 0 ? (
 						<>
-							<div style={releaseNotesTitle}>{info.latestVersion}</div>
+							<div style={releaseNotesTitle}>v{info.latestVersion}</div>
 							<div style={text}>
 								Release notes could not be loaded.{' '}
 								<a
