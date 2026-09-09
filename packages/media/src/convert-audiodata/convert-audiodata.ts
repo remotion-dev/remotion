@@ -79,7 +79,10 @@ export const convertAudioDataToS16 = ({
 		? ceilButNotIfFloatingPointIssue(unroundedFrameCount)
 		: Math.round(unroundedFrameCount);
 
-	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
+	// Copy the full decoded sample before trimming in JavaScript. Firefox's
+	// AudioData.copyTo() can use the wrong channel offset/stride for partial
+	// copies, introducing discontinuities at every rendered video frame.
+	const srcChannels = new Int16Array(srcNumberOfChannels * numberOfFrames);
 
 	// https://github.com/remotion-dev/remotion/issues/6493
 	const isF32 = audioData.format === 'f32' || audioData.format === 'f32-planar';
@@ -87,19 +90,24 @@ export const convertAudioDataToS16 = ({
 	if (isF32) {
 		// Firefox decodes as f32 — normalize to f32-planar first so the
 		// final s16 conversion always starts from the same representation.
-		const bytesPerPlane = frameCount * 4;
+		const bytesPerPlane = numberOfFrames * 4;
 		const f32Buffer = new ArrayBuffer(srcNumberOfChannels * bytesPerPlane);
 		for (let ch = 0; ch < srcNumberOfChannels; ch++) {
 			audioData.copyTo(
-				new Float32Array(f32Buffer, ch * bytesPerPlane, frameCount),
-				{planeIndex: ch, frameOffset, frameCount, format: 'f32-planar'},
+				new Float32Array(f32Buffer, ch * bytesPerPlane, numberOfFrames),
+				{
+					planeIndex: ch,
+					frameOffset: 0,
+					frameCount: numberOfFrames,
+					format: 'f32-planar',
+				},
 			);
 		}
 
 		const f32AudioData = new AudioData({
 			format: 'f32-planar',
 			sampleRate: currentSampleRate,
-			numberOfFrames: frameCount,
+			numberOfFrames,
 			numberOfChannels: srcNumberOfChannels,
 			timestamp: audioData.timestamp,
 			data: f32Buffer,
@@ -109,7 +117,7 @@ export const convertAudioDataToS16 = ({
 			planeIndex: 0,
 			format: FORMAT,
 			frameOffset: 0,
-			frameCount,
+			frameCount: numberOfFrames,
 		});
 		f32AudioData.close();
 	} else {
@@ -117,8 +125,8 @@ export const convertAudioDataToS16 = ({
 		audioData.copyTo(srcChannels, {
 			planeIndex: 0,
 			format: FORMAT,
-			frameOffset,
-			frameCount,
+			frameOffset: 0,
+			frameCount: numberOfFrames,
 		});
 	}
 
@@ -126,7 +134,10 @@ export const convertAudioDataToS16 = ({
 		(frameOffset / audioData.sampleRate) * 1_000_000;
 
 	return {
-		data: srcChannels,
+		data: srcChannels.subarray(
+			frameOffset * srcNumberOfChannels,
+			(frameOffset + frameCount) * srcNumberOfChannels,
+		),
 		numberOfChannels: srcNumberOfChannels,
 		numberOfFrames: frameCount,
 		sampleRate: currentSampleRate,
