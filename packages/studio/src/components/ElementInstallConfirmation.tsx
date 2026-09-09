@@ -10,7 +10,6 @@ import React, {
 import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
-import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
@@ -190,9 +189,9 @@ const warningStyle: React.CSSProperties = {
 };
 
 const warningIconStyle: React.CSSProperties = {
-	width: 16,
-	height: 16,
-	marginTop: 1,
+	width: 14,
+	height: 14,
+	marginTop: 2,
 	flexShrink: 0,
 	fill: WARNING_COLOR,
 };
@@ -380,7 +379,6 @@ export const ElementInstallConfirmation: React.FC<{
 					height: config.height,
 					width: config.width,
 				};
-	const usesBrowserDependencyResolution = getBrowserStudioOperations() !== null;
 	const {currentZIndex} = useZIndex();
 	const [mode, setMode] = useState<'current-composition' | 'new-composition'>(
 		currentPlan === null || request.source.type === 'browser-studio-link'
@@ -1005,11 +1003,7 @@ export const ElementInstallConfirmation: React.FC<{
 					<div style={warningStyle}>
 						<WarningTriangle style={warningIconStyle} />
 						<p style={warningDescriptionStyle}>
-							This adds executable source code to your project, with access to
-							your files and the network.
-							{usesBrowserDependencyResolution || missingPackages.length === 0
-								? null
-								: ' Package lifecycle scripts may also run during installation.'}
+							Installed code can access your files and network.
 						</p>
 					</div>
 
