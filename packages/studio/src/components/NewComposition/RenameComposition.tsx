@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {useRenameComposition} from '../../helpers/use-rename-composition';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -60,6 +61,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 
 	const {
 		codemod,
+		compositionId,
 		renameComposition,
 		valid,
 		validationMessage: compNameErrMessage,
@@ -92,6 +94,17 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 									status="ok"
 									rightAlign
 								/>
+								{compositionId && compositionId !== newId ? (
+									<>
+										<Spacing y={1} block />
+										<div
+											aria-live="polite"
+											style={{fontSize: 12, color: LIGHT_TEXT}}
+										>
+											Will be renamed to {compositionId}
+										</div>
+									</>
+								) : null}
 								{compNameErrMessage ? (
 									<>
 										<Spacing y={1} block />

@@ -7,6 +7,7 @@ import {useCallback, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {useSelectComposition} from '../components/InitialCompositionLoader';
 import {applyCodemod} from '../components/RenderQueue/actions';
+import {slugifyName} from './slugify-name';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -73,11 +74,17 @@ export const useCreateComposition = ({
 	} | null;
 }) => {
 	const selectComposition = useSelectComposition();
-	const componentName = useMemo(() => toPascalCase(newId), [newId]);
+	const compositionId = slugifyName(newId);
+	const componentName = useMemo(
+		() => toPascalCase(compositionId),
+		[compositionId],
+	);
 
 	const nameValidationMessage = useMemo(() => {
-		return validateCompositionName(newId, compositions);
-	}, [compositions, newId]);
+		return compositionId
+			? validateCompositionName(compositionId, compositions)
+			: 'Enter an ID containing letters or numbers.';
+	}, [compositionId, compositions]);
 
 	const widthValidationMessage = useMemo(() => {
 		return validateCompositionDimension('Width', size.width);
@@ -94,7 +101,7 @@ export const useCreateComposition = ({
 			newFps: Number(selectedFrameRate),
 			newHeight: Number(size.height),
 			newWidth: Number(size.width),
-			newId,
+			newId: compositionId,
 			componentName,
 			componentImportPath: `./${componentName}`,
 			folderName,
@@ -113,9 +120,9 @@ export const useCreateComposition = ({
 	}, [
 		canvasCapture,
 		componentName,
+		compositionId,
 		durationInFrames,
 		folderName,
-		newId,
 		parentName,
 		selectedFrameRate,
 		size.height,
@@ -145,7 +152,7 @@ export const useCreateComposition = ({
 			if (result.success) {
 				selectComposition(
 					{
-						id: newId,
+						id: compositionId,
 						folderName,
 						parentFolderName: parentName,
 					},
@@ -155,11 +162,12 @@ export const useCreateComposition = ({
 
 			return result;
 		},
-		[codemod, folderName, newId, parentName, selectComposition],
+		[codemod, compositionId, folderName, parentName, selectComposition],
 	);
 
 	return {
 		codemod,
+		compositionId,
 		createComposition,
 		heightValidationMessage,
 		nameValidationMessage,

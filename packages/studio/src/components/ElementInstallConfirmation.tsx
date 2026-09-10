@@ -524,6 +524,7 @@ export const ElementInstallConfirmation: React.FC<{
 	}, [folderCompositionFile, newPlan, request.element, selectedFolderStack]);
 
 	const {
+		compositionId: newCompositionId,
 		createComposition,
 		heightValidationMessage,
 		nameValidationMessage,
@@ -755,9 +756,7 @@ export const ElementInstallConfirmation: React.FC<{
 					? selectedPlan.compositionFile
 					: request.compositionFile,
 			compositionId:
-				mode === 'new-composition'
-					? newCompositionValues.id
-					: request.compositionId,
+				mode === 'new-composition' ? newCompositionId : request.compositionId,
 			element: request.element,
 			// The insert operation revalidates this even if the name preflight is pending.
 			expectedFileState: activePlan?.expectedFileState ?? {exists: false},
@@ -781,7 +780,7 @@ export const ElementInstallConfirmation: React.FC<{
 		createComposition,
 		folderSymbolicatedStack,
 		mode,
-		newCompositionValues.id,
+		newCompositionId,
 		onClose,
 		request,
 		selectedFolderStack,
@@ -885,6 +884,7 @@ export const ElementInstallConfirmation: React.FC<{
 							aria-label="New composition settings"
 						>
 							<NewCompositionFields
+								compositionId={newCompositionId}
 								heightValidationMessage={heightValidationMessage}
 								inputRef={inputRef}
 								nameValidationMessage={

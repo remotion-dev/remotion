@@ -5,6 +5,7 @@ import type {
 import {useCallback, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {applyCodemod} from '../components/RenderQueue/actions';
+import {slugifyName} from './slugify-name';
 import {pushUrl} from './url-state';
 import {validateCompositionName} from './validate-new-comp-data';
 
@@ -19,11 +20,14 @@ export const useRenameComposition = ({
 }) => {
 	const getValidationMessage = useCallback(
 		(value: string) => {
-			if (value === currentId) {
+			const slug = slugifyName(value);
+			if (slug === currentId) {
 				return null;
 			}
 
-			return validateCompositionName(value, compositions);
+			return slug
+				? validateCompositionName(slug, compositions)
+				: 'Enter an ID containing letters or numbers.';
 		},
 		[compositions, currentId],
 	);
@@ -33,12 +37,13 @@ export const useRenameComposition = ({
 			return {
 				type: 'rename-composition',
 				idToRename: currentId,
-				newId: value,
+				newId: slugifyName(value),
 			};
 		},
 		[currentId],
 	);
 
+	const compositionId = slugifyName(newId);
 	const validationMessage = useMemo(() => {
 		return getValidationMessage(newId);
 	}, [getValidationMessage, newId]);
@@ -47,7 +52,7 @@ export const useRenameComposition = ({
 		return getCodemod(newId);
 	}, [getCodemod, newId]);
 
-	const valid = validationMessage === null && currentId !== newId;
+	const valid = validationMessage === null && currentId !== compositionId;
 
 	const renameComposition = useCallback(
 		async ({
@@ -67,7 +72,7 @@ export const useRenameComposition = ({
 			});
 
 			if (result.success) {
-				pushUrl(`/${newCompositionId}`);
+				pushUrl(`/${slugifyName(newCompositionId)}`);
 			}
 
 			return result;
@@ -77,6 +82,7 @@ export const useRenameComposition = ({
 
 	return {
 		codemod,
+		compositionId,
 		getValidationMessage,
 		renameComposition,
 		valid,

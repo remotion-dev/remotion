@@ -118,6 +118,7 @@ export type NewCompositionFormValues = {
 };
 
 export const NewCompositionFields: React.FC<{
+	readonly compositionId: string;
 	readonly heightValidationMessage: string | null;
 	readonly inputRef: RefObject<HTMLInputElement | null>;
 	readonly nameValidationMessage: string | null;
@@ -125,6 +126,7 @@ export const NewCompositionFields: React.FC<{
 	readonly values: NewCompositionFormValues;
 	readonly widthValidationMessage: string | null;
 }> = ({
+	compositionId,
 	heightValidationMessage,
 	inputRef,
 	nameValidationMessage,
@@ -329,6 +331,17 @@ export const NewCompositionFields: React.FC<{
 							status="ok"
 							rightAlign
 						/>
+						{compositionId && compositionId !== values.id ? (
+							<>
+								<Spacing y={1} block />
+								<div
+									aria-live="polite"
+									style={{fontSize: 12, color: LIGHT_TEXT}}
+								>
+									Will be created as {compositionId}
+								</div>
+							</>
+						) : null}
 						{nameValidationMessage ? (
 							<>
 								<Spacing y={1} block />
@@ -473,6 +486,7 @@ const NewCompositionLoaded: React.FC<{
 
 	const {
 		codemod,
+		compositionId,
 		createComposition,
 		heightValidationMessage,
 		nameValidationMessage,
@@ -546,6 +560,7 @@ const NewCompositionLoaded: React.FC<{
 			<form onSubmit={onSubmit}>
 				<div style={content}>
 					<NewCompositionFields
+						compositionId={compositionId}
 						heightValidationMessage={heightValidationMessage}
 						inputRef={inputRef}
 						nameValidationMessage={nameValidationMessage}
