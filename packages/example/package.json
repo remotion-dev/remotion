@@ -14,9 +14,9 @@
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
-		"dev": "remotion studio --props src/my-props.json",
-		"start-bun": "PATCH_BUN_DEVELOPMENT=true bun --bun remotion studio",
-		"start-js": "remotion preview src/entry.jsx",
+		"dev": "remotion studio --props src/my-props.json --no-open",
+		"start-bun": "PATCH_BUN_DEVELOPMENT=true bun --bun remotion studio --no-open",
+		"start-js": "remotion preview src/entry.jsx --no-open",
 		"comps": "remotion compositions",
 		"clean": "rm -rf build && rm -rf build-testbed && rm -rf out",
 		"lint": "eslint src",
