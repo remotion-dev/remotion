@@ -17,6 +17,7 @@ import {
 	type RenderStillOnWebResult,
 } from './render-still-screenshot-task';
 import {sendUsageEvent} from './send-telemetry-event';
+import type {SvgFonts} from './svg-fonts';
 import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
 import {validateScale} from './validate-scale';
 import {waitForReady} from './wait-for-ready';
@@ -47,6 +48,7 @@ type OptionalRenderStillOnWebOptions<Schema extends $ZodObject> = {
 	scale: number;
 	isProduction: boolean;
 	allowHtmlInCanvas: boolean;
+	svgFonts: SvgFonts | null;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -80,6 +82,7 @@ async function internalRenderStillOnWeb<
 	scale,
 	isProduction,
 	allowHtmlInCanvas,
+	svgFonts,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	validateScale(scale);
 
@@ -211,6 +214,7 @@ async function internalRenderStillOnWeb<
 				? onHtmlInCanvasLayerOutcome
 				: undefined,
 			waitForPageResponsiveness: null,
+			svgFonts,
 		});
 
 		const {canvas} = capturedFrame;
@@ -278,6 +282,7 @@ export const renderStillOnWeb = <
 				scale: options.scale ?? 1,
 				isProduction: options.isProduction ?? true,
 				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
+				svgFonts: options.svgFonts ?? null,
 			}),
 		);
 

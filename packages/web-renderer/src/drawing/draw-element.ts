@@ -1,5 +1,6 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
+import type {SvgFonts} from '../svg-fonts';
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {setClipPath} from './clip-path';
 import {drawBackground} from './draw-background';
@@ -24,6 +25,7 @@ export const drawElement = async ({
 	element,
 	internalState,
 	scale,
+	svgFonts,
 }: {
 	rect: DOMRect;
 	computedStyle: CSSStyleDeclaration;
@@ -36,6 +38,7 @@ export const drawElement = async ({
 	element: HTMLElement | SVGElement;
 	internalState: InternalState;
 	scale: number;
+	svgFonts: SvgFonts | null;
 }) => {
 	const {backgroundImage, backgroundColor, backgroundClip} = computedStyle;
 	const borderRadius = parseBorderRadius({
@@ -97,6 +100,7 @@ export const drawElement = async ({
 		offsetLeft: parentRect.left,
 		offsetTop: parentRect.top,
 		scale,
+		svgFonts,
 	});
 
 	await draw({dimensions: rect, computedStyle, contextToDraw: context});

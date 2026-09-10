@@ -407,6 +407,46 @@ _boolean — default `false`_
 
 Returns a promise resolving to an object with the following properties:
 
+### `svgFonts?`<AvailableFrom v="4.0.524" />
+
+_array | function_
+
+Fonts to embed inside an `<svg>` before it is rasterized, so that its `<text>` can use them.
+
+An `<svg>` is drawn by serializing it and loading it through an `<img>`. An SVG loaded as an image is an isolated document — it cannot reach the fonts of the page around it, so its text falls back to a system face. It can only read font data that it carries itself, which is what this option supplies.
+
+Pass an array to use the same fonts for every SVG, or a function that receives the `<svg>` element and returns the fonts for it. The function may be `async`, and returning `null` or an empty array embeds nothing. It is not called for an SVG that holds no `<text>`, `<tspan>` or `<textPath>`.
+
+Each entry takes the font's bytes, not a URL — a remote file cannot be fetched from inside an SVG that is drawn as an image.
+
+```tsx twoslash title="Embedding a font for SVG text"
+const Component: React.FC = () => null;
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const data = await (await fetch('/my-font.woff2')).arrayBuffer();
+
+const media = await renderMediaOnWeb({
+  composition,
+  svgFonts: [{family: 'MyFont', data}],
+});
+```
+
+`family` and `data` are required. `weight`, `style` and `unicodeRange` are optional and map to the matching `@font-face` descriptors. `format` is optional too — it is read from the font's own file signature unless you pass it.
+
+The same `ArrayBuffer` is only encoded once, however many frames it is used on, so hold on to it rather than re-reading the font per frame.
+
+A family that ships many `unicode-range` subsets, such as a CJK font, is best handled with the function form: read the characters the `<svg>` actually paints and pass only the subsets that cover them.
+
 ### `getBlob()`
 
 A function that returns a `Promise<Blob>` containing the rendered video. Call this function to retrieve the final video file.

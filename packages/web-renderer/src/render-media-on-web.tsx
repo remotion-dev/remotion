@@ -49,6 +49,7 @@ import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props'
 import {onlyOneMediaRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
+import type {SvgFonts} from './svg-fonts';
 import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {validateScale} from './validate-scale';
@@ -146,6 +147,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	sampleRate: number;
 	allowHtmlInCanvas: boolean;
 	metadata: MetadataTags | null;
+	svgFonts: SvgFonts | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -198,6 +200,7 @@ const internalRenderMediaOnWeb = async <
 	sampleRate,
 	allowHtmlInCanvas,
 	metadata,
+	svgFonts,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
@@ -586,6 +589,7 @@ const internalRenderMediaOnWeb = async <
 						? onHtmlInCanvasLayerOutcome
 						: undefined,
 					waitForPageResponsiveness,
+					svgFonts,
 				});
 				internalState.addCreateFrameTime(performance.now() - createFrameStart);
 				layerCanvas = layer.canvas;
@@ -830,6 +834,7 @@ export const renderMediaOnWeb = <
 				scale: options.scale ?? 1,
 				isProduction: options.isProduction ?? true,
 				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
+				svgFonts: options.svgFonts ?? null,
 				sampleRate: options.sampleRate ?? 48000,
 				metadata: options.metadata ?? null,
 			}),

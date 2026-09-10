@@ -1,5 +1,6 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
+import type {SvgFonts} from '../svg-fonts';
 import {createLayer} from '../take-screenshot';
 import {getBackgroundFill} from './get-background-fill';
 import {getBoxBasedOnBackgroundClip} from './get-padding-box';
@@ -17,6 +18,7 @@ export const drawBackground = async ({
 	offsetLeft: parentOffsetLeft,
 	offsetTop: parentOffsetTop,
 	scale,
+	svgFonts,
 }: {
 	backgroundImage: string;
 	context: OffscreenCanvasRenderingContext2D;
@@ -30,6 +32,7 @@ export const drawBackground = async ({
 	offsetLeft: number;
 	offsetTop: number;
 	scale: number;
+	svgFonts: SvgFonts | null;
 }) => {
 	let contextToDraw = context;
 
@@ -81,6 +84,7 @@ export const drawBackground = async ({
 			scale,
 			onlyBackgroundClipText: true,
 			waitForPageResponsiveness: null,
+			svgFonts,
 		});
 		onlyBackgroundClipText.setTransform(new DOMMatrix().scale(scale, scale));
 		element.style.backgroundClip = originalBackgroundClip;

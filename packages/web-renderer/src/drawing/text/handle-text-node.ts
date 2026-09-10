@@ -1,5 +1,6 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../../internal-state';
+import type {SvgFonts} from '../../svg-fonts';
 import type {TransformStyleCache} from '../calculate-transforms';
 import type {ProcessNodeReturnValue} from '../process-node';
 import {processNode} from '../process-node';
@@ -15,6 +16,7 @@ export const handleTextNode = async ({
 	onlyBackgroundClipText,
 	scale,
 	waitForPageResponsiveness,
+	svgFonts,
 	transformStyleCache,
 }: {
 	node: Text;
@@ -26,6 +28,7 @@ export const handleTextNode = async ({
 	onlyBackgroundClipText: boolean;
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	svgFonts: SvgFonts | null;
 	transformStyleCache: TransformStyleCache;
 }): Promise<ProcessNodeReturnValue> => {
 	const span = document.createElement('span');
@@ -48,6 +51,7 @@ export const handleTextNode = async ({
 		rootElement,
 		scale,
 		waitForPageResponsiveness,
+		svgFonts,
 		transformStyleCache,
 	});
 

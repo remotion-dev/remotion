@@ -1,3 +1,5 @@
+import type {SvgFonts} from '../svg-fonts';
+import {resolveSvgFonts} from '../svg-fonts';
 import {calculateObjectFit, parseObjectFit} from './calculate-object-fit';
 import type {DrawFn} from './drawn-fn';
 import {fitSvgIntoItsContainer} from './fit-svg-into-its-dimensions';
@@ -166,7 +168,13 @@ const drawReplacedElement = ({
 	);
 };
 
-export const drawDomElement = (node: HTMLElement | SVGElement) => {
+export const drawDomElement = ({
+	node,
+	svgFonts,
+}: {
+	node: HTMLElement | SVGElement;
+	svgFonts: SvgFonts | null;
+}) => {
 	const domDrawFn: DrawFn = async ({
 		dimensions,
 		contextToDraw,
@@ -174,7 +182,8 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 	}) => {
 		// Handle SVG elements separately - they use "contain" behavior by default
 		if (node instanceof SVGSVGElement) {
-			const drawable = await turnSvgIntoDrawable(node);
+			const fonts = await resolveSvgFonts({svg: node, svgFonts});
+			const drawable = await turnSvgIntoDrawable({svg: node, fonts});
 			drawSvg({drawable, dimensions, contextToDraw});
 			return;
 		}
