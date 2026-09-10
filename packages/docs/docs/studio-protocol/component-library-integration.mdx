@@ -27,7 +27,7 @@ Show each component in a [`<Player>`](/docs/player). The preview lets users exam
 
 Import the component normally for the preview. The website bundler then compiles the component.
 
-Use the same dimensions and duration in the Player and the Element payload. Use the same initial values in the preview and the source code. This configuration helps the installed Element match the preview.
+Use the same dimensions and duration in the Player and the Element payload. For a `component-owned-sequence` Element with replaceable starter content, set [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in the payload and pass the same object to the Player as `inputProps`.
 
 ## Reuse component code
 

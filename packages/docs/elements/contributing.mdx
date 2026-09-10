@@ -79,31 +79,13 @@ The caption Elements show the distinction: moving a pill between words, popping 
 - Minimize dependencies. [Remotion Effects](/docs/effects) are an acceptable exception.
 - Declare every external dependency in the central Element definition, except `react`, `react-dom`, and `remotion`. Every non-Remotion package must use an exact semantic version; version ranges and tags are not accepted. Remotion packages use `version: null` and are installed at the project's Remotion version.
 
-### Separate implementation from instance values
-
-An Element source file is a reusable implementation. The JSX inserted into the composition is an instance of that implementation and owns its content and configuration.
-
-When an Element needs starter values:
-
-1. Keep `elements/<category>/<slug>/<slug>.tsx` portable and limited to one named component export. Do not import starter data into this file.
-2. Add `elements/<category>/<slug>/initial-props.ts`. Type the object with `satisfies ComponentProps<typeof Component>`.
-3. Set `initialProps` in `element-definitions.ts`. Use `null` when the Element does not need installation props.
-
-`initialProps` must contain JSON-compatible values. The gallery preview, rendered previews, drag payload, and Studio installation all use this object. Studio serializes every top-level value as an explicit JSX attribute; it does not evaluate source code or insert an opaque spread.
-
-For `component-owned-sequence`, do not put `from`, `durationInFrames`, or `name` in `initialProps`. Studio owns those values so the current playhead, chosen duration, and installation name take precedence. An initial `style` must be an object. Studio preserves its other properties, then sets `position: 'absolute'` and the drop translation. Element dimensions are metadata only; add `width` and `height` to `initialProps` when the component needs them.
-
-The installed Interactive JSX call is the source-edit target for timing, transforms, captions, and other props. The copied `.element.tsx` file remains the implementation-edit target. Do not add forwarding wrappers or redirect source locations between them.
-
-The code viewer shows the reusable implementation. Install the Element to also materialize its starter instance values in a composition.
-
 ### Design it for composition
 
 Prefer exposing the Element's layers so users can inspect and edit them with [Studio interactivity](/docs/studio/interactivity). Use one of the following installation modes based on what the user should see in Studio.
 
 #### Separate editable layers
 
-Use `installationMode: 'wrapped'` whenever the Element's layers can be edited separately. This is the default mode. Studio adds a [`<Sequence>`](/docs/sequence) that controls the Element's placement and duration. One installed top-level group may expose multiple child timeline rows. Independent named installations copy independent source files; reusing an existing source file is an explicit conflict decision.
+Use `installationMode: 'wrapped'` when the Element's layers can be edited separately. This is the default mode. Studio wraps the component in a [`<Sequence>`](/docs/sequence) for placement and duration. The top-level group may expose multiple child timeline rows. Editable values can stay on internal `Interactive` call sites in the copied source, where Studio edits them.
 
 Size the Element to its smallest useful bounding box. If it adapts to the composition, set both dimensions to `null`.
 
@@ -124,9 +106,19 @@ Export the schema-enabled component directly and wire up the common props:
 - Pass `style` and the ref to the rendered outline. When the Sequence uses `layout="none"`, pass [`outlineRef`](/docs/sequence#outlineref) to it. Set the dimensions in the component because Element metadata does not pass them as props.
 - Render frame-dependent animation in a child below the Sequence. This makes [`useCurrentFrame()`](/docs/use-current-frame) respect `from`, `trimBefore`, and `freeze`. If the component that returns the Sequence calls it, it reads the parent clock.
 
-Do not add a forwarding wrapper around the schema-enabled component. Studio may then target internal JSX with computed spread props instead of the editable timing props at the call site. The [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements export the component directly.
+Export the schema-enabled component directly, without a forwarding wrapper. See the [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements.
 
 Check in Studio that the exported instance appears as one layer and can be moved and trimmed. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for the gallery preview.
+
+##### Initial props
+
+[`Interactive.withSchema()`](/docs/interactive-with-schema) makes a component's props editable in Studio. Content declared inside the component is not a prop, so users cannot edit it per instance.
+
+For a `component-owned-sequence` Element with replaceable starter content, put those values in `initial-props.ts`. Register them as `initialProps` with the component in `element-definitions.ts`, and type them with `satisfies ComponentProps<typeof YourComponent>`.
+
+Pass these props to the previews too. Studio writes them onto the installed component, and Inspector edits them there. Keep rendering and animation in the copied Element file.
+
+Studio supplies `from`, `durationInFrames`, and `name`. Pass `width` and `height` in `initialProps` when the component needs them. Element dimension metadata is not passed as component props.
 
 ### Animate temporary Elements in and out
 
