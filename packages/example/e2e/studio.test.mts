@@ -1881,12 +1881,14 @@ test.describe('visual mode', () => {
 			await page
 				.getByRole('button', {name: 'New composition...', exact: true})
 				.click();
-			await page
-				.getByRole('textbox', {name: 'Composition ID'})
-				.fill(compositionName);
-			await expect(
-				page.getByText(`Will be created as ${compositionId}`),
-			).toBeVisible();
+			const compositionIdInput = page.getByRole('textbox', {
+				name: 'Composition ID',
+			});
+			const slugPreview = page.getByText(`Will be created as ${compositionId}`);
+			await compositionIdInput.fill(`${compositionId} `);
+			await expect(slugPreview).toBeHidden();
+			await compositionIdInput.fill(compositionName);
+			await expect(slugPreview).toBeVisible();
 			await page.getByTitle('Folder').click();
 			const schemaFolderOption = page
 				.getByRole('button', {name: 'Schema', exact: true})
