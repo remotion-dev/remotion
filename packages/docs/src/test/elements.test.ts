@@ -730,6 +730,9 @@ describe('Element preview definitions', () => {
 			}
 
 			const source = readFileSync(element.tsxPath, 'utf8');
+			expect(source).toContain('...Interactive.captionsSchema');
+			expect(source).toContain('{...props}');
+			expect(source).toContain('captions={[');
 			expect(source).not.toContain('readonly mode');
 			expect(source).not.toContain('TimedCaptionsMode');
 			expect(source).not.toContain("translate: '109.5px -36px'");

@@ -16,38 +16,11 @@ import {
 type BasicCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
-		readonly captions?: Caption[];
+		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
 const defaultCombineTokensWithinMilliseconds = 2000;
-const defaultWidth = 900;
-const defaultHeight = 220;
-const defaultCaptions: Caption[] = [
-	{
-		text: 'Simple captions,ready for every video.',
-		startMs: 0,
-		endMs: 2200,
-		timestampMs: 1100,
-		confidence: null,
-		pageBreakAfter: true,
-	},
-	{
-		text: 'No animation,\njust clear text.',
-		startMs: 2200,
-		endMs: 4400,
-		timestampMs: 3300,
-		confidence: null,
-		pageBreakAfter: true,
-	},
-	{
-		text: 'Easy to read,\nand easy to customize.',
-		startMs: 4400,
-		endMs: 7000,
-		timestampMs: 5700,
-		confidence: null,
-	},
-];
 
 const basicCaptionsSchema = {
 	...Interactive.baseSchema,
@@ -136,13 +109,13 @@ const BasicCaptionsInner = forwardRef<
 >(
 	(
 		{
-			captions = defaultCaptions,
+			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
-			height = defaultHeight,
 			name,
 			style,
-			width = defaultWidth,
+			width,
+			height,
 			...interactiveProps
 		},
 		ref,
@@ -188,4 +161,39 @@ const BasicCaptionsLayer = Interactive.withSchema({
 	supportsEffects: false,
 }) as React.FC<BasicCaptionsProps>;
 
-export const BasicCaptions = BasicCaptionsLayer;
+export const BasicCaptions: React.FC<
+	Omit<BasicCaptionsProps, 'captions' | 'height' | 'width'>
+> = (props) => {
+	return (
+		<BasicCaptionsLayer
+			{...props}
+			captions={[
+				{
+					text: 'Simple captions,ready for every video.',
+					startMs: 0,
+					endMs: 2200,
+					timestampMs: 1100,
+					confidence: null,
+					pageBreakAfter: true,
+				},
+				{
+					text: 'No animation,\njust clear text.',
+					startMs: 2200,
+					endMs: 4400,
+					timestampMs: 3300,
+					confidence: null,
+					pageBreakAfter: true,
+				},
+				{
+					text: 'Easy to read,\nand easy to customize.',
+					startMs: 4400,
+					endMs: 7000,
+					timestampMs: 5700,
+					confidence: null,
+				},
+			]}
+			height={220}
+			width={900}
+		/>
+	);
+};

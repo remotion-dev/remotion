@@ -26,7 +26,7 @@ import {
 type WordHighlightCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
-		readonly captions?: Caption[];
+		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
@@ -35,59 +35,6 @@ const fontWeight = '700';
 const textColor = '#ffffff';
 const highlightColor = '#4da3ff';
 const defaultCombineTokensWithinMilliseconds = 800;
-const defaultWidth = 682;
-const defaultHeight = 252;
-const defaultCaptions: Caption[] = [
-	{
-		text: 'Captions',
-		startMs: 0,
-		endMs: 800,
-		timestampMs: 400,
-		confidence: null,
-	},
-	{
-		text: ' can',
-		startMs: 800,
-		endMs: 1500,
-		timestampMs: 1150,
-		confidence: null,
-	},
-	{
-		text: ' move',
-		startMs: 1500,
-		endMs: 2300,
-		timestampMs: 1900,
-		confidence: null,
-	},
-	{
-		text: ' with',
-		startMs: 2300,
-		endMs: 3100,
-		timestampMs: 2700,
-		confidence: null,
-	},
-	{
-		text: ' every',
-		startMs: 3100,
-		endMs: 4000,
-		timestampMs: 3550,
-		confidence: null,
-	},
-	{
-		text: ' spoken',
-		startMs: 4000,
-		endMs: 5100,
-		timestampMs: 4550,
-		confidence: null,
-	},
-	{
-		text: ' word.',
-		startMs: 5100,
-		endMs: 6500,
-		timestampMs: 5800,
-		confidence: null,
-	},
-];
 
 const wordHighlightCaptionsSchema = {
 	...Interactive.baseSchema,
@@ -298,13 +245,13 @@ const WordHighlightCaptionsInner = forwardRef<
 >(
 	(
 		{
-			captions = defaultCaptions,
+			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
-			height = defaultHeight,
 			name,
 			style,
-			width = defaultWidth,
+			width,
+			height,
 			...interactiveProps
 		},
 		ref,
@@ -362,4 +309,65 @@ const WordHighlightCaptionsLayer = Interactive.withSchema({
 	supportsEffects: false,
 }) as React.FC<WordHighlightCaptionsProps>;
 
-export const WordHighlightCaptions = WordHighlightCaptionsLayer;
+export const WordHighlightCaptions: React.FC<
+	Omit<WordHighlightCaptionsProps, 'captions' | 'height' | 'width'>
+> = (props) => {
+	return (
+		<WordHighlightCaptionsLayer
+			{...props}
+			captions={[
+				{
+					text: 'Captions',
+					startMs: 0,
+					endMs: 800,
+					timestampMs: 400,
+					confidence: null,
+				},
+				{
+					text: ' can',
+					startMs: 800,
+					endMs: 1500,
+					timestampMs: 1150,
+					confidence: null,
+				},
+				{
+					text: ' move',
+					startMs: 1500,
+					endMs: 2300,
+					timestampMs: 1900,
+					confidence: null,
+				},
+				{
+					text: ' with',
+					startMs: 2300,
+					endMs: 3100,
+					timestampMs: 2700,
+					confidence: null,
+				},
+				{
+					text: ' every',
+					startMs: 3100,
+					endMs: 4000,
+					timestampMs: 3550,
+					confidence: null,
+				},
+				{
+					text: ' spoken',
+					startMs: 4000,
+					endMs: 5100,
+					timestampMs: 4550,
+					confidence: null,
+				},
+				{
+					text: ' word.',
+					startMs: 5100,
+					endMs: 6500,
+					timestampMs: 5800,
+					confidence: null,
+				},
+			]}
+			width={682}
+			height={252}
+		/>
+	);
+};
