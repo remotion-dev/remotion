@@ -40,6 +40,7 @@ import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
+import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -331,17 +332,12 @@ export const NewCompositionFields: React.FC<{
 							status="ok"
 							rightAlign
 						/>
-						{compositionId && compositionId !== values.id ? (
-							<>
-								<Spacing y={1} block />
-								<div
-									aria-live="polite"
-									style={{fontSize: 12, color: LIGHT_TEXT}}
-								>
-									Will be created as {compositionId}
-								</div>
-							</>
-						) : null}
+						<SlugPreview
+							action="create"
+							currentName={null}
+							input={values.id}
+							slug={compositionId}
+						/>
 						{nameValidationMessage ? (
 							<>
 								<Spacing y={1} block />

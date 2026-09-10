@@ -9,7 +9,6 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
 import {slugifyName} from '../../helpers/slugify-name';
 import {validateNewFolderName} from '../../helpers/validate-new-folder-name';
 import {Spacing} from '../layout';
@@ -21,6 +20,7 @@ import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
+import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -117,17 +117,12 @@ export const NewFolder: React.FC<{
 									status="ok"
 									rightAlign
 								/>
-								{folderName && folderName !== newName ? (
-									<>
-										<Spacing y={1} block />
-										<div
-											aria-live="polite"
-											style={{fontSize: 12, color: LIGHT_TEXT}}
-										>
-											Will be created as {folderName}
-										</div>
-									</>
-								) : null}
+								<SlugPreview
+									action="create"
+									currentName={null}
+									input={newName}
+									slug={folderName}
+								/>
 								{folderNameErrMessage ? (
 									<>
 										<Spacing y={1} block />
