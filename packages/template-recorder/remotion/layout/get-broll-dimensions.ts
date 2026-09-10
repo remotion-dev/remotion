@@ -1,6 +1,6 @@
-import { parseMedia } from "@remotion/media-parser";
 import { getImageDimensions } from "@remotion/media-utils";
 import type { BRoll, BRollWithDimensions } from "../../config/scenes";
+import { getVideoMetadata } from "../helpers/get-video-metadata";
 
 const imageFileExtensions = [
   "jpg",
@@ -33,10 +33,9 @@ export const getBRollDimensions = async (
   if (
     videoFileExtensions.some((ext) => bRoll.source.toLowerCase().endsWith(ext))
   ) {
-    const metadata = await parseMedia({
+    const metadata = await getVideoMetadata({
       src: bRoll.source,
-      fields: { dimensions: true },
-      acknowledgeRemotionLicense: true,
+      includeDuration: false,
     });
     if (!metadata.dimensions) {
       throw new Error("No dimensions found for bRoll: " + bRoll.source);

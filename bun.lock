@@ -2443,7 +2443,6 @@
         "@remotion/lambda": "workspace:*",
         "@remotion/layout-utils": "workspace:*",
         "@remotion/media": "workspace:*",
-        "@remotion/media-parser": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/shapes": "workspace:*",
