@@ -1,5 +1,6 @@
 import type {Config} from '@docusaurus/types';
 import elementSourceDependencies from './plugins/element-source-dependencies.js';
+import longContentHashes from './plugins/long-content-hashes.js';
 import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
 import {elementRegistry} from './src/components/Elements/element-registry';
@@ -348,6 +349,7 @@ const config: Config = {
 	],
 	plugins: [
 		elementSourceDependencies,
+		longContentHashes,
 		[
 			'@docusaurus/plugin-content-docs',
 			{
