@@ -1,5 +1,6 @@
 import type {ScriptLine} from '@remotion/studio-shared';
 import React from 'react';
+import {LazySyntaxHighlightedSource} from '../../components/LazySyntaxHighlightedSource';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
 import {
 	ERROR_CODE_FRAME_BACKGROUND,
@@ -58,20 +59,23 @@ export const CodeFrame: React.FC<{
 						>
 							{String(s.lineNumber).padStart(lineNumberWidth, ' ')}
 						</div>
-						<div
+						<code
+							className="language-tsx"
 							style={{
 								fontFamily: 'monospace',
+								fontSize: 14,
+								color: '#9cdcfe',
 								whiteSpace: 'pre',
 								tabSize: 2,
-								color: s.highlight ? WHITE : WHITE_ALPHA_40,
+								opacity: s.highlight ? 1 : 0.4,
 								backgroundColor: TRANSPARENT,
 								lineHeight: 1.7,
 								paddingRight: 12,
 								paddingLeft: 12,
 							}}
 						>
-							{s.content}
-						</div>
+							<LazySyntaxHighlightedSource source={s.content} />
+						</code>
 					</div>
 				);
 			})}
