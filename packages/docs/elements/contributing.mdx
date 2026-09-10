@@ -81,22 +81,34 @@ The caption Elements show the distinction: moving a pill between words, popping 
 
 ### Design it for composition
 
-Prefer the default `installationMode: 'wrapped'` and keep the Element's layers inspectable so users can edit and remix them. The [`<Sequence>`](/docs/sequence) generated during installation controls placement and duration. Size the Element to its smallest useful bounding box, or set both dimensions to `null` if it adapts to the composition.
+Prefer exposing the Element's layers so users can inspect and edit them with [Studio interactivity](/docs/studio/interactivity). Use one of the following installation modes based on what the user should see in Studio.
 
-For an analyzer or generative effect such as the [audio oscilloscope](/elements/audio/oscilloscope), editing individual generated parts is less useful. A public interface can expose the useful controls while keeping the implementation behind them. Use `installationMode: 'component-owned-sequence'` for this approach if the exported component has its own Studio-editable `<Sequence>`.
+#### Separate editable layers
 
-Export [`Interactive.withSchema()`](/docs/interactive-with-schema) directly and connect its props:
+Use `installationMode: 'wrapped'` whenever the Element's layers can be edited separately. This is the default mode. Studio adds a [`<Sequence>`](/docs/sequence) that controls the Element's placement and duration.
 
-- Include [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) in the schema and forward `controls` unchanged to the owned `<Sequence>`.
-- Forward `from`, `durationInFrames`, `trimBefore`, `freeze`, and `name` to that Sequence.
-- Forward `style` and the ref to the rendered outline, and pass [`outlineRef`](/docs/sequence#outlineref) to the Sequence when using `layout="none"`. Set dimensions in the component; it does not receive dimensions from Element metadata.
-- Put frame-dependent animation in a child component below the Sequence so [`useCurrentFrame()`](/docs/use-current-frame) respects `from`, `trimBefore`, and `freeze`. Calling it in the component that returns the Sequence reads the parent clock.
+Size the Element to its smallest useful bounding box. If it adapts to the composition, set both dimensions to `null`.
 
-Avoid a plain forwarding wrapper around the schema-enabled component. It can make Studio target internal JSX with computed spread props instead of editable timing at the call site. The [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements show the direct-export pattern.
+#### One interactive object
 
-A Sequence can group inspectable children; you do not need to limit the subtree to one timeline row. Check that the exported instance can be moved and trimmed in Studio. The default `'wrapped'` mode adds an outer Sequence but does not fix these wiring problems.
+Use `installationMode: 'component-owned-sequence'` when Studio interactivity does not make sense for the Element's internal parts. Examples include:
 
-Choose the mode based on which component owns the editable Sequence, not to remove markup. Do not add padding only for the gallery preview.
+- Generative programmed effects
+- Canvas-based Elements where individual outlines cannot be passed to Studio
+- Single-image overlays where the image itself cannot be edited
+
+Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema). The user gets one timeline layer that they can move on the canvas and trim in the timeline. The implementation does not appear as separate editable layers.
+
+Export the schema-enabled component directly and wire up the common props:
+
+- Add [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) to the schema and pass `controls` unchanged to the component's `<Sequence>`.
+- Pass `from`, `durationInFrames`, `trimBefore`, `freeze`, and `name` to that Sequence.
+- Pass `style` and the ref to the rendered outline. When the Sequence uses `layout="none"`, pass [`outlineRef`](/docs/sequence#outlineref) to it. Set the dimensions in the component because Element metadata does not pass them as props.
+- Render frame-dependent animation in a child below the Sequence. This makes [`useCurrentFrame()`](/docs/use-current-frame) respect `from`, `trimBefore`, and `freeze`. If the component that returns the Sequence calls it, it reads the parent clock.
+
+Do not add a forwarding wrapper around the schema-enabled component. Studio may then target internal JSX with computed spread props instead of the editable timing props at the call site. The [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements export the component directly.
+
+Check in Studio that the exported instance appears as one layer and can be moved and trimmed. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for the gallery preview.
 
 ### Animate temporary Elements in and out
 
@@ -110,7 +122,7 @@ Animate properties within the Element, such as translation, scale, and opacity; 
 
 Elements are source-code copies designed for direct editing, not managed dependencies. Expose useful Studio controls in the Element's `Interactive` schema, but there is no need to mirror every implementation detail as a public prop.
 
-Reserve [`Interactive.withSchema()`](/docs/interactive-with-schema) for Elements that benefit more from a public interface than from editing their layers. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
+Use [`Interactive.withSchema()`](/docs/interactive-with-schema) when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
 
 Give editable objects clear names, using a generic name such as `Container` for the main object and child controls only for separate editing targets.
 
