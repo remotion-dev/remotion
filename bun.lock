@@ -2009,6 +2009,7 @@
       "name": "template-empty",
       "version": "1.0.0",
       "dependencies": {
+        "@remotion/captions": "4.0.523",
         "@remotion/cli": "workspace:*",
         "react": "19.2.3",
         "react-dom": "19.2.3",

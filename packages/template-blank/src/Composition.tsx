@@ -1,3 +1,4 @@
+import { BasicCaptions } from "./basic-captions.element";
 import { CalculateMetadataFunction, Composition } from "remotion";
 
 type Props = {};
@@ -21,5 +22,5 @@ export const MyComposition = () => {
 };
 
 export const MyComponent: React.FC<Props> = () => {
-  return null;
+  return <BasicCaptions />;
 };
