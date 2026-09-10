@@ -123,7 +123,7 @@ test.describe('captions inspector', () => {
 		await expect(importCaptionsButton).toBeVisible();
 
 		const sourceBeforeFailedImport = fs.readFileSync(
-			elementCaptionsFile,
+			elementCallSiteFile,
 			'utf-8',
 		);
 		await importCaptionsInput.setInputFiles({
@@ -145,7 +145,7 @@ test.describe('captions inspector', () => {
 				/broken\.json:.*captions\[0\]\.startMs must be a finite, non-negative number/,
 			),
 		).toBeVisible();
-		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
+		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).toBe(
 			sourceBeforeFailedImport,
 		);
 
@@ -173,9 +173,12 @@ test.describe('captions inspector', () => {
 		});
 		await expect(defaultCaption).toHaveValue('Imported');
 		await expect
-			.poll(() => fs.readFileSync(elementCaptionsFile, 'utf-8'))
+			.poll(() => fs.readFileSync(elementCallSiteFile, 'utf-8'))
 			.toMatch(/text:\s*['"]Imported['"][\s\S]*startMs:\s*100/);
-		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).toBe(
+		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
+			elementSourceBefore,
+		);
+		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).not.toBe(
 			elementCallSiteSourceBefore,
 		);
 
@@ -184,10 +187,13 @@ test.describe('captions inspector', () => {
 		await expect
 			.poll(() => {
 				return /text:\s*['"]Edited imported caption['"]/.test(
-					fs.readFileSync(elementCaptionsFile, 'utf-8'),
+					fs.readFileSync(elementCallSiteFile, 'utf-8'),
 				);
 			})
 			.toBe(true);
+		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
+			elementSourceBefore,
+		);
 	});
 
 	test('imports captions when the schema-declared prop is missing', async ({

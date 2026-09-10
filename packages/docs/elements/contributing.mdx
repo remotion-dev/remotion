@@ -85,7 +85,7 @@ Prefer exposing the Element's layers so users can inspect and edit them with [St
 
 #### Separate editable layers
 
-Use `installationMode: 'wrapped'` whenever the Element's layers can be edited separately. This is the default mode. Studio adds a [`<Sequence>`](/docs/sequence) that controls the Element's placement and duration.
+Use `installationMode: 'wrapped'` when the Element's layers can be edited separately. This is the default mode. Studio wraps the component in a [`<Sequence>`](/docs/sequence) for placement and duration. The top-level group may expose multiple child timeline rows. Editable values can stay on internal `Interactive` call sites in the copied source, where Studio edits them.
 
 Size the Element to its smallest useful bounding box. If it adapts to the composition, set both dimensions to `null`.
 
@@ -106,9 +106,19 @@ Export the schema-enabled component directly and wire up the common props:
 - Pass `style` and the ref to the rendered outline. When the Sequence uses `layout="none"`, pass [`outlineRef`](/docs/sequence#outlineref) to it. Set the dimensions in the component because Element metadata does not pass them as props.
 - Render frame-dependent animation in a child below the Sequence. This makes [`useCurrentFrame()`](/docs/use-current-frame) respect `from`, `trimBefore`, and `freeze`. If the component that returns the Sequence calls it, it reads the parent clock.
 
-Do not add a forwarding wrapper around the schema-enabled component. Studio may then target internal JSX with computed spread props instead of the editable timing props at the call site. The [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements export the component directly.
+Export the schema-enabled component directly, without a forwarding wrapper. See the [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements.
 
 Check in Studio that the exported instance appears as one layer and can be moved and trimmed. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for the gallery preview.
+
+##### Initial props
+
+[`Interactive.withSchema()`](/docs/interactive-with-schema) makes a component's props editable in Studio. Content declared inside the component is not a prop, so users cannot edit it per instance.
+
+For a `component-owned-sequence` Element with replaceable starter content, put those values in `initial-props.ts`. Register them as `initialProps` with the component in `element-definitions.ts`, and type them with `satisfies ComponentProps<typeof YourComponent>`.
+
+Pass these props to the previews too. Studio writes them onto the installed component, and Inspector edits them there. Keep rendering and animation in the copied Element file.
+
+Studio supplies `from`, `durationInFrames`, and `name`. Pass `width` and `height` in `initialProps` when the component needs them. Element dimension metadata is not passed as component props.
 
 ### Animate temporary Elements in and out
 

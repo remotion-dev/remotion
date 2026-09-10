@@ -24,6 +24,7 @@ export const createElementPayloadFromDefinition = ({
 		dimensions,
 		displayName: definition.displayName,
 		durationInFrames: definition.durationInFrames,
+		initialProps: definition.initialProps,
 		installationMode: definition.installationMode,
 		slug: definition.slug,
 		sourceCode,

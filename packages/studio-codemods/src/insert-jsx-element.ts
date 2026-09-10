@@ -918,18 +918,6 @@ const createStringAttribute = (
 	);
 };
 
-const createBooleanAttribute = (
-	name: string,
-	value: boolean,
-): namedTypes.JSXAttribute => {
-	return recast.types.builders.jsxAttribute(
-		recast.types.builders.jsxIdentifier(name),
-		recast.types.builders.jsxExpressionContainer(
-			recast.types.builders.booleanLiteral(value),
-		),
-	);
-};
-
 const translateDecimalPlaces = 1;
 
 const roundTranslateCoordinate = (value: number): number => {
@@ -1026,15 +1014,16 @@ const createComponentProp = ({
 	name,
 	value,
 }: ComponentProp): namedTypes.JSXAttribute => {
-	if (typeof value === 'number') {
-		return createNumberAttribute(name, value);
+	if (typeof value === 'string') {
+		return createStringAttribute(name, value);
 	}
 
-	if (typeof value === 'boolean') {
-		return createBooleanAttribute(name, value);
-	}
-
-	return createStringAttribute(name, value);
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier(name),
+		recast.types.builders.jsxExpressionContainer(
+			parseValueExpression(value) as never,
+		),
+	) as unknown as namedTypes.JSXAttribute;
 };
 
 const createStringSrcAttribute = (src: string): namedTypes.JSXAttribute => {
@@ -1084,15 +1073,49 @@ const createComponentElement = ({
 	props: ComponentProp[];
 	position: InsertableCompositionElementPosition | null;
 }): namedTypes.JSXElement => {
+	const styleProp = props.find((prop) => prop.name === 'style');
+	const propsWithoutStyle = addPositionStyle
+		? props.filter((prop) => prop.name !== 'style')
+		: props;
+	let styleAttribute: namedTypes.JSXAttribute | null = null;
+	if (addPositionStyle) {
+		const styleExpression =
+			styleProp === undefined
+				? recast.types.builders.objectExpression([])
+				: parseValueExpression(styleProp.value);
+		if (styleExpression.type !== 'ObjectExpression') {
+			throw new Error('Component style must be an object to add a position');
+		}
+
+		styleExpression.properties = styleExpression.properties.filter(
+			(property) => {
+				if (property.type !== 'ObjectProperty') {
+					return true;
+				}
+
+				const key =
+					property.key.type === 'Identifier'
+						? property.key.name
+						: property.key.type === 'StringLiteral'
+							? property.key.value
+							: null;
+				return key !== 'position' && (position === null || key !== 'translate');
+			},
+		);
+		styleExpression.properties.push(...getPositionStyleProperties(position));
+		styleAttribute = recast.types.builders.jsxAttribute(
+			recast.types.builders.jsxIdentifier('style'),
+			recast.types.builders.jsxExpressionContainer(styleExpression as never),
+		) as unknown as namedTypes.JSXAttribute;
+	}
+
 	return recast.types.builders.jsxElement(
 		recast.types.builders.jsxOpeningElement(
 			recast.types.builders.jsxIdentifier(localName),
 			[
-				...props.map(createComponentProp),
+				...propsWithoutStyle.map(createComponentProp),
 				...(from === null ? [] : [createNumberAttribute('from', from)]),
-				...(addPositionStyle
-					? [createPositionAbsoluteStyleAttribute(position)]
-					: []),
+				...(styleAttribute === null ? [] : [styleAttribute]),
 			],
 			true,
 		),

@@ -400,6 +400,7 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 		dimensions: {width: 640, height: 180},
 		displayName: 'Lower Third',
 		durationInFrames: 90,
+		initialProps: null,
 		installationMode: 'wrapped' as const,
 		slug: 'titles/lower-third',
 		sourceCode: `import {Rect} from '@remotion/shapes';

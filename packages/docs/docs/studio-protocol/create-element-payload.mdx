@@ -68,6 +68,16 @@ Studio uses these dimensions for the drag preview, drop position, and the genera
 
 The preferred duration shown while dragging. It must be a positive integer.
 
+### initialProps?<AvailableFrom v="4.0.524" />
+
+Use `initialProps` when a `component-owned-sequence` Element needs replaceable starter content. Studio writes each property onto the installed component. The default is `null`.
+
+Use JSON-compatible values and valid JSX attribute names. For `component-owned-sequence`, omit `from`, `durationInFrames`, and `name` because Studio supplies them. In this mode, `style` must be an object.
+
+Pass the same props to the component preview. Element dimensions are not passed as component props, so include `width` and `height` when the component needs them.
+
+In `'wrapped'` mode, Studio also passes `initialProps` to the component inside the generated Sequence. Most wrapped Elements do not need this because their editable values can stay on internal `Interactive` call sites in the copied source.
+
 ### installationMode?<AvailableFrom v="4.0.506" />
 
 Controls how Studio installs the Element. The default is `'wrapped'`.

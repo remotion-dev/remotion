@@ -77,6 +77,8 @@ export type {
 export type {
 	ElementDependency,
 	ElementDragData,
+	ElementInitialProps,
+	ElementInitialPropValue,
 	ElementInstallationMode,
 } from './element-drag-data';
 export type {RenderOutputDragData} from './render-output-drag-data';

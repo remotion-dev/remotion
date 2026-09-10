@@ -874,6 +874,7 @@ export const Canvas: React.FC<{
 						element: {
 							...payload.element,
 							durationInFrames: payload.element.durationInFrames ?? null,
+							initialProps: payload.element.initialProps ?? null,
 							installationMode: payload.element.installationMode ?? null,
 						},
 						from: null,
