@@ -1865,12 +1865,12 @@ test.describe('visual mode', () => {
 	});
 
 	test('should navigate to a newly created composition', async ({page}) => {
-		const compositionId = 'NewlyCreatedComposition';
+		const compositionName = 'Newly Created Composition';
+		const compositionId = 'Newly-Created-Composition';
 		const rootFile = path.join(exampleDir, 'src', 'E2eTestRoot.tsx');
 		const compositionFile = path.join(
 			exampleDir,
-			'src',
-			`${compositionId}.tsx`,
+			'src/NewlyCreatedComposition.tsx',
 		);
 
 		try {
@@ -1883,7 +1883,10 @@ test.describe('visual mode', () => {
 				.click();
 			await page
 				.getByRole('textbox', {name: 'Composition ID'})
-				.fill(compositionId);
+				.fill(compositionName);
+			await expect(
+				page.getByText(`Will be created as ${compositionId}`),
+			).toBeVisible();
 			await page.getByTitle('Folder').click();
 			const schemaFolderOption = page
 				.getByRole('button', {name: 'Schema', exact: true})
@@ -3303,9 +3306,7 @@ export const SequenceShiftRepro = () => {
 				.toBe(contextForAgents);
 			await page.getByRole('button', {name: 'Go to beginning'}).click();
 			for (let i = 0; i < 3; i++) {
-				await page
-					.getByRole('button', {name: 'Go forward 1 frame'})
-					.click();
+				await page.getByRole('button', {name: 'Go forward 1 frame'}).click();
 			}
 			await expect
 				.poll(() =>
