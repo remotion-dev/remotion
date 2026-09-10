@@ -1,7 +1,5 @@
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import React, {
-	lazy,
-	Suspense,
 	useCallback,
 	useContext,
 	useEffect,
@@ -37,6 +35,7 @@ import {Button} from './Button';
 import {prepareElementInstall} from './element-install-api';
 import {insertElement} from './import-assets';
 import {Flex, Row, Spacing} from './layout';
+import {LazySyntaxHighlightedSource} from './LazySyntaxHighlightedSource';
 import {
 	HORIZONTAL_SCROLLBAR_CLASSNAME,
 	VERTICAL_SCROLLBAR_CLASSNAME,
@@ -62,10 +61,6 @@ import {
 	hasResolvedStack,
 	useResolvedStack,
 } from './Timeline/use-resolved-stack';
-
-const HighlightedElementSource = lazy(
-	() => import('./HighlightedElementSource'),
-);
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -1032,9 +1027,7 @@ export const ElementInstallConfirmation: React.FC<{
 								style={sourceCodeBlockStyle}
 							>
 								<code style={sourceCodeStyle}>
-									<Suspense fallback={sourcePreview}>
-										<HighlightedElementSource source={sourcePreview} />
-									</Suspense>
+									<LazySyntaxHighlightedSource source={sourcePreview} />
 								</code>
 							</pre>
 						</div>

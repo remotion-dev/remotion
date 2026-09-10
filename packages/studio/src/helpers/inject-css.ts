@@ -9,7 +9,7 @@ import {
 	WHITE,
 } from './colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME, makeHoverableCSS} from './hoverable';
-import {prismTomorrow} from './prism-tomorrow';
+import {prismVscDarkPlus} from './prism-vsc-dark-plus';
 
 const makeDefaultGlobalCSS = () => {
 	const dragAreaFactor = 2;
@@ -177,7 +177,7 @@ export const injectCSS = () => {
 		return;
 	}
 
-	Internals.CSSUtils.injectCSS(prismTomorrow);
+	Internals.CSSUtils.injectCSS(prismVscDarkPlus);
 	Internals.CSSUtils.injectCSS(makeDefaultGlobalCSS());
 	injected = true;
 };

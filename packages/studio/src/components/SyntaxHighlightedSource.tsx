@@ -46,7 +46,7 @@ const renderTokens = (
 	);
 };
 
-const HighlightedElementSource: React.FC<{readonly source: string}> = ({
+const SyntaxHighlightedSource: React.FC<{readonly source: string}> = ({
 	source,
 }) => {
 	const tokens = useMemo(
@@ -60,4 +60,4 @@ const HighlightedElementSource: React.FC<{readonly source: string}> = ({
 	);
 };
 
-export default HighlightedElementSource;
+export default SyntaxHighlightedSource;
