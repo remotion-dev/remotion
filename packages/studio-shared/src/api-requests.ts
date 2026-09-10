@@ -45,9 +45,17 @@ import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 import type {TerminalId} from './terminal';
 
+export type ComponentPropValue =
+	| string
+	| number
+	| boolean
+	| null
+	| readonly ComponentPropValue[]
+	| Readonly<object>;
+
 export type ComponentProp = {
 	name: string;
-	value: string | number | boolean;
+	value: ComponentPropValue;
 };
 
 export type EffectConfigValue =
@@ -83,6 +91,7 @@ export type ElementDependency =
 export type InstallableElement = {
 	dependencies: ElementDependency[];
 	durationInFrames: number | null;
+	initialProps: Readonly<Record<string, ComponentPropValue>> | null;
 	installationMode: ElementInstallationMode | null;
 	slug: string;
 	displayName: string;

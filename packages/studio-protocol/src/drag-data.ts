@@ -64,9 +64,13 @@ export type MakeEffectDragDataInput = EffectDragData['effect'] & {
 	readonly type: 'effect';
 };
 
-export type MakeElementDragDataInput = ElementDragData['element'] & {
+export type MakeElementDragDataInput = Omit<
+	ElementDragData['element'],
+	'initialProps'
+> & {
 	readonly type: 'element';
 	readonly durationInFrames: number;
+	readonly initialProps?: ElementDragData['element']['initialProps'];
 };
 
 export type MakeSfxDragDataInput = SfxDragData['sfx'] & {
@@ -234,6 +238,7 @@ export const makeDragData = ((
 					dimensions: input.dimensions,
 					displayName: input.displayName,
 					durationInFrames: input.durationInFrames,
+					initialProps: input.initialProps ?? null,
 					slug: input.slug,
 					sourceCode: input.sourceCode,
 					installationMode: input.installationMode,

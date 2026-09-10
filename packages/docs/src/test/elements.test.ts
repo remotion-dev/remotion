@@ -729,7 +729,24 @@ describe('Element preview definitions', () => {
 				throw new Error(`Missing caption Element for ${slug}`);
 			}
 
+			const definition = getElementDefinition(slug);
+			const initialProps = definition.initialProps as {
+				captions: Array<{text: string}>;
+				combineTokensWithinMilliseconds: number;
+				height: number;
+				width: number;
+			};
 			const source = readFileSync(element.tsxPath, 'utf8');
+			const payload = createElementPayloadFromDefinition({
+				definition,
+				sourceCode: source,
+			});
+			expect(initialProps.captions.length).toBeGreaterThan(0);
+			expect(initialProps.width).toBe(definition.elementWidth);
+			expect(initialProps.height).toBe(definition.elementHeight);
+			expect(payload.element.initialProps).toEqual(initialProps);
+			expect(source).not.toContain('timestampMs:');
+			expect(source).not.toContain('defaultCaptions');
 			expect(source).not.toContain('readonly mode');
 			expect(source).not.toContain('TimedCaptionsMode');
 			expect(source).not.toContain("translate: '109.5px -36px'");

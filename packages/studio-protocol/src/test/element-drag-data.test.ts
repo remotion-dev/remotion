@@ -7,6 +7,7 @@ const validElement = {
 	dependencies: [{name: '@remotion/google-fonts', version: null}],
 	slug: 'overlays/lower-third',
 	displayName: 'Lower Third',
+	initialProps: null,
 	sourceCode: 'export const LowerThird = () => null;',
 	dimensions: {width: 900, height: 260},
 } satisfies ElementInput;
@@ -49,6 +50,23 @@ test('parses element drag data', () => {
 		type: 'remotion-element',
 		version: 1,
 		element: {...validElement, durationInFrames: 120},
+	});
+});
+
+test('normalizes legacy drag data without initial props', () => {
+	const {initialProps: _initialProps, ...legacyElement} = validElement;
+	expect(
+		parseElementDragData(
+			JSON.stringify({
+				type: 'remotion-element',
+				version: 1,
+				element: {...legacyElement, durationInFrames: 120},
+			}),
+		),
+	).toEqual({
+		type: 'remotion-element',
+		version: 1,
+		element: {...legacyElement, durationInFrames: 120, initialProps: null},
 	});
 });
 
@@ -187,6 +205,26 @@ test('rejects invalid element drag data', () => {
 			}),
 		),
 	).toBe(null);
+	for (const initialProps of [
+		{'invalid-name': true},
+		{from: 10},
+		{style: 'red'},
+	]) {
+		expect(
+			parseElementDragData(
+				JSON.stringify({
+					type: 'remotion-element',
+					version: 1,
+					element: {
+						...validElement,
+						initialProps,
+						installationMode: 'component-owned-sequence',
+					},
+				}),
+			),
+		).toBe(null);
+	}
+
 	for (const dependencies of [
 		['@remotion/google-fonts'],
 		['--ignore-scripts'],

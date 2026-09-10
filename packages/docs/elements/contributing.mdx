@@ -79,13 +79,31 @@ The caption Elements show the distinction: moving a pill between words, popping 
 - Minimize dependencies. [Remotion Effects](/docs/effects) are an acceptable exception.
 - Declare every external dependency in the central Element definition, except `react`, `react-dom`, and `remotion`. Every non-Remotion package must use an exact semantic version; version ranges and tags are not accepted. Remotion packages use `version: null` and are installed at the project's Remotion version.
 
+### Separate implementation from instance values
+
+An Element source file is a reusable implementation. The JSX inserted into the composition is an instance of that implementation and owns its content and configuration.
+
+When an Element needs starter values:
+
+1. Keep `elements/<category>/<slug>/<slug>.tsx` portable and limited to one named component export. Do not import starter data into this file.
+2. Add `elements/<category>/<slug>/initial-props.ts`. Type the object with `satisfies ComponentProps<typeof Component>`.
+3. Set `initialProps` in `element-definitions.ts`. Use `null` when the Element does not need installation props.
+
+`initialProps` must contain JSON-compatible values. The gallery preview, rendered previews, drag payload, and Studio installation all use this object. Studio serializes every top-level value as an explicit JSX attribute; it does not evaluate source code or insert an opaque spread.
+
+For `component-owned-sequence`, do not put `from`, `durationInFrames`, or `name` in `initialProps`. Studio owns those values so the current playhead, chosen duration, and installation name take precedence. An initial `style` must be an object. Studio preserves its other properties, then sets `position: 'absolute'` and the drop translation. Element dimensions are metadata only; add `width` and `height` to `initialProps` when the component needs them.
+
+The installed Interactive JSX call is the source-edit target for timing, transforms, captions, and other props. The copied `.element.tsx` file remains the implementation-edit target. Do not add forwarding wrappers or redirect source locations between them.
+
+The code viewer shows the reusable implementation. Install the Element to also materialize its starter instance values in a composition.
+
 ### Design it for composition
 
 Prefer exposing the Element's layers so users can inspect and edit them with [Studio interactivity](/docs/studio/interactivity). Use one of the following installation modes based on what the user should see in Studio.
 
 #### Separate editable layers
 
-Use `installationMode: 'wrapped'` whenever the Element's layers can be edited separately. This is the default mode. Studio adds a [`<Sequence>`](/docs/sequence) that controls the Element's placement and duration.
+Use `installationMode: 'wrapped'` whenever the Element's layers can be edited separately. This is the default mode. Studio adds a [`<Sequence>`](/docs/sequence) that controls the Element's placement and duration. One installed top-level group may expose multiple child timeline rows. Independent named installations copy independent source files; reusing an existing source file is an explicit conflict decision.
 
 Size the Element to its smallest useful bounding box. If it adapts to the composition, set both dimensions to `null`.
 

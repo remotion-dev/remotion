@@ -16,6 +16,10 @@ const validInput = {
 	dimensions: {width: 800, height: 200},
 	displayName: 'Lower Third',
 	durationInFrames: 90,
+	initialProps: {
+		captions: [{text: 'Hello', startMs: 0, endMs: 1000}],
+		style: {color: 'red'},
+	},
 	slug: 'lower-third',
 	sourceCode: 'export const LowerThird = () => null;',
 	installationMode: 'component-owned-sequence',
@@ -38,6 +42,10 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 			dimensions: {width: 800, height: 200},
 			displayName: 'Lower Third',
 			durationInFrames: 90,
+			initialProps: {
+				captions: [{text: 'Hello', startMs: 0, endMs: 1000}],
+				style: {color: 'red'},
+			},
 			installationMode: 'component-owned-sequence',
 			slug: 'lower-third',
 			sourceCode: 'export const LowerThird = () => null;',
@@ -75,6 +83,46 @@ test('defaults new Element payloads to wrapped installation', () => {
 	const {installationMode: _installationMode, ...input} = validInput;
 	const payload = createElementPayload(input);
 	expect(payload.element.installationMode).toBe('wrapped');
+});
+
+test('normalizes legacy payloads without initial props to null', () => {
+	const payload = createElementPayload(validInput);
+	const {initialProps: _initialProps, ...legacyElement} = payload.element;
+	expect(
+		parseStudioElementPayload({...payload, element: legacyElement}),
+	).toMatchObject({element: {initialProps: null}});
+});
+
+test('rejects invalid and reserved initial props', () => {
+	for (const initialProps of [
+		{invalid: undefined},
+		{invalid: Number.NaN},
+		{'not-an-attribute': true},
+		{captions: () => undefined},
+		{from: 10},
+		{style: 'color: red'},
+	]) {
+		expect(() => createInvalidPayload({...validInput, initialProps})).toThrow(
+			/initialProps|initial props/,
+		);
+	}
+
+	const payload = createElementPayload(validInput);
+	for (const initialProps of [
+		{invalid: undefined},
+		{invalid: Number.NaN},
+		{'not-an-attribute': true},
+		{captions: () => undefined},
+		{durationInFrames: 10},
+		{style: 'color: red'},
+	]) {
+		expect(
+			parseStudioElementPayload({
+				...payload,
+				element: {...payload.element, initialProps},
+			}),
+		).toBe(null);
+	}
 });
 
 test('rejects an invalid installation mode from Studio payloads', () => {
