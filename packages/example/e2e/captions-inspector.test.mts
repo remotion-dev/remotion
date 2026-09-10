@@ -22,16 +22,27 @@ const elementCallSiteFile = path.join(
 	'src',
 	'MovingPillCaptionsComposition.tsx',
 );
+const missingCaptionsCallSiteFile = path.join(
+	exampleDir,
+	'src',
+	'CaptionsTester',
+	'MissingCaptionsComposition.tsx',
+);
 
 test.describe('captions inspector', () => {
 	let inlineSourceBefore: string;
 	let elementSourceBefore: string;
 	let elementCallSiteSourceBefore: string;
+	let missingCaptionsCallSiteSourceBefore: string;
 
 	test.beforeEach(async () => {
 		inlineSourceBefore = fs.readFileSync(inlineCaptionsFile, 'utf-8');
 		elementSourceBefore = fs.readFileSync(elementCaptionsFile, 'utf-8');
 		elementCallSiteSourceBefore = fs.readFileSync(elementCallSiteFile, 'utf-8');
+		missingCaptionsCallSiteSourceBefore = fs.readFileSync(
+			missingCaptionsCallSiteFile,
+			'utf-8',
+		);
 		await startStudio();
 	});
 
@@ -40,6 +51,10 @@ test.describe('captions inspector', () => {
 		fs.writeFileSync(inlineCaptionsFile, inlineSourceBefore);
 		fs.writeFileSync(elementCaptionsFile, elementSourceBefore);
 		fs.writeFileSync(elementCallSiteFile, elementCallSiteSourceBefore);
+		fs.writeFileSync(
+			missingCaptionsCallSiteFile,
+			missingCaptionsCallSiteSourceBefore,
+		);
 	});
 
 	test('persists caption edits at their inline definitions', async ({page}) => {
@@ -173,5 +188,53 @@ test.describe('captions inspector', () => {
 				);
 			})
 			.toBe(true);
+	});
+
+	test('imports captions when the schema-declared prop is missing', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/missing-captions-inspector-e2e`);
+		await expect(page).toHaveURL(/missing-captions-inspector-e2e/, {
+			timeout: 15_000,
+		});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		const captionsSequence = page
+			.getByText('<MissingCaptions>', {exact: true})
+			.first();
+		const importCaptionsButton = page.getByRole('button', {
+			name: 'Import captions',
+			exact: true,
+		});
+		await expect(async () => {
+			await captionsSequence.click();
+			await expect(importCaptionsButton).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 30_000});
+
+		await page.getByLabel('Import captions file').setInputFiles({
+			name: 'captions.json',
+			mimeType: 'application/json',
+			buffer: Buffer.from(
+				JSON.stringify([
+					{
+						text: 'Materialized',
+						startMs: 0,
+						endMs: 1000,
+						timestampMs: 500,
+						confidence: null,
+					},
+				]),
+			),
+		});
+
+		await expect(page.getByRole('textbox', {name: 'Caption 1'})).toHaveValue(
+			'Materialized',
+		);
+		await expect
+			.poll(() => fs.readFileSync(missingCaptionsCallSiteFile, 'utf-8'))
+			.toMatch(/<MissingCaptions[\s\S]*captions=\{\[[\s\S]*Materialized/);
 	});
 });
