@@ -385,9 +385,6 @@ describe('Element library', () => {
 		expect(overviewMarkup.match(/draggable="true"/g)).toHaveLength(
 			elementDefinitionList.length,
 		);
-		expect(overviewMarkup).toContain(
-			'title="Click to view details, or drag this Element into Remotion Studio"',
-		);
 
 		for (const section of sections) {
 			const categoryMarkup = renderToStaticMarkup(

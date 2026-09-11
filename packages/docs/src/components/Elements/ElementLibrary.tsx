@@ -104,7 +104,6 @@ const ElementCard: React.FC<{
 				}}
 				onPointerEnter={activateFromPointer}
 				onPointerLeave={() => setIsPointerOver(false)}
-				title="Click to view details, or drag this Element into Remotion Studio"
 			>
 				<div
 					aria-hidden="true"
