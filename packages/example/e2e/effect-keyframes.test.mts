@@ -127,6 +127,71 @@ test.describe('effect keyframes', () => {
 			{timeout: 30_000},
 		);
 
+		const originalContent = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+		const factorDragger = page.getByRole('button', {name: '0.75', exact: true});
+		await expect(async () => {
+			await page
+				.getByTitle('Effect scale precision', {exact: true})
+				.first()
+				.click();
+			await expect(page.getByText('Factor', {exact: true})).toBeVisible({
+				timeout: 1_000,
+			});
+		}).toPass({timeout: 15_000});
+		await expect(factorDragger).toBeVisible();
+
+		await factorDragger.click();
+		const factorInput = page.getByRole('textbox');
+		await expect(factorInput).toHaveValue('0.75');
+		await factorInput.press('Enter');
+		await expect(factorDragger).toBeVisible();
+		expect(fs.readFileSync(effectKeyframeE2eFile, 'utf-8')).toBe(
+			originalContent,
+		);
+
+		await factorDragger.click();
+		await factorInput.fill('0.625');
+		await factorInput.press('ArrowUp');
+		await expect(factorInput).toHaveValue('0.725');
+		await factorInput.press('ArrowDown');
+		await expect(factorInput).toHaveValue('0.625');
+		await factorInput.press('Enter');
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toContain('scale({scale: 0.625})');
+
+		const preciseFactorDragger = page.getByRole('button', {
+			name: '0.625',
+			exact: true,
+		});
+		await expect(preciseFactorDragger).toBeVisible();
+		await preciseFactorDragger.click();
+		await expect(factorInput).toHaveValue('0.625');
+		await factorInput.press('Enter');
+
+		// Dragging still increments and snaps to the effect's 0.1 step.
+		const factorBounds = await preciseFactorDragger.boundingBox();
+		assert(factorBounds);
+		const factorX = factorBounds.x + factorBounds.width / 2;
+		const factorY = factorBounds.y + factorBounds.height / 2;
+		await page.mouse.move(factorX, factorY);
+		await page.mouse.down();
+		await page.mouse.move(factorX + 5, factorY);
+		await page.mouse.up();
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toContain('scale({scale: 0.8})');
+		await page.reload();
+		await expect(async () => {
+			await page
+				.getByTitle('Effect scale precision', {exact: true})
+				.first()
+				.click();
+			await expect(
+				page.getByRole('button', {name: '0.8', exact: true}),
+			).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 15_000});
+
 		const timelineExpansionLabel = page
 			.getByText('Timeline expansion', {exact: true})
 			.last();
@@ -264,6 +329,10 @@ test.describe('effect keyframes', () => {
 			)
 			.toBe(true);
 
+		await expect(
+			page.getByRole('button', {name: '0.005', exact: true}),
+		).toBeVisible();
+
 		await selectScalePrecisionAndWaitFor({page, locator: waveRow});
 		await waveRow.click();
 
@@ -295,5 +364,8 @@ test.describe('effect keyframes', () => {
 				},
 			)
 			.toBe(true);
+		await expect(
+			page.getByRole('button', {name: '60.525', exact: true}),
+		).toBeVisible();
 	});
 });

@@ -137,11 +137,15 @@ const formatNumberTimelineFieldValueForDisplay = ({
 		return digits === 0 ? String(numericValue) : numericValue.toFixed(digits);
 	}
 
-	return formatTimelineNumber({
-		decimalPlaces: stepDecimals,
-		fixed: true,
-		value: numericValue,
-	});
+	// The step controls increments, not the precision of source or typed values.
+	// Keep finer values while trimming floating point noise.
+	const normalizedValue =
+		getDecimalPlaces(numericValue) > stepDecimals
+			? Number(numericValue.toPrecision(15))
+			: numericValue;
+	return getDecimalPlaces(normalizedValue) > stepDecimals
+		? String(normalizedValue)
+		: normalizedValue.toFixed(stepDecimals);
 };
 
 const formatRotationTimelineFieldValueForDisplay = ({
