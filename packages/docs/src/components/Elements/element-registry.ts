@@ -60,11 +60,11 @@ export const elementRegistry = {
 	},
 	'commerce/product-collection': {
 		category: 'commerce',
-		displayName: 'Product Collection',
+		displayName: 'Rotating Cards',
 	},
 	'commerce/product-discount-callout': {
 		category: 'commerce',
-		displayName: 'Product Discount Callout',
+		displayName: 'Wiggling Callout',
 	},
 	'commerce/product-offer': {
 		category: 'commerce',

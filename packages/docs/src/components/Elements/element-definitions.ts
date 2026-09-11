@@ -383,15 +383,14 @@ const elementImplementations = [
 		slug: 'commerce/product-collection',
 		component: ProductCollection,
 		contributors: [],
-		description:
-			'An animated product carousel that adapts to changing catalog images, titles, prices, and promotions.',
+		description: 'Three cards which each take center once.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: productCollectionDurationInFrames,
 		elementHeight: 1020,
 		elementWidth: 1020,
 		fps: 30,
 		height: 1080,
-		posterFrame: 90,
+		posterFrame: 73,
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
@@ -408,15 +407,14 @@ const elementImplementations = [
 		slug: 'commerce/product-discount-callout',
 		component: ProductDiscountCallout,
 		contributors: [],
-		description:
-			'An animated product cutout with pricing and a hinged discount callout.',
+		description: 'An attention-grabbing speech bubble.',
 		dependencies: [
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/shapes', version: null},
 		],
 		durationInFrames: 120,
-		elementHeight: 650,
-		elementWidth: 900,
+		elementHeight: 760,
+		elementWidth: 760,
 		fps: 30,
 		height: 1080,
 		posterFrame: 57,
