@@ -636,6 +636,74 @@ test('installs component-owned Element timing and initial props', async () => {
 	expect(composition.match(/\bstyle=/g)).toHaveLength(1);
 });
 
+test('rejects contradictory component-owned Element initial props', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const invalidCases: Array<{
+		initialProps: ElementDragData['element']['initialProps'];
+		reason: string;
+	}> = [
+		{
+			initialProps: {from: 10},
+			reason:
+				'Component-owned Element initial props must not override from, durationInFrames, or name',
+		},
+		{
+			initialProps: {durationInFrames: 10},
+			reason:
+				'Component-owned Element initial props must not override from, durationInFrames, or name',
+		},
+		{
+			initialProps: {name: 'Override'},
+			reason:
+				'Component-owned Element initial props must not override from, durationInFrames, or name',
+		},
+		{
+			initialProps: {style: 'color: red'},
+			reason: 'Component-owned Element initial style must be an object',
+		},
+	];
+
+	for (const {initialProps, reason} of invalidCases) {
+		const response = await operations.insertElement({
+			installationName: null,
+			compositionFile: '/project/src/Composition.tsx',
+			compositionId: 'MyComp',
+			element: {
+				dependencies: [],
+				dimensions: {width: 640, height: 180},
+				displayName: 'Captions',
+				durationInFrames: 90,
+				initialProps,
+				installationMode: 'component-owned-sequence',
+				slug: 'captions',
+				sourceCode: 'export const Captions = () => <div />;\n',
+			},
+			expectedFileState: null,
+			from: 30,
+			overwriteExisting: false,
+			position: {x: 24, y: 48},
+		});
+
+		expect(response).toMatchObject({
+			success: false,
+			type: 'error',
+			reason,
+		});
+		expect(project).toBe(initialProject);
+	}
+});
+
 test('installs packages as an undoable project mutation and reports structured failures', async () => {
 	const initialProject = createBlankTemplateProject();
 	let project = initialProject;
