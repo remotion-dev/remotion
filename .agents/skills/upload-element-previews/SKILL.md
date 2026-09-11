@@ -18,8 +18,8 @@ bun run upload-element-preview \
   --source=<render|submission>
 ```
 
-To refresh an already-published preview, add `--overwrite`. The uploader accepts it only when the Element definition already uses the exact expected `https://remotion.media/elements/...` PNG and MP4 URLs.
+Each upload uses a new random URL postfix, including when the Element already has hosted previews. This keeps previews from concurrent branches independent.
 
-4. For a new preview, replace `image`, `posterUrl`, and `videoUrl` with the printed `remotion.media` URLs. An overwritten preview keeps its existing URLs.
+4. Replace `image`, `posterUrl`, and `videoUrl` with the newly printed `remotion.media` URLs.
 5. If using `submission`, delete the local review assets. If using `render`, leave `.element-previews` uncommitted.
 6. Commit and push when the work belongs on a branch.

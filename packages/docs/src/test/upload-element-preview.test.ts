@@ -4,7 +4,7 @@ import {mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import {tmpdir} from 'os';
 import path from 'path';
 
-test('upload-element-preview only overwrites the exact hosted preview URLs', () => {
+test('upload-element-preview creates unique versions without overwriting', () => {
 	const temporaryDirectory = mkdtempSync(
 		path.join(tmpdir(), 'remotion-upload-element-preview-'),
 	);
@@ -66,6 +66,10 @@ test('upload-element-preview only overwrites the exact hosted preview URLs', () 
 			'https://remotion.media/elements/test-example-preview.png';
 		const expectedHostedVideoUrl =
 			'https://remotion.media/elements/test-example-preview.mp4';
+		const versionedHostedPosterUrl =
+			'https://remotion.media/elements/test-example-preview-23ebc740-62e6-4ad5-987a-77f22c27cd42.png';
+		const versionedHostedVideoUrl =
+			'https://remotion.media/elements/test-example-preview-23ebc740-62e6-4ad5-987a-77f22c27cd42.mp4';
 		const runUpload = ({
 			args,
 			posterUrl,
@@ -92,9 +96,9 @@ test('upload-element-preview only overwrites the exact hosted preview URLs', () 
 			videoUrl: expectedHostedVideoUrl,
 		});
 		expect(helpResult.status).toBe(0);
-		expect(helpResult.stdout).toContain('[--overwrite]');
+		expect(helpResult.stdout).not.toContain('--overwrite');
 		expect(helpResult.stdout).toContain(
-			'only when the definition uses its exact https://remotion.media/elements/... URLs',
+			'Each upload gets a unique URL so previews from concurrent branches cannot overwrite each other.',
 		);
 
 		const localReviewResult = runUpload({
@@ -107,15 +111,25 @@ test('upload-element-preview only overwrites the exact hosted preview URLs', () 
 			'Uploading requires AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY',
 		);
 
-		const protectedHostedResult = runUpload({
-			args: ['--element=test/example', '--source=render'],
-			posterUrl: expectedHostedPosterUrl,
-			videoUrl: expectedHostedVideoUrl,
-		});
-		expect(protectedHostedResult.status).toBe(1);
-		expect(protectedHostedResult.stderr).toContain(
-			'must use its exact local review URLs',
-		);
+		for (const hostedUrls of [
+			{
+				posterUrl: expectedHostedPosterUrl,
+				videoUrl: expectedHostedVideoUrl,
+			},
+			{
+				posterUrl: versionedHostedPosterUrl,
+				videoUrl: versionedHostedVideoUrl,
+			},
+		]) {
+			const hostedResult = runUpload({
+				args: ['--element=test/example', '--source=render'],
+				...hostedUrls,
+			});
+			expect(hostedResult.status).toBe(1);
+			expect(hostedResult.stderr).toContain(
+				'Uploading requires AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY',
+			);
+		}
 
 		const overwriteResult = runUpload({
 			args: ['--element=test/example', '--source=render', '--overwrite'],
@@ -124,7 +138,7 @@ test('upload-element-preview only overwrites the exact hosted preview URLs', () 
 		});
 		expect(overwriteResult.status).toBe(1);
 		expect(overwriteResult.stderr).toContain(
-			'Uploading requires AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY',
+			'--overwrite is no longer supported',
 		);
 
 		for (const rejectedUrls of [
@@ -140,15 +154,20 @@ test('upload-element-preview only overwrites the exact hosted preview URLs', () 
 				posterUrl: 'https://example.com/elements/test-example-preview.png',
 				videoUrl: expectedHostedVideoUrl,
 			},
+			{
+				posterUrl: versionedHostedPosterUrl,
+				videoUrl:
+					'https://remotion.media/elements/test-example-preview-different.mp4',
+			},
 		]) {
-			const rejectedOverwriteResult = runUpload({
-				args: ['--element=test/example', '--source=render', '--overwrite'],
+			const rejectedResult = runUpload({
+				args: ['--element=test/example', '--source=render'],
 				posterUrl: rejectedUrls.posterUrl,
 				videoUrl: rejectedUrls.videoUrl,
 			});
-			expect(rejectedOverwriteResult.status).toBe(1);
-			expect(rejectedOverwriteResult.stderr).toContain(
-				'cannot be overwritten because its preview URLs do not exactly match',
+			expect(rejectedResult.status).toBe(1);
+			expect(rejectedResult.stderr).toContain(
+				'must use either its exact local review URLs',
 			);
 		}
 	} finally {

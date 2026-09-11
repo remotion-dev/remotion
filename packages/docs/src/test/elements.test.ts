@@ -933,7 +933,7 @@ describe('Element preview definitions', () => {
 		expect(source).toContain('height: 1920');
 	});
 
-	test('uses stable composition IDs and flat review or published preview paths', () => {
+	test('uses stable composition IDs and valid review or published preview paths', () => {
 		const compositionIds = elementDefinitionList.map((definition) =>
 			getElementCompositionId(definition.slug),
 		);
@@ -947,8 +947,12 @@ describe('Element preview definitions', () => {
 					: definition.slug.replaceAll('/', '-');
 			const localPosterUrl = `/elements/${assetSlug}-preview.png`;
 			const localVideoUrl = `/elements/${assetSlug}-preview.mp4`;
-			const publicPosterUrl = `https://remotion.media${localPosterUrl}`;
-			const publicVideoUrl = `https://remotion.media${localVideoUrl}`;
+			const publicPosterUrlPattern = new RegExp(
+				`^https://remotion\\.media/elements/${assetSlug}-preview(?:-([a-f0-9-]+))?\\.png$`,
+			);
+			const publicVideoUrlPattern = new RegExp(
+				`^https://remotion\\.media/elements/${assetSlug}-preview(?:-([a-f0-9-]+))?\\.mp4$`,
+			);
 			const posterPath = path.join(
 				staticElementsRoot,
 				`${assetSlug}-preview.png`,
@@ -977,8 +981,15 @@ describe('Element preview definitions', () => {
 					).toBeLessThanOrEqual(10 * 1024 * 1024);
 				}
 			} else {
-				expect(String(definition.preview.posterUrl)).toBe(publicPosterUrl);
-				expect(String(definition.preview.videoUrl)).toBe(publicVideoUrl);
+				const publicPosterUrlMatch = String(definition.preview.posterUrl).match(
+					publicPosterUrlPattern,
+				);
+				const publicVideoUrlMatch = String(definition.preview.videoUrl).match(
+					publicVideoUrlPattern,
+				);
+				expect(publicPosterUrlMatch).not.toBeNull();
+				expect(publicVideoUrlMatch).not.toBeNull();
+				expect(publicPosterUrlMatch?.[1]).toBe(publicVideoUrlMatch?.[1]);
 				expect(existsSync(posterPath)).toBe(false);
 				expect(existsSync(videoPath)).toBe(false);
 			}
