@@ -8,6 +8,8 @@ import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/m
 import {AudioOscilloscope} from '../../../elements/audio/oscilloscope/audio-oscilloscope';
 import {AudioWaveformProgress} from '../../../elements/audio/waveform-progress/audio-waveform-progress';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
+import {MovingWaves} from '../../../elements/backgrounds/moving-waves/moving-waves';
+import {MovingZigzags} from '../../../elements/backgrounds/moving-zigzags/moving-zigzags';
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
@@ -238,6 +240,54 @@ const elementImplementations = [
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.png',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
+		slug: 'backgrounds/moving-waves',
+		component: MovingWaves,
+		contributors: [],
+		description: 'A seamless wave background that flows upward.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 240,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 120,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-moving-waves-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-moving-waves-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
+		slug: 'backgrounds/moving-zigzags',
+		component: MovingZigzags,
+		contributors: [],
+		description: 'A seamless zigzag background that flows upward.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 240,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 120,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-moving-zigzags-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-moving-zigzags-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
