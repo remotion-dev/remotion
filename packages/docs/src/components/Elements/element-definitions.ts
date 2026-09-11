@@ -32,6 +32,8 @@ import {LineChart} from '../../../elements/data/line-chart/line-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {PieChart} from '../../../elements/data/pie-chart/pie-chart';
 import {VerticalBarChart} from '../../../elements/data/vertical-bar-chart/vertical-bar-chart';
+import {PictureInPictureTransition} from '../../../elements/layouts/picture-in-picture-transition/picture-in-picture-transition';
+import {SlideToSplitScreen} from '../../../elements/layouts/slide-to-split-screen/slide-to-split-screen';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
@@ -623,6 +625,56 @@ const elementImplementations = [
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.png',
 			videoUrl:
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
+		slug: 'layouts/picture-in-picture-transition',
+		component: PictureInPictureTransition,
+		contributors: [],
+		description:
+			'Animates an element from being fullscreen to being displayed in a box.',
+		dependencies: [],
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/layouts-picture-in-picture-transition-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/layouts-picture-in-picture-transition-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
+		slug: 'layouts/slide-to-split-screen',
+		component: SlideToSplitScreen,
+		contributors: [],
+		description:
+			'A fullscreen scene that opens into a 60/40 split-screen layout.',
+		dependencies: [],
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/layouts-slide-to-split-screen-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/layouts-slide-to-split-screen-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
