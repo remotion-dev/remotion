@@ -37,7 +37,6 @@ export const NameLowerThird: React.FC = () => {
 				style={{
 					display: 'flex',
 					alignItems: 'center',
-					width: 410,
 					height: 66,
 					boxSizing: 'border-box',
 					padding: '0 24px',
@@ -46,12 +45,12 @@ export const NameLowerThird: React.FC = () => {
 					color: '#ffffff',
 					fontSize: 34,
 					fontWeight: 700,
-					letterSpacing: 1.2,
+					letterSpacing: 1,
 					lineHeight: 1,
 					whiteSpace: 'nowrap',
 				}}
 			>
-				ALEX MORGAN
+				Alex Morgan
 			</Interactive.Div>
 			<Interactive.Div
 				cropRight={interpolate(frame, [4, 24, 92, 112], [1, 0, 0, 1], {
@@ -67,7 +66,6 @@ export const NameLowerThird: React.FC = () => {
 				style={{
 					display: 'flex',
 					alignItems: 'center',
-					width: 514,
 					height: 66,
 					boxSizing: 'border-box',
 					padding: '0 24px',
@@ -75,13 +73,13 @@ export const NameLowerThird: React.FC = () => {
 					backgroundColor: '#18181b',
 					color: '#ffffff',
 					fontSize: 34,
-					fontWeight: 500,
-					letterSpacing: 1.2,
+					fontWeight: 700,
+					letterSpacing: 1,
 					lineHeight: 1,
 					whiteSpace: 'nowrap',
 				}}
 			>
-				CREATIVE DEVELOPER
+				Creative Developer
 			</Interactive.Div>
 		</Interactive.Div>
 	);

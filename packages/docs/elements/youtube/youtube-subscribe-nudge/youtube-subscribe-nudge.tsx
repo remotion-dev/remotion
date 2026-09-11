@@ -45,7 +45,7 @@ export const YouTubeSubscribeNudge: React.FC = () => {
 			<div
 				style={{
 					height: 240,
-					opacity: interpolate(frame, [0, 16, 104, 119], [0, 1, 1, 0], {
+					opacity: interpolate(frame, [0, 24, 104, 119], [0, 1, 1, 0], {
 						easing: [
 							Easing.bezier(0.65, 0, 0.35, 1),
 							Easing.linear,

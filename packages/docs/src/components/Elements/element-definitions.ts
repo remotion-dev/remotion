@@ -94,8 +94,7 @@ const elementImplementations = [
 		slug: 'audio/oscilloscope',
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
-		description:
-			'An oscilloscope waveform for visualizing voices, podcasts, and other audio.',
+		description: 'Suitable for visualizing speech.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},
@@ -122,7 +121,7 @@ const elementImplementations = [
 		slug: 'audio/waveform-progress',
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
-		description: 'A full-clip audio waveform with played progress.',
+		description: 'A static audio waveform with playback progress.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},
@@ -149,8 +148,7 @@ const elementImplementations = [
 		slug: 'audio/mirrored-spectrum',
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
-		description:
-			'A mirrored frequency spectrum that works well for visualizing voices and podcasts.',
+		description: 'Suitable for both music and speech visualization.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},

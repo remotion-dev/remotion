@@ -16,15 +16,15 @@ export type ElementCategory = (typeof elementCategories)[number]['category'];
 export const elementRegistry = {
 	'audio/oscilloscope': {
 		category: 'audio',
-		displayName: 'Audio Oscilloscope',
+		displayName: 'Oscilloscope',
 	},
 	'audio/waveform-progress': {
 		category: 'audio',
-		displayName: 'Audio Waveform Progress',
+		displayName: 'Voice Note',
 	},
 	'audio/mirrored-spectrum': {
 		category: 'audio',
-		displayName: 'Mirrored Audio Spectrum',
+		displayName: 'Mirrored Spectrum',
 	},
 	'backgrounds/liquid-contours': {
 		category: 'backgrounds',
