@@ -30,6 +30,14 @@ export const elementRegistry = {
 		category: 'backgrounds',
 		displayName: 'Liquid Contours',
 	},
+	'backgrounds/moving-waves': {
+		category: 'backgrounds',
+		displayName: 'Moving Waves',
+	},
+	'backgrounds/moving-zigzags': {
+		category: 'backgrounds',
+		displayName: 'Moving Zigzags',
+	},
 	'backgrounds/notebook-paper': {
 		category: 'backgrounds',
 		displayName: 'Notebook Paper',
