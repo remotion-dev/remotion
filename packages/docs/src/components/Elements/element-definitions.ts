@@ -711,8 +711,7 @@ const elementImplementations = [
 		slug: 'text/news-article-highlight',
 		component: NewsArticleHighlight,
 		contributors: [],
-		description:
-			'A framed news article with camera movement, blur, and animated passage highlights.',
+		description: 'A centered news headline with animated passage highlights.',
 		dependencies: [{name: '@remotion/rough-notation', version: null}],
 		durationInFrames: 150,
 		elementHeight: null,
