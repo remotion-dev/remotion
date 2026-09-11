@@ -2107,19 +2107,22 @@ export const createBrowserStudioOperations = ({
 								importName: plan.componentName,
 								importPath: plan.importPath,
 								position: componentOwnsSequence ? request.position : null,
-								props: componentOwnsSequence
-									? [
-											...(durationInFrames === null
-												? []
-												: [
-														{
-															name: 'durationInFrames',
-															value: durationInFrames,
-														},
-													]),
-											{name: 'name', value: request.element.displayName},
-										]
-									: [],
+								props: [
+									...Object.entries(request.element.initialProps ?? {}).map(
+										([name, value]) => ({name, value}),
+									),
+									...(componentOwnsSequence && durationInFrames !== null
+										? [
+												{
+													name: 'durationInFrames',
+													value: durationInFrames,
+												},
+											]
+										: []),
+									...(componentOwnsSequence
+										? [{name: 'name', value: request.element.displayName}]
+										: []),
+								],
 								type: 'component',
 							},
 							from: componentOwnsSequence ? request.from : null,
