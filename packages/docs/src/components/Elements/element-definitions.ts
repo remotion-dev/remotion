@@ -59,10 +59,12 @@ export type ElementPreviewMetadata = {
 	readonly previewLayout: ElementPreviewLayout;
 	readonly posterUrl:
 		| `/elements/${string}-preview.png`
-		| `https://remotion.media/elements/${string}-preview.png`;
+		| `https://remotion.media/elements/${string}-preview.png`
+		| `https://remotion.media/elements/${string}-preview-${string}.png`;
 	readonly videoUrl:
 		| `/elements/${string}-preview.mp4`
-		| `https://remotion.media/elements/${string}-preview.mp4`;
+		| `https://remotion.media/elements/${string}-preview.mp4`
+		| `https://remotion.media/elements/${string}-preview-${string}.mp4`;
 };
 
 export type ElementDefinition = {
