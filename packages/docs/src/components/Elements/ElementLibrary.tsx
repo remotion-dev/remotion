@@ -135,7 +135,6 @@ const ElementCard: React.FC<{
 				</div>
 				<div className={styles.content}>
 					<span className={styles.title}>{definition.displayName}</span>
-					<p className={styles.description}>{definition.description}</p>
 				</div>
 			</a>
 		</li>
