@@ -400,7 +400,7 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 		dimensions: {width: 640, height: 180},
 		displayName: 'Lower Third',
 		durationInFrames: 90,
-		initialProps: null,
+		initialProps: {label: 'Starter'},
 		installationMode: 'wrapped' as const,
 		slug: 'titles/lower-third',
 		sourceCode: `import {Rect} from '@remotion/shapes';
@@ -470,6 +470,9 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	expect(project.files['/project/src/Composition.tsx']).toContain('from={12}');
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'name="Lower Third"',
+	);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'label="Starter"',
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'translate: "24px 48px"',
@@ -553,6 +556,152 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	expect(project.files['/project/src/speaker-name.element.tsx']).toBe(
 		element.sourceCode,
 	);
+});
+
+test('installs component-owned Element timing and initial props', async () => {
+	let project = createBlankTemplateProject();
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const element = {
+		dependencies: [],
+		dimensions: {width: 640, height: 180},
+		displayName: 'Captions',
+		durationInFrames: 90,
+		initialProps: {
+			captions: [{text: 'Starter', startMs: 0, endMs: 1000}],
+			style: {
+				color: 'red',
+				position: 'relative',
+				translate: '1px 2px',
+			},
+			width: 640,
+		},
+		installationMode: 'component-owned-sequence' as const,
+		slug: 'captions',
+		sourceCode: 'export const Captions = () => <div />;\n',
+	} satisfies ElementDragData['element'];
+	const preflight = await operations.prepareElementInstall({
+		installationName: null,
+		destination: {
+			type: 'current-composition',
+			compositionFile: '/project/src/Composition.tsx',
+			compositionId: 'MyComp',
+		},
+		element,
+	});
+	if (!preflight.success) {
+		throw new Error(preflight.reason);
+	}
+
+	const inserted = await operations.insertElement({
+		installationName: null,
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element,
+		expectedFileState: preflight.plan.expectedFileState,
+		from: 30,
+		overwriteExisting: false,
+		position: {x: 24, y: 48},
+	});
+	if (!inserted.success) {
+		throw new Error(
+			inserted.type === 'error' ? inserted.reason : 'Unexpected file conflict',
+		);
+	}
+
+	expect(project.files['/project/src/captions.element.tsx']).toBe(
+		element.sourceCode,
+	);
+	const composition = project.files['/project/src/Composition.tsx'];
+	expect(composition).not.toContain('<Sequence');
+	expect(composition).toContain('<Captions');
+	expect(composition).toContain('captions={[');
+	expect(composition).toContain('text: "Starter"');
+	expect(composition).toContain('width={640}');
+	expect(composition).toContain('durationInFrames={90}');
+	expect(composition).toContain('from={30}');
+	expect(composition).toContain('name="Captions"');
+	expect(composition).toContain('color: "red"');
+	expect(composition).toContain('position: "absolute"');
+	expect(composition).toContain('translate: "24px 48px"');
+	expect(composition).not.toContain('translate: "1px 2px"');
+	expect(composition.match(/\bstyle=/g)).toHaveLength(1);
+});
+
+test('rejects contradictory component-owned Element initial props', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const invalidCases: Array<{
+		initialProps: ElementDragData['element']['initialProps'];
+		reason: string;
+	}> = [
+		{
+			initialProps: {from: 10},
+			reason:
+				'Component-owned Element initial props must not override from, durationInFrames, or name',
+		},
+		{
+			initialProps: {durationInFrames: 10},
+			reason:
+				'Component-owned Element initial props must not override from, durationInFrames, or name',
+		},
+		{
+			initialProps: {name: 'Override'},
+			reason:
+				'Component-owned Element initial props must not override from, durationInFrames, or name',
+		},
+		{
+			initialProps: {style: 'color: red'},
+			reason: 'Component-owned Element initial style must be an object',
+		},
+	];
+
+	for (const {initialProps, reason} of invalidCases) {
+		const response = await operations.insertElement({
+			installationName: null,
+			compositionFile: '/project/src/Composition.tsx',
+			compositionId: 'MyComp',
+			element: {
+				dependencies: [],
+				dimensions: {width: 640, height: 180},
+				displayName: 'Captions',
+				durationInFrames: 90,
+				initialProps,
+				installationMode: 'component-owned-sequence',
+				slug: 'captions',
+				sourceCode: 'export const Captions = () => <div />;\n',
+			},
+			expectedFileState: null,
+			from: 30,
+			overwriteExisting: false,
+			position: {x: 24, y: 48},
+		});
+
+		expect(response).toMatchObject({
+			success: false,
+			type: 'error',
+			reason,
+		});
+		expect(project).toBe(initialProject);
+	}
 });
 
 test('installs packages as an undoable project mutation and reports structured failures', async () => {
