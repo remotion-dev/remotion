@@ -109,6 +109,9 @@ export const selectLatestCamerasForScenes = <T>(
     return [];
   }
 
+  // This supports the current one-scene retake workflow. Retakes for an
+  // arbitrary earlier scene need per-scene take metadata rather than relying
+  // on the chronological position of the recorded files.
   return cameras.slice(-numberOfVideoScenes);
 };
 
