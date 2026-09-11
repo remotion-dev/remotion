@@ -46,9 +46,9 @@ export const PolaroidPictures = () => {
 			<Interactive.Div
 				name="Photo 1 card"
 				style={{
-					backgroundColor: '#f8f1e5',
+					backgroundColor: '#fffdfa',
 					boxShadow:
-						'0 44px 78px rgba(8, 5, 3, 0.34), 0 8px 20px rgba(8, 5, 3, 0.2), inset 0 0 0 1px rgba(80, 62, 46, 0.08)',
+						'0 24px 52px rgba(8, 5, 3, 0.16), 0 4px 12px rgba(8, 5, 3, 0.08), inset 0 0 0 1px rgba(80, 62, 46, 0.05)',
 					boxSizing: 'border-box',
 					height: 520,
 					left: 100,
@@ -69,15 +69,26 @@ export const PolaroidPictures = () => {
 						[8, 34, durationInFrames - 30, durationInFrames - 1],
 						['-20deg', '-8deg', '-8deg', '-18deg'],
 						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							easing: [
+								Easing.bezier(0.16, 1, 0.3, 1),
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+								Easing.bezier(0.16, 1, 0.3, 1),
+							],
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						},
 					),
 					scale: interpolate(
 						frame,
-						[8, 30, 36, durationInFrames - 30, durationInFrames - 1],
-						[0.84, 1.035, 1, 1, 1.08],
+						[durationInFrames - 30, durationInFrames - 1],
+						[1, 1.08],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
 							extrapolateLeft: 'clamp',
@@ -91,7 +102,18 @@ export const PolaroidPictures = () => {
 						[8, 34, durationInFrames - 30, durationInFrames - 1],
 						['-620px 260px', '0px 0px', '0px 0px', '-760px -120px'],
 						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							easing: [
+								Easing.bezier(0.16, 1, 0.3, 1),
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+								Easing.bezier(0.16, 1, 0.3, 1),
+							],
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						},
@@ -129,9 +151,8 @@ export const PolaroidPictures = () => {
 					<Img
 						name="Photo 1"
 						alt=""
-						src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?fm=jpg&fit=crop&w=1400&q=85"
+						src="https://remotion.media/transition-bg-blue.jpg"
 						style={{
-							filter: 'saturate(0.94) contrast(1.03)',
 							height: '100%',
 							objectFit: 'cover',
 							width: '100%',
@@ -139,17 +160,20 @@ export const PolaroidPictures = () => {
 					/>
 					<div
 						style={{
-							backgroundColor: '#f4e8d2',
+							alignItems: 'center',
+							color: 'white',
+							display: 'flex',
+							fontFamily: 'sans-serif',
+							fontSize: 160,
+							fontWeight: 900,
 							inset: 0,
-							opacity: interpolate(frame, [8, 30, 44], [0.82, 0.82, 0], {
-								easing: Easing.out(Easing.cubic),
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							pointerEvents: 'none',
+							justifyContent: 'center',
 							position: 'absolute',
+							textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
 						}}
-					/>
+					>
+						A
+					</div>
 				</div>
 				<Interactive.Div
 					name="Photo 1 caption"
@@ -167,16 +191,16 @@ export const PolaroidPictures = () => {
 						textAlign: 'center',
 					}}
 				>
-					first stop · 08:42
+					scene A
 				</Interactive.Div>
 			</Interactive.Div>
 
 			<Interactive.Div
 				name="Photo 2 card"
 				style={{
-					backgroundColor: '#f8f1e5',
+					backgroundColor: '#fffdfa',
 					boxShadow:
-						'0 48px 86px rgba(8, 5, 3, 0.38), 0 9px 22px rgba(8, 5, 3, 0.2), inset 0 0 0 1px rgba(80, 62, 46, 0.08)',
+						'0 28px 58px rgba(8, 5, 3, 0.18), 0 5px 14px rgba(8, 5, 3, 0.08), inset 0 0 0 1px rgba(80, 62, 46, 0.05)',
 					boxSizing: 'border-box',
 					height: 520,
 					left: 530,
@@ -197,15 +221,26 @@ export const PolaroidPictures = () => {
 						[20, 46, durationInFrames - 28, durationInFrames - 1],
 						['16deg', '6deg', '6deg', '15deg'],
 						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							easing: [
+								Easing.bezier(0.16, 1, 0.3, 1),
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+								Easing.bezier(0.16, 1, 0.3, 1),
+							],
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						},
 					),
 					scale: interpolate(
 						frame,
-						[20, 42, 48, durationInFrames - 28, durationInFrames - 1],
-						[0.86, 1.04, 1, 1, 1.1],
+						[durationInFrames - 28, durationInFrames - 1],
+						[1, 1.1],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
 							extrapolateLeft: 'clamp',
@@ -219,7 +254,18 @@ export const PolaroidPictures = () => {
 						[20, 46, durationInFrames - 28, durationInFrames - 1],
 						['340px -620px', '0px 0px', '0px 0px', '280px -720px'],
 						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							easing: [
+								Easing.bezier(0.16, 1, 0.3, 1),
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+								Easing.bezier(0.16, 1, 0.3, 1),
+							],
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						},
@@ -256,9 +302,8 @@ export const PolaroidPictures = () => {
 					<Img
 						name="Photo 2"
 						alt=""
-						src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?fm=jpg&fit=crop&w=1400&q=85"
+						src="https://remotion.media/transition-bg-pink.jpg"
 						style={{
-							filter: 'saturate(0.94) contrast(1.03)',
 							height: '100%',
 							objectFit: 'cover',
 							width: '100%',
@@ -266,17 +311,20 @@ export const PolaroidPictures = () => {
 					/>
 					<div
 						style={{
-							backgroundColor: '#f4e8d2',
+							alignItems: 'center',
+							color: 'white',
+							display: 'flex',
+							fontFamily: 'sans-serif',
+							fontSize: 160,
+							fontWeight: 900,
 							inset: 0,
-							opacity: interpolate(frame, [20, 42, 56], [0.82, 0.82, 0], {
-								easing: Easing.out(Easing.cubic),
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							pointerEvents: 'none',
+							justifyContent: 'center',
 							position: 'absolute',
+							textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
 						}}
-					/>
+					>
+						B
+					</div>
 				</div>
 				<Interactive.Div
 					name="Photo 2 caption"
@@ -294,16 +342,16 @@ export const PolaroidPictures = () => {
 						textAlign: 'center',
 					}}
 				>
-					golden hour
+					scene B
 				</Interactive.Div>
 			</Interactive.Div>
 
 			<Interactive.Div
 				name="Photo 3 card"
 				style={{
-					backgroundColor: '#f8f1e5',
+					backgroundColor: '#fffdfa',
 					boxShadow:
-						'0 52px 92px rgba(8, 5, 3, 0.42), 0 10px 24px rgba(8, 5, 3, 0.22), inset 0 0 0 1px rgba(80, 62, 46, 0.08)',
+						'0 32px 64px rgba(8, 5, 3, 0.2), 0 6px 16px rgba(8, 5, 3, 0.09), inset 0 0 0 1px rgba(80, 62, 46, 0.05)',
 					boxSizing: 'border-box',
 					height: 520,
 					left: 960,
@@ -324,15 +372,26 @@ export const PolaroidPictures = () => {
 						[32, 58, durationInFrames - 26, durationInFrames - 1],
 						['15deg', '-3deg', '-3deg', '10deg'],
 						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							easing: [
+								Easing.bezier(0.16, 1, 0.3, 1),
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+								Easing.bezier(0.16, 1, 0.3, 1),
+							],
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						},
 					),
 					scale: interpolate(
 						frame,
-						[32, 54, 60, durationInFrames - 26, durationInFrames - 1],
-						[0.88, 1.035, 1, 1, 1.12],
+						[durationInFrames - 26, durationInFrames - 1],
+						[1, 1.12],
 						{
 							easing: Easing.bezier(0.16, 1, 0.3, 1),
 							extrapolateLeft: 'clamp',
@@ -346,7 +405,18 @@ export const PolaroidPictures = () => {
 						[32, 58, durationInFrames - 26, durationInFrames - 1],
 						['680px 380px', '0px 0px', '0px 0px', '820px 240px'],
 						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							easing: [
+								Easing.bezier(0.16, 1, 0.3, 1),
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+								Easing.bezier(0.16, 1, 0.3, 1),
+							],
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						},
@@ -383,9 +453,9 @@ export const PolaroidPictures = () => {
 					<Img
 						name="Photo 3"
 						alt=""
-						src="https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?fm=jpg&fit=crop&w=1400&q=85"
+						src="https://remotion.media/transition-bg-blue.jpg"
 						style={{
-							filter: 'saturate(0.94) contrast(1.03)',
+							filter: 'hue-rotate(-65deg)',
 							height: '100%',
 							objectFit: 'cover',
 							width: '100%',
@@ -393,17 +463,20 @@ export const PolaroidPictures = () => {
 					/>
 					<div
 						style={{
-							backgroundColor: '#f4e8d2',
+							alignItems: 'center',
+							color: 'white',
+							display: 'flex',
+							fontFamily: 'sans-serif',
+							fontSize: 160,
+							fontWeight: 900,
 							inset: 0,
-							opacity: interpolate(frame, [32, 54, 68], [0.82, 0.82, 0], {
-								easing: Easing.out(Easing.cubic),
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							pointerEvents: 'none',
+							justifyContent: 'center',
 							position: 'absolute',
+							textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
 						}}
-					/>
+					>
+						C
+					</div>
 				</div>
 				<Interactive.Div
 					name="Photo 3 caption"
@@ -421,7 +494,7 @@ export const PolaroidPictures = () => {
 						textAlign: 'center',
 					}}
 				>
-					one more memory
+					scene C
 				</Interactive.Div>
 			</Interactive.Div>
 		</div>
