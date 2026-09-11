@@ -31,7 +31,9 @@ export const getCameraStreamConstraints = (
     return null;
   }
   const video: MediaTrackConstraints = {
-    deviceId: selectedVideoSource.deviceId,
+    // A string constraint is only an "ideal" preference. Use an exact
+    // constraint so Chrome cannot silently substitute the default webcam.
+    deviceId: { exact: selectedVideoSource.deviceId },
     width: preferPortrait
       ? undefined
       : selectedVideoSource.maxWidth
@@ -58,7 +60,7 @@ const getCameraStram = ({
   selectedVideoSource: SelectedSource;
   preferPortrait: boolean;
   recordAudio: boolean;
-  selectedAudioSource: ConstrainDOMString | null;
+  selectedAudioSource: string | null;
 }): Promise<MediaStream> => {
   if (selectedVideoSource.type !== "camera") {
     throw new Error("Unknown video source type");
@@ -69,7 +71,7 @@ const getCameraStram = ({
     video: video ?? undefined,
     audio:
       recordAudio && selectedAudioSource
-        ? { deviceId: selectedAudioSource }
+        ? { deviceId: { exact: selectedAudioSource } }
         : undefined,
   };
 
@@ -85,7 +87,7 @@ export const getVideoStream = async ({
   selectedVideoSource: SelectedSource;
   preferPortrait: boolean;
   recordAudio: boolean;
-  selectedAudioSource: ConstrainDOMString | null;
+  selectedAudioSource: string | null;
 }): Promise<MediaStream> => {
   if (selectedVideoSource.type === "display-with-audio") {
     return getDisplayStream(selectedVideoSource);
@@ -94,7 +96,7 @@ export const getVideoStream = async ({
     const displayStream = await getDisplayStream(selectedVideoSource);
     if (recordAudio && selectedAudioSource) {
       const audioStream = await window.navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: selectedAudioSource },
+        audio: { deviceId: { exact: selectedAudioSource } },
       });
       return new MediaStream([
         ...displayStream.getVideoTracks(),
