@@ -1,5 +1,8 @@
 import { expect, test } from "bun:test";
-import { getCameraStreamConstraints } from "../src/helpers/get-video-stream";
+import {
+  getAudioStreamConstraints,
+  getCameraStreamConstraints,
+} from "../src/helpers/get-video-stream";
 
 test("requires the selected camera instead of accepting the browser default", () => {
   expect(
@@ -16,4 +19,24 @@ test("requires the selected camera instead of accepting the browser default", ()
   ).toMatchObject({
     deviceId: { exact: "camo-camera-id" },
   });
+});
+
+test("requires the selected microphone instead of accepting the browser default", () => {
+  expect(
+    getAudioStreamConstraints({
+      recordAudio: true,
+      selectedAudioSource: "camo-microphone-id",
+    }),
+  ).toEqual({
+    deviceId: { exact: "camo-microphone-id" },
+  });
+});
+
+test("does not request a microphone when audio recording is disabled", () => {
+  expect(
+    getAudioStreamConstraints({
+      recordAudio: false,
+      selectedAudioSource: "camo-microphone-id",
+    }),
+  ).toBeUndefined();
 });
