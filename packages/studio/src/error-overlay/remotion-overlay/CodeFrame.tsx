@@ -5,6 +5,7 @@ import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item
 import {
 	ERROR_CODE_FRAME_BACKGROUND,
 	ERROR_CODE_FRAME_LINE_BACKGROUND,
+	SELECTED_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_40,
@@ -20,6 +21,8 @@ const frame: React.CSSProperties = {
 	backgroundColor: ERROR_CODE_FRAME_BACKGROUND,
 	borderRadius: 6,
 	marginBottom: 20,
+	marginLeft: 14,
+	marginRight: 14,
 	overflowY: 'auto',
 };
 
@@ -43,42 +46,51 @@ export const CodeFrame: React.FC<{
 }> = ({source, lineNumberWidth}) => {
 	return (
 		<div style={frame} className={HORIZONTAL_SCROLLBAR_CLASSNAME}>
-			{source.map((s, j) => {
-				return (
-					<div
-						// eslint-disable-next-line react/no-array-index-key
-						key={j}
-						style={container}
-					>
+			{/* Keep every row as wide as the longest line when scrolling. */}
+			<div style={{minWidth: '100%', width: 'max-content'}}>
+				{source.map((s, j) => {
+					return (
 						<div
+							// eslint-disable-next-line react/no-array-index-key
+							key={j}
 							style={{
-								...lineNumber,
-								backgroundColor: ERROR_CODE_FRAME_LINE_BACKGROUND,
-								color: s.highlight ? WHITE : WHITE_ALPHA_40,
+								...container,
+								backgroundColor: s.highlight
+									? SELECTED_BACKGROUND
+									: TRANSPARENT,
 							}}
 						>
-							{String(s.lineNumber).padStart(lineNumberWidth, ' ')}
+							<div
+								style={{
+									...lineNumber,
+									backgroundColor: s.highlight
+										? TRANSPARENT
+										: ERROR_CODE_FRAME_LINE_BACKGROUND,
+									color: s.highlight ? WHITE : WHITE_ALPHA_40,
+								}}
+							>
+								{String(s.lineNumber).padStart(lineNumberWidth, ' ')}
+							</div>
+							<code
+								className="language-tsx"
+								style={{
+									fontFamily: 'monospace',
+									fontSize: 14,
+									color: '#9cdcfe',
+									whiteSpace: 'pre',
+									tabSize: 2,
+									backgroundColor: TRANSPARENT,
+									lineHeight: 1.7,
+									paddingRight: 12,
+									paddingLeft: 12,
+								}}
+							>
+								<LazySyntaxHighlightedSource source={s.content} />
+							</code>
 						</div>
-						<code
-							className="language-tsx"
-							style={{
-								fontFamily: 'monospace',
-								fontSize: 14,
-								color: '#9cdcfe',
-								whiteSpace: 'pre',
-								tabSize: 2,
-								opacity: s.highlight ? 1 : 0.4,
-								backgroundColor: TRANSPARENT,
-								lineHeight: 1.7,
-								paddingRight: 12,
-								paddingLeft: 12,
-							}}
-						>
-							<LazySyntaxHighlightedSource source={s.content} />
-						</code>
-					</div>
-				);
-			})}
+					);
+				})}
+			</div>
 		</div>
 	);
 };
