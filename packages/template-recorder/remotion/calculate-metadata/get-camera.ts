@@ -101,6 +101,17 @@ const getCameras = (compositionId: string) => {
   return mappedCameras.sort((a, b) => a.timestamp - b.timestamp);
 };
 
+export const selectLatestCamerasForScenes = <T>(
+  cameras: T[],
+  numberOfVideoScenes: number,
+): T[] => {
+  if (numberOfVideoScenes <= 0) {
+    return [];
+  }
+
+  return cameras.slice(-numberOfVideoScenes);
+};
+
 export const getAllCameras = ({
   compositionId,
   scenes,
@@ -109,6 +120,10 @@ export const getAllCameras = ({
   scenes: SelectableScene[];
 }) => {
   const allCameras = getCameras(compositionId);
+  const camerasForScenes = selectLatestCamerasForScenes(
+    allCameras,
+    scenes.filter((scene) => scene.type === "videoscene").length,
+  );
   let videoIndex = -1;
 
   const scenesWithCameras = scenes.map((scene): CamerasAndScene => {
@@ -117,7 +132,7 @@ export const getAllCameras = ({
     }
 
     videoIndex += 1;
-    return { scene, cameras: allCameras[videoIndex] as Cameras };
+    return { scene, cameras: camerasForScenes[videoIndex] as Cameras };
   });
 
   const hasAtLeast1Camera = allCameras.length > 0;
