@@ -375,7 +375,7 @@ describe('Element library', () => {
 			).toHaveLength(2);
 			expect(overviewMarkup).not.toContain(`>${definition.displayName}</h2>`);
 			expect(overviewMarkup).not.toContain(`>${definition.displayName}</h3>`);
-			expect(overviewMarkup).toContain(definition.description);
+			expect(overviewMarkup).not.toContain(definition.description);
 			expect(overviewMarkup).toContain(definition.preview.posterUrl);
 			expect(overviewMarkup).toContain(getElementDocumentationUrl(definition));
 		}
