@@ -26,7 +26,8 @@ import {
 	productCollectionDurationInFrames,
 } from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
-import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
+import {Shine} from '../../../elements/commerce/shine/shine';
+import {Tear} from '../../../elements/commerce/tear/tear';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {LineChart} from '../../../elements/data/line-chart/line-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
@@ -86,6 +87,7 @@ export type ElementDefinition = {
 	readonly initialProps: ElementInitialProps | null;
 	readonly posterFrame: number;
 	readonly preview: ElementPreviewMetadata;
+	readonly previewUsesHtmlInCanvas: boolean;
 	readonly safeArea: number;
 	readonly slug: string;
 	readonly installationMode: ElementInstallationMode;
@@ -483,29 +485,48 @@ const elementImplementations = [
 		width: 1080,
 	},
 	{
-		slug: 'commerce/product-offer',
-		component: ProductOffer,
+		slug: 'commerce/shine',
+		component: Shine,
 		contributors: [],
-		description:
-			'An animated product card with a bold title, catalog image, pricing, and discount.',
-		dependencies: [{name: '@remotion/google-fonts', version: null}],
-		durationInFrames: 150,
-		elementHeight: 900,
-		elementWidth: 900,
+		description: 'Adds a diagonal shine sweep to any content.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 45,
+		elementHeight: 720,
+		elementWidth: 1280,
 		fps: 30,
 		height: 1080,
-		posterFrame: 75,
+		posterFrame: 22,
 		preview: {
 			previewLayout: 'composition',
-			posterUrl:
-				'https://remotion.media/elements/commerce-product-offer-preview.png',
-			videoUrl:
-				'https://remotion.media/elements/commerce-product-offer-preview.mp4',
+			posterUrl: 'https://remotion.media/elements/commerce-shine-preview.png',
+			videoUrl: 'https://remotion.media/elements/commerce-shine-preview.mp4',
 		},
-		safeArea: 90,
+		safeArea: 0,
 		initialProps: null,
 		installationMode: 'wrapped',
-		width: 1080,
+		width: 1920,
+	},
+	{
+		slug: 'commerce/tear',
+		component: Tear,
+		contributors: [],
+		description: 'A tear effect that can be applied to any content.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 45,
+		elementHeight: 720,
+		elementWidth: 1280,
+		fps: 30,
+		height: 1080,
+		posterFrame: 25,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl: 'https://remotion.media/elements/commerce-tear-preview.png',
+			videoUrl: 'https://remotion.media/elements/commerce-tear-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
 	},
 	{
 		slug: 'data/horizontal-bar-chart',
@@ -805,7 +826,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/overlays-social-safe-zones-preview.mp4',
 		},
 		safeArea: 0,
-		initialProps: null,
+		initialProps: {platform: 'tiktok'},
 		installationMode: 'component-owned-sequence',
 		width: 1080,
 	},
@@ -1096,12 +1117,18 @@ const elementImplementations = [
 	},
 ] satisfies readonly (Omit<
 	ElementDefinition,
-	'category' | 'displayName' | 'slug'
+	'category' | 'displayName' | 'previewUsesHtmlInCanvas' | 'slug'
 > & {
 	readonly slug: ElementSlug;
 })[];
 
+const htmlInCanvasElementSlugs = new Set<ElementSlug>([
+	'commerce/shine',
+	'commerce/tear',
+]);
+
 export const elementDefinitions = elementImplementations.map((definition) => ({
 	...elementRegistry[definition.slug],
 	...definition,
+	previewUsesHtmlInCanvas: htmlInCanvasElementSlugs.has(definition.slug),
 }));
