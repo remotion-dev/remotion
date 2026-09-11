@@ -123,7 +123,7 @@ const Bar: React.FC<{
 						<Interactive.Div
 							name="Bar"
 							style={{
-								backgroundColor: highlighted ? '#2858e8' : '#b9c0ca',
+								backgroundColor: highlighted ? '#2563eb' : '#b9c0ca',
 								borderRadius: '12px 12px 0 0',
 								height: '100%',
 								width: '100%',
@@ -185,26 +185,11 @@ export const VerticalBarChart: React.FC = () => {
 					flexDirection: 'column',
 					fontFamily,
 					fontVariantNumeric: 'tabular-nums',
-					gap: 42,
 					height: '100%',
 					justifyContent: 'center',
 					width: '100%',
 				}}
 			>
-				<Interactive.H1
-					name="Title"
-					style={{
-						color: '#111827',
-						fontSize: 76,
-						fontWeight: 800,
-						letterSpacing: -3.8,
-						lineHeight: 0.95,
-						margin: 0,
-						translate: '0px 0px',
-					}}
-				>
-					Browser tabs open
-				</Interactive.H1>
 				<div
 					style={{
 						alignSelf: 'center',

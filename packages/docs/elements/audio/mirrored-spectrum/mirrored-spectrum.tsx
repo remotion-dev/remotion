@@ -31,7 +31,7 @@ const mirroredAudioSpectrumSchema = {
 	},
 	barColor: {
 		type: 'color',
-		default: '#0b84f3',
+		default: '#2563eb',
 		description: 'Bar color',
 	},
 	numberOfBars: {
@@ -134,7 +134,7 @@ const MirroredAudioSpectrumInner = forwardRef<
 	(
 		{
 			audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-			barColor = '#0b84f3',
+			barColor = '#2563eb',
 			controls,
 			name,
 			numberOfBars = 65,

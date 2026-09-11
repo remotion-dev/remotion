@@ -17,8 +17,8 @@ const data = [
 	{label: 'Sep', value: 74},
 ];
 
-const CHART_WIDTH = 1400;
-const CHART_HEIGHT = 520;
+const CHART_WIDTH = 1600;
+const CHART_HEIGHT = 640;
 const CHART_SIDE_PADDING = 16;
 const MIN_VALUE = 20;
 const MAX_VALUE = 80;
@@ -56,9 +56,7 @@ export const LineChart: React.FC = () => {
 
 		return `${path} L ${x} ${y}`;
 	}, '');
-	const firstPoint = points[0];
 	const latestPoint = points[points.length - 1];
-	const areaPath = `${linePath} L ${latestPoint.x} ${CHART_HEIGHT} L ${firstPoint.x} ${CHART_HEIGHT} Z`;
 
 	return (
 		<Interactive.Div
@@ -82,72 +80,19 @@ export const LineChart: React.FC = () => {
 					flexDirection: 'column',
 					fontFamily,
 					fontVariantNumeric: 'tabular-nums',
-					gap: 84,
 					height: '100%',
 					justifyContent: 'center',
-					translate: '30px 0px',
 					width: '100%',
 				}}
 			>
-				<Interactive.H1
-					name="Title"
-					style={{
-						color: '#111827',
-						fontSize: 76,
-						fontWeight: 800,
-						letterSpacing: -3.8,
-						lineHeight: 0.95,
-						margin: 0,
-						translate: '0px -32px',
-					}}
-				>
-					Monthly active users
-				</Interactive.H1>
 				<Interactive.Div
 					name="Plot area"
 					style={{
-						height: 520,
+						height: CHART_HEIGHT,
 						marginBottom: 64,
 						position: 'relative',
 					}}
 				>
-					<div
-						style={{
-							color: '#4b5563',
-							fontSize: 40,
-							fontWeight: 700,
-							height: '100%',
-							position: 'absolute',
-							right: `calc(${100 - (CHART_SIDE_PADDING / CHART_WIDTH) * 100}% + 64px)`,
-							top: 0,
-							width: 94,
-						}}
-					>
-						{Y_AXIS_VALUES.map((value) => (
-							<div
-								key={value}
-								style={{
-									position: 'absolute',
-									right: 0,
-									top: `${((MAX_VALUE - value) / (MAX_VALUE - MIN_VALUE)) * 100}%`,
-									transform: 'translateY(-50%)',
-									width: '100%',
-								}}
-							>
-								<Interactive.Div
-									name="Y-axis label"
-									style={{
-										textAlign: 'right',
-										translate: '0px 0px',
-										whiteSpace: 'nowrap',
-										width: '100%',
-									}}
-								>
-									{value}K
-								</Interactive.Div>
-							</div>
-						))}
-					</div>
 					<svg
 						viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
 						preserveAspectRatio="none"
@@ -181,22 +126,11 @@ export const LineChart: React.FC = () => {
 							})}
 						</Interactive.G>
 						<Interactive.Path
-							name="Area fill"
-							d={areaPath}
-							fill="#2858e8"
-							style={{
-								opacity: interpolate(frame, [48, 68], [0, 0.1], {
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								}),
-							}}
-						/>
-						<Interactive.Path
 							name="Trend line"
 							d={linePath}
 							fill="none"
 							pathLength={1}
-							stroke="#2858e8"
+							stroke="#2563eb"
 							strokeDasharray="1 1"
 							strokeDashoffset={interpolate(frame, [14, 58], [1, 0], {
 								easing: Easing.bezier(0, 0, 0.58, 1),
@@ -210,7 +144,7 @@ export const LineChart: React.FC = () => {
 						<Interactive.G
 							name="Data points"
 							fill="#ffffff"
-							stroke="#2858e8"
+							stroke="#2563eb"
 							strokeWidth={8}
 						>
 							{points.map(({label, x, y}, index) => (
@@ -279,12 +213,11 @@ export const LineChart: React.FC = () => {
 						<Interactive.Div
 							name="Latest value"
 							style={{
-								backgroundColor: '#2858e8',
+								backgroundColor: '#2563eb',
 								borderRadius: 12,
 								color: '#ffffff',
 								fontSize: 44,
 								fontWeight: 800,
-								letterSpacing: -1.5,
 								lineHeight: 1,
 								padding: '18px 24px',
 								scale: `${latestValueProgress}`,
