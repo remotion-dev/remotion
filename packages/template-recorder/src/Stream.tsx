@@ -26,7 +26,7 @@ export const Stream: React.FC<{
   setResolution: React.Dispatch<React.SetStateAction<ResolutionAndFps | null>>;
   recordAudio: boolean;
   selectedVideoSource: SelectedSource | null;
-  selectedAudioSource: ConstrainDOMString | null;
+  selectedAudioSource: string | null;
   preferPortrait: boolean;
   mirror: boolean;
   clear: () => void;
