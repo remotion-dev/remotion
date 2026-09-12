@@ -241,6 +241,7 @@ import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
 import {TearTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
+import {VideoEffectsOutputSize} from './EffectsTestbed/VideoEffectsOutputSize';
 import {Empty} from './Empty';
 import {
 	Issue8974IndependentVideosTimeline,
@@ -2345,6 +2346,24 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={300}
+				/>
+				<Composition
+					id="video-effects-output-size-before"
+					component={VideoEffectsOutputSize}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+					defaultProps={{effectsOutputSize: null}}
+				/>
+				<Composition
+					id="video-effects-output-size-after"
+					component={VideoEffectsOutputSize}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+					defaultProps={{effectsOutputSize: {width: 1024, height: 1024}}}
 				/>
 			</Folder>
 			<Folder name="Premount">

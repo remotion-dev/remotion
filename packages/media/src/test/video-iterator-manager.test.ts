@@ -98,6 +98,7 @@ const makeManager = (
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getEffectsOutputSize: () => null,
 	});
 
 test('plays at a high playback rate without restarting the iterator', async () => {
@@ -194,6 +195,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getEffectsOutputSize: () => null,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -265,6 +267,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getEffectsOutputSize: () => null,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -313,6 +316,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getEffectsOutputSize: () => null,
 	});
 
 	const nonceManager = makeNonceManager();

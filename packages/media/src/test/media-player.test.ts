@@ -62,6 +62,7 @@ const makeAudioPlayer = (
 		tagType: 'audio',
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getEffectsOutputSize: () => null,
 	});
 };
 
@@ -165,6 +166,7 @@ test('dispose should immediately unblock playback delays', async () => {
 		tagType: 'video',
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getEffectsOutputSize: () => null,
 	});
 
 	await player.initialize(0, false, 1);

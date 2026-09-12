@@ -30,6 +30,7 @@ import type {MediaRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
+import type {EffectsOutputSize} from './video/props';
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
@@ -84,6 +85,8 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
+	private getEffectsOutputSize: () => EffectsOutputSize | null;
+
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
 	private premountAwareDelayPlayback: PremountAwareDelayPlayback;
@@ -115,6 +118,7 @@ export class MediaPlayer {
 		tagType,
 		getEffects,
 		getEffectChainState,
+		getEffectsOutputSize,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -144,6 +148,7 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
+		getEffectsOutputSize: () => EffectsOutputSize | null;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -183,6 +188,7 @@ export class MediaPlayer {
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
+		this.getEffectsOutputSize = getEffectsOutputSize;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -359,6 +365,7 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
+					getEffectsOutputSize: this.getEffectsOutputSize,
 				});
 			}
 
