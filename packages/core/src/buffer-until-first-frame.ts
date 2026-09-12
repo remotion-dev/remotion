@@ -122,7 +122,7 @@ export const useBufferUntilFirstFrame = ({
 
 	return useMemo(() => {
 		return {
-			isBuffering: () => bufferingRef.current,
+			isBufferingUntilFirstFrame: () => bufferingRef.current,
 			bufferUntilFirstFrame,
 		};
 	}, [bufferUntilFirstFrame]);
