@@ -1,5 +1,8 @@
+import {Video} from '@remotion/media';
 import {Player} from '@remotion/player';
-import React, {useState, type ComponentType} from 'react';
+import React, {useMemo, useState, type ComponentType} from 'react';
+import {AbsoluteFill} from 'remotion';
+import {useHtmlInCanvasDocsDemoBranch} from '../../../components/demos/useHtmlInCanvasDocsDemoBranch';
 import type {ElementPreviewLayout} from './element-definitions';
 
 type ElementPreviewProps = {
@@ -8,6 +11,7 @@ type ElementPreviewProps = {
 	readonly elementHeight: number | null;
 	readonly elementWidth: number | null;
 	readonly fps: number;
+	readonly htmlInCanvasFallbackVideoUrl: string | null;
 	readonly previewLayout: ElementPreviewLayout;
 	readonly safeArea: number;
 };
@@ -18,16 +22,55 @@ const lightPreviewBackground = '#f5f6f7';
 const checkerboardBackground =
 	'conic-gradient(rgba(0, 0, 0, 0.1) 25%, transparent 0 50%, rgba(0, 0, 0, 0.1) 0 75%, transparent 0)';
 
+const HtmlInCanvasElementPreview: React.FC<{
+	readonly component: ComponentType<Record<string, never>>;
+	readonly fallbackVideoUrl: string;
+}> = ({component: Component, fallbackVideoUrl}) => {
+	const branch = useHtmlInCanvasDocsDemoBranch('webgl2');
+
+	if (branch === 'pending') {
+		return <AbsoluteFill />;
+	}
+
+	if (branch === 'fallback') {
+		return (
+			<AbsoluteFill>
+				<Video
+					muted
+					objectFit="contain"
+					src={fallbackVideoUrl}
+					style={{height: '100%', width: '100%'}}
+				/>
+			</AbsoluteFill>
+		);
+	}
+
+	return <Component />;
+};
+
 export const ElementPreview: React.FC<ElementPreviewProps> = ({
 	component,
 	durationInFrames,
 	elementHeight,
 	elementWidth,
 	fps,
+	htmlInCanvasFallbackVideoUrl,
 	previewLayout,
 	safeArea,
 }) => {
 	const [checkerboard, setCheckerboard] = useState(true);
+	const playerComponent = useMemo(() => {
+		if (htmlInCanvasFallbackVideoUrl === null) {
+			return component;
+		}
+
+		return () => (
+			<HtmlInCanvasElementPreview
+				component={component}
+				fallbackVideoUrl={htmlInCanvasFallbackVideoUrl}
+			/>
+		);
+	}, [component, htmlInCanvasFallbackVideoUrl]);
 	const transparencyBackgroundStyle: React.CSSProperties = checkerboard
 		? {
 				backgroundColor: 'white',
@@ -92,7 +135,7 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 				<Player
 					acknowledgeRemotionLicense
 					autoPlay
-					component={component}
+					component={playerComponent}
 					durationInFrames={durationInFrames}
 					fps={fps}
 					compositionWidth={previewWidth}

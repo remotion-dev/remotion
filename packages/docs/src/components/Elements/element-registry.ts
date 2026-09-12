@@ -3,7 +3,7 @@ export const elementCategories = [
 	{category: 'backgrounds', label: 'Backgrounds'},
 	{category: 'captions', label: 'Captions'},
 	{category: 'data', label: 'Charts & Data'},
-	{category: 'commerce', label: 'Commerce'},
+	{category: 'commerce', label: 'Effects'},
 	{category: 'layouts', label: 'Layouts'},
 	{category: 'maps', label: 'Maps'},
 	{category: 'overlays', label: 'Overlays'},
@@ -75,9 +75,13 @@ export const elementRegistry = {
 		category: 'commerce',
 		displayName: 'Wiggling Callout',
 	},
-	'commerce/product-offer': {
+	'commerce/shine': {
 		category: 'commerce',
-		displayName: 'Product Offer',
+		displayName: 'Shine',
+	},
+	'commerce/tear': {
+		category: 'commerce',
+		displayName: 'Tear apart',
 	},
 	'data/horizontal-bar-chart': {
 		category: 'data',
