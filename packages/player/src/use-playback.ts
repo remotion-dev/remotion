@@ -152,12 +152,12 @@ export const usePlayback = ({
 	]);
 
 	useEffect(() => {
-		if (!config) {
+		if (!playing) {
+			sharedAudioContext?.suspend?.();
 			return;
 		}
 
-		if (!playing) {
-			sharedAudioContext?.suspend?.();
+		if (!config) {
 			return;
 		}
 

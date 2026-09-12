@@ -99,11 +99,14 @@ export const useSingletonAudioContext = ({
 			transitionTarget = 'running';
 			const promise = audioContext.resume();
 
-			promise.finally(() => {
+			const clear = () => {
 				if (transitionTarget === 'running') {
 					transitionTarget = null;
 				}
-			});
+			};
+
+			// Not .finally(): its derived promise would re-reject unhandled.
+			promise.then(clear, clear);
 
 			return promise;
 		};
@@ -112,11 +115,13 @@ export const useSingletonAudioContext = ({
 			transitionTarget = 'suspended';
 			const promise = audioContext.suspend();
 
-			promise.finally(() => {
+			const clear = () => {
 				if (transitionTarget === 'suspended') {
 					transitionTarget = null;
 				}
-			});
+			};
+
+			promise.then(clear, clear);
 
 			return promise;
 		};
