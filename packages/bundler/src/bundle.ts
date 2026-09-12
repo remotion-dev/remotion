@@ -367,13 +367,6 @@ export const internalBundle = async (
 		}
 	}
 
-	const bundleOutput = path.join(outDir, NoReactInternals.bundleName);
-	if (!fs.existsSync(bundleOutput)) {
-		throw new Error(
-			`The bundler completed without emitting ${NoReactInternals.bundleName}.`,
-		);
-	}
-
 	const publicPath = getBundlePublicPath(actualArgs.publicPath);
 	const staticHash = getBundleStaticHash(publicPath);
 

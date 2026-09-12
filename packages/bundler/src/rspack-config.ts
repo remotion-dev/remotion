@@ -83,12 +83,6 @@ export const rspackConfig = async ({
 	const sharedBaseConfig = getBaseConfig(environment, poll);
 	const baseConfig = {
 		...sharedBaseConfig,
-		optimization: {
-			...sharedBaseConfig.optimization,
-			// The optional dependency plugin removes expected resolution errors after
-			// compilation. Rspack must emit their throwing fallback chunks first.
-			emitOnErrors: true,
-		},
 		experiments: {
 			...sharedBaseConfig.experiments,
 			...(environment === 'development'
