@@ -1,5 +1,6 @@
 // When Webpack cannot resolve these dependencies, it will not print an error message.
 
+import {stripAnsi} from '@remotion/studio-shared';
 import type {Compiler} from 'webpack';
 
 const OPTIONAL_DEPENDENCIES = [
@@ -25,8 +26,10 @@ export class AllowOptionalDependenciesPlugin {
 			};
 		},
 	) {
+		const message = stripAnsi(error.message);
+
 		for (const dependency of OPTIONAL_DEPENDENCIES) {
-			if (error.message.includes(`Can't resolve '${dependency}'`)) {
+			if (message.includes(`Can't resolve '${dependency}'`)) {
 				return false;
 			}
 		}
@@ -36,7 +39,7 @@ export class AllowOptionalDependenciesPlugin {
 			error.module?.resourceResolveData?.descriptionFileData?.name;
 		for (const dependency of STUDIO_OPTIONAL_DEPENDENCIES) {
 			if (
-				error.message.includes(`Can't resolve '${dependency}'`) &&
+				message.includes(`Can't resolve '${dependency}'`) &&
 				(issuerPackageName === '@remotion/studio' ||
 					issuer.includes('/@remotion/studio/'))
 			) {
@@ -46,8 +49,8 @@ export class AllowOptionalDependenciesPlugin {
 
 		for (const dependency of SOURCE_MAP_IGNORE) {
 			if (
-				error.message.includes(`Can't resolve '${dependency}'`) &&
-				error.message.includes('source-map')
+				message.includes(`Can't resolve '${dependency}'`) &&
+				message.includes('source-map')
 			) {
 				return false;
 			}

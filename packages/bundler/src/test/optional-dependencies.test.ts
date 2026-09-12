@@ -38,3 +38,17 @@ test('does not hide missing optional AI package imports in user code', () => {
 		).toBe(true);
 	}
 });
+
+test('allows colorized Rspack errors for optional Studio dependencies', () => {
+	const plugin = new AllowOptionalDependenciesPlugin();
+	const error = missingOptionalPackageError(
+		'@remotion/whisper-webgpu',
+		'/project/node_modules/@remotion/studio/dist/esm/chunk.js',
+	);
+	error.message = error.message.replace(
+		"'@remotion/whisper-webgpu'",
+		"\u001b[33m'@remotion/whisper-webgpu'\u001b[39m",
+	);
+
+	expect(plugin.filter(error)).toBe(false);
+});
