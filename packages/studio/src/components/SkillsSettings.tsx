@@ -1,4 +1,5 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BLUE,
 	BORDER_WHITE_ALPHA_12,
@@ -9,6 +10,7 @@ import {copyText} from '../helpers/copy-text';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
 import {CopyIcon} from '../icons/copy';
+import {Button} from './Button';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
@@ -102,13 +104,29 @@ const status: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
+const installButton: React.CSSProperties = {
+	backgroundColor: BLUE,
+	color: WHITE,
+	flexShrink: 0,
+};
+
 const loading: React.CSSProperties = {
 	...description,
 	marginTop: 14,
 };
 
 export const SkillsSettings: React.FC = () => {
-	const {error, remotionSkillsInfo} = useSettings();
+	const {
+		error,
+		remotionSkillsInfo,
+		installSkill,
+		installingSkill,
+		skillInstallError,
+	} = useSettings();
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canInstall =
+		!window.remotion_isReadOnlyStudio &&
+		previewServerState.type === 'connected';
 	const {copied, markCopied} = useCopyFeedback();
 	const installedSkills = useMemo(() => {
 		return (
@@ -145,7 +163,21 @@ export const SkillsSettings: React.FC = () => {
 					<ValidationMessage message={error} align="flex-start" type="error" />
 				</div>
 			) : null}
-			{missingSkills > 0 ? (
+			{missingSkills > 0 && canInstall ? (
+				<p style={description}>
+					Install skills in this project to use them with your coding agent.
+				</p>
+			) : null}
+			{skillInstallError ? (
+				<div style={{marginTop: 14}}>
+					<ValidationMessage
+						message={skillInstallError}
+						align="flex-start"
+						type="error"
+					/>
+				</div>
+			) : null}
+			{missingSkills > 0 && !canInstall ? (
 				<div>
 					<p style={description}>
 						Not all skills are installed. Run this command in the project
@@ -193,6 +225,16 @@ export const SkillsSettings: React.FC = () => {
 										aria-hidden
 										style={{...statusIcon, fill: BLUE}}
 									/>
+								) : canInstall ? (
+									<Button
+										size="compact"
+										style={installButton}
+										title={`Install ${skill.name} in this project`}
+										disabled={installingSkill !== null}
+										onClick={() => installSkill(skill.name)}
+									>
+										{installingSkill === skill.name ? 'Installing…' : 'Install'}
+									</Button>
 								) : null}
 							</div>
 						);

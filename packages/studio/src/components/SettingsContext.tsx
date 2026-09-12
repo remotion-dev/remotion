@@ -16,6 +16,7 @@ import React, {
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {callApi} from './call-api';
+import {showNotification} from './Notifications/NotificationCenter';
 import {UpdateStatusProvider} from './UpdateStatusContext';
 
 type SettingsContextValue = {
@@ -28,6 +29,9 @@ type SettingsContextValue = {
 	readonly studioRuntimeConfig: StudioRuntimeConfig | null;
 	readonly revision: number;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
+	readonly installSkill: (skill: string) => Promise<void>;
+	readonly installingSkill: string | null;
+	readonly skillInstallError: string | null;
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -39,7 +43,7 @@ export const SettingsProvider: React.FC<{
 		StudioServerConnectionCtx,
 	);
 	const [settings, setSettings] = useState<
-		Omit<SettingsContextValue, 'setPublicLicenseKey'>
+		Omit<SettingsContextValue, 'setPublicLicenseKey' | 'installSkill'>
 	>({
 		codingAgentInfo: null,
 		editorInfo: null,
@@ -49,6 +53,8 @@ export const SettingsProvider: React.FC<{
 		renderDefaults: window.remotion_renderDefaults ?? null,
 		studioRuntimeConfig: window.remotion_studioConfig ?? null,
 		revision: 0,
+		installingSkill: null,
+		skillInstallError: null,
 	});
 
 	useEffect(() => {
@@ -147,9 +153,37 @@ export const SettingsProvider: React.FC<{
 			};
 		});
 	}, []);
+	const installSkill = useCallback(async (skill: string) => {
+		setSettings((currentSettings) => ({
+			...currentSettings,
+			installingSkill: skill,
+			skillInstallError: null,
+		}));
+		try {
+			const remotionSkillsInfo = await callApi('/api/install-remotion-skill', {
+				skill,
+			});
+			setSettings((currentSettings) => ({
+				...currentSettings,
+				remotionSkillsInfo,
+				installingSkill: null,
+				revision: currentSettings.revision + 1,
+			}));
+			showNotification(
+				`Installed ${skill}. Restart your coding agent to use it.`,
+				5000,
+			);
+		} catch (err) {
+			setSettings((currentSettings) => ({
+				...currentSettings,
+				installingSkill: null,
+				skillInstallError: (err as Error).message,
+			}));
+		}
+	}, []);
 	const value = useMemo<SettingsContextValue>(() => {
-		return {...settings, setPublicLicenseKey};
-	}, [setPublicLicenseKey, settings]);
+		return {...settings, setPublicLicenseKey, installSkill};
+	}, [installSkill, setPublicLicenseKey, settings]);
 
 	return (
 		<SettingsContext.Provider value={value}>
