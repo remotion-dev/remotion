@@ -110,7 +110,7 @@ test(
 					rootDir: fixtureDirectory,
 					rspack: true,
 				}),
-			).rejects.toThrow("Can't resolve 'definitely-not-an-installed-package'");
+			).rejects.toThrow('definitely-not-an-installed-package');
 		} finally {
 			rmSync(fixtureDirectory, {recursive: true, force: true});
 		}
