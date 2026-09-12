@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-export-otio'
+  short_description: 'Export an OTIO timeline for video editors'
+  icon_small: './assets/remotion-icon.png'
+  icon_large: './assets/remotion-icon.png'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-export-otio: Export this composition for DaVinci Resolve'

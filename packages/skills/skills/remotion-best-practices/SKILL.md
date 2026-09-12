@@ -38,6 +38,10 @@ By structuring the Remotion markup well, we can allow users to interactively cha
 
 For advanced rendering beyond simple `npx remotion render`, see: [Rendering Best Practices](./remotion-render/SKILL.md)
 
+## Exporting a timeline to a video editor
+
+To hand a composition over to DaVinci Resolve or Premiere Pro as an OpenTimelineIO (`.otio`) timeline, load [Remotion Export OTIO](./remotion-export-otio/SKILL.md).
+
 ## Opening Remotion Studio
 
 To launch a project in Remotion Studio, open its exact local URL, or configure Studio CLI flags, load [Remotion Studio](./remotion-studio/SKILL.md).
