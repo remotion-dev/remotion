@@ -1,4 +1,13 @@
-export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
+import type {SvgFont} from '../svg-fonts';
+import {buildSvgFontFaceCss, embedFontFaceCssInSvgMarkup} from '../svg-fonts';
+
+export const turnSvgIntoDrawable = ({
+	svg,
+	fonts,
+}: {
+	svg: SVGSVGElement;
+	fonts: SvgFont[] | null;
+}) => {
 	const {fill, color} = getComputedStyle(svg);
 
 	const originalTransform = svg.style.transform;
@@ -20,10 +29,17 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.marginBottom = '0';
 	svg.style.fill = fill;
 	svg.style.color = color;
-	const svgData = new XMLSerializer()
+	const serialized = new XMLSerializer()
 		.serializeToString(svg)
 		// eslint-disable-next-line no-control-regex
 		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+
+	const svgData = fonts
+		? embedFontFaceCssInSvgMarkup({
+				svgData: serialized,
+				css: buildSvgFontFaceCss(fonts),
+			})
+		: serialized;
 
 	svg.style.marginLeft = originalMarginLeft;
 	svg.style.marginRight = originalMarginRight;

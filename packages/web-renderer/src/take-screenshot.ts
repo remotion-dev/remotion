@@ -8,6 +8,7 @@ import {
 	drawWithHtmlInCanvas,
 } from './html-in-canvas';
 import type {InternalState} from './internal-state';
+import type {SvgFonts} from './svg-fonts';
 
 export type HtmlInCanvasLayerOutcome =
 	| {native: true}
@@ -23,6 +24,7 @@ export const createLayer = async ({
 	htmlInCanvasContext,
 	onHtmlInCanvasLayerOutcome,
 	waitForPageResponsiveness,
+	svgFonts,
 }: {
 	element: HTMLElement | SVGElement;
 	scale: number;
@@ -33,6 +35,7 @@ export const createLayer = async ({
 	htmlInCanvasContext?: HtmlInCanvasContext | null;
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	svgFonts: SvgFonts | null;
 }) => {
 	const scaledWidth = Math.ceil(cutout.width * scale);
 	const scaledHeight = Math.ceil(cutout.height * scale);
@@ -99,6 +102,7 @@ export const createLayer = async ({
 		onlyBackgroundClipText,
 		scale,
 		waitForPageResponsiveness,
+		svgFonts,
 	});
 
 	return context;

@@ -30,6 +30,7 @@ export type {
 } from './mediabunny-mappings';
 export type {WebRendererOutputTarget} from './output-target';
 export type {WebRendererPageResponsiveness} from './page-responsiveness';
+export type {SvgFont, SvgFontFormat, SvgFonts} from './svg-fonts';
 export {renderMediaOnWeb} from './render-media-on-web';
 export type {
 	RenderMediaOnWebOptions,

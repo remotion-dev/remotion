@@ -1,5 +1,6 @@
 import {Internals, type LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
+import type {SvgFonts} from '../svg-fonts';
 import {createLayer} from '../take-screenshot';
 import {
 	calculateTransforms,
@@ -37,6 +38,7 @@ export const processNode = async ({
 	rootElement,
 	scale,
 	waitForPageResponsiveness,
+	svgFonts,
 	transformStyleCache,
 }: {
 	element: HTMLElement | SVGElement;
@@ -48,6 +50,7 @@ export const processNode = async ({
 	rootElement: HTMLElement | SVGElement;
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	svgFonts: SvgFonts | null;
 	transformStyleCache: TransformStyleCache;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
@@ -140,6 +143,7 @@ export const processNode = async ({
 			scale,
 			onlyBackgroundClipText: false,
 			waitForPageResponsiveness,
+			svgFonts,
 		});
 		if (waitForPageResponsiveness !== null) {
 			await waitForPageResponsiveness();
@@ -267,6 +271,7 @@ export const processNode = async ({
 		element,
 		internalState,
 		scale,
+		svgFonts,
 	});
 
 	return {type: 'continue', cleanupAfterChildren};
