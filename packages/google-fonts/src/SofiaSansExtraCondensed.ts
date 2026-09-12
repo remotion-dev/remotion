@@ -1,4 +1,4 @@
-import {loadFonts} from './base';
+import {loadFonts, loadVariableFonts} from './base';
 
 export const getInfo = () => ({
 	fontFamily: 'Sofia Sans Extra Condensed',
@@ -239,6 +239,105 @@ export const getInfo = () => ({
 		},
 	},
 	subsets: ['cyrillic', 'cyrillic-ext', 'greek', 'latin', 'latin-ext'],
+	variable: {
+		axes: {
+			wght: {
+				min: 1,
+				max: 1000,
+			},
+		},
+		fontFaces: [
+			{
+				style: 'italic',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'cyrillic-ext',
+				unicodeRange:
+					'U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxqHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fSrFkF8lxek.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'cyrillic',
+				unicodeRange: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxqHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fSrFkh8lxek.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'greek',
+				unicodeRange:
+					'U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxqHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fSrFk98lxek.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'latin-ext',
+				unicodeRange:
+					'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxqHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fSrFkJ8lxek.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'latin',
+				unicodeRange:
+					'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxqHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fSrFkx8lw.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'cyrillic-ext',
+				unicodeRange:
+					'U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxoHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fSjJk5kkw.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'cyrillic',
+				unicodeRange: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxoHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fSqJk5kkw.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'greek',
+				unicodeRange:
+					'U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxoHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fStJk5kkw.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'latin-ext',
+				unicodeRange:
+					'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxoHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fSgJk5kkw.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '1 1000',
+				stretch: null,
+				subset: 'latin',
+				unicodeRange:
+					'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+				src: 'https://fonts.gstatic.com/s/sofiasansextracondensed/v6/raxoHjafvdAIOju4GcIfJH0i7zi50X3zRtuLNiMS0fSuJk4.woff2',
+			},
+		],
+		url: 'https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,1..1000;1,1..1000',
+	},
 });
 
 export const fontFamily = 'Sofia Sans Extra Condensed' as const;
@@ -282,4 +381,24 @@ export const loadFont = <T extends keyof Variants>(
 	},
 ) => {
 	return loadFonts(getInfo(), style, options);
+};
+
+type VariableVariants = {
+	italic: {
+		subsets: 'cyrillic' | 'cyrillic-ext' | 'greek' | 'latin' | 'latin-ext';
+	};
+	normal: {
+		subsets: 'cyrillic' | 'cyrillic-ext' | 'greek' | 'latin' | 'latin-ext';
+	};
+};
+
+export const loadVariableFont = <T extends keyof VariableVariants>(
+	style: T,
+	options: {
+		subsets: VariableVariants[T]['subsets'][];
+		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
+	},
+) => {
+	return loadVariableFonts(getInfo(), style, options);
 };

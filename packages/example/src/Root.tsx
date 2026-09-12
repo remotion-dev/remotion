@@ -182,6 +182,7 @@ import {
 	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
 	PushCutDemo,
 } from './Transitions/PushCutDemo';
+import {VariableGoogleFont} from './VariableGoogleFont/VariableGoogleFont';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
@@ -3157,6 +3158,14 @@ export const Index: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={2 * 60 * 30}
+			/>
+			<Composition
+				id="variable-google-font"
+				component={VariableGoogleFont}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={180}
 			/>
 		</>
 	);

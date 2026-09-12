@@ -393,9 +393,11 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'google-fonts/load-font',
+				'google-fonts/load-variable-font',
 				'google-fonts/get-available-fonts',
 				'google-fonts/get-info',
 				'google-fonts/load-font-from-info',
+				'google-fonts/load-variable-font-from-info',
 			],
 		},
 		{

@@ -8,16 +8,20 @@ import {AvailableFonts} from '../../components/AvailableFonts';
 
 _Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_
 
-Each font exports an `getInfo()` function that can be used to get various information about the font at runtime, such as which weights, styles and subsets are available.
+Each font exports a `getInfo()` function that returns information such as the available weights, styles and subsets.
 
 ## Usage
 
-To get information about a font, you can import the `info` property:
+Import `getInfo()` from a generated font module:
 
 ```tsx twoslash title="Get info about the font"
 import {getInfo} from '@remotion/google-fonts/Montserrat';
 console.log(getInfo());
 ```
+
+## Return value
+
+An object containing metadata about the font.
 
 ```json title="Example value of info object"
 {
@@ -41,7 +45,63 @@ console.log(getInfo());
 }
 ```
 
+### fontFamily
+
+The font family name.
+
+### importName
+
+The name used to import the generated font module.
+
+### version
+
+The Google Fonts version identifier.
+
+### url
+
+The Google Fonts CSS URL for the static font variants.
+
+### unicodeRanges
+
+The Unicode range covered by each character subset.
+
+### fonts
+
+The source URL of each available combination of style, weight and character subset.
+
+### subsets
+
+The character subsets supported by the font.
+
+### variable?<AvailableFrom v="4.0.524" />
+
+For fonts that support variable axes, this property contains the variable font metadata. It is omitted for non-variable fonts.
+
+```tsx twoslash title="Read variable font axes"
+import {getInfo} from '@remotion/google-fonts/NotoSans';
+
+const variable = getInfo().variable;
+
+if (variable) {
+  console.log(variable.axes.wght);
+  // {min: 100, max: 900}
+}
+```
+
+#### axes
+
+An object containing the minimum and maximum value of each variation axis.
+
+#### fontFaces
+
+The style, weight range, stretch range, character subset, Unicode range and source URL of each variable font face.
+
+#### url
+
+The Google Fonts CSS URL used to retrieve the variable font faces.
+
 ## See also
 
 - [Fonts](/docs/fonts)
 - [`@remotion/google-fonts`](/docs/google-fonts)
+- [`loadVariableFont()`](/docs/google-fonts/load-variable-font)
