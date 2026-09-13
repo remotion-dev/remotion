@@ -3,6 +3,7 @@ import {ThreeDCheck} from './3DCheck';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
+import {WhatsNewInRemotion} from './announcements/whats-new-in-remotion/Root';
 import {AppIcons} from './AppIcons';
 import {
 	ApplicationRenderButton,
@@ -618,6 +619,9 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="SocialMediaAnnouncements">
+				<Folder name="whats-new-in-remotion">
+					<WhatsNewInRemotion />
+				</Folder>
 				<Folder name="effect-showcases">
 					<Composition
 						id="corner-pin-effect-showcase"
