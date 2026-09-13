@@ -294,7 +294,7 @@ const PlayPauseInner: React.FC<{
 			)}
 			{hideNavigationControls ? null : (
 				<ActionTooltip
-					label="Go back 1 frame"
+					label="Previous frame"
 					shortcut="←"
 					delay={800}
 					dismissOnClick
@@ -343,7 +343,7 @@ const PlayPauseInner: React.FC<{
 
 			{hideNavigationControls ? null : (
 				<ActionTooltip
-					label="Go forward 1 frame"
+					label="Next frame"
 					shortcut="→"
 					delay={800}
 					dismissOnClick

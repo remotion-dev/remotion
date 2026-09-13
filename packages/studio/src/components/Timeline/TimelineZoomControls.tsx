@@ -138,7 +138,7 @@ const TimelineZoomControlsInner: React.FC<{
 	return (
 		<div style={container}>
 			<ActionTooltip
-				label="Zoom out timeline"
+				label="Zoom out"
 				shortcut={null}
 				delay={800}
 				dismissOnClick
@@ -160,12 +160,7 @@ const TimelineZoomControlsInner: React.FC<{
 				timelineViewportWidth={timelineViewportWidth}
 			/>
 			<Spacing x={0.5} />
-			<ActionTooltip
-				label="Zoom in timeline"
-				shortcut={null}
-				delay={800}
-				dismissOnClick
-			>
+			<ActionTooltip label="Zoom in" shortcut={null} delay={800} dismissOnClick>
 				<ControlButton
 					onClick={onPlusClicked}
 					style={buttonStyle}

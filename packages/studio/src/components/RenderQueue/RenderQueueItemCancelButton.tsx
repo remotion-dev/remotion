@@ -56,12 +56,7 @@ export const RenderQueueCancelButton: React.FC<{
 	);
 
 	return (
-		<ActionTooltip
-			label="Cancel render"
-			shortcut={null}
-			delay={800}
-			dismissOnClick
-		>
+		<ActionTooltip label="Cancel" shortcut={null} delay={800} dismissOnClick>
 			<InlineAction
 				aria-label="Cancel render"
 				renderAction={renderAction}

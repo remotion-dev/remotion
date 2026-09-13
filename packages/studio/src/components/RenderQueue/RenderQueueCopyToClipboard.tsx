@@ -77,12 +77,7 @@ export const RenderQueueCopyToClipboard: React.FC<{
 	);
 
 	return (
-		<ActionTooltip
-			label="Copy to clipboard"
-			shortcut={null}
-			delay={800}
-			dismissOnClick
-		>
+		<ActionTooltip label="Copy" shortcut={null} delay={800} dismissOnClick>
 			<InlineAction
 				aria-label="Copy to clipboard"
 				variant={null}
