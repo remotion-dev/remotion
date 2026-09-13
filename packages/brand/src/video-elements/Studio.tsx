@@ -789,27 +789,6 @@ const RightSidebar: React.FC<{
 						JSON
 					</Interactive.Div>
 				</div>
-				<Interactive.Div
-					name="Warning indicator"
-					style={{
-						alignItems: 'center',
-						backgroundColor: BACKGROUND,
-						border: '1px solid #0c0e10',
-						boxShadow: 'inset 0 0 0 1px #555555',
-						color: '#d6c400',
-						display: 'flex',
-						fontSize: 11,
-						height: 22,
-						boxSizing: 'border-box',
-						marginLeft: 'auto',
-						paddingLeft: 6,
-						paddingRight: 5,
-						width: 52,
-					}}
-				>
-					⚠<span style={{color: LIGHT_TEXT, marginLeft: 3}}>1</span>
-					<CaretIcon color={LIGHT_TEXT} direction="down" size={10} />
-				</Interactive.Div>
 			</Interactive.Div>
 			<Interactive.Div
 				name="Platform label"
