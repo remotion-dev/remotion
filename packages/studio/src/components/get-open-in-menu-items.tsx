@@ -133,7 +133,7 @@ export const getOpenInMenuItems = ({
 				id: 'open-in-github',
 				keyHint: null,
 				label: <span style={menuLabel}>GitHub.com</span>,
-				leftItem: <GitHubIcon size={18} />,
+				leftItem: <GitHubIcon size={16} />,
 				onClick: () => {
 					openGitSource({folder, location});
 				},

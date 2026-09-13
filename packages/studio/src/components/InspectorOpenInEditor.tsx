@@ -42,6 +42,7 @@ const dropdownSegmentStyle: React.CSSProperties = {
 };
 
 const editorButtonIconSize = 18;
+const githubButtonIconSize = 16;
 
 export const InspectorOpenInEditor: React.FC<{
 	readonly contextForAgents?: string | null;
@@ -206,7 +207,7 @@ export const InspectorOpenInEditor: React.FC<{
 					<>
 						{label}
 						{defaultOpenInTarget === 'git-source' ? (
-							<GitHubIcon size={editorButtonIconSize} />
+							<GitHubIcon size={githubButtonIconSize} />
 						) : (
 							<EditorIcon
 								editorId={defaultEditorId}
