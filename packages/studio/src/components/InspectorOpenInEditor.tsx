@@ -6,7 +6,7 @@ import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {
-	hasReadOnlyGitSource,
+	getDefaultOpenInTarget,
 	openGitSource,
 } from '../helpers/get-git-menu-item';
 import {
@@ -42,6 +42,7 @@ const dropdownSegmentStyle: React.CSSProperties = {
 };
 
 const editorButtonIconSize = 18;
+const githubButtonIconSize = 16;
 
 export const InspectorOpenInEditor: React.FC<{
 	readonly contextForAgents?: string | null;
@@ -59,8 +60,7 @@ export const InspectorOpenInEditor: React.FC<{
 		editorInfo,
 	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
-	const canOpenInGitHub = hasReadOnlyGitSource();
-	const defaultActionIsGitHub = !canOpenInEditor && canOpenInGitHub;
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
 
 	const openWithEditor = useCallback(
 		async (editorId: EditorPickerId) => {
@@ -93,23 +93,23 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[contextForAgents],
 	);
-	const defaultAppName = defaultActionIsGitHub
-		? 'GitHub'
-		: (defaultEditorName ?? 'default editor');
-	const canOpenDefault =
-		location !== null && (canOpenInEditor || canOpenInGitHub);
+	const defaultAppName =
+		defaultOpenInTarget === 'git-source'
+			? 'GitHub'
+			: (defaultEditorName ?? 'default editor');
+	const canOpenDefault = location !== null && defaultOpenInTarget !== null;
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
-			if (defaultActionIsGitHub) {
+			if (defaultOpenInTarget === 'git-source') {
 				openGitSource({folder: locationType === 'folder', location});
-			} else if (defaultEditorId) {
+			} else if (defaultOpenInTarget === 'editor' && defaultEditorId) {
 				openWithEditor(defaultEditorId).catch(() => undefined);
 			}
 		},
 		[
-			defaultActionIsGitHub,
 			defaultEditorId,
+			defaultOpenInTarget,
 			location,
 			locationType,
 			openWithEditor,
@@ -178,15 +178,15 @@ export const InspectorOpenInEditor: React.FC<{
 			},
 		});
 
-		return defaultActionIsGitHub
+		return defaultOpenInTarget === 'git-source'
 			? items.filter((item) => item.id !== 'open-in-github')
 			: items;
 	}, [
 		codingAgentInfo,
 		canOpenInEditor,
 		configureDefaultApps,
-		defaultActionIsGitHub,
 		defaultEditorId,
+		defaultOpenInTarget,
 		editorInfo,
 		location,
 		locationType,
@@ -206,8 +206,8 @@ export const InspectorOpenInEditor: React.FC<{
 				renderContent: () => (
 					<>
 						{label}
-						{defaultActionIsGitHub ? (
-							<GitHubIcon size={editorButtonIconSize} />
+						{defaultOpenInTarget === 'git-source' ? (
+							<GitHubIcon size={githubButtonIconSize} />
 						) : (
 							<EditorIcon
 								editorId={defaultEditorId}
@@ -244,9 +244,9 @@ export const InspectorOpenInEditor: React.FC<{
 		return result;
 	}, [
 		canOpenDefault,
-		defaultActionIsGitHub,
 		defaultAppName,
 		defaultEditorId,
+		defaultOpenInTarget,
 		label,
 		menuItems,
 		onOpenDefault,
@@ -256,7 +256,7 @@ export const InspectorOpenInEditor: React.FC<{
 		return null;
 	}
 
-	if (previewServerState.type !== 'connected' && !canOpenInGitHub) {
+	if (previewServerState.type !== 'connected' && defaultOpenInTarget === null) {
 		return null;
 	}
 

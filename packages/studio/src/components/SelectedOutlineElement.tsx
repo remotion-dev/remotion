@@ -3,6 +3,10 @@ import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
+import {
+	getDefaultOpenInTarget,
+	openGitSource,
+} from '../helpers/get-git-menu-item';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {
@@ -94,6 +98,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		editorInfo,
 	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const defaultOpenInTarget = getDefaultOpenInTarget({
+		canOpenInEditor: editorAvailable,
+	});
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
@@ -146,7 +153,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			});
 			const action = getSequenceDoubleClickAction({
 				button,
-				canOpenInEditor: editorAvailable,
+				canOpenSource: defaultOpenInTarget !== null,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				sequenceWasDragged,
 			});
@@ -160,17 +167,24 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				return true;
 			}
 
-			const openTargetInEditor = async () => {
+			const openTargetSource = async () => {
 				const originalLocation =
 					await resolveOriginalLocation(doubleClickTarget);
-				if (originalLocation === null || defaultEditorId === null) {
+				if (originalLocation === null) {
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation, defaultEditorId);
+				if (defaultOpenInTarget === 'editor' && defaultEditorId !== null) {
+					await openOriginalPositionInEditor(originalLocation, defaultEditorId);
+					return;
+				}
+
+				if (defaultOpenInTarget === 'git-source') {
+					openGitSource({folder: false, location: originalLocation});
+				}
 			};
 
-			openTargetInEditor().catch((err) => {
+			openTargetSource().catch((err) => {
 				showNotification((err as Error).message, 2000);
 			});
 
@@ -179,7 +193,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		[
 			compositions,
 			defaultEditorId,
-			editorAvailable,
+			defaultOpenInTarget,
 			resolveOriginalLocation,
 			selectComposition,
 		],

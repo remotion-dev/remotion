@@ -4,6 +4,10 @@ import {useCallback, useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
+	getDefaultOpenInTarget,
+	openGitSource,
+} from '../../helpers/get-git-menu-item';
+import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../../helpers/open-in-editor';
@@ -32,6 +36,9 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 		() => Boolean(editorAvailable && originalLocation),
 		[editorAvailable, originalLocation],
 	);
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
+	const canOpenSource =
+		defaultOpenInTarget !== null && originalLocation !== null;
 
 	const openInEditor = useCallback(
 		async (editorId: EditorPickerId | null) => {
@@ -48,6 +55,20 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 		},
 		[canOpenInEditor, defaultEditorId, originalLocation],
 	);
+	const openSource = useCallback(() => {
+		if (!originalLocation) {
+			return;
+		}
+
+		if (defaultOpenInTarget === 'editor') {
+			openInEditor(null);
+			return;
+		}
+
+		if (defaultOpenInTarget === 'git-source') {
+			openGitSource({folder: false, location: originalLocation});
+		}
+	}, [defaultOpenInTarget, openInEditor, originalLocation]);
 	const openInCodingAgent = useCallback(
 		async (
 			codingAgentId: DefaultCodingAgent,
@@ -70,12 +91,14 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 	);
 
 	return {
+		canOpenSource,
 		canOpenInEditor,
 		canConfigureApps,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
+		openSource,
 		originalLocation,
 	};
 };

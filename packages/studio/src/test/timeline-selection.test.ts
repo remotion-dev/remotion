@@ -3543,11 +3543,11 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 	).toEqual({shiftKey: false, toggleKey: true});
 });
 
-test('Sequence double-click opens one connected composition before the editor', () => {
+test('Sequence double-click opens one connected composition before its source', () => {
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
-			canOpenInEditor: true,
+			canOpenSource: true,
 			numberOfConnectedCompositions: 1,
 			sequenceWasDragged: false,
 		}),
@@ -3555,7 +3555,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
-			canOpenInEditor: false,
+			canOpenSource: false,
 			numberOfConnectedCompositions: 1,
 			sequenceWasDragged: false,
 		}),
@@ -3563,23 +3563,23 @@ test('Sequence double-click opens one connected composition before the editor', 
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
-			canOpenInEditor: true,
+			canOpenSource: true,
 			numberOfConnectedCompositions: 0,
 			sequenceWasDragged: false,
 		}),
-	).toBe('open-in-editor');
+	).toBe('open-source');
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
-			canOpenInEditor: true,
+			canOpenSource: true,
 			numberOfConnectedCompositions: 2,
 			sequenceWasDragged: false,
 		}),
-	).toBe('open-in-editor');
+	).toBe('open-source');
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
-			canOpenInEditor: false,
+			canOpenSource: false,
 			numberOfConnectedCompositions: 2,
 			sequenceWasDragged: false,
 		}),
@@ -3587,7 +3587,7 @@ test('Sequence double-click opens one connected composition before the editor', 
 	expect(
 		getSequenceDoubleClickAction({
 			button: 2,
-			canOpenInEditor: true,
+			canOpenSource: true,
 			numberOfConnectedCompositions: 1,
 			sequenceWasDragged: false,
 		}),
@@ -3598,7 +3598,7 @@ test('Sequence double-click does nothing when the second press dragged the seque
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
-			canOpenInEditor: true,
+			canOpenSource: true,
 			numberOfConnectedCompositions: 1,
 			sequenceWasDragged: true,
 		}),
@@ -3606,7 +3606,7 @@ test('Sequence double-click does nothing when the second press dragged the seque
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
-			canOpenInEditor: true,
+			canOpenSource: true,
 			numberOfConnectedCompositions: 0,
 			sequenceWasDragged: true,
 		}),

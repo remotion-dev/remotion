@@ -76,6 +76,20 @@ export const hasReadOnlyGitSource = () => {
 	return Boolean(window.remotion_isReadOnlyStudio && window.remotion_gitSource);
 };
 
+export type DefaultOpenInTarget = 'editor' | 'git-source';
+
+export const getDefaultOpenInTarget = ({
+	canOpenInEditor,
+}: {
+	readonly canOpenInEditor: boolean;
+}): DefaultOpenInTarget | null => {
+	if (canOpenInEditor) {
+		return 'editor';
+	}
+
+	return hasReadOnlyGitSource() ? 'git-source' : null;
+};
+
 export const openGitSource = ({
 	folder,
 	location,

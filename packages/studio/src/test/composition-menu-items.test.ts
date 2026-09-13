@@ -1,4 +1,5 @@
 import {afterEach, expect, mock, test} from 'bun:test';
+import type {GitSource} from '@remotion/studio-shared';
 import type {_InternalTypes, ResolvedStackLocation} from 'remotion';
 import {
 	getCompositionContextMenuItems,
@@ -46,6 +47,36 @@ const installTestWindowWithEditor = () => {
 			remotion_editorName: 'Code',
 		},
 	});
+};
+
+const installTestWindowWithGitSource = ({
+	readOnly,
+}: {
+	readonly readOnly: boolean;
+}) => {
+	const openedUrls: string[] = [];
+	const gitSource: GitSource = {
+		name: 'project',
+		org: 'example',
+		ref: 'main',
+		relativeFromGitRoot: '',
+		type: 'github',
+	};
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: {
+			open: (url: string) => {
+				openedUrls.push(url);
+				return null;
+			},
+			remotion_cwd: '/project',
+			remotion_editorName: readOnly ? null : 'Code',
+			remotion_gitSource: gitSource,
+			remotion_isReadOnlyStudio: readOnly,
+		},
+	});
+
+	return openedUrls;
 };
 
 const composition = {
@@ -216,4 +247,47 @@ test('read-only composition menus keep navigation and copy actions enabled', () 
 	expect(itemById('rename').disabled).toBe(true);
 	expect(itemById('duplicate').disabled).toBe(true);
 	expect(itemById('delete').disabled).toBe(true);
+});
+
+test('composition context menus can open source locations on GitHub', () => {
+	const openedUrls = installTestWindowWithGitSource({readOnly: true});
+	const items = getCompositionContextMenuItems({
+		...commonArgs,
+		editorId: null,
+		editorName: null,
+		includeCompositionManagementItems: true,
+		readOnlyStudio: true,
+		resolvedLocation,
+	});
+	const compositionItem = items.find(
+		(item) => item.id === 'open-composition-in-git-source',
+	);
+	const componentItem = items.find(
+		(item) => item.id === 'open-component-in-git-source',
+	);
+	if (compositionItem?.type !== 'item' || componentItem?.type !== 'item') {
+		throw new Error('Expected GitHub composition actions');
+	}
+
+	expect(compositionItem.label).toBe('Open composition in GitHub');
+	expect(componentItem.label).toBe('Open component in GitHub');
+	expect(compositionItem.disabled).toBe(false);
+	expect(componentItem.disabled).toBe(false);
+	compositionItem.onClick(compositionItem.id, null);
+	expect(openedUrls).toEqual([
+		'https://github.com/example/project/blob/main/src/Composition.tsx#L10',
+	]);
+});
+
+test('interactive composition context menus retain GitHub actions', () => {
+	installTestWindowWithGitSource({readOnly: false});
+	const items = getCompositionContextMenuItems({
+		...commonArgs,
+		includeCompositionManagementItems: false,
+		resolvedLocation,
+	});
+
+	expect(ids(items)).toContain('show-in-editor');
+	expect(ids(items)).toContain('open-composition-in-git-source');
+	expect(ids(items)).toContain('open-component-in-git-source');
 });
