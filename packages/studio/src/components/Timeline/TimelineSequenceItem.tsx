@@ -345,12 +345,14 @@ const TimelineSequenceItemInner: React.FC<{
 	const stopSequencePointerSession = useRef<(() => void) | null>(null);
 	const suppressNextClick = useRef(false);
 	const {
-		canOpenInEditor,
 		canConfigureApps,
+		canOpenInEditor,
+		canOpenSource,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
+		openSource,
 		originalLocation,
 	} = useOpenSequenceInApps(sequence);
 
@@ -929,7 +931,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 			const action = getSequenceDoubleClickAction({
 				button: e.button,
-				canOpenInEditor,
+				canOpenSource,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				// The track list row reorders via native drag-and-drop, which
 				// already suppresses `dblclick` after a drag.
@@ -954,19 +956,19 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
-			openInEditor(null);
+			openSource();
 		},
 		[
-			canOpenInEditor,
+			canOpenSource,
 			connectedCompositions,
-			openInEditor,
+			openSource,
 			selectComposition,
 			sequence,
 			sequenceFrameOffset,
 		],
 	);
 	const canHandleSequenceDoubleClick =
-		connectedCompositions.length === 1 || canOpenInEditor;
+		connectedCompositions.length === 1 || canOpenSource;
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&

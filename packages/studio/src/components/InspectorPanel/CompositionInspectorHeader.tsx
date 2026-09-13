@@ -9,7 +9,7 @@ import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
-	hasReadOnlyGitSource,
+	getDefaultOpenInTarget,
 	openGitSource,
 } from '../../helpers/get-git-menu-item';
 import {isCompositionStill} from '../../helpers/is-composition-still';
@@ -54,7 +54,7 @@ export const CompositionInspectorHeader = () => {
 	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
 		previewServerState.type === 'connected',
 	);
-	const canOpenInGitHub = hasReadOnlyGitSource();
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
 
 	const currentComposition = useMemo(() => {
 		if (!video) {
@@ -104,18 +104,18 @@ export const CompositionInspectorHeader = () => {
 
 	const openSourceLocation = useCallback(
 		(location: OriginalPosition) => {
-			if (canOpenInEditor && defaultEditorId) {
+			if (defaultOpenInTarget === 'editor' && defaultEditorId) {
 				openOriginalPositionInEditor(location, defaultEditorId).catch((err) => {
 					showNotification((err as Error).message, 2000);
 				});
 				return;
 			}
 
-			if (canOpenInGitHub) {
+			if (defaultOpenInTarget === 'git-source') {
 				openGitSource({folder: false, location});
 			}
 		},
-		[canOpenInEditor, canOpenInGitHub, defaultEditorId],
+		[defaultEditorId, defaultOpenInTarget],
 	);
 	const openFileLocation = useCallback(() => {
 		if (validatedLocation) {
@@ -161,9 +161,7 @@ export const CompositionInspectorHeader = () => {
 					/>
 					<InspectorSourceLocation
 						location={validatedLocation}
-						canOpen={
-							validatedLocation !== null && (canOpenInEditor || canOpenInGitHub)
-						}
+						canOpen={validatedLocation !== null && defaultOpenInTarget !== null}
 						onOpen={openFileLocation}
 						renderIcon={renderCompositionIcon}
 						size="quick-action"
@@ -176,8 +174,7 @@ export const CompositionInspectorHeader = () => {
 						<InspectorSourceLocation
 							location={componentLocation}
 							canOpen={
-								componentLocation !== null &&
-								(canOpenInEditor || canOpenInGitHub)
+								componentLocation !== null && defaultOpenInTarget !== null
 							}
 							onOpen={openComponentLocation}
 							renderIcon={renderReactIcon}

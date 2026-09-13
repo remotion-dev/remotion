@@ -2,10 +2,6 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {CURRENT_COLOR} from '../../helpers/colors';
-import {
-	hasReadOnlyGitSource,
-	openGitSource,
-} from '../../helpers/get-git-menu-item';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {ReactIcon} from '../../icons/react';
 import {InlineEditableTitle} from '../InlineEditableTitle';
@@ -66,9 +62,8 @@ type SequenceInspectorSourceLocation = {
 export const useSequenceInspectorSourceLocation = (
 	sequence: TimelineTrackData['sequence'],
 ): SequenceInspectorSourceLocation => {
-	const {canOpenInEditor, openInEditor, originalLocation} =
+	const {canOpenSource, openSource, originalLocation} =
 		useOpenSequenceInApps(sequence);
-	const canOpenInGitHub = hasReadOnlyGitSource();
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -87,18 +82,11 @@ export const useSequenceInspectorSourceLocation = (
 	}, [originalLocation]);
 
 	const openFileLocation = useCallback(() => {
-		if (canOpenInEditor) {
-			openInEditor(null);
-			return;
-		}
-
-		if (canOpenInGitHub && validatedLocation) {
-			openGitSource({folder: false, location: validatedLocation});
-		}
-	}, [canOpenInEditor, canOpenInGitHub, openInEditor, validatedLocation]);
+		openSource();
+	}, [openSource]);
 
 	return {
-		canOpen: validatedLocation !== null && (canOpenInEditor || canOpenInGitHub),
+		canOpen: validatedLocation !== null && canOpenSource,
 		openFileLocation,
 		validatedLocation,
 	};
