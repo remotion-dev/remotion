@@ -136,6 +136,7 @@ import {
 } from './video-elements/numbered-chapter';
 import {Prompt, PromptSchema} from './video-elements/Prompt';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
+import {StudioReference} from './video-elements/Studio';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 import {
@@ -396,6 +397,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 
 			<Folder name="VideoElements">
+				<Composition
+					id="StudioUI"
+					component={StudioReference}
+					durationInFrames={742}
+					fps={30}
+					width={1352}
+					height={760}
+				/>
 				<Composition
 					id="StepGuide"
 					component={StepGuide}
