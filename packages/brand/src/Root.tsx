@@ -136,7 +136,7 @@ import {
 } from './video-elements/numbered-chapter';
 import {Prompt, PromptSchema} from './video-elements/Prompt';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
-import {StudioReference} from './video-elements/Studio';
+import {StudioReference, studioReferenceSchema} from './video-elements/Studio';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 import {
@@ -404,6 +404,13 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1352}
 					height={760}
+					schema={studioReferenceSchema}
+					defaultProps={{
+						viewportWidth: 1352,
+						showLeftSidebar: true,
+						showRightSidebar: true,
+					}}
+					calculateMetadata={({props}) => ({width: props.viewportWidth})}
 				/>
 				<Composition
 					id="StepGuide"

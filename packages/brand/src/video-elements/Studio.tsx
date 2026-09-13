@@ -1,12 +1,15 @@
 import React from 'react';
 import {
-	AbsoluteFill,
 	Img,
+	Interactive,
 	Sequence,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
+	type InteractivitySchema,
+	type SequenceControls,
 } from 'remotion';
+import {z} from 'zod';
 import {Scene11} from '../announcements/whats-new-in-remotion/Scene11';
 import {
 	BracesIcon,
@@ -60,10 +63,13 @@ const TIMELINE_LABEL_RATIO = 0.2611;
 const REFERENCE_COMPOSITION_WIDTH = 1920;
 const REFERENCE_COMPOSITION_HEIGHT = 1080;
 
-const studioFont: React.CSSProperties = {
-	fontFamily: 'Arial, Helvetica, sans-serif',
-	fontSize: 13,
-};
+export const studioReferenceSchema = z.object({
+	viewportWidth: z.number().int().positive(),
+	showLeftSidebar: z.boolean(),
+	showRightSidebar: z.boolean(),
+});
+
+export type StudioReferenceProps = z.infer<typeof studioReferenceSchema>;
 
 export type StudioProps = {
 	readonly compositionName: string;
@@ -74,7 +80,32 @@ export type StudioProps = {
 	readonly frame: number;
 	readonly showLeftSidebar: boolean;
 	readonly showRightSidebar: boolean;
+	readonly viewportWidth: number;
 };
+
+const studioInteractivitySchema = {
+	viewportWidth: {
+		type: 'number',
+		default: 1352,
+		description: 'Viewport width',
+		hiddenFromList: false,
+		keyframable: false,
+		min: 17,
+		step: 1,
+	},
+	showLeftSidebar: {
+		type: 'boolean',
+		default: true,
+		description: 'Show left sidebar',
+		keyframable: false,
+	},
+	showRightSidebar: {
+		type: 'boolean',
+		default: true,
+		description: 'Show right sidebar',
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
 
 const IconButton: React.FC<{
 	readonly children: React.ReactNode;
@@ -119,7 +150,8 @@ const MenuToolbar: React.FC<{
 	readonly showRightSidebar: boolean;
 }> = ({compositionName, showLeftSidebar, showRightSidebar}) => {
 	return (
-		<div
+		<Interactive.Div
+			name="Menu bar"
 			style={{
 				alignItems: 'center',
 				backgroundColor: BACKGROUND,
@@ -142,7 +174,7 @@ const MenuToolbar: React.FC<{
 					left: 0,
 				}}
 			>
-				<div style={{marginRight: 4}}>
+				<Interactive.Div name="Left sidebar toggle" style={{marginRight: 4}}>
 					<IconButton>
 						<SidebarIcon
 							color={LIGHT_TEXT}
@@ -151,26 +183,75 @@ const MenuToolbar: React.FC<{
 							size={16}
 						/>
 					</IconButton>
-				</div>
-				<IconButton width={30}>
-					<RemotionGlyph color={TOOLBAR_FOREGROUND} size={14} />
-				</IconButton>
-				{['File', 'View', 'Composition', 'Tools', 'Help'].map((item) => (
-					<div
-						key={item}
-						style={{
-							alignItems: 'center',
-							display: 'flex',
-							height: 24,
-							paddingLeft: 8,
-							paddingRight: 8,
-						}}
-					>
-						{item}
-					</div>
-				))}
+				</Interactive.Div>
+				<Interactive.Div name="Remotion menu">
+					<IconButton width={30}>
+						<RemotionGlyph color={TOOLBAR_FOREGROUND} size={14} />
+					</IconButton>
+				</Interactive.Div>
+				<Interactive.Div
+					name="File menu"
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						height: 24,
+						paddingLeft: 8,
+						paddingRight: 8,
+					}}
+				>
+					File
+				</Interactive.Div>
+				<Interactive.Div
+					name="View menu"
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						height: 24,
+						paddingLeft: 8,
+						paddingRight: 8,
+					}}
+				>
+					View
+				</Interactive.Div>
+				<Interactive.Div
+					name="Composition menu"
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						height: 24,
+						paddingLeft: 8,
+						paddingRight: 8,
+					}}
+				>
+					Composition
+				</Interactive.Div>
+				<Interactive.Div
+					name="Tools menu"
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						height: 24,
+						paddingLeft: 8,
+						paddingRight: 8,
+					}}
+				>
+					Tools
+				</Interactive.Div>
+				<Interactive.Div
+					name="Help menu"
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						height: 24,
+						paddingLeft: 8,
+						paddingRight: 8,
+					}}
+				>
+					Help
+				</Interactive.Div>
 			</div>
-			<div
+			<Interactive.Div
+				name="Composition breadcrumb"
 				style={{
 					alignItems: 'center',
 					color: 'rgba(255, 255, 255, 0.8)',
@@ -200,7 +281,7 @@ const MenuToolbar: React.FC<{
 					size={13}
 					style={{position: 'relative', left: 4, scale: '0.84 1'}}
 				/>
-			</div>
+			</Interactive.Div>
 			<div
 				style={{
 					alignItems: 'center',
@@ -211,36 +292,30 @@ const MenuToolbar: React.FC<{
 					right: 0,
 				}}
 			>
-				<IconButton>
-					<SettingsIcon color={LIGHT_TEXT} size={16} />
-				</IconButton>
-				<IconButton>
-					<SidebarIcon
-						color={LIGHT_TEXT}
-						expanded={showRightSidebar}
-						side="right"
-						size={16}
-					/>
-				</IconButton>
+				<Interactive.Div name="Settings">
+					<IconButton>
+						<SettingsIcon color={LIGHT_TEXT} size={16} />
+					</IconButton>
+				</Interactive.Div>
+				<Interactive.Div name="Right sidebar toggle">
+					<IconButton>
+						<SidebarIcon
+							color={LIGHT_TEXT}
+							expanded={showRightSidebar}
+							side="right"
+							size={16}
+						/>
+					</IconButton>
+				</Interactive.Div>
 			</div>
-		</div>
+		</Interactive.Div>
 	);
 };
 
 const LeftSidebar: React.FC = () => {
-	const folders = [
-		'Logo',
-		'HomepageAssets',
-		'Showcases',
-		'VideoElements',
-		'Recorder',
-		'CloseUps',
-		'StudioAssets',
-		'SocialMediaAnnouncements',
-	];
-
 	return (
-		<div
+		<Interactive.Div
+			name="Compositions sidebar"
 			style={{
 				backgroundColor: BACKGROUND,
 				color: LIGHT_TEXT,
@@ -251,7 +326,8 @@ const LeftSidebar: React.FC = () => {
 			}}
 		>
 			<div style={{display: 'flex', height: 34, flexShrink: 0}}>
-				<div
+				<Interactive.Div
+					name="Compositions tab"
 					style={{
 						alignItems: 'center',
 						borderTop: `2px solid ${BLUE}`,
@@ -263,8 +339,9 @@ const LeftSidebar: React.FC = () => {
 					}}
 				>
 					Compositions
-				</div>
-				<div
+				</Interactive.Div>
+				<Interactive.Div
+					name="Assets tab"
 					style={{
 						alignItems: 'center',
 						backgroundColor: INPUT_BACKGROUND,
@@ -274,7 +351,7 @@ const LeftSidebar: React.FC = () => {
 					}}
 				>
 					Assets
-				</div>
+				</Interactive.Div>
 			</div>
 			<div
 				style={{
@@ -286,7 +363,8 @@ const LeftSidebar: React.FC = () => {
 					padding: '4px 4px 4px 8px',
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Composition search"
 					style={{
 						alignItems: 'center',
 						backgroundColor: 'rgba(255, 255, 255, 0.06)',
@@ -321,8 +399,9 @@ const LeftSidebar: React.FC = () => {
 					>
 						⌘+K
 					</span>
-				</div>
-				<div
+				</Interactive.Div>
+				<Interactive.Div
+					name="Sidebar options"
 					style={{
 						fontSize: 16,
 						letterSpacing: 1,
@@ -333,41 +412,169 @@ const LeftSidebar: React.FC = () => {
 					}}
 				>
 					…
-				</div>
+				</Interactive.Div>
 			</div>
 			<div style={{paddingTop: 4}}>
-				{folders.map((folder) => (
+				<Interactive.Div
+					name="Logo folder"
+					style={{
+						alignItems: 'center',
+						borderRadius: 4,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 12,
+					}}
+				>
+					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
 					<div
-						key={folder}
 						style={{
-							alignItems: 'center',
-							borderRadius: 4,
-							display: 'flex',
-							height: 28,
-							marginBottom: 1,
+							fontSize: 13,
 							marginLeft: 8,
-							marginRight: 4,
-							minWidth: 0,
-							paddingLeft: 12,
+							maxWidth: 154,
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
 						}}
 					>
-						<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
-						<div
-							style={{
-								fontSize: 13,
-								marginLeft: 8,
-								maxWidth: 154,
-								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-								whiteSpace: 'nowrap',
-							}}
-						>
-							{folder}
-						</div>
+						Logo
 					</div>
-				))}
+				</Interactive.Div>
+				<Interactive.Div
+					name="Homepage Assets folder"
+					style={{
+						alignItems: 'center',
+						borderRadius: 4,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 12,
+					}}
+				>
+					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
+					<div style={{fontSize: 13, marginLeft: 8}}>HomepageAssets</div>
+				</Interactive.Div>
+				<Interactive.Div
+					name="Showcases folder"
+					style={{
+						alignItems: 'center',
+						borderRadius: 4,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 12,
+					}}
+				>
+					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
+					<div style={{fontSize: 13, marginLeft: 8}}>Showcases</div>
+				</Interactive.Div>
+				<Interactive.Div
+					name="Video Elements folder"
+					style={{
+						alignItems: 'center',
+						borderRadius: 4,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 12,
+					}}
+				>
+					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
+					<div style={{fontSize: 13, marginLeft: 8}}>VideoElements</div>
+				</Interactive.Div>
+				<Interactive.Div
+					name="Recorder folder"
+					style={{
+						alignItems: 'center',
+						borderRadius: 4,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 12,
+					}}
+				>
+					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
+					<div style={{fontSize: 13, marginLeft: 8}}>Recorder</div>
+				</Interactive.Div>
+				<Interactive.Div
+					name="Close Ups folder"
+					style={{
+						alignItems: 'center',
+						borderRadius: 4,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 12,
+					}}
+				>
+					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
+					<div style={{fontSize: 13, marginLeft: 8}}>CloseUps</div>
+				</Interactive.Div>
+				<Interactive.Div
+					name="Studio Assets folder"
+					style={{
+						alignItems: 'center',
+						borderRadius: 4,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 12,
+					}}
+				>
+					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
+					<div style={{fontSize: 13, marginLeft: 8}}>StudioAssets</div>
+				</Interactive.Div>
+				<Interactive.Div
+					name="Social Media Announcements folder"
+					style={{
+						alignItems: 'center',
+						borderRadius: 4,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 12,
+					}}
+				>
+					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
+					<div
+						style={{
+							fontSize: 13,
+							marginLeft: 8,
+							maxWidth: 154,
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+						}}
+					>
+						SocialMediaAnnouncements
+					</div>
+				</Interactive.Div>
 			</div>
-		</div>
+		</Interactive.Div>
 	);
 };
 
@@ -434,7 +641,8 @@ const RightSidebar: React.FC<{
 	fps,
 }) => {
 	return (
-		<div
+		<Interactive.Div
+			name="Inspector sidebar"
 			style={{
 				backgroundColor: BACKGROUND,
 				color: LIGHT_TEXT,
@@ -443,7 +651,8 @@ const RightSidebar: React.FC<{
 			}}
 		>
 			<div style={{display: 'flex', height: 34}}>
-				<div
+				<Interactive.Div
+					name="Inspector tab"
 					style={{
 						alignItems: 'center',
 						borderTop: `2px solid ${BLUE}`,
@@ -455,8 +664,9 @@ const RightSidebar: React.FC<{
 					}}
 				>
 					Inspector
-				</div>
-				<div
+				</Interactive.Div>
+				<Interactive.Div
+					name="Jobs tab"
 					style={{
 						alignItems: 'center',
 						backgroundColor: INPUT_BACKGROUND,
@@ -466,10 +676,11 @@ const RightSidebar: React.FC<{
 					}}
 				>
 					Jobs
-				</div>
+				</Interactive.Div>
 			</div>
 			<div style={{padding: '4px 0'}}>
-				<div
+				<Interactive.Div
+					name="Composition name"
 					style={{
 						alignItems: 'center',
 						color: WHITE,
@@ -480,8 +691,9 @@ const RightSidebar: React.FC<{
 					}}
 				>
 					{compositionName}
-				</div>
-				<div
+				</Interactive.Div>
+				<Interactive.Div
+					name="Root source"
 					style={{
 						alignItems: 'center',
 						display: 'flex',
@@ -491,8 +703,9 @@ const RightSidebar: React.FC<{
 				>
 					<VideoIcon color={LIGHT_TEXT} size={18} />
 					<span style={{marginLeft: 8}}>Root.tsx:127</span>
-				</div>
-				<div
+				</Interactive.Div>
+				<Interactive.Div
+					name="Scene source"
 					style={{
 						alignItems: 'center',
 						display: 'flex',
@@ -502,33 +715,42 @@ const RightSidebar: React.FC<{
 				>
 					<BracesIcon color={LIGHT_TEXT} size={18} />
 					<span style={{marginLeft: 8}}>Scene11.tsx:11</span>
-				</div>
+				</Interactive.Div>
 			</div>
-			<InspectorSectionTitle>Metadata</InspectorSectionTitle>
+			<Interactive.Div name="Metadata heading">
+				<InspectorSectionTitle>Metadata</InspectorSectionTitle>
+			</Interactive.Div>
 			<div style={{paddingBottom: 4, paddingTop: 4}}>
-				<MetadataRow
-					label="Dimensions"
-					value={
-						<>
-							<span>{compositionWidth}</span>
-							<span>{compositionHeight}</span>
-						</>
-					}
-				/>
-				<MetadataRow label="Frame rate" value={<span>{fps}fps</span>} />
-				<MetadataRow
-					label="Duration"
-					value={<span>{durationInFrames} frames</span>}
-				/>
+				<Interactive.Div name="Dimensions metadata">
+					<MetadataRow
+						label="Dimensions"
+						value={
+							<>
+								<span>{compositionWidth}</span>
+								<span>{compositionHeight}</span>
+							</>
+						}
+					/>
+				</Interactive.Div>
+				<Interactive.Div name="Frame rate metadata">
+					<MetadataRow label="Frame rate" value={<span>{fps}fps</span>} />
+				</Interactive.Div>
+				<Interactive.Div name="Duration metadata">
+					<MetadataRow
+						label="Duration"
+						value={<span>{durationInFrames} frames</span>}
+					/>
+				</Interactive.Div>
 			</div>
-			<div
+			<Interactive.Div
+				name="Default props heading"
 				style={{
 					alignItems: 'center',
 					display: 'flex',
 					height: 35,
 					paddingLeft: 10,
 					paddingRight: 6,
-					transform: 'translateY(-2px)',
+					translate: '0px -2px',
 				}}
 			>
 				<span style={{fontSize: 12, fontWeight: 600}}>Default Props</span>
@@ -540,7 +762,8 @@ const RightSidebar: React.FC<{
 						marginLeft: 8,
 					}}
 				>
-					<div
+					<Interactive.Div
+						name="Schema tab"
 						style={{
 							alignItems: 'center',
 							backgroundColor: INPUT_BACKGROUND,
@@ -552,8 +775,9 @@ const RightSidebar: React.FC<{
 						}}
 					>
 						Schema
-					</div>
-					<div
+					</Interactive.Div>
+					<Interactive.Div
+						name="JSON tab"
 						style={{
 							alignItems: 'center',
 							display: 'flex',
@@ -563,9 +787,10 @@ const RightSidebar: React.FC<{
 						}}
 					>
 						JSON
-					</div>
+					</Interactive.Div>
 				</div>
-				<div
+				<Interactive.Div
+					name="Warning indicator"
 					style={{
 						alignItems: 'center',
 						backgroundColor: BACKGROUND,
@@ -584,9 +809,10 @@ const RightSidebar: React.FC<{
 				>
 					⚠<span style={{color: LIGHT_TEXT, marginLeft: 3}}>1</span>
 					<CaretIcon color={LIGHT_TEXT} direction="down" size={10} />
-				</div>
-			</div>
-			<div
+				</Interactive.Div>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Platform label"
 				style={{
 					color: LIGHT_TEXT,
 					fontFamily: 'monospace',
@@ -598,8 +824,9 @@ const RightSidebar: React.FC<{
 				}}
 			>
 				platform:
-			</div>
-			<div
+			</Interactive.Div>
+			<Interactive.Div
+				name="Platform selector"
 				style={{
 					alignItems: 'center',
 					backgroundColor: INPUT_BACKGROUND,
@@ -622,46 +849,72 @@ const RightSidebar: React.FC<{
 					size={9}
 					style={{marginLeft: 'auto', marginRight: 3}}
 				/>
-			</div>
+			</Interactive.Div>
 			<div style={{height: 7}} />
-			<InspectorSectionTitle>Actions</InspectorSectionTitle>
+			<Interactive.Div name="Actions heading">
+				<InspectorSectionTitle>Actions</InspectorSectionTitle>
+			</Interactive.Div>
 			<div style={{height: 4}} />
-			{[
-				['solid', 'Add Solid'],
-				['image', 'Add asset...'],
-				['video', 'Add composition...'],
-				['braces', 'Browse Elements'],
-			].map(([icon, label]) => (
+			<Interactive.Div
+				name="Add solid action"
+				style={{
+					alignItems: 'center',
+					color: LIGHT_TEXT,
+					display: 'flex',
+					height: 28,
+					paddingLeft: 10,
+				}}
+			>
 				<div
-					key={label}
 					style={{
-						alignItems: 'center',
-						color: LIGHT_TEXT,
-						display: 'flex',
-						height: 28,
-						paddingLeft: 10,
+						border: `1px solid ${LIGHT_TEXT}`,
+						borderRadius: 3,
+						height: 16,
+						width: 18,
 					}}
-				>
-					{icon === 'image' ? (
-						<ImageIcon color={LIGHT_TEXT} size={18} />
-					) : icon === 'video' ? (
-						<VideoIcon color={LIGHT_TEXT} size={18} />
-					) : icon === 'braces' ? (
-						<BracesIcon color={LIGHT_TEXT} size={18} />
-					) : (
-						<div
-							style={{
-								border: `1px solid ${LIGHT_TEXT}`,
-								borderRadius: 3,
-								height: 16,
-								width: 18,
-							}}
-						/>
-					)}
-					<span style={{marginLeft: 8}}>{label}</span>
-				</div>
-			))}
-		</div>
+				/>
+				<span style={{marginLeft: 8}}>Add Solid</span>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Add asset action"
+				style={{
+					alignItems: 'center',
+					color: LIGHT_TEXT,
+					display: 'flex',
+					height: 28,
+					paddingLeft: 10,
+				}}
+			>
+				<ImageIcon color={LIGHT_TEXT} size={18} />
+				<span style={{marginLeft: 8}}>Add asset...</span>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Add composition action"
+				style={{
+					alignItems: 'center',
+					color: LIGHT_TEXT,
+					display: 'flex',
+					height: 28,
+					paddingLeft: 10,
+				}}
+			>
+				<VideoIcon color={LIGHT_TEXT} size={18} />
+				<span style={{marginLeft: 8}}>Add composition...</span>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Browse elements action"
+				style={{
+					alignItems: 'center',
+					color: LIGHT_TEXT,
+					display: 'flex',
+					height: 28,
+					paddingLeft: 10,
+				}}
+			>
+				<BracesIcon color={LIGHT_TEXT} size={18} />
+				<span style={{marginLeft: 8}}>Browse Elements</span>
+			</Interactive.Div>
+		</Interactive.Div>
 	);
 };
 
@@ -691,7 +944,8 @@ const PreviewCanvas: React.FC<{
 	const previewHeight = compositionHeight * scale;
 
 	return (
-		<div
+		<Interactive.Div
+			name="Preview workspace"
 			style={{
 				alignItems: 'center',
 				backgroundColor: BACKGROUND,
@@ -702,7 +956,8 @@ const PreviewCanvas: React.FC<{
 				width: canvasWidth,
 			}}
 		>
-			<div
+			<Interactive.Div
+				name="Composition viewport"
 				style={{
 					backgroundColor: 'white',
 					height: previewHeight,
@@ -731,14 +986,15 @@ const PreviewCanvas: React.FC<{
 						{content}
 					</Sequence>
 				</div>
-			</div>
-		</div>
+			</Interactive.Div>
+		</Interactive.Div>
 	);
 };
 
 const PreviewToolbar: React.FC = () => {
 	return (
-		<div
+		<Interactive.Div
+			name="Preview toolbar"
 			style={{
 				alignItems: 'center',
 				backgroundColor: BACKGROUND,
@@ -760,7 +1016,8 @@ const PreviewToolbar: React.FC = () => {
 					position: 'absolute',
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Canvas fit control"
 					style={{
 						alignItems: 'center',
 						display: 'flex',
@@ -774,9 +1031,10 @@ const PreviewToolbar: React.FC = () => {
 					<span style={{fontSize: 12, lineHeight: '16px', width: 32}}>Fit</span>
 					<div style={{width: 4}} />
 					<CaretIcon color={TOOLBAR_FOREGROUND} direction="down" size={10} />
-				</div>
+				</Interactive.Div>
 				<div style={{width: 16}} />
-				<div
+				<Interactive.Div
+					name="Playback rate control"
 					style={{
 						alignItems: 'center',
 						display: 'flex',
@@ -790,7 +1048,7 @@ const PreviewToolbar: React.FC = () => {
 					<span style={{fontSize: 12, lineHeight: '16px', width: 30}}>1x</span>
 					<div style={{width: 4}} />
 					<CaretIcon color={TOOLBAR_FOREGROUND} direction="down" size={10} />
-				</div>
+				</Interactive.Div>
 			</div>
 			<div
 				style={{
@@ -802,57 +1060,83 @@ const PreviewToolbar: React.FC = () => {
 				}}
 			>
 				<div style={{width: 16}} />
-				<IconButton>
-					<JumpToStartIcon color={TOOLBAR_FOREGROUND} size={18} />
-				</IconButton>
-				<IconButton>
-					<StepBackIcon color={TOOLBAR_FOREGROUND} size={16} />
-				</IconButton>
-				<IconButton>
-					<PlayIcon color={TOOLBAR_FOREGROUND} size={14} />
-				</IconButton>
-				<IconButton>
-					<StepForwardIcon color={TOOLBAR_FOREGROUND} size={16} />
-				</IconButton>
+				<Interactive.Div name="Jump to start">
+					<IconButton>
+						<JumpToStartIcon color={TOOLBAR_FOREGROUND} size={18} />
+					</IconButton>
+				</Interactive.Div>
+				<Interactive.Div name="Step backward">
+					<IconButton>
+						<StepBackIcon color={TOOLBAR_FOREGROUND} size={16} />
+					</IconButton>
+				</Interactive.Div>
+				<Interactive.Div name="Play">
+					<IconButton>
+						<PlayIcon color={TOOLBAR_FOREGROUND} size={14} />
+					</IconButton>
+				</Interactive.Div>
+				<Interactive.Div name="Step forward">
+					<IconButton>
+						<StepForwardIcon color={TOOLBAR_FOREGROUND} size={16} />
+					</IconButton>
+				</Interactive.Div>
 				<div style={{width: 16}} />
-				<IconButton active>
-					<LoopIcon color={BLUE} size={18} />
-				</IconButton>
+				<Interactive.Div name="Loop playback">
+					<IconButton active>
+						<LoopIcon color={BLUE} size={18} />
+					</IconButton>
+				</Interactive.Div>
 				<div style={{width: 6}} />
-				<IconButton>
-					<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
-				</IconButton>
+				<Interactive.Div name="Volume">
+					<IconButton>
+						<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
+					</IconButton>
+				</Interactive.Div>
 				<div style={{width: 16}} />
-				<IconButton width={18}>
-					<InPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-				</IconButton>
-				<IconButton width={18}>
-					<OutPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-				</IconButton>
+				<Interactive.Div name="Set in point">
+					<IconButton width={18}>
+						<InPointIcon color={TOOLBAR_FOREGROUND} size={17} />
+					</IconButton>
+				</Interactive.Div>
+				<Interactive.Div name="Set out point">
+					<IconButton width={18}>
+						<OutPointIcon color={TOOLBAR_FOREGROUND} size={17} />
+					</IconButton>
+				</Interactive.Div>
 				<div style={{width: 16}} />
-				<IconButton active>
-					<CheckerboardIcon color={BLUE} size={18} />
-				</IconButton>
+				<Interactive.Div name="Transparency grid">
+					<IconButton active>
+						<CheckerboardIcon color={BLUE} size={18} />
+					</IconButton>
+				</Interactive.Div>
 				<div style={{width: 2}} />
-				<IconButton active>
-					<OutlineIcon color={BLUE} size={18} />
-				</IconButton>
+				<Interactive.Div name="Canvas outline">
+					<IconButton active>
+						<OutlineIcon color={BLUE} size={18} />
+					</IconButton>
+				</Interactive.Div>
 				<div style={{width: 2}} />
-				<IconButton>
-					<RulerIcon color={TOOLBAR_FOREGROUND} size={18} />
-				</IconButton>
+				<Interactive.Div name="Rulers">
+					<IconButton>
+						<RulerIcon color={TOOLBAR_FOREGROUND} size={18} />
+					</IconButton>
+				</Interactive.Div>
 				<div style={{width: 2}} />
-				<IconButton active>
-					<MagnetIcon
-						color={BLUE}
-						size={18}
-						style={{position: 'relative', top: 1}}
-					/>
-				</IconButton>
+				<Interactive.Div name="Snapping">
+					<IconButton active>
+						<MagnetIcon
+							color={BLUE}
+							size={18}
+							style={{position: 'relative', top: 1}}
+						/>
+					</IconButton>
+				</Interactive.Div>
 				<div style={{width: 16}} />
-				<IconButton>
-					<FullscreenIcon color={TOOLBAR_FOREGROUND} size={18} />
-				</IconButton>
+				<Interactive.Div name="Fullscreen">
+					<IconButton>
+						<FullscreenIcon color={TOOLBAR_FOREGROUND} size={18} />
+					</IconButton>
+				</Interactive.Div>
 			</div>
 			<div
 				style={{
@@ -863,7 +1147,8 @@ const PreviewToolbar: React.FC = () => {
 					right: 12,
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Render"
 					style={{
 						alignItems: 'center',
 						color: TOOLBAR_FOREGROUND,
@@ -876,11 +1161,13 @@ const PreviewToolbar: React.FC = () => {
 				>
 					<RocketIcon color={TOOLBAR_FOREGROUND} size={18} />
 					<span style={{fontSize: 12}}>Render</span>
-				</div>
+				</Interactive.Div>
 				<Divider height={22} />
-				<CaretIcon color="#9ba0a4" direction="down" size={12} />
+				<Interactive.Div name="Render options">
+					<CaretIcon color="#9ba0a4" direction="down" size={12} />
+				</Interactive.Div>
 			</div>
-		</div>
+		</Interactive.Div>
 	);
 };
 
@@ -974,33 +1261,6 @@ const TimelineRowLabel: React.FC<{
 	);
 };
 
-const BlueSequence: React.FC<{
-	readonly frame: number;
-	readonly height: number;
-	readonly width: number;
-}> = ({frame, height, width}) => {
-	return (
-		<div
-			style={{
-				backgroundColor: '#0d69bd',
-				border: '1px solid #327cbf',
-				borderRadius: 2,
-				boxSizing: 'border-box',
-				color: '#8bc5f0',
-				fontFamily: 'monospace',
-				fontSize: 11,
-				height,
-				lineHeight: `${height - 2}px`,
-				overflow: 'hidden',
-				paddingLeft: 5,
-				width,
-			}}
-		>
-			{frame}
-		</div>
-	);
-};
-
 const Filmstrip: React.FC<{
 	readonly height: number;
 	readonly width: number;
@@ -1020,6 +1280,8 @@ const Filmstrip: React.FC<{
 				<Img
 					// eslint-disable-next-line react/no-array-index-key
 					key={index}
+					name="Video filmstrip tile"
+					showInTimeline={false /* repeated image tile */}
 					src={staticFile('studio-timeline-filmstrip.png')}
 					style={{flex: '0 0 957px', height, width: 957}}
 				/>
@@ -1047,6 +1309,8 @@ const AvatarStrip: React.FC<{
 				<Img
 					// eslint-disable-next-line react/no-array-index-key
 					key={index}
+					name="Avatar strip tile"
+					showInTimeline={false /* repeated image tile */}
 					src={staticFile('studio-timeline-avatar-strip.png')}
 					style={{flex: '0 0 957px', height, width: 957}}
 				/>
@@ -1084,7 +1348,8 @@ const Timeline: React.FC<{
 	const rows = [22, 22, 46, 22, 22, 22];
 
 	return (
-		<div
+		<Interactive.Div
+			name="Timeline"
 			style={{
 				backgroundColor: TIMELINE_BACKGROUND,
 				color: LIGHT_TEXT,
@@ -1095,7 +1360,8 @@ const Timeline: React.FC<{
 				width,
 			}}
 		>
-			<div
+			<Interactive.Div
+				name="Timeline layer list"
 				style={{
 					backgroundColor: BACKGROUND,
 					flexShrink: 0,
@@ -1112,26 +1378,28 @@ const Timeline: React.FC<{
 						paddingTop: 6,
 					}}
 				>
-					<div
-						style={{
-							color: LIGHT_TEXT,
-							fontFamily: 'monospace',
-							fontSize: 14,
-							fontVariantNumeric: 'tabular-nums',
-							lineHeight: '18px',
-						}}
-					>
-						{timecode}
-					</div>
-					<div
-						style={{
-							fontFamily: 'monospace',
-							fontSize: 10,
-							lineHeight: '10px',
-						}}
-					>
-						{frame}
-					</div>
+					<Interactive.Div name="Timeline time display">
+						<div
+							style={{
+								color: LIGHT_TEXT,
+								fontFamily: 'monospace',
+								fontSize: 14,
+								fontVariantNumeric: 'tabular-nums',
+								lineHeight: '18px',
+							}}
+						>
+							{timecode}
+						</div>
+						<div
+							style={{
+								fontFamily: 'monospace',
+								fontSize: 10,
+								lineHeight: '10px',
+							}}
+						>
+							{frame}
+						</div>
+					</Interactive.Div>
 					<div
 						style={{
 							alignItems: 'center',
@@ -1142,10 +1410,13 @@ const Timeline: React.FC<{
 							top: 7,
 						}}
 					>
-						<IconButton>
-							<CanvasZoomOutIcon color={TOOLBAR_FOREGROUND} size={20} />
-						</IconButton>
-						<div
+						<Interactive.Div name="Timeline zoom out">
+							<IconButton>
+								<CanvasZoomOutIcon color={TOOLBAR_FOREGROUND} size={20} />
+							</IconButton>
+						</Interactive.Div>
+						<Interactive.Div
+							name="Timeline zoom control"
 							style={{
 								backgroundColor: '#353a3e',
 								borderRadius: 8,
@@ -1165,44 +1436,47 @@ const Timeline: React.FC<{
 									width: 14,
 								}}
 							/>
-						</div>
-						<IconButton>
-							<CanvasZoomIcon color={TOOLBAR_FOREGROUND} size={20} />
-						</IconButton>
+						</Interactive.Div>
+						<Interactive.Div name="Timeline zoom in">
+							<IconButton>
+								<CanvasZoomIcon color={TOOLBAR_FOREGROUND} size={20} />
+							</IconButton>
+						</Interactive.Div>
 					</div>
 				</div>
-				<div style={{height: rows[0]}}>
+				<Interactive.Div name="Video layer" style={{height: rows[0]}}>
 					<TimelineRowLabel depth={0} expanded>
 						Video
 					</TimelineRowLabel>
-				</div>
-				<div style={{height: rows[1]}}>
+				</Interactive.Div>
+				<Interactive.Div name="Container layer" style={{height: rows[1]}}>
 					<TimelineRowLabel depth={1} expanded>
 						Container
 					</TimelineRowLabel>
-				</div>
-				<div style={{height: rows[2]}}>
+				</Interactive.Div>
+				<Interactive.Div name="Video clip layer" style={{height: rows[2]}}>
 					<TimelineRowLabel depth={2} secondary="whats11.mov">
 						&lt;Video&gt;
 					</TimelineRowLabel>
-				</div>
-				<div style={{height: rows[3]}}>
+				</Interactive.Div>
+				<Interactive.Div name="Absolute Fill layer 1" style={{height: rows[3]}}>
 					<TimelineRowLabel depth={1} expanded>
 						&lt;AbsoluteFill&gt;
 					</TimelineRowLabel>
-				</div>
-				<div style={{height: rows[4]}}>
+				</Interactive.Div>
+				<Interactive.Div name="Absolute Fill layer 2" style={{height: rows[4]}}>
 					<TimelineRowLabel depth={2} expanded>
 						&lt;AbsoluteFill&gt;
 					</TimelineRowLabel>
-				</div>
-				<div style={{height: rows[5]}}>
+				</Interactive.Div>
+				<Interactive.Div name="Avatar image layer" style={{height: rows[5]}}>
 					<TimelineRowLabel depth={4} secondary="remotion-avatar.png">
 						&lt;Img&gt;
 					</TimelineRowLabel>
-				</div>
-			</div>
-			<div
+				</Interactive.Div>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Timeline tracks"
 				style={{
 					backgroundColor: TIMELINE_BACKGROUND,
 					height: '100%',
@@ -1211,7 +1485,8 @@ const Timeline: React.FC<{
 					width: trackWidth,
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Timeline ruler"
 					style={{
 						backgroundColor: BACKGROUND,
 						borderBottom: `1px solid ${SEPARATOR}`,
@@ -1252,26 +1527,109 @@ const Timeline: React.FC<{
 							) : null}
 						</React.Fragment>
 					))}
-				</div>
+				</Interactive.Div>
 				<div style={{height: rows[0], paddingLeft: trackLeft}}>
-					<BlueSequence frame={frame} height={21} width={sequenceWidth} />
+					<Interactive.Div
+						name="Video sequence"
+						style={{
+							backgroundColor: '#0d69bd',
+							border: '1px solid #327cbf',
+							borderRadius: 2,
+							boxSizing: 'border-box',
+							color: '#8bc5f0',
+							fontFamily: 'monospace',
+							fontSize: 11,
+							height: 21,
+							lineHeight: '19px',
+							overflow: 'hidden',
+							paddingLeft: 5,
+							width: sequenceWidth,
+						}}
+					>
+						{frame}
+					</Interactive.Div>
 				</div>
 				<div style={{height: rows[1], paddingLeft: trackLeft}}>
-					<BlueSequence frame={frame} height={21} width={sequenceWidth} />
+					<Interactive.Div
+						name="Container sequence"
+						style={{
+							backgroundColor: '#0d69bd',
+							border: '1px solid #327cbf',
+							borderRadius: 2,
+							boxSizing: 'border-box',
+							color: '#8bc5f0',
+							fontFamily: 'monospace',
+							fontSize: 11,
+							height: 21,
+							lineHeight: '19px',
+							overflow: 'hidden',
+							paddingLeft: 5,
+							width: sequenceWidth,
+						}}
+					>
+						{frame}
+					</Interactive.Div>
 				</div>
 				<div style={{height: rows[2], paddingLeft: trackLeft}}>
-					<Filmstrip height={45} width={sequenceWidth} />
+					<Interactive.Div
+						name="Video filmstrip"
+						style={{height: 45, width: sequenceWidth}}
+					>
+						<Filmstrip height={45} width={sequenceWidth} />
+					</Interactive.Div>
 				</div>
 				<div style={{height: rows[3], paddingLeft: trackLeft}}>
-					<BlueSequence frame={frame} height={21} width={sequenceWidth} />
+					<Interactive.Div
+						name="Absolute Fill sequence 1"
+						style={{
+							backgroundColor: '#0d69bd',
+							border: '1px solid #327cbf',
+							borderRadius: 2,
+							boxSizing: 'border-box',
+							color: '#8bc5f0',
+							fontFamily: 'monospace',
+							fontSize: 11,
+							height: 21,
+							lineHeight: '19px',
+							overflow: 'hidden',
+							paddingLeft: 5,
+							width: sequenceWidth,
+						}}
+					>
+						{frame}
+					</Interactive.Div>
 				</div>
 				<div style={{height: rows[4], paddingLeft: trackLeft}}>
-					<BlueSequence frame={frame} height={21} width={sequenceWidth} />
+					<Interactive.Div
+						name="Absolute Fill sequence 2"
+						style={{
+							backgroundColor: '#0d69bd',
+							border: '1px solid #327cbf',
+							borderRadius: 2,
+							boxSizing: 'border-box',
+							color: '#8bc5f0',
+							fontFamily: 'monospace',
+							fontSize: 11,
+							height: 21,
+							lineHeight: '19px',
+							overflow: 'hidden',
+							paddingLeft: 5,
+							width: sequenceWidth,
+						}}
+					>
+						{frame}
+					</Interactive.Div>
 				</div>
 				<div style={{height: rows[5], paddingLeft: trackLeft}}>
-					<AvatarStrip height={21} width={sequenceWidth} />
+					<Interactive.Div
+						name="Avatar strip"
+						style={{height: 21, width: sequenceWidth}}
+					>
+						<AvatarStrip height={21} width={sequenceWidth} />
+					</Interactive.Div>
 				</div>
-				<div
+				<Interactive.Div
+					name="Timeline playhead"
 					style={{
 						backgroundColor: PLAYHEAD,
 						bottom: 0,
@@ -1293,106 +1651,164 @@ const Timeline: React.FC<{
 							width: 17,
 						}}
 					/>
-				</div>
-			</div>
-		</div>
+				</Interactive.Div>
+			</Interactive.Div>
+		</Interactive.Div>
 	);
 };
 
-export const Studio: React.FC<StudioProps> = ({
-	compositionName,
-	compositionWidth,
-	compositionHeight,
-	content,
-	durationInFrames,
-	frame,
+const StudioInner = React.forwardRef<
+	HTMLDivElement,
+	StudioProps & {readonly controls: SequenceControls | undefined}
+>(
+	(
+		{
+			compositionName,
+			compositionWidth,
+			compositionHeight,
+			content,
+			controls,
+			durationInFrames,
+			frame,
+			showLeftSidebar,
+			showRightSidebar,
+			viewportWidth,
+		},
+		ref,
+	) => {
+		const outlineRef = React.useRef<HTMLDivElement>(null);
+		React.useImperativeHandle(
+			ref,
+			() => outlineRef.current as HTMLDivElement,
+			[],
+		);
+		const {height, fps} = useVideoConfig();
+		const width = viewportWidth;
+		const topPanelHeight = Math.round(
+			(height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO,
+		);
+		const timelineHeight =
+			height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
+		const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
+		const leftSidebarWidth = showLeftSidebar
+			? Math.min(350, Math.round(width * LEFT_SIDEBAR_RATIO))
+			: 0;
+		const rightSidebarWidth = showRightSidebar
+			? Math.min(350, Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)))
+			: 0;
+		const canvasWidth = Math.max(
+			17,
+			width -
+				leftSidebarWidth -
+				rightSidebarWidth -
+				(showLeftSidebar ? SPLITTER_SIZE : 0) -
+				(showRightSidebar ? SPLITTER_SIZE : 0),
+		);
+
+		return (
+			<Sequence
+				controls={controls}
+				layout="none"
+				name="<Studio>"
+				outlineRef={outlineRef}
+			>
+				<div
+					ref={outlineRef}
+					style={{
+						backgroundColor: BACKGROUND,
+						color: WHITE,
+						display: 'flex',
+						flexDirection: 'column',
+						fontFamily: 'Arial, Helvetica, sans-serif',
+						fontSize: 13,
+						fontWeight: 400,
+						height,
+						left: 0,
+						lineHeight: 1.5,
+						overflow: 'hidden',
+						position: 'absolute',
+						top: 0,
+						width,
+					}}
+				>
+					<MenuToolbar
+						compositionName={compositionName}
+						showLeftSidebar={showLeftSidebar}
+						showRightSidebar={showRightSidebar}
+					/>
+					<div style={{height: topPanelHeight, width}}>
+						<div style={{display: 'flex', height: canvasRowHeight, width}}>
+							{showLeftSidebar ? (
+								<>
+									<div style={{width: leftSidebarWidth}}>
+										<LeftSidebar />
+									</div>
+									<Interactive.Div
+										name="Left sidebar splitter"
+										style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
+									/>
+								</>
+							) : null}
+							<PreviewCanvas
+								canvasHeight={canvasRowHeight}
+								canvasWidth={canvasWidth}
+								compositionHeight={compositionHeight}
+								compositionWidth={compositionWidth}
+								content={content}
+								durationInFrames={durationInFrames}
+								frame={frame}
+							/>
+							{showRightSidebar ? (
+								<>
+									<Interactive.Div
+										name="Right sidebar splitter"
+										style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
+									/>
+									<div style={{width: rightSidebarWidth}}>
+										<RightSidebar
+											compositionHeight={compositionHeight}
+											compositionName={compositionName}
+											compositionWidth={compositionWidth}
+											durationInFrames={durationInFrames}
+											fps={fps}
+										/>
+									</div>
+								</>
+							) : null}
+						</div>
+						<PreviewToolbar />
+					</div>
+					<Interactive.Div
+						name="Timeline splitter"
+						style={{backgroundColor: SPLITTER, height: SPLITTER_SIZE, width}}
+					/>
+					<Timeline
+						durationInFrames={durationInFrames}
+						fps={fps}
+						frame={frame}
+						height={timelineHeight}
+						width={width}
+					/>
+				</div>
+			</Sequence>
+		);
+	},
+);
+
+StudioInner.displayName = '<Studio>';
+
+export const Studio = Interactive.withSchema({
+	Component: StudioInner,
+	componentName: '<Studio>',
+	schema: studioInteractivitySchema,
+	supportsEffects: false,
+});
+
+export const StudioReference: React.FC<StudioReferenceProps> = ({
 	showLeftSidebar,
 	showRightSidebar,
+	viewportWidth,
 }) => {
-	const {width, height, fps} = useVideoConfig();
-	const topPanelHeight = Math.round(
-		(height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO,
-	);
-	const timelineHeight = height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
-	const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
-	const leftSidebarWidth = showLeftSidebar
-		? Math.min(350, Math.round(width * LEFT_SIDEBAR_RATIO))
-		: 0;
-	const rightSidebarWidth = showRightSidebar
-		? Math.min(350, Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)))
-		: 0;
-	const canvasWidth =
-		width -
-		leftSidebarWidth -
-		rightSidebarWidth -
-		(showLeftSidebar ? SPLITTER_SIZE : 0) -
-		(showRightSidebar ? SPLITTER_SIZE : 0);
-
-	return (
-		<AbsoluteFill
-			style={{
-				...studioFont,
-				backgroundColor: BACKGROUND,
-				color: WHITE,
-				fontWeight: 400,
-				lineHeight: 1.5,
-				overflow: 'hidden',
-			}}
-		>
-			<MenuToolbar
-				compositionName={compositionName}
-				showLeftSidebar={showLeftSidebar}
-				showRightSidebar={showRightSidebar}
-			/>
-			<div style={{height: topPanelHeight, width}}>
-				<div style={{display: 'flex', height: canvasRowHeight, width}}>
-					{showLeftSidebar ? (
-						<>
-							<div style={{width: leftSidebarWidth}}>
-								<LeftSidebar />
-							</div>
-							<div style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}} />
-						</>
-					) : null}
-					<PreviewCanvas
-						canvasHeight={canvasRowHeight}
-						canvasWidth={canvasWidth}
-						compositionHeight={compositionHeight}
-						compositionWidth={compositionWidth}
-						content={content}
-						durationInFrames={durationInFrames}
-						frame={frame}
-					/>
-					{showRightSidebar ? (
-						<>
-							<div style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}} />
-							<div style={{width: rightSidebarWidth}}>
-								<RightSidebar
-									compositionHeight={compositionHeight}
-									compositionName={compositionName}
-									compositionWidth={compositionWidth}
-									durationInFrames={durationInFrames}
-									fps={fps}
-								/>
-							</div>
-						</>
-					) : null}
-				</div>
-				<PreviewToolbar />
-			</div>
-			<div style={{backgroundColor: SPLITTER, height: SPLITTER_SIZE, width}} />
-			<Timeline
-				durationInFrames={durationInFrames}
-				fps={fps}
-				frame={frame}
-				height={timelineHeight}
-				width={width}
-			/>
-		</AbsoluteFill>
-	);
-};
-
-export const StudioReference: React.FC = () => {
 	return (
 		<Studio
 			compositionHeight={REFERENCE_COMPOSITION_HEIGHT}
@@ -1401,8 +1817,9 @@ export const StudioReference: React.FC = () => {
 			content={<Scene11 platform="youtube" />}
 			durationInFrames={742}
 			frame={655}
-			showLeftSidebar
-			showRightSidebar
+			showLeftSidebar={showLeftSidebar}
+			showRightSidebar={showRightSidebar}
+			viewportWidth={viewportWidth}
 		/>
 	);
 };
