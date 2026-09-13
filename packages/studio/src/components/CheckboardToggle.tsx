@@ -25,7 +25,7 @@ export const CheckboardToggle: React.FC = () => {
 
 	return (
 		<ActionTooltip
-			label={accessibilityLabel}
+			label="Checkerboard"
 			shortcut={shortcutsDisabled ? null : shortcut}
 			delay={800}
 			dismissOnClick={false}

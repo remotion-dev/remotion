@@ -50,7 +50,7 @@ export const RulersAndGuidesToggle: React.FC<{
 
 	return (
 		<ActionTooltip
-			label={accessibilityLabel}
+			label={showGuides ? 'Rulers and Guides' : 'Rulers'}
 			shortcut={shortcutsDisabled ? null : shortcut}
 			delay={800}
 			dismissOnClick={false}

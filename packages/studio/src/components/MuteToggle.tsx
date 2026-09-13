@@ -33,7 +33,7 @@ export const MuteToggle: React.FC<{
 
 	return (
 		<ActionTooltip
-			label={accessibilityLabel}
+			label="Mute"
 			shortcut={shortcutsDisabled ? null : shortcut}
 			delay={800}
 			dismissOnClick={false}

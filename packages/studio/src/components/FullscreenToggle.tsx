@@ -60,7 +60,7 @@ export const FullScreenToggle: React.FC<{
 		/>
 	) : (
 		<ActionTooltip
-			label={accessibilityLabel}
+			label="Fullscreen"
 			shortcut={shortcutsDisabled ? null : shortcut}
 			delay={800}
 			dismissOnClick
