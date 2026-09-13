@@ -4549,9 +4549,10 @@ export const SequenceShiftRepro = () => {
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
 
 		await page.locator('.__remotion-studio-menu-initiator').first().click();
-		const compositionItem = page
-			.locator('.__remotion-studio-menu-item')
-			.filter({hasText: 'Composition'});
+		const compositionItem = page.getByRole('button', {
+			name: 'Composition',
+			exact: true,
+		});
 		await compositionItem.hover();
 
 		const subMenuItem = page.getByRole('button', {name: 'Copy file location'});
