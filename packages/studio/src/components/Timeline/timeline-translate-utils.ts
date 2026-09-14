@@ -4,7 +4,7 @@ import {
 } from './timeline-field-utils';
 
 const TRANSLATE_PATTERN =
-	/^(-?\d+(?:\.\d+)?)(px|%)(?:\s+(-?\d+(?:\.\d+)?)(px|%))?(?:\s+(-?\d+(?:\.\d+)?)(px))?$/i;
+	/^(-?\d+(?:\.\d+)?)(px|%)?(?:\s+(-?\d+(?:\.\d+)?)(px|%)?)?(?:\s+(-?\d+(?:\.\d+)?)(px)?)?$/i;
 const translateDecimalPlaces = 1;
 
 export type ParsedTranslate = readonly [number, number, number | null];
@@ -25,23 +25,39 @@ export const parseTranslateWithUnits = (
 		return null;
 	}
 
+	const x = normalizeTimelineNumber(Number(match[1]));
+	const y =
+		match[3] === undefined ? 0 : normalizeTimelineNumber(Number(match[3]));
+	const z =
+		match[5] === undefined ? null : normalizeTimelineNumber(Number(match[5]));
+
+	if (
+		(match[2] === undefined && x !== 0) ||
+		(match[3] !== undefined && match[4] === undefined && y !== 0) ||
+		(match[5] !== undefined && match[6] === undefined && z !== 0)
+	) {
+		return null;
+	}
+
 	return [
 		{
-			value: normalizeTimelineNumber(Number(match[1])),
-			unit: match[2].toLowerCase() as TranslateUnit,
+			value: x,
+			unit:
+				match[2] === undefined
+					? 'px'
+					: (match[2].toLowerCase() as TranslateUnit),
 		},
 		{
-			value:
-				match[3] === undefined ? 0 : normalizeTimelineNumber(Number(match[3])),
+			value: y,
 			unit:
 				match[4] === undefined
 					? 'px'
 					: (match[4].toLowerCase() as TranslateUnit),
 		},
-		match[5] === undefined
-			? null
+		z === null
+			? z
 			: {
-					value: normalizeTimelineNumber(Number(match[5])),
+					value: z,
 					unit: 'px',
 				},
 	];

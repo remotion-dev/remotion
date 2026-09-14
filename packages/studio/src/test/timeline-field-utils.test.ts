@@ -153,6 +153,19 @@ test('formatTimelineFieldValueForDisplay preserves translate percentages', () =>
 	).toBe('71.4% 2.2%');
 });
 
+test('formatTimelineFieldValueForDisplay normalizes unitless translate zero', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'translate',
+				default: '0px 0px',
+				step: 1,
+			},
+			value: '0 0',
+		}),
+	).toBe('0px 0px');
+});
+
 test('formatTimelineFieldValueForDisplay preserves transform-origin units', () => {
 	expect(
 		formatTimelineFieldValueForDisplay({

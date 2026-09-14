@@ -48,6 +48,30 @@ test('parseTranslateWithUnits preserves percentage units', () => {
 	]);
 });
 
+test('parseTranslateWithUnits accepts unitless zero', () => {
+	expect(parseTranslateWithUnits('0')).toEqual([
+		{value: 0, unit: 'px'},
+		{value: 0, unit: 'px'},
+		null,
+	]);
+	expect(parseTranslateWithUnits('0% 0')).toEqual([
+		{value: 0, unit: '%'},
+		{value: 0, unit: 'px'},
+		null,
+	]);
+	expect(parseTranslateWithUnits('0 0 0')).toEqual([
+		{value: 0, unit: 'px'},
+		{value: 0, unit: 'px'},
+		{value: 0, unit: 'px'},
+	]);
+});
+
+test('parseTranslateWithUnits rejects non-zero unitless coordinates', () => {
+	expect(parseTranslateWithUnits('20 0')).toBeNull();
+	expect(parseTranslateWithUnits('0 20')).toBeNull();
+	expect(parseTranslateWithUnits('0 0 20')).toBeNull();
+});
+
 test('serializeTranslateWithUnits preserves percentage units', () => {
 	expect(
 		serializeTranslateWithUnits([
