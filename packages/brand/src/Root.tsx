@@ -122,6 +122,7 @@ import {Skills2Router} from './Skills2Router';
 import {Skills2TableBang} from './Skills2TableBang';
 import {Skills2TableBangComp} from './Skills2TableBangComp';
 import {SvgLogoCompositions} from './SvgLogos';
+import {Codex} from './video-elements/Codex';
 import {
 	FlyingCardsLeft,
 	flyingCardsLeftSchema,
@@ -402,6 +403,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 
 			<Folder name="VideoElements">
+				<Composition
+					id="CodexUI"
+					component={Codex}
+					durationInFrames={1}
+					fps={30}
+					width={1193}
+					height={1040}
+				/>
 				<Composition
 					id="TextEditorUI"
 					component={TextEditor}
