@@ -5,40 +5,56 @@ import {
 	captureFunctionSourceSnapshots,
 	getFunctionSourceEditsForPrependedStatements,
 } from '../function-source-edits';
-import {recastIndexToOffset} from '../recast-loc-to-offset';
+import {recastIndexToOffset, recastLocToOffset} from '../recast-loc-to-offset';
 import {parseAst} from '../sequence-props/parse-ast';
 
 const b = recast.types.builders;
 
-test('maps Recast indexes back to source offsets with BOM, tabs, and CRLF', () => {
-	const input = '\uFEFF\texport const C = () => (\r\n\t<div />\r\n);\r\n';
-	const ast = parseAst(input);
-	const declaration = ast.program.body[0];
-	if (declaration.type !== 'ExportNamedDeclaration') {
-		throw new Error('Expected an export declaration');
-	}
+test('maps Recast positions across source whitespace normalization', () => {
+	const inputs = [
+		'\uFEFF\texport const C = () => (\r\n\t<div />\r\n);\r\n',
+		'export const C =\t() => (<div />);\n',
+		'export const C = () => (\u2028  <div />\u2029);\r',
+	];
 
-	const variableDeclaration = declaration.declaration;
-	if (variableDeclaration?.type !== 'VariableDeclaration') {
-		throw new Error('Expected a variable declaration');
-	}
+	for (const input of inputs) {
+		const ast = parseAst(input);
+		const declaration = ast.program.body[0];
+		if (declaration.type !== 'ExportNamedDeclaration') {
+			throw new Error('Expected an export declaration');
+		}
 
-	const initializer = variableDeclaration.declarations[0].init;
-	if (initializer?.type !== 'ArrowFunctionExpression') {
-		throw new Error('Expected an arrow function');
-	}
+		const variableDeclaration = declaration.declaration;
+		if (variableDeclaration?.type !== 'VariableDeclaration') {
+			throw new Error('Expected a variable declaration');
+		}
 
-	const extra = initializer.body.extra as
-		| {parenStart?: number}
-		| null
-		| undefined;
-	if (typeof extra?.parenStart !== 'number') {
-		throw new Error('Expected a parenthesized expression body');
-	}
+		const initializer = variableDeclaration.declarations[0].init;
+		if (
+			initializer?.type !== 'ArrowFunctionExpression' ||
+			!initializer.body.loc
+		) {
+			throw new Error('Expected a located arrow function');
+		}
 
-	expect(recastIndexToOffset(input, extra.parenStart)).toBe(
-		input.indexOf('(', input.indexOf('=>')),
-	);
+		const extra = initializer.body.extra as
+			| {parenStart?: number}
+			| null
+			| undefined;
+		if (typeof extra?.parenStart !== 'number') {
+			throw new Error('Expected a parenthesized expression body');
+		}
+
+		expect(recastIndexToOffset(input, extra.parenStart)).toBe(
+			input.indexOf('(', input.indexOf('=>')),
+		);
+		expect(recastLocToOffset(input, initializer.body.loc.start)).toBe(
+			input.indexOf('<div'),
+		);
+		expect(recastLocToOffset(input, initializer.body.loc.end)).toBe(
+			input.indexOf('/>') + 2,
+		);
+	}
 });
 
 test('rejects inserted statements outside the leading prefix', () => {
