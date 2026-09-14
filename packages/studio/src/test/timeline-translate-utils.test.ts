@@ -1,7 +1,9 @@
 import {expect, test} from 'bun:test';
 import {
 	parseTranslate,
+	parseTranslateWithUnits,
 	serializeTranslate,
+	serializeTranslateWithUnits,
 } from '../components/Timeline/timeline-translate-utils';
 
 test('parseTranslate normalizes floating point noise', () => {
@@ -36,4 +38,46 @@ test('serializeTranslate respects more precise steps', () => {
 	expect(serializeTranslate([254.854512, 393.565342, 12.3456], 2)).toBe(
 		'254.85px 393.57px 12.35px',
 	);
+});
+
+test('parseTranslateWithUnits preserves percentage units', () => {
+	expect(parseTranslateWithUnits('71.44625% 2.164444%')).toEqual([
+		{value: 71.44625, unit: '%'},
+		{value: 2.164444, unit: '%'},
+		null,
+	]);
+});
+
+test('parseTranslateWithUnits accepts unitless zero', () => {
+	expect(parseTranslateWithUnits('0')).toEqual([
+		{value: 0, unit: 'px'},
+		{value: 0, unit: 'px'},
+		null,
+	]);
+	expect(parseTranslateWithUnits('0% 0')).toEqual([
+		{value: 0, unit: '%'},
+		{value: 0, unit: 'px'},
+		null,
+	]);
+	expect(parseTranslateWithUnits('0 0 0')).toEqual([
+		{value: 0, unit: 'px'},
+		{value: 0, unit: 'px'},
+		{value: 0, unit: 'px'},
+	]);
+});
+
+test('parseTranslateWithUnits rejects non-zero unitless coordinates', () => {
+	expect(parseTranslateWithUnits('20 0')).toBeNull();
+	expect(parseTranslateWithUnits('0 20')).toBeNull();
+	expect(parseTranslateWithUnits('0 0 20')).toBeNull();
+});
+
+test('serializeTranslateWithUnits preserves percentage units', () => {
+	expect(
+		serializeTranslateWithUnits([
+			{value: 71.44625, unit: '%'},
+			{value: 2.164444, unit: '%'},
+			null,
+		]),
+	).toBe('71.4% 2.2%');
 });
