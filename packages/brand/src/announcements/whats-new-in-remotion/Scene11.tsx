@@ -1,5 +1,5 @@
 import {Video} from '@remotion/media';
-import {AbsoluteFill, interpolate, useVideoConfig} from 'remotion';
+import {interpolate, useVideoConfig} from 'remotion';
 import {assetUrl} from './assets';
 import {SILENCES} from './Composition';
 import type {EndCardPlatform} from './EndCard';
@@ -23,20 +23,16 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 	const videoX = interpolate(overlayProgress, [0, 1], [0, -20]);
 
 	return (
-		<AbsoluteFill name={'Video'}>
-			<AbsoluteFill
+		<>
+			<Video
 				style={{transform: `translateX(${videoX}%)`}}
-				name={'Container'}
-			>
-				<Video
-					src={assetUrl(FILE)}
-					trimBefore={trimBefore}
-					trimAfter={trimAfter}
-				/>
-			</AbsoluteFill>
+				src={assetUrl(FILE)}
+				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+			/>
 			<SlideInOverlay startAt={overlayStartAt} holdDuration={9999}>
 				<EndCard platform={platform} />
 			</SlideInOverlay>
-		</AbsoluteFill>
+		</>
 	);
 };

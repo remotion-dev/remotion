@@ -105,6 +105,7 @@ export const EndCard: React.FC<{readonly platform: EndCardPlatform}> = ({
 				justifyContent: 'center',
 				padding: 60,
 			}}
+			name={'Endcard'}
 		>
 			<div
 				style={{
