@@ -109,6 +109,7 @@ export const ElementLibraryButton: React.FC = () => {
 				selectedId: null,
 				style: elementLibraryDropdownSegmentStyle,
 				title: 'Choose an Element library to browse inside Studio.',
+				tooltipLabel: null,
 				type: 'menu',
 				values: [
 					{

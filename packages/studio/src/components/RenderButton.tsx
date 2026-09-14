@@ -445,7 +445,8 @@ const RenderButtonInner: React.FC<{
 					controlSize === 'compact'
 						? compactMainSegmentStyle
 						: defaultMainSegmentStyle,
-				title: tooltip,
+				title: showRenderLabel ? tooltip : null,
+				tooltipLabel: showRenderLabel ? null : renderLabel,
 				type: 'action',
 			},
 			{
@@ -463,6 +464,7 @@ const RenderButtonInner: React.FC<{
 						? compactDropdownSegmentStyle
 						: defaultDropdownSegmentStyle,
 				title: 'Select render type',
+				tooltipLabel: null,
 				type: 'menu',
 				values: dropdownValues,
 			},
@@ -506,7 +508,7 @@ const RenderButtonInner: React.FC<{
 			<SegmentedButton
 				segments={segments}
 				style={segmentedButtonStyle}
-				title={tooltip}
+				title={showRenderLabel ? tooltip : null}
 			/>
 		</>
 	);
