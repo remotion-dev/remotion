@@ -46,6 +46,7 @@ export const installRemotionSkillHandler: ApiHandler<
 				args,
 				{
 					cwd: remotionRoot,
+					env: {...process.env, DISABLE_TELEMETRY: '1'},
 					stdio: ['ignore', 'pipe', 'pipe'],
 					...getPackageManagerSpawnOptions(),
 				},

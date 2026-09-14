@@ -21,7 +21,10 @@ test.skipIf(process.platform === 'win32')(
 const fs = require('node:fs');
 const path = require('node:path');
 const args = process.argv.slice(2);
-fs.writeFileSync('install-call.json', JSON.stringify(args));
+fs.writeFileSync(
+  'install-call.json',
+  JSON.stringify({args, disableTelemetry: process.env.DISABLE_TELEMETRY}),
+);
 if (fs.existsSync('fail')) {
   process.stderr.write('Could not download skills');
   process.stdout.end();
@@ -102,14 +105,17 @@ if (fs.existsSync('fail')) {
 				JSON.parse(
 					await readFile(path.join(root, 'install-call.json'), 'utf8'),
 				),
-			).toEqual([
-				'--yes',
-				'--loglevel=error',
-				'skills@1.5.26',
-				'add',
-				'remotion-dev/skills@remotion-interactivity',
-				'--yes',
-			]);
+			).toEqual({
+				args: [
+					'--yes',
+					'--loglevel=error',
+					'skills@1.5.26',
+					'add',
+					'remotion-dev/skills@remotion-interactivity',
+					'--yes',
+				],
+				disableTelemetry: '1',
+			});
 		} finally {
 			process.env.PATH = previousPath;
 			server.closeAllConnections();
