@@ -157,6 +157,25 @@ export const getFolderMenuItems = ({
 			disabled: codemodDisabled,
 		},
 		{
+			id: 'new-folder-in-folder',
+			keyHint: null,
+			label: `New folder...`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				setSelectedModal({
+					type: 'new-folder',
+					parentName: folderId,
+					stack: folder.stack,
+				});
+			},
+			quickSwitcherLabel: 'New folder in folder...',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'new-folder-in-folder',
+			disabled: codemodDisabled,
+		},
+		{
 			id: 'rename-folder',
 			keyHint: null,
 			label: `Rename...`,

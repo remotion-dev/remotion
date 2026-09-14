@@ -1443,6 +1443,53 @@ test.describe('visual mode', () => {
 		await expect(page).toHaveURL(/timeline-virtualization-testbed/);
 	});
 
+	test('should create a subfolder from the folder context menu', async ({
+		page,
+	}) => {
+		const originalSource = fs.readFileSync(rootFile, 'utf-8');
+		const newFolderName = 'ContextMenuNested';
+
+		try {
+			await page.goto(STUDIO_URL);
+			const parentFolder = page.locator(
+				'.__remotion-composition-selector-item[role="button"][title="visual-controls"]',
+			);
+			await expect(parentFolder).toBeVisible({timeout: 15_000});
+			await parentFolder.click({button: 'right'});
+			await page
+				.getByRole('button', {name: 'New folder...', exact: true})
+				.click();
+
+			const dialog = page.getByRole('dialog');
+			await expect(
+				dialog.getByText('visual-controls', {exact: true}),
+			).toBeVisible();
+			await dialog.getByPlaceholder('Folder name').fill(newFolderName);
+			await dialog.getByRole('button', {name: /Add to .*/}).click();
+
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(rootFile, 'utf-8');
+					const parentStart = source.indexOf('<Folder name="visual-controls">');
+					const parentEnd = source.indexOf('</Folder>', parentStart);
+					const nestedFolder = source.indexOf(
+						`<Folder name="${newFolderName}" />`,
+						parentStart,
+					);
+
+					return (
+						parentStart !== -1 &&
+						parentEnd !== -1 &&
+						nestedFolder > parentStart &&
+						nestedFolder < parentEnd
+					);
+				})
+				.toBe(true);
+		} finally {
+			fs.writeFileSync(rootFile, originalSource);
+		}
+	});
+
 	test('should play when a composition in the sidebar is focused', async ({
 		page,
 	}) => {
