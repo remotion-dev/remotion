@@ -432,6 +432,7 @@ export const extendTimelineMarqueeSelection = ({
 
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
+	readonly inspectorRevealRequest: TimelineSelectionRevealRequest | null;
 	readonly revealRequest: TimelineSelectionRevealRequest | null;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
@@ -465,6 +466,7 @@ type TimelineSelectionContextValue = {
 
 const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	canSelect: false,
+	inspectorRevealRequest: null,
 	revealRequest: null,
 	selectedItems: [],
 	isSelected: () => false,
@@ -509,6 +511,7 @@ const CurrentTimelineSelectionContext =
 
 type TimelineSelectionOptions = {
 	readonly reveal?: boolean;
+	readonly revealInInspector?: boolean;
 };
 
 type TimelineSelectionRevealRequest = {
@@ -965,10 +968,14 @@ export const TimelineSelectionProvider: React.FC<{
 	const marqueeRegistrationCounter = useRef(0);
 	const [revealRequest, setRevealRequest] =
 		useState<TimelineSelectionRevealRequest | null>(null);
+	const [inspectorRevealRequest, setInspectorRevealRequest] =
+		useState<TimelineSelectionRevealRequest | null>(null);
+	const inspectorRevealTokenCounter = useRef(0);
 
 	useEffect(() => {
 		if (!canSelect) {
 			selectionScope.current = null;
+			setInspectorRevealRequest(null);
 			setRevealRequest(null);
 			selectionController.clear();
 		}
@@ -995,6 +1002,16 @@ export const TimelineSelectionProvider: React.FC<{
 			token: (previousRequest?.token ?? 0) + 1,
 		}));
 	}, []);
+	const requestRevealSelectionItemInInspector = useCallback(
+		(item: TimelineSelection) => {
+			inspectorRevealTokenCounter.current += 1;
+			setInspectorRevealRequest({
+				item,
+				token: inspectorRevealTokenCounter.current,
+			});
+		},
+		[],
+	);
 
 	const expandParentsForSelectionItems = useCallback(
 		(items: readonly TimelineSelection[]) => {
@@ -1061,6 +1078,12 @@ export const TimelineSelectionProvider: React.FC<{
 				requestRevealSelectionItem(item);
 			}
 
+			if (options.revealInInspector) {
+				requestRevealSelectionItemInInspector(item);
+			} else {
+				setInspectorRevealRequest(null);
+			}
+
 			if (selectionScope.current !== timelineSelectionScope) {
 				selectionController.clear();
 			}
@@ -1071,6 +1094,7 @@ export const TimelineSelectionProvider: React.FC<{
 		[
 			canSelectItem,
 			expandParentsForSelectionItem,
+			requestRevealSelectionItemInInspector,
 			requestRevealSelectionItem,
 			selectionController,
 			timelineSelectionScope,
@@ -1096,11 +1120,18 @@ export const TimelineSelectionProvider: React.FC<{
 				requestRevealSelectionItem(items[0]);
 			}
 
+			if (options.revealInInspector && items.length === 1) {
+				requestRevealSelectionItemInInspector(items[0]);
+			} else {
+				setInspectorRevealRequest(null);
+			}
+
 			selectionController.setSelectedItems(items);
 		},
 		[
 			canSelectItem,
 			expandParentsForSelectionItems,
+			requestRevealSelectionItemInInspector,
 			requestRevealSelectionItem,
 			selectionController,
 			timelineSelectionScope,
@@ -1165,6 +1196,7 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const clearSelection = useCallback(() => {
 		selectionScope.current = null;
+		setInspectorRevealRequest(null);
 		selectionController.clear();
 	}, [selectionController]);
 
@@ -1257,6 +1289,7 @@ export const TimelineSelectionProvider: React.FC<{
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
+			inspectorRevealRequest,
 			revealRequest,
 			selectedItems: availableSelectedItems,
 			isSelected,
@@ -1270,6 +1303,7 @@ export const TimelineSelectionProvider: React.FC<{
 		}),
 		[
 			canSelect,
+			inspectorRevealRequest,
 			revealRequest,
 			availableSelectedItems,
 			isSelected,
@@ -1541,6 +1575,7 @@ export const useTimelineMarqueeSelectableItem = (
 
 export const useTimelineRowSelection = (
 	nodePathInfo: SequenceNodePathInfo | null,
+	revealInInspector = false,
 ) => {
 	const {canSelect, isSelected, selectItem} = useTimelineSelection();
 	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
@@ -1562,9 +1597,10 @@ export const useTimelineRowSelection = (
 				selectionItem,
 				interaction,
 				selectableTimelineItemsRef.current,
+				{revealInInspector},
 			);
 		},
-		[selectItem, selectableTimelineItemsRef, selectionItem],
+		[revealInInspector, selectItem, selectableTimelineItemsRef, selectionItem],
 	);
 
 	return {

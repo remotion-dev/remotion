@@ -93,6 +93,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
 					labelNextToToggle={isInspector}
+					revealInInspector={!isInspector}
 					getIsExpanded={getIsExpanded}
 					toggleTrack={toggleTrack}
 				/>
@@ -139,6 +140,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 					keyframeControlsMode={keyframeControlsMode}
+					revealInInspector={!isInspector}
 					runtimeValueStore={node.runtimeValueStore}
 				/>
 			);
