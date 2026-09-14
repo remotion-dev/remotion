@@ -38,7 +38,6 @@ import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 const {
 	useUnsafeVideoConfig,
 	SharedAudioContext,
-	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
@@ -48,7 +47,7 @@ const {
 	useEffectChainState,
 	usePlaying,
 	useBuffering,
-	useIsInsideFreeze,
+	useMediaAudioState,
 } = Internals;
 
 type VideoForPreviewProps = NativeVideoProps & {
@@ -152,7 +151,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		[refForOutline],
 	);
 
-	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
@@ -192,9 +190,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const preloadedSrc = usePreload(src);
 	// TODO: Consider Sequence hidden
-	const isInsideFreeze = useIsInsideFreeze();
-	const effectiveMuted =
-		muted || playerMuted || userPreferredVolume <= 0 || isInsideFreeze;
+	const {isMutedForPlayback: effectiveMuted} = useMediaAudioState({
+		muted,
+		volume: userPreferredVolume,
+		audioEnabled: true,
+	});
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);

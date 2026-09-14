@@ -13,17 +13,16 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
+import {useMediaAudioState} from '../audio/use-media-audio-state.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {random} from '../random.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
-import {
-	useIsInsideFreeze,
-	useTimelinePosition,
-} from '../timeline-position-state.js';
+import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useAudioEnabled} from '../use-media-enabled.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -65,7 +64,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
-	const isInsideFreeze = useIsInsideFreeze();
 	const volumePropsFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
@@ -96,10 +94,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		],
 	);
 
-	if (!videoConfig) {
-		throw new Error('No video config found');
-	}
-
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropsFrame,
@@ -107,21 +101,23 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	});
 
 	warnAboutTooHighVolume(volume);
+	const audioEnabled = useAudioEnabled();
+	const {shouldUseAudio} = useMediaAudioState({
+		muted: props.muted ?? false,
+		volume,
+		audioEnabled,
+	});
+
+	if (!videoConfig) {
+		throw new Error('No video config found');
+	}
 
 	useEffect(() => {
 		if (!props.src) {
 			throw new Error('No src passed');
 		}
 
-		if (props.muted || isInsideFreeze) {
-			return;
-		}
-
-		if (volume <= 0) {
-			return;
-		}
-
-		if (!window.remotion_audioEnabled) {
+		if (!shouldUseAudio) {
 			return;
 		}
 
@@ -143,8 +139,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		return () => unregisterRenderAsset(id);
 	}, [
-		props.muted,
-		isInsideFreeze,
+		shouldUseAudio,
 		props.src,
 		registerRenderAsset,
 		id,

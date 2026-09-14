@@ -102,7 +102,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const sampleRate = audioContext?.sampleRate ?? 48000;
 	const frame = useCurrentFrame();
-	const isInsideFreeze = Internals.useIsInsideFreeze();
 	const absoluteFrame = Internals.useTimelinePosition();
 
 	const {fps} = useVideoConfig();
@@ -141,6 +140,11 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 	const audioEnabled = Internals.useAudioEnabled();
 	const videoEnabled = Internals.useVideoEnabled();
+	const {isMutedForPlayback, shouldUseAudio} = Internals.useMediaAudioState({
+		muted,
+		volume: null,
+		audioEnabled,
+	});
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
 	const mediaCache = useRenderMediaCache(logLevel);
@@ -180,18 +184,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			},
 		);
 
-		const shouldRenderAudio = (() => {
-			if (!audioEnabled) {
-				return false;
-			}
-
-			if (muted || isInsideFreeze) {
-				return false;
-			}
-
-			return true;
-		})();
-
 		extractFrameViaBroadcastChannel({
 			sampleRate,
 			src,
@@ -199,7 +191,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			durationInSeconds,
 			playbackRate,
 			logLevel,
-			includeAudio: shouldRenderAudio,
+			includeAudio: shouldUseAudio,
 			includeVideo: videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop,
@@ -434,8 +426,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		logLevel,
 		loop,
 		loopVolumeCurveBehavior,
-		muted,
-		isInsideFreeze,
+		shouldUseAudio,
 		onVideoFrame,
 		playbackRate,
 		registerRenderAsset,
@@ -450,7 +441,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		toneFrequency,
 		trimAfterValue,
 		trimBeforeValue,
-		audioEnabled,
 		videoEnabled,
 		maxCacheSize,
 		cancelRender,
@@ -484,7 +474,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				{...props}
 				src={src}
 				playbackRate={playbackRate ?? 1}
-				muted={Boolean(muted || isInsideFreeze)}
+				muted={isMutedForPlayback}
 				acceptableTimeShiftInSeconds={
 					fallbackOffthreadVideoProps?.acceptableTimeShiftInSeconds
 				}

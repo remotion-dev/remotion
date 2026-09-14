@@ -17,7 +17,6 @@ import type {FallbackHtml5AudioProps} from './props';
 const {
 	useUnsafeVideoConfig,
 	SharedAudioContext,
-	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
@@ -26,7 +25,7 @@ const {
 	SequenceContext,
 	usePlaying,
 	useBuffering,
-	useIsInsideFreeze,
+	useMediaAudioState,
 } = Internals;
 
 type NewAudioForPreviewProps = {
@@ -93,7 +92,6 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
-	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(
@@ -128,9 +126,11 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
-	const isInsideFreeze = useIsInsideFreeze();
-	const effectiveMuted =
-		muted || playerMuted || userPreferredVolume <= 0 || isInsideFreeze;
+	const {isMutedForPlayback: effectiveMuted} = useMediaAudioState({
+		muted,
+		volume: userPreferredVolume,
+		audioEnabled: true,
+	});
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);

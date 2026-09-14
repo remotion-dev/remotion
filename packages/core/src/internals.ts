@@ -16,6 +16,7 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
+import {useMediaAudioState} from './audio/use-media-audio-state.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {calculateMediaDuration} from './calculate-media-duration.js';
 import {
@@ -312,6 +313,7 @@ export const Internals = {
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
 	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	useIsInsideFreeze: TimelinePosition.useIsInsideFreeze,
+	useMediaAudioState,
 	evaluateVolume,
 	getAbsoluteSrc,
 	getAnimatedImageDurationInSeconds,
