@@ -27,6 +27,7 @@ import {
 } from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
+import {Shine} from '../../../elements/commerce/shine/shine';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {LineChart} from '../../../elements/data/line-chart/line-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
@@ -84,6 +85,7 @@ export type ElementDefinition = {
 	readonly initialProps: ElementInitialProps | null;
 	readonly posterFrame: number;
 	readonly preview: ElementPreviewMetadata;
+	readonly previewUsesHtmlInCanvas: boolean;
 	readonly safeArea: number;
 	readonly slug: string;
 	readonly installationMode: ElementInstallationMode;
@@ -504,6 +506,28 @@ const elementImplementations = [
 		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1080,
+	},
+	{
+		slug: 'commerce/shine',
+		component: Shine,
+		contributors: [],
+		description: 'Adds a diagonal shine sweep to any content.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 45,
+		elementHeight: 720,
+		elementWidth: 1280,
+		fps: 30,
+		height: 1080,
+		posterFrame: 22,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl: 'https://remotion.media/elements/commerce-shine-preview.png',
+			videoUrl: 'https://remotion.media/elements/commerce-shine-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
 	},
 	{
 		slug: 'data/horizontal-bar-chart',
@@ -1044,12 +1068,15 @@ const elementImplementations = [
 	},
 ] satisfies readonly (Omit<
 	ElementDefinition,
-	'category' | 'displayName' | 'slug'
+	'category' | 'displayName' | 'previewUsesHtmlInCanvas' | 'slug'
 > & {
 	readonly slug: ElementSlug;
 })[];
 
+const htmlInCanvasElementSlugs = new Set<ElementSlug>(['commerce/shine']);
+
 export const elementDefinitions = elementImplementations.map((definition) => ({
 	...elementRegistry[definition.slug],
 	...definition,
+	previewUsesHtmlInCanvas: htmlInCanvasElementSlugs.has(definition.slug),
 }));
