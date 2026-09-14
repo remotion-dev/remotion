@@ -126,6 +126,7 @@ export const TimelineEffectItem: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
 	readonly labelNextToToggle: boolean;
+	readonly revealInInspector: boolean;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 }> = ({
@@ -138,6 +139,7 @@ export const TimelineEffectItem: React.FC<{
 	validatedLocation,
 	rowDepth,
 	labelNextToToggle,
+	revealInInspector,
 	getIsExpanded,
 	toggleTrack,
 }) => {
@@ -146,7 +148,7 @@ export const TimelineEffectItem: React.FC<{
 	const canMutateEffects = canUseEffectOperations();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const selection = useTimelineRowSelection(nodePathInfo);
+	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [dropIndicator, setDropIndicator] = useState<'before' | 'after' | null>(
 		null,

@@ -734,7 +734,21 @@ test.describe('visual mode', () => {
 			.locator('.__remotion-vertical-scrollbar')
 			.filter({has: addEffectButton});
 		const inspectorWave = inspector.getByText('wave()', {exact: true});
+		await inspectorWave.evaluate((element) => {
+			element.scrollIntoView({block: 'center'});
+		});
+		await inspector.evaluate((element) => {
+			element.scrollTop += 60;
+		});
+		await expect(inspectorWave).toBeInViewport();
+		const inspectorScrollBeforeClick = await inspector.evaluate(
+			(element) => element.scrollTop,
+		);
+		expect(inspectorScrollBeforeClick).toBeGreaterThan(0);
 		await inspectorWave.click();
+		await expect
+			.poll(() => inspector.evaluate((element) => element.scrollTop))
+			.toBe(inspectorScrollBeforeClick);
 		const timelineWave = page
 			.getByText('wave()', {exact: true})
 			.filter({visible: true})

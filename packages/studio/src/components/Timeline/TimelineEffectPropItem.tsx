@@ -418,6 +418,7 @@ export const TimelineEffectPropItem: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
+	readonly revealInInspector: boolean;
 	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
@@ -427,6 +428,7 @@ export const TimelineEffectPropItem: React.FC<{
 	nodePathInfo,
 	keyframeDisplayOffset,
 	keyframeControlsMode,
+	revealInInspector,
 	runtimeValueStore,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -438,7 +440,7 @@ export const TimelineEffectPropItem: React.FC<{
 	const {getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const selection = useTimelineRowSelection(nodePathInfo);
+	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
 	const style = useMemo((): React.CSSProperties => {
 		return field.typeName === 'text-content'
 			? fieldRowBase

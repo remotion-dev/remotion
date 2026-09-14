@@ -331,7 +331,7 @@ export const InspectorSequenceSection: React.FC<{
 		includeTextContent: true,
 		includeSourceControls: true,
 	});
-	const {selectedItems} = useTimelineSelection();
+	const {inspectorRevealRequest, selectedItems} = useTimelineSelection();
 	const selectedEffect =
 		selectedItems.length === 1 &&
 		(selectedItems[0].type === 'sequence-effect' ||
@@ -340,8 +340,18 @@ export const InspectorSequenceSection: React.FC<{
 			: null;
 	const selectedEffectKey =
 		selectedEffect === null ? null : getTimelineSelectionKey(selectedEffect);
+	const inspectorRevealItem = inspectorRevealRequest?.item;
+	const inspectorRevealItemKey =
+		inspectorRevealItem?.type === 'sequence-effect' ||
+		inspectorRevealItem?.type === 'sequence-effect-prop'
+			? getTimelineSelectionKey(inspectorRevealItem)
+			: null;
+	const inspectorRevealToken =
+		inspectorRevealItemKey === selectedEffectKey
+			? (inspectorRevealRequest?.token ?? null)
+			: null;
 	const selectedEffectRowRef = useRef<HTMLDivElement>(null);
-	const scrolledEffectKey = useRef<string | null>(null);
+	const scrolledInspectorRevealToken = useRef<number | null>(null);
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
 		loadInspectorCollapsedKeys,
 	);
@@ -473,7 +483,8 @@ export const InspectorSequenceSection: React.FC<{
 	useEffect(() => {
 		if (
 			selectedEffectKey === null ||
-			scrolledEffectKey.current === selectedEffectKey
+			inspectorRevealToken === null ||
+			scrolledInspectorRevealToken.current === inspectorRevealToken
 		) {
 			return;
 		}
@@ -515,24 +526,23 @@ export const InspectorSequenceSection: React.FC<{
 			persistInspectorCollapsedKeys(next);
 			return next;
 		});
-	}, [selectedEffectKey, tree]);
+	}, [inspectorRevealToken, selectedEffectKey, tree]);
 
 	useEffect(() => {
-		if (selectedEffectKey === null) {
-			scrolledEffectKey.current = null;
+		if (inspectorRevealToken === null) {
 			return;
 		}
 
 		if (
-			scrolledEffectKey.current === selectedEffectKey ||
+			scrolledInspectorRevealToken.current === inspectorRevealToken ||
 			selectedEffectRowRef.current === null
 		) {
 			return;
 		}
 
 		selectedEffectRowRef.current.scrollIntoView({block: 'center'});
-		scrolledEffectKey.current = selectedEffectKey;
-	}, [effectRows, selectedEffectKey]);
+		scrolledInspectorRevealToken.current = inspectorRevealToken;
+	}, [effectRows, inspectorRevealToken]);
 
 	const effectSelectableItems = useMemo(
 		() => getInspectorSelectableItems(effectRows),
