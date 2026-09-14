@@ -82,6 +82,10 @@ export const elementRegistry = {
 		category: 'commerce',
 		displayName: 'Shine',
 	},
+	'commerce/tear': {
+		category: 'commerce',
+		displayName: 'Tear apart',
+	},
 	'data/horizontal-bar-chart': {
 		category: 'data',
 		displayName: 'Horizontal Bar Chart',
