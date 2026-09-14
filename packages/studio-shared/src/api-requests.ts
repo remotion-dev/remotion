@@ -1269,6 +1269,10 @@ export type LogStudioErrorResponse = {};
 // When adding a route, also update the Browser Studio parity checklist:
 // https://github.com/remotion-dev/remotion/issues/9807
 export type ApiRoutes = {
+	'/api/invalidate-bundle': ReqAndRes<
+		Record<string, never>,
+		{didInvalidate: boolean}
+	>;
 	'/api/composition-component-info': ReqAndRes<
 		CompositionComponentInfoRequest,
 		CompositionComponentInfoResponse

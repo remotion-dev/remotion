@@ -72,6 +72,7 @@ export const Freeze: React.FC<FreezeProps> = ({
 		return {
 			...timelineContext,
 			isPlaying: () => false,
+			isInsideFreeze: true,
 			frame: {
 				[videoConfig.id]: frameToFreeze + relativeFrom,
 			},

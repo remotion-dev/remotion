@@ -31,6 +31,7 @@ import {
 	installRemotionSkillHandler,
 	removeRemotionSkillHandler,
 } from './routes/install-remotion-skill';
+import {invalidateBundleHandler} from './routes/invalidate-bundle';
 import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
@@ -81,6 +82,7 @@ export const allApiRoutes: {
 		ApiRoutes[key]['Response']
 	>;
 } = {
+	'/api/invalidate-bundle': invalidateBundleHandler,
 	'/api/composition-component-info': compositionComponentInfoHandler,
 	'/api/copy-render-output-to-asset': copyRenderOutputToAssetHandler,
 	'/api/convert-figma-clipboard-to-svg': convertFigmaClipboardToSvgHandler,

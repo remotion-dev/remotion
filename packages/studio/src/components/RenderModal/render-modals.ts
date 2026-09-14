@@ -36,10 +36,13 @@ export const horizontalLayout: React.CSSProperties = {
 
 export const leftSidebar: React.CSSProperties = {
 	flexShrink: 0,
+	display: 'flex',
+	flexDirection: 'column',
 	padding: 6,
 };
 
 export const horizontalTab: React.CSSProperties = {
+	flex: 'none',
 	width: 150,
 	display: 'flex',
 	flexDirection: 'row',

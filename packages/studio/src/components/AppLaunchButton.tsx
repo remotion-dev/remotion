@@ -80,6 +80,7 @@ export const AppLaunchButton: React.FC<{
 						? defaultMainSegmentStyle
 						: compactMainSegmentStyle,
 				title,
+				tooltipLabel: null,
 				type: 'action',
 			},
 			...(items.length > 0
@@ -100,6 +101,7 @@ export const AppLaunchButton: React.FC<{
 							selectedId: null,
 							style: dropdownSegmentStyle,
 							title: menuAriaLabel,
+							tooltipLabel: null,
 							type: 'menu' as const,
 							values: items,
 						},

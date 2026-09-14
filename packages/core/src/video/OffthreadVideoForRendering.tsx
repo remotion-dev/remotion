@@ -11,6 +11,7 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
+import {useMediaAudioState} from '../audio/use-media-audio-state.js';
 import {cancelRender} from '../cancel-render.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from '../default-css.js';
 import type {delayRender as delayRenderGlobal} from '../delay-render.js';
@@ -22,6 +23,7 @@ import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useAudioEnabled} from '../use-media-enabled.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
@@ -86,10 +88,6 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		],
 	);
 
-	if (!videoConfig) {
-		throw new Error('No video config found');
-	}
-
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropsFrame,
@@ -97,21 +95,23 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	});
 
 	warnAboutTooHighVolume(volume);
+	const audioEnabled = useAudioEnabled();
+	const {shouldUseAudio} = useMediaAudioState({
+		muted,
+		volume,
+		audioEnabled,
+	});
+
+	if (!videoConfig) {
+		throw new Error('No video config found');
+	}
 
 	useEffect(() => {
 		if (!src) {
 			throw new Error('No src passed');
 		}
 
-		if (!window.remotion_audioEnabled) {
-			return;
-		}
-
-		if (muted) {
-			return;
-		}
-
-		if (volume <= 0) {
+		if (!shouldUseAudio) {
 			return;
 		}
 
@@ -133,7 +133,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 
 		return () => unregisterRenderAsset(id);
 	}, [
-		muted,
+		shouldUseAudio,
 		src,
 		registerRenderAsset,
 		id,

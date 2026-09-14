@@ -7,6 +7,7 @@ export const makeTimelineContext = (frame: number): TimelineContextValue => {
 			[ID]: frame,
 		},
 		isPlaying: () => false,
+		isInsideFreeze: false,
 		audioAndVideoTags: {current: []},
 	};
 };

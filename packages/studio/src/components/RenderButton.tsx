@@ -7,6 +7,7 @@ import type {
 	OpenGlRenderer,
 	X264Preset,
 } from '@remotion/renderer';
+import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
 import type {RenderStillOnWebImageFormat} from '@remotion/web-renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
@@ -21,8 +22,10 @@ import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {SetSelectedModalContext} from '../state/modals';
+import {callApi} from './call-api';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
+import {showNotification} from './Notifications/NotificationCenter';
 import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
 
 const segmentedButtonStyle: React.CSSProperties = {
@@ -231,7 +234,7 @@ const RenderButtonInner: React.FC<{
 		[video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame],
 	);
 
-	const openClientRenderModal = useCallback(() => {
+	const openClientRenderModal = useCallback(async () => {
 		if (!video) {
 			return null;
 		}
@@ -240,6 +243,38 @@ const RenderButtonInner: React.FC<{
 
 		if (!defaults) {
 			throw new TypeError('Expected defaults');
+		}
+
+		if (!readOnlyStudio && !isBrowserStudio) {
+			let onReconciliation: (() => void) | null = null;
+			const nextReconciliation = new Promise<void>((resolve) => {
+				onReconciliation = resolve;
+				window.addEventListener(
+					REACT_REFRESH_FINISHED_EVENT,
+					onReconciliation,
+					{once: true},
+				);
+			});
+
+			try {
+				const {didInvalidate} = await callApi('/api/invalidate-bundle', {});
+				if (didInvalidate) {
+					await nextReconciliation;
+				}
+			} catch (error) {
+				showNotification(
+					`Could not prepare client-side render: ${(error as Error).message}`,
+					4000,
+				);
+				return null;
+			} finally {
+				if (onReconciliation) {
+					window.removeEventListener(
+						REACT_REFRESH_FINISHED_EVENT,
+						onReconciliation,
+					);
+				}
+			}
 		}
 
 		setSelectedModal({
@@ -268,7 +303,16 @@ const RenderButtonInner: React.FC<{
 			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
 			initialPageResponsiveness: 'medium',
 		});
-	}, [video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame]);
+	}, [
+		video,
+		readOnlyStudio,
+		isBrowserStudio,
+		setSelectedModal,
+		props,
+		inFrame,
+		outFrame,
+		getCurrentFrame,
+	]);
 
 	const onClick = useCallback(() => {
 		if (renderType === 'render-command') {
@@ -401,7 +445,8 @@ const RenderButtonInner: React.FC<{
 					controlSize === 'compact'
 						? compactMainSegmentStyle
 						: defaultMainSegmentStyle,
-				title: tooltip,
+				title: showRenderLabel ? tooltip : null,
+				tooltipLabel: showRenderLabel ? null : renderLabel,
 				type: 'action',
 			},
 			{
@@ -419,6 +464,7 @@ const RenderButtonInner: React.FC<{
 						? compactDropdownSegmentStyle
 						: defaultDropdownSegmentStyle,
 				title: 'Select render type',
+				tooltipLabel: null,
 				type: 'menu',
 				values: dropdownValues,
 			},
@@ -462,7 +508,7 @@ const RenderButtonInner: React.FC<{
 			<SegmentedButton
 				segments={segments}
 				style={segmentedButtonStyle}
-				title={tooltip}
+				title={showRenderLabel ? tooltip : null}
 			/>
 		</>
 	);

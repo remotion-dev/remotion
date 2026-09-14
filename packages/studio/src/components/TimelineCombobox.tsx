@@ -82,6 +82,7 @@ export const TimelineCombobox: React.FC<{
 			selectedId,
 			style: {fontFamily: 'inherit', padding: '0 4px'},
 			title: tooltipDelay === null ? title : null,
+			tooltipLabel: null,
 			type: 'menu',
 			values,
 		},

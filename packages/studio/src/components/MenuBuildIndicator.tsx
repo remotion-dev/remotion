@@ -70,6 +70,7 @@ export const MenuBuildIndicator: React.FC<{
 				<InspectorOpenInEditor
 					location={folderLocation}
 					locationType="folder"
+					showTooltips
 				/>
 			</div>
 			{mobileLayout ? null : <Spacing x={0.5} />}

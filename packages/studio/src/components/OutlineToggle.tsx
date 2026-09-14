@@ -9,6 +9,8 @@ import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 
+const buttonStyle: React.CSSProperties = {width: 26};
+
 export const OutlineToggle: React.FC = () => {
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
@@ -41,6 +43,7 @@ export const OutlineToggle: React.FC = () => {
 				}
 				aria-pressed={editorShowOutlines}
 				onClick={onClick}
+				style={buttonStyle}
 			>
 				{(color) => {
 					const iconColor = editorShowOutlines ? BLUE : color;
