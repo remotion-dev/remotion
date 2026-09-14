@@ -29,6 +29,11 @@ import {
 import {printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
+import {
+	getEndOfLine,
+	getLineIndent,
+	indentContinuationLines,
+} from './source-style';
 
 const {builders: b, namedTypes} = recast.types;
 
@@ -334,17 +339,6 @@ const insertAfter = (
 	return false;
 };
 
-const indentContinuationLines = ({
-	indent,
-	source,
-}: {
-	indent: string;
-	source: string;
-}) => {
-	const endOfLine = source.includes('\r\n') ? '\r\n' : '\n';
-	return source.split(/\r?\n/).join(`${endOfLine}${indent}`);
-};
-
 const getSplitSourceEdit = ({
 	input,
 	left,
@@ -366,14 +360,15 @@ const getSplitSourceEdit = ({
 	const end = recastLocToOffset(input, left.loc.end);
 	const lineStart = input.lastIndexOf('\n', start - 1) + 1;
 	const beforeElement = input.slice(lineStart, start);
-	const lineIndent = beforeElement.match(/^\s*/)?.[0] ?? '';
+	const lineIndent = getLineIndent({input, offset: start});
 	const isOnlyElementOnLine = beforeElement.trim() === '';
-	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+	const endOfLine = getEndOfLine(input);
 	const formattingConfig = prettierConfigOverride ?? null;
 	const print = (element: JSXElement | JSXFragment) =>
 		indentContinuationLines({
 			indent: lineIndent,
-			source: printInsertedJsx({
+			input,
+			printed: printInsertedJsx({
 				element: element as unknown as
 					| AstNamedTypes.JSXElement
 					| AstNamedTypes.JSXFragment,

@@ -7,16 +7,17 @@ import type {
 } from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import {
-	applySourceEdits,
-	getInsertImportSourceEdits,
-	getInsertionRootSourceEdit,
-	type SourceEdit,
-} from './insert-jsx-element';
+import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {indentInsertedJsx, printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {ensureNamedImport} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+	type SourceEdit,
+} from './source-edits';
 
 const b = recast.types.builders;
 
@@ -219,11 +220,7 @@ export const duplicateCompositionInSource = ({
 	const ast = parseAst(input);
 	const changesMade: {description: string}[] = [];
 	const edits: SourceEdit[] = [];
-	const snapshots = ast.program.body.flatMap((statement) =>
-		statement.type === 'ImportDeclaration'
-			? [{declaration: statement, specifiers: [...statement.specifiers]}]
-			: [],
-	);
+	const snapshots = captureImportSnapshots(ast);
 
 	recast.types.visit(ast, {
 		visitJSXElement(astPath) {

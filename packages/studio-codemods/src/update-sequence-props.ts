@@ -1,7 +1,4 @@
 import type {
-	ArrowFunctionExpression,
-	FunctionDeclaration,
-	FunctionExpression,
 	JSXAttribute,
 	JSXElement,
 	JSXExpressionContainer,
@@ -27,17 +24,11 @@ import type {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
-	applySourceEdits,
-	getInsertImportSourceEdits,
-	type SourceEdit,
-} from './insert-jsx-element';
-import {
-	getIndentationUnit,
-	getObjectCurlySpacing,
-	getPreferredQuote,
-	printInsertedJsx,
-	printJsxOpeningElement,
-} from './print-jsx';
+	captureFunctionSourceSnapshots,
+	getFunctionSourceEditsForPrependedStatements,
+	type FunctionNode,
+} from './function-source-edits';
+import {printInsertedJsx, printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
 	findNodePathForJsxElement,
@@ -66,6 +57,21 @@ import {
 	getVideoConfigIdentifierValues,
 	type VideoConfigIdentifierValues,
 } from './sequence-props/video-config-values';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+	type SourceEdit,
+} from './source-edits';
+import {
+	getEndOfLine,
+	getIndentationUnit,
+	getLineIndent,
+	getObjectCurlySpacing,
+	getPreferredQuote,
+	indentContinuationLines,
+	printNodeWithSourceStyle,
+} from './source-style';
 import {parseValueExpression, updateNestedProp} from './update-nested-prop';
 
 const b = recast.types.builders;
@@ -197,11 +203,6 @@ type JSXElementLike = NonNullable<
 	ReturnType<typeof findJsxElementNodeAtNodePath>
 >;
 type JSXOpeningElementLike = JSXElementLike['openingElement'];
-
-type FunctionNode =
-	| FunctionDeclaration
-	| FunctionExpression
-	| ArrowFunctionExpression;
 
 const isFunctionNode = (value: unknown): value is FunctionNode => {
 	return (
@@ -1262,247 +1263,6 @@ export const updateSequencePropsAst = ({
 	};
 };
 
-type FunctionSourceSnapshot = {
-	body: FunctionNode['body'];
-	functionNode: FunctionNode;
-	statements: Statement[] | null;
-};
-
-const getLineIndent = (input: string, offset: number) => {
-	const lineStart = input.lastIndexOf('\n', offset - 1) + 1;
-	return input.slice(lineStart, offset).match(/^\s*/)?.[0] ?? '';
-};
-
-const printNodeWithSourceStyle = ({
-	input,
-	node,
-	prettierConfigOverride,
-}: {
-	input: string;
-	node: AstNamedTypes.Node;
-	prettierConfigOverride: Record<string, unknown> | null;
-}) => {
-	const configuredTabWidth = prettierConfigOverride?.tabWidth;
-	const tabWidth =
-		typeof configuredTabWidth === 'number' &&
-		Number.isInteger(configuredTabWidth) &&
-		configuredTabWidth > 0
-			? configuredTabWidth
-			: 2;
-	const unit = getIndentationUnit(input, prettierConfigOverride);
-	const shouldUseSemicolons =
-		typeof prettierConfigOverride?.semi === 'boolean'
-			? prettierConfigOverride.semi
-			: /;[ \t]*(?:\r?\n|$)/.test(input);
-	const printed = recast.prettyPrint(node, {
-		objectCurlySpacing: getObjectCurlySpacing(input, prettierConfigOverride),
-		quote: getPreferredQuote(input, prettierConfigOverride),
-		tabWidth,
-		useTabs: false,
-	}).code;
-	const withSemicolonStyle = shouldUseSemicolons
-		? printed
-		: printed.replace(/;(?=\r?\n|$)/g, '');
-
-	return withSemicolonStyle
-		.split(/\r?\n/)
-		.map((line) => {
-			const spaces = line.match(/^ */)?.[0].length ?? 0;
-			const indentationLevels = Math.floor(spaces / tabWidth);
-			const remainingSpaces = spaces % tabWidth;
-			return `${unit.repeat(indentationLevels)}${' '.repeat(remainingSpaces)}${line.slice(spaces)}`;
-		})
-		.join(input.includes('\r\n') ? '\r\n' : '\n');
-};
-
-const indentContinuationLines = ({
-	indent,
-	input,
-	printed,
-}: {
-	indent: string;
-	input: string;
-	printed: string;
-}) => {
-	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
-	return printed.split(/\r?\n/).join(`${endOfLine}${indent}`);
-};
-
-const getFunctionSourceSnapshots = (ast: File) => {
-	const snapshots: FunctionSourceSnapshot[] = [];
-	recast.types.visit(ast, {
-		visitFunction(path) {
-			const functionNode = path.node as FunctionNode;
-			snapshots.push({
-				body: functionNode.body,
-				functionNode,
-				statements:
-					functionNode.body.type === 'BlockStatement'
-						? [...functionNode.body.body]
-						: null,
-			});
-			this.traverse(path);
-			return undefined;
-		},
-	});
-	return snapshots;
-};
-
-const getFunctionSourceEdits = ({
-	input,
-	prettierConfigOverride,
-	snapshots,
-}: {
-	input: string;
-	prettierConfigOverride: Record<string, unknown> | null;
-	snapshots: FunctionSourceSnapshot[];
-}): {coveredRanges: {start: number; end: number}[]; edits: SourceEdit[]} => {
-	const coveredRanges: {start: number; end: number}[] = [];
-	const edits: SourceEdit[] = [];
-	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
-	const unit = getIndentationUnit(input, prettierConfigOverride);
-
-	for (const snapshot of snapshots) {
-		const {body: originalBody, functionNode, statements} = snapshot;
-		if (functionNode.body !== originalBody) {
-			if (!originalBody.loc) {
-				continue;
-			}
-
-			const bodyStart = recastLocToOffset(input, originalBody.loc.start);
-			let start = bodyStart;
-			let end = recastLocToOffset(input, originalBody.loc.end);
-			const parenthesisStart = originalBody.extra?.parenthesized
-				? originalBody.extra.parenStart
-				: null;
-			if (typeof parenthesisStart === 'number') {
-				const parenthesisCount = input
-					.slice(parenthesisStart, bodyStart)
-					.split('')
-					.filter((character) => character === '(').length;
-				let parenthesisEnd = end;
-				let consumedParentheses = 0;
-				while (consumedParentheses < parenthesisCount) {
-					while (/\s/.test(input[parenthesisEnd] ?? '')) {
-						parenthesisEnd++;
-					}
-
-					if (input[parenthesisEnd] !== ')') {
-						break;
-					}
-
-					parenthesisEnd++;
-					consumedParentheses++;
-				}
-
-				if (parenthesisCount > 0 && consumedParentheses === parenthesisCount) {
-					start = parenthesisStart;
-					end = parenthesisEnd;
-				}
-			}
-
-			const printed = printNodeWithSourceStyle({
-				input,
-				node: functionNode.body as unknown as AstNamedTypes.Node,
-				prettierConfigOverride,
-			});
-			edits.push({
-				start,
-				end,
-				replacement: indentContinuationLines({
-					indent: getLineIndent(input, start),
-					input,
-					printed,
-				}),
-			});
-			coveredRanges.push({start, end});
-			continue;
-		}
-
-		if (originalBody.type !== 'BlockStatement' || statements === null) {
-			continue;
-		}
-
-		const originalStatements = new Set(statements);
-		const insertedStatements = originalBody.body.filter(
-			(statement) => !originalStatements.has(statement),
-		);
-		if (insertedStatements.length === 0 || !originalBody.loc) {
-			continue;
-		}
-
-		const blockStart = recastLocToOffset(input, originalBody.loc.start);
-		const openingBrace = input.indexOf('{', blockStart);
-		if (openingBrace === -1) {
-			continue;
-		}
-
-		const firstOriginalStatement = statements[0];
-		const firstOriginalOffset = firstOriginalStatement?.loc
-			? recastLocToOffset(input, firstOriginalStatement.loc.start)
-			: null;
-		const lastDirective = originalBody.directives?.at(-1);
-		const insertionStart = lastDirective?.loc
-			? recastLocToOffset(input, lastDirective.loc.end)
-			: openingBrace + 1;
-		const leadingCommentOffsets = (
-			firstOriginalStatement?.leadingComments ?? []
-		).flatMap((comment) =>
-			comment.loc ? [recastLocToOffset(input, comment.loc.start)] : [],
-		);
-		const firstContentOffset = [
-			...(firstOriginalOffset === null ? [] : [firstOriginalOffset]),
-			...leadingCommentOffsets,
-		].reduce<number | null>(
-			(earliest, candidate) =>
-				candidate < insertionStart
-					? earliest
-					: Math.min(earliest ?? candidate, candidate),
-			null,
-		);
-		const gap =
-			firstContentOffset === null
-				? ''
-				: input.slice(insertionStart, firstContentOffset);
-		const originalStartsOnNewLine = /\r?\n/.test(gap);
-		const statementIndent =
-			firstContentOffset !== null && originalStartsOnNewLine
-				? getLineIndent(input, firstContentOffset)
-				: `${getLineIndent(input, blockStart)}${unit}`;
-		const printedStatements = insertedStatements
-			.map((statement) =>
-				printNodeWithSourceStyle({
-					input,
-					node: statement as unknown as AstNamedTypes.Node,
-					prettierConfigOverride,
-				}),
-			)
-			.join(`${endOfLine}${statementIndent}`);
-		edits.push({
-			start: insertionStart,
-			end: originalStartsOnNewLine
-				? insertionStart
-				: (firstContentOffset ?? insertionStart),
-			replacement: originalStartsOnNewLine
-				? `${endOfLine}${statementIndent}${printedStatements}`
-				: `${endOfLine}${statementIndent}${printedStatements}${endOfLine}${statementIndent}`,
-		});
-	}
-
-	return {
-		coveredRanges,
-		edits: edits.filter(
-			(edit) =>
-				!coveredRanges.some(
-					(range) =>
-						edit.start >= range.start &&
-						edit.end <= range.end &&
-						(edit.start !== range.start || edit.end !== range.end),
-				),
-		),
-	};
-};
-
 const getProgramStatementSourceEdits = ({
 	ast,
 	input,
@@ -1536,7 +1296,7 @@ const getProgramStatementSourceEdits = ({
 	}
 
 	const originalStatements = new Set(originalBody);
-	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+	const endOfLine = getEndOfLine(input);
 	for (let index = 0; index < ast.program.body.length; index++) {
 		const statement = ast.program.body[index];
 		if (
@@ -1564,6 +1324,7 @@ const getProgramStatementSourceEdits = ({
 					input,
 					node: candidate as unknown as AstNamedTypes.Node,
 					prettierConfigOverride,
+					wrapColumn: null,
 				}),
 			)
 			.join(`${endOfLine}${endOfLine}`);
@@ -1614,17 +1375,8 @@ export const updateMultipleSequenceProps = ({
 		...(prettierConfig ?? {}),
 	};
 	const originalProgramBody = [...ast.program.body];
-	const importSnapshots = ast.program.body.flatMap((statement) =>
-		statement.type === 'ImportDeclaration'
-			? [
-					{
-						declaration: statement,
-						specifiers: [...statement.specifiers],
-					},
-				]
-			: [],
-	);
-	const functionSnapshots = getFunctionSourceSnapshots(ast);
+	const importSnapshots = captureImportSnapshots(ast);
+	const functionSnapshots = captureFunctionSourceSnapshots(ast);
 	const getJsxSourceIndent = (offset: number) => {
 		const lineStart = input.lastIndexOf('\n', offset - 1) + 1;
 		const startsInsideSameLineFunctionBlock = functionSnapshots.some(
@@ -1642,7 +1394,7 @@ export const updateMultipleSequenceProps = ({
 				);
 			},
 		);
-		const lineIndent = getLineIndent(input, offset);
+		const lineIndent = getLineIndent({input, offset});
 		return startsInsideSameLineFunctionBlock
 			? `${lineIndent}${getIndentationUnit(input, prettierConfig)}`
 			: lineIndent;
@@ -1715,11 +1467,20 @@ export const updateMultipleSequenceProps = ({
 
 		return {...result, newNodePath};
 	});
-	const {coveredRanges, edits: functionEdits} = getFunctionSourceEdits({
-		input,
-		prettierConfigOverride: prettierConfig,
-		snapshots: functionSnapshots,
-	});
+	const {coveredRanges, edits: functionEdits} =
+		getFunctionSourceEditsForPrependedStatements({
+			indentationUnit: getIndentationUnit(input, prettierConfig),
+			input,
+			printNode: (node) =>
+				printNodeWithSourceStyle({
+					input,
+					node,
+					prettierConfigOverride: prettierConfig,
+					wrapColumn: null,
+				}),
+			reprintBlockBodies: new Set(),
+			snapshots: functionSnapshots,
+		});
 	const isCoveredByFunctionEdit = (start: number, end: number) =>
 		coveredRanges.some((range) => start >= range.start && end <= range.end);
 	const elementEdits: SourceEdit[] = [];
@@ -1807,6 +1568,7 @@ export const updateMultipleSequenceProps = ({
 					input,
 					node: snapshot.declaration as unknown as AstNamedTypes.Node,
 					prettierConfigOverride: prettierConfig,
+					wrapColumn: null,
 				}),
 			},
 		];

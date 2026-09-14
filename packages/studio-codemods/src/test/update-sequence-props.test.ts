@@ -269,7 +269,7 @@ export const Example = () => {
 	parseAst(output);
 });
 
-test('indents a compact frame hook after directives and before comments', () => {
+test('preserves inline directive comments before compact frame hooks', () => {
 	const input = `import {Interactive} from "remotion"
 export const C = () => { "use strict"; /* keep */ return <Interactive.Div opacity={1} /> }
 `;
@@ -315,9 +315,9 @@ export const C = () => { "use strict"; /* keep */ return <Interactive.Div opacit
 
 	expect(output)
 		.toBe(`import {Interactive, useCurrentFrame, interpolate} from "remotion"
-export const C = () => { "use strict";
+export const C = () => { "use strict"; /* keep */
   const frame = useCurrentFrame()
-  /* keep */ return <Interactive.Div opacity={interpolate(frame, [0, 30], [0, 1])} /> }
+  return <Interactive.Div opacity={interpolate(frame, [0, 30], [0, 1])} /> }
 `);
 	parseAst(output);
 });
@@ -362,6 +362,50 @@ export const C = () => { return <Interactive.Div
     opacity={1}
     name={"A deliberately long sequence name that makes this opening element wrap onto multiple lines"}
   /> }
+`);
+	parseAst(output);
+});
+
+test('indents a multiline opening element inside a compact object method', () => {
+	const input = `import {Interactive} from "remotion"
+const object = {render() { return <Interactive.Div opacity={1} /> }}
+`;
+	const ast = parseAst(input);
+	let nodePath = null;
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(path) {
+			nodePath = getNodePathForRecastPath(path, ast);
+			return false;
+		},
+	});
+	if (!nodePath) {
+		throw new Error('Could not find the Interactive.Div');
+	}
+
+	const {output} = updateMultipleSequenceProps({
+		input,
+		changes: [
+			{
+				nodePath,
+				updates: [
+					{
+						key: 'name',
+						value:
+							'A deliberately long sequence name that makes this opening element wrap onto multiple lines',
+						defaultValue: null,
+					},
+				],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+	});
+
+	expect(output).toBe(`import {Interactive} from "remotion"
+const object = {render() { return <Interactive.Div
+    opacity={1}
+    name={"A deliberately long sequence name that makes this opening element wrap onto multiple lines"}
+  /> }}
 `);
 	parseAst(output);
 });

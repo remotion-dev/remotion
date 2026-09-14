@@ -393,3 +393,254 @@ export const Example = () => {
 	);
 	expect(() => parseAst(output)).not.toThrow();
 });
+
+test('keyframe hook expansion preserves trailing block comments', async () => {
+	const input = `export const C = () => (
+  <div style={{opacity: 1}} />
+  /* Keep this comment. */
+);
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: getNodePathAtLine(input, 2),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'add', frame: 8, value: 1},
+			},
+		],
+		videoConfigValues: null,
+	});
+
+	expect(() => parseAst(output)).not.toThrow();
+	expect(output).toBe(`import { interpolate, useCurrentFrame } from "remotion";
+export const C = () => {
+  const frame = useCurrentFrame();
+  return (
+    <div
+      style={{
+        opacity: interpolate(frame, [8], [1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp"
+        })
+      }} />
+    /* Keep this comment. */
+  );
+};
+`);
+});
+
+test('keyframe hook expansion preserves trailing line comments', async () => {
+	const input = `export const C = () => (
+  <div style={{opacity: 1}} /> // Keep this comment.
+);
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: getNodePathAtLine(input, 2),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'add', frame: 8, value: 1},
+			},
+		],
+		videoConfigValues: null,
+	});
+
+	expect(() => parseAst(output)).not.toThrow();
+	expect(output).toBe(`import { interpolate, useCurrentFrame } from "remotion";
+export const C = () => {
+  const frame = useCurrentFrame();
+  return (
+    // Keep this comment.
+    <div
+      style={{
+        opacity: interpolate(frame, [8], [1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp"
+        })
+      }} />
+  );
+};
+`);
+});
+
+test('keyframe hook expansion preserves leading expression comments', async () => {
+	const input = `export const C = () => /* Keep this comment. */ <div style={{opacity: 1}} />;
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: getNodePathAtLine(input, 1),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'add', frame: 8, value: 1},
+			},
+		],
+		videoConfigValues: null,
+	});
+
+	expect(() => parseAst(output)).not.toThrow();
+	expect(output).toBe(`import { interpolate, useCurrentFrame } from "remotion";
+export const C = () => {
+  const frame = useCurrentFrame();
+  return (
+    /* Keep this comment. */ <div
+      style={{
+        opacity: interpolate(frame, [8], [1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp"
+        })
+      }} />
+  );
+};
+`);
+});
+
+test('compact block reprints preserve leading comments', async () => {
+	const input = `export const C = () => /* Keep this comment. */ { return <div style={{opacity: 1}} />; };
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: getNodePathAtLine(input, 1),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'add', frame: 8, value: 1},
+			},
+		],
+		videoConfigValues: null,
+	});
+
+	expect(() => parseAst(output)).not.toThrow();
+	expect(output).toBe(`import { interpolate, useCurrentFrame } from "remotion";
+export const C = () => /* Keep this comment. */ {
+  const frame = useCurrentFrame();
+  return (
+    <div
+      style={{
+        opacity: interpolate(frame, [8], [1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp"
+        })
+      }} />
+  );
+};
+`);
+});
+
+test('new keyframe imports stay after inline directive comments', async () => {
+	const input = `'use client'; // Keep this on the directive.
+export const C = () => <div style={{opacity: 1}} />;
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: getNodePathAtLine(input, 2),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'add', frame: 8, value: 1},
+			},
+		],
+		videoConfigValues: null,
+	});
+
+	expect(output).toStartWith(
+		`'use client'; // Keep this on the directive.\nimport `,
+	);
+});
+
+test('new keyframe imports stay after file pragmas', async () => {
+	const input = `// @ts-nocheck
+export const C = () => <div style={{opacity: 1}} />;
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: getNodePathAtLine(input, 2),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'add', frame: 8, value: 1},
+			},
+		],
+		videoConfigValues: null,
+	});
+
+	expect(output).toStartWith('// @ts-nocheck\nimport ');
+});
+
+test('new keyframe imports separate same-line block pragmas', async () => {
+	const input = `/* @ts-nocheck */ export const C = () => <div style={{opacity: 1}} />;
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: getNodePathAtLine(input, 1),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'add', frame: 8, value: 1},
+			},
+		],
+		videoConfigValues: null,
+	});
+
+	expect(() => parseAst(output)).not.toThrow();
+	expect(output).toBe(`/* @ts-nocheck */
+import { interpolate, useCurrentFrame } from "remotion";
+export const C = () => {
+  const frame = useCurrentFrame();
+  return (
+    <div
+      style={{
+        opacity: interpolate(frame, [8], [1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp"
+        })
+      }} />
+  );
+};
+`);
+});
+
+test('new keyframe imports stay after shebangs and file pragmas', async () => {
+	const input = `#!/usr/bin/env bun
+// @ts-nocheck
+export const C = () => <div style={{opacity: 1}} />;
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: getNodePathAtLine(input, 3),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'add', frame: 8, value: 1},
+			},
+		],
+		videoConfigValues: null,
+	});
+
+	expect(output).toStartWith('#!/usr/bin/env bun\n// @ts-nocheck\nimport ');
+});
+
+test('frame hooks stay after inline function directive comments', async () => {
+	const input = `export const C = () => {
+  'use strict'; // Keep this on the directive.
+  return <div style={{opacity: 1}} />;
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: getNodePathAtLine(input, 3),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'add', frame: 8, value: 1},
+			},
+		],
+		videoConfigValues: null,
+	});
+
+	expect(output).toContain(
+		`  'use strict'; // Keep this on the directive.\n  const frame`,
+	);
+});

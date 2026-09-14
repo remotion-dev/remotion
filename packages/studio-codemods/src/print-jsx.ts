@@ -1,5 +1,10 @@
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
+import {
+	getIndentationUnit,
+	getObjectCurlySpacing,
+	getPreferredQuote,
+} from './source-style';
 
 const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
@@ -28,67 +33,6 @@ const escapeJsxStringAttribute = (value: string) => {
 				throw new Error(`Unexpected JSX attribute character: ${character}`);
 		}
 	});
-};
-
-export const getPreferredQuote = (
-	input: string,
-	prettierConfigOverride: Record<string, unknown> | null,
-) => {
-	if (typeof prettierConfigOverride?.singleQuote === 'boolean') {
-		return prettierConfigOverride.singleQuote ? 'single' : 'double';
-	}
-
-	const importQuote =
-		input.match(/\bfrom\s+(['"])/)?.[1] ??
-		input.match(/^\s*import\s+(['"])/m)?.[1];
-	if (importQuote) {
-		return importQuote === "'" ? 'single' : 'double';
-	}
-
-	const singleQuotedStrings = input.match(/'(?:\\.|[^'\\])*'/g)?.length ?? 0;
-	const doubleQuotedStrings = input.match(/"(?:\\.|[^"\\])*"/g)?.length ?? 0;
-	return singleQuotedStrings > doubleQuotedStrings ? 'single' : 'double';
-};
-
-export const getObjectCurlySpacing = (
-	input: string,
-	prettierConfigOverride: Record<string, unknown> | null,
-) => {
-	if (typeof prettierConfigOverride?.bracketSpacing === 'boolean') {
-		return prettierConfigOverride.bracketSpacing;
-	}
-
-	const namedImport = input.match(/\bimport\s*{([^}\n]*)}/);
-	if (namedImport) {
-		return /^\s/.test(namedImport[1]) && /\s$/.test(namedImport[1]);
-	}
-
-	return true;
-};
-
-export const getIndentationUnit = (
-	input: string,
-	prettierConfigOverride: Record<string, unknown> | null,
-) => {
-	if (/^\t+/m.test(input)) {
-		return '\t';
-	}
-
-	const indentation = input.match(/^([ ]+)\S/m)?.[1].length;
-	if (indentation) {
-		return ' '.repeat(indentation > 1 ? indentation : 2);
-	}
-
-	if (prettierConfigOverride?.useTabs === true) {
-		return '\t';
-	}
-
-	const tabWidth = prettierConfigOverride?.tabWidth;
-	return ' '.repeat(
-		typeof tabWidth === 'number' && Number.isInteger(tabWidth) && tabWidth > 0
-			? tabWidth
-			: 2,
-	);
 };
 
 export const indentInsertedJsx = ({

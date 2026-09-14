@@ -14,7 +14,9 @@ export const recastLocToOffset = (
 
 	const line = lines[loc.line - 1];
 	let column = 0;
-	for (let i = 0; i < line.length; i++) {
+	const firstSourceCharacter =
+		loc.line === 1 && line.startsWith('\uFEFF') ? 1 : 0;
+	for (let i = firstSourceCharacter; i < line.length; i++) {
 		if (column >= loc.column) {
 			return offset + i;
 		}
