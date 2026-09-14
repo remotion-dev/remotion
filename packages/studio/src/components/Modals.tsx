@@ -13,6 +13,7 @@ import {
 } from './ElementInstallConfirmation';
 import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
+import {ImageAssetSelectorModal} from './ImageAssetSelectorModal';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -280,6 +281,12 @@ export const Modals: React.FC<{
 					compositionSelection={modalContextType.compositionSelection}
 				/>
 			)}
+			{modalContextType && modalContextType.type === 'image-asset-selection' ? (
+				<ImageAssetSelectorModal
+					readOnlyStudio={readOnlyStudio}
+					state={modalContextType}
+				/>
+			) : null}
 			{modalContextType && modalContextType.type === 'element-library' && (
 				<ElementLibraryModal
 					name={modalContextType.name}

@@ -289,6 +289,10 @@ const getSchemaFieldRowHeight = ({
 		);
 	}
 
+	if (fieldSchema.type === 'asset' && fieldSchema.assetType === 'image') {
+		return 64;
+	}
+
 	return SCHEMA_FIELD_ROW_HEIGHT;
 };
 
