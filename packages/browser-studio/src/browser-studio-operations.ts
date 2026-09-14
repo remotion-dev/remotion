@@ -2071,7 +2071,56 @@ export const createBrowserStudioOperations = ({
 					);
 				}
 
-				const project = getProject();
+				const originalProject = getProject();
+				let project = originalProject;
+				if (request.newComposition !== null) {
+					if (request.newComposition.codemod.canvasCapture !== null) {
+						throw new Error(
+							'Creating canvas capture compositions is not supported in Browser Studio',
+						);
+					}
+
+					if (request.newComposition.codemod.newId !== request.compositionId) {
+						throw new Error(
+							'New composition ID does not match installation target',
+						);
+					}
+
+					const absolutePath = resolveCodemodTargetFile({
+						codemod: request.newComposition.codemod,
+						project,
+						symbolicatedStack: request.newComposition.symbolicatedStack,
+					});
+					if (absolutePath !== request.compositionFile) {
+						throw new Error(
+							'New composition source does not match installation target',
+						);
+					}
+
+					const input = project.files[absolutePath];
+					const {newContents} = parseAndApplyCodemod({
+						input,
+						codeMod: request.newComposition.codemod,
+					});
+					const componentFilePath = `${dirname(absolutePath)}/${request.newComposition.codemod.componentName}.tsx`;
+					if (project.files[componentFilePath] !== undefined) {
+						throw new Error(
+							`Cannot create ${relativeToRoot(componentFilePath, project.rootDir)} because it already exists`,
+						);
+					}
+
+					project = {
+						...project,
+						files: {
+							...project.files,
+							[absolutePath]: newContents,
+							[componentFilePath]: makeNewCompositionComponentSource(
+								request.newComposition.codemod.componentName,
+							),
+						},
+					};
+				}
+
 				const plan = await getElementInstallPlanForProject({
 					installationName: request.installationName,
 					destination: {
@@ -2173,7 +2222,7 @@ export const createBrowserStudioOperations = ({
 					dependencies: installedDependencies,
 					project: projectWithElement,
 				});
-				if (getProject() !== project) {
+				if (getProject() !== originalProject) {
 					throw new Error(
 						'Project changed during Element installation. Please try again.',
 					);

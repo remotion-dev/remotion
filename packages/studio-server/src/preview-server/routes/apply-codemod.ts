@@ -27,7 +27,7 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const formatNewCompositionFile = (
+export const formatNewCompositionFile = (
 	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,
 ) => {
 	if (codemod.canvasCapture !== null) {

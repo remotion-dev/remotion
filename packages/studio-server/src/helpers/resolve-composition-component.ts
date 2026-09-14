@@ -18,15 +18,22 @@ import {svgMarkupToJsx} from './svg-to-jsx';
 
 const makeCodemodEnvironment = (
 	remotionRoot: string,
+	sourceFileOverrides: ReadonlyMap<string, string> | null,
 ): InsertJsxElementCodemodEnvironment => ({
 	dirname: path.dirname,
 	extname: path.extname,
 	fileExists: (fileName) =>
-		fs.existsSync(fileName) && fs.statSync(fileName).isFile(),
+		sourceFileOverrides?.has(path.resolve(fileName)) === true ||
+		(fs.existsSync(fileName) && fs.statSync(fileName).isFile()),
 	isAbsolute: path.isAbsolute,
 	join: path.join,
 	pathSeparator: path.sep,
-	readFile: (fileName) => fs.promises.readFile(fileName, 'utf-8'),
+	readFile: (fileName) => {
+		const override = sourceFileOverrides?.get(path.resolve(fileName));
+		return override === undefined
+			? fs.promises.readFile(fileName, 'utf-8')
+			: Promise.resolve(override);
+	},
 	relative: path.relative,
 	resolve: path.resolve,
 	rootDir: remotionRoot,
@@ -50,7 +57,7 @@ export const resolveCompositionComponentWithFile = ({
 	resolveCompositionComponentWithFileCodemod({
 		compositionFile,
 		compositionId,
-		environment: makeCodemodEnvironment(remotionRoot),
+		environment: makeCodemodEnvironment(remotionRoot, null),
 	});
 
 export const resolveCompositionComponent = ({
@@ -65,7 +72,7 @@ export const resolveCompositionComponent = ({
 	resolveCompositionComponentCodemod({
 		compositionFile,
 		compositionId,
-		environment: makeCodemodEnvironment(remotionRoot),
+		environment: makeCodemodEnvironment(remotionRoot, null),
 	});
 
 export const insertJsxElementIntoComposition = ({
@@ -76,6 +83,7 @@ export const insertJsxElementIntoComposition = ({
 	from,
 	prettierConfigOverride,
 	wrapInSequence = null,
+	sourceFileOverrides = null,
 }: {
 	remotionRoot: string;
 	compositionFile: string;
@@ -90,6 +98,7 @@ export const insertJsxElementIntoComposition = ({
 		name: string | null;
 		position: InsertableCompositionElementPosition | null;
 	} | null;
+	sourceFileOverrides?: ReadonlyMap<string, string> | null;
 }): Promise<{
 	fileName: string;
 	source: string;
@@ -103,7 +112,7 @@ export const insertJsxElementIntoComposition = ({
 		compositionFile,
 		compositionId,
 		element,
-		environment: makeCodemodEnvironment(remotionRoot),
+		environment: makeCodemodEnvironment(remotionRoot, sourceFileOverrides),
 		from,
 		prettierConfigOverride,
 		wrapInSequence:

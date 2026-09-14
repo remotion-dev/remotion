@@ -34,6 +34,7 @@ import {useZIndex} from '../state/z-index';
 import {Button} from './Button';
 import {prepareElementInstall} from './element-install-api';
 import {insertElement} from './import-assets';
+import {useSelectComposition} from './InitialCompositionLoader';
 import {Flex, Row, Spacing} from './layout';
 import {LazySyntaxHighlightedSource} from './LazySyntaxHighlightedSource';
 import {
@@ -54,7 +55,6 @@ import {
 	ValidationMessage,
 	WarningTriangle,
 } from './NewComposition/ValidationMessage';
-import {showNotification} from './Notifications/NotificationCenter';
 import {RadioButton} from './RadioButton';
 import {SegmentedControl} from './SegmentedControl';
 import {
@@ -375,6 +375,7 @@ export const ElementInstallConfirmation: React.FC<{
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
+	const selectComposition = useSelectComposition();
 	const currentCompositionMetadata =
 		config === null ||
 		canvasContent?.type !== 'composition' ||
@@ -519,8 +520,8 @@ export const ElementInstallConfirmation: React.FC<{
 	}, [folderCompositionFile, newPlan, request.element, selectedFolderStack]);
 
 	const {
+		codemod: newCompositionCodemod,
 		compositionId: newCompositionId,
-		createComposition,
 		heightValidationMessage,
 		nameValidationMessage,
 		valid: newCompositionValuesAreValid,
@@ -605,12 +606,6 @@ export const ElementInstallConfirmation: React.FC<{
 	const activePlan = overwriteExisting
 		? existingDestination.plan
 		: (preparedInstallation?.plan ?? null);
-	const [createdComposition, setCreatedComposition] = useState<string | null>(
-		null,
-	);
-	const creationKey = JSON.stringify(newCompositionValues);
-	const compositionAlreadyCreated = createdComposition === creationKey;
-
 	useEffect(() => {
 		if (selectedPlan === null) {
 			return;
@@ -714,7 +709,7 @@ export const ElementInstallConfirmation: React.FC<{
 					: requestedName !== null))) &&
 		(mode === 'current-composition'
 			? currentPlan !== null
-			: (newCompositionValuesAreValid || compositionAlreadyCreated) &&
+			: newCompositionValuesAreValid &&
 				folderTargetIsReady &&
 				selectedNewCompositionPlan !== null);
 
@@ -724,24 +719,6 @@ export const ElementInstallConfirmation: React.FC<{
 		}
 
 		setSubmitting(true);
-		if (mode === 'new-composition' && !compositionAlreadyCreated) {
-			const created = await createComposition({
-				signal: new AbortController().signal,
-				symbolicatedStack:
-					selectedFolderStack === null ? null : folderSymbolicatedStack,
-			});
-			if (!created.success) {
-				showNotification(
-					`Could not create composition: ${created.reason}`,
-					4000,
-				);
-				setSubmitting(false);
-				return;
-			}
-
-			setCreatedComposition(creationKey);
-		}
-
 		const installed = await insertElement({
 			installationName: overwriteExisting
 				? (existingDestination?.name ?? installationName)
@@ -758,28 +735,49 @@ export const ElementInstallConfirmation: React.FC<{
 			from: mode === 'new-composition' ? null : request.from,
 			overwriteExisting,
 			position: mode === 'new-composition' ? null : request.position,
+			newComposition:
+				mode === 'new-composition'
+					? {
+							codemod: newCompositionCodemod,
+							symbolicatedStack:
+								selectedFolderStack === null ? null : folderSymbolicatedStack,
+						}
+					: null,
 		});
-		if (installed) onClose();
-		else {
+		if (installed) {
+			if (mode === 'new-composition') {
+				selectComposition(
+					{
+						id: newCompositionId,
+						folderName: newCompositionValues.folder.folderName,
+						parentFolderName: newCompositionValues.folder.parentName,
+					},
+					true,
+				);
+			}
+
+			onClose();
+		} else {
 			setSubmitting(false);
 			setRefreshPlan((value) => value + 1);
 		}
 	}, [
 		activePlan,
 		existingDestination,
-		compositionAlreadyCreated,
-		creationKey,
 		installationName,
 		overwriteExisting,
 		canSubmit,
-		createComposition,
 		folderSymbolicatedStack,
 		mode,
+		newCompositionCodemod,
 		newCompositionId,
 		onClose,
 		request,
 		selectedFolderStack,
 		selectedPlan,
+		selectComposition,
+		newCompositionValues.folder.folderName,
+		newCompositionValues.folder.parentName,
 	]);
 
 	const cancel = useCallback(() => {
@@ -882,9 +880,7 @@ export const ElementInstallConfirmation: React.FC<{
 								compositionId={newCompositionId}
 								heightValidationMessage={heightValidationMessage}
 								inputRef={inputRef}
-								nameValidationMessage={
-									compositionAlreadyCreated ? null : nameValidationMessage
-								}
+								nameValidationMessage={nameValidationMessage}
 								setValues={setNewCompositionValues}
 								values={newCompositionValues}
 								widthValidationMessage={widthValidationMessage}

@@ -452,6 +452,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		from: 12,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
+		newComposition: null,
 	});
 	if (!inserted.success) {
 		throw new Error(
@@ -505,6 +506,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		from: null,
 		overwriteExisting: false,
 		position: null,
+		newComposition: null,
 	};
 	expect(await operations.insertElement(installRequest)).toMatchObject({
 		success: false,
@@ -610,6 +612,7 @@ test('installs component-owned Element timing and initial props', async () => {
 		from: 30,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
+		newComposition: null,
 	});
 	if (!inserted.success) {
 		throw new Error(
@@ -693,6 +696,7 @@ test('rejects contradictory component-owned Element initial props', async () => 
 			from: 30,
 			overwriteExisting: false,
 			position: {x: 24, y: 48},
+			newComposition: null,
 		});
 
 		expect(response).toMatchObject({

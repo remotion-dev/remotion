@@ -590,6 +590,7 @@ const CloseupPlaceholder = () => {
 		await expect
 			.poll(() => fs.readFileSync(newCompositionFile, 'utf8'))
 			.toContain('ProtocolElement');
+		const installedComposition = fs.readFileSync(newCompositionFile, 'utf8');
 		expect(fs.readFileSync(newCompositionElementFile, 'utf8')).toContain(
 			'export const ProtocolElement',
 		);
@@ -627,6 +628,26 @@ const CloseupPlaceholder = () => {
 				.getByRole('group', {name: 'Inspector source location'})
 				.first(),
 		).toContainText('Protocol Element', {timeout: 30_000});
+
+		await studioPage.getByRole('button', {name: /^Undo/}).click();
+		await expect.poll(() => fs.existsSync(newCompositionFile)).toBe(false);
+		expect(fs.existsSync(newCompositionElementFile)).toBe(false);
+		expect(
+			fs.readFileSync(path.join(closeupDirectory, 'Closeup.tsx'), 'utf8'),
+		).not.toContain('id="ProtocolElementScene"');
+
+		await studioPage.getByRole('button', {name: /^Redo/}).click();
+		await expect.poll(() => fs.existsSync(newCompositionFile)).toBe(true);
+		expect(fs.existsSync(newCompositionElementFile)).toBe(true);
+		expect(
+			fs.readFileSync(path.join(closeupDirectory, 'Closeup.tsx'), 'utf8'),
+		).toBe(sourceWithNewComposition);
+		expect(fs.readFileSync(newCompositionFile, 'utf8')).toBe(
+			installedComposition,
+		);
+		expect(fs.readFileSync(newCompositionElementFile, 'utf8')).toContain(
+			'export const ProtocolElement',
+		);
 
 		await studioPage.bringToFront();
 		await studioPage.keyboard.press('Escape');

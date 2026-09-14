@@ -118,14 +118,17 @@ const makeFixture = () => {
 		addNewClientListener: () => () => undefined,
 	});
 
-	const callHandlerWithInput = (input: InsertElementRequest) => {
+	const callHandlerWithInput = (
+		input: Omit<InsertElementRequest, 'newComposition'> &
+			Partial<Pick<InsertElementRequest, 'newComposition'>>,
+	) => {
 		return insertElementHandler({
 			binariesDirectory: null,
 			configFile: null,
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
-			input,
+			input: {...input, newComposition: input.newComposition ?? null},
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,
@@ -505,6 +508,7 @@ test('installs independent named copies into the same and another composition', 
 			from: null,
 			position: null,
 			overwriteExisting: false,
+			newComposition: null,
 		};
 		expect((await fixture.callHandlerWithInput(input)).success).toBe(true);
 		const secondComposition = readFileSync(fixture.compositionFile, 'utf-8');

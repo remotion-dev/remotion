@@ -1046,6 +1046,10 @@ export type InsertElementRequest = {
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
+	newComposition: {
+		codemod: Extract<RecastCodemod, {type: 'new-composition'}>;
+		symbolicatedStack: SymbolicatedStackFrame | null;
+	} | null;
 };
 
 export type InsertElementFileConflict = {
