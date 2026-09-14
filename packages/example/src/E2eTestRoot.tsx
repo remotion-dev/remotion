@@ -6,6 +6,7 @@ import {
 	CAPTIONS_HEIGHT,
 } from './CaptionsTester/AnimatedCaptions';
 import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
+import {MissingCaptionsComposition} from './CaptionsTester/MissingCaptionsComposition';
 import {EffectKeyframeE2e} from './EffectKeyframeE2e';
 import {
 	ErrorOverlayRepro,
@@ -116,6 +117,14 @@ export const E2eTestRoot: React.FC = () => {
 				id="default-captions-inspector-e2e"
 				component={MovingPillCaptionsComposition}
 				durationInFrames={210}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="missing-captions-inspector-e2e"
+				component={MissingCaptionsComposition}
+				durationInFrames={30}
 				fps={30}
 				width={1920}
 				height={1080}

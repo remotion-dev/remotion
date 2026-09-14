@@ -51,10 +51,30 @@ const incomingElementSource =
 const existingElementSource =
 	'export const LowerThird = () => <div>Locally changed</div>;\n';
 
+const structuredInitialProps = {
+	captions: [
+		{
+			confidence: null,
+			endMs: 1000,
+			startMs: 0,
+			text: 'First copy',
+			timestampMs: 500,
+		},
+	],
+	style: {
+		color: 'red',
+		opacity: 0.8,
+		position: 'relative',
+		translate: '1px 2px',
+	},
+	width: 900,
+};
+
 const element: InsertElementRequest['element'] = {
 	dependencies: [],
 	dimensions: {width: 900, height: 260},
 	durationInFrames: 72,
+	initialProps: null,
 	installationMode: null,
 	displayName: 'Lower Third',
 	slug: 'overlays/lower-third',
@@ -297,21 +317,32 @@ test('creates a new Element file without an overwrite conflict', async () => {
 	}
 });
 
-test('installs an Element with a component-owned Sequence', async () => {
+test('installs structured initial props on a component-owned Sequence', async () => {
 	const fixture = makeFixture();
 	try {
 		const response = await fixture.callHandlerWithInput({
 			installationName: null,
 			compositionFile: 'Root.tsx',
 			compositionId: 'target',
-			element: {...element, installationMode: 'component-owned-sequence'},
+			element: {
+				...element,
+				initialProps: structuredInitialProps,
+				installationMode: 'component-owned-sequence',
+			},
 			expectedFileState: null,
 			from: 30,
 			overwriteExisting: false,
 			position: {x: 120, y: 80},
 		});
 
-		expect(response.success).toBe(true);
+		if (!response.success) {
+			throw new Error(
+				response.type === 'error'
+					? response.reason
+					: 'Unexpected file conflict',
+			);
+		}
+
 		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
 			incomingElementSource,
 		);
@@ -321,8 +352,125 @@ test('installs an Element with a component-owned Sequence', async () => {
 		expect(composition).toContain('durationInFrames={72}');
 		expect(composition).toContain('from={30}');
 		expect(composition).toContain('name="Lower Third"');
+		expect(composition).toContain('captions={[');
+		expect(composition).toContain('text: "First copy"');
+		expect(composition).toContain('width={900}');
+		expect(composition).toContain('color: "red"');
+		expect(composition).toContain('opacity: 0.8');
 		expect(composition).toContain('position: "absolute"');
 		expect(composition).toContain('translate: "120px 80px"');
+		expect(composition).not.toContain('position: "relative"');
+		expect(composition).not.toContain('translate: "1px 2px"');
+		expect(composition.match(/\bstyle=/g)).toHaveLength(1);
+		expect(composition.match(/text: "First copy"/g)).toHaveLength(1);
+		expect(incomingElementSource).not.toContain('First copy');
+	} finally {
+		fixture.cleanup();
+	}
+});
+
+test('rejects contradictory component-owned installation props', async () => {
+	const invalidInitialProps: Array<
+		NonNullable<InsertElementRequest['element']['initialProps']>
+	> = [{from: 10}, {style: 'color: red'}];
+	for (const initialProps of invalidInitialProps) {
+		const fixture = makeFixture();
+		try {
+			const response = await fixture.callHandlerWithInput({
+				installationName: null,
+				compositionFile: 'Root.tsx',
+				compositionId: 'target',
+				element: {
+					...element,
+					initialProps,
+					installationMode: 'component-owned-sequence',
+				},
+				expectedFileState: null,
+				from: 30,
+				overwriteExisting: false,
+				position: {x: 120, y: 80},
+			});
+			expect(response).toMatchObject({success: false, type: 'error'});
+			expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
+				compositionSource,
+			);
+			expect(existsSync(fixture.elementFile)).toBe(false);
+		} finally {
+			fixture.cleanup();
+		}
+	}
+});
+
+test('keeps wrapped installation and passes initial props to its child', async () => {
+	const fixture = makeFixture();
+	try {
+		const response = await fixture.callHandlerWithInput({
+			installationName: null,
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+			element: {
+				...element,
+				initialProps: {label: 'Starter', style: {color: 'blue'}},
+			},
+			expectedFileState: null,
+			from: 12,
+			overwriteExisting: false,
+			position: {x: 40, y: 50},
+		});
+		if (!response.success) {
+			throw new Error(
+				response.type === 'error'
+					? response.reason
+					: 'Unexpected file conflict',
+			);
+		}
+
+		const composition = readFileSync(fixture.compositionFile, 'utf-8');
+		expect(composition).toContain('<Sequence');
+		expect(composition).toContain('from={12}');
+		expect(composition).toContain('translate: "40px 50px"');
+		expect(composition).toContain('label="Starter"');
+		expect(composition).toMatch(/style=\{\{\s*color: "blue"\s*\}\}/);
+	} finally {
+		fixture.cleanup();
+	}
+});
+
+test('materializes independent props for two component-owned copies', async () => {
+	const fixture = makeFixture();
+	try {
+		const componentOwnedElement = {
+			...element,
+			initialProps: structuredInitialProps,
+			installationMode: 'component-owned-sequence' as const,
+		};
+		const first = await fixture.callHandlerWithInput({
+			installationName: null,
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+			element: componentOwnedElement,
+			expectedFileState: null,
+			from: 0,
+			overwriteExisting: false,
+			position: null,
+		});
+		expect(first.success).toBe(true);
+		const second = await fixture.callHandlerWithInput({
+			installationName: 'second-lower-third',
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+			element: componentOwnedElement,
+			expectedFileState: {exists: false},
+			from: 30,
+			overwriteExisting: false,
+			position: null,
+		});
+		expect(second.success).toBe(true);
+
+		const composition = readFileSync(fixture.compositionFile, 'utf-8');
+		expect(composition.match(/captions=\{\[/g)).toHaveLength(2);
+		expect(composition.match(/text: "First copy"/g)).toHaveLength(2);
+		expect(composition).not.toContain('...structuredInitialProps');
 	} finally {
 		fixture.cleanup();
 	}

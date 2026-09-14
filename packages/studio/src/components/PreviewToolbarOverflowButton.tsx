@@ -43,6 +43,8 @@ export const PreviewToolbarOverflowButton: React.FC<{
 }) => {
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
 	const fullscreenShortcut = useKeyboardShortcutLabel('enterFullscreen');
+	const loopShortcut = useKeyboardShortcutLabel('toggleLoop');
+	const outlinesShortcut = useKeyboardShortcutLabel('toggleOutlines');
 	const checkerboardShortcut = useKeyboardShortcutLabel('toggleCheckerboard');
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
@@ -127,7 +129,10 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Loop',
 				value: 'loop',
 				onClick: () => toggleLoop(setLoop),
-				keyHint: null,
+				keyHint:
+					keyboardShortcutsDisabled || loopShortcut === ''
+						? null
+						: loopShortcut,
 				leftItem: loop ? <Checkmark /> : null,
 				subMenu: null,
 				quickSwitcherLabel: null,
@@ -158,7 +163,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Outlines',
 				value: 'outlines',
 				onClick: () => setEditorShowOutlines((current) => !current),
-				keyHint: null,
+				keyHint: keyboardShortcutsDisabled ? null : outlinesShortcut || null,
 				leftItem: editorShowOutlines ? <Checkmark /> : null,
 				subMenu: null,
 				quickSwitcherLabel: null,
@@ -214,6 +219,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	}, [
 		checkerboardShortcut,
 		fullscreenShortcut,
+		loopShortcut,
 		previewSizeItems,
 		playbackRateItems,
 		selectedPlaybackRate,
@@ -227,6 +233,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		checkerboard,
 		editorShowGuides,
 		editorShowOutlines,
+		outlinesShortcut,
 		editorShowRulers,
 		setCheckerboard,
 		setEditorShowGuides,

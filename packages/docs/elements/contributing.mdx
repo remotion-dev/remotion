@@ -39,7 +39,7 @@ To make previews visible in the pull request deployment:
 Preview workflows:
 
 - External contributors render previews, commit them to static/elements, and use local URLs so the pull request deployment can show them.
-- Maintainers can use the upload-element-previews skill after rendering locally (source=render) or from a contributor's committed assets (source=submission). The uploader verifies the assets, publishes them to remotion.media, and prints the replacement URLs. To refresh an already-published preview, pass --overwrite; it is accepted only when the definition uses the exact expected remotion.media URLs. Delete the static review assets after a submission upload.
+- Maintainers can use the upload-element-previews skill after rendering locally (source=render) or from a contributor's committed assets (source=submission). The uploader verifies the assets, publishes them to unique remotion.media URLs, and prints the replacements. Delete the static review assets after a submission upload.
 */}
 
 ## 3. Open the pull request
@@ -81,11 +81,44 @@ The caption Elements show the distinction: moving a pill between words, popping 
 
 ### Design it for composition
 
-Size the Element to its smallest useful bounding box. By default, let the [`<Sequence>`](/docs/sequence) generated during installation control its placement and duration. Set both dimensions to `null` if it adapts to the composition.
+Prefer exposing the Element's layers so users can inspect and edit them with [Studio interactivity](/docs/studio/interactivity). Use one of the following installation modes based on what the user should see in Studio.
 
-An Element that already owns the one interactive Sequence users should edit may set `installationMode: 'component-owned-sequence'` in its central definition. In this mode, the public component must accept and forward `from`, `durationInFrames`, `name`, and `style` to its Sequence and rendered outline. It must also define its own rendered dimensions because Element metadata dimensions are not passed as component props.
+#### Separate editable layers
 
-Do not use the component-owned mode merely to remove markup: The Element needs to remain movable and trimmable through its component-owned Sequence. Do not add internal padding only to improve the gallery preview.
+Use `installationMode: 'wrapped'` when the Element's layers can be edited separately. This is the default mode. Studio wraps the component in a [`<Sequence>`](/docs/sequence) for placement and duration. The top-level group may expose multiple child timeline rows. Editable values can stay on internal `Interactive` call sites in the copied source, where Studio edits them.
+
+Size the Element to its smallest useful bounding box. If it adapts to the composition, set both dimensions to `null`.
+
+#### One interactive object
+
+Use `installationMode: 'component-owned-sequence'` when Studio interactivity does not make sense for the Element's internal parts. Examples include:
+
+- Generative programmed effects
+- Canvas-based Elements where individual outlines cannot be passed to Studio
+- Single-image overlays where the image itself cannot be edited
+
+Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema). The user gets one timeline layer that they can move on the canvas and trim in the timeline. The implementation does not appear as separate editable layers.
+
+Export the schema-enabled component directly and wire up the common props:
+
+- Add [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) to the schema and pass `controls` unchanged to the component's `<Sequence>`.
+- Pass `from`, `durationInFrames`, `trimBefore`, `freeze`, and `name` to that Sequence.
+- Pass `style` and the ref to the rendered outline. When the Sequence uses `layout="none"`, pass [`outlineRef`](/docs/sequence#outlineref) to it. Set the dimensions in the component because Element metadata does not pass them as props.
+- Render frame-dependent animation in a child below the Sequence. This makes [`useCurrentFrame()`](/docs/use-current-frame) respect `from`, `trimBefore`, and `freeze`. If the component that returns the Sequence calls it, it reads the parent clock.
+
+Export the schema-enabled component directly, without a forwarding wrapper. See the [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements.
+
+Check in Studio that the exported instance appears as one layer and can be moved and trimmed. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for the gallery preview.
+
+##### Initial props
+
+[`Interactive.withSchema()`](/docs/interactive-with-schema) makes a component's props editable in Studio. Content declared inside the component is not a prop, so users cannot edit it per instance.
+
+For a `component-owned-sequence` Element with replaceable starter content, put those values in `initial-props.ts`. Register them as `initialProps` with the component in `element-definitions.ts`, and type them with `satisfies ComponentProps<typeof YourComponent>`.
+
+Pass these props to the previews too. Studio writes them onto the installed component, and Inspector edits them there. Keep rendering and animation in the copied Element file.
+
+Studio supplies `from`, `durationInFrames`, and `name`. Pass `width` and `height` in `initialProps` when the component needs them. Element dimension metadata is not passed as component props.
 
 ### Animate temporary Elements in and out
 
@@ -99,7 +132,7 @@ Animate properties within the Element, such as translation, scale, and opacity; 
 
 Elements are source-code copies designed for direct editing, not managed dependencies. Expose useful Studio controls in the Element's `Interactive` schema, but there is no need to mirror every implementation detail as a public prop.
 
-Use [`Interactive.withSchema()`](/docs/interactive-with-schema) when you intentionally want an instance-level API. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
+Use [`Interactive.withSchema()`](/docs/interactive-with-schema) when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
 
 Give editable objects clear names, using a generic name such as `Container` for the main object and child controls only for separate editing targets.
 

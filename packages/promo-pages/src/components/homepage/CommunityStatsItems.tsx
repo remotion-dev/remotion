@@ -176,7 +176,7 @@ export const GitHubStars: React.FC = () => {
 					width="45px"
 				/>
 				<StatItemContent
-					content="58K"
+					content="59K"
 					width="80px"
 					fontSize="2.5rem"
 					fontWeight="bold"

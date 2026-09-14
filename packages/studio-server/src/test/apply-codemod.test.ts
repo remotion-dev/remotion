@@ -702,7 +702,23 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 		);
 
 		expect(applyResponse.success).toBe(true);
-		expect(readFileSync(entryPoint, 'utf-8')).toContain('id="FreshVideo"');
+		expect(readFileSync(entryPoint, 'utf-8')).toBe(
+			"import {FreshVideo} from './FreshVideo';\n" +
+				rootContents.replace(
+					'\t\t</>',
+					[
+						'\t\t\t<Composition',
+						'\t\t\t\tid="FreshVideo"',
+						'\t\t\t\tcomponent={FreshVideo}',
+						'\t\t\t\tdurationInFrames={150}',
+						'\t\t\t\tfps={30}',
+						'\t\t\t\twidth={1920}',
+						'\t\t\t\theight={1080}',
+						'\t\t\t/>',
+						'\t\t</>',
+					].join('\n'),
+				),
+		);
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
 			"import {FreshVideo} from './FreshVideo'",
 		);
@@ -825,7 +841,7 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 		expect(componentContents).toContain("src={staticFile('capture.mp4')}");
 		expect(componentContents).toContain('width: 1920');
 		expect(componentContents).toContain('height: 1080');
-		expect(componentContents).toContain('id="FreshCapture"');
+		expect(componentContents).toContain("id={'FreshCapture'}");
 		expect(componentContents).toContain('width={1280}');
 		expect(componentContents).toContain('height={720}');
 

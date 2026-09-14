@@ -18,6 +18,7 @@ import type {MediaRequestInit} from '../request-init';
 type ExtractAudioReturnType = Awaited<ReturnType<typeof extractAudioInternal>>;
 
 type ExtractAudioParams = {
+	sampleRate: number;
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
@@ -35,6 +36,7 @@ type ExtractAudioParams = {
 };
 
 const extractAudioInternal = async ({
+	sampleRate,
 	src,
 	timeInSeconds: unloopedTimeInSeconds,
 	durationInSeconds: durationNotYetApplyingPlaybackRate,
@@ -209,6 +211,7 @@ const extractAudioInternal = async ({
 
 		const combined = combineAudioDataAndClosePrevious(audioDataArray);
 		const resampled = resamplePcmS16AudioData({
+			targetSampleRate: sampleRate,
 			audioData: combined,
 			playbackRate,
 			isLast: true,

@@ -12,7 +12,7 @@ const getPlaybackRateLabel = (playbackRate: number) => {
 	return `${playbackRate}x`;
 };
 
-const accessibilityLabel = 'Change the playback rate';
+const accessibilityLabel = 'Playback rate';
 
 type PlaybackRateMenuItemsProps = {
 	readonly playbackRate: number;
@@ -77,6 +77,7 @@ export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
 	return (
 		<TimelineCombobox
 			title={accessibilityLabel}
+			tooltipDelay={800}
 			labelWidth={30}
 			selectedId={selectedId}
 			values={items}

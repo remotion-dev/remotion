@@ -1,7 +1,7 @@
 ---
 name: remotion-docs
 description: Search Remotion documentation
-version: 4.0.523
+version: 4.0.524
 ---
 
 This skill teaches you how to discover and read current Remotion documentation.

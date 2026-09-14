@@ -1466,7 +1466,13 @@ export const createBrowserStudioOperations = ({
 			});
 			const input = project.files[absolutePath];
 			const {newContents} = parseAndApplyCodemod({input, codeMod: codemod});
-			const {output} = await formatCodemodFile({contents: newContents});
+			const output =
+				codemod.type === 'new-composition' ||
+				codemod.type === 'duplicate-composition' ||
+				codemod.type === 'rename-composition' ||
+				codemod.type === 'delete-composition'
+					? newContents
+					: (await formatCodemodFile({contents: newContents})).output;
 			const files: Record<string, string> = {
 				...project.files,
 				[absolutePath]: output,
@@ -1480,10 +1486,9 @@ export const createBrowserStudioOperations = ({
 					);
 				}
 
-				const componentFile = await formatCodemodFile({
-					contents: makeNewCompositionComponentSource(codemod.componentName),
-				});
-				files[componentFilePath] = componentFile.output;
+				files[componentFilePath] = makeNewCompositionComponentSource(
+					codemod.componentName,
+				);
 			}
 
 			const diff = simpleDiff({
@@ -2039,6 +2044,33 @@ export const createBrowserStudioOperations = ({
 			),
 		insertElement: async (request) => {
 			try {
+				const installationMode = request.element.installationMode ?? 'wrapped';
+				const componentOwnsSequence =
+					installationMode === 'component-owned-sequence';
+				if (
+					componentOwnsSequence &&
+					request.element.initialProps !== null &&
+					['from', 'durationInFrames', 'name'].some((prop) =>
+						Object.hasOwn(request.element.initialProps ?? {}, prop),
+					)
+				) {
+					throw new Error(
+						'Component-owned Element initial props must not override from, durationInFrames, or name',
+					);
+				}
+
+				if (
+					componentOwnsSequence &&
+					request.element.initialProps?.style !== undefined &&
+					(request.element.initialProps.style === null ||
+						typeof request.element.initialProps.style !== 'object' ||
+						Array.isArray(request.element.initialProps.style))
+				) {
+					throw new Error(
+						'Component-owned Element initial style must be an object',
+					);
+				}
+
 				const project = getProject();
 				const plan = await getElementInstallPlanForProject({
 					installationName: request.installationName,
@@ -2087,9 +2119,6 @@ export const createBrowserStudioOperations = ({
 				const installedDependencies = await resolveElementDependencies(
 					request.element.dependencies,
 				);
-				const installationMode = request.element.installationMode ?? 'wrapped';
-				const componentOwnsSequence =
-					installationMode === 'component-owned-sequence';
 				const durationInFrames = request.element.durationInFrames ?? null;
 				const insertion =
 					await insertJsxElementIntoProjectWithNodePathRemappings({
@@ -2102,19 +2131,22 @@ export const createBrowserStudioOperations = ({
 								importName: plan.componentName,
 								importPath: plan.importPath,
 								position: componentOwnsSequence ? request.position : null,
-								props: componentOwnsSequence
-									? [
-											...(durationInFrames === null
-												? []
-												: [
-														{
-															name: 'durationInFrames',
-															value: durationInFrames,
-														},
-													]),
-											{name: 'name', value: request.element.displayName},
-										]
-									: [],
+								props: [
+									...Object.entries(request.element.initialProps ?? {}).map(
+										([name, value]) => ({name, value}),
+									),
+									...(componentOwnsSequence && durationInFrames !== null
+										? [
+												{
+													name: 'durationInFrames',
+													value: durationInFrames,
+												},
+											]
+										: []),
+									...(componentOwnsSequence
+										? [{name: 'name', value: request.element.displayName}]
+										: []),
+								],
 								type: 'component',
 							},
 							from: componentOwnsSequence ? request.from : null,

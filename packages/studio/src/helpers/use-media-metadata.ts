@@ -66,7 +66,15 @@ const getMediabunnyMetadata = async (
 				create: () => {
 					const createdInput = new Input({
 						formats: ALL_FORMATS,
-						source: new UrlSource(src),
+						source: new UrlSource(src, {
+							handleUnhandledError: (error) => {
+								Internals.Log.warn(
+									{logLevel: 'info', tag: '@remotion/studio'},
+									`A speculative fetch for "${src}" failed:`,
+									error,
+								);
+							},
+						}),
 					});
 
 					return {

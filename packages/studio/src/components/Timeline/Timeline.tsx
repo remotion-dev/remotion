@@ -2,7 +2,7 @@ import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
-	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -297,90 +297,6 @@ const TimelineInner: React.FC = () => {
 		overrideIdToNodePathMappings,
 		compositions,
 	]);
-	const pendingInsertedElementSelection = useSyncExternalStore(
-		subscribeToInsertedElementSelection,
-		getInsertedElementSelection,
-		getInsertedElementSelection,
-	);
-	const {fastRefreshes} = useContext(FastRefreshContext);
-	const pendingSelectionStart = useRef<{
-		selection: NonNullable<typeof pendingInsertedElementSelection>;
-		fastRefreshes: number;
-		existingSequenceIds: Set<string>;
-	} | null>(null);
-	const {selectItems} = useTimelineSelection();
-	useEffect(() => {
-		if (pendingInsertedElementSelection === null) {
-			pendingSelectionStart.current = null;
-			return;
-		}
-
-		const matchesInsertedNodePath = (track: TimelineTrackData) =>
-			track.nodePathInfo !== null &&
-			(pendingInsertedElementSelection.nodePath === null ||
-				(track.nodePathInfo.sequenceSubscriptionKey.absolutePath ===
-					pendingInsertedElementSelection.nodePath.absolutePath &&
-					JSON.stringify(
-						track.nodePathInfo.sequenceSubscriptionKey.nodePath,
-					) ===
-						JSON.stringify(pendingInsertedElementSelection.nodePath.nodePath)));
-
-		if (
-			pendingSelectionStart.current?.selection !==
-			pendingInsertedElementSelection
-		) {
-			pendingSelectionStart.current = {
-				selection: pendingInsertedElementSelection,
-				fastRefreshes,
-				existingSequenceIds: new Set(
-					timeline
-						.filter(matchesInsertedNodePath)
-						.map((track) => track.sequence.id),
-				),
-			};
-			return;
-		}
-
-		if (pendingSelectionStart.current.fastRefreshes === fastRefreshes) {
-			return;
-		}
-
-		if (
-			canvasContent?.type === 'composition' &&
-			canvasContent.compositionId !==
-				pendingInsertedElementSelection.compositionId
-		) {
-			clearInsertedElementSelection(pendingInsertedElementSelection);
-			return;
-		}
-
-		const insertedTrack = timeline.find(
-			(track) =>
-				matchesInsertedNodePath(track) &&
-				!pendingSelectionStart.current?.existingSequenceIds.has(
-					track.sequence.id,
-				),
-		);
-		if (!insertedTrack || insertedTrack.nodePathInfo === null) {
-			return;
-		}
-
-		selectItems(
-			[{type: 'sequence', nodePathInfo: insertedTrack.nodePathInfo}],
-			{reveal: true},
-		);
-		clearInsertedElementSelection(pendingInsertedElementSelection);
-		if (pendingInsertedElementSelection.notification !== null) {
-			showNotification(pendingInsertedElementSelection.notification, 3000);
-		}
-	}, [
-		canvasContent,
-		fastRefreshes,
-		pendingInsertedElementSelection,
-		selectItems,
-		timeline,
-	]);
-
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const {getDragOverrides} = useContext(
@@ -429,6 +345,98 @@ const TimelineInner: React.FC = () => {
 		sequences,
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
 	);
+	const pendingInsertedElementSelection = useSyncExternalStore(
+		subscribeToInsertedElementSelection,
+		getInsertedElementSelection,
+		getInsertedElementSelection,
+	);
+	const {fastRefreshes} = useContext(FastRefreshContext);
+	const pendingSelectionStart = useRef<{
+		selection: NonNullable<typeof pendingInsertedElementSelection>;
+		fastRefreshes: number;
+		existingSequenceIds: Set<string>;
+	} | null>(null);
+	const {selectItems} = useTimelineSelection();
+	useLayoutEffect(() => {
+		if (pendingInsertedElementSelection === null) {
+			pendingSelectionStart.current = null;
+			return;
+		}
+
+		const matchesInsertedNodePath = (track: TimelineTrackData) =>
+			pendingInsertedElementSelection.nodePath === null ||
+			(track.nodePathInfo !== null &&
+				track.nodePathInfo.sequenceSubscriptionKey.absolutePath ===
+					pendingInsertedElementSelection.nodePath.absolutePath &&
+				JSON.stringify(track.nodePathInfo.sequenceSubscriptionKey.nodePath) ===
+					JSON.stringify(pendingInsertedElementSelection.nodePath.nodePath));
+
+		if (
+			pendingSelectionStart.current?.selection !==
+			pendingInsertedElementSelection
+		) {
+			pendingSelectionStart.current = {
+				selection: pendingInsertedElementSelection,
+				fastRefreshes,
+				existingSequenceIds: new Set(
+					timeline
+						.filter(matchesInsertedNodePath)
+						.map((track) => track.sequence.id),
+				),
+			};
+			return;
+		}
+
+		if (pendingSelectionStart.current.fastRefreshes === fastRefreshes) {
+			return;
+		}
+
+		if (
+			canvasContent?.type === 'composition' &&
+			canvasContent.compositionId !==
+				pendingInsertedElementSelection.compositionId
+		) {
+			clearInsertedElementSelection(pendingInsertedElementSelection);
+			return;
+		}
+
+		const insertedTrack = timeline.find(
+			(track) =>
+				matchesInsertedNodePath(track) &&
+				!pendingSelectionStart.current?.existingSequenceIds.has(
+					track.sequence.id,
+				),
+		);
+		if (!insertedTrack) {
+			return;
+		}
+
+		const layerKey = layerChildrenValue.keys.get(insertedTrack.sequence.id);
+		if (layerKey !== undefined && !layerChildrenValue.collapsed[layerKey]) {
+			layerChildrenValue.toggle(layerKey);
+		}
+
+		if (insertedTrack.nodePathInfo === null) {
+			return;
+		}
+
+		selectItems(
+			[{type: 'sequence', nodePathInfo: insertedTrack.nodePathInfo}],
+			{reveal: true},
+		);
+		clearInsertedElementSelection(pendingInsertedElementSelection);
+		if (pendingInsertedElementSelection.notification !== null) {
+			showNotification(pendingInsertedElementSelection.notification, 3000);
+		}
+	}, [
+		canvasContent,
+		fastRefreshes,
+		layerChildrenValue,
+		pendingInsertedElementSelection,
+		selectItems,
+		timeline,
+	]);
+
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
 	const shown = useMemo(() => {
 		return maxTimelineTracks !== null &&

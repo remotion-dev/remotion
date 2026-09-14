@@ -2,14 +2,21 @@ import type {
 	Expression,
 	JSXAttribute,
 	JSXElement,
-	JSXFragment,
 	JSXIdentifier,
 	JSXOpeningElement,
 } from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
+import {
+	applySourceEdits,
+	getInsertImportSourceEdits,
+	getInsertionRootSourceEdit,
+	type SourceEdit,
+} from './insert-jsx-element';
+import {indentInsertedJsx, printInsertedJsx} from './print-jsx';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {ensureNamedImport} from './sequence-props/imports';
-import {parseAst, serializeAst} from './sequence-props/parse-ast';
+import {parseAst} from './sequence-props/parse-ast';
 
 const b = recast.types.builders;
 
@@ -18,7 +25,7 @@ type DuplicateCompositionCodemod = Extract<
 	{type: 'duplicate-composition'}
 >;
 
-const getCompositionId = (jsxElement: JSXElement) => {
+export const getCompositionId = (jsxElement: JSXElement) => {
 	const {openingElement} = jsxElement;
 	if (
 		openingElement.name.type !== 'JSXIdentifier' ||
@@ -191,40 +198,15 @@ const changeComposition = ({
 
 	return {
 		...jsxElement,
+		closingElement: jsxElement.closingElement
+			? {...jsxElement.closingElement, name: {...name, name: codemod.tag}}
+			: null,
 		openingElement: {
 			...openingElement,
 			name: {...name, name: codemod.tag},
 			attributes,
 		},
 	};
-};
-
-const makeFragment = (
-	original: JSXElement,
-	duplicate: JSXElement,
-): JSXFragment => ({
-	type: 'JSXFragment',
-	openingFragment: {type: 'JSXOpeningFragment'},
-	closingFragment: {type: 'JSXClosingFragment'},
-	children: [original, duplicate],
-});
-
-const insertAfterInJsxParent = ({
-	duplicate,
-	original,
-	parent,
-}: {
-	duplicate: JSXElement;
-	original: JSXElement;
-	parent: JSXElement | JSXFragment;
-}) => {
-	const index = parent.children.indexOf(original);
-	if (index === -1) {
-		return false;
-	}
-
-	parent.children.splice(index + 1, 0, duplicate);
-	return true;
 };
 
 export const duplicateCompositionInSource = ({
@@ -236,15 +218,17 @@ export const duplicateCompositionInSource = ({
 }): {newContents: string; changesMade: {description: string}[]} => {
 	const ast = parseAst(input);
 	const changesMade: {description: string}[] = [];
-	const generatedNodes = new WeakSet<JSXElement>();
+	const edits: SourceEdit[] = [];
+	const snapshots = ast.program.body.flatMap((statement) =>
+		statement.type === 'ImportDeclaration'
+			? [{declaration: statement, specifiers: [...statement.specifiers]}]
+			: [],
+	);
 
 	recast.types.visit(ast, {
 		visitJSXElement(astPath) {
 			const original = astPath.node as unknown as JSXElement;
-			if (
-				generatedNodes.has(original) ||
-				getCompositionId(original) !== codemod.idToDuplicate
-			) {
+			if (getCompositionId(original) !== codemod.idToDuplicate) {
 				this.traverse(astPath);
 				return undefined;
 			}
@@ -254,20 +238,44 @@ export const duplicateCompositionInSource = ({
 				codemod,
 				changesMade,
 			});
-			generatedNodes.add(duplicate);
-			const parent = astPath.parentPath?.node as
-				| JSXElement
-				| JSXFragment
-				| undefined;
-			if (
-				parent &&
-				(parent.type === 'JSXElement' || parent.type === 'JSXFragment') &&
-				insertAfterInJsxParent({duplicate, original, parent})
-			) {
-				return false;
+			if (!original.loc) {
+				throw new Error('Could not locate the composition to duplicate');
 			}
 
-			astPath.replace(makeFragment(original, duplicate));
+			const insertion = printInsertedJsx({
+				element: duplicate as never,
+				input,
+				prettierConfigOverride: null,
+			});
+			const parent = astPath.parentPath?.node;
+			if (
+				parent &&
+				(parent.type === 'JSXElement' || parent.type === 'JSXFragment')
+			) {
+				const end = recastLocToOffset(input, original.loc.end);
+				const start = recastLocToOffset(input, original.loc.start);
+				const lineStart = input.lastIndexOf('\n', start - 1) + 1;
+				const indent =
+					input.slice(lineStart, start).match(/^[\t ]*/)?.[0] ?? '';
+				const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+				edits.push({
+					start: end,
+					end,
+					replacement: endOfLine + indentInsertedJsx({indent, insertion}),
+				});
+			} else {
+				edits.push(
+					getInsertionRootSourceEdit({
+						input,
+						insertion,
+						root: original as never,
+						nullRoot: null,
+						prettierConfigOverride: null,
+						insertInside: false,
+					}),
+				);
+			}
+
 			return false;
 		},
 	});
@@ -285,5 +293,19 @@ export const duplicateCompositionInSource = ({
 		localName: codemod.tag,
 	});
 
-	return {newContents: serializeAst(ast), changesMade};
+	return {
+		newContents: applySourceEdits({
+			input,
+			edits: [
+				...edits,
+				...getInsertImportSourceEdits({
+					ast,
+					input,
+					snapshots,
+					prettierConfigOverride: null,
+				}),
+			],
+		}),
+		changesMade,
+	};
 };

@@ -73,15 +73,6 @@ const waitForBrowserStudioOperations = async (studio: FrameLocator) => {
 		.toBe(true);
 };
 
-test('runs Browser Studio in Safari', async ({page}) => {
-	await page.goto('/');
-
-	expect(await page.evaluate(() => window.crossOriginIsolated)).toBe(true);
-	await expect(
-		page.frameLocator('iframe').getByTitle('/project').getByText('MyComp'),
-	).toBeVisible();
-});
-
 test('selects a composition inserted from the Add composition dialog', async ({
 	page,
 }) => {

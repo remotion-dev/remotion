@@ -311,9 +311,9 @@ Accepts a number between `0.01` and `2`, where `1` represents the original pitch
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
-The value can be changed while previewing. It must stay constant across the composition timeline during rendering.
+The value must stay constant for each audio or video asset. Animating or keyframing `toneFrequency` is not supported.
 
-Works during preview and server-side rendering. It is not supported during [client-side rendering](/docs/client-side-rendering/).
+Works during preview and server-side rendering. [Client-side rendering](/docs/client-side-rendering/) is supported from <AvailableFrom v="4.0.523" inline />.
 
 If the component [falls back to `<Html5Audio>`](/docs/media/fallback) during preview, pitch shifting is not applied.
 

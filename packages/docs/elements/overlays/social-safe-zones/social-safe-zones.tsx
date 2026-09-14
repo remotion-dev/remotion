@@ -44,6 +44,7 @@ const socialSafeZonesSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const SocialSafeZonesInner = forwardRef<
@@ -93,7 +94,7 @@ const SocialSafeZonesInner = forwardRef<
 				layout="none"
 				{...sequenceProps}
 				controls={controls}
-				name={name ?? '<SocialSafeZones>'}
+				name={name ?? 'Social Safe Zones'}
 				outlineRef={outlineRef}
 			>
 				<div
@@ -152,6 +153,7 @@ const SocialSafeZonesInner = forwardRef<
 							aria-hidden="true"
 							fit="contain"
 							height={1920}
+							showInTimeline={false}
 							src={
 								platform === 'tiktok'
 									? 'https://remotion.media/elements/social-safe-zones/tiktok-interface.png'

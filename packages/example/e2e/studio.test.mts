@@ -175,58 +175,6 @@ const dragCompositionSelectorItemToRoot = async ({
 	);
 };
 
-const dropAssetOnCanvas = async ({
-	assetPath,
-	durationInSeconds,
-	page,
-}: {
-	assetPath: string;
-	durationInSeconds: number;
-	page: Page;
-}) => {
-	const dragData = StudioProtocolInternals.makeDragData({
-		type: 'asset',
-		assetPath,
-		durationInSeconds,
-		height: null,
-		width: null,
-	});
-	const canvas = page.locator('.remotion-studio-composition-container');
-	await expect
-		.poll(() =>
-			canvas.evaluate((element, data) => {
-				const rect = element.getBoundingClientRect();
-				const dataTransfer = new DataTransfer();
-				dataTransfer.setData(data.mimeType, data.payload);
-				const event = new DragEvent('dragover', {
-					bubbles: true,
-					cancelable: true,
-					clientX: rect.left + rect.width / 2,
-					clientY: rect.top + rect.height / 2,
-					dataTransfer,
-				});
-				element.dispatchEvent(event);
-
-				return event.defaultPrevented;
-			}, dragData),
-		)
-		.toBe(true);
-	await canvas.evaluate((element, data) => {
-		const rect = element.getBoundingClientRect();
-		const dataTransfer = new DataTransfer();
-		dataTransfer.setData(data.mimeType, data.payload);
-		element.dispatchEvent(
-			new DragEvent('drop', {
-				bubbles: true,
-				cancelable: true,
-				clientX: rect.left + rect.width / 2,
-				clientY: rect.top + rect.height / 2,
-				dataTransfer,
-			}),
-		);
-	}, dragData);
-};
-
 const dropFile = async ({
 	base64,
 	fileName,
@@ -267,21 +215,6 @@ const dropFile = async ({
 	);
 };
 
-const getVideoTag = (source: string, assetPath: string) => {
-	const sourceIndex = source.indexOf(assetPath);
-	if (sourceIndex === -1) {
-		throw new Error(`Could not find ${assetPath} in source`);
-	}
-
-	const tagStart = source.lastIndexOf('<Video', sourceIndex);
-	const tagEnd = source.indexOf('/>', sourceIndex);
-	if (tagStart === -1 || tagEnd === -1) {
-		throw new Error(`Could not find <Video> tag for ${assetPath}`);
-	}
-
-	return source.slice(tagStart, tagEnd + 2);
-};
-
 test.describe('visual mode', () => {
 	test.beforeEach(async () => {
 		await startStudio();
@@ -289,6 +222,262 @@ test.describe('visual mode', () => {
 
 	test.afterEach(async () => {
 		await stopStudio();
+	});
+
+	test('customizes playback and view shortcuts and keeps modifiers distinct', async ({
+		page,
+	}) => {
+		const configFile = path.join(exampleDir, 'remotion.config.ts');
+		const originalConfig = fs.readFileSync(configFile, 'utf8');
+		try {
+			await page.goto(`${STUDIO_URL}/schema-test`);
+			const muteButton = page.getByRole('button', {
+				name: 'Mute video',
+				exact: true,
+			});
+			const unmuteButton = page.getByRole('button', {
+				name: 'Unmute video',
+				exact: true,
+			});
+			await expect(muteButton).toBeVisible();
+			await page.keyboard.press('m');
+			await expect(unmuteButton).toBeVisible();
+			await page.keyboard.press('Shift+M');
+			await expect(unmuteButton).toBeVisible();
+			await page.keyboard.press('m');
+			await expect(muteButton).toBeVisible();
+
+			const loopButton = page.getByRole('button', {name: 'Loop', exact: true});
+			if (
+				await page
+					.getByRole('button', {name: 'Loop', exact: true, pressed: true})
+					.count()
+			) {
+				await loopButton.click();
+			}
+			await page.keyboard.press('Shift+L');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: true}),
+			).toBeVisible();
+			await expect(
+				page.getByRole('button', {name: 'Play', exact: true}),
+			).toBeVisible();
+			await page.keyboard.press('l');
+			await expect(
+				page.getByRole('button', {name: 'Pause', exact: true}),
+			).toBeVisible();
+			await page.keyboard.press('k');
+			await expect(
+				page.getByRole('button', {name: 'Play', exact: true}),
+			).toBeVisible();
+
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			const dialog = page.getByRole('dialog');
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			for (const [name, key, action] of [
+				['Mute / Unmute', 'u', 'toggleMute'],
+				['Loop', 'y', 'toggleLoop'],
+			]) {
+				const control = dialog.getByRole('button', {
+					name: `Change shortcut for ${name}`,
+					exact: true,
+				});
+				await control.click();
+				await page.keyboard.press(key);
+				await expect(control).toContainText(key.toUpperCase());
+				await expect
+					.poll(() => fs.readFileSync(configFile, 'utf8'))
+					.toContain(action);
+				await expect(
+					page.getByRole('button', {
+						name: action === 'toggleMute' ? 'Mute video' : 'Loop',
+						exact: true,
+						includeHidden: true,
+					}),
+				).toHaveAttribute('aria-keyshortcuts', key);
+			}
+			await page.keyboard.press('Escape');
+			await expect(dialog).toHaveCount(0);
+			await page.reload();
+			await expect(muteButton).toBeVisible();
+			await page.keyboard.press('u');
+			await expect(unmuteButton).toBeVisible();
+			await page.keyboard.press('m');
+			await expect(unmuteButton).toBeVisible();
+			await unmuteButton.hover();
+			await expect(page.getByRole('tooltip')).toContainText('U');
+
+			await page.setViewportSize({width: 600, height: 800});
+			await page.keyboard.press('y');
+			await page.setViewportSize({width: 1280, height: 800});
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: false}),
+			).toBeVisible();
+			await page.keyboard.press('Shift+L');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: false}),
+			).toBeVisible();
+			await page.keyboard.press('y');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: true}),
+			).toBeVisible();
+
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			await dialog
+				.getByRole('button', {name: 'Actions for Mute / Unmute', exact: true})
+				.click();
+			await page.getByText('Disable shortcut', {exact: true}).click();
+			await expect(
+				dialog.getByRole('button', {
+					name: 'Change shortcut for Mute / Unmute',
+					exact: true,
+				}),
+			).toHaveText('Unassigned');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toMatch(/toggleMute['"]?: null/);
+			await page.keyboard.press('Escape');
+			await page.keyboard.press('u');
+			await expect(unmuteButton).toBeVisible();
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			for (const name of ['Mute / Unmute', 'Loop']) {
+				await dialog
+					.getByRole('button', {name: `Actions for ${name}`, exact: true})
+					.click();
+				await page.getByText('Reset to default', {exact: true}).click();
+			}
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('toggleMute');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('toggleLoop');
+			await page.keyboard.press('Escape');
+			await expect(dialog).toHaveCount(0);
+			await page.keyboard.press('m');
+			await expect(muteButton).toBeVisible();
+			await page.keyboard.press('Shift+L');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: false}),
+			).toBeVisible();
+
+			for (const [name, pattern, defaultKey, remappedKey, action] of [
+				[
+					'Outlines',
+					/^(Show|Hide) outlines$/,
+					'Shift+O',
+					'Shift+U',
+					'toggleOutlines',
+				],
+				[
+					'Rulers and guides',
+					/^(Show|Hide) rulers and guides$/,
+					'Shift+R',
+					'Shift+Y',
+					'toggleRulersAndGuides',
+				],
+			] as const) {
+				const button = page.getByRole('button', {name: pattern});
+				if (
+					await page.getByRole('button', {name: pattern, pressed: true}).count()
+				) {
+					await button.click();
+				}
+				await page.keyboard.press(defaultKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+				await expect(dialog).toHaveCount(0);
+				await button.hover();
+				await expect(page.getByRole('tooltip')).toContainText(
+					defaultKey.slice(-1),
+				);
+
+				await page.getByRole('button', {name: 'Settings', exact: true}).click();
+				await dialog
+					.getByRole('button', {name: 'Shortcuts', exact: true})
+					.click();
+				const control = dialog.getByRole('button', {
+					name: `Change shortcut for ${name}`,
+					exact: true,
+				});
+				await control.click();
+				await page.keyboard.press(remappedKey);
+				await expect(control).toContainText(remappedKey.slice(-1));
+				await expect
+					.poll(() => fs.readFileSync(configFile, 'utf8'))
+					.toContain(action);
+				await page.keyboard.press('Escape');
+				await expect(dialog).toHaveCount(0);
+				await page.reload();
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+				await page.keyboard.press(defaultKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+				await page.setViewportSize({width: 600, height: 800});
+				await page.keyboard.press(remappedKey);
+				await page.setViewportSize({width: 1280, height: 800});
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: false}),
+				).toBeVisible();
+				await button.hover();
+				await expect(page.getByRole('tooltip')).toContainText(
+					remappedKey.slice(-1),
+				);
+
+				await page.getByRole('button', {name: 'Settings', exact: true}).click();
+				await dialog
+					.getByRole('button', {name: 'Shortcuts', exact: true})
+					.click();
+				await dialog
+					.getByRole('button', {name: `Actions for ${name}`, exact: true})
+					.click();
+				await page.getByText('Disable shortcut', {exact: true}).click();
+				await expect(control).toHaveText('Unassigned');
+				await page.keyboard.press('Escape');
+				await expect(dialog).toHaveCount(0);
+				await expect(button).not.toHaveAttribute('aria-keyshortcuts');
+				await page.keyboard.press(remappedKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: false}),
+				).toBeVisible();
+				await page.getByRole('button', {name: 'Settings', exact: true}).click();
+				await dialog
+					.getByRole('button', {name: 'Shortcuts', exact: true})
+					.click();
+				await dialog
+					.getByRole('button', {name: `Actions for ${name}`, exact: true})
+					.click();
+				await page.getByText('Reset to default', {exact: true}).click();
+				await expect
+					.poll(() => fs.readFileSync(configFile, 'utf8'))
+					.not.toContain(action);
+				await expect(control).toContainText(defaultKey.slice(-1));
+				await page.keyboard.press('Escape');
+				await expect(dialog).toHaveCount(0);
+				await expect(button).toHaveAttribute(
+					'aria-keyshortcuts',
+					`Shift+${defaultKey.slice(-1).toLowerCase()}`,
+				);
+				await page.keyboard.press(defaultKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+			}
+		} finally {
+			fs.writeFileSync(configFile, originalConfig);
+		}
 	});
 
 	test('should load the studio without flashing a composition error', async ({
@@ -561,14 +750,10 @@ test.describe('visual mode', () => {
 			await quickSwitcher.getByRole('textbox').fill('> Settings');
 			await quickSwitcher.getByText('Settings...', {exact: true}).click();
 			const settings = page.getByRole('dialog');
-			await expect(
-				settings.getByText('Default codec', {exact: true}),
-			).toBeVisible();
+			await expect(settings.getByText('Bundler', {exact: true})).toBeVisible();
 			await dragAssetOver(settings);
 			await expect(dropIndicator).toBeHidden();
-			await expect(
-				settings.getByText('Default codec', {exact: true}),
-			).toBeVisible();
+			await expect(settings.getByText('Bundler', {exact: true})).toBeVisible();
 			await page.keyboard.press('Escape');
 
 			expect(await dropFile({...file, target: timeline})).toBe(true);
@@ -878,97 +1063,6 @@ test.describe('visual mode', () => {
 		} finally {
 			fs.writeFileSync(macCursorsFile, originalSource);
 		}
-	});
-
-	test('should only open the editor from non-interactive inspector content', async ({
-		page,
-	}) => {
-		await page.addInitScript(() => {
-			window.localStorage.setItem(
-				'remotion.sidebarRightCollapsing',
-				'expanded',
-			);
-			Object.defineProperty(window, 'remotion_editorName', {
-				configurable: true,
-				get: () => 'Test editor',
-				set: () => undefined,
-			});
-		});
-		await page.route('**/api/default-editor-info', async (route) => {
-			await route.fulfill({
-				json: {
-					success: true,
-					data: {
-						defaultEditor: 'vscode',
-						installedEditors: [
-							{
-								id: 'vscode',
-								name: 'Test editor',
-								nameWithType: 'Test editor',
-							},
-						],
-					},
-				},
-			});
-		});
-		const openInEditorRequests: unknown[] = [];
-		await page.route('**/api/open-in-editor', async (route) => {
-			openInEditorRequests.push(route.request().postDataJSON());
-			await route.fulfill({
-				json: {success: true, data: {success: true}},
-			});
-		});
-
-		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
-		const eyebrow = page.getByText('Eyebrow', {exact: true}).first();
-		await expect(eyebrow).toBeVisible({timeout: 15_000});
-		const textField = page.getByRole('textbox');
-		await expect(async () => {
-			await eyebrow.click();
-			await expect(textField).toHaveValue('Performance overview', {
-				timeout: 1_000,
-			});
-		}).toPass({timeout: 30_000});
-
-		await page.getByTitle('Text', {exact: true}).dblclick();
-		await expect.poll(() => openInEditorRequests.length).toBe(1);
-		openInEditorRequests.length = 0;
-
-		await textField.dblclick({position: {x: 20, y: 20}});
-		await expect
-			.poll(() =>
-				textField.evaluate((element) =>
-					element.value.slice(element.selectionStart, element.selectionEnd),
-				),
-			)
-			.toBe('overview');
-		// Headless Chromium does not consistently emit dblclick after selecting text.
-		await textField.dispatchEvent('dblclick');
-		const numberDragger = page
-			.locator('button.__remotion_input_dragger')
-			.first();
-		await expect(numberDragger).toBeVisible();
-		await numberDragger.dispatchEvent('dblclick');
-		const colorPicker = page.getByTitle('#8E9AB8', {exact: true});
-		await expect(colorPicker).toBeVisible();
-		await colorPicker.dispatchEvent('dblclick');
-
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await page.waitForFunction(
-			() => !document.body.innerText.includes('Loading...'),
-			{timeout: 30_000},
-		);
-		const scaleEffectRow = page.getByText('scale()', {exact: true});
-		await expect(async () => {
-			await page.getByTitle('Scale precision', {exact: true}).first().click();
-			await expect(scaleEffectRow).toBeVisible({timeout: 1_000});
-		}).toPass({timeout: 15_000});
-		await scaleEffectRow.click();
-		const horizontalCheckbox = page.locator('input[name="horizontal"]');
-		await expect(horizontalCheckbox).toBeVisible();
-		await horizontalCheckbox.dispatchEvent('dblclick');
-		await page.waitForTimeout(100);
-		expect(openInEditorRequests).toEqual([]);
 	});
 
 	test('should preserve property selection while dragging its outline', async ({
@@ -1349,257 +1443,6 @@ test.describe('visual mode', () => {
 		await expect(page).toHaveURL(/timeline-virtualization-testbed/);
 	});
 
-	test('should visually reorder and nest compositions and folders', async ({
-		page,
-	}) => {
-		test.setTimeout(60_000);
-		const initialContents = fs.readFileSync(rootFile, 'utf8');
-		await page.goto(STUDIO_URL);
-		await expect(
-			page.getByTitle('AnimatedBarChart', {exact: true}),
-		).toBeVisible({
-			timeout: 15_000,
-		});
-		const firstItemTitle = await page
-			.locator('.__remotion-composition-selector-item')
-			.first()
-			.getAttribute('title');
-		expect(firstItemTitle).not.toBeNull();
-		const beforeNoOpDrags = fs.readFileSync(rootFile, 'utf8');
-		expect(
-			await dragCompositionSelectorItem({
-				page,
-				sourceTitle: firstItemTitle!,
-				targetTitle: firstItemTitle!,
-				position: 'before',
-				dropAtPosition: null,
-				drop: true,
-			}),
-		).toBe(false);
-		expect(
-			await dragCompositionSelectorItem({
-				page,
-				sourceTitle: firstItemTitle!,
-				targetTitle: firstItemTitle!,
-				position: 'after',
-				dropAtPosition: null,
-				drop: true,
-			}),
-		).toBe(false);
-		await expect(page.locator('[data-composition-reorder-line]')).toHaveCount(
-			0,
-		);
-		await page.waitForTimeout(250);
-		expect(fs.readFileSync(rootFile, 'utf8')).toBe(beforeNoOpDrags);
-		const schemaFolder = page.getByTitle('Schema', {exact: true});
-		const schemaComposition = page.getByTitle('schema-test', {exact: true});
-		if ((await schemaFolder.getAttribute('aria-expanded')) === 'true') {
-			await schemaFolder.click();
-		}
-
-		await expect(schemaFolder).toHaveAttribute('aria-expanded', 'false');
-		await expect(schemaComposition).not.toBeVisible();
-		expect(
-			await dragCompositionSelectorItem({
-				page,
-				sourceTitle: 'AnimatedBarChart',
-				targetTitle: 'Schema',
-				position: 'inside',
-				dropAtPosition: null,
-				drop: false,
-			}),
-		).toBe(true);
-		await page.waitForTimeout(500);
-		await expect(schemaFolder).toHaveAttribute('aria-expanded', 'false');
-		await expect(schemaComposition).toBeVisible({timeout: 500});
-		await expect(schemaFolder).toHaveAttribute('aria-expanded', 'true');
-
-		expect(
-			await dragCompositionSelectorItem({
-				page,
-				sourceTitle: 'AnimatedBarChart',
-				targetTitle: 'Schema',
-				position: 'before',
-				dropAtPosition: null,
-				drop: false,
-			}),
-		).toBe(true);
-		const reorderLine = page.locator('[data-composition-reorder-line]');
-		await expect(reorderLine).toBeVisible();
-		await expect(reorderLine).toHaveCSS('height', '2px');
-		await expect(reorderLine).toHaveCSS(
-			'background-color',
-			'rgb(11, 132, 255)',
-		);
-		const lineBox = await reorderLine.boundingBox();
-		const targetBox = await page
-			.getByTitle('Schema', {exact: true})
-			.boundingBox();
-		expect(lineBox).not.toBeNull();
-		expect(targetBox).not.toBeNull();
-		expect(Math.abs(lineBox!.y - targetBox!.y)).toBeLessThanOrEqual(2);
-		expect(lineBox!.width).toBeGreaterThan(targetBox!.width);
-
-		await dragCompositionSelectorItem({
-			page,
-			sourceTitle: 'AnimatedBarChart',
-			targetTitle: 'Schema',
-			position: 'before',
-			dropAtPosition: 'inside',
-			drop: true,
-		});
-		await expect
-			.poll(() => {
-				const contents = fs.readFileSync(rootFile, 'utf8');
-				return (
-					contents.indexOf('id="AnimatedBarChart"') <
-					contents.indexOf('<Folder name="Schema">')
-				);
-			})
-			.toBe(true);
-		const afterCompositionReorder = fs.readFileSync(rootFile, 'utf8');
-		await expect
-			.poll(async () => {
-				const compositionBox = await page
-					.getByTitle('AnimatedBarChart', {exact: true})
-					.boundingBox();
-				const folderBox = await page
-					.getByTitle('Schema', {exact: true})
-					.boundingBox();
-				return (
-					compositionBox !== null &&
-					folderBox !== null &&
-					compositionBox.y < folderBox.y
-				);
-			})
-			.toBe(true);
-		expect(
-			await dragCompositionSelectorItem({
-				page,
-				sourceTitle: 'AnimatedBarChart',
-				targetTitle: 'Schema',
-				position: 'before',
-				dropAtPosition: null,
-				drop: true,
-			}),
-		).toBe(false);
-		await page.waitForTimeout(250);
-		expect(fs.readFileSync(rootFile, 'utf8')).toBe(afterCompositionReorder);
-
-		await dragCompositionSelectorItem({
-			page,
-			sourceTitle: 'Schema',
-			targetTitle: 'use-current-scale-on-load',
-			position: 'before',
-			dropAtPosition: null,
-			drop: true,
-		});
-		await expect
-			.poll(() => {
-				const contents = fs.readFileSync(rootFile, 'utf8');
-				return (
-					contents.indexOf('<Folder name="Schema">') <
-					contents.indexOf('id="use-current-scale-on-load"')
-				);
-			})
-			.toBe(true);
-		const afterFolderReorder = fs.readFileSync(rootFile, 'utf8');
-
-		await dragCompositionSelectorItem({
-			page,
-			sourceTitle: 'AnimatedBarChart',
-			targetTitle: 'Schema',
-			position: 'inside',
-			dropAtPosition: null,
-			drop: true,
-		});
-		await expect
-			.poll(() => {
-				const contents = fs.readFileSync(rootFile, 'utf8');
-				const folderStart = contents.indexOf('<Folder name="Schema">');
-				const folderEnd = contents.indexOf('</Folder>', folderStart);
-				const composition = contents.indexOf('id="AnimatedBarChart"');
-				return composition > folderStart && composition < folderEnd;
-			})
-			.toBe(true);
-		const afterCompositionNested = fs.readFileSync(rootFile, 'utf8');
-		await expect
-			.poll(async () => {
-				const nestedCompositionBox = await page
-					.getByTitle('AnimatedBarChart', {exact: true})
-					.boundingBox();
-				const schemaCompositionBox = await schemaComposition.boundingBox();
-				return (
-					nestedCompositionBox !== null &&
-					schemaCompositionBox !== null &&
-					nestedCompositionBox.y > schemaCompositionBox.y
-				);
-			})
-			.toBe(true);
-
-		expect(
-			await dragCompositionSelectorItemToRoot({
-				page,
-				sourceTitle: 'AnimatedBarChart',
-				drop: false,
-			}),
-		).toBe(true);
-		const rootReorderLine = page.locator(
-			'[data-composition-root-reorder-line]',
-		);
-		await expect(rootReorderLine).toBeVisible();
-		await expect(rootReorderLine).toHaveCSS('height', '2px');
-		await expect(rootReorderLine).toHaveCSS(
-			'background-color',
-			'rgb(11, 132, 255)',
-		);
-		const rootLineBox = await rootReorderLine.boundingBox();
-		const lastItemBox = await page
-			.locator('.__remotion-composition-selector-item')
-			.last()
-			.boundingBox();
-		expect(rootLineBox).not.toBeNull();
-		expect(lastItemBox).not.toBeNull();
-		expect(rootLineBox!.y).toBeGreaterThanOrEqual(
-			lastItemBox!.y + lastItemBox!.height - 2,
-		);
-
-		expect(
-			await dragCompositionSelectorItemToRoot({
-				page,
-				sourceTitle: 'AnimatedBarChart',
-				drop: true,
-			}),
-		).toBe(true);
-		await expect
-			.poll(() => {
-				const contents = fs.readFileSync(rootFile, 'utf8');
-				const folderStart = contents.indexOf('<Folder name="Schema">');
-				const folderEnd = contents.indexOf('</Folder>', folderStart);
-				const composition = contents.indexOf('id="AnimatedBarChart"');
-				return composition > folderEnd;
-			})
-			.toBe(true);
-
-		const undoButton = page.getByRole('button', {name: /^Undo/});
-		await undoButton.click();
-		await expect
-			.poll(() => fs.readFileSync(rootFile, 'utf8'))
-			.toBe(afterCompositionNested);
-		await undoButton.click();
-		await expect
-			.poll(() => fs.readFileSync(rootFile, 'utf8'))
-			.toBe(afterFolderReorder);
-		await undoButton.click();
-		await expect
-			.poll(() => fs.readFileSync(rootFile, 'utf8'))
-			.toBe(afterCompositionReorder);
-		await undoButton.click();
-		await expect
-			.poll(() => fs.readFileSync(rootFile, 'utf8'))
-			.toBe(initialContents);
-	});
-
 	test('should play when a composition in the sidebar is focused', async ({
 		page,
 	}) => {
@@ -1613,12 +1456,12 @@ test.describe('visual mode', () => {
 	});
 
 	test('should navigate to a newly created composition', async ({page}) => {
-		const compositionId = 'NewlyCreatedComposition';
+		const compositionName = 'Newly Created Composition';
+		const compositionId = 'Newly-Created-Composition';
 		const rootFile = path.join(exampleDir, 'src', 'E2eTestRoot.tsx');
 		const compositionFile = path.join(
 			exampleDir,
-			'src',
-			`${compositionId}.tsx`,
+			'src/NewlyCreatedComposition.tsx',
 		);
 
 		try {
@@ -1629,9 +1472,14 @@ test.describe('visual mode', () => {
 			await page
 				.getByRole('button', {name: 'New composition...', exact: true})
 				.click();
-			await page
-				.getByRole('textbox', {name: 'Composition ID'})
-				.fill(compositionId);
+			const compositionIdInput = page.getByRole('textbox', {
+				name: 'Composition ID',
+			});
+			const slugPreview = page.getByText(`Will be created as ${compositionId}`);
+			await compositionIdInput.fill(`${compositionId} `);
+			await expect(slugPreview).toBeHidden();
+			await compositionIdInput.fill(compositionName);
+			await expect(slugPreview).toBeVisible();
 			await page.getByTitle('Folder').click();
 			const schemaFolderOption = page
 				.getByRole('button', {name: 'Schema', exact: true})
@@ -1673,424 +1521,6 @@ test.describe('visual mode', () => {
 				await undoButton.click();
 				await expect.poll(() => fs.existsSync(compositionFile)).toBe(false);
 			}
-		}
-	});
-
-	test('settings reuse reactive runtime config and license toggle', async ({
-		page,
-	}) => {
-		test.setTimeout(120_000);
-		const configFile = path.join(exampleDir, 'remotion.config.ts');
-		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
-		let editorInfoRequests = 0;
-		let codingAgentInfoRequests = 0;
-		let updateConfigRequests = 0;
-		page.on('request', (request) => {
-			if (new URL(request.url()).pathname === '/api/update-config') {
-				updateConfigRequests++;
-			}
-		});
-		await page.route('**/api/default-editor-info', async (route) => {
-			editorInfoRequests++;
-			await route.fulfill({
-				json: {
-					success: true,
-					data: {
-						defaultEditor: null,
-						installedEditors: [
-							{id: 'vscode', name: 'Code', nameWithType: 'Code'},
-							{
-								id: 'cursor',
-								name: 'Cursor',
-								nameWithType: 'Cursor Editor',
-							},
-						],
-					},
-				},
-			});
-		});
-		await page.route('**/api/default-coding-agent-info', async (route) => {
-			codingAgentInfoRequests++;
-			await route.fulfill({
-				json: {
-					success: true,
-					data: {
-						defaultCodingAgent: null,
-						installedCodingAgents: [
-							{
-								id: 'codex',
-								name: 'Codex',
-								nameWithType: 'Codex',
-							},
-						],
-						installedTerminals: [{id: 'ghostty', name: 'Ghostty'}],
-					},
-				},
-			});
-		});
-		await page.route('**/api/remotion-skills-info', async (route) => {
-			await route.fulfill({
-				json: {
-					success: true,
-					data: {
-						remotionUpgradeSkillAvailable: false,
-						remotionInteractivitySkillAvailable: false,
-						skills: [
-							{
-								name: 'remotion-best-practices',
-								installedInProject: true,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-captions',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-create',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-docs',
-								installedInProject: false,
-								installedGlobally: true,
-							},
-							{
-								name: 'remotion-interactivity',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-maps',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-markup',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-multimedia',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-render',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-saas',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-studio',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-							{
-								name: 'remotion-upgrade',
-								installedInProject: false,
-								installedGlobally: false,
-							},
-						],
-					},
-				},
-			});
-		});
-		try {
-			await page.goto(`${STUDIO_URL}/schema-test`);
-			await page.locator('[data-sidebar-toggle="right"]').click();
-			await expect(
-				page.getByRole('group', {name: 'Inspector source location'}).first(),
-			).toBeVisible({timeout: 15_000});
-			await expect
-				.poll(() => ({codingAgentInfoRequests, editorInfoRequests}))
-				.toEqual({codingAgentInfoRequests: 1, editorInfoRequests: 1});
-
-			fs.writeFileSync(
-				configFile,
-				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('codex');\nConfig.setPublicLicenseKey('free-license');\n`,
-			);
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain("Config.setDefaultEditor('cursor');");
-
-			await page.getByRole('button', {name: /Search\.\.\./}).click();
-			const quickSwitcher = page.getByRole('dialog');
-			await quickSwitcher.getByRole('textbox').fill('> Settings');
-			await quickSwitcher.getByText('Settings...', {exact: true}).click();
-			const dialog = page.getByRole('dialog');
-			await expect(
-				dialog.getByText('Default codec', {exact: true}),
-			).toBeVisible();
-			await expect(
-				dialog.getByText('Output location', {exact: true}),
-			).toHaveCount(0);
-			await expect(
-				dialog.getByText('Audio bitrate', {exact: true}),
-			).toHaveCount(0);
-			const stillImageFormat = dialog.getByTitle('Still image format', {
-				exact: true,
-			});
-			await expect(stillImageFormat).toHaveText('Default (PNG)');
-			await stillImageFormat.click();
-			await page.getByRole('button', {name: 'JPEG', exact: true}).click();
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain("Config.setStillImageFormat('jpeg');");
-			await expect(stillImageFormat).toHaveText('JPEG');
-			await stillImageFormat.click();
-			await page
-				.getByRole('button', {
-					name: 'Default (PNG)',
-					exact: true,
-				})
-				.last()
-				.click();
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setStillImageFormat');
-			await expect(stillImageFormat).toHaveText('Default (PNG)');
-			const audioCodec = dialog.getByTitle('Audio codec', {exact: true});
-			await expect(audioCodec).toHaveText('Default (Automatic)');
-			await audioCodec.click();
-			const automaticAudioCodec = page
-				.getByRole('button', {
-					name: 'Default (Automatic)',
-					exact: true,
-				})
-				.last();
-			const aacAudioCodec = page
-				.getByRole('button', {
-					name: 'AAC',
-					exact: true,
-				})
-				.last();
-			await expect(automaticAudioCodec.getByRole('img')).toHaveCount(1);
-			await expect(aacAudioCodec.getByRole('img')).toHaveCount(0);
-			await aacAudioCodec.click();
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain("Config.setAudioCodec('aac');");
-			await expect(audioCodec).toHaveText('AAC');
-			await audioCodec.click();
-			await expect(automaticAudioCodec.getByRole('img')).toHaveCount(0);
-			await expect(aacAudioCodec.getByRole('img')).toHaveCount(1);
-			await automaticAudioCodec.click();
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setAudioCodec');
-			await expect(audioCodec).toHaveText('Default (Automatic)');
-			await dialog.getByText('Studio', {exact: true}).click();
-			for (const setting of [
-				'Ask AI enabled',
-				'Interactivity enabled',
-				'Max timeline tracks',
-				'Audio latency hint',
-				'Number of shared audio tags',
-				'Beep on finish',
-				'Bundler',
-				'Cross-site isolation',
-				'Log level',
-			]) {
-				await expect(dialog.getByText(setting, {exact: true})).toBeVisible();
-			}
-			await expect(
-				dialog.getByRole('button', {name: 'Number of shared audio tags'}),
-			).toBeVisible();
-			await dialog
-				.getByRole('button', {name: 'Shortcuts', exact: true})
-				.click();
-			await expect(
-				dialog.getByText('Keyboard shortcuts', {exact: true}),
-			).toBeVisible();
-			const keyboardShortcutsEnabled = dialog.getByRole('checkbox', {
-				name: 'Keyboard shortcuts',
-			});
-			await expect(keyboardShortcutsEnabled).toBeChecked();
-			await keyboardShortcutsEnabled.uncheck();
-			await expect(
-				dialog.getByRole('list', {name: 'Playback', exact: true}),
-			).toHaveCount(0);
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain('Config.setKeyboardShortcutsEnabled(false);');
-			await keyboardShortcutsEnabled.check();
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setKeyboardShortcutsEnabled');
-			await expect(
-				dialog.getByRole('list', {name: 'Playback', exact: true}),
-			).toBeVisible();
-			const fixedShortcutRow = dialog
-				.getByRole('listitem')
-				.filter({hasText: '1 second back'});
-			await expect(fixedShortcutRow.getByRole('button')).toHaveCount(0);
-			const playPauseShortcut = dialog.getByRole('button', {
-				name: 'Change shortcut for Play / Pause',
-			});
-			const playPauseActions = dialog.getByRole('button', {
-				name: 'Actions for Play / Pause',
-			});
-			await expect(playPauseActions).toBeVisible();
-			await playPauseActions.click();
-			await page.getByText('Remap shortcut', {exact: true}).click();
-			await expect(playPauseShortcut).toContainText('Press shortcut');
-			await expect(playPauseShortcut).toBeFocused();
-			await page.keyboard.press('q');
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain('Config.setKeyboardShortcuts({');
-			await expect(playPauseShortcut).toContainText('Q');
-			await playPauseActions.click();
-			await expect(
-				page.getByText('Reset to default', {exact: true}),
-			).toBeVisible();
-			await page.getByText('Remap shortcut', {exact: true}).click();
-			await expect(playPauseShortcut).toContainText('Press shortcut');
-			await expect(playPauseShortcut).toBeFocused();
-			await page.keyboard.press('Space');
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain("'playPause'");
-			await expect(playPauseShortcut).toContainText('Space');
-			await dialog.getByRole('button', {name: 'Studio', exact: true}).click();
-
-			const askAIEnabled = dialog.getByTitle('Ask AI enabled', {exact: true});
-			await expect(askAIEnabled).toHaveText('Default (Enabled)');
-			await askAIEnabled.click();
-			await page
-				.getByRole('button', {name: 'Disabled', exact: true})
-				.last()
-				.click();
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain('Config.setAskAIEnabled(false);');
-			await askAIEnabled.click();
-			await page
-				.getByRole('button', {name: 'Default (Enabled)', exact: true})
-				.last()
-				.click();
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setAskAIEnabled');
-
-			const maxTimelineTracks = dialog.getByRole('button', {
-				name: 'Max timeline tracks',
-			});
-			const maxTimelineTracksBounds = await maxTimelineTracks.boundingBox();
-			expect(maxTimelineTracksBounds).not.toBeNull();
-			const requestsBeforeDrag = updateConfigRequests;
-			await page.mouse.move(
-				maxTimelineTracksBounds!.x + maxTimelineTracksBounds!.width / 2,
-				maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
-			);
-			await page.mouse.down();
-			for (let step = 1; step <= 6; step++) {
-				await page.mouse.move(
-					maxTimelineTracksBounds!.x +
-						maxTimelineTracksBounds!.width / 2 +
-						step * 3,
-					maxTimelineTracksBounds!.y + maxTimelineTracksBounds!.height / 2,
-				);
-				await page.waitForTimeout(80);
-			}
-			expect(updateConfigRequests).toBe(requestsBeforeDrag);
-			await page.mouse.up();
-			await expect
-				.poll(() => updateConfigRequests)
-				.toBe(requestsBeforeDrag + 1);
-			await page.waitForTimeout(500);
-			expect(updateConfigRequests).toBe(requestsBeforeDrag + 1);
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain('Config.setMaxTimelineTracks(');
-			await dialog.getByTitle('Use default (Unlimited)', {exact: true}).click();
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setMaxTimelineTracks');
-			await expect(maxTimelineTracks).toHaveText('Default (Unlimited)');
-
-			await dialog.getByText('Skills', {exact: true}).click();
-			await expect(
-				dialog.getByText(
-					'Not all skills are installed. Run this command in the project directory, then reload Studio and restart your coding agent.',
-					{exact: true},
-				),
-			).toBeVisible();
-			await expect(
-				dialog.getByText('/remotion-best-practices', {exact: true}),
-			).toBeVisible();
-			await expect(
-				dialog.getByText('/remotion-docs', {exact: true}),
-			).toBeVisible();
-			await expect(
-				dialog.getByText('/remotion-studio', {exact: true}),
-			).toBeVisible();
-			await expect(dialog.getByText('Project', {exact: true})).toBeVisible();
-			await expect(dialog.getByText('Global', {exact: true})).toBeVisible();
-			await expect(
-				dialog.getByText('Not installed', {exact: true}).first(),
-			).toBeVisible();
-			await expect(
-				dialog.getByText('npx remotion skills add', {exact: true}),
-			).toBeVisible();
-			await expect(
-				dialog.getByRole('button', {name: 'Copy install command'}),
-			).toBeVisible();
-			const skillsList = dialog.getByRole('list', {
-				name: 'Remotion Agent Skills',
-			});
-			const skillsScrollContainer = skillsList.locator('..').locator('..');
-			await skillsScrollContainer.evaluate((element) => {
-				element.scrollTop = element.scrollHeight;
-			});
-			const skillsScrollContainerBounds =
-				await skillsScrollContainer.boundingBox();
-			const lastSkillBounds = await skillsList
-				.getByRole('listitem')
-				.last()
-				.boundingBox();
-			expect(
-				skillsScrollContainerBounds!.y +
-					skillsScrollContainerBounds!.height -
-					(lastSkillBounds!.y + lastSkillBounds!.height),
-			).toBeGreaterThanOrEqual(16);
-			await expect(
-				dialog.getByText('Changes save to', {exact: false}),
-			).toBeVisible();
-
-			await dialog.getByText('Apps', {exact: true}).click();
-			await expect(
-				dialog.getByTitle('Default editor', {exact: true}),
-			).toHaveText('Cursor');
-			await expect(
-				dialog.getByTitle('Default coding agent', {exact: true}),
-			).toContainText('Codex');
-			await dialog.getByText('License', {exact: true}).click();
-			const freeLicenseToggle = dialog.getByRole('radio', {
-				name: 'I am eligible for the Free License',
-			});
-			await expect(freeLicenseToggle).toBeChecked();
-			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
-				codingAgentInfoRequests: 1,
-				editorInfoRequests: 1,
-			});
-			await freeLicenseToggle.click();
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setPublicLicenseKey');
-			await page.mouse.move(10, 100);
-			await page.mouse.down();
-			await page.mouse.move(13, 101);
-			await page.mouse.up();
-			await expect(dialog).toBeHidden();
-		} finally {
-			fs.writeFileSync(configFile, configBeforeTest);
 		}
 	});
 
@@ -2231,113 +1661,6 @@ export const SequenceShiftRepro = () => {
 			const source = fs.readFileSync(sequenceShiftFile, 'utf-8');
 			expect(source.match(/durationInFrames=\{20\}/g)).toHaveLength(2);
 			expect(source.match(/trimBefore=\{20\}/g)).toHaveLength(2);
-		} finally {
-			fs.writeFileSync(sequenceShiftFile, sourceBefore);
-		}
-	});
-
-	test('should apply timeline context menu actions to multiple selected sequences', async ({
-		page,
-	}) => {
-		const sourceBefore = fs.readFileSync(sequenceShiftFile, 'utf-8');
-
-		try {
-			await page.goto(`${STUDIO_URL}/sequence-shift-repro`);
-			await page.waitForFunction(
-				() => !document.body.innerText.includes('Loading...'),
-				{timeout: 30_000},
-			);
-			await page.keyboard.press('g');
-			const currentFrameInput = page.locator('input:focus');
-			await currentFrameInput.fill('22');
-			await currentFrameInput.press('Enter');
-			const outer = page.getByText('Outer frame descendant', {exact: true});
-			const local = page.getByText('Local frame descendant', {exact: true});
-			const localBar = page.locator(
-				'[data-timeline-marquee-item][title="Local frame descendant"]',
-			);
-			await expect(outer).toBeVisible({timeout: 15_000});
-			await expect(local).toBeVisible();
-
-			await outer.click();
-			await local.click({modifiers: ['Meta']});
-			await localBar.click({button: 'right'});
-			await expect(outer.locator('../../..')).toHaveCSS(
-				'background-color',
-				'rgb(59, 63, 66)',
-			);
-			await expect(
-				page
-					.locator('[data-remotion-menu-tree-id]')
-					.last()
-					.getByRole('button', {
-						name: 'Duplicate selected',
-						exact: true,
-					}),
-			).toBeVisible();
-			await page.keyboard.press('Escape');
-			await local.click({button: 'right'});
-			await expect(outer.locator('../../..')).toHaveCSS(
-				'background-color',
-				'rgb(59, 63, 66)',
-			);
-
-			const contextMenu = page.locator('[data-remotion-menu-tree-id]').last();
-			await expect(
-				contextMenu.getByRole('button', {
-					name: 'Duplicate selected',
-					exact: true,
-				}),
-			).toBeVisible();
-			await contextMenu
-				.getByRole('button', {name: 'Delete selected', exact: true})
-				.click();
-
-			await expect
-				.poll(() => {
-					const source = fs.readFileSync(sequenceShiftFile, 'utf-8');
-					return [
-						source.includes('name="Outer frame descendant"'),
-						source.includes('name="Local frame descendant"'),
-					];
-				})
-				.toEqual([false, false]);
-
-			await expect(outer).toBeHidden();
-			await expect(local).toBeHidden();
-			fs.writeFileSync(sequenceShiftFile, sourceBefore);
-			await expect(outer).toBeVisible({timeout: 15_000});
-			const nestedParent = page.getByText('Nested timing parent', {
-				exact: true,
-			});
-			await expect(nestedParent).toBeVisible();
-
-			await outer.click();
-			await nestedParent.click({modifiers: ['Meta']});
-			await nestedParent.click({button: 'right'});
-			await page
-				.locator('[data-remotion-menu-tree-id]')
-				.last()
-				.getByRole('button', {name: 'Duplicate selected', exact: true})
-				.click();
-
-			await expect
-				.poll(() => {
-					const source = fs.readFileSync(sequenceShiftFile, 'utf-8');
-					return [
-						source.match(/name="Outer frame descendant-copy"/g)?.length ?? 0,
-						source.match(/name="Nested timing parent-copy"/g)?.length ?? 0,
-						source.match(/name="Outer frame descendant-copy-copy"/g)?.length ??
-							0,
-						source.match(/<LocalFrameDescendant \/>/g)?.length ?? 0,
-					];
-				})
-				.toEqual([1, 1, 0, 1]);
-
-			await page.keyboard.press('ControlOrMeta+z');
-			await expect
-				.poll(() => fs.readFileSync(sequenceShiftFile, 'utf-8'))
-				.toBe(sourceBefore);
 		} finally {
 			fs.writeFileSync(sequenceShiftFile, sourceBefore);
 		}
@@ -3050,11 +2373,9 @@ export const SequenceShiftRepro = () => {
 			await expect
 				.poll(() => page.evaluate(() => navigator.clipboard.readText()))
 				.toBe(contextForAgents);
-			await page.getByRole('button', {name: 'Jump to beginning'}).click();
+			await page.getByRole('button', {name: 'Go to beginning'}).click();
 			for (let i = 0; i < 3; i++) {
-				await page
-					.getByRole('button', {name: 'Step forward one frame'})
-					.click();
+				await page.getByRole('button', {name: 'Go forward 1 frame'}).click();
 			}
 			await expect
 				.poll(() =>
@@ -3292,7 +2613,7 @@ export const SequenceShiftRepro = () => {
 			});
 			expect(canvasHtml).toContain('Performance overview');
 			expect(canvasHtml).toContain('Regional growth');
-			expect(canvasHtml).not.toContain('Change the playback rate');
+			expect(canvasHtml).not.toContain('Playback rate');
 			const webMcpOutlines = await page.evaluate(async () => {
 				const tools = (
 					window as typeof window & {
@@ -3716,7 +3037,7 @@ export const SequenceShiftRepro = () => {
 			});
 			await expect(
 				page.getByRole('button', {
-					name: 'Change the playback rate',
+					name: 'Playback rate',
 					exact: true,
 				}),
 			).toContainText('1.5x');
@@ -4295,9 +3616,10 @@ export const SequenceShiftRepro = () => {
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
 
 		await page.locator('.__remotion-studio-menu-initiator').first().click();
-		const compositionItem = page
-			.locator('.__remotion-studio-menu-item')
-			.filter({hasText: 'Composition'});
+		const compositionItem = page.getByRole('button', {
+			name: 'Composition',
+			exact: true,
+		});
 		await compositionItem.hover();
 
 		const subMenuItem = page.getByRole('button', {name: 'Copy file location'});
@@ -4363,115 +3685,6 @@ export const SequenceShiftRepro = () => {
 		await page.locator('[data-timeline-scrubber]').click();
 
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
-	});
-
-	test('should preview and place Canvas drops at the playhead', async ({
-		page,
-	}) => {
-		test.setTimeout(90_000);
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await expect(
-			page.getByRole('button', {name: '0', exact: true}),
-		).toBeVisible({timeout: 15_000});
-
-		const dragData = StudioProtocolInternals.makeDragData({
-			type: 'element',
-			dependencies: [],
-			dimensions: {width: 320, height: 120},
-			displayName: 'Drop Preview',
-			durationInFrames: 30,
-			slug: 'drop-preview',
-			sourceCode: 'export const DropPreview = () => null;',
-		});
-		const canvas = page.locator('.remotion-studio-composition-container');
-		await expect
-			.poll(() =>
-				canvas.evaluate((element, data) => {
-					const rect = element.getBoundingClientRect();
-					const dataTransfer = new DataTransfer();
-					dataTransfer.setData(data.mimeType, data.payload);
-					const event = new DragEvent('dragover', {
-						bubbles: true,
-						cancelable: true,
-						clientX: rect.left + rect.width / 2,
-						clientY: rect.top + rect.height / 2,
-						dataTransfer,
-					});
-					element.dispatchEvent(event);
-
-					return event.defaultPrevented;
-				}, dragData),
-			)
-			.toBe(true);
-
-		const preview = page.getByTestId('composition-drop-preview');
-		await expect(preview).toBeVisible();
-		const canvasBox = await canvas.boundingBox();
-		const previewBox = await preview.boundingBox();
-		if (canvasBox === null || previewBox === null) {
-			throw new Error('Expected the Canvas and Element preview to have boxes');
-		}
-
-		expect(previewBox.width / previewBox.height).toBeCloseTo(320 / 120, 2);
-		expect(
-			Math.abs(
-				previewBox.x +
-					previewBox.width / 2 -
-					(canvasBox.x + canvasBox.width / 2),
-			),
-		).toBeLessThan(1);
-		expect(
-			Math.abs(
-				previewBox.y +
-					previewBox.height / 2 -
-					(canvasBox.y + canvasBox.height / 2),
-			),
-		).toBeLessThan(1);
-
-		await page.evaluate(() => {
-			document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
-		});
-		await expect(preview).toBeHidden();
-
-		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
-			await page.locator('[data-sidebar-toggle="right"]').click();
-		}
-
-		await page.locator('[data-timeline-scrubber]').click();
-		await expect(
-			page.getByRole('button', {name: '45', exact: true}),
-		).toBeVisible();
-
-		await dropAssetOnCanvas({
-			assetPath: 'quick.mov',
-			durationInSeconds: 5.866667,
-			page,
-		});
-		await expect
-			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
-			.toContain('quick.mov');
-		await expect(
-			page.getByRole('group', {name: 'Inspector source location'}).first(),
-		).toContainText('<Video>', {timeout: 15_000});
-		const longVideoTag = getVideoTag(
-			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
-			'quick.mov',
-		);
-		expect(longVideoTag).not.toContain('from=');
-
-		await dropAssetOnCanvas({
-			assetPath: 'drums-drumsticks.mp4',
-			durationInSeconds: 0.85,
-			page,
-		});
-		await expect
-			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
-			.toContain('drums-drumsticks.mp4');
-		const shortVideoTag = getVideoTag(
-			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
-			'drums-drumsticks.mp4',
-		);
-		expect(shortVideoTag).toContain('from={45}');
 	});
 
 	test('should select an added composition before the codemod response arrives', async ({

@@ -1,5 +1,5 @@
 import type {CanvasCaptureData} from '@remotion/studio-shared';
-import {formatOutput} from '../codemods/duplicate-composition';
+import * as recast from 'recast';
 
 type FramedMouseMovement = CanvasCaptureData['mouseMovements'][number] & {
 	readonly frame: number;
@@ -44,7 +44,44 @@ const getCursorName = (cursor: string) => {
 	return cursor.split(',').at(-1)?.trim().toLowerCase() || 'default';
 };
 
-const serialize = (value: unknown) => JSON.stringify(value);
+const serialize = (value: unknown): string => {
+	if (typeof value === 'string') {
+		return recast.prettyPrint(recast.types.builders.stringLiteral(value), {
+			quote: 'single',
+		}).code;
+	}
+
+	return JSON.stringify(value);
+};
+
+const serializeArray = (values: (string | number)[], indentation: number) => {
+	const items = values.map(serialize);
+	const inline = `[${items.join(', ')}]`;
+	if (indentation * 2 + inline.length + 1 <= 80) {
+		return inline;
+	}
+
+	const lines: string[] = [];
+	const numeric = values.every((value) => typeof value === 'number');
+	for (const item of items) {
+		const previous = lines.at(-1);
+		if (
+			numeric &&
+			previous &&
+			(indentation + 1) * 2 + previous.length + item.length + 2 <= 80
+		) {
+			lines[lines.length - 1] = `${previous} ${item},`;
+		} else {
+			lines.push(`${item},`);
+		}
+	}
+
+	return [
+		'[',
+		...lines.map((line) => `${'\t'.repeat(indentation + 1)}${line}`),
+		`${'\t'.repeat(indentation)}]`,
+	].join('\n');
+};
 
 export const generateCanvasCaptureComposition = ({
 	componentName,
@@ -133,11 +170,17 @@ export const generateCanvasCaptureComposition = ({
 	)?.cursor;
 	const cursorProp =
 		cursorKeyframes.length === 1
-			? `cursor=${serialize(cursorKeyframes[0].value)}`
+			? `cursor={${serialize(cursorKeyframes[0].value)}}`
 			: `cursor={interpolate(
 					frame,
-					${serialize(cursorKeyframes.map((keyframe) => keyframe.frame))},
-					${serialize(cursorKeyframes.map((keyframe) => keyframe.value))},
+					${serializeArray(
+						cursorKeyframes.map((keyframe) => keyframe.frame),
+						5,
+					)},
+					${serializeArray(
+						cursorKeyframes.map((keyframe) => keyframe.value),
+						5,
+					)},
 					{
 						easing: Easing.step1,
 						extrapolateLeft: 'clamp',
@@ -149,8 +192,14 @@ export const generateCanvasCaptureComposition = ({
 			? serialize(scaleKeyframes[0].value)
 			: `interpolate(
 						frame,
-						${serialize(scaleKeyframes.map((keyframe) => keyframe.frame))},
-						${serialize(scaleKeyframes.map((keyframe) => keyframe.value))},
+						${serializeArray(
+							scaleKeyframes.map((keyframe) => keyframe.frame),
+							6,
+						)},
+						${serializeArray(
+							scaleKeyframes.map((keyframe) => keyframe.value),
+							6,
+						)},
 						{
 							easing: Easing.step1,
 							extrapolateLeft: 'clamp',
@@ -162,8 +211,14 @@ export const generateCanvasCaptureComposition = ({
 			? serialize(positionKeyframes[0].value)
 			: `interpolate(
 						frame,
-						${serialize(positionKeyframes.map((keyframe) => keyframe.frame))},
-						${serialize(positionKeyframes.map((keyframe) => keyframe.value))},
+						${serializeArray(
+							positionKeyframes.map((keyframe) => keyframe.frame),
+							6,
+						)},
+						${serializeArray(
+							positionKeyframes.map((keyframe) => keyframe.value),
+							6,
+						)},
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
@@ -174,7 +229,7 @@ export const generateCanvasCaptureComposition = ({
 		? `${componentName.slice(0, -'Composition'.length)}Preview`
 		: `${componentName}Preview`;
 
-	return formatOutput(`import {MacOSCursor} from '@remotion/mac-cursors';
+	return `import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
@@ -218,7 +273,7 @@ ${customCursor === undefined ? '' : `\t\t\t\tcustomCursor={${serialize(customCur
 export const ${componentName} = () => {
 	return (
 		<Composition
-			id=${serialize(compositionId)}
+			id={${serialize(compositionId)}}
 			component={${previewComponentName}}
 			width={${width}}
 			height={${height}}
@@ -227,5 +282,5 @@ export const ${componentName} = () => {
 		/>
 	);
 };
-`);
+`;
 };

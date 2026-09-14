@@ -1,5 +1,6 @@
 import type {
 	ElementDependency,
+	ElementInitialProps,
 	ElementInstallationMode,
 } from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
@@ -7,12 +8,18 @@ import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/m
 import {AudioOscilloscope} from '../../../elements/audio/oscilloscope/audio-oscilloscope';
 import {AudioWaveformProgress} from '../../../elements/audio/waveform-progress/audio-waveform-progress';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
+import {MovingWaves} from '../../../elements/backgrounds/moving-waves/moving-waves';
+import {MovingZigzags} from '../../../elements/backgrounds/moving-zigzags/moving-zigzags';
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {BasicCaptions} from '../../../elements/captions/basic-captions/basic-captions';
+import {basicCaptionsInitialProps} from '../../../elements/captions/basic-captions/initial-props';
+import {movingPillCaptionsInitialProps} from '../../../elements/captions/moving-pill-captions/initial-props';
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
+import {poppingWordCaptionsInitialProps} from '../../../elements/captions/popping-word-captions/initial-props';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
+import {wordHighlightCaptionsInitialProps} from '../../../elements/captions/word-highlight-captions/initial-props';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
 import {
 	ProductCollection,
@@ -20,6 +27,8 @@ import {
 } from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
+import {Shine} from '../../../elements/commerce/shine/shine';
+import {Tear} from '../../../elements/commerce/tear/tear';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {LineChart} from '../../../elements/data/line-chart/line-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
@@ -54,15 +63,17 @@ export type ElementPreviewMetadata = {
 	readonly previewLayout: ElementPreviewLayout;
 	readonly posterUrl:
 		| `/elements/${string}-preview.png`
-		| `https://remotion.media/elements/${string}-preview.png`;
+		| `https://remotion.media/elements/${string}-preview.png`
+		| `https://remotion.media/elements/${string}-preview-${string}.png`;
 	readonly videoUrl:
 		| `/elements/${string}-preview.mp4`
-		| `https://remotion.media/elements/${string}-preview.mp4`;
+		| `https://remotion.media/elements/${string}-preview.mp4`
+		| `https://remotion.media/elements/${string}-preview-${string}.mp4`;
 };
 
 export type ElementDefinition = {
 	readonly category: ElementCategory;
-	readonly component: ComponentType<Record<string, never>>;
+	readonly component: ComponentType<never>;
 	readonly contributors: readonly Contributor[];
 	readonly dependencies: readonly ElementDependency[];
 	readonly description: string;
@@ -72,8 +83,10 @@ export type ElementDefinition = {
 	readonly elementWidth: number | null;
 	readonly fps: number;
 	readonly height: number;
+	readonly initialProps: ElementInitialProps | null;
 	readonly posterFrame: number;
 	readonly preview: ElementPreviewMetadata;
+	readonly previewUsesHtmlInCanvas: boolean;
 	readonly safeArea: number;
 	readonly slug: string;
 	readonly installationMode: ElementInstallationMode;
@@ -86,8 +99,7 @@ const elementImplementations = [
 		slug: 'audio/oscilloscope',
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
-		description:
-			'An oscilloscope waveform for visualizing voices, podcasts, and other audio.',
+		description: 'Suitable for visualizing speech.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},
@@ -106,6 +118,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-oscilloscope-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -113,7 +126,7 @@ const elementImplementations = [
 		slug: 'audio/waveform-progress',
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
-		description: 'A full-clip audio waveform with played progress.',
+		description: 'A static audio waveform with playback progress.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},
@@ -132,6 +145,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-waveform-progress-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -139,8 +153,7 @@ const elementImplementations = [
 		slug: 'audio/mirrored-spectrum',
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
-		description:
-			'A mirrored frequency spectrum that works well for visualizing voices and podcasts.',
+		description: 'Suitable for both music and speech visualization.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},
@@ -159,6 +172,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-mirrored-spectrum-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -182,6 +196,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/backgrounds-notebook-paper-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -206,6 +221,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/backgrounds-paper-texture-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -229,6 +245,55 @@ const elementImplementations = [
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
+		slug: 'backgrounds/moving-waves',
+		component: MovingWaves,
+		contributors: [],
+		description: 'A seamless wave background that flows upward.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 240,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 120,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-moving-waves-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-moving-waves-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
+		slug: 'backgrounds/moving-zigzags',
+		component: MovingZigzags,
+		contributors: [],
+		description: 'A seamless zigzag background that flows upward.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 240,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 120,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-moving-zigzags-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-moving-zigzags-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -253,6 +318,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/backgrounds-liquid-contours-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -277,6 +343,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/captions-basic-captions-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: basicCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -305,6 +372,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/captions-moving-pill-captions-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: movingPillCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -332,6 +400,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/captions-popping-word-captions-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: poppingWordCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -359,6 +428,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/captions-word-highlight-captions-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: wordHighlightCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -366,15 +436,14 @@ const elementImplementations = [
 		slug: 'commerce/product-collection',
 		component: ProductCollection,
 		contributors: [],
-		description:
-			'An animated product carousel that adapts to changing catalog images, titles, prices, and promotions.',
+		description: 'Three cards which each take center once.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: productCollectionDurationInFrames,
 		elementHeight: 1020,
 		elementWidth: 1020,
 		fps: 30,
 		height: 1080,
-		posterFrame: 90,
+		posterFrame: 73,
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
@@ -383,6 +452,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/commerce-product-collection-preview.mp4',
 		},
 		safeArea: 30,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1080,
 	},
@@ -390,15 +460,14 @@ const elementImplementations = [
 		slug: 'commerce/product-discount-callout',
 		component: ProductDiscountCallout,
 		contributors: [],
-		description:
-			'An animated product cutout with pricing and a hinged discount callout.',
+		description: 'An attention-grabbing speech bubble.',
 		dependencies: [
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/shapes', version: null},
 		],
 		durationInFrames: 120,
-		elementHeight: 650,
-		elementWidth: 900,
+		elementHeight: 760,
+		elementWidth: 760,
 		fps: 30,
 		height: 1080,
 		posterFrame: 57,
@@ -410,6 +479,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.mp4',
 		},
 		safeArea: 90,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1080,
 	},
@@ -434,8 +504,53 @@ const elementImplementations = [
 				'https://remotion.media/elements/commerce-product-offer-preview.mp4',
 		},
 		safeArea: 90,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1080,
+	},
+	{
+		slug: 'commerce/shine',
+		component: Shine,
+		contributors: [],
+		description: 'Adds a diagonal shine sweep to any content.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 45,
+		elementHeight: 720,
+		elementWidth: 1280,
+		fps: 30,
+		height: 1080,
+		posterFrame: 22,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl: 'https://remotion.media/elements/commerce-shine-preview.png',
+			videoUrl: 'https://remotion.media/elements/commerce-shine-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
+		slug: 'commerce/tear',
+		component: Tear,
+		contributors: [],
+		description: 'A tear effect that can be applied to any content.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 45,
+		elementHeight: 720,
+		elementWidth: 1280,
+		fps: 30,
+		height: 1080,
+		posterFrame: 25,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl: 'https://remotion.media/elements/commerce-tear-preview.png',
+			videoUrl: 'https://remotion.media/elements/commerce-tear-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
 	},
 	{
 		slug: 'data/horizontal-bar-chart',
@@ -457,6 +572,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -478,6 +594,7 @@ const elementImplementations = [
 			videoUrl: 'https://remotion.media/elements/data-line-chart-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -507,6 +624,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/data-number-counter-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -529,6 +647,7 @@ const elementImplementations = [
 			videoUrl: 'https://remotion.media/elements/data-pie-chart-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -553,6 +672,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -578,6 +698,7 @@ const elementImplementations = [
 			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -605,6 +726,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/maps-watercolor-map-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -628,6 +750,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/overlays-location-lower-third-preview.mp4',
 		},
 		safeArea: 300,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -652,6 +775,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
 		safeArea: 300,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -676,6 +800,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/overlays-social-safe-zones-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1080,
 	},
@@ -683,8 +808,7 @@ const elementImplementations = [
 		slug: 'text/news-article-highlight',
 		component: NewsArticleHighlight,
 		contributors: [],
-		description:
-			'A framed news article with camera movement, blur, and animated passage highlights.',
+		description: 'A centered news headline with animated passage highlights.',
 		dependencies: [{name: '@remotion/rough-notation', version: null}],
 		durationInFrames: 150,
 		elementHeight: null,
@@ -700,6 +824,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/text-news-article-highlight-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -724,6 +849,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/storytelling-on-screen-messages-preview.mp4',
 		},
 		safeArea: 180,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -748,6 +874,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/storytelling-polaroid-pictures-preview.mp4',
 		},
 		safeArea: 220,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -775,6 +902,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/text-circle-marker-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -800,6 +928,7 @@ const elementImplementations = [
 			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -824,6 +953,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/text-spinning-text-wheel-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -851,6 +981,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/text-strike-through-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -876,6 +1007,7 @@ const elementImplementations = [
 			videoUrl: 'https://remotion.media/elements/text-text-marker-preview.mp4',
 		},
 		safeArea: 120,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -899,6 +1031,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.mp4',
 		},
 		safeArea: 200,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -923,6 +1056,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
 		},
 		safeArea: 0,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
@@ -951,17 +1085,24 @@ const elementImplementations = [
 				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.mp4',
 		},
 		safeArea: 240,
+		initialProps: null,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
 ] satisfies readonly (Omit<
 	ElementDefinition,
-	'category' | 'displayName' | 'slug'
+	'category' | 'displayName' | 'previewUsesHtmlInCanvas' | 'slug'
 > & {
 	readonly slug: ElementSlug;
 })[];
 
+const htmlInCanvasElementSlugs = new Set<ElementSlug>([
+	'commerce/shine',
+	'commerce/tear',
+]);
+
 export const elementDefinitions = elementImplementations.map((definition) => ({
 	...elementRegistry[definition.slug],
 	...definition,
+	previewUsesHtmlInCanvas: htmlInCanvasElementSlugs.has(definition.slug),
 }));

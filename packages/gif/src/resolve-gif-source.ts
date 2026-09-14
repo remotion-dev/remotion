@@ -3,5 +3,5 @@ export const resolveGifSource = (src: string): string => {
 		return src;
 	}
 
-	return new URL(src, window.origin).href;
+	return new URL(src, document.baseURI).href;
 };

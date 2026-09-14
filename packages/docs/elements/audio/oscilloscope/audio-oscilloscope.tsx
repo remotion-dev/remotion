@@ -36,7 +36,7 @@ const audioOscilloscopeSchema = {
 	},
 	lineColor: {
 		type: 'color',
-		default: '#0b84f3',
+		default: '#2563eb',
 		description: 'Waveform color',
 	},
 	lineWidth: {
@@ -160,7 +160,7 @@ const AudioOscilloscopeInner = forwardRef<
 			amplitude = 2,
 			audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 			controls,
-			lineColor = '#0b84f3',
+			lineColor = '#2563eb',
 			lineWidth = 6,
 			name,
 			style,

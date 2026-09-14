@@ -7,6 +7,11 @@ import type {
 import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {formatContextForAgents} from '../../helpers/format-file-location';
+import {
+	getDefaultOpenInTarget,
+	getGitSourceName,
+	openGitSource,
+} from '../../helpers/get-git-menu-item';
 import {getOpenInMenuItems} from '../get-open-in-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -135,6 +140,12 @@ export const getSequenceContextMenuItems = ({
 		(editor) => editor.id === defaultEditorId,
 	);
 	const editorName = defaultEditor?.nameWithType ?? null;
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
+	const gitSourceName = window.remotion_gitSource
+		? getGitSourceName(window.remotion_gitSource)
+		: null;
+	const defaultOpenInName =
+		defaultOpenInTarget === 'editor' ? editorName : gitSourceName;
 	const defaultCodingAgent = codingAgentInfo?.installedCodingAgents.find(
 		(codingAgent) => codingAgent.id === codingAgentInfo.defaultCodingAgent,
 	);
@@ -184,18 +195,31 @@ export const getSequenceContextMenuItems = ({
 		: [];
 
 	const items = [
-		editorName
+		defaultOpenInTarget && defaultOpenInName
 			? {
 					type: 'item' as const,
-					id: 'open-in-editor',
+					id:
+						defaultOpenInTarget === 'editor'
+							? 'open-in-editor'
+							: 'open-in-git-source',
 					keyHint: null,
-					label: `Open in ${editorName}`,
+					label: `Open in ${defaultOpenInName}`,
 					leftItem: null,
-					disabled: !canOpenInEditor || !originalLocation,
-					onClick: () => openInEditor(null),
+					disabled: !originalLocation,
+					onClick: () => {
+						if (defaultOpenInTarget === 'editor') {
+							openInEditor(null);
+							return;
+						}
+
+						openGitSource({folder: false, location: originalLocation});
+					},
 					quickSwitcherLabel: null,
 					subMenu: null,
-					value: 'open-in-editor',
+					value:
+						defaultOpenInTarget === 'editor'
+							? 'open-in-editor'
+							: 'open-in-git-source',
 				}
 			: null,
 		defaultCodingAgent

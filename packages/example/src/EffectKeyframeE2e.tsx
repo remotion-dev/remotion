@@ -4,6 +4,7 @@ import {Video} from '@remotion/media';
 import React from 'react';
 import {
 	AbsoluteFill,
+	CanvasImage,
 	interpolate,
 	Solid,
 	staticFile,
@@ -33,6 +34,15 @@ export const EffectKeyframeE2e: React.FC = () => {
 					wave({}),
 					scale({scale: 1, horizontal: true, vertical: true}),
 				]}
+			/>
+			<CanvasImage
+				name="Effect scale precision"
+				src={staticFile('1.jpg')}
+				width={1280}
+				height={720}
+				fit="cover"
+				style={{position: 'absolute'}}
+				effects={[scale({scale: 0.75})]}
 			/>
 			<Solid
 				name="Timeline expansion"

@@ -1,4 +1,4 @@
-import {Composition, Folder} from 'remotion';
+import {Composition} from 'remotion';
 import type {SvgLogoVariant} from './Logos';
 import {SvgLogo} from './Logos';
 
@@ -57,7 +57,7 @@ const logos: readonly {
 
 export const SvgLogoCompositions = () => {
 	return (
-		<Folder name="svg-logos">
+		<>
 			{logos.map((logo) => (
 				<Composition
 					key={logo.id}
@@ -70,6 +70,6 @@ export const SvgLogoCompositions = () => {
 					durationInFrames={1}
 				/>
 			))}
-		</Folder>
+		</>
 	);
 };
