@@ -1147,6 +1147,9 @@ export type GetRemotionSkillsInfoRequest = {};
 export type InstallRemotionSkillRequest = {
 	skill: string;
 };
+export type RemoveRemotionSkillRequest = {
+	skill: string;
+};
 export type GetRemotionSkillsInfoResponse = {
 	remotionUpgradeSkillAvailable: boolean;
 	remotionInteractivitySkillAvailable: boolean;
@@ -1427,6 +1430,10 @@ export type ApiRoutes = {
 	>;
 	'/api/install-remotion-skill': ReqAndRes<
 		InstallRemotionSkillRequest,
+		GetRemotionSkillsInfoResponse
+	>;
+	'/api/remove-remotion-skill': ReqAndRes<
+		RemoveRemotionSkillRequest,
 		GetRemotionSkillsInfoResponse
 	>;
 	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;

@@ -11,6 +11,7 @@ import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
 import {CloudDownloadIcon} from '../icons/cloud-download';
 import {CopyIcon} from '../icons/copy';
+import {TrashIcon} from '../icons/trash';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
@@ -129,8 +130,9 @@ export const SkillsSettings: React.FC = () => {
 		error,
 		remotionSkillsInfo,
 		installSkill,
-		installingSkill,
-		skillInstallError,
+		removeSkill,
+		skillAction,
+		skillActionError,
 	} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canInstall =
@@ -164,6 +166,10 @@ export const SkillsSettings: React.FC = () => {
 	const renderInstallAction: RenderInlineAction = useCallback((color) => {
 		return <CloudDownloadIcon color={color} style={actionIcon} />;
 	}, []);
+	const renderRemoveAction: RenderInlineAction = useCallback((color) => {
+		return <TrashIcon color={color} style={actionIcon} />;
+	}, []);
+	const actionInProgress = skillAction !== null;
 
 	return (
 		<div style={container}>
@@ -180,10 +186,10 @@ export const SkillsSettings: React.FC = () => {
 					Install skills in this project to use them with your coding agent.
 				</p>
 			) : null}
-			{skillInstallError ? (
+			{skillActionError ? (
 				<div style={{marginTop: 14}}>
 					<ValidationMessage
-						message={skillInstallError}
+						message={skillActionError}
 						align="flex-start"
 						type="error"
 					/>
@@ -211,7 +217,7 @@ export const SkillsSettings: React.FC = () => {
 					{remotionSkillsInfo.skills.map((skill, index) => {
 						const installed =
 							skill.installedInProject || skill.installedGlobally;
-						const installingThisSkill = installingSkill === skill.name;
+						const processingThisSkill = skillAction?.skill === skill.name;
 						const installedLocation =
 							skill.installedInProject && skill.installedGlobally
 								? 'Project and global'
@@ -232,26 +238,41 @@ export const SkillsSettings: React.FC = () => {
 								}
 							>
 								<span style={skillName}>/{skill.name}</span>
-								{installedLocation ? (
+								{processingThisSkill ? (
+									<span style={status}>
+										{skillAction.type === 'installing'
+											? 'Installing…'
+											: 'Removing…'}
+									</span>
+								) : installedLocation ? (
 									<span style={status}>{installedLocation}</span>
-								) : installingThisSkill ? (
-									<span style={status}>Installing…</span>
 								) : null}
 								{installed ? (
-									<span style={actionSlot}>
-										<CheckCircleFilled
-											aria-hidden
-											style={{...statusIcon, fill: BLUE}}
-										/>
-									</span>
-								) : installingThisSkill ? (
+									<CheckCircleFilled
+										aria-hidden
+										style={{...statusIcon, fill: BLUE}}
+									/>
+								) : null}
+								{processingThisSkill ? (
 									<span style={actionSlot}>
 										<Spinner duration={0.5} size={14} />
 									</span>
+								) : installed && canInstall ? (
+									<InlineAction
+										title={
+											skill.installedInProject
+												? `Remove ${skill.name} from this project`
+												: `Remove ${skill.name} globally`
+										}
+										disabled={actionInProgress}
+										onClick={() => removeSkill(skill.name)}
+										renderAction={renderRemoveAction}
+										variant={null}
+									/>
 								) : canInstall ? (
 									<InlineAction
 										title={`Install ${skill.name} in this project`}
-										disabled={installingSkill !== null}
+										disabled={actionInProgress}
 										onClick={() => installSkill(skill.name)}
 										renderAction={renderInstallAction}
 										variant={null}

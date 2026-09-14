@@ -1580,7 +1580,7 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('installs skills from settings and keeps progress when reopened', async ({
+	test('installs and removes skills while keeping progress when reopened', async ({
 		page,
 	}) => {
 		const skillsInfo = {
@@ -1595,7 +1595,7 @@ test.describe('visual mode', () => {
 		await page.route('**/api/remotion-skills-info', (route) =>
 			route.fulfill({json: {success: true, data: skillsInfo}}),
 		);
-		// The server integration test covers the real installer boundary and filesystem.
+		// The server integration test covers the real CLI boundary and filesystem.
 		let installAttempts = 0;
 		let finishInstall: () => void = () => undefined;
 		const installFinished = new Promise<void>((resolve) => {
@@ -1613,6 +1613,18 @@ test.describe('visual mode', () => {
 			}
 			await installFinished;
 			skillsInfo.skills[0].installedInProject = true;
+			await route.fulfill({json: {success: true, data: skillsInfo}});
+		});
+		let finishRemove: () => void = () => undefined;
+		const removeFinished = new Promise<void>((resolve) => {
+			finishRemove = resolve;
+		});
+		await page.route('**/api/remove-remotion-skill', async (route) => {
+			expect(route.request().postDataJSON()).toEqual({
+				skill: 'remotion-captions',
+			});
+			await removeFinished;
+			skillsInfo.skills[0].installedInProject = false;
 			await route.fulfill({json: {success: true, data: skillsInfo}});
 		});
 		await page.goto(`${STUDIO_URL}/schema-test`);
@@ -1668,6 +1680,31 @@ test.describe('visual mode', () => {
 		await expect(
 			captionsSkill.getByText('Project', {exact: true}),
 		).toBeVisible();
+		const removeButton = captionsSkill.getByRole('button', {
+			name: 'Remove remotion-captions from this project',
+			exact: true,
+		});
+		await removeButton.click();
+		await expect(
+			captionsSkill.getByText('Removing…', {exact: true}),
+		).toBeVisible();
+		await expect(removeButton).toHaveCount(0);
+		await expect(
+			dialog
+				.getByRole('listitem')
+				.filter({hasText: '/remotion-create'})
+				.getByRole('button'),
+		).toBeDisabled();
+		await page.keyboard.press('Escape');
+		await openSkills();
+		await expect(
+			captionsSkill.getByText('Removing…', {exact: true}),
+		).toBeVisible();
+		finishRemove();
+		await expect(installButton).toBeVisible();
+		await expect(captionsSkill.getByText('Project', {exact: true})).toHaveCount(
+			0,
+		);
 	});
 
 	test('should collapse programmatically duplicated timeline rows', async ({

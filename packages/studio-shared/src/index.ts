@@ -68,6 +68,7 @@ export {
 	GetRemotionSkillsInfoRequest,
 	GetRemotionSkillsInfoResponse,
 	InstallRemotionSkillRequest,
+	RemoveRemotionSkillRequest,
 	GetReleaseNotesRequest,
 	GetReleaseNotesResponse,
 	GoogleFontSourceEdit,

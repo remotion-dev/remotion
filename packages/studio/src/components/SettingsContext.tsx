@@ -19,6 +19,11 @@ import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 import {UpdateStatusProvider} from './UpdateStatusContext';
 
+type SkillAction = {
+	readonly skill: string;
+	readonly type: 'installing' | 'removing';
+};
+
 type SettingsContextValue = {
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
 	readonly editorInfo: GetDefaultEditorInfoResponse | null;
@@ -30,8 +35,9 @@ type SettingsContextValue = {
 	readonly revision: number;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
 	readonly installSkill: (skill: string) => Promise<void>;
-	readonly installingSkill: string | null;
-	readonly skillInstallError: string | null;
+	readonly removeSkill: (skill: string) => Promise<void>;
+	readonly skillAction: SkillAction | null;
+	readonly skillActionError: string | null;
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -43,7 +49,10 @@ export const SettingsProvider: React.FC<{
 		StudioServerConnectionCtx,
 	);
 	const [settings, setSettings] = useState<
-		Omit<SettingsContextValue, 'setPublicLicenseKey' | 'installSkill'>
+		Omit<
+			SettingsContextValue,
+			'setPublicLicenseKey' | 'installSkill' | 'removeSkill'
+		>
 	>({
 		codingAgentInfo: null,
 		editorInfo: null,
@@ -53,8 +62,8 @@ export const SettingsProvider: React.FC<{
 		renderDefaults: window.remotion_renderDefaults ?? null,
 		studioRuntimeConfig: window.remotion_studioConfig ?? null,
 		revision: 0,
-		installingSkill: null,
-		skillInstallError: null,
+		skillAction: null,
+		skillActionError: null,
 	});
 
 	useEffect(() => {
@@ -156,8 +165,8 @@ export const SettingsProvider: React.FC<{
 	const installSkill = useCallback(async (skill: string) => {
 		setSettings((currentSettings) => ({
 			...currentSettings,
-			installingSkill: skill,
-			skillInstallError: null,
+			skillAction: {skill, type: 'installing'},
+			skillActionError: null,
 		}));
 		try {
 			const remotionSkillsInfo = await callApi('/api/install-remotion-skill', {
@@ -166,7 +175,7 @@ export const SettingsProvider: React.FC<{
 			setSettings((currentSettings) => ({
 				...currentSettings,
 				remotionSkillsInfo,
-				installingSkill: null,
+				skillAction: null,
 				revision: currentSettings.revision + 1,
 			}));
 			showNotification(
@@ -176,14 +185,47 @@ export const SettingsProvider: React.FC<{
 		} catch (err) {
 			setSettings((currentSettings) => ({
 				...currentSettings,
-				installingSkill: null,
-				skillInstallError: (err as Error).message,
+				skillAction: null,
+				skillActionError: (err as Error).message,
+			}));
+		}
+	}, []);
+	const removeSkill = useCallback(async (skill: string) => {
+		setSettings((currentSettings) => ({
+			...currentSettings,
+			skillAction: {skill, type: 'removing'},
+			skillActionError: null,
+		}));
+		try {
+			const remotionSkillsInfo = await callApi('/api/remove-remotion-skill', {
+				skill,
+			});
+			setSettings((currentSettings) => ({
+				...currentSettings,
+				remotionSkillsInfo,
+				skillAction: null,
+				revision: currentSettings.revision + 1,
+			}));
+			const remainingSkill = remotionSkillsInfo.skills.find(
+				({name}) => name === skill,
+			);
+			showNotification(
+				remainingSkill?.installedGlobally
+					? `Removed ${skill} from this project. It is still installed globally.`
+					: `Removed ${skill}. Restart your coding agent to stop using it.`,
+				5000,
+			);
+		} catch (err) {
+			setSettings((currentSettings) => ({
+				...currentSettings,
+				skillAction: null,
+				skillActionError: (err as Error).message,
 			}));
 		}
 	}, []);
 	const value = useMemo<SettingsContextValue>(() => {
-		return {...settings, setPublicLicenseKey, installSkill};
-	}, [installSkill, setPublicLicenseKey, settings]);
+		return {...settings, setPublicLicenseKey, installSkill, removeSkill};
+	}, [installSkill, removeSkill, setPublicLicenseKey, settings]);
 
 	return (
 		<SettingsContext.Provider value={value}>
