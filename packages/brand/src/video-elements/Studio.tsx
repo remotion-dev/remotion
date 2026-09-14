@@ -1,8 +1,12 @@
+import {getWaveformPortion, useAudioData} from '@remotion/media-utils';
 import React from 'react';
 import {
+	AbsoluteFill,
+	Easing,
 	Img,
 	Interactive,
 	Sequence,
+	interpolate,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -11,6 +15,7 @@ import {
 } from 'remotion';
 import {z} from 'zod';
 import {Scene11} from '../announcements/whats-new-in-remotion/Scene11';
+import {MacBookScreen} from '../WebMCPPromo/MacBookScene';
 import {
 	BracesIcon,
 	CanvasFitIcon,
@@ -62,11 +67,11 @@ const TOP_PANEL_RATIO = 0.662;
 const TIMELINE_LABEL_RATIO = 0.2611;
 const REFERENCE_COMPOSITION_WIDTH = 1920;
 const REFERENCE_COMPOSITION_HEIGHT = 1080;
+const DIALOGUE_AUDIO = 'https://remotion.media/dialogue.wav';
 
 export const studioReferenceSchema = z.object({
 	viewportWidth: z.number().int().positive(),
-	showLeftSidebar: z.boolean(),
-	showRightSidebar: z.boolean(),
+	responsivenessProgress: z.number().min(0).max(1),
 });
 
 export type StudioReferenceProps = z.infer<typeof studioReferenceSchema>;
@@ -78,32 +83,29 @@ export type StudioProps = {
 	readonly content: React.ReactNode;
 	readonly durationInFrames: number;
 	readonly frame: number;
-	readonly showLeftSidebar: boolean;
-	readonly showRightSidebar: boolean;
+	readonly responsivenessProgress: number;
 	readonly viewportWidth: number;
 };
 
 const studioInteractivitySchema = {
 	viewportWidth: {
 		type: 'number',
-		default: 1352,
+		default: 1600,
 		description: 'Viewport width',
 		hiddenFromList: false,
 		keyframable: false,
 		min: 17,
 		step: 1,
 	},
-	showLeftSidebar: {
-		type: 'boolean',
-		default: true,
-		description: 'Show left sidebar',
-		keyframable: false,
-	},
-	showRightSidebar: {
-		type: 'boolean',
-		default: true,
-		description: 'Show right sidebar',
-		keyframable: false,
+	responsivenessProgress: {
+		type: 'number',
+		default: 0,
+		description: 'Responsive sidebar progress',
+		hiddenFromList: false,
+		keyframable: true,
+		min: 0,
+		max: 1,
+		step: 0.01,
 	},
 } as const satisfies InteractivitySchema;
 
@@ -146,9 +148,8 @@ const Divider: React.FC<{readonly height?: number}> = ({height = 18}) => {
 
 const MenuToolbar: React.FC<{
 	readonly compositionName: string;
-	readonly showLeftSidebar: boolean;
-	readonly showRightSidebar: boolean;
-}> = ({compositionName, showLeftSidebar, showRightSidebar}) => {
+	readonly responsivenessProgress: number;
+}> = ({compositionName, responsivenessProgress}) => {
 	return (
 		<Interactive.Div
 			name="Menu bar"
@@ -178,7 +179,7 @@ const MenuToolbar: React.FC<{
 					<IconButton>
 						<SidebarIcon
 							color={LIGHT_TEXT}
-							expanded={showLeftSidebar}
+							expanded={responsivenessProgress < 0.5}
 							side="left"
 							size={16}
 						/>
@@ -301,7 +302,7 @@ const MenuToolbar: React.FC<{
 					<IconButton>
 						<SidebarIcon
 							color={LIGHT_TEXT}
-							expanded={showRightSidebar}
+							expanded={responsivenessProgress < 0.5}
 							side="right"
 							size={16}
 						/>
@@ -444,23 +445,6 @@ const LeftSidebar: React.FC = () => {
 					</div>
 				</Interactive.Div>
 				<Interactive.Div
-					name="Homepage Assets folder"
-					style={{
-						alignItems: 'center',
-						borderRadius: 4,
-						display: 'flex',
-						height: 28,
-						marginBottom: 1,
-						marginLeft: 8,
-						marginRight: 4,
-						minWidth: 0,
-						paddingLeft: 12,
-					}}
-				>
-					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
-					<div style={{fontSize: 13, marginLeft: 8}}>HomepageAssets</div>
-				</Interactive.Div>
-				<Interactive.Div
 					name="Showcases folder"
 					style={{
 						alignItems: 'center',
@@ -478,6 +462,63 @@ const LeftSidebar: React.FC = () => {
 					<div style={{fontSize: 13, marginLeft: 8}}>Showcases</div>
 				</Interactive.Div>
 				<Interactive.Div
+					name="Social Media Announcements folder"
+					style={{
+						alignItems: 'center',
+						borderRadius: 4,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 12,
+					}}
+				>
+					<FolderIcon color={LIGHT_TEXT} expanded size={18} />
+					<div
+						style={{
+							fontSize: 13,
+							marginLeft: 8,
+							maxWidth: 154,
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+						}}
+					>
+						SocialMediaAnnouncements
+					</div>
+				</Interactive.Div>
+				<Interactive.Div
+					name="Chapter 11 outro composition"
+					style={{
+						alignItems: 'center',
+						backgroundColor: 'rgba(255, 255, 255, 0.06)',
+						borderRadius: 4,
+						color: WHITE,
+						display: 'flex',
+						height: 28,
+						marginBottom: 1,
+						marginLeft: 8,
+						marginRight: 4,
+						minWidth: 0,
+						paddingLeft: 20,
+					}}
+				>
+					<VideoIcon color={WHITE} size={18} />
+					<div
+						style={{
+							fontSize: 13,
+							marginLeft: 8,
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+						}}
+					>
+						Chapter11-Outro
+					</div>
+				</Interactive.Div>
+				<Interactive.Div
 					name="Video Elements folder"
 					style={{
 						alignItems: 'center',
@@ -493,85 +534,6 @@ const LeftSidebar: React.FC = () => {
 				>
 					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
 					<div style={{fontSize: 13, marginLeft: 8}}>VideoElements</div>
-				</Interactive.Div>
-				<Interactive.Div
-					name="Recorder folder"
-					style={{
-						alignItems: 'center',
-						borderRadius: 4,
-						display: 'flex',
-						height: 28,
-						marginBottom: 1,
-						marginLeft: 8,
-						marginRight: 4,
-						minWidth: 0,
-						paddingLeft: 12,
-					}}
-				>
-					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
-					<div style={{fontSize: 13, marginLeft: 8}}>Recorder</div>
-				</Interactive.Div>
-				<Interactive.Div
-					name="Close Ups folder"
-					style={{
-						alignItems: 'center',
-						borderRadius: 4,
-						display: 'flex',
-						height: 28,
-						marginBottom: 1,
-						marginLeft: 8,
-						marginRight: 4,
-						minWidth: 0,
-						paddingLeft: 12,
-					}}
-				>
-					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
-					<div style={{fontSize: 13, marginLeft: 8}}>CloseUps</div>
-				</Interactive.Div>
-				<Interactive.Div
-					name="Studio Assets folder"
-					style={{
-						alignItems: 'center',
-						borderRadius: 4,
-						display: 'flex',
-						height: 28,
-						marginBottom: 1,
-						marginLeft: 8,
-						marginRight: 4,
-						minWidth: 0,
-						paddingLeft: 12,
-					}}
-				>
-					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
-					<div style={{fontSize: 13, marginLeft: 8}}>StudioAssets</div>
-				</Interactive.Div>
-				<Interactive.Div
-					name="Social Media Announcements folder"
-					style={{
-						alignItems: 'center',
-						borderRadius: 4,
-						display: 'flex',
-						height: 28,
-						marginBottom: 1,
-						marginLeft: 8,
-						marginRight: 4,
-						minWidth: 0,
-						paddingLeft: 12,
-					}}
-				>
-					<FolderIcon color={LIGHT_TEXT} expanded={false} size={18} />
-					<div
-						style={{
-							fontSize: 13,
-							marginLeft: 8,
-							maxWidth: 154,
-							overflow: 'hidden',
-							textOverflow: 'ellipsis',
-							whiteSpace: 'nowrap',
-						}}
-					>
-						SocialMediaAnnouncements
-					</div>
 				</Interactive.Div>
 			</div>
 		</Interactive.Div>
@@ -914,7 +876,6 @@ const PreviewCanvas: React.FC<{
 	durationInFrames,
 	frame,
 }) => {
-	const outerFrame = useCurrentFrame();
 	const scale = Math.min(
 		(canvasWidth - 16) / compositionWidth,
 		(canvasHeight - 15) / compositionHeight,
@@ -958,7 +919,7 @@ const PreviewCanvas: React.FC<{
 				>
 					<Sequence
 						durationInFrames={durationInFrames}
-						from={outerFrame - frame}
+						freeze={frame}
 						height={compositionHeight}
 						width={compositionWidth}
 					>
@@ -1245,6 +1206,21 @@ const Filmstrip: React.FC<{
 	readonly width: number;
 }> = ({height, width}) => {
 	const cells = Math.ceil(width / 957);
+	const audioData = useAudioData(DIALOGUE_AUDIO);
+	const waveformHeight = 13;
+	const numberOfSamples = Math.max(1, Math.floor(width / 2));
+	const waveform = React.useMemo(() => {
+		if (!audioData) {
+			return [];
+		}
+
+		return getWaveformPortion({
+			audioData,
+			durationInSeconds: audioData.durationInSeconds,
+			numberOfSamples,
+			startTimeInSeconds: 0,
+		});
+	}, [audioData, numberOfSamples]);
 
 	return (
 		<div
@@ -1252,6 +1228,7 @@ const Filmstrip: React.FC<{
 				display: 'flex',
 				height,
 				overflow: 'hidden',
+				position: 'relative',
 				width,
 			}}
 		>
@@ -1265,6 +1242,44 @@ const Filmstrip: React.FC<{
 					style={{flex: '0 0 957px', height, width: 957}}
 				/>
 			))}
+			<div
+				style={{
+					backgroundColor: '#60347d',
+					borderTop: '1px solid #8b5aa4',
+					bottom: 0,
+					boxSizing: 'border-box',
+					height: waveformHeight,
+					left: 0,
+					position: 'absolute',
+					width,
+				}}
+			>
+				<svg
+					height={waveformHeight}
+					viewBox={`0 0 ${width} ${waveformHeight}`}
+					width={width}
+				>
+					{waveform.map(({amplitude, index}) => {
+						const barHeight = Math.max(
+							1,
+							amplitude ** 0.7 * (waveformHeight - 3),
+						);
+						const x = (index / Math.max(1, waveform.length - 1)) * width;
+
+						return (
+							<line
+								key={index}
+								stroke="rgba(255, 255, 255, 0.62)"
+								strokeWidth={1}
+								x1={x}
+								x2={x}
+								y1={(waveformHeight - barHeight) / 2}
+								y2={(waveformHeight + barHeight) / 2}
+							/>
+						);
+					})}
+				</svg>
+			</div>
 		</div>
 	);
 };
@@ -1324,7 +1339,7 @@ const Timeline: React.FC<{
 		{length: Math.floor(durationInFrames / 5) + 1},
 		(_, index) => index * 5,
 	);
-	const rows = [22, 22, 46, 22, 22, 22];
+	const rows = [46, 22, 22];
 
 	return (
 		<Interactive.Div
@@ -1423,33 +1438,18 @@ const Timeline: React.FC<{
 						</Interactive.Div>
 					</div>
 				</div>
-				<Interactive.Div name="Video layer" style={{height: rows[0]}}>
-					<TimelineRowLabel depth={0} expanded>
-						Video
-					</TimelineRowLabel>
-				</Interactive.Div>
-				<Interactive.Div name="Container layer" style={{height: rows[1]}}>
-					<TimelineRowLabel depth={1} expanded>
-						Container
-					</TimelineRowLabel>
-				</Interactive.Div>
-				<Interactive.Div name="Video clip layer" style={{height: rows[2]}}>
-					<TimelineRowLabel depth={2} secondary="whats11.mov">
+				<Interactive.Div name="Video clip layer" style={{height: rows[0]}}>
+					<TimelineRowLabel depth={0} secondary="whats11.mov">
 						&lt;Video&gt;
 					</TimelineRowLabel>
 				</Interactive.Div>
-				<Interactive.Div name="Absolute Fill layer 1" style={{height: rows[3]}}>
-					<TimelineRowLabel depth={1} expanded>
-						&lt;AbsoluteFill&gt;
+				<Interactive.Div name="Endcard layer" style={{height: rows[1]}}>
+					<TimelineRowLabel depth={0} expanded>
+						Endcard
 					</TimelineRowLabel>
 				</Interactive.Div>
-				<Interactive.Div name="Absolute Fill layer 2" style={{height: rows[4]}}>
-					<TimelineRowLabel depth={2} expanded>
-						&lt;AbsoluteFill&gt;
-					</TimelineRowLabel>
-				</Interactive.Div>
-				<Interactive.Div name="Avatar image layer" style={{height: rows[5]}}>
-					<TimelineRowLabel depth={4} secondary="remotion-avatar.png">
+				<Interactive.Div name="Avatar image layer" style={{height: rows[2]}}>
+					<TimelineRowLabel depth={1} secondary="remotion-avatar.png">
 						&lt;Img&gt;
 					</TimelineRowLabel>
 				</Interactive.Div>
@@ -1509,28 +1509,15 @@ const Timeline: React.FC<{
 				</Interactive.Div>
 				<div style={{height: rows[0], paddingLeft: trackLeft}}>
 					<Interactive.Div
-						name="Video sequence"
-						style={{
-							backgroundColor: '#0d69bd',
-							border: '1px solid #327cbf',
-							borderRadius: 2,
-							boxSizing: 'border-box',
-							color: '#8bc5f0',
-							fontFamily: 'monospace',
-							fontSize: 11,
-							height: 21,
-							lineHeight: '19px',
-							overflow: 'hidden',
-							paddingLeft: 5,
-							width: sequenceWidth,
-						}}
+						name="Video filmstrip"
+						style={{height: 45, width: sequenceWidth}}
 					>
-						{frame}
+						<Filmstrip height={45} width={sequenceWidth} />
 					</Interactive.Div>
 				</div>
 				<div style={{height: rows[1], paddingLeft: trackLeft}}>
 					<Interactive.Div
-						name="Container sequence"
+						name="Endcard sequence"
 						style={{
 							backgroundColor: '#0d69bd',
 							border: '1px solid #327cbf',
@@ -1550,56 +1537,6 @@ const Timeline: React.FC<{
 					</Interactive.Div>
 				</div>
 				<div style={{height: rows[2], paddingLeft: trackLeft}}>
-					<Interactive.Div
-						name="Video filmstrip"
-						style={{height: 45, width: sequenceWidth}}
-					>
-						<Filmstrip height={45} width={sequenceWidth} />
-					</Interactive.Div>
-				</div>
-				<div style={{height: rows[3], paddingLeft: trackLeft}}>
-					<Interactive.Div
-						name="Absolute Fill sequence 1"
-						style={{
-							backgroundColor: '#0d69bd',
-							border: '1px solid #327cbf',
-							borderRadius: 2,
-							boxSizing: 'border-box',
-							color: '#8bc5f0',
-							fontFamily: 'monospace',
-							fontSize: 11,
-							height: 21,
-							lineHeight: '19px',
-							overflow: 'hidden',
-							paddingLeft: 5,
-							width: sequenceWidth,
-						}}
-					>
-						{frame}
-					</Interactive.Div>
-				</div>
-				<div style={{height: rows[4], paddingLeft: trackLeft}}>
-					<Interactive.Div
-						name="Absolute Fill sequence 2"
-						style={{
-							backgroundColor: '#0d69bd',
-							border: '1px solid #327cbf',
-							borderRadius: 2,
-							boxSizing: 'border-box',
-							color: '#8bc5f0',
-							fontFamily: 'monospace',
-							fontSize: 11,
-							height: 21,
-							lineHeight: '19px',
-							overflow: 'hidden',
-							paddingLeft: 5,
-							width: sequenceWidth,
-						}}
-					>
-						{frame}
-					</Interactive.Div>
-				</div>
-				<div style={{height: rows[5], paddingLeft: trackLeft}}>
 					<Interactive.Div
 						name="Avatar strip"
 						style={{height: 21, width: sequenceWidth}}
@@ -1649,8 +1586,7 @@ const StudioInner = React.forwardRef<
 			controls,
 			durationInFrames,
 			frame,
-			showLeftSidebar,
-			showRightSidebar,
+			responsivenessProgress,
 			viewportWidth,
 		},
 		ref,
@@ -1669,19 +1605,21 @@ const StudioInner = React.forwardRef<
 		const timelineHeight =
 			height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
 		const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
-		const leftSidebarWidth = showLeftSidebar
-			? Math.min(350, Math.round(width * LEFT_SIDEBAR_RATIO))
-			: 0;
-		const rightSidebarWidth = showRightSidebar
-			? Math.min(350, Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)))
-			: 0;
+		const leftSidebarWidth = Math.min(
+			350,
+			Math.round(width * LEFT_SIDEBAR_RATIO),
+		);
+		const rightSidebarWidth = Math.min(
+			350,
+			Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)),
+		);
+		const leftSidebarOccupiedWidth =
+			(leftSidebarWidth + SPLITTER_SIZE) * (1 - responsivenessProgress);
+		const rightSidebarOccupiedWidth =
+			(rightSidebarWidth + SPLITTER_SIZE) * (1 - responsivenessProgress);
 		const canvasWidth = Math.max(
 			17,
-			width -
-				leftSidebarWidth -
-				rightSidebarWidth -
-				(showLeftSidebar ? SPLITTER_SIZE : 0) -
-				(showRightSidebar ? SPLITTER_SIZE : 0),
+			width - leftSidebarOccupiedWidth - rightSidebarOccupiedWidth,
 		);
 
 		return (
@@ -1712,13 +1650,29 @@ const StudioInner = React.forwardRef<
 				>
 					<MenuToolbar
 						compositionName={compositionName}
-						showLeftSidebar={showLeftSidebar}
-						showRightSidebar={showRightSidebar}
+						responsivenessProgress={responsivenessProgress}
 					/>
 					<div style={{height: topPanelHeight, width}}>
 						<div style={{display: 'flex', height: canvasRowHeight, width}}>
-							{showLeftSidebar ? (
-								<>
+							<div
+								style={{
+									flexShrink: 0,
+									height: canvasRowHeight,
+									overflow: 'hidden',
+									position: 'relative',
+									width: leftSidebarOccupiedWidth,
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										height: canvasRowHeight,
+										left: 0,
+										position: 'absolute',
+										translate: `${-responsivenessProgress * (leftSidebarWidth + SPLITTER_SIZE)}px 0px`,
+										width: leftSidebarWidth + SPLITTER_SIZE,
+									}}
+								>
 									<div style={{width: leftSidebarWidth}}>
 										<LeftSidebar />
 									</div>
@@ -1726,8 +1680,8 @@ const StudioInner = React.forwardRef<
 										name="Left sidebar splitter"
 										style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
 									/>
-								</>
-							) : null}
+								</div>
+							</div>
 							<PreviewCanvas
 								canvasHeight={canvasRowHeight}
 								canvasWidth={canvasWidth}
@@ -1737,8 +1691,24 @@ const StudioInner = React.forwardRef<
 								durationInFrames={durationInFrames}
 								frame={frame}
 							/>
-							{showRightSidebar ? (
-								<>
+							<div
+								style={{
+									flexShrink: 0,
+									height: canvasRowHeight,
+									overflow: 'hidden',
+									position: 'relative',
+									width: rightSidebarOccupiedWidth,
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										height: canvasRowHeight,
+										left: 0,
+										position: 'absolute',
+										width: rightSidebarWidth + SPLITTER_SIZE,
+									}}
+								>
 									<Interactive.Div
 										name="Right sidebar splitter"
 										style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
@@ -1752,8 +1722,8 @@ const StudioInner = React.forwardRef<
 											fps={fps}
 										/>
 									</div>
-								</>
-							) : null}
+								</div>
+							</div>
 						</div>
 						<PreviewToolbar />
 					</div>
@@ -1784,21 +1754,69 @@ export const Studio = Interactive.withSchema({
 });
 
 export const StudioReference: React.FC<StudioReferenceProps> = ({
-	showLeftSidebar,
-	showRightSidebar,
+	responsivenessProgress,
 	viewportWidth,
 }) => {
+	const frame = useCurrentFrame();
+	const bezelSize = 18;
+	const viewportHeight = 900;
+	const animatedViewportWidth = interpolate(
+		frame,
+		[0, 90],
+		[viewportWidth / 2, viewportWidth],
+		{
+			easing: Easing.bezier(0.16, 1, 0.3, 1),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+	const macBookWidth = animatedViewportWidth + bezelSize * 2;
+	const macBookHeight = viewportHeight + bezelSize * 2;
+
 	return (
-		<Studio
-			compositionHeight={REFERENCE_COMPOSITION_HEIGHT}
-			compositionName="Chapter11-Outro"
-			compositionWidth={REFERENCE_COMPOSITION_WIDTH}
-			content={<Scene11 platform="youtube" />}
-			durationInFrames={742}
-			frame={655}
-			showLeftSidebar={showLeftSidebar}
-			showRightSidebar={showRightSidebar}
-			viewportWidth={viewportWidth}
-		/>
+		<AbsoluteFill style={{backgroundColor: 'white'}}>
+			<Interactive.Div
+				name="Viewport width animation"
+				style={{
+					bottom: -96,
+					height: macBookHeight,
+					left: '50%',
+					position: 'absolute',
+					translate: '-50% 0px',
+					width: macBookWidth,
+				}}
+			>
+				<MacBookScreen
+					height={macBookHeight}
+					left={0}
+					showCameraNotch={false}
+					top={0}
+					width={macBookWidth}
+				>
+					<Sequence
+						height={viewportHeight}
+						name="Studio UI"
+						style={{
+							borderRadius: 19,
+							left: bezelSize,
+							overflow: 'hidden',
+							top: bezelSize,
+						}}
+						width={animatedViewportWidth}
+					>
+						<Studio
+							compositionHeight={REFERENCE_COMPOSITION_HEIGHT}
+							compositionName="Chapter11-Outro"
+							compositionWidth={REFERENCE_COMPOSITION_WIDTH}
+							content={<Scene11 platform="youtube" />}
+							durationInFrames={742}
+							frame={655}
+							responsivenessProgress={responsivenessProgress}
+							viewportWidth={animatedViewportWidth}
+						/>
+					</Sequence>
+				</MacBookScreen>
+			</Interactive.Div>
+		</AbsoluteFill>
 	);
 };

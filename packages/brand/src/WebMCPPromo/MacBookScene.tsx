@@ -18,6 +18,52 @@ loadFont('normal', {
 	weights: ['400', '500', '600'],
 });
 
+export const MacBookScreen: React.FC<{
+	readonly children: React.ReactNode;
+	readonly height: number;
+	readonly left: number;
+	readonly showCameraNotch: boolean;
+	readonly top: number;
+	readonly width: number;
+}> = ({children, height, left, showCameraNotch, top, width}) => {
+	return (
+		<Interactive.Div
+			name="Desktop / screen"
+			style={{
+				backgroundColor: '#101114',
+				border: '1px solid #35373d',
+				borderRadius: 36,
+				boxShadow: '0 42px 90px rgba(15, 22, 35, 0.24)',
+				height,
+				left,
+				overflow: 'hidden',
+				position: 'absolute',
+				top,
+				width,
+				zIndex: 1,
+			}}
+		>
+			{children}
+			{showCameraNotch ? (
+				<Interactive.Div
+					name="Camera notch"
+					style={{
+						backgroundColor: '#101114',
+						borderRadius: '0 0 18px 18px',
+						height: 56,
+						left: '50%',
+						position: 'absolute',
+						top: 0,
+						translate: '-50% 0px',
+						width: 150,
+						zIndex: 2,
+					}}
+				/>
+			) : null}
+		</Interactive.Div>
+	);
+};
+
 export const MacBookAppScene = () => {
 	return (
 		<AbsoluteFill
@@ -54,21 +100,12 @@ export const MacBookAppScene = () => {
 
 export const MacBookDesktopScene = () => {
 	return (
-		<Interactive.Div
-			name="Desktop / screen"
-			style={{
-				backgroundColor: '#101114',
-				border: '1px solid #35373d',
-				borderRadius: 36,
-				boxShadow: '0 42px 90px rgba(15, 22, 35, 0.24)',
-				height: 863,
-				left: 282,
-				overflow: 'hidden',
-				position: 'absolute',
-				top: 70,
-				width: 1356,
-				zIndex: 1,
-			}}
+		<MacBookScreen
+			height={863}
+			left={282}
+			showCameraNotch
+			top={70}
+			width={1356}
 		>
 			<CanvasImage
 				fit="cover"
@@ -126,21 +163,7 @@ export const MacBookDesktopScene = () => {
 			>
 				<MacBookAppScene />
 			</Sequence>
-
-			<Interactive.Div
-				name="Camera notch"
-				style={{
-					backgroundColor: '#101114',
-					borderRadius: '0 0 18px 18px',
-					height: 56,
-					left: 603,
-					position: 'absolute',
-					top: 0,
-					width: 150,
-					zIndex: 2,
-				}}
-			/>
-		</Interactive.Div>
+		</MacBookScreen>
 	);
 };
 

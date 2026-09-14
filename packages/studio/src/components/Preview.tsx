@@ -72,9 +72,6 @@ const containerStyle = (options: {
 }): React.CSSProperties => {
 	return {
 		transform: `scale(${options.scale})`,
-		// Avoid the background bleeding through opaque compositions at fractional
-		// scales due to Chromium compositing the child and background together.
-		willChange: 'transform',
 		marginLeft: options.xCorrection,
 		marginTop: options.yCorrection,
 		width: options.width,
