@@ -6,7 +6,7 @@ import type {
 } from '@babel/types';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
-import {recastLocToOffset} from './recast-loc-to-offset';
+import {recastIndexToOffset, recastLocToOffset} from './recast-loc-to-offset';
 import {
 	getNodeEndIncludingSameLineComments,
 	type SourceEdit,
@@ -101,7 +101,7 @@ const getBodySourceRange = ({
 			return null;
 		}
 
-		start = Math.min(start, extra.parenStart);
+		start = Math.min(start, recastIndexToOffset(input, extra.parenStart));
 		end = recastLocToOffset(input, functionNode.loc.end);
 	}
 

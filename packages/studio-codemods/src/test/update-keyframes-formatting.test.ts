@@ -181,7 +181,7 @@ export const Example = () => {
 	);
 });
 
-test('new keyframe imports stay after directives', async () => {
+test('new keyframe imports stay after directives with CRLF', async () => {
 	const input = `'use client'
 
 const unrelated    = true
@@ -189,7 +189,7 @@ const unrelated    = true
 export const Example = () => (
   <div style={{opacity:0.5}} />
 )
-`;
+`.replaceAll(/\r?\n/g, '\r\n');
 	const {output} = await updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 6),
@@ -202,7 +202,8 @@ export const Example = () => (
 		videoConfigValues: null,
 	});
 
-	expect(output).toBe(`'use client'
+	expect(output).toBe(
+		`'use client'
 import { interpolate, useCurrentFrame } from 'remotion'
 
 const unrelated    = true
@@ -219,7 +220,8 @@ export const Example = () => {
       }} />
   )
 }
-`);
+`.replaceAll(/\r?\n/g, '\r\n'),
+	);
 });
 
 test('frame hooks stay before comments attached to the first statement', async () => {

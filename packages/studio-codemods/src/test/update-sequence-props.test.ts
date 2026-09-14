@@ -461,7 +461,7 @@ export const Example = () => <div opacity={1} />
 	parseAst(output);
 });
 
-test('does not overlap nested function edits for batched keyframed props', () => {
+test('does not overlap nested function edits for CRLF batched keyframed props', () => {
 	const input = `import {Interactive} from "remotion"
 
 export const Example = () => (
@@ -469,7 +469,7 @@ export const Example = () => (
     {[1].map(() => <Interactive.Div opacity={1} />)}
   </Interactive.Div>
 )
-`;
+`.replaceAll(/\r?\n/g, '\r\n');
 	const ast = parseAst(input);
 	const nodePaths: ReturnType<typeof getNodePathForRecastPath>[] = [];
 	recast.types.visit(ast, {
@@ -511,8 +511,8 @@ export const Example = () => (
 		})),
 	});
 
-	expect(output)
-		.toBe(`import {Interactive, useCurrentFrame, interpolate} from "remotion"
+	expect(output).toBe(
+		`import {Interactive, useCurrentFrame, interpolate} from "remotion"
 
 export const Example = () => {
   const frame = useCurrentFrame()
@@ -526,7 +526,8 @@ export const Example = () => {
     </Interactive.Div>
   )
 }
-`);
+`.replaceAll(/\r?\n/g, '\r\n'),
+	);
 	parseAst(output);
 });
 
