@@ -62,8 +62,9 @@ export const ActionTooltip: React.FC<{
 	/** Hover delay in milliseconds. Pass null to show immediately. */
 	readonly delay: number | null;
 	readonly dismissOnClick: boolean;
+	readonly side?: 'top' | 'right';
 	readonly children: React.ReactNode;
-}> = ({label, shortcut, delay, dismissOnClick, children}) => {
+}> = ({label, shortcut, delay, dismissOnClick, side = 'top', children}) => {
 	const triggerRef = useRef<HTMLSpanElement>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -160,6 +161,24 @@ export const ActionTooltip: React.FC<{
 
 		const trigger = triggerRef.current.getBoundingClientRect();
 		const tooltip = tooltipRef.current.getBoundingClientRect();
+		if (side === 'right') {
+			const right = trigger.right + 4;
+			setPosition({
+				left:
+					right + tooltip.width <= window.innerWidth - 8
+						? right
+						: Math.max(8, trigger.left - tooltip.width - 4),
+				top: Math.max(
+					8,
+					Math.min(
+						trigger.top + (trigger.height - tooltip.height) / 2,
+						window.innerHeight - tooltip.height - 8,
+					),
+				),
+			});
+			return;
+		}
+
 		const above = trigger.top - tooltip.height - 4;
 		setPosition({
 			left: Math.max(
@@ -177,7 +196,7 @@ export const ActionTooltip: React.FC<{
 				),
 			),
 		});
-	}, [label, shortcut, visible]);
+	}, [label, shortcut, side, visible]);
 
 	return (
 		<>
