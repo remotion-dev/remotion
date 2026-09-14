@@ -154,8 +154,8 @@ test('an audio asset field includes only audio files', () => {
 
 	fireEvent.click(screen.getByRole('button', {name: 'Change source'}));
 	const modal = selectedModal as ModalState | null;
-	if (modal?.type !== 'quick-switcher' || modal.assetSelection === null) {
-		throw new Error('Expected asset Quick Switcher to open');
+	if (modal?.type !== 'asset-selection' || modal.assetType !== 'audio') {
+		throw new Error('Expected audio asset selector to open');
 	}
 
 	const result = filterAssetsByType({

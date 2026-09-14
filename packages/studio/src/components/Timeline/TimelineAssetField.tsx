@@ -57,7 +57,7 @@ const imageAssetField: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flex: 1,
-	gap: 10,
+	gap: 8,
 	minWidth: 0,
 	padding: '4px 12px',
 };
@@ -73,10 +73,10 @@ const thumbnailButton: React.CSSProperties = {
 	border: 'none',
 	cursor: 'default',
 	flexShrink: 0,
-	height: 48,
+	height: 40,
 	margin: 0,
 	padding: 0,
-	width: 48,
+	width: 40,
 };
 
 const thumbnail: React.CSSProperties = {
@@ -87,11 +87,22 @@ const thumbnail: React.CSSProperties = {
 };
 
 const imageAssetInfo: React.CSSProperties = {
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
+	appearance: 'none',
+	border: 'none',
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
-	gap: 3,
+	gap: 2,
+	margin: 0,
 	minWidth: 0,
+	padding: 0,
+	textAlign: 'left',
 };
 
 const imageAssetName: React.CSSProperties = {
@@ -112,24 +123,6 @@ const imageAssetSource: React.CSSProperties = {
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
-};
-
-const replaceButton: React.CSSProperties = {
-	...hoverableStyle({
-		idleBackground: TRANSPARENT,
-		hoverBackground: TRANSPARENT,
-		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
-	}),
-	alignSelf: 'flex-start',
-	appearance: 'none',
-	border: 'none',
-	cursor: 'default',
-	fontFamily: 'sans-serif',
-	fontSize: 11,
-	lineHeight: '14px',
-	margin: 0,
-	padding: 0,
 };
 
 export type InspectorSourceAction = InspectorQuickActionProps;
@@ -266,13 +259,14 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 				onSelect(asset.name, asset.src),
 		};
 
-		if (assetType === 'image') {
+		if (assetType !== undefined) {
 			const linkInfo =
 				typeof effectiveValue === 'string'
 					? getTimelineAssetLinkInfo(effectiveValue)
 					: null;
 			setSelectedModal({
-				type: 'image-asset-selection',
+				type: 'asset-selection',
+				assetType,
 				initialUrl: linkInfo?.kind === 'remote' ? linkInfo.href : null,
 				invocationTimestamp: Date.now(),
 				assetSelection,
@@ -342,34 +336,29 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 			return (
 				<div style={imageAssetField}>
 					<button
-						aria-label={`Preview ${name}`}
+						aria-label={`Replace ${name}`}
 						className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-						disabled={inlineSourceAction.disabled}
-						onClick={inlineSourceAction.onClick ?? undefined}
+						disabled={window.remotion_isReadOnlyStudio}
+						onClick={openAssetSelection}
 						style={thumbnailButton}
 						title={inlineSourceAction.title}
 						type="button"
 					>
 						<img alt="" src={previewSrc} style={thumbnail} />
 					</button>
-					<div style={imageAssetInfo}>
-						<div style={imageAssetName} title={inlineSourceAction.title}>
-							{name}
-						</div>
-						<div style={imageAssetSource} title={inlineSourceAction.title}>
-							{source}
-						</div>
-						<button
-							className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-							disabled={window.remotion_isReadOnlyStudio}
-							onClick={openAssetSelection}
-							style={replaceButton}
-							title="Replace image"
-							type="button"
-						>
-							Replace…
-						</button>
-					</div>
+					<button
+						aria-label={`Replace ${name}`}
+						className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+						disabled={window.remotion_isReadOnlyStudio}
+						onClick={openAssetSelection}
+						style={imageAssetInfo}
+						title={inlineSourceAction.title}
+						type="button"
+					>
+						<span style={imageAssetName}>{name}</span>
+						<span style={imageAssetSource}>{source}</span>
+					</button>
+					{action}
 				</div>
 			);
 		}
@@ -379,6 +368,16 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		<div style={sourceActions}>
 			<InspectorQuickAction
 				{...inlineSourceAction}
+				disabled={
+					assetType === undefined
+						? inlineSourceAction.disabled
+						: window.remotion_isReadOnlyStudio
+				}
+				onClick={
+					assetType === undefined
+						? inlineSourceAction.onClick
+						: openAssetSelection
+				}
 				size="compact"
 				style={standaloneSourceActionStyle}
 			/>

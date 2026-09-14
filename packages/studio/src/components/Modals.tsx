@@ -4,6 +4,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
+import {AssetSelectorModal} from './AssetSelectorModal';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
@@ -13,7 +14,6 @@ import {
 } from './ElementInstallConfirmation';
 import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
-import {ImageAssetSelectorModal} from './ImageAssetSelectorModal';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -281,8 +281,8 @@ export const Modals: React.FC<{
 					compositionSelection={modalContextType.compositionSelection}
 				/>
 			)}
-			{modalContextType && modalContextType.type === 'image-asset-selection' ? (
-				<ImageAssetSelectorModal
+			{modalContextType && modalContextType.type === 'asset-selection' ? (
+				<AssetSelectorModal
 					readOnlyStudio={readOnlyStudio}
 					state={modalContextType}
 				/>

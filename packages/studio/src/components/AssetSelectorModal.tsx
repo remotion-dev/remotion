@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {FAIL_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {
-	type ImageAssetSelectionModalState,
+	type AssetSelectionModalState,
 	SetSelectedModalContext,
 } from '../state/modals';
 import {Button} from './Button';
@@ -35,6 +35,11 @@ const sourceSelector: React.CSSProperties = {
 const urlContent: React.CSSProperties = {
 	boxSizing: 'border-box',
 	minHeight: 300,
+	padding: 16,
+};
+
+const compactUrlContent: React.CSSProperties = {
+	boxSizing: 'border-box',
 	padding: 16,
 };
 
@@ -90,15 +95,17 @@ type PreviewState =
 	| {type: 'loaded'; width: number; height: number}
 	| {type: 'error'};
 
-export const ImageAssetSelectorModal: React.FC<{
-	readonly state: ImageAssetSelectionModalState;
+export const AssetSelectorModal: React.FC<{
+	readonly state: AssetSelectionModalState;
 	readonly readOnlyStudio: boolean;
 }> = ({state, readOnlyStudio}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [mode, setMode] = useState<'project' | 'url'>('project');
 	const [draft, setDraft] = useState(state.initialUrl ?? '');
 	const [previewState, setPreviewState] = useState<PreviewState>(() =>
-		state.initialUrl === null ? {type: 'empty'} : {type: 'loading'},
+		state.assetType === 'image' && state.initialUrl !== null
+			? {type: 'loading'}
+			: {type: 'empty'},
 	);
 
 	const close = useCallback(() => {
@@ -106,6 +113,11 @@ export const ImageAssetSelectorModal: React.FC<{
 	}, [setSelectedModal]);
 
 	useEffect(() => {
+		if (state.assetType !== 'image') {
+			setPreviewState({type: 'empty'});
+			return;
+		}
+
 		const value = draft.trim();
 		if (value === '') {
 			setPreviewState({type: 'empty'});
@@ -143,7 +155,7 @@ export const ImageAssetSelectorModal: React.FC<{
 			image.onload = null;
 			image.onerror = null;
 		};
-	}, [draft]);
+	}, [draft, state.assetType]);
 
 	const items = useMemo<SegmentedControlItem[]>(
 		() => [
@@ -164,6 +176,7 @@ export const ImageAssetSelectorModal: React.FC<{
 	);
 	const trimmedDraft = draft.trim();
 	const canApply = isHttpUrl(trimmedDraft);
+	const invalidDraft = trimmedDraft !== '' && !canApply;
 	const apply = useCallback(() => {
 		if (!canApply) {
 			return;
@@ -180,9 +193,12 @@ export const ImageAssetSelectorModal: React.FC<{
 		[apply],
 	);
 
+	const assetTypeLabel =
+		state.assetType.charAt(0).toUpperCase() + state.assetType.slice(1);
+
 	return (
 		<ModalContainer onEscape={close} onOutsideClick={close} panelStyle={panel}>
-			<ModalHeader title="Replace image" onClose={close} />
+			<ModalHeader title={`Replace ${state.assetType}`} onClose={close} />
 			<div style={sourceSelector}>
 				<SegmentedControl items={items} needsWrapping={false} size="compact" />
 			</div>
@@ -196,53 +212,57 @@ export const ImageAssetSelectorModal: React.FC<{
 				/>
 			) : (
 				<form onSubmit={onSubmit}>
-					<div style={urlContent}>
-						<label htmlFor="remotion-image-asset-url" style={label}>
-							Image URL
+					<div
+						style={state.assetType === 'image' ? urlContent : compactUrlContent}
+					>
+						<label htmlFor="remotion-asset-url" style={label}>
+							{assetTypeLabel} URL
 						</label>
 						<RemotionInput
-							id="remotion-image-asset-url"
+							id="remotion-asset-url"
 							autoFocus
 							onChange={(event) => setDraft(event.target.value)}
-							placeholder="https://example.com/image.png"
+							placeholder={`https://example.com/${state.assetType}`}
 							rightAlign={false}
-							status={previewState.type === 'invalid' ? 'error' : 'ok'}
+							status={invalidDraft ? 'error' : 'ok'}
 							type="url"
 							value={draft}
 						/>
-						<div style={previewRow} role="status">
-							{previewState.type === 'loaded' ? (
-								<img
-									alt="Image URL preview"
-									src={trimmedDraft}
-									style={previewImage}
-								/>
-							) : null}
-							<div
-								style={
-									previewState.type === 'error'
-										? {...previewStatus, color: FAIL_COLOR}
-										: previewStatus
-								}
-							>
-								{previewState.type === 'empty'
-									? 'Enter an image URL.'
-									: previewState.type === 'invalid'
-										? 'Enter an HTTP(S) URL.'
-										: previewState.type === 'loading'
-											? 'Loading preview…'
-											: previewState.type === 'error'
-												? 'Preview unavailable. You can still replace the source.'
-												: `${previewState.width} × ${previewState.height}`}
+						{state.assetType === 'image' ? (
+							<div style={previewRow} role="status">
+								{previewState.type === 'loaded' ? (
+									<img
+										alt="Image URL preview"
+										src={trimmedDraft}
+										style={previewImage}
+									/>
+								) : null}
+								<div
+									style={
+										previewState.type === 'error'
+											? {...previewStatus, color: FAIL_COLOR}
+											: previewStatus
+									}
+								>
+									{previewState.type === 'empty'
+										? 'Enter an image URL.'
+										: previewState.type === 'invalid'
+											? 'Enter an HTTP(S) URL.'
+											: previewState.type === 'loading'
+												? 'Loading preview…'
+												: previewState.type === 'error'
+													? 'Preview unavailable. You can still replace the source.'
+													: `${previewState.width} × ${previewState.height}`}
+								</div>
 							</div>
-						</div>
+						) : null}
 					</div>
 					<ModalFooterContainer style={footer}>
 						<Row align="center" flex={1} justify="flex-end">
 							<Button onClick={close}>Cancel</Button>
 							<Spacing x={1} />
 							<ModalButton disabled={!canApply} onClick={apply}>
-								Replace image
+								Replace {state.assetType}
 							</ModalButton>
 						</Row>
 					</ModalFooterContainer>

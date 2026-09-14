@@ -140,8 +140,9 @@ export type AddEffectModalState = {
 	clientId: string;
 };
 
-export type ImageAssetSelectionModalState = {
-	readonly type: 'image-asset-selection';
+export type AssetSelectionModalState = {
+	readonly type: 'asset-selection';
+	readonly assetType: 'audio' | 'video' | 'image';
 	readonly initialUrl: string | null;
 	readonly invocationTimestamp: number;
 	readonly assetSelection: {
@@ -282,7 +283,7 @@ export type ModalState =
 	  }
 	| ElementInstallModalState
 	| AddEffectModalState
-	| ImageAssetSelectionModalState
+	| AssetSelectionModalState
 	| TranscriptionModalState
 	| VideoMattingModalState
 	| ConfirmationDialogState
