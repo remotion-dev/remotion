@@ -2,6 +2,7 @@ import {afterEach, expect, test} from 'bun:test';
 import {cleanup, fireEvent, render, screen} from '@testing-library/react';
 import type {AssetFieldSchema} from 'remotion';
 import type {StaticFile} from '../api/get-static-files';
+import {AssetSelectorModal} from '../components/AssetSelectorModal';
 import {filterAssetsByType} from '../components/QuickSwitcher/asset-search';
 import {TimelineAssetField} from '../components/Timeline/TimelineAssetField';
 import {SetSelectedModalContext, type ModalState} from '../state/modals';
@@ -168,6 +169,94 @@ test('an audio asset field includes only audio files', () => {
 		'audio/podcast.m4a',
 		'audio/lossless.flac',
 	]);
+});
+
+test('an image asset field replaces a protocol-relative URL', () => {
+	const fieldSchema = {
+		type: 'asset',
+		assetType: 'image',
+		default: undefined,
+	} satisfies AssetFieldSchema;
+	const url = '//cdn.example.com/images/avatar.png';
+	let selectedModal: ModalState | null = null;
+	let savedValue: unknown;
+	let dragValue: unknown;
+
+	render(
+		<SetSelectedModalContext.Provider
+			value={{
+				setSelectedModal: (update) => {
+					selectedModal =
+						typeof update === 'function' ? update(selectedModal) : update;
+				},
+			}}
+		>
+			<TimelineAssetField
+				field={{
+					key: 'imageSrc',
+					description: 'Image source',
+					typeName: 'asset',
+					rowHeight: 56,
+					fieldSchema,
+					group: 'source',
+				}}
+				propStatus={{
+					status: 'static',
+					codeValue: url,
+					keyframeDisplayOffsetAdjustment: null,
+				}}
+				effectiveValue={url}
+				onSave={(value) => {
+					savedValue = value;
+					return Promise.resolve();
+				}}
+				onDragValueChange={(value) => {
+					dragValue = value;
+				}}
+				onDragEnd={() => undefined}
+			/>
+		</SetSelectedModalContext.Provider>,
+	);
+
+	const sourceButtons = screen.getAllByRole('button', {
+		name: 'Replace avatar.png',
+	});
+	expect(sourceButtons).toHaveLength(2);
+	expect(document.querySelector('img')?.getAttribute('src')).toBe(
+		'https://cdn.example.com/images/avatar.png',
+	);
+	fireEvent.click(sourceButtons[1]);
+
+	const modal = selectedModal as ModalState | null;
+	if (modal?.type !== 'asset-selection' || modal.assetType !== 'image') {
+		throw new Error('Expected image asset selector to open');
+	}
+
+	cleanup();
+	render(
+		<SetSelectedModalContext.Provider
+			value={{
+				setSelectedModal: (update) => {
+					selectedModal =
+						typeof update === 'function' ? update(selectedModal) : update;
+				},
+			}}
+		>
+			<AssetSelectorModal readOnlyStudio={false} state={modal} />
+		</SetSelectedModalContext.Provider>,
+	);
+
+	expect(
+		screen.getByRole('button', {name: 'URL'}).getAttribute('aria-pressed'),
+	).toBe('true');
+	const input = screen.getByLabelText('Image URL') as HTMLInputElement;
+	expect(input.value).toBe(url);
+	const replacement = '//cdn.example.com/images/new-avatar.png';
+	fireEvent.change(input, {target: {value: replacement}});
+	fireEvent.click(screen.getByRole('button', {name: 'Replace image'}));
+	expect(dragValue).toBe(replacement);
+	expect(savedValue).toBe(replacement);
+	expect(selectedModal).toBeNull();
 });
 
 test('an image asset filter includes SVG files', () => {

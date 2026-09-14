@@ -302,10 +302,6 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		/>
 	);
 
-	if (inlineSourceAction === null) {
-		return action;
-	}
-
 	if (assetType === 'image' && typeof effectiveValue === 'string') {
 		const linkInfo = getTimelineAssetLinkInfo(effectiveValue);
 		if (linkInfo !== null) {
@@ -317,13 +313,11 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 				source = 'Project asset';
 				previewSrc = staticFile(linkInfo.assetPath);
 			} else {
-				previewSrc = linkInfo.href;
+				previewSrc = linkInfo.href.startsWith('//')
+					? `https:${linkInfo.href}`
+					: linkInfo.href;
 				try {
-					const url = new URL(
-						linkInfo.href.startsWith('//')
-							? `https:${linkInfo.href}`
-							: linkInfo.href,
-					);
+					const url = new URL(previewSrc);
 					const encodedName = url.pathname.split('/').filter(Boolean).pop();
 					name = encodedName ? decodeURIComponent(encodedName) : url.hostname;
 					source = url.hostname;
@@ -333,6 +327,8 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 				}
 			}
 
+			const title = inlineSourceAction?.title ?? linkInfo.title;
+
 			return (
 				<div style={imageAssetField}>
 					<button
@@ -341,7 +337,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 						disabled={window.remotion_isReadOnlyStudio}
 						onClick={openAssetSelection}
 						style={thumbnailButton}
-						title={inlineSourceAction.title}
+						title={title}
 						type="button"
 					>
 						<img alt="" src={previewSrc} style={thumbnail} />
@@ -352,7 +348,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 						disabled={window.remotion_isReadOnlyStudio}
 						onClick={openAssetSelection}
 						style={imageAssetInfo}
-						title={inlineSourceAction.title}
+						title={title}
 						type="button"
 					>
 						<span style={imageAssetName}>{name}</span>
@@ -362,6 +358,10 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 				</div>
 			);
 		}
+	}
+
+	if (inlineSourceAction === null) {
+		return action;
 	}
 
 	return (

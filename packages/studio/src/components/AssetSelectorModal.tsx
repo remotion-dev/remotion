@@ -81,7 +81,9 @@ const footer: React.CSSProperties = {
 
 const isHttpUrl = (value: string) => {
 	try {
-		const {protocol} = new URL(value);
+		const {protocol} = new URL(
+			value.startsWith('//') ? `https:${value}` : value,
+		);
 		return protocol === 'http:' || protocol === 'https:';
 	} catch {
 		return false;
@@ -100,7 +102,9 @@ export const AssetSelectorModal: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({state, readOnlyStudio}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const [mode, setMode] = useState<'project' | 'url'>('project');
+	const [mode, setMode] = useState<'project' | 'url'>(() =>
+		state.initialUrl === null ? 'project' : 'url',
+	);
 	const [draft, setDraft] = useState(state.initialUrl ?? '');
 	const [previewState, setPreviewState] = useState<PreviewState>(() =>
 		state.assetType === 'image' && state.initialUrl !== null
@@ -148,7 +152,7 @@ export const AssetSelectorModal: React.FC<{
 			}
 		};
 
-		image.src = value;
+		image.src = value.startsWith('//') ? `https:${value}` : value;
 
 		return () => {
 			cancelled = true;
@@ -233,7 +237,11 @@ export const AssetSelectorModal: React.FC<{
 								{previewState.type === 'loaded' ? (
 									<img
 										alt="Image URL preview"
-										src={trimmedDraft}
+										src={
+											trimmedDraft.startsWith('//')
+												? `https:${trimmedDraft}`
+												: trimmedDraft
+										}
 										style={previewImage}
 									/>
 								) : null}
