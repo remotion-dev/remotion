@@ -53,6 +53,7 @@ test('read-only folder menus keep navigation and copy actions enabled', () => {
 	};
 
 	expect(itemById('show-folder-in-editor').disabled).toBe(false);
+	expect(itemById('copy-context-for-agents').disabled).toBe(false);
 	expect(itemById('copy-folder-file-location').disabled).toBe(false);
 	expect(itemById('copy-folder-id').disabled).toBe(false);
 	expect(itemById('new-composition-in-folder').disabled).toBe(true);
