@@ -14,16 +14,21 @@ test.skipIf(process.platform === 'win32')(
 		const previousPath = process.env.PATH;
 		const bin = path.join(root, 'bin');
 		await mkdir(bin);
-		const npx = path.join(bin, 'npx');
+		await writeFile(path.join(root, 'bun.lock'), '');
+		const bunx = path.join(bin, 'bunx');
 		await writeFile(
-			npx,
+			bunx,
 			`#!${process.execPath}
 const fs = require('node:fs');
 const path = require('node:path');
 const args = process.argv.slice(2);
 fs.writeFileSync(
   'install-call.json',
-  JSON.stringify({args, disableTelemetry: process.env.DISABLE_TELEMETRY}),
+  JSON.stringify({
+    args,
+    disableTelemetry: process.env.DISABLE_TELEMETRY,
+    launcher: path.basename(process.argv[1]),
+  }),
 );
 if (fs.existsSync('fail')) {
   process.stderr.write('Could not download skills');
@@ -36,6 +41,15 @@ if (fs.existsSync('fail')) {
   fs.mkdirSync(directory, {recursive: true});
   fs.writeFileSync(path.join(directory, 'SKILL.md'), '# Installed skill');
 }
+`,
+		);
+		await chmod(bunx, 0o755);
+		const npx = path.join(bin, 'npx');
+		await writeFile(
+			npx,
+			`#!${process.execPath}
+process.stderr.write('npx should not be used for a Bun project');
+process.exit(1);
 `,
 		);
 		await chmod(npx, 0o755);
@@ -107,14 +121,14 @@ if (fs.existsSync('fail')) {
 				),
 			).toEqual({
 				args: [
-					'--yes',
-					'--loglevel=error',
+					'--silent',
 					'skills@1.5.26',
 					'add',
 					'remotion-dev/skills@remotion-interactivity',
 					'--yes',
 				],
 				disableTelemetry: '1',
+				launcher: 'bunx',
 			});
 		} finally {
 			process.env.PATH = previousPath;

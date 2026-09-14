@@ -7,6 +7,7 @@ import type {
 import {getPackageManagerSpawnOptions} from '../../helpers/package-manager-spawn-options';
 import {remotionSkillNames} from '../../remotion-skill-names';
 import type {ApiHandler} from '../api-types';
+import {getPackageManager} from '../get-package-manager';
 import {getRemotionSkillsInfo} from './remotion-skills-info';
 
 const installingInProjects = new Set<string>();
@@ -26,31 +27,48 @@ export const installRemotionSkillHandler: ApiHandler<
 	}
 
 	installingInProjects.add(remotionRoot);
-	const args = [
-		'--yes',
-		'--loglevel=error',
-		'skills@1.5.26',
-		'add',
-		`remotion-dev/skills@${skill}`,
-		'--yes',
-	];
+	const packageManager = getPackageManager({
+		remotionRoot,
+		packageManager: undefined,
+		dirUp: 0,
+		logLevel,
+	});
+	const useBunx =
+		packageManager !== 'unknown' && packageManager.manager === 'bun';
+	const executable = useBunx
+		? 'bunx'
+		: process.platform === 'win32'
+			? 'npx.cmd'
+			: 'npx';
+	const args = useBunx
+		? [
+				'--silent',
+				'skills@1.5.26',
+				'add',
+				`remotion-dev/skills@${skill}`,
+				'--yes',
+			]
+		: [
+				'--yes',
+				'--loglevel=error',
+				'skills@1.5.26',
+				'add',
+				`remotion-dev/skills@${skill}`,
+				'--yes',
+			];
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
-		RenderInternals.chalk.gray(`╭─  npx ${args.join(' ')}`),
+		RenderInternals.chalk.gray(`╭─  ${executable} ${args.join(' ')}`),
 	);
 	const time = Date.now();
 	try {
 		await new Promise<void>((resolve, reject) => {
-			const child = spawn(
-				process.platform === 'win32' ? 'npx.cmd' : 'npx',
-				args,
-				{
-					cwd: remotionRoot,
-					env: {...process.env, DISABLE_TELEMETRY: '1'},
-					stdio: ['ignore', 'pipe', 'pipe'],
-					...getPackageManagerSpawnOptions(),
-				},
-			);
+			const child = spawn(executable, args, {
+				cwd: remotionRoot,
+				env: {...process.env, DISABLE_TELEMETRY: '1'},
+				stdio: ['ignore', 'pipe', 'pipe'],
+				...getPackageManagerSpawnOptions(),
+			});
 			let output = '';
 			const onData = (data: Buffer) => {
 				output = (output + data.toString()).slice(-8000);
