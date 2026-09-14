@@ -1455,6 +1455,7 @@ test.describe('visual mode', () => {
 				'.__remotion-composition-selector-item[role="button"][title="visual-controls"]',
 			);
 			await expect(parentFolder).toBeVisible({timeout: 15_000});
+			await expect(parentFolder).toHaveAttribute('aria-expanded', 'false');
 			await parentFolder.click({button: 'right'});
 			await page
 				.getByRole('button', {name: 'New folder...', exact: true})
@@ -1485,6 +1486,14 @@ test.describe('visual mode', () => {
 					);
 				})
 				.toBe(true);
+
+			await expect(parentFolder).toHaveAttribute('aria-expanded', 'true');
+			const newFolder = page.getByRole('button', {
+				name: newFolderName,
+				exact: true,
+			});
+			await expect(newFolder).toBeVisible();
+			await expect(newFolder).toHaveAttribute('aria-expanded', 'false');
 		} finally {
 			fs.writeFileSync(rootFile, originalSource);
 		}
