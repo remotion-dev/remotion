@@ -1,31 +1,38 @@
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
+import {
+	getIndentationUnit,
+	getObjectCurlySpacing,
+	getPreferredQuote,
+} from './source-style';
 
 const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
-export const getIndentationUnit = (
-	input: string,
-	prettierConfigOverride: Record<string, unknown> | null,
-) => {
-	if (/^\t+/m.test(input)) {
-		return '\t';
-	}
-
-	const indentation = input.match(/^([ ]+)\S/m)?.[1].length;
-	if (indentation) {
-		return ' '.repeat(indentation > 1 ? indentation : 2);
-	}
-
-	if (prettierConfigOverride?.useTabs === true) {
-		return '\t';
-	}
-
-	const tabWidth = prettierConfigOverride?.tabWidth;
-	return ' '.repeat(
-		typeof tabWidth === 'number' && Number.isInteger(tabWidth) && tabWidth > 0
-			? tabWidth
-			: 2,
-	);
+const escapeJsxStringAttribute = (value: string) => {
+	return value.replace(/[&"<>{}\t\r\n]/g, (character) => {
+		switch (character) {
+			case '&':
+				return '&amp;';
+			case '"':
+				return '&quot;';
+			case '<':
+				return '&lt;';
+			case '>':
+				return '&gt;';
+			case '{':
+				return '&#123;';
+			case '}':
+				return '&#125;';
+			case '\t':
+				return '&#9;';
+			case '\r':
+				return '&#13;';
+			case '\n':
+				return '&#10;';
+			default:
+				throw new Error(`Unexpected JSX attribute character: ${character}`);
+		}
+	});
 };
 
 export const indentInsertedJsx = ({
@@ -75,7 +82,7 @@ export const printInsertedJsx = ({
 			return undefined;
 		},
 	});
-	const printNode = (node: namedTypes.Node) => {
+	const printNode = (node: namedTypes.Node, wrapColumn: number) => {
 		// The generic printer drops comments inside empty JSX expressions.
 		if (
 			node.type === 'JSXExpressionContainer' &&
@@ -90,7 +97,7 @@ export const printInsertedJsx = ({
 			quote: prettierConfigOverride?.singleQuote === true ? 'single' : 'double',
 			tabWidth,
 			useTabs: false,
-			wrapColumn: typeof printWidth === 'number' ? printWidth : 80,
+			wrapColumn,
 		}).code;
 	};
 
@@ -107,23 +114,31 @@ export const printInsertedJsx = ({
 	};
 
 	const printOpeningElement = (opening: namedTypes.JSXOpeningElement) => {
-		const name = printNode(opening.name);
+		const effectivePrintWidth =
+			typeof printWidth === 'number' ? printWidth : 80;
+		const name = printNode(opening.name, effectivePrintWidth);
 		const attributes = (opening.attributes ?? []).map((attribute) => {
 			if (
 				attribute.type === 'JSXAttribute' &&
 				attribute.name.type === 'JSXIdentifier' &&
 				attribute.value?.type === 'StringLiteral'
 			) {
-				return `${attribute.name.name}=${JSON.stringify(attribute.value.value)}`;
+				return `${attribute.name.name}="${escapeJsxStringAttribute(attribute.value.value)}"`;
 			}
 
-			return normalizeIndentation(printNode(attribute));
+			const unwrapped = normalizeIndentation(
+				printNode(attribute, Number.POSITIVE_INFINITY),
+			);
+			return !unwrapped.includes(endOfLine) &&
+				unwrapped.length <= effectivePrintWidth
+				? unwrapped
+				: normalizeIndentation(printNode(attribute, effectivePrintWidth));
 		});
 		const suffix = opening.selfClosing ? ' />' : '>';
 		const singleLine = `<${name}${attributes.length === 0 ? '' : ` ${attributes.join(' ')}`}${suffix}`;
 		if (
 			!attributes.some((attribute) => attribute.includes(endOfLine)) &&
-			singleLine.length <= (typeof printWidth === 'number' ? printWidth : 80)
+			singleLine.length <= effectivePrintWidth
 		) {
 			return singleLine;
 		}
@@ -150,7 +165,11 @@ export const printInsertedJsx = ({
 					return [];
 				}
 
-				return [normalizeIndentation(printNode(child))];
+				return [
+					normalizeIndentation(
+						printNode(child, typeof printWidth === 'number' ? printWidth : 80),
+					),
+				];
 			});
 			return [
 				'<>',
@@ -167,7 +186,12 @@ export const printInsertedJsx = ({
 		}
 
 		const closing = node.closingElement
-			? normalizeIndentation(printNode(node.closingElement))
+			? normalizeIndentation(
+					printNode(
+						node.closingElement,
+						typeof printWidth === 'number' ? printWidth : 80,
+					),
+				)
 			: '';
 		const children = node.children ?? [];
 		if (
@@ -176,6 +200,19 @@ export const printInsertedJsx = ({
 			!children[0].value.includes('\n')
 		) {
 			return `${opening}${children[0].value}${closing}`;
+		}
+
+		if (
+			children.length === 1 &&
+			children[0].type === 'JSXExpressionContainer' &&
+			children[0].expression.type === 'StringLiteral'
+		) {
+			return `${opening}${normalizeIndentation(
+				printNode(
+					children[0],
+					typeof printWidth === 'number' ? printWidth : 80,
+				),
+			)}${closing}`;
 		}
 
 		const printedChildren = children.flatMap((child) => {
@@ -187,7 +224,11 @@ export const printInsertedJsx = ({
 				return [];
 			}
 
-			return [normalizeIndentation(printNode(child))];
+			return [
+				normalizeIndentation(
+					printNode(child, typeof printWidth === 'number' ? printWidth : 80),
+				),
+			];
 		});
 		if (printedChildren.length === 0) {
 			return `${opening}${closing}`;
@@ -203,4 +244,49 @@ export const printInsertedJsx = ({
 	};
 
 	return printElement(element);
+};
+
+export const printJsxOpeningElement = ({
+	openingElement,
+	input,
+	prettierConfigOverride,
+}: {
+	openingElement: namedTypes.JSXOpeningElement;
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+}): string => {
+	const wasSelfClosing = openingElement.selfClosing ?? false;
+	const printableOpeningElement = {
+		...openingElement,
+		selfClosing: true,
+	};
+	const printableElement = recast.types.builders.jsxElement(
+		printableOpeningElement,
+		null,
+		[],
+	);
+	const printed = printInsertedJsx({
+		element: printableElement,
+		input,
+		prettierConfigOverride: {
+			bracketSpacing: getObjectCurlySpacing(input, prettierConfigOverride),
+			singleQuote:
+				getPreferredQuote(input, prettierConfigOverride) === 'single',
+			...prettierConfigOverride,
+		},
+	});
+	if (wasSelfClosing) {
+		return printed;
+	}
+
+	if (!printed.endsWith('/>')) {
+		throw new Error('Expected a printed self-closing JSX element');
+	}
+
+	const slashIndex = printed.length - 2;
+	const lastLineStart = printed.lastIndexOf('\n') + 1;
+	const beforeSlash = printed.slice(lastLineStart, slashIndex);
+	return beforeSlash.trim().length === 0
+		? `${printed.slice(0, slashIndex)}>`
+		: `${printed.slice(0, slashIndex).trimEnd()}>`;
 };

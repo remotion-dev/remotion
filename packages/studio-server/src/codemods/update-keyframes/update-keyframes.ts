@@ -2,7 +2,6 @@ import {
 	updateEffectKeyframes as updateEffectKeyframesCodemod,
 	updateSequenceKeyframes as updateSequenceKeyframesCodemod,
 } from '@remotion/studio-codemods';
-import {formatFileContent} from '../format-file-content';
 
 export {
 	type EffectKeyframeUpdate,
@@ -23,20 +22,8 @@ type UpdateEffectKeyframesInput = Omit<
 	'formatFile'
 >;
 
-const formatKeyframesFile = ({
-	contents,
-	prettierConfigOverride,
-}: {
-	contents: string;
-	prettierConfigOverride: Record<string, unknown> | null;
-}) =>
-	formatFileContent({
-		input: contents,
-		prettierConfigOverride,
-	});
-
 export const updateSequenceKeyframes = (input: UpdateSequenceKeyframesInput) =>
-	updateSequenceKeyframesCodemod({...input, formatFile: formatKeyframesFile});
+	updateSequenceKeyframesCodemod(input);
 
 export const updateEffectKeyframes = (input: UpdateEffectKeyframesInput) =>
-	updateEffectKeyframesCodemod({...input, formatFile: formatKeyframesFile});
+	updateEffectKeyframesCodemod(input);

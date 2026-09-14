@@ -695,7 +695,7 @@ test.describe('visual mode', () => {
 			await expect(hexInput).toBeVisible();
 			await expect
 				.poll(() => fs.readFileSync(barChartFile, 'utf-8'))
-				.toMatch(/position: 'relative',\n\s+color: '#[0-9a-f]{6}',/);
+				.toMatch(/position: 'relative',\n\s+color: '#[0-9a-f]{6}'/);
 			await expect(page.getByRole('button', {name: /^Undo/})).toBeEnabled();
 			await page.keyboard.press('ControlOrMeta+z');
 

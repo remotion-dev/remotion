@@ -1,7 +1,4 @@
 import type {
-	ArrowFunctionExpression,
-	FunctionDeclaration,
-	FunctionExpression,
 	JSXAttribute,
 	JSXElement,
 	JSXExpressionContainer,
@@ -17,6 +14,7 @@ import type {
 	EffectClipboardParam,
 	GoogleFontSourceEdit,
 } from '@remotion/studio-shared';
+import type {namedTypes as AstNamedTypes} from 'ast-types';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {
@@ -25,6 +23,13 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {
+	captureFunctionSourceSnapshots,
+	getFunctionSourceEditsForPrependedStatements,
+	type FunctionNode,
+} from './function-source-edits';
+import {printInsertedJsx, printJsxOpeningElement} from './print-jsx';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {
 	findNodePathForJsxElement,
 	findJsxElementNodeAtNodePath,
@@ -52,6 +57,21 @@ import {
 	getVideoConfigIdentifierValues,
 	type VideoConfigIdentifierValues,
 } from './sequence-props/video-config-values';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+	type SourceEdit,
+} from './source-edits';
+import {
+	getEndOfLine,
+	getIndentationUnit,
+	getLineIndent,
+	getObjectCurlySpacing,
+	getPreferredQuote,
+	indentContinuationLines,
+	printNodeWithSourceStyle,
+} from './source-style';
 import {parseValueExpression, updateNestedProp} from './update-nested-prop';
 
 const b = recast.types.builders;
@@ -183,11 +203,6 @@ type JSXElementLike = NonNullable<
 	ReturnType<typeof findJsxElementNodeAtNodePath>
 >;
 type JSXOpeningElementLike = JSXElementLike['openingElement'];
-
-type FunctionNode =
-	| FunctionDeclaration
-	| FunctionExpression
-	| ArrowFunctionExpression;
 
 const isFunctionNode = (value: unknown): value is FunctionNode => {
 	return (
@@ -1248,29 +1263,143 @@ export const updateSequencePropsAst = ({
 	};
 };
 
+const getProgramStatementSourceEdits = ({
+	ast,
+	input,
+	originalBody,
+	prettierConfigOverride,
+}: {
+	ast: File;
+	input: string;
+	originalBody: Statement[];
+	prettierConfigOverride: Record<string, unknown> | null;
+}): SourceEdit[] => {
+	const edits: SourceEdit[] = [];
+	const currentStatements = new Set(ast.program.body);
+	for (const statement of originalBody) {
+		if (currentStatements.has(statement) || !statement.loc) {
+			continue;
+		}
+
+		const leadingCommentStarts = (statement.leadingComments ?? []).flatMap(
+			(comment) =>
+				comment.loc ? [recastLocToOffset(input, comment.loc.start)] : [],
+		);
+		edits.push({
+			start: Math.min(
+				recastLocToOffset(input, statement.loc.start),
+				...leadingCommentStarts,
+			),
+			end: recastLocToOffset(input, statement.loc.end),
+			replacement: '',
+		});
+	}
+
+	const originalStatements = new Set(originalBody);
+	const endOfLine = getEndOfLine(input);
+	for (let index = 0; index < ast.program.body.length; index++) {
+		const statement = ast.program.body[index];
+		if (
+			originalStatements.has(statement) ||
+			statement.type === 'ImportDeclaration'
+		) {
+			continue;
+		}
+
+		const inserted: Statement[] = [statement];
+		while (
+			index + 1 < ast.program.body.length &&
+			!originalStatements.has(ast.program.body[index + 1]) &&
+			ast.program.body[index + 1].type !== 'ImportDeclaration'
+		) {
+			inserted.push(ast.program.body[++index]);
+		}
+
+		const nextOriginal = ast.program.body
+			.slice(index + 1)
+			.find((candidate) => originalStatements.has(candidate) && candidate.loc);
+		const printed = inserted
+			.map((candidate) =>
+				printNodeWithSourceStyle({
+					input,
+					node: candidate as unknown as AstNamedTypes.Node,
+					prettierConfigOverride,
+					wrapColumn: null,
+				}),
+			)
+			.join(`${endOfLine}${endOfLine}`);
+		if (nextOriginal?.loc) {
+			const nextOffset = recastLocToOffset(input, nextOriginal.loc.start);
+			edits.push({
+				start: nextOffset,
+				end: nextOffset,
+				replacement: `${printed}${endOfLine}${endOfLine}`,
+			});
+			continue;
+		}
+
+		const previousOriginal = ast.program.body
+			.slice(0, index - inserted.length + 1)
+			.findLast(
+				(candidate) => originalStatements.has(candidate) && candidate.loc,
+			);
+		const offset = previousOriginal?.loc
+			? recastLocToOffset(input, previousOriginal.loc.end)
+			: input.length;
+		edits.push({
+			start: offset,
+			end: offset,
+			replacement: `${endOfLine}${endOfLine}${printed}`,
+		});
+	}
+
+	return edits;
+};
+
 export const updateMultipleSequenceProps = ({
 	input,
 	changes,
 	ast: providedAst,
+	prettierConfigOverride,
 }: {
 	input: string;
 	changes: SequencePropsNodeUpdate[];
 	ast?: File;
+	prettierConfigOverride?: Record<string, unknown> | null;
 }): UpdateMultipleSequencePropsResult => {
 	const ast = providedAst ?? parseAst(input);
-	const canPatchOpeningElements = changes.every(({updates}) =>
-		updates.every(
-			(update) =>
-				update.key !== 'children' &&
-				update.key !== 'style.fontFamily' &&
-				!update.googleFont &&
-				!update.clipboardParam &&
-				!(
-					typeof update.value === 'string' &&
-					update.value.startsWith(NoReactInternals.FILE_TOKEN)
-				),
-		),
-	);
+	const prettierConfig = prettierConfigOverride ?? null;
+	const jsxFormattingConfig = {
+		bracketSpacing: getObjectCurlySpacing(input, prettierConfig),
+		singleQuote: getPreferredQuote(input, prettierConfig) === 'single',
+		...(prettierConfig ?? {}),
+	};
+	const originalProgramBody = [...ast.program.body];
+	const importSnapshots = captureImportSnapshots(ast);
+	const functionSnapshots = captureFunctionSourceSnapshots(ast);
+	const getJsxSourceIndent = (offset: number) => {
+		const lineStart = input.lastIndexOf('\n', offset - 1) + 1;
+		const startsInsideSameLineFunctionBlock = functionSnapshots.some(
+			({body}) => {
+				if (body.type !== 'BlockStatement' || !body.loc) {
+					return false;
+				}
+
+				const blockStart = recastLocToOffset(input, body.loc.start);
+				const blockEnd = recastLocToOffset(input, body.loc.end);
+				return (
+					blockStart < offset &&
+					offset < blockEnd &&
+					input.lastIndexOf('\n', blockStart - 1) + 1 === lineStart
+				);
+			},
+		);
+		const lineIndent = getLineIndent({input, offset});
+		return startsInsideSameLineFunctionBlock
+			? `${lineIndent}${getIndentationUnit(input, prettierConfig)}`
+			: lineIndent;
+	};
+
 	const resolvedChanges = changes.map(
 		({nodePath, updates, schema, videoConfigValues}) => {
 			const jsxElement = findJsxElementNodeAtNodePath(ast, nodePath);
@@ -1283,14 +1412,25 @@ export const updateMultipleSequenceProps = ({
 			return {jsxElement, updates, schema, videoConfigValues};
 		},
 	);
-	const openingElementLocations = canPatchOpeningElements
-		? new Map(
-				resolvedChanges.map(({jsxElement}) => [
-					jsxElement.openingElement,
-					jsxElement.openingElement.loc,
-				]),
-			)
-		: null;
+	const elementsWithChildrenUpdates = new Set(
+		resolvedChanges.flatMap(({jsxElement, updates}) =>
+			updates.some((update) => update.key === 'children') ? [jsxElement] : [],
+		),
+	);
+	const openingElementLocations = new Map(
+		resolvedChanges.flatMap(({jsxElement}) =>
+			elementsWithChildrenUpdates.has(jsxElement)
+				? []
+				: [[jsxElement.openingElement, jsxElement.openingElement.loc] as const],
+		),
+	);
+	const elementLocations = new Map(
+		resolvedChanges.flatMap(({jsxElement}) =>
+			elementsWithChildrenUpdates.has(jsxElement)
+				? [[jsxElement, jsxElement.loc] as const]
+				: [],
+		),
+	);
 	const clipboardParamLocalNames = prepareClipboardParamSourceEdits({
 		ast,
 		changes: resolvedChanges,
@@ -1327,81 +1467,146 @@ export const updateMultipleSequenceProps = ({
 
 		return {...result, newNodePath};
 	});
-	const sourceLines = input.split('\n');
-	const lineOffsets: number[] = [];
-	let offset = 0;
-	for (const line of sourceLines) {
-		lineOffsets.push(offset);
-		offset += line.length + 1;
-	}
-
-	const replacements = openingElementLocations
-		? [...openingElementLocations].map(([openingElement, location]) => {
-				if (!location) {
-					return null;
-				}
-
-				const getOffset = ({line, column}: {line: number; column: number}) => {
-					const sourceLine = sourceLines[line - 1];
-					if (sourceLine === undefined) {
-						return null;
-					}
-
-					let sourceColumn = 0;
-					let recastColumn = 0;
-					while (sourceColumn < sourceLine.length && recastColumn < column) {
-						recastColumn +=
-							sourceLine[sourceColumn] === '\t' ? 4 - (recastColumn % 4) : 1;
-						sourceColumn++;
-					}
-
-					return lineOffsets[line - 1] + sourceColumn;
-				};
-
-				const start = getOffset(location.start);
-				const end = getOffset(location.end);
-				if (start === null || end === null) {
-					return null;
-				}
-
-				return {
-					start,
-					end,
-					replacement: recast.print(openingElement).code,
-					selfClosing: openingElement.selfClosing ?? false,
-				};
-			})
-		: null;
-	let output = input;
-	let openingElementRanges: UpdateMultipleSequencePropsResult['openingElementRanges'] =
-		null;
-	if (replacements?.every((replacement) => replacement !== null)) {
-		const replacementsByStart = replacements.sort(
-			(first, second) => first.start - second.start,
-		);
-		let shift = 0;
-		openingElementRanges = replacementsByStart.map((replacement) => {
-			const start = replacement.start + shift;
-			const end = start + replacement.replacement.length;
-			shift +=
-				replacement.replacement.length - (replacement.end - replacement.start);
-			return {start, end, selfClosing: replacement.selfClosing};
+	const {coveredRanges, edits: functionEdits} =
+		getFunctionSourceEditsForPrependedStatements({
+			indentationUnit: getIndentationUnit(input, prettierConfig),
+			input,
+			printNode: (node) =>
+				printNodeWithSourceStyle({
+					input,
+					node,
+					prettierConfigOverride: prettierConfig,
+					wrapColumn: null,
+				}),
+			reprintBlockBodies: new Set(),
+			snapshots: functionSnapshots,
 		});
-
-		for (const replacement of [...replacementsByStart].reverse()) {
-			output =
-				output.slice(0, replacement.start) +
-				replacement.replacement +
-				output.slice(replacement.end);
+	const isCoveredByFunctionEdit = (start: number, end: number) =>
+		coveredRanges.some((range) => start >= range.start && end <= range.end);
+	const elementEdits: SourceEdit[] = [];
+	for (const [openingElement, location] of openingElementLocations) {
+		if (!location) {
+			continue;
 		}
-	} else {
-		output = serializeAst(ast);
+
+		const start = recastLocToOffset(input, location.start);
+		const end = recastLocToOffset(input, location.end);
+		if (isCoveredByFunctionEdit(start, end)) {
+			continue;
+		}
+
+		const original = input.slice(start, end);
+		if (recast.print(openingElement).code === original) {
+			continue;
+		}
+
+		elementEdits.push({
+			start,
+			end,
+			replacement: indentContinuationLines({
+				indent: getJsxSourceIndent(start),
+				input,
+				printed: printJsxOpeningElement({
+					openingElement:
+						openingElement as unknown as AstNamedTypes.JSXOpeningElement,
+					input,
+					prettierConfigOverride: jsxFormattingConfig,
+				}),
+			}),
+		});
 	}
+
+	for (const [element, location] of elementLocations) {
+		if (!location) {
+			continue;
+		}
+
+		const start = recastLocToOffset(input, location.start);
+		const end = recastLocToOffset(input, location.end);
+		if (isCoveredByFunctionEdit(start, end)) {
+			continue;
+		}
+
+		const original = input.slice(start, end);
+		if (recast.print(element).code === original) {
+			continue;
+		}
+
+		elementEdits.push({
+			start,
+			end,
+			replacement: indentContinuationLines({
+				indent: getJsxSourceIndent(start),
+				input,
+				printed: printInsertedJsx({
+					element: element as unknown as AstNamedTypes.JSXElement,
+					input,
+					prettierConfigOverride: jsxFormattingConfig,
+				}),
+			}),
+		});
+	}
+
+	const modifiedImportEdits = importSnapshots.flatMap((snapshot) => {
+		if (
+			!ast.program.body.includes(snapshot.declaration) ||
+			!snapshot.declaration.loc ||
+			snapshot.specifiers.every((specifier) =>
+				snapshot.declaration.specifiers.includes(specifier),
+			)
+		) {
+			return [];
+		}
+
+		const start = recastLocToOffset(input, snapshot.declaration.loc.start);
+		const end = recastLocToOffset(input, snapshot.declaration.loc.end);
+		return [
+			{
+				start,
+				end,
+				replacement: printNodeWithSourceStyle({
+					input,
+					node: snapshot.declaration as unknown as AstNamedTypes.Node,
+					prettierConfigOverride: prettierConfig,
+					wrapColumn: null,
+				}),
+			},
+		];
+	});
+	const insertedImportEdits = getInsertImportSourceEdits({
+		ast,
+		input,
+		prettierConfigOverride: jsxFormattingConfig,
+		snapshots: importSnapshots,
+	});
+	const importEdits = [
+		...modifiedImportEdits,
+		...insertedImportEdits.filter((edit) =>
+			modifiedImportEdits.every(
+				(modified) => edit.end <= modified.start || edit.start >= modified.end,
+			),
+		),
+	];
+	const programStatementEdits = getProgramStatementSourceEdits({
+		ast,
+		input,
+		originalBody: originalProgramBody,
+		prettierConfigOverride: prettierConfig,
+	});
+	const output = applySourceEdits({
+		input,
+		edits: [
+			...programStatementEdits,
+			...importEdits,
+			...functionEdits,
+			...elementEdits,
+		],
+	});
 
 	return {
 		output,
 		results,
 		ast,
-		openingElementRanges,
+		openingElementRanges: null,
 	};
 };

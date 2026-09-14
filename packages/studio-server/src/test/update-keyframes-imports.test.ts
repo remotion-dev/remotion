@@ -61,8 +61,8 @@ export const Example: React.FC = () => {
 	);
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 	expect(serialized).toContain('interpolate(frame, [30], [1], {');
-	expect(serialized).toContain('extrapolateLeft: "clamp"');
-	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).toContain("extrapolateLeft: 'clamp'");
+	expect(serialized).toContain("extrapolateRight: 'clamp'");
 });
 
 test('adds interpolateColors import (not interpolate) for color conversion', () => {
@@ -138,8 +138,8 @@ export const Example: React.FC = () => {
 
 	expect(serialized).toContain('interpolate');
 	expect(serialized).not.toContain('interpolateColors');
-	expect(serialized).toContain('extrapolateLeft: "clamp"');
-	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).toContain("extrapolateLeft: 'clamp'");
+	expect(serialized).toContain("extrapolateRight: 'clamp'");
 	expect(serialized).toContain('useCurrentFrame');
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 });
@@ -424,8 +424,8 @@ export const Example: React.FC = () => (
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 	expect(serialized).toContain('return');
 	expect(serialized).toContain('interpolate(frame, [20], [1], {');
-	expect(serialized).toContain('extrapolateLeft: "clamp"');
-	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).toContain("extrapolateLeft: 'clamp'");
+	expect(serialized).toContain("extrapolateRight: 'clamp'");
 });
 
 test('does not add a duplicate frame hook when user already has one with a different intermediate statement', () => {
@@ -487,8 +487,8 @@ export const Comp = () => {
 	);
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 	expect(serialized).toContain('interpolate(frame, [100], [1], {');
-	expect(serialized).toContain('extrapolateLeft: "clamp"');
-	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).toContain("extrapolateLeft: 'clamp'");
+	expect(serialized).toContain("extrapolateRight: 'clamp'");
 });
 
 test('effect keyframe remove does not modify imports or insert a frame hook', () => {

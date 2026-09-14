@@ -587,6 +587,26 @@ test('updateMultipleSequenceProps should update multiple nodes in one format pas
 	expect(output.split('\n')[8]).toContain('durationInFrames={120}');
 });
 
+test('updateMultipleSequenceProps rejects instead of throwing synchronously', async () => {
+	const promise = updateMultipleSequenceProps({
+		input: lightLeakInput,
+		changes: [
+			{
+				nodePath: ['program', 'body', 999],
+				updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: null,
+	});
+
+	expect(promise).toBeInstanceOf(Promise);
+	await expect(promise).rejects.toThrow(
+		'Could not find a JSX element at the specified line to update',
+	);
+});
+
 test('updateMultipleSequenceProps should not format a no-op edit', async () => {
 	const unformattedInput = lightLeakInput.replace(
 		'\t\t<AbsoluteFill',
@@ -638,7 +658,32 @@ export const Example = () => {
 	expect(formatted).toBe(true);
 });
 
-test('updateMultipleSequenceProps formats a multiline non-self-closing opening element', async () => {
+test('updateSequenceProps preserves non-Prettier source around the edited element', async () => {
+	const input = `const unrelated    = {keep:"this spacing"};
+
+export const Example = () => {
+    return <Interactive.Div name = "Example">Text</Interactive.Div>;
+};
+`;
+	const {output, formatted} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [{key: 'hidden', value: true, defaultValue: false}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+		videoConfigValues: null,
+	});
+
+	expect(output).toBe(`const unrelated    = {keep:"this spacing"};
+
+export const Example = () => {
+    return <Interactive.Div name="Example" hidden>Text</Interactive.Div>;
+};
+`);
+	expect(formatted).toBe(true);
+});
+
+test('updateMultipleSequenceProps formats a multiline non-self-closing opening element without Prettier', async () => {
 	const input = `export const Example = () => {
 	return (
 		<Interactive.Div
@@ -665,7 +710,14 @@ test('updateMultipleSequenceProps formats a multiline non-self-closing opening e
 
 	expect(output).toBe(`export const Example = () => {
 	return (
-		<Interactive.Div name="Example" style={{ height: 8, scale: 1.353, width: 8 }}>
+		<Interactive.Div
+			name="Example"
+			style={{
+				height: 8,
+				scale: 1.353,
+				width: 8
+			}}
+		>
 			Text
 		</Interactive.Div>
 	);

@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {
+	BlockStatement,
 	CallExpression,
 	Expression,
+	File,
 	JSXAttribute,
 	JSXElement,
 	JSXExpressionContainer,
 	JSXFragment,
+	JSXOpeningElement,
 	JSXSpreadAttribute,
 	ObjectExpression,
 	ObjectProperty,
@@ -39,6 +42,14 @@ import {
 	findEnclosingFunctionPath,
 } from './ensure-imports-and-frame-hook';
 import {
+	captureFunctionSourceSnapshots,
+	getFunctionSourceEditsForPrependedStatements,
+	type FunctionNode,
+	type FunctionSourceSnapshot,
+} from './function-source-edits';
+import {printJsxOpeningElement} from './print-jsx';
+import {recastLocToOffset} from './recast-loc-to-offset';
+import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
 	findNodePathForJsxElement,
@@ -49,7 +60,7 @@ import {
 	findEffectsAttr,
 } from './sequence-props/can-update-effect-props';
 import {getAstNodePath} from './sequence-props/get-ast-node-path';
-import {parseAst, serializeAst} from './sequence-props/parse-ast';
+import {parseAst} from './sequence-props/parse-ast';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
 import {
 	parseVideoConfigNumericExpression,
@@ -59,9 +70,168 @@ import {
 	getVideoConfigIdentifierValues,
 	type VideoConfigIdentifierValues,
 } from './sequence-props/video-config-values';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+	type ImportSnapshot,
+	type SourceEdit,
+} from './source-edits';
+import {
+	getEndOfLine,
+	getSourceFormattingConfig,
+	indentContinuationLinesAtOffset,
+	printNodeWithSourceStyle,
+	type SourceFormattingConfig,
+} from './source-style';
 import {parseValueExpression} from './update-nested-prop';
 
 const b = recast.types.builders;
+
+const getOpeningElementSourceEdit = ({
+	input,
+	openingElement,
+	prettierConfigOverride,
+	propertyNames,
+}: {
+	input: string;
+	openingElement: JSXOpeningElement;
+	prettierConfigOverride: Record<string, unknown> | null;
+	propertyNames: string[];
+}): SourceEdit => {
+	if (!openingElement.loc) {
+		throw new Error('Cannot update keyframes without a JSX source location');
+	}
+
+	const start = recastLocToOffset(input, openingElement.loc.start);
+	const printed = printJsxOpeningElement({
+		openingElement: openingElement as never,
+		input,
+		prettierConfigOverride,
+	});
+	return {
+		start,
+		end: recastLocToOffset(input, openingElement.loc.end),
+		replacement: indentContinuationLinesAtOffset({
+			input,
+			offset: start,
+			printed: removeBlankLinesFromUpdatedOpeningElementObjects({
+				input: printed,
+				propertyNames,
+			}),
+		}),
+	};
+};
+
+const getKeyframeFunctionSourceEdits = ({
+	formattingConfig,
+	functionSnapshots,
+	input,
+	jsxPath,
+	needsFrameHook,
+	openingElement,
+}: {
+	formattingConfig: SourceFormattingConfig;
+	functionSnapshots: FunctionSourceSnapshot[];
+	input: string;
+	jsxPath: recast.types.NodePath;
+	needsFrameHook: boolean;
+	openingElement: JSXOpeningElement;
+}) => {
+	const reprintBlockBodies = new Set<BlockStatement>();
+	const fnPath = findEnclosingFunctionPath(jsxPath);
+	if (fnPath) {
+		const functionNode = fnPath.value as FunctionNode;
+		const snapshot = functionSnapshots.find(
+			(candidate) => candidate.functionNode === functionNode,
+		);
+		if (
+			snapshot?.body.type === 'BlockStatement' &&
+			snapshot.body.loc &&
+			openingElement.loc &&
+			snapshot.body.loc.start.line === openingElement.loc.start.line
+		) {
+			reprintBlockBodies.add(snapshot.body);
+		}
+
+		if (needsFrameHook) {
+			ensureUseCurrentFrameHook(fnPath);
+		}
+	}
+
+	return getFunctionSourceEditsForPrependedStatements({
+		indentationUnit: formattingConfig.indentationUnit,
+		input,
+		printNode: (node) =>
+			printNodeWithSourceStyle({
+				input,
+				node,
+				prettierConfigOverride: formattingConfig,
+				wrapColumn: formattingConfig.printWidth,
+			}).replace(
+				/(const frame = useCurrentFrame\(\);?\r?\n)(?:[ \t]*\r?\n)+/,
+				'$1',
+			),
+		reprintBlockBodies,
+		snapshots: functionSnapshots,
+	});
+};
+
+const getKeyframeSourceOutput = ({
+	ast,
+	functionSourceCoveredRanges,
+	functionSourceEdits,
+	input,
+	openingElement,
+	importSnapshots,
+	prettierConfigOverride,
+	propertyNames,
+}: {
+	ast: File;
+	functionSourceCoveredRanges: {end: number; start: number}[];
+	functionSourceEdits: SourceEdit[];
+	input: string;
+	openingElement: JSXOpeningElement;
+	importSnapshots: ImportSnapshot[];
+	prettierConfigOverride: Record<string, unknown> | null;
+	propertyNames: string[];
+}) => {
+	const openingStart = openingElement.loc
+		? recastLocToOffset(input, openingElement.loc.start)
+		: null;
+	const openingEnd = openingElement.loc
+		? recastLocToOffset(input, openingElement.loc.end)
+		: null;
+	const openingElementIsCovered =
+		openingStart !== null &&
+		openingEnd !== null &&
+		functionSourceCoveredRanges.some(
+			(range) => openingStart >= range.start && openingEnd <= range.end,
+		);
+
+	return applySourceEdits({
+		input,
+		edits: [
+			...getInsertImportSourceEdits({
+				ast,
+				input,
+				prettierConfigOverride,
+				snapshots: importSnapshots,
+			}),
+			...functionSourceEdits,
+			...(!openingElementIsCovered
+				? [
+						getOpeningElementSourceEdit({
+							input,
+							openingElement,
+							prettierConfigOverride,
+							propertyNames,
+						}),
+					]
+				: []),
+		],
+	});
+};
 
 const getObjectPropertyNameFromUpdateKey = (key: string): string => {
 	const dotIndex = key.indexOf('.');
@@ -85,7 +255,7 @@ const lineStartsWithPropertyName = ({
 
 const getIndent = (line: string) => line.match(/^[ \t]*/)?.[0] ?? '';
 
-const removeBlankLinesFromObjectsWithProperties = ({
+const removeBlankLinesFromUpdatedOpeningElementObjects = ({
 	input,
 	propertyNames,
 }: {
@@ -96,7 +266,8 @@ const removeBlankLinesFromObjectsWithProperties = ({
 		return input;
 	}
 
-	const lines = input.split('\n');
+	const endOfLine = getEndOfLine(input);
+	const lines = input.split(/\r?\n/);
 	const linesToRemove = new Set<number>();
 
 	for (let i = 0; i < lines.length; i++) {
@@ -143,7 +314,7 @@ const removeBlankLinesFromObjectsWithProperties = ({
 		return input;
 	}
 
-	return lines.filter((_, index) => !linesToRemove.has(index)).join('\n');
+	return lines.filter((_, index) => !linesToRemove.has(index)).join(endOfLine);
 };
 
 type KeyframeEasing = Extract<
@@ -1785,12 +1956,14 @@ export const updateSequenceKeyframesAst = ({
 	nodePath,
 	updates,
 	schema,
+	prettierConfigOverride,
 	videoConfigValues,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
 }): {
 	serialized: string;
@@ -1800,6 +1973,12 @@ export const updateSequenceKeyframesAst = ({
 	updatedNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride: prettierConfigOverride ?? null,
+	});
+	const functionSnapshots = captureFunctionSourceSnapshots(ast);
+	const importSnapshots = captureImportSnapshots(ast);
 	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
 		ast,
 		videoConfigValues,
@@ -1873,12 +2052,17 @@ export const updateSequenceKeyframesAst = ({
 		}
 	}
 
-	if (needsFrameHook) {
-		const fnPath = findEnclosingFunctionPath(jsxPath);
-		if (fnPath) {
-			ensureUseCurrentFrameHook(fnPath);
-		}
-	}
+	const {
+		coveredRanges: functionSourceCoveredRanges,
+		edits: functionSourceEdits,
+	} = getKeyframeFunctionSourceEdits({
+		formattingConfig,
+		functionSnapshots,
+		input,
+		jsxPath,
+		needsFrameHook,
+		openingElement: node,
+	});
 
 	ensureRemotionImports(ast, requiredImports);
 
@@ -1890,7 +2074,18 @@ export const updateSequenceKeyframesAst = ({
 	}
 
 	return {
-		serialized: serializeAst(ast),
+		serialized: getKeyframeSourceOutput({
+			ast,
+			functionSourceCoveredRanges,
+			functionSourceEdits,
+			input,
+			openingElement: node,
+			importSnapshots,
+			prettierConfigOverride: formattingConfig,
+			propertyNames: updates.map((update) =>
+				getObjectPropertyNameFromUpdateKey(update.key),
+			),
+		}),
 		oldValueStrings,
 		newValueStrings,
 		logLine: node.loc?.start.line ?? 1,
@@ -1898,12 +2093,11 @@ export const updateSequenceKeyframesAst = ({
 	};
 };
 
-export const updateSequenceKeyframes = async ({
+export const updateSequenceKeyframes = ({
 	input,
 	nodePath,
 	updates,
 	schema,
-	formatFile,
 	prettierConfigOverride,
 	videoConfigValues,
 }: {
@@ -1911,7 +2105,9 @@ export const updateSequenceKeyframes = async ({
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	formatFile: FormatKeyframesFile;
+	// Kept optional for compatibility with callers from before source edits
+	// replaced the full-file formatting pass.
+	formatFile?: FormatKeyframesFile;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
 }): Promise<{
@@ -1921,41 +2117,31 @@ export const updateSequenceKeyframes = async ({
 	newValueStrings: string[];
 	logLine: number;
 	updatedNodePath: SequenceNodePath;
-}> => {
-	const {
-		serialized,
-		oldValueStrings,
-		newValueStrings,
-		logLine,
-		updatedNodePath,
-	} = updateSequenceKeyframesAst({
-		input,
-		nodePath,
-		updates,
-		schema,
-		videoConfigValues,
-	});
-	const {output, formatted} = await formatFile({
-		contents: serialized,
-		prettierConfigOverride: prettierConfigOverride ?? null,
-	});
-	const outputWithoutInsertedBlankLines =
-		removeBlankLinesFromObjectsWithProperties({
-			input: output,
-			propertyNames: updates.map((update) =>
-				getObjectPropertyNameFromUpdateKey(update.key),
-			),
+}> =>
+	Promise.resolve().then(() => {
+		const {
+			serialized,
+			oldValueStrings,
+			newValueStrings,
+			logLine,
+			updatedNodePath,
+		} = updateSequenceKeyframesAst({
+			input,
+			nodePath,
+			updates,
+			schema,
+			prettierConfigOverride,
+			videoConfigValues,
 		});
-
-	return {
-		output: outputWithoutInsertedBlankLines,
-		formatted,
-		oldValueStrings,
-		newValueStrings,
-		logLine,
-		updatedNodePath,
-	};
-};
+		return {
+			output: serialized,
+			formatted: true,
+			oldValueStrings,
+			newValueStrings,
+			logLine,
+			updatedNodePath,
+		};
+	});
 
 export const updateEffectKeyframesAst = ({
 	input,
@@ -1963,6 +2149,7 @@ export const updateEffectKeyframesAst = ({
 	effectIndex,
 	updates,
 	schema,
+	prettierConfigOverride,
 	videoConfigValues,
 }: {
 	input: string;
@@ -1970,6 +2157,7 @@ export const updateEffectKeyframesAst = ({
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
 }): {
 	serialized: string;
@@ -1980,6 +2168,12 @@ export const updateEffectKeyframesAst = ({
 	updatedSequenceNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride: prettierConfigOverride ?? null,
+	});
+	const functionSnapshots = captureFunctionSourceSnapshots(ast);
+	const importSnapshots = captureImportSnapshots(ast);
 	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
 		ast,
 		videoConfigValues,
@@ -2060,12 +2254,17 @@ export const updateEffectKeyframesAst = ({
 		}
 	}
 
-	if (needsFrameHook) {
-		const fnPath = findEnclosingFunctionPath(jsxPath);
-		if (fnPath) {
-			ensureUseCurrentFrameHook(fnPath);
-		}
-	}
+	const {
+		coveredRanges: functionSourceCoveredRanges,
+		edits: functionSourceEdits,
+	} = getKeyframeFunctionSourceEdits({
+		formattingConfig,
+		functionSnapshots,
+		input,
+		jsxPath,
+		needsFrameHook,
+		openingElement: jsx,
+	});
 
 	ensureRemotionImports(ast, requiredImports);
 
@@ -2077,7 +2276,16 @@ export const updateEffectKeyframesAst = ({
 	}
 
 	return {
-		serialized: serializeAst(ast),
+		serialized: getKeyframeSourceOutput({
+			ast,
+			functionSourceCoveredRanges,
+			functionSourceEdits,
+			input,
+			openingElement: jsx,
+			importSnapshots,
+			prettierConfigOverride: formattingConfig,
+			propertyNames: updates.map((update) => update.key),
+		}),
 		oldValueStrings,
 		newValueStrings,
 		logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
@@ -2086,13 +2294,12 @@ export const updateEffectKeyframesAst = ({
 	};
 };
 
-export const updateEffectKeyframes = async ({
+export const updateEffectKeyframes = ({
 	input,
 	sequenceNodePath,
 	effectIndex,
 	updates,
 	schema,
-	formatFile,
 	prettierConfigOverride,
 	videoConfigValues,
 }: {
@@ -2101,7 +2308,9 @@ export const updateEffectKeyframes = async ({
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	formatFile: FormatKeyframesFile;
+	// Kept optional for compatibility with callers from before source edits
+	// replaced the full-file formatting pass.
+	formatFile?: FormatKeyframesFile;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
 }): Promise<{
@@ -2112,39 +2321,31 @@ export const updateEffectKeyframes = async ({
 	logLine: number;
 	effectCallee: string;
 	updatedSequenceNodePath: SequenceNodePath;
-}> => {
-	const {
-		serialized,
-		oldValueStrings,
-		newValueStrings,
-		logLine,
-		effectCallee,
-		updatedSequenceNodePath,
-	} = updateEffectKeyframesAst({
-		input,
-		sequenceNodePath,
-		effectIndex,
-		updates,
-		schema,
-		videoConfigValues,
-	});
-	const {output, formatted} = await formatFile({
-		contents: serialized,
-		prettierConfigOverride: prettierConfigOverride ?? null,
-	});
-	const outputWithoutInsertedBlankLines =
-		removeBlankLinesFromObjectsWithProperties({
-			input: output,
-			propertyNames: updates.map((update) => update.key),
+}> =>
+	Promise.resolve().then(() => {
+		const {
+			serialized,
+			oldValueStrings,
+			newValueStrings,
+			logLine,
+			effectCallee,
+			updatedSequenceNodePath,
+		} = updateEffectKeyframesAst({
+			input,
+			sequenceNodePath,
+			effectIndex,
+			updates,
+			schema,
+			prettierConfigOverride,
+			videoConfigValues,
 		});
-
-	return {
-		output: outputWithoutInsertedBlankLines,
-		formatted,
-		oldValueStrings,
-		newValueStrings,
-		logLine,
-		effectCallee,
-		updatedSequenceNodePath,
-	};
-};
+		return {
+			output: serialized,
+			formatted: true,
+			oldValueStrings,
+			newValueStrings,
+			logLine,
+			effectCallee,
+			updatedSequenceNodePath,
+		};
+	});

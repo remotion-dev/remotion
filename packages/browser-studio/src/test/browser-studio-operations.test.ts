@@ -670,7 +670,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		redoLabel: 'Reapply property paste',
 	});
 	expect(currentProject.files[fileName]).toContain(
-		'rotate: interpolate(frame, [0, 30], ["0deg", "90deg"])',
+		"rotate: interpolate(frame, [0, 30], ['0deg', '90deg'])",
 	);
 	expect(await operations.undo()).toEqual({
 		success: true,

@@ -4,17 +4,18 @@ import {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {getNodeSourceEdit} from './delete-jsx-node';
 import {getCompositionId} from './duplicate-composition';
-import {
-	applySourceEdits,
-	getInsertImportSourceEdits,
-	getInsertionRootSourceEdit,
-	type SourceEdit,
-} from './insert-jsx-element';
+import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {applyCodemod, type Change} from './recast-mods';
 import {ensureNamedImport} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+	type SourceEdit,
+} from './source-edits';
 
 export const editCompositionInSource = ({
 	input,
@@ -30,11 +31,7 @@ export const editCompositionInSource = ({
 	const edits: SourceEdit[] = [];
 	let changesMade: Change[] = [];
 	if (codeMod.type === 'new-composition') {
-		const snapshots = ast.program.body.flatMap((statement) =>
-			statement.type === 'ImportDeclaration'
-				? [{declaration: statement, specifiers: [...statement.specifiers]}]
-				: [],
-		);
+		const snapshots = captureImportSnapshots(ast);
 		const result = applyCodemod({file: ast, codeMod});
 		changesMade = result.changesMade;
 		const {newAst} = result;
