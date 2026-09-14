@@ -112,10 +112,14 @@ export const useWindowedAudioData = ({
 
 			const input = new Input({
 				formats: ALL_FORMATS,
-				source: new UrlSource(
-					src,
-					initialRequestInit ? {requestInit: initialRequestInit} : undefined,
-				),
+				source: new UrlSource(src, {
+					handleUnhandledError: () => {
+						// Speculative fetches have no caller; required reads still reject.
+					},
+					...(initialRequestInit
+						? {requestInit: initialRequestInit}
+						: undefined),
+				}),
 			});
 
 			const onAbort = () => {

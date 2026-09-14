@@ -67,6 +67,9 @@ export const makeSinks = (
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, {
+			handleUnhandledError: () => {
+				// Speculative fetches have no caller; required reads still reject.
+			},
 			maxCacheSize: getMaxSourceCacheSize(logLevel),
 			...(resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined),
 		}),

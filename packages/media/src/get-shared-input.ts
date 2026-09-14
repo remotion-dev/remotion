@@ -67,6 +67,9 @@ export const acquireSharedInput = ({
 		create: () => {
 			const input = new Input({
 				source: new UrlSource(src, {
+					handleUnhandledError: () => {
+						// Speculative fetches have no caller; required reads still reject.
+					},
 					maxCacheSize: getMaxSourceCacheSize(logLevel),
 					...(resolvedRequestInit
 						? {requestInit: resolvedRequestInit}
