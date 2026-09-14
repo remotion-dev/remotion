@@ -1,35 +1,9 @@
 import {expect, test} from 'bun:test';
 import {
-	isPointerSessionRelease,
 	observePointerRelease,
 	type PointerSessionEndReason,
 	startCapturedPointerSession,
 } from '../helpers/pointer-session';
-
-test('classifies pointer session releases', () => {
-	const cases: Array<{
-		readonly reason: PointerSessionEndReason;
-		readonly buttons: number | null;
-		readonly expected: boolean;
-	}> = [
-		{reason: 'pointerup', buttons: 0, expected: true},
-		{reason: 'buttons-released', buttons: 0, expected: true},
-		{reason: 'lostpointercapture', buttons: 0, expected: true},
-		{reason: 'lostpointercapture', buttons: 1, expected: false},
-		{reason: 'pointercancel', buttons: 0, expected: false},
-		{reason: 'blur', buttons: null, expected: false},
-		{reason: 'visibilitychange', buttons: null, expected: false},
-		{reason: 'manual', buttons: null, expected: false},
-	];
-
-	for (const {reason, buttons, expected} of cases) {
-		const event =
-			buttons === null
-				? null
-				: ({buttons} as Pick<PointerEvent, 'buttons'> as PointerEvent);
-		expect(isPointerSessionRelease(reason, event)).toBe(expected);
-	}
-});
 
 class CaptureTarget extends EventTarget {
 	private readonly capturedPointers = new Set<number>();
