@@ -249,7 +249,9 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 				</>
 			)}
 			<RenderModalOutputName
-				ariaLabel={null}
+				ariaLabel={
+					window.remotion_isReadOnlyStudio ? 'Download name' : 'Output name'
+				}
 				existingOutputPath={null}
 				existence={false}
 				inputStyle={input}

@@ -13,6 +13,28 @@ export const suppressBundlerUpdateForFile = (absolutePath: string): void => {
 	currentPlugin?.ignoreNextChange(absolutePath);
 };
 
+export const invalidatePreviouslySuppressedFiles =
+	async (): Promise<boolean> => {
+		if (!currentPlugin) {
+			return false;
+		}
+
+		const files = currentPlugin.consumeSuppressedFilesForRebuild();
+		const now = new Date();
+		const touchedFiles = await Promise.all(
+			files.map(async (file) => {
+				try {
+					await fs.utimes(file, now, now);
+					return true;
+				} catch {
+					return false;
+				}
+			}),
+		);
+
+		return touchedFiles.some(Boolean);
+	};
+
 // Why do we need this?
 // Consider we have a <Sequence>.
 // 1. In visual mode, we update it to layout='none'. This is reflected in the browser and in the code,
@@ -24,18 +46,5 @@ export const suppressBundlerUpdateForFile = (absolutePath: string): void => {
 // --> When reloading the Studio, it is a good idea to reset Webpack to a non-hacked state.
 
 export const reloadPreviouslySuppressedFiles = async (): Promise<void> => {
-	if (!currentPlugin) {
-		return;
-	}
-
-	const files = currentPlugin.consumeSuppressedFilesHistory();
-
-	const now = new Date();
-	await Promise.all(
-		files.map(async (file) => {
-			try {
-				await fs.utimes(file, now, now);
-			} catch {}
-		}),
-	);
+	await invalidatePreviouslySuppressedFiles();
 };
