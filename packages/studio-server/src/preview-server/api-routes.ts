@@ -27,6 +27,10 @@ import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {findInFileHandler} from './routes/find-in-file';
 import {insertElementHandler} from './routes/insert-element';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
+import {
+	installRemotionSkillHandler,
+	removeRemotionSkillHandler,
+} from './routes/install-remotion-skill';
 import {invalidateBundleHandler} from './routes/invalidate-bundle';
 import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
@@ -127,6 +131,8 @@ export const allApiRoutes: {
 	'/api/update-available': handleUpdate,
 	'/api/release-notes': getReleaseNotesHandler,
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,
+	'/api/install-remotion-skill': installRemotionSkillHandler,
+	'/api/remove-remotion-skill': removeRemotionSkillHandler,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/rename-static-file': renameStaticFileHandler,

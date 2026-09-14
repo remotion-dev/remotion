@@ -1,4 +1,5 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BLUE,
 	BORDER_WHITE_ALPHA_12,
@@ -8,12 +9,15 @@ import {
 import {copyText} from '../helpers/copy-text';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
+import {CloudDownloadIcon} from '../icons/cloud-download';
 import {CopyIcon} from '../icons/copy';
+import {TrashIcon} from '../icons/trash';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {showNotification} from './Notifications/NotificationCenter';
 import {useSettings} from './SettingsContext';
+import {Spinner} from './Spinner';
 
 const INSTALL_COMMAND = 'npx remotion skills add';
 
@@ -102,13 +106,38 @@ const status: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
+const actionIcon: React.CSSProperties = {
+	height: 14,
+	width: 14,
+};
+
+const actionSlot: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'inline-flex',
+	flexShrink: 0,
+	height: 24,
+	justifyContent: 'center',
+	width: 24,
+};
+
 const loading: React.CSSProperties = {
 	...description,
 	marginTop: 14,
 };
 
 export const SkillsSettings: React.FC = () => {
-	const {error, remotionSkillsInfo} = useSettings();
+	const {
+		error,
+		remotionSkillsInfo,
+		installSkill,
+		removeSkill,
+		skillAction,
+		skillActionError,
+	} = useSettings();
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canInstall =
+		!window.remotion_isReadOnlyStudio &&
+		previewServerState.type === 'connected';
 	const {copied, markCopied} = useCopyFeedback();
 	const installedSkills = useMemo(() => {
 		return (
@@ -134,6 +163,13 @@ export const SkillsSettings: React.FC = () => {
 		},
 		[copied],
 	);
+	const renderInstallAction: RenderInlineAction = useCallback((color) => {
+		return <CloudDownloadIcon color={color} style={actionIcon} />;
+	}, []);
+	const renderRemoveAction: RenderInlineAction = useCallback((color) => {
+		return <TrashIcon color={color} style={actionIcon} />;
+	}, []);
+	const actionInProgress = skillAction !== null;
 
 	return (
 		<div style={container}>
@@ -145,7 +181,21 @@ export const SkillsSettings: React.FC = () => {
 					<ValidationMessage message={error} align="flex-start" type="error" />
 				</div>
 			) : null}
-			{missingSkills > 0 ? (
+			{missingSkills > 0 && canInstall ? (
+				<p style={description}>
+					Install skills in this project to use them with your coding agent.
+				</p>
+			) : null}
+			{skillActionError ? (
+				<div style={{marginTop: 14}}>
+					<ValidationMessage
+						message={skillActionError}
+						align="flex-start"
+						type="error"
+					/>
+				</div>
+			) : null}
+			{missingSkills > 0 && !canInstall ? (
 				<div>
 					<p style={description}>
 						Not all skills are installed. Run this command in the project
@@ -167,6 +217,7 @@ export const SkillsSettings: React.FC = () => {
 					{remotionSkillsInfo.skills.map((skill, index) => {
 						const installed =
 							skill.installedInProject || skill.installedGlobally;
+						const processingThisSkill = skillAction?.skill === skill.name;
 						const installedLocation =
 							skill.installedInProject && skill.installedGlobally
 								? 'Project and global'
@@ -174,7 +225,7 @@ export const SkillsSettings: React.FC = () => {
 									? 'Project'
 									: skill.installedGlobally
 										? 'Global'
-										: 'Not installed';
+										: null;
 
 						return (
 							<div
@@ -187,11 +238,44 @@ export const SkillsSettings: React.FC = () => {
 								}
 							>
 								<span style={skillName}>/{skill.name}</span>
-								<span style={status}>{installedLocation}</span>
+								{processingThisSkill ? (
+									<span style={status}>
+										{skillAction.type === 'installing'
+											? 'Installing…'
+											: 'Removing…'}
+									</span>
+								) : installedLocation ? (
+									<span style={status}>{installedLocation}</span>
+								) : null}
 								{installed ? (
 									<CheckCircleFilled
 										aria-hidden
 										style={{...statusIcon, fill: BLUE}}
+									/>
+								) : null}
+								{processingThisSkill ? (
+									<span style={actionSlot}>
+										<Spinner duration={0.5} size={14} />
+									</span>
+								) : installed && canInstall ? (
+									<InlineAction
+										title={
+											skill.installedInProject
+												? `Remove ${skill.name} from this project`
+												: `Remove ${skill.name} globally`
+										}
+										disabled={actionInProgress}
+										onClick={() => removeSkill(skill.name)}
+										renderAction={renderRemoveAction}
+										variant={null}
+									/>
+								) : canInstall ? (
+									<InlineAction
+										title={`Install ${skill.name} in this project`}
+										disabled={actionInProgress}
+										onClick={() => installSkill(skill.name)}
+										renderAction={renderInstallAction}
+										variant={null}
 									/>
 								) : null}
 							</div>
