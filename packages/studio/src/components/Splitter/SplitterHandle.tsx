@@ -1,5 +1,8 @@
 import React, {useContext, useEffect, useRef} from 'react';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -152,10 +155,7 @@ export const SplitterHandle: React.FC<{
 				captureTarget: current,
 				onMove: onPointerMove,
 				onEnd: (reason, endEvent) => {
-					if (
-						(reason === 'pointerup' || reason === 'buttons-released') &&
-						endEvent
-					) {
+					if (isPointerSessionRelease(reason, endEvent)) {
 						lastFlex = getNewValue(endEvent, true);
 						lastCollapsedSide = getCollapsedSide(endEvent);
 					}

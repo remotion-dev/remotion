@@ -50,7 +50,10 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -1498,10 +1501,7 @@ export const useTimelineMarqueeSelection = () => {
 				captureTarget: target,
 				onMove: onPointerMove,
 				onEnd: (reason, endEvent) => {
-					if (
-						(reason === 'pointerup' || reason === 'buttons-released') &&
-						endEvent
-					) {
+					if (isPointerSessionRelease(reason, endEvent)) {
 						updateSelection(endEvent.clientX, endEvent.clientY);
 					}
 

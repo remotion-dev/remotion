@@ -7,7 +7,10 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
 import {BLUE, TRANSPARENT} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
 import {
@@ -723,12 +726,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				event: e.nativeEvent,
 				captureTarget: target,
 				onMove: moveListener,
-				onEnd: (reason) => {
+				onEnd: (reason, endEvent) => {
 					pointerDownRef.current = false;
 					setDragging(false);
 					stopForcingSpecificCursor();
-					const commit =
-						reason === 'pointerup' || reason === 'buttons-released';
+					const commit = isPointerSessionRelease(reason, endEvent);
 					if (commit && lastDragValue !== null && onValueChangeEnd) {
 						onValueChangeEnd(lastDragValue, 'drag');
 					}

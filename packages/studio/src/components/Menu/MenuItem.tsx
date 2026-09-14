@@ -8,7 +8,10 @@ import {
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
 import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {MENU_TOOLBAR_HEIGHT} from '../menu-toolbar-height';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -133,10 +136,7 @@ export const MenuItem: React.FC<{
 					event: e.nativeEvent,
 					captureTarget: e.currentTarget,
 					onEnd: (reason, evt) => {
-						if (
-							(reason === 'pointerup' || reason === 'buttons-released') &&
-							evt
-						) {
+						if (isPointerSessionRelease(reason, evt)) {
 							const target = document.elementFromPoint(
 								evt.clientX,
 								evt.clientY,
