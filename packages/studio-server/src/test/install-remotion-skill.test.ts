@@ -104,7 +104,7 @@ if (fs.existsSync('fail')) {
 			).toEqual([
 				'--yes',
 				'--loglevel=error',
-				'skills@1.5.20',
+				'skills@1.5.26',
 				'add',
 				'remotion-dev/skills',
 				'--skill',
