@@ -560,6 +560,96 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	);
 });
 
+test('installs an Element into a new composition as one undoable mutation', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const element = {
+		dependencies: [],
+		dimensions: {width: 640, height: 180},
+		displayName: 'Browser Element',
+		durationInFrames: 90,
+		initialProps: null,
+		installationMode: 'wrapped' as const,
+		slug: 'browser-element',
+		sourceCode: 'export const BrowserElement = () => <div />;\n',
+	} satisfies ElementDragData['element'];
+	const preflight = await operations.prepareElementInstall({
+		installationName: null,
+		destination: {type: 'new-composition', compositionFile: null},
+		element,
+	});
+	if (!preflight.success) {
+		throw new Error(preflight.reason);
+	}
+
+	const result = await operations.insertElement({
+		installationName: null,
+		compositionFile: preflight.plan.compositionFile,
+		compositionId: 'ElementScene',
+		element,
+		expectedFileState: preflight.plan.expectedFileState,
+		from: null,
+		overwriteExisting: false,
+		position: null,
+		newComposition: {
+			codemod: {
+				type: 'new-composition',
+				newId: 'ElementScene',
+				componentName: 'ElementScene',
+				componentImportPath: './ElementScene',
+				folderName: null,
+				parentName: null,
+				newHeight: 720,
+				newWidth: 1280,
+				newFps: 30,
+				newDurationInFrames: 90,
+				canvasCapture: null,
+			},
+			symbolicatedStack: null,
+		},
+	});
+	if (!result.success) {
+		throw new Error(
+			result.type === 'error' ? result.reason : 'Unexpected file conflict',
+		);
+	}
+
+	expect(project.files['/project/src/Root.tsx']).toContain('id="ElementScene"');
+	expect(project.files['/project/src/ElementScene.tsx']).toContain(
+		'<BrowserElement',
+	);
+	expect(project.files['/project/src/browser-element.element.tsx']).toBe(
+		element.sourceCode,
+	);
+	const installedProject = project;
+
+	expect((await operations.undo()).success).toBe(true);
+	expect(project.files['/project/src/Root.tsx']).toBe(
+		initialProject.files['/project/src/Root.tsx'],
+	);
+	expect(project.files['/project/src/ElementScene.tsx']).toBeUndefined();
+	expect(
+		project.files['/project/src/browser-element.element.tsx'],
+	).toBeUndefined();
+	expect(await operations.undo()).toEqual({
+		success: false,
+		reason: 'Nothing to undo',
+	});
+
+	expect((await operations.redo()).success).toBe(true);
+	expect(areBrowserStudioProjectsEqual(project, installedProject)).toBe(true);
+});
+
 test('installs component-owned Element timing and initial props', async () => {
 	let project = createBlankTemplateProject();
 	const operations = createBrowserStudioOperations({

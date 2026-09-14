@@ -257,6 +257,7 @@ export const insertJsxElementHandler: ApiHandler<
 				element,
 				from,
 				prettierConfigOverride: null,
+				sourceFileOverrides: null,
 			});
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[

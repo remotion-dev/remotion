@@ -118,17 +118,14 @@ const makeFixture = () => {
 		addNewClientListener: () => () => undefined,
 	});
 
-	const callHandlerWithInput = (
-		input: Omit<InsertElementRequest, 'newComposition'> &
-			Partial<Pick<InsertElementRequest, 'newComposition'>>,
-	) => {
+	const callHandlerWithInput = (input: InsertElementRequest) => {
 		return insertElementHandler({
 			binariesDirectory: null,
 			configFile: null,
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
-			input: {...input, newComposition: input.newComposition ?? null},
+			input,
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,
@@ -155,6 +152,7 @@ const makeFixture = () => {
 			from: null,
 			overwriteExisting,
 			position: null,
+			newComposition: null,
 		});
 	};
 
@@ -283,6 +281,69 @@ test('plans a new-composition install without resolving the selected component',
 	}
 });
 
+test('invalidates a new-composition install after an external component edit', async () => {
+	const fixture = makeFixture();
+	try {
+		const response = await fixture.callHandlerWithInput({
+			installationName: null,
+			compositionFile: 'Root.tsx',
+			compositionId: 'ElementScene',
+			element,
+			expectedFileState: {exists: false},
+			from: null,
+			overwriteExisting: false,
+			position: null,
+			newComposition: {
+				codemod: {
+					type: 'new-composition',
+					newId: 'ElementScene',
+					componentName: 'ElementScene',
+					componentImportPath: './ElementScene',
+					folderName: null,
+					parentName: null,
+					newHeight: 720,
+					newWidth: 1280,
+					newFps: 30,
+					newDurationInFrames: 90,
+					canvasCapture: null,
+				},
+				symbolicatedStack: {
+					originalFunctionName: null,
+					originalFileName: 'Root.tsx',
+					originalLineNumber: 6,
+					originalColumnNumber: 1,
+					originalScriptCode: null,
+				},
+			},
+		});
+		if (!response.success) {
+			throw new Error(
+				response.type === 'error'
+					? response.reason
+					: 'Unexpected file conflict',
+			);
+		}
+
+		const componentFile = path.join(
+			path.dirname(fixture.compositionFile),
+			'ElementScene.tsx',
+		);
+		expect(getUndoStack()).toHaveLength(1);
+		writeFileSync(
+			componentFile,
+			`${readFileSync(componentFile, 'utf-8')}\n// External edit\n`,
+		);
+		const startedAt = Date.now();
+		while (getUndoStack().length > 0 && Date.now() - startedAt < 2000) {
+			await new Promise((resolve) => setTimeout(resolve, 25));
+		}
+
+		expect(getUndoStack()).toHaveLength(0);
+	} finally {
+		fixture.cleanup();
+	}
+});
+
 test('creates a new Element file without an overwrite conflict', async () => {
 	const fixture = makeFixture();
 	try {
@@ -336,6 +397,7 @@ test('installs structured initial props on a component-owned Sequence', async ()
 			from: 30,
 			overwriteExisting: false,
 			position: {x: 120, y: 80},
+			newComposition: null,
 		});
 
 		if (!response.success) {
@@ -392,6 +454,7 @@ test('rejects contradictory component-owned installation props', async () => {
 				from: 30,
 				overwriteExisting: false,
 				position: {x: 120, y: 80},
+				newComposition: null,
 			});
 			expect(response).toMatchObject({success: false, type: 'error'});
 			expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
@@ -419,6 +482,7 @@ test('keeps wrapped installation and passes initial props to its child', async (
 			from: 12,
 			overwriteExisting: false,
 			position: {x: 40, y: 50},
+			newComposition: null,
 		});
 		if (!response.success) {
 			throw new Error(
@@ -456,6 +520,7 @@ test('materializes independent props for two component-owned copies', async () =
 			from: 0,
 			overwriteExisting: false,
 			position: null,
+			newComposition: null,
 		});
 		expect(first.success).toBe(true);
 		const second = await fixture.callHandlerWithInput({
@@ -467,6 +532,7 @@ test('materializes independent props for two component-owned copies', async () =
 			from: 30,
 			overwriteExisting: false,
 			position: null,
+			newComposition: null,
 		});
 		expect(second.success).toBe(true);
 
@@ -637,6 +703,7 @@ test.each(['../outside', 'nested/name', 'Uppercase', '', 'name.element.tsx'])(
 					from: null,
 					position: null,
 					overwriteExisting: false,
+					newComposition: null,
 				}),
 			).toMatchObject({success: false, type: 'error'});
 			expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(

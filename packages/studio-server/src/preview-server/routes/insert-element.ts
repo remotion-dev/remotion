@@ -249,7 +249,11 @@ export const insertElementHandler: ApiHandler<
 
 			if (
 				compositionCreation !== null &&
-				plan.elementFileName === compositionCreation.componentFilePath
+				plan.elementFileName ===
+					path.join(
+						path.dirname(plan.safePaths.compositionFileName),
+						path.basename(compositionCreation.componentFilePath),
+					)
 			) {
 				throw new Error(
 					'Element source file conflicts with the new composition file',
@@ -407,7 +411,6 @@ export const insertElementHandler: ApiHandler<
 			});
 			if (compositionCreation !== null) {
 				suppressUndoStackInvalidation(compositionCreation.registrationFilePath);
-				suppressUndoStackInvalidation(compositionCreation.componentFilePath);
 			}
 
 			if (shouldWriteElementFile) {

@@ -83,7 +83,7 @@ export const insertJsxElementIntoComposition = ({
 	from,
 	prettierConfigOverride,
 	wrapInSequence = null,
-	sourceFileOverrides = null,
+	sourceFileOverrides,
 }: {
 	remotionRoot: string;
 	compositionFile: string;
@@ -98,7 +98,7 @@ export const insertJsxElementIntoComposition = ({
 		name: string | null;
 		position: InsertableCompositionElementPosition | null;
 	} | null;
-	sourceFileOverrides?: ReadonlyMap<string, string> | null;
+	sourceFileOverrides: ReadonlyMap<string, string> | null;
 }): Promise<{
 	fileName: string;
 	source: string;
