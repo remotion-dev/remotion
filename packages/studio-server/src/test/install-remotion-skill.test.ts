@@ -27,7 +27,8 @@ if (fs.existsSync('fail')) {
   process.stdout.end();
   setTimeout(() => process.exit(1), 100);
 } else {
-  const skill = args[args.indexOf('--skill') + 1];
+  const source = args.find((arg) => arg.startsWith('remotion-dev/skills@'));
+  const skill = source.slice('remotion-dev/skills@'.length);
   const directory = path.join('.agents', 'skills', skill);
   fs.mkdirSync(directory, {recursive: true});
   fs.writeFileSync(path.join(directory, 'SKILL.md'), '# Installed skill');
@@ -106,9 +107,7 @@ if (fs.existsSync('fail')) {
 				'--loglevel=error',
 				'skills@1.5.26',
 				'add',
-				'remotion-dev/skills',
-				'--skill',
-				'remotion-interactivity',
+				'remotion-dev/skills@remotion-interactivity',
 				'--yes',
 			]);
 		} finally {

@@ -31,9 +31,7 @@ export const installRemotionSkillHandler: ApiHandler<
 		'--loglevel=error',
 		'skills@1.5.26',
 		'add',
-		'remotion-dev/skills',
-		'--skill',
-		skill,
+		`remotion-dev/skills@${skill}`,
 		'--yes',
 	];
 	RenderInternals.Log.info(
