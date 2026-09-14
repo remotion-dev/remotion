@@ -178,10 +178,7 @@ export const SettingsProvider: React.FC<{
 				skillAction: null,
 				revision: currentSettings.revision + 1,
 			}));
-			showNotification(
-				`Installed ${skill}. Restart your coding agent to use it.`,
-				5000,
-			);
+			showNotification(`Installed ${skill}.`, 5000);
 		} catch (err) {
 			setSettings((currentSettings) => ({
 				...currentSettings,
