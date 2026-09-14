@@ -150,9 +150,9 @@ describe('CI plan generation', () => {
 	});
 });
 
-describe('Turborepo monorepo test inputs', () => {
+describe('Turborepo cross-package test inputs', () => {
 	test(
-		'selects monorepo tests only for declared external inputs',
+		'selects affected suites for changed and deleted external inputs',
 		() => {
 			const root = path.resolve(__dirname, '..', '..');
 			const rootPackageJson = JSON.parse(
@@ -170,6 +170,14 @@ describe('Turborepo monorepo test inputs', () => {
 			const monorepoTask = turboConfig.tasks['@remotion/it-tests#testmonorepo'];
 			if (!monorepoTask) {
 				throw new Error('Missing @remotion/it-tests#testmonorepo task');
+			}
+			const studioTestTask = turboConfig.tasks['@remotion/studio#test'];
+			if (!studioTestTask) {
+				throw new Error('Missing @remotion/studio#test task');
+			}
+			const exampleE2eTask = turboConfig.tasks['@remotion/example#teste2e'];
+			if (!exampleE2eTask) {
+				throw new Error('Missing @remotion/example#teste2e task');
 			}
 
 			const externalChanges = [
@@ -218,13 +226,52 @@ describe('Turborepo monorepo test inputs', () => {
 				});
 				writeJson(path.join(fixture, 'turbo.json'), {
 					$schema: turboConfig.$schema,
-					tasks: {'@remotion/it-tests#testmonorepo': monorepoTask},
+					tasks: {
+						'@remotion/it-tests#testmonorepo': monorepoTask,
+						'@remotion/studio#test': studioTestTask,
+						'@remotion/example#teste2e': exampleE2eTask,
+						make: turboConfig.tasks.make,
+					},
 				});
 				writeJson(path.join(fixture, 'packages', 'it-tests', 'package.json'), {
 					name: '@remotion/it-tests',
 					version: '1.0.0',
 					private: true,
 					scripts: {testmonorepo: 'echo test'},
+				});
+				mkdirSync(path.join(fixture, 'packages', 'brand', 'public'), {
+					recursive: true,
+				});
+				writeJson(path.join(fixture, 'packages', 'brand', 'package.json'), {
+					name: '@remotion/brand',
+					version: '1.0.0',
+					private: true,
+				});
+				writeFileSync(
+					path.join(
+						fixture,
+						'packages',
+						'brand',
+						'public',
+						'remotion-capture-editor-starter.mp4',
+					),
+					'canvas capture fixture\n',
+				);
+				mkdirSync(path.join(fixture, 'packages', 'studio'), {recursive: true});
+				writeJson(path.join(fixture, 'packages', 'studio', 'package.json'), {
+					name: '@remotion/studio',
+					version: '1.0.0',
+					private: true,
+					scripts: {make: 'echo make', test: 'echo test'},
+				});
+				mkdirSync(path.join(fixture, 'packages', 'example'), {
+					recursive: true,
+				});
+				writeJson(path.join(fixture, 'packages', 'example', 'package.json'), {
+					name: '@remotion/example',
+					version: '1.0.0',
+					private: true,
+					scripts: {teste2e: 'echo test'},
 				});
 				for (const {directory, file} of externalChanges) {
 					const sdkDirectory = path.join(fixture, 'packages', directory);
@@ -258,8 +305,15 @@ describe('Turborepo monorepo test inputs', () => {
 				run(['git', 'commit', '--quiet', '-m', 'baseline'], {});
 				const base = run(['git', 'rev-parse', 'HEAD'], {});
 
-				const affectedForChange = (relativePath: string) => {
-					writeFileSync(path.join(fixture, relativePath), 'changed\n');
+				const affectedForChange = (
+					relativePath: string,
+					change: 'modify' | 'delete' = 'modify',
+				) => {
+					if (change === 'delete') {
+						rmSync(path.join(fixture, relativePath));
+					} else {
+						writeFileSync(path.join(fixture, relativePath), 'changed\n');
+					}
 					run(['git', 'add', relativePath], {});
 					run(['git', 'commit', '--quiet', '-m', `Change ${relativePath}`], {});
 					const head = run(['git', 'rev-parse', 'HEAD'], {});
@@ -303,6 +357,23 @@ describe('Turborepo monorepo test inputs', () => {
 					unrelatedQuery.data.affectedTasks.items.map((task) => task.fullName),
 				).not.toContain('@remotion/it-tests#testmonorepo');
 				expect(planFor({affectedJson: unrelatedJson}).monorepo).toBe(false);
+
+				const deletedFixtureJson = affectedForChange(
+					'packages/brand/public/remotion-capture-editor-starter.mp4',
+					'delete',
+				);
+				const deletedFixtureQuery = JSON.parse(deletedFixtureJson) as {
+					data: {affectedTasks: {items: Array<{fullName: string}>}};
+				};
+				const affectedTasks = deletedFixtureQuery.data.affectedTasks.items.map(
+					(task) => task.fullName,
+				);
+				expect(affectedTasks).toContain('@remotion/studio#test');
+				expect(affectedTasks).toContain('@remotion/example#teste2e');
+				const deletedFixturePlan = planFor({affectedJson: deletedFixtureJson});
+				expect(deletedFixturePlan.build).toBe(true);
+				expect(deletedFixturePlan.browser).toBe(true);
+				expect(deletedFixturePlan.build_matrix).toEqual(FULL_BUILD_MATRIX);
 			} finally {
 				rmSync(fixture, {force: true, recursive: true});
 			}
