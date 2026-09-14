@@ -6,9 +6,16 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
-import {getTimelineDisplayDecimalPlaces} from './timeline-field-utils';
-import {parseTranslate, serializeTranslate} from './timeline-translate-utils';
+import {
+	formatTimelineNumber,
+	getTimelineDisplayDecimalPlaces,
+	normalizeTimelineNumber,
+} from './timeline-field-utils';
+import {
+	parseTranslateWithUnits,
+	serializeTranslateWithUnits,
+} from './timeline-translate-utils';
+import {UnsupportedStatus} from './TimelineSchemaField';
 import {Transform3DModeContext} from './Transform3DModeContext';
 
 const leftDraggerStyle: React.CSSProperties = {
@@ -46,10 +53,13 @@ export const TimelineTranslateField: React.FC<{
 	const [dragZ, setDragZ] = useState<number | null>(null);
 	const transform3DMode = useContext(Transform3DModeContext);
 
-	const [codeX, codeY, codeZ] = useMemo(
-		() => parseTranslate(String(effectiveValue ?? '0px 0px')),
+	const parsedTranslate = useMemo(
+		() => parseTranslateWithUnits(String(effectiveValue ?? '0px 0px')),
 		[effectiveValue],
 	);
+	const codeX = parsedTranslate?.[0].value ?? 0;
+	const codeY = parsedTranslate?.[1].value ?? 0;
+	const codeZ = parsedTranslate?.[2]?.value ?? null;
 	const show3D = transform3DMode || (codeZ !== null && codeZ !== 0);
 
 	const configuredStep =
@@ -65,20 +75,28 @@ export const TimelineTranslateField: React.FC<{
 		[configuredStep],
 	);
 
-	const formatter = useCallback(
-		(v: number | string) => {
-			return formatTimelineFieldValueForDisplay({
-				fieldSchema: field.fieldSchema,
-				value: v,
-			});
+	const formatCoordinate = useCallback(
+		(v: number | string, unit: 'px' | '%') => {
+			return `${formatTimelineNumber({
+				decimalPlaces,
+				fixed: false,
+				value: normalizeTimelineNumber(Number(v)),
+			})}${unit}`;
 		},
-		[field.fieldSchema],
+		[decimalPlaces],
 	);
 	const serialize = useCallback(
 		(x: number, y: number, z = dragZ ?? codeZ) => {
-			return serializeTranslate([x, y, z], decimalPlaces);
+			return serializeTranslateWithUnits(
+				[
+					{value: x, unit: parsedTranslate?.[0].unit ?? 'px'},
+					{value: y, unit: parsedTranslate?.[1].unit ?? 'px'},
+					z === null ? null : {value: z, unit: 'px'},
+				],
+				decimalPlaces,
+			);
 		},
-		[codeZ, decimalPlaces, dragZ],
+		[codeZ, decimalPlaces, dragZ, parsedTranslate],
 	);
 
 	// --- X callbacks ---
@@ -207,6 +225,12 @@ export const TimelineTranslateField: React.FC<{
 		[codeX, codeY, dragX, dragY, onSave, propStatus, serialize],
 	);
 
+	if (parsedTranslate === null) {
+		return (
+			<UnsupportedStatus label="unsupported offset" formattedValue={false} />
+		);
+	}
+
 	return (
 		<span style={containerStyle}>
 			<InputDragger
@@ -222,7 +246,7 @@ export const TimelineTranslateField: React.FC<{
 				min={-Infinity}
 				max={Infinity}
 				step={step}
-				formatter={formatter}
+				formatter={(value) => formatCoordinate(value, parsedTranslate[0].unit)}
 				rightAlign={false}
 				snapToStep={false}
 				dragDecimalPlaces={decimalPlaces}
@@ -243,7 +267,7 @@ export const TimelineTranslateField: React.FC<{
 				min={-Infinity}
 				max={Infinity}
 				step={step}
-				formatter={formatter}
+				formatter={(value) => formatCoordinate(value, parsedTranslate[1].unit)}
 				rightAlign={false}
 				snapToStep={false}
 				dragDecimalPlaces={decimalPlaces}
@@ -266,7 +290,7 @@ export const TimelineTranslateField: React.FC<{
 						min={-Infinity}
 						max={Infinity}
 						step={step}
-						formatter={formatter}
+						formatter={(value) => formatCoordinate(value, 'px')}
 						rightAlign={false}
 						snapToStep={false}
 						dragDecimalPlaces={decimalPlaces}
