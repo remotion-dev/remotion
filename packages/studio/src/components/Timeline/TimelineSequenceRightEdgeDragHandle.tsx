@@ -20,6 +20,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TRANSPARENT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
+	isPointerSessionRelease,
 	startCapturedPointerSession,
 	startDeferredCapturedPointerSession,
 } from '../../helpers/pointer-session';
@@ -1495,12 +1496,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				onMove,
 				onEnd: (reason, endEvent) => {
 					stopPointerSessionRef.current = null;
-					if (
-						(reason === 'pointerup' ||
-							reason === 'buttons-released' ||
-							(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
-						endEvent
-					) {
+					if (isPointerSessionRelease(reason, endEvent)) {
 						onUp(endEvent);
 					} else if (endEvent) {
 						onCancel(endEvent);
@@ -1806,12 +1802,7 @@ export const useTimelineSequenceFromDrag = ({
 				},
 				onEnd: (reason, endEvent) => {
 					stopPointerSessionRef.current = null;
-					finishDrag(
-						(reason === 'pointerup' ||
-							reason === 'buttons-released' ||
-							(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
-							endEvent !== null,
-					);
+					finishDrag(isPointerSessionRelease(reason, endEvent));
 				},
 			});
 		},
@@ -2095,12 +2086,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				onMove,
 				onEnd: (reason, endEvent) => {
 					stopPointerSessionRef.current = null;
-					if (
-						(reason === 'pointerup' ||
-							reason === 'buttons-released' ||
-							(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
-						endEvent
-					) {
+					if (isPointerSessionRelease(reason, endEvent)) {
 						onUp(endEvent);
 					} else if (endEvent) {
 						onCancel(endEvent);

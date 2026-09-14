@@ -32,7 +32,10 @@ import {
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {startDeferredCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startDeferredCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -761,7 +764,8 @@ const TimelineSequenceItemInner: React.FC<{
 					autoScroll.update({clientX: startX, clientY: pointerEvent.clientY});
 				},
 				onEnd: (reason, pointerEvent) => {
-					if (reason === 'pointerup' && pointerEvent && didDrag) {
+					const released = isPointerSessionRelease(reason, pointerEvent);
+					if (released && didDrag) {
 						updateDropTarget(pointerEvent.clientY);
 					}
 
@@ -781,7 +785,7 @@ const TimelineSequenceItemInner: React.FC<{
 						suppressNextClick.current = false;
 					}, 0);
 
-					if (reason === 'pointerup' && pointerEvent && activeDrop) {
+					if (released && activeDrop) {
 						activeDropTarget?.reorder(activeDrop);
 					}
 				},

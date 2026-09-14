@@ -10,6 +10,7 @@ import {createDragAwareDoubleClickTracker} from '../helpers/drag-aware-double-cl
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {isMac} from '../helpers/is-mac';
 import {
+	isPointerSessionRelease,
 	startCapturedPointerSession,
 	type PointerSessionEndReason,
 } from '../helpers/pointer-session';
@@ -386,7 +387,10 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				updateDragOverrides();
 			};
 
-			const onPointerUp = (reason: PointerSessionEndReason) => {
+			const onPointerUp = (
+				reason: PointerSessionEndReason,
+				endEvent: PointerEvent | null,
+			) => {
 				dragAwareDoubleClick.endPointerGesture(dragStarted);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
@@ -403,7 +407,11 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 				if (changes.length === 0) {
 					clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
-					if (deferSelection && !dragStarted && reason === 'pointerup') {
+					if (
+						deferSelection &&
+						!dragStarted &&
+						isPointerSessionRelease(reason, endEvent)
+					) {
 						onSelect(target.selection, interaction);
 					}
 
