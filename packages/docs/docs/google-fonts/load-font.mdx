@@ -95,25 +95,25 @@ The `style` argument is optional. In Remotion 4.0, if no arguments are passed, a
 
 From [v5.0](/docs/5-0-migration), `options.weights` and `options.subsets` are required and must be non-empty arrays.
 
-### style
+### `style`
 
 The font style we want to load. While each font has a different set of styles, common options are: `normal`, `italic` etc.
 
-### options
+### `options`
 
-#### weights?
+#### `weights?`
 
 Array of weights that should be loaded. Optional in v4.x. Required from v5.0.
 
-#### subsets?
+#### `subsets?`
 
 Array of font subsets that should be loaded. Optional in v4.x. Required from v5.0.
 
-#### document?
+#### `document?`
 
 Allows you to specify a [`Document`](https://developer.mozilla.org/en-US/docs/Web/API/Document?retiredLocale=de). If you want to inject the fonts into an iframe, you want to give it a ref and pass `iframeRef.contentDocument` to this parameter. By default, the global `window.document` is used.
 
-#### ignoreTooManyRequestsWarning?<AvailableFrom v="4.0.283" />
+#### `ignoreTooManyRequestsWarning?`<AvailableFrom v="4.0.283" />
 
 If more than 20 network requests are made to load the font, then a warning will be printed to the console.  
 You can disable that warning by setting this option.
@@ -122,11 +122,11 @@ You can disable that warning by setting this option.
 
 An object with the following properties:
 
-### fontFamily
+### `fontFamily`
 
 The font family name, used as the `fontFamily` CSS property.
 
-### fonts
+### `fonts`
 
 Variant information about the font.
 
@@ -141,7 +141,7 @@ Variant information about the font.
 }
 ```
 
-### unicodeRanges
+### `unicodeRanges`
 
 Unicode range information about the font.
 

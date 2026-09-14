@@ -45,35 +45,35 @@ Variable fonts combine variation axes, but Google may still provide separate fil
 
 ## Arguments
 
-### style
+### `style`
 
 The style to load, such as `normal` or `italic`.
 
-### options
+### `options`
 
-#### subsets
+#### `subsets`
 
 The character subsets to load. At least one subset is required.
 
-#### document?
+#### `document?`
 
 The document into which the font should be added. By default, the global `window.document` is used.
 
-#### ignoreTooManyRequestsWarning?
+#### `ignoreTooManyRequestsWarning?`
 
 Set this to `true` to disable the warning emitted when loading more than 20 subset files.
 
 ## Return value
 
-### fontFamily
+### `fontFamily`
 
 The font family name, for use with the `fontFamily` CSS property.
 
-### axes
+### `axes`
 
 The minimum and maximum value of each available variation axis.
 
-### waitUntilDone()
+### `waitUntilDone()`
 
 Returns a promise that resolves once the font files have loaded.
 

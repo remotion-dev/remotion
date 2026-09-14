@@ -32,25 +32,25 @@ waitUntilDone();
 
 ## Arguments
 
-### info
+### `info`
 
 Font metadata returned by [`getInfo()`](/docs/google-fonts/get-info). The font must include variable font information.
 
-### style
+### `style`
 
 The variable font style to load, such as `normal` or `italic`.
 
-### options
+### `options`
 
-#### subsets
+#### `subsets`
 
 The character subsets to load. At least one subset is required.
 
-#### document?
+#### `document?`
 
 The document into which the font should be added. By default, the global `window.document` is used.
 
-#### ignoreTooManyRequestsWarning?
+#### `ignoreTooManyRequestsWarning?`
 
 Set this to `true` to disable the warning emitted when loading more than 20 subset files.
 
