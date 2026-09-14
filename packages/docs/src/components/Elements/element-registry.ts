@@ -74,10 +74,6 @@ export const elementRegistry = {
 		category: 'commerce',
 		displayName: 'Wiggling Callout',
 	},
-	'commerce/product-offer': {
-		category: 'commerce',
-		displayName: 'Product Offer',
-	},
 	'commerce/shine': {
 		category: 'commerce',
 		displayName: 'Shine',
