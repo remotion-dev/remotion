@@ -34,6 +34,7 @@ test('shares a main-thread Input acquired outside @remotion/media', async () => 
 });
 
 test('handles failed prefetches while still rejecting required reads', async () => {
+	const src = 'https://example.com/prefetch-failure.wav';
 	const bytes = new Uint8Array(32 * 1024 * 1024);
 	const view = new DataView(bytes.buffer);
 	bytes.set(new TextEncoder().encode('RIFF'), 0);
@@ -69,11 +70,12 @@ test('handles failed prefetches while still rejecting required reads', async () 
 			}),
 		);
 	});
+	const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 	const lease = acquireSharedInput({
-		src: 'https://example.com/prefetch-failure.wav',
+		src,
 		credentials: undefined,
 		requestInit: undefined,
-		logLevel: 'error',
+		logLevel: 'warn',
 	});
 
 	try {
@@ -95,9 +97,16 @@ test('handles failed prefetches while still rejecting required reads', async () 
 		}).rejects.toThrow('500 Fixture failure');
 		expect(packets).toBeGreaterThan(0);
 		expect(requests).toBeGreaterThan(1);
+		expect(warnSpy.mock.calls.flat()).toEqual(
+			expect.arrayContaining([
+				`A speculative fetch for "${src}" failed:`,
+				expect.any(Error),
+			]),
+		);
 	} finally {
 		lease.release();
 		await Promise.resolve();
 		fetchSpy.mockRestore();
+		warnSpy.mockRestore();
 	}
 });

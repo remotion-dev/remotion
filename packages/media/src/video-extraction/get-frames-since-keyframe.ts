@@ -67,8 +67,12 @@ export const makeSinks = (
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, {
-			handleUnhandledError: () => {
-				// Speculative fetches have no caller; required reads still reject.
+			handleUnhandledError: (error) => {
+				Internals.Log.warn(
+					{logLevel, tag: '@remotion/media'},
+					`A speculative fetch for "${src}" failed:`,
+					error,
+				);
 			},
 			maxCacheSize: getMaxSourceCacheSize(logLevel),
 			...(resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined),

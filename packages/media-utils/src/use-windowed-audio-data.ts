@@ -113,8 +113,12 @@ export const useWindowedAudioData = ({
 			const input = new Input({
 				formats: ALL_FORMATS,
 				source: new UrlSource(src, {
-					handleUnhandledError: () => {
-						// Speculative fetches have no caller; required reads still reject.
+					handleUnhandledError: (error) => {
+						Internals.Log.warn(
+							{logLevel: 'info', tag: '@remotion/media-utils'},
+							`A speculative fetch for "${src}" failed:`,
+							error,
+						);
 					},
 					...(initialRequestInit
 						? {requestInit: initialRequestInit}
