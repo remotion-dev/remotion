@@ -32,7 +32,7 @@ import {
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {startDeferredCapturedPointerSession} from '../../helpers/pointer-session';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -345,12 +345,14 @@ const TimelineSequenceItemInner: React.FC<{
 	const stopSequencePointerSession = useRef<(() => void) | null>(null);
 	const suppressNextClick = useRef(false);
 	const {
-		canOpenInEditor,
 		canConfigureApps,
+		canOpenInEditor,
+		canOpenSource,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
+		openSource,
 		originalLocation,
 	} = useOpenSequenceInApps(sequence);
 
@@ -709,10 +711,10 @@ const TimelineSequenceItemInner: React.FC<{
 				},
 			});
 
-			stopSequencePointerSession.current = startCapturedPointerSession({
+			stopSequencePointerSession.current = startDeferredCapturedPointerSession({
 				captureTarget: sourceElement,
 				event: e.nativeEvent,
-				onMove: (pointerEvent) => {
+				onMove: (pointerEvent, capturePointer) => {
 					currentClientY = pointerEvent.clientY;
 					if (
 						!didDrag &&
@@ -726,6 +728,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 					if (!didDrag) {
 						didDrag = true;
+						capturePointer();
 						previousUserSelect = document.body.style.userSelect;
 						previousWebkitUserSelect = document.body.style.webkitUserSelect;
 						document.body.style.userSelect = 'none';
@@ -929,7 +932,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 			const action = getSequenceDoubleClickAction({
 				button: e.button,
-				canOpenInEditor,
+				canOpenSource,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				// The track list row reorders via native drag-and-drop, which
 				// already suppresses `dblclick` after a drag.
@@ -954,19 +957,19 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
-			openInEditor(null);
+			openSource();
 		},
 		[
-			canOpenInEditor,
+			canOpenSource,
 			connectedCompositions,
-			openInEditor,
+			openSource,
 			selectComposition,
 			sequence,
 			sequenceFrameOffset,
 		],
 	);
 	const canHandleSequenceDoubleClick =
-		connectedCompositions.length === 1 || canOpenInEditor;
+		connectedCompositions.length === 1 || canOpenSource;
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&

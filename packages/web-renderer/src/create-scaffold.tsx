@@ -141,6 +141,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	defaultOutName,
 	useHtmlInCanvas,
 	pixelDensity,
+	sampleRate,
 }: {
 	width: number;
 	height: number;
@@ -160,6 +161,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	defaultOutName: string | null;
 	useHtmlInCanvas: boolean;
 	pixelDensity: number;
+	sampleRate: number | null;
 }): {
 	delayRenderScope: DelayRenderScope;
 	div: HTMLDivElement;
@@ -318,6 +320,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 									>
 										<UpdateTime
 											audioEnabled={audioEnabled}
+											sampleRate={sampleRate}
 											videoEnabled={videoEnabled}
 											logLevel={logLevel}
 											compId={id}

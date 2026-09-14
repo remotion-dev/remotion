@@ -1,6 +1,7 @@
 import {afterEach, expect, test} from 'bun:test';
 import type {GitSource} from '@remotion/studio-shared';
 import {
+	getDefaultOpenInTarget,
 	hasReadOnlyGitSource,
 	openGitSource,
 } from '../helpers/get-git-menu-item';
@@ -59,6 +60,8 @@ test('uses GitHub as an open target in a read-only Studio', () => {
 	const openedUrls = installTestWindow({git: gitSource, readOnly: true});
 
 	expect(hasReadOnlyGitSource()).toBe(true);
+	expect(getDefaultOpenInTarget({canOpenInEditor: false})).toBe('git-source');
+	expect(getDefaultOpenInTarget({canOpenInEditor: true})).toBe('editor');
 	openGitSource({
 		folder: false,
 		location: {
@@ -86,4 +89,5 @@ test('opens the project folder on the configured GitHub ref', () => {
 test('does not use GitHub as the fallback in an editable Studio', () => {
 	installTestWindow({git: gitSource, readOnly: false});
 	expect(hasReadOnlyGitSource()).toBe(false);
+	expect(getDefaultOpenInTarget({canOpenInEditor: false})).toBeNull();
 });

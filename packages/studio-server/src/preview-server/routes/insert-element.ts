@@ -79,6 +79,29 @@ export const insertElementHandler: ApiHandler<
 					: element.installationMode;
 			const componentOwnsSequence =
 				installationMode === 'component-owned-sequence';
+			if (
+				componentOwnsSequence &&
+				element.initialProps !== null &&
+				['from', 'durationInFrames', 'name'].some((prop) =>
+					Object.hasOwn(element.initialProps ?? {}, prop),
+				)
+			) {
+				throw new Error(
+					'Component-owned Element initial props must not override from, durationInFrames, or name',
+				);
+			}
+
+			if (
+				componentOwnsSequence &&
+				element.initialProps?.style !== undefined &&
+				(element.initialProps.style === null ||
+					typeof element.initialProps.style !== 'object' ||
+					Array.isArray(element.initialProps.style))
+			) {
+				throw new Error(
+					'Component-owned Element initial style must be an object',
+				);
+			}
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
@@ -146,19 +169,22 @@ export const insertElementHandler: ApiHandler<
 					componentName: plan.componentName,
 					importName: plan.componentName,
 					importPath: plan.importPath,
-					props: componentOwnsSequence
-						? [
-								...(element.durationInFrames === null
-									? []
-									: [
-											{
-												name: 'durationInFrames',
-												value: element.durationInFrames,
-											},
-										]),
-								{name: 'name', value: element.displayName},
-							]
-						: [],
+					props: [
+						...Object.entries(element.initialProps ?? {}).map(
+							([name, value]) => ({name, value}),
+						),
+						...(componentOwnsSequence && element.durationInFrames !== null
+							? [
+									{
+										name: 'durationInFrames',
+										value: element.durationInFrames,
+									},
+								]
+							: []),
+						...(componentOwnsSequence
+							? [{name: 'name', value: element.displayName}]
+							: []),
+					],
 					position: componentOwnsSequence ? position : null,
 				},
 				from: componentOwnsSequence ? from : null,

@@ -1,4 +1,5 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
+import {editCompositionInSource} from './composition-source-edits';
 import {duplicateCompositionInSource} from './duplicate-composition';
 import type {Change} from './recast-mods';
 import {applyCodemod} from './recast-mods';
@@ -16,6 +17,14 @@ export const parseAndApplyCodemod = ({
 		return duplicateCompositionInSource({input, codemod: codeMod});
 	}
 
+	if (
+		codeMod.type === 'new-composition' ||
+		codeMod.type === 'rename-composition' ||
+		codeMod.type === 'delete-composition'
+	) {
+		return editCompositionInSource({input, codeMod});
+	}
+
 	const ast = parseAst(input);
 
 	const {newAst, changesMade} = applyCodemod({
@@ -27,24 +36,6 @@ export const parseAndApplyCodemod = ({
 		throw new Error(
 			'Unable to calculate the changes needed for this file. Edit the file manually.',
 		);
-	}
-
-	if (codeMod.type === 'new-composition') {
-		if (codeMod.canvasCapture === null) {
-			ensureNamedImport({
-				ast: newAst,
-				importedName: 'Composition',
-				sourcePath: 'remotion',
-				localName: 'Composition',
-			});
-		}
-
-		ensureNamedImport({
-			ast: newAst,
-			importedName: codeMod.componentName,
-			sourcePath: codeMod.componentImportPath,
-			localName: codeMod.componentName,
-		});
 	}
 
 	if (codeMod.type === 'new-folder') {

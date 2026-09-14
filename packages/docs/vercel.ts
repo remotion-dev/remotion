@@ -393,11 +393,6 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect(
-			'/elements/data/product-offer',
-			'/elements/commerce/product-offer',
-			{permanent: true},
-		),
-		routes.redirect(
 			'/elements/text/news-article-headline-highlight',
 			'/elements/text/news-article-highlight',
 			{permanent: true},

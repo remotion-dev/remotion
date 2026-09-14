@@ -5,13 +5,20 @@ const isLoopbackHttp = (url: URL) =>
 	(url.hostname === 'localhost' || url.hostname === '127.0.0.1');
 
 export const getAllowedStudioProtocolOrigin = (
-	origin: string | undefined,
+	request: IncomingMessage,
 ): string | null => {
-	if (!origin) {
-		return null;
-	}
-
 	try {
+		const {origin, referer, host} = request.headers;
+		if (origin === undefined) {
+			// Browsers omit Origin on same-origin GET requests. Only trust a
+			// Referer matching this local HTTP Studio, never an arbitrary site.
+			const refererUrl = new URL(referer ?? '');
+			return isLoopbackHttp(refererUrl) &&
+				refererUrl.origin === `http://${host}`
+				? refererUrl.origin
+				: null;
+		}
+
 		const url = new URL(origin);
 		if (url.protocol !== 'https:' && !isLoopbackHttp(url)) {
 			return null;
@@ -30,7 +37,7 @@ export const setStudioProtocolCorsHeaders = ({
 	readonly request: IncomingMessage;
 	readonly response: ServerResponse;
 }): void => {
-	const origin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	const origin = getAllowedStudioProtocolOrigin(request);
 	if (origin === null) {
 		return;
 	}
@@ -54,7 +61,7 @@ export const handleStudioProtocolOptions = ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	const origin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	const origin = getAllowedStudioProtocolOrigin(request);
 	response.writeHead(origin === null ? 403 : 204);
 	response.end();
 	return Promise.resolve();

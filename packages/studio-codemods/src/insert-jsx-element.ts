@@ -173,7 +173,7 @@ type SourceLocation = {
 	column: number;
 };
 
-type SourceEdit = {
+export type SourceEdit = {
 	end: number;
 	replacement: string;
 	start: number;
@@ -918,18 +918,6 @@ const createStringAttribute = (
 	);
 };
 
-const createBooleanAttribute = (
-	name: string,
-	value: boolean,
-): namedTypes.JSXAttribute => {
-	return recast.types.builders.jsxAttribute(
-		recast.types.builders.jsxIdentifier(name),
-		recast.types.builders.jsxExpressionContainer(
-			recast.types.builders.booleanLiteral(value),
-		),
-	);
-};
-
 const translateDecimalPlaces = 1;
 
 const roundTranslateCoordinate = (value: number): number => {
@@ -1026,15 +1014,16 @@ const createComponentProp = ({
 	name,
 	value,
 }: ComponentProp): namedTypes.JSXAttribute => {
-	if (typeof value === 'number') {
-		return createNumberAttribute(name, value);
+	if (typeof value === 'string') {
+		return createStringAttribute(name, value);
 	}
 
-	if (typeof value === 'boolean') {
-		return createBooleanAttribute(name, value);
-	}
-
-	return createStringAttribute(name, value);
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier(name),
+		recast.types.builders.jsxExpressionContainer(
+			parseValueExpression(value) as never,
+		),
+	) as unknown as namedTypes.JSXAttribute;
 };
 
 const createStringSrcAttribute = (src: string): namedTypes.JSXAttribute => {
@@ -1084,15 +1073,49 @@ const createComponentElement = ({
 	props: ComponentProp[];
 	position: InsertableCompositionElementPosition | null;
 }): namedTypes.JSXElement => {
+	const styleProp = props.find((prop) => prop.name === 'style');
+	const propsWithoutStyle = addPositionStyle
+		? props.filter((prop) => prop.name !== 'style')
+		: props;
+	let styleAttribute: namedTypes.JSXAttribute | null = null;
+	if (addPositionStyle) {
+		const styleExpression =
+			styleProp === undefined
+				? recast.types.builders.objectExpression([])
+				: parseValueExpression(styleProp.value);
+		if (styleExpression.type !== 'ObjectExpression') {
+			throw new Error('Component style must be an object to add a position');
+		}
+
+		styleExpression.properties = styleExpression.properties.filter(
+			(property) => {
+				if (property.type !== 'ObjectProperty') {
+					return true;
+				}
+
+				const key =
+					property.key.type === 'Identifier'
+						? property.key.name
+						: property.key.type === 'StringLiteral'
+							? property.key.value
+							: null;
+				return key !== 'position' && (position === null || key !== 'translate');
+			},
+		);
+		styleExpression.properties.push(...getPositionStyleProperties(position));
+		styleAttribute = recast.types.builders.jsxAttribute(
+			recast.types.builders.jsxIdentifier('style'),
+			recast.types.builders.jsxExpressionContainer(styleExpression as never),
+		) as unknown as namedTypes.JSXAttribute;
+	}
+
 	return recast.types.builders.jsxElement(
 		recast.types.builders.jsxOpeningElement(
 			recast.types.builders.jsxIdentifier(localName),
 			[
-				...props.map(createComponentProp),
+				...propsWithoutStyle.map(createComponentProp),
 				...(from === null ? [] : [createNumberAttribute('from', from)]),
-				...(addPositionStyle
-					? [createPositionAbsoluteStyleAttribute(position)]
-					: []),
+				...(styleAttribute === null ? [] : [styleAttribute]),
 			],
 			true,
 		),
@@ -2166,7 +2189,7 @@ const getImportBracketSpacing = ({
 	return prettierConfigOverride?.bracketSpacing !== false;
 };
 
-const getInsertImportSourceEdits = ({
+export const getInsertImportSourceEdits = ({
 	ast,
 	input,
 	prettierConfigOverride,
@@ -2509,13 +2532,15 @@ const getInsertionSource = ({
 	});
 };
 
-const getInsertionRootSourceEdit = ({
+export const getInsertionRootSourceEdit = ({
+	insertInside,
 	input,
 	insertion,
 	nullRoot,
 	prettierConfigOverride,
 	root,
 }: {
+	insertInside: boolean;
 	input: string;
 	insertion: string;
 	nullRoot: NullLiteral | null;
@@ -2553,15 +2578,32 @@ const getInsertionRootSourceEdit = ({
 		throw new Error('Could not locate the composition component root');
 	}
 
-	if (root.type === 'JSXFragment') {
-		if (!root.closingFragment.loc) {
-			throw new Error('Could not locate the composition fragment closing tag');
+	if (insertInside) {
+		const closing =
+			root.type === 'JSXFragment' ? root.closingFragment : root.closingElement;
+		if (!closing?.loc) {
+			if (root.type !== 'JSXElement' || !root.openingElement.loc) {
+				throw new Error('Could not locate the composition closing tag');
+			}
+
+			const openingStart = recastLocToOffset(
+				input,
+				root.openingElement.loc.start,
+			);
+			const openingEnd = recastLocToOffset(input, root.openingElement.loc.end);
+			const openingIndent = getLineIndent(input, openingStart);
+			return {
+				start: openingStart,
+				end: openingEnd,
+				replacement: [
+					input.slice(openingStart, openingEnd).replace(/\s*\/>$/, '>'),
+					indentInsertedJsx({indent: `${openingIndent}${unit}`, insertion}),
+					`${openingIndent}</${recast.print(root.openingElement.name).code}>`,
+				].join(endOfLine),
+			};
 		}
 
-		const closingStart = recastLocToOffset(
-			input,
-			root.closingFragment.loc.start,
-		);
+		const closingStart = recastLocToOffset(input, closing.loc.start);
 		const lineStart = input.lastIndexOf('\n', closingStart - 1) + 1;
 		const beforeClosing = input.slice(lineStart, closingStart);
 		const closingIndent = /^\s*$/.test(beforeClosing)
@@ -2610,7 +2652,7 @@ const getInsertionRootSourceEdit = ({
 	};
 };
 
-const applySourceEdits = ({
+export const applySourceEdits = ({
 	edits,
 	input,
 }: {
@@ -3218,6 +3260,7 @@ export const insertJsxElementIntoComposition = async ({
 				snapshots: importSnapshots,
 			}),
 			getInsertionRootSourceEdit({
+				insertInside: rootBeforeInsertion?.type === 'JSXFragment',
 				input,
 				insertion: getInsertionSource({
 					element,

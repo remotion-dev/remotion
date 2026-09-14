@@ -35,11 +35,13 @@ export const defaultKeyboardShortcuts: Record<
 	readonly StudioKeyboardShortcut[]
 > = {
 	playPause: [{key: 'Space'}],
+	toggleMute: [{key: 'm', shift: false}],
+	toggleLoop: [{key: 'l', shift: true}],
 	jumpToBeginning: [{key: 'a'}],
 	jumpToEnd: [{key: 'e'}],
 	reversePlayback: [{key: 'j'}],
 	pausePlayback: [{key: 'k'}],
-	playForward: [{key: 'l'}],
+	playForward: [{key: 'l', shift: false}],
 	goToFrame: [{key: 'g'}],
 	pauseAndReturnToPlaybackStart: [{key: 'Enter'}],
 	toggleLeftSidebar: [{key: 'b', commandOrControl: true}],
@@ -47,14 +49,16 @@ export const defaultKeyboardShortcuts: Record<
 	toggleBothSidebars: [{key: 'g', commandOrControl: true}],
 	enterFullscreen: [{key: 'f'}],
 	toggleSnapping: [{key: 'm', shift: true}],
+	toggleOutlines: [{key: 'o', shift: true}],
+	toggleRulersAndGuides: [{key: 'r', shift: true}],
 	previousComposition: [{key: 'PageUp'}],
 	nextComposition: [{key: 'PageDown'}],
 	showKeyboardShortcuts: [{key: '?', shift: true}],
 	quickSwitcher: [{key: 'k', commandOrControl: true}],
-	render: [{key: 'r'}],
+	render: [{key: 'r', shift: false}],
 	toggleCheckerboard: [{key: 't'}],
 	setInPoint: [{key: 'i'}],
-	setOutPoint: [{key: 'o'}],
+	setOutPoint: [{key: 'o', shift: false}],
 	clearInOutPoints: [{key: 'x'}],
 	zoomIn: [{key: '+', shift: true}, {key: '+'}],
 	zoomOut: [{key: '-'}],
@@ -67,7 +71,7 @@ export const defaultKeyboardShortcuts: Record<
 	selectAllSequenceRows: [{key: 'a', commandOrControl: true}],
 	selectTranslateProp: [{key: 'p'}],
 	selectOpacityProp: [{key: 't'}],
-	selectRotateProp: [{key: 'r'}],
+	selectRotateProp: [{key: 'r', shift: false}],
 	selectScaleProp: [{key: 's'}],
 	duplicateSequences: [{key: 'd', commandOrControl: true}],
 	copyEffectsAndValues: [{key: 'c', commandOrControl: true}],
@@ -91,6 +95,8 @@ export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 				'Context-sensitive timeline control',
 			),
 			shortcut('Play / Pause', 'playPause'),
+			shortcut('Mute / Unmute', 'toggleMute'),
+			shortcut('Loop', 'toggleLoop'),
 			fixedShortcut(
 				'Next frame',
 				[['→']],
@@ -127,6 +133,8 @@ export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 			shortcut('Enter fullscreen', 'enterFullscreen'),
 			fixedShortcut('Exit fullscreen', [['Esc']], 'Handled by the browser'),
 			shortcut('Enable snapping', 'toggleSnapping'),
+			shortcut('Outlines', 'toggleOutlines'),
+			shortcut('Rulers and guides', 'toggleRulersAndGuides'),
 		],
 	},
 	{
@@ -239,8 +247,8 @@ export const keyboardEventMatchesShortcut = ({
 		event.key.toLowerCase() === normalizeKey(value.key).toLowerCase() &&
 		commandOrControl === (value.commandOrControl ?? false) &&
 		(isMac ? !event.ctrlKey : !event.metaKey) &&
-		(!value.shift || event.shiftKey) &&
-		(!value.alt || event.altKey)
+		(value.shift === undefined || event.shiftKey === value.shift) &&
+		(value.alt === undefined || event.altKey === value.alt)
 	);
 };
 
@@ -249,7 +257,13 @@ export const keyboardShortcutsOverlap = (
 	second: StudioKeyboardShortcut,
 ) =>
 	first.key.toLowerCase() === second.key.toLowerCase() &&
-	(first.commandOrControl ?? false) === (second.commandOrControl ?? false);
+	(first.commandOrControl ?? false) === (second.commandOrControl ?? false) &&
+	(first.shift === undefined ||
+		second.shift === undefined ||
+		first.shift === second.shift) &&
+	(first.alt === undefined ||
+		second.alt === undefined ||
+		first.alt === second.alt);
 
 export const keyboardEventMatchesAction = (
 	event: KeyboardEvent,
@@ -315,7 +329,7 @@ export const shortcutFromKeyboardEvent = (
 		...((isMac ? event.metaKey : event.ctrlKey)
 			? {commandOrControl: true}
 			: {}),
-		...(event.shiftKey ? {shift: true} : {}),
-		...(event.altKey ? {alt: true} : {}),
+		shift: event.shiftKey,
+		alt: event.altKey,
 	};
 };

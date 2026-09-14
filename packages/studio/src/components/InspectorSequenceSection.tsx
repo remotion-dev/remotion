@@ -707,12 +707,11 @@ export const InspectorSequenceSection: React.FC<{
 		sequencePropStatuses,
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
-	const inlineCaptionValue =
-		schema.captions?.type === 'remotion-captions'
-			? runtimeValues.captions
-			: null;
-	const inlineCaptions = Array.isArray(inlineCaptionValue)
-		? (inlineCaptionValue as Caption[])
+	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const inlineCaptions = hasCaptionsSchema
+		? Array.isArray(runtimeValues.captions)
+			? (runtimeValues.captions as Caption[])
+			: []
 		: null;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;

@@ -9,7 +9,6 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
 import {getFolderId} from '../../helpers/get-folder-id';
 import {slugifyName} from '../../helpers/slugify-name';
 import {validateFolderRename} from '../../helpers/validate-folder-rename';
@@ -22,6 +21,7 @@ import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
+import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -100,17 +100,12 @@ export const RenameFolder: React.FC<{
 									status="ok"
 									rightAlign
 								/>
-								{slug && slug !== newName ? (
-									<>
-										<Spacing y={1} block />
-										<div
-											aria-live="polite"
-											style={{fontSize: 12, color: LIGHT_TEXT}}
-										>
-											Will be renamed to {slug}
-										</div>
-									</>
-								) : null}
+								<SlugPreview
+									action="rename"
+									currentName={folderName}
+									input={newName}
+									slug={slug}
+								/>
 								{folderNameErrMessage ? (
 									<>
 										<Spacing y={1} block />

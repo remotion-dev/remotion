@@ -3,7 +3,8 @@ export const elementCategories = [
 	{category: 'backgrounds', label: 'Backgrounds'},
 	{category: 'captions', label: 'Captions'},
 	{category: 'data', label: 'Charts & Data'},
-	{category: 'commerce', label: 'Commerce'},
+	{category: 'commerce', label: 'Effects'},
+	{category: 'layouts', label: 'Layouts'},
 	{category: 'maps', label: 'Maps'},
 	{category: 'overlays', label: 'Overlays'},
 	{category: 'storytelling', label: 'Storytelling'},
@@ -16,19 +17,27 @@ export type ElementCategory = (typeof elementCategories)[number]['category'];
 export const elementRegistry = {
 	'audio/oscilloscope': {
 		category: 'audio',
-		displayName: 'Audio Oscilloscope',
+		displayName: 'Oscilloscope',
 	},
 	'audio/waveform-progress': {
 		category: 'audio',
-		displayName: 'Audio Waveform Progress',
+		displayName: 'Voice Note',
 	},
 	'audio/mirrored-spectrum': {
 		category: 'audio',
-		displayName: 'Mirrored Audio Spectrum',
+		displayName: 'Mirrored Spectrum',
 	},
 	'backgrounds/liquid-contours': {
 		category: 'backgrounds',
 		displayName: 'Liquid Contours',
+	},
+	'backgrounds/moving-waves': {
+		category: 'backgrounds',
+		displayName: 'Moving Waves',
+	},
+	'backgrounds/moving-zigzags': {
+		category: 'backgrounds',
+		displayName: 'Moving Zigzags',
 	},
 	'backgrounds/notebook-paper': {
 		category: 'backgrounds',
@@ -59,16 +68,20 @@ export const elementRegistry = {
 		displayName: 'Word Highlight Captions',
 	},
 	'commerce/product-collection': {
-		category: 'commerce',
-		displayName: 'Product Collection',
+		category: 'layouts',
+		displayName: 'Rotating Cards',
 	},
 	'commerce/product-discount-callout': {
 		category: 'commerce',
-		displayName: 'Product Discount Callout',
+		displayName: 'Wiggling Callout',
 	},
-	'commerce/product-offer': {
+	'commerce/shine': {
 		category: 'commerce',
-		displayName: 'Product Offer',
+		displayName: 'Shine',
+	},
+	'commerce/tear': {
+		category: 'commerce',
+		displayName: 'Tear apart',
 	},
 	'data/horizontal-bar-chart': {
 		category: 'data',
@@ -89,6 +102,14 @@ export const elementRegistry = {
 	'data/vertical-bar-chart': {
 		category: 'data',
 		displayName: 'Vertical Bar Chart',
+	},
+	'layouts/picture-in-picture-transition': {
+		category: 'layouts',
+		displayName: 'Picture in Picture Transition',
+	},
+	'layouts/slide-to-split-screen': {
+		category: 'layouts',
+		displayName: 'Slide to Split Screen',
 	},
 	'maps/map-flyover': {
 		category: 'maps',

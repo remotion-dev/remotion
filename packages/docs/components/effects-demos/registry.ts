@@ -306,7 +306,10 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectName: 'tear',
 		effectImportPath: '@remotion/effects/tear',
 		comp: EffectsTearPreview,
-		schema: tear().definition.schema,
+		schema: {
+			...tear().definition.schema,
+			progress: {...tear().definition.schema.progress, max: 2},
+		},
 	},
 	{
 		...defaults,

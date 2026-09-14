@@ -7,6 +7,18 @@ import {isValidPackageName} from './validation';
 
 export type ElementInstallationMode = 'wrapped' | 'component-owned-sequence';
 
+export type ElementInitialPropValue =
+	| string
+	| number
+	| boolean
+	| null
+	| readonly ElementInitialPropValue[]
+	| Readonly<object>;
+
+export type ElementInitialProps = Readonly<
+	Record<string, ElementInitialPropValue>
+>;
+
 export type ElementDependency =
 	| {
 			readonly name: `@remotion/${string}`;
@@ -23,6 +35,7 @@ export type ElementDragData = {
 	element: {
 		dependencies: ElementDependency[];
 		durationInFrames?: number;
+		initialProps: ElementInitialProps | null;
 		installationMode?: ElementInstallationMode;
 		slug: string;
 		displayName: string;
@@ -149,6 +162,7 @@ export const makeElementDragData = ({
 	dimensions,
 	displayName,
 	durationInFrames,
+	initialProps,
 	slug,
 	sourceCode,
 	installationMode,
@@ -173,6 +187,7 @@ export const makeElementDragData = ({
 			dimensions,
 			displayName,
 			...(durationInFrames === undefined ? {} : {durationInFrames}),
+			initialProps,
 			...(installationMode === undefined ? {} : {installationMode}),
 			slug,
 			sourceCode,
@@ -191,12 +206,90 @@ const elementInstallationModeSchema = z.union([
 const durationSchema = z
 	.number()
 	.check(z.int(), z.positive(), z.lte(100_000_000));
+const elementInitialPropsSchema = z.record(z.string(), z.unknown());
+const initialPropNameRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
+const componentOwnedInstallationProps = new Set([
+	'durationInFrames',
+	'from',
+	'name',
+]);
+
+const isJsonCompatibleValue = (
+	value: unknown,
+	seen: Set<object>,
+): value is ElementInitialPropValue => {
+	if (
+		value === null ||
+		typeof value === 'string' ||
+		typeof value === 'boolean'
+	) {
+		return true;
+	}
+
+	if (typeof value === 'number') {
+		return Number.isFinite(value);
+	}
+
+	if (typeof value !== 'object' || seen.has(value)) {
+		return false;
+	}
+
+	seen.add(value);
+	const valid = Array.isArray(value)
+		? value.every((item) => isJsonCompatibleValue(item, seen))
+		: Object.getPrototypeOf(value) === Object.prototype &&
+			Object.values(value).every((item) => isJsonCompatibleValue(item, seen));
+	seen.delete(value);
+	return valid;
+};
+
+export const isElementInitialProps = (
+	value: unknown,
+): value is ElementInitialProps | null =>
+	value === null ||
+	(!Array.isArray(value) &&
+		typeof value === 'object' &&
+		value !== null &&
+		Object.keys(value).every((key) => initialPropNameRegex.test(key)) &&
+		isJsonCompatibleValue(value, new Set()));
+
+export const hasValidElementInitialPropsForInstallationMode = ({
+	initialProps,
+	installationMode,
+}: {
+	initialProps: ElementInitialProps | null;
+	installationMode: ElementInstallationMode | undefined;
+}) => {
+	if (
+		installationMode !== 'component-owned-sequence' ||
+		initialProps === null
+	) {
+		return true;
+	}
+
+	if (
+		Object.keys(initialProps).some((name) =>
+			componentOwnedInstallationProps.has(name),
+		)
+	) {
+		return false;
+	}
+
+	return (
+		initialProps.style === undefined ||
+		(initialProps.style !== null &&
+			typeof initialProps.style === 'object' &&
+			!Array.isArray(initialProps.style))
+	);
+};
+
 const elementDragDataSchema = z.object({
 	type: z.literal('remotion-element'),
 	version: z.literal(1),
 	element: z.object({
 		dependencies: z.array(z.unknown()).check(z.maxLength(100)),
 		durationInFrames: z.optional(durationSchema),
+		initialProps: z.optional(z.nullable(elementInitialPropsSchema)),
 		installationMode: z.optional(elementInstallationModeSchema),
 		slug: slugSchema,
 		displayName: z.string().check(z.minLength(1), z.maxLength(119)),
@@ -233,11 +326,23 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			dependencies.push(dependency);
 		}
 
+		const initialProps = parsed.data.element.initialProps ?? null;
+		if (
+			!isElementInitialProps(initialProps) ||
+			!hasValidElementInitialPropsForInstallationMode({
+				initialProps,
+				installationMode: parsed.data.element.installationMode,
+			})
+		) {
+			return null;
+		}
+
 		return makeElementDragData({
 			dependencies,
 			dimensions: parsed.data.element.dimensions ?? null,
 			displayName: parsed.data.element.displayName,
 			durationInFrames: parsed.data.element.durationInFrames,
+			initialProps,
 			slug: parsed.data.element.slug,
 			sourceCode: parsed.data.element.sourceCode,
 			installationMode: parsed.data.element.installationMode,

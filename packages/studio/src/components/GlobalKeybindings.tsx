@@ -3,10 +3,14 @@ import type React from 'react';
 import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorShowGuidesContext} from '../state/editor-guides';
+import {EditorShowOutlinesContext} from '../state/editor-outlines';
+import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {SetSelectedModalContext} from '../state/modals';
 import {askAiModalRef} from './AskAiModal';
@@ -36,6 +40,62 @@ export const GlobalKeybindings: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setCheckerboard} = useContext(CheckerboardContext);
 	const {setEditorSnapping} = useContext(EditorSnappingContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {setEditorShowOutlines} = useContext(EditorShowOutlinesContext);
+	const {editorShowRulers, setEditorShowRulers} = useContext(
+		EditorShowRulersContext,
+	);
+	const {editorShowGuides, setEditorShowGuides} = useContext(
+		EditorShowGuidesContext,
+	);
+	const showGuides = canvasContent?.type === 'composition';
+	const showCanvasViewControls =
+		showGuides ||
+		(canvasContent?.type === 'asset' &&
+			getPreviewFileType(canvasContent.asset) === 'video');
+
+	useEffect(() => {
+		if (!showCanvasViewControls) return;
+		const outlines = showGuides
+			? keybindings.registerKeybinding({
+					event: 'keydown',
+					action: 'toggleOutlines',
+					callback: (event) => {
+						if (!event.repeat) setEditorShowOutlines((current) => !current);
+					},
+					preventDefault: true,
+					triggerIfInputFieldFocused: false,
+					keepRegisteredWhenNotHighestContext: false,
+				})
+			: null;
+		const rulers = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'toggleRulersAndGuides',
+			callback: (event) => {
+				if (event.repeat) return;
+				const visible = editorShowRulers || (showGuides && editorShowGuides);
+				setEditorShowRulers(() => !visible);
+				if (showGuides) setEditorShowGuides(() => !visible);
+			},
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		return () => {
+			outlines?.unregister();
+			rulers.unregister();
+		};
+	}, [
+		keybindings,
+		showCanvasViewControls,
+		showGuides,
+		editorShowRulers,
+		editorShowGuides,
+		setEditorShowOutlines,
+		setEditorShowRulers,
+		setEditorShowGuides,
+	]);
+
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {sequences} = useContext(Internals.SequenceManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();

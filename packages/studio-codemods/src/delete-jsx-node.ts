@@ -419,7 +419,7 @@ type SourceEdit = {
 	start: number;
 };
 
-const getNodeSourceEdit = ({
+export const getNodeSourceEdit = ({
 	input,
 	jsxPath,
 }: {

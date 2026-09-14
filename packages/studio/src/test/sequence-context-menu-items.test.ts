@@ -1,4 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
+import type {GitSource} from '@remotion/studio-shared';
 import type {TSequence} from 'remotion';
 import {getOpenInMenuItems} from '../components/get-open-in-menu-items';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
@@ -41,11 +42,15 @@ const installTestWindow = () => {
 		| 'remotion_cwd'
 		| 'remotion_editorName'
 		| 'remotion_fileSystemPlatform'
+		| 'remotion_gitSource'
+		| 'remotion_isReadOnlyStudio'
 	> = {
 		open: () => null,
 		remotion_cwd: '/project',
 		remotion_editorName: null,
 		remotion_fileSystemPlatform: 'darwin',
+		remotion_gitSource: null,
+		remotion_isReadOnlyStudio: false,
 	};
 
 	Object.defineProperty(globalThis, 'window', {
@@ -429,6 +434,60 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 	expect(items.map((item) => item.id)).toEqual([
 		'copy-context-for-agents',
 		'copy-svg',
+	]);
+});
+
+test('read-only sequence menus open source locations on GitHub', () => {
+	installTestWindow();
+	const gitSource: GitSource = {
+		name: 'project',
+		org: 'example',
+		ref: 'main',
+		relativeFromGitRoot: '',
+		type: 'github',
+	};
+	window.remotion_gitSource = gitSource;
+	window.remotion_isReadOnlyStudio = true;
+	const openedUrls: string[] = [];
+	window.open = (url) => {
+		openedUrls.push(String(url));
+		return null;
+	};
+
+	const items = getSequenceContextMenuItems({
+		assetLinkInfo: null,
+		canOpenInEditor: false,
+		codingAgentInfo: null,
+		deleteDisabled: true,
+		disableInteractivityDisabled: true,
+		duplicateDisabled: true,
+		editorInfo: null,
+		includeSourceEditItems: false,
+		isProgrammaticallyDuplicated: false,
+		onConfigureApps: null,
+		onDeleteSequenceFromSource: noop,
+		onDisableSequenceInteractivity: noop,
+		onDuplicateSequenceFromSource: noop,
+		openInCodingAgent: noop,
+		openInEditor: noop,
+		originalLocation: {
+			column: 1,
+			line: 12,
+			source: '/project/src/Video.tsx',
+		},
+		selectAsset: noop,
+		sequence: {} as TSequence,
+	});
+
+	const openInGitHub = items.find((item) => item.id === 'open-in-git-source');
+	if (openInGitHub?.type !== 'item') {
+		throw new Error('Expected Open in GitHub menu item');
+	}
+
+	expect(openInGitHub.label).toBe('Open in GitHub');
+	openInGitHub.onClick('open-in-git-source', null);
+	expect(openedUrls).toEqual([
+		'https://github.com/example/project/blob/main/src/Video.tsx#L12',
 	]);
 });
 

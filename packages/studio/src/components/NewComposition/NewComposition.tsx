@@ -40,6 +40,7 @@ import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
+import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -118,6 +119,7 @@ export type NewCompositionFormValues = {
 };
 
 export const NewCompositionFields: React.FC<{
+	readonly compositionId: string;
 	readonly heightValidationMessage: string | null;
 	readonly inputRef: RefObject<HTMLInputElement | null>;
 	readonly nameValidationMessage: string | null;
@@ -125,6 +127,7 @@ export const NewCompositionFields: React.FC<{
 	readonly values: NewCompositionFormValues;
 	readonly widthValidationMessage: string | null;
 }> = ({
+	compositionId,
 	heightValidationMessage,
 	inputRef,
 	nameValidationMessage,
@@ -329,6 +332,12 @@ export const NewCompositionFields: React.FC<{
 							status="ok"
 							rightAlign
 						/>
+						<SlugPreview
+							action="create"
+							currentName={null}
+							input={values.id}
+							slug={compositionId}
+						/>
 						{nameValidationMessage ? (
 							<>
 								<Spacing y={1} block />
@@ -473,6 +482,7 @@ const NewCompositionLoaded: React.FC<{
 
 	const {
 		codemod,
+		compositionId,
 		createComposition,
 		heightValidationMessage,
 		nameValidationMessage,
@@ -546,6 +556,7 @@ const NewCompositionLoaded: React.FC<{
 			<form onSubmit={onSubmit}>
 				<div style={content}>
 					<NewCompositionFields
+						compositionId={compositionId}
 						heightValidationMessage={heightValidationMessage}
 						inputRef={inputRef}
 						nameValidationMessage={nameValidationMessage}

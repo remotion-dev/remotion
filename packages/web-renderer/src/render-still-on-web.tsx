@@ -122,6 +122,7 @@ async function internalRenderStillOnWeb<
 	});
 
 	using scaffold = createScaffold({
+		sampleRate: null,
 		width: resolved.width,
 		height: resolved.height,
 		delayRenderTimeoutInMilliseconds,

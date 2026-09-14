@@ -5,6 +5,7 @@
 /build
 
 # Generated files
+/src/remotion/element-playground/*.element.tsx
 .docusaurus
 .cache-loader
 .element-previews

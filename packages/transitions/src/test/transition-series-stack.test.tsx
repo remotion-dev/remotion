@@ -214,7 +214,7 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 });
 
 test('TransitionSeries.Transition and Overlay register at their rendered timeline ranges', async () => {
-	const registeredSequences: RegisteredSequence[] = [];
+	const registeredSequences = new Map<string, RegisteredSequence>();
 	const div = document.createElement('div');
 	const root = createRoot(div);
 	const transitionStack = 'Error\n    at UserAuthoredTransition';
@@ -228,8 +228,13 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 	root.render(
 		<SequenceTestWrapper
 			onRegisterSequence={(sequence) => {
-				registeredSequences.push(sequence);
-				pendingRegistrationStacks.delete(sequence.getStack() ?? '');
+				const stack = sequence.getStack();
+				if (stack === null || !pendingRegistrationStacks.has(stack)) {
+					return;
+				}
+
+				registeredSequences.set(stack, sequence);
+				pendingRegistrationStacks.delete(stack);
 				if (pendingRegistrationStacks.size === 0) {
 					resolveRegistrations();
 				}
@@ -269,12 +274,8 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 
 	await registrations;
 
-	const transition = registeredSequences.find(
-		(sequence) => sequence.getStack() === transitionStack,
-	);
-	const overlay = registeredSequences.find(
-		(sequence) => sequence.getStack() === overlayStack,
-	);
+	const transition = registeredSequences.get(transitionStack);
+	const overlay = registeredSequences.get(overlayStack);
 
 	root.unmount();
 

@@ -474,12 +474,14 @@ const TimelineSequenceInner: React.FC<{
 	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
 
 	const {
-		canOpenInEditor,
 		canConfigureApps,
+		canOpenInEditor,
+		canOpenSource,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
+		openSource,
 		originalLocation,
 	} = useOpenSequenceInApps(s);
 	const validatedLocation = useMemo(() => {
@@ -558,7 +560,7 @@ const TimelineSequenceInner: React.FC<{
 
 			const action = getSequenceDoubleClickAction({
 				button: e.button,
-				canOpenInEditor,
+				canOpenSource,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				sequenceWasDragged:
 					dragAwareDoubleClick.consumePointerGestureWasDragged(),
@@ -582,13 +584,13 @@ const TimelineSequenceInner: React.FC<{
 				return;
 			}
 
-			openInEditor(null);
+			openSource();
 		},
 		[
-			canOpenInEditor,
+			canOpenSource,
 			connectedCompositions,
 			dragAwareDoubleClick,
-			openInEditor,
+			openSource,
 			s,
 			selectComposition,
 			sequenceFrameOffset,
@@ -605,7 +607,7 @@ const TimelineSequenceInner: React.FC<{
 		[dragAwareDoubleClick, performSequenceDoubleClick],
 	);
 	const canHandleSequenceDoubleClick =
-		connectedCompositions.length === 1 || canOpenInEditor;
+		connectedCompositions.length === 1 || canOpenSource;
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const deleteDisabled =
 		!previewInteractive || !s.controls || !canDeleteFromSource;

@@ -6,7 +6,9 @@ import {
 	formatContextForAgents,
 	formatFileLocation,
 } from '../helpers/format-file-location';
+import {getGitSourceName, openGitSource} from '../helpers/get-git-menu-item';
 import {
+	loadCompositionComponentInfo,
 	openCompositionComponentInEditor,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
@@ -53,6 +55,14 @@ export const getCompositionMenuItems = ({
 		!resolvedLocation;
 	const openComponentInEditorDisabled =
 		showInEditorDisabled || !resolvedLocation?.source;
+	const gitSourceName = window.remotion_gitSource
+		? getGitSourceName(window.remotion_gitSource)
+		: null;
+	const openCompositionInGitSourceDisabled = !composition || !resolvedLocation;
+	const openComponentInGitSourceDisabled =
+		openCompositionInGitSourceDisabled ||
+		!resolvedLocation?.source ||
+		(!readOnlyStudio && connectionStatus !== 'connected');
 	const copyFileLocationDisabled = !composition || !fileLocation;
 
 	return [
@@ -110,7 +120,53 @@ export const getCompositionMenuItems = ({
 					disabled: openComponentInEditorDisabled,
 				}
 			: null,
-		editorName && includeCompositionManagementItems
+		gitSourceName
+			? {
+					id: 'open-composition-in-git-source',
+					keyHint: null,
+					label: `Open composition in ${gitSourceName}`,
+					leftItem: null,
+					onClick: () => {
+						closeMenu();
+						openGitSource({folder: false, location: resolvedLocation});
+					},
+					quickSwitcherLabel: `Open composition in ${gitSourceName}`,
+					subMenu: null,
+					type: 'item' as const,
+					value: 'open-composition-in-git-source',
+					disabled: openCompositionInGitSourceDisabled,
+				}
+			: null,
+		gitSourceName
+			? {
+					id: 'open-component-in-git-source',
+					keyHint: null,
+					label: `Open component in ${gitSourceName}`,
+					leftItem: null,
+					onClick: async () => {
+						closeMenu();
+						if (!composition || !resolvedLocation?.source) {
+							return;
+						}
+
+						try {
+							const info = await loadCompositionComponentInfo({
+								compositionFile: resolvedLocation.source,
+								compositionId: composition.id,
+							});
+							openGitSource({folder: false, location: info.location});
+						} catch (err) {
+							showNotification((err as Error).message, 2000);
+						}
+					},
+					quickSwitcherLabel: `Open composition component in ${gitSourceName}`,
+					subMenu: null,
+					type: 'item' as const,
+					value: 'open-component-in-git-source',
+					disabled: openComponentInGitSourceDisabled,
+				}
+			: null,
+		(editorName || gitSourceName) && includeCompositionManagementItems
 			? {
 					type: 'divider' as const,
 					id: 'show-in-editor-divider',
@@ -190,7 +246,7 @@ export const getCompositionMenuItems = ({
 					disabled: !composition || readOnlyStudio,
 				}
 			: null,
-		editorName || includeCompositionManagementItems
+		editorName || gitSourceName || includeCompositionManagementItems
 			? {
 					type: 'divider' as const,
 					id: 'copy-actions-divider',

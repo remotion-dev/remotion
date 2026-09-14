@@ -5,6 +5,8 @@ test('validates Studio keyboard shortcut configuration', () => {
 	expect(
 		validateStudioKeyboardShortcuts({
 			playPause: {key: 'p'},
+			toggleMute: {key: 'm', shift: false},
+			toggleLoop: [{key: 'l', shift: true}, {key: 'y'}],
 			quickSwitcher: {key: 'p', commandOrControl: true},
 			deleteSelection: [{key: 'Backspace'}, {key: 'Delete'}],
 			showKeyboardShortcuts: null,

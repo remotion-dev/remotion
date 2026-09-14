@@ -39,7 +39,7 @@ const audioWaveformProgressSchema = {
 	},
 	playedColor: {
 		type: 'color',
-		default: '#0b84f3',
+		default: '#2563eb',
 		description: 'Played color',
 	},
 	unplayedColor: {
@@ -188,7 +188,7 @@ const AudioWaveformProgressInner = forwardRef<
 			durationInFrames = 271,
 			name,
 			numberOfBars = 64,
-			playedColor = '#0b84f3',
+			playedColor = '#2563eb',
 			style,
 			unplayedColor = '#cbd5e1',
 			...sequenceProps

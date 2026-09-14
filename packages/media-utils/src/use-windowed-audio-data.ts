@@ -112,10 +112,18 @@ export const useWindowedAudioData = ({
 
 			const input = new Input({
 				formats: ALL_FORMATS,
-				source: new UrlSource(
-					src,
-					initialRequestInit ? {requestInit: initialRequestInit} : undefined,
-				),
+				source: new UrlSource(src, {
+					handleUnhandledError: (error) => {
+						Internals.Log.warn(
+							{logLevel: 'info', tag: '@remotion/media-utils'},
+							`A speculative fetch for "${src}" failed:`,
+							error,
+						);
+					},
+					...(initialRequestInit
+						? {requestInit: initialRequestInit}
+						: undefined),
+				}),
 			});
 
 			const onAbort = () => {

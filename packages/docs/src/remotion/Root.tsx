@@ -116,6 +116,7 @@ import {
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
+import {ElementPlayground} from './element-playground/ElementPlayground';
 import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
@@ -135,6 +136,14 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<Folder name="elements">
+				<Composition
+					id="elements-install-playground"
+					component={ElementPlayground}
+					durationInFrames={300}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
 				{elementDefinitions.map((definition) => {
 					const dimensions = getElementPreviewDimensions(definition);
 

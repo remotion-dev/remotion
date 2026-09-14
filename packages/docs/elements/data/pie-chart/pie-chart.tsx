@@ -9,7 +9,7 @@ const {fontFamily} = loadFont('normal', {
 
 const data = [
 	{
-		color: '#2858e8',
+		color: '#2563eb',
 		foreground: '#ffffff',
 		label: 'Focused work',
 		value: 42,
@@ -164,25 +164,11 @@ export const PieChart: React.FC = () => {
 					flexDirection: 'column',
 					fontFamily,
 					fontVariantNumeric: 'tabular-nums',
-					gap: 42,
 					height: '100%',
 					justifyContent: 'center',
 					width: '100%',
 				}}
 			>
-				<Interactive.H1
-					name="Title"
-					style={{
-						color: '#111827',
-						fontSize: 76,
-						fontWeight: 800,
-						letterSpacing: -3.8,
-						lineHeight: 0.95,
-						margin: 0,
-					}}
-				>
-					How we spend a workday
-				</Interactive.H1>
 				<div
 					style={{
 						alignItems: 'center',
@@ -196,8 +182,8 @@ export const PieChart: React.FC = () => {
 						name="Pie chart"
 						viewBox="0 0 600 600"
 						style={{
-							flex: '0 0 600px',
-							height: 600,
+							flex: '0 0 680px',
+							height: 680,
 							overflow: 'visible',
 							scale: interpolate(frame, [8, 40], [0.96, 1], {
 								easing: Easing.inOut(Easing.cubic),
@@ -205,7 +191,7 @@ export const PieChart: React.FC = () => {
 								extrapolateRight: 'clamp',
 								output: 'perceptual-scale',
 							}),
-							width: 600,
+							width: 680,
 						}}
 					>
 						<Interactive.Circle

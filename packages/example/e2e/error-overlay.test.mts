@@ -311,6 +311,16 @@ test.describe('error overlay dismissal', () => {
 		await expect(
 			page.getByText('ErrorOverlayRepro', {exact: true}),
 		).toBeVisible();
+		const highlightedSourceLine = page.getByText('effects={[blur({})]}', {
+			exact: true,
+		});
+		await expect(highlightedSourceLine).toHaveCSS(
+			'color',
+			'rgb(156, 220, 254)',
+		);
+		await expect(
+			highlightedSourceLine.locator('span.token.function', {hasText: /^blur$/}),
+		).toHaveCSS('color', 'rgb(220, 220, 170)');
 		await expect.poll(getCurrentError).toEqual({
 			name: 'TypeError',
 			message: '"radius" must be a finite number, but got undefined',

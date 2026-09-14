@@ -20,6 +20,7 @@ import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
+import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -60,6 +61,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 
 	const {
 		codemod,
+		compositionId,
 		renameComposition,
 		valid,
 		validationMessage: compNameErrMessage,
@@ -91,6 +93,12 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 									placeholder="Composition ID"
 									status="ok"
 									rightAlign
+								/>
+								<SlugPreview
+									action="rename"
+									currentName={resolved.result.id}
+									input={newId}
+									slug={compositionId}
 								/>
 								{compNameErrMessage ? (
 									<>

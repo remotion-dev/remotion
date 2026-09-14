@@ -46,6 +46,7 @@ const deliverElementInstall = ({
 		element: {
 			...element,
 			durationInFrames: element.durationInFrames ?? null,
+			initialProps: element.initialProps ?? null,
 			installationMode: element.installationMode ?? null,
 		},
 		from: null,
@@ -79,7 +80,7 @@ export const handleStudioProtocolInstall = async ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	const requestOrigin = getAllowedStudioProtocolOrigin(request);
 	if (requestOrigin === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-origin',

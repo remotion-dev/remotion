@@ -1,5 +1,7 @@
 export const studioKeyboardShortcutActions = [
 	'playPause',
+	'toggleMute',
+	'toggleLoop',
 	'jumpToBeginning',
 	'jumpToEnd',
 	'reversePlayback',
@@ -12,6 +14,8 @@ export const studioKeyboardShortcutActions = [
 	'toggleBothSidebars',
 	'enterFullscreen',
 	'toggleSnapping',
+	'toggleOutlines',
+	'toggleRulersAndGuides',
 	'previousComposition',
 	'nextComposition',
 	'showKeyboardShortcuts',

@@ -31,7 +31,9 @@ export const getCameraStreamConstraints = (
     return null;
   }
   const video: MediaTrackConstraints = {
-    deviceId: selectedVideoSource.deviceId,
+    // A string constraint is only an "ideal" preference. Use an exact
+    // constraint so Chrome cannot silently substitute the default webcam.
+    deviceId: { exact: selectedVideoSource.deviceId },
     width: preferPortrait
       ? undefined
       : selectedVideoSource.maxWidth
@@ -49,6 +51,22 @@ export const getCameraStreamConstraints = (
   return video;
 };
 
+export const getAudioStreamConstraints = ({
+  recordAudio,
+  selectedAudioSource,
+}: {
+  recordAudio: boolean;
+  selectedAudioSource: string | null;
+}): MediaTrackConstraints | undefined => {
+  if (!recordAudio || !selectedAudioSource) {
+    return undefined;
+  }
+
+  // A string constraint is only an "ideal" preference. Use an exact
+  // constraint so Chrome cannot silently substitute the default microphone.
+  return { deviceId: { exact: selectedAudioSource } };
+};
+
 const getCameraStram = ({
   selectedVideoSource,
   preferPortrait,
@@ -58,7 +76,7 @@ const getCameraStram = ({
   selectedVideoSource: SelectedSource;
   preferPortrait: boolean;
   recordAudio: boolean;
-  selectedAudioSource: ConstrainDOMString | null;
+  selectedAudioSource: string | null;
 }): Promise<MediaStream> => {
   if (selectedVideoSource.type !== "camera") {
     throw new Error("Unknown video source type");
@@ -67,10 +85,7 @@ const getCameraStram = ({
 
   const mediaStreamConstraints: MediaStreamConstraints = {
     video: video ?? undefined,
-    audio:
-      recordAudio && selectedAudioSource
-        ? { deviceId: selectedAudioSource }
-        : undefined,
+    audio: getAudioStreamConstraints({ recordAudio, selectedAudioSource }),
   };
 
   return window.navigator.mediaDevices.getUserMedia(mediaStreamConstraints);
@@ -85,7 +100,7 @@ export const getVideoStream = async ({
   selectedVideoSource: SelectedSource;
   preferPortrait: boolean;
   recordAudio: boolean;
-  selectedAudioSource: ConstrainDOMString | null;
+  selectedAudioSource: string | null;
 }): Promise<MediaStream> => {
   if (selectedVideoSource.type === "display-with-audio") {
     return getDisplayStream(selectedVideoSource);
@@ -94,7 +109,7 @@ export const getVideoStream = async ({
     const displayStream = await getDisplayStream(selectedVideoSource);
     if (recordAudio && selectedAudioSource) {
       const audioStream = await window.navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: selectedAudioSource },
+        audio: getAudioStreamConstraints({ recordAudio, selectedAudioSource }),
       });
       return new MediaStream([
         ...displayStream.getVideoTracks(),

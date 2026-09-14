@@ -1,18 +1,24 @@
 import {execFileSync} from 'child_process';
+import {randomUUID} from 'crypto';
 import path from 'path';
 import {S3Client} from 'bun';
 import {elementDefinitions} from './src/components/Elements/element-definitions';
 
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
 	console.log(`Usage:
-  bun run upload-element-preview --element=<category>/<slug> --source=render [--overwrite]
-  bun run upload-element-preview --element=<category>/<slug> --source=submission [--overwrite]
+  bun run upload-element-preview --element=<category>/<slug> --source=render
+  bun run upload-element-preview --element=<category>/<slug> --source=submission
 
-Use render to upload files from .element-previews. Use submission to upload committed files from static/elements. By default, the Element definition must use its exact local /elements/... review URLs. Use --overwrite to refresh an already-published preview only when the definition uses its exact https://remotion.media/elements/... URLs. The command prints the hosted URLs and any cleanup required after a verified upload.`);
+Use render to upload files from .element-previews. Use submission to upload committed files from static/elements. The Element definition must use either its exact local /elements/... review URLs or a matching pair of its existing remotion.media URLs. Each upload gets a unique URL so previews from concurrent branches cannot overwrite each other. The command prints the hosted URLs and any cleanup required after a verified upload.`);
 	process.exit(0);
 }
 
-const overwrite = process.argv.includes('--overwrite');
+if (process.argv.includes('--overwrite')) {
+	throw new Error(
+		'--overwrite is no longer supported. Each upload now gets a unique URL.',
+	);
+}
+
 const elementArguments = process.argv.filter((argument) =>
 	argument.startsWith('--element='),
 );
@@ -51,29 +57,36 @@ if (!definition) {
 const assetSlug = definition.slug.replaceAll('/', '-');
 const expectedPosterUrl = `/elements/${assetSlug}-preview.png` as const;
 const expectedVideoUrl = `/elements/${assetSlug}-preview.mp4` as const;
-const expectedHostedPosterUrl =
-	`https://remotion.media${expectedPosterUrl}` as const;
-const expectedHostedVideoUrl =
-	`https://remotion.media${expectedVideoUrl}` as const;
+const hostedPosterUrlPattern = new RegExp(
+	`^https://remotion\\.media/elements/${assetSlug}-preview(?:-([a-f0-9-]+))?\\.png$`,
+);
+const hostedVideoUrlPattern = new RegExp(
+	`^https://remotion\\.media/elements/${assetSlug}-preview(?:-([a-f0-9-]+))?\\.mp4$`,
+);
+const hostedPosterUrlMatch = definition.preview.posterUrl.match(
+	hostedPosterUrlPattern,
+);
+const hostedVideoUrlMatch = definition.preview.videoUrl.match(
+	hostedVideoUrlPattern,
+);
 const usesLocalReviewUrls =
 	definition.preview.posterUrl === expectedPosterUrl &&
 	definition.preview.videoUrl === expectedVideoUrl;
-const usesHostedPreviewUrls =
-	definition.preview.posterUrl === expectedHostedPosterUrl &&
-	definition.preview.videoUrl === expectedHostedVideoUrl;
-if (!usesLocalReviewUrls) {
-	if (!overwrite) {
-		throw new Error(
-			`${definition.slug} must use its exact local review URLs (${expectedPosterUrl} and ${expectedVideoUrl}) before its previews can be uploaded. To refresh an already-published preview, use --overwrite while the definition uses ${expectedHostedPosterUrl} and ${expectedHostedVideoUrl}.`,
-		);
-	}
-
-	if (!usesHostedPreviewUrls) {
-		throw new Error(
-			`${definition.slug} cannot be overwritten because its preview URLs do not exactly match ${expectedHostedPosterUrl} and ${expectedHostedVideoUrl}.`,
-		);
-	}
+const usesMatchingHostedPreviewUrls =
+	hostedPosterUrlMatch !== null &&
+	hostedVideoUrlMatch !== null &&
+	hostedPosterUrlMatch[1] === hostedVideoUrlMatch[1];
+if (!usesLocalReviewUrls && !usesMatchingHostedPreviewUrls) {
+	throw new Error(
+		`${definition.slug} must use either its exact local review URLs (${expectedPosterUrl} and ${expectedVideoUrl}) or a matching pair of its existing remotion.media preview URLs.`,
+	);
 }
+
+const previewPostfix = randomUUID();
+const hostedPosterUrl =
+	`https://remotion.media/elements/${assetSlug}-preview-${previewPostfix}.png` as const;
+const hostedVideoUrl =
+	`https://remotion.media/elements/${assetSlug}-preview-${previewPostfix}.mp4` as const;
 
 const sourceDirectory =
 	source === 'render'
@@ -86,7 +99,7 @@ const assets = [
 			sourceDirectory,
 			source === 'render' ? 'preview.png' : `${assetSlug}-preview.png`,
 		),
-		localUrl: expectedPosterUrl,
+		publicUrl: hostedPosterUrl,
 	},
 	{
 		contentType: 'video/mp4',
@@ -94,7 +107,7 @@ const assets = [
 			sourceDirectory,
 			source === 'render' ? 'preview.mp4' : `${assetSlug}-preview.mp4`,
 		),
-		localUrl: expectedVideoUrl,
+		publicUrl: hostedVideoUrl,
 	},
 ] as const;
 
@@ -178,12 +191,6 @@ if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
 	);
 }
 
-if (!Bun.env.CLOUDFLARE_API_TOKEN || !Bun.env.CLOUDFLARE_ZONE_ID) {
-	throw new Error(
-		'Clearing the CDN cache requires CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID in packages/docs/.env.',
-	);
-}
-
 const client = new S3Client({
 	accessKeyId: Bun.env.AWS_ACCESS_KEY_ID,
 	secretAccessKey: Bun.env.AWS_SECRET_ACCESS_KEY,
@@ -193,8 +200,8 @@ const client = new S3Client({
 
 for (const asset of assets) {
 	const file = Bun.file(asset.filePath, {type: asset.contentType});
-	const key = asset.localUrl.slice(1);
-	const publicUrl = `https://remotion.media${asset.localUrl}`;
+	const publicUrl = asset.publicUrl;
+	const key = new URL(publicUrl).pathname.slice(1);
 	await client.write(key, file);
 
 	const remote = await client.stat(key);
@@ -221,33 +228,9 @@ for (const asset of assets) {
 	console.log(`Uploaded ${publicUrl} (${file.size} bytes)`);
 }
 
-const purgeResponse = await fetch(
-	`https://api.cloudflare.com/client/v4/zones/${Bun.env.CLOUDFLARE_ZONE_ID}/purge_cache`,
-	{
-		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${Bun.env.CLOUDFLARE_API_TOKEN}`,
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			files: assets.map((asset) => `https://remotion.media${asset.localUrl}`),
-		}),
-	},
-);
-const purgeResult = (await purgeResponse.json()) as {
-	success: boolean;
-	errors?: unknown;
-};
-if (!purgeResponse.ok || !purgeResult.success) {
-	throw new Error(
-		`Could not clear the CDN cache: HTTP ${purgeResponse.status} ${JSON.stringify(purgeResult.errors)}`,
-	);
-}
-
-console.log('Cleared the CDN cache for both preview URLs.');
-console.log('Upload verified. Preview URLs:');
-console.log(expectedHostedPosterUrl);
-console.log(expectedHostedVideoUrl);
+console.log('Upload verified. Replace image, posterUrl, and videoUrl with:');
+console.log(hostedPosterUrl);
+console.log(hostedVideoUrl);
 if (source === 'submission') {
 	console.log('Then delete the two files from packages/docs/static/elements.');
 } else {

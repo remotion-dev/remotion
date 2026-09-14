@@ -17,6 +17,18 @@ export type FontInfo = {
 	unicodeRanges: Record<string, string>;
 	fonts: Record<string, Record<string, Record<string, string>>>;
 	subsets: string[];
+	variable?: {
+		axes: Record<string, {min: number; max: number}>;
+		fontFaces: {
+			style: string;
+			weight: string;
+			stretch: string | null;
+			subset: string;
+			unicodeRange: string;
+			src: string;
+		}[];
+		url: string;
+	};
 };
 
 export type GoogleFont = {
@@ -36,6 +48,18 @@ export type GoogleFont = {
 		fontFamily: FontInfo['fontFamily'];
 		fonts: FontInfo['fonts'];
 		unicodeRanges: FontInfo['unicodeRanges'];
+		waitUntilDone: () => Promise<undefined>;
+	};
+	loadVariableFont?: (
+		style: string,
+		options: {
+			subsets: string[];
+			document?: Document;
+			ignoreTooManyRequestsWarning?: boolean;
+		},
+	) => {
+		fontFamily: FontInfo['fontFamily'];
+		axes: Record<string, {min: number; max: number}>;
 		waitUntilDone: () => Promise<undefined>;
 	};
 };

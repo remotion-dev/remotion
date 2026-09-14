@@ -143,6 +143,9 @@ await run(
 	docusaurusBuild.args,
 	docusaurusEnv,
 );
+await run('validate generated JavaScript', 'bun', [
+	'validate-built-javascript.ts',
+]);
 await run('build standalone Browser Studio', 'bun', [
 	'build-browser-studio-standalone.ts',
 ]);
