@@ -26,7 +26,6 @@ import {
 	productCollectionDurationInFrames,
 } from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
-import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {Shine} from '../../../elements/commerce/shine/shine';
 import {Tear} from '../../../elements/commerce/tear/tear';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
@@ -477,31 +476,6 @@ const elementImplementations = [
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.png',
 			videoUrl:
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.mp4',
-		},
-		safeArea: 90,
-		initialProps: null,
-		installationMode: 'wrapped',
-		width: 1080,
-	},
-	{
-		slug: 'commerce/product-offer',
-		component: ProductOffer,
-		contributors: [],
-		description:
-			'An animated product card with a bold title, catalog image, pricing, and discount.',
-		dependencies: [{name: '@remotion/google-fonts', version: null}],
-		durationInFrames: 150,
-		elementHeight: 900,
-		elementWidth: 900,
-		fps: 30,
-		height: 1080,
-		posterFrame: 75,
-		preview: {
-			previewLayout: 'composition',
-			posterUrl:
-				'https://remotion.media/elements/commerce-product-offer-preview.png',
-			videoUrl:
-				'https://remotion.media/elements/commerce-product-offer-preview.mp4',
 		},
 		safeArea: 90,
 		initialProps: null,
