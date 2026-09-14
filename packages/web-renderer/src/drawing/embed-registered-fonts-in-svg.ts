@@ -1,72 +1,169 @@
 import {NoReactInternals} from 'remotion/no-react';
 
-const base64ByUrl = new Map<string, Promise<string>>();
+type RegisteredFontFace = ReturnType<
+	typeof NoReactInternals.getRegisteredFontFaces
+>[number];
 
-const getBase64 = (url: string): Promise<string> => {
-	const cached = base64ByUrl.get(url);
+export type EmbeddedFontStyle = {
+	blob: Blob;
+	cacheKey: string;
+	css: string;
+};
+
+const base64ByData = new WeakMap<ArrayBuffer, string>();
+const ruleByFontFace = new WeakMap<RegisteredFontFace, string>();
+const styleByFontFaceSet = new Map<string, EmbeddedFontStyle>();
+const fontIndexesByFamily = new Map<string, number[]>();
+let indexedFontCount = 0;
+
+const getBase64 = (data: ArrayBuffer): string => {
+	const cached = base64ByData.get(data);
 	if (cached) {
 		return cached;
 	}
 
-	const promise = fetch(url)
-		.then((response) => {
-			if (!response.ok) {
-				throw new Error(
-					`Failed to load font ${JSON.stringify(url)} for SVG: ${response.status} ${response.statusText}`,
-				);
-			}
+	const bytes = new Uint8Array(data);
+	let binary = '';
+	for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+		binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+	}
 
-			return response.arrayBuffer();
-		})
-		.then((arrayBuffer) => {
-			const bytes = new Uint8Array(arrayBuffer);
-			let binary = '';
-			for (let offset = 0; offset < bytes.length; offset += 0x8000) {
-				binary += String.fromCharCode(
-					...bytes.subarray(offset, offset + 0x8000),
-				);
-			}
-
-			return btoa(binary);
-		})
-		.catch((error) => {
-			base64ByUrl.delete(url);
-			throw error;
-		});
-
-	base64ByUrl.set(url, promise);
-	return promise;
+	const base64 = btoa(binary);
+	base64ByData.set(data, base64);
+	return base64;
 };
 
-export const embedRegisteredFontsInSvg = async ({
-	svg,
-	svgData,
+const normalizeWeight = (value: string): number | null => {
+	if (value === 'normal') {
+		return 400;
+	}
+
+	if (value === 'bold') {
+		return 700;
+	}
+
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? parsed : null;
+};
+
+const stretchKeywords: Record<string, number> = {
+	'ultra-condensed': 50,
+	'extra-condensed': 62.5,
+	condensed: 75,
+	'semi-condensed': 87.5,
+	normal: 100,
+	'semi-expanded': 112.5,
+	expanded: 125,
+	'extra-expanded': 150,
+	'ultra-expanded': 200,
+};
+
+const normalizeStretch = (value: string): number | null => {
+	const keyword = stretchKeywords[value];
+	if (keyword !== undefined) {
+		return keyword;
+	}
+
+	if (!value.endsWith('%')) {
+		return null;
+	}
+
+	const parsed = Number(value.slice(0, -1));
+	return Number.isFinite(parsed) ? parsed : null;
+};
+
+const valueMatchesRange = ({
+	actual,
+	descriptor,
+	normalize,
 }: {
-	svg: SVGSVGElement;
-	svgData: string;
-}): Promise<string> => {
-	const textElements = svg.querySelectorAll('text, tspan, textPath');
-	if (textElements.length === 0) {
-		return svgData;
+	actual: string;
+	descriptor: string;
+	normalize: (value: string) => number | null;
+}): boolean => {
+	const actualValue = normalize(actual);
+	const range = descriptor.trim().split(/\s+/).map(normalize);
+	if (actualValue === null || range.some((value) => value === null)) {
+		return actual.toLowerCase() === descriptor.toLowerCase();
 	}
 
-	const usedFontFamilies = new Set<string>();
-	for (const textElement of textElements) {
-		for (const family of getComputedStyle(textElement).fontFamily.split(',')) {
-			usedFontFamilies.add(
-				family
-					.trim()
-					.replace(/^(['"])(.*)\1$/, '$2')
-					.toLowerCase(),
-			);
-		}
+	if (range.length === 1) {
+		return actualValue === range[0];
 	}
 
-	const fonts = NoReactInternals.getRegisteredFontFaces().filter((font) =>
-		usedFontFamilies.has(font.fontFamily.toLowerCase()),
+	return (
+		range.length === 2 &&
+		actualValue >= Math.min(range[0]!, range[1]!) &&
+		actualValue <= Math.max(range[0]!, range[1]!)
 	);
-	if (fonts.length === 0) {
-		return svgData;
+};
+
+const descriptorsMatch = (
+	font: RegisteredFontFace,
+	computedStyle: CSSStyleDeclaration,
+): boolean => {
+	const fontStyle = font.style ?? 'normal';
+	if (
+		fontStyle.split(/\s+/)[0]?.toLowerCase() !==
+		computedStyle.fontStyle.split(/\s+/)[0]?.toLowerCase()
+	) {
+		return false;
+	}
+
+	if (
+		!valueMatchesRange({
+			actual: computedStyle.fontWeight,
+			descriptor: font.weight ?? '400',
+			normalize: normalizeWeight,
+		})
+	) {
+		return false;
+	}
+
+	return valueMatchesRange({
+		actual: computedStyle.fontStretch || 'normal',
+		descriptor: font.stretch ?? 'normal',
+		normalize: normalizeStretch,
+	});
+};
+
+const unicodeRangeSupportsText = (
+	unicodeRange: string | null,
+	text: string,
+): boolean => {
+	if (unicodeRange === null) {
+		return true;
+	}
+
+	const ranges = unicodeRange.split(',').map((range) => {
+		const match = /^U\+([0-9A-F?]+)(?:-([0-9A-F]+))?$/i.exec(range.trim());
+		if (!match) {
+			return null;
+		}
+
+		return {
+			from: Number.parseInt(match[1]!.replace(/\?/g, '0'), 16),
+			to: Number.parseInt((match[2] ?? match[1]!).replace(/\?/g, 'F'), 16),
+		};
+	});
+
+	if (ranges.some((range) => range === null)) {
+		return true;
+	}
+
+	return Array.from(text).some((character) => {
+		const codePoint = character.codePointAt(0)!;
+		return ranges.some(
+			(range) =>
+				range !== null && codePoint >= range.from && codePoint <= range.to,
+		);
+	});
+};
+
+const getFontFaceRule = (font: RegisteredFontFace): string => {
+	const cached = ruleByFontFace.get(font);
+	if (cached) {
+		return cached;
 	}
 
 	const mimeTypes = {
@@ -75,42 +172,114 @@ export const embedRegisteredFontsInSvg = async ({
 		woff: 'font/woff',
 		woff2: 'font/woff2',
 	} as const;
-	const fontRules = await Promise.all(
-		fonts.map(async (font) => {
-			const declarations = [
-				`font-family:${JSON.stringify(font.fontFamily)}`,
-				`src:url(data:${mimeTypes[font.format]};base64,${await getBase64(font.fontUrl)}) format(${JSON.stringify(font.format)})`,
-			];
-			if (font.style !== null) {
-				declarations.push(`font-style:${font.style}`);
-			}
+	const declarations = [
+		`font-family:${JSON.stringify(font.fontFamily)}`,
+		`src:url(data:${mimeTypes[font.format]};base64,${getBase64(font.fontData)}) format(${JSON.stringify(font.format)})`,
+	];
+	const optionalDeclarations = [
+		['ascent-override', font.ascentOverride],
+		['descent-override', font.descentOverride],
+		['font-display', font.display],
+		['font-feature-settings', font.featureSettings],
+		['line-gap-override', font.lineGapOverride],
+		['font-stretch', font.stretch],
+		['font-style', font.style],
+		['font-weight', font.weight],
+		['unicode-range', font.unicodeRange],
+		['font-variant', font.variant],
+	] as const;
 
-			if (font.weight !== null) {
-				declarations.push(`font-weight:${font.weight}`);
-			}
-
-			if (font.stretch !== null) {
-				declarations.push(`font-stretch:${font.stretch}`);
-			}
-
-			if (font.unicodeRange !== null) {
-				declarations.push(`unicode-range:${font.unicodeRange}`);
-			}
-
-			return `@font-face{${declarations.join(';')}}`;
-		}),
-	);
-	const openingTagEnd = svgData.indexOf('>');
-	if (openingTagEnd === -1) {
-		return svgData;
+	for (const [property, value] of optionalDeclarations) {
+		if (value !== null) {
+			declarations.push(`${property}:${value}`);
+		}
 	}
 
-	const css = fontRules.join('').replace(/]]>/g, ']]]]><![CDATA[>');
-	const style = `<style type="text/css"><![CDATA[${css}]]></style>`;
+	const rule = `@font-face{${declarations.join(';')}}`;
+	ruleByFontFace.set(font, rule);
+	return rule;
+};
 
-	return (
-		svgData.slice(0, openingTagEnd + 1) +
-		style +
-		svgData.slice(openingTagEnd + 1)
-	);
+export const getEmbeddedFontStyleForSvg = (
+	svg: SVGSVGElement,
+): EmbeddedFontStyle | null => {
+	const textElements = svg.querySelectorAll('text');
+	if (textElements.length === 0) {
+		return null;
+	}
+
+	const registeredFonts = NoReactInternals.getRegisteredFontFaces();
+	for (let index = indexedFontCount; index < registeredFonts.length; index++) {
+		const family = registeredFonts[index]!.fontFamily.toLowerCase();
+		const indexes = fontIndexesByFamily.get(family) ?? [];
+		indexes.push(index);
+		fontIndexesByFamily.set(family, indexes);
+	}
+
+	indexedFontCount = registeredFonts.length;
+
+	const usedFontIndexes = new Set<number>();
+	for (const textElement of textElements) {
+		const textNodeWalker = svg.ownerDocument.createTreeWalker(textElement, 4);
+		const computedStyleByElement = new WeakMap<Element, CSSStyleDeclaration>();
+		while (textNodeWalker.nextNode()) {
+			const text = textNodeWalker.currentNode.textContent ?? '';
+			if (text.length === 0) {
+				continue;
+			}
+
+			const parentElement =
+				textNodeWalker.currentNode.parentElement ?? textElement;
+			const computedStyle =
+				computedStyleByElement.get(parentElement) ??
+				(svg.ownerDocument.defaultView ?? window).getComputedStyle(
+					parentElement,
+				);
+			computedStyleByElement.set(parentElement, computedStyle);
+			for (const family of computedStyle.fontFamily.split(',')) {
+				const normalizedFamily = family
+					.trim()
+					.replace(/^(['"])(.*)\1$/, '$2')
+					.toLowerCase();
+				const familyIndexes = fontIndexesByFamily.get(normalizedFamily) ?? [];
+				const matchingIndexes = familyIndexes.filter((index) =>
+					descriptorsMatch(registeredFonts[index]!, computedStyle),
+				);
+				const candidateIndexes =
+					matchingIndexes.length === 0 ? familyIndexes : matchingIndexes;
+
+				for (const index of candidateIndexes) {
+					if (
+						unicodeRangeSupportsText(registeredFonts[index]!.unicodeRange, text)
+					) {
+						usedFontIndexes.add(index);
+					}
+				}
+			}
+		}
+	}
+
+	if (usedFontIndexes.size === 0) {
+		return null;
+	}
+
+	const sortedIndexes = Array.from(usedFontIndexes).sort((a, b) => a - b);
+	const cacheKey = sortedIndexes.join(',');
+	const cached = styleByFontFaceSet.get(cacheKey);
+	if (cached) {
+		return cached;
+	}
+
+	const css = sortedIndexes
+		.map((index) => getFontFaceRule(registeredFonts[index]!))
+		.join('')
+		.replace(/]]>/g, ']]]]><![CDATA[>');
+	const style = `<style type="text/css"><![CDATA[${css}]]></style>`;
+	const embeddedStyle = {
+		blob: new Blob([style]),
+		cacheKey,
+		css,
+	};
+	styleByFontFaceSet.set(cacheKey, embeddedStyle);
+	return embeddedStyle;
 };

@@ -1,6 +1,15 @@
-import {embedRegisteredFontsInSvg} from './embed-registered-fonts-in-svg';
+import {getEmbeddedFontStyleForSvg} from './embed-registered-fonts-in-svg';
 
-export const turnSvgIntoDrawable = async (svg: SVGSVGElement) => {
+const drawableBySvg = new WeakMap<
+	SVGSVGElement,
+	{
+		fontStyleKey: string | null;
+		serializedSvg: string;
+		drawable: Promise<HTMLImageElement>;
+	}
+>();
+
+export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color} = getComputedStyle(svg);
 
 	const originalTransform = svg.style.transform;
@@ -35,15 +44,29 @@ export const turnSvgIntoDrawable = async (svg: SVGSVGElement) => {
 	svg.style.transformOrigin = originalTransformOrigin;
 	svg.style.fill = originalFill;
 	svg.style.color = originalColor;
-	const svgData = await embedRegisteredFontsInSvg({
-		svg,
-		svgData: serializedSvg,
-	});
+	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
+	const fontStyleKey = embeddedFontStyle?.cacheKey ?? null;
+	const cached = drawableBySvg.get(svg);
+	if (
+		cached?.serializedSvg === serializedSvg &&
+		cached.fontStyleKey === fontStyleKey
+	) {
+		return cached.drawable;
+	}
 
-	return new Promise<HTMLImageElement>((resolve, reject) => {
+	const drawable = new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();
+		const openingTagEnd = serializedSvg.indexOf('>');
+		const blobParts: BlobPart[] =
+			embeddedFontStyle === null || openingTagEnd === -1
+				? [serializedSvg]
+				: [
+						serializedSvg.slice(0, openingTagEnd + 1),
+						embeddedFontStyle.blob,
+						serializedSvg.slice(openingTagEnd + 1),
+					];
 		const url = URL.createObjectURL(
-			new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'}),
+			new Blob(blobParts, {type: 'image/svg+xml;charset=utf-8'}),
 		);
 
 		image.onload = function () {
@@ -58,4 +81,11 @@ export const turnSvgIntoDrawable = async (svg: SVGSVGElement) => {
 
 		image.src = url;
 	});
+	drawableBySvg.set(svg, {fontStyleKey, serializedSvg, drawable});
+	drawable.catch(() => {
+		if (drawableBySvg.get(svg)?.drawable === drawable) {
+			drawableBySvg.delete(svg);
+		}
+	});
+	return drawable;
 };

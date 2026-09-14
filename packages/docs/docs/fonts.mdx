@@ -81,6 +81,14 @@ const fontFamily = "Inter";
 <div style={{ fontFamily: fontFamily }}>Some text</div>;
 ```
 
+## Web fonts in SVG with `@remotion/web-renderer`
+
+From <AvailableFrom v="4.0.525" inline />, [`@remotion/web-renderer`](/docs/web-renderer) automatically embeds fonts loaded through [`@remotion/fonts`](/docs/fonts-api) and [`@remotion/google-fonts`](/docs/google-fonts) when they are used by SVG `<text>`, `<tspan>`, or `<textPath>` elements.
+
+Set `fontFamily` through an inline style, a `font-family` attribute, or a `<style>` element inside the SVG. A CSS class whose rules are defined outside the SVG is not preserved when the SVG is converted into an image.
+
+Fonts loaded through CSS or the browser's `FontFace` API are not embedded into SVG images. Regular HTML text can still use those fonts. See [client-side rendering limitations](/docs/client-side-rendering/limitations#web-fonts-inside-svg) for browser-specific limitations.
+
 ## Local fonts (manually)
 
 You may load fonts by using the web-native [`FontFace`](https://developer.mozilla.org/en-US/docs/Web/API/FontFace) API.
