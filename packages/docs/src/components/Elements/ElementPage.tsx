@@ -180,12 +180,12 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				decoding="async"
 				draggable={false}
 				hidden
-				src={definition.preview.posterUrl}
+				src={`${definition.preview.posterUrl}?cache=bust-5`}
 			/>
 			<Head>
 				{Seo.renderVideo({
 					height: previewHeight,
-					url: definition.preview.videoUrl,
+					url: `${definition.preview.videoUrl}?cache=bust-5`,
 					width: previewWidth,
 				})}
 			</Head>
@@ -199,7 +199,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						fps={fps}
 						htmlInCanvasFallbackVideoUrl={
 							definition.previewUsesHtmlInCanvas
-								? definition.preview.videoUrl
+								? `${definition.preview.videoUrl}?cache=bust-5`
 								: null
 						}
 						previewLayout={definition.preview.previewLayout}
