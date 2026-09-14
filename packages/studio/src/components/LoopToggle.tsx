@@ -10,6 +10,7 @@ import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 
 const accessibilityLabel = 'Loop';
+const buttonStyle: React.CSSProperties = {width: 30};
 
 export const toggleLoop = (
 	setLoop: React.Dispatch<React.SetStateAction<boolean>>,
@@ -46,6 +47,7 @@ export const LoopToggle: React.FC<{
 				}
 				aria-pressed={loop}
 				onClick={onClick}
+				style={buttonStyle}
 			>
 				{(color) => (
 					<svg viewBox="0 0 512 512" style={{width: 18, height: 18}}>

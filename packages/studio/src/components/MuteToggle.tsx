@@ -1,3 +1,4 @@
+import type {CSSProperties} from 'react';
 import {useCallback} from 'react';
 import {BLUE} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
@@ -9,6 +10,8 @@ import {VolumeOffIcon, VolumeOnIcon} from '../icons/media-volume';
 import {persistMuteOption} from '../state/mute';
 import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
+
+const buttonStyle: CSSProperties = {width: 30};
 
 export const toggleMute = (
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>,
@@ -45,6 +48,7 @@ export const MuteToggle: React.FC<{
 					shortcutsDisabled ? undefined : ariaShortcut || undefined
 				}
 				onClick={onClick}
+				style={buttonStyle}
 			>
 				{(color) =>
 					muted ? (

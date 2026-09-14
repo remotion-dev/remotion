@@ -10,6 +10,8 @@ import {EditorSnappingContext} from '../state/editor-snapping';
 import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 
+const buttonStyle: React.CSSProperties = {width: 26};
+
 export const SnappingToggle: React.FC = () => {
 	const {editorSnapping, setEditorSnapping} = useContext(EditorSnappingContext);
 
@@ -40,6 +42,7 @@ export const SnappingToggle: React.FC = () => {
 					shortcutsDisabled ? undefined : ariaKeyShortcuts || undefined
 				}
 				onClick={onClick}
+				style={buttonStyle}
 			>
 				{(color) => (
 					<MagnetIcon

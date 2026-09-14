@@ -9,6 +9,8 @@ import {CheckerboardContext} from '../state/checkerboard';
 import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 
+const buttonStyle: React.CSSProperties = {width: 26};
+
 export const CheckboardToggle: React.FC = () => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 
@@ -38,6 +40,7 @@ export const CheckboardToggle: React.FC = () => {
 					shortcutsDisabled ? undefined : ariaKeyShortcuts || undefined
 				}
 				onClick={onClick}
+				style={buttonStyle}
 			>
 				{(color) => (
 					<svg
