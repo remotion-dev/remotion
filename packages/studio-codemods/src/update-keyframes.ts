@@ -1,14 +1,20 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {
+	BlockStatement,
 	CallExpression,
 	Expression,
+	File,
+	FunctionDeclaration,
+	FunctionExpression,
 	JSXAttribute,
 	JSXElement,
 	JSXExpressionContainer,
 	JSXFragment,
+	JSXOpeningElement,
 	JSXSpreadAttribute,
 	ObjectExpression,
 	ObjectProperty,
+	ArrowFunctionExpression,
 	StringLiteral,
 } from '@babel/types';
 import {
@@ -39,6 +45,18 @@ import {
 	findEnclosingFunctionPath,
 } from './ensure-imports-and-frame-hook';
 import {
+	applySourceEdits,
+	getInsertImportSourceEdits,
+	type SourceEdit,
+} from './insert-jsx-element';
+import {
+	getIndentationUnit,
+	getObjectCurlySpacing,
+	getPreferredQuote,
+	printJsxOpeningElement,
+} from './print-jsx';
+import {recastLocToOffset} from './recast-loc-to-offset';
+import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
 	findNodePathForJsxElement,
@@ -49,7 +67,7 @@ import {
 	findEffectsAttr,
 } from './sequence-props/can-update-effect-props';
 import {getAstNodePath} from './sequence-props/get-ast-node-path';
-import {parseAst, serializeAst} from './sequence-props/parse-ast';
+import {parseAst} from './sequence-props/parse-ast';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
 import {
 	parseVideoConfigNumericExpression,
@@ -62,6 +80,388 @@ import {
 import {parseValueExpression} from './update-nested-prop';
 
 const b = recast.types.builders;
+
+type FunctionNode =
+	| FunctionDeclaration
+	| FunctionExpression
+	| ArrowFunctionExpression;
+
+const getSourceFormattingConfig = ({
+	input,
+	prettierConfigOverride,
+}: {
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+}): Record<string, unknown> => {
+	const indentationUnit = getIndentationUnit(input, prettierConfigOverride);
+	return {
+		...prettierConfigOverride,
+		bracketSpacing: getObjectCurlySpacing(input, prettierConfigOverride),
+		printWidth: prettierConfigOverride?.printWidth ?? 80,
+		singleQuote: getPreferredQuote(input, prettierConfigOverride) === 'single',
+		tabWidth:
+			prettierConfigOverride?.tabWidth ??
+			(indentationUnit === '\t' ? 2 : indentationUnit.length),
+	};
+};
+
+const indentContinuationLines = ({
+	input,
+	offset,
+	printed,
+}: {
+	input: string;
+	offset: number;
+	printed: string;
+}) => {
+	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+	const lineStart = input.lastIndexOf('\n', offset - 1) + 1;
+	const lineIndent = input.slice(lineStart, offset).match(/^\s*/)?.[0] ?? '';
+	return printed.split(/\r?\n/).join(`${endOfLine}${lineIndent}`);
+};
+
+const printBlockStatementWithSourceStyle = ({
+	body,
+	input,
+	prettierConfigOverride,
+}: {
+	body: BlockStatement;
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+}) => {
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride,
+	});
+	const configuredTabWidth = formattingConfig.tabWidth;
+	const tabWidth =
+		typeof configuredTabWidth === 'number' &&
+		Number.isInteger(configuredTabWidth) &&
+		configuredTabWidth > 0
+			? configuredTabWidth
+			: 2;
+	const indentationUnit = getIndentationUnit(input, formattingConfig);
+	let printed = recast.prettyPrint(body, {
+		objectCurlySpacing: formattingConfig.bracketSpacing !== false,
+		quote: formattingConfig.singleQuote === true ? 'single' : 'double',
+		tabWidth,
+		useTabs: false,
+		wrapColumn:
+			typeof formattingConfig.printWidth === 'number'
+				? formattingConfig.printWidth
+				: 80,
+	}).code;
+	printed = printed
+		.split('\n')
+		.map((line) => {
+			const spaces = line.match(/^ */)?.[0].length ?? 0;
+			const levels = Math.floor(spaces / tabWidth);
+			const remainder = spaces % tabWidth;
+			return `${indentationUnit.repeat(levels)}${' '.repeat(remainder)}${line.slice(spaces)}`;
+		})
+		.join(input.includes('\r\n') ? '\r\n' : '\n');
+	printed = printed.replace(
+		/(const frame = useCurrentFrame\(\);?\r?\n)(?:[ \t]*\r?\n)+/,
+		'$1',
+	);
+	const shouldUseSemicolons =
+		typeof formattingConfig.semi === 'boolean'
+			? formattingConfig.semi
+			: /;\s*(?:\r?\n|$)/.test(input);
+	if (!shouldUseSemicolons) {
+		printed = printed.replace(/;(?=\r?$)/gm, '');
+	}
+
+	return printed;
+};
+
+const getOpeningElementSourceEdit = ({
+	input,
+	openingElement,
+	prettierConfigOverride,
+	propertyNames,
+}: {
+	input: string;
+	openingElement: JSXOpeningElement;
+	prettierConfigOverride: Record<string, unknown> | null;
+	propertyNames: string[];
+}): SourceEdit => {
+	if (!openingElement.loc) {
+		throw new Error('Cannot update keyframes without a JSX source location');
+	}
+
+	const start = recastLocToOffset(input, openingElement.loc.start);
+	const printed = printJsxOpeningElement({
+		openingElement: openingElement as never,
+		input,
+		prettierConfigOverride,
+	});
+	return {
+		start,
+		end: recastLocToOffset(input, openingElement.loc.end),
+		replacement: indentContinuationLines({
+			input,
+			offset: start,
+			printed: removeBlankLinesFromUpdatedOpeningElementObjects({
+				input: printed,
+				propertyNames,
+			}),
+		}),
+	};
+};
+
+const getFrameHookSourceEdit = ({
+	body,
+	input,
+	originalStatements,
+	prettierConfigOverride,
+}: {
+	body: BlockStatement;
+	input: string;
+	originalStatements: BlockStatement['body'];
+	prettierConfigOverride: Record<string, unknown> | null;
+}): SourceEdit | null => {
+	if (body.body.length === originalStatements.length) {
+		return null;
+	}
+
+	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+	const firstStatement = originalStatements[0];
+	const statementTerminator = firstStatement?.loc
+		? input
+				.slice(
+					recastLocToOffset(input, firstStatement.loc.start),
+					recastLocToOffset(input, firstStatement.loc.end),
+				)
+				.trimEnd()
+				.endsWith(';')
+			? ';'
+			: ''
+		: /;\s*(?:\r?\n|$)/.test(input)
+			? ';'
+			: '';
+	const declaration = `const frame = useCurrentFrame()${statementTerminator}`;
+
+	if (!body.loc) {
+		return null;
+	}
+
+	const bodyStart = recastLocToOffset(input, body.loc.start);
+	const lineStart = input.lastIndexOf('\n', bodyStart - 1) + 1;
+	const functionIndent =
+		input.slice(lineStart, bodyStart).match(/^\s*/)?.[0] ?? '';
+	const firstStatementStart = firstStatement?.loc
+		? recastLocToOffset(input, firstStatement.loc.start)
+		: null;
+	const lastDirective = body.directives?.at(-1);
+	const insertionOffset = lastDirective?.loc
+		? recastLocToOffset(input, lastDirective.loc.end)
+		: bodyStart + 1;
+	const leadingCommentOffsets = (firstStatement?.leadingComments ?? []).flatMap(
+		(comment) =>
+			comment.loc ? [recastLocToOffset(input, comment.loc.start)] : [],
+	);
+	const firstContentOffset = [
+		...(firstStatementStart === null ? [] : [firstStatementStart]),
+		...leadingCommentOffsets,
+	].reduce<number | null>(
+		(earliest, candidate) =>
+			candidate < insertionOffset
+				? earliest
+				: Math.min(earliest ?? candidate, candidate),
+		null,
+	);
+	const gapToKnownContent =
+		firstContentOffset === null
+			? ''
+			: input.slice(insertionOffset, firstContentOffset);
+	const unexpectedContentIndex = gapToKnownContent.search(/\S/);
+	const contentOffset =
+		unexpectedContentIndex === -1
+			? firstContentOffset
+			: insertionOffset + unexpectedContentIndex;
+	const gap =
+		contentOffset === null ? '' : input.slice(insertionOffset, contentOffset);
+	const originalStartsOnNewLine = /\r?\n/.test(gap);
+	const statementIndent =
+		contentOffset !== null && originalStartsOnNewLine
+			? (input
+					.slice(input.lastIndexOf('\n', contentOffset - 1) + 1, contentOffset)
+					.match(/^\s*/)?.[0] ?? '')
+			: `${functionIndent}${getIndentationUnit(input, prettierConfigOverride)}`;
+	return {
+		start: insertionOffset,
+		end: originalStartsOnNewLine
+			? insertionOffset
+			: (contentOffset ?? insertionOffset),
+		replacement: originalStartsOnNewLine
+			? `${endOfLine}${statementIndent}${declaration}`
+			: `${endOfLine}${statementIndent}${declaration}${endOfLine}${statementIndent}`,
+	};
+};
+
+const getBlockStatementSourceEdit = ({
+	body,
+	input,
+	prettierConfigOverride,
+}: {
+	body: BlockStatement;
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+}): SourceEdit | null => {
+	if (!body.loc) {
+		return null;
+	}
+
+	const start = recastLocToOffset(input, body.loc.start);
+	return {
+		start,
+		end: recastLocToOffset(input, body.loc.end),
+		replacement: indentContinuationLines({
+			input,
+			offset: start,
+			printed: printBlockStatementWithSourceStyle({
+				body,
+				input,
+				prettierConfigOverride,
+			}),
+		}),
+	};
+};
+
+const openingElementStartsInCompactFunctionBody = ({
+	body,
+	openingElement,
+}: {
+	body: BlockStatement;
+	openingElement: JSXOpeningElement;
+}) =>
+	body.loc !== null &&
+	body.loc !== undefined &&
+	openingElement.loc !== null &&
+	openingElement.loc !== undefined &&
+	body.loc.start.line === openingElement.loc.start.line;
+
+const getExpressionBodySourceEdit = ({
+	body,
+	input,
+	originalBody,
+	prettierConfigOverride,
+}: {
+	body: BlockStatement;
+	input: string;
+	originalBody: Expression;
+	prettierConfigOverride: Record<string, unknown> | null;
+}): SourceEdit | null => {
+	if (!originalBody.loc) {
+		return null;
+	}
+
+	const printed = printBlockStatementWithSourceStyle({
+		body,
+		input,
+		prettierConfigOverride,
+	});
+
+	const bodyStart = recastLocToOffset(input, originalBody.loc.start);
+	let start = bodyStart;
+	let end = recastLocToOffset(input, originalBody.loc.end);
+	const extra = originalBody.extra as
+		| {
+				parenthesized: boolean | null | undefined;
+				parenStart: number | null | undefined;
+		  }
+		| null
+		| undefined;
+	if (
+		extra?.parenthesized === true &&
+		typeof extra.parenStart === 'number' &&
+		extra.parenStart < bodyStart
+	) {
+		const openingParentheses = input
+			.slice(extra.parenStart, bodyStart)
+			.split('')
+			.filter((character) => character === '(').length;
+		let closingParentheses = 0;
+		let cursor = end;
+		while (cursor < input.length && closingParentheses < openingParentheses) {
+			const character = input[cursor];
+			if (/\s/.test(character)) {
+				cursor++;
+				continue;
+			}
+
+			if (character !== ')') {
+				break;
+			}
+
+			closingParentheses++;
+			cursor++;
+		}
+
+		if (closingParentheses === openingParentheses) {
+			start = extra.parenStart;
+			end = cursor;
+		}
+	}
+
+	return {
+		start,
+		end,
+		replacement: indentContinuationLines({input, offset: start, printed}),
+	};
+};
+
+const getKeyframeSourceOutput = ({
+	ast,
+	input,
+	openingElement,
+	functionSourceEdit,
+	importSnapshots,
+	prettierConfigOverride,
+	propertyNames,
+}: {
+	ast: File;
+	input: string;
+	openingElement: JSXOpeningElement | null;
+	functionSourceEdit: SourceEdit | null;
+	importSnapshots: {
+		declaration: Extract<
+			File['program']['body'][number],
+			{type: 'ImportDeclaration'}
+		>;
+		specifiers: NonNullable<
+			Extract<
+				File['program']['body'][number],
+				{type: 'ImportDeclaration'}
+			>['specifiers']
+		>;
+	}[];
+	prettierConfigOverride: Record<string, unknown> | null;
+	propertyNames: string[];
+}) =>
+	applySourceEdits({
+		input,
+		edits: [
+			...getInsertImportSourceEdits({
+				ast,
+				input,
+				prettierConfigOverride,
+				snapshots: importSnapshots,
+			}),
+			...(functionSourceEdit ? [functionSourceEdit] : []),
+			...(openingElement
+				? [
+						getOpeningElementSourceEdit({
+							input,
+							openingElement,
+							prettierConfigOverride,
+							propertyNames,
+						}),
+					]
+				: []),
+		],
+	});
 
 const getObjectPropertyNameFromUpdateKey = (key: string): string => {
 	const dotIndex = key.indexOf('.');
@@ -85,7 +485,7 @@ const lineStartsWithPropertyName = ({
 
 const getIndent = (line: string) => line.match(/^[ \t]*/)?.[0] ?? '';
 
-const removeBlankLinesFromObjectsWithProperties = ({
+const removeBlankLinesFromUpdatedOpeningElementObjects = ({
 	input,
 	propertyNames,
 }: {
@@ -96,7 +496,8 @@ const removeBlankLinesFromObjectsWithProperties = ({
 		return input;
 	}
 
-	const lines = input.split('\n');
+	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+	const lines = input.split(/\r?\n/);
 	const linesToRemove = new Set<number>();
 
 	for (let i = 0; i < lines.length; i++) {
@@ -143,7 +544,7 @@ const removeBlankLinesFromObjectsWithProperties = ({
 		return input;
 	}
 
-	return lines.filter((_, index) => !linesToRemove.has(index)).join('\n');
+	return lines.filter((_, index) => !linesToRemove.has(index)).join(endOfLine);
 };
 
 type KeyframeEasing = Extract<
@@ -1785,12 +2186,14 @@ export const updateSequenceKeyframesAst = ({
 	nodePath,
 	updates,
 	schema,
+	prettierConfigOverride,
 	videoConfigValues,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
 }): {
 	serialized: string;
@@ -1800,6 +2203,20 @@ export const updateSequenceKeyframesAst = ({
 	updatedNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride: prettierConfigOverride ?? null,
+	});
+	const importSnapshots = ast.program.body.flatMap((statement) =>
+		statement.type === 'ImportDeclaration'
+			? [
+					{
+						declaration: statement,
+						specifiers: [...(statement.specifiers ?? [])],
+					},
+				]
+			: [],
+	);
 	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
 		ast,
 		videoConfigValues,
@@ -1873,10 +2290,49 @@ export const updateSequenceKeyframesAst = ({
 		}
 	}
 
-	if (needsFrameHook) {
-		const fnPath = findEnclosingFunctionPath(jsxPath);
-		if (fnPath) {
+	let functionSourceEdit: SourceEdit | null = null;
+	let openingElementForSourceEdit: JSXOpeningElement | null = node;
+	const fnPath = findEnclosingFunctionPath(jsxPath);
+	if (fnPath) {
+		const fn = fnPath.value as FunctionNode;
+		const originalBody = fn.body;
+		const originalStatements =
+			originalBody.type === 'BlockStatement' ? [...originalBody.body] : null;
+		if (needsFrameHook) {
 			ensureUseCurrentFrameHook(fnPath);
+		}
+
+		if (
+			originalBody.type === 'BlockStatement' &&
+			fn.body.type === 'BlockStatement' &&
+			openingElementStartsInCompactFunctionBody({
+				body: originalBody,
+				openingElement: node,
+			})
+		) {
+			functionSourceEdit = getBlockStatementSourceEdit({
+				body: fn.body,
+				input,
+				prettierConfigOverride: formattingConfig,
+			});
+			openingElementForSourceEdit = null;
+		} else if (needsFrameHook) {
+			if (originalStatements && fn.body.type === 'BlockStatement') {
+				functionSourceEdit = getFrameHookSourceEdit({
+					body: fn.body as BlockStatement,
+					input,
+					originalStatements,
+					prettierConfigOverride: formattingConfig,
+				});
+			} else if (fn.body.type === 'BlockStatement') {
+				functionSourceEdit = getExpressionBodySourceEdit({
+					body: fn.body,
+					input,
+					originalBody: originalBody as Expression,
+					prettierConfigOverride: formattingConfig,
+				});
+				openingElementForSourceEdit = null;
+			}
 		}
 	}
 
@@ -1890,7 +2346,17 @@ export const updateSequenceKeyframesAst = ({
 	}
 
 	return {
-		serialized: serializeAst(ast),
+		serialized: getKeyframeSourceOutput({
+			ast,
+			input,
+			openingElement: openingElementForSourceEdit,
+			functionSourceEdit,
+			importSnapshots,
+			prettierConfigOverride: formattingConfig,
+			propertyNames: updates.map((update) =>
+				getObjectPropertyNameFromUpdateKey(update.key),
+			),
+		}),
 		oldValueStrings,
 		newValueStrings,
 		logLine: node.loc?.start.line ?? 1,
@@ -1898,12 +2364,11 @@ export const updateSequenceKeyframesAst = ({
 	};
 };
 
-export const updateSequenceKeyframes = async ({
+export const updateSequenceKeyframes = ({
 	input,
 	nodePath,
 	updates,
 	schema,
-	formatFile,
 	prettierConfigOverride,
 	videoConfigValues,
 }: {
@@ -1911,7 +2376,9 @@ export const updateSequenceKeyframes = async ({
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	formatFile: FormatKeyframesFile;
+	// Kept optional for compatibility with callers from before source edits
+	// replaced the full-file formatting pass.
+	formatFile?: FormatKeyframesFile;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
 }): Promise<{
@@ -1921,41 +2388,31 @@ export const updateSequenceKeyframes = async ({
 	newValueStrings: string[];
 	logLine: number;
 	updatedNodePath: SequenceNodePath;
-}> => {
-	const {
-		serialized,
-		oldValueStrings,
-		newValueStrings,
-		logLine,
-		updatedNodePath,
-	} = updateSequenceKeyframesAst({
-		input,
-		nodePath,
-		updates,
-		schema,
-		videoConfigValues,
-	});
-	const {output, formatted} = await formatFile({
-		contents: serialized,
-		prettierConfigOverride: prettierConfigOverride ?? null,
-	});
-	const outputWithoutInsertedBlankLines =
-		removeBlankLinesFromObjectsWithProperties({
-			input: output,
-			propertyNames: updates.map((update) =>
-				getObjectPropertyNameFromUpdateKey(update.key),
-			),
+}> =>
+	Promise.resolve().then(() => {
+		const {
+			serialized,
+			oldValueStrings,
+			newValueStrings,
+			logLine,
+			updatedNodePath,
+		} = updateSequenceKeyframesAst({
+			input,
+			nodePath,
+			updates,
+			schema,
+			prettierConfigOverride,
+			videoConfigValues,
 		});
-
-	return {
-		output: outputWithoutInsertedBlankLines,
-		formatted,
-		oldValueStrings,
-		newValueStrings,
-		logLine,
-		updatedNodePath,
-	};
-};
+		return {
+			output: serialized,
+			formatted: true,
+			oldValueStrings,
+			newValueStrings,
+			logLine,
+			updatedNodePath,
+		};
+	});
 
 export const updateEffectKeyframesAst = ({
 	input,
@@ -1963,6 +2420,7 @@ export const updateEffectKeyframesAst = ({
 	effectIndex,
 	updates,
 	schema,
+	prettierConfigOverride,
 	videoConfigValues,
 }: {
 	input: string;
@@ -1970,6 +2428,7 @@ export const updateEffectKeyframesAst = ({
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
 }): {
 	serialized: string;
@@ -1980,6 +2439,20 @@ export const updateEffectKeyframesAst = ({
 	updatedSequenceNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride: prettierConfigOverride ?? null,
+	});
+	const importSnapshots = ast.program.body.flatMap((statement) =>
+		statement.type === 'ImportDeclaration'
+			? [
+					{
+						declaration: statement,
+						specifiers: [...(statement.specifiers ?? [])],
+					},
+				]
+			: [],
+	);
 	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
 		ast,
 		videoConfigValues,
@@ -2060,10 +2533,49 @@ export const updateEffectKeyframesAst = ({
 		}
 	}
 
-	if (needsFrameHook) {
-		const fnPath = findEnclosingFunctionPath(jsxPath);
-		if (fnPath) {
+	let functionSourceEdit: SourceEdit | null = null;
+	let openingElementForSourceEdit: JSXOpeningElement | null = jsx;
+	const fnPath = findEnclosingFunctionPath(jsxPath);
+	if (fnPath) {
+		const fn = fnPath.value as FunctionNode;
+		const originalBody = fn.body;
+		const originalStatements =
+			originalBody.type === 'BlockStatement' ? [...originalBody.body] : null;
+		if (needsFrameHook) {
 			ensureUseCurrentFrameHook(fnPath);
+		}
+
+		if (
+			originalBody.type === 'BlockStatement' &&
+			fn.body.type === 'BlockStatement' &&
+			openingElementStartsInCompactFunctionBody({
+				body: originalBody,
+				openingElement: jsx,
+			})
+		) {
+			functionSourceEdit = getBlockStatementSourceEdit({
+				body: fn.body,
+				input,
+				prettierConfigOverride: formattingConfig,
+			});
+			openingElementForSourceEdit = null;
+		} else if (needsFrameHook) {
+			if (originalStatements && fn.body.type === 'BlockStatement') {
+				functionSourceEdit = getFrameHookSourceEdit({
+					body: fn.body as BlockStatement,
+					input,
+					originalStatements,
+					prettierConfigOverride: formattingConfig,
+				});
+			} else if (fn.body.type === 'BlockStatement') {
+				functionSourceEdit = getExpressionBodySourceEdit({
+					body: fn.body,
+					input,
+					originalBody: originalBody as Expression,
+					prettierConfigOverride: formattingConfig,
+				});
+				openingElementForSourceEdit = null;
+			}
 		}
 	}
 
@@ -2077,7 +2589,15 @@ export const updateEffectKeyframesAst = ({
 	}
 
 	return {
-		serialized: serializeAst(ast),
+		serialized: getKeyframeSourceOutput({
+			ast,
+			input,
+			openingElement: openingElementForSourceEdit,
+			functionSourceEdit,
+			importSnapshots,
+			prettierConfigOverride: formattingConfig,
+			propertyNames: updates.map((update) => update.key),
+		}),
 		oldValueStrings,
 		newValueStrings,
 		logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
@@ -2086,13 +2606,12 @@ export const updateEffectKeyframesAst = ({
 	};
 };
 
-export const updateEffectKeyframes = async ({
+export const updateEffectKeyframes = ({
 	input,
 	sequenceNodePath,
 	effectIndex,
 	updates,
 	schema,
-	formatFile,
 	prettierConfigOverride,
 	videoConfigValues,
 }: {
@@ -2101,7 +2620,9 @@ export const updateEffectKeyframes = async ({
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	formatFile: FormatKeyframesFile;
+	// Kept optional for compatibility with callers from before source edits
+	// replaced the full-file formatting pass.
+	formatFile?: FormatKeyframesFile;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
 }): Promise<{
@@ -2112,39 +2633,31 @@ export const updateEffectKeyframes = async ({
 	logLine: number;
 	effectCallee: string;
 	updatedSequenceNodePath: SequenceNodePath;
-}> => {
-	const {
-		serialized,
-		oldValueStrings,
-		newValueStrings,
-		logLine,
-		effectCallee,
-		updatedSequenceNodePath,
-	} = updateEffectKeyframesAst({
-		input,
-		sequenceNodePath,
-		effectIndex,
-		updates,
-		schema,
-		videoConfigValues,
-	});
-	const {output, formatted} = await formatFile({
-		contents: serialized,
-		prettierConfigOverride: prettierConfigOverride ?? null,
-	});
-	const outputWithoutInsertedBlankLines =
-		removeBlankLinesFromObjectsWithProperties({
-			input: output,
-			propertyNames: updates.map((update) => update.key),
+}> =>
+	Promise.resolve().then(() => {
+		const {
+			serialized,
+			oldValueStrings,
+			newValueStrings,
+			logLine,
+			effectCallee,
+			updatedSequenceNodePath,
+		} = updateEffectKeyframesAst({
+			input,
+			sequenceNodePath,
+			effectIndex,
+			updates,
+			schema,
+			prettierConfigOverride,
+			videoConfigValues,
 		});
-
-	return {
-		output: outputWithoutInsertedBlankLines,
-		formatted,
-		oldValueStrings,
-		newValueStrings,
-		logLine,
-		effectCallee,
-		updatedSequenceNodePath,
-	};
-};
+		return {
+			output: serialized,
+			formatted: true,
+			oldValueStrings,
+			newValueStrings,
+			logLine,
+			effectCallee,
+			updatedSequenceNodePath,
+		};
+	});

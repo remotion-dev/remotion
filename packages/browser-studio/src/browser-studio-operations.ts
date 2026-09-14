@@ -587,7 +587,6 @@ export const createBrowserStudioOperations = ({
 				updates: mutation.updates,
 				schema: mutation.schema,
 				videoConfigValues: mutation.nodePath.videoConfigValues,
-				formatFile: formatCodemodFile,
 			});
 			files[absolutePath] = result.output;
 			appliedSequenceMutations.push({
@@ -609,7 +608,6 @@ export const createBrowserStudioOperations = ({
 				updates: mutation.updates,
 				schema: mutation.schema,
 				videoConfigValues: mutation.sequenceNodePath.videoConfigValues,
-				formatFile: formatCodemodFile,
 			});
 			files[absolutePath] = result.output;
 			appliedEffectMutations.push({

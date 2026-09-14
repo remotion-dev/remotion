@@ -2354,7 +2354,23 @@ export const getInsertImportSourceEdits = ({
 					.endsWith(';')
 				? ';'
 				: ''
-			: ';';
+			: (() => {
+					const styleNode =
+						ast.program.directives.at(-1) ?? ast.program.body.at(-1);
+					if (!styleNode?.loc) {
+						return ';';
+					}
+
+					return input
+						.slice(
+							recastLocToOffset(input, styleNode.loc.start),
+							recastLocToOffset(input, styleNode.loc.end),
+						)
+						.trimEnd()
+						.endsWith(';')
+						? ';'
+						: '';
+				})();
 		const rendered = newDeclarations
 			.map((declaration) =>
 				renderImportDeclaration({
@@ -2373,7 +2389,22 @@ export const getInsertImportSourceEdits = ({
 				start: offset,
 			});
 		} else {
-			edits.push({end: 0, replacement: `${rendered}${endOfLine}`, start: 0});
+			const lastDirective = ast.program.directives.at(-1);
+			const insertionAnchor = lastDirective ?? ast.program.interpreter;
+			if (insertionAnchor?.loc) {
+				const offset = recastLocToOffset(input, insertionAnchor.loc.end);
+				edits.push({
+					end: offset,
+					replacement: `${endOfLine}${rendered}`,
+					start: offset,
+				});
+			} else {
+				edits.push({
+					end: 0,
+					replacement: `${rendered}${endOfLine}`,
+					start: 0,
+				});
+			}
 		}
 	}
 
