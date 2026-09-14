@@ -9,6 +9,7 @@ import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {EditorShowRulersContext} from '../state/editor-rulers';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import {toggleLoop} from './LoopToggle';
@@ -249,12 +250,19 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	}
 
 	return (
-		<InlineDropdown
-			variant={null}
-			renderAction={renderAction}
-			values={values}
-			title="More actions"
-			unhoveredColor={WHITE_ALPHA_80}
-		/>
+		<ActionTooltip
+			label="View options"
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
+			<InlineDropdown
+				variant={null}
+				renderAction={renderAction}
+				values={values}
+				aria-label="View options"
+				unhoveredColor={WHITE_ALPHA_80}
+			/>
+		</ActionTooltip>
 	);
 };

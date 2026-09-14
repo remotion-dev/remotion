@@ -15,7 +15,7 @@ import {useZIndex} from '../state/z-index';
 import {getPortal} from './Menu/portals';
 import {SHADOW_TOWARDS_TOP} from './Menu/styles';
 
-const triggerStyle: React.CSSProperties = {display: 'inline-flex'};
+const defaultTriggerStyle: React.CSSProperties = {display: 'inline-flex'};
 
 const tooltipStyle: React.CSSProperties = {
 	position: 'fixed',
@@ -63,8 +63,17 @@ export const ActionTooltip: React.FC<{
 	readonly delay: number | null;
 	readonly dismissOnClick: boolean;
 	readonly side?: 'top' | 'right';
+	readonly triggerStyle?: React.CSSProperties;
 	readonly children: React.ReactNode;
-}> = ({label, shortcut, delay, dismissOnClick, side = 'top', children}) => {
+}> = ({
+	label,
+	shortcut,
+	delay,
+	dismissOnClick,
+	side = 'top',
+	triggerStyle,
+	children,
+}) => {
 	const triggerRef = useRef<HTMLSpanElement>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -202,7 +211,7 @@ export const ActionTooltip: React.FC<{
 		<>
 			<span
 				ref={triggerRef}
-				style={triggerStyle}
+				style={{...defaultTriggerStyle, ...triggerStyle}}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={hide}
 				onPointerDownCapture={dismissOnClick ? hide : undefined}

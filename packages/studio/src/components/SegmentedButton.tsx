@@ -15,6 +15,7 @@ import {
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
+import {ActionTooltip} from './ActionTooltip';
 import {MENU_INITIATOR_CLASSNAME} from './Menu/is-menu-item';
 import {getPortal} from './Menu/portals';
 import {
@@ -44,6 +45,7 @@ export type SegmentedButtonSegment = SegmentedButtonSegmentCommon &
 		| {
 				readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 				readonly onPointerDown: React.PointerEventHandler<HTMLButtonElement> | null;
+				readonly tooltipLabel: string | null;
 				readonly type: 'action';
 		  }
 		| {
@@ -86,6 +88,8 @@ const segmentStyle: React.CSSProperties = {
 	padding: '0 6px',
 	whiteSpace: 'nowrap',
 };
+
+const tooltipTriggerStyle: React.CSSProperties = {height: '100%'};
 
 const getSegmentBorderRadius = ({
 	index,
@@ -174,7 +178,7 @@ const SegmentedButtonAction: React.FC<{
 		[segment],
 	);
 
-	return (
+	const button = (
 		<button
 			aria-label={segment.ariaLabel}
 			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
@@ -190,6 +194,22 @@ const SegmentedButtonAction: React.FC<{
 		>
 			{segment.renderContent(CURRENT_COLOR)}
 		</button>
+	);
+
+	if (segment.tooltipLabel === null) {
+		return button;
+	}
+
+	return (
+		<ActionTooltip
+			label={segment.tooltipLabel}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+			triggerStyle={tooltipTriggerStyle}
+		>
+			{button}
+		</ActionTooltip>
 	);
 };
 

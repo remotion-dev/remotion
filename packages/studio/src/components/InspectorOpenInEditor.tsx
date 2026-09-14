@@ -219,6 +219,7 @@ export const InspectorOpenInEditor: React.FC<{
 				segmentId: 'default-editor',
 				style: mainSegmentStyle,
 				title: `Open in ${defaultAppName}`,
+				tooltipLabel: null,
 				type: 'action',
 			},
 		];

@@ -401,7 +401,8 @@ const RenderButtonInner: React.FC<{
 					controlSize === 'compact'
 						? compactMainSegmentStyle
 						: defaultMainSegmentStyle,
-				title: tooltip,
+				title: showRenderLabel ? tooltip : null,
+				tooltipLabel: showRenderLabel ? null : renderLabel,
 				type: 'action',
 			},
 			{
@@ -462,7 +463,7 @@ const RenderButtonInner: React.FC<{
 			<SegmentedButton
 				segments={segments}
 				style={segmentedButtonStyle}
-				title={tooltip}
+				title={showRenderLabel ? tooltip : null}
 			/>
 		</>
 	);

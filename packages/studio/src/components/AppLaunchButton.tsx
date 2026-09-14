@@ -80,6 +80,7 @@ export const AppLaunchButton: React.FC<{
 						? defaultMainSegmentStyle
 						: compactMainSegmentStyle,
 				title,
+				tooltipLabel: null,
 				type: 'action',
 			},
 			...(items.length > 0
