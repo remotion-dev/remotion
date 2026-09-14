@@ -1,20 +1,21 @@
 import {expect, test} from 'bun:test';
 import type {BlockStatement, Statement} from '@babel/types';
 import * as recast from 'recast';
+import * as tsParser from 'recast/parsers/babel-ts';
 import {
 	captureFunctionSourceSnapshots,
 	getFunctionSourceEditsForPrependedStatements,
 } from '../function-source-edits';
-import {recastIndexToOffset, recastLocToOffset} from '../recast-loc-to-offset';
+import {recastLocToOffset} from '../recast-loc-to-offset';
 import {parseAst} from '../sequence-props/parse-ast';
 
 const b = recast.types.builders;
 
-test('maps Recast positions across source whitespace normalization', () => {
+test('maps Recast locations across source whitespace normalization', () => {
 	const inputs = [
 		'\uFEFF\texport const C = () => (\r\n\t<div />\r\n);\r\n',
 		'export const C =\t() => (<div />);\n',
-		'export const C = () => (\u2028  <div />\u2029);\r',
+		'\r\n\nexport const C = () => (\u2028  <div />\u2029);\r',
 	];
 
 	for (const input of inputs) {
@@ -37,17 +38,6 @@ test('maps Recast positions across source whitespace normalization', () => {
 			throw new Error('Expected a located arrow function');
 		}
 
-		const extra = initializer.body.extra as
-			| {parenStart?: number}
-			| null
-			| undefined;
-		if (typeof extra?.parenStart !== 'number') {
-			throw new Error('Expected a parenthesized expression body');
-		}
-
-		expect(recastIndexToOffset(input, extra.parenStart)).toBe(
-			input.indexOf('(', input.indexOf('=>')),
-		);
 		expect(recastLocToOffset(input, initializer.body.loc.start)).toBe(
 			input.indexOf('<div'),
 		);
@@ -87,9 +77,12 @@ test('rejects inserted statements outside the leading prefix', () => {
 });
 
 test('filters edits nested inside a reprinted function body', () => {
-	const input = `export const C = () => items.map(() => <span />);
-`;
-	const ast = parseAst(input);
+	const input =
+		'const before = true;\r\nexport const C = () => ((items.map(() => <span />)));\r\n';
+	const ast = recast.parse(input, {
+		lineTerminator: '\r\n',
+		parser: tsParser,
+	}) as ReturnType<typeof parseAst>;
 	const snapshots = captureFunctionSourceSnapshots(ast);
 	for (const {functionNode} of snapshots) {
 		if (functionNode.body.type === 'BlockStatement') {
@@ -113,4 +106,5 @@ test('filters edits nested inside a reprinted function body', () => {
 
 	expect(coveredRanges).toHaveLength(2);
 	expect(edits).toHaveLength(1);
+	expect(edits[0].start).toBe(input.indexOf('(', input.indexOf('=>')));
 });
