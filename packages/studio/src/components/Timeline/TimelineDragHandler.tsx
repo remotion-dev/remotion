@@ -13,7 +13,10 @@ import {
 	getTimelineZoom,
 } from '../../helpers/get-timeline-max-zoom';
 import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -340,10 +343,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			captureTarget: dragging.target,
 			onMove: onPointerMoveScrubbing,
 			onEnd: (reason, endEvent) => {
-				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
-					endEvent
-				) {
+				if (isPointerSessionRelease(reason, endEvent)) {
 					onPointerUpScrubbing(endEvent);
 				} else {
 					onPointerCancelScrubbing();

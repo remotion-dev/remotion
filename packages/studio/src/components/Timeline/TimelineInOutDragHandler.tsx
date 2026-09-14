@@ -2,7 +2,10 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
@@ -322,10 +325,7 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 			captureTarget: inOutDragging.target,
 			onMove: onPointerMoveInOut,
 			onEnd: (reason, endEvent) => {
-				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
-					endEvent
-				) {
+				if (isPointerSessionRelease(reason, endEvent)) {
 					onPointerUpInOut(endEvent);
 				} else {
 					onPointerCancelInOut();

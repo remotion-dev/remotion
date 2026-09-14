@@ -7,6 +7,21 @@ export type PointerSessionEndReason =
 	| 'buttons-released'
 	| 'manual';
 
+export const isPointerSessionRelease = (
+	reason: PointerSessionEndReason,
+	event: PointerEvent | null,
+): event is PointerEvent => {
+	if (event === null) {
+		return false;
+	}
+
+	return (
+		reason === 'pointerup' ||
+		reason === 'buttons-released' ||
+		(reason === 'lostpointercapture' && event.buttons === 0)
+	);
+};
+
 type PointerSessionEvent = Pick<PointerEvent, 'button' | 'pointerId'>;
 
 const getButtonMask = (button: number) => {
