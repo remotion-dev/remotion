@@ -148,8 +148,8 @@ const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
 		!(newProp as string).startsWith('data:')
 	) {
 		return (
-			new URL(prevProp as string, window.origin).toString() !==
-			new URL(newProp as string, window.origin).toString()
+			new URL(prevProp as string, document.baseURI).toString() !==
+			new URL(newProp as string, document.baseURI).toString()
 		);
 	}
 
