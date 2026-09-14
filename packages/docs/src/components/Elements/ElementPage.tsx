@@ -197,6 +197,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						elementHeight={definition.elementHeight}
 						elementWidth={definition.elementWidth}
 						fps={fps}
+						htmlInCanvasFallbackVideoUrl={
+							definition.previewUsesHtmlInCanvas
+								? definition.preview.videoUrl
+								: null
+						}
 						previewLayout={definition.preview.previewLayout}
 						safeArea={definition.safeArea}
 					/>
