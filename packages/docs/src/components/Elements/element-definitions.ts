@@ -784,7 +784,7 @@ const elementImplementations = [
 		component: SocialSafeZones,
 		contributors: [],
 		description:
-			'Capture-calibrated safe-area guides for TikTok and Instagram Reels.',
+			'Preview TikTok and Instagram Reels interfaces to keep important content visible.',
 		dependencies: [],
 		durationInFrames: 120,
 		elementHeight: 1920,
@@ -800,7 +800,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/overlays-social-safe-zones-preview.mp4',
 		},
 		safeArea: 0,
-		initialProps: null,
+		initialProps: {platform: 'tiktok'},
 		installationMode: 'component-owned-sequence',
 		width: 1080,
 	},
