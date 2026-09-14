@@ -10,6 +10,8 @@ import {EditorShowRulersContext} from '../state/editor-rulers';
 import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 
+const buttonStyle: React.CSSProperties = {width: 26};
+
 export const RulersAndGuidesToggle: React.FC<{
 	readonly showGuides: boolean;
 }> = ({showGuides}) => {
@@ -63,6 +65,7 @@ export const RulersAndGuidesToggle: React.FC<{
 				}
 				aria-pressed={rulersOrGuidesAreVisible}
 				onClick={onClick}
+				style={buttonStyle}
 			>
 				{(color) => (
 					<svg

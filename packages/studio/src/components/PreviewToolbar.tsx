@@ -174,7 +174,6 @@ export const PreviewToolbar: React.FC<{
 					<PreviewToolbarControl>
 						<LoopToggle loop={loop} setLoop={setLoop} />
 					</PreviewToolbarControl>
-					<Spacing x={0.75} />
 					<PreviewToolbarControl>
 						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
@@ -192,29 +191,22 @@ export const PreviewToolbar: React.FC<{
 							<CheckboardToggle />
 						</PreviewToolbarControl>
 					)}
-					{isMobileLayout ? null : <Spacing x={0.25} />}
 					{isMobileLayout || !showCompositionControls ? null : (
 						<PreviewToolbarControl>
 							<OutlineToggle />
 						</PreviewToolbarControl>
 					)}
 					{isMobileLayout ? null : (
-						<>
-							{showCompositionControls ? <Spacing x={0.25} /> : null}
-							<PreviewToolbarControl>
-								<RulersAndGuidesToggle showGuides={showCompositionControls} />
-							</PreviewToolbarControl>
-						</>
+						<PreviewToolbarControl>
+							<RulersAndGuidesToggle showGuides={showCompositionControls} />
+						</PreviewToolbarControl>
 					)}
 					{readOnlyStudio ||
 					isMobileLayout ||
 					!showCompositionControls ? null : (
-						<>
-							<Spacing x={0.25} />
-							<PreviewToolbarControl>
-								<SnappingToggle />
-							</PreviewToolbarControl>
-						</>
+						<PreviewToolbarControl>
+							<SnappingToggle />
+						</PreviewToolbarControl>
 					)}
 				</>
 			) : null}
