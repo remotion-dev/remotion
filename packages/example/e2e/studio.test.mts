@@ -1728,6 +1728,10 @@ test.describe('visual mode', () => {
 			name: 'Install',
 			exact: true,
 		});
+		await expect(installButton).toBeVisible();
+		await expect(
+			captionsSkill.getByText('Not installed', {exact: true}),
+		).toHaveCount(0);
 		await installButton.click();
 		await expect(
 			dialog.getByText('Could not download skills', {exact: true}),

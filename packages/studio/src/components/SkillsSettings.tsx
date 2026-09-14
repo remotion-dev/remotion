@@ -206,7 +206,7 @@ export const SkillsSettings: React.FC = () => {
 									? 'Project'
 									: skill.installedGlobally
 										? 'Global'
-										: 'Not installed';
+										: null;
 
 						return (
 							<div
@@ -219,7 +219,9 @@ export const SkillsSettings: React.FC = () => {
 								}
 							>
 								<span style={skillName}>/{skill.name}</span>
-								<span style={status}>{installedLocation}</span>
+								{installedLocation ? (
+									<span style={status}>{installedLocation}</span>
+								) : null}
 								{installed ? (
 									<CheckCircleFilled
 										aria-hidden
