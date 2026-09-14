@@ -1789,6 +1789,16 @@ export const StudioDeviceFrame: React.FC<StudioReferenceProps> = ({
 			extrapolateRight: 'clamp',
 		},
 	);
+	const animatedResponsivenessProgress = interpolate(
+		frame,
+		[0, 90],
+		[1, responsivenessProgress],
+		{
+			easing: Easing.bezier(0.16, 1, 0.3, 1),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
 	const macBookWidth = deviceViewportWidth + bezelSize * 2;
 	const macBookHeight = viewportHeight + bezelSize * 2;
 
@@ -1825,7 +1835,7 @@ export const StudioDeviceFrame: React.FC<StudioReferenceProps> = ({
 						width={animatedViewportWidth}
 					>
 						<StudioReference
-							responsivenessProgress={responsivenessProgress}
+							responsivenessProgress={animatedResponsivenessProgress}
 							viewportWidth={animatedViewportWidth}
 						/>
 					</Sequence>
