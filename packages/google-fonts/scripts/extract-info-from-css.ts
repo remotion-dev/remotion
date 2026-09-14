@@ -32,6 +32,10 @@ const parseFontFace = (block: string) => {
 	const style = getValue(
 		lines.find((line) => line.trim().startsWith('font-style')) as string,
 	);
+	const stretchLine = lines.find((line) =>
+		line.trim().startsWith('font-stretch'),
+	);
+	const stretch = stretchLine ? getValue(stretchLine) : null;
 
 	const subset =
 		preliminarySubset ?? '[' + src?.match(/\.([0-9]+)\.woff/)![1] + ']';
@@ -41,7 +45,7 @@ const parseFontFace = (block: string) => {
 	if (!unicodeRange) throw Error('no unicodeRange');
 	if (!src) throw Error('no src');
 
-	return {fontFamily, src, unicodeRange, weight, style, subset};
+	return {fontFamily, src, unicodeRange, weight, style, stretch, subset};
 };
 
 export type FontInfo = {
@@ -52,6 +56,71 @@ export type FontInfo = {
 	unicodeRanges: Record<string, string>;
 	fonts: Record<string, Record<string, Record<string, string>>>;
 	subsets: string[];
+	variable?: {
+		axes: Record<string, {min: number; max: number}>;
+		fontFaces: {
+			style: string;
+			weight: string;
+			stretch: string | null;
+			subset: string;
+			unicodeRange: string;
+			src: string;
+		}[];
+		url: string;
+	};
+};
+
+export const extractVariableInfoFromCss = ({
+	axes,
+	contents,
+	url,
+}: {
+	axes: {tag: string; start: number; end: number}[];
+	contents: string;
+	url: string;
+}): NonNullable<FontInfo['variable']> => {
+	let remainingContents = contents;
+	const fontFaces: NonNullable<FontInfo['variable']>['fontFaces'] = [];
+
+	while (
+		remainingContents.match(/^\/\*(.*)/) ||
+		remainingContents.match(/^\@font-face/)
+	) {
+		const endIndex = remainingContents.indexOf('}');
+		const extractedContents = remainingContents.substring(
+			0,
+			endIndex === -1 ? Infinity : endIndex + 2,
+		);
+		remainingContents = remainingContents.substring(endIndex + 2).trim();
+		const {subset, unicodeRange, style, src, stretch, weight} =
+			parseFontFace(extractedContents);
+		fontFaces.push({
+			style,
+			weight,
+			stretch,
+			subset,
+			unicodeRange,
+			src,
+		});
+
+		if (endIndex === -1) {
+			break;
+		}
+	}
+
+	return {
+		axes: Object.fromEntries(
+			axes.map((axis) => [
+				axis.tag,
+				{
+					min: axis.start,
+					max: axis.end,
+				},
+			]),
+		),
+		fontFaces,
+		url,
+	};
 };
 
 export const extractInfoFromCss = ({

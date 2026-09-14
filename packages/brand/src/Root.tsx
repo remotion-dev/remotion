@@ -136,7 +136,12 @@ import {
 } from './video-elements/numbered-chapter';
 import {Prompt, PromptSchema} from './video-elements/Prompt';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
-import {StudioReference, studioReferenceSchema} from './video-elements/Studio';
+import {
+	StudioDeviceFrame,
+	StudioReference,
+	studioReferenceSchema,
+} from './video-elements/Studio';
+import {TextEditor, textEditorSchema} from './video-elements/TextEditor';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 import {
@@ -398,19 +403,86 @@ export const RemotionRoot: React.FC = () => {
 
 			<Folder name="VideoElements">
 				<Composition
+					id="TextEditorUI"
+					component={TextEditor}
+					durationInFrames={1}
+					fps={30}
+					width={1399}
+					height={1362}
+					schema={textEditorSchema}
+					defaultProps={{
+						code: `import {Video} from '@remotion/media';
+import {interpolate, useVideoConfig} from 'remotion';
+import {assetUrl} from './assets';
+import {SILENCES} from './Composition';
+import type {EndCardPlatform} from './EndCard';
+import {EndCard} from './EndCard';
+import {SlideInOverlay, useSlideInProgress} from './SlideInOverlay';
+
+const FILE = 'whats11.mov';
+
+export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
+	const {fps} = useVideoConfig();
+	const silence = SILENCES[FILE];
+	const trimBefore = Math.floor(silence.leadingEnd * fps);
+	const trimAfter = Math.ceil(silence.trailingStart * fps);
+	const sceneDuration = silence.trailingStart - silence.leadingEnd;
+
+	const overlayStartAt = sceneDuration - 7 - 1;
+	const overlayProgress = useSlideInProgress({
+		startAt: overlayStartAt,
+		holdDuration: 9999,
+	});
+	const videoX = interpolate(overlayProgress, [0, 1], [0, -20]);
+
+	return (
+		<>
+			<Video
+				style={{transform: \`translateX(\${videoX}%)\`}}
+				src={assetUrl(FILE)}
+				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+			/>
+			<SlideInOverlay startAt={overlayStartAt} holdDuration={9999}>
+				<EndCard platform={platform} />
+			</SlideInOverlay>
+		</>
+	);
+};
+`,
+						fileName: 'Scene11.tsx',
+						height: 1362,
+						highlightedLines: '39',
+						width: 1399,
+					}}
+					calculateMetadata={({props}) => ({height: props.height, width: props.width})}
+				/>
+				<Composition
 					id="StudioUI"
 					component={StudioReference}
 					durationInFrames={742}
 					fps={30}
-					width={1352}
-					height={760}
+					width={1600}
+					height={900}
 					schema={studioReferenceSchema}
 					defaultProps={{
-						viewportWidth: 1352,
-						showLeftSidebar: true,
-						showRightSidebar: true,
+						viewportWidth: 1600,
+						responsivenessProgress: 0,
 					}}
 					calculateMetadata={({props}) => ({width: props.viewportWidth})}
+				/>
+				<Composition
+					id="StudioUIDeviceFrame"
+					component={StudioDeviceFrame}
+					durationInFrames={742}
+					fps={30}
+					width={1920}
+					height={1080}
+					schema={studioReferenceSchema}
+					defaultProps={{
+						viewportWidth: 1600,
+						responsivenessProgress: 0,
+					}}
 				/>
 				<Composition
 					id="StepGuide"

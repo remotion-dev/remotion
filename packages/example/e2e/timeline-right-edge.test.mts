@@ -1,5 +1,5 @@
-import {expect, test} from '@playwright/test';
 import fs from 'fs';
+import {expect, test} from '@playwright/test';
 import {rootFile, STUDIO_URL} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
@@ -135,14 +135,20 @@ export const E2eTestRoot = () => <Composition id="timeline-edges" component={Lay
 		const movableLayer = page.locator(
 			'[data-timeline-marquee-item][title="Natural end"]',
 		);
+		const movableLayerLabel = page.locator(
+			'[data-remotion-sequence-reorder-row] [title="Natural end"]',
+		);
+		await movableLayerLabel.dblclick();
+		await expect.poll(() => openInEditorRequests.length).toBe(1);
+
 		await movableLayer.click({button: 'right', position: {x: 30, y: 10}});
 		const contextMenu = page.locator('[data-remotion-menu-tree-id]').last();
 		await expect(contextMenu).toBeVisible();
 		await movableLayer.click({position: {x: 30, y: 10}});
 		await expect(contextMenu).not.toBeVisible();
-		expect(openInEditorRequests).toHaveLength(0);
+		expect(openInEditorRequests).toHaveLength(1);
 		await movableLayer.dblclick({position: {x: 30, y: 10}});
-		await expect.poll(() => openInEditorRequests.length).toBe(1);
+		await expect.poll(() => openInEditorRequests.length).toBe(2);
 
 		const rightEdgeLayer = page.locator(
 			'[data-timeline-marquee-item][title="Explicit fill cutoff"]',
@@ -368,6 +374,38 @@ export const E2eTestRoot = () => <Composition id="timeline-edges" component={Lay
 				];
 			})
 			.toEqual([6, 12, 174, 168]);
+
+		const durationLayerLabel = page.locator(
+			'[data-remotion-sequence-reorder-row] [title="Duration cutoff"]',
+		);
+		await movableLayerLabel.scrollIntoViewIfNeeded();
+		await durationLayerLabel.scrollIntoViewIfNeeded();
+		const movableLayerLabelBox = await movableLayerLabel.boundingBox();
+		const durationLayerLabelBox = await durationLayerLabel.boundingBox();
+		if (movableLayerLabelBox === null || durationLayerLabelBox === null) {
+			throw new Error('Expected reorderable timeline labels to be visible');
+		}
+
+		await page.mouse.move(
+			movableLayerLabelBox.x + movableLayerLabelBox.width / 2,
+			movableLayerLabelBox.y + movableLayerLabelBox.height / 2,
+		);
+		await page.mouse.down();
+		await page.mouse.move(
+			durationLayerLabelBox.x + durationLayerLabelBox.width / 2,
+			durationLayerLabelBox.y + durationLayerLabelBox.height * 0.75,
+			{steps: 5},
+		);
+		await page.mouse.up();
+		await expect
+			.poll(() => {
+				const source = fs.readFileSync(rootFile, 'utf-8');
+				return (
+					source.indexOf('name="Natural end"') >
+					source.indexOf('name="Duration cutoff"')
+				);
+			})
+			.toBe(true);
 	} finally {
 		await stopStudio();
 	}

@@ -32,7 +32,7 @@ import {
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {startDeferredCapturedPointerSession} from '../../helpers/pointer-session';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -711,10 +711,10 @@ const TimelineSequenceItemInner: React.FC<{
 				},
 			});
 
-			stopSequencePointerSession.current = startCapturedPointerSession({
+			stopSequencePointerSession.current = startDeferredCapturedPointerSession({
 				captureTarget: sourceElement,
 				event: e.nativeEvent,
-				onMove: (pointerEvent) => {
+				onMove: (pointerEvent, capturePointer) => {
 					currentClientY = pointerEvent.clientY;
 					if (
 						!didDrag &&
@@ -728,6 +728,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 					if (!didDrag) {
 						didDrag = true;
+						capturePointer();
 						previousUserSelect = document.body.style.userSelect;
 						previousWebkitUserSelect = document.body.style.webkitUserSelect;
 						document.body.style.userSelect = 'none';

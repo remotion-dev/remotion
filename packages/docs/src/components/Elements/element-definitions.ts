@@ -26,7 +26,6 @@ import {
 	productCollectionDurationInFrames,
 } from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
-import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {Shine} from '../../../elements/commerce/shine/shine';
 import {Tear} from '../../../elements/commerce/tear/tear';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
@@ -34,6 +33,8 @@ import {LineChart} from '../../../elements/data/line-chart/line-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {PieChart} from '../../../elements/data/pie-chart/pie-chart';
 import {VerticalBarChart} from '../../../elements/data/vertical-bar-chart/vertical-bar-chart';
+import {PictureInPictureTransition} from '../../../elements/layouts/picture-in-picture-transition/picture-in-picture-transition';
+import {SlideToSplitScreen} from '../../../elements/layouts/slide-to-split-screen/slide-to-split-screen';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
@@ -484,31 +485,6 @@ const elementImplementations = [
 		width: 1080,
 	},
 	{
-		slug: 'commerce/product-offer',
-		component: ProductOffer,
-		contributors: [],
-		description:
-			'An animated product card with a bold title, catalog image, pricing, and discount.',
-		dependencies: [{name: '@remotion/google-fonts', version: null}],
-		durationInFrames: 150,
-		elementHeight: 900,
-		elementWidth: 900,
-		fps: 30,
-		height: 1080,
-		posterFrame: 75,
-		preview: {
-			previewLayout: 'composition',
-			posterUrl:
-				'https://remotion.media/elements/commerce-product-offer-preview.png',
-			videoUrl:
-				'https://remotion.media/elements/commerce-product-offer-preview.mp4',
-		},
-		safeArea: 90,
-		initialProps: null,
-		installationMode: 'wrapped',
-		width: 1080,
-	},
-	{
 		slug: 'commerce/shine',
 		component: Shine,
 		contributors: [],
@@ -677,6 +653,56 @@ const elementImplementations = [
 		width: 1920,
 	},
 	{
+		slug: 'layouts/picture-in-picture-transition',
+		component: PictureInPictureTransition,
+		contributors: [],
+		description:
+			'Animates an element from being fullscreen to being displayed in a box.',
+		dependencies: [],
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/layouts-picture-in-picture-transition-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/layouts-picture-in-picture-transition-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
+		slug: 'layouts/slide-to-split-screen',
+		component: SlideToSplitScreen,
+		contributors: [],
+		description:
+			'A fullscreen scene that opens into a 60/40 split-screen layout.',
+		dependencies: [],
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/layouts-slide-to-split-screen-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/layouts-slide-to-split-screen-preview.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
 		slug: 'maps/map-flyover',
 		component: MapFlyover,
 		contributors: [],
@@ -784,7 +810,7 @@ const elementImplementations = [
 		component: SocialSafeZones,
 		contributors: [],
 		description:
-			'Capture-calibrated safe-area guides for TikTok and Instagram Reels.',
+			'Preview TikTok and Instagram Reels interfaces to keep important content visible.',
 		dependencies: [],
 		durationInFrames: 120,
 		elementHeight: 1920,
@@ -800,7 +826,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/overlays-social-safe-zones-preview.mp4',
 		},
 		safeArea: 0,
-		initialProps: null,
+		initialProps: {platform: 'tiktok'},
 		installationMode: 'component-owned-sequence',
 		width: 1080,
 	},
