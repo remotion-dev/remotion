@@ -88,6 +88,7 @@ export const SlideInOverlay: React.FC<SlideInOverlayProps> = ({
 				backgroundColor,
 				overflow: 'hidden',
 			}}
+			showInTimeline={false}
 		>
 			{children}
 		</AbsoluteFill>
